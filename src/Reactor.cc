@@ -137,6 +137,28 @@ private:
 	Reactor& reactor;
 };
 
+class SaveMachineMemCommand : public SimpleCommand
+{
+public:
+	SaveMachineMemCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
+class LoadMachineMemCommand : public SimpleCommand
+{
+public:
+	LoadMachineMemCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
 class PollEventGenerator : private Alarm
 {
 public:
@@ -183,6 +205,8 @@ Reactor::Reactor()
 	, activateMachineCommand(new ActivateMachineCommand(getCommandController(), *this))
 	, saveMachineCommand(new SaveMachineCommand(getCommandController(), *this))
 	, loadMachineCommand(new LoadMachineCommand(getCommandController(), *this))
+	, saveMachineMemCommand(new SaveMachineMemCommand(getCommandController(), *this))
+	, loadMachineMemCommand(new LoadMachineMemCommand(getCommandController(), *this))
 	, aviRecordCommand(new AviRecorder(*this))
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
@@ -857,6 +881,70 @@ string LoadMachineCommand::help(const vector<string>& /*tokens*/) const
 }
 
 void LoadMachineCommand::tabCompletion(vector<string>& /*tokens*/) const
+{
+	// TODO
+}
+
+
+// class SaveMachineMemCommand   TODO temp code
+
+SaveMachineMemCommand::SaveMachineMemCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: SimpleCommand(commandController, "mem_savestate")
+	, reactor(reactor_)
+{
+}
+
+string SaveMachineMemCommand::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	Reactor::Board board = reactor.getMachine(tokens[1]);
+
+	reactor.snapshot.clear();
+	MemOutputArchive out(reactor.snapshot);
+	out.serialize("machine", *board);
+	return StringOp::toString(reactor.snapshot.size()); // size in bytes
+}
+
+string SaveMachineMemCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "TODO";
+}
+
+void SaveMachineMemCommand::tabCompletion(vector<string>& tokens) const
+{
+	set<string> ids;
+	reactor.getMachineIDs(ids);
+	completeString(tokens, ids);
+}
+
+
+// class LoadMachineMemCommand   TODO temp code
+
+LoadMachineMemCommand::LoadMachineMemCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: SimpleCommand(commandController, "mem_loadstate")
+	, reactor(reactor_)
+{
+}
+
+string LoadMachineMemCommand::execute(const vector<string>& /*tokens*/)
+{
+	Reactor::Board newBoard(new MSXMotherBoard(reactor));
+	MemInputArchive in(reactor.snapshot);
+	in.serialize("machine", *newBoard);
+	reactor.boards.push_back(newBoard);
+	return newBoard->getMachineID();
+}
+
+string LoadMachineMemCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "TODO";
+}
+
+void LoadMachineMemCommand::tabCompletion(vector<string>& /*tokens*/) const
 {
 	// TODO
 }

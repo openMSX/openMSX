@@ -147,7 +147,7 @@ template<typename Archive> class PolymorphicInitializerBase
 {
 public:
 	virtual ~PolymorphicInitializerBase() {}
-	virtual void init(Archive& ar, void* t) const = 0;
+	virtual void init(Archive& ar, void* t, unsigned id) const = 0;
 };
 
 template<typename Archive, typename T>
@@ -189,14 +189,14 @@ template<typename Archive, typename T>
 class PolymorphicInitializer : public PolymorphicInitializerBase<Archive>
 {
 public:
-	virtual void init(Archive& ar, void* v) const
+	virtual void init(Archive& ar, void* v, unsigned id) const
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
 		BaseType* base = static_cast<BaseType*>(v);
 		assert(dynamic_cast<T*>(base) == static_cast<T*>(base)); // TODO throw
 		T* t = static_cast<T*>(base);
 		ClassLoader<T> loader;
-		loader(ar, *t, make_tuple());
+		loader(ar, *t, make_tuple(), id);
 	}
 };
 
@@ -317,6 +317,8 @@ template<> struct PolymorphicConstructorArgs<C> \
 template<> struct PolymorphicConstructorArgs<C> \
 { typedef Tuple<T1,T2,T3> type; };
 
+class MemInputArchive;
+class MemOutputArchive;
 class XmlInputArchive;
 class XmlOutputArchive;
 
@@ -330,14 +332,18 @@ static RegisterLoaderHelper<MemInputArchive,   C> registerHelper5##C(N); \
 static RegisterSaverHelper <MemOutputArchive,  C> registerHelper6##C(N); \*/
 #define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
 STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
-static RegisterLoaderHelper<XmlInputArchive,   C> registerHelper3##C(N); \
-static RegisterSaverHelper <XmlOutputArchive,  C> registerHelper4##C(N); \
+static RegisterLoaderHelper<MemInputArchive,  C> registerHelper3##C(N); \
+static RegisterSaverHelper <MemOutputArchive, C> registerHelper4##C(N); \
+static RegisterLoaderHelper<XmlInputArchive,  C> registerHelper5##C(N); \
+static RegisterSaverHelper <XmlOutputArchive, C> registerHelper6##C(N); \
 template<> struct PolymorphicBaseClass<C> { typedef B type; };
 
 #define REGISTER_POLYMORPHIC_INITIALIZER_HELPER(B,C,N) \
 STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
-static RegisterInitializerHelper<XmlInputArchive, C> registerHelper3##C(N); \
-static RegisterSaverHelper <XmlOutputArchive,     C> registerHelper4##C(N); \
+static RegisterInitializerHelper<MemInputArchive,  C> registerHelper3##C(N); \
+static RegisterSaverHelper      <MemOutputArchive, C> registerHelper4##C(N); \
+static RegisterInitializerHelper<XmlInputArchive,  C> registerHelper5##C(N); \
+static RegisterSaverHelper      <XmlOutputArchive, C> registerHelper6##C(N); \
 template<> struct PolymorphicBaseClass<C> { typedef B type; };
 
 #define REGISTER_BASE_NAME_HELPER(B,N) \

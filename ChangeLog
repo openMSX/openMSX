@@ -1,6 +1,19 @@
 $Id$
 
 2008-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Enabled savestates to memory (as opposed to XML files):
+	   - Currently available via the 'mem_savestate' and 'mem_loadstate'
+	     commands, but this will still certainly change.
+	   - Speed seems to be quite good:
+	       savestate MSX1:          125us
+	                 MSX2:          310us
+	                 TurboR:        734us
+	                 boosted MSX2: 3770us
+	       This between 200 and 400 times faster than the XML savestates!
+	       So it seems to be fast enough to implement a 'reverse-time'
+	       feature.
+
+2008-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Serialize pluggables (WIP):
 	   Current code serializes all pluggables even those that are not
 	   plugged in. The available pluggables depends on the platform (e.g.

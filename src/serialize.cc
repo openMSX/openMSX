@@ -38,6 +38,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 	this->self().endTag(tag);
 }
 
+template class OutputArchiveBase<MemOutputArchive>;
 template class OutputArchiveBase<XmlOutputArchive>;
 
 ////
@@ -86,6 +87,7 @@ void InputArchiveBase<Derived>::addPointer(unsigned id, const void* p)
 	idMap[id] = const_cast<void*>(p);
 }
 
+template class InputArchiveBase<MemInputArchive>;
 template class InputArchiveBase<XmlInputArchive>;
 
 ////

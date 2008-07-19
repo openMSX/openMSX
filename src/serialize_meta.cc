@@ -40,6 +40,7 @@ PolymorphicSaverRegistry<Archive>::getSaver(TypeInfo typeInfo)
 	return *it->second;
 }
 
+template class PolymorphicSaverRegistry<MemOutputArchive>;
 template class PolymorphicSaverRegistry<XmlOutputArchive>;
 
 ////
@@ -74,6 +75,7 @@ PolymorphicLoaderRegistry<Archive>::getLoader(const std::string& type)
 	return *it->second;
 }
 
+template class PolymorphicLoaderRegistry<MemInputArchive>;
 template class PolymorphicLoaderRegistry<XmlInputArchive>;
 
 ////
@@ -108,6 +110,7 @@ PolymorphicInitializerRegistry<Archive>::getInitializer(const std::string& type)
 	return *it->second;
 }
 
+template class PolymorphicInitializerRegistry<MemInputArchive>;
 template class PolymorphicInitializerRegistry<XmlInputArchive>;
 
 } // namespace openmsx

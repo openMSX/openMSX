@@ -7,6 +7,7 @@
 #include "shared_ptr.hh"
 #include "type_traits.hh"
 #include <string>
+#include <cstring>
 #include <vector>
 #include <map>
 #include <sstream>
@@ -438,12 +439,15 @@ public:
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		this->self().beginTag(tag);
+		unsigned id;
+		this->self().attribute("id", id);
+		assert(id);
 		std::string type;
 		this->self().attribute("type", type);
 		const PolymorphicInitializerBase<Derived>& initializer =
 			PolymorphicInitializerRegistry<Derived>::instance().
 				getInitializer(type);
-		initializer.init(this->self(), &t);
+		initializer.init(this->self(), &t, id);
 		this->self().endTag(tag);
 	}
 
@@ -547,7 +551,7 @@ private:
 };
 */
 ////
-/*
+
 class MemOutputArchive : public OutputArchiveBase<MemOutputArchive>
 {
 public:
@@ -628,7 +632,7 @@ private:
 	const std::vector<char>& buffer;
 	unsigned pos;
 };
-*/
+
 ////
 
 class XmlOutputArchive : public OutputArchiveBase<XmlOutputArchive>
@@ -720,6 +724,8 @@ template void CLASS::serialize(MemOutputArchive&,  unsigned); \
 template void CLASS::serialize(XmlInputArchive&,   unsigned); \
 template void CLASS::serialize(XmlOutputArchive&,  unsigned); */
 #define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
+template void CLASS::serialize(MemInputArchive&,   unsigned); \
+template void CLASS::serialize(MemOutputArchive&,  unsigned); \
 template void CLASS::serialize(XmlInputArchive&,   unsigned); \
 template void CLASS::serialize(XmlOutputArchive&,  unsigned);
 

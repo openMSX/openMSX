@@ -41,6 +41,8 @@ class ListMachinesCommand;
 class ActivateMachineCommand;
 class SaveMachineCommand;
 class LoadMachineCommand;
+class SaveMachineMemCommand;
+class LoadMachineMemCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
@@ -139,10 +141,14 @@ private:
 	const std::auto_ptr<ActivateMachineCommand> activateMachineCommand;
 	const std::auto_ptr<SaveMachineCommand> saveMachineCommand;
 	const std::auto_ptr<LoadMachineCommand> loadMachineCommand;
+	const std::auto_ptr<SaveMachineMemCommand> saveMachineMemCommand;
+	const std::auto_ptr<LoadMachineMemCommand> loadMachineMemCommand;
 	const std::auto_ptr<AviRecorder> aviRecordCommand;
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
 	const std::auto_ptr<RealTimeInfo> realTimeInfo;
+
+	std::vector<char> snapshot; // TODO temp code
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock
@@ -174,6 +180,8 @@ private:
 	friend class ActivateMachineCommand;
 	friend class SaveMachineCommand;
 	friend class LoadMachineCommand;
+	friend class SaveMachineMemCommand;
+	friend class LoadMachineMemCommand;
 };
 
 } // namespace openmsx
