@@ -165,30 +165,23 @@ XmlInputArchive::XmlInputArchive(const string& filename)
 void XmlInputArchive::init(const XMLElement* e)
 {
 	elems.push_back(e);
-	const XMLElement::Children& children = e->getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		init(*it);
-	}
-	elems.push_back(e);
 }
 
 void XmlInputArchive::load(string& t)
 {
-	assert(elems[pos]->getChildren().empty());
-	t = elems[pos]->getData();
+	assert(elems.back()->getChildren().empty()); // throw
+	t = elems.back()->getData();
 }
 void XmlInputArchive::load(bool& b)
 {
-	assert(elems[pos]->getChildren().empty());
-	string s = elems[pos]->getData();
+	assert(elems.back()->getChildren().empty()); // throw
+	string s = elems.back()->getData();
 	if (s == "true") {
 		b = true;
 	} else if (s == "false") {
 		b = false;
 	} else {
-		// throw
-		assert(false);
+		assert(false); // throw
 	}
 }
 void XmlInputArchive::load(unsigned char& b)
@@ -206,29 +199,30 @@ void XmlInputArchive::load(signed char& c)
 
 void XmlInputArchive::beginTag(const string& tag)
 {
-	++pos;
-	assert(elems[pos]->getName() == tag);
-	(void)tag;
+	const XMLElement* child = elems.back()->findChild(tag);
+	assert(child); // throw
+	elems.push_back(child);
 }
 void XmlInputArchive::endTag(const string& tag)
 {
-	++pos;
-	assert(elems[pos]->getName() == tag);
-	(void)tag;
+	assert(elems.back()->getName() == tag); // throw
+	XMLElement* elem = const_cast<XMLElement*>(elems.back());
+	elem->setName(""); // mark this elem for later beginTag() calls
+	elems.pop_back();
 }
 
 void XmlInputArchive::attribute(const string& name, string& t)
 {
-	assert(elems[pos]->hasAttribute(name));
-	t = elems[pos]->getAttribute(name);
+	assert(hasAttribute(name)); // throw
+	t = elems.back()->getAttribute(name);
 }
 bool XmlInputArchive::hasAttribute(const string& name)
 {
-	return elems[pos]->hasAttribute(name);
+	return elems.back()->hasAttribute(name);
 }
 int XmlInputArchive::countChildren() const
 {
-	return elems[pos]->getChildren().size();
+	return elems.back()->getChildren().size();
 }
 
 } // namespace openmsx
