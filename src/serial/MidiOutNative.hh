@@ -37,7 +37,7 @@ private:
 	std::string desc;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Mouse, "Mouse");
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutNative, "MidiOutNative");
 
 } // namespace openmsx
 
