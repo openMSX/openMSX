@@ -162,7 +162,7 @@ public:
 	{
 		ClassSaver<T> saver;
 		const T* tp = static_cast<const T*>(p);
-		saver(ar, *tp, name, true, true); // save type, id, constr-args
+		saver(ar, *tp, true, name, true); // save id, type, constr-args
 	}
 private:
 	const std::string name;

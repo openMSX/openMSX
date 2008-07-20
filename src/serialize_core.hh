@@ -261,10 +261,12 @@ template<typename T, int N> struct serialize_as_collection<T[N]> : is_true
 //   template<typename Archive> void operator()(Archive& ar, const T& t)
 //     'ar' is archive where the serialized stream will go
 //     't'  is the to-be-saved object
+//     'saveId' Should ID be saved
 
 template<typename T> struct PrimitiveSaver
 {
-	template<typename Archive> void operator()(Archive& ar, const T& t)
+	template<typename Archive> void operator()(Archive& ar, const T& t,
+	                                           bool /*saveId*/)
 	{
 		STATIC_ASSERT(is_primitive<T>::value);
 		ar.save(t);
@@ -272,7 +274,8 @@ template<typename T> struct PrimitiveSaver
 };
 template<typename T> struct EnumSaver
 {
-	template<typename Archive> void operator()(Archive& ar, const T& t)
+	template<typename Archive> void operator()(Archive& ar, const T& t,
+	                                           bool /*saveId*/)
 	{
 		if (ar.translateEnumToString()) {
 			serialize_as_enum<T> sae;
@@ -286,8 +289,8 @@ template<typename T> struct EnumSaver
 template<typename T> struct ClassSaver
 {
 	template<typename Archive> void operator()(
-		Archive& ar, const T& t, const std::string& type = "",
-		bool saveId = true, bool saveConstrArgs = false)
+		Archive& ar, const T& t, bool saveId,
+		const std::string& type = "", bool saveConstrArgs = false)
 	{
 		// Order is important (for non-xml archives). We use this order:
 		//    - id
@@ -332,7 +335,8 @@ template<typename T> struct ClassSaver
 template<typename TP> struct PointerSaver
 {
 	// note: we only support pointer to class
-	template<typename Archive> void operator()(Archive& ar, const TP& tp2)
+	template<typename Archive> void operator()(Archive& ar, const TP& tp2,
+	                                           bool /*saveId*/)
 	{
 		STATIC_ASSERT(serialize_as_pointer<TP>::value);
 		typedef typename serialize_as_pointer<TP>::type T;
@@ -355,7 +359,7 @@ template<typename TP> struct PointerSaver
 				ClassSaver<T> saver;
 				// don't store type
 				// store id, constr-args
-				saver(ar, *tp, "", true, true);
+				saver(ar, *tp, true, "", true);
 			}
 		}
 	}
@@ -379,7 +383,8 @@ template<typename TP> struct IDSaver
 };
 template<typename TC> struct CollectionSaver
 {
-	template<typename Archive> void operator()(Archive& ar, const TC& tc)
+	template<typename Archive> void operator()(Archive& ar, const TC& tc,
+	                                           bool saveId)
 	{
 		typedef serialize_as_collection<TC> sac;
 		STATIC_ASSERT(sac::value);
@@ -395,7 +400,11 @@ template<typename TC> struct CollectionSaver
 			ar.serialize("size", n);
 		}
 		for (/**/; begin != end; ++begin) {
-			ar.serialize("item", *begin);
+			if (saveId) {
+				ar.serialize("item", *begin);
+			} else {
+				ar.serializeNoID("item", *begin);
+			}
 		}
 	}
 };
@@ -429,11 +438,12 @@ template<typename T> struct Saver
 //          the correct data.
 //     'args' (Only used by PointerLoader) holds extra parameters used
 //            to construct objects.
+//     'id' Used to skip loading an ID, see comment in ClassLoader
 
 template<typename T> struct PrimitiveLoader
 {
 	template<typename Archive, typename TUPLE>
-	void operator()(Archive& ar, T& t, TUPLE /*args*/)
+	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
 		STATIC_ASSERT(TUPLE::NUM == 0);
 		ar.load(t);
@@ -442,7 +452,7 @@ template<typename T> struct PrimitiveLoader
 template<typename T> struct EnumLoader
 {
 	template<typename Archive, typename TUPLE>
-	void operator()(Archive& ar, T& t, TUPLE /*args*/)
+	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
 		STATIC_ASSERT(TUPLE::NUM == 0);
 		if (ar.translateEnumToString()) {
@@ -550,7 +560,7 @@ template<typename T> struct PointerLoader2
 template<typename TP> struct PointerLoader
 {
 	template<typename Archive, typename GlobalTuple>
-	void operator()(Archive& ar, TP& tp2, GlobalTuple globalArgs)
+	void operator()(Archive& ar, TP& tp2, GlobalTuple globalArgs, int /*id*/)
 	{
 		STATIC_ASSERT(serialize_as_pointer<TP>::value);
 		// in XML archives we use 'id_ref' or 'id', in other archives
@@ -605,8 +615,9 @@ template<typename TP> struct IDLoader
 template<typename TC> struct CollectionLoader
 {
 	template<typename Archive, typename TUPLE>
-	void operator()(Archive& ar, TC& tc, TUPLE args)
+	void operator()(Archive& ar, TC& tc, TUPLE args, int id = 0)
 	{
+		assert((id == 0) || (id == -1));
 		typedef serialize_as_collection<TC> sac;
 		STATIC_ASSERT(sac::value);
 		typedef typename sac::output_iterator output_iterator;
@@ -629,7 +640,7 @@ template<typename TC> struct CollectionLoader
 			//   For std::vector this is not a problem, but it
 			//   might be for arrays or lists.
 			typename sac::value_type elem;
-			ar.doSerialize("item", elem, args);
+			ar.doSerialize("item", elem, args, id);
 			*it = elem;
 		}
 	}

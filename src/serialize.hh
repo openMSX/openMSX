@@ -285,7 +285,7 @@ public:
 	{
 		this->self().beginTag(tag);
 		Saver<T> saver;
-		saver(this->self(), t);
+		saver(this->self(), t, true);
 		this->self().endTag(tag);
 	}
 	// 3 methods below implement 'global constructor arguments'. Though
@@ -316,7 +316,7 @@ public:
 	{
 		this->self().beginTag(tag);
 		Saver<T> saver;
-		saver(this->self(), t, "", false);
+		saver(this->self(), t, false);
 		this->self().endTag(tag);
 	}
 	template<typename T> void serializePointerID(const char* tag, const T& t)
@@ -475,13 +475,13 @@ public:
 
 	// Actual loader method. Heavy lifting is done in the Loader class.
 	template<typename T, typename TUPLE>
-	void doSerialize(const char* tag, T& t, TUPLE args)
+	void doSerialize(const char* tag, T& t, TUPLE args, int id = 0)
 	{
 		this->self().beginTag(tag);
 		typedef typename remove_const<T>::type TNC;
 		TNC& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
-		loader(this->self(), tnc, args);
+		loader(this->self(), tnc, args, id);
 		this->self().endTag(tag);
 	}
 

@@ -34,7 +34,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 	this->self().beginTag(tag);
 	this->self().attribute("encoding", encoding);
 	Saver<string> saver;
-	saver(this->self(), tmp);
+	saver(this->self(), tmp, false);
 	this->self().endTag(tag);
 }
 
@@ -58,7 +58,7 @@ void InputArchiveBase<Derived>::serialize_blob(
 
 	string tmp;
 	Loader<string> loader;
-	loader(this->self(), tmp, make_tuple());
+	loader(this->self(), tmp, make_tuple(), -1);
 	this->self().endTag(tag);
 
 	string tmp2;

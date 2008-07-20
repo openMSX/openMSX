@@ -57,18 +57,17 @@ const EmuTime& Schedulable::getCurrentTime() const
 template <typename Archive>
 void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 {
+	Scheduler::SyncPoints syncPoints;
+	if (!ar.isLoader()) {
+		scheduler.getSyncPoints(syncPoints, *this);
+	}
+	ar.serializeNoID("syncPoints", syncPoints); // no id because local var
 	if (ar.isLoader()) {
 		removeSyncPoints();
-		Scheduler::SyncPoints syncPoints;
-		ar.serialize("syncPoints", syncPoints);
 		for (Scheduler::SyncPoints::const_iterator it = syncPoints.begin();
 		     it != syncPoints.end(); ++it) {
 			setSyncPoint(it->getTime(), it->getUserData());
 		}
-	} else {
-		Scheduler::SyncPoints syncPoints;
-		scheduler.getSyncPoints(syncPoints, *this);
-		ar.serialize("syncPoints", syncPoints);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Schedulable);
