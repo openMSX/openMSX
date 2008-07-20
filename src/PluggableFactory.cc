@@ -18,8 +18,8 @@
 #include "RS232Tester.hh"
 #include "WavAudioInput.hh"
 #if	defined(_WIN32)
-#include "MidiInNative.hh"
-#include "MidiOutNative.hh"
+#include "MidiInWindows.hh"
+#include "MidiOutWindows.hh"
 #endif
 
 
@@ -66,8 +66,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(new MidiInReader(
 		eventDistributor, scheduler, commandController));
 #if defined(_WIN32)
-	MidiInNative::registerAll(eventDistributor, scheduler, controller);
-	MidiOutNative::registerAll(controller);
+	MidiInWindows::registerAll(eventDistributor, scheduler, controller);
+	MidiOutWindows::registerAll(controller);
 #endif
 
 	// Printers

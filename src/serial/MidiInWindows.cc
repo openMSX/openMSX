@@ -1,7 +1,7 @@
 // $Id$
 
 #if defined(_WIN32)
-#include "MidiInNative.hh"
+#include "MidiInWindows.hh"
 #include "MidiInConnector.hh"
 #include "PluggingController.hh"
 #include "PlugException.hh"
@@ -24,7 +24,7 @@ using std::string;
 
 namespace openmsx {
 
-void MidiInNative::registerAll(EventDistributor& eventDistributor,
+void MidiInWindows::registerAll(EventDistributor& eventDistributor,
                                Scheduler& scheduler,
                                PluggingController& controller)
 {
@@ -32,12 +32,12 @@ void MidiInNative::registerAll(EventDistributor& eventDistributor,
 	unsigned devnum = w32_midiInGetVFNsNum();
 	for (unsigned i = 0 ; i <devnum; ++i) {
 		controller.registerPluggable(
-			new MidiInNative(eventDistributor, scheduler, i));
+			new MidiInWindows(eventDistributor, scheduler, i));
 	}
 }
 
 
-MidiInNative::MidiInNative(EventDistributor& eventDistributor_,
+MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, thread(this), devidx(unsigned(-1)), lock(1)
@@ -45,18 +45,18 @@ MidiInNative::MidiInNative(EventDistributor& eventDistributor_,
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
 
-	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_NATIVE_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_WINDOWS_EVENT, *this);
 }
 
-MidiInNative::~MidiInNative()
+MidiInWindows::~MidiInWindows()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_NATIVE_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_WINDOWS_EVENT, *this);
 
 	//w32_midiInClean(); // TODO
 }
 
 // Pluggable
-void MidiInNative::plugHelper(Connector& connector_, const EmuTime& time)
+void MidiInWindows::plugHelper(Connector& connector_, const EmuTime& time)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
 	if (devidx == unsigned(-1)) {
@@ -73,7 +73,7 @@ void MidiInNative::plugHelper(Connector& connector_, const EmuTime& time)
 	thread.start();
 }
 
-void MidiInNative::unplugHelper(const EmuTime& time)
+void MidiInWindows::unplugHelper(const EmuTime& time)
 {
 	ScopedLock l(lock);
 	thread.stop();
@@ -83,17 +83,17 @@ void MidiInNative::unplugHelper(const EmuTime& time)
 	}
 }
 
-const string& MidiInNative::getName() const
+const string& MidiInWindows::getName() const
 {
 	return name;
 }
 
-const string& MidiInNative::getDescription() const
+const string& MidiInWindows::getDescription() const
 {
 	return desc;
 }
 
-void MidiInNative::procLongMsg(LPMIDIHDR p)
+void MidiInWindows::procLongMsg(LPMIDIHDR p)
 {
 	if (p->dwBytesRecorded) {
 		ScopedLock l(lock);
@@ -101,11 +101,11 @@ void MidiInNative::procLongMsg(LPMIDIHDR p)
 			queue.push_back(p->lpData[i]);
 		}
 		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>());
+			new SimpleEvent<OPENMSX_MIDI_IN_WINDOWS_EVENT>());
 	}
 }
 
-void MidiInNative::procShortMsg(DWORD param)
+void MidiInWindows::procShortMsg(DWORD param)
 {
 	int num;
 	switch (param & 0xF0) {
@@ -122,11 +122,11 @@ void MidiInNative::procShortMsg(DWORD param)
 		param >>= 8;
 	}
 	eventDistributor.distributeEvent(
-		new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>());
+		new SimpleEvent<OPENMSX_MIDI_IN_WINDOWS_EVENT>());
 }
 
 // Runnable
-void MidiInNative::run()
+void MidiInWindows::run()
 {
 	assert(getConnector());
 	thrdid = SDL_ThreadID();
@@ -161,7 +161,7 @@ void MidiInNative::run()
 }
 
 // MidiInDevice
-void MidiInNative::signal(const EmuTime& time)
+void MidiInWindows::signal(const EmuTime& time)
 {
 	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
@@ -178,7 +178,7 @@ void MidiInNative::signal(const EmuTime& time)
 }
 
 // EventListener
-bool MidiInNative::signalEvent(shared_ptr<const Event> /*event*/)
+bool MidiInWindows::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (getConnector()) {
 		signal(scheduler.getCurrentTime());
@@ -190,11 +190,11 @@ bool MidiInNative::signalEvent(shared_ptr<const Event> /*event*/)
 }
 
 template<typename Archive>
-void MidiInNative::serialize(Archive& /*ar*/, unsigned /*version*/)
+void MidiInWindows::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 	// don't restore this after loadstate
 }
-INSTANTIATE_SERIALIZE_METHODS(MidiInNative);
+INSTANTIATE_SERIALIZE_METHODS(MidiInWindows);
 
 } // namespace openmsx
 

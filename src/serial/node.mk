@@ -10,7 +10,7 @@ SRC_HDR:= \
 	YM2148 \
 	MidiInDevice DummyMidiInDevice MidiInConnector MidiInReader \
 	MidiOutDevice DummyMidiOutDevice MidiOutConnector MidiOutLogger \
-	MidiInNative MidiOutNative Midi_w32 \
+	MidiInWindows MidiOutWindows Midi_w32 \
 	RS232Connector RS232Device MSXRS232 DummyRS232Device RS232Tester
 
 HDR_ONLY:= \

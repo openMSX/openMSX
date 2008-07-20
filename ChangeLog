@@ -1,6 +1,9 @@
 $Id$
 
-2008-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2008-07-20 Manuel Bilderbeek <manuel@msxnet.org>
+	* Renamed Midi{In,Out}Native to Midi{In,Out}Windows (untested!)
+
+2008-07-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enabled savestates to memory (as opposed to XML files):
 	   - Currently available via the 'mem_savestate' and 'mem_loadstate'
 	     commands, but this will still certainly change.

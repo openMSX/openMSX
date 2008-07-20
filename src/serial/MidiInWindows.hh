@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef MIDIINNATIVE_HH
-#define MIDIINNATIVE_HH
+#ifndef MIDIINWINDOWS_HH
+#define MIDIINWINDOWS_HH
 
 #if defined(_WIN32)
 
@@ -26,18 +26,18 @@ class EventDistributor;
 class Scheduler;
 class PluggingController;
 
-class MidiInNative : public MidiInDevice, private Runnable, private EventListener
+class MidiInWindows : public MidiInDevice, private Runnable, private EventListener
 {
 public:
-	/** Register all available native midi in devcies
+	/** Register all available native Windows midi in devices
 	  */
 	static void registerAll(EventDistributor& eventDistributor,
 	                        Scheduler& scheduler,
 	                        PluggingController& controller);
 
-	MidiInNative(EventDistributor& eventDistributor, Scheduler& scheduler,
+	MidiInWindows(EventDistributor& eventDistributor, Scheduler& scheduler,
 	             unsigned num);
-	virtual ~MidiInNative();
+	virtual ~MidiInWindows();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, const EmuTime& time);
@@ -72,10 +72,10 @@ private:
 	std::string desc;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInNative, "MidiInNative");
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInWindows, "MidiInWindows");
 
 } // namespace openmsx
 
 #endif // defined(_WIN32)
-#endif // MIDIINNATIVE_HH
+#endif // MIDIINWINDOWS_HH
 

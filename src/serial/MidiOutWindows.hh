@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef MIDIOUTNATIVE_HH
-#define MIDIOUTNATIVE_HH
+#ifndef MIDIOUTWINDOWS_HH
+#define MIDIOUTWINDOWS_HH
 
 #if defined(_WIN32)
 #include "MidiOutDevice.hh"
@@ -11,13 +11,13 @@ namespace openmsx {
 
 class PluggingController;
 
-class MidiOutNative : public MidiOutDevice
+class MidiOutWindows : public MidiOutDevice
 {
 public:
 	static void registerAll(PluggingController& controller);
 
-	explicit MidiOutNative(unsigned num);
-	virtual ~MidiOutNative();
+	explicit MidiOutWindows(unsigned num);
+	virtual ~MidiOutWindows();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, const EmuTime& time);
@@ -37,9 +37,9 @@ private:
 	std::string desc;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutNative, "MidiOutNative");
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutWindows, "MidiOutWindows");
 
 } // namespace openmsx
 
 #endif // defined(_WIN32)
-#endif // MIDIOUTNATIVE_HH
+#endif // MIDIOUTWINDOWS_HH
