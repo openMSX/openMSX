@@ -2,6 +2,8 @@ $Id$
 
 2008-07-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed Midi{In,Out}Native to Midi{In,Out}Windows (untested!)
+	* Made save/loadstate commands a bit more comfortable, so we can
+	  easier test this stuff :)
 
 2008-07-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enabled savestates to memory (as opposed to XML files):

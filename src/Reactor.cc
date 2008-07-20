@@ -33,6 +33,8 @@
 #include "serialize.hh"
 #include <cassert>
 #include <memory>
+#include <sys/stat.h>
+#include <iostream>
 
 using std::string;
 using std::vector;
@@ -834,19 +836,38 @@ SaveMachineCommand::SaveMachineCommand(
 
 string SaveMachineCommand::execute(const vector<string>& tokens)
 {
-	if (tokens.size() != 2) {
+	string filename;
+	string machineID;
+	switch (tokens.size()) {
+	case 1:
+		machineID = reactor.getMachineID();
+		filename = FileOperations::getNextNumberedFileName("savestates", "openmsxstate", ".xml.gz");
+		break;
+	case 2:
+		machineID = tokens[1];
+		filename = FileOperations::getNextNumberedFileName("savestates", "openmsxstate", ".xml.gz");
+		break;
+	case 3:
+		machineID = tokens[1];
+		filename = tokens[2];
+		break;
+	default:
 		throw SyntaxError();
 	}
-	Reactor::Board board = reactor.getMachine(tokens[1]);
 
-	XmlOutputArchive out("openmsx.xml"); // TODO
+	Reactor::Board board = reactor.getMachine(machineID);
+
+	XmlOutputArchive out(filename);
 	out.serialize("machine", *board);
-	return ""; //TODO
+	return filename;
 }
 
 string SaveMachineCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "TODO";
+	return
+		"savestate                       Save state of current machine to file \"openmsxNNNN.xml.gz\"\n"
+		"savestate machineID             Save state of machine \"machineID\" to file \"openmsxNNNN.xml.gz\"\n"
+                "savestate machineID <filename>  Save state of machine \"machineID\" to indicated file\n";
 }
 
 void SaveMachineCommand::tabCompletion(vector<string>& tokens) const
@@ -866,10 +887,45 @@ LoadMachineCommand::LoadMachineCommand(
 {
 }
 
-string LoadMachineCommand::execute(const vector<string>& /*tokens*/)
+string LoadMachineCommand::execute(const vector<string>& tokens)
 {
 	Reactor::Board newBoard(new MSXMotherBoard(reactor));
-	XmlInputArchive in("openmsx.xml.gz"); // TODO
+
+	string filename;
+	string machineID;
+	switch (tokens.size()) {
+	case 1: { // add an extra scope to avoid case label jump problems
+		// load last saved entry
+		struct stat st;
+		string dirName = FileOperations::getUserOpenMSXDir() + "/" + "savestates" + "/";
+		string lastEntry = "";
+		time_t lastTime = 0;
+		ReadDir dir(dirName.c_str());
+		while (dirent* d = dir.getEntry()) {
+			int res = stat((dirName + string(d->d_name)).c_str(), &st);
+			if ((res == 0) && S_ISREG(st.st_mode)) {
+				time_t modTime = st.st_mtime;
+				if (modTime > lastTime) {
+					lastEntry = string(d->d_name);
+					lastTime = modTime;
+				}
+			}
+		}
+		if (lastEntry == "") {
+			throw CommandException("Can't find last saved state.");
+		}
+		filename = dirName + lastEntry;
+		}
+		break;
+	case 2:
+		filename = tokens[1];
+		break;
+	default:
+		throw SyntaxError();
+	}
+
+	//std::cerr << "Loading " << filename << std::endl;
+	XmlInputArchive in(filename);
 	in.serialize("machine", *newBoard);
 	reactor.boards.push_back(newBoard);
 	return newBoard->getMachineID();
@@ -877,12 +933,17 @@ string LoadMachineCommand::execute(const vector<string>& /*tokens*/)
 
 string LoadMachineCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "TODO";
+	return
+		"loadstate                       Load state from last saved state in default directory\n"
+		"loadstate <filename>            Load state from indicated file\n";
 }
 
-void LoadMachineCommand::tabCompletion(vector<string>& /*tokens*/) const
+void LoadMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	// TODO
+	set<string> defaults;
+	// TODO: put the default files in defaults (state files in user's savestates dir)
+	UserFileContext context;
+	completeFileName(getCommandController(), tokens, context, defaults);
 }
 
 

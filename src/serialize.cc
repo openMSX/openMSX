@@ -95,7 +95,7 @@ template class InputArchiveBase<XmlInputArchive>;
 XmlOutputArchive::XmlOutputArchive(const string& filename)
 	: current(new XMLElement("serial"))
 {
-	file = gzopen((filename + ".gz").c_str(), "wb9");
+	file = gzopen(filename.c_str(), "wb9");
 	assert(file); // TODO
 }
 
