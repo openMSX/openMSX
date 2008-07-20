@@ -16,6 +16,7 @@ AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 {
 	transferRead = false;
 	transferWrite = false;
+	transferIdx = 0;
 }
 
 AbstractIDEDevice::~AbstractIDEDevice()
@@ -163,6 +164,7 @@ void AbstractIDEDevice::writeReg(
 
 word AbstractIDEDevice::readData(const EmuTime& /*time*/)
 {
+	assert(transferIdx < sizeof(buffer));
 	if (!transferRead) {
 		// no read in progress
 		return 0x7F7F;
@@ -196,6 +198,7 @@ void AbstractIDEDevice::readNextBlock()
 
 void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 {
+	assert(transferIdx < sizeof(buffer));
 	if (!transferWrite) {
 		// no write in progress
 		return;

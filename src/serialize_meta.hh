@@ -158,10 +158,12 @@ public:
 		: name(name_)
 	{
 	}
-	virtual void save(Archive& ar, const void* p) const
+	virtual void save(Archive& ar, const void* v) const
 	{
+		typedef typename PolymorphicBaseClass<T>::type BaseType;
+		const BaseType* base = static_cast<const BaseType*>(v);
+		const T* tp = static_cast<const T*>(base);
 		ClassSaver<T> saver;
-		const T* tp = static_cast<const T*>(p);
 		saver(ar, *tp, true, name, true); // save id, type, constr-args
 	}
 private:
