@@ -21,12 +21,13 @@ public:
 	virtual ~HD();
 
 	const std::string& getName() const;
+	const std::string& getImageName() const;
+	void switchImage(const std::string& filename_);
 
 protected:
 	void readFromImage(unsigned offset, unsigned size, byte* buf);
 	void writeToImage (unsigned offset, unsigned size, const byte* buf);
 	unsigned getImageSize() const;
-	std::string getImageURL();
 	bool isImageReadOnly();
 
 private:
@@ -35,7 +36,6 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::string name;
 	std::auto_ptr<HDCommand> hdCommand;
-	friend class HDCommand;
 
 	std::auto_ptr<File> file;
 	std::string filename;

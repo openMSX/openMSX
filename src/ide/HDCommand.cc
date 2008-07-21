@@ -9,7 +9,6 @@
 #include "CommandException.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
-#include "CliComm.hh"
 #include "TclObject.hh"
 #include <set>
 
@@ -23,11 +22,10 @@ using std::set;
 
 HDCommand::HDCommand(CommandController& commandController,
                      MSXEventDistributor& msxEventDistributor,
-                     Scheduler& scheduler, CliComm& cliComm_, HD& hd_)
+                     Scheduler& scheduler, HD& hd_)
 	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, hd_.getName())
 	, hd(hd_)
-	, cliComm(cliComm_)
 {
 }
 
@@ -36,7 +34,7 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 {
 	if (tokens.size() == 1) {
 		result.addListElement(hd.getName() + ':');
-		result.addListElement(hd.file->getURL());
+		result.addListElement(hd.getImageName());
 		// TODO: add write protected flag when this is implemented
 		// result.addListElement("readonly");
 	} else if ((tokens.size() == 2) ||
@@ -61,9 +59,7 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 			UserFileContext context;
 			string filename = context.resolve(
 				controller, tokens[fileToken]->getString());
-			std::auto_ptr<File> newFile(new File(filename));
-			hd.file = newFile;
-			cliComm.update(CliComm::MEDIA, hd.getName(), filename);
+			hd.switchImage(filename);
 			// Note: the diskX command doesn't do this either,
 			// so this has not been converted to TclObject style here
 			// return filename;

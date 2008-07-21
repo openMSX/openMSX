@@ -58,7 +58,7 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	hdCommand.reset(new HDCommand(motherBoard.getCommandController(),
 	                              motherBoard.getMSXEventDistributor(),
 	                              motherBoard.getScheduler(),
-	                              motherBoard.getMSXCliComm(), *this));
+	                              *this));
 
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
@@ -84,9 +84,14 @@ HD::~HD()
 	}
 }
 
-const std::string& HD::getName() const
+const string& HD::getName() const
 {
 	return name;
+}
+
+const string& HD::getImageName() const
+{
+	return filename;
 }
 
 void HD::openImage()
@@ -108,6 +113,14 @@ void HD::openImage()
 	}
 }
 
+void HD::switchImage(const string& filename_)
+{
+	file.reset(new File(filename_));
+	filename = filename_;
+	filesize = file->getSize();
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(), filename);
+}
+
 void HD::readFromImage(unsigned offset, unsigned size, byte* buf)
 {
 	openImage();
@@ -115,7 +128,7 @@ void HD::readFromImage(unsigned offset, unsigned size, byte* buf)
 	file->read(buf, size);
 }
 
-void HD::writeToImage (unsigned offset, unsigned size, const byte* buf)
+void HD::writeToImage(unsigned offset, unsigned size, const byte* buf)
 {
 	openImage();
 	file->seek(offset);
@@ -124,13 +137,8 @@ void HD::writeToImage (unsigned offset, unsigned size, const byte* buf)
 
 unsigned HD::getImageSize() const
 {
+	const_cast<HD&>(*this).openImage();
 	return filesize;
-}
-
-std::string HD::getImageURL()
-{
-	openImage();
-	return file->getURL();
 }
 
 bool HD::isImageReadOnly()
