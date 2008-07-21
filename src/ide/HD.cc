@@ -9,6 +9,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "HDCommand.hh"
+#include "serialize.hh"
 #include <bitset>
 #include <cassert>
 
@@ -146,5 +147,20 @@ bool HD::isImageReadOnly()
 	openImage();
 	return file->isReadOnly();
 }
+
+template<typename Archive>
+void HD::serialize(Archive& ar, unsigned version)
+{
+	string tmp = file.get() ? filename : "";
+	ar.serialize("filename", tmp);
+	if (ar.isLoader()) {
+		if (tmp.empty()) {
+			// lazily open file specified in config
+		} else {
+			switchImage(tmp);
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(HD);
 
 } // namespace openmsx

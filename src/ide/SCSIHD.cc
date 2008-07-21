@@ -638,8 +638,9 @@ const std::string& SCSIHD::getContainerName() const
 template<typename Archive>
 void SCSIHD::serialize(Archive& ar, unsigned /*version*/)
 {
-	// don't serialize SCSIDevice, HD, SectorAccessibleDisk, DiskContainer
+	// don't serialize SCSIDevice, SectorAccessibleDisk, DiskContainer
 	// base classes
+	ar.template serializeBase<HD>(*this);
 	ar.serialize("keycode", keycode);
 	ar.serialize("currentSector", currentSector);
 	ar.serialize("currentLength", currentLength);

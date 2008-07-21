@@ -150,7 +150,8 @@ const std::string& IDEHD::getContainerName() const
 template<typename Archive>
 void IDEHD::serialize(Archive& ar, unsigned /*version*/)
 {
-	// don't serialize HD, SectorAccessibleDisk, DiskContainer base classes
+	// don't serialize SectorAccessibleDisk, DiskContainer base classes
+	ar.template serializeBase<HD>(*this);
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 	ar.serialize("transferSectorNumber", transferSectorNumber);
 }
