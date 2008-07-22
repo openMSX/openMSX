@@ -314,6 +314,16 @@ void RealDrive::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("motorStatus", motorStatus);
 	ar.serialize("headLoadStatus", headLoadStatus);
 	ar.serialize("timeOut", timeOut);
+	if (ar.isLoader()) {
+		// This is a workaround for the fact that we can have multiple drives
+		// (and only one is on), in which case the 2nd drive will turn off the
+		// LED again which the first drive just turned on. TODO: fix by modelling
+		// individual drive LEDs properly. See also
+		// http://sourceforge.net/tracker/index.php?func=detail&aid=1540929&group_id=38274&atid=421864
+		if (motorStatus) {
+			motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(RealDrive);
 
