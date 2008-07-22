@@ -149,7 +149,7 @@ bool HD::isImageReadOnly()
 }
 
 template<typename Archive>
-void HD::serialize(Archive& ar, unsigned version)
+void HD::serialize(Archive& ar, unsigned /*version*/)
 {
 	string tmp = file.get() ? filename : "";
 	ar.serialize("filename", tmp);

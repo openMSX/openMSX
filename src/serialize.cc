@@ -207,6 +207,7 @@ void XmlInputArchive::beginTag(const string& tag)
 }
 void XmlInputArchive::endTag(const string& tag)
 {
+	(void)tag;
 	assert(elems.back()->getName() == tag); // throw
 	XMLElement* elem = const_cast<XMLElement*>(elems.back());
 	elem->setName(""); // mark this elem for later beginTag() calls
