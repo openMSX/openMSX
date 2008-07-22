@@ -12,6 +12,7 @@
 #include "serialize.hh"
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 
 namespace openmsx {
 
@@ -943,6 +944,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	ramSize *= 1024;	// in kb
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
+	memset(ram, 0, ramSize);
 
 	reset(motherBoard.getCurrentTime());
 	registerSound(config);

@@ -358,6 +358,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	status = 0;
 	transfer = false;
 	SX = SY = DX = DY = NX = NY = 0;
+	ASX = ADX = ANX = 0;
 	COL = ARG = CMD = LOG = 0;
 
 	AbortCmd* abort = new AbortCmd(*this, vram);

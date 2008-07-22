@@ -4,6 +4,7 @@
 #include "DiskDrive.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include <cstring>
 
 namespace openmsx {
 
@@ -42,6 +43,11 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, const EmuTime& time)
 	, commandStart(time)
 	, DRQTimer(time)
 {
+	// avoid (harmless) UMR in serialize()
+	memset(dataBuffer, 0, sizeof(dataBuffer));
+	dataCurrent = 0;
+	dataAvailable = 0;
+
 	reset(time);
 }
 

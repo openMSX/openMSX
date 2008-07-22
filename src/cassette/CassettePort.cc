@@ -52,6 +52,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 	: Connector(motherBoard_.getPluggingController(), "cassetteport",
 	            auto_ptr<Pluggable>(new DummyCassetteDevice()))
 	, motherBoard(motherBoard_)
+	, lastOutput(false)
 {
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCommandController(),

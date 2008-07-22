@@ -1932,6 +1932,10 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	OPL3_mode = false;
 	status = status2 = statusMask = 0;
 
+	// avoid (harmless) UMR in serialize()
+	memset(chanout, 0, sizeof(chanout));
+	memset(reg, 0, sizeof(reg));
+
 	init_tables();
 
 	reset(motherBoard.getCurrentTime());
@@ -1993,7 +1997,7 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		advance_lfo();
 
 		// clear channel outputs
-		memset(chanout, 0, sizeof(int) * 18);
+		memset(chanout, 0, sizeof(chanout));
 
 		// register set #1
 		// extended 4op ch#0 part 1 or 2op ch#0

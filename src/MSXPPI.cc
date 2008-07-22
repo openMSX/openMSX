@@ -24,6 +24,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, cassettePort(motherBoard.getCassettePort())
 	, renshaTurbo(motherBoard.getRenShaTurbo())
 	, prevBits(15)
+	, selectedRow(0)
 {
 	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
 	bool keyGhostingSGCprotected = config.getChildDataAsBool(

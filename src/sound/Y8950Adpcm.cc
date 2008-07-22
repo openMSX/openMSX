@@ -52,6 +52,9 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
 	, volume(0)
 {
 	memset(&(*ram)[0], 0xFF, ram->getSize());
+
+	// avoid (harmless) UMR in serialize()
+	adpcm_data = 0;
 }
 
 Y8950Adpcm::~Y8950Adpcm()
