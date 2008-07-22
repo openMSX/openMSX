@@ -39,15 +39,12 @@ void Disk::writeTrackData(byte /*data*/)
 	PRT_DEBUG("Disk::writeTrackData [unimplemented]");
 }
 
-void Disk::initReadTrack(byte /*track*/, byte /*side*/)
-{
-	PRT_DEBUG("Disk::initReadTrack [unimplemented]");
-}
-
-byte Disk::readTrackData()
+void Disk::readTrackData(byte /*track*/, byte /*side*/, byte* output)
 {
 	PRT_DEBUG("Disk::readTrackData [unimplemented]");
-	return 0xF4;
+	for (int i = 0; i < RAWTRACK_SIZE; ++i) {
+		output[i] = 0xF4;
+	}
 }
 
 void Disk::applyPatch(const std::string& /*patchFile*/)

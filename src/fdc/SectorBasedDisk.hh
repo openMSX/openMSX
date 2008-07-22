@@ -25,8 +25,7 @@ public:
 	                   unsigned size, const byte* buf);
 	virtual void initWriteTrack(byte track, byte side);
 	virtual void writeTrackData(byte data);
-	virtual void initReadTrack(byte track, byte side);
-	virtual byte readTrackData();
+	virtual void readTrackData(byte track, byte side, byte* output);
 	virtual bool ready();
 	virtual bool doubleSided();
 	virtual void applyPatch(const std::string& patchFile);
@@ -55,8 +54,6 @@ private:
 	int writeTrackBufCur;
 	int writeTrackSectorCur;
 	int writeTrack_CRCcount;
-	int readTrackDataCount;
-	byte readTrackDataBuf[RAWTRACK_SIZE];
 	byte writeTrackBuf[SECTOR_SIZE];
 	byte writeTrack_track;
 	byte writeTrack_side;

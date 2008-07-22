@@ -82,7 +82,7 @@ void SectorBasedDisk::writeTrackData(byte data)
 	}
 }
 
-void SectorBasedDisk::initReadTrack(byte track, byte side)
+void SectorBasedDisk::readTrackData(byte track, byte side, byte* output)
 {
 	// init following data structure
 	// according to Alex Wulms
@@ -92,56 +92,52 @@ void SectorBasedDisk::initReadTrack(byte track, byte side)
 	//
 	// This data comes from the TC8566AF manual
 	// each track in IBM format contains
-	// '4E' x 80, '00' x 12, 'C2' x 3
-	// 'FC' x 1, '4E' x 50, sector data 1 to n
-	// '4E' x ?? (closing gap)
+	//   '4E' x 80, '00' x 12, 'C2' x 3
+	//   'FC' x  1, '4E' x 50
+	//   sector data 1 to n
+	//   '4E' x ?? (closing gap)
 	// each sector data contains
-	// '00' x 12, 'A1' x 3, 'FE' x 1,
-	// C,H,R,N,CRC(2bytes), '4E' x 22, '00' x 12,
-	// 'A1' x 4,'FB'('F8') x 1, data(512 bytes),CRC(2bytes),'4E'(gap3)
+	//   '00' x 12, 'A1' x 3, 'FE' x 1,
+	//   C,H,R,N,CRC(2bytes), '4E' x 22, '00' x 12,
+	//   'A1' x  4,'FB'('F8') x 1, data(512 bytes),CRC(2bytes),'4E'(gap3)
 
-	readTrackDataCount = 0;
-	byte* tmppoint = readTrackDataBuf;
-	// Fill track header
-	for (int i = 0; i < 80; i++) *(tmppoint++) = 0x4E;
-	for (int i = 0; i < 12; i++) *(tmppoint++) = 0x00;
-	for (int i = 0; i <  3; i++) *(tmppoint++) = 0xC2;
-	*(tmppoint++) = 0xFC;
-	for (int i = 0; i < 50; i++) *(tmppoint++) = 0x4E;
-	// Fill sector
-	for (byte j = 0; j < 9; j++) {
-		// Fill sector header
-		for (int i = 0; i < 12; i++) *(tmppoint++) = 0x00;
-		for (int i = 0; i <  3; i++) *(tmppoint++) = 0xA1;
-		*(tmppoint++) = 0xFE;
-		*(tmppoint++) = track;		//C: Cylinder number
-		*(tmppoint++) = side;		//H: Head Address
-		*(tmppoint++) = byte(j + 1);	//R: Record
-		*(tmppoint++) = 0x02;		//N: Number (length of sector)
-		*(tmppoint++) = 0x00;		//CRC byte 1
-		*(tmppoint++) = 0x00;		//CRC byte 2
-		// read sector data
-		read(track, j + 1, side, 512, tmppoint);
-		tmppoint += 512;
-		// end of sector
-		*(tmppoint++) = byte(j + 1);	//CRC byte 1
-		*(tmppoint++) = byte(j + 1);	//CRC byte 2
-		// TODO: check this number
-		for (int i = 0; i < 55; i++) *(tmppoint++) = 0x4E;
-		// TODO build correct CRC and read sector + place gap
-	}
-	// TODO look up value of this end-of-track gap
-	for (int i = 0; i < 1080; i++) *(tmppoint++) = 0x4E;
-}
+	byte* out = output;
 
-byte SectorBasedDisk::readTrackData()
-{
-	if (readTrackDataCount == RAWTRACK_SIZE) {
-		// end of command in any case
-		return readTrackDataBuf[RAWTRACK_SIZE - 1];
-	} else {
-		return readTrackDataBuf[readTrackDataCount++];
+	// track header
+	for (int i = 0; i < 80; ++i) *out++ = 0x4E;
+	for (int i = 0; i < 12; ++i) *out++ = 0x00;
+	for (int i = 0; i <  3; ++i) *out++ = 0xC2;
+	for (int i = 0; i <  1; ++i) *out++ = 0xFC;
+	for (int i = 0; i < 50; ++i) *out++ = 0x4E;
+	assert((out - output) == 146); // correct length?
+
+	// sectors
+	for (int j = 0; j < 9; ++j) {
+		// sector header
+		for (int i = 0; i < 12; ++i) *out++ = 0x00;
+		for (int i = 0; i <  3; ++i) *out++ = 0xA1;
+		for (int i = 0; i <  1; ++i) *out++ = 0xFE;
+		*out++ = track; //C: Cylinder number
+		*out++ = side;  //H: Head Address
+		*out++ = j + 1; //R: Record
+		*out++ = 0x02;  //N: Number (length of sector)
+		*out++ = 0x00;  //CRC byte 1   TODO
+		*out++ = 0x00;  //CRC byte 2
+		for (int i = 0; i < 22; ++i) *out++ = 0x4E;
+		for (int i = 0; i < 12; ++i) *out++ = 0x00;
+		// sector data
+		read(track, j + 1, side, 512, out);
+		out += 512;
+		*out++ = 0x00; //CRC byte 1   TODO
+		*out++ = 0x00; //CRC byte 2
+		// end-of-sector gap
+		for (int i = 0; i < 58; ++i) *out++ = 0x4E;
 	}
+	assert((out - output) == (146 + 9 * 628)); // correct length?
+
+	// end-of-track gap
+	for (int i = 0; i < 1052; ++i) *out++ = 0x4E;
+	assert((out - output) == RAWTRACK_SIZE);
 }
 
 bool SectorBasedDisk::ready()

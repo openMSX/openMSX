@@ -25,8 +25,7 @@ public:
 	                            byte side, byte* buf);
 	virtual void initWriteTrack(byte track, byte side);
 	virtual void writeTrackData(byte data);
-	virtual void initReadTrack(byte track, byte side);
-	virtual byte readTrackData();
+	virtual void readTrackData(byte track, byte side, byte* output);
 
 	virtual bool ready() = 0;
 	virtual bool writeProtected() = 0;
