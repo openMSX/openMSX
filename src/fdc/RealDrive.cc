@@ -250,14 +250,9 @@ void RealDrive::getTrackHeader(byte* buf)
 	changer->getDisk().getTrackHeader(headPos, side, buf);
 }
 
-void RealDrive::initWriteTrack()
+void RealDrive::writeTrackData(const byte* data)
 {
-	changer->getDisk().initWriteTrack(headPos, side);
-}
-
-void RealDrive::writeTrackData(byte data)
-{
-	changer->getDisk().writeTrackData(data);
+	changer->getDisk().writeTrackData(headPos, side, data);
 }
 
 bool RealDrive::diskChanged()

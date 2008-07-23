@@ -23,8 +23,7 @@ public:
 	                  unsigned size, byte* buf);
 	virtual void write(byte track, byte sector, byte side,
 	                   unsigned size, const byte* buf);
-	virtual void initWriteTrack(byte track, byte side);
-	virtual void writeTrackData(byte data);
+	virtual void writeTrackData(byte track, byte side, const byte* data);
 	virtual void readTrackData(byte track, byte side, byte* output);
 	virtual bool ready();
 	virtual bool doubleSided();
@@ -50,14 +49,6 @@ protected:
 
 private:
 	std::auto_ptr<const PatchInterface> patch;
-
-	int writeTrackBufCur;
-	int writeTrackSectorCur;
-	int writeTrack_CRCcount;
-	byte writeTrackBuf[SECTOR_SIZE];
-	byte writeTrack_track;
-	byte writeTrack_side;
-	byte writeTrack_sector;
 };
 
 } // namespace openmsx

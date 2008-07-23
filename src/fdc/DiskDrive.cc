@@ -104,12 +104,7 @@ void DummyDrive::getTrackHeader(byte* /*buf*/)
 	throw DriveEmptyException("No drive connected");
 }
 
-void DummyDrive::initWriteTrack()
-{
-	// ignore ???
-}
-
-void DummyDrive::writeTrackData(byte /*data*/)
+void DummyDrive::writeTrackData(const byte* /*data*/)
 {
 	// ignore ???
 }

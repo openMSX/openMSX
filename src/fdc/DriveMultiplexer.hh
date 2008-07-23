@@ -50,8 +50,7 @@ public:
 	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
-	virtual void initWriteTrack();
-	virtual void writeTrackData(byte data);
+	virtual void writeTrackData(const byte* data);
 	virtual bool diskChanged();
 	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();

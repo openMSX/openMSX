@@ -11,6 +11,8 @@ namespace openmsx {
 class Disk
 {
 public:
+	static const int RAWTRACK_SIZE = 6850;
+
 	virtual ~Disk();
 
 	const std::string& getName() const;
@@ -23,8 +25,7 @@ public:
 	                             byte side, byte* buf);
 	virtual void getTrackHeader(byte track,
 	                            byte side, byte* buf);
-	virtual void initWriteTrack(byte track, byte side);
-	virtual void writeTrackData(byte data);
+	virtual void writeTrackData(byte track, byte side, const byte* data);
 	virtual void readTrackData(byte track, byte side, byte* output);
 
 	virtual bool ready() = 0;
@@ -34,8 +35,6 @@ public:
 	virtual void applyPatch(const std::string& patchFile);
 
 protected:
-	static const int RAWTRACK_SIZE = 6850;
-
 	explicit Disk(const std::string& name);
 	int physToLog(byte track, byte side, byte sector);
 	void logToPhys(int log, byte& track, byte& side, byte& sector);

@@ -105,8 +105,7 @@ public:
 	                   byte& onDiskSide,  int& onDiskSize) = 0;
 	virtual void getSectorHeader(byte sector, byte* buf) = 0;
 	virtual void getTrackHeader(byte* buf) = 0;
-	virtual void initWriteTrack() = 0;
-	virtual void writeTrackData(byte data) = 0;
+	virtual void writeTrackData(const byte* data) = 0;
 
 	/** Is disk changed?
 	 */
@@ -147,8 +146,7 @@ public:
 	                   byte& onDiskSide,  int&  onDiskSize);
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
-	virtual void initWriteTrack();
-	virtual void writeTrackData(byte data);
+	virtual void writeTrackData(const byte* data);
 	virtual bool diskChanged();
 	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();

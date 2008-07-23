@@ -41,44 +41,30 @@ void SectorBasedDisk::applyPatch(const std::string& patchFile)
 	patch.reset(new IPSPatch(patchFile, patch));
 }
 
-void SectorBasedDisk::initWriteTrack(byte track, byte side)
+void SectorBasedDisk::writeTrackData(byte track, byte side, const byte* data)
 {
-	if (writeProtected()) {
-		throw WriteProtectedException("");
-	}
-
-	writeTrackBufCur = 0;
-	writeTrack_track = track;
-	writeTrack_side = side;
-	writeTrack_sector = 1;
-	writeTrack_CRCcount = 0;
-}
-
-void SectorBasedDisk::writeTrackData(byte data)
-{
-	if (writeProtected()) {
-		throw WriteProtectedException("");
-	}
-
-	// if it is a 0xF7 ("two CRC characters") then the previous 512
-	// bytes could be actual sectordata bytes
-	if (data == 0xF7) {
-		if (writeTrack_CRCcount & 1) {
-			// first CRC is sector header CRC, second CRC is actual
-			// sector data CRC so write them
-			byte tempWriteBuf[512];
-			for (int i = 0; i < 512; i++) {
-				tempWriteBuf[i] =
-				      writeTrackBuf[(writeTrackBufCur+i) & 511];
+	unsigned sector = 1;
+	bool hasFirstCRC = false;
+	for (int i = 0; i < RAWTRACK_SIZE; ++i) {
+		// Look for two 0xF7 bytes (two CRC characters)
+		// the first is the CRC for the sector header, the second is
+		// for the actual sector data.
+		// TODO this seems WD2793 specific, we might have to fix this
+		//      once we implement more FDC write-raw-track commands
+		if (data[i] == 0xF7) {
+			if (!hasFirstCRC) {
+				hasFirstCRC = true;
+				// ... still wait for 2nd CRC byte ...
+			} else {
+				// ... found it, previous 512 bytes are sector data
+				hasFirstCRC = false;
+				if (i >= 512) {
+					write(track, sector, side, 512,
+					      &data[i - 512]);
+				}
+				++sector;
 			}
-			write(writeTrack_track, writeTrack_sector,
-			      writeTrack_side, 512, tempWriteBuf);
-			writeTrack_sector++; // update sector counter
 		}
-		writeTrack_CRCcount++;
-	} else {
-		writeTrackBuf[writeTrackBufCur++] = data;
-		writeTrackBufCur &= 511;
 	}
 }
 

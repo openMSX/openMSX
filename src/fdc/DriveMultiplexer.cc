@@ -126,12 +126,7 @@ void DriveMultiplexer::getTrackHeader(byte* buf)
 	drive[selected]->getTrackHeader(buf);
 }
 
-void DriveMultiplexer::initWriteTrack()
-{
-	drive[selected]->initWriteTrack();
-}
-
-void DriveMultiplexer::writeTrackData(byte data)
+void DriveMultiplexer::writeTrackData(const byte* data)
 {
 	drive[selected]->writeTrackData(data);
 }

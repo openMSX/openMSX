@@ -3,6 +3,7 @@
 #ifndef WD2793_HH
 #define WD2793_HH
 
+#include "Disk.hh"
 #include "Clock.hh"
 #include "Schedulable.hh"
 
@@ -76,6 +77,7 @@ private:
 	void readAddressCmd();
 	void readTrackCmd();
 	void writeTrackCmd(const EmuTime& time);
+	void endWriteTrackCmd();
 
 	void startType4Cmd(const EmuTime& time);
 
@@ -106,11 +108,10 @@ private:
 	bool DRQ;
 	bool transferring;
 	bool formatting;
-	bool needInitWriteTrack;
 
-	byte dataBuffer[1024];	// max sector size possible
-	int dataCurrent;	// which byte in dataBuffer is next to be read/write
-	int dataAvailable;	// how many bytes left in sector
+	byte dataBuffer[Disk::RAWTRACK_SIZE];
+	int dataCurrent;   // which byte in dataBuffer is next to be read/write
+	int dataAvailable; // how many bytes left in buffer
 };
 
 } // namespace openmsx

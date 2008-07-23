@@ -66,7 +66,6 @@ void WD2793::reset(const EmuTime& time)
 	resetIRQ();
 	immediateIRQ = false;
 
-	needInitWriteTrack = false;
 	formatting = false;
 	transferring = false;
 
@@ -87,22 +86,19 @@ bool WD2793::getDTRQ(const EmuTime& time)
 		}
 	} else if (((commandReg & 0xF0) == 0xF0) && (statusReg & BUSY)) {
 		// WRITE TRACK cmd busy
-		if (transferring) {
-			int ticks = DRQTimer.getTicksTill(time);
-			if (ticks >= 15) { // TODO found by trial and error
+		switch (drive.indexPulseCount(commandStart, time)) {
+		case 0: // no index pulse yet
+			break;
+		case 1: // first index pulse passed
+			if (DRQTimer.getTicksTill(time) >= 16) {
+				// '16' found by trial and error
+				// TODO implement something based on RAWTRACK_SIZE
 				DRQ = true;
 			}
-		} else {
-			int pulses = drive.indexPulseCount(commandStart, time);
-			if (pulses == 1) {
-				transferring = true;
-			}
-		}
-		if (drive.indexPulseCount(commandStart, time) >= 2) {
-			dataAvailable = 0;
-			dataCurrent = 0;
-			DRQ = false;
-			endCmd();
+			break;
+		default: // next indexpulse passed
+			endWriteTrackCmd();
+			break;
 		}
 	}
 	//PRT_DEBUG("WD2793::getDTRQ() " << DRQ);
@@ -307,40 +303,18 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 		if (!formatting) {
 			return;
 		}
-		if (needInitWriteTrack) {
-			// cannot do this in writeTrackCmd() because then
-			// the correct drive is not yet selected
-			PRT_DEBUG("WD2793: initWriteTrack()");
-			needInitWriteTrack = false;
-			try {
-				drive.initWriteTrack();
-			} catch (MSXException& e) {
-				// Ignore. Should rarely happen, because
-				// write-protected is already checked at the
-				// beginning of write-track command (maybe
-				// when disk is swapped during format)
-			}
-		}
 		setDRQ(false, time);
 
-		//indexmark related timing
-		int pulses = drive.indexPulseCount(commandStart, time);
-		switch (pulses) {
+		// indexmark related timing
+		switch (drive.indexPulseCount(commandStart, time)) {
 		case 0: // no index pulse yet
 			break;
 		case 1: // first index pulse passed
-			try {
-				drive.writeTrackData(value);
-			} catch (MSXException& e) {
-				// ignore
-			}
+			assert(dataCurrent < Disk::RAWTRACK_SIZE);
+			dataBuffer[dataCurrent++] = value;
 			break;
 		default: // next indexpulse passed
-			dataAvailable = 0; //return correct DTR
-			dataCurrent = 0;
-			DRQ = false;
-			formatting = false;
-			endCmd();
+			endWriteTrackCmd();
 			break;
 		}
 		/* followin switch stement belongs in the backend, since
@@ -747,11 +721,28 @@ void WD2793::writeTrackCmd(const EmuTime& time)
 		endCmd();
 	} else {
 		// TODO wait for indexPulse
-
-		needInitWriteTrack = true;
 		formatting = true;
+		dataCurrent = 0;
+		memset(dataBuffer, 0, Disk::RAWTRACK_SIZE);
 		setDRQ(true, time);
 	}
+}
+
+void WD2793::endWriteTrackCmd()
+{
+	try {
+		drive.writeTrackData(dataBuffer);
+	} catch (MSXException& e) {
+		// Ignore. Should rarely happen, because
+		// write-protected is already checked at the
+		// beginning of write-track command (maybe
+		// when disk is swapped during format)
+	}
+	dataAvailable = 0; //return correct DTR
+	dataCurrent = 0;
+	DRQ = false;
+	formatting = false;
+	endCmd();
 }
 
 void WD2793::startType4Cmd(const EmuTime& time)
@@ -821,7 +812,6 @@ void WD2793::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("DRQ", DRQ);
 	ar.serialize("transferring", transferring);
 	ar.serialize("formatting", formatting);
-	ar.serialize("needInitWriteTrack", needInitWriteTrack);
 
 	ar.serialize_blob("dataBuffer", dataBuffer, sizeof(dataBuffer));
 	ar.serialize("dataCurrent", dataCurrent);
