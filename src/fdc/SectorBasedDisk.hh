@@ -26,7 +26,6 @@ public:
 	virtual void writeTrackData(byte track, byte side, const byte* data);
 	virtual void readTrackData(byte track, byte side, byte* output);
 	virtual bool ready();
-	virtual bool doubleSided();
 	virtual void applyPatch(const std::string& patchFile);
 
 	// SectorAccessibleDisk
@@ -45,10 +44,11 @@ protected:
 	virtual ~SectorBasedDisk();
 	virtual void detectGeometry();
 
-	unsigned nbSectors;
+	void setNbSectors(unsigned num);
 
 private:
 	std::auto_ptr<const PatchInterface> patch;
+	unsigned nbSectors;
 };
 
 } // namespace openmsx

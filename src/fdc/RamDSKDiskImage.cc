@@ -9,7 +9,7 @@ namespace openmsx {
 RamDSKDiskImage::RamDSKDiskImage(unsigned size)
 	: SectorBasedDisk("ramdsk")
 {
-	nbSectors = size / SECTOR_SIZE;
+	setNbSectors(size / SECTOR_SIZE);
 	diskdata = new byte[size];
 
 	MSXtar workhorse(*this);

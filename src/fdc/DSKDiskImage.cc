@@ -11,7 +11,7 @@ DSKDiskImage::DSKDiskImage(const string& fileName)
 	: SectorBasedDisk(fileName)
 	, file(new File(fileName, File::PRE_CACHE))
 {
-	nbSectors = file->getSize() / SECTOR_SIZE;
+	setNbSectors(file->getSize() / SECTOR_SIZE);
 }
 
 DSKDiskImage::~DSKDiskImage()

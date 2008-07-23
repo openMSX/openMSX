@@ -30,7 +30,7 @@ public:
 
 	virtual bool ready() = 0;
 	virtual bool writeProtected() = 0;
-	virtual bool doubleSided() = 0;
+	bool doubleSided();
 
 	virtual void applyPatch(const std::string& patchFile);
 
@@ -42,13 +42,15 @@ protected:
 	virtual void detectGeometry();
 	virtual int getImageSize();
 
-	int sectorsPerTrack;
-	int nbSides;
+	void setSectorsPerTrack(unsigned num);
+	void setNbSides(unsigned num);
 
 private:
 	void detectGeometryFallback();
 
 	const std::string name;
+	unsigned sectorsPerTrack;
+	unsigned nbSides;
 };
 
 } // namespace openmsx

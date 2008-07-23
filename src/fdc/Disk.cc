@@ -6,7 +6,7 @@
 namespace openmsx {
 
 Disk::Disk(const std::string& name_)
-	: nbSides(0), name(name_)
+	: name(name_), nbSides(0)
 {
 }
 
@@ -42,6 +42,11 @@ void Disk::readTrackData(byte /*track*/, byte /*side*/, byte* output)
 	}
 }
 
+bool Disk::doubleSided()
+{
+	return nbSides == 2;
+}
+
 void Disk::applyPatch(const std::string& /*patchFile*/)
 {
 	throw MSXException("Patching of this disk image format not supported.");
@@ -72,6 +77,15 @@ void Disk::logToPhys(int log, byte& track, byte& side, byte& sector)
 	track = log / (nbSides * sectorsPerTrack);
 	side = (log / sectorsPerTrack) % nbSides;
 	sector = (log % sectorsPerTrack) + 1;
+}
+
+void Disk::setSectorsPerTrack(unsigned num)
+{
+	sectorsPerTrack = num;
+}
+void Disk::setNbSides(unsigned num)
+{
+	nbSides = num;
 }
 
 void Disk::detectGeometryFallback() // if all else fails, use statistics

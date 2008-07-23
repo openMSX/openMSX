@@ -488,9 +488,9 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	}
 
 	// First create structure for the fake disk
-	nbSectors = 1440; // asume a DS disk is used
-	sectorsPerTrack = 9;
-	nbSides = 2;
+	setNbSectors(1440); // asume a DS disk is used
+	setSectorsPerTrack(9);
+	setNbSides(2);
 
 	try {
 		// try to read boot block from file

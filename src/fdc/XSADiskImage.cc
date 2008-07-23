@@ -78,7 +78,7 @@ void XSADiskImage::chkheader()
 	for (int i = 0, base = 1; i < 4; ++i, base <<= 8) {
 		origLen += base * charin();
 	}
-	nbSectors = origLen / 512;
+	setNbSectors(origLen / 512);
 
 	// skip compressed length
 	inbufpos += 4;

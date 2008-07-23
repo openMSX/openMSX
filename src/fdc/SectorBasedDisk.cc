@@ -11,6 +11,7 @@ namespace openmsx {
 SectorBasedDisk::SectorBasedDisk(const std::string& name)
 	: Disk(name)
 	, patch(new EmptyDiskPatch(*this))
+	, nbSectors(unsigned(-1)) // to detect misuse
 {
 }
 
@@ -131,14 +132,9 @@ bool SectorBasedDisk::ready()
 	return true;
 }
 
-bool SectorBasedDisk::doubleSided()
-{
-	return nbSides == 2;
-}
-
 void SectorBasedDisk::readSector(unsigned sector, byte* buf)
 {
-	if (sector >= nbSectors) {
+	if (sector >= getNbSectors()) {
 		throw NoSuchSectorException("No such sector");
 	}
 	try {
@@ -153,7 +149,7 @@ void SectorBasedDisk::writeSector(unsigned sector, const byte* buf)
 	if (writeProtected()) {
 		throw WriteProtectedException("");
 	}
-	if (sector >= nbSectors) {
+	if (sector >= getNbSectors()) {
 		throw NoSuchSectorException("No such sector");
 	}
 	try {
@@ -165,14 +161,20 @@ void SectorBasedDisk::writeSector(unsigned sector, const byte* buf)
 
 unsigned SectorBasedDisk::getNbSectors() const
 {
+	assert(nbSectors != unsigned(-1)); // must have been initialized
 	return nbSectors;
+}
+void SectorBasedDisk::setNbSectors(unsigned num)
+{
+	assert(nbSectors == unsigned(-1)); // can only set this once
+	nbSectors = num;
 }
 
 void SectorBasedDisk::detectGeometry()
 {
 	// the following are just heuristics...
 
-	if (nbSectors == 1440) {
+	if (getNbSectors() == 1440) {
 		// explicitly check for 720kb filesize
 
 		// "trojka.dsk" is 720kb, but has bootsector and FAT media ID
@@ -185,8 +187,8 @@ void SectorBasedDisk::detectGeometry()
 		// valid bootsector data. The only way to detect the format is
 		// to look at the diskimage filesize.
 
-		sectorsPerTrack = 9;
-		nbSides = 2;
+		setSectorsPerTrack(9);
+		setNbSides(2);
 
 	} else {
 		// Don't check for "360kb -> single sided disk". The MSXMania

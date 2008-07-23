@@ -8,7 +8,7 @@ namespace openmsx {
 DummyDisk::DummyDisk()
 	: SectorBasedDisk("")
 {
-	nbSectors = 0;
+	setNbSectors(0);
 }
 
 bool DummyDisk::ready()
@@ -19,11 +19,6 @@ bool DummyDisk::ready()
 bool DummyDisk::writeProtected()
 {
 	return true;	// TODO check
-}
-
-bool DummyDisk::doubleSided()
-{
-	return false;	// TODO check
 }
 
 void DummyDisk::readSectorImpl(unsigned /*sector*/, byte* /*buf*/)
