@@ -263,6 +263,18 @@ public:
 	//   opposite) to the save() method above. Loading of primitive types
 	//   is done via this method.
 
+	// void beginSection()
+	// void endSection()
+	// void skipSection(bool skip)
+	//   The methods beginSection() and endSection() can only be used in
+	//   output archives. These mark the location of a section that can
+	//   later be skipped during loading.
+	//   The method skipSection() can only be used in input archives. It
+	//   optionally skips a section that was marked during saving.
+	//   For every beginSection() call in the output, there must be a
+	//   corresponding skipSection() call in the input (even if you don't
+	//   actually want to skip the section).
+
 protected:
 	/** Returns a reference to the most derived class.
 	 * Helper function to implement static polymorphism.
@@ -335,6 +347,11 @@ public:
 				instance().getSaver(t);
 		saver.save(this->self(), &t);
 		this->self().endTag(tag);
+	}
+
+	void skipSection(bool /*skip*/)
+	{
+		assert(false);
 	}
 
 /*internal*/
@@ -451,6 +468,15 @@ public:
 		this->self().endTag(tag);
 	}
 
+	void beginSection()
+	{
+		assert(false);
+	}
+	void endSection()
+	{
+		assert(false);
+	}
+
 /*internal*/
 	void* getPointer(unsigned id);
 	void addPointer(unsigned id, const void* p);
@@ -560,6 +586,11 @@ public:
 	{
 	}
 
+	~MemOutputArchive()
+	{
+		assert(openSections.empty());
+	}
+
 	bool needVersion() const { return false; }
 
 	template <typename T> void save(const T& t)
@@ -577,6 +608,24 @@ public:
 		put(data, len);
 	}
 
+	void beginSection()
+	{
+		unsigned skip = 0; // filled in later
+		save(skip);
+		unsigned beginPos = buffer.size();
+		openSections.push_back(beginPos);
+	}
+	void endSection()
+	{
+		assert(!openSections.empty());
+		unsigned endPos   = buffer.size();
+		unsigned beginPos = openSections.back();
+		openSections.pop_back();
+		unsigned skip = endPos - beginPos;
+		memcpy(&buffer[beginPos - sizeof(unsigned)],
+		       &skip, sizeof(skip));
+	}
+
 private:
 	void put(const void* data, unsigned len)
 	{
@@ -588,6 +637,7 @@ private:
 	}
 
 	std::vector<char>& buffer;
+	std::vector<unsigned> openSections;
 };
 
 class MemInputArchive : public InputArchiveBase<MemInputArchive>
@@ -617,6 +667,16 @@ public:
 	void serialize_blob(const char*, void* data, unsigned len)
 	{
 		get(data, len);
+	}
+
+	void skipSection(bool skip)
+	{
+		unsigned num;
+		load(num);
+		if (skip) {
+			pos += num;
+			assert(pos <= buffer.size());
+		}
 	}
 
 private:
@@ -651,6 +711,9 @@ public:
 	void save(bool b);
 	void save(unsigned char b);
 	void save(signed char c);
+
+	void beginSection() { /*nothing*/ }
+	void endSection()   { /*nothing*/ }
 
 //internal:
 	inline bool translateEnumToString() const { return true; }
@@ -687,6 +750,8 @@ public:
 	void load(bool& b);
 	void load(unsigned char& b);
 	void load(signed char& c);
+
+	void skipSection(bool /*skip*/) { /*nothing*/ }
 
 //internal:
 	inline bool translateEnumToString() const { return true; }

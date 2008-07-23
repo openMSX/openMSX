@@ -57,9 +57,6 @@ public:
 	  */
 	Pluggable* findPluggable(const std::string& name) const;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
 private:
 	Connector& getConnector(const std::string& name) const;
 	Pluggable& getPluggable(const std::string& name) const;

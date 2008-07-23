@@ -46,18 +46,32 @@ Pluggable& Connector::getPlugged() const
 template<typename Archive>
 void Connector::serialize(Archive& ar, unsigned /*version*/)
 {
-	std::string plugName;
 	if (!ar.isLoader()) {
+		std::string plugName;
 		if (plugged != dummy.get()) {
 			plugName = plugged->getName();
 		}
-	}
-	ar.serialize("pluggable", plugName);
-	if (ar.isLoader()) {
-		if (Pluggable* pluggable = pluggingController.findPluggable(plugName)) {
+		ar.serialize("plugName", plugName);
+		if (!plugName.empty()) {
+			ar.beginSection();
+			ar.serializePolymorphic("pluggable", *plugged);
+			ar.endSection();
+		}
+	} else {
+		std::string plugName;
+		ar.serialize("plugName", plugName);
+		if (plugName.empty()) {
+			// was not plugged in
+			plugged = dummy.get();
+		} else if (Pluggable* pluggable =
+			       pluggingController.findPluggable(plugName)) {
 			plugged = pluggable;
+			ar.skipSection(false);
+			ar.serializePolymorphic("pluggable", *plugged);
 		} else {
+			// was plugged, but we don't have that pluggable anymore
 			// TODO print warning
+			ar.skipSection(true);
 			plugged = dummy.get();
 		}
 	}
