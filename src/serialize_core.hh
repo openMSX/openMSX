@@ -196,6 +196,11 @@ template<typename T> struct serialize_as_pointer<shared_ptr<T> >
 //  - typedef ... value_type
 //      The type stored in the collection (only homogeneous collections are
 //      supported).
+//  - bool loadInPlace
+//      Indicates whether we can directly load the elements in the correct
+//      position in the container, otherwise there will be an extra assignment.
+//      For this to be possible, the output iterator must support a dereference
+//      operator that returns a 'regular' value_type.
 //  - typedef ... const_iterator
 //  - const_iterator begin(...)
 //  - const_iterator end(...)
@@ -217,6 +222,7 @@ template<typename T, int N> struct serialize_as_collection<T[N]> : is_true
 	static const T* begin(const T (&array)[N]) { return &array[0]; }
 	static const T* end  (const T (&array)[N]) { return &array[N]; }
 	// load
+	static const bool loadInPlace = true;
 	typedef       T* output_iterator;
 	static void prepare(T (&/*array*/)[N], int /*n*/) { }
 	static T* output(T (&array)[N]) { return &array[0]; }
@@ -612,6 +618,31 @@ template<typename TP> struct IDLoader
 		serialize_as_pointer<TP>::setPointer(tp2, tp, ar);
 	}
 };
+
+template<typename sac, bool IN_PLACE = sac::loadInPlace> struct CollectionLoaderHelper;
+template<typename sac> struct CollectionLoaderHelper<sac, true>
+{
+	// used for array and vector
+	template<typename Archive, typename TUPLE, typename OUT>
+	void operator()(Archive& ar, TUPLE args, OUT it, int id)
+	{
+		ar.doSerialize("item", *it, args, id);
+	}
+};
+template<typename sac> struct CollectionLoaderHelper<sac, false>
+{
+	// We can't directly load the element in the correct position:
+	// This screws-up id/pointer management because the element is still
+	// copied after construction (and pointer value of initial object is
+	// stored).
+	template<typename Archive, typename TUPLE, typename OUT>
+	void operator()(Archive& ar, TUPLE args, OUT it, int id)
+	{
+		typename sac::value_type elem;
+		ar.doSerialize("item", elem, args, id);
+		*it = elem;
+	}
+};
 template<typename TC> struct CollectionLoader
 {
 	template<typename Archive, typename TUPLE>
@@ -632,16 +663,9 @@ template<typename TC> struct CollectionLoader
 		}
 		sac::prepare(tc, n);
 		output_iterator it = sac::output(tc);
+		CollectionLoaderHelper<sac> loadOneElement;
 		for (int i = 0; i < n; ++i, ++it) {
-			// TODO this screws-up id/pointer management
-			//   because the element is still copied after
-			//   construction (pointer value of construction is
-			//   stored)
-			//   For std::vector this is not a problem, but it
-			//   might be for arrays or lists.
-			typename sac::value_type elem;
-			ar.doSerialize("item", elem, args, id);
-			*it = elem;
+			loadOneElement(ar, args, it, id);
 		}
 	}
 };

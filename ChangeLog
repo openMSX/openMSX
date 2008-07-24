@@ -1,5 +1,14 @@
 $Id$
 
+2008-07-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized de-serialization of arrays:
+	   Directly deserialize the elements in the correct position in
+	   memory. Before the element was loaded in a local variable and
+	   then copied to the correct position in the array.
+
+	   This also fixes a bug in AY8910 when detune/vibrato was used,
+	   because copying a AY8910::ToneGenerator object is not allowed.
+
 2008-07-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed Midi{In,Out}Native to Midi{In,Out}Windows (untested!)
 	* Made save/loadstate commands a bit more comfortable, so we can

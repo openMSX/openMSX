@@ -94,6 +94,10 @@ private:
 		  */
 		unsigned vibratoCount;
 		unsigned detuneCount;
+
+		// disallow copy (can't use noncopyable utility for some reason)
+		ToneGenerator(const ToneGenerator&);
+		const ToneGenerator& operator=(const ToneGenerator&);
 	};
 
 	class NoiseGenerator: public Generator {
