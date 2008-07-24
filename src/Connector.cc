@@ -66,6 +66,9 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 		} else if (Pluggable* pluggable =
 			       pluggingController.findPluggable(plugName)) {
 			plugged = pluggable;
+			// set connector before loading the pluggable so that
+			// the pluggable can test whether it was connected
+			pluggable->setConnector(this);
 			ar.skipSection(false);
 			ar.serializePolymorphic("pluggable", *plugged);
 		} else {

@@ -42,11 +42,11 @@ private:
 	Joystick(MSXEventDistributor& eventDistributor, unsigned joyNum);
 	virtual ~Joystick();
 
+	void calcInitialState();
+
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         const EmuTime& time);
-
-	static const int THRESHOLD = 32768/10;
 
 	MSXEventDistributor& eventDistributor;
 

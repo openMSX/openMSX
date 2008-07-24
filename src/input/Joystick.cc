@@ -13,6 +13,8 @@ using std::string;
 
 namespace openmsx {
 
+static const int THRESHOLD = 32768 / 10;
+
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            PluggingController& controller)
 {
@@ -27,6 +29,10 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 	}
 }
 
+// Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
+// once per MSX machine). The SDL documentation doesn't state this, but I
+// checked the implementation and a SDL_Joystick uses a 'reference count' on
+// the open/close calls.
 Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
 	, name(string("joystick") + char('1' + joyNum_))
@@ -47,7 +53,7 @@ Joystick::~Joystick()
 	}
 }
 
-//Pluggable
+// Pluggable
 const string& Joystick::getName() const
 {
 	return name;
@@ -66,8 +72,7 @@ void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 
 	eventDistributor.registerEventListener(*this);
 
-	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB;
+	calcInitialState();
 }
 
 void Joystick::unplugHelper(const EmuTime& /*time*/)
@@ -76,7 +81,7 @@ void Joystick::unplugHelper(const EmuTime& /*time*/)
 }
 
 
-//JoystickDevice
+// JoystickDevice
 byte Joystick::read(const EmuTime& /*time*/)
 {
 	return status;
@@ -87,7 +92,40 @@ void Joystick::write(byte /*value*/, const EmuTime& /*time*/)
 	//do nothing
 }
 
-//EventListener
+void Joystick::calcInitialState()
+{
+	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	         JOY_BUTTONA | JOY_BUTTONB;
+
+	if (joystick) {
+		int xAxis = SDL_JoystickGetAxis(joystick, 0);
+		if (xAxis < -THRESHOLD) {
+			status &= ~JOY_LEFT;
+		} else if (xAxis > THRESHOLD) {
+			status &= ~JOY_RIGHT;
+		}
+
+		int yAxis = SDL_JoystickGetAxis(joystick, 1);
+		if (yAxis < -THRESHOLD) {
+			status &= ~JOY_UP;
+		} else if (yAxis > THRESHOLD) {
+			status &= ~JOY_DOWN;
+		}
+
+		int numButtons = SDL_JoystickNumButtons(joystick);
+		for (int button = 0; button < numButtons; ++button) {
+			if (SDL_JoystickGetButton(joystick, button)) {
+				if (button & 1) {
+					status &= ~JOY_BUTTONB;
+				} else {
+					status &= ~JOY_BUTTONA;
+				}
+			}
+		}
+	}
+}
+
+// EventListener
 void Joystick::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
 {
 	const JoystickEvent* joyEvent =
@@ -141,32 +179,20 @@ void Joystick::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*
 	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
 		const JoystickButtonEvent& buttonEvent =
 			checked_cast<const JoystickButtonEvent&>(*event);
-		switch (buttonEvent.getButton() % 2) {
-		case 0:
-			status &= ~JOY_BUTTONA;
-			break;
-		case 1:
+		if (buttonEvent.getButton() & 1) {
 			status &= ~JOY_BUTTONB;
-			break;
-		default:
-			// ignore other buttons
-			break;
+		} else {
+			status &= ~JOY_BUTTONA;
 		}
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_UP_EVENT: {
 		const JoystickButtonEvent& buttonEvent =
 			checked_cast<const JoystickButtonEvent&>(*event);
-		switch (buttonEvent.getButton() % 2) {
-		case 0:
-			status |= JOY_BUTTONA;
-			break;
-		case 1:
+		if (buttonEvent.getButton() & 1) {
 			status |= JOY_BUTTONB;
-			break;
-		default:
-			// ignore other buttons
-			break;
+		} else {
+			status |= JOY_BUTTONA;
 		}
 		break;
 	}
@@ -176,9 +202,17 @@ void Joystick::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*
 }
 
 template<typename Archive>
-void Joystick::serialize(Archive& /*ar*/, unsigned /*version*/)
+void Joystick::serialize(Archive& ar, unsigned /*version*/)
 {
-	// don't serialize 'status', is controlled by joystick ibutton/motion events
+	// don't serialize 'status':
+	// it should be based on the 'current' joystick state
+	if (ar.isLoader()) {
+		Connector* conn = getConnector();
+		if (joystick && conn) {
+			EmuTime* dummy = 0;
+			plugHelper(*conn, *dummy);
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Joystick);
 

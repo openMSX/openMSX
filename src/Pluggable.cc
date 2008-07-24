@@ -10,8 +10,8 @@ using std::string;
 namespace openmsx {
 
 Pluggable::Pluggable()
-	: connector(NULL)
 {
+	setConnector(NULL);
 }
 
 Pluggable::~Pluggable()
@@ -33,18 +33,23 @@ void Pluggable::plug(Connector& newConnector, const EmuTime& time)
 		                    connector->getName() + ".");
 	}
 	plugHelper(newConnector, time);
-	connector = &newConnector;
+	setConnector(&newConnector);
 }
 
 void Pluggable::unplug(const EmuTime& time)
 {
 	unplugHelper(time);
-	connector = NULL;
+	setConnector(NULL);
 }
 
 Connector* Pluggable::getConnector() const
 {
 	return connector;
+}
+
+void Pluggable::setConnector(Connector* conn)
+{
+	connector = conn;
 }
 
 } // namespace openmsx
