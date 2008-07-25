@@ -536,10 +536,10 @@ template<typename T> struct NonPolymorphicPointerLoader
 		// TODO make combining global/local constr args configurable
 
 		Creator<T> creator;
-		T* tp = creator(args);
+		std::auto_ptr<T> tp(creator(args));
 		ClassLoader<T> loader;
 		loader(ar, *tp, make_tuple(), id, version);
-		return tp;
+		return tp.release();
 	}
 };
 template<typename T> struct PolymorphicPointerLoader
