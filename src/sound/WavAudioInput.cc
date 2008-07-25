@@ -18,7 +18,6 @@ WavAudioInput::WavAudioInput(CommandController& commandController)
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav"))
 	, reference(EmuTime::zero)
-	, plugged(false)
 {
 	audioInputFilenameSetting->attach(*this);
 }
@@ -58,20 +57,18 @@ void WavAudioInput::plugHelper(Connector& /*connector*/, const EmuTime& time)
 		}
 	}
 	reference = time;
-	plugged = true;
 }
 
 void WavAudioInput::unplugHelper(const EmuTime& /*time*/)
 {
 	wav.reset();
-	plugged = false;
 }
 
 void WavAudioInput::update(const Setting& setting)
 {
 	(void)setting;
 	assert(&setting == audioInputFilenameSetting.get());
-	if (plugged) {
+	if (getConnector()) {
 		try {
 			loadWave();
 		} catch (MSXException& e) {
@@ -98,7 +95,6 @@ short WavAudioInput::readSample(const EmuTime& time)
 template<typename Archive>
 void WavAudioInput::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("plugged", plugged);
 	ar.serialize("reference", reference);
 	if (ar.isLoader()) {
 		update(*audioInputFilenameSetting);

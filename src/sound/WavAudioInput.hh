@@ -40,7 +40,6 @@ private:
 
 	std::auto_ptr<WavData> wav;
 	EmuTime reference;
-	bool plugged;
 };
 
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, WavAudioInput, "WavAudioInput");
