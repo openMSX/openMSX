@@ -623,8 +623,8 @@ template<typename sac, bool IN_PLACE = sac::loadInPlace> struct CollectionLoader
 template<typename sac> struct CollectionLoaderHelper<sac, true>
 {
 	// used for array and vector
-	template<typename Archive, typename TUPLE, typename OUT>
-	void operator()(Archive& ar, TUPLE args, OUT it, int id)
+	template<typename Archive, typename TUPLE, typename OUT_ITER>
+	void operator()(Archive& ar, TUPLE args, OUT_ITER it, int id)
 	{
 		ar.doSerialize("item", *it, args, id);
 	}
@@ -635,8 +635,8 @@ template<typename sac> struct CollectionLoaderHelper<sac, false>
 	// This screws-up id/pointer management because the element is still
 	// copied after construction (and pointer value of initial object is
 	// stored).
-	template<typename Archive, typename TUPLE, typename OUT>
-	void operator()(Archive& ar, TUPLE args, OUT it, int id)
+	template<typename Archive, typename TUPLE, typename OUT_ITER>
+	void operator()(Archive& ar, TUPLE args, OUT_ITER it, int id)
 	{
 		typename sac::value_type elem;
 		ar.doSerialize("item", elem, args, id);
