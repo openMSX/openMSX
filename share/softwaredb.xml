@@ -4414,7 +4414,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Matra</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">DF505AECDDB20171CAFD06351E0B7D208365E708</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><type>MatraInk</type><hash algo="sha1">DF505AECDDB20171CAFD06351E0B7D208365E708</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Iriegas - Illegus</title>
@@ -5105,7 +5105,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">2FEFF37D593683CE1C7DFAC33ED3207895E01A03</hash><remark>[RC-741]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><type>Synthesizer</type><hash algo="sha1">2FEFF37D593683CE1C7DFAC33ED3207895E01A03</hash><remark>[RC-741]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">6A7FAA122454BA34CBDB9F1A75A111A1A4763A56</hash><remark>[RC-741][b]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">73A40E7D6DA2BC8489297FD57B7B93B2AA5A6440</hash><remark>[RC-741][b]</remark></rom></dump>
 </software>
@@ -5115,7 +5115,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="false"/><rom><hash algo="sha1">F25C416869372AC07ABEFAD131FC732DFBE33A45</hash><remark>[RC-741]</remark></rom></dump>
+		<dump><original value="false"/><rom><type>Synthesizer</type><hash algo="sha1">F25C416869372AC07ABEFAD131FC732DFBE33A45</hash><remark>[RC-741]</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Konami&#39;s Tennis</title>
@@ -7130,7 +7130,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Sony</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">E6FBFB4B10DC393953211DDA4B114080A08302A1</hash><remark>Uses a sample player chip with built-in ROM</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><type>Playball</type><hash algo="sha1">E6FBFB4B10DC393953211DDA4B114080A08302A1</hash><remark>Uses a sample player chip with built-in ROM</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Poetry</title>
