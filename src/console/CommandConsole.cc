@@ -79,7 +79,6 @@ CommandConsole::~CommandConsole()
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	commandController.getInterpreter().setOutput(NULL);
 	Completer::setOutput(NULL);
-	saveHistory();
 }
 
 void CommandConsole::saveHistory()
@@ -276,6 +275,7 @@ void CommandConsole::commandExecute()
 {
 	resetScrollBack();
 	putCommandHistory(lines[0]);
+	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
 	commandBuffer += lines[0].substr(prompt.length()) + '\n';
 	newLineConsole(lines[0]);
