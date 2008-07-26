@@ -85,6 +85,14 @@ namespace FileOperations {
 	 */
 	std::string getNativePath(const std::string& path);
 
+	/** Returns the current working directory.
+	 */
+	std::string getCurrentWorkingDirectory();
+
+	/** Transform given path into an absolute path
+	 */
+	std::string getAbsolutePath(const std::string& path);
+
 	/**
 	 * Checks whether it's a absolute path or not.
 	 * @param path The pathname.

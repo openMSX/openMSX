@@ -72,18 +72,30 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 	extendedRom = NULL;
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
-	const XMLElement* filenameElem = config.findChild("filename");
-	if (!sums.empty() || filenameElem) {
-		// file specified with SHA1 or filename
-		for (XMLElement::Children::const_iterator it = sums.begin();
-		     it != sums.end(); ++it) {
-			const string& sha1 = (*it)->getData();
-			file = motherBoard.getFilePool().getFile(sha1);
-			if (file.get()) {
-				sha1sum = sha1;
-				break;
+	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
+	const XMLElement* filenameElem         = config.findChild("filename");
+	if (resolvedFilenameElem || !sums.empty() || filenameElem) {
+		// first try already resolved filename ..
+		if (resolvedFilenameElem) {
+			try {
+				file.reset(new File(resolvedFilenameElem->getData()));
+			} catch (FileException& e) {
+				// ignore
 			}
 		}
+		// .. then try based on SHA1 ..
+		if (!file.get()) {
+			for (XMLElement::Children::const_iterator it = sums.begin();
+			     it != sums.end(); ++it) {
+				const string& sha1 = (*it)->getData();
+				file = motherBoard.getFilePool().getFile(sha1);
+				if (file.get()) {
+					sha1sum = sha1;
+					break;
+				}
+			}
+		}
+		// .. and then try filename as originally given by user
 		if (!file.get()) {
 			if (filenameElem) {
 				string filename = filenameElem->getData();

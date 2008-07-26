@@ -80,6 +80,17 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		}
 	}
 
+	string sramfile = FileOperations::getFilename(romfile);
+	auto_ptr<FileContext> context(new UserFileContext("roms/" + sramfile));
+	string resolvedFilename;
+	try {
+		resolvedFilename = FileOperations::getAbsolutePath(
+			context->resolve(
+				motherBoard.getCommandController(), romfile));
+	} catch (MSXException& e) {
+		// Ignore.
+	}
+
 	auto_ptr<XMLElement> extension(new XMLElement("extension"));
 	auto_ptr<XMLElement> devices(new XMLElement("devices"));
 	auto_ptr<XMLElement> primary(new XMLElement("primary"));
@@ -93,6 +104,10 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	mem->addAttribute("size", "0x10000");
 	device->addChild(mem);
 	auto_ptr<XMLElement> rom(new XMLElement("rom"));
+	if (!resolvedFilename.empty()) {
+		rom->addChild(auto_ptr<XMLElement>(
+			new XMLElement("resolvedFilename", resolvedFilename)));
+	}
 	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
 	if (!ipsfiles.empty()) {
@@ -112,11 +127,9 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("mappertype",
 		               mapper.empty() ? "auto" : mapper)));
-	string sramfile = FileOperations::getFilename(romfile);
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
-	device->setFileContext(auto_ptr<FileContext>(
-		new UserFileContext("roms/" + sramfile)));
+	device->setFileContext(context);
 
 	secondary->addChild(device);
 	primary->addChild(secondary);

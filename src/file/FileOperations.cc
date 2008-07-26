@@ -279,6 +279,19 @@ string getConventionalPath(const string &path)
 #endif
 }
 
+string getCurrentWorkingDirectory()
+{
+	char buf[PATH_MAX];
+	getcwd(buf, PATH_MAX);
+	return buf;
+}
+
+string getAbsolutePath(const string& path)
+{
+	string currentDir = getCurrentWorkingDirectory();
+	return join(currentDir, path);
+}
+
 bool isAbsolutePath(const string& path)
 {
 #ifdef _WIN32
