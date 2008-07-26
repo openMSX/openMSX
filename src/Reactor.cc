@@ -24,6 +24,7 @@
 #include "TclObject.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
+#include "XMLException.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
@@ -925,8 +926,14 @@ string LoadMachineCommand::execute(const vector<string>& tokens)
 	}
 
 	//std::cerr << "Loading " << filename << std::endl;
-	XmlInputArchive in(filename);
-	in.serialize("machine", *newBoard);
+	try {
+		XmlInputArchive in(filename);
+		in.serialize("machine", *newBoard);
+	} catch (XMLException& e) {
+		throw CommandException("Cannot load state, bad file format: " + e.getMessage());
+	} catch (MSXException& e) {
+		throw CommandException("Cannot load state: " + e.getMessage());
+	}
 	reactor.boards.push_back(newBoard);
 	return newBoard->getMachineID();
 }
