@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1211304565">
+<softwaredb xml:lang="en" timestamp="1217051630">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -5106,8 +5106,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><type>Synthesizer</type><hash algo="sha1">2FEFF37D593683CE1C7DFAC33ED3207895E01A03</hash><remark>[RC-741]</remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">6A7FAA122454BA34CBDB9F1A75A111A1A4763A56</hash><remark>[RC-741][b]</remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">73A40E7D6DA2BC8489297FD57B7B93B2AA5A6440</hash><remark>[RC-741][b]</remark></rom></dump>
+		<dump><original value="false"/><rom><type>Synthesizer</type><hash algo="sha1">6A7FAA122454BA34CBDB9F1A75A111A1A4763A56</hash><remark>[RC-741][b]</remark></rom></dump>
+		<dump><original value="false"/><rom><type>Synthesizer</type><hash algo="sha1">73A40E7D6DA2BC8489297FD57B7B93B2AA5A6440</hash><remark>[RC-741][b]</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Konami&#39;s Synthesizer Sample Version</title>
@@ -9954,6 +9954,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">A87971B9DF0DE44644C2188F5F475AEF7AE85304</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Zippy Race (aka Traverse USA)</title>
+	<system>MSX</system>
+	<company>Irem / SEGA / Hap</company>
+	<year>2007</year>
+	<country>JP</country>
+		<dump><original value="false"/><rom><hash algo="sha1">55ED66ADA5D8203937554538B485FBE027A2E2BB</hash><remark>MSX conversion 23-01-07 by hap / http://home.planet.nl/~haps/</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Zoids</title>
 	<system>MSX</system>
 	<company>Toshiba Emi</company>
@@ -10005,6 +10013,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2091
-Parse time 3.828 seconds on Tue May 20 19:29:29 CEST 2008
+Roms in this database:2092
+Parse time 4.297 seconds on Sat Jul 26 7:53:55 CEST 2008
  -->
