@@ -57,6 +57,11 @@ public:
 	  */
 	Pluggable* findPluggable(const std::string& name) const;
 
+	/**
+	 * Access to the MSX specific CliComm, so that Connectors can get it.
+	 */
+	CliComm& getCliComm();
+
 private:
 	Connector& getConnector(const std::string& name) const;
 	Pluggable& getPluggable(const std::string& name) const;

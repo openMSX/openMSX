@@ -4,6 +4,7 @@
 #include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "serialize.hh"
+#include "CliComm.hh"
 
 namespace openmsx {
 
@@ -73,7 +74,7 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 			ar.serializePolymorphic("pluggable", *plugged);
 		} else {
 			// was plugged, but we don't have that pluggable anymore
-			// TODO print warning
+			pluggingController.getCliComm().printWarning("Pluggable \"" + plugName + "\" was plugged in, but is not available anymore on this system, so will be ignored.");
 			ar.skipSection(true);
 			plugged = dummy.get();
 		}

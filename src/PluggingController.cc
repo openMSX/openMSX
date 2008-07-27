@@ -324,6 +324,11 @@ Pluggable* PluggingController::findPluggable(const string& name) const
 	return NULL;
 }
 
+CliComm& PluggingController::getCliComm()
+{
+	return cliComm;
+}
+
 Pluggable& PluggingController::getPluggable(const string& name) const
 {
 	Pluggable* result = findPluggable(name);
