@@ -6,6 +6,8 @@
 #include "shared_ptr.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
+#include "StringOp.hh"
+#include "MSXException.hh"
 #include <string>
 #include <cassert>
 #include <memory>
@@ -612,7 +614,9 @@ template<typename TP> struct IDLoader
 			tp = NULL;
 		} else {
 			void* p = ar.getPointer(id);
-			assert(p); // TODO throw
+			if (!p) {
+				throw MSXException("Couldn't find pointer in archive with id " + StringOp::toString(id));
+			}
 			tp = static_cast<T*>(p);
 		}
 		serialize_as_pointer<TP>::setPointer(tp2, tp, ar);

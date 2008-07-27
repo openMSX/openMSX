@@ -5,6 +5,8 @@
 #include "HexDump.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include <cstring>
 #include <zlib.h>
 
@@ -67,9 +69,11 @@ void InputArchiveBase<Derived>::serialize_blob(
 	} else if (encoding == "base64") {
 		tmp2 = Base64::decode(tmp);
 	} else {
-		assert(false); // TODO exception
+		throw MSXException("Unsupported encoding \"" + encoding + "\" for blob");
 	}
-	assert(tmp2.size() == len); // TODO exception
+	if (tmp2.size() != len) {
+		throw MSXException("Length of decoded blob (" + StringOp::toString(tmp2.size()) + " not identical to expected value " + StringOp::toString(len));
+	}
 	memcpy(data, tmp2.data(), len);
 }
 
@@ -96,7 +100,9 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 	: current(new XMLElement("serial"))
 {
 	file = gzopen(filename.c_str(), "wb9");
-	assert(file); // TODO
+	if (!file) {
+		throw MSXException("Could not open compressed file \"" + filename + "\"");
+	}
 }
 
 XmlOutputArchive::~XmlOutputArchive()
@@ -171,19 +177,23 @@ void XmlInputArchive::init(const XMLElement* e)
 
 void XmlInputArchive::load(string& t)
 {
-	assert(elems.back()->getChildren().empty()); // throw
+	if (!elems.back()->getChildren().empty()) {
+		throw MSXException("No child tags expected for string types");
+	}
 	t = elems.back()->getData();
 }
 void XmlInputArchive::load(bool& b)
 {
-	assert(elems.back()->getChildren().empty()); // throw
+	if (!elems.back()->getChildren().empty()) {
+		throw MSXException("No child tags expected for boolean types");
+	}
 	string s = elems.back()->getData();
 	if (s == "true") {
 		b = true;
 	} else if (s == "false") {
 		b = false;
 	} else {
-		assert(false); // throw
+		throw MSXException("Bad value found for boolean: " + s);
 	}
 }
 void XmlInputArchive::load(unsigned char& b)
@@ -202,13 +212,17 @@ void XmlInputArchive::load(signed char& c)
 void XmlInputArchive::beginTag(const string& tag)
 {
 	const XMLElement* child = elems.back()->findChild(tag);
-	assert(child); // throw
+	if (!child) {
+		throw MSXException("No child tag found in begin tag \"" + tag + "\"");
+	}
 	elems.push_back(child);
 }
 void XmlInputArchive::endTag(const string& tag)
 {
 	(void)tag;
-	assert(elems.back()->getName() == tag); // throw
+	if (elems.back()->getName() != tag) {
+		throw MSXException("End tag \"" + elems.back()->getName() + "\" not equal to begin tag \"" + tag + "\"");
+	}
 	XMLElement* elem = const_cast<XMLElement*>(elems.back());
 	elem->setName(""); // mark this elem for later beginTag() calls
 	elems.pop_back();
@@ -216,7 +230,9 @@ void XmlInputArchive::endTag(const string& tag)
 
 void XmlInputArchive::attribute(const string& name, string& t)
 {
-	assert(hasAttribute(name)); // throw
+	if (!hasAttribute(name)) {
+		throw MSXException("Missing attribute \"" + name + "\"");
+	}
 	t = elems.back()->getAttribute(name);
 }
 bool XmlInputArchive::hasAttribute(const string& name)
