@@ -11,7 +11,6 @@ SRC_HDR:= \
 	Math \
 	MemoryOps \
 	StringOp \
-	Unicode \
 	sha1 \
 	uint128 \
 	DivModBySame
@@ -30,6 +29,9 @@ HDR_ONLY:= \
 	tuple \
 	TypeInfo \
 	type_traits \
-	DivModByConst
+	DivModByConst \
+	utf8_core.hh \
+	utf8_checked.hh \
+	utf8_unchecked.hh \
 
 include build/node-end.mk

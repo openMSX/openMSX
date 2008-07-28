@@ -4,7 +4,6 @@
 #define KEYBOARD_HH
 
 #include "MSXEventListener.hh"
-#include "Unicode.hh"
 #include "Observer.hh"
 #include "Schedulable.hh"
 #include "openmsx.hh"
@@ -86,11 +85,10 @@ private:
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const std::string& filename);
 	std::string processCmd(const std::vector<std::string>& tokens, bool up);
-	bool pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool down);
-	int pressAscii(Unicode::unicode1_char unicode, bool down);
+	bool pressUnicodeByUser(unsigned unicode, int key, bool down);
+	int pressAscii(unsigned unicode, bool down);
 	void pressLockKeys(int lockKeysMask, bool down);
-	bool commonKeys(Unicode::unicode1_char unicode1,
-	                Unicode::unicode1_char unicode2);
+	bool commonKeys(unsigned unicode1, unsigned unicode2);
 	void debug(const char* format, ...);
 
 	CommandController& commandController;
@@ -125,7 +123,7 @@ private:
 	static const int MAX_KEYSYM = 0x150;
 	static byte keyTab[MAX_KEYSYM][2];
 //	static short asciiTab[256][2];
-	Unicode::unicode1_char dynKeymap[MAX_KEYSYM];
+	unsigned dynKeymap[MAX_KEYSYM];
 	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
 };
 

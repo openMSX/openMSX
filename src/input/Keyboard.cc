@@ -18,6 +18,7 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "UnicodeKeymap.hh"
+#include "utf8_checked.hh"
 #include "checked_cast.hh"
 #include <SDL.h>
 #include <cstdio>
@@ -96,9 +97,9 @@ private:
 	virtual const string& schedName() const;
 
 	Keyboard& keyboard;
-	Unicode::unicode1_string text;
+	string text_utf8;
 	bool releaseLast;
-	Unicode::unicode1_char last;
+	unsigned last;
 	int lockKeysMask;
 	bool oldCodeKanaLockOn;
 	bool oldGraphLockOn;
@@ -450,7 +451,7 @@ bool Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	Keys::KeyCode key = static_cast<Keys::KeyCode>
 		(int(keyCode) & int(Keys::K_MASK));
-	Unicode::unicode1_char unicode;
+	unsigned unicode;
 
 	bool isOnKeypad = (
 		(key >= Keys::K_KP0 && key <= Keys::K_KP9) ||
@@ -662,7 +663,7 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
  *              7    6     5     4    3      2     1    0
  * row  6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
  */
-bool Keyboard::pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool down)
+bool Keyboard::pressUnicodeByUser(unsigned unicode, int key, bool down)
 {
 	bool insertCodeKanaRelease = false;
 	byte shiftkeymask = (key >= Keys::K_A && key <= Keys::K_Z) ? 0x00 : SHIFT_MASK;
@@ -722,7 +723,7 @@ bool Keyboard::pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool 
  * The characters are inserted in a separate keyboard matrix, to prevent
  * interference with the keypresses of the user on the MSX itself
  */
-int Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
+int Keyboard::pressAscii(unsigned unicode, bool down)
 {
 	int releaseMask = 0;
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap->get(unicode);
@@ -796,8 +797,7 @@ void Keyboard::pressLockKeys(int lockKeysMask, bool down)
  * a short while after releasing a key (to enter a certain character) before
  * pressing the next key (to enter the next character)
  */
-bool Keyboard::commonKeys(Unicode::unicode1_char unicode1,
-                          Unicode::unicode1_char unicode2)
+bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
 {
 	// get row / mask of key (note: ignore modifier mask)
 	UnicodeKeymap::KeyInfo keyInfo1 = unicodeKeymap->get(unicode1);
@@ -963,10 +963,10 @@ void KeyInserter::type(const string& str)
 	oldCodeKanaLockOn = keyboard.msxCodeKanaLockOn;
 	oldGraphLockOn = keyboard.msxGraphLockOn;
 	oldCapsLockOn = keyboard.msxCapsLockOn;
-	if (text.empty()) {
+	if (text_utf8.empty()) {
 		reschedule(getCurrentTime());
 	}
-	text += Unicode::utf8ToUnicode1(str);
+	text_utf8 += str;
 }
 
 void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
@@ -978,7 +978,7 @@ void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 	if (releaseLast) {
 		keyboard.pressAscii(last, false); // release previous character
 	}
-	if (text.empty()) {
+	if (text_utf8.empty()) {
 		releaseLast = false;
 		lockKeysMask = 0;
 		if (oldCodeKanaLockOn != keyboard.msxCodeKanaLockOn) {
@@ -1003,23 +1003,30 @@ void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 		}
 		return;
 	}
-	Unicode::unicode1_char current = text[0];
-	if (releaseLast == true && keyboard.commonKeys(last, current)) {
-		// There are common keys between previous and current character
-		// Do not immediately press again but give MSX the time to notice
-		// that the keys have been released
-		releaseLast = false;
-	} else {
-		// All keys in current char differ from previous char. The new keys
-		// can immediately be pressed
-		lockKeysMask = keyboard.pressAscii(current, true);
-		if (lockKeysMask == 0) {
-			last = current;
-			releaseLast = true;
-			text = text.substr(1);
+
+	try {
+		string::iterator it = text_utf8.begin();
+		unsigned current = utf8::next(it, text_utf8.end());
+		if (releaseLast == true && keyboard.commonKeys(last, current)) {
+			// There are common keys between previous and current character
+			// Do not immediately press again but give MSX the time to notice
+			// that the keys have been released
+			releaseLast = false;
+		} else {
+			// All keys in current char differ from previous char. The new keys
+			// can immediately be pressed
+			lockKeysMask = keyboard.pressAscii(current, true);
+			if (lockKeysMask == 0) {
+				last = current;
+				releaseLast = true;
+				text_utf8.erase(text_utf8.begin(), it);
+			}
 		}
+		reschedule(time);
+	} catch (std::exception& e) {
+		// utf8 encoding error
+		text_utf8.clear();
 	}
-	reschedule(time);
 }
 
 void KeyInserter::reschedule(const EmuTime& time)

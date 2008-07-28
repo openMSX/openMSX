@@ -1,6 +1,15 @@
 $Id$
 
 2008-07-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Changed our Unicode code with UTF8-CPP code:
+	       http://utfcpp.sourceforge.net/
+	    This fixes the TODO's left in our Unicode code. But it's mainly
+	    dome as preparation to serialize the Keyboard class (because a
+	    'type' command in progress doesn't survive a savestate ATM). The
+	    old code in the Keyboard class contained a UTF16 encoded string,
+	    but the serialization framework can't (directly) serialize that.
+
+2008-07-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized de-serialization of arrays:
 	   Directly deserialize the elements in the correct position in
 	   memory. Before the element was loaded in a local variable and
