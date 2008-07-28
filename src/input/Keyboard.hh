@@ -31,6 +31,8 @@ class UnicodeKeymap;
 class Keyboard : private MSXEventListener, private Schedulable, private Observer<Setting>
 {
 public:
+	static const unsigned NR_KEYROWS = 16;
+
 	/**
 	 * Constructs a new Keyboard object.
 	 * @param scheduler ref to the scheduler
@@ -58,7 +60,8 @@ public:
 	 */
 	const byte* getKeys();
 
-	static const unsigned NR_KEYROWS = 16;
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// Observer<Setting>
@@ -107,24 +110,24 @@ private:
 	const std::auto_ptr<KeyboardSettings> keyboardSettings;
 	const std::auto_ptr<MsxKeyEventQueue> msxKeyEventQueue;
 
+	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
 	byte keyMatrix[NR_KEYROWS];
 	byte msxmodifiers;
-	bool keyGhosting;
-	bool keyGhostingSGCprotected;
+	const bool hasKeypad;
+	const bool keyGhosting;
+	const bool keyGhostingSGCprotected;
+	const bool codeKanaLocks;
+	const bool graphLocks;
 	bool keysChanged;
 	bool msxCapsLockOn;
-	bool hasKeypad;
 	bool msxCodeKanaLockOn;
-	bool codeKanaLocks;
 	bool msxGraphLockOn;
-	bool graphLocks;
+
 	static const int MAX_KEYSYM = 0x150;
 	static byte keyTab[MAX_KEYSYM][2];
-//	static short asciiTab[256][2];
 	unsigned dynKeymap[MAX_KEYSYM];
-	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
 };
 
 } // namespace openmsx

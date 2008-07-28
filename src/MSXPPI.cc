@@ -207,7 +207,7 @@ void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
 		nibble bits = (portC >> 4) & 0xF;
 		writeC1(bits, getCurrentTime());
 	}
-	// TODO ??? keyboard
+	ar.serialize("keyboard", *keyboard);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXPPI);
 

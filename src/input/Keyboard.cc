@@ -20,6 +20,7 @@
 #include "UnicodeKeymap.hh"
 #include "utf8_checked.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstdlib>
@@ -77,12 +78,14 @@ private:
 	Keyboard& keyboard;
 };
 
-class KeyInserter : public RecordedCommand, private Schedulable
+class KeyInserter : public RecordedCommand, public Schedulable
 {
 public:
 	KeyInserter(CommandController& commandController,
 	            MSXEventDistributor& msxEventDistributor,
 	            Scheduler& scheduler, Keyboard& keyboard);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void type(const string& str);
@@ -203,15 +206,15 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	, keyboardSettings(new KeyboardSettings(commandController))
 	, msxKeyEventQueue(new MsxKeyEventQueue(scheduler, *this))
 	, unicodeKeymap(new UnicodeKeymap(keyboardType))
+	, hasKeypad(hasKP)
+	, keyGhosting(keyGhosting_)
+	, keyGhostingSGCprotected(keyGhostSGCprotected)
+	, codeKanaLocks(codeKanaLocks_)
+	, graphLocks(graphLocks_)
 {
-	hasKeypad = hasKP;
-	keyGhosting = keyGhosting_;
-	keyGhostingSGCprotected = keyGhostSGCprotected;
 	keysChanged = false;
 	msxCapsLockOn = false;
-	codeKanaLocks = codeKanaLocks_;
 	msxCodeKanaLockOn = false;
-	graphLocks = graphLocks_;
 	msxGraphLockOn = false;
 	msxmodifiers = 0xff;
 	memset(keyMatrix,     255, sizeof(keyMatrix));
@@ -527,9 +530,9 @@ bool Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 	} else {
 		// key was released
 		if (key < MAX_KEYSYM) {
-			unicode=dynKeymap[key]; // Get the unicode that was derived from this key
+			unicode = dynKeymap[key]; // Get the unicode that was derived from this key
 		} else {
-			unicode=0;
+			unicode = 0;
 		}
 		if (unicode == 0) {
 			// It was a special key, perform matrix to matrix mapping
@@ -1118,6 +1121,43 @@ const string& CapsLockAligner::schedName() const
 	static const string schedName = "CapsLockAligner";
 	return schedName;
 }
+
+template<typename Archive>
+void KeyInserter::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+	ar.serialize("text", text_utf8);
+	ar.serialize("last", last);
+	ar.serialize("lockKeysMask", lockKeysMask);
+	ar.serialize("releaseLast", releaseLast);
+	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn);
+	ar.serialize("oldGraphLockOn", oldGraphLockOn);
+	ar.serialize("oldCapsLockOn", oldCapsLockOn);
+}
+
+template<typename Archive>
+void Keyboard::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("keyTypeCmd", *keyTypeCmd);
+	ar.serialize("cmdKeyMatrix", cmdKeyMatrix);
+	ar.serialize("msxCapsLockOn", msxCapsLockOn);
+	ar.serialize("msxCodeKanaLockOn", msxCodeKanaLockOn);
+	ar.serialize("msxGraphLockOn", msxGraphLockOn);
+
+	// don't serialize:
+	//   userKeyMatrix
+	//   dynKeymap
+	//   msxmodifiers
+	//   msxKeyEventQueue
+
+	if (ar.isLoader()) {
+		// force recalculation of keyMatrix
+		// (from cmdKeyMatrix and userKeyMatrix)
+		keysChanged = true;
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(Keyboard);
+
 
 /** Keyboard bindings ****************************************/
 
