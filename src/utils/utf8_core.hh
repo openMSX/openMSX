@@ -107,7 +107,7 @@ utf_error validate_next(octet_iterator& it, octet_iterator end,
 {
 	uint32_t cp = *it;
 	// Check the lead octet
-	unsigned length = sequence_length(*it);
+	int length = sequence_length(*it);
 
 	// "Shortcut" for ASCII characters
 	if (length == 1) {
@@ -176,7 +176,7 @@ utf_error validate_next(octet_iterator& it, octet_iterator end,
 	}
 	// Is the code point valid?
 	if (!is_code_point_valid(cp)) {
-		for (unsigned i = 0; i < length - 1; ++i) {
+		for (int i = 0; i < length - 1; ++i) {
 			--it;
 		}
 		return INVALID_CODE_POINT;
