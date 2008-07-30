@@ -173,5 +173,6 @@ void TurboRFDC::serialize(Archive& ar, unsigned /*version*/)
 		setBank(bank);
 	}
 }
+INSTANTIATE_SERIALIZE_METHODS(TurboRFDC);
 
 } // namespace openmsx
