@@ -136,8 +136,6 @@ public:
 	byte AMmask;	// LFO Amplitude Modulation enable mask
 	bool vib;	// LFO Phase Modulation enable flag (active high)
 
-	byte waveform_number; // waveform select
-
 	byte ar;	// attack rate: AR<<2
 	byte dr;	// decay rate:  DR<<2
 	byte rr;	// release rate:RR<<2
@@ -615,7 +613,7 @@ YMF262Slot::YMF262Slot()
 	state = EG_OFF;
 	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
 	eg_sel_dr = eg_m_rr = eg_sh_rr = eg_sel_rr = 0;
-	key = AMmask = waveform_number = 0;
+	key = AMmask = 0;
 	wavetable = &sin_tab[0 * SIN_LEN];
 }
 
@@ -1636,7 +1634,6 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		// store 3-bit value written regardless of current OPL2 or OPL3
 		// mode... (verified on real YMF262)
 		v &= 7;
-		ch.slots[slot & 1].waveform_number = v;
 		// ... but select only waveforms 0-3 in OPL2 mode
 		if (!OPL3_mode) {
 			v &= 3;
@@ -1867,7 +1864,6 @@ void YMF262Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("eg_type", eg_type);
 	ar.serialize("AMmask", AMmask);
 	ar.serialize("vib", vib);
-	ar.serialize("waveform_number", waveform_number);
 	ar.serialize("ar", this->ar);
 	ar.serialize("dr", dr);
 	ar.serialize("rr", rr);
