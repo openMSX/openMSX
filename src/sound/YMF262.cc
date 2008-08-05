@@ -91,6 +91,8 @@ public:
 	inline void FM_KEYOFF(byte key_clr);
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt);
 	inline void advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM);
+	void update_ar_dr();
+	void update_rr();
 	void calc_fc(const YMF262Channel& ch);
 
 	/** Sets the amount of feedback [0..7]
@@ -1136,6 +1138,28 @@ void YMF262Slot::FM_KEYOFF(byte key_clr)
 	}
 }
 
+void YMF262Slot::update_ar_dr()
+{
+	if ((ar + ksr) < 16 + 60) {
+		// verified on real YMF262 - all 15 x rates take "zero" time
+		eg_sh_ar  = eg_rate_shift [ar + ksr];
+		eg_sel_ar = eg_rate_select[ar + ksr];
+	} else {
+		eg_sh_ar  = 0;
+		eg_sel_ar = 13 * RATE_STEPS;
+	}
+	eg_m_ar   = (1 << eg_sh_ar) - 1;
+	eg_sh_dr  = eg_rate_shift [dr + ksr];
+	eg_sel_dr = eg_rate_select[dr + ksr];
+	eg_m_dr   = (1 << eg_sh_dr) - 1;
+}
+void YMF262Slot::update_rr()
+{
+	eg_sh_rr  = eg_rate_shift [rr + ksr];
+	eg_sel_rr = eg_rate_select[rr + ksr];
+	eg_m_rr   = (1 << eg_sh_rr) - 1;
+}
+
 // update phase increment counter of operator (also update the EG rates if necessary)
 void YMF262Slot::calc_fc(const YMF262Channel& ch)
 {
@@ -1147,20 +1171,8 @@ void YMF262Slot::calc_fc(const YMF262Channel& ch)
 	ksr = newKsr;
 
 	// calculate envelope generator rates
-	if ((ar + ksr) < 16 + 60) {
-		eg_sh_ar  = eg_rate_shift [ar + ksr];
-		eg_sel_ar = eg_rate_select[ar + ksr];
-	} else {
-		eg_sh_ar  = 0;
-		eg_sel_ar = 13 * RATE_STEPS;
-	}
-	eg_m_ar   = (1 << eg_sh_ar) - 1;
-	eg_m_dr   = (1 << eg_sh_dr) - 1;
-	eg_m_rr   = (1 << eg_sh_rr) - 1;
-	eg_sh_dr  = eg_rate_shift [dr + ksr];
-	eg_sel_dr = eg_rate_select[dr + ksr];
-	eg_sh_rr  = eg_rate_shift [rr + ksr];
-	eg_sel_rr = eg_rate_select[rr + ksr];
+	update_ar_dr();
+	update_rr();
 }
 
 static const unsigned channelPairTab[18] = {
@@ -1215,12 +1227,11 @@ void YMF262Impl::set_mul(unsigned sl, byte v)
 // set ksl & tl
 void YMF262Impl::set_ksl_tl(unsigned sl, byte v)
 {
-	unsigned chan_no = sl/2;
+	unsigned chan_no = sl / 2;
 	YMF262Channel& ch = channels[chan_no];
 	YMF262Slot& slot = ch.slots[sl & 1];
 
 	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
-
 	slot.ksl = ksl ? 3 - ksl : 31;
 	slot.TL  = (v & 0x3F) << (ENV_BITS - 1 - 7); // 7 bits TL (bit 6 = always 0)
 
@@ -1241,19 +1252,8 @@ void YMF262Impl::set_ar_dr(unsigned sl, byte v)
 	YMF262Slot& slot = ch.slots[sl & 1];
 
 	slot.ar = (v >> 4) ? 16 + ((v >> 4) << 2) : 0;
-	if ((slot.ar + slot.ksr) < 16 + 60) {
-		// verified on real YMF262 - all 15 x rates take "zero" time
-		slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr];
-		slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr];
-	} else {
-		slot.eg_sh_ar  = 0;
-		slot.eg_sel_ar = 13 * RATE_STEPS;
-	}
-	slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
-	slot.dr        = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
-	slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr];
-	slot.eg_m_dr   = (1 << slot.eg_sh_dr) - 1;
-	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr];
+	slot.dr = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
+	slot.update_ar_dr();
 }
 
 // set sustain level & release rate
@@ -1264,9 +1264,7 @@ void YMF262Impl::set_sl_rr(unsigned sl, byte v)
 
 	slot.sl  = sl_tab[v >> 4];
 	slot.rr  = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
-	slot.eg_sh_rr  = eg_rate_shift [slot.rr + slot.ksr];
-	slot.eg_m_rr   = (1 << slot.eg_sh_rr) - 1;
-	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr];
+	slot.update_rr();
 }
 
 byte YMF262Impl::readReg(unsigned r)
