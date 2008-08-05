@@ -91,6 +91,7 @@ public:
 	inline void FM_KEYOFF(byte key_clr);
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt);
 	inline void advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM);
+	void calc_fc(const YMF262Channel& ch);
 
 	/** Sets the amount of feedback [0..7]
 	 */
@@ -151,7 +152,6 @@ public:
 	YMF262Channel();
 	void chan_calc(byte LFO_AM);
 	void chan_calc_ext(byte LFO_AM);
-	void CALC_FCSLOT(YMF262Slot& slot);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -1137,30 +1137,30 @@ void YMF262Slot::FM_KEYOFF(byte key_clr)
 }
 
 // update phase increment counter of operator (also update the EG rates if necessary)
-void YMF262Channel::CALC_FCSLOT(YMF262Slot& slot)
+void YMF262Slot::calc_fc(const YMF262Channel& ch)
 {
 	// (frequency) phase increment counter
-	slot.Incr = fc * slot.mul;
-	int ksr = kcode >> slot.KSR;
+	Incr = ch.fc * mul;
 
-	if (slot.ksr == ksr) return;
-	slot.ksr = ksr;
+	int newKsr = ch.kcode >> KSR;
+	if (ksr == newKsr) return;
+	ksr = newKsr;
 
 	// calculate envelope generator rates
-	if ((slot.ar + slot.ksr) < 16 + 60) {
-		slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr];
-		slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr];
+	if ((ar + ksr) < 16 + 60) {
+		eg_sh_ar  = eg_rate_shift [ar + ksr];
+		eg_sel_ar = eg_rate_select[ar + ksr];
 	} else {
-		slot.eg_sh_ar  = 0;
-		slot.eg_sel_ar = 13 * RATE_STEPS;
+		eg_sh_ar  = 0;
+		eg_sel_ar = 13 * RATE_STEPS;
 	}
-	slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
-	slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr];
-	slot.eg_m_dr   = (1 << slot.eg_sh_dr) - 1;
-	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr];
-	slot.eg_sh_rr  = eg_rate_shift [slot.rr + slot.ksr];
-	slot.eg_m_rr   = (1 << slot.eg_sh_rr) - 1;
-	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr];
+	eg_m_ar   = (1 << eg_sh_ar) - 1;
+	eg_m_dr   = (1 << eg_sh_dr) - 1;
+	eg_m_rr   = (1 << eg_sh_rr) - 1;
+	eg_sh_dr  = eg_rate_shift [dr + ksr];
+	eg_sel_dr = eg_rate_select[dr + ksr];
+	eg_sh_rr  = eg_rate_shift [rr + ksr];
+	eg_sel_rr = eg_rate_select[rr + ksr];
 }
 
 static const unsigned channelPairTab[18] = {
@@ -1205,10 +1205,10 @@ void YMF262Impl::set_mul(unsigned sl, byte v)
 	if (isExtended(chan_no)) {
 		// 4op mode
 		// update this slot using frequency data for 1st channel of a pair
-		getFirstOfPair(chan_no).CALC_FCSLOT(slot);
+		slot.calc_fc(getFirstOfPair(chan_no));
 	} else {
 		// normal (OPL2 mode or 2op mode)
-		ch.CALC_FCSLOT(slot);
+		slot.calc_fc(ch);
 	}
 }
 
@@ -1531,10 +1531,10 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 					ch3.slots[SLOT2].TLL = ch3.slots[SLOT2].TL + (ch.ksl_base >> ch3.slots[SLOT2].ksl);
 
 					// refresh frequency counter
-					ch.CALC_FCSLOT(ch0.slots[SLOT1]);
-					ch.CALC_FCSLOT(ch0.slots[SLOT2]);
-					ch.CALC_FCSLOT(ch3.slots[SLOT1]);
-					ch.CALC_FCSLOT(ch3.slots[SLOT2]);
+					ch0.slots[SLOT1].calc_fc(ch);
+					ch0.slots[SLOT2].calc_fc(ch);
+					ch3.slots[SLOT1].calc_fc(ch);
+					ch3.slots[SLOT2].calc_fc(ch);
 				} else {
 					// nothing
 				}
@@ -1544,8 +1544,8 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 				ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
 
 				// refresh frequency counter in both SLOTs of this channel
-				ch.CALC_FCSLOT(ch.slots[SLOT1]);
-				ch.CALC_FCSLOT(ch.slots[SLOT2]);
+				ch.slots[SLOT1].calc_fc(ch);
+				ch.slots[SLOT2].calc_fc(ch);
 			}
 		}
 		break;
