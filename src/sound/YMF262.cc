@@ -1295,50 +1295,40 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 {
 	reg[r] = v;
 
-	byte ch_offset = 0;
-	if (r & 0x100) {
-		switch(r) {
-		case 0x101:	// test register
-			return;
+	switch (r) {
+	case 0x104:
+		// 6 channels enable
+		channels[ 0].extended = v & 0x01;
+		channels[ 1].extended = v & 0x02;
+		channels[ 2].extended = v & 0x04;
+		channels[ 9].extended = v & 0x08;
+		channels[10].extended = v & 0x10;
+		channels[11].extended = v & 0x20;
+		return;
 
-		case 0x104: {
-			// 6 channels enable
-			channels[ 0].extended = (v >> 0) & 1;
-			channels[ 1].extended = (v >> 1) & 1;
-			channels[ 2].extended = (v >> 2) & 1;
-			channels[ 9].extended = (v >> 3) & 1;
-			channels[10].extended = (v >> 4) & 1;
-			channels[11].extended = (v >> 5) & 1;
-			return;
+	case 0x105:
+		// OPL3 mode when bit0=1 otherwise it is OPL2 mode
+		OPL3_mode = v & 0x01;
+		if (OPL3_mode) {
+			status2 = 0x02;
 		}
-		case 0x105:	// OPL3 extensions enable register
-			// OPL3 mode when bit0=1 otherwise it is OPL2 mode
-			OPL3_mode = v & 0x01;
-			if (OPL3_mode) {
-				status2 = 0x02;
-			}
 
-			// following behaviour was tested on real YMF262,
-			// switching OPL3/OPL2 modes on the fly:
-			//  - does not change the waveform previously selected
-			//    (unless when ....)
-			//  - does not update CH.A, CH.B, CH.C and CH.D output
-			//    selectors (registers c0-c8) (unless when ....)
-			//  - does not disable channels 9-17 on OPL3->OPL2 switch
-			//  - does not switch 4 operator channels back to 2
-			//    operator channels
-			return;
-
-		default:
-			break;
-		}
-		ch_offset = 9;	// register page #2 starts from channel 9
+		// following behaviour was tested on real YMF262,
+		// switching OPL3/OPL2 modes on the fly:
+		//  - does not change the waveform previously selected
+		//    (unless when ....)
+		//  - does not update CH.A, CH.B, CH.C and CH.D output
+		//    selectors (registers c0-c8) (unless when ....)
+		//  - does not disable channels 9-17 on OPL3->OPL2 switch
+		//  - does not switch 4 operator channels back to 2
+		//    operator channels
+		return;
 	}
 
-	r &= 0xFF;
-	switch(r & 0xE0) {
+	unsigned ch_offset = (r & 0x100) ? 9 : 0;
+	switch (r & 0xE0) {
 	case 0x00: // 00-1F:control
-		switch(r & 0x1F) {
+		switch (r & 0x1F) {
 		case 0x01: // test register
 			break;
 
@@ -1395,12 +1385,9 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		break;
 	}
 	case 0xA0: {
+		// note: not r != 0x1BD, only first register block
 		if (r == 0xBD) {
 			// am depth, vibrato depth, r,bd,sd,tom,tc,hh
-			if (ch_offset != 0) {
-				// 0xbd register is present in set #1 only
-				return;
-			}
 			lfo_am_depth = v & 0x80;
 			lfo_pm_depth_range = (v & 0x40) ? 8 : 0;
 			rhythm = v & 0x3F;
