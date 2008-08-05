@@ -228,6 +228,9 @@ private:
 	void set_sl_rr(unsigned sl, byte v);
 	bool checkMuteHelper();
 
+	inline bool isExtended(unsigned ch);
+	inline YMF262Channel& getFirstOfPair(unsigned ch);
+
 	friend class YMF262Debuggable;
 	const std::auto_ptr<YMF262Debuggable> debuggable;
 
@@ -1161,6 +1164,24 @@ void YMF262Channel::CALC_FCSLOT(YMF262Slot& slot)
 	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr];
 }
 
+static const unsigned channelPairTab[18] = {
+	0,  1,  2,  0,  1,  2, -1, -1, -1,
+	9, 10, 11,  9, 10, 11, -1, -1, -1,
+};
+inline bool YMF262Impl::isExtended(unsigned ch)
+{
+	assert(ch < 18);
+	if (!OPL3_mode) return false;
+	if (channelPairTab[ch] == unsigned(-1)) return false;
+	// TODO store 'extended' bool in both channels ??
+	return channels[channelPairTab[ch]].extended;
+}
+inline YMF262Channel& YMF262Impl::getFirstOfPair(unsigned ch)
+{
+	assert((ch < 18) && (channelPairTab[ch] != unsigned(-1)));
+	return channels[channelPairTab[ch]];
+}
+
 // set multi,am,vib,EG-TYP,KSR,mul
 void YMF262Impl::set_mul(unsigned sl, byte v)
 {
@@ -1174,41 +1195,12 @@ void YMF262Impl::set_mul(unsigned sl, byte v)
 	slot.vib     = (v & 0x40);
 	slot.AMmask  = (v & 0x80) ? ~0 : 0;
 
-	if (OPL3_mode) {
-		// in OPL3 mode
-		// DO THIS:
-		//  if this is one of the slots of 1st channel forming up a 4-op channel
-		//  do normal operation
-		//  else normal 2 operator function
-		// OR THIS:
-		//  if this is one of the slots of 2nd channel forming up a 4-op channel
-		//  update it using channel data of 1st channel of a pair
-		//  else normal 2 operator function
-		switch (chan_no) {
-		case 0: case 1: case 2:
-		case 9: case 10: case 11:
-			// normal
-			ch.CALC_FCSLOT(slot);
-			break;
-		case 3: case 4: case 5:
-		case 12: case 13: case 14: {
-			YMF262Channel& ch3 = channels[chan_no - 3];
-			if (ch3.extended) {
-				// update this slot using frequency data for 1st channel of a pair
-				ch3.CALC_FCSLOT(slot);
-			} else {
-				// normal
-				ch.CALC_FCSLOT(slot);
-			}
-			break;
-		}
-		default:
-			// normal
-			ch.CALC_FCSLOT(slot);
-			break;
-		}
+	if (isExtended(chan_no)) {
+		// 4op mode
+		// update this slot using frequency data for 1st channel of a pair
+		getFirstOfPair(chan_no).CALC_FCSLOT(slot);
 	} else {
-		// in OPL2 mode
+		// normal (OPL2 mode or 2op mode)
 		ch.CALC_FCSLOT(slot);
 	}
 }
