@@ -229,7 +229,6 @@ private:
 	bool checkMuteHelper();
 
 	inline bool isExtended(unsigned ch) const;
-	inline unsigned getFirstOfPairNum(unsigned ch) const;
 	inline YMF262Channel& getFirstOfPair(unsigned ch);
 	inline YMF262Channel& getSecondOfPair(unsigned ch);
 
@@ -1178,7 +1177,7 @@ inline bool YMF262Impl::isExtended(unsigned ch) const
 	// TODO store 'extended' bool in both channels ??
 	return channels[channelPairTab[ch]].extended;
 }
-inline unsigned getFirstOfPairNum(unsigned ch) const
+static inline unsigned getFirstOfPairNum(unsigned ch)
 {
 	assert((ch < 18) && (channelPairTab[ch] != unsigned(-1)));
 	return channelPairTab[ch];
@@ -1465,80 +1464,35 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		}
 		unsigned chan_no = (r & 0x0F) + ch_offset;
 		YMF262Channel& ch  = channels[chan_no];
-		YMF262Channel& ch3 = channels[chan_no + 3];
 		int block_fnum;
 		if (!(r & 0x10)) {
 			// a0-a8
-			block_fnum  = (ch.block_fnum&0x1F00) | v;
+			block_fnum  = (ch.block_fnum & 0x1F00) | v;
 		} else {
 			// b0-b8
 			block_fnum = ((v & 0x1F) << 8) | (ch.block_fnum & 0xFF);
-			if (OPL3_mode) {
-				// in OPL3 mode
-				// DO THIS:
-				// if this is 1st channel forming up a 4-op channel
-				// ALSO keyon/off slots of 2nd channel forming up 4-op channel
-				// else normal 2 operator function keyon/off
-				// OR THIS:
-				// if this is 2nd channel forming up 4-op channel just do nothing
-				// else normal 2 operator function keyon/off
-				switch(chan_no) {
-				case 0: case 1: case 2:
-				case 9: case 10: case 11:
-					if (ch.extended) {
-						//if this is 1st channel forming up a 4-op channel
-						//ALSO keyon/off slots of 2nd channel forming up 4-op channel
-						if (v & 0x20) {
-							ch.slots[SLOT1].FM_KEYON (1);
-							ch.slots[SLOT2].FM_KEYON (1);
-							ch3.slots[SLOT1].FM_KEYON(1);
-							ch3.slots[SLOT2].FM_KEYON(1);
-						} else {
-							ch.slots[SLOT1].FM_KEYOFF (1);
-							ch.slots[SLOT2].FM_KEYOFF (1);
-							ch3.slots[SLOT1].FM_KEYOFF(1);
-							ch3.slots[SLOT2].FM_KEYOFF(1);
-						}
-					} else {
-						//else normal 2 operator function keyon/off
-						if (v & 0x20) {
-							ch.slots[SLOT1].FM_KEYON (1);
-							ch.slots[SLOT2].FM_KEYON (1);
-						} else {
-							ch.slots[SLOT1].FM_KEYOFF(1);
-							ch.slots[SLOT2].FM_KEYOFF(1);
-						}
-					}
-					break;
-
-				case 3: case 4: case 5:
-				case 12: case 13: case 14: {
-					YMF262Channel& ch_3 = channels[chan_no - 3];
-					if (ch_3.extended) {
-						//if this is 2nd channel forming up 4-op channel just do nothing
-					} else {
-						//else normal 2 operator function keyon/off
-						if (v & 0x20) {
-							ch.slots[SLOT1].FM_KEYON (1);
-							ch.slots[SLOT2].FM_KEYON (1);
-						} else {
-							ch.slots[SLOT1].FM_KEYOFF(1);
-							ch.slots[SLOT2].FM_KEYOFF(1);
-						}
-					}
-					break;
-				}
-				default:
+			if (isExtended(chan_no)) {
+				if (getFirstOfPairNum(chan_no) == chan_no) {
+					// keyon/off slots of both channels
+					// forming a 4-op channel
+					YMF262Channel& ch0 = getFirstOfPair(chan_no);
+					YMF262Channel& ch3 = getSecondOfPair(chan_no);
 					if (v & 0x20) {
-						ch.slots[SLOT1].FM_KEYON (1);
-						ch.slots[SLOT2].FM_KEYON (1);
+						ch0.slots[SLOT1].FM_KEYON(1);
+						ch0.slots[SLOT2].FM_KEYON(1);
+						ch3.slots[SLOT1].FM_KEYON(1);
+						ch3.slots[SLOT2].FM_KEYON(1);
 					} else {
-						ch.slots[SLOT1].FM_KEYOFF(1);
-						ch.slots[SLOT2].FM_KEYOFF(1);
+						ch0.slots[SLOT1].FM_KEYOFF(1);
+						ch0.slots[SLOT2].FM_KEYOFF(1);
+						ch3.slots[SLOT1].FM_KEYOFF(1);
+						ch3.slots[SLOT2].FM_KEYOFF(1);
 					}
-					break;
+				} else {
+					// do nothing
 				}
 			} else {
+				// 2 operator function keyon/off
 				if (v & 0x20) {
 					ch.slots[SLOT1].FM_KEYON (1);
 					ch.slots[SLOT2].FM_KEYON (1);
@@ -1562,78 +1516,31 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 			// if notesel == 0 -> lsb of kcode is bit 10 (MSB) of fnum
 			// if notesel == 1 -> lsb of kcode is bit 9 (MSB-1) of fnum
 			if (nts) {
-				ch.kcode |= (ch.block_fnum & 0x100) >> 8;	// notesel == 1
+				ch.kcode |= (ch.block_fnum & 0x100) >> 8; // notesel == 1
 			} else {
-				ch.kcode |= (ch.block_fnum & 0x200) >> 9;	// notesel == 0
+				ch.kcode |= (ch.block_fnum & 0x200) >> 9; // notesel == 0
 			}
-			if (OPL3_mode) {
-				// in OPL3 mode
-				//DO THIS:
-				//if this is 1st channel forming up a 4-op channel
-				//ALSO update slots of 2nd channel forming up 4-op channel
-				//else normal 2 operator function keyon/off
-				//OR THIS:
-				//if this is 2nd channel forming up 4-op channel just do nothing
-				//else normal 2 operator function keyon/off
-				switch (chan_no) {
-				case 0: case 1: case 2:
-				case 9: case 10: case 11:
-					if (ch.extended) {
-						//if this is 1st channel forming up a 4-op channel
-						//ALSO update slots of 2nd channel forming up 4-op channel
+			if (isExtended(chan_no)) {
+				if (getFirstOfPairNum(chan_no) == chan_no) {
+					// update slots of both channels
+					// forming up 4-op channel
+					// refresh Total Level
+					YMF262Channel& ch0 = getFirstOfPair(chan_no);
+					YMF262Channel& ch3 = getSecondOfPair(chan_no);
+					ch0.slots[SLOT1].TLL = ch0.slots[SLOT1].TL + (ch.ksl_base >> ch0.slots[SLOT1].ksl);
+					ch0.slots[SLOT2].TLL = ch0.slots[SLOT2].TL + (ch.ksl_base >> ch0.slots[SLOT2].ksl);
+					ch3.slots[SLOT1].TLL = ch3.slots[SLOT1].TL + (ch.ksl_base >> ch3.slots[SLOT1].ksl);
+					ch3.slots[SLOT2].TLL = ch3.slots[SLOT2].TL + (ch.ksl_base >> ch3.slots[SLOT2].ksl);
 
-						// refresh Total Level in FOUR SLOTs of this channel and channel+3 using data from THIS channel
-						ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
-						ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
-						ch3.slots[SLOT1].TLL = ch3.slots[SLOT1].TL + (ch.ksl_base >> ch3.slots[SLOT1].ksl);
-						ch3.slots[SLOT2].TLL = ch3.slots[SLOT2].TL + (ch.ksl_base >> ch3.slots[SLOT2].ksl);
-
-						// refresh frequency counter in FOUR SLOTs of this channel and channel+3 using data from THIS channel
-						ch.CALC_FCSLOT(ch.slots[SLOT1]);
-						ch.CALC_FCSLOT(ch.slots[SLOT2]);
-						ch.CALC_FCSLOT(ch3.slots[SLOT1]);
-						ch.CALC_FCSLOT(ch3.slots[SLOT2]);
-					} else {
-						//else normal 2 operator function
-						// refresh Total Level in both SLOTs of this channel
-						ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
-						ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
-
-						// refresh frequency counter in both SLOTs of this channel
-						ch.CALC_FCSLOT(ch.slots[SLOT1]);
-						ch.CALC_FCSLOT(ch.slots[SLOT2]);
-					}
-					break;
-
-				case 3: case 4: case 5:
-				case 12: case 13: case 14: {
-					YMF262Channel& ch_3 = channels[chan_no - 3];
-					if (ch_3.extended) {
-						//if this is 2nd channel forming up 4-op channel just do nothing
-					} else {
-						//else normal 2 operator function
-						// refresh Total Level in both SLOTs of this channel
-						ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
-						ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
-
-						// refresh frequency counter in both SLOTs of this channel
-						ch.CALC_FCSLOT(ch.slots[SLOT1]);
-						ch.CALC_FCSLOT(ch.slots[SLOT2]);
-					}
-					break;
-				}
-				default:
-					// refresh Total Level in both SLOTs of this channel
-					ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
-					ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
-
-					// refresh frequency counter in both SLOTs of this channel
-					ch.CALC_FCSLOT(ch.slots[SLOT1]);
-					ch.CALC_FCSLOT(ch.slots[SLOT2]);
-					break;
+					// refresh frequency counter
+					ch.CALC_FCSLOT(ch0.slots[SLOT1]);
+					ch.CALC_FCSLOT(ch0.slots[SLOT2]);
+					ch.CALC_FCSLOT(ch3.slots[SLOT1]);
+					ch.CALC_FCSLOT(ch3.slots[SLOT2]);
+				} else {
+					// nothing
 				}
 			} else {
-				// in OPL2 mode
 				// refresh Total Level in both SLOTs of this channel
 				ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
 				ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
@@ -1685,7 +1592,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 				ch3.slots[SLOT2].connect = &chanout[chan_no3];
 				break;
 			case 1:
-				// 1 -> 2 -\
+				// 1 -> 2 -\.
 				// 3 -> 4 --+-> out
 				ch0.slots[SLOT1].connect = &phase_modulation;
 				ch0.slots[SLOT2].connect = &chanout[chan_no0];
@@ -1693,7 +1600,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 				ch3.slots[SLOT2].connect = &chanout[chan_no3];
 				break;
 			case 2:
-				// 1 ----------\
+				// 1 ----------\.
 				// 2 -> 3 -> 4 -+-> out
 				ch0.slots[SLOT1].connect = &chanout[chan_no0];
 				ch0.slots[SLOT2].connect = &phase_modulation2;
@@ -1701,7 +1608,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 				ch3.slots[SLOT2].connect = &chanout[chan_no3];
 				break;
 			case 3:
-				// 1 -----\
+				// 1 -----\.
 				// 2 -> 3 -+-> out
 				// 4 -----/
 				ch0.slots[SLOT1].connect = &chanout[chan_no0];
