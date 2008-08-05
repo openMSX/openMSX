@@ -815,10 +815,10 @@ void YMF262Channel::chan_calc(byte LFO_AM)
 	phase_modulation2 = 0;
 
 	// SLOT 1
-	slots[SLOT1].op1_out[0] = slots[SLOT1].op1_out[1];
 	int out = slots[SLOT1].fb_shift
 		? slots[SLOT1].op1_out[0] + slots[SLOT1].op1_out[1]
 		: 0;
+	slots[SLOT1].op1_out[0] = slots[SLOT1].op1_out[1];
 	slots[SLOT1].op1_out[1] = slots[SLOT1].op_calc(slots[SLOT1].Cnt.toInt() + (out >> slots[SLOT1].fb_shift), LFO_AM);
 	*slots[SLOT1].connect += slots[SLOT1].op1_out[1];
 
@@ -961,13 +961,11 @@ void YMF262Impl::chan_calc_rhythm()
 	//  - output sample always is multiplied by 2
 
 	// SLOT 1
-	SLOT6_1.op1_out[0] = SLOT6_1.op1_out[1];
-
-	phase_modulation = SLOT6_1.CON ? 0 : SLOT6_1.op1_out[0];
-
 	int out = SLOT6_1.fb_shift
 		? SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1]
 		: 0;
+	SLOT6_1.op1_out[0] = SLOT6_1.op1_out[1];
+	phase_modulation = SLOT6_1.CON ? 0 : SLOT6_1.op1_out[0];
 	SLOT6_1.op1_out[1] = SLOT6_1.op_calc(SLOT6_1.Cnt.toInt() + (out >> SLOT6_1.fb_shift), LFO_AM);
 
 	// SLOT 2
