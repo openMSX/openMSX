@@ -228,8 +228,10 @@ private:
 	void set_sl_rr(unsigned sl, byte v);
 	bool checkMuteHelper();
 
-	inline bool isExtended(unsigned ch);
+	inline bool isExtended(unsigned ch) const;
+	inline unsigned getFirstOfPairNum(unsigned ch) const;
 	inline YMF262Channel& getFirstOfPair(unsigned ch);
+	inline YMF262Channel& getSecondOfPair(unsigned ch);
 
 	friend class YMF262Debuggable;
 	const std::auto_ptr<YMF262Debuggable> debuggable;
@@ -1168,7 +1170,7 @@ static const unsigned channelPairTab[18] = {
 	0,  1,  2,  0,  1,  2, -1, -1, -1,
 	9, 10, 11,  9, 10, 11, -1, -1, -1,
 };
-inline bool YMF262Impl::isExtended(unsigned ch)
+inline bool YMF262Impl::isExtended(unsigned ch) const
 {
 	assert(ch < 18);
 	if (!OPL3_mode) return false;
@@ -1176,10 +1178,18 @@ inline bool YMF262Impl::isExtended(unsigned ch)
 	// TODO store 'extended' bool in both channels ??
 	return channels[channelPairTab[ch]].extended;
 }
-inline YMF262Channel& YMF262Impl::getFirstOfPair(unsigned ch)
+inline unsigned getFirstOfPairNum(unsigned ch) const
 {
 	assert((ch < 18) && (channelPairTab[ch] != unsigned(-1)));
-	return channels[channelPairTab[ch]];
+	return channelPairTab[ch];
+}
+inline YMF262Channel& YMF262Impl::getFirstOfPair(unsigned ch)
+{
+	return channels[getFirstOfPairNum(ch) + 0];
+}
+inline YMF262Channel& YMF262Impl::getSecondOfPair(unsigned ch)
+{
+	return channels[getFirstOfPairNum(ch) + 3];
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
@@ -1217,41 +1227,12 @@ void YMF262Impl::set_ksl_tl(unsigned sl, byte v)
 	slot.ksl = ksl ? 3 - ksl : 31;
 	slot.TL  = (v & 0x3F) << (ENV_BITS - 1 - 7); // 7 bits TL (bit 6 = always 0)
 
-	if (OPL3_mode) {
-		// in OPL3 mode
-		//DO THIS:
-		//if this is one of the slots of 1st channel forming up a 4-op channel
-		//do normal operation
-		//else normal 2 operator function
-		//OR THIS:
-		//if this is one of the slots of 2nd channel forming up a 4-op channel
-		//update it using channel data of 1st channel of a pair
-		//else normal 2 operator function
-		switch(chan_no) {
-		case 0: case 1: case 2:
-		case 9: case 10: case 11:
-			// normal
-			slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
-			break;
-		case 3: case 4: case 5:
-		case 12: case 13: case 14: {
-			YMF262Channel& ch3 = channels[chan_no - 3];
-			if (ch3.extended) {
-				// update this slot using frequency data for 1st channel of a pair
-				slot.TLL = slot.TL + (ch3.ksl_base >> slot.ksl);
-			} else {
-				// normal
-				slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
-			}
-			break;
-		}
-		default:
-			// normal
-			slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
-			break;
-		}
+	if (isExtended(chan_no)) {
+		// update this slot using frequency data for 1st channel of a pair
+		YMF262Channel& ch0 = getFirstOfPair(chan_no);
+		slot.TLL = slot.TL + (ch0.ksl_base >> slot.ksl);
 	} else {
-		// in OPL2 mode
+		// normal
 		slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 	}
 }
@@ -1690,113 +1671,50 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		ch.slots[SLOT1].setFeedbackShift((v >> 1) & 7);
 		ch.slots[SLOT1].CON = v & 1;
 
-		if (OPL3_mode) {
-			switch(chan_no) {
-			case 0: case 1: case 2:
-			case 9: case 10: case 11:
-				if (ch.extended) {
-					YMF262Channel& ch3 = channels[chan_no + 3];
-					switch((ch.slots[SLOT1].CON << 1) | ch3.slots[SLOT1].CON) {
-					case 0:
-						// 1 -> 2 -> 3 -> 4 - out
-						ch.slots[SLOT1].connect = &phase_modulation;
-						ch.slots[SLOT2].connect = &phase_modulation2;
-						ch3.slots[SLOT1].connect = &phase_modulation;
-						ch3.slots[SLOT2].connect = &chanout[chan_no + 3];
-						break;
-
-					case 1:
-						// 1 -> 2 -\.
-						// 3 -> 4 -+- out
-						ch.slots[SLOT1].connect = &phase_modulation;
-						ch.slots[SLOT2].connect = &chanout[chan_no];
-						ch3.slots[SLOT1].connect = &phase_modulation;
-						ch3.slots[SLOT2].connect = &chanout[chan_no + 3];
-						break;
-
-					case 2:
-						// 1 -----------\.
-						// 2 -> 3 -> 4 -+- out
-						ch.slots[SLOT1].connect = &chanout[chan_no];
-						ch.slots[SLOT2].connect = &phase_modulation2;
-						ch3.slots[SLOT1].connect = &phase_modulation;
-						ch3.slots[SLOT2].connect = &chanout[chan_no + 3];
-						break;
-
-					case 3:
-						// 1 ------\.
-						// 2 -> 3 -+- out
-						// 4 ------/
-						ch.slots[SLOT1].connect = &chanout[chan_no];
-						ch.slots[SLOT2].connect = &phase_modulation2;
-						ch3.slots[SLOT1].connect = &chanout[chan_no + 3];
-						ch3.slots[SLOT2].connect = &chanout[chan_no + 3];
-						break;
-					}
-				} else {
-					// 2 operators mode
-					ch.slots[SLOT1].connect = ch.slots[SLOT1].CON ? &chanout[chan_no] : &phase_modulation;
-					ch.slots[SLOT2].connect = &chanout[chan_no];
-				}
+		if (isExtended(chan_no)) {
+			unsigned chan_no0 = getFirstOfPairNum(chan_no);
+			unsigned chan_no3 = chan_no + 3;
+			YMF262Channel& ch0 = getFirstOfPair(chan_no);
+			YMF262Channel& ch3 = getSecondOfPair(chan_no);
+			switch ((ch0.slots[SLOT1].CON << 1) | ch3.slots[SLOT1].CON) {
+			case 0:
+				// 1 -> 2 -> 3 -> 4 -> out
+				ch0.slots[SLOT1].connect = &phase_modulation;
+				ch0.slots[SLOT2].connect = &phase_modulation2;
+				ch3.slots[SLOT1].connect = &phase_modulation;
+				ch3.slots[SLOT2].connect = &chanout[chan_no3];
 				break;
-
-			case 3: case 4: case 5:
-			case 12: case 13: case 14: {
-				YMF262Channel& ch3 = channels[chan_no - 3];
-				if (ch3.extended) {
-					switch((ch3.slots[SLOT1].CON << 1) | ch.slots[SLOT1].CON) {
-					case 0:
-						// 1 -> 2 -> 3 -> 4 - out
-						ch3.slots[SLOT1].connect = &phase_modulation;
-						ch3.slots[SLOT2].connect = &phase_modulation2;
-						ch.slots[SLOT1].connect = &phase_modulation;
-						ch.slots[SLOT2].connect = &chanout[chan_no];
-						break;
-
-					case 1:
-						// 1 -> 2 -\.
-						// 3 -> 4 -+- out
-						ch3.slots[SLOT1].connect = &phase_modulation;
-						ch3.slots[SLOT2].connect = &chanout[chan_no - 3];
-						ch.slots[SLOT1].connect = &phase_modulation;
-						ch.slots[SLOT2].connect = &chanout[chan_no];
-						break;
-
-					case 2:
-						// 1 -----------\.
-						// 2 -> 3 -> 4 -+- out
-						ch3.slots[SLOT1].connect = &chanout[chan_no - 3];
-						ch3.slots[SLOT2].connect = &phase_modulation2;
-						ch.slots[SLOT1].connect = &phase_modulation;
-						ch.slots[SLOT2].connect = &chanout[chan_no];
-						break;
-
-					case 3:
-						// 1 ------\.
-						// 2 -> 3 -+- out
-						// 4 ------/
-						ch3.slots[SLOT1].connect = &chanout[chan_no - 3];
-						ch3.slots[SLOT2].connect = &phase_modulation2;
-						ch.slots[SLOT1].connect = &chanout[chan_no];
-						ch.slots[SLOT2].connect = &chanout[chan_no];
-						break;
-					}
-				} else {
-					// 2 operators mode
-					ch.slots[SLOT1].connect = ch.slots[SLOT1].CON ? &chanout[chan_no] : &phase_modulation;
-					ch.slots[SLOT2].connect = &chanout[chan_no];
-				}
+			case 1:
+				// 1 -> 2 -\
+				// 3 -> 4 --+-> out
+				ch0.slots[SLOT1].connect = &phase_modulation;
+				ch0.slots[SLOT2].connect = &chanout[chan_no0];
+				ch3.slots[SLOT1].connect = &phase_modulation;
+				ch3.slots[SLOT2].connect = &chanout[chan_no3];
 				break;
-			}
-			default:
-				// 2 operators mode
-				ch.slots[SLOT1].connect = ch.slots[SLOT1].CON ? &chanout[chan_no] : &phase_modulation;
-				ch.slots[SLOT2].connect = &chanout[chan_no];
+			case 2:
+				// 1 ----------\
+				// 2 -> 3 -> 4 -+-> out
+				ch0.slots[SLOT1].connect = &chanout[chan_no0];
+				ch0.slots[SLOT2].connect = &phase_modulation2;
+				ch3.slots[SLOT1].connect = &phase_modulation;
+				ch3.slots[SLOT2].connect = &chanout[chan_no3];
+				break;
+			case 3:
+				// 1 -----\
+				// 2 -> 3 -+-> out
+				// 4 -----/
+				ch0.slots[SLOT1].connect = &chanout[chan_no0];
+				ch0.slots[SLOT2].connect = &phase_modulation2;
+				ch3.slots[SLOT1].connect = &chanout[chan_no3];
+				ch3.slots[SLOT2].connect = &chanout[chan_no3];
 				break;
 			}
 		} else {
-			// OPL2 mode - always 2 operators mode
-			ch.slots[SLOT1].connect = ch.slots[SLOT1].CON ? &chanout[chan_no] : &phase_modulation;
+			// 2 operators mode
+			ch.slots[SLOT1].connect = ch.slots[SLOT1].CON
+			                        ? &chanout[chan_no]
+			                        : &phase_modulation;
 			ch.slots[SLOT2].connect = &chanout[chan_no];
 		}
 		break;
