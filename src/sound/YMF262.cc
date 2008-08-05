@@ -1950,37 +1950,25 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		// clear channel outputs
 		memset(chanout, 0, sizeof(chanout));
 
-		// register set #1
-		// extended 4op ch#0 part 1 or 2op ch#0
-		channels[0].chan_calc(LFO_AM);
-		if (channels[0].extended) {
-			// extended 4op ch#0 part 2
-			channels[3].chan_calc_ext(LFO_AM);
-		} else {
-			// standard 2op ch#3
-			channels[3].chan_calc(LFO_AM);
+		// channels 0,3 1,4 2,5  9,12 10,13 11,14
+		// in either 2op or 4op mode
+		for (int k = 0; k <= 9; k += 9) {
+			for (int i = 0; i < 3; ++i) {
+				YMF262Channel& ch0 = channels[k + i + 0];
+				YMF262Channel& ch3 = channels[k + i + 3];
+				// extended 4op ch#0 part 1 or 2op ch#0
+				ch0.chan_calc(LFO_AM);
+				if (ch0.extended) {
+					// extended 4op ch#0 part 2
+					ch3.chan_calc_ext(LFO_AM);
+				} else {
+					// standard 2op ch#3
+					ch3.chan_calc(LFO_AM);
+				}
+			}
 		}
 
-		// extended 4op ch#1 part 1 or 2op ch#1
-		channels[1].chan_calc(LFO_AM);
-		if (channels[1].extended) {
-			// extended 4op ch#1 part 2
-			channels[4].chan_calc_ext(LFO_AM);
-		} else {
-			// standard 2op ch#4
-			channels[4].chan_calc(LFO_AM);
-		}
-
-		// extended 4op ch#2 part 1 or 2op ch#2
-		channels[2].chan_calc(LFO_AM);
-		if (channels[2].extended) {
-			// extended 4op ch#2 part 2
-			channels[5].chan_calc_ext(LFO_AM);
-		} else {
-			// standard 2op ch#5
-			channels[5].chan_calc(LFO_AM);
-		}
-
+		// channels 6,7,8 rhythm or 2op mode
 		if (!rhythmEnabled) {
 			channels[6].chan_calc(LFO_AM);
 			channels[7].chan_calc(LFO_AM);
@@ -1988,28 +1976,6 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		} else {
 			// Rhythm part
 			chan_calc_rhythm();
-		}
-
-		// register set #2
-		channels[9].chan_calc(LFO_AM);
-		if (channels[9].extended) {
-			channels[12].chan_calc_ext(LFO_AM);
-		} else {
-			channels[12].chan_calc(LFO_AM);
-		}
-
-		channels[10].chan_calc(LFO_AM);
-		if (channels[10].extended) {
-			channels[13].chan_calc_ext(LFO_AM);
-		} else {
-			channels[13].chan_calc(LFO_AM);
-		}
-
-		channels[11].chan_calc(LFO_AM);
-		if (channels[11].extended) {
-			channels[14].chan_calc_ext(LFO_AM);
-		} else {
-			channels[14].chan_calc(LFO_AM);
 		}
 
 		// channels 15,16,17 are fixed 2-operator channels only
