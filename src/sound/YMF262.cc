@@ -173,7 +173,9 @@ public:
 	//  9 and 12,
 	//  10 and 13,
 	//  11 and 14
-	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
+	bool extended; // set if this channel forms up a 4op channel with
+	               // another channel (only used by first of pair of
+	               // channels, ie 0,1,2 and 9,10,11)
 };
 
 class YMF262Impl : private SoundDevice, private EmuTimerCallback, private Resample
@@ -224,7 +226,6 @@ private:
 	void set_ksl_tl(unsigned sl, byte v);
 	void set_ar_dr(unsigned sl, byte v);
 	void set_sl_rr(unsigned sl, byte v);
-	void update_channels(YMF262Channel& ch);
 	bool checkMuteHelper();
 
 	friend class YMF262Debuggable;
@@ -616,7 +617,8 @@ YMF262Slot::YMF262Slot()
 
 YMF262Channel::YMF262Channel()
 {
-	block_fnum = ksl_base = kcode = extended = 0;
+	block_fnum = ksl_base = kcode = 0;
+	extended = false;
 	fc = FreqIndex(0);
 }
 
@@ -1182,16 +1184,11 @@ void YMF262Impl::set_mul(unsigned sl, byte v)
 		//  if this is one of the slots of 2nd channel forming up a 4-op channel
 		//  update it using channel data of 1st channel of a pair
 		//  else normal 2 operator function
-		switch(chan_no) {
+		switch (chan_no) {
 		case 0: case 1: case 2:
 		case 9: case 10: case 11:
-			if (ch.extended) {
-				// normal
-				ch.CALC_FCSLOT(slot);
-			} else {
-				// normal
-				ch.CALC_FCSLOT(slot);
-			}
+			// normal
+			ch.CALC_FCSLOT(slot);
 			break;
 		case 3: case 4: case 5:
 		case 12: case 13: case 14: {
@@ -1241,13 +1238,8 @@ void YMF262Impl::set_ksl_tl(unsigned sl, byte v)
 		switch(chan_no) {
 		case 0: case 1: case 2:
 		case 9: case 10: case 11:
-			if (ch.extended) {
-				// normal
-				slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
-			} else {
-				// normal
-				slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
-			}
+			// normal
+			slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 			break;
 		case 3: case 4: case 5:
 		case 12: case 13: case 14: {
@@ -1307,16 +1299,6 @@ void YMF262Impl::set_sl_rr(unsigned sl, byte v)
 	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr];
 }
 
-void YMF262Impl::update_channels(YMF262Channel& ch)
-{
-	// update channel passed as a parameter and a channel at CH+=3;
-	if (ch.extended) {
-		// we've just switched to combined 4 operator mode
-	} else {
-		// we've just switched to normal 2 operator mode
-	}
-}
-
 byte YMF262Impl::readReg(unsigned r)
 {
 	// no need to call updateStream(time)
@@ -1351,43 +1333,14 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		case 0x101:	// test register
 			return;
 
-		case 0x104: { // 6 channels enable
-			YMF262Channel& ch0 = channels[0];
-			byte prev = ch0.extended;
-			ch0.extended = (v >> 0) & 1;
-			if (prev != ch0.extended) {
-				update_channels(ch0);
-			}
-			YMF262Channel& ch1 = channels[1];
-			prev = ch1.extended;
-			ch1.extended = (v >> 1) & 1;
-			if (prev != ch1.extended) {
-				update_channels(ch1);
-			}
-			YMF262Channel& ch2 = channels[2];
-			prev = ch2.extended;
-			ch2.extended = (v >> 2) & 1;
-			if (prev != ch2.extended) {
-				update_channels(ch2);
-			}
-			YMF262Channel& ch9 = channels[9];
-			prev = ch9.extended;
-			ch9.extended = (v >> 3) & 1;
-			if (prev != ch9.extended) {
-				update_channels(ch9);
-			}
-			YMF262Channel& ch10 = channels[10];
-			prev = ch10.extended;
-			ch10.extended = (v >> 4) & 1;
-			if (prev != ch10.extended) {
-				update_channels(ch10);
-			}
-			YMF262Channel& ch11 = channels[11];
-			prev = ch11.extended;
-			ch11.extended = (v >> 5) & 1;
-			if (prev != ch11.extended) {
-				update_channels(ch11);
-			}
+		case 0x104: {
+			// 6 channels enable
+			channels[ 0].extended = (v >> 0) & 1;
+			channels[ 1].extended = (v >> 1) & 1;
+			channels[ 2].extended = (v >> 2) & 1;
+			channels[ 9].extended = (v >> 3) & 1;
+			channels[10].extended = (v >> 4) & 1;
+			channels[11].extended = (v >> 5) & 1;
 			return;
 		}
 		case 0x105:	// OPL3 extensions enable register
