@@ -253,9 +253,9 @@ static const int SL_MUTE = 1 << SL_BITS;
 // Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
 static const int PG_BITS = 10;
 static const int PG_WIDTH = 1 << PG_BITS;
+static const int PG_MASK = PG_WIDTH - 1;
 // Phase increment counter
 static const int DP_BITS = 19;
-static const int DP_WIDTH = 1 << DP_BITS;
 static const int DP_BASE_BITS = DP_BITS - PG_BITS;
 // Dynamic range of total level
 static const int TL_BITS = 6;
@@ -820,7 +820,6 @@ unsigned Y8950Slot::calc_phase(int lfo_pm)
 	} else {
 		phase += dphase;
 	}
-	phase &= (DP_WIDTH - 1);
 	return phase >> DP_BASE_BITS;
 }
 
@@ -888,8 +887,8 @@ unsigned Y8950Slot::calc_envelope(int lfo_am)
 int Y8950Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egout = calc_envelope(lfo_am);
-	unsigned pgout = calc_phase(lfo_pm);
-	return dB2LinTab[sintable[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + egout];
+	int pgout = calc_phase(lfo_pm) + wave2_8pi(fm);
+	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
 }
 
 int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
@@ -899,11 +898,9 @@ int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	unsigned pgout = calc_phase(lfo_pm);
 
 	if (patch.FB != 0) {
-		int fm = wave2_4pi(feedback) >> (7-patch.FB);
-		output[0] = dB2LinTab[sintable[(pgout + fm) & (PG_WIDTH - 1)] + egout];
-	} else {
-		output[0] = dB2LinTab[sintable[pgout] + egout];
+		pgout += wave2_4pi(feedback) >> (7 - patch.FB);
 	}
+	output[0] = dB2LinTab[sintable[pgout & PG_MASK] + egout];
 
 	feedback = (output[1] + output[0]) >> 1;
 	return feedback;
@@ -913,7 +910,7 @@ int Y8950Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
-	return dB2LinTab[sintable[pgout] + egout];
+	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
 }
 
 int Y8950Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
