@@ -1265,48 +1265,36 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			reg[rg] = data;
 			break;
 		}
-		if ((rg & 0xf) > 8) {
+		unsigned c = rg & 0x0f;
+		if (c > 8) {
 			// 0xa9-0xaf 0xb9-0xbf
 			break;
 		}
+		unsigned freq;
 		if (!(rg & 0x10)) {
 			// 0xa0-0xa8
-			unsigned c = rg - 0xa0;
-			unsigned freq = data | ((reg[rg + 0x10] & 0x1F) << 8);
-			ch[c].setFreq(freq);
-			unsigned fNum  = freq % 1024;
-			unsigned block = freq / 1024;
-			switch (c) {
-			case 7: noiseA_dphase = fNum << block;
-				break;
-			case 8: noiseB_dphase = fNum << block;
-				break;
-			}
-			ch[c].car.updateAll(freq);
-			ch[c].mod.updateAll(freq);
-			reg[rg] = data;
+			freq = data | ((reg[rg + 0x10] & 0x1F) << 8);
 		} else {
 			// 0xb0-0xb8
-			unsigned c = rg - 0xb0;
-			unsigned freq = reg[rg - 0x10] | ((data & 0x1F) << 8);
-			ch[c].setFreq(freq);
-			unsigned fNum  = freq % 1024;
-			unsigned block = freq / 1024;
-			switch (c) {
-			case 7: noiseA_dphase = fNum << block;
-				break;
-			case 8: noiseB_dphase = fNum << block;
-				break;
-			}
 			if (data & 0x20) {
 				ch[c].keyOn();
 			} else {
 				ch[c].keyOff();
 			}
-			ch[c].mod.updateAll(freq);
-			ch[c].car.updateAll(freq);
-			reg[rg] = data;
+			freq = reg[rg - 0x10] | ((data & 0x1F) << 8);
 		}
+		ch[c].setFreq(freq);
+		unsigned fNum  = freq % 1024;
+		unsigned block = freq / 1024;
+		switch (c) {
+		case 7: noiseA_dphase = fNum << block;
+			break;
+		case 8: noiseB_dphase = fNum << block;
+			break;
+		}
+		ch[c].car.updateAll(freq);
+		ch[c].mod.updateAll(freq);
+		reg[rg] = data;
 		break;
 	}
 	case 0xc0: {
