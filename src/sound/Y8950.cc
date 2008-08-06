@@ -111,7 +111,8 @@ public:
 	// for Envelope Generator (EG)
 	unsigned freq;		// combined F-Number and Block
 	int tll;		// Total Level + Key scale level
-	unsigned rks;		// Key scale offset (Rks)
+	EnvPhaseIndex* dphaseARTableRks;
+	EnvPhaseIndex* dphaseDRTableRks;
 	int eg_mode;		// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
@@ -475,14 +476,14 @@ static void makeTllTable()
 static void makeDphaseARTable()
 {
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseARTable[0][Rks] = EnvPhaseIndex(0);
+		dphaseARTable[Rks][0] = EnvPhaseIndex(0);
 		for (unsigned AR = 1; AR < 15; ++AR) {
 			unsigned RM = std::min(AR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseARTable[AR][Rks] =
+			dphaseARTable[Rks][AR] =
 				EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
 		}
-		dphaseARTable[15][Rks] = EG_DP_MAX;
+		dphaseARTable[Rks][15] = EG_DP_MAX;
 	}
 }
 
@@ -493,12 +494,12 @@ static void makeDphaseDRTable()
 		for (int Rks = 0; Rks < 16; ++Rks) {
 			switch (DR) {
 			case 0:
-				dphaseDRTable[DR][Rks] = EnvPhaseIndex(0);
+				dphaseDRTable[Rks][DR] = EnvPhaseIndex(0);
 				break;
 			default: {
 				int RM = std::min(DR + (Rks >> 2), 15);
 				int RL = Rks & 3;
-				dphaseDRTable[DR][Rks] =
+				dphaseDRTable[Rks][DR] =
 					EnvPhaseIndex(RL + 4) >> (15 - RM);
 				break;
 			}
@@ -544,7 +545,8 @@ void Y8950Slot::reset()
 	eg_mode = FINISH;
 	eg_phase = EG_DP_MAX;
 	eg_dphase = EnvPhaseIndex(0);
-	rks = 0;
+	dphaseARTableRks = dphaseARTable[0];
+	dphaseDRTableRks = dphaseDRTable[0];
 	tll = 0;
 	freq = 0;
 	pgout = 0;
@@ -566,24 +568,26 @@ void Y8950Slot::updateTLL()
 
 void Y8950Slot::updateRKS()
 {
-	rks = freq >> patch.KR;
+	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
+	dphaseARTableRks = dphaseARTable[rks];
+	dphaseDRTableRks = dphaseDRTable[rks];
 }
 
 void Y8950Slot::updateEG()
 {
 	switch (eg_mode) {
 	case ATTACK:
-		eg_dphase = dphaseARTable[patch.AR][rks];
+		eg_dphase = dphaseARTableRks[patch.AR];
 		break;
 	case DECAY:
-		eg_dphase = dphaseDRTable[patch.DR][rks];
+		eg_dphase = dphaseDRTableRks[patch.DR];
 		break;
 	case SUSTINE:
-		eg_dphase = dphaseDRTable[patch.RR][rks];
+		eg_dphase = dphaseDRTableRks[patch.RR];
 		break;
 	case RELEASE:
-		eg_dphase = dphaseDRTable[patch.EG ? patch.RR : 7][rks];
+		eg_dphase = dphaseDRTableRks[patch.EG ? patch.RR : 7];
 		break;
 	case SUSHOLD:
 	case FINISH:
@@ -1450,7 +1454,7 @@ void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		updateAll();
 		// this restores:
-		//  dphase, tll, rks, eg_dphase
+		//  dphase, tll, dphaseARTableRks, dphaseDRTableRks, eg_dphase
 	}
 }
 
