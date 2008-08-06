@@ -78,13 +78,13 @@ public:
 	inline void slotOff();
 
 	inline void calc_phase(int lfo_pm);
-	inline void calc_envelope();
-	inline int calc_slot_car(int lfo_pm, int fm);
-	inline int calc_slot_mod(int lfo_pm);
-	inline int calc_slot_tom(int lfo_pm);
-	inline int calc_slot_snare(int lfo_pm, int whitenoise);
-	inline int calc_slot_cym(int a, int b);
-	inline int calc_slot_hat(int a, int b, int whitenoise);
+	inline void calc_envelope(int lfo_am);
+	inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
+	inline int calc_slot_mod(int lfo_pm, int lfo_am);
+	inline int calc_slot_tom(int lfo_pm, int lfo_am);
+	inline int calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise);
+	inline int calc_slot_cym(int lfo_am, int a, int b);
+	inline int calc_slot_hat(int lfo_am, int a, int b, int whitenoise);
 
 	inline void updateAll(unsigned freq);
 	inline void updatePG(unsigned freq);
@@ -94,9 +94,6 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
-
-	// refer to Y8950->   TODO remove these
-	int* plfo_am;
 
 	// OUTPUT
 	int feedback;
@@ -691,8 +688,6 @@ void Y8950Impl::init(const XMLElement& config, const EmuTime& time)
 		// TODO cleanup
 		slot[i * 2 + 0] = &(ch[i].mod);
 		slot[i * 2 + 1] = &(ch[i].car);
-		ch[i].mod.plfo_am = &lfo_am;
-		ch[i].car.plfo_am = &lfo_am;
 	}
 
 	reset(time);
@@ -849,7 +844,7 @@ static const EnvPhaseIndex SL[16] = {
 	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 };
-void Y8950Slot::calc_envelope()
+void Y8950Slot::calc_envelope(int lfo_am)
 {
 	switch (eg_mode) {
 	case ATTACK:
@@ -899,22 +894,22 @@ void Y8950Slot::calc_envelope()
 
 	egout = ((egout + tll) * EG_PER_DB);
 	if (patch.AM) {
-		egout += *plfo_am;
+		egout += lfo_am;
 	}
 	egout = std::min<unsigned>(egout, DB_MUTE - 1);
 }
 
-int Y8950Slot::calc_slot_car(int lfo_pm, int fm)
+int Y8950Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
-	calc_envelope();
+	calc_envelope(lfo_am);
 	calc_phase(lfo_pm);
 	return dB2LinTab[sintable[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + egout];
 }
 
-int Y8950Slot::calc_slot_mod(int lfo_pm)
+int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 {
 	output[1] = output[0];
-	calc_envelope();
+	calc_envelope(lfo_am);
 	calc_phase(lfo_pm);
 
 	if (patch.FB != 0) {
@@ -928,31 +923,31 @@ int Y8950Slot::calc_slot_mod(int lfo_pm)
 	return feedback;
 }
 
-int Y8950Slot::calc_slot_tom(int lfo_pm)
+int Y8950Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
-	calc_envelope();
+	calc_envelope(lfo_am);
 	calc_phase(lfo_pm);
 	return dB2LinTab[sintable[pgout] + egout];
 }
 
-int Y8950Slot::calc_slot_snare(int lfo_pm, int whitenoise)
+int Y8950Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
 {
-	calc_envelope();
+	calc_envelope(lfo_am);
 	calc_phase(lfo_pm);
 	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
 	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 }
 
-int Y8950Slot::calc_slot_cym(int a, int b)
+int Y8950Slot::calc_slot_cym(int lfo_am, int a, int b)
 {
-	calc_envelope();
+	calc_envelope(lfo_am);
 	return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
 }
 
 // HI-HAT
-int Y8950Slot::calc_slot_hat(int a, int b, int whitenoise)
+int Y8950Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 {
-	calc_envelope();
+	calc_envelope(lfo_am);
 	return (dB2LinTab[egout + whitenoise] +
 	        dB2LinTab[egout + a] +
 	        dB2LinTab[egout + b]) >> 2;
@@ -973,10 +968,10 @@ inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
 	for (int i = 0; i < m; ++i) {
 		if (ch[i].car.eg_mode != FINISH) {
 			bufs[i][sample] += ch[i].alg
-				? ch[i].car.calc_slot_car(lfo_pm, 0) +
-				       ch[i].mod.calc_slot_mod(lfo_pm)
-				: ch[i].car.calc_slot_car(lfo_pm,
-				       ch[i].mod.calc_slot_mod(lfo_pm));
+				? ch[i].car.calc_slot_car(lfo_pm, lfo_am, 0) +
+				       ch[i].mod.calc_slot_mod(lfo_pm, lfo_am)
+				: ch[i].car.calc_slot_car(lfo_pm, lfo_am,
+				       ch[i].mod.calc_slot_mod(lfo_pm, lfo_am));
 		} else {
 			//bufs[i][sample] += 0;
 		}
@@ -987,19 +982,20 @@ inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
 		ch[8].car.calc_phase(lfo_pm);
 
 		bufs[ 6][sample] += (ch[6].car.eg_mode != FINISH)
-			? 2 * ch[6].car.calc_slot_car(lfo_pm, ch[6].mod.calc_slot_mod(lfo_pm))
+			? 2 * ch[6].car.calc_slot_car(lfo_pm, lfo_am,
+			                    ch[6].mod.calc_slot_mod(lfo_pm, lfo_am))
 			: 0;
 		bufs[ 7][sample] += (ch[7].mod.eg_mode != FINISH)
-			? 2 * ch[7].mod.calc_slot_hat(noiseA, noiseB, whitenoise)
+			? 2 * ch[7].mod.calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
 			: 0;
 		bufs[ 8][sample] += (ch[7].car.eg_mode != FINISH)
-			? 2 * ch[7].car.calc_slot_snare(lfo_pm, whitenoise)
+			? 2 * ch[7].car.calc_slot_snare(lfo_pm, lfo_am, whitenoise)
 			: 0;
 		bufs[ 9][sample] += (ch[8].mod.eg_mode != FINISH)
-			? 2 * ch[8].mod.calc_slot_tom(lfo_pm)
+			? 2 * ch[8].mod.calc_slot_tom(lfo_pm, lfo_am)
 			: 0;
 		bufs[10][sample] += (ch[8].car.eg_mode != FINISH)
-			? 2 * ch[8].car.calc_slot_cym(noiseA, noiseB)
+			? 2 * ch[8].car.calc_slot_cym(lfo_am, noiseA, noiseB)
 			: 0;
 	} else {
 		//bufs[ 9] += 0;
