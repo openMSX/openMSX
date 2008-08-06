@@ -1439,17 +1439,19 @@ void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("feedback", feedback);
 	ar.serialize("output", output);
 	ar.serialize("phase", phase);
-	ar.serialize("dphase", dphase);
 	ar.serialize("pgout", pgout);
 	ar.serialize("freq", freq);
-	ar.serialize("tll", tll);
-	ar.serialize("rks", rks);
 	ar.serialize("eg_mode", eg_mode);
 	ar.serialize("eg_phase", eg_phase);
-	ar.serialize("eg_dphase", eg_dphase);
 	ar.serialize("egout", egout);
 	ar.serialize("patch", patch);
 	ar.serialize("slotStatus", slotStatus);
+
+	if (ar.isLoader()) {
+		updateAll();
+		// this restores:
+		//  dphase, tll, rks, eg_dphase
+	}
 }
 
 template<typename Archive>
