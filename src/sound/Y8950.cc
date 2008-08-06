@@ -219,7 +219,6 @@ private:
 	unsigned noiseB_dphase;
 
 	Y8950Channel ch[9];
-	Y8950Slot* slot[18]; // ptrs to ch.mod, ch.car   TODO remove these
 
 	int lfo_pm;
 	int lfo_am;
@@ -673,12 +672,6 @@ void Y8950Impl::init(const XMLElement& config, const EmuTime& time)
 	makeDphaseTable();
 	makeDphaseARTable();
 	makeDphaseDRTable();
-
-	for (int i = 0; i < 9; ++i) {
-		// TODO cleanup
-		slot[i * 2 + 0] = &(ch[i].slot[MOD]);
-		slot[i * 2 + 1] = &(ch[i].slot[CAR]);
-	}
 
 	reset(time);
 	registerSound(config);
@@ -1176,12 +1169,14 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 	case 0x20: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.AM = (data >> 7) &  1;
-			slot[s]->patch.PM = (data >> 6) &  1;
-			slot[s]->patch.EG = (data >> 5) &  1;
-			slot[s]->patch.setKeyScaleRate(data & 0x10);
-			slot[s]->patch.ML = (data >> 0) & 15;
-			slot[s]->updateAll(ch[s / 2].freq);
+			Y8950Channel& chan = ch[s / 2];
+			Y8950Slot& slot = chan.slot[s & 1];
+			slot.patch.AM = (data >> 7) &  1;
+			slot.patch.PM = (data >> 6) &  1;
+			slot.patch.EG = (data >> 5) &  1;
+			slot.patch.setKeyScaleRate(data & 0x10);
+			slot.patch.ML = (data >> 0) & 15;
+			slot.updateAll(chan.freq);
 		}
 		reg[rg] = data;
 		break;
@@ -1189,9 +1184,11 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 	case 0x40: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.KL = (data >> 6) &  3;
-			slot[s]->patch.TL = (data >> 0) & 63;
-			slot[s]->updateAll(ch[s / 2].freq);
+			Y8950Channel& chan = ch[s / 2];
+			Y8950Slot& slot = chan.slot[s & 1];
+			slot.patch.KL = (data >> 6) &  3;
+			slot.patch.TL = (data >> 0) & 63;
+			slot.updateAll(chan.freq);
 		}
 		reg[rg] = data;
 		break;
@@ -1199,9 +1196,10 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 	case 0x60: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.AR = (data >> 4) & 15;
-			slot[s]->patch.DR = (data >> 0) & 15;
-			slot[s]->updateEG();
+			Y8950Slot& slot = ch[s / 2].slot[s & 1];
+			slot.patch.AR = (data >> 4) & 15;
+			slot.patch.DR = (data >> 0) & 15;
+			slot.updateEG();
 		}
 		reg[rg] = data;
 		break;
@@ -1209,9 +1207,10 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 	case 0x80: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.SL = (data >> 4) & 15;
-			slot[s]->patch.RR = (data >> 0) & 15;
-			slot[s]->updateEG();
+			Y8950Slot& slot = ch[s / 2].slot[s & 1];
+			slot.patch.SL = (data >> 4) & 15;
+			slot.patch.RR = (data >> 0) & 15;
+			slot.updateEG();
 		}
 		reg[rg] = data;
 		break;
