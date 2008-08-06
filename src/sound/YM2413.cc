@@ -463,24 +463,15 @@ static void makeTllTable()
 // Rate Table for Attack
 static void makeDphaseARTable()
 {
-	for (unsigned AR = 0; AR < 16; ++AR) {
-		for (unsigned Rks = 0; Rks < 16; ++Rks) {
-			switch (AR) {
-			case 0:
-				dphaseARTable[Rks][AR] = EnvPhaseIndex(0);
-				break;
-			case 15:
-				dphaseARTable[Rks][AR] = EnvPhaseIndex(0); // EG_DP_MAX
-				break;
-			default: {
-				unsigned RM = std::min(AR + (Rks >> 2), 15u);
-				unsigned RL = Rks & 3;
-				dphaseARTable[Rks][AR] =
-					EnvPhaseIndex(6 * (RL + 4)) >> (15 - RM);
-				break;
-			}
-			}
+	for (unsigned Rks = 0; Rks < 16; ++Rks) {
+		dphaseARTable[Rks][0] = EnvPhaseIndex(0);
+		for (unsigned AR = 1; AR < 15; ++AR) {
+			unsigned RM = std::min(AR + (Rks >> 2), 15u);
+			unsigned RL = Rks & 3;
+			dphaseARTable[Rks][AR] =
+				EnvPhaseIndex(6 * (RL + 4)) >> (15 - RM);
 		}
+		dphaseARTable[Rks][15] = EnvPhaseIndex(0); // EG_DP_MAX
 	}
 }
 
