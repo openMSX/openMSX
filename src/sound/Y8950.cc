@@ -77,7 +77,7 @@ public:
 	inline void slotOn();
 	inline void slotOff();
 
-	inline void calc_phase(int lfo_pm);
+	inline unsigned calc_phase(int lfo_pm);
 	inline void calc_envelope(int lfo_am);
 	inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
 	inline int calc_slot_mod(int lfo_pm, int lfo_am);
@@ -102,7 +102,6 @@ public:
 	// for Phase Generator (PG)
 	unsigned phase;		// Phase
 	unsigned dphase;	// Phase increment amount
-	int pgout;		// Output
 
 	// for Envelope Generator (EG)
 	int tll;		// Total Level + Key scale level
@@ -334,17 +333,6 @@ static inline unsigned DB_NEG(int x)
 	return 2 * DB_MUTE + DB_POS(x);
 }
 
-// Cut the lower b bits off
-static inline int HIGHBITS(int c, int b)
-{
-	return c >> b;
-}
-// Expand x which is s bits to d bits
-static inline int EXPAND_BITS(int x, int s, int d)
-{
-	return x << (d - s);
-}
-
 //**************************************************//
 //                                                  //
 //                  Create tables                   //
@@ -532,7 +520,6 @@ void Y8950Slot::reset()
 	feedback = 0;
 	eg_mode = FINISH;
 	eg_phase = EG_DP_MAX;
-	pgout = 0;
 	egout = 0;
 	slotStatus = false;
 	patch.reset();
@@ -824,11 +811,11 @@ void Y8950Impl::update_ampm()
 {
 	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
-	lfo_am = amtable[am_mode][HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
-	lfo_pm = pmtable[pm_mode][HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
+	lfo_am = amtable[am_mode][am_phase >> (AM_DP_BITS - AM_PG_BITS)];
+	lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 }
 
-void Y8950Slot::calc_phase(int lfo_pm)
+unsigned Y8950Slot::calc_phase(int lfo_pm)
 {
 	if (patch.PM) {
 		phase += (dphase * lfo_pm) >> PM_AMP_BITS;
@@ -836,7 +823,7 @@ void Y8950Slot::calc_phase(int lfo_pm)
 		phase += dphase;
 	}
 	phase &= (DP_WIDTH - 1);
-	pgout = HIGHBITS(phase, DP_BASE_BITS);
+	return phase >> DP_BASE_BITS;
 }
 
 #define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
@@ -902,7 +889,7 @@ void Y8950Slot::calc_envelope(int lfo_am)
 int Y8950Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	calc_envelope(lfo_am);
-	calc_phase(lfo_pm);
+	unsigned pgout = calc_phase(lfo_pm);
 	return dB2LinTab[sintable[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + egout];
 }
 
@@ -910,7 +897,7 @@ int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 {
 	output[1] = output[0];
 	calc_envelope(lfo_am);
-	calc_phase(lfo_pm);
+	unsigned pgout = calc_phase(lfo_pm);
 
 	if (patch.FB != 0) {
 		int fm = wave2_4pi(feedback) >> (7-patch.FB);
@@ -926,14 +913,14 @@ int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 int Y8950Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	calc_envelope(lfo_am);
-	calc_phase(lfo_pm);
+	unsigned pgout = calc_phase(lfo_pm);
 	return dB2LinTab[sintable[pgout] + egout];
 }
 
 int Y8950Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
 {
 	calc_envelope(lfo_am);
-	calc_phase(lfo_pm);
+	unsigned pgout = calc_phase(lfo_pm);
 	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
 	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 }
@@ -1414,7 +1401,6 @@ void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("feedback", feedback);
 	ar.serialize("output", output);
 	ar.serialize("phase", phase);
-	ar.serialize("pgout", pgout);
 	ar.serialize("eg_mode", eg_mode);
 	ar.serialize("eg_phase", eg_phase);
 	ar.serialize("egout", egout);
