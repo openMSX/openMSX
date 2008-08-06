@@ -86,11 +86,11 @@ public:
 	inline int calc_slot_cym(int a, int b);
 	inline int calc_slot_hat(int a, int b, int whitenoise);
 
-	inline void updateAll();
+	inline void updateAll(unsigned freq);
+	inline void updatePG(unsigned freq);
+	inline void updateTLL(unsigned freq);
+	inline void updateRKS(unsigned freq);
 	inline void updateEG();
-	inline void updateRKS();
-	inline void updateTLL();
-	inline void updatePG();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -109,7 +109,6 @@ public:
 	int pgout;		// Output
 
 	// for Envelope Generator (EG)
-	unsigned freq;		// combined F-Number and Block
 	int tll;		// Total Level + Key scale level
 	EnvPhaseIndex* dphaseARTableRks;
 	EnvPhaseIndex* dphaseDRTableRks;
@@ -134,6 +133,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	Y8950Slot mod, car;
+	unsigned freq; // combined F-Number and Block
 	bool alg;
 };
 
@@ -531,35 +531,32 @@ void Y8950Patch::reset()
 void Y8950Slot::reset()
 {
 	phase = 0;
-	dphase = 0;
 	output[0] = 0;
 	output[1] = 0;
 	feedback = 0;
 	eg_mode = FINISH;
 	eg_phase = EG_DP_MAX;
-	eg_dphase = EnvPhaseIndex(0);
-	dphaseARTableRks = dphaseARTable[0];
-	dphaseDRTableRks = dphaseDRTable[0];
-	tll = 0;
-	freq = 0;
 	pgout = 0;
 	egout = 0;
 	slotStatus = false;
 	patch.reset();
-	updateAll();
+
+	// this initializes:
+	//   dphase, tll, dphaseARTableRks, dphaseDRTableRks, eg_dphase
+	updateAll(0);
 }
 
-void Y8950Slot::updatePG()
+void Y8950Slot::updatePG(unsigned freq)
 {
 	dphase = dphaseTable[freq][patch.ML];
 }
 
-void Y8950Slot::updateTLL()
+void Y8950Slot::updateTLL(unsigned freq)
 {
 	tll = tllTable[freq >> 6][patch.TL][patch.KL];
 }
 
-void Y8950Slot::updateRKS()
+void Y8950Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
@@ -589,11 +586,11 @@ void Y8950Slot::updateEG()
 	}
 }
 
-void Y8950Slot::updateAll()
+void Y8950Slot::updateAll(unsigned freq)
 {
-	updatePG();
-	updateTLL();
-	updateRKS();
+	updatePG(freq);
+	updateTLL(freq);
+	updateRKS(freq);
 	updateEG(); // EG should be last
 }
 
@@ -630,16 +627,16 @@ Y8950Channel::Y8950Channel()
 
 void Y8950Channel::reset()
 {
+	setFreq(0);
 	mod.reset();
 	car.reset();
 	alg = false;
 }
 
 // Set frequency (combined F-Number (10bit) and Block (3bit))
-void Y8950Channel::setFreq(unsigned freq)
+void Y8950Channel::setFreq(unsigned freq_)
 {
-	car.freq = freq;
-	mod.freq = freq;
+	freq = freq_;
 }
 
 void Y8950Channel::keyOn()
@@ -1210,7 +1207,7 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			slot[s]->patch.EG = (data >> 5) &  1;
 			slot[s]->patch.setKeyScaleRate(data & 0x10);
 			slot[s]->patch.ML = (data >> 0) & 15;
-			slot[s]->updateAll();
+			slot[s]->updateAll(ch[s / 2].freq);
 		}
 		reg[rg] = data;
 		break;
@@ -1220,7 +1217,7 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 		if (s >= 0) {
 			slot[s]->patch.KL = (data >> 6) &  3;
 			slot[s]->patch.TL = (data >> 0) & 63;
-			slot[s]->updateAll();
+			slot[s]->updateAll(ch[s / 2].freq);
 		}
 		reg[rg] = data;
 		break;
@@ -1258,12 +1255,12 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 				if (data & 0x02) keyOn_CYM(); else keyOff_CYM();
 				if (data & 0x01) keyOn_HH();  else keyOff_HH();
 			}
-			ch[6].mod.updateAll();
-			ch[6].car.updateAll();
-			ch[7].mod.updateAll();
-			ch[7].car.updateAll();
-			ch[8].mod.updateAll();
-			ch[8].car.updateAll();
+			ch[6].mod.updateAll(ch[6].freq);
+			ch[6].car.updateAll(ch[6].freq);
+			ch[7].mod.updateAll(ch[7].freq);
+			ch[7].car.updateAll(ch[7].freq);
+			ch[8].mod.updateAll(ch[8].freq);
+			ch[8].car.updateAll(ch[8].freq);
 
 			reg[rg] = data;
 			break;
@@ -1285,8 +1282,8 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			case 8: noiseB_dphase = fNum << block;
 				break;
 			}
-			ch[c].car.updateAll();
-			ch[c].mod.updateAll();
+			ch[c].car.updateAll(freq);
+			ch[c].mod.updateAll(freq);
 			reg[rg] = data;
 		} else {
 			// 0xb0-0xb8
@@ -1306,8 +1303,8 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			} else {
 				ch[c].keyOff();
 			}
-			ch[c].mod.updateAll();
-			ch[c].car.updateAll();
+			ch[c].mod.updateAll(freq);
+			ch[c].car.updateAll(freq);
 			reg[rg] = data;
 		}
 		break;
@@ -1437,18 +1434,14 @@ void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("output", output);
 	ar.serialize("phase", phase);
 	ar.serialize("pgout", pgout);
-	ar.serialize("freq", freq);
 	ar.serialize("eg_mode", eg_mode);
 	ar.serialize("eg_phase", eg_phase);
 	ar.serialize("egout", egout);
 	ar.serialize("patch", patch);
 	ar.serialize("slotStatus", slotStatus);
 
-	if (ar.isLoader()) {
-		updateAll();
-		// this restores:
-		//  dphase, tll, dphaseARTableRks, dphaseDRTableRks, eg_dphase
-	}
+	// These are restored by call to updateAll() in Y8950Channel::serialize()
+	//  dphase, tll, dphaseARTableRks, dphaseDRTableRks, eg_dphase
 }
 
 template<typename Archive>
@@ -1456,7 +1449,13 @@ void Y8950Channel::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mod", mod);
 	ar.serialize("car", car);
+	ar.serialize("freq", freq);
 	ar.serialize("alg", alg);
+
+	if (ar.isLoader()) {
+		mod.updateAll(freq);
+		car.updateAll(freq);
+	}
 }
 
 template<typename Archive>
