@@ -469,7 +469,7 @@ static void makeDphaseARTable()
 			unsigned RM = std::min(AR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
 			dphaseARTable[Rks][AR] =
-				EnvPhaseIndex(6 * (RL + 4)) >> (15 - RM);
+				EnvPhaseIndex(12 * (RL + 4)) >> (16 - RM);
 		}
 		dphaseARTable[Rks][15] = EnvPhaseIndex(0); // EG_DP_MAX
 	}
@@ -478,19 +478,13 @@ static void makeDphaseARTable()
 // Rate Table for Decay
 static void makeDphaseDRTable()
 {
-	for (unsigned DR = 0; DR < 16; ++DR) {
-		for (unsigned Rks = 0; Rks < 16; ++Rks) {
-			switch (DR) {
-			case 0:
-				dphaseDRTable[Rks][DR] = EnvPhaseIndex(0);
-				break;
-			default:
-				unsigned RM = std::min(DR + (Rks >> 2), 15u);
-				unsigned RL = Rks & 3;
-				dphaseDRTable[Rks][DR] =
-					EnvPhaseIndex(RL + 4) >> (16 - RM);
-				break;
-			}
+	for (unsigned Rks = 0; Rks < 16; ++Rks) {
+		dphaseDRTable[Rks][0] = EnvPhaseIndex(0);
+		for (unsigned DR = 1; DR < 16; ++DR) {
+			unsigned RM = std::min(DR + (Rks >> 2), 15u);
+			unsigned RL = Rks & 3;
+			dphaseDRTable[Rks][DR] =
+				EnvPhaseIndex(RL + 4) >> (16 - RM);
 		}
 	}
 }

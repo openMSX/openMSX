@@ -490,20 +490,13 @@ static void makeDphaseARTable()
 // Rate Table for Decay
 static void makeDphaseDRTable()
 {
-	for (int DR = 0; DR < 16; ++DR) {
-		for (int Rks = 0; Rks < 16; ++Rks) {
-			switch (DR) {
-			case 0:
-				dphaseDRTable[Rks][DR] = EnvPhaseIndex(0);
-				break;
-			default: {
-				int RM = std::min(DR + (Rks >> 2), 15);
-				int RL = Rks & 3;
-				dphaseDRTable[Rks][DR] =
-					EnvPhaseIndex(RL + 4) >> (15 - RM);
-				break;
-			}
-			}
+	for (unsigned Rks = 0; Rks < 16; ++Rks) {
+		dphaseDRTable[Rks][0] = EnvPhaseIndex(0);
+		for (unsigned DR = 1; DR < 16; ++DR) {
+			unsigned RM = std::min(DR + (Rks >> 2), 15u);
+			unsigned RL = Rks & 3;
+			dphaseDRTable[Rks][DR] =
+				EnvPhaseIndex(RL + 4) >> (15 - RM);
 		}
 	}
 }
