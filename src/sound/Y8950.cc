@@ -105,8 +105,7 @@ public:
 	int pgout;		// Output
 
 	// for Envelope Generator (EG)
-	int fnum;		// F-Number
-	int block;		// Block
+	unsigned freq;		// combined F-Number and Block
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
 	int eg_mode;		// Current state
@@ -122,8 +121,7 @@ class Y8950Channel {
 public:
 	Y8950Channel();
 	void reset();
-	inline void setFnumber(int fnum);
-	inline void setBlock(int block);
+	inline void setFreq(unsigned freq);
 	inline void keyOn();
 	inline void keyOff();
 
@@ -275,11 +273,11 @@ static EnvPhaseIndex dphaseARTable[16][16];
 static EnvPhaseIndex dphaseDRTable[16][16];
 
 // KSL + TL Table.
-static int tllTable[16][8][1 << TL_BITS][4];
-static int rksTable[2][8][2];
+static int tllTable[16 * 8][1 << TL_BITS][4];
+static int rksTable[2 * 8][2];
 
 // Phase incr table for PG.
-static unsigned dphaseTable[1024][8][16];
+static unsigned dphaseTable[1024 * 8][16];
 
 // Liner to Log curve conversion table (for Attack rate).
 //   values are in the range [0 .. EG_MUTE]
@@ -435,12 +433,12 @@ static void makeDphaseTable()
 		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 	};
 
-	for (int fnum = 0; fnum < 1024; ++fnum) {
-		for (int block = 0; block < 8; ++block) {
-			for (int ML = 0; ML < 16; ++ML) {
-				dphaseTable[fnum][block][ML] =
-					((fnum * mltable[ML]) << block) >> (21 - DP_BITS);
-			}
+	for (unsigned freq = 0; freq < 8 * 1024; ++freq) {
+		unsigned fnum  = freq % 1024;
+		unsigned block = freq / 1024;
+		for (int ML = 0; ML < 16; ++ML) {
+			dphaseTable[freq][ML] =
+				((fnum * mltable[ML]) << block) >> (21 - DP_BITS);
 		}
 	}
 }
@@ -455,16 +453,16 @@ static void makeTllTable()
 		dB2(19.875), dB2(20.250), dB2(20.625), dB2(21.000)
 	};
 
-	for (int fnum = 0; fnum < 16; ++fnum) {
-		for (int block = 0; block < 8; ++block) {
-			for (int TL = 0; TL < 64; ++TL) {
-				tllTable[fnum][block][TL][0] = TL * TL_PER_EG;
-				for (int KL = 1; KL < 4; ++KL) {
-					int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
-					tllTable[fnum][block][TL][KL] = (tmp <= 0)
-						? TL * TL_PER_EG
-						: int((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
-				}
+	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
+		unsigned fnum  = freq % 16;
+		unsigned block = freq / 16;
+		for (unsigned TL = 0; TL < 64; ++TL) {
+			tllTable[freq][TL][0] = TL * TL_PER_EG;
+			for (unsigned KL = 1; KL < 4; ++KL) {
+				int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
+				tllTable[freq][TL][KL] = (tmp <= 0)
+					? TL * TL_PER_EG
+					: int((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
 			}
 		}
 	}
@@ -517,11 +515,12 @@ static void makeDphaseDRTable()
 
 static void makeRksTable()
 {
-	for (int fnum9 = 0; fnum9 < 2; ++fnum9) {
-		for (int block = 0; block < 8; ++block) {
-			rksTable[fnum9][block][0] = block >> 1;
-			rksTable[fnum9][block][1] = (block << 1) + fnum9;
-		}
+	for (unsigned freq = 0; freq < 2 * 8; ++freq) {
+		unsigned fnum9 = freq % 2;
+		unsigned block = freq / 2;
+		// TODO simplify
+		rksTable[freq][0] =  block >> 1;
+		rksTable[freq][1] = (block << 1) + fnum9;
 	}
 }
 
@@ -564,8 +563,7 @@ void Y8950Slot::reset()
 	eg_dphase = EnvPhaseIndex(0);
 	rks = 0;
 	tll = 0;
-	fnum = 0;
-	block = 0;
+	freq = 0;
 	pgout = 0;
 	egout = 0;
 	slotStatus = false;
@@ -575,17 +573,17 @@ void Y8950Slot::reset()
 
 void Y8950Slot::updatePG()
 {
-	dphase = dphaseTable[fnum][block][patch.ML];
+	dphase = dphaseTable[freq][patch.ML];
 }
 
 void Y8950Slot::updateTLL()
 {
-	tll = tllTable[fnum >> 6][block][patch.TL][patch.KL];
+	tll = tllTable[freq >> 6][patch.TL][patch.KL];
 }
 
 void Y8950Slot::updateRKS()
 {
-	rks = rksTable[fnum >> 9][block][patch.KR];
+	rks = rksTable[freq >> 9][patch.KR];
 }
 
 void Y8950Slot::updateEG()
@@ -656,18 +654,11 @@ void Y8950Channel::reset()
 	alg = false;
 }
 
-// Set F-Number ( fnum : 10bit )
-void Y8950Channel::setFnumber(int fnum)
+// Set frequency (combined F-Number (10bit) and Block (3bit))
+void Y8950Channel::setFreq(unsigned freq)
 {
-	car.fnum = fnum;
-	mod.fnum = fnum;
-}
-
-// Set Block data (block : 3bit )
-void Y8950Channel::setBlock(int block)
-{
-	car.block = block;
-	mod.block = block;
+	car.freq = freq;
+	mod.freq = freq;
 }
 
 void Y8950Channel::keyOn()
@@ -1303,10 +1294,11 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 		}
 		if (!(rg & 0x10)) {
 			// 0xa0-0xa8
-			int c = rg - 0xa0;
-			int fNum = data + ((reg[rg + 0x10] & 3) << 8);
-			int block = (reg[rg + 0x10] >> 2) & 7;
-			ch[c].setFnumber(fNum);
+			unsigned c = rg - 0xa0;
+			unsigned freq = data | ((reg[rg + 0x10] & 0x1F) << 8);
+			ch[c].setFreq(freq);
+			unsigned fNum  = freq % 1024;
+			unsigned block = freq / 1024;
 			switch (c) {
 			case 7: noiseA_dphase = fNum << block;
 				break;
@@ -1318,11 +1310,11 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			reg[rg] = data;
 		} else {
 			// 0xb0-0xb8
-			int c = rg - 0xb0;
-			int fNum = ((data & 3) << 8) + reg[rg - 0x10];
-			int block = (data >> 2) & 7;
-			ch[c].setFnumber(fNum);
-			ch[c].setBlock(block);
+			unsigned c = rg - 0xb0;
+			unsigned freq = reg[rg - 0x10] | ((data & 0x1F) << 8);
+			ch[c].setFreq(freq);
+			unsigned fNum  = freq % 1024;
+			unsigned block = freq / 1024;
 			switch (c) {
 			case 7: noiseA_dphase = fNum << block;
 				break;
@@ -1466,8 +1458,7 @@ void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("phase", phase);
 	ar.serialize("dphase", dphase);
 	ar.serialize("pgout", pgout);
-	ar.serialize("fnum", fnum);
-	ar.serialize("block", block);
+	ar.serialize("freq", freq);
 	ar.serialize("tll", tll);
 	ar.serialize("rks", rks);
 	ar.serialize("eg_mode", eg_mode);
