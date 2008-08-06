@@ -100,7 +100,7 @@ public:
 
 	// OUTPUT
 	int feedback;
-	int output[2];		// Output value of slot
+	int output;		// Output value of slot
 
 	// for Phase Generator (PG)
 	unsigned phase;		// Phase
@@ -518,8 +518,7 @@ void Y8950Patch::reset()
 void Y8950Slot::reset()
 {
 	phase = 0;
-	output[0] = 0;
-	output[1] = 0;
+	output = 0;
 	feedback = 0;
 	eg_mode = FINISH;
 	eg_phase = EG_DP_MAX;
@@ -884,16 +883,15 @@ int Y8950Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 
 int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 {
-	output[1] = output[0];
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
 
 	if (patch.FB != 0) {
 		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
-	output[0] = dB2LinTab[sintable[pgout & PG_MASK] + egout];
-
-	feedback = (output[1] + output[0]) >> 1;
+	int newOutput = dB2LinTab[sintable[pgout & PG_MASK] + egout];
+	feedback = (output + newOutput) >> 1;
+	output = newOutput;
 	return feedback;
 }
 
