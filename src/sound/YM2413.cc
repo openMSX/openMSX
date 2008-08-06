@@ -1522,7 +1522,6 @@ void Patch::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("patch", patch);
 	ar.serialize("feedback", feedback);
 	ar.serialize("output", output);
 	ar.serialize("cphase", cphase);
@@ -1533,10 +1532,12 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("type", type);
 	ar.serialize("slot_on_flag", slot_on_flag);
 
-	// These are restored by call to updateAll() in Channel::serialize()
+	// These are restored by call to updateAll() in Global::serialize()
 	//   eg_dphase, dphaseARTableRks, dphaseDRTableRks, tll, dphase, sintbl
 	// and by setEnvelopeState()
 	//   eg_phase_max
+	// and by setPatch()
+	//   patch
 }
 
 template<typename Archive>
@@ -1545,15 +1546,10 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("mod", mod);
 	ar.serialize("car", car);
 	ar.serialize("patch_number", patch_number);
-	ar.serialize("patchFlags", patchFlags);
 	ar.serialize("freq", freq);
 
-	if (ar.isLoader()) {
-		mod.updateAll(freq);
-		car.updateAll(freq);
-		mod.setEnvelopeState(mod.state);
-		car.setEnvelopeState(car.state);
-	}
+	// These are restored by call to setPatch() in Global::serialize()
+	//   patchFlags
 }
 
 template<typename Archive>
@@ -1568,6 +1564,17 @@ void Global::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("am_phase", am_phase);
 	ar.serialize("noise_seed", noise_seed);
 	// don't serialize idleSamples, is only an optimization
+
+	if (ar.isLoader()) {
+		for (int i = 0; i < 9; ++i) {
+			Channel& ch = channels[i];
+			ch.setPatch(ch.patch_number, *this); // before updateAll()
+			ch.mod.updateAll(ch.freq);
+			ch.car.updateAll(ch.freq);
+			ch.mod.setEnvelopeState(ch.mod.state);
+			ch.car.setEnvelopeState(ch.car.state);
+		}
+	}
 }
 
 } // namespace YM2413Okazaki
