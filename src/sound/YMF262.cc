@@ -158,7 +158,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	YMF262Slot slots[2];
+	YMF262Slot slot[2];
 
 	int block_fnum;	// block+fnum
 	FreqIndex fc;	// Freq. Increment base
@@ -254,9 +254,9 @@ private:
 	int chanout[18]; // 18 channels
 
 	byte reg[512];
-	YMF262Channel channels[18];	// OPL3 chips have 18 channels
+	YMF262Channel channel[18];	// OPL3 chips have 18 channels
 
-	unsigned pan[18*4];		// channels output masks 4 per channel
+	unsigned pan[18 * 4];		// channels output masks 4 per channel
 	                                //    0xffffffff = enable
 	unsigned eg_cnt;		// global envelope generator counter
 	unsigned noise_rng;		// 23 bit noise shift register
@@ -297,8 +297,8 @@ static const int SIN_MASK = SIN_LEN - 1;
 static const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
 
 // register number to channel number , slot offset
-static const byte SLOT1 = 0;
-static const byte SLOT2 = 1;
+static const byte MOD = 0;
+static const byte CAR = 1;
 
 
 // mapping of register number (offset) to slot number used by the emulator
@@ -772,9 +772,9 @@ void YMF262Impl::advance()
 {
 	++eg_cnt;
 	for (int c = 0; c < 18; ++c) {
-		YMF262Channel& ch = channels[c];
+		YMF262Channel& ch = channel[c];
 		for (int s = 0; s < 2; ++s) {
-			YMF262Slot& op = ch.slots[s];
+			YMF262Slot& op = ch.slot[s];
 			op.advanceEnvelopeGenerator(eg_cnt);
 			op.advancePhaseGenerator(ch, LFO_PM);
 		}
@@ -821,15 +821,15 @@ void YMF262Channel::chan_calc(byte LFO_AM)
 	phase_modulation2 = 0;
 
 	// SLOT 1
-	int out = slots[SLOT1].fb_shift
-		? slots[SLOT1].op1_out[0] + slots[SLOT1].op1_out[1]
+	int out = slot[MOD].fb_shift
+		? slot[MOD].op1_out[0] + slot[MOD].op1_out[1]
 		: 0;
-	slots[SLOT1].op1_out[0] = slots[SLOT1].op1_out[1];
-	slots[SLOT1].op1_out[1] = slots[SLOT1].op_calc(slots[SLOT1].Cnt.toInt() + (out >> slots[SLOT1].fb_shift), LFO_AM);
-	*slots[SLOT1].connect += slots[SLOT1].op1_out[1];
+	slot[MOD].op1_out[0] = slot[MOD].op1_out[1];
+	slot[MOD].op1_out[1] = slot[MOD].op_calc(slot[MOD].Cnt.toInt() + (out >> slot[MOD].fb_shift), LFO_AM);
+	*slot[MOD].connect += slot[MOD].op1_out[1];
 
 	// SLOT 2
-	*slots[SLOT2].connect += slots[SLOT2].op_calc(slots[SLOT2].Cnt.toInt() + phase_modulation, LFO_AM);
+	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, LFO_AM);
 }
 
 // calculate output of a 2nd part of 4-op channel
@@ -838,10 +838,10 @@ void YMF262Channel::chan_calc_ext(byte LFO_AM)
 	phase_modulation = 0;
 
 	// SLOT 1
-	*slots[SLOT1].connect += slots[SLOT1].op_calc(slots[SLOT1].Cnt.toInt() + phase_modulation2, LFO_AM);
+	*slot[MOD].connect += slot[MOD].op_calc(slot[MOD].Cnt.toInt() + phase_modulation2, LFO_AM);
 
 	// SLOT 2
-	*slots[SLOT2].connect += slots[SLOT2].op_calc(slots[SLOT2].Cnt.toInt() + phase_modulation, LFO_AM);
+	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, LFO_AM);
 }
 
 // operators used in the rhythm sounds generation process:
@@ -886,7 +886,7 @@ inline int YMF262Impl::genPhaseHighHat()
 	// phase = 34 or 2d0 (based on noise)
 
 	// base frequency derived from operator 1 in channel 7
-	int op71phase = channels[7].slots[SLOT1].Cnt.toInt();
+	int op71phase = channel[7].slot[MOD].Cnt.toInt();
 	bool bit7 = op71phase & 0x80;
 	bool bit3 = op71phase & 0x08;
 	bool bit2 = op71phase & 0x04;
@@ -896,7 +896,7 @@ inline int YMF262Impl::genPhaseHighHat()
 	unsigned phase = res1 ? (0x200 | (0xd0 >> 2)) : 0xd0;
 
 	// enable gate based on frequency of operator 2 in channel 8
-	int op82phase = channels[8].slots[SLOT2].Cnt.toInt();
+	int op82phase = channel[8].slot[CAR].Cnt.toInt();
 	bool bit5e= op82phase & 0x20;
 	bool bit3e= op82phase & 0x08;
 	bool res2 = (bit3e ^ bit5e);
@@ -926,7 +926,7 @@ inline int YMF262Impl::genPhaseSnare()
 {
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
-	return ((channels[7].slots[SLOT1].Cnt.toInt() & 0x100) + 0x100)
+	return ((channel[7].slot[MOD].Cnt.toInt() & 0x100) + 0x100)
 	     ^ ((noise_rng & 1) << 8);
 }
 
@@ -935,12 +935,12 @@ inline int YMF262Impl::genPhaseCymbal()
 	// enable gate based on frequency of operator 2 in channel 8
 	//  NOTE: YM2413_2 uses bit5 | bit3, this core uses bit5 ^ bit3
 	//        most likely only one of the two is correct
-	int op82phase = channels[8].slots[SLOT2].Cnt.toInt();
+	int op82phase = channel[8].slot[CAR].Cnt.toInt();
 	if ((op82phase ^ (op82phase << 2)) & 0x20) { // bit5 ^ bit3
 		return 0x300;
 	} else {
 		// base frequency derived from operator 1 in channel 7
-		int op71phase = channels[7].slots[SLOT1].Cnt.toInt();
+		int op71phase = channel[7].slot[MOD].Cnt.toInt();
 		bool bit7 = op71phase & 0x80;
 		bool bit3 = op71phase & 0x08;
 		bool bit2 = op71phase & 0x04;
@@ -951,12 +951,12 @@ inline int YMF262Impl::genPhaseCymbal()
 // calculate rhythm
 void YMF262Impl::chan_calc_rhythm()
 {
-	YMF262Slot& SLOT6_1 = channels[6].slots[SLOT1];
-	YMF262Slot& SLOT6_2 = channels[6].slots[SLOT2];
-	YMF262Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	YMF262Slot& SLOT7_2 = channels[7].slots[SLOT2];
-	YMF262Slot& SLOT8_1 = channels[8].slots[SLOT1];
-	YMF262Slot& SLOT8_2 = channels[8].slots[SLOT2];
+	YMF262Slot& SLOT6_1 = channel[6].slot[MOD];
+	YMF262Slot& SLOT6_2 = channel[6].slot[CAR];
+	YMF262Slot& SLOT7_1 = channel[7].slot[MOD];
+	YMF262Slot& SLOT7_2 = channel[7].slot[CAR];
+	YMF262Slot& SLOT8_1 = channel[8].slot[MOD];
+	YMF262Slot& SLOT8_2 = channel[8].slot[CAR];
 
 	// Bass Drum (verified on real YM3812):
 	//  - depends on the channel 6 'connect' register:
@@ -1184,8 +1184,7 @@ inline bool YMF262Impl::isExtended(unsigned ch) const
 	assert(ch < 18);
 	if (!OPL3_mode) return false;
 	if (channelPairTab[ch] == unsigned(-1)) return false;
-	// TODO store 'extended' bool in both channels ??
-	return channels[channelPairTab[ch]].extended;
+	return channel[channelPairTab[ch]].extended;
 }
 static inline unsigned getFirstOfPairNum(unsigned ch)
 {
@@ -1194,19 +1193,19 @@ static inline unsigned getFirstOfPairNum(unsigned ch)
 }
 inline YMF262Channel& YMF262Impl::getFirstOfPair(unsigned ch)
 {
-	return channels[getFirstOfPairNum(ch) + 0];
+	return channel[getFirstOfPairNum(ch) + 0];
 }
 inline YMF262Channel& YMF262Impl::getSecondOfPair(unsigned ch)
 {
-	return channels[getFirstOfPairNum(ch) + 3];
+	return channel[getFirstOfPairNum(ch) + 3];
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
 void YMF262Impl::set_mul(unsigned sl, byte v)
 {
 	unsigned chan_no = sl / 2;
-	YMF262Channel& ch  = channels[chan_no];
-	YMF262Slot& slot = ch.slots[sl & 1];
+	YMF262Channel& ch = channel[chan_no];
+	YMF262Slot& slot = ch.slot[sl & 1];
 
 	slot.mul     = mul_tab[v & 0x0f];
 	slot.KSR     = (v & 0x10) ? 0 : 2;
@@ -1228,8 +1227,8 @@ void YMF262Impl::set_mul(unsigned sl, byte v)
 void YMF262Impl::set_ksl_tl(unsigned sl, byte v)
 {
 	unsigned chan_no = sl / 2;
-	YMF262Channel& ch = channels[chan_no];
-	YMF262Slot& slot = ch.slots[sl & 1];
+	YMF262Channel& ch = channel[chan_no];
+	YMF262Slot& slot = ch.slot[sl & 1];
 
 	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
 	slot.ksl = ksl ? 3 - ksl : 31;
@@ -1248,8 +1247,8 @@ void YMF262Impl::set_ksl_tl(unsigned sl, byte v)
 // set attack rate & decay rate
 void YMF262Impl::set_ar_dr(unsigned sl, byte v)
 {
-	YMF262Channel& ch = channels[sl / 2];
-	YMF262Slot& slot = ch.slots[sl & 1];
+	YMF262Channel& ch = channel[sl / 2];
+	YMF262Slot& slot = ch.slot[sl & 1];
 
 	slot.ar = (v >> 4) ? 16 + ((v >> 4) << 2) : 0;
 	slot.dr = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
@@ -1259,8 +1258,8 @@ void YMF262Impl::set_ar_dr(unsigned sl, byte v)
 // set sustain level & release rate
 void YMF262Impl::set_sl_rr(unsigned sl, byte v)
 {
-	YMF262Channel& ch = channels[sl / 2];
-	YMF262Slot& slot = ch.slots[sl & 1];
+	YMF262Channel& ch = channel[sl / 2];
+	YMF262Slot& slot = ch.slot[sl & 1];
 
 	slot.sl  = sl_tab[v >> 4];
 	slot.rr  = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
@@ -1298,12 +1297,12 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 	switch (r) {
 	case 0x104:
 		// 6 channels enable
-		channels[ 0].extended = v & 0x01;
-		channels[ 1].extended = v & 0x02;
-		channels[ 2].extended = v & 0x04;
-		channels[ 9].extended = v & 0x08;
-		channels[10].extended = v & 0x10;
-		channels[11].extended = v & 0x20;
+		channel[ 0].extended = v & 0x01;
+		channel[ 1].extended = v & 0x02;
+		channel[ 2].extended = v & 0x04;
+		channel[ 9].extended = v & 0x08;
+		channel[10].extended = v & 0x10;
+		channel[11].extended = v & 0x20;
 		return;
 
 	case 0x105:
@@ -1395,48 +1394,48 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 			if (rhythm & 0x20) {
 				// BD key on/off
 				if (v & 0x10) {
-					channels[6].slots[SLOT1].FM_KEYON (2);
-					channels[6].slots[SLOT2].FM_KEYON (2);
+					channel[6].slot[MOD].FM_KEYON (2);
+					channel[6].slot[CAR].FM_KEYON (2);
 				} else {
-					channels[6].slots[SLOT1].FM_KEYOFF(2);
-					channels[6].slots[SLOT2].FM_KEYOFF(2);
+					channel[6].slot[MOD].FM_KEYOFF(2);
+					channel[6].slot[CAR].FM_KEYOFF(2);
 				}
 				// HH key on/off
 				if (v & 0x01) {
-					channels[7].slots[SLOT1].FM_KEYON (2);
+					channel[7].slot[MOD].FM_KEYON (2);
 				} else {
-					channels[7].slots[SLOT1].FM_KEYOFF(2);
+					channel[7].slot[MOD].FM_KEYOFF(2);
 				}
 				// SD key on/off
 				if (v & 0x08) {
-					channels[7].slots[SLOT2].FM_KEYON (2);
+					channel[7].slot[CAR].FM_KEYON (2);
 				} else {
-					channels[7].slots[SLOT2].FM_KEYOFF(2);
+					channel[7].slot[CAR].FM_KEYOFF(2);
 				}
 				// TOM key on/off
 				if (v & 0x04) {
-					channels[8].slots[SLOT1].FM_KEYON (2);
+					channel[8].slot[MOD].FM_KEYON (2);
 				} else {
-					channels[8].slots[SLOT1].FM_KEYOFF(2);
+					channel[8].slot[MOD].FM_KEYOFF(2);
 				}
 				// TOP-CY key on/off
 				if (v & 0x02) {
-					channels[8].slots[SLOT2].FM_KEYON (2);
+					channel[8].slot[CAR].FM_KEYON (2);
 				} else {
-					channels[8].slots[SLOT2].FM_KEYOFF(2);
+					channel[8].slot[CAR].FM_KEYOFF(2);
 				}
 			} else {
 				// BD key off
-				channels[6].slots[SLOT1].FM_KEYOFF(2);
-				channels[6].slots[SLOT2].FM_KEYOFF(2);
+				channel[6].slot[MOD].FM_KEYOFF(2);
+				channel[6].slot[CAR].FM_KEYOFF(2);
 				// HH key off
-				channels[7].slots[SLOT1].FM_KEYOFF(2);
+				channel[7].slot[MOD].FM_KEYOFF(2);
 				// SD key off
-				channels[7].slots[SLOT2].FM_KEYOFF(2);
+				channel[7].slot[CAR].FM_KEYOFF(2);
 				// TOM key off
-				channels[8].slots[SLOT1].FM_KEYOFF(2);
+				channel[8].slot[MOD].FM_KEYOFF(2);
 				// TOP-CY off
-				channels[8].slots[SLOT2].FM_KEYOFF(2);
+				channel[8].slot[CAR].FM_KEYOFF(2);
 			}
 			return;
 		}
@@ -1446,7 +1445,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 			return;
 		}
 		unsigned chan_no = (r & 0x0F) + ch_offset;
-		YMF262Channel& ch  = channels[chan_no];
+		YMF262Channel& ch  = channel[chan_no];
 		int block_fnum;
 		if (!(r & 0x10)) {
 			// a0-a8
@@ -1461,15 +1460,15 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 					YMF262Channel& ch0 = getFirstOfPair(chan_no);
 					YMF262Channel& ch3 = getSecondOfPair(chan_no);
 					if (v & 0x20) {
-						ch0.slots[SLOT1].FM_KEYON(1);
-						ch0.slots[SLOT2].FM_KEYON(1);
-						ch3.slots[SLOT1].FM_KEYON(1);
-						ch3.slots[SLOT2].FM_KEYON(1);
+						ch0.slot[MOD].FM_KEYON(1);
+						ch0.slot[CAR].FM_KEYON(1);
+						ch3.slot[MOD].FM_KEYON(1);
+						ch3.slot[CAR].FM_KEYON(1);
 					} else {
-						ch0.slots[SLOT1].FM_KEYOFF(1);
-						ch0.slots[SLOT2].FM_KEYOFF(1);
-						ch3.slots[SLOT1].FM_KEYOFF(1);
-						ch3.slots[SLOT2].FM_KEYOFF(1);
+						ch0.slot[MOD].FM_KEYOFF(1);
+						ch0.slot[CAR].FM_KEYOFF(1);
+						ch3.slot[MOD].FM_KEYOFF(1);
+						ch3.slot[CAR].FM_KEYOFF(1);
 					}
 				} else {
 					// do nothing
@@ -1477,11 +1476,11 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 			} else {
 				// 2 operator function keyon/off
 				if (v & 0x20) {
-					ch.slots[SLOT1].FM_KEYON (1);
-					ch.slots[SLOT2].FM_KEYON (1);
+					ch.slot[MOD].FM_KEYON (1);
+					ch.slot[CAR].FM_KEYON (1);
 				} else {
-					ch.slots[SLOT1].FM_KEYOFF(1);
-					ch.slots[SLOT2].FM_KEYOFF(1);
+					ch.slot[MOD].FM_KEYOFF(1);
+					ch.slot[CAR].FM_KEYOFF(1);
 				}
 			}
 		}
@@ -1510,27 +1509,27 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 					// refresh Total Level
 					YMF262Channel& ch0 = getFirstOfPair(chan_no);
 					YMF262Channel& ch3 = getSecondOfPair(chan_no);
-					ch0.slots[SLOT1].TLL = ch0.slots[SLOT1].TL + (ch.ksl_base >> ch0.slots[SLOT1].ksl);
-					ch0.slots[SLOT2].TLL = ch0.slots[SLOT2].TL + (ch.ksl_base >> ch0.slots[SLOT2].ksl);
-					ch3.slots[SLOT1].TLL = ch3.slots[SLOT1].TL + (ch.ksl_base >> ch3.slots[SLOT1].ksl);
-					ch3.slots[SLOT2].TLL = ch3.slots[SLOT2].TL + (ch.ksl_base >> ch3.slots[SLOT2].ksl);
+					ch0.slot[MOD].TLL = ch0.slot[MOD].TL + (ch.ksl_base >> ch0.slot[MOD].ksl);
+					ch0.slot[CAR].TLL = ch0.slot[CAR].TL + (ch.ksl_base >> ch0.slot[CAR].ksl);
+					ch3.slot[MOD].TLL = ch3.slot[MOD].TL + (ch.ksl_base >> ch3.slot[MOD].ksl);
+					ch3.slot[CAR].TLL = ch3.slot[CAR].TL + (ch.ksl_base >> ch3.slot[CAR].ksl);
 
 					// refresh frequency counter
-					ch0.slots[SLOT1].calc_fc(ch);
-					ch0.slots[SLOT2].calc_fc(ch);
-					ch3.slots[SLOT1].calc_fc(ch);
-					ch3.slots[SLOT2].calc_fc(ch);
+					ch0.slot[MOD].calc_fc(ch);
+					ch0.slot[CAR].calc_fc(ch);
+					ch3.slot[MOD].calc_fc(ch);
+					ch3.slot[CAR].calc_fc(ch);
 				} else {
 					// nothing
 				}
 			} else {
 				// refresh Total Level in both SLOTs of this channel
-				ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
-				ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
+				ch.slot[MOD].TLL = ch.slot[MOD].TL + (ch.ksl_base >> ch.slot[MOD].ksl);
+				ch.slot[CAR].TLL = ch.slot[CAR].TL + (ch.ksl_base >> ch.slot[CAR].ksl);
 
 				// refresh frequency counter in both SLOTs of this channel
-				ch.slots[SLOT1].calc_fc(ch);
-				ch.slots[SLOT2].calc_fc(ch);
+				ch.slot[MOD].calc_fc(ch);
+				ch.slot[CAR].calc_fc(ch);
 			}
 		}
 		break;
@@ -1541,7 +1540,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 			return;
 		}
 		unsigned chan_no = (r & 0x0F) + ch_offset;
-		YMF262Channel& ch = channels[chan_no];
+		YMF262Channel& ch = channel[chan_no];
 
 		unsigned base = chan_no * 4;
 		if (OPL3_mode) {
@@ -1558,54 +1557,54 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 			pan[base + 3] = unsigned(~0);	// ch.D
 		}
 
-		ch.slots[SLOT1].setFeedbackShift((v >> 1) & 7);
-		ch.slots[SLOT1].CON = v & 1;
+		ch.slot[MOD].setFeedbackShift((v >> 1) & 7);
+		ch.slot[MOD].CON = v & 1;
 
 		if (isExtended(chan_no)) {
 			unsigned chan_no0 = getFirstOfPairNum(chan_no);
 			unsigned chan_no3 = chan_no + 3;
 			YMF262Channel& ch0 = getFirstOfPair(chan_no);
 			YMF262Channel& ch3 = getSecondOfPair(chan_no);
-			switch ((ch0.slots[SLOT1].CON << 1) | ch3.slots[SLOT1].CON) {
+			switch ((ch0.slot[MOD].CON << 1) | ch3.slot[MOD].CON) {
 			case 0:
 				// 1 -> 2 -> 3 -> 4 -> out
-				ch0.slots[SLOT1].connect = &phase_modulation;
-				ch0.slots[SLOT2].connect = &phase_modulation2;
-				ch3.slots[SLOT1].connect = &phase_modulation;
-				ch3.slots[SLOT2].connect = &chanout[chan_no3];
+				ch0.slot[MOD].connect = &phase_modulation;
+				ch0.slot[CAR].connect = &phase_modulation2;
+				ch3.slot[MOD].connect = &phase_modulation;
+				ch3.slot[CAR].connect = &chanout[chan_no3];
 				break;
 			case 1:
 				// 1 -> 2 -\.
 				// 3 -> 4 --+-> out
-				ch0.slots[SLOT1].connect = &phase_modulation;
-				ch0.slots[SLOT2].connect = &chanout[chan_no0];
-				ch3.slots[SLOT1].connect = &phase_modulation;
-				ch3.slots[SLOT2].connect = &chanout[chan_no3];
+				ch0.slot[MOD].connect = &phase_modulation;
+				ch0.slot[CAR].connect = &chanout[chan_no0];
+				ch3.slot[MOD].connect = &phase_modulation;
+				ch3.slot[CAR].connect = &chanout[chan_no3];
 				break;
 			case 2:
 				// 1 ----------\.
 				// 2 -> 3 -> 4 -+-> out
-				ch0.slots[SLOT1].connect = &chanout[chan_no0];
-				ch0.slots[SLOT2].connect = &phase_modulation2;
-				ch3.slots[SLOT1].connect = &phase_modulation;
-				ch3.slots[SLOT2].connect = &chanout[chan_no3];
+				ch0.slot[MOD].connect = &chanout[chan_no0];
+				ch0.slot[CAR].connect = &phase_modulation2;
+				ch3.slot[MOD].connect = &phase_modulation;
+				ch3.slot[CAR].connect = &chanout[chan_no3];
 				break;
 			case 3:
 				// 1 -----\.
 				// 2 -> 3 -+-> out
 				// 4 -----/
-				ch0.slots[SLOT1].connect = &chanout[chan_no0];
-				ch0.slots[SLOT2].connect = &phase_modulation2;
-				ch3.slots[SLOT1].connect = &chanout[chan_no3];
-				ch3.slots[SLOT2].connect = &chanout[chan_no3];
+				ch0.slot[MOD].connect = &chanout[chan_no0];
+				ch0.slot[CAR].connect = &phase_modulation2;
+				ch3.slot[MOD].connect = &chanout[chan_no3];
+				ch3.slot[CAR].connect = &chanout[chan_no3];
 				break;
 			}
 		} else {
 			// 2 operators mode
-			ch.slots[SLOT1].connect = ch.slots[SLOT1].CON
-			                        ? &chanout[chan_no]
-			                        : &phase_modulation;
-			ch.slots[SLOT2].connect = &chanout[chan_no];
+			ch.slot[MOD].connect = ch.slot[MOD].CON
+			                     ? &chanout[chan_no]
+			                     : &phase_modulation;
+			ch.slot[CAR].connect = &chanout[chan_no];
 		}
 		break;
 	}
@@ -1614,7 +1613,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		int slot = slot_array[r & 0x1f];
 		if (slot < 0) return;
 		slot += ch_offset * 2;
-		YMF262Channel& ch = channels[slot / 2];
+		YMF262Channel& ch = channel[slot / 2];
 
 		// store 3-bit value written regardless of current OPL2 or OPL3
 		// mode... (verified on real YMF262)
@@ -1623,7 +1622,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		if (!OPL3_mode) {
 			v &= 3;
 		}
-		ch.slots[slot & 1].wavetable = &sin_tab[v * SIN_LEN];
+		ch.slot[slot & 1].wavetable = &sin_tab[v * SIN_LEN];
 		break;
 	}
 	}
@@ -1656,10 +1655,10 @@ void YMF262Impl::reset(const EmuTime& time)
 
 	// reset operator parameters
 	for (int c = 0; c < 9 * 2; c++) {
-		YMF262Channel& ch = channels[c];
+		YMF262Channel& ch = channel[c];
 		for (int s = 0; s < 2; s++) {
-			ch.slots[s].state  = EG_OFF;
-			ch.slots[s].volume = MAX_ATT_INDEX;
+			ch.slot[s].state  = EG_OFF;
+			ch.slot[s].volume = MAX_ATT_INDEX;
 		}
 	}
 }
@@ -1715,7 +1714,7 @@ bool YMF262Impl::checkMuteHelper()
 	// TODO this doesn't always mute when possible
 	for (int i = 0; i < 18; i++) {
 		for (int j = 0; j < 2; j++) {
-			YMF262Slot& sl = channels[i].slots[j];
+			YMF262Slot& sl = channel[i].slot[j];
 			if (!((sl.state == EG_OFF) ||
 			      ((sl.state == EG_RELEASE) &&
 			       ((sl.TLL + sl.volume) >= ENV_QUIET)))) {
@@ -1753,8 +1752,8 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		// in either 2op or 4op mode
 		for (int k = 0; k <= 9; k += 9) {
 			for (int i = 0; i < 3; ++i) {
-				YMF262Channel& ch0 = channels[k + i + 0];
-				YMF262Channel& ch3 = channels[k + i + 3];
+				YMF262Channel& ch0 = channel[k + i + 0];
+				YMF262Channel& ch3 = channel[k + i + 3];
 				// extended 4op ch#0 part 1 or 2op ch#0
 				ch0.chan_calc(LFO_AM);
 				if (ch0.extended) {
@@ -1769,18 +1768,18 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 
 		// channels 6,7,8 rhythm or 2op mode
 		if (!rhythmEnabled) {
-			channels[6].chan_calc(LFO_AM);
-			channels[7].chan_calc(LFO_AM);
-			channels[8].chan_calc(LFO_AM);
+			channel[6].chan_calc(LFO_AM);
+			channel[7].chan_calc(LFO_AM);
+			channel[8].chan_calc(LFO_AM);
 		} else {
 			// Rhythm part
 			chan_calc_rhythm();
 		}
 
 		// channels 15,16,17 are fixed 2-operator channels only
-		channels[15].chan_calc(LFO_AM);
-		channels[16].chan_calc(LFO_AM);
-		channels[17].chan_calc(LFO_AM);
+		channel[15].chan_calc(LFO_AM);
+		channel[16].chan_calc(LFO_AM);
+		channel[17].chan_calc(LFO_AM);
 
 		for (int i = 0; i < 18; ++i) {
 			bufs[i][2 * j + 0] += chanout[i] & pan[4 * i + 0];
@@ -1861,7 +1860,7 @@ void YMF262Slot::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("slots", slots);
+	ar.serialize("slots", slot);
 	ar.serialize("block_fnum", block_fnum);
 	ar.serialize("fc", fc);
 	ar.serialize("ksl_base", ksl_base);
@@ -1877,7 +1876,7 @@ void YMF262Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("irq", irq);
 	ar.serialize("chanout", chanout);
 	ar.serialize_blob("registers", reg, sizeof(reg));
-	ar.serialize("channels", channels);
+	ar.serialize("channels", channel);
 	ar.serialize("eg_cnt", eg_cnt);
 	ar.serialize("noise_rng", noise_rng);
 	ar.serialize("lfo_am_cnt", lfo_am_cnt);

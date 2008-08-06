@@ -118,6 +118,8 @@ public:
 	bool slotStatus;
 };
 
+static const unsigned MOD = 0;
+static const unsigned CAR = 1;
 class Y8950Channel {
 public:
 	Y8950Channel();
@@ -129,7 +131,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	Y8950Slot mod, car;
+	Y8950Slot slot[2];
 	unsigned freq; // combined F-Number and Block
 	bool alg;
 };
@@ -612,8 +614,8 @@ Y8950Channel::Y8950Channel()
 void Y8950Channel::reset()
 {
 	setFreq(0);
-	mod.reset();
-	car.reset();
+	slot[MOD].reset();
+	slot[CAR].reset();
 	alg = false;
 }
 
@@ -625,14 +627,14 @@ void Y8950Channel::setFreq(unsigned freq_)
 
 void Y8950Channel::keyOn()
 {
-	mod.slotOn();
-	car.slotOn();
+	slot[MOD].slotOn();
+	slot[CAR].slotOn();
 }
 
 void Y8950Channel::keyOff()
 {
-	mod.slotOff();
-	car.slotOff();
+	slot[MOD].slotOff();
+	slot[CAR].slotOff();
 }
 
 
@@ -674,8 +676,8 @@ void Y8950Impl::init(const XMLElement& config, const EmuTime& time)
 
 	for (int i = 0; i < 9; ++i) {
 		// TODO cleanup
-		slot[i * 2 + 0] = &(ch[i].mod);
-		slot[i * 2 + 1] = &(ch[i].car);
+		slot[i * 2 + 0] = &(ch[i].slot[MOD]);
+		slot[i * 2 + 1] = &(ch[i].slot[CAR]);
 	}
 
 	reset(time);
@@ -732,17 +734,17 @@ void Y8950Impl::reset(const EmuTime& time)
 
 // Drum key on
 void Y8950Impl::keyOn_BD()  { ch[6].keyOn(); }
-void Y8950Impl::keyOn_HH()  { ch[7].mod.slotOn(); }
-void Y8950Impl::keyOn_SD()  { ch[7].car.slotOn(); }
-void Y8950Impl::keyOn_TOM() { ch[8].mod.slotOn(); }
-void Y8950Impl::keyOn_CYM() { ch[8].car.slotOn(); }
+void Y8950Impl::keyOn_HH()  { ch[7].slot[MOD].slotOn(); }
+void Y8950Impl::keyOn_SD()  { ch[7].slot[CAR].slotOn(); }
+void Y8950Impl::keyOn_TOM() { ch[8].slot[MOD].slotOn(); }
+void Y8950Impl::keyOn_CYM() { ch[8].slot[CAR].slotOn(); }
 
 // Drum key off
 void Y8950Impl::keyOff_BD() { ch[6].keyOff(); }
-void Y8950Impl::keyOff_HH() { ch[7].mod.slotOff(); }
-void Y8950Impl::keyOff_SD() { ch[7].car.slotOff(); }
-void Y8950Impl::keyOff_TOM(){ ch[8].mod.slotOff(); }
-void Y8950Impl::keyOff_CYM(){ ch[8].car.slotOff(); }
+void Y8950Impl::keyOff_HH() { ch[7].slot[MOD].slotOff(); }
+void Y8950Impl::keyOff_SD() { ch[7].slot[CAR].slotOff(); }
+void Y8950Impl::keyOff_TOM(){ ch[8].slot[MOD].slotOff(); }
+void Y8950Impl::keyOff_CYM(){ ch[8].slot[CAR].slotOff(); }
 
 // Change Rhythm Mode
 void Y8950Impl::setRythmMode(int data)
@@ -752,18 +754,18 @@ void Y8950Impl::setRythmMode(int data)
 		rythm_mode = newMode;
 		if (!rythm_mode) {
 			// ON->OFF
-			ch[6].mod.eg_mode = FINISH; // BD1
-			ch[6].mod.slotStatus = false;
-			ch[6].car.eg_mode = FINISH; // BD2
-			ch[6].car.slotStatus = false;
-			ch[7].mod.eg_mode = FINISH; // HH
-			ch[7].mod.slotStatus = false;
-			ch[7].car.eg_mode = FINISH; // SD
-			ch[7].car.slotStatus = false;
-			ch[8].mod.eg_mode = FINISH; // TOM
-			ch[8].mod.slotStatus = false;
-			ch[8].car.eg_mode = FINISH; // CYM
-			ch[8].car.slotStatus = false;
+			ch[6].slot[MOD].eg_mode = FINISH; // BD1
+			ch[6].slot[MOD].slotStatus = false;
+			ch[6].slot[CAR].eg_mode = FINISH; // BD2
+			ch[6].slot[CAR].slotStatus = false;
+			ch[7].slot[MOD].eg_mode = FINISH; // HH
+			ch[7].slot[MOD].slotStatus = false;
+			ch[7].slot[CAR].eg_mode = FINISH; // SD
+			ch[7].slot[CAR].slotStatus = false;
+			ch[8].slot[MOD].eg_mode = FINISH; // TOM
+			ch[8].slot[MOD].slotStatus = false;
+			ch[8].slot[CAR].eg_mode = FINISH; // CYM
+			ch[8].slot[CAR].slotStatus = false;
 		}
 	}
 }
@@ -945,36 +947,36 @@ inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
 
 	int m = rythm_mode ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
-		if (ch[i].car.eg_mode != FINISH) {
+		if (ch[i].slot[CAR].eg_mode != FINISH) {
 			bufs[i][sample] += ch[i].alg
-				? ch[i].car.calc_slot_car(lfo_pm, lfo_am, 0) +
-				       ch[i].mod.calc_slot_mod(lfo_pm, lfo_am)
-				: ch[i].car.calc_slot_car(lfo_pm, lfo_am,
-				       ch[i].mod.calc_slot_mod(lfo_pm, lfo_am));
+				? ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am, 0) +
+				       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)
+				: ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
+				       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am));
 		} else {
 			//bufs[i][sample] += 0;
 		}
 	}
 	if (rythm_mode) {
 		// TODO wasn't in original source either
-		ch[7].mod.calc_phase(lfo_pm);
-		ch[8].car.calc_phase(lfo_pm);
+		ch[7].slot[MOD].calc_phase(lfo_pm);
+		ch[8].slot[CAR].calc_phase(lfo_pm);
 
-		bufs[ 6][sample] += (ch[6].car.eg_mode != FINISH)
-			? 2 * ch[6].car.calc_slot_car(lfo_pm, lfo_am,
-			                    ch[6].mod.calc_slot_mod(lfo_pm, lfo_am))
+		bufs[ 6][sample] += (ch[6].slot[CAR].eg_mode != FINISH)
+			? 2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
+			                    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am))
 			: 0;
-		bufs[ 7][sample] += (ch[7].mod.eg_mode != FINISH)
-			? 2 * ch[7].mod.calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
+		bufs[ 7][sample] += (ch[7].slot[MOD].eg_mode != FINISH)
+			? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
 			: 0;
-		bufs[ 8][sample] += (ch[7].car.eg_mode != FINISH)
-			? 2 * ch[7].car.calc_slot_snare(lfo_pm, lfo_am, whitenoise)
+		bufs[ 8][sample] += (ch[7].slot[CAR].eg_mode != FINISH)
+			? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whitenoise)
 			: 0;
-		bufs[ 9][sample] += (ch[8].mod.eg_mode != FINISH)
-			? 2 * ch[8].mod.calc_slot_tom(lfo_pm, lfo_am)
+		bufs[ 9][sample] += (ch[8].slot[MOD].eg_mode != FINISH)
+			? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
 			: 0;
-		bufs[10][sample] += (ch[8].car.eg_mode != FINISH)
-			? 2 * ch[8].car.calc_slot_cym(lfo_am, noiseA, noiseB)
+		bufs[10][sample] += (ch[8].slot[CAR].eg_mode != FINISH)
+			? 2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB)
 			: 0;
 	} else {
 		//bufs[ 9] += 0;
@@ -996,18 +998,18 @@ bool Y8950Impl::checkMuteHelper()
 		return true;
 	}
 	for (int i = 0; i < 6; ++i) {
-		if (ch[i].car.eg_mode != FINISH) return false;
+		if (ch[i].slot[CAR].eg_mode != FINISH) return false;
 	}
 	if (!rythm_mode) {
 		for(int i = 6; i < 9; ++i) {
-			if (ch[i].car.eg_mode != FINISH) return false;
+			if (ch[i].slot[CAR].eg_mode != FINISH) return false;
 		}
 	} else {
-		if (ch[6].car.eg_mode != FINISH) return false;
-		if (ch[7].mod.eg_mode != FINISH) return false;
-		if (ch[7].car.eg_mode != FINISH) return false;
-		if (ch[8].mod.eg_mode != FINISH) return false;
-		if (ch[8].car.eg_mode != FINISH) return false;
+		if (ch[6].slot[CAR].eg_mode != FINISH) return false;
+		if (ch[7].slot[MOD].eg_mode != FINISH) return false;
+		if (ch[7].slot[CAR].eg_mode != FINISH) return false;
+		if (ch[8].slot[MOD].eg_mode != FINISH) return false;
+		if (ch[8].slot[CAR].eg_mode != FINISH) return false;
 	}
 
 	return adpcm->muted();
@@ -1227,12 +1229,12 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 				if (data & 0x02) keyOn_CYM(); else keyOff_CYM();
 				if (data & 0x01) keyOn_HH();  else keyOff_HH();
 			}
-			ch[6].mod.updateAll(ch[6].freq);
-			ch[6].car.updateAll(ch[6].freq);
-			ch[7].mod.updateAll(ch[7].freq);
-			ch[7].car.updateAll(ch[7].freq);
-			ch[8].mod.updateAll(ch[8].freq);
-			ch[8].car.updateAll(ch[8].freq);
+			ch[6].slot[MOD].updateAll(ch[6].freq);
+			ch[6].slot[CAR].updateAll(ch[6].freq);
+			ch[7].slot[MOD].updateAll(ch[7].freq);
+			ch[7].slot[CAR].updateAll(ch[7].freq);
+			ch[8].slot[MOD].updateAll(ch[8].freq);
+			ch[8].slot[CAR].updateAll(ch[8].freq);
 
 			reg[rg] = data;
 			break;
@@ -1264,8 +1266,8 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 		case 8: noiseB_dphase = fNum << block;
 			break;
 		}
-		ch[c].car.updateAll(freq);
-		ch[c].mod.updateAll(freq);
+		ch[c].slot[CAR].updateAll(freq);
+		ch[c].slot[MOD].updateAll(freq);
 		reg[rg] = data;
 		break;
 	}
@@ -1273,7 +1275,7 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 		if (rg > 0xc8)
 			break;
 		int c = rg - 0xC0;
-		ch[c].mod.patch.setFeedbackShift((data >> 1) & 7);
+		ch[c].slot[MOD].patch.setFeedbackShift((data >> 1) & 7);
 		ch[c].alg = data & 1;
 		reg[rg] = data;
 	}
@@ -1405,14 +1407,14 @@ void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Y8950Channel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mod", mod);
-	ar.serialize("car", car);
+	ar.serialize("mod", slot[MOD]);
+	ar.serialize("car", slot[CAR]);
 	ar.serialize("freq", freq);
 	ar.serialize("alg", alg);
 
 	if (ar.isLoader()) {
-		mod.updateAll(freq);
-		car.updateAll(freq);
+		slot[MOD].updateAll(freq);
+		slot[CAR].updateAll(freq);
 	}
 }
 
