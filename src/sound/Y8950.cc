@@ -54,16 +54,19 @@ public:
 	void setKeyScaleRate(bool value) {
 		KR = value ? 11 : 9;
 	}
+	void setFeedbackShift(byte value) {
+		FB = value ? 8 - value : 0;
+	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 	bool AM, PM, EG;
-	byte KR; // 0-1   transformed to 9,11
+	byte KR; // 0,1   transformed to 9,11
 	byte ML; // 0-15
 	byte KL; // 0-3
 	byte TL; // 0-63
-	byte FB; // 0-7
+	byte FB; // 0,1-7  transformed to 0,7-1
 	byte AR; // 0-15
 	byte DR; // 0-15
 	byte SL; // 0-15
@@ -500,12 +503,12 @@ void Y8950Patch::reset()
 	ML = 0;
 	KL = 0;
 	TL = 0;
-	FB = 0;
 	AR = 0;
 	DR = 0;
 	SL = 0;
 	RR = 0;
 	setKeyScaleRate(false);
+	setFeedbackShift(0);
 }
 
 
@@ -770,13 +773,6 @@ void Y8950Impl::setRythmMode(int data)
 // Generate wave data
 //
 
-// Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI).
-static inline int wave2_4pi(int e)
-{
-	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
-	return (shift > 0) ? (e >> shift) : (e << -shift);
-}
-
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI).
 static inline int wave2_8pi(int e)
 {
@@ -898,7 +894,7 @@ int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	unsigned pgout = calc_phase(lfo_pm);
 
 	if (patch.FB != 0) {
-		pgout += wave2_4pi(feedback) >> (7 - patch.FB);
+		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
 	output[0] = dB2LinTab[sintable[pgout & PG_MASK] + egout];
 
@@ -1277,7 +1273,7 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 		if (rg > 0xc8)
 			break;
 		int c = rg - 0xC0;
-		slot[c * 2]->patch.FB = (data >> 1) & 7;
+		ch[c].mod.patch.setFeedbackShift((data >> 1) & 7);
 		ch[c].alg = data & 1;
 		reg[rg] = data;
 	}
