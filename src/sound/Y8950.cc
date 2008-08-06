@@ -51,11 +51,15 @@ public:
 	Y8950Patch();
 	void reset();
 
+	void setKeyScaleRate(bool value) {
+		KR = value ? 11 : 9;
+	}
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 	bool AM, PM, EG;
-	byte KR; // 0-1
+	byte KR; // 0-1   transformed to 9,11
 	byte ML; // 0-15
 	byte KL; // 0-3
 	byte TL; // 0-63
@@ -107,7 +111,7 @@ public:
 	// for Envelope Generator (EG)
 	unsigned freq;		// combined F-Number and Block
 	int tll;		// Total Level + Key scale level
-	int rks;		// Key scale offset (Rks)
+	unsigned rks;		// Key scale offset (Rks)
 	int eg_mode;		// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
@@ -272,9 +276,8 @@ static EnvPhaseIndex dphaseARTable[16][16];
 // Phase incr table for Decay and Release.
 static EnvPhaseIndex dphaseDRTable[16][16];
 
-// KSL + TL Table.
+// TL Table.
 static int tllTable[16 * 8][1 << TL_BITS][4];
-static int rksTable[2 * 8][2];
 
 // Phase incr table for PG.
 static unsigned dphaseTable[1024 * 8][16];
@@ -513,17 +516,6 @@ static void makeDphaseDRTable()
 	}
 }
 
-static void makeRksTable()
-{
-	for (unsigned freq = 0; freq < 2 * 8; ++freq) {
-		unsigned fnum9 = freq % 2;
-		unsigned block = freq / 2;
-		// TODO simplify
-		rksTable[freq][0] =  block >> 1;
-		rksTable[freq][1] = (block << 1) + fnum9;
-	}
-}
-
 
 // class Y8950Patch
 
@@ -537,7 +529,6 @@ void Y8950Patch::reset()
 	AM = false;
 	PM = false;
 	EG = false;
-	KR = 0;
 	ML = 0;
 	KL = 0;
 	TL = 0;
@@ -546,6 +537,7 @@ void Y8950Patch::reset()
 	DR = 0;
 	SL = 0;
 	RR = 0;
+	setKeyScaleRate(false);
 }
 
 
@@ -583,7 +575,8 @@ void Y8950Slot::updateTLL()
 
 void Y8950Slot::updateRKS()
 {
-	rks = rksTable[freq >> 9][patch.KR];
+	rks = freq >> patch.KR;
+	assert(rks < 16);
 }
 
 void Y8950Slot::updateEG()
@@ -704,7 +697,6 @@ void Y8950Impl::init(const XMLElement& config, const EmuTime& time)
 	makeAdjustTable();
 	makeDB2LinTable();
 	makeTllTable();
-	makeRksTable();
 	makeSinTable();
 
 	makeDphaseTable();
@@ -1228,7 +1220,7 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			slot[s]->patch.AM = (data >> 7) &  1;
 			slot[s]->patch.PM = (data >> 6) &  1;
 			slot[s]->patch.EG = (data >> 5) &  1;
-			slot[s]->patch.KR = (data >> 4) &  1;
+			slot[s]->patch.setKeyScaleRate(data & 0x10);
 			slot[s]->patch.ML = (data >> 0) & 15;
 			slot[s]->updateAll();
 		}
