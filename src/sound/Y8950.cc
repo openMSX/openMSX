@@ -182,7 +182,6 @@ private:
 	inline void keyOff_CYM();
 	inline void setRythmMode(int data);
 	inline void update_noise();
-	inline void update_ampm();
 
 	inline void calcSample(int** bufs, unsigned sample);
 	bool checkMuteHelper();
@@ -219,9 +218,6 @@ private:
 	unsigned noiseB_dphase;
 
 	Y8950Channel ch[9];
-
-	int lfo_pm;
-	int lfo_am;
 
 	byte status;     // STATUS Register
 	byte statusMask; // bit=0 -> masked
@@ -315,7 +311,7 @@ static int pmtable[2][PM_PG_WIDTH];
 static int amtable[2][AM_PG_WIDTH];
 
 // dB to Liner table
-static short dB2LinTab[(2 * DB_MUTE) * 2];
+static int dB2LinTab[(2 * DB_MUTE) * 2];
 
 
 //**************************************************//
@@ -795,14 +791,6 @@ void Y8950Impl::update_noise()
 	noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
 }
 
-void Y8950Impl::update_ampm()
-{
-	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
-	lfo_am = amtable[am_mode][am_phase >> (AM_DP_BITS - AM_PG_BITS)];
-	lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
-}
-
 unsigned Y8950Slot::calc_phase(int lfo_pm)
 {
 	if (patch.PM) {
@@ -932,8 +920,12 @@ int Y8950Impl::getAmplificationFactor() const
 
 inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
 {
-	// during mute update_ampm() and update_noise() aren't called, probably ok
-	update_ampm();
+	// during mute pm_phase, am_phase and update_noise() aren't updated, probably ok
+	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
+	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
+	int lfo_am = amtable[am_mode][am_phase >> (AM_DP_BITS - AM_PG_BITS)];
+	int lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
+
 	update_noise();
 
 	int m = rythm_mode ? 6 : 9;
@@ -1435,8 +1427,6 @@ void Y8950Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("noiseA_dphase", noiseA_dphase);
 	ar.serialize("noiseB_dphase", noiseB_dphase);
 	ar.serialize("channels", ch);
-	ar.serialize("lfo_pm", lfo_pm);
-	ar.serialize("lfo_am", lfo_am);
 	ar.serialize("status", status);
 	ar.serialize("statusMask", statusMask);
 	ar.serialize("rythm_mode", rythm_mode);
