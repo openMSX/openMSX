@@ -80,7 +80,7 @@ public:
 	inline void setPatch(Patch& patch);
 	inline void setVolume(unsigned volume);
 
-	template <bool HAS_PM> inline void calc_phase(PhaseModulation lfo_pm);
+	template <bool HAS_PM> inline unsigned calc_phase(PhaseModulation lfo_pm);
 	template <bool HAS_AM> inline unsigned calc_envelope(int lfo_am);
 	void calc_envelope_outline(unsigned& out);
 	template <bool HAS_PM, bool HAS_AM>
@@ -90,8 +90,8 @@ public:
 
 	inline int calc_slot_tom();
 	inline int calc_slot_snare(bool noise);
-	inline int calc_slot_cym(unsigned cphase_hh);
-	inline int calc_slot_hat(unsigned cphase_cym, bool noise);
+	inline int calc_slot_cym(unsigned phase7, unsigned phase8);
+	inline int calc_slot_hat(unsigned phase7, unsigned phase8, bool noise);
 	inline void updatePG(unsigned freq);
 	inline void updateTLL(unsigned freq);
 	inline void updateRKS(unsigned freq);
@@ -963,7 +963,7 @@ static inline int wave2_8pi(int e)
 
 // PG
 template <bool HAS_PM>
-ALWAYS_INLINE void Slot::calc_phase(PhaseModulation lfo_pm)
+ALWAYS_INLINE unsigned Slot::calc_phase(PhaseModulation lfo_pm)
 {
 	assert(patch.PM == HAS_PM);
 	if (HAS_PM) {
@@ -971,6 +971,7 @@ ALWAYS_INLINE void Slot::calc_phase(PhaseModulation lfo_pm)
 	} else {
 		cphase += dphase;
 	}
+	return cphase >> DP_BASE_BITS;
 }
 
 // EG
@@ -1024,9 +1025,8 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am)
 template <bool HAS_PM, bool HAS_AM>
 ALWAYS_INLINE int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm)
 {
-	calc_phase<HAS_PM>(lfo_pm);
+	int phase = calc_phase<HAS_PM>(lfo_pm) + wave2_8pi(fm);
 	unsigned egout = calc_envelope<HAS_AM>(lfo_am);
-	int phase = (cphase >> DP_BASE_BITS) + wave2_8pi(fm);
 	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	output = (output + newOutput) >> 1;
 	return output;
@@ -1037,9 +1037,8 @@ template <bool HAS_PM, bool HAS_AM, bool HAS_FB>
 ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
 {
 	assert((patch.FB != 0) == HAS_FB);
-	calc_phase<HAS_PM>(lfo_pm);
+	unsigned phase = calc_phase<HAS_PM>(lfo_pm);
 	unsigned egout = calc_envelope<HAS_AM>(lfo_am);
-	int phase = cphase >> DP_BASE_BITS;
 	if (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
@@ -1052,53 +1051,46 @@ ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
 // TOM (ch8 mod)
 ALWAYS_INLINE int Slot::calc_slot_tom()
 {
-	calc_phase<false>(PhaseModulation());
+	unsigned phase = calc_phase<false>(PhaseModulation());
 	unsigned egout = calc_envelope<false>(0);
-	int phase = cphase >> DP_BASE_BITS;
 	return dB2LinTab[sintbl[phase & PG_MASK] + egout];
 }
 
 // SNARE (ch7 car)
 ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 {
-	calc_phase<false>(PhaseModulation());
+	unsigned phase = calc_phase<false>(PhaseModulation());
 	unsigned egout = calc_envelope<false>(0);
-	if (BIT(cphase, 7 + DP_BASE_BITS)) {
-		return dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout];
-	} else {
-		return dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
-	}
+	return BIT(phase, 7)
+		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
+		: dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
 }
 
 // TOP-CYM (ch8 car)
-ALWAYS_INLINE int Slot::calc_slot_cym(unsigned cphase_hh)
+ALWAYS_INLINE int Slot::calc_slot_cym(unsigned phase7, unsigned phase8)
 {
 	unsigned egout = calc_envelope<false>(0);
-	unsigned dbout
-	    = (((BIT(cphase_hh, PG_BITS - 8 + DP_BASE_BITS) ^
-	         BIT(cphase_hh, PG_BITS - 1 + DP_BASE_BITS)) |
-	        BIT(cphase_hh, PG_BITS - 7 + DP_BASE_BITS)) ^
-	       ( BIT(cphase, PG_BITS - 7 + DP_BASE_BITS) &
-	        !BIT(cphase, PG_BITS - 5 + DP_BASE_BITS)))
-	    ? DB_NEG(3.0)
-	    : DB_POS(3.0);
+	unsigned dbout = (((BIT(phase7, PG_BITS - 8) ^
+	                    BIT(phase7, PG_BITS - 1)) |
+	                   BIT(phase7, PG_BITS - 7)) ^
+	                  ( BIT(phase8, PG_BITS - 7) &
+	                   !BIT(phase8, PG_BITS - 5)))
+	               ? DB_NEG(3.0)
+	               : DB_POS(3.0);
 	return dB2LinTab[dbout + egout];
 }
 
 // HI-HAT (ch7 mod)
-ALWAYS_INLINE int Slot::calc_slot_hat(unsigned cphase_cym, bool noise)
+ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noise)
 {
 	unsigned egout = calc_envelope<false>(0);
-	unsigned dbout;
-	if (((BIT(cphase, PG_BITS - 8 + DP_BASE_BITS) ^
-	      BIT(cphase, PG_BITS - 1 + DP_BASE_BITS)) |
-	     BIT(cphase, PG_BITS - 7 + DP_BASE_BITS)) ^
-	    ( BIT(cphase_cym, PG_BITS - 7 + DP_BASE_BITS) &
-	     !BIT(cphase_cym, PG_BITS - 5 + DP_BASE_BITS))) {
-		dbout = noise ? DB_NEG(12.0) : DB_NEG(24.0);
-	} else {
-		dbout = noise ? DB_POS(12.0) : DB_POS(24.0);
-	}
+	unsigned dbout = (((BIT(phase7, PG_BITS - 8) ^
+	                    BIT(phase7, PG_BITS - 1)) |
+	                   BIT(phase7, PG_BITS - 7)) ^
+	                  ( BIT(phase8, PG_BITS - 7) &
+	                   !BIT(phase8, PG_BITS - 5)))
+	               ? (noise ? DB_NEG(12.0) : DB_NEG(24.0))
+	               : (noise ? DB_POS(12.0) : DB_POS(24.0));
 	return dB2LinTab[dbout + egout];
 }
 
@@ -1256,10 +1248,10 @@ void Global::generateChannels(int** bufs, unsigned num)
 		unsigned old_cphase8 = ch8.car.cphase;
 		if (channelActiveBits & (1 << 8)) {
 			for (unsigned sample = 0; sample < num; ++sample) {
-				ch8.car.calc_phase<false>(PhaseModulation());
-				ch7.mod.calc_phase<false>(PhaseModulation());
+				unsigned phase7 = ch7.mod.calc_phase<false>(PhaseModulation());
+				unsigned phase8 = ch8.car.calc_phase<false>(PhaseModulation());
 				bufs[8][sample] +=
-					-2 * ch8.car.calc_slot_cym(ch7.mod.cphase);
+					-2 * ch8.car.calc_slot_cym(phase7, phase8);
 			}
 		}
 		if (channelActiveBits & (1 << (7 + 9))) {
@@ -1271,11 +1263,10 @@ void Global::generateChannels(int** bufs, unsigned num)
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
-				ch8.car.calc_phase<false>(PhaseModulation());
-				ch7.mod.calc_phase<false>(PhaseModulation());
+				unsigned phase7 = ch7.mod.calc_phase<false>(PhaseModulation());
+				unsigned phase8 = ch8.car.calc_phase<false>(PhaseModulation());
 				bufs[9][sample] +=
-					2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
-					                          noise_bit);
+					2 * ch7.mod.calc_slot_hat(phase7, phase8, noise_bit);
 			}
 		}
 		if (channelActiveBits & (1 << (8 + 9))) {
