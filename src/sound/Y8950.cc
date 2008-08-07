@@ -77,6 +77,7 @@ class Y8950Slot {
 public:
 	void reset();
 
+	inline bool isActive() const;
 	inline void slotOn();
 	inline void slotOff();
 
@@ -183,7 +184,6 @@ private:
 	inline void setRythmMode(int data);
 	inline void update_noise();
 
-	inline void calcSample(int** bufs, unsigned sample);
 	bool checkMuteHelper();
 
 	void changeStatusMask(byte newMask);
@@ -574,6 +574,11 @@ void Y8950Slot::updateAll(unsigned freq)
 	updateEG(); // EG should be last
 }
 
+bool Y8950Slot::isActive() const
+{
+	return eg_mode != FINISH;
+}
+
 // Slot key on
 void Y8950Slot::slotOn()
 {
@@ -918,57 +923,6 @@ int Y8950Impl::getAmplificationFactor() const
 	return 1 << (15 - DB2LIN_AMP_BITS);
 }
 
-inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
-{
-	// during mute pm_phase, am_phase and update_noise() aren't updated, probably ok
-	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
-	int lfo_am = amtable[am_mode][am_phase >> (AM_DP_BITS - AM_PG_BITS)];
-	int lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
-
-	update_noise();
-
-	int m = rythm_mode ? 6 : 9;
-	for (int i = 0; i < m; ++i) {
-		if (ch[i].slot[CAR].eg_mode != FINISH) {
-			bufs[i][sample] += ch[i].alg
-				? ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am, 0) +
-				       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)
-				: ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
-				       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am));
-		} else {
-			//bufs[i][sample] += 0;
-		}
-	}
-	if (rythm_mode) {
-		// TODO wasn't in original source either
-		ch[7].slot[MOD].calc_phase(lfo_pm);
-		ch[8].slot[CAR].calc_phase(lfo_pm);
-
-		bufs[ 6][sample] += (ch[6].slot[CAR].eg_mode != FINISH)
-			? 2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
-			                    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am))
-			: 0;
-		bufs[ 7][sample] += (ch[7].slot[MOD].eg_mode != FINISH)
-			? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
-			: 0;
-		bufs[ 8][sample] += (ch[7].slot[CAR].eg_mode != FINISH)
-			? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whitenoise)
-			: 0;
-		bufs[ 9][sample] += (ch[8].slot[MOD].eg_mode != FINISH)
-			? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
-			: 0;
-		bufs[10][sample] += (ch[8].slot[CAR].eg_mode != FINISH)
-			? 2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB)
-			: 0;
-	} else {
-		//bufs[ 9] += 0;
-		//bufs[10] += 0;
-	}
-
-	bufs[11][sample] += adpcm->calcSample();
-}
-
 void Y8950Impl::setEnabled(bool enabled_, const EmuTime& time)
 {
 	updateStream(time);
@@ -981,18 +935,18 @@ bool Y8950Impl::checkMuteHelper()
 		return true;
 	}
 	for (int i = 0; i < 6; ++i) {
-		if (ch[i].slot[CAR].eg_mode != FINISH) return false;
+		if (ch[i].slot[CAR].isActive()) return false;
 	}
 	if (!rythm_mode) {
 		for(int i = 6; i < 9; ++i) {
-			if (ch[i].slot[CAR].eg_mode != FINISH) return false;
+			if (ch[i].slot[CAR].isActive()) return false;
 		}
 	} else {
-		if (ch[6].slot[CAR].eg_mode != FINISH) return false;
-		if (ch[7].slot[MOD].eg_mode != FINISH) return false;
-		if (ch[7].slot[CAR].eg_mode != FINISH) return false;
-		if (ch[8].slot[MOD].eg_mode != FINISH) return false;
-		if (ch[8].slot[CAR].eg_mode != FINISH) return false;
+		if (ch[6].slot[CAR].isActive()) return false;
+		if (ch[7].slot[MOD].isActive()) return false;
+		if (ch[7].slot[CAR].isActive()) return false;
+		if (ch[8].slot[MOD].isActive()) return false;
+		if (ch[8].slot[CAR].isActive()) return false;
 	}
 
 	return adpcm->muted();
@@ -1008,8 +962,55 @@ void Y8950Impl::generateChannels(int** bufs, unsigned num)
 		return;
 	}
 
-	for (unsigned i = 0; i < num; ++i) {
-		calcSample(bufs, i);
+	for (unsigned sample = 0; sample < num; ++sample) {
+		// during mute pm_phase, am_phase and update_noise() aren't
+		// updated, probably ok
+		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
+		am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
+		int lfo_am = amtable[am_mode][am_phase >> (AM_DP_BITS - AM_PG_BITS)];
+		int lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
+
+		update_noise();
+
+		int m = rythm_mode ? 6 : 9;
+		for (int i = 0; i < m; ++i) {
+			if (ch[i].slot[CAR].isActive()) {
+				bufs[i][sample] += ch[i].alg
+					? ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am, 0) +
+					       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)
+					: ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
+					       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am));
+			} else {
+				//bufs[i][sample] += 0;
+			}
+		}
+		if (rythm_mode) {
+			// TODO wasn't in original source either
+			ch[7].slot[MOD].calc_phase(lfo_pm);
+			ch[8].slot[CAR].calc_phase(lfo_pm);
+
+			bufs[ 6][sample] += (ch[6].slot[CAR].isActive())
+				? 2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
+						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am))
+				: 0;
+			bufs[ 7][sample] += (ch[7].slot[MOD].isActive())
+				? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
+				: 0;
+			bufs[ 8][sample] += (ch[7].slot[CAR].isActive())
+				? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whitenoise)
+				: 0;
+			bufs[ 9][sample] += (ch[8].slot[MOD].isActive())
+				? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
+				: 0;
+			bufs[10][sample] += (ch[8].slot[CAR].isActive())
+				? 2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB)
+				: 0;
+		} else {
+			//bufs[ 9] += 0;
+			//bufs[10] += 0;
+		}
+
+		bufs[11][sample] += adpcm->calcSample();
 	}
 }
 
