@@ -889,15 +889,9 @@ inline void Slot::advancePhaseGenerator(unsigned lfo_pm)
 	if (vib) {
 		const int lfo_fn_table_index_offset = lfo_pm_table
 			[(channel->getBlockFNum() & 0x01FF) >> 6][lfo_pm];
-		if (lfo_fn_table_index_offset) {
-			// LFO phase modulation active
-			phase += fnumToIncrement(
-				channel->getBlockFNum() * 2 + lfo_fn_table_index_offset
-				) * mul;
-		} else {
-			// LFO phase modulation = zero
-			phase += freq;
-		}
+		phase += fnumToIncrement(
+			channel->getBlockFNum() * 2 + lfo_fn_table_index_offset
+			) * mul;
 	} else {
 		// LFO phase modulation disabled for this operator
 		phase += freq;
