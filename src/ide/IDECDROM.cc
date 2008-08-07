@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <bitset>
 #include <cassert>
+#include <cstdio>
 
 using std::string;
 using std::vector;

@@ -5,7 +5,8 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include <string.h>
+#include <cstring>
+#include <cstdio>
 
 using std::string;
 

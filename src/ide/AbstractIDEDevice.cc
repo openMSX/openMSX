@@ -8,6 +8,7 @@
 #include "serialize.hh"
 #include <cassert>
 #include <cstring>
+#include <cstdio>
 
 namespace openmsx {
 

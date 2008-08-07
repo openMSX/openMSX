@@ -11,6 +11,7 @@
 #include <memory>
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 
 #ifdef GL_VERSION_2_0
 #ifndef glGetShaderiv

@@ -7,14 +7,15 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "BootBlocks.hh"
-#include <sys/stat.h>
-#include <time.h>
-#include <utime.h>
-#include <unistd.h>
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 #include <algorithm>
 #include <cassert>
+#include <utime.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <ctype.h>
 
 using std::string;
 
