@@ -182,7 +182,6 @@ private:
 	inline void keyOff_HH();
 	inline void keyOff_CYM();
 	inline void setRythmMode(int data);
-	inline void update_noise();
 
 	bool checkMuteHelper();
 
@@ -209,9 +208,6 @@ private:
 
 	// Noise Generator
 	int noise_seed;
-	int whitenoise;
-	int noiseA;
-	int noiseB;
 	unsigned noiseA_phase;
 	unsigned noiseB_phase;
 	unsigned noiseA_dphase;
@@ -702,8 +698,6 @@ void Y8950Impl::reset(const EmuTime& time)
 	pm_phase = 0;
 	am_phase = 0;
 	noise_seed = 0xffff;
-	noiseA = 0;
-	noiseB = 0;
 	noiseA_phase = 0;
 	noiseB_phase = 0;
 	noiseA_dphase = 0;
@@ -773,27 +767,6 @@ static inline int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
 	return (shift > 0) ? (e >> shift) : (e << -shift);
-}
-
-void Y8950Impl::update_noise()
-{
-	if (noise_seed & 1) {
-		noise_seed ^= 0x24000;
-	}
-	noise_seed >>= 1;
-	whitenoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
-
-	noiseA_phase += noiseA_dphase;
-	noiseB_phase += noiseB_dphase;
-
-	noiseA_phase &= (0x40 << 11) - 1;
-	if ((noiseA_phase >> 11) == 0x3f) {
-		noiseA_phase = 0;
-	}
-	noiseA = noiseA_phase & (0x03 << 11) ? DB_POS(6) : DB_NEG(6);
-
-	noiseB_phase &= (0x10 << 11) - 1;
-	noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
 }
 
 unsigned Y8950Slot::calc_phase(int lfo_pm)
@@ -963,14 +936,29 @@ void Y8950Impl::generateChannels(int** bufs, unsigned num)
 	}
 
 	for (unsigned sample = 0; sample < num; ++sample) {
-		// during mute pm_phase, am_phase and update_noise() aren't
-		// updated, probably ok
+		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
+		// and noise_seed aren't updated, probably ok
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 		am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
 		int lfo_am = amtable[am_mode][am_phase >> (AM_DP_BITS - AM_PG_BITS)];
 		int lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
-		update_noise();
+		if (noise_seed & 1) {
+			noise_seed ^= 0x24000;
+		}
+		noise_seed >>= 1;
+		int whitenoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
+
+		noiseA_phase += noiseA_dphase;
+		noiseA_phase &= (0x40 << 11) - 1;
+		if ((noiseA_phase >> 11) == 0x3f) {
+			noiseA_phase = 0;
+		}
+		int noiseA = noiseA_phase & (0x03 << 11) ? DB_POS(6) : DB_NEG(6);
+
+		noiseB_phase += noiseB_dphase;
+		noiseB_phase &= (0x10 << 11) - 1;
+		int noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
 
 		int m = rythm_mode ? 6 : 9;
 		for (int i = 0; i < m; ++i) {
@@ -1420,9 +1408,6 @@ void Y8950Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("pm_phase", pm_phase);
 	ar.serialize("am_phase", am_phase);
 	ar.serialize("noise_seed", noise_seed);
-	ar.serialize("whitenoise", whitenoise);
-	ar.serialize("noiseA", noiseA);
-	ar.serialize("noiseB", noiseB);
 	ar.serialize("noiseA_phase", noiseA_phase);
 	ar.serialize("noiseB_phase", noiseB_phase);
 	ar.serialize("noiseA_dphase", noiseA_dphase);
