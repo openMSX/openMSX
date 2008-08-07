@@ -403,7 +403,7 @@ public:
 	void updateGenerators();
 
 	inline int calcOutput(unsigned lfo_am, int phase) const;
-	inline void updateModulator(unsigned LFO_AM);
+	inline void updateModulator(unsigned lfo_am);
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
 	inline void advancePhaseGenerator(unsigned lfo_pm);
 
@@ -715,14 +715,6 @@ public:
 		return inst_tab[instrument];
 	}
 
-	byte get_LFO_AM() {
-		return LFO_AM;
-	}
-
-	byte get_LFO_PM() {
-		return lfo_pm_cnt.toInt() & 7;
-	}
-
 	void reset(const EmuTime& time);
 
 	/**
@@ -752,11 +744,6 @@ private:
 		byte chan = (reg & 0x0F) % 9; // verified on real YM2413
 		return channels[chan];
 	}
-
-	/**
-	 * Advance LFO to next sample.
-	 */
-	inline void advanceLFO();
 
 	/**
 	 * Advance envelope and phase generators to next sample.
@@ -808,7 +795,6 @@ private:
 	typedef FixedPoint<10> LFOPMIndex;
 	LFOAMIndex lfo_am_cnt;
 	LFOPMIndex lfo_pm_cnt;
-	byte LFO_AM;
 
 	/**
 	 * Rhythm mode.
@@ -946,26 +932,13 @@ inline void Slot::updateReleaseRate()
 	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
 }
 
-inline void Global::advanceLFO()
-{
-	// Amplitude modulation: 27 output levels (triangle waveform)
-	// 1 level takes one of: 192, 256 or 448 samples
-	// One entry from LFO_AM_TABLE lasts for 64 samples
-	lfo_am_cnt.addQuantum();
-	if (lfo_am_cnt == LFOAMIndex(LFO_AM_TAB_ELEMENTS)) {
-		// lfo_am_table is 210 elements long
-		lfo_am_cnt = LFOAMIndex(0);
-	}
-	LFO_AM = lfo_am_table[lfo_am_cnt.toInt()] >> 1;
-
-	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
-	lfo_pm_cnt.addQuantum();
-}
-
 inline void Global::advance()
 {
+	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
+	lfo_pm_cnt.addQuantum();
+	unsigned lfo_pm = lfo_pm_cnt.toInt() & 7;
+
 	eg_cnt++;
-	byte lfo_pm = get_LFO_PM();
 	for (int ch = 0; ch < 9; ch++) {
 		Channel& channel = channels[ch];
 		for (int sl = 0; sl < 2; sl++) {
@@ -1322,7 +1295,6 @@ Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
 {
 	initTables();
 
-	LFO_AM = 0;
 	eg_cnt = 0;
 	rhythm = 0;
 	noise_rng = 0;
@@ -1495,8 +1467,16 @@ void Global::generateChannels(int** bufs, unsigned num)
 
 	const int numMelodicChannels = getNumMelodicChannels();
 	for (unsigned i = 0; i < num; ++i) {
-		advanceLFO();
-		unsigned lfo_am = get_LFO_AM();
+		// Amplitude modulation: 27 output levels (triangle waveform)
+		// 1 level takes one of: 192, 256 or 448 samples
+		// One entry from LFO_AM_TABLE lasts for 64 samples
+		lfo_am_cnt.addQuantum();
+		if (lfo_am_cnt == LFOAMIndex(LFO_AM_TAB_ELEMENTS)) {
+			// lfo_am_table is 210 elements long
+			lfo_am_cnt = LFOAMIndex(0);
+		}
+		unsigned lfo_am = lfo_am_table[lfo_am_cnt.toInt()] >> 1;
+
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
 			Channel& channel = channels[ch];
 			channel.slots[MOD].updateModulator(lfo_am);
@@ -1705,7 +1685,6 @@ void Global::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("noise_rng", noise_rng);
 	ar.serialize("lfo_am_cnt", lfo_am_cnt);
 	ar.serialize("lfo_pm_cnt", lfo_pm_cnt);
-	ar.serialize("LFO_AM", LFO_AM);
 	ar.serialize("rhythm", rhythm);
 	// don't serialize idleSamples, it's only an optimization
 }
