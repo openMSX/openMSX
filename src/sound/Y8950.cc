@@ -993,17 +993,17 @@ void Y8950Impl::generateChannels(int** bufs, unsigned num)
 				? 2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
 						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am))
 				: 0;
-			bufs[ 7][sample] += (ch[7].slot[MOD].isActive())
-				? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
-				: 0;
-			bufs[ 8][sample] += (ch[7].slot[CAR].isActive())
+			bufs[ 7][sample] += (ch[7].slot[CAR].isActive())
 				? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whitenoise)
 				: 0;
-			bufs[ 9][sample] += (ch[8].slot[MOD].isActive())
-				? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
-				: 0;
-			bufs[10][sample] += (ch[8].slot[CAR].isActive())
+			bufs[ 8][sample] += (ch[8].slot[CAR].isActive())
 				? 2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB)
+				: 0;
+			bufs[ 9][sample] += (ch[7].slot[MOD].isActive())
+				? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
+				: 0;
+			bufs[10][sample] += (ch[8].slot[MOD].isActive())
+				? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
 				: 0;
 		} else {
 			//bufs[ 9] += 0;
