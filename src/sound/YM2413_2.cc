@@ -392,7 +392,7 @@ public:
 	 * This method should be called once, as soon as possible after
 	 * construction.
 	 */
-	void init(Global& global, Channel& channel);
+	void init(Channel& channel);
 
 	void resetOperators();
 
@@ -402,10 +402,10 @@ public:
 	 */
 	void updateGenerators();
 
-	inline int calcOutput(int phase) const;
-	inline void updateModulator();
+	inline int calcOutput(unsigned lfo_am, int phase) const;
+	inline void updateModulator(unsigned LFO_AM);
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
-	inline void advancePhaseGenerator();
+	inline void advancePhaseGenerator(unsigned lfo_pm);
 
 	void setKeyOn(KeyPart part);
 	void setKeyOff(KeyPart part);
@@ -558,7 +558,6 @@ private:
 	inline void updateDecayRate();
 	inline void updateReleaseRate();
 
-	Global* global;
 	Channel* channel;
 	unsigned* wavetable;	// waveform select
 
@@ -611,7 +610,7 @@ public:
 	/**
 	 * Calculate the value of the current sample produced by this channel.
 	 */
-	inline int calcOutput() const;
+	inline int calcOutput(unsigned lfo_am) const;
 
 	/**
 	 * Initializes those parts that cannot be initialized in the constructor,
@@ -620,7 +619,7 @@ public:
 	 * This method should be called once, as soon as possible after
 	 * construction.
 	 */
-	void init(Global& global);
+	void init();
 
 	/**
 	 * Sets the frequency for this channel.
@@ -646,20 +645,20 @@ public:
 	 * @param instrument Number of the instrument.
 	 * @param part Part [0..7] of the instrument.
 	 */
-	void updateInstrumentPart(int instrument, int part);
+	void updateInstrumentPart(Global& global, int instrument, int part);
 
 	/**
 	 * Sets all synthesis parameters as specified by the instrument.
 	 * @param instrument Number of the instrument.
 	 */
-	void updateInstrument(int instrument);
+	void updateInstrument(Global& global, int instrument);
 
 	/**
 	 * Sets all synthesis parameters as specified by the current instrument.
 	 * The current instrument is determined by instvol_r.
 	 */
-	void updateInstrument() {
-		updateInstrument(instvol_r >> 4);
+	void updateInstrument(Global& global) {
+		updateInstrument(global, instvol_r >> 4);
 	}
 
 	int getBlockFNum() {
@@ -697,8 +696,6 @@ public:
 	byte instvol_r;
 
 private:
-	Global* global;
-
 	// phase generator state
 	int block_fnum;	// block+fnum
 	FreqIndex fc;	// Freq. freqement base
@@ -901,11 +898,11 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 	}
 }
 
-inline void Slot::advancePhaseGenerator()
+inline void Slot::advancePhaseGenerator(unsigned lfo_pm)
 {
 	if (vib) {
 		const int lfo_fn_table_index_offset = lfo_pm_table
-			[(channel->getBlockFNum() & 0x01FF) >> 6][global->get_LFO_PM()];
+			[(channel->getBlockFNum() & 0x01FF) >> 6][lfo_pm];
 		if (lfo_fn_table_index_offset) {
 			// LFO phase modulation active
 			phase += fnumToIncrement(
@@ -968,6 +965,7 @@ inline void Global::advanceLFO()
 inline void Global::advance()
 {
 	eg_cnt++;
+	byte lfo_pm = get_LFO_PM();
 	for (int ch = 0; ch < 9; ch++) {
 		Channel& channel = channels[ch];
 		for (int sl = 0; sl < 2; sl++) {
@@ -976,7 +974,7 @@ inline void Global::advance()
 				eg_cnt,
 				sl == 1 || (rhythm && ch >= 6) // act as carrier?
 				);
-			slot.advancePhaseGenerator();
+			slot.advancePhaseGenerator(lfo_pm);
 		}
 	}
 
@@ -1006,14 +1004,14 @@ inline void Global::advance()
 	noise_rng >>= 1;
 }
 
-inline int Slot::calcOutput(int phase) const
+inline int Slot::calcOutput(unsigned lfo_am, int phase) const
 {
-	const int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
+	const int env = (TLL + volume + (lfo_am & AMmask)) << 5;
 	const int p = env + wavetable[phase & SIN_MASK];
 	return p < TL_TAB_LEN ? tl_tab[p] : 0;
 }
 
-inline void Slot::updateModulator()
+inline void Slot::updateModulator(unsigned lfo_am)
 {
 	// Compute phase.
 	int phase = getPhase();
@@ -1023,12 +1021,12 @@ inline void Slot::updateModulator()
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
-	op1_out[1] = calcOutput(phase);
+	op1_out[1] = calcOutput(lfo_am, phase);
 }
 
-inline int Channel::calcOutput() const
+inline int Channel::calcOutput(unsigned lfo_am) const
 {
-	return slots[CAR].calcOutput(
+	return slots[CAR].calcOutput(lfo_am,
 		slots[CAR].getPhase() + slots[MOD].getPhaseModulation());
 }
 
@@ -1197,9 +1195,8 @@ Slot::Slot()
 	wavetable = &sin_tab[0 * SIN_LEN];
 }
 
-void Slot::init(Global& global, Channel& channel)
+void Slot::init(Channel& channel)
 {
-	this->global = &global;
 	this->channel = &channel;
 }
 
@@ -1241,11 +1238,10 @@ Channel::Channel()
 	sus = false;
 }
 
-void Channel::init(Global& global)
+void Channel::init()
 {
-	this->global = &global;
-	slots[MOD].init(global, *this);
-	slots[CAR].init(global, *this);
+	slots[MOD].init(*this);
+	slots[CAR].init(*this);
 }
 
 void Channel::setFrequency(int block_fnum)
@@ -1265,9 +1261,9 @@ void Channel::setFrequency(int block_fnum)
 	slots[CAR].updateFrequency();
 }
 
-void Channel::updateInstrumentPart(int instrument, int part)
+void Channel::updateInstrumentPart(Global& global, int instrument, int part)
 {
-	const byte* inst = global->getInstrument(instrument);
+	const byte* inst = global.getInstrument(instrument);
 	Slot& mod = slots[MOD];
 	Slot& car = slots[CAR];
 	switch (part) {
@@ -1312,10 +1308,10 @@ void Channel::updateInstrumentPart(int instrument, int part)
 	}
 }
 
-void Channel::updateInstrument(int instrument)
+void Channel::updateInstrument(Global& global, int instrument)
 {
 	for (int part = 0; part < 8; part++) {
-		updateInstrumentPart(instrument, part);
+		updateInstrumentPart(global, instrument, part);
 	}
 }
 
@@ -1331,7 +1327,7 @@ Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
 	rhythm = 0;
 	noise_rng = 0;
 	for (int ch = 0; ch < 9; ch++) {
-		channels[ch].init(*this);
+		channels[ch].init();
 	}
 
 	reset(time);
@@ -1353,7 +1349,7 @@ void Global::updateCustomInstrument(int part, byte value)
 	for (int chan = 0; chan < numMelodicChannels; chan++) {
 		Channel& channel = channels[chan];
 		if ((channel.instvol_r & 0xF0) == 0) {
-			channel.updateInstrumentPart(0, part);
+			channel.updateInstrumentPart(*this, 0, part);
 		}
 	}
 }
@@ -1367,19 +1363,19 @@ void Global::setRhythmMode(bool rhythm)
 
 	if (rhythm) { // OFF -> ON
 		// Bass drum.
-		channels[6].updateInstrument(16);
+		channels[6].updateInstrument(*this, 16);
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
-		ch7.updateInstrument(17);
+		ch7.updateInstrument(*this, 17);
 		ch7.slots[MOD].setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
-		ch8.updateInstrument(18);
+		ch8.updateInstrument(*this, 18);
 		ch8.slots[MOD].setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
-		channels[6].updateInstrument();
-		channels[7].updateInstrument();
-		channels[8].updateInstrument();
+		channels[6].updateInstrument(*this);
+		channels[7].updateInstrument(*this);
+		channels[8].updateInstrument(*this);
 		// BD key off
 		channels[6].slots[MOD].setKeyOff(KEY_RHYTHM);
 		channels[6].slots[CAR].setKeyOff(KEY_RHYTHM);
@@ -1500,11 +1496,12 @@ void Global::generateChannels(int** bufs, unsigned num)
 	const int numMelodicChannels = getNumMelodicChannels();
 	for (unsigned i = 0; i < num; ++i) {
 		advanceLFO();
+		unsigned lfo_am = get_LFO_AM();
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
 			Channel& channel = channels[ch];
-			channel.slots[MOD].updateModulator();
+			channel.slots[MOD].updateModulator(lfo_am);
 			if ((channelActiveBits >> ch) & 1) {
-				bufs[ch][i] += channel.calcOutput();
+				bufs[ch][i] += channel.calcOutput(lfo_am);
 			}
 		}
 		if (rhythm) {
@@ -1516,9 +1513,9 @@ void Global::generateChannels(int** bufs, unsigned num)
 			//                     operator 1 is ignored
 			//  - output sample always is multiplied by 2
 			Channel& channel6 = channels[6];
-			channel6.slots[MOD].updateModulator();
+			channel6.slots[MOD].updateModulator(lfo_am);
 			if (channelActiveBits & (1 << 6)) {
-				bufs[6][i] += 2 * channel6.calcOutput();
+				bufs[6][i] += 2 * channel6.calcOutput(lfo_am);
 			}
 
 			// TODO: Skip phase generation if output will 0 anyway.
@@ -1528,25 +1525,25 @@ void Global::generateChannels(int** bufs, unsigned num)
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
 				Slot& SLOT7_2 = channels[7].slots[CAR];
-				bufs[7][i] += 2 * SLOT7_2.calcOutput(genPhaseSnare());
+				bufs[7][i] += 2 * SLOT7_2.calcOutput(lfo_am, genPhaseSnare());
 			}
 
 			// Top Cymbal (verified on real YM2413)
 			if (channelActiveBits & (1 << 8)) {
 				Slot& SLOT8_2 = channels[8].slots[CAR];
-				bufs[8][i] += 2 * SLOT8_2.calcOutput(genPhaseCymbal());
+				bufs[8][i] += 2 * SLOT8_2.calcOutput(lfo_am, genPhaseCymbal());
 			}
 
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				Slot& SLOT7_1 = channels[7].slots[MOD];
-				bufs[9][i] += 2 * SLOT7_1.calcOutput(genPhaseHighHat());
+				bufs[9][i] += 2 * SLOT7_1.calcOutput(lfo_am, genPhaseHighHat());
 			}
 
 			// Tom Tom (verified on real YM3812)
 			if (channelActiveBits & (1 << (8 + 9))) {
 				Slot& SLOT8_1 = channels[8].slots[MOD];
-				bufs[10][i] += 2 * SLOT8_1.calcOutput(SLOT8_1.getPhase());
+				bufs[10][i] += 2 * SLOT8_1.calcOutput(lfo_am, SLOT8_1.getPhase());
 			}
 		}
 		advance();
@@ -1621,7 +1618,7 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
-				ch.updateInstrument();
+				ch.updateInstrument(*this);
 			}
 		}
 		break;
