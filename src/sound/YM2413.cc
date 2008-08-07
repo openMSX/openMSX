@@ -384,16 +384,16 @@ static void makeSinTable()
 }
 
 /**
- * Sawtooth function with amplitude 1 and period 2Pi.
+ * Sawtooth function with amplitude 1 and period 1.
  */
 static inline double saw(double phase)
 {
-	if (phase <= (M_PI / 2)) {
-		return phase * 2 / M_PI;
-	} else if (phase <= (M_PI * 3 / 2)) {
-		return 2.0 - (phase * 2 / M_PI);
+	if (phase < 0.25) {
+		return phase * 4.0;
+	} else if (phase < 0.75) {
+		return 2.0 - (phase * 4.0);
 	} else {
-		return -4.0 + phase * 2 / M_PI;
+		return -4.0 + (phase * 4.0);
 	}
 }
 
@@ -402,8 +402,7 @@ static void makePmTable()
 {
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		 pmtable[i] = PhaseModulation(pow(
-			2, double(PM_DEPTH) * saw(2.0 * M_PI * i / PM_PG_WIDTH) / 1200
-			));
+			2, PM_DEPTH / 1200.0 * saw(i / double(PM_PG_WIDTH))));
 	}
 }
 
@@ -411,8 +410,8 @@ static void makePmTable()
 static void makeAmTable()
 {
 	for (int i = 0; i < AM_PG_WIDTH; ++i) {
-		amtable[i] = int(double(AM_DEPTH) / 2 / DB_STEP *
-		                 (1.0 + saw(2.0 * M_PI * i / AM_PG_WIDTH)));
+		amtable[i] = int(AM_DEPTH / (2.0 * DB_STEP) *
+		                 (1.0 + saw(i / double(AM_PG_WIDTH))));
 	}
 }
 
