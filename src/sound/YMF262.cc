@@ -86,11 +86,11 @@ class YMF262Slot
 {
 public:
 	YMF262Slot();
-	inline int op_calc(unsigned phase, byte LFO_AM);
+	inline int op_calc(unsigned phase, unsigned lfo_am);
 	inline void FM_KEYON(byte key_set);
 	inline void FM_KEYOFF(byte key_clr);
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt);
-	inline void advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM);
+	inline void advancePhaseGenerator(YMF262Channel& ch, unsigned lfo_pm);
 	void update_ar_dr();
 	void update_rr();
 	void calc_fc(const YMF262Channel& ch);
@@ -152,8 +152,8 @@ class YMF262Channel
 {
 public:
 	YMF262Channel();
-	void chan_calc(byte LFO_AM);
-	void chan_calc_ext(byte LFO_AM);
+	void chan_calc(unsigned lfo_am);
+	void chan_calc_ext(unsigned lfo_am);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -214,14 +214,13 @@ private:
 	void setStatus(byte flag);
 	void resetStatus(byte flag);
 	void changeStatusMask(byte flag);
-	void advance_lfo();
-	void advance();
+	void advance(unsigned lfo_pm);
 
 	inline int genPhaseHighHat();
 	inline int genPhaseSnare();
 	inline int genPhaseCymbal();
 
-	void chan_calc_rhythm();
+	void chan_calc_rhythm(unsigned lfo_am);
 	void set_mul(unsigned sl, byte v);
 	void set_ksl_tl(unsigned sl, byte v);
 	void set_ar_dr(unsigned sl, byte v);
@@ -266,8 +265,6 @@ private:
 	typedef FixedPoint<10> LFOPMIndex;
 	LFOAMIndex lfo_am_cnt;
 	LFOPMIndex lfo_pm_cnt;
-	byte LFO_AM;
-	byte LFO_PM;
 	bool lfo_am_depth;
 	byte lfo_pm_depth_range;
 
@@ -669,25 +666,6 @@ void YMF262Impl::changeStatusMask(byte flag)
 }
 
 
-// advance LFO to next sample
-void YMF262Impl::advance_lfo()
-{
-	// Amplitude modulation: 27 output levels (triangle waveform);
-	// 1 level takes one of: 192, 256 or 448 samples
-	// One entry from LFO_AM_TABLE lasts for 64 samples
-	lfo_am_cnt.addQuantum();
-	if (lfo_am_cnt == LFOAMIndex(LFO_AM_TAB_ELEMENTS)) {
-		// lfo_am_table is 210 elements long
-		lfo_am_cnt = LFOAMIndex(0);
-	}
-	byte tmp = lfo_am_table[lfo_am_cnt.toInt()];
-	LFO_AM = lfo_am_depth ? tmp : tmp / 4;
-
-	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
-	lfo_pm_cnt.addQuantum();
-	LFO_PM = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
-}
-
 void YMF262Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 {
 	switch (state) {
@@ -747,12 +725,12 @@ void YMF262Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 	}
 }
 
-void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM)
+void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned lfo_pm)
 {
 	if (vib) {
 		unsigned block_fnum = ch.block_fnum;
 		unsigned fnum_lfo   = (block_fnum & 0x0380) >> 7;
-		int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + 16 * fnum_lfo];
+		int lfo_fn_table_index_offset = lfo_pm_table[lfo_pm + 16 * fnum_lfo];
 		if (lfo_fn_table_index_offset) {
 			// LFO phase modulation active
 			Cnt += fnumToIncrement(block_fnum + lfo_fn_table_index_offset)
@@ -768,7 +746,7 @@ void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM)
 }
 
 // advance to next sample
-void YMF262Impl::advance()
+void YMF262Impl::advance(unsigned lfo_pm)
 {
 	++eg_cnt;
 	for (int c = 0; c < 18; ++c) {
@@ -776,7 +754,7 @@ void YMF262Impl::advance()
 		for (int s = 0; s < 2; ++s) {
 			YMF262Slot& op = ch.slot[s];
 			op.advanceEnvelopeGenerator(eg_cnt);
-			op.advancePhaseGenerator(ch, LFO_PM);
+			op.advancePhaseGenerator(ch, lfo_pm);
 		}
 	}
 
@@ -806,16 +784,16 @@ void YMF262Impl::advance()
 }
 
 
-inline int YMF262Slot::op_calc(unsigned phase, byte LFO_AM)
+inline int YMF262Slot::op_calc(unsigned phase, unsigned lfo_am)
 {
-	unsigned env = (TLL + volume + (LFO_AM & AMmask)) << 4;
+	unsigned env = (TLL + volume + (lfo_am & AMmask)) << 4;
 	int p = env + wavetable[phase & SIN_MASK];
 	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
 // calculate output of a standard 2 operator channel
 // (or 1st part of a 4-op channel)
-void YMF262Channel::chan_calc(byte LFO_AM)
+void YMF262Channel::chan_calc(unsigned lfo_am)
 {
 	phase_modulation  = 0;
 	phase_modulation2 = 0;
@@ -825,23 +803,23 @@ void YMF262Channel::chan_calc(byte LFO_AM)
 		? slot[MOD].op1_out[0] + slot[MOD].op1_out[1]
 		: 0;
 	slot[MOD].op1_out[0] = slot[MOD].op1_out[1];
-	slot[MOD].op1_out[1] = slot[MOD].op_calc(slot[MOD].Cnt.toInt() + (out >> slot[MOD].fb_shift), LFO_AM);
+	slot[MOD].op1_out[1] = slot[MOD].op_calc(slot[MOD].Cnt.toInt() + (out >> slot[MOD].fb_shift), lfo_am);
 	*slot[MOD].connect += slot[MOD].op1_out[1];
 
 	// SLOT 2
-	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, LFO_AM);
+	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, lfo_am);
 }
 
 // calculate output of a 2nd part of 4-op channel
-void YMF262Channel::chan_calc_ext(byte LFO_AM)
+void YMF262Channel::chan_calc_ext(unsigned lfo_am)
 {
 	phase_modulation = 0;
 
 	// SLOT 1
-	*slot[MOD].connect += slot[MOD].op_calc(slot[MOD].Cnt.toInt() + phase_modulation2, LFO_AM);
+	*slot[MOD].connect += slot[MOD].op_calc(slot[MOD].Cnt.toInt() + phase_modulation2, lfo_am);
 
 	// SLOT 2
-	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, LFO_AM);
+	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, lfo_am);
 }
 
 // operators used in the rhythm sounds generation process:
@@ -949,7 +927,7 @@ inline int YMF262Impl::genPhaseCymbal()
 }
 
 // calculate rhythm
-void YMF262Impl::chan_calc_rhythm()
+void YMF262Impl::chan_calc_rhythm(unsigned lfo_am)
 {
 	YMF262Slot& SLOT6_1 = channel[6].slot[MOD];
 	YMF262Slot& SLOT6_2 = channel[6].slot[CAR];
@@ -972,10 +950,10 @@ void YMF262Impl::chan_calc_rhythm()
 		: 0;
 	SLOT6_1.op1_out[0] = SLOT6_1.op1_out[1];
 	phase_modulation = SLOT6_1.CON ? 0 : SLOT6_1.op1_out[0];
-	SLOT6_1.op1_out[1] = SLOT6_1.op_calc(SLOT6_1.Cnt.toInt() + (out >> SLOT6_1.fb_shift), LFO_AM);
+	SLOT6_1.op1_out[1] = SLOT6_1.op_calc(SLOT6_1.Cnt.toInt() + (out >> SLOT6_1.fb_shift), lfo_am);
 
 	// SLOT 2
-	chanout[6] += SLOT6_2.op_calc(SLOT6_2.Cnt.toInt() + phase_modulation, LFO_AM) * 2;
+	chanout[6] += SLOT6_2.op_calc(SLOT6_2.Cnt.toInt() + phase_modulation, lfo_am) * 2;
 
 	// Phase generation is based on:
 	// HH  (13) channel 7->slot 1 combined with channel 8->slot 2
@@ -992,16 +970,16 @@ void YMF262Impl::chan_calc_rhythm()
 	// TOP channel 8->slot2
 
 	// High Hat (verified on real YM3812)
-	chanout[7] += SLOT7_1.op_calc(genPhaseHighHat(), LFO_AM) * 2;
+	chanout[7] += SLOT7_1.op_calc(genPhaseHighHat(), lfo_am) * 2;
 
 	// Snare Drum (verified on real YM3812)
-	chanout[7] += SLOT7_2.op_calc(genPhaseSnare(), LFO_AM) * 2;
+	chanout[7] += SLOT7_2.op_calc(genPhaseSnare(), lfo_am) * 2;
 
 	// Tom Tom (verified on real YM3812)
-	chanout[8] += SLOT8_1.op_calc(SLOT8_1.Cnt.toInt(), LFO_AM) * 2;
+	chanout[8] += SLOT8_1.op_calc(SLOT8_1.Cnt.toInt(), lfo_am) * 2;
 
 	// Top Cymbal (verified on real YM3812)
-	chanout[8] += SLOT8_2.op_calc(genPhaseCymbal(), LFO_AM) * 2;
+	chanout[8] += SLOT8_2.op_calc(genPhaseCymbal(), lfo_am) * 2;
 }
 
 
@@ -1674,7 +1652,6 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	, irq(motherBoard.getCPU())
 	, lfo_am_cnt(0), lfo_pm_cnt(0)
 {
-	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = false;
 	lfo_pm_depth_range = 0;
 	rhythm = 0;
@@ -1743,7 +1720,16 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 	bool rhythmEnabled = rhythm & 0x20;
 
 	for (unsigned j = 0; j < num; ++j) {
-		advance_lfo();
+		// Amplitude modulation: 27 output levels (triangle waveform);
+		// 1 level takes one of: 192, 256 or 448 samples
+		// One entry from LFO_AM_TABLE lasts for 64 samples
+		lfo_am_cnt.addQuantum();
+		if (lfo_am_cnt == LFOAMIndex(LFO_AM_TAB_ELEMENTS)) {
+			// lfo_am_table is 210 elements long
+			lfo_am_cnt = LFOAMIndex(0);
+		}
+		unsigned tmp = lfo_am_table[lfo_am_cnt.toInt()];
+		unsigned lfo_am = lfo_am_depth ? tmp : tmp / 4;
 
 		// clear channel outputs
 		memset(chanout, 0, sizeof(chanout));
@@ -1755,31 +1741,31 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 				YMF262Channel& ch0 = channel[k + i + 0];
 				YMF262Channel& ch3 = channel[k + i + 3];
 				// extended 4op ch#0 part 1 or 2op ch#0
-				ch0.chan_calc(LFO_AM);
+				ch0.chan_calc(lfo_am);
 				if (ch0.extended) {
 					// extended 4op ch#0 part 2
-					ch3.chan_calc_ext(LFO_AM);
+					ch3.chan_calc_ext(lfo_am);
 				} else {
 					// standard 2op ch#3
-					ch3.chan_calc(LFO_AM);
+					ch3.chan_calc(lfo_am);
 				}
 			}
 		}
 
 		// channels 6,7,8 rhythm or 2op mode
 		if (!rhythmEnabled) {
-			channel[6].chan_calc(LFO_AM);
-			channel[7].chan_calc(LFO_AM);
-			channel[8].chan_calc(LFO_AM);
+			channel[6].chan_calc(lfo_am);
+			channel[7].chan_calc(lfo_am);
+			channel[8].chan_calc(lfo_am);
 		} else {
 			// Rhythm part
-			chan_calc_rhythm();
+			chan_calc_rhythm(lfo_am);
 		}
 
 		// channels 15,16,17 are fixed 2-operator channels only
-		channel[15].chan_calc(LFO_AM);
-		channel[16].chan_calc(LFO_AM);
-		channel[17].chan_calc(LFO_AM);
+		channel[15].chan_calc(lfo_am);
+		channel[16].chan_calc(lfo_am);
+		channel[17].chan_calc(lfo_am);
 
 		for (int i = 0; i < 18; ++i) {
 			bufs[i][2 * j + 0] += chanout[i] & pan[4 * i + 0];
@@ -1788,7 +1774,12 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 			// unused d        += chanout[i] & pan[4 * i + 3];
 		}
 
-		advance();
+		// Vibrato: 8 output levels (triangle waveform);
+		// 1 level takes 1024 samples
+		lfo_pm_cnt.addQuantum();
+		unsigned lfo_pm = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
+
+		advance(lfo_pm);
 	}
 }
 
@@ -1881,8 +1872,6 @@ void YMF262Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("noise_rng", noise_rng);
 	ar.serialize("lfo_am_cnt", lfo_am_cnt);
 	ar.serialize("lfo_pm_cnt", lfo_pm_cnt);
-	ar.serialize("LFO_AM", LFO_AM);
-	ar.serialize("LFO_PM", LFO_PM);
 	ar.serialize("lfo_am_depth", lfo_am_depth);
 	ar.serialize("lfo_pm_depth_range", lfo_pm_depth_range);
 	ar.serialize("rhythm", rhythm);
