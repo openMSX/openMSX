@@ -728,17 +728,11 @@ void YMF262Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned lfo_pm)
 {
 	if (vib) {
+		// LFO phase modulation active
 		unsigned block_fnum = ch.block_fnum;
 		unsigned fnum_lfo   = (block_fnum & 0x0380) >> 7;
 		int lfo_fn_table_index_offset = lfo_pm_table[lfo_pm + 16 * fnum_lfo];
-		if (lfo_fn_table_index_offset) {
-			// LFO phase modulation active
-			Cnt += fnumToIncrement(block_fnum + lfo_fn_table_index_offset)
-			        * mul;
-		} else {
-			// LFO phase modulation  = zero
-			Cnt += Incr;
-		}
+		Cnt += fnumToIncrement(block_fnum + lfo_fn_table_index_offset) * mul;
 	} else {
 		// LFO phase modulation disabled for this operator
 		Cnt += Incr;
