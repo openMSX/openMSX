@@ -214,7 +214,7 @@ private:
 	void setStatus(byte flag);
 	void resetStatus(byte flag);
 	void changeStatusMask(byte flag);
-	void advance(unsigned lfo_pm);
+	void advance();
 
 	inline int genPhaseHighHat();
 	inline int genPhaseSnare();
@@ -740,8 +740,13 @@ void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned lfo_pm)
 }
 
 // advance to next sample
-void YMF262Impl::advance(unsigned lfo_pm)
+void YMF262Impl::advance()
 {
+	// Vibrato: 8 output levels (triangle waveform);
+	// 1 level takes 1024 samples
+	lfo_pm_cnt.addQuantum();
+	unsigned lfo_pm = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
+
 	++eg_cnt;
 	for (int c = 0; c < 18; ++c) {
 		YMF262Channel& ch = channel[c];
@@ -1768,12 +1773,7 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 			// unused d        += chanout[i] & pan[4 * i + 3];
 		}
 
-		// Vibrato: 8 output levels (triangle waveform);
-		// 1 level takes 1024 samples
-		lfo_pm_cnt.addQuantum();
-		unsigned lfo_pm = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
-
-		advance(lfo_pm);
+		advance();
 	}
 }
 
