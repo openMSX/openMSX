@@ -797,16 +797,16 @@ void YMF262Channel::chan_calc(unsigned lfo_am)
 	phase_modulation  = 0;
 	phase_modulation2 = 0;
 
-	// SLOT 1
-	int out = slot[MOD].fb_shift
-		? slot[MOD].op1_out[0] + slot[MOD].op1_out[1]
+	YMF262Slot& mod = slot[MOD];
+	int out = mod.fb_shift
+		? mod.op1_out[0] + mod.op1_out[1]
 		: 0;
-	slot[MOD].op1_out[0] = slot[MOD].op1_out[1];
-	slot[MOD].op1_out[1] = slot[MOD].op_calc(slot[MOD].Cnt.toInt() + (out >> slot[MOD].fb_shift), lfo_am);
-	*slot[MOD].connect += slot[MOD].op1_out[1];
+	mod.op1_out[0] = mod.op1_out[1];
+	mod.op1_out[1] = mod.op_calc(mod.Cnt.toInt() + (out >> mod.fb_shift), lfo_am);
+	*mod.connect += mod.op1_out[1];
 
-	// SLOT 2
-	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, lfo_am);
+	YMF262Slot& car = slot[CAR];
+	*car.connect += car.op_calc(car.Cnt.toInt() + phase_modulation, lfo_am);
 }
 
 // calculate output of a 2nd part of 4-op channel
@@ -814,11 +814,11 @@ void YMF262Channel::chan_calc_ext(unsigned lfo_am)
 {
 	phase_modulation = 0;
 
-	// SLOT 1
-	*slot[MOD].connect += slot[MOD].op_calc(slot[MOD].Cnt.toInt() + phase_modulation2, lfo_am);
+	YMF262Slot& mod = slot[MOD];
+	*mod.connect += mod.op_calc(mod.Cnt.toInt() + phase_modulation2, lfo_am);
 
-	// SLOT 2
-	*slot[CAR].connect += slot[CAR].op_calc(slot[CAR].Cnt.toInt() + phase_modulation, lfo_am);
+	YMF262Slot& car = slot[CAR];
+	*car.connect += car.op_calc(car.Cnt.toInt() + phase_modulation, lfo_am);
 }
 
 // operators used in the rhythm sounds generation process:
@@ -858,7 +858,7 @@ void YMF262Channel::chan_calc_ext(unsigned lfo_am)
 
 inline int YMF262Impl::genPhaseHighHat()
 {
-	// high hat phase generation:
+	// high hat phase generation (verified on real YM3812):
 	// phase = d0 or 234 (based on frequency only)
 	// phase = 34 or 2d0 (based on noise)
 
@@ -901,6 +901,7 @@ inline int YMF262Impl::genPhaseHighHat()
 
 inline int YMF262Impl::genPhaseSnare()
 {
+	// verified on real YM3812
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
 	return ((channel[7].slot[MOD].Cnt.toInt() & 0x100) + 0x100)
@@ -909,6 +910,7 @@ inline int YMF262Impl::genPhaseSnare()
 
 inline int YMF262Impl::genPhaseCymbal()
 {
+	// verified on real YM3812
 	// enable gate based on frequency of operator 2 in channel 8
 	//  NOTE: YM2413_2 uses bit5 | bit3, this core uses bit5 ^ bit3
 	//        most likely only one of the two is correct
@@ -928,13 +930,6 @@ inline int YMF262Impl::genPhaseCymbal()
 // calculate rhythm
 void YMF262Impl::chan_calc_rhythm(unsigned lfo_am)
 {
-	YMF262Slot& SLOT6_1 = channel[6].slot[MOD];
-	YMF262Slot& SLOT6_2 = channel[6].slot[CAR];
-	YMF262Slot& SLOT7_1 = channel[7].slot[MOD];
-	YMF262Slot& SLOT7_2 = channel[7].slot[CAR];
-	YMF262Slot& SLOT8_1 = channel[8].slot[MOD];
-	YMF262Slot& SLOT8_2 = channel[8].slot[CAR];
-
 	// Bass Drum (verified on real YM3812):
 	//  - depends on the channel 6 'connect' register:
 	//      when connect = 0 it works the same as in normal (non-rhythm)
@@ -942,17 +937,13 @@ void YMF262Impl::chan_calc_rhythm(unsigned lfo_am)
 	//      when connect = 1 _only_ operator 2 is present on output
 	//      (op2->out), operator 1 is ignored
 	//  - output sample always is multiplied by 2
-
-	// SLOT 1
-	int out = SLOT6_1.fb_shift
-		? SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1]
-		: 0;
-	SLOT6_1.op1_out[0] = SLOT6_1.op1_out[1];
-	phase_modulation = SLOT6_1.CON ? 0 : SLOT6_1.op1_out[0];
-	SLOT6_1.op1_out[1] = SLOT6_1.op_calc(SLOT6_1.Cnt.toInt() + (out >> SLOT6_1.fb_shift), lfo_am);
-
-	// SLOT 2
-	chanout[6] += SLOT6_2.op_calc(SLOT6_2.Cnt.toInt() + phase_modulation, lfo_am) * 2;
+	YMF262Slot& mod6 = channel[6].slot[MOD];
+	int out = mod6.fb_shift ? mod6.op1_out[0] + mod6.op1_out[1] : 0;
+	mod6.op1_out[0] = mod6.op1_out[1];
+	int pm = mod6.CON ? 0 : mod6.op1_out[0];
+	mod6.op1_out[1] = mod6.op_calc(mod6.Cnt.toInt() + (out >> mod6.fb_shift), lfo_am);
+	YMF262Slot& car6 = channel[6].slot[CAR];
+	chanout[6] += 2 * car6.op_calc(car6.Cnt.toInt() + pm, lfo_am);
 
 	// Phase generation is based on:
 	// HH  (13) channel 7->slot 1 combined with channel 8->slot 2
@@ -961,24 +952,20 @@ void YMF262Impl::chan_calc_rhythm(unsigned lfo_am)
 	// TOM (14) channel 8->slot 1
 	// TOP (17) channel 7->slot 1 combined with channel 8->slot 2
 	//          (same combination as HIGH HAT but different output phases)
-
+	//
 	// Envelope generation based on:
 	// HH  channel 7->slot1
 	// SD  channel 7->slot2
 	// TOM channel 8->slot1
 	// TOP channel 8->slot2
-
-	// High Hat (verified on real YM3812)
-	chanout[7] += SLOT7_1.op_calc(genPhaseHighHat(), lfo_am) * 2;
-
-	// Snare Drum (verified on real YM3812)
-	chanout[7] += SLOT7_2.op_calc(genPhaseSnare(), lfo_am) * 2;
-
-	// Tom Tom (verified on real YM3812)
-	chanout[8] += SLOT8_1.op_calc(SLOT8_1.Cnt.toInt(), lfo_am) * 2;
-
-	// Top Cymbal (verified on real YM3812)
-	chanout[8] += SLOT8_2.op_calc(genPhaseCymbal(), lfo_am) * 2;
+	YMF262Slot& mod7 = channel[7].slot[MOD];
+	chanout[7] += 2 * mod7.op_calc(genPhaseHighHat(), lfo_am);
+	YMF262Slot& car7 = channel[7].slot[CAR];
+	chanout[7] += 2 * car7.op_calc(genPhaseSnare(),   lfo_am);
+	YMF262Slot& mod8 = channel[8].slot[MOD];
+	chanout[8] += 2 * mod8.op_calc(mod8.Cnt.toInt(),  lfo_am);
+	YMF262Slot& car8 = channel[8].slot[CAR];
+	chanout[8] += 2 * car8.op_calc(genPhaseCymbal(),  lfo_am);
 }
 
 
