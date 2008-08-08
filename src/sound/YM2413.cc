@@ -219,10 +219,6 @@ static const double TL_STEP = 0.75;
 static const double PM_SPEED = 6.4;
 static const double PM_DEPTH = 13.75;
 
-// AM speed(Hz) and depth(dB)
-static const double AM_SPEED = 3.6413;
-static const double AM_DEPTH = 4.875;
-
 // Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
 static const int PG_BITS = 9;
 static const int PG_WIDTH = 1 << PG_BITS;
@@ -266,13 +262,82 @@ static unsigned* waveform[2] = {fullsintable, halfsintable};
 
 // LFO Table
 static PhaseModulation pmtable[PM_PG_WIDTH];
-static int amtable[AM_PG_WIDTH];
+
+// LFO Amplitude Modulation table (verified on real YM3812)
+// 27 output levels (triangle waveform);
+// 1 level takes one of: 192, 256 or 448 samples
+//
+// Length: 210 elements.
+//  Each of the elements has to be repeated
+//  exactly 64 times (on 64 consecutive samples).
+//  The whole table takes: 64 * 210 = 13440 samples.
+//
+// Verified on real YM3812 (OPL2), but I believe it's the same for YM2413
+// because it closely matches the YM2413 AM parameters:
+//    speed = 3.7Hz
+//    depth = 4.875dB
+// Also this approch can be easily implemented in HW, the previous one (see SVN
+// history) could not.
+static const unsigned LFO_AM_TAB_ELEMENTS = 210;
+static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+{
+	0,0,0,0,0,0,0,
+	1,1,1,1,
+	2,2,2,2,
+	3,3,3,3,
+	4,4,4,4,
+	5,5,5,5,
+	6,6,6,6,
+	7,7,7,7,
+	8,8,8,8,
+	9,9,9,9,
+	10,10,10,10,
+	11,11,11,11,
+	12,12,12,12,
+	13,13,13,13,
+	14,14,14,14,
+	15,15,15,15,
+	16,16,16,16,
+	17,17,17,17,
+	18,18,18,18,
+	19,19,19,19,
+	20,20,20,20,
+	21,21,21,21,
+	22,22,22,22,
+	23,23,23,23,
+	24,24,24,24,
+	25,25,25,25,
+	26,26,26,
+	25,25,25,25,
+	24,24,24,24,
+	23,23,23,23,
+	22,22,22,22,
+	21,21,21,21,
+	20,20,20,20,
+	19,19,19,19,
+	18,18,18,18,
+	17,17,17,17,
+	16,16,16,16,
+	15,15,15,15,
+	14,14,14,14,
+	13,13,13,13,
+	12,12,12,12,
+	11,11,11,11,
+	10,10,10,10,
+	9,9,9,9,
+	8,8,8,8,
+	7,7,7,7,
+	6,6,6,6,
+	5,5,5,5,
+	4,4,4,4,
+	3,3,3,3,
+	2,2,2,2,
+	1,1,1,1
+};
 
 // Noise and LFO
 static unsigned PM_DPHASE =
 	unsigned(PM_SPEED * PM_DP_WIDTH / (YM2413Core::CLOCK_FREQ / 72.0));
-static unsigned AM_DPHASE =
-	unsigned(AM_SPEED * AM_DP_WIDTH / (YM2413Core::CLOCK_FREQ / 72.0));
 
 // Liner to Log curve conversion table (for Attack rate).
 static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
@@ -403,15 +468,6 @@ static void makePmTable()
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		 pmtable[i] = PhaseModulation(pow(
 			2, PM_DEPTH / 1200.0 * saw(i / double(PM_PG_WIDTH))));
-	}
-}
-
-// Table for Amp Modulator
-static void makeAmTable()
-{
-	for (int i = 0; i < AM_PG_WIDTH; ++i) {
-		amtable[i] = int(AM_DEPTH / (2.0 * DB_STEP) *
-		                 (1.0 + saw(i / double(AM_PG_WIDTH))));
 	}
 }
 
@@ -799,7 +855,6 @@ Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
 		patches[i][1].initCarrier(inst_data[i]);
 	}
 	makePmTable();
-	makeAmTable();
 	makeDB2LinTable();
 	makeAdjustTable();
 	makeTllTable();
@@ -1117,8 +1172,11 @@ ALWAYS_INLINE void Global::calcChannel(Channel& ch, int* buf, unsigned num)
 		}
 		int lfo_am = 0; // avoid warning
 		if (HAS_CAR_AM || HAS_MOD_AM) {
-			tmp_am_phase = (tmp_am_phase + AM_DPHASE) & AM_DP_MASK;
-			lfo_am = amtable[tmp_am_phase >> (AM_DP_BITS - AM_PG_BITS)];
+			++tmp_am_phase;
+			if (tmp_am_phase == (LFO_AM_TAB_ELEMENTS * 64)) {
+				tmp_am_phase = 0;
+			}
+			lfo_am = lfo_am_table[tmp_am_phase / 64];
 		}
 		int fm = ch.mod.calc_slot_mod<HAS_MOD_PM, HAS_MOD_AM, HAS_MOD_FB>(
 		                      lfo_pm, lfo_am);
@@ -1219,7 +1277,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 	// update AM, PM unit
 	pm_phase += num * PM_DPHASE;
-	am_phase += num * AM_DPHASE;
+	am_phase = (am_phase + num) % (LFO_AM_TAB_ELEMENTS * 64);
 
 	if (isRhythm()) {
 		if (channelActiveBits & (1 << 6)) {
