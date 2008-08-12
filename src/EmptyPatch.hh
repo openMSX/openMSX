@@ -15,6 +15,7 @@ public:
 
 	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
 	virtual unsigned getSize() const;
+	virtual void getFilenames(std::vector<Filename>& result) const;
 
 private:
 	const byte* block;

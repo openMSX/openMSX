@@ -16,9 +16,10 @@ static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
 	return it->first + it->second.size();
 }
 
-IPSPatch::IPSPatch(const Filename& filename,
+IPSPatch::IPSPatch(const Filename& filename_,
                    std::auto_ptr<const PatchInterface> parent_)
-	: parent(parent_)
+	: filename(filename_)
+	, parent(parent_)
 {
 	File ipsFile(filename);
 
@@ -124,6 +125,12 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 unsigned IPSPatch::getSize() const
 {
 	return size;
+}
+
+void IPSPatch::getFilenames(std::vector<Filename>& result) const
+{
+	parent->getFilenames(result);
+	result.push_back(filename);
 }
 
 } // namespace openmsx

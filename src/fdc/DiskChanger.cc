@@ -20,6 +20,7 @@
 #include "EmuTime.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
 
 using std::set;
 using std::string;
@@ -298,15 +299,30 @@ void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 {
 	Filename diskname = disk->getName();
 	ar.serialize("disk", diskname);
+
+	vector<Filename> patches;
+	if (!ar.isLoader()) {
+		disk->getPatches(patches);
+	}
+	ar.serialize("patches", patches);
+
 	if (ar.isLoader()) {
 		string name = diskname.getAfterLoadState();
 		if (!name.empty()) {
-			// TODO IPS patches
-			TclObject obj;
-			obj.setString(name);
+			vector<TclObject> objs;
+			objs.push_back(TclObject("dummy"));
+			objs.push_back(TclObject(name));
+			for (vector<Filename>::const_iterator it = patches.begin();
+			     it != patches.end(); ++it) {
+				objs.push_back(TclObject(it->getAfterLoadState()));
+			}
+
 			vector<TclObject*> args;
-			args.push_back(&obj); // dummy
-			args.push_back(&obj);
+			for (vector<TclObject>::iterator it = objs.begin();
+			     it != objs.end(); ++it) {
+				args.push_back(&(*it));
+			}
+
 			try {
 				insertDisk(args);
 			} catch (MSXException& e) {

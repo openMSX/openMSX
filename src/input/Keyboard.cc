@@ -287,6 +287,11 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, const EmuTime& 
 		      keyEvent.getUnicode(),
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
+	} else {
+		debug("Key released, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		      keyEvent.getUnicode(),
+		      keyEvent.getKeyCode(),
+		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
 	if (key == Keys::K_RCTRL &&
 	    keyboardSettings->getMappingMode().getValue() ==

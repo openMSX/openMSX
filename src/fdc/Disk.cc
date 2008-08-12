@@ -52,6 +52,11 @@ void Disk::applyPatch(const Filename& /*patchFile*/)
 	throw MSXException("Patching of this disk image format not supported.");
 }
 
+void Disk::getPatches(std::vector<Filename>& /*result*/) const
+{
+	// nothing
+}
+
 int Disk::physToLog(byte track, byte side, byte sector)
 {
 	if ((track == 0) && (side == 0)) {

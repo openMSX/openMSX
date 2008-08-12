@@ -5,6 +5,7 @@
 
 #include "Filename.hh"
 #include "openmsx.hh"
+#include <vector>
 
 namespace openmsx {
 
@@ -33,6 +34,7 @@ public:
 	bool doubleSided();
 
 	virtual void applyPatch(const Filename& patchFile);
+	virtual void getPatches(std::vector<Filename>& result) const;
 
 protected:
 	explicit Disk(const Filename& name);

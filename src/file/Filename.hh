@@ -20,6 +20,7 @@ class CommandController;
 class Filename
 {
 public:
+	Filename();
 	explicit Filename(const std::string& filename);
 	Filename(const std::string& filename, CommandController& controller);
 	Filename(const std::string& filename, const FileContext& context);
@@ -40,8 +41,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::string originalFilename;
-	const std::string resolvedFilename;
+	// non-const because we want this class to be assignable
+	// (to be able to store them in std::vector)
+	std::string originalFilename;
+	std::string resolvedFilename;
 };
 
 } // namespace openmsx

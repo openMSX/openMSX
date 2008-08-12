@@ -27,6 +27,7 @@ public:
 	virtual void readTrackData(byte track, byte side, byte* output);
 	virtual bool ready();
 	virtual void applyPatch(const Filename& patchFile);
+	virtual void getPatches(std::vector<Filename>& result) const;
 
 	// SectorAccessibleDisk
 	//  does apply IPS patches, does error checking

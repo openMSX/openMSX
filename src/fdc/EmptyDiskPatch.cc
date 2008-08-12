@@ -23,5 +23,10 @@ unsigned EmptyDiskPatch::getSize() const
 	return disk.getNbSectors() * SectorBasedDisk::SECTOR_SIZE;
 }
 
+void EmptyDiskPatch::getFilenames(std::vector<Filename>& /*result*/) const
+{
+	// nothing
+}
+
 } // namespace openmsx
 

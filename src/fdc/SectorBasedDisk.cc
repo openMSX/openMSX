@@ -42,6 +42,11 @@ void SectorBasedDisk::applyPatch(const Filename& patchFile)
 	patch.reset(new IPSPatch(patchFile, patch));
 }
 
+void SectorBasedDisk::getPatches(std::vector<Filename>& result) const
+{
+	patch->getFilenames(result);
+}
+
 void SectorBasedDisk::writeTrackData(byte track, byte side, const byte* data)
 {
 	unsigned sector = 1;

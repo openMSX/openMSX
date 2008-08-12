@@ -18,11 +18,15 @@ class TclObject
 public:
 	TclObject(Tcl_Interp* interp, Tcl_Obj* object);
 	TclObject(Tcl_Interp* interp, const std::string& value);
+	explicit TclObject(const std::string& value);
 	explicit TclObject(Tcl_Interp* interp);
 	explicit TclObject(Interpreter& interp);
 	TclObject(const TclObject& object);
 	TclObject();
 	~TclObject();
+
+	// assignment operator so we can use vector<TclObject>
+	TclObject& operator=(const TclObject& other);
 
 	// get associated interpreter
 	Tcl_Interp* getInterpreter() const;
@@ -73,8 +77,6 @@ public:
 	std::string executeCommand(bool compile = false);
 
 private:
-	TclObject& operator=(const TclObject&);
-
 	void init(Tcl_Obj* obj_);
 	void unshare();
 	void throwException() const;

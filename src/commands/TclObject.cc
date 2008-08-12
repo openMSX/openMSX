@@ -23,6 +23,12 @@ TclObject::TclObject(Tcl_Interp* interp_, const string& value)
 	init(Tcl_NewStringObj(value.data(), value.size()));
 }
 
+TclObject::TclObject(const string& value)
+	: interp(0)
+{
+	init(Tcl_NewStringObj(value.data(), value.size()));
+}
+
 TclObject::TclObject(Tcl_Interp* interp_)
 	: interp(interp_)
 {
@@ -59,6 +65,18 @@ TclObject::~TclObject()
 	if (owned) {
 		Tcl_DecrRefCount(obj);
 	}
+}
+
+TclObject& TclObject::operator=(const TclObject& other)
+{
+	if (&other != this) {
+		if (owned) {
+			Tcl_DecrRefCount(obj);
+		}
+		interp = other.interp;
+		init(other.obj);
+	}
+	return *this;
 }
 
 Tcl_Interp* TclObject::getInterpreter() const
