@@ -5,6 +5,7 @@ include build/node-start.mk
 SRC_HDR:= \
 	File \
 	FileContext \
+	Filename \
 	FileBase \
 	LocalFile \
 	FileOperations \

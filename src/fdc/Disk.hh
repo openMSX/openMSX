@@ -3,6 +3,7 @@
 #ifndef DISK_HH
 #define DISK_HH
 
+#include "Filename.hh"
 #include "openmsx.hh"
 #include <string>
 
@@ -15,7 +16,7 @@ public:
 
 	virtual ~Disk();
 
-	const std::string& getName() const;
+	const Filename& getName() const;
 
 	virtual void read (byte track, byte sector,
 	                   byte side, unsigned size, byte* buf) = 0;
@@ -35,7 +36,7 @@ public:
 	virtual void applyPatch(const std::string& patchFile);
 
 protected:
-	explicit Disk(const std::string& name);
+	explicit Disk(const Filename& name);
 	int physToLog(byte track, byte side, byte sector);
 	void logToPhys(int log, byte& track, byte& side, byte& sector);
 
@@ -48,7 +49,7 @@ protected:
 private:
 	void detectGeometryFallback();
 
-	const std::string name;
+	const Filename name;
 	unsigned sectorsPerTrack;
 	unsigned nbSides;
 };

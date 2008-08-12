@@ -2,6 +2,7 @@
 
 #include "File.hh"
 #include "FileBase.hh"
+#include "Filename.hh"
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
@@ -11,7 +12,17 @@ using std::string;
 
 namespace openmsx {
 
+File::File(const Filename& filename, OpenMode mode)
+{
+	init(filename.getResolved(), mode);
+}
+
 File::File(const string& url, OpenMode mode)
+{
+	init(url, mode);
+}
+
+void File::init(const string& url, OpenMode mode)
 {
 	string protocol, name;
 	string::size_type pos = url.find("://");

@@ -471,10 +471,10 @@ void DirAsDSK::cleandisk()
 }
 
 DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
-                   const string& fileName)
-	: SectorBasedDisk(fileName)
+                   const Filename& filename)
+	: SectorBasedDisk(filename)
 	, cliComm(cliComm_)
-	, hostDir(fileName)
+	, hostDir(filename.getResolved())
 	, globalSettings(globalSettings_)
 {
 	syncMode = globalSettings.getSyncDirAsDSKSetting().getValue();

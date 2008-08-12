@@ -40,7 +40,7 @@ public:
 	virtual void writeSectorImpl(unsigned sector, const byte* buf) = 0;
 
 protected:
-	explicit SectorBasedDisk(const std::string& name);
+	explicit SectorBasedDisk(const Filename& name);
 	virtual ~SectorBasedDisk();
 	virtual void detectGeometry();
 

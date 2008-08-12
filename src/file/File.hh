@@ -11,6 +11,7 @@
 
 namespace openmsx {
 
+class Filename;
 class FileBase;
 
 class File : private noncopyable
@@ -33,6 +34,7 @@ public:
 	 * @throws FileException
 	 */
 	explicit File(const std::string& url, OpenMode mode = NORMAL);
+	explicit File(const Filename& url, OpenMode mode = NORMAL);
 
 	/**
 	 * Destroy file object.
@@ -136,6 +138,8 @@ public:
 	time_t getModificationDate();
 
 private:
+	void init(const std::string& url, OpenMode mode);
+
 	friend class LocalFileReference;
 	/** This is an internal method used by LocalFileReference.
 	 * Returns the path to the (uncompressed) file on the local,

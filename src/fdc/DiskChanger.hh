@@ -18,9 +18,8 @@ class Scheduler;
 class DiskManipulator;
 class Disk;
 class DiskCommand;
-class CliComm;
-class GlobalSettings;
 class TclObject;
+class Filename;
 
 class DiskChanger : public DiskContainer, private MSXEventListener,
                     private noncopyable
@@ -34,7 +33,7 @@ public:
 	~DiskChanger();
 
 	const std::string& getDriveName() const;
-	const std::string& getDiskName() const;
+	const Filename& getDiskName() const;
 	bool diskChanged();
 	bool peekDiskChanged() const;
 	Disk& getDisk();
@@ -56,8 +55,7 @@ private:
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         const EmuTime& time);
 
-	CliComm& cliComm;
-	GlobalSettings& globalSettings;
+	CommandController& controller;
 	MSXEventDistributor* msxEventDistributor;
 	Scheduler* scheduler;
 	DiskManipulator& manipulator;

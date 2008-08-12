@@ -41,17 +41,16 @@ private:
 };
 
 DiskChanger::DiskChanger(const string& driveName_,
-                         CommandController& commandController,
+                         CommandController& controller_,
                          DiskManipulator& manipulator_,
                          MSXEventDistributor* msxEventDistributor_,
                          Scheduler* scheduler_)
-	: cliComm(commandController.getCliComm())
-	, globalSettings(commandController.getGlobalSettings())
+	: controller(controller_)
 	, msxEventDistributor(msxEventDistributor_)
 	, scheduler(scheduler_)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
-	, diskCommand(new DiskCommand(commandController, *this))
+	, diskCommand(new DiskCommand(controller, *this))
 {
 	ejectDisk();
 	manipulator.registerDrive(*this);
@@ -73,7 +72,7 @@ const string& DiskChanger::getDriveName() const
 	return driveName;
 }
 
-const string& DiskChanger::getDiskName() const
+const Filename& DiskChanger::getDiskName() const
 {
 	return disk->getName();
 }
@@ -141,9 +140,10 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 	if (diskImage == "ramdsk") {
 		newDisk.reset(new RamDSKDiskImage());
 	} else {
+		Filename filename(diskImage, controller);
 		try {
 			// first try XSA
-			newDisk.reset(new XSADiskImage(diskImage));
+			newDisk.reset(new XSADiskImage(filename));
 		} catch (MSXException& e) {
 			try {
 				//First try the fake disk, because a DSK will always
@@ -152,15 +152,19 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 				//can be resolved and will be accepted as dsk name
 				// try to create fake DSK from a dir on host OS
 				newDisk.reset(new DirAsDSK(
-					cliComm, globalSettings, diskImage));
+					controller.getCliComm(),
+					controller.getGlobalSettings(),
+					filename));
 			} catch (MSXException& e) {
 				// then try normal DSK
-				newDisk.reset(new DSKDiskImage(diskImage));
+				newDisk.reset(new DSKDiskImage(filename));
 			}
 		}
 	}
 	for (unsigned i = 2; i < args.size(); ++i) {
-		newDisk->applyPatch(args[i]->getString());
+		// TODO use Filename class
+		UserFileContext context;
+		newDisk->applyPatch(context.resolve(controller, args[i]->getString()));
 	}
 
 	// no errors, only now replace original disk
@@ -176,7 +180,8 @@ void DiskChanger::changeDisk(std::auto_ptr<Disk> newDisk)
 {
 	disk = newDisk;
 	diskChangedFlag = true;
-	cliComm.update(CliComm::MEDIA, getDriveName(), getDiskName());
+	controller.getCliComm().update(CliComm::MEDIA, getDriveName(),
+	                               getDiskName().getResolved());
 }
 
 
@@ -194,7 +199,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 	int firstFileToken = 1;
 	if (tokens.size() == 1) {
 		result.addListElement(diskChanger.getDriveName() + ':');
-		result.addListElement(diskChanger.getDiskName());
+		result.addListElement(diskChanger.getDiskName().getResolved());
 
 		TclObject options(result.getInterpreter());
 		if (dynamic_cast<DummyDisk*>(diskChanger.disk.get())) {
@@ -244,8 +249,6 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			}
 		}
 		try {
-			CommandController& controller = getCommandController();
-			UserFileContext context;
 			vector<string> args;
 			args.push_back(diskChanger.getDriveName());
 			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
@@ -255,13 +258,10 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 						throw MSXException(
 							"Missing argument for option \"" + option + "\"");
 					}
-					args.push_back(context.resolve(
-						controller,
-						tokens[i]->getString()));
+					args.push_back(tokens[i]->getString());
 				} else {
 					// backwards compatibility
-					args.push_back(context.resolve(
-						controller, option));
+					args.push_back(option);
 				}
 			}
 			diskChanger.sendChangeDiskEvent(args);
@@ -297,7 +297,7 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 {
-	string diskname = disk->getName();
+	string diskname = disk->getName().getOriginal();
 	ar.serialize("disk", diskname);
 	if (ar.isLoader()) {
 		if (!diskname.empty()) {

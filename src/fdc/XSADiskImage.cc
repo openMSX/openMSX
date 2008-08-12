@@ -13,10 +13,10 @@ const int XSADiskImage::cpdext[TBLSIZE] = {
 	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 };
 
-XSADiskImage::XSADiskImage(const string& fileName)
-	: SectorBasedDisk(fileName)
+XSADiskImage::XSADiskImage(const Filename& filename)
+	: SectorBasedDisk(filename)
 {
-	File file(fileName);
+	File file(filename);
 	if (!isXSAImage(file)) {
 		throw MSXException("Not an XSA image");
 	}

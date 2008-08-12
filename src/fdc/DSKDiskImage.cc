@@ -3,11 +3,9 @@
 #include "DSKDiskImage.hh"
 #include "File.hh"
 
-using std::string;
-
 namespace openmsx {
 
-DSKDiskImage::DSKDiskImage(const string& fileName)
+DSKDiskImage::DSKDiskImage(const Filename& fileName)
 	: SectorBasedDisk(fileName)
 	, file(new File(fileName, File::PRE_CACHE))
 {

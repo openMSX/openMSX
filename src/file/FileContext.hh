@@ -14,8 +14,8 @@ class FileContext
 {
 public:
 	const std::string resolve(CommandController& controller,
-	                          const std::string& filename);
-	const std::string resolveCreate(const std::string& filename);
+	                          const std::string& filename) const;
+	const std::string resolveCreate(const std::string& filename) const;
 
 	std::vector<std::string> getPaths(CommandController& controller) const;
 

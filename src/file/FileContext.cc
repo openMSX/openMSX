@@ -96,7 +96,7 @@ static string resolveHelper(const vector<string>& pathList,
 }
 
 const string FileContext::resolve(CommandController& controller,
-                                  const string& filename)
+                                  const string& filename) const
 {
 	vector<string> pathList = getPathsHelper(controller, paths);
 	string result = resolveHelper(pathList, filename);
@@ -104,7 +104,7 @@ const string FileContext::resolve(CommandController& controller,
 	return result;
 }
 
-const string FileContext::resolveCreate(const string& filename)
+const string FileContext::resolveCreate(const string& filename) const
 {
 	string result;
 	CommandController* controller = NULL;

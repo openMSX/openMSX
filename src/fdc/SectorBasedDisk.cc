@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-SectorBasedDisk::SectorBasedDisk(const std::string& name)
+SectorBasedDisk::SectorBasedDisk(const Filename& name)
 	: Disk(name)
 	, patch(new EmptyDiskPatch(*this))
 	, nbSectors(unsigned(-1)) // to detect misuse

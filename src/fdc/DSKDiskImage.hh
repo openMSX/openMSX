@@ -13,7 +13,7 @@ class File;
 class DSKDiskImage : public SectorBasedDisk
 {
 public:
-	explicit DSKDiskImage(const std::string& fileName);
+	explicit DSKDiskImage(const Filename& filename);
 	virtual ~DSKDiskImage();
 
 	virtual bool writeProtected();

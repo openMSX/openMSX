@@ -6,7 +6,7 @@
 namespace openmsx {
 
 DummyDisk::DummyDisk()
-	: SectorBasedDisk("")
+	: SectorBasedDisk(Filename(""))
 {
 	setNbSectors(0);
 }

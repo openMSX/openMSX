@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-Disk::Disk(const std::string& name_)
+Disk::Disk(const Filename& name_)
 	: name(name_), nbSides(0)
 {
 }
@@ -14,7 +14,7 @@ Disk::~Disk()
 {
 }
 
-const std::string& Disk::getName() const
+const Filename& Disk::getName() const
 {
 	return name;
 }

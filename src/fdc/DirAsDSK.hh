@@ -22,7 +22,7 @@ public:
 	static const unsigned NUM_DIR_ENTRIES = SECTORS_PER_DIR * (SECTOR_SIZE / 32);
 
 	DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings,
-	         const std::string& fileName);
+	         const Filename& filename);
 	virtual ~DirAsDSK();
 
 private:

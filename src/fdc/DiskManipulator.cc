@@ -8,6 +8,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "File.hh"
+#include "Filename.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
@@ -388,7 +389,8 @@ void DiskManipulator::create(const vector<string>& tokens)
 	}
 
 	// initialize (create partition tables and format partitions)
-	DSKDiskImage image(tokens[2]);
+	Filename filename(tokens[2]);
+	DSKDiskImage image(filename);
 	MSXtar workhorse(image);
 	workhorse.createDiskFile(sizes);
 }
