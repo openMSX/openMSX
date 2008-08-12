@@ -307,7 +307,15 @@ void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 			vector<TclObject*> args;
 			args.push_back(&obj); // dummy
 			args.push_back(&obj);
-			insertDisk(args);
+			try {
+				insertDisk(args);
+			} catch (MSXException& e) {
+				throw MSXException(
+					"Couldn't reinsert disk in drive " +
+					getDriveName() + ": " + e.getMessage());
+				// Alternative: Print warning and continue
+				//   without diskimage. Is this better?
+			}
 		}
 	}
 
