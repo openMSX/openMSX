@@ -5,7 +5,6 @@
 
 #include "Filename.hh"
 #include "openmsx.hh"
-#include <string>
 
 namespace openmsx {
 
@@ -33,7 +32,7 @@ public:
 	virtual bool writeProtected() = 0;
 	bool doubleSided();
 
-	virtual void applyPatch(const std::string& patchFile);
+	virtual void applyPatch(const Filename& patchFile);
 
 protected:
 	explicit Disk(const Filename& name);

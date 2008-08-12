@@ -162,9 +162,8 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 		}
 	}
 	for (unsigned i = 2; i < args.size(); ++i) {
-		// TODO use Filename class
-		UserFileContext context;
-		newDisk->applyPatch(context.resolve(controller, args[i]->getString()));
+		Filename filename(args[i]->getString(), controller);
+		newDisk->applyPatch(filename);
 	}
 
 	// no errors, only now replace original disk

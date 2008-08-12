@@ -5,7 +5,7 @@
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
 #include "File.hh"
-#include "FileContext.hh"
+#include "Filename.hh"
 #include "FileException.hh"
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
@@ -98,14 +98,15 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 		// .. and then try filename as originally given by user
 		if (!file.get()) {
 			if (filenameElem) {
-				string filename = filenameElem->getData();
+				string name = filenameElem->getData();
 				try {
-					filename = config.getFileContext().
-					             resolve(controller, filename);
+					Filename filename(name,
+					                  config.getFileContext(),
+					                  controller);
 					file.reset(new File(filename));
 				} catch (FileException& e) {
 					throw MSXException("Error reading ROM: " +
-					                   filename);
+					                   name);
 				}
 			} else {
 				throw MSXException("Couldn't find ROM file for \"" +
@@ -144,9 +145,8 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 			patchesElem->getChildren("ips", patches);
 			for (XMLElement::Children::const_iterator it
 			       = patches.begin(); it != patches.end(); ++it) {
-				const string& filename = (*it)->getData();
-				patch.reset(new IPSPatch(
-					context.resolve(controller, filename), patch));
+				Filename filename((*it)->getData(), context, controller);
+				patch.reset(new IPSPatch(filename, patch));
 			}
 			unsigned patchSize = patch->getSize();
 			if (patchSize <= size) {

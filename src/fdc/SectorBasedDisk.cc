@@ -37,7 +37,7 @@ void SectorBasedDisk::write(byte track, byte sector, byte side,
 	writeSector(logicalSector, buf);
 }
 
-void SectorBasedDisk::applyPatch(const std::string& patchFile)
+void SectorBasedDisk::applyPatch(const Filename& patchFile)
 {
 	patch.reset(new IPSPatch(patchFile, patch));
 }

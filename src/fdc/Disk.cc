@@ -47,7 +47,7 @@ bool Disk::doubleSided()
 	return nbSides == 2;
 }
 
-void Disk::applyPatch(const std::string& /*patchFile*/)
+void Disk::applyPatch(const Filename& /*patchFile*/)
 {
 	throw MSXException("Patching of this disk image format not supported.");
 }

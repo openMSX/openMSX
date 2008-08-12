@@ -2,6 +2,7 @@
 
 #include "IPSPatch.hh"
 #include "File.hh"
+#include "Filename.hh"
 #include "MSXException.hh"
 #include <cstring>
 #include <cassert>
@@ -15,7 +16,7 @@ static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
 	return it->first + it->second.size();
 }
 
-IPSPatch::IPSPatch(const std::string& filename,
+IPSPatch::IPSPatch(const Filename& filename,
                    std::auto_ptr<const PatchInterface> parent_)
 	: parent(parent_)
 {
@@ -24,7 +25,7 @@ IPSPatch::IPSPatch(const std::string& filename,
 	byte buf[5];
 	ipsFile.read(buf, 5);
 	if (memcmp(buf, "PATCH", 5) != 0) {
-		throw MSXException("Invalid IPS file: " + filename);
+		throw MSXException("Invalid IPS file: " + filename.getOriginal());
 	}
 	ipsFile.read(buf, 3);
 	while (memcmp(buf, "EOF", 3) != 0) {
