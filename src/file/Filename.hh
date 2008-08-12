@@ -27,7 +27,17 @@ public:
 	         CommandController& controller);
 
 	const std::string& getOriginal() const;
-	const std::string getResolved() const;
+	const std::string& getResolved() const;
+
+	/** After a loadstate we prefer to use the exact same file as before
+	  * savestate. But if that file is not available (possibly because
+	  * snapshot is loaded on a different host machine), we fallback to
+	  * the original filename.
+	  */
+	const std::string& getAfterLoadState() const;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	const std::string originalFilename;

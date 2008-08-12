@@ -296,13 +296,14 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 {
-	string diskname = disk->getName().getOriginal();
+	Filename diskname = disk->getName();
 	ar.serialize("disk", diskname);
 	if (ar.isLoader()) {
-		if (!diskname.empty()) {
+		string name = diskname.getAfterLoadState();
+		if (!name.empty()) {
 			// TODO IPS patches
 			TclObject obj;
-			obj.setString(diskname);
+			obj.setString(name);
 			vector<TclObject*> args;
 			args.push_back(&obj); // dummy
 			args.push_back(&obj);
