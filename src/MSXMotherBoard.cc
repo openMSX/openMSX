@@ -165,7 +165,14 @@ private:
 	auto_ptr<MSXMapperIO> mapperIO;
 	unsigned mapperIOCounter;
 
-	auto_ptr<HardwareConfig> machineConfig;
+	// These two should normally be the same, only during savestate loading
+	// machineConfig will already be filled in, but machineConfig2 not yet.
+	// This is important when an exception happens during loading of
+	// machineConfig2 (otherwise machineConfig2 gets deleted twice).
+	// See also HardwareConfig::serialize() and setMachineConfig()
+	auto_ptr<HardwareConfig> machineConfig2;
+	HardwareConfig* machineConfig;
+
 	MSXMotherBoard::Extensions extensions;
 
 	// order of auto_ptr's is important!
@@ -303,6 +310,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	: self(self_)
 	, reactor(reactor_)
 	, mapperIOCounter(0)
+	, machineConfig(NULL)
 	, powerSetting(getGlobalSettings().getPowerSetting())
 	, blockedCounter(0)
 	, powered(false)
@@ -336,7 +344,8 @@ MSXMotherBoardImpl::~MSXMotherBoardImpl()
 	assert(mapperIOCounter == 0);
 	assert(availableDevices.empty());
 	assert(extensions.empty());
-	assert(!machineConfig.get());
+	assert(!machineConfig2.get());
+	assert(!getMachineConfig());
 }
 
 void MSXMotherBoardImpl::deleteMachine()
@@ -352,7 +361,8 @@ void MSXMotherBoardImpl::deleteMachine()
 		}
 	}
 
-	machineConfig.reset();
+	machineConfig2.reset();
+	machineConfig = NULL;
 }
 
 const string& MSXMotherBoardImpl::getMachineID()
@@ -371,23 +381,25 @@ const string& MSXMotherBoardImpl::getMachineName() const
 
 const HardwareConfig* MSXMotherBoardImpl::getMachineConfig() const
 {
-	return machineConfig.get();
+	return machineConfig;
 }
 
 void MSXMotherBoardImpl::setMachineConfig(HardwareConfig* machineConfig_)
 {
-	assert(!machineConfig.get());
-	machineConfig.reset(machineConfig_);
+	assert(!getMachineConfig());
+	machineConfig = machineConfig_;
 }
 
 void MSXMotherBoardImpl::loadMachine(const string& machine)
 {
 	assert(machineName.empty());
 	assert(extensions.empty());
-	assert(!machineConfig.get());
+	assert(!machineConfig2.get());
+	assert(!getMachineConfig());
 
 	try {
-		machineConfig = HardwareConfig::createMachineConfig(self, machine);
+		machineConfig2 = HardwareConfig::createMachineConfig(self, machine);
+		setMachineConfig(machineConfig2.get());
 	} catch (FileException& e) {
 		throw MSXException("Machine \"" + machine + "\" not found: " +
 		                   e.getMessage());
@@ -1215,7 +1227,8 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("scheduler", getScheduler());
 
 	ar.serialize("name", machineName);
-	ar.serialize("config", machineConfig, ref(self));
+	ar.serialize("config", machineConfig2, ref(self));
+	assert(getMachineConfig() == machineConfig2.get());
 	ar.serialize("extensions", extensions, ref(self));
 
 	//SharedStuffMap sharedStuffMap;
