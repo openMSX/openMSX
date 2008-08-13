@@ -3,6 +3,7 @@
 #ifndef HD_HH
 #define HD_HH
 
+#include "Filename.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include <string>
@@ -22,8 +23,8 @@ public:
 	virtual ~HD();
 
 	const std::string& getName() const;
-	const std::string& getImageName() const;
-	void switchImage(const std::string& filename_);
+	const Filename& getImageName() const;
+	void switchImage(const std::string& filename);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -42,7 +43,7 @@ private:
 	std::auto_ptr<HDCommand> hdCommand;
 
 	std::auto_ptr<File> file;
-	std::string filename;
+	Filename filename;
 	unsigned filesize;
 	bool alreadyTried;
 };

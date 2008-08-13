@@ -43,8 +43,12 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	// for exception safety, set hdInUse only at the end
 	name = string("hd") + char('a' + id);
 
-	filename = config.getFileContext().resolveCreate(
-		config.getChildData("filename"));
+	// For the initial hd image, savestate should only try exactly this
+	// (resolved) filename. For user-specified hd images (commandline or
+	// via hda command) savestate will try to re-resolve the filename.
+	string original = config.getChildData("filename");
+	string resolved = config.getFileContext().resolveCreate(original);
+	filename = Filename(resolved);
 	try {
 		file.reset(new File(filename));
 		filesize = file->getSize();
@@ -90,7 +94,7 @@ const string& HD::getName() const
 	return name;
 }
 
-const string& HD::getImageName() const
+const Filename& HD::getImageName() const
 {
 	return filename;
 }
@@ -114,12 +118,14 @@ void HD::openImage()
 	}
 }
 
-void HD::switchImage(const string& filename_)
+void HD::switchImage(const std::string& name_)
 {
-	file.reset(new File(filename_));
-	filename = filename_;
+	Filename name(name_, motherBoard.getCommandController());
+	file.reset(new File(name));
+	filename = name;
 	filesize = file->getSize();
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(), filename);
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
+	                                   filename.getResolved());
 }
 
 void HD::readFromImage(unsigned offset, unsigned size, byte* buf)
@@ -151,13 +157,13 @@ bool HD::isImageReadOnly()
 template<typename Archive>
 void HD::serialize(Archive& ar, unsigned /*version*/)
 {
-	string tmp = file.get() ? filename : "";
+	Filename tmp = file.get() ? filename : Filename();
 	ar.serialize("filename", tmp);
 	if (ar.isLoader()) {
-		if (tmp.empty()) {
+		if (tmp.getOriginal().empty()) {
 			// lazily open file specified in config
 		} else {
-			switchImage(tmp);
+			switchImage(tmp.getAfterLoadState());
 		}
 	}
 }

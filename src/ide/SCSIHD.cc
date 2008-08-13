@@ -154,7 +154,8 @@ unsigned SCSIHD::inquiry()
 	}
 
 	if (length > 36) {
-		string filename = FileOperations::getFilename(getImageName());
+		string filename = FileOperations::getFilename(
+		                       getImageName().getOriginal());
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
