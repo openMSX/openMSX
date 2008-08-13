@@ -4,15 +4,16 @@
 #define WAVWRITER_HH
 
 #include "noncopyable.hh"
-#include <string>
 #include <cstdio>
 
 namespace openmsx {
 
+class Filename;
+
 class WavWriter : private noncopyable
 {
 public:
-	WavWriter(const std::string& filename,
+	WavWriter(const Filename& filename,
 	          unsigned channels, unsigned bits, unsigned frequency);
 	~WavWriter();
 

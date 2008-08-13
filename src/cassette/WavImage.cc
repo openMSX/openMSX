@@ -5,15 +5,13 @@
 #include "LocalFileReference.hh"
 #include "Math.hh"
 
-using std::string;
-
 namespace openmsx {
 
 // Note: type detection not implemented yet for WAV images
-WavImage::WavImage(const string& fileName)
+WavImage::WavImage(const Filename& filename)
 	: clock(EmuTime::zero)
 {
-	LocalFileReference file(fileName);
+	LocalFileReference file(filename);
 	wav.reset(new WavData(file.getFilename(), 16, 0));
 	clock.setFreq(wav->getFreq());
 

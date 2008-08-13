@@ -12,6 +12,7 @@
 #include "VideoSourceSetting.hh"
 #include "PostProcessor.hh"
 #include "MSXMixer.hh"
+#include "Filename.hh"
 #include "CliComm.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
@@ -53,7 +54,7 @@ AviRecorder::~AviRecorder()
 }
 
 void AviRecorder::start(bool recordAudio, bool recordVideo,
-                        const string& filename)
+                        const Filename& filename)
 {
 	stop();
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
@@ -229,7 +230,7 @@ string AviRecorder::processStart(const vector<string>& tokens)
 	if (aviWriter.get() || wavWriter.get()) {
 		return "Already recording.";
 	}
-	start(recordAudio, recordVideo, filename);
+	start(recordAudio, recordVideo, Filename(filename));
 	return "Recording to " + filename;
 }
 

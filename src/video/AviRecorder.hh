@@ -14,6 +14,7 @@ class Reactor;
 class VideoSourceSetting;
 class AviWriter;
 class WavWriter;
+class Filename;
 class PostProcessor;
 class MSXMixer;
 class RecordCommand;
@@ -31,7 +32,7 @@ public:
 
 private:
 	void start(bool recordAudio, bool recordVideo,
-	           const std::string& filename);
+	           const Filename& filename);
 
 	std::string processStart(const std::vector<std::string>& tokens);
 	std::string processStop(const std::vector<std::string>& tokens);

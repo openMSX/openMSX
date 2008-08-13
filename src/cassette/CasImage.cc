@@ -2,12 +2,11 @@
 
 #include "CasImage.hh"
 #include "File.hh"
+#include "Filename.hh"
 #include "CliComm.hh"
 #include "Clock.hh"
 #include "MSXException.hh"
 #include <string.h> // for memcmp
-
-using std::string;
 
 namespace openmsx {
 
@@ -26,16 +25,16 @@ const int LONG_HEADER  = 16000 / 2;
 const int SHORT_HEADER =  4000 / 2;
 
 // headers definitions
-const byte CAS_HEADER[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
-const byte ASCII_HEADER[10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
-const byte BINARY_HEADER[10]   = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
-const byte BASIC_HEADER[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
+const byte CAS_HEADER   [ 8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
+const byte ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
+const byte BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
+const byte BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
-CasImage::CasImage(const string& fileName, CliComm& cliComm)
+CasImage::CasImage(const Filename& filename, CliComm& cliComm)
 {
 	setFirstFileType(CassetteImage::UNKNOWN);
-	convert(fileName, cliComm);
+	convert(filename, cliComm);
 }
 
 short CasImage::getSampleAt(const EmuTime& time)
@@ -136,9 +135,9 @@ bool CasImage::writeData(const byte* buf, const unsigned size, unsigned& pos)
 	return false;
 }
 
-void CasImage::convert(const std::string& fileName, CliComm& cliComm)
+void CasImage::convert(const Filename& filename, CliComm& cliComm)
 {
-	File file(fileName);
+	File file(filename);
 	const byte* buf = file.mmap();
 	const unsigned size = file.getSize();
 
@@ -204,11 +203,12 @@ void CasImage::convert(const std::string& fileName, CliComm& cliComm)
 		}
 	}
 	if (!headerFound) {
-		string msg = fileName + ": not a valid CAS image";
-		throw MSXException(msg);
+		throw MSXException(filename.getOriginal() +
+		                   ": not a valid CAS image");
 	}
 	if (issueWarning) {
-		 cliComm.printWarning("Skipped unhandled data in " + fileName);
+		 cliComm.printWarning("Skipped unhandled data in " +
+		                      filename.getOriginal());
 	}
 }
 

@@ -13,6 +13,7 @@
 #include "BooleanSetting.hh"
 #include "CommandException.hh"
 #include "AviRecorder.hh"
+#include "Filename.hh"
 #include "CliComm.hh"
 #include "Math.hh"
 #include "StringOp.hh"
@@ -587,7 +588,8 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 		     ++it2, ++channel) {
 			if (it2->recordSetting == &setting) {
 				it->first->recordChannel(
-					channel, it2->recordSetting->getValue());
+					channel,
+					Filename(it2->recordSetting->getValue()));
 				return;
 			}
 		}

@@ -4,6 +4,7 @@
 #include "MSXMixer.hh"
 #include "XMLElement.hh"
 #include "WavWriter.hh"
+#include "Filename.hh"
 #include "StringOp.hh"
 #include "HostCPU.hh"
 #include "MemoryOps.hh"
@@ -109,7 +110,7 @@ void SoundDevice::setInputRate(unsigned sampleRate)
 	inputSampleRate = sampleRate;
 }
 
-void SoundDevice::recordChannel(unsigned channel, const string& filename)
+void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
 {
 	assert(channel < numChannels);
 	bool wasRecording = writer[channel].get();

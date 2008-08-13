@@ -6,17 +6,17 @@
 #include "CassetteImage.hh"
 #include "DynamicClock.hh"
 #include "noncopyable.hh"
-#include <string>
 #include <memory>
 
 namespace openmsx {
 
+class Filename;
 class WavData;
 
 class WavImage : public CassetteImage, private noncopyable
 {
 public:
-	explicit WavImage(const std::string& fileName);
+	explicit WavImage(const Filename& filename);
 	virtual ~WavImage();
 
 	virtual short getSampleAt(const EmuTime& time);

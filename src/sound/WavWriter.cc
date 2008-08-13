@@ -1,6 +1,7 @@
 // $Id$
 
 #include "WavWriter.hh"
+#include "Filename.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "build-info.hh"
@@ -25,14 +26,15 @@ static inline unsigned litEnd_32(unsigned val)
 	       : val;
 }
 
-WavWriter::WavWriter(const std::string& filename,
+WavWriter::WavWriter(const Filename& filename,
                      unsigned channels, unsigned bits, unsigned frequency)
 	: bytes(0)
 {
-	wavfp = fopen(filename.c_str(), "wb");
+	std::string resolved = filename.getResolved();
+	wavfp = fopen(resolved.c_str(), "wb");
 	if (!wavfp) {
 		throw MSXException(
-			"Couldn't open file for writing: " + filename);
+			"Couldn't open file for writing: " + resolved);
 	}
 
 	// write wav header

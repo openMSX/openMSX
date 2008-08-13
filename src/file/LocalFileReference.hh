@@ -3,6 +3,7 @@
 #ifndef LOCALFILEREFERENCE_HH
 #define LOCALFILEREFERENCE_HH
 
+#include "Filename.hh"
 #include "noncopyable.hh"
 #include <string>
 
@@ -30,6 +31,7 @@ namespace openmsx {
 class LocalFileReference : private noncopyable
 {
 public:
+	explicit LocalFileReference(const Filename& filename);
 	explicit LocalFileReference(const std::string& url);
 	~LocalFileReference();
 
@@ -39,6 +41,8 @@ public:
 	const std::string getFilename() const;
 
 private:
+	void init(const std::string& url);
+
 	std::string tmpFile;
 	std::string tmpDir;
 };

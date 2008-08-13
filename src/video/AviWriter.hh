@@ -5,19 +5,19 @@
 #ifndef AVIWRITER_HH
 #define AVIWRITER_HH
 
-#include <string>
 #include <vector>
 #include <memory>
 #include <cstdio>
 
 namespace openmsx {
 
+class Filename;
 class ZMBVEncoder;
 
 class AviWriter
 {
 public:
-	AviWriter(const std::string& filename, unsigned width, unsigned height,
+	AviWriter(const Filename& filename, unsigned width, unsigned height,
 	          unsigned bpp, unsigned freq);
 	~AviWriter();
 	void addFrame(const void** lineData, unsigned samples, short* sampleData);

@@ -8,6 +8,7 @@
 #include "SoundDevice.hh"
 #include "Resample.hh"
 #include "Schedulable.hh"
+#include "Filename.hh"
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
 #include <string>
@@ -68,16 +69,16 @@ public:
 private:
 	State getState() const;
 	std::string getStateString() const;
-	void setState(State newState, const std::string& newImage,
+	void setState(State newState, const Filename& newImage,
 	              const EmuTime& time);
-	void setImageName(const std::string& newImage);
-	const std::string& getImageName() const;
+	void setImageName(const Filename& newImage);
+	const Filename& getImageName() const;
 	void checkInvariants() const;
 
 	/** Insert a tape for use in PLAY mode.
 	 */
-	void playTape(const std::string& filename, const EmuTime& time);
-	void insertTape(const std::string& filename);
+	void playTape(const Filename& filename, const EmuTime& time);
+	void insertTape(const Filename& filename);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */
@@ -86,7 +87,7 @@ private:
 	/** Goes to RECORD mode using the given filename as a new tape
 	  * image. Finishes any old recording session.
 	  */
-	void recordTape(const std::string& filename, const EmuTime& time);
+	void recordTape(const Filename& filename, const EmuTime& time);
 
 	/** Rewinds the tape. Also sets PLAY mode, because you can't record
 	  * over an existing tape. (And it won't be useful to implement that
@@ -152,7 +153,7 @@ private:
 	// SoundDevice
 	unsigned audioPos;
 	unsigned outputRate;
-	std::string casImage;
+	Filename casImage;
 
 	CommandController& commandController;
 	CliComm& cliComm;

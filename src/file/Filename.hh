@@ -37,6 +37,12 @@ public:
 	  */
 	const std::string& getAfterLoadState() const;
 
+	/** Convenience method to test for empty filename.
+	 * In any case getOriginal().empty() and getResolved().empty() return
+	 * the same result. This method is a shortcut to either of these.
+	 */
+	bool empty() const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

@@ -4,6 +4,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
+#include <cassert>
 
 using std::string;
 
@@ -60,6 +61,12 @@ const string& Filename::getAfterLoadState() const
 	} else {
 		return originalFilename;
 	}
+}
+
+bool Filename::empty() const
+{
+	assert(getOriginal().empty() == getResolved().empty());
+	return getOriginal().empty();
 }
 
 template<typename Archive>

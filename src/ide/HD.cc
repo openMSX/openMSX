@@ -160,7 +160,7 @@ void HD::serialize(Archive& ar, unsigned /*version*/)
 	Filename tmp = file.get() ? filename : Filename();
 	ar.serialize("filename", tmp);
 	if (ar.isLoader()) {
-		if (tmp.getOriginal().empty()) {
+		if (tmp.empty()) {
 			// lazily open file specified in config
 		} else {
 			switchImage(tmp.getAfterLoadState());

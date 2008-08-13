@@ -4,6 +4,7 @@
 
 #include "AviWriter.hh"
 #include "ZMBVEncoder.hh"
+#include "Filename.hh"
 #include "CommandException.hh"
 #include "build-info.hh"
 #include "Version.hh"
@@ -29,16 +30,17 @@ static inline void writeLE4(unsigned char* p, unsigned x)
 	p[3] = (x >> 24) & 255;
 }
 
-AviWriter::AviWriter(const std::string& filename, unsigned width_,
+AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned freq_)
 	: fps(50.0)
 	, width(width_)
 	, height(height_)
 	, audiorate(freq_)
 {
-	file = fopen(filename.c_str(), "wb");
+	std::string resolved = filename.getResolved();
+	file = fopen(resolved.c_str(), "wb");
 	if (!file) {
-		throw CommandException("Couldn't open " + filename +
+		throw CommandException("Couldn't open " + resolved +
 		                       " for writing.");
 	}
 	char dummy[AVI_HEADER_SIZE];

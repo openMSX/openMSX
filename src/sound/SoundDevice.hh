@@ -14,6 +14,7 @@ class XMLElement;
 class EmuTime;
 class EmuDuration;
 class WavWriter;
+class Filename;
 
 class SoundDevice : private noncopyable
 {
@@ -45,7 +46,7 @@ public:
 	  */
 	virtual int getAmplificationFactor() const;
 
-	void recordChannel(unsigned channel, const std::string& filename);
+	void recordChannel(unsigned channel, const Filename& filename);
 	void muteChannel  (unsigned channel, bool muted);
 
 protected:

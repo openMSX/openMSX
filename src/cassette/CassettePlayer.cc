@@ -237,7 +237,7 @@ void CassettePlayer::checkInvariants() const
 	}
 }
 
-void CassettePlayer::setState(State newState, const std::string& newImage,
+void CassettePlayer::setState(State newState, const Filename& newImage,
                               const EmuTime& time)
 {
 	sync(time);
@@ -258,8 +258,8 @@ void CassettePlayer::setState(State newState, const std::string& newImage,
 		recordImage.reset();
 		if (empty) {
 			// delete the created WAV file, as it is useless
-			unlink(getImageName().c_str());
-			setImageName("");
+			unlink(getImageName().getResolved().c_str());
+			setImageName(Filename());
 		}
 	}
 
@@ -293,18 +293,18 @@ void CassettePlayer::updateLoadingState(const EmuTime& time)
 	}
 }
 
-void CassettePlayer::setImageName(const string& newImage)
+void CassettePlayer::setImageName(const Filename& newImage)
 {
 	casImage = newImage;
-	cliComm.update(CliComm::MEDIA, "cassetteplayer", casImage);
+	cliComm.update(CliComm::MEDIA, "cassetteplayer", casImage.getResolved());
 }
 
-const string& CassettePlayer::getImageName() const
+const Filename& CassettePlayer::getImageName() const
 {
 	return casImage;
 }
 
-void CassettePlayer::insertTape(const string& filename)
+void CassettePlayer::insertTape(const Filename& filename)
 {
 	if (!filename.empty()) {
 		try {
@@ -334,7 +334,7 @@ void CassettePlayer::insertTape(const string& filename)
 	setImageName(filename);
 }
 
-void CassettePlayer::playTape(const string& filename, const EmuTime& time)
+void CassettePlayer::playTape(const Filename& filename, const EmuTime& time)
 {
 	if (getState() == RECORD) {
 		// First close the recorded image. Otherwise it goes wrong
@@ -362,7 +362,7 @@ void CassettePlayer::rewind(const EmuTime& time)
 	}
 }
 
-void CassettePlayer::recordTape(const string& filename, const EmuTime& time)
+void CassettePlayer::recordTape(const Filename& filename, const EmuTime& time)
 {
 	removeTape(time); // flush (possible) previous recording
 	recordImage.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
@@ -374,7 +374,7 @@ void CassettePlayer::removeTape(const EmuTime& time)
 {
 	playImage.reset();
 	tapePos = EmuTime::zero;
-	setState(STOP, "", time);
+	setState(STOP, Filename(), time);
 }
 
 void CassettePlayer::setMotor(bool status, const EmuTime& time)
@@ -629,7 +629,7 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		// DiskChanger
 		TclObject tmp(getCommandController().getInterpreter());
 		tmp.addListElement(getName() + ':');
-		tmp.addListElement(cassettePlayer.getImageName());
+		tmp.addListElement(cassettePlayer.getImageName().getResolved());
 
 		TclObject options(getCommandController().getInterpreter());
 		options.addListElement(cassettePlayer.getStateString());
@@ -641,16 +641,15 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		                ? tokens[2]
 		                : FileOperations::getNextNumberedFileName(
 		                         "taperecordings", "openmsx", ".wav");
-		cassettePlayer.recordTape(filename, time);
+		cassettePlayer.recordTape(Filename(filename), time);
 		result += "Created new cassette image file: " + filename
 		       + ", inserted it and set recording mode.";
 
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result += "Changing tape";
-			UserFileContext context;
-			cassettePlayer.playTape(
-				context.resolve(getCommandController(), tokens[2]), time);
+			Filename filename(tokens[2], getCommandController());
+			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
@@ -718,9 +717,8 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 	} else {
 		try {
 			result += "Changing tape";
-			UserFileContext context;
-			cassettePlayer.playTape(
-				context.resolve(getCommandController(), tokens[1]), time);
+			Filename filename(tokens[1], getCommandController());
+			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
@@ -858,7 +856,8 @@ void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("casImage", casImage);
 	if (ar.isLoader()) {
 		removeTape(getCurrentTime());
-		insertTape(casImage);
+		Filename filename(casImage.getAfterLoadState(), commandController);
+		insertTape(filename);
 	}
 
 	// only for RECORD

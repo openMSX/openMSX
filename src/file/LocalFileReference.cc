@@ -18,7 +18,17 @@ using std::string;
 
 namespace openmsx {
 
+LocalFileReference::LocalFileReference(const Filename& filename)
+{
+	init(filename.getResolved());
+}
+
 LocalFileReference::LocalFileReference(const string& url)
+{
+	init(url);
+}
+
+void LocalFileReference::init(const string& url)
 {
 	File file(url);
 	tmpFile = file.getLocalReference();
