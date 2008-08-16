@@ -93,6 +93,7 @@ public:
 	InfoCommand& getOpenMSXInfoCommand();
 	CommandController& getCommandController();
 	CliComm& getCliComm();
+	std::string getMachineID() const;
 
 private:
 	typedef shared_ptr<MSXMotherBoard> Board;
@@ -102,7 +103,6 @@ private:
 	void switchBoard(Board newBoard);
 	void deleteBoard(Board board);
 	Board getMachine(const std::string& machineID) const;
-	std::string getMachineID() const;
 	void getMachineIDs(std::set<std::string>& result) const;
 
 	// Observer<Setting>

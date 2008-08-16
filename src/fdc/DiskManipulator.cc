@@ -7,6 +7,8 @@
 #include "DSKDiskImage.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "File.hh"
 #include "Filename.hh"
 #include "FileContext.hh"
@@ -27,7 +29,7 @@ DiskManipulator::DiskManipulator(CommandController& commandController)
 	: SimpleCommand(commandController, "diskmanipulator")
 {
 	virtualDrive.reset(new DiskChanger("virtual_drive", commandController,
-	                                   *this));
+	                                   *this, NULL));
 }
 
 DiskManipulator::~DiskManipulator()
@@ -37,13 +39,19 @@ DiskManipulator::~DiskManipulator()
 	assert(diskImages.empty()); // all DiskContainers must be unregistered
 }
 
+string DiskManipulator::getMachinePrefix() const
+{
+	string id = getCommandController().getReactor().getMachineID();
+	return id.empty() ? id : id + "::";
+}
 
-
-void DiskManipulator::registerDrive(DiskContainer& drive)
+void DiskManipulator::registerDrive(DiskContainer& drive, MSXMotherBoard* board)
 {
 	assert(findDriveSettings(drive) == diskImages.end());
 	DriveSettings driveSettings;
 	driveSettings.drive = &drive;
+	string prefix = board ? (board->getMachineID() + "::") : "";
+	driveSettings.driveName = prefix + drive.getContainerName();
 	driveSettings.partition = 0;
 	for (int i = 0; i < 31; ++i) {
 		driveSettings.workingDir[i] = "/";
@@ -73,11 +81,9 @@ DiskManipulator::DiskImages::iterator DiskManipulator::findDriveSettings(
 DiskManipulator::DiskImages::iterator DiskManipulator::findDriveSettings(
 	const string& name)
 {
-	// there might be multiple with the same name, pick the first
-	// improve this once we have multiple simultaneous machines
 	for (DiskImages::iterator it = diskImages.begin();
 	     it != diskImages.end(); ++it) {
-		if (it->drive->getContainerName() == name) {
+		if (it->driveName == name) {
 			return it;
 		}
 	}
@@ -89,20 +95,44 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 {
 	// first split of the end numbers if present
 	// these will be used as partition indication
-	string::size_type pos = diskname.find_first_of("0123456789");
+	string::size_type pos = diskname.find("::");
+	pos = diskname.find_first_of("0123456789", ((pos != string::npos) ? pos : 0));
 	string tmp = diskname.substr(0, pos);
 
 	DiskImages::iterator it = findDriveSettings(tmp);
 	if (it == diskImages.end()) {
-		throw CommandException("Unknown drive: "  + tmp);
+		it = findDriveSettings(getMachinePrefix() + tmp);
+		if (it == diskImages.end()) {
+			throw CommandException("Unknown drive: "  + tmp);
+		}
 	}
 
 	it->partition = 0;
 	if (pos != string::npos) {
-		int i = strtol(diskname.substr(pos).c_str(), NULL, 10);
+		string num = diskname.substr(pos);
+		int i = strtol(num.c_str(), NULL, 10);
+		// check number in range
 		if (i <= 0 || i > 31) {
-			throw CommandException("Invalid partition specified.");
+			throw CommandException(
+				"Invalid partition specified (must be 1-31).");
 		}
+		// check whether drive really have this partition
+		bool hasPartition = false;
+		try {
+			SectorAccessibleDisk* sectorDisk =
+				it->drive->getSectorAccessibleDisk();
+			MSXtar workhorse(*sectorDisk);
+			if (workhorse.hasPartition(i - 1)) {
+				hasPartition = true;
+			}
+		} catch (MSXException& e) {
+			// ignore
+		}
+		if (!hasPartition) {
+			throw CommandException("Drive " + tmp +
+			                       " does not have a partition " + num);
+		}
+		// ok
 		it->partition = i - 1;
 	}
 	return *it;
@@ -278,8 +308,10 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		set<string> names;
 		for (DiskImages::const_iterator it = diskImages.begin();
 		     it != diskImages.end(); ++it) {
-			string name = it->drive->getContainerName();
-			names.insert(name);
+			string name1 = it->driveName; // with prexix
+			string name2 = it->drive->getContainerName(); // without prefix
+			names.insert(name1);
+			names.insert(name2);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			SectorAccessibleDisk* sectorDisk =
@@ -289,7 +321,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 					MSXtar workhorse(*sectorDisk);
 					for (int i = 0; i < 31; ++i) {
 						if (workhorse.hasPartition(i)) {
-							names.insert(name + StringOp::toString(i + 1));
+							names.insert(name1 + StringOp::toString(i + 1));
+							names.insert(name2 + StringOp::toString(i + 1));
 						}
 					}
 				} catch (MSXException& e) {
@@ -399,18 +432,13 @@ void DiskManipulator::format(DriveSettings& driveData)
 {
 	MSXtar workhorse(getDisk(driveData));
 	try {
-		/*bool partitionExists = */workhorse.usePartition(driveData.partition);
+		assert(workhorse.hasPartition(driveData.partition));
+		workhorse.usePartition(driveData.partition);
 	} catch (MSXException& e) {
 		// ignore, because only the partition selection part is
 		// interesting for the format command, so ignore other
 		// errors (see MSXtar code)
 	}
-	// TODO: check if the partition actually exists (now: use return value)
-	// doesn't work yet, because we can't discern exception error or return
-	// value error... (exception prevents setting of retval)
-	//if (!partitionExists) {
-	//	throw MSXException("The selected partition " + StringOp::toString(driveData.partition) +  " does not exist, can't format");
-	//}
 	workhorse.format();
 	driveData.workingDir[driveData.partition] = "/";
 }
@@ -419,10 +447,9 @@ void DiskManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 {
 	if (!workhorse.hasPartitionTable()) {
 		workhorse.usePartition(0); //read the bootsector
-	} else if (!workhorse.usePartition(driveData.partition)) {
-		throw CommandException(
-		    "Partition " + StringOp::toString(1 + driveData.partition) +
-		    " doesn't exist on this device. Command aborted, please retry.");
+	} else {
+		assert(workhorse.hasPartition(driveData.partition));
+		workhorse.usePartition(driveData.partition);
 	}
 	try {
 		workhorse.chdir(driveData.workingDir[driveData.partition]);

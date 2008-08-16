@@ -1,5 +1,15 @@
 $Id$
 
+2008-08-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Diskmanipulator changes:
+	  - Teach diskmanipulator about multiple active msx machines.
+	    Before this change 'diska' always refered to the 1st drive of
+	    the oldest machine. Now it refers to the active machine. It's
+	    also possible to explicitly qualify the wanted machine with
+	    syntax like 'machine2::diska'.
+	  - Improved check on whether the specified partition exists or
+	    not.
+
 2008-07-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed our Unicode code with UTF8-CPP code:
 	       http://utfcpp.sourceforge.net/

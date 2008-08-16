@@ -11,6 +11,7 @@
 #include "MSXEventDistributor.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
+#include "MSXMotherBoard.hh"
 #include "DiskManipulator.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -44,17 +45,16 @@ private:
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& controller_,
                          DiskManipulator& manipulator_,
-                         MSXEventDistributor* msxEventDistributor_,
-                         Scheduler* scheduler_)
+                         MSXMotherBoard* board)
 	: controller(controller_)
-	, msxEventDistributor(msxEventDistributor_)
-	, scheduler(scheduler_)
+	, msxEventDistributor(board ? &board->getMSXEventDistributor() : NULL)
+	, scheduler(board ? &board->getScheduler() : NULL)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
 	, diskCommand(new DiskCommand(controller, *this))
 {
 	ejectDisk();
-	manipulator.registerDrive(*this);
+	manipulator.registerDrive(*this, board);
 	if (msxEventDistributor) {
 		msxEventDistributor->registerEventListener(*this);
 	}

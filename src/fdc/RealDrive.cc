@@ -57,9 +57,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
 	changer.reset(new DiskChanger(
 		driveName, motherBoard.getCommandController(),
-		motherBoard.getDiskManipulator(),
-		&motherBoard.getMSXEventDistributor(),
-		&motherBoard.getScheduler()));
+		motherBoard.getDiskManipulator(), &motherBoard));
 }
 
 RealDrive::~RealDrive()

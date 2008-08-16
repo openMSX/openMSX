@@ -16,6 +16,7 @@ class CliComm;
 class GlobalSettings;
 class Interpreter;
 class SettingsConfig;
+class Reactor;
 
 class CommandController
 {
@@ -74,6 +75,7 @@ public:
 	virtual Interpreter& getInterpreter() = 0;
 	virtual SettingsConfig& getSettingsConfig() = 0;
 	virtual CliConnection* getConnection() const = 0;
+	virtual Reactor& getReactor() const = 0;
 
 	// like getCliComm(), but can return a NULL pointer early in the
 	// boot process

@@ -15,6 +15,7 @@ namespace openmsx {
 class CommandController;
 class MSXEventDistributor;
 class Scheduler;
+class MSXMotherBoard;
 class DiskManipulator;
 class Disk;
 class DiskCommand;
@@ -28,8 +29,7 @@ public:
 	DiskChanger(const std::string& driveName,
 	            CommandController& commandController,
 	            DiskManipulator& manipulator,
-	            MSXEventDistributor* msxEventDistributor = NULL,
-	            Scheduler* scheduler = NULL);
+	            MSXMotherBoard* board);
 	~DiskChanger();
 
 	const std::string& getDriveName() const;

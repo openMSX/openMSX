@@ -187,7 +187,7 @@ Interpreter& GlobalCommandController::getInterpreter()
 	return *interpreter;
 }
 
-Reactor& GlobalCommandController::getReactor()
+Reactor& GlobalCommandController::getReactor() const
 {
 	return reactor;
 }

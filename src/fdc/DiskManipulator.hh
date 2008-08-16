@@ -14,6 +14,7 @@ class DiskContainer;
 class DiskChanger;
 class SectorAccessibleDisk;
 class MSXtar;
+class MSXMotherBoard;
 
 class DiskManipulator : public SimpleCommand
 {
@@ -21,13 +22,14 @@ public:
 	explicit DiskManipulator(CommandController& commandController);
 	~DiskManipulator();
 
-	void registerDrive(DiskContainer& drive);
+	void registerDrive(DiskContainer& drive, MSXMotherBoard* board);
 	void unregisterDrive(DiskContainer& drive);
 
 private:
 	struct DriveSettings
 	{
 		DiskContainer* drive;
+		std::string driveName; // includes machine prefix
 		std::string workingDir[31];
 		int partition;
 	};
@@ -40,6 +42,7 @@ private:
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
+	std::string getMachinePrefix() const;
 	DiskImages::iterator findDriveSettings(DiskContainer& drive);
 	DiskImages::iterator findDriveSettings(const std::string& name);
 	DriveSettings& getDriveSettings(const std::string& diskname);

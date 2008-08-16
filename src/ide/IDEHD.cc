@@ -15,7 +15,7 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, AbstractIDEDevice(motherBoard)
 	, diskManipulator(motherBoard.getDiskManipulator())
 {
-	diskManipulator.registerDrive(*this);
+	diskManipulator.registerDrive(*this, &motherBoard);
 }
 
 IDEHD::~IDEHD()
