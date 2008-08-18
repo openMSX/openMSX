@@ -78,7 +78,6 @@ private:
 
 	byte sendByte;
 	byte sendBuffer;
-	bool sendBuffered;
 
 	byte status;
 	byte command;

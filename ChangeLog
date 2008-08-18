@@ -1,6 +1,14 @@
 $Id$
 
 2008-08-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed some UMRs triggered during savestate:
+	  Before savestates this was not a problem because those value _are_
+	  initialized before they are used in actual msx emulation code. Though
+	  savestates can read these values earlier. And if the variable was an
+	  enum, it could even lead to an assert.
+	  Thanks to Vampier for reporting this bug.
+
+2008-08-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Diskmanipulator changes:
 	  - Teach diskmanipulator about multiple active msx machines.
 	    Before this change 'diska' always refered to the 1st drive of

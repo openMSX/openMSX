@@ -946,6 +946,11 @@ KeyInserter::KeyInserter(CommandController& commandController,
 	, releaseLast(false)
 	, lockKeysMask(0)
 {
+	// avoid UMR
+	last = 0;
+	oldCodeKanaLockOn = false;
+	oldGraphLockOn = false;
+	oldCapsLockOn = false;
 }
 
 string KeyInserter::execute(const vector<string>& tokens, const EmuTime& /*time*/)

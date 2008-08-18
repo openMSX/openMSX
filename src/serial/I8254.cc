@@ -204,6 +204,12 @@ void Counter::reset(const EmuTime& time)
 	control = 0x30; // Write BOTH / mode 0 / binary mode
 	active = false;
 	counting = true;
+	triggered = false;
+
+	// avoid UMR on savestate
+	latchedCounter = 0;
+	latchedControl = 0;
+	writeLatch = 0;
 }
 
 byte Counter::readIO(const EmuTime& time)

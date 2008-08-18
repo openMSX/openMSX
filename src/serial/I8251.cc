@@ -52,13 +52,27 @@ enum SyncPointType {
 
 
 I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, const EmuTime& time)
-	: Schedulable(scheduler), interf(interf_), clock(scheduler), recvBuf(0)
+	: Schedulable(scheduler), interf(interf_), clock(scheduler)
 {
 	reset(time);
 }
 
 void I8251::reset(const EmuTime& time)
 {
+	// initialize these to avoid UMR on savestate
+	//   TODO investigate correct initial state after reset
+	charLength = 0;
+	recvDataBits  = SerialDataInterface::DATA_8;
+	recvStopBits  = SerialDataInterface::STOP_1;
+	recvParityBit = SerialDataInterface::EVEN;
+	recvParityEnabled = false;
+	recvBuf = 0;
+	recvReady = false;
+	sendByte = 0;
+	sendBuffer = 0;
+	mode = 0;
+	sync1 = sync2 = 0;
+
 	status = STAT_TXRDY | STAT_TXEMPTY;
 	command = 0xFF; // make sure all bits change
 	writeCommand(0, time);
@@ -422,7 +436,6 @@ void I8251::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("recvReady", recvReady);
 	ar.serialize("sendByte", sendByte);
 	ar.serialize("sendBuffer", sendBuffer);
-	ar.serialize("sendBuffered", sendBuffered);
 	ar.serialize("status", status);
 	ar.serialize("command", command);
 	ar.serialize("mode", mode);

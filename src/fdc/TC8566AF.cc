@@ -59,6 +59,9 @@ static const byte ST3_FLT = 0x80;
 TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime& time)
 	: delayTime(EmuTime::zero)
 {
+	// avoid UMR (on savestate)
+	memset(sectorBuf, 0, sizeof(sectorBuf));
+
 	drive[0] = drv[0];
 	drive[1] = drv[1];
 	drive[2] = drv[2];

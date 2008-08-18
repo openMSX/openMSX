@@ -31,6 +31,8 @@ void MSXTurboRPCM::reset(const EmuTime& time)
 {
 	reference.advance(time);
 	status = 0;
+	DValue = 0x80; // TODO correct initial value?
+	hold = 0x80; // avoid UMR
 	dac->reset(time);
 	hardwareMute(false);
 }
