@@ -6,6 +6,7 @@
 #include "StringOp.hh"
 #include "shared_ptr.hh"
 #include "type_traits.hh"
+#include "inline.hh"
 #include <string>
 #include <cstring>
 #include <vector>
@@ -355,6 +356,17 @@ public:
 	}
 
 /*internal*/
+	static NEVER_INLINE bool addressOnStack(const void* p)
+	{
+		// This is not portable, it assumes:
+		//  - stack grows downwards
+		//  - heap is at lower address than stack
+		// Also in c++ comparison between pointers is only defined when
+		// the two pointers point to objects in the same array.
+		int dummy;
+		return &dummy < p;
+	}
+
 	// Generate a new ID for the given pointer and store this association
 	// for later (see getId()).
 	template<typename T> unsigned generateId(const T* p)
@@ -369,6 +381,8 @@ public:
 		// For polymorphic types you do sometimes use a base pointer
 		// to refer to a subtype. So there we only use the pointer
 		// value as key in the map.
+		assert("Can't serialize ID of object located on the stack" &&
+		       !addressOnStack(p));
 		++lastId;
 		if (is_polymorphic<T>::value) {
 			assert(polyIdMap.find(p) == polyIdMap.end());

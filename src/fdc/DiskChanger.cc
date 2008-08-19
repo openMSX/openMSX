@@ -298,13 +298,13 @@ template<typename Archive>
 void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 {
 	Filename diskname = disk->getName();
-	ar.serialize("disk", diskname);
+	ar.serializeNoID("disk", diskname);
 
 	vector<Filename> patches;
 	if (!ar.isLoader()) {
 		disk->getPatches(patches);
 	}
-	ar.serialize("patches", patches);
+	ar.serializeNoID("patches", patches);
 
 	if (ar.isLoader()) {
 		string name = diskname.getAfterLoadState();
