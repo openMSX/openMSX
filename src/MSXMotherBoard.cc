@@ -90,6 +90,7 @@ public:
 
 	const HardwareConfig* getMachineConfig() const;
 	void setMachineConfig(HardwareConfig* machineConfig);
+	bool isTurboR() const;
 	void loadMachine(const string& machine);
 	const MSXMotherBoard::Extensions& getExtensions() const;
 	HardwareConfig* findExtension(const string& extensionName);
@@ -388,6 +389,13 @@ void MSXMotherBoardImpl::setMachineConfig(HardwareConfig* machineConfig_)
 {
 	assert(!getMachineConfig());
 	machineConfig = machineConfig_;
+}
+
+bool MSXMotherBoardImpl::isTurboR() const
+{
+	const HardwareConfig* config = getMachineConfig();
+	assert(config);
+	return config->getConfig().getChild("devices").findChild("S1990");
 }
 
 void MSXMotherBoardImpl::loadMachine(const string& machine)
@@ -1360,6 +1368,10 @@ const HardwareConfig* MSXMotherBoard::getMachineConfig() const
 void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig)
 {
 	pimple->setMachineConfig(machineConfig);
+}
+bool MSXMotherBoard::isTurboR() const
+{
+	return pimple->isTurboR();
 }
 void MSXMotherBoard::loadMachine(const string& machine)
 {

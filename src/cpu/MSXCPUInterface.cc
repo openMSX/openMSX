@@ -7,9 +7,7 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "MSXMotherBoard.hh"
-#include "HardwareConfig.hh"
 #include "MSXCPU.hh"
-#include "XMLElement.hh"
 #include "VDPIODelay.hh"
 #include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
@@ -177,9 +175,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 	msxcpu.setInterface(this);
 
-	const HardwareConfig* config = motherBoard.getMachineConfig();
-	assert(config);
-	if (config->getConfig().getChild("devices").findChild("S1990")) {
+	if (motherBoard.isTurboR()) {
 		// TODO also MSX2+ needs (slightly different) VDPIODelay
 		delayDevice = DeviceFactory::createVDPIODelay(motherBoard);
 		for (int port = 0x98; port <= 0x9B; ++port) {

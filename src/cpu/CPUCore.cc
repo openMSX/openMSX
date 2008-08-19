@@ -68,6 +68,7 @@ template <class T> CPUCore<T>::CPUCore(
 	, IRQStatus(0)
 	, nmiEdge(false)
 	, exitLoop(false)
+	, out_c_x(motherboard.isTurboR() ? 255 : 0)
 {
 	if (freqLocked->getValue()) {
 		// locked
@@ -1957,6 +1958,11 @@ template <class T> template<CPU::Reg8 REG> int CPUCore<T>::out_c_R() {
 	WRITE_PORT(R.getBC(), R.get8<REG>(), T::CC_OUT_C_R_1);
 	return T::CC_OUT_C_R;
 }
+template <class T> int CPUCore<T>::out_c_0() {
+	// TODO not on R800
+	WRITE_PORT(R.getBC(), out_c_x, T::CC_OUT_C_R_1);
+	return T::CC_OUT_C_R;
+}
 
 // OUT (n),a
 template <class T> int CPUCore<T>::out_byte_a() {
@@ -2750,7 +2756,7 @@ template <class T> int CPUCore<T>::ed() {
 		case 0x59: return out_c_R<E>();
 		case 0x61: return out_c_R<H>();
 		case 0x69: return out_c_R<L>();
-		case 0x71: return out_c_R<DUMMY>();
+		case 0x71: return out_c_0();
 		case 0x79: return out_c_R<A>();
 
 		case 0x42: return sbc_hl_SS<BC>();

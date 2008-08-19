@@ -124,6 +124,9 @@ private:
 
 	volatile bool exitLoop;
 
+	/** value for 'out (c),f' instruction. */
+	const byte out_c_x;
+
 
 	inline void cpuTracePre();
 	inline void cpuTracePost();
@@ -369,6 +372,7 @@ private:
 	template <CPU::Reg8 REG> inline int in_R_c();
 	inline int in_a_byte();
 	template <CPU::Reg8 REG> inline int out_c_R();
+	inline int out_c_0();
 	inline int out_byte_a();
 
 	inline int BLOCK_CP(int increase, bool repeat);

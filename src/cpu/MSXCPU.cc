@@ -50,8 +50,10 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	                              Setting::DONT_SAVE))
 	, z80 (new CPUCore<Z80TYPE> (motherboard, "z80",  *traceSetting,
 	                             EmuTime::zero))
-	, r800(new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
-	                             EmuTime::zero))
+	, r800(motherboard.isTurboR()
+	       ? new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
+	                               EmuTime::zero)
+	       : NULL)
 	, reference(EmuTime::zero)
 	, timeInfo(new TimeInfoTopic(
 		motherboard.getMachineInfoCommand(), *this))
@@ -75,13 +77,17 @@ MSXCPU::~MSXCPU()
 void MSXCPU::setInterface(MSXCPUInterface* interface)
 {
 	z80 ->setInterface(interface);
-	r800->setInterface(interface);
+	if (r800.get()) {
+		r800->setInterface(interface);
+	}
 }
 
 void MSXCPU::doReset(const EmuTime& time)
 {
 	z80 ->doReset(time);
-	r800->doReset(time);
+	if (r800.get()) {
+		r800->doReset(time);
+	}
 
 	reference = time;
 }
@@ -96,6 +102,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			break;
 		case CPU_R800:
 			PRT_DEBUG("Active CPU: R800");
+			assert(r800.get());
 			tmp = r800.get();
 			break;
 		default:
@@ -110,6 +117,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 
 void MSXCPU::setDRAMmode(bool dram)
 {
+	assert(r800.get());
 	r800->setDRAMmode(dram);
 }
 
@@ -148,7 +156,9 @@ void MSXCPU::setNextSyncPoint(const EmuTime& time)
 void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 {
 	invalidateMemCache(page * 0x4000, 0x4000);
-	r800->updateVisiblePage(page, primarySlot, secondarySlot);
+	if (r800.get()) {
+		r800->updateVisiblePage(page, primarySlot, secondarySlot);
+	}
 }
 
 void MSXCPU::invalidateMemCache(word start, unsigned size)
@@ -159,22 +169,30 @@ void MSXCPU::invalidateMemCache(word start, unsigned size)
 void MSXCPU::raiseIRQ()
 {
 	z80 ->raiseIRQ();
-	r800->raiseIRQ();
+	if (r800.get()) {
+		r800->raiseIRQ();
+	}
 }
 void MSXCPU::lowerIRQ()
 {
 	z80 ->lowerIRQ();
-	r800->lowerIRQ();
+	if (r800.get()) {
+		r800->lowerIRQ();
+	}
 }
 void MSXCPU::raiseNMI()
 {
 	z80 ->raiseNMI();
-	r800->raiseNMI();
+	if (r800.get()) {
+		r800->raiseNMI();
+	}
 }
 void MSXCPU::lowerNMI()
 {
 	z80 ->lowerNMI();
-	r800->lowerNMI();
+	if (r800.get()) {
+		r800->lowerNMI();
+	}
 }
 
 bool MSXCPU::isR800Active()
@@ -378,7 +396,9 @@ template<typename Archive>
 void MSXCPU::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("z80",  *z80);
-	ar.serialize("r800", *r800);
+	if (r800.get()) {
+		ar.serialize("r800", *r800);
+	}
 	ar.serializePointerID("activeCPU", activeCPU);
 	ar.serializePointerID("newCPU",    newCPU);
 	ar.serialize("resetTime", reference);

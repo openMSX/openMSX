@@ -96,6 +96,8 @@ public:
 
 	const HardwareConfig* getMachineConfig() const;
 	void setMachineConfig(HardwareConfig* machineConfig);
+	bool isTurboR() const;
+
 	void loadMachine(const std::string& machine);
 
 	typedef std::vector<HardwareConfig*> Extensions;
