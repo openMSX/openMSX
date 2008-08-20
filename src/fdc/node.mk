@@ -25,6 +25,7 @@ SRC_HDR:= \
 	EmptyDiskPatch \
 	RamDSKDiskImage \
 	MSXtar \
+	DiskImageUtils \
 	DiskContainer \
 	SectorAccessibleDisk \
 	DiskManipulator \

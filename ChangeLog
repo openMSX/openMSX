@@ -1,5 +1,19 @@
 $Id$
 
+2008-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split MSXtar class into two parts:
+	    - DiskImageUtils: this part knows about partitions and format
+	    - MSXtar:         this part knows about files and directories
+	  Rational: before this change, the interface of the MSXtar class was
+	  a bit confusing, especially the usePartition() method. Depending on
+	  which MSXtar functionality you plan to use, you either must call it,
+	  were not allowed to call it or must call it but ignore exceptions
+	  thrown by it.
+	  To simplify this, I split the functionality of the MSXtar class in
+	  two parts. Now MSXtar doesn't know anything anymore about partitions
+	  and formatting (of course it's still possible to work on partitions,
+	  but that's now abstracted via the new DiskPartition class).
+
 2008-08-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed some UMRs triggered during savestate:
 	  Before savestates this was not a problem because those value _are_

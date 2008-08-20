@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RamDSKDiskImage.hh"
-#include "MSXtar.hh"
+#include "DiskImageUtils.hh"
 #include <string.h>
 
 namespace openmsx {
@@ -12,8 +12,7 @@ RamDSKDiskImage::RamDSKDiskImage(unsigned size)
 	setNbSectors(size / SECTOR_SIZE);
 	diskdata = new byte[size];
 
-	MSXtar workhorse(*this);
-	workhorse.format();
+	DiskImageUtils::format(*this);
 }
 
 RamDSKDiskImage::~RamDSKDiskImage()

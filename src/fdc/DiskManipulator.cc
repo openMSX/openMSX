@@ -4,6 +4,7 @@
 #include "DiskContainer.hh"
 #include "DiskChanger.hh"
 #include "MSXtar.hh"
+#include "DiskImageUtils.hh"
 #include "DSKDiskImage.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
@@ -22,6 +23,7 @@
 using std::set;
 using std::string;
 using std::vector;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -53,7 +55,7 @@ void DiskManipulator::registerDrive(DiskContainer& drive, MSXMotherBoard* board)
 	string prefix = board ? (board->getMachineID() + "::") : "";
 	driveSettings.driveName = prefix + drive.getContainerName();
 	driveSettings.partition = 0;
-	for (int i = 0; i < 31; ++i) {
+	for (int i = 0; i < 32; ++i) {
 		driveSettings.workingDir[i] = "/";
 	}
 	diskImages.push_back(driveSettings);
@@ -107,45 +109,32 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		}
 	}
 
-	it->partition = 0;
-	if (pos != string::npos) {
-		string num = diskname.substr(pos);
-		int i = strtol(num.c_str(), NULL, 10);
-		// check number in range
-		if (i <= 0 || i > 31) {
-			throw CommandException(
-				"Invalid partition specified (must be 1-31).");
-		}
-		// check whether drive really have this partition
-		bool hasPartition = false;
-		try {
-			SectorAccessibleDisk* sectorDisk =
-				it->drive->getSectorAccessibleDisk();
-			MSXtar workhorse(*sectorDisk);
-			if (workhorse.hasPartition(i - 1)) {
-				hasPartition = true;
-			}
-		} catch (MSXException& e) {
-			// ignore
-		}
-		if (!hasPartition) {
-			throw CommandException("Drive " + tmp +
-			                       " does not have a partition " + num);
-		}
-		// ok
-		it->partition = i - 1;
-	}
-	return *it;
-}
-
-SectorAccessibleDisk& DiskManipulator::getDisk(const DriveSettings& driveData)
-{
-	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
+	SectorAccessibleDisk* disk = it->drive->getSectorAccessibleDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type.");
 	}
-	return *disk;
+
+	if (pos == string::npos) {
+		// whole disk
+		it->partition = 0;
+	} else {
+		string num = diskname.substr(pos);
+		SectorAccessibleDisk* disk =
+			it->drive->getSectorAccessibleDisk();
+		int partition = strtol(num.c_str(), NULL, 10);
+		DiskImageUtils::checkValidPartition(*disk, partition);
+		it->partition = partition;
+	}
+	return *it;
+}
+
+auto_ptr<SectorAccessibleDisk> DiskManipulator::getPartition(
+	const DriveSettings& driveData)
+{
+	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
+	assert(disk);
+	return DiskImageUtils::getPartition(*disk, driveData.partition);
 }
 
 
@@ -314,19 +303,16 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 			names.insert(name2);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
-			SectorAccessibleDisk* sectorDisk =
-				it->drive->getSectorAccessibleDisk();
-			if (sectorDisk != NULL) {
-				try {
-					MSXtar workhorse(*sectorDisk);
-					for (int i = 0; i < 31; ++i) {
-						if (workhorse.hasPartition(i)) {
-							names.insert(name1 + StringOp::toString(i + 1));
-							names.insert(name2 + StringOp::toString(i + 1));
-						}
+			if (SectorAccessibleDisk* disk =
+				it->drive->getSectorAccessibleDisk()) {
+				for (int i = 1; i <= 31; ++i) {
+					try {
+						DiskImageUtils::checkValidPartition(*disk, i);
+						names.insert(name1 + StringOp::toString(i));
+						names.insert(name2 + StringOp::toString(i));
+					} catch (MSXException& e) {
+						// skip invalid partition
 					}
-				} catch (MSXException& e) {
-					// ignore
 				}
 			}
 		}
@@ -351,12 +337,12 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 void DiskManipulator::savedsk(const DriveSettings& driveData,
                               const string& filename)
 {
-	SectorAccessibleDisk& disk = getDisk(driveData);
-	unsigned nrsectors = disk.getNbSectors();
+	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	unsigned nrsectors = partition->getNbSectors();
 	byte buf[SectorBasedDisk::SECTOR_SIZE];
 	File file(filename, File::CREATE);
 	for (unsigned i = 0; i < nrsectors; ++i) {
-		disk.readSector(i, buf);
+		partition->readSector(i, buf);
 		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
 	}
 }
@@ -366,6 +352,10 @@ void DiskManipulator::create(const vector<string>& tokens)
 	vector<unsigned> sizes;
 	unsigned totalSectors = 0;
 	for (unsigned i = 3; i < tokens.size(); ++i) {
+		if (sizes.size() >= 31) {
+			throw CommandException(
+				"Maximum number of partitions is 31.");
+		}
 		char* q;
 		int sectors = strtol(tokens[i].c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes
@@ -414,47 +404,42 @@ void DiskManipulator::create(const vector<string>& tokens)
 	}
 
 	// create file with correct size
+	Filename filename(tokens[2]);
 	try {
-		File file(tokens[2], File::CREATE);
+		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
 	} catch (FileException& e) {
 		throw CommandException("Couldn't create image: " + e.getMessage());
 	}
 
 	// initialize (create partition tables and format partitions)
-	Filename filename(tokens[2]);
 	DSKDiskImage image(filename);
-	MSXtar workhorse(image);
-	workhorse.createDiskFile(sizes);
+	if (sizes.size() > 1) {
+		DiskImageUtils::partition(image, sizes);
+	} else {
+		// only one partition specified, don't create partition table
+		DiskImageUtils::format(image);
+	}
 }
 
 void DiskManipulator::format(DriveSettings& driveData)
 {
-	MSXtar workhorse(getDisk(driveData));
-	try {
-		if (workhorse.hasPartitionTable()) {
-			assert(workhorse.hasPartition(driveData.partition));
-			workhorse.usePartition(driveData.partition);
-		}
-	} catch (MSXException& e) {
-		// ignore, because only the partition selection part is
-		// interesting for the format command, so ignore other
-		// errors (see MSXtar code)
-	}
-	workhorse.format();
+	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	DiskImageUtils::format(*partition);
 	driveData.workingDir[driveData.partition] = "/";
 }
 
-void DiskManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
+auto_ptr<MSXtar> DiskManipulator::getMSXtar(
+	SectorAccessibleDisk& disk, DriveSettings& driveData)
 {
-	if (!workhorse.hasPartitionTable()) {
-		workhorse.usePartition(0); //read the bootsector
-	} else {
-		assert(workhorse.hasPartition(driveData.partition));
-		workhorse.usePartition(driveData.partition);
+	if (DiskImageUtils::hasPartitionTable(disk)) {
+		throw CommandException(
+			"Please select partition number.");
 	}
+
+	auto_ptr<MSXtar> result(new MSXtar(disk));
 	try {
-		workhorse.chdir(driveData.workingDir[driveData.partition]);
+		result->chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException& e) {
 		driveData.workingDir[driveData.partition] = "/";
 		throw CommandException(
@@ -462,22 +447,23 @@ void DiskManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 		    " doesn't exist anymore. Went back to root "
 		    "directory. Command aborted, please retry.");
 	}
+	return result;
 }
 
 void DiskManipulator::dir(DriveSettings& driveData, string& result)
 {
-	MSXtar workhorse(getDisk(driveData));
-	restoreCWD(workhorse, driveData);
-	result += workhorse.dir();
+	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	result += workhorse->dir();
 }
 
 void DiskManipulator::chdir(DriveSettings& driveData,
                             const string& filename, string& result)
 {
-	MSXtar workhorse(getDisk(driveData));
-	restoreCWD(workhorse, driveData);
+	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
-		workhorse.chdir(filename);
+		workhorse->chdir(filename);
 	} catch (MSXException& e) {
 		throw CommandException("chdir failed: " + e.getMessage());
 	}
@@ -494,10 +480,10 @@ void DiskManipulator::chdir(DriveSettings& driveData,
 
 void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 {
-	MSXtar workhorse(getDisk(driveData));
-	restoreCWD(workhorse, driveData);
+	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
-		workhorse.mkdir(filename);
+		workhorse->mkdir(filename);
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
 	}
@@ -506,10 +492,10 @@ void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 string DiskManipulator::import(DriveSettings& driveData,
                              const vector<string>& lists)
 {
-	string messages;
-	MSXtar workhorse(getDisk(driveData));
-	restoreCWD(workhorse, driveData);
+	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 
+	string messages;
 	for (vector<string>::const_iterator it = lists.begin();
 	     it != lists.end(); ++it) {
 		vector<string> list;
@@ -519,9 +505,9 @@ string DiskManipulator::import(DriveSettings& driveData,
 		     it != list.end(); ++it) {
 			try {
 				if (FileOperations::isDirectory(*it)) {
-					messages += workhorse.addDir(*it);
+					messages += workhorse->addDir(*it);
 				} else if (FileOperations::isRegularFile(*it)) {
-					messages += workhorse.addFile(*it);
+					messages += workhorse->addFile(*it);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
 					messages += "Ignoring " + *it + '\n';
@@ -537,16 +523,16 @@ string DiskManipulator::import(DriveSettings& driveData,
 void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
                             const vector<string>& lists)
 {
+	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
-		MSXtar workhorse(getDisk(driveData));
-		restoreCWD(workhorse, driveData);
 		if (lists.empty()) {
 			// export all
-			workhorse.getDir(dirname);
+			workhorse->getDir(dirname);
 		} else {
 			for (vector<string>::const_iterator it = lists.begin();
 			     it != lists.end(); ++it) {
-				workhorse.getItemFromDir(dirname, *it);
+				workhorse->getItemFromDir(dirname, *it);
 			}
 		}
 	} catch (MSXException& e) {

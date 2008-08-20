@@ -24,20 +24,13 @@ public:
 	explicit MSXtar(SectorAccessibleDisk& disk);
 	~MSXtar();
 
-	void format();
-	bool hasPartitionTable();
-	bool hasPartition(unsigned partition);
-	bool usePartition(unsigned partition);
-
-	void createDiskFile(std::vector<unsigned> sizes);
 	void chdir(const std::string& newRootDir);
 	void mkdir(const std::string& newRootDir);
 	std::string dir();
-
-	// temporary way to test import MSXtar functionality
 	std::string addFile(const std::string& Filename);
 	std::string addDir(const std::string& rootDirName);
-	std::string getItemFromDir(const std::string& rootDirName, const std::string& itemName);
+	std::string getItemFromDir(const std::string& rootDirName,
+	                           const std::string& itemName);
 	void getDir(const std::string& rootDirName);
 
 private:
@@ -69,35 +62,18 @@ private:
 		byte size[4];
 	};
 
-	//Modified struct taken over from Linux' fdisk.h
-	struct Partition {
-		byte boot_ind;         // 0x80 - active
-		byte head;             // starting head
-		byte sector;           // starting sector
-		byte cyl;              // starting cylinder
-		byte sys_ind;          // What partition type
-		byte end_head;         // end head
-		byte end_sector;       // end sector
-		byte end_cyl;          // end cylinder
-		byte start4[4];        // starting sector counting from 0
-		byte size4[4];         // nr of sectors in partition
-	};
-
 	struct DirEntry {
 		unsigned sector;
 		unsigned index;
 	};
 
 
-	void writeCachedFAT();
 	void writeLogicalSector(unsigned sector, const byte* buf);
 	void readLogicalSector (unsigned sector,       byte* buf);
 
 	unsigned clusterToSector(unsigned cluster);
-	void setBootSector(byte* buf, unsigned nbsectors);
 	unsigned sectorToCluster(unsigned sector);
 	void parseBootSector(const byte* buf);
-	void parseBootSectorFAT(const byte* buf);
 	unsigned readFAT(unsigned clnr) const;
 	void writeFAT(unsigned clnr, unsigned val);
 	unsigned findFirstFreeCluster();
@@ -120,15 +96,13 @@ private:
 	void changeTime(std::string resultFile, MSXDirEntry& direntry);
 	void fileExtract(std::string resultFile, MSXDirEntry& direntry);
 	void recurseDirExtract(const std::string& dirName, unsigned sector);
-	std::string singleItemExtract(const std::string& dirName, const std::string& itemName, unsigned sector);
+	std::string singleItemExtract(const std::string& dirName,
+	                              const std::string& itemName, unsigned sector);
 	void chroot(const std::string& newRootDir, bool createDir);
 
 
 	SectorAccessibleDisk& disk;
 	std::vector<byte> fatBuffer;
-
-	unsigned partitionOffset;
-	unsigned partitionNbSectors;
 
 	unsigned maxCluster;
 	unsigned sectorsPerCluster;

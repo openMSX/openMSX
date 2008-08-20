@@ -30,8 +30,8 @@ private:
 	{
 		DiskContainer* drive;
 		std::string driveName; // includes machine prefix
-		std::string workingDir[31];
-		int partition;
+		std::string workingDir[32];
+		int partition; // 0 = whole disk / 1-31 = partition number
 	};
 	typedef std::vector<DriveSettings> DiskImages;
 	DiskImages diskImages;
@@ -46,8 +46,10 @@ private:
 	DiskImages::iterator findDriveSettings(DiskContainer& drive);
 	DiskImages::iterator findDriveSettings(const std::string& name);
 	DriveSettings& getDriveSettings(const std::string& diskname);
-	SectorAccessibleDisk& getDisk(const DriveSettings& driveData);
-	void restoreCWD(MSXtar& workhorse, DriveSettings& driveData);
+	std::auto_ptr<SectorAccessibleDisk> getPartition(
+		const DriveSettings& driveData);
+	std::auto_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
+	                                DriveSettings& driveData);
 
 	void create(const std::vector<std::string>& tokens);
 	void savedsk(const DriveSettings& driveData,

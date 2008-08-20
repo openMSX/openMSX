@@ -6,8 +6,6 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "BootBlocks.hh"
-#include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <algorithm>
@@ -119,30 +117,9 @@ void MSXtar::parseBootSector(const byte* buf)
 	maxCluster = sectorToCluster(nbSectors);
 }
 
-void MSXtar::parseBootSectorFAT(const byte* buf)
-{
-	// empty FAT buffer before filling it again (or for the first time)
-	writeCachedFAT();
-
-	try {
-		parseBootSector(buf);
-	} catch (MSXException& e) {
-		throw MSXException("Bad disk image: " + e.getMessage());
-	}
-
-	// cache complete FAT
-	assert(fatBuffer.empty()); // cache must be empty at this point
-	fatCacheDirty = false;
-	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
-	for (unsigned i = 0; i < sectorsPerFat; ++i) {
-		disk.readSector(i + 1 + partitionOffset,
-		                &fatBuffer[SECTOR_SIZE * i]);
-	}
-}
-
 void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 {
-	assert(sector < partitionNbSectors);
+	assert(sector < disk.getNbSectors());
 	unsigned fatSector = sector - 1;
 	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT
@@ -150,199 +127,55 @@ void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 		memcpy(&fatBuffer[SECTOR_SIZE * fatSector], buf, SECTOR_SIZE);
 		fatCacheDirty = true;
 	} else {
-		disk.writeSector(sector + partitionOffset, buf);
+		disk.writeSector(sector, buf);
 	}
 }
 
 void MSXtar::readLogicalSector(unsigned sector, byte* buf)
 {
-	assert(sector < partitionNbSectors);
+	assert(sector < disk.getNbSectors());
 	unsigned fatSector = sector - 1;
 	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> read from cache
 		memcpy(buf, &fatBuffer[SECTOR_SIZE * fatSector], SECTOR_SIZE);
 	} else {
-		disk.readSector(sector + partitionOffset, buf);
+		disk.readSector(sector, buf);
 	}
 }
 
 MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	: disk(sectordisk)
 {
-	static bool init = false;
-	if (!init) {
-		init = true;
-		srand(time(0));
+	if (disk.getNbSectors() == 0) {
+		throw MSXException("No disk inserted.");
+	}
+	try {
+		byte bootSector[SECTOR_SIZE];
+		disk.readSector(0, bootSector);
+		parseBootSector(bootSector);
+	} catch (MSXException& e) {
+		throw MSXException("Bad disk image: " + e.getMessage());
 	}
 
+	// cache complete FAT
 	fatCacheDirty = false;
-	partitionOffset = 0;
-	sectorsPerFat = 0;
-	partitionNbSectors = disk.getNbSectors();
-	if (partitionNbSectors == 0) {
-		throw MSXException("No disk inserted.");
+	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
+	for (unsigned i = 0; i < sectorsPerFat; ++i) {
+		disk.readSector(i + 1, &fatBuffer[SECTOR_SIZE * i]);
 	}
 }
 
 MSXtar::~MSXtar()
 {
-	try {
-		writeCachedFAT();
-	} catch (MSXException& e) {
-		// nothing
-	}
-}
-
-// write cached FAT back to disk image
-void MSXtar::writeCachedFAT()
-{
 	if (fatCacheDirty) {
 		for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
-			disk.writeSector(i + 1 + partitionOffset,
-			                 &fatBuffer[SECTOR_SIZE * i]);
+			try {
+				disk.writeSector(i + 1, &fatBuffer[SECTOR_SIZE * i]);
+			} catch (MSXException& e) {
+				// nothing
+			}
 		}
-		fatCacheDirty = false;
-	}
-	fatBuffer.clear();
-}
-
-// Create a correct bootsector depending on the required size of the filesystem
-void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
-{
-	// these are the same for most formats
-	byte nbReservedSectors = 1;
-	byte nbHiddenSectors = 1;
-
-	// all these are initialized below (in this order)
-	word nbSides;
-	byte nbFats;
-	byte nbSectorsPerFat;
-	byte nbSectorsPerCluster;
-	word nbDirEntry;
-	byte descriptor;
-
-	// now set correct info according to size of image (in sectors!)
-	// and using the same layout as used by Jon in IDEFDISK v 3.1
-	if (nbSectors > 32732) {
-		nbSides = 32;		// copied from a partition from an IDE HD
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 12;	// copied from a partition from an IDE HD
-		nbSectorsPerCluster = 16;
-		nbDirEntry = 256;
-		descriptor = 0xF0;
-		nbHiddenSectors = 16;	// override default from above
-	} else if (nbSectors > 16388) {
-		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
-		nbSectorsPerCluster = 8;
-		nbDirEntry = 256;
-		descriptor = 0XF0;
-	} else if (nbSectors > 8212) {
-		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
-		nbSectorsPerCluster = 4;
-		nbDirEntry = 256;
-		descriptor = 0xF0;
-	} else if (nbSectors > 4126) {
-		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
-		nbSectorsPerCluster = 2;
-		nbDirEntry = 256;
-		descriptor = 0xF0;
-	} else if (nbSectors > 2880) {
-		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
-		nbSectorsPerCluster = 1;
-		nbDirEntry = 224;
-		descriptor = 0xF0;
-	} else if (nbSectors > 1440) {
-		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
-		nbSectorsPerCluster = 2;
-		nbDirEntry = 112;
-		descriptor = 0xF0;
-	} else if (nbSectors > 720) {
-		// normal double sided disk
-		nbSides = 2;
-		nbFats = 2;
-		nbSectorsPerFat = 3;
-		nbSectorsPerCluster = 2;
-		nbDirEntry = 112;
-		descriptor = 0xF9;
-		nbSectors = 1440;	// force nbSectors to 1440, why?
-	} else {
-		// normal single sided disk
-		nbSides = 1;
-		nbFats = 2;
-		nbSectorsPerFat = 2;
-		nbSectorsPerCluster = 2;
-		nbDirEntry = 112;
-		descriptor = 0xF8;
-		nbSectors = 720;	// force nbSectors to 720, why?
-	}
-	MSXBootSector* boot = reinterpret_cast<MSXBootSector*>(buf);
-
-	setsh(boot->nrsectors, nbSectors);
-	setsh(boot->nrsides, nbSides);
-	boot->spcluster[0] = nbSectorsPerCluster;
-	boot->nrfats[0] = nbFats;
-	setsh(boot->sectorsfat, nbSectorsPerFat);
-	setsh(boot->direntries, nbDirEntry);
-	boot->descriptor[0] = descriptor;
-	setsh(boot->reservedsectors, nbReservedSectors);
-	setsh(boot->hiddensectors, nbHiddenSectors);
-
-	// set random volume id
-	for (int i = 0x27; i < 0x2B; ++i) {
-		buf[i] = rand() & 0x7F;
-	}
-}
-
-// Format a diskimage with correct bootsector, FAT etc.
-void MSXtar::format()
-{
-	// first create a bootsector and start from the default bootblock
-	byte sectorbuf[512];
-	const byte* defaultBootBlock = BootBlocks::dos2BootBlock;
-	memcpy(sectorbuf, defaultBootBlock, SECTOR_SIZE);
-	setBootSector(sectorbuf, partitionNbSectors);
-	try {
-		parseBootSector(sectorbuf); //set object variables to correct values
-	} catch (MSXException& e) {
-		throw MSXException("Internal error, invalid defaultBootBlock: " +
-		                   e.getMessage());
-	}
-	writeLogicalSector(0, sectorbuf);
-
-	MSXBootSector* boot = reinterpret_cast<MSXBootSector*>(sectorbuf);
-	byte descriptor = boot->descriptor[0];
-
-	// Assign default empty values to disk
-	memset(sectorbuf, 0x00, SECTOR_SIZE);
-	for (unsigned i = 2; i <= rootDirLast; ++i) {
-		writeLogicalSector(i, sectorbuf);
-	}
-	// for some reason the first 3 bytes are used to indicate the end of a
-	// cluster, making the first available cluster nr 2 some sources say
-	// that this indicates the disk format and FAT[0] should 0xF7 for
-	// single sided disk, and 0xF9 for double sided disks
-	// TODO: check this :-)
-	// for now I simply repeat the media descriptor here
-	sectorbuf[0] = descriptor;
-	sectorbuf[1] = 0xFF;
-	sectorbuf[2] = 0xFF;
-
-	writeLogicalSector(1, sectorbuf);
-
-	memset(sectorbuf, 0xE5, SECTOR_SIZE);
-	for (unsigned i = 1 + rootDirLast; i < partitionNbSectors; ++i) {
-		writeLogicalSector(i, sectorbuf);
 	}
 }
 
@@ -969,7 +802,8 @@ void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 }
 
 //extracts a single item (file or directory) from the msximage to the host OS
-string MSXtar::singleItemExtract(const string& dirName, const string& itemName, unsigned sector)
+string MSXtar::singleItemExtract(const string& dirName, const string& itemName,
+                                 unsigned sector)
 {
 	// first find out if the filename exists in current dir
 	byte dummy[SECTOR_SIZE];
@@ -1031,133 +865,11 @@ void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 	}
 }
 
-static const char* const PARTAB_HEADER= "\353\376\220MSX_IDE ";
-
-/** returns: true if succesfull, false if partition isn't valid
-  */
-static bool isPartitionTableSector(byte* buf)
-{
-	return memcmp(buf, PARTAB_HEADER, 11) == 0;
-}
-
-bool MSXtar::hasPartitionTable()
-{
-	byte buf[SECTOR_SIZE];
-	disk.readSector(0, buf);
-	return isPartitionTableSector(buf);
-}
-
-bool MSXtar::hasPartition(unsigned partition)
-{
-	byte buf[SECTOR_SIZE];
-	disk.readSector(0, buf);
-	if (!isPartitionTableSector(buf)) {
-		return false;
-	}
-	Partition* p = reinterpret_cast<Partition*>(buf + 14 + (30 - partition) * 16);
-	if (rdlg(p->start4) == 0) {
-		return false;
-	}
-	return true;
-}
-
-bool MSXtar::usePartition(unsigned partition)
-{
-	// TODO: separate partition selection from boot sector parsing
-	// (format only needs the former, and the latter can throw exceptions)
-	byte partitionTable[SECTOR_SIZE];
-	partitionOffset = 0;
-	partitionNbSectors = disk.getNbSectors();
-	disk.readSector(0, partitionTable);
-	bool hasPartitionTable = isPartitionTableSector(partitionTable);
-	if (hasPartitionTable) {
-		Partition* p = reinterpret_cast<Partition*>
-			(partitionTable + 14 + (30 - partition) * 16);
-		if (rdlg(p->start4) != 0) {
-			partitionOffset = rdlg(p->start4);
-			partitionNbSectors = rdlg(p->size4);
-			if (p->sys_ind != 0x01) {
-				throw MSXException("Not a FAT12 partition");
-			}
-		} else {
-			hasPartitionTable = false;
-		}
-	}
-
-	byte bootSector[SECTOR_SIZE];
-	disk.readSector(partitionOffset, bootSector);
-	parseBootSectorFAT(bootSector);
-	return hasPartitionTable;
-}
-
-static void logicalToCHS(unsigned logical, unsigned& cylinder,
-                         unsigned& head, unsigned& sector)
-{
-	// This is made to fit the openMSX harddisk configuration:
-	//  32 sectors/track   16 heads
-	unsigned tmp = logical + 1;
-	sector = tmp % 32;
-	if (sector == 0) sector = 32;
-	tmp = (tmp - sector) / 32;
-	head = tmp % 16;
-	cylinder = tmp / 16;
-}
-
-void MSXtar::createDiskFile(std::vector<unsigned> sizes)
-{
-	byte buf[SECTOR_SIZE];
-	assert(fatBuffer.empty()); //when creating disks we shouldn't have any fatBuffer
-
-	// create the partition table if needed
-	if (sizes.size() > 1) {
-		memset(buf, 0, SECTOR_SIZE);
-		memcpy(buf, PARTAB_HEADER, 11);
-		buf[SECTOR_SIZE - 2] = 0x55;
-		buf[SECTOR_SIZE - 1] = 0xAA;
-
-		partitionOffset = 1;
-		for (unsigned i = 0; (i < sizes.size()) && (i < 30); ++i) {
-			Partition* p = reinterpret_cast<Partition*>
-				(buf + (14 + (30 - i) * 16));
-			unsigned startCylinder, startHead, startSector;
-			unsigned endCylinder, endHead, endSector;
-			logicalToCHS(partitionOffset,
-			             startCylinder, startHead, startSector);
-			logicalToCHS(partitionOffset + sizes[i] - 1,
-			             endCylinder, endHead, endSector);
-			p->boot_ind = (i == 0) ? 0x80 : 0x00; // bootflag
-			p->head = startHead;
-			p->sector = startSector;
-			p->cyl = startCylinder;
-			p->sys_ind = 0x01; // FAT12
-			p->end_head = endHead;
-			p->end_sector = endSector;
-			p->end_cyl = endCylinder;
-			setlg(p->start4, partitionOffset);
-			setlg(p->size4, sizes[i]);
-			partitionNbSectors = sizes[i];
-			format();
-			partitionOffset += partitionNbSectors;
-		}
-		partitionOffset = 0;
-		partitionNbSectors = disk.getNbSectors();
-		writeLogicalSector(0, buf);
-	} else {
-		assert(partitionOffset == 0);
-		setBootSector(buf, sizes[0]);
-		writeLogicalSector(0, buf); //allow usePartition to read the bootsector!
-		usePartition(0);
-		format();
-	}
-}
-
-// temporary way to test import MSXtar functionality
 string MSXtar::addDir(const string& rootDirName)
 {
 	return recurseDirFill(rootDirName, chrootSector);
 }
 
-// add file into fake dsk
 string MSXtar::addFile(const string& filename)
 {
 	return addFileToDSK(filename, chrootSector);
@@ -1168,7 +880,6 @@ string MSXtar::getItemFromDir(const string& rootDirName, const string& itemName)
 	return singleItemExtract(rootDirName, itemName, chrootSector);
 }
 
-//temporary way to test export MSXtar functionality
 void MSXtar::getDir(const string& rootDirName)
 {
 	recurseDirExtract(rootDirName, chrootSector);
