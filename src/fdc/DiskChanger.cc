@@ -307,14 +307,16 @@ void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 	ar.serializeNoID("patches", patches);
 
 	if (ar.isLoader()) {
-		string name = diskname.getAfterLoadState();
+		diskname.updateAfterLoadState(controller);
+		string name = diskname.getResolved(); // TODO use Filename
 		if (!name.empty()) {
 			vector<TclObject> objs;
 			objs.push_back(TclObject("dummy"));
 			objs.push_back(TclObject(name));
-			for (vector<Filename>::const_iterator it = patches.begin();
+			for (vector<Filename>::iterator it = patches.begin();
 			     it != patches.end(); ++it) {
-				objs.push_back(TclObject(it->getAfterLoadState()));
+				it->updateAfterLoadState(controller);
+				objs.push_back(TclObject(it->getResolved())); // TODO
 			}
 
 			vector<TclObject*> args;

@@ -118,9 +118,8 @@ void HD::openImage()
 	}
 }
 
-void HD::switchImage(const std::string& name_)
+void HD::switchImage(const Filename& name)
 {
-	Filename name(name_, motherBoard.getCommandController());
 	file.reset(new File(name));
 	filename = name;
 	filesize = file->getSize();
@@ -163,7 +162,8 @@ void HD::serialize(Archive& ar, unsigned /*version*/)
 		if (tmp.empty()) {
 			// lazily open file specified in config
 		} else {
-			switchImage(tmp.getAfterLoadState());
+			tmp.updateAfterLoadState(motherBoard.getCommandController());
+			switchImage(tmp);
 		}
 	}
 }

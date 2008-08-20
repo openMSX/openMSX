@@ -24,7 +24,7 @@ public:
 
 	const std::string& getName() const;
 	const Filename& getImageName() const;
-	void switchImage(const std::string& filename);
+	void switchImage(const Filename& filename);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

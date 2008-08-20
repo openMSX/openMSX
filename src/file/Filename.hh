@@ -35,7 +35,7 @@ public:
 	  * snapshot is loaded on a different host machine), we fallback to
 	  * the original filename.
 	  */
-	const std::string& getAfterLoadState() const;
+	void updateAfterLoadState(CommandController& controller);
 
 	/** Convenience method to test for empty filename.
 	 * In any case getOriginal().empty() and getResolved().empty() return

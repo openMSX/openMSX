@@ -10,6 +10,12 @@ using std::string;
 
 namespace openmsx {
 
+static string resolveUser(std::string& original, CommandController& controller)
+{
+	return FileOperations::getAbsolutePath(
+		UserFileContext().resolve(controller, original));
+}
+
 // dummy constructor, to be able to serialize vector<Filename>
 Filename::Filename()
 {
@@ -23,8 +29,7 @@ Filename::Filename(const string& filename)
 
 Filename::Filename(const string& filename, CommandController& controller)
 	: originalFilename(filename)
-	, resolvedFilename(FileOperations::getAbsolutePath(
-		UserFileContext().resolve(controller, originalFilename)))
+	, resolvedFilename(resolveUser(originalFilename, controller))
 {
 }
 
@@ -54,12 +59,15 @@ const string& Filename::getResolved() const
 	return resolvedFilename;
 }
 
-const string& Filename::getAfterLoadState() const
+void Filename::updateAfterLoadState(CommandController& controller)
 {
-	if (FileOperations::exists(resolvedFilename)) {
-		return resolvedFilename;
-	} else {
-		return originalFilename;
+	if (empty()) return;
+	if (FileOperations::exists(resolvedFilename)) return;
+
+	try {
+		resolvedFilename = resolveUser(originalFilename, controller);
+	} catch (MSXException& e) {
+		// nothing
 	}
 }
 

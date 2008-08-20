@@ -856,8 +856,8 @@ void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("casImage", casImage);
 	if (ar.isLoader()) {
 		removeTape(getCurrentTime());
-		Filename filename(casImage.getAfterLoadState(), commandController);
-		insertTape(filename);
+		casImage.updateAfterLoadState(commandController);
+		insertTape(casImage);
 	}
 
 	// only for RECORD
