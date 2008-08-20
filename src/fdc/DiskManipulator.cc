@@ -432,8 +432,10 @@ void DiskManipulator::format(DriveSettings& driveData)
 {
 	MSXtar workhorse(getDisk(driveData));
 	try {
-		assert(workhorse.hasPartition(driveData.partition));
-		workhorse.usePartition(driveData.partition);
+		if (workhorse.hasPartitionTable()) {
+			assert(workhorse.hasPartition(driveData.partition));
+			workhorse.usePartition(driveData.partition);
+		}
 	} catch (MSXException& e) {
 		// ignore, because only the partition selection part is
 		// interesting for the format command, so ignore other
