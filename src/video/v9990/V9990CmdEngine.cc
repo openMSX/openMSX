@@ -633,6 +633,14 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time,
 	settings.getCmdTiming().attach(*this);
 
 	reset(time);
+
+	// avoid UMR on savestate
+	srcAddress = dstAddress = nbBytes = 0;
+	ASX = ADX = ANX = ANY = 0;
+	SX = SY = DX = DY = NX = NY = 0;
+	WM = fgCol = bgCol = 0;
+	ARG = LOG = 0;
+	data = bitsLeft = partial = 0;
 }
 
 template <template <class Mode> class Command>
