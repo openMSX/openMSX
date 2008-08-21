@@ -11,7 +11,7 @@
 namespace openmsx {
 namespace DiskImageUtils {
 
-static const unsigned SECTOR_SIZE = 512;
+static const unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
 
 struct MSXBootSector {
 	byte jumpcode[3];        // 0xE5 to bootprogram

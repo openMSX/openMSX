@@ -20,6 +20,7 @@
 #include "TclObject.hh"
 #include "EmuTime.hh"
 #include "checked_cast.hh"
+#include "sha1.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 
@@ -293,6 +294,20 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
+static string calcSha1(SectorAccessibleDisk* disk)
+{
+	if (!disk) {
+		return "";
+	}
+	SHA1 sha1;
+	unsigned nbSectors = disk->getNbSectors();
+	for (unsigned i = 0; i < nbSectors; ++i) {
+		byte buf[SectorAccessibleDisk::SECTOR_SIZE];
+		disk->readSector(i, buf);
+		sha1.update(buf, sizeof(buf));
+	}
+	return sha1.hex_digest();
+}
 
 template<typename Archive>
 void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
@@ -338,6 +353,22 @@ void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	ar.serialize("diskChanged", diskChangedFlag);
+
+	string oldChecksum;
+	if (!ar.isLoader()) {
+		oldChecksum = calcSha1(getSectorAccessibleDisk());
+	}
+	ar.serialize("checksum", oldChecksum);
+	if (ar.isLoader()) {
+		string newChecksum = calcSha1(getSectorAccessibleDisk());
+		if (oldChecksum != newChecksum) {
+			controller.getCliComm().printWarning(
+				"The content of the diskimage " +
+				diskname.getResolved() +
+				" is not exactly the same before and after the "
+				"snapshot. This might result in emulation problems.");
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(DiskChanger);
 

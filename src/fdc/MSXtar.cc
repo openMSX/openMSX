@@ -21,7 +21,7 @@ namespace openmsx {
 
 static const unsigned BAD_FAT = 0xFF7;
 static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
-static const unsigned SECTOR_SIZE = 512;
+static const unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
 
 static const byte T_MSX_REG  = 0x00; // Normal file
 static const byte T_MSX_READ = 0x01; // Read-Only file

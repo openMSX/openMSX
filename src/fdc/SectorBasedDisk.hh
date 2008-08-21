@@ -16,8 +16,6 @@ class SectorBasedDisk : public Disk, public SectorAccessibleDisk,
                         private noncopyable
 {
 public:
-	static const unsigned SECTOR_SIZE = 512;
-
 	// Disk
 	virtual void read(byte track, byte sector, byte side,
 	                  unsigned size, byte* buf);

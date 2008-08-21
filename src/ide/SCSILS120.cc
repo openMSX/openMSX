@@ -86,8 +86,8 @@ static const byte inqdata[36] = {
 // for FDSFORM.COM
 static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
-static const unsigned SECTOR_SIZE = 512; // same as harddisks
-static const unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE / SECTOR_SIZE;
+static const unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
+                                          SectorAccessibleDisk::SECTOR_SIZE;
 
 class LSXCommand : public RecordedCommand
 {

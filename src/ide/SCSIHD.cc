@@ -73,8 +73,8 @@ static const byte inqdata[36] = {
 	'0', '1', '0', 'a'                         // product version (ASCII 4bytes)
 };
 
-static const unsigned SECTOR_SIZE = 512; // Always true for harddisk
-static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE / SECTOR_SIZE;
+static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
+                                          SectorAccessibleDisk::SECTOR_SIZE;
 
 SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
 		byte* const buf, unsigned mode_)
