@@ -103,16 +103,6 @@ void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition)
 	}
 }
 
-static bool isValidPartition(SectorAccessibleDisk& disk, unsigned partition)
-{
-	try {
-		checkValidPartition(disk, partition);
-		return true;
-	} catch (MSXException& e) {
-		return false;
-	}
-}
-
 
 // Create a correct bootsector depending on the required size of the filesystem
 static void setBootSector(byte* buf, unsigned nbSectors,
@@ -314,7 +304,13 @@ std::auto_ptr<SectorAccessibleDisk> getPartition(
 		start = 0;
 		size = disk.getNbSectors();
 	} else {
-		assert(isValidPartition(disk, partition));
+		#ifndef NDEBUG
+		try {
+			checkValidPartition(disk, partition);
+		} catch (MSXException& e) {
+			assert(false);
+		}
+		#endif
 		byte buf[SECTOR_SIZE];
 		disk.readSector(0, buf);
 		Partition* p = reinterpret_cast<Partition*>(
