@@ -210,7 +210,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 		} else if (dynamic_cast<RamDSKDiskImage*>(diskChanger.disk.get())) {
 			options.addListElement("ramdsk");
 		}
-		if (diskChanger.disk->writeProtected()) {
+		if (diskChanger.disk->isWriteProtected()) {
 			options.addListElement("readonly");
 		}
 		if (options.getListLength() != 0) {

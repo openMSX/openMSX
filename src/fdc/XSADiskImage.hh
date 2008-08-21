@@ -22,16 +22,15 @@ public:
 	explicit XSADiskImage(const Filename& fileName);
 	virtual ~XSADiskImage();
 
-	virtual bool writeProtected();
-
 private:
 	static const int MAXSTRLEN = 254;
 	static const int TBLSIZE = 16;
 	static const int MAXHUFCNT = 127;
 
 	// SectorBasedDisk
-	virtual void readSectorImpl(unsigned sector, byte* buf);
-	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual void readSectorSBD(unsigned sector, byte* buf);
+	virtual void writeSectorSBD(unsigned sector, const byte* buf);
+	virtual bool isWriteProtectedImpl() const;
 
 	bool isXSAImage(File& file);
 	inline byte charin();

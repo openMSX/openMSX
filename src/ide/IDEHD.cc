@@ -121,19 +121,24 @@ void IDEHD::executeCommand(byte cmd)
 	}
 }
 
-void IDEHD::readSector(unsigned sector, byte* buf)
+void IDEHD::readSectorImpl(unsigned sector, byte* buf)
 {
 	readFromImage(512 * sector, 512, buf);
 }
 
-void IDEHD::writeSector(unsigned sector, const byte* buf)
+void IDEHD::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	writeToImage(512 * sector, 512, buf);
 }
 
-unsigned IDEHD::getNbSectors() const
+unsigned IDEHD::getNbSectorsImpl() const
 {
 	return getImageSize() / 512;
+}
+
+bool IDEHD::isWriteProtectedImpl() const
+{
+	return false;
 }
 
 SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()

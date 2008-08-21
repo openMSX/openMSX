@@ -33,10 +33,15 @@ public:
 		byte* const buf, unsigned mode);
 	virtual ~SCSILS120();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
 	// SectorAccessibleDisk:
-	virtual void readSector(unsigned sector, byte* buf);
-	virtual void writeSector(unsigned sector, const byte* buf);
-	virtual unsigned getNbSectors() const;
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual unsigned getNbSectorsImpl() const;
+	virtual bool isWriteProtectedImpl() const;
 
 	// Diskcontainer:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
@@ -58,10 +63,6 @@ public:
 	virtual unsigned dataIn(unsigned& blocks);
 	virtual unsigned dataOut(unsigned& blocks);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
 	bool getReady();
 	bool diskChanged();
 	void testUnitReady();

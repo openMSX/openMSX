@@ -272,7 +272,7 @@ void DirAsDSK::saveCache()
 			tmpbuf[0] = CACHE_ID_SECTOR;
 			setLE16(&tmpbuf[1], i);
 			file.write(tmpbuf, 3);
-			readSectorImpl(i, tmpbuf);
+			readSectorSBD(i, tmpbuf);
 			file.write(tmpbuf, SECTOR_SIZE);
 		}
 
@@ -528,9 +528,9 @@ DirAsDSK::~DirAsDSK()
 	}
 }
 
-void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
+void DirAsDSK::readSectorSBD(unsigned sector, byte* buf)
 {
-	debug("DirAsDSK::readSectorImpl: %i ", sector);
+	debug("DirAsDSK::readSectorSBD: %i ", sector);
 	switch (sector) {
 		case 0: debug("boot sector\n");
 			break;
@@ -858,12 +858,12 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 }
 
 
-void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
+void DirAsDSK::writeSectorSBD(unsigned sector, const byte* buf)
 {
 	// is this actually needed ?
 	if (syncMode == GlobalSettings::SYNC_READONLY) return;
 
-	debug("DirAsDSK::writeSectorImpl: %i ", sector);
+	debug("DirAsDSK::writeSectorSBD: %i ", sector);
 	switch (sector) {
 		case 0: debug("boot sector\n");
 			break;
@@ -1178,9 +1178,9 @@ string DirAsDSK::condenseName(const char* buf)
 	return result;
 }
 
-bool DirAsDSK::writeProtected()
+bool DirAsDSK::isWriteProtectedImpl() const
 {
-	return (syncMode != GlobalSettings::SYNC_READONLY ? false : true);
+	return (syncMode != GlobalSettings::SYNC_READONLY) ? false : true;
 }
 
 void DirAsDSK::updateFileInDisk(const string& filename)

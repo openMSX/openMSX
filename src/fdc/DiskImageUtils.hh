@@ -53,11 +53,12 @@ public:
 	DiskPartition(SectorAccessibleDisk& parent,
 	              unsigned start, unsigned length);
 
-	virtual void readSector(unsigned sector, byte* buf);
-	virtual void writeSector(unsigned sector, const byte* buf);
-	virtual unsigned getNbSectors() const;
-
 private:
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual unsigned getNbSectorsImpl() const;
+	virtual bool isWriteProtectedImpl() const;
+
 	SectorAccessibleDisk& parent;
 	const unsigned start;
 	const unsigned length;

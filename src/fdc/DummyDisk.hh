@@ -12,9 +12,11 @@ class DummyDisk : public SectorBasedDisk
 public:
 	DummyDisk();
 	virtual bool ready();
-	virtual bool writeProtected();
-	virtual void readSectorImpl(unsigned sector, byte* buf);
-	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+
+private:
+	virtual void readSectorSBD(unsigned sector, byte* buf);
+	virtual void writeSectorSBD(unsigned sector, const byte* buf);
+	virtual bool isWriteProtectedImpl() const;
 };
 
 } // namespace openmsx

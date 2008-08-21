@@ -91,7 +91,7 @@ bool RealDrive::writeProtected()
 {
 	// write protected bit is always 0 when motor is off
 	// verified on NMS8280
-	return motorStatus && changer->getDisk().writeProtected();
+	return motorStatus && changer->getDisk().isWriteProtected();
 }
 
 bool RealDrive::doubleSided()

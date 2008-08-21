@@ -28,8 +28,8 @@ void SectorBasedDisk::read(byte track, byte sector, byte side,
 	readSector(logicalSector, buf);
 }
 
-void SectorBasedDisk::write(byte track, byte sector, byte side,
-                            unsigned size, const byte* buf)
+void SectorBasedDisk::writeImpl(byte track, byte sector, byte side,
+                                unsigned size, const byte* buf)
 {
 	(void)size;
 	assert(size == SECTOR_SIZE);
@@ -47,7 +47,7 @@ void SectorBasedDisk::getPatches(std::vector<Filename>& result) const
 	patch->getFilenames(result);
 }
 
-void SectorBasedDisk::writeTrackData(byte track, byte side, const byte* data)
+void SectorBasedDisk::writeTrackDataImpl(byte track, byte side, const byte* data)
 {
 	unsigned sector = 1;
 	bool hasFirstCRC = false;
@@ -137,7 +137,7 @@ bool SectorBasedDisk::ready()
 	return true;
 }
 
-void SectorBasedDisk::readSector(unsigned sector, byte* buf)
+void SectorBasedDisk::readSectorImpl(unsigned sector, byte* buf)
 {
 	if (sector >= getNbSectors()) {
 		throw NoSuchSectorException("No such sector");
@@ -149,22 +149,22 @@ void SectorBasedDisk::readSector(unsigned sector, byte* buf)
 	}
 }
 
-void SectorBasedDisk::writeSector(unsigned sector, const byte* buf)
+void SectorBasedDisk::writeSectorImpl(unsigned sector, const byte* buf)
 {
-	if (writeProtected()) {
+	if (isWriteProtected()) {
 		throw WriteProtectedException("");
 	}
 	if (sector >= getNbSectors()) {
 		throw NoSuchSectorException("No such sector");
 	}
 	try {
-		writeSectorImpl(sector, buf);
+		writeSectorSBD(sector, buf);
 	} catch (MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error");
 	}
 }
 
-unsigned SectorBasedDisk::getNbSectors() const
+unsigned SectorBasedDisk::getNbSectorsImpl() const
 {
 	assert(nbSectors != unsigned(-1)); // must have been initialized
 	return nbSectors;

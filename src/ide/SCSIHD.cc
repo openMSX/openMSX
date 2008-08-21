@@ -291,7 +291,7 @@ bool SCSIHD::checkAddress()
 }
 
 // Execute scsiDeviceCheckAddress previously.
-unsigned SCSIHD::readSector(unsigned& blocks)
+unsigned SCSIHD::readSectors(unsigned& blocks)
 {
 	motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
 
@@ -300,11 +300,11 @@ unsigned SCSIHD::readSector(unsigned& blocks)
 
 	PRT_DEBUG("hdd#" << int(scsiId) << " read sector: " << currentSector << " " << numSectors);
 	try {
-		readFromImage(SECTOR_SIZE * currentSector,
-		              SECTOR_SIZE * numSectors,
-			      buffer);
-		currentSector += numSectors;
-		currentLength -= numSectors;
+		for (unsigned i = 0; i < numSectors; ++i) {
+			readSector(currentSector, &buffer[i * SECTOR_SIZE]);
+			++currentSector;
+			--currentLength;
+		}
 		blocks = currentLength;
 		return counter;
 	} catch (FileException& e) {
@@ -317,7 +317,7 @@ unsigned SCSIHD::readSector(unsigned& blocks)
 unsigned SCSIHD::dataIn(unsigned& blocks)
 {
 	if (cdb[0] == SCSI::OP_READ10) {
-		unsigned counter = readSector(blocks);
+		unsigned counter = readSectors(blocks);
 		if (counter) {
 			return counter;
 		}
@@ -328,7 +328,7 @@ unsigned SCSIHD::dataIn(unsigned& blocks)
 }
 
 // Execute scsiDeviceCheckAddress and scsiDeviceCheckReadOnly previously.
-unsigned SCSIHD::writeSector(unsigned& blocks)
+unsigned SCSIHD::writeSectors(unsigned& blocks)
 {
 	motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
 
@@ -336,11 +336,11 @@ unsigned SCSIHD::writeSector(unsigned& blocks)
 
 	PRT_DEBUG("hdd#" << int(scsiId) << " write sector: " << currentSector << " " << numSectors);
 	try {
-		writeToImage(SECTOR_SIZE * currentSector,
-		             SECTOR_SIZE * numSectors,
-			     buffer);
-		currentSector += numSectors;
-		currentLength -= numSectors;
+		for (unsigned i = 0; i < numSectors; ++i) {
+			writeSector(currentSector, &buffer[i * SECTOR_SIZE]);
+			++currentSector;
+			--currentLength;
+		}
 
 		unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 		blocks = currentLength - tmp;
@@ -356,7 +356,7 @@ unsigned SCSIHD::writeSector(unsigned& blocks)
 unsigned SCSIHD::dataOut(unsigned& blocks)
 {
 	if (cdb[0] == SCSI::OP_WRITE10) {
-		return writeSector(blocks);
+		return writeSectors(blocks);
 	}
 	PRT_DEBUG("dataOut error " << int(cdb[0]));
 	blocks = 0;
@@ -447,7 +447,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 				currentLength = SECTOR_SIZE / 2;
 			}
 			if (checkAddress()) {
-				unsigned counter = readSector(blocks);
+				unsigned counter = readSectors(blocks);
 				if (counter) {
 					cdb[0] = SCSI::OP_READ10;
 					phase = SCSI::DATA_IN;
@@ -514,7 +514,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 			PRT_DEBUG("Read10: " << currentSector << " " << currentLength);
 
 			if (checkAddress()) {
-				unsigned counter = readSector(blocks);
+				unsigned counter = readSectors(blocks);
 				if (counter) {
 					phase = SCSI::DATA_IN;
 					return counter;
@@ -608,21 +608,24 @@ int SCSIHD::msgOut(byte value)
 	return ((value >= 0x04) && (value <= 0x11)) ? 3 : 1;
 }
 
-unsigned SCSIHD::getNbSectors() const
+unsigned SCSIHD::getNbSectorsImpl() const
 {
 	return getImageSize() / SECTOR_SIZE;
 }
 
-// NOTE: UNUSED FOR NOW!
-void SCSIHD::readSector(unsigned sector, byte* buf)
+void SCSIHD::readSectorImpl(unsigned sector, byte* buf)
 {
 	readFromImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
 }
 
-// NOTE: UNUSED FOR NOW!
-void SCSIHD::writeSector(unsigned sector, const byte* buf)
+void SCSIHD::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	writeToImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
+}
+
+bool SCSIHD::isWriteProtectedImpl() const
+{
+	return false;
 }
 
 SectorAccessibleDisk* SCSIHD::getSectorAccessibleDisk()

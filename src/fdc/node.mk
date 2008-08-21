@@ -33,6 +33,7 @@ SRC_HDR:= \
 
 HDR_ONLY:= \
 	DiskExceptions \
+	WriteProtectableDisk
 
 include build/node-end.mk
 

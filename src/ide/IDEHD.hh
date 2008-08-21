@@ -24,19 +24,19 @@ public:
 	      const EmuTime& time);
 	virtual ~IDEHD();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
 	// SectorAccessibleDisk:
-	virtual void readSector(unsigned sector, byte* buf);
-	virtual void writeSector(unsigned sector, const byte* buf);
-	virtual unsigned getNbSectors() const;
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual unsigned getNbSectorsImpl() const;
 
 	// Diskcontainer:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-protected:
 	// AbstractIDEDevice:
 	virtual bool isPacketDevice();
 	virtual const std::string& getDeviceName();
@@ -45,7 +45,9 @@ protected:
 	virtual void writeBlockComplete(byte* buffer, unsigned count);
 	virtual void executeCommand(byte cmd);
 
-private:
+	// SectorAccessibleDisk
+	virtual bool isWriteProtectedImpl() const;
+
 	DiskManipulator& diskManipulator;
 	unsigned transferSectorNumber;
 };

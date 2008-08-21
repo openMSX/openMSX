@@ -1,6 +1,11 @@
 $Id$
 
 2008-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made Disk and SectorAccessibleDisk write-protectable:
+	   Added WriteProtectable interface and refactor code so that really
+	   all write methods check this write protected flag.
+
+2008-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split MSXtar class into two parts:
 	    - DiskImageUtils: this part knows about partitions and format
 	    - MSXtar:         this part knows about files and directories

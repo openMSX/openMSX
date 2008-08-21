@@ -16,19 +16,19 @@ DSKDiskImage::~DSKDiskImage()
 {
 }
 
-void DSKDiskImage::readSectorImpl(unsigned sector, byte* buf)
+void DSKDiskImage::readSectorSBD(unsigned sector, byte* buf)
 {
 	file->seek(sector * SECTOR_SIZE);
 	file->read(buf, SECTOR_SIZE);
 }
 
-void DSKDiskImage::writeSectorImpl(unsigned sector, const byte* buf)
+void DSKDiskImage::writeSectorSBD(unsigned sector, const byte* buf)
 {
 	file->seek(sector * SECTOR_SIZE);
 	file->write(buf, SECTOR_SIZE);
 }
 
-bool DSKDiskImage::writeProtected()
+bool DSKDiskImage::isWriteProtectedImpl() const
 {
 	return file->isReadOnly();
 }

@@ -333,19 +333,24 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& parent_,
 {
 }
 
-void DiskPartition::readSector(unsigned sector, byte* buf)
+void DiskPartition::readSectorImpl(unsigned sector, byte* buf)
 {
 	parent.readSector(start + sector, buf);
 }
 
-void DiskPartition::writeSector(unsigned sector, const byte* buf)
+void DiskPartition::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	parent.writeSector(start + sector, buf);
 }
 
-unsigned DiskPartition::getNbSectors() const
+unsigned DiskPartition::getNbSectorsImpl() const
 {
 	return length;
+}
+
+bool DiskPartition::isWriteProtectedImpl() const
+{
+	return parent.isWriteProtected();
 }
 
 } // namespace openmsx

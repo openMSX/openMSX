@@ -32,19 +32,20 @@ public:
 		byte* const buf, unsigned mode);
 	virtual ~SCSIHD();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
 	// SectorAccessibleDisk:
-	virtual void readSector(unsigned sector, byte* buf);
-	virtual void writeSector(unsigned sector, const byte* buf);
-	virtual unsigned getNbSectors() const;
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual unsigned getNbSectorsImpl() const;
+	virtual bool isWriteProtectedImpl() const;
 
 	// Diskcontainer:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-protected:
 	// SCSI Device
 	virtual void reset();
 	virtual bool isSelected();
@@ -60,15 +61,14 @@ protected:
 	virtual unsigned dataIn(unsigned& blocks);
 	virtual unsigned dataOut(unsigned& blocks);
 
-private:
 	unsigned inquiry();
 	unsigned modeSense();
 	unsigned requestSense();
 	bool checkReadOnly();
 	unsigned readCapacity();
 	bool checkAddress();
-	unsigned readSector(unsigned& blocks);
-	unsigned writeSector(unsigned& blocks);
+	unsigned readSectors(unsigned& blocks);
+	unsigned writeSectors(unsigned& blocks);
 	void formatUnit();
 
 	MSXMotherBoard& motherBoard;

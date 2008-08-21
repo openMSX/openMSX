@@ -45,12 +45,12 @@ XSADiskImage::~XSADiskImage()
 	delete[] outbuf;
 }
 
-void XSADiskImage::readSectorImpl(unsigned sector, byte* buf)
+void XSADiskImage::readSectorSBD(unsigned sector, byte* buf)
 {
 	memcpy(buf, outbuf + sector * SECTOR_SIZE, SECTOR_SIZE);
 }
 
-void XSADiskImage::writeSectorImpl(unsigned /*sector*/, const byte* /*buf*/)
+void XSADiskImage::writeSectorSBD(unsigned /*sector*/, const byte* /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }
@@ -246,7 +246,7 @@ void XSADiskImage::mkhuftbl()
 	updhufcnt = MAXHUFCNT;
 }
 
-bool XSADiskImage::writeProtected()
+bool XSADiskImage::isWriteProtectedImpl() const
 {
 	return true;
 }

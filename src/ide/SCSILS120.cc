@@ -762,7 +762,7 @@ int SCSILS120::msgOut(byte value)
 	return ((value >= 0x04) && (value <= 0x11)) ? 3 : 1;
 }
 
-unsigned SCSILS120::getNbSectors() const
+unsigned SCSILS120::getNbSectorsImpl() const
 {
 	if (file.get()) {
 		return file->getSize() / SECTOR_SIZE;
@@ -771,15 +771,18 @@ unsigned SCSILS120::getNbSectors() const
 	}
 }
 
-// NOTE: UNUSED FOR NOW!
-void SCSILS120::readSector(unsigned sector, byte* buf)
+bool SCSILS120::isWriteProtectedImpl() const
+{
+	return false;
+}
+
+void SCSILS120::readSectorImpl(unsigned sector, byte* buf)
 {
 	file->seek(512 * sector);
 	file->read(buf, 512);
 }
 
-// NOTE: UNUSED FOR NOW!
-void SCSILS120::writeSector(unsigned sector, const byte* buf)
+void SCSILS120::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	file->seek(512 * sector);
 	file->write(buf, 512);

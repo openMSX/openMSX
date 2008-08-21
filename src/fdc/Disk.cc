@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Disk.hh"
-#include "MSXException.hh"
+#include "DiskExceptions.hh"
 
 namespace openmsx {
 
@@ -19,6 +19,23 @@ const Filename& Disk::getName() const
 	return name;
 }
 
+void Disk::write(byte track, byte sector,
+                 byte side, unsigned size, const byte* buf)
+{
+	if (isWriteProtected()) {
+		throw WriteProtectedException("");
+	}
+	writeImpl(track, sector, side, size, buf);
+}
+
+void Disk::writeTrackData(byte track, byte side, const byte* data)
+{
+	if (isWriteProtected()) {
+		throw WriteProtectedException("");
+	}
+	writeTrackDataImpl(track, side, data);
+}
+
 void Disk::getTrackHeader(byte /*track*/, byte /*side*/, byte* /*buf*/)
 {
 	PRT_DEBUG("Disk::getTrackHeader [unimplemented]");
@@ -29,7 +46,7 @@ void Disk::getSectorHeader(byte /*track*/, byte /*sector*/, byte /*side*/,
 	PRT_DEBUG("Disk::getSectorHeader [unimplemented]");
 }
 
-void Disk::writeTrackData(byte /*track*/, byte /*side*/, const byte* /*data*/)
+void Disk::writeTrackDataImpl(byte /*track*/, byte /*side*/, const byte* /*data*/)
 {
 	PRT_DEBUG("Disk::writeTrackData [unimplemented]");
 }
