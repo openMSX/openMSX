@@ -365,8 +365,12 @@ void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 			controller.getCliComm().printWarning(
 				"The content of the diskimage " +
 				diskname.getResolved() +
-				" is not exactly the same before and after the "
-				"snapshot. This might result in emulation problems.");
+				" has changed since the time this savestate was "
+				"created. This might result in emulation problems "
+				"or even diskcorruption. To prevent the latter, "
+				"the disk is now write-protected (eject and "
+				"reinsert the disk if you want to override this).");
+			disk->forceWriteProtect();
 		}
 	}
 }
