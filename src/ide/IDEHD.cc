@@ -1,7 +1,7 @@
 // $Id$
 
 #include "IDEHD.hh"
-#include "FileException.hh"
+#include "MSXException.hh"
 #include "MSXMotherBoard.hh"
 #include "DiskManipulator.hh"
 #include "serialize.hh"
@@ -68,7 +68,7 @@ unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 		readSector(transferSectorNumber, buffer);
 		++transferSectorNumber;
 		return 512;
-	} catch (FileException& e) {
+	} catch (MSXException& e) {
 		abortReadTransfer(UNC);
 		return 0;
 	}
@@ -83,7 +83,7 @@ void IDEHD::writeBlockComplete(byte* buffer, unsigned count)
 			assert(count >= 512);
 			count -= 512;
 		}
-	} catch (FileException& e) {
+	} catch (MSXException& e) {
 		abortWriteTransfer(UNC);
 	}
 }

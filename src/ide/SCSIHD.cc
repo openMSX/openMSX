@@ -22,7 +22,7 @@
 
 #include "SCSIHD.hh"
 #include "FileOperations.hh"
-#include "FileException.hh"
+#include "MSXException.hh"
 #include "LedEvent.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
@@ -307,7 +307,7 @@ unsigned SCSIHD::readSectors(unsigned& blocks)
 		}
 		blocks = currentLength;
 		return counter;
-	} catch (FileException& e) {
+	} catch (MSXException& e) {
 		blocks = 0;
 		keycode = SCSI::SENSE_UNRECOVERED_READ_ERROR;
 		return 0;
@@ -346,7 +346,7 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 		blocks = currentLength - tmp;
 		unsigned counter = tmp * SECTOR_SIZE;
 		return counter;
-	} catch (FileException& e) {
+	} catch (MSXException& e) {
 		keycode = SCSI::SENSE_WRITE_FAULT;
 		blocks = 0;
 		return 0;
@@ -371,7 +371,7 @@ void SCSIHD::formatUnit()
 		try {
 			writeSector(0, buffer);
 			unitAttention = true;
-		} catch (FileException& e) {
+		} catch (MSXException& e) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
 		}
 	}
