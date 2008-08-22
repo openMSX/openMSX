@@ -175,6 +175,28 @@ void HD::serialize(Archive& ar, unsigned /*version*/)
 		} else {
 			tmp.updateAfterLoadState(motherBoard.getCommandController());
 			switchImage(tmp);
+			assert(file.get());
+		}
+	}
+
+	if (file.get()) {
+		string oldChecksum;
+		if (!ar.isLoader()) {
+			oldChecksum = getSHA1Sum();
+		}
+		ar.serialize("checksum", oldChecksum);
+		if (ar.isLoader()) {
+			string newChecksum = getSHA1Sum();
+			if (oldChecksum != newChecksum) {
+				motherBoard.getMSXCliComm().printWarning(
+				    "The content of the harddisk " +
+				    tmp.getResolved() +
+				    " has changed since the time this savestate was "
+				    "created. This might result in emulation problems "
+				    "or even diskcorruption. To prevent the latter, "
+				    "the harddisk is now write-protected.");
+				forceWriteProtect();
+			}
 		}
 	}
 }
