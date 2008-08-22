@@ -127,31 +127,42 @@ void HD::switchImage(const Filename& name)
 	                                   filename.getResolved());
 }
 
-void HD::readFromImage(unsigned offset, unsigned size, byte* buf)
-{
-	openImage();
-	file->seek(offset);
-	file->read(buf, size);
-}
-
-void HD::writeToImage(unsigned offset, unsigned size, const byte* buf)
-{
-	openImage();
-	file->seek(offset);
-	file->write(buf, size);
-}
-
-unsigned HD::getImageSize() const
+unsigned HD::getNbSectorsImpl() const
 {
 	const_cast<HD&>(*this).openImage();
-	return filesize;
+	return filesize / SECTOR_SIZE;
 }
 
-bool HD::isImageReadOnly()
+void HD::readSectorImpl(unsigned sector, byte* buf)
 {
 	openImage();
+	file->seek(sector * SECTOR_SIZE);
+	file->read(buf, SECTOR_SIZE);
+}
+
+void HD::writeSectorImpl(unsigned sector, const byte* buf)
+{
+	openImage();
+	file->seek(sector * SECTOR_SIZE);
+	file->write(buf, SECTOR_SIZE);
+}
+
+bool HD::isWriteProtectedImpl() const
+{
+	const_cast<HD&>(*this).openImage();
 	return file->isReadOnly();
 }
+
+SectorAccessibleDisk* HD::getSectorAccessibleDisk()
+{
+	return this;
+}
+
+const std::string& HD::getContainerName() const
+{
+	return getName();
+}
+
 
 template<typename Archive>
 void HD::serialize(Archive& ar, unsigned /*version*/)

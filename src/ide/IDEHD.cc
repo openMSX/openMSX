@@ -121,36 +121,6 @@ void IDEHD::executeCommand(byte cmd)
 	}
 }
 
-void IDEHD::readSectorImpl(unsigned sector, byte* buf)
-{
-	readFromImage(512 * sector, 512, buf);
-}
-
-void IDEHD::writeSectorImpl(unsigned sector, const byte* buf)
-{
-	writeToImage(512 * sector, 512, buf);
-}
-
-unsigned IDEHD::getNbSectorsImpl() const
-{
-	return getImageSize() / 512;
-}
-
-bool IDEHD::isWriteProtectedImpl() const
-{
-	return false;
-}
-
-SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
-{
-	return this;
-}
-
-const std::string& IDEHD::getContainerName() const
-{
-	return getName();
-}
-
 
 template<typename Archive>
 void IDEHD::serialize(Archive& ar, unsigned /*version*/)

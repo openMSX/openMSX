@@ -241,7 +241,7 @@ unsigned SCSIHD::requestSense()
 
 bool SCSIHD::checkReadOnly()
 {
-	if (isImageReadOnly()) {
+	if (isWriteProtected()) {
 		keycode = SCSI::SENSE_WRITE_PROTECT;
 		return true;
 	}
@@ -606,36 +606,6 @@ int SCSIHD::msgOut(byte value)
 	}
 	message = SCSI::MSG_REJECT;
 	return ((value >= 0x04) && (value <= 0x11)) ? 3 : 1;
-}
-
-unsigned SCSIHD::getNbSectorsImpl() const
-{
-	return getImageSize() / SECTOR_SIZE;
-}
-
-void SCSIHD::readSectorImpl(unsigned sector, byte* buf)
-{
-	readFromImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
-}
-
-void SCSIHD::writeSectorImpl(unsigned sector, const byte* buf)
-{
-	writeToImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
-}
-
-bool SCSIHD::isWriteProtectedImpl() const
-{
-	return false;
-}
-
-SectorAccessibleDisk* SCSIHD::getSectorAccessibleDisk()
-{
-	return this;
-}
-
-const std::string& SCSIHD::getContainerName() const
-{
-	return getName();
 }
 
 

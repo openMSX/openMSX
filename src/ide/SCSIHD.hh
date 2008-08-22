@@ -13,8 +13,6 @@
 
 #include "HD.hh"
 #include "SCSIDevice.hh"
-#include "SectorAccessibleDisk.hh"
-#include "DiskContainer.hh"
 #include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -24,8 +22,7 @@ namespace openmsx {
 class XMLElement;
 class MSXMotherBoard;
 
-class SCSIHD : public HD, public SCSIDevice, public SectorAccessibleDisk,
-               public DiskContainer, private noncopyable
+class SCSIHD : public HD, public SCSIDevice, private noncopyable
 {
 public:
 	SCSIHD(MSXMotherBoard& motherBoard, const XMLElement& targetconfig,
@@ -36,16 +33,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// SectorAccessibleDisk:
-	virtual void readSectorImpl(unsigned sector, byte* buf);
-	virtual void writeSectorImpl(unsigned sector, const byte* buf);
-	virtual unsigned getNbSectorsImpl() const;
-	virtual bool isWriteProtectedImpl() const;
-
-	// Diskcontainer:
-	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
-	virtual const std::string& getContainerName() const;
-
 	// SCSI Device
 	virtual void reset();
 	virtual bool isSelected();

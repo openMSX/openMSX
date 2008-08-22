@@ -4,6 +4,8 @@
 #define HD_HH
 
 #include "Filename.hh"
+#include "SectorAccessibleDisk.hh"
+#include "DiskContainer.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include <string>
@@ -16,7 +18,7 @@ class HDCommand;
 class File;
 class XMLElement;
 
-class HD
+class HD : public SectorAccessibleDisk, public DiskContainer
 {
 public:
 	HD(MSXMotherBoard& motherBoard, const XMLElement& config);
@@ -29,13 +31,17 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-protected:
-	void readFromImage(unsigned offset, unsigned size, byte* buf);
-	void writeToImage (unsigned offset, unsigned size, const byte* buf);
-	unsigned getImageSize() const;
-	bool isImageReadOnly();
-
 private:
+	// SectorAccessibleDisk:
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual unsigned getNbSectorsImpl() const;
+	virtual bool isWriteProtectedImpl() const;
+
+	// Diskcontainer:
+	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
+	virtual const std::string& getContainerName() const;
+
 	void openImage();
 
 	MSXMotherBoard& motherBoard;
