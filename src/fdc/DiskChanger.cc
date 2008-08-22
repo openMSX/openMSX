@@ -20,7 +20,6 @@
 #include "TclObject.hh"
 #include "EmuTime.hh"
 #include "checked_cast.hh"
-#include "sha1.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 
@@ -296,17 +295,7 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 
 static string calcSha1(SectorAccessibleDisk* disk)
 {
-	if (!disk) {
-		return "";
-	}
-	SHA1 sha1;
-	unsigned nbSectors = disk->getNbSectors();
-	for (unsigned i = 0; i < nbSectors; ++i) {
-		byte buf[SectorAccessibleDisk::SECTOR_SIZE];
-		disk->readSector(i, buf);
-		sha1.update(buf, sizeof(buf));
-	}
-	return sha1.hex_digest();
+	return disk ? disk->getSHA1Sum() : "";
 }
 
 template<typename Archive>

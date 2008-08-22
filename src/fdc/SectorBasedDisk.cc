@@ -35,6 +35,8 @@ void SectorBasedDisk::writeImpl(byte track, byte sector, byte side,
 	assert(size == SECTOR_SIZE);
 	unsigned logicalSector = physToLog(track, side, sector);
 	writeSector(logicalSector, buf);
+	// it's important to use writeSector() and not writeSectorImpl()
+	// because only the former flushes SHA1 cache
 }
 
 void SectorBasedDisk::applyPatch(const Filename& patchFile)
