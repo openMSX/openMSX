@@ -356,6 +356,12 @@ public:
 	}
 
 /*internal*/
+	#ifdef linux
+	// This routine is not portable, for example it breaks in
+	// windows (mingw) because there the location of the stack
+	// is _below_ the heap.
+	// But this is anyway only used to check assertions. So for now
+	// only do that in linux.
 	static NEVER_INLINE bool addressOnStack(const void* p)
 	{
 		// This is not portable, it assumes:
@@ -366,6 +372,7 @@ public:
 		int dummy;
 		return &dummy < p;
 	}
+	#endif
 
 	// Generate a new ID for the given pointer and store this association
 	// for later (see getId()).
@@ -381,8 +388,10 @@ public:
 		// For polymorphic types you do sometimes use a base pointer
 		// to refer to a subtype. So there we only use the pointer
 		// value as key in the map.
+		#ifdef linux
 		assert("Can't serialize ID of object located on the stack" &&
 		       !addressOnStack(p));
+		#endif
 		++lastId;
 		if (is_polymorphic<T>::value) {
 			assert(polyIdMap.find(p) == polyIdMap.end());
