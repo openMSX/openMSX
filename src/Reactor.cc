@@ -518,8 +518,8 @@ void Reactor::run(CommandLineParser& parser)
 
 	// Run
 	if (parser.getParseStatus() == CommandLineParser::RUN) {
-		// don't use TCL to power up the machine, we cannot pass
-		// exceptions through TCL and ADVRAM might throw in its
+		// don't use Tcl to power up the machine, we cannot pass
+		// exceptions through Tcl and ADVRAM might throw in its
 		// powerUp() method. Solution is to implement dependencies
 		// between devices so ADVRAM can check the error condition
 		// in its constructor

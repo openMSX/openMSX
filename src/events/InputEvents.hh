@@ -205,7 +205,7 @@ private:
 };
 
 
-/** This class is used to for TCL commands that directly influence the MSX
+/** This class is used to for Tcl commands that directly influence the MSX
   * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
   * event because the recording needs to see these.
   */

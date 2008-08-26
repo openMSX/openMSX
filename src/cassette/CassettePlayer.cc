@@ -625,7 +625,7 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 {
 	string result;
 	if (tokens.size() == 1) {
-		// Returning TCL lists here, similar to the disk commands in
+		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
 		TclObject tmp(getCommandController().getInterpreter());
 		tmp.addListElement(getName() + ':');

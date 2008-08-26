@@ -121,7 +121,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 			output->output(text);
 		}
 	} catch (...) {
-		assert(false); // we cannot let exceptions pass through TCL
+		assert(false); // we cannot let exceptions pass through Tcl
 	}
 	return toWrite;
 }
@@ -167,13 +167,13 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		}
 		return res;
 	} catch (...) {
-		assert(false); // we cannot let exceptions pass through TCL
+		assert(false); // we cannot let exceptions pass through Tcl
 		return TCL_ERROR;
 	}
 }
 
 // Returns
-//   - build-in TCL commands
+//   - build-in Tcl commands
 //   - openmsx commands
 //   - user-defined procs
 void Interpreter::getCommandNames(set<string>& result)
@@ -233,10 +233,10 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 {
 	const char* tclVarValue = getVariable(name);
 	if (tclVarValue) {
-		// TCL var already existed, use this value
+		// Tcl var already existed, use this value
 		variable.setValueStringDirect(tclVarValue);
 	} else {
-		// define TCL var
+		// define Tcl var
 		setVariable(name, variable.getValueString());
 	}
 	traceMap[name] = &variable;
@@ -341,7 +341,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			             static_cast<ClientData>(interpreter));
 		}
 	} catch (...) {
-		assert(false); // we cannot let exceptions pass through TCL
+		assert(false); // we cannot let exceptions pass through Tcl
 	}
 	return NULL;
 }

@@ -29,7 +29,7 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	userDirSetting.reset(new StringSetting(commandController,
 	        "user_directories", "list of user directories", ""));
 	umrCallBackSetting.reset(new StringSetting(commandController,
-	        "umr_callback", "TCL proc to call when an UMR is detected", ""));
+	        "umr_callback", "Tcl proc to call when an UMR is detected", ""));
 	EnumSetting<SyncMode>::Map syncDirAsDSKMap;
 	syncDirAsDSKMap["read_only"] = SYNC_READONLY;
 	syncDirAsDSKMap["cached_write"] = SYNC_CACHEDWRITE;

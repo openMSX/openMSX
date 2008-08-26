@@ -231,7 +231,7 @@ string SetCompleter::help(const vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		return manager.getByName("set", tokens[1]).getDescription();
 	}
-	return "Set or query the value of a openMSX setting or TCL variable\n"
+	return "Set or query the value of a openMSX setting or Tcl variable\n"
 	       "  set <setting>          shows current value\n"
 	       "  set <setting> <value>  set a new value\n"
 	       "Use 'help set <setting>' to get more info on a specific\n"

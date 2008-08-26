@@ -588,7 +588,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"  Read a byte at offset <addr> from the given debuggable.\n"
 		"  The offset must be smaller then the value returned from the "
 		"'size' subcommand\n"
-		"  Note that openMSX comes with a bunch of TCL scripts that make "
+		"  Note that openMSX comes with a bunch of Tcl scripts that make "
 		"some of the debug reads much more convient (e.g. reading from "
 		"Z80 or VDP registers). See the 'commands.txt' document for more "
 		"details about these.\n";
@@ -601,7 +601,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"debug read_block <name> <addr> <size>\n"
 		"  Read a whole block at once. This is equivalent with repeated "
 		"invokations of the 'read' subcommand, but using this subcommand "
-		"may be faster. The result is a TCL binary string (see TCL manual).\n"
+		"may be faster. The result is a Tcl binary string (see Tcl manual).\n"
 		"  The block is specified as size/offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
@@ -609,8 +609,8 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"debug write_block <name> <addr> <values>\n"
 		"  Write a whole block at once. This is equivalent with repeated "
 		"invokations of the 'write' subcommand, but using this subcommand "
-		"may be faster. The <values> arugment must be a TCL binary string "
-		"(see TCL manual).\n"
+		"may be faster. The <values> arugment must be a Tcl binary string "
+		"(see Tcl manual).\n"
 		"  The block has a size and an offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
@@ -623,7 +623,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"  Optionally you can specify a condition. When the CPU reaches "
 		"the breakpoint this condition is evaluated, only when the condition "
 		"evaluated to true execution will be breaked.\n"
-		"  A condition must be specified as a TCL expression. For example\n"
+		"  A condition must be specified as a Tcl expression. For example\n"
 		"     debug set_bp 0xf37d {[reg C] == 0x2F}\n"
 		"  This break on address on address 0xf37d but only when Z80 "
 		"register C has the value 0x2F.\n"
@@ -687,12 +687,12 @@ string DebugCmd::help(const vector<string>& tokens) const
 	static const string disasmHelp =
 		"debug disasm <addr>\n"
 		"  Disassemble the instruction at the given address. The result "
-		"is a TCL list. The first element in the list contains a textual "
+		"is a Tcl list. The first element in the list contains a textual "
 		"representation of the instruction, the next elements contain the "
 		"bytes that make up this instruction (thus the length of the "
 		"resulting list can be used to derive the number of bytes in the "
 		"instruction).\n"
-		"  Note that openMSX comes with a 'disasm' TCL script that is much "
+		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
 		"more convient to use then this subcommand.";
 	static const string unknownHelp =
 		"Unknown subcommand, use 'help debug' to see a list of valid "

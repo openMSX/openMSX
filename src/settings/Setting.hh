@@ -51,7 +51,7 @@ public:
 	  */
 	virtual std::string getDefaultValueString() const = 0;
 
-	/** Get the value that will be set after a TCL 'unset' command.
+	/** Get the value that will be set after a Tcl 'unset' command.
 	  */
 	virtual std::string getRestoreValueString() const = 0;
 

@@ -277,8 +277,8 @@ void Display::checkRendererSwitch()
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;
-		// don't do the actualing swithing in the TCL callback
-		// it seems creating and destroying Settings (= TCL vars)
+		// don't do the actualing swithing in the Tcl callback
+		// it seems creating and destroying Settings (= Tcl vars)
 		// causes problems???
 		switchInProgress = true;
 		reactor.getEventDistributor().distributeEvent(

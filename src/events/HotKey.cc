@@ -106,7 +106,7 @@ HotKey::~HotKey()
 
 void HotKey::initDefaultBindings()
 {
-	// TODO move to TCL script?
+	// TODO move to Tcl script?
 
 	if (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.

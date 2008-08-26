@@ -22,7 +22,7 @@ class CommandController
 {
 public:
 	/**
-	 * (Un)register a command completer, used to complete build-in TCL cmds
+	 * (Un)register a command completer, used to complete build-in Tcl cmds
 	 */
 	virtual void   registerCompleter(CommandCompleter& completer,
 	                                 const std::string& str) = 0;
