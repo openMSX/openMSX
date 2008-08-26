@@ -90,7 +90,8 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 				const string& sha1 = (*it)->getData();
 				file = motherBoard.getFilePool().getFile(sha1);
 				if (file.get()) {
-					sha1sum = sha1;
+					// avoid recalculating same sha1 later
+					originalSha1 = sha1;
 					break;
 				}
 			}
@@ -134,6 +135,8 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 		rom = extendedRom;
 	}
 
+	patchedSha1 = getOriginalSHA1(); // initially it's the same ..
+
 	if (size != 0) {
 		const XMLElement* patchesElem = config.findChild("patches");
 		if (patchesElem) {
@@ -159,6 +162,9 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 				extendedRom = newExtendedRom;
 				rom = extendedRom;
 			}
+
+			// .. but recalculate when there were patches
+			patchedSha1 = SHA1::calc(rom, size);
 		}
 	}
 	info = RomDatabase::instance().fetchRomInfo(cliComm, *this);
@@ -179,6 +185,18 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 			name = tmp;
 		}
 		romDebuggable.reset(new RomDebuggable(debugger, *this));
+	}
+
+	XMLElement& mutableConfig = const_cast<XMLElement&>(config);
+	const XMLElement& actualSha1Elem = mutableConfig.getCreateChild(
+		"resolvedSha1", patchedSha1);
+	if (actualSha1Elem.getData() != patchedSha1) {
+		string tmp = file.get() ? file->getURL() : name;
+		// can only happen in case of loadstate
+		motherBoard.getMSXCliComm().printWarning(
+			"The content of the rom " + tmp +
+			" has changed since the time this savestate was "
+			"created. This might result in emulation problems.");
 	}
 }
 
@@ -225,7 +243,7 @@ void Rom::read(const XMLElement& config)
 
 bool Rom::checkSHA1(const XMLElement& config)
 {
-	const string& sha1sum = getSHA1Sum();
+	const string& sha1sum = getOriginalSHA1();
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	if (sums.empty()) {
@@ -260,14 +278,19 @@ const string& Rom::getDescription() const
 	return description;
 }
 
-const string& Rom::getSHA1Sum() const
+const string& Rom::getOriginalSHA1() const
 {
-	if (sha1sum.empty()) {
-		SHA1 sha1;
-		sha1.update(rom, size);
-		sha1sum = sha1.hex_digest();
+	if (originalSha1.empty()) {
+		assert(patchedSha1.empty());
+		originalSha1 = SHA1::calc(rom, size);
 	}
-	return sha1sum;
+	return originalSha1;
+}
+const string& Rom::getPatchedSHA1() const
+{
+	assert(!originalSha1.empty());
+	assert(!patchedSha1.empty());
+	return patchedSha1;
 }
 
 MSXMotherBoard& Rom::getMotherBoard() const

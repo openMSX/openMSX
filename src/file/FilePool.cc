@@ -71,9 +71,7 @@ static bool parse(const string& line, string& sha1, time_t& time, string& filena
 static auto_ptr<File> calcSha1sum(const string& filename, string& sum)
 {
 	auto_ptr<File> file(new File(filename));
-	SHA1 sha1;
-	sha1.update(file->mmap(), file->getSize());
-	sum = sha1.hex_digest();
+	sum = SHA1::calc(file->mmap(), file->getSize());
 	return file;
 }
 

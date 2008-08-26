@@ -206,4 +206,11 @@ const string& SHA1::hex_digest()
 	return digest;
 }
 
+string SHA1::calc(const byte* data, unsigned len)
+{
+	SHA1 sha1;
+	sha1.update(data, len);
+	return sha1.hex_digest();
+}
+
 } // namespace openmsx

@@ -22,6 +22,10 @@ public:
 	  */
 	const std::string& hex_digest();
 
+	/** Easier to use interface, if you can pass all data in one go.
+	  */
+	static std::string calc(const byte* data, unsigned len);
+
 private:
 	void transform(const byte buffer[64]);
 	void finalize();

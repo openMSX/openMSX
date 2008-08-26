@@ -260,7 +260,7 @@ auto_ptr<RomInfo> RomDatabase::fetchRomInfo(CliComm& cliComm, const Rom& rom)
 			            ROM_UNKNOWN));
 	}
 
-	const string& sha1sum = rom.getSHA1Sum();
+	const string& sha1sum = rom.getOriginalSHA1();
 	if (romDBSHA1.find(sha1sum) != romDBSHA1.end()) {
 		romDBSHA1[sha1sum]->print(cliComm);
 		// Return a copy of the DB entry.

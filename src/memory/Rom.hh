@@ -37,7 +37,8 @@ public:
 	const RomInfo& getInfo() const;
 	const std::string& getName() const;
 	const std::string& getDescription() const;
-	const std::string& getSHA1Sum() const;
+	const std::string& getOriginalSHA1() const;
+	const std::string& getPatchedSHA1() const;
 
 	MSXMotherBoard& getMotherBoard() const;
 
@@ -54,7 +55,8 @@ private:
 	std::auto_ptr<RomInfo> info;
 	std::auto_ptr<RomDebuggable> romDebuggable;
 
-	mutable std::string sha1sum;
+	mutable std::string originalSha1;
+	std::string patchedSha1;
 	std::string name;
 	const std::string description;
 	unsigned size;
