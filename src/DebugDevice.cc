@@ -152,6 +152,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 			break;
 		case ASC:
 			(*outputstrm).put(value);
+			(*outputstrm) << std::flush;
 			break;
 	}
 }

@@ -1316,11 +1316,9 @@ the layout of the whole line.
 <h3><a id="debugdevicemode2">8.4 Multi Byte Mode</a></h3>
 
 <p>
-In mode 2, writing to 0x2F does not output any text. All bytes written to this
-register are stored in a buffer and only when the mode register is set again the
-output is shown. Unlike mode 1, the data in this mode is always shown in one
-mode only. It's either in hex mode, binary mode, decimal mode or ASCII mode, but
-never a combination. Also the EmuTime bit is left out.
+Unlike mode 1, the data in this mode is always shown in one mode only. It's
+either in hex mode, binary mode, decimal mode or ASCII mode, but never a
+combination. Also the EmuTime bit is left out.
 </p>
 
 <p>
@@ -1333,12 +1331,7 @@ LD  A,$41
 OUT ($2f),A
 OUT ($2f),A
 OUT ($2f),A
-LD  A,xx
-OUT ($2e),A
 </pre>
-<p>
-Only at this last instruction the output appears.
-</p>
 
 <p>
 If we substitute <code>$20</code> for <code>xx</code>, we get:
