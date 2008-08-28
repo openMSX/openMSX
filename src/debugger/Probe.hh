@@ -1,5 +1,8 @@
 // $Id: $
 
+#ifndef PROBE_HH
+#define PROBE_HH
+
 #include "Subject.hh"
 #include "StringOp.hh"
 #include <string>
@@ -66,3 +69,5 @@ std::string Probe<T>::getValue() const
 }
 
 } // namespace openmsx
+
+#endif

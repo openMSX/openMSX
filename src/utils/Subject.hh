@@ -43,6 +43,11 @@ template <typename T> Subject<T>::Subject()
 template <typename T> Subject<T>::~Subject()
 {
 	assert(!notifyInProgress);
+	Observers copy(observers);
+	for (typename Observers::const_iterator it = copy.begin();
+	     it != copy.end(); ++it) {
+		(*it)->subjectDeleted(*static_cast<const T*>(this));
+	}
 	assert(observers.empty());
 }
 

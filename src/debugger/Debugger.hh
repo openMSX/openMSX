@@ -4,6 +4,7 @@
 #define DEBUGGER_HH
 
 #include "noncopyable.hh"
+#include <vector>
 #include <map>
 #include <set>
 #include <string>
@@ -14,6 +15,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Debuggable;
 class ProbeBase;
+class ProbeBreakPoint;
 class MSXCPU;
 class DebugCmd;
 
@@ -31,6 +33,7 @@ public:
 	void unregisterProbe(const std::string& name, ProbeBase& probe);
 	ProbeBase* findProbe(const std::string& name);
 
+	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu);
 
 private:
@@ -40,14 +43,19 @@ private:
 	ProbeBase& getProbe(const std::string& name);
 	void getProbes(std::set<std::string>& result) const;
 
+	void insertProbeBreakPoint(std::auto_ptr<ProbeBreakPoint> bp);
+	void removeProbeBreakPoint(const std::string& name);
+
 	MSXMotherBoard& motherBoard;
 	friend class DebugCmd;
 	const std::auto_ptr<DebugCmd> debugCmd;
 
 	typedef std::map<std::string, Debuggable*> Debuggables;
 	typedef std::map<std::string, ProbeBase*>  Probes;
+	typedef std::vector<ProbeBreakPoint*> ProbeBreakPoints;
 	Debuggables debuggables;
-	Probes      probes;
+	Probes probes;
+	ProbeBreakPoints probeBreakPoints;
 	MSXCPU* cpu;
 };
 

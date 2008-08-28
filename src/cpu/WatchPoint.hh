@@ -22,7 +22,7 @@ public:
 	           std::auto_ptr<TclObject> command,
 	           std::auto_ptr<TclObject> condition,
 	           Type type, unsigned beginAddr, unsigned endAddr);
-	virtual ~WatchPoint();
+	virtual ~WatchPoint(); // needed for dynamic_cast
 
 	unsigned getId() const;
 	Type getType() const;
@@ -30,10 +30,10 @@ public:
 	unsigned getEndAddress() const;
 
 private:
-	unsigned id;
-	unsigned beginAddr;
-	unsigned endAddr;
-	Type type;
+	const unsigned id;
+	const unsigned beginAddr;
+	const unsigned endAddr;
+	const Type type;
 
 	static unsigned lastId;
 };

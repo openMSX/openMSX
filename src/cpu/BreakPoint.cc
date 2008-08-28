@@ -11,9 +11,9 @@ BreakPoint::BreakPoint(CliComm& cliComm, word address_,
                        std::auto_ptr<TclObject> command,
                        std::auto_ptr<TclObject> condition)
 	: BreakPointBase(cliComm, command, condition)
+	, id(++lastId)
 	, address(address_)
 {
-	id = ++lastId;
 }
 
 word BreakPoint::getAddress() const

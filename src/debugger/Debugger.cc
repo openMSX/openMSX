@@ -3,6 +3,7 @@
 #include "Debugger.hh"
 #include "Debuggable.hh"
 #include "Probe.hh"
+#include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
@@ -72,6 +73,12 @@ private:
 	               TclObject& result);
 	void probeRead(const vector<TclObject*>& tokens,
 	               TclObject& result);
+	void probeSetBreakPoint(const vector<TclObject*>& tokens,
+	                        TclObject& result);
+	void probeRemoveBreakPoint(const vector<TclObject*>& tokens,
+	                           TclObject& result);
+	void probeListBreakPoints(const vector<TclObject*>& tokens,
+	                          TclObject& result);
 
 	CliComm& cliComm;
 	Debugger& debugger;
@@ -90,6 +97,11 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 
 Debugger::~Debugger()
 {
+	for (ProbeBreakPoints::const_iterator it = probeBreakPoints.begin();
+	     it != probeBreakPoints.end(); ++it) {
+		delete *it;
+	}
+
 	assert(!cpu);
 	assert(debuggables.empty());
 }
@@ -174,6 +186,49 @@ void Debugger::getProbes(std::set<std::string>& result) const
 	}
 }
 
+
+void Debugger::insertProbeBreakPoint(auto_ptr<ProbeBreakPoint> bp)
+{
+	probeBreakPoints.push_back(bp.release());
+}
+
+void Debugger::removeProbeBreakPoint(const string& name)
+{
+	if (StringOp::startsWith(name, "pp#")) {
+		// remove by id
+		unsigned id = StringOp::stringToInt(name.substr(3));
+		for (ProbeBreakPoints::iterator it = probeBreakPoints.begin();
+		     it != probeBreakPoints.end(); ++it) {
+			if ((*it)->getId() == id) {
+				delete *it;
+				probeBreakPoints.erase(it);
+				return;
+			}
+		}
+		throw CommandException("No such breakpoint: " + name);
+	} else {
+		// remove by probe, only works for unconditional bp
+		for (ProbeBreakPoints::iterator it = probeBreakPoints.begin();
+		     it != probeBreakPoints.end(); ++it) {
+			if ((*it)->getProbe().getName() == name) {
+				delete *it;
+				probeBreakPoints.erase(it);
+				return;
+			}
+		}
+		throw CommandException(
+			"No (unconditional) breakpoint for probe: " + name);
+	}
+}
+
+void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
+{
+	ProbeBreakPoints::iterator it =
+		find(probeBreakPoints.begin(), probeBreakPoints.end(), &bp);
+	assert(it != probeBreakPoints.end());
+	delete *it;
+	probeBreakPoints.erase(it);
+}
 
 // class DebugCmd
 
@@ -607,6 +662,12 @@ void DebugCmd::probe(const vector<TclObject*>& tokens,
 		probeDesc(tokens, result);
 	} else if (subCmd == "read") {
 		probeRead(tokens, result);
+	} else if (subCmd == "set_bp") {
+		probeSetBreakPoint(tokens, result);
+	} else if (subCmd == "remove_bp") {
+		probeRemoveBreakPoint(tokens, result);
+	} else if (subCmd == "list_bp") {
+		probeListBreakPoints(tokens, result);
 	} else {
 		throw SyntaxError();
 	}
@@ -635,6 +696,65 @@ void DebugCmd::probeRead(const vector<TclObject*>& tokens,
 	}
 	ProbeBase& probe = debugger.getProbe(tokens[3]->getString());
 	result.setString(probe.getValue());
+}
+void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
+                                  TclObject& result)
+{
+	auto_ptr<ProbeBreakPoint> bp;
+	auto_ptr<TclObject> command(
+		new TclObject(result.getInterpreter(), "debug break"));
+	auto_ptr<TclObject> condition;
+	switch (tokens.size()) {
+	case 6: // command
+		command->setString(tokens[5]->getString());
+		command->checkCommand();
+		// fall-through
+	case 5: // condition
+		if (!tokens[4]->getString().empty()) {
+			condition.reset(new TclObject(*tokens[4]));
+			condition->checkExpression();
+		}
+		// fall-through
+	case 4: { // probe
+		ProbeBase& probe = debugger.getProbe(tokens[3]->getString());
+		bp.reset(new ProbeBreakPoint(cliComm, command, condition,
+		                             debugger, probe));
+		break;
+	}
+	default:
+		if (tokens.size() < 4) {
+			throw CommandException("Too few arguments.");
+		} else {
+			throw CommandException("Too many arguments.");
+		}
+	}
+	result.setString("pp#" + StringOp::toString(bp->getId()));
+	debugger.insertProbeBreakPoint(bp);
+}
+void DebugCmd::probeRemoveBreakPoint(const vector<TclObject*>& tokens,
+                                     TclObject& result)
+{
+	if (tokens.size() != 4) {
+		throw SyntaxError();
+	}
+	debugger.removeProbeBreakPoint(tokens[3]->getString());
+}
+void DebugCmd::probeListBreakPoints(const vector<TclObject*>& tokens,
+                                    TclObject& result)
+{
+	string res;
+	for (Debugger::ProbeBreakPoints::const_iterator it =
+	         debugger.probeBreakPoints.begin();
+	     it != debugger.probeBreakPoints.end(); ++it) {
+		const ProbeBreakPoint& bp = **it;
+		TclObject line(result.getInterpreter());
+		line.addListElement("pp#" + StringOp::toString(bp.getId()));
+		line.addListElement(bp.getProbe().getName());
+		line.addListElement(bp.getCondition());
+		line.addListElement(bp.getCommand());
+		res += line.getString() + '\n';
+	}
+	result.setString(res);
 }
 
 string DebugCmd::help(const vector<string>& tokens) const
@@ -763,9 +883,12 @@ string DebugCmd::help(const vector<string>& tokens) const
 	static const string probeHelp =
 		"debug probe <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
-		"    list          returns a list of all probes\n"
-		"    desc <probe>  returns a description of this probe\n"
-		"    read <probe>  returns the current value of this probe\n";
+		"    list                             returns a list of all probes\n"
+		"    desc   <probe>                   returns a description of this probe\n"
+		"    read   <probe>                   returns the current value of this probe\n"
+		"    set_bp <probe> [<cond>] [<cmd>]  set a breakpoint on the given probe\n"
+		"    remove_bp <id>                   remove the given reakpoint\n"
+		"    list_bp                          returns a list of breakpoints that are set on probes\n";
 	static const string contHelp =
 		"debug cont\n"
 		"  Continue execution after CPU was breaked.\n";
@@ -925,13 +1048,17 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 				subCmds.insert("list");
 				subCmds.insert("desc");
 				subCmds.insert("read");
+				subCmds.insert("set_bp");
+				subCmds.insert("remove_bp");
+				subCmds.insert("list_bp");
 				completeString(tokens, subCmds);
 			}
 		}
 		break;
 	case 4:
 		if ((tokens[1] == "probe") &&
-		    ((tokens[2] == "desc") || (tokens[2] == "read"))) {
+		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
+		     (tokens[2] == "set_bp"))) {
 			set<string> probes;
 			debugger.getDebuggables(probes);
 			completeString(tokens, probes);

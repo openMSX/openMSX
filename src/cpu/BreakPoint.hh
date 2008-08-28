@@ -26,8 +26,8 @@ public:
 	unsigned getId() const;
 
 private:
-	unsigned id;
-	word address;
+	const unsigned id;
+	const word address;
 
 	static unsigned lastId;
 };

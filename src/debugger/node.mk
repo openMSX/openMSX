@@ -6,7 +6,7 @@ SRC_HDR:= \
 	Debugger \
 	DasmTables \
 	SimpleDebuggable \
-	Probe
+	Probe ProbeBreakPoint
 
 HDR_ONLY:= \
 	Debuggable
