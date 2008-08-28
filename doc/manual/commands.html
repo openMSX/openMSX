@@ -677,6 +677,11 @@
     </tr>
 
     <tr>
+      <td><code>debug probe &lt;subcommand&gt;</code></td>
+      <td>See below.</td>
+    </tr>
+
+    <tr>
       <td><code>debug break</code></td>
 
       <td>Break CPU at current position</td>
@@ -747,6 +752,50 @@
       <td><code>debug disasm [&lt;addr&gt;]</code></td>
 
       <td>Disassemble instructions at PC or given address</td>
+    </tr>
+  </table>
+
+  <p>The probe subcommand again has subcommands:</p>
+  <table>
+    <tr>
+      <td><code>debug probe list</code></td>
+      <td>Returns a list of all probes.</td>
+    </tr>
+    <tr>
+      <td><code>debug probe desc &lt;probe&gt;</code></td>
+      <td>Returns a description of this probe.</td>
+    </tr>
+    <tr>
+      <td><code>debug probe read &lt;probe&gt;</code></td>
+      <td>Returns the current value of a probe. But note that not all probes have a value</td>
+    </tr>
+    <tr>
+      <td><code>debug probe set_bp &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td>Set a breakpoint of a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
+    </tr>
+    <tr>
+      <td><code>debug probe remove_bp &lt;id&gt;</code></td>
+      <td>Remove the given breakpoint.</td>
+    </tr>
+    <tr>
+      <td><code>debug probe list_bp</code></td>
+      <td>List the active breakpoints set on probes.</td>
+    </tr>
+  </table>
+
+  <p>At first sight 'probes' and 'debuggables' are very similar. Though there are some important differences and that's wht probes and debuggables use different subcommands:</p>
+  <table>
+    <tr>
+      <td>A debuggable is an array of bytes.</td>
+      <td>A probe is a single value and can have any type.</td>
+    </tr>
+    <tr>
+      <td>A debuggable is readable and (usually) writable.</td>
+      <td>A probe is always read-only.</td>
+    </tr>
+    <tr>
+      <td>It's not possible to set breakpoints on a debuggable.</td>
+      <td>You can set breakpoints on a probe (and sometimes this is the only purpose of a probe).</td>
     </tr>
   </table>
 
