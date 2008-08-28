@@ -7,6 +7,7 @@
 #include "Observer.hh"
 #include "CPU.hh"
 #include "CacheLine.hh"
+#include "Probe.hh"
 #include <string>
 #include <memory>
 
@@ -111,7 +112,7 @@ private:
 	// state machine variables
 	int slowInstructions;
 	int NMIStatus;
-	int IRQStatus;
+	Probe<int> IRQStatus;
 
 	unsigned memptr;
 

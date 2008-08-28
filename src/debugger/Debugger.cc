@@ -1,7 +1,8 @@
 // $Id$
 
-#include "Debuggable.hh"
 #include "Debugger.hh"
+#include "Debuggable.hh"
+#include "Probe.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
@@ -63,6 +64,14 @@ private:
 	                      TclObject& result);
 	void listWatchPoints(const vector<TclObject*>& tokens,
 	                     TclObject& result);
+	void probe(const vector<TclObject*>& tokens,
+	           TclObject& result);
+	void probeList(const vector<TclObject*>& tokens,
+	               TclObject& result);
+	void probeDesc(const vector<TclObject*>& tokens,
+	               TclObject& result);
+	void probeRead(const vector<TclObject*>& tokens,
+	               TclObject& result);
 
 	CliComm& cliComm;
 	Debugger& debugger;
@@ -99,30 +108,68 @@ void Debugger::registerDebuggable(const string& name, Debuggable& debuggable)
 void Debugger::unregisterDebuggable(const string& name, Debuggable& debuggable)
 {
 	(void)debuggable;
-	map<string, Debuggable*>::iterator it = debuggables.find(name);
+	Debuggables::iterator it = debuggables.find(name);
 	assert(it != debuggables.end() && (it->second == &debuggable));
 	debuggables.erase(it);
 }
 
 Debuggable* Debugger::findDebuggable(const string& name)
 {
-	map<string, Debuggable*>::iterator it = debuggables.find(name);
+	Debuggables::iterator it = debuggables.find(name);
 	return (it != debuggables.end()) ? it->second : NULL;
 }
 
-Debuggable* Debugger::getDebuggable(const string& name)
+Debuggable& Debugger::getDebuggable(const string& name)
 {
 	Debuggable* result = findDebuggable(name);
 	if (!result) {
-		throw CommandException("No such debuggable.");
+		throw CommandException("No such debuggable: " + name);
 	}
-	return result;
+	return *result;
 }
 
 void Debugger::getDebuggables(set<string>& result) const
 {
-	for (map<string, Debuggable*>::const_iterator it = debuggables.begin();
+	for (Debuggables::const_iterator it = debuggables.begin();
 	     it != debuggables.end(); ++it) {
+		result.insert(it->first);
+	}
+}
+
+
+void Debugger::registerProbe(const std::string& name, ProbeBase& probe)
+{
+	assert(probes.find(name) == probes.end());
+	probes[name] = &probe;
+}
+
+void Debugger::unregisterProbe(const std::string& name, ProbeBase& probe)
+{
+	(void)probe;
+	Probes::iterator it = probes.find(name);
+	assert(it != probes.end() && (it->second == &probe));
+	probes.erase(it);
+}
+
+ProbeBase* Debugger::findProbe(const std::string& name)
+{
+	Probes::iterator it = probes.find(name);
+	return (it != probes.end()) ? it->second : NULL;
+}
+
+ProbeBase& Debugger::getProbe(const std::string& name)
+{
+	ProbeBase* result = findProbe(name);
+	if (!result) {
+		throw CommandException("No such probe: " + name);
+	}
+	return *result;
+}
+
+void Debugger::getProbes(std::set<std::string>& result) const
+{
+	for (Probes::const_iterator it = probes.begin();
+	     it != probes.end(); ++it) {
 		result.insert(it->first);
 	}
 }
@@ -203,6 +250,8 @@ void DebugCmd::execute(const vector<TclObject*>& tokens,
 		removeWatchPoint(tokens, result);
 	} else if (subCmd == "list_watchpoints") {
 		listWatchPoints(tokens, result);
+	} else if (subCmd == "probe") {
+		probe(tokens, result);
 	} else {
 		throw SyntaxError();
 	}
@@ -210,11 +259,9 @@ void DebugCmd::execute(const vector<TclObject*>& tokens,
 
 void DebugCmd::list(TclObject& result)
 {
-	for (map<string, Debuggable*>::const_iterator it =
-	       debugger.debuggables.begin();
-	     it != debugger.debuggables.end(); ++it) {
-		result.addListElement(it->first);
-	}
+	set<string> debuggables;
+	debugger.getDebuggables(debuggables);
+	result.addListElements(debuggables.begin(), debuggables.end());
 }
 
 void DebugCmd::desc(const vector<TclObject*>& tokens, TclObject& result)
@@ -222,8 +269,8 @@ void DebugCmd::desc(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
-	result.setString(device->getDescription());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	result.setString(device.getDescription());
 }
 
 void DebugCmd::size(const vector<TclObject*>& tokens, TclObject& result)
@@ -231,8 +278,8 @@ void DebugCmd::size(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
-	result.setInt(device->getSize());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	result.setInt(device.getSize());
 }
 
 void DebugCmd::read(const vector<TclObject*>& tokens, TclObject& result)
@@ -240,12 +287,12 @@ void DebugCmd::read(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
 	unsigned addr = tokens[3]->getInt();
-	if (addr >= device->getSize()) {
+	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
 	}
-	result.setInt(device->read(addr));
+	result.setInt(device.read(addr));
 }
 
 void DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& result)
@@ -253,8 +300,8 @@ void DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
-	unsigned size = device->getSize();
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	unsigned size = device.getSize();
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= size) {
 		throw CommandException("Invalid address");
@@ -266,7 +313,7 @@ void DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& result)
 
 	byte* buf = new byte[num];
 	for (unsigned i = 0; i < num; ++i) {
-		buf[i] = device->read(addr + i);
+		buf[i] = device.read(addr + i);
 	}
 	result.setBinary(buf, num);
 	delete[] buf;
@@ -278,9 +325,9 @@ void DebugCmd::write(const vector<TclObject*>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
 	unsigned addr = tokens[3]->getInt();
-	if (addr >= device->getSize()) {
+	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
 	}
 	unsigned value = tokens[4]->getInt();
@@ -288,7 +335,7 @@ void DebugCmd::write(const vector<TclObject*>& tokens,
 		throw CommandException("Invalid value");
 	}
 
-	device->write(addr, value);
+	device.write(addr, value);
 }
 
 void DebugCmd::writeBlock(const vector<TclObject*>& tokens,
@@ -297,8 +344,8 @@ void DebugCmd::writeBlock(const vector<TclObject*>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable* device = debugger.getDebuggable(tokens[2]->getString());
-	unsigned size = device->getSize();
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	unsigned size = device.getSize();
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= size) {
 		throw CommandException("Invalid address");
@@ -310,7 +357,7 @@ void DebugCmd::writeBlock(const vector<TclObject*>& tokens,
 	}
 
 	for (unsigned i = 0; i < num; ++i) {
-		device->write(addr + i, static_cast<byte>(buf[i]));
+		device.write(addr + i, static_cast<byte>(buf[i]));
 	}
 }
 
@@ -547,6 +594,49 @@ void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
 	result.setString(res);
 }
 
+void DebugCmd::probe(const vector<TclObject*>& tokens,
+                     TclObject& result)
+{
+	if (tokens.size() < 3) {
+		throw CommandException("Missing argument");
+	}
+	string subCmd = tokens[2]->getString();
+	if (subCmd == "list") {
+		probeList(tokens, result);
+	} else if (subCmd == "desc") {
+		probeDesc(tokens, result);
+	} else if (subCmd == "read") {
+		probeRead(tokens, result);
+	} else {
+		throw SyntaxError();
+	}
+}
+void DebugCmd::probeList(const vector<TclObject*>& tokens,
+                         TclObject& result)
+{
+	set<string> probes;
+	debugger.getProbes(probes);
+	result.addListElements(probes.begin(), probes.end());
+}
+void DebugCmd::probeDesc(const vector<TclObject*>& tokens,
+                         TclObject& result)
+{
+	if (tokens.size() != 4) {
+		throw SyntaxError();
+	}
+	ProbeBase& probe = debugger.getProbe(tokens[3]->getString());
+	result.setString(probe.getDescription());
+}
+void DebugCmd::probeRead(const vector<TclObject*>& tokens,
+                         TclObject& result)
+{
+	if (tokens.size() != 4) {
+		throw SyntaxError();
+	}
+	ProbeBase& probe = debugger.getProbe(tokens[3]->getString());
+	result.setString(probe.getValue());
+}
+
 string DebugCmd::help(const vector<string>& tokens) const
 {
 	static const string generalHelp =
@@ -565,6 +655,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"    set_watchpoint    insert a new watchpoint\n"
 		"    remove_watchpoint remove a certain watchpoint\n"
 		"    list_watchpoints  list the active watchpoints\n"
+		"    probe             probe related subcommands\n"
 		"    cont              continue execution after break\n"
 		"    step              execute one instruction\n"
 		"    break             break CPU at current position\n"
@@ -669,6 +760,12 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"  Lists all active breakpoints. The result is similar to the "
 		"'list_bp' subcommand, but there is an extra column (2nd column) "
 		"that contains the type of the watchpoint.\n";
+	static const string probeHelp =
+		"debug probe <subcommand> [<arguments>]\n"
+		"  Possible subcommands are:\n"
+		"    list          returns a list of all probes\n"
+		"    desc <probe>  returns a description of this probe\n"
+		"    read <probe>  returns the current value of this probe\n";
 	static const string contHelp =
 		"debug cont\n"
 		"  Continue execution after CPU was breaked.\n";
@@ -726,6 +823,8 @@ string DebugCmd::help(const vector<string>& tokens) const
 		return removeWatchPointHelp;
 	} else if (tokens[1] == "list_watchpoints") {
 		return listWatchPointsHelp;
+	} else if (tokens[1] == "probe") {
+		return probeHelp;
 	} else if (tokens[1] == "cont") {
 		return contHelp;
 	} else if (tokens[1] == "step") {
@@ -786,45 +885,58 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 	otherCmds.insert("remove_bp");
 	otherCmds.insert("set_watchpoint");
 	otherCmds.insert("remove_watchpoint");
+	otherCmds.insert("probe");
 	switch (tokens.size()) {
-		case 2: {
-			set<string> cmds;
-			cmds.insert(singleArgCmds.begin(), singleArgCmds.end());
-			cmds.insert(debuggableArgCmds.begin(), debuggableArgCmds.end());
-			cmds.insert(otherCmds.begin(), otherCmds.end());
-			completeString(tokens, cmds);
-			break;
-		}
-		case 3: {
-			if (singleArgCmds.find(tokens[1]) ==
-					singleArgCmds.end()) {
-				// this command takes (an) argument(s)
-				if (debuggableArgCmds.find(tokens[1]) !=
-					debuggableArgCmds.end()) {
-					// it takes a debuggable here
-					set<string> debuggables;
-					debugger.getDebuggables(debuggables);
-					completeString(tokens, debuggables);
-				} else if (tokens[1] == "remove_bp") {
-					// this one takes a bp id
-					set<string> bpids = getBreakPointIdsAsStringSet();
-					completeString(tokens, bpids);
-				} else if (tokens[1] == "remove_watchpoint") {
-					// this one takes a wp id
-					set<string> wpids = getWatchPointIdsAsStringSet();
-					completeString(tokens, wpids);
-				} else if (tokens[1] == "set_watchpoint") {
-					set<string> types;
-					types.insert("write_io");
-					types.insert("write_mem");
-					types.insert("read_io");
-					types.insert("read_mem");
-					completeString(tokens, types);
-				}
+	case 2: {
+		set<string> cmds;
+		cmds.insert(singleArgCmds.begin(), singleArgCmds.end());
+		cmds.insert(debuggableArgCmds.begin(), debuggableArgCmds.end());
+		cmds.insert(otherCmds.begin(), otherCmds.end());
+		completeString(tokens, cmds);
+		break;
+	}
+	case 3:
+		if (singleArgCmds.find(tokens[1]) ==
+				singleArgCmds.end()) {
+			// this command takes (an) argument(s)
+			if (debuggableArgCmds.find(tokens[1]) !=
+				debuggableArgCmds.end()) {
+				// it takes a debuggable here
+				set<string> debuggables;
+				debugger.getDebuggables(debuggables);
+				completeString(tokens, debuggables);
+			} else if (tokens[1] == "remove_bp") {
+				// this one takes a bp id
+				set<string> bpids = getBreakPointIdsAsStringSet();
+				completeString(tokens, bpids);
+			} else if (tokens[1] == "remove_watchpoint") {
+				// this one takes a wp id
+				set<string> wpids = getWatchPointIdsAsStringSet();
+				completeString(tokens, wpids);
+			} else if (tokens[1] == "set_watchpoint") {
+				set<string> types;
+				types.insert("write_io");
+				types.insert("write_mem");
+				types.insert("read_io");
+				types.insert("read_mem");
+				completeString(tokens, types);
+			} else if (tokens[1] == "probe") {
+				set<string> subCmds;
+				subCmds.insert("list");
+				subCmds.insert("desc");
+				subCmds.insert("read");
+				completeString(tokens, subCmds);
 			}
-			break;
-		// other stuff doesn't really make sense to complete
 		}
+		break;
+	case 4:
+		if ((tokens[1] == "probe") &&
+		    ((tokens[2] == "desc") || (tokens[2] == "read"))) {
+			set<string> probes;
+			debugger.getDebuggables(probes);
+			completeString(tokens, probes);
+		}
+		break;
 	}
 }
 

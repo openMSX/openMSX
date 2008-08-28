@@ -5,7 +5,8 @@ include build/node-start.mk
 SRC_HDR:= \
 	Debugger \
 	DasmTables \
-	SimpleDebuggable
+	SimpleDebuggable \
+	Probe
 
 HDR_ONLY:= \
 	Debuggable

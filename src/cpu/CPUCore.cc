@@ -65,7 +65,10 @@ template <class T> CPUCore<T>::CPUCore(
 	        T::CLOCK_FREQ, 1000000, 100000000))
 	, freq(freqValue->getValue())
 	, NMIStatus(0)
-	, IRQStatus(0)
+	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQs",
+	            "non-zero if there are pending IRQs (thus CPU would enter "
+		    "interrupt routine in EI mode).",
+		    0)
 	, nmiEdge(false)
 	, exitLoop(false)
 	, out_c_x(motherboard.isTurboR() ? 255 : 0)
@@ -188,12 +191,12 @@ template <class T> void CPUCore<T>::raiseIRQ()
 	if (IRQStatus == 0) {
 		setSlowInstructions();
 	}
-	IRQStatus++;
+	IRQStatus = IRQStatus + 1;
 }
 
 template <class T> void CPUCore<T>::lowerIRQ()
 {
-	IRQStatus--;
+	IRQStatus = IRQStatus - 1;
 	assert(IRQStatus >= 0);
 }
 
