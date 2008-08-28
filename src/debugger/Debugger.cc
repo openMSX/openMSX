@@ -672,7 +672,7 @@ void DebugCmd::probe(const vector<TclObject*>& tokens,
 		throw SyntaxError();
 	}
 }
-void DebugCmd::probeList(const vector<TclObject*>& tokens,
+void DebugCmd::probeList(const vector<TclObject*>& /*tokens*/,
                          TclObject& result)
 {
 	set<string> probes;
@@ -732,14 +732,14 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
 	debugger.insertProbeBreakPoint(bp);
 }
 void DebugCmd::probeRemoveBreakPoint(const vector<TclObject*>& tokens,
-                                     TclObject& result)
+                                     TclObject& /*result*/)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
 	debugger.removeProbeBreakPoint(tokens[3]->getString());
 }
-void DebugCmd::probeListBreakPoints(const vector<TclObject*>& tokens,
+void DebugCmd::probeListBreakPoints(const vector<TclObject*>& /*tokens*/,
                                     TclObject& result)
 {
 	string res;
@@ -1060,7 +1060,7 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
 			set<string> probes;
-			debugger.getDebuggables(probes);
+			debugger.getProbes(probes);
 			completeString(tokens, probes);
 		}
 		break;

@@ -12,7 +12,7 @@ template <typename T> class Observer
 {
 public:
 	virtual void update(const T& subject) = 0;
-	virtual void subjectDeleted(const T& subject) { /*nothing*/ }
+	virtual void subjectDeleted(const T& /*subject*/) { /*nothing*/ }
 
 protected:
 	virtual ~Observer() {}

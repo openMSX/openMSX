@@ -29,4 +29,21 @@ const std::string& ProbeBase::getDescription() const
 	return description;
 }
 
+
+Probe<void>::Probe(Debugger& debugger, const std::string& name,
+                   const std::string& description)
+	: ProbeBase(debugger, name, description)
+{
+}
+
+void Probe<void>::signal()
+{
+	notify();
+}
+
+std::string Probe<void>::getValue() const
+{
+	return "";
+}
+
 } // namespace openmsx

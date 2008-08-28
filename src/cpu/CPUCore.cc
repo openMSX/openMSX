@@ -65,10 +65,14 @@ template <class T> CPUCore<T>::CPUCore(
 	        T::CLOCK_FREQ, 1000000, 100000000))
 	, freq(freqValue->getValue())
 	, NMIStatus(0)
-	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQs",
-	            "non-zero if there are pending IRQs (thus CPU would enter "
-		    "interrupt routine in EI mode).",
-		    0)
+	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",
+	            "Non-zero if there are pending IRQs (thus CPU would enter "
+	            "interrupt routine in EI mode).",
+	            0)
+	, IRQAccept(motherboard.getDebugger(), name + ".acceptIRQ",
+	            "This probe is only useful to set a breakpoint on (the value "
+		    "return by read is meaningless). The breakpoint gets triggered "
+		    "right after the CPU accepted an IRQ.")
 	, nmiEdge(false)
 	, exitLoop(false)
 	, out_c_x(motherboard.isTurboR() ? 255 : 0)
@@ -926,6 +930,7 @@ template <class T> void CPUCore<T>::executeSlow()
 		nmi(); // NMI occured
 	} else if (unlikely(IRQStatus && R.getIFF1() && !R.getAfterEI())) {
 		// normal interrupt
+		IRQAccept.signal();
 		switch (R.getIM()) {
 			case 0: irq0();
 				break;

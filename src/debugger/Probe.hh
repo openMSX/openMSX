@@ -68,6 +68,18 @@ std::string Probe<T>::getValue() const
 	return StringOp::toString(value);
 }
 
+// specialization for void
+template<> class Probe<void> : public ProbeBase
+{
+public:
+	Probe(Debugger& debugger, const std::string& name,
+	      const std::string& description);
+	void signal();
+
+private:
+	virtual std::string getValue() const;
+};
+
 } // namespace openmsx
 
 #endif

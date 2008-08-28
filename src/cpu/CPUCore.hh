@@ -113,6 +113,7 @@ private:
 	int slowInstructions;
 	int NMIStatus;
 	Probe<int> IRQStatus;
+	Probe<void> IRQAccept;
 
 	unsigned memptr;
 
