@@ -647,7 +647,7 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
 	, debuggable(new Y8950Debuggable(motherBoard, *this))
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
-	, irq(motherBoard.getCPU())
+	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
 }

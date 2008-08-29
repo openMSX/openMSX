@@ -70,7 +70,7 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, i8251(new I8251(motherBoard.getScheduler(), *interf,
 	                  getCurrentTime()))
 	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
-	, rxrdyIRQ(getMotherBoard().getCPU())
+	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, rxrdyIRQlatch(false)
 	, rxrdyIRQenabled(false)
 {

@@ -3,10 +3,13 @@
 #ifndef IRQHELPER_HH
 #define IRQHELPER_HH
 
+#include "Probe.hh"
 #include "noncopyable.hh"
+#include <string>
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class MSXCPU;
 
 /** Helper class for doing interrupt request (IRQ) administration.
@@ -20,7 +23,7 @@ class MSXCPU;
 class IRQSource
 {
 protected:
-	explicit IRQSource(MSXCPU& cpu_) : cpu(cpu_) {}
+	explicit IRQSource(MSXCPU& cpu);
 	void raise();
 	void lower();
 private:
@@ -31,7 +34,7 @@ private:
 class NMISource
 {
 protected:
-	explicit NMISource(MSXCPU& cpu_) : cpu(cpu_) {}
+	explicit NMISource(MSXCPU& cpu);
 	void raise();
 	void lower();
 private:
@@ -45,7 +48,7 @@ public:
 	enum IntType { IRQ, NMI };
 	void setIntType(IntType type_) { type = type_; }
 protected:
-	explicit DynamicSource(MSXCPU& cpu_) : cpu(cpu_), type(IRQ) {}
+	explicit DynamicSource(MSXCPU& cpu);
 	void raise();
 	void lower();
 private:
@@ -60,9 +63,7 @@ public:
 	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.
 	  */
-	explicit IntHelper(MSXCPU& cpu)
-		: SOURCE(cpu), request(false) {
-	}
+	explicit IntHelper(MSXMotherBoard& motherboard, const std::string& name);
 
 	/** Destroy this IntHelper.
 	  * Resets interrupt request if it is active.
@@ -100,7 +101,7 @@ public:
 	void serialize(Archive& ar, unsigned /*version*/);
 
 private:
-	bool request;
+	Probe<bool> request;
 };
 
 // convenience types

@@ -44,7 +44,7 @@ public:
 		return value;
 	}
 
-	operator const T&() {
+	operator const T&() const {
 		return value;
 	}
 

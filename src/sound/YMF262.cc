@@ -1658,7 +1658,7 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	, debuggable(new YMF262Debuggable(motherBoard, *this))
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
-	, irq(motherBoard.getCPU())
+	, irq(motherBoard, getName() + ".IRQ")
 	, lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	lfo_am_depth = false;
