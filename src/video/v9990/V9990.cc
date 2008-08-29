@@ -154,95 +154,120 @@ byte V9990::readIO(word port, const EmuTime& time)
 {
 	port &= 0x0F;
 
-	byte result = 0;
+	// calculate return value (mostly uses peekIO)
+	byte result;
 	switch (port) {
-		case VRAM_DATA: {
-			// read from VRAM
-			unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
-			result = vram->readVRAMCPU(addr, time);
-			if (!(regs[VRAM_READ_ADDRESS_2] & 0x80)) {
-				setVRAMAddr(VRAM_READ_ADDRESS_0, addr + 1);
-			}
-			break;
-		}
-		case PALETTE_DATA: {
-			byte& palPtr = regs[PALETTE_POINTER];
-			result = palette[palPtr];
-			if (!(regs[PALETTE_CONTROL] & 0x10)) {
-				switch (palPtr & 3) {
-				case 0:  palPtr += 1; break; // red
-				case 1:  palPtr += 1; break; // green
-				case 2:  palPtr += 2; break; // blue
-				default: palPtr -= 3; break; // checked on real V9990
-				}
-			}
-			break;
-		}
-		case COMMAND_DATA:
-			// TODO
-			//assert(cmdEngine != NULL);
-			result = cmdEngine->getCmdData(time);
-			break;
+	case COMMAND_DATA:
+		result = cmdEngine->getCmdData(time);
+		break;
 
-		case REGISTER_DATA: {
-			// read register
-			result = readRegister(regSelect & 0x3F, time);
-			if (!(regSelect & 0x40)) {
-				regSelect = ( regSelect      & 0xC0) |
-				            ((regSelect + 1) & 0x3F);
-			}
-			break;
-		}
-		case INTERRUPT_FLAG:
-			result = pendingIRQs;
-			break;
-
-		case STATUS: {
-			const V9990DisplayPeriod& hor = getHorizontalTiming();
-			const V9990DisplayPeriod& ver = getVerticalTiming();
-			unsigned left   = hor.blank + hor.border1;
-			unsigned right  = left + hor.display;
-			unsigned top    = ver.blank + ver.border1;
-			unsigned bottom = top + ver.display;
-			unsigned ticks = getUCTicksThisFrame(time);
-			unsigned x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
-			unsigned y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
-			bool hr = (x < left) || (right  <= x);
-			bool vr = (y < top)  || (bottom <= y);
-
-			result = cmdEngine->getStatus(time) |
-				 (vr ? 0x40 : 0x00) |
-				 (hr ? 0x20 : 0x00) |
-				 (status & 0x06);
-			break;
-		}
-		case KANJI_ROM_1:
-		case KANJI_ROM_3:
-			// not used in Gfx9000
-			result = 0xFF;	// TODO check
-			break;
-
-		case REGISTER_SELECT:
-		case SYSTEM_CONTROL:
-		case KANJI_ROM_0:
-		case KANJI_ROM_2:
-		default:
-			// write-only
-			result = 0xFF;
-			break;
+	case VRAM_DATA:
+	case PALETTE_DATA:
+	case REGISTER_DATA:
+	case INTERRUPT_FLAG:
+	case STATUS:
+	case KANJI_ROM_0:
+	case KANJI_ROM_1:
+	case KANJI_ROM_2:
+	case KANJI_ROM_3:
+	case REGISTER_SELECT:
+	case SYSTEM_CONTROL:
+	default:
+		result = peekIO(port, time);
 	}
 
-	//PRT_DEBUG("[" << time << "] "
-	//	  "V9990::readIO - port=0x" << std::hex << (int)port <<
-	//	                  " val=0x" << std::hex << (int)result);
+	// execute side-effects
+	switch (port) {
+	case VRAM_DATA:
+		if (!(regs[VRAM_READ_ADDRESS_2] & 0x80)) {
+			unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
+			setVRAMAddr(VRAM_READ_ADDRESS_0, addr + 1);
+		}
+		break;
 
+	case PALETTE_DATA:
+		if (!(regs[PALETTE_CONTROL] & 0x10)) {
+			byte& palPtr = regs[PALETTE_POINTER];
+			switch (palPtr & 3) {
+			case 0:  palPtr += 1; break; // red
+			case 1:  palPtr += 1; break; // green
+			case 2:  palPtr += 2; break; // blue
+			default: palPtr -= 3; break; // checked on real V9990
+			}
+		}
+		break;
+
+	case REGISTER_DATA:
+		if (!(regSelect & 0x40)) {
+			//regSelect = ( regSelect      & 0xC0) |
+			//            ((regSelect + 1) & 0x3F);
+			regSelect = (regSelect + 1) & ~0x40;
+		}
+		break;
+	}
 	return result;
 }
 
-byte V9990::peekIO(word /*port*/, const EmuTime& /*time*/) const
+byte V9990::peekIO(word port, const EmuTime& time) const
 {
-	// TODO not implemented
-	return 0xFF;
+	byte result;
+	switch (port & 0x0F) {
+	case VRAM_DATA: {
+		unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
+		result = vram->readVRAMCPU(addr, time);
+		break;
+	}
+	case PALETTE_DATA:
+		result = palette[regs[PALETTE_POINTER]];
+		break;
+
+	case COMMAND_DATA:
+		result = cmdEngine->peekCmdData(time);
+		break;
+
+	case REGISTER_DATA:
+		result = readRegister(regSelect & 0x3F, time);
+		break;
+
+	case INTERRUPT_FLAG:
+		result = pendingIRQs;
+		break;
+
+	case STATUS: {
+		const V9990DisplayPeriod& hor = getHorizontalTiming();
+		const V9990DisplayPeriod& ver = getVerticalTiming();
+		unsigned left   = hor.blank + hor.border1;
+		unsigned right  = left + hor.display;
+		unsigned top    = ver.blank + ver.border1;
+		unsigned bottom = top + ver.display;
+		unsigned ticks = getUCTicksThisFrame(time);
+		unsigned x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
+		unsigned y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+		bool hr = (x < left) || (right  <= x);
+		bool vr = (y < top)  || (bottom <= y);
+
+		result = cmdEngine->getStatus(time) |
+		         (vr ? 0x40 : 0x00) |
+		         (hr ? 0x20 : 0x00) |
+		         (status & 0x06);
+		break;
+	}
+	case KANJI_ROM_1:
+	case KANJI_ROM_3:
+		// not used in Gfx9000
+		result = 0xFF; // TODO check
+		break;
+
+	case REGISTER_SELECT:
+	case SYSTEM_CONTROL:
+	case KANJI_ROM_0:
+	case KANJI_ROM_2:
+	default:
+		// write-only
+		result = 0xFF;
+		break;
+	}
+	return result;
 }
 
 void V9990::writeIO(word port, byte val, const EmuTime& time)
@@ -457,7 +482,7 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 	// TODO check
 }
 
-byte V9990::readRegister(byte reg, const EmuTime& time)
+byte V9990::readRegister(byte reg, const EmuTime& time) const
 {
 	// TODO sync(time) (if needed at all)
 
@@ -468,7 +493,7 @@ byte V9990::readRegister(byte reg, const EmuTime& time)
 			result = regs[reg];
 		} else {
 			word borderX = cmdEngine->getBorderX(time);
-			return (reg == CMD_PARAM_BORDER_X_0)
+			result = (reg == CMD_PARAM_BORDER_X_0)
 			       ? (borderX & 0xFF) : (borderX >> 8);
 		}
 	} else {

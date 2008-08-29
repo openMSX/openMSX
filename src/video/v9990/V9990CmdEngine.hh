@@ -56,17 +56,23 @@ public:
 	  */
 	byte getCmdData(const EmuTime& time);
 
+	/** read the command data byte (without side-effects)
+	  */
+	byte peekCmdData(const EmuTime& time);
+
 	/** Get command engine related status bits
 	  *  - TR command data transfer ready (bit 7)
 	  *  - BD border color detect         (bit 4)
 	  *  - CE command being executed      (bit 0)
 	  */
 	byte getStatus(const EmuTime& time) {
+		// note: used for both normal and debug read
 		sync(time);
 		return status;
 	}
 
 	word getBorderX(const EmuTime& time) {
+		// note: used for both normal and debug read
 		sync(time);
 		return borderX;
 	}

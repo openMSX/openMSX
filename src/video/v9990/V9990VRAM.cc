@@ -30,6 +30,7 @@ unsigned V9990VRAM::mapAddress(unsigned address)
 
 byte V9990VRAM::readVRAMCPU(unsigned address, const EmuTime& time)
 {
+	// note: used for both normal and debug read
 	sync(time);
 	return data[mapAddress(address)];
 }

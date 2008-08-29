@@ -544,7 +544,7 @@ private:
 	  * @param time  Moment in emulated time to read register
 	  * @returns     Register value
 	  */
-	byte readRegister(byte reg, const EmuTime& time);
+	byte readRegister(byte reg, const EmuTime& time) const;
 
 	/** Write V9990 register value
 	  * @param reg   Register to write to

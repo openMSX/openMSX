@@ -1699,6 +1699,12 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 	return value;
 }
 
+byte V9990CmdEngine::peekCmdData(const EmuTime& time)
+{
+	sync(time);
+	return (status & TR) ? data : 0xFF;
+}
+
 void V9990CmdEngine::cmdReady(const EmuTime& /*time*/)
 {
 	currentCommand = NULL;
