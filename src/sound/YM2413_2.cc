@@ -642,6 +642,7 @@ public:
 
 	/**
 	 * Sets some synthesis parameters as specified by the instrument.
+	 * @param global the actual YM2413 core, private implementation
 	 * @param instrument Number of the instrument.
 	 * @param part Part [0..7] of the instrument.
 	 */
@@ -649,6 +650,7 @@ public:
 
 	/**
 	 * Sets all synthesis parameters as specified by the instrument.
+	 * @param global the actual YM2413 core, private implementation
 	 * @param instrument Number of the instrument.
 	 */
 	void updateInstrument(Global& global, int instrument);
@@ -656,6 +658,7 @@ public:
 	/**
 	 * Sets all synthesis parameters as specified by the current instrument.
 	 * The current instrument is determined by instvol_r.
+	 * @param global the actual YM2413 core, private implementation
 	 */
 	void updateInstrument(Global& global) {
 		updateInstrument(global, instvol_r >> 4);
