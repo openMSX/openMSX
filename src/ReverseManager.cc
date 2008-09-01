@@ -1035,8 +1035,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {
 			std::vector<const char*> cmds;
 			if (tokens[1] == "loadreplay") {
-				cmds.push_back("-goto");
-				cmds.push_back("-viewonly");
+				cmds = { "-goto", "-viewonly" };
 			}
 			UserDataFileContext context(REPLAY_DIR);
 			completeFileName(tokens, context, cmds);

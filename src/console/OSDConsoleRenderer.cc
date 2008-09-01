@@ -118,16 +118,16 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	adjustColRow();
 
 	// placement
-	EnumSetting<Placement>::Map placeMap;
-	placeMap.push_back(std::make_pair("topleft",     CP_TOPLEFT));
-	placeMap.push_back(std::make_pair("top",         CP_TOP));
-	placeMap.push_back(std::make_pair("topright",    CP_TOPRIGHT));
-	placeMap.push_back(std::make_pair("left",        CP_LEFT));
-	placeMap.push_back(std::make_pair("center",      CP_CENTER));
-	placeMap.push_back(std::make_pair("right",       CP_RIGHT));
-	placeMap.push_back(std::make_pair("bottomleft",  CP_BOTTOMLEFT));
-	placeMap.push_back(std::make_pair("bottom",      CP_BOTTOM));
-	placeMap.push_back(std::make_pair("bottomright", CP_BOTTOMRIGHT));
+	EnumSetting<Placement>::Map placeMap = {
+		{ "topleft",     CP_TOPLEFT },
+		{ "top",         CP_TOP },
+		{ "topright",    CP_TOPRIGHT },
+		{ "left",        CP_LEFT },
+		{ "center",      CP_CENTER },
+		{ "right",       CP_RIGHT },
+		{ "bottomleft",  CP_BOTTOMLEFT },
+		{ "bottom",      CP_BOTTOM },
+		{ "bottomright", CP_BOTTOMRIGHT } };
 	// On Android, console must by default be placed on top, in order to prevent
 	// that it overlaps with the virtual Android keyboard, which is always placed
 	// at the bottom of the screen

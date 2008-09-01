@@ -39,7 +39,7 @@ ConsoleLine::ConsoleLine()
 
 ConsoleLine::ConsoleLine(string_ref line_, unsigned rgb)
 	: line(line_.str())
-	, chunks(1, make_pair(rgb, 0))
+	, chunks(1, {rgb, 0})
 {
 }
 

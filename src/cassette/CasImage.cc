@@ -89,17 +89,11 @@ void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 
 void CasImage::write0()
 {
-	output.push_back( 127);
-	output.push_back( 127);
-	output.push_back(-127);
-	output.push_back(-127);
+	output.insert(output.end(), { 127, 127, -127, -127 } );
 }
 void CasImage::write1()
 {
-	output.push_back( 127);
-	output.push_back(-127);
-	output.push_back( 127);
-	output.push_back(-127);
+	output.insert(output.end(), { 127, -127, 127, -127 } );
 }
 
 // write a header signal

@@ -339,10 +339,7 @@ void HotKey::activateLayer(const std::string& layer, bool blocking)
 	// (it's not an error if the same layer was already active, in such
 	// as case it will now appear twice in the list of active layer,
 	// and it must also be deactivated twice).
-	LayerInfo info;
-	info.layer = layer;
-	info.blocking = blocking;
-	activeLayers.push_back(info);
+	activeLayers.push_back({layer, blocking});
 }
 
 void HotKey::deactivateLayer(const std::string& layer)

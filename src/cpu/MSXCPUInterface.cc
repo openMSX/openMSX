@@ -598,8 +598,7 @@ void MSXCPUInterface::unregisterMemDevice(
 
 void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 {
-	GlobalWriteInfo info = { &device, address };
-	globalWrites.push_back(info);
+	globalWrites.push_back({&device, address});
 
 	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_WRITE_BIT;
 	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);

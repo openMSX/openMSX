@@ -178,9 +178,7 @@ void DiskChanger::stopReplay(EmuTime::param /*time*/)
 
 int DiskChanger::insertDisk(const string& filename)
 {
-	vector<TclObject> args;
-	args.push_back(TclObject("dummy"));
-	args.push_back(TclObject(filename));
+	vector<TclObject> args = { TclObject("dummy"), TclObject(filename) };
 	try {
 		insertDisk(args);
 		return 0;
@@ -248,29 +246,21 @@ void DiskCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 		}
 
 	} else if (tokens[1].getString() == "ramdsk") {
-		vector<string> args;
-		args.push_back(diskChanger.getDriveName());
-		args.push_back(tokens[1].getString().str());
-		diskChanger.sendChangeDiskEvent(args);
+		diskChanger.sendChangeDiskEvent({
+			diskChanger.getDriveName(), tokens[1].getString().str()});
 	} else if (tokens[1].getString() == "-ramdsk") {
-		vector<string> args;
-		args.push_back(diskChanger.getDriveName());
-		args.push_back("ramdsk");
-		diskChanger.sendChangeDiskEvent(args);
+		diskChanger.sendChangeDiskEvent({
+			diskChanger.getDriveName(), "ramdsk"});
 		result.setString(
 			"Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand");
 	} else if (tokens[1].getString() == "-eject") {
-		vector<string> args;
-		args.push_back(diskChanger.getDriveName());
-		args.push_back("eject");
-		diskChanger.sendChangeDiskEvent(args);
+		diskChanger.sendChangeDiskEvent({
+			diskChanger.getDriveName(), "eject"});
 		result.setString(
 			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
 	} else if (tokens[1].getString() == "eject") {
-		vector<string> args;
-		args.push_back(diskChanger.getDriveName());
-		args.push_back("eject");
-		diskChanger.sendChangeDiskEvent(args);
+		diskChanger.sendChangeDiskEvent({
+			diskChanger.getDriveName(), "eject"});
 	} else {
 		int firstFileToken = 1;
 		if (tokens[1].getString() == "insert") {
@@ -281,8 +271,7 @@ void DiskCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 			}
 		}
 		try {
-			vector<string> args;
-			args.push_back(diskChanger.getDriveName());
+			vector<string> args = { diskChanger.getDriveName() };
 			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
 				string_ref option = tokens[i].getString();
 				if (option == "-ips") {
@@ -382,9 +371,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 					name = file->getURL();
 				}
 			}
-			vector<TclObject> args;
-			args.push_back(TclObject("dummy"));
-			args.push_back(TclObject(name));
+			vector<TclObject> args =
+				{ TclObject("dummy"), TclObject(name) };
 			for (auto& p : patches) {
 				p.updateAfterLoadState();
 				args.push_back(TclObject(p.getResolved())); // TODO

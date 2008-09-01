@@ -67,8 +67,7 @@ unsigned OutputArchiveBase2::getID1(const void* p)
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto key = std::make_pair(p, std::type_index(typeInfo));
-	auto it = idMap.find(key);
+	auto it = idMap.find({p, std::type_index(typeInfo)});
 	return it != idMap.end() ? it->second : 0;
 }
 

@@ -17,10 +17,10 @@ namespace openmsx {
 
 RenderSettings::RenderSettings(CommandController& commandController)
 {
-	EnumSetting<Accuracy>::Map accMap;
-	accMap.push_back(std::make_pair("screen", ACC_SCREEN));
-	accMap.push_back(std::make_pair("line",   ACC_LINE));
-	accMap.push_back(std::make_pair("pixel",  ACC_PIXEL));
+	EnumSetting<Accuracy>::Map accMap = {
+		{ "screen", ACC_SCREEN },
+		{ "line",   ACC_LINE },
+		{ "pixel",  ACC_PIXEL } };
 	accuracySetting = make_unique<EnumSetting<Accuracy>>(commandController,
 		"accuracy", "rendering accuracy", ACC_PIXEL, accMap);
 
@@ -86,15 +86,15 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	// Get user-preferred renderer from config.
 	rendererSetting = RendererFactory::createRendererSetting(commandController);
 
-	EnumSetting<ScaleAlgorithm>::Map scalerMap;
-	scalerMap.push_back(std::make_pair("simple", SCALER_SIMPLE));
+	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
 	if (MAX_SCALE_FACTOR > 1) {
-		scalerMap.push_back(std::make_pair("SaI",        SCALER_SAI));
-		scalerMap.push_back(std::make_pair("ScaleNx",    SCALER_SCALE));
-		scalerMap.push_back(std::make_pair("hq",         SCALER_HQ));
-		scalerMap.push_back(std::make_pair("hqlite",     SCALER_HQLITE));
-		scalerMap.push_back(std::make_pair("RGBtriplet", SCALER_RGBTRIPLET));
-		scalerMap.push_back(std::make_pair("TV",         SCALER_TV));
+		scalerMap.insert(scalerMap.end(), {
+			{ "SaI",        SCALER_SAI },
+			{ "ScaleNx",    SCALER_SCALE },
+			{ "hq",         SCALER_HQ },
+			{ "hqlite",     SCALER_HQLITE },
+			{ "RGBtriplet", SCALER_RGBTRIPLET },
+			{ "TV",         SCALER_TV } });
 		if (!Version::RELEASE) {
 			// This scaler is not ready yet for the upcoming 0.8.1
 			// release, so disable it. As soon as it is ready we
@@ -122,16 +122,16 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"disablesprites", "disable sprite rendering",
 		false, Setting::DONT_SAVE);
 
-	EnumSetting<bool>::Map cmdMap;
-	cmdMap.push_back(std::make_pair("real",   false));
-	cmdMap.push_back(std::make_pair("broken", true));
+	EnumSetting<bool>::Map cmdMap = {
+		{ "real",   false },
+		{ "broken", true } };
 	cmdTimingSetting = make_unique<EnumSetting<bool>>(commandController,
 		"cmdtiming", "VDP command timing", false, cmdMap,
 		Setting::DONT_SAVE);
 
-	EnumSetting<bool>::Map accessMap;
-	accessMap.push_back(std::make_pair("real",   false));
-	accessMap.push_back(std::make_pair("ignore", true));
+	EnumSetting<bool>::Map accessMap = {
+		{ "real",   false },
+		{ "ignore", true } };
 	tooFastAccessSetting = make_unique<EnumSetting<bool>>(commandController,
 		"too_fast_vram_access",
 		"Should too fast VDP VRAM access be correctly emulated.\n"
@@ -140,9 +140,9 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		" ignore -> access speed is ignored, all accesses are executed",
 		false, accessMap, Setting::DONT_SAVE);
 
-	EnumSetting<DisplayDeform>::Map deformMap;
-	deformMap.push_back(std::make_pair("normal", DEFORM_NORMAL));
-	deformMap.push_back(std::make_pair("3d",     DEFORM_3D));
+	EnumSetting<DisplayDeform>::Map deformMap = {
+		{ "normal", DEFORM_NORMAL },
+		{ "3d",     DEFORM_3D } };
 	displayDeformSetting = make_unique<EnumSetting<DisplayDeform>>(
 		commandController,
 		"display_deform", "Display deform (for the moment this only "

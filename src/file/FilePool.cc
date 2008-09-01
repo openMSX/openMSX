@@ -21,7 +21,6 @@
 
 using std::ifstream;
 using std::get;
-using std::make_pair;
 using std::make_tuple;
 using std::ofstream;
 using std::pair;

@@ -95,9 +95,9 @@ unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 unique_ptr<RendererSetting> createRendererSetting(
 	CommandController& commandController)
 {
-	EnumSetting<RendererID>::Map rendererMap;
-	rendererMap.push_back(std::make_pair("none", DUMMY)); // TODO: only register when in CliComm mode
-	rendererMap.push_back(std::make_pair("SDL", SDL));
+	EnumSetting<RendererID>::Map rendererMap = {
+		{ "none", DUMMY },// TODO: only register when in CliComm mode
+		{ "SDL", SDL } };
 #if COMPONENT_GL
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here

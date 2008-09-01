@@ -79,7 +79,7 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> extra;
 	if (tokens.size() < 3) {
-		extra.push_back("insert");
+		extra = { "insert" };
 	}
 	completeFileName(tokens, UserFileContext(), extra);
 }

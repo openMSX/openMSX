@@ -132,32 +132,28 @@ ConfigFileContext::ConfigFileContext(string_ref path,
                                      string_ref hwDescr,
                                      string_ref userName)
 {
-	paths.push_back(backSubstSymbols(FileOperations::expandTilde(path)));
-	savePaths.push_back(FileOperations::join(
-		USER_OPENMSX, "persistent", hwDescr, userName));
+	paths = { backSubstSymbols(FileOperations::expandTilde(path)) };
+	savePaths = { FileOperations::join(
+	                  USER_OPENMSX, "persistent", hwDescr, userName) };
 }
 
 SystemFileContext::SystemFileContext()
 {
-	paths.push_back(USER_DATA);
-	paths.push_back(SYSTEM_DATA);
-	savePaths.push_back(USER_DATA);
+	paths = { USER_DATA, SYSTEM_DATA };
+	savePaths = { USER_DATA };
 }
 
 PreferSystemFileContext::PreferSystemFileContext()
 {
-	paths.push_back(SYSTEM_DATA); // first system dir
-	paths.push_back(USER_DATA);
+	paths = { SYSTEM_DATA, USER_DATA }; // first system dir
 }
 
 UserFileContext::UserFileContext(string_ref savePath)
 {
-	paths.push_back("");
-	paths.push_back(USER_DIRS);
-
+	paths = { "", USER_DIRS };
 	if (!savePath.empty()) {
-		savePaths.push_back(FileOperations::join(
-			USER_OPENMSX, "persistent", savePath));
+		savePaths = { FileOperations::join(
+		                 USER_OPENMSX, "persistent", savePath) };
 	}
 }
 
@@ -169,7 +165,7 @@ UserDataFileContext::UserDataFileContext(string_ref subDir)
 
 CurrentDirFileContext::CurrentDirFileContext()
 {
-	paths.push_back("");
+	paths = { "" };
 }
 
 

@@ -10,7 +10,7 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	          "selects the video source to display on the screen",
 	          "none", DONT_SAVE)
 {
-	sources.push_back(std::make_pair("none", 0));
+	sources = { { "none", 0 } };
 
 	setChecker([this](TclObject& newValue) {
 		checkSetValue(newValue.getString()); // may throw

@@ -406,8 +406,7 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> extra;
 	if (tokens.size() < 3) {
-		extra.push_back("eject");
-		extra.push_back("insert");
+		extra = { "eject", "insert" };
 	}
 	completeFileName(tokens, UserFileContext(), extra);
 }

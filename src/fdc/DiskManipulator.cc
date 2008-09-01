@@ -295,16 +295,16 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		for (auto& d : drives) {
 			const auto& name1 = d.driveName; // with prexix
 			const auto& name2 = d.drive->getContainerName(); // without prefix
-			names.push_back(name1);
-			names.push_back(name2);
+			names.insert(names.end(), {name1, name2});
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			if (auto* disk = d.drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
-						names.push_back(name1 + StringOp::toString(i));
-						names.push_back(name2 + StringOp::toString(i));
+						names.insert(names.end(), {
+							name1 + StringOp::toString(i),
+							name2 + StringOp::toString(i)});
 					} catch (MSXException&) {
 						// skip invalid partition
 					}
