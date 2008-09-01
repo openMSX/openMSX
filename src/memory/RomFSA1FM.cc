@@ -49,8 +49,7 @@ namespace openmsx {
 RomFSA1FMSram::RomFSA1FMSram(const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("FSA1FM-sram");
+	auto& info = motherBoard.getSharedStuff("FSA1FM-sram");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new SRAM(config.getAttribute("id") + " SRAM",
@@ -62,9 +61,8 @@ RomFSA1FMSram::RomFSA1FMSram(const DeviceConfig& config)
 
 RomFSA1FMSram::~RomFSA1FMSram()
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("FSA1FM-sram");
-	auto sram = reinterpret_cast<SRAM*>(info.stuff);
+	auto& info = motherBoard.getSharedStuff("FSA1FM-sram");
+	auto* sram = reinterpret_cast<SRAM*>(info.stuff);
 	assert(info.counter);
 	assert(sram);
 	assert(sram == fsSram);

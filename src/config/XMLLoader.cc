@@ -35,7 +35,7 @@ static void cbStartElement(
 	int /*nb_namespaces*/, const xmlChar** /*namespaces*/,
 	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs)
 {
-	auto helper = static_cast<XMLLoaderHelper*>(helper_);
+	auto* helper = static_cast<XMLLoaderHelper*>(helper_);
 	XMLElement newElem(reinterpret_cast<const char*>(localname));
 
 	for (int i = 0; i < nb_attributes; ++i) {
@@ -64,9 +64,9 @@ static void cbEndElement(
 	void* helper_,
 	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/)
 {
-	auto helper = static_cast<XMLLoaderHelper*>(helper_);
+	auto* helper = static_cast<XMLLoaderHelper*>(helper_);
 	assert(!helper->current.empty());
-	XMLElement& current = *helper->current.back();
+	auto& current = *helper->current.back();
 	assert(reinterpret_cast<const char*>(localname) == current.getName());
 	(void)localname;
 
@@ -78,7 +78,7 @@ static void cbEndElement(
 
 static void cbCharacters(void* helper_, const xmlChar* chars, int len)
 {
-	auto helper = static_cast<XMLLoaderHelper*>(helper_);
+	auto* helper = static_cast<XMLLoaderHelper*>(helper_);
 	assert(!helper->current.empty());
 	if (!helper->current.back()->hasChildren()) {
 		helper->data.append(reinterpret_cast<const char*>(chars), len);
@@ -88,7 +88,7 @@ static void cbCharacters(void* helper_, const xmlChar* chars, int len)
 static void cbInternalSubset(void* helper_, const xmlChar* /*name*/,
                              const xmlChar* /*extID*/, const xmlChar* systemID)
 {
-	auto helper = static_cast<XMLLoaderHelper*>(helper_);
+	auto* helper = static_cast<XMLLoaderHelper*>(helper_);
 	helper->systemID = reinterpret_cast<const char*>(systemID);
 }
 

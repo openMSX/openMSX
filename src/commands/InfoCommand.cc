@@ -64,7 +64,7 @@ void InfoCommand::execute(const vector<TclObject>& tokens,
 	default:
 		// show info about topic
 		assert(tokens.size() >= 2);
-		string_ref topic = tokens[1].getString();
+		const auto& topic = tokens[1].getString();
 		auto it = infoTopics.find(topic);
 		if (it == infoTopics.end()) {
 			throw CommandException("No info on: " + topic);

@@ -121,8 +121,8 @@ void MSXDevice::lockDevices()
 	// needed we can implement something more sophisticated later without
 	// changing the format of the config files.
 	for (auto& c : getDeviceConfig().getChildren("device")) {
-		string name = c->getAttribute("idref");
-		MSXDevice* dev = getMotherBoard().findDevice(name);
+		const auto& name = c->getAttribute("idref");
+		auto* dev = getMotherBoard().findDevice(name);
 		if (!dev) {
 			throw MSXException(
 				"Unsatisfied dependency: '" + getName() +
@@ -207,9 +207,9 @@ void MSXDevice::registerSlots()
 	}
 
 	// find primary and secondary slot specification
-	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
-	XMLElement* primaryConfig   = getDeviceConfig2().getPrimary();
-	XMLElement* secondaryConfig = getDeviceConfig2().getSecondary();
+	auto& slotManager = getMotherBoard().getSlotManager();
+	auto* primaryConfig   = getDeviceConfig2().getPrimary();
+	auto* secondaryConfig = getDeviceConfig2().getSecondary();
 	if (primaryConfig) {
 		ps = slotManager.getSlotNum(primaryConfig->getAttribute("slot"));
 	} else {
@@ -227,14 +227,14 @@ void MSXDevice::registerSlots()
 	// the (possibly shared) <primary> and <secondary> tags. When loading
 	// an old savestate these tags can still occur, so keep this code. Also
 	// remove these attributes to convert to the new format.
-	const XMLElement& config = getDeviceConfig();
+	const auto& config = getDeviceConfig();
 	if (config.hasAttribute("primary_slot")) {
 		auto& mutableConfig = const_cast<XMLElement&>(config);
-		const string& primSlot = config.getAttribute("primary_slot");
+		const auto& primSlot = config.getAttribute("primary_slot");
 		ps = slotManager.getSlotNum(primSlot);
 		mutableConfig.removeAttribute("primary_slot");
 		if (config.hasAttribute("secondary_slot")) {
-			const string& secondSlot = config.getAttribute("secondary_slot");
+			const auto& secondSlot = config.getAttribute("secondary_slot");
 			ss = slotManager.getSlotNum(secondSlot);
 			mutableConfig.removeAttribute("secondary_slot");
 		}
@@ -339,7 +339,7 @@ void MSXDevice::registerPorts()
 	for (auto& i : getDeviceConfig().getChildren("io")) {
 		unsigned base = StringOp::stringToInt(i->getAttribute("base"));
 		unsigned num  = StringOp::stringToInt(i->getAttribute("num"));
-		string_ref type = i->getAttribute("type", "IO");
+		const auto& type = i->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
 			throw MSXException("Invalid IO port specification");

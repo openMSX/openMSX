@@ -665,8 +665,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
                                RenderSettings& settings_)
 	: settings(settings_), vdp(vdp_), time(time_)
 {
-	MSXMotherBoard::SharedStuff& info =
-		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
+	auto& info = vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new BooleanSetting(
@@ -678,7 +677,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
 
 	initBitTab();
 
-	CmdSTOP* stopCmd = new CmdSTOP(*this, vdp.getVRAM());
+	auto* stopCmd = new CmdSTOP(*this, vdp.getVRAM());
 	for (int mode = 0; mode < 6; ++mode) {
 		commands[0][mode] = stopCmd;
 	}
@@ -716,7 +715,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
 template <template <class Mode> class Command>
 void V9990CmdEngine::createEngines(int cmd)
 {
-	V9990VRAM& vram = vdp.getVRAM();
+	auto& vram = vdp.getVRAM();
 	commands[cmd][CMD_P1   ] = new Command<V9990P1>   (*this, vram);
 	commands[cmd][CMD_P2   ] = new Command<V9990P2>   (*this, vram);
 	commands[cmd][CMD_BPP2 ] = new Command<V9990Bpp2> (*this, vram);
@@ -737,8 +736,7 @@ V9990CmdEngine::~V9990CmdEngine()
 		}
 	}
 
-	MSXMotherBoard::SharedStuff& info =
-		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
+	auto& info = vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
 	assert(info.counter);
 	assert(cmdTraceSetting);
 	assert(cmdTraceSetting == info.stuff);
@@ -846,7 +844,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 void V9990CmdEngine::setCurrentCommand()
 {
 	CommandMode cmdMode;
-	V9990DisplayMode dispMode = vdp.getDisplayMode();
+	auto dispMode = vdp.getDisplayMode();
 	if (dispMode == P1) {
 		cmdMode = CMD_P1;
 	} else if (dispMode == P2) {
@@ -911,7 +909,7 @@ EmuDuration V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
 {
 	if (unlikely(brokenTiming)) return EmuDuration();
 
-	V9990DisplayMode mode = vdp.getDisplayMode();
+	auto mode = vdp.getDisplayMode();
 	unsigned idx1 = (mode == P1) ? 2 :
 	                (mode == P2) ? 3 :
 	                (vdp.isOverScan()) ? 0 : 1;
@@ -1117,7 +1115,7 @@ void V9990CmdEngine::CmdLMCM<Mode>::execute(EmuTime::param /*time*/)
 		unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 		typename Mode::Type data = 0;
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
-			typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
+			auto src = Mode::point(vram, engine.SX, engine.SY, pitch);
 			data |= Mode::shift(src, engine.SX, i) & Mode::shiftMask(i);
 
 			int dx = (engine.ARG & DIX) ? -1 : 1;
@@ -1176,7 +1174,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(EmuTime::param time)
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 	while (engine.time < time) {
 		engine.time += delta;
-		typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
+		auto src = Mode::point(vram, engine.SX, engine.SY, pitch);
 		src = Mode::shift(src, engine.SX, engine.DX);
 		Mode::pset(vram, engine.DX, engine.DY, pitch,
 		           src, engine.WM, lut, engine.LOG);
@@ -1443,7 +1441,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(EmuTime::param time)
 	engine.bitsLeft = 16;
 	while (engine.time < time) {
 		engine.time += delta;
-		typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
+		auto src = Mode::point(vram, engine.SX, engine.SY, pitch);
 		src = Mode::shift(src, engine.SX, 0); // TODO optimize
 		if (Mode::BITS_PER_PIXEL == 16) {
 			tmp = src;

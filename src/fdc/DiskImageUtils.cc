@@ -45,7 +45,7 @@ static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
 			"No (or invalid) partition table.");
 	}
 	// check valid partition number
-	Partition& p = pt.part[31 - partition];
+	auto& p = pt.part[31 - partition];
 	if (p.start == 0) {
 		throw CommandException(StringOp::Builder() <<
 			"No partition number " << partition);
@@ -248,7 +248,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	unsigned partitionOffset = 1;
 	for (unsigned i = 0; i < sizes.size(); ++i) {
 		unsigned partitionNbSectors = sizes[i];
-		Partition& p = pt.part[30 - i];
+		auto& p = pt.part[30 - i];
 		unsigned startCylinder, startHead, startSector;
 		logicalToCHS(partitionOffset,
 		             startCylinder, startHead, startSector);

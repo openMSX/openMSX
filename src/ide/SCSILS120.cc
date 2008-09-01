@@ -114,8 +114,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	, mode(mode_)
 	, scsiId(targetconfig.getAttributeAsInt("id"))
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("lsInUse");
+	auto& info = motherBoard.getSharedStuff("lsInUse");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new LSInUse();
@@ -143,8 +142,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 SCSILS120::~SCSILS120()
 {
 	PRT_DEBUG("ls120 close for ls120 " << int(scsiId));
-	MSXMotherBoard::SharedStuff& info =
-	        motherBoard.getSharedStuff("lsInUse");
+	auto& info = motherBoard.getSharedStuff("lsInUse");
 	assert(info.counter);
 	assert(info.stuff);
 	auto& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);

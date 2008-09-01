@@ -163,7 +163,7 @@ GlobalCommandController::findProxySetting(const std::string& name)
 
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
-	const string& name = setting.getName();
+	const auto& name = setting.getName();
 	auto it = findProxySetting(name);
 	if (it == proxySettings.end()) {
 		// first occurrence
@@ -179,7 +179,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 
 void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
-	const string& name = setting.getName();
+	const auto& name = setting.getName();
 	auto it = findProxySetting(name);
 	assert(it != proxySettings.end());
 	assert(it->second);
@@ -257,14 +257,14 @@ void GlobalCommandController::unregisterCompleter(
 
 void GlobalCommandController::registerSetting(Setting& setting)
 {
-	const string& name = setting.getName();
+	const auto& name = setting.getName();
 	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
 	interpreter->registerSetting(setting, name);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
-	const string& name = setting.getName();
+	const auto& name = setting.getName();
 	interpreter->unregisterSetting(setting, name);
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
 }
@@ -553,7 +553,7 @@ void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
 		for (auto& p : controller.commandCompleters) {
-			string_ref key = p.first();
+			const auto& key = p.first();
 			text.append(key.data(), key.size());
 			text += '\n';
 		}
@@ -644,14 +644,13 @@ static GlobalCliComm::UpdateType getType(const string& name)
 
 CliConnection& UpdateCmd::getConnection()
 {
-	auto controller = checked_cast<GlobalCommandController*>(
+	auto* controller = checked_cast<GlobalCommandController*>(
 		&getCommandController());
-	CliConnection* connection = controller->getConnection();
-	if (!connection) {
-		throw CommandException("This command only makes sense when "
-		                       "it's used from an external application.");
+	if (auto* connection = controller->getConnection()) {
+		return *connection;
 	}
-	return *connection;
+	throw CommandException("This command only makes sense when "
+	                       "it's used from an external application.");
 }
 
 string UpdateCmd::execute(const vector<string>& tokens)

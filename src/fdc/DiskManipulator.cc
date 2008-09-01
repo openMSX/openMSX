@@ -104,7 +104,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		}
 	}
 
-	SectorAccessibleDisk* disk = it->drive->getSectorAccessibleDisk();
+	auto* disk = it->drive->getSectorAccessibleDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type.");
@@ -114,7 +114,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		// whole disk
 		it->partition = 0;
 	} else {
-		string_ref num = diskname.substr(pos2);
+		const auto& num = diskname.substr(pos2);
 		int partition = stoi(num, nullptr, 10);
 		DiskImageUtils::checkFAT12Partition(*disk, partition);
 		it->partition = partition;
@@ -125,7 +125,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 unique_ptr<DiskPartition> DiskManipulator::getPartition(
 	const DriveSettings& driveData)
 {
-	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
+	auto* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
 	return make_unique<DiskPartition>(*disk, driveData.partition);
 }
@@ -152,21 +152,21 @@ string DiskManipulator::execute(const vector<string>& tokens)
 		if (!FileOperations::isDirectory(tokens[3])) {
 			throw CommandException(tokens[3] + " is not a directory");
 		}
-		DriveSettings& settings = getDriveSettings(tokens[2]);
+		auto& settings = getDriveSettings(tokens[2]);
 		vector<string> lists(tokens.begin() + 4, tokens.end());
 		exprt(settings, tokens[3], lists);
 
 	} else if (tokens[1] == "import" ) {
-		DriveSettings& settings = getDriveSettings(tokens[2]);
+		auto& settings = getDriveSettings(tokens[2]);
 		vector<string> lists(tokens.begin() + 3, tokens.end());
 		result = import(settings, lists);
 
 	} else if (tokens[1] == "savedsk") {
-		DriveSettings& settings = getDriveSettings(tokens[2]);
+		auto& settings = getDriveSettings(tokens[2]);
 		savedsk(settings, tokens[3]);
 
 	} else if (tokens[1] == "chdir") {
-		DriveSettings& settings = getDriveSettings(tokens[2]);
+		auto& settings = getDriveSettings(tokens[2]);
 		if (tokens.size() == 3) {
 			result += "Current directory: " +
 			          settings.workingDir[settings.partition];
@@ -175,18 +175,18 @@ string DiskManipulator::execute(const vector<string>& tokens)
 		}
 
 	} else if (tokens[1] == "mkdir") {
-		DriveSettings& settings = getDriveSettings(tokens[2]);
+		auto& settings = getDriveSettings(tokens[2]);
 		mkdir(settings, tokens[3]);
 
 	} else if (tokens[1] == "create") {
 		create(tokens);
 
 	} else if (tokens[1] == "format") {
-		DriveSettings& settings = getDriveSettings(tokens[2]);
+		auto& settings = getDriveSettings(tokens[2]);
 		format(settings);
 
 	} else if (tokens[1] == "dir") {
-		DriveSettings& settings = getDriveSettings(tokens[2]);
+		auto& settings = getDriveSettings(tokens[2]);
 		result += dir(settings);
 
 	} else {
@@ -283,14 +283,13 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 	} else if (tokens.size() == 3) {
 		vector<string> names;
 		for (auto& d : drives) {
-			string name1 = d.driveName; // with prexix
-			string name2 = d.drive->getContainerName(); // without prefix
+			const auto& name1 = d.driveName; // with prexix
+			const auto& name2 = d.drive->getContainerName(); // without prefix
 			names.push_back(name1);
 			names.push_back(name2);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
-			if (SectorAccessibleDisk* disk =
-			    d.drive->getSectorAccessibleDisk()) {
+			if (auto* disk = d.drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
@@ -321,7 +320,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 void DiskManipulator::savedsk(const DriveSettings& driveData,
                               const string& filename)
 {
-	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	auto partition = getPartition(driveData);
 	byte buf[SectorBasedDisk::SECTOR_SIZE];
 	File file(filename, File::CREATE);
 	for (auto i : xrange(partition->getNbSectors())) {
@@ -407,7 +406,7 @@ void DiskManipulator::create(const vector<string>& tokens)
 
 void DiskManipulator::format(DriveSettings& driveData)
 {
-	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	auto partition = getPartition(driveData);
 	DiskImageUtils::format(*partition);
 	driveData.workingDir[driveData.partition] = '/';
 }
@@ -435,15 +434,15 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 
 string DiskManipulator::dir(DriveSettings& driveData)
 {
-	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	auto partition = getPartition(driveData);
 	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	return workhorse->dir();
 }
 
 string DiskManipulator::chdir(DriveSettings& driveData, const string& filename)
 {
-	unique_ptr<DiskPartition> partition = getPartition(driveData);
-	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	auto partition = getPartition(driveData);
+	auto workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->chdir(filename);
 	} catch (MSXException& e) {
@@ -462,8 +461,8 @@ string DiskManipulator::chdir(DriveSettings& driveData, const string& filename)
 
 void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 {
-	unique_ptr<DiskPartition> partition = getPartition(driveData);
-	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	auto partition = getPartition(driveData);
+	auto workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->mkdir(filename);
 	} catch (MSXException& e) {
@@ -474,8 +473,8 @@ void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 string DiskManipulator::import(DriveSettings& driveData,
                                const vector<string>& lists)
 {
-	unique_ptr<DiskPartition> partition = getPartition(driveData);
-	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	auto partition = getPartition(driveData);
+	auto workhorse = getMSXtar(*partition, driveData);
 
 	string messages;
 	for (auto& l : lists) {
@@ -505,8 +504,8 @@ string DiskManipulator::import(DriveSettings& driveData,
 void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
                             const vector<string>& lists)
 {
-	unique_ptr<DiskPartition> partition = getPartition(driveData);
-	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	auto partition = getPartition(driveData);
+	auto workhorse = getMSXtar(*partition, driveData);
 	try {
 		if (lists.empty()) {
 			// export all

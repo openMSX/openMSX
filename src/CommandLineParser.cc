@@ -348,11 +348,11 @@ void CommandLineParser::parse(int argc, char** argv)
 			if (parseStatus != CONTROL) {
 				// if there already is a XML-StdioConnection, we
 				// can't also show plain messages on stdout
-				GlobalCliComm& cliComm = reactor.getGlobalCliComm();
+				auto& cliComm = reactor.getGlobalCliComm();
 				cliComm.addListener(new StdioMessages());
 			}
 			if (!haveSettings) {
-				SettingsConfig& settingsConfig =
+				auto& settingsConfig =
 					reactor.getGlobalCommandController().getSettingsConfig();
 				// Load default settings file in case the user
 				// didn't specify one.
@@ -381,7 +381,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		case PHASE_LOAD_MACHINE: {
 			if (!haveConfig) {
 				// load default config file in case the user didn't specify one
-				const string& machine =
+				const auto& machine =
 					reactor.getMachineSetting().getValueString();
 				try {
 					reactor.switchMachine(machine);
@@ -389,7 +389,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.getCliComm().printInfo(
 						"Failed to initialize default machine: " + e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
-					const string& fallbackMachine =
+					const auto& fallbackMachine =
 						reactor.getMachineSetting().getRestoreValueString();
 					reactor.getCliComm().printInfo("Using fallback machine: " + fallbackMachine);
 					try {
@@ -477,13 +477,13 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 
 void ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 {
-	string fullType = getArgument(option, cmdLine);
+	const auto& fullType = getArgument(option, cmdLine);
 	string_ref type, arguments;
 	StringOp::splitOnFirst(fullType, ':', type, arguments);
 
-	CommandController& controller = parser.getGlobalCommandController();
-	EventDistributor& distributor = parser.reactor.getEventDistributor();
-	GlobalCliComm& cliComm        = parser.reactor.getGlobalCliComm();
+	auto& controller  = parser.getGlobalCommandController();
+	auto& distributor = parser.reactor.getEventDistributor();
+	auto& cliComm     = parser.reactor.getGlobalCliComm();
 	std::unique_ptr<CliListener> connection;
 	if (type == "stdio") {
 		connection = make_unique<StdioConnection>(
@@ -613,7 +613,7 @@ HelpOption::HelpOption(CommandLineParser& parser_)
 void HelpOption::parseOption(const string& /*option*/,
                              deque<string>& /*cmdLine*/)
 {
-	string fullVersion = Version::full();
+	const auto& fullVersion = Version::full();
 	cout << fullVersion << endl;
 	cout << string(fullVersion.size(), '=') << endl;
 	cout << endl;
@@ -624,7 +624,7 @@ void HelpOption::parseOption(const string& /*option*/,
 
 	StringMap<set<string>> optionMap;
 	for (auto& p : parser.optionMap) {
-		string_ref helpText = p.second.option->optionHelp();
+		const auto& helpText = p.second.option->optionHelp();
 		if (!helpText.empty()) {
 			optionMap[helpText].insert(p.first);
 		}
@@ -709,7 +709,7 @@ void SettingOption::parseOption(const string& option, deque<string>& cmdLine)
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
-		SettingsConfig& settingsConfig = parser.reactor.getGlobalCommandController().getSettingsConfig();
+		auto& settingsConfig = parser.reactor.getGlobalCommandController().getSettingsConfig();
 		settingsConfig.loadSetting(
 			CurrentDirFileContext(), getArgument(option, cmdLine));
 		parser.haveSettings = true;

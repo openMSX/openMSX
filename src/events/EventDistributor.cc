@@ -21,7 +21,7 @@ void EventDistributor::registerEventListener(
 		EventType type, EventListener& listener, Priority priority)
 {
 	ScopedLock lock(sem);
-	PriorityMap& priorityMap = listeners[type];
+	auto& priorityMap = listeners[type];
 	for (auto& p : priorityMap) {
 		// a listener may only be registered once for each type
 		assert(p.second != &listener); (void)p;
@@ -33,7 +33,7 @@ void EventDistributor::unregisterEventListener(
 		EventType type, EventListener& listener)
 {
 	ScopedLock lock(sem);
-	PriorityMap& priorityMap = listeners[type];
+	auto& priorityMap = listeners[type];
 	auto it = find_if(priorityMap.begin(), priorityMap.end(),
 		[&](PriorityMap::value_type v) { return v.second == &listener; });
 	assert(it != priorityMap.end());
@@ -93,8 +93,8 @@ void EventDistributor::deliverEvents()
 		swap(eventsCopy, scheduledEvents);
 
 		for (auto& event : eventsCopy) {
-			EventType type = event->getType();
-			PriorityMap priorityMapCopy = listeners[type];
+			auto type = event->getType();
+			auto priorityMapCopy = listeners[type];
 			sem.up();
 			unsigned allowPriorities = unsigned(-1); // all priorities
 			for (auto& p : priorityMapCopy) {

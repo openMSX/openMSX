@@ -12,7 +12,7 @@ using namespace DiskImageUtils;
 
 static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
-	if (auto dsk = dynamic_cast<Disk*>(disk)) {
+	if (auto* dsk = dynamic_cast<Disk*>(disk)) {
 		return DiskName(dsk->getName().getFilename(),
 		                StringOp::Builder() << ':' << partition);
 	} else {
@@ -35,7 +35,7 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 		checkValidPartition(disk, partition); // throws
 		PartitionTable pt;
 		disk.readSector(0, reinterpret_cast<byte*>(&pt));
-		Partition& p = pt.part[31 - partition];
+		auto& p = pt.part[31 - partition];
 		start = p.start;
 		setNbSectors(p.size);
 	}

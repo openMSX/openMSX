@@ -253,18 +253,18 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 	auto bound = pool.equal_range(sha1sum);
 	auto it = bound.first;
 	while (it != bound.second) {
-		time_t& time = it->second.first;
-		const string& filename = it->second.second;
+		auto& time = it->second.first;
+		const auto& filename = it->second.second;
 		try {
 			auto file = make_unique<File>(filename);
-			time_t newTime = file->getModificationDate();
+			auto newTime = file->getModificationDate();
 			if (time == newTime) {
 				// When modification time is unchanged, assume
 				// sha1sum is also unchanged. So avoid
 				// expensive sha1sum calculation.
 				return file;
 			}
-			Sha1Sum newSum = calcSha1sum(*file, cliComm, distributor);
+			auto newSum = calcSha1sum(*file, cliComm, distributor);
 			if (newSum == sha1sum) {
 				// Modification time was changed, but
 				// (recalculated) sha1sum is still the same,
@@ -338,8 +338,8 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 		// not in pool
 		try {
 			auto file = make_unique<File>(filename);
-			Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
-			time_t time = FileOperations::getModificationDate(st);
+			auto sum = calcSha1sum(*file, cliComm, distributor);
+			auto time = FileOperations::getModificationDate(st);
 			insert(sum, time, filename);
 			if (sum == sha1sum) {
 				return file;
@@ -351,7 +351,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 		// already in pool
 		assert(filename == it->second.second);
 		try {
-			time_t time = FileOperations::getModificationDate(st);
+			auto time = FileOperations::getModificationDate(st);
 			if (time == it->second.first) {
 				// db is still up to date
 				if (it->first == sha1sum) {
@@ -360,7 +360,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 			} else {
 				// db outdated
 				auto file = make_unique<File>(filename);
-				Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
+				auto sum = calcSha1sum(*file, cliComm, distributor);
 				remove(it);
 				insert(sum, time, filename);
 				if (sum == sha1sum) {
@@ -387,8 +387,8 @@ FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 
 Sha1Sum FilePool::getSha1Sum(File& file)
 {
-	time_t time = file.getModificationDate();
-	string filename = file.getURL();
+	auto time = file.getModificationDate();
+	const auto& filename = file.getURL();
 
 	auto it = findInDatabase(filename);
 	if (it != pool.end()) {
@@ -402,7 +402,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 		}
 	}
 	// not in db (or timestamp mismatch)
-	Sha1Sum sum = calcSha1sum(file, cliComm, distributor);
+	auto sum = calcSha1sum(file, cliComm, distributor);
 	insert(sum, time, filename);
 	return sum;
 }

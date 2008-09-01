@@ -122,8 +122,7 @@ ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
 	: motherBoard(motherBoard_)
 	, graphicsHiLo(graphicsHiLo_)
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("print-resolution");
+	auto& info = motherBoard.getSharedStuff("print-resolution");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new IntegerSetting(
@@ -170,8 +169,7 @@ ImagePrinter::~ImagePrinter()
 {
 	flushEmulatedPrinter();
 
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("print-resolution");
+	auto& info = motherBoard.getSharedStuff("print-resolution");
 	assert(info.counter);
 	assert(dpiSetting);
 	assert(dpiSetting == info.stuff);

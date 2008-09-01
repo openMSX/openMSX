@@ -146,7 +146,7 @@ CommandConsole::CommandConsole(
 	loadHistory();
 	Completer::setOutput(this);
 
-	string fullVersion = Version::full();
+	const auto& fullVersion = Version::full();
 	print(fullVersion);
 	print(string(fullVersion.size(), '-'));
 	print("\n"
@@ -282,7 +282,7 @@ int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
-	Keys::KeyCode keyCode = keyEvent.getKeyCode();
+	auto keyCode = keyEvent.getKeyCode();
 	int key = keyCode &  Keys::K_MASK;
 	int mod = keyCode & ~Keys::K_MASK;
 	word chr = keyEvent.getUnicode();

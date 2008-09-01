@@ -37,7 +37,7 @@ RecordedCommand::~RecordedCommand()
 void RecordedCommand::execute(const vector<TclObject>& tokens,
                               TclObject& result)
 {
-	EmuTime::param time = scheduler.getCurrentTime();
+	auto time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
 		ScopedAssign<TclObject*> sa(currentResultObject, &result);
 		stateChangeDistributor.distributeNew(
@@ -70,10 +70,10 @@ static string_ref getBaseName(string_ref str)
 
 void RecordedCommand::signalStateChange(const std::shared_ptr<StateChange>& event)
 {
-	auto commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
+	auto* commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
 	if (!commandEvent) return;
 
-	const vector<TclObject>& tokens = commandEvent->getTokens();
+	auto& tokens = commandEvent->getTokens();
 	if (getBaseName(tokens[0].getString()) != getName()) return;
 
 	if (needRecord(tokens)) {

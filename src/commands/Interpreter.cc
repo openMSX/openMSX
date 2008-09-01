@@ -127,7 +127,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
                  int toWrite, int* /*errorCodePtr*/)
 {
 	try {
-		auto output = static_cast<Interpreter*>(clientData)->output;
+		auto* output = static_cast<Interpreter*>(clientData)->output;
 		string_ref text(buf, toWrite);
 		if (!text.empty() && output) {
 			output->output(text);
@@ -374,7 +374,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		// in the map and return.
 
 		auto traceID = reinterpret_cast<long>(clientData);
-		Setting* variable = getTraceSetting(traceID);
+		auto* variable = getTraceSetting(traceID);
 		if (!variable) return nullptr;
 
 		static string static_string;

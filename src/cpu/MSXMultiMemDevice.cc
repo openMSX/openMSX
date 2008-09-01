@@ -132,7 +132,7 @@ const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 	// Because start is aligned we don't need to wory about the begin
 	// address of the range. But we must make sure the end of the range
 	// doesn't only fill a partial cacheline.
-	const Range& range = searchRange(start);
+	const auto& range = searchRange(start);
 	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
 		// The end of this memory device only fills a partial
 		// cacheline. This can't be cached.
@@ -144,7 +144,7 @@ const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
 {
 	assert((start & CacheLine::HIGH) == start);
-	const Range& range = searchRange(start);
+	const auto& range = searchRange(start);
 	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
 		return nullptr;
 	}

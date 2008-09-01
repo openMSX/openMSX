@@ -89,9 +89,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	bool checkResolvedSha1 = false;
 
 	auto sums = config.getChildren("sha1");
-	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
-	const XMLElement* resolvedSha1Elem     = config.findChild("resolvedSha1");
-	const XMLElement* filenameElem         = config.findChild("filename");
+	auto* resolvedFilenameElem = config.findChild("resolvedFilename");
+	auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
+	auto* filenameElem         = config.findChild("filename");
 	if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
 		//  If there is a firstblock/lastblock tag, (only) use these to
@@ -113,7 +113,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	} else if (resolvedFilenameElem || resolvedSha1Elem ||
 	           !sums.empty() || filenameElem) {
-		FilePool& filepool = motherBoard.getReactor().getFilePool();
+		auto& filepool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
 			try {
@@ -124,7 +124,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 		}
 		// .. then try the actual sha1sum ..
-		FilePool::FileType fileType = context.isUserContext()
+		auto fileType = context.isUserContext()
 			? FilePool::ROM : FilePool::SYSTEM_ROM;
 		if (!file.get() && resolvedSha1Elem) {
 			Sha1Sum sha1(resolvedSha1Elem->getData());
@@ -136,7 +136,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		// .. and then try filename as originally given by user ..
 		if (!file.get() && filenameElem) {
-			string name = filenameElem->getData();
+			const auto& name = filenameElem->getData();
 			try {
 				Filename filename(name, context);
 				file = make_unique<File>(filename);
@@ -260,7 +260,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// TODO fix this, this is a hack that depends heavily on
 	//      HardwareConig::createRomConfig
 	if (StringOp::startsWith(name, "MSXRom")) {
-		const RomInfo* romInfo = motherBoard.getReactor().
+		const auto* romInfo = motherBoard.getReactor().
 			getSoftwareDatabase().fetchRomInfo(getOriginalSHA1());
 		if (romInfo && !romInfo->getTitle().empty()) {
 			name = romInfo->getTitle();
@@ -271,7 +271,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	if (size) {
-		Debugger& debugger = motherBoard.getDebugger();
+		auto& debugger = motherBoard.getDebugger();
 		if (debugger.findDebuggable(name)) {
 			unsigned n = 0;
 			string tmp;
@@ -286,7 +286,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	if (checkResolvedSha1) {
 		auto& mutableConfig = const_cast<XMLElement&>(config);
 		string patchedSha1Str = getPatchedSHA1().toString();
-		const XMLElement& actualSha1Elem = mutableConfig.getCreateChild(
+		const auto& actualSha1Elem = mutableConfig.getCreateChild(
 			"resolvedSha1", patchedSha1Str);
 		if (actualSha1Elem.getData() != patchedSha1Str) {
 			string tmp = file.get() ? file->getURL() : name;
@@ -301,7 +301,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// This must come after we store the 'resolvedSha1', because on
 	// loadstate we use that tag to search the complete rom in a filepool.
-	if (const XMLElement* windowElem = config.findChild("window")) {
+	if (auto* windowElem = config.findChild("window")) {
 		unsigned windowBase = windowElem->getAttributeAsInt("base", 0);
 		unsigned windowSize = windowElem->getAttributeAsInt("size", size);
 		if ((windowBase + windowSize) > size) {

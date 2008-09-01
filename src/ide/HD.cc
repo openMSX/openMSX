@@ -26,8 +26,7 @@ HD::HD(const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, name("hdX")
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("hdInUse");
+	auto& info = motherBoard.getSharedStuff("hdInUse");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new HDInUse();
@@ -76,8 +75,7 @@ HD::HD(const DeviceConfig& config)
 
 HD::~HD()
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("hdInUse");
+	auto& info = motherBoard.getSharedStuff("hdInUse");
 	assert(info.counter);
 	assert(info.stuff);
 	auto& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);

@@ -92,12 +92,10 @@ Setting* SettingsManager::findSetting(string_ref name) const
 
 Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 {
-	Setting* setting = getByName(name);
-	if (!setting) {
-		throw CommandException(cmd + ": " + name +
-		                       ": no such setting");
+	if (auto* setting = getByName(name)) {
+		return *setting;
 	}
-	return *setting;
+	throw CommandException(cmd + ": " + name + ": no such setting");
 }
 
 Setting* SettingsManager::getByName(string_ref name) const
@@ -160,7 +158,7 @@ void SettingInfo::execute(
 		}
 		break;
 	case 3: {
-		string_ref name = tokens[2].getString();
+		const auto& name = tokens[2].getString();
 		auto it = settingsMap.find(name);
 		if (it == settingsMap.end()) {
 			throw CommandException("No such setting: " + name);

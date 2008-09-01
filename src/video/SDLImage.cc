@@ -32,10 +32,10 @@ static bool hasConstantAlpha(const SDL_Surface& surface, byte& alpha)
 	assert(surface.format->Aloss == 0);
 
 	// Compare alpha from each pixel. Are they all the same?
-	auto data = reinterpret_cast<const unsigned*>(surface.pixels);
+	auto* data = reinterpret_cast<const unsigned*>(surface.pixels);
 	unsigned alpha0 = data[0] & amask;
 	for (int y = 0; y < surface.h; ++y) {
-		const unsigned* p = data + y * (surface.pitch / sizeof(unsigned));
+		auto* p = data + y * (surface.pitch / sizeof(unsigned));
 		for (int x = 0; x < surface.w; ++x) {
 			if ((p[x] & amask) != alpha0) return false;
 		}
@@ -48,8 +48,8 @@ static bool hasConstantAlpha(const SDL_Surface& surface, byte& alpha)
 
 static SDLSurfacePtr convertToDisplayFormat(SDLSurfacePtr input)
 {
-	SDL_PixelFormat& inFormat  = *input->format;
-	SDL_PixelFormat& outFormat = *SDL_GetVideoSurface()->format;
+	auto& inFormat  = *input->format;
+	auto& outFormat = *SDL_GetVideoSurface()->format;
 	assert((inFormat.BitsPerPixel == 24) || (inFormat.BitsPerPixel == 32));
 
 	byte alpha;
@@ -142,7 +142,7 @@ static void zoomSurface(const SDL_Surface* src, SDL_Surface* dst,
 
 static void getRGBAmasks32(Uint32& rmask, Uint32& gmask, Uint32& bmask, Uint32& amask)
 {
-	SDL_PixelFormat& format = *SDL_GetVideoSurface()->format;
+	auto& format = *SDL_GetVideoSurface()->format;
 	if ((format.BitsPerPixel == 32) && (format.Rloss == 0) &&
 	    (format.Gloss == 0) && (format.Bloss == 0)) {
 		rmask = format.Rmask;
@@ -166,7 +166,7 @@ static void getRGBAmasks32(Uint32& rmask, Uint32& gmask, Uint32& bmask, Uint32& 
 static SDLSurfacePtr scaleImage32(SDLSurfacePtr input, int width, int height)
 {
 	// create a 32 bpp surface that will hold the scaled version
-	const SDL_PixelFormat& format = *input->format;
+	auto& format = *input->format;
 	assert(format.BitsPerPixel == 32);
 	SDLSurfacePtr result(abs(width), abs(height), 32,
 		format.Rmask, format.Gmask, format.Bmask, format.Amask);
@@ -492,7 +492,7 @@ void SDLImage::initSolid(int width, int height, unsigned rgba,
 		// No alpha channel, copy format of the display surface.
 		SDL_Surface* videoSurface = SDL_GetVideoSurface();
 		assert(videoSurface);
-		const SDL_PixelFormat& format = *videoSurface->format;
+		auto& format = *videoSurface->format;
 		bpp   = format.BitsPerPixel;
 		rmask = format.Rmask;
 		gmask = format.Gmask;
@@ -553,7 +553,7 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 	gradient(rgba, *tmp32, borderSize);
 	drawBorder(*tmp32, borderSize, borderRGBA);
 
-	SDL_PixelFormat& outFormat = *SDL_GetVideoSurface()->format;
+	auto& outFormat = *SDL_GetVideoSurface()->format;
 	if ((outFormat.BitsPerPixel == 32) || needAlphaChannel) {
 		if (outFormat.BitsPerPixel == 32) {
 			// for 32bpp the format must match
@@ -585,10 +585,10 @@ void SDLImage::allocateWorkImage()
 	if (PLATFORM_GP2X) {
 		flags = SDL_HWSURFACE;
 	}
-	const SDL_PixelFormat* format = image->format;
+	auto& format = *image->format;
 	workImage.reset(SDL_CreateRGBSurface(flags,
-		image->w, image->h, format->BitsPerPixel,
-		format->Rmask, format->Gmask, format->Bmask, 0));
+		image->w, image->h, format.BitsPerPixel,
+		format.Rmask, format.Gmask, format.Bmask, 0));
 	if (!workImage.get()) {
 		throw FatalError("Couldn't allocate SDLImage workimage");
 	}

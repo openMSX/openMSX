@@ -49,7 +49,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	const string& slotname, const vector<string>& options)
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, "rom");
-	string_ref sramfile = FileOperations::getFilename(romfile);
+	const auto& sramfile = FileOperations::getFilename(romfile);
 	auto context = make_unique<UserFileContext>("roms/" + sramfile);
 
 	vector<string> ipsfiles;
@@ -59,7 +59,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 
 	// parse options
 	for (auto it = options.begin(); it != options.end(); ++it) {
-		const string& option = *it++;
+		const auto& option = *it++;
 		if (it == options.end()) {
 			throw MSXException("Missing argument for option \"" +
 			                   option + '\"');
@@ -159,7 +159,7 @@ HardwareConfig::~HardwareConfig()
 		motherBoard.removeDevice(*devices.back());
 		devices.pop_back();
 	}
-	CartridgeSlotManager& slotManager = motherBoard.getSlotManager();
+	auto& slotManager = motherBoard.getSlotManager();
 	for (int ps = 0; ps < 4; ++ps) {
 		for (int ss = 0; ss < 4; ++ss) {
 			if (externalSlots[ps][ss]) {
@@ -185,7 +185,7 @@ void HardwareConfig::testRemove() const
 		(*it)->testRemove(alreadyRemoved);
 		alreadyRemoved.push_back(it->get());
 	}
-	CartridgeSlotManager& slotManager = motherBoard.getSlotManager();
+	auto& slotManager = motherBoard.getSlotManager();
 	for (int ps = 0; ps < 4; ++ps) {
 		for (int ss = 0; ss < 4; ++ss) {
 			if (externalSlots[ps][ss]) {
@@ -230,12 +230,12 @@ XMLElement HardwareConfig::loadConfig(const string& filename)
 
 void HardwareConfig::load(string_ref path)
 {
-	string filename = SystemFileContext().resolve(
+	const auto& filename = SystemFileContext().resolve(
 		FileOperations::join(path, hwName, "hardwareconfig.xml"));
 	setConfig(loadConfig(filename));
 
 	assert(!userName.empty());
-	string_ref baseName = FileOperations::getBaseName(filename);
+	const auto& baseName = FileOperations::getBaseName(filename);
 	setFileContext(make_unique<ConfigFileContext>(
 		baseName, hwName, userName));
 }
@@ -247,7 +247,7 @@ void HardwareConfig::parseSlots()
 	//      of 'expanded' to MSXCPUInterface
 	//
 	for (auto& psElem : getDevices().getChildren("primary")) {
-		const string& primSlot = psElem->getAttribute("slot");
+		const auto& primSlot = psElem->getAttribute("slot");
 		int ps = CartridgeSlotManager::getSlotNum(primSlot);
 		if (psElem->getAttributeAsBool("external", false)) {
 			if (ps < 0) {
@@ -259,7 +259,7 @@ void HardwareConfig::parseSlots()
 			continue;
 		}
 		for (auto& ssElem : psElem->getChildren("secondary")) {
-			const string& secSlot = ssElem->getAttribute("slot");
+			const auto& secSlot = ssElem->getAttribute("slot");
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
 			if (ss < 0) {
 				if ((ss >= -128) && (0 <= ps) && (ps < 4) &&
@@ -291,7 +291,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 	const XMLElement* primary, const XMLElement* secondary)
 {
 	for (auto& c : elem.getChildren()) {
-		const string& name = c.getName();
+		const auto& name = c.getName();
 		if (name == "primary") {
 			createDevices(c, &c, secondary);
 		} else if (name == "secondary") {

@@ -105,7 +105,7 @@ void enumError(const std::string& str);
 template<typename T> struct serialize_as_enum_impl : std::true_type {
 	serialize_as_enum_impl(enum_string<T>* info_) : info(info_) {}
 	std::string toString(T t) const {
-		enum_string<T>* p = info;
+		auto* p = info;
 		while (p->str) {
 			if (p->e == t) return p->str;
 			++p;
@@ -113,7 +113,7 @@ template<typename T> struct serialize_as_enum_impl : std::true_type {
 		UNREACHABLE; return "";
 	}
 	T fromString(const std::string& str) const {
-		enum_string<T>* p = info;
+		auto* p = info;
 		while (p->str) {
 			if (p->str == str) return p->e;
 			++p;
@@ -557,7 +557,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		// TODO make combining global/local constr args configurable
 
 		Creator<T> creator;
-		std::unique_ptr<T> tp(creator(args));
+		auto tp = creator(args);
 		ClassLoader<T> loader;
 		loader(ar, *tp, std::make_tuple(), id, version);
 		return tp.release();

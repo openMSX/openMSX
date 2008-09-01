@@ -177,7 +177,7 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 {
 	int slot = getSlot(ps, ss);
 	assert(!slots[slot].used());
-	const string& slotName = slots[slot].command->getName();
+	const auto& slotName = slots[slot].command->getName();
 	motherBoard.getMSXCliComm().update(
 		CliComm::HARDWARE, slotName, "remove");
 	slots[slot].command.reset();
@@ -332,12 +332,11 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 	}
 	if (tokens.size() == 1) {
 		// query name of cartridge
-		const HardwareConfig* extConf = getExtensionConfig(cartname);
-		Interpreter& interpreter = getInterpreter();
-		TclObject object(interpreter);
+		auto* extConf = getExtensionConfig(cartname);
+		TclObject object(getInterpreter());
 		object.addListElement(cartname + ':');
 		object.addListElement(extConf ? extConf->getName() : "");
-		TclObject options(interpreter);
+		TclObject options(getInterpreter());
 		if (!extConf) {
 			options.addListElement("empty");
 		}
@@ -351,7 +350,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 			result = "Warning: use of '-eject' is deprecated, "
 			         "instead use the 'eject' subcommand";
 		}
-		if (const HardwareConfig* extConf = getExtensionConfig(cartname)) {
+		if (auto* extConf = getExtensionConfig(cartname)) {
 			try {
 				manager.motherBoard.removeExtension(*extConf);
 				cliComm.update(CliComm::MEDIA, cartname, "");
@@ -362,7 +361,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		}
 	} else {
 		// insert cartridge
-		string slotname = (cartname.size() == 5)
+		auto slotname = (cartname.size() == 5)
 			? string(1, cartname[4])
 			: "any";
 		size_t extensionNameToken = 1;
@@ -376,13 +375,11 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		vector<string> options(tokens.begin() + extensionNameToken + 1,
 		                       tokens.end());
 		try {
-			const string& romname = tokens[extensionNameToken];
-			std::unique_ptr<HardwareConfig> extension(
-				HardwareConfig::createRomConfig(
-					manager.motherBoard, romname, slotname, options));
+			const auto& romname = tokens[extensionNameToken];
+			auto extension = HardwareConfig::createRomConfig(
+				manager.motherBoard, romname, slotname, options);
 			if (slotname != "any") {
-				if (const HardwareConfig* extConf =
-					       getExtensionConfig(cartname)) {
+				if (auto* extConf = getExtensionConfig(cartname)) {
 					// still a cartridge inserted, (try to) remove it now
 					manager.motherBoard.removeExtension(*extConf);
 				}
@@ -446,7 +443,7 @@ void CartridgeSlotInfo::execute(const vector<TclObject>& tokens,
 	}
 	case 3: {
 		// return info on a particular slot
-		string_ref name = tokens[2].getString();
+		const auto& name = tokens[2].getString();
 		if ((name.size() != 5) || (!name.starts_with("slot"))) {
 			throw CommandException("Invalid slot name: " + name);
 		}
@@ -454,7 +451,7 @@ void CartridgeSlotInfo::execute(const vector<TclObject>& tokens,
 		if (num >= CartridgeSlotManager::MAX_SLOTS) {
 			throw CommandException("Invalid slot name: " + name);
 		}
-		CartridgeSlotManager::Slot& slot = manager.slots[num];
+		auto& slot = manager.slots[num];
 		if (!slot.exists()) {
 			throw CommandException("Slot '" + name + "' doesn't currently exist in this msx machine.");
 		}

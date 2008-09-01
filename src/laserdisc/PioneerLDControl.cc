@@ -50,8 +50,7 @@ void PioneerLDControl::init()
 {
 	MSXDevice::init();
 
-	const MSXDevice::Devices& references = getReferences();
-
+	const auto& references = getReferences();
 	ppi = references.size() >= 1 ?
 		dynamic_cast<MSXPPI*>(references[0]) : nullptr;
 	if (!ppi) {
@@ -179,10 +178,9 @@ void PioneerLDControl::videoIn(bool enabled)
 
 void PioneerLDControl::updateVideoSource()
 {
-	const RawFrame* videoSource =
-			(videoEnabled && superimposing && laserdisc.get())
-                            ? laserdisc->getRawFrame()
-                            : nullptr;
+	auto* videoSource = (videoEnabled && superimposing && laserdisc.get())
+	                  ? laserdisc->getRawFrame()
+	                  : nullptr;
 	vdp->setExternalVideoSource(videoSource);
 }
 

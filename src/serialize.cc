@@ -368,7 +368,7 @@ void XmlInputArchive::load(bool& b)
 	if (!elems.back().first->getChildren().empty()) {
 		throw XMLException("No child tags expected for boolean types");
 	}
-	string s = elems.back().first->getData();
+	const auto& s = elems.back().first->getData();
 	if ((s == "true") || (s == "1")) {
 		b = true;
 	} else if ((s == "false") || (s == "0")) {
@@ -470,7 +470,7 @@ void XmlInputArchive::load(unsigned long long& ull)
 
 void XmlInputArchive::beginTag(const char* tag)
 {
-	const XMLElement* child = elems.back().first->findNextChild(
+	auto* child = elems.back().first->findNextChild(
 		tag, elems.back().second);
 	if (!child) {
 		string path;
@@ -485,7 +485,7 @@ void XmlInputArchive::beginTag(const char* tag)
 }
 void XmlInputArchive::endTag(const char* tag)
 {
-	const XMLElement& elem = *elems.back().first;
+	const auto& elem = *elems.back().first;
 	if (elem.getName() != tag) {
 		throw XMLException("End tag \"" + elem.getName() +
 			"\" not equal to begin tag \"" + tag + "\"");

@@ -44,8 +44,7 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	, name("cdX")
 	, motherBoard(config.getMotherBoard())
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("cdInUse");
+	auto& info = motherBoard.getSharedStuff("cdInUse");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new CDInUse();
@@ -77,8 +76,7 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 
 IDECDROM::~IDECDROM()
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("cdInUse");
+	auto& info = motherBoard.getSharedStuff("cdInUse");
 	assert(info.counter);
 	assert(info.stuff);
 	auto& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);

@@ -14,10 +14,10 @@ namespace openmsx {
 DebugDevice::DebugDevice(const DeviceConfig& config)
 	: MSXDevice(config)
 {
-	string_ref outputFile = config.getChildData("filename", "stdout");
+	const auto& outputFile = config.getChildData("filename", "stdout");
 	fileNameSetting = make_unique<FilenameSetting>(
 		getCommandController(), "debugoutput",
-		"name of the file the debugdevice outputs to", outputFile.str());
+		"name of the file the debugdevice outputs to", outputFile);
 	openOutput(fileNameSetting->getValueString());
 	reset(EmuTime::dummy());
 }
@@ -34,7 +34,7 @@ void DebugDevice::reset(EmuTime::param /*time*/)
 
 void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 {
-	string newName = fileNameSetting->getValueString();
+	const auto& newName = fileNameSetting->getValueString();
 	if (newName != fileNameString) {
 		openOutput(newName);
 	}

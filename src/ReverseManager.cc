@@ -375,7 +375,7 @@ void ReverseManager::goTo(
 	EmuTime::param target, bool novideo, ReverseHistory& history,
 	bool sameTimeLine)
 {
-	MSXMixer& mixer = motherBoard.getMSXMixer();
+	auto& mixer = motherBoard.getMSXMixer();
 	try {
 		// The call to MSXMotherBoard::fastForward() below may take
 		// some time to execute. The DirectX sound driver has a problem
@@ -429,7 +429,7 @@ void ReverseManager::goTo(
 		// THOUGH only when we're currently in the same time-line
 		//   e.g. OK for a 'reverse goto' command, but not for a
 		//   'reverse loadreplay' command.
-		Reactor& reactor = motherBoard.getReactor();
+		auto& reactor = motherBoard.getReactor();
 		EmuTime currentTime = getCurrentTime();
 		MSXMotherBoard* newBoard;
 		Reactor::Board newBoard_; // either nullptr or the same as newBoard
@@ -464,7 +464,7 @@ void ReverseManager::goTo(
 			// Transfer history to the new ReverseManager.
 			// Also we should stop collecting in this ReverseManager,
 			// and start collecting in the new one.
-			ReverseManager& newManager = newBoard->getReverseManager();
+			auto& newManager = newBoard->getReverseManager();
 			newManager.transferHistory(history, it->second.eventCount);
 
 			// transfer (or copy) state from old to new machine
@@ -510,14 +510,12 @@ void ReverseManager::goTo(
 void ReverseManager::transferState(MSXMotherBoard& newBoard)
 {
 	// Transfer viewonly mode
-	const StateChangeDistributor& oldDistributor =
-		motherBoard.getStateChangeDistributor();
-	StateChangeDistributor& newDistributor =
-		newBoard.getStateChangeDistributor();
+	const auto& oldDistributor = motherBoard.getStateChangeDistributor();
+	      auto& newDistributor = newBoard   .getStateChangeDistributor();
 	newDistributor.setViewOnlyMode(oldDistributor.isViewOnlyMode());
 
 	// transfer keyboard state
-	ReverseManager& newManager = newBoard.getReverseManager();
+	auto& newManager = newBoard.getReverseManager();
 	if (newManager.keyboard && keyboard) {
 		newManager.keyboard->transferHostKeyMatrix(*keyboard);
 	}
@@ -535,7 +533,7 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 
 void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& result)
 {
-	const Chunks& chunks = history.chunks;
+	const auto& chunks = history.chunks;
 	if (chunks.empty()) {
 		throw CommandException("No recording...");
 	}
@@ -554,7 +552,7 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 	filename = FileOperations::parseCommandFileArgument(
 		filename, REPLAY_DIR, "openmsx", ".omr");
 
-	Reactor& reactor = motherBoard.getReactor();
+	auto& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
 	replay.reRecordCount = reRecordCount;
 
@@ -563,15 +561,15 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 	replay.currentTime = getCurrentTime();
 
 	// restore first snapshot to be able to serialize it to a file
-	Reactor::Board initialBoard = reactor.createEmptyMotherBoard();
+	auto initialBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(chunks.begin()->second.savestate.data(),
 	                   chunks.begin()->second.savestate.size());
 	in.serialize("machine", *initialBoard);
 	replay.motherBoards.push_back(move(initialBoard));
 
 	// determine which extra snapshots to put in the replay
-	const EmuTime& startTime = chunks.begin()->second.time;
-	const EmuTime& endTime   = chunks.rbegin()->second.time;
+	const auto& startTime = chunks.begin()->second.time;
+	const auto& endTime   = chunks.rbegin()->second.time;
 	EmuDuration totalLength = endTime - startTime;
 	EmuDuration partitionLength = totalLength.divRoundUp(MAX_NOF_SNAPSHOTS);
 	partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
@@ -674,7 +672,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 	}}}
 
 	// restore replay
-	Reactor& reactor = motherBoard.getReactor();
+	auto& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
 	Events events;
 	replay.events = &events;
@@ -688,7 +686,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 	}
 
 	// get destination time index
-	EmuTime destination = EmuTime::zero;
+	auto destination = EmuTime::zero;
 	string_ref where = whereArg ? whereArg->getString() : "begin";
 	if (where == "begin") {
 		destination = EmuTime::zero;
@@ -706,8 +704,8 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 	motherBoard.getStateChangeDistributor().setViewOnlyMode(enableViewOnly);
 
 	assert(!replay.motherBoards.empty());
-	ReverseManager& newReverseManager = replay.motherBoards[0]->getReverseManager();
-	ReverseHistory& newHistory = newReverseManager.history;
+	auto& newReverseManager = replay.motherBoards[0]->getReverseManager();
+	auto& newHistory = newReverseManager.history;
 
 	if (newReverseManager.reRecordCount == 0) {
 		// serialize Replay version >= 4
@@ -719,7 +717,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 
 	// Restore event log
 	swap(newHistory.events, events);
-	Events& newEvents = newHistory.events;
+	auto& newEvents = newHistory.events;
 
 	// Restore snapshots
 	unsigned replayIndex = 0;
@@ -808,7 +806,7 @@ void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
 			std::make_shared<SimpleEvent>(OPENMSX_TAKE_REVERSE_SNAPSHOT));
 		break;
 	case INPUT_EVENT:
-		shared_ptr<StateChange> event = history.events[replayIndex];
+		auto event = history.events[replayIndex];
 		try {
 			// deliver current event at current time
 			motherBoard.getStateChangeDistributor().distributeReplay(event);
@@ -845,7 +843,7 @@ unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) cons
 	if (chunks.empty()) {
 		return 1;
 	}
-	const EmuTime& startTime = chunks.begin()->second.time;
+	const auto& startTime = chunks.begin()->second.time;
 	double duration = (time - startTime).toDouble();
 	return unsigned(duration / SNAPSHOT_PERIOD + 0.5) + 1;
 }
@@ -992,7 +990,7 @@ void ReverseCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 	} else if (subcommand == "loadreplay") {
 		return manager.loadReplay(tokens, result);
 	} else if (subcommand == "viewonlymode") {
-		StateChangeDistributor& distributor = manager.motherBoard.getStateChangeDistributor();
+		auto& distributor = manager.motherBoard.getStateChangeDistributor();
 		switch (tokens.size()) {
 		case 2:
 			result.setString(distributor.isViewOnlyMode() ? "true" : "false");

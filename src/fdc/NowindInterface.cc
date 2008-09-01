@@ -30,8 +30,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	, host(make_unique<NowindHost>(drives))
 	, basename("nowindX")
 {
-	MSXMotherBoard::SharedStuff& info =
-		getMotherBoard().getSharedStuff("nowindsInUse");
+	auto& info = getMotherBoard().getSharedStuff("nowindsInUse");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new NowindsInUse();
@@ -61,8 +60,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 
 NowindInterface::~NowindInterface()
 {
-	MSXMotherBoard::SharedStuff& info =
-		getMotherBoard().getSharedStuff("nowindsInUse");
+	auto& info = getMotherBoard().getSharedStuff("nowindsInUse");
 	assert(info.counter);
 	assert(info.stuff);
 	auto& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);

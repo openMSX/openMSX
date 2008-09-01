@@ -43,8 +43,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, doubleSizedDrive(doubleSided)
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("drivesInUse");
+	auto& info = motherBoard.getSharedStuff("drivesInUse");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new DrivesInUse();
@@ -72,13 +71,12 @@ RealDrive::~RealDrive()
 {
 	doSetMotor(false, getCurrentTime()); // to send LED event
 
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("drivesInUse");
+	auto& info = motherBoard.getSharedStuff("drivesInUse");
 	assert(info.counter);
 	assert(info.stuff);
 	auto& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
 
-	const string& driveName = changer->getDriveName();
+	const auto& driveName = changer->getDriveName();
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");
 	unsigned driveNum = driveName[4] - 'a';
 	assert(drivesInUse[driveNum]);
@@ -278,8 +276,8 @@ EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 		return EmuTime::infinity;
 	}
 	unsigned delta = TICKS_PER_ROTATION - getCurrentAngle(time);
-	EmuDuration dur1 = MotorClock::duration(delta);
-	EmuDuration dur2 = MotorClock::duration(TICKS_PER_ROTATION) * (count - 1);
+	auto dur1 = MotorClock::duration(delta);
+	auto dur2 = MotorClock::duration(TICKS_PER_ROTATION) * (count - 1);
 	return time + dur1 + dur2;
 }
 

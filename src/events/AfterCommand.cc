@@ -468,7 +468,7 @@ int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event)
 	} else {
 		executeMatches(AfterInputEventPred(event));
 		for (auto& c : afterCmds) {
-			if (auto cmd = dynamic_cast<AfterIdleCmd*>(c.get())) {
+			if (auto* cmd = dynamic_cast<AfterIdleCmd*>(c.get())) {
 				cmd->reschedule();
 			}
 		}
