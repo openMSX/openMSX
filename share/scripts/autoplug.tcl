@@ -3,7 +3,10 @@
 
 proc do_autoplug {} {
 	if { [lsearch [machine_info connector] "cassetteport"] != -1 } {
-		plug cassetteport cassetteplayer
+		if {[string first "--empty--" [plug cassetteport]] != -1} {
+			# only when nothing already plugged
+			plug cassetteport cassetteplayer
+		}
 	}
 	after machine_switch do_autoplug
 }
