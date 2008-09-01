@@ -178,10 +178,9 @@ string PlugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 	case 1: {
 		for (PluggingController::Connectors::const_iterator it =
 		                       pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end();
-		     ++it) {
+		     it != pluggingController.connectors.end(); ++it) {
 			result += ((*it)->getName() + ": " +
-				   (*it)->getPlugged().getName());
+			          (*it)->getPlugged().getName()) + '\n';
 		}
 		break;
 	}
