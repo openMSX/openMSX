@@ -194,6 +194,10 @@ string PlugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 	case 3: {
 		Connector& connector = pluggingController.getConnector(tokens[1]);
 		Pluggable& pluggable = pluggingController.getPluggable(tokens[2]);
+		if (&connector.getPlugged() == &pluggable) {
+			// already plugged, don't unplug/replug
+			break;
+		}
 		if (connector.getClass() != pluggable.getClass()) {
 			throw CommandException("plug: " + tokens[2] +
 					   " doesn't fit in " + tokens[1]);
