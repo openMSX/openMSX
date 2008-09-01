@@ -1,0 +1,56 @@
+diff -ru tcl8.4.19.org/win/tclWin32Dll.c tcl8.4.19/win/tclWin32Dll.c
+--- tcl8.4.19.org/win/tclWin32Dll.c	2006-10-17 06:36:45.000000000 +0200
++++ tcl8.4.19/win/tclWin32Dll.c	2008-09-01 22:55:10.000000000 +0200
+@@ -50,8 +50,8 @@
+     struct EXCEPTION_REGISTRATION* link;
+     EXCEPTION_DISPOSITION (*handler)( struct _EXCEPTION_RECORD*, void*,
+ 				      struct _CONTEXT*, void* );
+-    void* ebp;
+-    void* esp;
++    void* ebp __attribute__ ((used));
++    void* esp __attribute__ ((used));
+     int status;
+ } EXCEPTION_REGISTRATION;
+ 
+diff -ru tcl8.4.19.org/win/tclWinChan.c tcl8.4.19/win/tclWinChan.c
+--- tcl8.4.19.org/win/tclWinChan.c	2006-08-30 19:53:28.000000000 +0200
++++ tcl8.4.19/win/tclWinChan.c	2008-09-01 22:55:10.000000000 +0200
+@@ -138,8 +138,8 @@
+     struct EXCEPTION_REGISTRATION* link;
+     EXCEPTION_DISPOSITION (*handler)( struct _EXCEPTION_RECORD*, void*,
+ 				      struct _CONTEXT*, void* );
+-    void* ebp;
+-    void* esp;
++    void* ebp __attribute__ ((used));
++    void* esp __attribute__ ((used));
+     int status;
+ } EXCEPTION_REGISTRATION;
+ 
+diff -ru tcl8.4.19.org/win/tclWinDde.c tcl8.4.19/win/tclWinDde.c
+--- tcl8.4.19.org/win/tclWinDde.c	2006-04-05 22:50:46.000000000 +0200
++++ tcl8.4.19/win/tclWinDde.c	2008-09-01 22:55:11.000000000 +0200
+@@ -1308,7 +1308,8 @@
+ 	    }
+ 
+ 	    objc -= (async + 3);
+-	    ((Tcl_Obj **) objv) += (async + 3);
++	    /* ((Tcl_Obj **) objv) += (async + 3); */
++	    objv += (async + 3);
+ 
+             /*
+ 	     * See if the target interpreter is local.  If so, execute
+diff -ru tcl8.4.19.org/win/tclWinReg.c tcl8.4.19/win/tclWinReg.c
+--- tcl8.4.19.org/win/tclWinReg.c	2007-05-15 18:08:22.000000000 +0200
++++ tcl8.4.19/win/tclWinReg.c	2008-09-01 22:55:11.000000000 +0200
+@@ -790,7 +790,10 @@
+ 		    Tcl_NewStringObj(Tcl_DStringValue(&buf),
+ 			    Tcl_DStringLength(&buf)));
+ 	    if (regWinProcs->useWide) {
+-		while (*((Tcl_UniChar *)p)++ != 0) {}
++		/* while (*((Tcl_UniChar *)p)++ != 0) {} */
++		Tcl_UniChar* up = (Tcl_UniChar*) p;
++		while (*up++ != 0) {}
++		p = (char*) up;
+ 	    } else {
+ 		while (*p++ != '\0') {}
+ 	    }
