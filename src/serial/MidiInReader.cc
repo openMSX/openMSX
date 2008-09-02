@@ -47,8 +47,8 @@ void MidiInReader::plugHelper(Connector& connector_, const EmuTime& /*time*/)
 	midiConnector.setStopBits(SerialDataInterface::STOP_1); // 1 stop bit
 	midiConnector.setParityBit(false, SerialDataInterface::EVEN); // no parity
 
-	connector = &connector_; // base class will do this in a moment,
-	                         // but thread already needs it
+	setConnector(&connector_); // base class will do this in a moment,
+	                           // but thread already needs it
 	thread.start();
 }
 

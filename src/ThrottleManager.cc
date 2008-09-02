@@ -8,14 +8,13 @@ namespace openmsx {
 // class ThrottleManager:
 
 ThrottleManager::ThrottleManager(CommandController& commandController)
-	: loading(0), throttle(true)
-{
-	throttleSetting.reset(new BooleanSetting(commandController, "throttle",
-		"controls speed throttling", true, Setting::DONT_SAVE));
-	fullSpeedLoadingSetting.reset(new BooleanSetting(commandController,
+	: throttleSetting(new BooleanSetting(commandController, "throttle",
+		"controls speed throttling", true, Setting::DONT_SAVE))
+	, fullSpeedLoadingSetting(new BooleanSetting(commandController,
 		"fullspeedwhenloading",
-		"sets openMSX to full speed when the MSX is loading", false));
-
+		"sets openMSX to full speed when the MSX is loading", false))
+	, loading(0), throttle(true)
+{
 	throttleSetting->attach(*this);
 	fullSpeedLoadingSetting->attach(*this);
 }
@@ -48,7 +47,7 @@ void ThrottleManager::indicateLoadingState(bool state)
 	} else {
 		--loading;
 	}
-	assert (loading >= 0);
+	assert(loading >= 0);
 	updateStatus();
 }
 

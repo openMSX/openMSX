@@ -69,11 +69,11 @@ private:
 	virtual void writeC0(nibble value, const EmuTime& time);
 	virtual void writeC1(nibble value, const EmuTime& time);
 
-	std::auto_ptr<I8255> i8255;
 	CassettePortInterface& cassettePort;
 	RenShaTurbo& renshaTurbo;
-	std::auto_ptr<KeyClick> click;
-	std::auto_ptr<Keyboard> keyboard;
+	const std::auto_ptr<I8255> i8255;
+	const std::auto_ptr<KeyClick> click;
+	const std::auto_ptr<Keyboard> keyboard;
 	nibble prevBits;
 	nibble selectedRow;
 };

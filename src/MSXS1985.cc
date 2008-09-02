@@ -76,7 +76,6 @@ void MSXS1985::writeSwitchedIO(word port, byte value, const EmuTime& /*time*/)
 	}
 }
 
-
 template<typename Archive>
 void MSXS1985::serialize(Archive& ar, unsigned /*version*/)
 {

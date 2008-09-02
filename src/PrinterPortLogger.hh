@@ -34,8 +34,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	const std::auto_ptr<FilenameSetting> logFilenameSetting;
 	std::auto_ptr<File> file;
-	std::auto_ptr<FilenameSetting> logFilenameSetting;
 	byte toPrint;
 	bool prevStrobe;
 };

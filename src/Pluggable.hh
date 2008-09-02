@@ -46,14 +46,14 @@ public:
 	  */
 	Connector* getConnector() const;
 
-private:
-	friend class Connector; // for de-serialization
-	void setConnector(Connector* conn);
-
 protected:
 	virtual void plugHelper(Connector& newConnector, const EmuTime& time) = 0;
 	virtual void unplugHelper(const EmuTime& time) = 0;
 
+	friend class Connector; // for de-serialization
+	void setConnector(Connector* conn);
+
+private:
 	Connector* connector;
 };
 

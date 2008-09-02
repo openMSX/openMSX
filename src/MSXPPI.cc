@@ -19,32 +19,36 @@ namespace openmsx {
 
 // MSXDevice
 
-MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
-	: MSXDevice(motherBoard, config)
-	, cassettePort(motherBoard.getCassettePort())
-	, renshaTurbo(motherBoard.getRenShaTurbo())
-	, prevBits(15)
-	, selectedRow(0)
+static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
+                                const XMLElement& config)
 {
 	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
-	bool keyGhostingSGCprotected = config.getChildDataAsBool(
-				"key_ghosting_sgc_protected", true);
+	bool keyGhostingSGCprotected =
+		config.getChildDataAsBool("key_ghosting_sgc_protected", true);
 	std::string keyboardType = config.getChildData("keyboard_type", "int");
 	bool hasKeypad = config.getChildDataAsBool("has_keypad", true);
 	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);
 	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
-	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
-	                            motherBoard.getCommandController(),
-	                            motherBoard.getEventDistributor(),
-	                            motherBoard.getMSXEventDistributor(),
-	                            keyboardType, hasKeypad,
-	                            keyGhosting, keyGhostingSGCprotected,
-	                            codeKanaLocks, graphLocks));
-	const EmuTime& time = getCurrentTime();
-	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
-	click.reset(new KeyClick(motherBoard.getMSXMixer(), config));
+	return new Keyboard(motherBoard.getScheduler(),
+	                    motherBoard.getCommandController(),
+	                    motherBoard.getEventDistributor(),
+	                    motherBoard.getMSXEventDistributor(),
+	                    keyboardType, hasKeypad, keyGhosting,
+	                    keyGhostingSGCprotected, codeKanaLocks,
+	                    graphLocks);
+}
 
-	reset(time);
+MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXDevice(motherBoard, config)
+	, cassettePort(motherBoard.getCassettePort())
+	, renshaTurbo(motherBoard.getRenShaTurbo())
+	, i8255(new I8255(*this, getCurrentTime(), motherBoard.getMSXCliComm()))
+	, click(new KeyClick(motherBoard.getMSXMixer(), config))
+	, keyboard(createKeyboard(motherBoard, config))
+	, prevBits(15)
+	, selectedRow(0)
+{
+	reset(getCurrentTime());
 }
 
 MSXPPI::~MSXPPI()

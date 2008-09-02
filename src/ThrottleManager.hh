@@ -51,8 +51,8 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting);
 
-	std::auto_ptr<BooleanSetting> throttleSetting;
-	std::auto_ptr<BooleanSetting> fullSpeedLoadingSetting;
+	const std::auto_ptr<BooleanSetting> throttleSetting;
+	const std::auto_ptr<BooleanSetting> fullSpeedLoadingSetting;
 	int loading;
 	bool throttle;
 };

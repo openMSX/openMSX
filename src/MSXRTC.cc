@@ -11,10 +11,10 @@ namespace openmsx {
 
 MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
+	, sram(new SRAM(motherBoard, getName() + " SRAM", 4 * 13, config))
+	, rp5c01(new RP5C01(motherBoard.getCommandController(), *sram,
+	                    getCurrentTime()))
 {
-	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 4 * 13, config));
-	rp5c01.reset(new RP5C01(motherBoard.getCommandController(), *sram,
-	                        getCurrentTime()));
 	registerLatch = 0; // TODO verify on real hardware
 }
 
@@ -51,12 +51,10 @@ void MSXRTC::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-
 template<typename Archive>
 void MSXRTC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-
 	ar.serialize("sram", *sram);
 	ar.serialize("rp5c01", *rp5c01);
 	ar.serialize("registerLatch", registerLatch);

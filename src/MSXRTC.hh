@@ -26,8 +26,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::auto_ptr<SRAM> sram;
-	std::auto_ptr<RP5C01> rp5c01;
+	const std::auto_ptr<SRAM> sram;
+	const std::auto_ptr<RP5C01> rp5c01;
 	nibble registerLatch;
 };
 

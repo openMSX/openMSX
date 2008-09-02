@@ -23,6 +23,8 @@ template <typename T> class EnumSetting;
 class RP5C01 : private noncopyable
 {
 public:
+	enum RTCMode { EMUTIME, REALTIME };
+
 	RP5C01(CommandController& commandController, SRAM& regs,
 	       const EmuTime& time);
 	~RP5C01();
@@ -41,11 +43,10 @@ private:
 	void time2Regs();
 	void resetAlarm();
 
-	enum RTCMode { EMUTIME, REALTIME };
 	static const unsigned FREQ = 16384;
 
 	SRAM& regs;
-	std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
+	const std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
 
 	Clock<FREQ> reference;
 	unsigned fraction;

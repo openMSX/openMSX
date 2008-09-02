@@ -60,7 +60,7 @@ public:
 	 */
 	bool execute();
 
-	/** See CPU::exitCPULoopsync(). */
+	/** See CPU::exitCPULoopSync(). */
 	void exitCPULoopSync();
 	/** See CPU::exitCPULoopAsync(). */
 	void exitCPULoopAsync();

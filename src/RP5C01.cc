@@ -40,17 +40,22 @@ static const nibble mask[4][13] = {
 	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf}
 };
 
+static EnumSetting<RP5C01::RTCMode>* createModeSetting(
+	CommandController& commandController)
+{
+	EnumSetting<RP5C01::RTCMode>::Map modeMap;
+	modeMap["EmuTime"]  = RP5C01::EMUTIME;
+	modeMap["RealTime"] = RP5C01::REALTIME;
+	return new EnumSetting<RP5C01::RTCMode>(commandController,
+		"rtcmode", "Real Time Clock mode", RP5C01::EMUTIME, modeMap);
+}
 
 RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
                const EmuTime& time)
-	: regs(regs_), reference(time)
+	: regs(regs_)
+	, modeSetting(createModeSetting(commandController))
+	, reference(time)
 {
-	EnumSetting<RTCMode>::Map modeMap;
-	modeMap["EmuTime"] = EMUTIME;
-	modeMap["RealTime"] = REALTIME;
-	modeSetting.reset(new EnumSetting<RTCMode>(commandController,
-		"rtcmode", "Real Time Clock mode", EMUTIME, modeMap));
-
 	initializeTime();
 	reset(time);
 }
@@ -71,19 +76,19 @@ nibble RP5C01::readPort(nibble port, const EmuTime& time)
 {
 	assert(port <= 0x0f);
 	switch (port) {
-		case MODE_REG:
-			return modeReg;
-		case TEST_REG:
-		case RESET_REG:
-			// write only
-			return 0x0f;	// TODO check this
-		default:
-			unsigned block = modeReg & MODE_BLOKSELECT;
-			if (block == TIME_BLOCK) {
-				updateTimeRegs(time);
-			}
-			nibble tmp = regs[block * 13 + port];
-			return tmp & mask[block][port];
+	case MODE_REG:
+		return modeReg;
+	case TEST_REG:
+	case RESET_REG:
+		// write only
+		return 0x0f;	// TODO check this
+	default:
+		unsigned block = modeReg & MODE_BLOKSELECT;
+		if (block == TIME_BLOCK) {
+			updateTimeRegs(time);
+		}
+		nibble tmp = regs[block * 13 + port];
+		return tmp & mask[block][port];
 	}
 }
 
@@ -91,29 +96,32 @@ void RP5C01::writePort(nibble port, nibble value, const EmuTime& time)
 {
 	assert (port<=0x0f);
 	switch (port) {
-		case MODE_REG:
+	case MODE_REG:
+		updateTimeRegs(time);
+		modeReg = value;
+		break;
+	case TEST_REG:
+		updateTimeRegs(time);
+		testReg = value;
+		break;
+	case RESET_REG:
+		resetReg = value;
+		if (value & RESET_ALARM) {
+			resetAlarm();
+		}
+		if (value & RESET_FRACTION) {
+			fraction = 0;
+		}
+		break;
+	default:
+		unsigned block = modeReg & MODE_BLOKSELECT;
+		if (block == TIME_BLOCK) {
 			updateTimeRegs(time);
-			modeReg = value;
-			break;
-		case TEST_REG:
-			updateTimeRegs(time);
-			testReg = value;
-			break;
-		case RESET_REG:
-			resetReg = value;
-			if (value & RESET_ALARM)
-				resetAlarm();
-			if (value & RESET_FRACTION)
-				fraction = 0;
-			break;
-		default:
-			unsigned block = modeReg & MODE_BLOKSELECT;
-			if (block == TIME_BLOCK) {
-				updateTimeRegs(time);
-			}
-			regs.write(block * 13 + port, value & mask[block][port]);
-			if (block == TIME_BLOCK)
-				regs2Time();
+		}
+		regs.write(block * 13 + port, value & mask[block][port]);
+		if (block == TIME_BLOCK) {
+			regs2Time();
+		}
 	}
 }
 
@@ -239,7 +247,6 @@ void RP5C01::resetAlarm()
 		regs.write(ALARM_BLOCK * 13 + i, 0);
 	}
 }
-
 
 template<typename Archive>
 void RP5C01::serialize(Archive& ar, unsigned /*version*/)

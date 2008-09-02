@@ -62,4 +62,4 @@ void PasswordCart::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(PasswordCart);
 
-} // namespace
+} // namespace openmsx

@@ -40,7 +40,6 @@ public:
 private:
 	const std::auto_ptr<Ram> ram;
 	nibble address;
-
 	byte color1;
 	byte color2;
 	byte pattern;

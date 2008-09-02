@@ -11,12 +11,12 @@
 namespace openmsx {
 
 PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
-	: prevStrobe(true)
-{
-	logFilenameSetting.reset(new FilenameSetting(commandController,
+	: logFilenameSetting(new FilenameSetting(commandController,
 		"printerlogfilename",
 		"filename of the file where the printer output is logged to",
-		"printer.log"));
+		"printer.log"))
+	, prevStrobe(true)
+{
 }
 
 PrinterPortLogger::~PrinterPortLogger()

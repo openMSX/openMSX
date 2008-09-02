@@ -76,27 +76,27 @@ byte MSXS1990::readRegister(byte reg) const
 {
 	PRT_DEBUG("S1990: read reg " << int(reg));
 	switch (reg) {
-		case 5:
-			return firmwareSwitch->getStatus() ? 0x40 : 0x00;
-		case 6:
-			return cpuStatus;
-		case 13:
-			return 0x03;	//TODO
-		case 14:
-			return 0x2F;	//TODO
-		case 15:
-			return 0x8B;	//TODO
-		default:
-			return 0xFF;
+	case 5:
+		return firmwareSwitch->getStatus() ? 0x40 : 0x00;
+	case 6:
+		return cpuStatus;
+	case 13:
+		return 0x03;	//TODO
+	case 14:
+		return 0x2F;	//TODO
+	case 15:
+		return 0x8B;	//TODO
+	default:
+		return 0xFF;
 	}
 }
 
 void MSXS1990::writeRegister(byte reg, byte value)
 {
 	switch (reg) {
-		case 6:
-			setCPUStatus(value);
-			break;
+	case 6:
+		setCPUStatus(value);
+		break;
 	}
 }
 
@@ -129,6 +129,7 @@ void S1990Debuggable::write(unsigned address, byte value)
 {
 	s1990.writeRegister(address, value);
 }
+
 
 template<typename Archive>
 void MSXS1990::serialize(Archive& ar, unsigned /*version*/)

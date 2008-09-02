@@ -56,8 +56,8 @@ void RS232Tester::plugHelper(Connector& connector_, const EmuTime& /*time*/)
 	rs232Connector.setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	rs232Connector.setParityBit(false, SerialDataInterface::EVEN); // no parity
 
-	connector = &connector_; // base class will do this in a moment,
-	                        // but thread already needs it
+	setConnector(&connector_); // base class will do this in a moment,
+	                           // but thread already needs it
 	thread.start();
 }
 

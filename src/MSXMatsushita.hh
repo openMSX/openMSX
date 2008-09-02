@@ -33,7 +33,6 @@ private:
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
 	const std::auto_ptr<SRAM> sram;
 	word address;
-
 	nibble color1, color2;
 	byte pattern;
 };

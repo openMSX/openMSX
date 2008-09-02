@@ -1229,7 +1229,11 @@ template<typename Archive>
 void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 {
 	// don't serialize:
-	//    machineID, userNames, availableDevices
+	//    machineID, userNames, availableDevices, addRemoveUpdate,
+	//    sharedStuffMap, msxCliComm, msxEventDistributor,
+	//    msxCommandController, slotManager, eventDelay, eventTranslator,
+	//    debugger, msxMixer, dummyDevice, panasonicMemory, renShaTurbo,
+	//    ledStatus
 
 	// Scheduler must come early so that devices can query current time
 	ar.serialize("scheduler", getScheduler());
@@ -1239,24 +1243,9 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	assert(getMachineConfig() == machineConfig2.get());
 	ar.serialize("extensions", extensions, ref(self));
 
-	//SharedStuffMap sharedStuffMap;
-
 	if (mapperIO.get()) {
 		ar.serialize("mapperIO", *mapperIO);
 	}
-
-	// don't serialize:
-	//auto_ptr<AddRemoveUpdate> addRemoveUpdate;
-
-	//auto_ptr<MSXCliComm> msxCliComm;
-	//auto_ptr<MSXEventDistributor> msxEventDistributor;
-	//auto_ptr<MSXCommandController> msxCommandController;
-	//auto_ptr<CartridgeSlotManager> slotManager;
-	//auto_ptr<EventDelay> eventDelay;
-	//auto_ptr<EventTranslator> eventTranslator;
-	//auto_ptr<Debugger> debugger;
-	//auto_ptr<MSXMixer> msxMixer;
-	//auto_ptr<DummyDevice> dummyDevice;
 
 	MSXDeviceSwitch& devSwitch = getDeviceSwitch();
 	if (devSwitch.hasRegisteredDevices()) {
@@ -1269,10 +1258,6 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	if (CassettePort* port = dynamic_cast<CassettePort*>(&getCassettePort())) {
 		ar.serialize("cassetteport", *port);
 	}
-
-	//auto_ptr<PanasonicMemory> panasonicMemory;
-	//auto_ptr<RenShaTurbo> renShaTurbo;
-	//auto_ptr<LedStatus> ledStatus;
 
 	if (ar.isLoader()) {
 		if (powerSetting.getValue()) {
