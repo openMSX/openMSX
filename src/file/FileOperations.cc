@@ -11,12 +11,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-#define	MAXPATHLEN	MAX_PATH
 #define	mode_t	unsigned short int
 #else
 #include <sys/types.h>
 #include <pwd.h>
 #endif
+
+#if defined(PATH_MAX)
+#define MAXPATHLEN PATH_MAX
+#elif defined(MAX_PATH)
+#define MAXPATHLEN MAX_PATH
+#else
+#define MAXPATHLEN 4096
+#endif
+
 
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
@@ -281,8 +289,8 @@ string getConventionalPath(const string &path)
 
 string getCurrentWorkingDirectory()
 {
-	char buf[PATH_MAX];
-	getcwd(buf, PATH_MAX);
+	char buf[MAXPATHLEN];
+	getcwd(buf, MAXPATHLEN);
 	return buf;
 }
 
@@ -315,7 +323,7 @@ string getUserHomeDir(const string& username)
 		if (sh32dll) {
 			FARPROC funcp = GetProcAddress(sh32dll, "SHGetSpecialFolderPathA");
 			if (funcp) {
-				char p[MAX_PATH + 1];
+				char p[MAXPATHLEN + 1];
 				int res = reinterpret_cast<BOOL(*)(HWND, LPSTR, int, BOOL)>(funcp)(0, p, CSIDL_PERSONAL, 1);
 				if (res == TRUE) {
 					userDir = getConventionalPath(p);
@@ -391,9 +399,9 @@ string getSystemDataDir()
 
 	string newValue;
 #ifdef _WIN32
-	char p[MAX_PATH + 1];
-	int res = GetModuleFileNameA(NULL, p, MAX_PATH);
-	if ((res == 0) || (res == MAX_PATH)) {
+	char p[MAXPATHLEN + 1];
+	int res = GetModuleFileNameA(NULL, p, MAXPATHLEN);
+	if ((res == 0) || (res == MAXPATHLEN)) {
 		throw FatalError("Cannot detect openMSX directory.");
 	}
 	if (!strrchr(p, '\\')) {
@@ -419,8 +427,8 @@ string expandCurrentDirFromDrive(const string& path)
 		// get current directory for this drive
 		unsigned char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
-			char buffer[MAX_PATH + 1];
-			if (_getdcwd(drive - 'a' + 1, buffer, MAX_PATH) != NULL) {
+			char buffer[MAXPATHLEN + 1];
+			if (_getdcwd(drive - 'a' + 1, buffer, MAXPATHLEN) != NULL) {
 				result = buffer;
 				result = getConventionalPath(result);
 				if (*result.rbegin() != '/') {

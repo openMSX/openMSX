@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
+#include <ctime>
 
 namespace openmsx {
 namespace DiskImageUtils {

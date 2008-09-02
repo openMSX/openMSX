@@ -3,6 +3,7 @@
 #ifndef HOTKEY_HH
 #define HOTKEY_HH
 
+#include "Event.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include "shared_ptr.hh"
