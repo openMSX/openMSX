@@ -51,15 +51,15 @@ private:
 	  * The number of interrupts for 50 periods, measured
 	  * in ntsc mode (which gives 60 interrupts per second).
 	  */
-	unsigned min_ints;
+	const unsigned min_ints;
 	/** Number of interrupts at slowest setting (>=min_ints+1).
 	  * The number of interrupts for 50 periods, measured
 	  * in ntsc mode (which gives 60 interrupts per second).
 	  */
-	unsigned max_ints;
+	const unsigned max_ints;
 
 	/** The currently selected speed. */
-	std::auto_ptr<IntegerSetting> speedSetting;
+	const std::auto_ptr<IntegerSetting> speedSetting;
 
 	/** Each tick of this clock, the signal changes.
 	  * Frequency is derived from speed, min_ints and max_ints.

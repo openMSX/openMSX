@@ -2,6 +2,8 @@
 
 #include "Autofire.hh"
 #include "IntegerSetting.hh"
+#include <algorithm>
+#include <cassert>
 
 using std::string;
 
@@ -9,20 +11,13 @@ namespace openmsx {
 
 Autofire::Autofire(CommandController& commandController,
                    unsigned newMinInts, unsigned newMaxInts, const string& name)
-	: min_ints(newMinInts)
-	, max_ints(newMaxInts)
+	: min_ints(std::max(newMinInts, 1u))
+	, max_ints(std::max(newMaxInts, min_ints + 1))
 	, speedSetting(new IntegerSetting(commandController, name,
 	               "controls the speed of this autofire circuit", 0, 0, 100))
 	, clock(EmuTime::zero)
 {
-	if (min_ints < 1) {
-		min_ints = 1;
-	}
-	if (max_ints <= min_ints) {
-		max_ints = min_ints + 1;
-	}
 	setClock();
-
 	speedSetting->attach(*this);
 }
 

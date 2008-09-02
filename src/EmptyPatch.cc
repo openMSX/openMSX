@@ -1,7 +1,7 @@
 // $Id$
 
 #include "EmptyPatch.hh"
-#include <string.h>
+#include <cstring>
 #include <cassert>
 
 namespace openmsx {

@@ -45,5 +45,4 @@ void MSXF4Device::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXF4Device);
 
-
 } // namespace openmsx

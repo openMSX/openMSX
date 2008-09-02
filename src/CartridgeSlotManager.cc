@@ -35,6 +35,28 @@ private:
 };
 
 
+// CartridgeSlotManager::Slot
+CartridgeSlotManager::Slot::Slot()
+	: ps(0), ss(0), config(NULL)
+{
+}
+
+CartridgeSlotManager::Slot::~Slot()
+{
+}
+
+bool CartridgeSlotManager::Slot::exists() const
+{
+	return command.get();
+}
+
+bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
+{
+	return config && (config != allowed);
+}
+
+
+// CartridgeSlotManager
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 	, cartCmd(new CartCmd(*this, motherBoard, "cart"))
@@ -90,7 +112,8 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			slotName[4] += slot;
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
-			slots[slot].command = new CartCmd(*this, motherBoard, slotName);
+			slots[slot].command.reset(
+				new CartCmd(*this, motherBoard, slotName));
 			return;
 		}
 	}
@@ -137,8 +160,7 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 	const string& slotName = slots[slot].command->getName();
 	motherBoard.getMSXCliComm().update(
 		CliComm::HARDWARE, slotName, "remove");
-	delete slots[slot].command;
-	slots[slot].command = NULL;
+	slots[slot].command.reset();
 }
 
 int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss,

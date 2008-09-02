@@ -26,7 +26,7 @@ public:
 	virtual void getFilenames(std::vector<Filename>& result) const;
 
 private:
-	Filename filename;
+	const Filename filename;
 	const std::auto_ptr<const PatchInterface> parent;
 	PatchMap patchMap;
 	unsigned size;

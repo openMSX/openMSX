@@ -394,7 +394,6 @@ void MSXDevice::invalidateMemCache(word start, unsigned size)
 template<typename Archive>
 void MSXDevice::serialize(Archive& ar, unsigned /*version*/)
 {
-	// TODO
 	ar.serialize("name", deviceName);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXDevice);

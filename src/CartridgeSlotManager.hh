@@ -40,21 +40,20 @@ private:
 	int getSlot(int ps, int ss) const;
 
 	struct Slot {
-		Slot() : ps(0), ss(0), command(NULL), config(NULL) {}
-		bool exists() const { return command; }
-		bool used(const HardwareConfig* allowed = NULL) const {
-			return config && (config != allowed);
-		}
+		Slot();
+		~Slot();
+		bool exists() const;
+		bool used(const HardwareConfig* allowed = NULL) const;
 
 		int ps;
 		int ss;
-		CartCmd* command;
+		std::auto_ptr<CartCmd> command;
 		const HardwareConfig* config;
 	};
 	static const int MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];
 	MSXMotherBoard& motherBoard;
-	std::auto_ptr<CartCmd> cartCmd;
+	const std::auto_ptr<CartCmd> cartCmd;
 	friend class CartCmd;
 };
 

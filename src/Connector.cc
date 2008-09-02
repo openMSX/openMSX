@@ -47,20 +47,19 @@ Pluggable& Connector::getPlugged() const
 template<typename Archive>
 void Connector::serialize(Archive& ar, unsigned /*version*/)
 {
+	std::string plugName;
+	if (!ar.isLoader() && (plugged != dummy.get())) {
+		plugName = plugged->getName();
+	}
+	ar.serialize("plugName", plugName);
+
 	if (!ar.isLoader()) {
-		std::string plugName;
-		if (plugged != dummy.get()) {
-			plugName = plugged->getName();
-		}
-		ar.serialize("plugName", plugName);
 		if (!plugName.empty()) {
 			ar.beginSection();
 			ar.serializePolymorphic("pluggable", *plugged);
 			ar.endSection();
 		}
 	} else {
-		std::string plugName;
-		ar.serialize("plugName", plugName);
 		if (plugName.empty()) {
 			// was not plugged in
 			plugged = dummy.get();
@@ -74,7 +73,10 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 			ar.serializePolymorphic("pluggable", *plugged);
 		} else {
 			// was plugged, but we don't have that pluggable anymore
-			pluggingController.getCliComm().printWarning("Pluggable \"" + plugName + "\" was plugged in, but is not available anymore on this system, so will be ignored.");
+			pluggingController.getCliComm().printWarning(
+				"Pluggable \"" + plugName + "\" was plugged in, "
+				"but is not available anymore on this system, "
+				"so it will be ignored.");
 			ar.skipSection(true);
 			plugged = dummy.get();
 		}

@@ -43,16 +43,16 @@ byte MSXBunsetsu::readMem(word address, const EmuTime& /*time*/)
 void MSXBunsetsu::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	switch (address) {
-		case 0xBFFC:
-			jisyoAddress = (jisyoAddress & 0x1FF00) | value;
-			break;
-		case 0xBFFD:
-			jisyoAddress = (jisyoAddress & 0x100FF) | (value << 8);
-			break;
-		case 0xBFFE:
-			jisyoAddress = (jisyoAddress & 0x0FFFF) |
-			               ((value & 1) << 16);
-			break;
+	case 0xBFFC:
+		jisyoAddress = (jisyoAddress & 0x1FF00) | value;
+		break;
+	case 0xBFFD:
+		jisyoAddress = (jisyoAddress & 0x100FF) | (value << 8);
+		break;
+	case 0xBFFE:
+		jisyoAddress = (jisyoAddress & 0x0FFFF) |
+		               ((value & 1) << 16);
+		break;
 	}
 }
 

@@ -3,13 +3,8 @@
 #ifndef MSXDEVICE_HH
 #define MSXDEVICE_HH
 
-#include "DeviceFactory.hh"
-#include "XMLElement.hh"
 #include "openmsx.hh"
-#include "serialize_constr.hh"
 #include "serialize_meta.hh"
-#include "ref.hh"
-#include "checked_cast.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <vector>
@@ -272,6 +267,13 @@ private:
 	int externalSlotID;
 };
 
+/*
+#include "DeviceFactory.hh"
+#include "XMLElement.hh"
+#include "serialize_constr.hh"
+#include "ref.hh"
+#include "checked_cast.hh"
+
 REGISTER_BASE_CLASS_2(MSXDevice, "Device",
                       reference_wrapper<MSXMotherBoard>,
                       reference_wrapper<HardwareConfig>);
@@ -284,7 +286,7 @@ template<> struct SerializeConstructorArgs<MSXDevice>
 	{
 		ar.serialize("config", &device.getDeviceConfig());
 	}
-	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+	template<typename Archive> type load(Archive& ar, unsigned version)
 	{
 		const XMLElement* config;
 		ar.serialize("config", config);
@@ -303,7 +305,6 @@ template<typename T> struct MSXDeviceCreator
 	}
 };
 
-/*
 #define REGISTER_MSXDEVICE(CLASS, NAME) \
 REGISTER_POLYMORPHIC_CLASS_2(MSXDevice, CLASS, NAME, \
                              reference_wrapper<MSXMotherBoard>, \
@@ -312,6 +313,9 @@ template<> struct Creator<CLASS> : MSXDeviceCreator<CLASS> {}; \
 template<> struct SerializeConstructorArgs<CLASS> \
 	: SerializeConstructorArgs<MSXDevice> {};
 */
+
+REGISTER_BASE_NAME_HELPER(MSXDevice, "Device");
+
 #define REGISTER_MSXDEVICE(CLASS, NAME) \
 REGISTER_POLYMORPHIC_INITIALIZER(MSXDevice, CLASS, NAME);
 

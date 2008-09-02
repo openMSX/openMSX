@@ -27,9 +27,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::auto_ptr<Rom> bunsetsuRom;
-	std::auto_ptr<Rom> jisyoRom;
-	int jisyoAddress;
+	const std::auto_ptr<Rom> bunsetsuRom;
+	const std::auto_ptr<Rom> jisyoRom;
+	unsigned jisyoAddress;
 };
 
 REGISTER_MSXDEVICE(MSXBunsetsu, "Bunsetsu");

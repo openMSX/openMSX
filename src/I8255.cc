@@ -32,10 +32,6 @@ I8255::I8255(I8255Interface& interf, const EmuTime& time, CliComm& cliComm_)
 	reset(time);
 }
 
-I8255::~I8255()
-{
-}
-
 void I8255::reset(const EmuTime& time)
 {
 	latchPortA = 0;

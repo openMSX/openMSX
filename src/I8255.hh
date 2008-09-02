@@ -23,7 +23,6 @@ class I8255 : private noncopyable
 public:
 	I8255(I8255Interface& interf, const EmuTime& time,
 	      CliComm& cliComm);
-	~I8255();
 
 	void reset(const EmuTime& time);
 
@@ -51,13 +50,13 @@ private:
 	void outputPortB(byte value, const EmuTime& time);
 	void outputPortC(byte value, const EmuTime& time);
 
-	int control;
-	int latchPortA;
-	int latchPortB;
-	int latchPortC;
-
 	I8255Interface& interface;
 	CliComm& cliComm;
+
+	byte control;
+	byte latchPortA;
+	byte latchPortB;
+	byte latchPortC;
 
 	bool warningPrinted;
 };

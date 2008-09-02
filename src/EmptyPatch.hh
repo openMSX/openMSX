@@ -19,7 +19,7 @@ public:
 
 private:
 	const byte* block;
-	unsigned size;
+	const unsigned size;
 };
 
 } // namespace openmsx
