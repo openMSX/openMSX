@@ -308,6 +308,8 @@ void RealDrive::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("headLoadStatus", headLoadStatus);
 	ar.serialize("timeOut", timeOut);
 	if (ar.isLoader()) {
+		updateLoadingState();
+
 		// This is a workaround for the fact that we can have multiple drives
 		// (and only one is on), in which case the 2nd drive will turn off the
 		// LED again which the first drive just turned on. TODO: fix by modelling

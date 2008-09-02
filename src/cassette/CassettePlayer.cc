@@ -874,6 +874,10 @@ void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("lastOutput", lastOutput);
 	ar.serialize("motor", motor);
 	ar.serialize("motorControl", motorControl);
+
+	if (ar.isLoader()) {
+		updateLoadingState(getCurrentTime());
+	}
 }
 
 } // namespace openmsx
