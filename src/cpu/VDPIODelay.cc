@@ -69,7 +69,6 @@ void VDPIODelay::delay(const EmuTime& time)
 	lastTime.advance(time);
 }
 
-
 template<typename Archive>
 void VDPIODelay::serialize(Archive& ar, unsigned /*version*/)
 {

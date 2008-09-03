@@ -3,7 +3,7 @@
 #ifndef XMLELEMENT_HH
 #define XMLELEMENT_HH
 
-#include "tuple.hh"
+#include "serialize_constr.hh"
 #include <map>
 #include <string>
 #include <vector>
@@ -124,7 +124,6 @@ private:
 	std::auto_ptr<FileContext> context;
 };
 
-template<typename> struct SerializeConstructorArgs;
 template<> struct SerializeConstructorArgs<XMLElement>
 {
 	typedef Tuple<std::string, std::string> type;

@@ -63,8 +63,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-//private:
-	enum State { PLAY, RECORD, STOP };
+	enum State { PLAY, RECORD, STOP }; // public for serialization
 
 private:
 	State getState() const;

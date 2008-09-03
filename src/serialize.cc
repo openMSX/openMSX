@@ -164,7 +164,7 @@ void XmlOutputArchive::endTag(const string& tag)
 ////
 
 XmlInputArchive::XmlInputArchive(const string& filename)
-	: elem(XMLLoader::loadXML(filename, "openmsx-serialize.dtd"))
+	: elem(XMLLoader::load(filename, "openmsx-serialize.dtd"))
 	, pos(0)
 {
 	init(elem.get());

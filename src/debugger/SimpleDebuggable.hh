@@ -30,7 +30,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	const std::string name;
 	const std::string description;
-	unsigned size;
+	const unsigned size;
 };
 
 } // namespace openmsx

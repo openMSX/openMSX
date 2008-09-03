@@ -39,7 +39,7 @@ private:
 	const std::auto_ptr<SaveSettingsCommand> saveSettingsCommand;
 	const std::auto_ptr<LoadSettingsCommand> loadSettingsCommand;
 
-	std::auto_ptr<SettingsManager> settingsManager;
+	const std::auto_ptr<SettingsManager> settingsManager;
 	std::auto_ptr<XMLElement> xmlElement;
 	HotKey& hotKey;
 	std::string saveName;

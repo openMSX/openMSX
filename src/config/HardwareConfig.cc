@@ -243,7 +243,7 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 		FileOperations::join(path, hwName, "hardwareconfig.xml"));
 	try {
 		LocalFileReference fileRef(filename);
-		std::auto_ptr<XMLElement> result = XMLLoader::loadXML(
+		std::auto_ptr<XMLElement> result = XMLLoader::load(
 			fileRef.getFilename(), "msxconfig2.dtd");
 
 		File file(filename);

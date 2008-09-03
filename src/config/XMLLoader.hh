@@ -5,19 +5,15 @@
 
 #include <string>
 #include <memory>
-#include <libxml/parser.h>
 
 namespace openmsx {
 
 class XMLElement;
 
-class XMLLoader
+namespace XMLLoader
 {
-public:
-	static std::auto_ptr<XMLElement> loadXML(const std::string& filename,
-	                                         const std::string& systemID);
-private:
-	static void init(XMLElement& elem, xmlNodePtr node);
+	std::auto_ptr<XMLElement> load(const std::string& filename,
+	                               const std::string& systemID);
 };
 
 } // namespace openmsx

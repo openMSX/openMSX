@@ -192,7 +192,7 @@ static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
 	auto_ptr<XMLElement> doc;
 	try {
 		LocalFileReference file(filename);
-		doc = XMLLoader::loadXML(file.getFilename(), type);
+		doc = XMLLoader::load(file.getFilename(), type);
 	} catch (FileException& e) {
 		// couldn't read file
 	} catch (XMLException& e) {

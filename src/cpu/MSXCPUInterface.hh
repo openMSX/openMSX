@@ -236,7 +236,7 @@ private:
 	struct GlobalWriteInfo {
 		MSXDevice* device;
 		word addr;
-		bool operator==(const GlobalWriteInfo& rhs) {
+		bool operator==(const GlobalWriteInfo& rhs) const {
 			return (device == rhs.device) &&
 			       (addr   == rhs.addr);
 		}

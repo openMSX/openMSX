@@ -3,8 +3,8 @@
 #ifndef DEBUGGABLE_HH
 #define DEBUGGABLE_HH
 
-#include <string>
 #include "openmsx.hh"
+#include <string>
 
 namespace openmsx {
 

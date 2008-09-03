@@ -4,49 +4,15 @@
 #include "XMLElement.hh"
 #include "XMLException.hh"
 #include <libxml/xmlversion.h>
+#include <libxml/parser.h>
 
 using std::auto_ptr;
 using std::string;
 
 namespace openmsx {
+namespace XMLLoader {
 
-auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
-                                        const string& systemID)
-{
-#if LIBXML_VERSION < 20600
-	xmlDocPtr doc = xmlParseFile(filename.c_str());
-#else
-	xmlDocPtr doc = xmlReadFile(filename.c_str(), NULL, 0);
-#endif
-	if (!doc) {
-		throw XMLException(filename + ": Document parsing failed");
-	}
-	if (!doc->children || !doc->children->name) {
-		xmlFreeDoc(doc);
-		throw XMLException(filename +
-			": Document doesn't contain mandatory root Element");
-	}
-	xmlDtdPtr intSubset = xmlGetIntSubset(doc);
-	if (!intSubset) {
-		throw XMLException(filename + ": Missing systemID.\n"
-			"You're probably using an old incompatible file format.");
-	}
-	string actualID = reinterpret_cast<const char*>(intSubset->SystemID);
-	if (actualID != systemID) {
-		throw XMLException(filename + ": systemID doesn't match "
-			"(expected " + systemID + ", got " + actualID + ")\n"
-			"You're probably using an old incompatible file format.");
-	}
-
-	auto_ptr<XMLElement> result(new XMLElement(""));
-	init(*result, xmlDocGetRootElement(doc));
-	xmlFreeDoc(doc);
-	//xmlCleanupParser(); // connecting from openmsx-debugger breaks in
-	                      //  windows when this is enabled
-	return result;
-}
-
-void XMLLoader::init(XMLElement& elem, xmlNodePtr node)
+static void init(XMLElement& elem, xmlNodePtr node)
 {
 	elem.setName(reinterpret_cast<const char*>(node->name));
 	for (xmlNodePtr x = node->children; x != NULL ; x = x->next) {
@@ -81,4 +47,40 @@ void XMLLoader::init(XMLElement& elem, xmlNodePtr node)
 	}
 }
 
+auto_ptr<XMLElement> load(const string& filename, const string& systemID)
+{
+#if LIBXML_VERSION < 20600
+	xmlDocPtr doc = xmlParseFile(filename.c_str());
+#else
+	xmlDocPtr doc = xmlReadFile(filename.c_str(), NULL, 0);
+#endif
+	if (!doc) {
+		throw XMLException(filename + ": Document parsing failed");
+	}
+	if (!doc->children || !doc->children->name) {
+		xmlFreeDoc(doc);
+		throw XMLException(filename +
+			": Document doesn't contain mandatory root Element");
+	}
+	xmlDtdPtr intSubset = xmlGetIntSubset(doc);
+	if (!intSubset) {
+		throw XMLException(filename + ": Missing systemID.\n"
+			"You're probably using an old incompatible file format.");
+	}
+	string actualID = reinterpret_cast<const char*>(intSubset->SystemID);
+	if (actualID != systemID) {
+		throw XMLException(filename + ": systemID doesn't match "
+			"(expected " + systemID + ", got " + actualID + ")\n"
+			"You're probably using an old incompatible file format.");
+	}
+
+	auto_ptr<XMLElement> result(new XMLElement(""));
+	init(*result, xmlDocGetRootElement(doc));
+	xmlFreeDoc(doc);
+	//xmlCleanupParser(); // connecting from openmsx-debugger breaks in
+	                      //  windows when this is enabled
+	return result;
+}
+
+} // namespace XMLLoader
 } // namespace openmsx

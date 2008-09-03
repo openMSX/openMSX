@@ -31,8 +31,8 @@ private:
 	bool isTrue() const;
 
 	CliComm& cliComm;
-	std::auto_ptr<TclObject> command;
-	std::auto_ptr<TclObject> condition;
+	const std::auto_ptr<TclObject> command;
+	const std::auto_ptr<TclObject> condition;
 	bool executing;
 };
 

@@ -53,11 +53,11 @@ SettingsConfig::SettingsConfig(
 	: commandController(globalCommandController)
 	, saveSettingsCommand(new SaveSettingsCommand(commandController, *this))
 	, loadSettingsCommand(new LoadSettingsCommand(commandController, *this))
+	, settingsManager(new SettingsManager(globalCommandController))
 	, xmlElement(new XMLElement("settings"))
 	, hotKey(hotKey_)
 	, mustSaveSettings(false)
 {
-	settingsManager.reset(new SettingsManager(globalCommandController));
 }
 
 SettingsConfig::~SettingsConfig()
@@ -75,8 +75,7 @@ SettingsConfig::~SettingsConfig()
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
 	LocalFileReference file(context.resolve(commandController, filename));
-	xmlElement = XMLLoader::loadXML(
-		file.getFilename(), "settings.dtd");
+	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
 	xmlElement->setFileContext(
 		auto_ptr<FileContext>(new SystemFileContext()));
 	getSettingsManager().loadSettings(*xmlElement);
@@ -136,14 +135,14 @@ string SaveSettingsCommand::execute(const vector<string>& tokens)
 {
 	try {
 		switch (tokens.size()) {
-			case 1:
-				settingsConfig.saveSetting();
-				break;
-			case 2:
-				settingsConfig.saveSetting(tokens[1]);
-				break;
-			default:
-				throw SyntaxError();
+		case 1:
+			settingsConfig.saveSetting();
+			break;
+		case 2:
+			settingsConfig.saveSetting(tokens[1]);
+			break;
+		default:
+			throw SyntaxError();
 		}
 	} catch (FileException& e) {
 		throw CommandException(e.getMessage());
