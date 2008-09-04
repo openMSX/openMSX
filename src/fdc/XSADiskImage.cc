@@ -6,48 +6,66 @@
 #include <cstring>
 
 using std::string;
+using std::vector;
 
 namespace openmsx {
 
-const int XSADiskImage::cpdext[TBLSIZE] = {
-	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
+class XSAExtractor
+{
+public:
+	explicit XSAExtractor(const Filename& filename);
+	void getData(vector<byte>& data);
+
+private:
+	static const int MAXSTRLEN = 254;
+	static const int TBLSIZE = 16;
+	static const int MAXHUFCNT = 127;
+
+	inline byte charin();
+	void chkheader();
+	void unlz77();
+	int rdstrlen();
+	int rdstrpos();
+	bool bitin();
+	void inithufinfo();
+	void mkhuftbl();
+
+	struct HufNode {
+		HufNode* child1;
+		HufNode* child2;
+		int weight;
+	};
+
+	vector<byte> outBuf;	// the output buffer
+	const byte* inBufPos;	// pos in input buffer
+	const byte* inBufEnd;
+
+	int updhufcnt;
+	int cpdist[TBLSIZE + 1];
+	int cpdbmask[TBLSIZE];
+	int tblsizes[TBLSIZE];
+	HufNode huftbl[2 * TBLSIZE - 1];
+
+	byte bitflg;		// flag with the bits
+	byte bitcnt;		// nb bits left
+
+	static const int cpdext[TBLSIZE];	// Extra bits for distance codes
 };
+
+
+// XSADiskImage
 
 XSADiskImage::XSADiskImage(const Filename& filename)
 	: SectorBasedDisk(filename)
 {
-	File file(filename);
-	if (!isXSAImage(file)) {
-		throw MSXException("Not an XSA image");
-	}
-	int fileSize = file.getSize();
-	byte* inbuf = new byte[fileSize];
-	inbufpos = inbuf;
-	file.seek(0);
-	file.read(inbuf, fileSize);
-
-	chkheader();
-	inithufinfo();	// initialize the cpdist tables
-	unlz77();
-
-	delete[] inbuf;
-}
-
-bool XSADiskImage::isXSAImage(File& file)
-{
-	byte buffer[4];
-	file.read(buffer, 4);
-	return memcmp(buffer, "PCK\010", 4) == 0;
-}
-
-XSADiskImage::~XSADiskImage()
-{
-	delete[] outbuf;
+	XSAExtractor extractor(filename);
+	extractor.getData(data);
+	setNbSectors(data.size() / 512);
 }
 
 void XSADiskImage::readSectorSBD(unsigned sector, byte* buf)
 {
-	memcpy(buf, outbuf + sector * SECTOR_SIZE, SECTOR_SIZE);
+	memcpy(buf, &data[sector * SECTOR_SIZE], SECTOR_SIZE);
 }
 
 void XSADiskImage::writeSectorSBD(unsigned /*sector*/, const byte* /*buf*/)
@@ -55,45 +73,72 @@ void XSADiskImage::writeSectorSBD(unsigned /*sector*/, const byte* /*buf*/)
 	throw WriteProtectedException("Write protected");
 }
 
-// Get the next character from the input buffer
-byte XSADiskImage::charin()
+bool XSADiskImage::isWriteProtectedImpl() const
 {
-	return *(inbufpos++);
+	return true;
 }
 
-// Put the next character in the output buffer
-void XSADiskImage::charout(byte ch)
+
+// XSAExtractor
+
+const int XSAExtractor::cpdext[TBLSIZE] = {
+	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
+};
+
+XSAExtractor::XSAExtractor(const Filename& filename)
 {
-	*(outbufpos++) = ch;
+	File file(filename);
+	inBufPos = file.mmap();
+	inBufEnd = inBufPos + file.getSize();
+
+	if ((charin() != 'P') || (charin() != 'C') ||
+	    (charin() != 'K') || (charin() != '\010')) {
+		throw MSXException("Not an XSA image");
+	}
+
+	chkheader();
+	inithufinfo();	// initialize the cpdist tables
+	unlz77();
+}
+
+void XSAExtractor::getData(vector<byte>& data)
+{
+	// destroys internal outBuf, but that's ok
+	swap(data, outBuf);
+}
+
+// Get the next character from the input buffer
+byte XSAExtractor::charin()
+{
+	if (inBufPos >= inBufEnd) {
+		throw MSXException("Corrupt XSA image: unexpected end of file");
+	}
+	return *inBufPos++;
 }
 
 // check fileheader
-void XSADiskImage::chkheader()
+void XSAExtractor::chkheader()
 {
-	// skip id
-	inbufpos += 4;
-
-	// read original length (low endian)
-	int origLen = 0;
+	// read original length (little endian)
+	unsigned outBufLen = 0;
 	for (int i = 0, base = 1; i < 4; ++i, base <<= 8) {
-		origLen += base * charin();
+		outBufLen += base * charin();
 	}
-	setNbSectors(origLen / 512);
+	// is only used as an optimization, it will work correctly
+	// even if this field was corrupt (intentionally or not)
+	outBuf.reserve(outBufLen);
 
 	// skip compressed length
-	inbufpos += 4;
-
-	outbuf = new byte[origLen];
-	outbufpos = outbuf;
+	inBufPos += 4;
 
 	// skip original filename
 	while (charin()) /*empty*/;
 }
 
 // the actual decompression algorithm itself
-void XSADiskImage::unlz77()
+void XSAExtractor::unlz77()
 {
-	bitcnt = 0;	// no bits read yet
+	bitcnt = 0; // no bits read yet
 
 	while (true) {
 		if (bitin()) {
@@ -102,19 +147,23 @@ void XSADiskImage::unlz77()
 			if (strlen == (MAXSTRLEN + 1)) {
 				 return;
 			}
-			int strpos = rdstrpos();
+			unsigned strpos = rdstrpos();
+			if ((strpos == 0) || (strpos > outBuf.size())) {
+				throw MSXException(
+					"Corrupt XSA image: invalid offset");
+			}
 			while (strlen--) {
-				 charout(*(outbufpos - strpos));
+				outBuf.push_back(*(outBuf.end() - strpos));
 			}
 		} else {
 			// 0-bit
-			charout(charin());
+			outBuf.push_back(charin());
 		}
 	}
 }
 
 // read string length
-int XSADiskImage::rdstrlen()
+int XSAExtractor::rdstrlen()
 {
 	if (!bitin()) return 2;
 	if (!bitin()) return 3;
@@ -133,9 +182,9 @@ int XSADiskImage::rdstrlen()
 }
 
 // read string pos
-int XSADiskImage::rdstrpos()
+int XSAExtractor::rdstrpos()
 {
-	HufNode* hufpos = &huftbl[2*TBLSIZE - 2];
+	HufNode* hufpos = &huftbl[2 * TBLSIZE - 2];
 
 	while (hufpos->child1) {
 		if (bitin()) {
@@ -168,7 +217,7 @@ int XSADiskImage::rdstrpos()
 }
 
 // read a bit from the input file
-bool XSADiskImage::bitin()
+bool XSAExtractor::bitin()
 {
 	if (bitcnt == 0) {
 		bitflg = charin();	// read bitflg
@@ -182,7 +231,7 @@ bool XSADiskImage::bitin()
 }
 
 // initialize the huffman info tables
-void XSADiskImage::inithufinfo()
+void XSAExtractor::inithufinfo()
 {
 	int offs = 1;
 	for (int i = 0; i != TBLSIZE; ++i) {
@@ -200,7 +249,7 @@ void XSADiskImage::inithufinfo()
 }
 
 // Make huffman coding info
-void XSADiskImage::mkhuftbl()
+void XSAExtractor::mkhuftbl()
 {
 	// Initialize the huffman tree
 	HufNode* hufpos = huftbl;
@@ -244,11 +293,6 @@ void XSADiskImage::mkhuftbl()
 		(hufpos->child2 = l2pos)->weight = 0;
 	}
 	updhufcnt = MAXHUFCNT;
-}
-
-bool XSADiskImage::isWriteProtectedImpl() const
-{
-	return true;
 }
 
 } // namespace openmsx
