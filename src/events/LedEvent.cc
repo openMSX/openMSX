@@ -7,10 +7,10 @@ namespace openmsx {
 
 LedEvent::LedEvent(Led led_, bool status_, MSXMotherBoard& motherBoard)
 	: Event(OPENMSX_LED_EVENT)
+	, machine(motherBoard.getMachineID())
 	, led(led_)
 	, status(status_)
 {
-	machine = motherBoard.getMachineID();
 }
 
 LedEvent::Led LedEvent::getLed() const

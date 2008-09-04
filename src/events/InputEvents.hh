@@ -32,8 +32,8 @@ protected:
 private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
-	Keys::KeyCode keyCode;
-	word unicode;
+	const Keys::KeyCode keyCode;
+	const word unicode;
 };
 
 class KeyUpEvent : public KeyEvent
@@ -68,7 +68,7 @@ protected:
 
 private:
 	virtual bool lessImpl(const InputEvent& other) const;
-	unsigned button;
+	const unsigned button;
 };
 
 class MouseButtonUpEvent : public MouseButtonEvent
@@ -97,8 +97,8 @@ public:
 private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
-	int xrel;
-	int yrel;
+	const int xrel;
+	const int yrel;
 };
 
 
@@ -114,7 +114,7 @@ protected:
 private:
 	virtual bool lessImpl(const InputEvent& other) const;
 	virtual bool lessImpl(const JoystickEvent& other) const = 0;
-	unsigned joystick;
+	const unsigned joystick;
 };
 
 class JoystickButtonEvent : public JoystickEvent
@@ -128,7 +128,7 @@ protected:
 
 private:
 	virtual bool lessImpl(const JoystickEvent& other) const;
-	unsigned button;
+	const unsigned button;
 };
 
 class JoystickButtonUpEvent : public JoystickButtonEvent
@@ -160,8 +160,8 @@ public:
 private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const JoystickEvent& other) const;
-	unsigned axis;
-	short value;
+	const unsigned axis;
+	const short value;
 };
 
 
@@ -175,7 +175,7 @@ public:
 private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
-	bool gain;
+	const bool gain;
 };
 
 
@@ -190,8 +190,8 @@ public:
 private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
-	unsigned x;
-	unsigned y;
+	const unsigned x;
+	const unsigned y;
 };
 
 
@@ -220,7 +220,7 @@ private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
 	std::vector<TclObject*> tokens;
-	bool owned;
+	const bool owned;
 };
 
 

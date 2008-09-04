@@ -234,18 +234,17 @@ string UpdateCmd::help(const vector<string>& /*tokens*/) const
 void UpdateCmd::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
-		case 2: {
-			set<string> ops;
-			ops.insert("enable");
-			ops.insert("disable");
-			completeString(tokens, ops);
-			break;
-		}
-		case 3: {
-			set<string> types(updateStr,
-			                  updateStr + CliComm::NUM_UPDATES);
-			completeString(tokens, types);
-		}
+	case 2: {
+		set<string> ops;
+		ops.insert("enable");
+		ops.insert("disable");
+		completeString(tokens, ops);
+		break;
+	}
+	case 3: {
+		set<string> types(updateStr, updateStr + CliComm::NUM_UPDATES);
+		completeString(tokens, types);
+	}
 	}
 }
 

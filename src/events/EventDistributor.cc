@@ -16,10 +16,6 @@ EventDistributor::EventDistributor(Reactor& reactor_)
 {
 }
 
-EventDistributor::~EventDistributor()
-{
-}
-
 void EventDistributor::registerEventListener(
 		EventType type, EventListener& listener, Priority priority)
 {

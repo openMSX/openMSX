@@ -68,7 +68,7 @@ private:
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
 	MSXMotherBoard& motherBoard;
-	std::auto_ptr<LoadingIndicator> loadingIndicator;
+	const std::auto_ptr<LoadingIndicator> loadingIndicator;
 
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
 	Clock<1000> headLoadTimer; // ms

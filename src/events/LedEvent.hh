@@ -32,9 +32,9 @@ public:
 	static std::string getLedName(Led led);
 
 private:
-	std::string machine;
-	Led led;
-	bool status;
+	const std::string machine;
+	const Led led;
+	const bool status;
 };
 
 } // namespace openmsx

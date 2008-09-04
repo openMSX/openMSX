@@ -31,7 +31,6 @@ public:
 	};
 
 	explicit EventDistributor(Reactor& reactor);
-	virtual ~EventDistributor();
 
 	/**
 	 * Registers a given object to receive certain events.
