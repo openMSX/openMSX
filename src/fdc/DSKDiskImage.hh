@@ -21,7 +21,7 @@ private:
 	virtual void writeSectorSBD(unsigned sector, const byte* buf);
 	virtual bool isWriteProtectedImpl() const;
 
-	std::auto_ptr<File> file;
+	const std::auto_ptr<File> file;
 };
 
 } // namespace openmsx

@@ -30,7 +30,7 @@ TODO:
 #include "Math.hh"
 #include "build-info.hh"
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 
 using std::string;
 

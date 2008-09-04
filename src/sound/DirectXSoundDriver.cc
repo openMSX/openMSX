@@ -5,7 +5,7 @@
 #include "DirectXSoundDriver.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
-#include <string.h>
+#include <cstring>
 #include <SDL.h>       //
 #include <SDL_syswm.h> //
 

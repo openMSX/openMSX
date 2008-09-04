@@ -29,16 +29,15 @@ namespace openmsx {
 
 DiskManipulator::DiskManipulator(CommandController& commandController)
 	: SimpleCommand(commandController, "diskmanipulator")
+	, virtualDrive(new DiskChanger("virtual_drive", commandController,
+	                               *this, NULL))
 {
-	virtualDrive.reset(new DiskChanger("virtual_drive", commandController,
-	                                   *this, NULL));
 }
 
 DiskManipulator::~DiskManipulator()
 {
 	virtualDrive.reset();
-
-	assert(diskImages.empty()); // all DiskContainers must be unregistered
+	assert(drives.empty()); // all DiskContainers must be unregistered
 }
 
 string DiskManipulator::getMachinePrefix() const
@@ -49,7 +48,7 @@ string DiskManipulator::getMachinePrefix() const
 
 void DiskManipulator::registerDrive(DiskContainer& drive, MSXMotherBoard* board)
 {
-	assert(findDriveSettings(drive) == diskImages.end());
+	assert(findDriveSettings(drive) == drives.end());
 	DriveSettings driveSettings;
 	driveSettings.drive = &drive;
 	string prefix = board ? (board->getMachineID() + "::") : "";
@@ -58,38 +57,36 @@ void DiskManipulator::registerDrive(DiskContainer& drive, MSXMotherBoard* board)
 	for (int i = 0; i < 32; ++i) {
 		driveSettings.workingDir[i] = "/";
 	}
-	diskImages.push_back(driveSettings);
+	drives.push_back(driveSettings);
 }
 
 void DiskManipulator::unregisterDrive(DiskContainer& drive)
 {
-	DiskImages::iterator it = findDriveSettings(drive);
-	assert(it != diskImages.end());
-	diskImages.erase(it);
+	Drives::iterator it = findDriveSettings(drive);
+	assert(it != drives.end());
+	drives.erase(it);
 }
 
-DiskManipulator::DiskImages::iterator DiskManipulator::findDriveSettings(
+DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	DiskContainer& drive)
 {
-	for (DiskImages::iterator it = diskImages.begin();
-	     it != diskImages.end(); ++it) {
+	for (Drives::iterator it = drives.begin(); it != drives.end(); ++it) {
 		if (it->drive == &drive) {
 			return it;
 		}
 	}
-	return diskImages.end();
+	return drives.end();
 }
 
-DiskManipulator::DiskImages::iterator DiskManipulator::findDriveSettings(
+DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	const string& name)
 {
-	for (DiskImages::iterator it = diskImages.begin();
-	     it != diskImages.end(); ++it) {
+	for (Drives::iterator it = drives.begin(); it != drives.end(); ++it) {
 		if (it->driveName == name) {
 			return it;
 		}
 	}
-	return diskImages.end();
+	return drives.end();
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
@@ -101,10 +98,10 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	pos = diskname.find_first_of("0123456789", ((pos != string::npos) ? pos : 0));
 	string tmp = diskname.substr(0, pos);
 
-	DiskImages::iterator it = findDriveSettings(tmp);
-	if (it == diskImages.end()) {
+	Drives::iterator it = findDriveSettings(tmp);
+	if (it == drives.end()) {
 		it = findDriveSettings(getMachinePrefix() + tmp);
-		if (it == diskImages.end()) {
+		if (it == drives.end()) {
 			throw CommandException("Unknown drive: "  + tmp);
 		}
 	}
@@ -295,8 +292,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 
 	} else if (tokens.size() == 3) {
 		set<string> names;
-		for (DiskImages::const_iterator it = diskImages.begin();
-		     it != diskImages.end(); ++it) {
+		for (Drives::const_iterator it = drives.begin();
+		     it != drives.end(); ++it) {
 			string name1 = it->driveName; // with prexix
 			string name2 = it->drive->getContainerName(); // without prefix
 			names.insert(name1);

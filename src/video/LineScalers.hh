@@ -6,7 +6,7 @@
 #include "PixelOperations.hh"
 #include "HostCPU.hh"
 #include "build-info.hh"
-#include <string.h>
+#include <cstring>
 #include <cassert>
 
 namespace openmsx {

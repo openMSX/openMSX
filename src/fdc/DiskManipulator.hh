@@ -33,8 +33,8 @@ private:
 		std::string workingDir[32];
 		int partition; // 0 = whole disk / 1-31 = partition number
 	};
-	typedef std::vector<DriveSettings> DiskImages;
-	DiskImages diskImages;
+	typedef std::vector<DriveSettings> Drives;
+	Drives drives;
 	std::auto_ptr<DiskChanger> virtualDrive;
 
 	// Command interface
@@ -43,8 +43,8 @@ private:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 	std::string getMachinePrefix() const;
-	DiskImages::iterator findDriveSettings(DiskContainer& drive);
-	DiskImages::iterator findDriveSettings(const std::string& name);
+	Drives::iterator findDriveSettings(DiskContainer& drive);
+	Drives::iterator findDriveSettings(const std::string& name);
 	DriveSettings& getDriveSettings(const std::string& diskname);
 	std::auto_ptr<SectorAccessibleDisk> getPartition(
 		const DriveSettings& driveData);

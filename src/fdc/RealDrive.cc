@@ -266,7 +266,7 @@ bool RealDrive::peekDiskChanged() const
 	return changer->peekDiskChanged();
 }
 
-bool RealDrive::dummyDrive()
+bool RealDrive::isDummyDrive() const
 {
 	return false;
 }

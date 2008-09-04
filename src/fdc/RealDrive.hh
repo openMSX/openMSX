@@ -48,7 +48,7 @@ public:
 	virtual void writeTrackData(const byte* data);
 	virtual bool diskChanged();
 	virtual bool peekDiskChanged() const;
-	virtual bool dummyDrive();
+	virtual bool isDummyDrive() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

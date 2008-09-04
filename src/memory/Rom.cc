@@ -19,7 +19,7 @@
 #include "StringOp.hh"
 #include "sha1.hh"
 #include <sstream>
-#include <string.h>
+#include <cstring>
 
 using std::string;
 using std::auto_ptr;

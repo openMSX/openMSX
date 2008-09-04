@@ -4,7 +4,7 @@
 #include "OutputSurface.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
-#include <string.h>
+#include <cstring>
 
 namespace openmsx {
 

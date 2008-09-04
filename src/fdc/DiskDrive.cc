@@ -119,7 +119,7 @@ bool DummyDrive::peekDiskChanged() const
 	return false;
 }
 
-bool DummyDrive::dummyDrive()
+bool DummyDrive::isDummyDrive() const
 {
 	return true;
 }

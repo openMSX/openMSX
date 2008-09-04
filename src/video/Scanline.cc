@@ -4,7 +4,7 @@
 #include "HostCPU.hh"
 #include "build-info.hh"
 #include <cassert>
-#include <string.h>
+#include <cstring>
 
 namespace openmsx {
 

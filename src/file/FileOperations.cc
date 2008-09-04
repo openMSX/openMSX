@@ -8,8 +8,8 @@
 #include <io.h>
 #include <direct.h>
 #include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <algorithm>
 #define	mode_t	unsigned short int
 #else

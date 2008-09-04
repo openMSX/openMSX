@@ -2,7 +2,7 @@
 
 #include "RamDSKDiskImage.hh"
 #include "DiskImageUtils.hh"
-#include <string.h>
+#include <cstring>
 
 namespace openmsx {
 

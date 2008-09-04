@@ -6,7 +6,7 @@
 #include "CliComm.hh"
 #include "Clock.hh"
 #include "MSXException.hh"
-#include <string.h> // for memcmp
+#include <cstring> // for memcmp
 
 namespace openmsx {
 

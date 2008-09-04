@@ -8,7 +8,7 @@
 #include "File.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
-#include <string.h>
+#include <cstring>
 
 using std::string;
 

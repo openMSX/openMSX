@@ -114,7 +114,7 @@ public:
 
 	/** Is there a dummy (unconncted) drive?
 	 */
-	virtual bool dummyDrive() = 0;
+	virtual bool isDummyDrive() const = 0;
 };
 
 
@@ -149,7 +149,7 @@ public:
 	virtual void writeTrackData(const byte* data);
 	virtual bool diskChanged();
 	virtual bool peekDiskChanged() const;
-	virtual bool dummyDrive();
+	virtual bool isDummyDrive() const;
 };
 
 } // namespace openmsx

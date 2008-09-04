@@ -8,7 +8,7 @@
 #include "serialize.hh"
 #include <jack/jack.h>
 #include <cmath>
-#include <string.h>
+#include <cstring>
 #include <unistd.h> // for getpid()
 
 typedef jack_default_audio_sample_t sample_t;

@@ -141,9 +141,9 @@ bool DriveMultiplexer::peekDiskChanged() const
 	return drive[selected]->peekDiskChanged();
 }
 
-bool DriveMultiplexer::dummyDrive()
+bool DriveMultiplexer::isDummyDrive() const
 {
-	return drive[selected]->dummyDrive();
+	return drive[selected]->isDummyDrive();
 }
 
 

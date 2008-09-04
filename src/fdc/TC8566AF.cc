@@ -394,7 +394,7 @@ void TC8566AF::commandPhase1(byte value)
 	status0 &= ~(ST0_DS0 | ST0_DS1 | ST0_IC0 | ST0_IC1);
 	status0 |= //(drive[driveSelect]->isReady() ? 0 : ST0_DS0) |
 	           (value & (ST0_DS0 | ST0_DS1)) |
-	           (drive[driveSelect]->dummyDrive() ? ST0_IC1 : 0);
+	           (drive[driveSelect]->isDummyDrive() ? ST0_IC1 : 0);
 	status3  = (value & (ST3_DS0 | ST3_DS1)) |
 	           (drive[driveSelect]->isTrack00()        ? ST3_TK0 : 0) |
 	           (drive[driveSelect]->isDoubleSided()    ? ST3_HD  : 0) |

@@ -7,7 +7,7 @@
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
-#include <string.h>
+#include <cstring>
 
 namespace openmsx {
 

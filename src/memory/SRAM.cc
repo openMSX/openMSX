@@ -9,7 +9,7 @@
 #include "CliComm.hh"
 #include "Alarm.hh"
 #include "serialize.hh"
-#include <string.h>
+#include <cstring>
 
 using std::string;
 

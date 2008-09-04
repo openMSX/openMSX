@@ -3,7 +3,7 @@
 #include "XSADiskImage.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"
-#include <string.h>
+#include <cstring>
 
 using std::string;
 

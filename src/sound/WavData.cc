@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include <cstdlib>
 #include <cassert>
-#include <string.h>
+#include <cstring>
 
 using std::string;
 

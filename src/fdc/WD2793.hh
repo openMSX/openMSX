@@ -43,7 +43,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-//private:
+	// public for serialize
 	enum FSMState {
 		FSM_NONE,
 		FSM_SEEK,

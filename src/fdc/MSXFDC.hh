@@ -26,7 +26,7 @@ protected:
 	MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXFDC();
 
-	std::auto_ptr<Rom> rom;
+	const std::auto_ptr<Rom> rom;
 	std::auto_ptr<DiskDrive> drives[4];
 };
 

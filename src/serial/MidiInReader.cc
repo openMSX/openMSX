@@ -9,7 +9,7 @@
 #include "serialize.hh"
 #include <cstdio>
 #include <cerrno>
-#include <string.h>
+#include <cstring>
 
 using std::string;
 
