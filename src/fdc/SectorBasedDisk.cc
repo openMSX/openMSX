@@ -134,7 +134,7 @@ void SectorBasedDisk::readTrackData(byte track, byte side, byte* output)
 	assert((out - output) == RAWTRACK_SIZE);
 }
 
-bool SectorBasedDisk::ready()
+bool SectorBasedDisk::isReady() const
 {
 	return true;
 }

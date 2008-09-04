@@ -23,12 +23,12 @@ public:
 	virtual ~RealDrive();
 
 	// DiskDrive interface
-	virtual bool ready();
-	virtual bool writeProtected();
-	virtual bool doubleSided();
+	virtual bool isReady() const;
+	virtual bool isWriteProtected() const;
+	virtual bool isDoubleSided() const;
+	virtual bool isTrack00() const;
 	virtual void setSide(bool side);
 	virtual void step(bool direction, const EmuTime& time);
-	virtual bool track00(const EmuTime& time);
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual bool indexPulse(const EmuTime& time);
 	virtual int indexPulseCount(const EmuTime& begin,

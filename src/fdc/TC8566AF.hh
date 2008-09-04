@@ -63,7 +63,7 @@ private:
 	byte resultsPhaseRead();
 	void writeDataPort(byte value, const EmuTime& time);
 	void idlePhaseWrite(byte value);
-	void commandPhase1(byte value, const EmuTime& time);
+	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, const EmuTime& time);
 	void executionPhaseWrite(byte value);
 

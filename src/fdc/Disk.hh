@@ -30,8 +30,8 @@ public:
 	void writeTrackData(byte track, byte side, const byte* data);
 	virtual void readTrackData(byte track, byte side, byte* output);
 
-	virtual bool ready() = 0;
-	bool doubleSided();
+	virtual bool isReady() const = 0;
+	bool isDoubleSided() const;
 
 	virtual void applyPatch(const Filename& patchFile);
 	virtual void getPatches(std::vector<Filename>& result) const;

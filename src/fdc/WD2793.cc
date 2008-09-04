@@ -184,13 +184,13 @@ byte WD2793::getStatusReg(const EmuTime& time)
 		if (drive.indexPulse(time)) {
 			statusReg |=  INDEX;
 		}
-		if (drive.track00(time)) {
+		if (drive.isTrack00()) {
 			statusReg |=  TRACK00;
 		}
 		if (drive.headLoaded(time)) {
 			statusReg |=  HEAD_LOADED;
 		}
-		if (drive.writeProtected()) {
+		if (drive.isWriteProtected()) {
 			statusReg |=  WRITE_PROTECTED;
 		}
 	} else {
@@ -202,7 +202,7 @@ byte WD2793::getStatusReg(const EmuTime& time)
 		}
 	}
 
-	if (drive.ready()) {
+	if (drive.isReady()) {
 		statusReg &= ~NOT_READY;
 	} else {
 		statusReg |=  NOT_READY;
@@ -554,7 +554,7 @@ void WD2793::step(const EmuTime& time)
 			trackReg--;
 		}
 	}
-	if (!directionIn && drive.track00(time)) {
+	if (!directionIn && drive.isTrack00()) {
 		trackReg = 0;
 		endType1Cmd();
 	} else {
@@ -592,7 +592,7 @@ void WD2793::startType2Cmd(const EmuTime& time)
 	statusReg |= BUSY;
 	setDRQ(false, time);
 
-	if (!drive.ready()) {
+	if (!drive.isReady()) {
 		endCmd();
 	} else {
 		// WD2795/WD2797 would now set SSO output
@@ -618,7 +618,7 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 
 void WD2793::type2Loaded(const EmuTime& time)
 {
-	if (((commandReg & 0xE0) == 0xA0) && (drive.writeProtected())) {
+	if (((commandReg & 0xE0) == 0xA0) && (drive.isWriteProtected())) {
 		// write command and write protected
 		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
@@ -655,7 +655,7 @@ void WD2793::startType3Cmd(const EmuTime& time)
 	setDRQ(false, time);
 	commandStart = time; // done again later
 
-	if (!drive.ready()) {
+	if (!drive.isReady()) {
 		endCmd();
 	} else {
 		drive.setHeadLoaded(true, time);
@@ -714,7 +714,7 @@ void WD2793::writeTrackCmd(const EmuTime& time)
 {
 	PRT_DEBUG("WD2793 command: write track");
 
-	if (drive.writeProtected()) {
+	if (drive.isWriteProtected()) {
 		// write track command and write protected
 		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
@@ -759,7 +759,7 @@ void WD2793::startType4Cmd(const EmuTime& time)
 	if (flags == 0x00) {
 		immediateIRQ = false;
 	}
-	if ((flags & IDX_IRQ) && drive.ready()) {
+	if ((flags & IDX_IRQ) && drive.isReady()) {
 		setSyncPoint(drive.getTimeTillIndexPulse(time), SCHED_IDX_IRQ);
 	} else {
 		removeSyncPoint(SCHED_IDX_IRQ);

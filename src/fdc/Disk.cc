@@ -59,7 +59,7 @@ void Disk::readTrackData(byte /*track*/, byte /*side*/, byte* output)
 	}
 }
 
-bool Disk::doubleSided()
+bool Disk::isDoubleSided() const
 {
 	return nbSides == 2;
 }

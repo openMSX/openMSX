@@ -388,18 +388,18 @@ void TC8566AF::idlePhaseWrite(byte value)
 	}
 }
 
-void TC8566AF::commandPhase1(byte value, const EmuTime& time)
+void TC8566AF::commandPhase1(byte value)
 {
 	drive[driveSelect]->setSide(value & 0x04);
 	status0 &= ~(ST0_DS0 | ST0_DS1 | ST0_IC0 | ST0_IC1);
-	status0 |= //(drive[driveSelect]->ready() ? 0 : ST0_DS0) |
+	status0 |= //(drive[driveSelect]->isReady() ? 0 : ST0_DS0) |
 	           (value & (ST0_DS0 | ST0_DS1)) |
 	           (drive[driveSelect]->dummyDrive() ? ST0_IC1 : 0);
 	status3  = (value & (ST3_DS0 | ST3_DS1)) |
-	           (drive[driveSelect]->track00(time)    ? ST3_TK0 : 0) |
-	           (drive[driveSelect]->doubleSided()    ? ST3_HD  : 0) |
-	           (drive[driveSelect]->writeProtected() ? ST3_WP  : 0) |
-	           (drive[driveSelect]->ready()          ? ST3_RDY : 0);
+	           (drive[driveSelect]->isTrack00()        ? ST3_TK0 : 0) |
+	           (drive[driveSelect]->isDoubleSided()    ? ST3_HD  : 0) |
+	           (drive[driveSelect]->isWriteProtected() ? ST3_WP  : 0) |
+	           (drive[driveSelect]->isReady()          ? ST3_RDY : 0);
 }
 
 void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
@@ -409,7 +409,7 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 	case CMD_WRITE_DATA:
 		switch (phaseStep++) {
 		case 0:
-			commandPhase1(value, time);
+			commandPhase1(value);
 			break;
 		case 1:
 			cylinderNumber = value;
@@ -463,7 +463,7 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 	case CMD_FORMAT:
 		switch (phaseStep++) {
 		case 0:
-			commandPhase1(value, time);
+			commandPhase1(value);
 			//sectorSize = diskGetSectorSize(driveSelect, side, currentTrack, 0);
 			sectorSize = 512;
 			break;
@@ -488,7 +488,7 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 	case CMD_SEEK:
 		switch (phaseStep++) {
 		case 0:
-			commandPhase1(value, time);
+			commandPhase1(value);
 			break;
 		case 1:
 			while (value > currentTrack) {
@@ -511,10 +511,10 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 	case CMD_RECALIBRATE:
 		switch (phaseStep++) {
 		case 0: {
-			commandPhase1(value, time);
+			commandPhase1(value);
 
 			unsigned maxSteps = 255;
-			while (!drive[driveSelect]->track00(time) && maxSteps--) {
+			while (!drive[driveSelect]->isTrack00() && maxSteps--) {
 				drive[driveSelect]->step(false, time);
 			}
 			currentTrack = 0;
@@ -540,7 +540,7 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 	case CMD_SENSE_DEVICE_STATUS:
 		switch (phaseStep++) {
 		case 0:
-			commandPhase1(value, time);
+			commandPhase1(value);
 
 			mainStatus |= STM_DIO;
 			phase       = PHASE_RESULT;

@@ -32,19 +32,19 @@ void DriveMultiplexer::selectDrive(DriveNum num, const EmuTime& time)
 	}
 }
 
-bool DriveMultiplexer::ready()
+bool DriveMultiplexer::isReady() const
 {
-	return drive[selected]->ready();
+	return drive[selected]->isReady();
 }
 
-bool DriveMultiplexer::writeProtected()
+bool DriveMultiplexer::isWriteProtected() const
 {
-	return drive[selected]->writeProtected();
+	return drive[selected]->isWriteProtected();
 }
 
-bool DriveMultiplexer::doubleSided()
+bool DriveMultiplexer::isDoubleSided() const
 {
-	return drive[selected]->doubleSided();
+	return drive[selected]->isDoubleSided();
 }
 
 void DriveMultiplexer::setSide(bool side_)
@@ -58,9 +58,9 @@ void DriveMultiplexer::step(bool direction, const EmuTime& time)
 	drive[selected]->step(direction, time);
 }
 
-bool DriveMultiplexer::track00(const EmuTime& time)
+bool DriveMultiplexer::isTrack00() const
 {
-	return drive[selected]->track00(time);
+	return drive[selected]->isTrack00();
 }
 
 void DriveMultiplexer::setMotor(bool status, const EmuTime& time)

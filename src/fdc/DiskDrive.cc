@@ -14,19 +14,24 @@ DiskDrive::~DiskDrive()
 
 // class DummyDrive
 
-bool DummyDrive::ready()
+bool DummyDrive::isReady() const
 {
 	return false;
 }
 
-bool DummyDrive::writeProtected()
+bool DummyDrive::isWriteProtected() const
 {
 	return true;
 }
 
-bool DummyDrive::doubleSided()
+bool DummyDrive::isDoubleSided() const
 {
 	return false;
+}
+
+bool DummyDrive::isTrack00() const
+{
+	return false; // National_FS-5500F1 2nd drive detection depends on this
 }
 
 void DummyDrive::setSide(bool /*side*/)
@@ -37,11 +42,6 @@ void DummyDrive::setSide(bool /*side*/)
 void DummyDrive::step(bool /*direction*/, const EmuTime& /*time*/)
 {
 	// ignore
-}
-
-bool DummyDrive::track00(const EmuTime& /*time*/)
-{
-	return false; // National_FS-5500F1 2nd drive detection depends on this
 }
 
 void DummyDrive::setMotor(bool /*status*/, const EmuTime& /*time*/)

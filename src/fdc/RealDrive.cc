@@ -82,21 +82,21 @@ RealDrive::~RealDrive()
 	}
 }
 
-bool RealDrive::ready()
+bool RealDrive::isReady() const
 {
-	return changer->getDisk().ready();
+	return changer->getDisk().isReady();
 }
 
-bool RealDrive::writeProtected()
+bool RealDrive::isWriteProtected() const
 {
 	// write protected bit is always 0 when motor is off
 	// verified on NMS8280
 	return motorStatus && changer->getDisk().isWriteProtected();
 }
 
-bool RealDrive::doubleSided()
+bool RealDrive::isDoubleSided() const
 {
-	return doubleSizedDrive ? changer->getDisk().doubleSided()
+	return doubleSizedDrive ? changer->getDisk().isDoubleSided()
 	                        : false;
 }
 
@@ -126,9 +126,12 @@ void RealDrive::step(bool direction, const EmuTime& time)
 	resetTimeOut(time);
 }
 
-bool RealDrive::track00(const EmuTime& time)
+bool RealDrive::isTrack00() const
 {
-	resetTimeOut(time);
+	// [wouter] I commented this out because I believe it's wrong.
+	//          TODO discuss this with the original author (Quibus).
+	//resetTimeOut(time);
+
 	// track00 bit is always 0 when motor is off
 	// verified on NMS8280
 	return motorStatus && (headPos == 0);
@@ -150,7 +153,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 
 bool RealDrive::indexPulse(const EmuTime& time)
 {
-	if (!motorStatus && changer->getDisk().ready()) {
+	if (!motorStatus && isReady()) {
 		return false;
 	}
 	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
@@ -160,7 +163,7 @@ bool RealDrive::indexPulse(const EmuTime& time)
 int RealDrive::indexPulseCount(const EmuTime& begin,
                                const EmuTime& end)
 {
-	if (!motorStatus && changer->getDisk().ready()) {
+	if (!motorStatus && isReady()) {
 		return 0;
 	}
 	int t1 = motorTimer.before(begin) ? motorTimer.getTicksTill(begin) : 0;
@@ -170,7 +173,7 @@ int RealDrive::indexPulseCount(const EmuTime& begin,
 
 EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 {
-	if (!motorStatus || !changer->getDisk().ready()) { // TODO is this correct?
+	if (!motorStatus || !isReady()) { // TODO is this correct?
 		return time;
 	}
 	// TODO this really belongs in the Disk class
@@ -192,7 +195,7 @@ EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 
 EmuTime RealDrive::getTimeTillIndexPulse(const EmuTime& time)
 {
-	if (!motorStatus || !changer->getDisk().ready()) { // TODO is this correct?
+	if (!motorStatus || !isReady()) { // TODO is this correct?
 		return time;
 	}
 	int delta = TICKS_PER_ROTATION -

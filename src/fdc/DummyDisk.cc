@@ -11,7 +11,7 @@ DummyDisk::DummyDisk()
 	setNbSectors(0);
 }
 
-bool DummyDisk::ready()
+bool DummyDisk::isReady() const
 {
 	return false;
 }

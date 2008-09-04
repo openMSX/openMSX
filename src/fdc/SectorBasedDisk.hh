@@ -37,7 +37,7 @@ private:
 	virtual void read(byte track, byte sector, byte side,
 	                  unsigned size, byte* buf);
 	virtual void readTrackData(byte track, byte side, byte* output);
-	virtual bool ready();
+	virtual bool isReady() const;
 	virtual void writeImpl(byte track, byte sector, byte side,
 	                       unsigned size, const byte* buf);
 	virtual void writeTrackDataImpl(byte track, byte side, const byte* data);

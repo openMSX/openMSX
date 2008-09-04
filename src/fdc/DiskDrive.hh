@@ -19,15 +19,19 @@ public:
 
 	/** Is drive ready?
 	 */
-	virtual bool ready() = 0;
+	virtual bool isReady() const = 0;
 
 	/** Is disk write protected?
 	 */
-	virtual bool writeProtected() = 0;
+	virtual bool isWriteProtected() const = 0;
 
 	/** Is disk double sided?
 	 */
-	virtual bool doubleSided() = 0;
+	virtual bool isDoubleSided() const = 0;
+
+	/** Head above track 0
+	 */
+	virtual bool isTrack00() const = 0;
 
 	/** Side select.
 	 * @param side false = side 0,
@@ -41,10 +45,6 @@ public:
 	 * @param time The moment in emulated time this action takes place.
 	 */
 	virtual void step(bool direction, const EmuTime& time) = 0;
-
-	/** Head above track 0
-	 */
-	virtual bool track00(const EmuTime& time) = 0;
 
 	/** Set motor on/off
 	 * @param status false = off,
@@ -124,12 +124,12 @@ public:
 class DummyDrive : public DiskDrive
 {
 public:
-	virtual bool ready();
-	virtual bool writeProtected();
-	virtual bool doubleSided();
+	virtual bool isReady() const;
+	virtual bool isWriteProtected() const;
+	virtual bool isDoubleSided() const;
+	virtual bool isTrack00() const;
 	virtual void setSide(bool side);
 	virtual void step(bool direction, const EmuTime& time);
-	virtual bool track00(const EmuTime& time);
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual bool indexPulse(const EmuTime& time);
 	virtual int indexPulseCount(const EmuTime& begin,
