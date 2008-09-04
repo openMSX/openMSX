@@ -128,10 +128,6 @@ void RealDrive::step(bool direction, const EmuTime& time)
 
 bool RealDrive::isTrack00() const
 {
-	// [wouter] I commented this out because I believe it's wrong.
-	//          TODO discuss this with the original author (Quibus).
-	//resetTimeOut(time);
-
 	// track00 bit is always 0 when motor is off
 	// verified on NMS8280
 	return motorStatus && (headPos == 0);
