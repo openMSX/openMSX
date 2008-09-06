@@ -254,14 +254,14 @@ inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 }
 
 GLRasterizer::GLRasterizer(VDP& vdp_, Display& display, OutputSurface& screen_)
-	: VideoLayer(vdp.getMotherBoard(), VIDEO_MSX, display)
+	: VideoLayer(vdp_.getMotherBoard(), VIDEO_MSX, display)
 	, renderSettings(display.getRenderSettings())
-	, vdp(vdp_), vram(vdp.getVRAM())
+	, vdp(vdp_), vram(vdp_.getVRAM())
 	, screen(screen_)
-	, characterConverter(new CharacterConverter<Pixel>(vdp, palFg, palBg))
+	, characterConverter(new CharacterConverter<Pixel>(vdp_, palFg, palBg))
 	, bitmapConverter(new BitmapConverter<Pixel>(
 	                                    palFg, PALETTE256, V9958_COLOURS))
-	, spriteConverter(new SpriteConverter<Pixel>(vdp.getSpriteChecker()))
+	, spriteConverter(new SpriteConverter<Pixel>(vdp_.getSpriteChecker()))
 {
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
