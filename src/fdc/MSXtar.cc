@@ -10,9 +10,9 @@
 #include <cstdio>
 #include <algorithm>
 #include <cassert>
+#include <ctime>
 #include <utime.h>
 #include <sys/stat.h>
-#include <time.h>
 #include <ctype.h>
 
 using std::string;

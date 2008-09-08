@@ -1,10 +1,8 @@
 // $Id$
 
 #include "GZFileAdapter.hh"
+#include "ZlibInflate.hh"
 #include "FileException.hh"
-#include <cassert>
-#include <cstdlib>
-#include <zlib.h>
 
 namespace openmsx {
 
@@ -21,97 +19,49 @@ GZFileAdapter::GZFileAdapter(std::auto_ptr<FileBase> file_)
 {
 }
 
-static byte getByte(z_stream &s)
-{
-	assert(s.avail_in);
-	--s.avail_in;
-	return *(s.next_in++);
-}
-
-static bool skipHeader(z_stream& s, std::string& originalName)
+static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 {
 	// check magic bytes
-	if ((getByte(s) != 0x1F) || (getByte(s) != 0x8B)) {
+	if (zlib.get16LE() != 0x8B1F) {
 		return false;
 	}
 
-	byte method = getByte(s);
-	byte flags = getByte(s);
+	byte method = zlib.getByte();
+	byte flags = zlib.getByte();
 	if (method != Z_DEFLATED || (flags & RESERVED) != 0) {
 		return false;
 	}
 
 	// Discard time, xflags and OS code:
-	for (int i = 0; i < 6; ++i) {
-		getByte(s);
-	}
+	zlib.skip(6);
 
 	if ((flags & EXTRA_FIELD) != 0) {
 		// skip the extra field
-		int len  = getByte(s);
-		len += getByte(s) << 8;
-		while (len--) {
-			getByte(s);
-		}
+		int len  = zlib.get16LE();
+		zlib.skip(len);
 	}
 	if ((flags & ORIG_NAME) != 0) {
-		// skip the original file name
-		while (char c = getByte(s)) {
-			originalName.push_back(c);
-		}
+		// get the original file name
+		originalName = zlib.getCString();
 	}
 	if ((flags & COMMENT) != 0) {
 		// skip the .gz file comment
-		while (getByte(s)) /*empty*/;
+		zlib.getCString();
 	}
 	if ((flags & HEAD_CRC) != 0) {
 		// skip the header crc
-		getByte(s);
-		getByte(s);
+		zlib.skip(2);
 	}
 	return true;
 }
 
-void GZFileAdapter::decompress()
+void GZFileAdapter::decompress(FileBase& file)
 {
-	int inputSize = file->getSize();
-	byte* inputBuf = file->mmap();
-
-	z_stream s;
-	s.zalloc = 0;
-	s.zfree = 0;
-	s.opaque = 0;
-	s.next_in  = inputBuf;
-	s.avail_in = inputSize;
-	if (!skipHeader(s, originalName)) {
+	ZlibInflate zlib(file.mmap(), file.getSize());
+	if (!skipHeader(zlib, originalName)) {
 		throw FileException("Not a gzip header");
 	}
-
-	inflateInit2(&s, -MAX_WBITS);
-
-	size = 64 * 1024;	// initial buffer size
-	buf = static_cast<byte*>(malloc(size));
-	while (true) {
-		s.next_out = buf + s.total_out;
-		s.avail_out = size - s.total_out;
-		int err = inflate(&s, Z_NO_FLUSH);
-		if (err == Z_STREAM_END) {
-			break;
-		}
-		if (err != Z_OK) {
-			free(buf);
-			buf = 0;
-			throw FileException("Error decompressing gzip");
-		}
-		size *= 2;	// double buffer size
-		buf = static_cast<byte*>(realloc(buf, size));
-	}
-	size = s.total_out;
-	buf = static_cast<byte*>(realloc(buf, size)); // free unused space in buf
-
-	inflateEnd(&s);
-
-	file->munmap();
+	zlib.inflate(buf);
 }
 
 } // namespace openmsx

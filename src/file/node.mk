@@ -12,6 +12,7 @@ SRC_HDR:= \
 	CompressedFileAdapter \
 	GZFileAdapter \
 	ZipFileAdapter \
+	ZlibInflate \
 	ReadDir \
 	FilePool \
 	PreCacheFile \

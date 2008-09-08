@@ -15,7 +15,7 @@
 #ifdef _WIN32
 #include <fstream>
 #include <cstdlib>
-#include <time.h>
+#include <ctime>
 #else
 #include <pwd.h>
 #endif

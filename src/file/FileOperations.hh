@@ -34,7 +34,6 @@ namespace FileOperations {
 	 * Acts like the unix command "mkdir -p". Creates the
 	 * specified directory, including the parent directories.
 	 * @param path The path of the directory to create
-	 * @return True iff successful
 	 * @throw FileException
 	 */
 	void mkdirp(const std::string& path);
@@ -50,7 +49,7 @@ namespace FileOperations {
 	 * Returns the directory portion of a path.
 	 * @param path The pathname
 	 * @result The directory portion. This includes the ending '/'.
-	 *         If path doesn't has a directory portion the result
+	 *         If path doesn't have a directory portion the result
 	 *         is an empty string.
 	 */
 	std::string getBaseName(const std::string& path);
@@ -96,7 +95,6 @@ namespace FileOperations {
 	/**
 	 * Checks whether it's a absolute path or not.
 	 * @param path The pathname.
-	 * @result 1 when absolute path. 0 when relative path.
 	 */
 	bool isAbsolutePath(const std::string& path);
 
@@ -171,7 +169,6 @@ namespace FileOperations {
 	 * Typically /tmp on *nix and C:/WINDOWS/TEMP on windows
 	 */
 	std::string getTempDir();
-
 
 } // namespace FileOperations
 

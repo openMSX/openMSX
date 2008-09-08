@@ -4,6 +4,7 @@
 #define COMPRESSEDFILEADAPTER_HH
 
 #include "FileBase.hh"
+#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -26,16 +27,18 @@ public:
 protected:
 	explicit CompressedFileAdapter(std::auto_ptr<FileBase> file);
 	virtual ~CompressedFileAdapter();
-	virtual void decompress() = 0;
+	virtual void decompress(FileBase& file) = 0;
 
-	const std::auto_ptr<FileBase> file;
-	byte* buf;
+	// filled in by subclass
+	std::vector<byte> buf;
 	std::string originalName;
-	unsigned size;
 
 private:
 	void fillBuffer();
 
+	std::auto_ptr<FileBase> file;
+	time_t cachedModificationDate;
+	std::string cachedURL;
 	unsigned pos;
 };
 

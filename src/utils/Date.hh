@@ -4,7 +4,7 @@
 #define DATE_HH
 
 #include <string>
-#include <time.h>
+#include <ctime>
 
 namespace openmsx {
 

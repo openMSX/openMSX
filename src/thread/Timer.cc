@@ -4,7 +4,7 @@
 #include "probed_defs.hh"
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 #endif
 #ifdef HAVE_USLEEP
 #include <unistd.h>

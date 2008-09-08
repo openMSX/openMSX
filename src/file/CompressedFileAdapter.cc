@@ -10,21 +10,22 @@ using std::string;
 namespace openmsx {
 
 CompressedFileAdapter::CompressedFileAdapter(std::auto_ptr<FileBase> file_)
-	: file(file_), buf(0), pos(0)
+	: file(file_), pos(0)
 {
 }
 
 CompressedFileAdapter::~CompressedFileAdapter()
 {
-	if (buf) {
-		free(buf);
-	}
 }
 
 void CompressedFileAdapter::fillBuffer()
 {
-	if (!buf) {
-		decompress();
+	if (file.get()) {
+		decompress(*file);
+		cachedModificationDate = getModificationDate();
+		cachedURL = getURL();
+		// close original file after succesful decompress
+		file.reset();
 	}
 }
 
@@ -43,7 +44,7 @@ void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
 unsigned CompressedFileAdapter::getSize()
 {
 	fillBuffer();
-	return size;
+	return buf.size();
 }
 
 void CompressedFileAdapter::seek(unsigned newpos)
@@ -68,7 +69,8 @@ void CompressedFileAdapter::flush()
 
 const string CompressedFileAdapter::getURL() const
 {
-	return file->getURL();
+	return file.get() ? file->getURL()
+	                  : cachedURL;
 }
 
 const string CompressedFileAdapter::getOriginalName()
@@ -84,7 +86,8 @@ bool CompressedFileAdapter::isReadOnly() const
 
 time_t CompressedFileAdapter::getModificationDate()
 {
-	return file->getModificationDate();
+	return file.get() ? file->getModificationDate()
+	                  : cachedModificationDate;
 }
 
 } // namespace openmsx

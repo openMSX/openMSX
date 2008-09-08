@@ -153,12 +153,7 @@ void LocalFile::flush()
 
 const string LocalFile::getURL() const
 {
-	// we could use the official file:// prefix, but we
-	// are dropping it, because it is also allowed to omit
-	// it when specifying a file. Maybe we want to drop
-	// support for URLs anyway?
-//	static const string prefix("file://");
-	return /*prefix + */filename;
+	return filename;
 }
 
 const string LocalFile::getLocalReference()

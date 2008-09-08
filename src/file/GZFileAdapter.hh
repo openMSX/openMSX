@@ -13,7 +13,7 @@ public:
 	explicit GZFileAdapter(std::auto_ptr<FileBase> file);
 
 protected:
-	virtual void decompress();
+	virtual void decompress(FileBase& file);
 };
 
 } // namespace openmsx

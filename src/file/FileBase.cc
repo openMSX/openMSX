@@ -1,6 +1,7 @@
 // $Id$
 
 #include "FileBase.hh"
+#include "FileOperations.hh"
 #include <algorithm>
 #include <cstring>
 
@@ -71,9 +72,7 @@ const string FileBase::getLocalReference()
 const string FileBase::getOriginalName()
 {
 	// default implementation just returns filename portion of URL
-	string url = getURL();
-	string::size_type pos = url.find_last_of('/');
-	return (pos == string::npos) ? url : url.substr(pos + 1);
+	return FileOperations::getFilename(getURL());
 }
 
 } // namespace openmsx

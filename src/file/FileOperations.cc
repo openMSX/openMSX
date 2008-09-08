@@ -50,7 +50,8 @@ namespace FileOperations {
 
 #ifdef __APPLE__
 
-std::string findShareDir() {
+static std::string findShareDir()
+{
 	// Find bundle location:
 	// for an app folder, this is the outer directory,
 	// for an unbundled executable, it is the executable itself.

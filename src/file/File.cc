@@ -1,63 +1,38 @@
 // $Id$
 
 #include "File.hh"
-#include "FileBase.hh"
 #include "Filename.hh"
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
-#include "MSXException.hh"
+#include "StringOp.hh"
 
 using std::string;
 
 namespace openmsx {
 
-File::File(const Filename& filename, OpenMode mode)
+static std::auto_ptr<FileBase> init(const string& url, File::OpenMode mode)
 {
-	init(filename.getResolved(), mode);
+	std::auto_ptr<FileBase> result(new LocalFile(url, mode));
+
+	if ((StringOp::endsWith(url, ".gz")) ||
+	    (StringOp::endsWith(url, ".GZ"))) {
+		result.reset(new GZFileAdapter(result));
+	} else if ((StringOp::endsWith(url, ".zip")) ||
+	           (StringOp::endsWith(url, ".ZIP"))) {
+		result.reset(new ZipFileAdapter(result));
+	}
+	return result;
+}
+
+File::File(const Filename& filename, OpenMode mode)
+	: file(init(filename.getResolved(), mode))
+{
 }
 
 File::File(const string& url, OpenMode mode)
+	: file(init(url, mode))
 {
-	init(url, mode);
-}
-
-void File::init(const string& url, OpenMode mode)
-{
-	string protocol, name;
-	string::size_type pos = url.find("://");
-	if (pos == string::npos) {
-		// no explicit protocol, take "file"
-		protocol = "file";
-		name = url;
-	} else {
-		protocol = url.substr(0, pos);
-		name = url.substr(pos + 3);
-	}
-
-	PRT_DEBUG("File: " << protocol << "://" << name);
-	if (protocol == "file") {
-		file.reset(new LocalFile(name, mode));
-	} else {
-		throw MSXException("Unsupported protocol: " + protocol);
-	}
-
-	if (((pos = name.rfind(".gz")) != string::npos) &&
-	    (pos == (name.size() - 3))) {
-		file.reset(new GZFileAdapter(file));
-	} else
-	if (((pos = name.rfind(".GZ")) != string::npos) &&
-	    (pos == (name.size() - 3))) {
-		file.reset(new GZFileAdapter(file));
-	} else
-	if (((pos = name.rfind(".zip")) != string::npos) &&
-	    (pos == (name.size() - 4))) {
-		file.reset(new ZipFileAdapter(file));
-	} else
-	if (((pos = name.rfind(".ZIP")) != string::npos) &&
-	    (pos == (name.size() - 4))) {
-		file.reset(new ZipFileAdapter(file));
-	}
 }
 
 File::~File()

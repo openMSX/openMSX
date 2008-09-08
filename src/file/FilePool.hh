@@ -8,7 +8,7 @@
 #include <map>
 #include <vector>
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 namespace openmsx {
 

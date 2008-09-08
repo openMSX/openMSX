@@ -7,7 +7,7 @@
 #include "noncopyable.hh"
 #include <memory>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 namespace openmsx {
 
@@ -109,8 +109,7 @@ public:
 	void flush();
 
 	/**
-	 * Returns the URL of this file object. The protocol is omitted in
-	 * the case of ordinary files (file://)
+	 * Returns the URL of this file object.
 	 * @throws FileException
 	 */
 	const std::string getURL() const;
@@ -138,8 +137,6 @@ public:
 	time_t getModificationDate();
 
 private:
-	void init(const std::string& url, OpenMode mode);
-
 	friend class LocalFileReference;
 	/** This is an internal method used by LocalFileReference.
 	 * Returns the path to the (uncompressed) file on the local,
@@ -147,7 +144,7 @@ private:
 	 */
 	const std::string getLocalReference() const;
 
-	std::auto_ptr<FileBase> file;
+	const std::auto_ptr<FileBase> file;
 };
 
 } // namespace openmsx
