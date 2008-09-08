@@ -55,19 +55,25 @@ namespace openmsx {
 
 static const byte SPC = 0x7F;
 
-MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config)
-	: MSXDevice(motherBoard, config)
-	, mb89352(new MB89352(motherBoard, config))
+static SRAM* createSRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
+                        const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException("SRAM size for " + getName() +
+		throw MSXException("SRAM size for " + name +
 			" should be 128, 256, 512 or 1024kB and not " +
 			StringOp::toString(sramSize) + "kB!");
 	}
 	sramSize *= 1024; // in bytes
-	sram.reset(new SRAM(motherBoard, getName() + " SRAM", sramSize, config));
-	blockMask = (sramSize / 0x2000) - 1;
+	return new SRAM(motherBoard, name + " SRAM", sramSize, config);
+}
+
+MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXDevice(motherBoard, config)
+	, mb89352(new MB89352(motherBoard, config))
+	, sram(createSRAM(motherBoard, config, getName()))
+	, blockMask((sram->getSize() / 0x2000) - 1)
+{
 }
 
 MegaSCSI::~MegaSCSI()
@@ -184,7 +190,6 @@ void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("MB89352", *mb89352);
 	ar.serialize("isWriteable", isWriteable);
 	ar.serialize("mapped", mapped);
-	ar.serialize("blockMask", blockMask);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaSCSI);
 

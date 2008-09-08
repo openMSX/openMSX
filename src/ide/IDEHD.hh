@@ -17,8 +17,7 @@ class DiskManipulator;
 class IDEHD : public HD, public AbstractIDEDevice, private noncopyable
 {
 public:
-	IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
-	      const EmuTime& time);
+	IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~IDEHD();
 
 	template<typename Archive>

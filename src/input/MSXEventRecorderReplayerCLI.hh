@@ -19,8 +19,8 @@ public:
 	~MSXEventRecorderReplayerCLI();
 
 private:
-	std::auto_ptr<RecordOption> recordOption;
-	std::auto_ptr<ReplayOption> replayOption;
+	const std::auto_ptr<RecordOption> recordOption;
+	const std::auto_ptr<ReplayOption> replayOption;
 };
 
 } // namespace openmsx

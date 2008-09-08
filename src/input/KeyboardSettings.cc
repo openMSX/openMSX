@@ -1,7 +1,6 @@
 // $Id: KeyboardSettings.cc 7234 2007-11-04 20:52:41Z awulms $
 
 #include "KeyboardSettings.hh"
-#include "Setting.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
 #include "BooleanSetting.hh"

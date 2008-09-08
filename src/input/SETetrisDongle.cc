@@ -56,7 +56,6 @@ void SETetrisDongle::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 	// no need to serialize 'status', port will anyway be re-written
 	// on de-serialize
-	// TODO is this true???
 }
 INSTANTIATE_SERIALIZE_METHODS(SETetrisDongle);
 

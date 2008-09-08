@@ -18,8 +18,7 @@ class CDXCommand;
 class IDECDROM : public AbstractIDEDevice, private noncopyable
 {
 public:
-	IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~IDECDROM();
 
 	void eject();

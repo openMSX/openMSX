@@ -71,17 +71,17 @@ byte Mouse::read(const EmuTime& /*time*/)
 {
 	if (mouseMode) {
 		switch (faze) {
-			case FAZE_XHIGH:
-				return (((xrel / SCALE) >> 4) & 0x0F) | status;
-			case FAZE_XLOW:
-				return  ((xrel / SCALE)       & 0x0F) | status;
-			case FAZE_YHIGH:
-				return (((yrel / SCALE) >> 4) & 0x0F) | status;
-			case FAZE_YLOW:
-				return  ((yrel / SCALE)       & 0x0F) | status;
-			default:
-				assert(false);
-				return status;	// avoid warning
+		case FAZE_XHIGH:
+			return (((xrel / SCALE) >> 4) & 0x0F) | status;
+		case FAZE_XLOW:
+			return  ((xrel / SCALE)       & 0x0F) | status;
+		case FAZE_YHIGH:
+			return (((yrel / SCALE) >> 4) & 0x0F) | status;
+		case FAZE_YLOW:
+			return  ((yrel / SCALE)       & 0x0F) | status;
+		default:
+			assert(false);
+			return status;	// avoid warning
 		}
 	} else {
 		emulateJoystick();
@@ -152,22 +152,22 @@ void Mouse::write(byte value, const EmuTime& time)
 		}
 
 		switch (faze) {
-			case FAZE_XHIGH:
-				if ((value & STROBE) == 0) faze = FAZE_XLOW;
-				break;
-			case FAZE_XLOW:
-				if ((value & STROBE) != 0) faze = FAZE_YHIGH;
-				break;
-			case FAZE_YHIGH:
-				if ((value & STROBE) == 0) faze = FAZE_YLOW;
-				break;
-			case FAZE_YLOW:
-				if ((value & STROBE) != 0) {
-					faze = FAZE_XHIGH;
-					xrel = curxrel; yrel = curyrel;
-					curxrel = 0; curyrel = 0;
-				}
-				break;
+		case FAZE_XHIGH:
+			if ((value & STROBE) == 0) faze = FAZE_XLOW;
+			break;
+		case FAZE_XLOW:
+			if ((value & STROBE) != 0) faze = FAZE_YHIGH;
+			break;
+		case FAZE_YHIGH:
+			if ((value & STROBE) == 0) faze = FAZE_YLOW;
+			break;
+		case FAZE_YLOW:
+			if ((value & STROBE) != 0) {
+				faze = FAZE_XHIGH;
+				xrel = curxrel; yrel = curyrel;
+				curxrel = 0; curyrel = 0;
+			}
+			break;
 		}
 	} else {
 		// ignore
@@ -194,15 +194,15 @@ void Mouse::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
 		const MouseButtonEvent& buttonEvent =
 			checked_cast<const MouseButtonEvent&>(*event);
 		switch (buttonEvent.getButton()) {
-			case MouseButtonEvent::LEFT:
-				status &= ~JOY_BUTTONA;
-				break;
-			case MouseButtonEvent::RIGHT:
-				status &= ~JOY_BUTTONB;
-				break;
-			default:
-				// ignore other buttons
-				break;
+		case MouseButtonEvent::LEFT:
+			status &= ~JOY_BUTTONA;
+			break;
+		case MouseButtonEvent::RIGHT:
+			status &= ~JOY_BUTTONB;
+			break;
+		default:
+			// ignore other buttons
+			break;
 		}
 		break;
 	}
@@ -210,15 +210,15 @@ void Mouse::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
 		const MouseButtonEvent& buttonEvent =
 			checked_cast<const MouseButtonEvent&>(*event);
 		switch (buttonEvent.getButton()) {
-			case MouseButtonEvent::LEFT:
-				status |= JOY_BUTTONA;
-				break;
-			case MouseButtonEvent::RIGHT:
-				status |= JOY_BUTTONB;
-				break;
-			default:
-				// ignore other buttons
-				break;
+		case MouseButtonEvent::LEFT:
+			status |= JOY_BUTTONA;
+			break;
+		case MouseButtonEvent::RIGHT:
+			status |= JOY_BUTTONB;
+			break;
+		default:
+			// ignore other buttons
+			break;
 		}
 		break;
 	}

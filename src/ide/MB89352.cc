@@ -135,7 +135,6 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 MB89352::~MB89352()
 {
-    PRT_DEBUG("spc destroy");
 }
 
 void MB89352::disconnect()

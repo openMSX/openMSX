@@ -141,4 +141,3 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 }
 
 } // namespace openmsx
-

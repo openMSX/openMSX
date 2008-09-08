@@ -35,8 +35,14 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 	if (tokens.size() == 1) {
 		result.addListElement(hd.getName() + ':');
 		result.addListElement(hd.getImageName().getResolved());
-		// TODO: add write protected flag when this is implemented
-		// result.addListElement("readonly");
+
+		TclObject options(result.getInterpreter());
+		if (hd.isWriteProtected()) {
+			options.addListElement("readonly");
+		}
+		if (options.getListLength() != 0) {
+			result.addListElement(options);
+		}
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && tokens[1]->getString() == "insert")) {
 		CommandController& controller = getCommandController();

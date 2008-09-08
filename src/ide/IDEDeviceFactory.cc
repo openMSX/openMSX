@@ -1,27 +1,31 @@
 // $Id$
 
 #include "IDEDeviceFactory.hh"
+#include "DummyIDEDevice.hh"
 #include "IDEHD.hh"
 #include "IDECDROM.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 
-using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
+namespace IDEDeviceFactory {
 
-IDEDevice* IDEDeviceFactory::create(MSXMotherBoard& motherBoard,
-                                    const XMLElement& config,
-                                    const EmuTime& time)
+auto_ptr<IDEDevice> create(MSXMotherBoard& motherBoard, const XMLElement* config)
 {
-	const string& type = config.getChildData("type");
+	if (!config) {
+		return auto_ptr<IDEDevice>(new DummyIDEDevice());
+	}
+	const std::string& type = config->getChildData("type");
 	if (type == "IDEHD") {
-		return new IDEHD(motherBoard, config, time);
+		return auto_ptr<IDEDevice>(new IDEHD(motherBoard, *config));
 	} else if (type == "IDECDROM") {
-		return new IDECDROM(motherBoard, config, time);
+		return auto_ptr<IDEDevice>(new IDECDROM(motherBoard, *config));
 	}
 	throw MSXException("Unknown IDE device: " + type);
 }
 
+} // namespace IDEDeviceFactory
 } // namespace openmsx

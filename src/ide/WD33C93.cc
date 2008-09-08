@@ -25,15 +25,6 @@
 #include <cassert>
 #include <cstring>
 
-//#undef PRT_DEBUG
-/*
-#include <iostream>
-#define  PRT_DEBUG(mes)                          \
-	do {                                    \
-	        std::cout << mes << std::endl;  \
-	} while (0)
-*/
-
 namespace openmsx {
 
 static const unsigned MAX_DEV = 8;
@@ -157,7 +148,6 @@ WD33C93::WD33C93(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 WD33C93::~WD33C93()
 {
-	PRT_DEBUG("WD33C93 destroy");
 }
 
 void WD33C93::disconnect()

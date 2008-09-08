@@ -41,9 +41,9 @@ public:
 	  * this method. However in this case it's allowed to override none
 	  * or just one of the two variants (but not both).
 	  * The default implementation always returns true (will always
-	  * record). If this default implementation is fine but speed is very
-	  * important (e.g. the debug command) it is still recommenced to
-	  * override the TclObject variant of this method (and just return
+	  * record). If this default implementation is fine but if speed is
+	  * very important (e.g. the debug command) it is still recommenced
+	  * to override the TclObject variant of this method (and just return
 	  * true).
 	  */
 	virtual bool needRecord(const std::vector<TclObject*>& tokens) const;
@@ -67,7 +67,7 @@ private:
 
 	MSXEventDistributor& msxEventDistributor;
 	Scheduler& scheduler;
-	std::auto_ptr<TclObject> dummyResultObject;
+	const std::auto_ptr<TclObject> dummyResultObject;
 	TclObject* currentResultObject;
 };
 

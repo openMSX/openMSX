@@ -31,14 +31,6 @@
 #include <algorithm>
 #include <cstring>
 
-//#include <iostream>
-//#undef PRT_DEBUG
-/*
-#define  PRT_DEBUG(mes)                          \
-	do {                                    \
-	        std::cout << mes << std::endl;  \
-	} while (0)
-*/
 using std::string;
 
 namespace openmsx {
@@ -77,12 +69,12 @@ static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
                                           SectorAccessibleDisk::SECTOR_SIZE;
 
 SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
-		byte* const buf, unsigned mode_)
-	  : HD(motherBoard_, targetconfig)
-	  , motherBoard(motherBoard_)
-	  , buffer(buf)
-	  , mode(mode_)
-	  , scsiId(targetconfig.getAttributeAsInt("id"))
+               byte* const buf, unsigned mode_)
+	: HD(motherBoard_, targetconfig)
+	, motherBoard(motherBoard_)
+	, buffer(buf)
+	, mode(mode_)
+	, scsiId(targetconfig.getAttributeAsInt("id"))
 {
 	reset();
 }

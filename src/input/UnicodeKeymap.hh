@@ -28,7 +28,7 @@ private:
 
 	typedef std::map<int, KeyInfo> Mapdata;
 	Mapdata mapdata;
-	KeyInfo emptyInfo;
+	const KeyInfo emptyInfo;
 	KeyInfo deadKey;
 };
 

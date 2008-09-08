@@ -48,7 +48,7 @@ private:
 
 	EmuTime prevEmu;
 	unsigned long long prevReal;
-	std::auto_ptr<FloatSetting> delaySetting;
+	const std::auto_ptr<FloatSetting> delaySetting;
 };
 
 } // namespace openmsx

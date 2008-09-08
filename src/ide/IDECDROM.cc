@@ -39,8 +39,7 @@ private:
 static const unsigned MAX_CD = 26;
 typedef std::bitset<MAX_CD> CDInUse;
 
-IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/,
-                   const EmuTime& /*time*/)
+IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/)
 	: AbstractIDEDevice(motherBoard_)
 	, motherBoard(motherBoard_)
 {

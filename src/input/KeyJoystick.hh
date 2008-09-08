@@ -42,15 +42,15 @@ private:
 
 	void allUp();
 
-	std::auto_ptr<KeyCodeSetting> up;
-	std::auto_ptr<KeyCodeSetting> right;
-	std::auto_ptr<KeyCodeSetting> down;
-	std::auto_ptr<KeyCodeSetting> left;
-	std::auto_ptr<KeyCodeSetting> trigA;
-	std::auto_ptr<KeyCodeSetting> trigB;
-
 	MSXEventDistributor& eventDistributor;
 	const std::string name;
+	const std::auto_ptr<KeyCodeSetting> up;
+	const std::auto_ptr<KeyCodeSetting> down;
+	const std::auto_ptr<KeyCodeSetting> left;
+	const std::auto_ptr<KeyCodeSetting> right;
+	const std::auto_ptr<KeyCodeSetting> trigA;
+	const std::auto_ptr<KeyCodeSetting> trigB;
+
 	byte status;
 };
 

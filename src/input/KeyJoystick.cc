@@ -17,24 +17,23 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
                          const string& name_)
 	: eventDistributor(eventDistributor_)
 	, name(name_)
+	, up   (new KeyCodeSetting(commandController, name + ".up",
+		"key for direction up",    Keys::K_UP))
+	, down (new KeyCodeSetting(commandController, name + ".down",
+		"key for direction down",  Keys::K_DOWN))
+	, left (new KeyCodeSetting(commandController, name + ".left",
+		"key for direction left",  Keys::K_LEFT))
+	, right(new KeyCodeSetting(commandController, name + ".right",
+		"key for direction right", Keys::K_RIGHT))
+	, trigA(new KeyCodeSetting(commandController, name + ".triga",
+		"key for trigger A",       Keys::K_SPACE))
+	, trigB(new KeyCodeSetting(commandController, name + ".trigb",
+		"key for trigger B",       Keys::K_M))
 {
 	eventDistributor.registerEventListener(*this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
-
-	up.reset   (new KeyCodeSetting(commandController, name + ".up",
-		"key for direction up",    Keys::K_UP));
-	down.reset (new KeyCodeSetting(commandController, name + ".down",
-		"key for direction down",  Keys::K_DOWN));
-	left.reset (new KeyCodeSetting(commandController, name + ".left",
-		"key for direction left",  Keys::K_LEFT));
-	right.reset(new KeyCodeSetting(commandController, name + ".right",
-		"key for direction right", Keys::K_RIGHT));
-	trigA.reset(new KeyCodeSetting(commandController, name + ".triga",
-		"key for trigger A",       Keys::K_SPACE));
-	trigB.reset(new KeyCodeSetting(commandController, name + ".trigb",
-		"key for trigger B",       Keys::K_M));
 }
 
 KeyJoystick::~KeyJoystick()

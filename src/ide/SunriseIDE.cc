@@ -1,8 +1,8 @@
 // $Id$
 
 #include "SunriseIDE.hh"
-#include "DummyIDEDevice.hh"
 #include "IDEDeviceFactory.hh"
+#include "IDEDevice.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "Math.hh"
@@ -10,28 +10,19 @@
 
 namespace openmsx {
 
-static IDEDevice* create(const XMLElement* elem, MSXMotherBoard& motherBoard,
-                         const EmuTime& time)
-{
-	return elem
-	     ? IDEDeviceFactory::create(motherBoard, *elem, time)
-	     : new DummyIDEDevice();
-}
-
 SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
-	const EmuTime& time = getCurrentTime();
-	device[0].reset(create(config.findChild("master"), motherBoard, time));
-	device[1].reset(create(config.findChild("slave" ), motherBoard, time));
+	device[0] = IDEDeviceFactory::create(motherBoard, config.findChild("master"));
+	device[1] = IDEDeviceFactory::create(motherBoard, config.findChild("slave" ));
 
 	// make valgrind happy
 	internalBank = 0;
 	ideRegsEnabled = false;
 
 	writeControl(0xFF);
-	reset(time);
+	reset(getCurrentTime());
 }
 
 SunriseIDE::~SunriseIDE()
@@ -45,7 +36,6 @@ void SunriseIDE::reset(const EmuTime& time)
 	device[0]->reset(time);
 	device[1]->reset(time);
 }
-
 
 byte SunriseIDE::readMem(word address, const EmuTime& time)
 {
@@ -107,7 +97,6 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime& time)
 	// all other writes ignored
 }
 
-
 void SunriseIDE::writeControl(byte value)
 {
 	control = value;
@@ -128,7 +117,6 @@ void SunriseIDE::writeControl(byte value)
 		invalidateMemCache(0x4000, 0x4000);
 	}
 }
-
 
 byte SunriseIDE::readDataLow(const EmuTime& time)
 {
@@ -177,7 +165,6 @@ byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
 	return result;
 }
 
-
 void SunriseIDE::writeDataLow(byte value)
 {
 	writeLatch = value;
@@ -218,7 +205,6 @@ void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime& time)
 		}
 	}
 }
-
 
 template<typename Archive>
 void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
