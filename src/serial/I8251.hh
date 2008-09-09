@@ -52,7 +52,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-//private:
+	// public for serialize
 	enum CmdFaze {
 		FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
 	};

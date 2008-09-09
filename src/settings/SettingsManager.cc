@@ -208,12 +208,12 @@ string SettingInfo::help(const vector<string>& /*tokens*/) const
 void SettingInfo::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
-		case 3: { // complete setting name
-			set<string> settings;
-			manager.getSettingNames(settings);
-			completeString(tokens, settings);
-			break;
-		}
+	case 3: { // complete setting name
+		set<string> settings;
+		manager.getSettingNames(settings);
+		completeString(tokens, settings);
+		break;
+	}
 	}
 }
 
@@ -241,22 +241,22 @@ string SetCompleter::help(const vector<string>& tokens) const
 void SetCompleter::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
-		case 2: {
-			// complete setting name
-			set<string> settings;
-			manager.getSettingNames(settings);
-			completeString(tokens, settings, false); // case insensitive
-			break;
+	case 2: {
+		// complete setting name
+		set<string> settings;
+		manager.getSettingNames(settings);
+		completeString(tokens, settings, false); // case insensitive
+		break;
+	}
+	case 3: {
+		// complete setting value
+		SettingsManager::SettingsMap::iterator it =
+			manager.settingsMap.find(tokens[1]);
+		if (it != manager.settingsMap.end()) {
+			it->second->tabCompletion(tokens);
 		}
-		case 3: {
-			// complete setting value
-			SettingsManager::SettingsMap::iterator it =
-				manager.settingsMap.find(tokens[1]);
-			if (it != manager.settingsMap.end()) {
-				it->second->tabCompletion(tokens);
-			}
-			break;
-		}
+		break;
+	}
 	}
 }
 
@@ -279,13 +279,13 @@ string SettingCompleter::help(const vector<string>& /*tokens*/) const
 void SettingCompleter::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
-		case 2: {
-			// complete setting name
-			set<string> settings;
-			manager.getSettingNames(settings);
-			completeString(tokens, settings);
-			break;
-		}
+	case 2: {
+		// complete setting name
+		set<string> settings;
+		manager.getSettingNames(settings);
+		completeString(tokens, settings);
+		break;
+	}
 	}
 }
 

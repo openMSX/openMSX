@@ -28,7 +28,6 @@ namespace openmsx {
 
 class YM2148
 {
-
 public:
 	YM2148();
 	~YM2148();
@@ -53,18 +52,18 @@ private:
 	//TODO BoardTimer* timerTrans;
 	//TODO void*       semaphore;
 	static const unsigned RX_QUEUE_SIZE = 256;
-	int        txPending;
-	int        rxPending;
-	int        rxHead;
-	unsigned   charTime;
-	unsigned   timeRecv;
-	unsigned   timeTrans;
-	byte       command;
-	byte       rxData;
-	byte       status;
-	byte       txBuffer;
-	byte       rxQueue[RX_QUEUE_SIZE];
-	byte       vector;
+	int      txPending;
+	int      rxPending;
+	int      rxHead;
+	unsigned charTime;
+	unsigned timeRecv;
+	unsigned timeTrans;
+	byte     command;
+	byte     rxData;
+	byte     status;
+	byte     txBuffer;
+	byte     rxQueue[RX_QUEUE_SIZE];
+	byte     vector;
 };
 
 } // namespace openmsx

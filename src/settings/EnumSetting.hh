@@ -67,12 +67,10 @@ public:
 
 template <typename T>
 EnumSettingPolicy<T>::EnumSettingPolicy(
-		CommandController& commandController, const Map& map_)
+		CommandController& commandController, const Map& map)
 	: SettingPolicy<T>(commandController)
 {
-	for (typename Map::const_iterator it = map_.begin(); it != map_.end(); ++it) {
-		baseMap[it->first] = it->second;
-	}
+	baseMap.insert(map.begin(), map.end());
 }
 
 template <typename T>

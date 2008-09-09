@@ -28,7 +28,7 @@ public:
 	// input side
 	void setState(bool status, const EmuTime& time);
 	void setPeriodicState(const EmuDuration& total,
-		const EmuDuration& hi, const EmuTime& time);
+	                      const EmuDuration& hi, const EmuTime& time);
 
 	// output side
 	bool getState(const EmuTime& time) const;
@@ -36,7 +36,7 @@ public:
 	const EmuDuration& getTotalDuration() const;
 	const EmuDuration& getHighDuration() const;
 	int getTicksBetween(const EmuTime& begin,
-			    const EmuTime& end) const;
+	                    const EmuTime& end) const;
 
 	// control
 	void generateEdgeSignals(bool wanted, const EmuTime& time);
@@ -50,7 +50,7 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	ClockPinListener* listener;
+	ClockPinListener* const listener;
 
 	EmuDuration totalDur;
 	EmuDuration hiDur;

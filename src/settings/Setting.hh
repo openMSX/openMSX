@@ -116,11 +116,11 @@ private:
 
 	/** The name of this setting.
 	  */
-	std::string name;
+	const std::string name;
 
 	/** A description of this setting that can be presented to the user.
 	  */
-	std::string description;
+	const std::string description;
 
 	/** see setDontSaveValue()
 	 */
@@ -128,7 +128,7 @@ private:
 
 	/** need to be saved flag
 	 */
-	bool save;
+	const bool save;
 };
 
 } // namespace openmsx

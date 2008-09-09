@@ -36,8 +36,8 @@ protected:
 	}
 
 private:
-	T minValue;
-	T maxValue;
+	const T minValue;
+	const T maxValue;
 };
 
 } // namespace openmsx

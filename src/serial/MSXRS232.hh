@@ -57,7 +57,7 @@ private:
 	const std::auto_ptr<I8251Interf> interf;
 	const std::auto_ptr<I8251> i8251;
 	const std::auto_ptr<Rom> rom;
-	std::auto_ptr<Ram> ram;
+	const std::auto_ptr<Ram> ram;
 
 	IRQHelper rxrdyIRQ;
 	bool rxrdyIRQlatch;

@@ -313,5 +313,4 @@ void UserSettingCommand::getSettingNames(set<string>& result) const
 	}
 }
 
-
 } // namespace openmsx
