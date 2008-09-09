@@ -11,15 +11,15 @@ namespace openmsx {
 RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
                          std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
+	, samplePlayer(new SamplePlayer(motherBoard, "Playball-DAC",
+	                                "Sony Playball's DAC", config,
+	                                "playball/playball_", 15))
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
 	setRom (2, 1);
 	setBank(3, unmappedRead);
 
-	samplePlayer.reset(new SamplePlayer(motherBoard, "Playball-DAC",
-	                         "Sony Playball's DAC", config,
-	                         "playball/playball_", 15));
 	reset(*static_cast<EmuTime*>(0));
 }
 

@@ -29,8 +29,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<I8255> i8255;
-
 	// I8255Interface
 	virtual byte readA(const EmuTime& time);
 	virtual byte readB(const EmuTime& time);
@@ -47,6 +45,7 @@ private:
 
 	byte readSRAM(word address) const;
 
+	const std::auto_ptr<I8255> i8255;
 	const std::auto_ptr<SRAM> sram;
 	word readAddress;
 	word writeAddress;

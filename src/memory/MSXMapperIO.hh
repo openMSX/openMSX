@@ -50,7 +50,7 @@ private:
 
 	friend class MapperIODebuggable;
 	const std::auto_ptr<MapperIODebuggable> debuggable;
-	std::auto_ptr<MapperMask> mapperMask;
+	const std::auto_ptr<MapperMask> mapperMask;
 	std::multiset<unsigned> mapperSizes;
 	byte registers[4];
 	byte mask;

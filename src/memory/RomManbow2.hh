@@ -9,7 +9,6 @@
 
 namespace openmsx {
 
-class Rom;
 class SCC;
 class AmdFlash;
 

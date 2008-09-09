@@ -9,14 +9,19 @@
 
 namespace openmsx {
 
+static unsigned calcBaseAddr(const XMLElement& config)
+{
+	int base = config.getChild("mem").getAttributeAsInt("base");
+	int first = config.getChild("rom").getChildDataAsInt("firstblock");
+	return first * 0x2000 - base;
+}
+
 RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
                  std::auto_ptr<Rom> rom)
 	: MSXRom(motherBoard, config, rom)
 	, panasonicMemory(motherBoard.getPanasonicMemory())
+	, baseAddr(calcBaseAddr(config))
 {
-	int base = config.getChild("mem").getAttributeAsInt("base");
-	int first = config.getChild("rom").getChildDataAsInt("firstblock");
-	baseAddr = first * 0x2000 - base;
 }
 
 byte RomDRAM::readMem(word address, const EmuTime& /*time*/)

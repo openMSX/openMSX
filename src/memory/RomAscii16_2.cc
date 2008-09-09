@@ -93,9 +93,8 @@ byte* RomAscii16_2::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomAscii16_2::serialize(Archive& ar, unsigned /*version*/)
 {
-        ar.template serializeBase<RomAscii16kB>(*this);
+	ar.template serializeBase<RomAscii16kB>(*this);
 	ar.serialize("sramEnabled", sramEnabled);
-
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii16_2);
 

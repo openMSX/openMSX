@@ -28,9 +28,9 @@ public:
 private:
 	inline word translate(word address) const;
 
-	unsigned base;
-	unsigned size;
-	std::auto_ptr<CheckedRam> checkedRam;
+	const unsigned base;
+	const unsigned size;
+	const std::auto_ptr<CheckedRam> checkedRam;
 };
 
 REGISTER_MSXDEVICE(MSXRam, "Ram");

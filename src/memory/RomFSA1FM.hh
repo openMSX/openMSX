@@ -32,7 +32,7 @@ public:
 
 private:
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
-	SRAM* sram;
+	SRAM& sram;
 };
 
 REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
@@ -58,7 +58,7 @@ public:
 private:
 	void changeBank(byte region, byte bank);
 
-	SRAM* sram;
+	SRAM& sram;
 	byte bankSelect[8];
 	bool isRam[8];
 	bool isEmpty[8];

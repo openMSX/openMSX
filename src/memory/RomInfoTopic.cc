@@ -32,6 +32,7 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_R_TYPE] = "R-Type";
 	description[ROM_CROSS_BLAIM] = "Cross Blaim";
 	description[ROM_MSXDOS2] = "MSX-DOS2";
+	description[ROM_MSX_AUDIO] = "MSX-Audio";
 	description[ROM_HARRY_FOX] = "Harry Fox";
 	description[ROM_HALNOTE] = "Halnote";
 	description[ROM_ZEMINA80IN1] = "Zemina 80 in 1";
@@ -43,30 +44,42 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_DRAM] = "MSXturboR DRAM";
 	description[ROM_MANBOW2] = "Manbow2";
 	description[ROM_MEGAFLASHROMSCC] = "Mega Flash ROM SCC";
+	description[ROM_MATRAINK] = "Matra Ink";
 
-	// plain variants
 	description[ROM_MIRRORED] = "Plain rom, mirrored (any size)";
 	description[ROM_MIRRORED0000] = "Plain rom, mirrored start at 0x0000";
+	description[ROM_MIRRORED2000] = "Plain rom, mirrored start at 0x2000";
 	description[ROM_MIRRORED4000] = "Plain rom, mirrored start at 0x4000";
+	description[ROM_MIRRORED6000] = "Plain rom, mirrored start at 0x6000";
 	description[ROM_MIRRORED8000] = "Plain rom, mirrored start at 0x8000";
+	description[ROM_MIRROREDA000] = "Plain rom, mirrored start at 0xA000";
 	description[ROM_MIRROREDC000] = "Plain rom, mirrored start at 0xC000";
+	description[ROM_MIRROREDE000] = "Plain rom, mirrored start at 0xE000";
 	description[ROM_NORMAL] = "Plain rom (any size)";
 	description[ROM_NORMAL0000] = "Plain rom start at 0x0000";
+	description[ROM_NORMAL2000] = "Plain rom start at 0x2000";
 	description[ROM_NORMAL4000] = "Plain rom start at 0x4000";
+	description[ROM_NORMAL6000] = "Plain rom start at 0x6000";
 	description[ROM_NORMAL8000] = "Plain rom start at 0x8000";
+	description[ROM_NORMALA000] = "Plain rom start at 0xA000";
 	description[ROM_NORMALC000] = "Plain rom start at 0xC000";
-	description[ROM_PAGE0] = "Plain 16kB page 0";
-	description[ROM_PAGE1] = "Plain 16kB page 1";
-	description[ROM_PAGE01] = "Plain 32kB page 0-1";
-	description[ROM_PAGE2] = "Plain 16kB page 2 (BASIC)";
-	description[ROM_PAGE12] = "Plain 32kB page 1-2";
-	description[ROM_PAGE012] = "Plain 48kB page 0-2";
-	description[ROM_PAGE3] = "Plain 16kB page 3";
-	description[ROM_PAGE23] = "Plain 32kB page 2-3";
-	description[ROM_PAGE123] = "Plain 48kB page 1-3";
+	description[ROM_NORMALE000] = "Plain rom start at 0xE000";
+	description[ROM_PAGE0]    = "Plain 16kB page 0";
+	description[ROM_PAGE1]    = "Plain 16kB page 1";
+	description[ROM_PAGE2]    = "Plain 16kB page 2 (BASIC)";
+	description[ROM_PAGE3]    = "Plain 16kB page 3";
+	description[ROM_PAGE01]   = "Plain 32kB page 0-1";
+	description[ROM_PAGE02]   = "Plain 32kB page 0,2";
+	description[ROM_PAGE03]   = "Plain 32kB page 0,3";
+	description[ROM_PAGE12]   = "Plain 32kB page 1-2";
+	description[ROM_PAGE13]   = "Plain 32kB page 1,3";
+	description[ROM_PAGE23]   = "Plain 32kB page 2-3";
+	description[ROM_PAGE012]  = "Plain 48kB page 0-2";
+	description[ROM_PAGE013]  = "Plain 48kB page 0-1,3";
+	description[ROM_PAGE023]  = "Plain 48kB page 0,2-3";
+	description[ROM_PAGE123]  = "Plain 48kB page 1-3";
 	description[ROM_PAGE0123] = "Plain 64kB";
 
-	// with SRAM
 	description[ROM_ASCII8_8] = "ASCII 8kB with 8kB SRAM";
 	description[ROM_ASCII16_2] = "ASCII 16kB with 2kB SRAM";
 	description[ROM_GAME_MASTER2] = "Konami's Game Master 2";
@@ -76,10 +89,10 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_KOEI_32] = "Koei with 32kB SRAM";
 	description[ROM_WIZARDRY] = "Wizardry";
 
-	// with DAC
 	description[ROM_MAJUTSUSHI] = "Hai no Majutsushi";
 	description[ROM_SYNTHESIZER] = "Konami's Synthesizer";
 	description[ROM_PLAYBALL] = "Sony's PlayBall";
+	description[ROM_NETTOU_YAKYUU] = "Nettou Yakuu";
 }
 
 void RomInfoTopic::execute(const vector<TclObject*>& tokens,

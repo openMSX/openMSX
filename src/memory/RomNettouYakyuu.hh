@@ -23,7 +23,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::auto_ptr<SamplePlayer> samplePlayer;
+	const std::auto_ptr<SamplePlayer> samplePlayer;
 
 	// remember per region if writes are for the sample player or not
 	// there are 4 x 8kB regions in [0x4000-0xBFFF]

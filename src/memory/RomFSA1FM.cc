@@ -47,7 +47,7 @@ namespace openmsx {
 
 // 8kb shared sram //
 
-static SRAM* allocSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
+static SRAM& allocSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("FSA1FM-sram");
@@ -57,7 +57,7 @@ static SRAM* allocSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 		                      0x2000, config);
 	}
 	++info.counter;
-	return reinterpret_cast<SRAM*>(info.stuff);
+	return *reinterpret_cast<SRAM*>(info.stuff);
 }
 
 static void releaseSRAM(MSXMotherBoard& motherBoard)
@@ -82,8 +82,8 @@ RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXRom(motherBoard, config, rom)
 	, firmwareSwitch(
 	      new FirmwareSwitch(motherBoard.getCommandController(), config))
+	, sram(allocSRAM(motherBoard, config))
 {
-	sram = allocSRAM(motherBoard, config);
 }
 
 RomFSA1FM1::~RomFSA1FM1()
@@ -100,12 +100,12 @@ byte RomFSA1FM1::peekMem(word address, const EmuTime& /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return (*rom)[(0x2000 * ((*sram)[0x1FC4] & 0x0F)) +
+		return (*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) +
 		              (address & 0x1FFF)];
 	} else if ((0x7FC0 <= address) && (address < 0x7FD0)) {
 		switch (address & 0x0F) {
 		case 4:
-			return (*sram)[address & 0x1FFF];
+			return sram[address & 0x1FFF];
 		case 6:
 			return firmwareSwitch->getStatus() ? 0xFB : 0xFF;
 		default:
@@ -114,7 +114,7 @@ byte RomFSA1FM1::peekMem(word address, const EmuTime& /*time*/) const
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// read sram
 		// TODO are there multiple sram blocks?
-		return (*sram)[address & 0x1FFF];
+		return sram[address & 0x1FFF];
 	} else {
 		return 0xFF;
 	}
@@ -132,11 +132,11 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 		return NULL;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return &(*rom)[(0x2000 * ((*sram)[0x1FC4] & 0x0F)) +
+		return &(*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) +
 		               (address & 0x1FFF)];
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// read sram
-		return &(*sram)[address & 0x1FFF];
+		return &sram[address & 0x1FFF];
 	} else {
 		return unmappedRead;
 	}
@@ -152,7 +152,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 			// switch rom bank
 			invalidateMemCache(0x4000, 0x2000);
 		}
-		sram->write(address & 0x1FFF, value);
+		sram.write(address & 0x1FFF, value);
 	}
 }
 
@@ -184,8 +184,8 @@ INSTANTIATE_SERIALIZE_METHODS(RomFSA1FM1);
 RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
+	, sram(allocSRAM(motherBoard, config))
 {
-	sram = allocSRAM(motherBoard, config);
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -213,7 +213,7 @@ byte RomFSA1FM2::peekMem(word address, const EmuTime& time) const
 		// read mapper state
 		result = bankSelect[address & 7];
 	} else if (isRam[address >> 13]) {
-		result = (*sram)[address & 0x1FFF];
+		result = sram[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
 		result = 0xFF;
 	} else {
@@ -235,7 +235,7 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 	} else if ((0x7FF0 & CacheLine::HIGH) == address) {
 		return NULL;
 	} else if (isRam[address >> 13]) {
-		return &(*sram)[address & 0x1FFF];
+		return &sram[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
 		return unmappedRead;
 	} else {
@@ -251,36 +251,36 @@ void RomFSA1FM2::writeMem(word address, byte value,
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state
 		switch (address & 0x1C00) {
-			case 0x0000:
-				changeBank(2, value);
-				break;
-			case 0x0400:
-				changeBank(0, value);
-				break;
-			case 0x0800:
-				changeBank(3, value);
-				break;
-			case 0x0C00:
-				changeBank(1, value);
-				break;
-			case 0x1000:
-				changeBank(4, value);
-				break;
-			case 0x1400:
-				// nothing
-				break;
-			case 0x1800:
-				changeBank(5, value);
-				break;
-			case 0x1C00:
-				// nothing
-				break;
+		case 0x0000:
+			changeBank(2, value);
+			break;
+		case 0x0400:
+			changeBank(0, value);
+			break;
+		case 0x0800:
+			changeBank(3, value);
+			break;
+		case 0x0C00:
+			changeBank(1, value);
+			break;
+		case 0x1000:
+			changeBank(4, value);
+			break;
+		case 0x1400:
+			// nothing
+			break;
+		case 0x1800:
+			changeBank(5, value);
+			break;
+		case 0x1C00:
+			// nothing
+			break;
 		}
 	} else if (address == 0x7FF9) {
 		// write control byte
 		control = value;
 	} else if (isRam[address >> 13]) {
-		sram->write(address & 0x1FFF, value);
+		sram.write(address & 0x1FFF, value);
 	}
 }
 
@@ -320,7 +320,7 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	// note: SRAM can be serialized in this class (as opposed to
 	//       Rom8kBBlocks), because we don't use setBank to map it
-	ar.serialize("SRAM", *sram);
+	ar.serialize("SRAM", sram);
 	ar.serialize("bankSelect", bankSelect);
 	ar.serialize("control", control);
 	if (ar.isLoader()) {

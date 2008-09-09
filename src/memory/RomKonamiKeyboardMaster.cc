@@ -46,29 +46,29 @@ void RomKonamiKeyboardMaster::reset(const EmuTime& /*time*/)
 void RomKonamiKeyboardMaster::writeIO(word port, byte value, const EmuTime& time)
 {
 	switch (port & 0xFF) {
-		case 0x00:
-			vlm5030->writeData(value);
-			break;
-		case 0x20:
-			vlm5030->writeControl(value, time);
-			break;
-		default:
-			assert(false);
+	case 0x00:
+		vlm5030->writeData(value);
+		break;
+	case 0x20:
+		vlm5030->writeControl(value, time);
+		break;
+	default:
+		assert(false);
 	}
 }
 
 byte RomKonamiKeyboardMaster::readIO(word port, const EmuTime& time)
 {
 	switch (port & 0xFF) {
-		case 0x00:
-			return vlm5030->getBSY(time) ? 0x10 : 0x00;
-			break;
-		case 0x20:
-			return 0xFF;
-			break;
-		default:
-			assert(false);
-			return 0xFF;
+	case 0x00:
+		return vlm5030->getBSY(time) ? 0x10 : 0x00;
+		break;
+	case 0x20:
+		return 0xFF;
+		break;
+	default:
+		assert(false);
+		return 0xFF;
 	}
 }
 

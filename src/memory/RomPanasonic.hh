@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class SRAM;
-
 class RomPanasonic : public Rom8kBBlocks
 {
 public:

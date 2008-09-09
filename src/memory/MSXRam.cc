@@ -7,15 +7,16 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 
-#include "Ram.hh" //
+#include "Ram.hh" // because we serialize Ram instead of CheckedRam
 
 namespace openmsx {
 
 MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
+	, base(config.getChildDataAsInt("base", 0))
+	, size(config.getChildDataAsInt("size", 0x10000))
+	, checkedRam(new CheckedRam(motherBoard, getName(), "ram", size))
 {
-	base = config.getChildDataAsInt("base", 0);
-	size = config.getChildDataAsInt("size", 0x10000);
 	if ((size > 0x10000) || (base >= 0x10000)) {
 		throw MSXException("Invalid base/size for " + getName() +
 		                   ", must be in range [0x0000,0x10000).");
@@ -24,8 +25,6 @@ MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 		throw MSXException("Invalid base/size alignment for " +
 		                   getName());
 	}
-
-	checkedRam.reset(new CheckedRam(motherBoard, getName(), "ram", size));
 }
 
 void MSXRam::powerUp(const EmuTime& /*time*/)
@@ -63,7 +62,6 @@ byte* MSXRam::getWriteCacheLine(word start) const
 {
 	return checkedRam->getWriteCacheLine(translate(start));
 }
-
 
 template<typename Archive>
 void MSXRam::serialize(Archive& ar, unsigned /*version*/)

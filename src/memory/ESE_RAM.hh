@@ -29,11 +29,11 @@ public:
 private:
 	void setSRAM(unsigned region, byte block);
 
-	std::auto_ptr<SRAM> sram;
+	const std::auto_ptr<SRAM> sram;
 
 	bool isWriteable[4]; // which region is readonly?
 	byte mapped[4]; // which block is mapped in this region?
-	byte blockMask;
+	const byte blockMask;
 };
 
 REGISTER_MSXDEVICE(ESE_RAM, "ESE_RAM");

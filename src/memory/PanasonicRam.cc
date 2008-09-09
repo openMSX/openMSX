@@ -34,7 +34,6 @@ byte* PanasonicRam::getWriteCacheLine(word start) const
 	}
 }
 
-
 template<typename Archive>
 void PanasonicRam::serialize(Archive& ar, unsigned /*version*/)
 {

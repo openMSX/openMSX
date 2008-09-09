@@ -20,7 +20,7 @@ public:
 
 private:
 	PanasonicMemory& panasonicMemory;
-	unsigned baseAddr;
+	const unsigned baseAddr;
 };
 
 REGISTER_MSXDEVICE(RomDRAM, "RomDRAM");

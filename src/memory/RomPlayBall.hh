@@ -27,7 +27,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::auto_ptr<SamplePlayer> samplePlayer;
+	const std::auto_ptr<SamplePlayer> samplePlayer;
 };
 
 REGISTER_MSXDEVICE(RomPlayBall, "RomPlayBall");

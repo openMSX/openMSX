@@ -36,11 +36,10 @@ protected:
 	  */
 	unsigned calcAddress(word address) const;
 
-	std::auto_ptr<CheckedRam> checkedRam;
+	const std::auto_ptr<CheckedRam> checkedRam;
 
 private:
-	MSXMapperIO* mapperIO;
-	unsigned nbBlocks;
+	MSXMapperIO& mapperIO;
 };
 
 REGISTER_MSXDEVICE(MSXMemoryMapper, "MemoryMapper");

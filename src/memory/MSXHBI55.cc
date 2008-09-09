@@ -163,19 +163,19 @@ void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
 	word address = addressLatch | ((value & 0x0F) << 8);
 	mode = value >> 6;
 	switch (mode) {
-		case 0:
-			readAddress = 0;
-			writeAddress = 0;
-			break;
-		case 1:
-			writeAddress = address;
-			break;
-		case 2:
-			sram->write(writeAddress, writeLatch);
-			break;
-		case 3:
-			readAddress = address;
-			break;
+	case 0:
+		readAddress = 0;
+		writeAddress = 0;
+		break;
+	case 1:
+		writeAddress = address;
+		break;
+	case 2:
+		sram->write(writeAddress, writeLatch);
+		break;
+	case 3:
+		readAddress = address;
+		break;
 	}
 }
 
@@ -226,6 +226,5 @@ void MSXHBI55::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("mode", mode);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXHBI55);
-
 
 } // namespace openmsx

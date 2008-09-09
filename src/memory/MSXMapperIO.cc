@@ -25,22 +25,25 @@ private:
 };
 
 
-MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time)
-	: MSXDevice(motherBoard, config)
-	, debuggable(new MapperIODebuggable(motherBoard, *this))
+static MapperMask* createMapperMask(MSXMotherBoard& motherBoard)
 {
 	string type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "5") {
-		mapperMask.reset(new MSXMapperIOTurboR());
+		return new MSXMapperIOTurboR();
 	} else if (type == "largest") {
-		mapperMask.reset(new MSXMapperIOPhilips());
-	} else {
-		throw FatalError("Unknown mapper type: \"" + type + "\".");
+		return new MSXMapperIOPhilips();
 	}
-	mask = mapperMask->calcMask(mapperSizes);
+	throw FatalError("Unknown mapper type: \"" + type + "\".");
+}
 
+MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
+                         const EmuTime& time)
+	: MSXDevice(motherBoard, config)
+	, debuggable(new MapperIODebuggable(motherBoard, *this))
+	, mapperMask(createMapperMask(motherBoard))
+{
+	mask = mapperMask->calcMask(mapperSizes);
 	reset(time);
 }
 
@@ -59,7 +62,6 @@ void MSXMapperIO::unregisterMapper(unsigned blocks)
 	mapperSizes.erase(mapperSizes.find(blocks));
 	mask = mapperMask->calcMask(mapperSizes);
 }
-
 
 void MSXMapperIO::reset(const EmuTime& /*time*/)
 {

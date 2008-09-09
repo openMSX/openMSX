@@ -34,12 +34,12 @@ private:
 	void setMapperLow(unsigned page, byte value);
 	void setMapperHigh(byte value);
 
-	std::auto_ptr<SRAM> sram;
-	std::auto_ptr<SCC> scc;
-	std::auto_ptr<MB89352> spc;
+	const std::auto_ptr<SRAM> sram;
+	const std::auto_ptr<SCC> scc;
+	const std::auto_ptr<MB89352> spc;
 
+	const byte mapperMask;
 	byte mapper[4];
-	byte mapperMask;
 	bool spcEnable;
 	bool sccEnable;
 	bool writeEnable;

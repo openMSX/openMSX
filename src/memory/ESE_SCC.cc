@@ -59,13 +59,12 @@
 
 namespace openmsx {
 
-ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
-                 bool withSCSI)
-	: MSXDevice(motherBoard, config)
+static SRAM* createSRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
+                        bool withSCSI, const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException("SRAM size for " + getName() +
+		throw MSXException("SRAM size for " + name +
 			" should be 128, 256, 512 or 1024kB and not " +
 			StringOp::toString(sramSize) + "kB!");
 	}
@@ -73,23 +72,23 @@ ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 		throw MSXException("1024kB SRAM is only allowed in WAVE-SCSI!");
 	}
 	sramSize *= 1024; // in bytes
-	sram.reset(new SRAM(motherBoard, getName() + " SRAM", sramSize, config));
-	mapperMask = (sramSize / 0x2000) - 1;
+	return new SRAM(motherBoard, name + " SRAM", sramSize, config);
+}
 
+ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
+                 bool withSCSI)
+	: MSXDevice(motherBoard, config)
+	, sram(createSRAM(motherBoard, config, withSCSI, getName()))
+	, scc(new SCC(motherBoard, getName(), config, getCurrentTime()))
+	, spc(withSCSI ? new MB89352(motherBoard, config) : NULL)
+	, mapperMask((sram->getSize() / 0x2000) - 1)
+{
 	// initialized mapper
 	sccEnable   = false;
 	spcEnable   = false;
 	writeEnable = false;
 	for (int i = 0; i < 4; ++i) {
 		mapper[i] = i;
-	}
-
-	// initialize SCC
-	scc.reset(new SCC(motherBoard, getName(), config, getCurrentTime()));
-
-	if (withSCSI) {
-		// initialize SPC
-		spc.reset(new MB89352(motherBoard, config));
 	}
 }
 
@@ -265,7 +264,6 @@ void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("scc", *scc);
 	ar.serialize("MB89352", *spc);
 	ar.serialize("mapper", mapper);
-	ar.serialize("mapperMask", mapperMask);
 	ar.serialize("spcEnable", spcEnable);
 	ar.serialize("sccEnable", sccEnable);
 	ar.serialize("writeEnable", writeEnable);

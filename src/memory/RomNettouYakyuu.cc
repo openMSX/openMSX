@@ -51,10 +51,10 @@ RomNettouYakyuu::RomNettouYakyuu(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
-{
-	samplePlayer.reset(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",
+	, samplePlayer(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",
 	                         "Jaleco Moero!! Nettou Yakuu '88 DAC", config,
-	                         "nettou_yakyuu/nettou_yakyuu_", 16));
+	                         "nettou_yakyuu/nettou_yakyuu_", 16))
+{
 	reset(*static_cast<EmuTime*>(0));
 }
 

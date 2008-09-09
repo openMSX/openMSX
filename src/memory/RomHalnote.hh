@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class SRAM;
-
 class RomHalnote : public Rom8kBBlocks
 {
 public:

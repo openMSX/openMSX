@@ -24,7 +24,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::auto_ptr<DACSound8U> dac;
+	const std::auto_ptr<DACSound8U> dac;
 };
 
 REGISTER_MSXDEVICE(RomMajutsushi, "RomMajutsushi");

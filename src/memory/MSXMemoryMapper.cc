@@ -3,46 +3,42 @@
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
 #include "XMLElement.hh"
-#include "DeviceFactory.hh"
-#include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "CheckedRam.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include <cassert>
 
-#include "Ram.hh" //
+#include "Ram.hh" // because we serialize Ram instead of CheckedRam
 
 namespace openmsx {
 
-unsigned MSXMemoryMapper::calcAddress(word address) const
-{
-	unsigned page = mapperIO->getSelectedPage(address >> 14);
-	page = (page < nbBlocks) ? page : page & (nbBlocks - 1);
-	return (page << 14) | (address & 0x3FFF);
-}
-
-MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
-                                 const XMLElement& config)
-	: MSXDevice(motherBoard, config)
+static CheckedRam* createRam(MSXMotherBoard& motherBoard, const XMLElement& config,
+                             const std::string& name)
 {
 	int kSize = config.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
 		throw MSXException("Mapper size is not a multiple of 16K: " +
 		                   StringOp::toString(kSize));
 	}
-	nbBlocks = kSize / 16;
-	checkedRam.reset(new CheckedRam(motherBoard, getName(), "memory mapper",
-	                                nbBlocks * 0x4000));
+	return new CheckedRam(motherBoard, name, "memory mapper",
+	                      (kSize / 16) * 0x4000);
+}
 
-	mapperIO = motherBoard.createMapperIO();
-	mapperIO->registerMapper(nbBlocks);
+MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
+                                 const XMLElement& config)
+	: MSXDevice(motherBoard, config)
+	, checkedRam(createRam(motherBoard, config, getName()))
+	, mapperIO(*motherBoard.createMapperIO())
+{
+	unsigned nbBlocks = checkedRam->getSize() / 0x4000;
+	mapperIO.registerMapper(nbBlocks);
 }
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
-	mapperIO->unregisterMapper(nbBlocks);
+	unsigned nbBlocks = checkedRam->getSize() / 0x4000;
+	mapperIO.unregisterMapper(nbBlocks);
 	getMotherBoard().destroyMapperIO();
 }
 
@@ -53,7 +49,15 @@ void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
 
 void MSXMemoryMapper::reset(const EmuTime& time)
 {
-	mapperIO->reset(time);
+	mapperIO.reset(time);
+}
+
+unsigned MSXMemoryMapper::calcAddress(word address) const
+{
+	unsigned page = mapperIO.getSelectedPage(address >> 14);
+	unsigned nbBlocks = checkedRam->getSize() / 0x4000;
+	page = (page < nbBlocks) ? page : page & (nbBlocks - 1);
+	return (page << 14) | (address & 0x3FFF);
 }
 
 byte MSXMemoryMapper::peekMem(word address, const EmuTime& /*time*/) const
@@ -80,7 +84,6 @@ byte* MSXMemoryMapper::getWriteCacheLine(word start) const
 {
 	return checkedRam->getWriteCacheLine(calcAddress(start));
 }
-
 
 template<typename Archive>
 void MSXMemoryMapper::serialize(Archive& ar, unsigned /*version*/)

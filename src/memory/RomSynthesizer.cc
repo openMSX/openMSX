@@ -31,14 +31,13 @@ RomSynthesizer::RomSynthesizer(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
+	, dac(new DACSound8U(motherBoard.getMSXMixer(), "Synthesizer-DAC",
+	                     "Konami Synthesizer's DAC", config))
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
 	setRom (2, 1);
 	setBank(3, unmappedRead);
-
-	dac.reset(new DACSound8U(motherBoard.getMSXMixer(), "Synthesizer-DAC",
-	                         "Konami Synthesizer's DAC", config));
 
 	reset(getCurrentTime());
 }

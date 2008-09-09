@@ -32,18 +32,24 @@
 
 namespace openmsx {
 
-ESE_RAM::ESE_RAM(MSXMotherBoard& motherBoard, const XMLElement& config)
-	: MSXDevice(motherBoard, config)
+static SRAM* createSRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
+                        const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException("SRAM size for " + getName() +
+		throw MSXException("SRAM size for " + name +
 			" should be 128, 256, 512 or 1024kB and not " +
 			StringOp::toString(sramSize) + "kB!");
 	}
 	sramSize *= 1024; // in bytes
-	sram.reset(new SRAM(motherBoard, getName() + " SRAM", sramSize, config));
-	blockMask = (sramSize / 8192) - 1;
+	return new SRAM(motherBoard, name + " SRAM", sramSize, config);
+}
+
+ESE_RAM::ESE_RAM(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXDevice(motherBoard, config)
+	, sram(createSRAM(motherBoard, config, getName()))
+	, blockMask((sram->getSize() / 8192) - 1)
+{
 }
 
 ESE_RAM::~ESE_RAM()

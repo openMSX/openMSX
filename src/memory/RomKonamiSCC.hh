@@ -27,7 +27,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::auto_ptr<SCC> scc;
+	const std::auto_ptr<SCC> scc;
 	bool sccEnabled;
 };
 

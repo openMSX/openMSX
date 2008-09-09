@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class SRAM;
-
 class RomNational : public Rom16kBBlocks
 {
 public:

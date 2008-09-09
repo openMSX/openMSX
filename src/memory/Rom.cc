@@ -69,7 +69,6 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 {
 	CommandController& controller = getMotherBoard().getCommandController();
 
-	extendedRom = NULL;
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
@@ -130,9 +129,8 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 		// the size of the mapper (and you don't care about initial
 		// content)
 		size = config.getChildDataAsInt("size", 0) * 1024; // in kb
-		extendedRom = new byte[size];
-		memset(extendedRom, 0xff, size);
-		rom = extendedRom;
+		extendedRom.assign(size, 0xff);
+		rom = &extendedRom[0];
 	}
 
 	patchedSha1 = getOriginalSHA1(); // initially it's the same ..
@@ -156,11 +154,9 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 				patch->copyBlock(0, const_cast<byte*>(rom), size);
 			} else {
 				size = patchSize;
-				byte* newExtendedRom = new byte[size];
-				patch->copyBlock(0, newExtendedRom, size);
-				delete[] extendedRom;
-				extendedRom = newExtendedRom;
-				rom = extendedRom;
+				extendedRom.resize(size);
+				patch->copyBlock(0, &extendedRom[0], size);
+				rom = &extendedRom[0];
 			}
 
 			// .. but recalculate when there were patches
@@ -260,7 +256,6 @@ bool Rom::checkSHA1(const XMLElement& config)
 
 Rom::~Rom()
 {
-	delete[] extendedRom;
 }
 
 const RomInfo& Rom::getInfo() const

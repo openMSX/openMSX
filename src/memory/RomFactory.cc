@@ -46,6 +46,7 @@ using std::auto_ptr;
 using std::string;
 
 namespace openmsx {
+namespace RomFactory {
 
 static RomType guessRomType(const Rom& rom)
 {
@@ -84,47 +85,47 @@ static RomType guessRomType(const Rom& rom)
 		//  with this instruction to the mapper-registers-addresses
 		//  occur.
 
-		unsigned typeGuess[] = {0,0,0,0,0,0};
-		for (int i=0; i<size-3; i++) {
+		unsigned typeGuess[] = { 0, 0, 0, 0, 0, 0 };
+		for (int i = 0; i < size - 3; ++i) {
 			if (data[i] == 0x32) {
-				word value = data[i+1]+(data[i+2]<<8);
+				word value = data[i + 1] + (data[i + 2] << 8);
 				switch (value) {
-					case 0x5000:
-					case 0x9000:
-					case 0xb000:
-						typeGuess[ROM_KONAMI_SCC]++;
-						break;
-					case 0x4000:
-						typeGuess[ROM_KONAMI]++;
-						break;
-					case 0x8000:
-					case 0xa000:
-						typeGuess[ROM_KONAMI]++;
-						break;
-					case 0x6800:
-					case 0x7800:
-						typeGuess[ROM_ASCII8]++;
-						break;
-					case 0x6000:
-						typeGuess[ROM_KONAMI]++;
-						typeGuess[ROM_ASCII8]++;
-						typeGuess[ROM_ASCII16]++;
-						break;
-					case 0x7000:
-						typeGuess[ROM_KONAMI_SCC]++;
-						typeGuess[ROM_ASCII8]++;
-						typeGuess[ROM_ASCII16]++;
-						break;
-					case 0x77ff:
-						typeGuess[ROM_ASCII16]++;
-						break;
+				case 0x5000:
+				case 0x9000:
+				case 0xb000:
+					typeGuess[ROM_KONAMI_SCC]++;
+					break;
+				case 0x4000:
+					typeGuess[ROM_KONAMI]++;
+					break;
+				case 0x8000:
+				case 0xa000:
+					typeGuess[ROM_KONAMI]++;
+					break;
+				case 0x6800:
+				case 0x7800:
+					typeGuess[ROM_ASCII8]++;
+					break;
+				case 0x6000:
+					typeGuess[ROM_KONAMI]++;
+					typeGuess[ROM_ASCII8]++;
+					typeGuess[ROM_ASCII16]++;
+					break;
+				case 0x7000:
+					typeGuess[ROM_KONAMI_SCC]++;
+					typeGuess[ROM_ASCII8]++;
+					typeGuess[ROM_ASCII16]++;
+					break;
+				case 0x77ff:
+					typeGuess[ROM_ASCII16]++;
+					break;
 				}
 			}
 		}
 		if (typeGuess[ROM_ASCII8]) typeGuess[ROM_ASCII8]--; // -1 -> max_int
 		RomType type = ROM_GENERIC_8KB; // 0
-		for (int i=ROM_GENERIC_8KB; i <= ROM_ASCII16; i++) {
-			if ((typeGuess[i]) && (typeGuess[i]>=typeGuess[type])) {
+		for (int i=ROM_GENERIC_8KB; i <= ROM_ASCII16; ++i) {
+			if (typeGuess[i] && (typeGuess[i] >= typeGuess[type])) {
 				type = static_cast<RomType>(i);
 			}
 		}
@@ -139,8 +140,7 @@ static RomType guessRomType(const Rom& rom)
 	}
 }
 
-auto_ptr<MSXDevice> RomFactory::create(
-	MSXMotherBoard& motherBoard, const XMLElement& config)
+auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	auto_ptr<Rom> rom(new Rom(motherBoard, config.getId(), "rom", config));
 
@@ -157,7 +157,6 @@ auto_ptr<MSXDevice> RomFactory::create(
 		// Use mapper type from config, even if this overrides DB.
 		type = RomInfo::nameToRomType(typestr);
 	}
-	PRT_DEBUG("RomType: " << type);
 
 	auto_ptr<MSXRom> result;
 	switch (type) {
@@ -330,5 +329,5 @@ auto_ptr<MSXDevice> RomFactory::create(
 	return auto_ptr<MSXDevice>(result);
 }
 
+} // namespace RomFactory
 } // namespace openmsx
-

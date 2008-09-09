@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class SRAM;
-
 class RomAscii16_2 : public RomAscii16kB
 {
 public:

@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class SRAM;
-
 class RomGameMaster2 : public Rom4kBBlocks
 {
 public:

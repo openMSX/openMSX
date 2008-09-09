@@ -48,10 +48,10 @@ private:
 
 	Ram ram;
 	const XMLElement* config;
-	const char* header;
+	const char* const header;
 	CliComm& cliComm;
 
-	std::auto_ptr<SRAMSync> sramSync;
+	const std::auto_ptr<SRAMSync> sramSync;
 	friend class SRAMSync;
 };
 

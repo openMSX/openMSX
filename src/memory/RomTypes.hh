@@ -68,7 +68,6 @@ enum RomType {
 	ROM_NORMALC000   = 56 + 6,
 	ROM_NORMALE000   = 56 + 7,
 
-	ROM_HAS_SRAM     = 64,
 	ROM_ASCII8_8     = 64 + 0,
 	ROM_ASCII16_2    = 64 + 1,
 	ROM_GAME_MASTER2 = 64 + 2,
@@ -78,7 +77,6 @@ enum RomType {
 	ROM_KOEI_32      = 64 + 6,
 	ROM_WIZARDRY     = 64 + 7,
 
-	ROM_HAS_DAC      = 128,
 	ROM_MAJUTSUSHI   = 128 + 0,
 	ROM_SYNTHESIZER  = 128 + 1,
 	ROM_PLAYBALL     = 128 + 2,

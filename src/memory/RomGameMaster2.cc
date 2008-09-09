@@ -120,7 +120,6 @@ template<typename Archive>
 void RomGameMaster2::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom4kBBlocks>(*this);
-
 	ar.serialize("sramOffset", sramOffset);
 	ar.serialize("sramEnabled", sramEnabled);
 }

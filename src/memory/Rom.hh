@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
+#include <vector>
 #include <memory>
 #include <cassert>
 
@@ -49,7 +50,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	const byte* rom;
-	byte* extendedRom;
+	std::vector<byte> extendedRom;
 
 	std::auto_ptr<File> file;
 	std::auto_ptr<RomInfo> info;

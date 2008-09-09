@@ -36,16 +36,13 @@ namespace openmsx {
 MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
+	, ram(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
+	              numBlocks * 0x2000))
+	, rom(config.findChild("rom")
+	      ? new Rom(motherBoard, getName() + " ROM", "Mega-RAM DiskROM", config)
+	      : NULL)
 	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
 {
-	ram.reset(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
-	                  numBlocks * 0x2000));
-	if (config.findChild("rom")) {
-		rom.reset(new Rom(motherBoard,
-		                  getName() + " ROM", "Mega-RAM DiskROM",
-		                  config));
-	}
-
 	for (unsigned i = 0; i < 4; i++) {
 		setBank(i, 0);
 	}
@@ -150,7 +147,6 @@ void MSXMegaRam::setBank(byte page, byte block)
 	invalidateMemCache(adr + 0x0000, 0x2000);
 	invalidateMemCache(adr + 0x8000, 0x2000);
 }
-
 
 template<typename Archive>
 void MSXMegaRam::serialize(Archive& ar, unsigned /*version*/)
