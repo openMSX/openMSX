@@ -345,4 +345,4 @@ download: $(TARBALLS)
 $(TARBALLS):
 	@false; curl --version ; if [ $$? != 0 -a $$? != 2 ]; then echo "Please install CURL (http://curl.haxx.se/) and put it in the PATH."; false; fi
 	mkdir -p $(@D)
-	curl --fail --location -o $@ $(DOWNLOAD_$(call findpackage,TARBALL,$(@F)))/$(@F)
+	curl --fail --location --retry 5 -o $@ $(DOWNLOAD_$(call findpackage,TARBALL,$(@F)))/$(@F)
