@@ -155,7 +155,7 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	}
 	// Initialize volume (initialize this before period)
 	for (int i = 0; i < 5; ++i) {
-		setFreqVol(i + 10, 15);
+		setFreqVol(i + 10, 15, time);
 	}
 	// Actual initial value is difficult to measure, assume zero
 	// (initialize before period)
@@ -164,7 +164,7 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	}
 	// Initialize period (sets members orgPeriod, period, incr, count, out)
 	for (int i = 0; i < 2 * 5; ++i) {
-		setFreqVol(i, 0);
+		setFreqVol(i, 0, time);
 	}
 
 	registerSound(config);
@@ -312,7 +312,7 @@ void SCC::writeMem(byte address, byte value, const EmuTime& time)
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xA0) {
 			// 0x80..0x9F : freq volume block
-			setFreqVol(address, value);
+			setFreqVol(address, value, time);
 		} else if (address < 0xE0) {
 			// 0xA0..0xDF : no function
 		} else {
@@ -326,7 +326,7 @@ void SCC::writeMem(byte address, byte value, const EmuTime& time)
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xA0) {
 			// 0x80..0x9F : freq volume block
-			setFreqVol(address, value);
+			setFreqVol(address, value, time);
 		} else if (address < 0xC0) {
 			// 0xA0..0xBF : ignore write wave form 5
 		} else if (address < 0xE0) {
@@ -342,7 +342,7 @@ void SCC::writeMem(byte address, byte value, const EmuTime& time)
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xC0) {
 			// 0xA0..0xBF : freq volume block
-			setFreqVol(address, value);
+			setFreqVol(address, value, time);
 		} else if (address < 0xE0) {
 			// 0xC0..0xDF : deformation register
 			setDeformReg(value, time);
@@ -383,7 +383,7 @@ void SCC::writeWave(unsigned channel, unsigned address, byte value)
 	}
 }
 
-void SCC::setFreqVol(unsigned address, byte value)
+void SCC::setFreqVol(unsigned address, byte value, const EmuTime& time)
 {
 	address &= 0x0F; // region is visible twice
 	if (address < 0x0A) {
@@ -406,6 +406,9 @@ void SCC::setFreqVol(unsigned address, byte value)
 		count[channel] = 0; // reset to begin of byte
 		if (deformValue & 0x20) {
 			pos[channel] = 0; // reset to begin of waveform
+			// also 'rotation' mode (confirmed by test based on
+			// Artag's SCC sample player)
+			deformTimer.advance(time);
 		}
 		// after a freq change, update the output
 		out[channel] = volAdjustedWave[channel][pos[channel]];
@@ -598,7 +601,7 @@ void SCCDebuggable::write(unsigned address, byte value, const EmuTime& time)
 		scc.writeWave(address >> 5, address, value);
 	} else if (address < 0xC0) {
 		// freq volume block
-		scc.setFreqVol(address, value);
+		scc.setFreqVol(address, value, time);
 	} else if (address < 0xE0) {
 		// deformation register
 		scc.setDeformReg(value, time);
@@ -619,10 +622,7 @@ template<typename Archive>
 void SCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mode", currentChipMode);
-	ar.serialize("count", count);
-	ar.serialize("pos", pos);
 	ar.serialize("period", orgPeriod);
-	ar.serialize("out", out);
 	ar.serialize("volume", volume);
 	ar.serialize("ch_enable", ch_enable);
 	ar.serialize("deformTimer", deformTimer);
@@ -648,12 +648,22 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 		setDeformRegHelper(deformValue);
 
 		// recalculate incr[5] and period[5]
+		//  this also (possibly) changes count[5], pos[5] and out[5]
+		//  as an unwanted side-effect, so (de)serialize those later
+		// Don't use current time, but instead use deformTimer, to
+		// avoid changing the value of deformTimer.
+		const EmuTime& time = deformTimer.getTime();
 		for (int channel = 0; channel < 5; ++channel) {
 			unsigned per = orgPeriod[channel];
-			setFreqVol(2 * channel + 0, (per & 0x0FF) >> 0);
-			setFreqVol(2 * channel + 1, (per & 0xF00) >> 8);
+			setFreqVol(2 * channel + 0, (per & 0x0FF) >> 0, time);
+			setFreqVol(2 * channel + 1, (per & 0xF00) >> 8, time);
 		}
 	}
+
+	// call to setFreqVol() modifies these variables, see above
+	ar.serialize("count", count);
+	ar.serialize("pos", pos);
+	ar.serialize("out", out);
 }
 INSTANTIATE_SERIALIZE_METHODS(SCC);
 

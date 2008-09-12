@@ -50,7 +50,7 @@ private:
 	void writeWave(unsigned channel, unsigned offset, byte value);
 	void setDeformReg(byte value, const EmuTime& time);
 	void setDeformRegHelper(byte value);
-	void setFreqVol(unsigned address, byte value);
+	void setFreqVol(unsigned address, byte value, const EmuTime& time);
 	byte getFreqVol(unsigned address) const;
 
 	static const int CLOCK_FREQ = 3579545;
