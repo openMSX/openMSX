@@ -74,7 +74,8 @@ const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
 
 byte* PanasonicMemory::getRamBlock(unsigned block)
 {
-	assert(ram);
+	if (!ram) return NULL;
+
 	unsigned offset = block * 0x2000;
 	if (offset >= ramSize) {
 		offset &= ramSize - 1;
@@ -83,7 +84,8 @@ byte* PanasonicMemory::getRamBlock(unsigned block)
 }
 unsigned PanasonicMemory::getRamSize() const
 {
-	assert(ram);
+	if (!ram) return 0;
+
 	return ramSize;
 }
 
