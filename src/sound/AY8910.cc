@@ -113,12 +113,12 @@ inline void AY8910::Generator::setPeriod(int value)
 	count = std::min(count, period - 1);
 }
 
-inline unsigned AY8910::Generator::getOutput()
+inline unsigned AY8910::Generator::getOutput() const
 {
 	return output;
 }
 
-inline unsigned AY8910::Generator::getNextEventTime()
+inline unsigned AY8910::Generator::getNextEventTime() const
 {
 	assert(count < period);
 	return period - count;
@@ -267,17 +267,21 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 
 // Amplitude:
 
-AY8910::Amplitude::Amplitude(const XMLElement& config)
+static bool isAY8910(const XMLElement& config)
 {
 	string type = StringOp::toLower(config.getChildData("type", "ay8910"));
 	if (type == "ay8910") {
-		ay8910 = true;
+		return true;
 	} else if (type == "ym2149") {
-		ay8910 = false;
+		return false;
 	} else {
 		throw FatalError("Unknown PSG type: " + type);
 	}
+}
 
+AY8910::Amplitude::Amplitude(const XMLElement& config)
+	: ay8910(isAY8910(config))
+{
 	vol[0] = vol[1] = vol[2] = 0;
 	envChan[0] = false;
 	envChan[1] = false;
@@ -459,7 +463,7 @@ inline void AY8910::Envelope::doNextEvent()
 	doSteps(period == 1 ? 2 : 1);
 }
 
-inline unsigned AY8910::Envelope::getNextEventTime()
+inline unsigned AY8910::Envelope::getNextEventTime() const
 {
 	assert(count < period);
 	return (period - count + 1) / 2;
@@ -482,34 +486,31 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))
+	, vibratoPercent(new FloatSetting(motherBoard.getCommandController(),
+		getName() + "_vibrato_percent", "controls strength of vibrato effect",
+		0.0, 0.0, 10.0))
+	, vibratoFrequency(new FloatSetting(motherBoard.getCommandController(),
+		getName() + "_vibrato_frequency", "frequency of vibrato effect in Hertz",
+		5, 1.0, 10.0))
+	, detunePercent(new FloatSetting(motherBoard.getCommandController(),
+		getName() + "_detune_percent", "controls strength of detune effect",
+		0.0, 0.0, 10.0))
+	, detuneFrequency(new FloatSetting(motherBoard.getCommandController(),
+		getName() + "_detune_frequency", "frequency of detune effect in Hertz",
+		5.0, 1.0, 100.0))
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
 	, warningPrinted(false)
 {
 	initDetune();
 
-	for (int chan = 0; chan < 3; chan++) {
+	for (int chan = 0; chan < 3; ++chan) {
 		tone[chan].setParent(*this);
 	}
 
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
 	setOutputRate(44100);
-
-	const string& name = getName();
-	CommandController& commandController = motherBoard.getCommandController();
-	vibratoPercent.reset(new FloatSetting(commandController,
-		name + "_vibrato_percent", "controls strength of vibrato effect",
-		0.0, 0.0, 10.0));
-	vibratoFrequency.reset(new FloatSetting(commandController,
-		name + "_vibrato_frequency", "frequency of vibrato effect in Hertz",
-		5, 1.0, 10.0));
-	detunePercent.reset(new FloatSetting(commandController,
-		name + "_detune_percent", "controls strength of detune effect",
-		0.0, 0.0, 10.0));
-	detuneFrequency.reset(new FloatSetting(commandController,
-		name + "_detune_frequency", "frequency of detune effect in Hertz",
-		5.0, 1.0, 100.0));
 
 	reset(time);
 	registerSound(config);

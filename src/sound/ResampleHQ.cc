@@ -162,8 +162,8 @@ void ResampleCoeffs::calcTable(
 template <unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(Resample& input_, double ratio_)
 	: input(input_)
+	, ratio(ratio_)
 {
-	ratio = ratio_;
 	lastPos = 0.0f;
 
 	bufStart = 0;

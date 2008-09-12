@@ -30,7 +30,7 @@ protected:
 	void writeDataPort(byte value, const EmuTime& time);
 
 	const std::auto_ptr<Rom> rom;
-	std::auto_ptr<YM2413Interface> ym2413;
+	const std::auto_ptr<YM2413Interface> ym2413;
 
 private:
 	int registerLatch;

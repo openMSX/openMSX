@@ -46,7 +46,7 @@ private:
 	byte readMemory() const;
 
 	Y8950& y8950;
-	std::auto_ptr<Ram> ram;
+	const std::auto_ptr<Ram> ram;
 
 	unsigned startAddr;
 	unsigned stopAddr;

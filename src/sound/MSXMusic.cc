@@ -9,19 +9,23 @@
 
 namespace openmsx {
 
+static YM2413Interface* createYM2413(
+	MSXMotherBoard& motherBoard, const XMLElement& config,
+	const std::string& name, const EmuTime& time)
+{
+	if (config.getChildDataAsBool("alternative", false)) {
+		return new YM2413_2(motherBoard, name, config, time);
+	} else {
+		return new YM2413  (motherBoard, name, config, time);
+	}
+}
+
 MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
+	, ym2413(createYM2413(motherBoard, config, getName(), getCurrentTime()))
 {
-	const EmuTime& time = getCurrentTime();
-	if (config.getChildDataAsBool("alternative", false)) {
-		ym2413.reset(new YM2413_2(motherBoard, getName(),
-		                          config, time));
-	} else {
-		ym2413.reset(new YM2413(motherBoard, getName(),
-		                        config, time));
-	}
-	reset(time);
+	reset(getCurrentTime());
 }
 
 MSXMusic::~MSXMusic()
@@ -38,12 +42,12 @@ void MSXMusic::reset(const EmuTime& time)
 void MSXMusic::writeIO(word port, byte value, const EmuTime& time)
 {
 	switch (port & 0x01) {
-		case 0:
-			writeRegisterPort(value, time);
-			break;
-		case 1:
-			writeDataPort(value, time);
-			break;
+	case 0:
+		writeRegisterPort(value, time);
+		break;
+	case 1:
+		writeDataPort(value, time);
+		break;
 	}
 }
 
@@ -57,7 +61,6 @@ void MSXMusic::writeDataPort(byte value, const EmuTime& time)
 	//PRT_DEBUG("YM2413: reg "<<(int)registerLatch<<" val "<<(int)value);
 	ym2413->writeReg(registerLatch, value, time);
 }
-
 
 byte MSXMusic::readMem(word address, const EmuTime& /*time*/)
 {

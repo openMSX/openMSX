@@ -1054,7 +1054,7 @@ void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("loadTime", loadTime);
 	ar.serialize("busyTime", busyTime);
-	//ar.serialize("slots", slots);
+	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
 	ar.serialize_blob("ram", ram, endRam - endRom);
 	ar.serialize_blob("registers", regs, sizeof(regs));

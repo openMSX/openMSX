@@ -18,7 +18,7 @@ class MSXMotherBoard;
 // Defined in .cc:
 class YM2413Debuggable;
 
-class YM2413Core: public SoundDevice, protected Resample
+class YM2413Core : public SoundDevice, protected Resample
 {
 public:
 	// Input clock frequency.

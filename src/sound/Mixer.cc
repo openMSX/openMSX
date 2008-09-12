@@ -16,28 +16,26 @@
 
 namespace openmsx {
 
+#ifdef _WIN32
+static const int defaultsamples = 2048;
+#else
+static const int defaultsamples = 1024;
+#endif
+
 Mixer::Mixer(CommandController& commandController_)
 	: commandController(commandController_)
+	, muteSetting(new BooleanSetting(commandController,
+		"mute", "(un)mute the emulation sound", false,
+		Setting::DONT_SAVE))
+	, masterVolume(new IntegerSetting(commandController,
+		"master_volume", "master volume", 75, 0, 100))
+	, frequencySetting(new IntegerSetting(commandController,
+		"frequency", "mixer frequency", 44100, 11025, 48000))
+	, samplesSetting(new IntegerSetting(commandController,
+		"samples", "mixer samples", defaultsamples, 64, 8192))
 	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
 	, muteCount(0)
 {
-	// default values
-#ifdef _WIN32
-	const int defaultsamples = 2048;
-#else
-	const int defaultsamples = 1024;
-#endif
-
-	muteSetting.reset(new BooleanSetting(commandController,
-		"mute", "(un)mute the emulation sound", false,
-		Setting::DONT_SAVE));
-	masterVolume.reset(new IntegerSetting(commandController,
-		"master_volume", "master volume", 75, 0, 100));
-	frequencySetting.reset(new IntegerSetting(commandController,
-		"frequency", "mixer frequency", 44100, 11025, 48000));
-	samplesSetting.reset(new IntegerSetting(commandController,
-		"samples", "mixer samples", defaultsamples, 64, 8192));
-
 	EnumSetting<SoundDriverType>::Map soundDriverMap;
 	soundDriverMap["null"]    = SND_NULL;
 	soundDriverMap["sdl"]     = SND_SDL;

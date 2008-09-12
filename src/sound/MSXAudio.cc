@@ -248,7 +248,7 @@ PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 	           false)
 	// note: name + " RAM"  already taken by sample RAM
 	, ram(new Ram(audio.getMotherBoard(), audio.getName() + " mapped RAM",
-	              "MSX-AUDIO mapped RAM", 0x1000)) 
+	              "MSX-AUDIO mapped RAM", 0x1000))
 	, rom(new Rom(audio.getMotherBoard(), audio.getName() + " ROM",
 	              "MSX-AUDIO ROM", config))
 	, ioPorts(0)

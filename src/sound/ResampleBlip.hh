@@ -24,7 +24,7 @@ private:
 	const double ratio;
 	const double invRatio;
 	typedef FixedPoint<16> FP;
-	FP invRatioFP;
+	const FP invRatioFP;
 	double lastPos;
 	int lastInput[CHANNELS];
 };

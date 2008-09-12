@@ -36,15 +36,15 @@ private:
 	void checkEnable();
 
 	const std::auto_ptr<Ram> ram;
-	std::auto_ptr<SCC> scc;
+	const std::auto_ptr<SCC> scc;
 	byte* internalMemoryBank[4];	// 4 blocks of 8kB starting at #4000
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 	byte modeRegister;
 	bool isRamSegment[4];
 	bool isMapped[4];
 	byte mapper[4];
-	byte mapperMask;
-	bool lowRAM, highRAM;
+	/*const*/ byte mapperMask;
+	/*const*/ bool lowRAM, highRAM;
 };
 
 REGISTER_MSXDEVICE(MSXSCCPlusCart, "SCCPlus");

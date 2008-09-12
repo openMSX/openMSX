@@ -25,7 +25,7 @@ private:
 	void prepareData(unsigned request);
 
 	Resample& input;
-	float ratio;
+	const float ratio;
 	float lastPos;
 	unsigned bufStart;
 	unsigned bufEnd;

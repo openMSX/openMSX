@@ -1648,7 +1648,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("eg_sel_rr", eg_sel_rr);
 	ar.serialize("eg_sh_rs", eg_sh_rs);
 	ar.serialize("eg_sel_rs", eg_sel_rs);
-	ar.serialize("ar", ar);
+	ar.serialize("ar", this->ar);
 	ar.serialize("dr", dr);
 	ar.serialize("rr", rr);
 	ar.serialize("KSR", KSR);
@@ -1662,7 +1662,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
-	// TODO Slot slots[2];
+	ar.serialize("slots", slots);
 	ar.serialize("instvol_r", instvol_r);
 	ar.serialize("block_fnum", block_fnum);
 	ar.serialize("fc", fc);

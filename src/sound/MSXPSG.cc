@@ -26,6 +26,7 @@ MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
 	ports[0].reset(new JoystickPort(controller, "joyporta"));
 	ports[1].reset(new JoystickPort(controller, "joyportb"));
 
+	// must come after initialisation of ports
 	const EmuTime& time = getCurrentTime();
 	ay8910.reset(new AY8910(motherBoard, *this, config, time));
 	reset(time);

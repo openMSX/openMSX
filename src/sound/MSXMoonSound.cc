@@ -11,10 +11,11 @@ namespace openmsx {
 
 MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
+	, ymf262(new YMF262(motherBoard, getName() + " FM", config))
+	, ymf278(new YMF278(motherBoard, getName() + " wave",
+	                    config.getChildDataAsInt("sampleram", 512), // size in kb
+	                    config))
 {
-	int ramSize = config.getChildDataAsInt("sampleram", 512); // size in kb
-	ymf262.reset(new YMF262(motherBoard, getName() + " FM", config));
-	ymf278.reset(new YMF278(motherBoard, getName() + " wave", ramSize, config));
 	reset(getCurrentTime());
 }
 

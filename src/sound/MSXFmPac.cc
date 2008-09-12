@@ -43,24 +43,24 @@ byte MSXFmPac::readMem(word address, const EmuTime& /*time*/)
 {
 	address &= 0x3FFF;
 	switch (address) {
-		case 0x3FF6:
-			return enable;
-		case 0x3FF7:
-			return bank;
-		default:
-			if (sramEnabled) {
-				if (address < 0x1FFE) {
-					return (*sram)[address];
-				} else if (address == 0x1FFE) {
-					return r1ffe; // always 0x4D
-				} else if (address == 0x1FFF) {
-					return r1fff; // always 0x69
-				} else {
-					return 0xFF;
-				}
+	case 0x3FF6:
+		return enable;
+	case 0x3FF7:
+		return bank;
+	default:
+		if (sramEnabled) {
+			if (address < 0x1FFE) {
+				return (*sram)[address];
+			} else if (address == 0x1FFE) {
+				return r1ffe; // always 0x4D
+			} else if (address == 0x1FFF) {
+				return r1fff; // always 0x69
 			} else {
-				return (*rom)[bank * 0x4000 + address];
+				return 0xFF;
 			}
+		} else {
+			return (*rom)[bank * 0x4000 + address];
+		}
 	}
 }
 
@@ -89,43 +89,43 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 	//   (thanks to BiFiMSX for investigating this)
 	address &= 0x3FFF;
 	switch (address) {
-		case 0x1FFE:
-			if (!(enable & 0x10)) {
-				r1ffe = value;
-				checkSramEnable();
-			}
-			break;
-		case 0x1FFF:
-			if (!(enable & 0x10)) {
-				r1fff = value;
-				checkSramEnable();
-			}
-			break;
-		case 0x3FF4:
-			writeRegisterPort(value, time);
-			break;
-		case 0x3FF5:
-			writeDataPort(value, time);
-			break;
-		case 0x3FF6:
-			enable = value & 0x11;
-			if (enable & 0x10) {
-				r1ffe = r1fff = 0; // actual value not important
-				checkSramEnable();
-			}
-			break;
-		case 0x3FF7: {
-			byte newBank = value & 0x03;
-			if (bank != newBank) {
-				bank = newBank;
-				invalidateMemCache(0x0000, 0x10000);
-			}
-			break;
+	case 0x1FFE:
+		if (!(enable & 0x10)) {
+			r1ffe = value;
+			checkSramEnable();
 		}
-		default:
-			if (sramEnabled && (address < 0x1FFE)) {
-				sram->write(address, value);
-			}
+		break;
+	case 0x1FFF:
+		if (!(enable & 0x10)) {
+			r1fff = value;
+			checkSramEnable();
+		}
+		break;
+	case 0x3FF4:
+		writeRegisterPort(value, time);
+		break;
+	case 0x3FF5:
+		writeDataPort(value, time);
+		break;
+	case 0x3FF6:
+		enable = value & 0x11;
+		if (enable & 0x10) {
+			r1ffe = r1fff = 0; // actual value not important
+			checkSramEnable();
+		}
+		break;
+	case 0x3FF7: {
+		byte newBank = value & 0x03;
+		if (bank != newBank) {
+			bank = newBank;
+			invalidateMemCache(0x0000, 0x10000);
+		}
+		break;
+	}
+	default:
+		if (sramEnabled && (address < 0x1FFE)) {
+			sram->write(address, value);
+		}
 	}
 }
 

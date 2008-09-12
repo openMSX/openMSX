@@ -61,10 +61,10 @@ private:
 	std::auto_ptr<SoundDriver> driver;
 	CommandController& commandController;
 
-	std::auto_ptr<BooleanSetting> muteSetting;
-	std::auto_ptr<IntegerSetting> masterVolume;
-	std::auto_ptr<IntegerSetting> frequencySetting;
-	std::auto_ptr<IntegerSetting> samplesSetting;
+	const std::auto_ptr<BooleanSetting> muteSetting;
+	const std::auto_ptr<IntegerSetting> masterVolume;
+	const std::auto_ptr<IntegerSetting> frequencySetting;
+	const std::auto_ptr<IntegerSetting> samplesSetting;
 	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
 	std::auto_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
 	BooleanSetting& pauseSetting;

@@ -20,6 +20,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
                                const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, ram(new Ram(motherBoard, getName() + " RAM", "SCC+ RAM", 0x20000))
+	, scc(new SCC(motherBoard, getName(), config, getCurrentTime(),
+	              SCC::SCC_Compatible))
 {
 	if (const XMLElement* fileElem = config.findChild("filename")) {
 		// read the rom file
@@ -59,11 +61,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		mapper[i] = 0;
 	}
 
-	const EmuTime& time = getCurrentTime();
-	scc.reset(new SCC(motherBoard, getName(), config, time,
-	                  SCC::SCC_Compatible));
-
-	reset(time);
+	reset(getCurrentTime());
 }
 
 MSXSCCPlusCart::~MSXSCCPlusCart()

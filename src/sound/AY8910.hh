@@ -44,9 +44,9 @@ private:
 		inline void setPeriod(int value);
 		/** Gets the current output of this generator.
 		  */
-		inline unsigned getOutput();
+		inline unsigned getOutput() const;
 
-		inline unsigned getNextEventTime();
+		inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
 
 		template<typename Archive>
@@ -72,7 +72,7 @@ private:
 		unsigned output;
 	};
 
-	class ToneGenerator: public Generator {
+	class ToneGenerator : public Generator {
 	public:
 		ToneGenerator();
 		inline void setParent(AY8910& parent);
@@ -100,7 +100,7 @@ private:
 		const ToneGenerator& operator=(const ToneGenerator&);
 	};
 
-	class NoiseGenerator: public Generator {
+	class NoiseGenerator : public Generator {
 	public:
 		NoiseGenerator();
 
@@ -134,7 +134,7 @@ private:
 		unsigned envVolTable[32];
 		unsigned vol[3];
 		bool envChan[3];
-		bool ay8910;
+		const bool ay8910;
 	};
 
 	class Envelope {
@@ -147,7 +147,7 @@ private:
 		inline void advance(int duration);
 		inline unsigned getVolume() const;
 
-		inline unsigned getNextEventTime();
+		inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
 		inline void doNextEvent();
 
@@ -179,10 +179,10 @@ private:
 	CliComm& cliComm;
 	AY8910Periphery& periphery;
 	const std::auto_ptr<AY8910Debuggable> debuggable;
-	std::auto_ptr<FloatSetting> vibratoPercent;
-	std::auto_ptr<FloatSetting> vibratoFrequency;
-	std::auto_ptr<FloatSetting> detunePercent;
-	std::auto_ptr<FloatSetting> detuneFrequency;
+	const std::auto_ptr<FloatSetting> vibratoPercent;
+	const std::auto_ptr<FloatSetting> vibratoFrequency;
+	const std::auto_ptr<FloatSetting> detunePercent;
+	const std::auto_ptr<FloatSetting> detuneFrequency;
 	ToneGenerator tone[3];
 	NoiseGenerator noise;
 	Amplitude amplitude;
