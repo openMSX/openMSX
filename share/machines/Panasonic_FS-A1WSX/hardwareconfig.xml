@@ -22,13 +22,6 @@
 
   <CassettePort/>
 
-  <PanasonicRom id="Firmware ROM">
-    <rom>
-      <filename>roms/fs-a1wsx_firmware.rom</filename>
-      <sha1>3330d9b6b76e3c4ccb7cf252496ed15d08b95d3f</sha1>
-    </rom>
-  </PanasonicRom>
-
   <devices>
 
     <Kanji id="Kanji ROM">
@@ -172,8 +165,8 @@
           <sram-mirrored>true</sram-mirrored>
           <sramname>fs-a1wsx.sram</sramname>
           <rom>
-            <firstblock>0</firstblock>
-            <lastblock>255</lastblock>
+            <filename>roms/fs-a1wsx_firmware.rom</filename>
+            <sha1>3330d9b6b76e3c4ccb7cf252496ed15d08b95d3f</sha1>
           </rom>
           <mem base="0x0000" size="0x10000"/>
         </ROM>

@@ -19,6 +19,7 @@ RomPanasonic::RomPanasonic(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom_)
 	: Rom8kBBlocks(motherBoard, config, rom_)
+	, panasonicMem(motherBoard.getPanasonicMemory())
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
@@ -32,9 +33,11 @@ RomPanasonic::RomPanasonic(
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);
 	}
 
-	// tell baseclass about PanasonicMemory (for serialization)
-	PanasonicMemory& panasonicMem = motherBoard.getPanasonicMemory();
-	setExtraMemory(panasonicMem.getRamBlock(0), panasonicMem.getRamSize());
+	// Only lazily tell baseclass about about PanasonicMemory (for
+	// serialization). We cannot do this in the constructor yet, because
+	// we're not certain the PanasonicRam device is already constructed.
+	// Actual registration is done in changeBank(), right before we
+	// actually select ram pages.
 
 	reset(*static_cast<EmuTime*>(0));
 }
@@ -163,6 +166,7 @@ void RomPanasonic::changeBank(byte region, int bank)
 		return;
 	}
 	bankSelect[region] = bank;
+
 	if (sram.get() && (SRAM_BASE <= bank) && (bank < maxSRAMBank)) {
 		// SRAM
 		int offset = (bank - SRAM_BASE) * 0x2000;
@@ -171,10 +175,15 @@ void RomPanasonic::changeBank(byte region, int bank)
 			offset &= (sramSize - 1);
 		}
 		setBank(region, &sram->operator[](offset));
-	} else if (RAM_BASE <= bank) {
+	} else if (panasonicMem.getRamSize() && (RAM_BASE <= bank)) {
 		// RAM
-		setBank(region, getMotherBoard().getPanasonicMemory().
-			getRamBlock(bank - RAM_BASE));
+		// Only lazily (=not in constructor) inform base class about
+		// RAM region, to avoid dependency on the order of devices
+		// in the config file (otherwise PanasonicRam must come before
+		// this device). It's ok to call setExtraMemory() multiple times.
+		setExtraMemory(panasonicMem.getRamBlock(0),
+		               panasonicMem.getRamSize());
+		setBank(region, panasonicMem.getRamBlock(bank - RAM_BASE));
 	} else {
 		// ROM
 		setRom(region, bank);

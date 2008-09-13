@@ -7,6 +7,8 @@
 
 namespace openmsx {
 
+class PanasonicMemory;
+
 class RomPanasonic : public Rom8kBBlocks
 {
 public:
@@ -27,6 +29,7 @@ public:
 private:
 	void changeBank(byte region, int bank);
 	
+	PanasonicMemory& panasonicMem;
 	int maxSRAMBank;
 
 	int bankSelect[8];

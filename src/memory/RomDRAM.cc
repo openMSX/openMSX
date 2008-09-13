@@ -22,6 +22,8 @@ RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, panasonicMemory(motherBoard.getPanasonicMemory())
 	, baseAddr(calcBaseAddr(config))
 {
+	// ignore result, only called to trigger 'missing rom' error early
+	panasonicMemory.getRomBlock(baseAddr);
 }
 
 byte RomDRAM::readMem(word address, const EmuTime& /*time*/)

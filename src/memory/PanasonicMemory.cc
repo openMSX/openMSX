@@ -11,15 +11,18 @@
 
 namespace openmsx {
 
-static const XMLElement& getRomConfig(MSXMotherBoard& motherBoard)
+static Rom* createRom(MSXMotherBoard& motherBoard)
 {
-	return motherBoard.getMachineConfig()->getConfig().getChild("PanasonicRom");
+	const XMLElement* elem = motherBoard.getMachineConfig()->
+	                      getConfig().findChild("PanasonicRom");
+	return elem ? new Rom(motherBoard, "PanasonicRom",
+	                      "Turbor-R main ROM", *elem)
+	            : NULL;
 }
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 	: msxcpu(motherBoard.getCPU())
-	, rom(new Rom(motherBoard, "PanasonicRom", "Turbo-R main ROM",
-	              getRomConfig(motherBoard)))
+	, rom(createRom(motherBoard))
 	, ram(NULL), dram(false)
 {
 }
@@ -36,6 +39,9 @@ void PanasonicMemory::registerRam(Ram& ram_)
 
 const byte* PanasonicMemory::getRomBlock(unsigned block)
 {
+	if (!rom.get()) {
+		throw MSXException("Missing PanasonicRom.");
+	}
 	if (dram &&
 	    (((0x28 <= block) && (block < 0x2C)) ||
 	     ((0x38 <= block) && (block < 0x3C)))) {
@@ -55,6 +61,9 @@ const byte* PanasonicMemory::getRomBlock(unsigned block)
 
 const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
 {
+	if (!rom.get()) {
+		throw MSXException("Missing PanasonicRom.");
+	}
 	if (last < first) {
 		throw MSXException("Error in config file: firstblock must "
 		                   "be smaller than lastblock");
