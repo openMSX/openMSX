@@ -83,6 +83,6 @@ template <typename T> void Subject<T>::notify() const
 #endif
 }
 
-}
+} // namespace openmsx
 
 #endif

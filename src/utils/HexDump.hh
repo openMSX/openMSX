@@ -1,3 +1,5 @@
+// $Id: $
+
 #ifndef HEXDUMP_HH
 #define HEXDUMP_HH
 

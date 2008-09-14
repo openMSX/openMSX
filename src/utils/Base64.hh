@@ -1,3 +1,5 @@
+// $Id: $
+
 #ifndef BASE64_HH
 #define BASE64_HH
 

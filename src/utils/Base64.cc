@@ -1,3 +1,5 @@
+// $Id: $
+
 #include "Base64.hh"
 #include <cassert>
 

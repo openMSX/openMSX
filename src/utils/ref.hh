@@ -1,3 +1,5 @@
+// $Id:$
+
 #ifndef REF_HH
 #define REF_HH
 

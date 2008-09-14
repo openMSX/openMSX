@@ -1,3 +1,5 @@
+// $Id:$
+
 #include "uint128.hh"
 
 uint128& uint128::operator*=(const uint128& b)

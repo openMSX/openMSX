@@ -39,7 +39,7 @@ public:
 
 	/** Get current CRC value
 	 */
-	word getValue()
+	word getValue() const
 	{
 		return crc;
 	}

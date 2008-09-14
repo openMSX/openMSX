@@ -17,6 +17,10 @@ namespace Math {
   */
 unsigned powerOfTwo(unsigned a);
 
+/** Returns two gaussian distributed random numbers.
+  * We return two numbers instead of one because the second number comes for
+  * free in the current implementation.
+  */
 void gaussian2(double& r1, double& r2);
 
 /** Clips x to the range [LO,HI].
@@ -94,6 +98,12 @@ inline byte reverseByte(byte a)
 	return ((a * 0x0802LU & 0x22110LU) | (a * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 }
 
+/** Returns the smallest number of the form 2^n-1 that is greater or equal
+  * to the given number.
+  * The resulting number has the same number of leading zeros as the input,
+  * but starting from the first 1-bit in the input all bits more to the right
+  * are also 1.
+  */
 inline unsigned floodRight(unsigned x)
 {
 	x |= x >> 1;

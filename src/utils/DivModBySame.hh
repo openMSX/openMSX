@@ -1,3 +1,5 @@
+// $Id:$
+
 #ifndef DIVISIONBYCONST_HH
 #define DIVISIONBYCONST_HH
 

@@ -1,3 +1,5 @@
+// $Id:$
+
 #ifndef TUPLE_HH
 #define TUPLE_HH
 
@@ -133,6 +135,5 @@ template<typename TUPLE1, typename TUPLE2> struct TupleMerger
 		return impl(tuple1, tuple2);
 	}
 };
-
 
 #endif
