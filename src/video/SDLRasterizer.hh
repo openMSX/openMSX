@@ -108,7 +108,7 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	std::auto_ptr<PostProcessor> postProcessor;
+	const std::auto_ptr<PostProcessor> postProcessor;
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
@@ -120,15 +120,15 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	std::auto_ptr<CharacterConverter<Pixel> > characterConverter;
+	const std::auto_ptr<CharacterConverter<Pixel> > characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
+	const std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
+	const std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

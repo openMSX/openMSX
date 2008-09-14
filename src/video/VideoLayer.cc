@@ -82,4 +82,3 @@ void VideoLayer::signalEvent(shared_ptr<const Event> event, const EmuTime& /*tim
 }
 
 } // namespace openmsx
-

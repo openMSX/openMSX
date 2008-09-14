@@ -19,12 +19,12 @@ unsigned V9990VRAM::mapAddress(unsigned address)
 {
 	address &= 0x7FFFF; // change to assert?
 	switch (vdp.getDisplayMode()) {
-		case P1:
-			return transformP1(address);
-		case P2:
-			return transformP2(address);
-		default /* Bx */:
-			return transformBx(address);
+	case P1:
+		return transformP1(address);
+	case P2:
+		return transformP2(address);
+	default /* Bx */:
+		return transformBx(address);
 	}
 }
 

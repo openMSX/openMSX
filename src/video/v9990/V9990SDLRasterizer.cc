@@ -354,4 +354,3 @@ template class V9990SDLRasterizer<unsigned>;
 #endif
 
 } // namespace openmsx
-

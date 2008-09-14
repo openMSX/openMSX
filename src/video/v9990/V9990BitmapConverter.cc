@@ -12,15 +12,14 @@ namespace openmsx {
 
 template <class Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
-	V9990& vdp_, Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
+		V9990& vdp_, const Pixel* palette64_,
+		const Pixel* palette256_, const Pixel* palette32768_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
 {
 	// make sure function pointers have valid values
 	setColorMode(PP);
 }
-
-// - Rasterizers -------------------------------------------------------
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYUV(
@@ -187,17 +186,17 @@ template <class Pixel>
 void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode mode)
 {
 	switch (mode) {
-		case PP:    rasterMethod = &V9990BitmapConverter::rasterP;     break;
-		case BYUV:  rasterMethod = &V9990BitmapConverter::rasterBYUV;  break;
-		case BYUVP: rasterMethod = &V9990BitmapConverter::rasterBYUVP; break;
-		case BYJK:  rasterMethod = &V9990BitmapConverter::rasterBYJK;  break;
-		case BYJKP: rasterMethod = &V9990BitmapConverter::rasterBYJKP; break;
-		case BD16:  rasterMethod = &V9990BitmapConverter::rasterBD16;  break;
-		case BD8:   rasterMethod = &V9990BitmapConverter::rasterBD8;   break;
-		case BP6:   rasterMethod = &V9990BitmapConverter::rasterBP6;   break;
-		case BP4:   rasterMethod = &V9990BitmapConverter::rasterBP4;   break;
-		case BP2:   rasterMethod = &V9990BitmapConverter::rasterBP2;   break;
-		default:    assert (false);
+	case PP:    rasterMethod = &V9990BitmapConverter::rasterP;     break;
+	case BYUV:  rasterMethod = &V9990BitmapConverter::rasterBYUV;  break;
+	case BYUVP: rasterMethod = &V9990BitmapConverter::rasterBYUVP; break;
+	case BYJK:  rasterMethod = &V9990BitmapConverter::rasterBYJK;  break;
+	case BYJKP: rasterMethod = &V9990BitmapConverter::rasterBYJKP; break;
+	case BD16:  rasterMethod = &V9990BitmapConverter::rasterBD16;  break;
+	case BD8:   rasterMethod = &V9990BitmapConverter::rasterBD8;   break;
+	case BP6:   rasterMethod = &V9990BitmapConverter::rasterBP6;   break;
+	case BP4:   rasterMethod = &V9990BitmapConverter::rasterBP4;   break;
+	case BP2:   rasterMethod = &V9990BitmapConverter::rasterBP2;   break;
+	default:    assert (false);
 	}
 }
 
@@ -272,4 +271,3 @@ template class V9990BitmapConverter<GLUtil::ExpandGL>;
 #endif // COMPONENT_GL
 
 } // namespace openmsx
-

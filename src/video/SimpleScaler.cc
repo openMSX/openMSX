@@ -466,7 +466,6 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor, srcWidth);
 }
 
-
 // Force template instantiation.
 #if HAVE_16BPP
 template class SimpleScaler<word>;

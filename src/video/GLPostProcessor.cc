@@ -498,5 +498,4 @@ void GLPostProcessor::preCalc3DDisplayList(double width)
 	glEndList();
 }
 
-
 } // namespace openmsx

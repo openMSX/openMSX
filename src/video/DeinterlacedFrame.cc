@@ -17,7 +17,7 @@ void DeinterlacedFrame::init(FrameSource* evenField, FrameSource* oddField)
 	//       guarantee them. See TODO in PostProcessor::paint.
 	//assert(evenField->getField() == FrameSource::FIELD_EVEN);
 	//assert(oddField->getField() == FrameSource::FIELD_ODD);
-	assert(evenField->height == oddField->height);
+	assert(evenField->getHeight() == oddField->getHeight());
 	assert(evenField->getLineBufferSize() == oddField->getLineBufferSize());
 	setHeight(2 * evenField->getHeight());
 	fields[0] = evenField;
@@ -40,4 +40,3 @@ void* DeinterlacedFrame::getLinePtrImpl(unsigned line)
 }
 
 } // namespace openmsx
-

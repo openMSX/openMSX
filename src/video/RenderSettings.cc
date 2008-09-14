@@ -158,7 +158,7 @@ static double conv2(double x, double gamma)
 	return ::pow(std::min(std::max(0.0, x), 1.0), gamma);
 }
 
-void RenderSettings::transformRGB(double& r, double& g, double& b)
+void RenderSettings::transformRGB(double& r, double& g, double& b) const
 {
 	double brightness = getBrightness().getValue() / 100.0;
 	double contrast = getContrast().getValue();

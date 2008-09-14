@@ -76,4 +76,3 @@ const string& GLSnow::getName()
 }
 
 } // namespace openmsx
-

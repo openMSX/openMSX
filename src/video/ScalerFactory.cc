@@ -96,4 +96,3 @@ template class ScalerFactory<unsigned>;
 #endif
 
 } // namespace openmsx
-

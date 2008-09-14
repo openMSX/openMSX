@@ -13,11 +13,11 @@ namespace openmsx {
 class V9990DisplayPeriod
 {
 public:
-	int cycle;
-	int blank;
-	int border1;
-	int display;
-	int border2;
+	const int cycle;
+	const int blank;
+	const int border1;
+	const int display;
+	const int border2;
 
 	V9990DisplayPeriod(int cycle, int blank,
 	                   int border1, int display, int border2);

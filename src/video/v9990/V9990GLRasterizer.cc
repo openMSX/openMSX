@@ -58,5 +58,3 @@ bool V9990GLRasterizer::isRecording() const
 }
 
 } // namespace openmsx
-
-

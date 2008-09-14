@@ -14,7 +14,6 @@
 #include <SDL.h>
 
 namespace openmsx {
-
 namespace ScreenShotSaver {
 
 static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
@@ -165,5 +164,4 @@ void saveGrayscale(unsigned width, unsigned height,
 }
 
 } // namespace ScreenShotSaver
-
 } // namespace openmsx

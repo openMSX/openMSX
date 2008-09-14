@@ -296,7 +296,6 @@ void Scaler3<Pixel>::scaleImage(FrameSource& src,
 	}
 }
 
-
 // Force template instantiation.
 #if HAVE_16BPP
 template class Scaler3<word>;

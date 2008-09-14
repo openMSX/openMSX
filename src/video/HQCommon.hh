@@ -291,7 +291,6 @@ static void doHQScale3(HQScale hqScale, PostScale postScale, FrameSource& src,
 	}
 }
 
-
 } // namespace openmsx
 
 #endif

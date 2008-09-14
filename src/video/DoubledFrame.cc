@@ -36,4 +36,3 @@ void* DoubledFrame::getLinePtrImpl(unsigned line)
 }
 
 } // namespace openmsx
-

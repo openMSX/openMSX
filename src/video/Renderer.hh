@@ -182,7 +182,6 @@ public:
 
 protected:
 	Renderer();
-
 };
 
 } // namespace openmsx

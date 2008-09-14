@@ -169,4 +169,4 @@ OpenMSX_Icon openMSX_icon = {
   "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 };
 
-}
+} // namespace openmsx

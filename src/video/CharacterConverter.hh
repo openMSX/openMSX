@@ -157,8 +157,8 @@ private:
 	VDP& vdp;
 	VDPVRAM& vram;
 
-	const Pixel* palFg;
-	const Pixel* palBg;
+	const Pixel* const palFg;
+	const Pixel* const palBg;
 };
 
 } // namespace openmsx

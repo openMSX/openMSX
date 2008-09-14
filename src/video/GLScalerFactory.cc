@@ -15,8 +15,9 @@
 using std::auto_ptr;
 
 namespace openmsx {
+namespace GLScalerFactory {
 
-auto_ptr<GLScaler> GLScalerFactory::createScaler(RenderSettings& renderSettings)
+auto_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleAlgorithm().getValue()) {
 	case RenderSettings::SCALER_SAI:
@@ -44,5 +45,5 @@ auto_ptr<GLScaler> GLScalerFactory::createScaler(RenderSettings& renderSettings)
 	return auto_ptr<GLScaler>(); // avoid warning
 }
 
+} // namespace GLScalerFactory
 } // namespace openmsx
-

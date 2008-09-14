@@ -167,15 +167,15 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	std::auto_ptr<CharacterConverter<Pixel> >characterConverter;
+	const std::auto_ptr<CharacterConverter<Pixel> > characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
+	const std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
+	const std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
 
 	/** Work area for redefining textures.
 	  */

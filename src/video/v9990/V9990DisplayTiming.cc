@@ -20,17 +20,18 @@ const V9990DisplayPeriod V9990DisplayTiming::displayPAL_MCLK  =
 const V9990DisplayPeriod V9990DisplayTiming::displayPAL_XTAL  =
 	V9990DisplayPeriod(313, 15,  0, 290,   0);
 
-V9990DisplayPeriod::V9990DisplayPeriod(int cycle, int blank, int border1, int display, int border2)
+
+V9990DisplayPeriod::V9990DisplayPeriod(
+		int cycle_, int blank_, int border1_, int display_, int border2_)
+	: cycle(cycle_), blank(blank_), border1(border1_)
+	, display(display_), border2(border2_)
 {
-	this->cycle   = cycle;
-	this->blank   = blank;
-	this->border1 = border1;
-	this->display = display;
-	this->border2 = border2;
 }
 
-int V9990DisplayTiming::getUCTicksPerFrame(bool palTiming) {
-	return palTiming? (displayPAL_MCLK.cycle  * UC_TICKS_PER_LINE)
-	                : (displayNTSC_MCLK.cycle * UC_TICKS_PER_LINE);
+int V9990DisplayTiming::getUCTicksPerFrame(bool palTiming)
+{
+	return palTiming ? (displayPAL_MCLK.cycle  * UC_TICKS_PER_LINE)
+	                 : (displayNTSC_MCLK.cycle * UC_TICKS_PER_LINE);
 }
+
 } // openmsx

@@ -31,4 +31,3 @@ Layer::ZIndex Layer::getZ() const
 }
 
 } // namespace openmsx
-

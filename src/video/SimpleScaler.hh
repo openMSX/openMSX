@@ -17,7 +17,7 @@ class RenderSettings;
   * perform a horizontal blur.
   */
 template <class Pixel>
-class SimpleScaler: public Scaler2<Pixel>
+class SimpleScaler : public Scaler2<Pixel>
 {
 public:
 	SimpleScaler(

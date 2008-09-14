@@ -57,7 +57,7 @@ private:
 	VDP* vdp;
 	VDPVRAM* vram;
 	/** Bit mask applied to logical addresses, reflects vram size.  */
-	unsigned mask;
+	/*const*/ unsigned mask;
 	/** Base address of selected page in vram.  */
 	unsigned baseAddr;
 	/** True if ADVram device is enabled.  */
@@ -71,7 +71,6 @@ private:
 };
 
 REGISTER_MSXDEVICE(ADVram, "ADVRAM");
-
 
 } // namespace openmsx
 

@@ -102,11 +102,11 @@ public:
 	  * For accurate emulation, this setting should be on.
 	  * Turning it off can improve games with a lot of flashing sprites,
 	  * such as Aleste. */
-	BooleanSetting& getLimitSprites() { return *limitSprites; }
+	BooleanSetting& getLimitSprites() const { return *limitSprites; }
 
 	/** CmdTiming [real, broken].
 	  * This setting is intended for debugging only, not for users. */
-	EnumSetting<bool>& getCmdTiming() { return *cmdTiming; }
+	EnumSetting<bool>& getCmdTiming() const { return *cmdTiming; }
 
 	/** Display deformation (normal, 3d)
 	  * ATM this only works when using the SDLGL-PP renderer. */
@@ -124,7 +124,7 @@ public:
 	  * this range. After transformation it's guaranteed all components
 	  * lay inside this range.
 	  */
-	void transformRGB(double& r, double& g, double& b);
+	void transformRGB(double& r, double& g, double& b) const;
 
 private:
 	void parseColorMatrix(const std::string& value);

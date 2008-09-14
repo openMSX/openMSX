@@ -103,9 +103,9 @@ private:
 	  */
 	RenderMethod renderMethod;
 
-	const Pixel* __restrict__ palette16;
-	const Pixel* __restrict__ palette256;
-	const Pixel* __restrict__ palette32768;
+	const Pixel* const __restrict__ palette16;
+	const Pixel* const __restrict__ palette256;
+	const Pixel* const __restrict__ palette32768;
 
 	typedef typename DoublePixel<sizeof(Pixel)>::type DPixel;
 	DPixel dPalette[16 * 16];

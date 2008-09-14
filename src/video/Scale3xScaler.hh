@@ -10,7 +10,7 @@ namespace openmsx {
 /** Runs the Scale3x scaler algorithm.
   */
 template <class Pixel>
-class Scale3xScaler: public Scaler3<Pixel>
+class Scale3xScaler : public Scaler3<Pixel>
 {
 public:
 	explicit Scale3xScaler(const PixelOperations<Pixel>& pixelOps);

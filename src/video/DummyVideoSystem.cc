@@ -20,4 +20,3 @@ OutputSurface* DummyVideoSystem::getOutputSurface()
 }
 
 } // namespace openmsx
-

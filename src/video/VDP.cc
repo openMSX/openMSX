@@ -1296,6 +1296,4 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(VDP);
 
-
 } // namespace openmsx
-

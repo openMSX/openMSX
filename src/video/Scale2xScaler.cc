@@ -1115,7 +1115,6 @@ void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	}
 }
 
-
 // Force template instantiation.
 #if HAVE_16BPP
 template class Scale2xScaler<word>;

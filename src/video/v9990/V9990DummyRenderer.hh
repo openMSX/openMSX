@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class V9990DummyRenderer: public V9990Renderer
+class V9990DummyRenderer : public V9990Renderer
 {
 public:
 	// V9990Renderer interface:

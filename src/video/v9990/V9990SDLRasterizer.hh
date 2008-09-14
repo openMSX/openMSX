@@ -110,19 +110,19 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	std::auto_ptr<PostProcessor> postProcessor;
+	const std::auto_ptr<PostProcessor> postProcessor;
 
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
-	std::auto_ptr<V9990BitmapConverter<Pixel> > bitmapConverter;
+	const std::auto_ptr<V9990BitmapConverter<Pixel> > bitmapConverter;
 
 	/** P1 Converter
 	  */
-	std::auto_ptr<V9990P1Converter<Pixel> > p1Converter;
+	const std::auto_ptr<V9990P1Converter<Pixel> > p1Converter;
 
 	/** P2 Converter
 	  */
-	std::auto_ptr<V9990P2Converter<Pixel> > p2Converter;
+	const std::auto_ptr<V9990P2Converter<Pixel> > p2Converter;
 
 	/** Fill the palettes.
 	  */

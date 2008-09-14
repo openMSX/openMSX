@@ -541,4 +541,3 @@ template class SaI3xScaler<unsigned>;
 #endif
 
 } // namespace openmsx
-

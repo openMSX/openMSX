@@ -29,7 +29,7 @@ void VideoSystem::prepare()
 void VideoSystem::takeScreenShot(const std::string& /*filename*/)
 {
 	throw CommandException(
-		"Taking screenshot not possible with current renderer." );
+		"Taking screenshot not possible with current renderer.");
 }
 
 void VideoSystem::setWindowTitle(const std::string& /*title*/)
@@ -38,4 +38,3 @@ void VideoSystem::setWindowTitle(const std::string& /*title*/)
 }
 
 } // namespace openmsx
-

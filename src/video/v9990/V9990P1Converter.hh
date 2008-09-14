@@ -14,7 +14,7 @@ template <class Pixel>
 class V9990P1Converter
 {
 public:
-	V9990P1Converter(V9990& vdp, Pixel* palette64);
+	V9990P1Converter(V9990& vdp, const Pixel* palette64);
 
 	void convertLine(
 		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
@@ -23,7 +23,7 @@ public:
 private:
 	V9990& vdp;
 	V9990VRAM& vram;
-	Pixel* palette64;
+	const Pixel* const palette64;
 
 	void renderPattern(Pixel* buffer, unsigned width1, unsigned width2,
 	                   unsigned displayAX, unsigned displayAY,

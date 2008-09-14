@@ -27,7 +27,7 @@ private:
 	void addAviChunk(const char* tag, unsigned size, void* data, unsigned flags);
 
 	FILE* file;
-	std::auto_ptr<ZMBVEncoder> codec;
+	const std::auto_ptr<ZMBVEncoder> codec;
 	std::vector<unsigned char> index;
 
 	double fps;

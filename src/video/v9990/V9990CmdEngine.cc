@@ -1755,4 +1755,3 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(V9990CmdEngine);
 
 } // namespace openmsx
-

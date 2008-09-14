@@ -86,4 +86,3 @@ const std::string& DummyRenderer::getName() {
 }
 
 } // namespace openmsx
-

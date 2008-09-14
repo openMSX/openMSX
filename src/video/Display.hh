@@ -99,7 +99,7 @@ private:
 	const std::auto_ptr<OSDGUI> osdGui;
 
 	Reactor& reactor;
-	std::auto_ptr<RenderSettings> renderSettings;
+	const std::auto_ptr<RenderSettings> renderSettings;
 
 	// the current renderer
 	RendererFactory::RendererID currentRenderer;

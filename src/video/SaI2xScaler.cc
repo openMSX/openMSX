@@ -328,4 +328,3 @@ template class SaI2xScaler<unsigned>;
 #endif
 
 } // namespace openmsx
-

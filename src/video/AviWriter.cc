@@ -32,7 +32,8 @@ static inline void writeLE4(unsigned char* p, unsigned x)
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned freq_)
-	: fps(50.0)
+	: codec(new ZMBVEncoder(width_, height_, bpp))
+	, fps(50.0)
 	, width(width_)
 	, height(height_)
 	, audiorate(freq_)
@@ -47,7 +48,6 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 	memset(dummy, 0, AVI_HEADER_SIZE);
 	fwrite(dummy, 1, AVI_HEADER_SIZE, file);
 
-	codec.reset(new ZMBVEncoder(width, height, bpp));
 	index.resize(8);
 
 	frames = 0;

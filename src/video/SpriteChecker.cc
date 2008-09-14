@@ -425,4 +425,3 @@ void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(SpriteChecker);
 
 } // namespace openmsx
-

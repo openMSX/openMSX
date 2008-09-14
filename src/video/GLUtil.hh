@@ -141,13 +141,13 @@ public:
 	              GLint   x,  GLint   y,  GLint   width,  GLint   height);
 
 protected:
-	int type;
+	const int type;
 	GLuint textureId;
 
 	friend class FrameBufferObject;
 };
 
-class ColourTexture: public Texture
+class ColourTexture : public Texture
 {
 public:
 	ColourTexture();
@@ -170,7 +170,7 @@ private:
 	GLsizei height;
 };
 
-class LuminanceTexture: public Texture
+class LuminanceTexture : public Texture
 {
 public:
 	LuminanceTexture();
@@ -188,7 +188,7 @@ public:
 
 /** Texture used for storing bitmap data from MSX VRAM.
   */
-class BitmapTexture: public Texture
+class BitmapTexture : public Texture
 {
 public:
 	BitmapTexture();
@@ -201,7 +201,7 @@ private:
 };
 
 // TODO use GL_TEXTURE_1D for this?
-class LineTexture: public Texture
+class LineTexture : public Texture
 {
 public:
 	LineTexture();
@@ -490,7 +490,7 @@ private:
 /** Wrapper around an OpenGL vertex shader:
   * a program executed on the GPU that computes per-vertex stuff.
   */
-class VertexShader: public Shader
+class VertexShader : public Shader
 {
 public:
 	/** Instantiates a vertex shader.
@@ -502,7 +502,7 @@ public:
 /** Wrapper around an OpenGL fragment shader:
   * a program executed on the GPU that computes the colours of pixels.
   */
-class FragmentShader: public Shader
+class FragmentShader : public Shader
 {
 public:
 	/** Instantiates a fragment shader.

@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class DummyVideoSystem: public VideoSystem
+class DummyVideoSystem : public VideoSystem
 {
 public:
 	// VideoSystem interface:

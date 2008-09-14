@@ -14,7 +14,7 @@ template <class Pixel>
 class V9990P2Converter
 {
 public:
-	V9990P2Converter(V9990& vdp_, Pixel* palette64);
+	V9990P2Converter(V9990& vdp_, const Pixel* palette64);
 
 	void convertLine(
 		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
@@ -29,7 +29,7 @@ private:
 
 	V9990& vdp;
 	V9990VRAM& vram;
-	Pixel* palette64;
+	const Pixel* const palette64;
 };
 
 } // namespace openmsx

@@ -612,7 +612,7 @@ void V9990::writePaletteRegister(byte reg, byte val, const EmuTime& time)
 	}
 }
 
-void V9990::getPalette(int index, byte& r, byte& g, byte& b)
+void V9990::getPalette(int index, byte& r, byte& g, byte& b) const
 {
 	r = palette[4 * index + 0];
 	g = palette[4 * index + 1];
@@ -857,4 +857,3 @@ void V9990::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(V9990);
 
 } // namespace openmsx
-

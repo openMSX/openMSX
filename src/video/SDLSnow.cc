@@ -14,14 +14,15 @@ SDLSnow<Pixel>::SDLSnow(OutputSurface& output_)
 	, output(output_)
 {
 	// Precalc gray values for noise
-	for (unsigned i = 0; i < 256; i++) {
+	for (unsigned i = 0; i < 256; ++i) {
 		double t = i / 255.0;
 		gray[i] = output.mapRGB(t, t, t);
 	}
 }
 
 // random routine, less random than libc rand(), but a lot faster
-static int random() {
+static int random()
+{
 	static int seed = 1;
 
 	const int IA = 16807;
@@ -61,7 +62,6 @@ const std::string& SDLSnow<Pixel>::getName()
 	return NAME;
 }
 
-
 // Force template instantiation.
 #if HAVE_16BPP
 template class SDLSnow<word>;
@@ -71,4 +71,3 @@ template class SDLSnow<unsigned>;
 #endif
 
 } // namespace openmsx
-

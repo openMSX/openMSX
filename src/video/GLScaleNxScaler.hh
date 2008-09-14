@@ -12,7 +12,7 @@ namespace openmsx {
 
 class ShaderProgram;
 
-class GLScaleNxScaler: public GLScaler, private noncopyable
+class GLScaleNxScaler : public GLScaler, private noncopyable
 {
 public:
 	GLScaleNxScaler();

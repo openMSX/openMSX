@@ -62,8 +62,8 @@ private:
 	std::vector<CodecVector> vectorTable;
 	z_stream zstream;
 
-	unsigned width;
-	unsigned height;
+	const unsigned width;
+	const unsigned height;
 	unsigned pitch;
 	unsigned pixelsize;
 	Format format;

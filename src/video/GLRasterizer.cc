@@ -1328,4 +1328,3 @@ void GLRasterizer::update(const Setting& setting)
 }
 
 } // namespace openmsx
-

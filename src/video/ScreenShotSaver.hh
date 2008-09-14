@@ -21,7 +21,6 @@ namespace ScreenShotSaver {
 	                   byte** row_pointers, const std::string& filename);
 
 } // namespace ScreenShotSaver
-
 } // namespace openmsx
 
 #endif

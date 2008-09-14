@@ -222,7 +222,7 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 	if (w1 == w2) {
 		return ((p1 & ~blendMask) >> 1) +
 		       ((p2 & ~blendMask) >> 1) +
-			(p1 &  blendMask);
+		        (p1 &  blendMask);
 	} else {
 		static const unsigned total = w1 + w2;
 		if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {

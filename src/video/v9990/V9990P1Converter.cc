@@ -12,7 +12,7 @@
 namespace openmsx {
 
 template <class Pixel>
-V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, Pixel* palette64_)
+V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, const Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
@@ -95,7 +95,7 @@ void V9990P1Converter<Pixel>::renderPattern2(
 	unsigned nameTable, unsigned patternTable, byte pal)
 {
 	x &= 511;
-	Pixel* palette = palette64 + pal;
+	const Pixel* palette = palette64 + pal;
 
 	unsigned nameAddr = nameTable + (((y / 8) * 64 + (x / 8)) * 2);
 	y = (y & 7) * 128;
@@ -227,7 +227,7 @@ void V9990P1Converter<Pixel>::renderSprites(
 			unsigned patAddr = spritePatternTable
 			     + (128 * ((spriteNo & 0xF0) + spriteY))
 			     + (  8 *  (spriteNo & 0x0F));
-			Pixel* palette = palette64 + ((spriteAttr >> 2) & 0x30);
+			const Pixel* palette = palette64 + ((spriteAttr >> 2) & 0x30);
 			for (int x = 0; x < 16; x +=2) {
 				byte data = vram.readVRAMP1(patAddr++);
 				int xPos = spriteX + x;

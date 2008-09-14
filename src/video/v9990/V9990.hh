@@ -95,7 +95,7 @@ public:
 	  * @param g The corresponding g value (output parameter)
 	  * @param b The corresponding b value (output parameter)
 	  */
-	void getPalette(int index, byte& r, byte& g, byte& b);
+	void getPalette(int index, byte& r, byte& g, byte& b) const;
 
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.
@@ -142,17 +142,17 @@ public:
 		int x;
 		ticks = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
 		switch (mode) {
-			case P1: x = ticks / 8;  break;
-			case P2: x = ticks / 4;  break;
-			case B0: x = ticks /12;  break;
-			case B1: x = ticks / 8;  break;
-			case B2: x = ticks / 6;  break;
-			case B3: x = ticks / 4;  break;
-			case B4: x = ticks / 3;  break;
-			case B5: x = 1;          break;
-			case B6: x = 1;          break;
-			case B7: x = ticks / 2;  break;
-			default: x = 1;
+		case P1: x = ticks / 8;  break;
+		case P2: x = ticks / 4;  break;
+		case B0: x = ticks /12;  break;
+		case B1: x = ticks / 8;  break;
+		case B2: x = ticks / 6;  break;
+		case B3: x = ticks / 4;  break;
+		case B4: x = ticks / 3;  break;
+		case B5: x = 1;          break;
+		case B6: x = 1;          break;
+		case B7: x = ticks / 2;  break;
+		default: x = 1;
 		}
 		return x;
 	}
@@ -170,17 +170,17 @@ public:
 	inline unsigned XYtoVRAM(unsigned* x, unsigned y, V9990ColorMode mode) {
 		int offset = *x + y * getImageWidth();
 		switch (mode) {
-			case PP:
-			case BYUV:
-			case BYUVP:
-			case BYJK:
-			case BYJKP:
-			case BD8:
-			case BP6:  break;
-			case BD16: offset *= 2; break;
-			case BP4:  offset /= 2; *x &= ~1; break;
-			case BP2:  offset /= 4; *x &= ~3; break;
-			default: assert(false); break;
+		case PP:
+		case BYUV:
+		case BYUVP:
+		case BYJK:
+		case BYJKP:
+		case BD8:
+		case BP6:  break;
+		case BD16: offset *= 2; break;
+		case BP4:  offset /= 2; *x &= ~1; break;
+		case BP2:  offset /= 4; *x &= ~3; break;
+		default: assert(false); break;
 		}
 		return offset;
 	}
@@ -198,37 +198,37 @@ public:
 	/** Return the current back drop color
 	  * @return  Index the color palette
 	  */
-	inline byte getBackDropColor() {
+	inline byte getBackDropColor() const {
 		return regs[BACK_DROP_COLOR];
 	}
 
 	/** Returns the X scroll offset for screen A of P1 and other modes
 	  */
-	inline unsigned getScrollAX() {
+	inline unsigned getScrollAX() const {
 		return regs[SCROLL_CONTROL_AX0] + 8 * regs[SCROLL_CONTROL_AX1];
 	}
 
 	/** Returns the Y scroll offset for screen A of P1 and other modes
 	  */
-	inline unsigned getScrollAY() {
+	inline unsigned getScrollAY() const {
 		return regs[SCROLL_CONTROL_AY0] + 256 * scrollAYHigh;
 	}
 
 	/** Returns the X scroll offset for screen B of P1 mode
 	  */
-	inline unsigned getScrollBX() {
+	inline unsigned getScrollBX() const {
 		return regs[SCROLL_CONTROL_BX0] + 8 * regs[SCROLL_CONTROL_BX1];
 	}
 
 	/** Returns the Y scroll offset for screen B of P1 mode
 	  */
-	inline unsigned getScrollBY() {
+	inline unsigned getScrollBY() const {
 		return regs[SCROLL_CONTROL_BY0] + 256 * scrollBYHigh;
 	}
 
 	/** Returns the vertical roll mask
 	  */
-	inline unsigned getRollMask(unsigned maxMask) {
+	inline unsigned getRollMask(unsigned maxMask) const {
 		static unsigned rollMasks[4] = {
 			0xFFFF, // no rolling (use maxMask)
 			0x00FF,
@@ -241,7 +241,7 @@ public:
 
 	/** Return the image width
 	  */
-	inline unsigned getImageWidth() {
+	inline unsigned getImageWidth() const {
 		switch (regs[SCREEN_MODE_0] & 0xC0) {
 		case 0x00: // P1
 			return 256;
@@ -254,7 +254,7 @@ public:
 	}
 	/** Return the display width
 	  */
-	inline unsigned getLineWidth() {
+	inline unsigned getLineWidth() const {
 		switch (getDisplayMode()) {
 		case B0:          return  213;
 		case P1: case B1: return  320;
@@ -277,8 +277,8 @@ public:
 
 	/** Return the sprite pattern table base address
 	  */
-	inline int getSpritePatternAddress(V9990DisplayMode mode) {
-		switch(mode) {
+	inline int getSpritePatternAddress(V9990DisplayMode mode) const {
+		switch (mode) {
 		case P1:
 			return (int(regs[SPRITE_PATTERN_ADDRESS] & 0x0E) << 14);
 		case P2:
@@ -290,7 +290,7 @@ public:
 
 	/** return sprite palette offset
 	  */
-	inline byte getSpritePaletteOffset() {
+	inline byte getSpritePaletteOffset() const {
 		return regs[SPRITE_PALETTE_CONTROL] << 2;
 	}
 
