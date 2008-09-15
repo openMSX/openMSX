@@ -33,8 +33,18 @@ public:
 	 * @param mode Mode to open the file in:
 	 * @throws FileException
 	 */
-	explicit File(const std::string& url, OpenMode mode = NORMAL);
-	explicit File(const Filename& url, OpenMode mode = NORMAL);
+	explicit File(const std::string& filename, OpenMode mode = NORMAL);
+	explicit File(const Filename&    filename, OpenMode mode = NORMAL);
+
+	/** This constructor maps very closely on the fopen() libc function.
+	  * Compared to constructor above, it does not transparantly
+	  * uncompress files.
+	  * @param filename Name of the file to be opened.
+	  * @param mode Open mode, same meaning as in fopen(), but we assert
+	  *             that it contains a 'b' character.
+	  */
+	File(const std::string& filename, const char* mode);
+	File(const Filename&    filename, const char* mode);
 
 	/**
 	 * Destroy file object.

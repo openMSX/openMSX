@@ -693,7 +693,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 	unsigned prevcl = 0;
 	try {
 		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-		File file(fullfilename, File::NORMAL);
+		File file(fullfilename, "rb"); // don't uncompress
 
 		while (size && (curcl <= MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);

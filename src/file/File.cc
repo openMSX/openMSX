@@ -35,6 +35,16 @@ File::File(const string& url, OpenMode mode)
 {
 }
 
+File::File(const std::string& filename, const char* mode)
+	: file(new LocalFile(filename, mode))
+{
+}
+
+File::File(const Filename& filename, const char* mode)
+	: file(new LocalFile(filename.getResolved(), mode))
+{
+}
+
 File::~File()
 {
 }

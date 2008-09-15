@@ -85,8 +85,13 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 		duration = EmuDuration::infinity;
 		prevTime = EmuTime::infinity;
 
-		aviWriter.reset(new AviWriter(filename, frameWidth, frameHeight,
-		                              bpp, sampleRate));
+		try {
+			aviWriter.reset(new AviWriter(filename, frameWidth, frameHeight,
+						      bpp, sampleRate));
+		} catch (MSXException& e) {
+			throw CommandException("Can't start recording: " +
+			                       e.getMessage());
+		}
 	} else {
 		assert(recordAudio);
 		wavWriter.reset(new WavWriter(filename, 2, 16, sampleRate));

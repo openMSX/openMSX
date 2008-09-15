@@ -1,7 +1,7 @@
 // $Id$
 
 #include "WavWriter.hh"
-#include "Filename.hh"
+#include "File.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "build-info.hh"
@@ -28,15 +28,9 @@ static inline unsigned litEnd_32(unsigned val)
 
 WavWriter::WavWriter(const Filename& filename,
                      unsigned channels, unsigned bits, unsigned frequency)
-	: bytes(0)
+	: file(new File(filename, "wb"))
+	, bytes(0)
 {
-	std::string resolved = filename.getResolved();
-	wavfp = fopen(resolved.c_str(), "wb");
-	if (!wavfp) {
-		throw MSXException(
-			"Couldn't open file for writing: " + resolved);
-	}
-
 	// write wav header
 	char header[44] = {
 		'R', 'I', 'F', 'F', //
@@ -60,20 +54,22 @@ WavWriter::WavWriter(const Filename& filename,
 	*reinterpret_cast<short*>   (header + 32) = litEnd_16((channels * bits) / 8);
 	*reinterpret_cast<short*>   (header + 34) = litEnd_16(bits);
 
-	fwrite(header, sizeof(header), 1, wavfp);
+	file->write(header, sizeof(header));
 }
 
 WavWriter::~WavWriter()
 {
-	// data chunk must have an even number of bytes
-	if (bytes & 1) {
-		unsigned char pad = 0;
-		fwrite(&pad, 1, 1, wavfp);
+	try {
+		// data chunk must have an even number of bytes
+		if (bytes & 1) {
+			unsigned char pad = 0;
+			file->write(&pad, 1);
+		}
+
+		flush(); // write header
+	} catch (MSXException& e) {
+		// ignore, can't throw from destructor
 	}
-
-	flush(); // write header
-
-	fclose(wavfp);
 }
 
 void WavWriter::write8mono(unsigned char val)
@@ -83,21 +79,22 @@ void WavWriter::write8mono(unsigned char val)
 
 void WavWriter::write8mono(unsigned char* val, unsigned len)
 {
-	bytes += fwrite(val, 1, len, wavfp);
+	file->write(val, len);
+	bytes += len;
 }
 
 void WavWriter::write16stereo(short* buffer, unsigned samples)
 {
-	unsigned size = 4 * samples;
+	unsigned size = 2 * sizeof(short) * samples;
 	if (OPENMSX_BIGENDIAN) {
 		short buf[2 * samples];
 		for (unsigned i = 0; i < samples; ++i) {
 			buf[2 * i + 0] = litEnd_16(buffer[2 * i + 0]);
 			buf[2 * i + 1] = litEnd_16(buffer[2 * i + 1]);
 		}
-		fwrite(buf, 1, size, wavfp);
+		file->write(buf, size);
 	} else {
-		fwrite(buffer, 1, size, wavfp);
+		file->write(buffer, size);
 	}
 	bytes += size;
 }
@@ -109,7 +106,7 @@ void WavWriter::write16mono(int* buffer, unsigned samples, int amp)
 		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
 	}
 	unsigned size = sizeof(short) * samples;
-	fwrite(buf, 1, size, wavfp);
+	file->write(buf, size);
 	bytes += size;
 }
 
@@ -129,13 +126,12 @@ void WavWriter::flush()
 	unsigned totalsize = litEnd_32((bytes + 44 - 8 + 1) & ~1);
 	unsigned wavSize = litEnd_32(bytes);
 
-	fseek(wavfp,  4, SEEK_SET);
-	fwrite(&totalsize, 4, 1, wavfp);
-	fseek(wavfp, 40, SEEK_SET);
-	fwrite(&wavSize,   4, 1, wavfp);
-	fseek(wavfp, 0, SEEK_END);
-
-	fflush(wavfp);
+	file->seek(4);
+	file->write(&totalsize, 4);
+	file->seek(40);
+	file->write(&wavSize, 4);
+	file->seek(file->getSize()); // SEEK_END
+	file->flush();
 }
 
 } // namespace openmsx

@@ -17,6 +17,7 @@ class LocalFile : public FileBase
 {
 public:
 	LocalFile(const std::string& filename, File::OpenMode mode);
+	LocalFile(const std::string& filename, const char* mode);
 	virtual ~LocalFile();
 	virtual void read (void* buffer, unsigned num);
 	virtual void write(const void* buffer, unsigned num);

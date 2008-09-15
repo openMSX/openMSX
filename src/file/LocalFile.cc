@@ -11,6 +11,8 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "PreCacheFile.hh"
+#include <cstring> // for strchr
+#include <cassert>
 
 using std::string;
 
@@ -55,6 +57,16 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 
 	if (mode == File::PRE_CACHE) {
 		cache.reset(new PreCacheFile(name));
+	}
+}
+
+LocalFile::LocalFile(const std::string& filename, const char* mode)
+{
+	assert(strchr(mode, 'b'));
+	const string name = FileOperations::getNativePath(filename);
+	file = fopen(name.c_str(), mode);
+	if (!file) {
+		throw FileException("Error opening file \"" + filename + "\"");
 	}
 }
 

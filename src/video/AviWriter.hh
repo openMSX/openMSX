@@ -7,10 +7,10 @@
 
 #include <vector>
 #include <memory>
-#include <cstdio>
 
 namespace openmsx {
 
+class File;
 class Filename;
 class ZMBVEncoder;
 
@@ -26,7 +26,7 @@ public:
 private:
 	void addAviChunk(const char* tag, unsigned size, void* data, unsigned flags);
 
-	FILE* file;
+	const std::auto_ptr<File> file;
 	const std::auto_ptr<ZMBVEncoder> codec;
 	std::vector<unsigned char> index;
 

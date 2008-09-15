@@ -6,8 +6,8 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "File.hh"
 #include <cstring>
-#include <cstdio>
 #include <algorithm>
 #include <cassert>
 #include <ctime>
@@ -485,10 +485,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 	unsigned remaining = hostSize;
 
 	// open host file for reading
-	FILE* file = fopen(hostName.c_str(), "rb");
-	if (!file) {
-		throw MSXException("Error reading host file: " + hostName);
-	}
+	File file(hostName, "rb");
 
 	// copy host file to image
 	unsigned prevcl = 0;
@@ -517,7 +514,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 			byte buf[SECTOR_SIZE];
 			memset(buf, 0, SECTOR_SIZE);
 			unsigned chunkSize = std::min(SECTOR_SIZE, remaining);
-			fread(buf, 1, chunkSize, file);
+			file.read(buf, chunkSize);
 			writeLogicalSector(logicalSector + j, buf);
 			remaining -= chunkSize;
 		}
@@ -526,7 +523,6 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 		prevcl = curcl;
 		curcl = readFAT(curcl);
 	}
-	fclose(file);
 
 	// terminate FAT chain
 	if (prevcl == 0) {
@@ -784,19 +780,15 @@ void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 	unsigned size = rdlg(direntry.size);
 	unsigned sector = clusterToSector(getStartCluster(direntry));
 
-	FILE* file = fopen(resultFile.c_str(), "wb");
-	if (!file) {
-		throw MSXException("Couldn't open file for writing!");
-	}
+	File file(resultFile, "wb");
 	while (size && sector) {
 		byte buf[SECTOR_SIZE];
 		readLogicalSector(sector, buf);
 		unsigned savesize = std::min(size, SECTOR_SIZE);
-		fwrite(buf, 1, savesize, file);
+		file.write(buf, savesize);
 		size -= savesize;
 		sector = getNextSector(sector);
 	}
-	fclose(file);
 	// now change the access time
 	changeTime(resultFile, direntry);
 }

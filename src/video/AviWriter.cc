@@ -4,8 +4,8 @@
 
 #include "AviWriter.hh"
 #include "ZMBVEncoder.hh"
-#include "Filename.hh"
-#include "CommandException.hh"
+#include "File.hh"
+#include "MSXException.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include <cstring>
@@ -32,21 +32,16 @@ static inline void writeLE4(unsigned char* p, unsigned x)
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned freq_)
-	: codec(new ZMBVEncoder(width_, height_, bpp))
+	: file(new File(filename, "wb"))
+	, codec(new ZMBVEncoder(width_, height_, bpp))
 	, fps(50.0)
 	, width(width_)
 	, height(height_)
 	, audiorate(freq_)
 {
-	std::string resolved = filename.getResolved();
-	file = fopen(resolved.c_str(), "wb");
-	if (!file) {
-		throw CommandException("Couldn't open " + resolved +
-		                       " for writing.");
-	}
 	char dummy[AVI_HEADER_SIZE];
 	memset(dummy, 0, AVI_HEADER_SIZE);
-	fwrite(dummy, 1, AVI_HEADER_SIZE, file);
+	file->write(dummy, AVI_HEADER_SIZE);
 
 	index.resize(8);
 
@@ -199,14 +194,16 @@ AviWriter::~AviWriter()
 	AVIOUTd(written + 4);               // Length of list in bytes
 	AVIOUT4("movi");
 
-	// First add the index table to the end
-	memcpy(&index[0], "idx1", 4);
-	writeLE4(&index[4], index.size() - 8);
-	fwrite(&index[0], 1, index.size(), file);
-
-	fseek(file, 0, SEEK_SET);
-	fwrite(&avi_header, 1, AVI_HEADER_SIZE, file);
-	fclose(file);
+	try {
+		// First add the index table to the end
+		memcpy(&index[0], "idx1", 4);
+		writeLE4(&index[4], index.size() - 8);
+		file->write(&index[0], index.size());
+		file->seek(0);
+		file->write(&avi_header, AVI_HEADER_SIZE);
+	} catch (MSXException& e) {
+		// can't throw from destructor
+	}
 }
 
 void AviWriter::setFps(double fps_)
@@ -222,10 +219,10 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 	chunk[2] = tag[2];
 	chunk[3] = tag[3];
 	writeLE4(&chunk[4], size);
-	fwrite(chunk, 1, 8, file);
+	file->write(chunk, 8);
 
 	unsigned writesize = (size + 1) & ~1;
-	fwrite(data, 1, writesize, file);
+	file->write(data, writesize);
 	unsigned pos = written + 4;
 	written += writesize + 8;
 

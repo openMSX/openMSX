@@ -74,7 +74,6 @@ private:
 	void checkAlterFileInDisk(unsigned dirindex);
 	void updateFileInDisk(unsigned dirindex, struct stat& fst);
 	void updateFileInDisk(const std::string& filename);
-	void transferFileToCache(unsigned dirindex);
 	void extractCacheToFile(unsigned dirindex);
 	void truncateCorrespondingFile(unsigned dirindex);
 	unsigned findNextFreeCluster(unsigned curcl);

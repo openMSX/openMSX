@@ -4,10 +4,11 @@
 #define WAVWRITER_HH
 
 #include "noncopyable.hh"
-#include <cstdio>
+#include <memory>
 
 namespace openmsx {
 
+class File;
 class Filename;
 
 class WavWriter : private noncopyable
@@ -33,7 +34,7 @@ public:
 	void flush();
 
 private:
-	FILE* wavfp;
+	const std::auto_ptr<File> file;
 	unsigned bytes;
 };
 
