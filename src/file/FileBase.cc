@@ -24,10 +24,10 @@ byte* FileBase::mmap(bool writeBack)
 	if (!mmem) {
 		mmapWrite = writeBack;
 		mmapSize = getSize();
-		mmem = malloc(mmapSize);
+		mmem = new byte[mmapSize];
 		read(mmem, mmapSize);
 	}
-	return static_cast<byte*>(mmem);
+	return mmem;
 }
 
 void FileBase::munmap()
@@ -37,7 +37,7 @@ void FileBase::munmap()
 			seek(0);
 			write(mmem, mmapSize);
 		}
-		free(mmem);
+		delete[] mmem;
 		mmem = NULL;
 	}
 }

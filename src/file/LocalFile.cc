@@ -105,8 +105,9 @@ byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {
 		int flags = writeBack ? MAP_SHARED : MAP_PRIVATE;
-		mmem = ::mmap(0, getSize(), PROT_READ | PROT_WRITE,
-		              flags, fileno(file), 0);
+		mmem = static_cast<byte*>(
+		          ::mmap(0, getSize(), PROT_READ | PROT_WRITE,
+		                 flags, fileno(file), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning
 		void* MY_MAP_FAILED = reinterpret_cast<void*>(-1);
@@ -114,7 +115,7 @@ byte* LocalFile::mmap(bool writeBack)
 			throw FileException("Error mmapping file");
 		}
 	}
-	return static_cast<byte*>(mmem);
+	return mmem;
 }
 
 void LocalFile::munmap()

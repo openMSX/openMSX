@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 
 namespace openmsx {
-
 namespace MemoryOps {
 
 	static const bool NO_STREAMING = false;
@@ -36,7 +35,6 @@ namespace MemoryOps {
 	void freeAligned(void* ptr);
 
 } // namespace MemoryOps
-
 } // namespace openmsx
 
 #endif

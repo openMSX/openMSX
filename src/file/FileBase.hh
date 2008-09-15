@@ -36,7 +36,7 @@ public:
 	virtual time_t getModificationDate() = 0;
 
 protected:
-	void* mmem;
+	byte* mmem;
 
 private:
 	unsigned mmapSize;

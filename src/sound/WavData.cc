@@ -3,9 +3,7 @@
 #include "WavData.hh"
 #include "MSXException.hh"
 #include <SDL.h>
-#include <cstdlib>
 #include <cassert>
-#include <cstring>
 
 using std::string;
 
@@ -38,22 +36,16 @@ WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFre
 		throw MSXException("Couldn't build wav converter");
 	}
 
-	buffer = malloc(wavLen * audioCVT.len_mult);
-	audioCVT.buf = static_cast<Uint8*>(buffer);
-	audioCVT.len = wavLen;
-	memcpy(buffer, wavBuf, wavLen);
+	buffer.assign(wavBuf, wavBuf + wavLen);
 	SDL_FreeWAV(wavBuf);
+	buffer.resize(wavLen * audioCVT.len_mult); // possibly we need more space
+	audioCVT.buf = &buffer[0];
+	audioCVT.len = wavLen;
 
 	if (SDL_ConvertAudio(&audioCVT) == -1) {
-		free(buffer);
 		throw MSXException("Couldn't convert wav file to internal format");
 	}
 	length = unsigned(audioCVT.len * audioCVT.len_ratio) / 2;
-}
-
-WavData::~WavData()
-{
-	free(buffer);
 }
 
 unsigned WavData::getFreq() const
@@ -73,7 +65,7 @@ unsigned WavData::getSize() const
 
 const void* WavData::getData() const
 {
-	return buffer;
+	return &buffer[0];
 }
 
 } // namespace openmsx

@@ -7,10 +7,12 @@
 #include "build-info.hh"
 #include "probed_defs.hh"
 #include "GLUtil.hh"
+#include "Math.hh"
 #include <map>
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
+#include <new> // for std::bad_alloc
 
 namespace openmsx {
 
@@ -546,9 +548,14 @@ private:
 
 void* mallocAligned(unsigned alignment, unsigned size)
 {
+	assert("must be a power of 2" &&
+	       Math::powerOfTwo(alignment) == alignment);
+	assert(alignment >= sizeof(void*));
 #ifdef HAVE_POSIX_MEMALIGN
 	void* aligned;
-	posix_memalign(&aligned, alignment, size);
+	if (posix_memalign(&aligned, alignment, size)) {
+		throw std::bad_alloc();
+	}
 	#ifdef DEBUG
 	AllocMap::instance().insert(aligned, aligned);
 	#endif
@@ -556,6 +563,9 @@ void* mallocAligned(unsigned alignment, unsigned size)
 #else
 	unsigned long t = alignment - 1;
 	void* unaligned = malloc(size + t);
+	if (!unaligned) {
+		throw std::bad_alloc();
+	}
 	void* aligned = reinterpret_cast<void*>(
 		(reinterpret_cast<unsigned long>(unaligned) + t) & ~t);
 	AllocMap::instance().insert(aligned, unaligned);

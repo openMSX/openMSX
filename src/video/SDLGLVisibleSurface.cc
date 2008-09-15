@@ -9,7 +9,6 @@
 #include "build-info.hh"
 #include "Math.hh"
 #include <vector>
-#include <cstdlib>
 
 namespace openmsx {
 
@@ -110,7 +109,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		// TODO 64 byte aligned (see RawFrame)
 		unsigned texW = Math::powerOfTwo(width);
 		unsigned texH = Math::powerOfTwo(height);
-		buffer = static_cast<char*>(malloc(format.BytesPerPixel * texW * texH));
+		buffer = new char[format.BytesPerPixel * texW * texH];
 		unsigned pitch = width * format.BytesPerPixel;
 		setBufferPtr(buffer, pitch);
 
@@ -132,7 +131,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
-	free(buffer);
+	delete[] buffer;
 }
 
 void SDLGLVisibleSurface::init()

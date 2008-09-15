@@ -9,7 +9,6 @@
 #include "Version.hh"
 #include <iostream>
 #include <memory>
-#include <cstdlib>
 #include <cstring>
 #include <cstdio>
 
@@ -187,8 +186,7 @@ BitmapTexture::BitmapTexture()
 	: Texture(GL_TEXTURE_2D)
 {
 	static const unsigned SIZE = WIDTH * HEIGHT * 4;
-	void* blackness = malloc(SIZE);
-	memset(blackness, 0, SIZE);
+	std::vector<byte> blackness(SIZE); // zero-initialized
 	bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
@@ -199,8 +197,7 @@ BitmapTexture::BitmapTexture()
 		0,                // border
 		GL_RGBA,          // format
 		GL_UNSIGNED_BYTE, // type
-		blackness);       // data
-	free(blackness);
+		&blackness[0]);   // data
 }
 
 void BitmapTexture::update(int y, const GLuint* data, int lineWidth)

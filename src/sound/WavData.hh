@@ -3,7 +3,9 @@
 #ifndef WAVDATA_HH
 #define WAVDATA_HH
 
+#include "openmsx.hh"
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -11,7 +13,6 @@ class WavData
 {
 public:
 	WavData(const std::string& filename, unsigned bits = 0, unsigned freq = 0);
-	~WavData();
 
 	unsigned getFreq() const;
 	unsigned getBits() const;
@@ -19,7 +20,7 @@ public:
 	const void* getData() const;
 
 private:
-	void* buffer;
+	std::vector<byte> buffer;
 	unsigned bits;
 	unsigned freq;
 	unsigned length;

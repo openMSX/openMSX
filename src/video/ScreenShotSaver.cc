@@ -129,15 +129,14 @@ void save(SDL_Surface* surface, const std::string& filename)
 	SDL_Surface* surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
 
 	// Create the array of pointers to image data
-	png_bytep* row_pointers = static_cast<png_bytep*>(malloc(sizeof(png_bytep)*surface->h));
+	png_bytep row_pointers[surface->h];
 	for (int i = 0; i < surface->h; ++i) {
-		row_pointers[i] = static_cast<byte*>(surf24->pixels) + (i * surf24->pitch);
+		row_pointers[i] = static_cast<png_bytep>(surf24->pixels) + (i * surf24->pitch);
 	}
 
 	bool result = IMG_SavePNG_RW(surface->w, surface->h,
 	                             row_pointers, filename, true);
 
-	free(row_pointers);
 	SDL_FreeSurface(surf24);
 
 	if (!result) {
