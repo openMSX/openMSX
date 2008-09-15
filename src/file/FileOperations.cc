@@ -291,12 +291,19 @@ string getConventionalPath(const string &path)
 string getCurrentWorkingDirectory()
 {
 	char buf[MAXPATHLEN];
-	getcwd(buf, MAXPATHLEN);
+	if (!getcwd(buf, MAXPATHLEN)) {
+		throw FileException("Couldn't get current working directory.");
+	}
 	return buf;
 }
 
 string getAbsolutePath(const string& path)
 {
+	// In rare cases getCurrentWorkingDirectory() can throw,
+	// so only call it when really necessary.
+	if (isAbsolutePath(path)) {
+		return path;
+	}
 	string currentDir = getCurrentWorkingDirectory();
 	return join(currentDir, path);
 }

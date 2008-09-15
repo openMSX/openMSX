@@ -85,10 +85,12 @@ namespace FileOperations {
 	std::string getNativePath(const std::string& path);
 
 	/** Returns the current working directory.
+	 * @throw FileException (for example when directory has been deleted).
 	 */
 	std::string getCurrentWorkingDirectory();
 
 	/** Transform given path into an absolute path
+	 * @throw FileException
 	 */
 	std::string getAbsolutePath(const std::string& path);
 
