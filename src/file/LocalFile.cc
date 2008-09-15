@@ -86,17 +86,19 @@ void LocalFile::read(void* buffer, unsigned num)
 		throw FileException("Read beyond end of file");
 	}
 
-	fread(buffer, 1, num, file);
-	if (ferror(file)) {
-		throw FileException("Error reading file");
+	if (fread(buffer, 1, num, file) != num) {
+		if (ferror(file)) {
+			throw FileException("Error reading file");
+		}
 	}
 }
 
 void LocalFile::write(const void* buffer, unsigned num)
 {
-	fwrite(buffer, 1, num, file);
-	if (ferror(file)) {
-		throw FileException("Error writing file");
+	if (fwrite(buffer, 1, num, file) != num) {
+		if (ferror(file)) {
+			throw FileException("Error writing file");
+		}
 	}
 }
 
