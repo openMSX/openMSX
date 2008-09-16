@@ -4,6 +4,7 @@
 #define TYPE_TRAITS_HH
 
 #include "static_assert.hh"
+#include "build-info.hh" // for PLATFORM_GP2X
 #include <string>
 
 
@@ -70,6 +71,13 @@ template<typename T> struct is_polymorphic
 // is_abstract<T>
 template<typename T> struct is_abstract
 {
+#if PLATFORM_GP2X
+	// The stuff below doesn't work with my arm-open2x-linux-g++ compiler,
+	// while the boost::is_abstract implementation does work.
+	// TODO investigate this
+	//      ATM it's only used in STATIC_ASSERT's, so it's not urgent
+	static const bool value = false;
+#else
 	// T must be a complete type (otherwise result is always false)
 	STATIC_ASSERT(sizeof(T) != 0);
 
@@ -79,6 +87,7 @@ template<typename T> struct is_abstract
 	template<typename U> static yes check(...);
 
 	static const bool value = sizeof(check<T>(0)) == sizeof(yes);
+#endif
 };
 
 // is_same_type<T1, T2>
