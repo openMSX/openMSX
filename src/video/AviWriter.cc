@@ -11,6 +11,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <cstdio> // for snprintf
 #include <cassert>
 
 namespace openmsx {
