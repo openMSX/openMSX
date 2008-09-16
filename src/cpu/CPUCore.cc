@@ -2096,7 +2096,6 @@ template <class T> int CPUCore<T>::cpl() {
 	       H_FLAG | N_FLAG |
 	       (R.getA() & (X_FLAG | Y_FLAG)));
 	return T::CC_CPL;
-
 }
 template <class T> int CPUCore<T>::daa() {
 	unsigned i = R.getA();
@@ -2106,9 +2105,15 @@ template <class T> int CPUCore<T>::daa() {
 	return T::CC_DAA;
 }
 template <class T> int CPUCore<T>::neg() {
-	 byte i = R.getA();
-	 R.setA(0);
-	 SUB(i);
+	// alternative: LUT   word negTable[256]
+	unsigned a = R.getA();
+	unsigned res = -a;
+	R.setF(ZSXYTable[res & 0xFF] |
+	       ((res & 0x100) ? C_FLAG : 0) |
+	       N_FLAG |
+	       ((res ^ a) & H_FLAG) |
+	       ((a & res & 0x80) >> 5)); // V_FLAG
+	R.setA(res);
 	return T::CC_NEG;
 }
 template <class T> int CPUCore<T>::scf() {
