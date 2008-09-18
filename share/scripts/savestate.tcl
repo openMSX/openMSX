@@ -9,19 +9,17 @@ proc __savestate_common { name } {
 	}
 }
 
-#TODO rename
-proc my_save { {name ""} } {
+proc savestate { {name ""} } {
 	__savestate_common $name
 	catch { screenshot $png }
 	set currentID [machine]
-	savestate $currentID $fullname
+	store_machine $currentID $fullname
 	return $name
 }
 
-#TODO rename
-proc my_load { {name ""} } {
+proc loadstate { {name ""} } {
 	__savestate_common $name
-	set newID [loadstate $fullname]
+	set newID [restore_machine $fullname]
 	set currentID [machine]
 	delete_machine $currentID
 	activate_machine $newID
@@ -48,29 +46,29 @@ proc __savestate_tab { args } {
 	return [list_savestates]
 }
 
-# my_save
-set_help_text my_save \
-{my_save [<name>]
+# savestate
+set_help_text savestate \
+{savestate [<name>]
 
 Create a snapshot of the current emulated MSX machine.
 
 Optionally you can specify a name for the savestate. If you omit this the default name 'quicksave' will be taken.
 
-See also 'my_load', 'list_savestates', 'delete_savestate'.
+See also 'loadstate', 'list_savestates', 'delete_savestate'.
 }
-set_tabcompletion_proc my_save __savestate_tab
+set_tabcompletion_proc savestate __savestate_tab
 
-# my_load
-set_help_text my_load \
-{my_load [<name>]
+# loadstate
+set_help_text loadstate \
+{loadstate [<name>]
 
 Restore a previously created savestate.
 
 You can specify the name of the savestate that should be loaded. If you omit this name, the default savestate will be loaded.
 
-See also 'my_save', 'list_savestates', 'delete_savestate'.
+See also 'savestate', 'list_savestates', 'delete_savestate'.
 }
-set_tabcompletion_proc my_load __savestate_tab
+set_tabcompletion_proc loadstate __savestate_tab
 
 # list_savestates
 set_help_text list_savestates \
@@ -78,15 +76,15 @@ set_help_text list_savestates \
 
 Return the names of all previously created savestates.
 
-See also 'my_save', 'my_load', 'delete_savestate'.
+See also 'savestate', 'loadstate', 'delete_savestate'.
 }
 
 # delete_savestate
-set_help_text my_load \
+set_help_text loadstate \
 {delete_savestate [<name>]
 
 Delete a previously created savestate.
 
-See also 'my_save', 'my_load', 'list_savestates'.
+See also 'savestate', 'loadstate', 'list_savestates'.
 }
 set_tabcompletion_proc delete_savestate __savestate_tab

@@ -118,10 +118,10 @@ private:
 	Reactor& reactor;
 };
 
-class SaveMachineCommand : public SimpleCommand
+class StoreMachineCommand : public SimpleCommand
 {
 public:
-	SaveMachineCommand(CommandController& commandController, Reactor& reactor);
+	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -129,10 +129,10 @@ private:
 	Reactor& reactor;
 };
 
-class LoadMachineCommand : public SimpleCommand
+class RestoreMachineCommand : public SimpleCommand
 {
 public:
-	LoadMachineCommand(CommandController& commandController, Reactor& reactor);
+	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -140,10 +140,10 @@ private:
 	Reactor& reactor;
 };
 
-class SaveMachineMemCommand : public SimpleCommand
+class StoreMachineMemCommand : public SimpleCommand
 {
 public:
-	SaveMachineMemCommand(CommandController& commandController, Reactor& reactor);
+	StoreMachineMemCommand(CommandController& commandController, Reactor& reactor);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -151,10 +151,10 @@ private:
 	Reactor& reactor;
 };
 
-class LoadMachineMemCommand : public SimpleCommand
+class RestoreMachineMemCommand : public SimpleCommand
 {
 public:
-	LoadMachineMemCommand(CommandController& commandController, Reactor& reactor);
+	RestoreMachineMemCommand(CommandController& commandController, Reactor& reactor);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -206,10 +206,10 @@ Reactor::Reactor()
 	, deleteMachineCommand(new DeleteMachineCommand(getCommandController(), *this))
 	, listMachinesCommand(new ListMachinesCommand(getCommandController(), *this))
 	, activateMachineCommand(new ActivateMachineCommand(getCommandController(), *this))
-	, saveMachineCommand(new SaveMachineCommand(getCommandController(), *this))
-	, loadMachineCommand(new LoadMachineCommand(getCommandController(), *this))
-	, saveMachineMemCommand(new SaveMachineMemCommand(getCommandController(), *this))
-	, loadMachineMemCommand(new LoadMachineMemCommand(getCommandController(), *this))
+	, storeMachineCommand(new StoreMachineCommand(getCommandController(), *this))
+	, restoreMachineCommand(new RestoreMachineCommand(getCommandController(), *this))
+	, storeMachineMemCommand(new StoreMachineMemCommand(getCommandController(), *this))
+	, restoreMachineMemCommand(new RestoreMachineMemCommand(getCommandController(), *this))
 	, aviRecordCommand(new AviRecorder(*this))
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
@@ -826,16 +826,16 @@ void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-// class SaveMachineCommand
+// class StoreMachineCommand
 
-SaveMachineCommand::SaveMachineCommand(
+StoreMachineCommand::StoreMachineCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "savestate")
+	: SimpleCommand(commandController, "store_machine")
 	, reactor(reactor_)
 {
 }
 
-string SaveMachineCommand::execute(const vector<string>& tokens)
+string StoreMachineCommand::execute(const vector<string>& tokens)
 {
 	string filename;
 	string machineID;
@@ -863,15 +863,17 @@ string SaveMachineCommand::execute(const vector<string>& tokens)
 	return filename;
 }
 
-string SaveMachineCommand::help(const vector<string>& /*tokens*/) const
+string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
 {
 	return
-		"savestate                       Save state of current machine to file \"openmsxNNNN.xml.gz\"\n"
-		"savestate machineID             Save state of machine \"machineID\" to file \"openmsxNNNN.xml.gz\"\n"
-                "savestate machineID <filename>  Save state of machine \"machineID\" to indicated file\n";
+		"store_machine                       Save state of current machine to file \"openmsxNNNN.xml.gz\"\n"
+		"store_machine machineID             Save state of machine \"machineID\" to file \"openmsxNNNN.xml.gz\"\n"
+                "store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
+		"\n"
+		"This is a low-level command, the 'savestate' script is easier to use.";
 }
 
-void SaveMachineCommand::tabCompletion(vector<string>& tokens) const
+void StoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	set<string> ids;
 	reactor.getMachineIDs(ids);
@@ -879,16 +881,16 @@ void SaveMachineCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-// class LoadMachineCommand
+// class RestoreMachineCommand
 
-LoadMachineCommand::LoadMachineCommand(
+RestoreMachineCommand::RestoreMachineCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "loadstate")
+	: SimpleCommand(commandController, "restore_machine")
 	, reactor(reactor_)
 {
 }
 
-string LoadMachineCommand::execute(const vector<string>& tokens)
+string RestoreMachineCommand::execute(const vector<string>& tokens)
 {
 	Reactor::Board newBoard(new MSXMotherBoard(reactor));
 
@@ -938,14 +940,16 @@ string LoadMachineCommand::execute(const vector<string>& tokens)
 	return newBoard->getMachineID();
 }
 
-string LoadMachineCommand::help(const vector<string>& /*tokens*/) const
+string RestoreMachineCommand::help(const vector<string>& /*tokens*/) const
 {
 	return
-		"loadstate                       Load state from last saved state in default directory\n"
-		"loadstate <filename>            Load state from indicated file\n";
+		"restore_machine                       Load state from last saved state in default directory\n"
+		"restore_machine <filename>            Load state from indicated file\n"
+		"\n"
+		"This is a low-level command, the 'loadstate' script is easier to use.";
 }
 
-void LoadMachineCommand::tabCompletion(vector<string>& tokens) const
+void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	set<string> defaults;
 	// TODO: put the default files in defaults (state files in user's savestates dir)
@@ -954,16 +958,16 @@ void LoadMachineCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-// class SaveMachineMemCommand   TODO temp code
+// class StoreMachineMemCommand   TODO temp code
 
-SaveMachineMemCommand::SaveMachineMemCommand(
+StoreMachineMemCommand::StoreMachineMemCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "mem_savestate")
+	: SimpleCommand(commandController, "store_machine_mem")
 	, reactor(reactor_)
 {
 }
 
-string SaveMachineMemCommand::execute(const vector<string>& tokens)
+string StoreMachineMemCommand::execute(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -976,12 +980,12 @@ string SaveMachineMemCommand::execute(const vector<string>& tokens)
 	return StringOp::toString(reactor.snapshot.size()); // size in bytes
 }
 
-string SaveMachineMemCommand::help(const vector<string>& /*tokens*/) const
+string StoreMachineMemCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "TODO";
 }
 
-void SaveMachineMemCommand::tabCompletion(vector<string>& tokens) const
+void StoreMachineMemCommand::tabCompletion(vector<string>& tokens) const
 {
 	set<string> ids;
 	reactor.getMachineIDs(ids);
@@ -989,16 +993,16 @@ void SaveMachineMemCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-// class LoadMachineMemCommand   TODO temp code
+// class RestoreMachineMemCommand   TODO temp code
 
-LoadMachineMemCommand::LoadMachineMemCommand(
+RestoreMachineMemCommand::RestoreMachineMemCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "mem_loadstate")
+	: SimpleCommand(commandController, "restore_machine_mem")
 	, reactor(reactor_)
 {
 }
 
-string LoadMachineMemCommand::execute(const vector<string>& /*tokens*/)
+string RestoreMachineMemCommand::execute(const vector<string>& /*tokens*/)
 {
 	Reactor::Board newBoard(new MSXMotherBoard(reactor));
 	MemInputArchive in(reactor.snapshot);
@@ -1007,12 +1011,12 @@ string LoadMachineMemCommand::execute(const vector<string>& /*tokens*/)
 	return newBoard->getMachineID();
 }
 
-string LoadMachineMemCommand::help(const vector<string>& /*tokens*/) const
+string RestoreMachineMemCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "TODO";
 }
 
-void LoadMachineMemCommand::tabCompletion(vector<string>& /*tokens*/) const
+void RestoreMachineMemCommand::tabCompletion(vector<string>& /*tokens*/) const
 {
 	// TODO
 }

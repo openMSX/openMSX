@@ -39,10 +39,10 @@ class CreateMachineCommand;
 class DeleteMachineCommand;
 class ListMachinesCommand;
 class ActivateMachineCommand;
-class SaveMachineCommand;
-class LoadMachineCommand;
-class SaveMachineMemCommand;
-class LoadMachineMemCommand;
+class StoreMachineCommand;
+class RestoreMachineCommand;
+class StoreMachineMemCommand;
+class RestoreMachineMemCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
@@ -139,10 +139,10 @@ private:
 	const std::auto_ptr<DeleteMachineCommand> deleteMachineCommand;
 	const std::auto_ptr<ListMachinesCommand> listMachinesCommand;
 	const std::auto_ptr<ActivateMachineCommand> activateMachineCommand;
-	const std::auto_ptr<SaveMachineCommand> saveMachineCommand;
-	const std::auto_ptr<LoadMachineCommand> loadMachineCommand;
-	const std::auto_ptr<SaveMachineMemCommand> saveMachineMemCommand;
-	const std::auto_ptr<LoadMachineMemCommand> loadMachineMemCommand;
+	const std::auto_ptr<StoreMachineCommand> storeMachineCommand;
+	const std::auto_ptr<RestoreMachineCommand> restoreMachineCommand;
+	const std::auto_ptr<StoreMachineMemCommand> storeMachineMemCommand;
+	const std::auto_ptr<RestoreMachineMemCommand> restoreMachineMemCommand;
 	const std::auto_ptr<AviRecorder> aviRecordCommand;
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
@@ -178,10 +178,10 @@ private:
 	friend class DeleteMachineCommand;
 	friend class ListMachinesCommand;
 	friend class ActivateMachineCommand;
-	friend class SaveMachineCommand;
-	friend class LoadMachineCommand;
-	friend class SaveMachineMemCommand;
-	friend class LoadMachineMemCommand;
+	friend class StoreMachineCommand;
+	friend class RestoreMachineCommand;
+	friend class StoreMachineMemCommand;
+	friend class RestoreMachineMemCommand;
 };
 
 } // namespace openmsx
