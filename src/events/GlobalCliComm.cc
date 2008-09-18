@@ -4,7 +4,6 @@
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include "EventDistributor.hh"
-#include "LedEvent.hh"
 #include "CliConnection.hh"
 #include "Socket.hh"
 #include "GlobalCommandController.hh"

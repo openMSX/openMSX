@@ -3,7 +3,6 @@
 #include "MSXPPI.hh"
 #include "I8255.hh"
 #include "Keyboard.hh"
-#include "LedEvent.hh"
 #include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
@@ -63,7 +62,7 @@ void MSXPPI::reset(const EmuTime& time)
 
 void MSXPPI::powerDown(const EmuTime& /*time*/)
 {
-	getMotherBoard().getLedStatus().setLed(LedEvent::CAPS, false);
+	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, false);
 }
 
 byte MSXPPI::readIO(word port, const EmuTime& time)
@@ -184,7 +183,7 @@ void MSXPPI::writeC1(nibble value, const EmuTime& time)
 		cassettePort.cassetteOut(value & 2, time);
 	}
 	if ((prevBits ^ value) & 4) {
-		getMotherBoard().getLedStatus().setLed(LedEvent::CAPS, !(value & 4));
+		getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, !(value & 4));
 	}
 	if ((prevBits ^ value) & 8) {
 		click->setClick(value & 8, time);

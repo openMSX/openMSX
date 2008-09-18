@@ -39,7 +39,6 @@ enum EventType
 	  * source. */
 	OPENMSX_FRAME_DRAWN_EVENT,
 
-	OPENMSX_LED_EVENT,
 	OPENMSX_BREAK_EVENT,
 	OPENMSX_SWITCH_RENDERER_EVENT,
 	/** Console events, allow the keyboard[joystick] to avoid

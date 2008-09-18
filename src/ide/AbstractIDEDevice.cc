@@ -2,7 +2,6 @@
 
 #include "AbstractIDEDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "LedEvent.hh"
 #include "LedStatus.hh"
 #include "Version.hh"
 #include "serialize.hh"
@@ -394,7 +393,7 @@ void AbstractIDEDevice::setTransferRead(bool status)
 		transferRead = status;
 		if (!transferWrite) {
 			// (this is a bit of a hack!)
-			motherBoard.getLedStatus().setLed(LedEvent::FDD, transferRead);
+			motherBoard.getLedStatus().setLed(LedStatus::FDD, transferRead);
 		}
 	}
 }
@@ -405,7 +404,7 @@ void AbstractIDEDevice::setTransferWrite(bool status)
 		transferWrite = status;
 		if (!transferRead) {
 			// (this is a bit of a hack!)
-			motherBoard.getLedStatus().setLed(LedEvent::FDD, transferWrite);
+			motherBoard.getLedStatus().setLed(LedStatus::FDD, transferWrite);
 		}
 	}
 }

@@ -9,7 +9,7 @@ SRC_HDR:= \
 	Keys \
 	CliComm GlobalCliComm MSXCliComm \
 	CliServer CliConnection Socket \
-	Event InputEvents LedEvent \
+	Event InputEvents \
 	InputEventGenerator InputEventFactory
 
 HDR_ONLY:= \

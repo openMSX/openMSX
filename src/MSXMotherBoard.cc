@@ -22,7 +22,6 @@
 #include "MSXMapperIO.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
-#include "LedEvent.hh"
 #include "LedStatus.hh"
 #include "MSXEventDistributor.hh"
 #include "EventDelay.hh"
@@ -814,7 +813,7 @@ void MSXMotherBoardImpl::powerUp()
 	powerSetting.changeValue(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
-	getLedStatus().setLed(LedEvent::POWER, true);
+	getLedStatus().setLed(LedStatus::POWER, true);
 
 	const EmuTime& time = getCurrentTime();
 	getCPUInterface().reset();
@@ -846,7 +845,7 @@ void MSXMotherBoardImpl::doPowerDown(const EmuTime& time)
 	//       handling all pending commands/events/updates?
 	//assert(powerSetting.getValue() == powered);
 	powerSetting.changeValue(false);
-	getLedStatus().setLed(LedEvent::POWER, false);
+	getLedStatus().setLed(LedStatus::POWER, false);
 
 	getMSXMixer().mute();
 
@@ -1262,7 +1261,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		if (powerSetting.getValue()) {
 			powered = true;
-			getLedStatus().setLed(LedEvent::POWER, true);
+			getLedStatus().setLed(LedStatus::POWER, true);
 			getMSXMixer().unmute();
 		}
 	}

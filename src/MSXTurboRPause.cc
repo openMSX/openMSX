@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXTurboRPause.hh"
-#include "LedEvent.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
@@ -55,7 +54,7 @@ void MSXTurboRPause::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
 	bool newTurboLed = (status & 0x80);
 	if (newTurboLed != turboLed) {
 		turboLed = newTurboLed;
-		getMotherBoard().getLedStatus().setLed(LedEvent::TURBO, turboLed);
+		getMotherBoard().getLedStatus().setLed(LedStatus::TURBO, turboLed);
 	}
 	updatePause();
 }
@@ -80,7 +79,7 @@ void MSXTurboRPause::updatePause()
 	bool newPauseLed = (status & 0x01) || hwPause;
 	if (newPauseLed != pauseLed) {
 		pauseLed = newPauseLed;
-		getMotherBoard().getLedStatus().setLed(LedEvent::PAUSE, pauseLed);
+		getMotherBoard().getLedStatus().setLed(LedStatus::PAUSE, pauseLed);
 	}
 }
 

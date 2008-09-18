@@ -5,7 +5,6 @@
 #include "DiskChanger.hh"
 #include "MSXMotherBoard.hh"
 #include "LedStatus.hh"
-#include "LedEvent.hh"
 #include "CommandController.hh"
 #include "ThrottleManager.hh"
 #include "CliComm.hh"
@@ -141,7 +140,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 		/* The following is a hack to emulate the drive LED behaviour.
 		 * This is in real life dependent on the FDC and should be
 		 * investigated in detail to implement it properly... TODO */
-		motherBoard.getLedStatus().setLed(LedEvent::FDD, motorStatus);
+		motherBoard.getLedStatus().setLed(LedStatus::FDD, motorStatus);
 		updateLoadingState();
 	}
 
@@ -315,7 +314,7 @@ void RealDrive::serialize(Archive& ar, unsigned /*version*/)
 		// individual drive LEDs properly. See also
 		// http://sourceforge.net/tracker/index.php?func=detail&aid=1540929&group_id=38274&atid=421864
 		if (motorStatus) {
-			motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
+			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
 		}
 	}
 }
