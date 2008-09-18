@@ -80,5 +80,6 @@ void RomPlayBall::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("SamplePlayer", *samplePlayer);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomPlayBall);
+REGISTER_MSXDEVICE(RomPlayBall, "RomPlayBall");
 
 } // namespace openmsx

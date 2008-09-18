@@ -42,8 +42,6 @@ private:
 	EmuTime reference;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, WavAudioInput, "WavAudioInput");
-
 } // namespace openmsx
 
 #endif

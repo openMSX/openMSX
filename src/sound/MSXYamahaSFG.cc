@@ -116,5 +116,6 @@ void MSXYamahaSFG::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("irqVector", irqVector);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXYamahaSFG);
+REGISTER_MSXDEVICE(MSXYamahaSFG, "YamahaSFG");
 
 } // namespace openmsx

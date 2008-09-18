@@ -26,8 +26,6 @@ private:
 	bool sramEnabled;
 };
 
-REGISTER_MSXDEVICE(RomGameMaster2, "RomGameMaster2");
-
 } // namespace openmsx
 
 #endif

@@ -71,8 +71,6 @@ private:
 	friend class CDXCommand;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, IDECDROM, "IDECDROM");
-
 } // namespace openmsx
 
 #endif

@@ -29,7 +29,6 @@ private:
 	byte control;
 	byte bankSelect[4];
 };
-REGISTER_MSXDEVICE(RomNational, "RomNational");
 
 } // namespace openmsx
 

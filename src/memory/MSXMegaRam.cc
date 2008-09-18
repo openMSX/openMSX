@@ -158,5 +158,6 @@ void MSXMegaRam::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("romMode", romMode);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMegaRam);
+REGISTER_MSXDEVICE(MSXMegaRam, "MegaRAM");
 
 } // namespace openmsx

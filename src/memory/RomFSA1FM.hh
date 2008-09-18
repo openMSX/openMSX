@@ -35,8 +35,6 @@ private:
 	SRAM& sram;
 };
 
-REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
-
 class RomFSA1FM2 : public Rom8kBBlocks
 {
 public:
@@ -64,8 +62,6 @@ private:
 	bool isEmpty[8];
 	byte control;
 };
-
-REGISTER_MSXDEVICE(RomFSA1FM2, "RomFSA1FM2");
 
 } // namespace openmsx
 

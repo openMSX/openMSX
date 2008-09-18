@@ -119,4 +119,6 @@ unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize)
 	return windowBase;
 }
 
+REGISTER_MSXDEVICE(RomPlain, "RomPlain");
+
 } // namespace openmsx

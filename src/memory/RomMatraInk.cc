@@ -59,5 +59,6 @@ void RomMatraInk::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("flash", *flash);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomMatraInk);
+REGISTER_MSXDEVICE(RomMatraInk, "RomMatraInk");
 
 } // namespace openmsx

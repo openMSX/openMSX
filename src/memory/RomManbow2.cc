@@ -135,5 +135,6 @@ void RomManbow2::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sccEnabled", sccEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomManbow2);
+REGISTER_MSXDEVICE(RomManbow2, "RomManbow2");
 
 } // namespace openmsx

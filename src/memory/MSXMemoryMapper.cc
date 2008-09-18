@@ -93,5 +93,6 @@ void MSXMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("ram", checkedRam->getUncheckedRam());
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMemoryMapper);
+REGISTER_MSXDEVICE(MSXMemoryMapper, "MemoryMapper");
 
 } // namespace openmsx

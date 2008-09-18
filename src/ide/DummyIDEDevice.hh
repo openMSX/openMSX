@@ -21,8 +21,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, DummyIDEDevice, "DummyIDEDevice");
-
 } // namespace openmsx
 
 #endif

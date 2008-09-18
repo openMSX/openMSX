@@ -79,5 +79,6 @@ void RomKonamiKeyboardMaster::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("VLM5030", *vlm5030);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomKonamiKeyboardMaster);
+REGISTER_MSXDEVICE(RomKonamiKeyboardMaster, "RomKonamiKeyboardMaster");
 
 } // namespace openmsx

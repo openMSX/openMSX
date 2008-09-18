@@ -91,6 +91,7 @@ void MSXKanji::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("adr2", adr2);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXKanji);
+REGISTER_MSXDEVICE(MSXKanji, "Kanji");
 
 /*
 This really works!

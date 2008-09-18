@@ -46,8 +46,6 @@ private:
 	friend class ToshibaAudioPeriphery;
 };
 
-REGISTER_MSXDEVICE(MSXAudio, "MSX-Audio");
-
 } // namespace openmsx
 
 #endif

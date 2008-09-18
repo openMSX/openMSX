@@ -214,5 +214,6 @@ void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("keyboard", *keyboard);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXPPI);
+REGISTER_MSXDEVICE(MSXPPI, "PPI");
 
 } // namespace openmsx

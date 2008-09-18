@@ -28,8 +28,6 @@ private:
 	byte driveReg;
 };
 
-REGISTER_MSXDEVICE(PhilipsFDC, "PhilipsFDC");
-
 } // namespace openmsx
 
 #endif

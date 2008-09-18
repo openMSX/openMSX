@@ -34,7 +34,6 @@ public:
 private:
 	const std::auto_ptr<YM2413Okazaki::Global> global;
 };
-REGISTER_POLYMORPHIC_INITIALIZER(YM2413Interface, YM2413, "YM2413-Okazaki");
 
 } // namespace openmsx
 

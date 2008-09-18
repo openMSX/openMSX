@@ -131,5 +131,6 @@ void ESE_RAM::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("mapped", mapped);
 }
 INSTANTIATE_SERIALIZE_METHODS(ESE_RAM);
+REGISTER_MSXDEVICE(ESE_RAM, "ESE_RAM");
 
 } // namespace openmsx

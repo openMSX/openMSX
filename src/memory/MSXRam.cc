@@ -71,5 +71,6 @@ void MSXRam::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("ram", checkedRam->getUncheckedRam());
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXRam);
+REGISTER_MSXDEVICE(MSXRam, "Ram");
 
 } // namespace openmsx

@@ -37,8 +37,6 @@ private:
 	std::string desc;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutWindows, "MidiOutWindows");
-
 } // namespace openmsx
 
 #endif // defined(_WIN32)

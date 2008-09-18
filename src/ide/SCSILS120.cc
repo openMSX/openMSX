@@ -891,5 +891,6 @@ void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSILS120);
+REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSILS120, "SCSILS120");
 
 } // namespace openmsx

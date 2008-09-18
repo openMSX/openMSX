@@ -37,8 +37,6 @@ private:
 	byte irqVector;
 };
 
-REGISTER_MSXDEVICE(MSXYamahaSFG, "YamahaSFG");
-
 } // namespace openmsx
 
 #endif

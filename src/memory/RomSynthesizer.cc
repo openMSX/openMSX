@@ -74,5 +74,6 @@ void RomSynthesizer::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("DAC", *dac);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomSynthesizer);
+REGISTER_MSXDEVICE(RomSynthesizer, "RomSynthesizer");
 
 } // namespace openmsx

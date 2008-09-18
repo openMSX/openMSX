@@ -22,8 +22,6 @@ private:
 	unsigned guessLocation(unsigned windowBase, unsigned windowSize);
 };
 
-REGISTER_MSXDEVICE(RomPlain, "RomPlain");
-
 } // namespace openmsx
 
 #endif

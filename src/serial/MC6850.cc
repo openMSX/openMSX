@@ -54,5 +54,6 @@ void MC6850::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(MC6850);
+REGISTER_MSXDEVICE(MC6850, "MC6850");
 
 } // namespace openmsx

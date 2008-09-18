@@ -269,5 +269,6 @@ void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("writeEnable", writeEnable);
 }
 INSTANTIATE_SERIALIZE_METHODS(ESE_SCC);
+REGISTER_MSXDEVICE(ESE_SCC, "ESE_SCC");
 
 } // namespace openmsx

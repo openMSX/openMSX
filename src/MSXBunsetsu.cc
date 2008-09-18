@@ -81,5 +81,6 @@ void MSXBunsetsu::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("jisyoAddress", jisyoAddress);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXBunsetsu);
+REGISTER_MSXDEVICE(MSXBunsetsu, "Bunsetsu");
 
 } // namespace openmsx

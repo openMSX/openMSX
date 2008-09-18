@@ -33,7 +33,6 @@ public:
 private:
 	Clock<3579545, 14> reference; // (3.58 / 14)Mhz
 };
-REGISTER_MSXDEVICE(MSXE6Timer, "E6Timer");
 
 } // namespace openmsx
 

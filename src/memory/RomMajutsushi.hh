@@ -27,8 +27,6 @@ private:
 	const std::auto_ptr<DACSound8U> dac;
 };
 
-REGISTER_MSXDEVICE(RomMajutsushi, "RomMajutsushi");
-
 } // namespace openmsx
 
 #endif

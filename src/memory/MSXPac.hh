@@ -33,8 +33,6 @@ private:
 	bool sramEnabled;
 };
 
-REGISTER_MSXDEVICE(MSXPac, "PAC");
-
 } // namespace openmsx
 
 #endif

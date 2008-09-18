@@ -36,8 +36,6 @@ private:
 	const byte blockMask;
 };
 
-REGISTER_MSXDEVICE(ESE_RAM, "ESE_RAM");
-
 } // namespace openmsx
 
 #endif

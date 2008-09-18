@@ -93,5 +93,6 @@ void ADVram::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("planar", planar);
 }
 INSTANTIATE_SERIALIZE_METHODS(ADVram);
+REGISTER_MSXDEVICE(ADVram, "ADVRAM");
 
 } // namespace openmsx

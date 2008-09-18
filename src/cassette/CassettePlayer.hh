@@ -173,8 +173,6 @@ private:
 	friend class TapeCommand;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, CassettePlayer, "CassettePlayer");
-
 } // namespace openmsx
 
 #endif

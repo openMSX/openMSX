@@ -226,5 +226,6 @@ void MSXHBI55::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("mode", mode);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXHBI55);
+REGISTER_MSXDEVICE(MSXHBI55, "MSXHBI55");
 
 } // namespace openmsx

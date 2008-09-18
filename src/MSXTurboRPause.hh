@@ -57,8 +57,6 @@ private:
 	bool hwPause;
 };
 
-REGISTER_MSXDEVICE(MSXTurboRPause, "TurboRPause");
-
 } // namespace openmsx
 
 #endif

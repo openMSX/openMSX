@@ -27,8 +27,6 @@ private:
 	byte sramEnabled;
 };
 
-REGISTER_MSXDEVICE(RomAscii16_2, "RomAscii16_2");
-
 } // namespace openmsx
 
 #endif

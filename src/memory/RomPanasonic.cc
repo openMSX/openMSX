@@ -198,5 +198,6 @@ void RomPanasonic::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("control", control);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomPanasonic);
+REGISTER_MSXDEVICE(RomPanasonic, "RomPanasonic");
 
 } // namespace openmsx

@@ -36,8 +36,6 @@ private:
 	byte control;
 };
 
-REGISTER_MSXDEVICE(RomPanasonic, "RomPanasonic");
-
 } // namespace openmsx
 
 #endif

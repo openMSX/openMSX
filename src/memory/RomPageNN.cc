@@ -22,5 +22,7 @@ RomPageNN::RomPageNN(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 }
 
+REGISTER_MSXDEVICE(RomPageNN, "RomPageNN");
+
 } // namespace openmsx
 

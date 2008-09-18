@@ -73,6 +73,7 @@ void MidiOutWindows::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// don't restore this after loadstate
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiOutWindows);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutWindows, "MidiOutWindows");
 
 } // namespace openmsx
 

@@ -85,5 +85,6 @@ void PrinterPortLogger::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// you have to replug the PrinterPortLogger
 }
 INSTANTIATE_SERIALIZE_METHODS(PrinterPortLogger);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, PrinterPortLogger, "PrinterPortLogger");
 
 } // namespace openmsx

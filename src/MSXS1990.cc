@@ -142,5 +142,6 @@ void MSXS1990::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXS1990);
+REGISTER_MSXDEVICE(MSXS1990, "S1990");
 
 } // namespace openmsx

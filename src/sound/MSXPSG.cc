@@ -119,5 +119,6 @@ void MSXPSG::serialize(Archive& ar, unsigned /*version*/)
 	// selectedPort is derived from portB
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXPSG);
+REGISTER_MSXDEVICE(MSXPSG, "PSG");
 
 } // namespace openmsx

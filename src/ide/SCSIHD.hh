@@ -74,8 +74,6 @@ private:
 	byte cdb[12];          // Command Descriptor Block
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSIHD, "SCSIHD");
-
 } // namespace openmsx
 
 #endif

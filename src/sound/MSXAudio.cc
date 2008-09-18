@@ -420,5 +420,6 @@ void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXAudio);
+REGISTER_MSXDEVICE(MSXAudio, "MSX-Audio");
 
 } // namespace openmsx

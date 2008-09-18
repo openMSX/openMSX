@@ -29,8 +29,6 @@ private:
 	byte sramBlock[8];
 };
 
-REGISTER_MSXDEVICE(RomAscii8_8, "RomAscii8_8");
-
 } // namespace openmsx
 
 #endif

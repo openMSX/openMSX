@@ -192,5 +192,6 @@ void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("mapped", mapped);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaSCSI);
+REGISTER_MSXDEVICE(MegaSCSI, "MegaSCSI");
 
 } // namespace openmsx

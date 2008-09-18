@@ -590,8 +590,6 @@ private:
 	void scheduleHscan(const EmuTime& time);
 };
 
-REGISTER_MSXDEVICE(V9990, "V9990");
-
 } // namespace openmsx
 
 #endif

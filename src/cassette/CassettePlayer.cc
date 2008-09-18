@@ -879,5 +879,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
 		updateLoadingState(getCurrentTime());
 	}
 }
+INSTANTIATE_SERIALIZE_METHODS(CassettePlayer);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, CassettePlayer, "CassettePlayer");
 
 } // namespace openmsx

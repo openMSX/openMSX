@@ -151,5 +151,6 @@ void MSXMoonSound::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("opl4latch", opl4latch);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMoonSound);
+REGISTER_MSXDEVICE(MSXMoonSound, "MoonSound");
 
 } // namespace openmsx

@@ -452,5 +452,6 @@ void CassetteJack::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// TODO, worth the trouble?
 }
 INSTANTIATE_SERIALIZE_METHODS(CassetteJack);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, CassetteJack, "CassetteJack");
 
 } // namespace openmsx

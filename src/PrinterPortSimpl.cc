@@ -77,5 +77,6 @@ void PrinterPortSimpl::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(PrinterPortSimpl);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, PrinterPortSimpl, "PrinterPortSimpl");
 
 } // namespace openmsx

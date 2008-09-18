@@ -76,4 +76,6 @@ byte* RomZemina90in1::getWriteCacheLine(word /*address*/) const
 	return unmappedWrite;
 }
 
+REGISTER_MSXDEVICE(RomZemina90in1, "RomZemina90in1");
+
 } // namespace openmsx

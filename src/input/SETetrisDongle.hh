@@ -30,8 +30,6 @@ private:
 	byte status;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, SETetrisDongle, "SETetrisDongle");
-
 } // namespace openmsx
 
 #endif

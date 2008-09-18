@@ -36,4 +36,6 @@ byte* RomGeneric16kB::getWriteCacheLine(word address) const
 	}
 }
 
+REGISTER_MSXDEVICE(RomGeneric16kB, "RomGeneric16kB");
+
 } // namespace openmsx

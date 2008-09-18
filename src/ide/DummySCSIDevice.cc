@@ -70,5 +70,6 @@ void DummySCSIDevice::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// nothing
 }
 INSTANTIATE_SERIALIZE_METHODS(DummySCSIDevice);
+REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, DummySCSIDevice, "DummySCSIDevice");
 
 } // namespace openmsx

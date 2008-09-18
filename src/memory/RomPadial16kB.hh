@@ -16,8 +16,6 @@ public:
 	virtual void reset(const EmuTime& time);
 };
 
-REGISTER_MSXDEVICE(RomPadial16kB, "RomPadial16kB");
-
 } // namespace openmsx
 
 #endif

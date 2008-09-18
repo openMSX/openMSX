@@ -135,5 +135,6 @@ void MidiInReader::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// don't try to resume a previous logfile (see PrinterPortLogger)
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiInReader);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInReader, "MidiInReader");
 
 } // namespace openmsx

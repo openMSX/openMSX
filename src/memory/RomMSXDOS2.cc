@@ -65,4 +65,6 @@ byte* RomMSXDOS2::getWriteCacheLine(word address) const
 	return unmappedWrite;
 }
 
+REGISTER_MSXDEVICE(RomMSXDOS2, "RomMSXDOS2");
+
 } // namespace openmsx

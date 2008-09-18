@@ -68,8 +68,6 @@ private:
 	friend class I8251Interf;
 };
 
-REGISTER_MSXDEVICE(MSXRS232, "RS232");
-
 } // namespace openmsx
 
 #endif

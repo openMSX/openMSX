@@ -124,5 +124,6 @@ void RomNettouYakyuu::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("redirectToSamplePlayer", redirectToSamplePlayer);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomNettouYakyuu);
+REGISTER_MSXDEVICE(RomNettouYakyuu, "RomNettouYakyuu");
 
 } // namespace openmsx

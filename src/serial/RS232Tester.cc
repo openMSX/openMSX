@@ -155,5 +155,6 @@ void RS232Tester::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// don't try to resume a previous logfile (see PrinterPortLogger)
 }
 INSTANTIATE_SERIALIZE_METHODS(RS232Tester);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, RS232Tester, "RS232Tester");
 
 } // namespace openmsx

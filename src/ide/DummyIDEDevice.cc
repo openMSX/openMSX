@@ -37,5 +37,6 @@ void DummyIDEDevice::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// nothing
 }
 INSTANTIATE_SERIALIZE_METHODS(DummyIDEDevice);
+REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, DummyIDEDevice, "DummyIDEDevice");
 
 } // namespace openmsx

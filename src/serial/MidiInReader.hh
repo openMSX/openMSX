@@ -56,8 +56,6 @@ private:
 	const std::auto_ptr<FilenameSetting> readFilenameSetting;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInReader, "MidiInReader");
-
 } // namespace openmsx
 
 #endif

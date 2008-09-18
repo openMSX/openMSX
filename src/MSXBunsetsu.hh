@@ -32,8 +32,6 @@ private:
 	unsigned jisyoAddress;
 };
 
-REGISTER_MSXDEVICE(MSXBunsetsu, "Bunsetsu");
-
 } // namespace openmsx
 
 #endif

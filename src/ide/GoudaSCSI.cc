@@ -90,5 +90,6 @@ void GoudaSCSI::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("WD33C93", *wd33c93);
 }
 INSTANTIATE_SERIALIZE_METHODS(GoudaSCSI);
+REGISTER_MSXDEVICE(GoudaSCSI, "GoudaSCSI");
 
 } // namespace openmsx

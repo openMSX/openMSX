@@ -43,8 +43,6 @@ private:
 	bool romMode;
 };
 
-REGISTER_MSXDEVICE(MSXMegaRam, "MegaRAM");
-
 } // namespace openmsx
 
 #endif

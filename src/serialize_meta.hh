@@ -8,6 +8,7 @@
 #include "type_traits.hh"
 #include <string>
 #include <map>
+#include <cassert>
 
 namespace openmsx {
 
@@ -213,6 +214,7 @@ public:
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		STATIC_ASSERT(!is_abstract<T>::value);
+		assert(saverMap.find(typeid(T)) == saverMap.end());
 		saverMap[typeid(T)] = new PolymorphicSaver<Archive, T>(name);
 	}
 
@@ -240,6 +242,7 @@ public:
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		STATIC_ASSERT(!is_abstract<T>::value);
+		assert(loaderMap.find(name) == loaderMap.end());
 		loaderMap[name] = new PolymorphicLoader<Archive, T>();
 	}
 
@@ -263,6 +266,7 @@ public:
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		STATIC_ASSERT(!is_abstract<T>::value);
+		assert(initializerMap.find(name) == initializerMap.end());
 		initializerMap[name] = new PolymorphicInitializer<Archive, T>();
 	}
 

@@ -38,8 +38,6 @@ private:
 	std::auto_ptr<DACSound8U> dac;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, PrinterPortSimpl, "PrinterPortSimpl");
-
 } // namespace openmsx
 
 #endif

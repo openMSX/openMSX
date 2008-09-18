@@ -124,5 +124,6 @@ void RomGameMaster2::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sramEnabled", sramEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomGameMaster2);
+REGISTER_MSXDEVICE(RomGameMaster2, "RomGameMaster2");
 
 } // namespace openmsx

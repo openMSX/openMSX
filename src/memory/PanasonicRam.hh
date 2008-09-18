@@ -24,8 +24,6 @@ private:
 	PanasonicMemory& panasonicMemory;
 };
 
-REGISTER_MSXDEVICE(PanasonicRam, "PanasonicRam");
-
 } // namespace openmsx
 
 #endif

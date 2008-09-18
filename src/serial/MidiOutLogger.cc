@@ -59,5 +59,6 @@ void MidiOutLogger::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// don't try to resume a previous logfile (see PrinterPortLogger)
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiOutLogger);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutLogger, "MidiOutLogger");
 
 } // namespace openmsx

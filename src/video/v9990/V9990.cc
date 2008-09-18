@@ -810,7 +810,6 @@ void V9990::scheduleHscan(const EmuTime& time)
 	setSyncPoint(hScanSyncTime, V9990_HSCAN);
 }
 
-
 static enum_string<V9990DisplayMode> displayModeInfo[] = {
 	{ "INVALID", INVALID_DISPLAY_MODE },
 	{ "P1", P1 }, { "P2", P2 },
@@ -855,5 +854,6 @@ void V9990::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(V9990);
+REGISTER_MSXDEVICE(V9990, "V9990");
 
 } // namespace openmsx

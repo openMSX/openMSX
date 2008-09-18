@@ -70,8 +70,6 @@ private:
 	bool planar;
 };
 
-REGISTER_MSXDEVICE(ADVram, "ADVRAM");
-
 } // namespace openmsx
 
 #endif // ADVRAM_HH

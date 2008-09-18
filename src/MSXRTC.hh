@@ -31,8 +31,6 @@ private:
 	nibble registerLatch;
 };
 
-REGISTER_MSXDEVICE(MSXRTC, "RTC");
-
 } // namespace openmsx
 
 #endif

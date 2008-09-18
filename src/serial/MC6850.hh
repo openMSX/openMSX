@@ -21,8 +21,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 };
 
-REGISTER_MSXDEVICE(MC6850, "MC6850");
-
 } // namespace openmsx
 
 #endif

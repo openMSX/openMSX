@@ -77,5 +77,6 @@ void NinjaTap::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("buf", buf);
 }
 INSTANTIATE_SERIALIZE_METHODS(NinjaTap);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, NinjaTap, "NinjaTap");
 
 } // namespace openmsx

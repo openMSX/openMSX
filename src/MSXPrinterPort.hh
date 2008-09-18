@@ -40,8 +40,6 @@ private:
 	byte data;
 };
 
-REGISTER_MSXDEVICE(MSXPrinterPort, "PrinterPort");
-
 } // namespace openmsx
 
 #endif

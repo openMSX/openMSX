@@ -160,5 +160,6 @@ void NationalFDC::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(NationalFDC);
+REGISTER_MSXDEVICE(NationalFDC, "NationalFDC");
 
 } // namespace openmsx

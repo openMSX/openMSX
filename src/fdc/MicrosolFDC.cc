@@ -140,5 +140,6 @@ void MicrosolFDC::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(MicrosolFDC);
+REGISTER_MSXDEVICE(MicrosolFDC, "MicrosolFDC");
 
 } // namespace openmsx

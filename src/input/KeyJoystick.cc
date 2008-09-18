@@ -125,5 +125,6 @@ void KeyJoystick::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// don't serialize 'status', is controlled by key events
 }
 INSTANTIATE_SERIALIZE_METHODS(KeyJoystick);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, KeyJoystick, "KeyJoystick");
 
 } // namespace openmsx

@@ -36,8 +36,6 @@ private:
 	byte bank;
 };
 
-REGISTER_MSXDEVICE(TurboRFDC, "TurboRFDC");
-
 } // namespace openmsx
 
 #endif

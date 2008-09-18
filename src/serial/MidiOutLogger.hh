@@ -35,8 +35,6 @@ private:
 	std::ofstream file;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutLogger, "MidiOutLogger");
-
 } // namespace openmsx
 
 #endif

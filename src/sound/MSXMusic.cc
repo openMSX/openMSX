@@ -81,5 +81,6 @@ void MSXMusic::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("registerLatch", registerLatch);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMusic);
+REGISTER_MSXDEVICE(MSXMusic, "MSX-Music");
 
 } // namespace openmsx

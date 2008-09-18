@@ -39,8 +39,6 @@ private:
 	const byte blockMask;
 };
 
-REGISTER_MSXDEVICE(MegaSCSI, "MegaSCSI");
-
 } // namespace openmsx
 
 #endif

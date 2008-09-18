@@ -125,5 +125,6 @@ void MSXMatsushita::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("pattern", pattern);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMatsushita);
+REGISTER_MSXDEVICE(MSXMatsushita, "Matsushita");
 
 } // namespace openmsx

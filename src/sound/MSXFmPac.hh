@@ -35,7 +35,6 @@ private:
 	byte r1ffe, r1fff;
 	bool sramEnabled;
 };
-REGISTER_MSXDEVICE(MSXFmPac, "FM-PAC");
 
 } // namespace openmsx
 

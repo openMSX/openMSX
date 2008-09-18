@@ -28,4 +28,6 @@ void RomPadial16kB::reset(const EmuTime& /*time*/)
 	setBank(3, unmappedRead);
 }
 
+REGISTER_MSXDEVICE(RomPadial16kB, "RomPadial16kB");
+
 } // namespace openmsx

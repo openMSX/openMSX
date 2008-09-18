@@ -402,6 +402,7 @@ void MSXMidi::serialize(Archive& ar, unsigned /*version*/)
 	// don't serialize:  cntr0, cntr2, interf
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMidi);
+REGISTER_MSXDEVICE(MSXMidi, "MSX-Midi");
 
 } // namespace openmsx
 

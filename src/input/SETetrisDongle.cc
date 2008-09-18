@@ -58,5 +58,6 @@ void SETetrisDongle::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// on de-serialize
 }
 INSTANTIATE_SERIALIZE_METHODS(SETetrisDongle);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, SETetrisDongle, "SETetrisDongle");
 
 } // namespace openmsx

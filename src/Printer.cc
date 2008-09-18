@@ -963,6 +963,7 @@ void ImagePrinterMSX::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// TODO is this worth it?
 }
 INSTANTIATE_SERIALIZE_METHODS(ImagePrinterMSX);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterMSX, "ImagePrinterMSX");
 
 
 // class ImagePrinterEpson
@@ -1676,6 +1677,7 @@ void ImagePrinterEpson::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// TODO is this worth it?
 }
 INSTANTIATE_SERIALIZE_METHODS(ImagePrinterEpson);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterEpson, "ImagePrinterEpson");
 
 
 // class Paper

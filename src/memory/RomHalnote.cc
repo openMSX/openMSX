@@ -155,5 +155,6 @@ void RomHalnote::serialize(Archive& ar, unsigned /*version*/)
 
 }
 INSTANTIATE_SERIALIZE_METHODS(RomHalnote);
+REGISTER_MSXDEVICE(RomHalnote, "RomHalnote");
 
 } // namespace openmsx

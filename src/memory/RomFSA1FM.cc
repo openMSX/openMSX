@@ -177,6 +177,7 @@ void RomFSA1FM1::serialize(Archive& ar, unsigned /*version*/)
 	// don't serialize (shared) sram here, rely on RomFSA1FM2 to do that
 }
 INSTANTIATE_SERIALIZE_METHODS(RomFSA1FM1);
+REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
 
 
 // Mapper for slot 3-3 //
@@ -331,5 +332,6 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(RomFSA1FM2);
+REGISTER_MSXDEVICE(RomFSA1FM2, "RomFSA1FM2");
 
 } // namespace openmsx

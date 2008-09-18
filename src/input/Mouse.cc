@@ -242,5 +242,6 @@ void Mouse::serialize(Archive& ar, unsigned /*version*/)
 	// These are controlled via (mouse button/motion) events
 }
 INSTANTIATE_SERIALIZE_METHODS(Mouse);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Mouse, "Mouse");
 
 } // namespace openmsx

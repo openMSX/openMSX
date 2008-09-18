@@ -38,4 +38,6 @@ void RomSuperLodeRunner::globalWrite(word address, byte value, const EmuTime& /*
 	setRom(2, value);
 }
 
+REGISTER_MSXDEVICE(RomSuperLodeRunner, "RomSuperLodeRunner");
+
 } // namespace openmsx

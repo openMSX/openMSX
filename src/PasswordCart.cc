@@ -61,5 +61,6 @@ void PasswordCart::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("pointer", pointer);
 }
 INSTANTIATE_SERIALIZE_METHODS(PasswordCart);
+REGISTER_MSXDEVICE(PasswordCart, "PasswordCart");
 
 } // namespace openmsx

@@ -67,8 +67,6 @@ private:
 	friend class MSXMidiI8251Interf;
 };
 
-REGISTER_MSXDEVICE(MSXMidi, "MSX-Midi");
-
 } // namespace openmsx
 
 #endif

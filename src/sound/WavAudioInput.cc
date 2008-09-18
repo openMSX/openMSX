@@ -101,5 +101,6 @@ void WavAudioInput::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(WavAudioInput);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, WavAudioInput, "WavAudioInput");
 
 } // namespace openmsx

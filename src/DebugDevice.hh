@@ -41,7 +41,6 @@ private:
 	DebugMode mode;
 	byte modeParameter;
 };
-REGISTER_MSXDEVICE(DebugDevice, "DebugDevice");
 
 } // namespace openmsx
 

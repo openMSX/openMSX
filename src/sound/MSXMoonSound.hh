@@ -32,8 +32,6 @@ private:
 	byte opl4latch;
 };
 
-REGISTER_MSXDEVICE(MSXMoonSound, "MoonSound");
-
 } // namespace openmsx
 
 #endif

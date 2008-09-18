@@ -98,5 +98,6 @@ void MSXKanji12::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("address", address);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXKanji12);
+REGISTER_MSXDEVICE(MSXKanji12, "Kanji12");
 
 } // namespace openmsx

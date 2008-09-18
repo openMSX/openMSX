@@ -33,8 +33,6 @@ private:
 	const std::auto_ptr<AmdFlash> flash;
 };
 
-REGISTER_MSXDEVICE(RomMatraInk, "RomMatraInk");
-
 } // namespace openmsx
 
 #endif

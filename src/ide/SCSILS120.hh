@@ -96,8 +96,6 @@ private:
 	friend class LSXCommand;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSILS120, "SCSILS120");
-
 } // namespace openmsx
 
 #endif

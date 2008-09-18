@@ -94,5 +94,6 @@ void MSXTurboRPause::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXTurboRPause);
+REGISTER_MSXDEVICE(MSXTurboRPause, "TurboRPause");
 
 } // namespace openmsx

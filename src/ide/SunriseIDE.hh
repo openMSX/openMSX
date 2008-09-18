@@ -49,8 +49,6 @@ private:
 	bool softReset;
 };
 
-REGISTER_MSXDEVICE(SunriseIDE, "SunriseIDE");
-
 } // namespace openmsx
 
 #endif

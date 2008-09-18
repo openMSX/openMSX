@@ -46,7 +46,6 @@ private:
 	const std::string name;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, JoyTap, "JoyTap");
 REGISTER_BASE_NAME_HELPER(JoyTap, "JoyTap");
 
 } // namespace openmsx

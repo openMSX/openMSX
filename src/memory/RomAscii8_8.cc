@@ -98,5 +98,6 @@ void RomAscii8_8::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sramBlock", sramBlock);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii8_8);
+REGISTER_MSXDEVICE(RomAscii8_8, "RomAscii8_8");
 
 } // namespace openmsx

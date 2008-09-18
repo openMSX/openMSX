@@ -47,8 +47,6 @@ private:
 	bool mouseMode;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Mouse, "Mouse");
-
 } // namespace openmsx
 
 #endif

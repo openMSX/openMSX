@@ -22,8 +22,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 };
 
-REGISTER_MSXDEVICE(NationalFDC, "NationalFDC");
-
 } // namespace openmsx
 
 #endif

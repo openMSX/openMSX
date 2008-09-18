@@ -122,5 +122,6 @@ void RomKonamiSCC::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sccEnabled", sccEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomKonamiSCC);
+REGISTER_MSXDEVICE(RomKonamiSCC, "RomKonamiSCC");
 
 } // namespace openmsx

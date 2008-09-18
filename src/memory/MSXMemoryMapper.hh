@@ -42,7 +42,6 @@ private:
 	MSXMapperIO& mapperIO;
 };
 
-REGISTER_MSXDEVICE(MSXMemoryMapper, "MemoryMapper");
 REGISTER_BASE_NAME_HELPER(MSXMemoryMapper, "MemoryMapper");
 
 } // namespace openmsx

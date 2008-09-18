@@ -195,6 +195,7 @@ void MidiInWindows::serialize(Archive& /*ar*/, unsigned /*version*/)
 	// don't restore this after loadstate
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiInWindows);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInWindows, "MidiInWindows");
 
 } // namespace openmsx
 

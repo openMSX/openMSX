@@ -122,5 +122,6 @@ void RomNational::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("bankSelect", bankSelect);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomNational);
+REGISTER_MSXDEVICE(RomNational, "RomNational");
 
 } // namespace openmsx

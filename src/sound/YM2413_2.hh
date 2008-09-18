@@ -30,7 +30,6 @@ public:
 private:
 	const std::auto_ptr<Global> global;
 };
-REGISTER_POLYMORPHIC_INITIALIZER(YM2413Interface, YM2413_2, "YM2413-Jarek-Burczynski");
 
 } // namespace openmsx
 

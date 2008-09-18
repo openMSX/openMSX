@@ -72,8 +72,6 @@ private:
 	std::string desc;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInWindows, "MidiInWindows");
-
 } // namespace openmsx
 
 #endif // defined(_WIN32)

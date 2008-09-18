@@ -25,8 +25,6 @@ private:
 	byte pointer;
 };
 
-REGISTER_MSXDEVICE(PasswordCart, "PasswordCart");
-
 } // namespace
 
 #endif

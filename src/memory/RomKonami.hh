@@ -22,7 +22,6 @@ public:
 };
 
 REGISTER_BASE_CLASS(RomKonami, "RomKonami");
-REGISTER_MSXDEVICE(RomKonami, "RomKonami");
 
 } // namespace openmsx
 

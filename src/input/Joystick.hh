@@ -58,8 +58,6 @@ private:
 	byte status;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Joystick, "Joystick");
-
 } // namespace openmsx
 
 #endif

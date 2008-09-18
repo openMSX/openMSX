@@ -23,8 +23,6 @@ private:
 	const unsigned baseAddr;
 };
 
-REGISTER_MSXDEVICE(RomDRAM, "RomDRAM");
-
 } // namespace openmsx
 
 #endif

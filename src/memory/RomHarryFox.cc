@@ -48,4 +48,6 @@ byte* RomHarryFox::getWriteCacheLine(word address) const
 	}
 }
 
+REGISTER_MSXDEVICE(RomHarryFox, "RomHarryFox");
+
 } // namespace openmsx

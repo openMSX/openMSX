@@ -106,5 +106,6 @@ void MSXPrinterPort::serialize(Archive& ar, unsigned /*version*/)
 	// TODO force writing data to port??
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXPrinterPort);
+REGISTER_MSXDEVICE(MSXPrinterPort, "PrinterPort");
 
 } // namespace openmsx

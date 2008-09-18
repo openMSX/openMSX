@@ -40,5 +40,6 @@ void PanasonicRam::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXMemoryMapper>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(PanasonicRam);
+REGISTER_MSXDEVICE(PanasonicRam, "PanasonicRam");
 
 } // namespace openmsx

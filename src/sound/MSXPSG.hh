@@ -45,8 +45,6 @@ private:
 	const bool keyLayoutBit;
 };
 
-REGISTER_MSXDEVICE(MSXPSG, "PSG");
-
 } // namespace openmsx
 
 #endif

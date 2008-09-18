@@ -42,8 +42,6 @@ private:
 	bool hwMute;
 };
 
-REGISTER_MSXDEVICE(MSXTurboRPCM, "TurboR-PCM");
-
 } // namespace openmsx
 
 #endif

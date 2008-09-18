@@ -193,8 +193,6 @@ private:
 	virtual void processCharacter(byte data);
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterMSX, "ImagePrinterMSX");
-
 // emulated Epson printer
 class ImagePrinterEpson : public ImagePrinter
 {
@@ -217,8 +215,6 @@ private:
 	virtual void processEscSequence();
 	virtual void processCharacter(byte data);
 };
-
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterEpson, "ImagePrinterEpson");
 
 } // namespace openmsx
 

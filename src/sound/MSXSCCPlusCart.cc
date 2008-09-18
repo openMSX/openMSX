@@ -311,5 +311,6 @@ void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXSCCPlusCart);
+REGISTER_MSXDEVICE(MSXSCCPlusCart, "SCCPlus");
 
 } // namespace openmsx

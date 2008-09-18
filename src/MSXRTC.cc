@@ -60,6 +60,7 @@ void MSXRTC::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("registerLatch", registerLatch);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXRTC);
+REGISTER_MSXDEVICE(MSXRTC, "RTC");
 
 } // namespace openmsx
 

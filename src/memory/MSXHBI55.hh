@@ -54,8 +54,6 @@ private:
 	byte mode;
 };
 
-REGISTER_MSXDEVICE(MSXHBI55, "MSXHBI55");
-
 } // namespace openmsx
 
 #endif

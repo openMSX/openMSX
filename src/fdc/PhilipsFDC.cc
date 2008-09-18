@@ -198,5 +198,6 @@ void PhilipsFDC::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("driveReg", driveReg);
 }
 INSTANTIATE_SERIALIZE_METHODS(PhilipsFDC);
+REGISTER_MSXDEVICE(PhilipsFDC, "PhilipsFDC");
 
 } // namespace openmsx

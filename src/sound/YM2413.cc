@@ -1665,5 +1665,6 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	global->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2413);
+REGISTER_POLYMORPHIC_INITIALIZER(YM2413Interface, YM2413, "YM2413-Okazaki");
 
 } // namespace openmsx

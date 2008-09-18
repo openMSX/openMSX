@@ -18,8 +18,6 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 };
 
-REGISTER_MSXDEVICE(RomGeneric16kB, "RomGeneric16kB");
-
 } // namespace openmsx
 
 #endif

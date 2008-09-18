@@ -30,8 +30,6 @@ private:
 	const std::auto_ptr<SamplePlayer> samplePlayer;
 };
 
-REGISTER_MSXDEVICE(RomPlayBall, "RomPlayBall");
-
 } // namespace openmsx
 
 #endif

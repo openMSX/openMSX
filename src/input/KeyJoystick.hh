@@ -54,8 +54,6 @@ private:
 	byte status;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, KeyJoystick, "KeyJoystick");
-
 } // namespace openmsx
 
 #endif

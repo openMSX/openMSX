@@ -27,8 +27,6 @@ private:
 	const std::auto_ptr<VLM5030> vlm5030;
 };
 
-REGISTER_MSXDEVICE(RomKonamiKeyboardMaster, "RomKonamiKeyboardMaster");
-
 } // namespace openmsx
 
 #endif

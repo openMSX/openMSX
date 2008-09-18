@@ -25,8 +25,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MagicKey, "MagicKey");
-
 } // namespace openmsx
 
 #endif

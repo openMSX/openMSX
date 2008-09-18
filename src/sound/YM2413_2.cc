@@ -1715,5 +1715,6 @@ void YM2413_2::serialize(Archive& ar, unsigned version)
 	global->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2413_2);
+REGISTER_POLYMORPHIC_INITIALIZER(YM2413Interface, YM2413_2, "YM2413-Jarek-Burczynski");
 
 } // namespace openmsx

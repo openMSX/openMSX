@@ -28,8 +28,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, DummySCSIDevice, "DummySCSIDevice");
-
 } // namespace openmsx
 
 #endif

@@ -439,5 +439,6 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("mediaChanged", mediaChanged);
 }
 INSTANTIATE_SERIALIZE_METHODS(IDECDROM);
+REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, IDECDROM, "IDECDROM");
 
 } // namespace openmsx

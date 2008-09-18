@@ -33,8 +33,6 @@ private:
 	const std::auto_ptr<CheckedRam> checkedRam;
 };
 
-REGISTER_MSXDEVICE(MSXRam, "Ram");
-
 } // namespace openmsx
 
 #endif

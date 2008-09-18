@@ -18,8 +18,6 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 };
 
-REGISTER_MSXDEVICE(RomHolyQuran, "RomHolyQuran");
-
 } // namespace openmsx
 
 #endif

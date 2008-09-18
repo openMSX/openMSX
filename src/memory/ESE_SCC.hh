@@ -45,8 +45,6 @@ private:
 	bool writeEnable;
 };
 
-REGISTER_MSXDEVICE(ESE_SCC, "ESE_SCC");
-
 } // namespace openmsx
 
 #endif

@@ -31,8 +31,6 @@ private:
 	byte status;
 };
 
-REGISTER_MSXDEVICE(MSXF4Device, "F4Device");
-
 } // namespace openmsx
 
 #endif

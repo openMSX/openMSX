@@ -36,8 +36,6 @@ private:
 	int registerLatch;
 };
 
-REGISTER_MSXDEVICE(MSXMusic, "MSX-Music");
-
 } // namespace openmsx
 
 #endif

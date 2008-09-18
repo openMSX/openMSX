@@ -20,8 +20,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 };
 
-REGISTER_MSXDEVICE(MicrosolFDC, "MicrosolFDC");
-
 } // namespace openmsx
 
 #endif

@@ -44,5 +44,6 @@ void MSXF4Device::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("status", status);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXF4Device);
+REGISTER_MSXDEVICE(MSXF4Device, "F4Device");
 
 } // namespace openmsx

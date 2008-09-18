@@ -58,5 +58,6 @@ void RomKonami::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomKonami);
+REGISTER_MSXDEVICE(RomKonami, "RomKonami");
 
 } // namespace openmsx

@@ -118,5 +118,6 @@ void MSXPac::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXPac);
+REGISTER_MSXDEVICE(MSXPac, "PAC");
 
 } // namespace openmsx

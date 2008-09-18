@@ -29,8 +29,6 @@ private:
 	unsigned adr1, adr2;
 };
 
-REGISTER_MSXDEVICE(MSXKanji, "Kanji");
-
 } // namespace openmsx
 
 #endif

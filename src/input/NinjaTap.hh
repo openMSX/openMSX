@@ -29,8 +29,6 @@ private:
 	byte buf[4];
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, NinjaTap, "NinjaTap");
-
 } // namespace openmsx
 
 #endif

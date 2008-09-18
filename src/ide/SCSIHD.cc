@@ -616,5 +616,6 @@ void SCSIHD::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSIHD);
+REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSIHD, "SCSIHD");
 
 } // namespace openmsx

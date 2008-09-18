@@ -437,6 +437,7 @@ void MSXRS232::serialize(Archive& ar, unsigned /*version*/)
 	// don't serialize cntr0, cntr1, interf
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXRS232);
+REGISTER_MSXDEVICE(MSXRS232, "RS232");
 
 } // namespace openmsx
 

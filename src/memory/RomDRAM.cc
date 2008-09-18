@@ -37,4 +37,6 @@ const byte* RomDRAM::getReadCacheLine(word address) const
 	return &panasonicMemory.getRomBlock(addr >> 13)[addr & 0x1FFF];
 }
 
+REGISTER_MSXDEVICE(RomDRAM, "RomDRAM");
+
 } // namespace openmsx

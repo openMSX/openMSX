@@ -89,5 +89,6 @@ void MSXS1985::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("pattern", pattern);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXS1985);
+REGISTER_MSXDEVICE(MSXS1985, "S1985");
 
 } // namespace openmsx

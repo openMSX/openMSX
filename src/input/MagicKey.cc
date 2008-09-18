@@ -44,5 +44,6 @@ void MagicKey::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 }
 INSTANTIATE_SERIALIZE_METHODS(MagicKey);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MagicKey, "MagicKey");
 
 } // namespace openmsx

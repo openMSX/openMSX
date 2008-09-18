@@ -78,8 +78,6 @@ private:
 	nibble selectedRow;
 };
 
-REGISTER_MSXDEVICE(MSXPPI, "PPI");
-
 } // namespace openmsx
 
 #endif

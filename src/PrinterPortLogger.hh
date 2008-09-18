@@ -40,8 +40,6 @@ private:
 	bool prevStrobe;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, PrinterPortLogger, "PrinterPortLogger");
-
 } // namespace openmsx
 
 #endif

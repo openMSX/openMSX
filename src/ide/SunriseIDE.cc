@@ -224,5 +224,6 @@ void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SunriseIDE);
+REGISTER_MSXDEVICE(SunriseIDE, "SunriseIDE");
 
 } // namespace openmsx

@@ -130,5 +130,6 @@ void IDEHD::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("transferSectorNumber", transferSectorNumber);
 }
 INSTANTIATE_SERIALIZE_METHODS(IDEHD);
+REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, IDEHD, "IDEHD");
 
 } // namespace openmsx

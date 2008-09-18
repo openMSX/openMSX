@@ -31,8 +31,6 @@ private:
 	bool sccEnabled;
 };
 
-REGISTER_MSXDEVICE(RomKonamiSCC, "RomKonamiSCC");
-
 } // namespace openmsx
 
 #endif

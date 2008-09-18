@@ -33,8 +33,6 @@ private:
 	const std::auto_ptr<WD33C93> wd33c93;
 };
 
-REGISTER_MSXDEVICE(GoudaSCSI, "GoudaSCSI");
-
 } // namespace openmsx
 
 #endif

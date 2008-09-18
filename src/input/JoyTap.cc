@@ -67,5 +67,6 @@ void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(JoyTap);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, JoyTap, "JoyTap");
 
 } // namespace openmsx

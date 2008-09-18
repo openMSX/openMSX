@@ -63,8 +63,6 @@ private:
 	const std::auto_ptr<FilenameSetting> rs232OutputFilenameSetting;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, RS232Tester, "RS232Tester");
-
 } // namespace openmsx
 
 #endif

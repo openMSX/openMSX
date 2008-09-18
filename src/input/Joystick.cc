@@ -215,5 +215,6 @@ void Joystick::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Joystick);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Joystick, "Joystick");
 
 } // namespace openmsx

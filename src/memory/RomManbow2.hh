@@ -38,8 +38,6 @@ private:
 	bool sccEnabled;
 };
 
-REGISTER_MSXDEVICE(RomManbow2, "RomManbow2");
-
 } // namespace openmsx
 
 #endif

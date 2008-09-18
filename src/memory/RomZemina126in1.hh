@@ -18,8 +18,6 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 };
 
-REGISTER_MSXDEVICE(RomZemina126in1, "RomZemina126in1");
-
 } // namespace openmsx
 
 #endif

@@ -43,8 +43,6 @@ private:
 	friend class S1990Debuggable;
 };
 
-REGISTER_MSXDEVICE(MSXS1990, "S1990");
-
 } // namespace openmsx
 
 #endif

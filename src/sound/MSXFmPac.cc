@@ -170,5 +170,6 @@ void MSXFmPac::serialize(Archive& ar, unsigned version)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXFmPac);
+REGISTER_MSXDEVICE(MSXFmPac, "FM-PAC");
 
 } // namespace openmsx

@@ -158,5 +158,6 @@ void MSXTurboRPCM::serialize(Archive& ar, unsigned /*version*/)
 	hardwareMute(!(status & 0x02));  // restore hwMute
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXTurboRPCM);
+REGISTER_MSXDEVICE(MSXTurboRPCM, "TurboR-PCM");
 
 } // namespace openmsx

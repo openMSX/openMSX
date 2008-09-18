@@ -37,8 +37,6 @@ private:
 	byte pattern;
 };
 
-REGISTER_MSXDEVICE(MSXMatsushita, "Matsushita");
-
 } // namespace openmsx
 
 #endif

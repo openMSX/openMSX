@@ -47,8 +47,6 @@ private:
 	/*const*/ bool lowRAM, highRAM;
 };
 
-REGISTER_MSXDEVICE(MSXSCCPlusCart, "SCCPlus");
-
 } // namespace openmsx
 
 #endif

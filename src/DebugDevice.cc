@@ -178,5 +178,6 @@ void DebugDevice::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("modeParameter", modeParameter);
 }
 INSTANTIATE_SERIALIZE_METHODS(DebugDevice);
+REGISTER_MSXDEVICE(DebugDevice, "DebugDevice");
 
 } // namespace openmsx

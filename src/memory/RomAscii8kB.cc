@@ -52,4 +52,6 @@ byte* RomAscii8kB::getWriteCacheLine(word address) const
 	}
 }
 
+REGISTER_MSXDEVICE(RomAscii8kB, "RomAscii8kB");
+
 } // namespace openmsx

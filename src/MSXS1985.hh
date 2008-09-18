@@ -45,8 +45,6 @@ private:
 	byte pattern;
 };
 
-REGISTER_MSXDEVICE(MSXS1985, "S1985");
-
 } // namespace openmsx
 
 #endif

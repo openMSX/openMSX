@@ -97,5 +97,6 @@ void RomAscii16_2::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sramEnabled", sramEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii16_2);
+REGISTER_MSXDEVICE(RomAscii16_2, "RomAscii16_2");
 
 } // namespace openmsx

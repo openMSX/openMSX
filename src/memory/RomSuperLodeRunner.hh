@@ -18,8 +18,6 @@ public:
 	virtual void globalWrite(word address, byte value, const EmuTime& time);
 };
 
-REGISTER_MSXDEVICE(RomSuperLodeRunner, "RomSuperLodeRunner");
-
 } // namespace openmsx
 
 #endif

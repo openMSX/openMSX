@@ -66,4 +66,6 @@ byte* RomCrossBlaim::getWriteCacheLine(word /*address*/) const
 	return NULL;
 }
 
+REGISTER_MSXDEVICE(RomCrossBlaim, "RomCrossBlaim");
+
 } // namespace openmsx

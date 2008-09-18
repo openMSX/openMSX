@@ -81,8 +81,6 @@ private:
 	bool running, output, zombie;
 };
 
-REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, CassetteJack, "CassetteJack");
-
 } // namespace openmsx
 
 #endif

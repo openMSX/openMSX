@@ -30,8 +30,6 @@ private:
 	bool redirectToSamplePlayer[4];
 };
 
-REGISTER_MSXDEVICE(RomNettouYakyuu, "RomNettouYakyuu");
-
 } // namespace openmsx
 
 #endif

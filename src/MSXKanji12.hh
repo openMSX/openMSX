@@ -33,8 +33,6 @@ private:
 	unsigned address;
 };
 
-REGISTER_MSXDEVICE(MSXKanji12, "Kanji12");
-
 } // namespace openmsx
 
 #endif

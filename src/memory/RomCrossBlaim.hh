@@ -18,8 +18,6 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 };
 
-REGISTER_MSXDEVICE(RomCrossBlaim, "RomCrossBlaim");
-
 } // namespace openmsx
 
 #endif

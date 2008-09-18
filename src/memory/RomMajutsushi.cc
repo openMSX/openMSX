@@ -52,5 +52,6 @@ void RomMajutsushi::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("DAC", *dac);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomMajutsushi);
+REGISTER_MSXDEVICE(RomMajutsushi, "RomMajutsushi");
 
 } // namespace openmsx

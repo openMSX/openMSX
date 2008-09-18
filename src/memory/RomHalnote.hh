@@ -29,8 +29,6 @@ private:
 	bool subMapperEnabled;
 };
 
-REGISTER_MSXDEVICE(RomHalnote, "RomHalnote");
-
 } // namespace openmsx
 
 #endif
