@@ -34,13 +34,12 @@ public:
 	                    const std::string& value);
 
 private:
-	void update(UpdateType type, const std::string& machine,
-	            const std::string& name, const std::string& value);
+	void updateHelper(UpdateType type, const std::string& machine,
+	                  const std::string& name, const std::string& value);
 
 	const std::auto_ptr<UpdateCmd> updateCmd;
 
-	std::map<std::string, std::map<std::string, std::string> >
-		prevValues[NUM_UPDATES];
+	std::map<std::string, std::string> prevValues[NUM_UPDATES];
 
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;

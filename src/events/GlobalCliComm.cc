@@ -127,22 +127,22 @@ void GlobalCliComm::log(LogLevel level, const string& message)
 void GlobalCliComm::update(UpdateType type, const string& name,
                            const string& value)
 {
-	update(type, "", name, value);
-}
-
-void GlobalCliComm::update(UpdateType type, const string& machine,
-                           const string& name, const string& value)
-{
 	assert(type < NUM_UPDATES);
-	map<string, string>::iterator it = prevValues[type][machine].find(name);
-	if (it != prevValues[type][machine].end()) {
+	map<string, string>::iterator it = prevValues[type].find(name);
+	if (it != prevValues[type].end()) {
 		if (it->second == value) {
 			return;
 		}
 		it->second = value;
 	} else {
-		prevValues[type][machine][name] = value;
+		prevValues[type][name] = value;
 	}
+	updateHelper(type, "", name, value);
+}
+
+void GlobalCliComm::updateHelper(UpdateType type, const string& machine,
+                                 const string& name, const string& value)
+{
 	ScopedLock lock(sem);
 	if (!connections.empty()) {
 		string str = string("<update type=\"") + updateStr[type] + '\"';
