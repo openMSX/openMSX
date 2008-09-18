@@ -88,3 +88,8 @@ Delete a previously created savestate.
 See also 'savestate', 'loadstate', 'list_savestates'.
 }
 set_tabcompletion_proc delete_savestate __savestate_tab
+
+
+# keybindings
+bind_default ALT+F8 savestate
+bind_default ALT+F7 loadstate
