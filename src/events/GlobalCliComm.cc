@@ -48,8 +48,6 @@ GlobalCliComm::GlobalCliComm(GlobalCommandController& commandController_,
 	, xmlOutput(false)
 {
 	commandController.setCliComm(this);
-
-	eventDistributor.registerEventListener(OPENMSX_LED_EVENT, *this);
 }
 
 GlobalCliComm::~GlobalCliComm()
@@ -59,8 +57,6 @@ GlobalCliComm::~GlobalCliComm()
 	     it != connections.end(); ++it) {
 		delete *it;
 	}
-
-	eventDistributor.unregisterEventListener(OPENMSX_LED_EVENT, *this);
 
 	commandController.setCliComm(0);
 }
@@ -165,19 +161,6 @@ void GlobalCliComm::update(UpdateType type, const string& machine,
 			}
 		}
 	}
-}
-
-bool GlobalCliComm::signalEvent(shared_ptr<const Event> event)
-{
-	static const string ON = "on";
-	static const string OFF = "off";
-
-	assert(event->getType() == OPENMSX_LED_EVENT);
-	const LedEvent& ledEvent = static_cast<const LedEvent&>(*event);
-	update(LED, ledEvent.getMachine(),
-	       LedEvent::getLedName(ledEvent.getLed()),
-	       ledEvent.getStatus() ? ON : OFF);
-	return true;
 }
 
 

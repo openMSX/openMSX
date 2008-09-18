@@ -4,7 +4,6 @@
 #define GLOBALCLICOMM_HH
 
 #include "CliComm.hh"
-#include "EventListener.hh"
 #include "Semaphore.hh"
 #include "noncopyable.hh"
 #include <map>
@@ -19,7 +18,7 @@ class GlobalCommandController;
 class CliConnection;
 class UpdateCmd;
 
-class GlobalCliComm : public CliComm, private EventListener, private noncopyable
+class GlobalCliComm : public CliComm, private noncopyable
 {
 public:
 	GlobalCliComm(GlobalCommandController& commandController,
@@ -37,9 +36,6 @@ public:
 private:
 	void update(UpdateType type, const std::string& machine,
 	            const std::string& name, const std::string& value);
-
-	// EventListener
-	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	const std::auto_ptr<UpdateCmd> updateCmd;
 

@@ -3,6 +3,7 @@
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"
+#include "CliComm.hh"
 #include "BooleanSetting.hh"
 #include "ReadOnlySetting.hh"
 
@@ -32,6 +33,12 @@ void LedStatus::setLed(LedEvent::Led led, bool status)
 
 	motherBoard.getEventDistributor().distributeEvent(
 		new LedEvent(led, status, motherBoard));
+
+	static const std::string ON  = "on";
+	static const std::string OFF = "off";
+	motherBoard.getMSXCliComm().update(
+		CliComm::LED, LedEvent::getLedName(led),
+		status ? ON : OFF);
 }
 
 } // namespace openmsx
