@@ -28,7 +28,7 @@ public:
 
 	/**
 	 * Create file object and open underlying file.
-	 * @param url Full URL or relative path of the file
+	 * @param filename Name of the file to be opened.
 	 *   that will be represented by this file object.
 	 * @param mode Mode to open the file in:
 	 * @throws FileException
