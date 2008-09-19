@@ -13,6 +13,7 @@ proc savestate { {name ""} } {
 	__savestate_common $name
 	catch { screenshot $png }
 	set currentID [machine]
+	file mkdir $directory
 	store_machine $currentID $fullname
 	return $name
 }
