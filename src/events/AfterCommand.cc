@@ -300,7 +300,7 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 string AfterCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "after time     <seconds> <command>  execute a command after some time (MSX time)\n"
-	return "after realtime <seconds> <command>  execute a command after some time (realtime)\n"
+	       "after realtime <seconds> <command>  execute a command after some time (realtime)\n"
 	       "after idle     <seconds> <command>  execute a command after some time being idle\n"
 	       "after frame <command>               execute a command after a new frame is drawn\n"
 	       "after break <command>               execute a command after a breakpoint is reached\n"
