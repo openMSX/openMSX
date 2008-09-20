@@ -31,9 +31,11 @@ public:
 
 private:
 	std::string afterTime(const std::vector<std::string>& tokens);
+	std::string afterRealTime(const std::vector<std::string>& tokens);
 	std::string afterIdle(const std::vector<std::string>& tokens);
 	std::string afterInfo(const std::vector<std::string>& tokens);
 	std::string afterCancel(const std::vector<std::string>& tokens);
+	void executeRealTime();
 
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);

@@ -51,7 +51,7 @@ proc __redraw_osd_leds { led } {
 		if {$diff < $__ledtime} {
 			# no fading yet
 			osd configure $widget -alpha 255 -fadeTarget 255
-			after time [expr $__ledtime - $diff] "__redraw_osd_leds $led"
+			after realtime [expr $__ledtime - $diff] "__redraw_osd_leds $led"
 		} else {
 			# fading out
 			osd configure $widget -fadeTarget 0
