@@ -1,5 +1,10 @@
 $Id$
 
+2008-09-21 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Brazillian OPL3Cartridge (MoonSound without wavetable).
+	  Still mostly untested, although MSX-Audio games (e.g. from Compile)
+	  seem to work with it. See RFE tracker item 1815450.
+
 2008-08-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'probe' debug infrastructure:
 	   see 'help debug probe' or (doc/manual/command.html)
