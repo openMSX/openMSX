@@ -92,6 +92,7 @@ public:
 	AfterRealTimeCmd(AfterCommand& afterCommand,
 	                 EventDistributor& eventDistributor,
 	                 const std::string& command, double time);
+	~AfterRealTimeCmd();
 	virtual const std::string& getType() const;
 	bool hasExpired() const;
 
@@ -531,6 +532,12 @@ AfterRealTimeCmd::AfterRealTimeCmd(
 	, expired(false)
 {
 	schedule(unsigned(time * 1000000)); // micro seconds
+}
+
+AfterRealTimeCmd::~AfterRealTimeCmd()
+{
+	// needed when openmsx is quit with pending realtime after commands
+	cancel();
 }
 
 const std::string& AfterRealTimeCmd::getType() const
