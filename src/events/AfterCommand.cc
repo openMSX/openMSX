@@ -530,7 +530,7 @@ AfterRealTimeCmd::AfterRealTimeCmd(
 	, eventDistributor(eventDistributor_)
 	, expired(false)
 {
-	schedule(time * 1000000); // micro seconds
+	schedule(unsigned(time * 1000000)); // micro seconds
 }
 
 const std::string& AfterRealTimeCmd::getType() const
