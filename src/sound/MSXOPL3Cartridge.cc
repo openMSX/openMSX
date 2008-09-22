@@ -2,7 +2,6 @@
 
 #include "MSXOPL3Cartridge.hh"
 #include "YMF262.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -12,7 +11,6 @@ MSXOPL3Cartridge::MSXOPL3Cartridge(MSXMotherBoard& motherBoard,
                            const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, ymf262(new YMF262(motherBoard, getName(), config))
-
 {
 	reset(getCurrentTime());
 }
@@ -29,7 +27,7 @@ void MSXOPL3Cartridge::reset(const EmuTime& time)
 	opl3latch = 0;
 }
 
-byte MSXOPL3Cartridge::readIO(word port, const EmuTime& time)
+byte MSXOPL3Cartridge::readIO(word port, const EmuTime& /*time*/)
 {
 	byte result;
 	// FM part  0xC4-0xC7 (in MoonSound)
@@ -49,7 +47,7 @@ byte MSXOPL3Cartridge::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte MSXOPL3Cartridge::peekIO(word port, const EmuTime& time) const
+byte MSXOPL3Cartridge::peekIO(word port, const EmuTime& /*time*/) const
 {
 	byte result;
 	switch (port & 0x03) {
@@ -83,7 +81,7 @@ void MSXOPL3Cartridge::writeIO(word port, byte value, const EmuTime& time)
 			break;
 		default:
 			assert(false);
-		}
+	}
 }
 
 template<typename Archive>
