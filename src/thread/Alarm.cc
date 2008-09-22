@@ -1,86 +1,214 @@
 // $Id$
 
 #include "Alarm.hh"
-#include <SDL.h>
+#include "Timer.hh"
+#include "Semaphore.hh"
+#include "MSXException.hh"
+#include <algorithm>
+#include <vector>
 #include <cassert>
-
-namespace openmsx {
+#include <limits>
+#include <SDL.h>
 
 /**
  * The SDL Timer mechanism is not thread safe. (Shortly) after
  * SDL_RemoveTimer() has been called it's still possible that the timer
  * callback is being executed.
  *
- * The most likely scenario of this problem is when the callback is being
- * executed in the timer thread while another thread executes the
- * Alarm::cancel() method. Even after cancel() returns the timer thread will
- * still be executing the callback. Ideally cancel() only returns when the
- * callback is finished.
+ *    http://listas.apesol.org/pipermail/sdl-libsdl.org/2005-May/050136.html
  *
- * The code below tries to minimize the chance that this race occures, but
- * AFAICS, without a better SDL implementation, it's not possible to completely
- * eliminate it. So, to be safe write code so that callback can be called even
- * after it has been canceled. A problem that is more difficult to solve is
- * deletion of an Alarm object, so try to reuse Alarm objects as much as
- * possible.
+ * To work around this problem we only use one SDL-timer, and make the code
+ * robust against spurious timer callback invocations.
+ *
+ * There is still one possible problem, when AlarmManager gets deleted (openmsx
+ * is quit) and we still get a spurious timer callback. But to minimize the
+ * chance of this causeing problems, we use a global boolean 'enabled' (see
+ * code for details).
+ *
+ * The code is not optimized for speed, but ATM there are also very few timers
+ * needed at the same time, so this shouldn't be a problem.
  */
 
-Alarm::Alarm()
+namespace openmsx {
+
+class AlarmManager
+{
+public:
+	static AlarmManager& instance();
+	void registerAlarm(Alarm& alarm);
+	void unregisterAlarm(Alarm& alarm);
+	void start(Alarm& alarm, unsigned newPeriod);
+	void stop(Alarm& alarm);
+
+private:
+	AlarmManager();
+	~AlarmManager();
+
+	static unsigned timerCallback(unsigned interval, void* param);
+	unsigned timerCallback2();
+
+	typedef std::vector<Alarm*> Alarms;
+	Alarms alarms;
+	long long time;
+	SDL_TimerID id;
+	Semaphore sem;
+	static volatile bool enabled;
+};
+
+
+// to minimize (or fix completely?) the race condition on exit
+volatile bool AlarmManager::enabled = false;
+
+AlarmManager::AlarmManager()
 	: id(NULL), sem(1)
 {
+	if (SDL_Init(SDL_INIT_TIMER) < 0) {
+		throw FatalError(
+			std::string("Couldn't initialize SDL timer subsystem") +
+			SDL_GetError());
+	}
+	enabled = true;
+}
+
+AlarmManager::~AlarmManager()
+{
+	assert(alarms.empty());
+	enabled = false;
+	if (id) {
+		SDL_RemoveTimer(id);
+	}
+}
+
+AlarmManager& AlarmManager::instance()
+{
+	static AlarmManager oneInstance;
+	return oneInstance;
+}
+
+void AlarmManager::registerAlarm(Alarm& alarm)
+{
+	assert(find(alarms.begin(), alarms.end(), &alarm) == alarms.end());
+	alarms.push_back(&alarm);
+}
+
+void AlarmManager::unregisterAlarm(Alarm& alarm)
+{
+	Alarms::iterator it = find(alarms.begin(), alarms.end(), &alarm);
+	assert(it != alarms.end());
+	alarms.erase(it);
+}
+
+static unsigned convert(unsigned period)
+{
+	return std::max(1u, period / 1000);
+}
+
+void AlarmManager::start(Alarm& alarm, unsigned period)
+{
+	ScopedLock lock(sem);
+	alarm.period = period;
+	alarm.time = Timer::getTime() + period;
+	alarm.active = true;
+
+	if (id) {
+		// there already is a timer
+		if (time <= alarm.time) {
+			// but we already have an earlier timer, do nothing
+		} else {
+			// new timer is earlier
+			time = alarm.time;
+			SDL_RemoveTimer(id);
+			id = SDL_AddTimer(convert(period), timerCallback, this);
+		}
+	} else {
+		// no timer yet
+		time = alarm.time;
+		id = SDL_AddTimer(convert(period), timerCallback, this);
+	}
+}
+
+void AlarmManager::stop(Alarm& alarm)
+{
+	ScopedLock lock(sem);
+	alarm.active = false;
+	// no need to remove timer, we can handle spurious callbacks
+	// maybe in the future as an optimization
+}
+
+unsigned AlarmManager::timerCallback(unsigned interval, void* param)
+{
+	// note: runs in a different thread!
+	if (!enabled) return 0;
+	AlarmManager* manager = static_cast<AlarmManager*>(param);
+	return manager->timerCallback2();
+}
+
+unsigned AlarmManager::timerCallback2()
+{
+	// note: runs in a different thread!
+	ScopedLock lock(sem);
+	
+	long long now = Timer::getTime();
+	long long earliest = std::numeric_limits<long long>::max();
+	for (Alarms::const_iterator it = alarms.begin();
+	     it != alarms.end(); ++it) {
+		Alarm& alarm = **it;
+		if (alarm.active) {
+			// timer active
+			long long left = alarm.time - now;
+			if (left <= 0) {
+				// timer expired
+				if (alarm.alarm()) {
+					// repeat
+					alarm.time += alarm.period;
+					left = alarm.time - now;
+					earliest = std::min(earliest, left);
+				} else {
+					alarm.active = false;
+				}
+			} else {
+				// timer active but not yet expired
+				earliest = std::min(earliest, left);
+			}
+		}
+	}
+	if (earliest != std::numeric_limits<long long>::max()) {
+		time = earliest + now;
+		return convert(earliest);
+	} else {
+		id = NULL;
+		return 0; // don't repeat
+	}
+}
+
+
+// class Alarm
+
+Alarm::Alarm()
+	: manager(AlarmManager::instance())
+	, active(false)
+{
+	manager.registerAlarm(*this);
 }
 
 Alarm::~Alarm()
 {
-	assert(!pending());
+	manager.unregisterAlarm(*this);
 }
 
-void Alarm::schedule(unsigned us)
+void Alarm::schedule(unsigned newPeriod)
 {
-	ScopedLock lock(sem);
-	do_cancel();
-	id = SDL_AddTimer(us / 1000, helper, this);
+	manager.start(*this, newPeriod);
 }
 
 void Alarm::cancel()
 {
-	ScopedLock lock(sem);
-	do_cancel();
-}
-
-void Alarm::do_cancel()
-{
-	if (id) {
-		SDL_RemoveTimer(static_cast<SDL_TimerID>(id));
-		id = 0;
-	}
+	manager.stop(*this);
 }
 
 bool Alarm::pending() const
 {
-	ScopedLock lock(sem);
-	return id;
-}
-
-unsigned Alarm::helper(unsigned interval, void* param)
-{
-	// At this position there is a race condition:
-	//   if the timer thread is suspended before the lock is taken and
-	//   another thread cancels and deletes this Alarm object, we have a
-	//   free memory read when the timer thread continues.
-	// TODO If the other thread just cancels the alarm there is no problem.
-	//      (Is this correct???) TODO adjust the documentation at the top
-
-	Alarm* alarm = static_cast<Alarm*>(param);
-	ScopedLock lock(alarm->sem);
-	if (alarm->id) {
-		if (alarm->alarm()) {
-			// reschedule alarm
-			return interval;
-		}
-		alarm->id = 0;
-	}
-	return 0; // cancel timer
+	return active;
 }
 
 } // namespace openmsx

@@ -31,7 +31,7 @@ namespace openmsx {
 
 static void initializeSDL()
 {
-	int flags = SDL_INIT_TIMER;
+	int flags = 0;
 #ifndef NDEBUG
 	flags |= SDL_INIT_NOPARACHUTE;
 #endif
