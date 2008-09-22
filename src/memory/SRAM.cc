@@ -19,7 +19,6 @@ class SRAMSync : public Alarm
 {
 public:
 	explicit SRAMSync(SRAM& sram);
-	~SRAMSync();
 private:
 	virtual bool alarm();
 	SRAM& sram;
@@ -142,11 +141,6 @@ void SRAM::save()
 SRAMSync::SRAMSync(SRAM& sram_)
 	: sram(sram_)
 {
-}
-
-SRAMSync::~SRAMSync()
-{
-	cancel(); // cancel pending alarm
 }
 
 bool SRAMSync::alarm()

@@ -118,7 +118,6 @@ Display::~Display()
 
 	resetVideoSystem();
 
-	alarm->cancel();
 	assert(listeners.empty());
 }
 
