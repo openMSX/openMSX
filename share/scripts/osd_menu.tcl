@@ -15,6 +15,22 @@ proc set_optional { array_name key value } {
 
 set menuinfos [list]
 
+proc pack_menu_info {} {
+	uplevel {list $name $menutexts $selectinfo $selectidx $scrollidx $on_close}
+}
+proc unpack_menu_info { data } {
+	set cmd [list foreach {name menutexts selectinfo selectidx scrollidx on_close} $data {}]
+	uplevel $cmd
+}
+proc set_selectidx { value } {
+	global menuinfos
+	lset menuinfos {end 3} $value
+}
+proc set_scrollidx { value } {
+	global menuinfos
+	lset menuinfos {end 4} $value
+}
+
 proc menu_create { menu_def_list } {
 	global menuinfos
 
@@ -29,6 +45,8 @@ proc menu_create { menu_def_list } {
 	set deffontsize  [get_optional menudef "font-size" 12]
 	set deffont      [get_optional menudef "font" "skins/Vera.ttf.gz"]
 	set bordersize   [get_optional menudef "border-size" 0]
+	set on_open      [get_optional menudef "on-open" ""]
+	set on_close     [get_optional menudef "on-close" ""]
 
 	osd create rectangle $name -scaled true -rgba $bgcolor -clip true
 	set y $bordersize
@@ -43,6 +61,8 @@ proc menu_create { menu_def_list } {
 		set font      [get_optional itemarr "font"       $deffont]
 		set textcolor [get_optional itemarr "text-color" $deftextcolor]
 		set actions   [get_optional itemarr "actions"    ""]
+		set on_select   [get_optional itemarr "on-select"   ""]
+		set on_deselect [get_optional itemarr "on-deselect" ""]
 		set textid "${name}.item${y}"
 		set text $itemarr(text)
 		lappend menutexts $textid $text
@@ -51,7 +71,7 @@ proc menu_create { menu_def_list } {
 		set selectable [get_optional itemarr "selectable" true]
 		if $selectable {
 			set allactions [join [list $defactions $actions]]
-			lappend selectinfo [list $y $fontsize $allactions]
+			lappend selectinfo [list $y $fontsize $allactions $on_select $on_deselect]
 		}
 		incr y $fontsize
 		incr y [get_optional itemarr "post-spacing" 0]
@@ -69,8 +89,10 @@ proc menu_create { menu_def_list } {
 
 	set selectidx 0
 	set scrollidx 0
-	set menuinfo [list $name $menutexts $selectinfo $selectidx $scrollidx]
-	lappend menuinfos $menuinfo
+	lappend menuinfos [pack_menu_info]
+
+	uplevel #0 $on_open
+	menu_on_select $selectinfo $selectidx
 
 	menu_refresh_top
 }
@@ -88,7 +110,7 @@ proc menu_refresh_all {} {
 }
 
 proc menu_refresh_helper { menuinfo } {
-	foreach {name menutexts selectinfo selectidx scrollidx} $menuinfo {}
+	unpack_menu_info $menuinfo
 
 	foreach { osdid text } $menutexts {
 		set cmd [list subst $text]
@@ -102,7 +124,9 @@ proc menu_refresh_helper { menuinfo } {
 
 proc menu_close_top {} {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	unpack_menu_info [lindex $menuinfos end]
+	menu_on_deselect $selectinfo $selectidx
+	uplevel #0 $on_close
 	osd destroy $name
 	set menuinfos [lreplace $menuinfos end end]
 	if {[llength $menuinfos] == 0} {
@@ -117,23 +141,28 @@ proc menu_close_all {} {
 	}
 }
 
-proc menu_up {} {
+proc menu_updown { delta } {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
-	set newidx [expr ($selectidx - 1) % [llength $selectinfo]]
-	lset menuinfos {end 3} $newidx
+	unpack_menu_info [lindex $menuinfos end]
+	menu_on_deselect $selectinfo $selectidx
+	set selectidx [expr ($selectidx + $delta) % [llength $selectinfo]]
+	set_selectidx $selectidx
+	menu_on_select $selectinfo $selectidx
 	menu_refresh_top
 }
-proc menu_down {} {
-	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
-	set newidx [expr ($selectidx + 1) % [llength $selectinfo]]
-	lset menuinfos {end 3} $newidx
-	menu_refresh_top
+proc menu_on_select { selectinfo selectidx } {
+	set on_select [lindex $selectinfo $selectidx 3]
+	uplevel #0 $on_select
 }
+proc menu_on_deselect { selectinfo selectidx } {
+	set on_deselect [lindex $selectinfo $selectidx 4]
+	uplevel #0 $on_deselect
+}
+proc menu_up {}   { menu_updown -1 }
+proc menu_down {} { menu_updown  1 }
 proc menu_action { button } {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	unpack_menu_info [lindex $menuinfos end]
 	array set actions [lindex $selectinfo $selectidx 2]
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
@@ -194,10 +223,12 @@ proc prepare_menu_list { lst num menu_def_list } {
 	array set menudef $menu_def_list
 	set execute $menudef(execute)
 	set header $menudef(header)
+	set item_extra  [get_optional menudef item ""]
+	set on_select   [get_optional menudef on-select ""]
+	set on_deselect [get_optional menudef on-deselect ""]
 	lappend header "selectable" "false"
 	set items [list $header]
 	for {set i 0} {$i < $num} {incr i} {
-		set item [lindex $lst $i]
 		set actions [list "A" "list_menu_item_exec $execute \{$lst\} $i"]
 		if {$i == 0} {
 			lappend actions "UP" "list_menu_item_up"
@@ -205,34 +236,46 @@ proc prepare_menu_list { lst num menu_def_list } {
 		if {$i == ($num - 1)} {
 			lappend actions "DOWN" "list_menu_item_down [llength $lst] $i"
 		}
-		lappend items [list "text" "\[list_menu_item_show \{$lst\} $i\]" \
-		                    "actions" $actions]
+		set item [list "text" "\[list_menu_item_show \{$lst\} $i\]" \
+		               "actions" $actions]
+		if {$on_select != ""} {
+			lappend item "on-select" "list_menu_item_select \{$lst\} $i $on_select"
+		}
+		if {$on_deselect != ""} {
+			lappend item "on-deselect" "list_menu_item_select \{$lst\} $i $on_deselect"
+		}
+		lappend items [join [list $item $item_extra]]
 	}
 	set menudef(items) $items
 	return [prepare_menu [array get menudef]]
 }
 proc list_menu_item_exec { execute lst pos } {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	unpack_menu_info [lindex $menuinfos end]
 	$execute [lindex $lst [expr $pos + $scrollidx]]
 }
 proc list_menu_item_show { lst pos } {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	unpack_menu_info [lindex $menuinfos end]
 	return [lindex $lst [expr $pos + $scrollidx]]
+}
+proc list_menu_item_select { lst pos select_proc } {
+	global menuinfos
+	unpack_menu_info [lindex $menuinfos end]
+	$select_proc [lindex $lst [expr $pos + $scrollidx]]
 }
 proc list_menu_item_up { } {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	unpack_menu_info [lindex $menuinfos end]
 	if {$scrollidx > 0} {incr scrollidx -1}
-	lset menuinfos {end 4} $scrollidx
+	set_scrollidx $scrollidx
 	menu_refresh_top
 }
 proc list_menu_item_down { size pos } {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	unpack_menu_info [lindex $menuinfos end]
 	if {($scrollidx + $pos + 1) < $size} {incr scrollidx}
-	lset menuinfos {end 4} $scrollidx
+	set_scrollidx $scrollidx
 	menu_refresh_top
 }
 
@@ -251,6 +294,8 @@ set main_menu [prepare_menu {
 	       { text "Load ROM..."
 	         actions { A { menu_create [create_ROM_list $::osd_menu_path] }}
 	         post-spacing 3 }
+	       { text "load state..."
+	         actions { A { menu_create [create_load_state] }}}
 	       { text "settings..."
 	         actions { A { menu_create $::setting_menu }}}
 	       { pre-spacing 6
@@ -341,6 +386,37 @@ proc my_selection_list_exec { item } {
 		__displayOSDText "Now running ROM: $item"
 		reset
 	}
+}
+
+proc create_load_state {} {
+	return [prepare_menu_list [list_savestates] 10 \
+	       { execute menu_loadstate_exec
+	         bg-color 0x00000080
+	         text-color 0xffffffff
+	         select-color 0x8080ffc0
+	         font-size 6
+	         border-size 2
+	         width 100
+	         xpos 100
+	         ypos 120
+	         on-open  {osd create rectangle "preview" -x 225 -y 5 -w 90 -h 70 -rgba 0x30303080 -scaled true}
+	         on-close {osd destroy "preview"}
+	         on-select   menu_loadstate_select
+	         on-deselect menu_loadstate_deselect
+	         header { text "loadstate"
+	                  text-color 0xff0000ff
+	                  font-size 10}}]
+}
+proc menu_loadstate_select { item } {
+	set png $::env(OPENMSX_USER_DATA)/../savestates/${item}.png
+	catch {osd create rectangle "preview.image" -relx 0.05 -rely 0.05 -w 80 -h 60 -image $png}
+}
+proc menu_loadstate_deselect { item } {
+	catch {osd destroy "preview.image"}
+}
+proc menu_loadstate_exec { item } {
+	menu_close_all
+	loadstate $item
 }
 
 bind_default "keyb MENU" main_menu_toggle
