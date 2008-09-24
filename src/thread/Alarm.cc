@@ -39,6 +39,7 @@ public:
 	void unregisterAlarm(Alarm& alarm);
 	void start(Alarm& alarm, unsigned newPeriod);
 	void stop(Alarm& alarm);
+	bool isPending(const Alarm& alarm);
 
 private:
 	AlarmManager();
@@ -114,7 +115,8 @@ void AlarmManager::start(Alarm& alarm, unsigned period)
 
 	if (id) {
 		// there already is a timer
-		if (time <= alarm.time) {
+		long long diff = time - alarm.time;
+		if (diff <= 0) {
 			// but we already have an earlier timer, do nothing
 		} else {
 			// new timer is earlier
@@ -135,6 +137,12 @@ void AlarmManager::stop(Alarm& alarm)
 	alarm.active = false;
 	// No need to remove timer, we can handle spurious callbacks.
 	// Maybe in the future remove it as an optimization?
+}
+
+bool AlarmManager::isPending(const Alarm& alarm)
+{
+	ScopedLock lock(sem);
+	return alarm.active;
 }
 
 unsigned AlarmManager::timerCallback(unsigned /*interval*/, void* param)
@@ -212,7 +220,7 @@ void Alarm::cancel()
 
 bool Alarm::pending() const
 {
-	return active;
+	return manager.isPending(*this);
 }
 
 } // namespace openmsx
