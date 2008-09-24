@@ -101,9 +101,9 @@ void AlarmManager::unregisterAlarm(Alarm& alarm)
 	alarms.erase(it);
 }
 
-static unsigned convert(unsigned period)
+static int convert(int period)
 {
-	return std::max(1u, period / 1000);
+	return std::max(1, period / 1000);
 }
 
 void AlarmManager::start(Alarm& alarm, unsigned period)
@@ -174,6 +174,9 @@ unsigned AlarmManager::timerCallback2()
 					// repeat
 					alarm.time += alarm.period;
 					left = alarm.time - now;
+					// 'left' can still be negative at this
+					// point, but that's ok .. convert()
+					// will return '1' in that case
 					earliest = std::min(earliest, left);
 				} else {
 					alarm.active = false;
@@ -186,8 +189,13 @@ unsigned AlarmManager::timerCallback2()
 	}
 	if (earliest != std::numeric_limits<long long>::max()) {
 		time = earliest + now;
+		assert(id != NULL);
 		return convert(earliest);
 	} else {
+		for (Alarms::const_iterator it = alarms.begin();
+		     it != alarms.end(); ++it) {
+			assert((*it)->active == false);
+		}
 		id = NULL;
 		return 0; // don't repeat
 	}
