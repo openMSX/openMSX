@@ -87,12 +87,14 @@ AlarmManager& AlarmManager::instance()
 
 void AlarmManager::registerAlarm(Alarm& alarm)
 {
+	ScopedLock lock(sem);
 	assert(find(alarms.begin(), alarms.end(), &alarm) == alarms.end());
 	alarms.push_back(&alarm);
 }
 
 void AlarmManager::unregisterAlarm(Alarm& alarm)
 {
+	ScopedLock lock(sem);
 	Alarms::iterator it = find(alarms.begin(), alarms.end(), &alarm);
 	assert(it != alarms.end());
 	alarms.erase(it);
@@ -116,8 +118,8 @@ void AlarmManager::start(Alarm& alarm, unsigned period)
 			// but we already have an earlier timer, do nothing
 		} else {
 			// new timer is earlier
-			time = alarm.time;
 			SDL_RemoveTimer(id);
+			time = alarm.time;
 			id = SDL_AddTimer(convert(period), timerCallback, this);
 		}
 	} else {
@@ -131,11 +133,11 @@ void AlarmManager::stop(Alarm& alarm)
 {
 	ScopedLock lock(sem);
 	alarm.active = false;
-	// no need to remove timer, we can handle spurious callbacks
-	// maybe in the future as an optimization
+	// No need to remove timer, we can handle spurious callbacks.
+	// Maybe in the future remove it as an optimization?
 }
 
-unsigned AlarmManager::timerCallback(unsigned interval, void* param)
+unsigned AlarmManager::timerCallback(unsigned /*interval*/, void* param)
 {
 	// note: runs in a different thread!
 	if (!enabled) return 0;
@@ -155,6 +157,8 @@ unsigned AlarmManager::timerCallback2()
 		Alarm& alarm = **it;
 		if (alarm.active) {
 			// timer active
+			// note: don't compare time directly (alarm.time < now),
+			//       because there is a small change time will wrap
 			long long left = alarm.time - now;
 			if (left <= 0) {
 				// timer expired
