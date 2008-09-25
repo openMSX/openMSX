@@ -1,5 +1,13 @@
 $Id$
 
+2008-09-25 David Heremans <david.heremans@gnu-linux.net>
+	* Vram debuggable changed:
+	  First step towards creating a debuggable that provides a logical
+	  view upon the VRAM based upon the current videomode. This is the
+	  behavior an ML-coder expects when dealing with the VDP.
+	  The old chipbased view upon the vram is now called "physical VRAM"
+	  instead.
+
 2008-09-21 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Brazillian OPL3Cartridge (MoonSound without wavetable).
 	  Still mostly untested, although MSX-Audio games (e.g. from Compile)

@@ -4,6 +4,7 @@
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
 #include "Math.hh"
+#include "SimpleDebuggable.hh"
 #include "serialize.hh"
 #include <cstring>
 
@@ -25,6 +26,61 @@ VRAMWindow::VRAMWindow(Ram& vram)
 }
 
 
+// class logicalVRAMDebuggable:
+
+class logicalVRAMDebuggable : public SimpleDebuggable
+{
+public:
+	/*TODO actually I'm just typing away here:
+		don't know if 'friend' is needed :-\
+		what does explicit mean?
+	*/
+	friend class VDPVRAM;
+
+
+        explicit logicalVRAMDebuggable(MSXMotherBoard& motherBoard, Ram& vram);
+        virtual byte read(unsigned address);
+        virtual void write(unsigned address, byte value);
+	void setPlanar(bool planar=true);
+private:
+	bool isPlanar;
+	byte* data;
+};
+
+logicalVRAMDebuggable::logicalVRAMDebuggable(MSXMotherBoard& motherBoard, Ram& vram)
+        : SimpleDebuggable(motherBoard, "VRAM", "CPU view on video RAM given the current display mode.", vram.getSize())
+	,data(&vram[0])
+{
+	isPlanar = true ;
+}
+
+/** This function will be called when the VDP registers are changed which affect this setting
+  */
+void logicalVRAMDebuggable::setPlanar(bool planar)
+{
+	isPlanar = planar;
+}
+
+byte logicalVRAMDebuggable::read(unsigned address)
+{
+        //assert(address < getSize());
+	if (isPlanar){
+		address = ((address << 16) | (address >> 1)) & 0x1FFFF;
+	}
+	return data[address];
+}
+
+void logicalVRAMDebuggable::write(unsigned address, byte value)
+{
+        //assert(address < getSize());
+	if (isPlanar){
+		address = ((address << 16) | (address >> 1)) & 0x1FFFF;
+	}
+	data[address] = value;
+}
+
+
+
 // class VDPVRAM:
 
 static unsigned bufferSize(unsigned size)
@@ -36,7 +92,7 @@ static unsigned bufferSize(unsigned size)
 
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	: vdp(vdp_)
-	, data(vdp.getMotherBoard(), "VRAM", "Video RAM.", bufferSize(size))
+	, data(vdp.getMotherBoard(), "physical VRAM", "VDP independend view on the video RAM.", bufferSize(size))
 	#ifdef DEBUG
 	, vramTime(time)
 	#endif
@@ -51,6 +107,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	, bitmapCacheWindow(data)
 	, spriteAttribTable(data)
 	, spritePatternTable(data)
+	, logicalVRAMDebug( new logicalVRAMDebuggable(vdp.getMotherBoard(), data))
 {
 	(void)time;
 
@@ -68,6 +125,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
+	
 }
 
 void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime& time)

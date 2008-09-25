@@ -19,6 +19,7 @@ namespace openmsx {
 class EmuTime;
 class SpriteChecker;
 class Renderer;
+class logicalVRAMDebuggable;
 
 /*
 Note: The way VRAM is accessed depends a lot on who is doing the accessing.
@@ -581,6 +582,12 @@ public:
 	VRAMWindow bitmapCacheWindow;
 	VRAMWindow spriteAttribTable;
 	VRAMWindow spritePatternTable;
+
+	/** Debuger with mode dependend view on the vram
+	  */
+	friend class logicalVRAMDebuggable;
+	const std::auto_ptr<logicalVRAMDebuggable> logicalVRAMDebug; 
+
 };
 
 } // namespace openmsx
