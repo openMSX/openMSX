@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-// class VRAMWindow:
+// class VRAMWindow
 
 DummyVRAMOBserver VRAMWindow::dummyObserver;
 
@@ -26,62 +26,51 @@ VRAMWindow::VRAMWindow(Ram& vram)
 }
 
 
-// class logicalVRAMDebuggable:
+// class LogicalVRAMDebuggable
 
-class logicalVRAMDebuggable : public SimpleDebuggable
+class LogicalVRAMDebuggable : public SimpleDebuggable
 {
 public:
-	/*TODO actually I'm just typing away here:
-		don't know if 'friend' is needed :-\
-		what does explicit mean?
-	*/
-	friend class VDPVRAM;
-
-
-        explicit logicalVRAMDebuggable(MSXMotherBoard& motherBoard, Ram& vram);
-        virtual byte read(unsigned address);
-        virtual void write(unsigned address, byte value);
-	void setPlanar(bool planar=true);
+	explicit LogicalVRAMDebuggable(VDP& vdp);
+	virtual byte read(unsigned address, const EmuTime& time);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
 private:
-	bool isPlanar;
-	byte* data;
+	unsigned transform(unsigned address);
+	VDP& vdp;
+	VDPVRAM& vram;
 };
 
-logicalVRAMDebuggable::logicalVRAMDebuggable(MSXMotherBoard& motherBoard, Ram& vram)
-        : SimpleDebuggable(motherBoard, "VRAM", "CPU view on video RAM given the current display mode.", vram.getSize())
-	,data(&vram[0])
+
+// TODO shouldn't CPU view always be 192kB? (or even 256kB)
+LogicalVRAMDebuggable::LogicalVRAMDebuggable(VDP& vdp_)
+        : SimpleDebuggable(vdp_.getMotherBoard(), "VRAM",
+	                   "CPU view on video RAM given the current display mode.",
+	                   vdp_.getVRAM().getSize())
+	, vdp(vdp_)
+	, vram(vdp.getVRAM())
 {
-	isPlanar = true ;
 }
 
-/** This function will be called when the VDP registers are changed which affect this setting
-  */
-void logicalVRAMDebuggable::setPlanar(bool planar)
+unsigned LogicalVRAMDebuggable::transform(unsigned address)
 {
-	isPlanar = planar;
+	// TODO not correct wrt interleaving of extended vram
+	return vdp.getDisplayMode().isPlanar()
+	     ? ((address << 16) | (address >> 1)) & 0x1FFFF
+	     : address;
 }
 
-byte logicalVRAMDebuggable::read(unsigned address)
+byte LogicalVRAMDebuggable::read(unsigned address, const EmuTime& time)
 {
-        //assert(address < getSize());
-	if (isPlanar){
-		address = ((address << 16) | (address >> 1)) & 0x1FFFF;
-	}
-	return data[address];
+	return vram.cpuRead(transform(address), time);
 }
 
-void logicalVRAMDebuggable::write(unsigned address, byte value)
+void LogicalVRAMDebuggable::write(unsigned address, byte value, const EmuTime& time)
 {
-        //assert(address < getSize());
-	if (isPlanar){
-		address = ((address << 16) | (address >> 1)) & 0x1FFFF;
-	}
-	data[address] = value;
+	vram.cpuWrite(transform(address), value, time);
 }
 
 
-
-// class VDPVRAM:
+// class VDPVRAM
 
 static unsigned bufferSize(unsigned size)
 {
@@ -92,7 +81,9 @@ static unsigned bufferSize(unsigned size)
 
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	: vdp(vdp_)
-	, data(vdp.getMotherBoard(), "physical VRAM", "VDP independend view on the video RAM.", bufferSize(size))
+	, data(vdp.getMotherBoard(), "physical VRAM",
+	       "VDP-screen-mode-independend view on the video RAM.", bufferSize(size))
+	, logicalVRAMDebug(new LogicalVRAMDebuggable(vdp))
 	#ifdef DEBUG
 	, vramTime(time)
 	#endif
@@ -107,7 +98,6 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	, bitmapCacheWindow(data)
 	, spriteAttribTable(data)
 	, spritePatternTable(data)
-	, logicalVRAMDebug( new logicalVRAMDebuggable(vdp.getMotherBoard(), data))
 {
 	(void)time;
 
@@ -126,6 +116,10 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 	
+}
+
+VDPVRAM::~VDPVRAM()
+{
 }
 
 void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime& time)

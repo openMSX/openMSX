@@ -19,7 +19,7 @@ namespace openmsx {
 class EmuTime;
 class SpriteChecker;
 class Renderer;
-class logicalVRAMDebuggable;
+class LogicalVRAMDebuggable;
 
 /*
 Note: The way VRAM is accessed depends a lot on who is doing the accessing.
@@ -345,6 +345,7 @@ class VDPVRAM : private noncopyable
 {
 public:
 	VDPVRAM(VDP& vdp, unsigned size, const EmuTime& time);
+	~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to update VRAM to.
@@ -546,6 +547,10 @@ private:
 	  */
 	Ram data;
 
+	/** Debuggable with mode dependend view on the vram
+	  */
+	const std::auto_ptr<LogicalVRAMDebuggable> logicalVRAMDebug;
+
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.
 	//       Is that a good idea?
@@ -582,12 +587,6 @@ public:
 	VRAMWindow bitmapCacheWindow;
 	VRAMWindow spriteAttribTable;
 	VRAMWindow spritePatternTable;
-
-	/** Debuger with mode dependend view on the vram
-	  */
-	friend class logicalVRAMDebuggable;
-	const std::auto_ptr<logicalVRAMDebuggable> logicalVRAMDebug; 
-
 };
 
 } // namespace openmsx
