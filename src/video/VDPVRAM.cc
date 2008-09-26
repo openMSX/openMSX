@@ -28,6 +28,18 @@ VRAMWindow::VRAMWindow(Ram& vram)
 
 // class LogicalVRAMDebuggable
 
+/** This debuggable is always 128kB in size, even if the actual amount of VRAM
+ *  is different:
+ * - If there is less actual VRAM (e.g. 64kB), the upper regions of this
+ *   debuggable act in the same way as if the CPU would read/write those
+ *   addresses (mirroring or return fixed value / ignore write).
+ * - If there is more VRAM (128kB + 64kB extended VRAM), the extended VRAM
+ *   part is not accessible via this debuggable (it is via the 'physical VRAM'
+ *   debuggable). We might change this in the future, but the interaction
+ *   between interleaving and extended VRAM can be tricky, for example the
+ *   size of this debuggable would have to be 256kB to be able to access the
+ *   complete extended VRAM in interleaved mode.
+ */
 class LogicalVRAMDebuggable : public SimpleDebuggable
 {
 public:
@@ -37,23 +49,19 @@ public:
 private:
 	unsigned transform(unsigned address);
 	VDP& vdp;
-	VDPVRAM& vram;
 };
 
 
-// TODO shouldn't CPU view always be 192kB? (or even 256kB)
 LogicalVRAMDebuggable::LogicalVRAMDebuggable(VDP& vdp_)
         : SimpleDebuggable(vdp_.getMotherBoard(), "VRAM",
 	                   "CPU view on video RAM given the current display mode.",
-	                   vdp_.getVRAM().getSize())
+	                   128 * 1024) // always 128kB
 	, vdp(vdp_)
-	, vram(vdp.getVRAM())
 {
 }
 
 unsigned LogicalVRAMDebuggable::transform(unsigned address)
 {
-	// TODO not correct wrt interleaving of extended vram
 	return vdp.getDisplayMode().isPlanar()
 	     ? ((address << 16) | (address >> 1)) & 0x1FFFF
 	     : address;
@@ -61,12 +69,12 @@ unsigned LogicalVRAMDebuggable::transform(unsigned address)
 
 byte LogicalVRAMDebuggable::read(unsigned address, const EmuTime& time)
 {
-	return vram.cpuRead(transform(address), time);
+	return vdp.getVRAM().cpuRead(transform(address), time);
 }
 
 void LogicalVRAMDebuggable::write(unsigned address, byte value, const EmuTime& time)
 {
-	vram.cpuWrite(transform(address), value, time);
+	vdp.getVRAM().cpuWrite(transform(address), value, time);
 }
 
 
