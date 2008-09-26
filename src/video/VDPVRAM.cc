@@ -90,7 +90,7 @@ static unsigned bufferSize(unsigned size)
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	: vdp(vdp_)
 	, data(vdp.getMotherBoard(), "physical VRAM",
-	       "VDP-screen-mode-independend view on the video RAM.", bufferSize(size))
+	       "VDP-screen-mode-independent view on the video RAM.", bufferSize(size))
 	, logicalVRAMDebug(new LogicalVRAMDebuggable(vdp))
 	#ifdef DEBUG
 	, vramTime(time)
