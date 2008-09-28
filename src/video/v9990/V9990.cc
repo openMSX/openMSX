@@ -105,6 +105,8 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	setVerticalTiming();
 
 	// Initialise rendering system
+	isDisplayArea = false;
+	displayEnabled = false; // avoid UMR (used by createRenderer())
 	createRenderer(time);
 
 	reset(time);
