@@ -2182,23 +2182,33 @@ template <class T> template<CPU::Reg8 REG> int CPUCore<T>::ld_IR_a() {
 
 // MULUB A,r
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::mulub_a_R() {
-	// TODO check flags
+	// Verified on real R800:
+	//   YHXN flags are unchanged
+	//   SV   flags are reset
+	//   Z    flag is set when result is zero
+	//   C    flag is set when result doesn't fit in 8-bit
 	R.setHL(unsigned(R.getA()) * R.get8<REG>());
-	R.setF((R.getF() & (N_FLAG | H_FLAG)) |
+	R.setF((R.getF() & (N_FLAG | H_FLAG | X_FLAG | Y_FLAG)) |
+	       0 | // S_FLAG V_FLAG
 	       (R.getHL() ? 0 : Z_FLAG) |
-	       ((R.getHL() & 0x8000) ? C_FLAG : 0));
+	       ((R.getHL() & 0xFF00) ? C_FLAG : 0));
 	return T::CC_MULUB;
 }
 
 // MULUW HL,ss
 template <class T> template<CPU::Reg16 REG> int CPUCore<T>::muluw_hl_SS() {
-	// TODO check flags
+	// Verified on real R800:
+	//   YHXN flags are unchanged
+	//   SV   flags are reset
+	//   Z    flag is set when result is zero
+	//   C    flag is set when result doesn't fit in 16-bit
 	unsigned res = unsigned(R.getHL()) * R.get16<REG>();
 	R.setDE(res >> 16);
 	R.setHL(res & 0xffff);
-	R.setF((R.getF() & (N_FLAG | H_FLAG)) |
+	R.setF((R.getF() & (N_FLAG | H_FLAG | X_FLAG | Y_FLAG)) |
+	       0 | // S_FLAG V_FLAG
 	       (res ? 0 : Z_FLAG) |
-	       ((res & 0x80000000) ? C_FLAG : 0));
+	       ((res & 0xFFFF0000) ? C_FLAG : 0));
 	return T::CC_MULUW;
 }
 
