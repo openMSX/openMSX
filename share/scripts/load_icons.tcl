@@ -24,13 +24,6 @@ proc __trace_led_status { name1 name2 op } {
 	global $name1 __last_change
 	set led [string trimleft $name1 ":"]
 	set __last_change($led) [openmsx_info realtime]
-	if [set $name1] {
-		# off -> on
-		osd configure osd_leds.${led}_off -alpha 0 -fadeTarget 0
-	} else {
-		# on -> off
-		osd configure osd_leds.${led}_on  -alpha 0 -fadeTarget 0
-	}
 	__redraw_osd_leds $led
 }
 
@@ -38,10 +31,13 @@ proc __redraw_osd_leds { led } {
 	global __ledtime __last_change $led
 
 	if [set ${led}] {
-		set widget osd_leds.${led}_on
+		set widget  osd_leds.${led}_on
+		set widget2 osd_leds.${led}_off
 	} else {
-		set widget osd_leds.${led}_off
+		set widget  osd_leds.${led}_off
+		set widget2 osd_leds.${led}_on
 	}
+	osd configure $widget2 -alpha 0 -fadeTarget 0
 
 	if {$__ledtime == 0} {
 		# no fading yet
