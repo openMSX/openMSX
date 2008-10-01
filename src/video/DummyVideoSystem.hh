@@ -11,6 +11,7 @@ class DummyVideoSystem : public VideoSystem
 {
 public:
 	// VideoSystem interface:
+	virtual Rasterizer* createRasterizer(VDP& vdp);
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
 	virtual void flush();
 	virtual OutputSurface* getOutputSurface();

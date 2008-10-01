@@ -10,12 +10,6 @@ VideoSystem::~VideoSystem()
 {
 }
 
-Rasterizer* VideoSystem::createRasterizer(VDP& /*vdp*/)
-{
-	assert(false);
-	return 0;
-}
-
 bool VideoSystem::checkSettings()
 {
 	return true;
