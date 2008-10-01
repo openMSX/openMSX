@@ -495,6 +495,11 @@ void MSXMixer::unmute()
 	}
 }
 
+void MSXMixer::reschedule()
+{
+	reInit();
+}
+
 void MSXMixer::reInit()
 {
 	if (synchronousCounter) {

@@ -1236,6 +1236,9 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 
 	// Scheduler must come early so that devices can query current time
 	ar.serialize("scheduler", getScheduler());
+	// MSXMixer has already set syncpoints, those are invalid now
+	// the following call will fix this
+	getMSXMixer().reschedule();
 
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig2, ref(self));

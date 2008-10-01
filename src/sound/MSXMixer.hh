@@ -81,6 +81,8 @@ public:
 
 	SoundDevice* findDevice(const std::string& name) const;
 
+	void reschedule();
+
 private:
 	struct SoundDeviceInfo {
 		double defaultVolume;
