@@ -22,7 +22,7 @@ proc loadstate { {name ""} } {
 	__savestate_common $name
 	set newID [restore_machine $fullname]
 	set currentID [machine]
-	delete_machine $currentID
+	if {$currentID != ""} { delete_machine $currentID }
 	activate_machine $newID
 	return $name
 }
