@@ -30,7 +30,10 @@ proc __trace_led_status { name1 name2 op } {
 proc __redraw_osd_leds { led } {
 	global __ledtime __last_change $led
 
-	if [set ${led}] {
+	# handle 'unset' variables  (when current msx machine got deleted)
+	if [catch {set value [set ${led}]}] { set value false }
+
+	if $value {
 		set widget  osd_leds.${led}_on
 		set widget2 osd_leds.${led}_off
 	} else {
@@ -179,6 +182,15 @@ proc __trace_osd_led_vars {name1 name2 op} {
 	load_icons $::osd_leds_set $::osd_leds_pos
 }
 
+proc __machine_switch_osd_leds {} {
+	foreach led $::__leds {
+		trace remove variable ::led_${led} "write unset" __trace_led_status
+		trace add    variable ::led_${led} "write unset" __trace_led_status
+		__redraw_osd_leds led_$led
+	}
+	after machine_switch __machine_switch_osd_leds
+}
+
 # Available LEDs. LEDs are also drawn in this order (by default)
 set __leds "power caps kana pause turbo FDD"
 
@@ -187,7 +199,7 @@ osd create rectangle osd_leds -scaled true -alpha 0 -z 1
 foreach led $__leds {
 	osd create rectangle osd_leds.led_${led}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
 	osd create rectangle osd_leds.led_${led}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
-	trace add variable ::led_${led} write __trace_led_status
+	trace add variable ::led_${led} "write unset" __trace_led_status
 	set ::__last_change(led_${led}) [openmsx_info realtime]
 }
 
@@ -198,5 +210,6 @@ set __osd_leds_set $osd_leds_set
 set __osd_leds_pos $osd_leds_pos
 trace add variable osd_leds_set write __trace_osd_led_vars
 trace add variable osd_leds_pos write __trace_osd_led_vars
+after machine_switch __machine_switch_osd_leds
 
 load_icons $osd_leds_set $osd_leds_pos
