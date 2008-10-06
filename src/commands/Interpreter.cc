@@ -18,6 +18,12 @@ using std::vector;
 
 namespace openmsx {
 
+// See comments in traceProc()
+typedef std::map<long, Setting*> TraceMap;
+static TraceMap traceMap;
+static long traceCount = 0;
+
+
 static int dummyClose(ClientData /*instanceData*/, Tcl_Interp* /*interp*/)
 {
 	return 0;
@@ -239,25 +245,33 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 		// define Tcl var
 		setVariable(name, variable.getValueString());
 	}
-	traceMap[name] = &variable;
+	long traceID = traceCount++;
+	traceMap[traceID] = &variable;
 	Tcl_TraceVar(interp, name.c_str(),
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
-	             traceProc, static_cast<ClientData>(this));
+	             traceProc, reinterpret_cast<ClientData>(traceID));
 }
 
 void Interpreter::unregisterSetting(Setting& variable, const string& name)
 {
+	TraceMap::iterator it = traceMap.begin();
+	while (true) {
+		assert(it != traceMap.end());
+		if (it->second == &variable) break;
+		++it;
+	}
+
+	long traceID = it->first;
 	Tcl_UntraceVar(interp, name.c_str(),
 	               TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
-	               traceProc, static_cast<ClientData>(this));
-	traceMap.erase(name);
+	               traceProc, reinterpret_cast<ClientData>(traceID));
+	traceMap.erase(it);
 	unsetVariable(name);
 }
 
-Setting* Interpreter::getTraceSetting(string name)
+static Setting* getTraceSetting(unsigned traceID)
 {
-	StringOp::trimLeft(name, ":");
-	TraceMap::const_iterator it = traceMap.find(name);
+	TraceMap::const_iterator it = traceMap.find(traceID);
 	return (it != traceMap.end()) ? it->second : NULL;
 }
 
@@ -295,11 +309,11 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		// a map. If the Setting was deleted, we won't find it anymore
 		// in the map and return.
 
-		static string static_string;
-		Interpreter* interpreter = static_cast<Interpreter*>(clientData);
-		Setting* variable = interpreter->getTraceSetting(part1);
+		long traceID = reinterpret_cast<long>(clientData);
+		Setting* variable = getTraceSetting(traceID);
 		if (!variable) return NULL;
 
+		static string static_string;
 		if (flags & TCL_TRACE_READS) {
 			Tcl_SetVar(interp, part1,
 			           variable->getValueString().c_str(), 0);
@@ -338,7 +352,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
 			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 			             traceProc,
-			             static_cast<ClientData>(interpreter));
+			             reinterpret_cast<ClientData>(traceID));
 		}
 	} catch (...) {
 		assert(false); // we cannot let exceptions pass through Tcl
