@@ -26,12 +26,23 @@ void OutputArchiveBase<Derived>::serialize_blob(
 {
 	string encoding;
 	string tmp;
-	if (true) {
+	if (false) {
+		// useful for debugging
 		encoding = "hex";
 		tmp = HexDump::encode(data, len);
-	} else {
+	} else if (false) {
 		encoding = "base64";
 		tmp = Base64::encode(data, len);
+	} else {
+		encoding = "gz-base64";
+		uLongf dstLen = len + len / 1000 + 12 + 1; // worst-case
+		std::vector<char> buf(dstLen);
+		if (compress2(reinterpret_cast<Bytef*>(&buf[0]), &dstLen,
+		              reinterpret_cast<const Bytef*>(data), len, 9)
+		    != Z_OK) {
+			throw MSXException("Error while compressing blob.");
+		}
+		tmp = Base64::encode(&buf[0], dstLen);
 	}
 	this->self().beginTag(tag);
 	this->self().attribute("encoding", encoding);
@@ -63,18 +74,32 @@ void InputArchiveBase<Derived>::serialize_blob(
 	loader(this->self(), tmp, make_tuple(), -1);
 	this->self().endTag(tag);
 
-	string tmp2;
-	if (encoding == "hex") {
-		tmp2 = HexDump::decode(tmp);
-	} else if (encoding == "base64") {
-		tmp2 = Base64::decode(tmp);
+	if (encoding == "gz-base64") {
+		tmp = Base64::decode(tmp);
+		uLongf dstLen = len;
+		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
+		                reinterpret_cast<const Bytef*>(tmp.data()), tmp.size())
+		     != Z_OK) ||
+		    (dstLen != len)) {
+			throw MSXException("Error while decompressing blob.");
+		}
+	} else if ((encoding == "hex") || (encoding == "base64")) {
+		if (encoding == "hex") {
+			tmp = HexDump::decode(tmp);
+		} else {
+			tmp = Base64::decode(tmp);
+		}
+		if (tmp.size() != len) {
+			throw XMLException(
+				"Length of decoded blob: " +
+				StringOp::toString(tmp.size()) +
+				" not identical to expected value: " +
+				StringOp::toString(len));
+		}
+		memcpy(data, tmp.data(), len);
 	} else {
 		throw XMLException("Unsupported encoding \"" + encoding + "\" for blob");
 	}
-	if (tmp2.size() != len) {
-		throw XMLException("Length of decoded blob (" + StringOp::toString(tmp2.size()) + " not identical to expected value " + StringOp::toString(len));
-	}
-	memcpy(data, tmp2.data(), len);
 }
 
 template<typename Derived>
