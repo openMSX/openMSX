@@ -190,7 +190,7 @@ void RomInfo::print(CliComm& cliComm) const
 		status = "Unmodified dump (confirmed by " + getOrigType() + ")";
 	} else {
 		// not original or unknown
-		if (getOrigType() == "broken" ) {
+		if (getOrigType() == "broken") {
 			status = "Bad dump (game is broken)";
 		} else if (getOrigType() == "translated") {
 			status = "Translated from original";
@@ -202,9 +202,9 @@ void RomInfo::print(CliComm& cliComm) const
 	}
 	string info = "Found this ROM in the database:\n"
 	              "  Title:    " + getTitle() + "\n"
-	              "  Year:     " + year + "\n"
-	              "  Company:  " + company + "\n"
-	              "  Country:  " + country + "\n"
+	              "  Year:     " + getYear() + "\n"
+	              "  Company:  " + getCompany() + "\n"
+	              "  Country:  " + getCountry() + "\n"
 	              "  Status:   " + status;
 	if (!getRemark().empty()) {
 		info += "\n  Remark:   " + getRemark();

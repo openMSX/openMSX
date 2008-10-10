@@ -11,6 +11,7 @@ SRC_HDR:= \
 	Math \
 	MemoryOps \
 	StringOp \
+	StringPool \
 	sha1 \
 	uint128 \
 	DivModBySame

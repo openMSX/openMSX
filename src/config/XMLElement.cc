@@ -317,7 +317,7 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 		if (data.empty()) {
 			result += "/>\n";
 		} else {
-			result += '>' + XMLEscape(data) + "</" +
+			result += '>' + XMLEscape(data.str()) + "</" +
 			          getName() + ">\n";
 		}
 	} else {

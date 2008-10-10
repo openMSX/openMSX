@@ -4,6 +4,7 @@
 #define ROMINFO_HH
 
 #include "RomTypes.hh"
+#include "StringPool.hh"
 #include <string>
 #include <set>
 
@@ -19,14 +20,14 @@ public:
 	        bool original,              const std::string& origType,
 	        const std::string& remark,  const RomType& romType);
 
-	const std::string& getTitle()     const { return title; }
-	const std::string& getYear()      const { return year; }
-	const std::string& getCompany()   const { return company; }
-	const std::string& getCountry()   const { return country; }
-	bool               getOriginal()  const { return original; }
-	const std::string& getOrigType()  const { return origType; }
-	const std::string& getRemark()    const { return remark; }
+	StringRef getTitle()     const { return title; }
+	StringRef getYear()      const { return year; }
+	StringRef getCompany()   const { return company; }
+	StringRef getCountry()   const { return country; }
+	StringRef getOrigType()  const { return origType; }
+	StringRef getRemark()    const { return remark; }
 	const RomType&     getRomType()   const { return romType; }
+	bool               getOriginal()  const { return original; }
 
 	void print(CliComm& cliComm) const;
 
@@ -35,12 +36,12 @@ public:
 	static void getAllRomTypes(std::set<std::string>& result);
 
 private:
-	const std::string title;
-	const std::string year;
-	const std::string company;
-	const std::string country;
-	const std::string origType;
-	const std::string remark;
+	const StringRef title;
+	const StringRef year;
+	const StringRef company;
+	const StringRef country;
+	const StringRef origType;
+	const StringRef remark;
 	const RomType romType;
 	const bool original;
 };
