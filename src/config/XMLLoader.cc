@@ -3,9 +3,11 @@
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"
+#include "LocalFileReference.hh"
 #include <cassert>
 #include <cstring>
 #include <libxml/parser.h>
+#include <libxml/xmlversion.h>
 
 using std::auto_ptr;
 using std::string;
@@ -73,8 +75,21 @@ static void cbInternalSubset(XMLLoaderHelper* helper, const xmlChar* /*name*/,
 	helper->systemID = reinterpret_cast<const char*>(systemID);
 }
 
-auto_ptr<XMLElement> load(const string& filename, const string& systemID)
+auto_ptr<XMLElement> load(const string& filename_, const string& systemID)
 {
+#ifdef LIBXML_ZLIB_ENABLED
+	// libxml directly supports gzipped files
+	// this is more efficient than the alternative below
+	const string& filename = filename_;
+#else
+	// libxml was configured without zlib support (this is for example the
+	// case with the standard installed libxml on the GP2X)
+	// TODO a more efficient but also more complex alternative is to use
+	//      xmlParseChunk() in combination with gzread()
+	LocalFileReference fileRef(filename_);
+	const string& filename = fileRef.getFilename();
+#endif
+
 	xmlSAXHandler handler;
 	memset(&handler, 0, sizeof(handler));
 	handler.startElement  = (startElementSAXFunc)   cbStartElement;
