@@ -1,0 +1,757 @@
+; This program was used to produce the results of v9990_command_timing_test_results.txt
+; Written by Wouter Vermaelen, based on the code of Peter Mastijn
+; Change the parameters at the top to specify what you are going to measure.
+
+	org #0100
+
+FREQ	equ	0	; 0 -> NTSC   8 -> PAL
+ENABLE  equ	#82	; #82 -> display enabled  / sprites(cursor) enabled
+			; #C2 ->         enabled                    disabled
+			; #02 ->         disabled                   enabled
+			; #42 ->         disabled                   disabled
+	
+	di
+	call   init
+	;call set_p2
+	call   set_b0_2bpp	; change this to select mode  (set_xxx)
+
+	call   tst_LMMM
+	call   tst_BMLL
+	call   tst_BMXL
+	call   tst_BMLX
+	call   tst_LMMV
+
+	call   print_results
+
+	xor    a
+	ld     ix,#00d1		; set screen mode
+	ld     iy,(#faf7)
+	call   #001c
+
+	ld     ix,#0141		; init palette
+	ld     iy,(#faf7)
+	call   #001c
+
+	ld     ix,#0156		; clear keyb buf
+	ld     iy,(#fcc0)
+	call   #001c
+
+	ld     de,text
+	ld     c,#09
+	jp     #0005
+
+
+
+tst_LMMM
+	call   cmd_common
+	ld     hl,#0020
+
+LMMM_0	call   wait_vblank
+	call   LMMM_1
+	call   wait_vblank
+	call   LMMM_2
+	call   wait_vblank_cmd
+	jr     nz,LMMM_3
+	inc    hl
+	jr     LMMM_0
+LMMM_3	call   setres
+	jp     wait_cmd
+
+
+
+tst_BMLL
+	call   cmd_common
+	ld     hl,#0020
+
+BMLL_0	call   wait_vblank
+	call   BMLL_1
+	call   wait_vblank
+	call   BMLL_2
+	call   wait_vblank_cmd
+	jr     nz,BMLL_3	; end if still busy
+	inc    hl
+	jr     BMLL_0
+BMLL_3	call   setres
+	jp     wait_cmd
+
+
+
+tst_BMXL
+	call   cmd_common
+	ld     hl,#0020
+
+BMXL_0	call   wait_vblank
+	call   BMXL_1
+	call   wait_vblank
+	call   BMXL_2
+	call   wait_vblank_cmd
+	jr     nz,BMXL_3
+	inc    hl
+	jr     BMXL_0
+BMXL_3	call   setres
+	jp     wait_cmd
+
+
+
+tst_BMLX
+	call   cmd_common
+	ld     hl,#0020
+
+BMLX_0	call   wait_vblank
+	call   BMLX_1
+	call   wait_vblank
+	call   BMLX_2
+	call   wait_vblank_cmd
+	jr     nz,BMLX_3
+	inc    hl
+	jr     BMLX_0
+BMLX_3	call   setres
+	jp     wait_cmd
+
+
+
+tst_LMMV
+	call   cmd_common
+	ld     hl,#0020
+
+LMMV_0	call   wait_vblank
+	call   LMMV_1
+	call   wait_vblank
+	call   LMMV_2
+	call   wait_vblank_cmd
+	jr     nz,LMMV_3
+	inc    hl
+	jr     LMMV_0
+LMMV_3	call   setres
+	jp     wait_cmd
+
+
+
+wait_vblank
+	in     a,(#65)
+	and    #40
+	jr     nz,wait_vblank
+wait0	in     a,(#65)
+	and    #40
+	jr     z,wait0
+	ret
+
+wait_cmd
+	in     a,(#65)
+	and    1
+	jr     nz,wait_cmd
+	ret
+
+wait_vblank_cmd
+	in     a,(#65)
+	and    #40
+	jr     nz,wait_vblank_cmd
+wait1	in     a,(#65)
+	and    #40
+	jr     z,wait1
+	in     a,(#65)
+	and    1
+	ret
+
+setres	dec    hl
+	ex     de,hl
+	ld     hl,(resptr)
+	ld     (hl),e
+	inc    hl
+	ld     (hl),d
+	inc    hl
+	ld     (resptr),hl
+	ret
+
+resptr	dw result
+        dw hexout
+
+digits	db "0123456789abcdef"
+
+text	db "LMMM BMLL BMXL BMLX LMMV", 13, 10
+hexout	db "0000 0000 0000 0000 0000", "$"
+
+result	ds 80
+
+
+init	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	xor    a
+	out    (#6f),a
+	ld     a,#06
+	out    (#64),a
+	ld     bc,#1763
+	ld     hl,init_regs
+	otir
+	ret
+
+
+set_p1
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#01		; P1 mode
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / sprites enabled
+	ret
+
+set_p2
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#41		; P2 mode
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / sprites enabled
+	ret
+
+set_b0_2bpp
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#80
+	out    (#63),a		; B0 2bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b0_4bpp
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#81
+	out    (#63),a		; B0 4bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b0_8bpp
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#82
+	out    (#63),a		; B0 8bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b0_16bpp
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#83
+	out    (#63),a		; B0 16bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b1_2bpp
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#80
+	out    (#63),a		; B1 4bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b1_4bpp
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#81
+	out    (#63),a		; B1 4bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b1_8bpp
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#82
+	out    (#63),a		; B1 8bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b1_16bpp
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#83
+	out    (#63),a		; B1 8bpp
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b2_2bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#94		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b2_4bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#95		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b2_8bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#96		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b2_16bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#97		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b3_2bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#94		; B3 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b3_4bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#95		; B3 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b3_8bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#96		; B3 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b3_16bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#97		; B3 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b4_2bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#a8		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b4_4bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#a9		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b4_8bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#aa		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b4_16bpp	
+	ld     a,#01
+	out    (#67),a		; MCLK = 1
+	ld     a,#06
+	out    (#64),a
+	ld     a,#ab		; B2 8bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b7_2bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#a8		; B3 2bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b7_4bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#a9		; B3 2bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b7_8bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#aa		; B3 2bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+set_b7_16bpp	
+	ld     a,#00
+	out    (#67),a		; MCLK = 0
+	ld     a,#06
+	out    (#64),a
+	ld     a,#ab		; B3 2bpp
+	out    (#63),a
+	ld     a,FREQ
+	out    (#63),a		; NTSC
+	ld     a,ENABLE
+	out    (#63),a		; display enabled / cursor enabled
+	ret
+
+init_regs
+	db #00,#00,#82,#00	; r#8 -> display enable
+	db #00,#00,#00,#00
+	db #00,#00,#00,#00
+	db #00,#00,#00,#00
+	db #00,#00,#00,#00
+	db #00,#00,#00
+
+	ret			; not used
+
+
+LMMM_1	ld     a,#20
+	out    (#64),a
+	xor    a
+	out    (#63),a
+	out    (#63),a	; SX = 0
+	out    (#63),a
+	out    (#63),a	; SY = 0
+	out    (#63),a
+	out    (#63),a	; DX = 0
+	out    (#63),a
+	inc    a
+	out    (#63),a	; DY = 256
+	xor    a
+	out    (#63),a
+	inc    a
+	out    (#63),a	; NX = 256
+	ld     a,l
+	out    (#63),a
+	ld     a,h
+	out    (#63),a	; NY = hl
+	ld     a,#34
+	out    (#64),a
+	ret
+
+LMMM_2	ld     a,#40	; LMMM
+	out    (#63),a
+	ret
+
+
+BMLL_1	ld     a,#20
+	out    (#64),a
+	xor    a
+	out    (#63),a
+	out    (#63),a
+	out    (#63),a
+	out    (#63),a	; srcAddr = 0
+	out    (#63),a
+	out    (#63),a
+	out    (#63),a
+	ld     a,#04
+	out    (#63),a  ; dstAddr = 0x40000
+	xor    a
+	out    (#63),a
+	out    (#63),a
+	ld     a,l
+	out    (#63),a
+	ld     a,h
+	out    (#63),a	; numBytes = hl * 256
+	ld     a,#34
+	out    (#64),a
+	ret
+
+BMLL_2	ld     a,#a0	; BMLL
+	out    (#63),a
+	ret
+
+
+BMXL_1	ld     a,#20
+	out    (#64),a
+	xor    a
+	out    (#63),a
+	out    (#63),a
+	out    (#63),a
+	out    (#63),a	; srcAddr = 0
+	out    (#63),a
+	out    (#63),a	; DX = 0
+	out    (#63),a
+	ld     a,#02
+	out    (#63),a	; DY = 512
+	xor    a
+	out    (#63),a
+	inc    a
+	out    (#63),a	; NX = 256
+	ld     a,l
+	out    (#63),a
+	ld     a,h
+	out    (#63),a	; NY = hl
+	ld     a,#34
+	out    (#64),a
+	ret
+
+BMXL_2	ld     a,#80	; BMXL
+	out    (#63),a
+	ret
+
+
+BMLX_1	ld     a,#20
+	out    (#64),a
+	xor    a
+	out    (#63),a
+	out    (#63),a	; SX = 0
+	out    (#63),a
+	out    (#63),a	; SY = 0
+	out    (#63),a
+	out    (#63),a
+	out    (#63),a
+	ld     a,#04
+	out    (#63),a	; dstAddr = 0x40000
+	xor    a
+	out    (#63),a
+	inc    a
+	out    (#63),a	; NX = 256
+	ld     a,l
+	out    (#63),a
+	ld     a,h
+	out    (#63),a	; NY = hl
+	ld     a,#34
+	out    (#64),a
+	ret
+
+BMLX_2	ld     a,#90	; BMLX
+	out    (#63),a
+	ret
+
+
+LMMV_1	ld     a,#24
+	out    (#64),a
+	xor    a
+	out    (#63),a
+	out    (#63),a	; DX = 0
+	out    (#63),a
+	ld     a,#04
+	out    (#63),a	; DY = 1024
+	xor    a
+	out    (#63),a
+	inc    a	; NX = 256
+	out    (#63),a
+	ld     a,l
+	out    (#63),a
+	ld     a,h	; NY = hl
+	out    (#63),a
+	ld     a,#30
+	out    (#64),a
+	out    (#63),a
+	out    (#63),a	; FC = #3030
+	ld     a,#34
+	out    (#64),a
+	ret
+
+LMMV_2	ld     a,#20	; LMMV
+	out    (#63),a
+	ret
+
+
+cmd_common
+	ld     a,#2c
+	out    (#64),a
+	xor    a
+	out    (#63),a		; ARG = 0
+	ld     a,#1c
+	out    (#63),a		; LOGOP = 0x1C (TPSET)
+	ld     a,#ff
+	out    (#63),a
+	xor    a
+	out    (#63),a		; WM = 0x00FF
+	ret
+
+cmd_common_2
+	ld     a,#2c		; not used
+	out    (#64),a
+	xor    a
+	out    (#63),a		; ARG = 0
+	ld     a,#0c
+	out    (#63),a		; LOGOP = 0x0C (PSET)
+	ld     a,#ff
+	out    (#63),a
+	xor    a
+	out    (#63),a		; WM = 0x00FF
+	ret
+
+print_results
+	ld     ix,hexout
+	ld     iy,result
+	call   prthex
+	call   prthex
+	call   prthex
+	call   prthex
+	call   prthex
+	ret
+
+prthex	ld     hl,digits
+	ld     d,0
+	ld     a,(iy+#01)
+	srl    a
+	srl    a
+	srl    a
+	srl    a
+	ld     e,a
+	add    hl,de
+	ld     a,(hl)
+	ld     (ix+#00),a
+	ld     hl,digits
+	ld     a,(iy+#01)
+	and    #0f
+	ld     e,a
+	add    hl,de
+	ld     a,(hl)
+	ld     (ix+#01),a
+	ld     hl,digits
+	ld     a,(iy+#00)
+	srl    a
+	srl    a
+	srl    a
+	srl    a
+	ld     e,a
+	add    hl,de
+	ld     a,(hl)
+	ld     (ix+#02),a
+	ld     hl,digits
+	ld     a,(iy+#00)
+	and    #0f
+	ld     e,a
+	add    hl,de
+	ld     a,(hl)
+	ld     (ix+#03),a
+	ld     de,#0005
+	add    ix,de
+	inc    iy
+	inc    iy
+	ret
