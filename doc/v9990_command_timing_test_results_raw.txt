@@ -1,4 +1,19 @@
-Results on a real Panasonic FS-A1GT in R800 mode (shouldn't matter).
+V9990 command timing tests:
+
+LMMV:   line (0, 1024)-(256, 1024 + <N>),, bf 
+LMMM:   copy (0, 0)-(256, <N>) to (0, 256)
+BMXL:   copy #00000 to (0, 512)-(256, 512 + <N>)
+BMLX:   copy (0, 0)-(256, <N>) to #40000
+BMLL:   memcpy  src: 0x00000   dst: 0x40000   num: 256 * <N>
+
+
+Result is the smallest number <N> so that the command does not finish in
+one frame.
+
+For LMMV, LMMM, BMXL, BMLX this number is 256*<N> pixels.
+For BMLL                   this number is 256*<N> bytes.
+
+Raw results on a real Panasonic FS-A1GT in R800 mode (shouldn't matter).
 
 * NTSC / screen enabled / cursor enabled
 
