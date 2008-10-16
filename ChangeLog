@@ -1,5 +1,11 @@
 $Id$
 
+2008-10-16 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented rough, but measurement-based timing for V9990 for
+	  commands LMMV, LMMM, BMXL, BMLX and BMLL. Code by Wouter. Original
+	  measurement programs by Peter Mastijn. Measurements by Wouter and
+	  me, using Wouter's more generic measurement program. Fixes [421861]!
+
 2008-09-25 David Heremans <david.heremans@gnu-linux.net>
 	* Vram debuggable changed:
 	  First step towards creating a debuggable that provides a logical
