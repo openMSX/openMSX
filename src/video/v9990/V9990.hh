@@ -195,6 +195,17 @@ public:
 	  */
 	V9990ColorMode getColorMode() const;
 
+	/** Return the amount of bits per pixels.
+	  * Result is only meaningful for Bx modes.
+	  * @return Bpp 0 ->  2bpp
+	  *             1 ->  4bpp
+	  *             2 ->  8bpp
+	  *             3 -> 16bpp
+	  */
+	inline unsigned getColorDepth() const {
+		return regs[SCREEN_MODE_0] & 0x03;
+	}
+
 	/** Return the current back drop color
 	  * @return  Index the color palette
 	  */

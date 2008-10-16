@@ -8,19 +8,65 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "serialize.hh"
+#include "likely.hh"
 #include <iostream>
 
 namespace openmsx {
 
-// Timing tables   TODO
-const unsigned LMMV_TIMING[2] = { 24, 0 };
-const unsigned LMMM_TIMING[2] = { 24, 0 };
-const unsigned CMMM_TIMING[2] = { 24, 0 };
-const unsigned BMXL_TIMING[2] = { 24, 0 };
-const unsigned BMLX_TIMING[2] = { 24, 0 };
-const unsigned BMLL_TIMING[2] = { 24, 0 };
-const unsigned LINE_TIMING[2] = { 24, 0 };
-const unsigned SRCH_TIMING[2] = { 24, 0 };
+// 1st index  B0/2/4, B1/3/7, P1, P2
+// 2nd index  sprites-ON, sprites-OFF, display-OFF
+// 3th index  2bpp, 4bpp, 8bpp, 16bpp
+//            (for P1/P2 fill in the same value 4 times)
+const unsigned LMMV_TIMING[4][3][4] = {
+	{ {  8, 11, 15, 30}, { 7, 10, 13, 26}, { 7, 10, 13, 25} },
+	{ {  5,  7,  9, 18}, { 5,  6,  8, 17}, { 5,  6,  8, 17} },
+	{ { 56, 56, 56, 56}, {25, 25, 25, 25}, { 9,  9,  9,  9} },
+	{ { 28, 28, 28, 28}, {15, 15, 15, 15}, { 6,  6,  6,  6} }
+};
+const unsigned LMMM_TIMING[4][3][4] = {
+	{ { 10, 16, 32, 66}, { 8, 14, 28, 57}, { 8, 13, 27, 54} },
+	{ {  6, 10, 20, 39}, { 5,  9, 18, 35}, { 5,  9, 17, 35} },
+	{ {115,115,115,115}, {52, 52, 52, 52}, {18, 18, 18, 18} },
+	{ { 57, 57, 57, 57}, {25, 25, 25, 25}, { 9,  9,  9,  9} }
+};
+const unsigned BMXL_TIMING[4][3][4] = { // NOTE: values are BYTE based here!
+	{ { 38, 33, 32, 33}, {33, 28, 28, 28}, {33, 27, 27, 27} }, // identical to LMMM (b)
+	{ { 24, 20, 20, 19}, {22, 18, 18, 18}, {21, 17, 17, 17} }, // identical to LMMM (b)
+	{ {171,171,171,171}, {82, 82, 82, 82}, {29, 29, 29, 29} },
+	{ {114,114,114,114}, {50, 50, 50, 50}, {18, 18, 18, 18} }
+};
+const unsigned BMLX_TIMING[4][3][4] = {
+	{ { 10, 16, 32, 66}, { 8, 14, 28, 57}, { 8, 13, 27, 54} }, // identical to LMMM
+	{ {  6, 10, 20, 39}, { 5,  9, 18, 35}, { 5,  9, 17, 35} }, // identical to LMMM
+	{ { 84, 84, 84, 84}, {44, 44, 44, 44}, {17, 17, 17, 17} },
+	{ { 57, 57, 57, 57}, {25, 25, 25, 25}, { 9,  9,  9,  9} }
+};
+const unsigned BMLL_TIMING[4][3][4] = {
+	{ { 33, 33, 33, 33}, {28, 28, 28, 28}, {27, 27, 27, 27} },
+	{ { 20, 20, 20, 20}, {18, 18, 18, 18}, {18, 18, 18, 18} },
+	{ {118,118,118,118}, {52, 52, 52, 52}, {18, 18, 18, 18} },
+	{ {118,118,118,118}, {52, 52, 52, 52}, {18, 18, 18, 18} }
+};
+const unsigned CMMM_TIMING[4][3][4] = {
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+};
+const unsigned LINE_TIMING[4][3][4] = {
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+};
+const unsigned SRCH_TIMING[4][3][4] = {
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
+	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+};
+
+
 
 static byte bitLUT[8][16][2][2];
 static byte logOpLUT[4][16][0x100][0x100]; // 4MB !!  optimize if needed
@@ -839,10 +885,18 @@ void V9990CmdEngine::update(const Setting& setting)
 	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getValue();
 }
 
-unsigned V9990CmdEngine::getTiming() const
+unsigned V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
 {
-	// TODO
-	return brokenTiming ? 1 : 0;
+	if (unlikely(brokenTiming)) return 0;
+
+	V9990DisplayMode mode = vdp.getDisplayMode();
+	unsigned idx1 = (mode == P1) ? 2 :
+	                (mode == P2) ? 3 :
+	                (vdp.isOverScan()) ? 0 : 1;
+	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
+	                                       : 2;
+	unsigned idx3 = vdp.getColorDepth();
+	return table[idx1][idx2][idx3];
 }
 
 // ====================================================================
@@ -980,7 +1034,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& time)
 {
 	// TODO can be optimized a lot
 
-	unsigned delta = LMMV_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(LMMV_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
@@ -1088,7 +1142,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
 {
 	// TODO can be optimized a lot
 
-	unsigned delta = LMMM_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(LMMM_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
@@ -1215,7 +1269,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
 {
 	// TODO can be optimized a lot
 
-	unsigned delta = CMMM_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(CMMM_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
@@ -1271,7 +1325,8 @@ template <>
 void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 	const EmuTime& time)
 {
-	unsigned delta = BMXL_TIMING[engine.getTiming()];
+	// timing value is times 2, because it does 2 bytes per iteration:
+	unsigned delta = engine.getTiming(BMXL_TIMING) * 2;
 	unsigned pitch = V9990Bpp16::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
@@ -1301,7 +1356,7 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& time)
 {
-	unsigned delta = BMXL_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(BMXL_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
@@ -1352,7 +1407,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& time)
 {
 	// TODO lots of corner cases still go wrong
 	//      very dumb implementation, can be made much faster
-	unsigned delta = BMLX_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(BMLX_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
@@ -1424,7 +1479,8 @@ template <>
 void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
 {
 	// TODO DIX DIY?
-	unsigned delta = BMLL_TIMING[engine.getTiming()];
+	// timing value is times 2, because it does 2 bytes per iteration:
+	unsigned delta = engine.getTiming(BMLL_TIMING) * 2;
 	const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
 	bool transp = engine.LOG & 0x10;
 	while (engine.clock.before(time)) {
@@ -1451,7 +1507,7 @@ template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& time)
 {
 	// TODO DIX DIY?
-	unsigned delta = BMLL_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(BMLL_TIMING);
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 	while (engine.clock.before(time)) {
 		engine.clock += delta;
@@ -1494,7 +1550,7 @@ void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& time)
 {
-	unsigned delta = LINE_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(LINE_TIMING);
 	unsigned width = engine.vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 
@@ -1562,7 +1618,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& time)
 {
-	unsigned delta = SRCH_TIMING[engine.getTiming()];
+	unsigned delta = engine.getTiming(SRCH_TIMING);
 	unsigned width = engine.vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 	typename Mode::Type mask = (1 << Mode::BITS_PER_PIXEL) -1;

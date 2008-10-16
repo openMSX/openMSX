@@ -432,7 +432,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	void setCurrentCommand();
-	unsigned getTiming() const;
+	unsigned getTiming(const unsigned table[4][3][4]) const;
 };
 
 } // namespace openmsx
