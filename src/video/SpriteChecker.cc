@@ -314,19 +314,24 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				// Sprites with CC=1 are only visible if preceded by
 				// a sprite with CC=0.
 				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
-				++spriteCount[line];
+				spriteCount[line] = visibleIndex + 1;
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[4 * sprite + 2] & patternIndexMask;
 				sip.pattern = calculatePatternNP(patternIndex, spriteLine);
 				sip.x = attributePtr0[4 * sprite + 1];
 				if (colorAttrib & 0x80) sip.x -= 32;
 				sip.colourAttrib = colorAttrib;
+				// Set sentinel. Sentinel is actually only
+				// needed for sprites with CC=1.
+				// In the past we set the sentinel (for all
+				// lines) at the end. But it's slightly faster
+				// to do it only for lines that actually
+				// contain sprites (even if sentinel gets
+				// overwritten a couple of times for lines with
+				// many sprites).
+				spriteBuffer[line][visibleIndex + 1].colourAttrib = 0;
 			}
 		}
-	}
-	for (int line = minLine; line < maxLine; ++line) {
-		int visibleIndex = spriteCount[line];
-		spriteBuffer[line][visibleIndex].colourAttrib = 0; // sentinel
 	}
 
 	byte status = vdp.getStatusReg0();
