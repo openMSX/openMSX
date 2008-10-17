@@ -873,21 +873,39 @@ void VDPCmdEngine::LmmvCmd<Mode>::execute(const EmuTime& time)
 	byte CL = engine.COL & Mode::COLOUR_MASK;
 	unsigned delta = LMMV_TIMING[engine.getTiming()];
 	bool dstExt = engine.ARG & MXD;
-	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
-	while (engine.clock.before(time)) {
-		if (likely(doPset)) {
-			Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
-			           dstExt, CL, *engine.currentOperation);
+	if (unlikely(dstExt)) {
+		bool doPset = !dstExt || engine.hasExtendedVRAM;
+		while (engine.clock.before(time)) {
+			if (likely(doPset)) {
+				Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
+					   dstExt, CL, *engine.currentOperation);
+			}
+			engine.clock.fastAdd(delta);
+			engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.DY += TY; --(engine.NY);
+				engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
+			}
 		}
-		engine.clock.fastAdd(delta);
-		engine.ADX += TX;
-		if (--engine.ANX == 0) {
-			engine.DY += TY; --(engine.NY);
-			engine.ADX = engine.DX; engine.ANX = NX;
-			if (--NY == 0) {
-				engine.commandDone(engine.clock.getTime());
-				break;
+	} else {
+		// fast-path, no extended VRAM
+		while (engine.clock.before(time)) {
+			Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
+				   false, CL, *engine.currentOperation);
+			engine.clock.fastAdd(delta);
+			engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.DY += TY; --(engine.NY);
+				engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
 			}
 		}
 	}
@@ -933,25 +951,44 @@ void VDPCmdEngine::LmmmCmd<Mode>::execute(const EmuTime& time)
 	unsigned delta = LMMM_TIMING[engine.getTiming()];
 	bool srcExt  = engine.ARG & MXS;
 	bool dstExt  = engine.ARG & MXD;
-	bool doPoint = !srcExt || engine.hasExtendedVRAM;
-	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (engine.clock.before(time)) {
-		if (likely(doPset)) {
-			byte p = likely(doPoint)
-			       ? Mode::point(vram, engine.ASX, engine.SY, srcExt)
-			       : 0xFF;
-			Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
-				   dstExt, p, *engine.currentOperation);
+	if (unlikely(srcExt || dstExt)) {
+		bool doPoint = !srcExt || engine.hasExtendedVRAM;
+		bool doPset  = !dstExt || engine.hasExtendedVRAM;
+		while (engine.clock.before(time)) {
+			if (likely(doPset)) {
+				byte p = likely(doPoint)
+				       ? Mode::point(vram, engine.ASX, engine.SY, srcExt)
+				       : 0xFF;
+				Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
+					   dstExt, p, *engine.currentOperation);
+			}
+			engine.clock.fastAdd(delta);
+			engine.ASX += TX; engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.SY += TY; engine.DY += TY; --(engine.NY);
+				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
+			}
 		}
-		engine.clock.fastAdd(delta);
-		engine.ASX += TX; engine.ADX += TX;
-		if (--engine.ANX == 0) {
-			engine.SY += TY; engine.DY += TY; --(engine.NY);
-			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
-			if (--NY == 0) {
-				engine.commandDone(engine.clock.getTime());
-				break;
+	} else {
+		// fast-path, no extended VRAM
+		while (engine.clock.before(time)) {
+			byte p = Mode::point(vram, engine.ASX, engine.SY, false);
+			Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
+				   false, p, *engine.currentOperation);
+			engine.clock.fastAdd(delta);
+			engine.ASX += TX; engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.SY += TY; engine.DY += TY; --(engine.NY);
+				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
 			}
 		}
 	}
@@ -1114,21 +1151,39 @@ void VDPCmdEngine::HmmvCmd<Mode>::execute(const EmuTime& time)
 		engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
 	unsigned delta = HMMV_TIMING[engine.getTiming()];
 	bool dstExt = engine.ARG & MXD;
-	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (engine.clock.before(time)) {
-		if (likely(doPset)) {
-			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              engine.COL, engine.clock.getTime());
+	if (unlikely(dstExt)) {
+		bool doPset = !dstExt || engine.hasExtendedVRAM;
+		while (engine.clock.before(time)) {
+			if (likely(doPset)) {
+				vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
+					      engine.COL, engine.clock.getTime());
+			}
+			engine.clock.fastAdd(delta);
+			engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.DY += TY; --(engine.NY);
+				engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
+			}
 		}
-		engine.clock.fastAdd(delta);
-		engine.ADX += TX;
-		if (--engine.ANX == 0) {
-			engine.DY += TY; --(engine.NY);
-			engine.ADX = engine.DX; engine.ANX = NX;
-			if (--NY == 0) {
-				engine.commandDone(engine.clock.getTime());
-				break;
+	} else {
+		// fast-path, no extended VRAM
+		while (engine.clock.before(time)) {
+			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, false),
+				      engine.COL, engine.clock.getTime());
+			engine.clock.fastAdd(delta);
+			engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.DY += TY; --(engine.NY);
+				engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
 			}
 		}
 	}
@@ -1176,26 +1231,46 @@ void VDPCmdEngine::HmmmCmd<Mode>::execute(const EmuTime& time)
 	unsigned delta = HMMM_TIMING[engine.getTiming()];
 	bool srcExt  = engine.ARG & MXS;
 	bool dstExt  = engine.ARG & MXD;
-	bool doPoint = !srcExt || engine.hasExtendedVRAM;
-	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (engine.clock.before(time)) {
-		if (likely(doPset)) {
-			byte p = likely(doPoint)
-			       ? vram.cmdReadWindow.readNP(
-			               Mode::addressOf(engine.ASX, engine.SY, srcExt))
-			       : 0xFF;
-			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              p, engine.clock.getTime());
+	if (unlikely(srcExt || dstExt)) {
+		bool doPoint = !srcExt || engine.hasExtendedVRAM;
+		bool doPset  = !dstExt || engine.hasExtendedVRAM;
+		while (engine.clock.before(time)) {
+			if (likely(doPset)) {
+				byte p = likely(doPoint)
+				       ? vram.cmdReadWindow.readNP(
+					       Mode::addressOf(engine.ASX, engine.SY, srcExt))
+				       : 0xFF;
+				vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
+					      p, engine.clock.getTime());
+			}
+			engine.clock.fastAdd(delta);
+			engine.ASX += TX; engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.SY += TY; engine.DY += TY; --(engine.NY);
+				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
+			}
 		}
-		engine.clock.fastAdd(delta);
-		engine.ASX += TX; engine.ADX += TX;
-		if (--engine.ANX == 0) {
-			engine.SY += TY; engine.DY += TY; --(engine.NY);
-			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
-			if (--NY == 0) {
-				engine.commandDone(engine.clock.getTime());
-				break;
+	} else {
+		// fast-path, no extended VRAM
+		while (engine.clock.before(time)) {
+			byte p = vram.cmdReadWindow.readNP(
+				       Mode::addressOf(engine.ASX, engine.SY, false));
+			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, false),
+				      p, engine.clock.getTime());
+			engine.clock.fastAdd(delta);
+			engine.ASX += TX; engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.SY += TY; engine.DY += TY; --(engine.NY);
+				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
 			}
 		}
 	}
@@ -1244,23 +1319,43 @@ void VDPCmdEngine::YmmmCmd<Mode>::execute(const EmuTime& time)
 	//  it says so in the datasheet, but it seems unlogical
 	//  OTOH YMMM also uses DX for both read and write
 	bool dstExt = engine.ARG & MXD;
-	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (engine.clock.before(time)) {
-		if (likely(doPset)) {
-			byte p = vram.cmdReadWindow.readNP(
-			              Mode::addressOf(engine.ADX, engine.SY, dstExt));
-			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              p, engine.clock.getTime());
+	if (unlikely(dstExt)) {
+		bool doPset  = !dstExt || engine.hasExtendedVRAM;
+		while (engine.clock.before(time)) {
+			if (likely(doPset)) {
+				byte p = vram.cmdReadWindow.readNP(
+					      Mode::addressOf(engine.ADX, engine.SY, dstExt));
+				vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
+					      p, engine.clock.getTime());
+			}
+			engine.clock.fastAdd(delta);
+			engine.ASX += TX; engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.SY += TY; engine.DY += TY; --(engine.NY);
+				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
+			}
 		}
-		engine.clock.fastAdd(delta);
-		engine.ASX += TX; engine.ADX += TX;
-		if (--engine.ANX == 0) {
-			engine.SY += TY; engine.DY += TY; --(engine.NY);
-			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
-			if (--NY == 0) {
-				engine.commandDone(engine.clock.getTime());
-				break;
+	} else {
+		// fast-path, no extended VRAM
+		while (engine.clock.before(time)) {
+			byte p = vram.cmdReadWindow.readNP(
+				      Mode::addressOf(engine.ADX, engine.SY, false));
+			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, false),
+				      p, engine.clock.getTime());
+			engine.clock.fastAdd(delta);
+			engine.ASX += TX; engine.ADX += TX;
+			if (--engine.ANX == 0) {
+				engine.SY += TY; engine.DY += TY; --(engine.NY);
+				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+				if (--NY == 0) {
+					engine.commandDone(engine.clock.getTime());
+					break;
+				}
 			}
 		}
 	}
