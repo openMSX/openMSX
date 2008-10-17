@@ -714,7 +714,7 @@ byte VDP::peekStatusReg(byte reg, const EmuTime& time) const
 	case 6:
 		return byte(spriteChecker->getCollisionY(time) >> 8) | 0xFC;
 	case 7:
-		return cmdEngine->readColour(time);
+		return cmdEngine->readColor(time);
 	case 8:
 		return byte(cmdEngine->getBorderX(time));
 	case 9:
@@ -742,7 +742,7 @@ byte VDP::readStatusReg(byte reg, const EmuTime& time)
 		spriteChecker->resetCollision();
 		break;
 	case 7:
-		cmdEngine->resetColour();
+		cmdEngine->resetColor();
 		break;
 	}
 	return ret;

@@ -19,6 +19,23 @@ class RenderSettings;
 class Setting;
 class BooleanSetting;
 
+
+/** This is an abstract base class the VDP commands
+  */
+class VDPCmd {
+public:
+	virtual ~VDPCmd() {}
+
+	/** Prepare execution of cmd
+	  */
+	virtual void start(const EmuTime& time, VDPCmdEngine& engine) = 0;
+
+	/** Perform a given V9938 graphical operation.
+	  */
+	virtual void execute(const EmuTime& /*time*/, VDPCmdEngine& /*engine*/) {}
+};
+
+
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
@@ -40,13 +57,13 @@ public:
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(const EmuTime& time) {
-		if (currentCommand) currentCommand->execute(time);
+		if (currentCommand) currentCommand->execute(time, *this);
 	}
 
 	/** Gets the command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
 	  * a pixel transfer.
-	  * Bit 4 (BD) is set when the boundary colour is detected.
+	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
 	inline byte getStatus(const EmuTime& time) {
@@ -59,13 +76,13 @@ public:
 	/** Use this method to transfer pixel(s) from VDP to CPU.
 	  * This method implements V9938 S#7.
 	  * @param time The moment in emulated time this read occurs.
-	  * @return Colour value of the pixel.
+	  * @return Color value of the pixel.
 	  */
-	inline byte readColour(const EmuTime& time) {
+	inline byte readColor(const EmuTime& time) {
 		sync(time);
 		return COL;
 	}
-	inline void resetColour() {
+	inline void resetColor() {
 		// Note: Real VDP always resets TR, but for such a short time
 		//       that the MSX won't notice it.
 		// TODO: What happens on non-transfer commands?
@@ -112,235 +129,13 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	/** Represents V9938 Graphic 4 mode (SCREEN5).
-	  */
-	class Graphic4Mode {
-	public:
-		static const byte COLOUR_MASK = 0x0F;
-		static const byte PIXELS_PER_BYTE = 2;
-		static const byte PIXELS_PER_BYTE_SHIFT = 1;
-		static const unsigned PIXELS_PER_LINE = 256;
-		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
-		template <typename LogOp>
-		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte color,
-			LogOp op);
-	};
-
-	/** Represents V9938 Graphic 5 mode (SCREEN6).
-	  */
-	class Graphic5Mode {
-	public:
-		static const byte COLOUR_MASK = 0x03;
-		static const byte PIXELS_PER_BYTE = 4;
-		static const byte PIXELS_PER_BYTE_SHIFT = 2;
-		static const unsigned PIXELS_PER_LINE = 512;
-		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
-		template <typename LogOp>
-		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte color,
-			LogOp op);
-	};
-
-	/** Represents V9938 Graphic 6 mode (SCREEN7).
-	  */
-	class Graphic6Mode {
-	public:
-		static const byte COLOUR_MASK = 0x0F;
-		static const byte PIXELS_PER_BYTE = 2;
-		static const byte PIXELS_PER_BYTE_SHIFT = 1;
-		static const unsigned PIXELS_PER_LINE = 512;
-		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
-		template <typename LogOp>
-		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte color,
-			LogOp op);
-	};
-
-	/** Represents V9938 Graphic 7 mode (SCREEN8).
-	  */
-	class Graphic7Mode {
-	public:
-		static const byte COLOUR_MASK = 0xFF;
-		static const byte PIXELS_PER_BYTE = 1;
-		static const byte PIXELS_PER_BYTE_SHIFT = 0;
-		static const unsigned PIXELS_PER_LINE = 256;
-		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
-		template <typename LogOp>
-		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte color,
-			LogOp op);
-	};
-
-	/** This is an abstract base class the VDP commands
-	  */
-	class VDPCmd {
-	public:
-		VDPCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual ~VDPCmd();
-
-		/** Prepare execution of cmd
-		  */
-		virtual void start(const EmuTime& time) = 0;
-
-		/** Perform a given V9938 graphical operation.
-		  */
-		virtual void execute(const EmuTime& time) = 0;
-
-	protected:
-		VDPCmdEngine& engine;
-		VDPVRAM& vram;
-	};
-
 	template <template <typename Mode> class Command>
 	void createHEngines(unsigned cmd);
+	void deleteHEngines(unsigned cmd);
+
 	template <template <typename Mode, typename LogOp> class Command>
-	void createLEngines(unsigned cmd);
-
-	/** Abort
-	  */
-	class AbortCmd : public VDPCmd {
-	public:
-		AbortCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Point
-	  */
-	template <class Mode>
-	class PointCmd : public VDPCmd {
-	public:
-		PointCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Pset
-	  */
-	template <typename Mode, typename LogOp>
-	class PsetCmd : public VDPCmd {
-	public:
-		PsetCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Search a dot.
-	  */
-	template <typename Mode>
-	class SrchCmd : public VDPCmd {
-	public:
-		SrchCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Draw a line.
-	  */
-	template <typename Mode, typename LogOp>
-	class LineCmd : public VDPCmd {
-	public:
-		LineCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Abstract base class for block commands.
-	  */
-	class BlockCmd : public VDPCmd {
-	public:
-		BlockCmd(VDPCmdEngine& engine, VDPVRAM& vram, const unsigned* timing);
-	protected:
-		void calcFinishTime(unsigned NX, unsigned NY);
-
-		const unsigned* timing;
-	};
-
-	/** Logical move VDP -> VRAM.
-	  */
-	template <typename Mode, typename LogOp>
-	class LmmvCmd : public BlockCmd {
-	public:
-		LmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Logical move VRAM -> VRAM.
-	  */
-	template <typename Mode, typename LogOp>
-	class LmmmCmd : public BlockCmd {
-	public:
-		LmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Logical move VRAM -> CPU.
-	  */
-	template <typename Mode>
-	class LmcmCmd : public BlockCmd {
-	public:
-		LmcmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** Logical move CPU -> VRAM.
-	  */
-	template <typename Mode, typename LogOp>
-	class LmmcCmd : public BlockCmd {
-	public:
-		LmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** High-speed move VDP -> VRAM.
-	  */
-	template <typename Mode>
-	class HmmvCmd : public BlockCmd {
-	public:
-		HmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** High-speed move VRAM -> VRAM.
-	  */
-	template <typename Mode>
-	class HmmmCmd : public BlockCmd {
-	public:
-		HmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** High-speed move VRAM -> VRAM (Y direction only).
-	  */
-	template <typename Mode>
-	class YmmmCmd : public BlockCmd {
-	public:
-		YmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
-	/** High-speed move CPU -> VRAM.
-	  */
-	template <typename Mode>
-	class HmmcCmd : public BlockCmd {
-	public:
-		HmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
-	};
-
+	void createLEngines(unsigned cmd, VDPCmd* dummy);
+	void deleteLEngines(unsigned cmd);
 
 	virtual void update(const Setting& setting);
 
@@ -372,7 +167,7 @@ private:
 	  */
 	const std::auto_ptr<BooleanSetting> cmdTraceSetting;
 
-	VDPCmd* commands[16][16][4];
+	VDPCmd* commands[256][4];
 	VDPCmd* currentCommand;
 
 	/** Time at which the next operation cycle starts.
@@ -403,12 +198,12 @@ private:
 	unsigned SX, SY, DX, DY, NX, NY; // registers that can be set by CPU
 	unsigned ASX, ADX, ANX; // Temporary registers used in the VDP commands
                                 // Register ASX can be read (via status register 8/9)
-	byte COL, ARG, CMD, LOG;
+	byte COL, ARG, CMD;
 
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
 	  * a pixel transfer.
-	  * Bit 4 (BD) is set when the boundary colour is detected.
+	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
 	byte status;
@@ -425,6 +220,26 @@ private:
 	/** Real command timing or instantaneous (broken) timing
 	  */
 	bool brokenTiming;
+
+	friend class AbortCmd;
+	friend class SrchBaseCmd;
+	friend class LineBaseCmd;
+	friend class BlockCmd;
+	template<typename> friend class PointCmd;
+	template<typename> friend class SrchCmd;
+	template<typename> friend class LmcmCmd;
+	template<typename> friend class HmmvCmd;
+	template<typename> friend class HmmmCmd;
+	template<typename> friend class YmmmCmd;
+	template<typename> friend class HmmcCmd;
+	template<typename> friend class LmmvBaseCmd;
+	template<typename> friend class LmmmBaseCmd;
+	template<typename> friend class LmmcBaseCmd;
+	template<typename, typename> friend class PsetCmd;
+	template<typename, typename> friend class LineCmd;
+	template<typename, typename> friend class LmmvCmd;
+	template<typename, typename> friend class LmmmCmd;
+	template<typename, typename> friend class LmmcCmd;
 };
 
 } // namespace openmsx
