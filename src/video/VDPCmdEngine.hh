@@ -108,22 +108,6 @@ public:
 
 	/** Interface for logical operations.
 	  */
-	class LogOp {
-	public:
-		/** Write a pixel using a logical operation.
-		  * @param time Time at which the write occurs.
-		  * @param vram Pointer to VRAM class.
-		  * @param addr Address of pixel in VRAM.
-		  * @param colour Colour of pixel to be written,
-		  *   shifted if necessary to correspond to the right VRAM position.
-		  * @param mask Read mask: bit positions that are 1 are read from
-		  *   VRAM before the write is performed.
-		  */
-		virtual void pset(const EmuTime& time, VDPVRAM& vram,
-		                  unsigned addr, byte colour, byte mask) = 0;
-		virtual ~LogOp() {}
-	};
-
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -138,8 +122,10 @@ private:
 		static const unsigned PIXELS_PER_LINE = 256;
 		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+		template <typename LogOp>
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte color,
+			LogOp op);
 	};
 
 	/** Represents V9938 Graphic 5 mode (SCREEN6).
@@ -152,8 +138,10 @@ private:
 		static const unsigned PIXELS_PER_LINE = 512;
 		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+		template <typename LogOp>
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte color,
+			LogOp op);
 	};
 
 	/** Represents V9938 Graphic 6 mode (SCREEN7).
@@ -166,8 +154,10 @@ private:
 		static const unsigned PIXELS_PER_LINE = 512;
 		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+		template <typename LogOp>
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte color,
+			LogOp op);
 	};
 
 	/** Represents V9938 Graphic 7 mode (SCREEN8).
@@ -180,8 +170,10 @@ private:
 		static const unsigned PIXELS_PER_LINE = 256;
 		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+		template <typename LogOp>
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte color,
+			LogOp op);
 	};
 
 	/** This is an abstract base class the VDP commands
@@ -204,8 +196,10 @@ private:
 		VDPVRAM& vram;
 	};
 
-	template <template <class Mode> class Command>
-	void createEngines(unsigned cmd);
+	template <template <typename Mode> class Command>
+	void createHEngines(unsigned cmd);
+	template <template <typename Mode, typename LogOp> class Command>
+	void createLEngines(unsigned cmd);
 
 	/** Abort
 	  */
@@ -228,7 +222,7 @@ private:
 
 	/** Pset
 	  */
-	template <class Mode>
+	template <typename Mode, typename LogOp>
 	class PsetCmd : public VDPCmd {
 	public:
 		PsetCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -238,7 +232,7 @@ private:
 
 	/** Search a dot.
 	  */
-	template <class Mode>
+	template <typename Mode>
 	class SrchCmd : public VDPCmd {
 	public:
 		SrchCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -248,7 +242,7 @@ private:
 
 	/** Draw a line.
 	  */
-	template <class Mode>
+	template <typename Mode, typename LogOp>
 	class LineCmd : public VDPCmd {
 	public:
 		LineCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -269,7 +263,7 @@ private:
 
 	/** Logical move VDP -> VRAM.
 	  */
-	template <class Mode>
+	template <typename Mode, typename LogOp>
 	class LmmvCmd : public BlockCmd {
 	public:
 		LmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -279,7 +273,7 @@ private:
 
 	/** Logical move VRAM -> VRAM.
 	  */
-	template <class Mode>
+	template <typename Mode, typename LogOp>
 	class LmmmCmd : public BlockCmd {
 	public:
 		LmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -289,7 +283,7 @@ private:
 
 	/** Logical move VRAM -> CPU.
 	  */
-	template <class Mode>
+	template <typename Mode>
 	class LmcmCmd : public BlockCmd {
 	public:
 		LmcmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -299,7 +293,7 @@ private:
 
 	/** Logical move CPU -> VRAM.
 	  */
-	template <class Mode>
+	template <typename Mode, typename LogOp>
 	class LmmcCmd : public BlockCmd {
 	public:
 		LmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -309,7 +303,7 @@ private:
 
 	/** High-speed move VDP -> VRAM.
 	  */
-	template <class Mode>
+	template <typename Mode>
 	class HmmvCmd : public BlockCmd {
 	public:
 		HmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -319,7 +313,7 @@ private:
 
 	/** High-speed move VRAM -> VRAM.
 	  */
-	template <class Mode>
+	template <typename Mode>
 	class HmmmCmd : public BlockCmd {
 	public:
 		HmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -329,7 +323,7 @@ private:
 
 	/** High-speed move VRAM -> VRAM (Y direction only).
 	  */
-	template <class Mode>
+	template <typename Mode>
 	class YmmmCmd : public BlockCmd {
 	public:
 		YmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -339,7 +333,7 @@ private:
 
 	/** High-speed move CPU -> VRAM.
 	  */
-	template <class Mode>
+	template <typename Mode>
 	class HmmcCmd : public BlockCmd {
 	public:
 		HmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram);
@@ -378,9 +372,8 @@ private:
 	  */
 	const std::auto_ptr<BooleanSetting> cmdTraceSetting;
 
-	VDPCmd* commands[16][4];
+	VDPCmd* commands[16][16][4];
 	VDPCmd* currentCommand;
-	LogOp* currentOperation;
 
 	/** Time at which the next operation cycle starts.
 	  * A cycle consists of reading source VRAM (if applicable),
