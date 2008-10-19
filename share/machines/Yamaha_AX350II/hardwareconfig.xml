@@ -7,7 +7,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>AX350II</code>
     <release_year>?</release_year>
-    <description>Arabic MSX2 sold by Sakhr. NOTE: ROM images not verified!</description>
+    <description>Arabic MSX2 sold by Sakhr.</description>
     <type>MSX2</type>
   </info>
 
@@ -23,24 +23,17 @@
       <ROM id="MSX BIOS with BASIC ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>35195ab67c289a0b470883464df66bc6ea5b00d3</sha1>
+          <sha1>35195ab67c289a0b470883464df66bc6ea5b00d3</sha1> <!-- verified by dhau -->
           <filename>roms/ax350ii_basic-bios2.rom</filename>
         </rom>
       </ROM>
     </secondary>
 
     <secondary slot="1">
-      <ROM id="MSX2 subROM">
-        <mem base="0x0000" size="0x4000"/>
-        <rom>
-          <sha1>ebb76f9061e875365023523607db610f2eda1d26</sha1>
-          <filename>roms/ax350ii_msx2sub.rom</filename>
-        </rom>
-      </ROM>
       <ROM id="Arabic ROM">
         <mem base="0x4000" size="0x8000"/>
         <rom>
-          <sha1>2c9600c6e0025fee10d249e97448ecaa37e38c42</sha1>
+          <sha1>2c9600c6e0025fee10d249e97448ecaa37e38c42</sha1> <!-- TODO: CHECK! -->
           <filename>roms/ax350ii_arabic.rom</filename>
         </rom>
       </ROM>
@@ -59,7 +52,7 @@
     </primary>
 
     <primary external="true" slot="1"/>
-    
+
     <primary external="true" slot="2"/>
 
     <primary slot="3">
@@ -74,7 +67,17 @@
         </ROM>
       </secondary>
 
-      <secondary slot="2"> <!-- This slot works, but is not confirmed yet. -->
+      <secondary slot="1">
+        <ROM id="MSX2 subROM">
+          <mem base="0x0000" size="0x4000"/>
+          <rom>
+            <sha1>ebb76f9061e875365023523607db610f2eda1d26</sha1> <!-- verified by dhau -->
+            <filename>roms/ax350ii_msx2sub.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
+
+      <secondary slot="2"> <!-- Confirmed by dhau -->
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
           <size>128</size>
@@ -85,7 +88,7 @@
         <MB8877A id="Memory Mapped FDC">
           <mem base="0x4000" size="0x8000"/>
           <broken_fdc_read>false</broken_fdc_read>
-          <rom> 
+          <rom>
             <sha1>78cd7f847e77fd8cd51a647efb2725ba93f4c471</sha1> <!-- This is most certainly not the correct ROM dump; the ROM dump failed and this one seems to work as well... -->
             <filename>roms/NATIONALDISK.rom</filename>
           </rom>
