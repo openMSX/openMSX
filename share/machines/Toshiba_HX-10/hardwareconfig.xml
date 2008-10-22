@@ -40,6 +40,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <keyboardlayout>JIS</keyboardlayout> <!-- verified on Manuel's real HX-10! -->
     </PSG>
 
     <PrinterPort id="Printer Port">
