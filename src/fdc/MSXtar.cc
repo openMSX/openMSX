@@ -259,20 +259,20 @@ unsigned MSXtar::getStartCluster(const MSXDirEntry& entry)
 unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 {
 	unsigned nextcl = findFirstFreeCluster();
-	unsigned logicalSector = clusterToSector(nextcl);
+	unsigned nextSector = clusterToSector(nextcl);
 
 	// clear this cluster
 	byte buf[SECTOR_SIZE];
 	memset(buf, 0, SECTOR_SIZE);
 	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
-		writeLogicalSector(i + logicalSector, buf);
+		writeLogicalSector(i + nextSector, buf);
 	}
 
 	unsigned curcl = sectorToCluster(sector);
 	assert(readFAT(curcl) == EOF_FAT);
 	writeFAT(curcl, nextcl);
 	writeFAT(nextcl, EOF_FAT);
-	return logicalSector;
+	return nextSector;
 }
 
 
@@ -323,10 +323,11 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 			if (result.index != unsigned(-1)) {
 				return result;
 			}
-			result.sector = getNextSector(result.sector);
-			if (result.sector == 0) {
-				result.sector = appendClusterToSubdir(result.sector);
+			unsigned nextSector = getNextSector(result.sector);
+			if (nextSector == 0) {
+				nextSector = appendClusterToSubdir(result.sector);
 			}
+			result.sector = nextSector;
 		}
 	}
 }
