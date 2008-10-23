@@ -141,13 +141,15 @@ bool SectorBasedDisk::isReady() const
 
 void SectorBasedDisk::readSectorImpl(unsigned sector, byte* buf)
 {
-	if (sector >= getNbSectors()) {
+	unsigned nbSectors = getNbSectors();
+	if ((nbSectors != 0) && // in this case we want DriveEmptyException
+	    (nbSectors <= sector)) {
 		throw NoSuchSectorException("No such sector");
 	}
 	try {
 		patch->copyBlock(sector * SECTOR_SIZE, buf, SECTOR_SIZE);
 	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error");
+		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
 	}
 }
 
@@ -156,13 +158,14 @@ void SectorBasedDisk::writeSectorImpl(unsigned sector, const byte* buf)
 	if (isWriteProtected()) {
 		throw WriteProtectedException("");
 	}
-	if (sector >= getNbSectors()) {
+	unsigned nbSectors = getNbSectors();
+	if ((nbSectors != 0) && (nbSectors <= sector)) {
 		throw NoSuchSectorException("No such sector");
 	}
 	try {
 		writeSectorSBD(sector, buf);
 	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error");
+		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
 	}
 }
 
