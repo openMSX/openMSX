@@ -1,5 +1,9 @@
 $Id$
 
+2008-10-25 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Sony HB-10P and Sony HB-55P, thanks to Rudi Westerhof. Also
+	  added Sony HB-20P a few days ago, thanks to MSXKun.
+
 2008-10-16 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented rough, but measurement-based timing for V9990 for
 	  commands LMMV, LMMM, BMXL, BMLX and BMLL. Code by Wouter. Original
