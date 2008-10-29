@@ -196,7 +196,9 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			: [CH] "=&rm" (ch)
+			"shrd   %[SH],%[CH],%[CL]\n\t"
+
+			: [CH] "=&r"  (ch)
 			, [CL] "=rm"  (cl)
 			, [TH] "=&r"  (th)
 			, [TL] "=&r"  (tl)
@@ -204,10 +206,11 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			, [AL] "g"    (al)
 			, [BH] "rm"   (bh)
 			, [BL] "[CL]" (bl)
+			, [SH] "i"    (R::S2)
 			: "eax","edx"
 		);
-		uint64 c = (uint64(ch) << 32) | cl;
-		return c >> R::S2;
+		return cl;
+
 	#elif defined(__arm__)
 		unsigned res;
 		unsigned th,tl;
@@ -286,7 +289,9 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			: [CH] "=&rm" (ch)
+                        "shrd   %[SH],%[CH],%[CL]\n\t"
+
+			: [CH] "=&r"  (ch)
 			, [CL] "=rm"  (cl)
 			, [TH] "=&r"  (th)
 			, [TL] "=&r"  (tl)
@@ -294,10 +299,11 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 			, [AL] "g"    (al)
 			, [BH] "rm"   (bh)
 			, [BL] "[CL]" (bl)
+			, [SH] "i"    (R::S2)
 			: "eax","edx"
 		);
-		uint64 c = (uint64(ch) << 32) | cl;
-		return c >> R::S2;
+		return cl;
+
 	#elif defined(__arm__)
 		unsigned res;
 		unsigned th,tl;

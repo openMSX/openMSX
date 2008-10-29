@@ -67,9 +67,12 @@ public:
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
+			"mov    %[SH],%[TH]\n\t"  // TH == ecx
+			"shrd   %%cl,%[CH],%[CL]\n\t"
+
 			: [CH] "=r"   (ch)
 			, [CL] "=r"   (cl)
-			, [TH] "=&rm" (th)
+			, [TH] "=&c"  (th) // ecx
 			, [TL] "=&rm" (tl)
 			:      "[CH]" (ch)
 			,      "[CL]" (cl)
@@ -77,10 +80,10 @@ public:
 			, [AL] "m"    (al)
 			, [BH] "m"    (bh)
 			, [BL] "m"    (bl)
+			, [SH] "m"    (s)
 			: "eax","edx"
 		);
-		uint64 c = (uint64(ch) << 32) | cl;
-		return c >> s;
+		return cl;
 
 	#elif defined(__arm__)
 		unsigned res;
