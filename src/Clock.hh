@@ -76,6 +76,15 @@ public:
 		DivModByConst<MASTER_TICKS32> dm;
 		return dm.div(e.time - lastTick.time);
 	}
+	/** Calculate the number of ticks this clock has to tick to reach
+	  * or go past the given time.
+	  * It is not allowed to call this method for a time in the past.
+	  */
+	unsigned getTicksTillUp(const EmuTime& e) const {
+		assert(e.time >= lastTick.time);
+		DivModByConst<MASTER_TICKS32> dm;
+		return dm.div(e.time - lastTick.time + MASTER_TICKS32 - 1);
+	}
 
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).

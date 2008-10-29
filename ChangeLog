@@ -1,5 +1,33 @@
 $Id$
 
+2008-10-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized VDPCmdEngine:
+	  The core of most VDP commands goes like this:
+	     1 transform x,y coordinate(s) to vram address(es)
+	     2 do some operation on that address(es)
+	     3 increase (or decrease) coordinates to loop over the whole
+	       rectangle (mostly only the x-coordinate changes)
+	     4 repeat if there is still time left
+	  The coordinate to address transformation requires quite some shift
+	  and logical operations. In the next iteration all these operations
+	  are repeated.
+
+	  In this patch the vram address is calculated incrementally: we
+	  calculate it once at the beginning of the loop and then adjust the
+	  address when the x-coordinate changes. We have to take care of vram
+	  interleaving (screen 7 and 8) and that several pixels map to the same
+	  address (screen 5, 6, 7).
+
+	  A second optimization is to simplify the stop-condition for the
+	  innermost loop. Before we broke out of this loop either when
+	  destination time was reached or when we reached the end of a
+	  horizontal line (implemented as two seperate tests). Now we calculate
+	  up-front which of these two condition will occur first and iterate
+	  that many times (with only one test).
+
+	  I measured between 4% and 8% speedup on total emulation time for the
+	  Space Manbow intro demo (renderer=none, sounddriver=null).
+
 2008-10-25 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Sony HB-10P and Sony HB-55P, thanks to Rudi Westerhof. Also
 	  added Sony HB-20P a few days ago, thanks to MSXKun.

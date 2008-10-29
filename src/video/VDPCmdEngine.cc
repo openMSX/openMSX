@@ -963,27 +963,34 @@ void LmmvCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
 		// fast-path, no extended VRAM
 		typename Mode::IncrPixelAddr dstAddr;
 		typename Mode::IncrMask dstMask(TX);
-		dstAddr.init(engine.ADX, engine.DY, TX);
-		dstMask.init(engine.ADX);
 		CL = dstMask.duplicate(CL);
-
 		while (engine.clock.before(time)) {
-			byte mask = dstMask.getMask();
-			psetFast(engine.clock.getTime(), vram, dstAddr.getAddr(),
-			         CL & ~mask, mask, LogOp());
-			engine.clock.fastAdd(delta);
-			engine.ADX += TX;
-			dstAddr.step(TX);
-			dstMask.step();
-			if (--engine.ANX == 0) {
-				engine.DY += TY; --(engine.NY);
-				engine.ADX = engine.DX; engine.ANX = NX;
+			dstAddr.init(engine.ADX, engine.DY, TX);
+			dstMask.init(engine.ADX);
+			unsigned ticks = engine.clock.getTicksTillUp(time);
+			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			for (unsigned i = 0; i < num; ++i) {
+				byte mask = dstMask.getMask();
+				psetFast(engine.clock.getTime(), vram, dstAddr.getAddr(),
+					 CL & ~mask, mask, LogOp());
+				engine.clock.fastAdd(delta);
+				dstAddr.step(TX);
+				dstMask.step();
+			}
+			engine.ANX -= num;
+			if (engine.ANX == 0) {
+				engine.DY += TY;
+				engine.NY -= 1;
+				engine.ADX = engine.DX;
+				engine.ANX = NX;
 				if (--NY == 0) {
 					engine.commandDone(engine.clock.getTime());
 					break;
 				}
-				dstAddr.init(engine.ADX, engine.DY, TX);
-				dstMask.init(engine.ADX);
+			} else {
+				engine.ADX += num * TX;
+				assert(!engine.clock.before(time));
+				break;
 			}
 		}
 	}
@@ -1034,7 +1041,7 @@ void LmmmCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
 	bool srcExt  = engine.ARG & MXS;
 	bool dstExt  = engine.ARG & MXD;
 
-	if (unlikely(srcExt || dstExt)) {
+	if (unlikely(srcExt) || unlikely(dstExt)) {
 		bool doPoint = !srcExt || engine.hasExtendedVRAM;
 		bool doPset  = !dstExt || engine.hasExtendedVRAM;
 		while (engine.clock.before(time)) {
@@ -1062,32 +1069,41 @@ void LmmmCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
 		typename Mode::IncrPixelAddr dstAddr;
 		typename Mode::IncrMask dstMask(TX);
 		typename Mode::IncrShift shift;
-		srcAddr.init(engine.ASX, engine.SY, TX);
-		dstAddr.init(engine.ADX, engine.DY, TX);
-		dstMask.init(engine.ADX);
-		shift  .init(engine.ASX, engine.ADX);
 		while (engine.clock.before(time)) {
-			byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
-			p = shift.doShift(p);
-			byte mask = dstMask.getMask();
-			psetFast(engine.clock.getTime(), vram, dstAddr.getAddr(),
-			         p & ~mask, mask, LogOp());
-			engine.clock.fastAdd(delta);
-			srcAddr.step(TX);
-			dstAddr.step(TX);
-			dstMask.step();
-			engine.ASX += TX; engine.ADX += TX;
-			if (--engine.ANX == 0) {
-				engine.SY += TY; engine.DY += TY; --(engine.NY);
-				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+			srcAddr.init(engine.ASX, engine.SY, TX);
+			dstAddr.init(engine.ADX, engine.DY, TX);
+			dstMask.init(engine.ADX);
+			shift  .init(engine.ASX, engine.ADX);
+			unsigned ticks = engine.clock.getTicksTillUp(time);
+			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			for (unsigned i = 0; i < num; ++i) {
+				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
+				p = shift.doShift(p);
+				byte mask = dstMask.getMask();
+				psetFast(engine.clock.getTime(), vram, dstAddr.getAddr(),
+					 p & ~mask, mask, LogOp());
+				engine.clock.fastAdd(delta);
+				srcAddr.step(TX);
+				dstAddr.step(TX);
+				dstMask.step();
+			}
+			engine.ANX -= num;
+			if (engine.ANX == 0) {
+				engine.SY += TY;
+				engine.DY += TY;
+				engine.NY -= 1;
+				engine.ASX = engine.SX;
+				engine.ADX = engine.DX;
+				engine.ANX = NX;
 				if (--NY == 0) {
 					engine.commandDone(engine.clock.getTime());
 					break;
 				}
-				srcAddr.init(engine.ASX, engine.SY, TX);
-				dstAddr.init(engine.ADX, engine.DY, TX);
-				dstMask.init(engine.ADX);
-				shift  .init(engine.ASX, engine.ADX);
+			} else {
+				engine.ASX += num * TX;
+				engine.ADX += num * TX;
+				assert(!engine.clock.before(time));
+				break;
 			}
 		}
 	}
@@ -1278,21 +1294,30 @@ void HmmvCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
 	} else {
 		// fast-path, no extended VRAM
 		typename Mode::IncrByteAddr dstAddr;
-		dstAddr.init(engine.ADX, engine.DY, TX);
 		while (engine.clock.before(time)) {
-			vram.cmdWrite(dstAddr.getAddr(), engine.COL,
-			              engine.clock.getTime());
-			engine.clock.fastAdd(delta);
-			dstAddr.step(TX);
-			engine.ADX += TX;
-			if (--engine.ANX == 0) {
-				engine.DY += TY; --(engine.NY);
-				engine.ADX = engine.DX; engine.ANX = NX;
+			dstAddr.init(engine.ADX, engine.DY, TX);
+			unsigned ticks = engine.clock.getTicksTillUp(time);
+			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			for (unsigned i = 0; i < num; ++i) {
+				vram.cmdWrite(dstAddr.getAddr(), engine.COL,
+					      engine.clock.getTime());
+				engine.clock.fastAdd(delta);
+				dstAddr.step(TX);
+			}
+			engine.ANX -= num;
+			if (engine.ANX == 0) {
+				engine.DY += TY;
+				engine.NY -= 1;
+				engine.ADX = engine.DX;
+				engine.ANX = NX;
 				if (--NY == 0) {
 					engine.commandDone(engine.clock.getTime());
 					break;
 				}
-				dstAddr.init(engine.ADX, engine.DY, TX);
+			} else {
+				engine.ADX += num * TX;
+				assert(!engine.clock.before(time));
+				break;
 			}
 		}
 	}
@@ -1369,24 +1394,35 @@ void HmmmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
 		// fast-path, no extended VRAM
 		typename Mode::IncrByteAddr srcAddr;
 		typename Mode::IncrByteAddr dstAddr;
-		srcAddr.init(engine.ASX, engine.SY, TX);
-		dstAddr.init(engine.ADX, engine.DY, TX);
 		while (engine.clock.before(time)) {
-			byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
-			vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
-			engine.clock.fastAdd(delta);
-			srcAddr.step(TX);
-			dstAddr.step(TX);
-			engine.ASX += TX; engine.ADX += TX;
-			if (--engine.ANX == 0) {
-				engine.SY += TY; engine.DY += TY; --(engine.NY);
-				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+			srcAddr.init(engine.ASX, engine.SY, TX);
+			dstAddr.init(engine.ADX, engine.DY, TX);
+			unsigned ticks = engine.clock.getTicksTillUp(time);
+			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			for (unsigned i = 0; i < num; ++i) {
+				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
+				vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
+				engine.clock.fastAdd(delta);
+				srcAddr.step(TX);
+				dstAddr.step(TX);
+			}
+			engine.ANX -= num;
+			if (engine.ANX == 0) {
+				engine.SY += TY;
+				engine.DY += TY;
+				engine.NY -= 1;
+				engine.ASX = engine.SX;
+				engine.ADX = engine.DX;
+				engine.ANX = NX;
 				if (--NY == 0) {
 					engine.commandDone(engine.clock.getTime());
 					break;
 				}
-				srcAddr.init(engine.ASX, engine.SY, TX);
-				dstAddr.init(engine.ADX, engine.DY, TX);
+			} else {
+				engine.ASX += num * TX;
+				engine.ADX += num * TX;
+				assert(!engine.clock.before(time));
+				break;
 			}
 		}
 	}
@@ -1447,10 +1483,10 @@ void YmmmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
 					      p, engine.clock.getTime());
 			}
 			engine.clock.fastAdd(delta);
-			engine.ASX += TX; engine.ADX += TX;
+			engine.ADX += TX;
 			if (--engine.ANX == 0) {
 				engine.SY += TY; engine.DY += TY; --(engine.NY);
-				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+				engine.ADX = engine.DX; engine.ANX = NX;
 				if (--NY == 0) {
 					engine.commandDone(engine.clock.getTime());
 					break;
@@ -1461,24 +1497,33 @@ void YmmmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
 		// fast-path, no extended VRAM
 		typename Mode::IncrByteAddr srcAddr;
 		typename Mode::IncrByteAddr dstAddr;
-		srcAddr.init(engine.ADX, engine.SY, TX);
-		dstAddr.init(engine.ADX, engine.DY, TX);
 		while (engine.clock.before(time)) {
-			byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
-			vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
-			engine.clock.fastAdd(delta);
-			srcAddr.step(TX);
-			dstAddr.step(TX);
-			engine.ASX += TX; engine.ADX += TX;
-			if (--engine.ANX == 0) {
-				engine.SY += TY; engine.DY += TY; --(engine.NY);
-				engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+			srcAddr.init(engine.ADX, engine.SY, TX);
+			dstAddr.init(engine.ADX, engine.DY, TX);
+			unsigned ticks = engine.clock.getTicksTillUp(time);
+			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			for (unsigned i = 0; i < num; ++i) {
+				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
+				vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
+				engine.clock.fastAdd(delta);
+				srcAddr.step(TX);
+				dstAddr.step(TX);
+			}
+			engine.ANX -= num;
+			if (engine.ANX == 0) {
+				engine.SY += TY;
+				engine.DY += TY;
+				engine.NY -= 1;
+				engine.ADX = engine.DX;
+				engine.ANX = NX;
 				if (--NY == 0) {
 					engine.commandDone(engine.clock.getTime());
 					break;
 				}
-				srcAddr.init(engine.ADX, engine.SY, TX);
-				dstAddr.init(engine.ADX, engine.DY, TX);
+			} else {
+				engine.ADX += num * TX;
+				assert(!engine.clock.before(time));
+				break;
 			}
 		}
 	}
