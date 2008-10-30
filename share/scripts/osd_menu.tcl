@@ -294,9 +294,11 @@ set main_menu [prepare_menu {
 	       { text "Load ROM..."
 	         actions { A { menu_create [create_ROM_list $::osd_menu_path] }}
 	         post-spacing 3 }
-	       { text "load state..."
+	       { text "Save state..."
+	         actions { A { menu_create [create_save_state] }}}
+	       { text "Load state..."
 	         actions { A { menu_create [create_load_state] }}}
-	       { text "settings..."
+	       { text "Settings..."
 	         actions { A { menu_create $::setting_menu }}}
 	       { pre-spacing 6
 	         text "sub title"
@@ -304,7 +306,7 @@ set main_menu [prepare_menu {
 	         font-size 15
 	         post-spacing 3
 	         selectable false }
-	       { text "exit"
+	       { text "Exit openMSX"
 	         actions { A exit }}}}]
 
 set setting_menu [prepare_menu {
@@ -404,6 +406,26 @@ proc create_load_state {} {
 	         on-select   menu_loadstate_select
 	         on-deselect menu_loadstate_deselect
 	         header { text "loadstate"
+	                  text-color 0x00ff00ff
+	                  font-size 10}}]
+}
+proc create_save_state {} {
+	set items [concat [list "create new"] [list_savestates]]
+	return [prepare_menu_list $items 10 \
+	       { execute menu_savestate_exec
+	         bg-color 0x00000080
+	         text-color 0xffffffff
+	         select-color 0x8080ffc0
+	         font-size 6
+	         border-size 2
+	         width 100
+	         xpos 100
+	         ypos 120
+	         on-open  {osd create rectangle "preview" -x 225 -y 5 -w 90 -h 70 -rgba 0x30303080 -scaled true}
+	         on-close {osd destroy "preview"}
+	         on-select   menu_loadstate_select
+	         on-deselect menu_loadstate_deselect
+	         header { text "savestate"
 	                  text-color 0xff0000ff
 	                  font-size 10}}]
 }
@@ -417,6 +439,28 @@ proc menu_loadstate_deselect { item } {
 proc menu_loadstate_exec { item } {
 	menu_close_all
 	loadstate $item
+}
+proc menu_savestate_exec { item } {
+	if {$item == "create new"} {
+		set item [menu_free_savestate_name]
+		menu_close_all
+		savestate $item
+	} else {
+		#TODO "Overwrite are you sure?" -dialog
+		menu_close_all
+		savestate $item
+	}
+}
+proc menu_free_savestate_name {} {
+	set existing [list_savestates]
+	set i 1
+	while 1 {
+		set name [format "savestate%04d" $i]
+		if {[lsearch $existing $name] == -1} {
+			return $name
+		}
+		incr i
+	}
 }
 
 bind_default "keyb MENU" main_menu_toggle
