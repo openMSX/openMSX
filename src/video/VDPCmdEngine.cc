@@ -395,7 +395,7 @@ struct IncrByteAddr7
 	{
 		return addr;
 	}
-	void step(int tx)
+	void step(int /*tx*/)
 	{
 		addr += delta;
 		delta ^= delta2;
@@ -437,7 +437,7 @@ private:
 
 struct IncrPixelAddr5
 {
-	void init(unsigned x, unsigned y, unsigned tx)
+	void init(unsigned x, unsigned y, int tx)
 	{
 		addr = Graphic5Mode::addressOf(x, y, false);
 		                   // x |  0 |  1 |  2 |  3
@@ -464,7 +464,7 @@ private:
 
 struct IncrPixelAddr6
 {
-	void init(unsigned x, unsigned y, unsigned tx)
+	void init(unsigned x, unsigned y, int tx)
 	{
 		addr = Graphic6Mode::addressOf(x, y, false);
 		c1 = -(x & 1);
@@ -478,7 +478,7 @@ struct IncrPixelAddr6
 		}
 	}
 	unsigned getAddr() const { return addr; }
-	void step(int tx)
+	void step(int /*tx*/)
 	{
 		addr += (c1 & c2);
 		c2 ^= (c1 & c3);
