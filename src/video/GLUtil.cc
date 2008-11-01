@@ -111,10 +111,9 @@ ColorTexture::ColorTexture(GLsizei width_, GLsizei height_)
 		width,            // width
 		height,           // height
 		0,                // border
-		GL_RGBA,          // format
+		GL_BGRA,          // format
 		GL_UNSIGNED_BYTE, // type
-		NULL              // data
-		);
+		NULL);            // data
 }
 
 
@@ -165,16 +164,16 @@ BitmapTexture::BitmapTexture()
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_RGBA,          // internal format
+		GL_RGBA8,         // internal format
 		512,              // width
 		1024,             // height
 		0,                // border
-		GL_RGBA,          // format
+		GL_BGRA,          // format
 		GL_UNSIGNED_BYTE, // type
 		&blackness[0]);   // data
 }
 
-void BitmapTexture::update(int y, const GLuint* data, int lineWidth)
+void BitmapTexture::update(int y, const GLuint* dataBGR, int lineWidth)
 {
 	assert(0 <= y && y < HEIGHT);
 	assert(lineWidth <= WIDTH);
@@ -187,9 +186,9 @@ void BitmapTexture::update(int y, const GLuint* data, int lineWidth)
 		y,                // y-offset
 		lineWidth,        // width
 		1,                // height
-		GL_RGBA,          // format
+		GL_BGRA,          // format
 		GL_UNSIGNED_BYTE, // type
-		data);            // data
+		dataBGR);         // data
 }
 
 void BitmapTexture::draw(
@@ -220,7 +219,7 @@ LineTexture::LineTexture()
 {
 }
 
-void LineTexture::update(const GLuint* data, int lineWidth)
+void LineTexture::update(const GLuint* dataBGR, int lineWidth)
 {
 	bind();
 	if (prevLineWidth == lineWidth) {
@@ -232,24 +231,22 @@ void LineTexture::update(const GLuint* data, int lineWidth)
 			0,                // y-offset
 			lineWidth,        // width
 			1,                // height
-			GL_RGBA,          // format
+			GL_BGRA,          // format
 			GL_UNSIGNED_BYTE, // type
-			data              // data
-			);
+			dataBGR);         // data
 	} else {
 		// create new texture
 		prevLineWidth = lineWidth;
 		glTexImage2D(
 			GL_TEXTURE_2D,    // target
 			0,                // level
-			GL_RGBA,          // internal format
+			GL_RGBA8,         // internal format
 			lineWidth,        // width
 			1,                // height
 			0,                // border
-			GL_RGBA,          // format
+			GL_BGRA,          // format
 			GL_UNSIGNED_BYTE, // type
-			data              // data
-			);
+			dataBGR);         // data
 	}
 }
 

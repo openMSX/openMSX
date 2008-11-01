@@ -76,6 +76,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		format.Bmask = 0x001F;
 		format.Amask = 0x0000;
 	} else {
+		// BGRA format
 		format.BitsPerPixel = 32;
 		format.BytesPerPixel = 4;
 		format.Rloss = 0;
@@ -83,22 +84,22 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		format.Bloss = 0;
 		format.Aloss = 0;
 		if (OPENMSX_BIGENDIAN) {
-			format.Rshift = 24;
+			format.Rshift =  8;
 			format.Gshift = 16;
-			format.Bshift = 8;
-			format.Ashift = 0;
-			format.Rmask = 0xFF000000;
+			format.Bshift = 24;
+			format.Ashift =  0;
+			format.Rmask = 0x0000FF00;
 			format.Gmask = 0x00FF0000;
-			format.Bmask = 0x0000FF00;
+			format.Bmask = 0xFF000000;
 			format.Amask = 0x000000FF;
 		} else {
-			format.Rshift = 0;
-			format.Gshift = 8;
-			format.Bshift = 16;
+			format.Rshift = 16;
+			format.Gshift =  8;
+			format.Bshift =  0;
 			format.Ashift = 24;
-			format.Rmask = 0x000000FF;
+			format.Rmask = 0x00FF0000;
 			format.Gmask = 0x0000FF00;
-			format.Bmask = 0x00FF0000;
+			format.Bmask = 0x000000FF;
 			format.Amask = 0xFF000000;
 		}
 	}
@@ -123,8 +124,8 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0,
 			             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);
 		} else {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texW, texH, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texW, texH, 0,
+			             GL_BGRA, GL_UNSIGNED_BYTE, buffer);
 		}
 	}
 }
@@ -139,23 +140,6 @@ void SDLGLVisibleSurface::init()
 	// nothing
 }
 
-unsigned SDLGLVisibleSurface::mapRGB(double dr, double dg, double db)
-{
-	if (frameBuffer == FB_NONE) {
-		int r = int(dr * 255.0);
-		int g = int(dg * 255.0);
-		int b = int(db * 255.0);
-		// convert to BGRA (is faster then RGBA for texture upload)
-		if (OPENMSX_BIGENDIAN) {
-			return (b << 24) | (g << 16) | (r <<  8) | 0x000000FF;
-		} else {
-			return (b <<  0) | (g <<  8) | (r << 16) | 0xFF000000;
-		}
-	} else {
-		return OutputSurface::mapRGB(dr, dg, db);
-	}
-}
-
 void SDLGLVisibleSurface::drawFrameBuffer()
 {
 	assert((frameBuffer == FB_16BPP) || (frameBuffer == FB_32BPP));
@@ -168,7 +152,7 @@ void SDLGLVisibleSurface::drawFrameBuffer()
 		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);
 	} else {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-		                GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		                GL_BGRA, GL_UNSIGNED_BYTE, buffer);
 	}
 
 	glEnable(GL_TEXTURE_2D);

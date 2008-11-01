@@ -143,7 +143,7 @@ class BitmapTexture : public Texture
 {
 public:
 	BitmapTexture();
-	void update(int y, const GLuint* data, int lineWidth);
+	void update(int y, const GLuint* dataBGR, int lineWidth);
 	void draw(int srcL, int srcT, int srcR, int srcB,
 	          int dstL, int dstT, int dstR, int dstB);
 private:
@@ -156,7 +156,7 @@ class LineTexture : public Texture
 {
 public:
 	LineTexture();
-	void update(const GLuint* data, int lineWidth);
+	void update(const GLuint* dataBGR, int lineWidth);
 	void draw(int texX, int screenX, int screenY, int width, int height);
 private:
 	int prevLineWidth;

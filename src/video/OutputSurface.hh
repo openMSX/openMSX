@@ -43,7 +43,7 @@ public:
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
-	virtual unsigned mapRGB(double dr, double dg, double db);
+	unsigned mapRGB(double dr, double dg, double db);
 
 	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
 	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }

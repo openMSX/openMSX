@@ -19,7 +19,6 @@ public:
 	virtual ~SDLGLVisibleSurface();
 
 	virtual void init();
-	virtual unsigned mapRGB(double dr, double dg, double db);
 	virtual void drawFrameBuffer();
 	virtual void finish();
 

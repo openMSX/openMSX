@@ -49,49 +49,50 @@ static const int TICKS_VISIBLE_MIDDLE =
 
 inline static GLRasterizer::Pixel GLMapRGB(double dr, double dg, double db)
 {
+	// convert to BGR packed pixel
 	int r = int(dr * 255.0);
 	int g = int(dg * 255.0);
 	int b = int(db * 255.0);
 	if (OPENMSX_BIGENDIAN) {
-		return (r << 24) | (g << 16) | (b <<  8) | 0x000000FF;
+		return (r <<  8) | (g << 16) | (b << 24) | 0x000000FF;
 	} else {
-		return (r <<  0) | (g <<  8) | (b << 16) | 0xFF000000;
+		return (r << 16) | (g <<  8) | (b <<  0) | 0xFF000000;
 	}
 }
 
-inline static void GLSetColour(GLRasterizer::Pixel colour)
+inline static void GLSetColor(GLRasterizer::Pixel colorBGR)
 {
 	if (OPENMSX_BIGENDIAN) {
-		glColor3ub((colour >> 24) & 0xFF,
-		           (colour >> 16) & 0xFF,
-		           (colour >>  8) & 0xFF);
+		glColor3ub((colorBGR >>  8) & 0xFF,
+		           (colorBGR >> 16) & 0xFF,
+		           (colorBGR >> 24) & 0xFF);
 	} else {
-		glColor3ub((colour >>  0) & 0xFF,
-		           (colour >>  8) & 0xFF,
-		           (colour >> 16) & 0xFF);
+		glColor3ub((colorBGR >> 16) & 0xFF,
+		           (colorBGR >>  8) & 0xFF,
+		           (colorBGR >>  0) & 0xFF);
 	}
 }
 
-inline static void GLSetTexEnvCol(GLRasterizer::Pixel colour)
+inline static void GLSetTexEnvCol(GLRasterizer::Pixel colorBGR)
 {
 	int r, g, b;
 	if (OPENMSX_BIGENDIAN) {
-		r = (colour >> 24) & 0xFF;
-		g = (colour >> 16) & 0xFF;
-		b = (colour >>  8) & 0xFF;
+		r = (colorBGR >>  8) & 0xFF;
+		g = (colorBGR >> 16) & 0xFF;
+		b = (colorBGR >> 24) & 0xFF;
 	} else {
-		r = (colour >>  0) & 0xFF;
-		g = (colour >>  8) & 0xFF;
-		b = (colour >> 16) & 0xFF;
+		r = (colorBGR >> 16) & 0xFF;
+		g = (colorBGR >>  8) & 0xFF;
+		b = (colorBGR >>  0) & 0xFF;
 	}
-	GLfloat colourVec[4] = { r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colourVec);
+	GLfloat colorVec[4] = { r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
+	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorVec);
 }
 
 inline static void GLFillBlock(int x1, int y1, int x2, int y2,
-                               GLRasterizer::Pixel colour)
+                               GLRasterizer::Pixel colorBGR)
 {
-	GLSetColour(colour);
+	GLSetColor(colorBGR);
 	glRecti(x1, y1, x2, y2);
 }
 
@@ -109,8 +110,8 @@ inline static void GLBindMonoBlock(GLuint textureId, const byte* pixels)
 	                pixels);          // data
 }
 
-inline static void GLBindColourBlock(
-	GLuint textureId, const GLRasterizer::Pixel *pixels)
+inline static void GLBindColorBlock(
+	GLuint textureId, const GLRasterizer::Pixel* pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexSubImage2D(GL_TEXTURE_2D,    // target
@@ -119,7 +120,7 @@ inline static void GLBindColourBlock(
 	                0,                // y-offset
 	                8,                // width
 	                8,                // height
-	                GL_RGBA,          // format
+	                GL_BGRA,          // format
 	                GL_UNSIGNED_BYTE, // type
 	                pixels);          // data
 }
@@ -129,7 +130,7 @@ inline static void GLDrawMonoBlock(
 	GLRasterizer::Pixel bg, int verticalScroll)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	GLSetColour(bg);
+	GLSetColor(bg);
 	glBegin(GL_QUADS);
 	int x1 = x + width * zoom;
 	int y1 = y + 16;
@@ -142,7 +143,7 @@ inline static void GLDrawMonoBlock(
 	glEnd();
 }
 
-inline static void GLDrawColourBlock(GLuint textureId, int x, int y)
+inline static void GLDrawColorBlock(GLuint textureId, int x, int y)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glBegin(GL_QUADS);
@@ -164,7 +165,7 @@ inline static void drawStripes(
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 	GLSetTexEnvCol(col0);
-	GLSetColour(col1);
+	GLSetColor(col1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(x1 / 2.0f, 1.0f); glVertex2i(x1, y2); // Bottom Left
 	glTexCoord2f(x2 / 2.0f, 1.0f); glVertex2i(x2, y2); // Bottom Right
@@ -270,11 +271,11 @@ GLRasterizer::GLRasterizer(VDP& vdp_, Display& display, OutputSurface& screen_)
 	//printf("Max texture size: %d\n", size);
 	glTexImage2D(GL_PROXY_TEXTURE_2D,
 	             0,
-	             GL_RGBA,
+	             GL_RGBA8,
 	             512,
 	             1,
 	             0,
-	             GL_RGBA,
+	             GL_BGRA,
 	             GL_UNSIGNED_BYTE,
 	             NULL);
 	size = -1;
@@ -296,23 +297,21 @@ GLRasterizer::GLRasterizer(VDP& vdp_, Display& display, OutputSurface& screen_)
 	// Block based:
 	glGenTextures(4 * 256, colorChrTex);
 	for (int i = 0; i < 4 * 256; ++i) {
-		byte dummy[8 * 8 * 4];
 		glBindTexture(GL_TEXTURE_2D, colorChrTex[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D,    // target
 			     0,                // level
-			     GL_RGBA,          // internal format
+			     GL_RGBA8,          // internal format
 			     8,                // width
 			     8,                // height
 			     0,                // border
-			     GL_RGBA,          // format
+			     GL_BGRA,          // format
 			     GL_UNSIGNED_BYTE, // type
-			     dummy);           // data
+			     NULL);            // data
 	}
 	glGenTextures(256, monoChrTex);
 	for (int i = 0; i < 256; ++i) {
-		byte dummy[8 * 8];
 		glBindTexture(GL_TEXTURE_2D, monoChrTex[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -324,7 +323,7 @@ GLRasterizer::GLRasterizer(VDP& vdp_, Display& display, OutputSurface& screen_)
 			     0,                // border
 			     GL_LUMINANCE,     // format
 			     GL_UNSIGNED_BYTE, // type
-			     dummy);           // data
+			     NULL);            // data
 	}
 
 	// texture for drawing stripes
@@ -1030,9 +1029,9 @@ void GLRasterizer::renderGraphic2Row(
 				charPixels,
 				vram.patternTable.getReadArea(char8, 8),
 				vram.colourTable. getReadArea(char8, 8));
-			GLBindColourBlock(textureId, charPixels);
+			GLBindColorBlock(textureId, charPixels);
 		}
-		GLDrawColourBlock(textureId, x, screenLine);
+		GLDrawColorBlock(textureId, x, screenLine);
 		x += 16;
 	}
 }
@@ -1181,8 +1180,7 @@ void GLRasterizer::drawDisplay(
 				bitmapTexture->draw(
 					srcL, srcT, srcR, srcB,
 					screenX, screenY,
-					screenX + firstPageWidth, screenEndY
-					);
+					screenX + firstPageWidth, screenEndY);
 			} else {
 				firstPageWidth = 0;
 			}
@@ -1195,8 +1193,7 @@ void GLRasterizer::drawDisplay(
 				bitmapTexture->draw(
 					srcL, srcT, srcR, srcB,
 					screenX + firstPageWidth, screenY,
-					screenX + displayWidth, screenEndY
-					);
+					screenX + displayWidth, screenEndY);
 			}
 			screenY = screenEndY;
 			displayY = displayEndY & 255;
