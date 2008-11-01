@@ -15,16 +15,13 @@ class DeinterlacedFrame : public FrameSource
 {
 public:
 	explicit DeinterlacedFrame(const SDL_PixelFormat& format);
-
 	void init(FrameSource* evenField, FrameSource* oddField);
 
+private:
 	virtual unsigned getLineBufferSize() const;
-	virtual unsigned getLineWidth(unsigned line);
-
-protected:
+	virtual unsigned getLineWidth(unsigned line) const;
 	virtual void* getLinePtrImpl(unsigned line);
 
-private:
 	/** The original frames whose data will be deinterlaced.
 	  * The even frame is at index 0, the odd frame at index 1.
 	  */

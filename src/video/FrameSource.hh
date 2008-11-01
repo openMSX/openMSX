@@ -57,7 +57,7 @@ public:
 	/** Gets the number of display pixels on the given line.
 	  * @return line width, or 0 for a border line.
 	  */
-	virtual unsigned getLineWidth(unsigned line) = 0;
+	virtual unsigned getLineWidth(unsigned line) const = 0;
 
 	/** Gets a pointer to the pixels of the given line number.
 	  */
@@ -148,6 +148,10 @@ public:
 	/** Recycles the buffers allocated for scaling lines, see getLinePtr.
 	  */
 	void freeLineBuffers();
+
+	const SDL_PixelFormat& getSDLPixelFormat() const {
+		return pixelFormat;
+	}
 
 protected:
 	explicit FrameSource(const SDL_PixelFormat& format);

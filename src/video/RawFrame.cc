@@ -79,7 +79,7 @@ unsigned RawFrame::getLineBufferSize() const
 	return pitch;
 }
 
-unsigned RawFrame::getLineWidth(unsigned line)
+unsigned RawFrame::getLineWidth(unsigned line) const
 {
 	assert(line < getHeight());
 	return lineWidth[line];

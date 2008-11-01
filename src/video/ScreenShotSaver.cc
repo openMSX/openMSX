@@ -8,6 +8,7 @@
 #include "build-info.hh"
 #include "Version.hh"
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
 #include <ctime>
 #include <png.h>
@@ -16,12 +17,13 @@
 namespace openmsx {
 namespace ScreenShotSaver {
 
-static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
+static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
                            const std::string& filename, bool color)
 {
 	// initialize these before the goto
 	time_t t = time(NULL);
 	struct tm* tm = localtime(&t);
+	png_bytep* ptrs = reinterpret_cast<png_bytep*>(const_cast<void**>(row_pointers));
 
 	FILE* fp = fopen(filename.c_str(), "wb");
 	if (!fp) {
@@ -85,7 +87,7 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	png_write_info(png_ptr, info_ptr);
 
 	// write out the entire image data in one call
-	png_write_image(png_ptr, row_pointers);
+	png_write_image(png_ptr, ptrs);
 	png_write_end(png_ptr, info_ptr);
 
 	if (info_ptr->palette) {
@@ -129,9 +131,9 @@ void save(SDL_Surface* surface, const std::string& filename)
 	SDL_Surface* surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
 
 	// Create the array of pointers to image data
-	png_bytep row_pointers[surface->h];
+	const void* row_pointers[surface->h];
 	for (int i = 0; i < surface->h; ++i) {
-		row_pointers[i] = static_cast<png_bytep>(surf24->pixels) + (i * surf24->pitch);
+		row_pointers[i] = static_cast<char*>(surf24->pixels) + (i * surf24->pitch);
 	}
 
 	bool result = IMG_SavePNG_RW(surface->w, surface->h,
@@ -144,20 +146,38 @@ void save(SDL_Surface* surface, const std::string& filename)
 	}
 }
 
-void save(unsigned width, unsigned height,
-          byte** row_pointers, const std::string& filename)
+void save(unsigned width, unsigned height, const void** rowPointers,
+          const SDL_PixelFormat& format, const std::string& filename)
 {
-	if (!IMG_SavePNG_RW(width, height, static_cast<png_bytep*>(row_pointers),
-		            filename, true)) {
+	// this implementation creates 1 extra copy, can be optimized if required
+	SDL_Surface* surface = SDL_CreateRGBSurface(
+		SDL_SWSURFACE, width, height, format.BitsPerPixel,
+		format.Rmask, format.Gmask, format.Bmask, format.Amask);
+	for (unsigned y = 0; y < height; ++y) {
+		memcpy(static_cast<char*>(surface->pixels) + y * surface->pitch,
+		       rowPointers[y], width * format.BytesPerPixel);
+	}
+	try {
+		save(surface, filename);
+		SDL_FreeSurface(surface);
+	} catch (...) {
+		SDL_FreeSurface(surface);
+		throw;
+	}
+}
+
+void save(unsigned width, unsigned height,
+          const void** rowPointers, const std::string& filename)
+{
+	if (!IMG_SavePNG_RW(width, height, rowPointers, filename, true)) {
 		throw CommandException("Failed to write " + filename);
 	}
 }
 
 void saveGrayscale(unsigned width, unsigned height,
-	           byte** row_pointers, const std::string& filename)
+	           const void** rowPointers, const std::string& filename)
 {
-	if (!IMG_SavePNG_RW(width, height, static_cast<png_bytep*>(row_pointers),
-		            filename, false)) {
+	if (!IMG_SavePNG_RW(width, height, rowPointers, filename, false)) {
 		throw CommandException("Failed to write " + filename);
 	}
 }

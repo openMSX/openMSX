@@ -205,7 +205,7 @@ string AviRecorder::processStart(const vector<string>& tokens)
 				frameWidth = 640;
 				frameHeight = 480;
 			} else {
-				throw CommandException("Invalid option");
+				throw CommandException("Invalid option: " + tokens[i]);
 			}
 		} else {
 			arguments.push_back(tokens[i]);

@@ -29,7 +29,7 @@ unsigned DeinterlacedFrame::getLineBufferSize() const
 	return fields[0]->getLineBufferSize();
 }
 
-unsigned DeinterlacedFrame::getLineWidth(unsigned line)
+unsigned DeinterlacedFrame::getLineWidth(unsigned line) const
 {
 	return fields[line & 1]->getLineWidth(line >> 1);
 }

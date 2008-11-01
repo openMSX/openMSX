@@ -175,13 +175,13 @@ void SDLGLVisibleSurface::takeScreenShot(const std::string& filename)
 {
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
-	std::vector<byte*> row_pointers(height);
+	const void* rowPointers[height];
 	std::vector<byte> buffer(width * height * 3);
 	for (unsigned i = 0; i < height; ++i) {
-		row_pointers[height - 1 - i] = &buffer[width * 3 * i];
+		rowPointers[height - 1 - i] = &buffer[width * 3 * i];
 	}
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
-	ScreenShotSaver::save(width, height, &row_pointers[0], filename);
+	ScreenShotSaver::save(width, height, rowPointers, filename);
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()

@@ -29,7 +29,7 @@ public:
 	}
 
 	virtual unsigned getLineBufferSize() const;
-	virtual unsigned getLineWidth(unsigned line);
+	virtual unsigned getLineWidth(unsigned line) const;
 
 	inline void setLineWidth(unsigned line, unsigned width) {
 		assert(line < getHeight());

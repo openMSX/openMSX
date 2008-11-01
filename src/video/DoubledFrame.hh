@@ -15,16 +15,13 @@ class DoubledFrame : public FrameSource
 {
 public:
 	explicit DoubledFrame(const SDL_PixelFormat& format);
-
 	void init(FrameSource* field, unsigned skip);
 
+private:
 	virtual unsigned getLineBufferSize() const;
-	virtual unsigned getLineWidth(unsigned line);
-
-protected:
+	virtual unsigned getLineWidth(unsigned line) const;
 	virtual void* getLinePtrImpl(unsigned line);
 
-private:
 	/** The original frame whose data will be doubled.
 	  */
 	FrameSource* field;

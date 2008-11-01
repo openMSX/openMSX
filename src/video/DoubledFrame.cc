@@ -22,7 +22,7 @@ unsigned DoubledFrame::getLineBufferSize() const
 	return field->getLineBufferSize();
 }
 
-unsigned DoubledFrame::getLineWidth(unsigned line)
+unsigned DoubledFrame::getLineWidth(unsigned line) const
 {
 	int t = line - skip;
 	return (t >= 0) ? field->getLineWidth(t / 2) : 1;

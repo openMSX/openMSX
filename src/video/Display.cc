@@ -3,6 +3,7 @@
 #include "Display.hh"
 #include "Layer.hh"
 #include "VideoSystem.hh"
+#include "PostProcessor.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "FileOperations.hh"
@@ -22,6 +23,7 @@
 #include "XMLElement.hh"
 #include "VideoSystemChangeListener.hh"
 #include "CommandException.hh"
+#include "StringOp.hh"
 #include "Version.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
@@ -419,32 +421,70 @@ ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
 
 string ScreenShotCmd::execute(const vector<string>& tokens)
 {
+	bool msxsmall = false;
+	bool msxbig   = false;
+	string prefix = "openmsx";
+	vector<string> arguments;
+	for (unsigned i = 1; i < tokens.size(); ++i) {
+		if (StringOp::startsWith(tokens[i], "-")) {
+			if (tokens[i] == "--") {
+				arguments.insert(arguments.end(),
+					tokens.begin() + i + 1, tokens.end());
+				break;
+			}
+			if (tokens[i] == "-prefix") {
+				if (++i == tokens.size()) {
+					throw CommandException("Missing argument");
+				}
+				prefix = tokens[i];
+			} else if (tokens[i] == "-msx") {
+				msxbig = true;
+			} else if (tokens[i] == "-msxsmall") {
+				msxsmall = true;
+			} else if (tokens[i] == "-msxbig") {
+				msxbig = true;
+			} else {
+				throw CommandException("Invalid option: " + tokens[i]);
+			}
+		} else {
+			arguments.push_back(tokens[i]);
+		}
+	}
+
 	string filename;
-	switch (tokens.size()) {
+	switch (arguments.size()) {
+	case 0:
+		filename = FileOperations::getNextNumberedFileName(
+				"screenshots", prefix, ".png");
+		break;
 	case 1:
-		filename = FileOperations::getNextNumberedFileName("screenshots", "openmsx", ".png");
-		break;
-	case 2:
-		if (tokens[1] == "-prefix") {
-			throw SyntaxError();
-		} else {
-			filename = tokens[1];
-		}
-		break;
-	case 3:
-		if (tokens[1] == "-prefix") {
-			filename = FileOperations::getNextNumberedFileName("screenshots", tokens[2], ".png");
-		} else {
-			throw SyntaxError();
-		}
+		filename = FileOperations::expandTilde(arguments[0]);
 		break;
 	default:
 		throw SyntaxError();
 	}
 
-	display.getVideoSystem().takeScreenShot(filename);
+	if (!msxsmall && !msxbig) {
+		// include all layers (OSD stuff, console)
+		display.getVideoSystem().takeScreenShot(filename);
+	} else {
+		VideoSourceSetting& videoSource =
+			display.getRenderSettings().getVideoSource();
+		Layer* layer = display.findLayer(
+			(videoSource.getValue() == VIDEO_MSX) ?
+			"V99x8 PostProcessor" : "V9990 PostProcessor");
+		PostProcessor* pp = dynamic_cast<PostProcessor*>(layer);
+		if (!pp) {
+			throw CommandException(
+				"Current renderer doesn't support taking screenshots.");
+		}
+		unsigned height = msxbig ? 480 : 240;
+		pp->takeScreenShot(height, filename);
+	}
+	
 	display.getCliComm().printInfo("Screen saved to " + filename);
 	return filename;
+		
 }
 
 string ScreenShotCmd::help(const vector<string>& /*tokens*/) const

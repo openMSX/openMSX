@@ -3,10 +3,10 @@
 #ifndef SCREENSHOTSAVER_HH
 #define SCREENSHOTSAVER_HH
 
-#include "openmsx.hh"
 #include <string>
 
 struct SDL_Surface;
+struct SDL_PixelFormat;
 
 namespace openmsx {
 
@@ -15,10 +15,12 @@ namespace openmsx {
 namespace ScreenShotSaver {
 
 	void save(SDL_Surface* image, const std::string& filename);
-	void save(unsigned witdh, unsigned height,
-	          byte** row_pointers, const std::string& filename);
+	void save(unsigned width, unsigned height, const void** rowPointers,
+	          const SDL_PixelFormat& format, const std::string& filename);
+	void save(unsigned witdh, unsigned height, const void** rowPointers,
+	          const std::string& filename);
 	void saveGrayscale(unsigned witdh, unsigned height,
-	                   byte** row_pointers, const std::string& filename);
+	                   const void** rowPointers, const std::string& filename);
 
 } // namespace ScreenShotSaver
 } // namespace openmsx

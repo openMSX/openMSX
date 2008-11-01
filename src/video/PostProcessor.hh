@@ -64,6 +64,9 @@ public:
 	  * @return Possible values are 15, 16 or 32
 	  */
 	unsigned getBpp() const;
+	
+	/** TODO */
+	void takeScreenShot(unsigned height, const std::string& filename);
 
 protected:
 	/** Returns the maximum width for lines [y..y+step).
@@ -103,6 +106,8 @@ protected:
 	AviRecorder* recorder;
 
 private:
+	void getScaledFrame(unsigned height, const void** lines);
+
 	Display& display;
 };
 

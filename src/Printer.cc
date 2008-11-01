@@ -1698,11 +1698,11 @@ string Paper::save() const
 {
 	string filename = FileOperations::getNextNumberedFileName(
 		"prints", "page", ".png");
-	std::vector<byte*> row_pointers(sizeY);
+	const void* rowPointers[sizeY];
 	for (unsigned y = 0; y < sizeY; ++y) {
-		row_pointers[y] = &buf[sizeX * y];
+		rowPointers[y] = &buf[sizeX * y];
 	}
-	ScreenShotSaver::saveGrayscale(sizeX, sizeY, &row_pointers[0], filename);
+	ScreenShotSaver::saveGrayscale(sizeX, sizeY, rowPointers, filename);
 	return filename;
 }
 

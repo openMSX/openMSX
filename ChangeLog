@@ -1,5 +1,16 @@
 $Id$
 
+2008-11-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added possibility to take screenshots of only the msx screen (so no
+	  OSD stuff and console):
+	   For the moment this is done by passing the option -msx to the
+	   screenshot command, this will take a screenshot of size 640x480.
+	   There will also be no scaler or any other effects in the screenshot.
+	   You can use -msxsmall to take a screenshot of size 320x240 (-msxbig
+	   is a synonym for -msx).
+	   TODO is the syntax of this command ok? Also still need to document
+	   it.
+
 2008-10-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized VDPCmdEngine:
 	  The core of most VDP commands goes like this:

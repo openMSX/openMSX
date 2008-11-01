@@ -5,11 +5,13 @@
 #include "VisibleSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
+#include "ScreenShotSaver.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "RawFrame.hh"
 #include "AviRecorder.hh"
 #include "CliComm.hh"
+#include "CommandException.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -103,7 +105,8 @@ RawFrame* PostProcessor::rotateFrames(
 	if (recorder) {
 		const unsigned height = recorder->getFrameHeight();
 		const void* lines[height];
-		for (unsigned i = 0; i < height; ++i) {
+		getScaledFrame(height, lines);
+		/*for (unsigned i = 0; i < height; ++i) {
 			if (getBpp() == 32) {
 #if HAVE_32BPP
 				// 32bpp
@@ -125,12 +128,53 @@ RawFrame* PostProcessor::rotateFrames(
 				}
 #endif
 			}
-		}
+		}*/
 		recorder->addImage(lines, time);
-		finishedFrame->freeLineBuffers();
+		paintFrame->freeLineBuffers();
 	}
 
 	return reuseFrame;
+}
+
+void PostProcessor::getScaledFrame(unsigned height, const void** lines)
+{
+	for (unsigned i = 0; i < height; ++i) {
+		if (getBpp() == 32) {
+#if HAVE_32BPP
+			// 32bpp
+			if (height == 240) {
+				lines[i] = paintFrame->getLinePtr320_240<unsigned>(i);
+			} else {
+				assert (height == 480);
+				lines[i] = paintFrame->getLinePtr640_480<unsigned>(i);
+			}
+#endif
+		} else {
+#if HAVE_16BPP
+			// 15bpp or 16bpp
+			if (height == 240) {
+				lines[i] = paintFrame->getLinePtr320_240<word>(i);
+			} else {
+				assert (height == 480);
+				lines[i] = paintFrame->getLinePtr640_480<word>(i);
+			}
+#endif
+		}
+	}
+}
+
+void PostProcessor::takeScreenShot(unsigned height, const std::string& filename)
+{
+	if (!paintFrame) {
+		throw CommandException("TODO");
+	}
+	const void* lines[height];
+	getScaledFrame(height, lines);
+
+	unsigned width = (height == 240) ? 320 : 640;
+	ScreenShotSaver::save(width, height, lines,
+	                      paintFrame->getSDLPixelFormat(), filename);
+	paintFrame->freeLineBuffers();
 }
 
 void PostProcessor::setRecorder(AviRecorder* recorder_)
