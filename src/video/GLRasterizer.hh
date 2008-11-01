@@ -177,10 +177,6 @@ private:
 	  */
 	const std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
 
-	/** Work area for redefining textures.
-	  */
-	Pixel lineBuffer[512];
-
 	/** Cache for rendered VRAM in bitmap modes.
 	  * Cache line N corresponds to VRAM at N * 128.
 	  * It holds up to 4 pages of 256 lines each.
@@ -188,11 +184,10 @@ private:
 	  */
 	BitmapTexture* bitmapTexture;
 
-	/** One texture per absolute display line to draw sprite plane in.
-	  * This is not an efficient way to draw sprites, but it was easy
-	  * to implement. Will probably be replaced in the future.
+	/** Generic 1D texture.
+	  * Used to draw sprites and a few character modes.
 	  */
-	LineTexture spriteTextures[313];
+	LineTexture lineTexture;
 
 	/** ID of texture that stores rendered frame.
 	  * Used for effects and for putStoredImage.

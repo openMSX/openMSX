@@ -21,6 +21,8 @@ GLPostProcessor::GLPostProcessor(
 	unsigned maxWidth, unsigned height_)
 	: PostProcessor(motherBoard, display, screen,
 	                videoSource, maxWidth, height_)
+	, noiseTextureA(256, 256)
+	, noiseTextureB(256, 256)
 	, height(height_)
 {
 	if (!GLEW_VERSION_2_0) {
@@ -40,8 +42,6 @@ GLPostProcessor::GLPostProcessor(
 
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 
-	noiseTextureA.setImage(256, 256);
-	noiseTextureB.setImage(256, 256);
 	frameCounter = 0;
 	noiseX = 0.0;
 	noiseY = 0.0;
@@ -251,15 +251,14 @@ void GLPostProcessor::uploadBlock(
 {
 	// create texture/pbo if needed
 	Textures::iterator it = textures.find(lineWidth);
-	ColourTexture* tex;
+	ColorTexture* tex;
 	PixelBuffer<unsigned>* pbo;
 	if (it != textures.end()) {
 		tex = it->second.tex;
 		pbo = it->second.pbo;
 	} else {
-		tex = new ColourTexture();
+		tex = new ColorTexture(lineWidth, height * 2); // *2 for interlace
 		tex->setWrapMode(false);
-		tex->setImage(lineWidth, height * 2); // *2 for interlace
 
 		pbo = new PixelBuffer<unsigned>();
 		if (pbo->openGLSupported()) {

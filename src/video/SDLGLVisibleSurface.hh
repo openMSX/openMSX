@@ -34,7 +34,7 @@ private:
 	FrameBuffer frameBuffer;
 	// Note: This must be a pointer because the texture should not be allocated
 	//       before the createSurface call.
-	std::auto_ptr<ColourTexture> texture;
+	std::auto_ptr<Texture> texture;
 	double texCoordX, texCoordY;
 };
 

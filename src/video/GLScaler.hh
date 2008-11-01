@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class ColourTexture;
+class ColorTexture;
 class FrameSource;
 
 /** Abstract base class for OpenGL scalers.
@@ -28,7 +28,7 @@ public:
 	  * @param dstWidth The number of pixels per line on the output screen.
 	  */
 	virtual void scaleImage(
-		ColourTexture& src,
+		ColorTexture& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth) = 0;
 

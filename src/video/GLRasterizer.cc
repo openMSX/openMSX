@@ -195,6 +195,7 @@ inline static int translateX(int absoluteX)
 
 inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
 {
+	Pixel lineBuffer[512];
 	if (lineValidInMode[vramLine] != mode) {
 		const byte* vramPtr =
 			vram.bitmapCacheWindow.getReadArea(vramLine * 128, 128);
@@ -223,6 +224,7 @@ inline void GLRasterizer::renderBitmapLines(byte line, int count)
 
 inline void GLRasterizer::renderPlanarBitmapLine(byte mode, int vramLine)
 {
+	Pixel lineBuffer[512];
 	if ((lineValidInMode[vramLine |   0] != mode) ||
 	    (lineValidInMode[vramLine | 512] != mode)) {
 		const byte* vramPtr0;
@@ -1227,12 +1229,12 @@ void GLRasterizer::drawDisplay(
 			break;
 		default:
 			// TEXT1Q / MULTIQ / BOGUS
-			LineTexture charTexture;
+			Pixel lineBuffer[512];
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			for (int y = screenY; y < screenLimitY; y += 2) {
 				characterConverter->convertLine(lineBuffer, displayY);
-				charTexture.update(lineBuffer, lineWidth);
-				charTexture.draw(displayX + hScroll, screenX,
+				lineTexture.update(lineBuffer, lineWidth);
+				lineTexture.draw(displayX + hScroll, screenX,
 				                 y, displayWidth, 2);
 				displayY++; // is a byte, so wraps at 256
 			}
@@ -1264,6 +1266,7 @@ void GLRasterizer::drawSprites(
 		(mode == DisplayMode::GRAPHIC5 || mode == DisplayMode::GRAPHIC6)
 		? 2 : 1;
 	const SpriteChecker& spriteChecker = vdp.getSpriteChecker();
+	Pixel lineBuffer[512];
 	for (int y = fromY; y < limitY; y++, screenY += 2) {
 		// Optimisation: only draw sprites if there are actually sprites on
 		// this line.
@@ -1293,9 +1296,8 @@ void GLRasterizer::drawSprites(
 		// Make line buffer into a texture and draw it.
 		// TODO: Make a texture of only the portion that will be drawn.
 		//       Or skip that and use block sprites instead.
-		LineTexture &texture = spriteTextures[y];
-		texture.update(lineBuffer, pixelZoom * 256);
-		texture.draw(displayX * 2, screenX, screenY, displayWidth * 2, 2);
+		lineTexture.update(lineBuffer, pixelZoom * 256);
+		lineTexture.draw(displayX * 2, screenX, screenY, displayWidth * 2, 2);
 	}
 
 	glDisable(GL_BLEND);

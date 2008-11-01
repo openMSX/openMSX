@@ -18,7 +18,7 @@ public:
 	GLSaIScaler();
 
 	virtual void scaleImage(
-		ColourTexture& src,
+		ColorTexture& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
 

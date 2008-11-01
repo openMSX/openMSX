@@ -67,7 +67,7 @@ private:
 	double noiseY;
 
 	struct TextureData {
-		ColourTexture* tex;
+		ColorTexture* tex;
 		PixelBuffer<unsigned>* pbo;
 	};
 	typedef std::map<unsigned, TextureData> Textures;

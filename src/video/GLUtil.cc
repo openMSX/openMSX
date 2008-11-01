@@ -97,16 +97,11 @@ void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
 }
 
 
-// class ColourTexture
+// class ColorTexture
 
-ColourTexture::ColourTexture()
+ColorTexture::ColorTexture(GLsizei width_, GLsizei height_)
 	: Texture(GL_TEXTURE_2D)
 {
-}
-
-void ColourTexture::setImage(GLsizei width_, GLsizei height_, GLuint* data)
-{
-	bind();
 	width = width_;
 	height = height_;
 	glTexImage2D(
@@ -118,37 +113,16 @@ void ColourTexture::setImage(GLsizei width_, GLsizei height_, GLuint* data)
 		0,                // border
 		GL_RGBA,          // format
 		GL_UNSIGNED_BYTE, // type
-		data              // data
+		NULL              // data
 		);
-}
-
-void ColourTexture::updateImage(
-	GLint x, GLint y, GLsizei width, GLsizei height, GLuint* data)
-{
-	bind();
-	glTexSubImage2D(
-		GL_TEXTURE_2D,    // target
-		0,                // level
-		x,                // offset x
-		y,                // offset y
-		width,            // width
-		height,           // height
-		GL_RGBA,          // format
-		GL_UNSIGNED_BYTE, // type
-		data);            // data
 }
 
 
 // class LuminanceTexture
 
-LuminanceTexture::LuminanceTexture()
+LuminanceTexture::LuminanceTexture(GLsizei width, GLsizei height)
 	: Texture(GL_TEXTURE_2D)
 {
-}
-
-void LuminanceTexture::setImage(GLsizei width, GLsizei height, GLbyte* data)
-{
-	bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(
@@ -160,7 +134,7 @@ void LuminanceTexture::setImage(GLsizei width, GLsizei height, GLbyte* data)
 		0,                // border
 		GL_LUMINANCE,     // format
 		GL_UNSIGNED_BYTE, // type
-		data);            // data
+		NULL);            // data
 }
 
 void LuminanceTexture::updateImage(

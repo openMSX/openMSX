@@ -116,7 +116,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		texCoordX = double(width)  / texW;
 		texCoordY = double(height) / texH;
 
-		texture.reset(new ColourTexture());
+		texture.reset(new Texture());
 		texture->bind();
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?

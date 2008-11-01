@@ -63,47 +63,6 @@ typedef ExpandFilter<GLuint>::ExpandType ExpandGL;
 // TODO this needs glu, but atm we don't link against glu (in windows)
 //void checkGLError(const std::string& prefix);
 
-/** Set primary drawing colour.
-  */
-inline void setPriColour(GLuint colour)
-{
-	if (OPENMSX_BIGENDIAN) {
-		glColor3ub((colour >> 24) & 0xFF,
-		           (colour >> 16) & 0xFF,
-		           (colour >>  8) & 0xFF);
-	} else {
-		glColor3ub((colour >>  0) & 0xFF,
-		           (colour >>  8) & 0xFF,
-		           (colour >> 16) & 0xFF);
-	}
-}
-
-/** Set texture drawing colour.
-  */
-inline void setTexColour(GLuint colour)
-{
-	GLuint r, g, b;
-	if (OPENMSX_BIGENDIAN) {
-		r = (colour >> 24) & 0xFF;
-		g = (colour >> 16) & 0xFF;
-		b = (colour >>  8) & 0xFF;
-	} else {
-		r = (colour >>  0) & 0xFF;
-		g = (colour >>  8) & 0xFF;
-		b = (colour >> 16) & 0xFF;
-	}
-	GLfloat colourVec[4] = { r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colourVec);
-}
-
-/** Draw a filled rectangle.
-  */
-inline void drawRect(GLint x, GLint y, GLint width, GLint height, GLuint colour)
-{
-	setPriColour(colour);
-	glRecti(x, y, x + width, y + height);
-}
-
 } // namespace GLUtil
 
 
@@ -147,20 +106,13 @@ protected:
 	friend class FrameBufferObject;
 };
 
-class ColourTexture : public Texture
+class ColorTexture : public Texture
 {
 public:
-	ColourTexture();
-
-	/** Sets the image for this texture.
+	/** Create color texture with given size.
+	  * Initial content is undefined.
 	  */
-	void setImage(GLsizei width, GLsizei height, GLuint* data = NULL);
-
-	/** Redefines (part of) the image for this texture.
-	  */
-	void updateImage(GLint x, GLint y,
-	                 GLsizei width, GLsizei height,
-	                 GLuint* data);
+	ColorTexture(GLsizei width, GLsizei height);
 
 	GLsizei getWidth () const { return width;  }
 	GLsizei getHeight() const { return height; }
@@ -173,11 +125,10 @@ private:
 class LuminanceTexture : public Texture
 {
 public:
-	LuminanceTexture();
-
-	/** Sets the image for this texture.
+	/** Create grayscale texture with given size.
+	  * Initial content is undefined.
 	  */
-	void setImage(GLsizei width, GLsizei height, GLbyte* data = NULL);
+	LuminanceTexture(GLsizei width, GLsizei height);
 
 	/** Redefines (part of) the image for this texture.
 	  */
@@ -193,8 +144,8 @@ class BitmapTexture : public Texture
 public:
 	BitmapTexture();
 	void update(int y, const GLuint* data, int lineWidth);
-	void draw( int srcL, int srcT, int srcR, int srcB,
-	           int dstL, int dstT, int dstR, int dstB);
+	void draw(int srcL, int srcT, int srcR, int srcB,
+	          int dstL, int dstT, int dstR, int dstB);
 private:
 	static const int WIDTH = 512;
 	static const int HEIGHT = 1024;
@@ -327,8 +278,6 @@ public:
 	void unmap() const;
 
 private:
-	friend class ColourTexture;
-
 	/** Pointer to main RAM fallback, or 0 if no main RAM buffer was
 	  * allocated.
 	  */
