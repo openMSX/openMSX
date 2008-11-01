@@ -11,7 +11,14 @@ proc __savestate_common { name } {
 
 proc savestate { {name ""} } {
 	__savestate_common $name
-	catch { screenshot $png }
+	if {[catch { screenshot -msx $png }]} {
+		# some renderers don't support msx-only screenshots
+		if {[catch { screenshot $png }]} {
+			# even this failed, but (try to) remove old screenhot
+			# to avoid confusion
+			catch { file delete $png }
+		}
+	}
 	set currentID [machine]
 	file mkdir $directory
 	store_machine $currentID $fullname
