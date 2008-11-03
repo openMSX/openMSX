@@ -326,16 +326,19 @@ public:
 	}
 
 	/** Expresses the state of even/odd page interchange in a mask
-	  * on the line number. If even/off interchange is active, for some
+	  * on the line number. If even/odd interchange is active, for some
 	  * frames lines 256..511 (page 1) are replaced by 0..255 (page 0)
 	  * and 768..1023 (page 3, if appicable) by 512..767 (page 2).
 	  * Together with the interlace setting this can be used to create
 	  * an interlaced display.
+	  * Even/odd interchange can also happen because of the 'blink'
+	  * feature in bitmap modes.
 	  * @return Line number mask that expressed even/odd state.
 	  */
 	inline int getEvenOddMask() const {
 		// TODO: Verify which page is displayed on even fields.
-		return ((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7);
+		return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
+		       (!blinkState << 8);
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
