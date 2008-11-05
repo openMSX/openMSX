@@ -6,6 +6,7 @@
 #include "CPUClock.hh"
 #include "Clock.hh"
 #include "likely.hh"
+#include "inline.hh"
 
 namespace openmsx {
 
@@ -30,8 +31,8 @@ public:
 protected:
 	static const int CLOCK_FREQ = 7159090;
 
-	inline unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
-	inline bool hasMul() const   { return true; }
+	ALWAYS_INLINE unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
+	ALWAYS_INLINE bool isR800() const   { return true; }
 
 	R800TYPE(const EmuTime& time, Scheduler& scheduler)
 		: CPUClock(time, scheduler)
@@ -63,13 +64,13 @@ protected:
 		}
 	}
 
-	inline void R800ForcePageBreak()
+	ALWAYS_INLINE void R800ForcePageBreak()
 	{
 		lastPage = -1;
 	}
 
 	template <bool PRE_PB, bool POST_PB>
-	inline void PRE_MEM(unsigned address)
+	ALWAYS_INLINE void PRE_MEM(unsigned address)
 	{
 		int newPage = address >> 8;
 		if (PRE_PB) {
@@ -86,7 +87,7 @@ protected:
 		}
 	}
 	template <bool POST_PB>
-	inline void POST_MEM(unsigned address)
+	ALWAYS_INLINE void POST_MEM(unsigned address)
 	{
 		add(extraMemoryDelay[address >> 14]);
 		if (POST_PB) {
@@ -94,7 +95,7 @@ protected:
 		}
 	}
 	template <bool PRE_PB, bool POST_PB>
-	inline void PRE_WORD(unsigned address)
+	ALWAYS_INLINE void PRE_WORD(unsigned address)
 	{
 		int newPage = address >> 8;
 		if (PRE_PB) {
@@ -115,7 +116,7 @@ protected:
 		}
 	}
 	template <bool POST_PB>
-	inline void POST_WORD(unsigned address)
+	ALWAYS_INLINE void POST_WORD(unsigned address)
 	{
 		add(2 * extraMemoryDelay[address >> 14]);
 		if (POST_PB) {
@@ -123,7 +124,7 @@ protected:
 		}
 	}
 
-	inline void R800Refresh()
+	ALWAYS_INLINE void R800Refresh()
 	{
 		// atoc documentation says refresh every 222 clocks
 		//  duration:  256/1024KB  13.5 clocks

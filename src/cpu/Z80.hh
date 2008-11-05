@@ -4,6 +4,7 @@
 #define Z80_HH
 
 #include "CPUClock.hh"
+#include "inline.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -19,16 +20,16 @@ protected:
 	{
 	}
 
-	inline unsigned haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
-	inline bool hasMul() const   { return false; }
+	ALWAYS_INLINE unsigned haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
+	ALWAYS_INLINE bool isR800() const   { return false; }
 
-	template <bool, bool> inline void PRE_MEM  (unsigned /*address*/) { }
-	template <      bool> inline void POST_MEM (unsigned /*address*/) { }
-	template <bool, bool> inline void PRE_WORD (unsigned /*address*/) { }
-	template <      bool> inline void POST_WORD(unsigned /*address*/) { }
+	template <bool, bool> ALWAYS_INLINE void PRE_MEM  (unsigned /*address*/) { }
+	template <      bool> ALWAYS_INLINE void POST_MEM (unsigned /*address*/) { }
+	template <bool, bool> ALWAYS_INLINE void PRE_WORD (unsigned /*address*/) { }
+	template <      bool> ALWAYS_INLINE void POST_WORD(unsigned /*address*/) { }
 
-	inline void R800Refresh() { }
-	inline void R800ForcePageBreak() { }
+	ALWAYS_INLINE void R800Refresh() { }
+	ALWAYS_INLINE void R800ForcePageBreak() { }
 
 	static const int
 	CC_LD_A_SS   = 5+3,       CC_LD_A_SS_1  = 5+1,

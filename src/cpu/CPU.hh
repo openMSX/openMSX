@@ -438,13 +438,16 @@ protected:
 	// flag-register tables, initialized at run-time
 	static byte ZSTable[256];
 	static byte ZSXYTable[256];
+	static byte ZSPTable[256];
 	static byte ZSPXYTable[256];
 	static byte ZSPHTable[256];
 	static word DAATable[0x800];
 	static const byte ZS0     = Z_FLAG;
 	static const byte ZSXY0   = Z_FLAG;
-	static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
+	static const byte ZSP0    = Z_FLAG | V_FLAG;
 	static const byte ZSPXY0  = Z_FLAG | V_FLAG;
+	static const byte ZS255   = S_FLAG;
+	static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
 
 	// TODO why exactly are these static?
 	// debug variables

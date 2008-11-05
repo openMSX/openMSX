@@ -9,6 +9,7 @@ namespace openmsx {
 
 byte CPU::ZSTable[256];
 byte CPU::ZSXYTable[256];
+byte CPU::ZSPTable[256];
 byte CPU::ZSPXYTable[256];
 byte CPU::ZSPHTable[256];
 word CPU::DAATable[0x800];
@@ -37,15 +38,18 @@ CPU::CPU()
 		for (int v = 128; v != 0; v >>= 1) {
 			if (i & v) vFlag ^= V_FLAG;
 		}
-		ZSTable[i]    = zFlag | sFlag;
-		ZSXYTable[i]  = zFlag | sFlag | xFlag | yFlag;
+		ZSTable   [i] = zFlag | sFlag;
+		ZSXYTable [i] = zFlag | sFlag | xFlag | yFlag;
+		ZSPTable  [i] = zFlag | sFlag |                 vFlag;
 		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
-		ZSPHTable[i]  = zFlag | sFlag |                 vFlag | H_FLAG;
+		ZSPHTable [i] = zFlag | sFlag |                 vFlag | H_FLAG;
 	}
-	assert(ZSTable[0]     == ZS0);
-	assert(ZSXYTable[0]   == ZSXY0);
-	assert(ZSXYTable[255] == ZSXY255);
-	assert(ZSPXYTable[0]  == ZSPXY0);
+	assert(ZSTable   [  0] == ZS0);
+	assert(ZSXYTable [  0] == ZSXY0);
+	assert(ZSPTable  [  0] == ZSP0);
+	assert(ZSPXYTable[  0] == ZSPXY0);
+	assert(ZSTable   [255] == ZS255);
+	assert(ZSXYTable [255] == ZSXY255);
 
 	for (int x = 0; x < 0x800; ++x) {
 		bool hf = x & 0x400;

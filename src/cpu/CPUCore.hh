@@ -330,6 +330,7 @@ private:
 	template <CPU::Reg8 REG> inline int sll_R();
 	inline int sll_xhl();
 	template <CPU::Reg8 REG> inline int sll_xix_R(unsigned a);
+	inline int sll2();
 
 	inline byte SRA(byte reg);
 	inline byte SRA_X(unsigned x, int ee);
