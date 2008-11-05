@@ -613,7 +613,6 @@ template <class T> NEVER_INLINE int CPUCore<T>::executeInstruction1_slow(byte op
 
 template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode)
 {
-	M1Cycle();
 	switch (opcode) {
 		case 0x00: // nop
 		case 0x40: // ld b,b
@@ -910,6 +909,7 @@ template <class T> void CPUCore<T>::executeFast()
 {
 	T::R800Refresh();
 	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
+	M1Cycle();
 	int cycles = executeInstruction1_slow(opcode);
 	T::add(cycles);
 }
@@ -918,6 +918,7 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::executeFastInline()
 {
 	T::R800Refresh();
 	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
+	M1Cycle();
 	int cycles = executeInstruction1(opcode);
 	T::add(cycles);
 }
@@ -3029,6 +3030,8 @@ int CPUCore<T>::xy() {
 		case 0xfc: // call_m();
 		case 0xfe: // cp_byte();
 		case 0xff: // rst_38();
+		case 0xdd: // xy<IX, IXH, IXL>();
+		case 0xfd: // xy<IY, IYH, IYL>();
 			return executeInstruction1_slow(opcode);
 
 		case 0x09: return add_SS_TT<IXY,BC>();
@@ -3118,8 +3121,6 @@ int CPUCore<T>::xy() {
 		case 0xe9: return jp_SS<IXY>();
 		case 0xf9: return ld_sp_SS<IXY>();
 		case 0xcb: return xy_cb<IXY>();
-		case 0xdd: return xy<IX, IXH, IXL>();
-		case 0xfd: return xy<IY, IYH, IYL>();
 	}
 	assert(false); return 0;
 }
