@@ -269,13 +269,15 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				// Sprites with CC=1 are only visible if preceded by
 				// a sprite with CC=0.
 				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
-				++spriteCount[line];
+				spriteCount[line] = visibleIndex + 1;
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[2 * sprite + 1] & patternIndexMask;
 				sip.pattern = calculatePatternPlanar(patternIndex, spriteLine);
 				sip.x = attributePtr1[2 * sprite + 0];
 				if (colorAttrib & 0x80) sip.x -= 32;
 				sip.colourAttrib = colorAttrib;
+				// set sentinel (see below)
+				spriteBuffer[line][visibleIndex + 1].colourAttrib = 0;
 			}
 		}
 	} else {
