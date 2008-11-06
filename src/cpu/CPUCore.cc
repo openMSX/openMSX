@@ -335,7 +335,6 @@ template <class T> void CPUCore<T>::setFreq(unsigned freq_)
 
 template <class T> inline byte CPUCore<T>::READ_PORT(unsigned port, unsigned cc)
 {
-	memptr = port + 1; // not 16-bit
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	byte result = interface->readIO(port, time);
@@ -345,7 +344,6 @@ template <class T> inline byte CPUCore<T>::READ_PORT(unsigned port, unsigned cc)
 
 template <class T> inline void CPUCore<T>::WRITE_PORT(unsigned port, byte value, unsigned cc)
 {
-	memptr = port + 1; // not 16-bit
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	interface->writeIO(port, value, time);
@@ -578,6 +576,7 @@ template <class T> inline void CPUCore<T>::irq0()
 	R.setIFF2(false);
 	PUSH(R.getPC(), T::EE_IRQ0_1);
 	R.setPC(0x0038);
+	memptr = R.getPC();
 	T::add(T::CC_IRQ0);
 }
 
@@ -590,6 +589,7 @@ template <class T> inline void CPUCore<T>::irq1()
 	R.setIFF2(false);
 	PUSH(R.getPC(), T::EE_IRQ1_1);
 	R.setPC(0x0038);
+	memptr = R.getPC();
 	T::add(T::CC_IRQ1);
 }
 
@@ -603,6 +603,7 @@ template <class T> inline void CPUCore<T>::irq2()
 	PUSH(R.getPC(), T::EE_IRQ2_1);
 	unsigned x = interface->readIRQVector() | (R.getI() << 8);
 	R.setPC(RD_WORD(x, T::CC_IRQ2_2));
+	memptr = R.getPC();
 	T::add(T::CC_IRQ2);
 }
 
@@ -1037,6 +1038,7 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_sp_SS() {
 
 // LD (ss),a
 template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_SS_a() {
+	memptr = (R.getA() << 8) | ((R.get16<REG>() + 1) & 0xFF);
 	WRMEM(R.get16<REG>(), R.getA(), T::CC_LD_SS_A_1);
 	return T::CC_LD_SS_A;
 }
@@ -1075,15 +1077,16 @@ template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::ld_xix_byte() {
 // LD (nn),A
 template <class T> int CPUCore<T>::ld_xbyte_a() {
 	unsigned x = RD_WORD_PC(T::CC_LD_NN_A_1);
-	memptr = R.getA() << 8;
+	memptr = (R.getA() << 8) | ((x + 1) & 0xFF);
 	WRMEM(x, R.getA(), T::CC_LD_NN_A_2);
 	return T::CC_LD_NN_A;
 }
 
 // LD (nn),ss
 template <class T> inline int CPUCore<T>::WR_NN_Y(unsigned reg, int ee) {
-	memptr = RD_WORD_PC(T::CC_LD_XX_HL_1 + ee);
-	WR_WORD(memptr, reg, T::CC_LD_XX_HL_2 + ee);
+	unsigned addr = RD_WORD_PC(T::CC_LD_XX_HL_1 + ee);
+	memptr = addr + 1;
+	WR_WORD(addr, reg, T::CC_LD_XX_HL_2 + ee);
 	return T::CC_LD_XX_HL + ee;
 }
 template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_xword_SS() {
@@ -1095,7 +1098,9 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_xword_SS_ED() {
 
 // LD A,(ss)
 template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_a_SS() {
-	R.setA(RDMEM(R.get16<REG>(), T::CC_LD_A_SS_1)); return T::CC_LD_A_SS;
+	memptr = R.get16<REG>() + 1;
+	R.setA(RDMEM(R.get16<REG>(), T::CC_LD_A_SS_1));
+	return T::CC_LD_A_SS;
 }
 
 // LD A,(nn)
@@ -2237,6 +2242,7 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ex_xsp_SS() {
 
 // IN r,(c)
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::in_R_c() {
+	memptr = R.getBC() + 1;
 	byte res = READ_PORT(R.getBC(), T::CC_IN_R_C_1);
 	byte f = 0;
 	if (T::isR800()) {
@@ -2254,24 +2260,29 @@ template <class T> template<CPU::Reg8 REG> int CPUCore<T>::in_R_c() {
 // IN a,(n)
 template <class T> int CPUCore<T>::in_a_byte() {
 	unsigned y = RDMEM_OPCODE(T::CC_IN_A_N_1) + 256 * R.getA();
+	memptr = y + 1;
 	R.setA(READ_PORT(y, T::CC_IN_A_N_2));
 	return T::CC_IN_A_N;
 }
 
 // OUT (c),r
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::out_c_R() {
+	memptr = R.getBC() + 1;
 	WRITE_PORT(R.getBC(), R.get8<REG>(), T::CC_OUT_C_R_1);
 	return T::CC_OUT_C_R;
 }
 template <class T> int CPUCore<T>::out_c_0() {
 	// TODO not on R800
+	memptr = R.getBC() + 1;
 	WRITE_PORT(R.getBC(), out_c_x, T::CC_OUT_C_R_1);
 	return T::CC_OUT_C_R;
 }
 
 // OUT (n),a
 template <class T> int CPUCore<T>::out_byte_a() {
-	unsigned y = RDMEM_OPCODE(T::CC_OUT_N_A_1) + 256 * R.getA();
+	byte port = RDMEM_OPCODE(T::CC_OUT_N_A_1);
+	unsigned y = (R.getA() << 8) |   port;
+	memptr     = (R.getA() << 8) | ((port + 1) & 255);
 	WRITE_PORT(y, R.getA(), T::CC_OUT_N_A_2);
 	return T::CC_OUT_N_A;
 }
@@ -2279,6 +2290,7 @@ template <class T> int CPUCore<T>::out_byte_a() {
 
 // block CP
 template <class T> inline int CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
+	memptr = memptr + increase;
 	byte val = RDMEM(R.getHL(), T::CC_CPI_1);
 	byte res = R.getA() - val;
 	R.setHL(R.getHL() + increase);
@@ -2298,6 +2310,7 @@ template <class T> inline int CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
 	R.setF(f);
 	if (repeat && R.getBC() && res) {
 		R.setPC(R.getPC() - 2);
+		memptr = R.getPC() + 1;
 		return T::CC_CPIR;
 	} else {
 		return T::CC_CPI;
@@ -2327,6 +2340,7 @@ template <class T> inline int CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
 	R.setF(f);
 	if (repeat && R.getBC()) {
 		R.setPC(R.getPC() - 2);
+		memptr = R.getPC() + 1;
 		return T::CC_LDIR;
 	} else {
 		return T::CC_LDI;
@@ -2341,6 +2355,7 @@ template <class T> int CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 // block IN
 template <class T> inline int CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 	// TODO R800 flags
+	memptr = R.getBC() + increase;
 	R.setBC(R.getBC() - 0x100); // decr before use
 	byte val = READ_PORT(R.getBC(), T::CC_INI_1);
 	WRMEM(R.getHL(), val, T::CC_INI_2);
@@ -2370,7 +2385,8 @@ template <class T> inline int CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
 	byte val = RDMEM(R.getHL(), T::CC_OUTI_1);
 	R.setHL(R.getHL() + increase);
 	WRITE_PORT(R.getBC(), val, T::CC_OUTI_2);
-	R.setB(R.getB() - 1); // decr after use
+	R.setBC(R.getBC() - 0x100); // decr after use
+	memptr = R.getBC() + increase;
 	unsigned k = val + R.getL();
 	byte b = R.getB();
 	R.setF(((val & S_FLAG) >> 6) | // N_FLAG
