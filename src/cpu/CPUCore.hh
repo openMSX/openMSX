@@ -8,6 +8,7 @@
 #include "CPU.hh"
 #include "CacheLine.hh"
 #include "Probe.hh"
+#include "serialize_meta.hh"
 #include <string>
 #include <memory>
 
@@ -114,8 +115,6 @@ private:
 	int NMIStatus;
 	Probe<int> IRQStatus;
 	Probe<void> IRQAccept;
-
-	unsigned memptr;
 
 	/**
 	 * Set to true when there was a rising edge on the NMI line
@@ -431,6 +430,11 @@ private:
 	friend class Z80TYPE;
 	friend class R800TYPE;
 };
+
+class Z80TYPE;
+class R800TYPE;
+SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  2);
+SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 2);
 
 } // namespace openmsx
 

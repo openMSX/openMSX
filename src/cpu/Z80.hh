@@ -31,6 +31,9 @@ protected:
 	ALWAYS_INLINE void R800Refresh() { }
 	ALWAYS_INLINE void R800ForcePageBreak() { }
 
+	ALWAYS_INLINE void setMemPtr(unsigned x) { memptr = x; }
+	ALWAYS_INLINE unsigned getMemPtr() const { return memptr; }
+
 	static const int
 	CC_LD_A_SS   = 5+3,       CC_LD_A_SS_1  = 5+1,
 	CC_LD_A_NN   = 5+3+3+3,   CC_LD_A_NN_1  = 5+1,   CC_LD_A_NN_2  = 5+3+3+1,
@@ -127,12 +130,22 @@ protected:
 	CC_RDMEM     = 3,
 	CC_WRMEM     = 3;
 
+	// versions (version number shared with CPUCore<> class)
+	//  1 -> initial version
+	//  2 -> moved memptr from CPUCore to here
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version)
 	{
 		CPUClock::serialize(ar, version);
+		if (version >= 2) {
+			ar.serialize("memptr", memptr);
+		}
 	}
+
+private:
+	unsigned memptr;
 };
+
 
 } // namespace openmsx
 

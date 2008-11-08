@@ -138,6 +138,9 @@ protected:
 		}
 	}
 
+	ALWAYS_INLINE void setMemPtr(unsigned) { /* nothing*/ }
+	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
+
 	static const int I  = 8; // cycles for an I/O operation
 	static const int P  = 1; // cycles for a (statically known) page-break
 
