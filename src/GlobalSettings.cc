@@ -38,8 +38,6 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	syncDirAsDSKSetting.reset(new EnumSetting<SyncMode>(commandController,
 		"DirAsDSKmode", "type of syncronisation between host directory and dir-as-dsk diskimage",
 		SYNC_FULL, syncDirAsDSKMap));
-	persistentDirAsDSKSetting.reset(new BooleanSetting(commandController, "DirAsDSKpersistent",
-	        "save cached sectors when ejecting", false, Setting::SAVE));
 	EnumSetting<bool>::Map bootsectorMap;
 	bootsectorMap["DOS1"] = false;
 	bootsectorMap["DOS2"] = true;
@@ -109,11 +107,6 @@ StringSetting& GlobalSettings::getUserDirSetting()
 EnumSetting<GlobalSettings::SyncMode>& GlobalSettings::getSyncDirAsDSKSetting()
 {
 	return *syncDirAsDSKSetting.get();
-}
-
-BooleanSetting& GlobalSettings::getPersistentDirAsDSKSetting()
-{
-	return *persistentDirAsDSKSetting.get();
 }
 
 EnumSetting<bool>& GlobalSettings::getBootSectorSetting()

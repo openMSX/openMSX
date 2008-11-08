@@ -105,7 +105,6 @@ private:
 	GlobalSettings& globalSettings;
 
 	GlobalSettings::SyncMode syncMode;
-	bool bootSectorWritten;
 };
 
 } // namespace openmsx

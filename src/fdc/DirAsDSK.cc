@@ -38,8 +38,6 @@ static void debug(const char* format, ...)
 static const unsigned BAD_FAT = 0xFF7;
 static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF
 static const unsigned MAX_CLUSTER = 720;
-static const string bootBlockFileName = ".sector.boot";
-static const string cachedSectorsFileName = ".sector.cache";
 
 
 // functions to set/get little endian 16/32 bit values
@@ -188,236 +186,6 @@ static unsigned clusterToSector(unsigned cluster)
 	return 14 + 2 * (cluster - 2);
 }
 
-static const byte CACHE_ID_DIR    = 1;
-static const byte CACHE_ID_SECTOR = 2;
-static const byte CACHE_ID_END    = 255;
-
-void DirAsDSK::saveCache()
-{
-	// safe bootsector file if needed
-	if (bootSectorWritten) {
-		try {
-			File file(hostDir + '/' + bootBlockFileName,
-			          File::TRUNCATE);
-			file.write(bootBlock, SECTOR_SIZE);
-		} catch (FileException& e) {
-			cliComm.printWarning(
-				"Couldn't create bootsector file.");
-		}
-	}
-
-	// and now create the new and more complex sectorcache file
-	try {
-		byte tmpbuf[SECTOR_SIZE];
-		File file(hostDir + '/' + cachedSectorsFileName,
-		          File::TRUNCATE);
-
-		// first save the new header
-		string header("openMSX-sectorcache-v1");
-		file.write(header.c_str(), header.size() + 1);
-
-		// now save all the files that are in this disk at this moment
-		for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-			if (!mapdir[i].inUse()) continue;
-
-			// first save CACHE-ID=1,
-			// then shortname and filessize in LE32 form
-			// and finally the dirindex and the MSXDirEntry for this entry
-			unsigned p = 0;
-			tmpbuf[p++] = CACHE_ID_DIR;
-			unsigned ss = mapdir[i].shortname.size();
-			memcpy(&tmpbuf[p], mapdir[i].shortname.c_str(), ss + 1);
-			p += ss + 1;
-			setLE32(&tmpbuf[p], mapdir[i].filesize);
-			p += 4;
-			// Direntry as 32 bits number, this makes
-			// it possible to in the future extend
-			// this to reasonably big hard disk images
-			setLE32(&tmpbuf[p], i);
-			p += 4;
-			memcpy(&tmpbuf[p], &(mapdir[i].msxinfo), 32);
-			p += 32;
-			file.write(tmpbuf, p);
-
-			// then a list of sectors in which the data of the file is stored
-			unsigned curcl = getStartCluster(mapdir[i].msxinfo);
-			unsigned size = getLE32(mapdir[i].msxinfo.size);
-			unsigned logicalSector = clusterToSector(curcl);
-			while (size >= SECTOR_SIZE) {
-				setLE16(&tmpbuf[0], logicalSector++);
-				file.write(tmpbuf, 2);
-				size -= SECTOR_SIZE;
-				if (size >= SECTOR_SIZE) {
-					setLE16(&tmpbuf[0], logicalSector);
-					file.write(tmpbuf, 2);
-					size -= SECTOR_SIZE;
-					// get next cluster info
-					curcl = readFAT(curcl);
-					logicalSector = clusterToSector(curcl);
-				}
-			}
-			// save last sector + padding info if needed
-			if (size) {
-				setLE16(&tmpbuf[0], logicalSector);
-				file.write(tmpbuf, 2);
-				// save padding bytes
-				byte* buf = cachedSectors[logicalSector].data;
-				file.write(&buf[size], SECTOR_SIZE - size);
-			}
-		}
-
-		// Now save sectors that are not directly related to a given file.
-		// always save fat and dir sectors
-		for (unsigned i = 1; i < 14; ++i) {
-			tmpbuf[0] = CACHE_ID_SECTOR;
-			setLE16(&tmpbuf[1], i);
-			file.write(tmpbuf, 3);
-			readSectorSBD(i, tmpbuf);
-			file.write(tmpbuf, SECTOR_SIZE);
-		}
-
-		// And now the CACHED only sectors
-		for (CachedSectors::const_iterator it = cachedSectors.begin();
-		     it != cachedSectors.end(); ++it) {
-			// avoid MIXED sectors
-			if (sectormap[it->first].usage == CACHED) {
-				tmpbuf[0] = CACHE_ID_SECTOR;
-				setLE16(&tmpbuf[1], it->first);
-				file.write(tmpbuf, 3);
-
-				debug("writing to .sector.cache\n");
-				debug("        sector %i\n", it->first);
-				file.write(it->second.data, SECTOR_SIZE);
-			}
-		}
-
-		// end of file marker
-		file.write(&CACHE_ID_END, 1);
-	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't create cached sector file.");
-	}
-}
-
-bool DirAsDSK::readCache()
-{
-	try {
-		File file(hostDir + '/' + cachedSectorsFileName);
-
-		// first read the new header
-		string header("openMSX-sectorcache-v");
-		byte tmpbuf[SECTOR_SIZE];
-		file.read(tmpbuf, header.size() + 2);
-		if (memcmp(tmpbuf, header.c_str(), header.size()) != 0) {
-			cliComm.printWarning("Wrong header in sector cache.");
-			return false;
-		}
-		if ((tmpbuf[header.size() + 0] != '1') ||
-		    (tmpbuf[header.size() + 1] != 0)) {
-			cliComm.printWarning("Wrong version of sector cache format.");
-			return false;
-		}
-
-		byte id;
-		do {
-			file.read(&id, 1);
-			switch (id) {
-			case CACHE_ID_DIR: {
-				// file info stored in cache
-
-				// read long filename   !! NOT USED !!
-				char c;
-				do {
-					file.read(&c, 1);
-				} while (c);
-
-				// read short filename
-				string shortname;
-				do {
-					file.read(&c, 1);
-					if (c) shortname += c;
-				} while (c);
-
-				// read filesize, dirindex and MSXDirEntry
-				// TODO [wouter]: Shouldn't this be 4 + 1 + 32?
-				file.read(tmpbuf, 6 + 32);
-				unsigned filesize = getLE32(tmpbuf);
-				unsigned dirindex = tmpbuf[4];
-				// TODO [wouter]: Check dirindex < NUM_DIR_ENTRIES
-
-				// fill mapdir with correct info
-				mapdir[dirindex].shortname = shortname;
-				mapdir[dirindex].filesize = filesize;
-				memcpy(&(mapdir[dirindex].msxinfo), &tmpbuf[5], 32);
-
-				// fail if size has changed!!
-				string fullfilename = hostDir + '/' + shortname;
-				struct stat fst;
-				if (stat(fullfilename.c_str(), &fst)) {
-					// Couldn't stat the file ??
-					cliComm.printWarning("Cached file doesn't exist anymore: " + shortname);
-					return false;
-				}
-				if (filesize != unsigned(fst.st_size)) {
-					cliComm.printWarning("Filesize of cached file changed! Cache invalidated!");
-					return false;
-				}
-
-				// read file into memory and fix metadata
-				File hostOsFile(fullfilename);
-				int offset = 0;
-				while (filesize) {
-					file.read(tmpbuf, 2);
-					unsigned sector = getLE16(tmpbuf);
-
-					if (syncMode == GlobalSettings::SYNC_FULL ||
-					    syncMode == GlobalSettings::SYNC_NODELETE) {
-						sectormap[sector].usage = MIXED;
-					} else {
-						sectormap[sector].usage = CACHED;
-					}
-
-					sectormap[sector].dirEntryNr = dirindex;
-					sectormap[sector].fileOffset = offset;
-
-					byte* buf = cachedSectors[sector].data;
-					hostOsFile.read(buf, std::min<int>(SECTOR_SIZE, filesize));
-					// read padding data if needed
-					if (filesize < SECTOR_SIZE) {
-						hostOsFile.read(&buf[filesize], (SECTOR_SIZE - filesize));
-					}
-
-					offset += SECTOR_SIZE;
-					filesize -= std::min<int>(SECTOR_SIZE, filesize);
-				}
-				break;
-			}
-			case CACHE_ID_SECTOR: {
-				// cached sectors
-				file.read(tmpbuf, 2);
-				unsigned sector = getLE16(tmpbuf);
-				// meta data
-				sectormap[sector].usage = CACHED;
-				sectormap[sector].dirEntryNr = 0;
-				sectormap[sector].fileOffset = 0;
-				// sector data
-				file.read(tmpbuf, SECTOR_SIZE);
-				memcpy(cachedSectors[sector].data, tmpbuf, SECTOR_SIZE);
-			}
-			case CACHE_ID_END:
-				// end of cache marker
-				break;
-			default:
-				cliComm.printWarning("Unknown data element in sector cache format.");
-				return false;
-			}
-		} while (id != CACHE_ID_END);
-	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't read cached sector file.");
-	}
-
-	// for the moment fail cache reading since we still need to implement this
-	return false;
-}
 
 void DirAsDSK::scanHostDir(bool onlyNewFiles)
 {
@@ -426,17 +194,13 @@ void DirAsDSK::scanHostDir(bool onlyNewFiles)
 	ReadDir dir(hostDir);
 	while (struct dirent* d = dir.getEntry()) {
 		string name(d->d_name);
-		if ((name != bootBlockFileName) &&
-		    (name != cachedSectorsFileName)) {
-			// check if file is added to diskimage
-			if (!onlyNewFiles || !checkFileUsedInDSK(name)) {
-				debug("found new file %s\n", d->d_name);
-				updateFileInDisk(name);
-			}
+		// check if file is added to diskimage
+		if (!onlyNewFiles || !checkFileUsedInDSK(name)) {
+			debug("found new file %s\n", d->d_name);
+			updateFileInDisk(name);
 		}
 	}
 }
-
 
 void DirAsDSK::cleandisk()
 {
@@ -478,7 +242,6 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	, globalSettings(globalSettings_)
 {
 	syncMode = globalSettings.getSyncDirAsDSKSetting().getValue();
-	bootSectorWritten = false;
 
 	// create the diskimage based upon the files that can be
 	// found in the host directory
@@ -492,40 +255,21 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	setSectorsPerTrack(9);
 	setNbSides(2);
 
-	try {
-		// try to read boot block from file
-		File file(hostDir + '/' + bootBlockFileName);
-		file.read(bootBlock, SECTOR_SIZE);
-	} catch (FileException& e) {
-		// or use default when that fails
-		const byte* bootSector
-			= globalSettings.getBootSectorSetting().getValue()
-			? BootBlocks::dos2BootBlock
-			: BootBlocks::dos1BootBlock;
-		memcpy(bootBlock, bootSector, SECTOR_SIZE);
-	}
+	// use selected bootsector
+	const byte* bootSector
+		= globalSettings.getBootSectorSetting().getValue()
+		? BootBlocks::dos2BootBlock
+		: BootBlocks::dos1BootBlock;
+	memcpy(bootBlock, bootSector, SECTOR_SIZE);
 
 	// make a clean initial disk
 	cleandisk();
-	if (!readCache()) {
-		// reading cache failed (!! ATM this is always the case !!)
-		cleandisk(); // clear partial result of readCache
-		// read directory and fill the fake disk
-		scanHostDir(false);
-	} else {
-		// Cache file was valid and loaded so add possible new files
-		// we can ofcourse skip this since a 'files' in the MSX will do
-		// this in any case, but I like it more here :-)
-		scanHostDir(true);
-	}
+	// read directory and fill the fake disk
+	scanHostDir(false);
 }
 
 DirAsDSK::~DirAsDSK()
 {
-	// write cached sectors to a file
-	if (globalSettings.getPersistentDirAsDSKSetting().getValue()) {
-		saveCache();
-	}
 }
 
 void DirAsDSK::readSectorSBD(unsigned sector, byte* buf)
@@ -910,7 +654,6 @@ void DirAsDSK::writeSectorSBD(unsigned sector, const byte* buf)
 
 	if (sector == 0) {
 		memcpy(bootBlock, buf, SECTOR_SIZE);
-		bootSectorWritten = true;
 	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
 		writeFATSector(sector, buf);
 	} else if (sector < 14) {
