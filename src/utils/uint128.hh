@@ -3,6 +3,17 @@
 #ifndef UINT128_HH
 #define UINT128_HH
 
+typedef unsigned long long uint64;
+
+#ifdef __x86_64
+
+// On 64-bit CPUs gcc already provides a 128-bit type,
+// use that type because it's most likely much more efficient.
+typedef __uint128_t uint128;
+inline uint64 toUint64(uint128 a) { return a; }
+
+#else // __x86_64
+
 /** Unsigned 128-bit integer type.
  * Very simple implementation, not optimized for speed.
  *
@@ -12,8 +23,6 @@
 class uint128
 {
 public:
-	typedef unsigned long long uint64;
-
 	uint128() {}
 	uint128(const uint128& a) : lo(a.lo), hi(a.hi) {}
 	uint128(uint64 a)         : lo(a), hi(0) {}
@@ -127,18 +136,13 @@ public:
 		return *this;
 	}
 
-	uint64 toUint64() const
-	{
-		return lo;
-	}
-
 	uint128& operator*=(const uint128& b);
-	uint128 div(const uint128& ds, uint128& remainder) const;
-	bool bit(unsigned n) const;
-	void setBit(unsigned n);
 
 private:
 	uint128(uint64 a, uint64 b) : lo(a), hi(b) {}
+	uint128 div(const uint128& ds, uint128& remainder) const;
+	bool bit(unsigned n) const;
+	void setBit(unsigned n);
 
 	uint64 lo;
 	uint64 hi;
@@ -147,6 +151,7 @@ private:
 	friend bool operator==(const uint128&, const uint128&);
 	friend bool operator||(const uint128&, const uint128&);
 	friend bool operator&&(const uint128&, const uint128&);
+	friend uint64 toUint64(const uint128&);
 };
 
 
@@ -227,4 +232,11 @@ inline bool operator||(const uint128& a, const uint128& b)
 	return a.hi || a.lo || b.hi || b.lo;
 }
 
-#endif
+inline uint64 toUint64(const uint128& a)
+{
+	return a.lo;
+}
+
+#endif // __x86_64
+
+#endif // UINT128_HH

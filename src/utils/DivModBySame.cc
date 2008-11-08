@@ -48,7 +48,7 @@ void DivModBySame::setDivisor(unsigned divisor_)
 			--l;
 		}
 		if ((m_high >> 64) == 0) {
-			m = m_high.toUint64();
+			m = toUint64(m_high);
 			s = l;
 			a = 0;
 		} else {
@@ -56,9 +56,9 @@ void DivModBySame::setDivisor(unsigned divisor_)
 			// "Integer Multiplication and Division on the HP Precision Architecture".
 			// IEEE Transactions on Computers, Vol 37, No. 8, August 1988, page 980.
 			s = log2(t);
-			uint128 m_low = (uint128(1) << (64 + s)) / t;
-			uint64 r =     ((uint128(1) << (64 + s)) % t).toUint64();
-			m = (m_low + ((r <= (t >> 1)) ? 0 : 1)).toUint64();
+			uint128 m_low =     (uint128(1) << (64 + s)) / t;
+			uint64 r = toUint64((uint128(1) << (64 + s)) % t);
+			m = toUint64(m_low + ((r <= (t >> 1)) ? 0 : 1));
 			a = m;
 		}
 		// reduce multiplier to smallest possible

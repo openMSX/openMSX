@@ -1,5 +1,11 @@
 // $Id:$
 
+#ifdef __x86_64
+
+//nothing
+
+#else // __x86_64
+
 #include "uint128.hh"
 
 uint128& uint128::operator*=(const uint128& b)
@@ -69,3 +75,4 @@ void uint128::setBit(unsigned n)
 	}
 }
 
+#endif // __x86_64
