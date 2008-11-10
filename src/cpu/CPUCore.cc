@@ -2453,7 +2453,9 @@ template <class T> int CPUCore<T>::ccf() {
 	} else {
 		f |= (R.getF() & C_FLAG) << 4; // H_FLAG
 		f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG);
-		f |= R.getA() & (X_FLAG | Y_FLAG);
+		// TODO Z80 in a turbor behaves different
+		// only set XY flags (not reset)
+		f |= (R.getF() | R.getA()) & (X_FLAG | Y_FLAG);
 	}
 	f ^= C_FLAG;
 	R.setF(f);
@@ -2507,7 +2509,9 @@ template <class T> int CPUCore<T>::scf() {
 		f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG);
-		f |= R.getA() & (X_FLAG | Y_FLAG);
+		// only set XY flags (not reset)
+		// TODO Z80 in a turbor behaves different
+		f |= (R.getF() | R.getA()) & (X_FLAG | Y_FLAG);
 	}
 	R.setF(f);
 	return T::CC_SCF;
