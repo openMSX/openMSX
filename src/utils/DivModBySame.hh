@@ -71,7 +71,7 @@ public:
 			"shrd   %%cl,%[CH],%[CL]\n\t"
 
 			: [CH] "=r"   (ch)
-			, [CL] "=r"   (cl)
+			, [CL] "=rm"  (cl)
 			, [TH] "=&c"  (th) // ecx
 			, [TL] "=&rm" (tl)
 			:      "[CH]" (ch)
