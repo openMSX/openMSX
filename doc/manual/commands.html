@@ -1478,7 +1478,7 @@
 
   <h3><a id="screenshot">screenshot</a></h3>
 
-  <p>Take a screenshot of the openMSX screen. This includes the console and icons if those are visible when the screenshot is taken. The screenshots are PNG files and are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
+  <p>Take a screenshot of the openMSX screen. By default this includes the console and icons if those are visible when the screenshot is taken. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1486,21 +1486,40 @@
 
   <table>
     <tr>
-      <td><code>screenshot</code></td>
+      <td>
+        <code>screenshot [-msxonly [-doublesize]] [-prefix &lt;prefix&gt;] [&lt;filename&gt;]</code>
+      </td>
+    </tr>
+  </table>
 
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>screenshot</code></td>
       <td>Write screenshot to file "openmsxNNNN.png"</td>
     </tr>
 
     <tr>
       <td><code>screenshot &lt;filename&gt;</code></td>
-
       <td>Write screenshot to indicated file</td>
     </tr>
 
     <tr>
       <td><code>screenshot -prefix foo</code></td>
-
       <td>Write screenshot to file "fooNNNN.png"</td>
+    </tr>
+
+    <tr>
+      <td><code>screenshot -msxonly</code></td>
+      <td>Create screenshot of the MSX screen only (so no icons or console)</td>
+    </tr>
+
+    <tr>
+      <td><code>screenshot -msxonly -doublesize</code></td>
+      <td>Create screenshot of the MSX screen only, with resolution 640x480</td>
     </tr>
   </table>
 

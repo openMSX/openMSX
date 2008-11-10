@@ -11,7 +11,7 @@ proc __savestate_common { name } {
 
 proc savestate { {name ""} } {
 	__savestate_common $name
-	if {[catch { screenshot -msx $png }]} {
+	if {[catch { screenshot -msxonly -doublesize $png }]} {
 		# some renderers don't support msx-only screenshots
 		if {[catch { screenshot $png }]} {
 			# even this failed, but (try to) remove old screenhot

@@ -7,6 +7,7 @@
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "FileOperations.hh"
+#include "FileContext.hh"
 #include "Alarm.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
@@ -33,6 +34,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -51,6 +53,7 @@ public:
 	ScreenShotCmd(CommandController& commandController, Display& display);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	Display& display;
 };
@@ -421,8 +424,8 @@ ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
 
 string ScreenShotCmd::execute(const vector<string>& tokens)
 {
-	bool msxsmall = false;
-	bool msxbig   = false;
+	bool msxOnly = false;
+	bool doubleSize = false;
 	string prefix = "openmsx";
 	vector<string> arguments;
 	for (unsigned i = 1; i < tokens.size(); ++i) {
@@ -437,18 +440,20 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 					throw CommandException("Missing argument");
 				}
 				prefix = tokens[i];
-			} else if (tokens[i] == "-msx") {
-				msxbig = true;
-			} else if (tokens[i] == "-msxsmall") {
-				msxsmall = true;
-			} else if (tokens[i] == "-msxbig") {
-				msxbig = true;
+			} else if (tokens[i] == "-msxonly") {
+				msxOnly = true;
+			} else if (tokens[i] == "-doublesize") {
+				doubleSize = true;
 			} else {
 				throw CommandException("Invalid option: " + tokens[i]);
 			}
 		} else {
 			arguments.push_back(tokens[i]);
 		}
+	}
+	if (doubleSize && !msxOnly) {
+		throw CommandException("-doublesize option can only be used in "
+		                       "combination with -msxonly");
 	}
 
 	string filename;
@@ -464,7 +469,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
-	if (!msxsmall && !msxbig) {
+	if (!msxOnly) {
 		// include all layers (OSD stuff, console)
 		display.getVideoSystem().takeScreenShot(filename);
 	} else {
@@ -478,7 +483,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 			throw CommandException(
 				"Current renderer doesn't support taking screenshots.");
 		}
-		unsigned height = msxbig ? 480 : 240;
+		unsigned height = doubleSize ? 480 : 240;
 		pp->takeScreenShot(height, filename);
 	}
 	
@@ -490,10 +495,23 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	return
-		"screenshot              Write screenshot to file \"openmsxNNNN.png\"\n"
-		"screenshot <filename>   Write screenshot to indicated file\n"
-		"screenshot -prefix foo  Write screenshot to file \"fooNNNN.png\"\n";
+		"screenshot                       Write screenshot to file \"openmsxNNNN.png\"\n"
+		"screenshot <filename>            Write screenshot to indicated file\n"
+		"screenshot -prefix foo           Write screenshot to file \"fooNNNN.png\"\n"
+		"screenshot -msxonly              320x240 screenshot of MSX screen only\n"
+		"screenshot -msxonly -doublesize  640x480 screenshot of MSX screen only\n";
 }
+
+void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
+{
+	set<string> extra;
+	extra.insert("-prefix");
+	extra.insert("-msxonly");
+	extra.insert("-doublesize");
+	UserFileContext context;
+	completeFileName(getCommandController(), tokens, context, extra);
+}
+
 
 // FpsInfoTopic
 
