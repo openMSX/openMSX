@@ -75,7 +75,7 @@ template <class T> CPUCore<T>::CPUCore(
 		    "right after the CPU accepted an IRQ.")
 	, nmiEdge(false)
 	, exitLoop(false)
-	, out_c_x(motherboard.isTurboR() ? 255 : 0)
+	, isTurboR(motherboard.isTurboR())
 {
 	if (freqLocked->getValue()) {
 		// locked
@@ -2311,6 +2311,7 @@ template <class T> template<CPU::Reg8 REG> int CPUCore<T>::out_c_R() {
 template <class T> int CPUCore<T>::out_c_0() {
 	// TODO not on R800
 	T::setMemPtr(R.getBC() + 1);
+	byte out_c_x = isTurboR ? 255 : 0;
 	WRITE_PORT(R.getBC(), out_c_x, T::CC_OUT_C_R_1);
 	return T::CC_OUT_C_R;
 }
@@ -2452,10 +2453,15 @@ template <class T> int CPUCore<T>::ccf() {
 		f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG | X_FLAG | Y_FLAG | H_FLAG);
 	} else {
 		f |= (R.getF() & C_FLAG) << 4; // H_FLAG
-		f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG);
-		// TODO Z80 in a turbor behaves different
-		// only set XY flags (not reset)
-		f |= (R.getF() | R.getA()) & (X_FLAG | Y_FLAG);
+		// only set X(Y) flag (don't reset if already set)
+		if (isTurboR) {
+			// Y flag is not changed on a turboR-Z80
+			f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG | Y_FLAG);
+			f |= (R.getF() | R.getA()) & X_FLAG;
+		} else {
+			f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG);
+			f |= (R.getF() | R.getA()) & (X_FLAG | Y_FLAG);
+		}
 	}
 	f ^= C_FLAG;
 	R.setF(f);
@@ -2508,10 +2514,15 @@ template <class T> int CPUCore<T>::scf() {
 	if (T::isR800()) {
 		f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 	} else {
-		f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG);
-		// only set XY flags (not reset)
-		// TODO Z80 in a turbor behaves different
-		f |= (R.getF() | R.getA()) & (X_FLAG | Y_FLAG);
+		// only set X(Y) flag (don't reset if already set)
+		if (isTurboR) {
+			// Y flag is not changed on a turboR-Z80
+			f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG | Y_FLAG);
+			f |= (R.getF() | R.getA()) & X_FLAG;
+		} else {
+			f |= R.getF() & (S_FLAG | Z_FLAG | P_FLAG);
+			f |= (R.getF() | R.getA()) & (X_FLAG | Y_FLAG);
+		}
 	}
 	R.setF(f);
 	return T::CC_SCF;

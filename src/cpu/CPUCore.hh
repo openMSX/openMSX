@@ -125,8 +125,8 @@ private:
 
 	volatile bool exitLoop;
 
-	/** value for 'out (c),f' instruction. */
-	const byte out_c_x;
+	/** 'normal' Z80 and Z80 in a turboR behave slightly different */
+	const bool isTurboR;
 
 
 	inline void cpuTracePre();
