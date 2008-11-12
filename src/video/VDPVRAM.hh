@@ -16,7 +16,6 @@
 
 namespace openmsx {
 
-class EmuTime;
 class SpriteChecker;
 class Renderer;
 class LogicalVRAMDebuggable;
@@ -121,8 +120,8 @@ can decide for itself how many bytes to read.
 class DummyVRAMOBserver : public VRAMObserver
 {
 public:
-	virtual void updateVRAM(unsigned /*offset*/, const EmuTime& /*time*/) {}
-	virtual void updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {}
+	virtual void updateVRAM(unsigned /*offset*/, EmuTime::param /*time*/) {}
+	virtual void updateWindow(bool /*enabled*/, EmuTime::param /*time*/) {}
 };
 
 /** Specifies an address range in the VRAM.
@@ -165,7 +164,7 @@ public:
 	  *       display mode anyway.
 	  */
 	inline void setMask(int newBaseMask, int newIndexMask,
-	                    const EmuTime& time) {
+	                    EmuTime::param time) {
 		newBaseMask &= sizeMask;
 		if (isEnabled() &&
 		    (newBaseMask  == baseMask) &&
@@ -182,7 +181,7 @@ public:
 	/** Disable this window: no address will be considered inside.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void disable(const EmuTime& time) {
+	inline void disable(EmuTime::param time) {
 		observer->updateWindow(false, time);
 		baseAddr = -1;
 	}
@@ -283,7 +282,7 @@ public:
 	  * @param address The address to test.
 	  * @param time The moment in emulated time the change occurs.
 	  */
-	inline void notify(unsigned address, const EmuTime& time) {
+	inline void notify(unsigned address, EmuTime::param time) {
 		if (isInside(address)) {
 			observer->updateVRAM(address - baseAddr, time);
 		}
@@ -344,14 +343,14 @@ private:
 class VDPVRAM : private noncopyable
 {
 public:
-	VDPVRAM(VDP& vdp, unsigned size, const EmuTime& time);
+	VDPVRAM(VDP& vdp, unsigned size, EmuTime::param time);
 	~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to update VRAM to.
 	  * TODO: Replace this method by VRAMWindow::sync().
 	  */
-	inline void sync(const EmuTime& time) {
+	inline void sync(EmuTime::param time) {
 		assert(vdp.isInsideFrame(time));
 		cmdEngine->sync(time);
 	}
@@ -362,7 +361,7 @@ public:
 	  *       Note: "cmdSync", because it checks against read windows, unlike
 	  *       the other sync which checks against the cmd write window.
 	  */
-	inline void cmdWrite(unsigned address, byte value, const EmuTime& time) {
+	inline void cmdWrite(unsigned address, byte value, EmuTime::param time) {
 		#ifdef DEBUG
 		// Rewriting history is not allowed.
 		assert(time >= vramTime);
@@ -393,7 +392,7 @@ public:
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	inline void cpuWrite(unsigned address, byte value, const EmuTime& time) {
+	inline void cpuWrite(unsigned address, byte value, EmuTime::param time) {
 		#ifdef DEBUG
 		// Rewriting history is not allowed.
 		assert(time >= vramTime);
@@ -428,7 +427,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return The VRAM contents at the specified address.
 	  */
-	inline byte cpuRead(unsigned address, const EmuTime& time) {
+	inline byte cpuRead(unsigned address, EmuTime::param time) {
 		#ifdef DEBUG
 		// VRAM should never get ahead of CPU.
 		assert(time >= vramTime);
@@ -449,7 +448,7 @@ public:
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(DisplayMode mode, const EmuTime& time);
+	void updateDisplayMode(DisplayMode mode, EmuTime::param time);
 
 	/** Used by the VDP to signal display enabled changes.
 	  * Both the regular border start/end and forced blanking by clearing
@@ -457,15 +456,15 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayEnabled(bool enabled, const EmuTime& time);
+	void updateDisplayEnabled(bool enabled, EmuTime::param time);
 
 	/** Used by the VDP to signal sprites enabled changes.
 	  * @param enabled The new sprites enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateSpritesEnabled(bool enabled, const EmuTime& time);
+	void updateSpritesEnabled(bool enabled, EmuTime::param time);
 
-	void setRenderer(Renderer* renderer, const EmuTime& time);
+	void setRenderer(Renderer* renderer, EmuTime::param time);
 
 	/** Returns the size of VRAM in bytes
 	  */
@@ -496,7 +495,7 @@ public:
 private:
 	/* Common code of cmdWrite() and cpuWrite()
 	 */
-	inline void writeCommon(unsigned address, byte value, const EmuTime& time) {
+	inline void writeCommon(unsigned address, byte value, EmuTime::param time) {
 		// Subsystem synchronisation should happen before the commit,
 		// to be able to draw backlog using old state.
 		bitmapVisibleWindow.notify(address, time);

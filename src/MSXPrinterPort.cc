@@ -25,25 +25,25 @@ MSXPrinterPort::~MSXPrinterPort()
 {
 }
 
-void MSXPrinterPort::reset(const EmuTime& time)
+void MSXPrinterPort::reset(EmuTime::param time)
 {
 	writeData(0, time);    // TODO check this
 	setStrobe(true, time); // TODO check this
 }
 
-byte MSXPrinterPort::readIO(word port, const EmuTime& time)
+byte MSXPrinterPort::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXPrinterPort::peekIO(word /*port*/, const EmuTime& time) const
+byte MSXPrinterPort::peekIO(word /*port*/, EmuTime::param time) const
 {
 	// bit 1 = status / other bits always 1
 	return getPluggedPrintDev().getStatus(time)
 	       ? 0xFF : 0xFD;
 }
 
-void MSXPrinterPort::writeIO(word port, byte value, const EmuTime& time)
+void MSXPrinterPort::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x01) {
 	case 0:
@@ -57,14 +57,14 @@ void MSXPrinterPort::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-void MSXPrinterPort::setStrobe(bool newStrobe, const EmuTime& time)
+void MSXPrinterPort::setStrobe(bool newStrobe, EmuTime::param time)
 {
 	if (newStrobe != strobe) {
 		strobe = newStrobe;
 		getPluggedPrintDev().setStrobe(strobe, time);
 	}
 }
-void MSXPrinterPort::writeData(byte newData, const EmuTime& time)
+void MSXPrinterPort::writeData(byte newData, EmuTime::param time)
 {
 	if (newData != data) {
 		data = newData;
@@ -84,7 +84,7 @@ const string& MSXPrinterPort::getClass() const
 	return className;
 }
 
-void MSXPrinterPort::plug(Pluggable& dev, const EmuTime& time)
+void MSXPrinterPort::plug(Pluggable& dev, EmuTime::param time)
 {
 	Connector::plug(dev, time);
 	getPluggedPrintDev().writeData(data, time);

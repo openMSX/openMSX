@@ -23,10 +23,10 @@ class YM2151Impl : public SoundDevice, private EmuTimerCallback, private Resampl
 public:
 	YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	           const std::string& desc, const XMLElement& config,
-	           const EmuTime& time);
+	           EmuTime::param time);
 	~YM2151Impl();
-	void reset(const EmuTime& time);
-	void writeReg(byte r, byte v, const EmuTime& time);
+	void reset(EmuTime::param time);
+	void writeReg(byte r, byte v, EmuTime::param time);
 	byte readStatus();
 
 	template<typename Archive>
@@ -95,7 +95,7 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-	                          const EmuTime& start, const EmuDuration& sampDur);
+	                          EmuTime::param start, EmuDuration::param sampDur);
 
 	 // Resample
 	virtual bool generateInput(int* buffer, unsigned num);
@@ -805,7 +805,7 @@ void YM2151Impl::refreshEG(YM2151Operator* op)
 	op->eg_sel_rr  = eg_rate_select[op->rr  + v];
 }
 
-void YM2151Impl::writeReg(byte r, byte v, const EmuTime& time)
+void YM2151Impl::writeReg(byte r, byte v, EmuTime::param time)
 {
 	updateStream(time);
 
@@ -1023,7 +1023,7 @@ void YM2151Impl::writeReg(byte r, byte v, const EmuTime& time)
 
 YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
-               const EmuTime& time)
+               EmuTime::param time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
 	, Resample(motherBoard.getGlobalSettings(), 2)
 	, irq(motherBoard, getName() + ".IRQ")
@@ -1053,7 +1053,7 @@ bool YM2151Impl::checkMuteHelper()
 	return true;
 }
 
-void YM2151Impl::reset(const EmuTime& time)
+void YM2151Impl::reset(EmuTime::param time)
 {
 	// initialize hardware registers
 	for (int i = 0; i < 32; ++i) {
@@ -1675,7 +1675,7 @@ bool YM2151Impl::generateInput(int* buffer, unsigned length)
 }
 
 bool YM2151Impl::updateBuffer(unsigned length, int* buffer,
-		const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+		EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -1806,7 +1806,7 @@ void YM2151Impl::serialize(Archive& ar, unsigned /*version*/)
 
 	if (ar.isLoader()) {
 		// TODO restore more state from registers
-		const EmuTime& time = timer1.getCurrentTime();
+		EmuTime::param time = timer1.getCurrentTime();
 		for (int r = 0x20; r < 0x28; ++r) {
 			writeReg(r , regs[r], time);
 		}
@@ -1818,7 +1818,7 @@ void YM2151Impl::serialize(Archive& ar, unsigned /*version*/)
 
 YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
-               const EmuTime& time)
+               EmuTime::param time)
 	: pimple(new YM2151Impl(motherBoard, name, desc, config, time))
 {
 }
@@ -1827,12 +1827,12 @@ YM2151::~YM2151()
 {
 }
 
-void YM2151::reset(const EmuTime& time)
+void YM2151::reset(EmuTime::param time)
 {
 	pimple->reset(time);
 }
 
-void YM2151::writeReg(byte r, byte v, const EmuTime& time)
+void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 {
 	pimple->writeReg(r, v, time);
 }

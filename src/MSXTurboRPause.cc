@@ -27,28 +27,28 @@ MSXTurboRPause::~MSXTurboRPause()
 	pauseSetting->detach(*this);
 }
 
-void MSXTurboRPause::reset(const EmuTime& dummy)
+void MSXTurboRPause::reset(EmuTime::param dummy)
 {
 	pauseSetting->changeValue(false);
 	writeIO(0, 0, dummy);
 }
 
-void MSXTurboRPause::powerDown(const EmuTime& dummy)
+void MSXTurboRPause::powerDown(EmuTime::param dummy)
 {
 	writeIO(0, 0, dummy);
 }
 
-byte MSXTurboRPause::readIO(word port, const EmuTime& time)
+byte MSXTurboRPause::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXTurboRPause::peekIO(word /*port*/, const EmuTime& /*time*/) const
+byte MSXTurboRPause::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	return pauseSetting->getValue() ? 1 : 0;
 }
 
-void MSXTurboRPause::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
+void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	status = value;
 	bool newTurboLed = (status & 0x80);

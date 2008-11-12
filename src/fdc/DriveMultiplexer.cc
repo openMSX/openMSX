@@ -22,7 +22,7 @@ DriveMultiplexer::~DriveMultiplexer()
 	delete drive[NO_DRIVE];
 }
 
-void DriveMultiplexer::selectDrive(DriveNum num, const EmuTime& time)
+void DriveMultiplexer::selectDrive(DriveNum num, EmuTime::param time)
 {
 	if (selected != num) {
 		drive[selected]->setMotor(false, time);
@@ -53,7 +53,7 @@ void DriveMultiplexer::setSide(bool side_)
 	drive[selected]->setSide(side);
 }
 
-void DriveMultiplexer::step(bool direction, const EmuTime& time)
+void DriveMultiplexer::step(bool direction, EmuTime::param time)
 {
 	drive[selected]->step(direction, time);
 }
@@ -63,39 +63,39 @@ bool DriveMultiplexer::isTrack00() const
 	return drive[selected]->isTrack00();
 }
 
-void DriveMultiplexer::setMotor(bool status, const EmuTime& time)
+void DriveMultiplexer::setMotor(bool status, EmuTime::param time)
 {
 	motor = status;
 	drive[selected]->setMotor(status, time);
 }
 
-bool DriveMultiplexer::indexPulse(const EmuTime& time)
+bool DriveMultiplexer::indexPulse(EmuTime::param time)
 {
 	return drive[selected]->indexPulse(time);
 }
 
-int DriveMultiplexer::indexPulseCount(const EmuTime& begin,
-                                      const EmuTime& end)
+int DriveMultiplexer::indexPulseCount(EmuTime::param begin,
+                                      EmuTime::param end)
 {
 	return drive[selected]->indexPulseCount(begin, end);
 }
 
-EmuTime DriveMultiplexer::getTimeTillSector(byte sector, const EmuTime& time)
+EmuTime DriveMultiplexer::getTimeTillSector(byte sector, EmuTime::param time)
 {
 	return drive[selected]->getTimeTillSector(sector, time);
 }
 
-EmuTime DriveMultiplexer::getTimeTillIndexPulse(const EmuTime& time)
+EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime::param time)
 {
 	return drive[selected]->getTimeTillIndexPulse(time);
 }
 
-void DriveMultiplexer::setHeadLoaded(bool status, const EmuTime& time)
+void DriveMultiplexer::setHeadLoaded(bool status, EmuTime::param time)
 {
 	drive[selected]->setHeadLoaded(status, time);
 }
 
-bool DriveMultiplexer::headLoaded(const EmuTime& time)
+bool DriveMultiplexer::headLoaded(EmuTime::param time)
 {
 	return drive[selected]->headLoaded(time);
 }

@@ -20,9 +20,9 @@ public:
 	           const std::string& name, unsigned sampleRam);
 	virtual ~Y8950Adpcm();
 
-	void reset(const EmuTime& time);
+	void reset(EmuTime::param time);
 	bool muted() const;
-	void writeReg(byte rg, byte data, const EmuTime& time);
+	void writeReg(byte rg, byte data, EmuTime::param time);
 	byte readReg(byte rg);
 	byte peekReg(byte rg) const;
 	int calcSample();
@@ -32,10 +32,10 @@ public:
 
 private:
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
-	void schedule(const EmuTime& time);
+	void schedule(EmuTime::param time);
 	void restart();
 
 	bool playing() const;

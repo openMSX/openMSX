@@ -12,9 +12,9 @@ class MSXMultiDevice : public MSXDevice
 public:
 	explicit MSXMultiDevice(MSXMotherBoard& motherboard);
 
-	virtual void reset(const EmuTime& time);
-	virtual void powerUp(const EmuTime& time);
-	virtual void powerDown(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual void powerUp(EmuTime::param time);
+	virtual void powerDown(EmuTime::param time);
 };
 
 } // namespace openmsx

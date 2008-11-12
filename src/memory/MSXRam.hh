@@ -15,12 +15,12 @@ class MSXRam : public MSXDevice
 public:
 	MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config);
 
-	virtual void powerUp(const EmuTime& time);
-	virtual byte readMem(word address, const EmuTime& time);
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void powerUp(EmuTime::param time);
+	virtual byte readMem(word address, EmuTime::param time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
-	virtual byte peekMem(word address, const EmuTime& time) const;
+	virtual byte peekMem(word address, EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -31,7 +31,7 @@ const std::string& AudioInputConnector::getClass() const
 	return className;
 }
 
-short AudioInputConnector::readSample(const EmuTime& time) const
+short AudioInputConnector::readSample(EmuTime::param time) const
 {
 	return getPluggedAudioDev().readSample(time);
 }

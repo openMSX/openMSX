@@ -16,14 +16,14 @@ PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	reset(getCurrentTime());
 }
 
-void PhilipsFDC::reset(const EmuTime& time)
+void PhilipsFDC::reset(EmuTime::param time)
 {
 	WD2793BasedFDC::reset(time);
 	writeMem(0x3FFC, 0x00, time);
 	writeMem(0x3FFD, 0x00, time);
 }
 
-byte PhilipsFDC::readMem(word address, const EmuTime& time)
+byte PhilipsFDC::readMem(word address, EmuTime::param time)
 {
 	byte value;
 	switch (address & 0x3FFF) {
@@ -51,7 +51,7 @@ byte PhilipsFDC::readMem(word address, const EmuTime& time)
 	return value;
 }
 
-byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
+byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 {
 	byte value;
 	// FDC registers are mirrored in
@@ -131,7 +131,7 @@ const byte* PhilipsFDC::getReadCacheLine(word start) const
 	}
 }
 
-void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
+void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("PhilipsFDC write 0x" << hex << (int)address <<
 	//          " 0x" << (int)value << dec);

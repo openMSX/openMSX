@@ -51,7 +51,7 @@ static BooleanSetting* createFreqLockedSetting(
 
 template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
-		const BooleanSetting& traceSetting_, const EmuTime& time)
+		const BooleanSetting& traceSetting_, EmuTime::param time)
 	: T(time, motherboard_.getScheduler())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
@@ -101,13 +101,13 @@ template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
 	interface = interf;
 }
 
-template <class T> void CPUCore<T>::warp(const EmuTime& time)
+template <class T> void CPUCore<T>::warp(EmuTime::param time)
 {
 	assert(T::getTimeFast() <= time);
 	T::setTime(time);
 }
 
-template <class T> const EmuTime& CPUCore<T>::getCurrentTime() const
+template <class T> EmuTime::param CPUCore<T>::getCurrentTime() const
 {
 	return T::getTime();
 }
@@ -122,7 +122,7 @@ template <class T> void CPUCore<T>::invalidateMemCache(unsigned start, unsigned 
 	memset(&writeCacheTried[first], 0, num * sizeof(bool));  //
 }
 
-template <class T> void CPUCore<T>::doReset(const EmuTime& time)
+template <class T> void CPUCore<T>::doReset(EmuTime::param time)
 {
 	// AF and SP are 0xFFFF
 	// PC, R, IFF1, IFF2, HALT and IM are 0x0
@@ -223,7 +223,7 @@ template <class T> void CPUCore<T>::lowerNMI()
 	assert(NMIStatus >= 0);
 }
 
-template <class T> void CPUCore<T>::wait(const EmuTime& time)
+template <class T> void CPUCore<T>::wait(EmuTime::param time)
 {
 	assert(time >= getCurrentTime());
 	scheduler.schedule(time);
@@ -235,7 +235,7 @@ template <class T> void CPUCore<T>::waitCycles(unsigned cycles)
 	T::add(cycles);
 }
 
-template <class T> void CPUCore<T>::setNextSyncPoint(const EmuTime& time)
+template <class T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)
 {
 	T::setLimit(time);
 }

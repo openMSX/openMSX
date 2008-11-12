@@ -14,7 +14,6 @@ class MSXMotherBoard;
 class CliComm;
 class AY8910Periphery;
 class XMLElement;
-class EmuTime;
 class AY8910Debuggable;
 class FloatSetting;
 
@@ -26,13 +25,13 @@ class AY8910 : public SoundDevice, private Resample
 {
 public:
 	AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
-	       const XMLElement& config, const EmuTime& time);
+	       const XMLElement& config, EmuTime::param time);
 	virtual ~AY8910();
 
-	byte readRegister(unsigned reg, const EmuTime& time);
-	byte peekRegister(unsigned reg, const EmuTime& time) const;
-	void writeRegister(unsigned reg, byte value, const EmuTime& time);
-	void reset(const EmuTime& time);
+	byte readRegister(unsigned reg, EmuTime::param time);
+	byte peekRegister(unsigned reg, EmuTime::param time) const;
+	void writeRegister(unsigned reg, byte value, EmuTime::param time);
+	void reset(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -169,12 +168,12 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+		EmuTime::param time, EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
-	void wrtReg(unsigned reg, byte value, const EmuTime& time);
+	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 
 	CliComm& cliComm;
 	AY8910Periphery& periphery;

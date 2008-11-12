@@ -22,22 +22,22 @@ MSXRTC::~MSXRTC()
 {
 }
 
-void MSXRTC::reset(const EmuTime& time)
+void MSXRTC::reset(EmuTime::param time)
 {
 	rp5c01->reset(time);
 }
 
-byte MSXRTC::readIO(word port, const EmuTime& time)
+byte MSXRTC::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXRTC::peekIO(word /*port*/, const EmuTime& time) const
+byte MSXRTC::peekIO(word /*port*/, EmuTime::param time) const
 {
 	return rp5c01->readPort(registerLatch, time) | 0xF0;
 }
 
-void MSXRTC::writeIO(word port, byte value, const EmuTime& time)
+void MSXRTC::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x01) {
 	case 0:

@@ -25,8 +25,8 @@ class MusicModulePeriphery : public Y8950Periphery
 {
 public:
 	explicit MusicModulePeriphery(MSXAudio& audio);
-	virtual void write(nibble outputs, nibble values, const EmuTime& time);
-	virtual nibble read(const EmuTime& time);
+	virtual void write(nibble outputs, nibble values, EmuTime::param time);
+	virtual nibble read(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& /*ar*/, unsigned /*version*/) {
@@ -46,11 +46,11 @@ public:
 
 	virtual void reset();
 
-	virtual void write(nibble outputs, nibble values, const EmuTime& time);
-	virtual nibble read(const EmuTime& time);
+	virtual void write(nibble outputs, nibble values, EmuTime::param time);
+	virtual nibble read(EmuTime::param time);
 
-	virtual byte peekMem(word address, const EmuTime& time) const;
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte peekMem(word address, EmuTime::param time) const;
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
@@ -75,9 +75,9 @@ class ToshibaAudioPeriphery : public Y8950Periphery
 {
 public:
 	explicit ToshibaAudioPeriphery(MSXAudio& audio);
-	virtual void write(nibble outputs, nibble values, const EmuTime& time);
-	virtual nibble read(const EmuTime& time);
-	virtual void setSPOFF(bool value, const EmuTime& time);
+	virtual void write(nibble outputs, nibble values, EmuTime::param time);
+	virtual nibble read(EmuTime::param time);
+	virtual void setSPOFF(bool value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& /*ar*/, unsigned /*version*/) {
@@ -110,7 +110,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config)
 		throw MSXException("Unknown MSX-AUDIO type: " + type);
 	}
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
-	const EmuTime& time = getCurrentTime();
+	EmuTime::param time = getCurrentTime();
 	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024,
 	                      time, *periphery));
 	reset(time);
@@ -123,14 +123,14 @@ MSXAudio::~MSXAudio()
 	periphery.reset();
 }
 
-void MSXAudio::reset(const EmuTime& time)
+void MSXAudio::reset(EmuTime::param time)
 {
 	y8950->reset(time);
 	periphery->reset();
 	registerLatch = 0; // TODO check
 }
 
-byte MSXAudio::readIO(word port, const EmuTime& time)
+byte MSXAudio::readIO(word port, EmuTime::param time)
 {
 	byte result;
 	if ((port & 0xFF) == 0x0A) {
@@ -144,7 +144,7 @@ byte MSXAudio::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte MSXAudio::peekIO(word port, const EmuTime& time) const
+byte MSXAudio::peekIO(word port, EmuTime::param time) const
 {
 	if ((port & 0xFF) == 0x0A) {
 		// read DAC
@@ -155,7 +155,7 @@ byte MSXAudio::peekIO(word port, const EmuTime& time) const
 	}
 }
 
-void MSXAudio::writeIO(word port, byte value, const EmuTime& time)
+void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
 {
 	//std::cout << "write: " << (int)(port& 0xff) << " " << (int)value << std::endl;
 	if ((port & 0xFF) == 0x0A) {
@@ -173,15 +173,15 @@ void MSXAudio::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-byte MSXAudio::readMem(word address, const EmuTime& time)
+byte MSXAudio::readMem(word address, EmuTime::param time)
 {
 	return periphery->readMem(address, time);
 }
-byte MSXAudio::peekMem(word address, const EmuTime& time) const
+byte MSXAudio::peekMem(word address, EmuTime::param time) const
 {
 	return periphery->peekMem(address, time);
 }
-void MSXAudio::writeMem(word address, byte value, const EmuTime& time)
+void MSXAudio::writeMem(word address, byte value, EmuTime::param time)
 {
 	periphery->writeMem(address, value, time);
 }
@@ -194,7 +194,7 @@ byte* MSXAudio::getWriteCacheLine(word start) const
 	return periphery->getWriteCacheLine(start);
 }
 
-void MSXAudio::enableDAC(bool enable, const EmuTime& time)
+void MSXAudio::enableDAC(bool enable, EmuTime::param time)
 {
 	if ((dacEnabled != enable) && dac.get()) {
 		dacEnabled = enable;
@@ -212,14 +212,14 @@ MusicModulePeriphery::MusicModulePeriphery(MSXAudio& audio_)
 }
 
 void MusicModulePeriphery::write(nibble outputs, nibble values,
-                                 const EmuTime& time)
+                                 EmuTime::param time)
 {
 	nibble actual = (outputs & values) | (~outputs & read(time));
 	audio.y8950->setEnabled(actual & 8, time);
 	audio.enableDAC(actual & 1, time);
 }
 
-nibble MusicModulePeriphery::read(const EmuTime& /*time*/)
+nibble MusicModulePeriphery::read(EmuTime::param /*time*/)
 {
 	// IO2-IO1 are unconnected, reading them initially returns the last
 	// written value, but after some seconds it falls back to '0'
@@ -269,19 +269,19 @@ void PanasonicAudioPeriphery::reset()
 }
 
 void PanasonicAudioPeriphery::write(nibble outputs, nibble values,
-                                    const EmuTime& time)
+                                    EmuTime::param time)
 {
 	nibble actual = (outputs & values) | (~outputs & read(time));
 	audio.y8950->setEnabled(!(actual & 8), time);
 }
 
-nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
+nibble PanasonicAudioPeriphery::read(EmuTime::param /*time*/)
 {
 	// verified bit 0,1,3 read as zero
 	return swSwitch.getValue() ? 0x4 : 0x0; // bit2
 }
 
-byte PanasonicAudioPeriphery::peekMem(word address, const EmuTime& /*time*/) const
+byte PanasonicAudioPeriphery::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return (*ram)[(address & 0x3FFF) - 0x3000];
@@ -299,7 +299,7 @@ const byte* PanasonicAudioPeriphery::getReadCacheLine(word address) const
 	}
 }
 
-void PanasonicAudioPeriphery::writeMem(word address, byte value, const EmuTime& /*time*/)
+void PanasonicAudioPeriphery::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	address &= 0x7FFF;
 	if (address == 0x7FFE) {
@@ -369,21 +369,21 @@ ToshibaAudioPeriphery::ToshibaAudioPeriphery(MSXAudio& audio_)
 }
 
 void ToshibaAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
-                                    const EmuTime& /*time*/)
+                                    EmuTime::param /*time*/)
 {
 	// TODO IO1-IO0 are programmed as output by HX-MU900 software rom
 	//      and it writes periodically the values 1/1/2/2/0/0 to
 	//      these pins, but I have no idea what function they have
 }
 
-nibble ToshibaAudioPeriphery::read(const EmuTime& /*time*/)
+nibble ToshibaAudioPeriphery::read(EmuTime::param /*time*/)
 {
 	// IO3-IO2 are unconnected (see also comment in MusicModulePeriphery)
 	// IO1-IO0 are output pins, but reading them returns '1'
 	return 0x3;
 }
 
-void ToshibaAudioPeriphery::setSPOFF(bool value, const EmuTime& time)
+void ToshibaAudioPeriphery::setSPOFF(bool value, EmuTime::param time)
 {
 	audio.y8950->setEnabled(!value, time);
 }

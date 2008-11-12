@@ -25,13 +25,13 @@ TurboRFDC::~TurboRFDC()
 {
 }
 
-void TurboRFDC::reset(const EmuTime& time)
+void TurboRFDC::reset(EmuTime::param time)
 {
 	setBank(0);
 	controller->reset(time);
 }
 
-byte TurboRFDC::readMem(word address, const EmuTime& time)
+byte TurboRFDC::readMem(word address, EmuTime::param time)
 {
 	byte result;
 	if (0x3FF0 <= (address & 0x3FFF)) {
@@ -61,7 +61,7 @@ byte TurboRFDC::readMem(word address, const EmuTime& time)
 	return result;
 }
 
-byte TurboRFDC::peekMem(word address, const EmuTime& time) const
+byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 {
 	byte result;
 	if (0x3FF0 <= (address & 0x3FFF)) {
@@ -107,7 +107,7 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 	}
 }
 
-void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
+void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
 {
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
 		setBank(value);

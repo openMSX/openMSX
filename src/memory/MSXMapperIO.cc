@@ -38,7 +38,7 @@ static MapperMask* createMapperMask(MSXMotherBoard& motherBoard)
 }
 
 MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time)
+                         EmuTime::param time)
 	: MSXDevice(motherBoard, config)
 	, debuggable(new MapperIODebuggable(motherBoard, *this))
 	, mapperMask(createMapperMask(motherBoard))
@@ -63,7 +63,7 @@ void MSXMapperIO::unregisterMapper(unsigned blocks)
 	mask = mapperMask->calcMask(mapperSizes);
 }
 
-void MSXMapperIO::reset(const EmuTime& /*time*/)
+void MSXMapperIO::reset(EmuTime::param /*time*/)
 {
 	// TODO in what state is mapper after reset?
 	// Zeroed is most likely.
@@ -73,17 +73,17 @@ void MSXMapperIO::reset(const EmuTime& /*time*/)
 	}
 }
 
-byte MSXMapperIO::readIO(word port, const EmuTime& time)
+byte MSXMapperIO::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXMapperIO::peekIO(word port, const EmuTime& /*time*/) const
+byte MSXMapperIO::peekIO(word port, EmuTime::param /*time*/) const
 {
 	return getSelectedPage(port & 0x03) | mask;
 }
 
-void MSXMapperIO::writeIO(word port, byte value, const EmuTime& /*time*/)
+void MSXMapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)
 {
 	write(port & 0x03, value);
 }

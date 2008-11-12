@@ -21,7 +21,7 @@ WD2793BasedFDC::~WD2793BasedFDC()
 {
 }
 
-void WD2793BasedFDC::reset(const EmuTime& time)
+void WD2793BasedFDC::reset(EmuTime::param time)
 {
 	controller->reset(time);
 }

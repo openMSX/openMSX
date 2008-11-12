@@ -96,7 +96,7 @@ ESE_SCC::~ESE_SCC()
 {
 }
 
-void ESE_SCC::reset(const EmuTime& time)
+void ESE_SCC::reset(EmuTime::param time)
 {
 	setMapperHigh(0);
 	for (int i = 0; i < 4; ++i) {
@@ -156,7 +156,7 @@ void ESE_SCC::setMapperHigh(byte value)
 	}
 }
 
-byte ESE_SCC::readMem(word address, const EmuTime& time)
+byte ESE_SCC::readMem(word address, EmuTime::param time)
 {
 	unsigned page = address / 0x2000 - 2;
 	// SPC
@@ -176,7 +176,7 @@ byte ESE_SCC::readMem(word address, const EmuTime& time)
 	return (*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
-byte ESE_SCC::peekMem(word address, const EmuTime& time) const
+byte ESE_SCC::peekMem(word address, EmuTime::param time) const
 {
 	unsigned page = address / 0x2000 - 2;
 	// SPC
@@ -211,7 +211,7 @@ const byte* ESE_SCC::getReadCacheLine(word address) const
 	return &(*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
-void ESE_SCC::writeMem(word address, byte value, const EmuTime& time)
+void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 {
 	unsigned page = address / 0x2000 - 2;
 	// SPC Write

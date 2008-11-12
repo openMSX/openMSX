@@ -13,8 +13,8 @@ public:
 	RomKonami(MSXMotherBoard& motherBoard, const XMLElement& config,
 	           std::auto_ptr<Rom> rom);
 
-	virtual void reset(const EmuTime& time);
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual byte* getWriteCacheLine(word address) const;
 
 	template<typename Archive>

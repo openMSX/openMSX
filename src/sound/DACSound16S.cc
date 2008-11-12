@@ -24,12 +24,12 @@ void DACSound16S::setOutputRate(unsigned sampleRate)
 	setInputRate(sampleRate);
 }
 
-void DACSound16S::reset(const EmuTime& time)
+void DACSound16S::reset(EmuTime::param time)
 {
 	writeDAC(0, time);
 }
 
-void DACSound16S::writeDAC(short value, const EmuTime& time)
+void DACSound16S::writeDAC(short value, EmuTime::param time)
 {
 	assert(queue.empty() || (queue.back().time <= time));
 
@@ -63,7 +63,7 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 }
 
 bool DACSound16S::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& start_, const EmuDuration& sampDur_)
+     EmuTime::param start_, EmuDuration::param sampDur_)
 {
 	// start and sampDur members are only used to pass extra parameters
 	// to the generateChannels() method

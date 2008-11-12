@@ -16,7 +16,7 @@ public:
 	 *  false = low  = ready,
 	 *  true  = high = not ready.
 	 */
-	virtual bool getStatus(const EmuTime& time) = 0;
+	virtual bool getStatus(EmuTime::param time) = 0;
 
 	/**
 	 * Sets the strobe signal:
@@ -24,7 +24,7 @@ public:
 	 *  true  = high.
 	 * Normal high, a short pulse (low, high) means data is valid.
 	 */
-	virtual void setStrobe(bool strobe, const EmuTime& time) = 0;
+	virtual void setStrobe(bool strobe, EmuTime::param time) = 0;
 
 	/**
 	 * Sets the data signals.
@@ -32,7 +32,7 @@ public:
 	 * As an optimization, this method might not be called when the
 	 * new data is the same as the previous data.
 	 */
-	virtual void writeData(byte data, const EmuTime& time) = 0;
+	virtual void writeData(byte data, EmuTime::param time) = 0;
 
 	// Pluggable
 	virtual const std::string& getClass() const;

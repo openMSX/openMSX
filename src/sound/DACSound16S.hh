@@ -19,8 +19,8 @@ public:
 	            const std::string& desc, const XMLElement& config);
 	virtual ~DACSound16S();
 
-	void reset(const EmuTime& time);
-	void writeDAC(short value, const EmuTime& time);
+	void reset(EmuTime::param time);
+	void writeDAC(short value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -30,10 +30,10 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-	        const EmuTime& start, const EmuDuration& sampDur);
+	        EmuTime::param start, EmuDuration::param sampDur);
 
 	struct Sample {
-		Sample(const EmuTime& time_, int value_)
+		Sample(EmuTime::param time_, int value_)
 			: time(time_), value(value_) {}
 		EmuTime time;
 		int value;

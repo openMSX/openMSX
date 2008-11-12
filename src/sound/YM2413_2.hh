@@ -18,11 +18,11 @@ class YM2413_2 : public YM2413Interface
 {
 public:
 	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
-	         const XMLElement& config, const EmuTime& time);
+	         const XMLElement& config, EmuTime::param time);
 	virtual ~YM2413_2();
 
-	virtual void reset(const EmuTime& time);
-	virtual void writeReg(byte r, byte v, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual void writeReg(byte r, byte v, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -43,7 +43,7 @@ byte SimpleDebuggable::read(unsigned address)
 	return read(address, motherBoard.getCurrentTime());
 }
 
-byte SimpleDebuggable::read(unsigned /*address*/, const EmuTime& /*time*/)
+byte SimpleDebuggable::read(unsigned /*address*/, EmuTime::param /*time*/)
 {
 	assert(false);
 	return 0;
@@ -55,7 +55,7 @@ void SimpleDebuggable::write(unsigned address, byte value)
 }
 
 void SimpleDebuggable::write(unsigned /*address*/, byte /*value*/,
-                             const EmuTime& /*time*/)
+                             EmuTime::param /*time*/)
 {
 	// does nothing
 }

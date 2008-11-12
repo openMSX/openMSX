@@ -17,13 +17,13 @@ public:
 	GoudaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~GoudaSCSI();
 
-	virtual void reset(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
 
-	virtual byte readMem(word address, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual void writeIO(word port, byte value, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual void writeIO(word port, byte value, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

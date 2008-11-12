@@ -5,76 +5,76 @@
 
 namespace openmsx {
 
-void DummyRenderer::reset(const EmuTime& /*time*/) {
+void DummyRenderer::reset(EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::frameStart(const EmuTime& /*time*/) {
+void DummyRenderer::frameStart(EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::frameEnd(const EmuTime& /*time*/) {
+void DummyRenderer::frameEnd(EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateTransparency(bool /*enabled*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateTransparency(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateForegroundColour(int /*colour*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateForegroundColour(int /*colour*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBackgroundColour(int /*colour*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateBackgroundColour(int /*colour*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBlinkForegroundColour(int /*colour*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateBlinkForegroundColour(int /*colour*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBlinkBackgroundColour(int /*colour*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateBlinkBackgroundColour(int /*colour*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBlinkState(bool /*enabled*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateBlinkState(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updatePalette(int /*index*/, int /*grb*/, const EmuTime& /*time*/) {
+void DummyRenderer::updatePalette(int /*index*/, int /*grb*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateVerticalScroll(int /*scroll*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateVerticalScroll(int /*scroll*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateHorizontalScrollLow(byte /*scroll*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateHorizontalScrollLow(byte /*scroll*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateHorizontalScrollHigh(byte /*scroll*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateHorizontalScrollHigh(byte /*scroll*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBorderMask(bool /*masked*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateBorderMask(bool /*masked*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateMultiPage(bool /*multiPage*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateMultiPage(bool /*multiPage*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateHorizontalAdjust(int /*adjust*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateHorizontalAdjust(int /*adjust*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateDisplayEnabled(bool /*enabled*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateDisplayEnabled(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateDisplayMode(DisplayMode /*mode*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateDisplayMode(DisplayMode /*mode*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateNameBase(int /*addr*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateNameBase(int /*addr*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updatePatternBase(int /*addr*/, const EmuTime& /*time*/) {
+void DummyRenderer::updatePatternBase(int /*addr*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateColourBase(int /*addr*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateColourBase(int /*addr*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateSpritesEnabled(bool /*enabled*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateSpritesEnabled(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateVRAM(unsigned /*offset*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateVRAM(unsigned /*offset*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
+void DummyRenderer::updateWindow(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
 void DummyRenderer::paint() {

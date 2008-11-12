@@ -43,7 +43,7 @@ private:
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
-	                         const EmuTime& time);
+	                         EmuTime::param time);
 
 	/** This layer belongs to a specific machine. */
 	MSXMotherBoard& motherBoard;

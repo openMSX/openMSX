@@ -13,7 +13,7 @@ void DummyRasterizer::reset()
 {
 }
 
-void DummyRasterizer::frameStart(const EmuTime& /*time*/)
+void DummyRasterizer::frameStart(EmuTime::param /*time*/)
 {
 }
 

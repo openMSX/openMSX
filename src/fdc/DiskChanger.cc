@@ -118,7 +118,7 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 }
 
 void DiskChanger::signalEvent(
-	shared_ptr<const Event> event, const EmuTime& /*time*/)
+	shared_ptr<const Event> event, EmuTime::param /*time*/)
 {
 	if (event->getType() != OPENMSX_MSX_COMMAND_EVENT) return;
 

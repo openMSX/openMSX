@@ -25,7 +25,7 @@ void V9990GLRasterizer::frameStart()
 {
 }
 
-void V9990GLRasterizer::frameEnd(const EmuTime& /*time*/)
+void V9990GLRasterizer::frameEnd(EmuTime::param /*time*/)
 {
 }
 

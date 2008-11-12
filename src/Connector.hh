@@ -3,6 +3,7 @@
 #ifndef CONNECTOR_HH
 #define CONNECTOR_HH
 
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "serialize_meta.hh"
 #include <string>
@@ -10,7 +11,6 @@
 
 namespace openmsx {
 
-class EmuTime;
 class Pluggable;
 class PluggingController;
 
@@ -44,14 +44,14 @@ public:
 	 * The default implementation is ok.
 	 * @throw PlugException
 	 */
-	virtual void plug(Pluggable& device, const EmuTime& time);
+	virtual void plug(Pluggable& device, EmuTime::param time);
 
 	/**
 	 * This unplugs the currently inserted Pluggable from this Connector.
 	 * It is replaced by the dummy Pluggable provided by the concrete
 	 * Connector subclass.
 	 */
-	virtual void unplug(const EmuTime& time);
+	virtual void unplug(EmuTime::param time);
 
 	/**
 	 * Returns the Pluggable currently plugged in.

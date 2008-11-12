@@ -41,7 +41,7 @@ int WavImage::getSample(unsigned pos) const
 	return 0;
 }
 
-short WavImage::getSampleAt(const EmuTime& time)
+short WavImage::getSampleAt(EmuTime::param time)
 {
 	unsigned pos = clock.getTicksTill(time);
 	return Math::clipIntToShort(getSample(pos) - average);

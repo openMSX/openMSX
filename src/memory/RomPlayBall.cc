@@ -27,12 +27,12 @@ RomPlayBall::~RomPlayBall()
 {
 }
 
-void RomPlayBall::reset(const EmuTime& /*time*/)
+void RomPlayBall::reset(EmuTime::param /*time*/)
 {
 	samplePlayer->reset();
 }
 
-byte RomPlayBall::peekMem(word address, const EmuTime& time) const
+byte RomPlayBall::peekMem(word address, EmuTime::param time) const
 {
 	if (address == 0xBFFF) {
 		return samplePlayer->isPlaying() ? 0xFE : 0xFF;
@@ -41,7 +41,7 @@ byte RomPlayBall::peekMem(word address, const EmuTime& time) const
 	}
 }
 
-byte RomPlayBall::readMem(word address, const EmuTime& time)
+byte RomPlayBall::readMem(word address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
@@ -55,7 +55,7 @@ const byte* RomPlayBall::getReadCacheLine(word address) const
 	}
 }
 
-void RomPlayBall::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomPlayBall::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0xBFFF) {
 		if ((value <= 14) && !samplePlayer->isPlaying()) {

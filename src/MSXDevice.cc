@@ -147,7 +147,7 @@ const MSXDevice::Devices& MSXDevice::getReferences() const
 	return references;
 }
 
-const EmuTime& MSXDevice::getCurrentTime() const
+EmuTime::param MSXDevice::getCurrentTime() const
 {
 	return getMotherBoard().getCurrentTime();
 }
@@ -279,7 +279,7 @@ void MSXDevice::unregisterPorts()
 }
 
 
-void MSXDevice::reset(const EmuTime& /*time*/)
+void MSXDevice::reset(EmuTime::param /*time*/)
 {
 	// nothing
 }
@@ -289,12 +289,12 @@ byte MSXDevice::readIRQVector()
 	return 0xFF;
 }
 
-void MSXDevice::powerDown(const EmuTime& /*time*/)
+void MSXDevice::powerDown(EmuTime::param /*time*/)
 {
 	// nothing
 }
 
-void MSXDevice::powerUp(const EmuTime& time)
+void MSXDevice::powerUp(EmuTime::param time)
 {
 	reset(time);
 }
@@ -316,7 +316,7 @@ void MSXDevice::getExtraDeviceInfo(TclObject& /*result*/) const
 }
 
 
-byte MSXDevice::readIO(word port, const EmuTime& /*time*/)
+byte MSXDevice::readIO(word port, EmuTime::param /*time*/)
 {
 	(void)port;
 	PRT_DEBUG("MSXDevice::readIO (0x" << std::hex << int(port & 0xFF)
@@ -324,7 +324,7 @@ byte MSXDevice::readIO(word port, const EmuTime& /*time*/)
 	return 0xFF;
 }
 
-void MSXDevice::writeIO(word port, byte value, const EmuTime& /*time*/)
+void MSXDevice::writeIO(word port, byte value, EmuTime::param /*time*/)
 {
 	(void)port;
 	(void)value;
@@ -334,13 +334,13 @@ void MSXDevice::writeIO(word port, byte value, const EmuTime& /*time*/)
 	// do nothing
 }
 
-byte MSXDevice::peekIO(word /*port*/, const EmuTime& /*time*/) const
+byte MSXDevice::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	return 0xFF;
 }
 
 
-byte MSXDevice::readMem(word address, const EmuTime& /*time*/)
+byte MSXDevice::readMem(word address, EmuTime::param /*time*/)
 {
 	(void)address;
 	PRT_DEBUG("MSXDevice: read from unmapped memory " << std::hex <<
@@ -354,7 +354,7 @@ const byte* MSXDevice::getReadCacheLine(word /*start*/) const
 }
 
 void MSXDevice::writeMem(word address, byte /*value*/,
-                            const EmuTime& /*time*/)
+                            EmuTime::param /*time*/)
 {
 	(void)address;
 	PRT_DEBUG("MSXDevice: write to unmapped memory " << std::hex <<
@@ -362,7 +362,7 @@ void MSXDevice::writeMem(word address, byte /*value*/,
 	// do nothing
 }
 
-byte MSXDevice::peekMem(word address, const EmuTime& /*time*/) const
+byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
 {
 	word base = address & CacheLine::HIGH;
 	const byte* cache = getReadCacheLine(base);
@@ -376,7 +376,7 @@ byte MSXDevice::peekMem(word address, const EmuTime& /*time*/) const
 }
 
 void MSXDevice::globalWrite(word /*address*/, byte /*value*/,
-                            const EmuTime& /*time*/)
+                            EmuTime::param /*time*/)
 {
 	assert(false);
 }

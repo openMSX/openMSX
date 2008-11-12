@@ -3,11 +3,10 @@
 #ifndef Y8950PERIPHERY_HH
 #define Y8950PERIPHERY_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
-
-class EmuTime;
 
 /** Models the 4 general purpose I/O pins on the Y8950
   * (controlled by registers r#18 and r#19)
@@ -27,7 +26,7 @@ public:
 	  *               parameter is set are meaningful.
 	  * @param time The moment in time the write occurs
 	  */
-	virtual void write(nibble outputs, nibble values, const EmuTime& time) = 0;
+	virtual void write(nibble outputs, nibble values, EmuTime::param time) = 0;
 
 	/** Read from (some of) the pins
 	  * Some of the pins might be programmed as output, but this method
@@ -35,14 +34,14 @@ public:
 	  * as-if they were all programmed as input.
 	  * @param time The moment in time the read occurs
 	  */
-	virtual nibble read(const EmuTime& time) = 0;
+	virtual nibble read(EmuTime::param time) = 0;
 
 	/** SP-OFF bit (bit 3 in Y8950 register 7) */
-	virtual void setSPOFF(bool value, const EmuTime& time);
+	virtual void setSPOFF(bool value, EmuTime::param time);
 
-	virtual byte readMem(word address, const EmuTime& time);
-	virtual byte peekMem(word address, const EmuTime& time) const;
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
+	virtual byte peekMem(word address, EmuTime::param time) const;
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 };

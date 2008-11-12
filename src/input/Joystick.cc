@@ -64,7 +64,7 @@ const string& Joystick::getDescription() const
 	return desc;
 }
 
-void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+void Joystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	if (!joystick) {
 		throw PlugException("Failed to open joystick device");
@@ -75,19 +75,19 @@ void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 	calcInitialState();
 }
 
-void Joystick::unplugHelper(const EmuTime& /*time*/)
+void Joystick::unplugHelper(EmuTime::param /*time*/)
 {
 	eventDistributor.unregisterEventListener(*this);
 }
 
 
 // JoystickDevice
-byte Joystick::read(const EmuTime& /*time*/)
+byte Joystick::read(EmuTime::param /*time*/)
 {
 	return status;
 }
 
-void Joystick::write(byte /*value*/, const EmuTime& /*time*/)
+void Joystick::write(byte /*value*/, EmuTime::param /*time*/)
 {
 	// nothing
 }
@@ -126,7 +126,7 @@ void Joystick::calcInitialState()
 }
 
 // EventListener
-void Joystick::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
+void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
 {
 	const JoystickEvent* joyEvent =
 		dynamic_cast<const JoystickEvent*>(event.get());

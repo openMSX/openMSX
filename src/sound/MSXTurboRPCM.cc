@@ -27,7 +27,7 @@ MSXTurboRPCM::~MSXTurboRPCM()
 	hardwareMute(false);
 }
 
-void MSXTurboRPCM::reset(const EmuTime& time)
+void MSXTurboRPCM::reset(EmuTime::param time)
 {
 	reference.advance(time);
 	status = 0;
@@ -37,12 +37,12 @@ void MSXTurboRPCM::reset(const EmuTime& time)
 	hardwareMute(false);
 }
 
-byte MSXTurboRPCM::readIO(word port, const EmuTime& time)
+byte MSXTurboRPCM::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXTurboRPCM::peekIO(word port, const EmuTime& time) const
+byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 {
 	byte result;
 	switch (port & 0x01) {
@@ -74,7 +74,7 @@ byte MSXTurboRPCM::peekIO(word port, const EmuTime& time) const
 	return result;
 }
 
-void MSXTurboRPCM::writeIO(word port, byte value, const EmuTime& time)
+void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("PCM: write " << hex << (int)port << " " << (int)value << dec);
 	switch (port & 0x01) {
@@ -111,7 +111,7 @@ void MSXTurboRPCM::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-byte MSXTurboRPCM::getSample(const EmuTime& time) const
+byte MSXTurboRPCM::getSample(EmuTime::param time) const
 {
 	byte result;
 	if (status & 0x04) {
@@ -123,7 +123,7 @@ byte MSXTurboRPCM::getSample(const EmuTime& time) const
 	return result;
 }
 
-bool MSXTurboRPCM::getComp(const EmuTime& time) const
+bool MSXTurboRPCM::getComp(EmuTime::param time) const
 {
 	// TODO also when D/A ??
 	byte sample = (status & 0x10) ? hold : getSample(time);

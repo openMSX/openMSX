@@ -16,7 +16,7 @@ class RomBlocks : public MSXRom
 	static const unsigned NUM_BANKS = 0x10000 / BANK_SIZE;
 	static const unsigned BANK_MASK = BANK_SIZE - 1;
 public:
-	virtual byte readMem(word address, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 
 	template<typename Archive>

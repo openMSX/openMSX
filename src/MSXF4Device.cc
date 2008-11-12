@@ -13,22 +13,22 @@ MSXF4Device::MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config)
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void MSXF4Device::reset(const EmuTime& /*time*/)
+void MSXF4Device::reset(EmuTime::param /*time*/)
 {
 	status = inverted ? 0xFF : 0x00;
 }
 
-byte MSXF4Device::readIO(word port, const EmuTime& time)
+byte MSXF4Device::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXF4Device::peekIO(word /*port*/, const EmuTime& /*time*/) const
+byte MSXF4Device::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	return status;
 }
 
-void MSXF4Device::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
+void MSXF4Device::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	if (inverted) {
 		status = value | 0x7F;

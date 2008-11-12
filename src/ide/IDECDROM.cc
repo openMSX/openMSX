@@ -28,7 +28,7 @@ public:
 	           MSXEventDistributor& msxEventDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
 	virtual void execute(const std::vector<TclObject*>& tokens,
-		TclObject& result, const EmuTime& time);
+		TclObject& result, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -358,7 +358,7 @@ CDXCommand::CDXCommand(CommandController& commandController,
 }
 
 void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
-				const EmuTime& /*time*/)
+				EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
 		File* file = cd.file.get();

@@ -28,7 +28,7 @@ public:
 	        MSXEventDistributor& msxEventDistributor,
 	        Scheduler& scheduler,
 	        PluggingController& pluggingController);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -42,7 +42,7 @@ public:
 	          MSXEventDistributor& msxEventDistributor,
 	          Scheduler& scheduler,
 	          PluggingController& pluggingController);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -171,7 +171,7 @@ PlugCmd::PlugCmd(CommandController& commandController,
 {
 }
 
-string PlugCmd::execute(const vector<string>& tokens, const EmuTime& time)
+string PlugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 {
 	string result;
 	switch (tokens.size()) {
@@ -264,7 +264,7 @@ UnplugCmd::UnplugCmd(CommandController& commandController,
 {
 }
 
-string UnplugCmd::execute(const vector<string>& tokens, const EmuTime& time)
+string UnplugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();

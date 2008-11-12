@@ -27,7 +27,7 @@ public:
 	virtual void setDataBits(DataBits bits);
 	virtual void setStopBits(StopBits bits);
 	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, const EmuTime& time);
+	virtual void recvByte(byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

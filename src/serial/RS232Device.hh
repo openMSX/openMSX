@@ -15,7 +15,7 @@ public:
 	virtual const std::string& getClass() const;
 
 	// input
-	virtual void signal(const EmuTime& time) = 0;
+	virtual void signal(EmuTime::param time) = 0;
 
 	// SerialDataInterface (part) (output)
 	virtual void setDataBits(DataBits bits);
@@ -23,10 +23,10 @@ public:
 	virtual void setParityBit(bool enable, ParityBit parity);
 
 	// control
-	virtual bool getCTS(const EmuTime& time) const;
-	virtual bool getDSR(const EmuTime& time) const;
-	virtual void setDTR(bool status, const EmuTime& time);
-	virtual void setRTS(bool status, const EmuTime& time);
+	virtual bool getCTS(EmuTime::param time) const;
+	virtual bool getDSR(EmuTime::param time) const;
+	virtual void setDTR(bool status, EmuTime::param time);
+	virtual void setRTS(bool status, EmuTime::param time);
 };
 
 } // namespace openmsx

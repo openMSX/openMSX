@@ -6,14 +6,14 @@
 
 namespace openmsx {
 
-CPUClock::CPUClock(const EmuTime& time, Scheduler& scheduler_)
+CPUClock::CPUClock(EmuTime::param time, Scheduler& scheduler_)
 	: clock(time)
 	, scheduler(scheduler_)
 	, remaining(-1), limit(-1), limitEnabled(false)
 {
 }
 
-void CPUClock::setLimit(const EmuTime& time)
+void CPUClock::setLimit(EmuTime::param time)
 {
 	if (limitEnabled) {
 		sync();
@@ -42,7 +42,7 @@ void CPUClock::enableLimit(bool enable_)
 	}
 }
 
-void CPUClock::advanceTime(const EmuTime& time)
+void CPUClock::advanceTime(EmuTime::param time)
 {
 	remaining = limit;
 	clock.advance(time);

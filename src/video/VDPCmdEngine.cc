@@ -164,7 +164,7 @@ struct IncrShift6;
 struct IncrShift7;
 
 template <typename LogOp> static void psetFast(
-	const EmuTime& time, VDPVRAM& vram, unsigned addr,
+	EmuTime::param time, VDPVRAM& vram, unsigned addr,
 	byte color, byte mask, LogOp op)
 {
 	op(time, vram, addr, color, mask);
@@ -185,7 +185,7 @@ struct Graphic4Mode
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template <typename LogOp>
-	static inline void pset(const EmuTime& time, VDPVRAM& vram,
+	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
 };
 
@@ -206,7 +206,7 @@ inline byte Graphic4Mode::point(
 
 template <typename LogOp>
 inline void Graphic4Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y,
+	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned y,
 	bool extVRAM, byte color, LogOp op)
 {
 	byte sh = ((~x) & 1) << 2;
@@ -228,7 +228,7 @@ struct Graphic5Mode
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template <typename LogOp>
-	static inline void pset(const EmuTime& time, VDPVRAM& vram,
+	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
 };
 
@@ -249,7 +249,7 @@ inline byte Graphic5Mode::point(
 
 template <typename LogOp>
 inline void Graphic5Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y,
+	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned y,
 	bool extVRAM, byte color, LogOp op)
 {
 	byte sh = ((~x) & 3) << 1;
@@ -271,7 +271,7 @@ struct Graphic6Mode
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template <typename LogOp>
-	static inline void pset(const EmuTime& time, VDPVRAM& vram,
+	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
 };
 
@@ -292,7 +292,7 @@ inline byte Graphic6Mode::point(
 
 template <typename LogOp>
 inline void Graphic6Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y,
+	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned y,
 	bool extVRAM, byte color, LogOp op)
 {
 	byte sh = ((~x) & 1) << 2;
@@ -314,7 +314,7 @@ struct Graphic7Mode
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template <typename LogOp>
-	static inline void pset(const EmuTime& time, VDPVRAM& vram,
+	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
 };
 
@@ -334,7 +334,7 @@ inline byte Graphic7Mode::point(
 
 template <typename LogOp>
 inline void Graphic7Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y,
+	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned y,
 	bool extVRAM, byte color, LogOp op)
 {
 	op(time, vram, addressOf(x, y, extVRAM), color, 0);
@@ -617,7 +617,7 @@ struct IncrShift7
 // Logical operations:
 
 struct DummyOp {
-	void operator()(const EmuTime& /*time*/, VDPVRAM& /*vram*/,
+	void operator()(EmuTime::param /*time*/, VDPVRAM& /*vram*/,
 	                unsigned /*addr*/, byte /*color*/, byte /*mask*/) const
 	{
 		// Undefined logical operations do nothing.
@@ -625,7 +625,7 @@ struct DummyOp {
 };
 
 struct ImpOp {
-	void operator()(const EmuTime& time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
 	                byte color, byte mask) const
 	{
 		vram.cmdWrite(addr,
@@ -635,7 +635,7 @@ struct ImpOp {
 };
 
 struct AndOp {
-	void operator()(const EmuTime& time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
 	                byte color, byte mask) const
 	{
 		vram.cmdWrite(addr,
@@ -645,7 +645,7 @@ struct AndOp {
 };
 
 struct OrOp {
-	void operator()(const EmuTime& time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
 	                byte color, byte /*mask*/) const
 	{
 		vram.cmdWrite(addr,
@@ -655,7 +655,7 @@ struct OrOp {
 };
 
 struct XorOp {
-	void operator()(const EmuTime& time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
 	                byte color, byte /*mask*/)
 	{
 		vram.cmdWrite(addr,
@@ -665,7 +665,7 @@ struct XorOp {
 };
 
 struct NotOp {
-	void operator()(const EmuTime& time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
 	                byte color, byte mask)
 	{
 		vram.cmdWrite(addr,
@@ -676,7 +676,7 @@ struct NotOp {
 
 template <typename Op>
 struct TransparentOp : public Op {
-	void operator()(const EmuTime& time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
 	                byte color, byte mask)
 	{
 		if (color) Op::operator()(time, vram, addr, color, mask);
@@ -695,10 +695,10 @@ typedef TransparentOp<NotOp> TNotOp;
   */
 struct AbortCmd : public VDPCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 
-void AbortCmd::start(const EmuTime& time, VDPCmdEngine& engine)
+void AbortCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	engine.commandDone(time);
 }
@@ -707,11 +707,11 @@ void AbortCmd::start(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <class Mode> struct PointCmd : public VDPCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void PointCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void PointCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -730,11 +730,11 @@ void PointCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode, typename LogOp> struct PsetCmd : public VDPCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode, typename LogOp>
-void PsetCmd<Mode, LogOp>::start(const EmuTime& time, VDPCmdEngine& engine)
+void PsetCmd<Mode, LogOp>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -755,14 +755,14 @@ void PsetCmd<Mode, LogOp>::start(const EmuTime& time, VDPCmdEngine& engine)
   */
 struct SrchBaseCmd : public VDPCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 template <typename Mode> struct SrchCmd : public SrchBaseCmd
 {
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
-void SrchBaseCmd::start(const EmuTime& time, VDPCmdEngine& engine)
+void SrchBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -773,7 +773,7 @@ void SrchBaseCmd::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode>
-void SrchCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void SrchCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	byte CL = engine.COL & Mode::COLOR_MASK;
@@ -808,14 +808,14 @@ void SrchCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 struct LineBaseCmd : public VDPCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 template <typename Mode, typename LogOp> struct LineCmd : public LineBaseCmd
 {
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
-void LineBaseCmd::start(const EmuTime& time, VDPCmdEngine& engine)
+void LineBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -829,7 +829,7 @@ void LineBaseCmd::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode, typename LogOp>
-void LineCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	byte CL = engine.COL & Mode::COLOR_MASK;
@@ -905,15 +905,15 @@ void BlockCmd::calcFinishTime(VDPCmdEngine& engine,
   */
 template <typename Mode> struct LmmvBaseCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 template <typename Mode, typename LogOp> struct LmmvCmd : public LmmvBaseCmd<Mode>
 {
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void LmmvBaseCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void LmmvBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -928,7 +928,7 @@ void LmmvBaseCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode, typename LogOp>
-void LmmvCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void LmmvCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1002,15 +1002,15 @@ void LmmvCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode> struct LmmmBaseCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 template <typename Mode, typename LogOp> struct LmmmCmd : public LmmmBaseCmd<Mode>
 {
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void LmmmBaseCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void LmmmBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -1027,7 +1027,7 @@ void LmmmBaseCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode, typename LogOp>
-void LmmmCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void LmmmCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1115,12 +1115,12 @@ void LmmmCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode> struct LmcmCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void LmcmCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void LmcmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -1136,7 +1136,7 @@ void LmcmCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode>
-void LmcmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void LmcmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1173,15 +1173,15 @@ void LmcmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode> struct LmmcBaseCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
 };
 template <typename Mode, typename LogOp> struct LmmcCmd : public LmmcBaseCmd<Mode>
 {
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void LmmcBaseCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void LmmcBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -1197,7 +1197,7 @@ void LmmcBaseCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode, typename LogOp>
-void LmmcCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void LmmcCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1239,12 +1239,12 @@ void LmmcCmd<Mode, LogOp>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode> struct HmmvCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void HmmvCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void HmmvCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -1259,7 +1259,7 @@ void HmmvCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode>
-void HmmvCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void HmmvCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1329,12 +1329,12 @@ void HmmvCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode> struct HmmmCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void HmmmCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void HmmmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -1351,7 +1351,7 @@ void HmmmCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode>
-void HmmmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void HmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1434,12 +1434,12 @@ void HmmmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode> struct YmmmCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void YmmmCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void YmmmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -1455,7 +1455,7 @@ void YmmmCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode>
-void YmmmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void YmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1535,12 +1535,12 @@ void YmmmCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
   */
 template <typename Mode> struct HmmcCmd : public BlockCmd
 {
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine);
-	virtual void execute(const EmuTime& time, VDPCmdEngine& engine);
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	virtual void execute(EmuTime::param time, VDPCmdEngine& engine);
 };
 
 template <typename Mode>
-void HmmcCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
+void HmmcCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.clock.reset(time);
@@ -1556,7 +1556,7 @@ void HmmcCmd<Mode>::start(const EmuTime& time, VDPCmdEngine& engine)
 }
 
 template <typename Mode>
-void HmmcCmd<Mode>::execute(const EmuTime& time, VDPCmdEngine& engine)
+void HmmcCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	engine.NY &= 1023;
@@ -1775,7 +1775,7 @@ VDPCmdEngine::~VDPCmdEngine()
 	deleteHEngines(0xF0);
 }
 
-void VDPCmdEngine::reset(const EmuTime& time)
+void VDPCmdEngine::reset(EmuTime::param time)
 {
 	status = 0;
 	scrMode = -1;
@@ -1791,7 +1791,7 @@ void VDPCmdEngine::update(const Setting& setting)
 	brokenTiming = static_cast<const EnumSetting<bool>*>(&setting)->getValue();
 }
 
-void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime& time)
+void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
 {
 	sync(time);
 	switch (index) {
@@ -1881,7 +1881,7 @@ byte VDPCmdEngine::peekCmdReg(byte index)
 	}
 }
 
-void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime& time)
+void VDPCmdEngine::updateDisplayMode(DisplayMode mode, EmuTime::param time)
 {
 	int newScrMode;
 	switch (mode.getBase()) {
@@ -1925,7 +1925,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime& time)
 	}
 }
 
-void VDPCmdEngine::executeCommand(const EmuTime& time)
+void VDPCmdEngine::executeCommand(EmuTime::param time)
 {
 	// V9938 ops only work in SCREEN 5-8.
 	// V9958 ops work in non SCREEN 5-8 when CMD bit is set
@@ -1968,7 +1968,7 @@ void VDPCmdEngine::reportVdpCommand()
 		<<  ',' << int((ARG & DIY) ? -NY : NY) << ']' << std::endl;
 }
 
-void VDPCmdEngine::commandDone(const EmuTime& time)
+void VDPCmdEngine::commandDone(EmuTime::param time)
 {
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
 	status &= 0xFE; // reset CE

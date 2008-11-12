@@ -19,7 +19,7 @@ class V9990RegDebug : public SimpleDebuggable
 public:
 	explicit V9990RegDebug(V9990& v9990);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	V9990& v9990;
 };
@@ -29,7 +29,7 @@ class V9990PalDebug : public SimpleDebuggable
 public:
 	explicit V9990PalDebug(V9990& v9990);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	V9990& v9990;
 };
@@ -91,7 +91,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 
 	// create VRAM
-	const EmuTime& time = Schedulable::getCurrentTime();
+	EmuTime::param time = Schedulable::getCurrentTime();
 	vram.reset(new V9990VRAM(*this, time));
 
 	// create Command Engine
@@ -122,7 +122,7 @@ V9990::~V9990()
 // MSXDevice
 // -------------------------------------------------------------------------
 
-void V9990::reset(const EmuTime& time)
+void V9990::reset(EmuTime::param time)
 {
 	removeSyncPoint(V9990_VSYNC);
 	removeSyncPoint(V9990_DISPLAY_START);
@@ -152,7 +152,7 @@ void V9990::reset(const EmuTime& time)
 	frameStart(time);
 }
 
-byte V9990::readIO(word port, const EmuTime& time)
+byte V9990::readIO(word port, EmuTime::param time)
 {
 	port &= 0x0F;
 
@@ -210,7 +210,7 @@ byte V9990::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte V9990::peekIO(word port, const EmuTime& time) const
+byte V9990::peekIO(word port, EmuTime::param time) const
 {
 	byte result;
 	switch (port & 0x0F) {
@@ -272,7 +272,7 @@ byte V9990::peekIO(word port, const EmuTime& time) const
 	return result;
 }
 
-void V9990::writeIO(word port, byte val, const EmuTime& time)
+void V9990::writeIO(word port, byte val, EmuTime::param time)
 {
 	port &= 0x0F;
 
@@ -359,7 +359,7 @@ void V9990::writeIO(word port, byte val, const EmuTime& time)
 // Schedulable
 // -------------------------------------------------------------------------
 
-void V9990::executeUntil(const EmuTime& time, int userData)
+void V9990::executeUntil(EmuTime::param time, int userData)
 {
 	//PRT_DEBUG("[" << time << "] "
 	//          "V9990::executeUntil - data=0x" << std::hex << userData);
@@ -417,7 +417,7 @@ void V9990::preVideoSystemChange()
 
 void V9990::postVideoSystemChange()
 {
-	const EmuTime& time = Schedulable::getCurrentTime();
+	EmuTime::param time = Schedulable::getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
 }
@@ -438,7 +438,7 @@ byte V9990RegDebug::read(unsigned address)
 	return v9990.regs[address];
 }
 
-void V9990RegDebug::write(unsigned address, byte value, const EmuTime& time)
+void V9990RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	v9990.writeRegister(address, value, time);
 }
@@ -460,7 +460,7 @@ byte V9990PalDebug::read(unsigned address)
 	return v9990.palette[address];
 }
 
-void V9990PalDebug::write(unsigned address, byte value, const EmuTime& time)
+void V9990PalDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	v9990.writePaletteRegister(address, value, time);
 }
@@ -484,7 +484,7 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 	// TODO check
 }
 
-byte V9990::readRegister(byte reg, const EmuTime& time) const
+byte V9990::readRegister(byte reg, EmuTime::param time) const
 {
 	// TODO sync(time) (if needed at all)
 
@@ -508,7 +508,7 @@ byte V9990::readRegister(byte reg, const EmuTime& time) const
 	return result;
 }
 
-void V9990::syncAtNextLine(V9990SyncType type, const EmuTime& time)
+void V9990::syncAtNextLine(V9990SyncType type, EmuTime::param time)
 {
 	int line = getUCTicksThisFrame(time) / V9990DisplayTiming::UC_TICKS_PER_LINE;
 	int ticks = (line + 1) * V9990DisplayTiming::UC_TICKS_PER_LINE;
@@ -516,7 +516,7 @@ void V9990::syncAtNextLine(V9990SyncType type, const EmuTime& time)
 	setSyncPoint(nextTime, type);
 }
 
-void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
+void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 {
 	// Found this table by writing 0xFF to a register and reading
 	// back the value (only works for read/write registers)
@@ -596,7 +596,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 	}
 }
 
-void V9990::writePaletteRegister(byte reg, byte val, const EmuTime& time)
+void V9990::writePaletteRegister(byte reg, byte val, EmuTime::param time)
 {
 	switch (reg & 3) {
 		case 0: val &= 0x9F; break;
@@ -621,7 +621,7 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b) const
 	b = palette[4 * index + 2];
 }
 
-void V9990::createRenderer(const EmuTime& time)
+void V9990::createRenderer(EmuTime::param time)
 {
 	assert(!renderer.get());
 	Display& display = getMotherBoard().getDisplay();
@@ -629,7 +629,7 @@ void V9990::createRenderer(const EmuTime& time)
 	renderer->reset(time);
 }
 
-void V9990::frameStart(const EmuTime& time)
+void V9990::frameStart(EmuTime::param time)
 {
 	// Update setings that are fixed at the start of a frame
 	displayEnabled = regs[CONTROL]       & 0x80;
@@ -779,7 +779,7 @@ void V9990::calcDisplayMode()
 	setHorizontalTiming();
 }
 
-void V9990::scheduleHscan(const EmuTime& time)
+void V9990::scheduleHscan(EmuTime::param time)
 {
 	// remove pending HSCAN, if any
 	if (hScanSyncTime > time) {

@@ -5,12 +5,12 @@
 
 #include "V9990CmdEngine.hh"
 #include "Ram.hh"
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
-class EmuTime;
 class V9990;
 
 /** Video RAM for the V9990.
@@ -26,12 +26,12 @@ public:
 	  * @param vdp The V9990 vdp this VRAM belongs to
 	  * @param time  Moment in time to create the VRAM
 	  */
-	V9990VRAM(V9990& vdp, const EmuTime& time);
+	V9990VRAM(V9990& vdp, EmuTime::param time);
 
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */
-	inline void sync(const EmuTime& time) {
+	inline void sync(EmuTime::param time) {
 		cmdEngine->sync(time);
 	}
 
@@ -79,8 +79,8 @@ public:
 		data[address] = value;
 	}
 
-	byte readVRAMCPU(unsigned address, const EmuTime& time);
-	void writeVRAMCPU(unsigned address, byte val, const EmuTime& time);
+	byte readVRAMCPU(unsigned address, EmuTime::param time);
+	void writeVRAMCPU(unsigned address, byte val, EmuTime::param time);
 
 	void setCmdEngine(V9990CmdEngine& cmdEngine);
 

@@ -19,12 +19,12 @@ public:
 	virtual ~MSXMatsushita();
 
 	// MSXDevice
-	virtual void reset(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
 
 	// MSXSwitchedDevice
-	virtual byte readSwitchedIO(word port, const EmuTime& time);
-	virtual byte peekSwitchedIO(word port, const EmuTime& time) const;
-	virtual void writeSwitchedIO(word port, byte value, const EmuTime& time);
+	virtual byte readSwitchedIO(word port, EmuTime::param time);
+	virtual byte peekSwitchedIO(word port, EmuTime::param time) const;
+	virtual void writeSwitchedIO(word port, byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

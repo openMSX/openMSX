@@ -80,11 +80,11 @@ public:
 	void unpause();
 	void powerUp();
 	void schedulePowerDown();
-	void doPowerDown(const EmuTime& time);
+	void doPowerDown(EmuTime::param time);
 	void activate(bool active);
 	bool isActive() const;
 	void scheduleReset();
-	void doReset(const EmuTime& time);
+	void doReset(EmuTime::param time);
 	byte readIRQVector();
 
 	const HardwareConfig* getMachineConfig() const;
@@ -127,7 +127,7 @@ public:
 	GlobalCliComm& getGlobalCliComm();
 	CommandController& getCommandController();
 	InfoCommand& getMachineInfoCommand();
-	const EmuTime& getCurrentTime();
+	EmuTime::param getCurrentTime();
 
 	void addDevice(MSXDevice& device);
 	void removeDevice(MSXDevice& device);
@@ -230,7 +230,7 @@ class ResetCmd : public RecordedCommand
 public:
 	ResetCmd(MSXMotherBoardImpl& motherBoard);
 	virtual string execute(const vector<string>& tokens,
-	                       const EmuTime& time);
+	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXMotherBoardImpl& motherBoard;
@@ -263,7 +263,7 @@ class ExtCmd : public RecordedCommand
 public:
 	ExtCmd(MSXMotherBoardImpl& motherBoard);
 	virtual string execute(const vector<string>& tokens,
-	                       const EmuTime& time);
+	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -275,7 +275,7 @@ class RemoveExtCmd : public RecordedCommand
 public:
 	RemoveExtCmd(MSXMotherBoardImpl& motherBoard);
 	virtual string execute(const vector<string>& tokens,
-	                       const EmuTime& time);
+	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -705,7 +705,7 @@ InfoCommand& MSXMotherBoardImpl::getMachineInfoCommand()
 	return getMSXCommandController().getMachineInfoCommand();
 }
 
-const EmuTime& MSXMotherBoardImpl::getCurrentTime()
+EmuTime::param MSXMotherBoardImpl::getCurrentTime()
 {
 	return getScheduler().getCurrentTime();
 }
@@ -775,7 +775,7 @@ void MSXMotherBoardImpl::scheduleReset()
 	exitCPULoopSync();
 }
 
-void MSXMotherBoardImpl::doReset(const EmuTime& time)
+void MSXMotherBoardImpl::doReset(EmuTime::param time)
 {
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
@@ -815,7 +815,7 @@ void MSXMotherBoardImpl::powerUp()
 	//       it separately here.
 	getLedStatus().setLed(LedStatus::POWER, true);
 
-	const EmuTime& time = getCurrentTime();
+	EmuTime::param time = getCurrentTime();
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -835,7 +835,7 @@ void MSXMotherBoardImpl::schedulePowerDown()
 	exitCPULoopSync();
 }
 
-void MSXMotherBoardImpl::doPowerDown(const EmuTime& time)
+void MSXMotherBoardImpl::doPowerDown(EmuTime::param time)
 {
 	if (!powered) return;
 
@@ -999,7 +999,7 @@ ResetCmd::ResetCmd(MSXMotherBoardImpl& motherBoard_)
 }
 
 string ResetCmd::execute(const vector<string>& /*tokens*/,
-                         const EmuTime& /*time*/)
+                         EmuTime::param /*time*/)
 {
 	motherBoard.scheduleReset();
 	return "";
@@ -1076,7 +1076,7 @@ ExtCmd::ExtCmd(MSXMotherBoardImpl& motherBoard_)
 {
 }
 
-string ExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+string ExtCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -1113,7 +1113,7 @@ RemoveExtCmd::RemoveExtCmd(MSXMotherBoardImpl& motherBoard_)
 {
 }
 
-string RemoveExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+string RemoveExtCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -1324,7 +1324,7 @@ void MSXMotherBoard::schedulePowerDown()
 {
 	pimple->schedulePowerDown();
 }
-void MSXMotherBoard::doPowerDown(const EmuTime& time)
+void MSXMotherBoard::doPowerDown(EmuTime::param time)
 {
 	pimple->doPowerDown(time);
 }
@@ -1340,7 +1340,7 @@ void MSXMotherBoard::scheduleReset()
 {
 	pimple->scheduleReset();
 }
-void MSXMotherBoard::doReset(const EmuTime& time)
+void MSXMotherBoard::doReset(EmuTime::param time)
 {
 	pimple->doReset(time);
 }
@@ -1500,7 +1500,7 @@ InfoCommand& MSXMotherBoard::getMachineInfoCommand()
 {
 	return pimple->getMachineInfoCommand();
 }
-const EmuTime& MSXMotherBoard::getCurrentTime()
+EmuTime::param MSXMotherBoard::getCurrentTime()
 {
 	return pimple->getCurrentTime();
 }

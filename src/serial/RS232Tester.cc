@@ -33,7 +33,7 @@ RS232Tester::~RS232Tester()
 }
 
 // Pluggable
-void RS232Tester::plugHelper(Connector& connector_, const EmuTime& /*time*/)
+void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
 	std::string outName = rs232OutputFilenameSetting->getValue();
@@ -61,7 +61,7 @@ void RS232Tester::plugHelper(Connector& connector_, const EmuTime& /*time*/)
 	thread.start();
 }
 
-void RS232Tester::unplugHelper(const EmuTime& /*time*/)
+void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 {
 	// output
 	outFile.close();
@@ -110,7 +110,7 @@ void RS232Tester::run()
 }
 
 // input
-void RS232Tester::signal(const EmuTime& time)
+void RS232Tester::signal(EmuTime::param time)
 {
 	RS232Connector* connector = static_cast<RS232Connector*>(getConnector());
 	if (!connector->acceptsData()) {
@@ -140,7 +140,7 @@ bool RS232Tester::signalEvent(shared_ptr<const Event> /*event*/)
 
 
 // output
-void RS232Tester::recvByte(byte value, const EmuTime& /*time*/)
+void RS232Tester::recvByte(byte value, EmuTime::param /*time*/)
 {
 	if (outFile.is_open()) {
 		outFile.put(value);

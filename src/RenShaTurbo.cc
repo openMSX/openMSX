@@ -21,7 +21,7 @@ RenShaTurbo::~RenShaTurbo()
 {
 }
 
-bool RenShaTurbo::getSignal(const EmuTime& time)
+bool RenShaTurbo::getSignal(EmuTime::param time)
 {
 	return autofire.get() ? autofire->getSignal(time) : false;
 }

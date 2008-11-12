@@ -30,7 +30,7 @@ DebugDevice::~DebugDevice()
 {
 }
 
-void DebugDevice::writeIO(word port, byte value, const EmuTime& time)
+void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 {
 	string newName = fileNameSetting->getValueString();
 	if (newName != fileNameString) {
@@ -74,7 +74,7 @@ void DebugDevice::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-void DebugDevice::outputSingleByte(byte value, const EmuTime& time)
+void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
 {
 	if (modeParameter & 0x01) {
 		displayByte(value, HEX);

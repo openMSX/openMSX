@@ -82,7 +82,7 @@ void MSXCPU::setInterface(MSXCPUInterface* interface)
 	}
 }
 
-void MSXCPU::doReset(const EmuTime& time)
+void MSXCPU::doReset(EmuTime::param time)
 {
 	z80 ->doReset(time);
 	if (r800.get()) {
@@ -142,12 +142,12 @@ void MSXCPU::exitCPULoopAsync()
 }
 
 
-const EmuTime& MSXCPU::getCurrentTime() const
+EmuTime::param MSXCPU::getCurrentTime() const
 {
 	return activeCPU->getCurrentTime();
 }
 
-void MSXCPU::setNextSyncPoint(const EmuTime& time)
+void MSXCPU::setNextSyncPoint(EmuTime::param time)
 {
 	activeCPU->setNextSyncPoint(time);
 }
@@ -205,7 +205,7 @@ void MSXCPU::setZ80Freq(unsigned freq)
 	z80->setFreq(freq);
 }
 
-void MSXCPU::wait(const EmuTime& time)
+void MSXCPU::wait(EmuTime::param time)
 {
 	activeCPU->wait(time);
 }

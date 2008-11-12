@@ -144,7 +144,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 	}
 }
 
-void AviRecorder::addImage(const void** lines, const EmuTime& time)
+void AviRecorder::addImage(const void** lines, EmuTime::param time)
 {
 	assert(!wavWriter.get());
 	if (duration != EmuDuration::infinity) {

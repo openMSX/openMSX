@@ -56,7 +56,7 @@ static const byte ST3_WP  = 0x40;
 static const byte ST3_FLT = 0x80;
 
 
-TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime& time)
+TC8566AF::TC8566AF(DiskDrive* drv[4], EmuTime::param time)
 	: delayTime(EmuTime::zero)
 {
 	// avoid UMR (on savestate)
@@ -69,7 +69,7 @@ TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime& time)
 	reset(time);
 }
 
-void TC8566AF::reset(const EmuTime& time)
+void TC8566AF::reset(EmuTime::param time)
 {
 	drive[0]->setMotor(false, time);
 	drive[1]->setMotor(false, time);
@@ -101,7 +101,7 @@ void TC8566AF::reset(const EmuTime& time)
 	//interrupt = false;
 }
 
-byte TC8566AF::peekReg(int reg, const EmuTime& /*time*/) const
+byte TC8566AF::peekReg(int reg, EmuTime::param /*time*/) const
 {
 	switch (reg) {
 	case 4: // Main Status Register
@@ -112,7 +112,7 @@ byte TC8566AF::peekReg(int reg, const EmuTime& /*time*/) const
 	return 0xff;
 }
 
-byte TC8566AF::readReg(int reg, const EmuTime& time)
+byte TC8566AF::readReg(int reg, EmuTime::param time)
 {
 	switch (reg) {
 	case 4: // Main Status Register
@@ -130,7 +130,7 @@ byte TC8566AF::peekStatus() const
 	return mainStatus | (dma ? STM_NDM : 0);
 }
 
-byte TC8566AF::readStatus(const EmuTime& time)
+byte TC8566AF::readStatus(EmuTime::param time)
 {
 	if (delayTime.before(time)) {
 		mainStatus |= STM_RQM;
@@ -150,7 +150,7 @@ byte TC8566AF::peekDataPort() const
 	}
 }
 
-byte TC8566AF::readDataPort(const EmuTime& time)
+byte TC8566AF::readDataPort(EmuTime::param time)
 {
 	//interrupt = false;
 	switch (phase) {
@@ -285,7 +285,7 @@ byte TC8566AF::resultsPhaseRead()
 	return result;
 }
 
-void TC8566AF::writeReg(int reg, byte data, const EmuTime& time)
+void TC8566AF::writeReg(int reg, byte data, EmuTime::param time)
 {
 	switch (reg) {
 	case 2: // control register 0
@@ -308,7 +308,7 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime& time)
 	}
 }
 
-void TC8566AF::writeDataPort(byte value, const EmuTime& time)
+void TC8566AF::writeDataPort(byte value, EmuTime::param time)
 {
 	switch (phase) {
 	case PHASE_IDLE:
@@ -402,7 +402,7 @@ void TC8566AF::commandPhase1(byte value)
 	           (drive[driveSelect]->isReady()          ? ST3_RDY : 0);
 }
 
-void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
+void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 {
 	switch (command) {
 	case CMD_READ_DATA:

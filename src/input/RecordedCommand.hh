@@ -5,6 +5,7 @@
 
 #include "Command.hh"
 #include "MSXEventListener.hh"
+#include "EmuTime.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +13,6 @@ namespace openmsx {
 class CommandController;
 class MSXEventDistributor;
 class Scheduler;
-class EmuTime;
 
 /** Commands that directly influence the MSX state should send and events
   * so that they can be recorded by the event recorder. This class helps to
@@ -29,9 +29,9 @@ public:
 	  */
 	virtual void execute(
 		const std::vector<TclObject*>& tokens, TclObject& result,
-		const EmuTime& time);
+		EmuTime::param time);
 	virtual std::string execute(
-		const std::vector<std::string>& tokens, const EmuTime& time);
+		const std::vector<std::string>& tokens, EmuTime::param time);
 
 	/** It's possible that in some cases the command doesn't need to be
 	  * recorded after all (e.g. a query subcommand). In that case you can
@@ -63,7 +63,7 @@ private:
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
-	                         const EmuTime& time);
+	                         EmuTime::param time);
 
 	MSXEventDistributor& msxEventDistributor;
 	Scheduler& scheduler;

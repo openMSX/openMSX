@@ -23,7 +23,7 @@ RomZemina80in1::RomZemina80in1(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomZemina80in1::reset(const EmuTime& /*time*/)
+void RomZemina80in1::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -34,7 +34,7 @@ void RomZemina80in1::reset(const EmuTime& /*time*/)
 	setBank(7, unmappedRead);
 }
 
-void RomZemina80in1::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomZemina80in1::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x4004)) {
 		setRom(2 + (address - 0x4000), value);

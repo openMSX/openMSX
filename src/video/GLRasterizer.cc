@@ -450,7 +450,7 @@ void GLRasterizer::resetPalette()
 	}
 }
 
-void GLRasterizer::frameStart(const EmuTime& /*time*/)
+void GLRasterizer::frameStart(EmuTime::param /*time*/)
 {
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.

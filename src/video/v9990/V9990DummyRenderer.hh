@@ -11,19 +11,19 @@ class V9990DummyRenderer : public V9990Renderer
 {
 public:
 	// V9990Renderer interface:
-	void reset(const EmuTime& time);
-	void frameStart(const EmuTime& time);
-	void frameEnd(const EmuTime& time);
-	void renderUntil(const EmuTime& time);
-	void updateDisplayEnabled(bool enabled, const EmuTime& time);
-	void setDisplayMode(V9990DisplayMode mode, const EmuTime& time);
-	void setColorMode(V9990ColorMode mode, const EmuTime& time);
-	void updatePalette(int index, byte r, byte g, byte b, const EmuTime& time);
-	void updateBackgroundColor(int index, const EmuTime& time);
-	void updateScrollAX(const EmuTime& time);
-	void updateScrollBX(const EmuTime& time);
-	void updateScrollAYLow(const EmuTime& time);
-	void updateScrollBYLow(const EmuTime& time);
+	void reset(EmuTime::param time);
+	void frameStart(EmuTime::param time);
+	void frameEnd(EmuTime::param time);
+	void renderUntil(EmuTime::param time);
+	void updateDisplayEnabled(bool enabled, EmuTime::param time);
+	void setDisplayMode(V9990DisplayMode mode, EmuTime::param time);
+	void setColorMode(V9990ColorMode mode, EmuTime::param time);
+	void updatePalette(int index, byte r, byte g, byte b, EmuTime::param time);
+	void updateBackgroundColor(int index, EmuTime::param time);
+	void updateScrollAX(EmuTime::param time);
+	void updateScrollBX(EmuTime::param time);
+	void updateScrollAYLow(EmuTime::param time);
+	void updateScrollBYLow(EmuTime::param time);
 };
 
 } // namespace openmsx

@@ -10,7 +10,7 @@
 namespace openmsx {
 
 VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
-                       const EmuTime& time)
+                       EmuTime::param time)
 	: MSXDevice(motherboard, config)
 	, cpu(motherboard.getCPU())
 	, lastTime(time)
@@ -39,24 +39,24 @@ MSXDevice*& VDPIODelay::getOutDevicePtr(byte port)
 	return outDevices[port - 0x98];
 }
 
-byte VDPIODelay::readIO(word port, const EmuTime& time)
+byte VDPIODelay::readIO(word port, EmuTime::param time)
 {
 	delay(time);
 	return getInDevicePtr(port)->readIO(port, lastTime.getTime());
 }
 
-byte VDPIODelay::peekIO(word port, const EmuTime& time) const
+byte VDPIODelay::peekIO(word port, EmuTime::param time) const
 {
 	return getInDevice(port).peekIO(port, time);
 }
 
-void VDPIODelay::writeIO(word port, byte value, const EmuTime& time)
+void VDPIODelay::writeIO(word port, byte value, EmuTime::param time)
 {
 	delay(time);
 	getOutDevicePtr(port)->writeIO(port, value, lastTime.getTime());
 }
 
-void VDPIODelay::delay(const EmuTime& time)
+void VDPIODelay::delay(EmuTime::param time)
 {
 	cpu.waitCycles(1);
 	if (cpu.isR800Active()) {

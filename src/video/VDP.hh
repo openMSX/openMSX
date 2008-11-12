@@ -84,11 +84,11 @@ public:
 	VDP(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~VDP();
 
-	virtual void reset(const EmuTime& time);
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
-	virtual void writeIO(word port, byte value, const EmuTime& time);
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void reset(EmuTime::param time);
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
+	virtual void writeIO(word port, byte value, EmuTime::param time);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	/** Create a new renderer.
@@ -344,11 +344,11 @@ public:
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
 	  * a given time and the start of this frame.
 	  */
-	inline int getTicksThisFrame(const EmuTime& time) const {
+	inline int getTicksThisFrame(EmuTime::param time) const {
 		return frameStartTime.getTicksTill_fast(time);
 	}
 
-	inline const EmuTime& getFrameStartTime() const {
+	inline EmuTime::param getFrameStartTime() const {
 		return frameStartTime.getTime();
 	}
 
@@ -396,7 +396,7 @@ public:
 	  * @param time Timestamp to check.
 	  * @return True iff the timestamp is inside the current frame.
 	  */
-	inline bool isInsideFrame(const EmuTime& time) const {
+	inline bool isInsideFrame(EmuTime::param time) const {
 		return time >= frameStartTime.getTime() &&
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
@@ -541,18 +541,18 @@ private:
 	  * Puts VDP into reset state.
 	  * Does not call any renderer methods.
 	  */
-	void resetInit(const EmuTime& time);
+	void resetInit(EmuTime::param time);
 
 	/** Companion to resetInit: in resetInit the registers are reset,
 	  * in this method the new base masks are distributed to the VDP
 	  * subsystems.
 	  */
-	void resetMasks(const EmuTime& time);
+	void resetMasks(EmuTime::param time);
 
 	/** Start a new frame.
 	  * @param time The moment in emulated time the frame starts.
 	  */
-	void frameStart(const EmuTime& time);
+	void frameStart(EmuTime::param time);
 
 	/** Schedules a DISPLAY_START sync point.
 	  * Also removes a pending DISPLAY_START sync, if any.
@@ -561,68 +561,68 @@ private:
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the DISPLAY_START sync time!
 	  */
-	void scheduleDisplayStart(const EmuTime& time);
+	void scheduleDisplayStart(EmuTime::param time);
 
 	/** Schedules a VSCAN sync point.
 	  * Also removes a pending VSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the VSCAN sync time!
 	  */
-	void scheduleVScan(const EmuTime& time);
+	void scheduleVScan(EmuTime::param time);
 
 	/** Schedules a HSCAN sync point.
 	  * Also removes a pending HSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the HSCAN sync time!
 	  */
-	void scheduleHScan(const EmuTime& time);
+	void scheduleHScan(EmuTime::param time);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
-	byte vramRead(const EmuTime& time);
+	byte vramRead(EmuTime::param time);
 
 	/** Read the contents of a status register
 	  */
-	byte peekStatusReg(byte reg, const EmuTime& time) const;
-	byte readStatusReg(byte reg, const EmuTime& time);
+	byte peekStatusReg(byte reg, EmuTime::param time) const;
+	byte readStatusReg(byte reg, EmuTime::param time);
 
 	/** VDP control register has changed, work out the consequences.
 	  */
-	void changeRegister(byte reg, byte val, const EmuTime& time);
+	void changeRegister(byte reg, byte val, EmuTime::param time);
 
 	/** Schedule a sync point at the start of the next line.
 	  */
-	void syncAtNextLine(SyncType type, const EmuTime& time);
+	void syncAtNextLine(SyncType type, EmuTime::param time);
 
 	/** Name base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updateNameBase(const EmuTime& time);
+	void updateNameBase(EmuTime::param time);
 
 	/** Colour base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updateColourBase(const EmuTime& time);
+	void updateColourBase(EmuTime::param time);
 
 	/** Pattern base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updatePatternBase(const EmuTime& time);
+	void updatePatternBase(EmuTime::param time);
 
 	/** Sprite attribute base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
-	void updateSpriteAttributeBase(const EmuTime& time);
+	void updateSpriteAttributeBase(EmuTime::param time);
 
 	/** Sprite pattern base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
-	void updateSpritePatternBase(const EmuTime& time);
+	void updateSpritePatternBase(EmuTime::param time);
 
 	/** Display mode has changed.
 	  * Update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(DisplayMode newMode, const EmuTime& time);
+	void updateDisplayMode(DisplayMode newMode, EmuTime::param time);
 
 	/** Sets a palette entry.
 	  * @param index The index [0..15] in the palette.
@@ -630,7 +630,7 @@ private:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  * @param time Moment in time palette change occurs.
 	  */
-	void setPalette(int index, word grb, const EmuTime& time);
+	void setPalette(int index, word grb, EmuTime::param time);
 
 
 	/** Command line communications.

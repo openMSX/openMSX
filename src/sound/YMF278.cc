@@ -21,7 +21,7 @@ class DebugRegisters : public SimpleDebuggable
 public:
 	DebugRegisters(YMF278Impl& ymf278, MSXMotherBoard& motherBoard);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	YMF278Impl& ymf278;
 };
@@ -97,12 +97,12 @@ public:
 	YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	       int ramSize, const XMLElement& config);
 	virtual ~YMF278Impl();
-	void reset(const EmuTime& time);
-	void writeRegOPL4(byte reg, byte data, const EmuTime& time);
-	byte readReg(byte reg, const EmuTime& time);
+	void reset(EmuTime::param time);
+	void writeRegOPL4(byte reg, byte data, EmuTime::param time);
+	byte readReg(byte reg, EmuTime::param time);
 	byte peekReg(byte reg) const;
-	byte readStatus(const EmuTime& time);
-	byte peekStatus(const EmuTime& time) const;
+	byte readStatus(EmuTime::param time);
+	byte peekStatus(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -112,12 +112,12 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+		EmuTime::param time, EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
-	void writeReg(byte reg, byte data, const EmuTime& time);
+	void writeReg(byte reg, byte data, EmuTime::param time);
 	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
 	short getSample(YMF278Slot& op);
@@ -656,7 +656,7 @@ bool YMF278Impl::generateInput(int* buffer, unsigned num)
 }
 
 bool YMF278Impl::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -682,13 +682,13 @@ void YMF278Impl::keyOnHelper(YMF278Slot& slot)
 	slot.sample2 = getSample(slot);
 }
 
-void YMF278Impl::writeRegOPL4(byte reg, byte data, const EmuTime& time)
+void YMF278Impl::writeRegOPL4(byte reg, byte data, EmuTime::param time)
 {
 	busyTime = time + REG_WRITE_DELAY;
 	writeReg(reg, data, time);
 }
 
-void YMF278Impl::writeReg(byte reg, byte data, const EmuTime& time)
+void YMF278Impl::writeReg(byte reg, byte data, EmuTime::param time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 	// Handle slot registers specifically
@@ -870,7 +870,7 @@ void YMF278Impl::writeReg(byte reg, byte data, const EmuTime& time)
 	regs[reg] = data;
 }
 
-byte YMF278Impl::readReg(byte reg, const EmuTime& time)
+byte YMF278Impl::readReg(byte reg, EmuTime::param time)
 {
 	// no need to call updateStream(time)
 	byte result;
@@ -911,13 +911,13 @@ byte YMF278Impl::peekReg(byte reg) const
 	return result;
 }
 
-byte YMF278Impl::readStatus(const EmuTime& time)
+byte YMF278Impl::readStatus(EmuTime::param time)
 {
 	// no need to call updateStream(time)
 	return peekStatus(time);
 }
 
-byte YMF278Impl::peekStatus(const EmuTime& time) const
+byte YMF278Impl::peekStatus(EmuTime::param time) const
 {
 	byte result = 0;
 	if (time < busyTime) result |= 0x01;
@@ -964,7 +964,7 @@ YMF278Impl::~YMF278Impl()
 	delete[] ram;
 }
 
-void YMF278Impl::reset(const EmuTime& time)
+void YMF278Impl::reset(EmuTime::param time)
 {
 	eg_cnt   = 0;
 
@@ -1067,7 +1067,7 @@ void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
 		0xf9,    // pcm_l, pcm_r
 	};
 	if (ar.isLoader()) {
-		const EmuTime& time = motherBoard.getCurrentTime();
+		EmuTime::param time = motherBoard.getCurrentTime();
 		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
 			byte reg = rewriteRegs[i];
 			writeReg(reg, regs[reg], time);
@@ -1091,7 +1091,7 @@ byte DebugRegisters::read(unsigned address)
 	return ymf278.peekReg(address);
 }
 
-void DebugRegisters::write(unsigned address, byte value, const EmuTime& time)
+void DebugRegisters::write(unsigned address, byte value, EmuTime::param time)
 {
 	ymf278.writeReg(address, value, time);
 }
@@ -1129,17 +1129,17 @@ YMF278::~YMF278()
 {
 }
 
-void YMF278::reset(const EmuTime& time)
+void YMF278::reset(EmuTime::param time)
 {
 	pimple->reset(time);
 }
 
-void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime& time)
+void YMF278::writeRegOPL4(byte reg, byte data, EmuTime::param time)
 {
 	pimple->writeRegOPL4(reg, data, time);
 }
 
-byte YMF278::readReg(byte reg, const EmuTime& time)
+byte YMF278::readReg(byte reg, EmuTime::param time)
 {
 	return pimple->readReg(reg, time);
 }
@@ -1149,12 +1149,12 @@ byte YMF278::peekReg(byte reg) const
 	return pimple->peekReg(reg);
 }
 
-byte YMF278::readStatus(const EmuTime& time)
+byte YMF278::readStatus(EmuTime::param time)
 {
 	return pimple->readStatus(time);
 }
 
-byte YMF278::peekStatus(const EmuTime& time) const
+byte YMF278::peekStatus(EmuTime::param time) const
 {
 	return pimple->peekStatus(time);
 }

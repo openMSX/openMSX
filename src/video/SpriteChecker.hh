@@ -46,18 +46,18 @@ public:
 	  * @param time TODO
 	  */
 	SpriteChecker(VDP& vdp, RenderSettings& renderSettings,
-	              const EmuTime& time);
+	              EmuTime::param time);
 
 	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.
 	  */
-	void reset(const EmuTime& time);
+	void reset(EmuTime::param time);
 
 	/** Update sprite checking to specified time.
 	  * This includes a VRAM sync.
 	  * @param time The moment in emulated time to update to.
 	  */
-	inline void sync(const EmuTime& time) {
+	inline void sync(EmuTime::param time) {
 		if (mode0) return;
 		// Debug:
 		// This method is not re-entrant, so check explicitly that it is not
@@ -87,11 +87,11 @@ public:
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayMode(DisplayMode mode, const EmuTime& time) {
+	inline void updateDisplayMode(DisplayMode mode, EmuTime::param time) {
 		sync(time);
 		setDisplayMode(mode, time);
 	}
-	inline void setDisplayMode(DisplayMode mode, const EmuTime& time) {
+	inline void setDisplayMode(DisplayMode mode, EmuTime::param time) {
 		switch (mode.getSpriteMode()) {
 		case 0:
 			updateSpritesMethod = &SpriteChecker::updateSprites0;
@@ -125,7 +125,7 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayEnabled(bool enabled, const EmuTime& time) {
+	inline void updateDisplayEnabled(bool enabled, EmuTime::param time) {
 		enabled = enabled; // avoid warning
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
@@ -135,7 +135,7 @@ public:
 	  * @param enabled The new sprite enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpritesEnabled(bool enabled, const EmuTime& time) {
+	inline void updateSpritesEnabled(bool enabled, EmuTime::param time) {
 		enabled = enabled; // avoid warning
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
@@ -147,7 +147,7 @@ public:
 	  *   Bit 1 is size: 0 = 8x8, 1 = 16x16.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpriteSizeMag(byte sizeMag, const EmuTime& time) {
+	inline void updateSpriteSizeMag(byte sizeMag, EmuTime::param time) {
 		sizeMag = sizeMag; // avoid warning
 		sync(time);
 		// TODO: Precalc something?
@@ -157,7 +157,7 @@ public:
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateVerticalScroll(int scroll, const EmuTime& time) {
+	inline void updateVerticalScroll(int scroll, EmuTime::param time) {
 		scroll = scroll; // avoid warning
 		sync(time);
 		// TODO: Precalc something?
@@ -168,7 +168,7 @@ public:
 	  * It is not allowed to call this method in a spriteless display mode.
 	  * @param time The moment in emulated time to update to.
 	  */
-	inline void checkUntil(const EmuTime& time) {
+	inline void checkUntil(EmuTime::param time) {
 		// TODO:
 		// Currently the sprite checking is done atomically at the end of
 		// the display line. In reality, sprite checking is probably done
@@ -184,14 +184,14 @@ public:
 
 	/** Get X coordinate of sprite collision.
 	  */
-	inline int getCollisionX(const EmuTime& time) {
+	inline int getCollisionX(EmuTime::param time) {
 		sync(time);
 		return collisionX;
 	}
 
 	/** Get Y coordinate of sprite collision.
 	  */
-	inline int getCollisionY(const EmuTime& time) {
+	inline int getCollisionY(EmuTime::param time) {
 		sync(time);
 		return collisionY;
 	}
@@ -207,7 +207,7 @@ public:
 	/** Signals the start of a new frame.
 	  * @param time Moment in emulated time the new frame starts.
 	  */
-	inline void frameStart(const EmuTime& time) {
+	inline void frameStart(EmuTime::param time) {
 		frameStartTime.advance_fast(time);
 		currentLine = 0;
 		for (int i = 0; i < 313; i++) spriteCount[i] = 0;
@@ -217,7 +217,7 @@ public:
 	/** Signals the end of the current frame.
 	  * @param time Moment in emulated time the current frame ends.
 	  */
-	inline void frameEnd(const EmuTime& time) {
+	inline void frameEnd(EmuTime::param time) {
 		sync(time);
 	}
 
@@ -268,12 +268,12 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(unsigned offset, const EmuTime& time) {
+	void updateVRAM(unsigned offset, EmuTime::param time) {
 		offset = offset; // avoid warning
 		checkUntil(time);
 	}
 
-	void updateWindow(bool enabled, const EmuTime& time) {
+	void updateWindow(bool enabled, EmuTime::param time) {
 		enabled = enabled; // avoid warning
 		sync(time);
 	}

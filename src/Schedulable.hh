@@ -3,13 +3,13 @@
 #ifndef SCHEDULABLE_HH
 #define SCHEDULABLE_HH
 
+#include "EmuTime.hh"
 #include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
 
-class EmuTime;
 class Scheduler;
 
 /**
@@ -24,7 +24,7 @@ public:
 	 * method gets called. The parameter "userData" is the same
 	 * as passed to setSyncPoint().
 	 */
-	virtual void executeUntil(const EmuTime& time, int userData) = 0;
+	virtual void executeUntil(EmuTime::param time, int userData) = 0;
 
 	/**
 	 * Just before the the Scheduler is deleted, it calls this method of
@@ -48,7 +48,7 @@ public:
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */
-	const EmuTime& getCurrentTime() const;
+	EmuTime::param getCurrentTime() const;
 
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -57,7 +57,7 @@ protected:
 	explicit Schedulable(Scheduler& scheduler);
 	virtual ~Schedulable();
 
-	void setSyncPoint(const EmuTime& timestamp, int userData = 0);
+	void setSyncPoint(EmuTime::param timestamp, int userData = 0);
 	void removeSyncPoint(int userData = 0);
 	void removeSyncPoints();
 	bool pendingSyncPoint(int userData = 0);

@@ -39,7 +39,7 @@ public:
 	virtual bool isActive();
 	virtual void reset();
 	virtual void frameStart();
-	virtual void frameEnd(const EmuTime& time);
+	virtual void frameEnd(EmuTime::param time);
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
 	virtual void setColorMode(V9990ColorMode colorMode);
 	virtual void setPalette(int index, byte r, byte g, byte b);

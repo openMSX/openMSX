@@ -3,6 +3,7 @@
 #ifndef CPU_HH
 #define CPU_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "build-info.hh"
@@ -13,7 +14,6 @@
 
 namespace openmsx {
 
-class EmuTime;
 class TclObject;
 class BreakPoint;
 
@@ -341,18 +341,18 @@ public:
 	 * Sets the CPU its current time.
 	 * This is used to 'warp' a CPU when you switch between Z80/R800.
 	 */
-	virtual void warp(const EmuTime& time) = 0;
+	virtual void warp(EmuTime::param time) = 0;
 
 	/**
 	 * Returns the CPU its current time.
 	 */
-	virtual const EmuTime& getCurrentTime() const = 0;
+	virtual EmuTime::param getCurrentTime() const = 0;
 
 	/** Wait till an absolute moment in time (fast forward).
 	  * Synchronsization points between the current time and the specified
 	  * time do get executed.
 	  */
-	virtual void wait(const EmuTime& time) = 0;
+	virtual void wait(EmuTime::param time) = 0;
 
 	/** Wait for a number of cycles.
 	  * Can be used to insert an extra delay when accessing specific
@@ -362,7 +362,7 @@ public:
 
 	/** Inform CPU of new (possibly earlier) sync point.
 	 */
-	virtual void setNextSyncPoint(const EmuTime& time) = 0;
+	virtual void setNextSyncPoint(EmuTime::param time) = 0;
 
 	/**
 	 * Invalidate the CPU its cache for the interval

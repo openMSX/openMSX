@@ -3,12 +3,12 @@
 #ifndef MSXEVENTLISTENER_HH
 #define MSXEVENTLISTENER_HH
 
+#include "EmuTime.hh"
 #include "shared_ptr.hh"
 
 namespace openmsx {
 
 class Event;
-class EmuTime;
 
 class MSXEventListener
 {
@@ -18,7 +18,7 @@ public:
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
 	virtual void signalEvent(shared_ptr<const Event> event,
-	                         const EmuTime& time) = 0;
+	                         EmuTime::param time) = 0;
 
 protected:
 	MSXEventListener() {}

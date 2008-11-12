@@ -3,11 +3,10 @@
 #ifndef SERIALDATAINTERFACE_HH
 #define SERIALDATAINTERFACE_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
-
-class EmuTime;
 
 class SerialDataInterface
 {
@@ -27,7 +26,7 @@ public:
 	virtual void setDataBits(DataBits bits) = 0;
 	virtual void setStopBits(StopBits bits) = 0;
 	virtual void setParityBit(bool enable, ParityBit parity) = 0;
-	virtual void recvByte(byte value, const EmuTime& time) = 0;
+	virtual void recvByte(byte value, EmuTime::param time) = 0;
 };
 
 } // namespace openmsx

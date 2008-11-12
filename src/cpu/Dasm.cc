@@ -18,7 +18,7 @@ static int abs(unsigned char a)
 }
 
 unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
-              std::string& dest, const EmuTime& time)
+              std::string& dest, EmuTime::param time)
 {
 	const char* s;
 	unsigned i = 0;

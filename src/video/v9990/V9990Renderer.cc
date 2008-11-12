@@ -15,15 +15,15 @@ V9990Renderer::~V9990Renderer()
 {
 }
 
-void V9990Renderer::reset(const EmuTime& /*time*/)
+void V9990Renderer::reset(EmuTime::param /*time*/)
 {
 }
 
-void V9990Renderer::frameEnd(const EmuTime& /*time*/)
+void V9990Renderer::frameEnd(EmuTime::param /*time*/)
 {
 }
 
-void V9990Renderer::renderUntil(const EmuTime& /*time*/)
+void V9990Renderer::renderUntil(EmuTime::param /*time*/)
 {
 }
 

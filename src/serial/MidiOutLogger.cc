@@ -16,7 +16,7 @@ MidiOutLogger::MidiOutLogger(CommandController& commandController)
 }
 
 void MidiOutLogger::plugHelper(Connector& /*connector*/,
-                               const EmuTime& /*time*/)
+                               EmuTime::param /*time*/)
 {
 	file.open(logFilenameSetting->getValue().c_str());
 	if (file.fail()) {
@@ -25,7 +25,7 @@ void MidiOutLogger::plugHelper(Connector& /*connector*/,
 	}
 }
 
-void MidiOutLogger::unplugHelper(const EmuTime& /*time*/)
+void MidiOutLogger::unplugHelper(EmuTime::param /*time*/)
 {
 	file.close();
 }
@@ -45,7 +45,7 @@ const std::string& MidiOutLogger::getDescription() const
 	return desc;
 }
 
-void MidiOutLogger::recvByte(byte value, const EmuTime& /*time*/)
+void MidiOutLogger::recvByte(byte value, EmuTime::param /*time*/)
 {
 	if (file.is_open()) {
 		file.put(value);

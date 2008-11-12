@@ -14,8 +14,8 @@ public:
 	                   std::auto_ptr<Rom> rom);
 	virtual ~RomSuperLodeRunner();
 
-	virtual void reset(const EmuTime& time);
-	virtual void globalWrite(word address, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual void globalWrite(word address, byte value, EmuTime::param time);
 };
 
 } // namespace openmsx

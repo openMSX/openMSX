@@ -34,13 +34,13 @@ std::string MSXWatchIODevice::getName() const
 	return device->getName();
 }
 
-byte MSXWatchIODevice::peekIO(word port, const EmuTime& time) const
+byte MSXWatchIODevice::peekIO(word port, EmuTime::param time) const
 {
 	assert(device);
 	return device->peekIO(port, time);
 }
 
-byte MSXWatchIODevice::readIO(word port, const EmuTime& time)
+byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
 {
 	assert(device);
 	//std::cout << "Watch readIO " << port << std::endl;
@@ -49,7 +49,7 @@ byte MSXWatchIODevice::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-void MSXWatchIODevice::writeIO(word port, byte value, const EmuTime& time)
+void MSXWatchIODevice::writeIO(word port, byte value, EmuTime::param time)
 {
 	assert(device);
 	//std::cout << "Watch writeIO " << port << " " << value << std::endl;

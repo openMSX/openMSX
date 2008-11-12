@@ -62,7 +62,7 @@ public:
 private:
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
-	                         const EmuTime& time);
+	                         EmuTime::param time);
 
 	GlobalCommandController& globalCommandController;
 	MSXMotherBoard& motherboard;

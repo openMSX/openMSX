@@ -29,7 +29,7 @@ RomManbow2::~RomManbow2()
 {
 }
 
-void RomManbow2::reset(const EmuTime& time)
+void RomManbow2::reset(EmuTime::param time)
 {
 	for (int i = 0; i < 4; i++) {
 		setRom(i, i);
@@ -49,7 +49,7 @@ void RomManbow2::setRom(unsigned region, unsigned block)
 	invalidateMemCache(0x4000 + region * 0x2000, 0x2000);
 }
 
-byte RomManbow2::peek(word address, const EmuTime& time) const
+byte RomManbow2::peek(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->peekMem(address & 0xFF, time);
@@ -62,7 +62,7 @@ byte RomManbow2::peek(word address, const EmuTime& time) const
 	}
 }
 
-byte RomManbow2::readMem(word address, const EmuTime& time)
+byte RomManbow2::readMem(word address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->readMem(address & 0xFF, time);
@@ -88,7 +88,7 @@ const byte* RomManbow2::getReadCacheLine(word address) const
 	}
 }
 
-void RomManbow2::writeMem(word address, byte value, const EmuTime& time)
+void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC

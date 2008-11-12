@@ -58,7 +58,7 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+		EmuTime::param time, EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);

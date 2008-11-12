@@ -3,6 +3,7 @@
 #ifndef MSXEVENTDISTRIBUTOR_HH
 #define MSXEVENTDISTRIBUTOR_HH
 
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "shared_ptr.hh"
 #include <vector>
@@ -11,7 +12,6 @@ namespace openmsx {
 
 class MSXEventListener;
 class Event;
-class EmuTime;
 
 class MSXEventDistributor : private noncopyable
 {
@@ -40,7 +40,7 @@ public:
 	  *       method doesn't catch them (in case of an exception it's
 	  *       undefined which listeners receive the event)
 	  */
-	void distributeEvent(EventPtr event, const EmuTime& time);
+	void distributeEvent(EventPtr event, EmuTime::param time);
 
 private:
 	typedef std::vector<MSXEventListener*> Listeners;

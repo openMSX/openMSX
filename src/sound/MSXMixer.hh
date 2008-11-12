@@ -54,7 +54,7 @@ public:
 	 * Use this method to force an 'early' call to all
 	 * updateBuffer() methods.
 	 */
-	void updateStream(const EmuTime& time);
+	void updateStream(EmuTime::param time);
 
 	// TODO
 	void setSynchronousMode(bool synchronous);
@@ -100,12 +100,12 @@ private:
 	void updateVolumeParams(Infos::iterator it);
 	void updateMasterVolume();
 	void reInit();
-	void updateStream2(const EmuTime& time);
-	void generate(short* buffer, unsigned samples, const EmuTime& start,
-	              const EmuDuration& sampDur);
+	void updateStream2(EmuTime::param time);
+	void generate(short* buffer, unsigned samples, EmuTime::param start,
+	              EmuDuration::param sampDur);
 
 	// Schedulable
-	void executeUntil(const EmuTime& time, int userData);
+	void executeUntil(EmuTime::param time, int userData);
 	const std::string& schedName() const;
 
 	// Observer<Setting>

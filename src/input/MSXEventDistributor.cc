@@ -30,7 +30,7 @@ void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
 }
 
-void MSXEventDistributor::distributeEvent(EventPtr event, const EmuTime& time)
+void MSXEventDistributor::distributeEvent(EventPtr event, EmuTime::param time)
 {
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {

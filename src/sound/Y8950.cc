@@ -40,7 +40,7 @@ class Y8950Debuggable : public SimpleDebuggable
 public:
 	Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950Impl& y8950);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	Y8950Impl& y8950;
 };
@@ -143,14 +143,14 @@ public:
 	Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
 	          const std::string& name, const XMLElement& config,
 	          unsigned sampleRam, Y8950Periphery& perihery);
-	void init(const XMLElement& config, const EmuTime& time);
+	void init(const XMLElement& config, EmuTime::param time);
 	virtual ~Y8950Impl();
 
-	void setEnabled(bool enabled, const EmuTime& time);
-	void reset(const EmuTime& time);
-	void writeReg(byte reg, byte data, const EmuTime& time);
-	byte readReg(byte reg, const EmuTime& time);
-	byte peekReg(byte reg, const EmuTime& time) const;
+	void setEnabled(bool enabled, EmuTime::param time);
+	void reset(EmuTime::param time);
+	void writeReg(byte reg, byte data, EmuTime::param time);
+	byte readReg(byte reg, EmuTime::param time);
+	byte peekReg(byte reg, EmuTime::param time) const;
 	byte readStatus();
 	byte peekStatus() const;
 
@@ -166,7 +166,7 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& start, const EmuDuration& sampDur);
+		EmuTime::param start, EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
@@ -656,7 +656,7 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
 // method). Reason is that adpcm->reset() calls setStatus() via the Y8950
 // object, but before constructor is finished the pointer from Y8950 to
 // Y8950Impl is not yet initialized.
-void Y8950Impl::init(const XMLElement& config, const EmuTime& time)
+void Y8950Impl::init(const XMLElement& config, EmuTime::param time)
 {
 	makePmTable();
 	makeAmTable();
@@ -686,7 +686,7 @@ void Y8950Impl::setOutputRate(unsigned sampleRate)
 }
 
 // Reset whole of opl except patch datas.
-void Y8950Impl::reset(const EmuTime& time)
+void Y8950Impl::reset(EmuTime::param time)
 {
 	for (int i = 0; i < 9; ++i) {
 		ch[i].reset();
@@ -896,7 +896,7 @@ int Y8950Impl::getAmplificationFactor() const
 	return 1 << (15 - DB2LIN_AMP_BITS);
 }
 
-void Y8950Impl::setEnabled(bool enabled_, const EmuTime& time)
+void Y8950Impl::setEnabled(bool enabled_, EmuTime::param time)
 {
 	updateStream(time);
 	enabled = enabled_;
@@ -1008,7 +1008,7 @@ bool Y8950Impl::generateInput(int* buffer, unsigned num)
 }
 
 bool Y8950Impl::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -1017,7 +1017,7 @@ bool Y8950Impl::updateBuffer(unsigned length, int* buffer,
 // I/O Ctrl
 //
 
-void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
+void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 {
 	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
@@ -1261,7 +1261,7 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 	}
 }
 
-byte Y8950Impl::readReg(byte rg, const EmuTime& time)
+byte Y8950Impl::readReg(byte rg, EmuTime::param time)
 {
 	updateStream(time); // TODO only when necessary
 
@@ -1280,7 +1280,7 @@ byte Y8950Impl::readReg(byte rg, const EmuTime& time)
 	return result;
 }
 
-byte Y8950Impl::peekReg(byte rg, const EmuTime& time) const
+byte Y8950Impl::peekReg(byte rg, EmuTime::param time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
@@ -1427,7 +1427,7 @@ void Y8950Impl::serialize(Archive& ar, unsigned /*version*/)
 		15,      // dac13
 	};
 	if (ar.isLoader()) {
-		const EmuTime& time = motherBoard.getCurrentTime();
+		EmuTime::param time = motherBoard.getCurrentTime();
 		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
 			byte r = rewriteRegs[i];
 			writeReg(r, reg[r], time);
@@ -1450,7 +1450,7 @@ byte Y8950Debuggable::read(unsigned address)
 	return y8950.reg[address];
 }
 
-void Y8950Debuggable::write(unsigned address, byte value, const EmuTime& time)
+void Y8950Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	y8950.writeReg(address, value, time);
 }
@@ -1459,7 +1459,7 @@ void Y8950Debuggable::write(unsigned address, byte value, const EmuTime& time)
 // class Y8950
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-             const XMLElement& config, unsigned sampleRam, const EmuTime& time,
+             const XMLElement& config, unsigned sampleRam, EmuTime::param time,
              Y8950Periphery& perihery)
 	: pimple(new Y8950Impl(*this, motherBoard, name, config, sampleRam,
 	                       perihery))
@@ -1471,27 +1471,27 @@ Y8950::~Y8950()
 {
 }
 
-void Y8950::setEnabled(bool enabled, const EmuTime& time)
+void Y8950::setEnabled(bool enabled, EmuTime::param time)
 {
 	pimple->setEnabled(enabled, time);
 }
 
-void Y8950::reset(const EmuTime& time)
+void Y8950::reset(EmuTime::param time)
 {
 	pimple->reset(time);
 }
 
-void Y8950::writeReg(byte reg, byte data, const EmuTime& time)
+void Y8950::writeReg(byte reg, byte data, EmuTime::param time)
 {
 	pimple->writeReg(reg, data, time);
 }
 
-byte Y8950::readReg(byte reg, const EmuTime& time)
+byte Y8950::readReg(byte reg, EmuTime::param time)
 {
 	return pimple->readReg(reg, time);
 }
 
-byte Y8950::peekReg(byte reg, const EmuTime& time) const
+byte Y8950::peekReg(byte reg, EmuTime::param time) const
 {
 	return pimple->peekReg(reg, time);
 }

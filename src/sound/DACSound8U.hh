@@ -15,7 +15,7 @@ public:
 	DACSound8U(MSXMixer& mixer, const std::string& name,
 	           const std::string& desc, const XMLElement& config);
 
-	void writeDAC(byte value, const EmuTime& time);
+	void writeDAC(byte value, EmuTime::param time);
 };
 
 } // namespace openmsx

@@ -26,7 +26,7 @@ RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 	panasonicMemory.getRomBlock(baseAddr);
 }
 
-byte RomDRAM::readMem(word address, const EmuTime& /*time*/)
+byte RomDRAM::readMem(word address, EmuTime::param /*time*/)
 {
 	return *getReadCacheLine(address);
 }

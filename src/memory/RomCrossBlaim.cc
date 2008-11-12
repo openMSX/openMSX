@@ -31,12 +31,12 @@ RomCrossBlaim::RomCrossBlaim(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomCrossBlaim::reset(const EmuTime& dummy)
+void RomCrossBlaim::reset(EmuTime::param dummy)
 {
 	writeMem(0, 0, dummy);
 }
 
-void RomCrossBlaim::writeMem(word /*address*/, byte value, const EmuTime& /*time*/)
+void RomCrossBlaim::writeMem(word /*address*/, byte value, EmuTime::param /*time*/)
 {
 	switch (value & 3) {
 		case 0:

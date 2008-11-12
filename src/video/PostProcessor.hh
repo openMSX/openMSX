@@ -5,10 +5,10 @@
 
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
+#include "EmuTime.hh"
 
 namespace openmsx {
 
-class EmuTime;
 class Display;
 class RenderSettings;
 class VisibleSurface;
@@ -46,7 +46,7 @@ public:
 	  */
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field,
-		const EmuTime& time);
+		EmuTime::param time);
 
 	/** Start/stop recording.
 	  * @param recorder Finished frames should be pushed to this

@@ -25,9 +25,9 @@ public:
 	// AudioInputDevice
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
-	virtual short readSample(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
+	virtual short readSample(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

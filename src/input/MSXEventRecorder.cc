@@ -27,7 +27,7 @@ MSXEventRecorder::~MSXEventRecorder()
 }
 
 void MSXEventRecorder::signalEvent(shared_ptr<const Event> event,
-                                   const EmuTime& time)
+                                   EmuTime::param time)
 {
 	logFileStream << time << ' ' << event->toString() << std::endl;
 }

@@ -25,7 +25,7 @@ class CartCmd : public RecordedCommand
 public:
 	CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
 	        const std::string& commandName);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -263,7 +263,7 @@ const HardwareConfig* CartCmd::getExtensionConfig(const string& cartname)
 	return manager.slots[slot].config;
 }
 
-string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
 	string result;
 	string cartname = tokens[0];

@@ -17,17 +17,17 @@ MSXMultiDevice::MSXMultiDevice(MSXMotherBoard& motherboard)
 {
 }
 
-void MSXMultiDevice::reset(const EmuTime& /*time*/)
+void MSXMultiDevice::reset(EmuTime::param /*time*/)
 {
 	assert(false);
 }
 
-void MSXMultiDevice::powerUp(const EmuTime& /*time*/)
+void MSXMultiDevice::powerUp(EmuTime::param /*time*/)
 {
 	assert(false);
 }
 
-void MSXMultiDevice::powerDown(const EmuTime& /*time*/)
+void MSXMultiDevice::powerDown(EmuTime::param /*time*/)
 {
 	assert(false);
 }

@@ -11,12 +11,12 @@ MSXE6Timer::MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 }
 
-void MSXE6Timer::reset(const EmuTime& time)
+void MSXE6Timer::reset(EmuTime::param time)
 {
 	reference.advance(time);
 }
 
-void MSXE6Timer::writeIO(word /*port*/, byte /*value*/, const EmuTime& time)
+void MSXE6Timer::writeIO(word /*port*/, byte /*value*/, EmuTime::param time)
 {
 	/*
 	The Clock class rounds down time to its clock resolution.
@@ -36,12 +36,12 @@ void MSXE6Timer::writeIO(word /*port*/, byte /*value*/, const EmuTime& time)
 	reference.advance(time);
 }
 
-byte MSXE6Timer::readIO(word port, const EmuTime& time)
+byte MSXE6Timer::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXE6Timer::peekIO(word port, const EmuTime& time) const
+byte MSXE6Timer::peekIO(word port, EmuTime::param time) const
 {
 	int counter = reference.getTicksTill(time);
 	return (port & 1) ? ((counter >> 8) & 0xFF) : (counter & 0xFF);

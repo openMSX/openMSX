@@ -44,8 +44,8 @@ class MemoryDebug : public SimpleDebuggable
 public:
 	MemoryDebug(MSXCPUInterface& interface,
 	            MSXMotherBoard& motherBoard);
-	virtual byte read(unsigned address, const EmuTime& time);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	MSXCPUInterface& interface;
 };
@@ -55,8 +55,8 @@ class SlottedMemoryDebug : public SimpleDebuggable
 public:
 	SlottedMemoryDebug(MSXCPUInterface& interface,
 	                   MSXMotherBoard& motherBoard);
-	virtual byte read(unsigned address, const EmuTime& time);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	MSXCPUInterface& interface;
 };
@@ -66,8 +66,8 @@ class IODebug : public SimpleDebuggable
 public:
 	IODebug(MSXCPUInterface& interface,
 	        MSXMotherBoard& motherBoard);
-	virtual byte read(unsigned address, const EmuTime& time);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	MSXCPUInterface& interface;
 };
@@ -234,7 +234,7 @@ void MSXCPUInterface::removeAllWatchPoints()
 
 }
 
-byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)
+byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 {
 	// something special in this region?
 	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
@@ -251,7 +251,7 @@ byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)
 	}
 }
 
-void MSXCPUInterface::writeMemSlow(word address, byte value, const EmuTime& time)
+void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time)
 {
 	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
 		setSubSlot(primarySlotState[3], value);
@@ -598,7 +598,7 @@ void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 	}
 }
 
-byte MSXCPUInterface::peekMem(word address, const EmuTime& time) const
+byte MSXCPUInterface::peekMem(word address, EmuTime::param time) const
 {
 	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
@@ -607,7 +607,7 @@ byte MSXCPUInterface::peekMem(word address, const EmuTime& time) const
 	}
 }
 
-byte MSXCPUInterface::peekSlottedMem(unsigned address, const EmuTime& time) const
+byte MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime::param time) const
 {
 	byte primSlot = (address & 0xC0000) >> 18;
 	byte subSlot = (address & 0x30000) >> 16;
@@ -625,7 +625,7 @@ byte MSXCPUInterface::peekSlottedMem(unsigned address, const EmuTime& time) cons
 }
 
 void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
-                                      const EmuTime& time)
+                                      EmuTime::param time)
 {
 	byte primSlot = (address & 0xC0000) >> 18;
 	byte subSlot = (address & 0x30000) >> 16;
@@ -787,13 +787,13 @@ MemoryDebug::MemoryDebug(
 {
 }
 
-byte MemoryDebug::read(unsigned address, const EmuTime& time)
+byte MemoryDebug::read(unsigned address, EmuTime::param time)
 {
 	return interface.peekMem(address, time);
 }
 
 void MemoryDebug::write(unsigned address, byte value,
-                                         const EmuTime& time)
+                                         EmuTime::param time)
 {
 	return interface.writeMem(address, value, time);
 }
@@ -809,13 +809,13 @@ SlottedMemoryDebug::SlottedMemoryDebug(
 {
 }
 
-byte SlottedMemoryDebug::read(unsigned address, const EmuTime& time)
+byte SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
 {
 	return interface.peekSlottedMem(address, time);
 }
 
 void SlottedMemoryDebug::write(unsigned address, byte value,
-                                                const EmuTime& time)
+                                                EmuTime::param time)
 {
 	return interface.writeSlottedMem(address, value, time);
 }
@@ -929,12 +929,12 @@ IODebug::IODebug(MSXCPUInterface& interface_,
 {
 }
 
-byte IODebug::read(unsigned address, const EmuTime& time)
+byte IODebug::read(unsigned address, EmuTime::param time)
 {
 	return interface.IO_In[address & 0xFF]->peekIO(address, time);
 }
 
-void IODebug::write(unsigned address, byte value, const EmuTime& time)
+void IODebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	interface.writeIO(word(address), value, time);
 }

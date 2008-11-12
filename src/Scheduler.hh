@@ -16,12 +16,12 @@ class MSXCPU;
 class SynchronizationPoint
 {
 public:
-	SynchronizationPoint(const EmuTime& time,
+	SynchronizationPoint(EmuTime::param time,
 			     Schedulable* dev, int usrdat)
 		: timeStamp(time), device(dev), userData(usrdat) {}
 	SynchronizationPoint()
 		: timeStamp(EmuTime::zero), device(0), userData(0) {}
-	const EmuTime& getTime() const { return timeStamp; }
+	EmuTime::param getTime() const { return timeStamp; }
 	Schedulable* getDevice() const { return device; }
 	int getUserData() const { return userData; }
 
@@ -51,12 +51,12 @@ public:
 	/**
 	 * Get the current scheduler time.
 	 */
-	const EmuTime& getCurrentTime() const;
+	EmuTime::param getCurrentTime() const;
 
 	/**
 	 * TODO
 	 */
-	inline const EmuTime& getNext() const
+	inline EmuTime::param getNext() const
 	{
 		return syncPoints.front().getTime();
 	}
@@ -64,7 +64,7 @@ public:
 	/**
 	 * Schedule till a certain moment in time.
 	 */
-	inline void schedule(const EmuTime& limit)
+	inline void schedule(EmuTime::param limit)
 	{
 		if (unlikely(limit >= getNext())) {
 			scheduleHelper(limit); // slow path not inlined
@@ -92,7 +92,7 @@ private: // -> intended for Schedulable
 	 * if you want to distinguish between several syncPoint types.
 	 * If you do not supply "userData" it is assumed to be zero.
 	 */
-	void setSyncPoint(const EmuTime& timestamp, Schedulable& device,
+	void setSyncPoint(EmuTime::param timestamp, Schedulable& device,
 	                  int userData = 0);
 
 	void getSyncPoints(SyncPoints& result, const Schedulable& device) const;
@@ -116,7 +116,7 @@ private: // -> intended for Schedulable
 	bool pendingSyncPoint(Schedulable& device, int userdata = 0);
 
 private:
-	void scheduleHelper(const EmuTime& limit);
+	void scheduleHelper(EmuTime::param limit);
 
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.

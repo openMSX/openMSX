@@ -69,7 +69,7 @@ public:
 	            MSXEventDistributor& msxEventDistributor,
 	            Scheduler& scheduler,
 	            CassettePlayer& cassettePlayer);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -193,13 +193,13 @@ bool CassettePlayer::isRolling() const
 	return (getState() != STOP) && (motor || !motorControl);
 }
 
-double CassettePlayer::getTapePos(const EmuTime& time)
+double CassettePlayer::getTapePos(EmuTime::param time)
 {
 	sync(time);
 	return (tapePos - EmuTime::zero).toDouble();
 }
 
-double CassettePlayer::getTapeLength(const EmuTime& time)
+double CassettePlayer::getTapeLength(EmuTime::param time)
 {
 	if (playImage.get()) {
 		return (playImage->getEndTime() - EmuTime::zero).toDouble();
@@ -238,7 +238,7 @@ void CassettePlayer::checkInvariants() const
 }
 
 void CassettePlayer::setState(State newState, const Filename& newImage,
-                              const EmuTime& time)
+                              EmuTime::param time)
 {
 	sync(time);
 
@@ -281,7 +281,7 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 	checkInvariants();
 }
 
-void CassettePlayer::updateLoadingState(const EmuTime& time)
+void CassettePlayer::updateLoadingState(EmuTime::param time)
 {
 	// TODO also set loadingIndicator for RECORD?
 	// note: we don't use isRolling()
@@ -334,7 +334,7 @@ void CassettePlayer::insertTape(const Filename& filename)
 	setImageName(filename);
 }
 
-void CassettePlayer::playTape(const Filename& filename, const EmuTime& time)
+void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
 {
 	if (getState() == RECORD) {
 		// First close the recorded image. Otherwise it goes wrong
@@ -347,7 +347,7 @@ void CassettePlayer::playTape(const Filename& filename, const EmuTime& time)
 	setOutputRate(outputRate); // recalculate resample stuff
 }
 
-void CassettePlayer::rewind(const EmuTime& time)
+void CassettePlayer::rewind(EmuTime::param time)
 {
 	assert(getState() != RECORD);
 	tapePos = EmuTime::zero;
@@ -362,7 +362,7 @@ void CassettePlayer::rewind(const EmuTime& time)
 	}
 }
 
-void CassettePlayer::recordTape(const Filename& filename, const EmuTime& time)
+void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 {
 	removeTape(time); // flush (possible) previous recording
 	recordImage.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
@@ -370,14 +370,14 @@ void CassettePlayer::recordTape(const Filename& filename, const EmuTime& time)
 	setState(RECORD, filename, time);
 }
 
-void CassettePlayer::removeTape(const EmuTime& time)
+void CassettePlayer::removeTape(EmuTime::param time)
 {
 	playImage.reset();
 	tapePos = EmuTime::zero;
 	setState(STOP, Filename(), time);
 }
 
-void CassettePlayer::setMotor(bool status, const EmuTime& time)
+void CassettePlayer::setMotor(bool status, EmuTime::param time)
 {
 	if (status != motor) {
 		sync(time);
@@ -386,7 +386,7 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 	}
 }
 
-void CassettePlayer::setMotorControl(bool status, const EmuTime& time)
+void CassettePlayer::setMotorControl(bool status, EmuTime::param time)
 {
 	if (status != motorControl) {
 		sync(time);
@@ -395,7 +395,7 @@ void CassettePlayer::setMotorControl(bool status, const EmuTime& time)
 	}
 }
 
-short CassettePlayer::readSample(const EmuTime& time)
+short CassettePlayer::readSample(EmuTime::param time)
 {
 	if (getState() == PLAY) {
 		// playing
@@ -407,13 +407,13 @@ short CassettePlayer::readSample(const EmuTime& time)
 	}
 }
 
-void CassettePlayer::setSignal(bool output, const EmuTime& time)
+void CassettePlayer::setSignal(bool output, EmuTime::param time)
 {
 	sync(time);
 	lastOutput = output;
 }
 
-void CassettePlayer::sync(const EmuTime& time)
+void CassettePlayer::sync(EmuTime::param time)
 {
 	EmuDuration duration = time - prevSyncTime;
 	prevSyncTime = time;
@@ -423,7 +423,7 @@ void CassettePlayer::sync(const EmuTime& time)
 }
 
 void CassettePlayer::updateTapePosition(
-	const EmuDuration& duration, const EmuTime& time)
+	EmuDuration::param duration, EmuTime::param time)
 {
 	if (!isRolling()) return;
 
@@ -439,7 +439,7 @@ void CassettePlayer::updateTapePosition(
 	}
 }
 
-void CassettePlayer::generateRecordOutput(const EmuDuration& duration)
+void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 {
 	if (!recordImage.get() || !isRolling()) return;
 
@@ -515,13 +515,13 @@ const string& CassettePlayer::getDescription() const
 	return desc;
 }
 
-void CassettePlayer::plugHelper(Connector& connector, const EmuTime& time)
+void CassettePlayer::plugHelper(Connector& connector, EmuTime::param time)
 {
 	sync(time);
 	lastOutput = static_cast<CassettePort&>(connector).lastOut();
 }
 
-void CassettePlayer::unplugHelper(const EmuTime& time)
+void CassettePlayer::unplugHelper(EmuTime::param time)
 {
 	setState(STOP, getImageName(), time); // keep current image
 }
@@ -555,7 +555,7 @@ bool CassettePlayer::generateInput(int* buffer, unsigned num)
 }
 
 bool CassettePlayer::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -583,7 +583,7 @@ const std::string& CassettePlayer::schedName() const
 	return schedName;
 }
 
-void CassettePlayer::executeUntil(const EmuTime& time, int userData)
+void CassettePlayer::executeUntil(EmuTime::param time, int userData)
 {
 	switch (userData) {
 	case END_OF_TAPE:
@@ -621,7 +621,7 @@ TapeCommand::TapeCommand(CommandController& commandController,
 {
 }
 
-string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
+string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 {
 	string result;
 	if (tokens.size() == 1) {

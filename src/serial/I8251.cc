@@ -51,13 +51,13 @@ enum SyncPointType {
 };
 
 
-I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, const EmuTime& time)
+I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, EmuTime::param time)
 	: Schedulable(scheduler), interf(interf_), clock(scheduler)
 {
 	reset(time);
 }
 
-void I8251::reset(const EmuTime& time)
+void I8251::reset(EmuTime::param time)
 {
 	// initialize these to avoid UMR on savestate
 	//   TODO investigate correct initial state after reset
@@ -79,7 +79,7 @@ void I8251::reset(const EmuTime& time)
 	cmdFaze = FAZE_MODE;
 }
 
-byte I8251::readIO(word port, const EmuTime& time)
+byte I8251::readIO(word port, EmuTime::param time)
 {
 	byte result;
 	switch (port & 1) {
@@ -97,7 +97,7 @@ byte I8251::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte I8251::peekIO(word port, const EmuTime& /*time*/) const
+byte I8251::peekIO(word port, EmuTime::param /*time*/) const
 {
 	byte result;
 	switch (port & 1) {
@@ -115,7 +115,7 @@ byte I8251::peekIO(word port, const EmuTime& /*time*/) const
 }
 
 
-void I8251::writeIO(word port, byte value, const EmuTime& time)
+void I8251::writeIO(word port, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("I8251: write " << (int)port << " " << (int)value);
 	switch (port & 1) {
@@ -232,7 +232,7 @@ void I8251::setMode(byte value)
 	               unsigned(stopBits)) * baudrate) / 2;
 }
 
-void I8251::writeCommand(byte value, const EmuTime& time)
+void I8251::writeCommand(byte value, EmuTime::param time)
 {
 	byte oldCommand = command;
 	command = value;
@@ -272,7 +272,7 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 	}
 }
 
-byte I8251::readStatus(const EmuTime& time)
+byte I8251::readStatus(EmuTime::param time)
 {
 	byte result = status;
 	if (interf.getDSR(time)) {
@@ -281,14 +281,14 @@ byte I8251::readStatus(const EmuTime& time)
 	return result;
 }
 
-byte I8251::readTrans(const EmuTime& time)
+byte I8251::readTrans(EmuTime::param time)
 {
 	status &= ~STAT_RXRDY;
 	interf.setRxRDY(false, time);
 	return recvBuf;
 }
 
-void I8251::writeTrans(byte value, const EmuTime& time)
+void I8251::writeTrans(byte value, EmuTime::param time)
 {
 	if (!(command & CMD_TXEN)) {
 		return;
@@ -324,7 +324,7 @@ void I8251::setParityBit(bool enable, ParityBit parity)
 	recvParityBit = parity;
 }
 
-void I8251::recvByte(byte value, const EmuTime& time)
+void I8251::recvByte(byte value, EmuTime::param time)
 {
 	// TODO STAT_PE / STAT_FE / STAT_SYNBRK
 	assert(recvReady && (command & CMD_RXE));
@@ -351,7 +351,7 @@ bool I8251::isRecvEnabled()
 	return command & CMD_RXE;
 }
 
-void I8251::send(byte value, const EmuTime& time)
+void I8251::send(byte value, EmuTime::param time)
 {
 	status &= ~STAT_TXEMPTY;
 	sendByte = value;
@@ -361,7 +361,7 @@ void I8251::send(byte value, const EmuTime& time)
 	}
 }
 
-void I8251::executeUntil(const EmuTime& time, int userData)
+void I8251::executeUntil(EmuTime::param time, int userData)
 {
 	switch (userData) {
 	case RECV:

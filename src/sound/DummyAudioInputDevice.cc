@@ -11,15 +11,15 @@ const std::string& DummyAudioInputDevice::getDescription() const
 }
 
 void DummyAudioInputDevice::plugHelper(Connector& /*connector*/,
-                                       const EmuTime& /*time*/)
+                                       EmuTime::param /*time*/)
 {
 }
 
-void DummyAudioInputDevice::unplugHelper(const EmuTime& /*time*/)
+void DummyAudioInputDevice::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
-short DummyAudioInputDevice::readSample(const EmuTime& /*time*/)
+short DummyAudioInputDevice::readSample(EmuTime::param /*time*/)
 {
 	return 0; // silence
 }

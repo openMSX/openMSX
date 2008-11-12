@@ -34,13 +34,13 @@ RomAscii16_2::~RomAscii16_2()
 {
 }
 
-void RomAscii16_2::reset(const EmuTime& dummy)
+void RomAscii16_2::reset(EmuTime::param dummy)
 {
 	sramEnabled = 0;
 	RomAscii16kB::reset(dummy);
 }
 
-byte RomAscii16_2::readMem(word address, const EmuTime& time)
+byte RomAscii16_2::readMem(word address, EmuTime::param time)
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
 		return (*sram)[address & 0x07FF];
@@ -58,7 +58,7 @@ const byte* RomAscii16_2::getReadCacheLine(word address) const
 	}
 }
 
-void RomAscii16_2::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomAscii16_2::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		// bank switch

@@ -44,7 +44,7 @@ V9990PixelRenderer::~V9990PixelRenderer()
 	renderSettings.getMinFrameSkip().detach(*this);
 }
 
-void V9990PixelRenderer::reset(const EmuTime& time)
+void V9990PixelRenderer::reset(EmuTime::param time)
 {
 	displayEnabled = vdp.isDisplayEnabled();
 	setDisplayMode(vdp.getDisplayMode(), time);
@@ -53,7 +53,7 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 	rasterizer->reset();
 }
 
-void V9990PixelRenderer::frameStart(const EmuTime& time)
+void V9990PixelRenderer::frameStart(EmuTime::param time)
 {
 	if (!rasterizer->isActive()) {
 		frameSkipCounter = 999;
@@ -100,7 +100,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 	rasterizer->frameStart();
 }
 
-void V9990PixelRenderer::frameEnd(const EmuTime& time)
+void V9990PixelRenderer::frameEnd(EmuTime::param time)
 {
 	bool skipEvent = !drawFrame;
 	if (drawFrame) {
@@ -128,7 +128,7 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 		new FinishFrameEvent(VIDEO_GFX9000, skipEvent));
 }
 
-void V9990PixelRenderer::sync(const EmuTime& time, bool force)
+void V9990PixelRenderer::sync(EmuTime::param time, bool force)
 {
 	if (!drawFrame) return;
 
@@ -138,7 +138,7 @@ void V9990PixelRenderer::sync(const EmuTime& time, bool force)
 	}
 }
 
-void V9990PixelRenderer::renderUntil(const EmuTime& time)
+void V9990PixelRenderer::renderUntil(EmuTime::param time)
 {
 	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
 
@@ -244,20 +244,20 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 	}
 }
 
-void V9990PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
+void V9990PixelRenderer::updateDisplayEnabled(bool enabled, EmuTime::param time)
 {
 	sync(time, true);
 	displayEnabled = enabled;
 }
 
-void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& time)
+void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, EmuTime::param time)
 {
 	sync(time);
 	rasterizer->setDisplayMode(mode);
 }
 
 void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b,
-                                       const EmuTime& time)
+                                       EmuTime::param time)
 {
 	if (displayEnabled) {
 		sync(time);
@@ -267,27 +267,27 @@ void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b,
 	}
 	rasterizer->setPalette(index, r, g, b);
 }
-void V9990PixelRenderer::setColorMode(V9990ColorMode mode, const EmuTime& time)
+void V9990PixelRenderer::setColorMode(V9990ColorMode mode, EmuTime::param time)
 {
 	sync(time);
 	rasterizer->setColorMode(mode);
 }
 
-void V9990PixelRenderer::updateBackgroundColor(int /*index*/, const EmuTime& time)
+void V9990PixelRenderer::updateBackgroundColor(int /*index*/, EmuTime::param time)
 {
 	sync(time);
 }
 
-void V9990PixelRenderer::updateScrollAX(const EmuTime& time)
+void V9990PixelRenderer::updateScrollAX(EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
-void V9990PixelRenderer::updateScrollBX(const EmuTime& time)
+void V9990PixelRenderer::updateScrollBX(EmuTime::param time)
 {
 	// TODO only in P1 mode
 	if (displayEnabled) sync(time);
 }
-void V9990PixelRenderer::updateScrollAYLow(const EmuTime& time)
+void V9990PixelRenderer::updateScrollAYLow(EmuTime::param time)
 {
 	if (displayEnabled) {
 		sync(time);
@@ -296,7 +296,7 @@ void V9990PixelRenderer::updateScrollAYLow(const EmuTime& time)
 		verticalOffsetA = lastY;
 	}
 }
-void V9990PixelRenderer::updateScrollBYLow(const EmuTime& time)
+void V9990PixelRenderer::updateScrollBYLow(EmuTime::param time)
 {
 	// TODO only in P1 mode
 	if (displayEnabled) {

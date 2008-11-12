@@ -10,7 +10,7 @@ DummyDevice::DummyDevice(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 }
 
-void DummyDevice::reset(const EmuTime& /*time*/)
+void DummyDevice::reset(EmuTime::param /*time*/)
 {
 	// Block usage
 	assert(false);

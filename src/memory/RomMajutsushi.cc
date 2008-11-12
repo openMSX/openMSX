@@ -24,13 +24,13 @@ RomMajutsushi::~RomMajutsushi()
 {
 }
 
-void RomMajutsushi::reset(const EmuTime& time)
+void RomMajutsushi::reset(EmuTime::param time)
 {
 	RomKonami::reset(time);
 	dac->reset(time);
 }
 
-void RomMajutsushi::writeMem(word address, byte value, const EmuTime& time)
+void RomMajutsushi::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (0x5000 <= address && address < 0x6000) {
 		dac->writeDAC(value, time);

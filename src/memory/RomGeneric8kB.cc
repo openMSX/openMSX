@@ -14,7 +14,7 @@ RomGeneric8kB::RomGeneric8kB(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomGeneric8kB::reset(const EmuTime& /*time*/)
+void RomGeneric8kB::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -25,7 +25,7 @@ void RomGeneric8kB::reset(const EmuTime& /*time*/)
 	setBank(7, unmappedRead);
 }
 
-void RomGeneric8kB::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomGeneric8kB::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	setRom(address >> 13, value);
 }

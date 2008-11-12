@@ -33,7 +33,7 @@ RomBlocks<BANK_SIZE>::~RomBlocks()
 }
 
 template <unsigned BANK_SIZE>
-byte RomBlocks<BANK_SIZE>::readMem(word address, const EmuTime& /*time*/)
+byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param /*time*/)
 {
 	return bank[address / BANK_SIZE][address & BANK_MASK];
 }

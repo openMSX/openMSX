@@ -28,11 +28,11 @@ public:
 	virtual ~EventDelay();
 
 	void queueEvent(EventPtr event);
-	void sync(const EmuTime& time);
+	void sync(EmuTime::param time);
 
 private:
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	MSXEventDistributor& eventDistributor;

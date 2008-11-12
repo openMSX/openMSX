@@ -149,7 +149,7 @@ bool SamplePlayer::generateInput(int* buffer, unsigned num)
 }
 
 bool SamplePlayer::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }

@@ -206,7 +206,7 @@ void GLPostProcessor::paint()
 
 RawFrame* GLPostProcessor::rotateFrames(
 	RawFrame* finishedFrame, FrameSource::FieldType field,
-	const EmuTime& time)
+	EmuTime::param time)
 {
 	RawFrame* reuseFrame =
 		PostProcessor::rotateFrames(finishedFrame, field, time);

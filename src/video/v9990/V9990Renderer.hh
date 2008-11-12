@@ -4,11 +4,10 @@
 #define V9990RENDERER_HH
 
 #include "V9990ModeEnum.hh"
+#include "EmuTime.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
-
-class EmuTime;
 
 /** Abstract base class for V9990 renderers.
   * A V9990Renderer is a class that covnerts the V9990 state into
@@ -24,7 +23,7 @@ public:
 	/** Re-initialise the V9990Renderer's state.
 	  * @param time The moment in emulated time this reset occurs.
 	  */
-	virtual void reset(const EmuTime& time) = 0;
+	virtual void reset(EmuTime::param time) = 0;
 
 	/** Signal the start of a new frame.
 	  * The V9990Renderer can use this to get fixed-per-frame
@@ -33,17 +32,17 @@ public:
 	  * - MCLK/XTAL selection
 	  * @param time The moment in emulated time the frame starts.
 	  */
-	virtual void frameStart(const EmuTime& time) = 0;
+	virtual void frameStart(EmuTime::param time) = 0;
 
 	/** Signal the end of the current frame.
 	  * @param time The moment in emulated time the frame ends.
 	  */
-	virtual void frameEnd(const EmuTime& time) = 0;
+	virtual void frameEnd(EmuTime::param time) = 0;
 
 	/** Render until the given point in emulated time
 	  * @param time The moment in emulated time the frame ends.
 	  */
-	virtual void renderUntil(const EmuTime& time) = 0;
+	virtual void renderUntil(EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP display enabled change.
 	 *  Both the regular border start/end and forced blanking by clearing
@@ -51,33 +50,33 @@ public:
 	 *  @param enabled The new display enabled state.
 	 *  @param time The moment in emulated time this change occurs.
 	 */
-	virtual void updateDisplayEnabled(bool enabled, const EmuTime& time) = 0;
+	virtual void updateDisplayEnabled(bool enabled, EmuTime::param time) = 0;
 
 	/** Set screen mode
 	  */
 	virtual void setDisplayMode(V9990DisplayMode mode,
-	                            const EmuTime& time) = 0;
+	                            EmuTime::param time) = 0;
 
 	/** Set color mode
 	  */
 	virtual void setColorMode(V9990ColorMode mode,
-	                          const EmuTime& time) = 0;
+	                          EmuTime::param time) = 0;
 
 	/** Set a palette entry
 	  */
 	virtual void updatePalette(int index, byte r, byte g, byte b,
-	                        const EmuTime& time) = 0;
+	                        EmuTime::param time) = 0;
 
 	/** Set background color
 	  */
-	virtual void updateBackgroundColor(int index, const EmuTime& time) = 0;
+	virtual void updateBackgroundColor(int index, EmuTime::param time) = 0;
 
 	/** Set scroll register
 	 */
-	virtual void updateScrollAX(const EmuTime& time) = 0;
-	virtual void updateScrollBX(const EmuTime& time) = 0;
-	virtual void updateScrollAYLow(const EmuTime& time) = 0;
-	virtual void updateScrollBYLow(const EmuTime& time) = 0;
+	virtual void updateScrollAX(EmuTime::param time) = 0;
+	virtual void updateScrollBX(EmuTime::param time) = 0;
+	virtual void updateScrollAYLow(EmuTime::param time) = 0;
+	virtual void updateScrollBYLow(EmuTime::param time) = 0;
 
 protected:
 	V9990Renderer();

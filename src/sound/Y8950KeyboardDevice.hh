@@ -18,7 +18,7 @@ public:
 	 * A 1-bit means corresponding row is selected ( 0V)
 	 *   0-bit                        not selected (+5V)
 	 */
-	virtual void write(byte data, const EmuTime& time) = 0;
+	virtual void write(byte data, EmuTime::param time) = 0;
 
 	/**
 	 * Read data from the device.
@@ -27,7 +27,7 @@ public:
 	 * A 0-bit means corresponding key is pressed
 	 *   1-bit                        not pressed
 	 */
-	virtual byte read(const EmuTime& time) = 0;
+	virtual byte read(EmuTime::param time) = 0;
 
 	// pluggable
 	virtual const std::string& getClass() const;

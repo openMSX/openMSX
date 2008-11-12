@@ -19,15 +19,15 @@ static const byte RB_COUNT  = 0x20;
 class Counter {
 public:
 	Counter(Scheduler& scheduler, ClockPinListener* listener,
-		const EmuTime& time);
-	void reset(const EmuTime& time);
-	byte readIO(const EmuTime& time);
-	byte peekIO(const EmuTime& time) const;
-	void writeIO(word value, const EmuTime& time);
-	void setGateStatus(bool status, const EmuTime& time);
-	void writeControlWord(byte value, const EmuTime& time);
-	void latchStatus(const EmuTime& time);
-	void latchCounter(const EmuTime& time);
+		EmuTime::param time);
+	void reset(EmuTime::param time);
+	byte readIO(EmuTime::param time);
+	byte peekIO(EmuTime::param time) const;
+	void writeIO(word value, EmuTime::param time);
+	void setGateStatus(bool status, EmuTime::param time);
+	void writeControlWord(byte value, EmuTime::param time);
+	void latchStatus(EmuTime::param time);
+	void latchCounter(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -51,8 +51,8 @@ private:
 	static const byte CNTR_M2_  = 0x0C;
 	static const byte CNTR_M3_  = 0x0E;
 
-	void writeLoad(word value, const EmuTime& time);
-	void advance(const EmuTime& time);
+	void writeLoad(word value, EmuTime::param time);
+	void advance(EmuTime::param time);
 
 	ClockPin clock;
 	ClockPin output;
@@ -74,7 +74,7 @@ private:
 
 I8254::I8254(Scheduler& scheduler, ClockPinListener* output0,
              ClockPinListener* output1, ClockPinListener* output2,
-             const EmuTime& time)
+             EmuTime::param time)
 {
 	counter[0].reset(new Counter(scheduler, output0, time));
 	counter[1].reset(new Counter(scheduler, output1, time));
@@ -85,14 +85,14 @@ I8254::~I8254()
 {
 }
 
-void I8254::reset(const EmuTime& time)
+void I8254::reset(EmuTime::param time)
 {
 	for (int i = 0; i < 3; ++i) {
 		counter[i]->reset(time);
 	}
 }
 
-byte I8254::readIO(word port, const EmuTime& time)
+byte I8254::readIO(word port, EmuTime::param time)
 {
 	port &= 3;
 	switch (port) {
@@ -106,7 +106,7 @@ byte I8254::readIO(word port, const EmuTime& time)
 	}
 }
 
-byte I8254::peekIO(word port, const EmuTime& time) const
+byte I8254::peekIO(word port, EmuTime::param time) const
 {
 	port &= 3;
 	switch (port) {
@@ -120,7 +120,7 @@ byte I8254::peekIO(word port, const EmuTime& time) const
 	}
 }
 
-void I8254::writeIO(word port, byte value, const EmuTime& time)
+void I8254::writeIO(word port, byte value, EmuTime::param time)
 {
 	port &= 3;
 	switch (port) {
@@ -151,7 +151,7 @@ void I8254::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-void I8254::readBackHelper(byte value, unsigned cntr, const EmuTime& time)
+void I8254::readBackHelper(byte value, unsigned cntr, EmuTime::param time)
 {
 	assert(cntr < 3);
 	if (!(value & RB_STATUS)) {
@@ -162,7 +162,7 @@ void I8254::readBackHelper(byte value, unsigned cntr, const EmuTime& time)
 	}
 }
 
-void I8254::setGate(unsigned cntr, bool status, const EmuTime& time)
+void I8254::setGate(unsigned cntr, bool status, EmuTime::param time)
 {
 	assert(cntr < 3);
 	counter[cntr]->setGateStatus(status, time);
@@ -184,7 +184,7 @@ ClockPin& I8254::getOutputPin(unsigned cntr)
 // class Counter
 
 Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
-                        const EmuTime& time)
+                        EmuTime::param time)
 	: clock(scheduler), output(scheduler, listener)
 	, currentTime(time)
 {
@@ -194,7 +194,7 @@ Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
 	reset(time);
 }
 
-void Counter::reset(const EmuTime& time)
+void Counter::reset(EmuTime::param time)
 {
 	currentTime = time;
 	ltchCtrl = false;
@@ -212,7 +212,7 @@ void Counter::reset(const EmuTime& time)
 	writeLatch = 0;
 }
 
-byte Counter::readIO(const EmuTime& time)
+byte Counter::readIO(EmuTime::param time)
 {
 	if (ltchCtrl) {
 		ltchCtrl = false;
@@ -244,7 +244,7 @@ byte Counter::readIO(const EmuTime& time)
 	}
 }
 
-byte Counter::peekIO(const EmuTime& time) const
+byte Counter::peekIO(EmuTime::param time) const
 {
 	if (ltchCtrl) {
 		return latchedControl;
@@ -272,7 +272,7 @@ byte Counter::peekIO(const EmuTime& time) const
 	}
 }
 
-void Counter::writeIO(word value, const EmuTime& time)
+void Counter::writeIO(word value, EmuTime::param time)
 {
 	advance(time);
 	switch (control & WRT_FRMT) {
@@ -301,7 +301,7 @@ void Counter::writeIO(word value, const EmuTime& time)
 		assert(false);
 	}
 }
-void Counter::writeLoad(word value, const EmuTime& time)
+void Counter::writeLoad(word value, EmuTime::param time)
 {
 	counterLoad = value;
 	byte mode = control & CNTR_MODE;
@@ -312,7 +312,7 @@ void Counter::writeLoad(word value, const EmuTime& time)
 	                 (mode == CNTR_M3) || (mode == CNTR_M3_))) {
 		if (clock.isPeriodic()) {
 			counter = counterLoad;
-			const EmuDuration& high = clock.getTotalDuration();
+			EmuDuration::param high = clock.getTotalDuration();
 			EmuDuration total = high * counter;
 			output.setPeriodicState(total, high, time);
 		} else {
@@ -325,7 +325,7 @@ void Counter::writeLoad(word value, const EmuTime& time)
 	active = true; // counter is (re)armed after counter is initialized
 }
 
-void Counter::writeControlWord(byte value, const EmuTime& time)
+void Counter::writeControlWord(byte value, EmuTime::param time)
 {
 	advance(time);
 	if ((value & WRT_FRMT) == 0) {
@@ -356,7 +356,7 @@ void Counter::writeControlWord(byte value, const EmuTime& time)
 	}
 }
 
-void Counter::latchStatus(const EmuTime& time)
+void Counter::latchStatus(EmuTime::param time)
 {
 	advance(time);
 	if (!ltchCtrl) {
@@ -366,7 +366,7 @@ void Counter::latchStatus(const EmuTime& time)
 	}
 }
 
-void Counter::latchCounter(const EmuTime& time)
+void Counter::latchCounter(EmuTime::param time)
 {
 	advance(time);
 	if (!ltchCntr) {
@@ -376,7 +376,7 @@ void Counter::latchCounter(const EmuTime& time)
 	}
 }
 
-void Counter::setGateStatus(bool newStatus, const EmuTime& time)
+void Counter::setGateStatus(bool newStatus, EmuTime::param time)
 {
 	advance(time);
 	if (gate != newStatus) {
@@ -400,7 +400,7 @@ void Counter::setGateStatus(bool newStatus, const EmuTime& time)
 			if (gate) {
 				if (clock.isPeriodic()) {
 					counter = counterLoad;
-					const EmuDuration& high = clock.getTotalDuration();
+					EmuDuration::param high = clock.getTotalDuration();
 					EmuDuration total = high * counter;
 					output.setPeriodicState(total, high, time);
 				} else {
@@ -423,7 +423,7 @@ void Counter::setGateStatus(bool newStatus, const EmuTime& time)
 	}
 }
 
-void Counter::advance(const EmuTime& time)
+void Counter::advance(EmuTime::param time)
 {
 	// TODO !!!! Set SP !!!!
 	// TODO BCD counting

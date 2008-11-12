@@ -18,17 +18,17 @@ public:
 	MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXYamahaSFG();
 
-	virtual void reset(const EmuTime& time);
-	virtual byte readMem(word address, const EmuTime& time);
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual byte readMem(word address, EmuTime::param time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual byte readIRQVector();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void writeRegisterPort(byte value, const EmuTime& time);
-	void writeDataPort(byte value, const EmuTime& time);
+	void writeRegisterPort(byte value, EmuTime::param time);
+	void writeDataPort(byte value, EmuTime::param time);
 
 	const std::auto_ptr<Rom> rom;
 	const std::auto_ptr<YM2151> ym2151;

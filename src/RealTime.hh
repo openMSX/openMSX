@@ -25,7 +25,7 @@ public:
 
 	/** Convert EmuTime to RealTime.
 	  */
-	double getRealDuration(const EmuTime& time1, const EmuTime& time2);
+	double getRealDuration(EmuTime::param time1, EmuTime::param time2);
 
 	/** Convert RealTime to EmuTime.
 	  */
@@ -36,7 +36,7 @@ public:
 	  * @param us Real time duration is micro seconds.
 	  * @param time Point in emulated time.
 	  */
-	bool timeLeft(unsigned long long us, const EmuTime& time);
+	bool timeLeft(unsigned long long us, EmuTime::param time);
 
 	void resync();
 
@@ -46,10 +46,10 @@ private:
 	  * @param allowSleep Is this method allowed to sleep, typically the
 	  *                   result of a previous call to timeLeft() is passed.
 	  */
-	void sync(const EmuTime& time, bool allowSleep);
+	void sync(EmuTime::param time, bool allowSleep);
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	// EventListener
@@ -60,7 +60,7 @@ private:
 	// Observer<ThrottleManager>
 	void update(const ThrottleManager& throttleManager);
 
-	void internalSync(const EmuTime& time, bool allowSleep);
+	void internalSync(EmuTime::param time, bool allowSleep);
 
 	MSXMotherBoard& motherBoard;
 	ThrottleManager& throttleManager;

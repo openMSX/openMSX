@@ -8,13 +8,13 @@
 #ifndef I8254_HH
 #define I8254_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
-class EmuTime;
 class Scheduler;
 class Counter;
 class ClockPin;
@@ -25,15 +25,15 @@ class I8254 : private noncopyable
 public:
 	I8254(Scheduler& scheduler, ClockPinListener* output0,
 	      ClockPinListener* output1, ClockPinListener* output2,
-	      const EmuTime& time);
+	      EmuTime::param time);
 	~I8254();
 
-	void reset(const EmuTime& time);
-	byte readIO(word port, const EmuTime& time);
-	byte peekIO(word port, const EmuTime& time) const;
-	void writeIO(word port, byte value, const EmuTime& time);
+	void reset(EmuTime::param time);
+	byte readIO(word port, EmuTime::param time);
+	byte peekIO(word port, EmuTime::param time) const;
+	void writeIO(word port, byte value, EmuTime::param time);
 
-	void setGate(unsigned counter, bool status, const EmuTime& time);
+	void setGate(unsigned counter, bool status, EmuTime::param time);
 	ClockPin& getClockPin(unsigned cntr);
 	ClockPin& getOutputPin(unsigned cntr);
 
@@ -41,7 +41,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void readBackHelper(byte value, unsigned cntr, const EmuTime& time);
+	void readBackHelper(byte value, unsigned cntr, EmuTime::param time);
 
 	std::auto_ptr<Counter> counter[3];
 };

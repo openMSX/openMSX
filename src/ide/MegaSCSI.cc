@@ -80,7 +80,7 @@ MegaSCSI::~MegaSCSI()
 {
 }
 
-void MegaSCSI::reset(const EmuTime& /*time*/)
+void MegaSCSI::reset(EmuTime::param /*time*/)
 {
 	for (int i = 0; i < 4; ++i) {
 		setSRAM(i, 0);
@@ -88,7 +88,7 @@ void MegaSCSI::reset(const EmuTime& /*time*/)
 	mb89352->reset(true);
 }
 
-byte MegaSCSI::readMem(word address, const EmuTime& /*time*/)
+byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 {
 	byte result;
 	if ((0x4000 <= address) && (address < 0xC000)) {
@@ -111,7 +111,7 @@ byte MegaSCSI::readMem(word address, const EmuTime& /*time*/)
 	return result;
 }
 
-byte MegaSCSI::peekmem(word address, const EmuTime& /*time*/) const
+byte MegaSCSI::peekmem(word address, EmuTime::param /*time*/) const
 {
 	if (const byte* cacheline = getReadCacheLine(address)) {
 		return *cacheline;
@@ -140,7 +140,7 @@ const byte* MegaSCSI::getReadCacheLine(word address) const
 	}
 }
 
-void MegaSCSI::writeMem(word address, byte value, const EmuTime& /*time*/)
+void MegaSCSI::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		byte region = ((address >> 11) & 3);

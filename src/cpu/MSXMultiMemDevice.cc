@@ -97,12 +97,12 @@ const MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const
 	return const_cast<MSXMultiMemDevice*>(this)->searchDevice(address);
 }
 
-byte MSXMultiMemDevice::readMem(word address, const EmuTime& time)
+byte MSXMultiMemDevice::readMem(word address, EmuTime::param time)
 {
 	return searchDevice(address)->readMem(address, time);
 }
 
-void MSXMultiMemDevice::writeMem(word address, byte value, const EmuTime& time)
+void MSXMultiMemDevice::writeMem(word address, byte value, EmuTime::param time)
 {
 	searchDevice(address)->writeMem(address, value, time);
 }
@@ -117,7 +117,7 @@ byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
 	return searchDevice(start)->getWriteCacheLine(start);
 }
 
-byte MSXMultiMemDevice::peekMem(word address, const EmuTime& time) const
+byte MSXMultiMemDevice::peekMem(word address, EmuTime::param time) const
 {
 	return searchDevice(address)->peekMem(address, time);
 }

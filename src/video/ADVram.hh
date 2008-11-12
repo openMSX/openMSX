@@ -7,7 +7,6 @@
 
 namespace openmsx {
 
-class EmuTime;
 class VDP;
 class VDPVRAM;
 
@@ -24,28 +23,28 @@ public:
 	 * the planar bit, if the device is configured with an enable bit
 	 * then that bit is reset as well.
 	 */
-	virtual void reset(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
 
 	/** Read a byte from an IO port, change mode bits.  The planar bit
 	 * and possibly the enable bit are set according to address lines
 	 * that are normally ignored for IO reads.  Returns 255.
 	 */
-	virtual byte readIO(word port, const EmuTime& time);
+	virtual byte readIO(word port, EmuTime::param time);
 
 	/** Write a byte to a given IO port, set mapper register.  */
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	/** Read a byte from a location in the video ram at a certain
 	 * time.  If the device is enabled then the value returned comes
 	 * from the video ram, otherwise it returns 255.
 	 */
-	virtual byte readMem(word address, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
 
 	/** Write a given byte at a certain time to a given location in
 	 * the video ram.  If the device is enabled then the write is
 	 * redirected to the video ram, if it is not, nothing happens.
 	 */
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

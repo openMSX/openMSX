@@ -26,7 +26,7 @@ public:
 	~AviRecorder();
 
 	void addWave(unsigned num, short* data);
-	void addImage(const void** lines, const EmuTime& time);
+	void addImage(const void** lines, EmuTime::param time);
 	void stop();
 	unsigned getFrameHeight() const;
 

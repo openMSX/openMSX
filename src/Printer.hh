@@ -29,13 +29,13 @@ class PrinterCore : public PrinterPortDevice
 {
 public:
 	// PrinterPortDevice
-	virtual bool getStatus(const EmuTime& time);
-	virtual void setStrobe(bool strobe, const EmuTime& time);
-	virtual void writeData(byte data, const EmuTime& time);
+	virtual bool getStatus(EmuTime::param time);
+	virtual void setStrobe(bool strobe, EmuTime::param time);
+	virtual void writeData(byte data, EmuTime::param time);
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 
 protected:
 	PrinterCore();

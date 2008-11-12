@@ -13,7 +13,7 @@ public:
 	RomPadial16kB(MSXMotherBoard& motherBoard, const XMLElement& config,
 	              std::auto_ptr<Rom> rom);
 
-	virtual void reset(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
 };
 
 } // namespace openmsx

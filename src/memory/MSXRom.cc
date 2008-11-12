@@ -18,7 +18,7 @@ MSXRom::~MSXRom()
 {
 }
 
-void MSXRom::writeMem(word /*address*/, byte /*value*/, const EmuTime& /*time*/)
+void MSXRom::writeMem(word /*address*/, byte /*value*/, EmuTime::param /*time*/)
 {
 	// nothing
 }

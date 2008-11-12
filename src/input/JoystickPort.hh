@@ -23,10 +23,10 @@ public:
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
-	virtual void plug(Pluggable& device, const EmuTime& time);
+	virtual void plug(Pluggable& device, EmuTime::param time);
 
-	byte read(const EmuTime& time);
-	void write(byte value, const EmuTime& time);
+	byte read(EmuTime::param time);
+	void write(byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

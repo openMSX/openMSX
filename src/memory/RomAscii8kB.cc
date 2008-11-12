@@ -24,7 +24,7 @@ RomAscii8kB::RomAscii8kB(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomAscii8kB::reset(const EmuTime& /*time*/)
+void RomAscii8kB::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -35,7 +35,7 @@ void RomAscii8kB::reset(const EmuTime& /*time*/)
 	setBank(7, unmappedRead);
 }
 
-void RomAscii8kB::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomAscii8kB::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		byte region = ((address >> 11) & 3) + 2;

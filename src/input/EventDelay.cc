@@ -31,7 +31,7 @@ void EventDelay::queueEvent(EventPtr event)
 	toBeScheduledEvents.push_back(EventTime(event, Timer::getTime()));
 }
 
-void EventDelay::sync(const EmuTime& emuTime)
+void EventDelay::sync(EmuTime::param emuTime)
 {
 	unsigned long long curRealTime = Timer::getTime();
 	unsigned long long realDuration = curRealTime - prevReal;
@@ -61,7 +61,7 @@ void EventDelay::sync(const EmuTime& emuTime)
 	prevEmu = emuTime;
 }
 
-void EventDelay::executeUntil(const EmuTime& time, int /*userData*/)
+void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	try {
 		eventDistributor.distributeEvent(scheduledEvents.front(), time);

@@ -108,7 +108,7 @@ void RealDrive::setSide(bool side_)
 	}
 }
 
-void RealDrive::step(bool direction, const EmuTime& time)
+void RealDrive::step(bool direction, EmuTime::param time)
 {
 	if (direction) {
 		// step in
@@ -132,7 +132,7 @@ bool RealDrive::isTrack00() const
 	return motorStatus && (headPos == 0);
 }
 
-void RealDrive::setMotor(bool status, const EmuTime& time)
+void RealDrive::setMotor(bool status, EmuTime::param time)
 {
 	if (motorStatus != status) {
 		motorStatus = status;
@@ -146,7 +146,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 
 }
 
-bool RealDrive::indexPulse(const EmuTime& time)
+bool RealDrive::indexPulse(EmuTime::param time)
 {
 	if (!motorStatus && isReady()) {
 		return false;
@@ -155,8 +155,8 @@ bool RealDrive::indexPulse(const EmuTime& time)
 	return angle < INDEX_DURATION;
 }
 
-int RealDrive::indexPulseCount(const EmuTime& begin,
-                               const EmuTime& end)
+int RealDrive::indexPulseCount(EmuTime::param begin,
+                               EmuTime::param end)
 {
 	if (!motorStatus && isReady()) {
 		return 0;
@@ -166,7 +166,7 @@ int RealDrive::indexPulseCount(const EmuTime& begin,
 	return (t2 / TICKS_PER_ROTATION) - (t1 / TICKS_PER_ROTATION);
 }
 
-EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
+EmuTime RealDrive::getTimeTillSector(byte sector, EmuTime::param time)
 {
 	if (!motorStatus || !isReady()) { // TODO is this correct?
 		return time;
@@ -185,7 +185,7 @@ EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 	return time + dur;
 }
 
-EmuTime RealDrive::getTimeTillIndexPulse(const EmuTime& time)
+EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
 {
 	if (!motorStatus || !isReady()) { // TODO is this correct?
 		return time;
@@ -197,7 +197,7 @@ EmuTime RealDrive::getTimeTillIndexPulse(const EmuTime& time)
 	return time + dur;
 }
 
-void RealDrive::setHeadLoaded(bool status, const EmuTime& time)
+void RealDrive::setHeadLoaded(bool status, EmuTime::param time)
 {
 	if (headLoadStatus != status) {
 		headLoadStatus = status;
@@ -205,7 +205,7 @@ void RealDrive::setHeadLoaded(bool status, const EmuTime& time)
 	}
 }
 
-bool RealDrive::headLoaded(const EmuTime& time)
+bool RealDrive::headLoaded(EmuTime::param time)
 {
 	return headLoadStatus &&
 	       (headLoadTimer.getTicksTill(time) > 10);
@@ -263,7 +263,7 @@ bool RealDrive::isDummyDrive() const
 	return false;
 }
 
-void RealDrive::executeUntil(const EmuTime& /*time*/, int /*userData*/)
+void RealDrive::executeUntil(EmuTime::param /*time*/, int /*userData*/)
 {
 	timeOut = true;
 	updateLoadingState();
@@ -281,7 +281,7 @@ const std::string& RealDrive::schedName() const
 	return schedName;
 }
 
-void RealDrive::resetTimeOut(const EmuTime& time)
+void RealDrive::resetTimeOut(EmuTime::param time)
 {
 	timeOut = false;
 	updateLoadingState();

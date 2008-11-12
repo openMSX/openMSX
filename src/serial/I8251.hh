@@ -12,29 +12,27 @@
 
 namespace openmsx {
 
-class EmuTime;
-
 class I8251Interface : public SerialDataInterface
 {
 public:
 	virtual ~I8251Interface() {}
-	virtual void setRxRDY(bool status, const EmuTime& time) = 0;
-	virtual void setDTR(bool status, const EmuTime& time) = 0;
-	virtual void setRTS(bool status, const EmuTime& time) = 0;
-	virtual bool getDSR(const EmuTime& time) = 0;
-	virtual bool getCTS(const EmuTime& time) = 0; // TODO use this
-	virtual void signal(const EmuTime& time) = 0;
+	virtual void setRxRDY(bool status, EmuTime::param time) = 0;
+	virtual void setDTR(bool status, EmuTime::param time) = 0;
+	virtual void setRTS(bool status, EmuTime::param time) = 0;
+	virtual bool getDSR(EmuTime::param time) = 0;
+	virtual bool getCTS(EmuTime::param time) = 0; // TODO use this
+	virtual void signal(EmuTime::param time) = 0;
 };
 
 class I8251 : public SerialDataInterface, public Schedulable
 {
 public:
-	I8251(Scheduler& scheduler, I8251Interface& interf, const EmuTime& time);
+	I8251(Scheduler& scheduler, I8251Interface& interf, EmuTime::param time);
 
-	void reset(const EmuTime& time);
-	byte readIO(word port, const EmuTime& time);
-	byte peekIO(word port, const EmuTime& time) const;
-	void writeIO(word port, byte value, const EmuTime& time);
+	void reset(EmuTime::param time);
+	byte readIO(word port, EmuTime::param time);
+	byte peekIO(word port, EmuTime::param time) const;
+	void writeIO(word port, byte value, EmuTime::param time);
 	ClockPin& getClockPin();
 	bool isRecvReady();
 	bool isRecvEnabled();
@@ -43,10 +41,10 @@ public:
 	virtual void setDataBits(DataBits bits);
 	virtual void setStopBits(StopBits bits);
 	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, const EmuTime& time);
+	virtual void recvByte(byte value, EmuTime::param time);
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	template<typename Archive>
@@ -59,11 +57,11 @@ public:
 
 private:
 	void setMode(byte mode);
-	void writeCommand(byte value, const EmuTime& time);
-	byte readStatus(const EmuTime& time);
-	byte readTrans(const EmuTime& time);
-	void writeTrans(byte value, const EmuTime& time);
-	void send(byte value, const EmuTime& time);
+	void writeCommand(byte value, EmuTime::param time);
+	byte readStatus(EmuTime::param time);
+	byte readTrans(EmuTime::param time);
+	void writeTrans(byte value, EmuTime::param time);
+	void send(byte value, EmuTime::param time);
 
 	I8251Interface& interf;
 	ClockPin clock;

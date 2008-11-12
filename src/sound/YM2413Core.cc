@@ -13,7 +13,7 @@ class YM2413Debuggable : public SimpleDebuggable
 public:
 	YM2413Debuggable(MSXMotherBoard& motherBoard, YM2413Core& ym2413);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	YM2413Core& ym2413;
 };
@@ -46,7 +46,7 @@ void YM2413Core::setOutputRate(unsigned sampleRate)
 }
 
 bool YM2413Core::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -67,7 +67,7 @@ byte YM2413Debuggable::read(unsigned address)
 	return ym2413.reg[address];
 }
 
-void YM2413Debuggable::write(unsigned address, byte value, const EmuTime& time)
+void YM2413Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	ym2413.writeReg(address, value, time);
 }

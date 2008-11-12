@@ -25,7 +25,7 @@ public:
 	* Sets the cassette motor relay
 	*  false = off   true = on
 	*/
-	virtual void setMotor(bool status, const EmuTime& time) = 0;
+	virtual void setMotor(bool status, EmuTime::param time) = 0;
 
 	/**
 	* Writes one bit to the cassette port.
@@ -34,7 +34,7 @@ public:
 	*   taken to the cassette DIN socket as the MIC signal. All
 	*   cassette tone generation is performed in software.
 	*/
-	virtual void cassetteOut(bool output, const EmuTime& time) = 0;
+	virtual void cassetteOut(bool output, EmuTime::param time) = 0;
 
 	/**
 	 * last bit written to CasOut.
@@ -50,7 +50,7 @@ public:
 	*   to clean the edges and to convert to digital levels,
 	*   but is otherwise unprocessed.
 	*/
-	virtual bool cassetteIn(const EmuTime& time) = 0;
+	virtual bool cassetteIn(EmuTime::param time) = 0;
 };
 
 class CassettePort : public CassettePortInterface, public Connector
@@ -58,15 +58,15 @@ class CassettePort : public CassettePortInterface, public Connector
 public:
 	explicit CassettePort(MSXMotherBoard& motherBoard);
 	virtual ~CassettePort();
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual void cassetteOut(bool output, const EmuTime& time);
-	virtual bool cassetteIn(const EmuTime& time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual void cassetteOut(bool output, EmuTime::param time);
+	virtual bool cassetteIn(EmuTime::param time);
 	virtual bool lastOut() const;
 
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
-	virtual void unplug(const EmuTime& time);
+	virtual void unplug(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -87,9 +87,9 @@ private:
 class DummyCassettePort : public CassettePortInterface
 {
 public:
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual void cassetteOut(bool output, const EmuTime& time);
-	virtual bool cassetteIn(const EmuTime& time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual void cassetteOut(bool output, EmuTime::param time);
+	virtual bool cassetteIn(EmuTime::param time);
 	virtual bool lastOut() const;
 };
 

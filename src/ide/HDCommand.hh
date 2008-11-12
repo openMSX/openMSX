@@ -22,7 +22,7 @@ public:
 	          MSXEventDistributor& msxEventDistributor,
 	          Scheduler& scheduler, HD& hd);
 	virtual void execute(const std::vector<TclObject*>& tokens,
-	                     TclObject& result, const EmuTime& time);
+	                     TclObject& result, EmuTime::param time);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 

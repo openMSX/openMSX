@@ -58,7 +58,7 @@ class YMF262Debuggable : public SimpleDebuggable
 public:
 	YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262Impl& ymf262);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	YMF262Impl& ymf262;
 };
@@ -185,8 +185,8 @@ public:
 	           const XMLElement& config);
 	virtual ~YMF262Impl();
 
-	void reset(const EmuTime& time);
-	void writeReg(unsigned r, byte v, const EmuTime& time);
+	void reset(EmuTime::param time);
+	void writeReg(unsigned r, byte v, EmuTime::param time);
 	byte readReg(unsigned reg);
 	byte peekReg(unsigned reg) const;
 	byte readStatus();
@@ -201,15 +201,15 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+		EmuTime::param time, EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
 	void callback(byte flag);
 
-	void writeRegForce(unsigned r, byte v, const EmuTime& time);
-	void writeRegDirect(unsigned r, byte v, const EmuTime& time);
+	void writeRegForce(unsigned r, byte v, EmuTime::param time);
+	void writeRegDirect(unsigned r, byte v, EmuTime::param time);
 	void init_tables();
 	void setStatus(byte flag);
 	void resetStatus(byte flag);
@@ -1264,7 +1264,7 @@ byte YMF262Impl::peekReg(unsigned r) const
 	return reg[r];
 }
 
-void YMF262Impl::writeReg(unsigned r, byte v, const EmuTime& time)
+void YMF262Impl::writeReg(unsigned r, byte v, EmuTime::param time)
 {
 	if (!OPL3_mode && (r != 0x105)) {
 		// in OPL2 mode the only accessible in set #2 is register 0x05
@@ -1272,12 +1272,12 @@ void YMF262Impl::writeReg(unsigned r, byte v, const EmuTime& time)
 	}
 	writeRegForce(r, v, time);
 }
-void YMF262Impl::writeRegForce(unsigned r, byte v, const EmuTime& time)
+void YMF262Impl::writeRegForce(unsigned r, byte v, EmuTime::param time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 	writeRegDirect(r, v, time);
 }
-void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
+void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 {
 	reg[r] = v;
 
@@ -1616,7 +1616,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 }
 
 
-void YMF262Impl::reset(const EmuTime& time)
+void YMF262Impl::reset(EmuTime::param time)
 {
 	eg_cnt = 0;
 
@@ -1802,7 +1802,7 @@ bool YMF262Impl::generateInput(int* buffer, unsigned num)
 }
 
 bool YMF262Impl::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -1896,7 +1896,7 @@ void YMF262Impl::serialize(Archive& ar, unsigned /*version*/)
 
 	// TODO restore more state by rewriting register values
 	//   this handles pan
-	const EmuTime& time = timer1.getCurrentTime();
+	EmuTime::param time = timer1.getCurrentTime();
 	for (int i = 0xC0; i <= 0xC8; ++i) {
 		writeRegDirect(i + 0x000, reg[i + 0x000], time);
 		writeRegDirect(i + 0x100, reg[i + 0x100], time);
@@ -1919,7 +1919,7 @@ byte YMF262Debuggable::read(unsigned address)
 	return ymf262.peekReg(address);
 }
 
-void YMF262Debuggable::write(unsigned address, byte value, const EmuTime& time)
+void YMF262Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	ymf262.writeRegForce(address, value, time);
 }
@@ -1936,12 +1936,12 @@ YMF262::~YMF262()
 {
 }
 
-void YMF262::reset(const EmuTime& time)
+void YMF262::reset(EmuTime::param time)
 {
 	pimple->reset(time);
 }
 
-void YMF262::writeReg(unsigned r, byte v, const EmuTime& time)
+void YMF262::writeReg(unsigned r, byte v, EmuTime::param time)
 {
 	pimple->writeReg(r, v, time);
 }

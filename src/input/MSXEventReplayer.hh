@@ -21,7 +21,7 @@ public:
 private:
 	// Schedulable
 	virtual const std::string& schedName() const;
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 
 	void processLogEntry();
 

@@ -16,7 +16,7 @@ PanasonicRam::PanasonicRam(MSXMotherBoard& motherBoard,
 	panasonicMemory.registerRam(checkedRam->getUncheckedRam());
 }
 
-void PanasonicRam::writeMem(word address, byte value, const EmuTime& /*time*/)
+void PanasonicRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	unsigned addr = calcAddress(address);
 	if (panasonicMemory.isWritable(addr)) {

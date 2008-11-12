@@ -22,7 +22,7 @@ RomRType::RomRType(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomRType::reset(const EmuTime& /*time*/)
+void RomRType::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0x17);
@@ -30,7 +30,7 @@ void RomRType::reset(const EmuTime& /*time*/)
 	setBank(3, unmappedRead);
 }
 
-void RomRType::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomRType::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x7000 <= address) && (address < 0x8000)) {
 		value &= (value & 0x10) ? 0x17 : 0x1F;

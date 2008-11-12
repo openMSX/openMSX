@@ -27,19 +27,19 @@ OutputIterator copy_if(InputIterator begin, InputIterator end,
 
 
 struct LessSyncPoint {
-	bool operator()(const EmuTime& time,
+	bool operator()(EmuTime::param time,
 	                const SynchronizationPoint& sp) const;
 	bool operator()(const SynchronizationPoint& sp,
-	                const EmuTime& time) const;
+	                EmuTime::param time) const;
 };
 bool LessSyncPoint::operator()(
-	const EmuTime& time, const SynchronizationPoint& sp) const
+	EmuTime::param time, const SynchronizationPoint& sp) const
 {
 	return time < sp.getTime();
 }
 
 bool LessSyncPoint::operator()(
-	const SynchronizationPoint& sp, const EmuTime& time) const
+	const SynchronizationPoint& sp, EmuTime::param time) const
 {
 	return sp.getTime() < time;
 }
@@ -80,7 +80,7 @@ Scheduler::~Scheduler()
 	assert(syncPoints.empty());
 }
 
-void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userData)
+void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userData)
 {
 	//PRT_DEBUG("Sched: registering " << device.schedName() <<
 	//          " " << userData << " for emulation at " << time);
@@ -141,13 +141,13 @@ bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
 	return false;
 }
 
-const EmuTime& Scheduler::getCurrentTime() const
+EmuTime::param Scheduler::getCurrentTime() const
 {
 	assert(Thread::isMainThread());
 	return scheduleTime;
 }
 
-void Scheduler::scheduleHelper(const EmuTime& limit)
+void Scheduler::scheduleHelper(EmuTime::param limit)
 {
 	assert(!scheduleInProgress);
 	scheduleInProgress = true;
@@ -157,7 +157,7 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 			  syncPoints.empty()
 			? SynchronizationPoint(EmuTime::infinity, NULL, 0)
 			: syncPoints.front();
-		const EmuTime& time = sp.getTime();
+		EmuTime::param time = sp.getTime();
 		if (time > limit) {
 			break;
 		}

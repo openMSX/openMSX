@@ -20,7 +20,7 @@ RomPadial16kB::RomPadial16kB(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomPadial16kB::reset(const EmuTime& /*time*/)
+void RomPadial16kB::reset(EmuTime::param /*time*/)
 {
 	setRom (0, 0);
 	setRom (1, 0);

@@ -15,7 +15,7 @@ public:
 	RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 	        std::auto_ptr<Rom> rom);
 
-	virtual byte readMem(word address, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 
 private:

@@ -20,7 +20,7 @@ Y8950KeyboardConnector::~Y8950KeyboardConnector()
 {
 }
 
-void Y8950KeyboardConnector::write(byte newData, const EmuTime& time)
+void Y8950KeyboardConnector::write(byte newData, EmuTime::param time)
 {
 	if (newData != data) {
 		data = newData;
@@ -28,7 +28,7 @@ void Y8950KeyboardConnector::write(byte newData, const EmuTime& time)
 	}
 }
 
-byte Y8950KeyboardConnector::read(const EmuTime& time)
+byte Y8950KeyboardConnector::read(EmuTime::param time)
 {
 	return getPluggedKeyb().read(time);
 }
@@ -45,7 +45,7 @@ const std::string& Y8950KeyboardConnector::getClass() const
 	return className;
 }
 
-void Y8950KeyboardConnector::plug(Pluggable& dev, const EmuTime& time)
+void Y8950KeyboardConnector::plug(Pluggable& dev, EmuTime::param time)
 {
 	Connector::plug(dev, time);
 	getPluggedKeyb().write(data, time);

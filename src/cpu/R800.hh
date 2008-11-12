@@ -34,7 +34,7 @@ protected:
 	ALWAYS_INLINE unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
 	ALWAYS_INLINE bool isR800() const   { return true; }
 
-	R800TYPE(const EmuTime& time, Scheduler& scheduler)
+	R800TYPE(EmuTime::param time, Scheduler& scheduler)
 		: CPUClock(time, scheduler)
 		, lastRefreshTime(time)
 	{

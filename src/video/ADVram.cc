@@ -37,7 +37,7 @@ void ADVram::init(const HardwareConfig& hwConf)
 	mask = std::min(vram->getSize(), 128u * 1024) - 1;
 }
 
-void ADVram::reset(const EmuTime& /*time*/)
+void ADVram::reset(EmuTime::param /*time*/)
 {
 	// TODO figure out exactly what happens during reset
 	baseAddr = 0;
@@ -45,7 +45,7 @@ void ADVram::reset(const EmuTime& /*time*/)
 	enabled = !hasEnable;
 }
 
-byte ADVram::readIO(word port, const EmuTime& /*time*/)
+byte ADVram::readIO(word port, EmuTime::param /*time*/)
 {
 	// ADVram only gets 'read's from 0x9A
 	if (hasEnable) {
@@ -57,7 +57,7 @@ byte ADVram::readIO(word port, const EmuTime& /*time*/)
 	return 0xFF;
 }
 
-void ADVram::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
+void ADVram::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	// set mapper register
 	baseAddr = (value & 0x07) << 14;
@@ -72,12 +72,12 @@ unsigned ADVram::calcAddress(word address) const
 	return addr & mask;
 }
 
-byte ADVram::readMem(word address, const EmuTime& time)
+byte ADVram::readMem(word address, EmuTime::param time)
 {
 	return enabled ? vram->cpuRead(calcAddress(address), time) : 0xFF;
 }
 
-void ADVram::writeMem(word address, byte value, const EmuTime& time)
+void ADVram::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (enabled) {
 		vram->cpuWrite(calcAddress(address), value, time);

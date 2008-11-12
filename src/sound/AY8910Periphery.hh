@@ -3,11 +3,10 @@
 #ifndef AY8910PERIPHERY_HH
 #define AY8910PERIPHERY_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
-
-class EmuTime;
 
 /** Models the general purpose I/O ports of the AY8910.
   * The default implementation handles an empty periphery:
@@ -25,20 +24,20 @@ public:
 	  *   On subsequent calls, the time will always be increasing.
 	  * @return the value read; unconnected bits should be 1
 	  */
-	virtual byte readA(const EmuTime& time);
+	virtual byte readA(EmuTime::param time);
 
 	/** Similar to readA, but reads port B. */
-	virtual byte readB(const EmuTime& time);
+	virtual byte readB(EmuTime::param time);
 
 	/** Writes to the peripheral on port A.
 	  * @param value The value to write.
 	  * @param time The moment in time the value is written.
 	  *   On subsequent calls, the time will always be increasing.
 	  */
-	virtual void writeA(byte value, const EmuTime& time);
+	virtual void writeA(byte value, EmuTime::param time);
 
 	/** Similar to writeA, but writes port B. */
-	virtual void writeB(byte value, const EmuTime& time);
+	virtual void writeB(byte value, EmuTime::param time);
 
 protected:
 	AY8910Periphery();

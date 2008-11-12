@@ -24,7 +24,7 @@ const string& Pluggable::getName() const
 	return name;
 }
 
-void Pluggable::plug(Connector& newConnector, const EmuTime& time)
+void Pluggable::plug(Connector& newConnector, EmuTime::param time)
 {
 	assert(getClass() == newConnector.getClass());
 
@@ -36,7 +36,7 @@ void Pluggable::plug(Connector& newConnector, const EmuTime& time)
 	setConnector(&newConnector);
 }
 
-void Pluggable::unplug(const EmuTime& time)
+void Pluggable::unplug(EmuTime::param time)
 {
 	unplugHelper(time);
 	setConnector(NULL);

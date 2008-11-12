@@ -12,7 +12,7 @@ class DummyRasterizer : public Rasterizer
 public:
 	virtual bool isActive();
 	virtual void reset();
-	virtual void frameStart(const EmuTime& time);
+	virtual void frameStart(EmuTime::param time);
 	virtual void frameEnd();
 	virtual void setDisplayMode(DisplayMode mode);
 	virtual void setPalette(int index, int grb);

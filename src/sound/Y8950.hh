@@ -3,6 +3,7 @@
 #ifndef Y8950_HH
 #define Y8950_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include <string>
 #include <memory>
@@ -12,7 +13,6 @@ namespace openmsx {
 class MSXMotherBoard;
 class XMLElement;
 class Y8950Periphery;
-class EmuTime;
 class Y8950Impl;
 
 class Y8950
@@ -45,15 +45,15 @@ public:
 	static const int STATUS_T1      = R04_MASK_T1;
 
 	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-	      const XMLElement& config, unsigned sampleRam, const EmuTime& time,
+	      const XMLElement& config, unsigned sampleRam, EmuTime::param time,
 	      Y8950Periphery& perihery);
 	~Y8950();
 
-	void setEnabled(bool enabled, const EmuTime& time);
-	void reset(const EmuTime& time);
-	void writeReg(byte reg, byte data, const EmuTime& time);
-	byte readReg(byte reg, const EmuTime& time);
-	byte peekReg(byte reg, const EmuTime& time) const;
+	void setEnabled(bool enabled, EmuTime::param time);
+	void reset(EmuTime::param time);
+	void writeReg(byte reg, byte data, EmuTime::param time);
+	byte readReg(byte reg, EmuTime::param time);
+	byte peekReg(byte reg, EmuTime::param time) const;
 	byte readStatus();
 	byte peekStatus() const;
 

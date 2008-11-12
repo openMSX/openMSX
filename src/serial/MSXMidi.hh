@@ -23,10 +23,10 @@ public:
 	MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXMidi();
 
-	virtual void reset(const EmuTime& time);
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
+	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	// MidiInConnector
 	virtual bool ready();
@@ -34,15 +34,15 @@ public:
 	virtual void setDataBits(DataBits bits);
 	virtual void setStopBits(StopBits bits);
 	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, const EmuTime& time);
+	virtual void recvByte(byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setTimerIRQ(bool status, const EmuTime& time);
-	void enableTimerIRQ(bool enabled, const EmuTime& time);
-	void updateEdgeEvents(const EmuTime& time);
+	void setTimerIRQ(bool status, EmuTime::param time);
+	void enableTimerIRQ(bool enabled, EmuTime::param time);
+	void updateEdgeEvents(EmuTime::param time);
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 

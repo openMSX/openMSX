@@ -39,43 +39,43 @@ void DummyDrive::setSide(bool /*side*/)
 	// ignore
 }
 
-void DummyDrive::step(bool /*direction*/, const EmuTime& /*time*/)
+void DummyDrive::step(bool /*direction*/, EmuTime::param /*time*/)
 {
 	// ignore
 }
 
-void DummyDrive::setMotor(bool /*status*/, const EmuTime& /*time*/)
+void DummyDrive::setMotor(bool /*status*/, EmuTime::param /*time*/)
 {
 	// ignore
 }
 
-bool DummyDrive::indexPulse(const EmuTime& /*time*/)
+bool DummyDrive::indexPulse(EmuTime::param /*time*/)
 {
 	return false;
 }
 
-int DummyDrive::indexPulseCount(const EmuTime& /*begin*/,
-                                const EmuTime& /*end*/)
+int DummyDrive::indexPulseCount(EmuTime::param /*begin*/,
+                                EmuTime::param /*end*/)
 {
 	return 0;
 }
 
-EmuTime DummyDrive::getTimeTillSector(byte /*sector*/, const EmuTime& time)
+EmuTime DummyDrive::getTimeTillSector(byte /*sector*/, EmuTime::param time)
 {
 	return time;
 }
 
-EmuTime DummyDrive::getTimeTillIndexPulse(const EmuTime& time)
+EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param time)
 {
 	return time;
 }
 
-void DummyDrive::setHeadLoaded(bool /*status*/, const EmuTime& /*time*/)
+void DummyDrive::setHeadLoaded(bool /*status*/, EmuTime::param /*time*/)
 {
 	// ignore
 }
 
-bool DummyDrive::headLoaded(const EmuTime& /*time*/)
+bool DummyDrive::headLoaded(EmuTime::param /*time*/)
 {
 	return false;
 }

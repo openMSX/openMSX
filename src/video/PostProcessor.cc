@@ -69,7 +69,7 @@ const std::string& PostProcessor::getName()
 
 RawFrame* PostProcessor::rotateFrames(
 	RawFrame* finishedFrame, FrameSource::FieldType field,
-	const EmuTime& time)
+	EmuTime::param time)
 {
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;

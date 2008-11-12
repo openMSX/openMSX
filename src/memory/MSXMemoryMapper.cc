@@ -42,12 +42,12 @@ MSXMemoryMapper::~MSXMemoryMapper()
 	getMotherBoard().destroyMapperIO();
 }
 
-void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
+void MSXMemoryMapper::powerUp(EmuTime::param /*time*/)
 {
 	checkedRam->clear();
 }
 
-void MSXMemoryMapper::reset(const EmuTime& time)
+void MSXMemoryMapper::reset(EmuTime::param time)
 {
 	mapperIO.reset(time);
 }
@@ -60,17 +60,17 @@ unsigned MSXMemoryMapper::calcAddress(word address) const
 	return (page << 14) | (address & 0x3FFF);
 }
 
-byte MSXMemoryMapper::peekMem(word address, const EmuTime& /*time*/) const
+byte MSXMemoryMapper::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return checkedRam->peek(calcAddress(address));
 }
 
-byte MSXMemoryMapper::readMem(word address, const EmuTime& /*time*/)
+byte MSXMemoryMapper::readMem(word address, EmuTime::param /*time*/)
 {
 	return checkedRam->read(calcAddress(address));
 }
 
-void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime& /*time*/)
+void MSXMemoryMapper::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	checkedRam->write(calcAddress(address), value);
 }

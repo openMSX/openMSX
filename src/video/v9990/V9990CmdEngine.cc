@@ -637,7 +637,7 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
 // ====================================================================
 /** Constructor
   */
-V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time,
+V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time,
                                RenderSettings& settings_)
 	: settings(settings_), vdp(vdp_), clock(EmuTime::zero)
 {
@@ -725,7 +725,7 @@ V9990CmdEngine::~V9990CmdEngine()
 	}
 }
 
-void V9990CmdEngine::reset(const EmuTime& /*time*/)
+void V9990CmdEngine::reset(EmuTime::param /*time*/)
 {
 	currentCommand = NULL;
 	CMD = 0;
@@ -734,7 +734,7 @@ void V9990CmdEngine::reset(const EmuTime& /*time*/)
 	endAfterRead = false;
 }
 
-void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
+void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("[" << time << "] V9990CmdEngine::setCmdReg("
 	//          << std::dec << (int) reg << "," << (int) value << ")");
@@ -921,12 +921,12 @@ V9990CmdEngine::CmdSTOP::CmdSTOP(V9990CmdEngine& engine_,
 {
 }
 
-void V9990CmdEngine::CmdSTOP::start(const EmuTime& time)
+void V9990CmdEngine::CmdSTOP::start(EmuTime::param time)
 {
 	engine.cmdReady(time);
 }
 
-void V9990CmdEngine::CmdSTOP::execute(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdSTOP::execute(EmuTime::param /*time*/)
 {
 }
 
@@ -941,7 +941,7 @@ V9990CmdEngine::CmdLMMC<Mode>::CmdLMMC(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdLMMC<Mode>::start(EmuTime::param /*time*/)
 {
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine.bitsLeft = 1;
@@ -953,7 +953,7 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& /*time*/)
 
 template <>
 void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
-	const EmuTime& time)
+	EmuTime::param time)
 {
 	if (!(engine.status & TR)) {
 		engine.status |= TR;
@@ -984,7 +984,7 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMMC<Mode>::execute(EmuTime::param time)
 {
 	if (!(engine.status & TR)) {
 		engine.status |= TR;
@@ -1022,7 +1022,7 @@ V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdLMMV<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.ANX = engine.NX;
@@ -1030,7 +1030,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMMV<Mode>::execute(EmuTime::param time)
 {
 	// TODO can be optimized a lot
 
@@ -1069,7 +1069,7 @@ V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdLMCM<Mode>::start(EmuTime::param /*time*/)
 {
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine.bitsLeft = 0;
@@ -1081,7 +1081,7 @@ void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& /*time*/)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMCM<Mode>::execute(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdLMCM<Mode>::execute(EmuTime::param /*time*/)
 {
 	if (!(engine.status & TR)) {
 		engine.status |= TR;
@@ -1130,7 +1130,7 @@ V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdLMMM<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.ANX = engine.NX;
@@ -1138,7 +1138,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLMMM<Mode>::execute(EmuTime::param time)
 {
 	// TODO can be optimized a lot
 
@@ -1182,7 +1182,7 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdCMMC<Mode>::start(EmuTime::param /*time*/)
 {
 	engine.ANX = engine.NX;
 	engine.ANY = engine.NY;
@@ -1190,7 +1190,7 @@ void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& /*time*/)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdCMMC<Mode>::execute(EmuTime::param time)
 {
 	if (!(engine.status & TR)) {
 		engine.status |= TR;
@@ -1233,14 +1233,14 @@ V9990CmdEngine::CmdCMMK<Mode>::CmdCMMK(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMK<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdCMMK<Mode>::start(EmuTime::param time)
 {
 	std::cout << "V9990: CMMK not yet implemented" << std::endl;
 	engine.cmdReady(time); // TODO dummy implementation
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMK<Mode>::execute(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdCMMK<Mode>::execute(EmuTime::param /*time*/)
 {
 }
 
@@ -1255,7 +1255,7 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdCMMM<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
@@ -1265,7 +1265,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdCMMM<Mode>::execute(EmuTime::param time)
 {
 	// TODO can be optimized a lot
 
@@ -1313,7 +1313,7 @@ V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdBMXL<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
@@ -1323,7 +1323,7 @@ void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 
 template <>
 void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
-	const EmuTime& time)
+	EmuTime::param time)
 {
 	// timing value is times 2, because it does 2 bytes per iteration:
 	unsigned delta = engine.getTiming(BMXL_TIMING) * 2;
@@ -1354,7 +1354,7 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMXL<Mode>::execute(EmuTime::param time)
 {
 	unsigned delta = engine.getTiming(BMXL_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
@@ -1394,7 +1394,7 @@ V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdBMLX<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.dstAddress = (engine.DX & 0xFF) + ((engine.DY & 0x7FF) << 8);
@@ -1403,7 +1403,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMLX<Mode>::execute(EmuTime::param time)
 {
 	// TODO lots of corner cases still go wrong
 	//      very dumb implementation, can be made much faster
@@ -1457,7 +1457,7 @@ V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdBMLL<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
@@ -1476,7 +1476,7 @@ void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
 }
 
 template <>
-void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(EmuTime::param time)
 {
 	// TODO DIX DIY?
 	// timing value is times 2, because it does 2 bytes per iteration:
@@ -1504,7 +1504,7 @@ void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdBMLL<Mode>::execute(EmuTime::param time)
 {
 	// TODO DIX DIY?
 	unsigned delta = engine.getTiming(BMLL_TIMING);
@@ -1539,7 +1539,7 @@ V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdLINE<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.ASX = (engine.NX - 1) / 2;
@@ -1548,7 +1548,7 @@ void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdLINE<Mode>::execute(EmuTime::param time)
 {
 	unsigned delta = engine.getTiming(LINE_TIMING);
 	unsigned width = engine.vdp.getImageWidth();
@@ -1609,14 +1609,14 @@ V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdSRCH<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.ASX = engine.SX;
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& time)
+void V9990CmdEngine::CmdSRCH<Mode>::execute(EmuTime::param time)
 {
 	unsigned delta = engine.getTiming(SRCH_TIMING);
 	unsigned width = engine.vdp.getImageWidth();
@@ -1668,14 +1668,14 @@ V9990CmdEngine::CmdPOINT<Mode>::CmdPOINT(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPOINT<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdPOINT<Mode>::start(EmuTime::param time)
 {
 	std::cout << "V9990: POINT not yet implemented" << std::endl;
 	engine.cmdReady(time); // TODO dummy implementation
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPOINT<Mode>::execute(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdPOINT<Mode>::execute(EmuTime::param /*time*/)
 {
 }
 
@@ -1690,7 +1690,7 @@ V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdPSET<Mode>::start(EmuTime::param time)
 {
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
@@ -1703,7 +1703,7 @@ void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdPSET<Mode>::execute(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdPSET<Mode>::execute(EmuTime::param /*time*/)
 {
 }
 
@@ -1718,28 +1718,28 @@ V9990CmdEngine::CmdADVN<Mode>::CmdADVN(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdADVN<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdADVN<Mode>::start(EmuTime::param time)
 {
 	std::cout << "V9990: ADVN not yet implemented" << std::endl;
 	engine.cmdReady(time); // TODO dummy implementation
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdADVN<Mode>::execute(const EmuTime& /*time*/)
+void V9990CmdEngine::CmdADVN<Mode>::execute(EmuTime::param /*time*/)
 {
 }
 
 // ====================================================================
 // CmdEngine methods
 
-void V9990CmdEngine::setCmdData(byte value, const EmuTime& time)
+void V9990CmdEngine::setCmdData(byte value, EmuTime::param time)
 {
 	sync(time);
 	data = value;
 	status &= ~TR;
 }
 
-byte V9990CmdEngine::getCmdData(const EmuTime& time)
+byte V9990CmdEngine::getCmdData(EmuTime::param time)
 {
 	sync(time);
 
@@ -1755,13 +1755,13 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 	return value;
 }
 
-byte V9990CmdEngine::peekCmdData(const EmuTime& time)
+byte V9990CmdEngine::peekCmdData(EmuTime::param time)
 {
 	sync(time);
 	return (status & TR) ? data : 0xFF;
 }
 
-void V9990CmdEngine::cmdReady(const EmuTime& /*time*/)
+void V9990CmdEngine::cmdReady(EmuTime::param /*time*/)
 {
 	currentCommand = NULL;
 	CMD = 0; // for deserialize

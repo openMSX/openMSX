@@ -15,7 +15,6 @@ namespace openmsx {
 
 class Reactor;
 class EventListener;
-class EmuTime;
 
 class EventDistributor : private noncopyable
 {

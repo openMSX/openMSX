@@ -30,7 +30,7 @@ HDCommand::HDCommand(CommandController& commandController,
 }
 
 void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
-                        const EmuTime& /*time*/)
+                        EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
 		result.addListElement(hd.getName() + ':');

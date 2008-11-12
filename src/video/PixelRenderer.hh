@@ -33,30 +33,30 @@ public:
 	virtual ~PixelRenderer();
 
 	// Renderer interface:
-	virtual void reset(const EmuTime& time);
-	virtual void frameStart(const EmuTime& time);
-	virtual void frameEnd(const EmuTime& time);
-	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime& time);
-	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime& time);
-	virtual void updateBorderMask(bool masked, const EmuTime& time);
-	virtual void updateMultiPage(bool multiPage, const EmuTime& time);
-	virtual void updateTransparency(bool enabled, const EmuTime& time);
-	virtual void updateForegroundColour(int colour, const EmuTime& time);
-	virtual void updateBackgroundColour(int colour, const EmuTime& time);
-	virtual void updateBlinkForegroundColour(int colour, const EmuTime& time);
-	virtual void updateBlinkBackgroundColour(int colour, const EmuTime& time);
-	virtual void updateBlinkState(bool enabled, const EmuTime& time);
-	virtual void updatePalette(int index, int grb, const EmuTime& time);
-	virtual void updateVerticalScroll(int scroll, const EmuTime& time);
-	virtual void updateHorizontalAdjust(int adjust, const EmuTime& time);
-	virtual void updateDisplayEnabled(bool enabled, const EmuTime& time);
-	virtual void updateDisplayMode(DisplayMode mode, const EmuTime& time);
-	virtual void updateNameBase(int addr, const EmuTime& time);
-	virtual void updatePatternBase(int addr, const EmuTime& time);
-	virtual void updateColourBase(int addr, const EmuTime& time);
-	virtual void updateSpritesEnabled(bool enabled, const EmuTime& time);
-	virtual void updateVRAM(unsigned offset, const EmuTime& time);
-	virtual void updateWindow(bool enabled, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual void frameStart(EmuTime::param time);
+	virtual void frameEnd(EmuTime::param time);
+	virtual void updateHorizontalScrollLow(byte scroll, EmuTime::param time);
+	virtual void updateHorizontalScrollHigh(byte scroll, EmuTime::param time);
+	virtual void updateBorderMask(bool masked, EmuTime::param time);
+	virtual void updateMultiPage(bool multiPage, EmuTime::param time);
+	virtual void updateTransparency(bool enabled, EmuTime::param time);
+	virtual void updateForegroundColour(int colour, EmuTime::param time);
+	virtual void updateBackgroundColour(int colour, EmuTime::param time);
+	virtual void updateBlinkForegroundColour(int colour, EmuTime::param time);
+	virtual void updateBlinkBackgroundColour(int colour, EmuTime::param time);
+	virtual void updateBlinkState(bool enabled, EmuTime::param time);
+	virtual void updatePalette(int index, int grb, EmuTime::param time);
+	virtual void updateVerticalScroll(int scroll, EmuTime::param time);
+	virtual void updateHorizontalAdjust(int adjust, EmuTime::param time);
+	virtual void updateDisplayEnabled(bool enabled, EmuTime::param time);
+	virtual void updateDisplayMode(DisplayMode mode, EmuTime::param time);
+	virtual void updateNameBase(int addr, EmuTime::param time);
+	virtual void updatePatternBase(int addr, EmuTime::param time);
+	virtual void updateColourBase(int addr, EmuTime::param time);
+	virtual void updateSpritesEnabled(bool enabled, EmuTime::param time);
+	virtual void updateVRAM(unsigned offset, EmuTime::param time);
+	virtual void updateWindow(bool enabled, EmuTime::param time);
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
@@ -83,14 +83,14 @@ private:
 		int startX, int startY, int endX, int endY,
 		int clipL, int clipR, DrawType drawType );
 
-	inline bool checkSync(int offset, const EmuTime& time);
+	inline bool checkSync(int offset, EmuTime::param time);
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
 	  * @param force When screen accuracy is used,
 	  *     rendering is only performed if this parameter is true.
 	  */
-	void sync(const EmuTime& time, bool force = false);
+	void sync(EmuTime::param time, bool force = false);
 
 	/** Render lines until specified moment in time.
 	  * Unlike sync(), this method does not sync with VDPVRAM.
@@ -98,7 +98,7 @@ private:
 	  * from the current time to the specified time.
 	  * @param time Moment in emulated time to render lines until.
 	  */
-	void renderUntil(const EmuTime& time);
+	void renderUntil(EmuTime::param time);
 
 	/** The VDP of which the video output is being rendered.
 	  */

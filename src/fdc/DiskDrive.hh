@@ -44,27 +44,27 @@ public:
 	 *                  true  = in.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void step(bool direction, const EmuTime& time) = 0;
+	virtual void step(bool direction, EmuTime::param time) = 0;
 
 	/** Set motor on/off
 	 * @param status false = off,
 	 *               true  = on.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void setMotor(bool status, const EmuTime& time) = 0;
+	virtual void setMotor(bool status, EmuTime::param time) = 0;
 
 	/** Gets the state of the index pulse.
 	 * @param time The moment in emulated time to get the pulse state for.
 	 */
-	virtual bool indexPulse(const EmuTime& time) = 0;
+	virtual bool indexPulse(EmuTime::param time) = 0;
 
 	/** Count the number index pulses in an interval.
 	 * @param begin Begin time of interval.
 	 * @param end End time of interval.
 	 * @return The number of index pulses between "begin" and "end".
 	 */
-	virtual int indexPulseCount(const EmuTime& begin,
-	                            const EmuTime& end) = 0;
+	virtual int indexPulseCount(EmuTime::param begin,
+	                            EmuTime::param end) = 0;
 
 	/** Return the time when the indicated sector will be rotated under
 	 * the drive head.
@@ -74,25 +74,25 @@ public:
 	 * @param time The current time
 	 * @return Time when the requested sector is under the drive head.
 	 */
-	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time) = 0;
+	virtual EmuTime getTimeTillSector(byte sector, EmuTime::param time) = 0;
 
 	/** Return the time till the start of the next index pulse
 	 * When there is no disk in the drive or when the disk is not spinning,
 	 * this function returns the current time.
 	 * @param time The current time
 	 */
-	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time) = 0;
+	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time) = 0;
 
 	/** Set head loaded status.
 	 * @param status false = not loaded,
 	 *               true  = loaded.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void setHeadLoaded(bool status, const EmuTime& time) = 0;
+	virtual void setHeadLoaded(bool status, EmuTime::param time) = 0;
 
 	/** Is head loaded?
 	 */
-	virtual bool headLoaded(const EmuTime& time) = 0;
+	virtual bool headLoaded(EmuTime::param time) = 0;
 
 	// TODO
 	// Read / write methods, mostly copied from Disk,
@@ -129,15 +129,15 @@ public:
 	virtual bool isDoubleSided() const;
 	virtual bool isTrack00() const;
 	virtual void setSide(bool side);
-	virtual void step(bool direction, const EmuTime& time);
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual bool indexPulse(const EmuTime& time);
-	virtual int indexPulseCount(const EmuTime& begin,
-	                            const EmuTime& end);
-	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
-	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time);
-	virtual void setHeadLoaded(bool status, const EmuTime& time);
-	virtual bool headLoaded(const EmuTime& time);
+	virtual void step(bool direction, EmuTime::param time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual bool indexPulse(EmuTime::param time);
+	virtual int indexPulseCount(EmuTime::param begin,
+	                            EmuTime::param end);
+	virtual EmuTime getTimeTillSector(byte sector, EmuTime::param time);
+	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
+	virtual void setHeadLoaded(bool status, EmuTime::param time);
+	virtual bool headLoaded(EmuTime::param time);
 	virtual void read (byte sector, byte* buf,
 	                   byte& onDiskTrack, byte& onDiskSector,
 	                   byte& onDiskSide,  int&  onDiskSize);

@@ -56,7 +56,7 @@ MidiInWindows::~MidiInWindows()
 }
 
 // Pluggable
-void MidiInWindows::plugHelper(Connector& connector_, const EmuTime& time)
+void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param time)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
 	if (devidx == unsigned(-1)) {
@@ -73,7 +73,7 @@ void MidiInWindows::plugHelper(Connector& connector_, const EmuTime& time)
 	thread.start();
 }
 
-void MidiInWindows::unplugHelper(const EmuTime& time)
+void MidiInWindows::unplugHelper(EmuTime::param time)
 {
 	ScopedLock l(lock);
 	thread.stop();
@@ -161,7 +161,7 @@ void MidiInWindows::run()
 }
 
 // MidiInDevice
-void MidiInWindows::signal(const EmuTime& time)
+void MidiInWindows::signal(EmuTime::param time)
 {
 	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {

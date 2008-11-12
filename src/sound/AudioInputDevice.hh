@@ -13,7 +13,7 @@ public:
 	/**
 	 * Read wave data
 	 */
-	virtual short readSample(const EmuTime& time) = 0;
+	virtual short readSample(EmuTime::param time) = 0;
 
 	// Pluggable
 	virtual const std::string& getClass() const;

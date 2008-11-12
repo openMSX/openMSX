@@ -28,11 +28,11 @@ public:
 
 	/** Prepare execution of cmd
 	  */
-	virtual void start(const EmuTime& time, VDPCmdEngine& engine) = 0;
+	virtual void start(EmuTime::param time, VDPCmdEngine& engine) = 0;
 
 	/** Perform a given V9938 graphical operation.
 	  */
-	virtual void execute(const EmuTime& /*time*/, VDPCmdEngine& /*engine*/) {}
+	virtual void execute(EmuTime::param /*time*/, VDPCmdEngine& /*engine*/) {}
 };
 
 
@@ -49,14 +49,14 @@ public:
 	/** Reinitialise Renderer state.
 	  * @param time The moment in time the reset occurs.
 	  */
-	void reset(const EmuTime& time);
+	void reset(EmuTime::param time);
 
 	/** Synchronises the command engine with the VDP.
 	  * Ideally this would be a private method, but the current
 	  * design doesn't allow that.
 	  * @param time The moment in emulated time to sync to.
 	  */
-	inline void sync(const EmuTime& time) {
+	inline void sync(EmuTime::param time) {
 		if (currentCommand) currentCommand->execute(time, *this);
 	}
 
@@ -66,7 +66,7 @@ public:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	inline byte getStatus(const EmuTime& time) {
+	inline byte getStatus(EmuTime::param time) {
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
@@ -78,7 +78,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return Color value of the pixel.
 	  */
-	inline byte readColor(const EmuTime& time) {
+	inline byte readColor(EmuTime::param time) {
 		sync(time);
 		return COL;
 	}
@@ -97,7 +97,7 @@ public:
           * recently
 	  * @param time The moment in emulated time this get occurs.
 	  */
-	inline unsigned getBorderX(const EmuTime& time) {
+	inline unsigned getBorderX(EmuTime::param time) {
 		sync(time);
 		return ASX;
 	}
@@ -107,7 +107,7 @@ public:
 	  * @param value The new value for the specified register.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	void setCmdReg(byte index, byte value, const EmuTime& time);
+	void setCmdReg(byte index, byte value, EmuTime::param time);
 
 	/** Read the content of a command register. This method is meant to
 	  * be used by the debugger, there is no strict guarantee that the
@@ -121,7 +121,7 @@ public:
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(DisplayMode mode, const EmuTime& time);
+	void updateDisplayMode(DisplayMode mode, EmuTime::param time);
 
 	/** Interface for logical operations.
 	  */
@@ -139,11 +139,11 @@ private:
 
 	virtual void update(const Setting& setting);
 
-	void executeCommand(const EmuTime& time);
+	void executeCommand(EmuTime::param time);
 
 	/** Finshed executing graphical operation.
 	  */
-	void commandDone(const EmuTime& time);
+	void commandDone(EmuTime::param time);
 
 	/** Get the current command timing, depends on vdp settings (sprites, display).
 	  */

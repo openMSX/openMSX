@@ -25,7 +25,7 @@ public:
 	// Multiplexer interface
 	explicit DriveMultiplexer(DiskDrive* drive[4]);
 	virtual ~DriveMultiplexer();
-	void selectDrive(DriveNum num, const EmuTime& time);
+	void selectDrive(DriveNum num, EmuTime::param time);
 
 	// DiskDrive interface
 	virtual bool isReady() const;
@@ -33,15 +33,15 @@ public:
 	virtual bool isDoubleSided() const;
 	virtual bool isTrack00() const;
 	virtual void setSide(bool side);
-	virtual void step(bool direction, const EmuTime& time);
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual bool indexPulse(const EmuTime& time);
-	virtual int indexPulseCount(const EmuTime& begin,
-	                            const EmuTime& end);
-	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
-	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time);
-	virtual void setHeadLoaded(bool status, const EmuTime& time);
-	virtual bool headLoaded(const EmuTime& time);
+	virtual void step(bool direction, EmuTime::param time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual bool indexPulse(EmuTime::param time);
+	virtual int indexPulseCount(EmuTime::param begin,
+	                            EmuTime::param end);
+	virtual EmuTime getTimeTillSector(byte sector, EmuTime::param time);
+	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
+	virtual void setHeadLoaded(bool status, EmuTime::param time);
+	virtual bool headLoaded(EmuTime::param time);
 	virtual void read (byte sector, byte* buf,
 	                   byte& onDiskTrack, byte& onDiskSector,
 	                   byte& onDiskSide,  int&  onDiskSize);

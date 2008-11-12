@@ -33,19 +33,19 @@ MSXFDC::~MSXFDC()
 {
 }
 
-void MSXFDC::powerDown(const EmuTime& time)
+void MSXFDC::powerDown(EmuTime::param time)
 {
 	for (int i = 0; i < 4; ++i) {
 		drives[i]->setMotor(false, time);
 	}
 }
 
-byte MSXFDC::readMem(word address, const EmuTime& /*time*/)
+byte MSXFDC::readMem(word address, EmuTime::param /*time*/)
 {
 	return *MSXFDC::getReadCacheLine(address);
 }
 
-byte MSXFDC::peekMem(word address, const EmuTime& /*time*/) const
+byte MSXFDC::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return *MSXFDC::getReadCacheLine(address);
 }

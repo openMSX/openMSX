@@ -92,7 +92,7 @@ void V9990SDLRasterizer<Pixel>::frameStart()
 }
 
 template <class Pixel>
-void V9990SDLRasterizer<Pixel>::frameEnd(const EmuTime& time)
+void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(
 	    workFrame,

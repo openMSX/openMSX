@@ -28,15 +28,15 @@ public:
 	virtual bool isDoubleSided() const;
 	virtual bool isTrack00() const;
 	virtual void setSide(bool side);
-	virtual void step(bool direction, const EmuTime& time);
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual bool indexPulse(const EmuTime& time);
-	virtual int indexPulseCount(const EmuTime& begin,
-	                            const EmuTime& end);
-	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
-	virtual EmuTime getTimeTillIndexPulse(const EmuTime& time);
-	virtual void setHeadLoaded(bool status, const EmuTime& time);
-	virtual bool headLoaded(const EmuTime& time);
+	virtual void step(bool direction, EmuTime::param time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual bool indexPulse(EmuTime::param time);
+	virtual int indexPulseCount(EmuTime::param begin,
+	                            EmuTime::param end);
+	virtual EmuTime getTimeTillSector(byte sector, EmuTime::param time);
+	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
+	virtual void setHeadLoaded(bool status, EmuTime::param time);
+	virtual bool headLoaded(EmuTime::param time);
 	virtual void read (byte sector, byte* buf,
 	                   byte& onDiskTrack, byte& onDiskSector,
 	                   byte& onDiskSide,  int&  onDiskSize);
@@ -55,11 +55,11 @@ public:
 
 private:
 	// Timer stuff, needed for the notification of the loading state
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	// This is all for the ThrottleManager
-	void resetTimeOut(const EmuTime& time);
+	void resetTimeOut(EmuTime::param time);
 	void updateLoadingState();
 
 	static const int MAX_TRACK = 85;

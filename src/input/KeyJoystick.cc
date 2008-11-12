@@ -62,22 +62,22 @@ void KeyJoystick::allUp()
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
-void KeyJoystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+void KeyJoystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 }
 
-void KeyJoystick::unplugHelper(const EmuTime& /*time*/)
+void KeyJoystick::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
 
 // KeyJoystickDevice
-byte KeyJoystick::read(const EmuTime& /*time*/)
+byte KeyJoystick::read(EmuTime::param /*time*/)
 {
 	return status;
 }
 
-void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
+void KeyJoystick::write(byte /*value*/, EmuTime::param /*time*/)
 {
 	// nothing
 }
@@ -85,7 +85,7 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 
 // EventListener
 void KeyJoystick::signalEvent(shared_ptr<const Event> event,
-                              const EmuTime& /*time*/)
+                              EmuTime::param /*time*/)
 {
 	switch (event->getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:

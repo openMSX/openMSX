@@ -340,7 +340,7 @@ void FBPostProcessor<Pixel>::paint()
 template <class Pixel>
 RawFrame* FBPostProcessor<Pixel>::rotateFrames(
 	RawFrame* finishedFrame, FrameSource::FieldType field,
-	const EmuTime& time)
+	EmuTime::param time)
 {
 	for (unsigned y = 0; y < screen.getHeight(); ++y) {
 		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~15;

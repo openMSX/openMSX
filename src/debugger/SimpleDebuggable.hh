@@ -4,11 +4,11 @@
 #define SIMPLEDEBUGGABLE_HH
 
 #include "Debuggable.hh"
+#include "EmuTime.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
-class EmuTime;
 
 class SimpleDebuggable : public Debuggable
 {
@@ -22,9 +22,9 @@ public:
 	virtual const std::string& getDescription() const;
 
 	virtual byte read(unsigned address);
-	virtual byte read(unsigned address, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
 	virtual void write(unsigned address, byte value);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 
 private:
 	MSXMotherBoard& motherBoard;

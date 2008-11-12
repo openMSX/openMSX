@@ -3,6 +3,7 @@
 #ifndef SOUNDDEVICE_HH
 #define SOUNDDEVICE_HH
 
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -11,7 +12,6 @@ namespace openmsx {
 
 class MSXMixer;
 class XMLElement;
-class EmuTime;
 class EmuDuration;
 class WavWriter;
 class Filename;
@@ -77,7 +77,7 @@ protected:
 	void unregisterSound();
 
 	/** @see Mixer::updateStream */
-	void updateStream(const EmuTime& time);
+	void updateStream(EmuTime::param time);
 
 	void setInputRate(unsigned sampleRate);
 
@@ -113,7 +113,7 @@ public: // Will be called by Mixer:
 	  * buffer has enough space to hold them.
 	  */
 	virtual bool updateBuffer(unsigned length, int* buffer,
-	        const EmuTime& start, const EmuDuration& sampDur) = 0;
+	        EmuTime::param start, EmuDuration::param sampDur) = 0;
 
 protected:
 	/** Abstract method to generate the actual sound data.

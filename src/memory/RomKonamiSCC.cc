@@ -33,7 +33,7 @@ RomKonamiSCC::~RomKonamiSCC()
 {
 }
 
-void RomKonamiSCC::reset(const EmuTime& time)
+void RomKonamiSCC::reset(EmuTime::param time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -47,7 +47,7 @@ void RomKonamiSCC::reset(const EmuTime& time)
 	scc->reset(time);
 }
 
-byte RomKonamiSCC::peekMem(word address, const EmuTime& time) const
+byte RomKonamiSCC::peekMem(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->peekMem(address & 0xFF, time);
@@ -56,7 +56,7 @@ byte RomKonamiSCC::peekMem(word address, const EmuTime& time) const
 	}
 }
 
-byte RomKonamiSCC::readMem(word address, const EmuTime& time)
+byte RomKonamiSCC::readMem(word address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->readMem(address & 0xFF, time);
@@ -75,7 +75,7 @@ const byte* RomKonamiSCC::getReadCacheLine(word address) const
 	}
 }
 
-void RomKonamiSCC::writeMem(word address, byte value, const EmuTime& time)
+void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 {
 	if ((address < 0x5000) || (address >= 0xC000)) {
 		return;

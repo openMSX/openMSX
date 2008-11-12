@@ -26,19 +26,19 @@ public:
 	enum RTCMode { EMUTIME, REALTIME };
 
 	RP5C01(CommandController& commandController, SRAM& regs,
-	       const EmuTime& time);
+	       EmuTime::param time);
 	~RP5C01();
 
-	void reset(const EmuTime& time);
-	nibble readPort(nibble port, const EmuTime& time);
-	void writePort(nibble port, nibble value, const EmuTime& time);
+	void reset(EmuTime::param time);
+	nibble readPort(nibble port, EmuTime::param time);
+	void writePort(nibble port, nibble value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void initializeTime();
-	void updateTimeRegs(const EmuTime& time);
+	void updateTimeRegs(EmuTime::param time);
 	void regs2Time();
 	void time2Regs();
 	void resetAlarm();

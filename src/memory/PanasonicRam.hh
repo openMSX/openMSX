@@ -14,7 +14,7 @@ class PanasonicRam : public MSXMemoryMapper
 public:
 	PanasonicRam(MSXMotherBoard& motherBoard, const XMLElement& config);
 
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual byte* getWriteCacheLine(word start) const;
 
 	template<typename Archive>

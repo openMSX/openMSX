@@ -23,12 +23,12 @@ const std::string& NinjaTap::getDescription() const
 	return desc;
 }
 
-byte NinjaTap::read(const EmuTime& /*time*/)
+byte NinjaTap::read(EmuTime::param /*time*/)
 {
 	return status;
 }
 
-void NinjaTap::write(byte value, const EmuTime& time)
+void NinjaTap::write(byte value, EmuTime::param time)
 {
 	// bit 0 -> pin 6
 	// bit 1 -> pin 7

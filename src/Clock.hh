@@ -47,31 +47,31 @@ public:
 
 	/** Create a new clock, which starts ticking at the given time.
 	  */
-	explicit Clock(const EmuTime& e)
+	explicit Clock(EmuTime::param e)
 		: lastTick(e) { }
 
 	/** Gets the time at which the last clock tick occurred.
 	  */
-	const EmuTime& getTime() const { return lastTick; }
+	EmuTime::param getTime() const { return lastTick; }
 
 	/** Checks whether this clock's last tick is or is not before the
 	  * given time stamp.
 	  */
-	bool before(const EmuTime& e) const {
+	bool before(EmuTime::param e) const {
 		return lastTick.time < e.time;
 	}
 
 	/** Calculate the number of ticks for this clock until the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned getTicksTill(const EmuTime& e) const {
+	unsigned getTicksTill(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		return (e.time - lastTick.time) / MASTER_TICKS;
 	}
 	/** Same as above, only faster, Though the time interval may not
 	  * be too large.
 	  */
-	unsigned getTicksTill_fast(const EmuTime& e) const {
+	unsigned getTicksTill_fast(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		DivModByConst<MASTER_TICKS32> dm;
 		return dm.div(e.time - lastTick.time);
@@ -80,7 +80,7 @@ public:
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned getTicksTillUp(const EmuTime& e) const {
+	unsigned getTicksTillUp(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		DivModByConst<MASTER_TICKS32> dm;
 		return dm.div(e.time - lastTick.time + MASTER_TICKS32 - 1);
@@ -95,7 +95,7 @@ public:
 
 	/** Reset the clock to start ticking at the given time.
 	  */
-	void reset(const EmuTime& e) {
+	void reset(EmuTime::param e) {
 		lastTick.time = e.time;
 	}
 
@@ -103,14 +103,14 @@ public:
 	  * the given time.
 	  * It is not allowed to advance a clock to a time in the past.
 	  */
-	void advance(const EmuTime& e) {
+	void advance(EmuTime::param e) {
 		assert(lastTick.time <= e.time);
 		lastTick.time = e.time - ((e.time - lastTick.time) % MASTER_TICKS);
 	}
 	/** Same as above, only faster, Though the time interval may not
 	  * be too large.
 	  */
-	void advance_fast(const EmuTime& e) {
+	void advance_fast(EmuTime::param e) {
 		assert(lastTick.time <= e.time);
 		DivModByConst<MASTER_TICKS32> dm;
 		lastTick.time = e.time - dm.mod(e.time - lastTick.time);

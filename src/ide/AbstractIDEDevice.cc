@@ -54,7 +54,7 @@ void AbstractIDEDevice::createSignature(bool preserveDevice)
 	}
 }
 
-void AbstractIDEDevice::reset(const EmuTime& /*time*/)
+void AbstractIDEDevice::reset(EmuTime::param /*time*/)
 {
 	errorReg = diagnostic();
 	statusReg = DRDY | DSC;
@@ -64,7 +64,7 @@ void AbstractIDEDevice::reset(const EmuTime& /*time*/)
 	setTransferWrite(false);
 }
 
-byte AbstractIDEDevice::readReg(nibble reg, const EmuTime& /*time*/)
+byte AbstractIDEDevice::readReg(nibble reg, EmuTime::param /*time*/)
 {
 	switch (reg) {
 	case 1: // error register
@@ -108,7 +108,7 @@ byte AbstractIDEDevice::readReg(nibble reg, const EmuTime& /*time*/)
 }
 
 void AbstractIDEDevice::writeReg(
-	nibble reg, byte value, const EmuTime& /*time*/
+	nibble reg, byte value, EmuTime::param /*time*/
 	)
 {
 	switch (reg) {
@@ -162,7 +162,7 @@ void AbstractIDEDevice::writeReg(
 	}
 }
 
-word AbstractIDEDevice::readData(const EmuTime& /*time*/)
+word AbstractIDEDevice::readData(EmuTime::param /*time*/)
 {
 	assert(transferIdx < sizeof(buffer));
 	if (!transferRead) {
@@ -196,7 +196,7 @@ void AbstractIDEDevice::readNextBlock()
 	transferCount -= bufferLeft;
 }
 
-void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
+void AbstractIDEDevice::writeData(word value, EmuTime::param /*time*/)
 {
 	assert(transferIdx < sizeof(buffer));
 	if (!transferWrite) {

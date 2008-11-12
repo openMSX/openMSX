@@ -137,7 +137,7 @@ void SDLRasterizer<Pixel>::resetPalette()
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::frameStart(const EmuTime& time)
+void SDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(workFrame,
 	    vdp.isInterlaced()

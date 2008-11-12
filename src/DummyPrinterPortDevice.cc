@@ -4,17 +4,17 @@
 
 namespace openmsx {
 
-bool DummyPrinterPortDevice::getStatus(const EmuTime& /*time*/)
+bool DummyPrinterPortDevice::getStatus(EmuTime::param /*time*/)
 {
 	return true; // true = high = not ready
 }
 
-void DummyPrinterPortDevice::setStrobe(bool /*strobe*/, const EmuTime& /*time*/)
+void DummyPrinterPortDevice::setStrobe(bool /*strobe*/, EmuTime::param /*time*/)
 {
 	// ignore strobe
 }
 
-void DummyPrinterPortDevice::writeData(byte /*data*/, const EmuTime& /*time*/)
+void DummyPrinterPortDevice::writeData(byte /*data*/, EmuTime::param /*time*/)
 {
 	// ignore data
 }
@@ -26,11 +26,11 @@ const std::string& DummyPrinterPortDevice::getDescription() const
 }
 
 void DummyPrinterPortDevice::plugHelper(
-	Connector& /*connector*/, const EmuTime& /*time*/)
+	Connector& /*connector*/, EmuTime::param /*time*/)
 {
 }
 
-void DummyPrinterPortDevice::unplugHelper(const EmuTime& /*time*/)
+void DummyPrinterPortDevice::unplugHelper(EmuTime::param /*time*/)
 {
 }
 

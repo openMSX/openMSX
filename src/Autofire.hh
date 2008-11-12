@@ -5,6 +5,7 @@
 
 #include "Observer.hh"
 #include "DynamicClock.hh"
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -35,7 +36,7 @@ public:
 	  * @result When auto-fire is on, result will alternate between true
 	  *         and false. When auto-fire if off result is false.
 	  */
-	bool getSignal(const EmuTime& time);
+	bool getSignal(EmuTime::param time);
 
 private:
 	/** Sets the clock frequency according to the current value of the speed

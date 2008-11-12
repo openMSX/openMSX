@@ -17,8 +17,8 @@ public:
 	virtual const std::string& getDescription() const;
 
 	// JoystickDevice
-	virtual byte read(const EmuTime& time);
-	virtual void write(byte value, const EmuTime& time);
+	virtual byte read(EmuTime::param time);
+	virtual void write(byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

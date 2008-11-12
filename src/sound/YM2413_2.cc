@@ -711,14 +711,14 @@ class Global : public YM2413Core
 {
 public:
 	Global(MSXMotherBoard& motherBoard, const std::string& name,
-	       const XMLElement& config, const EmuTime& time);
+	       const XMLElement& config, EmuTime::param time);
 	virtual ~Global();
 
 	const byte* getInstrument(int instrument) {
 		return inst_tab[instrument];
 	}
 
-	void reset(const EmuTime& time);
+	void reset(EmuTime::param time);
 
 	/**
 	 * Reset operator parameters.
@@ -728,7 +728,7 @@ public:
 	virtual int getAmplificationFactor() const;
 	virtual void generateChannels(int** bufs, unsigned num);
 
-	virtual void writeReg(byte r, byte v, const EmuTime& time);
+	virtual void writeReg(byte r, byte v, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -1286,7 +1286,7 @@ void Channel::updateInstrument(Global& global, int instrument)
 }
 
 Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config, const EmuTime& time)
+               const XMLElement& config, EmuTime::param time)
 	: YM2413Core(motherBoard, name)
 	, lfo_am_cnt(0), lfo_pm_cnt(0)
 {
@@ -1378,7 +1378,7 @@ void Global::setRhythmFlags(byte flags)
 	}
 }
 
-void Global::reset(const EmuTime& time)
+void Global::reset(EmuTime::param time)
 {
 	eg_cnt    = 0;
 	noise_rng = 1;    // noise shift register
@@ -1527,7 +1527,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void Global::writeReg(byte r, byte v, const EmuTime& time)
+void Global::writeReg(byte r, byte v, EmuTime::param time)
 {
 	PRT_DEBUG("YM2413: write reg " << int(r) << " " << int(v));
 
@@ -1690,7 +1690,7 @@ void Global::serialize(Archive& ar, unsigned /*version*/)
 // YM2413_2
 
 YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
-                   const XMLElement& config, const EmuTime& time)
+                   const XMLElement& config, EmuTime::param time)
 	: global(new Global(motherBoard, name, config, time))
 {
 }
@@ -1699,12 +1699,12 @@ YM2413_2::~YM2413_2()
 {
 }
 
-void YM2413_2::reset(const EmuTime& time)
+void YM2413_2::reset(EmuTime::param time)
 {
 	global->reset(time);
 }
 
-void YM2413_2::writeReg(byte r, byte v, const EmuTime& time)
+void YM2413_2::writeReg(byte r, byte v, EmuTime::param time)
 {
 	global->writeReg(r, v, time);
 }

@@ -54,7 +54,7 @@ MSXHBI55::~MSXHBI55()
 {
 }
 
-void MSXHBI55::reset(const EmuTime& time)
+void MSXHBI55::reset(EmuTime::param time)
 {
 	readAddress = 0;
 	writeAddress = 0;
@@ -64,7 +64,7 @@ void MSXHBI55::reset(const EmuTime& time)
 	i8255->reset(time);
 }
 
-byte MSXHBI55::readIO(word port, const EmuTime& time)
+byte MSXHBI55::readIO(word port, EmuTime::param time)
 {
 	byte result;
 	switch (port & 0x03) {
@@ -88,7 +88,7 @@ byte MSXHBI55::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte MSXHBI55::peekIO(word port, const EmuTime& time) const
+byte MSXHBI55::peekIO(word port, EmuTime::param time) const
 {
 	byte result;
 	switch (port & 0x03) {
@@ -111,7 +111,7 @@ byte MSXHBI55::peekIO(word port, const EmuTime& time) const
 	return result;
 }
 
-void MSXHBI55::writeIO(word port, byte value, const EmuTime& time)
+void MSXHBI55::writeIO(word port, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x03) {
@@ -135,30 +135,30 @@ void MSXHBI55::writeIO(word port, byte value, const EmuTime& time)
 
 // I8255Interface
 
-byte MSXHBI55::readA(const EmuTime& time)
+byte MSXHBI55::readA(EmuTime::param time)
 {
 	return peekA(time);
 }
-byte MSXHBI55::peekA(const EmuTime& /*time*/) const
+byte MSXHBI55::peekA(EmuTime::param /*time*/) const
 {
 	// TODO check this
 	return 255;
 }
-byte MSXHBI55::readB(const EmuTime& time)
+byte MSXHBI55::readB(EmuTime::param time)
 {
 	return peekB(time);
 }
-byte MSXHBI55::peekB(const EmuTime& /*time*/) const
+byte MSXHBI55::peekB(EmuTime::param /*time*/) const
 {
 	// TODO check this
 	return 255;
 }
 
-void MSXHBI55::writeA(byte value, const EmuTime& /*time*/)
+void MSXHBI55::writeA(byte value, EmuTime::param /*time*/)
 {
 	addressLatch = value;
 }
-void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
+void MSXHBI55::writeB(byte value, EmuTime::param /*time*/)
 {
 	word address = addressLatch | ((value & 0x0F) << 8);
 	mode = value >> 6;
@@ -179,28 +179,28 @@ void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
 	}
 }
 
-nibble MSXHBI55::readC0(const EmuTime& time)
+nibble MSXHBI55::readC0(EmuTime::param time)
 {
 	return peekC0(time);
 }
-nibble MSXHBI55::peekC0(const EmuTime& /*time*/) const
+nibble MSXHBI55::peekC0(EmuTime::param /*time*/) const
 {
 	return readSRAM(readAddress) & 0x0F;
 }
-nibble MSXHBI55::readC1(const EmuTime& time)
+nibble MSXHBI55::readC1(EmuTime::param time)
 {
 	return peekC1(time);
 }
-nibble MSXHBI55::peekC1(const EmuTime& /*time*/) const
+nibble MSXHBI55::peekC1(EmuTime::param /*time*/) const
 {
 	return readSRAM(readAddress) >> 4;
 }
 
-void MSXHBI55::writeC0(nibble value, const EmuTime& /*time*/)
+void MSXHBI55::writeC0(nibble value, EmuTime::param /*time*/)
 {
 	writeLatch = (writeLatch & 0xF0) | value;
 }
-void MSXHBI55::writeC1(nibble value, const EmuTime& /*time*/)
+void MSXHBI55::writeC1(nibble value, EmuTime::param /*time*/)
 {
 	writeLatch = (writeLatch & 0x0F) | (value << 4);
 	if (mode == 1) {

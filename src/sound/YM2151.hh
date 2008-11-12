@@ -33,6 +33,7 @@
 #ifndef YM2151_HH
 #define YM2151_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include <string>
 #include <memory>
@@ -41,7 +42,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class EmuTime;
 class YM2151Impl;
 
 class YM2151
@@ -49,11 +49,11 @@ class YM2151
 public:
 	YM2151(MSXMotherBoard& motherBoard, const std::string& name,
 	       const std::string& desc, const XMLElement& config,
-	       const EmuTime& time);
+	       EmuTime::param time);
 	~YM2151();
 
-	void reset(const EmuTime& time);
-	void writeReg(byte r, byte v, const EmuTime& time);
+	void reset(EmuTime::param time);
+	void writeReg(byte r, byte v, EmuTime::param time);
 	byte readStatus();
 
 	template<typename Archive>

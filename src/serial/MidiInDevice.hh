@@ -13,7 +13,7 @@ public:
 	// Pluggable (part)
 	virtual const std::string& getClass() const;
 
-	virtual void signal(const EmuTime& time) = 0;
+	virtual void signal(EmuTime::param time) = 0;
 };
 
 } // namespace openmsx

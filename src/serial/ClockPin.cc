@@ -15,7 +15,7 @@ ClockPin::ClockPin(Scheduler& scheduler, ClockPinListener* listener_)
 {
 }
 
-void ClockPin::setState(bool newStatus, const EmuTime& time)
+void ClockPin::setState(bool newStatus, EmuTime::param time)
 {
 	periodic = false;
 	if (signalEdge) {
@@ -35,8 +35,8 @@ void ClockPin::setState(bool newStatus, const EmuTime& time)
 	}
 }
 
-void ClockPin::setPeriodicState(const EmuDuration& total,
-	const EmuDuration& hi, const EmuTime& time)
+void ClockPin::setPeriodicState(EmuDuration::param total,
+	EmuDuration::param hi, EmuTime::param time)
 {
 	referenceTime = time;
 	totalDur = total;
@@ -57,7 +57,7 @@ void ClockPin::setPeriodicState(const EmuDuration& total,
 }
 
 
-bool ClockPin::getState(const EmuTime& time) const
+bool ClockPin::getState(EmuTime::param time) const
 {
 	if (!periodic) {
 		return status;
@@ -71,19 +71,19 @@ bool ClockPin::isPeriodic() const
 	return periodic;
 }
 
-const EmuDuration& ClockPin::getTotalDuration() const
+EmuDuration::param ClockPin::getTotalDuration() const
 {
 	assert(periodic);
 	return totalDur;
 }
 
-const EmuDuration& ClockPin::getHighDuration() const
+EmuDuration::param ClockPin::getHighDuration() const
 {
 	assert(periodic);
 	return hiDur;
 }
 
-int ClockPin::getTicksBetween(const EmuTime& begin, const EmuTime& end) const
+int ClockPin::getTicksBetween(EmuTime::param begin, EmuTime::param end) const
 {
 	assert(begin <= end);
 	if (!periodic) {
@@ -101,7 +101,7 @@ int ClockPin::getTicksBetween(const EmuTime& begin, const EmuTime& end) const
 }
 
 
-void ClockPin::generateEdgeSignals(bool wanted, const EmuTime& time)
+void ClockPin::generateEdgeSignals(bool wanted, EmuTime::param time)
 {
 	if (signalEdge != wanted) {
 		signalEdge = wanted;
@@ -126,13 +126,13 @@ void ClockPin::unschedule()
 	removeSyncPoint();
 }
 
-void ClockPin::schedule(const EmuTime& time)
+void ClockPin::schedule(EmuTime::param time)
 {
 	assert(signalEdge && periodic && listener);
 	setSyncPoint(time);
 }
 
-void ClockPin::executeUntil(const EmuTime& time, int /*userdata*/)
+void ClockPin::executeUntil(EmuTime::param time, int /*userdata*/)
 {
 	assert(signalEdge && periodic && listener);
 	listener->signalPosEdge(*this, time);

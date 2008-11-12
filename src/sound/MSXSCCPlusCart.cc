@@ -68,7 +68,7 @@ MSXSCCPlusCart::~MSXSCCPlusCart()
 {
 }
 
-void MSXSCCPlusCart::reset(const EmuTime& time)
+void MSXSCCPlusCart::reset(EmuTime::param time)
 {
 	setModeRegister(0);
 	setMapper(0, 0);
@@ -79,7 +79,7 @@ void MSXSCCPlusCart::reset(const EmuTime& time)
 }
 
 
-byte MSXSCCPlusCart::readMem(word addr, const EmuTime& time)
+byte MSXSCCPlusCart::readMem(word addr, EmuTime::param time)
 {
 	byte result;
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
@@ -92,7 +92,7 @@ byte MSXSCCPlusCart::readMem(word addr, const EmuTime& time)
 	return result;
 }
 
-byte MSXSCCPlusCart::peekMem(word addr, const EmuTime& time) const
+byte MSXSCCPlusCart::peekMem(word addr, EmuTime::param time) const
 {
 	// modeRegister can not be read!
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
@@ -126,7 +126,7 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 }
 
 
-void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime& time)
+void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("SCC+ write "<< hex << address << " " << (int)value << dec);
 

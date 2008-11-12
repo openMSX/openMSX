@@ -3,6 +3,7 @@
 #ifndef MSXMOTHERBOARD_HH
 #define MSXMOTHERBOARD_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -40,7 +41,6 @@ class FilePool;
 class GlobalSettings;
 class CommandController;
 class InfoCommand;
-class EmuTime;
 class MSXMotherBoardImpl;
 class MSXMapperIO;
 
@@ -80,7 +80,7 @@ public:
 
 	void powerUp();
 	void schedulePowerDown();
-	void doPowerDown(const EmuTime& time);
+	void doPowerDown(EmuTime::param time);
 
 	void activate(bool active);
 	bool isActive() const;
@@ -90,7 +90,7 @@ public:
 	 * all registered MSXDevices is called)
 	 */
 	void scheduleReset();
-	void doReset(const EmuTime& time);
+	void doReset(EmuTime::param time);
 
 	byte readIRQVector();
 
@@ -145,7 +145,7 @@ public:
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */
-	const EmuTime& getCurrentTime();
+	EmuTime::param getCurrentTime();
 
 	/**
 	 * All MSXDevices should be registered by the MotherBoard.

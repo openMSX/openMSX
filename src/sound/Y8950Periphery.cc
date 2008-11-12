@@ -14,21 +14,21 @@ void Y8950Periphery::reset()
 	// nothing
 }
 
-void Y8950Periphery::setSPOFF(bool /*value*/, const EmuTime& /*time*/)
+void Y8950Periphery::setSPOFF(bool /*value*/, EmuTime::param /*time*/)
 {
 	// nothing
 }
 
-byte Y8950Periphery::readMem(word address, const EmuTime& time)
+byte Y8950Periphery::readMem(word address, EmuTime::param time)
 {
 	// by default do same as peekMem()
 	return peekMem(address, time);
 }
-byte Y8950Periphery::peekMem(word /*address*/, const EmuTime& /*time*/) const
+byte Y8950Periphery::peekMem(word /*address*/, EmuTime::param /*time*/) const
 {
 	return 0xFF;
 }
-void Y8950Periphery::writeMem(word /*address*/, byte /*value*/, const EmuTime& /*time*/)
+void Y8950Periphery::writeMem(word /*address*/, byte /*value*/, EmuTime::param /*time*/)
 {
 	// nothing
 }

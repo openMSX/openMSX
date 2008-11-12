@@ -57,7 +57,7 @@ Y8950Adpcm::~Y8950Adpcm()
 {
 }
 
-void Y8950Adpcm::reset(const EmuTime& time)
+void Y8950Adpcm::reset(EmuTime::param time)
 {
 	startAddr = 0;
 	stopAddr = 7;
@@ -92,7 +92,7 @@ void Y8950Adpcm::restart()
 	volumeWStep = (volume * delta) >> STEP_BITS;
 }
 
-void Y8950Adpcm::schedule(const EmuTime& time)
+void Y8950Adpcm::schedule(EmuTime::param time)
 {
 	if ((stopAddr > startAddr) && (delta != 0)) {
 		uint64 samples = stopAddr - memPntr + 1;
@@ -102,7 +102,7 @@ void Y8950Adpcm::schedule(const EmuTime& time)
 	}
 }
 
-void Y8950Adpcm::executeUntil(const EmuTime& time, int /*userData*/)
+void Y8950Adpcm::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	y8950.setStatus(Y8950::STATUS_EOS);
 	if (reg7 & R07_REPEAT) {
@@ -116,7 +116,7 @@ const std::string& Y8950Adpcm::schedName() const
 	return name;
 }
 
-void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime& time)
+void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 {
 	//PRT_DEBUG("Y8950Adpcm: write "<<(int)rg<<" "<<(int)data);
 	switch (rg) {

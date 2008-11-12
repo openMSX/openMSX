@@ -33,7 +33,7 @@ public:
 	         Debugger& debugger);
 	virtual bool needRecord(const vector<TclObject*>& tokens) const;
 	virtual void execute(const vector<TclObject*>& tokens,
-	                     TclObject& result, const EmuTime& time);
+	                     TclObject& result, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 
@@ -263,7 +263,7 @@ bool DebugCmd::needRecord(const vector<TclObject*>& tokens) const
 }
 
 void DebugCmd::execute(const vector<TclObject*>& tokens,
-                       TclObject& result, const EmuTime& /*time*/)
+                       TclObject& result, EmuTime::param /*time*/)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");

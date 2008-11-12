@@ -28,7 +28,7 @@ RomKonami::RomKonami(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// up anyway.
 }
 
-void RomKonami::reset(const EmuTime& /*time*/)
+void RomKonami::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -39,7 +39,7 @@ void RomKonami::reset(const EmuTime& /*time*/)
 	setBank(7, unmappedRead);
 }
 
-void RomKonami::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomKonami::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	// Note: [0x4000..0x6000) is fixed at segment 0.
 	if (0x6000 <= address && address < 0xC000) {

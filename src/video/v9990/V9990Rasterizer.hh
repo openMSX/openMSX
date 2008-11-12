@@ -4,11 +4,10 @@
 #define V9990RASTERIZER_HH
 
 #include "V9990ModeEnum.hh"
+#include "EmuTime.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
-
-class EmuTime;
 
 /** If this seems awfully familiar, take a look at Rasterizer.hh
   * It's virtually the same class, but for a different video processor.
@@ -35,7 +34,7 @@ public:
 
 	/** Indicates the end of the current frame.
 	  */
-	virtual void frameEnd(const EmuTime& time) = 0;
+	virtual void frameEnd(EmuTime::param time) = 0;
 
 	/** The display mode determines the screens geometry and how V9990
 	  * pixels are mapped to pixels on screen.

@@ -25,22 +25,22 @@ const std::string& SETetrisDongle::getDescription() const
 }
 
 void SETetrisDongle::plugHelper(
-	Connector& /*connector*/, const EmuTime& /*time*/)
+	Connector& /*connector*/, EmuTime::param /*time*/)
 {
 }
 
-void SETetrisDongle::unplugHelper(const EmuTime& /*time*/)
+void SETetrisDongle::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
 
 // JoystickDevice
-byte SETetrisDongle::read(const EmuTime& /*time*/)
+byte SETetrisDongle::read(EmuTime::param /*time*/)
 {
 	return status;
 }
 
-void SETetrisDongle::write(byte value, const EmuTime& /*time*/)
+void SETetrisDongle::write(byte value, EmuTime::param /*time*/)
 {
 	// Original device used 4 NOR ports
 	// pin4 will be value of pin7

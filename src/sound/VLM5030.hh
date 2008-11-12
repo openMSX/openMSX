@@ -3,6 +3,7 @@
 #ifndef VLM5030_HH
 #define VLM5030_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include <string>
 #include <memory>
@@ -11,7 +12,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class EmuTime;
 class VLM5030Impl;
 
 class VLM5030
@@ -26,10 +26,10 @@ public:
 	void writeData(byte data);
 
 	/** set RST / VCU / ST pins */
-	void writeControl(byte data, const EmuTime& time);
+	void writeControl(byte data, EmuTime::param time);
 
 	/** get BSY pin level */
-	bool getBSY(const EmuTime& time);
+	bool getBSY(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

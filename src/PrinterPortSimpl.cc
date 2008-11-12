@@ -12,17 +12,17 @@ PrinterPortSimpl::PrinterPortSimpl(MSXMixer& mixer_)
 {
 }
 
-bool PrinterPortSimpl::getStatus(const EmuTime& /*time*/)
+bool PrinterPortSimpl::getStatus(EmuTime::param /*time*/)
 {
 	return true; // TODO check
 }
 
-void PrinterPortSimpl::setStrobe(bool /*strobe*/, const EmuTime& /*time*/)
+void PrinterPortSimpl::setStrobe(bool /*strobe*/, EmuTime::param /*time*/)
 {
 	// ignore strobe // TODO check
 }
 
-void PrinterPortSimpl::writeData(byte data, const EmuTime& time)
+void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
 {
 	dac->writeDAC(data, time);
 }
@@ -43,12 +43,12 @@ void PrinterPortSimpl::createDAC()
 	dac.reset(new DACSound8U(mixer, "simpl", getDescription(), simplConfig));
 }
 
-void PrinterPortSimpl::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	createDAC();
 }
 
-void PrinterPortSimpl::unplugHelper(const EmuTime& /*time*/)
+void PrinterPortSimpl::unplugHelper(EmuTime::param /*time*/)
 {
 	dac.reset();
 }

@@ -34,18 +34,18 @@ MSXS1990::~MSXS1990()
 {
 }
 
-void MSXS1990::reset(const EmuTime& /*time*/)
+void MSXS1990::reset(EmuTime::param /*time*/)
 {
 	registerSelect = 0; // TODO check this
 	setCPUStatus(96);
 }
 
-byte MSXS1990::readIO(word port, const EmuTime& time)
+byte MSXS1990::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXS1990::peekIO(word port, const EmuTime& /*time*/) const
+byte MSXS1990::peekIO(word port, EmuTime::param /*time*/) const
 {
 	switch (port & 0x01) {
 	case 0:
@@ -58,7 +58,7 @@ byte MSXS1990::peekIO(word port, const EmuTime& /*time*/) const
 	}
 }
 
-void MSXS1990::writeIO(word port, byte value, const EmuTime& /*time*/)
+void MSXS1990::writeIO(word port, byte value, EmuTime::param /*time*/)
 {
 	switch (port & 0x01) {
 	case 0:

@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-V9990VRAM::V9990VRAM(V9990& vdp_, const EmuTime& /*time*/)
+V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
 	: vdp(vdp_), cmdEngine(0)
 	, data(vdp.getMotherBoard(), vdp.getName() + " VRAM",
 	       "V9990 Video RAM", VRAM_SIZE)
@@ -28,14 +28,14 @@ unsigned V9990VRAM::mapAddress(unsigned address)
 	}
 }
 
-byte V9990VRAM::readVRAMCPU(unsigned address, const EmuTime& time)
+byte V9990VRAM::readVRAMCPU(unsigned address, EmuTime::param time)
 {
 	// note: used for both normal and debug read
 	sync(time);
 	return data[mapAddress(address)];
 }
 
-void V9990VRAM::writeVRAMCPU(unsigned address, byte value, const EmuTime& time)
+void V9990VRAM::writeVRAMCPU(unsigned address, byte value, EmuTime::param time)
 {
 	sync(time);
 	data[mapAddress(address)] = value;

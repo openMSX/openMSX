@@ -14,12 +14,12 @@ class DiskDrive;
 class TC8566AF : private noncopyable
 {
 public:
-	TC8566AF(DiskDrive* drive[4], const EmuTime& time);
+	TC8566AF(DiskDrive* drive[4], EmuTime::param time);
 
-	void reset(const EmuTime& time);
-	byte readReg(int reg, const EmuTime& time);
-	byte peekReg(int reg, const EmuTime& time) const;
-	void writeReg(int reg, byte data, const EmuTime& time);
+	void reset(EmuTime::param time);
+	byte readReg(int reg, EmuTime::param time);
+	byte peekReg(int reg, EmuTime::param time) const;
+	void writeReg(int reg, byte data, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
 	bool peekDiskChanged(unsigned driveNum) const;
 
@@ -54,17 +54,17 @@ public:
 
 private:
 	byte peekDataPort() const;
-	byte readDataPort(const EmuTime& time);
+	byte readDataPort(EmuTime::param time);
 	byte peekStatus() const;
-	byte readStatus(const EmuTime& time);
+	byte readStatus(EmuTime::param time);
 	byte executionPhasePeek() const;
 	byte executionPhaseRead();
 	byte resultsPhasePeek() const;
 	byte resultsPhaseRead();
-	void writeDataPort(byte value, const EmuTime& time);
+	void writeDataPort(byte value, EmuTime::param time);
 	void idlePhaseWrite(byte value);
 	void commandPhase1(byte value);
-	void commandPhaseWrite(byte value, const EmuTime& time);
+	void commandPhaseWrite(byte value, EmuTime::param time);
 	void executionPhaseWrite(byte value);
 
 	DiskDrive* drive[4];

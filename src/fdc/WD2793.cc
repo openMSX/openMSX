@@ -37,7 +37,7 @@ static const int IMM_IRQ    = 0x08;
 // Sync point types
 enum SyncPointType { SCHED_FSM, SCHED_IDX_IRQ };
 
-WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, const EmuTime& time)
+WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, EmuTime::param time)
 	: Schedulable(scheduler)
 	, drive(drive_)
 	, commandStart(time)
@@ -51,7 +51,7 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, const EmuTime& time)
 	reset(time);
 }
 
-void WD2793::reset(const EmuTime& time)
+void WD2793::reset(EmuTime::param time)
 {
 	removeSyncPoint(SCHED_FSM);
 	removeSyncPoint(SCHED_IDX_IRQ);
@@ -74,7 +74,7 @@ void WD2793::reset(const EmuTime& time)
 	setCommandReg(0x03, time);
 }
 
-bool WD2793::getDTRQ(const EmuTime& time)
+bool WD2793::getDTRQ(EmuTime::param time)
 {
 	if (((commandReg & 0xC0) == 0x80) && (statusReg & BUSY)) {
 		// read/write sector cmd busy
@@ -105,18 +105,18 @@ bool WD2793::getDTRQ(const EmuTime& time)
 	return DRQ;
 }
 
-bool WD2793::peekDTRQ(const EmuTime& /*time*/)
+bool WD2793::peekDTRQ(EmuTime::param /*time*/)
 {
 	return DRQ; // TODO can be improved
 }
 
-bool WD2793::getIRQ(const EmuTime& /*time*/)
+bool WD2793::getIRQ(EmuTime::param /*time*/)
 {
 	//PRT_DEBUG("WD2793::getIRQ() " << INTRQ);
 	return INTRQ | immediateIRQ;
 }
 
-bool WD2793::peekIRQ(const EmuTime& time)
+bool WD2793::peekIRQ(EmuTime::param time)
 {
 	return getIRQ(time);
 }
@@ -131,13 +131,13 @@ void WD2793::resetIRQ()
 	INTRQ = false;
 }
 
-void WD2793::setDRQ(bool drq, const EmuTime& time)
+void WD2793::setDRQ(bool drq, EmuTime::param time)
 {
 	DRQ = drq;
 	DRQTimer.advance(time);
 }
 
-void WD2793::setCommandReg(byte value, const EmuTime& time)
+void WD2793::setCommandReg(byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("WD2793::setCommandReg() 0x" << std::hex << (int)value);
 	removeSyncPoint(SCHED_FSM);
@@ -176,7 +176,7 @@ void WD2793::setCommandReg(byte value, const EmuTime& time)
 	}
 }
 
-byte WD2793::getStatusReg(const EmuTime& time)
+byte WD2793::getStatusReg(EmuTime::param time)
 {
 	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
 		// Type I or type IV command
@@ -213,44 +213,44 @@ byte WD2793::getStatusReg(const EmuTime& time)
 	return statusReg;
 }
 
-byte WD2793::peekStatusReg(const EmuTime& time)
+byte WD2793::peekStatusReg(EmuTime::param time)
 {
 	return getStatusReg(time);
 }
 
-void WD2793::setTrackReg(byte value, const EmuTime& /*time*/)
+void WD2793::setTrackReg(byte value, EmuTime::param /*time*/)
 {
 	//PRT_DEBUG("WD2793::setTrackReg() 0x" << std::hex << (int)value);
 	trackReg = value;
 }
 
-byte WD2793::getTrackReg(const EmuTime& /*time*/)
+byte WD2793::getTrackReg(EmuTime::param /*time*/)
 {
 	return trackReg;
 }
 
-byte WD2793::peekTrackReg (const EmuTime& time)
+byte WD2793::peekTrackReg (EmuTime::param time)
 {
 	return getTrackReg(time);
 }
 
-void WD2793::setSectorReg(byte value, const EmuTime& /*time*/)
+void WD2793::setSectorReg(byte value, EmuTime::param /*time*/)
 {
 	//PRT_DEBUG("WD2793::setSectorReg() 0x" << std::hex << (int)value);
 	sectorReg = value;
 }
 
-byte WD2793::getSectorReg(const EmuTime& /*time*/)
+byte WD2793::getSectorReg(EmuTime::param /*time*/)
 {
 	return sectorReg;
 }
 
-byte WD2793::peekSectorReg(const EmuTime& time)
+byte WD2793::peekSectorReg(EmuTime::param time)
 {
 	return getSectorReg(time);
 }
 
-void WD2793::setDataReg(byte value, const EmuTime& time)
+void WD2793::setDataReg(byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("WD2793::setDataReg() 0x" << std::hex << (int)value);
 	// TODO Is this also true in case of sector write?
@@ -364,7 +364,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 	}
 }
 
-byte WD2793::getDataReg(const EmuTime& time)
+byte WD2793::getDataReg(EmuTime::param time)
 {
 	if (((commandReg & 0xE0) == 0x80) && (statusReg & BUSY)) {
 		// READ SECTOR
@@ -388,7 +388,7 @@ byte WD2793::getDataReg(const EmuTime& time)
 	return dataReg;
 }
 
-byte WD2793::peekDataReg(const EmuTime& /*time*/)
+byte WD2793::peekDataReg(EmuTime::param /*time*/)
 {
 	if (((commandReg & 0xE0) == 0x80) && (statusReg & BUSY)) {
 		// READ SECTOR
@@ -424,14 +424,14 @@ void WD2793::tryToReadSector()
 }
 
 
-void WD2793::schedule(FSMState state, const EmuTime& time)
+void WD2793::schedule(FSMState state, EmuTime::param time)
 {
 	assert(!pendingSyncPoint(SCHED_FSM));
 	fsmState = state;
 	setSyncPoint(time, SCHED_FSM);
 }
 
-void WD2793::executeUntil(const EmuTime& time, int userData)
+void WD2793::executeUntil(EmuTime::param time, int userData)
 {
 	if (userData == SCHED_IDX_IRQ) {
 		INTRQ = true;
@@ -491,7 +491,7 @@ const std::string& WD2793::schedName() const
 	return name;
 }
 
-void WD2793::startType1Cmd(const EmuTime& time)
+void WD2793::startType1Cmd(EmuTime::param time)
 {
 	statusReg &= ~(SEEK_ERROR | CRC_ERROR);
 	statusReg |= BUSY;
@@ -529,7 +529,7 @@ void WD2793::startType1Cmd(const EmuTime& time)
 	}
 }
 
-void WD2793::seek(const EmuTime& time)
+void WD2793::seek(EmuTime::param time)
 {
 	if (trackReg == dataReg) {
 		endType1Cmd();
@@ -539,7 +539,7 @@ void WD2793::seek(const EmuTime& time)
 	}
 }
 
-void WD2793::step(const EmuTime& time)
+void WD2793::step(EmuTime::param time)
 {
 	const int timePerStep[4] = {
 		// in ms, in case a 1MHz clock is used (as in MSX)
@@ -565,7 +565,7 @@ void WD2793::step(const EmuTime& time)
 	}
 }
 
-void WD2793::seekNext(const EmuTime& time)
+void WD2793::seekNext(EmuTime::param time)
 {
 	if ((commandReg & 0xE0) == 0x00) {
 		// Restore or seek
@@ -585,7 +585,7 @@ void WD2793::endType1Cmd()
 }
 
 
-void WD2793::startType2Cmd(const EmuTime& time)
+void WD2793::startType2Cmd(EmuTime::param time)
 {
 	statusReg &= ~(LOST_DATA   | RECORD_NOT_FOUND |
 	               RECORD_TYPE | WRITE_PROTECTED);
@@ -608,7 +608,7 @@ void WD2793::startType2Cmd(const EmuTime& time)
 	}
 }
 
-void WD2793::type2WaitLoad(const EmuTime& time)
+void WD2793::type2WaitLoad(EmuTime::param time)
 {
 	// TODO wait till head loaded, I arbitrarily took 1ms delay
 	Clock<1000> next(time);
@@ -616,7 +616,7 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 	schedule(FSM_TYPE2_LOADED, next.getTime());
 }
 
-void WD2793::type2Loaded(const EmuTime& time)
+void WD2793::type2Loaded(EmuTime::param time)
 {
 	if (((commandReg & 0xE0) == 0xA0) && (drive.isWriteProtected())) {
 		// write command and write protected
@@ -647,7 +647,7 @@ void WD2793::type2Rotated()
 	}
 }
 
-void WD2793::startType3Cmd(const EmuTime& time)
+void WD2793::startType3Cmd(EmuTime::param time)
 {
 	//PRT_DEBUG("WD2793 start type 3 command");
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
@@ -671,7 +671,7 @@ void WD2793::startType3Cmd(const EmuTime& time)
 	}
 }
 
-void WD2793::type3WaitLoad(const EmuTime& time)
+void WD2793::type3WaitLoad(EmuTime::param time)
 {
 	// TODO wait till head loaded, I arbitrarily took 1ms delay
 	Clock<1000> next(time);
@@ -679,7 +679,7 @@ void WD2793::type3WaitLoad(const EmuTime& time)
 	schedule(FSM_TYPE3_LOADED, next.getTime());
 }
 
-void WD2793::type3Loaded(const EmuTime& time)
+void WD2793::type3Loaded(EmuTime::param time)
 {
 
 	// TODO TG43 update
@@ -710,7 +710,7 @@ void WD2793::readTrackCmd()
 	endCmd();
 }
 
-void WD2793::writeTrackCmd(const EmuTime& time)
+void WD2793::writeTrackCmd(EmuTime::param time)
 {
 	PRT_DEBUG("WD2793 command: write track");
 
@@ -745,7 +745,7 @@ void WD2793::endWriteTrackCmd()
 	endCmd();
 }
 
-void WD2793::startType4Cmd(const EmuTime& time)
+void WD2793::startType4Cmd(EmuTime::param time)
 {
 	// Force interrupt
 	PRT_DEBUG("WD2793 command: Force interrupt");

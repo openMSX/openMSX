@@ -22,7 +22,7 @@ RomHarryFox::RomHarryFox(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomHarryFox::reset(const EmuTime& /*time*/)
+void RomHarryFox::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -30,7 +30,7 @@ void RomHarryFox::reset(const EmuTime& /*time*/)
 	setBank(3, unmappedRead);
 }
 
-void RomHarryFox::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomHarryFox::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if        ((0x6000 <= address) && (address < 0x7000)) {
 		setRom(1, 2 * (value & 1) + 0);

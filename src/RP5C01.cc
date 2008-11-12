@@ -51,7 +51,7 @@ static EnumSetting<RP5C01::RTCMode>* createModeSetting(
 }
 
 RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
-               const EmuTime& time)
+               EmuTime::param time)
 	: regs(regs_)
 	, modeSetting(createModeSetting(commandController))
 	, reference(time)
@@ -64,7 +64,7 @@ RP5C01::~RP5C01()
 {
 }
 
-void RP5C01::reset(const EmuTime& time)
+void RP5C01::reset(EmuTime::param time)
 {
 	modeReg = MODE_TIMERENABLE;
 	testReg = 0;
@@ -72,7 +72,7 @@ void RP5C01::reset(const EmuTime& time)
 	updateTimeRegs(time);
 }
 
-nibble RP5C01::readPort(nibble port, const EmuTime& time)
+nibble RP5C01::readPort(nibble port, EmuTime::param time)
 {
 	assert(port <= 0x0f);
 	switch (port) {
@@ -92,7 +92,7 @@ nibble RP5C01::readPort(nibble port, const EmuTime& time)
 	}
 }
 
-void RP5C01::writePort(nibble port, nibble value, const EmuTime& time)
+void RP5C01::writePort(nibble port, nibble value, EmuTime::param time)
 {
 	assert (port<=0x0f);
 	switch (port) {
@@ -192,7 +192,7 @@ static int daysInMonth(int month, unsigned leapYear)
 	return ((month == 1) && (leapYear == 0)) ? 29 : daysInMonths[month];
 }
 
-void RP5C01::updateTimeRegs(const EmuTime& time)
+void RP5C01::updateTimeRegs(EmuTime::param time)
 {
 	if (modeSetting->getValue() == EMUTIME) {
 		// sync with EmuTime, perfect emulation

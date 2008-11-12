@@ -21,7 +21,7 @@ RomMSXDOS2::RomMSXDOS2(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomMSXDOS2::reset(const EmuTime& /*time*/)
+void RomMSXDOS2::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -29,7 +29,7 @@ void RomMSXDOS2::reset(const EmuTime& /*time*/)
 	setBank(3, unmappedRead);
 }
 
-void RomMSXDOS2::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomMSXDOS2::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	switch (range) {
 	case 0x00:

@@ -16,14 +16,14 @@ public:
 	explicit Y8950KeyboardConnector(PluggingController& pluggingController);
 	virtual ~Y8950KeyboardConnector();
 
-	void write(byte data, const EmuTime& time);
-	byte read(const EmuTime& time);
+	void write(byte data, EmuTime::param time);
+	byte read(EmuTime::param time);
 	Y8950KeyboardDevice& getPluggedKeyb() const;
 
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
-	virtual void plug(Pluggable& dev, const EmuTime& time);
+	virtual void plug(Pluggable& dev, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

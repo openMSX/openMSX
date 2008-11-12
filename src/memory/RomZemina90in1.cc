@@ -34,7 +34,7 @@ RomZemina90in1::~RomZemina90in1()
 	getMotherBoard().getCPUInterface().unregister_IO_Out(0x77, this);
 }
 
-void RomZemina90in1::reset(const EmuTime& dummy)
+void RomZemina90in1::reset(EmuTime::param dummy)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -43,7 +43,7 @@ void RomZemina90in1::reset(const EmuTime& dummy)
 	writeIO(0x77, 0, dummy);
 }
 
-void RomZemina90in1::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
+void RomZemina90in1::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	byte page = 2 * (value & 0x3F);
 	switch (value & 0xC0) {

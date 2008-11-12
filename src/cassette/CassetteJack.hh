@@ -30,9 +30,9 @@ public:
 	~CassetteJack();
 
 	// CassetteDevice
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual short readSample(const EmuTime& time);
-	virtual void setSignal(bool output, const EmuTime& time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual short readSample(EmuTime::param time);
+	virtual void setSignal(bool output, EmuTime::param time);
 
 	// Pluggable
 	virtual const std::string& getName() const;
@@ -43,7 +43,7 @@ public:
 
 private:
 	// Scheduleable
-	virtual void executeUntil(const EmuTime& time, int userData) ;
+	virtual void executeUntil(EmuTime::param time, int userData) ;
 	virtual const std::string& schedName() const;
 
 	// CallBacks for Jack
@@ -58,8 +58,8 @@ private:
 	void shutdownCallBack();
 
 	// pluggable
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 
 	void initError(std::string message);
 	void deinit();

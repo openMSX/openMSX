@@ -150,11 +150,11 @@ public:
 class Global : public YM2413Core {
 public:
 	Global(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config, const EmuTime& time);
+               const XMLElement& config, EmuTime::param time);
 	virtual ~Global();
 
-	void reset(const EmuTime& time);
-	virtual void writeReg(byte reg, byte value, const EmuTime& time);
+	void reset(EmuTime::param time);
+	virtual void writeReg(byte reg, byte value, EmuTime::param time);
 
 	bool isRhythm() {
 		return reg[0x0E] & 0x20;
@@ -847,7 +847,7 @@ static byte inst_data[16 + 3][8] = {
 };
 
 Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config, const EmuTime& time)
+               const XMLElement& config, EmuTime::param time)
 	: YM2413Core(motherBoard, name)
 {
 	for (unsigned i = 0; i < 16 + 3; ++i) {
@@ -873,7 +873,7 @@ Global::~Global()
 }
 
 // Reset whole of OPLL except patch datas
-void Global::reset(const EmuTime& time)
+void Global::reset(EmuTime::param time)
 {
 	// update the output buffer before changing the registers
 	updateStream(time);
@@ -1334,7 +1334,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void Global::writeReg(byte regis, byte data, const EmuTime& time)
+void Global::writeReg(byte regis, byte data, EmuTime::param time)
 {
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
 
@@ -1640,7 +1640,7 @@ void Global::serialize(Archive& ar, unsigned /*version*/)
 // class YM2413
 
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config, const EmuTime& time)
+               const XMLElement& config, EmuTime::param time)
 	: global(new YM2413Okazaki::Global(motherBoard, name, config, time))
 {
 }
@@ -1649,12 +1649,12 @@ YM2413::~YM2413()
 {
 }
 
-void YM2413::reset(const EmuTime& time)
+void YM2413::reset(EmuTime::param time)
 {
 	global->reset(time);
 }
 
-void YM2413::writeReg(byte regis, byte data, const EmuTime& time)
+void YM2413::writeReg(byte regis, byte data, EmuTime::param time)
 {
 	global->writeReg(regis, data, time);
 }

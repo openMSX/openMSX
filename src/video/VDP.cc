@@ -42,7 +42,7 @@ class VDPRegDebug : public SimpleDebuggable
 public:
 	explicit VDPRegDebug(VDP& vdp);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	VDP& vdp;
 };
@@ -51,7 +51,7 @@ class VDPStatusRegDebug : public SimpleDebuggable
 {
 public:
 	explicit VDPStatusRegDebug(VDP& vdp);
-	virtual byte read(unsigned address, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
 private:
 	VDP& vdp;
 };
@@ -61,7 +61,7 @@ class VDPPaletteDebug : public SimpleDebuggable
 public:
 	explicit VDPPaletteDebug(VDP& vdp);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	VDP& vdp;
 };
@@ -71,7 +71,7 @@ class VRAMPointerDebug : public SimpleDebuggable
 public:
 	explicit VRAMPointerDebug(VDP& vdp);
 	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	VDP& vdp;
 };
@@ -123,7 +123,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 
 	// Video RAM.
-	const EmuTime& time = Schedulable::getCurrentTime();
+	EmuTime::param time = Schedulable::getCurrentTime();
 	unsigned vramSize =
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&
@@ -182,7 +182,7 @@ void VDP::createRenderer()
 	vram->setRenderer(renderer.get(), frameStartTime.getTime());
 }
 
-void VDP::resetInit(const EmuTime& /*time*/)
+void VDP::resetInit(EmuTime::param /*time*/)
 {
 	for (int i = 0; i < 32; i++) {
 		controlRegs[i] = 0;
@@ -233,7 +233,7 @@ void VDP::resetInit(const EmuTime& /*time*/)
 	memcpy(palette, V9938_PALETTE, 16 * sizeof(word));
 }
 
-void VDP::resetMasks(const EmuTime& time)
+void VDP::resetMasks(EmuTime::param time)
 {
 	// TODO: Use the updateNameBase method instead of duplicating the effort
 	//       here for the initial state.
@@ -247,7 +247,7 @@ void VDP::resetMasks(const EmuTime& time)
 	//vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
 }
 
-void VDP::reset(const EmuTime& time)
+void VDP::reset(EmuTime::param time)
 {
 	removeSyncPoint(VSYNC);
 	removeSyncPoint(DISPLAY_START);
@@ -271,7 +271,7 @@ void VDP::reset(const EmuTime& time)
 	frameStart(time);
 }
 
-void VDP::executeUntil(const EmuTime& time, int userData)
+void VDP::executeUntil(EmuTime::param time, int userData)
 {
 	/*
 	PRT_DEBUG("Executing VDP at time " << time
@@ -366,7 +366,7 @@ const std::string& VDP::schedName() const
 // TODO: This approach assumes that an overscan-like approach can be used
 //       skip display start, so that the border is rendered instead.
 //       This makes sense, but it has not been tested on real MSX yet.
-void VDP::scheduleDisplayStart(const EmuTime& time)
+void VDP::scheduleDisplayStart(EmuTime::param time)
 {
 	// Remove pending DISPLAY_START sync point, if any.
 	if (displayStartSyncTime > time) {
@@ -400,7 +400,7 @@ void VDP::scheduleDisplayStart(const EmuTime& time)
 	scheduleVScan(time);
 }
 
-void VDP::scheduleVScan(const EmuTime& time)
+void VDP::scheduleVScan(EmuTime::param time)
 {
 	/*
 	cerr << "scheduleVScan @ " << (getTicksThisFrame(time) / TICKS_PER_LINE) << "\n";
@@ -429,7 +429,7 @@ void VDP::scheduleVScan(const EmuTime& time)
 	}
 }
 
-void VDP::scheduleHScan(const EmuTime& time)
+void VDP::scheduleHScan(EmuTime::param time)
 {
 	// Remove pending HSCAN sync point, if any.
 	if (hScanSyncTime > time) {
@@ -480,7 +480,7 @@ void VDP::scheduleHScan(const EmuTime& time)
 //       frame when their callback occurs.
 //       But I'm not sure how to handle the PAL/NTSC setting (which also
 //       influences the frequency at which E/O toggles).
-void VDP::frameStart(const EmuTime& time)
+void VDP::frameStart(EmuTime::param time)
 {
 	//cerr << "VDP::frameStart @ " << time << "\n";
 
@@ -534,7 +534,7 @@ void VDP::frameStart(const EmuTime& time)
 
 // The I/O functions.
 
-void VDP::writeIO(word port, byte value, const EmuTime& time)
+void VDP::writeIO(word port, byte value, EmuTime::param time)
 {
 	assert(isInsideFrame(time));
 	switch (port & 0x03) {
@@ -635,7 +635,7 @@ void VDP::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-void VDP::setPalette(int index, word grb, const EmuTime& time)
+void VDP::setPalette(int index, word grb, EmuTime::param time)
 {
 	if (palette[index] != grb) {
 		renderer->updatePalette(index, grb, time);
@@ -643,7 +643,7 @@ void VDP::setPalette(int index, word grb, const EmuTime& time)
 	}
 }
 
-byte VDP::vramRead(const EmuTime& time)
+byte VDP::vramRead(EmuTime::param time)
 {
 	byte result = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
@@ -666,7 +666,7 @@ byte VDP::vramRead(const EmuTime& time)
 	return result;
 }
 
-byte VDP::peekStatusReg(byte reg, const EmuTime& time) const
+byte VDP::peekStatusReg(byte reg, EmuTime::param time) const
 {
 	switch (reg) {
 	case 0:
@@ -724,7 +724,7 @@ byte VDP::peekStatusReg(byte reg, const EmuTime& time) const
 	}
 }
 
-byte VDP::readStatusReg(byte reg, const EmuTime& time)
+byte VDP::readStatusReg(byte reg, EmuTime::param time)
 {
 	byte ret = peekStatusReg(reg, time);
 	switch (reg) {
@@ -748,7 +748,7 @@ byte VDP::readStatusReg(byte reg, const EmuTime& time)
 	return ret;
 }
 
-byte VDP::readIO(word port, const EmuTime& time)
+byte VDP::readIO(word port, EmuTime::param time)
 {
 	assert(isInsideFrame(time));
 	switch (port & 0x03) {
@@ -768,13 +768,13 @@ byte VDP::readIO(word port, const EmuTime& time)
 	}
 }
 
-byte VDP::peekIO(word /*port*/, const EmuTime& /*time*/) const
+byte VDP::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	// TODO not implemented
 	return 0xFF;
 }
 
-void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
+void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 {
 	//PRT_DEBUG("VDP[" << (int)reg << "] = " << hex << (int)val << dec);
 
@@ -1000,7 +1000,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 	}
 }
 
-void VDP::syncAtNextLine(SyncType type, const EmuTime& time)
+void VDP::syncAtNextLine(SyncType type, EmuTime::param time)
 {
 	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
 	int ticks = (line + 1) * TICKS_PER_LINE;
@@ -1008,7 +1008,7 @@ void VDP::syncAtNextLine(SyncType type, const EmuTime& time)
 	setSyncPoint(nextTime, type);
 }
 
-void VDP::updateNameBase(const EmuTime& time)
+void VDP::updateNameBase(EmuTime::param time)
 {
 	int base = (controlRegs[2] << 10) | ~(-1 << 10);
 	// TODO:
@@ -1036,7 +1036,7 @@ void VDP::updateNameBase(const EmuTime& time)
 	vram->nameTable.setMask(base, indexMask, time);
 }
 
-void VDP::updateColourBase(const EmuTime& time)
+void VDP::updateColourBase(EmuTime::param time)
 {
 	int base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6);
 	renderer->updateColourBase(base, time);
@@ -1058,7 +1058,7 @@ void VDP::updateColourBase(const EmuTime& time)
 	}
 }
 
-void VDP::updatePatternBase(const EmuTime& time)
+void VDP::updatePatternBase(EmuTime::param time)
 {
 	int base = (controlRegs[4] << 11) | ~(-1 << 11);
 	renderer->updatePatternBase(base, time);
@@ -1081,7 +1081,7 @@ void VDP::updatePatternBase(const EmuTime& time)
 	}
 }
 
-void VDP::updateSpriteAttributeBase(const EmuTime& time)
+void VDP::updateSpriteAttributeBase(EmuTime::param time)
 {
 	int mode = displayMode.getSpriteMode();
 	if (mode == 0) {
@@ -1096,7 +1096,7 @@ void VDP::updateSpriteAttributeBase(const EmuTime& time)
 	}
 }
 
-void VDP::updateSpritePatternBase(const EmuTime& time)
+void VDP::updateSpritePatternBase(EmuTime::param time)
 {
 	if (displayMode.getSpriteMode() == 0) {
 		vram->spritePatternTable.disable(time);
@@ -1106,7 +1106,7 @@ void VDP::updateSpritePatternBase(const EmuTime& time)
 	vram->spritePatternTable.setMask(base, -1 << 11, time);
 }
 
-void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime& time)
+void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 {
 	//PRT_DEBUG("VDP: mode " << newMode);
 
@@ -1166,7 +1166,7 @@ byte VDPRegDebug::read(unsigned address)
 	}
 }
 
-void VDPRegDebug::write(unsigned address, byte value, const EmuTime& time)
+void VDPRegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	vdp.changeRegister(address, value, time);
 }
@@ -1181,7 +1181,7 @@ VDPStatusRegDebug::VDPStatusRegDebug(VDP& vdp_)
 {
 }
 
-byte VDPStatusRegDebug::read(unsigned address, const EmuTime& time)
+byte VDPStatusRegDebug::read(unsigned address, EmuTime::param time)
 {
 	return vdp.peekStatusReg(address, time);
 }
@@ -1202,7 +1202,7 @@ byte VDPPaletteDebug::read(unsigned address)
 	return (address & 1) ? (grb >> 8) : (grb & 0xff);
 }
 
-void VDPPaletteDebug::write(unsigned address, byte value, const EmuTime& time)
+void VDPPaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	int index = address / 2;
 	word grb = vdp.getPalette(index);
@@ -1231,7 +1231,7 @@ byte VRAMPointerDebug::read(unsigned address)
 	}
 }
 
-void VRAMPointerDebug::write(unsigned address, byte value, const EmuTime& /*time*/)
+void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time*/)
 {
 	int& ptr = vdp.vramPointer;
 	if (address & 1) {

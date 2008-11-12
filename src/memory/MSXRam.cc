@@ -27,7 +27,7 @@ MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 }
 
-void MSXRam::powerUp(const EmuTime& /*time*/)
+void MSXRam::powerUp(EmuTime::param /*time*/)
 {
 	checkedRam->clear();
 }
@@ -38,17 +38,17 @@ word MSXRam::translate(word address) const
 	return (tmp < size) ? tmp : tmp & (size - 1);
 }
 
-byte MSXRam::peekMem(word address, const EmuTime& /*time*/) const
+byte MSXRam::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return checkedRam->peek(translate(address));
 }
 
-byte MSXRam::readMem(word address, const EmuTime& /*time*/)
+byte MSXRam::readMem(word address, EmuTime::param /*time*/)
 {
 	return checkedRam->read(translate(address));
 }
 
-void MSXRam::writeMem(word address, byte value, const EmuTime& /*time*/)
+void MSXRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	checkedRam->write(translate(address), value);
 }

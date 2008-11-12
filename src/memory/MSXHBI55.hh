@@ -20,28 +20,28 @@ public:
 	MSXHBI55(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXHBI55();
 
-	virtual void reset(const EmuTime& time);
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
+	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	// I8255Interface
-	virtual byte readA(const EmuTime& time);
-	virtual byte readB(const EmuTime& time);
-	virtual nibble readC0(const EmuTime& time);
-	virtual nibble readC1(const EmuTime& time);
-	virtual byte peekA(const EmuTime& time) const;
-	virtual byte peekB(const EmuTime& time) const;
-	virtual nibble peekC0(const EmuTime& time) const;
-	virtual nibble peekC1(const EmuTime& time) const;
-	virtual void writeA(byte value, const EmuTime& time);
-	virtual void writeB(byte value, const EmuTime& time);
-	virtual void writeC0(nibble value, const EmuTime& time);
-	virtual void writeC1(nibble value, const EmuTime& time);
+	virtual byte readA(EmuTime::param time);
+	virtual byte readB(EmuTime::param time);
+	virtual nibble readC0(EmuTime::param time);
+	virtual nibble readC1(EmuTime::param time);
+	virtual byte peekA(EmuTime::param time) const;
+	virtual byte peekB(EmuTime::param time) const;
+	virtual nibble peekC0(EmuTime::param time) const;
+	virtual nibble peekC1(EmuTime::param time) const;
+	virtual void writeA(byte value, EmuTime::param time);
+	virtual void writeB(byte value, EmuTime::param time);
+	virtual void writeC0(nibble value, EmuTime::param time);
+	virtual void writeC1(nibble value, EmuTime::param time);
 
 	byte readSRAM(word address) const;
 

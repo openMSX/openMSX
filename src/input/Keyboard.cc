@@ -46,7 +46,7 @@ public:
 	KeyMatrixUpCmd(CommandController& commandController,
 	               MSXEventDistributor& msxEventDistributor,
 	               Scheduler& scheduler, Keyboard& keyboard);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	Keyboard& keyboard;
@@ -58,7 +58,7 @@ public:
 	KeyMatrixDownCmd(CommandController& commandController,
 	                 MSXEventDistributor& msxEventDistributor,
 	                 Scheduler& scheduler, Keyboard& keyboard);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	Keyboard& keyboard;
@@ -68,11 +68,11 @@ class MsxKeyEventQueue : private Schedulable
 {
 public:
 	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard);
-	void process_asap(const EmuTime& time, shared_ptr<const Event> event);
+	void process_asap(EmuTime::param time, shared_ptr<const Event> event);
 
 private:
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const string& schedName() const;
 	std::deque<shared_ptr<const Event> > eventQueue;
 	Keyboard& keyboard;
@@ -89,14 +89,14 @@ public:
 
 private:
 	void type(const string& str);
-	void reschedule(const EmuTime& time);
+	void reschedule(EmuTime::param time);
 
 	// Command
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const string& schedName() const;
 
 	Keyboard& keyboard;
@@ -122,10 +122,10 @@ private:
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const string& schedName() const;
 
-	void alignCapsLock(const EmuTime& time);
+	void alignCapsLock(EmuTime::param time);
 
 	Keyboard& keyboard;
 	EventDistributor& eventDistributor;
@@ -262,7 +262,7 @@ const byte* Keyboard::getKeys()
  *  OPENMSX_KEY_UP_EVENT
  */
 void Keyboard::signalEvent(shared_ptr<const Event> event,
-                           const EmuTime& time)
+                           EmuTime::param time)
 {
 	EventType type = event->getType();
 	if ((type == OPENMSX_KEY_DOWN_EVENT) ||
@@ -275,7 +275,7 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 	}
 }
 
-bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, const EmuTime& time)
+bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, EmuTime::param time)
 {
 	bool insertCodeKanaRelease = false;
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
@@ -365,7 +365,7 @@ void Keyboard::processRightControlEvent(bool down)
  * user releases the CAPSLOCK key. Once this bug-fix becomes the standard
  * behaviour, this routine should be adapted accordingly.
  */
-void Keyboard::processCapslockEvent(const EmuTime& time)
+void Keyboard::processCapslockEvent(EmuTime::param time)
 {
 	msxCapsLockOn = !msxCapsLockOn;
 	updateKeyMatrix(true, 6, CAPS_MASK);
@@ -373,7 +373,7 @@ void Keyboard::processCapslockEvent(const EmuTime& time)
 	setSyncPoint(now + 100);
 }
 
-void Keyboard::executeUntil(const EmuTime& /*time*/, int /*userData*/)
+void Keyboard::executeUntil(EmuTime::param /*time*/, int /*userData*/)
 {
 	updateKeyMatrix(false, 6, CAPS_MASK);
 }
@@ -849,7 +849,7 @@ KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
 {
 }
 
-string KeyMatrixUpCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+string KeyMatrixUpCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
 	return keyboard.processCmd(tokens, true);
 }
@@ -873,7 +873,7 @@ KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
 {
 }
 
-string KeyMatrixDownCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+string KeyMatrixDownCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
 	return keyboard.processCmd(tokens, false);
 }
@@ -894,7 +894,7 @@ MsxKeyEventQueue::MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard_)
 {
 }
 
-void MsxKeyEventQueue::process_asap(const EmuTime& time, shared_ptr<const Event> event)
+void MsxKeyEventQueue::process_asap(EmuTime::param time, shared_ptr<const Event> event)
 {
 	bool processImmediately = eventQueue.empty();
 	eventQueue.push_back(event);
@@ -903,7 +903,7 @@ void MsxKeyEventQueue::process_asap(const EmuTime& time, shared_ptr<const Event>
 	}
 }
 
-void MsxKeyEventQueue::executeUntil(const EmuTime& time, int /*userData*/)
+void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	// Get oldest event from the queue and process it
 	shared_ptr<const Event> event = eventQueue.front();
@@ -953,7 +953,7 @@ KeyInserter::KeyInserter(CommandController& commandController,
 	oldCapsLockOn = false;
 }
 
-string KeyInserter::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -982,7 +982,7 @@ void KeyInserter::type(const string& str)
 	text_utf8 += str;
 }
 
-void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
+void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	if (lockKeysMask != 0) {
 		// release CAPS and/or Code/Kana Lock keys
@@ -1042,7 +1042,7 @@ void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 	}
 }
 
-void KeyInserter::reschedule(const EmuTime& time)
+void KeyInserter::reschedule(EmuTime::param time)
 {
 	Clock<15> nextTime(time);
 	setSyncPoint(nextTime + 1);
@@ -1086,7 +1086,7 @@ CapsLockAligner::~CapsLockAligner()
 
 bool CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 {
-	const EmuTime& time = getCurrentTime();
+	EmuTime::param time = getCurrentTime();
 	EventType type = event->getType();
 	if (type == OPENMSX_FOCUS_EVENT) {
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
@@ -1100,7 +1100,7 @@ bool CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 	return true;
 }
 
-void CapsLockAligner::executeUntil(const EmuTime& time, int /*userData*/)
+void CapsLockAligner::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	alignCapsLock(time);
 }
@@ -1115,7 +1115,7 @@ void CapsLockAligner::executeUntil(const EmuTime& time, int /*userData*/)
  * TODO: Find a solution for the above problem. For example by monitoring
  *       the MSX caps-lock LED state.
  */
-void CapsLockAligner::alignCapsLock(const EmuTime& time)
+void CapsLockAligner::alignCapsLock(EmuTime::param time)
 {
 	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
 	if (keyboard.msxCapsLockOn != hostCapsLockOn) {

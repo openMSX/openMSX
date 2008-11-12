@@ -21,11 +21,11 @@ MSXS1985::~MSXS1985()
 	// TODO save ram
 }
 
-void MSXS1985::reset(const EmuTime& /*time*/)
+void MSXS1985::reset(EmuTime::param /*time*/)
 {
 }
 
-byte MSXS1985::readSwitchedIO(word port, const EmuTime& time)
+byte MSXS1985::readSwitchedIO(word port, EmuTime::param time)
 {
 	byte result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
@@ -37,7 +37,7 @@ byte MSXS1985::readSwitchedIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte MSXS1985::peekSwitchedIO(word port, const EmuTime& /*time*/) const
+byte MSXS1985::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 {
 	byte result;
 	switch (port & 0x0F) {
@@ -56,7 +56,7 @@ byte MSXS1985::peekSwitchedIO(word port, const EmuTime& /*time*/) const
 	return result;
 }
 
-void MSXS1985::writeSwitchedIO(word port, byte value, const EmuTime& /*time*/)
+void MSXS1985::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 {
 	//PRT_DEBUG("S1985: write " << (int) port << " " << (int)value);
 	switch (port & 0x0F) {

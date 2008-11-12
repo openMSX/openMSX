@@ -74,7 +74,7 @@ public:
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	inline byte readMem(word address, const EmuTime& time) {
+	inline byte readMem(word address, EmuTime::param time) {
 		if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
 			return readMemSlow(address, time);
 		}
@@ -84,7 +84,7 @@ public:
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	inline void writeMem(word address, byte value, const EmuTime& time) {
+	inline void writeMem(word address, byte value, EmuTime::param time) {
 		if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
 			writeMemSlow(address, value, time);
 		}
@@ -95,7 +95,7 @@ public:
 	 * This read a byte from the given IO-port
 	 * @see MSXDevice::readIO()
 	 */
-	inline byte readIO(word port, const EmuTime& time) {
+	inline byte readIO(word port, EmuTime::param time) {
 		return IO_In[port & 0xFF]->readIO(port, time);
 	}
 
@@ -103,7 +103,7 @@ public:
 	 * This writes a byte to the given IO-port
 	 * @see MSXDevice::writeIO()
 	 */
-	inline void writeIO(word port, byte value, const EmuTime& time) {
+	inline void writeIO(word port, byte value, EmuTime::param time) {
 		IO_Out[port & 0xFF]->writeIO(port, value, time);
 	}
 
@@ -161,10 +161,10 @@ public:
 	 * Peek memory location
 	 * @see MSXDevice::peekMem()
 	 */
-	byte peekMem(word address, const EmuTime& time) const;
-	byte peekSlottedMem(unsigned address, const EmuTime& time) const;
+	byte peekMem(word address, EmuTime::param time) const;
+	byte peekSlottedMem(unsigned address, EmuTime::param time) const;
 	void writeSlottedMem(unsigned address, byte value,
-	                     const EmuTime& time);
+	                     EmuTime::param time);
 
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
@@ -180,8 +180,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte readMemSlow(word address, const EmuTime& time);
-	void writeMemSlow(word address, byte value, const EmuTime& time);
+	byte readMemSlow(word address, EmuTime::param time);
+	void writeMemSlow(word address, byte value, EmuTime::param time);
 
 	MSXDevice*& getDevicePtr(byte port, bool isIn);
 

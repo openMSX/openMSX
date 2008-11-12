@@ -21,7 +21,7 @@ void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::setValue(int value)
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
 void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::setStart(
-	bool start, const EmuTime& time)
+	bool start, EmuTime::param time)
 {
 	if (start != counting) {
 		counting = start;
@@ -34,7 +34,7 @@ void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::setStart(
 }
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
-void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::schedule(const EmuTime& time)
+void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::schedule(EmuTime::param time)
 {
 	Clock<FREQ_NOM, FREQ_DENOM> now(time);
 	now += count;
@@ -49,7 +49,7 @@ void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::unschedule()
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
 void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::executeUntil(
-	const EmuTime& time, int /*userData*/)
+	EmuTime::param time, int /*userData*/)
 {
 	cb.callback(FLAG);
 	schedule(time);

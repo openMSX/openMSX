@@ -15,7 +15,7 @@ class Scheduler;
 class CPUClock
 {
 protected:
-	CPUClock(const EmuTime& time, Scheduler& scheduler);
+	CPUClock(EmuTime::param time, Scheduler& scheduler);
 
 // benchmarking showed a slowdown of ~3% on AMD64
 // when using the following code:
@@ -34,21 +34,21 @@ protected:
 #endif
 
 	// These are similar to the corresponding methods in DynamicClock.
-	const EmuTime& getTime() const { sync(); return clock.getTime(); }
+	EmuTime::param getTime() const { sync(); return clock.getTime(); }
 	const EmuTime getTimeFast() const { return clock.getFastAdd(limit - remaining); }
 	const EmuTime getTimeFast(int cc) const {
 		return clock.getFastAdd(limit - remaining + cc);
 	}
-	void setTime(const EmuTime& time) { sync(); clock.reset(time); }
+	void setTime(EmuTime::param time) { sync(); clock.reset(time); }
 	void setFreq(unsigned freq) { clock.setFreq(freq); }
-	void advanceTime(const EmuTime& time);
+	void advanceTime(EmuTime::param time);
 
 	/** Implementation of the HALT instruction timing.
 	  * Advances the clock with an integer multiple of 'hltStates' cycles
 	  * so that it equal or bigger than 'time'. Returns the number of times
 	  * 'hltStates' needed to be added.
 	  */
-	unsigned advanceHalt(unsigned hltStates, const EmuTime& time) {
+	unsigned advanceHalt(unsigned hltStates, EmuTime::param time) {
 		sync();
 		unsigned ticks = clock.getTicksTillUp(time);
 		unsigned halts = (ticks + hltStates - 1) / hltStates; // round up
@@ -75,7 +75,7 @@ protected:
 	// enough. This is implemented by simply regularly exiting the loop
 	// (outside the inner loop, the real exit condition should be tested).
 
-	void setLimit(const EmuTime& time);
+	void setLimit(EmuTime::param time);
 	void enableLimit(bool enable_);
 	inline bool limitReached() const {
 		return remaining <= 0;

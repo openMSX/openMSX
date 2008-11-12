@@ -20,22 +20,22 @@ RomMatraInk::~RomMatraInk()
 {
 }
 
-void RomMatraInk::reset(const EmuTime& /*time*/)
+void RomMatraInk::reset(EmuTime::param /*time*/)
 {
 	flash->reset();
 }
 
-byte RomMatraInk::peek(word address, const EmuTime& /*time*/) const
+byte RomMatraInk::peek(word address, EmuTime::param /*time*/) const
 {
 	return flash->peek(address);
 }
 
-byte RomMatraInk::readMem(word address, const EmuTime& /*time*/)
+byte RomMatraInk::readMem(word address, EmuTime::param /*time*/)
 {
 	return flash->read(address);
 }
 
-void RomMatraInk::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomMatraInk::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	flash->write(address + 0x10000, value);
 }

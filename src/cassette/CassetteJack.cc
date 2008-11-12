@@ -180,12 +180,12 @@ CassetteJack::~CassetteJack()
 	}
 }
 
-void CassetteJack::setMotor(bool /*status*/, const EmuTime& /*time*/)
+void CassetteJack::setMotor(bool /*status*/, EmuTime::param /*time*/)
 {
 	// TODO emit QT4-signal?
 }
 
-short CassetteJack::readSample(const EmuTime& time)
+short CassetteJack::readSample(EmuTime::param time)
 {
 	if (!running || !jack_port_connected(cmtin)) {
 		return 0;
@@ -204,7 +204,7 @@ short CassetteJack::readSample(const EmuTime& time)
 	return short(res * 32767);
 }
 
-void CassetteJack::setSignal(bool newOutput, const EmuTime& time)
+void CassetteJack::setSignal(bool newOutput, EmuTime::param time)
 {
 	double samples = (time - basetime).toDouble() * samplerate;
 	size_t len = size_t(floor(samples)) - sampcnt;
@@ -243,7 +243,7 @@ const std::string& CassetteJack::getDescription() const
 	return desc;
 }
 
-void CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
+void CassetteJack::plugHelper(Connector& connector, EmuTime::param time)
 {
 	std::string name = "omsx-" + StringOp::toString(getpid());
 	self = jack_client_new(name.c_str());
@@ -296,7 +296,7 @@ void CassetteJack::initError(std::string message)
 	throw PlugException(message);
 }
 
-void CassetteJack::unplugHelper(const EmuTime& time)
+void CassetteJack::unplugHelper(EmuTime::param time)
 {
 	// TODO Should we do this?
 	// give the other jack-end the chance to finish reading
@@ -332,7 +332,7 @@ void CassetteJack::deinit()
 }
 
 
-void CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
+void CassetteJack::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	if (!running) {
 		return;

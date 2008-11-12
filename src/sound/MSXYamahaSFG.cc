@@ -22,7 +22,7 @@ MSXYamahaSFG::~MSXYamahaSFG()
 {
 }
 
-void MSXYamahaSFG::reset(const EmuTime& time)
+void MSXYamahaSFG::reset(EmuTime::param time)
 {
 	ym2151->reset(time);
 	ym2148->reset();
@@ -30,7 +30,7 @@ void MSXYamahaSFG::reset(const EmuTime& time)
 	irqVector = 255; // TODO check
 }
 
-void MSXYamahaSFG::writeMem(word address, byte value, const EmuTime& time)
+void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (address < 0x3FF0 || address >= 0x3FF8) {
 		return;
@@ -68,18 +68,18 @@ byte MSXYamahaSFG::readIRQVector()
 	return irqVector;
 }
 
-void MSXYamahaSFG::writeRegisterPort(byte value, const EmuTime& /*time*/)
+void MSXYamahaSFG::writeRegisterPort(byte value, EmuTime::param /*time*/)
 {
 	registerLatch = value;
 }
 
-void MSXYamahaSFG::writeDataPort(byte value, const EmuTime& time)
+void MSXYamahaSFG::writeDataPort(byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("YM2151: reg "<<(int)registerLatch<<" val "<<(int)value);
 	ym2151->writeReg(registerLatch, value, time);
 }
 
-byte MSXYamahaSFG::readMem(word address, const EmuTime& /*time*/)
+byte MSXYamahaSFG::readMem(word address, EmuTime::param /*time*/)
 {
 	if (address < 0x3FF0 || address >= 0x3FF8) {
 		// size can also be 16kB for SFG-01 or 32kB for SFG-05

@@ -10,13 +10,13 @@ namespace openmsx {
 class DummyCassetteDevice : public CassetteDevice
 {
 public:
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual void setSignal(bool output, const EmuTime& time);
-	virtual short readSample(const EmuTime& time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual void setSignal(bool output, EmuTime::param time);
+	virtual short readSample(EmuTime::param time);
 
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 };
 
 } // namespace openmsx

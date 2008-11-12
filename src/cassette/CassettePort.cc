@@ -28,15 +28,15 @@ CassettePortInterface::~CassettePortInterface()
 
 // DummyCassettePort
 
-void DummyCassettePort::setMotor(bool /*status*/, const EmuTime& /*time*/)
+void DummyCassettePort::setMotor(bool /*status*/, EmuTime::param /*time*/)
 {
 	// do nothing
 }
-void DummyCassettePort::cassetteOut(bool /*output*/, const EmuTime& /*time*/)
+void DummyCassettePort::cassetteOut(bool /*output*/, EmuTime::param /*time*/)
 {
 	// do nothing
 }
-bool DummyCassettePort::cassetteIn(const EmuTime& /*time*/)
+bool DummyCassettePort::cassetteIn(EmuTime::param /*time*/)
 {
 	return false;
 }
@@ -78,13 +78,13 @@ CassettePort::~CassettePort()
 }
 
 
-void CassettePort::setMotor(bool status, const EmuTime& time)
+void CassettePort::setMotor(bool status, EmuTime::param time)
 {
 	// TODO make 'click' sound
 	getPluggedCasDev().setMotor(status, time);
 }
 
-void CassettePort::cassetteOut(bool output, const EmuTime& time)
+void CassettePort::cassetteOut(bool output, EmuTime::param time)
 {
 	lastOutput = output;
 	// leave everything to the pluggable
@@ -96,7 +96,7 @@ bool CassettePort::lastOut() const
 	return lastOutput;
 }
 
-bool CassettePort::cassetteIn(const EmuTime& time)
+bool CassettePort::cassetteIn(EmuTime::param time)
 {
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
@@ -106,7 +106,7 @@ bool CassettePort::cassetteIn(const EmuTime& time)
 	return result;
 }
 
-void CassettePort::unplug(const EmuTime& time)
+void CassettePort::unplug(EmuTime::param time)
 {
 	Connector::unplug(time);
 }

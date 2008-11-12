@@ -21,16 +21,16 @@ public:
 	// Pluggable
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 
 	// JoystickDevice
-	virtual byte read(const EmuTime& time);
-	virtual void write(byte value, const EmuTime& time);
+	virtual byte read(EmuTime::param time);
+	virtual void write(byte value, EmuTime::param time);
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
-	                         const EmuTime& time);
+	                         EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

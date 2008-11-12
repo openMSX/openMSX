@@ -91,12 +91,12 @@ RomFSA1FM1::~RomFSA1FM1()
 	releaseSRAM(getMotherBoard());
 }
 
-void RomFSA1FM1::reset(const EmuTime& /*time*/)
+void RomFSA1FM1::reset(EmuTime::param /*time*/)
 {
 	// initial rom bank is undefined
 }
 
-byte RomFSA1FM1::peekMem(word address, const EmuTime& /*time*/) const
+byte RomFSA1FM1::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
@@ -120,7 +120,7 @@ byte RomFSA1FM1::peekMem(word address, const EmuTime& /*time*/) const
 	}
 }
 
-byte RomFSA1FM1::readMem(word address, const EmuTime& time)
+byte RomFSA1FM1::readMem(word address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
@@ -142,7 +142,7 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 	}
 }
 
-void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomFSA1FM1::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	// TODO 0x7FC0 - 0x7FCF is modem IO area
 
@@ -195,7 +195,7 @@ RomFSA1FM2::~RomFSA1FM2()
 	releaseSRAM(getMotherBoard());
 }
 
-void RomFSA1FM2::reset(const EmuTime& /*time*/)
+void RomFSA1FM2::reset(EmuTime::param /*time*/)
 {
 	control = 0;
 	for (int region = 0; region < 6; ++region) {
@@ -205,7 +205,7 @@ void RomFSA1FM2::reset(const EmuTime& /*time*/)
 	changeBank(7, 0);
 }
 
-byte RomFSA1FM2::peekMem(word address, const EmuTime& time) const
+byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
 {
 	byte result;
 	if (0xC000 <= address) {
@@ -224,7 +224,7 @@ byte RomFSA1FM2::peekMem(word address, const EmuTime& time) const
 	return result;
 }
 
-byte RomFSA1FM2::readMem(word address, const EmuTime& time)
+byte RomFSA1FM2::readMem(word address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
@@ -245,7 +245,7 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 }
 
 void RomFSA1FM2::writeMem(word address, byte value,
-                          const EmuTime& /*time*/)
+                          EmuTime::param /*time*/)
 {
 	//PRT_DEBUG("FSA1FM2: write "<<hex<<(int)address<<" "<<(int)value<<dec);
 

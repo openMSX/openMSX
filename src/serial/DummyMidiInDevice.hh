@@ -10,10 +10,10 @@ namespace openmsx {
 class DummyMidiInDevice : public MidiInDevice
 {
 public:
-	virtual void signal(const EmuTime& time);
+	virtual void signal(EmuTime::param time);
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 };
 
 } // namespace openmsx

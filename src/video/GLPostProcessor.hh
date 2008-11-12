@@ -35,7 +35,7 @@ public:
 
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field,
-		const EmuTime& time);
+		EmuTime::param time);
 
 protected:
 	// Observer<Setting> interface:

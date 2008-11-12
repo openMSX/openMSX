@@ -3,6 +3,7 @@
 #ifndef MSXDEVICE_HH
 #define MSXDEVICE_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "noncopyable.hh"
@@ -13,7 +14,6 @@
 namespace openmsx {
 
 class XMLElement;
-class EmuTime;
 class MSXMotherBoard;
 class HardwareConfig;
 class TclObject;
@@ -42,7 +42,7 @@ public:
 	 * This method is called on reset.
 	 * Default implementation does nothing.
 	 */
-	virtual void reset(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
 
 	/**
 	 * Gets IRQ vector used in IM2. This method only exists to support
@@ -59,14 +59,14 @@ public:
 	 * that need to turn off LEDs need to reimplement this method.
 	 * @param time The moment in time the power down occurs.
 	 */
-	virtual void powerDown(const EmuTime& time);
+	virtual void powerDown(EmuTime::param time);
 
 	/**
 	 * This method is called when MSX is powered up. The default
 	 * implementation calls reset(), this is usually ok.
 	 * @param time The moment in time the power up occurs.
 	 */
-	virtual void powerUp(const EmuTime& time);
+	virtual void powerUp(EmuTime::param time);
 
 	/**
 	 * Returns a human-readable name for this device.
@@ -86,14 +86,14 @@ public:
 	 * Read a byte from an IO port at a certain time from this device.
 	 * The default implementation returns 255.
 	 */
-	virtual byte readIO(word port, const EmuTime& time);
+	virtual byte readIO(word port, EmuTime::param time);
 
 	/**
 	 * Write a byte to a given IO port at a certain time to this
 	 * device.
 	 * The default implementation ignores the write (does nothing)
 	 */
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	/**
 	 * Read a byte from a given IO port. Reading via this method has no
@@ -103,7 +103,7 @@ public:
 	 * by a debugger.
 	 * The default implementation just returns 0xFF.
 	 */
-	virtual byte peekIO(word port, const EmuTime& time) const;
+	virtual byte peekIO(word port, EmuTime::param time) const;
 
 
 	// Memory
@@ -113,14 +113,14 @@ public:
 	 * device.
 	 * The default implementation returns 255.
 	 */
-	virtual byte readMem(word address, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
 
 	/**
 	 * Write a given byte to a given location at a certain time
 	 * to this device.
 	 * The default implementation ignores the write (does nothing).
 	 */
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 
 	/**
 	 * Test that the memory in the interval [start, start+CacheLine::SIZE)
@@ -160,7 +160,7 @@ public:
 	 * cacheable you cannot read it by default, Override this
 	 * method if you want to improve this behaviour.
 	 */
-	virtual byte peekMem(word address, const EmuTime& time) const;
+	virtual byte peekMem(word address, EmuTime::param time) const;
 
 	/** Global writes.
 	  * Some devices violate the MSX standard by ignoring the SLOT-SELECT
@@ -170,7 +170,7 @@ public:
 	  * You need to register each address for which you want this method
 	  * to be triggered.
 	  */
-	virtual void globalWrite(word address, byte value, const EmuTime& time);
+	virtual void globalWrite(word address, byte value, EmuTime::param time);
 
 	/** Invalidate CPU memory-mapping cache.
 	  * This is a shortcut to the MSXCPU::invalidateMemCache() method,
@@ -193,7 +193,7 @@ public:
 
 	/** Get the current emulation time.
 	 */
-	const EmuTime& getCurrentTime() const;
+	EmuTime::param getCurrentTime() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

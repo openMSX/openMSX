@@ -46,7 +46,7 @@ const string& WavAudioInput::getDescription() const
 	return desc;
 }
 
-void WavAudioInput::plugHelper(Connector& /*connector*/, const EmuTime& time)
+void WavAudioInput::plugHelper(Connector& /*connector*/, EmuTime::param time)
 {
 	if (!wav.get()) {
 		try {
@@ -59,7 +59,7 @@ void WavAudioInput::plugHelper(Connector& /*connector*/, const EmuTime& time)
 	reference = time;
 }
 
-void WavAudioInput::unplugHelper(const EmuTime& /*time*/)
+void WavAudioInput::unplugHelper(EmuTime::param /*time*/)
 {
 	wav.reset();
 }
@@ -79,7 +79,7 @@ void WavAudioInput::update(const Setting& setting)
 	}
 }
 
-short WavAudioInput::readSample(const EmuTime& time)
+short WavAudioInput::readSample(EmuTime::param time)
 {
 	if (wav.get()) {
 		unsigned pos = (time - reference).getTicksAt(wav->getFreq());

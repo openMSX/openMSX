@@ -46,12 +46,12 @@ RomSynthesizer::~RomSynthesizer()
 {
 }
 
-void RomSynthesizer::reset(const EmuTime& time)
+void RomSynthesizer::reset(EmuTime::param time)
 {
 	dac->reset(time);
 }
 
-void RomSynthesizer::writeMem(word address, byte value, const EmuTime& time)
+void RomSynthesizer::writeMem(word address, byte value, EmuTime::param time)
 {
 	if ((address & 0xC010) == 0x4000) {
 		dac->writeDAC(value, time);

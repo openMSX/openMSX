@@ -44,8 +44,8 @@ class LogicalVRAMDebuggable : public SimpleDebuggable
 {
 public:
 	explicit LogicalVRAMDebuggable(VDP& vdp);
-	virtual byte read(unsigned address, const EmuTime& time);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	unsigned transform(unsigned address);
 	VDP& vdp;
@@ -67,12 +67,12 @@ unsigned LogicalVRAMDebuggable::transform(unsigned address)
 	     : address;
 }
 
-byte LogicalVRAMDebuggable::read(unsigned address, const EmuTime& time)
+byte LogicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
 {
 	return vdp.getVRAM().cpuRead(transform(address), time);
 }
 
-void LogicalVRAMDebuggable::write(unsigned address, byte value, const EmuTime& time)
+void LogicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	vdp.getVRAM().cpuWrite(transform(address), value, time);
 }
@@ -87,7 +87,7 @@ static unsigned bufferSize(unsigned size)
 	return (size != 0x4000) ? size : 0x8000;
 }
 
-VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
+VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	: vdp(vdp_)
 	, data(vdp.getMotherBoard(), "physical VRAM",
 	       "VDP-screen-mode-independent view on the video RAM.", bufferSize(size))
@@ -129,14 +129,14 @@ VDPVRAM::~VDPVRAM()
 {
 }
 
-void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime& time)
+void VDPVRAM::updateDisplayMode(DisplayMode mode, EmuTime::param time)
 {
 	renderer->updateDisplayMode(mode, time);
 	cmdEngine->updateDisplayMode(mode, time);
 	spriteChecker->updateDisplayMode(mode, time);
 }
 
-void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime& time)
+void VDPVRAM::updateDisplayEnabled(bool enabled, EmuTime::param time)
 {
 	assert(vdp.isInsideFrame(time));
 	renderer->updateDisplayEnabled(enabled, time);
@@ -144,7 +144,7 @@ void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime& time)
 	spriteChecker->updateDisplayEnabled(enabled, time);
 }
 
-void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime& time)
+void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime::param time)
 {
 	assert(vdp.isInsideFrame(time));
 	renderer->updateSpritesEnabled(enabled, time);
@@ -152,7 +152,7 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime& time)
 	spriteChecker->updateSpritesEnabled(enabled, time);
 }
 
-void VDPVRAM::setRenderer(Renderer* renderer, const EmuTime& time)
+void VDPVRAM::setRenderer(Renderer* renderer, EmuTime::param time)
 {
 	this->renderer = renderer;
 

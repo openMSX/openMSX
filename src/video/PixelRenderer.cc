@@ -135,20 +135,20 @@ PixelRenderer::~PixelRenderer()
 	renderSettings.getMaxFrameSkip().detach(*this);
 }
 
-void PixelRenderer::reset(const EmuTime& time)
+void PixelRenderer::reset(EmuTime::param time)
 {
 	rasterizer->reset();
 	displayEnabled = vdp.isDisplayEnabled();
 	frameStart(time);
 }
 
-void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
+void PixelRenderer::updateDisplayEnabled(bool enabled, EmuTime::param time)
 {
 	sync(time, true);
 	displayEnabled = enabled;
 }
 
-void PixelRenderer::frameStart(const EmuTime& time)
+void PixelRenderer::frameStart(EmuTime::param time)
 {
 	if (!rasterizer->isActive()) {
 		frameSkipCounter = 999;
@@ -195,7 +195,7 @@ void PixelRenderer::frameStart(const EmuTime& time)
 	textModeCounter = 0;
 }
 
-void PixelRenderer::frameEnd(const EmuTime& time)
+void PixelRenderer::frameEnd(EmuTime::param time)
 {
 	bool skipEvent = !renderFrame;
 	if (renderFrame) {
@@ -224,44 +224,44 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 }
 
 void PixelRenderer::updateHorizontalScrollLow(
-	byte /*scroll*/, const EmuTime& time
+	byte /*scroll*/, EmuTime::param time
 ) {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateHorizontalScrollHigh(
-	byte /*scroll*/, const EmuTime& time
+	byte /*scroll*/, EmuTime::param time
 ) {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBorderMask(
-	bool /*masked*/, const EmuTime& time
+	bool /*masked*/, EmuTime::param time
 ) {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateMultiPage(
-	bool /*multiPage*/, const EmuTime& time
+	bool /*multiPage*/, EmuTime::param time
 ) {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateTransparency(
-	bool enabled, const EmuTime& time)
+	bool enabled, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 	rasterizer->setTransparency(enabled);
 }
 
 void PixelRenderer::updateForegroundColour(
-	int /*colour*/, const EmuTime& time)
+	int /*colour*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBackgroundColour(
-	int colour, const EmuTime& time)
+	int colour, EmuTime::param time)
 {
 	sync(time);
 	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
@@ -270,19 +270,19 @@ void PixelRenderer::updateBackgroundColour(
 }
 
 void PixelRenderer::updateBlinkForegroundColour(
-	int /*colour*/, const EmuTime& time)
+	int /*colour*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBlinkBackgroundColour(
-	int /*colour*/, const EmuTime& time)
+	int /*colour*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBlinkState(
-	bool /*enabled*/, const EmuTime& /*time*/)
+	bool /*enabled*/, EmuTime::param /*time*/)
 {
 	// TODO: When the sync call is enabled, the screen flashes on
 	//       every call to this method.
@@ -292,7 +292,7 @@ void PixelRenderer::updateBlinkState(
 }
 
 void PixelRenderer::updatePalette(
-	int index, int grb, const EmuTime& time)
+	int index, int grb, EmuTime::param time)
 {
 	if (displayEnabled) {
 		sync(time);
@@ -314,19 +314,19 @@ void PixelRenderer::updatePalette(
 }
 
 void PixelRenderer::updateVerticalScroll(
-	int /*scroll*/, const EmuTime& time)
+	int /*scroll*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateHorizontalAdjust(
-	int /*adjust*/, const EmuTime& time)
+	int /*adjust*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateDisplayMode(
-	DisplayMode mode, const EmuTime& time)
+	DisplayMode mode, EmuTime::param time)
 {
 	// Sync if in display area or if border drawing process changes.
 	DisplayMode oldMode = vdp.getDisplayMode();
@@ -341,25 +341,25 @@ void PixelRenderer::updateDisplayMode(
 }
 
 void PixelRenderer::updateNameBase(
-	int /*addr*/, const EmuTime& time)
+	int /*addr*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updatePatternBase(
-	int /*addr*/, const EmuTime& time)
+	int /*addr*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateColourBase(
-	int /*addr*/, const EmuTime& time)
+	int /*addr*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateSpritesEnabled(
-	bool /*enabled*/, const EmuTime& time
+	bool /*enabled*/, EmuTime::param time
 ) {
 	if (displayEnabled) sync(time);
 }
@@ -383,7 +383,7 @@ static inline bool overlap(
 	return false;
 }
 
-inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
+inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 {
 	// TODO: Because range is entire VRAM, offset == address.
 
@@ -468,7 +468,7 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 	}
 }
 
-void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time)
+void PixelRenderer::updateVRAM(unsigned offset, EmuTime::param time)
 {
 	// Note: No need to sync if display is disabled, because then the
 	//       output does not depend on VRAM (only on background colour).
@@ -483,7 +483,7 @@ void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time)
 	rasterizer->updateVRAMCache(offset);
 }
 
-void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/)
+void PixelRenderer::updateWindow(bool /*enabled*/, EmuTime::param /*time*/)
 {
 	// The bitmapVisibleWindow has moved to a different area.
 	// This update is redundant: Renderer will be notified in another way
@@ -491,7 +491,7 @@ void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/)
 	// TODO: Can this be used as the main update method instead?
 }
 
-void PixelRenderer::sync(const EmuTime& time, bool force)
+void PixelRenderer::sync(EmuTime::param time, bool force)
 {
 	if (!renderFrame) return;
 
@@ -513,7 +513,7 @@ void PixelRenderer::sync(const EmuTime& time, bool force)
 	}
 }
 
-void PixelRenderer::renderUntil(const EmuTime& time)
+void PixelRenderer::renderUntil(EmuTime::param time)
 {
 	// Translate from time to pixel position.
 	int limitTicks = vdp.getTicksThisFrame(time);

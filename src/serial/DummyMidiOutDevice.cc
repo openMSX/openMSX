@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-void DummyMidiOutDevice::recvByte(byte /*value*/, const EmuTime& /*time*/)
+void DummyMidiOutDevice::recvByte(byte /*value*/, EmuTime::param /*time*/)
 {
 	// ignore
 }
@@ -16,11 +16,11 @@ const std::string& DummyMidiOutDevice::getDescription() const
 }
 
 void DummyMidiOutDevice::plugHelper(
-		Connector& /*connector*/, const EmuTime& /*time*/)
+		Connector& /*connector*/, EmuTime::param /*time*/)
 {
 }
 
-void DummyMidiOutDevice::unplugHelper(const EmuTime& /*time*/)
+void DummyMidiOutDevice::unplugHelper(EmuTime::param /*time*/)
 {
 }
 

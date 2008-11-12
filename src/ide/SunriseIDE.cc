@@ -29,7 +29,7 @@ SunriseIDE::~SunriseIDE()
 {
 }
 
-void SunriseIDE::reset(const EmuTime& time)
+void SunriseIDE::reset(EmuTime::param time)
 {
 	selectedDevice = 0;
 	softReset = false;
@@ -37,7 +37,7 @@ void SunriseIDE::reset(const EmuTime& time)
 	device[1]->reset(time);
 }
 
-byte SunriseIDE::readMem(word address, const EmuTime& time)
+byte SunriseIDE::readMem(word address, EmuTime::param time)
 {
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
@@ -73,7 +73,7 @@ const byte* SunriseIDE::getReadCacheLine(word start) const
 	return unmappedRead;
 }
 
-void SunriseIDE::writeMem(word address, byte value, const EmuTime& time)
+void SunriseIDE::writeMem(word address, byte value, EmuTime::param time)
 {
 	if ((address & 0xBF04) == 0x0104) {
 		// control register
@@ -118,24 +118,24 @@ void SunriseIDE::writeControl(byte value)
 	}
 }
 
-byte SunriseIDE::readDataLow(const EmuTime& time)
+byte SunriseIDE::readDataLow(EmuTime::param time)
 {
 	word temp = readData(time);
 	readLatch = temp >> 8;
 	return temp & 0xFF;
 }
-byte SunriseIDE::readDataHigh(const EmuTime& /*time*/)
+byte SunriseIDE::readDataHigh(EmuTime::param /*time*/)
 {
 	return readLatch;
 }
-word SunriseIDE::readData(const EmuTime& time)
+word SunriseIDE::readData(EmuTime::param time)
 {
 	word result = device[selectedDevice]->readData(time);
 	//PRT_DEBUG("IDE read data: 0x" << std::hex << int(result) << std::dec);
 	return result;
 }
 
-byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
+byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
 {
 	//PRT_DEBUG("IDE read reg: " << (int)reg);
 	byte result;
@@ -169,17 +169,17 @@ void SunriseIDE::writeDataLow(byte value)
 {
 	writeLatch = value;
 }
-void SunriseIDE::writeDataHigh(byte value, const EmuTime& time)
+void SunriseIDE::writeDataHigh(byte value, EmuTime::param time)
 {
 	word temp = (value << 8) | writeLatch;
 	writeData(temp, time);
 }
-void SunriseIDE::writeData(word value, const EmuTime& time)
+void SunriseIDE::writeData(word value, EmuTime::param time)
 {
 	device[selectedDevice]->writeData(value, time);
 }
 
-void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime& time)
+void SunriseIDE::writeReg(nibble reg, byte value, EmuTime::param time)
 {
 	if (softReset) {
 		if ((reg == 14) && !(value & 0x04)) {

@@ -3,6 +3,7 @@
 #ifndef YMF262_HH
 #define YMF262_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include <string>
 #include <memory>
@@ -11,7 +12,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class EmuTime;
 class YMF262Impl;
 
 class YMF262
@@ -21,8 +21,8 @@ public:
 	       const XMLElement& config);
 	~YMF262();
 
-	void reset(const EmuTime& time);
-	void writeReg(unsigned r, byte v, const EmuTime& time);
+	void reset(EmuTime::param time);
+	void writeReg(unsigned r, byte v, EmuTime::param time);
 	byte readReg(unsigned reg);
 	byte peekReg(unsigned reg) const;
 	byte readStatus();

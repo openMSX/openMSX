@@ -32,7 +32,7 @@ public:
 
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field,
-		const EmuTime& time);
+		EmuTime::param time);
 
 private:
 	void preCalcNoise(double factor);

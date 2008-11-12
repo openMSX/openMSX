@@ -23,7 +23,7 @@ MSXMoonSound::~MSXMoonSound()
 {
 }
 
-void MSXMoonSound::reset(const EmuTime& time)
+void MSXMoonSound::reset(EmuTime::param time)
 {
 	ymf262->reset(time);
 	ymf278->reset(time);
@@ -33,7 +33,7 @@ void MSXMoonSound::reset(const EmuTime& time)
 	opl3latch = 0;
 }
 
-byte MSXMoonSound::readIO(word port, const EmuTime& time)
+byte MSXMoonSound::readIO(word port, EmuTime::param time)
 {
 	byte result;
 	if ((port & 0xFF) < 0xC0) {
@@ -70,7 +70,7 @@ byte MSXMoonSound::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte MSXMoonSound::peekIO(word port, const EmuTime& time) const
+byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 {
 	byte result;
 	if ((port & 0xFF) < 0xC0) {
@@ -106,7 +106,7 @@ byte MSXMoonSound::peekIO(word port, const EmuTime& time) const
 	return result;
 }
 
-void MSXMoonSound::writeIO(word port, byte value, const EmuTime& time)
+void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("MoonSound: write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	if ((port&0xFF) < 0xC0) {

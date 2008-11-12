@@ -11,7 +11,7 @@ namespace openmsx {
 
 static YM2413Interface* createYM2413(
 	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const std::string& name, const EmuTime& time)
+	const std::string& name, EmuTime::param time)
 {
 	if (config.getChildDataAsBool("alternative", false)) {
 		return new YM2413_2(motherBoard, name, config, time);
@@ -32,14 +32,14 @@ MSXMusic::~MSXMusic()
 {
 }
 
-void MSXMusic::reset(const EmuTime& time)
+void MSXMusic::reset(EmuTime::param time)
 {
 	ym2413->reset(time);
 	registerLatch = 0; // TODO check
 }
 
 
-void MSXMusic::writeIO(word port, byte value, const EmuTime& time)
+void MSXMusic::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x01) {
 	case 0:
@@ -51,18 +51,18 @@ void MSXMusic::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-void MSXMusic::writeRegisterPort(byte value, const EmuTime& /*time*/)
+void MSXMusic::writeRegisterPort(byte value, EmuTime::param /*time*/)
 {
 	registerLatch = value & 0x3F;
 }
 
-void MSXMusic::writeDataPort(byte value, const EmuTime& time)
+void MSXMusic::writeDataPort(byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("YM2413: reg "<<(int)registerLatch<<" val "<<(int)value);
 	ym2413->writeReg(registerLatch, value, time);
 }
 
-byte MSXMusic::readMem(word address, const EmuTime& /*time*/)
+byte MSXMusic::readMem(word address, EmuTime::param /*time*/)
 {
 	return *getReadCacheLine(address);
 }

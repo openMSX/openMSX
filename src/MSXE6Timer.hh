@@ -22,10 +22,10 @@ class MSXE6Timer : public MSXDevice
 public:
 	MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config);
 
-	virtual void reset(const EmuTime& time);
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual void writeIO(word port, byte value, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
+	virtual void reset(EmuTime::param time);
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual void writeIO(word port, byte value, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

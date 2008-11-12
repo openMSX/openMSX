@@ -100,7 +100,7 @@ void SoundDevice::unregisterSound()
 	mixer.unregisterSound(*this);
 }
 
-void SoundDevice::updateStream(const EmuTime& time)
+void SoundDevice::updateStream(EmuTime::param time)
 {
 	mixer.updateStream(time);
 }

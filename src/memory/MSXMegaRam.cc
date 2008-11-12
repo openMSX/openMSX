@@ -54,13 +54,13 @@ MSXMegaRam::~MSXMegaRam()
 {
 }
 
-void MSXMegaRam::reset(const EmuTime& /*time*/)
+void MSXMegaRam::reset(EmuTime::param /*time*/)
 {
 	// selected banks nor writeMode does change after reset
 	romMode = rom.get(); // select rom mode if there is a rom
 }
 
-byte MSXMegaRam::readMem(word address, const EmuTime& /*time*/)
+byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)
 {
 	return *getReadCacheLine(address);
 }
@@ -80,7 +80,7 @@ const byte* MSXMegaRam::getReadCacheLine(word address) const
 	     : unmappedRead;
 }
 
-void MSXMegaRam::writeMem(word address, byte value, const EmuTime& /*time*/)
+void MSXMegaRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	byte* tmp = getWriteCacheLine(address);
 	if (tmp) {
@@ -104,7 +104,7 @@ byte* MSXMegaRam::getWriteCacheLine(word address) const
 	}
 }
 
-byte MSXMegaRam::readIO(word port, const EmuTime& /*time*/)
+byte MSXMegaRam::readIO(word port, EmuTime::param /*time*/)
 {
 	switch (port & 1) {
 		case 0:
@@ -120,12 +120,12 @@ byte MSXMegaRam::readIO(word port, const EmuTime& /*time*/)
 	return 0xFF; // return value doesn't matter
 }
 
-byte MSXMegaRam::peekIO(word /*port*/, const EmuTime& /*time*/) const
+byte MSXMegaRam::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	return 0xFF;
 }
 
-void MSXMegaRam::writeIO(word port, byte /*value*/, const EmuTime& /*time*/)
+void MSXMegaRam::writeIO(word port, byte /*value*/, EmuTime::param /*time*/)
 {
 	switch (port & 1) {
 		case 0:

@@ -20,15 +20,15 @@ public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 
 	SCC(MSXMotherBoard& motherBoard, const std::string& name,
-	    const XMLElement& config, const EmuTime& time,
+	    const XMLElement& config, EmuTime::param time,
 	    ChipMode mode = SCC_Real);
 	virtual ~SCC();
 
 	// interaction with realCartridge
-	void reset(const EmuTime& time);
-	byte readMem(byte address,const EmuTime& time);
-	byte peekMem(byte address,const EmuTime& time) const;
-	void writeMem(byte address, byte value, const EmuTime& time);
+	void reset(EmuTime::param time);
+	byte readMem(byte address,EmuTime::param time);
+	byte peekMem(byte address,EmuTime::param time) const;
+	void writeMem(byte address, byte value, EmuTime::param time);
 	void setChipMode(ChipMode newMode);
 
 	template<typename Archive>
@@ -40,17 +40,17 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+		EmuTime::param time, EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline int adjust(signed char wav, byte vol);
-	byte readWave(unsigned channel, unsigned address, const EmuTime& time) const;
+	byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;
 	void writeWave(unsigned channel, unsigned offset, byte value);
-	void setDeformReg(byte value, const EmuTime& time);
+	void setDeformReg(byte value, EmuTime::param time);
 	void setDeformRegHelper(byte value);
-	void setFreqVol(unsigned address, byte value, const EmuTime& time);
+	void setFreqVol(unsigned address, byte value, EmuTime::param time);
 	byte getFreqVol(unsigned address) const;
 
 	static const int CLOCK_FREQ = 3579545;

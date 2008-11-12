@@ -14,7 +14,7 @@ class WD2793;
 class WD2793BasedFDC : public MSXFDC
 {
 public:
-	virtual void reset(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

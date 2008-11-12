@@ -15,30 +15,30 @@ class DiskDrive;
 class WD2793 : public Schedulable
 {
 public:
-	WD2793(Scheduler& scheduler, DiskDrive& drive, const EmuTime& time);
+	WD2793(Scheduler& scheduler, DiskDrive& drive, EmuTime::param time);
 
-	void reset(const EmuTime& time);
+	void reset(EmuTime::param time);
 
-	byte getStatusReg(const EmuTime& time);
-	byte getTrackReg (const EmuTime& time);
-	byte getSectorReg(const EmuTime& time);
-	byte getDataReg  (const EmuTime& time);
+	byte getStatusReg(EmuTime::param time);
+	byte getTrackReg (EmuTime::param time);
+	byte getSectorReg(EmuTime::param time);
+	byte getDataReg  (EmuTime::param time);
 
-	byte peekStatusReg(const EmuTime& time);
-	byte peekTrackReg (const EmuTime& time);
-	byte peekSectorReg(const EmuTime& time);
-	byte peekDataReg  (const EmuTime& time);
+	byte peekStatusReg(EmuTime::param time);
+	byte peekTrackReg (EmuTime::param time);
+	byte peekSectorReg(EmuTime::param time);
+	byte peekDataReg  (EmuTime::param time);
 
-	void setCommandReg(byte value, const EmuTime& time);
-	void setTrackReg  (byte value, const EmuTime& time);
-	void setSectorReg (byte value, const EmuTime& time);
-	void setDataReg   (byte value, const EmuTime& time);
+	void setCommandReg(byte value, EmuTime::param time);
+	void setTrackReg  (byte value, EmuTime::param time);
+	void setSectorReg (byte value, EmuTime::param time);
+	void setDataReg   (byte value, EmuTime::param time);
 
-	bool getIRQ (const EmuTime& time);
-	bool getDTRQ(const EmuTime& time);
+	bool getIRQ (EmuTime::param time);
+	bool getDTRQ(EmuTime::param time);
 
-	bool peekIRQ (const EmuTime& time);
-	bool peekDTRQ(const EmuTime& time);
+	bool peekIRQ (EmuTime::param time);
+	bool peekDTRQ(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -56,39 +56,39 @@ public:
 	};
 
 private:
-	virtual void executeUntil(const EmuTime& time, int state);
+	virtual void executeUntil(EmuTime::param time, int state);
 	virtual const std::string& schedName() const;
 
-	void startType1Cmd(const EmuTime& time);
+	void startType1Cmd(EmuTime::param time);
 
-	void seek(const EmuTime& time);
-	void step(const EmuTime& time);
-	void seekNext(const EmuTime& time);
+	void seek(EmuTime::param time);
+	void step(EmuTime::param time);
+	void seekNext(EmuTime::param time);
 	void endType1Cmd();
 
-	void startType2Cmd(const EmuTime& time);
-	void type2WaitLoad(const EmuTime& time);
-	void type2Loaded(const EmuTime& time);
+	void startType2Cmd(EmuTime::param time);
+	void type2WaitLoad(EmuTime::param time);
+	void type2Loaded(EmuTime::param time);
 	void type2Rotated();
 
-	void startType3Cmd(const EmuTime& time);
-	void type3WaitLoad(const EmuTime& time);
-	void type3Loaded(const EmuTime& time);
+	void startType3Cmd(EmuTime::param time);
+	void type3WaitLoad(EmuTime::param time);
+	void type3Loaded(EmuTime::param time);
 	void readAddressCmd();
 	void readTrackCmd();
-	void writeTrackCmd(const EmuTime& time);
+	void writeTrackCmd(EmuTime::param time);
 	void endWriteTrackCmd();
 
-	void startType4Cmd(const EmuTime& time);
+	void startType4Cmd(EmuTime::param time);
 
 	void endCmd();
 
 	void tryToReadSector();
 	inline void resetIRQ();
 	inline void setIRQ();
-	void setDRQ(bool drq, const EmuTime& time);
+	void setDRQ(bool drq, EmuTime::param time);
 
-	void schedule(FSMState state, const EmuTime& time);
+	void schedule(FSMState state, EmuTime::param time);
 
 	DiskDrive& drive;
 

@@ -12,7 +12,6 @@
 
 namespace openmsx {
 
-class EmuTime;
 class MSXMotherBoard;
 
 // Defined in .cc:
@@ -27,7 +26,7 @@ public:
 
 	YM2413Core(MSXMotherBoard& motherBoard, const std::string& name);
 	virtual ~YM2413Core();
-	virtual void writeReg(byte reg, byte value, const EmuTime& time) = 0;
+	virtual void writeReg(byte reg, byte value, EmuTime::param time) = 0;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -40,7 +39,7 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num) = 0;
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+		EmuTime::param time, EmuDuration::param sampDur);
 
 	// Resample:
 	virtual bool generateInput(int* buffer, unsigned num);

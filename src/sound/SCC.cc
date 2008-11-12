@@ -112,8 +112,8 @@ class SCCDebuggable : public SimpleDebuggable
 {
 public:
 	SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc);
-	virtual byte read(unsigned address, const EmuTime& time);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	SCC& scc;
 };
@@ -125,7 +125,7 @@ static string calcDescription(SCC::ChipMode mode)
 }
 
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
-         const XMLElement& config, const EmuTime& time, ChipMode mode)
+         const XMLElement& config, EmuTime::param time, ChipMode mode)
 	: SoundDevice(motherBoard.getMSXMixer(), name, calcDescription(mode), 5)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 	, debuggable(new SCCDebuggable(motherBoard, *this))
@@ -175,7 +175,7 @@ SCC::~SCC()
 	unregisterSound();
 }
 
-void SCC::reset(const EmuTime& /*time*/)
+void SCC::reset(EmuTime::param /*time*/)
 {
 	if (currentChipMode != SCC_Real) {
 		setChipMode(SCC_Compatible);
@@ -202,7 +202,7 @@ void SCC::setChipMode(ChipMode newMode)
 	currentChipMode = newMode;
 }
 
-byte SCC::readMem(byte addr, const EmuTime& time)
+byte SCC::readMem(byte addr, EmuTime::param time)
 {
 	// Deform-register locations:
 	//   SCC_Real:       0xE0..0xFF
@@ -215,7 +215,7 @@ byte SCC::readMem(byte addr, const EmuTime& time)
 	return peekMem(addr, time);
 }
 
-byte SCC::peekMem(byte address, const EmuTime& time) const
+byte SCC::peekMem(byte address, EmuTime::param time) const
 {
 	byte result;
 	switch (currentChipMode) {
@@ -265,7 +265,7 @@ byte SCC::peekMem(byte address, const EmuTime& time) const
 	return result;
 }
 
-byte SCC::readWave(unsigned channel, unsigned address, const EmuTime& time) const
+byte SCC::readWave(unsigned channel, unsigned address, EmuTime::param time) const
 {
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
@@ -301,7 +301,7 @@ byte SCC::getFreqVol(unsigned address) const
 	}
 }
 
-void SCC::writeMem(byte address, byte value, const EmuTime& time)
+void SCC::writeMem(byte address, byte value, EmuTime::param time)
 {
 	updateStream(time);
 
@@ -383,7 +383,7 @@ void SCC::writeWave(unsigned channel, unsigned address, byte value)
 	}
 }
 
-void SCC::setFreqVol(unsigned address, byte value, const EmuTime& time)
+void SCC::setFreqVol(unsigned address, byte value, EmuTime::param time)
 {
 	address &= 0x0F; // region is visible twice
 	if (address < 0x0A) {
@@ -426,7 +426,7 @@ void SCC::setFreqVol(unsigned address, byte value, const EmuTime& time)
 	}
 }
 
-void SCC::setDeformReg(byte value, const EmuTime& time)
+void SCC::setDeformReg(byte value, EmuTime::param time)
 {
 	if (value == deformValue) {
 		return;
@@ -563,7 +563,7 @@ bool SCC::generateInput(int* buffer, unsigned num)
 }
 
 bool SCC::updateBuffer(unsigned length, int* buffer,
-                       const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+                       EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -578,7 +578,7 @@ SCCDebuggable::SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc_)
 {
 }
 
-byte SCCDebuggable::read(unsigned address, const EmuTime& time)
+byte SCCDebuggable::read(unsigned address, EmuTime::param time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5
@@ -594,7 +594,7 @@ byte SCCDebuggable::read(unsigned address, const EmuTime& time)
 	}
 }
 
-void SCCDebuggable::write(unsigned address, byte value, const EmuTime& time)
+void SCCDebuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5
@@ -652,7 +652,7 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 		//  as an unwanted side-effect, so (de)serialize those later
 		// Don't use current time, but instead use deformTimer, to
 		// avoid changing the value of deformTimer.
-		const EmuTime& time = deformTimer.getTime();
+		EmuTime::param time = deformTimer.getTime();
 		for (int channel = 0; channel < 5; ++channel) {
 			unsigned per = orgPeriod[channel];
 			setFreqVol(2 * channel + 0, (per & 0x0FF) >> 0, time);

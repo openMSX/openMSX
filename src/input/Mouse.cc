@@ -49,7 +49,7 @@ const string& Mouse::getDescription() const
 	return desc;
 }
 
-void Mouse::plugHelper(Connector& /*connector*/, const EmuTime& time)
+void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 {
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode
@@ -61,13 +61,13 @@ void Mouse::plugHelper(Connector& /*connector*/, const EmuTime& time)
 	}
 }
 
-void Mouse::unplugHelper(const EmuTime& /*time*/)
+void Mouse::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
 
 // JoystickDevice
-byte Mouse::read(const EmuTime& /*time*/)
+byte Mouse::read(EmuTime::param /*time*/)
 {
 	if (mouseMode) {
 		switch (faze) {
@@ -138,7 +138,7 @@ void Mouse::emulateJoystick()
 	}
 }
 
-void Mouse::write(byte value, const EmuTime& time)
+void Mouse::write(byte value, EmuTime::param time)
 {
 	if (mouseMode) {
 		// TODO figure out the timeout mechanism
@@ -176,7 +176,7 @@ void Mouse::write(byte value, const EmuTime& time)
 
 
 // EventListener
-void Mouse::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
+void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {

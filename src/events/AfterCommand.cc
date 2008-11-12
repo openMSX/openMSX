@@ -49,7 +49,7 @@ protected:
 		      AfterCommand& afterCommand,
 		      const std::string& command, double time);
 private:
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual void schedulerDeleted();
 	virtual const std::string& schedName() const;
 
@@ -451,7 +451,7 @@ void AfterTimedCmd::reschedule()
 	setSyncPoint(getCurrentTime() + EmuDuration(time));
 }
 
-void AfterTimedCmd::executeUntil(const EmuTime& /*time*/,
+void AfterTimedCmd::executeUntil(EmuTime::param /*time*/,
                                  int /*userData*/)
 {
 	execute();

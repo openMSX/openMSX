@@ -19,7 +19,7 @@ RomHolyQuran::RomHolyQuran(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomHolyQuran::reset(const EmuTime& /*time*/)
+void RomHolyQuran::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -30,7 +30,7 @@ void RomHolyQuran::reset(const EmuTime& /*time*/)
 	setBank(7, unmappedRead);
 }
 
-void RomHolyQuran::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomHolyQuran::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	// TODO are switch addresses mirrored?
 	if ((0x5000 <= address) && (address < 0x6000)) {

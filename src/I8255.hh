@@ -9,46 +9,46 @@
 #ifndef I8255_HH
 #define I8255_HH
 
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
 
 class I8255Interface;
-class EmuTime;
 class CliComm;
 
 class I8255 : private noncopyable
 {
 public:
-	I8255(I8255Interface& interf, const EmuTime& time,
+	I8255(I8255Interface& interf, EmuTime::param time,
 	      CliComm& cliComm);
 
-	void reset(const EmuTime& time);
+	void reset(EmuTime::param time);
 
-	byte readPortA(const EmuTime& time);
-	byte readPortB(const EmuTime& time);
-	byte readPortC(const EmuTime& time);
-	byte readControlPort(const EmuTime& time) const;
-	byte peekPortA(const EmuTime& time) const;
-	byte peekPortB(const EmuTime& time) const;
-	byte peekPortC(const EmuTime& time) const;
-	void writePortA(byte value, const EmuTime& time);
-	void writePortB(byte value, const EmuTime& time);
-	void writePortC(byte value, const EmuTime& time);
-	void writeControlPort(byte value, const EmuTime& time);
+	byte readPortA(EmuTime::param time);
+	byte readPortB(EmuTime::param time);
+	byte readPortC(EmuTime::param time);
+	byte readControlPort(EmuTime::param time) const;
+	byte peekPortA(EmuTime::param time) const;
+	byte peekPortB(EmuTime::param time) const;
+	byte peekPortC(EmuTime::param time) const;
+	void writePortA(byte value, EmuTime::param time);
+	void writePortB(byte value, EmuTime::param time);
+	void writePortC(byte value, EmuTime::param time);
+	void writeControlPort(byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte readC0(const EmuTime& time);
-	byte readC1(const EmuTime& time);
-	byte peekC0(const EmuTime& time) const;
-	byte peekC1(const EmuTime& time) const;
-	void outputPortA(byte value, const EmuTime& time);
-	void outputPortB(byte value, const EmuTime& time);
-	void outputPortC(byte value, const EmuTime& time);
+	byte readC0(EmuTime::param time);
+	byte readC1(EmuTime::param time);
+	byte peekC0(EmuTime::param time) const;
+	byte peekC1(EmuTime::param time) const;
+	void outputPortA(byte value, EmuTime::param time);
+	void outputPortB(byte value, EmuTime::param time);
+	void outputPortC(byte value, EmuTime::param time);
 
 	I8255Interface& interface;
 	CliComm& cliComm;

@@ -3,12 +3,11 @@
 #ifndef RASTERIZER_HH
 #define RASTERIZER_HH
 
+#include "EmuTime.hh"
 #include "DisplayMode.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
-
-class EmuTime;
 
 class Rasterizer
 {
@@ -29,7 +28,7 @@ public:
 	/** Indicates the start of a new frame.
 	  * The rasterizer can fetch per-frame settings from the VDP.
 	  */
-	virtual void frameStart(const EmuTime& time) = 0;
+	virtual void frameStart(EmuTime::param time) = 0;
 
 	/** Indicates the end of the current frame.
 	  * The rasterizer can perform image post processing.

@@ -15,12 +15,12 @@ KeyClick::~KeyClick()
 {
 }
 
-void KeyClick::reset(const EmuTime& time)
+void KeyClick::reset(EmuTime::param time)
 {
 	setClick(false, time);
 }
 
-void KeyClick::setClick(bool newStatus, const EmuTime& time)
+void KeyClick::setClick(bool newStatus, EmuTime::param time)
 {
 	if (newStatus != status) {
 		status = newStatus;

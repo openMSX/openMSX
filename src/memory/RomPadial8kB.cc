@@ -21,7 +21,7 @@ RomPadial8kB::RomPadial8kB(MSXMotherBoard& motherBoard, const XMLElement& config
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomPadial8kB::reset(const EmuTime& /*time*/)
+void RomPadial8kB::reset(EmuTime::param /*time*/)
 {
 	setRom (0, 0);
 	setRom (1, 0);

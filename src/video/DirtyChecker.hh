@@ -38,8 +38,8 @@ public:
 	void flush();
 
 	// VRAMObserver interface
-	virtual void updateVRAM(unsigned offset, const EmuTime& time);
-	virtual void updateWindow(bool enabled, const EmuTime& time);
+	virtual void updateVRAM(unsigned offset, EmuTime::param time);
+	virtual void updateWindow(bool enabled, EmuTime::param time);
 
 private:
 	/** For every unit this array stores its cache state:
@@ -57,7 +57,7 @@ void DirtyChecker<size, unit>::flush()
 
 template <unsigned size, unsigned unit>
 void DirtyChecker<size, unit>::updateVRAM(unsigned offset,
-                                          const EmuTime& /*time*/)
+                                          EmuTime::param /*time*/)
 {
 	unsigned unitNr = offset / unit;
 	assert(unitNr < size);
@@ -66,7 +66,7 @@ void DirtyChecker<size, unit>::updateVRAM(unsigned offset,
 
 template <unsigned size, unsigned unit>
 void DirtyChecker<size, unit>::updateWindow(bool enabled,
-                                            const EmuTime& /*time*/)
+                                            EmuTime::param /*time*/)
 {
 	if (enabled) {
 		flush();

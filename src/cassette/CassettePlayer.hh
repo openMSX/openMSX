@@ -41,21 +41,21 @@ public:
 	virtual ~CassettePlayer();
 
 	// CassetteDevice
-	virtual void setMotor(bool status, const EmuTime& time);
-	virtual short readSample(const EmuTime& time);
-	virtual void setSignal(bool output, const EmuTime& time);
+	virtual void setMotor(bool status, EmuTime::param time);
+	virtual short readSample(EmuTime::param time);
+	virtual void setSignal(bool output, EmuTime::param time);
 
 	// Pluggable
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& time, const EmuDuration& sampDur);
+		EmuTime::param time, EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
@@ -69,34 +69,34 @@ private:
 	State getState() const;
 	std::string getStateString() const;
 	void setState(State newState, const Filename& newImage,
-	              const EmuTime& time);
+	              EmuTime::param time);
 	void setImageName(const Filename& newImage);
 	const Filename& getImageName() const;
 	void checkInvariants() const;
 
 	/** Insert a tape for use in PLAY mode.
 	 */
-	void playTape(const Filename& filename, const EmuTime& time);
+	void playTape(const Filename& filename, EmuTime::param time);
 	void insertTape(const Filename& filename);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */
-	void removeTape(const EmuTime& time);
+	void removeTape(EmuTime::param time);
 
 	/** Goes to RECORD mode using the given filename as a new tape
 	  * image. Finishes any old recording session.
 	  */
-	void recordTape(const Filename& filename, const EmuTime& time);
+	void recordTape(const Filename& filename, EmuTime::param time);
 
 	/** Rewinds the tape. Also sets PLAY mode, because you can't record
 	  * over an existing tape. (And it won't be useful to implement that
 	  * anyway.)
 	  */
-	void rewind(const EmuTime& time);
+	void rewind(EmuTime::param time);
 
 	/** Enable or disable motor control.
 	 */
-	void setMotorControl(bool status, const EmuTime& time);
+	void setMotorControl(bool status, EmuTime::param time);
 
 	/** True when the tape is rolling: not in STOP mode, AND [ motorcontrol
 	  * is disabled OR motor is on ].
@@ -107,21 +107,21 @@ private:
 	  * be called to update the end-of-tape syncpoint and the loading
 	  * indicator.
 	  */
-	void updateLoadingState(const EmuTime& time);
+	void updateLoadingState(EmuTime::param time);
 
 	/** Returns the position of the tape, in seconds from the
 	  * beginning of the tape. */
-	double getTapePos(const EmuTime& time);
+	double getTapePos(EmuTime::param time);
 
 	/** Returns the length of the tape in seconds.
 	  * When no tape is inserted, this returns 0. While recording this
 	  * returns the current position (so while recording, tape length grows
 	  * continuously). */
-	double getTapeLength(const EmuTime& time);
+	double getTapeLength(EmuTime::param time);
 
-	void sync(const EmuTime& time);
-	void updateTapePosition(const EmuDuration& duration, const EmuTime& time);
-	void generateRecordOutput(const EmuDuration& duration);
+	void sync(EmuTime::param time);
+	void updateTapePosition(EmuDuration::param duration, EmuTime::param time);
+	void generateRecordOutput(EmuDuration::param duration);
 
 	void fillBuf(size_t length, double x);
 	void flushOutput();
@@ -131,7 +131,7 @@ private:
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	static const size_t BUF_SIZE = 1024;

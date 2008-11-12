@@ -46,7 +46,7 @@ RomPanasonic::~RomPanasonic()
 {
 }
 
-void RomPanasonic::reset(const EmuTime& /*time*/)
+void RomPanasonic::reset(EmuTime::param /*time*/)
 {
 	control = 0;
 	for (int region = 0; region < 8; ++region) {
@@ -55,7 +55,7 @@ void RomPanasonic::reset(const EmuTime& /*time*/)
 	}
 }
 
-byte RomPanasonic::peekMem(word address, const EmuTime& time) const
+byte RomPanasonic::peekMem(word address, EmuTime::param time) const
 {
 	byte result;
 	if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
@@ -81,7 +81,7 @@ byte RomPanasonic::peekMem(word address, const EmuTime& time) const
 	return result;
 }
 
-byte RomPanasonic::readMem(word address, const EmuTime& time)
+byte RomPanasonic::readMem(word address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
@@ -96,7 +96,7 @@ const byte* RomPanasonic::getReadCacheLine(word address) const
 	}
 }
 
-void RomPanasonic::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	//PRT_DEBUG("DEBUG write "<<hex<<(int)address<<
 	//          " "<<(int)value<<dec);

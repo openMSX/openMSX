@@ -3,12 +3,13 @@
 #ifndef CPUCORE_HH
 #define CPUCORE_HH
 
-#include "openmsx.hh"
 #include "Observer.hh"
 #include "CPU.hh"
 #include "CacheLine.hh"
 #include "Probe.hh"
+#include "EmuTime.hh"
 #include "serialize_meta.hh"
+#include "openmsx.hh"
 #include <string>
 #include <memory>
 
@@ -17,7 +18,6 @@ namespace openmsx {
 class MSXCPUInterface;
 class Scheduler;
 class MSXMotherBoard;
-class EmuTime;
 class BooleanSetting;
 class IntegerSetting;
 class Setting;
@@ -27,7 +27,7 @@ class CPUCore : private CPU_POLICY, public CPU, private Observer<Setting>
 {
 public:
 	CPUCore(MSXMotherBoard& motherboard, const std::string& name,
-	        const BooleanSetting& traceSetting, const EmuTime& time);
+	        const BooleanSetting& traceSetting, EmuTime::param time);
 	virtual ~CPUCore();
 
 	void setInterface(MSXCPUInterface* interf);
@@ -35,16 +35,16 @@ public:
 	/**
 	 * Reset the CPU.
 	 */
-	void doReset(const EmuTime& time);
+	void doReset(EmuTime::param time);
 
 	virtual void execute();
 	virtual void exitCPULoopSync();
 	virtual void exitCPULoopAsync();
-	virtual void warp(const EmuTime& time);
-	virtual const EmuTime& getCurrentTime() const;
-	virtual void wait(const EmuTime& time);
+	virtual void warp(EmuTime::param time);
+	virtual EmuTime::param getCurrentTime() const;
+	virtual void wait(EmuTime::param time);
 	virtual void waitCycles(unsigned cycles);
-	virtual void setNextSyncPoint(const EmuTime& time);
+	virtual void setNextSyncPoint(EmuTime::param time);
 	virtual void invalidateMemCache(unsigned start, unsigned size);
 	virtual void doStep();
 	virtual void doContinue();

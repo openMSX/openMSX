@@ -4,17 +4,17 @@
 
 namespace openmsx {
 
-void DummyCassetteDevice::setMotor(bool /*status*/, const EmuTime& /*time*/)
+void DummyCassetteDevice::setMotor(bool /*status*/, EmuTime::param /*time*/)
 {
 	// do nothing
 }
 
-short DummyCassetteDevice::readSample(const EmuTime& /*time*/)
+short DummyCassetteDevice::readSample(EmuTime::param /*time*/)
 {
 	return 32767; // TODO check value
 }
 
-void DummyCassetteDevice::setSignal(bool /*output*/, const EmuTime& /*time*/)
+void DummyCassetteDevice::setSignal(bool /*output*/, EmuTime::param /*time*/)
 {
 	// do nothing
 }
@@ -26,11 +26,11 @@ const std::string& DummyCassetteDevice::getDescription() const
 }
 
 void DummyCassetteDevice::plugHelper(Connector& /*connector*/,
-                                     const EmuTime& /*time*/)
+                                     EmuTime::param /*time*/)
 {
 }
 
-void DummyCassetteDevice::unplugHelper(const EmuTime& /*time*/)
+void DummyCassetteDevice::unplugHelper(EmuTime::param /*time*/)
 {
 }
 

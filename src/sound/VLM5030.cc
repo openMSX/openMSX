@@ -98,8 +98,8 @@ public:
 
 	void reset();
 	void writeData(byte data);
-	void writeControl(byte data, const EmuTime& time);
-	bool getBSY(const EmuTime& time);
+	void writeControl(byte data, EmuTime::param time);
+	bool getBSY(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -113,8 +113,8 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(
-		unsigned length, int* buffer, const EmuTime& start,
-		const EmuDuration& sampDur);
+		unsigned length, int* buffer, EmuTime::param start,
+		EmuDuration::param sampDur);
 
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
@@ -495,7 +495,7 @@ void VLM5030Impl::reset()
 }
 
 // get BSY pin level
-bool VLM5030Impl::getBSY(const EmuTime& time)
+bool VLM5030Impl::getBSY(EmuTime::param time)
 {
 	updateStream(time);
 	return pin_BSY;
@@ -507,7 +507,7 @@ void VLM5030Impl::writeData(byte data)
 	latch_data = data;
 }
 
-void VLM5030Impl::writeControl(byte data, const EmuTime& time)
+void VLM5030Impl::writeControl(byte data, EmuTime::param time)
 {
 	updateStream(time);
 	setRST(data & 0x01);
@@ -631,7 +631,7 @@ bool VLM5030Impl::generateInput(int* buffer, unsigned length)
 }
 
 bool VLM5030Impl::updateBuffer(unsigned length, int* buffer,
-                           const EmuTime& /*start*/, const EmuDuration& /*sampDur*/)
+                           EmuTime::param /*start*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -693,12 +693,12 @@ void VLM5030::writeData(byte data)
 	pimple->writeData(data);
 }
 
-void VLM5030::writeControl(byte data, const EmuTime& time)
+void VLM5030::writeControl(byte data, EmuTime::param time)
 {
 	pimple->writeControl(data, time);
 }
 
-bool VLM5030::getBSY(const EmuTime& time)
+bool VLM5030::getBSY(EmuTime::param time)
 {
 	return pimple->getBSY(time);
 }

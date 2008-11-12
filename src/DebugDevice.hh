@@ -9,7 +9,6 @@
 
 namespace openmsx {
 
-class EmuTime;
 class FilenameSetting;
 
 class DebugDevice : public MSXDevice
@@ -18,7 +17,7 @@ public:
 	DebugDevice(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~DebugDevice();
 
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -29,7 +28,7 @@ public:
 private:
 	enum DisplayType {HEX, BIN, DEC, ASC};
 
-	void outputSingleByte(byte value, const EmuTime& time);
+	void outputSingleByte(byte value, EmuTime::param time);
 	void outputMultiByte(byte value);
 	void displayByte(byte value, DisplayType type);
 	void openOutput(const std::string& name);

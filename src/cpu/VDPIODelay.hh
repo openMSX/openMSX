@@ -14,11 +14,11 @@ class VDPIODelay : public MSXDevice
 {
 public:
 	VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
-	           const EmuTime& time);
+	           EmuTime::param time);
 
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
+	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	const MSXDevice& getInDevice(byte port) const;
 	MSXDevice*& getInDevicePtr (byte port);
@@ -28,7 +28,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void delay(const EmuTime& time);
+	void delay(EmuTime::param time);
 
 	MSXCPU& cpu;
 	MSXDevice* inDevices[4];

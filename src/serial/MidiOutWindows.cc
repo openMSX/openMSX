@@ -34,7 +34,7 @@ MidiOutWindows::~MidiOutWindows()
 	//w32_midiOutClean(); // TODO
 }
 
-void MidiOutWindows::plugHelper(Connector& connector, const EmuTime& time)
+void MidiOutWindows::plugHelper(Connector& connector, EmuTime::param time)
 {
 	devidx = w32_midiOutOpen(name.c_str());
 	if (devidx == unsigned(-1)) {
@@ -42,7 +42,7 @@ void MidiOutWindows::plugHelper(Connector& connector, const EmuTime& time)
 	}
 }
 
-void MidiOutWindows::unplugHelper(const EmuTime& time)
+void MidiOutWindows::unplugHelper(EmuTime::param time)
 {
 	if (devidx != unsigned(-1)) {
 		w32_midiOutClose(devidx);
@@ -60,7 +60,7 @@ const string& MidiOutWindows::getDescription() const
 	return desc;
 }
 
-void MidiOutWindows::recvByte(byte value, const EmuTime& time)
+void MidiOutWindows::recvByte(byte value, EmuTime::param time)
 {
 	if (devidx != unsigned(-1)) {
 		w32_midiOutPut(value, devidx);

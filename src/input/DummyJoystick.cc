@@ -4,12 +4,12 @@
 
 namespace openmsx {
 
-byte DummyJoystick::read(const EmuTime& /*time*/)
+byte DummyJoystick::read(EmuTime::param /*time*/)
 {
 	return 0x3F;
 }
 
-void DummyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
+void DummyJoystick::write(byte /*value*/, EmuTime::param /*time*/)
 {
 	// do nothing
 }
@@ -21,11 +21,11 @@ const std::string& DummyJoystick::getDescription() const
 }
 
 void DummyJoystick::plugHelper(Connector& /*connector*/,
-                               const EmuTime& /*time*/)
+                               EmuTime::param /*time*/)
 {
 }
 
-void DummyJoystick::unplugHelper(const EmuTime& /*time*/)
+void DummyJoystick::unplugHelper(EmuTime::param /*time*/)
 {
 }
 

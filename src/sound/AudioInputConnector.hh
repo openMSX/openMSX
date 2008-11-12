@@ -22,7 +22,7 @@ public:
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
 
-	short readSample(const EmuTime& time) const;
+	short readSample(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

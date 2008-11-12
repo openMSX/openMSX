@@ -28,12 +28,12 @@ MSXMatsushita::~MSXMatsushita()
 {
 }
 
-void MSXMatsushita::reset(const EmuTime& /*time*/)
+void MSXMatsushita::reset(EmuTime::param /*time*/)
 {
 	address = 0; // TODO check this
 }
 
-byte MSXMatsushita::readSwitchedIO(word port, const EmuTime& time)
+byte MSXMatsushita::readSwitchedIO(word port, EmuTime::param time)
 {
 	// TODO: Port 7 and 8 can be read as well.
 	byte result = peekSwitchedIO(port, time);
@@ -48,7 +48,7 @@ byte MSXMatsushita::readSwitchedIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte MSXMatsushita::peekSwitchedIO(word port, const EmuTime& /*time*/) const
+byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 {
 	byte result;
 	switch (port & 0x0F) {
@@ -75,7 +75,7 @@ byte MSXMatsushita::peekSwitchedIO(word port, const EmuTime& /*time*/) const
 	return result;
 }
 
-void MSXMatsushita::writeSwitchedIO(word port, byte value, const EmuTime& /*time*/)
+void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 {
 	switch (port & 0x0F) {
 	case 1:

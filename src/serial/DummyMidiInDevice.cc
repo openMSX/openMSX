@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-void DummyMidiInDevice::signal(const EmuTime& /*time*/)
+void DummyMidiInDevice::signal(EmuTime::param /*time*/)
 {
 	// ignore
 }
@@ -16,11 +16,11 @@ const std::string& DummyMidiInDevice::getDescription() const
 }
 
 void DummyMidiInDevice::plugHelper(Connector& /*connector*/,
-                                   const EmuTime& /*time*/)
+                                   EmuTime::param /*time*/)
 {
 }
 
-void DummyMidiInDevice::unplugHelper(const EmuTime& /*time*/)
+void DummyMidiInDevice::unplugHelper(EmuTime::param /*time*/)
 {
 }
 

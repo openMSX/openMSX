@@ -13,7 +13,7 @@ NationalFDC::NationalFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 }
 
-byte NationalFDC::readMem(word address, const EmuTime& time)
+byte NationalFDC::readMem(word address, EmuTime::param time)
 {
 	byte value;
 	switch (address & 0x3FC7) {
@@ -44,7 +44,7 @@ byte NationalFDC::readMem(word address, const EmuTime& time)
 	return value;
 }
 
-byte NationalFDC::peekMem(word address, const EmuTime& time) const
+byte NationalFDC::peekMem(word address, EmuTime::param time) const
 {
 	byte value;
 	// According to atarulum:
@@ -101,7 +101,7 @@ const byte* NationalFDC::getReadCacheLine(word start) const
 	}
 }
 
-void NationalFDC::writeMem(word address, byte value, const EmuTime& time)
+void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("NationalFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	switch (address & 0x3FC7) {

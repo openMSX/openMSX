@@ -17,11 +17,11 @@ public:
 	MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MegaSCSI();
 
-	virtual void reset(const EmuTime& time);
+	virtual void reset(EmuTime::param time);
 
-	virtual byte readMem(word address, const EmuTime& time);
-	virtual byte peekmem(word address, const EmuTime& time) const;
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
+	virtual byte peekmem(word address, EmuTime::param time) const;
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 

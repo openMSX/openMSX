@@ -18,13 +18,13 @@ public:
 	MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXAudio();
 
-	virtual void reset(const EmuTime& time);
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
-	virtual void writeIO(word port, byte value, const EmuTime& time);
-	virtual byte readMem(word address, const EmuTime& time);
-	virtual byte peekMem(word address, const EmuTime& time) const;
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
+	virtual void writeIO(word port, byte value, EmuTime::param time);
+	virtual byte readMem(word address, EmuTime::param time);
+	virtual byte peekMem(word address, EmuTime::param time) const;
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
@@ -32,7 +32,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void enableDAC(bool enable, const EmuTime& time);
+	void enableDAC(bool enable, EmuTime::param time);
 
 	std::auto_ptr<Y8950Periphery> periphery;
 	std::auto_ptr<Y8950> y8950;

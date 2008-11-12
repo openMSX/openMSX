@@ -40,13 +40,13 @@ public:
 	virtual ~MidiInWindows();
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
 
 	// MidiInDevice
-	virtual void signal(const EmuTime& time);
+	virtual void signal(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

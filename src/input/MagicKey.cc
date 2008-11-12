@@ -19,22 +19,22 @@ const std::string& MagicKey::getDescription() const
 	return DESC;
 }
 
-void MagicKey::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+void MagicKey::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 }
 
-void MagicKey::unplugHelper(const EmuTime& /*time*/)
+void MagicKey::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
 
 // JoystickDevice
-byte MagicKey::read(const EmuTime& /*time*/)
+byte MagicKey::read(EmuTime::param /*time*/)
 {
 	return JOY_BUTTONB | JOY_BUTTONA | JOY_RIGHT | JOY_LEFT;
 }
 
-void MagicKey::write(byte /*value*/, const EmuTime& /*time*/)
+void MagicKey::write(byte /*value*/, EmuTime::param /*time*/)
 {
 }
 

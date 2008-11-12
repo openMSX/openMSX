@@ -47,7 +47,7 @@ void MSXEventReplayer::processLogEntry()
 	}
 }
 
-void MSXEventReplayer::executeUntil(const EmuTime& time, int /*userData*/)
+void MSXEventReplayer::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	try {
 		InputEventFactory::EventPtr eventPtr =

@@ -20,11 +20,11 @@ public:
 
 	// MSXDevice
 	virtual std::string getName() const;
-	virtual byte readMem(word address, const EmuTime& time);
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte readMem(word address, EmuTime::param time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
-	virtual byte peekMem(word address, const EmuTime& time) const;
+	virtual byte peekMem(word address, EmuTime::param time) const;
 
 private:
 	struct Range {

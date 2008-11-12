@@ -22,7 +22,7 @@ public:
 private:
 	// EventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
-                                 const EmuTime& time);
+                                 EmuTime::param time);
 
 	MSXEventDistributor& eventDistributor;
 	std::ofstream logFileStream;

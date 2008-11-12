@@ -14,8 +14,8 @@ public:
 	               std::auto_ptr<Rom> rom);
 	virtual ~RomZemina90in1();
 
-	virtual void reset(const EmuTime& time);
-	void writeIO(word port, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	void writeIO(word port, byte value, EmuTime::param time);
 	virtual byte* getWriteCacheLine(word address) const;
 };
 

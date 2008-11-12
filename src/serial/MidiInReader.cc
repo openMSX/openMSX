@@ -34,7 +34,7 @@ MidiInReader::~MidiInReader()
 }
 
 // Pluggable
-void MidiInReader::plugHelper(Connector& connector_, const EmuTime& /*time*/)
+void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	file = fopen(readFilenameSetting->getValue().c_str(), "rb");
 	if (!file) {
@@ -52,7 +52,7 @@ void MidiInReader::plugHelper(Connector& connector_, const EmuTime& /*time*/)
 	thread.start();
 }
 
-void MidiInReader::unplugHelper(const EmuTime& /*time*/)
+void MidiInReader::unplugHelper(EmuTime::param /*time*/)
 {
 	ScopedLock l(lock);
 	thread.stop();
@@ -98,7 +98,7 @@ void MidiInReader::run()
 }
 
 // MidiInDevice
-void MidiInReader::signal(const EmuTime& time)
+void MidiInReader::signal(EmuTime::param time)
 {
 	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {

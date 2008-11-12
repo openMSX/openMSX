@@ -33,8 +33,8 @@ class AY8910Debuggable : public SimpleDebuggable
 {
 public:
 	AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910);
-	virtual byte read(unsigned address, const EmuTime& time);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
 	AY8910& ay8910;
 };
@@ -480,7 +480,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 // AY8910 main class:
 
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
-               const XMLElement& config, const EmuTime& time)
+               const XMLElement& config, EmuTime::param time)
 	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG", 3)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 	, cliComm(motherBoard.getMSXCliComm())
@@ -521,7 +521,7 @@ AY8910::~AY8910()
 	unregisterSound();
 }
 
-void AY8910::reset(const EmuTime& time)
+void AY8910::reset(EmuTime::param time)
 {
 	// Reset generators and envelope.
 	for (unsigned chan = 0; chan < 3; ++chan) {
@@ -536,7 +536,7 @@ void AY8910::reset(const EmuTime& time)
 }
 
 
-byte AY8910::readRegister(unsigned reg, const EmuTime& time)
+byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 {
 	assert(reg <= 15);
 	switch (reg) {
@@ -554,7 +554,7 @@ byte AY8910::readRegister(unsigned reg, const EmuTime& time)
 	return regs[reg];
 }
 
-byte AY8910::peekRegister(unsigned reg, const EmuTime& time) const
+byte AY8910::peekRegister(unsigned reg, EmuTime::param time) const
 {
 	assert(reg <= 15);
 	switch (reg) {
@@ -573,7 +573,7 @@ byte AY8910::peekRegister(unsigned reg, const EmuTime& time) const
 }
 
 
-void AY8910::writeRegister(unsigned reg, byte value, const EmuTime& time)
+void AY8910::writeRegister(unsigned reg, byte value, EmuTime::param time)
 {
 	assert(reg <= 15);
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
@@ -582,7 +582,7 @@ void AY8910::writeRegister(unsigned reg, byte value, const EmuTime& time)
 	}
 	wrtReg(reg, value, time);
 }
-void AY8910::wrtReg(unsigned reg, byte value, const EmuTime& time)
+void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 {
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
@@ -1006,7 +1006,7 @@ bool AY8910::generateInput(int* buffer, unsigned num)
 }
 
 bool AY8910::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
@@ -1021,12 +1021,12 @@ AY8910Debuggable::AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910_)
 {
 }
 
-byte AY8910Debuggable::read(unsigned address, const EmuTime& time)
+byte AY8910Debuggable::read(unsigned address, EmuTime::param time)
 {
 	return ay8910.readRegister(address, time);
 }
 
-void AY8910Debuggable::write(unsigned address, byte value, const EmuTime& time)
+void AY8910Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	return ay8910.writeRegister(address, value, time);
 }

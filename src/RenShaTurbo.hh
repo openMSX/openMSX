@@ -3,6 +3,7 @@
 #ifndef RENSHATURBO_HH
 #define RENSHATURBO_HH
 
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -10,7 +11,6 @@ namespace openmsx {
 
 class CommandController;
 class XMLElement;
-class EmuTime;
 class Autofire;
 
 /**
@@ -31,7 +31,7 @@ public:
 	  * @result When auto-fire is on, result will alternate between true
 	  *         and false. When auto-fire if off result is false.
 	  */
-	bool getSignal(const EmuTime& time);
+	bool getSignal(EmuTime::param time);
 
 private:
 	// The Autofire circuit

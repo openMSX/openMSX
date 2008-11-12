@@ -19,7 +19,7 @@ public:
 	explicit WavImage(const Filename& filename);
 	virtual ~WavImage();
 
-	virtual short getSampleAt(const EmuTime& time);
+	virtual short getSampleAt(EmuTime::param time);
 	virtual EmuTime getEndTime() const;
 	virtual unsigned getFrequency() const;
 	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const;

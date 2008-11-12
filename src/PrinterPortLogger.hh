@@ -20,15 +20,15 @@ public:
 	virtual ~PrinterPortLogger();
 
 	// PrinterPortDevice
-	virtual bool getStatus(const EmuTime& time);
-	virtual void setStrobe(bool strobe, const EmuTime& time);
-	virtual void writeData(byte data, const EmuTime& time);
+	virtual bool getStatus(EmuTime::param time);
+	virtual void setStrobe(bool strobe, EmuTime::param time);
+	virtual void writeData(byte data, EmuTime::param time);
 
 	// Pluggable
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
-	virtual void plugHelper(Connector& connector, const EmuTime& time);
-	virtual void unplugHelper(const EmuTime& time);
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
+	virtual void unplugHelper(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

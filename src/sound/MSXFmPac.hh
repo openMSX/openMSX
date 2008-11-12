@@ -16,10 +16,10 @@ public:
 	MSXFmPac(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXFmPac();
 
-	virtual void reset(const EmuTime& time);
-	virtual void writeIO(word port, byte value, const EmuTime& time);
-	virtual byte readMem(word address, const EmuTime& time);
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual void writeIO(word port, byte value, EmuTime::param time);
+	virtual byte readMem(word address, EmuTime::param time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual byte* getWriteCacheLine(word address) const;
 

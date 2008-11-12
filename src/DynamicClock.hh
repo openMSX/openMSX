@@ -23,25 +23,25 @@ public:
 	  * The initial frequency is infinite;
 	  * in other words, the clock stands still.
 	  */
-	explicit DynamicClock(const EmuTime& time) : lastTick(time) {}
+	explicit DynamicClock(EmuTime::param time) : lastTick(time) {}
 
 	/** Gets the time at which the last clock tick occurred.
 	  */
-	const EmuTime& getTime() const {
+	EmuTime::param getTime() const {
 		return lastTick;
 	}
 
 	/** Checks whether this clock's last tick is or is not before the
 	  * given time stamp.
 	  */
-	bool before(const EmuTime& e) const {
+	bool before(EmuTime::param e) const {
 		return lastTick.time < e.time;
 	}
 
 	/** Calculate the number of ticks for this clock until the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned getTicksTill(const EmuTime& e) const {
+	unsigned getTicksTill(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		return divmod.div(e.time - lastTick.time);
 	}
@@ -50,7 +50,7 @@ public:
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned getTicksTillUp(const EmuTime& e) const {
+	unsigned getTicksTillUp(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		return divmod.div(e.time - lastTick.time + (getStep() - 1));
 	}
@@ -73,7 +73,7 @@ public:
 
 	/** Reset the clock to start ticking at the given time.
 	  */
-	void reset(const EmuTime& e) {
+	void reset(EmuTime::param e) {
 		lastTick.time = e.time;
 	}
 
@@ -81,7 +81,7 @@ public:
 	  * the given time.
 	  * It is not allowed to advance a clock to a time in the past.
 	  */
-	void advance(const EmuTime& e) {
+	void advance(EmuTime::param e) {
 		assert(lastTick.time <= e.time);
 		lastTick.time = e.time - divmod.mod(e.time - lastTick.time);
 	}

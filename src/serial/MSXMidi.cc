@@ -16,8 +16,8 @@ class MSXMidiCounter0 : public ClockPinListener
 public:
 	explicit MSXMidiCounter0(MSXMidi& midi);
 	virtual ~MSXMidiCounter0();
-	virtual void signal(ClockPin& pin, const EmuTime& time);
-	virtual void signalPosEdge(ClockPin& pin, const EmuTime& time);
+	virtual void signal(ClockPin& pin, EmuTime::param time);
+	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
 private:
 	MSXMidi& midi;
 };
@@ -27,8 +27,8 @@ class MSXMidiCounter2 : public ClockPinListener
 public:
 	explicit MSXMidiCounter2(MSXMidi& midi);
 	virtual ~MSXMidiCounter2();
-	virtual void signal(ClockPin& pin, const EmuTime& time);
-	virtual void signalPosEdge(ClockPin& pin, const EmuTime& time);
+	virtual void signal(ClockPin& pin, EmuTime::param time);
+	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
 private:
 	MSXMidi& midi;
 };
@@ -38,16 +38,16 @@ class MSXMidiI8251Interf : public I8251Interface
 public:
 	explicit MSXMidiI8251Interf(MSXMidi& midi);
 	virtual ~MSXMidiI8251Interf();
-	virtual void setRxRDY(bool status, const EmuTime& time);
-	virtual void setDTR(bool status, const EmuTime& time);
-	virtual void setRTS(bool status, const EmuTime& time);
-	virtual bool getDSR(const EmuTime& time);
-	virtual bool getCTS(const EmuTime& time);
+	virtual void setRxRDY(bool status, EmuTime::param time);
+	virtual void setDTR(bool status, EmuTime::param time);
+	virtual void setRTS(bool status, EmuTime::param time);
+	virtual bool getDSR(EmuTime::param time);
+	virtual bool getCTS(EmuTime::param time);
 	virtual void setDataBits(DataBits bits);
 	virtual void setStopBits(StopBits bits);
 	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, const EmuTime& time);
-	virtual void signal(const EmuTime& time);
+	virtual void recvByte(byte value, EmuTime::param time);
+	virtual void signal(EmuTime::param time);
 private:
 	MSXMidi& midi;
 };
@@ -72,7 +72,7 @@ MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period
-	const EmuTime& time = getCurrentTime();
+	EmuTime::param time = getCurrentTime();
 	i8254->getClockPin(0).setPeriodicState(total, hi, time);
 	i8254->getClockPin(1).setState(false, time);
 	i8254->getClockPin(2).setPeriodicState(total, hi, time);
@@ -84,7 +84,7 @@ MSXMidi::~MSXMidi()
 {
 }
 
-void MSXMidi::reset(const EmuTime& /*time*/)
+void MSXMidi::reset(EmuTime::param /*time*/)
 {
 	timerIRQlatch = false;
 	timerIRQenabled = false;
@@ -94,7 +94,7 @@ void MSXMidi::reset(const EmuTime& /*time*/)
 	rxrdyIRQ.reset();
 }
 
-byte MSXMidi::readIO(word port, const EmuTime& time)
+byte MSXMidi::readIO(word port, EmuTime::param time)
 {
 	byte result;
 	port &= 0x07;
@@ -121,7 +121,7 @@ byte MSXMidi::readIO(word port, const EmuTime& time)
 	return result;
 }
 
-byte MSXMidi::peekIO(word port, const EmuTime& time) const
+byte MSXMidi::peekIO(word port, EmuTime::param time) const
 {
 	byte result;
 	port &= 0x07;
@@ -147,7 +147,7 @@ byte MSXMidi::peekIO(word port, const EmuTime& time) const
 	return result;
 }
 
-void MSXMidi::writeIO(word port, byte value, const EmuTime& time)
+void MSXMidi::writeIO(word port, byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("MSX-Midi write " << (int)port << " " << (int)value);
 	port &= 0x07;
@@ -170,7 +170,7 @@ void MSXMidi::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-void MSXMidi::setTimerIRQ(bool status, const EmuTime& time)
+void MSXMidi::setTimerIRQ(bool status, EmuTime::param time)
 {
 	if (timerIRQlatch != status) {
 		timerIRQlatch = status;
@@ -185,7 +185,7 @@ void MSXMidi::setTimerIRQ(bool status, const EmuTime& time)
 	}
 }
 
-void MSXMidi::enableTimerIRQ(bool enabled, const EmuTime& time)
+void MSXMidi::enableTimerIRQ(bool enabled, EmuTime::param time)
 {
 	if (timerIRQenabled != enabled) {
 		timerIRQenabled = enabled;
@@ -200,7 +200,7 @@ void MSXMidi::enableTimerIRQ(bool enabled, const EmuTime& time)
 	}
 }
 
-void MSXMidi::updateEdgeEvents(const EmuTime& time)
+void MSXMidi::updateEdgeEvents(EmuTime::param time)
 {
 	bool wantEdges = timerIRQenabled && !timerIRQlatch;
 	i8254->getOutputPin(2).generateEdgeSignals(wantEdges, time);
@@ -242,27 +242,27 @@ MSXMidiI8251Interf::~MSXMidiI8251Interf()
 {
 }
 
-void MSXMidiI8251Interf::setRxRDY(bool status, const EmuTime& /*time*/)
+void MSXMidiI8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
 {
 	midi.setRxRDYIRQ(status);
 }
 
-void MSXMidiI8251Interf::setDTR(bool status, const EmuTime& time)
+void MSXMidiI8251Interf::setDTR(bool status, EmuTime::param time)
 {
 	midi.enableTimerIRQ(status, time);
 }
 
-void MSXMidiI8251Interf::setRTS(bool status, const EmuTime& /*time*/)
+void MSXMidiI8251Interf::setRTS(bool status, EmuTime::param /*time*/)
 {
 	midi.enableRxRDYIRQ(status);
 }
 
-bool MSXMidiI8251Interf::getDSR(const EmuTime& /*time*/)
+bool MSXMidiI8251Interf::getDSR(EmuTime::param /*time*/)
 {
 	return midi.timerIRQ.getState();
 }
 
-bool MSXMidiI8251Interf::getCTS(const EmuTime& /*time*/)
+bool MSXMidiI8251Interf::getCTS(EmuTime::param /*time*/)
 {
 	return true;
 }
@@ -282,12 +282,12 @@ void MSXMidiI8251Interf::setParityBit(bool enable, ParityBit parity)
 	midi.outConnector->setParityBit(enable, parity);
 }
 
-void MSXMidiI8251Interf::recvByte(byte value, const EmuTime& time)
+void MSXMidiI8251Interf::recvByte(byte value, EmuTime::param time)
 {
 	midi.outConnector->recvByte(value, time);
 }
 
-void MSXMidiI8251Interf::signal(const EmuTime& time)
+void MSXMidiI8251Interf::signal(EmuTime::param time)
 {
 	midi.getPluggedMidiInDev().signal(time);
 }
@@ -304,7 +304,7 @@ MSXMidiCounter0::~MSXMidiCounter0()
 {
 }
 
-void MSXMidiCounter0::signal(ClockPin& pin, const EmuTime& time)
+void MSXMidiCounter0::signal(ClockPin& pin, EmuTime::param time)
 {
 	ClockPin& clk = midi.i8251->getClockPin();
 	if (pin.isPeriodic()) {
@@ -315,7 +315,7 @@ void MSXMidiCounter0::signal(ClockPin& pin, const EmuTime& time)
 	}
 }
 
-void MSXMidiCounter0::signalPosEdge(ClockPin& /*pin*/, const EmuTime& /*time*/)
+void MSXMidiCounter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
 {
 	assert(false);
 }
@@ -332,7 +332,7 @@ MSXMidiCounter2::~MSXMidiCounter2()
 {
 }
 
-void MSXMidiCounter2::signal(ClockPin& pin, const EmuTime& time)
+void MSXMidiCounter2::signal(ClockPin& pin, EmuTime::param time)
 {
 	ClockPin& clk = midi.i8254->getClockPin(1);
 	if (pin.isPeriodic()) {
@@ -343,7 +343,7 @@ void MSXMidiCounter2::signal(ClockPin& pin, const EmuTime& time)
 	}
 }
 
-void MSXMidiCounter2::signalPosEdge(ClockPin& /*pin*/, const EmuTime& time)
+void MSXMidiCounter2::signalPosEdge(ClockPin& /*pin*/, EmuTime::param time)
 {
 	midi.setTimerIRQ(true, time);
 }
@@ -376,7 +376,7 @@ void MSXMidi::setParityBit(bool enable, ParityBit parity)
 	i8251->setParityBit(enable, parity);
 }
 
-void MSXMidi::recvByte(byte value, const EmuTime& time)
+void MSXMidi::recvByte(byte value, EmuTime::param time)
 {
 	i8251->recvByte(value, time);
 }

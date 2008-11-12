@@ -22,7 +22,7 @@ RomZemina126in1::RomZemina126in1(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomZemina126in1::reset(const EmuTime& /*time*/)
+void RomZemina126in1::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -30,7 +30,7 @@ void RomZemina126in1::reset(const EmuTime& /*time*/)
 	setBank(3, unmappedRead);
 }
 
-void RomZemina126in1::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomZemina126in1::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0x4000) {
 		setRom(1, value);

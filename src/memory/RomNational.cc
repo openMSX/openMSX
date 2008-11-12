@@ -20,7 +20,7 @@ RomNational::~RomNational()
 {
 }
 
-void RomNational::reset(const EmuTime& /*time*/)
+void RomNational::reset(EmuTime::param /*time*/)
 {
 	control = 0;
 	for (int region = 0; region < 4; ++region) {
@@ -30,7 +30,7 @@ void RomNational::reset(const EmuTime& /*time*/)
 	sramAddr = 0; // TODO check this
 }
 
-byte RomNational::peekMem(word address, const EmuTime& time) const
+byte RomNational::peekMem(word address, EmuTime::param time) const
 {
 	if ((control & 0x04) && ((address & 0x7FF9) == 0x7FF0)) {
 		// TODO check mirrored
@@ -45,7 +45,7 @@ byte RomNational::peekMem(word address, const EmuTime& time) const
 	return Rom16kBBlocks::peekMem(address, time);
 }
 
-byte RomNational::readMem(word address, const EmuTime& time)
+byte RomNational::readMem(word address, EmuTime::param time)
 {
 	byte result = peekMem(address, time);
 	if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
@@ -63,7 +63,7 @@ const byte* RomNational::getReadCacheLine(word address) const
 	}
 }
 
-void RomNational::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomNational::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	// TODO bank switch address mirrored?
 	if (address == 0x6000) {

@@ -35,7 +35,7 @@ RecordedCommand::~RecordedCommand()
 void RecordedCommand::execute(const vector<TclObject*>& tokens,
                               TclObject& result)
 {
-	const EmuTime& time = scheduler.getCurrentTime();
+	EmuTime::param time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
 		ScopedAssign<TclObject*> sa(currentResultObject, &result);
 		msxEventDistributor.distributeEvent(
@@ -70,7 +70,7 @@ static string getBaseName(const std::string& str)
 }
 
 void RecordedCommand::signalEvent(
-	shared_ptr<const Event> event, const EmuTime& time)
+	shared_ptr<const Event> event, EmuTime::param time)
 {
 	if (event->getType() != OPENMSX_MSX_COMMAND_EVENT) return;
 	const MSXCommandEvent* commandEvent =
@@ -82,7 +82,7 @@ void RecordedCommand::signalEvent(
 }
 
 void RecordedCommand::execute(const vector<TclObject*>& tokens,
-                              TclObject& result, const EmuTime& time)
+                              TclObject& result, EmuTime::param time)
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
@@ -94,7 +94,7 @@ void RecordedCommand::execute(const vector<TclObject*>& tokens,
 }
 
 string RecordedCommand::execute(const vector<string>& /*tokens*/,
-                                const EmuTime& /*time*/)
+                                EmuTime::param /*time*/)
 {
 	// either this method or the method above should be reimplemented
 	// by the subclasses

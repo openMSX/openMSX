@@ -160,14 +160,14 @@ void MSXMixer::setSynchronousMode(bool synchronous)
 	}
 }
 
-void MSXMixer::updateStream(const EmuTime& time)
+void MSXMixer::updateStream(EmuTime::param time)
 {
 	if ((!muteCount && fragmentSize) || synchronousCounter) {
 		updateStream2(time);
 	}
 }
 
-void MSXMixer::updateStream2(const EmuTime& time)
+void MSXMixer::updateStream2(EmuTime::param time)
 {
 	assert(prevTime <= time);
 	EmuDuration duration = time - prevTime;
@@ -200,7 +200,7 @@ void MSXMixer::updateStream2(const EmuTime& time)
 }
 
 void MSXMixer::generate(short* output, unsigned samples,
-	const EmuTime& start, const EmuDuration& sampDur)
+	EmuTime::param start, EmuDuration::param sampDur)
 {
 	// The code below is specialized for a lot of cases (before this
 	// routine was _much_ shorter). This is done because this routine
@@ -669,7 +669,7 @@ void MSXMixer::updateMasterVolume()
 	}
 }
 
-void MSXMixer::executeUntil(const EmuTime& time, int /*userData*/)
+void MSXMixer::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	if (!muteCount && fragmentSize) {
 		updateStream2(time);

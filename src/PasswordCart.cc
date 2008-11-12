@@ -23,24 +23,24 @@ PasswordCart::PasswordCart(MSXMotherBoard& motherBoard, const XMLElement& config
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void PasswordCart::reset(const EmuTime& /*time*/)
+void PasswordCart::reset(EmuTime::param /*time*/)
 {
 	pointer = 3;
 }
 
-void PasswordCart::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
+void PasswordCart::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	pointer = (value == 0) ? 0 : 3;
 }
 
-byte PasswordCart::readIO(word port, const EmuTime& time)
+byte PasswordCart::readIO(word port, EmuTime::param time)
 {
 	byte result = peekIO(port, time);
 	pointer = std::min(3, pointer + 1);
 	return result;
 }
 
-byte PasswordCart::peekIO(word /*port*/, const EmuTime& /*time*/) const
+byte PasswordCart::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	switch (pointer) {
 	case 0:

@@ -16,7 +16,7 @@ class MSXRom : public MSXDevice
 public:
 	virtual ~MSXRom();
 
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual byte* getWriteCacheLine(word address) const;
 
 	void setRomType(RomType type);

@@ -22,7 +22,7 @@ MSXFmPac::~MSXFmPac()
 {
 }
 
-void MSXFmPac::reset(const EmuTime& time)
+void MSXFmPac::reset(EmuTime::param time)
 {
 	MSXMusic::reset(time);
 	enable = 0;
@@ -32,14 +32,14 @@ void MSXFmPac::reset(const EmuTime& time)
 	                   // as it's not the magic combination
 }
 
-void MSXFmPac::writeIO(word port, byte value, const EmuTime& time)
+void MSXFmPac::writeIO(word port, byte value, EmuTime::param time)
 {
 	if (enable & 1) {
 		MSXMusic::writeIO(port, value, time);
 	}
 }
 
-byte MSXFmPac::readMem(word address, const EmuTime& /*time*/)
+byte MSXFmPac::readMem(word address, EmuTime::param /*time*/)
 {
 	address &= 0x3FFF;
 	switch (address) {
@@ -83,7 +83,7 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 	}
 }
 
-void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
+void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 {
 	// 'enable' has no effect for memory mapped access
 	//   (thanks to BiFiMSX for investigating this)

@@ -40,7 +40,7 @@ void Autofire::update(const Setting& setting)
 	setClock();
 }
 
-bool Autofire::getSignal(const EmuTime& time)
+bool Autofire::getSignal(EmuTime::param time)
 {
 	return speedSetting->getValue() == 0 ?
 		false : clock.getTicksTill(time) & 1;

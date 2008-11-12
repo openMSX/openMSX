@@ -207,7 +207,7 @@ Reactor& MSXCommandController::getReactor() const
 }
 
 void MSXCommandController::signalEvent(
-	shared_ptr<const Event> event, const EmuTime& /*time*/)
+	shared_ptr<const Event> event, EmuTime::param /*time*/)
 {
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 

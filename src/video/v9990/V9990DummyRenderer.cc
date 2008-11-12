@@ -4,58 +4,58 @@
 
 namespace openmsx {
 
-void V9990DummyRenderer::reset(const EmuTime& /*time*/)
+void V9990DummyRenderer::reset(EmuTime::param /*time*/)
 {
 }
 
-void V9990DummyRenderer::frameStart(const EmuTime& /*time*/)
+void V9990DummyRenderer::frameStart(EmuTime::param /*time*/)
 {
 }
 
-void V9990DummyRenderer::frameEnd(const EmuTime& /*time*/)
+void V9990DummyRenderer::frameEnd(EmuTime::param /*time*/)
 {
 }
 
-void V9990DummyRenderer::renderUntil(const EmuTime& /*time*/)
+void V9990DummyRenderer::renderUntil(EmuTime::param /*time*/)
 {
 }
 
 void V9990DummyRenderer::updateDisplayEnabled(bool /*enabled*/,
-                                              const EmuTime& /*time*/)
+                                              EmuTime::param /*time*/)
 {
 }
 
 void V9990DummyRenderer::setDisplayMode(V9990DisplayMode /*mode*/,
-	                                const EmuTime& /*time*/)
+	                                EmuTime::param /*time*/)
 {
 }
 
 void V9990DummyRenderer::setColorMode(V9990ColorMode /*mode*/,
-	                              const EmuTime& /*time*/)
+	                              EmuTime::param /*time*/)
 {
 }
 
 void V9990DummyRenderer::updatePalette(
 	int /*index*/, byte /*r*/, byte /*g*/, byte /*b*/,
-	const EmuTime& /*time*/)
+	EmuTime::param /*time*/)
 {
 }
 
 void V9990DummyRenderer::updateBackgroundColor(
-	int /*index*/, const EmuTime& /*time*/)
+	int /*index*/, EmuTime::param /*time*/)
 {
 }
 
-void V9990DummyRenderer::updateScrollAX(const EmuTime& /*time*/)
+void V9990DummyRenderer::updateScrollAX(EmuTime::param /*time*/)
 {
 }
-void V9990DummyRenderer::updateScrollBX(const EmuTime& /*time*/)
+void V9990DummyRenderer::updateScrollBX(EmuTime::param /*time*/)
 {
 }
-void V9990DummyRenderer::updateScrollAYLow(const EmuTime& /*time*/)
+void V9990DummyRenderer::updateScrollAYLow(EmuTime::param /*time*/)
 {
 }
-void V9990DummyRenderer::updateScrollBYLow(const EmuTime& /*time*/)
+void V9990DummyRenderer::updateScrollBYLow(EmuTime::param /*time*/)
 {
 }
 

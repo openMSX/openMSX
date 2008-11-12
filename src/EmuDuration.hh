@@ -17,6 +17,15 @@ STATIC_ASSERT(MAIN_FREQ < (1ull << 32));
 class EmuDuration
 {
 public:
+	// This is only a very small class (one 64-bit member). On 64-bit CPUs
+	// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
+	// is cheaper.
+#ifdef __x86_64
+	typedef const EmuDuration param;
+#else
+	typedef const EmuDuration& param;
+#endif
+
 	// friends
 	friend class EmuTime;
 
@@ -31,35 +40,35 @@ public:
 	uint64 length() const { return time; }
 
 	// assignment operator
-	EmuDuration& operator=(const EmuDuration& d)
+	EmuDuration& operator=(EmuDuration::param d)
 		{ time = d.time; return *this; }
 
 	// comparison operators
-	bool operator==(const EmuDuration& d) const
+	bool operator==(EmuDuration::param d) const
 		{ return time == d.time; }
-	bool operator!=(const EmuDuration& d) const
+	bool operator!=(EmuDuration::param d) const
 		{ return time != d.time; }
-	bool operator< (const EmuDuration& d) const
+	bool operator< (EmuDuration::param d) const
 		{ return time <  d.time; }
-	bool operator<=(const EmuDuration& d) const
+	bool operator<=(EmuDuration::param d) const
 		{ return time <= d.time; }
-	bool operator> (const EmuDuration& d) const
+	bool operator> (EmuDuration::param d) const
 		{ return time >  d.time; }
-	bool operator>=(const EmuDuration& d) const
+	bool operator>=(EmuDuration::param d) const
 		{ return time >= d.time; }
 
 	// arithmetic operators
-	const EmuDuration operator%(const EmuDuration& d) const
+	const EmuDuration operator%(EmuDuration::param d) const
 		{ return EmuDuration(time % d.time); }
-	const EmuDuration operator+(const EmuDuration& d) const
+	const EmuDuration operator+(EmuDuration::param d) const
 		{ return EmuDuration(time + d.time); }
 	const EmuDuration operator*(unsigned fact) const
 		{ return EmuDuration(time * fact); }
 	const EmuDuration operator/(unsigned fact) const
 		{ return EmuDuration(time / fact); }
-	unsigned operator/(const EmuDuration& d) const
+	unsigned operator/(EmuDuration::param d) const
 		{ return time / d.time; }
-	double div(const EmuDuration& d) const
+	double div(EmuDuration::param d) const
 		{ return double(time) / d.time; }
 
 	EmuDuration& operator*=(double fact)

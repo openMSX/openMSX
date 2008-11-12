@@ -54,18 +54,18 @@ MSXPPI::~MSXPPI()
 {
 }
 
-void MSXPPI::reset(const EmuTime& time)
+void MSXPPI::reset(EmuTime::param time)
 {
 	i8255->reset(time);
 	click->reset(time);
 }
 
-void MSXPPI::powerDown(const EmuTime& /*time*/)
+void MSXPPI::powerDown(EmuTime::param /*time*/)
 {
 	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, false);
 }
 
-byte MSXPPI::readIO(word port, const EmuTime& time)
+byte MSXPPI::readIO(word port, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -82,7 +82,7 @@ byte MSXPPI::readIO(word port, const EmuTime& time)
 	}
 }
 
-byte MSXPPI::peekIO(word port, const EmuTime& time) const
+byte MSXPPI::peekIO(word port, EmuTime::param time) const
 {
 	switch (port & 0x03) {
 	case 0:
@@ -99,7 +99,7 @@ byte MSXPPI::peekIO(word port, const EmuTime& time) const
 	}
 }
 
-void MSXPPI::writeIO(word port, byte value, const EmuTime& time)
+void MSXPPI::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -122,11 +122,11 @@ void MSXPPI::writeIO(word port, byte value, const EmuTime& time)
 
 // I8255Interface
 
-byte MSXPPI::readA(const EmuTime& time)
+byte MSXPPI::readA(EmuTime::param time)
 {
 	return peekA(time);
 }
-byte MSXPPI::peekA(const EmuTime& /*time*/) const
+byte MSXPPI::peekA(EmuTime::param /*time*/) const
 {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
@@ -136,16 +136,16 @@ byte MSXPPI::peekA(const EmuTime& /*time*/) const
 	//      solution is good enough.
 	return 0;
 }
-void MSXPPI::writeA(byte value, const EmuTime& /*time*/)
+void MSXPPI::writeA(byte value, EmuTime::param /*time*/)
 {
 	getMotherBoard().getCPUInterface().setPrimarySlots(value);
 }
 
-byte MSXPPI::readB(const EmuTime& time)
+byte MSXPPI::readB(EmuTime::param time)
 {
 	return peekB(time);
 }
-byte MSXPPI::peekB(const EmuTime& time) const
+byte MSXPPI::peekB(EmuTime::param time) const
 {
        if (selectedRow != 8) {
                return keyboard->getKeys()[selectedRow];
@@ -153,28 +153,28 @@ byte MSXPPI::peekB(const EmuTime& time) const
                return keyboard->getKeys()[8] | renshaTurbo.getSignal(time);
        }
 }
-void MSXPPI::writeB(byte /*value*/, const EmuTime& /*time*/)
+void MSXPPI::writeB(byte /*value*/, EmuTime::param /*time*/)
 {
 	// probably nothing happens on a real MSX
 }
 
-nibble MSXPPI::readC1(const EmuTime& time)
+nibble MSXPPI::readC1(EmuTime::param time)
 {
 	return peekC1(time);
 }
-nibble MSXPPI::peekC1(const EmuTime& /*time*/) const
+nibble MSXPPI::peekC1(EmuTime::param /*time*/) const
 {
 	return 15; // TODO check this
 }
-nibble MSXPPI::readC0(const EmuTime& time)
+nibble MSXPPI::readC0(EmuTime::param time)
 {
 	return peekC0(time);
 }
-nibble MSXPPI::peekC0(const EmuTime& /*time*/) const
+nibble MSXPPI::peekC0(EmuTime::param /*time*/) const
 {
 	return 15; // TODO check this
 }
-void MSXPPI::writeC1(nibble value, const EmuTime& time)
+void MSXPPI::writeC1(nibble value, EmuTime::param time)
 {
 	if ((prevBits ^ value) & 1) {
 		cassettePort.setMotor(!(value & 1), time); // 0=0n, 1=Off
@@ -190,7 +190,7 @@ void MSXPPI::writeC1(nibble value, const EmuTime& time)
 	}
 	prevBits = value;
 }
-void MSXPPI::writeC0(nibble value, const EmuTime& /*time*/)
+void MSXPPI::writeC0(nibble value, EmuTime::param /*time*/)
 {
 	selectedRow = value;
 }

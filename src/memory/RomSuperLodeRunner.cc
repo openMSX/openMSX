@@ -23,7 +23,7 @@ RomSuperLodeRunner::~RomSuperLodeRunner()
 	getMotherBoard().getCPUInterface().unregisterGlobalWrite(*this, 0x0000);
 }
 
-void RomSuperLodeRunner::reset(const EmuTime& /*time*/)
+void RomSuperLodeRunner::reset(EmuTime::param /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -31,7 +31,7 @@ void RomSuperLodeRunner::reset(const EmuTime& /*time*/)
 	setBank(3, unmappedRead);
 }
 
-void RomSuperLodeRunner::globalWrite(word address, byte value, const EmuTime& /*time*/)
+void RomSuperLodeRunner::globalWrite(word address, byte value, EmuTime::param /*time*/)
 {
 	assert(address == 0);
 	(void)address;

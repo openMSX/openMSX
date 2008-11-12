@@ -95,7 +95,7 @@ public:
 	           MSXEventDistributor& msxEventDistributor,
 	           Scheduler& scheduler, SCSILS120& ls);
 	virtual void execute(const std::vector<TclObject*>& tokens,
-	                     TclObject& result, const EmuTime& time);
+	                     TclObject& result, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -809,7 +809,7 @@ LSXCommand::LSXCommand(CommandController& commandController,
 }
 
 void LSXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
-				const EmuTime& /*time*/)
+				EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
 		File* file = ls.file.get();

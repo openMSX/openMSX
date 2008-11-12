@@ -32,17 +32,17 @@ const std::string& JoyTap::getName() const
 	return name;
 }
 
-void JoyTap::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+void JoyTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	// TODO move create of the joystickports to here???
 }
 
-void JoyTap::unplugHelper(const EmuTime& /*time*/)
+void JoyTap::unplugHelper(EmuTime::param /*time*/)
 {
 	// TODO move destruction of the joystickports to here???
 }
 
-byte JoyTap::read(const EmuTime& time)
+byte JoyTap::read(EmuTime::param time)
 {
 	byte value = 255;
 	for (int i = 0; i < 4; ++i) {
@@ -51,7 +51,7 @@ byte JoyTap::read(const EmuTime& time)
 	return value;
 }
 
-void JoyTap::write(byte value, const EmuTime& time)
+void JoyTap::write(byte value, EmuTime::param time)
 {
 	for (int i = 0; i < 4; ++i) {
 		slaves[i]->write(value, time);

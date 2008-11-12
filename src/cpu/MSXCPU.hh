@@ -33,7 +33,7 @@ public:
 	  * Requires CPU is not in the middle of an instruction,
 	  * so exitCPULoop was called and execute() method returned.
 	 */
-	void doReset(const EmuTime& time);
+	void doReset(EmuTime::param time);
 
 	/**
 	 * Switch between Z80 / R800
@@ -124,7 +124,7 @@ public:
 	// Pause
 	void setPaused(bool paused);
 
-	void setNextSyncPoint(const EmuTime& time);
+	void setNextSyncPoint(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -134,7 +134,7 @@ private:
 	void execute();
 	friend class MSXMotherBoardImpl;
 
-	void wait(const EmuTime& time);
+	void wait(EmuTime::param time);
 	void waitCycles(unsigned cycles);
 	friend class VDPIODelay;
 
@@ -145,7 +145,7 @@ private:
 	 * instead.
 	 * TODO is this comment still true?
 	 */
-	const EmuTime& getCurrentTime() const;
+	EmuTime::param getCurrentTime() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting);

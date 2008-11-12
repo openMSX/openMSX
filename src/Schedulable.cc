@@ -24,7 +24,7 @@ void Schedulable::schedulerDeleted()
 	          << "\" failed to unregister." << std::endl;
 }
 
-void Schedulable::setSyncPoint(const EmuTime& timestamp, int userData)
+void Schedulable::setSyncPoint(EmuTime::param timestamp, int userData)
 {
 	scheduler.setSyncPoint(timestamp, *this, userData);
 }
@@ -49,7 +49,7 @@ Scheduler& Schedulable::getScheduler() const
 	return scheduler;
 }
 
-const EmuTime& Schedulable::getCurrentTime() const
+EmuTime::param Schedulable::getCurrentTime() const
 {
 	return scheduler.getCurrentTime();
 }

@@ -33,10 +33,10 @@ public:
 	virtual ~V9990();
 
 	// MSXDevice interface:
-	virtual void reset(const EmuTime& time);
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual void reset(EmuTime::param time);
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
+	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	/** Obtain a reference to the V9990's VRAM
 	  */
@@ -101,7 +101,7 @@ public:
 	  * @param  time Point in emulated time.
 	  * @return      Number of UC ticks.
 	  */
-	inline int getUCTicksThisFrame(const EmuTime& time) const {
+	inline int getUCTicksThisFrame(EmuTime::param time) const {
 		return frameStartTime.getTicksTill_fast(time);
 	}
 
@@ -331,7 +331,7 @@ public:
 
 private:
 	// Schedulable interface:
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	// VideoSystemChangeListener interface:
@@ -555,35 +555,35 @@ private:
 	  * @param time  Moment in emulated time to read register
 	  * @returns     Register value
 	  */
-	byte readRegister(byte reg, const EmuTime& time) const;
+	byte readRegister(byte reg, EmuTime::param time) const;
 
 	/** Write V9990 register value
 	  * @param reg   Register to write to
 	  * @param val   Value to write
 	  * @param time  Moment in emulated time to write register
 	  */
-	void writeRegister(byte reg, byte val, const EmuTime& time);
+	void writeRegister(byte reg, byte val, EmuTime::param time);
 
 	/** Write V9990 palette register
 	  * @param reg   Register to write to
 	  * @param val   Value to write
 	  * @param time  Moment in emulated time to write register
 	  */
-	void writePaletteRegister(byte reg, byte val, const EmuTime& time);
+	void writePaletteRegister(byte reg, byte val, EmuTime::param time);
 
 	/** Schedule a sync point at the start of the next line
 	 */
-	void syncAtNextLine(V9990SyncType type, const EmuTime& time);
+	void syncAtNextLine(V9990SyncType type, EmuTime::param time);
 
 	/** Create a new renderer.
 	  * @param time  Moment in emulated time to create the renderer
 	  */
-	void createRenderer(const EmuTime& time);
+	void createRenderer(EmuTime::param time);
 
 	/** Start a new frame.
 	  * @param time  Moment in emulated time to start the frame
 	  */
-	void frameStart(const EmuTime& time);
+	void frameStart(EmuTime::param time);
 
 	/** Raise an IRQ
 	  * @param irqType  Type of IRQ
@@ -598,7 +598,7 @@ private:
 	  * @param time The current time
 	  * @result Timestamp for next hor irq
 	  */
-	void scheduleHscan(const EmuTime& time);
+	void scheduleHscan(EmuTime::param time);
 };
 
 } // namespace openmsx

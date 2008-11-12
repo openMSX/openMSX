@@ -13,7 +13,6 @@ namespace openmsx {
 
 class V9990;
 class V9990VRAM;
-class EmuTime;
 class Setting;
 class RenderSettings;
 class BooleanSetting;
@@ -28,50 +27,50 @@ public:
 	static const byte BD = 0x10;
 	static const byte CE = 0x01;
 
-	V9990CmdEngine(V9990& vdp, const EmuTime& time,
+	V9990CmdEngine(V9990& vdp, EmuTime::param time,
 	               RenderSettings& settings);
 	~V9990CmdEngine();
 
 	/** Re-initialise the command engine's state
 	  * @param time   Moment in emulated time the reset occurs
 	  */
-	void reset(const EmuTime& time);
+	void reset(EmuTime::param time);
 
 	/** Synchronises the command engine with the V9990
 	  * @param time The moment in emulated time to sync to.
 	  */
-	inline void sync(const EmuTime& time) {
+	inline void sync(EmuTime::param time) {
 		if (currentCommand) currentCommand->execute(time);
 	}
 
 	/** Set a value to one of the command registers
 	  */
-	void setCmdReg(byte reg, byte val, const EmuTime& time);
+	void setCmdReg(byte reg, byte val, EmuTime::param time);
 
 	/** set the data byte
 	  */
-	void setCmdData(byte value, const EmuTime& time);
+	void setCmdData(byte value, EmuTime::param time);
 
 	/** read the command data byte
 	  */
-	byte getCmdData(const EmuTime& time);
+	byte getCmdData(EmuTime::param time);
 
 	/** read the command data byte (without side-effects)
 	  */
-	byte peekCmdData(const EmuTime& time);
+	byte peekCmdData(EmuTime::param time);
 
 	/** Get command engine related status bits
 	  *  - TR command data transfer ready (bit 7)
 	  *  - BD border color detect         (bit 4)
 	  *  - CE command being executed      (bit 0)
 	  */
-	byte getStatus(const EmuTime& time) {
+	byte getStatus(EmuTime::param time) {
 		// note: used for both normal and debug read
 		sync(time);
 		return status;
 	}
 
-	word getBorderX(const EmuTime& time) {
+	word getBorderX(EmuTime::param time) {
 		// note: used for both normal and debug read
 		sync(time);
 		return borderX;
@@ -214,8 +213,8 @@ private:
 		V9990Cmd(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual ~V9990Cmd();
 
-		virtual void start(const EmuTime& time) = 0;
-		virtual void execute(const EmuTime& time) = 0;
+		virtual void start(EmuTime::param time) = 0;
+		virtual void execute(EmuTime::param time) = 0;
 
 	protected:
 		V9990CmdEngine& engine;
@@ -225,130 +224,130 @@ private:
 	class CmdSTOP: public V9990Cmd {
 	public:
 		CmdSTOP(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdLMMC: public V9990Cmd {
 	public:
 		CmdLMMC(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdLMMV: public V9990Cmd {
 	public:
 		CmdLMMV(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdLMCM: public V9990Cmd {
 	public:
 		CmdLMCM(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	private:
-		typename Mode::Type getData(const EmuTime& time);
+		typename Mode::Type getData(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdLMMM: public V9990Cmd {
 	public:
 		CmdLMMM(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdCMMC: public V9990Cmd {
 	public:
 		CmdCMMC(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdCMMK: public V9990Cmd {
 	public:
 		CmdCMMK(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdCMMM: public V9990Cmd {
 	public:
 		CmdCMMM(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdBMXL: public V9990Cmd {
 	public:
 		CmdBMXL(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdBMLX: public V9990Cmd {
 	public:
 		CmdBMLX(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdBMLL: public V9990Cmd {
 	public:
 		CmdBMLL(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdLINE: public V9990Cmd {
 	public:
 		CmdLINE(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdSRCH: public V9990Cmd {
 	public:
 		CmdSRCH(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdPOINT: public V9990Cmd {
 	public:
 		CmdPOINT(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdPSET: public V9990Cmd {
 	public:
 		CmdPSET(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	template <class Mode>
 	class CmdADVN: public V9990Cmd {
 	public:
 		CmdADVN(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(const EmuTime& time);
-		virtual void execute(const EmuTime& time);
+		virtual void start(EmuTime::param time);
+		virtual void execute(EmuTime::param time);
 	};
 
 	RenderSettings& settings;
@@ -422,7 +421,7 @@ private:
 
 	/** The running command is complete. Perform neccessary clean-up actions.
 	  */
-	void cmdReady(const EmuTime& time);
+	void cmdReady(EmuTime::param time);
 
 	/** For debugging: Print the info about the current command.
 	  */

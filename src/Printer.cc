@@ -55,12 +55,12 @@ PrinterCore::~PrinterCore()
 {
 }
 
-bool PrinterCore::getStatus(const EmuTime& /*time*/)
+bool PrinterCore::getStatus(EmuTime::param /*time*/)
 {
 	return false; // false = low = ready
 }
 
-void PrinterCore::setStrobe(bool strobe, const EmuTime& /*time*/)
+void PrinterCore::setStrobe(bool strobe, EmuTime::param /*time*/)
 {
 	if (!strobe && prevStrobe) {
 		// falling edge
@@ -69,17 +69,17 @@ void PrinterCore::setStrobe(bool strobe, const EmuTime& /*time*/)
 	prevStrobe = strobe;
 }
 
-void PrinterCore::writeData(byte data, const EmuTime& /*time*/)
+void PrinterCore::writeData(byte data, EmuTime::param /*time*/)
 {
 	toPrint = data;
 }
 
-void PrinterCore::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+void PrinterCore::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	// nothing
 }
 
-void PrinterCore::unplugHelper(const EmuTime& /*time*/)
+void PrinterCore::unplugHelper(EmuTime::param /*time*/)
 {
 	forceFormFeed();
 }

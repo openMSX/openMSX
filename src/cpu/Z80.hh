@@ -15,7 +15,7 @@ protected:
 	static const int CLOCK_FREQ = 3579545;
 	static const int WAIT_CYCLES = 1;
 
-	Z80TYPE(const EmuTime& time, Scheduler& scheduler)
+	Z80TYPE(EmuTime::param time, Scheduler& scheduler)
 		: CPUClock(time, scheduler)
 	{
 	}

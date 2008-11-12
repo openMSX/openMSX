@@ -17,7 +17,6 @@ class Scheduler;
 class CommandController;
 class EventDistributor;
 class MSXEventDistributor;
-class EmuTime;
 class KeyMatrixUpCmd;
 class KeyMatrixDownCmd;
 class KeyInserter;
@@ -69,19 +68,19 @@ private:
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
-	                         const EmuTime& time);
+	                         EmuTime::param time);
 
 	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
 	void processRightControlEvent(bool down);
-	void processCapslockEvent(const EmuTime& time);
+	void processCapslockEvent(EmuTime::param time);
 	void processCodeKanaChange(bool down);
 	void processGraphChange(bool down);
 	void processKeypadEnterKey(bool down);
 	void processSdlKey(bool down, int key);
-	bool processQueuedEvent(shared_ptr<const Event> event, const EmuTime& time);
+	bool processQueuedEvent(shared_ptr<const Event> event, EmuTime::param time);
 	bool processKeyEvent(bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(bool down, int row, byte mask);
 	void doKeyGhosting();

@@ -22,15 +22,15 @@ class EmuTimer : public Schedulable
 public:
 	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb);
 	void setValue(int value);
-	void setStart(bool start, const EmuTime& time);
+	void setStart(bool start, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
-	void schedule(const EmuTime& time);
+	void schedule(EmuTime::param time);
 	void unschedule();
 
 	EmuTimerCallback& cb;

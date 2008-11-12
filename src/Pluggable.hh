@@ -3,12 +3,12 @@
 #ifndef PLUGGABLE_HH
 #define PLUGGABLE_HH
 
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
 
-class EmuTime;
 class Connector;
 
 class Pluggable : private noncopyable
@@ -34,12 +34,12 @@ public:
 	 * connector.
 	 * @throws PlugException
 	 */
-	void plug(Connector& connector, const EmuTime& time);
+	void plug(Connector& connector, EmuTime::param time);
 
 	/** This method is called when this pluggable is removed from a
 	  * conector.
 	  */
-	void unplug(const EmuTime& time);
+	void unplug(EmuTime::param time);
 
 	/** Get the connector this Pluggable is plugged into. Returns a NULL
 	  * pointer if this Pluggable is not plugged.
@@ -47,8 +47,8 @@ public:
 	Connector* getConnector() const;
 
 protected:
-	virtual void plugHelper(Connector& newConnector, const EmuTime& time) = 0;
-	virtual void unplugHelper(const EmuTime& time) = 0;
+	virtual void plugHelper(Connector& newConnector, EmuTime::param time) = 0;
+	virtual void unplugHelper(EmuTime::param time) = 0;
 
 	friend class Connector; // for de-serialization
 	void setConnector(Connector* conn);
