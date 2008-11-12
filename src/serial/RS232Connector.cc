@@ -9,7 +9,7 @@
 namespace openmsx {
 
 RS232Connector::RS232Connector(PluggingController& pluggingController,
-                               const std::string &name)
+                               const std::string& name)
 	: Connector(pluggingController, name,
 	            std::auto_ptr<Pluggable>(new DummyRS232Device()))
 {

@@ -67,10 +67,10 @@ byte TurboRFDC::peekMem(word address, const EmuTime& time) const
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		switch (address & 0x3FFF) {
 		case 0x3FF1:
-			// bit 0	FD2HD1	High Density detect drive 1
-			// bit 1	FD2HD2	High Density detect drive 2
-			// bit 4	FDCHG1	Disk Change detect on drive 1
-			// bit 5	FDCHG2	Disk Change detect on drive 2
+			// bit 0  FD2HD1  High Density detect drive 1
+			// bit 1  FD2HD2  High Density detect drive 2
+			// bit 4  FDCHG1  Disk Change detect on drive 1
+			// bit 5  FDCHG2  Disk Change detect on drive 2
 			// active low
 			result = 0x33;
 			if (controller->peekDiskChanged(0)) result &= ~0x10;
@@ -117,14 +117,14 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 		switch (address & 0x3FFF) {
 		case 0x3FF2:
 		case 0x3FF8:
-			// bit 0	Drive select bit 0
-			// bit 1	Drive select bit 1
-			// bit 2	0 = Reset FDC, 1 = Enable FDC
-			// bit 3	1 = Enable DMA and interrupt, 0 = always '0' on Turbo R
-			// bit 4	Motor Select Drive A
-			// bit 5	Motor Select Drive B
-			// Bit 6	Motor Select Drive C
-			// Bit 7	Motor Select Drive D
+			// bit 0  Drive select bit 0
+			// bit 1  Drive select bit 1
+			// bit 2  0 = Reset FDC, 1 = Enable FDC
+			// bit 3  1 = Enable DMA and interrupt, 0 = always '0' on Turbo R
+			// bit 4  Motor Select Drive A
+			// bit 5  Motor Select Drive B
+			// Bit 6  Motor Select Drive C
+			// Bit 7  Motor Select Drive D
 			controller->writeReg(2, value, time);
 			break;
 		case 0x3FF3:
@@ -136,7 +136,7 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 			controller->writeReg(4, value, time);
 			break;
 		case 0x3FF5:
-		case 0x3FFB:	// FDC data port
+		case 0x3FFB: // FDC data port
 			controller->writeReg(5, value, time);
 			break;
 		}

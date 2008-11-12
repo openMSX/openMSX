@@ -9,8 +9,8 @@
 
 namespace openmsx {
 
-//TODO  ALARM is not implemented        (not connected on MSX)
-//TODO  1Hz 16Hz output not implemented (not connected on MSX)
+// TODO  ALARM is not implemented        (not connected on MSX)
+// TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
 const nibble MODE_REG  = 13;
 const nibble TEST_REG  = 14;
@@ -81,7 +81,7 @@ nibble RP5C01::readPort(nibble port, const EmuTime& time)
 	case TEST_REG:
 	case RESET_REG:
 		// write only
-		return 0x0f;	// TODO check this
+		return 0x0f; // TODO check this
 	default:
 		unsigned block = modeReg & MODE_BLOKSELECT;
 		if (block == TIME_BLOCK) {
@@ -173,8 +173,8 @@ void RP5C01::time2Regs()
 	regs.write(TIME_BLOCK  * 13 +  4,  hours_    % 10);
 	regs.write(TIME_BLOCK  * 13 +  5,  hours_    / 10);
 	regs.write(TIME_BLOCK  * 13 +  6,  dayWeek);
-	regs.write(TIME_BLOCK  * 13 +  7, (days+1)   % 10);	// 0-30 -> 1-31
-	regs.write(TIME_BLOCK  * 13 +  8, (days+1)   / 10);	// 0-11 -> 1-12
+	regs.write(TIME_BLOCK  * 13 +  7, (days+1)   % 10); // 0-30 -> 1-31
+	regs.write(TIME_BLOCK  * 13 +  8, (days+1)   / 10); // 0-11 -> 1-12
 	regs.write(TIME_BLOCK  * 13 +  9, (months+1) % 10);
 	regs.write(TIME_BLOCK  * 13 + 10, (months+1) / 10);
 	regs.write(TIME_BLOCK  * 13 + 11,  years     % 10);

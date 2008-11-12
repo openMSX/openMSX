@@ -57,7 +57,7 @@ PrinterCore::~PrinterCore()
 
 bool PrinterCore::getStatus(const EmuTime& /*time*/)
 {
-	return false;	// false = low = ready
+	return false; // false = low = ready
 }
 
 void PrinterCore::setStrobe(bool strobe, const EmuTime& /*time*/)
@@ -831,7 +831,7 @@ void ImagePrinterMSX::processEscSequence()
 					break;
 			}
 			break;
-		case '/': //Right margin
+		case '/': // Right margin
 			break;
 		case 'L':
 			leftBorder = parseNumber(1, 3);

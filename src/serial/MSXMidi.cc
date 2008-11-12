@@ -115,7 +115,7 @@ byte MSXMidi::readIO(word port, const EmuTime& time)
 			break;
 		default:
 			assert(false);
-			result = 0xFF;	// avoid warning
+			result = 0xFF; // avoid warning
 	}
 	//PRT_DEBUG("MSX-Midi read " << (int)port << " " << (int)result);
 	return result;
@@ -142,7 +142,7 @@ byte MSXMidi::peekIO(word port, const EmuTime& time) const
 			break;
 		default:
 			assert(false);
-			result = 0xFF;	// avoid warning
+			result = 0xFF; // avoid warning
 	}
 	return result;
 }

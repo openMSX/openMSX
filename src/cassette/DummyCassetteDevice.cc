@@ -11,7 +11,7 @@ void DummyCassetteDevice::setMotor(bool /*status*/, const EmuTime& /*time*/)
 
 short DummyCassetteDevice::readSample(const EmuTime& /*time*/)
 {
-	return 32767;	// TODO check value
+	return 32767; // TODO check value
 }
 
 void DummyCassetteDevice::setSignal(bool /*output*/, const EmuTime& /*time*/)

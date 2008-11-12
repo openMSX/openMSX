@@ -76,7 +76,7 @@ void GP2XMMUHack::flushCache(void* start_address, void* end_address, int flags)
 #else
 	// system-call number passed via swi instruction
 	asm volatile (
-		"swi 0x9f0002	@ sys_cacheflush"
+		"swi 0x9f0002  @ sys_cacheflush"
 		: "=r" (beg)
 		: "0"  (beg)
 		, "r"  (end)

@@ -111,7 +111,7 @@ void SRAM::load(bool* loaded)
 			cliComm.printWarning(
 				"Warning no correct SRAM file: " + filename);
 		}
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		cliComm.printWarning("Couldn't load SRAM " + filename +
 		                     " (" + e.getMessage() + ").");
 	}

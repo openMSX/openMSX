@@ -144,7 +144,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime& time)
 	// Write to RAM
 	int regio = (address >> 13) - 2;
 	if (isRamSegment[regio]) {
-		//According to Sean Young
+		// According to Sean Young
 		// when the regio's are in RAM mode you can read from
 		// the SCC(+) but not write to them
 		// => we assume a write to the memory but maybe
@@ -188,7 +188,6 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime& time)
 
 byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 {
-	//return NULL;
 	if ((0x4000 <= start) && (start < 0xC000)) {
 		if (start == (0xBFFF & CacheLine::HIGH)) {
 			return NULL;

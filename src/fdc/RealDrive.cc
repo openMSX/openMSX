@@ -179,9 +179,6 @@ EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
 	int delta = sectorAngle - angle;
 	if (delta < 0) delta += TICKS_PER_ROTATION;
 	assert((0 <= delta) && (delta < TICKS_PER_ROTATION));
-	//std::cout << "DEBUG a1: " << angle
-	//          << " a2: " << sectorAngle
-	//          << " delta: " << delta << std::endl;
 
 	EmuDuration dur = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>::
 	                      duration(delta);

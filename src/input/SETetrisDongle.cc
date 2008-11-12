@@ -11,7 +11,7 @@ SETetrisDongle::SETetrisDongle()
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
-//Pluggable
+// Pluggable
 const std::string& SETetrisDongle::getName() const
 {
 	static const std::string name = "tetris2-protection";
@@ -34,7 +34,7 @@ void SETetrisDongle::unplugHelper(const EmuTime& /*time*/)
 }
 
 
-//JoystickDevice
+// JoystickDevice
 byte SETetrisDongle::read(const EmuTime& /*time*/)
 {
 	return status;
@@ -42,8 +42,8 @@ byte SETetrisDongle::read(const EmuTime& /*time*/)
 
 void SETetrisDongle::write(byte value, const EmuTime& /*time*/)
 {
-	//Original device used 4 NOR ports
-	//pin4 will be value of pin7
+	// Original device used 4 NOR ports
+	// pin4 will be value of pin7
 	if (value & 2) {
 		status |= JOY_RIGHT;
 	} else {

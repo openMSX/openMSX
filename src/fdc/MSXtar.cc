@@ -403,7 +403,7 @@ unsigned MSXtar::addSubdir(
 	// save the sector again
 	writeLogicalSector(result.sector, buf);
 
-	//clear this cluster
+	// clear this cluster
 	unsigned logicalSector = clusterToSector(curcl);
 	memset(buf, 0, SECTOR_SIZE);
 	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
@@ -708,14 +708,14 @@ string MSXtar::dir()
 				string tmp = condensName(direntry[i]);
 				tmp.resize(13, ' ');
 				result += tmp;
-				//attributes
+				// attributes
 				result += (direntry[i].attrib & T_MSX_DIR  ? "d" : "-");
 				result += (direntry[i].attrib & T_MSX_READ ? "r" : "-");
 				result += (direntry[i].attrib & T_MSX_HID  ? "h" : "-");
-				result += (direntry[i].attrib & T_MSX_VOL  ? "v" : "-"); //todo check if this is the output of files,l
-				result += (direntry[i].attrib & T_MSX_ARC  ? "a" : "-"); //todo check if this is the output of files,l
+				result += (direntry[i].attrib & T_MSX_VOL  ? "v" : "-"); // TODO check if this is the output of files,l
+				result += (direntry[i].attrib & T_MSX_ARC  ? "a" : "-"); // TODO check if this is the output of files,l
 				result += "  ";
-				//filesize
+				// filesize
 				result += StringOp::toString(rdlg(direntry[i].size)) + "\n";
 			}
 		}
@@ -794,7 +794,7 @@ void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 	changeTime(resultFile, direntry);
 }
 
-//extracts a single item (file or directory) from the msximage to the host OS
+// extracts a single item (file or directory) from the msximage to the host OS
 string MSXtar::singleItemExtract(const string& dirName, const string& itemName,
                                  unsigned sector)
 {
@@ -808,12 +808,12 @@ string MSXtar::singleItemExtract(const string& dirName, const string& itemName,
 
 	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(dummy);
 	MSXDirEntry& msxdirentry = direntries[entry.index];
-	//create full name for loacl filesystem
+	// create full name for loacl filesystem
 	string fullname = dirName + '/' + condensName(msxdirentry);
 
 	// ...and extract
 	if  (msxdirentry.attrib & T_MSX_DIR) {
-		//recursive extract this subdir
+		// recursive extract this subdir
 		FileOperations::mkdirp(fullname);
 		recurseDirExtract(
 		    fullname,
@@ -826,7 +826,7 @@ string MSXtar::singleItemExtract(const string& dirName, const string& itemName,
 }
 
 
-//extracts the contents of the directory (at sector) and all its subdirs to the host OS
+// extracts the contents of the directory (at sector) and all its subdirs to the host OS
 void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 {
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {

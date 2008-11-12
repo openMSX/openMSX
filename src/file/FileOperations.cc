@@ -266,7 +266,7 @@ string join(const string& part1, const string& part2,
 	return join(join(join(part1, part2), part3), part4);
 }
 
-string getNativePath(const string &path)
+string getNativePath(const string& path)
 {
 #ifdef _WIN32
 	string result(path);
@@ -277,7 +277,7 @@ string getNativePath(const string &path)
 #endif
 }
 
-string getConventionalPath(const string &path)
+string getConventionalPath(const string& path)
 {
 #ifdef _WIN32
 	string result(path);
@@ -342,7 +342,7 @@ string getUserHomeDir(const string& username)
 		if (userDir.empty()) {
 			// workaround for Win95 w/o IE4(||later)
 			userDir = getSystemDataDir();
-			userDir.erase(userDir.length() - 6, 6);	// "/share"
+			userDir.erase(userDir.length() - 6, 6); // "/share"
 		}
 		if ((userDir.length() == 3) && (userDir.substr(1) == ":/")){
 			char drive = tolower(userDir[0]);

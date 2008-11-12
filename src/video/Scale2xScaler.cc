@@ -208,7 +208,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			"movq	%%mm2, %%mm5;"       // n1 | xx
 			"pcmpeqd (%2), %%mm3;"       // n1 = s1 | n2 = s2
 			"punpckldq %%mm5, %%mm5;"    // n1 | n1
-			"movq	%%mm3, %%mm4;"	     // n1 = s1 | n2 = s2
+			"movq	%%mm3, %%mm4;"       // n1 = s1 | n2 = s2
 			"movq	%%mm0, %%mm7;"       // xx | w1
 			"punpckldq %%mm4, %%mm4;"    // n1 = s1 | n1 = s1
 			"punpckhdq %%mm1, %%mm7;"    // w1 | e1

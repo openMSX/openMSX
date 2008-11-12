@@ -123,7 +123,6 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
-	
 }
 
 VDPVRAM::~VDPVRAM()

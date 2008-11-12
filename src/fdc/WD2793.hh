@@ -93,7 +93,7 @@ private:
 	DiskDrive& drive;
 
 	EmuTime commandStart;
-	Clock<1000000> DRQTimer;	// us
+	Clock<1000000> DRQTimer; // us
 
 	FSMState fsmState;
 	byte statusReg;

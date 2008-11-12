@@ -95,7 +95,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& /*time*/
 		// region not redirected to sample player
 		return;
 	}
-	
+
 	// bit 7==0: reset
 	if (!(value & 0x80)) {
 		samplePlayer->reset();

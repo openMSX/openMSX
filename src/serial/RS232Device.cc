@@ -27,12 +27,12 @@ void RS232Device::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 
 bool RS232Device::getCTS(const EmuTime& /*time*/) const
 {
-	return true;	// TODO check
+	return true; // TODO check
 }
 
 bool RS232Device::getDSR(const EmuTime& /*time*/) const
 {
-	return true;	// TODO check
+	return true; // TODO check
 }
 
 void RS232Device::setDTR(bool /*status*/, const EmuTime& /*time*/)

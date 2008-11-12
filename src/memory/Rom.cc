@@ -219,11 +219,11 @@ void Rom::read(const XMLElement& config)
 	size = fileSize - offset;
 
 	// read file
-	byte* tmp = 0;	// avoid warning
+	byte* tmp = 0; // avoid warning
 	try {
 		tmp = file->mmap() + offset;
 		rom = tmp;
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		throw MSXException("Error reading ROM image: " +
 		                   file->getURL());
 	}

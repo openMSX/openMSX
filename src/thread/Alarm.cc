@@ -157,7 +157,7 @@ unsigned AlarmManager::timerCallback2()
 {
 	// note: runs in a different thread!
 	ScopedLock lock(sem);
-	
+
 	long long now = Timer::getTime();
 	long long earliest = std::numeric_limits<long long>::max();
 	for (Alarms::const_iterator it = alarms.begin();

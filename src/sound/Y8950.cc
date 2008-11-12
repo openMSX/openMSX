@@ -1027,8 +1027,8 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 		-1, -1, -1, -1, -1, -1, -1, -1
 	};
 
-	//TODO only for registers that influence sound
-	//TODO also ADPCM
+	// TODO only for registers that influence sound
+	// TODO also ADPCM
 	//if (rg >= 0x20) {
 		// update the output buffer before changing the register
 		updateStream(time);
@@ -1042,29 +1042,30 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			// TODO
 			// Y8950 MSX-AUDIO Test register $01 (write only)
 			//
-			// Bit	Description
+			// Bit Description
 			//
-			// 7	Reset LFOs - seems to force the LFOs to their initial values (eg.
-			//	maximum amplitude, zero phase deviation)
+			//  7  Reset LFOs - seems to force the LFOs to their initial
+			//     values (eg. maximum amplitude, zero phase deviation)
 			//
-			// 6	something to do with ADPCM - bit 0 of the status register is
-			//	affected by setting this bit (PCM BSY)
+			//  6  something to do with ADPCM - bit 0 of the status
+			//     register is affected by setting this bit (PCM BSY)
 			//
-			// 5	No effect? - Waveform select enable in YM3812 OPL2 so seems
-			//	reasonable that this bit wouldn't have been used in OPL
+			//  5  No effect? - Waveform select enable in YM3812 OPL2 so seems
+			//     reasonable that this bit wouldn't have been used in OPL
 			//
-			// 4	No effect?
+			//  4  No effect?
 			//
-			// 3	Faster LFOs - increases the frequencies of the LFOs and (maybe)
-			//	the timers (cf. YM2151 test register)
+			//  3  Faster LFOs - increases the frequencies of the LFOs and
+			//     (maybe) the timers (cf. YM2151 test register)
 			//
-			// 2	Reset phase generators - No phase generator output, but envelope
-			//	generators still work (can hear a transient when they are gated)
+			//  2  Reset phase generators - No phase generator output, but
+			//     envelope generators still work (can hear a transient
+			//     when they are gated)
 			//
-			// 1	No effect?
+			//  1  No effect?
 			//
-			// 0	Reset envelopes - Envelope generator outputs forced to maximum,
-			//	so all enabled voices sound at maximum
+			//  0  Reset envelopes - Envelope generator outputs forced
+			//     to maximum, so all enabled voices sound at maximum
 			reg[rg] = data;
 			break;
 
@@ -1260,7 +1261,7 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 	}
 }
 
-byte Y8950Impl::readReg(byte rg, const EmuTime &time)
+byte Y8950Impl::readReg(byte rg, const EmuTime& time)
 {
 	updateStream(time); // TODO only when necessary
 
@@ -1279,7 +1280,7 @@ byte Y8950Impl::readReg(byte rg, const EmuTime &time)
 	return result;
 }
 
-byte Y8950Impl::peekReg(byte rg, const EmuTime &time) const
+byte Y8950Impl::peekReg(byte rg, const EmuTime& time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)

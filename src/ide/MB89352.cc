@@ -94,7 +94,7 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: buffer(SCSIDevice::BUFFER_SIZE)
 {
 	PRT_DEBUG("spc create");
-	//TODO: devBusy = false;
+	// TODO: devBusy = false;
 
 	// ALMOST COPY PASTED FROM WD33C93:
 
@@ -219,7 +219,7 @@ void MB89352::setACKREQ(byte& value)
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_DATAIN;
 		break;
 
-	case SCSI::DATA_OUT: //Transfer phase (data out)
+	case SCSI::DATA_OUT: // Transfer phase (data out)
 		buffer[bufIdx] = value;
 		++bufIdx;
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_DATAOUT;
@@ -227,7 +227,7 @@ void MB89352::setACKREQ(byte& value)
 
 	case SCSI::COMMAND: // Command phase
 		if (counter < 0) {
-			//Initialize command routine
+			// Initialize command routine
 			cdbIdx  = 0;
 			counter = (value < 0x20) ? 6 : ((value < 0xA0) ? 10 : 12);
 		}
@@ -312,7 +312,7 @@ void MB89352::resetACKREQ()
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_COMMAND;
 		} else {
 			bufIdx = 0; // reset buffer index
-			//TODO: devBusy = true;
+			// TODO: devBusy = true;
 			counter = dev[targetId]->executeCmd(cdb, phase, blockCounter);
 			switch (phase) {
 			case SCSI::DATA_IN:
@@ -331,7 +331,7 @@ void MB89352::resetACKREQ()
 				PRT_DEBUG("phase error");
 				break;
 			}
-			//TODO: devBusy = false;
+			// TODO: devBusy = false;
 		}
 		break;
 

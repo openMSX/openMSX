@@ -98,7 +98,7 @@ void MSXDeviceSwitch::writeIO(word port, byte value, const EmuTime& time)
 	} else if (devices[selected]) {
 		devices[selected]->writeSwitchedIO(port, value, time);
 	} else {
-		//ignore
+		// ignore
 	}
 }
 

@@ -630,7 +630,7 @@ SettingOption::SettingOption(CommandLineParser& parser_)
 {
 }
 
-bool SettingOption::parseOption(const string &option, deque<string> &cmdLine)
+bool SettingOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	if (parser.haveSettings) {
 		throw FatalError("Only one setting option allowed");

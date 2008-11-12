@@ -314,9 +314,9 @@ O(16),O(16),O(16),O(16),O(16),O(16),O(16),O(16)
 };
 #undef O
 
-//rate  0,    1,    2,   3,   4,   5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
-//shift 11,   10,   9,   8,   7,   6,  5,  4,  3,  2, 1,  0,  0,  0,  0,  0
-//mask  2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3, 1,  0,  0,  0,  0,  0
+// rate  0,    1,    2,   3,   4,   5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
+// shift 11,   10,   9,   8,   7,   6,  5,  4,  3,  2, 1,  0,  0,  0,  0,  0
+// mask  2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3, 1,  0,  0,  0,  0,  0
 #define O(a) (a*1)
 static byte eg_rate_shift[32 + 64 + 32] = {
 // Envelope Generator counter shifts (32 + 64 rates + 32 RKS)
@@ -1053,7 +1053,7 @@ bool YM2151Impl::checkMuteHelper()
 	return true;
 }
 
-void YM2151Impl::reset(const EmuTime &time)
+void YM2151Impl::reset(const EmuTime& time)
 {
 	// initialize hardware registers
 	for (int i = 0; i < 32; ++i) {

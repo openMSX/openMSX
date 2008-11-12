@@ -10,7 +10,7 @@ namespace openmsx {
 static const unsigned STAT_RXRDY   = 0x02;
 static const unsigned STAT_TXEMPTY = 0x01;
 static const unsigned STAT_PE      = 0x10;
-static const unsigned STAT_OE      = 0x20; //???  MR checks 0x30
+static const unsigned STAT_OE      = 0x20; // ???  MR checks 0x30
 static const unsigned ST_INT       = 0x800;
 
 static const unsigned CMD_RDINT = 0x08;
@@ -28,7 +28,7 @@ void YM2148::midiInCallback(byte* buffer, unsigned length)
 			rxPending++;
 		}
 	}
-	//TODO: archSemaphoreSignal(semaphore);
+	// TODO: archSemaphoreSignal(semaphore);
 }
 
 void YM2148::onRecv()
@@ -135,7 +135,7 @@ byte YM2148::readData()
 	return rxData;
 }
 
-//TODO: I'm not sure if this makes sense
+// TODO: I'm not sure if this makes sense
 void YM2148::setVector(byte value)
 {
 	vector = value;

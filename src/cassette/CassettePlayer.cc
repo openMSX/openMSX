@@ -1,6 +1,6 @@
 // $Id$
 
-//TODO:
+// TODO:
 // - improve consistency when a reset occurs: tape is removed when you were
 //   recording, but it is not removed when you were playing
 // - specify prefix for auto file name generation when recording (setting?)

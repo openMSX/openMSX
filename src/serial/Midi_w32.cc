@@ -1,5 +1,5 @@
 /*
- *	Win32 MIDI utility routins for openMSX.
+ * Win32 MIDI utility routins for openMSX.
  *
  * Copyright (c) 2003 Reikan.  All rights reserved.
  *
@@ -148,7 +148,7 @@ int w32_midiOutInit()
 
 	for (unsigned i = 0; i < num; ++i) {
 		if (midiOutGetDevCapsA(i, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
-			return 0;	// atleast MIDI-MAPPER is available...
+			return 0; // atleast MIDI-MAPPER is available...
 		}
 		vfnt_midiout[i + 1].devid = i;
 		w32_midiDevNameConv(vfnt_midiout[i + 1].devname, cap.szPname);
@@ -261,32 +261,32 @@ int w32_midiOutPut(unsigned char value, unsigned idx)
 		switch (state_out[idx]) {
 		case 0x0000:
 			switch (value & 0x0f0) {
-			case 0x080:	// Note Off
-			case 0x090:	// Note On
-			case 0x0a0:	// Key Pressure
-			case 0x0b0:	// Control Change
-			case 0x0e0:	// Pitch Wheel
+			case 0x080: // Note Off
+			case 0x090: // Note On
+			case 0x0a0: // Key Pressure
+			case 0x0b0: // Control Change
+			case 0x0e0: // Pitch Wheel
 				state_out[idx] = 0x0082;
 				buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 				break;
-			case 0x0c0:	// Program Change
-			case 0x0d0:	// After Touch
+			case 0x0c0: // Program Change
+			case 0x0d0: // After Touch
 				state_out[idx] = 0x0041;
 				buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 				break;
-			case 0x0f0:	// SYSTEM MESSAGE (other than "EXCLUSIVE")
+			case 0x0f0: // SYSTEM MESSAGE (other than "EXCLUSIVE")
 				switch (value &0x0f) {
-					case 0x02:	// Song Position Pointer
+					case 0x02: // Song Position Pointer
 						state_out[idx] = 0x0082;
 						buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 						break;
-					case 0x01:	// Time Code
-					case 0x03:	// Song Select
+					case 0x01: // Time Code
+					case 0x03: // Song Select
 						state_out[idx] = 0x0041;
 						buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 						break;
-					default:	// Timing Clock, Sequencer Start, Sequencer Continue,
-							// Sequencer Stop, Cable Check, System Reset, and Unknown...
+					default: // Timing Clock, Sequencer Start, Sequencer Continue,
+					         // Sequencer Stop, Cable Check, System Reset, and Unknown...
 						state_out[idx] = 0;
 						buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 						midiOutShortMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);

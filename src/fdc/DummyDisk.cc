@@ -18,7 +18,7 @@ bool DummyDisk::isReady() const
 
 bool DummyDisk::isWriteProtectedImpl() const
 {
-	return true;	// TODO check
+	return true; // TODO check
 }
 
 void DummyDisk::readSectorSBD(unsigned /*sector*/, byte* /*buf*/)

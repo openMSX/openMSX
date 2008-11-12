@@ -6,7 +6,7 @@ namespace openmsx {
 
 bool DummyPrinterPortDevice::getStatus(const EmuTime& /*time*/)
 {
-	return true;	// true = high = not ready
+	return true; // true = high = not ready
 }
 
 void DummyPrinterPortDevice::setStrobe(bool /*strobe*/, const EmuTime& /*time*/)

@@ -185,14 +185,14 @@ const EmuDuration YMF278Impl::MEM_WRITE_DELAY = MasterClock::duration(28);
 // 10000 ticks is approx 300us; exact delay is unknown.
 const EmuDuration YMF278Impl::LOAD_DELAY = MasterClock::duration(10000);
 
-const int EG_SH = 16;	// 16.16 fixed point (EG timing)
+const int EG_SH = 16; // 16.16 fixed point (EG timing)
 const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
 
 // envelope output entries
 const int ENV_BITS      = 10;
 const int ENV_LEN       = 1 << ENV_BITS;
 const double ENV_STEP   = 128.0 / ENV_LEN;
-const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; //511
+const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
 const int MIN_ATT_INDEX = 0;
 
 // Envelope Generator phases
@@ -202,8 +202,8 @@ const int EG_SUS = 2;
 const int EG_REL = 1;
 const int EG_OFF = 0;
 
-const int EG_REV = 5;	//pseudo reverb
-const int EG_DMP = 6;	//damp
+const int EG_REV = 5; // pseudo reverb
+const int EG_DMP = 6; // damp
 
 // Pan values, units are -3dB, i.e. 8.
 const int pan_left[16]  = {
@@ -229,7 +229,7 @@ const unsigned dl_tab[16] = {
 
 const byte RATE_STEPS = 8;
 const byte eg_inc[15 * RATE_STEPS] = {
-//cycle:0 1  2 3  4 5  6 7
+//cycle:0  1   2  3   4  5   6  7
 	0, 1,  0, 1,  0, 1,  0, 1, //  0  rates 00..12 0 (increment by 0 or 1)
 	0, 1,  0, 1,  1, 1,  0, 1, //  1  rates 00..12 1
 	0, 1,  1, 1,  0, 1,  1, 1, //  2  rates 00..12 2
@@ -271,9 +271,9 @@ const byte eg_rate_select[64] = {
 };
 #undef O
 
-//rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
-//shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
-//mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
+// rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
+// shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
+// mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
 #define O(a) (a)
 const byte eg_rate_shift[64] = {
 	O(12),O(12),O(12),O(12),
@@ -296,8 +296,8 @@ const byte eg_rate_shift[64] = {
 #undef O
 
 
-//number of steps to take in quarter of lfo frequency
-//TODO check if frequency matches real chip
+// number of steps to take in quarter of lfo frequency
+// TODO check if frequency matches real chip
 #define O(a) int((EG_TIMER_OVERFLOW / a) / 6)
 const int lfo_period[8] = {
 	O(0.168), O(2.019), O(3.196), O(4.206),
@@ -398,7 +398,7 @@ void YMF278Impl::advance()
 {
 	eg_cnt++;
 	for (int i = 0; i < 24; i++) {
-		YMF278Slot &op = slots[i];
+		YMF278Slot& op = slots[i];
 
 		if (op.lfo_active) {
 			op.lfo_cnt++;
@@ -416,7 +416,7 @@ void YMF278Impl::advance()
 
 		// Envelope Generator
 		switch(op.state) {
-		case EG_ATT: {	// attack phase
+		case EG_ATT: { // attack phase
 			byte rate = op.compute_rate(op.AR);
 			if (rate < 4) {
 				break;
@@ -436,7 +436,7 @@ void YMF278Impl::advance()
 			}
 			break;
 		}
-		case EG_DEC: {	// decay phase
+		case EG_DEC: { // decay phase
 			byte rate = op.compute_rate(op.D1R);
 			if (rate < 4) {
 				break;
@@ -456,7 +456,7 @@ void YMF278Impl::advance()
 			}
 			break;
 		}
-		case EG_SUS: {	// sustain phase
+		case EG_SUS: { // sustain phase
 			byte rate = op.compute_rate(op.D2R);
 			if (rate < 4) {
 				break;
@@ -477,7 +477,7 @@ void YMF278Impl::advance()
 			}
 			break;
 		}
-		case EG_REL: {	// release phase
+		case EG_REL: { // release phase
 			byte rate = op.compute_rate(op.RR);
 			if (rate < 4) {
 				break;
@@ -498,8 +498,8 @@ void YMF278Impl::advance()
 			}
 			break;
 		}
-		case EG_REV: {	//pseudo reverb
-			//TODO improve env_vol update
+		case EG_REV: { // pseudo reverb
+			// TODO improve env_vol update
 			byte rate = op.compute_rate(5);
 			//if (rate < 4) {
 			//	break;
@@ -516,8 +516,8 @@ void YMF278Impl::advance()
 			}
 			break;
 		}
-		case EG_DMP: {	//damping
-			//TODO improve env_vol update, damp is just fastest decay now
+		case EG_DMP: { // damping
+			// TODO improve env_vol update, damp is just fastest decay now
 			byte rate = 56;
 			byte shift = eg_rate_shift[rate];
 			if (!(eg_cnt & ((1 << shift) - 1))) {
@@ -542,7 +542,7 @@ void YMF278Impl::advance()
 	}
 }
 
-short YMF278Impl::getSample(YMF278Slot &op)
+short YMF278Impl::getSample(YMF278Slot& op)
 {
 	short sample;
 	switch (op.bits) {
@@ -788,18 +788,18 @@ void YMF278Impl::writeReg(byte reg, byte data, const EmuTime& time)
 			}
 
 			switch (data >> 6) {
-			case 0:	//tone off, no damp
+			case 0: // tone off, no damp
 				if (slot.active && (slot.state != EG_REV) ) {
 					slot.state = EG_REL;
 				}
 				break;
-			case 2:	//tone on, no damp
+			case 2: // tone on, no damp
 				if (!(regs[reg] & 0x080)) {
 					keyOnHelper(slot);
 				}
 				break;
-			case 1:	//tone off, damp
-			case 3:	//tone on,  damp
+			case 1: // tone off, damp
+			case 3: // tone on,  damp
 				slot.state = EG_DMP;
 				break;
 			}
@@ -937,11 +937,11 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	, busyTime(motherBoard.getCurrentTime())
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 {
-	memadr = 0;	// avoid UMR
+	memadr = 0; // avoid UMR
 	setOutputRate(44100);	// make valgrind happy
 
 	endRom = rom->getSize();
-	ramSize *= 1024;	// in kb
+	ramSize *= 1024; // in kb
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 	memset(ram, 0, ramSize);
@@ -993,7 +993,7 @@ byte YMF278Impl::readMem(unsigned address) const
 	} else if (address < endRam) {
 		return ram[address - endRom];
 	} else {
-		return 255;	// TODO check
+		return 255; // TODO check
 	}
 }
 

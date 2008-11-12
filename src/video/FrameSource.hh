@@ -129,7 +129,7 @@ public:
 	const Pixel* getLinePtr320_240(unsigned line);
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
-	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a 
+	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
 	template <typename Pixel>

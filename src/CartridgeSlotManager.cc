@@ -210,7 +210,7 @@ int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
 }
 
 int CartridgeSlotManager::getFreePrimarySlot(
-		int &ps, const HardwareConfig& hwConfig)
+		int& ps, const HardwareConfig& hwConfig)
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		ps = slots[slot].ps;

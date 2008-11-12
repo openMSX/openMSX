@@ -68,7 +68,7 @@ word bilinear<word>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
-	const unsigned areaB = x >> 11; //reduce 16 bit fraction to 5 bits
+	const unsigned areaB = x >> 11; // reduce 16 bit fraction to 5 bits
 	const unsigned areaA = 0x20 - areaB;
 
 	a = (a & redblueMask) | ((a & greenMask) << 16);
@@ -82,7 +82,7 @@ unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
-	const unsigned areaB = x >> 8; //reduce 16 bit fraction to 8 bits
+	const unsigned areaB = x >> 8; // reduce 16 bit fraction to 8 bits
 	const unsigned areaA = 0x100 - areaB;
 
 	const unsigned result0 =
@@ -222,14 +222,14 @@ class PixelStripRepeater
 {
 public:
 	template <typename Pixel>
-	inline static void fill(Pixel* &dp, unsigned sa) {
+	inline static void fill(Pixel*& dp, unsigned sa) {
 		*dp++ = sa;
 		PixelStripRepeater<i - 1>::template fill<Pixel>(dp, sa);
 	}
 
 	template <unsigned NX, unsigned y, typename Pixel>
 	inline static void blendBackslash(
-		Pixel* &dp,
+		Pixel*& dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
 		unsigned se, unsigned sg, unsigned sj, unsigned sl)
 	{
@@ -257,7 +257,7 @@ public:
 
 	template <unsigned NX, unsigned y, typename Pixel>
 	inline static void blendSlash(
-		Pixel* &dp,
+		Pixel*& dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
 		unsigned sf, unsigned sh, unsigned si, unsigned sk)
 	{
@@ -287,7 +287,7 @@ public:
 
 	template <unsigned NX, unsigned y, typename Pixel>
 	inline static void blend4(
-		Pixel* &dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd)
+		Pixel*& dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd)
 	{
 		const unsigned x = ((NX - i) << 16) / NX;
 		*dp++ = Blender<Pixel>::template blend<x, y>(sa, sb, sc, sd);

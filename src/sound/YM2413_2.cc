@@ -33,7 +33,7 @@ namespace openmsx {
 static const int ENV_BITS = 10;
 static const double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
-static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1;	// 255
+static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
 static const int MIN_ATT_INDEX = 0;
 
 // sinwave entries
@@ -41,7 +41,7 @@ static const int SIN_BITS = 10;
 static const int SIN_LEN  = 1 << SIN_BITS;
 static const int SIN_MASK = SIN_LEN - 1;
 
-static const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
+static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // Slot offsets
 static const byte MOD = 0;
@@ -116,7 +116,7 @@ static const int sl_tab[16] = {
 
 static const byte eg_inc[15][8] =
 {
-	//cycle:0 1  2 3  4 5  6 7
+	// cycle: 0 1  2 3  4 5  6 7
 
 	/* 0 */ { 0,1, 0,1, 0,1, 0,1, }, // rates 00..12 0 (increment by 0 or 1)
 	/* 1 */ { 0,1, 0,1, 1,1, 0,1, }, // rates 00..12 1
@@ -173,9 +173,9 @@ static const byte eg_rate_select[16 + 64 + 16] =
 	12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,
 };
 
-//rate  0,    1,    2,    3,    4,   5,   6,   7,  8,  9, 10, 11, 12, 13, 14, 15
-//shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
-//mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
+// rate  0,    1,    2,    3,    4,   5,   6,   7,  8,  9, 10, 11, 12, 13, 14, 15
+// shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
+// mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
 
 static const byte eg_rate_shift[16 + 64 + 16] =
 {
@@ -1098,8 +1098,8 @@ void Global::initTables()
 
 		// we never reach (1 << 16) here due to the (x + 1)
 		// result fits within 16 bits at maximum
-		int n = int(m);	// 16 bits here
-		n >>= 4;	// 12 bits here
+		int n = int(m); // 16 bits here
+		n >>= 4;        // 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
 		for (int i = 0; i < 11; i++) {
@@ -1392,7 +1392,7 @@ void Global::reset(const EmuTime& time)
 	}
 
 	// reset with register write
-	writeReg(0x0F, 0, time); //test reg
+	writeReg(0x0F, 0, time); // test reg
 	for (int i = 0x3F; i >= 0x10; i--) {
 		writeReg(i, 0, time);
 	}
@@ -1585,7 +1585,7 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
 
-		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
+		byte chan = (r & 0x0F) % 9; // verified on real YM2413
 		if (chan >= getNumMelodicChannels()) {
 			// We're in rhythm mode.
 			if (chan >= 7) {
@@ -1704,7 +1704,7 @@ void YM2413_2::reset(const EmuTime& time)
 	global->reset(time);
 }
 
-void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
+void YM2413_2::writeReg(byte r, byte v, const EmuTime& time)
 {
 	global->writeReg(r, v, time);
 }

@@ -541,12 +541,12 @@ byte AY8910::readRegister(unsigned reg, const EmuTime& time)
 	assert(reg <= 15);
 	switch (reg) {
 	case AY_PORTA:
-		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
+		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { // input
 			regs[reg] = periphery.readA(time);
 		}
 		break;
 	case AY_PORTB:
-		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { //input
+		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { // input
 			regs[reg] = periphery.readB(time);
 		}
 		break;
@@ -559,12 +559,12 @@ byte AY8910::peekRegister(unsigned reg, const EmuTime& time) const
 	assert(reg <= 15);
 	switch (reg) {
 	case AY_PORTA:
-		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
+		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { // input
 			return periphery.readA(time);
 		}
 		break;
 	case AY_PORTB:
-		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { //input
+		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { // input
 			return periphery.readB(time);
 		}
 		break;

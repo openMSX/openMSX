@@ -25,6 +25,6 @@ private:
 	void unloadModule();
 };
 
-} //namespace openmsx
+} // namespace openmsx
 
 #endif

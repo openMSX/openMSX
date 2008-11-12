@@ -28,7 +28,7 @@ public:
 
 private:
 	void changeBank(byte region, int bank);
-	
+
 	PanasonicMemory& panasonicMem;
 	int maxSRAMBank;
 

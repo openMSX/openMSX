@@ -346,17 +346,17 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 			PRT_DEBUG("two CRC characters");
 			break;
 		 default:
-			//Normal write to track
+			// Normal write to track
 			break;
 		 }
-		 //shouldn't been done here !!
-		 statusReg &= ~0x03;	// reset status on Busy and DRQ
+		 // shouldn't be done here!!
+		 statusReg &= ~0x03; // reset status on Busy and DRQ
 		 */
 
 
 		/*
 		   if (indexmark) {
-		   statusReg &= ~0x03;	// reset status on Busy and DRQ
+		   statusReg &= ~0x03; // reset status on Busy and DRQ
 		   setIRQ();
 		   DRQ = false;
 		   }
@@ -418,8 +418,8 @@ void WD2793::tryToReadSector()
 		transferring = true;
 	} catch (MSXException& e) {
 		PRT_DEBUG("WD2793: read sector failed: " << e.getMessage());
-		DRQ = false;	// TODO data not ready (read error)
-		statusReg = 0;	// reset flags
+		DRQ = false; // TODO data not ready (read error)
+		statusReg = 0; // reset flags
 	}
 }
 
@@ -559,7 +559,7 @@ void WD2793::step(const EmuTime& time)
 		endType1Cmd();
 	} else {
 		drive.step(directionIn, time);
-		Clock<1000> next(time);	// ms
+		Clock<1000> next(time); // ms
 		next += timePerStep[commandReg & STEP_SPEED];
 		schedule(FSM_SEEK, next.getTime());
 	}
@@ -599,8 +599,8 @@ void WD2793::startType2Cmd(const EmuTime& time)
 		drive.setHeadLoaded(true, time);
 
 		if (commandReg & E_FLAG) {
-			Clock<1000> next(time);	// ms
-			next += 30;	// when 1MHz clock
+			Clock<1000> next(time); // ms
+			next += 30; // when 1MHz clock
 			schedule(FSM_TYPE2_WAIT_LOAD, next.getTime());
 		} else {
 			type2WaitLoad(time);
@@ -632,16 +632,16 @@ void WD2793::type2Loaded(const EmuTime& time)
 void WD2793::type2Rotated()
 {
 	switch (commandReg & 0xF0) {
-		case 0x80: //read sector
-		case 0x90: //read sector (multi)
+		case 0x80: // read sector
+		case 0x90: // read sector (multi)
 			tryToReadSector();
 			break;
 
 		case 0xA0: // write sector
 		case 0xB0: // write sector (multi)
 			dataCurrent = 0;
-			dataAvailable = 512;	// TODO should come from sector header
-			DRQ = true;	// data ready to be written
+			dataAvailable = 512; // TODO should come from sector header
+			DRQ = true; // data ready to be written
 			transferring = true;
 			break;
 	}
@@ -662,8 +662,8 @@ void WD2793::startType3Cmd(const EmuTime& time)
 		// WD2795/WD2797 would now set SSO output
 
 		if (commandReg & E_FLAG) {
-			Clock<1000> next(time);	// ms
-			next += 30;	// when 1MHz clock
+			Clock<1000> next(time); // ms
+			next += 30; // when 1MHz clock
 			schedule(FSM_TYPE3_WAIT_LOAD, next.getTime());
 		} else {
 			type3WaitLoad(time);
@@ -738,7 +738,7 @@ void WD2793::endWriteTrackCmd()
 		// beginning of write-track command (maybe
 		// when disk is swapped during format)
 	}
-	dataAvailable = 0; //return correct DTR
+	dataAvailable = 0; // return correct DTR
 	dataCurrent = 0;
 	DRQ = false;
 	formatting = false;
@@ -769,7 +769,7 @@ void WD2793::startType4Cmd(const EmuTime& time)
 	}
 
 	setDRQ(false, time);
-	statusReg &= ~BUSY;	// reset status on Busy
+	statusReg &= ~BUSY; // reset status on Busy
 }
 
 void WD2793::endCmd()

@@ -146,10 +146,10 @@ byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
 	if (softReset) {
 		if (reg == 7) {
 			// read status
-			result = 0xFF;	// BUSY
+			result = 0xFF; // BUSY
 		} else {
 			// all others
-			result = 0x7F;	// don't care
+			result = 0x7F; // don't care
 		}
 	} else {
 		if (reg == 0) {

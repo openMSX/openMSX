@@ -59,7 +59,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 		motherboard.getMachineInfoCommand(), *this))
 	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {
-	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
+	activeCPU = z80.get(); // setActiveCPU(CPU_Z80);
 	newCPU = 0;
 
 	motherboard.getDebugger().setCPU(this);
@@ -107,7 +107,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			break;
 		default:
 			assert(false);
-			tmp = NULL;	// prevent warning
+			tmp = NULL; // prevent warning
 	}
 	if (tmp != activeCPU) {
 		exitCPULoopSync();

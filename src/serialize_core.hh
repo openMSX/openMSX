@@ -580,7 +580,7 @@ template<typename TP> struct PointerLoader
 		} else {
 			ar.attribute("id", id);
 		}
-		
+
 		typedef typename serialize_as_pointer<TP>::type T;
 		T* tp;
 		if (id == 0) {

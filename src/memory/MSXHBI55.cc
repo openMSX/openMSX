@@ -217,7 +217,7 @@ template<typename Archive>
 void MSXHBI55::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("i8255", *i8255);	
+	ar.serialize("i8255", *i8255);
 	ar.serialize("SRAM", *sram);
 	ar.serialize("readAddress", readAddress);
 	ar.serialize("writeAddress", writeAddress);

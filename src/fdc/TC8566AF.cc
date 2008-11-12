@@ -326,7 +326,7 @@ void TC8566AF::writeDataPort(byte value, const EmuTime& time)
 		mainStatus &= ~STM_RQM;
 		break;
 	default:
-		//nothing
+		// nothing
 		break;
 	}
 }
@@ -550,7 +550,7 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 		}
 		break;
 	default:
-		//nothing
+		// nothing
 		break;
 	}
 }
@@ -614,7 +614,7 @@ void TC8566AF::executionPhaseWrite(byte value)
 		}
 		break;
 	default:
-		//nothing
+		// nothing
 		break;
 	}
 }

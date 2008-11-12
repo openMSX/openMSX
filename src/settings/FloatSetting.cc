@@ -41,7 +41,7 @@ string FloatSettingPolicy::getTypeString() const
 }
 
 
-//class FloatSetting
+// class FloatSetting
 
 FloatSetting::FloatSetting(CommandController& commandController,
                            const string& name, const string& description,

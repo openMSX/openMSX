@@ -2,7 +2,7 @@
 
 #ifdef __x86_64
 
-//nothing
+// nothing
 
 #else // __x86_64
 

@@ -77,19 +77,19 @@ byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
 		value = controller->peekDataReg(time);
 		break;
 	case 0x3FFC:
-		//bit 0 = side select
-		//TODO check other bits !!
+		// bit 0 = side select
+		// TODO check other bits !!
 		value = sideReg; // value = multiplexer.getSideSelect();
 		break;
 	case 0x3FFD:
-		//bit 1,0 -> drive number
-		//(00 or 10: drive A, 01: drive B, 11: nothing)
-		//bit 7 -> motor on
-		//TODO check other bits !!
+		// bit 1,0 -> drive number
+		// (00 or 10: drive A, 01: drive B, 11: nothing)
+		// bit 7 -> motor on
+		// TODO check other bits !!
 		value = driveReg; // multiplexer.getSelectedDrive();
 		break;
 	case 0x3FFE:
-		//not used
+		// not used
 		value = 255;
 		break;
 	case 0x3FFF:
@@ -97,7 +97,7 @@ byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
 		// interrupt request
 		// bit 6: !intrq
 		// bit 7: !dtrq
-		//TODO check other bits !!
+		// TODO check other bits !!
 		value = 0xC0;
 		if (controller->peekIRQ(time)) value &= ~0x40;
 		if (controller->peekDTRQ(time)) value &= ~0x80;
@@ -149,17 +149,17 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
 		controller->setDataReg(value, time);
 		break;
 	case 0x3FFC:
-		//bit 0 = side select
-		//TODO check other bits !!
+		// bit 0 = side select
+		// TODO check other bits !!
 		sideReg = value;
 		multiplexer->setSide(value & 1);
 		break;
 	case 0x3FFD:
-		//bit 1,0 -> drive number
-		//(00 or 10: drive A, 01: drive B, 11: nothing)
-		//TODO bit 6 -> drive LED (0 -> off, 1 -> on)
-		//bit 7 -> motor on
-		//TODO check other bits !!
+		// bit 1,0 -> drive number
+		// (00 or 10: drive A, 01: drive B, 11: nothing)
+		// TODO bit 6 -> drive LED (0 -> off, 1 -> on)
+		// bit 7 -> motor on
+		// TODO check other bits !!
 		driveReg = value;
 		DriveMultiplexer::DriveNum drive;
 		switch (value & 3) {

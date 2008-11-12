@@ -80,8 +80,7 @@ CassettePort::~CassettePort()
 
 void CassettePort::setMotor(bool status, const EmuTime& time)
 {
-	//TODO make 'click' sound
-	//PRT_DEBUG("CassettePort: motor " << status);
+	// TODO make 'click' sound
 	getPluggedCasDev().setMotor(status, time);
 }
 
@@ -104,7 +103,6 @@ bool CassettePort::cassetteIn(const EmuTime& time)
 	//   we just assume sample has no DC component
 	short sample = getPluggedCasDev().readSample(time); // read 1 sample
 	bool result = (sample >= 0); // comparator
-	//PRT_DEBUG("CassettePort:: read " << result);
 	return result;
 }
 

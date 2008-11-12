@@ -16,8 +16,8 @@ MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard, const XMLElement& co
 	, Connector(motherBoard.getPluggingController(), "printerport",
 	            std::auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
 {
-	data = 255;	// != 0;
-	strobe = false;	// != true;
+	data = 255;     // != 0;
+	strobe = false; // != true;
 	reset(getCurrentTime());
 }
 
@@ -27,8 +27,8 @@ MSXPrinterPort::~MSXPrinterPort()
 
 void MSXPrinterPort::reset(const EmuTime& time)
 {
-	writeData(0, time);	// TODO check this
-	setStrobe(true, time);	// TODO check this
+	writeData(0, time);    // TODO check this
+	setStrobe(true, time); // TODO check this
 }
 
 byte MSXPrinterPort::readIO(word port, const EmuTime& time)
@@ -47,7 +47,7 @@ void MSXPrinterPort::writeIO(word port, byte value, const EmuTime& time)
 {
 	switch (port & 0x01) {
 	case 0:
-		setStrobe(value & 1, time);	// bit 0 = strobe
+		setStrobe(value & 1, time); // bit 0 = strobe
 		break;
 	case 1:
 		writeData(value, time);

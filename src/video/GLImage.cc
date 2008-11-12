@@ -119,10 +119,10 @@ GLuint GLImage::loadTexture(SDL_Surface* surface,
 	height = surface->h;
 	int w2 = Math::powerOfTwo(width);
 	int h2 = Math::powerOfTwo(height);
-	texCoord[0] = 0.0f;			// Min X
-	texCoord[1] = 0.0f;			// Min Y
-	texCoord[2] = GLfloat(width)  / w2;	// Max X
-	texCoord[3] = GLfloat(height) / h2;	// Max Y
+	texCoord[0] = 0.0f;                 // min X
+	texCoord[1] = 0.0f;                 // min Y
+	texCoord[2] = GLfloat(width)  / w2; // max X
+	texCoord[3] = GLfloat(height) / h2; // max Y
 
 	SDL_Surface* image2 = SDL_CreateRGBSurface(SDL_SWSURFACE, w2, h2, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN

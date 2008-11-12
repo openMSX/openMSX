@@ -117,7 +117,7 @@ byte MSXTurboRPCM::getSample(const EmuTime& time) const
 	if (status & 0x04) {
 		result = (connector->readSample(time) / 256) + 0x80;
 	} else {
-		result = 0x80;	// TODO check
+		result = 0x80; // TODO check
 	}
 	//PRT_DEBUG("PCM: read " << (int)result);
 	return result;

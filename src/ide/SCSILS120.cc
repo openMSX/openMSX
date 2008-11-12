@@ -428,7 +428,7 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 
 	PRT_DEBUG("ls120#" << int(scsiId) << " read sector: " << currentSector << " " << numSectors);
 	try {
-		//TODO: somehow map this to SectorAccessibleDisk::readSector?
+		// TODO: somehow map this to SectorAccessibleDisk::readSector?
 		file->seek(SECTOR_SIZE * currentSector);
 		file->read(buffer, SECTOR_SIZE * numSectors);
 		currentSector += numSectors;
@@ -463,7 +463,7 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
 	PRT_DEBUG("ls120#" << int(scsiId) << " write sector: " << currentSector << " " << numSectors);
-	//TODO: somehow map this to SectorAccessibleDisk::writeSector?
+	// TODO: somehow map this to SectorAccessibleDisk::writeSector?
 	try {
 		file->seek(SECTOR_SIZE * currentSector);
 		file->write(buffer, SECTOR_SIZE * numSectors);

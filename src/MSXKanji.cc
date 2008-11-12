@@ -25,8 +25,8 @@ MSXKanji::~MSXKanji()
 
 void MSXKanji::reset(const EmuTime& /*time*/)
 {
-	adr1 = 0;	// TODO check this
-	adr2 = 0x20000;	// TODO check this
+	adr1 = 0x00000; // TODO check this
+	adr2 = 0x20000; // TODO check this
 }
 
 void MSXKanji::writeIO(word port, byte value, const EmuTime& /*time*/)

@@ -89,7 +89,7 @@ byte Joystick::read(const EmuTime& /*time*/)
 
 void Joystick::write(byte /*value*/, const EmuTime& /*time*/)
 {
-	//do nothing
+	// nothing
 }
 
 void Joystick::calcInitialState()

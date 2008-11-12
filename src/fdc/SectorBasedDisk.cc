@@ -111,19 +111,19 @@ void SectorBasedDisk::readTrackData(byte track, byte side, byte* output)
 		for (int i = 0; i < 12; ++i) *out++ = 0x00;
 		for (int i = 0; i <  3; ++i) *out++ = 0xA1;
 		for (int i = 0; i <  1; ++i) *out++ = 0xFE;
-		*out++ = track; //C: Cylinder number
-		*out++ = side;  //H: Head Address
-		*out++ = j + 1; //R: Record
-		*out++ = 0x02;  //N: Number (length of sector)
-		*out++ = 0x00;  //CRC byte 1   TODO
-		*out++ = 0x00;  //CRC byte 2
+		*out++ = track; // C: Cylinder number
+		*out++ = side;  // H: Head Address
+		*out++ = j + 1; // R: Record
+		*out++ = 0x02;  // N: Number (length of sector)
+		*out++ = 0x00;  // CRC byte 1   TODO
+		*out++ = 0x00;  // CRC byte 2
 		for (int i = 0; i < 22; ++i) *out++ = 0x4E;
 		for (int i = 0; i < 12; ++i) *out++ = 0x00;
 		// sector data
 		read(track, j + 1, side, 512, out);
 		out += 512;
-		*out++ = 0x00; //CRC byte 1   TODO
-		*out++ = 0x00; //CRC byte 2
+		*out++ = 0x00;  // CRC byte 1   TODO
+		*out++ = 0x00;  // CRC byte 2
 		// end-of-sector gap
 		for (int i = 0; i < 58; ++i) *out++ = 0x4E;
 	}

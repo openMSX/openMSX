@@ -64,7 +64,7 @@ public:
 	  * @return Possible values are 15, 16 or 32
 	  */
 	unsigned getBpp() const;
-	
+
 	/** TODO */
 	void takeScreenShot(unsigned height, const std::string& filename);
 

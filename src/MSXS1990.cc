@@ -36,7 +36,7 @@ MSXS1990::~MSXS1990()
 
 void MSXS1990::reset(const EmuTime& /*time*/)
 {
-	registerSelect = 0;	// TODO check this
+	registerSelect = 0; // TODO check this
 	setCPUStatus(96);
 }
 
@@ -81,11 +81,11 @@ byte MSXS1990::readRegister(byte reg) const
 	case 6:
 		return cpuStatus;
 	case 13:
-		return 0x03;	//TODO
+		return 0x03; // TODO
 	case 14:
-		return 0x2F;	//TODO
+		return 0x2F; // TODO
 	case 15:
-		return 0x8B;	//TODO
+		return 0x8B; // TODO
 	default:
 		return 0xFF;
 	}

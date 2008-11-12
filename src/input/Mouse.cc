@@ -36,7 +36,7 @@ Mouse::~Mouse()
 }
 
 
-//Pluggable
+// Pluggable
 const string& Mouse::getName() const
 {
 	static const string name("mouse");
@@ -66,7 +66,7 @@ void Mouse::unplugHelper(const EmuTime& /*time*/)
 }
 
 
-//JoystickDevice
+// JoystickDevice
 byte Mouse::read(const EmuTime& /*time*/)
 {
 	if (mouseMode) {
@@ -81,7 +81,7 @@ byte Mouse::read(const EmuTime& /*time*/)
 			return  ((yrel / SCALE)       & 0x0F) | status;
 		default:
 			assert(false);
-			return status;	// avoid warning
+			return status; // avoid warning
 		}
 	} else {
 		emulateJoystick();
@@ -144,7 +144,7 @@ void Mouse::write(byte value, const EmuTime& time)
 		// TODO figure out the timeout mechanism
 		//      does it exist at all?
 
-		const int TIMEOUT = 1000;	// TODO find a good value
+		const int TIMEOUT = 1000; // TODO find a good value
 		int delta = lastTime.getTicksTill(time);
 		lastTime.advance(time);
 		if (delta >= TIMEOUT) {
@@ -175,7 +175,7 @@ void Mouse::write(byte value, const EmuTime& time)
 }
 
 
-//EventListener
+// EventListener
 void Mouse::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
 {
 	switch (event->getType()) {

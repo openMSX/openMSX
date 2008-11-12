@@ -488,7 +488,7 @@ ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
 		T::template POST_MEM<       POST_PB>(address);
 		line[address] = value;
 	} else {
-		WRMEMslow<PRE_PB, POST_PB>(address, value, cc);	// not inlined
+		WRMEMslow<PRE_PB, POST_PB>(address, value, cc); // not inlined
 	}
 }
 template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(

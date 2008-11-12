@@ -147,10 +147,10 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 			newDisk.reset(new XSADiskImage(filename));
 		} catch (MSXException& e) {
 			try {
-				//First try the fake disk, because a DSK will always
-				//succeed if diskImage can be resolved
-				//It is simply stat'ed, so even a directory name
-				//can be resolved and will be accepted as dsk name
+				// First try the fake disk, because a DSK will always
+				// succeed if diskImage can be resolved
+				// It is simply stat'ed, so even a directory name
+				// can be resolved and will be accepted as dsk name
 				// try to create fake DSK from a dir on host OS
 				newDisk.reset(new DirAsDSK(
 					controller.getCliComm(),

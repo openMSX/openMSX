@@ -35,7 +35,7 @@ namespace DiskImageUtils {
 	 * @param sizes The number of sectors for each partition.
 	 */
 	void partition(SectorAccessibleDisk& disk, std::vector<unsigned> sizes);
-	
+
 	/** Return a partition (as a SectorAccessibleDisk) from another
 	 *  SectorAccessibleDisk.
 	 * @param disk The whole disk.

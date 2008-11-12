@@ -486,10 +486,9 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 		unsigned height = doubleSize ? 480 : 240;
 		pp->takeScreenShot(height, filename);
 	}
-	
+
 	display.getCliComm().printInfo("Screen saved to " + filename);
 	return filename;
-		
 }
 
 string ScreenShotCmd::help(const vector<string>& /*tokens*/) const

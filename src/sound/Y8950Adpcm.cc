@@ -17,8 +17,6 @@ static const int ADPCM_VOLUME = 356;
 
 // Bitmask for register 0x07
 static const int R07_RESET        = 0x01;
-//static const int R07            = 0x02;.      // not used
-//static const int R07            = 0x04;.      // not used
 static const int R07_SP_OFF       = 0x08;
 static const int R07_REPEAT       = 0x10;
 static const int R07_MEMORY_DATA  = 0x20;
@@ -26,13 +24,11 @@ static const int R07_REC          = 0x40;
 static const int R07_START        = 0x80;
 static const int R07_MODE         = 0xE0;
 
-//Bitmask for register 0x08
+// Bitmask for register 0x08
 static const int R08_ROM          = 0x01;
 static const int R08_64K          = 0x02;
 static const int R08_DA_AD        = 0x04;
 static const int R08_SAMPL        = 0x08;
-//static const int R08            = 0x10;.      // not used
-//static const int R08            = 0x20;.      // not used
 static const int R08_NOTE_SET     = 0x40;
 static const int R08_CSM          = 0x80;
 
@@ -61,7 +57,7 @@ Y8950Adpcm::~Y8950Adpcm()
 {
 }
 
-void Y8950Adpcm::reset(const EmuTime &time)
+void Y8950Adpcm::reset(const EmuTime& time)
 {
 	startAddr = 0;
 	stopAddr = 7;
@@ -120,7 +116,7 @@ const std::string& Y8950Adpcm::schedName() const
 	return name;
 }
 
-void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
+void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime& time)
 {
 	//PRT_DEBUG("Y8950Adpcm: write "<<(int)rg<<" "<<(int)data);
 	switch (rg) {

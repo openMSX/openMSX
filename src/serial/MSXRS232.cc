@@ -169,7 +169,7 @@ byte MSXRS232::readIO(word port, const EmuTime& time)
 			break;
 		default:
 			assert(false);
-			result = 0xFF;	// avoid warning
+			result = 0xFF; // avoid warning
 	}
 	//PRT_DEBUG("MSXRS232 read " << (int)port << " " << (int)result);
 	return result;
@@ -198,7 +198,7 @@ byte MSXRS232::peekIO(word port, const EmuTime& time) const
 			break;
 		default:
 			assert(false);
-			result = 0xFF;	// avoid warning
+			result = 0xFF; // avoid warning
 	}
 	return result;
 }

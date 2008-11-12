@@ -6,7 +6,7 @@
  * Access: write 0x00 to I/O port 0x7e
  *         provide 0xaa, <char1>, <char2>, continuous 0xff sequence reading I/O port 0x7e
  *         write any non-zero to I/O port 0x7e
- *	   provide 0xff at all time reading I/O port 0x7e
+ *         provide 0xff at all time reading I/O port 0x7e
  */
 
 #include "PasswordCart.hh"

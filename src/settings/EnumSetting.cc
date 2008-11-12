@@ -35,7 +35,7 @@ std::string EnumSettingPolicyBase::toStringBase(int value) const
 		}
 	}
 	assert(false);
-	return "";	// avoid warning
+	return ""; // avoid warning
 }
 
 void EnumSettingPolicyBase::getPossibleValues(std::set<std::string>& result) const

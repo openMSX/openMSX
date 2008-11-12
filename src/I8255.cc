@@ -46,16 +46,16 @@ byte I8255::readPortA(const EmuTime& time)
 	switch (control & MODE_A) {
 	case MODEA_0:
 		if (control & DIRECTION_A) {
-			//input
+			// input
 			return interface.readA(time);	// input not latched
 		} else {
-			//output
+			// output
 			return latchPortA;		// output is latched
 		}
-	case MODEA_1: //TODO but not relevant for MSX
+	case MODEA_1: // TODO but not relevant for MSX
 	case MODEA_2: case MODEA_2_:
 	default:
-		return 255;	// avoid warning
+		return 255; // avoid warning
 	}
 }
 
@@ -68,7 +68,7 @@ byte I8255::peekPortA(const EmuTime& time) const
 		} else {
 			return latchPortA;		// output is latched
 		}
-	case MODEA_1: //TODO but not relevant for MSX
+	case MODEA_1: // TODO but not relevant for MSX
 	case MODEA_2: case MODEA_2_:
 	default:
 		return 255;
@@ -80,15 +80,15 @@ byte I8255::readPortB(const EmuTime& time)
 	switch (control & MODE_B) {
 	case MODEB_0:
 		if (control & DIRECTION_B) {
-			//input
+			// input
 			return interface.readB(time);	// input not latched
 		} else {
-			//output
+			// output
 			return latchPortB;		// output is latched
 		}
 	case MODEB_1: // TODO but not relevant for MSX
 	default:
-		return 255;	// avoid warning
+		return 255; // avoid warning
 	}
 }
 
@@ -138,11 +138,11 @@ byte I8255::peekPortC(const EmuTime& time) const
 byte I8255::readC1(const EmuTime& time)
 {
 	if (control & DIRECTION_C1) {
-		//input
+		// input
 		return interface.readC1(time) << 4;	// input not latched
 	} else {
-		//output
-		return latchPortC & 0xf0;	// output is latched
+		// output
+		return latchPortC & 0xf0;		// output is latched
 	}
 }
 
@@ -151,17 +151,17 @@ byte I8255::peekC1(const EmuTime& time) const
 	if (control & DIRECTION_C1) {
 		return interface.peekC1(time) << 4;	// input not latched
 	} else {
-		return latchPortC & 0xf0;	// output is latched
+		return latchPortC & 0xf0;		// output is latched
 	}
 }
 
 byte I8255::readC0(const EmuTime& time)
 {
 	if (control & DIRECTION_C0) {
-		//input
+		// input
 		return interface.readC0(time);		// input not latched
 	} else {
-		//output
+		// output
 		return latchPortC & 0x0f;		// output is latched
 	}
 }
@@ -233,7 +233,7 @@ void I8255::outputPortA(byte value, const EmuTime& time)
 {
 	latchPortA = value;
 	if (!(control & DIRECTION_A)) {
-		//output
+		// output
 		interface.writeA(value, time);
 	}
 }
@@ -242,7 +242,7 @@ void I8255::outputPortB(byte value, const EmuTime& time)
 {
 	latchPortB = value;
 	if (!(control & DIRECTION_B)) {
-		//output
+		// output
 		interface.writeB(value, time);
 	}
 }
@@ -251,11 +251,11 @@ void I8255::outputPortC(byte value, const EmuTime& time)
 {
 	latchPortC = value;
 	if (!(control & DIRECTION_C1)) {
-		//output
+		// output
 		interface.writeC1(latchPortC >> 4, time);
 	}
 	if (!(control & DIRECTION_C0)) {
-		//output
+		// output
 		interface.writeC0(latchPortC & 15, time);
 	}
 }

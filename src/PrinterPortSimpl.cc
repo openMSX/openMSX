@@ -14,12 +14,12 @@ PrinterPortSimpl::PrinterPortSimpl(MSXMixer& mixer_)
 
 bool PrinterPortSimpl::getStatus(const EmuTime& /*time*/)
 {
-	return true;	// TODO check
+	return true; // TODO check
 }
 
 void PrinterPortSimpl::setStrobe(bool /*strobe*/, const EmuTime& /*time*/)
 {
-	// ignore strobe	TODO check
+	// ignore strobe // TODO check
 }
 
 void PrinterPortSimpl::writeData(byte data, const EmuTime& time)

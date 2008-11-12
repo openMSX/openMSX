@@ -49,7 +49,7 @@ protected:
 	virtual ~Completer();
 
 private:
-	static bool completeString2(std::string &str, std::set<std::string>& st,
+	static bool completeString2(std::string& str, std::set<std::string>& st,
 	                            bool caseSensitive);
 
 	const std::string name;

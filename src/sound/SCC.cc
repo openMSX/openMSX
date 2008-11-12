@@ -632,7 +632,7 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	// manually loop over the channels.
 	for (int channel = 0; channel < 5; ++channel) {
 		string tag = string("wave") + char('1' + channel);
-		ar.serialize(tag.c_str(), wave[channel]); //signed char
+		ar.serialize(tag.c_str(), wave[channel]); // signed char
 	}
 
 	if (ar.isLoader()) {

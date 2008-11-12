@@ -27,7 +27,7 @@ void RomNational::reset(const EmuTime& /*time*/)
 		setRom(region, 0);
 		bankSelect[region] = 0;
 	}
-	sramAddr = 0;	// TODO check this
+	sramAddr = 0; // TODO check this
 }
 
 byte RomNational::peekMem(word address, const EmuTime& time) const
@@ -68,10 +68,10 @@ void RomNational::writeMem(word address, byte value, const EmuTime& /*time*/)
 	// TODO bank switch address mirrored?
 	if (address == 0x6000) {
 		bankSelect[1] = value;
-		setRom(1, value);	// !!
+		setRom(1, value); // !!
 	} else if (address == 0x6400) {
 		bankSelect[0] = value;
-		setRom(0, value);	// !!
+		setRom(0, value); // !!
 	} else if (address == 0x7000) {
 		bankSelect[2] = value;
 		setRom(2, value);

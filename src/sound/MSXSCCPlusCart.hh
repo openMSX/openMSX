@@ -37,7 +37,7 @@ private:
 
 	const std::auto_ptr<Ram> ram;
 	const std::auto_ptr<SCC> scc;
-	byte* internalMemoryBank[4];	// 4 blocks of 8kB starting at #4000
+	byte* internalMemoryBank[4]; // 4 blocks of 8kB starting at #4000
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 	byte modeRegister;
 	bool isRamSegment[4];

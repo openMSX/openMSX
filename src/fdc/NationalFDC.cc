@@ -121,10 +121,10 @@ void NationalFDC::writeMem(word address, byte value, const EmuTime& time)
 	case 0x3F85:
 	case 0x3F86:
 	case 0x3F87:
-		//bit 0 -> select drive 0
-		//bit 1 -> select drive 1
-		//bit 2 -> side select
-		//bit 3 -> motor on
+		// bit 0 -> select drive 0
+		// bit 1 -> select drive 1
+		// bit 2 -> side select
+		// bit 3 -> motor on
 		DriveMultiplexer::DriveNum drive;
 		switch (value & 3) {
 			case 1:

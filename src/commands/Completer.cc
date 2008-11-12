@@ -72,7 +72,7 @@ static vector<string> format(const set<string>& input, unsigned columnLimit)
 	return result;
 }
 
-bool Completer::completeString2(string &str, set<string>& st,
+bool Completer::completeString2(string& str, set<string>& st,
                                 bool caseSensitive)
 {
 	set<string>::iterator it = st.begin();
@@ -99,14 +99,14 @@ bool Completer::completeString2(string &str, set<string>& st,
 		it = st.begin();
 		if (equal(str, *it, caseSensitive)) {
 			// match is as long as first word
-			goto out;	// TODO rewrite this
+			goto out; // TODO rewrite this
 		}
 		// expand with one char and check all strings
 		string string2 = (*it).substr(0, str.size() + 1);
 		for (;  it != st.end(); it++) {
 			if (!equal(string2, (*it).substr(0, string2.size()),
 				   caseSensitive)) {
-				goto out;	// TODO rewrite this
+				goto out; // TODO rewrite this
 			}
 		}
 		// no conflict found

@@ -283,7 +283,7 @@ static const int ENV_BITS    = 10;
 static const int ENV_LEN     = 1 << ENV_BITS;
 static const double ENV_STEP = 128.0 / ENV_LEN;
 
-static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; //511
+static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
 static const int MIN_ATT_INDEX = 0;
 
 // sinwave entries
@@ -291,7 +291,7 @@ static const int SIN_BITS = 10;
 static const int SIN_LEN  = 1 << SIN_BITS;
 static const int SIN_MASK = SIN_LEN - 1;
 
-static const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
+static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // register number to channel number , slot offset
 static const byte MOD = 0;
@@ -428,9 +428,9 @@ static const byte eg_rate_select[16 + 64 + 16] = {
 };
 #undef O
 
-//rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
-//shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
-//mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
+// rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
+// shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
+// mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
 #define O(a) (a * 1)
 static const byte eg_rate_shift[16 + 64 + 16] =
 {
@@ -563,36 +563,36 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 // LFO Phase Modulation table (verified on real YM3812)
 static const signed char lfo_pm_table[8 * 8 * 2] = {
 	// FNUM2/FNUM = 00 0xxxxxxx (0x0000)
-	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 0
-	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 1
+	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 0
+	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 1
 
 	// FNUM2/FNUM = 00 1xxxxxxx (0x0080)
-	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 0
-	1, 0, 0, 0,-1, 0, 0, 0,	//LFO PM depth = 1
+	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 0
+	1, 0, 0, 0,-1, 0, 0, 0, // LFO PM depth = 1
 
 	// FNUM2/FNUM = 01 0xxxxxxx (0x0100)
-	1, 0, 0, 0,-1, 0, 0, 0,	//LFO PM depth = 0
-	2, 1, 0,-1,-2,-1, 0, 1,	//LFO PM depth = 1
+	1, 0, 0, 0,-1, 0, 0, 0, // LFO PM depth = 0
+	2, 1, 0,-1,-2,-1, 0, 1, // LFO PM depth = 1
 
 	// FNUM2/FNUM = 01 1xxxxxxx (0x0180)
-	1, 0, 0, 0,-1, 0, 0, 0,	//LFO PM depth = 0
-	3, 1, 0,-1,-3,-1, 0, 1,	//LFO PM depth = 1
+	1, 0, 0, 0,-1, 0, 0, 0, // LFO PM depth = 0
+	3, 1, 0,-1,-3,-1, 0, 1, // LFO PM depth = 1
 
 	// FNUM2/FNUM = 10 0xxxxxxx (0x0200)
-	2, 1, 0,-1,-2,-1, 0, 1,	//LFO PM depth = 0
-	4, 2, 0,-2,-4,-2, 0, 2,	//LFO PM depth = 1
+	2, 1, 0,-1,-2,-1, 0, 1, // LFO PM depth = 0
+	4, 2, 0,-2,-4,-2, 0, 2, // LFO PM depth = 1
 
 	// FNUM2/FNUM = 10 1xxxxxxx (0x0280)
-	2, 1, 0,-1,-2,-1, 0, 1,	//LFO PM depth = 0
-	5, 2, 0,-2,-5,-2, 0, 2,	//LFO PM depth = 1
+	2, 1, 0,-1,-2,-1, 0, 1, // LFO PM depth = 0
+	5, 2, 0,-2,-5,-2, 0, 2, // LFO PM depth = 1
 
 	// FNUM2/FNUM = 11 0xxxxxxx (0x0300)
-	3, 1, 0,-1,-3,-1, 0, 1,	//LFO PM depth = 0
-	6, 3, 0,-3,-6,-3, 0, 3,	//LFO PM depth = 1
+	3, 1, 0,-1,-3,-1, 0, 1, // LFO PM depth = 0
+	6, 3, 0,-3,-6,-3, 0, 3, // LFO PM depth = 1
 
 	// FNUM2/FNUM = 11 1xxxxxxx (0x0380)
-	3, 1, 0,-1,-3,-1, 0, 1,	//LFO PM depth = 0
-	7, 3, 0,-3,-7,-3, 0, 3	//LFO PM depth = 1
+	3, 1, 0,-1,-3,-1, 0, 1, // LFO PM depth = 0
+	7, 3, 0,-3,-7,-3, 0, 3  // LFO PM depth = 1
 };
 
 // TODO clean this up
@@ -1007,11 +1007,11 @@ void YMF262Impl::init_tables()
 
 		// we never reach (1<<16) here due to the (x+1)
 		// result fits within 16 bits at maximum
-		int n = int(m);		// 16 bits here
-		n >>= 4;		// 12 bits here
+		int n = int(m); // 16 bits here
+		n >>= 4;        // 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
-		n <<= 1;		// 12 bits here (as in real chip)
+		n <<= 1;        // 12 bits here (as in real chip)
 		tl_tab[x * 2 + 0] = n;
 		tl_tab[x * 2 + 1] = ~tl_tab[x * 2 + 0]; // this _is_ different from OPL2 (verified on real YMF262)
 
@@ -1027,8 +1027,8 @@ void YMF262Impl::init_tables()
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
 		// we never reach zero here due to ((i * 2) + 1)
 		double o = (m > 0.0) ?
-			8 * ::log( 1.0 / m) / LOG2:	// convert to 'decibels'
-			8 * ::log(-1.0 / m) / LOG2;	// convert to 'decibels'
+			8 * ::log( 1.0 / m) / LOG2: // convert to 'decibels'
+			8 * ::log(-1.0 / m) / LOG2; // convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
 		int n = int(2 * o);
@@ -1532,16 +1532,16 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
 		unsigned base = chan_no * 4;
 		if (OPL3_mode) {
 			// OPL3 mode
-			pan[base + 0] = (v & 0x10) ? unsigned(~0) : 0;	// ch.A
-			pan[base + 1] = (v & 0x20) ? unsigned(~0) : 0;	// ch.B
-			pan[base + 2] = (v & 0x40) ? unsigned(~0) : 0;	// ch.C
-			pan[base + 3] = (v & 0x80) ? unsigned(~0) : 0;	// ch.D
+			pan[base + 0] = (v & 0x10) ? unsigned(~0) : 0; // ch.A
+			pan[base + 1] = (v & 0x20) ? unsigned(~0) : 0; // ch.B
+			pan[base + 2] = (v & 0x40) ? unsigned(~0) : 0; // ch.C
+			pan[base + 3] = (v & 0x80) ? unsigned(~0) : 0; // ch.D
 		} else {
 			// OPL2 mode - always enabled
-			pan[base + 0] = unsigned(~0);	// ch.A
-			pan[base + 1] = unsigned(~0);	// ch.B
-			pan[base + 2] = unsigned(~0);	// ch.C
-			pan[base + 3] = unsigned(~0);	// ch.D
+			pan[base + 0] = unsigned(~0); // ch.A
+			pan[base + 1] = unsigned(~0); // ch.B
+			pan[base + 2] = unsigned(~0); // ch.C
+			pan[base + 3] = unsigned(~0); // ch.D
 		}
 
 		ch.slot[MOD].setFeedbackShift((v >> 1) & 7);
@@ -1620,7 +1620,7 @@ void YMF262Impl::reset(const EmuTime& time)
 {
 	eg_cnt = 0;
 
-	noise_rng = 1;	// noise shift register
+	noise_rng = 1; // noise shift register
 	nts = false; // note split
 	resetStatus(0x60);
 
@@ -1630,12 +1630,12 @@ void YMF262Impl::reset(const EmuTime& time)
 	writeRegDirect(0x03, 0, time); // Timer2
 	writeRegDirect(0x04, 0, time); // IRQ mask clear
 
-	//FIX IT  registers 101, 104 and 105
-	//FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
+	// FIX IT  registers 101, 104 and 105
+	// FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
 	for (int c = 0xFF; c >= 0x20; c--) {
 		writeRegDirect(c, 0, time);
 	}
-	//FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
+	// FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
 	for (int c = 0x1FF; c >= 0x120; c--) {
 		writeRegDirect(c, 0, time);
 	}

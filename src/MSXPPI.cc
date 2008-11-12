@@ -177,7 +177,7 @@ nibble MSXPPI::peekC0(const EmuTime& /*time*/) const
 void MSXPPI::writeC1(nibble value, const EmuTime& time)
 {
 	if ((prevBits ^ value) & 1) {
-		cassettePort.setMotor(!(value & 1), time);	// 0=0n, 1=Off
+		cassettePort.setMotor(!(value & 1), time); // 0=0n, 1=Off
 	}
 	if ((prevBits ^ value) & 2) {
 		cassettePort.cassetteOut(value & 2, time);

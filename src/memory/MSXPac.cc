@@ -24,7 +24,7 @@ MSXPac::~MSXPac()
 void MSXPac::reset(const EmuTime& /*time*/)
 {
 	sramEnabled = false;
-	r1ffe = r1fff = 0xFF;	// TODO check
+	r1ffe = r1fff = 0xFF; // TODO check
 }
 
 byte MSXPac::readMem(word address, const EmuTime& /*time*/)

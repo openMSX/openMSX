@@ -59,7 +59,7 @@ RecordOption::RecordOption(CommandLineParser& parser_)
 {
 }
 
-bool RecordOption::parseOption(const string &option, deque<string> &cmdLine)
+bool RecordOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	const string logFileName = getArgument(option, cmdLine);
 	eventRecorder.reset(new MSXEventRecorder(
@@ -81,7 +81,7 @@ ReplayOption::ReplayOption(CommandLineParser& parser_)
 {
 }
 
-bool ReplayOption::parseOption(const string &option, deque<string> &cmdLine)
+bool ReplayOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	const string logFileName = getArgument(option, cmdLine);
 	eventReplayer.reset(new MSXEventReplayer(

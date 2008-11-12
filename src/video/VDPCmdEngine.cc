@@ -1899,10 +1899,10 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime& time)
 		break;
 	default:
 		if (vdp.getCmdBit()) {
-			newScrMode = 3;	// like GRAPHIC7
-					// TODO timing might be different
+			newScrMode = 3; // like GRAPHIC7
+			                // TODO timing might be different
 		} else {
-			newScrMode = -1;	// no commands
+			newScrMode = -1; // no commands
 		}
 		break;
 	}
@@ -1971,7 +1971,7 @@ void VDPCmdEngine::reportVdpCommand()
 void VDPCmdEngine::commandDone(const EmuTime& time)
 {
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
-	status &= 0xFE;	// reset CE
+	status &= 0xFE; // reset CE
 	CMD = 0;
 	currentCommand = NULL;
 	statusChangeTime = EmuTime::infinity;

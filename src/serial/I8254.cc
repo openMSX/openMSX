@@ -70,7 +70,7 @@ private:
 };
 
 
-/// class I8254 ///
+// class I8254
 
 I8254::I8254(Scheduler& scheduler, ClockPinListener* output0,
              ClockPinListener* output1, ClockPinListener* output2,
@@ -99,7 +99,7 @@ byte I8254::readIO(word port, const EmuTime& time)
 		case 0: case 1: case 2: // read counter 0, 1, 2
 			return counter[port]->readIO(time);
 		case 3: // read from control word, illegal
-			return 255;	//TODO check value
+			return 255; // TODO check value
 		default:
 			assert(false);
 			return 255;
@@ -113,7 +113,7 @@ byte I8254::peekIO(word port, const EmuTime& time) const
 		case 0: case 1: case 2:// read counter 0, 1, 2
 			return counter[port]->peekIO(time);
 		case 3: // read from control word, illegal
-			return 255;	//TODO check value
+			return 255; // TODO check value
 		default:
 			assert(false);
 			return 255;
@@ -181,7 +181,7 @@ ClockPin& I8254::getOutputPin(unsigned cntr)
 }
 
 
-/// class Counter ///
+// class Counter
 
 Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
                         const EmuTime& time)
@@ -240,7 +240,7 @@ byte Counter::readIO(const EmuTime& time)
 		}
 	default:
 		assert(false);
-		return 0;	// avoid warning
+		return 0; // avoid warning
 	}
 }
 
@@ -268,7 +268,7 @@ byte Counter::peekIO(const EmuTime& time) const
 		}
 	default:
 		assert(false);
-		return 0;	// avoid warning
+		return 0; // avoid warning
 	}
 }
 
@@ -322,7 +322,7 @@ void Counter::writeLoad(word value, const EmuTime& time)
 	if (mode == CNTR_M0) {
 		output.setState(false, time);
 	}
-	active = true;	// counter is (re)armed after counter is initialized
+	active = true; // counter is (re)armed after counter is initialized
 }
 
 void Counter::writeControlWord(byte value, const EmuTime& time)
@@ -425,8 +425,8 @@ void Counter::setGateStatus(bool newStatus, const EmuTime& time)
 
 void Counter::advance(const EmuTime& time)
 {
-	//TODO !!!! Set SP !!!!
-	//TODO BCD counting
+	// TODO !!!! Set SP !!!!
+	// TODO BCD counting
 	uint64 ticks = clock.getTicksBetween(currentTime, time);
 	currentTime = time;
 	switch (control & CNTR_MODE) {
@@ -437,7 +437,7 @@ void Counter::advance(const EmuTime& time)
 				counter &= 0xFFFF;
 				if (active) {
 					output.setState(false, time);
-					active = false;	// not periodic
+					active = false; // not periodic
 				}
 			}
 		}
@@ -447,7 +447,7 @@ void Counter::advance(const EmuTime& time)
 		if (triggered) {
 			if (counter < 0) {
 				output.setState(true, time);
-				triggered = false;	// not periodic
+				triggered = false; // not periodic
 			}
 		}
 		counter &= 0xFFFF;
@@ -488,7 +488,7 @@ void Counter::advance(const EmuTime& time)
 					output.setState(false, time);
 				} else if (counter < 0) {
 					output.setState(true, time);
-					active = false;	// not periodic
+					active = false; // not periodic
 				}
 			}
 			counter &= 0xFFFF;
@@ -501,7 +501,7 @@ void Counter::advance(const EmuTime& time)
 				output.setState(false, time);
 			if (counter < 0) {
 				output.setState(true, time);
-				triggered = false;	//not periodic
+				triggered = false; // not periodic
 			}
 		}
 		counter &= 0xFFFF;

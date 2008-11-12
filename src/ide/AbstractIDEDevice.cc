@@ -98,12 +98,12 @@ byte AbstractIDEDevice::readReg(nibble reg, const EmuTime& /*time*/)
 	case 15:// not used
 		return 0x7F;
 
-	case 0:	// data register, converted to readData by IDE interface
+	case 0: // data register, converted to readData by IDE interface
 	case 14:// alternate status reg, converted to read from normal
 		// status register by IDE interface
 	default:
 		assert(false);
-		return 0x7F;	// avoid warning
+		return 0x7F; // avoid warning
 	}
 }
 

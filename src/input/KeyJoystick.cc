@@ -79,7 +79,7 @@ byte KeyJoystick::read(const EmuTime& /*time*/)
 
 void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 {
-	//do nothing
+	// nothing
 }
 
 

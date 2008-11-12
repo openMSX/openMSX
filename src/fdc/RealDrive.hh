@@ -63,7 +63,7 @@ private:
 	void updateLoadingState();
 
 	static const int MAX_TRACK = 85;
-	static const int TICKS_PER_ROTATION = 6850;	// TODO
+	static const int TICKS_PER_ROTATION = 6850; // TODO
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 

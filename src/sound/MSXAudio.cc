@@ -127,7 +127,7 @@ void MSXAudio::reset(const EmuTime& time)
 {
 	y8950->reset(time);
 	periphery->reset();
-	registerLatch = 0;	// TODO check
+	registerLatch = 0; // TODO check
 }
 
 byte MSXAudio::readIO(word port, const EmuTime& time)

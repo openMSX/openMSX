@@ -25,7 +25,7 @@ PrinterPortLogger::~PrinterPortLogger()
 
 bool PrinterPortLogger::getStatus(const EmuTime& /*time*/)
 {
-	return false;	// false = low = ready
+	return false; // false = low = ready
 }
 
 void PrinterPortLogger::setStrobe(bool strobe, const EmuTime& /*time*/)

@@ -148,7 +148,7 @@ u16bit_iterator utf8to16(octet_iterator start, octet_iterator end,
 	while (start != end) {
 		uint32_t cp = next(start);
 		if (cp > 0xffff) {
-			//make a surrogate pair
+			// make a surrogate pair
 			*result++ = (cp >> 10)   + internal::LEAD_OFFSET;
 			*result++ = (cp & 0x3ff) + internal::TRAIL_SURROGATE_MIN;
 		} else {
@@ -227,6 +227,6 @@ public:
 };
 
 } // namespace unchecked
-} // namespace utf8 
+} // namespace utf8
 
 #endif

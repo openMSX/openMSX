@@ -307,7 +307,7 @@ void DirAsDSK::readSectorSBD(unsigned sector, byte* buf)
 		memcpy(buf, bootBlock, SECTOR_SIZE);
 
 	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
-		//copy correct sector from FAT
+		// copy correct sector from FAT
 
 		// quick-and-dirty:
 		// we check all files in the faked disk for altered filesize
@@ -836,7 +836,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 
 	// if in SYNC_CACHEDWRITE then simply mark sector as cached and be done with it
 	if (syncMode == GlobalSettings::SYNC_CACHEDWRITE) {
-		//change to a regular cached sector
+		// change to a regular cached sector
 		sectormap[sector].usage = CACHED;
 		sectormap[sector].dirEntryNr = 0;
 		sectormap[sector].fileOffset = 0;
@@ -895,7 +895,7 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 
 	// since the new FAT chain can be shorter (file size shrunk)
 	// we also start from 'somecluster', in such case
-	// the loop above doesn't take care of this, since it will 
+	// the loop above doesn't take care of this, since it will
 	// stop at the new EOF_FAT||curcl==0 condition
 	curcl = somecluster;
 	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
@@ -946,14 +946,14 @@ void DirAsDSK::updateFileInDisk(const string& filename)
 		// add file to fakedisk
 		addFileToDSK(filename, fst);
 	} else {
-		//really update file
+		// really update file
 		checkAlterFileInDisk(filename);
 	}
 }
 
 void DirAsDSK::addFileToDSK(const string& filename, struct stat& fst)
 {
-	//get emtpy dir entry
+	// get emtpy dir entry
 	unsigned dirindex = 0;
 	while (mapdir[dirindex].inUse()) {
 		if (++dirindex == NUM_DIR_ENTRIES) {
@@ -967,7 +967,7 @@ void DirAsDSK::addFileToDSK(const string& filename, struct stat& fst)
 	// create correct MSX filename
 	string MSXfilename = makeSimpleMSXFileName(filename);
 	if (checkMSXFileExists(MSXfilename)) {
-		//TODO: actually should increase vfat abrev if possible!!
+		// TODO: actually should increase vfat abrev if possible!!
 		cliComm.printWarning(
 			"Couldn't add " + filename + ": MSX name " +
 			MSXfilename + " existed already");

@@ -71,7 +71,7 @@ public:
 	virtual const char* what() const throw() { return "Not enough space"; }
 };
 
-/// The library API - functions intended to be called by the users
+// The library API - functions intended to be called by the users
 
 template <typename octet_iterator, typename output_iterator>
 output_iterator replace_invalid(octet_iterator start, octet_iterator end,
@@ -232,7 +232,7 @@ u16bit_iterator utf8to16(octet_iterator start, octet_iterator end,
 {
 	while (start != end) {
 		uint32_t cp = next(start, end);
-		if (cp > 0xffff) { //make a surrogate pair
+		if (cp > 0xffff) { // make a surrogate pair
 			*result++ = (cp >> 10)   + internal::LEAD_OFFSET;
 			*result++ = (cp & 0x3ff) + internal::TRAIL_SURROGATE_MIN;
 		} else {

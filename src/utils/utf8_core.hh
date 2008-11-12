@@ -38,7 +38,7 @@ DEALINGS IN THE SOFTWARE.
 namespace utf8 {
 
 // The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
-// You may need to change them to match your system. 
+// You may need to change them to match your system.
 // These typedefs have the same names as ones from cstdint, or boost/cstdint
 typedef unsigned char  uint8_t;
 typedef unsigned short uint16_t;
@@ -121,7 +121,7 @@ utf_error validate_next(octet_iterator& it, octet_iterator end,
 		return OK;
 	}
 
-	// Do we have enough memory?     
+	// Do we have enough memory?
 	if (std::distance(it, end) < length) {
 		return NOT_ENOUGH_ROOM;
 	}
@@ -211,7 +211,7 @@ inline utf_error validate_next(octet_iterator& it, octet_iterator end) {
 	return validate_next(it, end, NULL);
 }
 
-} // namespace internal 
+} // namespace internal
 
 /// The library API - functions intended to be called by the users
 
