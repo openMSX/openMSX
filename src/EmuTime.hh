@@ -20,7 +20,7 @@ public:
 	static param dummy() { return EmuTime(); }
 #else
 	typedef const EmuTime& param;
-	static param dummy() { EmuTime* d; return *d; }
+	static param dummy() { EmuTime* d = 0; return *d; }
 #endif
 
 	// Note: default copy constructor and assigment operator are ok.
