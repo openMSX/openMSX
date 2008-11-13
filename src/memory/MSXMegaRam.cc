@@ -47,7 +47,7 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 		setBank(i, 0);
 	}
 	writeMode = false;
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 MSXMegaRam::~MSXMegaRam()

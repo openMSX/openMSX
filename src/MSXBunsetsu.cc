@@ -14,7 +14,7 @@ MSXBunsetsu::MSXBunsetsu(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, jisyoRom   (new Rom(motherBoard, getName() + "_2", "rom",
 	                      config, "jisyo"))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 MSXBunsetsu::~MSXBunsetsu()

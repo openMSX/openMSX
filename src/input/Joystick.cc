@@ -209,8 +209,7 @@ void Joystick::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		Connector* conn = getConnector();
 		if (joystick && conn) {
-			EmuTime* dummy = 0;
-			plugHelper(*conn, *dummy);
+			plugHelper(*conn, EmuTime::dummy());
 		}
 	}
 }

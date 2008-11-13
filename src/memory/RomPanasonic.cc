@@ -39,7 +39,7 @@ RomPanasonic::RomPanasonic(
 	// Actual registration is done in changeBank(), right before we
 	// actually select ram pages.
 
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomPanasonic::~RomPanasonic()

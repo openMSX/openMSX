@@ -20,7 +20,7 @@ PasswordCart::PasswordCart(MSXMotherBoard& motherBoard, const XMLElement& config
 	: MSXDevice(motherBoard, config)
 	, password(config.getChildDataAsInt("password", 0))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void PasswordCart::reset(EmuTime::param /*time*/)

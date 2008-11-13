@@ -15,7 +15,7 @@ RomSuperLodeRunner::RomSuperLodeRunner(
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
 	getMotherBoard().getCPUInterface().registerGlobalWrite(*this, 0x0000);
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomSuperLodeRunner::~RomSuperLodeRunner()

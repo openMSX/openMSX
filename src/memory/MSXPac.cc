@@ -14,7 +14,7 @@ MSXPac::MSXPac(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1FFE, config,
 	                PAC_Header))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 MSXPac::~MSXPac()

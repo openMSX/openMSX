@@ -13,7 +13,7 @@ RomNational::RomNational(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config));
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomNational::~RomNational()

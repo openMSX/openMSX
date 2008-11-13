@@ -19,7 +19,7 @@ MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config)
 		throw MSXException("MSXKanji12: wrong kanji rom");
 	}
 
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 MSXKanji12::~MSXKanji12()

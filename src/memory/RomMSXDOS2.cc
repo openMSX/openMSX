@@ -18,7 +18,7 @@ RomMSXDOS2::RomMSXDOS2(
 	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {
 		throw MSXException("Invalid rom for MSXDOS2 mapper");
 	}
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomMSXDOS2::reset(EmuTime::param /*time*/)

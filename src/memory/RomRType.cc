@@ -19,7 +19,7 @@ RomRType::RomRType(MSXMotherBoard& motherBoard, const XMLElement& config,
                    std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomRType::reset(EmuTime::param /*time*/)

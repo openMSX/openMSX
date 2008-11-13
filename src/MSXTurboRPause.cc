@@ -19,7 +19,7 @@ MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
 	, hwPause(false)
 {
 	pauseSetting->attach(*this);
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 MSXTurboRPause::~MSXTurboRPause()
@@ -89,7 +89,7 @@ void MSXTurboRPause::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("status", status);
 	if (ar.isLoader()) {
-		writeIO(0, status, *static_cast<EmuTime*>(0));
+		writeIO(0, status, EmuTime::dummy());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXTurboRPause);

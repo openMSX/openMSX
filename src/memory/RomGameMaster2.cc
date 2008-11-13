@@ -51,7 +51,7 @@ RomGameMaster2::RomGameMaster2(
 	: Rom4kBBlocks(motherBoard, config, rom)
 {
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x2000, config));
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomGameMaster2::~RomGameMaster2()

@@ -16,7 +16,7 @@ RomHolyQuran::RomHolyQuran(
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomHolyQuran::reset(EmuTime::param /*time*/)

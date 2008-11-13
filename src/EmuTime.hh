@@ -17,8 +17,10 @@ public:
 	// is cheaper.
 #ifdef __x86_64
 	typedef const EmuTime param;
+	static param dummy() { return EmuTime(); }
 #else
 	typedef const EmuTime& param;
+	static param dummy() { EmuTime* d; return *d; }
 #endif
 
 	// Note: default copy constructor and assigment operator are ok.
@@ -61,6 +63,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	EmuTime() {} // uninitialized
 	explicit EmuTime(uint64 n) : time(n) {}
 
 	uint64 time;

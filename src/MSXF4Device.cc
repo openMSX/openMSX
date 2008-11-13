@@ -10,7 +10,7 @@ MSXF4Device::MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, inverted(config.getChildDataAsBool("inverted", false))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void MSXF4Device::reset(EmuTime::param /*time*/)

@@ -187,7 +187,7 @@ RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: Rom8kBBlocks(motherBoard, config, rom)
 	, sram(allocSRAM(motherBoard, config))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomFSA1FM2::~RomFSA1FM2()

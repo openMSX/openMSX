@@ -19,7 +19,7 @@ RomHarryFox::RomHarryFox(MSXMotherBoard& motherBoard, const XMLElement& config,
                          std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomHarryFox::reset(EmuTime::param /*time*/)

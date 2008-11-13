@@ -16,7 +16,7 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, vram(NULL)
 	, hasEnable(config.getChildDataAsBool("hasEnable", true))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void ADVram::init(const HardwareConfig& hwConf)

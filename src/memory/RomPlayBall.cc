@@ -20,7 +20,7 @@ RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
 	setRom (2, 1);
 	setBank(3, unmappedRead);
 
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomPlayBall::~RomPlayBall()

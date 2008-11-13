@@ -21,7 +21,7 @@ MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 MSXMatsushita::~MSXMatsushita()

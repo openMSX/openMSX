@@ -34,7 +34,7 @@ RomAscii8_8::RomAscii8_8(
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM",
 	                    (subType == KOEI_32) ? 0x8000 : 0x2000, config));
 
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomAscii8_8::~RomAscii8_8()

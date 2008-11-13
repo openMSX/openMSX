@@ -22,7 +22,7 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 	setBank(2, unmappedRead);
 	setBank(3, unmappedRead);
 
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 
 	getMotherBoard().getCPUInterface().register_IO_Out(0x00, this);
 	getMotherBoard().getCPUInterface().register_IO_Out(0x20, this);

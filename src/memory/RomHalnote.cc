@@ -38,7 +38,7 @@ RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x4000, config));
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomHalnote::~RomHalnote()

@@ -20,7 +20,7 @@ RomZemina80in1::RomZemina80in1(
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomZemina80in1::reset(EmuTime::param /*time*/)

@@ -11,7 +11,7 @@ RomGeneric8kB::RomGeneric8kB(
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomGeneric8kB::reset(EmuTime::param /*time*/)

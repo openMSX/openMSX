@@ -18,7 +18,7 @@ RomPadial8kB::RomPadial8kB(MSXMotherBoard& motherBoard, const XMLElement& config
                            std::auto_ptr<Rom> rom)
 	: RomAscii8kB(motherBoard, config, rom)
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomPadial8kB::reset(EmuTime::param /*time*/)

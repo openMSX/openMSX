@@ -27,7 +27,7 @@ MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	      new FirmwareSwitch(motherBoard.getCommandController(), config))
 	, debuggable(new S1990Debuggable(motherBoard, *this))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 MSXS1990::~MSXS1990()

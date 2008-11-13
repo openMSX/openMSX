@@ -13,7 +13,7 @@ RomMatraInk::RomMatraInk(
 	: MSXRom(motherBoard, config, rom_)
 	, flash(new AmdFlash(*rom, 16, 2, 0)) // don't load/save
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 RomMatraInk::~RomMatraInk()

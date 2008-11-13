@@ -25,7 +25,7 @@ RomZemina90in1::RomZemina90in1(
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 	getMotherBoard().getCPUInterface().register_IO_Out(0x77, this);
 }
 

@@ -55,7 +55,7 @@ RomNettouYakyuu::RomNettouYakyuu(
 	                         "Jaleco Moero!! Nettou Yakuu '88 DAC", config,
 	                         "nettou_yakyuu/nettou_yakyuu_", 16))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 void RomNettouYakyuu::reset(EmuTime::param /*time*/)

@@ -13,7 +13,7 @@ GoudaSCSI::GoudaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, wd33c93(new WD33C93(motherBoard, config))
 {
-	reset(*static_cast<EmuTime*>(0));
+	reset(EmuTime::dummy());
 }
 
 GoudaSCSI::~GoudaSCSI()
