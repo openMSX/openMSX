@@ -117,6 +117,9 @@ private:
 	void unpause();
 	void pause();
 
+	Semaphore mbSem; // this should come first, because it's still used by
+	                 // the destructors of the auto_ptr below
+
 	// note: order of auto_ptr's is important
 	std::auto_ptr<EventDistributor> eventDistributor;
 	std::auto_ptr<GlobalCommandController> globalCommandController;
@@ -157,7 +160,6 @@ private:
 	//  - non-main thread can only access activeBoard via specific
 	//    member functions (atm only via enterMainLoop()), it needs to take
 	//    the mbSem lock
-	Semaphore mbSem;
 	Boards boards;
 	Boards garbageBoards;
 	Board activeBoard; // either NULL or a board inside 'boards'

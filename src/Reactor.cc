@@ -196,7 +196,8 @@ private:
 
 
 Reactor::Reactor()
-	: pauseSetting(getGlobalSettings().getPauseSetting())
+	: mbSem(1)
+	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, userSettings(new UserSettings(getCommandController()))
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
@@ -213,7 +214,6 @@ Reactor::Reactor()
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
 	, realTimeInfo(new RealTimeInfo(getOpenMSXInfoCommand()))
-	, mbSem(1)
 	, blockedCounter(0)
 	, paused(false)
 	, running(true)
