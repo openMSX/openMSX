@@ -60,8 +60,6 @@ public:
 	short sample1, sample2;
 
 	int env_vol;
-	unsigned env_vol_step;
-	unsigned env_vol_lim;
 
 	int lfo_cnt;
 	int lfo_step;
@@ -334,7 +332,6 @@ void YMF278Slot::reset()
 	step = stepptr = 0;
 	bits = startaddr = loopaddr = endaddr = 0;
 	env_vol = MAX_ATT_INDEX;
-	//env_vol_step = env_vol_lim = 0;
 
 	lfo_active = false;
 	lfo_cnt = lfo_step = 0;
@@ -342,6 +339,9 @@ void YMF278Slot::reset()
 
 	state = EG_OFF;
 	active = false;
+
+	// not strictly needed, but avoid UMR on savestate
+	pos = sample1 = sample2 = 0;
 }
 
 int YMF278Slot::compute_rate(int val)
@@ -1022,8 +1022,6 @@ void YMF278Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sample1", sample1);
 	ar.serialize("sample2", sample2);
 	ar.serialize("env_vol", env_vol);
-	ar.serialize("env_vol_step", env_vol_step);
-	ar.serialize("env_vol_lim", env_vol_lim);
 	ar.serialize("lfo_cnt", lfo_cnt);
 	ar.serialize("lfo_step", lfo_step);
 	ar.serialize("lfo_max", lfo_max);
@@ -1047,6 +1045,11 @@ void YMF278Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("active", active);
 	ar.serialize("state", state);
 	ar.serialize("lfo_active", lfo_active);
+
+	// Older version also had "env_vol_step" and "env_vol_lim"
+	// but those members were nowhere used, so removed those
+	// in the current version (it's ok to remove members from the
+	// savestate without updating the version number).
 }
 
 template<typename Archive>
