@@ -166,6 +166,7 @@ class PollEventGenerator : private Alarm
 {
 public:
 	explicit PollEventGenerator(EventDistributor& eventDistributor);
+	virtual ~PollEventGenerator();
 private:
 	virtual bool alarm();
 	EventDistributor& eventDistributor;
@@ -1027,6 +1028,11 @@ PollEventGenerator::PollEventGenerator(EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 {
 	schedule(20 * 1000); // 50 times per second
+}
+
+PollEventGenerator::~PollEventGenerator()
+{
+	prepareDelete();
 }
 
 bool PollEventGenerator::alarm()

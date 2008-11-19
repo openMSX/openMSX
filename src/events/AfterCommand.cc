@@ -92,6 +92,7 @@ public:
 	AfterRealTimeCmd(AfterCommand& afterCommand,
 	                 EventDistributor& eventDistributor,
 	                 const std::string& command, double time);
+	virtual ~AfterRealTimeCmd();
 	virtual const std::string& getType() const;
 	bool hasExpired() const;
 
@@ -530,6 +531,11 @@ AfterRealTimeCmd::AfterRealTimeCmd(
 	, expired(false)
 {
 	schedule(unsigned(time * 1000000)); // micro seconds
+}
+
+AfterRealTimeCmd::~AfterRealTimeCmd()
+{
+	prepareDelete();
 }
 
 const std::string& AfterRealTimeCmd::getType() const

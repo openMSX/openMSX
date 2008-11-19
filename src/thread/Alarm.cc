@@ -207,13 +207,21 @@ unsigned AlarmManager::timerCallback2()
 Alarm::Alarm()
 	: manager(AlarmManager::instance())
 	, active(false)
+	, destructing(false)
 {
 	manager.registerAlarm(*this);
 }
 
 Alarm::~Alarm()
 {
+	assert(destructing); // prepareDelete() must be called in subclass
+}
+
+void Alarm::prepareDelete()
+{
+	assert(!destructing); // not yet called
 	manager.unregisterAlarm(*this);
+	destructing = true;
 }
 
 void Alarm::schedule(unsigned newPeriod)

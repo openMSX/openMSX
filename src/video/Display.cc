@@ -42,8 +42,9 @@ class RepaintAlarm : public Alarm
 {
 public:
 	explicit RepaintAlarm(EventDistributor& eventDistributor);
-	virtual bool alarm();
+	virtual ~RepaintAlarm();
 private:
+	virtual bool alarm();
 	EventDistributor& eventDistributor;
 };
 
@@ -401,6 +402,11 @@ void Display::updateZ(Layer& layer)
 RepaintAlarm::RepaintAlarm(EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 {
+}
+
+RepaintAlarm::~RepaintAlarm()
+{
+	prepareDelete();
 }
 
 bool RepaintAlarm::alarm()
