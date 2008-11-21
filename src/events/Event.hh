@@ -49,6 +49,9 @@ enum EventType
 	/** Delayed repaint */
 	OPENMSX_DELAYED_REPAINT_EVENT,
 
+	/** Send when main-thread should save SRAM contents */
+	OPENMSX_SAVE_SRAM,
+
 	/** Command received on CliComm connection */
 	OPENMSX_CLICOMMAND_EVENT,
 

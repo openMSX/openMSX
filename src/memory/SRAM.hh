@@ -4,6 +4,7 @@
 #define SRAM_HH
 
 #include "Ram.hh"
+#include "EventListener.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -13,8 +14,9 @@ class MSXMotherBoard;
 class XMLElement;
 class CliComm;
 class SRAMSync;
+class EventDistributor;
 
-class SRAM : private noncopyable
+class SRAM : private EventListener, private noncopyable
 {
 public:
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name,
@@ -43,9 +45,13 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	// EventListener
+	virtual bool signalEvent(shared_ptr<const Event> event);
+
 	void load(bool* loaded);
 	void save();
 
+	EventDistributor& eventDistributor;
 	Ram ram;
 	const XMLElement* config;
 	const char* const header;

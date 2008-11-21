@@ -6,6 +6,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
+#include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Alarm.hh"
 #include "serialize.hh"
@@ -18,11 +19,11 @@ namespace openmsx {
 class SRAMSync : public Alarm
 {
 public:
-	explicit SRAMSync(SRAM& sram);
+	explicit SRAMSync(EventDistributor& eventDistributor);
 	virtual ~SRAMSync();
 private:
 	virtual bool alarm();
-	SRAM& sram;
+	EventDistributor& eventDistributor;
 };
 
 
@@ -34,39 +35,46 @@ private:
  */
 SRAM::SRAM(MSXMotherBoard& motherBoard, const std::string& name,
            const std::string& description, int size)
-	: ram(motherBoard, name, description, size)
+	: eventDistributor(motherBoard.getEventDistributor())
+	, ram(motherBoard, name, description, size)
 	, config(NULL)
 	, header(NULL) // not used
 	, cliComm(motherBoard.getMSXCliComm()) // not used
-	, sramSync(new SRAMSync(*this)) // used, but not needed
+	, sramSync(new SRAMSync(eventDistributor)) // used, but not needed
 {
+	eventDistributor.registerEventListener(OPENMSX_SAVE_SRAM, *this);
 }
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
            const XMLElement& config_, const char* header_, bool* loaded)
-	: ram(motherBoard, name, "sram", size)
+	: eventDistributor(motherBoard.getEventDistributor())
+	, ram(motherBoard, name, "sram", size)
 	, config(&config_)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
-	, sramSync(new SRAMSync(*this))
+	, sramSync(new SRAMSync(eventDistributor))
 {
 	load(loaded);
+	eventDistributor.registerEventListener(OPENMSX_SAVE_SRAM, *this);
 }
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
            const string& description, int size,
 	   const XMLElement& config_, const char* header_, bool* loaded)
-	: ram(motherBoard, name, description, size)
+	: eventDistributor(motherBoard.getEventDistributor())
+	, ram(motherBoard, name, description, size)
 	, config(&config_)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
-	, sramSync(new SRAMSync(*this))
+	, sramSync(new SRAMSync(eventDistributor))
 {
 	load(loaded);
+	eventDistributor.registerEventListener(OPENMSX_SAVE_SRAM, *this);
 }
 
 SRAM::~SRAM()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_SAVE_SRAM, *this);
 	save();
 }
 
@@ -136,11 +144,20 @@ void SRAM::save()
 	}
 }
 
+bool SRAM::signalEvent(shared_ptr<const Event> event)
+{
+	assert(event->getType() == OPENMSX_SAVE_SRAM);
+	(void)event;
+
+	save();
+	return true;
+}
+
 
 // class SRAMSync
 
-SRAMSync::SRAMSync(SRAM& sram_)
-	: sram(sram_)
+SRAMSync::SRAMSync(EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
 {
 }
 
@@ -151,7 +168,10 @@ SRAMSync::~SRAMSync()
 
 bool SRAMSync::alarm()
 {
-	sram.save();
+	// do actual save in main-thread
+	//  this will trigger a save in ALL srams, can be optimized if it
+	//  turns out to be a problem
+	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_SAVE_SRAM>());
 	return false; // don't reschedule
 }
 
