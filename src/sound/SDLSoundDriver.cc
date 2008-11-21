@@ -51,18 +51,20 @@ SDLSoundDriver::SDLSoundDriver(unsigned wantedFreq, unsigned wantedSamples)
 
 SDLSoundDriver::~SDLSoundDriver()
 {
-	delete[] mixBuffer;
-
 	SDL_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+
+	delete[] mixBuffer;
 }
 
 void SDLSoundDriver::reInit()
 {
+	SDL_LockAudio();
 	memset(mixBuffer, 0, bufferSize * sizeof(short));
 	readIdx  = 0;
 	writeIdx = (5 * bufferSize) / 8;
 	filledStat = 1.0;
+	SDL_UnlockAudio();
 }
 
 void SDLSoundDriver::mute()
