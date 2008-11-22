@@ -9,12 +9,10 @@ proc show_osd {} {
 	return $result
 }
 
-# TODO fix font location
 proc toggle_fps {} {
 	if [info exists ::__osd_fps_after] {
 		after cancel $::__osd_fps_after
 		osd destroy $::__osd_fps_bg
-		osd destroy $::__osd_fps_txt
 		unset ::__osd_fps_after ::__osd_fps_bg ::__osd_fps_txt
 	} else {
 		set ::__osd_fps_bg  [osd create rectangle fps -x 5 -y 5 -z 0 -w 63 -h 20 -rgba 0x00000080]
