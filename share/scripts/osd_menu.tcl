@@ -169,10 +169,15 @@ proc menu_action { button } {
 	menu_refresh_all
 }
 
-user_setting create string osd_menu_path "OSD Rom Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
-if ![file exists $osd_menu_path] {
+user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
+user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
+if ![file exists $osd_rom_path] {
 	# revert to default (should always exist)
-	unset osd_menu_path
+	unset osd_rom_path
+}
+if ![file exists $osd_disk_path] {
+	# revert to default (should always exist)
+	unset osd_disk_path
 }
 
 proc main_menu_open {} {
@@ -292,20 +297,20 @@ set main_menu [prepare_menu {
 	         post-spacing 6
 	         selectable false }
 	       { text "Load ROM..."
-	         actions { A { menu_create [create_ROM_list $::osd_menu_path] }}
+	         actions { A { menu_create [create_ROM_list $::osd_rom_path] }}}
+	       { text "Insert Disk..."
+	         actions { A { menu_create [create_disk_list $::osd_disk_path] }}
 	         post-spacing 3 }
 	       { text "Save state..."
 	         actions { A { menu_create [create_save_state] }}}
 	       { text "Load state..."
-	         actions { A { menu_create [create_load_state] }}}
+	         actions { A { menu_create [create_load_state] }}
+	         post-spacing 3 }
 	       { text "Settings..."
-	         actions { A { menu_create $::setting_menu }}}
-	       { pre-spacing 6
-	         text "sub title"
-	         text-color 0xc0ffffff
-	         font-size 15
-	         post-spacing 3
-	         selectable false }
+	         actions { A { menu_create $::setting_menu }}
+	         post-spacing 3 }
+	       { text "Reset MSX"
+	         actions { A { reset ; menu_close_all }}}
 	       { text "Exit openMSX"
 	         actions { A exit }}}}]
 
@@ -362,7 +367,7 @@ proc __displayOSDText { message } {
 proc create_ROM_list { path } {
 	return [prepare_menu_list [__ls $path] \
 	                          10 \
-	                          { execute my_selection_list_exec
+	                          { execute __menu_select_rom
 	                            bg-color 0x00000080
 	                            text-color 0xffffffff
 	                            select-color 0x8080ffc0
@@ -371,22 +376,57 @@ proc create_ROM_list { path } {
 	                            width 200
 	                            xpos 100
 	                            ypos 120
-	                            header { text "ROMS  $::osd_menu_path"
+	                            header { text "ROMS  $::osd_rom_path"
 	                                     text-color 0xff0000ff
 	                                     font-size 10 }}]
 }
 
-proc my_selection_list_exec { item } {
-	set fullname [file join $::osd_menu_path $item]
+proc __menu_select_rom { item } {
+	set fullname [file join $::osd_rom_path $item]
 	if [file isdirectory $fullname] {
 		menu_close_top
-		set ::osd_menu_path [file normalize $fullname]
-		menu_create [create_ROM_list $::osd_menu_path]
+		set ::osd_rom_path [file normalize $fullname]
+		menu_create [create_ROM_list $::osd_rom_path]
 	} else {
 		menu_close_all
 		carta $fullname
 		__displayOSDText "Now running ROM: $item"
 		reset
+	}
+}
+
+proc create_disk_list { path } {
+	set disks [concat "--eject--" [__ls $path]]
+	return [prepare_menu_list $disks \
+	                          10 \
+	                          { execute __menu_select_disk
+	                            bg-color 0x00000080
+	                            text-color 0xffffffff
+	                            select-color 0x8080ffc0
+	                            font-size 6
+	                            border-size 2
+	                            width 200
+	                            xpos 100
+	                            ypos 120
+	                            header { text "ROMS  $::osd_disk_path"
+	                                     text-color 0xff0000ff
+	                                     font-size 10 }}]
+}
+
+proc __menu_select_disk { item } {
+	if [string equal $item "--eject--"] {
+		menu_close_all
+		diska eject
+	} else {
+		set fullname [file join $::osd_disk_path $item]
+		if [file isdirectory $fullname] {
+			menu_close_top
+			set ::osd_disk_path [file normalize $fullname]
+			menu_create [create_disk_list $::osd_disk_path]
+		} else {
+			menu_close_all
+			diska $fullname
+		}
 	}
 }
 
