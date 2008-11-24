@@ -475,13 +475,30 @@ template<typename T> struct EnumLoader
 		}
 	}
 };
+
+template<typename T> static inline void versionError(
+	unsigned latestVersion, unsigned version)
+{
+	// note: the result of type_info::name() is implementation defined
+	//       but should be ok to show in an error message
+	throw MSXException(
+		std::string("your openMSX installation is too old "
+		"(state contains type '") + typeid(T).name() +
+		"' with version " + StringOp::toString(version) +
+		", while this openMSX installation only supports up to version " +
+		StringOp::toString(latestVersion) + ").");
+}
 template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
 {
-	unsigned version = SerializeClassVersion<T>::value;
+	unsigned latestVersion = SerializeClassVersion<T>::value;
+	unsigned version = latestVersion;
 	if ((version != 0) && ar.needVersion()) {
 		if (!ar.canHaveOptionalAttributes() ||
 		    ar.hasAttribute("version")) {
 			ar.attribute("version", version);
+			if (version > latestVersion) {
+				versionError<T>(latestVersion, version);
+			}
 		} else {
 			version = 1;
 		}
