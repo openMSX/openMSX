@@ -408,7 +408,7 @@ proc create_disk_list { path } {
 	                            width 200
 	                            xpos 100
 	                            ypos 120
-	                            header { text "ROMS  $::osd_disk_path"
+	                            header { text "Disks  $::osd_disk_path"
 	                                     text-color 0xff0000ff
 	                                     font-size 10 }}]
 }
