@@ -38,6 +38,10 @@ bool Event::operator==(const Event& other) const
 {
 	return !(*this < other) && !(other < *this);
 }
+bool Event::operator!=(const Event& other) const
+{
+	return !(*this == other);
+}
 
 void Event::toStringImpl(TclObject& /*result*/) const
 {

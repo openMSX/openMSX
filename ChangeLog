@@ -1,5 +1,12 @@
 $Id$
 
+2008-11-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added '-repeat' option to 'bind' command:
+	   - When the '-repeat' options is given and the key remains pressed,
+	     the command will be repeat (just like regular key repeat while
+	     typing).
+	   - Used this feature in the OSD menu.
+
 2008-11-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added possibility to take screenshots of only the msx screen (so no
 	  OSD stuff and console):

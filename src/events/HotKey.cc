@@ -10,6 +10,7 @@
 #include "InputEvents.hh"
 #include "XMLElement.hh"
 #include "SettingsConfig.hh"
+#include "Alarm.hh"
 #include <cassert>
 
 using std::string;
@@ -28,50 +29,47 @@ const bool META_HOT_KEYS =
 class BindCmd : public SimpleCommand
 {
 public:
-	BindCmd(CommandController& commandController, HotKey& hotKey);
+	BindCmd(CommandController& commandController, HotKey& hotKey,
+	        bool defaultCmd);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 private:
+	string formatBinding(HotKey::BindMap::const_iterator it);
+
 	HotKey& hotKey;
+	const bool defaultCmd;
 };
 
 class UnbindCmd : public SimpleCommand
 {
 public:
-	UnbindCmd(CommandController& commandController, HotKey& hotKey);
+	UnbindCmd(CommandController& commandController, HotKey& hotKey,
+	          bool defaultCmd);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
+	const bool defaultCmd;
 };
 
-class BindDefaultCmd : public SimpleCommand
+class RepeatAlarm : public Alarm
 {
 public:
-	BindDefaultCmd(CommandController& commandController, HotKey& hotKey);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help(const vector<string>& tokens) const;
+	explicit RepeatAlarm(EventDistributor& eventDistributor);
+	virtual ~RepeatAlarm();
 private:
-	HotKey& hotKey;
-};
-
-class UnbindDefaultCmd : public SimpleCommand
-{
-public:
-	UnbindDefaultCmd(CommandController& commandController, HotKey& hotKey);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help(const vector<string>& tokens) const;
-private:
-	HotKey& hotKey;
+	virtual bool alarm();
+	EventDistributor& eventDistributor;
 };
 
 
 HotKey::HotKey(CommandController& commandController_,
                EventDistributor& eventDistributor_)
-	: bindCmd         (new BindCmd         (commandController_, *this))
-	, unbindCmd       (new UnbindCmd       (commandController_, *this))
-	, bindDefaultCmd  (new BindDefaultCmd  (commandController_, *this))
-	, unbindDefaultCmd(new UnbindDefaultCmd(commandController_, *this))
+	: bindCmd         (new BindCmd  (commandController_, *this, false))
+	, unbindCmd       (new UnbindCmd(commandController_, *this, false))
+	, bindDefaultCmd  (new BindCmd  (commandController_, *this, true))
+	, unbindDefaultCmd(new UnbindCmd(commandController_, *this, true))
+	, repeatAlarm(new RepeatAlarm(eventDistributor_))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
@@ -91,10 +89,13 @@ HotKey::HotKey(CommandController& commandController_,
 		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
+		OPENMSX_REPEAT_HOTKEY, *this, EventDistributor::HOTKEY);
 }
 
 HotKey::~HotKey()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_REPEAT_HOTKEY, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
@@ -112,48 +113,48 @@ void HotKey::initDefaultBindings()
 		// Hot key combos using Mac's Command key.
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_D, Keys::KM_META))),
-		            "screenshot");
+		            HotKeyInfo("screenshot"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_P, Keys::KM_META))),
-		            "toggle pause");
+		            HotKeyInfo("toggle pause"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_T, Keys::KM_META))),
-		            "toggle throttle");
+		            HotKeyInfo("toggle throttle"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_L, Keys::KM_META))),
-		            "toggle console");
+		            HotKeyInfo("toggle console"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_U, Keys::KM_META))),
-		            "toggle mute");
+		            HotKeyInfo("toggle mute"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_F, Keys::KM_META))),
-		            "toggle fullscreen");
+		            HotKeyInfo("toggle fullscreen"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_Q, Keys::KM_META))),
-		            "exit");
+		            HotKeyInfo("exit"));
 	} else {
 		// Hot key combos for typical PC keyboards.
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PRINT)),
-		            "screenshot");
+		            HotKeyInfo("screenshot"));
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PAUSE)),
-		            "toggle pause");
+		            HotKeyInfo("toggle pause"));
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F9)),
-		            "toggle throttle");
+		            HotKeyInfo("toggle throttle"));
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F10)),
-		            "toggle console");
+		            HotKeyInfo("toggle console"));
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F11)),
-		            "toggle mute");
+		            HotKeyInfo("toggle mute"));
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F12)),
-		            "toggle fullscreen");
+		            HotKeyInfo("toggle fullscreen"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_F4, Keys::KM_ALT))),
-		            "exit");
+		            HotKeyInfo("exit"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL))),
-		            "exit");
+		            HotKeyInfo("exit"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_RETURN, Keys::KM_ALT))),
-		            "toggle fullscreen");
+		            HotKeyInfo("toggle fullscreen"));
 	}
 }
 
@@ -188,7 +189,8 @@ void HotKey::loadBindings(const XMLElement& config)
 		try {
 			if (elem.getName() == "bind") {
 				bind(createEvent(elem.getAttribute("key")),
-				     elem.getData());
+				     HotKeyInfo(elem.getData(),
+				                elem.getAttributeAsBool("repeat", false)));
 			} else if (elem.getName() == "unbind") {
 				unbind(createEvent(elem.getAttribute("key")));
 			}
@@ -210,9 +212,13 @@ void HotKey::saveBindings(XMLElement& config) const
 	     it != boundKeys.end(); ++it) {
 		BindMap::const_iterator it2 = cmdMap.find(*it);
 		assert(it2 != cmdMap.end());
+		const HotKeyInfo& info = it2->second;
 		std::auto_ptr<XMLElement> elem(
-			new XMLElement("bind", it2->second));
+			new XMLElement("bind", info.command));
 		elem->addAttribute("key", (*it)->toString());
+		if (info.repeat) {
+			elem->addAttribute("repeat", "true");
+		}
 		bindingsElement.addChild(elem);
 	}
 	// add explicit unbind's
@@ -224,12 +230,12 @@ void HotKey::saveBindings(XMLElement& config) const
 	}
 }
 
-void HotKey::bind(EventPtr event, const string& command)
+void HotKey::bind(EventPtr event, const HotKeyInfo& info)
 {
 	unboundKeys.erase(event);
 	boundKeys.insert(event);
 	defaultMap.erase(event);
-	cmdMap[event] = command;
+	cmdMap[event] = info;
 
 	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
@@ -247,14 +253,14 @@ void HotKey::unbind(EventPtr event)
 	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
-void HotKey::bindDefault(EventPtr event, const string& command)
+void HotKey::bindDefault(EventPtr event, const HotKeyInfo& info)
 {
 	if ((unboundKeys.find(event) == unboundKeys.end()) &&
 	    (boundKeys.find(event)   == boundKeys.end())) {
 		// not explicity bound or unbound
-		cmdMap[event] = command;
+		cmdMap[event] = info;
 	}
-	defaultMap[event] = command;
+	defaultMap[event] = info;
 }
 
 void HotKey::unbindDefault(EventPtr event)
@@ -269,13 +275,23 @@ void HotKey::unbindDefault(EventPtr event)
 
 bool HotKey::signalEvent(EventPtr event)
 {
+	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
+		if (!lastEvent.get()) return true;
+		event = lastEvent;
+	} else if (lastEvent.get() && (*lastEvent != *event)) {
+		stopRepeat();
+	}
 	BindMap::iterator it = cmdMap.find(event);
 	if (it == cmdMap.end()) {
 		return true;
 	}
+	const HotKeyInfo& info = it->second;
+	if (info.repeat) {
+		startRepeat(event);
+	}
 	try {
 		// ignore return value
-		commandController.executeCommand(it->second);
+		commandController.executeCommand(info.command);
 	} catch (CommandException& e) {
 		commandController.getCliComm().printWarning(
 			"Error executing hot key command: " + e.getMessage());
@@ -283,47 +299,108 @@ bool HotKey::signalEvent(EventPtr event)
 	return false; // deny event to other listeners
 }
 
+void HotKey::startRepeat(EventPtr event)
+{
+	// I initially thought about using the builtin SDL key-repeat feature,
+	// but that won't work for example on joystick buttons. So we have to
+	// code it ourselves.
+	unsigned delay = (lastEvent.get() ? 30 : 500) * 1000;
+	lastEvent = event;
+	repeatAlarm->schedule(delay);
+}
+
+void HotKey::stopRepeat()
+{
+	lastEvent.reset();
+	repeatAlarm->cancel();
+}
+
+
+// class RepeatAlarm
+
+RepeatAlarm::RepeatAlarm(EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
+{
+}
+
+RepeatAlarm::~RepeatAlarm()
+{
+	prepareDelete();
+}
+
+bool RepeatAlarm::alarm()
+{
+	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_REPEAT_HOTKEY>());
+	return false; // repeat handled elsewhere
+}
+
 
 // class BindCmd
 
-BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_)
-	: SimpleCommand(commandController, "bind")
-	, hotKey(hotKey_)
+static string getBindCmdName(bool defaultCmd)
 {
+	return defaultCmd ? "bind_default" : "bind";
+}
+
+BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_,
+                 bool defaultCmd_)
+	: SimpleCommand(commandController, getBindCmdName(defaultCmd_))
+	, hotKey(hotKey_)
+	, defaultCmd(defaultCmd_)
+{
+}
+
+string BindCmd::formatBinding(HotKey::BindMap::const_iterator it)
+{
+	const HotKey::HotKeyInfo& info = it->second;
+	return it->first->toString() + (info.repeat ? " [repeat]" : "") +
+	       ":  " + info.command + '\n';
 }
 
 string BindCmd::execute(const vector<string>& tokens)
 {
+	HotKey::BindMap& cmdMap = defaultCmd ? hotKey.defaultMap
+	                                     : hotKey.cmdMap;
 	string result;
 	switch (tokens.size()) {
 	case 0:
 		assert(false);
 	case 1:
 		// show all bounded keys
-		for (HotKey::BindMap::iterator it = hotKey.cmdMap.begin();
-		     it != hotKey.cmdMap.end(); it++) {
-			result += it->first->toString() + ":  " +
-			          it->second + '\n';
+		for (HotKey::BindMap::const_iterator it = cmdMap.begin();
+		     it != cmdMap.end(); it++) {
+			result += formatBinding(it);
 		}
 		break;
 	case 2: {
 		// show bindings for this key
 		HotKey::BindMap::const_iterator it =
-			hotKey.cmdMap.find(createEvent(tokens[1]));
-		if (it == hotKey.cmdMap.end()) {
+			cmdMap.find(createEvent(tokens[1]));
+		if (it == cmdMap.end()) {
 			throw CommandException("Key not bound");
 		}
-		result = it->first->toString() + ":  " + it->second + '\n';
+		result = formatBinding(it);
 		break;
 	}
 	default: {
 		// make a new binding
 		string command;
-		for (unsigned i = 2; i < tokens.size(); ++i) {
-			if (i != 2) command += ' ';
+		bool repeat = false;
+		unsigned start = 2;
+		if (tokens[2] == "-repeat") {
+			repeat = true;
+			++start;
+		}
+		for (unsigned i = start; i < tokens.size(); ++i) {
+			if (i != start) command += ' ';
 			command += tokens[i];
 		}
-		hotKey.bind(createEvent(tokens[1]), command);
+		HotKey::HotKeyInfo info(command, repeat);
+		if (defaultCmd) {
+			hotKey.bindDefault(createEvent(tokens[1]), info);
+		} else {
+			hotKey.bind       (createEvent(tokens[1]), info);
+		}
 		break;
 	}
 	}
@@ -331,18 +408,25 @@ string BindCmd::execute(const vector<string>& tokens)
 }
 string BindCmd::help(const vector<string>& /*tokens*/) const
 {
-	return "bind             : show all bounded keys\n"
-	       "bind <key>       : show binding for this key\n"
-	       "bind <key> <cmd> : bind key to command\n";
+	string cmd = getBindCmdName(defaultCmd);
+	return cmd + "                       : show all bounded keys\n" +
+	       cmd + " <key>                 : show binding for this key\n" +
+	       cmd + " <key> [-repeat] <cmd> : bind key to command, optionally repeat command while key remains pressed\n";
 }
 
 
 // class UnbindCmd
 
+static string getUnbindCmdName(bool defaultCmd)
+{
+	return defaultCmd ? "unbind_default" : "unbind";
+}
+
 UnbindCmd::UnbindCmd(CommandController& commandController,
-                             HotKey& hotKey_)
-	: SimpleCommand(commandController, "unbind")
+                     HotKey& hotKey_, bool defaultCmd_)
+	: SimpleCommand(commandController, getUnbindCmdName(defaultCmd_))
 	, hotKey(hotKey_)
+	, defaultCmd(defaultCmd_)
 {
 }
 
@@ -351,88 +435,17 @@ string UnbindCmd::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	hotKey.unbind(createEvent(tokens[1]));
+	if (defaultCmd) {
+		hotKey.unbindDefault(createEvent(tokens[1]));
+	} else {
+		hotKey.unbind       (createEvent(tokens[1]));
+	}
 	return "";
 }
 string UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
-	return "unbind <key> : unbind this key\n";
-}
-
-// class BindDefaultCmd
-
-BindDefaultCmd::BindDefaultCmd(CommandController& commandController,
-                                       HotKey& hotKey_)
-	: SimpleCommand(commandController, "bind_default")
-	, hotKey(hotKey_)
-{
-}
-
-string BindDefaultCmd::execute(const vector<string>& tokens)
-{
-	string result;
-	switch (tokens.size()) {
-	case 0:
-		assert(false);
-	case 1:
-		// show all bounded keys
-		for (HotKey::BindMap::iterator it = hotKey.defaultMap.begin();
-		     it != hotKey.defaultMap.end(); it++) {
-			result += it->first->toString() + ":  " +
-			          it->second + '\n';
-		}
-		break;
-	case 2: {
-		// show bindings for this key
-		HotKey::BindMap::const_iterator it =
-			hotKey.defaultMap.find(createEvent(tokens[1]));
-		if (it == hotKey.defaultMap.end()) {
-			throw CommandException("Key not bound");
-		}
-		result = it->first->toString() + ":  " + it->second + '\n';
-		break;
-	}
-	default: {
-		// make a new binding
-		string command;
-		for (unsigned i = 2; i < tokens.size(); ++i) {
-			if (i != 2) command += ' ';
-			command += tokens[i];
-		}
-		hotKey.bindDefault(createEvent(tokens[1]), command);
-		break;
-	}
-	}
-	return result;
-}
-string BindDefaultCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "bind_default             : show all bounded default keys\n"
-	       "bind_default <key>       : show binding for this default key\n"
-	       "bind_default <key> <cmd> : bind default key to command\n";
-}
-
-
-// class UnbindDefaultCmd
-
-UnbindDefaultCmd::UnbindDefaultCmd(CommandController& commandController,
-                                           HotKey& hotKey_)
-	: SimpleCommand(commandController, "unbind_default")
-	, hotKey(hotKey_)
-{
-}
-
-string UnbindDefaultCmd::execute(const vector<string>& tokens)
-{
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
-	hotKey.unbindDefault(createEvent(tokens[1]));
-	return "";
-}
-string UnbindDefaultCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "unbind_default <key> : unbind this default key\n";
+	string cmd = getUnbindCmdName(defaultCmd);
+	return cmd + " <key> : unbind this key\n";
 }
 
 } // namespace openmsx

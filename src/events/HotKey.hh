@@ -19,9 +19,7 @@ class EventDistributor;
 class XMLElement;
 class BindCmd;
 class UnbindCmd;
-class BindDefaultCmd;
-class UnbindDefaultCmd;
-class InputEvent;
+class RepeatAlarm;
 
 template<typename T> struct deref_less
 {
@@ -40,32 +38,42 @@ public:
 	void saveBindings(XMLElement& config) const;
 
 private:
+	struct HotKeyInfo {
+		HotKeyInfo() {}
+		HotKeyInfo(const std::string& command_, bool repeat_ = false)
+			: command(command_), repeat(repeat_) {}
+		std::string command;
+		bool repeat;
+	};
+	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr> > BindMap;
+	typedef std::set<EventPtr,             deref_less<EventPtr> > KeySet;
+
 	void initDefaultBindings();
-	void bind  (EventPtr event, const std::string& command);
+	void bind  (EventPtr event, const HotKeyInfo& info);
 	void unbind(EventPtr event);
-	void bindDefault  (EventPtr event, const std::string& command);
+	void bindDefault  (EventPtr event, const HotKeyInfo& info);
 	void unbindDefault(EventPtr event);
+	void startRepeat(EventPtr event);
+	void stopRepeat();
 
 	// EventListener
 	virtual bool signalEvent(EventPtr event);
 
 	friend class BindCmd;
 	friend class UnbindCmd;
-	friend class BindDefaultCmd;
-	friend class UnbindDefaultCmd;
-	const std::auto_ptr<BindCmd>          bindCmd;
-	const std::auto_ptr<UnbindCmd>        unbindCmd;
-	const std::auto_ptr<BindDefaultCmd>   bindDefaultCmd;
-	const std::auto_ptr<UnbindDefaultCmd> unbindDefaultCmd;
+	const std::auto_ptr<BindCmd>   bindCmd;
+	const std::auto_ptr<UnbindCmd> unbindCmd;
+	const std::auto_ptr<BindCmd>   bindDefaultCmd;
+	const std::auto_ptr<UnbindCmd> unbindDefaultCmd;
+	const std::auto_ptr<RepeatAlarm> repeatAlarm;
 
-	typedef std::map<EventPtr, std::string, deref_less<EventPtr> > BindMap;
-	typedef std::set<EventPtr,              deref_less<EventPtr> > KeySet;
 	BindMap cmdMap;
 	BindMap defaultMap;
 	KeySet boundKeys;
 	KeySet unboundKeys;
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
+	EventPtr lastEvent;
 };
 
 } // namespace openmsx

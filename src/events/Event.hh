@@ -52,6 +52,9 @@ enum EventType
 	/** Send when main-thread should save SRAM contents */
 	OPENMSX_SAVE_SRAM,
 
+	/** Send when hotkey command should be repeated */
+	OPENMSX_REPEAT_HOTKEY,
+
 	/** Command received on CliComm connection */
 	OPENMSX_CLICOMMAND_EVENT,
 
@@ -82,6 +85,7 @@ public:
 	std::string toString() const;
 	bool operator< (const Event& other) const;
 	bool operator==(const Event& other) const;
+	bool operator!=(const Event& other) const;
 
 protected:
 	explicit Event(EventType type);

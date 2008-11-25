@@ -184,12 +184,14 @@ proc main_menu_open {} {
 	menu_create $::main_menu
 
 	set ::pause true
-	bind_default "keyb UP"     { menu_action UP    }
-	bind_default "keyb DOWN"   { menu_action DOWN  }
-	bind_default "keyb LEFT"   { menu_action LEFT  }
-	bind_default "keyb RIGHT"  { menu_action RIGHT }
-	bind_default "keyb SPACE"  { menu_action A     }
-	bind_default "keyb ESCAPE" { menu_action B     }
+	# TODO make these bindings easier to customize
+	bind_default "keyb UP"     -repeat { menu_action UP    }
+	bind_default "keyb DOWN"   -repeat { menu_action DOWN  }
+	bind_default "keyb LEFT"   -repeat { menu_action LEFT  }
+	bind_default "keyb RIGHT"  -repeat { menu_action RIGHT }
+	bind_default "keyb SPACE"          { menu_action A     }
+	bind_default "keyb RETURN"         { menu_action A     }
+	bind_default "keyb ESCAPE"         { menu_action B     }
 }
 proc main_menu_close {} {
 	menu_close_all
@@ -206,11 +208,13 @@ proc main_menu_toggle {} {
 }
 proc menu_last_closed {} {
 	set ::pause false
+	# TODO avoid duplication with 'main_menu_open'
 	unbind_default "keyb UP"
 	unbind_default "keyb DOWN"
 	unbind_default "keyb LEFT"
 	unbind_default "keyb RIGHT"
 	unbind_default "keyb SPACE"
+	unbind_default "keyb RETURN"
 	unbind_default "keyb ESCAPE"
 }
 
@@ -285,9 +289,9 @@ proc list_menu_item_down { size pos } {
 }
 
 set main_menu [prepare_menu {
-	bg-color 0x00000080
+	bg-color 0x000000a0
 	text-color 0xffffffff
-	select-color 0x8080ffc0
+	select-color 0x8080ffd0
 	font-size 12
 	border-size 2
 	width 160
@@ -315,9 +319,9 @@ set main_menu [prepare_menu {
 	         actions { A exit }}}}]
 
 set setting_menu [prepare_menu {
-	bg-color 0x00000080
+	bg-color 0x000000a0
 	text-color 0xffffffff
-	select-color 0x8080ffc0
+	select-color 0x8080ffd0
 	font-size 12
 	border-size 2
 	width 150
@@ -331,9 +335,9 @@ set setting_menu [prepare_menu {
 	       { text "speed: $speed"
 	         actions { LEFT  { incr speed -5 }
 	                   RIGHT { incr speed  5 }}}
-	       { text "scanline: $scanline"
-	         actions { LEFT  { incr scanline -5 }
-	                   RIGHT { incr scanline  5 }}}
+	       { text "volume: $master_volume"
+	         actions { LEFT  { incr master_volume -5 }
+	                   RIGHT { incr master_volume  5 }}}
 	       { text "scaler: $scale_algorithm"
 	         actions { LEFT  { cycle_back scale_algorithm }
 	                   RIGHT { cycle scale_algorithm }}}}}]
@@ -368,9 +372,9 @@ proc create_ROM_list { path } {
 	return [prepare_menu_list [__ls $path] \
 	                          10 \
 	                          { execute __menu_select_rom
-	                            bg-color 0x00000080
+	                            bg-color 0x000000a0
 	                            text-color 0xffffffff
-	                            select-color 0x8080ffc0
+	                            select-color 0x8080ffd0
 	                            font-size 6
 	                            border-size 2
 	                            width 200
@@ -400,9 +404,9 @@ proc create_disk_list { path } {
 	return [prepare_menu_list $disks \
 	                          10 \
 	                          { execute __menu_select_disk
-	                            bg-color 0x00000080
+	                            bg-color 0x000000a0
 	                            text-color 0xffffffff
-	                            select-color 0x8080ffc0
+	                            select-color 0x8080ffd0
 	                            font-size 6
 	                            border-size 2
 	                            width 200
@@ -433,9 +437,9 @@ proc __menu_select_disk { item } {
 proc create_load_state {} {
 	return [prepare_menu_list [list_savestates] 10 \
 	       { execute menu_loadstate_exec
-	         bg-color 0x00000080
+	         bg-color 0x000000a0
 	         text-color 0xffffffff
-	         select-color 0x8080ffc0
+	         select-color 0x8080ffd0
 	         font-size 6
 	         border-size 2
 	         width 100
@@ -453,9 +457,9 @@ proc create_save_state {} {
 	set items [concat [list "create new"] [list_savestates]]
 	return [prepare_menu_list $items 10 \
 	       { execute menu_savestate_exec
-	         bg-color 0x00000080
+	         bg-color 0x000000a0
 	         text-color 0xffffffff
-	         select-color 0x8080ffc0
+	         select-color 0x8080ffd0
 	         font-size 6
 	         border-size 2
 	         width 100
