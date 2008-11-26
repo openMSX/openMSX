@@ -28,7 +28,7 @@ proc __trace_led_status { name1 name2 op } {
 }
 
 proc __redraw_osd_leds { led } {
-	global __ledtime __last_change $led
+	global __fade_delay_active __fade_delay_non_active __last_change $led
 
 	# handle 'unset' variables  (when current msx machine got deleted)
 	if [catch {set value [set ${led}]}] { set value false }
@@ -36,21 +36,23 @@ proc __redraw_osd_leds { led } {
 	if $value {
 		set widget  osd_leds.${led}_on
 		set widget2 osd_leds.${led}_off
+		set fade_delay $__fade_delay_active($led)
 	} else {
 		set widget  osd_leds.${led}_off
 		set widget2 osd_leds.${led}_on
+		set fade_delay $__fade_delay_non_active($led)
 	}
 	osd configure $widget2 -alpha 0 -fadeTarget 0
 
-	if {$__ledtime == 0} {
+	if {$fade_delay == 0} {
 		# no fading yet
 		osd configure $widget -alpha 255 -fadeTarget 255
 	} else {
 		set diff [expr [openmsx_info realtime] - $__last_change($led)]
-		if {$diff < $__ledtime} {
+		if {$diff < $fade_delay} {
 			# no fading yet
 			osd configure $widget -alpha 255 -fadeTarget 255
-			after realtime [expr $__ledtime - $diff] "__redraw_osd_leds $led"
+			after realtime [expr $fade_delay - $diff] "__redraw_osd_leds $led"
 		} else {
 			# fading out
 			osd configure $widget -fadeTarget 0
@@ -85,7 +87,8 @@ proc load_icons { set_name { set_position "" } } {
 	set xspacing 60
 	set yspacing 35
 	set horizontal 1
-	set ledtime 5
+	set fade_delay 5
+	set fade_duration 5
 	set scale 2
 
 	# but allow to override these values by the skin script
@@ -120,6 +123,12 @@ proc load_icons { set_name { set_position "" } } {
 		set xcoord($led) [expr $i * $xspacing * $horizontal]
 		set ycoord($led) [expr $i * $yspacing * $vertical]
 
+		set fade_delay_active($led)     $fade_delay
+		set fade_delay_non_active($led) $fade_delay
+
+		set fade_duration_active($led)     $fade_duration
+		set fade_duration_non_active($led) $fade_duration
+
 		set active_image($led) led-on.png
 		if [file exists $directory/${led_lower}-on.png] {
 			set active_image($led) ${led_lower}-on.png
@@ -145,11 +154,13 @@ proc load_icons { set_name { set_position "" } } {
 		osd configure osd_leds.led_${led}_on \
 		       -x $xcoord($led) \
 		       -y $ycoord($led) \
+		       -fadePeriod $fade_duration_active($led) \
 		       -image [get_image $directory $active_image($led)] \
 		       -scale $invscale
 		osd configure osd_leds.led_${led}_off \
 		       -x $xcoord($led) \
 		       -y $ycoord($led) \
+		       -fadePeriod $fade_duration_non_active($led) \
 		       -image [get_image $directory $non_active_image($led)] \
 		       -scale $invscale
 	}
@@ -167,7 +178,10 @@ proc load_icons { set_name { set_position "" } } {
 	set ::osd_leds_set $set_name
 	set ::__osd_leds_pos $set_position
 	set ::osd_leds_pos $set_position
-	set ::__ledtime $ledtime
+	foreach led $::__leds {
+		set ::__fade_delay_active(led_${led})     $fade_delay_active($led)
+		set ::__fade_delay_non_active(led_${led}) $fade_delay_non_active($led)
+	}
 
 	return ""
 }

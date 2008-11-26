@@ -5,7 +5,5 @@ set yheight 30
 set xspacing 32
 set yspacing 32
 set scale 4
-set ledtime 0
-set set_position left
-#osd destroy osd_frame
-#osd create rectangle osd_frame -image $::env(OPENMSX_USER_DATA)/skins/fancy/frame.png -x 0 -y 0 -z -1 -scale 0.75
+set fade_delay 0 ;#no fading
+set set_position left ;#don't allow to override the position
