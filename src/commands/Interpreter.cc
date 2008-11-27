@@ -10,6 +10,7 @@
 #include "openmsx.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
+#include <iostream>
 //#include <tk.h>
 
 using std::set;
@@ -220,19 +221,31 @@ string Interpreter::executeFile(const string& filename)
 	return result;
 }
 
+static void setVar(Tcl_Interp* interp, const char* name, const char* value)
+{
+	if (!Tcl_SetVar(interp, name, value, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
+		// might contain error message of a trace proc
+		std::cerr << Tcl_GetStringResult(interp) << std::endl;
+	}
+}
+static const char* getVar(Tcl_Interp* interp, const char* name)
+{
+	return Tcl_GetVar(interp, name, TCL_GLOBAL_ONLY);
+}
+
 void Interpreter::setVariable(const string& name, const string& value)
 {
-	Tcl_SetVar(interp, name.c_str(), value.c_str(), 0);
+	setVar(interp, name.c_str(), value.c_str());
 }
 
 void Interpreter::unsetVariable(const string& name)
 {
-	Tcl_UnsetVar(interp, name.c_str(), 0);
+	Tcl_UnsetVar(interp, name.c_str(), TCL_GLOBAL_ONLY);
 }
 
 const char* Interpreter::getVariable(const string& name) const
 {
-	return Tcl_GetVar(interp, name.c_str(), 0);
+	return getVar(interp, name.c_str());
 }
 
 void Interpreter::registerSetting(Setting& variable, const string& name)
@@ -315,21 +328,19 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 		static string static_string;
 		if (flags & TCL_TRACE_READS) {
-			Tcl_SetVar(interp, part1,
-			           variable->getValueString().c_str(), 0);
+			setVar(interp, part1, variable->getValueString().c_str());
 		}
 		if (flags & TCL_TRACE_WRITES) {
 			try {
-				string newValue = Tcl_GetVar(interp, part1, 0);
+				const char* v = getVar(interp, part1);
+				string newValue = v ? v : "";
 				variable->setValueStringDirect(newValue);
 				string newValue2 = variable->getValueString();
 				if (newValue != newValue2) {
-					Tcl_SetVar(interp, part1,
-					           newValue2.c_str(), 0);
+					setVar(interp, part1, newValue2.c_str());
 				}
 			} catch (MSXException& e) {
-				Tcl_SetVar(interp, part1,
-				           variable->getValueString().c_str(), 0);
+				setVar(interp, part1, variable->getValueString().c_str());
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
@@ -347,8 +358,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// setting before turning on (set power on) the
 				// MSX machine)
 			}
-			Tcl_SetVar(interp, part1,
-			           variable->getValueString().c_str(), 0);
+			setVar(interp, part1, variable->getValueString().c_str());
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
 			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 			             traceProc,
