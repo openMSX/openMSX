@@ -911,7 +911,7 @@ create_trainer "Undeadline" {time 2} {
 	"have vortex" {poke 0xd2ab 6}
 }
 
-create_trainer "Andorogynus" {time 1} {
+create_trainer "Andorogynus" {time 0.1} {
 	"shield always on" {poke 0xeca1 255}
 	"lives" {poke 0xe01b 255}
 	"speed" {poke 0xec2b 16}
@@ -922,6 +922,14 @@ create_trainer "Andorogynus" {time 1} {
 	"laser" {poke 0xec3a 4}
 	"big bouncing balls" {poke 0xec3a 5}
 	"backpack" {poke 0xec2c 2}
+	"X-pos enemy 1" {poke 0xef87 255}
+	"X-pos enemy 2" {poke 0xef03 255}
+	"X-pos enemy 3" {poke 0xef24 255}
+	"X-pos enemy 4" {poke 0xef45 255}
+	"X-pos enemy 5" {poke 0xef66 255}
+	"Enemy shot" {poke 0xf044 255}
+	"Enemy shot" {poke 0xf04A 255}
+	"Enemy shot" {poke 0xf050 255}
 }
 
 create_trainer "Aliens" {time 1} {
@@ -6457,5 +6465,21 @@ create_trainer "Dragon Knight" {time 1} {
 
 # use only the vitality and magic cheats before to get the prison key
 # it's better to select the weapon cheats on the game menu
+
+create_trainer "3 dragon story" {time 1} {
+	"Power" {poke 0xf02d 48}
+	"Weapon Stones" {poke 0xf005 0}
+	"Weapon Knife" {poke 0xf005 1}
+	"Weapon Arrows" {poke 0xf005 2}
+	"Weapon Rods" {poke 0xf005 3}
+	"Weapon Fireballs" {poke 0xf005 4}
+	"Weapon Axe" {poke 0xf005 5}
+	"Weapon Boomerang" {poke 0xf005 6}
+	"Weapon Flail" {poke 0xf005 7}
+	"Weapon Bombs" {poke 0xf005 8}
+	"Weapon Blue Laser" {poke 0xf005 9}
+	"Weapon Red Laser" {poke 0xf005 10}
+	"Weapon Death Spell" {poke 0xf005 11}
+}
 
 ### EOF ###
