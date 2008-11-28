@@ -1984,6 +1984,14 @@ void VDPCmdEngine::commandDone(EmuTime::param time)
 template<typename Archive>
 void VDPCmdEngine::serialize(Archive& ar, unsigned /*version*/)
 {
+	// In older (development) versions CMD was split in a CMD and a LOG
+	// member, though it was combined for the savestate. Only the CMD part
+	// was guaranteed to be zero when no command was executing. So when
+	// loading an older savestate this can still be the case.
+	if (currentCommand == NULL) {
+		assert((CMD & 0xF0) == 0); // assert(CMD == 0);
+	}
+
 	ar.serialize("clock", clock);
 	ar.serialize("statusChangeTime", statusChangeTime);
 	ar.serialize("scrMode", scrMode);
@@ -2002,13 +2010,6 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("ARG", ARG);
 	ar.serialize("CMD", CMD);
 
-	// In older (development) versions CMD was split in a CMD and a LOG
-	// member, though it was combined for the savestate. Only the CMD part
-	// was guaranteed to be zero when no command was executing. So when
-	// loading an older savestate this can still be the case.
-	if (currentCommand == NULL) {
-		assert((CMD & 0xF0) == 0); // assert(CMD == 0);
-	}
 	if (ar.isLoader()) {
 		if (CMD & 0xF0) {
 			assert(scrMode >= 0);
