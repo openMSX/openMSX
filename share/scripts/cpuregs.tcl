@@ -5,7 +5,7 @@ Usage is similar to the builtin TCL proc 'set'
  usage:
    reg <reg>            read from a Z80 register
    reg <reg> <value>    write to a Z80 register
-   
+
      <reg> must be one of
         A   F   B   C   D   E   H   L
         A2  F2  B2  C2  D2  E3  H2  L2
@@ -30,12 +30,12 @@ set __regB(IXh) 16 ; set __regB(IXl) 17 ; set __regB(IYh) 18 ; set __regB(IYl) 1
 set __regB(PCh) 20 ; set __regB(PCl) 21 ; set __regB(SPh) 22 ; set __regB(SPl) 23
 set __regB(I)   24 ; set __regB(R)   25 ; set __regB(IM)  26 ; set __regB(IFF) 27
 
-set __regW(AF)   0 ; set __regW(BC)   2 ; set __regW(DE)   4 ; set __regW(HL)   6 
+set __regW(AF)   0 ; set __regW(BC)   2 ; set __regW(DE)   4 ; set __regW(HL)   6
 set __regW(AF2)  8 ; set __regW(BC2) 10 ; set __regW(DE2) 12 ; set __regW(HL2) 14
 set __regW(IX)  16 ; set __regW(IY)  18 ; set __regW(PC)  20 ; set __regW(SP)  22
 
-set_tabcompletion_proc reg tab_reg false
-proc tab_reg { args } {
+set_tabcompletion_proc reg __tab_reg false
+proc __tab_reg { args } {
 	set r1 [array names ::__regB]
 	set r2 [array names ::__regW]
 	join [list $r1 $r2]

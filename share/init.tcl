@@ -55,11 +55,11 @@ proc data_file { file } {
 
 # Source all .tcl files in user and system scripts directory. Prefer
 # the version in the user directory in case a script exists in both
-set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
-set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
-foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
-	set script [data_file scripts/$script]
-	if {[catch {source $script}]} {
-		puts stderr "Error while executing $script\n$errorInfo"
+set __user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
+set __system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
+foreach __script [lsort -unique [concat $__user_scripts $__system_scripts]] {
+	set __script [data_file scripts/$__script]
+	if {[catch {source $__script}]} {
+		puts stderr "Error while executing $__script\n$errorInfo"
 	}
 }

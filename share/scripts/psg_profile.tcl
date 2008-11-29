@@ -7,8 +7,8 @@ Usage:
   psg_profile <profile>  Select a new profile
 }
 
-set_tabcompletion_proc psg_profile tab_psg_profile
-proc tab_psg_profile { args } {
+set_tabcompletion_proc psg_profile __tab_psg_profile
+proc __tab_psg_profile { args } {
 	set result [array names ::__psg_profile]
 	lappend result "-list"
 }

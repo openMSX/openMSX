@@ -4,7 +4,7 @@ proc guess_rom_title { ps ss } {
 	set slot_name "$ps"
 	if [machine_info issubslotted $ps] { append slot_name ".$ss" }
 	set index [lsearch $slots "slot $slot_name:"]
-	if {$index != -1} { 
+	if {$index != -1} {
 		set rom [lrange [lindex $slots [expr $index + 2]] 1 end]
 		if { $rom != "empty" } { return $rom }
 	}
@@ -30,7 +30,7 @@ proc guess_title { { fallback "" } } {
 			}
 		}
 	}
-	
+
 	# then try disks
 	foreach drive [list "diska" "diskb"] {
 		set title [guess_disk_title $drive]

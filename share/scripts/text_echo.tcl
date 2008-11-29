@@ -8,12 +8,12 @@ proc text_echo {} {
 	set ::text_echo_graph 0
 	set ::text_echo_escape 0
 	set ::text_echo_escape_count 0
-	debug set_bp 0x0018 {} { text_echo_print }
-	debug set_bp 0x00A2 {} { text_echo_print }
+	debug set_bp 0x0018 {} { __text_echo_print }
+	debug set_bp 0x00A2 {} { __text_echo_print }
 	return ""
 }
 
-proc text_echo_print { } {
+proc __text_echo_print { } {
 	set slot [ get_selected_slot 0 ]
 	if { $slot == "0 0" || $slot == "0 X" } {
 		set char [ reg A ]

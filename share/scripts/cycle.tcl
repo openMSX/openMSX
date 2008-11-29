@@ -9,8 +9,8 @@ Example:
   cycle scaler_algorithm "hq2x hq2xlite"
 }
 
-set_tabcompletion_proc cycle tab_cycle
-proc tab_cycle { args } {
+set_tabcompletion_proc cycle __tab_cycle
+proc __tab_cycle { args } {
 	set result [list]
 	foreach setting [openmsx_info setting] {
 		set type [lindex [openmsx_info setting $setting] 0]
@@ -52,7 +52,7 @@ Example:
   toggle fullscreen
 }
 
-set_tabcompletion_proc toggle tab_cycle
+set_tabcompletion_proc toggle __tab_cycle
 
 proc toggle { setting } {
         cycle $setting "on off"

@@ -9,6 +9,6 @@ what is going on which has caused the UMR.
  @param name The name of the RAM device.
 }
 
-proc umrcallback { addr name } { 
+proc umrcallback { addr name } {
 	puts stderr [format "UMR detected in RAM device \"$name\", offset: 0x%04X, PC: 0x%04X" $addr [reg PC]]
 }

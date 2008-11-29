@@ -26,13 +26,13 @@ Examples:
   findcheat -start new < 10    restart and search for values less then 10
   findcheat -max 40 smaller    search for smaller values, show max 40 results
 }
-  
+
 
 #set maximum to display cheats
-set findcheat_max  15
+set __findcheat_max  15
 
 # Restart cheat finder. Should not be used directly by the user
-proc findcheat_start {} {
+proc __findcheat_start {} {
   global findcheat_mem
   set mem [debug read_block memory 0 0x10000]
   binary scan $mem c* values
@@ -46,7 +46,7 @@ proc findcheat_start {} {
 # Helper function to do the actual search.
 # Should not be used directly by the user.
 # Returns a list of triplets (addr, old, new)
-proc findcheat_helper { expression } {
+proc __findcheat_helper { expression } {
   global findcheat_mem
   set result [list]
   foreach {addr old} [array get findcheat_mem] {
@@ -65,26 +65,26 @@ proc findcheat_helper { expression } {
 proc findcheat { args } {
   # create findcheat_mem array
   global findcheat_mem
-  if ![array exists findcheat_mem] findcheat_start
-  
+  if ![array exists findcheat_mem] __findcheat_start
+
   # get the maximum results to display
-  global findcheat_max
-    
+  global __findcheat_max
+
   # build translation array for convenience expressions
   global findcheat_translate
   if ![array exists findcheat_translate] {
     # TODO add more here
     set findcheat_translate()         "true"
-    
+
     set findcheat_translate(bigger)   "new > old"
     set findcheat_translate(smaller)  "new < old"
-    
+
     set findcheat_translate(more)     "new > old"
     set findcheat_translate(less)     "new < old"
-    
+
     set findcheat_translate(notequal) "new != old"
     set findcheat_translate(equal)    "new == old"
-    
+
     set findcheat_translate(loe)      "new <= old"
     set findcheat_translate(moe)      "new >= old"
   }
@@ -93,20 +93,20 @@ proc findcheat { args } {
   while (1) {
     switch -- [lindex $args 0] {
       "-max" {
-        set findcheat_max  [lindex $args 1]
+        set __findcheat_max  [lindex $args 1]
         set args [lrange $args 2 end]
       }
       "-start" {
-        findcheat_start
+        __findcheat_start
         set args [lrange $args 1 end]
       }
       "default" break
     }
   }
-  
-  # all remaining arguments form the expression  
+
+  # all remaining arguments form the expression
   set expression [join $args]
-    
+
   if [info exists findcheat_translate($expression)] {
     # translate a convenience expression into a real expression
     set expression $findcheat_translate($expression)
@@ -116,24 +116,24 @@ proc findcheat { args } {
   }
 
   # prefix 'old', 'new' and 'addr' with '$'
-  set expression [string map {old $old new $new addr $addr} $expression] 
-  
-  # search memory 
-  set result [findcheat_helper $expression]
- 
-  #display the result 
+  set expression [string map {old $old new $new addr $addr} $expression]
+
+  # search memory
+  set result [__findcheat_helper $expression]
+
+  # display the result
   set num [llength $result]
   set output ""
   if {$num == 0} {
     return "No results left"
-  } elseif {$num <= $findcheat_max} {
+  } elseif {$num <= $__findcheat_max} {
     set sorted [lsort -integer -index 0 $result]
     foreach {addr old new} [join $sorted] {
       append output "[format 0x%04X $addr] : $old -> $new \n"
     }
     return $output
   } else {
-    return "$num results found -> Maximum result to display set to $findcheat_max "
+    return "$num results found -> Maximum result to display set to $__findcheat_max "
   }
 }
 

@@ -130,15 +130,10 @@ proc create_trainer {name repeat items} {
 	set ::__trainers($name) [list $items $repeat]
 }
 proc poke {addr val} {debug write memory $addr $val}
-proc peek {addr}   {return [debug read memory $addr]}
-
-proc poke {addr val} {debug write memory $addr $val}
 proc peek {addr} {return [debug read memory $addr]}
 
 # source the trainer definitions (user may override system defaults) and ignore errors
-if {[catch {source $env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}]} {
-}
-if {[catch {source $env(OPENMSX_USER_DATA)/scripts/trainerdefs.tclinclude}]} {
-}
+catch {source $env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}
+catch {source $env(OPENMSX_USER_DATA)/scripts/trainerdefs.tclinclude}
 
 set ::__active_trainer ""

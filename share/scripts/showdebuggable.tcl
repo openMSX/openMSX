@@ -5,10 +5,10 @@ set_help_text showdebuggable \
 {Print content of debuggable nicely formatted
 
 Usage:
-   showdebuggable <address> [<linecount>]
+   showdebuggable <debuggable> <address> [<linecount>]
 }
 
-proc showdebuggable_line {debuggable address } {
+proc __showdebuggable_line {debuggable address } {
 	set mem "[debug read_block $debuggable $address 16]"
 	binary scan $mem c* values
 	set hex ""
@@ -21,7 +21,7 @@ proc showdebuggable_line {debuggable address } {
 
 proc showdebuggable {debuggable address {lines 8}} {
 	for {set i 0} {$i < $lines} {incr i} {
-		puts [showdebuggable_line $debuggable $address]
+		puts [__showdebuggable_line $debuggable $address]
 		incr address 16
 	}
 }
@@ -33,5 +33,5 @@ proc showmem {address {lines 8}} {
 }
 
 proc showmem_line {address } {
-	puts [showdebuggable_line memory $address ]
+	puts [__showdebuggable_line memory $address ]
 }

@@ -8,8 +8,8 @@ set_help_text load_icons \
  example: load_icons set1 top
 }
 
-set_tabcompletion_proc load_icons tab_load_icons
-proc tab_load_icons { args } {
+set_tabcompletion_proc load_icons __tab_load_icons
+proc __tab_load_icons { args } {
 	set num [llength $args]
 	if {$num == 2} {
 		set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
@@ -78,7 +78,7 @@ proc load_icons { set_name { set_position "" } } {
 	    ($set_position != "right")} {
 		error "Invalid position: $set_position"
 	}
-	
+
 	# Defaut LED positions
 	set xbase 0
 	set ybase 0
@@ -144,7 +144,7 @@ proc load_icons { set_name { set_position "" } } {
 
 	osd configure osd_leds -x $xbase -y $ybase
 
-	proc get_image { directory file } {
+	proc __get_image { directory file } {
 		if [file isfile $directory/$file] {
 			return $directory/$file
 		}
@@ -155,19 +155,19 @@ proc load_icons { set_name { set_position "" } } {
 		       -x $xcoord($led) \
 		       -y $ycoord($led) \
 		       -fadePeriod $fade_duration_active($led) \
-		       -image [get_image $directory $active_image($led)] \
+		       -image [__get_image $directory $active_image($led)] \
 		       -scale $invscale
 		osd configure osd_leds.led_${led}_off \
 		       -x $xcoord($led) \
 		       -y $ycoord($led) \
 		       -fadePeriod $fade_duration_non_active($led) \
-		       -image [get_image $directory $non_active_image($led)] \
+		       -image [__get_image $directory $non_active_image($led)] \
 		       -scale $invscale
 	}
-	
+
 	# Also try to load "frame.png"
 	catch { osd destroy osd_frame }
-	set framefile [get_image $directory "frame.png"]
+	set framefile [__get_image $directory "frame.png"]
 	if [file exists $framefile] {
 		osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 \
 		                               -scaled true -image $framefile
@@ -210,11 +210,11 @@ set __leds "power caps kana pause turbo FDD"
 
 # create OSD widgets
 osd create rectangle osd_leds -scaled true -alpha 0 -z 1
-foreach led $__leds {
-	osd create rectangle osd_leds.led_${led}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
-	osd create rectangle osd_leds.led_${led}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
-	trace add variable ::led_${led} "write unset" __trace_led_status
-	set ::__last_change(led_${led}) [openmsx_info realtime]
+foreach __led $__leds {
+	osd create rectangle osd_leds.led_${__led}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
+	osd create rectangle osd_leds.led_${__led}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
+	trace add variable ::led_${__led} "write unset" __trace_led_status
+	set ::__last_change(led_${__led}) [openmsx_info realtime]
 }
 
 # Restore settings from previous session

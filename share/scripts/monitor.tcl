@@ -7,8 +7,8 @@ Usage:
   monitor_type <type>   Select new type
 }
 
-set_tabcompletion_proc monitor_type tab_monitor_type
-proc tab_monitor_type { args } {
+set_tabcompletion_proc monitor_type __tab_monitor_type
+proc __tab_monitor_type { args } {
 	set result [array names ::__monitor]
 	lappend result "-list"
 }

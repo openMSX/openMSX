@@ -4,7 +4,7 @@
 set_help_text get_selected_slot \
 {Returns the selected slot for the given memory page.
 This proc is typically used as a helper for a larger proc.
- 
+
  @param page The memory page (0-3)
  @result Returns a TCL list with two elements.
          First element is the primary slot (0-3).
@@ -88,7 +88,7 @@ proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
 #
 set_help_text slotmap \
 {Gives an overview of the devices in the different slots.}
-proc slotmap-helper { ps ss } {
+proc __slotmap_helper { ps ss } {
 	set result ""
 	for { set page 0 } { $page < 4 } { incr page } {
 		set name [machine_info slot $ps $ss $page]
@@ -102,11 +102,11 @@ proc slotmap { } {
 		if [machine_info issubslotted $ps] {
 			for { set ss 0 } { $ss < 4 } { incr ss } {
 				append result "slot $ps.$ss:\n"
-				append result [slotmap-helper $ps $ss]
+				append result [__slotmap_helper $ps $ss]
 			}
 		} else {
 			append result "slot $ps:\n"
-			append result [slotmap-helper $ps 0]
+			append result [__slotmap_helper $ps 0]
 		}
 	}
 	return $result
@@ -117,7 +117,7 @@ proc slotmap { } {
 #
 set_help_text iomap \
 {Gives an overview of the devices connected to the different IO ports.}
-proc iomap-helper { prefix begin end name } {
+proc __iomap_helper { prefix begin end name } {
 	if [string equal $name "empty"] return ""
 	set result [format "port %02X" $begin]
 	if {$begin == ($end - 1)} {
@@ -140,10 +140,10 @@ proc iomap {} {
 			incr end
 		}
 		if [string equal $in $out] {
-			append result [iomap-helper "I/O" $port $end $in ]
+			append result [__iomap_helper "I/O" $port $end $in ]
 		} else {
-			append result [iomap-helper "I  " $port $end $in ]
-			append result [iomap-helper "  O" $port $end $out]
+			append result [__iomap_helper "I  " $port $end $in ]
+			append result [__iomap_helper "  O" $port $end $out]
 		}
 		set port $end
 	}

@@ -1,7 +1,7 @@
 
 set_help_text reg_log \
 {Logs the contents (e.g. registers) of a given debuggable or replays such a log.
-The state of the debuggable is saved to a log file every VDP frame. Note that 
+The state of the debuggable is saved to a log file every VDP frame. Note that
 it does not take into account different VDP interrupt rates.
 
 Usage:
@@ -18,8 +18,8 @@ Examples:
    reg_log play "PSG regs" my.log   replay the log of "PSG regs" in my.log
 }
 
-set_tabcompletion_proc reg_log tab_reg_log
-proc tab_reg_log { args } {
+set_tabcompletion_proc reg_log __tab_reg_log
+proc __tab_reg_log { args } {
 	switch [llength $args] {
 		2 { return "record play stop" }
 		3 { return [debug list] }

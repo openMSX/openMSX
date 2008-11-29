@@ -3,8 +3,8 @@ set_help_text save_debuggable \
 Use 'debug list' to get a complete list of all debuggables.
 
 Usage:
-  save_debuggable VRAM vramdump    Save the content of the MSX VRAM to a file
-                                   called vramdump
+  save_debuggable VRAM vram.raw    Save the content of the MSX VRAM to a file
+                                   called 'vram.raw'
 }
 proc save_debuggable {debuggable filename} {
 	set size [debug size $debuggable]
@@ -29,9 +29,9 @@ proc load_debuggable {debuggable filename} {
 	debug write_block $debuggable 0 $data
 }
 
-set_tabcompletion_proc save_debuggable tab_loadsave_debuggable
-set_tabcompletion_proc load_debuggable tab_loadsave_debuggable
-proc tab_loadsave_debuggable { args } {
+set_tabcompletion_proc save_debuggable __tab_loadsave_debuggable
+set_tabcompletion_proc load_debuggable __tab_loadsave_debuggable
+proc __tab_loadsave_debuggable { args } {
 	if {[llength $args] == 2} {
 		return [debug list]
 	}
@@ -39,7 +39,7 @@ proc tab_loadsave_debuggable { args } {
 
 
 # TODO remove these two procs?
-#  They were ment as a very quick-and-dirty savestate mechanism, but it
+#  They were meant as a very quick-and-dirty savestate mechanism, but it
 #  doesn't work (e.g. because of subslot register)
 proc save_all { directory } {
 	foreach debuggable [debug list] {
