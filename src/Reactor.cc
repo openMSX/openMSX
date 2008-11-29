@@ -982,7 +982,8 @@ string StoreMachineMemCommand::execute(const vector<string>& tokens)
 
 string StoreMachineMemCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "TODO";
+	return "This is an experimental command. "
+	       "It will change in the next release.";
 }
 
 void StoreMachineMemCommand::tabCompletion(vector<string>& tokens) const
@@ -1013,7 +1014,8 @@ string RestoreMachineMemCommand::execute(const vector<string>& /*tokens*/)
 
 string RestoreMachineMemCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "TODO";
+	return "This is an experimental command. "
+	       "It will change in the next release.";
 }
 
 void RestoreMachineMemCommand::tabCompletion(vector<string>& /*tokens*/) const

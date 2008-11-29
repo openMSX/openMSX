@@ -1,3 +1,8 @@
+set_help_text main_menu_open   "(experimental) Show the OSD menu."
+set_help_text main_menu_close  "(experimental) Remove the OSD menu."
+set_help_text main_menu_toggle "(experimental) Toggle the OSD menu."
+
+
 proc get_optional { array_name key default } {
 	upvar $array_name arr
 	if [info exists arr($key)] {

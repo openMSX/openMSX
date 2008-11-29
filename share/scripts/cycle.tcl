@@ -1,15 +1,20 @@
-set_help_text cycle \
-{Cycle through the possible values of an enum setting
+set __help_cycle \
+{Cycle through the possible values of an enum setting.
+'cycle_back' does the same as 'cycle', but it goes in the opposite direction.
 
 Usage:
-  cycle <enum_setting> [<cycle_list>]
+  cycle      <enum_setting> [<cycle_list>]
+  cycle_back <enum_setting> [<cycle_list>]
 
 Example:
   cycle scaler_algorithm
   cycle scaler_algorithm "hq2x hq2xlite"
 }
 
-set_tabcompletion_proc cycle __tab_cycle
+set_help_text cycle      $__help_cycle
+set_help_text cycle_back $__help_cycle
+set_tabcompletion_proc cycle      __tab_cycle
+set_tabcompletion_proc cycle_back __tab_cycle
 proc __tab_cycle { args } {
 	set result [list]
 	foreach setting [openmsx_info setting] {
