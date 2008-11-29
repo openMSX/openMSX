@@ -83,7 +83,7 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 			throw MSXException(
 				"Invalid slot specification: " + slot);
 		}
-		return result-128;
+		return result - 128;
 	} else {
 		int result = StringOp::stringToInt(slot);
 		if ((result < 0) || (4 <= result)) {

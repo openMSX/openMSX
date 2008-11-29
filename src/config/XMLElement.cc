@@ -67,6 +67,11 @@ void XMLElement::addAttribute(const string& name, const string& value)
 	attributes[name] = value;
 }
 
+void XMLElement::setAttribute(const string& name, const string& value)
+{
+	attributes[name] = value;
+}
+
 bool XMLElement::getDataAsBool() const
 {
 	return StringOp::stringToBool(getData());

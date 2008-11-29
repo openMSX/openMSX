@@ -183,28 +183,39 @@ void MSXDevice::registerSlots()
 	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
 	ps = 0;
 	ss = 0;
-	const XMLElement* parent = getDeviceConfig().getParent();
-	while (true) {
-		const string& name = parent->getName();
-		if (name == "secondary") {
-			const string& secondSlot = parent->getAttribute("slot");
+	const XMLElement& config = getDeviceConfig();
+	if (config.hasAttribute("primary_slot")) {
+		const string& primSlot = config.getAttribute("primary_slot");
+		ps = slotManager.getSlotNum(primSlot);
+		if (config.hasAttribute("secondary_slot")) {
+			const string& secondSlot = config.getAttribute("secondary_slot");
 			ss = slotManager.getSlotNum(secondSlot);
-		} else if (name == "primary") {
-			const string& primSlot = parent->getAttribute("slot");
-			ps = slotManager.getSlotNum(primSlot);
-			break;
 		}
-		parent = parent->getParent();
-		if (!parent) {
-			throw MSXException("Invalid memory specification");
+	} else {
+		const XMLElement* parent = config.getParent();
+		while (true) {
+			const string& name = parent->getName();
+			if (name == "secondary") {
+				const string& secondSlot = parent->getAttribute("slot");
+				ss = slotManager.getSlotNum(secondSlot);
+			} else if (name == "primary") {
+				const string& primSlot = parent->getAttribute("slot");
+				ps = slotManager.getSlotNum(primSlot);
+				break;
+			}
+			parent = parent->getParent();
+			if (!parent) {
+				throw MSXException("Invalid memory specification");
+			}
 		}
 	}
-	if ( (0 > ss ) && (ss >= -128) ) {
-		if ( (0 <= ps) && (ps<4)
-			 && motherBoard.getCPUInterface().isExpanded(ps))
+	if ((-128 <= ss) && (ss < 0)) {
+		if ((0 <= ps) && (ps < 4) &&
+		    motherBoard.getCPUInterface().isExpanded(ps)) {
 			ss += 128;
-		else
+		} else {
 			ss = 0;
+		}
 	}
 
 	if (ps == -256) {
@@ -217,6 +228,11 @@ void MSXDevice::registerSlots()
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
+
+	// store actual slot in config
+	XMLElement& writableConfig = const_cast<XMLElement&>(config);
+	writableConfig.setAttribute("primary_slot",   StringOp::toString(ps));
+	writableConfig.setAttribute("secondary_slot", StringOp::toString(ss));
 
 	for (MemRegions::const_iterator it = tmpMemRegions.begin();
 	     it != tmpMemRegions.end(); ++it) {

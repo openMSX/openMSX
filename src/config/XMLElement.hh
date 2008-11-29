@@ -38,6 +38,7 @@ public:
 	// attribute
 	typedef std::map<std::string, std::string> Attributes;
 	void addAttribute(const std::string& name, const std::string& value);
+	void setAttribute(const std::string& name, const std::string& value);
 	const Attributes& getAttributes() const;
 
 	// parent
