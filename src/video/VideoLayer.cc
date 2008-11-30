@@ -10,6 +10,7 @@
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "Event.hh"
+#include "openmsx.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -38,11 +39,13 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 
 VideoLayer::~VideoLayer()
 {
+	PRT_DEBUG("Destructing VideoLayer...");
 	motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
 	powerSetting.detach(*this);
 	videoSourceSetting.detach(*this);
 
 	display.removeLayer(*this);
+	PRT_DEBUG("Destructing VideoLayer... DONE!");
 }
 
 VideoSource VideoLayer::getVideoSource() const

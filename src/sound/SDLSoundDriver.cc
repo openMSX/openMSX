@@ -124,7 +124,7 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 {
 	assert((len & 1) == 0); // stereo
 	unsigned available = getBufferFilled();
-	//std::cerr << "DEBUG callback: " << available << std::endl;
+	//PRT_DEBUG("DEBUG callback: " << available);
 	unsigned num = std::min(len, available);
 	if ((readIdx + num) < bufferSize) {
 		memcpy(stream, &mixBuffer[readIdx], num * sizeof(short));
@@ -139,14 +139,14 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 	int missing = len - available;
 	if (missing > 0) {
 		// buffer underrun
-		//std::cerr << "DEBUG underrun: " << missing << std::endl;
+		//PRT_DEBUG("DEBUG underrun: " << missing);
 		memset(&stream[available], 0, missing * sizeof(short));
 	}
 
 	unsigned target = (5 * bufferSize) / 8;
 	double factor = double(available) / target;
 	filledStat = (63 * filledStat + factor) / 64;
-	//std::cerr << "DEBUG filledStat: " << filledStat << std::endl;
+	//PRT_DEBUG("DEBUG filledStat: " << filledStat);
 }
 
 double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
@@ -155,7 +155,7 @@ double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 	len *= 2; // stereo
 	unsigned free = getBufferFree();
 	//if (len > free) {
-	//	std::cerr << "DEBUG overrun: " << len - free << std::endl;
+	//	PRT_DEBUG("DEBUG overrun: " << len - free);
 	//}
 	unsigned num = std::min(len, free); // ignore overrun (drop samples)
 	if ((writeIdx + num) < bufferSize) {
@@ -170,7 +170,7 @@ double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 	}
 
 	//unsigned available = getBufferFilled();
-	//std::cerr << "DEBUG upload: " << available << " (" << len << ")" << std::endl;
+	//PRT_DEBUG("DEBUG upload: " << available << " (" << len << ")");
 	double result = filledStat;
 	filledStat = 1.0; // only report difference once
 	SDL_UnlockAudio();

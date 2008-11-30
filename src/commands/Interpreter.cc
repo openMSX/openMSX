@@ -12,6 +12,7 @@
 #include "StringOp.hh"
 #include <iostream>
 //#include <tk.h>
+#include "openmsx.hh"
 
 using std::set;
 using std::string;
@@ -164,14 +165,18 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		try {
 			command.execute(tokens, result);
 		} catch (MSXException& e) {
+			PRT_DEBUG("Interpreter: Got an exception when exuting a command: " << e.getMessage());
 			result.setString(e.getMessage());
 			res = TCL_ERROR;
 		}
+		PRT_DEBUG("Setting Tcl result");
 		Tcl_SetObjResult(interp, result.getTclObject());
+		PRT_DEBUG("Deleting tokens");
 		for (vector<TclObject*>::const_iterator it = tokens.begin();
 		     it != tokens.end(); ++it) {
 			delete *it;
 		}
+		PRT_DEBUG("Deleting tokens DONE");
 		return res;
 	} catch (...) {
 		assert(false); // we cannot let exceptions pass through Tcl
@@ -203,21 +208,27 @@ bool Interpreter::isComplete(const string& command) const
 
 string Interpreter::execute(const string& command)
 {
+	PRT_DEBUG("Interpreter::execute: " << command << ": tcl_eval...");
 	int success = Tcl_Eval(interp, command.c_str());
+	PRT_DEBUG("Interpreter::execute: " << command << ": tcl_getStringResult...");
 	string result =  Tcl_GetStringResult(interp);
 	if (success != TCL_OK) {
 		throw CommandException(result);
 	}
+	PRT_DEBUG("Interpreter::execute: " << command << ": tcl_getStringResult... DONE: " << result);
 	return result;
 }
 
 string Interpreter::executeFile(const string& filename)
 {
+	PRT_DEBUG("Interpreter::executeFile: " << filename << ": tcl_evalFile...");
 	int success = Tcl_EvalFile(interp, filename.c_str());
+	PRT_DEBUG("Interpreter::executeFile: " << filename << ": tcl_GetSTringResult...");
 	string result =  Tcl_GetStringResult(interp);
 	if (success != TCL_OK) {
 		throw CommandException(result);
 	}
+	PRT_DEBUG("Interpreter::executeFile: " << filename << ": tcl_GetSTringResult..." << result);
 	return result;
 }
 

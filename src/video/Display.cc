@@ -28,6 +28,7 @@
 #include "Version.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
+#include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -122,7 +123,9 @@ Display::~Display()
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
 			*this);
 
+	PRT_DEBUG("Reset video system...");
 	resetVideoSystem();
+	PRT_DEBUG("Reset video system... DONE!");
 
 	assert(listeners.empty());
 }
@@ -364,11 +367,15 @@ void Display::repaint()
 
 void Display::repaintDelayed(unsigned long long delta)
 {
+	PRT_DEBUG("Display::repaintDelayed...");
 	if (alarm->pending()) {
+		PRT_DEBUG("Display::repaintDelayed... already pending");
 		// already a pending repaint
 		return;
 	}
+	PRT_DEBUG("Display::repaintDelayed... scheduling alarm with delta " << delta);
 	alarm->schedule(delta);
+	PRT_DEBUG("Display::repaintDelayed... DONE!");
 }
 
 void Display::addLayer(Layer& layer)
@@ -411,10 +418,12 @@ RepaintAlarm::~RepaintAlarm()
 
 bool RepaintAlarm::alarm()
 {
+	PRT_DEBUG("RepaintAlarm::alarm()");
 	// Note: runs is seperate thread, use event mechanism to repaint
 	//       in main thread
 	eventDistributor.distributeEvent(
 		new SimpleEvent<OPENMSX_DELAYED_REPAINT_EVENT>());
+	PRT_DEBUG("RepaintAlarm::alarm(): event sent, returning false (no repeat)");
 	return false; // don't reschedule
 }
 

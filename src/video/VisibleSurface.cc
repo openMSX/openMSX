@@ -4,6 +4,7 @@
 #include "InitException.hh"
 #include "Icon.hh"
 #include "build-info.hh"
+#include "openmsx.hh"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -107,7 +108,9 @@ VisibleSurface::~VisibleSurface()
 		lastWindowY = windowRect.top;
 	}
 #endif
+	PRT_DEBUG("Destructing VisibleSurface - SDL_QuitSubSystem");
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	PRT_DEBUG("Destructing VisibleSurface - SDL_QuitSubSystem DONE!");
 }
 
 void VisibleSurface::setWindowTitle(const std::string& title)

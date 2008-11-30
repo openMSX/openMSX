@@ -16,6 +16,7 @@
 #include "VDP.hh"
 #include "V9990.hh"
 #include "build-info.hh"
+#include "openmsx.hh"
 #include <cassert>
 
 #include "components.hh"
@@ -50,14 +51,21 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
 
 SDLVideoSystem::~SDLVideoSystem()
 {
+	PRT_DEBUG("Destructing SDLVideoSystem... ");
+	PRT_DEBUG("Unregistering RESIZE_EVENT... ");
 	reactor.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
 
+	PRT_DEBUG("Detach from scale factor setting... ");
 	renderSettings.getScaleFactor().detach(*this);
 
+	PRT_DEBUG("Removing osdGuiLayer... ");
 	display.removeLayer(*osdGuiLayer);
+	PRT_DEBUG("Removing snowLayer... ");
 	display.removeLayer(*snowLayer);
+	PRT_DEBUG("Removing consoleLayer... ");
 	display.removeLayer(*console);
+	PRT_DEBUG("Destructing SDLVideoSystem... DONE!");
 }
 
 Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)

@@ -5,6 +5,7 @@
 #include "OSDWidget.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -20,7 +21,9 @@ OSDGUILayer::OSDGUILayer(OSDGUI& gui_)
 
 OSDGUILayer::~OSDGUILayer()
 {
+	PRT_DEBUG("Destructing OSDGUILayer... ");
 	getGUI().getTopWidget().invalidateRecursive();
+	PRT_DEBUG("Destructing OSDGUILayer... DONE");
 }
 
 OSDGUI& OSDGUILayer::getGUI()

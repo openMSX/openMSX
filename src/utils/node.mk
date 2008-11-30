@@ -17,6 +17,7 @@ SRC_HDR:= \
 	DivModBySame
 
 HDR_ONLY:= \
+	my_auto_ptr \
 	FixedPoint \
 	Subject Observer \
 	ScopedAssign \

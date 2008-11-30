@@ -11,6 +11,7 @@
 #include "Alarm.hh"
 #include "EmuTime.hh"
 #include "CommandException.hh"
+#include "openmsx.hh"
 #include <cstdlib>
 #include <sstream>
 
@@ -455,7 +456,9 @@ void AfterTimedCmd::reschedule()
 void AfterTimedCmd::executeUntil(EmuTime::param /*time*/,
                                  int /*userData*/)
 {
+	PRT_DEBUG("Going to execute after command....");
 	execute();
+	PRT_DEBUG("Going to execute after command.... DONE!");
 }
 
 void AfterTimedCmd::schedulerDeleted()
@@ -546,11 +549,14 @@ const std::string& AfterRealTimeCmd::getType() const
 
 bool AfterRealTimeCmd::alarm()
 {
+	PRT_DEBUG("AfterRealTimeCmd::alarm()...");
 	// this runs in a different thread, so we can't directly execute the
 	// command here
 	expired = true;
+	PRT_DEBUG("AfterRealTimeCmd::alarm()... distribute AFTER REALTIME EVENT");
 	eventDistributor.distributeEvent(
 			new SimpleEvent<OPENMSX_AFTER_REALTIME_EVENT>());
+	PRT_DEBUG("AfterRealTimeCmd::alarm()... distribute AFTER REALTIME EVENT, DONE! Don't repeat.");
 	return false; // don't repeat alarm
 }
 

@@ -32,6 +32,7 @@
 #include "Thread.hh"
 #include "Timer.hh"
 #include "serialize.hh"
+#include "openmsx.hh"
 #include <cassert>
 #include <memory>
 #include <sys/stat.h>
@@ -493,6 +494,8 @@ void Reactor::run(CommandLineParser& parser)
 	getDiskManipulator(); // make sure it gets instantiated
 	                      // (also on machines without disk drive)
 
+	PRT_DEBUG("Reactor::run Trying to execute init.tcl...");
+
 	// execute init.tcl
 	try {
 		PreferSystemFileContext context;
@@ -502,10 +505,12 @@ void Reactor::run(CommandLineParser& parser)
 		// no init.tcl, ignore
 	}
 
+	PRT_DEBUG("Reactor::run Executing startup scripts...");
 	// execute startup scripts
 	const CommandLineParser::Scripts& scripts = parser.getStartupScripts();
 	for (CommandLineParser::Scripts::const_iterator it = scripts.begin();
 	     it != scripts.end(); ++it) {
+		PRT_DEBUG("Reactor::run Executing startup script..." << *it);
 		try {
 			UserFileContext context;
 			commandController.source(
@@ -516,6 +521,7 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
+	PRT_DEBUG("Reactor::run Powering up active board...");
 	// Run
 	if (parser.getParseStatus() == CommandLineParser::RUN) {
 		// don't use Tcl to power up the machine, we cannot pass
@@ -529,16 +535,22 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
+	PRT_DEBUG("Reactor::run Instantiate poll event generator...");
 	PollEventGenerator pollEventGenerator(getEventDistributor());
 
 	while (running) {
+		PRT_DEBUG("Reactor::run While running... clear garbageboards...");
 		garbageBoards.clear(); // see deleteBoard()
+		PRT_DEBUG("Reactor::run While running... deliver events...");
 		getEventDistributor().deliverEvents();
 		MSXMotherBoard* motherboard = activeBoard.get();
 		bool blocked = (blockedCounter > 0) || !motherboard;
+		PRT_DEBUG("Reactor::run While running... motherboard execute...");
 		if (!blocked) blocked = !motherboard->execute();
 		if (blocked) {
+			PRT_DEBUG("Reactor::run While running... repaint display...");
 			display.repaint();
+			PRT_DEBUG("Reactor::run While running... sleep...");
 			getEventDistributor().sleep(100 * 1000);
 		}
 	}

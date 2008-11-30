@@ -18,6 +18,7 @@
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
+#include "openmsx.hh"
 #include <algorithm>
 
 using std::string;
@@ -58,8 +59,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(Reactor& reactor_)
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
+	PRT_DEBUG("Destructing OSDConsoleRenderer... (start)");
 	consoleSetting.detach(*this);
+	PRT_DEBUG("Destructing OSDConsoleRenderer... (setting detached)");
 	setActive(false);
+	PRT_DEBUG("Destructing OSDConsoleRenderer... DONE!");
 }
 
 void OSDConsoleRenderer::initConsole()
@@ -136,21 +140,28 @@ void OSDConsoleRenderer::update(const Setting& setting)
 
 void OSDConsoleRenderer::setActive(bool active_)
 {
+	PRT_DEBUG("OSDConsoleRenderer::setActive Setting active to ..." << active_);
 	if (active == active_) return;
 	active = active_;
 
+	PRT_DEBUG("OSDConsoleRenderer::setActive RepaintDelayed...");
 	getDisplay().repaintDelayed(40000); // 25 fps
 
+	PRT_DEBUG("OSDConsoleRenderer::setActive Getting time...");
 	time = Timer::getTime();
 
+	PRT_DEBUG("OSDConsoleRenderer::setActive SetKeyRepeat...");
 	reactor.getInputEventGenerator().setKeyRepeat(active);
 	if (active) {
+		PRT_DEBUG("OSDConsoleRenderer::setActive Send console ON event..");
 		reactor.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
 	} else {
+		PRT_DEBUG("OSDConsoleRenderer::setActive Send console OFF event..");
 		reactor.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
 	}
+	PRT_DEBUG("OSDConsoleRenderer::setActive DONE!");
 }
 
 byte OSDConsoleRenderer::getVisibility() const

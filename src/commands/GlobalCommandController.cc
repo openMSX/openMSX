@@ -20,6 +20,7 @@
 #include "TclObject.hh"
 #include "Version.hh"
 #include "ScopedAssign.hh"
+#include "openmsx.hh"
 #include <cassert>
 #include <cstdlib>
 
@@ -82,13 +83,21 @@ GlobalCommandController::~GlobalCommandController()
 	// all this reset() stuff is also done automatically by the destructor,
 	// but we need it slightly earlier to test the assertions.
 	// TODO find a cleaner way to do this
+	PRT_DEBUG("~GlobalCommandController: reset romInfoTopic");
 	romInfoTopic.reset();
+	PRT_DEBUG("~GlobalCommandController: reset versionInfo");
 	versionInfo.reset();
+	PRT_DEBUG("~GlobalCommandController: reset tabCompletionCmd");
 	tabCompletionCmd.reset();
+	PRT_DEBUG("~GlobalCommandController: reset helpCmd");
 	helpCmd.reset();
+	PRT_DEBUG("~GlobalCommandController: reset globalSettings");
 	globalSettings.reset();
+	PRT_DEBUG("~GlobalCommandController: reset settingsConfig");
 	settingsConfig.reset();
+	PRT_DEBUG("~GlobalCommandController: reset hotkey");
 	hotKey.reset();
+	PRT_DEBUG("~GlobalCommandController: reset openMSXinfocmd");
 	openMSXInfoCommand.reset();
 
 	assert(commands.empty());
@@ -455,8 +464,11 @@ void GlobalCommandController::splitList(
 void GlobalCommandController::source(const string& script)
 {
 	try {
+		PRT_DEBUG("GlobalCommandController::source: " << script << ": getting local file reference...");
 		LocalFileReference file(script);
+		PRT_DEBUG("GlobalCommandController::source: " << script << ": executing file...");
 		getInterpreter().executeFile(file.getFilename());
+		PRT_DEBUG("GlobalCommandController::source: " << script << ": executing file... DONE!");
 	} catch (CommandException& e) {
 		getCliComm().printWarning(
 			 "While executing init.tcl: " + e.getMessage());

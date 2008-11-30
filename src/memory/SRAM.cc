@@ -10,6 +10,7 @@
 #include "CliComm.hh"
 #include "Alarm.hh"
 #include "serialize.hh"
+#include "openmsx.hh"
 #include <cstring>
 
 using std::string;
@@ -171,6 +172,7 @@ bool SRAMSync::alarm()
 	// do actual save in main-thread
 	//  this will trigger a save in ALL srams, can be optimized if it
 	//  turns out to be a problem
+	PRT_DEBUG("SRAMSync::alarm(), saving SRAM event sending!");
 	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_SAVE_SRAM>());
 	return false; // don't reschedule
 }
