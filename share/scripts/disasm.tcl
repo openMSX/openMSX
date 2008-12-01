@@ -8,6 +8,31 @@ proc getSP {} {
 	     [debug read "CPU regs" 23]
 }
 
+# very common debug functions
+
+set_help_text peek \
+{Read a byte from the given memory location.
+Equivalent to "debug read memory <addr>".
+
+usage:
+  peek <addr>
+}
+proc peek {addr} {
+	return [debug read memory $addr]
+}
+
+set_help_text poke \
+{Write a byte to the given memory location.
+Equivalent to "debug write memory <addr> <val>".
+
+usage:
+  poke <addr> <val>
+}
+proc poke {addr val} {
+	debug write memory $addr $val
+}
+
+
 #
 # disasm
 #

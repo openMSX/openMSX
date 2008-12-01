@@ -29,7 +29,7 @@ proc __text_echo_print { } {
 					set ::text_echo_escape_count 1
 				}
 			} else {
-				decr ::text_echo_escape_count
+				incr ::text_echo_escape_count -1
 				if { $::text_echo_escape_count == 0 } {
 					set ::text_echo_escape 0
 				}

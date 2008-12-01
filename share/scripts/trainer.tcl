@@ -129,8 +129,6 @@ __trainer_deactivate_after_boot
 proc create_trainer {name repeat items} {
 	set ::__trainers($name) [list $items $repeat]
 }
-proc poke {addr val} {debug write memory $addr $val}
-proc peek {addr} {return [debug read memory $addr]}
 
 # source the trainer definitions (user may override system defaults) and ignore errors
 catch {source $env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}

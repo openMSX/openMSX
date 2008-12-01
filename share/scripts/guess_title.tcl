@@ -1,3 +1,9 @@
+set_help_text guess_title \
+{Guess the title of the current game.
+This proc uses some heuristics to guess the name of the current game, based on
+the inserted ROM cartridges or disks.
+}
+
 proc guess_rom_title { ps ss } {
 	# check device name at address #4000 in given slot
 	set slots [split [slotmap] \n]

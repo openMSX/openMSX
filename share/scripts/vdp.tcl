@@ -1,9 +1,21 @@
+set_help_text getcolor \
+{Return the current V99x8 palette settings for the given color index (0-15).
+The result is format as RGB, with each component in the range 0-7.
+}
 proc getcolor { index } {
 	set rb [debug read "VDP palette" [expr 2 * $index]]
 	set g  [debug read "VDP palette" [expr 2 * $index + 1]]
 	format "%03x" [expr (($rb * 16) & 0x700) + (($g * 16) & 0x070) + ($rb & 0x007)]
 }
 
+set_help_text setcolor \
+{Change the V99x8 palette settings. See also getcolor.
+
+usage:
+  setcolor <index> <r><g><b>
+   <index>   0-15
+   <r><g><b> 0-7
+}
 proc setcolor { index rgb } {
 	if [catch {
 		if {[string length $rgb] != 3 } error

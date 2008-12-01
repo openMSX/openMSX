@@ -1,3 +1,7 @@
+set_help_text show_osd \
+{Give an overview of all currently defined OSD elements and their properties.
+This is mainly useful to debug a OSD related script.}
+
 proc show_osd {} {
 	set result ""
 	foreach widget [osd info] {
@@ -8,6 +12,10 @@ proc show_osd {} {
 	}
 	return $result
 }
+
+
+set_help_text toggle_fps \
+{Enable/disable a fps-indicator in the top-left corner of the screen.}
 
 proc toggle_fps {} {
 	if [info exists ::__osd_fps_after] {

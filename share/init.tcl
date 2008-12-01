@@ -21,6 +21,8 @@ proc __help { args } {
 proc set_help_text { command help } {
 	set ::__help_text($command) $help
 }
+set_help_text set_help_text \
+{Associate a help-text with a Tcl proc. This is normally only used in Tcl scripts.}
 
 # internal proc to make tabcompletion available to Tcl procs
 proc __tabcompletion { args } {
@@ -42,6 +44,8 @@ proc set_tabcompletion_proc { command proc {case_sensitive true} } {
 		set ::__tabcompletion_proc_insensitive($command) $proc
 	}
 }
+set_help_text set_tabcompletion_proc \
+{Provide a way to do tab-completion for a certain Tcl proc. For details look at the numerous examples in the share/scripts directory. This is normally only used in Tcl scripts.}
 
 set_help_text data_file \
 "Resolve data file. First try user directory, if the file doesn't exist

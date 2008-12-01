@@ -28,6 +28,14 @@ proc showdebuggable {debuggable address {lines 8}} {
 
 # some stuff for backwards compatibility
 
+set_help_text showmem \
+{Print the content of the CPU visible memory nicely formatted
+This is a shortcut for 'showdebuggable memory <address>'.
+
+Usage:
+   showmem <address> [<linecount>]
+}
+
 proc showmem {address {lines 8}} {
 	puts [showdebuggable memory $address $lines]
 }
@@ -35,3 +43,5 @@ proc showmem {address {lines 8}} {
 proc showmem_line {address } {
 	puts [__showdebuggable_line memory $address ]
 }
+
+
