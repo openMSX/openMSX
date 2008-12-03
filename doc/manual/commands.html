@@ -28,11 +28,11 @@
 
         <li><a class="internal" href="#cd">cd&lt;x&gt;</a></li>
 
-        <li><a class="internal" href="#cycle">cycle</a></li>
+        <li><a class="internal" href="#cycle">cycle / cycle_back</a></li>
 
         <li><a class="internal" href="#debug">debug</a></li>
 
-        <li><a class="internal" href="#disk">disk&lt;x&gt;</a></li>
+        <li><a class="internal" href="#disk">disk&lt;x&gt; / virtual_drive</a></li>
 
         <li><a class="internal" href="#diskmanipulator">diskmanipulator</a></li>
 
@@ -41,6 +41,8 @@
         <li><a class="internal" href="#exit">exit</a></li>
 
         <li><a class="internal" href="#ext">ext</a></li>
+
+        <li><a class="internal" href="#findcheat">findcheat</a></li>
 
         <li><a class="internal" href="#hd">hd&lt;x&gt;</a></li>
 
@@ -60,6 +62,8 @@
 
         <li><a class="internal" href="#machine">machine</a></li>
 
+        <li><a class="internal" href="#machines">create_machine / load_machine / activate_machine / list_machines / delete_machine</a></li>
+
         <li><a class="internal" href="#machine_info">machine_info</a></li>
 
 	<li><a class="internal" href="#monitor_type">monitor_type</a></li>
@@ -67,6 +71,8 @@
 	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
 
         <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
+
+        <li><a class="internal" href="#osd">osd</a></li>
 
         <li><a class="internal" href="#palette">palette</a></li>
 
@@ -84,6 +90,8 @@
 
         <li><a class="internal" href="#save_settings">save_settings</a></li>
 
+        <li><a class="internal" href="#savestate">savestate / loadstate / list_savestates / delete_savestate</a></li>
+
         <li><a class="internal" href="#screenshot">screenshot</a></li>
 
         <li><a class="internal" href="#set">set</a></li>
@@ -94,6 +102,10 @@
 
         <li><a class="internal" href="#soundlog">soundlog</a></li>
 
+        <li><a class="internal" href="#store_machine">store_machine / restore_machine</a></li>
+
+        <li><a class="internal" href="#test_machine">test_machine</a></li>
+
         <li><a class="internal" href="#toggle">toggle</a></li>
 
         <li><a class="internal" href="#trainer">trainer</a></li>
@@ -103,6 +115,8 @@
         <li><a class="internal" href="#unset">unset</a></li>
 
         <li><a class="internal" href="#update">update</a></li>
+
+        <li><a class="internal" href="#user_setting">user_setting</a></li>
 
         <li><a class="internal" href="#vdpregs">vdpregs</a></li>
       </ol>
@@ -200,6 +214,8 @@
 
         <li><a class="internal" href="#keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></li>
 
+        <li><a class="internal" href="#led">led_&lt;name&gt;</a></li>
+
         <li><a class="internal" href="#limitsprites">limitsprites</a></li>
 
         <li><a class="internal" href="#master_volume">master_volume</a></li>
@@ -269,6 +285,8 @@
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
 
         <li><a class="internal" href="#throttle">throttle</a></li>
+
+        <li><a class="internal" href="#turborpause">turborpause</a></li>
 
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
 
@@ -601,9 +619,12 @@
     </tr>
   </table>
 
-  <h3><a id="cycle">cycle</a></h3>
+
+  <h3><a id="cycle">cycle / cycle_back</a></h3>
 
   <p>Iterates through the values of an enumerated setting.</p>
+
+  <p><code>cycle_back</code> does the same as <code>cycle</code>, but it goes in the opposite direction.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -612,8 +633,11 @@
   <table>
     <tr>
       <td><code>cycle &lt;setting&gt;</code></td>
-
       <td>Changes the specified setting to the next value in the cycle</td>
+    </tr>
+    <tr>
+      <td><code>cycle_back &lt;setting&gt;</code></td>
+      <td>Changes the specified setting to the previous value in the cycle</td>
     </tr>
   </table>
 
@@ -625,6 +649,7 @@
     <code>cycle scale_algorithm</code><br />
     <code>cycle videosource</code>
   </div>
+
 
   <h3><a id="debug">debug</a></h3>
 
@@ -812,7 +837,7 @@
     offer convenience wrappers around these commands. For example: <code>showmem</code>, <code>disasm</code>, <code>cpuregs</code>, <code>save_debuggable</code>, <code>vdp</code> etc.
   </div>
 
-  <h3><a id="disk">disk&lt;x&gt;</a></h3>
+  <h3><a id="disk">disk&lt;x&gt; / virtual_drive</a></h3>
 
   <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk image.
   The commands <code>diska</code>, <code>diskb</code> etc. are
@@ -906,6 +931,24 @@
       <td>Insert an FMPAC in a running MSX machine</td>
     </tr>
   </table>
+
+
+  <h3><a id="findcheat">findcheat</a></h3>
+
+  <p>This is a tool to find new cheats, for example for a certain game it can help you find the memory location where the number of remaining lives is stored. These cheats can later be added to the <code><a class="internal" href="#trainer">trainer</a></code> command.</p>
+
+  <p>It works more or less like this:
+    <ol>
+      <li>Initialize the <code>findcheat</code> tool (this takes an initial snapshot of the MSX memory)</li>
+      <li>Perform some action in the game that changes the variable that you're interested in. For example if you want to find the memory location where the number of lives is stored, you have to loose (or gain) a life in the game.</li>
+      <li>Now use the <code>findcheat</code> tool to compare the current MSX memory state with the previous memory snapshot. <code>findcheat</code> offers a lot of possibilities here, for example you can search for memory locations that became bigger or smaller or locations whose value changed or didn't change.</li>
+      <li><code>findcheat</code> will show a list of memory locations that still match the search criteria.</li>
+      <li>If there still are still too many matches, repeat from step 2.</li>
+    </ol>
+  </p>
+
+  <p>Vampier wrote a very good tutorial on how to use <code>findcheat</code>, you can find it <a class="external" href="http://www.vampier.net/forum/viewtopic.php?f=6&t=34">here</a>.</p>
+
 
   <h3><a id="hd">hd&lt;x&gt;</a></h3>
 
@@ -1125,6 +1168,73 @@
     Note: The machine handle mostly used for external applications controlling openMSX (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). For interactive use you can omit the machine handle to have the commands operate on the current machine.
   </div>
 
+
+  <h3><a id="machines">create_machine / load_machine / activate_machine / list_machines / delete_machine</a></h3>
+
+  <p>openMSX has the possibility to have multiple MSX machines simultaneous in memory. This is more or less like multiple tabs in a webbrowser: you only work with one at-a-time, but you can have multiple open at the same time and easily switch between them. These commands are low level commands to manage this.</p>
+
+  <p>Some commands are specific per machine, for example if you insert a diskimage into the diskdrive of the emulated MSX machine and if you have multiple MSX machines, you need to specify in which MSX machine you want to insert the disk. To solve this, we introduced the concept of the 'active' MSX machine (this is also the machine that is visible and audible). All unqualified machine-specific command will act on the active machine. If you want to execute the command in a specific machine, you can qualify the command with a machineID prefix.
+  <table>
+    <tr>
+      <td><code>diska &lt;diskimage&gt;</code></td>
+      <td>execute diska command in the active machine</td>
+    </tr>
+    <tr>
+      <td><code>&lt;machine-ID&gt;::diska &lt;diskimage&gt;</code></td>
+      <td>execute diska command in the specified machine</td>
+    </tr>
+  </table>
+  </p>
+
+  <h4><code>create_machine</code>:</h4>
+  <p>This command returns a new machine-id. This machine-id can be used in the following commands. In the webbroser analogy this command would open a new empty tab.</p>
+
+  <h4><code>load_machine</code>:</h4>
+  <p>This command loads a machine configuration (= MSX model) into the given machine-ID.
+  In the webbroser analogy, this command would load a page in a previously created empty tab. And unlike a webbrowser, where you can load a different page in the same tab, you cannot load a different machine configuration in the same machine-ID.</p>
+
+  <h4><code>activate_machine</code>:</h4>
+  <p>This command activates the given machine-ID. At any time there can only be one active machine-ID. This is analogue to switching tabs in a webbrowser.</p>
+
+  <h4><code>list_machines</code>:</h4>
+  <p>Returns a list of all currently existing machine-IDs.</p>
+
+  <h4><code>delete_machine</code>:</h4>
+  <p>Deletes the given machine-ID. This is analogue to closing a tab in a webbrowser.</p>
+
+  <h4>examples:</h4>
+  <table>
+    <tr>
+      <td><code>set oldID [machineID]</code></td>
+      <td>get the current machineID</td>
+    </tr>
+    <tr>
+      <td><code>set newID [create_machine]</code></td>
+      <td>create a new machineID</td>
+    </tr>
+    <tr>
+      <td><code>$newID::load_machine Philips_NMS_8250</code></td>
+      <td>load a MSX2 config in that new machineID</td>
+    <tr>
+    <tr>
+      <td><code>activate_machine $newID</code></td>
+      <td>switch to the new machine</td>
+    </tr>
+    <tr>
+      <td><code>activate_machine $oldID</code></td>
+      <td>switch back to old machine</code></td>
+    </tr>
+    <tr>
+      <td><code>delete_machine $newID</code></td>
+      <td>delete new machine</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    If you don't care about multiple active machines, the <code><a class="internal" href="#machine">machine</a></code> command is much more convenient to switch to a different MSX configuration.</p>
+  </div>
+
+
   <h3><a id="machine_info">machine_info</a></h3>
 
   <p>Shows information about a certain topic. This command is similar to the <code><a class="internal" href="#openmsx_info">openmsx_info</a></code> command. The topics of
@@ -1220,6 +1330,7 @@
     <code>solo PSG 3</code>
   </div>
 
+
   <h3><a id="openmsx_info">openmsx_info</a></h3>
 
   <p>Shows information about a certain topic. For machine-specific topics, use the related command <code><a class="internal" href="#machine_info">machine_info</a></code>.</p>
@@ -1241,6 +1352,16 @@
       <td>Shows info on the given topic</td>
     </tr>
   </table>
+
+
+  <h3><a id="osd">osd</a></h3>
+
+  <p>openMSX has the possibilty to show OSD (on screen display) elements. For example, the LEDs and the fps-indicator are implemented via OSD elements. This command allows to create new OSD elements, configure existing elements or delete elements.</p>
+
+  <!-- do we really have to repeat the help text from the openmsx source code here? -->
+
+  <p>Execute "<code>help osd</code>" to get a detailed description of this command.</p>
+
 
   <h3><a id="palette">palette</a></h3>
 
@@ -1480,6 +1601,24 @@
     </tr>
   </table>
 
+
+  <h3><a id="savestate">savestate / loadstate / list_savestates / delete_savestate</a></h3>
+
+  <p>These command can be used to manage savestates. These are much easier to use than the lowlevel <code><a class="internal" href="#store_machine">store_machine</a></code> and <code><a class="internal" href="#store_machine">restore_machine</a></code> commands.</p>
+
+  <h4><code>savestate [&lt;name&gt;]</code></h4>
+  This creates a snapshot of the currently emulated MSX machine. Optionally you can specify a name for the savestate, if you omit this name, the default name <code>quicksave</code> will be taken.
+
+  <h4><code>loadstate [&lt;name&gt;]</code></h4>
+  This restores a previously created savestate. Like above you can specify a name which defaults to <code>quicksave</code> if omitted.
+
+  <h4><code>list_savestates</code></h4>
+  This returns the names of all previously created savestates.
+
+  <h4><code>delete_savestate &lt;name&gt;</code></h4>
+  Delete a previously created savestate.
+
+
   <h3><a id="screenshot">screenshot</a></h3>
 
   <p>Take a screenshot of the openMSX screen. By default this includes the console and icons if those are visible when the screenshot is taken. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
@@ -1636,6 +1775,61 @@
     </tr>
   </table>
 
+
+  <h3><a id="store_machine">store_machine / restore_machine</a></h3>
+
+  <p>These are low-level commands, used to implement savestates.</p>
+
+  <h4><code>store_machine</code>:</h4>
+  Saves the state of the specified machine to a file.
+  <table>
+    <tr>
+      <td><code>store_machine</code></td>
+      <td>Save state of current machine to file "openmsxNNNN.xml.gz"</td>
+    </tr>
+    <tr>
+      <td><code>store_machine &lt;machineID&gt;</code></td>
+      <td>Save state of indicated machine to file "openmsxNNNN.xml.gz"</td>
+    </tr>
+    <tr>
+      <td><code>store_machine &lt;machineID&gt; &lt;filename&gt;</code></td>
+      <td>Save state of indicated machine to specified file</td>
+    </tr>
+  </table>
+
+  <h4><code>restore_machine</code>:</h4>
+  Load a previously saved machine in a new machine-ID, next to the already available machines. See the section on <code><a class="internal" href="#machines">activate_machine</a></code>.
+  <table>
+    <tr>
+      <td><code>restore_machine</code></td>
+      <td>Load state from last saved state in default directory</td>
+    </tr>
+    <tr>
+      <td><code>restore_machine &lt;filename&gt;</code></td>
+      <td>Load state from indicated file</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    Note: These commands are pretty low level. The <code><a class="internal" href="#savestate">savestate</a></code> and <code><a class="internal" href="#savestate">loadstate</a></code> scripts are build on top of this and are much more convenient to use.
+  </div>
+
+
+  <h3><a id="test_machine">test_machine</a></h3>
+
+  <p>Test wether the given MSX machine configuartion works. For example whether you have all required system-roms for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>test_machine &lt;machine-config&gt;</code></td>
+      <td>Test whether the given machine configuartion is OK.</td>
+    </tr>
+  </table>
+
+
   <h3><a id="toggle">toggle</a></h3>
 
   <p>Toggles any boolean (on/off) setting: if it was on, it will be turned off and vice versa.</p>
@@ -1781,6 +1975,15 @@
     <code>update enable led</code><br />
     <code>update disable setting</code>
   </div>
+
+
+  <h3><a id="user_setting">user_setting</a></h3>
+  <p>This command is only meant to be used in Tcl scripts. It allows to create Tcl variables that act very much like built-in openMSX settings. They have a description (can be queried with "<code>help set &lt;setting-name&gt;</code>") and their value is stored saved/restored when openMSX is quit/restarted.</p>
+
+  <!-- do we really have to repeat the help text from the openmsx source code here? -->
+
+  <p>Execute "<code>help user_setting</code>" to get a detailed description of this command.</p>
+
 
   <h3><a id="vdpregs">vdpregs</a></h3>
 
@@ -2572,6 +2775,7 @@
     </tr>
   </table>
 
+
   <h3><a id="firmwareswitch">firmwareswitch</a></h3>
 
   <p>Some machines (e.g. turboR) have a switch on the front (or on the back) that controls if the machine should boot
@@ -3065,6 +3269,14 @@
       <td><code>set keyjoystick1.triga SPACE</code></td>
     </tr>
   </table>
+
+
+  <h3><a id="led">led_&lt;name&gt;</a></h3>
+
+  <p>These are read-only settings. Their value reflects the current status of the corresponding LED on the emulated MSX machine. The currently supported LED names are: <code>power</code>, <code>caps</code>, <code>kana</code>, <code>pause</code>, <code>turbo</code> and <code>FDD</code>.</p>
+
+  <p>As for any setting you can use the native <code>trace</code> Tcl command to trigger a callback when the value of these settings changes. (In fact this possibilty was the main motivation to make these read-only settings instead of topics of the <code><a class="internal" href="#machine_info">machine_info</a></code> command.)</p>
+
 
   <h3><a id="limitsprites">limitsprites</a></h3>
 
@@ -4060,6 +4272,40 @@
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
   </table>
+
+
+  <h3><a id="turborpause">turborpause</a></h3>
+
+  <p>Controls the pause key on a MSX turboR machine.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set turborpause</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set turborpause on</code></td>
+
+      <td>Activate the pause key</td>
+    </tr>
+
+    <tr>
+      <td><code>set turborpause off</code></td>
+
+      <td>Deactivate the pause key</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    Note: If you use this setting often, it may be useful to bind it to a key on your PC keyboard. See the <code><a class="internal" href="#bind">bind</a></code> and <code><a class="internal" href="#toggle">toggle</a></code> commands.
+  </div>
+
 
   <h3><a id="umr_callback">umr_callback</a></h3>
 
