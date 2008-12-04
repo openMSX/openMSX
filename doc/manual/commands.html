@@ -119,6 +119,8 @@
         <li><a class="internal" href="#user_setting">user_setting</a></li>
 
         <li><a class="internal" href="#vdpregs">vdpregs</a></li>
+
+        <li><a class="internal" href="#other">other</a></li>
       </ol>
     </li>
 
@@ -2000,6 +2002,179 @@
       <td>Shows the current VDP control register contents</td>
     </tr>
   </table>
+
+
+  <h3><a id="other">other</a></h3>
+
+  <p>Most commands described above are generally useful. OpenMSX still has a bunch of other more specialized commands. Some of these are intended for programmers who code MSX programs using openMSX as a tool. Other of these commands are more like toys or examples that show the openMSX scripting capabilities.</p>
+
+  <p>We've only listed a very brief overview of these command. As always execute "<code>help &lt;command-name&gt;</code>" to get a more detailed description of the command.</p>
+
+  <table>
+    <tr>
+      <td><code>about</code></td>
+      <td>Search command help-texts for given keyword</td>
+    </tr>
+    <tr>
+      <td><code>cpuregs</code></td>
+      <td>Gives overview of the CPU registers</td>
+    </tr>
+    <tr>
+      <td><code>data_file</code></td>
+      <td>Helps locate openMSX data files</td>
+    </tr>
+    <tr>
+      <td><code>disasm</code></td>
+      <td>Print disassembled instructions at given memory location</td>
+    </tr>
+    <tr>
+      <td><code>getcolor</code></td>
+      <td>Query V99x8 palette settings</td>
+    </tr>
+    <tr>
+      <td><code>getScreen</code></td>
+      <td>Capture the content of a MSX text screen in a Tcl string</td>
+    </tr>
+    <tr>
+      <td><code>get_selected_slot</code></td>
+      <td>Returns the selected slot for the given memory page</td>
+    </tr>
+    <tr>
+      <td><code>guess_title</code></td>
+      <td>Use heuristics to guess the title of the current game (cartridge or disk)</td>
+    </tr>
+    <tr>
+      <td><code>iomap</code></td>
+      <td>Gives overview of the devices connected to the IO ports</td>
+    </tr>
+    <tr>
+      <td><code>listing</code></td>
+      <td>Reimplementation of the BASIC LIST command in Tcl</td>
+    </tr>
+    <tr>
+      <td><code>load_debuggable</code></td>
+      <td>Write the content of a file to a openMSX debuggable</td>
+    </tr>
+    <tr>
+      <td><code>multi_screenshot</code></td>
+      <td>Take screenshots of multiple successive frames</td>
+    </tr>
+    <tr>
+      <td><code>pc_in_slot</code></td>
+      <td>Check whether CPU is executing from the specified slot (useful as breakpoint condition)</td>
+    </tr>
+    <tr>
+      <td><code>peek</code></td>
+      <td>Read a byte from given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek16</code></td>
+      <td>Read a 16 bit word from given memory location</td>
+    </tr>
+    <tr>
+      <td><code>poke</code></td>
+      <td>Write a byte to given memory location</td>
+    </tr>
+    <tr>
+      <td><code>poke16</code></td>
+      <td>Write a 16 bit word to given memory location</td>
+    </tr>
+    <tr>
+      <td><code>psg_log</code></td>
+      <td>Log or replay PSG register values</td>
+    </tr>
+    <tr>
+      <td><code>reg</code></td>
+      <td>Read or write CPU registers</td>
+    </tr>
+    <tr>
+      <td><code>reg_log</code></td>
+      <td>Log or replay register values for the specified ddebuggable</td>
+    </tr>
+    <tr>
+      <td><code>run_to</code></td>
+      <td>Execute instruction till PC reaches specified address</td>
+    </tr>
+    <tr>
+      <td><code>save_debuggable</code></td>
+      <td>Save the content of a debuggable to a file</td>
+    </tr>
+    <tr>
+      <td><code>setcolor</code></td>
+      <td>Change V99x8 palette settings</td>
+    </tr>
+    <tr>
+      <td><code>set_help_text</code></td>
+      <td>Associate help text with a Tcl proc</td>
+    </tr>
+    <tr>
+      <td><code>set_tabcompletion_proc</code></td>
+      <td>Associate tab completion with a Tcl proc</td>
+    </tr>
+    <tr>
+      <td><code>showdebuggable</code></td>
+      <td>Print the content of a debuggable in a table</td>
+    </tr>
+    <tr>
+      <td><code>showmem</code></td>
+      <td>Print the content of memory in a table</td>
+    </tr>
+    <tr>
+      <td><code>show_osd</code></td>
+      <td>Print an overview of the defined OSD elements</td>
+    </tr>
+    <tr>
+      <td><code>stack</code></td>
+      <td>Print the top of the CPU stack</td>
+    </tr>
+    <tr>
+      <td><code>step_in</code></td>
+      <td>Execute one CPU instruction, go into subroutines</td>
+    </tr>
+    <tr>
+      <td><code>step_over</code></td>
+      <td>Execute one CPU instruction, but don't go into subroutines</td>
+    </tr>
+    <tr>
+      <td><code>text_echo</code></td>
+      <td>Echo all printed MSX text on stderr</td>
+    </tr>
+    <tr>
+      <td><code>toggle_fps</code></td>
+      <td>Show a fps indicator</td>
+    </tr>
+    <tr>
+      <td><code>toggle_freq</code></td>
+      <td>Switch between PAL/NTSC</td>
+    </tr>
+    <tr>
+      <td><code>umrcallback</code></td>
+      <td>Example proc to use with the umr_callback setting</td>
+    </tr>
+    <tr>
+      <td><code>v9990reg</code></td>
+      <td>Read or write a V9990 register</td>
+    </tr>
+    <tr>
+      <td><code>v9990regs</code></td>
+      <td>Print an overview of all V9990 registers</td>
+    </tr>
+    <tr>
+      <td><code>vdpreg</code></td>
+      <td>Read or write a V99x8 register</td>
+    </tr>
+    <tr>
+      <td><code>vdpregs</code></td>
+      <td>Print an overview of all V99x8 registers</td>
+    </tr>
+    <tr>
+      <td><code>vdrive</code></td>
+      <td>Easily switch disks in multi-disk games</td>
+    </tr>
+  </table>
+
+  <p>The source code of all these scripts is located in <code>share/scripts</code> directory. Feel free to inspect these scripts and modify them to suit your needs.</p>
+
 
   <h2><a id="old_commands">Old Commands</a></h2>
 
