@@ -1,4 +1,8 @@
-# Catapult Helper File (for use with openMSX Catapult)
+# Return the content of the MSX screen as a string (text-modes only)
+
+set_help_text getScreen \
+{Returns the content of the MSX screen as a string (only works for text-modes).
+}
 
 proc getScreen {} {
 	# screen detection
@@ -44,24 +48,15 @@ proc getScreen {} {
 #* script into TCL
 #***********************************************
 
-# Helper Functions
-proc byte {word} {
-	return [peek $word]
-}
-
-proc word {word} {
-	return [expr {[peek [expr $word + 1]] * 256 + [peek $word]}]
-}
-
-proc getLineNumber {addr} {
-	#return "\n[word [expr $addr+2]] "
-	return "\n0x[format %x [word $addr]] > [word [expr $addr + 2]] "
-}
-
-
 set_help_text listing \
 {Interpret the content of the memory as a BASIC program and return the equivalent output of the BASIC LIST command. (May not be terribly useful, but it does show the power of openMSX scripts ;-)
 }
+
+proc __getLineNumber {addr} {
+	#return "\n[peek16 [expr $addr + 2]] "
+	return "\n0x[format %x [peek16 $addr]] > [peek16 [expr $addr + 2]] "
+}
+
 proc listing {} {
 	set token1 [list \
 		"" "END" "FOR" "NEXT" "DATA" "INPUT" "DIM" "READ" "LET" \
@@ -92,37 +87,37 @@ proc listing {} {
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ]
 
 	set go 1
-	set addr [word 0xf676]
+	set addr [peek16 0xf676]
 	set listing ""
 	set tok ""
 
 	# Check for listing
-	if {[word $addr] == 0} {
+	if {[peek16 $addr] == 0} {
 		return "No Listing In Memory"
 	}
 
 	# Initial Line Number
-	append listing [getLineNumber $addr]
+	append listing [__getLineNumber $addr]
 	incr addr 4
 
 	# Loop through the memory
 	while {$go == 1} {
 		set tok ""
-		if {[byte $addr] > 0x80 && [byte $addr] < 0xff} {
-			set tok [lindex $token1 [expr [byte $addr] - 0x80]]
+		if {[peek $addr] > 0x80 && [peek $addr] < 0xff} {
+			set tok [lindex $token1 [expr [peek $addr] - 0x80]]
 		} else {
-			if {[byte $addr] == 0xff} {
+			if {[peek $addr] == 0xff} {
 				incr addr
-				set tok [lindex $token2 [expr [byte $addr]-0x80]]
+				set tok [lindex $token2 [expr [peek $addr]-0x80]]
 			} else {
-				if {[byte $addr] == 0x3a} {
+				if {[peek $addr] == 0x3a} {
 					set forward 0
 					incr addr
-					if {[byte $addr] == 0xa1} {
+					if {[peek $addr] == 0xa1} {
 						set tok "ELSE"
 						set forward 1
 					}
-					if {[byte $addr] == 0x8f} {
+					if {[peek $addr] == 0x8f} {
 						set tok "'"
 						set forward 1
 					}
@@ -132,62 +127,62 @@ proc listing {} {
 					}
 				} else {
 					set forward 0
-					if {[byte $addr] == 0x0} {
+					if {[peek $addr] == 0x0} {
 						incr addr
-						set tok [getLineNumber $addr]
+						set tok [__getLineNumber $addr]
 						incr addr 3
 						set forward 1
 					}
-					if {[byte $addr] == 0x0B && $forward == 0} {
+					if {[peek $addr] == 0x0B && $forward == 0} {
 						incr addr
-						set tok [format "&O%o" [word $addr]]
-						incr addr
-						set forward 1
-					}
-					if {[byte $addr] == 0x0C && $forward == 0} {
-						incr addr
-						set tok [format "&H%x" [word $addr]]
+						set tok [format "&O%o" [peek16 $addr]]
 						incr addr
 						set forward 1
 					}
-					if {[byte $addr] == 0x0D && $forward == 0} {
+					if {[peek $addr] == 0x0C && $forward == 0} {
+						incr addr
+						set tok [format "&H%x" [peek16 $addr]]
+						incr addr
+						set forward 1
+					}
+					if {[peek $addr] == 0x0D && $forward == 0} {
 						set tok "(TODO GOSUB)"
 						incr addr 2
 						set forward 1
 					}
-					if {[byte $addr] == 0x0E && $forward == 0} {
+					if {[peek $addr] == 0x0E && $forward == 0} {
 						incr addr
-						set tok [format "%d" [word $addr]]
-						incr addr
-						set forward 1
-					}
-					if {[byte $addr] == 0x0F && $forward == 0} {
-						incr addr
-						set tok [format "%d" [byte $addr]]
-						set forward 1
-					}
-					if {[byte $addr] == 0x1C && $forward == 0} {
-						incr addr
-						set tok [format "%d" [word $addr]]
+						set tok [format "%d" [peek16 $addr]]
 						incr addr
 						set forward 1
 					}
-					if {[byte $addr] == 0x1D && $forward == 0} {
+					if {[peek $addr] == 0x0F && $forward == 0} {
+						incr addr
+						set tok [format "%d" [peek $addr]]
+						set forward 1
+					}
+					if {[peek $addr] == 0x1C && $forward == 0} {
+						incr addr
+						set tok [format "%d" [peek16 $addr]]
+						incr addr
+						set forward 1
+					}
+					if {[peek $addr] == 0x1D && $forward == 0} {
 						incr addr
 						set tok "(TODO: Single)"
 						set forward 1
 					}
-					if {[byte $addr] == 0x1F && $forward == 0} {
+					if {[peek $addr] == 0x1F && $forward == 0} {
 						incr addr
 						set tok "(TODO: Double)"
 						set forward 1
 					}
-					if {[byte $addr] >= 0x11 && [byte $addr] <= 0x1a} {
-						set tok [expr [byte $addr] - 0x11]
+					if {[peek $addr] >= 0x11 && [peek $addr] <= 0x1a} {
+						set tok [expr [peek $addr] - 0x11]
 						set forward 1
 					}
 					if {$forward == 0} {
-						set tok [format "%c" [byte $addr]]
+						set tok [format "%c" [peek $addr]]
 					}
 				}
 			}
@@ -195,7 +190,7 @@ proc listing {} {
 
 		incr addr
 		append listing $tok
-		if {[word $addr] == 0 || $addr >= 0xffff} {
+		if {[peek16 $addr] == 0 || $addr >= 0xffff} {
 			set go 0
 		}
 	}

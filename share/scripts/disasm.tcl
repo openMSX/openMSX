@@ -21,6 +21,16 @@ proc peek {addr} {
 	return [debug read memory $addr]
 }
 
+set_help_text peek16 \
+{Read a 16-bit value (in little endian format) from the given memory location.
+
+usage:
+  peek16 <addr>
+}
+proc peek16 {addr} {
+	return [expr [peek $addr] + 256 * [peek [expr $addr + 1]]]
+}
+
 set_help_text poke \
 {Write a byte to the given memory location.
 Equivalent to "debug write memory <addr> <val>".
@@ -30,6 +40,17 @@ usage:
 }
 proc poke {addr val} {
 	debug write memory $addr $val
+}
+
+set_help_text poke16 \
+{Write a 16-bit value (in little endian format) to the given memory location.
+
+usage:
+  poke16 <addr> <val>
+}
+proc poke16 {addr val} {
+	debug write memory       $addr      [expr $val & 255]
+	debug write memory [expr $addr + 1] [expr $val >> 8]
 }
 
 
