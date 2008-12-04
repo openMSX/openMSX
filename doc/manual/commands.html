@@ -198,9 +198,9 @@
 
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
 
-        <li><a class="internal" href="#kbd_auto_toggle_codekana_lock">kbd_auto_toggle_codekana_lock</a></li>
+        <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
 
-	<li><a class="internal" href="#kbd_codekana_host_key">kbd_codekana_host_key</a></li>
+	<li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
 
 	<li><a class="internal" href="#kbd_keymap_filename">kbd_keymap_filename</a></li>
 
@@ -3011,7 +3011,7 @@
     Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
   </div>
 
-  <h3><a id="kbd_auto_toggle_codekana_lock">kbd_auto_toggle_codekana_lock</a></h3>
+  <h3><a id="kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></h3>
 
   <p>Switches the "Automatically toggle the CODE/KANA lock" feature on or off. When it's on, openMSX will
   automatically toggle the CODE/KANA lock when a user enters a character for which the CODE/KANA lock
@@ -3023,19 +3023,19 @@
 
   <table>
     <tr>
-      <td><code>set kbd_auto_toggle_codekana_lock</code></td>
+      <td><code>set kbd_auto_toggle_code_kana_lock</code></td>
 
       <td>Shows the current setting</td>
     </tr>
 
     <tr>
-      <td><code>set&nbsp;kbd_auto_toggle_codekana_lock&nbsp;on</code></td>
+      <td><code>set&nbsp;kbd_auto_toggle_code_kana_lock&nbsp;on</code></td>
 
       <td>Automatically toggle the CODE/KANA lock when required</td>
     </tr>
 
     <tr>
-      <td><code>set&nbsp;kbd_auto_toggle_codekana_lock&nbsp;off</code></td>
+      <td><code>set&nbsp;kbd_auto_toggle_code_kana_lock&nbsp;off</code></td>
 
       <td>Only toggle CODE/KANA lock status when user presses the CODE/KANA lock key</td>
     </tr>
@@ -3045,7 +3045,7 @@
     Note: This only works on MSX models for which the CODE/KANA key locks (e.g. Japanese MSX models and the Philips VG8010). On other models, this setting is ignored.
   </div>
 
-  <h3><a id="kbd_codekana_host_key">kbd_codekana_host_key</a></h3>
+  <h3><a id="kbd_code_kana_host_key">kbd_code_kana_host_key</a></h3>
 
   <p>Host key that maps to the MSX CODE/KANA key.</p>
   <p>It is especially useful for
@@ -3061,19 +3061,19 @@
 
   <table>
     <tr>
-      <td><code>set&nbsp;kbd_codekana_host_key</code></td>
+      <td><code>set&nbsp;kbd_code_kana_host_key</code></td>
 
       <td>Shows the current setting</td>
     </tr>
 
     <tr>
-      <td><code>set&nbsp;kbd_codekana_host_key&nbsp;MENU</code></td>
+      <td><code>set&nbsp;kbd_code_kana_host_key&nbsp;MENU</code></td>
 
       <td>Binds the MENU key on the host keyboard to the MSX CODE/KANA key</td>
     </tr>
 
     <tr>
-      <td><code>set&nbsp;kbd_codekana_host_key&nbsp;HENKAN_MODE</code></td>
+      <td><code>set&nbsp;kbd_code_kana_host_key&nbsp;HENKAN_MODE</code></td>
 
       <td>Binds the HENKAN_MODE key on the host keyboard to the MSX CODE/KANA key</td>
     </tr>
