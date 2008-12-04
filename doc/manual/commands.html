@@ -653,8 +653,7 @@
 
   <h3><a id="debug">debug</a></h3>
 
-  <p>This command provides access to the debugger functionality of openMSX. It's meant to be used by an external debugger (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). The general format of
-  the debug command is:</p>
+  <p>This command provides access to the debugger functionality of openMSX. It's meant to be used by an external debugger (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). The general format of the debug command is:</p>
 
   <p><code>debug &lt;subcommand&gt; [&lt;extra arguments&gt;]</code></p>
 
@@ -937,23 +936,21 @@
 
   <p>This is a tool to find new cheats, for example for a certain game it can help you find the memory location where the number of remaining lives is stored. These cheats can later be added to the <code><a class="internal" href="#trainer">trainer</a></code> command.</p>
 
-  <p>It works more or less like this:
-    <ol>
-      <li>Initialize the <code>findcheat</code> tool (this takes an initial snapshot of the MSX memory)</li>
-      <li>Perform some action in the game that changes the variable that you're interested in. For example if you want to find the memory location where the number of lives is stored, you have to loose (or gain) a life in the game.</li>
-      <li>Now use the <code>findcheat</code> tool to compare the current MSX memory state with the previous memory snapshot. <code>findcheat</code> offers a lot of possibilities here, for example you can search for memory locations that became bigger or smaller or locations whose value changed or didn't change.</li>
-      <li><code>findcheat</code> will show a list of memory locations that still match the search criteria.</li>
-      <li>If there still are still too many matches, repeat from step 2.</li>
-    </ol>
-  </p>
+  <p>It works more or less like this:</p>
+  <ol>
+    <li>Initialize the <code>findcheat</code> tool (this takes an initial snapshot of the MSX memory)</li>
+    <li>Perform some action in the game that changes the variable that you're interested in. For example if you want to find the memory location where the number of lives is stored, you have to loose (or gain) a life in the game.</li>
+    <li>Now use the <code>findcheat</code> tool to compare the current MSX memory state with the previous memory snapshot. <code>findcheat</code> offers a lot of possibilities here, for example you can search for memory locations that became bigger or smaller or locations whose value changed or didn't change.</li>
+    <li><code>findcheat</code> will show a list of memory locations that still match the search criteria.</li>
+    <li>If there still are still too many matches, repeat from step 2.</li>
+  </ol>
 
-  <p>Vampier wrote a very good tutorial on how to use <code>findcheat</code>, you can find it <a class="external" href="http://www.vampier.net/forum/viewtopic.php?f=6&t=34">here</a>.</p>
+  <p>Vampier wrote a very good tutorial on how to use <code>findcheat</code>, you can find it <a class="external" href="http://www.vampier.net/forum/viewtopic.php?f=6&amp;t=34">here</a>.</p>
 
 
   <h3><a id="hd">hd&lt;x&gt;</a></h3>
 
-  <p>Change the hard disk image. The commands <code>hda</code>, <code>hdb</code> etc. are assigned to all available hard disk drives in the MSX. They
-  will not correspond to drive names as used in MSX-DOS.</p>
+  <p>Change the hard disk image. The commands <code>hda</code>, <code>hdb</code> etc. are assigned to all available hard disk drives in the MSX. They will not correspond to drive names as used in MSX-DOS.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1171,9 +1168,10 @@
 
   <h3><a id="machines">create_machine / load_machine / activate_machine / list_machines / delete_machine</a></h3>
 
-  <p>openMSX has the possibility to have multiple MSX machines simultaneous in memory. This is more or less like multiple tabs in a webbrowser: you only work with one at-a-time, but you can have multiple open at the same time and easily switch between them. These commands are low level commands to manage this.</p>
+  <p>openMSX has the possibility to have multiple MSX machines concurrently in memory. This is more or less like multiple tabs in a web browser: you only work with one at-a-time, but you can have multiple open at the same time and easily switch between them. These commands are low level commands to manage this.</p>
 
-  <p>Some commands are specific per machine, for example if you insert a diskimage into the diskdrive of the emulated MSX machine and if you have multiple MSX machines, you need to specify in which MSX machine you want to insert the disk. To solve this, we introduced the concept of the 'active' MSX machine (this is also the machine that is visible and audible). All unqualified machine-specific command will act on the active machine. If you want to execute the command in a specific machine, you can qualify the command with a machineID prefix.
+  <p>Some commands are specific per machine, for example if you insert a disk image into the disk drive of the emulated MSX machine and if you have multiple MSX machines, you need to specify in which MSX machine you want to insert the disk. To solve this, we introduced the concept of the 'active' MSX machine (this is also the machine that is visible and audible). All unqualified machine-specific command will act on the active machine. If you want to execute the command in a specific machine, you can qualify the command with a machineID prefix.</p>
+
   <table>
     <tr>
       <td><code>diska &lt;diskimage&gt;</code></td>
@@ -1184,23 +1182,22 @@
       <td>execute diska command in the specified machine</td>
     </tr>
   </table>
-  </p>
 
   <h4><code>create_machine</code>:</h4>
-  <p>This command returns a new machine-id. This machine-id can be used in the following commands. In the webbroser analogy this command would open a new empty tab.</p>
+  <p>This command returns a new machine-id. This machine-id can be used in the following commands. In the web browser analogy this command would open a new empty tab.</p>
 
   <h4><code>load_machine</code>:</h4>
   <p>This command loads a machine configuration (= MSX model) into the given machine-ID.
-  In the webbroser analogy, this command would load a page in a previously created empty tab. And unlike a webbrowser, where you can load a different page in the same tab, you cannot load a different machine configuration in the same machine-ID.</p>
+  In the web browser analogy, this command would load a page in a previously created empty tab. And unlike a web browser, where you can load a different page in the same tab, you cannot load a different machine configuration in the same machine-ID.</p>
 
   <h4><code>activate_machine</code>:</h4>
-  <p>This command activates the given machine-ID. At any time there can only be one active machine-ID. This is analogue to switching tabs in a webbrowser.</p>
+  <p>This command activates the given machine-ID. At any time there can only be one active machine-ID. This is analogue to switching tabs in a web browser.</p>
 
   <h4><code>list_machines</code>:</h4>
   <p>Returns a list of all currently existing machine-IDs.</p>
 
   <h4><code>delete_machine</code>:</h4>
-  <p>Deletes the given machine-ID. This is analogue to closing a tab in a webbrowser.</p>
+  <p>Deletes the given machine-ID. This is analogue to closing a tab in a web browser.</p>
 
   <h4>examples:</h4>
   <table>
@@ -1214,15 +1211,15 @@
     </tr>
     <tr>
       <td><code>$newID::load_machine Philips_NMS_8250</code></td>
-      <td>load a MSX2 config in that new machineID</td>
-    <tr>
+      <td>load an MSX2 configuration in that new machineID</td>
+    </tr>
     <tr>
       <td><code>activate_machine $newID</code></td>
       <td>switch to the new machine</td>
     </tr>
     <tr>
       <td><code>activate_machine $oldID</code></td>
-      <td>switch back to old machine</code></td>
+      <td>switch back to old machine</td>
     </tr>
     <tr>
       <td><code>delete_machine $newID</code></td>
@@ -1231,7 +1228,7 @@
   </table>
 
   <div class="note">
-    If you don't care about multiple active machines, the <code><a class="internal" href="#machine">machine</a></code> command is much more convenient to switch to a different MSX configuration.</p>
+    If you don't care about multiple active machines, the <code><a class="internal" href="#machine">machine</a></code> command is much more convenient to switch to a different MSX configuration.
   </div>
 
 
@@ -1356,12 +1353,13 @@
 
   <h3><a id="osd">osd</a></h3>
 
-  <p>openMSX has the possibilty to show OSD (on screen display) elements. For example, the LEDs and the fps-indicator are implemented via OSD elements. This command allows to create new OSD elements, configure existing elements or delete elements.</p>
+  <p>openMSX has the possibility to show OSD (on screen display) elements. For example, the LEDs and the fps-indicator are implemented via OSD elements. This command allows to create new OSD elements, configure existing elements or delete elements.</p>
+
+  <p>This command is only useful if you plan to adjust or enhance the openMSX OSD, or create your own OSD widgets.</p>
 
   <!-- do we really have to repeat the help text from the openmsx source code here? -->
 
-  <p>Execute "<code>help osd</code>" to get a detailed description of this command.</p>
-
+  <p>Execute "<code>help osd</code>" to get a detailed description of this command, which we will not repeat here.</p>
 
   <h3><a id="palette">palette</a></h3>
 
@@ -1607,16 +1605,16 @@
   <p>These command can be used to manage savestates. These are much easier to use than the lowlevel <code><a class="internal" href="#store_machine">store_machine</a></code> and <code><a class="internal" href="#store_machine">restore_machine</a></code> commands.</p>
 
   <h4><code>savestate [&lt;name&gt;]</code></h4>
-  This creates a snapshot of the currently emulated MSX machine. Optionally you can specify a name for the savestate, if you omit this name, the default name <code>quicksave</code> will be taken.
+  <p>This creates a snapshot of the currently emulated MSX machine. Optionally you can specify a name for the savestate, if you omit this name, the default name <code>quicksave</code> will be taken.</p>
 
   <h4><code>loadstate [&lt;name&gt;]</code></h4>
-  This restores a previously created savestate. Like above you can specify a name which defaults to <code>quicksave</code> if omitted.
+  <p>This restores a previously created savestate. Like above you can specify a name which defaults to <code>quicksave</code> if omitted.</p>
 
   <h4><code>list_savestates</code></h4>
-  This returns the names of all previously created savestates.
+  <p>This returns the names of all previously created savestates.</p>
 
   <h4><code>delete_savestate &lt;name&gt;</code></h4>
-  Delete a previously created savestate.
+  <p>Delete a previously created savestate.</p>
 
 
   <h3><a id="screenshot">screenshot</a></h3>
@@ -1662,7 +1660,7 @@
 
     <tr>
       <td><code>screenshot -msxonly -doublesize</code></td>
-      <td>Create screenshot of the MSX screen only, with resolution 640x480</td>
+      <td>Create screenshot of the MSX screen only, with resolution 640&times;480</td>
     </tr>
   </table>
 
@@ -1781,7 +1779,8 @@
   <p>These are low-level commands, used to implement savestates.</p>
 
   <h4><code>store_machine</code>:</h4>
-  Saves the state of the specified machine to a file.
+  <p>Saves the state of the specified machine to a file.</p>
+
   <table>
     <tr>
       <td><code>store_machine</code></td>
@@ -1798,7 +1797,8 @@
   </table>
 
   <h4><code>restore_machine</code>:</h4>
-  Load a previously saved machine in a new machine-ID, next to the already available machines. See the section on <code><a class="internal" href="#machines">activate_machine</a></code>.
+  <p>Load a previously saved machine in a new machine-ID, next to the already available machines. See the section on <code><a class="internal" href="#machines">activate_machine</a></code>.</p>
+
   <table>
     <tr>
       <td><code>restore_machine</code></td>
@@ -1817,7 +1817,7 @@
 
   <h3><a id="test_machine">test_machine</a></h3>
 
-  <p>Test wether the given MSX machine configuartion works. For example whether you have all required system-roms for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>.</p>
+  <p>Test whether the given MSX machine configuration works. For example whether you have all required system-roms for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1825,7 +1825,7 @@
   <table>
     <tr>
       <td><code>test_machine &lt;machine-config&gt;</code></td>
-      <td>Test whether the given machine configuartion is OK.</td>
+      <td>Test whether the given machine configuration is OK.</td>
     </tr>
   </table>
 
@@ -2003,7 +2003,7 @@
 
   <h2><a id="old_commands">Old Commands</a></h2>
 
-  <p>The following commands existed in older openMSX version. For backwards compatibility they are still supported for
+  <p>The following commands existed in older openMSX versions. For backwards compatibility they are still supported for
   a while. In later versions they will be removed.</p>
 
   <h3><a id="aliasunalias">alias / unalias</a></h3>
@@ -2133,7 +2133,7 @@
     <dd>Changes in VDP state become effective immediately. In this mode even the 'Unknown Reality scope part' is rendered correctly.</dd>
   </dl>
 
-  <p>In some cases switching to a lower accuracy level can speed up emulation, but in many cases the speed difference is neglible.</p>
+  <p>In some cases switching to a lower accuracy level can speed up emulation, but in many cases the speed difference is negligible.</p>
 
   <p>The default is pixel accuracy, since this is the most realistic. If the software you are running shows a jittery screen split and you would prefer a stable screen split, switching to line accuracy can help.</p>
 
@@ -2279,7 +2279,7 @@
 
   <h3><a id="brightness">brightness</a></h3>
 
-  <p>Controls the brightness of the video output. Can be between -100 and 100. Lower values are darker, higher values are brighter. The default is 0, which is neutral. This setting shifts the brigtness of all colors, including black and white, while the <code><a class="internal" href="#gamma">gamma</a></code> setting changes the relative brightness of colors but does not change black and white.</p>
+  <p>Controls the brightness of the video output. Can be between -100 and 100. Lower values are darker, higher values are brighter. The default is 0, which is neutral. This setting shifts the brightness of all colors, including black and white, while the <code><a class="internal" href="#gamma">gamma</a></code> setting changes the relative brightness of colors but does not change black and white.</p>
 
   <p>The section about the <code><a class="internal" href="#noise">noise</a></code> setting describes a typical way of using <code>brightness</code>.</p>
 
@@ -2337,13 +2337,13 @@
 
   <h3><a id="color_matrix">color_matrix</a></h3>
 
-  <p>This setting represents a 3x3 matrix that is used to transform MSX RGB colors to host RGB colors. This setting can
+  <p>This setting represents a 3&times;3 matrix that is used to transform MSX RGB colors to host RGB colors. This setting can
   be used to generate all kind of color schemes, see <code>scripts/monitor.tcl</code> for examples.</p>
 
   <p>To get the following color transformation:</p>
   <pre>
         | a b c |   | Rm |   | Rh |
-        | d e f | x | Gm | = | Gh |
+        | d e f | &times; | Gm | = | Gh |
         | g h i |   | Bm |   | Bh |
   </pre>
   <p>Use this command:</p>
@@ -2371,7 +2371,7 @@
     <tr>
       <td><code>set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }</code></td>
 
-      <td>Transform to greyscale</td>
+      <td>Transform to grey scale</td>
     </tr>
   </table>
 
@@ -2453,7 +2453,7 @@
 
   <h3><a id="consolefont">consolefont</a></h3>
 
-  <p>Change the console font. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). The image must contain a 16x16 matrix with the characters in ASCII order. Some renderers (OpenGL) require an alpha channel to have transparency in the font, this channel is only present in PNG images.</p>
+  <p>Change the console font. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). The image must contain a 16&times;16 matrix with the characters in ASCII order. Some renderers (OpenGL) require an alpha channel to have transparency in the font, this channel is only present in PNG images.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2491,7 +2491,7 @@
     <tr>
       <td><code>set consoleplacement &lt;place&gt;</code></td>
 
-      <td>Moves the console the the specified location; <code>&lt;place&gt;</code> can be <code>topleft</code>, <code>top</code>, <code>topright</code>, <code>left</code>, <code>center</code>, <code>right</code>, <code>bottomleft</code>, <code>bottom</code> or <code>bottomright</code>.</td>
+      <td>Moves the console to the specified location; <code>&lt;place&gt;</code> can be <code>topleft</code>, <code>top</code>, <code>topright</code>, <code>left</code>, <code>center</code>, <code>right</code>, <code>bottomleft</code>, <code>bottom</code> or <code>bottomright</code>.</td>
     </tr>
   </table>
 
@@ -3048,12 +3048,12 @@
   <h3><a id="kbd_codekana_host_key">kbd_codekana_host_key</a></h3>
 
   <p>Host key that maps to the MSX CODE/KANA key.</p>
-  <p>It is especially usefull for
+  <p>It is especially useful for
   people with AZERTY host keyboard, on which the right-ALT key (RALT, which is
   the default value of this setting) has a special function; it is called the
   ALT-GR key and it's used to enter some special characters (some keys are
   tagged with 3 characters; normal, key+SHIFT, key+ALT-GR).</p>
-  <p>It is also usefull for people with a Japanese (jp106) keyboard; they can map the HENKAN_MODE key (which is similar to the KANA Lock on Japanese MSX models) to the CODE/KANA key.</p>
+  <p>It is also useful for people with a Japanese (jp106) keyboard; they can map the HENKAN_MODE key (which is similar to the KANA Lock on Japanese MSX models) to the CODE/KANA key.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3081,15 +3081,14 @@
 
   <h3><a id="kbd_keymap_filename">kbd_keymap_filename</a></h3>
 
-  <p>Sets the filename of the file that contains a mapping from host keys to
-  MSX keys.</p>
-  <p>In CHARACTER <a class="internal" href="#kbd_mapping_mode">mapping mode</A>, it is only used for special keys for
+  <p>Sets the filename of the file that contains a mapping from host keys to MSX keys.</p>
+  <p>In CHARACTER <a class="internal" href="#kbd_mapping_mode">mapping mode</a>, it is only used for special keys for
   which no unicode character exists, like the SHIFT key, the ALT key and so on.</p>
-  <p>In KEY <a class="internal" href="#kbd_mapping_mode">mapping mode</A>, it is used for all keys but the ones for which a special
+  <p>In KEY <a class="internal" href="#kbd_mapping_mode">mapping mode</a>, it is used for all keys but the ones for which a special
   setting exists (like <code><a class="internal"
   href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></code>).</p>
   <p>By default, this setting is not set but a built-in mapping is used. The built-in
-  mapping maps from a US-qwerty host keyboard to an 'international'-qwerty MSX keyboard</p>
+  mapping maps from a US-QWERTY host keyboard to an 'international'-QWERTY MSX keyboard</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3112,17 +3111,23 @@
   <h3><a id="kbd_mapping_mode">kbd_mapping_mode</a></h3>
 
   <p>The keyboard driver can work in two mapping modes; KEY mapping and CHARACTER mapping.</p>
-  <p><b>KEY mapping:</b> A key pressed on the host keyboard maps to one specific key on the MSX keyboard. This mode
+
+  <dl>
+    <dt>KEY mapping:</dt>
+    <dd>A key pressed on the host keyboard maps to one specific key on the MSX keyboard. This mode
   is convenient when the host keyboard and the MSX keyboard have the same layout or when working with a program
   that directly reads the keyboard matrix and forces the user to enter a certain key combination that can not
-  be auto-generated in the CHARACTER mapping mode.
-  <p><b>CHARACTER mapping:</b> A character entered by the user is mapped to the correct key combination on the MSX to
+  be auto-generated in the CHARACTER mapping mode.</dd>
+    <dt>CHARACTER mapping:</dt>
+    <dd>A character entered by the user is mapped to the correct key combination on the MSX to
   enter that character. For example, when the user enters an ! character and openMSX is emulating an 'international'
   MSX model, the keyboard driver will press SHIFT and 1 on the MSX keyboard. This will be done regardless of the key
-  or keys that the user pressed on the host keyboard to enter the ! character.<br>
-  This is especially usefull when the user has an azerty host keyboard and is working on a qwerty style MSX or
-  when he has a US-qwerty keyboard and is working on a Japanese MSX.<br>
-  Note that special keys (like CAPSLOCK) are mapped directly, just like in the KEY mapping mode.
+  or keys that the user pressed on the host keyboard to enter the ! character.<br/>
+  This is especially useful when the user has an AZERTY host keyboard and is working on a QWERTY style MSX or
+  when he has a US-QWERTY keyboard and is working on a Japanese MSX.<br/>
+  Note that special keys (like CAPSLOCK) are mapped directly, just like in the KEY mapping mode.</dd>
+  </dl>
+
   <div class="subsectiontitle">
     usage:
   </div>
@@ -3154,7 +3159,7 @@
   key presses on the host numeric keypad when emulating such an MSX model.
   With this parameter, you can indicate that even on such MSX models, presses
   on the host numeric keypad must be mapped to the MSX numeric keypad. So, you
-  can override accurate behavour with it, which is the reason that by default,
+  can override accurate behaviour with it, which is the reason that by default,
   this setting is set to 'off'.</p>
 
   <div class="subsectiontitle">
@@ -3184,7 +3189,7 @@
 
   <p>In some respect it is logical that the 'ENTER' key on the host numeric
   keypad is mapped to the 'normal' MSX 'ENTER' key. On the other hand, that
-  would make it impossible to enter the ',' on the MSX nummeric keypad.
+  would make it impossible to enter the ',' on the MSX numeric keypad.
   Therefore, the user can choose whether the host numeric keypad ENTER key
   should be mapped to the MSX numeric keypad ',' (which is the default) or to
   the main 'ENTER' key.</p>
@@ -3275,7 +3280,7 @@
 
   <p>These are read-only settings. Their value reflects the current status of the corresponding LED on the emulated MSX machine. The currently supported LED names are: <code>power</code>, <code>caps</code>, <code>kana</code>, <code>pause</code>, <code>turbo</code> and <code>FDD</code>.</p>
 
-  <p>As for any setting you can use the native <code>trace</code> Tcl command to trigger a callback when the value of these settings changes. (In fact this possibilty was the main motivation to make these read-only settings instead of topics of the <code><a class="internal" href="#machine_info">machine_info</a></code> command.)</p>
+  <p>As for any setting you can use the native <code>trace</code> Tcl command to trigger a callback when the value of these settings changes. (In fact this possibility was the main motivation to make these read-only settings instead of topics of the <code><a class="internal" href="#machine_info">machine_info</a></code> command.)</p>
 
 
   <h3><a id="limitsprites">limitsprites</a></h3>
@@ -3461,7 +3466,7 @@
 
   <p>Controls the amount of Gaussian noise that is added to the video output. A small amount of noise can give a more authentic look to the video output on TFTs. Values can be between 0 and 100, where 0 is no noise and 100 is lots of noise.</p>
 
-  <p>This setting is best combined with <code><a class="internal" href="#brightness">brightness</a></code> and <code><a class="internal" href="#contrast">contrast</a></code>: noise creates small random fluctuations in the brightness of pixels. When noise is applied to pure black, it is not possible to make it any darker, so half of the time the noise is uneffective. The same happens with pure white. By setting the <code><a class="internal" href="#brightness">brightness</a></code> slightly above 0 and <code><a class="internal" href="#contrast">contrast</a></code> slightly below 0, you will get a better looking noise effect.</p>
+  <p>This setting is best combined with <code><a class="internal" href="#brightness">brightness</a></code> and <code><a class="internal" href="#contrast">contrast</a></code>: noise creates small random fluctuations in the brightness of pixels. When noise is applied to pure black, it is not possible to make it any darker, so half of the time the noise is ineffective. The same happens with pure white. By setting the <code><a class="internal" href="#brightness">brightness</a></code> slightly above 0 and <code><a class="internal" href="#contrast">contrast</a></code> slightly below 0, you will get a better looking noise effect.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3657,7 +3662,7 @@
     <tr>
       <td><code>set resampler fast</code></td>
 
-      <td>Sets a fast, but low quality resampler. This uses simple linear interpolation, which can result in very audible aliasing effects in some cases. Although this is a relatively low quality algorithm, it's the algorthm that was used in pre-0.6.3 openMSX versions (and most other MSX emulators).</td>
+      <td>Sets a fast, but low quality resampler. This uses simple linear interpolation, which can result in very audible aliasing effects in some cases. Although this is a relatively low quality algorithm, it's the algorithm that was used in pre-0.6.3 openMSX versions (and most other MSX emulators).</td>
     </tr>
 
     <tr>
@@ -3837,7 +3842,7 @@
 
   <h3><a id="scale_factor">scale_factor</a></h3>
 
-  <p>Selects the scale factor. Scale factor &lt;n&gt; means the typical MSX pixel (MSX resolution 256x212) is mapped on &lt;n&gt; by &lt;n&gt; host pixels. For the moment the possible values are 1 to 4. In the future we may support a wider range or even non-integer values. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.</p>
+  <p>Selects the scale factor. Scale factor &lt;n&gt; means the typical MSX pixel (MSX resolution 256&times;212) is mapped on &lt;n&gt; by &lt;n&gt; host pixels. For the moment the possible values are 1 to 4. In the future we may support a wider range or even non-integer values. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3933,7 +3938,7 @@
 
   <h3><a id="soundchip_balance">&lt;soundchip&gt;_balance</a></h3>
 
-  <p>Sets the balance (distribution over the left and right channe) for individual sound chips. It replaces the previously available <code>&lt;soundchip&gt;_mode</code> setting. The range is between -100 (totally left) and 100 (totally right).</p>
+  <p>Sets the balance (distribution over the left and right channel) for individual sound chips. It replaces the previously available <code>&lt;soundchip&gt;_mode</code> setting. The range is between -100 (totally left) and 100 (totally right).</p>
 
   <div class="subsectiontitle">
     usage:
