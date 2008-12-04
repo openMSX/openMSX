@@ -137,7 +137,7 @@ Version 3.79 or higher should suffice.</dd>
 
 <dt><code>g++</code></dt>
 <dd>The GNU C++ compiler.
-Version 4.1 or later is recommended; 3.4 won't be able to build the debug flavour, any lower version will not be able to build openMSX at all.
+Version 4.1 or later is recommended; any version lower than 3.4 will not be able to build openMSX at all.
 </dd>
 
 </dl>
@@ -175,6 +175,9 @@ openMSX depends on the following libraries:
 
 <dt><a class="external" href="http://www.libsdl.org/projects/SDL_image/">SDL_image</a></dt>
 <dd>Library that integrates image reading and writing with SDL. SDL_image can support many image formats, but openMSX only requires PNG support.</dd>
+
+<dt><a class="external" href="http://www.libsdl.org/projects/SDL_ttf/">SDL_ttf</a></dt>
+<dd>Library that provides support for TrueType Fonts in SDL.</dd>
 
 <dt><a class="external" href="http://www.libpng.org/pub/png/libpng.html">libpng</a></dt>
 <dd>Library for handling PNG images.</dd>
@@ -280,7 +283,7 @@ Also there may be changes that are not documented yet.
 A snapshot is created from a recent SVN checkout,
 in a <code>tar.gz</code> archive.
 A snapshot is therefore quite similar to a SVN checkout,
-but it doesn't require you to install and use SVN. It may lag a couple of days from the latest SVN sources. Moreover, SF.net staff sometimes turns off cron jobs, which means the snapshots may be updated on a very irregular basis.
+but it doesn't require you to install and use SVN. It may lag a couple of days from the latest SVN sources. Moreover, SF.net turned off cron jobs, which means the snapshots may be updated on a very irregular basis.
 </dd>
 
 </dl>
@@ -319,7 +322,7 @@ After downloading, type:
 <p>
 in which <code>VERSION</code> is the openMSX version you downloaded, or use the
 file name you saved the tar.gz file with. This works in a UNIX or MSYS shell,
-you can also use another uncompression tool, of course.
+you can also use another decompression tool, of course.
 The directory that is created by uncompressing the <code>tar.gz</code> file
 is called <em>the top of the source tree</em>.
 </p>
@@ -400,7 +403,7 @@ After downloading, type:
 </p>
 <div class="commandline">tar xzvf openmsx-SVN-snapshot.tar.gz</div>
 <p>
-This works in a UNIX or MSYS shell, you can also use another uncompression
+This works in a UNIX or MSYS shell, you can also use another decompression
 tool, of course.
 The directory that is created by uncompressing the <code>tar.gz</code> file
 is called <em>the top of the source tree</em>.
@@ -612,7 +615,7 @@ C-BIOS 0.21        cbios.sf.net
 No cartridge found.
 
 This version of C-BIOS can
-only start cartrdiges.
+only start cartridges.
 Please restart your MSX
 (emulator) with a cartridge
 inserted.
@@ -676,7 +679,7 @@ open derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist/openMSX.app
 </div>
 
 <p>
-We do not have a GUI yet that works on Mac OS X, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a> or <a class="external" href="http://www.cescoware.com/">openMSX Peashooter</a>.
+We do not have a finished GUI yet that works on Mac OS X, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a> or <a class="external" href="http://www.cescoware.com/">openMSX Peashooter</a>.
 </p>
 
 <h2><a id="contact">7. Contact Info</a></h2>
