@@ -39,6 +39,7 @@
 			<li><a class="internal" href="#settings">3.3 Settings</a></li>
 			<li><a class="internal" href="#plug">3.4 Plug</a></li>
 			<li><a class="internal" href="#trainer">3.5 Game Trainer</a></li>
+			<li><a class="internal" href="#savestate">3.6 Saving/Loading the State of the Machine</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#media">4. Running MSX Software and Using Media</a>
@@ -49,6 +50,7 @@
 					<li><a class="internal" href="#diskimages">4.2.1 Using Disk Images</a></li>
 					<li><a class="internal" href="#dirasdisk">4.2.2 Using Directories as Disks</a></li>
 					<li><a class="internal" href="#realdisks">4.2.3 Using Real Disks</a></li>
+					<li><a class="internal" href="#diskmanagement">4.2.4 Managing Disk Images</a></li>
 				</ol>
 			</li>
 			<li><a class="internal" href="#tape">4.3 Running Tape Software</a>
@@ -71,10 +73,10 @@
 
 	<li><a class="internal" href="#input">5. Input Devices</a>
 		<ol class="toc">
-			<li><a class="internal" href="#keymapping">5.1 Key Mapping</a>
+			<li><a class="internal" href="#keyboard">5.1 Keyboard</a>
 				<ol class="toc">
-					<li><a class="internal" href="#keymappingpc">5.1.1 Key Mapping on PC</a></li>
-					<li><a class="internal" href="#keymappingmac">5.1.2 Key Mapping on Mac OS X</a></li>
+					<li><a class="internal" href="#keymapping">5.1.1 Key Mapping</a></li>
+					<li><a class="internal" href="#keyboardlayouts">5.1.2 Keyboard Layouts</a></li>
 				</ol>
 			</li>
 			<li><a class="internal" href="#joystick">5.2 Joystick</a></li>
@@ -214,7 +216,7 @@ The C-BIOS machines come with ROMs installed; for other machines you will have t
 Extensions are simply MSX cartridges (extensions to the MSX system) that you can plug into the emulated MSX. openMSX ships with a lot of predefined extensions. Note that many of them require firmware ROMs to be installed in the <code>share/extensions/<em>name</em>/roms</code> directory or in <code>share/systemroms</code>.
 </p>
 <p>
-We will use the FMPAC as an example. openMSX ships with a definition (XML file) for the FMPAC extension, but you will have to add the <code>fmpac.rom</code> firmware ROM yourself. When you have done so, you can insert an FMPAC into the emulated MSX machine with the following command line:
+We will use the FMPAC as an example. openMSX ships with a definition (XML file) for the FMPAC extension, but you will have to <a class="external" href="setup.html#installrom">add</a> the <code>fmpac.rom</code> firmware ROM yourself. When you have done so, you can insert an FMPAC into the emulated MSX machine with the following command line:
 </p>
 <div class="commandline">
     openmsx -ext fmpac
@@ -242,24 +244,24 @@ Often used other command line options will be discussed later in this manual. Fo
 openMSX has a built-in command interface called the <em>console</em>,
 which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
-(with default key mapping) when the focus is on the emulator window.  This will
+(with default key mapping; Cmd+L on Mac) when the focus is on the emulator window.  This will
 give you a command line in the openMSX window. Note that due to a <a class="external" href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1157373&amp;group_id=38274&amp;atid=421861">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
-ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also 3.3: Settings and 5.1.1: Keymapping on a PC.)
+ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
 </p>
 
 <p>
-Typing <code>help</code> gives a list of commands. Using PageUp you can see all of them.
+Typing <a class="external" href="commands.html#help"><code>help</code></a> gives a list of commands. Using PageUp you can see all of them.
 If you type <code>help [command]</code> you will get help
 for the specified command.
 This manual describes a few important commands;
 a full list can be found in the <a class="external" href="commands.html">Console Command Reference</a>.
-The console can be used to change disk images, plug in joysticks or mice,
-change settings at run time and to change key bindings, among others.
+The console can be used to <a class="internal" href="#disks">change disk images</a>, plug in <a class="internal" href="#joystick">joysticks</a> or <a class="internal" href="#mouse">mice</a>,
+<a class="internal" href="#settings">change settings</a> at run time and to change key bindings, among others. It actually gives you full control of openMSX: if it can't be done via the console, it's probably impossible!
 </p>
 
 <p>
-One very practical feature of the console command line is that you can use "completion" features. Just try typing half a command and then press the TAB key; openMSX will then try to finish the word you were typing or show the possibilities in case of ambiguities. You can use it also for file names, connectors, pluggables and settings, but also for machine and extension names.
+One very practical feature of the console command line is that you can use "completion" features. Just try typing half a command and then press the TAB key; openMSX will then try to finish the word you were typing or show the possibilities in case of ambiguities. You can use it also for file names, connectors, pluggables and settings and even for machine and extension names.
 </p>
 
 <h3><a id="importantconsole">3.2 Some Simple Console Commands</a></h3>
@@ -272,7 +274,7 @@ You can reset your MSX with the Console command <code><a class="external" href="
 
 <p>
 An interesting console command is <code><a class="external" href="commands.html#set">set</a></code>. You can use it to change the various
-settings. E.g., you can use it to set the current renderer. If you issue set with only the setting (like <code>set <a class="external" href="commands.html#renderer">renderer</a></code>), you will get the current value of that setting.
+settings. E.g., you can use it to set the current <a class="internal" href="#renderer">renderers</a>. If you issue set with only the setting (like <code>set <a class="external" href="commands.html#renderer">renderer</a></code>), you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code><a class="external" href="commands.html#toggle">toggle</a></code>
 command (an example is the default key binding of F12 to <code>toggle
 fullscreen</code>, see also below). A complete list of settings can also be found in the <a class="external" href="commands.html">Console Command Reference</a>. Note that using the "tab completion" feature can help you a lot in getting an idea of what settings are possible, as it will only complete possible options. Just try that.
@@ -309,7 +311,7 @@ You can save all your current settings with the <code><a class="external" href="
 <h3><a id="plug">3.4 Plug</a></h3>
 
 <p>
-The console command <code><a class="external" href="commands.html#plugunplug">plug</a></code> can be used to plug the so called pluggables (devices) into connectors on the MSX. Examples of connectors are the joystick ports, the printer port, the MIDI in and out connector, the cassette port, etc. Examples of pluggables are joysticks and mice (see below), but also printers and MIDI equipment. The command <code><a class="external" href="commands.html#plugunplug">plug</a></code> without any parameters will show a list of connectors and what pluggables are plugged into them. Using <code>plug [connector]</code> will only show what is plugged into [connector]. You will not be surprised that the command <code>plug [connector] [pluggable]</code> will plug the [pluggable] into the [connector].
+The console command <code><a class="external" href="commands.html#plugunplug">plug</a></code> can be used to plug the so called pluggables (devices) into connectors on the MSX. Examples of connectors are the joystick ports, the printer port, the MIDI in and out connector, the cassette port, etc. Examples of pluggables are <a class="internal" href="#joystick">joysticks</a> and <a class="internal" href="#mouse">mice</a>, but also printers and MIDI equipment. The command <code><a class="external" href="commands.html#plugunplug">plug</a></code> without any parameters will show a list of connectors and what pluggables are plugged into them. Using <code>plug [connector]</code> will only show what is plugged into [connector]. You will not be surprised that the command <code>plug [connector] [pluggable]</code> will plug the [pluggable] into the [connector].
 </p>
 
 <p>
@@ -325,7 +327,7 @@ Add the complete list of pluggables here.
 <h3><a id="trainer">3.5 Game Trainer</a></h3>
 
 <p>
-openMSX 0.6.2 comes with a completely reworked game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
+As of version 0.6.2, openMSX comes with a completely reworked game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
 </p>
 
 <p>
@@ -335,6 +337,19 @@ Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>
 <p>
 If this sounds a bit difficult for you, just try it out. It's really much easier when you actually work with it.
 As always in the console, using TAB to complete your commands and their options proves to be very useful!
+</p>
+
+<h3><a id="savestate">3.6 Saving/Loading the State of the Machine</a></h3>
+
+<p>
+A feature of emulators which is particularly useful is saving the state of the emulated machine to a file, in order to load it again later and continue exactly where you left off when saving. Not only useful for games, but also for debugging or testing. This feature is now also available in openMSX!
+</p>
+
+<p>
+The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code>list_savestates</code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code>delete_savestate</code> command.
+</p>
+
+<p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the experimental On-Screen-Display and in a prototype version of a new Catapult.)
 </p>
 
 <h2><a id="media">4. Running MSX Software and Using Media</a></h2>
@@ -427,10 +442,10 @@ The <code>-ips</code> option must follow directly the disk image on the command 
 You can also apply the patches when changing disks at run time. Just type something like
 </p>
 <div class="commandline">
-    <a class="external" href="commands.html#disk">diska</a> SDSNAT1C.DSK sdsnat1-eng.ips sd-cheat.ips
+    <a class="external" href="commands.html#disk">diska</a> SDSNAT1C.DSK.gz sdsnat1-eng.ips sd-cheat.ips
 </div>
 <p>
-in the console to put the specified disk image SDSNAT1C.DSK in drive A, with both IPS patches applied.
+in the console to put the specified gzipped disk image SDSNAT1C.DSK.gz in drive A, with both IPS patches applied.
 </p>
 
 <h4><a id="dirasdisk">4.2.2 Using Directories as Disks</a></h4>
@@ -453,31 +468,15 @@ edit source files with your favourite text editor but compile them immediately i
 the emulated MSX.
 </p>
 <p>
-Adding files on the host OS doesn't have any effect on the disk in openMSX and
-vice versa.
+Using the default value of the setting <a class="external" href="commands.html#DirAsDSKmode">DirAsDSKmode</a> (full), all changes to the directory on the host system <em>and</em> on the MSX system are performed, so that they are immediately visible to the other side. If this is not the desired behaviour, please <a class="external" href="commands.html#DirAsDSKmode">check the documentation</a> of that setting.
 </p>
 <p>
-<em>Be careful when writing to files from your emulated MSX.</em><br/>
-If you save an existing file on that disk in the emulated MSX (without
-increasing the file size), the change is also reflected on the directory on the
-host OS! If the files are bigger than the original size then the extra data
-sectors needed will be stored in a hidden sector cache and the extra data will
-not be reflected in the host OS files! When stopping the emulator, or
-ejecting the fake disk, this sector cache is written in the same directory as
-the original files, so that it can be loaded again when restarting the emulator.
-So if you use the DirAsDsk feature on a real floppy disk, chances are that
-you'll end up with a full disk when this cache is written!
+<em>Be careful when writing to files from your emulated MSX.</em> In the default 'full' mode, you can change/overwrite/delete/corrupt files on your host system, if you made them accessible for the emulated MSX! Still, this is the behaviour what most people want/expect and it's very useful if you know what you are doing.
 </p>
 <p>
 Note that this feature is willfully kept very bare bones: it
 doesn't support sub directories and it skips all remaining files if the virtual
 disk is full. Its main purpose is to facilitate cross platform development.
-</p>
-<p>
-As of openMSX 0.5.2, there is extra functionality to perform file
-imports and exports, with support for harddisk images with partitions and normal
-disk images. Please see the separate manual for this, called
-<a class="external" href="diskmanipulator.html">Using diskmanipulator</a>.
 </p>
 
 <h4><a id="realdisks">4.2.3 Using Real Disks</a></h4>
@@ -493,6 +492,16 @@ Windows users can try real disks by using the DirAsDsk feature. Because his
 feature is still experimental, one should always use it with write protected
 disks. Only regular disks with normal files will work with it; specify A: as
 disk image to use it.
+</p>
+
+
+<h4><a id="diskmanagement">4.2.4 Managing Disk Images</a></h4>
+
+<p>
+openMSX has a special command with functionality to perform file
+imports and exports, with support for harddisk images with partitions and normal
+disk images. Please see the separate manual for this, called
+<a class="external" href="diskmanipulator.html">Using diskmanipulator</a>.
 </p>
 
 <h3><a id="tape">4.3 Running Tape Software</a></h3>
@@ -618,7 +627,7 @@ configuration, in the form of a 100MB sized disk image. This is the default size
 not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file.
 </p>
 
-<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to  them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports the IDE extension at the moment.
+<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports the IDE extension at the moment.
 </p>
 
 <p>
@@ -711,85 +720,72 @@ As announced above, there is (limited) support for CD-ROM with the 'ide' extensi
 To change the disk image of the LS-120 device, use the <code>lsa</code> (LS drive A) command, exactly the same as the <a class="external" href="commands.html#hd">hda</a> command. Of course you do not need to have the power turned off to do this, as this is the whole point of the LS-120 device. You can also just eject it, with the <code>eject</code> subcommand. At the time of writing there seems to be a bug when doing this: the device isn't listed in the device list if there is no media inserted.
 </p>
 
-<p>Initialisation for the ESE SCSI devices needs tools like MGINST, which can be found on <a class="external" href="http://www.msxnet.org/gtinter/nogame-e.htm">Takamichi's web site</a>. They include small manuals in English. This manual is not the place to explain the procedure, but the idea is as follows. First, install the MSX-DOS 2 kernel in the SRAM of the device, using the MGINST program (you might want to use KSAVER first to save the kernel of your DOS 2 cartridge). After this, the MSX will boot from the SRAM disk. Use the SFORM-1 (for MSX-DOS) or the SFORM-2 (for MSX-DOS 2) to format the drive (use a physical format, for now). Use ESET to assign drive letters to partitions.
+<p>Initialisation for the ESE SCSI devices needs tools like <code>MGINST</code>, which can be found on <a class="external" href="http://www.msxnet.org/gtinter/nogame-e.htm">Takamichi's web site</a>. They include small manuals in English. This manual is not the place to explain the procedure, but the idea is as follows. First, install the MSX-DOS 2 kernel in the SRAM of the device, using the <code>MGINST</code> program (you might want to use <code>KSAVER</code> first to save the kernel of your DOS 2 cartridge). After this, the MSX will boot from the SRAM disk. Use the <code>SFORM-1</code> (for MSX-DOS) or the <code>SFORM-2</code> (for MSX-DOS 2) to format the drive (use a physical format, for now). Use <code>ESET</code> to assign drive letters to partitions.
 </p>
 
-<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://www.hansotten.com/msxscsi.html">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the NFDISK utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
+<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://www.hansotten.com/msxscsi.html">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
 </p>
 
 <h2><a id="input">5. Input Devices</a></h2>
 
-<h3><a id="keymapping">5.1 Key Mapping</a></h3>
+<h3><a id="keyboard">5.1 Keyboard</a></h3>
+
+<h4><a id="keymapping">5.1.1 Key Mapping</a></h4>
 
 <p>
-The next subsections list the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customisable using the <code>bind</code> command in the console. Your customised key bindings are saved together with the settings.
+This subsection lists the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customisable using the <a class="external" href="commands.html#bind"><code>bind</code></a> command in the console. Your customised key bindings are saved together with the settings.
 </p>
 
-<h4><a id="keymappingpc">5.1.1 Key Mapping on PC</a></h4>
-<p>
-On PCs (running Windows, Linux or BSD), the special MSX keys are mapped as follows:
+<p>The special MSX keys are mapped as follows, the first column for PCs (running Windows, Linux or BSD), the second column for Apple Macintosh computers:
 </p>
 
 <table>
-  <tr> <td>L-CTRL</td> <td>MSX CTRL key</td> </tr>
-  <tr> <td>R-CTRL</td> <td>MSX dead (accents) key</td> </tr>
-  <tr> <td>L-ALT</td> <td>MSX GRAPH key</td> </tr>
-  <tr> <td>R-ALT</td> <td>MSX CODE/KANA key</td> </tr>
-  <tr> <td>L-Windows</td> <td>MSX iee ('no') key</td> </tr>
-  <tr> <td>R-Windows</td> <td>MSX hai ('yes') key</td> </tr>
-  <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
-  <tr> <td>F8</td> <td>MSX STOP key</td> </tr>
+  <tr> <th>key (PC)</th>  <th>key (Mac)</th> <th>MSX key</th> </tr>
+  <tr> <td>L-CTRL</td>    <td>L-CTRL</td>    <td>CTRL key</td> </tr>
+  <tr> <td>R-CTRL</td>    <td>R-CTRL</td>    <td>dead (accents) key</td> </tr>
+  <tr> <td>L-ALT</td>     <td>L-ALT</td>     <td>GRAPH key</td> </tr>
+  <tr> <td>R-ALT</td>     <td>R-ALT</td>     <td><a class="external" href="commands.html#kbd_code_kana_host_key">CODE/KANA key</a></td> </tr>
+  <tr> <td>L-Windows</td> <td></td>          <td>iee ('no') key</td> </tr>
+  <tr> <td>R-Windows</td> <td></td>          <td>hai ('yes') key</td> </tr>
+  <tr> <td>F7</td>        <td>F7</td>        <td>SELECT key</td> </tr>
+  <tr> <td>F8</td>        <td>F8</td>        <td>STOP key</td> </tr>
 </table>
 
 <p>
-Several emulator functions are available under keys as well (which can be changed with the <code><a class="external" href="commands.html#bind">bind</a></code> command, see below):
+Several emulator functions are available under keys as well (which can be changed with the <code><a class="external" href="commands.html#bind">bind</a></code> command):
 </p>
 
 <table>
-  <tr> <td>Pause</td> <td>Pause emulation</td> </tr>
-  <tr> <td>ALT+F4</td> <td>Quit openMSX</td> </tr>
-  <tr> <td>CTRL+Pause (Break)</td> <td>Quit openMSX (not in Windows)</td> </tr>
-  <tr> <td>PrtScr</td> <td>Save current screen to a file (screen shot)</td> </tr>
-  <tr> <td>F9</td> <td>Toggle full throttle (maximum speed)</td> </tr>
-  <tr> <td>F10</td> <td>Toggle console display</td> </tr>
-  <tr> <td>F11</td> <td>Toggle audio mute</td> </tr>
-  <tr> <td>F12 or ALT+Enter</td> <td>Toggle full screen mode</td> </tr>
+  <tr> <th>keys (PC)</th>  <th>keys (Mac)</th> <th>function</th> </tr>
+  <tr> <td>Pause</td>      <td>Cmd+P</td>      <td>Pause emulation</td> </tr>
+  <tr> <td>ALT+F4</td>     <td>Cmd+Q</td>      <td>Quit openMSX</td> </tr>
+  <tr> <td>CTRL+Pause (Break)</td> <td></td>   <td>Quit openMSX (not in Windows)</td> </tr>
+  <tr> <td>PrtScr</td>     <td>Cmd+D</td>      <td>Save current screen to a file (<a class="external" href="commands.html#screenshot">screen shot</a>)</td> </tr>
+  <tr> <td>F9</td>         <td>Cmd+T</td>      <td>Toggle full <a class="external" href="commands.html#throttle">throttle</a> (maximum speed)</td> </tr>
+  <tr> <td>F10</td>        <td>Cmd+L</td>      <td>Toggle <a class="external" href="commands.html#console">console</a> display</td> </tr>
+  <tr> <td>F11</td>        <td>Cmd+U</td>      <td>Toggle <a class="external" href="commands.html#mute">audio mute</a></td> </tr>
+  <tr> <td>F12 or ALT+Enter</td> <td>Cmd+F</td><td>Toggle <a class="external" href="commands.html#fullscreen">full screen</a> mode</td> </tr>
+  <tr> <td>ALT+F7</td>     <td>ALT+F7</td>    <td>Quick <a class="external" href="commands.html#savestate">loadstate</a> (from 'quicksave' slot)</td> </tr>
+  <tr> <td>ALT+F8</td>     <td>ALT+F8</td>   <td>Quick <a class="external" href="commands.html#savestate">savestate</a> (to 'quicksave' slot)</td> </tr>
 </table>
 <!--
 <p class="todo">
 Make the table look better by using cellpadding stuff in the css.
 </p>-->
 
-<h4><a id="keymappingmac">5.1.2 Key Mapping on Mac OS X</a></h4>
-<p>
-On Apple Macintosh computers, the special MSX keys are mapped as follows:
-</p>
-
-<table>
-  <tr> <td>L-CTRL</td> <td>MSX CTRL key</td> </tr>
-  <tr> <td>R-CTRL</td> <td>MSX dead (accents) key</td> </tr>
-  <tr> <td>L-ALT</td> <td>MSX GRAPH key</td> </tr>
-  <tr> <td>R-ALT</td> <td>MSX CODE/KANA key</td> </tr>
-  <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
-  <tr> <td>F8</td> <td>MSX STOP key</td> </tr>
-</table>
-
-<p>
-Several emulator functions are available under keys as well:
-</p>
-
-<table>
-  <tr> <td>Cmd+P</td> <td>Pause emulation</td> </tr>
-  <tr> <td>Cmd+Q</td> <td>Quit openMSX</td> </tr>
-  <tr> <td>Cmd+D</td> <td>Save current screen to a file (screen shot)</td> </tr>
-  <tr> <td>Cmd+T</td> <td>Toggle full throttle (maximum speed)</td> </tr>
-  <tr> <td>Cmd+L</td> <td>Toggle console display</td> </tr>
-  <tr> <td>Cmd+U</td> <td>Toggle audio mute</td> </tr>
-  <tr> <td>Cmd+F</td> <td>Toggle full screen mode</td> </tr>
-</table>
-
 <p>
 Note: if you want to bind your custom keys on the console, use <code>META</code> as a modifier for the Command (Apple logo) key.
+</p>
+
+<h4><a id="keyboardlayouts">5.1.2 Keyboard Layouts</a></h4>
+
+<p>
+This section is about how keyboard layouts from host computers are mapped to keyboard layouts of MSX computers. This is mostly interesting if those differ (a lot). For example, you have a US-English keyboard on your PC and you are emulating a Japanese MSX computer. Or, you have a Japanese Mac and you are emulating a Spanish MSX computer.
+</p>
+
+<p>As of openMSX 0.7.0, there are facilities to make this as smooth as possible, so that you can use your own keyboard on any kind of MSX with as little surprises as possible. The trick is the new character-based <a class="external" href="commands.html#kbd_mapping_mode">mapping mode</a>, which tries to convert any character you enter with your host computer's keyboard to an MSX key press. For this feature, all MSX hardware configuration files now have information about their keyboard layout. Anyway, this mapping mode is enabled by default, so you don't have to do anything to make this work!</p>
+
+<p>However, there are always some nasty details. For those details we refer to the documentation of other keyboard settings, where they are explained in full detail: <a class="external" href="commands.html#kbd_mapping_mode">mapping mode</a> (as mentioned before), <a class="external" href="commands.html#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a> (use numerical keypad even when your MSX doesn't have one), <a class="external" href="commands.html#kbd_code_kana_host_key">kbd_code_kana_host_key</a> (specify an alternative host key for CODE/KANA) and <a class="external" href="commands.html#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a> (specifies mapping of the ENTER key of the keypad).
 </p>
 
 <h3><a id="joystick">5.2 Joystick</a></h3>
@@ -872,7 +868,7 @@ Not everything is supported on this renderer, though. It is likely that it will 
 
 <dt>SDLGL-PP</dt>
 <dd>
-This renderer (new as of openMSX 0.6.1) uses the OpenGL graphics library for all post processing (hence the PP), which includes scalers and other effects.
+This renderer uses the OpenGL graphics library for all post processing (hence the PP), which includes scalers and other effects.
 Because part of the rendering is done by the graphics hardware,
 the CPU load can vary a lot.
 As with SDLGL, the SDLGL-PP renderer is only useful if you have a hardware accelerated
@@ -1067,7 +1063,7 @@ This feature works only in the <code>SDLGL</code> and <code>SDLGL-PP</code> rend
 
 <dt><code><a class="external" href="commands.html#noise">noise</a></code></dt>
 <dd>
-This setting (new in openMSX 0.6.1) controls the amount of pixel noise on the screen.
+This setting controls the amount of pixel noise on the screen.
 The <code><a class="external" href="commands.html#noise">noise</a></code> setting controls the amount:
 0 means no noise, 100 means maximum noise. The value is actually the deviation of the color of the original pixel and non-integer values are also possible.
 </dd>
@@ -1075,7 +1071,7 @@ The <code><a class="external" href="commands.html#noise">noise</a></code> settin
 
 <dt>display deformation (<code><a class="external" href="commands.html#display_deform">display_deform</a></code>)</dt>
 <dd>
-This feature (new in openMSX 0.6.1) makes it possible to change the shape of the MSX screen. There are three possibilities:
+This feature makes it possible to change the shape of the MSX screen. There are three possibilities:
  <ul>
   <li><code>normal</code>: no deformation (default)</li>
   <li><code>horizontal_stretch</code>: a horizontal stretch to achieve an aspect ratio of the screen that is closer to a real MSX screen</li>
@@ -1116,7 +1112,7 @@ cycle <a class="external" href="commands.html#videosource">videosource</a></code
 <h3><a id="recording">6.7 Video Recording</a></h3>
 
 <p>
-A new feature of openMSX 0.6.2 is the video recorder. This enables you to record the audio and video rendered by openMSX to an AVI file. The output video is in 320&times;240 resolution. The video is compressed with the ZMBV codec, a fast lossless compression algorithm that works very well on 2D computer generated images. The <a class="external" href="faq.html#codec">FAQ</a> contains more information about this codec. The audio is not compressed.
+The video recorder enables you to record the audio and video rendered by openMSX to an AVI file. The output video is in 320&times;240 resolution by default, or 640&times;480 when using the <code>-doublesize</code> flag. The video is compressed with the ZMBV codec, a fast lossless compression algorithm that works very well on 2D computer generated images. The <a class="external" href="faq.html#codec">FAQ</a> contains more information about this codec. The audio is not compressed.
 </p>
 <p>
 The recorded AVI file will not suffer from any hiccups, even if the emulation ran too slow when you recorded it. The current video source (see previous section) is recorded and the sound is recorded with the current <code><a class="external" href="commands.html#frequency">frequency</a></code> setting. If you change the <code><a class="external" href="commands.html#frequency">frequency</a></code> setting during recording, or, more importantly, if the software changes from PAL (50 Hz) to NTSC (60 Hz) during recording, the video will get out of sync with the audio. Any special effects will not be recorded.
@@ -1190,7 +1186,7 @@ pluggables.
 <h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
 
 <p>
-openMSX 0.6.2 has an improved way to record audio to a file: it records the sound at the exact speed at which it should be produced, no matter the speed at which the emulation was running while recording. Note that recording sound to the uncompressed WAV format will take a lot of disk space: at 44.1 kHz it will take about 176 kB per second.
+openMSX records the sound at the exact speed at which it should be produced, no matter the speed at which the emulation was running while recording. Note that recording sound to the uncompressed WAV format will take a lot of disk space: at 44.1 kHz it will take about 176 kB per second.
 </p>
 
 <p>
@@ -1198,7 +1194,7 @@ You can start the recording of sound by issuing the command <code><a class="exte
 </p>
 
 <p>
-openMSX 0.6.3 has an advanced feature for recording audio to file: it can record individual channels of sound chips to individual files on disk. The sound is in the native frequency of the sound chip this time, which means that for chips like PSG or SCC (which run at very high frequencies), the files will be huge. (You are warned!) This feature is easiest to control with the <code><a class="external" href="commands.html#record_channels">record_channels</a></code> command. Note that in contrast to the <code><a class="external" href="commands.html#soundlog">soundlog</a></code> command, the output file of this command ends up in the current directory and not in a special directory. We hope you can use this command to study the fantastic compositions of MSX software and make great remakes of them.
+As of openMSX 0.6.3 there is an advanced feature for recording audio to file: you can record individual channels of sound chips to individual files on disk. The sound is in the native frequency of the sound chip this time, which means that for chips like PSG or SCC (which run at very high frequencies), the files will be huge. (You are warned!) This feature is easiest to control with the <code><a class="external" href="commands.html#record_channels">record_channels</a></code> command. Note that in contrast to the <code><a class="external" href="commands.html#soundlog">soundlog</a></code> command, the output file of this command ends up in the current directory and not in a special directory. We hope you can use this command to study the fantastic compositions of MSX software and make great remakes of them.
 </p>
 
 <h2><a id="debugdevice">8. Debug Device</a></h2>
@@ -1372,7 +1368,7 @@ including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
 Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
-and ask your question there.
+and ask your question there.  Also reachable via <a href="http://openmsx.sf.net/mibbit.php">Mibbit</a>!
 </li>
 <li>
 If you want to address the openMSX developers directly,
