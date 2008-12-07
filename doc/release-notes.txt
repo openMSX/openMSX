@@ -1,69 +1,89 @@
-Release Notes for openMSX 0.6.3 (2007-12-09)
+Release Notes for openMSX 0.7.0 (2008-12-??)
 ============================================
 
-This release contains several new features and improvements related to sound.
-All sound chips are emulated at their native frequency and resampled using
-advanced resampling techniques to the desired output frequency (typically
-44.1 kHz). The advanced resamplers improve the sound quality a lot, because
-they are free of aliasing distortions.
+This release contains several exciting new features, clearing some long standing
+feature requests! The most important one of all is that we have implemented save
+states! It took us a while to think of a way to implement it without having some
+disadvantages you could have with some other emulators. The biggest one is
+backwards compatibility. Our system is designed in such way that it is able to
+cope with older save states in future releases. So, you don't have to be afraid
+to upgrade to a new version of openMSX: your save states will remain usable!
 
-There are three resamplers you can choose from: "fast", which produces
-approximately the same results as previous openMSX releases, "blip", which
-produces better sound and is still quite fast and "hq", which produces the best
-sound but takes a lot of CPU power. Since the quality difference between "blip"
-and "hq" is very small and the speed difference quite large, "blip" is the
-recommended resampler and the new default. Many thanks to Blargg, the author of
-Blip_Buffer, not only for the code but also for explaining the principles
-behind it.
+Another big feature is the heavily improved keyboard support. In previous
+releases it was always a bit of an annoyance to work with emulated MSX machines
+which have a different keyboard layout than your host computer. E.g. using an
+MSX turboR, which has a Japanese keyboard, on a PC with a US-English keyboard
+was very annoying, as the characters that appear on the screen do not match the
+ones you typed on your PC keyboard. This problem has now been solved and you can
+use any combination of host computer keyboard and emulated MSX machine, without
+getting the wrong characters on the MSX screen.
 
-More sound related improvements include stereo balance settings for each sound
-chip and the ability to record individual channels of sound chips. For PSG we
-even introduced some sound effects: vibrato and detune can be enabled to get a
-fatter sound. Try this in Penguin Adventure!
-
-Thanks to the blueMSX Team, we were able to quickly bring some new features:
-emulation of the VLM5030, the sample chip used in the unreleased Konami game
-Keyboard Master and emulation of the synthesis part of the Yamaha SFG-05 sound
-module (keyboard and MIDI support is still missing).
-
-Also on the non-sound department, the code of the blueMSX Team enabled us to
-add some new features: Gouda SCSI, MEGA-SCSI, ESE RAM, ESE SCC and WAVE SCSI.
-Note that the SCSI emulation is still experimental, so make sure you don't use
-it to store data of which you don't have recent backups.
-
-Last but not least: a lock-up bug was removed from the Windows version, which
-could occur on dual core and hyperthreading CPU's.
+Full transparent dir-as-disk support has also been a long standing feature
+request. Well, it's here! Dir-as-disk now behaves as you might expect: any
+change on either the host or the MSX side is reflected on the other side
+immediately. This could help a lot for cross-platform development.
 
 New or improved emulator features:
-- SDLGL-PP renderer (OpenGL 2.0) can now do RGBTriplet scaling in hardware.
-- Several resampling algorithms now available: hq, blip and fast; the first two
-  eliminate aliasing.
-- Channels of sound chips can be individually recorded and muted.
-- Sound chips now have a stereo balance setting instead of a mode (left, right,
-  mono). Because of this, the <sounddevice>_mode settings have been replaced by
-  <sounddevice>_balance settings.
-- PSG sound effects: vibrato and detune.
-  You can use the new "psg_profile" command to select known good combinations,
-  or experiment wiht the PSG_vibrato_percent, PSG_vibrato_frequency,
-  PSG_detune_percent and PSG_detune_frequency settings directly.
-  Thanks to Wolf for the idea and his feedback on experiments.
-- Several small optimizations, mostly in SDLGL-PP renderer and CPU emulation.
+- Save states:
+  - Exchangeable between different host machines, OSes, platforms
+  - Designed to be forwards-compatible, i.e. they will work with future openMSX
+    releases
+  - As an side effect it is now possible to have multiple emulated MSX machines
+    in memory (comparable with tabbed browsing)
+- Fully automatic host-MSX keyboard mapping, support for MSX keyboards of type:
+  de, es, fr, gb, int, jp_ansi, jp_jis, kr, proto_fr (e.g. French Philips VG
+  8010), proto_int (Philips VG 8010), ru
+- Fully transparent dir as disk
+- Debugging:
+  - It's now possible to break on changes of the IRQ lines: the global Z80 IRQ
+    input but also specific per-device IRQ outputs
+  - Made more devices 'debuggable'
+  - Simplified usage of the 'debug device'
+- Recording movies in higher resolution: 640x480 using -doublesize option
+- Major speed optimizations:
+  - Z80 and R800 emulation
+  - V99x8: command-engine, bitmap and sprite rendering
+  - SCC, YM2413, AY8910 and sound mixing in general
+  - rewrote some critical routines in x86 or ARM assembly
+  As a result most MSX1 and MSX2 software now runs realtime on a ARM9 200MHz
+  CPU, which you can find e.g. in a GP2X handheld console.
+- Screenshots can now be made of the MSX screen only
+- Added an OSD framework, which will be useful to control openMSX in full screen
+  mode and especially on hand held machines like the GP2X
+- Amount of horizontal stretch can be tweaked by the user
 
 MSX device support:
-- Partial support for Yamaha SFG-05 (only the YM2151, no keyboard and MIDI).
-- Support for the VLM5030 in Konami's Keyboard Master.
-- Improved accuracy in SCC emulation.
-- Support for ESE devices: MEGA SCSI, ESE RAM, ESE SCC, WAVE-SCSI.
-- Support for Gouda/Novaxis SCSI.
-- Support for password cartridge.
-- Support for the Super Lode Runner mapper.
-- Real support for the Halnote mapper. Thanks to the blueMSX team.
+- Support for new mapper types: Nettou Yakyuu (with sample ROM, for Moero!!
+  Nettou Yakyuu '88), MatraInk (for Ink), Manbow2 (for Manbow 2),
+  MegaFlashRomScc (for new MegaFlashROM SCC extension)
+- Several new machines were added, e.g. Philips VG 8000, Philips VG 8010 (also
+  French version), Philips VG 8020/19, Sony HB-10P, Sony HB-20P, Sony HB-55P
+- Added Brazillian OPL3 Cartridge
+- Major accuracy improvements:
+  - turboR: extra wait cycle when accessing VDP
+  - Z80:
+    - more accurate IRQ timing
+    - fixed some undocumented flag behaviour (not caught by zexall)
+    - implemented differences between turboR-Z80 and normal Z80 (SCF and CCF)
+  - R800:
+    - more accurate timing (correct page break behaviour)
+    - more accurate flags (rexall passes now)
+  - SCC:
+    - fixes in rotation mode
+    - corrected power-on state
+  - V99x8:
+    - implemented VRAM remapping (register R#1, bit7)
+    - implemented blink in bitmap mode
+  - V9990:
+    - much improved command timing
+    - bug fixes in command handling
+    - fixed vertical scroll details (in combination with screensplits)
+  - MSX-AUDIO: various fixes for the different MSX-AUDIO variants 
+  - PSG: emulate joystick input pin 6/7 mask quirk
+  - more accurate 'HarryFox' and 'CrossBlaim' mapper types
 
 Build system, packaging, documentation:
-- Added support for building a statically linked executable on Windows.
-- Added support for building a backwards compatible executable on Mac OS X
-  10.5 (Leopard). Thanks to BouKiCHi.
-- Added support for DESTDIR, which should help packagers.
+- Mostly updated support for building a statically linked executable on Windows.
 
 And of course the usual various bug fixes.
 
