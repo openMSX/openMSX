@@ -387,8 +387,7 @@ The other settings are discussed in <a class="external" href="user.html#controll
 </p>
 
 <p>
-Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>. If you still want to let openMSX execute commands at start up, add those commands to the <code>init.tcl</code> file. This file can be placed in
-exactly the same directories as the <code>settings.xml</code> file. Note that you can put any Tcl command there, so you can also use it to specify aliases, for example. If you do not want to mess with the standard <code>init.tcl</code>, you can also specify another Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
+Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>. If you still want to let openMSX execute commands at start up, put those commands in a script and put it in the <code>share/scripts</code> directory. You can also specify an explicity Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
 </p>
 
 <h2><a id="hardwareedit">5. Writing Hardware Descriptions</a></h2>
