@@ -3,8 +3,8 @@
  * 
  *  requires: libxml2
  *  compile:
- *    *nix:  g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control.cc
- *    win32: g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control.cc -lwsock32
+ *    *nix:  g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc
+ *    win32: g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc -lwsock32
  */
 
 #include <string>
@@ -138,10 +138,7 @@ private:
 		LOG_WARNING
 	} logLevel;
 
-	enum UpdateType {
-		UPDATE_UNKNOWN,
-		UPDATE_LED
-	} updateType;
+	string updateType;
 	string updateName;
 
 	// communication with openmsx process
@@ -195,7 +192,7 @@ void OpenMSXComm::parseReply(const char** attrs)
 					replyStatus = REPLY_OK;
 				} else if (strcmp(attrs[1], "nok") == 0) {
 					replyStatus = REPLY_NOK;
-				} 
+				}
 			}
 		}
 	}
@@ -219,13 +216,11 @@ void OpenMSXComm::parseLog(const char** attrs)
 
 void OpenMSXComm::parseUpdate(const char** attrs)
 {
-	updateType = UPDATE_UNKNOWN;
+	updateType = "unknown";
 	if (attrs) {
 		for ( ; *attrs; attrs += 2) {
 			if (strcmp(attrs[0], "type") == 0) {
-				if (strcmp(attrs[1], "led") == 0) {
-					updateType = UPDATE_LED;
-				}
+				updateType = attrs[1];
 			} else if (strcmp(attrs[0], "name") == 0) {
 				updateName = attrs[1];
 			}
@@ -287,16 +282,12 @@ void OpenMSXComm::doLog()
 			cout << "WARNING: ";
 			break;
 	}
-	cout << content << endl; 
+	cout << content << endl;
 }
 
 void OpenMSXComm::doUpdate()
 {
-	switch (updateType) {
-	case UPDATE_LED:
-		cout << "UPDATE: " << updateName << " " << content << endl; 
-		break;
-	}
+	cout << "UPDATE: " << updateType << " " << updateName << " " << content << endl;
 }
 
 void OpenMSXComm::cb_text(OpenMSXComm* comm, const xmlChar* chars, int len)
@@ -404,7 +395,7 @@ static bool checkSocketDir(const string& dir)
 #endif
 	return true;
 }
-  
+
 static bool checkSocket(const string& socket)
 {
 	string dir  = socket.substr(0, socket.find_last_of('/'));
@@ -485,9 +476,9 @@ static int openSocket(const string& socketName)
 		return -1;
 	}
 
-	sockaddr_un addr; 
-	addr.sun_family = AF_UNIX; 
-	strcpy(addr.sun_path, socketName.c_str()); 
+	sockaddr_un addr;
+	addr.sun_family = AF_UNIX;
+	strcpy(addr.sun_path, socketName.c_str());
 #endif
 
 	if (connect(sd, (sockaddr*)&addr, sizeof(addr)) == -1) {
