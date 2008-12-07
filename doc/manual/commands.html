@@ -835,7 +835,7 @@
 
   <div class="note">
     Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some Tcl scripts that
-    offer convenience wrappers around these commands. For example: <code>showmem</code>, <code>disasm</code>, <code>cpuregs</code>, <code>save_debuggable</code>, <code>vdp</code> etc.
+    offer convenience wrappers around these commands. For example: <a class="internal" href="#other"><code>showmem</code></a>, <a class="internal" href="#other"><code>disasm</code></a>, <a class="internal" href="#other"><code>cpuregs</code></a>, <a class="internal" href="#other"><code>save_debuggable</code></a>, etc.
   </div>
 
   <h3><a id="disk">disk&lt;x&gt; / virtual_drive</a></h3>
@@ -2006,7 +2006,7 @@
 
   <h3><a id="other">other</a></h3>
 
-  <p>Most commands described above are generally useful. OpenMSX still has a bunch of other more specialized commands. Some of these are intended for programmers who code MSX programs using openMSX as a tool. Other of these commands are more like toys or examples that show the openMSX scripting capabilities.</p>
+  <p>Most commands described above are generally useful. OpenMSX also has a bunch of other more specialized commands. Some of these are intended for programmers who code MSX programs using openMSX as a tool. Other of these commands are more like toys or examples that show the openMSX scripting capabilities.</p>
 
   <p>We've only listed a very brief overview of these command. As always execute "<code>help &lt;command-name&gt;</code>" to get a more detailed description of the command.</p>
 
@@ -2044,10 +2044,6 @@
       <td>Use heuristics to guess the title of the current game (cartridge or disk)</td>
     </tr>
     <tr>
-      <td><code>iomap</code></td>
-      <td>Gives overview of the devices connected to the IO ports</td>
-    </tr>
-    <tr>
       <td><code>listing</code></td>
       <td>Reimplementation of the BASIC LIST command in Tcl</td>
     </tr>
@@ -2081,7 +2077,7 @@
     </tr>
     <tr>
       <td><code>psg_log</code></td>
-      <td>Log or replay PSG register values</td>
+      <td>Log or replay PSG register values in binary format</td>
     </tr>
     <tr>
       <td><code>reg</code></td>
@@ -2089,11 +2085,11 @@
     </tr>
     <tr>
       <td><code>reg_log</code></td>
-      <td>Log or replay register values for the specified ddebuggable</td>
+      <td>Log or replay register values for the specified debuggable in ASCII format</td>
     </tr>
     <tr>
       <td><code>run_to</code></td>
-      <td>Execute instruction till PC reaches specified address</td>
+      <td>Execute instructions until PC reaches specified address</td>
     </tr>
     <tr>
       <td><code>save_debuggable</code></td>
@@ -2162,10 +2158,6 @@
     <tr>
       <td><code>vdpreg</code></td>
       <td>Read or write a V99x8 register</td>
-    </tr>
-    <tr>
-      <td><code>vdpregs</code></td>
-      <td>Print an overview of all V99x8 registers</td>
     </tr>
     <tr>
       <td><code>vdrive</code></td>
