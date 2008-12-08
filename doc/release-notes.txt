@@ -23,6 +23,10 @@ request. Well, it's here! Dir-as-disk now behaves as you might expect: any
 change on either the host or the MSX side is reflected on the other side
 immediately. This could help a lot for cross-platform development.
 
+Before we give you the list with details, we want to thank hap, the author of
+meisei, for helping us out with some of the features below; you might recognize
+them from his recent meisei releases.
+
 New or improved emulator features:
 - Save states:
   - Exchangeable between different host machines, OSes, platforms
