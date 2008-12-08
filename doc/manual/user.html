@@ -38,8 +38,6 @@
 			<li><a class="internal" href="#importantconsole">3.2 Some Simple Console Commands</a></li>
 			<li><a class="internal" href="#settings">3.3 Settings</a></li>
 			<li><a class="internal" href="#plug">3.4 Plug</a></li>
-			<li><a class="internal" href="#trainer">3.5 Game Trainer</a></li>
-			<li><a class="internal" href="#savestate">3.6 Saving/Loading the State of the Machine</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#media">4. Running MSX Software and Using Media</a>
@@ -104,12 +102,18 @@
 		</ol>
 	</li>
 
-	<li><a class="internal" href="#debugdevice">8. Debug Device</a>
+	<li><a class="internal" href="#usefulextras">8. Useful Extras</a>
 		<ol class="toc">
-			<li><a class="internal" href="#debugdeviceenable">8.1 Enabling the Debug Device</a></li>
-			<li><a class="internal" href="#debugdeviceports">8.2 Output Ports</a></li>
-			<li><a class="internal" href="#debugdevicemode1">8.3 Single Byte Mode</a></li>
-			<li><a class="internal" href="#debugdevicemode2">8.4 Multi Byte Mode</a></li>
+			<li><a class="internal" href="#savestate">8.1 Saving/Loading the State of the Machine</a></li>
+			<li><a class="internal" href="#trainer">8.2 Game Trainer</a></li>
+			<li><a class="internal" href="#debugdevice">8.3 Debug Device</a>
+				<ol class="toc">
+					<li><a class="internal" href="#debugdeviceenable">8.3.1 Enabling the Debug Device</a></li>
+					<li><a class="internal" href="#debugdeviceports">8.3.2 Output Ports</a></li>
+					<li><a class="internal" href="#debugdevicemode1">8.3.3 Single Byte Mode</a></li>
+					<li><a class="internal" href="#debugdevicemode2">8.3.4 Multi Byte Mode</a></li>
+				</ol>
+			</li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">9. Contact Info</a></li>
@@ -324,34 +328,6 @@ Add the complete list of pluggables here.
 </p>
 -->
 
-<h3><a id="trainer">3.5 Game Trainer</a></h3>
-
-<p>
-As of version 0.6.2, openMSX comes with a completely reworked game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
-</p>
-
-<p>
-Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>trainer Metal[TAB]</code>, which will expand to: <code>trainer Metal\ Gear</code>. When you then press enter, you see which cheats are available in the Metal Gear trainer. You can active them by typing e.g.: <code>trainer Metal\ Gear 1 2 3 4</code>. This will activate (toggle) the first 4 cheats (as the list will tell you which is printed after the command: the crosses mean an active cheat). You can also use the descriptions instead of the numbers: <code>trainer Metal\ Gear "enemy 1 gone" "enemy 2 gone"</code>. Or, if you want to activate all cheats, as was default in the old cheat system, you could simply type: <code>trainer Metal\ Gear all</code>.
-</p>
-
-<p>
-If this sounds a bit difficult for you, just try it out. It's really much easier when you actually work with it.
-As always in the console, using TAB to complete your commands and their options proves to be very useful!
-</p>
-
-<h3><a id="savestate">3.6 Saving/Loading the State of the Machine</a></h3>
-
-<p>
-A feature of emulators which is particularly useful is saving the state of the emulated machine to a file, in order to load it again later and continue exactly where you left off when saving. Not only useful for games, but also for debugging or testing. This feature is now also available in openMSX! And the best thing is, that it is designed in such way that it is able to cope with older save states in future releases. So, you don't have to be afraid to upgrade to a new version of openMSX: your save states will remain usable!
-</p>
-
-<p>
-The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code>list_savestates</code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code>delete_savestate</code> command.
-</p>
-
-<p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the experimental On-Screen-Display and in a prototype version of a new Catapult.)
-</p>
-
 <h2><a id="media">4. Running MSX Software and Using Media</a></h2>
 
 <p>
@@ -420,7 +396,7 @@ You can also change disks at run time of course. Just type
 in the console to put the specified disk image in drive A. To eject the disk from drive A, use:
 </p>
 <div class="commandline">
-    <a class="external" href="commands.html#disk">diska</a> -eject
+    <a class="external" href="commands.html#disk">diska</a> eject
 </div>
 <p>
 Note that inserting another disk image automatically ejects the previous one.
@@ -488,10 +464,10 @@ may be a bit slow though, with the FDC emulation enabled. It should be just as
 slow as a real disk drive, however! Don't forget that you shouldn't have it
 mounted to be able to use it this way. We recommend to use only write-protected
 disks! It is possible that you damage the contents of your disk if you don't.
-Windows users can try real disks by using the DirAsDsk feature. Because his
-feature is still experimental, one should always use it with write protected
-disks. Only regular disks with normal files will work with it; specify A: as
-disk image to use it.
+Windows users can try real disks by using the DirAsDsk feature. Because we have
+not tried this before, we advise you to be careful and always use it with write
+protected disks. Only regular disks with normal files will work with it; specify
+A: as disk image to use it.
 </p>
 
 
@@ -740,15 +716,15 @@ This subsection lists the default key mapping of openMSX. The mapping of the spe
 </p>
 
 <table>
-  <tr> <th>key (PC)</th>  <th>key (Mac)</th> <th>MSX key</th> </tr>
-  <tr> <td>L-CTRL</td>    <td>L-CTRL</td>    <td>CTRL key</td> </tr>
-  <tr> <td>R-CTRL</td>    <td>R-CTRL</td>    <td>dead (accents) key</td> </tr>
-  <tr> <td>L-ALT</td>     <td>L-ALT</td>     <td>GRAPH key</td> </tr>
-  <tr> <td>R-ALT</td>     <td>R-ALT</td>     <td><a class="external" href="commands.html#kbd_code_kana_host_key">CODE/KANA key</a></td> </tr>
-  <tr> <td>L-Windows</td> <td></td>          <td>iee ('no') key</td> </tr>
-  <tr> <td>R-Windows</td> <td></td>          <td>hai ('yes') key</td> </tr>
-  <tr> <td>F7</td>        <td>F7</td>        <td>SELECT key</td> </tr>
-  <tr> <td>F8</td>        <td>F8</td>        <td>STOP key</td> </tr>
+  <tr> <th>MSX key</th>           <th>key (PC)</th>  <th>key (Mac)</th>  </tr>
+  <tr> <td>CTRL key</td>          <td>L-CTRL</td>    <td>L-CTRL</td>     </tr>
+  <tr> <td>dead (accents) key</td><td>R-CTRL</td>    <td>R-CTRL</td>     </tr>
+  <tr> <td>GRAPH key</td>         <td>L-ALT</td>     <td>L-ALT</td>      </tr>
+  <tr> <td><a class="external" href="commands.html#kbd_code_kana_host_key">CODE/KANA key</a></td><td>R-ALT</td>     <td>R-ALT</td> </tr>
+  <tr> <td>iee ('no') key</td>    <td>L-Windows</td> <td></td>           </tr>
+  <tr> <td>hai ('yes') key</td>   <td>R-Windows</td> <td></td>           </tr>
+  <tr> <td>SELECT key</td>        <td>F7</td>        <td>F7</td>         </tr>
+  <tr> <td>STOP key</td>          <td>F8</td>        <td>F8</td>         </tr>
 </table>
 
 <p>
@@ -1068,10 +1044,9 @@ The <code><a class="external" href="commands.html#noise">noise</a></code> settin
 0 means no noise, 100 means maximum noise. The value is actually the deviation of the color of the original pixel and non-integer values are also possible.
 </dd>
 
-
 <dt>display deformation (<code><a class="external" href="commands.html#display_deform">display_deform</a></code>)</dt>
 <dd>
-This feature makes it possible to change the shape of the MSX screen. There are three possibilities:
+This feature makes it possible to change the shape of the MSX screen. Here are the possibilities:
  <ul>
   <li><code>normal</code>: no deformation (default)</li>
   <li><code>3d</code>: emulates a 3D view on an arcade cabinet's screen</li>
@@ -1196,7 +1171,36 @@ You can start the recording of sound by issuing the command <code><a class="exte
 As of openMSX 0.6.3 there is an advanced feature for recording audio to file: you can record individual channels of sound chips to individual files on disk. The sound is in the native frequency of the sound chip this time, which means that for chips like PSG or SCC (which run at very high frequencies), the files will be huge. (You are warned!) This feature is easiest to control with the <code><a class="external" href="commands.html#record_channels">record_channels</a></code> command. Note that in contrast to the <code><a class="external" href="commands.html#soundlog">soundlog</a></code> command, the output file of this command ends up in the current directory and not in a special directory. We hope you can use this command to study the fantastic compositions of MSX software and make great remakes of them.
 </p>
 
-<h2><a id="debugdevice">8. Debug Device</a></h2>
+<h2><a id="usefulextras">8. Useful Extras</a></h2>
+
+<h3><a id="savestate">8.1 Saving/Loading the State of the Machine</a></h3>
+
+<p>
+A feature of emulators which is particularly useful is saving the state of the emulated machine to a file, in order to load it again later and continue exactly where you left off when saving. Not only useful for games, but also for debugging or testing. This feature is now also available in openMSX! And the best thing is, that it is designed in such way that it is able to cope with older save states in future releases. So, you don't have to be afraid to upgrade to a new version of openMSX: your save states will remain usable!
+</p>
+
+<p>
+The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code>list_savestates</code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code>delete_savestate</code> command.
+</p>
+
+<p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the experimental On-Screen-Display and in a prototype version of a new Catapult.)
+</p>
+<h3><a id="trainer">8.2 Game Trainer</a></h3>
+
+<p>
+As of version 0.6.2, openMSX comes with a completely reworked game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
+</p>
+
+<p>
+Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>trainer Metal[TAB]</code>, which will expand to: <code>trainer Metal\ Gear</code>. When you then press enter, you see which cheats are available in the Metal Gear trainer. You can active them by typing e.g.: <code>trainer Metal\ Gear 1 2 3 4</code>. This will activate (toggle) the first 4 cheats (as the list will tell you which is printed after the command: the crosses mean an active cheat). You can also use the descriptions instead of the numbers: <code>trainer Metal\ Gear "enemy 1 gone" "enemy 2 gone"</code>. Or, if you want to activate all cheats, as was default in the old cheat system, you could simply type: <code>trainer Metal\ Gear all</code>.
+</p>
+
+<p>
+If this sounds a bit difficult for you, just try it out. It's really much easier when you actually work with it.
+As always in the console, using TAB to complete your commands and their options proves to be very useful!
+</p>
+
+<h3><a id="debugdevice">8.3 Debug Device</a></h3>
 
 <p>
 This chapter describes how an MSX programmer can use the openMSX built-in debug device. This is an artificial MSX device that is connected to an MSX I/O port. It can be used to send debug messages to the host operating system.
@@ -1206,8 +1210,7 @@ This chapter describes how an MSX programmer can use the openMSX built-in debug 
 Note that openMSX also contains built-in debugging functions, which can be accessed with the <code><a class="external" href="commands.html#debug">debug</a></code> console command. With that debugger you can read and write all registers and memory of almost all devices that are supported in openMSX. It also supports break points, watch points and stepping.
 </p>
 
-
-<h3><a id="debugdeviceenable">8.1 Enabling the Debug Device</a></h3>
+<h4><a id="debugdeviceenable">8.3.1 Enabling the Debug Device</a></h4>
 
 <p>
 To enable the debug device, insert the <code>debugdevice</code> extension. To do this when starting openMSX, simply add <code>-ext debugdevice</code> to the openMSX command line. If openMSX is already running, you can use the <code><a class="external" href="commands.html#ext">ext</a></code> console command.
@@ -1217,7 +1220,7 @@ To enable the debug device, insert the <code>debugdevice</code> extension. To do
 You can use the <code><a class="external" href="commands.html#debugoutput">debugoutput</a></code> setting to specify the file name to write the debug output to.
 </p>
 
-<h3><a id="debugdeviceports">8.2 Output Ports</a></h3>
+<h4><a id="debugdeviceports">8.3.2 Output Ports</a></h4>
 
 <p>
 Controlling the device is done from within an MSX program. For this purpose, the
@@ -1254,7 +1257,7 @@ The parameters for mode 2 (multi byte mode) are as follows:
   <tr> <td>1-0</td> <td>mode (0 = hex, 1 = binary, 2 = decimal, 3 = ASCII mode)</td> </tr>
 </table>
 
-<h3><a id="debugdevicemode1">8.3 Single Byte Mode</a></h3>
+<h4><a id="debugdevicemode1">8.3.3 Single Byte Mode</a></h4>
 
 <p>
 In mode 1, any write to port 0x2F will result in output. This way, the
@@ -1308,7 +1311,7 @@ the layout of the whole line.
 </p>
 
 
-<h3><a id="debugdevicemode2">8.4 Multi Byte Mode</a></h3>
+<h4><a id="debugdevicemode2">8.3.4 Multi Byte Mode</a></h4>
 
 <p>
 Unlike mode 1, the data in this mode is always shown in one mode only. It's

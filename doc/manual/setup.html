@@ -347,8 +347,8 @@ A typical case in which you can have problems with check sums (or ROMs not getti
 The ROM dump can be correct, and still have a different check sum. This is because part of
 the ROM is not actually ROM, but mapped on the registers of the floppy
 controller. When you are sure it is correct, don't put it in a ROM pool, but put it in the proper directory, which is explained above.
-Alternatively, you could change the check sum in the XML file that describes
-the machine you made the ROM dump for.
+Alternatively, you could add the check sum in the XML file that describes
+the machine you made the ROM dump for (multiple checksums can be present, they will be checked in the same order as they are in the file).
 </p>
 
 
@@ -387,14 +387,14 @@ The other settings are discussed in <a class="external" href="user.html#controll
 </p>
 
 <p>
-Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>. If you still want to let openMSX execute commands at start up, put those commands in a script and put it in the <code>share/scripts</code> directory. You can also specify an explicity Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
+Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>: commands which are executed at the start of each openMSX start up. In most cases you don't need this at all, but if you still want this, put those commands in text file, one command per line (i.e. a script) and put it in the <code>share/scripts</code> directory. You can also specify an explicitly Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
 </p>
 
 <h2><a id="hardwareedit">5. Writing Hardware Descriptions</a></h2>
 
 <p>
 There are two ways to use extra devices in your emulated MSX:
-you can use an shipped extension
+you can use a shipped extension
 (which is analogous to inserting a cartridge with the device into the MSX)
 or you can modify the hardware configuration file
 (which is analogous to open the MSX and build in the device).

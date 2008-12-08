@@ -865,7 +865,7 @@
     </tr>
 
     <tr>
-      <td><code>diska -eject</code></td>
+      <td><code>diska eject</code></td>
 
       <td>Remove disk from drive "diska"</td>
     </tr>
@@ -2006,7 +2006,7 @@
 
   <h3><a id="other">other</a></h3>
 
-  <p>Most commands described above are generally useful. OpenMSX also has a bunch of other more specialized commands. Some of these are intended for programmers who code MSX programs using openMSX as a tool. Other of these commands are more like toys or examples that show the openMSX scripting capabilities.</p>
+  <p>Most commands described above are generally useful. openMSX also has a bunch of other more specialized commands. Some of these are intended for programmers who code MSX programs using openMSX as a tool. Other of these commands are more like toys or examples that show the openMSX scripting capabilities.</p>
 
   <p>We've only listed a very brief overview of these command. As always execute "<code>help &lt;command-name&gt;</code>" to get a more detailed description of the command.</p>
 
@@ -2418,7 +2418,7 @@
   </table>
 
   <div class="note">
-    Note: Not all renderers support this.
+    Note: this setting may be overridden by scaling algorithms.
   </div>
 
   <h3><a id="bootsector">bootsector</a></h3>
@@ -2778,7 +2778,7 @@
 
   <h3><a id="default_machine">default_machine</a></h3>
 
-  <p>Selects the default MSX model. openMSX uses this machine when it is started without the <code>-machine</code> option.</p>
+  <p>Selects the default MSX model. openMSX uses this machine when it is started without the <code>-machine</code> option. This is a typical setting that should be saved, see also <a class="internal" href="#save_settings"><code>save_settings</code></a>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2853,7 +2853,7 @@
     Note: this setting is only used when the directory is inserted, it is not possible to change the behaviour of the current virtual disk by altering the setting. The new setting will become effective after the current virtual disk has been ejected.
   </div>
   <div class="note">
-    Note: On turboR machines, the MSX keeps a cache of the directory sectors in memory. This means that changes made on the host OS are detected by the DirAsDSK routine, but will not show up in those machines. The data sectors will have been changed when reading, however. This can cause unexpected data to be read in the MSX environment. To rectify this situation, perform a disk eject and reinsert the de directory again. This will cause the hardware switch that the turboR has to be toggled, and its internal cache to be invalidated. Since the turboR machines do not use a write cache, the changes on the MSX side are correctly written to the host OS.
+    Note: On turboR machines, the MSX keeps a cache of the directory sectors in memory. This means that changes made on the host OS are detected by the DirAsDSK routine, but will not show up in those machines. The data sectors will have been changed when reading, however. This can cause unexpected data to be read in the MSX environment. To rectify this situation, perform a disk eject and reinsert the directory again. This will cause the hardware switch that the turboR has to be toggled, and its internal cache to be invalidated. Since the turboR machines do not use a write cache, the changes on the MSX side are correctly written to the host OS.
   </div>
 
   <h3><a id="deinterlace">deinterlace</a></h3>
@@ -3085,11 +3085,9 @@
 
   <h3><a id="grabinput">grabinput</a></h3>
 
-  <p>Controls whether openMSX grabs all input events or not. When this setting is turned on, all input events are directly passed to
-  openMSX. The mouse pointer can't leave the openMSX window and the window manager won't be able to react to keyboard
-  shortcuts.</p>
+  <p>Controls whether openMSX grabs all input events or not. When this setting is turned on, all input events are directly passed to openMSX. The mouse pointer can't leave the openMSX window and the window manager won't be able to react to keyboard shortcuts.</p>
 
-   <p>You can turn this setting on when you want to use mouse-controlled MSX software while openMSX is in windowed mode. It is best turned off in all other cases.</p>
+   <p>You can turn this setting on when you want to use mouse-controlled MSX software while openMSX is in windowed mode. It is best turned off in all other cases. See also <a class="internal" href="#escape_grab"><code>escape_grab</code></a>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3322,7 +3320,7 @@
 
   <h3><a id="kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></h3>
 
-  <p>Some real MSX computers do not have a numeric keypad. OpenMSX will ignore
+  <p>Some real MSX computers do not have a numeric keypad. openMSX will ignore
   key presses on the host numeric keypad when emulating such an MSX model.
   With this parameter, you can indicate that even on such MSX models, presses
   on the host numeric keypad must be mapped to the MSX numeric keypad. So, you
