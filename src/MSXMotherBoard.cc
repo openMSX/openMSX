@@ -602,6 +602,9 @@ DummyDevice& MSXMotherBoardImpl::getDummyDevice()
 
 MSXCPU& MSXMotherBoardImpl::getCPU()
 {
+	// because CPU needs to know if we're emulating turbor or not
+	assert(getMachineConfig());
+
 	if (!msxCpu.get()) {
 		msxCpu.reset(new MSXCPU(self));
 	}
@@ -712,6 +715,11 @@ EmuTime::param MSXMotherBoardImpl::getCurrentTime()
 
 bool MSXMotherBoardImpl::execute()
 {
+	if (!powered || blockedCounter) {
+		return false;
+	}
+	assert(getMachineConfig()); // otherwise powered cannot be true
+
 	if (needReset) {
 		needReset = false;
 		doReset(getCurrentTime());
@@ -719,10 +727,6 @@ bool MSXMotherBoardImpl::execute()
 	if (needPowerDown) {
 		needPowerDown = false;
 		doPowerDown(getCurrentTime());
-	}
-
-	if (!powered || blockedCounter) {
-		return false;
 	}
 
 	getCPU().execute();
@@ -745,13 +749,17 @@ void MSXMotherBoardImpl::unblock()
 
 void MSXMotherBoardImpl::pause()
 {
-	getCPU().setPaused(true);
+	if (getMachineConfig()) {
+		getCPU().setPaused(true);
+	}
 	getMSXMixer().mute();
 }
 
 void MSXMotherBoardImpl::unpause()
 {
-	getCPU().setPaused(false);
+	if (getMachineConfig()) {
+		getCPU().setPaused(false);
+	}
 	getMSXMixer().unmute();
 }
 
@@ -777,6 +785,8 @@ void MSXMotherBoardImpl::scheduleReset()
 
 void MSXMotherBoardImpl::doReset(EmuTime::param time)
 {
+	assert(getMachineConfig());
+
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -873,12 +883,16 @@ bool MSXMotherBoardImpl::isActive() const
 
 void MSXMotherBoardImpl::exitCPULoopSync()
 {
-	getCPU().exitCPULoopSync();
+	if (getMachineConfig()) {
+		getCPU().exitCPULoopSync();
+	}
 }
 
 void MSXMotherBoardImpl::exitCPULoopAsync()
 {
-	getCPU().exitCPULoopAsync();
+	if (getMachineConfig()) {
+		getCPU().exitCPULoopAsync();
+	}
 }
 
 // Observer<Setting>
@@ -1254,7 +1268,9 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 		ar.serialize("deviceSwitch", devSwitch);
 	}
 
-	ar.serialize("cpu", getCPU());
+	if (getMachineConfig()) {
+		ar.serialize("cpu", getCPU());
+	}
 	ar.serialize("cpuInterface", getCPUInterface());
 
 	if (CassettePort* port = dynamic_cast<CassettePort*>(&getCassettePort())) {
