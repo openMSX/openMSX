@@ -1163,19 +1163,19 @@ void YMF262Slot::calc_fc(const YMF262Channel& ch)
 }
 
 static const unsigned channelPairTab[18] = {
-	0,  1,  2,  0,  1,  2, -1, -1, -1,
-	9, 10, 11,  9, 10, 11, -1, -1, -1,
+	0,  1,  2,  0,  1,  2, ~0, ~0, ~0,
+	9, 10, 11,  9, 10, 11, ~0, ~0, ~0,
 };
 inline bool YMF262Impl::isExtended(unsigned ch) const
 {
 	assert(ch < 18);
 	if (!OPL3_mode) return false;
-	if (channelPairTab[ch] == unsigned(-1)) return false;
+	if (channelPairTab[ch] == unsigned(~0)) return false;
 	return channel[channelPairTab[ch]].extended;
 }
 static inline unsigned getFirstOfPairNum(unsigned ch)
 {
-	assert((ch < 18) && (channelPairTab[ch] != unsigned(-1)));
+	assert((ch < 18) && (channelPairTab[ch] != unsigned(~0)));
 	return channelPairTab[ch];
 }
 inline YMF262Channel& YMF262Impl::getFirstOfPair(unsigned ch)
