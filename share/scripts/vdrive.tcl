@@ -38,7 +38,7 @@ Using:
 
 credits:
   original alt+f9 v-DRIVE idea by the blueMSX crew.
-  copyright 2005 david heremans all rights reserved
+  copyright 2005 David Heremans
 }
 
 bind_default ALT+F9  "vdrive diska"
