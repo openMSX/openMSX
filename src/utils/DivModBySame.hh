@@ -39,10 +39,13 @@ public:
 		unsigned th, tl;
 		unsigned ch = a >> 32;
 		unsigned cl = a;
-		const unsigned ah = dividend >> 32;
-		const unsigned al = dividend;
-		const unsigned bh = m >> 32;
-		const unsigned bl = m;
+		// g++-3.4 gives this warning when the vars below are const.
+		//    use of memory input without lvalue in asm operand n is deprecated
+		// For newer gcc versions it's ok.
+		/*const*/ unsigned ah = dividend >> 32;
+		/*const*/ unsigned al = dividend;
+		/*const*/ unsigned bh = m >> 32;
+		/*const*/ unsigned bl = m;
 		// Split in 3 asm sections to be able to satisfy operand
 		// constraints: between two sections gcc can reassign operands
 		// to different registers or memory locations. Apparently there
