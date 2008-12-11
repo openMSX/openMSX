@@ -167,14 +167,14 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 	{
 		typedef DBCReduce<M, S> R;
 	#if defined(ASM_X86_32) || defined(__arm__)
-		unsigned ah = R::M2 >> 32;
-		unsigned al = unsigned(R::M2);
-		unsigned bh = dividend >> 32;
-		unsigned bl = unsigned(dividend);
+		const unsigned ah = R::M2 >> 32;
+		const unsigned al = unsigned(R::M2);
+		const unsigned bh = dividend >> 32;
+		const unsigned bl = unsigned(dividend);
 	#endif
 	#ifdef ASM_X86_32
 		unsigned th, tl, ch, cl;
-		asm volatile (
+		asm (
 			"mov	%[AH],%%eax\n\t"
 			"mull	%[BL]\n\t"
 			"mov	%%eax,%[TL]\n\t"
@@ -196,18 +196,23 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			"shrd   %[SH],%[CH],%[CL]\n\t"
-
-			: [CH] "=&r"  (ch)
-			, [CL] "=rm"  (cl)
+			: [CH] "=&rm" (ch)
 			, [TH] "=&r"  (th)
-			, [TL] "=&r"  (tl)
+			, [CL] "=rm"  (cl)
+			, [TL] "=&rm" (tl)
 			: [AH] "g"    (ah)
 			, [AL] "g"    (al)
 			, [BH] "rm"   (bh)
 			, [BL] "[CL]" (bl)
-			, [SH] "i"    (R::S2)
 			: "eax","edx"
+		);
+		asm (
+			"shrd   %[SH],%[CH],%[CL]\n\t"
+
+			: [CL] "=rm"  (cl)
+			: [CH] "r"    (ch)
+			,      "[CL]" (cl)
+			, [SH] "i"    (R::S2)
 		);
 		return cl;
 
@@ -257,14 +262,14 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 	{
 		typedef DBCReduce<M, S + N> R;
 	#if defined(ASM_X86_32) || defined(__arm__)
-		unsigned ah = R::M2 >> 32;
-		unsigned al = unsigned(R::M2);
-		unsigned bh = dividend >> 32;
-		unsigned bl = dividend;
+		const unsigned ah = R::M2 >> 32;
+		const unsigned al = unsigned(R::M2);
+		const unsigned bh = dividend >> 32;
+		const unsigned bl = dividend;
 	#endif
 	#ifdef ASM_X86_32
 		unsigned th, tl, ch, cl;
-		asm volatile (
+		asm (
 			"mov	%[AH],%%eax\n\t"
 			"mull	%[BL]\n\t"
 			"mov	%%eax,%[TL]\n\t"
@@ -289,18 +294,23 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-                        "shrd   %[SH],%[CH],%[CL]\n\t"
-
-			: [CH] "=&r"  (ch)
-			, [CL] "=rm"  (cl)
+			: [CH] "=&rm" (ch)
 			, [TH] "=&r"  (th)
-			, [TL] "=&r"  (tl)
+			, [CL] "=rm"  (cl)
+			, [TL] "=&rm" (tl)
 			: [AH] "g"    (ah)
 			, [AL] "g"    (al)
 			, [BH] "rm"   (bh)
 			, [BL] "[CL]" (bl)
-			, [SH] "i"    (R::S2)
 			: "eax","edx"
+		);
+		asm (
+			"shrd   %[SH],%[CH],%[CL]\n\t"
+
+			: [CL] "=rm"  (cl)
+			: [CH] "r"    (ch)
+			,      "[CL]" (cl)
+			, [SH] "i"    (R::S2)
 		);
 		return cl;
 

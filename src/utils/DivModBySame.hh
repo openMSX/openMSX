@@ -35,16 +35,20 @@ public:
 		return t >> s;
 
 	#elif defined (ASM_X86_32)
+		unsigned dummy;
 		unsigned th, tl;
-		unsigned ah = dividend >> 32;
-		unsigned al = dividend;
-		unsigned bh = m >> 32;
-		unsigned bl = m;
 		unsigned ch = a >> 32;
 		unsigned cl = a;
-		asm volatile (
-			"mov	%[AH],%%eax\n\t"
-			"mull	%[BL]\n\t"
+		const unsigned ah = dividend >> 32;
+		const unsigned al = dividend;
+		const unsigned bh = m >> 32;
+		const unsigned bl = m;
+		// Split in 3 asm sections to be able to satisfy operand
+		// constraints: between two sections gcc can reassign operands
+		// to different registers or memory locations. Apparently there
+		// are only 3 free registers available on OSX (devel flavour).
+		asm (
+			"mull	%[BL]\n\t"       // eax = [AH]
 			"mov	%%eax,%[TL]\n\t"
 			"mov	%%edx,%[TH]\n\t"
 			"mov	%[AL],%%eax\n\t"
@@ -55,8 +59,20 @@ public:
 			"add	%[CH],%[TL]\n\t"
 			"adc	$0,%[TH]\n\t"
 
-			"mov	%[AH],%%eax\n\t"
-			"mull	%[BH]\n\t"
+			: [TH]  "=&rm"  (th)
+			, [TL]  "=&r"   (tl)
+			, [CH]  "=rm"   (ch)
+			, [CL]  "=rm"   (cl)
+			, [EAX] "=&a"   (dummy)
+			:       "[CH]"  (ch)
+			,       "[CL]"  (cl)
+			,       "[EAX]" (ah)
+			, [AL]  "m"     (al)
+			, [BL]  "m"     (bl)
+			: "edx"
+		);
+		asm (
+			"mull	%[BH]\n\t"       // eax = [AH]
 			"mov	%%eax,%[CL]\n\t"
 			"mov	%%edx,%[CH]\n\t"
 			"mov	%[AL],%%eax\n\t"
@@ -67,21 +83,25 @@ public:
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			"mov    %[SH],%[TH]\n\t"  // TH == ecx
-			"shrd   %%cl,%[CH],%[CL]\n\t"
+			: [CH]  "=rm"   (ch)
+			, [CL]  "=r"    (cl)
+			, [TH]  "=&rm"  (th)
+			, [TL]  "=&rm"  (tl)
+			, [EAX] "=&a"   (dummy)
+			:       "[TH]"  (th)
+			,       "[TL]"  (tl)
+			,       "[EAX]" (ah)
+			, [AL]  "m"     (al)
+			, [BH]  "m"     (bh)
+			: "edx"
+		);
+		asm (
+			"shrd   %%cl,%[CH],%[CL]\n\t" // SH = ecx
 
-			: [CH] "=r"   (ch)
-			, [CL] "=rm"  (cl)
-			, [TH] "=&c"  (th) // ecx
-			, [TL] "=&rm" (tl)
-			:      "[CH]" (ch)
+			: [CL] "=rm"  (cl)
+			: [CH] "r"    (ch)
 			,      "[CL]" (cl)
-			, [AH] "m"    (ah)
-			, [AL] "m"    (al)
-			, [BH] "m"    (bh)
-			, [BL] "m"    (bl)
-			, [SH] "m"    (s)
-			: "eax","edx"
+			, [SH] "c"    (s)
 		);
 		return cl;
 
