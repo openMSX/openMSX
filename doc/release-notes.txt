@@ -32,7 +32,7 @@ New or improved emulator features:
   - Exchangeable between different host machines, OSes, platforms
   - Designed to be forwards-compatible, i.e. they will work with future openMSX
     releases
-  - As an side effect it is now possible to have multiple emulated MSX machines
+  - As a side effect it is now possible to have multiple emulated MSX machines
     in memory (comparable with tabbed browsing)
 - Fully automatic host-MSX keyboard mapping, support for MSX keyboards of type:
   de, es, fr, gb, int, jp_ansi, jp_jis, kr, proto_fr (e.g. French Philips VG
@@ -81,7 +81,7 @@ MSX device support:
   - V9990:
     - much improved command timing
     - bug fixes in command handling
-    - fixed vertical scroll details (in combination with screensplits)
+    - fixed vertical scroll details (in combination with screen splits)
   - MSX-AUDIO: various fixes for the different MSX-AUDIO variants 
   - PSG: emulate joystick input pin 6/7 mask quirk
   - more accurate 'HarryFox' and 'CrossBlaim' mapper types
