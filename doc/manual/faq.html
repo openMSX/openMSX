@@ -38,6 +38,7 @@
 	<li><a class="internal" href="#other">Other</a>:
 	<ul class="toc">
 		<li><a class="internal" href="#codec">What codec do you use to record videos and where do I get it (because I only get blackness in my videos)?</a> </li>
+		<li><a class="internal" href="#soundproblems">Why do I hear serious sound glitches and/or stuttering, especially when using Windows?</a> </li>
 		<li><a class="internal" href="#techinfo">Where can I find more technical info about openMSX?</a> </li>
 		<li><a class="internal" href="#otherquestion">My question is not listed here.</a> </li>
 	</ul></li>
@@ -328,6 +329,17 @@ A developer of DosBox built a Win32 binary of the codec for our users. It is inc
 <p>
 You only need this codec installer to be able to replay the videos on a Windows system. (Although a workaround could be to upload it to Google video, where it is re-encodeded into a lossy MPEG-4 format.) Programs like Virtual Dub can use the codec and re-encode it in another way. On other operating systems, you can use any video player which supports this codec; e.g. <code>mplayer</code>. Re-encoding can be done with e.g. <code>mencoder</code>.
 </p>
+
+<h3><a id="soundproblems">Why do I hear serious sound glitches and/or stuttering, especially when using Windows?</a></h3>
+
+<p>
+Not sure, but for some reason, especially on Windows, we can't find default settings that work for everyone. If you indeed have glitches like sound delay or stuttering, you can try the following. </p>
+
+<ul>
+ <li>Chances are that your CPU load is very high, which may cause stutters. Check the <a class="external" href="setup.html#tuning">Performance Tuning</a> section of the Setup Guide to see what you can do to get it lower. Also, peaks in CPU usage (e.g. caused by certain P2P programs) can cause stuttering, in some cases.</li>
+ <li>Try to tune the value of the <a class="external" href="commands.html#samples"><code>samples</code></a> setting. If you have stutters, double it and see if that helps. If you have delays, halve it and see if that helps.</li>
+ <li>Try to change the value of the <a class="external" href="commands.html#sound_driver"><code>sound_driver</code></a> setting (only on Windows for now). After changing it try to tune the value of the <a class="external" href="commands.html#samples"><code>samples</code></a> setting again.</li>
+</ul>
 
 <h3><a id="techinfo">Where can I find more technical info about openMSX?</a></h3>
 
