@@ -1605,7 +1605,7 @@ void VDPCmdEngine::createHEngines(unsigned cmd)
 	commands[cmd + 0][2] = new Command<Graphic6Mode>();
 	commands[cmd + 0][3] = new Command<Graphic7Mode>();
 	for (int i = 1; i < 16; ++i) {
-		for (int j = 1; j < 4; ++j) {
+		for (int j = 0; j < 4; ++j) {
 			commands[cmd + i][j] = commands[cmd + 0][j];
 		}
 	}
