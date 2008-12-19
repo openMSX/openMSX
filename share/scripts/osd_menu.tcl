@@ -512,5 +512,10 @@ proc __menu_free_savestate_name {} {
 	}
 }
 
-bind_default "keyb MENU" main_menu_toggle
+# keybindings
+if {$tcl_platform(os) == "Darwin"} {
+	bind_default "keyb META+O" main_menu_toggle
+} else {
+	bind_default "keyb MENU" main_menu_toggle
+}
 
