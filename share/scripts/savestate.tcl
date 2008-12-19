@@ -37,7 +37,7 @@ proc loadstate { {name ""} } {
 proc list_savestates {} {
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
 	set result [list]
-	foreach f [glob -tails -directory $directory *.xml.gz] {
+	foreach f [glob -tails -directory $directory -nocomplain *.xml.gz] {
 		lappend result [file rootname [file rootname $f]]
 	}
 	return [lsort $result]
