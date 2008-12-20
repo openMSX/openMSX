@@ -1,5 +1,9 @@
 $Id$
 
+2008-12-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* For carta command, check for errors (rom and ips files)
+	  before removing the currently inserted cartridge.
+
 2008-11-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added '-repeat' option to 'bind' command:
 	   - When the '-repeat' options is given and the key remains pressed,

@@ -2,6 +2,7 @@
 
 #include "MSXRomCLI.hh"
 #include "CommandLineParser.hh"
+#include "HardwareConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include <cassert>
@@ -71,7 +72,9 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	}
 	MSXMotherBoard* motherboard = cmdLineParser.getMotherBoard();
 	assert(motherboard);
-	motherboard->loadRom(arg, slotname, options);
+	std::auto_ptr<HardwareConfig> extension(
+		HardwareConfig::createRomConfig(*motherboard, arg, slotname, options));
+	motherboard->insertExtension("ROM", extension);
 }
 
 bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,

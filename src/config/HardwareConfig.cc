@@ -52,6 +52,8 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 {
 	auto_ptr<HardwareConfig> result(
 		new HardwareConfig(motherBoard, "rom"));
+	string sramfile = FileOperations::getFilename(romfile);
+	auto_ptr<FileContext> context(new UserFileContext("roms/" + sramfile));
 
 	vector<string> ipsfiles;
 	string mapper;
@@ -67,6 +69,10 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 			                   option + "\"");
 		}
 		if (option == "-ips") {
+			if (!FileOperations::isRegularFile(context->resolve(
+				motherBoard.getCommandController(), *it))) {
+				throw MSXException("Invalid IPS file: " + *it);
+			}
 			ipsfiles.push_back(*it);
 		} else if (option == "-romtype") {
 			if (!romTypeOptionFound) {
@@ -80,15 +86,11 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		}
 	}
 
-	string sramfile = FileOperations::getFilename(romfile);
-	auto_ptr<FileContext> context(new UserFileContext("roms/" + sramfile));
-	string resolvedFilename;
-	try {
-		resolvedFilename = FileOperations::getAbsolutePath(
-			context->resolve(
-				motherBoard.getCommandController(), romfile));
-	} catch (MSXException& e) {
-		// Ignore.
+	string resolvedFilename = FileOperations::getAbsolutePath(
+		context->resolve(
+			motherBoard.getCommandController(), romfile));
+	if (!FileOperations::isRegularFile(resolvedFilename)) {
+		throw MSXException("Invalid ROM file: " + resolvedFilename);
 	}
 
 	auto_ptr<XMLElement> extension(new XMLElement("extension"));
@@ -104,10 +106,8 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	mem->addAttribute("size", "0x10000");
 	device->addChild(mem);
 	auto_ptr<XMLElement> rom(new XMLElement("rom"));
-	if (!resolvedFilename.empty()) {
-		rom->addChild(auto_ptr<XMLElement>(
-			new XMLElement("resolvedFilename", resolvedFilename)));
-	}
+	rom->addChild(auto_ptr<XMLElement>(
+		new XMLElement("resolvedFilename", resolvedFilename)));
 	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
 	if (!ipsfiles.empty()) {

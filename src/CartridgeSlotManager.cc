@@ -323,6 +323,10 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 			options.push_back(tokens[i]);
 		}
 		try {
+			string romname = tokens[extensionNameToken];
+			std::auto_ptr<HardwareConfig> extension(
+				HardwareConfig::createRomConfig(
+					manager.motherBoard, romname, slotname, options));
 			if (slotname != "any") {
 				if (const HardwareConfig* extConf =
 					       getExtensionConfig(cartname)) {
@@ -330,11 +334,8 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 					manager.motherBoard.removeExtension(*extConf);
 				}
 			}
-			HardwareConfig& extension =
-				manager.motherBoard.loadRom(
-					tokens[extensionNameToken], slotname, options);
-			cliComm.update(CliComm::MEDIA, cartname, tokens[extensionNameToken]);
-			result = extension.getName();
+			result = manager.motherBoard.insertExtension("ROM", extension);
+			cliComm.update(CliComm::MEDIA, cartname, romname);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}

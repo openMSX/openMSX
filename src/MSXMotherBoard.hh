@@ -103,10 +103,9 @@ public:
 	typedef std::vector<HardwareConfig*> Extensions;
 	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(const std::string& extensionName);
-	HardwareConfig& loadExtension(const std::string& extensionName);
-	HardwareConfig& loadRom(
-		const std::string& romname, const std::string& slotname,
-		const std::vector<std::string>& options);
+	std::string loadExtension(const std::string& extensionName);
+	std::string insertExtension(const std::string& name,
+	                            std::auto_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
 	// The following classes are unique per MSX machine
