@@ -348,8 +348,8 @@ set __setting_menu [__prepare_menu {
 	                   RIGHT { cycle scale_algorithm }}}}}]
 
 
-proc __ls { directory } {
-	set roms [glob -nocomplain -tails -directory $directory -type f *.{rom,zip,gz}]
+proc __ls { directory extensions } {
+	set roms [glob -nocomplain -tails -directory $directory -type f *.{$extensions}]
 	set dirs [glob -nocomplain -tails -directory $directory -type d *]
 	set dirs2 [list]
 	foreach dir $dirs {
@@ -374,7 +374,7 @@ proc __displayOSDText { message } {
 }
 
 proc __menu_create_ROM_list { path } {
-	return [__prepare_menu_list [__ls $path] \
+	return [__prepare_menu_list [__ls $path "rom,zip,gz"] \
 	                          10 \
 	                          { execute __menu_select_rom
 	                            bg-color 0x000000a0
@@ -405,7 +405,7 @@ proc __menu_select_rom { item } {
 }
 
 proc __menu_create_disk_list { path } {
-	set disks [concat "--eject--" [__ls $path]]
+	set disks [concat "--eject--" [__ls $path "dsk,zip,gz"]]
 	return [__prepare_menu_list $disks \
 	                          10 \
 	                          { execute __menu_select_disk
