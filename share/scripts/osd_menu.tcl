@@ -297,12 +297,12 @@ set __main_menu [__prepare_menu {
 	bg-color 0x000000a0
 	text-color 0xffffffff
 	select-color 0x8080ffd0
-	font-size 12
+	font-size 10
 	border-size 2
 	width 160
-	items {{ text "openMSX Menu"
+	items {{ text "Menu"
 	         text-color 0x00ffffff
-	         font-size 20
+	         font-size 12
 	         post-spacing 6
 	         selectable false }
 	       { text "Load ROM..."
@@ -310,43 +310,98 @@ set __main_menu [__prepare_menu {
 	       { text "Insert Disk..."
 	         actions { A { __menu_create [__menu_create_disk_list $::osd_disk_path] }}
 	         post-spacing 3 }
-	       { text "Save state..."
+	       { text "Save State..."
 	         actions { A { __menu_create [__menu_create_save_state] }}}
-	       { text "Load state..."
+	       { text "Load State..."
 	         actions { A { __menu_create [__menu_create_load_state] }}
 	         post-spacing 3 }
-	       { text "Settings..."
-	         actions { A { __menu_create $::__setting_menu }}
-	         post-spacing 3 }
+	       { text "openMSX Settings..."
+	         actions { A { __menu_create $::__misc_setting_menu }}}
+	       { text "Sound Settings..."
+	         actions { A { __menu_create $::__sound_setting_menu }}}
+	       { text "Video Settings..."
+	         actions { A { __menu_create $::__video_setting_menu }}
+	         post-spacing 10 }
 	       { text "Reset MSX"
 	         actions { A { reset ; __menu_close_all }}}
 	       { text "Exit openMSX"
 	         actions { A exit }}}}]
 
-set __setting_menu [__prepare_menu {
+set __misc_setting_menu [__prepare_menu {
 	bg-color 0x000000a0
 	text-color 0xffffffff
 	select-color 0x8080ffd0
-	font-size 12
+	font-size 8
 	border-size 2
 	width 150
 	xpos 100
 	ypos 120
-	items {{ text "Settings"
+	items {{ text "Misc Settings"
 	         text-color 0xffff40ff
-	         font-size 20
+	         font-size 12
 	         post-spacing 6
 	         selectable false }
-	       { text "speed: $speed"
-	         actions { LEFT  { incr speed -5 }
-	                   RIGHT { incr speed  5 }}}
-	       { text "volume: $master_volume"
+	       { text "Speed: $speed"
+	         actions { LEFT  { incr speed -1 }
+	                   RIGHT { incr speed  1 }}}
+	       { text "Minimal Frameskip: $minframeskip"
+	         actions { LEFT  { incr minframeskip -1 }
+	                   RIGHT { incr minframeskip  1 }}}
+	       { text "Maximal Frameskip: $maxframeskip"
+	         actions { LEFT  { incr maxframeskip -1 }
+	                   RIGHT { incr maxframeskip  1 }}}}}]
+
+set __sound_setting_menu [__prepare_menu {
+	bg-color 0x000000a0
+	text-color 0xffffffff
+	select-color 0x8080ffd0
+	font-size 8
+	border-size 2
+	width 150
+	xpos 100
+	ypos 120
+	items {{ text "Sound Settings"
+	         text-color 0xffff40ff
+	         font-size 12
+	         post-spacing 6
+	         selectable false }
+	       { text "Volume: $master_volume"
 	         actions { LEFT  { incr master_volume -5 }
 	                   RIGHT { incr master_volume  5 }}}
-	       { text "scaler: $scale_algorithm"
-	         actions { LEFT  { cycle_back scale_algorithm }
-	                   RIGHT { cycle scale_algorithm }}}}}]
+	       { text "Mute: $mute"
+	         actions { LEFT  { cycle_back mute }
+	                   RIGHT { cycle mute }}}}}]
 
+set __video_setting_menu [__prepare_menu {
+	bg-color 0x000000a0
+	text-color 0xffffffff
+	select-color 0x8080ffd0
+	font-size 8
+	border-size 2
+	width 150
+	xpos 100
+	ypos 120
+	items {{ text "Video Settings"
+	         text-color 0xffff40ff
+	         font-size 10
+	         post-spacing 6
+	         selectable false }
+	       { text "Scaler: $scale_algorithm"
+	         actions { LEFT  { cycle_back scale_algorithm }
+	                   RIGHT { cycle scale_algorithm }}}
+	       { text "Scaler factor: $scale_factor X"
+	         actions { LEFT  { incr scale_factor -1 }
+	                   RIGHT { incr scale_factor  1 }}
+	         post-spacing 6 }
+	       { text "Scanline: $scanline"
+	         actions { LEFT  { incr scanline -1 }
+	                   RIGHT { incr scanline  1 }}}
+	       { text "Blur: $blur"
+	         actions { LEFT  { incr blur -1 }
+	                   RIGHT { incr blur  1 }}}
+	       { text "Glow: $glow"
+	         actions { LEFT  { incr glow -1 }
+	                   RIGHT { incr glow  1 }}}}}]
 
 proc __ls { directory extensions } {
 	set roms [glob -nocomplain -tails -directory $directory -type f *.{$extensions}]
@@ -380,14 +435,15 @@ proc __menu_create_ROM_list { path } {
 	                            bg-color 0x000000a0
 	                            text-color 0xffffffff
 	                            select-color 0x8080ffd0
-	                            font-size 6
+	                            font-size 8
 	                            border-size 2
 	                            width 200
 	                            xpos 100
 	                            ypos 120
 	                            header { text "ROMS  $::osd_rom_path"
 	                                     text-color 0xff0000ff
-	                                     font-size 10 }}]
+	                                     font-size 10
+                                             post-spacing 6 }}]
 }
 
 proc __menu_select_rom { item } {
@@ -412,14 +468,15 @@ proc __menu_create_disk_list { path } {
 	                            bg-color 0x000000a0
 	                            text-color 0xffffffff
 	                            select-color 0x8080ffd0
-	                            font-size 6
+	                            font-size 8
 	                            border-size 2
 	                            width 200
 	                            xpos 100
 	                            ypos 120
 	                            header { text "Disks  $::osd_disk_path"
 	                                     text-color 0xff0000ff
-	                                     font-size 10 }}]
+	                                     font-size 10
+	                                     post-spacing 6 }}]
 }
 
 proc __menu_select_disk { item } {
@@ -445,7 +502,7 @@ proc __menu_create_load_state {} {
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
-	         font-size 6
+	         font-size 8
 	         border-size 2
 	         width 100
 	         xpos 100
@@ -454,9 +511,10 @@ proc __menu_create_load_state {} {
 	         on-close {osd destroy "preview"}
 	         on-select   __menu_loadstate_select
 	         on-deselect __menu_loadstate_deselect
-	         header { text "loadstate"
+	         header { text "Loadstate"
 	                  text-color 0x00ff00ff
-	                  font-size 10}}]
+	                  font-size 12
+                          post-spacing 6 }}]
 }
 proc __menu_create_save_state {} {
 	set items [concat [list "create new"] [list_savestates]]
@@ -465,7 +523,7 @@ proc __menu_create_save_state {} {
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
-	         font-size 6
+	         font-size 8
 	         border-size 2
 	         width 100
 	         xpos 100
@@ -474,9 +532,10 @@ proc __menu_create_save_state {} {
 	         on-close {osd destroy "preview"}
 	         on-select   __menu_loadstate_select
 	         on-deselect __menu_loadstate_deselect
-	         header { text "savestate"
+	         header { text "Savestate"
 	                  text-color 0xff0000ff
-	                  font-size 10}}]
+	                  font-size 12
+	                  post-spacing 6 }}]
 }
 proc __menu_loadstate_select { item } {
 	set png $::env(OPENMSX_USER_DATA)/../savestates/${item}.png
