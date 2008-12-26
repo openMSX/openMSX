@@ -28,7 +28,8 @@ meisei, for helping us out with some of the features below; you might recognize
 them from his recent meisei releases.
 
 New or improved emulator features:
-- Save states:
+- Save states (keyboard short cuts: ALT-F7 or Cmd+R to quick-load and
+  ALT-F8 or Cmd-S to quick-save your state):
   - Exchangeable between different host machines, OSes, platforms
   - Designed to be forwards-compatible, i.e. they will work with future openMSX
     releases
@@ -36,14 +37,14 @@ New or improved emulator features:
     in memory (comparable with tabbed browsing)
 - Fully automatic host-MSX keyboard mapping, support for MSX keyboards of type:
   de, es, fr, gb, int, jp_ansi, jp_jis, kr, proto_fr (e.g. French Philips VG
-  8010), proto_int (Philips VG 8010), ru
-- Fully transparent dir as disk
+  8010), proto_int (Philips VG 8010), ru (enabled by default)
+- Fully transparent dir as disk (by default)
 - Debugging:
   - It's now possible to break on changes of the IRQ lines: the global Z80 IRQ
-    input but also specific per-device IRQ outputs
+    input but also specific per-device IRQ outputs ("debug probe" command)
   - Made more devices 'debuggable'
   - Simplified usage of the 'debug device'
-- Recording movies in higher resolution: 640x480 using -doublesize option
+- Recording movies in higher resolution: 640x480 using the "-doublesize" option
 - Major speed optimizations:
   - Z80 and R800 emulation
   - V99x8: command-engine, bitmap and sprite rendering
@@ -51,10 +52,15 @@ New or improved emulator features:
   - rewrote some critical routines in x86 or ARM assembly
   As a result most MSX1 and MSX2 software now runs realtime on a ARM9 200MHz
   CPU, which you can find e.g. in a GP2X handheld console.
-- Screenshots can now be made of the MSX screen only
-- Added an OSD framework, which will be useful to control openMSX in full screen
-  mode and especially on hand held machines like the GP2X
-- Amount of horizontal stretch can be tweaked by the user
+- Screenshots can now be made of the MSX screen only (using the "-msxonly"
+  option)
+- Added an On-Screen-Display (OSD) framework, which will be useful to control
+  openMSX in full screen mode and especially on hand held machines like the
+  GP2X. There is already a proof-of-concept OSD available, which can be
+  accessed by pressing the MENU (or Cmd+O) key. Note that this is still an
+  experimental feature! Feedback is most welcome, of course.
+- Amount of horizontal stretch can be tweaked by the user (horizontal_stretch
+  setting)
 
 MSX device support:
 - Support for new mapper types: Nettou Yakyuu (with sample ROM, for Moero!!
@@ -62,7 +68,7 @@ MSX device support:
   MegaFlashRomScc (for new MegaFlashROM SCC extension)
 - Several new machines were added, e.g. Philips VG 8000, Philips VG 8010 (also
   French version), Philips VG 8020/19, Sony HB-10P, Sony HB-20P, Sony HB-55P
-- Added Brazillian OPL3 Cartridge
+- Added Brazilian OPL3 Cartridge
 - Major accuracy improvements:
   - turboR: extra wait cycle when accessing VDP
   - Z80:
