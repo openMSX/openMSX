@@ -1415,7 +1415,7 @@ create_trainer "Vampire Killer" {time 1} {
 	"strength enemy 3 " {poke 0xc90d 1}
 	"enemies are not frozen (required for Dracula)" {poke 0xd010 0}
 	"enemies are frozen" {poke 0xd010 1}
-	"game master combo" {poke 0xe600 255}	
+	"game master combo" {poke 0xe600 255}
 }
 
 create_trainer "Super Laydock Mission Striker" {time 2} {
@@ -2244,7 +2244,7 @@ create_trainer "King Kong 2" {time 2} {
 	"bridge over gap (area 8)" {poke 0xc810 1;poke 0xc811 72;poke 0xc812 72}
 	"bosses die after 1 hit" {poke 0xd00d 1}
 	"most enemies die after 1 hit" {poke 0xd08d 1;poke 0xd10d 1;poke 0xd18d 1;poke 0xd20d 1;poke 0xd28d 1;poke 0xd30d 1;poke 0xd38d 1;poke 0xd40d 1;poke 0xd48d 1}
-	"kill low centipede 1 time to get message (area 2)" {poke 0xdfc0 2}	
+	"kill low centipede 1 time to get message (area 2)" {poke 0xdfc0 2}
 	"kill high centipede 1 time to get message (area 2)" {poke 0xdfc1 2}
 	"kill 1 bowler to get axe (area 2)" {poke 0xdfc2 1}
 	"kill 1 firetotem to get club (area 3)" {poke 0xdfc3 1}
@@ -6128,119 +6128,119 @@ create_trainer "M-Kid Promo Puzzle" {time 1} {
 }
 
 create_trainer "Mouse Games - Disc Station 00" {time 1} {
-		"infinite game (clay shot)" {poke 0x9cbb 0}
-		"infinite time (mole attack)" {poke 0x9ce0 99}
-		"infinite balls (block blaster)" {poke 0xcc0e 9}
+	"infinite game (clay shot)" {poke 0x9cbb 0}
+	"infinite time (mole attack)" {poke 0x9ce0 99}
+	"infinite balls (block blaster)" {poke 0xcc0e 9}
 }
 
 create_trainer "Teki Paki" {time 1} {
-		"no game acceleration" {poke 0xe104 32}
+	"no game acceleration" {poke 0xe104 32}
 }
 
 create_trainer "Penguin Race" {time 1} {
-		"player 1 is winner in classic game" {poke 0xc107 3}
-		"player 2 is winner in classic game" {poke 0xc108 3}
-		"fishes player 1 in 83 game" {poke 0xc113 123}
-		"fishes player 2 in 83 game" {poke 0xc114 123}
+	"player 1 is winner in classic game" {poke 0xc107 3}
+	"player 2 is winner in classic game" {poke 0xc108 3}
+	"fishes player 1 in 83 game" {poke 0xc113 123}
+	"fishes player 2 in 83 game" {poke 0xc114 123}
 }
 
 create_trainer "Chocobo Racing" {time 1} {
-		"speed player 1 (0-255)" {poke 0x8127 55}
-		"speed player 2 (0-255)" {poke 0x8137 55}
+	"speed player 1 (0-255)" {poke 0x8127 55}
+	"speed player 2 (0-255)" {poke 0x8137 55}
 }
 
 create_trainer "Duck Hunt" {time 1} {
-		"round (1-99;0)" {poke 0xc284 1}
-		"infinite shots" {poke 0xc296 0}
-		"always winner" {poke 0xc298 10}
-		"endless game" {poke 0xc29a 0}
+	"round (1-99;0)" {poke 0xc284 1}
+	"infinite shots" {poke 0xc296 0}
+	"always winner" {poke 0xc298 10}
+	"endless game" {poke 0xc29a 0}
 }
 
 create_trainer "Eat Blue 2004" {time 1} {
-		"level (1-30 to select only at end of first played level)" {poke 0xc04f 1}
-		"lives (not on first played level)" {poke 0xc051 99}
-		"food (not on first played level)" {poke 0xc053 99}
-		"red key (not on first played level)" {poke 0xc059 1}
-		"blue key (not on first played level)" {poke 0xc05b 1}
-		"yellow key (not on first played level)" {poke 0xc05d 1}
-		"eggs (not on first played level)" {poke 0xc05f 1}
-		"time" {poke 0xfc9e 0}
+	"level (1-30 to select only at end of first played level)" {poke 0xc04f 1}
+	"lives (not on first played level)" {poke 0xc051 99}
+	"food (not on first played level)" {poke 0xc053 99}
+	"red key (not on first played level)" {poke 0xc059 1}
+	"blue key (not on first played level)" {poke 0xc05b 1}
+	"yellow key (not on first played level)" {poke 0xc05d 1}
+	"eggs (not on first played level)" {poke 0xc05f 1}
+	"time" {poke 0xfc9e 0}
 }
 
 create_trainer "Eat Blue 2004 User Levels" {time 1} {
-		"level (1-30 to select only at end of first played level)" {poke 0xc055 1}
-		"lives (not on first played level)" {poke 0xc057 99}
-		"food (not on first played level)" {poke 0xc059 99}
-		"red key (not on first played level)" {poke 0xc05f 1}
-		"blue key (not on first played level)" {poke 0xc061 1}
-		"yellow key (not on first played level)" {poke 0xc063 1}
-		"eggs (not on first played level)" {poke 0xc065 1}
-		"time" {poke 0xfc9e 0}
+	"level (1-30 to select only at end of first played level)" {poke 0xc055 1}
+	"lives (not on first played level)" {poke 0xc057 99}
+	"food (not on first played level)" {poke 0xc059 99}
+	"red key (not on first played level)" {poke 0xc05f 1}
+	"blue key (not on first played level)" {poke 0xc061 1}
+	"yellow key (not on first played level)" {poke 0xc063 1}
+	"eggs (not on first played level)" {poke 0xc065 1}
+	"time" {poke 0xfc9e 0}
 }
 
 create_trainer "Eat Blue" {time 1} {
-		"energy game A or player 1" {poke 0xbaa0 153}
-		"energy game B" {poke 0xbaa6 153}
-		"energy player 2" {poke 0xbaab 153}
+	"energy game A or player 1" {poke 0xbaa0 153}
+	"energy game B" {poke 0xbaa6 153}
+	"energy player 2" {poke 0xbaab 153}
 }
 
 create_trainer "Factory Infection" {time 1} {
-		"no mistake" {poke 0xc29c 0}
+	"no mistake" {poke 0xc29c 0}
 }
 
 create_trainer "Picture Puzzle" {time 1} {
-		"time" {poke 0xcf4b 0;poke 0xcf4c 0}
-		"stage (1-45)" {poke 0xcf52 1}
+	"time" {poke 0xcf4b 0;poke 0xcf4c 0}
+	"stage (1-45)" {poke 0xcf52 1}
 }
 
 create_trainer "Seleniak" {time 1} {
-		"level player 1 (0-99)" {poke 0xfd05 0}
-		"lives player 1" {poke 0xcd06 5}
-		"level player 2 (0-99)" {poke 0xfd19 0}
-		"lives player 2" {poke 0xfd1a 5}
+	"level player 1 (0-99)" {poke 0xfd05 0}
+	"lives player 1" {poke 0xcd06 5}
+	"level player 2 (0-99)" {poke 0xfd19 0}
+	"lives player 2" {poke 0xfd1a 5}
 }
 
 create_trainer "Sink King" {time 1} {
-		"level player 1 (0-99)" {poke 0xf705 0}
-		"lives player 1" {poke 0xf706 5}
-		"level player 2 (0-99)" {poke 0xf71a 0}
-		"lives player 2" {poke 0xf71b 5}
-		"soap (de-select to get bonus)" {poke 0xf754 63}
+	"level player 1 (0-99)" {poke 0xf705 0}
+	"lives player 1" {poke 0xf706 5}
+	"level player 2 (0-99)" {poke 0xf71a 0}
+	"lives player 2" {poke 0xf71b 5}
+	"soap (de-select to get bonus)" {poke 0xf754 63}
 }
 
 # enable the cheats only in the game itself
 
 create_trainer "Snail Maze" {time 1} {
-		"time" {poke 0xc01d 154}
+	"time" {poke 0xc01d 154}
 }
 
 create_trainer "Soukoban Pocket" {time 1} {
-		"lives" {poke 0xd410 4}
+	"lives" {poke 0xd410 4}
 }
 
 create_trainer "Stratos" {time 3} {
-		"invulnerable (de-select on exit and press on ESC)" {poke 0xe000 2;poke 0xe020 6}
-		"stage (0-12)" {poke 0xe040 0}
-		"exit always open" {poke 0xe042 0}
-		"time (de-select on exit to get bonus)" {poke 0xe052 99}
-		"bombs" {poke 0xe053 99}
-		"hearts" {poke 0xe054 99}
+	"invulnerable (de-select on exit and press on ESC)" {poke 0xe000 2;poke 0xe020 6}
+	"stage (0-12)" {poke 0xe040 0}
+	"exit always open" {poke 0xe042 0}
+	"time (de-select on exit to get bonus)" {poke 0xe052 99}
+	"bombs" {poke 0xe053 99}
+	"hearts" {poke 0xe054 99}
 }
 
 create_trainer "Sa-Zi-Ri" {time 1} {
-		"time" {poke 0x18d1 255}
-		"vitality" {poke 0x21a5 100}
-		"faster experience" {poke 0x21a6 16}
-		"experience" {poke 0x21a7 98}
-		"flowers" {poke 0x21aa 98}
-		"vases" {poke 0x21ab 98}
-		"glasses" {poke 0x21ac 98}
-		"always access to next part (? key)" {poke 0x21ad 1}
-		"keys" {poke 0x21ae 98}
+	"time" {poke 0x18d1 255}
+	"vitality" {poke 0x21a5 100}
+	"faster experience" {poke 0x21a6 16}
+	"experience" {poke 0x21a7 98}
+	"flowers" {poke 0x21aa 98}
+	"vases" {poke 0x21ab 98}
+	"glasses" {poke 0x21ac 98}
+	"always access to next part (? key)" {poke 0x21ad 1}
+	"keys" {poke 0x21ae 98}
 }
 
 create_trainer "Bacillus" {time 1} {
-		"lives" {poke 0xb359 5}
+	"lives" {poke 0xb359 5}
 }
 
 create_trainer "Dizzy" {time 1} {
@@ -6329,29 +6329,29 @@ create_trainer "Turtle Mania Demo" {time 1} {
 }
 
 create_trainer "Escape" {time 1} {
-		"lives" {poke 0x9d65 9}
-		"time (but overflow risk in score !)" {poke 0x9d6f 96}
-		"level (1-99)" {poke 0x9d74 1}
-		"frozen robots" {poke 0xf100 201}
-		"moving robots" {poke 0xf100 14}
+	"lives" {poke 0x9d65 9}
+	"time (but overflow risk in score !)" {poke 0x9d6f 96}
+	"level (1-99)" {poke 0x9d74 1}
+	"frozen robots" {poke 0xf100 201}
+	"moving robots" {poke 0xf100 14}
 }
 
 create_trainer "Alphabet" {time 1} {
-		"time (select when letters are on screen; de-select at end of level)" {poke 0x8541 153}
+	"time (select when letters are on screen; de-select at end of level)" {poke 0x8541 153}
 }
 
 create_trainer "Blocus" {time 1} {
-		"time if direct gaming" {poke 0xa1dd 255}
-		"time if gaming after only one other option" {poke 0xa1e2 255}
-		"time if gaming after more than one other option" {poke 0xa1e7 255}
+	"time if direct gaming" {poke 0xa1dd 255}
+	"time if gaming after only one other option" {poke 0xa1e2 255}
+	"time if gaming after more than one other option" {poke 0xa1e7 255}
 }
 
 create_trainer "Breakout" {time 1} {
-		"infinite balls" {poke 0xd44b 0}
+	"infinite balls" {poke 0xd44b 0}
 }
 
 create_trainer "Combat" {time 1} {
-		"time" {poke 0x8b93 153}
+	"time" {poke 0x8b93 153}
 }
 
 create_trainer "Docteur Galaxie" {time 1} {
@@ -6411,36 +6411,36 @@ create_trainer "King's Valley Plus" {time 2} {
 
 create_trainer "Montana John and the Templar's Treasure" {time 0.1} {
 	"open door level 1" {poke 0x0a3f 0;poke 0x0a5f 0;poke 0x0a7f 0}
-	
+
 	"open door level 2" {poke 0x1d1f 0;poke 0x1d3f 0;poke 0x1d5f 0;poke 0x1d7f 0}
-	
+
 	"open door level 3" {poke 0x071e 0;poke 0x073e 0;poke 0x075e 0;poke 0x077e 0;poke 0x079e 0;poke 0x07be 0;poke 0x07de 0;poke 0x07fe 0;poke 0x081e 0;poke 0x083e 0}
-	
+
 	"open 1st door level 4" {poke 0x20e0 0;poke 0x2100 0;poke 0x2120 0;poke 0x2140 0}
 	"open 2nd door level 4" {poke 0x02ff 0;poke 0x031f 0;poke 0x033f 0;poke 0x035f 0}
-	
+
 	"open 1st door level 5" {poke 0x101f 0;poke 0x103f 0;poke 0x105f 0;poke 0x107f 0}
 	"open 2nd door level 5" {poke 0x1d1f 0;poke 0x1d3f 0;poke 0x1d5f 0;poke 0x1d7f 0;poke 0x1d9f 0}
-	
+
 	"open 1st door level 6" {poke 0x2a5c 0;poke 0x2a7c 0;poke 0x2a9c 0;poke 0x2abc 0}
 	"open 2nd door level 6" {poke 0x027f 0;poke 0x029f 0;poke 0x02bf 0;poke 0x02df 0;poke 0x02ff 0;poke 0x031f 0;poke 0x033f 0;poke 0x035f 0}
-	
+
 	"open door level 7" {poke 0x2eb2 0;poke 0x2ed2 0;poke 0x2ef2 0;poke 0x2f12 0;poke 0x2f32 0;poke 0x2f52 0;poke 0x2f72 0}
-	
+
 	"open door level 8" {poke 0x153e 0;poke 0x155e 0;poke 0x157e 0;poke 0x159e 0;poke 0x15be 0}
-	
+
 	"open 1st door level 9" {poke 0x1a80 0;poke 0x1aa0 0;poke 0x1ac0 0;poke 0x1ae0 0}
 	"open 2nd door level 9" {poke 0x0ee0 0;poke 0x0f00 0;poke 0x0f20 0;poke 0x0f40 0}
 	"open 3rd door level 9" {poke 0x14bf 0;poke 0x14df 0;poke 0x14ff 0;poke 0x151f 0;poke 0x153f 0;poke 0x155f 0;poke 0x157f 0;poke 0x159f 0;poke 0x15bf 0}
-	
+
 	"open 1st door level 10" {poke 0x1fdf 0;poke 0x1fff 0;poke 0x201f 0;poke 0x203f 0}
 	"open 2nd door level 10" {poke 0x1b99 0;poke 0x1bb9 0;poke 0x1bd9 0;poke 0x1bf9 0;poke 0x1c19 0;poke 0x1c39 0}
 	"open 3rd door level 10" {poke 0x2b4d 0;poke 0x2b6d 0;poke 0x2b8d 0;poke 0x2bad 0;poke 0x2bcd 0;poke 0x2bed 0}
-	
+
 	"open 1st door level 11" {poke 0x1a87 0;poke 0x1aa7 0;poke 0x1ac7 0;poke 0x1ae7 0}
 	"open 2nd door level 11" {poke 0x1b9e 0;poke 0x1bbe 0;poke 0x1bde 0;poke 0x1bfe 0}
 	"open 3rd door level 11" {poke 0x03fe 0;poke 0x041e 0;poke 0x043e 0;poke 0x045e 0;poke 0x047e 0;poke 0x049e 0}
-	
+
 	"open 1st door level 12" {poke 0x1d25 0;poke 0x1d45 0;poke 0x1d65 0;poke 0x1d85 0}
 	"open 2nd door level 12" {poke 0x241f 0;poke 0x243f 0;poke 0x245f 0;poke 0x247f 0;poke 0x249f 0;poke 0x24bf 0;poke 0x24df 0;poke 0x24ff 0;poke 0x251f 0;poke 0x253f 0;poke 0x255f 0;poke 0x257f 0}
 	"open 3rd door level 12" {poke 0x2b5f 0;poke 0x2b7f 0;poke 0x2b9f 0;poke 0x2bbf 0;poke 0x2bdf 0;poke 0x2bff 0;poke 0x2c1f 0;poke 0x2c3f 0;poke 0x2c5f 0;poke 0x2c7f 0;poke 0x2c9f 0;poke 0x2cbf 0;poke 0x2cdf 0;poke 0x2cff 0;poke 0x2d1f 0;poke 0x2d3f 0;poke 0x2d5f 0}
