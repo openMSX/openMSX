@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.7.0 (2008-12-??)
+Release Notes for openMSX 0.7.0 (2008-12-27)
 ============================================
 
 This release contains several exciting new features, clearing some long standing

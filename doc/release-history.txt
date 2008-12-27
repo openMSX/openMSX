@@ -3,6 +3,104 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.7.0 (2008-12-27)
+--------------------------
+
+This release contains several exciting new features, clearing some long standing
+feature requests! The most important one of all is that we have implemented save
+states! It took us a while to think of a way to implement it without having some
+disadvantages you could have with some other emulators. The biggest one is
+backwards compatibility. Our system is designed in such way that it is able to
+cope with older save states in future releases. So, you don't have to be afraid
+to upgrade to a new version of openMSX: your save states will remain usable!
+
+Another big feature is the heavily improved keyboard support. In previous
+releases it was always a bit of an annoyance to work with emulated MSX machines
+which have a different keyboard layout than your host computer. E.g. using an
+MSX turboR, which has a Japanese keyboard, on a PC with a US-English keyboard
+was very annoying, as the characters that appear on the screen do not match the
+ones you typed on your PC keyboard. This problem has now been solved and you can
+use any combination of host computer keyboard and emulated MSX machine, without
+getting the wrong characters on the MSX screen.
+
+Full transparent dir-as-disk support has also been a long standing feature
+request. Well, it's here! Dir-as-disk now behaves as you might expect: any
+change on either the host or the MSX side is reflected on the other side
+immediately. This could help a lot for cross-platform development.
+
+Before we give you the list with details, we want to thank hap, the author of
+meisei, for helping us out with some of the features below; you might recognize
+them from his recent meisei releases.
+
+New or improved emulator features:
+- Save states (keyboard short cuts: ALT-F7 or Cmd+R to quick-load and
+  ALT-F8 or Cmd-S to quick-save your state):
+  - Exchangeable between different host machines, OSes, platforms
+  - Designed to be forwards-compatible, i.e. they will work with future openMSX
+    releases
+  - As a side effect it is now possible to have multiple emulated MSX machines
+    in memory (comparable with tabbed browsing)
+- Fully automatic host-MSX keyboard mapping (enabled by default), support for
+  MSX keyboards of type: de, es, fr, gb, int, jp_ansi, jp_jis, kr, proto_fr
+  (e.g. French Philips VG 8010), proto_int (Philips VG 8010), ru
+- Fully transparent dir as disk (by default)
+- Debugging:
+  - It's now possible to break on changes of the IRQ lines: the global Z80 IRQ
+    input but also specific per-device IRQ outputs ("debug probe" command)
+  - Made more devices 'debuggable'
+  - Simplified usage of the 'debug device'
+- Recording movies in higher resolution: 640x480 using the "-doublesize" option
+- Major speed optimizations:
+  - Z80 and R800 emulation
+  - V99x8: command-engine, bitmap and sprite rendering
+  - SCC, YM2413, AY8910 and sound mixing in general
+  - rewrote some critical routines in x86 or ARM assembly
+  As a result most MSX1 and MSX2 software now runs realtime on a ARM9 200MHz
+  CPU, which you can find e.g. in a GP2X handheld console.
+- Screenshots can now be made of the MSX screen only (using the "-msxonly"
+  option)
+- Added an On-Screen-Display (OSD) framework, which will be useful to control
+  openMSX in full screen mode and especially on hand held machines like the
+  GP2X. There is already a proof-of-concept OSD available, which can be
+  accessed by pressing the MENU (or Cmd+O) key. Note that this is still an
+  experimental feature! Feedback is most welcome, of course.
+- Amount of horizontal stretch can be tweaked by the user (horizontal_stretch
+  setting)
+
+MSX device support:
+- Support for new mapper types: Nettou Yakyuu (with sample ROM, for Moero!!
+  Nettou Yakyuu '88), MatraInk (for Ink), Manbow2 (for Manbow 2),
+  MegaFlashRomScc (for new MegaFlashROM SCC extension)
+- Several new machines were added, e.g. Philips VG 8000, Philips VG 8010 (also
+  French version), Philips VG 8020/19, Sony HB-10P, Sony HB-20P, Sony HB-55P
+- Added Brazilian OPL3 Cartridge
+- Major accuracy improvements:
+  - turboR: extra wait cycle when accessing VDP
+  - Z80:
+    - more accurate IRQ timing
+    - fixed some undocumented flag behaviour (not caught by zexall)
+    - implemented differences between turboR-Z80 and normal Z80 (SCF and CCF)
+  - R800:
+    - more accurate timing (correct page break behaviour)
+    - more accurate flags (rexall passes now)
+  - SCC:
+    - fixes in rotation mode
+    - corrected power-on state
+  - V99x8:
+    - implemented VRAM remapping (register R#1, bit7)
+    - implemented blink in bitmap mode
+  - V9990:
+    - much improved command timing
+    - bug fixes in command handling
+    - fixed vertical scroll details (in combination with screen splits)
+  - MSX-AUDIO: various fixes for the different MSX-AUDIO variants 
+  - PSG: emulate joystick input pin 6/7 mask quirk
+  - more accurate 'HarryFox' and 'CrossBlaim' mapper types
+
+Build system, packaging, documentation:
+- Mostly updated support for building a statically linked executable on Windows.
+
+
 openMSX 0.6.3 (2007-12-09)
 --------------------------
 
