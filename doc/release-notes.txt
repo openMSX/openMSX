@@ -35,9 +35,9 @@ New or improved emulator features:
     releases
   - As a side effect it is now possible to have multiple emulated MSX machines
     in memory (comparable with tabbed browsing)
-- Fully automatic host-MSX keyboard mapping, support for MSX keyboards of type:
-  de, es, fr, gb, int, jp_ansi, jp_jis, kr, proto_fr (e.g. French Philips VG
-  8010), proto_int (Philips VG 8010), ru (enabled by default)
+- Fully automatic host-MSX keyboard mapping (enabled by default), support for
+  MSX keyboards of type: de, es, fr, gb, int, jp_ansi, jp_jis, kr, proto_fr
+  (e.g. French Philips VG 8010), proto_int (Philips VG 8010), ru
 - Fully transparent dir as disk (by default)
 - Debugging:
   - It's now possible to break on changes of the IRQ lines: the global Z80 IRQ
