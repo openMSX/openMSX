@@ -32,8 +32,8 @@ HDR_ONLY:= \
 	TypeInfo \
 	type_traits \
 	DivModByConst \
-	utf8_core.hh \
-	utf8_checked.hh \
-	utf8_unchecked.hh \
+	utf8_core \
+	utf8_checked \
+	utf8_unchecked \
 
 include build/node-end.mk
