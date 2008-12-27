@@ -19,8 +19,16 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>076c2eabde1379c5290392e0e6b49b0f4f7e4c5d</sha1>
+          <!--sha1:cbios_main_msx1.rom-->
           <filename>roms/cbios_main_msx1.rom</filename>
+        </rom>
+      </ROM>
+
+      <ROM id="C-BIOS Logo ROM">
+        <mem base="0x8000" size="0x4000"/>
+        <rom>
+          <!--sha1:cbios_logo_msx1.rom-->
+          <filename>roms/cbios_logo_msx1.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -41,6 +49,8 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>true</key_ghosting>
+      <keyboard_type>int</keyboard_type>
+      <has_keypad>false</has_keypad>
     </PPI>
 
     <VDP id="VDP">

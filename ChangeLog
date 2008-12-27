@@ -1,6 +1,9 @@
 $Id$
 
 2008-12-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Updated to cbios 0.22
+
+2008-12-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* For carta command, check for errors (rom and ips files)
 	  before removing the currently inserted cartridge.
 

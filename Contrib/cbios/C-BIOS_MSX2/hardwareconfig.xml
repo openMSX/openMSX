@@ -21,8 +21,16 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>4031e58692f3c6fcfe09bfb5aa985f1b50c4e309</sha1>
+          <!--sha1:cbios_main_msx2.rom-->
           <filename>roms/cbios_main_msx2.rom</filename>
+        </rom>
+      </ROM>
+
+      <ROM id="C-BIOS Logo ROM">
+        <mem base="0x8000" size="0x4000"/>
+        <rom>
+          <!--sha1:cbios_logo_msx2.rom-->
+          <filename>roms/cbios_logo_msx2.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -37,7 +45,7 @@
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
-            <sha1>e920187e690ab02c959346b5e40dd1bdee973968</sha1>
+            <!--sha1:cbios_sub.rom-->
             <filename>roms/cbios_sub.rom</filename>
           </rom>
         </ROM>
@@ -58,6 +66,8 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>true</key_ghosting>
+      <keyboard_type>int</keyboard_type>
+      <has_keypad>true</has_keypad>
     </PPI>
 
     <VDP id="VDP">
@@ -68,6 +78,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>YM2149</type>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>
