@@ -1,6 +1,6 @@
 $Id$
 
-C-BIOS 0.21
+C-BIOS 0.23
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -18,13 +18,13 @@ License
 
 Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 Copyright (c) 2003 Reikan.  All rights reserved.
-Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
-Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
+Copyright (c) 2004-2006,2008 Maarten ter Huurne.  All rights reserved.
+Copyright (c) 2004-2006,2008 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004-2005 Patrick van Arkel.  All rights reserved.
 Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
-Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
-Copyright (c) 2004-2005 Jussi Pitk�nen.  All rights reserved.
-Copyright (c) 2004-2005 Eric Boon.  All rights reserved.
+Copyright (c) 2004-2006 Joost Yervante Damad.  All rights reserved.
+Copyright (c) 2004-2006 Jussi Pitkänen.  All rights reserved.
+Copyright (c) 2004-2007 Eric Boon.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -171,6 +171,20 @@ ver 0.21  2005-06-07(CET)
             Show logo, switch to SCREEN 1 and search for ROMs.
           * Improved video code; fixes several games.
           * Various bug fixes.
+ver 0.22  2008-12-27(CET)
+          * Use separate logo ROM to save space in the main ROM.
+          * Set lower bits of PSG reg 15 before reading joystick trigger status.
+          * Improved RAM search.
+          * Many new routines implemented and existing implementations made
+            more complete, especially character I/O and bitmap graphics.
+          * Added lots of documentation to system variables.
+          * Added support for GNU assembler.
+          * Various bug fixes.
+ver 0.23  2009-01-04(CET)
+          * Updated blueMSX configuration files, thanks to Benoît Delvaux.
+          * Fixed version reported by MSX1 logo ROM.
+          * Fixed several video routines so they work on MSX1 VDPs (TMS99xx).
+          * A couple of other bug fixes.
 
 Special Thanks
 --------------
