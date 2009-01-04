@@ -41,13 +41,18 @@ byte ZlibInflate::getByte()
 
 unsigned ZlibInflate::get16LE()
 {
-	return (getByte() << 0) + (getByte() << 8);
+	unsigned result = getByte();
+	result += getByte() << 8;
+	return result;
 }
 
 unsigned ZlibInflate::get32LE()
 {
-	return (getByte() <<  0) + (getByte() <<  8) +
-	       (getByte() << 16) + (getByte() << 24);
+	unsigned result = getByte();
+	result += getByte() <<  8;
+	result += getByte() << 16;
+	result += getByte() << 24;
+	return result;
 }
 
 std::string ZlibInflate::getString(unsigned len)
