@@ -1,9 +1,28 @@
-openmsx (0.6.3~pre0.svn6826-1) unstable; urgency=low
+openmsx (0.7.0~presvn8434-1) unstable; urgency=low
 
+  * SVN snapshot packaging (preparation for release)
+
+ -- Joost Yervante Damad <andete@debian.org>  Mon, 05 Jan 2009 20:24:41 +0100
+
+openmsx (0.6.3-3) unstable; urgency=low
+
+  * Fix compilation errors with gcc-4.4. (Closes: #504948)
+
+ -- Joost Yervante Damad <andete@debian.org>  Sun, 23 Nov 2008 11:59:53 +0100
+
+openmsx (0.6.3-2) unstable; urgency=low
+
+  * rebuild against libglew1.5
+
+ -- Joost Yervante Damad <andete@debian.org>  Thu, 28 Feb 2008 20:04:54 +0100
+
+openmsx (0.6.3-1) unstable; urgency=low
+
+  * New upstream release
   * fix build dependencies
-  * prepare for new release
+  * builds fine with gcc-snapshot (Closes: #455362)
 
- -- Joost Yervante Damad <andete@debian.org>  Fri, 10 Aug 2007 20:12:13 +0200
+ -- Joost Yervante Damad <andete@debian.org>  Mon, 10 Dec 2007 14:17:35 +0100
 
 openmsx (0.6.2-3) unstable; urgency=low
 

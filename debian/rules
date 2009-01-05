@@ -3,9 +3,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# use dpatch
-include /usr/share/dpatch/dpatch.make
-
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -24,19 +21,18 @@ config.status: configure
 
 build: build-stamp
 
-build-stamp: patch config.status
+build-stamp: config.status
 	dh_testdir
-
-	# Add here commands to compile the package.
-	$(MAKE) \
-		INSTALL_SHARE_DIR=/usr/share/openmsx
+	if test ! -f build/custom.mk.bak then cp build/custom.mk build/custom.mk.bak ; fi
+	cp debian/custom.mk build/
+	$(MAKE) -j6
 	docbook-to-man doc/openmsx.sgml > debian/openmsx.1
 	touch build-stamp
 
-clean: clean-patched unpatch
-
-clean-patched:
+clean:
 	dh_testdir
+	-cp build/custom.mk.bak build/custom.mk
+	-rm -f build/custom.mk.bak
 	dh_testroot
 	rm -f build-stamp
 	-$(MAKE) clean
@@ -58,12 +54,7 @@ install-arch: build
 	dh_installdirs
 
 	$(MAKE) install \
-		INSTALL_BINARY_DIR=$(CURDIR)/debian/tmp/usr/bin \
-		INSTALL_SHARE_DIR=$(CURDIR)/debian/tmp/usr/share/openmsx \
-		INSTALL_DOC_DIR=$(CURDIR)/debian/tmp/usr/share/doc/openmsx-data \
-		SYMLINK_FOR_BINARY=false \
-		INSTALL_CONTRIB=false \
-		OPENMSX_INSTALL=$(CURDIR)/debian/tmp/usr
+		INSTALL_PREFIX=$(CURDIR)/debian/tmp
 	@echo "  Cleaning up the installed package..."
 	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx-data/GPL
 	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
@@ -112,4 +103,4 @@ binary-arch: build install
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
+.PHONY: build clean binary-indep binary-arch binary install
