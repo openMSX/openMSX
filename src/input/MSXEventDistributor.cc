@@ -32,8 +32,14 @@ void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 
 void MSXEventDistributor::distributeEvent(EventPtr event, EmuTime::param time)
 {
-	for (Listeners::const_iterator it = listeners.begin();
-	     it != listeners.end(); ++it) {
+	// Iterate over a copy because signalEvent() may indirect call back into
+	// registerEventListener().
+	//   e.g. signalEvent() -> .. -> PlugCmd::execute() -> .. ->
+	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
+	//        registerEventListener()
+	Listeners copy = listeners;
+	for (Listeners::const_iterator it = copy.begin();
+	     it != copy.end(); ++it) {
 		(*it)->signalEvent(event, time);
 	}
 }
