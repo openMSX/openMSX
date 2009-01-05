@@ -23,7 +23,7 @@ build: build-stamp
 
 build-stamp: config.status
 	dh_testdir
-	if test ! -f build/custom.mk.bak then cp build/custom.mk build/custom.mk.bak ; fi
+	if test ! -f build/custom.mk.bak ; then cp build/custom.mk build/custom.mk.bak ; fi
 	cp debian/custom.mk build/
 	$(MAKE) -j6
 	docbook-to-man doc/openmsx.sgml > debian/openmsx.1
