@@ -12,7 +12,6 @@ $(call BOOLCHECK,BIG_ENDIAN)
 endif
 $(call BOOLCHECK,UNALIGNED_MEMORY_ACCESS)
 $(call BOOLCHECK,SET_WINDOW_ICON)
-#$(call DEFCHECK,INSTALL_SHARE_DIR)
 
 $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	@echo "Creating $@..."
@@ -45,7 +44,7 @@ $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	@echo "static const bool OPENMSX_BIGENDIAN = $(BIG_ENDIAN);" >> $@
 	@echo "static const bool OPENMSX_UNALIGNED_MEMORY_ACCESS = $(UNALIGNED_MEMORY_ACCESS);" >> $@
 	@echo "static const bool OPENMSX_SET_WINDOW_ICON = $(SET_WINDOW_ICON);" >> $@
-	@echo "static const std::string DATADIR = \"$(INSTALL_BASE)/share\";" >> $@
+	@echo "static const std::string DATADIR = \"$(INSTALL_SHARE_DIR)\";" >> $@
 	@echo "static const std::string BUILD_FLAVOUR = \"$(OPENMSX_FLAVOUR)\";" >> $@
 	@echo "static const std::string BUILD_COMPONENTS = \"$(sort $(COMPONENTS_TRUE))\";" >> $@
 	@echo "" >> $@
