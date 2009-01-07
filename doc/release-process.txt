@@ -98,7 +98,8 @@ Put the release on SourceForge:
   Finally, choose "Update/Refresh".
 - Update the platform downloads. For Windows, Mac OS, Linux and *BSD, set the
   proper release files. This menu can be found next to "Manage Packages /
-  Releases", under "Create / Edit Download Page".
+  Releases", under "Create / Edit Download Page". See also this URL:
+  https://sourceforge.net/project/admin/platform_edit.php?group_id=38274
 
 Announce:
 - Post change list to msx.org.
