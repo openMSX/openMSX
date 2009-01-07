@@ -83,7 +83,7 @@ Make the release public
 -----------------------
 
 Put the release on SourceForge:
-- Upload the release tar.gz to "ftp://upload.sourceforge.net/incoming/".
+- Upload the release tar.gz to "https://frs.sourceforge.net/webupload".
 - On the project page, choose "Admin", followed by "File Releases".
 - At the bottom, choose "Add Release".
 - As the release name, type the version number ("1.2.3").
