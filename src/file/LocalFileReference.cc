@@ -5,10 +5,10 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "StringOp.hh"
+#include "unistdp.hh"
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
-#include <unistd.h>
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

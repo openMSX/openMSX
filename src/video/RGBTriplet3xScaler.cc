@@ -5,6 +5,7 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
+#include "vla.hh"
 #include "build-info.hh"
 
 namespace openmsx {
@@ -78,7 +79,7 @@ void RGBTriplet3xScaler<Pixel>::scaleLine(
 	if (IsTagged<ScaleOp, Copy>::result) {
 		rgbify(srcLine, dstLine, tmpWidth);
 	} else {
-		Pixel tmp[tmpWidth];
+		VLA(Pixel, tmp, tmpWidth);
 		scale(srcLine, tmp, tmpWidth);
 		rgbify(tmp, dstLine, tmpWidth);
 	}
@@ -124,7 +125,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-	Pixel buf[dst.getWidth()];
+	VLA(Pixel, buf, dst.getWidth());
 	scaleLine(srcLine, buf, scale, tmpWidth);
 	Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(y + 2);
 	scanline.draw(prevDstLine0, buf, dstLine2,

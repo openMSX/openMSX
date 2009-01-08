@@ -7,6 +7,7 @@
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"
 #include "openmsx.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -112,15 +113,17 @@ static void doScaleDV(FrameSource& src,
 {
 	dst.lock();
 	BlendLines<Pixel> blend(ops);
+	unsigned dstWidth = dst.getWidth();
+	VLA(Pixel, buf0, dstWidth);
+	VLA(Pixel, buf1, dstWidth);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
 		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel buf0[dst.getWidth()], buf1[dst.getWidth()];
-		scale(srcLine0, buf0, dst.getWidth());
-		scale(srcLine1, buf1, dst.getWidth());
+		scale(srcLine0, buf0, dstWidth);
+		scale(srcLine1, buf1, dstWidth);
 		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
-		blend(buf0, buf1, dstLine, dst.getWidth());
+		blend(buf0, buf1, dstLine, dstWidth);
 	}
 }
 

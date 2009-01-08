@@ -38,9 +38,11 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+protected:
+	virtual ~Joystick();
+
 private:
 	Joystick(MSXEventDistributor& eventDistributor, unsigned joyNum);
-	virtual ~Joystick();
 
 	void calcInitialState();
 

@@ -8,6 +8,7 @@
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -424,7 +425,7 @@ void SimpleScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel buf[2 * srcWidth];
+	VLA(Pixel, buf, 2 * srcWidth);
 	blur1on2(srcLine, buf, blur, srcWidth);
 
 	Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY);
@@ -459,7 +460,7 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel buf[srcWidth];
+	VLA(Pixel, buf, srcWidth);
 	blur1on1(srcLine, buf, blur, srcWidth);
 
 	Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY);

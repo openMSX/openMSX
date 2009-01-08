@@ -13,6 +13,7 @@
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
+#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 #include <cstring>
 
@@ -513,9 +514,9 @@ void YM2151Impl::initTables()
 		// we never reach zero here due to (i * 2 + 1)
 		double o;
 		if (m > 0.0) { // convert to decibels
-			o = 8 * log(1.0 / m) / log(2);
+			o = 8 * log( 1.0 / m) / log(2.0);
 		} else {
-			o = 8 * log(-1.0 / m) / log(2);
+			o = 8 * log(-1.0 / m) / log(2.0);
 		}
 		o = o / (ENV_STEP / 4);
 

@@ -3,10 +3,10 @@
 #ifndef STRINGOP_HH
 #define STRINGOP_HH
 
+#include "stringsp.hh"
 #include <string>
 #include <vector>
 #include <sstream>
-#include <strings.h>
 #include <iomanip>
 
 namespace StringOp

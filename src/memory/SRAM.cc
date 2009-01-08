@@ -11,6 +11,7 @@
 #include "Alarm.hh"
 #include "serialize.hh"
 #include "openmsx.hh"
+#include "vla.hh"
 #include <cstring>
 
 using std::string;
@@ -108,7 +109,7 @@ void SRAM::load(bool* loaded)
 			  File::LOAD_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
-			char temp[length];
+			VLA(char, temp, length);
 			file.read(temp, length);
 			if (strncmp(temp, header, length) != 0) {
 				headerOk = false;

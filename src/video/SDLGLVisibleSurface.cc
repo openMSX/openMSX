@@ -8,6 +8,7 @@
 #include "InitException.hh"
 #include "build-info.hh"
 #include "Math.hh"
+#include "vla.hh"
 #include <vector>
 
 namespace openmsx {
@@ -175,7 +176,7 @@ void SDLGLVisibleSurface::takeScreenShot(const std::string& filename)
 {
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
-	const void* rowPointers[height];
+	VLA(const void*, rowPointers, height);
 	std::vector<byte> buffer(width * height * 3);
 	for (unsigned i = 0; i < height; ++i) {
 		rowPointers[height - 1 - i] = &buffer[width * 3 * i];

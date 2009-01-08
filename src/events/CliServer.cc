@@ -7,10 +7,10 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "build-info.hh"
+#include "unistdp.hh"
+#include "statp.hh"
 #include <string>
 #include <memory>
-#include <sys/stat.h>
-#include <unistd.h>
 
 #ifdef _WIN32
 #include <fstream>

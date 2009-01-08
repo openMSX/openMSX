@@ -5,13 +5,60 @@
 
 #include "openmsx.hh"
 #include "static_assert.hh"
+#include "inline.hh"
 #include "build-info.hh"
 #include <algorithm>
+#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 
 namespace openmsx {
 
 namespace Math {
+
+#ifdef _MSC_VER  // or replace this with     #ifndef HAVE_C99MATHOPS
+
+	// Poor man's implementations to get things compiling
+
+	// rint(): Round according to current floating-point rounding direction:
+	//         Is potentially faster than floor(), but we don't care about
+	//         that here.
+	static ALWAYS_INLINE long lrint(double x)
+	{
+		return floor(x + (x > 0) ? 0.5 : -0.5);
+	}
+
+	static ALWAYS_INLINE long lrintf(float x)
+	{
+		return floor(x + (x > 0) ? 0.5 : -0.5);
+	}
+
+	// truncf(): round x to the nearest integer not larger in absolute value
+	static ALWAYS_INLINE float truncf(float x)
+	{
+		return (x < 0) ? ceil(x) : floor(x);
+	}
+
+	// round(): round to nearest integer, away from zero
+	static double round(double x)
+	{
+		double t;
+		if (x >= 0) {
+			t = ceil(x);
+			if ((t - x) > 0.5) {
+				t--;
+			}
+			return t;
+		} else {
+			t = ceil(-x);
+			if ((t + x) > 0.5) {
+				t--;
+			}
+			return -t;
+		}
+	}
+
+#endif
+
 
 /** Returns the smallest number that is both >=a and a power of two.
   */

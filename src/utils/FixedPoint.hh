@@ -3,6 +3,7 @@
 #ifndef FIXEDPOINT_HH
 #define FIXEDPOINT_HH
 
+#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 
 namespace openmsx {
@@ -20,11 +21,11 @@ private:
 
 	/** Precalculated float value of 1 / ONE.
 	  */
-	static const float INV_ONE_F = 1.0f / ONE;
+	static const float INV_ONE_F;
 
 	/** Precalculated double value of 1 / ONE.
 	  */
-	static const double INV_ONE_D = 1.0 / ONE;
+	static const double INV_ONE_D;
 
 	/** Bitmask to filter out the fractional part of a fixed point
 	  * representation.
@@ -231,10 +232,10 @@ template <unsigned FRACTION_BITS>
 const int FixedPoint<FRACTION_BITS>::ONE;
 
 template <unsigned FRACTION_BITS>
-const float FixedPoint<FRACTION_BITS>::INV_ONE_F;
+const float FixedPoint<FRACTION_BITS>::INV_ONE_F = 1.0f / ONE;
 
 template <unsigned FRACTION_BITS>
-const double FixedPoint<FRACTION_BITS>::INV_ONE_D;
+const double FixedPoint<FRACTION_BITS>::INV_ONE_D = 1.0 / ONE;
 
 template <unsigned FRACTION_BITS>
 const int FixedPoint<FRACTION_BITS>::FRACTION_MASK;

@@ -72,7 +72,7 @@ void GlobalCliComm::startInput(const string& option)
 	}
 #ifdef _WIN32
 	else if (type_name == "pipe") {
-		OSVERSIONINFO info;
+		OSVERSIONINFOA info;
 		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionExA(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {

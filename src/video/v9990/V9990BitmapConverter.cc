@@ -5,6 +5,8 @@
 #include "V9990.hh"
 #include "GLUtil.hh"
 #include "Math.hh"
+#include "static_assert.hh"
+#include "type_traits.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -265,9 +267,25 @@ template class V9990BitmapConverter<word>;
 #if HAVE_32BPP
 template class V9990BitmapConverter<unsigned>;
 #endif
+
 #ifdef COMPONENT_GL
+#ifdef _MSC_VER
+
+// The template stuff below fails to compile on VC++, it triggers this error
+//   http://msdn.microsoft.com/en-us/library/9045w50z.aspx
+// It's not clear whether this is a limitation in VC++ or a C++ extension
+// supported by gcc.
+// But we know that 'GLuint' and 'unsigned' are the same types in windows,
+// so the stuff below is not required (it would only instantiate a dummy class
+// when these types are the same).
+STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+
+#else
+
 template <> class V9990BitmapConverter<GLUtil::NoExpansion> {};
 template class V9990BitmapConverter<GLUtil::ExpandGL>;
+
+#endif
 #endif // COMPONENT_GL
 
 } // namespace openmsx

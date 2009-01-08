@@ -1,5 +1,12 @@
 $Id$
 
+2009-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Merged (part of) mfeingol's work to make openMSX compile with VC++:
+	  - code still compiles with gcc, but i couldn't test myself with VC++,
+	    so probably this work is not finished yet ;)
+	  - build system is still TODO, these are only changed in the C++
+	    source files
+
 2009-01-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Released openmsx-0.7.0
 

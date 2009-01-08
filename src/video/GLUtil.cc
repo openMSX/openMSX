@@ -6,6 +6,7 @@
 #include "FileException.hh"
 #include "InitException.hh"
 #include "Math.hh"
+#include "vla.hh"
 #include "Version.hh"
 #include <iostream>
 #include <memory>
@@ -451,7 +452,7 @@ Shader::Shader(GLenum type, const string& filename)
 	glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
-		GLchar infoLog[infoLogLength];
+		VLA(GLchar, infoLog, infoLogLength);
 		glGetShaderInfoLog(handle, infoLogLength, NULL, infoLog);
 		fprintf(stderr, "%s(s) compiling shader \"%s\":\n%s",
 			ok ? "Warning" : "Error", filename.c_str(),
@@ -595,7 +596,7 @@ void ShaderProgram::link()
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
-		GLchar infoLog[infoLogLength];
+		VLA(GLchar, infoLog, infoLogLength);
 		glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
 		fprintf(stderr, "%s(s) linking shader program:\n%s\n",
 			ok ? "Warning" : "Error",
@@ -656,7 +657,7 @@ void ShaderProgram::validate()
 	GLint infoLogLength = 0;
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
-	GLchar infoLog[infoLogLength];
+	VLA(GLchar, infoLog, infoLogLength);
 	glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
 	std::cout << "Validate "
 	          << ((validateStatus == GL_TRUE) ? string("OK") : string("FAIL"))

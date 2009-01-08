@@ -2,13 +2,14 @@
 
 #include "ResampleLQ.hh"
 #include "Resample.hh"
+#include "aligned.hh"
 #include <cassert>
 #include <cstring>
 
 namespace openmsx {
 
 static const int BUFSIZE = 16384;
-static int bufferInt[BUFSIZE + 4] __attribute__((aligned(16)));
+ALIGNED(static int bufferInt[BUFSIZE + 4], 16);
 
 template <unsigned CHANNELS>
 ResampleLQ<CHANNELS>::ResampleLQ(Resample& input_, double ratio)

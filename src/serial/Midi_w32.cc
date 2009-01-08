@@ -34,10 +34,10 @@
 #define _WIN32_IE 0x0400
 
 #include "MSXException.hh"
+#include "cstdiop.hh"
 
 #include <cstring>
 #include <cstdlib>
-#include <cstdio>
 #include <sstream>
 #include <cassert>
 #include <windows.h>

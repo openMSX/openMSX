@@ -9,6 +9,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "vla.hh"
 #include <algorithm>
 #include <vector>
 #include <cassert>
@@ -1698,7 +1699,7 @@ string Paper::save() const
 {
 	string filename = FileOperations::getNextNumberedFileName(
 		"prints", "page", ".png");
-	const void* rowPointers[sizeY];
+	VLA(const void*, rowPointers, sizeY);
 	for (unsigned y = 0; y < sizeY; ++y) {
 		rowPointers[y] = &buf[sizeX * y];
 	}

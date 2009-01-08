@@ -4,6 +4,8 @@
 #include "GLUtil.hh"
 #include "Math.hh"
 #include "likely.hh"
+#include "static_assert.hh"
+#include "type_traits.hh"
 #include "build-info.hh"
 
 namespace openmsx {
@@ -38,7 +40,7 @@ void BitmapConverter<Pixel>::calcDPalette()
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
-	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
+	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
 	/*for (unsigned i = 0; i < 128; i += 2) {
 		unsigned data0 = vramPtr0[i + 0];
@@ -112,7 +114,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
-	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
+	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		unsigned data = vramPtr0[i];
@@ -125,7 +127,7 @@ void BitmapConverter<Pixel>::renderGraphic5(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
-	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	/*for (unsigned i = 0; i < 128; ++i) {
 		unsigned data0 = vramPtr0[i];
@@ -169,7 +171,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
-	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		pixelPtr[2 * i + 0] = palette256[vramPtr0[i]];
@@ -179,7 +181,7 @@ void BitmapConverter<Pixel>::renderGraphic7(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderYJK(
-	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (unsigned i = 0; i < 64; ++i) {
 		unsigned p[4];
@@ -204,7 +206,7 @@ void BitmapConverter<Pixel>::renderYJK(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderYAE(
-	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (unsigned i = 0; i < 64; ++i) {
 		unsigned p[4];
@@ -283,9 +285,15 @@ template class BitmapConverter<word>;
 #if HAVE_32BPP
 template class BitmapConverter<unsigned>;
 #endif
+
 #ifdef COMPONENT_GL
+#ifdef _MSC_VER
+// see comment in V9990BitmapConverter
+STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+#else
 template<> class BitmapConverter<GLUtil::NoExpansion> {};
 template class BitmapConverter<GLUtil::ExpandGL>;
+#endif
 #endif // COMPONENT_GL
 
 } // namespace openmsx

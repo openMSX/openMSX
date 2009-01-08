@@ -1,8 +1,8 @@
 // $Id$
 
 #include "PreCacheFile.hh"
+#include "statp.hh"
 #include <cstdio>
-#include <sys/stat.h>
 #include <sys/types.h>
 
 namespace openmsx {

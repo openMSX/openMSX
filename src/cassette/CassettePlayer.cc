@@ -43,9 +43,9 @@
 #include "DynamicClock.hh"
 #include "Clock.hh"
 #include "StringOp.hh"
+#include "unistdp.hh"
 #include <algorithm>
 #include <cassert>
-#include <unistd.h>
 
 using std::auto_ptr;
 using std::string;

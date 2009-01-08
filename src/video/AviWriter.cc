@@ -6,12 +6,13 @@
 #include "ZMBVEncoder.hh"
 #include "File.hh"
 #include "MSXException.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include "Version.hh"
+#include "cstdiop.hh" // for snprintf
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
-#include <cstdio> // for snprintf
 #include <cassert>
 
 namespace openmsx {
@@ -253,7 +254,7 @@ void AviWriter::addFrame(const void** lineData, unsigned samples, short* sampleD
 	if (samples) {
 		assert(audiorate != 0);
 		if (OPENMSX_BIGENDIAN) {
-			short buf[2 * samples];
+			VLA(short, buf, 2 * samples);
 			for (unsigned i = 0; i < samples; ++i) {
 				buf[2 * i + 0] = bswap16(sampleData[2 * i + 0]);
 				buf[2 * i + 1] = bswap16(sampleData[2 * i + 1]);

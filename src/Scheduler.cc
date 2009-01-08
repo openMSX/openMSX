@@ -31,17 +31,24 @@ struct LessSyncPoint {
 	                const SynchronizationPoint& sp) const;
 	bool operator()(const SynchronizationPoint& sp,
 	                EmuTime::param time) const;
+	bool operator()(const SynchronizationPoint& lhs,
+	                const SynchronizationPoint& rhs) const;
 };
 bool LessSyncPoint::operator()(
 	EmuTime::param time, const SynchronizationPoint& sp) const
 {
 	return time < sp.getTime();
 }
-
 bool LessSyncPoint::operator()(
 	const SynchronizationPoint& sp, EmuTime::param time) const
 {
 	return sp.getTime() < time;
+}
+bool LessSyncPoint::operator()(
+	const SynchronizationPoint& lhs, const SynchronizationPoint& rhs) const
+{
+	// This method is needed for VC++ debug build (I'm not sure why).
+	return lhs.getTime() < rhs.getTime();
 }
 
 

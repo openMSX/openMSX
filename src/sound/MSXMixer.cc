@@ -17,6 +17,7 @@
 #include "CliComm.hh"
 #include "Math.hh"
 #include "StringOp.hh"
+#include "vla.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -214,9 +215,9 @@ void MSXMixer::generate(short* output, unsigned samples,
 
 	if (samples == 0) return;
 
-	int stereoBuf[2 * samples + 3];
-	int monoBuf[samples + 3];
-	int tmpBuf[2 * samples + 3] __attribute__((aligned(16)));
+	VLA(int, stereoBuf, 2 * samples + 3);
+	VLA(int, monoBuf, samples + 3);
+	VLA_ALIGNED(int, tmpBuf, 2 * samples + 3, 16);
 
 	static const unsigned HAS_MONO_FLAG = 1;
 	static const unsigned HAS_STEREO_FLAG = 2;

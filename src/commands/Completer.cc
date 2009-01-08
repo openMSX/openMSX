@@ -5,8 +5,8 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "ReadDir.hh"
+#include "stringsp.hh"
 #include <algorithm>
-#include <strings.h>
 
 using std::vector;
 using std::string;

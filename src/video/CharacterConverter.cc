@@ -14,6 +14,8 @@ TODO:
 #include "GLUtil.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "static_assert.hh"
+#include "type_traits.hh"
 #include "build-info.hh"
 
 namespace openmsx {
@@ -393,9 +395,15 @@ template class CharacterConverter<word>;
 #if HAVE_32BPP
 template class CharacterConverter<unsigned>;
 #endif
+
 #ifdef COMPONENT_GL
+#ifdef _MSC_VER
+// see comment in V9990BitmapConverter
+STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+#else
 template<> class CharacterConverter<GLUtil::NoExpansion> {};
 template class CharacterConverter<GLUtil::ExpandGL>;
+#endif
 #endif // COMPONENT_GL
 
 } // namespace openmsx

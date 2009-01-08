@@ -7,7 +7,8 @@
 #include "CommandException.hh"
 #include "build-info.hh"
 #include "Version.hh"
-#include <cstdio>
+#include "vla.hh"
+#include "cstdiop.hh"
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
@@ -74,7 +75,7 @@ static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 	char timeStr[10 + 1 + 8 + 1];
 	snprintf(timeStr, sizeof(timeStr), "%04d-%02d-%02d %02d:%02d:%02d",
 	         1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
-		 tm->tm_hour, tm->tm_min, tm->tm_sec);
+	         tm->tm_hour, tm->tm_min, tm->tm_sec);
 	text[1].text = timeStr;
 	png_set_text(png_ptr, info_ptr, text, 2);
 
@@ -131,7 +132,7 @@ void save(SDL_Surface* surface, const std::string& filename)
 	SDL_Surface* surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
 
 	// Create the array of pointers to image data
-	const void* row_pointers[surface->h];
+	VLA(const void*, row_pointers, surface->h);
 	for (int i = 0; i < surface->h; ++i) {
 		row_pointers[i] = static_cast<char*>(surf24->pixels) + (i * surf24->pitch);
 	}

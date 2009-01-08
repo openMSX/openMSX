@@ -3,6 +3,7 @@
 #ifndef FILEOPERATIONS_HH
 #define FILEOPERATIONS_HH
 
+#include "unistdp.hh" // needed for VC++ ?
 #include <string>
 #include <sys/types.h>
 

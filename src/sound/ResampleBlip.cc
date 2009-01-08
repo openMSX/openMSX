@@ -4,6 +4,7 @@
 #include "Resample.hh"
 #include "static_assert.hh"
 #include "likely.hh"
+#include "vla.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -29,8 +30,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 	int required = int(ceil(len - lastPos));
 	if (required > 0) {
 		// 3 extra for padding, CHANNELS extra for sentinel
-		int buf[required * CHANNELS + std::max(3u, CHANNELS)]
-			__attribute__((aligned(16)));
+		VLA_ALIGNED(int, buf, required * CHANNELS + std::max(3u, CHANNELS), 16);
 		if (input.generateInput(buf, required)) {
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 				// In case of PSG (and to a lesser degree SCC) it happens

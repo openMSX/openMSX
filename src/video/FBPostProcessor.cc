@@ -10,6 +10,7 @@
 #include "VisibleSurface.hh"
 #include "HostCPU.hh"
 #include "Math.hh"
+#include "aligned.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -18,7 +19,7 @@ namespace openmsx {
 
 static const unsigned NOISE_SHIFT = 8192;
 static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
-static signed char noiseBuf[NOISE_BUF_SIZE] __attribute__((__aligned__(16)));
+ALIGNED(static signed char noiseBuf[NOISE_BUF_SIZE], 16);
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(double factor)

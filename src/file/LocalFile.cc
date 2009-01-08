@@ -1,7 +1,7 @@
 // $Id$
 
 #include "probed_defs.hh"
-#include <unistd.h>
+#include "unistdp.hh"
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef	HAVE_SYS_MMAN_H

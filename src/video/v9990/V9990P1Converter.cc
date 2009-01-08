@@ -5,6 +5,8 @@
 #include "V9990VRAM.hh"
 #include "MemoryOps.hh"
 #include "GLUtil.hh"
+#include "static_assert.hh"
+#include "type_traits.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <algorithm>
@@ -252,9 +254,15 @@ template class V9990P1Converter<word>;
 #if HAVE_32BPP
 template class V9990P1Converter<unsigned>;
 #endif
+
 #ifdef COMPONENT_GL
+#ifdef _MSC_VER
+// see comment in V9990BitmapConverter
+STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+#else
 template <> class V9990P1Converter<GLUtil::NoExpansion> {};
 template class V9990P1Converter<GLUtil::ExpandGL>;
+#endif
 #endif // COMPONENT_GL
 
 } // namespace openmsx

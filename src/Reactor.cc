@@ -33,9 +33,9 @@
 #include "Timer.hh"
 #include "serialize.hh"
 #include "openmsx.hh"
+#include "statp.hh"
 #include <cassert>
 #include <memory>
-#include <sys/stat.h>
 #include <iostream>
 
 using std::string;

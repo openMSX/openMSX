@@ -289,7 +289,6 @@ protected:
 template<typename Derived>
 class OutputArchiveBase : public ArchiveBase<Derived>
 {
-	typedef ArchiveBase<Derived> THIS;
 public:
 	inline bool isLoader() const { return false; }
 
@@ -430,7 +429,6 @@ private:
 template<typename Derived>
 class InputArchiveBase : public ArchiveBase<Derived>
 {
-	typedef ArchiveBase<Derived> THIS;
 public:
 	inline bool isLoader() const { return true; }
 

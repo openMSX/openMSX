@@ -25,6 +25,7 @@
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
 #include "serialize.hh"
+#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 
 namespace openmsx {
@@ -1114,7 +1115,7 @@ void Global::initTables()
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN);
 
 		// we never reach zero here due to ((i*2)+1)
-		double o = -8.0 * log(fabs(m)) / log(2); // convert to 'decibels'
+		double o = -8.0 * log(fabs(m)) / log(2.0); // convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
 		int n = int(2.0 * o);

@@ -6,8 +6,8 @@
 #include <string>
 #include "openmsx.hh"
 
-class Tcl_Interp;
-class Tcl_Obj;
+struct Tcl_Interp;
+struct Tcl_Obj;
 
 namespace openmsx {
 

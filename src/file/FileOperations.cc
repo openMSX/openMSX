@@ -2,7 +2,10 @@
 
 #ifdef	_WIN32
 #define WIN32_LEAN_AND_MEAN
+#ifndef
 #define	_WIN32_IE	0x0400
+#endif
+#define NOMINMAX
 #include <windows.h>
 #include <shlobj.h>
 #include <io.h>
@@ -11,7 +14,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
-#define	mode_t	unsigned short int
 #else
 #include <sys/types.h>
 #include <pwd.h>
@@ -34,13 +36,16 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "StringOp.hh"
+#include "statp.hh"
+#include "unistdp.hh"
 #include "build-info.hh"
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>
-#include <sys/stat.h>
-#include <unistd.h>
+
+#ifndef _MSC_VER
 #include <dirent.h>
+#endif
 
 using std::string;
 

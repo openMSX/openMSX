@@ -16,7 +16,6 @@
 #endif
 #include <windows.h>
 #include <mmsystem.h>
-#include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 

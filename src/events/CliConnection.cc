@@ -14,10 +14,10 @@
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include "checked_cast.hh"
-#include <cstdio>
+#include "cstdiop.hh"
+#include "unistdp.hh"
 #include <cassert>
 #include <iostream>
-#include <unistd.h>
 
 using std::string;
 

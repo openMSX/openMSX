@@ -10,11 +10,11 @@
 #include "FileException.hh"
 #include "ReadDir.hh"
 #include "StringOp.hh"
+#include "unistdp.hh"
+#include "statp.hh"
 #include <algorithm>
 #include <cstring>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <cstdio>
 
 using std::string;

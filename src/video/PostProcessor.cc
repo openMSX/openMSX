@@ -12,6 +12,7 @@
 #include "AviRecorder.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -104,7 +105,7 @@ RawFrame* PostProcessor::rotateFrames(
 
 	if (recorder) {
 		const unsigned height = recorder->getFrameHeight();
-		const void* lines[height];
+		VLA(const void*, lines, height);
 		getScaledFrame(height, lines);
 		/*for (unsigned i = 0; i < height; ++i) {
 			if (getBpp() == 32) {
@@ -168,7 +169,7 @@ void PostProcessor::takeScreenShot(unsigned height, const std::string& filename)
 	if (!paintFrame) {
 		throw CommandException("TODO");
 	}
-	const void* lines[height];
+	VLA(const void*, lines, height);
 	getScaledFrame(height, lines);
 
 	unsigned width = (height == 240) ? 320 : 640;

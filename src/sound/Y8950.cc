@@ -21,6 +21,7 @@
 #include "Math.hh"
 #include "serialize.hh"
 #include <algorithm>
+#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 
 namespace openmsx {
@@ -340,7 +341,7 @@ static void makeAdjustTable()
 	AR_ADJUST_TABLE[0] = EG_MUTE;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
 		AR_ADJUST_TABLE[i] = int(double(EG_MUTE) - 1 -
-		         EG_MUTE * ::log(i) / ::log(1 << EG_BITS)) >> 1;
+		         EG_MUTE * ::log(double(i)) / ::log(double(1 << EG_BITS))) >> 1;
 		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
 		assert(int(AR_ADJUST_TABLE[i]) >= 0);
 	}

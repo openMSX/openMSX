@@ -8,6 +8,8 @@
 #include "StringOp.hh"
 #include "HostCPU.hh"
 #include "MemoryOps.hh"
+#include "aligned.hh"
+#include "vla.hh"
 #include <cstring>
 #include <cassert>
 
@@ -17,8 +19,7 @@ namespace openmsx {
 
 static const unsigned MAX_FACTOR = 16; // 200kHz (PSG) -> 22kHz
 static const unsigned MAX_SAMPLES = 8192 * MAX_FACTOR;
-static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2]
-	__attribute__((aligned(16))); // align for SSE access
+ALIGNED(static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2], 16); // align for SSE access
 static int silence[MAX_SAMPLES * 2];
 
 static string makeUnique(MSXMixer& mixer, const string& name)
@@ -153,7 +154,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	MemoryOps::MemSet<unsigned, false> mset;
 	mset(reinterpret_cast<unsigned*>(dataOut), stereo * samples, 0);
 
-	int* bufs[numChannels];
+	VLA(int*, bufs, numChannels);
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	for (unsigned i = 0; i < numChannels; ++i) {

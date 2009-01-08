@@ -4,6 +4,7 @@
 #include "OutputSurface.hh"
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #if PLATFORM_GP2X
 #include "GP2XMMUHack.hh"
@@ -265,8 +266,8 @@ void SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 	}
 
 	// Allocate memory for row increments
-	int sax[dst->w + 1];
-	int say[dst->h + 1];
+	VLA(int, sax, dst->w + 1);
+	VLA(int, say, dst->h + 1);
 
 	// Precalculate row increments
 	csx = 0;

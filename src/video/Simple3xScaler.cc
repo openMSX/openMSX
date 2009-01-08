@@ -8,6 +8,7 @@
 #include "MemoryOps.hh"
 #include "Multiply32.hh"
 #include "HostCPU.hh"
+#include "vla.hh"
 #include "build-info.hh"
 
 namespace openmsx {
@@ -72,12 +73,12 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 		prevDstLine0 = dstLine0;
 	}
 	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-	Pixel buf[dst.getWidth()];
+	VLA(Pixel, buf, dst.getWidth());
 	scale(srcLine, buf, dst.getWidth());
 
 	Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(y + 2);
 	scanline.draw(prevDstLine0, buf, dstLine2,
-		      scanlineFactor, dst.getWidth());
+	              scanlineFactor, dst.getWidth());
 }
 
 template <typename Pixel>

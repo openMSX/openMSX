@@ -4,9 +4,9 @@
 #define READDIR_HH
 
 #include "noncopyable.hh"
+#include "direntp.hh"
 #include <string>
 #include <sys/types.h>
-#include <dirent.h>
 
 namespace openmsx {
 

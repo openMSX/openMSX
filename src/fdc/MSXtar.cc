@@ -1,5 +1,12 @@
 // $Id$
 
+#ifndef _MSC_VER
+#include <utime.h>
+#else
+#define NOMINMAX
+#include <sys/utime.h>
+#endif
+
 #include "MSXtar.hh"
 #include "ReadDir.hh"
 #include "SectorAccessibleDisk.hh"
@@ -11,7 +18,6 @@
 #include <algorithm>
 #include <cassert>
 #include <ctime>
-#include <utime.h>
 #include <sys/stat.h>
 #include <ctype.h>
 

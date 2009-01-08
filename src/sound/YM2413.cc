@@ -11,6 +11,7 @@
 #include "FixedPoint.hh"
 #include "serialize.hh"
 #include "inline.hh"
+#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 #include <cassert>
 #include <algorithm>
@@ -399,7 +400,7 @@ static void makeAdjustTable()
 	AR_ADJUST_TABLE[0] = (1 << EG_BITS) - 1;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
 		AR_ADJUST_TABLE[i] = unsigned(double(1 << EG_BITS) - 1 -
-		                       ((1 << EG_BITS) - 1) * ::log(i) / ::log(127));
+		         ((1 << EG_BITS) - 1) * ::log(double(i)) / ::log(127.0));
 	}
 }
 

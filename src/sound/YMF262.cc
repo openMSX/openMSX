@@ -48,6 +48,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
+#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 #include <cstring>
 
@@ -1021,7 +1022,7 @@ void YMF262Impl::init_tables()
 		}
 	}
 
-	const double LOG2 = ::log(2);
+	const double LOG2 = ::log(2.0);
 	for (int i = 0; i < SIN_LEN; i++) {
 		// non-standard sinus
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip

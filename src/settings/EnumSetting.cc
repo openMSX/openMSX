@@ -4,8 +4,8 @@
 #include "TclObject.hh"
 #include "Completer.hh"
 #include "CommandException.hh"
+#include "stringsp.hh"
 #include <cassert>
-#include <strings.h>
 
 namespace openmsx {
 

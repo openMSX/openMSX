@@ -169,7 +169,7 @@ BaseImage* OSDText::createGL(OutputSurface& output)
 #ifdef COMPONENT_GL
 	return create<GLImage>(output);
 #endif
-	(void)output;
+	(void)&output;
 	return NULL;
 }
 

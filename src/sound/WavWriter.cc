@@ -4,6 +4,7 @@
 #include "File.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
 
@@ -87,7 +88,7 @@ void WavWriter::write16stereo(short* buffer, unsigned samples)
 {
 	unsigned size = 2 * sizeof(short) * samples;
 	if (OPENMSX_BIGENDIAN) {
-		short buf[2 * samples];
+		VLA(short, buf, 2 * samples);
 		for (unsigned i = 0; i < samples; ++i) {
 			buf[2 * i + 0] = litEnd_16(buffer[2 * i + 0]);
 			buf[2 * i + 1] = litEnd_16(buffer[2 * i + 1]);
@@ -101,7 +102,7 @@ void WavWriter::write16stereo(short* buffer, unsigned samples)
 
 void WavWriter::write16mono(int* buffer, unsigned samples, int amp)
 {
-	short buf[samples];
+	VLA(short, buf, samples);
 	for (unsigned i = 0; i < samples; ++i) {
 		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
 	}
