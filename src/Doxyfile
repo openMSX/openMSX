@@ -1161,6 +1161,7 @@ INCLUDE_FILE_PATTERNS  =
 # instead of the = operator.
 
 PREDEFINED             = __restrict__= \
+                         __restrict= \
                          __attribute__= \
                          aligned= \
                          INSTANTIATE_SERIALIZE_METHODS= 
