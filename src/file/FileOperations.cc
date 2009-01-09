@@ -2,8 +2,8 @@
 
 #ifdef	_WIN32
 #define WIN32_LEAN_AND_MEAN
-#ifndef
-#define	_WIN32_IE	0x0400
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0400
 #endif
 #define NOMINMAX
 #include <windows.h>
