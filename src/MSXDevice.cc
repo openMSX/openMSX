@@ -191,6 +191,16 @@ void MSXDevice::registerSlots()
 			const string& secondSlot = config.getAttribute("secondary_slot");
 			ss = slotManager.getSlotNum(secondSlot);
 		}
+		if (slotManager.isExternalSlot(ps, ss, true)) {
+			// This can happen with serialized external cartridges.
+			// These have a fixed slot assigned in the config, but
+			// are not yet registered as using an external slot. In
+			// the code below, searching a free external slot (not
+			// done in this case) would also mark that external
+			// slot as in use.
+			externalSlotID = slotManager.useExternalSlot(
+				ps, ss, getHardwareConfig());
+		}
 	} else {
 		const XMLElement* parent = config.getParent();
 		while (true) {
@@ -410,6 +420,8 @@ void MSXDevice::invalidateMemCache(word start, unsigned size)
 template<typename Archive>
 void MSXDevice::serialize(Archive& ar, unsigned /*version*/)
 {
+	// When this method is called, the method init() has already been
+	// called (thus also registerSlots() and registerPorts()).
 	ar.serialize("name", deviceName);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXDevice);

@@ -32,6 +32,7 @@ public:
 	                    const HardwareConfig& hwConfig);
 	int getAnyFreeSlot(int& ps, int& ss, const HardwareConfig& hwConfig);
 	int getFreePrimarySlot(int& ps, const HardwareConfig& hwConfig);
+	int useExternalSlot(int ps, int ss, const HardwareConfig& hwConfig);
 	void freeSlot(int slot);
 
 	bool isExternalSlot(int ps, int ss, bool convert) const;

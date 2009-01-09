@@ -223,6 +223,22 @@ int CartridgeSlotManager::getFreePrimarySlot(
 	throw MSXException("No free primary slot");
 }
 
+int CartridgeSlotManager::useExternalSlot(
+		int ps, int ss, const HardwareConfig& hwConfig)
+{
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+		if (!slots[slot].exists()) continue;
+		int tmp = (slots[slot].ss == -1) ? 0 : slots[slot].ss;
+		if ((slots[slot].ps == ps) && (tmp == ss)) {
+			assert(!slots[slot].used()); // is already in use
+			slots[slot].config = &hwConfig;
+			return slot;
+		}
+	}
+	assert(false); // ps-ss is not an external slot
+	return 0; // avoid warning
+}
+
 void CartridgeSlotManager::freeSlot(int slot)
 {
 	assert(slots[slot].used());
