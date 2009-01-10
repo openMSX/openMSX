@@ -29,7 +29,6 @@ VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
 		case DUMMY:
 			return new DummyVideoSystem();
 		case SDL:
-		case SDLGL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
@@ -46,7 +45,6 @@ Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 		case DUMMY:
 			return new DummyRenderer();
 		case SDL:
-		case SDLGL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
@@ -64,7 +62,6 @@ V9990Renderer* RendererFactory::createV9990Renderer(
 		case DUMMY:
 			return new V9990DummyRenderer();
 		case SDL:
-		case SDLGL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
@@ -89,7 +86,6 @@ auto_ptr<RendererFactory::RendererSetting>
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDL"] = SDL;
 #ifdef COMPONENT_GL
-	rendererMap["SDLGL"] = SDLGL;
 	#ifdef GL_VERSION_2_0
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
@@ -99,6 +95,7 @@ auto_ptr<RendererFactory::RendererSetting>
 		// disabled for the release:
 		//  these renderers don't offer anything more than the existing
 		//  renderers and sdlgl-fb32 still has endian problems on PPC
+		// TODO is this still true now that SDLGL is removed?
 		rendererMap["SDLGL-FB16"] = SDLGL_FB16;
 		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
 	}

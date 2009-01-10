@@ -275,7 +275,7 @@ void Display::checkRendererSwitch()
 		// Renderer. A Renderer inherits (indirectly) from VideoLayer.
 		// A VideoLayer activates a videosource (MSX, GFX9000). When
 		// a videosource is deactiavted we should possibly also switch
-		// renderer (TODO is this still true, maybe for SDLGL it is?)
+		// renderer (TODO is this still true, maybe it was for SDLGL?)
 		// and thus this method gets called again. To break the cycle
 		// we check for pending switches.
 		return;

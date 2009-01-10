@@ -20,8 +20,5 @@ HDR_ONLY:= \
 	V9990Renderer \
 	V9990ModeEnum \
 
-SRC_HDR_$(COMPONENT_GL)+= \
-	V9990GLRasterizer
-
 include build/node-end.mk
 

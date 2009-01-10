@@ -22,8 +22,6 @@
 #include "components.hh"
 #ifdef COMPONENT_GL
 #include "SDLGLVisibleSurface.hh"
-#include "GLRasterizer.hh"
-#include "V9990GLRasterizer.hh"
 #include "GLPostProcessor.hh"
 #endif
 
@@ -97,8 +95,6 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 			return NULL;
 		}
 #ifdef COMPONENT_GL
-	case RendererFactory::SDLGL:
-		return new GLRasterizer(vdp, display, *screen);
 	case RendererFactory::SDLGL_PP:
 		return new SDLRasterizer<unsigned>(
 			vdp, display, *screen,
@@ -141,8 +137,6 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 			return NULL;
 		}
 #ifdef COMPONENT_GL
-	case RendererFactory::SDLGL:
-		return new V9990GLRasterizer(vdp);
 	case RendererFactory::SDLGL_PP:
 		return new V9990SDLRasterizer<unsigned>(
 			vdp, display, *screen,
@@ -165,10 +159,6 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 	case RendererFactory::SDLGL_FB32:
 		// We don't have 4x software scalers yet.
 		if (factor > 3) factor = 3;
-		break;
-	case RendererFactory::SDLGL:
-		// These renderers only support 2x scaling.
-		factor = 2;
 		break;
 	case RendererFactory::SDLGL_PP:
 		// All scale factors are supported.
@@ -236,7 +226,6 @@ void SDLVideoSystem::resize()
 		screen.reset(new SDLVisibleSurface(width, height, fullscreen));
 		break;
 #ifdef COMPONENT_GL
-	case RendererFactory::SDLGL:
 	case RendererFactory::SDLGL_PP:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen));
 		break;
