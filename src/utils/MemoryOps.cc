@@ -81,7 +81,11 @@ static inline void memset_64_SSE(
 	}
 #ifdef ASM_X86_64
 	asm volatile (
-		"movq         %0, %%xmm0;"
+		// The 'movd' instruction below actually moves a Quad-word (not a
+		// Double word). Though very old binutils don't support the more
+		// logical 'movq' syntax. See this bug report for more details.
+		//    [2492575] (0.7.0) compilation fails on FreeBSD/amd64
+		"movd         %0, %%xmm0;"
 		"unpcklps %%xmm0, %%xmm0;"
 		: // no output
 		: "r" (val)
