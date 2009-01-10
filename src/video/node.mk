@@ -42,7 +42,6 @@ SRC_HDR += \
 endif
 
 HDR_ONLY:= \
-	DirtyChecker \
 	DisplayMode \
 	VRAMObserver \
 	SpriteConverter \
