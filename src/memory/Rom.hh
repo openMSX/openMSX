@@ -54,13 +54,17 @@ private:
 
 	std::auto_ptr<File> file;
 	std::auto_ptr<RomInfo> info;
-	std::auto_ptr<RomDebuggable> romDebuggable;
 
 	mutable std::string originalSha1;
 	std::string patchedSha1;
 	std::string name;
 	const std::string description;
 	unsigned size;
+
+	// This must come after 'name':
+	//   the destructor of RomDebuggable calls Rom::getName(), which still
+	//   needs the Rom::name member.
+	std::auto_ptr<RomDebuggable> romDebuggable;
 };
 
 } // namespace openmsx
