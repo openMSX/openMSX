@@ -278,7 +278,7 @@ template class V9990BitmapConverter<unsigned>;
 // But we know that 'GLuint' and 'unsigned' are the same types in windows,
 // so the stuff below is not required (it would only instantiate a dummy class
 // when these types are the same).
-STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
 
 #else
 

@@ -258,7 +258,7 @@ template class V9990P1Converter<unsigned>;
 #ifdef COMPONENT_GL
 #ifdef _MSC_VER
 // see comment in V9990BitmapConverter
-STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
 #else
 template <> class V9990P1Converter<GLUtil::NoExpansion> {};
 template class V9990P1Converter<GLUtil::ExpandGL>;

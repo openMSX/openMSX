@@ -8,28 +8,41 @@
 #include "inline.hh"
 #include "build-info.hh"
 #include <algorithm>
-#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 
 namespace openmsx {
-
-namespace Math {
 
 #ifdef _MSC_VER  // or replace this with     #ifndef HAVE_C99MATHOPS
 
 	// Poor man's implementations to get things compiling
 
-	// rint(): Round according to current floating-point rounding direction:
-	//         Is potentially faster than floor(), but we don't care about
-	//         that here.
+	// rint(): round according to current floating-point rounding direction
+	// Assuming banker's rounding by default
 	static ALWAYS_INLINE long lrint(double x)
 	{
-		return floor(x + (x > 0) ? 0.5 : -0.5);
+		if (x >= 0) {
+			long t = long(ceil(x));
+			if (t % 2) t--;
+			return t;
+		} else {
+			long t = long(ceil(-x));
+			if (t % 2) t--;
+			return -t;
+		}
 	}
 
+	// lrintf(): see lrint()
 	static ALWAYS_INLINE long lrintf(float x)
 	{
-		return floor(x + (x > 0) ? 0.5 : -0.5);
+		if (x >= 0) {
+			long t = long(ceil(x));
+			if (t % 2) t--;
+			return t;
+		} else {
+			long t = long(ceil(-x));
+			if (t % 2) t--;
+			return -t;
+		}
 	}
 
 	// truncf(): round x to the nearest integer not larger in absolute value
@@ -41,15 +54,14 @@ namespace Math {
 	// round(): round to nearest integer, away from zero
 	static double round(double x)
 	{
-		double t;
 		if (x >= 0) {
-			t = ceil(x);
+			double t = ceil(x);
 			if ((t - x) > 0.5) {
 				t--;
 			}
 			return t;
 		} else {
-			t = ceil(-x);
+			double t = ceil(-x);
 			if ((t + x) > 0.5) {
 				t--;
 			}
@@ -58,6 +70,8 @@ namespace Math {
 	}
 
 #endif
+
+namespace Math {
 
 
 /** Returns the smallest number that is both >=a and a power of two.

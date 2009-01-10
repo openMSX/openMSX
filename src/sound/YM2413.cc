@@ -11,7 +11,6 @@
 #include "FixedPoint.hh"
 #include "serialize.hh"
 #include "inline.hh"
-#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 #include <cassert>
 #include <algorithm>
@@ -1157,11 +1156,12 @@ int Global::getAmplificationFactor() const
 template <unsigned FLAGS>
 ALWAYS_INLINE void Global::calcChannel(Channel& ch, int* buf, unsigned num)
 {
-	const bool HAS_CAR_AM = FLAGS &  1;
-	const bool HAS_CAR_PM = FLAGS &  2;
-	const bool HAS_MOD_AM = FLAGS &  4;
-	const bool HAS_MOD_PM = FLAGS &  8;
-	const bool HAS_MOD_FB = FLAGS & 16;
+	// VC++ requires explicit conversion to bool. Compiler bug??
+	const bool HAS_CAR_AM = (FLAGS &  1) != 0;
+	const bool HAS_CAR_PM = (FLAGS &  2) != 0;
+	const bool HAS_MOD_AM = (FLAGS &  4) != 0;
+	const bool HAS_MOD_PM = (FLAGS &  8) != 0;
+	const bool HAS_MOD_FB = (FLAGS & 16) != 0;
 
 	unsigned tmp_pm_phase = pm_phase;
 	unsigned tmp_am_phase = am_phase;

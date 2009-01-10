@@ -5,7 +5,6 @@
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0400
 #endif
-#define NOMINMAX
 #include <windows.h>
 #include <shlobj.h>
 #include <io.h>
@@ -337,7 +336,7 @@ string getUserHomeDir(const string& username)
 			FARPROC funcp = GetProcAddress(sh32dll, "SHGetSpecialFolderPathA");
 			if (funcp) {
 				char p[MAXPATHLEN + 1];
-				int res = reinterpret_cast<BOOL(*)(HWND, LPSTR, int, BOOL)>(funcp)(0, p, CSIDL_PERSONAL, 1);
+				int res = reinterpret_cast<BOOL(STDAPICALLTYPE*)(HWND, LPSTR, int, BOOL)>(funcp)(0, p, CSIDL_PERSONAL, 1);
 				if (res == TRUE) {
 					userDir = getConventionalPath(p);
 				}

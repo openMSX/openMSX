@@ -21,7 +21,6 @@
 #include "Math.hh"
 #include "serialize.hh"
 #include <algorithm>
-#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 
 namespace openmsx {

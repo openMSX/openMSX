@@ -399,7 +399,7 @@ template class CharacterConverter<unsigned>;
 #ifdef COMPONENT_GL
 #ifdef _MSC_VER
 // see comment in V9990BitmapConverter
-STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
 #else
 template<> class CharacterConverter<GLUtil::NoExpansion> {};
 template class CharacterConverter<GLUtil::ExpandGL>;

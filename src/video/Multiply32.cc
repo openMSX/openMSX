@@ -77,11 +77,17 @@ void Multiply32<word>::setFactor32(unsigned f)
 
 
 // Force template instantiation
+#ifndef _MSC_VER
 #if HAVE_16BPP
 template class Multiply32<word>;
 #endif
 #if HAVE_32BPP
 template class Multiply32<unsigned>;
+#endif
+#else
+// In VC++ we hit this problem again (see also V9990BitmapConverter)
+//    http://msdn.microsoft.com/en-us/library/9045w50z.aspx
+// But luckily we don't get link errors without this in VC++.
 #endif
 
 } // namespace openmsx

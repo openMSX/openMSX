@@ -3,7 +3,6 @@
 #ifndef _MSC_VER
 #include <utime.h>
 #else
-#define NOMINMAX
 #include <sys/utime.h>
 #endif
 

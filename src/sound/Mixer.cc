@@ -1,6 +1,5 @@
 // $Id$
 
-#define NOMINMAX // needed for VC++
 #include "Mixer.hh"
 #include "MSXMixer.hh"
 #include "NullSoundDriver.hh"

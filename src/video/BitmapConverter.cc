@@ -289,7 +289,7 @@ template class BitmapConverter<unsigned>;
 #ifdef COMPONENT_GL
 #ifdef _MSC_VER
 // see comment in V9990BitmapConverter
-STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
 #else
 template<> class BitmapConverter<GLUtil::NoExpansion> {};
 template class BitmapConverter<GLUtil::ExpandGL>;

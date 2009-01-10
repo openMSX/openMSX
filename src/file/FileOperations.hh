@@ -3,7 +3,7 @@
 #ifndef FILEOPERATIONS_HH
 #define FILEOPERATIONS_HH
 
-#include "unistdp.hh" // needed for VC++ ?
+#include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include <string>
 #include <sys/types.h>
 

@@ -22,7 +22,6 @@
 #include "serialize.hh"
 #include "likely.hh"
 #include <cassert>
-#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 #include <cstring>
 

@@ -3,8 +3,7 @@
 #ifndef FIXEDPOINT_HH
 #define FIXEDPOINT_HH
 
-#define _USE_MATH_DEFINES // needed for VC++
-#include <cmath>
+#include "Math.hh" // VC++ needs the lrint() compatibilty functions
 
 namespace openmsx {
 

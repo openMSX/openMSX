@@ -13,7 +13,6 @@
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
-#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 #include <cstring>
 

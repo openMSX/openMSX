@@ -25,7 +25,6 @@
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
 #include "serialize.hh"
-#define _USE_MATH_DEFINES // needed for VC++
 #include <cmath>
 
 namespace openmsx {
@@ -1050,9 +1049,10 @@ inline int Global::genPhaseHighHat()
 	} else {
 		// base frequency derived from operator 1 in channel 7
 		const int op71phase = channels[7].slots[MOD].getPhase();
-		const bool bit7 = op71phase & 0x80;
-		const bool bit3 = op71phase & 0x08;
-		const bool bit2 = op71phase & 0x04;
+		// VC++ requires explicit conversion to bool. Compiler bug??
+		const bool bit7 = (op71phase & 0x80) != 0;
+		const bool bit3 = (op71phase & 0x08) != 0;
+		const bool bit2 = (op71phase & 0x04) != 0;
 		hi = (bit2 ^ bit7) | bit3;
 	}
 	if (noise_rng & 1) {
@@ -1078,9 +1078,10 @@ inline int Global::genPhaseCymbal()
 	} else {
 		// base frequency derived from operator 1 in channel 7
 		const int op71Phase = channels[7].slots[MOD].getPhase();
-		const bool bit7 = op71Phase & 0x80;
-		const bool bit3 = op71Phase & 0x08;
-		const bool bit2 = op71Phase & 0x04;
+		// VC++ requires explicit conversion to bool. Compiler bug??
+		const bool bit7 = (op71Phase & 0x80) != 0;
+		const bool bit3 = (op71Phase & 0x08) != 0;
+		const bool bit2 = (op71Phase & 0x04) != 0;
 		return ((bit2 ^ bit7) | bit3) ? 0x300 : 0x100;
 	}
 }

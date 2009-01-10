@@ -369,7 +369,7 @@ template class MemSet2<unsigned, false>;
 #ifdef COMPONENT_GL
 #ifdef _MSC_VER
 // see comment in V9990BitmapConverter
-STATIC_ASSERT(is_same_type<unsigned, GLuint>::value);
+STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
 #else
 template<> class MemSet <GLUtil::NoExpansion, true > {};
 template<> class MemSet <GLUtil::NoExpansion, false> {};

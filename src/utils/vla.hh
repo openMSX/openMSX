@@ -20,7 +20,7 @@
 	TYPE* NAME = static_cast<TYPE*>(_alloca(sizeof(TYPE) * (LENGTH)))
 
 // mfeingol: evil hack alert
-#define STACKALLOC_ALIGNED(TYPE, NAME, LENGTH, ALIGNMENT)                        \
+#define VLA_ALIGNED(TYPE, NAME, LENGTH, ALIGNMENT)                               \
 	size_t cbAlign = (ALIGNMENT);                                            \
 	void* palloca = _alloca(sizeof(TYPE) * (LENGTH) + cbAlign);              \
 	palloca = (void*)((size_t(palloca) + cbAlign - 1UL) & ~(cbAlign - 1UL)); \
