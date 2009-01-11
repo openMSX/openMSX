@@ -267,7 +267,7 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 
 // Amplitude:
 
-static bool isAY8910(const XMLElement& config)
+static bool checkAY8910(const XMLElement& config)
 {
 	string type = StringOp::toLower(config.getChildData("type", "ay8910"));
 	if (type == "ay8910") {
@@ -280,7 +280,7 @@ static bool isAY8910(const XMLElement& config)
 }
 
 AY8910::Amplitude::Amplitude(const XMLElement& config)
-	: ay8910(isAY8910(config))
+	: isAY8910(checkAY8910(config))
 {
 	vol[0] = vol[1] = vol[2] = 0;
 	envChan[0] = false;
@@ -324,7 +324,7 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 	for (int i = 1; i < 16; ++i) {
 		volTable[i] = envVolTable[2 * i + 1];
 	}
-	if (ay8910) {
+	if (isAY8910) {
 		// only 16 envelope steps, duplicate every step
 		envVolTable[1] = 0;
 		for (int i = 2; i < 32; i += 2) {
@@ -501,6 +501,7 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
 	, warningPrinted(false)
+	, isAY8910(checkAY8910(config))
 {
 	initDetune();
 
@@ -551,7 +552,14 @@ byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 		}
 		break;
 	}
-	return regs[reg];
+
+	// TODO some AY8910 models have 1F as mask for registers 1, 3, 5
+	static const byte regMask[16] = {
+		0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
+		0x1f, 0x1f ,0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
+	};
+	return isAY8910 ? regs[reg] & regMask[reg]
+	                : regs[reg];
 }
 
 byte AY8910::peekRegister(unsigned reg, EmuTime::param time) const

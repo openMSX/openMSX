@@ -133,7 +133,7 @@ private:
 		unsigned envVolTable[32];
 		unsigned vol[3];
 		bool envChan[3];
-		const bool ay8910;
+		const bool isAY8910;
 	};
 
 	class Envelope {
@@ -188,6 +188,7 @@ private:
 	Envelope envelope;
 	byte regs[16];
 	bool warningPrinted;
+	bool isAY8910;
 };
 
 } // namespace openmsx
