@@ -164,11 +164,11 @@ void AbstractIDEDevice::writeReg(
 
 word AbstractIDEDevice::readData(EmuTime::param /*time*/)
 {
-	assert(transferIdx < sizeof(buffer));
 	if (!transferRead) {
 		// no read in progress
 		return 0x7F7F;
 	}
+	assert(transferIdx < sizeof(buffer));
 	word result = (buffer[transferIdx + 0] << 0) +
 	              (buffer[transferIdx + 1] << 8);
 	transferIdx += 2;
@@ -198,11 +198,11 @@ void AbstractIDEDevice::readNextBlock()
 
 void AbstractIDEDevice::writeData(word value, EmuTime::param /*time*/)
 {
-	assert(transferIdx < sizeof(buffer));
 	if (!transferWrite) {
 		// no write in progress
 		return;
 	}
+	assert(transferIdx < sizeof(buffer));
 	buffer[transferIdx + 0] = value & 0xFF;
 	buffer[transferIdx + 1] = value >> 8;
 	transferIdx += 2;
