@@ -286,12 +286,6 @@ void SDLRasterizer<Pixel>::precalcColourIndex0(
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::updateVRAMCache(int /*address*/)
-{
-	// TODO can we get rid of this method? GLRasterizer still needs it
-}
-
-template <class Pixel>
 void SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {

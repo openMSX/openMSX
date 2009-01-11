@@ -55,11 +55,6 @@ public:
 
 	virtual void setTransparency(bool enabled) = 0;
 
-	/** Notifies the VRAM cache of a VRAM write.
-	  * @param address The address that changed.
-	  */
-	virtual void updateVRAMCache(int address) = 0;
-
 	/** Render a rectangle of border pixels on the host screen.
 	  * The units are absolute lines (Y) and VDP clockticks (X).
 	  * @param fromX X coordinate of render start (inclusive).

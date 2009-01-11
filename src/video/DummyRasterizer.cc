@@ -37,10 +37,6 @@ void DummyRasterizer::setTransparency(bool /*enabled*/)
 {
 }
 
-void DummyRasterizer::updateVRAMCache(int /*address*/)
-{
-}
-
 void DummyRasterizer::drawBorder(int /*fromX*/, int /*fromY*/,
                                  int /*limitX*/, int /*limitY*/)
 {
