@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1231703374">
+<softwaredb xml:lang="en" timestamp="1231708816">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -4606,6 +4606,22 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">b5cdef44b22c7e234895b053e487233c117d1a4f</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Jungle Hunt</title>
+	<system>MSX</system>
+	<company>Atari / Taito / Muffie</company>
+	<year>2008</year>
+	<country>BR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">cfa30c1d6741e1b56b54622bbc3d89003f739a17</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Jungle Hunt</title>
+	<system>MSX</system>
+	<company>Atari / Taito / Slotman</company>
+	<year>2008</year>
+	<country>BR</country>
+		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c9a89cceb355e5daf47ed5e8ee3e211ebd2494d8</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Juno First</title>
 	<system>MSX</system>
 	<company>Konami</company>
@@ -5780,15 +5796,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Metal Gear 2 - Solid Snake</title>
 	<system>MSX</system>
-	<company>Demo</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">21ac0ae7da47abf30986b479489134c79405f95d</hash><remark>[RC-767] / Konami</remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark>[tr En][RC-767] / Konami</remark></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Metal Gear 2 - Solid Snake</title>
-	<system>MSX</system>
 	<company>Konami</company>
 	<year>1990</year>
 	<country>JP</country>
@@ -5801,6 +5808,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a7b196f7e934faa76602c8c00bd2f6e6d2d70787</hash><remark>[tr En][a][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7be2f14fd0df5718cdb69b972c5f7c1f284b03e6</hash><remark>[tr En][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4b78514753008cabda2ff3d3cb537b2429efd7d2</hash><remark>[tr En][RC-767] / Ulver full crack</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Metal Gear 2 - Solid Snake (Demo)</title>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>1990</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">21ac0ae7da47abf30986b479489134c79405f95d</hash><remark>[RC-767]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark>[tr En][RC-767]</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">MIDI Macro and Monitor</title>
@@ -5827,6 +5843,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">5359c905ad063a0faf1c46a8c03b1b9c9a04b3b3</hash><remark>[b]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">5460aa3be896ad949bea75444bc6e7e072a859b8</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Mikkie</title>
+	<system>MSX</system>
+	<company>Konami / SEGA / Muffie</company>
+	<year>2008</year>
+	<country>BR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">aeeb8ddbd385bc3aba5009676e5192d32beecf15</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Mil Caras</title>
@@ -6010,6 +6034,22 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">9f2fb5f31c2bcff949e08449f197b0c31bdebe50</hash><remark>MRC MEGA-Challenge entry</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Montezuma&#39;s Revenge</title>
+	<system>MSX</system>
+	<company>Parker Brothers / Muffie</company>
+	<year>2008</year>
+	<country>BR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">b03786528689b2014c90493f3e02d941c73122bc</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Montezuma&#39;s Revenge</title>
+	<system>MSX</system>
+	<company>Parker Brothers / Slotman</company>
+	<year>2008</year>
+	<country>BR</country>
+		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">17e78fd405e65afa3763c2f7271c82ab155c004b</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Moon Landing</title>
@@ -6980,6 +7020,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">788c53657d9ea180d04f29ccaf1f1c29a9b75519</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">ce4c5ce07afd297156899eb6c1056eef3f83b803</hash><remark>[b]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>GenericKonami</type><hash algo="sha1">cbec713b32517a503ae6c02497357a8361eccb76</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Pepper 2</title>
+	<system>MSX</system>
+	<company>Exidy&#39;s / Muffie</company>
+	<year>2008</year>
+	<country>BR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">479100e82d3f25bbeb9a291163945d2f5bd62f74</hash><remark>[b1]</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Periodic Table</title>
@@ -9465,6 +9513,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>BR</country>
 		<dump><original value="false"/><rom><hash algo="sha1">d77a0208790f9563985d236d79a80d737b47f070</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">ca52d26e847b23c7caeb7d516b5fca5cbd686ef3</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">d59ad9f16932cc3dadb22c25e64c10a73a055056</hash><remark>[b1]</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Twin Hammer</title>
@@ -10062,6 +10112,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2099
-Parse time 3.908 seconds on Sun Jan 11 20:49:38 CET 2009
+Roms in this database:2107
+Parse time 4.465 seconds on Sun Jan 11 22:20:20 CET 2009
  -->
