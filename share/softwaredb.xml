@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1217094374">
+<softwaredb xml:lang="en" timestamp="1231703374">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -680,6 +680,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">e984bfb4251e7b9f9b6b95d5e1005e67c223ae67</hash><remark>MSX-DEV07</remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Bakerman</title>
+	<system>MSX</system>
+	<company>AG Software</company>
+	<year>2008</year>
+	<country>IT</country>
+		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">619a2d42263da74a723cceead5a19e0e0dd86c6f</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Balance</title>
 	<system>MSX</system>
 	<company>HAL Laboratory</company>
@@ -1098,6 +1106,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">16c3ced0fb2e360bc7c43d372a0a30eb6bd3963d</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Borfesu</title>
+	<system>MSX</system>
+	<company>Xtal Soft / HAP</company>
+	<year>1987</year>
+	<country>JP</country>
+		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">855cabd1ad1abae3a9d26999d48c66de8096d7c5</hash><remark>English Translation by HAP</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Bosconian</title>
@@ -4918,6 +4934,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">240e15fb5d918aa821f226002772dc800d9f20a4</hash><remark>[RC-754]</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">25f5adeca8a2ddb754d25eb18cff0d84e5b003bc</hash><remark>[RC-754]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">3b6f140c99cba5bfa510200df49d1e573d687e4d</hash><remark>[RC-754] / tr En</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">4323eb37b9a795be32a2b64824fc4acd7afe4e9d</hash><remark>[RC-754] / Translation into English</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Knither Special</title>
@@ -6883,6 +6900,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">0486938b52fbcf30a4fa206e07960a5b866fca61</hash><remark>[Kanji]</remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Peek-a-boo</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2008</year>
+	<country>EU</country>
+		<dump><original value="false"/><rom><hash algo="sha1">d92c82e155cb34f65587d472d4eb5ed1b9e68018</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Peetan</title>
@@ -9162,6 +9187,22 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash><remark>English / MSXDev05</remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">The Three Dragon Story</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1989</year>
+	<country>KR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">6a7ab69c47cc168dd872d32f395541be4939255e</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">The Three Dragon Story</title>
+	<system>MSX</system>
+	<company>Zemina / Muffie</company>
+	<year>1989</year>
+	<country>KR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">5ea3d992db53de3a198531736d8926de8401b8c8</hash><remark>Conversion by Muffie</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Thexder</title>
 	<system>MSX</system>
 	<company>Game Arts</company>
@@ -9416,6 +9457,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1989</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">108e9164ef6cf1ffe6e3c5303bfbbc3bd807b6df</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Tutankham</title>
+	<system>MSX</system>
+	<company>Konami / Muffie</company>
+	<year>2008</year>
+	<country>BR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">d77a0208790f9563985d236d79a80d737b47f070</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Twin Hammer</title>
@@ -10013,6 +10062,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2092
-Parse time 3.880 seconds on Sat Jul 26 19:46:18 CEST 2008
+Roms in this database:2099
+Parse time 3.908 seconds on Sun Jan 11 20:49:38 CET 2009
  -->
