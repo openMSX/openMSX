@@ -1,3 +1,5 @@
+// $Id:$
+
 /* Copyright (C) 2001, 2006 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or
@@ -17,117 +19,102 @@
 
 // NB: Taken from http://www.koders.com/c/fidB38A2E97F60B8A0C903631F8C60078DE8C6C8433.aspx
 // Also modified to use ANSI calls explicitly
+// Slightly reformatted/simplified to fit openMSX coding style.
 
 #ifdef _MSC_VER
 
-#include <windows.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "win32-dirent.hh"
+#include <windows.h>
+#include <cstring>
+#include <cstdlib>
 
-DIR *
-opendir (const char * name)
+DIR* opendir(const char* name)
 {
-  DIR *dir;
-  HANDLE hnd;
-  char *file;
-  WIN32_FIND_DATAA find;
+	if (!name || !*name) return NULL;
+	size_t len = strlen(name);
+	char* file = static_cast<char*>(malloc(len + 3));
+	strcpy(file, name);
+	if ((file[len - 1] != '/') && (file[len - 1] != '\\')) {
+		strcat(file, "/*");
+	} else {
+		strcat(file, "*");
+	}
 
-  if (!name || !*name)
-    return NULL;
-  file = (char*)malloc (strlen (name) + 3);
-  strcpy (file, name);
-  if (file[strlen (name) - 1] != '/' && file[strlen (name) - 1] != '\\')
-    strcat (file, "/*");
-  else
-    strcat (file, "*");
+	HANDLE hnd;
+	WIN32_FIND_DATAA find;
+	if ((hnd = FindFirstFileA(file, &find)) == INVALID_HANDLE_VALUE) {
+		free(file);
+		return NULL;
+	}
 
-  if ((hnd = FindFirstFileA (file, &find)) == INVALID_HANDLE_VALUE)
-    {
-      free (file);
-      return NULL;
-    }
-
-  dir = (DIR*)malloc (sizeof (DIR));
-  dir->mask = file;
-  dir->fd = (int) hnd;
-  dir->data = (char*)malloc (sizeof (WIN32_FIND_DATAA));
-  dir->allocation = sizeof (WIN32_FIND_DATAA);
-  dir->size = dir->allocation;
-  dir->filepos = 0;
-  memcpy (dir->data, &find, sizeof (WIN32_FIND_DATAA));
-  return dir;
+	DIR* dir = static_cast<DIR*>(malloc(sizeof(DIR)));
+	dir->mask = file;
+	dir->fd = int(hnd);
+	dir->data = malloc(sizeof(WIN32_FIND_DATAA));
+	dir->filepos = 0;
+	memcpy(dir->data, &find, sizeof(WIN32_FIND_DATAA));
+	return dir;
 }
 
-struct dirent *
-readdir (DIR * dir)
+dirent* readdir(DIR* dir)
 {
-  static struct dirent entry;
-  WIN32_FIND_DATAA *find;
+	static dirent entry;
+	entry.d_ino = 0;
+	entry.d_type = 0;
 
-  entry.d_ino = 0;
-  entry.d_type = 0;
-  find = (WIN32_FIND_DATAA *) dir->data;
+	WIN32_FIND_DATAA* find = static_cast<WIN32_FIND_DATAA*>(dir->data);
+	if (dir->filepos) {
+		if (!FindNextFileA(static_cast<HANDLE>(dir->fd), find)) {
+			return NULL;
+		}
+	}
 
-  if (dir->filepos)
-    {
-      if (!FindNextFileA ((HANDLE) dir->fd, find))
-	return NULL;
-    }
-
-  entry.d_off = dir->filepos;
-  strncpy (entry.d_name, find->cFileName, sizeof (entry.d_name));
-  entry.d_reclen = strlen (find->cFileName);
-  dir->filepos++;
-  return &entry;
-}
-
-int
-closedir (DIR * dir)
-{
-  HANDLE hnd = (HANDLE) dir->fd;
-  free (dir->data);
-  free (dir->mask);
-  free (dir);
-  return FindClose (hnd) ? 0 : -1;
-}
-
-void
-rewinddir (DIR * dir)
-{
-  HANDLE hnd = (HANDLE) dir->fd;
-  WIN32_FIND_DATAA *find = (WIN32_FIND_DATAA *) dir->data;
-
-  FindClose (hnd);
-  hnd = FindFirstFileA (dir->mask, find);
-  dir->fd = (int) hnd;
-  dir->filepos = 0;
-}
-
-void
-seekdir (DIR * dir, off_t offset)
-{
-  off_t n;
-
-  rewinddir (dir);
-  for (n = 0; n < offset; n++)
-    {
-      if (FindNextFileA ((HANDLE) dir->fd, (WIN32_FIND_DATAA *) dir->data))
+	entry.d_off = dir->filepos;
+	strncpy(entry.d_name, find->cFileName, sizeof(entry.d_name));
+	entry.d_reclen = strlen(find->cFileName);
 	dir->filepos++;
-    }
+	return &entry;
 }
 
-off_t
-telldir (DIR * dir)
+int closedir(DIR* dir)
 {
-  return dir->filepos;
+	HANDLE hnd = static_cast<HANDLE>(dir->fd);
+	free(dir->data);
+	free(dir->mask);
+	free(dir);
+	return FindClose(hnd) ? 0 : -1;
 }
 
-int
-dirfd (DIR * dir)
+void rewinddir(DIR* dir)
 {
-  return dir->fd;
+	HANDLE hnd = static_cast<HANDLE>(dir->fd);
+	WIN32_FIND_DATAA* find = static_cast<WIN32_FIND_DATAA*>(dir->data);
+
+	FindClose(hnd);
+	hnd = FindFirstFileA(dir->mask, find);
+	dir->fd = int(hnd);
+	dir->filepos = 0;
+}
+
+void seekdir(DIR* dir, off_t offset)
+{
+	rewinddir(dir);
+	for (off_t n = 0; n < offset; ++n) {
+		if (FindNextFileA(static_cast<HANDLE>(dir->fd),
+			          static_cast<WIN32_FIND_DATAA*>(dir->data))) {
+			dir->filepos++;
+		}
+	}
+}
+
+off_t telldir(DIR* dir)
+{
+	return dir->filepos;
+}
+
+int dirfd(DIR* dir)
+{
+	return dir->fd;
 }
 
 #endif

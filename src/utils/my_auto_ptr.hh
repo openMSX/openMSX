@@ -1,5 +1,8 @@
-#ifndef __MY_AUTO_PTR_HH__
-#define __MY_AUTO_PTR_HH__
+// $Id:$
+
+#ifndef MY_AUTO_PTR_HH
+#define MY_AUTO_PTR_HH
+
 #include <algorithm>
 #include <iostream>
 #include <typeinfo>
@@ -20,26 +23,33 @@ template<typename T> class my_auto_ptr
 public:
 	my_auto_ptr(T* t_ = 0) : t(t_) {}
 	my_auto_ptr(my_auto_ptr& other) : t(other.t) { other.t = 0; }
-	~my_auto_ptr() { 
-		time_t curr = std::time(0);
-		if (t != NULL) PRT_DEBUG(std::ctime(&curr) << ": auto-destructing my_auto_ptr of type: " << typeid(t).name());
-		delete t;
-		curr = std::time(0);
-	       	if (t != NULL) PRT_DEBUG(std::ctime(&curr) << "auto-destruction of my_auto_ptr of type " << typeid(t).name() << " done!"); 
+	~my_auto_ptr() {
+		if (t != NULL) { // don't bother printing for NULL ptrs
+			time_t curr = std::time(0);
+			PRT_DEBUG(std::ctime(&curr) <<
+			          ": auto-destructing my_auto_ptr of type: " <<
+			          typeid(t).name());
+			delete t;
+			curr = std::time(0);
+			PRT_DEBUG(std::ctime(&curr) <<
+			          "auto-destruction of my_auto_ptr of type " <<
+			          typeid(t).name() << " done!");
+		}
 	}
 	//~my_auto_ptr() { t = 0; } // a version without actually deleting
 
 	void reset(T* t_ = 0) { my_auto_ptr<T>(t_).swap(*this); }
 	T* get() const { return t; }
 	T* release() { T* res = t; t = 0; return res; }
-	
 
 	T& operator* () const { return *t; }
 	T* operator->() const { return  t; }
-	//my_auto_ptr& operator=(my_auto_ptr other) { swap(other); return *this; }
-	my_auto_ptr& operator=(my_auto_ptr& other) { reset(other.release()); return *this; }
-	template <typename T2> my_auto_ptr& operator=(my_auto_ptr<T2>& other) { reset(other.release()); return *this; }
-	template <typename T2> my_auto_ptr& operator=(std::auto_ptr<T2>& other) { reset(other.release()); return *this; }
+	my_auto_ptr& operator=(my_auto_ptr& other)
+		{ reset(other.release()); return *this; }
+	template <typename T2> my_auto_ptr& operator=(my_auto_ptr<T2>& other)
+		{ reset(other.release()); return *this; }
+	template <typename T2> my_auto_ptr& operator=(std::auto_ptr<T2>& other)
+		{ reset(other.release()); return *this; }
 
 	void swap(my_auto_ptr& other) { std::swap(t, other.t); }
 

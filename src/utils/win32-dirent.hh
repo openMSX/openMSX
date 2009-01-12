@@ -1,7 +1,7 @@
-/* classes: h_files */
+// $Id:$
 
-#ifndef SCM_WIN32_DIRENT_H
-#define SCM_WIN32_DIRENT_H
+#ifndef WIN32_DIRENT_HH
+#define WIN32_DIRENT_HH
 
 /* Copyright (C) 2001, 2006 Free Software Foundation, Inc.
  *
@@ -25,6 +25,7 @@
    into a buffer and return `struct dirent *' pointers into it.  */
 
 // NB: Taken from http://www.koders.com/c/fid5F00BC983E0F005E15E8E590E461D363F6146CEB.aspx
+// Slightly reformatted/simplified to fit openMSX coding style.
 
 #ifdef _MSC_VER
 
@@ -32,39 +33,35 @@
 
 struct dirstream
 {
-  int fd;		/* File descriptor.  */
-  char *data;		/* Directory block.  */
-  size_t allocation;	/* Space allocated for the block.  */
-  size_t size;		/* Total valid data in the block.  */
-  size_t offset;	/* Current offset into the block.  */
-  off_t filepos;	/* Position of next entry to read.  */
-  char *mask;           /* Initial file mask. */
+	int fd;        // File descriptor.
+	void* data;    // Directory block.
+	off_t filepos; // Position of next entry to read.
+	char* mask;    // Initial file mask.
 };
 
 struct dirent
 {
-  long d_ino;
-  off_t d_off;
-  unsigned short int d_reclen;
-  unsigned char d_type;
-  char d_name[256];
+	long d_ino;
+	off_t d_off;
+	unsigned short d_reclen;
+	unsigned char d_type;
+	char d_name[256];
 };
 
-#define d_fileno d_ino /* Backwards compatibility. */
+#define d_fileno d_ino // Backwards compatibility.
 
-/* This is the data type of directory stream objects.
-   The actual structure is opaque to users.  */
-
+// This is the data type of directory stream objects.
+// The actual structure is opaque to users.
 typedef struct dirstream DIR;
 
-DIR * opendir (const char * name);
-struct dirent * readdir (DIR * dir);
-int closedir (DIR * dir);
-void rewinddir (DIR * dir);
-void seekdir (DIR * dir, off_t offset);
-off_t telldir (DIR * dir);
-int dirfd (DIR * dir);
+DIR* opendir(const char* name);
+struct dirent* readdir(DIR* dir);
+int closedir(DIR* dir);
+void rewinddir(DIR* dir);
+void seekdir(DIR* dir, off_t offset);
+off_t telldir(DIR* dir);
+int dirfd(DIR* dir);
 
 #endif
 
-#endif /* SCM_WIN32_DIRENT_H */
+#endif // WIN32_DIRENT_HH
