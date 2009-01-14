@@ -422,7 +422,7 @@ void AfterCmd::execute()
 		afterCommand.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
 		afterCommand.getCommandController().getCliComm().printWarning(
-			"Error executig delayed command: " + e.getMessage());
+			"Error executing delayed command: " + e.getMessage());
 	}
 	delete this;
 }
