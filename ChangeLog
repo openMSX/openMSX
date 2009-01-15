@@ -1,5 +1,38 @@
 $Id$
 
+2009-01-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Major changes in CPU emulation core:
+	  I've worked on this patch on a local (private) branch for several
+	  weeks. Actually it are several related patches and ideally I should
+	  also commit it as seperate patches. However developing on a private
+	  branch means (at least for me) do a couple of commits, detect a
+	  mistake in one of the earlier commits, make a new commit that
+	  corrects that mistake and so on. Usually I do the extra effort to
+	  extract a clean patch-series from my local branches before committing
+	  them. However this time that would require quite some extra time, and
+	  as you guessed already I was too lazy to spend that time. Though as
+	  compensation I wrote some extra doc about the inner workings of our
+	  CPU emulation (see src/cpu/CPUCore.cc)
+
+	  These are more or less the steps that are combined in this commit:
+	  * Put instruction selection into one big function:
+	     this allows to 'goto' between all part of this code (required
+	     in later steps)
+	  * Move opcode fetching (initial byte) and time accounting into
+	    this function (preparation for next step)
+	  * Allow to execute multiple instructions inside this function
+	  * Use gcc extension 'computed goto' to implement faster dispatch
+	  * Added fallback for compilers that don't have this extension (VC++)
+	  * Simplified 'exit-test', see doc in CPUCore.cc for details
+	  * Some smaller time bookkeeping optimizations:
+	    - IX/IY instructions updated clock in two steps -> merged into one
+	      step
+	    - Some helper routines took a 'extra-cycles' function parameter.
+	      Turned this into a template parameter to force the compiler to
+	      treat it as a compile-time-constant. (Actually gcc already did
+	      this optimization by itself most of the time when the function
+	      got inlined, but now the optimization is guaranteed.)
+
 2009-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented difference between AY8910/YM2149 reading of registers:
 	   - thanks to enen for doing most of the investigation on real MSX

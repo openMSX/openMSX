@@ -1,5 +1,180 @@
 // $Id$
 
+// MEMORY EMULATION
+// ----------------
+//
+// Memory access emulation is a very important part of the CPU emulation.
+// Because they happen so frequently they really need to be executed as fast as
+// possible otherwise they will completely bring down the speed of the CPU
+// emulation.
+//
+// A very fast way to emulate memory accesses is by simply reading/writing to a
+// 64kb array (for a 16-bit address space). Unfortunately this doesn't allow
+// for memory mapped IO (MMIO). These are memory regions where read/writes
+// trigger side effects, so where we need to execute device-specific code on
+// read or writes. An alternative that does work with MMIO is for every access
+// execute a virtual method call, (this is the approach taken by most current
+// MSX emulators). Unfortunately this is also a lot slower.
+//
+// It is possible to combine the speed of array accesses with the flexibility
+// of virtual methods. In openMSX it's implemened as follows: the 64kb address
+// space is divided in 256 regions of 256 bytes (called cacheLines in the code
+// below). For each such region we store a pointer, if this pointer is NULL
+// then we have to use the slow way (=virtual method call). If it is not NULL,
+// the pointer points to a block of memory that can be directly accessed. In
+// some contexts accesses via the pointer are known as backdoor accesses while
+// the accesses directly to the device are known as frontdoor accesses.
+//
+// We keep different pointers for read and write accesses. This allows to also
+// implement ROMs efficiently: read is handled as regular RAM, but writes end
+// up in some dummy memory region. This region is called 'unmappedWrite' in the
+// code. There is also a special region 'unmappedRead', this region is filled
+// with 0xFF and can be used to model (parts of) a device that don't react to
+// reads (so reads return 0xFF).
+//
+// Because of bankswitching (the MSX slot select mechanism, but also e.g.
+// MegaROM backswitching) the memory map as seen by the Z80 is not static. This
+// means that the cacheLine pointers also need to change during runtime. To
+// solve this we made the bankswitch code also responsible for invalidating the
+// cacheLines of the switched region. These pointers are filled-in again in a
+// lazy way: the first read or write to a cache line will first get this
+// pointer (see getReadCacheLine() and getWriteCacheLine() in the code below),
+// from then on this pointer is used for all further accesses to this region,
+// until the cache is invalidated again.
+//
+//
+// INSTRUCTION EMULATION
+// ---------------------
+//
+// The current implementation is based on a 'threaded interpreter model'. In
+// the text below I'll call the older implementation the 'traditional
+// interpreter model'. From a very high level these two models look like this:
+//
+//     Traditional model:
+//         while (!needExit()) {
+//             byte opcode = fetch(PC++);
+//             switch (opcode) {
+//                 case 0x00: nop(); break;
+//                 case 0x01: ld_bc_nn(); break;
+//                 ...
+//             }
+//         }
+//
+//     Threaded model:
+//         byte opcode = fetch(PC++);   //
+//         goto *(table[opcode]);       // fetch-and-dispatch
+//         // note: the goto * syntax is a gcc extension called computed-gotos
+//
+//         op00: nop();      if (!needExit()) [fetch-and-dispatch];
+//         op01: ld_bc_nn(); if (!needExit()) [fetch-and-dispatch];
+//         ...
+//
+// In the first model there is a central place in the code that fetches (the
+// first byte of) the instruction and based on this byte jumps to the
+// appropriate routine. In the second model, this fetch-and-dispatch logic is
+// duplicated at the end of each instruction.
+//
+// Typically the 'dispatch' part in above paragraph is implemented (either by
+// the compiler or manually using computed goto's) via a jump table. Thus on
+// assembler level via an indirect jump. For the host CPU it's hard to predict
+// the destination address of such an indirect jump, certainly if there's only
+// one such jump for all dispatching (the traditional model). If each
+// instruction has its own indirect jump instruction (the threaded model), it
+// becomes a bit easier, because often one particular z80 instructions is
+// followed by a specific other z80 instruction (or one from a small subset).
+// For example a z80 'cp' instruction is most likely followed by a 'conditional
+// jump' z80 instruction. Modern CPUs are quite sensitive to
+// branch-(mis)predictions, so the above optimization helps quite a lot. I
+// measured a speedup of more than 10%!
+//
+// There is another advantage to the threaded model. Because also the
+// needExit() test is duplicated for each instruction, it becomes possible to
+// tweak it for individual instructions. But first let me explain this
+// exit-test in more detail.
+//
+// These are the main reasons why the emulator should stop emulating CPU
+// instructions:
+//  1) When other devices than the CPU must be emulated (e.g. video frame
+//     rendering). In openMSX this is handled by the Scheduler class and
+//     actually we don't exit the CPU loop (anymore) for this. Instead we
+//     simply execute the device code as a subroutine. Each time right before
+//     we access an IO port or do a frontdoor memory access, there is a check
+//     whether we should emulate device code (search for schedule() in the code
+//     below).
+//  2) To keep the inner CPU loop as fast as possible we don't check for IRQ,
+//     NMI or HALT status in this loop. Instead this condition is checked only
+//     once at the beginning outside of the loop (if there wasn't a pending IRQ
+//     on the first instruction there also won't be one on the second
+//     instruction, if all we did was emulating cpu instructions). Now when one
+//     of these conditions changes, we must exit the inner loop and re-evaluate
+//     them. For example after an EI instruction we must check the IRQ status
+//     again.
+//  3) Various reasons like:
+//      * Z80/R800 switch
+//      * executing a Tcl command (could be a cpu-register debug read)
+//      * exit the emulator
+//  4) 'once-in-a-while': To avoid threading problems and race conditions,
+//     several threads in openMSX only 'schedule' work that will later be
+//     executed by the main emulation thread. The main thread checks for such
+//     task outside of the cpu emulation loop. So once-in-a-while we need to
+//     exit the loop. The exact timing doesn't matter here because anyway the
+//     relative timing between threads is undefined.
+// So for 1) we don't need to do anything (we don't actually exit). For 2) and
+// 3) we need the exit the loop as soon as possible (right after the current
+// instruction is finished). For 4) it's OK to exit 'eventually' (a few hundred
+// z80 instructions late is still OK).
+//
+// Condition 2) is implemented with the 'slowInstructions' mechanism. Condition
+// 3) via exitCPULoopSync() (may only get called by the main emulation thread)
+// and condition 4) is implemented via exitCPULoopAsync() (can be called from
+// any thread).
+//
+// Now back to the exit-test optimization: in the threaded model each
+// instruction ends with:
+//
+//     if (needExit()) return
+//     byte opcode = fetch(PC++);
+//     goto *(table[opcode]);
+//
+// And if we look in more detail at fetch():
+//
+//     if (canDoBackdoor(addr)) {
+//         doBackdoorAccess(addr);
+//     } else {
+//         doFrontdoorAccess(addr);
+//     }
+//
+// So there are in fact two checks per instruction. This can be reduced to only
+// one check with the following trick:
+//
+//     whenever needExit() would return true, we make sure canDoBackdoor()
+//     returns false _on_the_address_of_the_next_instruction_
+//
+// Making canDoBackdoor() return false is easy, for example by invalidating the
+// cacheLine of the corresponding region. But the 'address of the next
+// instruction' part is a bit tricky. For most instructions this is within 0 to
+// 4 bytes from the current PC (we have no idea where in the emulation of the
+// current instruction we are, PC may already be (partially) updated or not).
+// But for jump (or ret, call, ...) instructions the next instruction could be
+// anywhere.
+//
+// So non-jump instruction can be optimized to this (this also makes the
+// repeated tail of such instruction smaller):
+//
+//     if (canDoBackdoor(PC)) {
+//         byte opcode = doBackdoorAccess(PC++);
+//         goto *(table[opcode]);
+//     } else {
+//         goto slowPath; // common code for all instructions
+//     }
+//
+// For jump instructions we still have to check the needExit() condition. Because
+// Invalidating all memory feels too expensive (though I haven't tested it). But
+// there is an additional reason to have the check on jump instructions: because
+// of exit condition 4) we still once-in-a-while need to check. After so many
+// instructions, the Z80 will have to execute some sort of jump, for me this
+// qualifies as once-in-a-while.
+
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
@@ -20,6 +195,15 @@
 #include <iostream>
 #include <cassert>
 #include <cstring>
+
+#ifndef _MSC_VER
+// gcc has an extension called computed goto's
+// it allows to implement a more efficient instruction dispatching
+#define USE_COMPUTED_GOTO
+#else
+// VC++ doesn't support this
+// we have to use a central switch statement to do all dispatching
+#endif
 
 using std::string;
 
@@ -172,6 +356,12 @@ template <class T> void CPUCore<T>::exitCPULoopSync()
 	assert(Thread::isMainThread());
 	exitLoop = true;
 	T::enableLimit(false);
+#ifdef USE_COMPUTED_GOTO
+	byte line0 = (R.getPC() + 0) >> CacheLine::BITS;
+	byte line1 = (R.getPC() + 4) >> CacheLine::BITS;
+	readCacheLine[line0] = NULL;
+	readCacheLine[line1] = NULL;
+#endif
 }
 template <class T> inline bool CPUCore<T>::needExitCPULoop()
 {
@@ -194,6 +384,12 @@ template <class T> void CPUCore<T>::raiseIRQ()
 	assert(IRQStatus >= 0);
 	if (IRQStatus == 0) {
 		setSlowInstructions();
+#ifdef USE_COMPUTED_GOTO
+		byte line0 = (R.getPC() + 0) >> CacheLine::BITS;
+		byte line1 = (R.getPC() + 4) >> CacheLine::BITS;
+		readCacheLine[line0] = NULL;
+		readCacheLine[line1] = NULL;
+#endif
 	}
 	IRQStatus = IRQStatus + 1;
 }
@@ -213,6 +409,12 @@ template <class T> void CPUCore<T>::raiseNMI()
 	if (NMIStatus == 0) {
 		nmiEdge = true;
 		setSlowInstructions();
+#ifdef USE_COMPUTED_GOTO
+		byte line0 = (R.getPC() + 0) >> CacheLine::BITS;
+		byte line1 = (R.getPC() + 4) >> CacheLine::BITS;
+		readCacheLine[line0] = NULL;
+		readCacheLine[line1] = NULL;
+#endif
 	}
 	NMIStatus++;
 }
@@ -556,7 +758,7 @@ template <class T> inline void CPUCore<T>::nmi()
 	M1Cycle();
 	R.setHALT(false);
 	R.setIFF1(false);
-	PUSH(R.getPC(), T::EE_NMI_1);
+	PUSH<T::EE_NMI_1>(R.getPC());
 	R.setPC(0x0066);
 	T::add(T::CC_NMI);
 }
@@ -574,7 +776,7 @@ template <class T> inline void CPUCore<T>::irq0()
 	R.setHALT(false);
 	R.setIFF1(false);
 	R.setIFF2(false);
-	PUSH(R.getPC(), T::EE_IRQ0_1);
+	PUSH<T::EE_IRQ0_1>(R.getPC());
 	R.setPC(0x0038);
 	T::setMemPtr(R.getPC());
 	T::add(T::CC_IRQ0);
@@ -587,7 +789,7 @@ template <class T> inline void CPUCore<T>::irq1()
 	R.setHALT(false);
 	R.setIFF1(false);
 	R.setIFF2(false);
-	PUSH(R.getPC(), T::EE_IRQ1_1);
+	PUSH<T::EE_IRQ1_1>(R.getPC());
 	R.setPC(0x0038);
 	T::setMemPtr(R.getPC());
 	T::add(T::CC_IRQ1);
@@ -600,283 +802,1619 @@ template <class T> inline void CPUCore<T>::irq2()
 	R.setHALT(false);
 	R.setIFF1(false);
 	R.setIFF2(false);
-	PUSH(R.getPC(), T::EE_IRQ2_1);
+	PUSH<T::EE_IRQ2_1>(R.getPC());
 	unsigned x = interface->readIRQVector() | (R.getI() << 8);
 	R.setPC(RD_WORD(x, T::CC_IRQ2_2));
 	T::setMemPtr(R.getPC());
 	T::add(T::CC_IRQ2);
 }
 
-template <class T> NEVER_INLINE int CPUCore<T>::executeInstruction1_slow(byte opcode)
+template <class T> template <bool CHAIN_INSTRUCTIONS>
+void CPUCore<T>::executeInstructions()
 {
-	return executeInstruction1(opcode);
+#ifdef USE_COMPUTED_GOTO
+	// Addresses of all main-opcode routines,
+	// Note that 40/49/53/5B/64/6D/7F is replaced by 00 (ld r,r == nop)
+	static void* opcodeTable[256] = {
+		&&op00, &&op01, &&op02, &&op03, &&op04, &&op05, &&op06, &&op07,
+		&&op08, &&op09, &&op0A, &&op0B, &&op0C, &&op0D, &&op0E, &&op0F,
+		&&op10, &&op11, &&op12, &&op13, &&op14, &&op15, &&op16, &&op17,
+		&&op18, &&op19, &&op1A, &&op1B, &&op1C, &&op1D, &&op1E, &&op1F,
+		&&op20, &&op21, &&op22, &&op23, &&op24, &&op25, &&op26, &&op27,
+		&&op28, &&op29, &&op2A, &&op2B, &&op2C, &&op2D, &&op2E, &&op2F,
+		&&op30, &&op31, &&op32, &&op33, &&op34, &&op35, &&op36, &&op37,
+		&&op38, &&op39, &&op3A, &&op3B, &&op3C, &&op3D, &&op3E, &&op3F,
+		&&op00, &&op41, &&op42, &&op43, &&op44, &&op45, &&op46, &&op47,
+		&&op48, &&op00, &&op4A, &&op4B, &&op4C, &&op4D, &&op4E, &&op4F,
+		&&op50, &&op51, &&op00, &&op53, &&op54, &&op55, &&op56, &&op57,
+		&&op58, &&op59, &&op5A, &&op00, &&op5C, &&op5D, &&op5E, &&op5F,
+		&&op60, &&op61, &&op62, &&op63, &&op00, &&op65, &&op66, &&op67,
+		&&op68, &&op69, &&op6A, &&op6B, &&op6C, &&op00, &&op6E, &&op6F,
+		&&op70, &&op71, &&op72, &&op73, &&op74, &&op75, &&op76, &&op77,
+		&&op78, &&op79, &&op7A, &&op7B, &&op7C, &&op7D, &&op7E, &&op00,
+		&&op80, &&op81, &&op82, &&op83, &&op84, &&op85, &&op86, &&op87,
+		&&op88, &&op89, &&op8A, &&op8B, &&op8C, &&op8D, &&op8E, &&op8F,
+		&&op90, &&op91, &&op92, &&op93, &&op94, &&op95, &&op96, &&op97,
+		&&op98, &&op99, &&op9A, &&op9B, &&op9C, &&op9D, &&op9E, &&op9F,
+		&&opA0, &&opA1, &&opA2, &&opA3, &&opA4, &&opA5, &&opA6, &&opA7,
+		&&opA8, &&opA9, &&opAA, &&opAB, &&opAC, &&opAD, &&opAE, &&opAF,
+		&&opB0, &&opB1, &&opB2, &&opB3, &&opB4, &&opB5, &&opB6, &&opB7,
+		&&opB8, &&opB9, &&opBA, &&opBB, &&opBC, &&opBD, &&opBE, &&opBF,
+		&&opC0, &&opC1, &&opC2, &&opC3, &&opC4, &&opC5, &&opC6, &&opC7,
+		&&opC8, &&opC9, &&opCA, &&opCB, &&opCC, &&opCD, &&opCE, &&opCF,
+		&&opD0, &&opD1, &&opD2, &&opD3, &&opD4, &&opD5, &&opD6, &&opD7,
+		&&opD8, &&opD9, &&opDA, &&opDB, &&opDC, &&opDD, &&opDE, &&opDF,
+		&&opE0, &&opE1, &&opE2, &&opE3, &&opE4, &&opE5, &&opE6, &&opE7,
+		&&opE8, &&opE9, &&opEA, &&opEB, &&opEC, &&opED, &&opEE, &&opEF,
+		&&opF0, &&opF1, &&opF2, &&opF3, &&opF4, &&opF5, &&opF6, &&opF7,
+		&&opF8, &&opF9, &&opFA, &&opFB, &&opFC, &&opFD, &&opFE, &&opFF,
+	};
+
+// Fetch and execute next instruction.
+// The _only_ check that's done is readCacheLine!=NULL
+// If the CPU emulation loop _must_ be exited (e.g. a MSXDevice raised an IRQ)
+// then the readCacheLine of the next instruction must be invalidated. For
+// example see exitCPULoopSync().
+#define NEXT \
+	T::add(c); \
+	if (CHAIN_INSTRUCTIONS) { \
+		unsigned address = R.getPC(); \
+		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
+		if (likely(line != NULL)) { \
+			T::R800Refresh(); \
+			M1Cycle(); \
+			R.setPC(address + 1); \
+			T::template PRE_MEM<false, false>(address); \
+			T::template POST_MEM<      false>(address); \
+			byte op = line[address]; \
+			goto *(opcodeTable[op]); \
+		} else { \
+			goto fetchSlow2; \
+		} \
+	} \
+	return;
+
+// Like 'NEXT' above, but with an extra T::limitReached() test.
+// All instructions that can change the program counter must use this instead
+// of the faster 'NEXT' macro (because the invalid readCacheLine trick doesn't
+// work).
+#define NEXT_TEST \
+	T::add(c); \
+	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
+		T::R800Refresh(); \
+		M1Cycle(); \
+		unsigned address = R.getPC(); \
+		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
+		if (likely(line != NULL)) { \
+			R.setPC(address + 1); \
+			T::template PRE_MEM<false, false>(address); \
+			T::template POST_MEM<      false>(address); \
+			byte op = line[address]; \
+			goto *(opcodeTable[op]); \
+		} else { \
+			goto fetchSlow; \
+		} \
+	} \
+	return;
+
+// After some instructions we must always exit the CPU loop (ei, halt, retn)
+#define NEXT_STOP \
+	T::add(c); \
+	assert(T::limitReached()); \
+	return;
+
+// Define a label (instead of case in a switch statement)
+#define CASE(X) op##X:
+
+#else // USE_COMPUTED_GOTO
+
+// NEXT and NEXT_TEST are the same (they both do the extra test)
+#define NEXT \
+	T::add(c); \
+	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
+		goto start; \
+	} \
+	return;
+
+#define NEXT_TEST \
+	T::add(c); \
+	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
+		goto start; \
+	} \
+	return;
+
+#define NEXT_STOP \
+	T::add(c); \
+	assert(T::limitReached()); \
+	return;
+
+#define CASE(X) case 0x##X:
+
+#endif // USE_COMPUTED_GOTO
+
+#ifndef USE_COMPUTED_GOTO
+start:
+#endif
+	unsigned ixy; // for dd_cb/fd_cb
+	T::R800Refresh();
+	byte opcodeMain = RDMEM_OPCODE(T::CC_MAIN);
+	M1Cycle();
+#ifdef USE_COMPUTED_GOTO
+	goto *(opcodeTable[opcodeMain]);
+
+fetchSlow2:
+	if (T::limitReached()) return;
+	T::R800Refresh();
+	M1Cycle();
+fetchSlow: {
+	unsigned address = R.getPC();
+	R.setPC(address + 1);
+	byte opcodeSlow = RDMEMslow<false, false>(address, T::CC_MAIN);
+	goto *(opcodeTable[opcodeSlow]);
 }
+#endif
 
-template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode)
-{
-	switch (opcode) {
-		case 0x00: // nop
-		case 0x40: // ld b,b
-		case 0x49: // ld c,c
-		case 0x52: // ld d,d
-		case 0x5b: // ld e,e
-		case 0x64: // ld h,h
-		case 0x6d: // ld l,l
-		case 0x7f: // ld a,a
-			return nop();
-		case 0x07: return rlca();
-		case 0x0f: return rrca();
-		case 0x17: return rla();
-		case 0x1f: return rra();
-		case 0x08: return ex_af_af();
-		case 0x27: return daa();
-		case 0x2f: return cpl();
-		case 0x37: return scf();
-		case 0x3f: return ccf();
-		case 0x20: return jr(CondNZ());
-		case 0x28: return jr(CondZ());
-		case 0x30: return jr(CondNC());
-		case 0x38: return jr(CondC());
-		case 0x18: return jr(CondTrue());
-		case 0x10: return djnz();
-		case 0x32: return ld_xbyte_a();
-		case 0x3a: return ld_a_xbyte();
-		case 0x22: return ld_xword_SS<HL>();
-		case 0x2a: return ld_SS_xword<HL>();
-		case 0x02: return ld_SS_a<BC>();
-		case 0x12: return ld_SS_a<DE>();
-		case 0x1a: return ld_a_SS<DE>();
-		case 0x0a: return ld_a_SS<BC>();
-		case 0x03: return inc_SS<BC>();
-		case 0x13: return inc_SS<DE>();
-		case 0x23: return inc_SS<HL>();
-		case 0x33: return inc_SS<SP>();
-		case 0x0b: return dec_SS<BC>();
-		case 0x1b: return dec_SS<DE>();
-		case 0x2b: return dec_SS<HL>();
-		case 0x3b: return dec_SS<SP>();
-		case 0x09: return add_SS_TT<HL,BC>();
-		case 0x19: return add_SS_TT<HL,DE>();
-		case 0x29: return add_SS_SS<HL>();
-		case 0x39: return add_SS_TT<HL,SP>();
-		case 0x01: return ld_SS_word<BC>();
-		case 0x11: return ld_SS_word<DE>();
-		case 0x21: return ld_SS_word<HL>();
-		case 0x31: return ld_SS_word<SP>();
-		case 0x04: return inc_R<B>();
-		case 0x0c: return inc_R<C>();
-		case 0x14: return inc_R<D>();
-		case 0x1c: return inc_R<E>();
-		case 0x24: return inc_R<H>();
-		case 0x2c: return inc_R<L>();
-		case 0x3c: return inc_R<A>();
-		case 0x34: return inc_xhl();
-		case 0x05: return dec_R<B>();
-		case 0x0d: return dec_R<C>();
-		case 0x15: return dec_R<D>();
-		case 0x1d: return dec_R<E>();
-		case 0x25: return dec_R<H>();
-		case 0x2d: return dec_R<L>();
-		case 0x3d: return dec_R<A>();
-		case 0x35: return dec_xhl();
-		case 0x06: return ld_R_byte<B>();
-		case 0x0e: return ld_R_byte<C>();
-		case 0x16: return ld_R_byte<D>();
-		case 0x1e: return ld_R_byte<E>();
-		case 0x26: return ld_R_byte<H>();
-		case 0x2e: return ld_R_byte<L>();
-		case 0x3e: return ld_R_byte<A>();
-		case 0x36: return ld_xhl_byte();
+#ifndef USE_COMPUTED_GOTO
+switchopcode:
+	switch (opcodeMain) {
+CASE(40) // ld b,b
+CASE(49) // ld c,c
+CASE(52) // ld d,d
+CASE(5B) // ld e,e
+CASE(64) // ld h,h
+CASE(6D) // ld l,l
+CASE(7F) // ld a,a
+#endif
+CASE(00) { int c = nop(); NEXT; }
+CASE(07) { int c = rlca(); NEXT; }
+CASE(0F) { int c = rrca(); NEXT; }
+CASE(17) { int c = rla();  NEXT; }
+CASE(1F) { int c = rra();  NEXT; }
+CASE(08) { int c = ex_af_af(); NEXT; }
+CASE(27) { int c = daa(); NEXT; }
+CASE(2F) { int c = cpl(); NEXT; }
+CASE(37) { int c = scf(); NEXT; }
+CASE(3F) { int c = ccf(); NEXT; }
+CASE(20) { int c = jr(CondNZ()); NEXT_TEST; }
+CASE(28) { int c = jr(CondZ ()); NEXT_TEST; }
+CASE(30) { int c = jr(CondNC()); NEXT_TEST; }
+CASE(38) { int c = jr(CondC ()); NEXT_TEST; }
+CASE(18) { int c = jr(CondTrue()); NEXT_TEST; }
+CASE(10) { int c = djnz(); NEXT_TEST; }
+CASE(32) { int c = ld_xbyte_a(); NEXT; }
+CASE(3A) { int c = ld_a_xbyte(); NEXT; }
+CASE(22) { int c = ld_xword_SS<HL,0>(); NEXT; }
+CASE(2A) { int c = ld_SS_xword<HL,0>(); NEXT; }
+CASE(02) { int c = ld_SS_a<BC>(); NEXT; }
+CASE(12) { int c = ld_SS_a<DE>(); NEXT; }
+CASE(1A) { int c = ld_a_SS<DE>(); NEXT; }
+CASE(0A) { int c = ld_a_SS<BC>(); NEXT; }
+CASE(03) { int c = inc_SS<BC,0>(); NEXT; }
+CASE(13) { int c = inc_SS<DE,0>(); NEXT; }
+CASE(23) { int c = inc_SS<HL,0>(); NEXT; }
+CASE(33) { int c = inc_SS<SP,0>(); NEXT; }
+CASE(0B) { int c = dec_SS<BC,0>(); NEXT; }
+CASE(1B) { int c = dec_SS<DE,0>(); NEXT; }
+CASE(2B) { int c = dec_SS<HL,0>(); NEXT; }
+CASE(3B) { int c = dec_SS<SP,0>(); NEXT; }
+CASE(09) { int c = add_SS_TT<HL,BC,0>(); NEXT; }
+CASE(19) { int c = add_SS_TT<HL,DE,0>(); NEXT; }
+CASE(29) { int c = add_SS_SS<HL   ,0>(); NEXT; }
+CASE(39) { int c = add_SS_TT<HL,SP,0>(); NEXT; }
+CASE(01) { int c = ld_SS_word<BC,0>(); NEXT; }
+CASE(11) { int c = ld_SS_word<DE,0>(); NEXT; }
+CASE(21) { int c = ld_SS_word<HL,0>(); NEXT; }
+CASE(31) { int c = ld_SS_word<SP,0>(); NEXT; }
+CASE(04) { int c = inc_R<B,0>(); NEXT; }
+CASE(0C) { int c = inc_R<C,0>(); NEXT; }
+CASE(14) { int c = inc_R<D,0>(); NEXT; }
+CASE(1C) { int c = inc_R<E,0>(); NEXT; }
+CASE(24) { int c = inc_R<H,0>(); NEXT; }
+CASE(2C) { int c = inc_R<L,0>(); NEXT; }
+CASE(3C) { int c = inc_R<A,0>(); NEXT; }
+CASE(34) { int c = inc_xhl();  NEXT; }
+CASE(05) { int c = dec_R<B,0>(); NEXT; }
+CASE(0D) { int c = dec_R<C,0>(); NEXT; }
+CASE(15) { int c = dec_R<D,0>(); NEXT; }
+CASE(1D) { int c = dec_R<E,0>(); NEXT; }
+CASE(25) { int c = dec_R<H,0>(); NEXT; }
+CASE(2D) { int c = dec_R<L,0>(); NEXT; }
+CASE(3D) { int c = dec_R<A,0>(); NEXT; }
+CASE(35) { int c = dec_xhl();  NEXT; }
+CASE(06) { int c = ld_R_byte<B,0>(); NEXT; }
+CASE(0E) { int c = ld_R_byte<C,0>(); NEXT; }
+CASE(16) { int c = ld_R_byte<D,0>(); NEXT; }
+CASE(1E) { int c = ld_R_byte<E,0>(); NEXT; }
+CASE(26) { int c = ld_R_byte<H,0>(); NEXT; }
+CASE(2E) { int c = ld_R_byte<L,0>(); NEXT; }
+CASE(3E) { int c = ld_R_byte<A,0>(); NEXT; }
+CASE(36) { int c = ld_xhl_byte();  NEXT; }
 
-		case 0x41: return ld_R_R<B,C>();
-		case 0x42: return ld_R_R<B,D>();
-		case 0x43: return ld_R_R<B,E>();
-		case 0x44: return ld_R_R<B,H>();
-		case 0x45: return ld_R_R<B,L>();
-		case 0x47: return ld_R_R<B,A>();
-		case 0x48: return ld_R_R<C,B>();
-		case 0x4a: return ld_R_R<C,D>();
-		case 0x4b: return ld_R_R<C,E>();
-		case 0x4c: return ld_R_R<C,H>();
-		case 0x4d: return ld_R_R<C,L>();
-		case 0x4f: return ld_R_R<C,A>();
-		case 0x50: return ld_R_R<D,B>();
-		case 0x51: return ld_R_R<D,C>();
-		case 0x53: return ld_R_R<D,E>();
-		case 0x54: return ld_R_R<D,H>();
-		case 0x55: return ld_R_R<D,L>();
-		case 0x57: return ld_R_R<D,A>();
-		case 0x58: return ld_R_R<E,B>();
-		case 0x59: return ld_R_R<E,C>();
-		case 0x5a: return ld_R_R<E,D>();
-		case 0x5c: return ld_R_R<E,H>();
-		case 0x5d: return ld_R_R<E,L>();
-		case 0x5f: return ld_R_R<E,A>();
-		case 0x60: return ld_R_R<H,B>();
-		case 0x61: return ld_R_R<H,C>();
-		case 0x62: return ld_R_R<H,D>();
-		case 0x63: return ld_R_R<H,E>();
-		case 0x65: return ld_R_R<H,L>();
-		case 0x67: return ld_R_R<H,A>();
-		case 0x68: return ld_R_R<L,B>();
-		case 0x69: return ld_R_R<L,C>();
-		case 0x6a: return ld_R_R<L,D>();
-		case 0x6b: return ld_R_R<L,E>();
-		case 0x6c: return ld_R_R<L,H>();
-		case 0x6f: return ld_R_R<L,A>();
-		case 0x78: return ld_R_R<A,B>();
-		case 0x79: return ld_R_R<A,C>();
-		case 0x7a: return ld_R_R<A,D>();
-		case 0x7b: return ld_R_R<A,E>();
-		case 0x7c: return ld_R_R<A,H>();
-		case 0x7d: return ld_R_R<A,L>();
-		case 0x70: return ld_xhl_R<B>();
-		case 0x71: return ld_xhl_R<C>();
-		case 0x72: return ld_xhl_R<D>();
-		case 0x73: return ld_xhl_R<E>();
-		case 0x74: return ld_xhl_R<H>();
-		case 0x75: return ld_xhl_R<L>();
-		case 0x77: return ld_xhl_R<A>();
-		case 0x46: return ld_R_xhl<B>();
-		case 0x4e: return ld_R_xhl<C>();
-		case 0x56: return ld_R_xhl<D>();
-		case 0x5e: return ld_R_xhl<E>();
-		case 0x66: return ld_R_xhl<H>();
-		case 0x6e: return ld_R_xhl<L>();
-		case 0x7e: return ld_R_xhl<A>();
-		case 0x76: return halt();
+CASE(41) { int c = ld_R_R<B,C,0>(); NEXT; }
+CASE(42) { int c = ld_R_R<B,D,0>(); NEXT; }
+CASE(43) { int c = ld_R_R<B,E,0>(); NEXT; }
+CASE(44) { int c = ld_R_R<B,H,0>(); NEXT; }
+CASE(45) { int c = ld_R_R<B,L,0>(); NEXT; }
+CASE(47) { int c = ld_R_R<B,A,0>(); NEXT; }
+CASE(48) { int c = ld_R_R<C,B,0>(); NEXT; }
+CASE(4A) { int c = ld_R_R<C,D,0>(); NEXT; }
+CASE(4B) { int c = ld_R_R<C,E,0>(); NEXT; }
+CASE(4C) { int c = ld_R_R<C,H,0>(); NEXT; }
+CASE(4D) { int c = ld_R_R<C,L,0>(); NEXT; }
+CASE(4F) { int c = ld_R_R<C,A,0>(); NEXT; }
+CASE(50) { int c = ld_R_R<D,B,0>(); NEXT; }
+CASE(51) { int c = ld_R_R<D,C,0>(); NEXT; }
+CASE(53) { int c = ld_R_R<D,E,0>(); NEXT; }
+CASE(54) { int c = ld_R_R<D,H,0>(); NEXT; }
+CASE(55) { int c = ld_R_R<D,L,0>(); NEXT; }
+CASE(57) { int c = ld_R_R<D,A,0>(); NEXT; }
+CASE(58) { int c = ld_R_R<E,B,0>(); NEXT; }
+CASE(59) { int c = ld_R_R<E,C,0>(); NEXT; }
+CASE(5A) { int c = ld_R_R<E,D,0>(); NEXT; }
+CASE(5C) { int c = ld_R_R<E,H,0>(); NEXT; }
+CASE(5D) { int c = ld_R_R<E,L,0>(); NEXT; }
+CASE(5F) { int c = ld_R_R<E,A,0>(); NEXT; }
+CASE(60) { int c = ld_R_R<H,B,0>(); NEXT; }
+CASE(61) { int c = ld_R_R<H,C,0>(); NEXT; }
+CASE(62) { int c = ld_R_R<H,D,0>(); NEXT; }
+CASE(63) { int c = ld_R_R<H,E,0>(); NEXT; }
+CASE(65) { int c = ld_R_R<H,L,0>(); NEXT; }
+CASE(67) { int c = ld_R_R<H,A,0>(); NEXT; }
+CASE(68) { int c = ld_R_R<L,B,0>(); NEXT; }
+CASE(69) { int c = ld_R_R<L,C,0>(); NEXT; }
+CASE(6A) { int c = ld_R_R<L,D,0>(); NEXT; }
+CASE(6B) { int c = ld_R_R<L,E,0>(); NEXT; }
+CASE(6C) { int c = ld_R_R<L,H,0>(); NEXT; }
+CASE(6F) { int c = ld_R_R<L,A,0>(); NEXT; }
+CASE(78) { int c = ld_R_R<A,B,0>(); NEXT; }
+CASE(79) { int c = ld_R_R<A,C,0>(); NEXT; }
+CASE(7A) { int c = ld_R_R<A,D,0>(); NEXT; }
+CASE(7B) { int c = ld_R_R<A,E,0>(); NEXT; }
+CASE(7C) { int c = ld_R_R<A,H,0>(); NEXT; }
+CASE(7D) { int c = ld_R_R<A,L,0>(); NEXT; }
+CASE(70) { int c = ld_xhl_R<B>(); NEXT; }
+CASE(71) { int c = ld_xhl_R<C>(); NEXT; }
+CASE(72) { int c = ld_xhl_R<D>(); NEXT; }
+CASE(73) { int c = ld_xhl_R<E>(); NEXT; }
+CASE(74) { int c = ld_xhl_R<H>(); NEXT; }
+CASE(75) { int c = ld_xhl_R<L>(); NEXT; }
+CASE(77) { int c = ld_xhl_R<A>(); NEXT; }
+CASE(46) { int c = ld_R_xhl<B>(); NEXT; }
+CASE(4E) { int c = ld_R_xhl<C>(); NEXT; }
+CASE(56) { int c = ld_R_xhl<D>(); NEXT; }
+CASE(5E) { int c = ld_R_xhl<E>(); NEXT; }
+CASE(66) { int c = ld_R_xhl<H>(); NEXT; }
+CASE(6E) { int c = ld_R_xhl<L>(); NEXT; }
+CASE(7E) { int c = ld_R_xhl<A>(); NEXT; }
+CASE(76) { int c = halt(); NEXT_STOP; }
 
-		case 0x80: return add_a_R<B>();
-		case 0x81: return add_a_R<C>();
-		case 0x82: return add_a_R<D>();
-		case 0x83: return add_a_R<E>();
-		case 0x84: return add_a_R<H>();
-		case 0x85: return add_a_R<L>();
-		case 0x86: return add_a_xhl();
-		case 0x87: return add_a_a();
-		case 0x88: return adc_a_R<B>();
-		case 0x89: return adc_a_R<C>();
-		case 0x8a: return adc_a_R<D>();
-		case 0x8b: return adc_a_R<E>();
-		case 0x8c: return adc_a_R<H>();
-		case 0x8d: return adc_a_R<L>();
-		case 0x8e: return adc_a_xhl();
-		case 0x8f: return adc_a_a();
-		case 0x90: return sub_R<B>();
-		case 0x91: return sub_R<C>();
-		case 0x92: return sub_R<D>();
-		case 0x93: return sub_R<E>();
-		case 0x94: return sub_R<H>();
-		case 0x95: return sub_R<L>();
-		case 0x96: return sub_xhl();
-		case 0x97: return sub_a();
-		case 0x98: return sbc_a_R<B>();
-		case 0x99: return sbc_a_R<C>();
-		case 0x9a: return sbc_a_R<D>();
-		case 0x9b: return sbc_a_R<E>();
-		case 0x9c: return sbc_a_R<H>();
-		case 0x9d: return sbc_a_R<L>();
-		case 0x9e: return sbc_a_xhl();
-		case 0x9f: return sbc_a_a();
-		case 0xa0: return and_R<B>();
-		case 0xa1: return and_R<C>();
-		case 0xa2: return and_R<D>();
-		case 0xa3: return and_R<E>();
-		case 0xa4: return and_R<H>();
-		case 0xa5: return and_R<L>();
-		case 0xa6: return and_xhl();
-		case 0xa7: return and_a();
-		case 0xa8: return xor_R<B>();
-		case 0xa9: return xor_R<C>();
-		case 0xaa: return xor_R<D>();
-		case 0xab: return xor_R<E>();
-		case 0xac: return xor_R<H>();
-		case 0xad: return xor_R<L>();
-		case 0xae: return xor_xhl();
-		case 0xaf: return xor_a();
-		case 0xb0: return or_R<B>();
-		case 0xb1: return or_R<C>();
-		case 0xb2: return or_R<D>();
-		case 0xb3: return or_R<E>();
-		case 0xb4: return or_R<H>();
-		case 0xb5: return or_R<L>();
-		case 0xb6: return or_xhl();
-		case 0xb7: return or_a();
-		case 0xb8: return cp_R<B>();
-		case 0xb9: return cp_R<C>();
-		case 0xba: return cp_R<D>();
-		case 0xbb: return cp_R<E>();
-		case 0xbc: return cp_R<H>();
-		case 0xbd: return cp_R<L>();
-		case 0xbe: return cp_xhl();
-		case 0xbf: return cp_a();
+CASE(80) { int c = add_a_R<B,0>(); NEXT; }
+CASE(81) { int c = add_a_R<C,0>(); NEXT; }
+CASE(82) { int c = add_a_R<D,0>(); NEXT; }
+CASE(83) { int c = add_a_R<E,0>(); NEXT; }
+CASE(84) { int c = add_a_R<H,0>(); NEXT; }
+CASE(85) { int c = add_a_R<L,0>(); NEXT; }
+CASE(86) { int c = add_a_xhl();   NEXT; }
+CASE(87) { int c = add_a_a();     NEXT; }
+CASE(88) { int c = adc_a_R<B,0>(); NEXT; }
+CASE(89) { int c = adc_a_R<C,0>(); NEXT; }
+CASE(8A) { int c = adc_a_R<D,0>(); NEXT; }
+CASE(8B) { int c = adc_a_R<E,0>(); NEXT; }
+CASE(8C) { int c = adc_a_R<H,0>(); NEXT; }
+CASE(8D) { int c = adc_a_R<L,0>(); NEXT; }
+CASE(8E) { int c = adc_a_xhl();   NEXT; }
+CASE(8F) { int c = adc_a_a();     NEXT; }
+CASE(90) { int c = sub_R<B,0>(); NEXT; }
+CASE(91) { int c = sub_R<C,0>(); NEXT; }
+CASE(92) { int c = sub_R<D,0>(); NEXT; }
+CASE(93) { int c = sub_R<E,0>(); NEXT; }
+CASE(94) { int c = sub_R<H,0>(); NEXT; }
+CASE(95) { int c = sub_R<L,0>(); NEXT; }
+CASE(96) { int c = sub_xhl();   NEXT; }
+CASE(97) { int c = sub_a();     NEXT; }
+CASE(98) { int c = sbc_a_R<B,0>(); NEXT; }
+CASE(99) { int c = sbc_a_R<C,0>(); NEXT; }
+CASE(9A) { int c = sbc_a_R<D,0>(); NEXT; }
+CASE(9B) { int c = sbc_a_R<E,0>(); NEXT; }
+CASE(9C) { int c = sbc_a_R<H,0>(); NEXT; }
+CASE(9D) { int c = sbc_a_R<L,0>(); NEXT; }
+CASE(9E) { int c = sbc_a_xhl();   NEXT; }
+CASE(9F) { int c = sbc_a_a();     NEXT; }
+CASE(A0) { int c = and_R<B,0>(); NEXT; }
+CASE(A1) { int c = and_R<C,0>(); NEXT; }
+CASE(A2) { int c = and_R<D,0>(); NEXT; }
+CASE(A3) { int c = and_R<E,0>(); NEXT; }
+CASE(A4) { int c = and_R<H,0>(); NEXT; }
+CASE(A5) { int c = and_R<L,0>(); NEXT; }
+CASE(A6) { int c = and_xhl();   NEXT; }
+CASE(A7) { int c = and_a();     NEXT; }
+CASE(A8) { int c = xor_R<B,0>(); NEXT; }
+CASE(A9) { int c = xor_R<C,0>(); NEXT; }
+CASE(AA) { int c = xor_R<D,0>(); NEXT; }
+CASE(AB) { int c = xor_R<E,0>(); NEXT; }
+CASE(AC) { int c = xor_R<H,0>(); NEXT; }
+CASE(AD) { int c = xor_R<L,0>(); NEXT; }
+CASE(AE) { int c = xor_xhl();   NEXT; }
+CASE(AF) { int c = xor_a();     NEXT; }
+CASE(B0) { int c = or_R<B,0>(); NEXT; }
+CASE(B1) { int c = or_R<C,0>(); NEXT; }
+CASE(B2) { int c = or_R<D,0>(); NEXT; }
+CASE(B3) { int c = or_R<E,0>(); NEXT; }
+CASE(B4) { int c = or_R<H,0>(); NEXT; }
+CASE(B5) { int c = or_R<L,0>(); NEXT; }
+CASE(B6) { int c = or_xhl();   NEXT; }
+CASE(B7) { int c = or_a();     NEXT; }
+CASE(B8) { int c = cp_R<B,0>(); NEXT; }
+CASE(B9) { int c = cp_R<C,0>(); NEXT; }
+CASE(BA) { int c = cp_R<D,0>(); NEXT; }
+CASE(BB) { int c = cp_R<E,0>(); NEXT; }
+CASE(BC) { int c = cp_R<H,0>(); NEXT; }
+CASE(BD) { int c = cp_R<L,0>(); NEXT; }
+CASE(BE) { int c = cp_xhl();   NEXT; }
+CASE(BF) { int c = cp_a();     NEXT; }
 
-		case 0xd3: return out_byte_a();
-		case 0xdb: return in_a_byte();
-		case 0xd9: return exx();
-		case 0xe3: return ex_xsp_SS<HL>();
-		case 0xeb: return ex_de_hl();
-		case 0xe9: return jp_SS<HL>();
-		case 0xf9: return ld_sp_SS<HL>();
-		case 0xf3: return di();
-		case 0xfb: return ei();
-		case 0xcb: return cb();
-		case 0xed: return ed();
-		case 0xdd: return xy<IX, IXH, IXL>();
-		case 0xfd: return xy<IY, IYH, IYL>();
-		case 0xc6: return add_a_byte();
-		case 0xce: return adc_a_byte();
-		case 0xd6: return sub_byte();
-		case 0xde: return sbc_a_byte();
-		case 0xe6: return and_byte();
-		case 0xee: return xor_byte();
-		case 0xf6: return or_byte();
-		case 0xfe: return cp_byte();
-		case 0xc0: return ret(CondNZ());
-		case 0xc8: return ret(CondZ());
-		case 0xd0: return ret(CondNC());
-		case 0xd8: return ret(CondC());
-		case 0xe0: return ret(CondPO());
-		case 0xe8: return ret(CondPE());
-		case 0xf0: return ret(CondP());
-		case 0xf8: return ret(CondM());
-		case 0xc9: return ret();
-		case 0xc2: return jp(CondNZ());
-		case 0xca: return jp(CondZ());
-		case 0xd2: return jp(CondNC());
-		case 0xda: return jp(CondC());
-		case 0xe2: return jp(CondPO());
-		case 0xea: return jp(CondPE());
-		case 0xf2: return jp(CondP());
-		case 0xfa: return jp(CondM());
-		case 0xc3: return jp(CondTrue());
-		case 0xc4: return call(CondNZ());
-		case 0xcc: return call(CondZ());
-		case 0xd4: return call(CondNC());
-		case 0xdc: return call(CondC());
-		case 0xe4: return call(CondPO());
-		case 0xec: return call(CondPE());
-		case 0xf4: return call(CondP());
-		case 0xfc: return call(CondM());
-		case 0xcd: return call(CondTrue());
-		case 0xc1: return pop_SS<BC>();
-		case 0xd1: return pop_SS<DE>();
-		case 0xe1: return pop_SS<HL>();
-		case 0xf1: return pop_SS<AF>();
-		case 0xc5: return push_SS<BC>();
-		case 0xd5: return push_SS<DE>();
-		case 0xe5: return push_SS<HL>();
-		case 0xf5: return push_SS<AF>();
-		case 0xc7: return rst<0x00>();
-		case 0xcf: return rst<0x08>();
-		case 0xd7: return rst<0x10>();
-		case 0xdf: return rst<0x18>();
-		case 0xe7: return rst<0x20>();
-		case 0xef: return rst<0x28>();
-		case 0xf7: return rst<0x30>();
-		case 0xff: return rst<0x38>();
+CASE(D3) { int c = out_byte_a(); NEXT; }
+CASE(DB) { int c = in_a_byte();  NEXT; }
+CASE(D9) { int c = exx(); NEXT; }
+CASE(E3) { int c = ex_xsp_SS<HL,0>(); NEXT; }
+CASE(EB) { int c = ex_de_hl(); NEXT; }
+CASE(E9) { int c = jp_SS<HL,0>(); NEXT_TEST; }
+CASE(F9) { int c = ld_sp_SS<HL,0>(); NEXT; }
+CASE(F3) { int c = di(); NEXT; }
+CASE(FB) { int c = ei(); NEXT_STOP; }
+CASE(C6) { int c = add_a_byte(); NEXT; }
+CASE(CE) { int c = adc_a_byte(); NEXT; }
+CASE(D6) { int c = sub_byte();   NEXT; }
+CASE(DE) { int c = sbc_a_byte(); NEXT; }
+CASE(E6) { int c = and_byte();   NEXT; }
+CASE(EE) { int c = xor_byte();   NEXT; }
+CASE(F6) { int c = or_byte();    NEXT; }
+CASE(FE) { int c = cp_byte();    NEXT; }
+CASE(C0) { int c = ret(CondNZ()); NEXT_TEST; }
+CASE(C8) { int c = ret(CondZ ()); NEXT_TEST; }
+CASE(D0) { int c = ret(CondNC()); NEXT_TEST; }
+CASE(D8) { int c = ret(CondC ()); NEXT_TEST; }
+CASE(E0) { int c = ret(CondPO()); NEXT_TEST; }
+CASE(E8) { int c = ret(CondPE()); NEXT_TEST; }
+CASE(F0) { int c = ret(CondP ()); NEXT_TEST; }
+CASE(F8) { int c = ret(CondM ()); NEXT_TEST; }
+CASE(C9) { int c = ret();         NEXT_TEST; }
+CASE(C2) { int c = jp(CondNZ()); NEXT_TEST; }
+CASE(CA) { int c = jp(CondZ ()); NEXT_TEST; }
+CASE(D2) { int c = jp(CondNC()); NEXT_TEST; }
+CASE(DA) { int c = jp(CondC ()); NEXT_TEST; }
+CASE(E2) { int c = jp(CondPO()); NEXT_TEST; }
+CASE(EA) { int c = jp(CondPE()); NEXT_TEST; }
+CASE(F2) { int c = jp(CondP ()); NEXT_TEST; }
+CASE(FA) { int c = jp(CondM ()); NEXT_TEST; }
+CASE(C3) { int c = jp(CondTrue()); NEXT_TEST; }
+CASE(C4) { int c = call(CondNZ()); NEXT_TEST; }
+CASE(CC) { int c = call(CondZ ()); NEXT_TEST; }
+CASE(D4) { int c = call(CondNC()); NEXT_TEST; }
+CASE(DC) { int c = call(CondC ()); NEXT_TEST; }
+CASE(E4) { int c = call(CondPO()); NEXT_TEST; }
+CASE(EC) { int c = call(CondPE()); NEXT_TEST; }
+CASE(F4) { int c = call(CondP ()); NEXT_TEST; }
+CASE(FC) { int c = call(CondM ()); NEXT_TEST; }
+CASE(CD) { int c = call(CondTrue()); NEXT_TEST; }
+CASE(C1) { int c = pop_SS <BC,0>(); NEXT; }
+CASE(D1) { int c = pop_SS <DE,0>(); NEXT; }
+CASE(E1) { int c = pop_SS <HL,0>(); NEXT; }
+CASE(F1) { int c = pop_SS <AF,0>(); NEXT; }
+CASE(C5) { int c = push_SS<BC,0>(); NEXT; }
+CASE(D5) { int c = push_SS<DE,0>(); NEXT; }
+CASE(E5) { int c = push_SS<HL,0>(); NEXT; }
+CASE(F5) { int c = push_SS<AF,0>(); NEXT; }
+CASE(C7) { int c = rst<0x00>(); NEXT_TEST; }
+CASE(CF) { int c = rst<0x08>(); NEXT_TEST; }
+CASE(D7) { int c = rst<0x10>(); NEXT_TEST; }
+CASE(DF) { int c = rst<0x18>(); NEXT_TEST; }
+CASE(E7) { int c = rst<0x20>(); NEXT_TEST; }
+CASE(EF) { int c = rst<0x28>(); NEXT_TEST; }
+CASE(F7) { int c = rst<0x30>(); NEXT_TEST; }
+CASE(FF) { int c = rst<0x38>(); NEXT_TEST; }
+CASE(CB) {
+	byte cb_opcode = RDMEM_OPCODE(T::CC_PREFIX);
+	M1Cycle();
+	switch (cb_opcode) {
+		case 0x00: { int c = rlc_R<B>(); NEXT; }
+		case 0x01: { int c = rlc_R<C>(); NEXT; }
+		case 0x02: { int c = rlc_R<D>(); NEXT; }
+		case 0x03: { int c = rlc_R<E>(); NEXT; }
+		case 0x04: { int c = rlc_R<H>(); NEXT; }
+		case 0x05: { int c = rlc_R<L>(); NEXT; }
+		case 0x07: { int c = rlc_R<A>(); NEXT; }
+		case 0x06: { int c = rlc_xhl();  NEXT; }
+		case 0x08: { int c = rrc_R<B>(); NEXT; }
+		case 0x09: { int c = rrc_R<C>(); NEXT; }
+		case 0x0a: { int c = rrc_R<D>(); NEXT; }
+		case 0x0b: { int c = rrc_R<E>(); NEXT; }
+		case 0x0c: { int c = rrc_R<H>(); NEXT; }
+		case 0x0d: { int c = rrc_R<L>(); NEXT; }
+		case 0x0f: { int c = rrc_R<A>(); NEXT; }
+		case 0x0e: { int c = rrc_xhl();  NEXT; }
+		case 0x10: { int c = rl_R<B>(); NEXT; }
+		case 0x11: { int c = rl_R<C>(); NEXT; }
+		case 0x12: { int c = rl_R<D>(); NEXT; }
+		case 0x13: { int c = rl_R<E>(); NEXT; }
+		case 0x14: { int c = rl_R<H>(); NEXT; }
+		case 0x15: { int c = rl_R<L>(); NEXT; }
+		case 0x17: { int c = rl_R<A>(); NEXT; }
+		case 0x16: { int c = rl_xhl();  NEXT; }
+		case 0x18: { int c = rr_R<B>(); NEXT; }
+		case 0x19: { int c = rr_R<C>(); NEXT; }
+		case 0x1a: { int c = rr_R<D>(); NEXT; }
+		case 0x1b: { int c = rr_R<E>(); NEXT; }
+		case 0x1c: { int c = rr_R<H>(); NEXT; }
+		case 0x1d: { int c = rr_R<L>(); NEXT; }
+		case 0x1f: { int c = rr_R<A>(); NEXT; }
+		case 0x1e: { int c = rr_xhl();  NEXT; }
+		case 0x20: { int c = sla_R<B>(); NEXT; }
+		case 0x21: { int c = sla_R<C>(); NEXT; }
+		case 0x22: { int c = sla_R<D>(); NEXT; }
+		case 0x23: { int c = sla_R<E>(); NEXT; }
+		case 0x24: { int c = sla_R<H>(); NEXT; }
+		case 0x25: { int c = sla_R<L>(); NEXT; }
+		case 0x27: { int c = sla_R<A>(); NEXT; }
+		case 0x26: { int c = sla_xhl();  NEXT; }
+		case 0x28: { int c = sra_R<B>(); NEXT; }
+		case 0x29: { int c = sra_R<C>(); NEXT; }
+		case 0x2a: { int c = sra_R<D>(); NEXT; }
+		case 0x2b: { int c = sra_R<E>(); NEXT; }
+		case 0x2c: { int c = sra_R<H>(); NEXT; }
+		case 0x2d: { int c = sra_R<L>(); NEXT; }
+		case 0x2f: { int c = sra_R<A>(); NEXT; }
+		case 0x2e: { int c = sra_xhl();  NEXT; }
+		case 0x30: { int c = T::isR800() ? sla_R<B>() : sll_R<B>(); NEXT; }
+		case 0x31: { int c = T::isR800() ? sla_R<C>() : sll_R<C>(); NEXT; }
+		case 0x32: { int c = T::isR800() ? sla_R<D>() : sll_R<D>(); NEXT; }
+		case 0x33: { int c = T::isR800() ? sla_R<E>() : sll_R<E>(); NEXT; }
+		case 0x34: { int c = T::isR800() ? sla_R<H>() : sll_R<H>(); NEXT; }
+		case 0x35: { int c = T::isR800() ? sla_R<L>() : sll_R<L>(); NEXT; }
+		case 0x37: { int c = T::isR800() ? sla_R<A>() : sll_R<A>(); NEXT; }
+		case 0x36: { int c = T::isR800() ? sla_xhl()  : sll_xhl();  NEXT; }
+		case 0x38: { int c = srl_R<B>(); NEXT; }
+		case 0x39: { int c = srl_R<C>(); NEXT; }
+		case 0x3a: { int c = srl_R<D>(); NEXT; }
+		case 0x3b: { int c = srl_R<E>(); NEXT; }
+		case 0x3c: { int c = srl_R<H>(); NEXT; }
+		case 0x3d: { int c = srl_R<L>(); NEXT; }
+		case 0x3f: { int c = srl_R<A>(); NEXT; }
+		case 0x3e: { int c = srl_xhl();  NEXT; }
+
+		case 0x40: { int c = bit_N_R<0,B>(); NEXT; }
+		case 0x41: { int c = bit_N_R<0,C>(); NEXT; }
+		case 0x42: { int c = bit_N_R<0,D>(); NEXT; }
+		case 0x43: { int c = bit_N_R<0,E>(); NEXT; }
+		case 0x44: { int c = bit_N_R<0,H>(); NEXT; }
+		case 0x45: { int c = bit_N_R<0,L>(); NEXT; }
+		case 0x47: { int c = bit_N_R<0,A>(); NEXT; }
+		case 0x48: { int c = bit_N_R<1,B>(); NEXT; }
+		case 0x49: { int c = bit_N_R<1,C>(); NEXT; }
+		case 0x4a: { int c = bit_N_R<1,D>(); NEXT; }
+		case 0x4b: { int c = bit_N_R<1,E>(); NEXT; }
+		case 0x4c: { int c = bit_N_R<1,H>(); NEXT; }
+		case 0x4d: { int c = bit_N_R<1,L>(); NEXT; }
+		case 0x4f: { int c = bit_N_R<1,A>(); NEXT; }
+		case 0x50: { int c = bit_N_R<2,B>(); NEXT; }
+		case 0x51: { int c = bit_N_R<2,C>(); NEXT; }
+		case 0x52: { int c = bit_N_R<2,D>(); NEXT; }
+		case 0x53: { int c = bit_N_R<2,E>(); NEXT; }
+		case 0x54: { int c = bit_N_R<2,H>(); NEXT; }
+		case 0x55: { int c = bit_N_R<2,L>(); NEXT; }
+		case 0x57: { int c = bit_N_R<2,A>(); NEXT; }
+		case 0x58: { int c = bit_N_R<3,B>(); NEXT; }
+		case 0x59: { int c = bit_N_R<3,C>(); NEXT; }
+		case 0x5a: { int c = bit_N_R<3,D>(); NEXT; }
+		case 0x5b: { int c = bit_N_R<3,E>(); NEXT; }
+		case 0x5c: { int c = bit_N_R<3,H>(); NEXT; }
+		case 0x5d: { int c = bit_N_R<3,L>(); NEXT; }
+		case 0x5f: { int c = bit_N_R<3,A>(); NEXT; }
+		case 0x60: { int c = bit_N_R<4,B>(); NEXT; }
+		case 0x61: { int c = bit_N_R<4,C>(); NEXT; }
+		case 0x62: { int c = bit_N_R<4,D>(); NEXT; }
+		case 0x63: { int c = bit_N_R<4,E>(); NEXT; }
+		case 0x64: { int c = bit_N_R<4,H>(); NEXT; }
+		case 0x65: { int c = bit_N_R<4,L>(); NEXT; }
+		case 0x67: { int c = bit_N_R<4,A>(); NEXT; }
+		case 0x68: { int c = bit_N_R<5,B>(); NEXT; }
+		case 0x69: { int c = bit_N_R<5,C>(); NEXT; }
+		case 0x6a: { int c = bit_N_R<5,D>(); NEXT; }
+		case 0x6b: { int c = bit_N_R<5,E>(); NEXT; }
+		case 0x6c: { int c = bit_N_R<5,H>(); NEXT; }
+		case 0x6d: { int c = bit_N_R<5,L>(); NEXT; }
+		case 0x6f: { int c = bit_N_R<5,A>(); NEXT; }
+		case 0x70: { int c = bit_N_R<6,B>(); NEXT; }
+		case 0x71: { int c = bit_N_R<6,C>(); NEXT; }
+		case 0x72: { int c = bit_N_R<6,D>(); NEXT; }
+		case 0x73: { int c = bit_N_R<6,E>(); NEXT; }
+		case 0x74: { int c = bit_N_R<6,H>(); NEXT; }
+		case 0x75: { int c = bit_N_R<6,L>(); NEXT; }
+		case 0x77: { int c = bit_N_R<6,A>(); NEXT; }
+		case 0x78: { int c = bit_N_R<7,B>(); NEXT; }
+		case 0x79: { int c = bit_N_R<7,C>(); NEXT; }
+		case 0x7a: { int c = bit_N_R<7,D>(); NEXT; }
+		case 0x7b: { int c = bit_N_R<7,E>(); NEXT; }
+		case 0x7c: { int c = bit_N_R<7,H>(); NEXT; }
+		case 0x7d: { int c = bit_N_R<7,L>(); NEXT; }
+		case 0x7f: { int c = bit_N_R<7,A>(); NEXT; }
+		case 0x46: { int c = bit_N_xhl<0>(); NEXT; }
+		case 0x4e: { int c = bit_N_xhl<1>(); NEXT; }
+		case 0x56: { int c = bit_N_xhl<2>(); NEXT; }
+		case 0x5e: { int c = bit_N_xhl<3>(); NEXT; }
+		case 0x66: { int c = bit_N_xhl<4>(); NEXT; }
+		case 0x6e: { int c = bit_N_xhl<5>(); NEXT; }
+		case 0x76: { int c = bit_N_xhl<6>(); NEXT; }
+		case 0x7e: { int c = bit_N_xhl<7>(); NEXT; }
+
+		case 0x80: { int c = res_N_R<0,B>(); NEXT; }
+		case 0x81: { int c = res_N_R<0,C>(); NEXT; }
+		case 0x82: { int c = res_N_R<0,D>(); NEXT; }
+		case 0x83: { int c = res_N_R<0,E>(); NEXT; }
+		case 0x84: { int c = res_N_R<0,H>(); NEXT; }
+		case 0x85: { int c = res_N_R<0,L>(); NEXT; }
+		case 0x87: { int c = res_N_R<0,A>(); NEXT; }
+		case 0x88: { int c = res_N_R<1,B>(); NEXT; }
+		case 0x89: { int c = res_N_R<1,C>(); NEXT; }
+		case 0x8a: { int c = res_N_R<1,D>(); NEXT; }
+		case 0x8b: { int c = res_N_R<1,E>(); NEXT; }
+		case 0x8c: { int c = res_N_R<1,H>(); NEXT; }
+		case 0x8d: { int c = res_N_R<1,L>(); NEXT; }
+		case 0x8f: { int c = res_N_R<1,A>(); NEXT; }
+		case 0x90: { int c = res_N_R<2,B>(); NEXT; }
+		case 0x91: { int c = res_N_R<2,C>(); NEXT; }
+		case 0x92: { int c = res_N_R<2,D>(); NEXT; }
+		case 0x93: { int c = res_N_R<2,E>(); NEXT; }
+		case 0x94: { int c = res_N_R<2,H>(); NEXT; }
+		case 0x95: { int c = res_N_R<2,L>(); NEXT; }
+		case 0x97: { int c = res_N_R<2,A>(); NEXT; }
+		case 0x98: { int c = res_N_R<3,B>(); NEXT; }
+		case 0x99: { int c = res_N_R<3,C>(); NEXT; }
+		case 0x9a: { int c = res_N_R<3,D>(); NEXT; }
+		case 0x9b: { int c = res_N_R<3,E>(); NEXT; }
+		case 0x9c: { int c = res_N_R<3,H>(); NEXT; }
+		case 0x9d: { int c = res_N_R<3,L>(); NEXT; }
+		case 0x9f: { int c = res_N_R<3,A>(); NEXT; }
+		case 0xa0: { int c = res_N_R<4,B>(); NEXT; }
+		case 0xa1: { int c = res_N_R<4,C>(); NEXT; }
+		case 0xa2: { int c = res_N_R<4,D>(); NEXT; }
+		case 0xa3: { int c = res_N_R<4,E>(); NEXT; }
+		case 0xa4: { int c = res_N_R<4,H>(); NEXT; }
+		case 0xa5: { int c = res_N_R<4,L>(); NEXT; }
+		case 0xa7: { int c = res_N_R<4,A>(); NEXT; }
+		case 0xa8: { int c = res_N_R<5,B>(); NEXT; }
+		case 0xa9: { int c = res_N_R<5,C>(); NEXT; }
+		case 0xaa: { int c = res_N_R<5,D>(); NEXT; }
+		case 0xab: { int c = res_N_R<5,E>(); NEXT; }
+		case 0xac: { int c = res_N_R<5,H>(); NEXT; }
+		case 0xad: { int c = res_N_R<5,L>(); NEXT; }
+		case 0xaf: { int c = res_N_R<5,A>(); NEXT; }
+		case 0xb0: { int c = res_N_R<6,B>(); NEXT; }
+		case 0xb1: { int c = res_N_R<6,C>(); NEXT; }
+		case 0xb2: { int c = res_N_R<6,D>(); NEXT; }
+		case 0xb3: { int c = res_N_R<6,E>(); NEXT; }
+		case 0xb4: { int c = res_N_R<6,H>(); NEXT; }
+		case 0xb5: { int c = res_N_R<6,L>(); NEXT; }
+		case 0xb7: { int c = res_N_R<6,A>(); NEXT; }
+		case 0xb8: { int c = res_N_R<7,B>(); NEXT; }
+		case 0xb9: { int c = res_N_R<7,C>(); NEXT; }
+		case 0xba: { int c = res_N_R<7,D>(); NEXT; }
+		case 0xbb: { int c = res_N_R<7,E>(); NEXT; }
+		case 0xbc: { int c = res_N_R<7,H>(); NEXT; }
+		case 0xbd: { int c = res_N_R<7,L>(); NEXT; }
+		case 0xbf: { int c = res_N_R<7,A>(); NEXT; }
+		case 0x86: { int c = res_N_xhl<0>(); NEXT; }
+		case 0x8e: { int c = res_N_xhl<1>(); NEXT; }
+		case 0x96: { int c = res_N_xhl<2>(); NEXT; }
+		case 0x9e: { int c = res_N_xhl<3>(); NEXT; }
+		case 0xa6: { int c = res_N_xhl<4>(); NEXT; }
+		case 0xae: { int c = res_N_xhl<5>(); NEXT; }
+		case 0xb6: { int c = res_N_xhl<6>(); NEXT; }
+		case 0xbe: { int c = res_N_xhl<7>(); NEXT; }
+
+		case 0xc0: { int c = set_N_R<0,B>(); NEXT; }
+		case 0xc1: { int c = set_N_R<0,C>(); NEXT; }
+		case 0xc2: { int c = set_N_R<0,D>(); NEXT; }
+		case 0xc3: { int c = set_N_R<0,E>(); NEXT; }
+		case 0xc4: { int c = set_N_R<0,H>(); NEXT; }
+		case 0xc5: { int c = set_N_R<0,L>(); NEXT; }
+		case 0xc7: { int c = set_N_R<0,A>(); NEXT; }
+		case 0xc8: { int c = set_N_R<1,B>(); NEXT; }
+		case 0xc9: { int c = set_N_R<1,C>(); NEXT; }
+		case 0xca: { int c = set_N_R<1,D>(); NEXT; }
+		case 0xcb: { int c = set_N_R<1,E>(); NEXT; }
+		case 0xcc: { int c = set_N_R<1,H>(); NEXT; }
+		case 0xcd: { int c = set_N_R<1,L>(); NEXT; }
+		case 0xcf: { int c = set_N_R<1,A>(); NEXT; }
+		case 0xd0: { int c = set_N_R<2,B>(); NEXT; }
+		case 0xd1: { int c = set_N_R<2,C>(); NEXT; }
+		case 0xd2: { int c = set_N_R<2,D>(); NEXT; }
+		case 0xd3: { int c = set_N_R<2,E>(); NEXT; }
+		case 0xd4: { int c = set_N_R<2,H>(); NEXT; }
+		case 0xd5: { int c = set_N_R<2,L>(); NEXT; }
+		case 0xd7: { int c = set_N_R<2,A>(); NEXT; }
+		case 0xd8: { int c = set_N_R<3,B>(); NEXT; }
+		case 0xd9: { int c = set_N_R<3,C>(); NEXT; }
+		case 0xda: { int c = set_N_R<3,D>(); NEXT; }
+		case 0xdb: { int c = set_N_R<3,E>(); NEXT; }
+		case 0xdc: { int c = set_N_R<3,H>(); NEXT; }
+		case 0xdd: { int c = set_N_R<3,L>(); NEXT; }
+		case 0xdf: { int c = set_N_R<3,A>(); NEXT; }
+		case 0xe0: { int c = set_N_R<4,B>(); NEXT; }
+		case 0xe1: { int c = set_N_R<4,C>(); NEXT; }
+		case 0xe2: { int c = set_N_R<4,D>(); NEXT; }
+		case 0xe3: { int c = set_N_R<4,E>(); NEXT; }
+		case 0xe4: { int c = set_N_R<4,H>(); NEXT; }
+		case 0xe5: { int c = set_N_R<4,L>(); NEXT; }
+		case 0xe7: { int c = set_N_R<4,A>(); NEXT; }
+		case 0xe8: { int c = set_N_R<5,B>(); NEXT; }
+		case 0xe9: { int c = set_N_R<5,C>(); NEXT; }
+		case 0xea: { int c = set_N_R<5,D>(); NEXT; }
+		case 0xeb: { int c = set_N_R<5,E>(); NEXT; }
+		case 0xec: { int c = set_N_R<5,H>(); NEXT; }
+		case 0xed: { int c = set_N_R<5,L>(); NEXT; }
+		case 0xef: { int c = set_N_R<5,A>(); NEXT; }
+		case 0xf0: { int c = set_N_R<6,B>(); NEXT; }
+		case 0xf1: { int c = set_N_R<6,C>(); NEXT; }
+		case 0xf2: { int c = set_N_R<6,D>(); NEXT; }
+		case 0xf3: { int c = set_N_R<6,E>(); NEXT; }
+		case 0xf4: { int c = set_N_R<6,H>(); NEXT; }
+		case 0xf5: { int c = set_N_R<6,L>(); NEXT; }
+		case 0xf7: { int c = set_N_R<6,A>(); NEXT; }
+		case 0xf8: { int c = set_N_R<7,B>(); NEXT; }
+		case 0xf9: { int c = set_N_R<7,C>(); NEXT; }
+		case 0xfa: { int c = set_N_R<7,D>(); NEXT; }
+		case 0xfb: { int c = set_N_R<7,E>(); NEXT; }
+		case 0xfc: { int c = set_N_R<7,H>(); NEXT; }
+		case 0xfd: { int c = set_N_R<7,L>(); NEXT; }
+		case 0xff: { int c = set_N_R<7,A>(); NEXT; }
+		case 0xc6: { int c = set_N_xhl<0>(); NEXT; }
+		case 0xce: { int c = set_N_xhl<1>(); NEXT; }
+		case 0xd6: { int c = set_N_xhl<2>(); NEXT; }
+		case 0xde: { int c = set_N_xhl<3>(); NEXT; }
+		case 0xe6: { int c = set_N_xhl<4>(); NEXT; }
+		case 0xee: { int c = set_N_xhl<5>(); NEXT; }
+		case 0xf6: { int c = set_N_xhl<6>(); NEXT; }
+		case 0xfe: { int c = set_N_xhl<7>(); NEXT; }
+		default: assert(false); return;
 	}
-	assert(false); return 0;
+}
+CASE(ED) {
+	byte ed_opcode = RDMEM_OPCODE(T::CC_PREFIX);
+	M1Cycle();
+	switch (ed_opcode) {
+		case 0x00: case 0x01: case 0x02: case 0x03:
+		case 0x04: case 0x05: case 0x06: case 0x07:
+		case 0x08: case 0x09: case 0x0a: case 0x0b:
+		case 0x0c: case 0x0d: case 0x0e: case 0x0f:
+		case 0x10: case 0x11: case 0x12: case 0x13:
+		case 0x14: case 0x15: case 0x16: case 0x17:
+		case 0x18: case 0x19: case 0x1a: case 0x1b:
+		case 0x1c: case 0x1d: case 0x1e: case 0x1f:
+		case 0x20: case 0x21: case 0x22: case 0x23:
+		case 0x24: case 0x25: case 0x26: case 0x27:
+		case 0x28: case 0x29: case 0x2a: case 0x2b:
+		case 0x2c: case 0x2d: case 0x2e: case 0x2f:
+		case 0x30: case 0x31: case 0x32: case 0x33:
+		case 0x34: case 0x35: case 0x36: case 0x37:
+		case 0x38: case 0x39: case 0x3a: case 0x3b:
+		case 0x3c: case 0x3d: case 0x3e: case 0x3f:
+
+		case 0x77: case 0x7f:
+
+		case 0x80: case 0x81: case 0x82: case 0x83:
+		case 0x84: case 0x85: case 0x86: case 0x87:
+		case 0x88: case 0x89: case 0x8a: case 0x8b:
+		case 0x8c: case 0x8d: case 0x8e: case 0x8f:
+		case 0x90: case 0x91: case 0x92: case 0x93:
+		case 0x94: case 0x95: case 0x96: case 0x97:
+		case 0x98: case 0x99: case 0x9a: case 0x9b:
+		case 0x9c: case 0x9d: case 0x9e: case 0x9f:
+		case 0xa4: case 0xa5: case 0xa6: case 0xa7:
+		case 0xac: case 0xad: case 0xae: case 0xaf:
+		case 0xb4: case 0xb5: case 0xb6: case 0xb7:
+		case 0xbc: case 0xbd: case 0xbe: case 0xbf:
+
+		case 0xc0:            case 0xc2:
+		case 0xc4: case 0xc5: case 0xc6: case 0xc7:
+		case 0xc8: case 0xca: case 0xcb:
+		case 0xcc: case 0xcd: case 0xce: case 0xcf:
+		case 0xd0:            case 0xd2: case 0xd3:
+		case 0xd4: case 0xd5: case 0xd6: case 0xd7:
+		case 0xd8:            case 0xda: case 0xdb:
+		case 0xdc: case 0xdd: case 0xde: case 0xdf:
+		case 0xe0: case 0xe1: case 0xe2: case 0xe3:
+		case 0xe4: case 0xe5: case 0xe6: case 0xe7:
+		case 0xe8: case 0xe9: case 0xea: case 0xeb:
+		case 0xec: case 0xed: case 0xee: case 0xef:
+		case 0xf0: case 0xf1: case 0xf2:
+		case 0xf4: case 0xf5: case 0xf6: case 0xf7:
+		case 0xf8: case 0xf9: case 0xfa: case 0xfb:
+		case 0xfc: case 0xfd: case 0xfe: case 0xff:
+			{ int c = nop(); NEXT; }
+
+		case 0x40: { int c = in_R_c<B>(); NEXT; }
+		case 0x48: { int c = in_R_c<C>(); NEXT; }
+		case 0x50: { int c = in_R_c<D>(); NEXT; }
+		case 0x58: { int c = in_R_c<E>(); NEXT; }
+		case 0x60: { int c = in_R_c<H>(); NEXT; }
+		case 0x68: { int c = in_R_c<L>(); NEXT; }
+		case 0x70: { int c = in_R_c<DUMMY>(); NEXT; }
+		case 0x78: { int c = in_R_c<A>(); NEXT; }
+
+		case 0x41: { int c = out_c_R<B>(); NEXT; }
+		case 0x49: { int c = out_c_R<C>(); NEXT; }
+		case 0x51: { int c = out_c_R<D>(); NEXT; }
+		case 0x59: { int c = out_c_R<E>(); NEXT; }
+		case 0x61: { int c = out_c_R<H>(); NEXT; }
+		case 0x69: { int c = out_c_R<L>(); NEXT; }
+		case 0x71: { int c = out_c_0();    NEXT; }
+		case 0x79: { int c = out_c_R<A>(); NEXT; }
+
+		case 0x42: { int c = sbc_hl_SS<BC>(); NEXT; }
+		case 0x52: { int c = sbc_hl_SS<DE>(); NEXT; }
+		case 0x62: { int c = sbc_hl_hl    (); NEXT; }
+		case 0x72: { int c = sbc_hl_SS<SP>(); NEXT; }
+
+		case 0x4a: { int c = adc_hl_SS<BC>(); NEXT; }
+		case 0x5a: { int c = adc_hl_SS<DE>(); NEXT; }
+		case 0x6a: { int c = adc_hl_hl    (); NEXT; }
+		case 0x7a: { int c = adc_hl_SS<SP>(); NEXT; }
+
+		case 0x43: { int c = ld_xword_SS_ED<BC>(); NEXT; }
+		case 0x53: { int c = ld_xword_SS_ED<DE>(); NEXT; }
+		case 0x63: { int c = ld_xword_SS_ED<HL>(); NEXT; }
+		case 0x73: { int c = ld_xword_SS_ED<SP>(); NEXT; }
+
+		case 0x4b: { int c = ld_SS_xword_ED<BC>(); NEXT; }
+		case 0x5b: { int c = ld_SS_xword_ED<DE>(); NEXT; }
+		case 0x6b: { int c = ld_SS_xword_ED<HL>(); NEXT; }
+		case 0x7b: { int c = ld_SS_xword_ED<SP>(); NEXT; }
+
+		case 0x47: { int c = ld_IR_a<REG_I>(); NEXT; }
+		case 0x4f: { int c = ld_IR_a<REG_R>(); NEXT; }
+		case 0x57: { int c = ld_a_IR<REG_I>(); NEXT; }
+		case 0x5f: { int c = ld_a_IR<REG_R>(); NEXT; }
+
+		case 0x67: { int c = rrd(); NEXT; }
+		case 0x6f: { int c = rld(); NEXT; }
+
+		case 0x45: case 0x4d: case 0x55: case 0x5d:
+		case 0x65: case 0x6d: case 0x75: case 0x7d:
+			{ int c = retn(); NEXT_STOP; }
+		case 0x46: case 0x4e: case 0x66: case 0x6e:
+			{ int c = im_N<0>(); NEXT; }
+		case 0x56: case 0x76:
+			{ int c = im_N<1>(); NEXT; }
+		case 0x5e: case 0x7e:
+			{ int c = im_N<2>(); NEXT; }
+		case 0x44: case 0x4c: case 0x54: case 0x5c:
+		case 0x64: case 0x6c: case 0x74: case 0x7c:
+			{ int c = neg(); NEXT; }
+
+		case 0xa0: { int c = ldi();  NEXT; }
+		case 0xa1: { int c = cpi();  NEXT; }
+		case 0xa2: { int c = ini();  NEXT; }
+		case 0xa3: { int c = outi(); NEXT; }
+		case 0xa8: { int c = ldd();  NEXT; }
+		case 0xa9: { int c = cpd();  NEXT; }
+		case 0xaa: { int c = ind();  NEXT; }
+		case 0xab: { int c = outd(); NEXT; }
+		case 0xb0: { int c = ldir(); NEXT; }
+		case 0xb1: { int c = cpir(); NEXT; }
+		case 0xb2: { int c = inir(); NEXT; }
+		case 0xb3: { int c = otir(); NEXT; }
+		case 0xb8: { int c = lddr(); NEXT; }
+		case 0xb9: { int c = cpdr(); NEXT; }
+		case 0xba: { int c = indr(); NEXT; }
+		case 0xbb: { int c = otdr(); NEXT; }
+
+		case 0xc1: { int c = T::isR800() ? mulub_a_R<B>() : nop(); NEXT; }
+		case 0xc9: { int c = T::isR800() ? mulub_a_R<C>() : nop(); NEXT; }
+		case 0xd1: { int c = T::isR800() ? mulub_a_R<D>() : nop(); NEXT; }
+		case 0xd9: { int c = T::isR800() ? mulub_a_R<E>() : nop(); NEXT; }
+		case 0xc3: { int c = T::isR800() ? muluw_hl_SS<BC>() : nop(); NEXT; }
+		case 0xf3: { int c = T::isR800() ? muluw_hl_SS<SP>() : nop(); NEXT; }
+		default: assert(false); return;
+	}
+}
+opDD_2:
+CASE(DD) {
+	byte opcodeDD = RDMEM_OPCODE(T::CC_DD + T::CC_MAIN);
+	M1Cycle();
+	switch (opcodeDD) {
+		case 0x00: // nop();
+		case 0x01: // ld_bc_word();
+		case 0x02: // ld_xbc_a();
+		case 0x03: // inc_bc();
+		case 0x04: // inc_b();
+		case 0x05: // dec_b();
+		case 0x06: // ld_b_byte();
+		case 0x07: // rlca();
+		case 0x08: // ex_af_af();
+		case 0x0a: // ld_a_xbc();
+		case 0x0b: // dec_bc();
+		case 0x0c: // inc_c();
+		case 0x0d: // dec_c();
+		case 0x0e: // ld_c_byte();
+		case 0x0f: // rrca();
+		case 0x10: // djnz();
+		case 0x11: // ld_de_word();
+		case 0x12: // ld_xde_a();
+		case 0x13: // inc_de();
+		case 0x14: // inc_d();
+		case 0x15: // dec_d();
+		case 0x16: // ld_d_byte();
+		case 0x17: // rla();
+		case 0x18: // jr();
+		case 0x1a: // ld_a_xde();
+		case 0x1b: // dec_de();
+		case 0x1c: // inc_e();
+		case 0x1d: // dec_e();
+		case 0x1e: // ld_e_byte();
+		case 0x1f: // rra();
+		case 0x20: // jr_nz();
+		case 0x27: // daa();
+		case 0x28: // jr_z();
+		case 0x2f: // cpl();
+		case 0x30: // jr_nc();
+		case 0x31: // ld_sp_word();
+		case 0x32: // ld_xbyte_a();
+		case 0x33: // inc_sp();
+		case 0x37: // scf();
+		case 0x38: // jr_c();
+		case 0x3a: // ld_a_xbyte();
+		case 0x3b: // dec_sp();
+		case 0x3c: // inc_a();
+		case 0x3d: // dec_a();
+		case 0x3e: // ld_a_byte();
+		case 0x3f: // ccf();
+
+		case 0x40: // ld_b_b();
+		case 0x41: // ld_b_c();
+		case 0x42: // ld_b_d();
+		case 0x43: // ld_b_e();
+		case 0x47: // ld_b_a();
+		case 0x48: // ld_c_b();
+		case 0x49: // ld_c_c();
+		case 0x4a: // ld_c_d();
+		case 0x4b: // ld_c_e();
+		case 0x4f: // ld_c_a();
+		case 0x50: // ld_d_b();
+		case 0x51: // ld_d_c();
+		case 0x52: // ld_d_d();
+		case 0x53: // ld_d_e();
+		case 0x57: // ld_d_a();
+		case 0x58: // ld_e_b();
+		case 0x59: // ld_e_c();
+		case 0x5a: // ld_e_d();
+		case 0x5b: // ld_e_e();
+		case 0x5f: // ld_e_a();
+		case 0x64: // ld_ixh_ixh(); == nop
+		case 0x6d: // ld_ixl_ixl(); == nop
+		case 0x76: // halt();
+		case 0x78: // ld_a_b();
+		case 0x79: // ld_a_c();
+		case 0x7a: // ld_a_d();
+		case 0x7b: // ld_a_e();
+		case 0x7f: // ld_a_a();
+
+		case 0x80: // add_a_b();
+		case 0x81: // add_a_c();
+		case 0x82: // add_a_d();
+		case 0x83: // add_a_e();
+		case 0x87: // add_a_a();
+		case 0x88: // adc_a_b();
+		case 0x89: // adc_a_c();
+		case 0x8a: // adc_a_d();
+		case 0x8b: // adc_a_e();
+		case 0x8f: // adc_a_a();
+		case 0x90: // sub_b();
+		case 0x91: // sub_c();
+		case 0x92: // sub_d();
+		case 0x93: // sub_e();
+		case 0x97: // sub_a();
+		case 0x98: // sbc_a_b();
+		case 0x99: // sbc_a_c();
+		case 0x9a: // sbc_a_d();
+		case 0x9b: // sbc_a_e();
+		case 0x9f: // sbc_a_a();
+		case 0xa0: // and_b();
+		case 0xa1: // and_c();
+		case 0xa2: // and_d();
+		case 0xa3: // and_e();
+		case 0xa7: // and_a();
+		case 0xa8: // xor_b();
+		case 0xa9: // xor_c();
+		case 0xaa: // xor_d();
+		case 0xab: // xor_e();
+		case 0xaf: // xor_a();
+		case 0xb0: // or_b();
+		case 0xb1: // or_c();
+		case 0xb2: // or_d();
+		case 0xb3: // or_e();
+		case 0xb7: // or_a();
+		case 0xb8: // cp_b();
+		case 0xb9: // cp_c();
+		case 0xba: // cp_d();
+		case 0xbb: // cp_e();
+		case 0xbf: // cp_a();
+
+		case 0xc0: // ret_nz();
+		case 0xc1: // pop_bc();
+		case 0xc2: // jp_nz();
+		case 0xc3: // jp();
+		case 0xc4: // call_nz();
+		case 0xc5: // push_bc();
+		case 0xc6: // add_a_byte();
+		case 0xc7: // rst_00();
+		case 0xc8: // ret_z();
+		case 0xc9: // ret();
+		case 0xca: // jp_z();
+		case 0xcc: // call_z();
+		case 0xcd: // call();
+		case 0xce: // adc_a_byte();
+		case 0xcf: // rst_08();
+		case 0xd0: // ret_nc();
+		case 0xd1: // pop_de();
+		case 0xd2: // jp_nc();
+		case 0xd3: // out_byte_a();
+		case 0xd4: // call_nc();
+		case 0xd5: // push_de();
+		case 0xd6: // sub_byte();
+		case 0xd7: // rst_10();
+		case 0xd8: // ret_c();
+		case 0xd9: // exx();
+		case 0xda: // jp_c();
+		case 0xdb: // in_a_byte();
+		case 0xdc: // call_c();
+		case 0xde: // sbc_a_byte();
+		case 0xdf: // rst_18();
+		case 0xe0: // ret_po();
+		case 0xe2: // jp_po();
+		case 0xe4: // call_po();
+		case 0xe6: // and_byte();
+		case 0xe7: // rst_20();
+		case 0xe8: // ret_pe();
+		case 0xea: // jp_pe();
+		case 0xeb: // ex_de_hl();
+		case 0xec: // call_pe();
+		case 0xed: // ed();
+		case 0xee: // xor_byte();
+		case 0xef: // rst_28();
+		case 0xf0: // ret_p();
+		case 0xf1: // pop_af();
+		case 0xf2: // jp_p();
+		case 0xf3: // di();
+		case 0xf4: // call_p();
+		case 0xf5: // push_af();
+		case 0xf6: // or_byte();
+		case 0xf7: // rst_30();
+		case 0xf8: // ret_m();
+		case 0xfa: // jp_m();
+		case 0xfb: // ei();
+		case 0xfc: // call_m();
+		case 0xfe: // cp_byte();
+		case 0xff: // rst_38();
+			if (T::isR800()) {
+				int c = T::CC_DD + nop(); NEXT;
+			} else {
+				T::add(T::CC_DD);
+				#ifdef USE_COMPUTED_GOTO
+				goto *(opcodeTable[opcodeDD]);
+				#else
+				opcodeMain = opcodeDD;
+				goto switchopcode;
+				#endif
+			}
+
+		case 0x09: { int c = add_SS_TT<IX,BC,T::CC_DD>(); NEXT; }
+		case 0x19: { int c = add_SS_TT<IX,DE,T::CC_DD>(); NEXT; }
+		case 0x29: { int c = add_SS_SS<IX   ,T::CC_DD>(); NEXT; }
+		case 0x39: { int c = add_SS_TT<IX,SP,T::CC_DD>(); NEXT; }
+		case 0x21: { int c = ld_SS_word<IX,T::CC_DD>();  NEXT; }
+		case 0x22: { int c = ld_xword_SS<IX,T::CC_DD>(); NEXT; }
+		case 0x2a: { int c = ld_SS_xword<IX,T::CC_DD>(); NEXT; }
+		case 0x23: { int c = inc_SS<IX,T::CC_DD>(); NEXT; }
+		case 0x2b: { int c = dec_SS<IX,T::CC_DD>(); NEXT; }
+		case 0x24: { int c = inc_R<IXH,T::CC_DD>(); NEXT; }
+		case 0x2c: { int c = inc_R<IXL,T::CC_DD>(); NEXT; }
+		case 0x25: { int c = dec_R<IXH,T::CC_DD>(); NEXT; }
+		case 0x2d: { int c = dec_R<IXL,T::CC_DD>(); NEXT; }
+		case 0x26: { int c = ld_R_byte<IXH,T::CC_DD>(); NEXT; }
+		case 0x2e: { int c = ld_R_byte<IXL,T::CC_DD>(); NEXT; }
+		case 0x34: { int c = inc_xix<IX>(); NEXT; }
+		case 0x35: { int c = dec_xix<IX>(); NEXT; }
+		case 0x36: { int c = ld_xix_byte<IX>(); NEXT; }
+
+		case 0x44: { int c = ld_R_R<B,IXH,T::CC_DD>(); NEXT; }
+		case 0x45: { int c = ld_R_R<B,IXL,T::CC_DD>(); NEXT; }
+		case 0x4c: { int c = ld_R_R<C,IXH,T::CC_DD>(); NEXT; }
+		case 0x4d: { int c = ld_R_R<C,IXL,T::CC_DD>(); NEXT; }
+		case 0x54: { int c = ld_R_R<D,IXH,T::CC_DD>(); NEXT; }
+		case 0x55: { int c = ld_R_R<D,IXL,T::CC_DD>(); NEXT; }
+		case 0x5c: { int c = ld_R_R<E,IXH,T::CC_DD>(); NEXT; }
+		case 0x5d: { int c = ld_R_R<E,IXL,T::CC_DD>(); NEXT; }
+		case 0x7c: { int c = ld_R_R<A,IXH,T::CC_DD>(); NEXT; }
+		case 0x7d: { int c = ld_R_R<A,IXL,T::CC_DD>(); NEXT; }
+		case 0x60: { int c = ld_R_R<IXH,B,T::CC_DD>(); NEXT; }
+		case 0x61: { int c = ld_R_R<IXH,C,T::CC_DD>(); NEXT; }
+		case 0x62: { int c = ld_R_R<IXH,D,T::CC_DD>(); NEXT; }
+		case 0x63: { int c = ld_R_R<IXH,E,T::CC_DD>(); NEXT; }
+		case 0x65: { int c = ld_R_R<IXH,IXL,T::CC_DD>(); NEXT; }
+		case 0x67: { int c = ld_R_R<IXH,A,T::CC_DD>(); NEXT; }
+		case 0x68: { int c = ld_R_R<IXL,B,T::CC_DD>(); NEXT; }
+		case 0x69: { int c = ld_R_R<IXL,C,T::CC_DD>(); NEXT; }
+		case 0x6a: { int c = ld_R_R<IXL,D,T::CC_DD>(); NEXT; }
+		case 0x6b: { int c = ld_R_R<IXL,E,T::CC_DD>(); NEXT; }
+		case 0x6c: { int c = ld_R_R<IXL,IXH,T::CC_DD>(); NEXT; }
+		case 0x6f: { int c = ld_R_R<IXL,A,T::CC_DD>(); NEXT; }
+		case 0x70: { int c = ld_xix_R<IX,B>(); NEXT; }
+		case 0x71: { int c = ld_xix_R<IX,C>(); NEXT; }
+		case 0x72: { int c = ld_xix_R<IX,D>(); NEXT; }
+		case 0x73: { int c = ld_xix_R<IX,E>(); NEXT; }
+		case 0x74: { int c = ld_xix_R<IX,H>(); NEXT; }
+		case 0x75: { int c = ld_xix_R<IX,L>(); NEXT; }
+		case 0x77: { int c = ld_xix_R<IX,A>(); NEXT; }
+		case 0x46: { int c = ld_R_xix<B,IX>(); NEXT; }
+		case 0x4e: { int c = ld_R_xix<C,IX>(); NEXT; }
+		case 0x56: { int c = ld_R_xix<D,IX>(); NEXT; }
+		case 0x5e: { int c = ld_R_xix<E,IX>(); NEXT; }
+		case 0x66: { int c = ld_R_xix<H,IX>(); NEXT; }
+		case 0x6e: { int c = ld_R_xix<L,IX>(); NEXT; }
+		case 0x7e: { int c = ld_R_xix<A,IX>(); NEXT; }
+
+		case 0x84: { int c = add_a_R<IXH,T::CC_DD>(); NEXT; }
+		case 0x85: { int c = add_a_R<IXL,T::CC_DD>(); NEXT; }
+		case 0x86: { int c = add_a_xix<IX>(); NEXT; }
+		case 0x8c: { int c = adc_a_R<IXH,T::CC_DD>(); NEXT; }
+		case 0x8d: { int c = adc_a_R<IXL,T::CC_DD>(); NEXT; }
+		case 0x8e: { int c = adc_a_xix<IX>(); NEXT; }
+		case 0x94: { int c = sub_R<IXH,T::CC_DD>(); NEXT; }
+		case 0x95: { int c = sub_R<IXL,T::CC_DD>(); NEXT; }
+		case 0x96: { int c = sub_xix<IX>(); NEXT; }
+		case 0x9c: { int c = sbc_a_R<IXH,T::CC_DD>(); NEXT; }
+		case 0x9d: { int c = sbc_a_R<IXL,T::CC_DD>(); NEXT; }
+		case 0x9e: { int c = sbc_a_xix<IX>(); NEXT; }
+		case 0xa4: { int c = and_R<IXH,T::CC_DD>(); NEXT; }
+		case 0xa5: { int c = and_R<IXL,T::CC_DD>(); NEXT; }
+		case 0xa6: { int c = and_xix<IX>(); NEXT; }
+		case 0xac: { int c = xor_R<IXH,T::CC_DD>(); NEXT; }
+		case 0xad: { int c = xor_R<IXL,T::CC_DD>(); NEXT; }
+		case 0xae: { int c = xor_xix<IX>(); NEXT; }
+		case 0xb4: { int c = or_R<IXH,T::CC_DD>(); NEXT; }
+		case 0xb5: { int c = or_R<IXL,T::CC_DD>(); NEXT; }
+		case 0xb6: { int c = or_xix<IX>(); NEXT; }
+		case 0xbc: { int c = cp_R<IXH,T::CC_DD>(); NEXT; }
+		case 0xbd: { int c = cp_R<IXL,T::CC_DD>(); NEXT; }
+		case 0xbe: { int c = cp_xix<IX>(); NEXT; }
+
+		case 0xe1: { int c = pop_SS <IX,T::CC_DD>(); NEXT; }
+		case 0xe5: { int c = push_SS<IX,T::CC_DD>(); NEXT; }
+		case 0xe3: { int c = ex_xsp_SS<IX,T::CC_DD>(); NEXT; }
+		case 0xe9: { int c = jp_SS<IX,T::CC_DD>(); NEXT_TEST; }
+		case 0xf9: { int c = ld_sp_SS<IX,T::CC_DD>(); NEXT; }
+		case 0xcb: ixy = R.getIX(); goto xx_cb;
+		case 0xdd: T::add(T::CC_DD); goto opDD_2;
+		case 0xfd: T::add(T::CC_DD); goto opFD_2;
+		default: assert(false); return;
+	}
+}
+opFD_2:
+CASE(FD) {
+	byte opcodeFD = RDMEM_OPCODE(T::CC_DD + T::CC_MAIN);
+	M1Cycle();
+	switch (opcodeFD) {
+		case 0x00: // nop();
+		case 0x01: // ld_bc_word();
+		case 0x02: // ld_xbc_a();
+		case 0x03: // inc_bc();
+		case 0x04: // inc_b();
+		case 0x05: // dec_b();
+		case 0x06: // ld_b_byte();
+		case 0x07: // rlca();
+		case 0x08: // ex_af_af();
+		case 0x0a: // ld_a_xbc();
+		case 0x0b: // dec_bc();
+		case 0x0c: // inc_c();
+		case 0x0d: // dec_c();
+		case 0x0e: // ld_c_byte();
+		case 0x0f: // rrca();
+		case 0x10: // djnz();
+		case 0x11: // ld_de_word();
+		case 0x12: // ld_xde_a();
+		case 0x13: // inc_de();
+		case 0x14: // inc_d();
+		case 0x15: // dec_d();
+		case 0x16: // ld_d_byte();
+		case 0x17: // rla();
+		case 0x18: // jr();
+		case 0x1a: // ld_a_xde();
+		case 0x1b: // dec_de();
+		case 0x1c: // inc_e();
+		case 0x1d: // dec_e();
+		case 0x1e: // ld_e_byte();
+		case 0x1f: // rra();
+		case 0x20: // jr_nz();
+		case 0x27: // daa();
+		case 0x28: // jr_z();
+		case 0x2f: // cpl();
+		case 0x30: // jr_nc();
+		case 0x31: // ld_sp_word();
+		case 0x32: // ld_xbyte_a();
+		case 0x33: // inc_sp();
+		case 0x37: // scf();
+		case 0x38: // jr_c();
+		case 0x3a: // ld_a_xbyte();
+		case 0x3b: // dec_sp();
+		case 0x3c: // inc_a();
+		case 0x3d: // dec_a();
+		case 0x3e: // ld_a_byte();
+		case 0x3f: // ccf();
+
+		case 0x40: // ld_b_b();
+		case 0x41: // ld_b_c();
+		case 0x42: // ld_b_d();
+		case 0x43: // ld_b_e();
+		case 0x47: // ld_b_a();
+		case 0x48: // ld_c_b();
+		case 0x49: // ld_c_c();
+		case 0x4a: // ld_c_d();
+		case 0x4b: // ld_c_e();
+		case 0x4f: // ld_c_a();
+		case 0x50: // ld_d_b();
+		case 0x51: // ld_d_c();
+		case 0x52: // ld_d_d();
+		case 0x53: // ld_d_e();
+		case 0x57: // ld_d_a();
+		case 0x58: // ld_e_b();
+		case 0x59: // ld_e_c();
+		case 0x5a: // ld_e_d();
+		case 0x5b: // ld_e_e();
+		case 0x5f: // ld_e_a();
+		case 0x64: // ld_ixh_ixh(); == nop
+		case 0x6d: // ld_ixl_ixl(); == nop
+		case 0x76: // halt();
+		case 0x78: // ld_a_b();
+		case 0x79: // ld_a_c();
+		case 0x7a: // ld_a_d();
+		case 0x7b: // ld_a_e();
+		case 0x7f: // ld_a_a();
+
+		case 0x80: // add_a_b();
+		case 0x81: // add_a_c();
+		case 0x82: // add_a_d();
+		case 0x83: // add_a_e();
+		case 0x87: // add_a_a();
+		case 0x88: // adc_a_b();
+		case 0x89: // adc_a_c();
+		case 0x8a: // adc_a_d();
+		case 0x8b: // adc_a_e();
+		case 0x8f: // adc_a_a();
+		case 0x90: // sub_b();
+		case 0x91: // sub_c();
+		case 0x92: // sub_d();
+		case 0x93: // sub_e();
+		case 0x97: // sub_a();
+		case 0x98: // sbc_a_b();
+		case 0x99: // sbc_a_c();
+		case 0x9a: // sbc_a_d();
+		case 0x9b: // sbc_a_e();
+		case 0x9f: // sbc_a_a();
+		case 0xa0: // and_b();
+		case 0xa1: // and_c();
+		case 0xa2: // and_d();
+		case 0xa3: // and_e();
+		case 0xa7: // and_a();
+		case 0xa8: // xor_b();
+		case 0xa9: // xor_c();
+		case 0xaa: // xor_d();
+		case 0xab: // xor_e();
+		case 0xaf: // xor_a();
+		case 0xb0: // or_b();
+		case 0xb1: // or_c();
+		case 0xb2: // or_d();
+		case 0xb3: // or_e();
+		case 0xb7: // or_a();
+		case 0xb8: // cp_b();
+		case 0xb9: // cp_c();
+		case 0xba: // cp_d();
+		case 0xbb: // cp_e();
+		case 0xbf: // cp_a();
+
+		case 0xc0: // ret_nz();
+		case 0xc1: // pop_bc();
+		case 0xc2: // jp_nz();
+		case 0xc3: // jp();
+		case 0xc4: // call_nz();
+		case 0xc5: // push_bc();
+		case 0xc6: // add_a_byte();
+		case 0xc7: // rst_00();
+		case 0xc8: // ret_z();
+		case 0xc9: // ret();
+		case 0xca: // jp_z();
+		case 0xcc: // call_z();
+		case 0xcd: // call();
+		case 0xce: // adc_a_byte();
+		case 0xcf: // rst_08();
+		case 0xd0: // ret_nc();
+		case 0xd1: // pop_de();
+		case 0xd2: // jp_nc();
+		case 0xd3: // out_byte_a();
+		case 0xd4: // call_nc();
+		case 0xd5: // push_de();
+		case 0xd6: // sub_byte();
+		case 0xd7: // rst_10();
+		case 0xd8: // ret_c();
+		case 0xd9: // exx();
+		case 0xda: // jp_c();
+		case 0xdb: // in_a_byte();
+		case 0xdc: // call_c();
+		case 0xde: // sbc_a_byte();
+		case 0xdf: // rst_18();
+		case 0xe0: // ret_po();
+		case 0xe2: // jp_po();
+		case 0xe4: // call_po();
+		case 0xe6: // and_byte();
+		case 0xe7: // rst_20();
+		case 0xe8: // ret_pe();
+		case 0xea: // jp_pe();
+		case 0xeb: // ex_de_hl();
+		case 0xec: // call_pe();
+		case 0xed: // ed();
+		case 0xee: // xor_byte();
+		case 0xef: // rst_28();
+		case 0xf0: // ret_p();
+		case 0xf1: // pop_af();
+		case 0xf2: // jp_p();
+		case 0xf3: // di();
+		case 0xf4: // call_p();
+		case 0xf5: // push_af();
+		case 0xf6: // or_byte();
+		case 0xf7: // rst_30();
+		case 0xf8: // ret_m();
+		case 0xfa: // jp_m();
+		case 0xfb: // ei();
+		case 0xfc: // call_m();
+		case 0xfe: // cp_byte();
+		case 0xff: // rst_38();
+			if (T::isR800()) {
+				int c = T::CC_DD + nop(); NEXT;
+			} else {
+				T::add(T::CC_DD);
+				#ifdef USE_COMPUTED_GOTO
+				goto *(opcodeTable[opcodeFD]);
+				#else
+				opcodeMain = opcodeFD;
+				goto switchopcode;
+				#endif
+			}
+
+		case 0x09: { int c = add_SS_TT<IY,BC,T::CC_DD>(); NEXT; }
+		case 0x19: { int c = add_SS_TT<IY,DE,T::CC_DD>(); NEXT; }
+		case 0x29: { int c = add_SS_SS<IY   ,T::CC_DD>(); NEXT; }
+		case 0x39: { int c = add_SS_TT<IY,SP,T::CC_DD>(); NEXT; }
+		case 0x21: { int c = ld_SS_word<IY,T::CC_DD>();  NEXT; }
+		case 0x22: { int c = ld_xword_SS<IY,T::CC_DD>(); NEXT; }
+		case 0x2a: { int c = ld_SS_xword<IY,T::CC_DD>(); NEXT; }
+		case 0x23: { int c = inc_SS<IY,T::CC_DD>(); NEXT; }
+		case 0x2b: { int c = dec_SS<IY,T::CC_DD>(); NEXT; }
+		case 0x24: { int c = inc_R<IYH,T::CC_DD>(); NEXT; }
+		case 0x2c: { int c = inc_R<IYL,T::CC_DD>(); NEXT; }
+		case 0x25: { int c = dec_R<IYH,T::CC_DD>(); NEXT; }
+		case 0x2d: { int c = dec_R<IYL,T::CC_DD>(); NEXT; }
+		case 0x26: { int c = ld_R_byte<IYH,T::CC_DD>(); NEXT; }
+		case 0x2e: { int c = ld_R_byte<IYL,T::CC_DD>(); NEXT; }
+		case 0x34: { int c = inc_xix<IY>(); NEXT; }
+		case 0x35: { int c = dec_xix<IY>(); NEXT; }
+		case 0x36: { int c = ld_xix_byte<IY>(); NEXT; }
+
+		case 0x44: { int c = ld_R_R<B,IYH,T::CC_DD>(); NEXT; }
+		case 0x45: { int c = ld_R_R<B,IYL,T::CC_DD>(); NEXT; }
+		case 0x4c: { int c = ld_R_R<C,IYH,T::CC_DD>(); NEXT; }
+		case 0x4d: { int c = ld_R_R<C,IYL,T::CC_DD>(); NEXT; }
+		case 0x54: { int c = ld_R_R<D,IYH,T::CC_DD>(); NEXT; }
+		case 0x55: { int c = ld_R_R<D,IYL,T::CC_DD>(); NEXT; }
+		case 0x5c: { int c = ld_R_R<E,IYH,T::CC_DD>(); NEXT; }
+		case 0x5d: { int c = ld_R_R<E,IYL,T::CC_DD>(); NEXT; }
+		case 0x7c: { int c = ld_R_R<A,IYH,T::CC_DD>(); NEXT; }
+		case 0x7d: { int c = ld_R_R<A,IYL,T::CC_DD>(); NEXT; }
+		case 0x60: { int c = ld_R_R<IYH,B,T::CC_DD>(); NEXT; }
+		case 0x61: { int c = ld_R_R<IYH,C,T::CC_DD>(); NEXT; }
+		case 0x62: { int c = ld_R_R<IYH,D,T::CC_DD>(); NEXT; }
+		case 0x63: { int c = ld_R_R<IYH,E,T::CC_DD>(); NEXT; }
+		case 0x65: { int c = ld_R_R<IYH,IYL,T::CC_DD>(); NEXT; }
+		case 0x67: { int c = ld_R_R<IYH,A,T::CC_DD>(); NEXT; }
+		case 0x68: { int c = ld_R_R<IYL,B,T::CC_DD>(); NEXT; }
+		case 0x69: { int c = ld_R_R<IYL,C,T::CC_DD>(); NEXT; }
+		case 0x6a: { int c = ld_R_R<IYL,D,T::CC_DD>(); NEXT; }
+		case 0x6b: { int c = ld_R_R<IYL,E,T::CC_DD>(); NEXT; }
+		case 0x6c: { int c = ld_R_R<IYL,IYH,T::CC_DD>(); NEXT; }
+		case 0x6f: { int c = ld_R_R<IYL,A,T::CC_DD>(); NEXT; }
+		case 0x70: { int c = ld_xix_R<IY,B>(); NEXT; }
+		case 0x71: { int c = ld_xix_R<IY,C>(); NEXT; }
+		case 0x72: { int c = ld_xix_R<IY,D>(); NEXT; }
+		case 0x73: { int c = ld_xix_R<IY,E>(); NEXT; }
+		case 0x74: { int c = ld_xix_R<IY,H>(); NEXT; }
+		case 0x75: { int c = ld_xix_R<IY,L>(); NEXT; }
+		case 0x77: { int c = ld_xix_R<IY,A>(); NEXT; }
+		case 0x46: { int c = ld_R_xix<B,IY>(); NEXT; }
+		case 0x4e: { int c = ld_R_xix<C,IY>(); NEXT; }
+		case 0x56: { int c = ld_R_xix<D,IY>(); NEXT; }
+		case 0x5e: { int c = ld_R_xix<E,IY>(); NEXT; }
+		case 0x66: { int c = ld_R_xix<H,IY>(); NEXT; }
+		case 0x6e: { int c = ld_R_xix<L,IY>(); NEXT; }
+		case 0x7e: { int c = ld_R_xix<A,IY>(); NEXT; }
+
+		case 0x84: { int c = add_a_R<IYH,T::CC_DD>(); NEXT; }
+		case 0x85: { int c = add_a_R<IYL,T::CC_DD>(); NEXT; }
+		case 0x86: { int c = add_a_xix<IY>(); NEXT; }
+		case 0x8c: { int c = adc_a_R<IYH,T::CC_DD>(); NEXT; }
+		case 0x8d: { int c = adc_a_R<IYL,T::CC_DD>(); NEXT; }
+		case 0x8e: { int c = adc_a_xix<IY>(); NEXT; }
+		case 0x94: { int c = sub_R<IYH,T::CC_DD>(); NEXT; }
+		case 0x95: { int c = sub_R<IYL,T::CC_DD>(); NEXT; }
+		case 0x96: { int c = sub_xix<IY>(); NEXT; }
+		case 0x9c: { int c = sbc_a_R<IYH,T::CC_DD>(); NEXT; }
+		case 0x9d: { int c = sbc_a_R<IYL,T::CC_DD>(); NEXT; }
+		case 0x9e: { int c = sbc_a_xix<IY>(); NEXT; }
+		case 0xa4: { int c = and_R<IYH,T::CC_DD>(); NEXT; }
+		case 0xa5: { int c = and_R<IYL,T::CC_DD>(); NEXT; }
+		case 0xa6: { int c = and_xix<IY>(); NEXT; }
+		case 0xac: { int c = xor_R<IYH,T::CC_DD>(); NEXT; }
+		case 0xad: { int c = xor_R<IYL,T::CC_DD>(); NEXT; }
+		case 0xae: { int c = xor_xix<IY>(); NEXT; }
+		case 0xb4: { int c = or_R<IYH,T::CC_DD>(); NEXT; }
+		case 0xb5: { int c = or_R<IYL,T::CC_DD>(); NEXT; }
+		case 0xb6: { int c = or_xix<IY>(); NEXT; }
+		case 0xbc: { int c = cp_R<IYH,T::CC_DD>(); NEXT; }
+		case 0xbd: { int c = cp_R<IYL,T::CC_DD>(); NEXT; }
+		case 0xbe: { int c = cp_xix<IY>(); NEXT; }
+
+		case 0xe1: { int c = pop_SS <IY,T::CC_DD>(); NEXT; }
+		case 0xe5: { int c = push_SS<IY,T::CC_DD>(); NEXT; }
+		case 0xe3: { int c = ex_xsp_SS<IY,T::CC_DD>(); NEXT; }
+		case 0xe9: { int c = jp_SS<IY,T::CC_DD>(); NEXT_TEST; }
+		case 0xf9: { int c = ld_sp_SS<IY,T::CC_DD>(); NEXT; }
+		case 0xcb: ixy = R.getIY(); goto xx_cb;
+		case 0xdd: T::add(T::CC_DD); goto opDD_2;
+		case 0xfd: T::add(T::CC_DD); goto opFD_2;
+		default: assert(false); return;
+	}
+}
+#ifndef USE_COMPUTED_GOTO
+	default: assert(false); return;
+}
+#endif
+
+xx_cb: {
+		unsigned tmp = RD_WORD_PC(T::CC_DD + T::CC_DD_CB);
+		offset ofst = tmp & 0xFF;
+		unsigned addr = (ixy + ofst) & 0xFFFF;
+		byte xxcb_opcode = tmp >> 8;
+		switch (xxcb_opcode) {
+			case 0x00: { int c = rlc_xix_R<B>(addr); NEXT; }
+			case 0x01: { int c = rlc_xix_R<C>(addr); NEXT; }
+			case 0x02: { int c = rlc_xix_R<D>(addr); NEXT; }
+			case 0x03: { int c = rlc_xix_R<E>(addr); NEXT; }
+			case 0x04: { int c = rlc_xix_R<H>(addr); NEXT; }
+			case 0x05: { int c = rlc_xix_R<L>(addr); NEXT; }
+			case 0x06: { int c = rlc_xix_R<DUMMY>(addr); NEXT; }
+			case 0x07: { int c = rlc_xix_R<A>(addr); NEXT; }
+			case 0x08: { int c = rrc_xix_R<B>(addr); NEXT; }
+			case 0x09: { int c = rrc_xix_R<C>(addr); NEXT; }
+			case 0x0a: { int c = rrc_xix_R<D>(addr); NEXT; }
+			case 0x0b: { int c = rrc_xix_R<E>(addr); NEXT; }
+			case 0x0c: { int c = rrc_xix_R<H>(addr); NEXT; }
+			case 0x0d: { int c = rrc_xix_R<L>(addr); NEXT; }
+			case 0x0e: { int c = rrc_xix_R<DUMMY>(addr); NEXT; }
+			case 0x0f: { int c = rrc_xix_R<A>(addr); NEXT; }
+			case 0x10: { int c = rl_xix_R<B>(addr); NEXT; }
+			case 0x11: { int c = rl_xix_R<C>(addr); NEXT; }
+			case 0x12: { int c = rl_xix_R<D>(addr); NEXT; }
+			case 0x13: { int c = rl_xix_R<E>(addr); NEXT; }
+			case 0x14: { int c = rl_xix_R<H>(addr); NEXT; }
+			case 0x15: { int c = rl_xix_R<L>(addr); NEXT; }
+			case 0x16: { int c = rl_xix_R<DUMMY>(addr); NEXT; }
+			case 0x17: { int c = rl_xix_R<A>(addr); NEXT; }
+			case 0x18: { int c = rr_xix_R<B>(addr); NEXT; }
+			case 0x19: { int c = rr_xix_R<C>(addr); NEXT; }
+			case 0x1a: { int c = rr_xix_R<D>(addr); NEXT; }
+			case 0x1b: { int c = rr_xix_R<E>(addr); NEXT; }
+			case 0x1c: { int c = rr_xix_R<H>(addr); NEXT; }
+			case 0x1d: { int c = rr_xix_R<L>(addr); NEXT; }
+			case 0x1e: { int c = rr_xix_R<DUMMY>(addr); NEXT; }
+			case 0x1f: { int c = rr_xix_R<A>(addr); NEXT; }
+			case 0x20: { int c = sla_xix_R<B>(addr); NEXT; }
+			case 0x21: { int c = sla_xix_R<C>(addr); NEXT; }
+			case 0x22: { int c = sla_xix_R<D>(addr); NEXT; }
+			case 0x23: { int c = sla_xix_R<E>(addr); NEXT; }
+			case 0x24: { int c = sla_xix_R<H>(addr); NEXT; }
+			case 0x25: { int c = sla_xix_R<L>(addr); NEXT; }
+			case 0x26: { int c = sla_xix_R<DUMMY>(addr); NEXT; }
+			case 0x27: { int c = sla_xix_R<A>(addr); NEXT; }
+			case 0x28: { int c = sra_xix_R<B>(addr); NEXT; }
+			case 0x29: { int c = sra_xix_R<C>(addr); NEXT; }
+			case 0x2a: { int c = sra_xix_R<D>(addr); NEXT; }
+			case 0x2b: { int c = sra_xix_R<E>(addr); NEXT; }
+			case 0x2c: { int c = sra_xix_R<H>(addr); NEXT; }
+			case 0x2d: { int c = sra_xix_R<L>(addr); NEXT; }
+			case 0x2e: { int c = sra_xix_R<DUMMY>(addr); NEXT; }
+			case 0x2f: { int c = sra_xix_R<A>(addr); NEXT; }
+			case 0x30: { int c = T::isR800() ? sll2() : sll_xix_R<B>(addr); NEXT; }
+			case 0x31: { int c = T::isR800() ? sll2() : sll_xix_R<C>(addr); NEXT; }
+			case 0x32: { int c = T::isR800() ? sll2() : sll_xix_R<D>(addr); NEXT; }
+			case 0x33: { int c = T::isR800() ? sll2() : sll_xix_R<E>(addr); NEXT; }
+			case 0x34: { int c = T::isR800() ? sll2() : sll_xix_R<H>(addr); NEXT; }
+			case 0x35: { int c = T::isR800() ? sll2() : sll_xix_R<L>(addr); NEXT; }
+			case 0x36: { int c = T::isR800() ? sll2() : sll_xix_R<DUMMY>(addr); NEXT; }
+			case 0x37: { int c = T::isR800() ? sll2() : sll_xix_R<A>(addr); NEXT; }
+			case 0x38: { int c = srl_xix_R<B>(addr); NEXT; }
+			case 0x39: { int c = srl_xix_R<C>(addr); NEXT; }
+			case 0x3a: { int c = srl_xix_R<D>(addr); NEXT; }
+			case 0x3b: { int c = srl_xix_R<E>(addr); NEXT; }
+			case 0x3c: { int c = srl_xix_R<H>(addr); NEXT; }
+			case 0x3d: { int c = srl_xix_R<L>(addr); NEXT; }
+			case 0x3e: { int c = srl_xix_R<DUMMY>(addr); NEXT; }
+			case 0x3f: { int c = srl_xix_R<A>(addr); NEXT; }
+
+			case 0x40: case 0x41: case 0x42: case 0x43:
+			case 0x44: case 0x45: case 0x46: case 0x47:
+				{ int c = bit_N_xix<0>(addr); NEXT; }
+			case 0x48: case 0x49: case 0x4a: case 0x4b:
+			case 0x4c: case 0x4d: case 0x4e: case 0x4f:
+				{ int c = bit_N_xix<1>(addr); NEXT; }
+			case 0x50: case 0x51: case 0x52: case 0x53:
+			case 0x54: case 0x55: case 0x56: case 0x57:
+				{ int c = bit_N_xix<2>(addr); NEXT; }
+			case 0x58: case 0x59: case 0x5a: case 0x5b:
+			case 0x5c: case 0x5d: case 0x5e: case 0x5f:
+				{ int c = bit_N_xix<3>(addr); NEXT; }
+			case 0x60: case 0x61: case 0x62: case 0x63:
+			case 0x64: case 0x65: case 0x66: case 0x67:
+				{ int c = bit_N_xix<4>(addr); NEXT; }
+			case 0x68: case 0x69: case 0x6a: case 0x6b:
+			case 0x6c: case 0x6d: case 0x6e: case 0x6f:
+				{ int c = bit_N_xix<5>(addr); NEXT; }
+			case 0x70: case 0x71: case 0x72: case 0x73:
+			case 0x74: case 0x75: case 0x76: case 0x77:
+				{ int c = bit_N_xix<6>(addr); NEXT; }
+			case 0x78: case 0x79: case 0x7a: case 0x7b:
+			case 0x7c: case 0x7d: case 0x7e: case 0x7f:
+				{ int c = bit_N_xix<7>(addr); NEXT; }
+
+			case 0x80: { int c = res_N_xix_R<0,B>(addr); NEXT; }
+			case 0x81: { int c = res_N_xix_R<0,C>(addr); NEXT; }
+			case 0x82: { int c = res_N_xix_R<0,D>(addr); NEXT; }
+			case 0x83: { int c = res_N_xix_R<0,E>(addr); NEXT; }
+			case 0x84: { int c = res_N_xix_R<0,H>(addr); NEXT; }
+			case 0x85: { int c = res_N_xix_R<0,L>(addr); NEXT; }
+			case 0x87: { int c = res_N_xix_R<0,A>(addr); NEXT; }
+			case 0x88: { int c = res_N_xix_R<1,B>(addr); NEXT; }
+			case 0x89: { int c = res_N_xix_R<1,C>(addr); NEXT; }
+			case 0x8a: { int c = res_N_xix_R<1,D>(addr); NEXT; }
+			case 0x8b: { int c = res_N_xix_R<1,E>(addr); NEXT; }
+			case 0x8c: { int c = res_N_xix_R<1,H>(addr); NEXT; }
+			case 0x8d: { int c = res_N_xix_R<1,L>(addr); NEXT; }
+			case 0x8f: { int c = res_N_xix_R<1,A>(addr); NEXT; }
+			case 0x90: { int c = res_N_xix_R<2,B>(addr); NEXT; }
+			case 0x91: { int c = res_N_xix_R<2,C>(addr); NEXT; }
+			case 0x92: { int c = res_N_xix_R<2,D>(addr); NEXT; }
+			case 0x93: { int c = res_N_xix_R<2,E>(addr); NEXT; }
+			case 0x94: { int c = res_N_xix_R<2,H>(addr); NEXT; }
+			case 0x95: { int c = res_N_xix_R<2,L>(addr); NEXT; }
+			case 0x97: { int c = res_N_xix_R<2,A>(addr); NEXT; }
+			case 0x98: { int c = res_N_xix_R<3,B>(addr); NEXT; }
+			case 0x99: { int c = res_N_xix_R<3,C>(addr); NEXT; }
+			case 0x9a: { int c = res_N_xix_R<3,D>(addr); NEXT; }
+			case 0x9b: { int c = res_N_xix_R<3,E>(addr); NEXT; }
+			case 0x9c: { int c = res_N_xix_R<3,H>(addr); NEXT; }
+			case 0x9d: { int c = res_N_xix_R<3,L>(addr); NEXT; }
+			case 0x9f: { int c = res_N_xix_R<3,A>(addr); NEXT; }
+			case 0xa0: { int c = res_N_xix_R<4,B>(addr); NEXT; }
+			case 0xa1: { int c = res_N_xix_R<4,C>(addr); NEXT; }
+			case 0xa2: { int c = res_N_xix_R<4,D>(addr); NEXT; }
+			case 0xa3: { int c = res_N_xix_R<4,E>(addr); NEXT; }
+			case 0xa4: { int c = res_N_xix_R<4,H>(addr); NEXT; }
+			case 0xa5: { int c = res_N_xix_R<4,L>(addr); NEXT; }
+			case 0xa7: { int c = res_N_xix_R<4,A>(addr); NEXT; }
+			case 0xa8: { int c = res_N_xix_R<5,B>(addr); NEXT; }
+			case 0xa9: { int c = res_N_xix_R<5,C>(addr); NEXT; }
+			case 0xaa: { int c = res_N_xix_R<5,D>(addr); NEXT; }
+			case 0xab: { int c = res_N_xix_R<5,E>(addr); NEXT; }
+			case 0xac: { int c = res_N_xix_R<5,H>(addr); NEXT; }
+			case 0xad: { int c = res_N_xix_R<5,L>(addr); NEXT; }
+			case 0xaf: { int c = res_N_xix_R<5,A>(addr); NEXT; }
+			case 0xb0: { int c = res_N_xix_R<6,B>(addr); NEXT; }
+			case 0xb1: { int c = res_N_xix_R<6,C>(addr); NEXT; }
+			case 0xb2: { int c = res_N_xix_R<6,D>(addr); NEXT; }
+			case 0xb3: { int c = res_N_xix_R<6,E>(addr); NEXT; }
+			case 0xb4: { int c = res_N_xix_R<6,H>(addr); NEXT; }
+			case 0xb5: { int c = res_N_xix_R<6,L>(addr); NEXT; }
+			case 0xb7: { int c = res_N_xix_R<6,A>(addr); NEXT; }
+			case 0xb8: { int c = res_N_xix_R<7,B>(addr); NEXT; }
+			case 0xb9: { int c = res_N_xix_R<7,C>(addr); NEXT; }
+			case 0xba: { int c = res_N_xix_R<7,D>(addr); NEXT; }
+			case 0xbb: { int c = res_N_xix_R<7,E>(addr); NEXT; }
+			case 0xbc: { int c = res_N_xix_R<7,H>(addr); NEXT; }
+			case 0xbd: { int c = res_N_xix_R<7,L>(addr); NEXT; }
+			case 0xbf: { int c = res_N_xix_R<7,A>(addr); NEXT; }
+			case 0x86: { int c = res_N_xix_R<0,DUMMY>(addr); NEXT; }
+			case 0x8e: { int c = res_N_xix_R<1,DUMMY>(addr); NEXT; }
+			case 0x96: { int c = res_N_xix_R<2,DUMMY>(addr); NEXT; }
+			case 0x9e: { int c = res_N_xix_R<3,DUMMY>(addr); NEXT; }
+			case 0xa6: { int c = res_N_xix_R<4,DUMMY>(addr); NEXT; }
+			case 0xae: { int c = res_N_xix_R<5,DUMMY>(addr); NEXT; }
+			case 0xb6: { int c = res_N_xix_R<6,DUMMY>(addr); NEXT; }
+			case 0xbe: { int c = res_N_xix_R<7,DUMMY>(addr); NEXT; }
+
+			case 0xc0: { int c = set_N_xix_R<0,B>(addr); NEXT; }
+			case 0xc1: { int c = set_N_xix_R<0,C>(addr); NEXT; }
+			case 0xc2: { int c = set_N_xix_R<0,D>(addr); NEXT; }
+			case 0xc3: { int c = set_N_xix_R<0,E>(addr); NEXT; }
+			case 0xc4: { int c = set_N_xix_R<0,H>(addr); NEXT; }
+			case 0xc5: { int c = set_N_xix_R<0,L>(addr); NEXT; }
+			case 0xc7: { int c = set_N_xix_R<0,A>(addr); NEXT; }
+			case 0xc8: { int c = set_N_xix_R<1,B>(addr); NEXT; }
+			case 0xc9: { int c = set_N_xix_R<1,C>(addr); NEXT; }
+			case 0xca: { int c = set_N_xix_R<1,D>(addr); NEXT; }
+			case 0xcb: { int c = set_N_xix_R<1,E>(addr); NEXT; }
+			case 0xcc: { int c = set_N_xix_R<1,H>(addr); NEXT; }
+			case 0xcd: { int c = set_N_xix_R<1,L>(addr); NEXT; }
+			case 0xcf: { int c = set_N_xix_R<1,A>(addr); NEXT; }
+			case 0xd0: { int c = set_N_xix_R<2,B>(addr); NEXT; }
+			case 0xd1: { int c = set_N_xix_R<2,C>(addr); NEXT; }
+			case 0xd2: { int c = set_N_xix_R<2,D>(addr); NEXT; }
+			case 0xd3: { int c = set_N_xix_R<2,E>(addr); NEXT; }
+			case 0xd4: { int c = set_N_xix_R<2,H>(addr); NEXT; }
+			case 0xd5: { int c = set_N_xix_R<2,L>(addr); NEXT; }
+			case 0xd7: { int c = set_N_xix_R<2,A>(addr); NEXT; }
+			case 0xd8: { int c = set_N_xix_R<3,B>(addr); NEXT; }
+			case 0xd9: { int c = set_N_xix_R<3,C>(addr); NEXT; }
+			case 0xda: { int c = set_N_xix_R<3,D>(addr); NEXT; }
+			case 0xdb: { int c = set_N_xix_R<3,E>(addr); NEXT; }
+			case 0xdc: { int c = set_N_xix_R<3,H>(addr); NEXT; }
+			case 0xdd: { int c = set_N_xix_R<3,L>(addr); NEXT; }
+			case 0xdf: { int c = set_N_xix_R<3,A>(addr); NEXT; }
+			case 0xe0: { int c = set_N_xix_R<4,B>(addr); NEXT; }
+			case 0xe1: { int c = set_N_xix_R<4,C>(addr); NEXT; }
+			case 0xe2: { int c = set_N_xix_R<4,D>(addr); NEXT; }
+			case 0xe3: { int c = set_N_xix_R<4,E>(addr); NEXT; }
+			case 0xe4: { int c = set_N_xix_R<4,H>(addr); NEXT; }
+			case 0xe5: { int c = set_N_xix_R<4,L>(addr); NEXT; }
+			case 0xe7: { int c = set_N_xix_R<4,A>(addr); NEXT; }
+			case 0xe8: { int c = set_N_xix_R<5,B>(addr); NEXT; }
+			case 0xe9: { int c = set_N_xix_R<5,C>(addr); NEXT; }
+			case 0xea: { int c = set_N_xix_R<5,D>(addr); NEXT; }
+			case 0xeb: { int c = set_N_xix_R<5,E>(addr); NEXT; }
+			case 0xec: { int c = set_N_xix_R<5,H>(addr); NEXT; }
+			case 0xed: { int c = set_N_xix_R<5,L>(addr); NEXT; }
+			case 0xef: { int c = set_N_xix_R<5,A>(addr); NEXT; }
+			case 0xf0: { int c = set_N_xix_R<6,B>(addr); NEXT; }
+			case 0xf1: { int c = set_N_xix_R<6,C>(addr); NEXT; }
+			case 0xf2: { int c = set_N_xix_R<6,D>(addr); NEXT; }
+			case 0xf3: { int c = set_N_xix_R<6,E>(addr); NEXT; }
+			case 0xf4: { int c = set_N_xix_R<6,H>(addr); NEXT; }
+			case 0xf5: { int c = set_N_xix_R<6,L>(addr); NEXT; }
+			case 0xf7: { int c = set_N_xix_R<6,A>(addr); NEXT; }
+			case 0xf8: { int c = set_N_xix_R<7,B>(addr); NEXT; }
+			case 0xf9: { int c = set_N_xix_R<7,C>(addr); NEXT; }
+			case 0xfa: { int c = set_N_xix_R<7,D>(addr); NEXT; }
+			case 0xfb: { int c = set_N_xix_R<7,E>(addr); NEXT; }
+			case 0xfc: { int c = set_N_xix_R<7,H>(addr); NEXT; }
+			case 0xfd: { int c = set_N_xix_R<7,L>(addr); NEXT; }
+			case 0xff: { int c = set_N_xix_R<7,A>(addr); NEXT; }
+			case 0xc6: { int c = set_N_xix_R<0,DUMMY>(addr); NEXT; }
+			case 0xce: { int c = set_N_xix_R<1,DUMMY>(addr); NEXT; }
+			case 0xd6: { int c = set_N_xix_R<2,DUMMY>(addr); NEXT; }
+			case 0xde: { int c = set_N_xix_R<3,DUMMY>(addr); NEXT; }
+			case 0xe6: { int c = set_N_xix_R<4,DUMMY>(addr); NEXT; }
+			case 0xee: { int c = set_N_xix_R<5,DUMMY>(addr); NEXT; }
+			case 0xf6: { int c = set_N_xix_R<6,DUMMY>(addr); NEXT; }
+			case 0xfe: { int c = set_N_xix_R<7,DUMMY>(addr); NEXT; }
+			default: assert(false);
+		}
+	}
 }
 
 template <class T> inline void CPUCore<T>::cpuTracePre()
@@ -906,24 +2444,6 @@ template <class T> void CPUCore<T>::cpuTracePost_slow()
 	     << std::endl << std::dec;
 }
 
-template <class T> void CPUCore<T>::executeFast()
-{
-	T::R800Refresh();
-	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
-	M1Cycle();
-	int cycles = executeInstruction1_slow(opcode);
-	T::add(cycles);
-}
-
-template <class T> ALWAYS_INLINE void CPUCore<T>::executeFastInline()
-{
-	T::R800Refresh();
-	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
-	M1Cycle();
-	int cycles = executeInstruction1(opcode);
-	T::add(cycles);
-}
-
 template <class T> void CPUCore<T>::executeSlow()
 {
 	if (unlikely(false && nmiEdge)) {
@@ -950,7 +2470,7 @@ template <class T> void CPUCore<T>::executeSlow()
 	} else {
 		R.setAfterEI(false);
 		cpuTracePre();
-		executeFast();
+		executeInstructions<false>(); // one instruction
 		cpuTracePost();
 	}
 }
@@ -992,13 +2512,9 @@ template <class T> void CPUCore<T>::execute()
 			} else {
 				while (slowInstructions == 0) {
 					T::enableLimit(true);
-					while (likely(!T::limitReached())) {
-						// too much overhead for non-debug build
-						#ifdef DEBUG
-						assert(T::getTimeFast() < scheduler.getNext());
-						assert(slowInstructions == 0);
-						#endif
-						executeFastInline();
+					if (likely(!T::limitReached())) {
+						// multiple instructions
+						executeInstructions<true>();
 					}
 					scheduler.schedule(T::getTimeFast());
 					if (needExitCPULoop()) return;
@@ -1013,7 +2529,7 @@ template <class T> void CPUCore<T>::execute()
 			}
 			if (slowInstructions == 0) {
 				cpuTracePre();
-				executeFast();
+				executeInstructions<false>(); // one instruction
 				cpuTracePost();
 				scheduler.schedule(T::getTimeFast());
 			} else {
@@ -1027,13 +2543,13 @@ template <class T> void CPUCore<T>::execute()
 
 
 // LD r,r
-template <class T> template<CPU::Reg8 DST, CPU::Reg8 SRC> int CPUCore<T>::ld_R_R() {
-	R.set8<DST>(R.get8<SRC>()); return T::CC_LD_R_R;
+template <class T> template<CPU::Reg8 DST, CPU::Reg8 SRC, int EE> int CPUCore<T>::ld_R_R() {
+	R.set8<DST>(R.get8<SRC>()); return T::CC_LD_R_R + EE;
 }
 
 // LD SP,ss
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_sp_SS() {
-	R.setSP(R.get16<REG>()); return T::CC_LD_SP_HL;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::ld_sp_SS() {
+	R.setSP(R.get16<REG>()); return T::CC_LD_SP_HL + EE;
 }
 
 // LD (ss),a
@@ -1051,11 +2567,11 @@ template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::ld_xhl_R() {
 
 // LD (IXY+e),r
 template <class T> template<CPU::Reg16 IXY, CPU::Reg8 SRC> int CPUCore<T>::ld_xix_R() {
-	offset ofst = RDMEM_OPCODE(T::CC_LD_XIX_R_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_LD_XIX_R_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	WRMEM(addr, R.get8<SRC>(), T::CC_LD_XIX_R_2);
-	return T::CC_LD_XIX_R;
+	WRMEM(addr, R.get8<SRC>(), T::CC_DD + T::CC_LD_XIX_R_2);
+	return T::CC_DD + T::CC_LD_XIX_R;
 }
 
 // LD (HL),n
@@ -1067,13 +2583,13 @@ template <class T> int CPUCore<T>::ld_xhl_byte() {
 
 // LD (IXY+e),n
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::ld_xix_byte() {
-	unsigned tmp = RD_WORD_PC(T::CC_LD_XIX_N_1);
+	unsigned tmp = RD_WORD_PC(T::CC_DD + T::CC_LD_XIX_N_1);
 	offset ofst = tmp & 0xFF;
 	byte val = tmp >> 8;
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	WRMEM(addr, val, T::CC_LD_XIX_N_2);
-	return T::CC_LD_XIX_N;
+	WRMEM(addr, val, T::CC_DD + T::CC_LD_XIX_N_2);
+	return T::CC_DD + T::CC_LD_XIX_N;
 }
 
 // LD (nn),A
@@ -1085,17 +2601,17 @@ template <class T> int CPUCore<T>::ld_xbyte_a() {
 }
 
 // LD (nn),ss
-template <class T> inline int CPUCore<T>::WR_NN_Y(unsigned reg, int ee) {
-	unsigned addr = RD_WORD_PC(T::CC_LD_XX_HL_1 + ee);
+template <class T> template<int EE> inline int CPUCore<T>::WR_NN_Y(unsigned reg) {
+	unsigned addr = RD_WORD_PC(T::CC_LD_XX_HL_1 + EE);
 	T::setMemPtr(addr + 1);
-	WR_WORD(addr, reg, T::CC_LD_XX_HL_2 + ee);
-	return T::CC_LD_XX_HL + ee;
+	WR_WORD(addr, reg, T::CC_LD_XX_HL_2 + EE);
+	return T::CC_LD_XX_HL + EE;
 }
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_xword_SS() {
-	return WR_NN_Y(R.get16<REG>(), 0);
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::ld_xword_SS() {
+	return WR_NN_Y<EE      >(R.get16<REG>());
 }
 template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_xword_SS_ED() {
-	return WR_NN_Y(R.get16<REG>(), T::EE_ED);
+	return WR_NN_Y<T::EE_ED>(R.get16<REG>());
 }
 
 // LD A,(ss)
@@ -1114,8 +2630,8 @@ template <class T> int CPUCore<T>::ld_a_xbyte() {
 }
 
 // LD r,n
-template <class T> template<CPU::Reg8 DST> int CPUCore<T>::ld_R_byte() {
-	R.set8<DST>(RDMEM_OPCODE(T::CC_LD_R_N_1)); return T::CC_LD_R_N;
+template <class T> template<CPU::Reg8 DST, int EE> int CPUCore<T>::ld_R_byte() {
+	R.set8<DST>(RDMEM_OPCODE(T::CC_LD_R_N_1 + EE)); return T::CC_LD_R_N + EE;
 }
 
 // LD r,(hl)
@@ -1125,30 +2641,30 @@ template <class T> template<CPU::Reg8 DST> int CPUCore<T>::ld_R_xhl() {
 
 // LD r,(IXY+e)
 template <class T> template<CPU::Reg8 DST, CPU::Reg16 IXY> int CPUCore<T>::ld_R_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_LD_R_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_LD_R_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	R.set8<DST>(RDMEM(addr, T::CC_LD_R_XIX_2));
-	return T::CC_LD_R_XIX;
+	R.set8<DST>(RDMEM(addr, T::CC_DD + T::CC_LD_R_XIX_2));
+	return T::CC_DD + T::CC_LD_R_XIX;
 }
 
 // LD ss,(nn)
-template <class T> inline unsigned CPUCore<T>::RD_P_XX(int ee) {
-	unsigned addr = RD_WORD_PC(T::CC_LD_HL_XX_1 + ee);
+template <class T> template<int EE> inline unsigned CPUCore<T>::RD_P_XX() {
+	unsigned addr = RD_WORD_PC(T::CC_LD_HL_XX_1 + EE);
 	T::setMemPtr(addr + 1);
-	unsigned result = RD_WORD(addr, T::CC_LD_HL_XX_2 + ee);
+	unsigned result = RD_WORD(addr, T::CC_LD_HL_XX_2 + EE);
 	return result;
 }
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_SS_xword() {
-	R.set16<REG>(RD_P_XX(0));        return T::CC_LD_HL_XX;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::ld_SS_xword() {
+	R.set16<REG>(RD_P_XX<EE>());       return T::CC_LD_HL_XX + EE;
 }
 template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_SS_xword_ED() {
-	R.set16<REG>(RD_P_XX(T::EE_ED)); return T::CC_LD_HL_XX + T::EE_ED;
+	R.set16<REG>(RD_P_XX<T::EE_ED>()); return T::CC_LD_HL_XX + T::EE_ED;
 }
 
 // LD ss,nn
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_SS_word() {
-	R.set16<REG>(RD_WORD_PC(T::CC_LD_SS_NN_1)); return T::CC_LD_SS_NN;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::ld_SS_word() {
+	R.set16<REG>(RD_WORD_PC(T::CC_LD_SS_NN_1 + EE)); return T::CC_LD_SS_NN + EE;
 }
 
 
@@ -1184,8 +2700,8 @@ template <class T> inline int CPUCore<T>::adc_a_a() {
 	R.setA(res);
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::adc_a_R() {
-	ADC(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::adc_a_R() {
+	ADC(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::adc_a_byte() {
 	ADC(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1194,11 +2710,11 @@ template <class T> int CPUCore<T>::adc_a_xhl() {
 	ADC(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::adc_a_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	ADC(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	ADC(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 // ADD A,r
@@ -1233,8 +2749,8 @@ template <class T> inline int CPUCore<T>::add_a_a() {
 	R.setA(res);
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::add_a_R() {
-	ADD(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::add_a_R() {
+	ADD(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::add_a_byte() {
 	ADD(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1243,11 +2759,11 @@ template <class T> int CPUCore<T>::add_a_xhl() {
 	ADD(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::add_a_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	ADD(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	ADD(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 // AND r
@@ -1273,8 +2789,8 @@ template <class T> int CPUCore<T>::and_a() {
 	R.setF(f);
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::and_R() {
-	AND(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::and_R() {
+	AND(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::and_byte() {
 	AND(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1283,11 +2799,11 @@ template <class T> int CPUCore<T>::and_xhl() {
 	AND(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::and_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	AND(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	AND(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 // CP r
@@ -1315,8 +2831,8 @@ template <class T> int CPUCore<T>::cp_a() {
 	R.setF(f);
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::cp_R() {
-	CP(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::cp_R() {
+	CP(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::cp_byte() {
 	CP(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1325,11 +2841,11 @@ template <class T> int CPUCore<T>::cp_xhl() {
 	CP(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::cp_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	CP(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	CP(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 // OR r
@@ -1355,8 +2871,8 @@ template <class T> int CPUCore<T>::or_a() {
 	R.setF(f);
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::or_R() {
-	OR(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::or_R() {
+	OR(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::or_byte() {
 	OR(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1365,11 +2881,11 @@ template <class T> int CPUCore<T>::or_xhl() {
 	OR(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::or_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	OR(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	OR(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 // SBC A,r
@@ -1401,8 +2917,8 @@ template <class T> int CPUCore<T>::sbc_a_a() {
 	}
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::sbc_a_R() {
-	SBC(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::sbc_a_R() {
+	SBC(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::sbc_a_byte() {
 	SBC(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1411,11 +2927,11 @@ template <class T> int CPUCore<T>::sbc_a_xhl() {
 	SBC(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::sbc_a_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	SBC(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	SBC(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 // SUB r
@@ -1443,8 +2959,8 @@ template <class T> int CPUCore<T>::sub_a() {
 	}
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::sub_R() {
-	SUB(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::sub_R() {
+	SUB(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::sub_byte() {
 	SUB(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1453,11 +2969,11 @@ template <class T> int CPUCore<T>::sub_xhl() {
 	SUB(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::sub_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	SUB(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	SUB(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 // XOR r
@@ -1481,8 +2997,8 @@ template <class T> int CPUCore<T>::xor_a() {
 	}
 	return T::CC_CP_R;
 }
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::xor_R() {
-	XOR(R.get8<SRC>()); return T::CC_CP_R;
+template <class T> template<CPU::Reg8 SRC, int EE> int CPUCore<T>::xor_R() {
+	XOR(R.get8<SRC>()); return T::CC_CP_R + EE;
 }
 template <class T> int CPUCore<T>::xor_byte() {
 	XOR(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
@@ -1491,11 +3007,11 @@ template <class T> int CPUCore<T>::xor_xhl() {
 	XOR(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::xor_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	XOR(RDMEM(addr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+	XOR(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
+	return T::CC_DD + T::CC_CP_XIX;
 }
 
 
@@ -1515,22 +3031,22 @@ template <class T> inline byte CPUCore<T>::DEC(byte reg) {
 	R.setF(f);
 	return res;
 }
-template <class T> template<CPU::Reg8 REG> int CPUCore<T>::dec_R() {
-	R.set8<REG>(DEC(R.get8<REG>())); return T::CC_INC_R;
+template <class T> template<CPU::Reg8 REG, int EE> int CPUCore<T>::dec_R() {
+	R.set8<REG>(DEC(R.get8<REG>())); return T::CC_INC_R + EE;
 }
-template <class T> inline int CPUCore<T>::DEC_X(unsigned x, int ee) {
-	byte val = DEC(RDMEM(x, T::CC_INC_XHL_1 + ee));
-	WRMEM(x, val, T::CC_INC_XHL_2 + ee);
-	return T::CC_INC_XHL + ee;
+template <class T> template<int EE> inline int CPUCore<T>::DEC_X(unsigned x) {
+	byte val = DEC(RDMEM(x, T::CC_INC_XHL_1 + EE));
+	WRMEM(x, val, T::CC_INC_XHL_2 + EE);
+	return T::CC_INC_XHL + EE;
 }
 template <class T> int CPUCore<T>::dec_xhl() {
-	return DEC_X(R.getHL(), 0);
+	return DEC_X<0>(R.getHL());
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::dec_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_INC_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_INC_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	return DEC_X(addr, T::EE_INC_XIX);
+	return DEC_X<T::CC_DD + T::EE_INC_XIX>(addr);
 }
 
 // INC r
@@ -1549,22 +3065,22 @@ template <class T> inline byte CPUCore<T>::INC(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> template<CPU::Reg8 REG> int CPUCore<T>::inc_R() {
-	R.set8<REG>(INC(R.get8<REG>())); return T::CC_INC_R;
+template <class T> template<CPU::Reg8 REG, int EE> int CPUCore<T>::inc_R() {
+	R.set8<REG>(INC(R.get8<REG>())); return T::CC_INC_R + EE;
 }
-template <class T> inline int CPUCore<T>::INC_X(unsigned x, int ee) {
-	byte val = INC(RDMEM(x, T::CC_INC_XHL_1 + ee));
-	WRMEM(x, val, T::CC_INC_XHL_2 + ee);
-	return T::CC_INC_XHL + ee;
+template <class T> template <int EE> inline int CPUCore<T>::INC_X(unsigned x) {
+	byte val = INC(RDMEM(x, T::CC_INC_XHL_1 + EE));
+	WRMEM(x, val, T::CC_INC_XHL_2 + EE);
+	return T::CC_INC_XHL + EE;
 }
 template <class T> int CPUCore<T>::inc_xhl() {
-	return INC_X(R.getHL(), 0);
+	return INC_X<0>(R.getHL());
 }
 template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::inc_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_INC_XIX_1);
+	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_INC_XIX_1);
 	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
-	return INC_X(addr, T::EE_INC_XIX);
+	return INC_X<T::CC_DD + T::EE_INC_XIX>(addr);
 }
 
 
@@ -1624,7 +3140,7 @@ template <class T> int CPUCore<T>::adc_hl_hl() {
 }
 
 // ADD HL/IX/IY,ss
-template <class T> template<CPU::Reg16 REG1, CPU::Reg16 REG2> int CPUCore<T>::add_SS_TT() {
+template <class T> template<CPU::Reg16 REG1, CPU::Reg16 REG2, int EE> int CPUCore<T>::add_SS_TT() {
 	unsigned reg1 = R.get16<REG1>();
 	unsigned reg2 = R.get16<REG2>();
 	T::setMemPtr(reg1 + 1);
@@ -1640,9 +3156,9 @@ template <class T> template<CPU::Reg16 REG1, CPU::Reg16 REG2> int CPUCore<T>::ad
 	}
 	R.setF(f);
 	R.set16<REG1>(res & 0xFFFF);
-	return T::CC_ADD_HL_SS;
+	return T::CC_ADD_HL_SS + EE;
 }
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::add_SS_SS() {
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::add_SS_SS() {
 	unsigned reg = R.get16<REG>();
 	T::setMemPtr(reg + 1);
 	unsigned res = 2 * reg;
@@ -1657,7 +3173,7 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::add_SS_SS() {
 	}
 	R.setF(f);
 	R.set16<REG>(res & 0xFFFF);
-	return T::CC_ADD_HL_SS;
+	return T::CC_ADD_HL_SS + EE;
 }
 
 // SBC HL,ss
@@ -1707,13 +3223,13 @@ template <class T> int CPUCore<T>::sbc_hl_hl() {
 }
 
 // DEC ss
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::dec_SS() {
-	R.set16<REG>(R.get16<REG>() - 1); return T::CC_INC_SS;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::dec_SS() {
+	R.set16<REG>(R.get16<REG>() - 1); return T::CC_INC_SS + EE;
 }
 
 // INC ss
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::inc_SS() {
-	R.set16<REG>(R.get16<REG>() + 1); return T::CC_INC_SS;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::inc_SS() {
+	R.set16<REG>(R.get16<REG>() + 1); return T::CC_INC_SS + EE;
 }
 
 
@@ -1751,7 +3267,7 @@ template <class T> template<unsigned N> inline int CPUCore<T>::bit_N_xhl() {
 }
 template <class T> template<unsigned N> inline int CPUCore<T>::bit_N_xix(unsigned addr) {
 	T::setMemPtr(addr);
-	byte m = RDMEM(addr, T::CC_BIT_XIX_1) & (1 << N);
+	byte m = RDMEM(addr, T::CC_DD + T::CC_BIT_XIX_1) & (1 << N);
 	byte f = 0; // N_FLAG
 	if (T::isR800()) {
 		f |= R.getF() & (S_FLAG | V_FLAG | C_FLAG | X_FLAG | Y_FLAG);
@@ -1763,7 +3279,7 @@ template <class T> template<unsigned N> inline int CPUCore<T>::bit_N_xix(unsigne
 		f |= (addr >> 8) & (X_FLAG | Y_FLAG);
 	}
 	R.setF(f);
-	return T::CC_BIT_XIX;
+	return T::CC_DD + T::CC_BIT_XIX;
 }
 
 // RES n,r
@@ -1773,18 +3289,18 @@ static inline byte RES(unsigned b, byte reg) {
 template <class T> template<unsigned N, CPU::Reg8 REG> int CPUCore<T>::res_N_R() {
 	R.set8<REG>(RES(N, R.get8<REG>())); return T::CC_SET_R;
 }
-template <class T> inline byte CPUCore<T>::RES_X(unsigned bit, unsigned addr, int ee) {
-	byte res = RES(bit, RDMEM(addr, T::CC_SET_XHL_1 + ee));
-	WRMEM(addr, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::RES_X(unsigned bit, unsigned addr) {
+	byte res = RES(bit, RDMEM(addr, T::CC_SET_XHL_1 + EE));
+	WRMEM(addr, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<unsigned N> int CPUCore<T>::res_N_xhl() {
-	RES_X(N, R.getHL(), 0); return T::CC_SET_XHL;
+	RES_X<0>(N, R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<unsigned N, CPU::Reg8 REG> int CPUCore<T>::res_N_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(RES_X(N, a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(RES_X<T::CC_DD + T::EE_SET_XIX>(N, a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // SET n,r
@@ -1794,18 +3310,18 @@ static inline byte SET(unsigned b, byte reg) {
 template <class T> template<unsigned N, CPU::Reg8 REG> int CPUCore<T>::set_N_R() {
 	R.set8<REG>(SET(N, R.get8<REG>())); return T::CC_SET_R;
 }
-template <class T> inline byte CPUCore<T>::SET_X(unsigned bit, unsigned addr, int ee) {
-	byte res = SET(bit, RDMEM(addr, T::CC_SET_XHL_1 + ee));
-	WRMEM(addr, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::SET_X(unsigned bit, unsigned addr) {
+	byte res = SET(bit, RDMEM(addr, T::CC_SET_XHL_1 + EE));
+	WRMEM(addr, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<unsigned N> int CPUCore<T>::set_N_xhl() {
-	SET_X(N, R.getHL(), 0); return T::CC_SET_XHL;
+	SET_X<0>(N, R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<unsigned N, CPU::Reg8 REG> int CPUCore<T>::set_N_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(SET_X(N, a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(SET_X<T::CC_DD + T::EE_SET_XIX>(N, a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // RL r
@@ -1822,21 +3338,21 @@ template <class T> inline byte CPUCore<T>::RL(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::RL_X(unsigned x, int ee) {
-	byte res = RL(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::RL_X(unsigned x) {
+	byte res = RL(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rl_R() {
 	R.set8<REG>(RL(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::rl_xhl() {
-	RL_X(R.getHL(), 0); return T::CC_SET_XHL;
+	RL_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rl_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(RL_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(RL_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // RLC r
@@ -1853,21 +3369,21 @@ template <class T> inline byte CPUCore<T>::RLC(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::RLC_X(unsigned x, int ee) {
-	byte res = RLC(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::RLC_X(unsigned x) {
+	byte res = RLC(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rlc_R() {
 	R.set8<REG>(RLC(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::rlc_xhl() {
-	RLC_X(R.getHL(), 0); return T::CC_SET_XHL;
+	RLC_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rlc_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(RLC_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(RLC_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // RR r
@@ -1884,21 +3400,21 @@ template <class T> inline byte CPUCore<T>::RR(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::RR_X(unsigned x, int ee) {
-	byte res = RR(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::RR_X(unsigned x) {
+	byte res = RR(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rr_R() {
 	R.set8<REG>(RR(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::rr_xhl() {
-	RR_X(R.getHL(), 0); return T::CC_SET_XHL;
+	RR_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rr_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(RR_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(RR_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // RRC r
@@ -1915,21 +3431,21 @@ template <class T> inline byte CPUCore<T>::RRC(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::RRC_X(unsigned x, int ee) {
-	byte res = RRC(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::RRC_X(unsigned x) {
+	byte res = RRC(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rrc_R() {
 	R.set8<REG>(RRC(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::rrc_xhl() {
-	RRC_X(R.getHL(), 0); return T::CC_SET_XHL;
+	RRC_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::rrc_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(RRC_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(RRC_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // SLA r
@@ -1946,21 +3462,21 @@ template <class T> inline byte CPUCore<T>::SLA(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::SLA_X(unsigned x, int ee) {
-	byte res = SLA(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::SLA_X(unsigned x) {
+	byte res = SLA(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::sla_R() {
 	R.set8<REG>(SLA(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::sla_xhl() {
-	SLA_X(R.getHL(), 0); return T::CC_SET_XHL;
+	SLA_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::sla_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(SLA_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(SLA_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // SLL r
@@ -1973,21 +3489,21 @@ template <class T> inline byte CPUCore<T>::SLL(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::SLL_X(unsigned x, int ee) {
-	byte res = SLL(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::SLL_X(unsigned x) {
+	byte res = SLL(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::sll_R() {
 	R.set8<REG>(SLL(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::sll_xhl() {
-	SLL_X(R.getHL(), 0); return T::CC_SET_XHL;
+	SLL_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::sll_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(SLL_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(SLL_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 template <class T> int CPUCore<T>::sll2() {
 	assert(T::isR800()); // this instruction is R800-only
@@ -1995,7 +3511,7 @@ template <class T> int CPUCore<T>::sll2() {
 	         (R.getA() >> 7) | // C_FLAG
 	         0; // all other flags zero
 	R.setF(f);
-	return T::CC_SET_XIX; // TODO
+	return T::CC_DD + T::CC_SET_XIX; // TODO
 }
 
 // SRA r
@@ -2012,21 +3528,21 @@ template <class T> inline byte CPUCore<T>::SRA(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::SRA_X(unsigned x, int ee) {
-	byte res = SRA(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::SRA_X(unsigned x) {
+	byte res = SRA(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::sra_R() {
 	R.set8<REG>(SRA(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::sra_xhl() {
-	SRA_X(R.getHL(), 0); return T::CC_SET_XHL;
+	SRA_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::sra_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(SRA_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(SRA_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // SRL R
@@ -2043,21 +3559,21 @@ template <class T> inline byte CPUCore<T>::SRL(byte reg) {
 	R.setF(f);
 	return reg;
 }
-template <class T> inline byte CPUCore<T>::SRL_X(unsigned x, int ee) {
-	byte res = SRL(RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+template <class T> template<int EE> inline byte CPUCore<T>::SRL_X(unsigned x) {
+	byte res = SRL(RDMEM(x, T::CC_SET_XHL_1 + EE));
+	WRMEM(x, res, T::CC_SET_XHL_2 + EE);
 	return res;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::srl_R() {
 	R.set8<REG>(SRL(R.get8<REG>())); return T::CC_SET_R;
 }
 template <class T> int CPUCore<T>::srl_xhl() {
-	SRL_X(R.getHL(), 0); return T::CC_SET_XHL;
+	SRL_X<0>(R.getHL()); return T::CC_SET_XHL;
 }
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::srl_xix_R(unsigned a) {
 	T::setMemPtr(a);
-	R.set8<REG>(SRL_X(a, T::EE_SET_XIX));
-	return T::CC_SET_XIX;
+	R.set8<REG>(SRL_X<T::CC_DD + T::EE_SET_XIX>(a));
+	return T::CC_DD + T::CC_SET_XIX;
 }
 
 // RLA RLCA RRA RRCA
@@ -2158,22 +3674,22 @@ template <class T> int CPUCore<T>::rrd() {
 
 
 // PUSH ss
-template <class T> inline void CPUCore<T>::PUSH(unsigned reg, int ee) {
+template <class T> template<int EE> inline void CPUCore<T>::PUSH(unsigned reg) {
 	R.setSP(R.getSP() - 2);
-	WR_WORD_rev<true, true>(R.getSP(), reg, T::CC_PUSH_1 + ee);
+	WR_WORD_rev<true, true>(R.getSP(), reg, T::CC_PUSH_1 + EE);
 }
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::push_SS() {
-	PUSH(R.get16<REG>(), 0); return T::CC_PUSH;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::push_SS() {
+	PUSH<EE>(R.get16<REG>()); return T::CC_PUSH + EE;
 }
 
 // POP ss
-template <class T> inline unsigned CPUCore<T>::POP(int ee) {
+template <class T> template <int EE> inline unsigned CPUCore<T>::POP() {
 	unsigned addr = R.getSP();
 	R.setSP(addr + 2);
-	return RD_WORD(addr, T::CC_POP_1 + ee);
+	return RD_WORD(addr, T::CC_POP_1 + EE);
 }
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::pop_SS() {
-	R.set16<REG>(POP(0)); return T::CC_POP;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::pop_SS() {
+	R.set16<REG>(POP<EE>()); return T::CC_POP + EE;
 }
 
 
@@ -2182,7 +3698,7 @@ template <class T> template<typename COND> int CPUCore<T>::call(COND cond) {
 	unsigned addr = RD_WORD_PC(T::CC_CALL_1);
 	T::setMemPtr(addr);
 	if (cond(R.getF())) {
-		PUSH(R.getPC(), T::EE_CALL);
+		PUSH<T::EE_CALL>(R.getPC());
 		R.setPC(addr);
 		return T::CC_CALL_A;
 	} else {
@@ -2193,7 +3709,7 @@ template <class T> template<typename COND> int CPUCore<T>::call(COND cond) {
 
 // RST n
 template <class T> template<unsigned ADDR> int CPUCore<T>::rst() {
-	PUSH(R.getPC(), 0);
+	PUSH<0>(R.getPC());
 	T::setMemPtr(ADDR);
 	R.setPC(ADDR);
 	return T::CC_RST;
@@ -2201,32 +3717,32 @@ template <class T> template<unsigned ADDR> int CPUCore<T>::rst() {
 
 
 // RET
-template <class T> template<typename COND> inline int CPUCore<T>::RET(COND cond, int ee) {
+template <class T> template<int EE, typename COND> inline int CPUCore<T>::RET(COND cond) {
 	if (cond(R.getF())) {
-		unsigned addr = POP(ee);
+		unsigned addr = POP<EE>();
 		T::setMemPtr(addr);
 		R.setPC(addr);
-		return T::CC_RET_A + ee;
+		return T::CC_RET_A + EE;
 	} else {
-		return T::CC_RET_B + ee;
+		return T::CC_RET_B + EE;
 	}
 }
 template <class T> template<typename COND> int CPUCore<T>::ret(COND cond) {
-	return RET(cond, T::EE_RET_C);
+	return RET<T::EE_RET_C>(cond);
 }
 template <class T> int CPUCore<T>::ret() {
-	return RET(CondTrue(), 0);
+	return RET<0>(CondTrue());
 }
 template <class T> int CPUCore<T>::retn() { // also reti
 	R.setIFF1(R.getIFF2());
 	setSlowInstructions();
-	return RET(CondTrue(), T::EE_RETN);
+	return RET<T::EE_RETN>(CondTrue());
 }
 
 
 // JP ss
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::jp_SS() {
-	R.setPC(R.get16<REG>()); T::R800ForcePageBreak(); return T::CC_JP_HL;
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::jp_SS() {
+	R.setPC(R.get16<REG>()); T::R800ForcePageBreak(); return T::CC_JP_HL + EE;
 }
 
 // JP nn / JP cc,nn
@@ -2269,12 +3785,12 @@ template <class T> int CPUCore<T>::djnz() {
 }
 
 // EX (SP),ss
-template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ex_xsp_SS() {
-	unsigned res = RD_WORD_impl<true, false>(R.getSP(), T::CC_EX_SP_HL_1);
+template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::ex_xsp_SS() {
+	unsigned res = RD_WORD_impl<true, false>(R.getSP(), T::CC_EX_SP_HL_1 + EE);
 	T::setMemPtr(res);
-	WR_WORD_rev<false, true>(R.getSP(), R.get16<REG>(), T::CC_EX_SP_HL_2);
+	WR_WORD_rev<false, true>(R.getSP(), R.get16<REG>(), T::CC_EX_SP_HL_2 + EE);
 	R.set16<REG>(res);
-	return T::CC_EX_SP_HL;
+	return T::CC_EX_SP_HL + EE;
 }
 
 // IN r,(c)
@@ -2625,918 +4141,6 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::muluw_hl_SS() {
 	return T::CC_MULUW;
 }
 
-
-// prefixes
-template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::xy_cb() {
-	unsigned tmp = RD_WORD_PC(T::CC_DD_CB);
-	offset ofst = tmp & 0xFF;
-	unsigned addr = (R.get16<IXY>() + ofst) & 0xFFFF;
-	unsigned opcode = tmp >> 8;
-	switch (opcode) {
-		case 0x00: return rlc_xix_R<B>(addr);
-		case 0x01: return rlc_xix_R<C>(addr);
-		case 0x02: return rlc_xix_R<D>(addr);
-		case 0x03: return rlc_xix_R<E>(addr);
-		case 0x04: return rlc_xix_R<H>(addr);
-		case 0x05: return rlc_xix_R<L>(addr);
-		case 0x06: return rlc_xix_R<DUMMY>(addr);
-		case 0x07: return rlc_xix_R<A>(addr);
-		case 0x08: return rrc_xix_R<B>(addr);
-		case 0x09: return rrc_xix_R<C>(addr);
-		case 0x0a: return rrc_xix_R<D>(addr);
-		case 0x0b: return rrc_xix_R<E>(addr);
-		case 0x0c: return rrc_xix_R<H>(addr);
-		case 0x0d: return rrc_xix_R<L>(addr);
-		case 0x0e: return rrc_xix_R<DUMMY>(addr);
-		case 0x0f: return rrc_xix_R<A>(addr);
-		case 0x10: return rl_xix_R<B>(addr);
-		case 0x11: return rl_xix_R<C>(addr);
-		case 0x12: return rl_xix_R<D>(addr);
-		case 0x13: return rl_xix_R<E>(addr);
-		case 0x14: return rl_xix_R<H>(addr);
-		case 0x15: return rl_xix_R<L>(addr);
-		case 0x16: return rl_xix_R<DUMMY>(addr);
-		case 0x17: return rl_xix_R<A>(addr);
-		case 0x18: return rr_xix_R<B>(addr);
-		case 0x19: return rr_xix_R<C>(addr);
-		case 0x1a: return rr_xix_R<D>(addr);
-		case 0x1b: return rr_xix_R<E>(addr);
-		case 0x1c: return rr_xix_R<H>(addr);
-		case 0x1d: return rr_xix_R<L>(addr);
-		case 0x1e: return rr_xix_R<DUMMY>(addr);
-		case 0x1f: return rr_xix_R<A>(addr);
-		case 0x20: return sla_xix_R<B>(addr);
-		case 0x21: return sla_xix_R<C>(addr);
-		case 0x22: return sla_xix_R<D>(addr);
-		case 0x23: return sla_xix_R<E>(addr);
-		case 0x24: return sla_xix_R<H>(addr);
-		case 0x25: return sla_xix_R<L>(addr);
-		case 0x26: return sla_xix_R<DUMMY>(addr);
-		case 0x27: return sla_xix_R<A>(addr);
-		case 0x28: return sra_xix_R<B>(addr);
-		case 0x29: return sra_xix_R<C>(addr);
-		case 0x2a: return sra_xix_R<D>(addr);
-		case 0x2b: return sra_xix_R<E>(addr);
-		case 0x2c: return sra_xix_R<H>(addr);
-		case 0x2d: return sra_xix_R<L>(addr);
-		case 0x2e: return sra_xix_R<DUMMY>(addr);
-		case 0x2f: return sra_xix_R<A>(addr);
-		case 0x30: return T::isR800() ? sll2() : sll_xix_R<B>(addr);
-		case 0x31: return T::isR800() ? sll2() : sll_xix_R<C>(addr);
-		case 0x32: return T::isR800() ? sll2() : sll_xix_R<D>(addr);
-		case 0x33: return T::isR800() ? sll2() : sll_xix_R<E>(addr);
-		case 0x34: return T::isR800() ? sll2() : sll_xix_R<H>(addr);
-		case 0x35: return T::isR800() ? sll2() : sll_xix_R<L>(addr);
-		case 0x36: return T::isR800() ? sll2() : sll_xix_R<DUMMY>(addr);
-		case 0x37: return T::isR800() ? sll2() : sll_xix_R<A>(addr);
-		case 0x38: return srl_xix_R<B>(addr);
-		case 0x39: return srl_xix_R<C>(addr);
-		case 0x3a: return srl_xix_R<D>(addr);
-		case 0x3b: return srl_xix_R<E>(addr);
-		case 0x3c: return srl_xix_R<H>(addr);
-		case 0x3d: return srl_xix_R<L>(addr);
-		case 0x3e: return srl_xix_R<DUMMY>(addr);
-		case 0x3f: return srl_xix_R<A>(addr);
-
-		case 0x40: case 0x41: case 0x42: case 0x43:
-		case 0x44: case 0x45: case 0x46: case 0x47:
-			return bit_N_xix<0>(addr);
-		case 0x48: case 0x49: case 0x4a: case 0x4b:
-		case 0x4c: case 0x4d: case 0x4e: case 0x4f:
-			return bit_N_xix<1>(addr);
-		case 0x50: case 0x51: case 0x52: case 0x53:
-		case 0x54: case 0x55: case 0x56: case 0x57:
-			return bit_N_xix<2>(addr);
-		case 0x58: case 0x59: case 0x5a: case 0x5b:
-		case 0x5c: case 0x5d: case 0x5e: case 0x5f:
-			return bit_N_xix<3>(addr);
-		case 0x60: case 0x61: case 0x62: case 0x63:
-		case 0x64: case 0x65: case 0x66: case 0x67:
-			return bit_N_xix<4>(addr);
-		case 0x68: case 0x69: case 0x6a: case 0x6b:
-		case 0x6c: case 0x6d: case 0x6e: case 0x6f:
-			return bit_N_xix<5>(addr);
-		case 0x70: case 0x71: case 0x72: case 0x73:
-		case 0x74: case 0x75: case 0x76: case 0x77:
-			return bit_N_xix<6>(addr);
-		case 0x78: case 0x79: case 0x7a: case 0x7b:
-		case 0x7c: case 0x7d: case 0x7e: case 0x7f:
-			return bit_N_xix<7>(addr);
-
-		case 0x80: return res_N_xix_R<0,B>(addr);
-		case 0x81: return res_N_xix_R<0,C>(addr);
-		case 0x82: return res_N_xix_R<0,D>(addr);
-		case 0x83: return res_N_xix_R<0,E>(addr);
-		case 0x84: return res_N_xix_R<0,H>(addr);
-		case 0x85: return res_N_xix_R<0,L>(addr);
-		case 0x87: return res_N_xix_R<0,A>(addr);
-		case 0x88: return res_N_xix_R<1,B>(addr);
-		case 0x89: return res_N_xix_R<1,C>(addr);
-		case 0x8a: return res_N_xix_R<1,D>(addr);
-		case 0x8b: return res_N_xix_R<1,E>(addr);
-		case 0x8c: return res_N_xix_R<1,H>(addr);
-		case 0x8d: return res_N_xix_R<1,L>(addr);
-		case 0x8f: return res_N_xix_R<1,A>(addr);
-		case 0x90: return res_N_xix_R<2,B>(addr);
-		case 0x91: return res_N_xix_R<2,C>(addr);
-		case 0x92: return res_N_xix_R<2,D>(addr);
-		case 0x93: return res_N_xix_R<2,E>(addr);
-		case 0x94: return res_N_xix_R<2,H>(addr);
-		case 0x95: return res_N_xix_R<2,L>(addr);
-		case 0x97: return res_N_xix_R<2,A>(addr);
-		case 0x98: return res_N_xix_R<3,B>(addr);
-		case 0x99: return res_N_xix_R<3,C>(addr);
-		case 0x9a: return res_N_xix_R<3,D>(addr);
-		case 0x9b: return res_N_xix_R<3,E>(addr);
-		case 0x9c: return res_N_xix_R<3,H>(addr);
-		case 0x9d: return res_N_xix_R<3,L>(addr);
-		case 0x9f: return res_N_xix_R<3,A>(addr);
-		case 0xa0: return res_N_xix_R<4,B>(addr);
-		case 0xa1: return res_N_xix_R<4,C>(addr);
-		case 0xa2: return res_N_xix_R<4,D>(addr);
-		case 0xa3: return res_N_xix_R<4,E>(addr);
-		case 0xa4: return res_N_xix_R<4,H>(addr);
-		case 0xa5: return res_N_xix_R<4,L>(addr);
-		case 0xa7: return res_N_xix_R<4,A>(addr);
-		case 0xa8: return res_N_xix_R<5,B>(addr);
-		case 0xa9: return res_N_xix_R<5,C>(addr);
-		case 0xaa: return res_N_xix_R<5,D>(addr);
-		case 0xab: return res_N_xix_R<5,E>(addr);
-		case 0xac: return res_N_xix_R<5,H>(addr);
-		case 0xad: return res_N_xix_R<5,L>(addr);
-		case 0xaf: return res_N_xix_R<5,A>(addr);
-		case 0xb0: return res_N_xix_R<6,B>(addr);
-		case 0xb1: return res_N_xix_R<6,C>(addr);
-		case 0xb2: return res_N_xix_R<6,D>(addr);
-		case 0xb3: return res_N_xix_R<6,E>(addr);
-		case 0xb4: return res_N_xix_R<6,H>(addr);
-		case 0xb5: return res_N_xix_R<6,L>(addr);
-		case 0xb7: return res_N_xix_R<6,A>(addr);
-		case 0xb8: return res_N_xix_R<7,B>(addr);
-		case 0xb9: return res_N_xix_R<7,C>(addr);
-		case 0xba: return res_N_xix_R<7,D>(addr);
-		case 0xbb: return res_N_xix_R<7,E>(addr);
-		case 0xbc: return res_N_xix_R<7,H>(addr);
-		case 0xbd: return res_N_xix_R<7,L>(addr);
-		case 0xbf: return res_N_xix_R<7,A>(addr);
-		case 0x86: return res_N_xix_R<0,DUMMY>(addr);
-		case 0x8e: return res_N_xix_R<1,DUMMY>(addr);
-		case 0x96: return res_N_xix_R<2,DUMMY>(addr);
-		case 0x9e: return res_N_xix_R<3,DUMMY>(addr);
-		case 0xa6: return res_N_xix_R<4,DUMMY>(addr);
-		case 0xae: return res_N_xix_R<5,DUMMY>(addr);
-		case 0xb6: return res_N_xix_R<6,DUMMY>(addr);
-		case 0xbe: return res_N_xix_R<7,DUMMY>(addr);
-
-		case 0xc0: return set_N_xix_R<0,B>(addr);
-		case 0xc1: return set_N_xix_R<0,C>(addr);
-		case 0xc2: return set_N_xix_R<0,D>(addr);
-		case 0xc3: return set_N_xix_R<0,E>(addr);
-		case 0xc4: return set_N_xix_R<0,H>(addr);
-		case 0xc5: return set_N_xix_R<0,L>(addr);
-		case 0xc7: return set_N_xix_R<0,A>(addr);
-		case 0xc8: return set_N_xix_R<1,B>(addr);
-		case 0xc9: return set_N_xix_R<1,C>(addr);
-		case 0xca: return set_N_xix_R<1,D>(addr);
-		case 0xcb: return set_N_xix_R<1,E>(addr);
-		case 0xcc: return set_N_xix_R<1,H>(addr);
-		case 0xcd: return set_N_xix_R<1,L>(addr);
-		case 0xcf: return set_N_xix_R<1,A>(addr);
-		case 0xd0: return set_N_xix_R<2,B>(addr);
-		case 0xd1: return set_N_xix_R<2,C>(addr);
-		case 0xd2: return set_N_xix_R<2,D>(addr);
-		case 0xd3: return set_N_xix_R<2,E>(addr);
-		case 0xd4: return set_N_xix_R<2,H>(addr);
-		case 0xd5: return set_N_xix_R<2,L>(addr);
-		case 0xd7: return set_N_xix_R<2,A>(addr);
-		case 0xd8: return set_N_xix_R<3,B>(addr);
-		case 0xd9: return set_N_xix_R<3,C>(addr);
-		case 0xda: return set_N_xix_R<3,D>(addr);
-		case 0xdb: return set_N_xix_R<3,E>(addr);
-		case 0xdc: return set_N_xix_R<3,H>(addr);
-		case 0xdd: return set_N_xix_R<3,L>(addr);
-		case 0xdf: return set_N_xix_R<3,A>(addr);
-		case 0xe0: return set_N_xix_R<4,B>(addr);
-		case 0xe1: return set_N_xix_R<4,C>(addr);
-		case 0xe2: return set_N_xix_R<4,D>(addr);
-		case 0xe3: return set_N_xix_R<4,E>(addr);
-		case 0xe4: return set_N_xix_R<4,H>(addr);
-		case 0xe5: return set_N_xix_R<4,L>(addr);
-		case 0xe7: return set_N_xix_R<4,A>(addr);
-		case 0xe8: return set_N_xix_R<5,B>(addr);
-		case 0xe9: return set_N_xix_R<5,C>(addr);
-		case 0xea: return set_N_xix_R<5,D>(addr);
-		case 0xeb: return set_N_xix_R<5,E>(addr);
-		case 0xec: return set_N_xix_R<5,H>(addr);
-		case 0xed: return set_N_xix_R<5,L>(addr);
-		case 0xef: return set_N_xix_R<5,A>(addr);
-		case 0xf0: return set_N_xix_R<6,B>(addr);
-		case 0xf1: return set_N_xix_R<6,C>(addr);
-		case 0xf2: return set_N_xix_R<6,D>(addr);
-		case 0xf3: return set_N_xix_R<6,E>(addr);
-		case 0xf4: return set_N_xix_R<6,H>(addr);
-		case 0xf5: return set_N_xix_R<6,L>(addr);
-		case 0xf7: return set_N_xix_R<6,A>(addr);
-		case 0xf8: return set_N_xix_R<7,B>(addr);
-		case 0xf9: return set_N_xix_R<7,C>(addr);
-		case 0xfa: return set_N_xix_R<7,D>(addr);
-		case 0xfb: return set_N_xix_R<7,E>(addr);
-		case 0xfc: return set_N_xix_R<7,H>(addr);
-		case 0xfd: return set_N_xix_R<7,L>(addr);
-		case 0xff: return set_N_xix_R<7,A>(addr);
-		case 0xc6: return set_N_xix_R<0,DUMMY>(addr);
-		case 0xce: return set_N_xix_R<1,DUMMY>(addr);
-		case 0xd6: return set_N_xix_R<2,DUMMY>(addr);
-		case 0xde: return set_N_xix_R<3,DUMMY>(addr);
-		case 0xe6: return set_N_xix_R<4,DUMMY>(addr);
-		case 0xee: return set_N_xix_R<5,DUMMY>(addr);
-		case 0xf6: return set_N_xix_R<6,DUMMY>(addr);
-		case 0xfe: return set_N_xix_R<7,DUMMY>(addr);
-	}
-	assert(false); return 0;
-}
-
-template <class T> int CPUCore<T>::cb() {
-	byte opcode = RDMEM_OPCODE(T::CC_PREFIX);
-	M1Cycle();
-	switch (opcode) {
-		case 0x00: return rlc_R<B>();
-		case 0x01: return rlc_R<C>();
-		case 0x02: return rlc_R<D>();
-		case 0x03: return rlc_R<E>();
-		case 0x04: return rlc_R<H>();
-		case 0x05: return rlc_R<L>();
-		case 0x07: return rlc_R<A>();
-		case 0x06: return rlc_xhl();
-		case 0x08: return rrc_R<B>();
-		case 0x09: return rrc_R<C>();
-		case 0x0a: return rrc_R<D>();
-		case 0x0b: return rrc_R<E>();
-		case 0x0c: return rrc_R<H>();
-		case 0x0d: return rrc_R<L>();
-		case 0x0f: return rrc_R<A>();
-		case 0x0e: return rrc_xhl();
-		case 0x10: return rl_R<B>();
-		case 0x11: return rl_R<C>();
-		case 0x12: return rl_R<D>();
-		case 0x13: return rl_R<E>();
-		case 0x14: return rl_R<H>();
-		case 0x15: return rl_R<L>();
-		case 0x17: return rl_R<A>();
-		case 0x16: return rl_xhl();
-		case 0x18: return rr_R<B>();
-		case 0x19: return rr_R<C>();
-		case 0x1a: return rr_R<D>();
-		case 0x1b: return rr_R<E>();
-		case 0x1c: return rr_R<H>();
-		case 0x1d: return rr_R<L>();
-		case 0x1f: return rr_R<A>();
-		case 0x1e: return rr_xhl();
-		case 0x20: return sla_R<B>();
-		case 0x21: return sla_R<C>();
-		case 0x22: return sla_R<D>();
-		case 0x23: return sla_R<E>();
-		case 0x24: return sla_R<H>();
-		case 0x25: return sla_R<L>();
-		case 0x27: return sla_R<A>();
-		case 0x26: return sla_xhl();
-		case 0x28: return sra_R<B>();
-		case 0x29: return sra_R<C>();
-		case 0x2a: return sra_R<D>();
-		case 0x2b: return sra_R<E>();
-		case 0x2c: return sra_R<H>();
-		case 0x2d: return sra_R<L>();
-		case 0x2f: return sra_R<A>();
-		case 0x2e: return sra_xhl();
-		case 0x30: return T::isR800() ? sla_R<B>() : sll_R<B>();
-		case 0x31: return T::isR800() ? sla_R<C>() : sll_R<C>();
-		case 0x32: return T::isR800() ? sla_R<D>() : sll_R<D>();
-		case 0x33: return T::isR800() ? sla_R<E>() : sll_R<E>();
-		case 0x34: return T::isR800() ? sla_R<H>() : sll_R<H>();
-		case 0x35: return T::isR800() ? sla_R<L>() : sll_R<L>();
-		case 0x37: return T::isR800() ? sla_R<A>() : sll_R<A>();
-		case 0x36: return T::isR800() ? sla_xhl()  : sll_xhl();
-		case 0x38: return srl_R<B>();
-		case 0x39: return srl_R<C>();
-		case 0x3a: return srl_R<D>();
-		case 0x3b: return srl_R<E>();
-		case 0x3c: return srl_R<H>();
-		case 0x3d: return srl_R<L>();
-		case 0x3f: return srl_R<A>();
-		case 0x3e: return srl_xhl();
-
-		case 0x40: return bit_N_R<0,B>();
-		case 0x41: return bit_N_R<0,C>();
-		case 0x42: return bit_N_R<0,D>();
-		case 0x43: return bit_N_R<0,E>();
-		case 0x44: return bit_N_R<0,H>();
-		case 0x45: return bit_N_R<0,L>();
-		case 0x47: return bit_N_R<0,A>();
-		case 0x48: return bit_N_R<1,B>();
-		case 0x49: return bit_N_R<1,C>();
-		case 0x4a: return bit_N_R<1,D>();
-		case 0x4b: return bit_N_R<1,E>();
-		case 0x4c: return bit_N_R<1,H>();
-		case 0x4d: return bit_N_R<1,L>();
-		case 0x4f: return bit_N_R<1,A>();
-		case 0x50: return bit_N_R<2,B>();
-		case 0x51: return bit_N_R<2,C>();
-		case 0x52: return bit_N_R<2,D>();
-		case 0x53: return bit_N_R<2,E>();
-		case 0x54: return bit_N_R<2,H>();
-		case 0x55: return bit_N_R<2,L>();
-		case 0x57: return bit_N_R<2,A>();
-		case 0x58: return bit_N_R<3,B>();
-		case 0x59: return bit_N_R<3,C>();
-		case 0x5a: return bit_N_R<3,D>();
-		case 0x5b: return bit_N_R<3,E>();
-		case 0x5c: return bit_N_R<3,H>();
-		case 0x5d: return bit_N_R<3,L>();
-		case 0x5f: return bit_N_R<3,A>();
-		case 0x60: return bit_N_R<4,B>();
-		case 0x61: return bit_N_R<4,C>();
-		case 0x62: return bit_N_R<4,D>();
-		case 0x63: return bit_N_R<4,E>();
-		case 0x64: return bit_N_R<4,H>();
-		case 0x65: return bit_N_R<4,L>();
-		case 0x67: return bit_N_R<4,A>();
-		case 0x68: return bit_N_R<5,B>();
-		case 0x69: return bit_N_R<5,C>();
-		case 0x6a: return bit_N_R<5,D>();
-		case 0x6b: return bit_N_R<5,E>();
-		case 0x6c: return bit_N_R<5,H>();
-		case 0x6d: return bit_N_R<5,L>();
-		case 0x6f: return bit_N_R<5,A>();
-		case 0x70: return bit_N_R<6,B>();
-		case 0x71: return bit_N_R<6,C>();
-		case 0x72: return bit_N_R<6,D>();
-		case 0x73: return bit_N_R<6,E>();
-		case 0x74: return bit_N_R<6,H>();
-		case 0x75: return bit_N_R<6,L>();
-		case 0x77: return bit_N_R<6,A>();
-		case 0x78: return bit_N_R<7,B>();
-		case 0x79: return bit_N_R<7,C>();
-		case 0x7a: return bit_N_R<7,D>();
-		case 0x7b: return bit_N_R<7,E>();
-		case 0x7c: return bit_N_R<7,H>();
-		case 0x7d: return bit_N_R<7,L>();
-		case 0x7f: return bit_N_R<7,A>();
-		case 0x46: return bit_N_xhl<0>();
-		case 0x4e: return bit_N_xhl<1>();
-		case 0x56: return bit_N_xhl<2>();
-		case 0x5e: return bit_N_xhl<3>();
-		case 0x66: return bit_N_xhl<4>();
-		case 0x6e: return bit_N_xhl<5>();
-		case 0x76: return bit_N_xhl<6>();
-		case 0x7e: return bit_N_xhl<7>();
-
-		case 0x80: return res_N_R<0,B>();
-		case 0x81: return res_N_R<0,C>();
-		case 0x82: return res_N_R<0,D>();
-		case 0x83: return res_N_R<0,E>();
-		case 0x84: return res_N_R<0,H>();
-		case 0x85: return res_N_R<0,L>();
-		case 0x87: return res_N_R<0,A>();
-		case 0x88: return res_N_R<1,B>();
-		case 0x89: return res_N_R<1,C>();
-		case 0x8a: return res_N_R<1,D>();
-		case 0x8b: return res_N_R<1,E>();
-		case 0x8c: return res_N_R<1,H>();
-		case 0x8d: return res_N_R<1,L>();
-		case 0x8f: return res_N_R<1,A>();
-		case 0x90: return res_N_R<2,B>();
-		case 0x91: return res_N_R<2,C>();
-		case 0x92: return res_N_R<2,D>();
-		case 0x93: return res_N_R<2,E>();
-		case 0x94: return res_N_R<2,H>();
-		case 0x95: return res_N_R<2,L>();
-		case 0x97: return res_N_R<2,A>();
-		case 0x98: return res_N_R<3,B>();
-		case 0x99: return res_N_R<3,C>();
-		case 0x9a: return res_N_R<3,D>();
-		case 0x9b: return res_N_R<3,E>();
-		case 0x9c: return res_N_R<3,H>();
-		case 0x9d: return res_N_R<3,L>();
-		case 0x9f: return res_N_R<3,A>();
-		case 0xa0: return res_N_R<4,B>();
-		case 0xa1: return res_N_R<4,C>();
-		case 0xa2: return res_N_R<4,D>();
-		case 0xa3: return res_N_R<4,E>();
-		case 0xa4: return res_N_R<4,H>();
-		case 0xa5: return res_N_R<4,L>();
-		case 0xa7: return res_N_R<4,A>();
-		case 0xa8: return res_N_R<5,B>();
-		case 0xa9: return res_N_R<5,C>();
-		case 0xaa: return res_N_R<5,D>();
-		case 0xab: return res_N_R<5,E>();
-		case 0xac: return res_N_R<5,H>();
-		case 0xad: return res_N_R<5,L>();
-		case 0xaf: return res_N_R<5,A>();
-		case 0xb0: return res_N_R<6,B>();
-		case 0xb1: return res_N_R<6,C>();
-		case 0xb2: return res_N_R<6,D>();
-		case 0xb3: return res_N_R<6,E>();
-		case 0xb4: return res_N_R<6,H>();
-		case 0xb5: return res_N_R<6,L>();
-		case 0xb7: return res_N_R<6,A>();
-		case 0xb8: return res_N_R<7,B>();
-		case 0xb9: return res_N_R<7,C>();
-		case 0xba: return res_N_R<7,D>();
-		case 0xbb: return res_N_R<7,E>();
-		case 0xbc: return res_N_R<7,H>();
-		case 0xbd: return res_N_R<7,L>();
-		case 0xbf: return res_N_R<7,A>();
-		case 0x86: return res_N_xhl<0>();
-		case 0x8e: return res_N_xhl<1>();
-		case 0x96: return res_N_xhl<2>();
-		case 0x9e: return res_N_xhl<3>();
-		case 0xa6: return res_N_xhl<4>();
-		case 0xae: return res_N_xhl<5>();
-		case 0xb6: return res_N_xhl<6>();
-		case 0xbe: return res_N_xhl<7>();
-
-		case 0xc0: return set_N_R<0,B>();
-		case 0xc1: return set_N_R<0,C>();
-		case 0xc2: return set_N_R<0,D>();
-		case 0xc3: return set_N_R<0,E>();
-		case 0xc4: return set_N_R<0,H>();
-		case 0xc5: return set_N_R<0,L>();
-		case 0xc7: return set_N_R<0,A>();
-		case 0xc8: return set_N_R<1,B>();
-		case 0xc9: return set_N_R<1,C>();
-		case 0xca: return set_N_R<1,D>();
-		case 0xcb: return set_N_R<1,E>();
-		case 0xcc: return set_N_R<1,H>();
-		case 0xcd: return set_N_R<1,L>();
-		case 0xcf: return set_N_R<1,A>();
-		case 0xd0: return set_N_R<2,B>();
-		case 0xd1: return set_N_R<2,C>();
-		case 0xd2: return set_N_R<2,D>();
-		case 0xd3: return set_N_R<2,E>();
-		case 0xd4: return set_N_R<2,H>();
-		case 0xd5: return set_N_R<2,L>();
-		case 0xd7: return set_N_R<2,A>();
-		case 0xd8: return set_N_R<3,B>();
-		case 0xd9: return set_N_R<3,C>();
-		case 0xda: return set_N_R<3,D>();
-		case 0xdb: return set_N_R<3,E>();
-		case 0xdc: return set_N_R<3,H>();
-		case 0xdd: return set_N_R<3,L>();
-		case 0xdf: return set_N_R<3,A>();
-		case 0xe0: return set_N_R<4,B>();
-		case 0xe1: return set_N_R<4,C>();
-		case 0xe2: return set_N_R<4,D>();
-		case 0xe3: return set_N_R<4,E>();
-		case 0xe4: return set_N_R<4,H>();
-		case 0xe5: return set_N_R<4,L>();
-		case 0xe7: return set_N_R<4,A>();
-		case 0xe8: return set_N_R<5,B>();
-		case 0xe9: return set_N_R<5,C>();
-		case 0xea: return set_N_R<5,D>();
-		case 0xeb: return set_N_R<5,E>();
-		case 0xec: return set_N_R<5,H>();
-		case 0xed: return set_N_R<5,L>();
-		case 0xef: return set_N_R<5,A>();
-		case 0xf0: return set_N_R<6,B>();
-		case 0xf1: return set_N_R<6,C>();
-		case 0xf2: return set_N_R<6,D>();
-		case 0xf3: return set_N_R<6,E>();
-		case 0xf4: return set_N_R<6,H>();
-		case 0xf5: return set_N_R<6,L>();
-		case 0xf7: return set_N_R<6,A>();
-		case 0xf8: return set_N_R<7,B>();
-		case 0xf9: return set_N_R<7,C>();
-		case 0xfa: return set_N_R<7,D>();
-		case 0xfb: return set_N_R<7,E>();
-		case 0xfc: return set_N_R<7,H>();
-		case 0xfd: return set_N_R<7,L>();
-		case 0xff: return set_N_R<7,A>();
-		case 0xc6: return set_N_xhl<0>();
-		case 0xce: return set_N_xhl<1>();
-		case 0xd6: return set_N_xhl<2>();
-		case 0xde: return set_N_xhl<3>();
-		case 0xe6: return set_N_xhl<4>();
-		case 0xee: return set_N_xhl<5>();
-		case 0xf6: return set_N_xhl<6>();
-		case 0xfe: return set_N_xhl<7>();
-	}
-	assert(false); return 0;
-}
-
-template <class T> int CPUCore<T>::ed() {
-	byte opcode = RDMEM_OPCODE(T::CC_PREFIX);
-	M1Cycle();
-	switch (opcode) {
-		case 0x00: case 0x01: case 0x02: case 0x03:
-		case 0x04: case 0x05: case 0x06: case 0x07:
-		case 0x08: case 0x09: case 0x0a: case 0x0b:
-		case 0x0c: case 0x0d: case 0x0e: case 0x0f:
-		case 0x10: case 0x11: case 0x12: case 0x13:
-		case 0x14: case 0x15: case 0x16: case 0x17:
-		case 0x18: case 0x19: case 0x1a: case 0x1b:
-		case 0x1c: case 0x1d: case 0x1e: case 0x1f:
-		case 0x20: case 0x21: case 0x22: case 0x23:
-		case 0x24: case 0x25: case 0x26: case 0x27:
-		case 0x28: case 0x29: case 0x2a: case 0x2b:
-		case 0x2c: case 0x2d: case 0x2e: case 0x2f:
-		case 0x30: case 0x31: case 0x32: case 0x33:
-		case 0x34: case 0x35: case 0x36: case 0x37:
-		case 0x38: case 0x39: case 0x3a: case 0x3b:
-		case 0x3c: case 0x3d: case 0x3e: case 0x3f:
-
-		case 0x77: case 0x7f:
-
-		case 0x80: case 0x81: case 0x82: case 0x83:
-		case 0x84: case 0x85: case 0x86: case 0x87:
-		case 0x88: case 0x89: case 0x8a: case 0x8b:
-		case 0x8c: case 0x8d: case 0x8e: case 0x8f:
-		case 0x90: case 0x91: case 0x92: case 0x93:
-		case 0x94: case 0x95: case 0x96: case 0x97:
-		case 0x98: case 0x99: case 0x9a: case 0x9b:
-		case 0x9c: case 0x9d: case 0x9e: case 0x9f:
-		case 0xa4: case 0xa5: case 0xa6: case 0xa7:
-		case 0xac: case 0xad: case 0xae: case 0xaf:
-		case 0xb4: case 0xb5: case 0xb6: case 0xb7:
-		case 0xbc: case 0xbd: case 0xbe: case 0xbf:
-
-		case 0xc0:            case 0xc2:
-		case 0xc4: case 0xc5: case 0xc6: case 0xc7:
-		case 0xc8: case 0xca: case 0xcb:
-		case 0xcc: case 0xcd: case 0xce: case 0xcf:
-		case 0xd0:            case 0xd2: case 0xd3:
-		case 0xd4: case 0xd5: case 0xd6: case 0xd7:
-		case 0xd8:            case 0xda: case 0xdb:
-		case 0xdc: case 0xdd: case 0xde: case 0xdf:
-		case 0xe0: case 0xe1: case 0xe2: case 0xe3:
-		case 0xe4: case 0xe5: case 0xe6: case 0xe7:
-		case 0xe8: case 0xe9: case 0xea: case 0xeb:
-		case 0xec: case 0xed: case 0xee: case 0xef:
-		case 0xf0: case 0xf1: case 0xf2:
-		case 0xf4: case 0xf5: case 0xf6: case 0xf7:
-		case 0xf8: case 0xf9: case 0xfa: case 0xfb:
-		case 0xfc: case 0xfd: case 0xfe: case 0xff:
-			return nop();
-
-		case 0x40: return in_R_c<B>();
-		case 0x48: return in_R_c<C>();
-		case 0x50: return in_R_c<D>();
-		case 0x58: return in_R_c<E>();
-		case 0x60: return in_R_c<H>();
-		case 0x68: return in_R_c<L>();
-		case 0x70: return in_R_c<DUMMY>();
-		case 0x78: return in_R_c<A>();
-
-		case 0x41: return out_c_R<B>();
-		case 0x49: return out_c_R<C>();
-		case 0x51: return out_c_R<D>();
-		case 0x59: return out_c_R<E>();
-		case 0x61: return out_c_R<H>();
-		case 0x69: return out_c_R<L>();
-		case 0x71: return out_c_0();
-		case 0x79: return out_c_R<A>();
-
-		case 0x42: return sbc_hl_SS<BC>();
-		case 0x52: return sbc_hl_SS<DE>();
-		case 0x62: return sbc_hl_hl();
-		case 0x72: return sbc_hl_SS<SP>();
-
-		case 0x4a: return adc_hl_SS<BC>();
-		case 0x5a: return adc_hl_SS<DE>();
-		case 0x6a: return adc_hl_hl();
-		case 0x7a: return adc_hl_SS<SP>();
-
-		case 0x43: return ld_xword_SS_ED<BC>();
-		case 0x53: return ld_xword_SS_ED<DE>();
-		case 0x63: return ld_xword_SS_ED<HL>();
-		case 0x73: return ld_xword_SS_ED<SP>();
-
-		case 0x4b: return ld_SS_xword_ED<BC>();
-		case 0x5b: return ld_SS_xword_ED<DE>();
-		case 0x6b: return ld_SS_xword_ED<HL>();
-		case 0x7b: return ld_SS_xword_ED<SP>();
-
-		case 0x47: return ld_IR_a<REG_I>();
-		case 0x4f: return ld_IR_a<REG_R>();
-		case 0x57: return ld_a_IR<REG_I>();
-		case 0x5f: return ld_a_IR<REG_R>();
-
-		case 0x67: return rrd();
-		case 0x6f: return rld();
-
-		case 0x45: case 0x4d: case 0x55: case 0x5d:
-		case 0x65: case 0x6d: case 0x75: case 0x7d:
-			return retn();
-		case 0x46: case 0x4e: case 0x66: case 0x6e:
-			return im_N<0>();
-		case 0x56: case 0x76:
-			return im_N<1>();
-		case 0x5e: case 0x7e:
-			return im_N<2>();
-		case 0x44: case 0x4c: case 0x54: case 0x5c:
-		case 0x64: case 0x6c: case 0x74: case 0x7c:
-			return neg();
-
-		case 0xa0: return ldi();
-		case 0xa1: return cpi();
-		case 0xa2: return ini();
-		case 0xa3: return outi();
-		case 0xa8: return ldd();
-		case 0xa9: return cpd();
-		case 0xaa: return ind();
-		case 0xab: return outd();
-		case 0xb0: return ldir();
-		case 0xb1: return cpir();
-		case 0xb2: return inir();
-		case 0xb3: return otir();
-		case 0xb8: return lddr();
-		case 0xb9: return cpdr();
-		case 0xba: return indr();
-		case 0xbb: return otdr();
-
-		case 0xc1: return T::isR800() ? mulub_a_R<B>() : nop();
-		case 0xc9: return T::isR800() ? mulub_a_R<C>() : nop();
-		case 0xd1: return T::isR800() ? mulub_a_R<D>() : nop();
-		case 0xd9: return T::isR800() ? mulub_a_R<E>() : nop();
-		case 0xc3: return T::isR800() ? muluw_hl_SS<BC>() : nop();
-		case 0xf3: return T::isR800() ? muluw_hl_SS<SP>() : nop();
-	}
-	assert(false); return 0;
-}
-
-template <class T> template<CPU::Reg16 IXY, CPU::Reg8 IXYH, CPU::Reg8 IXYL>
-int CPUCore<T>::xy() {
-	T::add(T::CC_DD);
-	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
-	M1Cycle();
-	switch (opcode) {
-		case 0x00: // nop();
-		case 0x01: // ld_bc_word();
-		case 0x02: // ld_xbc_a();
-		case 0x03: // inc_bc();
-		case 0x04: // inc_b();
-		case 0x05: // dec_b();
-		case 0x06: // ld_b_byte();
-		case 0x07: // rlca();
-		case 0x08: // ex_af_af();
-		case 0x0a: // ld_a_xbc();
-		case 0x0b: // dec_bc();
-		case 0x0c: // inc_c();
-		case 0x0d: // dec_c();
-		case 0x0e: // ld_c_byte();
-		case 0x0f: // rrca();
-		case 0x10: // djnz();
-		case 0x11: // ld_de_word();
-		case 0x12: // ld_xde_a();
-		case 0x13: // inc_de();
-		case 0x14: // inc_d();
-		case 0x15: // dec_d();
-		case 0x16: // ld_d_byte();
-		case 0x17: // rla();
-		case 0x18: // jr();
-		case 0x1a: // ld_a_xde();
-		case 0x1b: // dec_de();
-		case 0x1c: // inc_e();
-		case 0x1d: // dec_e();
-		case 0x1e: // ld_e_byte();
-		case 0x1f: // rra();
-		case 0x20: // jr_nz();
-		case 0x27: // daa();
-		case 0x28: // jr_z();
-		case 0x2f: // cpl();
-		case 0x30: // jr_nc();
-		case 0x31: // ld_sp_word();
-		case 0x32: // ld_xbyte_a();
-		case 0x33: // inc_sp();
-		case 0x37: // scf();
-		case 0x38: // jr_c();
-		case 0x3a: // ld_a_xbyte();
-		case 0x3b: // dec_sp();
-		case 0x3c: // inc_a();
-		case 0x3d: // dec_a();
-		case 0x3e: // ld_a_byte();
-		case 0x3f: // ccf();
-
-		case 0x40: // ld_b_b();
-		case 0x41: // ld_b_c();
-		case 0x42: // ld_b_d();
-		case 0x43: // ld_b_e();
-		case 0x47: // ld_b_a();
-		case 0x48: // ld_c_b();
-		case 0x49: // ld_c_c();
-		case 0x4a: // ld_c_d();
-		case 0x4b: // ld_c_e();
-		case 0x4f: // ld_c_a();
-		case 0x50: // ld_d_b();
-		case 0x51: // ld_d_c();
-		case 0x52: // ld_d_d();
-		case 0x53: // ld_d_e();
-		case 0x57: // ld_d_a();
-		case 0x58: // ld_e_b();
-		case 0x59: // ld_e_c();
-		case 0x5a: // ld_e_d();
-		case 0x5b: // ld_e_e();
-		case 0x5f: // ld_e_a();
-		case 0x64: // ld_ixh_ixh(); == nop
-		case 0x6d: // ld_ixl_ixl(); == nop
-		case 0x76: // halt();
-		case 0x78: // ld_a_b();
-		case 0x79: // ld_a_c();
-		case 0x7a: // ld_a_d();
-		case 0x7b: // ld_a_e();
-		case 0x7f: // ld_a_a();
-
-		case 0x80: // add_a_b();
-		case 0x81: // add_a_c();
-		case 0x82: // add_a_d();
-		case 0x83: // add_a_e();
-		case 0x87: // add_a_a();
-		case 0x88: // adc_a_b();
-		case 0x89: // adc_a_c();
-		case 0x8a: // adc_a_d();
-		case 0x8b: // adc_a_e();
-		case 0x8f: // adc_a_a();
-		case 0x90: // sub_b();
-		case 0x91: // sub_c();
-		case 0x92: // sub_d();
-		case 0x93: // sub_e();
-		case 0x97: // sub_a();
-		case 0x98: // sbc_a_b();
-		case 0x99: // sbc_a_c();
-		case 0x9a: // sbc_a_d();
-		case 0x9b: // sbc_a_e();
-		case 0x9f: // sbc_a_a();
-		case 0xa0: // and_b();
-		case 0xa1: // and_c();
-		case 0xa2: // and_d();
-		case 0xa3: // and_e();
-		case 0xa7: // and_a();
-		case 0xa8: // xor_b();
-		case 0xa9: // xor_c();
-		case 0xaa: // xor_d();
-		case 0xab: // xor_e();
-		case 0xaf: // xor_a();
-		case 0xb0: // or_b();
-		case 0xb1: // or_c();
-		case 0xb2: // or_d();
-		case 0xb3: // or_e();
-		case 0xb7: // or_a();
-		case 0xb8: // cp_b();
-		case 0xb9: // cp_c();
-		case 0xba: // cp_d();
-		case 0xbb: // cp_e();
-		case 0xbf: // cp_a();
-
-		case 0xc0: // ret_nz();
-		case 0xc1: // pop_bc();
-		case 0xc2: // jp_nz();
-		case 0xc3: // jp();
-		case 0xc4: // call_nz();
-		case 0xc5: // push_bc();
-		case 0xc6: // add_a_byte();
-		case 0xc7: // rst_00();
-		case 0xc8: // ret_z();
-		case 0xc9: // ret();
-		case 0xca: // jp_z();
-		case 0xcc: // call_z();
-		case 0xcd: // call();
-		case 0xce: // adc_a_byte();
-		case 0xcf: // rst_08();
-		case 0xd0: // ret_nc();
-		case 0xd1: // pop_de();
-		case 0xd2: // jp_nc();
-		case 0xd3: // out_byte_a();
-		case 0xd4: // call_nc();
-		case 0xd5: // push_de();
-		case 0xd6: // sub_byte();
-		case 0xd7: // rst_10();
-		case 0xd8: // ret_c();
-		case 0xd9: // exx();
-		case 0xda: // jp_c();
-		case 0xdb: // in_a_byte();
-		case 0xdc: // call_c();
-		case 0xde: // sbc_a_byte();
-		case 0xdf: // rst_18();
-		case 0xe0: // ret_po();
-		case 0xe2: // jp_po();
-		case 0xe4: // call_po();
-		case 0xe6: // and_byte();
-		case 0xe7: // rst_20();
-		case 0xe8: // ret_pe();
-		case 0xea: // jp_pe();
-		case 0xeb: // ex_de_hl();
-		case 0xec: // call_pe();
-		case 0xed: // ed();
-		case 0xee: // xor_byte();
-		case 0xef: // rst_28();
-		case 0xf0: // ret_p();
-		case 0xf1: // pop_af();
-		case 0xf2: // jp_p();
-		case 0xf3: // di();
-		case 0xf4: // call_p();
-		case 0xf5: // push_af();
-		case 0xf6: // or_byte();
-		case 0xf7: // rst_30();
-		case 0xf8: // ret_m();
-		case 0xfa: // jp_m();
-		case 0xfb: // ei();
-		case 0xfc: // call_m();
-		case 0xfe: // cp_byte();
-		case 0xff: // rst_38();
-		case 0xdd: // xy<IX, IXH, IXL>();
-		case 0xfd: // xy<IY, IYH, IYL>();
-			return (T::isR800()) ? nop()
-				             : executeInstruction1_slow(opcode);
-
-		case 0x09: return add_SS_TT<IXY,BC>();
-		case 0x19: return add_SS_TT<IXY,DE>();
-		case 0x21: return ld_SS_word<IXY>();
-		case 0x22: return ld_xword_SS<IXY>();
-		case 0x23: return inc_SS<IXY>();
-		case 0x24: return inc_R<IXYH>();
-		case 0x25: return dec_R<IXYH>();
-		case 0x26: return ld_R_byte<IXYH>();
-		case 0x29: return add_SS_SS<IXY>();
-		case 0x2a: return ld_SS_xword<IXY>();
-		case 0x2b: return dec_SS<IXY>();
-		case 0x2c: return inc_R<IXYL>();
-		case 0x2d: return dec_R<IXYL>();
-		case 0x2e: return ld_R_byte<IXYL>();
-		case 0x34: return inc_xix<IXY>();
-		case 0x35: return dec_xix<IXY>();
-		case 0x36: return ld_xix_byte<IXY>();
-		case 0x39: return add_SS_TT<IXY,SP>();
-
-		case 0x44: return ld_R_R<B,IXYH>();
-		case 0x45: return ld_R_R<B,IXYL>();
-		case 0x4c: return ld_R_R<C,IXYH>();
-		case 0x4d: return ld_R_R<C,IXYL>();
-		case 0x54: return ld_R_R<D,IXYH>();
-		case 0x55: return ld_R_R<D,IXYL>();
-		case 0x5c: return ld_R_R<E,IXYH>();
-		case 0x5d: return ld_R_R<E,IXYL>();
-		case 0x7c: return ld_R_R<A,IXYH>();
-		case 0x7d: return ld_R_R<A,IXYL>();
-		case 0x60: return ld_R_R<IXYH,B>();
-		case 0x61: return ld_R_R<IXYH,C>();
-		case 0x62: return ld_R_R<IXYH,D>();
-		case 0x63: return ld_R_R<IXYH,E>();
-		case 0x65: return ld_R_R<IXYH,IXL>();
-		case 0x67: return ld_R_R<IXYH,A>();
-		case 0x68: return ld_R_R<IXYL,B>();
-		case 0x69: return ld_R_R<IXYL,C>();
-		case 0x6a: return ld_R_R<IXYL,D>();
-		case 0x6b: return ld_R_R<IXYL,E>();
-		case 0x6c: return ld_R_R<IXYL,IXH>();
-		case 0x6f: return ld_R_R<IXYL,A>();
-		case 0x70: return ld_xix_R<IXY,B>();
-		case 0x71: return ld_xix_R<IXY,C>();
-		case 0x72: return ld_xix_R<IXY,D>();
-		case 0x73: return ld_xix_R<IXY,E>();
-		case 0x74: return ld_xix_R<IXY,H>();
-		case 0x75: return ld_xix_R<IXY,L>();
-		case 0x77: return ld_xix_R<IXY,A>();
-		case 0x46: return ld_R_xix<B,IXY>();
-		case 0x4e: return ld_R_xix<C,IXY>();
-		case 0x56: return ld_R_xix<D,IXY>();
-		case 0x5e: return ld_R_xix<E,IXY>();
-		case 0x66: return ld_R_xix<H,IXY>();
-		case 0x6e: return ld_R_xix<L,IXY>();
-		case 0x7e: return ld_R_xix<A,IXY>();
-
-		case 0x84: return add_a_R<IXYH>();
-		case 0x85: return add_a_R<IXYL>();
-		case 0x86: return add_a_xix<IXY>();
-		case 0x8c: return adc_a_R<IXYH>();
-		case 0x8d: return adc_a_R<IXYL>();
-		case 0x8e: return adc_a_xix<IXY>();
-		case 0x94: return sub_R<IXYH>();
-		case 0x95: return sub_R<IXYL>();
-		case 0x96: return sub_xix<IXY>();
-		case 0x9c: return sbc_a_R<IXYH>();
-		case 0x9d: return sbc_a_R<IXYL>();
-		case 0x9e: return sbc_a_xix<IXY>();
-		case 0xa4: return and_R<IXYH>();
-		case 0xa5: return and_R<IXYL>();
-		case 0xa6: return and_xix<IXY>();
-		case 0xac: return xor_R<IXYH>();
-		case 0xad: return xor_R<IXYL>();
-		case 0xae: return xor_xix<IXY>();
-		case 0xb4: return or_R<IXYH>();
-		case 0xb5: return or_R<IXYL>();
-		case 0xb6: return or_xix<IXY>();
-		case 0xbc: return cp_R<IXYH>();
-		case 0xbd: return cp_R<IXYL>();
-		case 0xbe: return cp_xix<IXY>();
-
-		case 0xe1: return pop_SS<IXY>();
-		case 0xe3: return ex_xsp_SS<IXY>();
-		case 0xe5: return push_SS<IXY>();
-		case 0xe9: return jp_SS<IXY>();
-		case 0xf9: return ld_sp_SS<IXY>();
-		case 0xcb: return xy_cb<IXY>();
-	}
-	assert(false); return 0;
-}
 
 // versions:
 //  1 -> initial version
