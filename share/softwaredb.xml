@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1231708816">
+<softwaredb xml:lang="en" timestamp="1232150195">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -263,6 +263,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">3de0cea6a4575e631fee0db985e0f0f584761980</hash><remark>[a]</remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Alien 8 Remake</title>
+	<system>MSX</system>
+	<company>Manuel Pazos &#38; LordFred</company>
+	<year>2009</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">4a3069426214aeecac1a57632a9978cbfb2acc21</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Aliens 2</title>
 	<system>MSX</system>
 	<company>Activision - Square</company>
@@ -272,6 +280,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">0d9c472cf7687b86f3fe2e5af6545a26a0efd5fc</hash><remark>[a2]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">2639792df6f7c7cfaffc2616b0e1849f18897ace</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">1e7ac21796642c3ccb66b0ef0f00ba4752428aca</hash><remark>Ulver crack</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Aliens Sound Demo</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2008</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">91d3f1463dac4d5fed8d4ff34bed0d388c61f164</hash><remark>Please run on msx2 for better graphics</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Alpha Squadron</title>
@@ -685,7 +701,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>AG Software</company>
 	<year>2008</year>
 	<country>IT</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">619a2d42263da74a723cceead5a19e0e0dd86c6f</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">619a2d42263da74a723cceead5a19e0e0dd86c6f</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Balance</title>
@@ -4611,7 +4627,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Atari / Taito / Muffie</company>
 	<year>2008</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><hash algo="sha1">cfa30c1d6741e1b56b54622bbc3d89003f739a17</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">cfa30c1d6741e1b56b54622bbc3d89003f739a17</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Jungle Hunt</title>
@@ -4619,7 +4635,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Atari / Taito / Slotman</company>
 	<year>2008</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c9a89cceb355e5daf47ed5e8ee3e211ebd2494d8</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c9a89cceb355e5daf47ed5e8ee3e211ebd2494d8</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Juno First</title>
@@ -5318,6 +5334,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">598eb258cbe532e98b4a3c8d87ecd9536d09ce56</hash><remark>Ulver crack</remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Leila K</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2008</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">e4401a78869ffa879a55f239e5da4990cb6797a6</hash><remark>Sound Demo - Please run on msx2 for good graphics</remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Leonard</title>
 	<system>MSX</system>
 	<company>unkown</company>
@@ -5433,6 +5457,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">6ce808d69e9198a0343e9fd06744deb6f9e59419</hash><remark>[b]</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">M.A.Z.E</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2008</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">e738a8e4e09b508167b552e9e4350c041ca68c20</hash><remark>2kbos entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Mac Attack</title>
@@ -5850,7 +5882,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami / SEGA / Muffie</company>
 	<year>2008</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><hash algo="sha1">aeeb8ddbd385bc3aba5009676e5192d32beecf15</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">aeeb8ddbd385bc3aba5009676e5192d32beecf15</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Mil Caras</title>
@@ -6041,7 +6073,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Parker Brothers / Muffie</company>
 	<year>2008</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><hash algo="sha1">b03786528689b2014c90493f3e02d941c73122bc</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">b03786528689b2014c90493f3e02d941c73122bc</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Montezuma&#39;s Revenge</title>
@@ -6049,7 +6081,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Parker Brothers / Slotman</company>
 	<year>2008</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">17e78fd405e65afa3763c2f7271c82ab155c004b</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">17e78fd405e65afa3763c2f7271c82ab155c004b</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Moon Landing</title>
@@ -6276,6 +6308,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>19xx</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">a3a502afd3e65b1605260b3739b196f6fd0931e2</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">MSX Unleashed</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2006</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">5d55fc272184d160af6318855c9d2f728b3f25c0</hash><remark>Demo</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">MSX-Aid</title>
@@ -7027,7 +7067,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Exidy&#39;s / Muffie</company>
 	<year>2008</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><hash algo="sha1">479100e82d3f25bbeb9a291163945d2f5bd62f74</hash><remark>[b1]</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">479100e82d3f25bbeb9a291163945d2f5bd62f74</hash><remark>[b1]</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Periodic Table</title>
@@ -7220,6 +7260,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2006</year>
 	<country>EU</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">08d5a55b80726fb9c793be20e36f6d88beb643a6</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">31706b3fc6cf6ab1d2e3670ddead564564e96c45</hash><remark>Release 2</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Pointless Shooting</title>
@@ -8326,6 +8367,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">b9aad68e2338ab1814f2dac78b2c4b5877d29cee</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Snow Climber</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2008</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">5dbff5d70978482fd5b79c02715bec1ed463e6bf</hash><remark>2kbos entry</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Sofia</title>
 	<system>MSX</system>
 	<company>Dempa</company>
@@ -8662,7 +8711,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>DVIK &#38; joyrex productions</company>
 	<year>2006</year>
-	<country>NL</country>
+	<country>EU</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c44cccb53e2f0cc8560c288354744f29d2488850</hash><remark>MSXDEV06</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">120d477cd28b48b8a63efb34920ac331b54e66e5</hash><remark>MSX-DEV06</remark></rom></dump>
 </software>
@@ -9512,9 +9561,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami / Muffie</company>
 	<year>2008</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><hash algo="sha1">d77a0208790f9563985d236d79a80d737b47f070</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">ca52d26e847b23c7caeb7d516b5fca5cbd686ef3</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">d59ad9f16932cc3dadb22c25e64c10a73a055056</hash><remark>[b1]</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d77a0208790f9563985d236d79a80d737b47f070</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">ca52d26e847b23c7caeb7d516b5fca5cbd686ef3</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d59ad9f16932cc3dadb22c25e64c10a73a055056</hash><remark>[b1]</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Twin Hammer</title>
@@ -9595,6 +9644,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">92bada2d019fcd6eee6d332a8068a9ddfa30d518</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Utopia</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2008</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">b550757c8f5b55dbde16b4a7888f10999f01acfd</hash><remark>Demo</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Vaxol - Heavy Armed Storm Vehicle</title>
@@ -9723,6 +9780,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">28aaf59dadb425c1ef6fca860439f4e42e1737b8</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Waves</title>
+	<system>MSX</system>
+	<company>DVIK &#38; joyrex productions</company>
+	<year>2006</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">f50d0c66b08c47b59925952276243e2008668185</hash><remark>Version 1.3 Demo</remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Wedding Bells</title>
 	<system>MSX</system>
 	<company>Colpax</company>
@@ -9829,7 +9894,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>DVIK &#38; joyrex productions</company>
 	<year>2007</year>
-	<country>US</country>
+	<country>EU</country>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">720054d7ab4da46db8c9fb47d17fb7e0aa79d25b</hash><remark>MSX-DEV07</remark></rom></dump>
 </software>
 <software>
@@ -10112,6 +10177,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2107
-Parse time 4.465 seconds on Sun Jan 11 22:20:20 CET 2009
+Roms in this database:2116
+Parse time 4.089 seconds on Sat Jan 17 0:56:39 CET 2009
  -->
