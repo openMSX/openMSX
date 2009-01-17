@@ -4,6 +4,10 @@
 TODO:
 - Verify model for 5th sprite number calculation.
   For example, does it have the right value in text mode?
+- Further investigate sprite collision registers:
+   - If there is NO collision, the value of these registers constantly changes.
+     Could this be some kind of indication for the scanline XY coords???
+   - Bit 9 of the Y coord (odd/even page??) is not yet implemented.
 */
 
 #include "SpriteChecker.hh"
@@ -169,6 +173,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	If any collision is found, method returns at once.
 	*/
 	for (int line = minLine; line < maxLine; ++line) {
+		int minXCollision = 999;
 		for (int i = std::min(4, spriteCount[line]); --i >= 1; /**/) {
 			int x_i = spriteBuffer[line][i].x;
 			SpritePattern pattern_i = spriteBuffer[line][i].pattern;
@@ -183,15 +188,23 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 					} else {
 						pattern_j >>= dist;
 					}
-					if (pattern_i & pattern_j) {
-						// Collision!
-						vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
-						// TODO: Fill in collision coordinates in S#3..S#6.
-						// ...Unless this feature only works in sprite mode 2.
-						return;
+					SpritePattern colPat = pattern_i & pattern_j;
+					if (colPat) {
+						minXCollision = std::min<int>(minXCollision,
+						    x_i + Math::countLeadingZeros(colPat));
 					}
 				}
 			}
+		}
+		if (minXCollision != 999) {
+			vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
+			// verified: collision coords are also filled
+			//           in for sprite mode 1
+			// x-coord should be increased by 12
+			// y-coord                         8
+			collisionX = minXCollision + 12;
+			collisionY = line - vdp.getLineZero() + 8;
+			return; // don't check lines with higher Y-coord
 		}
 	}
 }
@@ -362,9 +375,9 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	There are max 8 sprites and therefore max 42 pairs.
 	  TODO: Maybe this is slow... Think of something faster.
 	        Probably new approach is needed anyway for OR-ing.
-	If any collision is found, method returns at once.
 	*/
 	for (int line = minLine; line < maxLine; ++line) {
+		int minXCollision = 999; // no collision
 		SpriteInfo* visibleSprites = spriteBuffer[line];
 		for (int i = std::min(8, spriteCount[line]); --i >= 1; /**/) {
 			// If CC or IC is set, this sprite cannot collide.
@@ -386,20 +399,21 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 					} else {
 						pattern_j >>= dist;
 					}
-					if (pattern_i & pattern_j) {
-						// Collision!
-						vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
-						// TODO: Fill in collision coordinates in S#3..S#6.
-						//       See page 97 for info.
-						// TODO: I guess the VDP checks for collisions while
-						//       scanning, if so the top-leftmost collision
-						//       should be remembered. Currently the topmost
-						//       line is guaranteed, but within that line
-						//       the highest sprite numbers are selected.
-						return;
+					SpritePattern colPat = pattern_i & pattern_j;
+					if (colPat) {
+						minXCollision = std::min<int>(minXCollision,
+						    x_i + Math::countLeadingZeros(colPat));
 					}
 				}
 			}
+		}
+		if (minXCollision != 999) {
+			vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
+			// x-coord should be increased by 12
+			// y-coord                         8
+			collisionX = minXCollision + 12;
+			collisionY = line - vdp.getLineZero() + 8;
+			return; // don't check lines with higher Y-coord
 		}
 	}
 }

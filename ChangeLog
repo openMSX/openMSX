@@ -1,5 +1,12 @@
 $Id$
 
+2009-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Initial implementation of the VDP sprite collision coordinate status
+	  registers:
+	  Not yet 100% correct (see top of src/video/SpriteChecker.cc for some
+	  TODOs). But at least 'ACE' works now. So far this seems to be the
+	  only game that actually uses this feature.
+
 2009-01-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Major changes in CPU emulation core:
 	  I've worked on this patch on a local (private) branch for several

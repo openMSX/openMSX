@@ -175,6 +175,26 @@ inline unsigned floodRight(unsigned x)
 	return x;
 }
 
+/** Count the number of leading zero-bits in the given word.
+  * The result is undefined when the input is zero (all bits are zero).
+  */
+inline unsigned countLeadingZeros(unsigned x)
+{
+#ifdef __GNUC__
+	// actually this only exists starting from gcc-3.4.x
+	return __builtin_clz(x); // undefined when x==0
+#else
+	// gives incorrect result for x==0, but that doesn't matter here
+	unsigned lz = 0;
+	if (x <= 0x0000ffff) { lz += 16; x <<= 16; }
+	if (x <= 0x00ffffff) { lz +=  8; x <<=  8; }
+	if (x <= 0x0fffffff) { lz +=  4; x <<=  4; }
+	lz += (0x55ac >> ((x >> 27) & 0x1e)) & 0x3;
+	return lz;
+#endif
+}
+
+
 // Perform a 64bit divide-by 32-bit operation. The quotient must fit in
 // 32-bit (results in a coredump otherwise)
 inline unsigned div_64_32(unsigned long long dividend, unsigned divisor)
