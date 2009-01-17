@@ -4,8 +4,9 @@ $Id$
 	* Initial implementation of the VDP sprite collision coordinate status
 	  registers:
 	  Not yet 100% correct (see top of src/video/SpriteChecker.cc for some
-	  TODOs). But at least 'ACE' works now. So far this seems to be the
-	  only game that actually uses this feature.
+	  TODOs). But at least 'Ace in Space level 3' works now. So far this
+	  seems to be the only game that actually uses this feature.
+	  Fixes [2510696].
 
 2009-01-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Major changes in CPU emulation core:
