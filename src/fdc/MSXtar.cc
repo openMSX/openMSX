@@ -491,7 +491,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 	unsigned remaining = hostSize;
 
 	// open host file for reading
-	File file(hostName, "rb");
+	File file(FileOperations::expandTilde(hostName), "rb");
 
 	// copy host file to image
 	unsigned prevcl = 0;
@@ -786,7 +786,7 @@ void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 	unsigned size = rdlg(direntry.size);
 	unsigned sector = clusterToSector(getStartCluster(direntry));
 
-	File file(resultFile, "wb");
+	File file(FileOperations::expandTilde(resultFile), "wb");
 	while (size && sector) {
 		byte buf[SECTOR_SIZE];
 		readLogicalSector(sector, buf);
