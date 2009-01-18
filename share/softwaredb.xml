@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232150195">
+<softwaredb xml:lang="en" timestamp="1232266125">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -230,6 +230,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">12f6f31f495bfb384c9ca9067bfbf8f98af6adf9</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">be2d023f5f1ee4cfbdc712c8ef9eda9d07278d88</hash><remark>tr En</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">4b506234dfd3b6aa1c315b40cd8ddca024dd15c9</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">f4f7c789dd320192fd544c666ceab720c7f3a747</hash><remark>Portugese Translation</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">54b05b9c064232d75299fd31b53335f530c20aea</hash><remark>[a]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">937f8d412e9810c8aeb9d92182cd3b007ace30d2</hash><remark>cheat version</remark></megarom></dump>
 </software>
@@ -2091,6 +2092,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">2418c0302abbce8b0f8556b63169c60a849f60ee</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>GenericKonami</type><hash algo="sha1">1833ffc252d43d3d8239e57d5ac2c015b4367988</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">6159cdfc79c68bf7dfe2653fc0b5893ae913c72b</hash><remark>English Translation</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Dam Busters, The</title>
@@ -4854,7 +4856,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">ecb538238fc7c5e374d723f4d6120d1b2ef5d80e</hash><remark>[tr En][RC-745]</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">fe4bd35e87dd50fddd255172129b9bec38691188</hash><remark>[RC-745]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">c6d2aa3e7303e0e2244256bfcfc113bafe2d6b59</hash><remark>[RC-745]</remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">2b4c386a56dddd2a3354bdf1a0041d3faa0ccc72</hash><remark>[tr En][RC-745]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">2b4c386a56dddd2a3354bdf1a0041d3faa0ccc72</hash><remark>[RC-745] / English Translation</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">e178917d1974ac85fd58cb93b936eb9a6f44ba0d</hash><remark>[RC-745] / English Translation</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash><remark>[tr En][RC-745] / cheat version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">de2349227d765db73cdc44efc6338f6b530eb133</hash><remark>[tr En][RC-745] / Ulver crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">a5963fa6c95fbe34482862b0f7221b7766e3a194</hash><remark>[RC-745]</remark></megarom></dump>
@@ -4964,8 +4967,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">240e15fb5d918aa821f226002772dc800d9f20a4</hash><remark>[RC-754]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">1ff0afe393f89b6517025dc39a282c11c7da87ca</hash><remark>[RC-754] / English Translation [B4]</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">25f5adeca8a2ddb754d25eb18cff0d84e5b003bc</hash><remark>[RC-754]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">3b6f140c99cba5bfa510200df49d1e573d687e4d</hash><remark>[RC-754] / tr En</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">d0dfc1927461d9473d0ed471375dcedddba42279</hash><remark>[RC-754] / English translation [B4]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">4323eb37b9a795be32a2b64824fc4acd7afe4e9d</hash><remark>[RC-754] / Translation into English</remark></megarom></dump>
 </software>
 <software>
@@ -6938,6 +6943,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">2220363ae56ef707ab2471fcdb36f4816ad1d32c</hash><remark>[RC-759]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">75d3b72d9ceeaa55c76223d935629a30ae4124d6</hash><remark>[a][RC-759]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2111cec4b5ea698d772bb80664f6be690b47391c</hash><remark>[RC-759] / cheat version</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">04e4eb1cae7cf379977d238b74d727bb929c8d23</hash><remark>[RC-759] / English Translation</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">240a23b63e901b988951dda1ded561c281ccbbc1</hash><remark>[RC-759] / Ulver crack</remark></megarom></dump>
 </software>
 <software>
@@ -10177,6 +10183,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2116
-Parse time 4.089 seconds on Sat Jan 17 0:56:39 CET 2009
+Roms in this database:2122
+Parse time 4.206 seconds on Sun Jan 18 9:08:49 CET 2009
  -->
