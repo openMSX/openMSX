@@ -30,10 +30,11 @@
 #ifdef _MSC_VER
 
 #include <sys/types.h>
+#include <basetsd.h> // for INT_PTR
 
 struct dirstream
 {
-	int fd;        // File descriptor.
+	INT_PTR fd;    // File descriptor.
 	void* data;    // Directory block.
 	off_t filepos; // Position of next entry to read.
 	char* mask;    // Initial file mask.
@@ -60,7 +61,7 @@ int closedir(DIR* dir);
 void rewinddir(DIR* dir);
 void seekdir(DIR* dir, off_t offset);
 off_t telldir(DIR* dir);
-int dirfd(DIR* dir);
+//int dirfd(DIR* dir);
 
 #endif
 

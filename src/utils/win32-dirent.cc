@@ -64,7 +64,7 @@ dirent* readdir(DIR* dir)
 
 	WIN32_FIND_DATAA* find = static_cast<WIN32_FIND_DATAA*>(dir->data);
 	if (dir->filepos) {
-		if (!FindNextFileA(static_cast<HANDLE>(dir->fd), find)) {
+		if (!FindNextFileA(reinterpret_cast<HANDLE>(dir->fd), find)) {
 			return NULL;
 		}
 	}
@@ -78,7 +78,7 @@ dirent* readdir(DIR* dir)
 
 int closedir(DIR* dir)
 {
-	HANDLE hnd = static_cast<HANDLE>(dir->fd);
+	HANDLE hnd = reinterpret_cast<HANDLE>(dir->fd);
 	free(dir->data);
 	free(dir->mask);
 	free(dir);
@@ -87,12 +87,12 @@ int closedir(DIR* dir)
 
 void rewinddir(DIR* dir)
 {
-	HANDLE hnd = static_cast<HANDLE>(dir->fd);
+	HANDLE hnd = reinterpret_cast<HANDLE>(dir->fd);
 	WIN32_FIND_DATAA* find = static_cast<WIN32_FIND_DATAA*>(dir->data);
 
 	FindClose(hnd);
 	hnd = FindFirstFileA(dir->mask, find);
-	dir->fd = int(hnd);
+	dir->fd = INT_PTR(hnd);
 	dir->filepos = 0;
 }
 
@@ -100,7 +100,7 @@ void seekdir(DIR* dir, off_t offset)
 {
 	rewinddir(dir);
 	for (off_t n = 0; n < offset; ++n) {
-		if (FindNextFileA(static_cast<HANDLE>(dir->fd),
+		if (FindNextFileA(reinterpret_cast<HANDLE>(dir->fd),
 			          static_cast<WIN32_FIND_DATAA*>(dir->data))) {
 			dir->filepos++;
 		}
@@ -112,9 +112,12 @@ off_t telldir(DIR* dir)
 	return dir->filepos;
 }
 
-int dirfd(DIR* dir)
+// For correctness on 64-bit Windows, this function would need to maintain an
+// internal map of ints to HANDLEs, since HANDLEs are sizeof(void*). It's not
+// used at the moment in the openMSX sources, so let's not bother for now.
+/*int dirfd(DIR* dir)
 {
 	return dir->fd;
-}
+}*/
 
 #endif
