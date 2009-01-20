@@ -147,33 +147,14 @@
 // So there are in fact two checks per instruction. This can be reduced to only
 // one check with the following trick:
 //
-//     whenever needExit() would return true, we make sure canDoBackdoor()
-//     returns false _on_the_address_of_the_next_instruction_
-//
-// Making canDoBackdoor() return false is easy, for example by invalidating the
-// cacheLine of the corresponding region. But the 'address of the next
-// instruction' part is a bit tricky. For most instructions this is within 0 to
-// 4 bytes from the current PC (we have no idea where in the emulation of the
-// current instruction we are, PC may already be (partially) updated or not).
-// But for jump (or ret, call, ...) instructions the next instruction could be
-// anywhere.
-//
-// So non-jump instruction can be optimized to this (this also makes the
-// repeated tail of such instruction smaller):
-//
-//     if (canDoBackdoor(PC)) {
-//         byte opcode = doBackdoorAccess(PC++);
-//         goto *(table[opcode]);
-//     } else {
-//         goto slowPath; // common code for all instructions
-//     }
-//
-// For jump instructions we still have to check the needExit() condition. Because
-// Invalidating all memory feels too expensive (though I haven't tested it). But
-// there is an additional reason to have the check on jump instructions: because
-// of exit condition 4) we still once-in-a-while need to check. After so many
-// instructions, the Z80 will have to execute some sort of jump, for me this
-// qualifies as once-in-a-while.
+// !!!WRONG!!!
+// In the past we optimized this to only check canDoBackdoor() (and make sure
+// canDoBackdoor() returned false when needExit() would return true). This
+// worked rather well, except for one case: when we exit the CPU loop we also
+// check for pending Syncronization points. It is possible such a SyncPoint
+// raises the IRQ line. So it is important to check for exit after every
+// instruction, otherwise we would enter the IRQ routine a couple of
+// instructions too late.
 
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
@@ -356,12 +337,6 @@ template <class T> void CPUCore<T>::exitCPULoopSync()
 	assert(Thread::isMainThread());
 	exitLoop = true;
 	T::enableLimit(false);
-#ifdef USE_COMPUTED_GOTO
-	byte line0 = (R.getPC() + 0) >> CacheLine::BITS;
-	byte line1 = (R.getPC() + 4) >> CacheLine::BITS;
-	readCacheLine[line0] = NULL;
-	readCacheLine[line1] = NULL;
-#endif
 }
 template <class T> inline bool CPUCore<T>::needExitCPULoop()
 {
@@ -384,12 +359,6 @@ template <class T> void CPUCore<T>::raiseIRQ()
 	assert(IRQStatus >= 0);
 	if (IRQStatus == 0) {
 		setSlowInstructions();
-#ifdef USE_COMPUTED_GOTO
-		byte line0 = (R.getPC() + 0) >> CacheLine::BITS;
-		byte line1 = (R.getPC() + 4) >> CacheLine::BITS;
-		readCacheLine[line0] = NULL;
-		readCacheLine[line1] = NULL;
-#endif
 	}
 	IRQStatus = IRQStatus + 1;
 }
@@ -409,12 +378,6 @@ template <class T> void CPUCore<T>::raiseNMI()
 	if (NMIStatus == 0) {
 		nmiEdge = true;
 		setSlowInstructions();
-#ifdef USE_COMPUTED_GOTO
-		byte line0 = (R.getPC() + 0) >> CacheLine::BITS;
-		byte line1 = (R.getPC() + 4) >> CacheLine::BITS;
-		readCacheLine[line0] = NULL;
-		readCacheLine[line1] = NULL;
-#endif
 	}
 	NMIStatus++;
 }
@@ -850,35 +813,9 @@ void CPUCore<T>::executeInstructions()
 		&&opF8, &&opF9, &&opFA, &&opFB, &&opFC, &&opFD, &&opFE, &&opFF,
 	};
 
-// Fetch and execute next instruction.
-// The _only_ check that's done is readCacheLine!=NULL
-// If the CPU emulation loop _must_ be exited (e.g. a MSXDevice raised an IRQ)
-// then the readCacheLine of the next instruction must be invalidated. For
-// example see exitCPULoopSync().
+// Check T::limitReached(). If it's OK to continue,
+// fetch and execute next instruction.
 #define NEXT \
-	T::add(c); \
-	if (CHAIN_INSTRUCTIONS) { \
-		unsigned address = R.getPC(); \
-		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
-		if (likely(line != NULL)) { \
-			T::R800Refresh(); \
-			M1Cycle(); \
-			R.setPC(address + 1); \
-			T::template PRE_MEM<false, false>(address); \
-			T::template POST_MEM<      false>(address); \
-			byte op = line[address]; \
-			goto *(opcodeTable[op]); \
-		} else { \
-			goto fetchSlow2; \
-		} \
-	} \
-	return;
-
-// Like 'NEXT' above, but with an extra T::limitReached() test.
-// All instructions that can change the program counter must use this instead
-// of the faster 'NEXT' macro (because the invalid readCacheLine trick doesn't
-// work).
-#define NEXT_TEST \
 	T::add(c); \
 	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
 		T::R800Refresh(); \
@@ -908,15 +845,7 @@ void CPUCore<T>::executeInstructions()
 
 #else // USE_COMPUTED_GOTO
 
-// NEXT and NEXT_TEST are the same (they both do the extra test)
 #define NEXT \
-	T::add(c); \
-	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
-		goto start; \
-	} \
-	return;
-
-#define NEXT_TEST \
 	T::add(c); \
 	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
 		goto start; \
@@ -942,10 +871,6 @@ start:
 #ifdef USE_COMPUTED_GOTO
 	goto *(opcodeTable[opcodeMain]);
 
-fetchSlow2:
-	if (T::limitReached()) return;
-	T::R800Refresh();
-	M1Cycle();
 fetchSlow: {
 	unsigned address = R.getPC();
 	R.setPC(address + 1);
@@ -975,12 +900,12 @@ CASE(27) { int c = daa(); NEXT; }
 CASE(2F) { int c = cpl(); NEXT; }
 CASE(37) { int c = scf(); NEXT; }
 CASE(3F) { int c = ccf(); NEXT; }
-CASE(20) { int c = jr(CondNZ()); NEXT_TEST; }
-CASE(28) { int c = jr(CondZ ()); NEXT_TEST; }
-CASE(30) { int c = jr(CondNC()); NEXT_TEST; }
-CASE(38) { int c = jr(CondC ()); NEXT_TEST; }
-CASE(18) { int c = jr(CondTrue()); NEXT_TEST; }
-CASE(10) { int c = djnz(); NEXT_TEST; }
+CASE(20) { int c = jr(CondNZ()); NEXT; }
+CASE(28) { int c = jr(CondZ ()); NEXT; }
+CASE(30) { int c = jr(CondNC()); NEXT; }
+CASE(38) { int c = jr(CondC ()); NEXT; }
+CASE(18) { int c = jr(CondTrue()); NEXT; }
+CASE(10) { int c = djnz(); NEXT; }
 CASE(32) { int c = ld_xbyte_a(); NEXT; }
 CASE(3A) { int c = ld_a_xbyte(); NEXT; }
 CASE(22) { int c = ld_xword_SS<HL,0>(); NEXT; }
@@ -1158,7 +1083,7 @@ CASE(DB) { int c = in_a_byte();  NEXT; }
 CASE(D9) { int c = exx(); NEXT; }
 CASE(E3) { int c = ex_xsp_SS<HL,0>(); NEXT; }
 CASE(EB) { int c = ex_de_hl(); NEXT; }
-CASE(E9) { int c = jp_SS<HL,0>(); NEXT_TEST; }
+CASE(E9) { int c = jp_SS<HL,0>(); NEXT; }
 CASE(F9) { int c = ld_sp_SS<HL,0>(); NEXT; }
 CASE(F3) { int c = di(); NEXT; }
 CASE(FB) { int c = ei(); NEXT_STOP; }
@@ -1170,33 +1095,33 @@ CASE(E6) { int c = and_byte();   NEXT; }
 CASE(EE) { int c = xor_byte();   NEXT; }
 CASE(F6) { int c = or_byte();    NEXT; }
 CASE(FE) { int c = cp_byte();    NEXT; }
-CASE(C0) { int c = ret(CondNZ()); NEXT_TEST; }
-CASE(C8) { int c = ret(CondZ ()); NEXT_TEST; }
-CASE(D0) { int c = ret(CondNC()); NEXT_TEST; }
-CASE(D8) { int c = ret(CondC ()); NEXT_TEST; }
-CASE(E0) { int c = ret(CondPO()); NEXT_TEST; }
-CASE(E8) { int c = ret(CondPE()); NEXT_TEST; }
-CASE(F0) { int c = ret(CondP ()); NEXT_TEST; }
-CASE(F8) { int c = ret(CondM ()); NEXT_TEST; }
-CASE(C9) { int c = ret();         NEXT_TEST; }
-CASE(C2) { int c = jp(CondNZ()); NEXT_TEST; }
-CASE(CA) { int c = jp(CondZ ()); NEXT_TEST; }
-CASE(D2) { int c = jp(CondNC()); NEXT_TEST; }
-CASE(DA) { int c = jp(CondC ()); NEXT_TEST; }
-CASE(E2) { int c = jp(CondPO()); NEXT_TEST; }
-CASE(EA) { int c = jp(CondPE()); NEXT_TEST; }
-CASE(F2) { int c = jp(CondP ()); NEXT_TEST; }
-CASE(FA) { int c = jp(CondM ()); NEXT_TEST; }
-CASE(C3) { int c = jp(CondTrue()); NEXT_TEST; }
-CASE(C4) { int c = call(CondNZ()); NEXT_TEST; }
-CASE(CC) { int c = call(CondZ ()); NEXT_TEST; }
-CASE(D4) { int c = call(CondNC()); NEXT_TEST; }
-CASE(DC) { int c = call(CondC ()); NEXT_TEST; }
-CASE(E4) { int c = call(CondPO()); NEXT_TEST; }
-CASE(EC) { int c = call(CondPE()); NEXT_TEST; }
-CASE(F4) { int c = call(CondP ()); NEXT_TEST; }
-CASE(FC) { int c = call(CondM ()); NEXT_TEST; }
-CASE(CD) { int c = call(CondTrue()); NEXT_TEST; }
+CASE(C0) { int c = ret(CondNZ()); NEXT; }
+CASE(C8) { int c = ret(CondZ ()); NEXT; }
+CASE(D0) { int c = ret(CondNC()); NEXT; }
+CASE(D8) { int c = ret(CondC ()); NEXT; }
+CASE(E0) { int c = ret(CondPO()); NEXT; }
+CASE(E8) { int c = ret(CondPE()); NEXT; }
+CASE(F0) { int c = ret(CondP ()); NEXT; }
+CASE(F8) { int c = ret(CondM ()); NEXT; }
+CASE(C9) { int c = ret();         NEXT; }
+CASE(C2) { int c = jp(CondNZ()); NEXT; }
+CASE(CA) { int c = jp(CondZ ()); NEXT; }
+CASE(D2) { int c = jp(CondNC()); NEXT; }
+CASE(DA) { int c = jp(CondC ()); NEXT; }
+CASE(E2) { int c = jp(CondPO()); NEXT; }
+CASE(EA) { int c = jp(CondPE()); NEXT; }
+CASE(F2) { int c = jp(CondP ()); NEXT; }
+CASE(FA) { int c = jp(CondM ()); NEXT; }
+CASE(C3) { int c = jp(CondTrue()); NEXT; }
+CASE(C4) { int c = call(CondNZ()); NEXT; }
+CASE(CC) { int c = call(CondZ ()); NEXT; }
+CASE(D4) { int c = call(CondNC()); NEXT; }
+CASE(DC) { int c = call(CondC ()); NEXT; }
+CASE(E4) { int c = call(CondPO()); NEXT; }
+CASE(EC) { int c = call(CondPE()); NEXT; }
+CASE(F4) { int c = call(CondP ()); NEXT; }
+CASE(FC) { int c = call(CondM ()); NEXT; }
+CASE(CD) { int c = call(CondTrue()); NEXT; }
 CASE(C1) { int c = pop_SS <BC,0>(); NEXT; }
 CASE(D1) { int c = pop_SS <DE,0>(); NEXT; }
 CASE(E1) { int c = pop_SS <HL,0>(); NEXT; }
@@ -1205,14 +1130,14 @@ CASE(C5) { int c = push_SS<BC,0>(); NEXT; }
 CASE(D5) { int c = push_SS<DE,0>(); NEXT; }
 CASE(E5) { int c = push_SS<HL,0>(); NEXT; }
 CASE(F5) { int c = push_SS<AF,0>(); NEXT; }
-CASE(C7) { int c = rst<0x00>(); NEXT_TEST; }
-CASE(CF) { int c = rst<0x08>(); NEXT_TEST; }
-CASE(D7) { int c = rst<0x10>(); NEXT_TEST; }
-CASE(DF) { int c = rst<0x18>(); NEXT_TEST; }
-CASE(E7) { int c = rst<0x20>(); NEXT_TEST; }
-CASE(EF) { int c = rst<0x28>(); NEXT_TEST; }
-CASE(F7) { int c = rst<0x30>(); NEXT_TEST; }
-CASE(FF) { int c = rst<0x38>(); NEXT_TEST; }
+CASE(C7) { int c = rst<0x00>(); NEXT; }
+CASE(CF) { int c = rst<0x08>(); NEXT; }
+CASE(D7) { int c = rst<0x10>(); NEXT; }
+CASE(DF) { int c = rst<0x18>(); NEXT; }
+CASE(E7) { int c = rst<0x20>(); NEXT; }
+CASE(EF) { int c = rst<0x28>(); NEXT; }
+CASE(F7) { int c = rst<0x30>(); NEXT; }
+CASE(FF) { int c = rst<0x38>(); NEXT; }
 CASE(CB) {
 	byte cb_opcode = RDMEM_OPCODE(T::CC_PREFIX);
 	M1Cycle();
@@ -1892,7 +1817,7 @@ CASE(DD) {
 		case 0xe1: { int c = pop_SS <IX,T::CC_DD>(); NEXT; }
 		case 0xe5: { int c = push_SS<IX,T::CC_DD>(); NEXT; }
 		case 0xe3: { int c = ex_xsp_SS<IX,T::CC_DD>(); NEXT; }
-		case 0xe9: { int c = jp_SS<IX,T::CC_DD>(); NEXT_TEST; }
+		case 0xe9: { int c = jp_SS<IX,T::CC_DD>(); NEXT; }
 		case 0xf9: { int c = ld_sp_SS<IX,T::CC_DD>(); NEXT; }
 		case 0xcb: ixy = R.getIX(); goto xx_cb;
 		case 0xdd: T::add(T::CC_DD); goto opDD_2;
@@ -2174,7 +2099,7 @@ CASE(FD) {
 		case 0xe1: { int c = pop_SS <IY,T::CC_DD>(); NEXT; }
 		case 0xe5: { int c = push_SS<IY,T::CC_DD>(); NEXT; }
 		case 0xe3: { int c = ex_xsp_SS<IY,T::CC_DD>(); NEXT; }
-		case 0xe9: { int c = jp_SS<IY,T::CC_DD>(); NEXT_TEST; }
+		case 0xe9: { int c = jp_SS<IY,T::CC_DD>(); NEXT; }
 		case 0xf9: { int c = ld_sp_SS<IY,T::CC_DD>(); NEXT; }
 		case 0xcb: ixy = R.getIY(); goto xx_cb;
 		case 0xdd: T::add(T::CC_DD); goto opDD_2;

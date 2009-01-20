@@ -8,6 +8,12 @@ $Id$
 	  - Added new setting: consolefontsize
 	  - Removed (now unused) classes:
 	       Font, DummyFont, SDLFont, GLFont, SDLConsole, GLConsole
+	* Reverted part of last CPU refactoring (2008-01-15):
+	  - Omitting needExit() check on some instructions can causes
+	    acceptance of an IRQ to be a couple of instructions late,
+	    see comments in src/cpu/CPUCore.cc for details.
+	  - But even without this part, the threaded interpreter model is a
+	    big win (more than 10% faster) over the old model.
 
 2009-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Initial implementation of the VDP sprite collision coordinate status
