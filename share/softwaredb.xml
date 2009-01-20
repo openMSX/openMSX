@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232266125">
+<softwaredb xml:lang="en" timestamp="1232434290">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -9476,6 +9476,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7fe5f17ad7e6b70dd56cad2c8bdc516a86f03207</hash><remark>[RC-753]</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">632cb0834441626d20cc113cfad2e3a7ec0e0dc7</hash><remark>[a1][RC-753]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">d7fb2ca6004c5fdf77c42a5eab102b95a9a862d7</hash><remark>[RC-753] / Alternative version</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">4ff2aad8371e382e203c7f29b665612a8c9d937c</hash><remark>[a2][RC-753]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7c7d0bff4a51bb0f1f0cdb4132fdb11f8a71c623</hash><remark>[RC-753] / cheat version</remark></megarom></dump>
 </software>
@@ -10183,6 +10184,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2122
-Parse time 4.206 seconds on Sun Jan 18 9:08:49 CET 2009
+Roms in this database:2123
+Parse time 4.028 seconds on Tue Jan 20 7:51:34 CET 2009
  -->
