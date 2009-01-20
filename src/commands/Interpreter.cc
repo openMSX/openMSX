@@ -45,7 +45,7 @@ static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
 }
 Tcl_ChannelType Interpreter::channelType = {
 	const_cast<char*>("openMSX console"),// Type name
-	NULL,			 // Always non-blocking
+	TCL_CHANNEL_VERSION_4,   // Version
 	dummyClose,		 // Close proc
 	dummyInput,		 // Input proc
 	Interpreter::outputProc, // Output proc
@@ -59,6 +59,7 @@ Tcl_ChannelType Interpreter::channelType = {
 	NULL,			 // Tcl_DriverFlushProc
 	NULL,			 // Tcl_DriverHandlerProc
 	NULL,			 // Tcl_DriverWideSeekProc
+	NULL,			 // Tcl_DriverThreadActionProc
 };
 
 void Interpreter::init(const char* programName)
