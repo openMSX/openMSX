@@ -91,7 +91,7 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 	if (channel != NULL) {
 		Tcl_SetChannelOption(interp, channel, "-translation", "binary");
 		Tcl_SetChannelOption(interp, channel, "-buffering", "line");
-		Tcl_SetChannelOption(interp, channel, "-encoding", "binary");
+		Tcl_SetChannelOption(interp, channel, "-encoding", "utf-8");
 	}
 	Tcl_SetStdChannel(channel, TCL_STDOUT);
 
