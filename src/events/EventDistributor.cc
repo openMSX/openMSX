@@ -53,11 +53,8 @@ void EventDistributor::distributeEvent(Event* event)
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
 	assert(event);
-	PRT_DEBUG("EventDistributor::distributeEvent(), event of type " << event->getType() << " getting lock");
 	ScopedLock lock(sem);
-	PRT_DEBUG("EventDistributor::distributeEvent(), got lock");
 	if (!listeners[event->getType()].empty()) {
-		PRT_DEBUG("EventDistributor::distributeEvent(), there are listeners");
 		// shared_ptr is not thread safe of its own, so instead of
 		// passing a shared_ptr as parameter to this method we create
 		// the shared_ptr here while we hold the lock
@@ -67,13 +64,11 @@ void EventDistributor::distributeEvent(Event* event)
 		//             EventDistributor::unregisterEventListener()
 		//   thread 2: EventDistributor::distributeEvent()
 		//             Reactor::enterMainLoop()
-		PRT_DEBUG("EventDistributor::distributeEvent(), signalling all listeners");
 		cond.signalAll();
-		PRT_DEBUG("EventDistributor::distributeEvent(), releasing lock");
 		lock.release();
-		PRT_DEBUG("EventDistributor::distributeEvent(), entering main loop");
 		reactor.enterMainLoop();
-		PRT_DEBUG("EventDistributor::distributeEvent(), entering main loop... DONE!");
+	} else {
+		delete event;
 	}
 }
 

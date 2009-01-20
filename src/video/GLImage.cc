@@ -47,6 +47,7 @@ GLImage::GLImage(OutputSurface& /*output*/,
 GLImage::GLImage(OutputSurface& /*output*/, SDL_Surface* image)
 {
 	texture = loadTexture(image, width, height, texCoord);
+	SDL_FreeSurface(image);
 }
 
 GLImage::~GLImage()
