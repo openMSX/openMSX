@@ -5,6 +5,7 @@
 
 #include "OSDImageBasedWidget.hh"
 #include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -30,7 +31,7 @@ private:
 	std::string text;
 	std::string fontfile;
 	int size;
-	TTFFont* font;
+	std::auto_ptr<TTFFont> font;
 };
 
 } // namespace openmsx
