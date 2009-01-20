@@ -137,12 +137,12 @@ SDL_Surface* TTFFont::render(const string& text, byte r, byte g, byte b)
 	// TODO for GP2X copy to a HW_Surface?
 }
 
-unsigned TTFFont::getFontHeight()
+unsigned TTFFont::getHeight()
 {
 	return TTF_FontLineSkip(static_cast<TTF_Font*>(font));
 }
 
-unsigned TTFFont::getFontWidth()
+unsigned TTFFont::getWidth()
 {
 	int advance;
 	if (TTF_GlyphMetrics(static_cast<TTF_Font*>(font), Uint16('M'),

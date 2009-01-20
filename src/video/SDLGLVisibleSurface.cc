@@ -3,7 +3,7 @@
 #include "SDLGLVisibleSurface.hh"
 #include "ScreenShotSaver.hh"
 #include "GLSnow.hh"
-#include "GLConsole.hh"
+#include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "InitException.hh"
 #include "build-info.hh"
@@ -193,7 +193,8 @@ std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor)
 {
-	return std::auto_ptr<Layer>(new GLConsole(reactor));
+	const bool openGL = true;
+	return std::auto_ptr<Layer>(new OSDConsoleRenderer(reactor, *this, openGL));
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)

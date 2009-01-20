@@ -1,5 +1,14 @@
 $Id$
 
+2009-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Console refactoring:
+	  - Share much more code between SDL and GL console variant
+	  - Use TTF fonts instead of a .png file with the ASCII symbols:
+	    console can now also show unicode chars (if the ttf font has them)
+	  - Added new setting: consolefontsize
+	  - Removed (now unused) classes:
+	       Font, DummyFont, SDLFont, GLFont, SDLConsole, GLConsole
+
 2009-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Initial implementation of the VDP sprite collision coordinate status
 	  registers:

@@ -7,23 +7,40 @@
 #include "BooleanSetting.hh"
 #include "FilenameSetting.hh"
 #include "GlobalSettings.hh"
+#include "TTFFont.hh"
+#include "SDLImage.hh"
+#include "OutputSurface.hh"
 #include "Display.hh"
 #include "Event.hh"
 #include "InputEvents.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "Timer.hh"
-#include "DummyFont.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
 #include <algorithm>
+#include <cassert>
+
+#include "components.hh"
+#ifdef COMPONENT_GL
+#include "GLImage.hh"
+#endif
 
 using std::string;
 
 namespace openmsx {
+
+/** How transparent is the console? (0=invisible, 255=opaque)
+  * Note that when using a background image on the GLConsole,
+  * that image's alpha channel is used instead.
+  */
+static const int CONSOLE_ALPHA = 180;
+static const unsigned long long BLINK_RATE = 500000; // us
+static const int CHAR_BORDER = 4;
+
 
 class OSDSettingChecker : public SettingChecker<FilenameSetting::Policy>
 {
@@ -38,51 +55,55 @@ private:
 
 // class OSDConsoleRenderer
 
-OSDConsoleRenderer::OSDConsoleRenderer(Reactor& reactor_)
+OSDConsoleRenderer::OSDConsoleRenderer(
+		Reactor& reactor_, OutputSurface& output_, bool openGL_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
+	, output(output_)
 	, consoleSetting(reactor.getGlobalSettings().getConsoleSetting())
 	, settingChecker(new OSDSettingChecker(*this))
+	, openGL(openGL_)
 {
+#ifndef COMPONENT_GL
+	assert(!openGL);
+#endif
 	destX = destY = destW = destH = 0; // avoid UMR
-	font.reset(new DummyFont());
 	blink = false;
 	lastBlinkTime = Timer::getTime();
 	lastCursorX = lastCursorY = 0;
 
 	active = false;
-	time = 0;
+	activeTime = 0;
 	setCoverage(COVER_PARTIAL);
-	consoleSetting.attach(*this);
-	setActive(consoleSetting.getValue());
-}
 
-OSDConsoleRenderer::~OSDConsoleRenderer()
-{
-	PRT_DEBUG("Destructing OSDConsoleRenderer... (start)");
-	consoleSetting.detach(*this);
-	PRT_DEBUG("Destructing OSDConsoleRenderer... (setting detached)");
-	setActive(false);
-	PRT_DEBUG("Destructing OSDConsoleRenderer... DONE!");
-}
-
-void OSDConsoleRenderer::initConsole()
-{
+	// font size
 	CommandController& commandController = reactor.getCommandController();
+	fontSizeSetting.reset(new IntegerSetting(commandController,
+		"consolefontsize", "Size of the console font", 12, 8, 32));
+
 	// font
+	const string& defaultFont = "skins/VeraMono.ttf.gz";
 	fontSetting.reset(new FilenameSetting(commandController,
-		"consolefont", "console font file",
-		"skins/ConsoleFontRaveLShaded.png"));
+		"consolefont", "console font file", defaultFont));
 	try {
 		fontSetting->setChecker(settingChecker.get());
 	} catch (MSXException& e) {
-		// we really need a font
-		throw FatalError(e.getMessage());
+		// This will happen when you upgrade from the old .png based
+		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
+		reactor.getCliComm().printWarning(
+			"Loading selected font (" + fontSetting->getValue() +
+			") failed. Reverting to default font (" + defaultFont + ").");
+		try {
+			fontSetting->changeValue(defaultFont);
+		} catch (MSXException& e) {
+			// we can't continue without font
+			throw FatalError(e.getMessage());
+		}
 	}
 
 	// rows / columns
-	int columns = (((getScreenW() - CHAR_BORDER) / font->getWidth()) * 30) / 32;
-	int rows = ((getScreenH() / font->getHeight()) * 6) / 15;
+	int columns = (((output.getWidth() - CHAR_BORDER) / font->getWidth()) * 30) / 32;
+	int rows = ((output.getHeight() / font->getHeight()) * 6) / 15;
 	consoleColumnsSetting.reset(new IntegerSetting(commandController,
 		"consolecolumns", "number of columns in the console", columns,
 		32, 999));
@@ -117,51 +138,60 @@ void OSDConsoleRenderer::initConsole()
 	} catch (MSXException& e) {
 		reactor.getCliComm().printWarning(e.getMessage());
 	}
+
+	consoleSetting.attach(*this);
+	fontSizeSetting->attach(*this);
+	setActive(consoleSetting.getValue());
+}
+
+OSDConsoleRenderer::~OSDConsoleRenderer()
+{
+	fontSizeSetting->detach(*this);
+	consoleSetting.detach(*this);
+	setActive(false);
 }
 
 void OSDConsoleRenderer::adjustColRow()
 {
 	unsigned consoleColumns = std::min<unsigned>(
 		consoleColumnsSetting->getValue(),
-		(getScreenW() - CHAR_BORDER) / font->getWidth());
+		(output.getWidth() - CHAR_BORDER) / font->getWidth());
 	unsigned consoleRows = std::min<unsigned>(
 		consoleRowsSetting->getValue(),
-		getScreenH() / font->getHeight());
-	getConsole().setColumns(consoleColumns);
-	getConsole().setRows(consoleRows);
+		output.getHeight() / font->getHeight());
+	Console& console = reactor.getCommandConsole();
+	console.setColumns(consoleColumns);
+	console.setRows(consoleRows);
 }
 
 void OSDConsoleRenderer::update(const Setting& setting)
 {
-	(void)setting;
-	assert(&setting == &consoleSetting);
-	setActive(consoleSetting.getValue());
+	if (&setting == &consoleSetting) {
+		setActive(consoleSetting.getValue());
+	} else if (&setting == fontSizeSetting.get()) {
+		loadFont(fontSetting->getValue());
+	} else {
+		assert(false);
+	}
 }
 
 void OSDConsoleRenderer::setActive(bool active_)
 {
-	PRT_DEBUG("OSDConsoleRenderer::setActive Setting active to ..." << active_);
 	if (active == active_) return;
 	active = active_;
 
-	PRT_DEBUG("OSDConsoleRenderer::setActive RepaintDelayed...");
-	getDisplay().repaintDelayed(40000); // 25 fps
+	reactor.getDisplay().repaintDelayed(40000); // 25 fps
 
-	PRT_DEBUG("OSDConsoleRenderer::setActive Getting time...");
-	time = Timer::getTime();
+	activeTime = Timer::getTime();
 
-	PRT_DEBUG("OSDConsoleRenderer::setActive SetKeyRepeat...");
 	reactor.getInputEventGenerator().setKeyRepeat(active);
 	if (active) {
-		PRT_DEBUG("OSDConsoleRenderer::setActive Send console ON event..");
 		reactor.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
 	} else {
-		PRT_DEBUG("OSDConsoleRenderer::setActive Send console OFF event..");
 		reactor.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
 	}
-	PRT_DEBUG("OSDConsoleRenderer::setActive DONE!");
 }
 
 byte OSDConsoleRenderer::getVisibility() const
@@ -170,19 +200,19 @@ byte OSDConsoleRenderer::getVisibility() const
 	const unsigned long long FADE_OUT_DURATION = 150000;
 
 	unsigned long long now = Timer::getTime();
-	unsigned long long dur = now - time;
+	unsigned long long dur = now - activeTime;
 	if (active) {
 		if (dur > FADE_IN_DURATION) {
 			return 255;
 		} else {
-			getDisplay().repaintDelayed(40000); // 25 fps
+			reactor.getDisplay().repaintDelayed(40000); // 25 fps
 			return (dur * 255) / FADE_IN_DURATION;
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
-			getDisplay().repaintDelayed(40000); // 25 fps
+			reactor.getDisplay().repaintDelayed(40000); // 25 fps
 			return 255 - ((dur * 255) / FADE_OUT_DURATION);
 		}
 	}
@@ -190,13 +220,14 @@ byte OSDConsoleRenderer::getVisibility() const
 
 bool OSDConsoleRenderer::updateConsoleRect()
 {
-	unsigned screenW = getScreenW();
-	unsigned screenH = getScreenH();
+	unsigned screenW = output.getWidth();
+	unsigned screenH = output.getHeight();
 	adjustColRow();
 
 	unsigned x, y, w, h;
-	h = font->getHeight() * getConsole().getRows();
-	w = (font->getWidth() * getConsole().getColumns()) + CHAR_BORDER;
+	Console& console = reactor.getCommandConsole();
+	h = font->getHeight() * console.getRows();
+	w = (font->getWidth() * console.getColumns()) + CHAR_BORDER;
 
 	// TODO use setting listener in the future
 	switch (consolePlacementSetting->getValue()) {
@@ -242,15 +273,122 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	return result;
 }
 
-
-Display& OSDConsoleRenderer::getDisplay() const
+void OSDConsoleRenderer::loadFont(const string& value)
 {
-	return reactor.getDisplay();
+	SystemFileContext context;
+	CommandController* controller = NULL; // ok for SystemFileContext
+	string filename = context.resolve(*controller, value);
+	font.reset(new TTFFont(filename, fontSizeSetting->getValue()));
 }
 
-Console& OSDConsoleRenderer::getConsole() const
+void OSDConsoleRenderer::loadBackground(const string& value)
 {
-	return reactor.getCommandConsole();
+	if (value.empty()) {
+		backgroundImage.reset();
+		return;
+	}
+	SystemFileContext context;
+	CommandController* controller = NULL; // ok for SystemFileContext
+	string filename = context.resolve(*controller, value);
+	if (!openGL) {
+		backgroundImage.reset(
+			new SDLImage(output, filename, destW, destH));
+	}
+#ifdef COMPONENT_GL
+	else {
+		backgroundImage.reset(
+			new GLImage(output, filename, destW, destH));
+	}
+#endif
+}
+
+void OSDConsoleRenderer::drawText(const string& text, int x, int y, byte alpha)
+{
+	if (text.empty()) return;
+	SDL_Surface* surf = font->render(text, 255, 255, 255);
+	if (!openGL) {
+		SDLImage image(output, surf);
+		image.draw(x, y, alpha);
+	}
+#ifdef COMPONENT_GL
+	else {
+		GLImage image(output, surf);
+		image.draw(x, y, alpha);
+	}
+#endif
+}
+
+void OSDConsoleRenderer::paint()
+{
+	byte visibility = getVisibility();
+	if (!visibility) return;
+
+	if (updateConsoleRect()) {
+		try {
+			loadBackground(backgroundSetting->getValue());
+		} catch (MSXException& e) {
+			// ignore
+		}
+	}
+
+	// draw the background image if there is one
+	if (!backgroundImage.get()) {
+		// no background image, try to create an empty one
+		try {
+			if (!openGL) {
+				backgroundImage.reset(new SDLImage(output,
+					destW, destH, CONSOLE_ALPHA));
+			}
+#ifdef COMPONENT_GL
+			else {
+				backgroundImage.reset(new GLImage(output,
+					destW, destH, CONSOLE_ALPHA));
+			}
+#endif
+		} catch (MSXException& e) {
+			// nothing
+		}
+	}
+	if (backgroundImage.get()) {
+		backgroundImage->draw(destX, destY, visibility);
+	}
+
+	Console& console = reactor.getCommandConsole();
+	int screenlines = destH / font->getHeight();
+	for (int loop = 0; loop < screenlines; ++loop) {
+		drawText(console.getLine(loop + console.getScrollBack()),
+		         destX + CHAR_BORDER,
+		         destY + destH - (1 + loop) * font->getHeight() - 1,
+		         visibility);
+	}
+
+	// Check if the blink period is over
+	unsigned long long now = Timer::getTime();
+	if (lastBlinkTime < now) {
+		lastBlinkTime = now + BLINK_RATE;
+		blink = !blink;
+	}
+
+	unsigned cursorX, cursorY;
+	console.getCursorPosition(cursorX, cursorY);
+	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {
+		blink = true; // force cursor
+		lastBlinkTime = now + BLINK_RATE; // maximum time
+		lastCursorX = cursorX;
+		lastCursorY = cursorY;
+	}
+	if (blink && (console.getScrollBack() == 0)) {
+		drawText("_",
+		         destX + CHAR_BORDER + cursorX * font->getWidth(),
+		         destY + destH - (font->getHeight() * (cursorY + 1)) - 1,
+		         visibility);
+	}
+}
+
+const string& OSDConsoleRenderer::getName()
+{
+	static const string NAME = "openMSX console";
+	return NAME;
 }
 
 
@@ -264,13 +402,10 @@ OSDSettingChecker::OSDSettingChecker(OSDConsoleRenderer& renderer_)
 void OSDSettingChecker::check(SettingImpl<FilenameSetting::Policy>& setting,
 	                      string& value)
 {
-	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
-	string filename = value.empty() ? value : context.resolve(*controller, value);
 	if (&setting == renderer.backgroundSetting.get()) {
-		renderer.loadBackground(filename);
+		renderer.loadBackground(value);
 	} else if (&setting == renderer.fontSetting.get()) {
-		renderer.loadFont(filename);
+		renderer.loadFont(value);
 	} else {
 		assert(false);
 	}

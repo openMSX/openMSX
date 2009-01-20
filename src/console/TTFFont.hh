@@ -30,13 +30,13 @@ public:
 	/** Return the height of the font.
 	  * This is the recommended number of pixels between two text lines.
 	  */
-	unsigned getFontHeight();
+	unsigned getHeight();
 
 	/** Return the width of the font.
 	  * This is the recommended number of pixels between two characters.
 	  * This number only makes sense for fixed-width fonts.
 	  */
-	unsigned getFontWidth();
+	unsigned getWidth();
 
 private:
 	void* font;  // TTF_Font*

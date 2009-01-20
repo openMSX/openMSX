@@ -4,7 +4,7 @@
 #include "ScreenShotSaver.hh"
 #include "CommandException.hh"
 #include "SDLSnow.hh"
-#include "SDLConsole.hh"
+#include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "build-info.hh"
 #include <cstring>
@@ -107,7 +107,8 @@ std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		Reactor& reactor)
 {
-	return std::auto_ptr<Layer>(new SDLConsole(reactor, *this));
+	const bool openGL = false;
+	return std::auto_ptr<Layer>(new OSDConsoleRenderer(reactor, *this, openGL));
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
