@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232434290">
+<softwaredb xml:lang="en" timestamp="1232571640">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -5427,7 +5427,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">ba6bff43e5773c6777f73ebc63b4f38466dc2630</hash><remark>MSXDEV06</remark></rom></dump>
-		<dump><original value="true">Author</original><sccpluscart><boot>scc</boot><hash algo="sha1">46611b1ab3b8ed272d989fe3b209ebe29a866718</hash><remark>MSX-DEV06</remark></sccpluscart></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">46611b1ab3b8ed272d989fe3b209ebe29a866718</hash><remark>MSX-DEV06</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Lot Lot</title>
@@ -5608,6 +5608,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">c484f44af0ab1bcaf46ae5f14a3b38a53ee77f31</hash><remark>[RC-739]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">8a6e0f932ce12318a1c5b8dbbfe44b213acb03ae</hash><remark>[RC-739] / Ulver crack</remark></rom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</hash><remark>[SCC][RC-739] / SCC enhanced version</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark>[SCC][RC-739]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark>[SD Snatcher RAM SCC+][RC-739]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">f795668afe66c7d88e51f5a22471e2c0a42c7ffb</hash><remark>[SD Snatcher RAM SCC+][RC-739]</remark></sccpluscart></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">6448aa090d95ab42e8a63f52cd12e40c39521aa0</hash><remark>Konami Antiques MSX Collection 2</remark></rom></dump>
@@ -10184,6 +10185,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2123
-Parse time 4.028 seconds on Tue Jan 20 7:51:34 CET 2009
+Roms in this database:2124
+Parse time 4.311 seconds on Wed Jan 21 22:00:45 CET 2009
  -->
