@@ -772,7 +772,7 @@ template <class T> inline void CPUCore<T>::irq2()
 	T::add(T::CC_IRQ2);
 }
 
-template <class T> template <bool CHAIN_INSTRUCTIONS>
+template <class T>
 void CPUCore<T>::executeInstructions()
 {
 #ifdef USE_COMPUTED_GOTO
@@ -817,7 +817,7 @@ void CPUCore<T>::executeInstructions()
 // fetch and execute next instruction.
 #define NEXT \
 	T::add(c); \
-	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
+	if (likely(!T::limitReached())) { \
 		T::R800Refresh(); \
 		M1Cycle(); \
 		unsigned address = R.getPC(); \
@@ -847,7 +847,7 @@ void CPUCore<T>::executeInstructions()
 
 #define NEXT \
 	T::add(c); \
-	if (CHAIN_INSTRUCTIONS && likely(!T::limitReached())) { \
+	if (likely(!T::limitReached())) { \
 		goto start; \
 	} \
 	return;
@@ -2395,7 +2395,8 @@ template <class T> void CPUCore<T>::executeSlow()
 	} else {
 		R.setAfterEI(false);
 		cpuTracePre();
-		executeInstructions<false>(); // one instruction
+		assert(T::limitReached()); // we want only one instruction
+		executeInstructions();
 		cpuTracePost();
 	}
 }
@@ -2439,7 +2440,7 @@ template <class T> void CPUCore<T>::execute()
 					T::enableLimit(true);
 					if (likely(!T::limitReached())) {
 						// multiple instructions
-						executeInstructions<true>();
+						executeInstructions();
 					}
 					scheduler.schedule(T::getTimeFast());
 					if (needExitCPULoop()) return;
@@ -2454,7 +2455,8 @@ template <class T> void CPUCore<T>::execute()
 			}
 			if (slowInstructions == 0) {
 				cpuTracePre();
-				executeInstructions<false>(); // one instruction
+				assert(T::limitReached()); // only one instruction
+				executeInstructions();
 				cpuTracePost();
 				scheduler.schedule(T::getTimeFast());
 			} else {

@@ -165,7 +165,7 @@ private:
 	inline void WR_WORD_rev(unsigned address, unsigned value, unsigned cc);
 
 	inline void M1Cycle();
-	template <bool CHAIN_INSTRUCTIONS> void executeInstructions();
+	void executeInstructions();
 	inline void nmi();
 	inline void irq0();
 	inline void irq1();
