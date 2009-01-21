@@ -18,6 +18,8 @@
 #include "BooleanSetting.hh"
 #include "Version.hh"
 #include "checked_cast.hh"
+#include "utf8_unchecked.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
@@ -93,7 +95,7 @@ void CommandConsole::saveHistory()
 		}
 		for (History::const_iterator it = history.begin();
 		     it != history.end(); ++it) {
-			outputfile << it->substr(prompt.length()) << std::endl;
+			outputfile << it->substr(prompt.size()) << std::endl;
 		}
 	} catch (FileException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
@@ -125,7 +127,7 @@ void CommandConsole::loadHistory()
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
 	xPosition = cursorPosition % getColumns();
-	unsigned num = lines[0].size() / getColumns();
+	unsigned num = utf8::unchecked::size(lines[0]) / getColumns();
 	yPosition = num - (cursorPosition / getColumns());
 }
 
@@ -138,10 +140,12 @@ string CommandConsole::getLine(unsigned line) const
 {
 	unsigned count = 0;
 	for (unsigned buf = 0; buf < lines.size(); ++buf) {
-		count += (lines[buf].size() / getColumns()) + 1;
+		count += (utf8::unchecked::size(lines[buf]) / getColumns()) + 1;
 		if (count > line) {
-			return lines[buf].substr((count - line - 1) * getColumns(),
-			                         getColumns());
+			return utf8::unchecked::substr(
+				lines[buf],
+				(count - line - 1) * getColumns(),
+				getColumns());
 		}
 	}
 	return "";
@@ -194,25 +198,25 @@ void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_RETURN:
 		case Keys::K_KP_ENTER:
 			commandExecute();
-			cursorPosition = prompt.length();
+			cursorPosition = prompt.size();
 			break;
 		case Keys::K_LEFT:
-			if (cursorPosition > prompt.length()) {
+			if (cursorPosition > prompt.size()) {
 				--cursorPosition;
 			}
 			break;
 		case Keys::K_RIGHT:
-			if (cursorPosition < lines[0].length()) {
+			if (cursorPosition < utf8::unchecked::size(lines[0])) {
 				++cursorPosition;
 			}
 			break;
 		case Keys::K_HOME:
 		case Keys::K_A | Keys::KM_CTRL:
-			cursorPosition = prompt.length();
+			cursorPosition = prompt.size();
 			break;
 		case Keys::K_END:
 		case Keys::K_E | Keys::KM_CTRL:
-			cursorPosition = lines[0].length();
+			cursorPosition = utf8::unchecked::size(lines[0]);
 			break;
 		case Keys::K_C | Keys::KM_CTRL:
 			clearCommand();
@@ -297,7 +301,7 @@ void CommandConsole::commandExecute()
 	putCommandHistory(lines[0]);
 	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
-	commandBuffer += lines[0].substr(prompt.length()) + '\n';
+	commandBuffer += lines[0].substr(prompt.size()) + '\n';
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
 		try {
@@ -321,17 +325,17 @@ void CommandConsole::putPrompt()
 {
 	commandScrollBack = history.end();
 	currentLine = lines[0] = prompt;
-	cursorPosition = prompt.length();
+	cursorPosition = prompt.size();
 }
 
 void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
-	string::size_type pl = prompt.length();
-	string front(lines[0].substr(pl, cursorPosition - pl));
-	string back(lines[0].substr(cursorPosition));
+	string::size_type pl = prompt.size();
+	string front = utf8::unchecked::substr(lines[0], pl, cursorPosition - pl);
+	string back  = utf8::unchecked::substr(lines[0], cursorPosition);
 	commandController.tabCompletion(front);
-	cursorPosition = pl + front.length();
+	cursorPosition = pl + utf8::unchecked::size(front);
 	currentLine = lines[0] = prompt + front + back;
 }
 
@@ -351,13 +355,12 @@ void CommandConsole::prevCommand()
 	History::const_iterator tempScrollBack = commandScrollBack;
 	while ((tempScrollBack != history.begin()) && !match) {
 		tempScrollBack--;
-		match = ((tempScrollBack->length() >= currentLine.length()) &&
-		         (tempScrollBack->substr(0, currentLine.length()) == currentLine));
+		match = StringOp::startsWith(*tempScrollBack, currentLine);
 	}
 	if (match) {
 		commandScrollBack = tempScrollBack;
 		lines[0] = *commandScrollBack;
-		cursorPosition = lines[0].length();
+		cursorPosition = utf8::unchecked::size(lines[0]);
 	}
 }
 
@@ -370,8 +373,7 @@ void CommandConsole::nextCommand()
 	bool match = false;
 	History::const_iterator tempScrollBack = commandScrollBack;
 	while ((++tempScrollBack != history.end()) && !match) {
-		match = ((tempScrollBack->length() >= currentLine.length()) &&
-		         (tempScrollBack->substr(0, currentLine.length()) == currentLine));
+		match = StringOp::startsWith(*tempScrollBack, currentLine);
 	}
 	if (match) {
 		--tempScrollBack; // one time to many
@@ -381,21 +383,25 @@ void CommandConsole::nextCommand()
 		commandScrollBack = history.end();
 		lines[0] = currentLine;
 	}
-	cursorPosition = lines[0].length();
+	cursorPosition = utf8::unchecked::size(lines[0]);
 }
 
 void CommandConsole::clearCommand()
 {
 	resetScrollBack();
 	currentLine = lines[0] = prompt;
-	cursorPosition = prompt.length();
+	cursorPosition = prompt.size();
 }
 
 void CommandConsole::backspace()
 {
 	resetScrollBack();
-	if (cursorPosition > prompt.length()) {
-		lines[0].erase(lines[0].begin() + cursorPosition - 1);
+	if (cursorPosition > prompt.size()) {
+		string::iterator begin = lines[0].begin();
+		utf8::unchecked::advance(begin, cursorPosition - 1);
+		string::iterator end = begin;
+		utf8::unchecked::advance(end, 1);
+		lines[0].erase(begin, end);
 		currentLine = lines[0];
 		--cursorPosition;
 	}
@@ -404,8 +410,12 @@ void CommandConsole::backspace()
 void CommandConsole::delete_key()
 {
 	resetScrollBack();
-	if (lines[0].length() > cursorPosition) {
-		lines[0].erase(lines[0].begin() + cursorPosition);
+	if (utf8::unchecked::size(lines[0]) > cursorPosition) {
+		string::iterator begin = lines[0].begin();
+		utf8::unchecked::advance(begin, cursorPosition);
+		string::iterator end = begin;
+		utf8::unchecked::advance(end, 1);
+		lines[0].erase(begin, end);
 		currentLine = lines[0];
 	}
 }
@@ -413,9 +423,10 @@ void CommandConsole::delete_key()
 void CommandConsole::normalKey(word chr)
 {
 	if (!chr) return;
-	if (chr >= 0x100) return; // TODO: Support Unicode (how?).
 	resetScrollBack();
-	lines[0].insert(lines[0].begin() + cursorPosition, char(chr));
+	string::iterator pos = lines[0].begin();
+	utf8::unchecked::advance(pos, cursorPosition);
+	utf8::unchecked::append(uint32_t(chr), inserter(lines[0], pos));
 	currentLine = lines[0];
 	++cursorPosition;
 }

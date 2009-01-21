@@ -33,6 +33,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_UNCHECKED_HH
 
 #include "utf8_core.hh"
+#include <string>
 
 namespace utf8 {
 namespace unchecked {
@@ -45,19 +46,19 @@ octet_iterator append(uint32_t cp, octet_iterator result)
 		*result++ = cp;
 	} else if (cp < 0x800) {
 		// two octets
-		*result++ = (cp >>  6)        | 0xc0;
-		*result++ = (cp >>  0) & 0x3f | 0x80;
+		*result++ = ((cp >>  6)       ) | 0xc0;
+		*result++ = ((cp >>  0) & 0x3f) | 0x80;
 	} else if (cp < 0x10000) {
 		// three octets
-		*result++ = (cp >> 12)        | 0xe0;
-		*result++ = (cp >>  6) & 0x3f | 0x80;
-		*result++ = (cp >>  0) & 0x3f | 0x80;
+		*result++ = ((cp >> 12)       ) | 0xe0;
+		*result++ = ((cp >>  6) & 0x3f) | 0x80;
+		*result++ = ((cp >>  0) & 0x3f) | 0x80;
 	} else {
 		// four octets
-		*result++ = (cp >> 18)        | 0xf0;
-		*result++ = (cp >> 12) & 0x3f | 0x80;
-		*result++ = (cp >>  6) & 0x3f | 0x80;
-		*result++ = (cp >>  0) & 0x3f | 0x80;
+		*result++ = ((cp >> 18)       ) | 0xf0;
+		*result++ = ((cp >> 12) & 0x3f) | 0x80;
+		*result++ = ((cp >>  6) & 0x3f) | 0x80;
+		*result++ = ((cp >>  0) & 0x3f) | 0x80;
 	}
 	return result;
 }
@@ -225,6 +226,28 @@ public:
 		return temp;
 	}
 };
+
+// convenience functions
+inline unsigned size(const std::string& utf8)
+{
+	return utf8::unchecked::distance(utf8.begin(), utf8.end());
+}
+inline std::string substr(const std::string& utf8, std::string::size_type first = 0,
+                   std::string::size_type len = std::string::npos)
+{
+	std::string::const_iterator begin = utf8.begin();
+	utf8::unchecked::advance(begin, first);
+	std::string::const_iterator end;
+	if (len != std::string::npos) {
+		end = begin;
+		while (len && (end != utf8.end())) {
+			next(end); --len;
+		}
+	} else {
+		end = utf8.end();
+	}
+	return std::string(begin, end);
+}
 
 } // namespace unchecked
 } // namespace utf8

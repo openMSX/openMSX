@@ -5,6 +5,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "ReadDir.hh"
+#include "utf8_unchecked.hh"
 #include "stringsp.hh"
 #include <algorithm>
 
@@ -49,9 +50,11 @@ static bool formatHelper(const set<string>& input, unsigned columnLimit,
 		unsigned maxcolumn = column;
 		for (unsigned i = 0; (i < result.size()) && (it != input.end());
 		     ++i, ++it) {
-			result[i].resize(column, ' ');
+			unsigned curSize = utf8::unchecked::size(result[i]);
+			result[i] += string(column - curSize, ' ');
 			result[i] += *it;
-			maxcolumn = std::max<unsigned>(maxcolumn, result[i].size());
+			maxcolumn = std::max<unsigned>(maxcolumn,
+			                               utf8::unchecked::size(result[i]));
 			if (maxcolumn > columnLimit) return false;
 		}
 		column = maxcolumn + 2;
