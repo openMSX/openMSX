@@ -15,7 +15,7 @@ class TTFFont
 public:
 	/** Construct new TTFFont object.
 	  * @param font Filename of font (.fft file, possibly (g)zipped).
-	  * @param prSize Point size (based on 72DPI) to load font as.
+	  * @param ptSize Point size (based on 72DPI) to load font as.
 	  */
 	TTFFont(const std::string& font, int ptSize);
 	~TTFFont();
