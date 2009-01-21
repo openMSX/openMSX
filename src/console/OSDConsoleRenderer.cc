@@ -159,7 +159,7 @@ void OSDConsoleRenderer::adjustColRow()
 	unsigned consoleRows = std::min<unsigned>(
 		consoleRowsSetting->getValue(),
 		output.getHeight() / font->getHeight());
-	Console& console = reactor.getCommandConsole();
+	CommandConsole& console = reactor.getCommandConsole();
 	console.setColumns(consoleColumns);
 	console.setRows(consoleRows);
 }
@@ -225,7 +225,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	adjustColRow();
 
 	unsigned x, y, w, h;
-	Console& console = reactor.getCommandConsole();
+	CommandConsole& console = reactor.getCommandConsole();
 	h = font->getHeight() * console.getRows();
 	w = (font->getWidth() * console.getColumns()) + CHAR_BORDER;
 
@@ -353,7 +353,7 @@ void OSDConsoleRenderer::paint()
 		backgroundImage->draw(destX, destY, visibility);
 	}
 
-	Console& console = reactor.getCommandConsole();
+	CommandConsole& console = reactor.getCommandConsole();
 	int screenlines = destH / font->getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
 		drawText(console.getLine(loop + console.getScrollBack()),

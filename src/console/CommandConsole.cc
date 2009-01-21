@@ -225,6 +225,26 @@ void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	}
 }
 
+void CommandConsole::setColumns(unsigned columns_)
+{
+	columns = columns_;
+}
+
+unsigned CommandConsole::getColumns() const
+{
+	return columns;
+}
+
+void CommandConsole::setRows(unsigned rows_)
+{
+	rows = rows_;
+}
+
+unsigned CommandConsole::getRows() const
+{
+	return rows;
+}
+
 void CommandConsole::output(const std::string& text)
 {
 	print(text);

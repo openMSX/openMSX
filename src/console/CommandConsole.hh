@@ -3,7 +3,6 @@
 #ifndef COMMANDCONSOLE_HH
 #define COMMANDCONSOLE_HH
 
-#include "Console.hh"
 #include "EventListener.hh"
 #include "InterpreterOutput.hh"
 #include "CircularBuffer.hh"
@@ -20,7 +19,7 @@ class KeyEvent;
 class BooleanSetting;
 class Display;
 
-class CommandConsole : public Console, private EventListener,
+class CommandConsole : private EventListener,
                        private InterpreterOutput, private noncopyable
 {
 public:
@@ -29,22 +28,23 @@ public:
 	               Display& display);
 	virtual ~CommandConsole();
 
-	/** Prints a string on the console.
-	  */
-	virtual void print(std::string text);
+	unsigned getScrollBack() const;
+	std::string getLine(unsigned line) const;
+	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 
-	virtual unsigned getScrollBack() const;
-	virtual std::string getLine(unsigned line) const;
-	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
+	void setColumns(unsigned columns);
+	unsigned getColumns() const;
+	void setRows(unsigned rows);
+	unsigned getRows() const;
 
 private:
 	// InterpreterOutput
 	virtual void output(const std::string& text);
 	virtual unsigned getOutputColumns() const;
 
-	static const int LINESHISTORY = 1000;
-
+	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
+
 	void handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();
 	void commandExecute();
@@ -60,6 +60,10 @@ private:
 	void putPrompt();
 	void resetScrollBack();
 
+	/** Prints a string on the console.
+	  */
+	void print(std::string text);
+
 	void loadHistory();
 	void saveHistory();
 
@@ -68,6 +72,7 @@ private:
 	Display& display;
 	BooleanSetting& consoleSetting;
 
+	static const int LINESHISTORY = 1000;
 	CircularBuffer<std::string, LINESHISTORY> lines;
 	std::string commandBuffer;
 	std::string prompt;
@@ -77,6 +82,8 @@ private:
 	History history;
 	History::const_iterator commandScrollBack;
 	unsigned maxHistory;
+	unsigned columns;
+	unsigned rows;
 	int consoleScrollBack;
 	/** Position within the current command. */
 	unsigned cursorPosition;

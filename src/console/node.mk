@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	Console CommandConsole \
+	CommandConsole \
 	OSDConsoleRenderer \
 	OSDGUILayer OSDGUI \
 	OSDWidget OSDImageBasedWidget \
