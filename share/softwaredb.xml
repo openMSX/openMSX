@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232571640">
+<softwaredb xml:lang="en" timestamp="1232596092">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -2602,6 +2602,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">d916f0e4bd3c829a0472c6ec18d08907a5c991f3</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">83fed4090d0942c8e0054437745c1c0ebefc6222</hash><remark>[a]</remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Eagles 5</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1990</year>
+	<country>KR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">6365ee1bfd4764546681d860c90b59f27b25f213</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Eat Blue! 2004</title>
@@ -9880,6 +9888,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">28b54294007ec345aef7322a2fcaa18d3363a73e</hash><remark>Ulver crack</remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Xevious Micro</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1990</year>
+	<country>KR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">1c4e9d38a8f57212dbf12f7aaba6549683b93ed4</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Xyxolog</title>
 	<system>MSX</system>
 	<company>Taito</company>
@@ -10185,6 +10201,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2124
-Parse time 4.311 seconds on Wed Jan 21 22:00:45 CET 2009
+Roms in this database:2126
+Parse time 4.289 seconds on Thu Jan 22 4:48:16 CET 2009
  -->
