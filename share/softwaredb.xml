@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232610441">
+<softwaredb xml:lang="en" timestamp="1232612256">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -407,7 +407,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">8999a51c94460c8db1ca033b64b568bf919300c2</hash><remark>[o][RC-701] / Japanese version</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">e8af1da8478ebfd796b1f04a2429073259761ebb</hash><remark>[h by Prosoft][RC-701] / Japanese version</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">63d3755c81b2c294ff3bd96cfb9f5a2f3d83b86c</hash><remark>[h by Prosoft][RC-701] / Japanese version</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">6bd5b97baceb3bc8da3571590e2a6a761bb90b48</hash><remark>[SCC][RC-701]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">6bd5b97baceb3bc8da3571590e2a6a761bb90b48</hash><remark>[SCC][RC-701]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">e1c7169bd44a3c67f2941a14699b954d7e337d29</hash><remark>[SD Snatcher RAM SCC+][RC-701]</remark></sccpluscart></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">c7af3306dbae898fcc077492cc4574298951df34</hash><remark>Konami Antiques MSX Collection 1</remark></rom></dump>
 </software>
@@ -3497,7 +3497,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1989</year>
 	<country>JP</country>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">6da3d46fa71415962004b3b13a2bac2dd513958a</hash><remark>[SCC]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">6da3d46fa71415962004b3b13a2bac2dd513958a</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">2c4f9305d160b9a0fbc3ee4226983750ee5f1952</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">461c581ebc43b47c54a6d706a03c462bf7d1ef75</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
 </software>
@@ -4296,7 +4296,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">9002aa0b2d49a9fc323180487ff591781867a99c</hash><remark>[RC-717]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">1c6b2b81552590e82d3205afbde93653fa449429</hash><remark>[RC-717]</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">d394e2f71cdb955d03cbf8173950e82fc69646bd</hash><remark>[SCC][RC-717]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">d394e2f71cdb955d03cbf8173950e82fc69646bd</hash><remark>[SCC][RC-717]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">1e92d20a5815ad0dffd50d8324fce389ca033e05</hash><remark>[SD Snatcher RAM SCC+][RC-717]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">fcd563fe7ccb293be1f1adb0da7d6f0da8fc7e2e</hash><remark>[The Snatcher RAM SCC+][RC-717]</remark></sccpluscart></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">cf7260443f814c57619a862f82162fe3e12369e1</hash><remark>Konami Antiques MSX Collection 1</remark></rom></dump>
@@ -5077,7 +5077,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">5e349166fce12d45f3ce3f69ecd6b2a70ef4d68b</hash><remark>[RC-736]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">20efab45afd6be509ab4f8a012e67b094c196c73</hash><remark>[RC-736] / Ulver crack</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">aa95e2c196a59b67bede35366275a48557b1ae06</hash><remark>[RC-736] / Ulver crack</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">4e3a48a1acddff212807f80a676910851e4aca02</hash><remark>[SCC][RC-736]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4e3a48a1acddff212807f80a676910851e4aca02</hash><remark>[SCC][RC-736]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">7768195d49ad389d388468c4f24a53a5f53e3c5d</hash><remark>[SD Snatcher RAM SCC+][RC-736]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">ae24f03a969bfc7394b9620c8f227ae97627a7ce</hash><remark>[The Snatcher RAM SCC+][RC-736]</remark></sccpluscart></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">4569c02e59fb9d7a42d6a0296d821bc7ae7e338d</hash><remark>Konami Antiques MSX Collection 1</remark></rom></dump>
@@ -5615,7 +5615,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">1d6a355a9ce84c78e3bafc27a4f1151e240f68f0</hash><remark>[RC-739]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">c484f44af0ab1bcaf46ae5f14a3b38a53ee77f31</hash><remark>[RC-739]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">8a6e0f932ce12318a1c5b8dbbfe44b213acb03ae</hash><remark>[RC-739] / Ulver crack</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</hash><remark>[SCC][RC-739] / SCC enhanced version</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</hash><remark>[SCC][RC-739] / SCC enhanced version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark>[SCC][RC-739]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark>[SD Snatcher RAM SCC+][RC-739]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">f795668afe66c7d88e51f5a22471e2c0a42c7ffb</hash><remark>[SD Snatcher RAM SCC+][RC-739]</remark></sccpluscart></dump>
@@ -7703,7 +7703,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1989</year>
 	<country>JP</country>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">2f6e0a02fcc3d368db142ac837304c18c5226e2f</hash><remark>[SCC]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2f6e0a02fcc3d368db142ac837304c18c5226e2f</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">4524768e575298cee3b7eee09b3caab784ca3bb7</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">e9b5b79f434b1c5bdb47f3ffece3ad42e489e20b</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
 </software>
@@ -7713,7 +7713,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1989</year>
 	<country>JP</country>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">3f20b96149f58b86d1f0e79483d5ddf402191ec9</hash><remark>[SCC]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">3f20b96149f58b86d1f0e79483d5ddf402191ec9</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">0a0203d69b68e1c636fdb78934ae7fb5b4d88179</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">04a564958ea71653f87a8aa51b84aa567c73a8bd</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
 </software>
@@ -8807,7 +8807,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">31472edf134c8ba532e6a1eded0dcc1aa088e8ba</hash><remark>[o][RC-705]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">87a9f78c0bba4e38d98890e34033a7b14f75f5e2</hash><remark>[o2][RC-705]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">de2dd71730922168428dbc11a82fe91b84c23192</hash><remark>[o3][RC-705]</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">32972530da19cac5956f83c2253c7cbf41e14dc3</hash><remark>[SCC][RC-705]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">32972530da19cac5956f83c2253c7cbf41e14dc3</hash><remark>[SCC][RC-705]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">93ab050bc4965667ee863773b8ecd36dd4f3f86c</hash><remark>[SD Snatcher RAM SCC+][RC-705]</remark></sccpluscart></dump>
 </software>
 <software>
@@ -9369,7 +9369,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1989</year>
 	<country>JP</country>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">ee267ee21f5753130af665435d4e1ce84a6256f1</hash><remark>[SCC]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">ee267ee21f5753130af665435d4e1ce84a6256f1</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">8ac11431e32e23919a2ea37d5b2ef472d634921a</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">a031ff5aeafb7d470e810bd6cd08c92394f66295</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
 </software>
@@ -9694,7 +9694,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">a2a9d0303cb0b36a73d58e42b7c2c976c540597f</hash><remark>[o2][RC-706][aka Konami&#39;s Billiards]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">01788f6238dc934fbc843aab85fdc0581ed96989</hash><remark>[o3][RC-706][aka Konami&#39;s Billiards]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">eed68d254a17d76c36e094dd8a50a362a964e1b7</hash><remark>[RC-706][aka Konami&#39;s Billiards]</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">d131d718f57aef3a5469c6785e342a63128bf6d1</hash><remark>[SCC][RC-706]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">d131d718f57aef3a5469c6785e342a63128bf6d1</hash><remark>[SCC][RC-706]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">82a5b00496eb1b9741a9540a89085e86443e76c5</hash><remark>[SD Snatcher RAM SCC+][RC-706]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">22e095eefb53adf47648520f117afd8bfafa63d0</hash><remark>[The Snatcher RAM SCC+][RC-706]</remark></sccpluscart></dump>
 </software>
@@ -9941,7 +9941,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">8b3994ab39768f15617fb2cd9199000226b935bd</hash><remark>[a][RC-725]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a3090a15c95334da3e0f94030eadee02b5032c0c</hash><remark>[RC-725]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">4ac9fc27a4a7b87e2c2347f5a420a6e846555263</hash><remark>[RC-725] / Ulver crack</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">003d58988d120823c84f6617326f5df83c7e5131</hash><remark>[SCC][RC-725]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">003d58988d120823c84f6617326f5df83c7e5131</hash><remark>[SCC][RC-725]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">0f81ebbd3d02796500b3f862fe1a8d584fb228d3</hash><remark>[SD Snatcher RAM SCC+][RC-725]</remark></sccpluscart></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">176c82d969a8bef171bdc2b7915201957f43b260</hash><remark>Konami Antiques MSX Collection 1</remark></rom></dump>
 </software>
@@ -9956,7 +9956,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">5017abeca8fbed43ff2fd1a936843acdc7192dcc</hash><remark>[a][RC-737]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">78d3dc3e48724c1f570d1ee1671100cdd539ad2b</hash><remark>[t][RC-737]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">d65f0010dacbd2528eaa25467ef007a87f17ae7a</hash><remark>[RC-737] / Ulver crack</remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc</boot><hash algo="sha1">181c62bf30a66ca3c74b4165c230fb44674bdb5d</hash><remark>[SCC][RC-737]</remark></sccpluscart></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">181c62bf30a66ca3c74b4165c230fb44674bdb5d</hash><remark>[SCC][RC-737]</remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">b27a3e67215aadc9bafd80f184c6be0b26731076</hash><remark>[SD Snatcher RAM SCC+][RC-737]</remark></sccpluscart></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">3136bee4c7d4d20c1a5ba49516fc9499f405a5bf</hash><remark>Konami Antiques MSX Collection 2</remark></rom></dump>
 </software>
@@ -10188,5 +10188,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2126
-Parse time 4.078 seconds on Thu Jan 22 8:47:25 CET 2009
+Parse time 5.133 seconds on Thu Jan 22 9:17:41 CET 2009
  -->
