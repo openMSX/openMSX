@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232596092">
+<softwaredb xml:lang="en" timestamp="1232610441">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -6565,8 +6565,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">4b138e041947990309c228890914689908d46685</hash><remark>Spanish Version / MSX-DEV06</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash><remark>English Version / MSX-DEV06</remark></megarom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">ce3f9356eaa5fd6c1b5ff1ade244ebd9130f1ceb</hash><remark>MSX-DEV06</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">76b7a5e75d5091f0482746e5a0c0a71de07ddf83</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">ce3f9356eaa5fd6c1b5ff1ade244ebd9130f1ceb</hash><remark>MSX-DEV06</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">76b7a5e75d5091f0482746e5a0c0a71de07ddf83</hash><remark>MSX-DEV06</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Night Driver</title>
@@ -8276,25 +8276,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Yermani Soft</company>
 	<year>2006</year>
-	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">e7351ef9606bd6d5f38acb7c17aed8a00170b85d</hash><remark>MSX-DEV06</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">6715aea31525869220d7acb638b6a432875e85a1</hash><remark>MSX-DEV06</remark></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Skate Air (English)</title>
-	<system>MSX</system>
-	<company>Germ&#225;n G&#243;mez Herrera</company>
-	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash><remark>MSXDEV06</remark></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Skate Air (Espaniol)</title>
-	<system>MSX</system>
-	<company>Germ&#225;n G&#243;mez Herrera</company>
-	<year>2006</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash><remark>MSXDEV06</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash><remark>(Espaniol) / MSX-DEV06</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash><remark>(English) / MSX-DEV06</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">e7351ef9606bd6d5f38acb7c17aed8a00170b85d</hash><remark>MSX-DEV06</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">6715aea31525869220d7acb638b6a432875e85a1</hash><remark>MSX-DEV06</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Ski Command</title>
@@ -10202,5 +10188,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2126
-Parse time 4.289 seconds on Thu Jan 22 4:48:16 CET 2009
+Parse time 4.078 seconds on Thu Jan 22 8:47:25 CET 2009
  -->
