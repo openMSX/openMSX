@@ -19,6 +19,10 @@
 #include "openmsx.hh"
 #include <cassert>
 
+#ifdef _WIN32
+#include "AltSpaceSuppressor.hh"
+#include "sdlwin32.hh"
+#endif
 #include "components.hh"
 #ifdef COMPONENT_GL
 #include "SDLGLVisibleSurface.hh"
@@ -45,10 +49,24 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
 
 	reactor.getEventDistributor().registerEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
+
+#ifdef _WIN32
+	PRT_DEBUG("Starting ALT+SPACE suppressor");
+	HWND hWnd = getSDLWindowHandle();
+	assert(hWnd);
+	AltSpaceSuppressor::Start(hWnd);
+#endif
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
+#ifdef _WIN32
+	// This needs to be done while the SDL window handle is still valid
+	PRT_DEBUG("Stopping ALT+SPACE suppressor");
+	assert(getSDLWindowHandle());
+	AltSpaceSuppressor::Stop();
+#endif
+
 	PRT_DEBUG("Destructing SDLVideoSystem... ");
 	PRT_DEBUG("Unregistering RESIZE_EVENT... ");
 	reactor.getEventDistributor().unregisterEventListener(

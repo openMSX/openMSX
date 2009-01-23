@@ -5,9 +5,9 @@
 #include "DirectXSoundDriver.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
+#include "sdlwin32.hh"
+#include <SDL.h>
 #include <cstring>
-#include <SDL.h>       //
-#include <SDL_syswm.h> //
 
 namespace openmsx {
 
@@ -22,12 +22,7 @@ static HWND getWindowHandle()
 	// !! and this only works when SDL video part is initialized
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) SDL_InitSubSystem(SDL_INIT_VIDEO);
 
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	if (!SDL_GetWMInfo(&info)) {
-		throw MSXException("Couldn't initialize DirectSound driver");
-	}
-	return info.window;
+	return getSDLWindowHandle();
 }
 
 
