@@ -180,7 +180,13 @@
 #ifndef _MSC_VER
 // gcc has an extension called computed goto's
 // it allows to implement a more efficient instruction dispatching
+#if PLATFORM_GP2X
+// GP2X uses a ARM920T CPU, this CPU has no(?) indirect branch prediction and
+// very small caches (16kb data 16kb instruction (no L2 cache)). On this type
+// of CPU, the threaded interpreter model does not offer any advantage.
+#else
 #define USE_COMPUTED_GOTO
+#endif
 #else
 // VC++ doesn't support this
 // we have to use a central switch statement to do all dispatching
