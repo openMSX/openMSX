@@ -2875,6 +2875,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\utils\AltSpaceSuppressor.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utils\AltSpaceSuppressor.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\utils\Base64.cc"
 				>
 			</File>
@@ -2992,6 +3000,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\utils\ScopedAssign.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utils\sdlwin32.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utils\sdlwin32.hh"
 				>
 			</File>
 			<File
