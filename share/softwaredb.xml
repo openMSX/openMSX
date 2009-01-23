@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232612256">
+<softwaredb xml:lang="en" timestamp="1232671689">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -3515,6 +3515,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">520739caa1e0aac1b8eabc4305556aa75f3f5a3b</hash><remark>[RC-764] / Cheat version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">c84ea9e7a02609c71ff75893cbb948fc1f1cf21c</hash><remark>[RC-764] / Ulver crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">edc238c1eb254cbf90f1dfdc276ff7ccc93a940e</hash><remark>Konami Antiques MSX Collection 1</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">d605458c96bbb538c4624deeeed3294ea489a61e</hash><remark>Zemina Version</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gokiburi Daisakusen - Bug Bomb</title>
@@ -3647,6 +3648,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4127844955388f812e33437f618936dc98944c0a</hash><remark>[RC-751] / cheat version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4c15375910461a7a34a2fd54c7f51e712f06bc69</hash><remark>[RC-751] / Ulver crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">76666da5870d1901026e3dded3f22ce7a706689d</hash><remark>Konami Antiques MSX Collection 2</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Gradius 2 - Nemesis 2 (Demo)</title>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>1998</year>
+	<country>JP</country>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">87b7c80069a15fdb90b40dfed736fb8492104cd9</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gradius 2 - Nemesis 2 - Beta Release</title>
@@ -5454,6 +5463,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">0f2c5a7c6cc9ff591c911e4f3f204e425bd3cf50</hash><remark>MSX-DEV07</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">079bacc9708f711af90310f3e08f2abafa8fc919</hash><remark>Fixed / MSX-DEV07</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">e348e62e3c4c02d87ff2aa4d55ddebb60c3ea507</hash><remark>Final Submission for MSXDEV07 / MSX-DEV07</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">145552b3f62885efcfe7484008fa4cebe2feae84</hash><remark>After MSXDEV07 Version / MSX-DEV07</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Lunar Ball</title>
@@ -5854,6 +5864,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a7b196f7e934faa76602c8c00bd2f6e6d2d70787</hash><remark>[tr En][a][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7be2f14fd0df5718cdb69b972c5f7c1f284b03e6</hash><remark>[tr En][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4b78514753008cabda2ff3d3cb537b2429efd7d2</hash><remark>[tr En][RC-767] / Ulver full crack</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">53e1fb8ee77757cd20bf4c7aa4a5c6c786c664d6</hash><remark>[tr En][RC-767]</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Metal Gear 2 - Solid Snake (Demo)</title>
@@ -10187,6 +10198,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2126
-Parse time 5.133 seconds on Thu Jan 22 9:17:41 CET 2009
+Roms in this database:2130
+Parse time 4.117 seconds on Fri Jan 23 1:48:13 CET 2009
  -->
