@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232671689">
+<softwaredb xml:lang="en" timestamp="1232782027">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -1264,6 +1264,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">c5edd1c74e72ddaeba1027da1e848e2c4fda94f5</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Bubble Bobble</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1987</year>
+	<country>KR</country>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">a40674b5e0ba449078cbb07406edfd2627306122</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Burger Time</title>
 	<system>MSX</system>
 	<company>Dempa</company>
@@ -2395,6 +2403,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">81befaa45ee3f1196b0e1ea657b0161495601a87</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Dragon Buster</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1987</year>
+	<country>KR</country>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">6030005c4401b3cbcb09f802cd48f5c1c585303b</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Dragon Quest 1 - MSX1 Version</title>
 	<system>MSX</system>
 	<company>Enix</company>
@@ -2490,6 +2506,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">3f87c3413c8cc2a25e1f64cfdcd01155a13711f0</hash></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">6d7a8ea1b283ecc1cc94c359e5f053a6e82ab3f5</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Dragon Slayer 4 - MSX2 Version</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1987</year>
+	<country>KR</country>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">fa2d5f56273a0faa5b39096448f82998655de60d</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Drainer</title>
@@ -3560,6 +3584,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">930df58762e7b5bcf2d362462f03335bad732398</hash><remark>[b]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">d2ccc4a8de5da21745209d0731671e8f3cbea515</hash><remark>Ulver crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">91505fccdcc43230550d101967010bed27f9b573</hash><remark>[o]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">8b7e4bc408a8c715943bfa00069f2d517b39a748</hash><remark>English Translation</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">678efe599b8085bd27f9d3d42cfbbd7ca74ceb89</hash><remark>English Translation</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gomok Narabe - Omo Go</title>
@@ -4039,6 +4065,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">875bbb27f6a54e5d123dc8a6df4bf46f97c23a57</hash><remark>[RC-747]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">45760316a4ebc74ddd55ee163c5aeaaafe965d2c</hash><remark>[RC-747] / Vampier cheat</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7e5024e6e6aecd05ec6c885786a4aac287ed110b</hash><remark>[RC-747] / Ulver crack</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Hinotori - Firebird</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1987</year>
+	<country>KR</country>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">357c0c2e9b3b2970c587c96f86a6b7272160f54a</hash><remark>[RC-747]</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Hisya</title>
@@ -5848,6 +5882,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">b656bd19df58fc1ba4628342b87beeec5948e0b3</hash><remark>[tr En][RC-750]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">aa881a2936f368ab887c296b837a8f7f553a3fb2</hash><remark>[tr Sp][RC-750]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">65040fb1e9bc4b2d027d7d81e44be30e7620e368</hash><remark>[RC-750] / Ulver crack / Does not work on Non Japanese systems</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark>[tr En][RC-750][JP/EU patch]</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Metal Gear 2 - Solid Snake</title>
@@ -6571,7 +6606,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Night City</title>
 	<system>MSX</system>
-	<company>Germ&#225;n G&#243;mez Herrera</company>
+	<company>Yermani Soft</company>
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">4b138e041947990309c228890914689908d46685</hash><remark>Spanish Version / MSX-DEV06</remark></megarom></dump>
@@ -8464,11 +8499,13 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Space Crussader</title>
 	<system>MSX</system>
-	<company>Germ&#225;n G&#243;mez Herrera</company>
+	<company>Yermani Soft</company>
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a21d354ddda95975d737746d27fd59cb908ddf0a</hash><remark>English / MSXDev05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">0856cba14ff2396ea257ff927da0767ae74084c5</hash><remark>Spanish / MSXDev05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">5bff56d5671d1131056451025b20c1ce192e279b</hash><remark>English Version / MSXDEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">96e1f8fa1f4f3fdfa999f6a999d60d75b590f070</hash><remark>Spanish Version / MSXDEV05</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Space Invader</title>
@@ -9171,11 +9208,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<title xml:lang="en">Tengoku Yoitoko - Heaven</title>
 	<system>MSX</system>
 	<company>Zemina</company>
-	<year>1988</year>
+	<year>1987</year>
 	<country>KR</country>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">19e79a79be13ac62bb002ed3323502be97886e17</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">db22cd03db61a495d55c460cfaa266271c8a5926</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">17dcbe8e9ab792483a542b0230897baf0240dcc9</hash><remark>Ulver crack</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">c3ab3edb7f9ba31124092dc0f1dd2f13d3b52f8f</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tensai Rabbian Daifunsen</title>
@@ -9293,6 +9331,13 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">b433357683fb1154d75c677ba01893665880f483</hash><remark>MSXDev05</remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">The Mansion</title>
+	<system>MSX</system>
+	<company>Yermani Soft</company>
+	<year>2005</year>
+	<country>ES</country>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash><remark>English / MSXDev05</remark></rom></dump>
 </software>
 <software>
@@ -10198,6 +10243,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2130
-Parse time 4.117 seconds on Fri Jan 23 1:48:13 CET 2009
+Roms in this database:2140
+Parse time 5.443 seconds on Sat Jan 24 8:27:13 CET 2009
  -->
