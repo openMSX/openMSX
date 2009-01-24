@@ -710,7 +710,7 @@ V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 {
 	V9990ColorMode mode = INVALID_COLOR_MODE;
 
-	if (!regs[SCREEN_MODE_0] & 0x80) {
+	if (!(regs[SCREEN_MODE_0] & 0x80)) {
 		mode = BP4;
 	} else {
 		switch (regs[SCREEN_MODE_0] & 0x03) {

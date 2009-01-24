@@ -328,7 +328,7 @@ bool isAbsolutePath(const string& path)
 string getUserHomeDir(const string& username)
 {
 #ifdef _WIN32
-	if (username.empty()); // ignore parameter, avoid warning
+	(void)(&username); // ignore parameter, avoid warning
 	static string userDir;
 	if (userDir.empty()) {
 		HMODULE sh32dll = LoadLibraryA("SHELL32.DLL");

@@ -68,10 +68,6 @@ private:
 
 	inline void renderBitmapLine(Pixel* buf, unsigned vramLine);
 
-	/** Get the pixel colour of a graphics 7 colour index.
-	  */
-	inline Pixel graphic7Colour(byte index);
-
 	/** Reload entire palette from VDP.
 	  */
 	void resetPalette();

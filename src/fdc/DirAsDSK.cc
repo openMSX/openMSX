@@ -397,7 +397,7 @@ void DirAsDSK::checkAlterFileInDisk(unsigned dirindex)
 		// and thus delete it from the MSX DIR sectors by marking
 		// the first filename char as 0xE5
 		debug(" host os file deleted ? %s\n", mapdir[dirindex].shortname.c_str());
-		mapdir[dirindex].msxinfo.filename[0] = 0xE5;
+		mapdir[dirindex].msxinfo.filename[0] = char(0xE5);
 		mapdir[dirindex].shortname.clear();
 		// Since we do not clear the FAT (a real MSX doesn't either)
 		// and all data is cached in memmory you now can use MSX-DOS
