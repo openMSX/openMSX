@@ -150,7 +150,7 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	// Initialize waveform (initialize before volumes)
 	for (unsigned i = 0; i < 5; ++i) {
 		for (unsigned j = 0; j < 32; ++j) {
-			wave[i][j] = signed char(0xFF);
+			wave[i][j] = (signed char)0xFF;
 		}
 	}
 	// Initialize volume (initialize this before period)
