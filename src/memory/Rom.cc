@@ -130,7 +130,7 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 		// content)
 		size = config.getChildDataAsInt("size", 0) * 1024; // in kb
 		extendedRom.assign(size, 0xff);
-		rom = &extendedRom[0];
+		rom = size ? &extendedRom[0] : NULL;
 	}
 
 	patchedSha1 = getOriginalSHA1(); // initially it's the same ..
