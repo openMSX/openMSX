@@ -723,46 +723,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\console\Console.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\Console.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\DummyFont.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\DummyFont.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\Font.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\Font.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\GLConsole.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\GLConsole.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\GLFont.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\GLFont.hh"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\console\OSDConsoleRenderer.cc"
 				>
 			</File>
@@ -827,19 +787,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\console\SDLConsole.cc"
+				RelativePath="..\..\src\console\TTFFont.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\console\SDLConsole.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\SDLFont.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\console\SDLFont.hh"
+				RelativePath="..\..\src\console\TTFFont.hh"
 				>
 			</File>
 		</Filter>
