@@ -46,7 +46,6 @@ $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	@echo "static const bool OPENMSX_SET_WINDOW_ICON = $(SET_WINDOW_ICON);" >> $@
 	@echo "static const std::string DATADIR = \"$(INSTALL_SHARE_DIR)\";" >> $@
 	@echo "static const std::string BUILD_FLAVOUR = \"$(OPENMSX_FLAVOUR)\";" >> $@
-	@echo "static const std::string BUILD_COMPONENTS = \"$(sort $(COMPONENTS_TRUE))\";" >> $@
 	@echo "" >> $@
 	@echo "} // namespace openmsx" >> $@
 	@echo "" >> $@

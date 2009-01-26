@@ -25,6 +25,8 @@
 #include "HostCPU.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
+#include "build-info.hh"
+#include "components.hh"
 #include <cassert>
 #include <iostream>
 #include <cstdio>
