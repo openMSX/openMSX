@@ -1,5 +1,9 @@
 $Id$
 
+2009-01-25 Maarten ter Huurne <maarten@treewalker.org>
+	* Use Python to generate "Version.ii".
+	* Use Python to generate "build-info.hh".
+
 2009-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Console refactoring:
 	  - Share much more code between SDL and GL console variant
@@ -434,7 +438,7 @@ $Id$
 
 2008-04-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use switch statement instead of jump table in CPUCore:
-	  - Is about 10%(!) faster when using gcc-4.2, more when using 
+	  - Is about 10%(!) faster when using gcc-4.2, more when using
 	    recent gcc snapshot. With gcc-4.1 it's performance neutral,
 	    gcc-3.4 was a big slowdown (but we care less about such old
 	    compilers).
@@ -540,7 +544,7 @@ $Id$
 	   OSD widgets with this property (or child widgets whose parent has
 	   this property) are automatically scaled according to the
 	   'scale_factor' setting. This makes it possible to design a GUI
-	   independent of the host window resolution. 
+	   independent of the host window resolution.
 
 2008-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended OSD stuff:
@@ -585,7 +589,7 @@ $Id$
 	* Several updates to keyboard driver:
 	   - Implemented auto-toggle of KANA-lock (and CODE-lock on VG8010)
 	     based on the character that the user enters. This is only done on
-	     MSX models on which CODE/KANA has a locking behaviour. Though, 
+	     MSX models on which CODE/KANA has a locking behaviour. Though,
 	     user can switch it off via auto_toggle_code_kana_lock setting.
 	   - Implemented auto-toggle of CODE/KANA-lock when pasting characters
 	     (either through catapult or via the type command in the console).
@@ -597,7 +601,7 @@ $Id$
 	   - Added a mnemomic DEADKEY to the unicode maps, to indicate the
 	     position of the dead key in the MSX matrix (it is different on
 	     german MSX models)
-	   - Added setting keyboard_mapping_mode, so that user can select 
+	   - Added setting keyboard_mapping_mode, so that user can select
 	     between KEY to key mapping mode and CHARACTER to key-combination
 	     mapping mode.
 	   - Refactored keyboard driver; unicode mapping data is now in its own
