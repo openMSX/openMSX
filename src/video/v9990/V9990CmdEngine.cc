@@ -1110,8 +1110,11 @@ void V9990CmdEngine::CmdLMCM<Mode>::execute(EmuTime::param /*time*/)
 			}
 		}
 		if (Mode::BITS_PER_PIXEL == 16) {
-			engine.data = data & 0xff;
-			engine.partial = data >> 8;
+			unsigned tmp = data;	// workaround for VC++ warning C4333
+									// (in case Mode::Type == byte and
+									//          Mode::BITS_PER_PIXEL == 8)
+			engine.data = tmp & 0xff;
+			engine.partial = tmp >> 8;
 			engine.bitsLeft = 1;
 		} else {
 			engine.data = data;
