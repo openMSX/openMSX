@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1233022242">
+<softwaredb xml:lang="en" timestamp="1233033794">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -4612,7 +4612,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Aackosoft</company>
 	<year>1985</year>
 	<country>NL</country>
-		<dump><original value="false"/><rom><hash algo="sha1">53c6655b0ea7c07101018879f3bf60de071c247b</hash></rom></dump>
+		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">53c6655b0ea7c07101018879f3bf60de071c247b</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Jet Set Willy</title>
@@ -7052,8 +7052,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2111cec4b5ea698d772bb80664f6be690b47391c</hash><remark>[RC-759] / cheat version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">04e4eb1cae7cf379977d238b74d727bb929c8d23</hash><remark>[RC-759] / English Translation</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">240a23b63e901b988951dda1ded561c281ccbbc1</hash><remark>[RC-759] / Ulver crack</remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">f1de76dfcd8c4e354a8a8058a76191167fd112e3</hash><remark>[RC-759] / English Translation</remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7c066cb763f7a4fec0474b5a09e3ef43bbf9248b</hash><remark>[RC-759] / English Translation</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">f1de76dfcd8c4e354a8a8058a76191167fd112e3</hash><remark>[RC-759] / English Translation</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7c066cb763f7a4fec0474b5a09e3ef43bbf9248b</hash><remark>[RC-759] / English Translation</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Pasokon Sakkyokuka</title>
@@ -7183,6 +7183,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>BR</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">479100e82d3f25bbeb9a291163945d2f5bd62f74</hash><remark>[b1]</remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">bf041bc8ce3b5dab7b1f85f623b371b263639aab</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Periodic Table</title>
@@ -10293,6 +10294,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2169
-Parse time 5.014 seconds on Tue Jan 27 3:10:47 CET 2009
+Roms in this database:2170
+Parse time 4.389 seconds on Tue Jan 27 6:23:18 CET 2009
  -->

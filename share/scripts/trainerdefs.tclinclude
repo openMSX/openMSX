@@ -6595,4 +6595,19 @@ create_trainer "Fly-Boat" {time 1} {
 	"lives" {poke 0x9b0d 57;poke 0x9b0e 57}
 }
 
+create_trainer "Majikazo" {time 1} {
+	"Time" {poke 0xebf2 100}
+}
+
+create_trainer "Pepper 2" {time 1} {
+	"lives" {poke 0x7078 99}
+}
+
+create_trainer "Montezum's Revenge" {time 1} {
+	"lives" {poke 0x7049 11}
+}
+
+create_trainer "Jungle hunt" {time 1} {
+	"lives" {poke 0x732d 255}
+}
 ### EOF ###
