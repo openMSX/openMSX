@@ -12,7 +12,7 @@ public:
 	// Defined by build system:
 	static const bool RELEASE;
 	static const std::string VERSION;
-	static const std::string CHANGELOG_REVISION;
+	static const std::string REVISION;
 	static const std::string BUILD_FLAVOUR;
 
 	// Computed using constants above:

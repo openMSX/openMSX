@@ -8,6 +8,6 @@ namespace openmsx {
 
 const std::string Version::FULL_VERSION
 	= "openMSX " + Version::VERSION
-	+ (Version::RELEASE ? "" : "-dev" + Version::CHANGELOG_REVISION);
+	+ (Version::RELEASE ? "" : "-dev" + Version::REVISION);
 
 } // namespace openmsx
