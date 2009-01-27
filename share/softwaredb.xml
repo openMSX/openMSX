@@ -2,12 +2,12 @@
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
 The softwaredb.xml file contains information about rom mapper types
-Copyright 2004-2008 Benoit Delvaux		(Database Administrator)
+Copyright 2004-2009 Benoit Delvaux		(Database Administrator)
 Copyright 2003 Nicolas Beyaert			(Initial Database)
-Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
+Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1232931908">
+<softwaredb xml:lang="en" timestamp="1233022242">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -3214,6 +3214,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">c0d33b513704adc56718b1f56c1062718683c77c</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">ce01afe30da38dc58994c8264070195e1cd921b8</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Formula Dice</title>
+	<system>MSX</system>
+	<company>robylu</company>
+	<year>2009</year>
+	<country>IT</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">5c3ccb1681fbf63ebe318d05616eebace91b5ed9</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Fractions 1</title>
@@ -10285,6 +10293,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2168
-Parse time 4.362 seconds on Mon Jan 26 2:05:12 CET 2009
+Roms in this database:2169
+Parse time 5.014 seconds on Tue Jan 27 3:10:47 CET 2009
  -->
