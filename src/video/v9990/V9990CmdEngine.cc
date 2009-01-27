@@ -1634,7 +1634,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(EmuTime::param time)
 		if (Mode::BITS_PER_PIXEL == 16) {
 			value = Mode::point(vram, engine.ASX, engine.SY, pitch);
 			col = engine.fgCol;
-			mask2 = typename Mode::Type(0xFFFF); // cast to avoid warning
+			mask2 = ~static_cast<typename Mode::Type>(0);
 		} else {
 			// TODO check
 			unsigned addr = Mode::addressOf(engine.ASX, engine.SY, pitch);
