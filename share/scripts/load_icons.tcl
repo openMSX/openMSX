@@ -28,7 +28,7 @@ proc __trace_led_status { name1 name2 op } {
 }
 
 proc __redraw_osd_leds { led } {
-	global __fade_delay_active __fade_delay_non_active __last_change $led
+	global __fade_delay_active __fade_delay_non_active __last_change __fade_id $led
 
 	# handle 'unset' variables  (when current msx machine got deleted)
 	if [catch {set value [set ${led}]}] { set value false }
@@ -52,7 +52,10 @@ proc __redraw_osd_leds { led } {
 		if {$diff < $fade_delay} {
 			# no fading yet
 			osd configure $widget -alpha 255 -fadeTarget 255
-			after realtime [expr $fade_delay - $diff] "__redraw_osd_leds $led"
+			catch {
+				after cancel $__fade_id($led)
+			}
+			set __fade_id($led) [after realtime [expr $fade_delay - $diff] "__redraw_osd_leds $led"]
 		} else {
 			# fading out
 			osd configure $widget -fadeTarget 0
