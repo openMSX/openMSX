@@ -93,11 +93,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		reactor.getCliComm().printWarning(
 			"Loading selected font (" + fontSetting->getValue() +
 			") failed. Reverting to default font (" + defaultFont + ").");
-		try {
-			fontSetting->changeValue(defaultFont);
-		} catch (MSXException& e) {
+		fontSetting->changeValue(defaultFont);
+		if (!font.get()) {
 			// we can't continue without font
-			throw FatalError(e.getMessage());
+			throw FatalError("Couldn't load default console font.\n"
+			                 "Please check your installation.");
 		}
 	}
 
