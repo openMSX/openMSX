@@ -29,7 +29,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS99X8A</version>
+      <version>TMS99X8A</version> <!-- actually probably TMS91X8A -->
       <io base="0x98" num="2"/>
     </VDP>
 
@@ -49,7 +49,7 @@
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
           <filename>roms/hotbit_1.2_basic-bios1.rom</filename>
-          <sha1>9425815446d468058705bae545ffa13646744a87</sha1>
+          <sha1>9425815446d468058705bae545ffa13646744a87</sha1> <!-- verified on Jetze's machine -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
