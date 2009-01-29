@@ -5,6 +5,7 @@
 
 #include "ScreenShotSaver.hh"
 #include "CommandException.hh"
+#include "FileOperations.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "vla.hh"
@@ -26,7 +27,7 @@ static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 	struct tm* tm = localtime(&t);
 	png_bytep* ptrs = reinterpret_cast<png_bytep*>(const_cast<void**>(row_pointers));
 
-	FILE* fp = fopen(filename.c_str(), "wb");
+	FILE* fp = FileOperations::openFile(filename, "wb");
 	if (!fp) {
 		return false;
 	}

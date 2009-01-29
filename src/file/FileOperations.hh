@@ -6,10 +6,18 @@
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include <string>
 #include <sys/types.h>
+#include <fstream>
 
 namespace openmsx {
 
 namespace FileOperations {
+
+	const char nativePathSeparator = 
+#ifdef _WIN32
+		'\\';
+#else
+		'/';
+#endif
 
 	/**
 	 * Expand the '~' character to the users home directory
@@ -38,6 +46,48 @@ namespace FileOperations {
 	 * @throw FileException
 	 */
 	void mkdirp(const std::string& path);
+
+	/**
+	 * Call unlink() in a platform-independent manner
+	 */
+	int unlink(const std::string& path);
+
+	/**
+	 * Call rmdir() in a platform-independent manner
+	 */
+	int rmdir(const std::string& path);
+
+	/**
+	 * Call stat() and return the mode field from the stat structure
+	 * @param filename the file path
+	 * @param mode the mode field to be returned
+	 * @result The return value from stat()
+	 */
+	int statGetMode(const std::string& filename, mode_t& mode);
+
+	/**
+	 * Call fopen() in a platform-independent manner
+	 * @param filename the file path
+	 * @param mode the mode parameter, same as fopen
+	 * @result A pointer to the opened file, or NULL on error
+	 */
+	FILE* openFile(const std::string& filename, const std::string& mode);
+
+	/**
+	 * Open an ofstream in a platform-independent manner
+	 * @param stream an ofstream
+	 * @param filename the file path
+	 */
+	void openofstream(std::ofstream& stream, const std::string& filename);
+
+	/**
+	 * Open an ofstream in a platform-independent manner
+	 * @param stream an ofstream
+	 * @param filename the file path
+	 * @param mode the open mode
+	 */
+	void openofstream(std::ofstream& stream, const std::string& filename,
+		std::ios_base::openmode mode);
 
 	/**
 	 * Returns the file portion of a path name.
@@ -172,6 +222,14 @@ namespace FileOperations {
 	 * Typically /tmp on *nix and C:/WINDOWS/TEMP on windows
 	 */
 	std::string getTempDir();
+
+	/**
+	 * Open a new file with a unique name in the provided directory
+	 * @param directory directory in which to open the temp file
+	 * @param filename [output param] the name of the resulting file
+	 * @result pointer to the opened file
+	 */
+	FILE* openUniqueFile(const std::string& directory, std::string& filename);
 
 } // namespace FileOperations
 

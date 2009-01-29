@@ -34,20 +34,20 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	const string name = FileOperations::getNativePath(filename);
 	if ((mode == File::SAVE_PERSISTENT) || (mode == File::TRUNCATE)) {
 		// open file read/write truncated
-		file = fopen(name.c_str(), "wb+");
+		file = FileOperations::openFile(name, "wb+");
 	} else if (mode == File::CREATE) {
 		// open file read/write
-		file = fopen(name.c_str(), "rb+");
+		file = FileOperations::openFile(name, "rb+");
 		if (!file) {
 			// create if it didn't exist yet
-			file = fopen(name.c_str(), "wb+");
+			file = FileOperations::openFile(name, "wb+");
 		}
 	} else {
 		// open file read/write
-		file = fopen(name.c_str(), "rb+");
+		file = FileOperations::openFile(name, "rb+");
 		if (!file) {
 			// if that fails try read only
-			file = fopen(name.c_str(), "rb");
+			file = FileOperations::openFile(name, "rb");
 			readOnly = true;
 		}
 	}
@@ -64,7 +64,7 @@ LocalFile::LocalFile(const std::string& filename, const char* mode)
 {
 	assert(strchr(mode, 'b'));
 	const string name = FileOperations::getNativePath(filename);
-	file = fopen(name.c_str(), mode);
+	file = FileOperations::openFile(name, mode);
 	if (!file) {
 		throw FileException("Error opening file \"" + filename + "\"");
 	}

@@ -5,6 +5,7 @@
 #include "Event.hh"
 #include "EmuTime.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 
 using std::string;
 
@@ -13,8 +14,8 @@ namespace openmsx {
 MSXEventRecorder::MSXEventRecorder(MSXEventDistributor& eventDistributor_,
                                    const string& fileName)
 	: eventDistributor(eventDistributor_)
-	, logFileStream(fileName.c_str())
 {
+	FileOperations::openofstream(logFileStream, fileName);
 	if (!logFileStream.good()) {
 		throw FileException("Can't open file " + fileName + " to log to");
 	}

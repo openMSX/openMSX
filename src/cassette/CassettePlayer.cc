@@ -258,7 +258,7 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 		recordImage.reset();
 		if (empty) {
 			// delete the created WAV file, as it is useless
-			unlink(getImageName().getResolved().c_str());
+			FileOperations::unlink(getImageName().getResolved());
 			setImageName(Filename());
 		}
 	}

@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
+#include "FileOperations.hh"
 #include "serialize.hh"
 #include <cstdio>
 #include <cerrno>
@@ -36,7 +37,7 @@ MidiInReader::~MidiInReader()
 // Pluggable
 void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	file = fopen(readFilenameSetting->getValue().c_str(), "rb");
+	file = FileOperations::openFile(readFilenameSetting->getValue(), "rb");
 	if (!file) {
 		throw PlugException("Failed to open input: "
 			+ string(strerror(errno)));

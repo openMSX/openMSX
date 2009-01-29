@@ -15,7 +15,6 @@
 #include <direct.h>
 
 #define getpid _getpid
-#define rmdir _rmdir
 
 typedef int mode_t;
 

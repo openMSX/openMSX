@@ -18,41 +18,46 @@
  */
 
 // NB: Taken from http://www.koders.com/c/fidB38A2E97F60B8A0C903631F8C60078DE8C6C8433.aspx
-// Also modified to use ANSI calls explicitly
+// Also modified to use Unicode calls explicitly
 // Slightly reformatted/simplified to fit openMSX coding style.
 
 #ifdef _MSC_VER
 
 #include "win32-dirent.hh"
+#include "utf8_checked.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include <windows.h>
 #include <cstring>
 #include <cstdlib>
+#include <exception>
+
+namespace openmsx {
 
 DIR* opendir(const char* name)
 {
 	if (!name || !*name) return NULL;
-	size_t len = strlen(name);
-	char* file = static_cast<char*>(malloc(len + 3));
-	strcpy(file, name);
-	if ((file[len - 1] != '/') && (file[len - 1] != '\\')) {
-		strcat(file, "/*");
+
+	std::wstring nameW = utf8::utf8to16(name);
+	if (!StringOp::endsWith(name, "/") && 
+		!StringOp::endsWith(name, "\\")) {
+		nameW += L"\\*";
 	} else {
-		strcat(file, "*");
+		nameW += L"*";
 	}
 
 	HANDLE hnd;
-	WIN32_FIND_DATAA find;
-	if ((hnd = FindFirstFileA(file, &find)) == INVALID_HANDLE_VALUE) {
-		free(file);
+	WIN32_FIND_DATAW find;
+	if ((hnd = FindFirstFileW(nameW.c_str(), &find)) == INVALID_HANDLE_VALUE) {
 		return NULL;
 	}
 
-	DIR* dir = static_cast<DIR*>(malloc(sizeof(DIR)));
-	dir->mask = file;
-	dir->fd = int(hnd);
-	dir->data = malloc(sizeof(WIN32_FIND_DATAA));
+	DIR* dir = new DIR;
+	dir->mask = nameW;
+	dir->fd = reinterpret_cast<INT_PTR>(hnd);
+	dir->data = new WIN32_FIND_DATAW;
 	dir->filepos = 0;
-	memcpy(dir->data, &find, sizeof(WIN32_FIND_DATAA));
+	memcpy(dir->data, &find, sizeof(WIN32_FIND_DATAW));
 	return dir;
 }
 
@@ -62,16 +67,18 @@ dirent* readdir(DIR* dir)
 	entry.d_ino = 0;
 	entry.d_type = 0;
 
-	WIN32_FIND_DATAA* find = static_cast<WIN32_FIND_DATAA*>(dir->data);
+	WIN32_FIND_DATAW* find = static_cast<WIN32_FIND_DATAW*>(dir->data);
 	if (dir->filepos) {
-		if (!FindNextFileA(reinterpret_cast<HANDLE>(dir->fd), find)) {
+		if (!FindNextFileW(reinterpret_cast<HANDLE>(dir->fd), find)) {
 			return NULL;
 		}
 	}
 
+	std::string d_name = utf8::utf16to8(find->cFileName);
+	strncpy(entry.d_name, d_name.c_str(), sizeof(entry.d_name)/sizeof(entry.d_name[0]));
+
 	entry.d_off = dir->filepos;
-	strncpy(entry.d_name, find->cFileName, sizeof(entry.d_name));
-	entry.d_reclen = strlen(find->cFileName);
+	entry.d_reclen = strlen(entry.d_name);
 	dir->filepos++;
 	return &entry;
 }
@@ -79,20 +86,19 @@ dirent* readdir(DIR* dir)
 int closedir(DIR* dir)
 {
 	HANDLE hnd = reinterpret_cast<HANDLE>(dir->fd);
-	free(dir->data);
-	free(dir->mask);
-	free(dir);
+	delete dir->data;
+	delete dir;
 	return FindClose(hnd) ? 0 : -1;
 }
 
 void rewinddir(DIR* dir)
 {
 	HANDLE hnd = reinterpret_cast<HANDLE>(dir->fd);
-	WIN32_FIND_DATAA* find = static_cast<WIN32_FIND_DATAA*>(dir->data);
+	WIN32_FIND_DATAW* find = static_cast<WIN32_FIND_DATAW*>(dir->data);
 
 	FindClose(hnd);
-	hnd = FindFirstFileA(dir->mask, find);
-	dir->fd = INT_PTR(hnd);
+	hnd = FindFirstFileW(dir->mask.c_str(), find);
+	dir->fd = reinterpret_cast<INT_PTR>(hnd);
 	dir->filepos = 0;
 }
 
@@ -100,8 +106,8 @@ void seekdir(DIR* dir, off_t offset)
 {
 	rewinddir(dir);
 	for (off_t n = 0; n < offset; ++n) {
-		if (FindNextFileA(reinterpret_cast<HANDLE>(dir->fd),
-			          static_cast<WIN32_FIND_DATAA*>(dir->data))) {
+		if (FindNextFileW(reinterpret_cast<HANDLE>(dir->fd),
+					  static_cast<WIN32_FIND_DATAW*>(dir->data))) {
 			dir->filepos++;
 		}
 	}
@@ -119,5 +125,7 @@ off_t telldir(DIR* dir)
 {
 	return dir->fd;
 }*/
+
+} // namespace openmsx
 
 #endif

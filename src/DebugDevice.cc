@@ -157,7 +157,7 @@ void DebugDevice::openOutput(const string& name)
 		outputstrm = &std::cerr;
 	} else {
 		string realName = FileOperations::expandTilde(name);
-		debugOut.open(realName.c_str(), std::ios::app);
+		FileOperations::openofstream(debugOut, realName, std::ios::app);
 		outputstrm = &debugOut;
 	}
 }

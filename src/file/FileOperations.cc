@@ -1,10 +1,7 @@
 // $Id$
 
 #ifdef	_WIN32
-#define WIN32_LEAN_AND_MEAN
-#ifndef _WIN32_IE
-#define _WIN32_IE 0x0400
-#endif
+#include "utf8_checked.hh"
 #include <windows.h>
 #include <shlobj.h>
 #include <io.h>
@@ -47,6 +44,10 @@
 #endif
 
 using std::string;
+
+#ifdef _WIN32
+using namespace utf8;
+#endif
 
 namespace openmsx {
 
@@ -195,13 +196,13 @@ string expandTilde(const string& path)
 
 void mkdir(const string& path, mode_t mode)
 {
-#if	defined(__MINGW32__) || defined(_MSC_VER)
+#ifdef _WIN32
 	if ((path == "/") ||
-	    StringOp::endsWith(path, ":") ||
-	    StringOp::endsWith(path, ":/")) {
+		StringOp::endsWith(path, ":") ||
+		StringOp::endsWith(path, ":/")) {
 		return;
 	}
-	int result = ::mkdir(getNativePath(path).c_str());
+	int result = _wmkdir(utf8to16(getNativePath(path)).c_str());
 #else
 	int result = ::mkdir(getNativePath(path).c_str(), mode);
 #endif
@@ -223,10 +224,72 @@ void mkdirp(const string& path_)
 		mkdir(path.substr(0, pos), 0755);
 	} while (pos != string::npos);
 
-	struct stat st;
-	if ((stat(path.c_str(), &st) != 0) || !S_ISDIR(st.st_mode)) {
+	mode_t mode;
+	int result = statGetMode(path, mode);
+	if (result != 0 || !S_ISDIR(mode)) {
 		throw FileException("Error creating dir " + path);
 	}
+}
+
+int unlink(const std::string& path)
+{
+#ifdef _WIN32
+	return _wunlink(utf8to16(path).c_str());
+#else
+	return ::unlink(path.c_str());
+#endif
+}
+
+int rmdir(const std::string& path)
+{
+#ifdef _WIN32
+	return _wrmdir(utf8to16(path).c_str());
+#else
+	return ::rmdir(path.c_str());
+#endif
+}
+
+int statGetMode(const string& filename, mode_t& mode)
+{
+#ifdef _WIN32
+	struct _stat64i32 st;
+	int result = _wstat(utf8to16(filename).c_str(), &st);
+#else
+	struct stat st;
+	int result = stat(filename, &st);
+#endif
+	mode = st.st_mode;
+	return result;
+}
+
+FILE* openFile(const std::string& filename, const std::string& mode)
+{
+#ifdef _WIN32
+	return _wfopen(
+		utf8to16(filename).c_str(),
+		utf8to16(mode).c_str());
+#else
+	return fopen(filename.c_str(), mode.c_str());
+#endif
+}
+
+void openofstream(std::ofstream& stream, const std::string& filename)
+{
+#ifdef _WIN32
+	stream.open(utf8to16(filename).c_str());
+#else
+	stream.open(filename.c_str());
+#endif
+}
+
+void openofstream(std::ofstream& stream, const std::string& filename,
+				  std::ios_base::openmode mode)
+{
+#ifdef _WIN32
+	stream.open(utf8to16(filename).c_str(), mode);
+#else
+	stream.open(filename.c_str(), mode);
+#endif
 }
 
 string getFilename(const string& path)
@@ -265,7 +328,7 @@ string join(const string& part1, const string& part2, const string& part3)
 }
 
 string join(const string& part1, const string& part2,
-            const string& part3, const string& part4)
+			const string& part3, const string& part4)
 {
 	return join(join(join(part1, part2), part3), part4);
 }
@@ -294,8 +357,18 @@ string getConventionalPath(const string& path)
 
 string getCurrentWorkingDirectory()
 {
+#ifdef _WIN32
+	wchar_t bufW[MAXPATHLEN];
+	wchar_t* result = _wgetcwd(bufW, MAXPATHLEN);
+	string buf;
+	if (result) {
+		buf = utf16to8(result);
+	}
+#else
 	char buf[MAXPATHLEN];
-	if (!getcwd(buf, MAXPATHLEN)) {
+	char* result = getcwd(buf, MAXPATHLEN);
+#endif
+	if (!result) {
 		throw FileException("Couldn't get current working directory.");
 	}
 	return buf;
@@ -329,33 +402,15 @@ string getUserHomeDir(const string& username)
 {
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
-	static string userDir;
-	if (userDir.empty()) {
-		HMODULE sh32dll = LoadLibraryA("SHELL32.DLL");
-		if (sh32dll) {
-			FARPROC funcp = GetProcAddress(sh32dll, "SHGetSpecialFolderPathA");
-			if (funcp) {
-				char p[MAXPATHLEN + 1];
-				int res = reinterpret_cast<BOOL(STDAPICALLTYPE*)(HWND, LPSTR, int, BOOL)>(funcp)(0, p, CSIDL_PERSONAL, 1);
-				if (res == TRUE) {
-					userDir = getConventionalPath(p);
-				}
-			}
-			FreeLibrary(sh32dll);
-		}
-		if (userDir.empty()) {
-			// workaround for Win95 w/o IE4(||later)
-			userDir = getSystemDataDir();
-			userDir.erase(userDir.length() - 6, 6); // "/share"
-		}
-		if ((userDir.length() == 3) && (userDir.substr(1) == ":/")){
-			char drive = tolower(userDir[0]);
-			if (('a' <= drive) && (drive <= 'z')) {
-				userDir.erase(2,1);  // remove the trailing slash because other functions will add it, X:// will be seen as protocol
-			}
-		}
+	
+	wchar_t bufW[MAXPATHLEN + 1];
+	if (!SHGetSpecialFolderPathW(NULL, bufW, CSIDL_PERSONAL, TRUE)) {
+		throw FatalError("SHGetSpecialFolderPathW failed: " + 
+			StringOp::toString(GetLastError()));
 	}
-	return userDir;
+
+	return getConventionalPath(utf16to8(bufW));
+
 #elif PLATFORM_GP2X
 	return ""; // TODO figure out why stuff below doesn't work
 	// We cannot use generic implementation below, because for some
@@ -411,16 +466,19 @@ string getSystemDataDir()
 
 	string newValue;
 #ifdef _WIN32
-	char p[MAXPATHLEN + 1];
-	int res = GetModuleFileNameA(NULL, p, MAXPATHLEN);
-	if ((res == 0) || (res == MAXPATHLEN)) {
-		throw FatalError("Cannot detect openMSX directory.");
+	wchar_t bufW[MAXPATHLEN + 1];
+	int res = GetModuleFileNameW(NULL, bufW, sizeof(bufW)/sizeof(bufW[0]));
+	if (!res) {
+		throw FatalError("Cannot detect openMSX directory. GetModuleFileNameW failed: " + 
+			StringOp::toString(GetLastError()));
 	}
-	if (!strrchr(p, '\\')) {
+
+	string filename = utf16to8(bufW);
+	string::size_type pos = filename.find_last_of('\\');
+	if (pos == string::npos) {
 		throw FatalError("openMSX is not in directory!?");
 	}
-	*(strrchr(p, '\\')) = '\0';
-	newValue = getConventionalPath(p) + "/share";
+	newValue = getConventionalPath(filename.substr(0, pos)) + "/share";
 #elif defined(__APPLE__)
 	newValue = findShareDir();
 #else
@@ -439,10 +497,9 @@ string expandCurrentDirFromDrive(const string& path)
 		// get current directory for this drive
 		unsigned char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
-			char buffer[MAXPATHLEN + 1];
-			if (_getdcwd(drive - 'a' + 1, buffer, MAXPATHLEN) != NULL) {
-				result = buffer;
-				result = getConventionalPath(result);
+			wchar_t bufW[MAXPATHLEN + 1];
+			if (_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != NULL) {
+				result = getConventionalPath(utf16to8(bufW));
 				if (*result.rbegin() != '/') {
 					result += '/';
 				}
@@ -458,34 +515,35 @@ string expandCurrentDirFromDrive(const string& path)
 
 bool isRegularFile(const string& filename)
 {
-	struct stat st;
-	int ret = stat(expandTilde(filename).c_str(), &st);
-	return (ret == 0) && S_ISREG(st.st_mode);
+	mode_t mode;
+	int ret = statGetMode(expandTilde(filename), mode);
+	return (ret == 0) && S_ISREG(mode);
 }
 
 bool isDirectory(const string& directory)
 {
-	struct stat st;
-	int ret = stat(expandTilde(directory).c_str(), &st);
-	return (ret == 0) && S_ISDIR(st.st_mode);
+	mode_t mode;
+	int ret = statGetMode(expandTilde(directory), mode);
+	return (ret == 0) && S_ISDIR(mode);
 }
 
 bool exists(const string& filename)
 {
-	struct stat st;
-	return stat(expandTilde(filename).c_str(), &st) == 0;
+	mode_t mode;
+	int ret = statGetMode(expandTilde(filename), mode);
+	return (ret == 0);
 }
 
 static int getNextNum(dirent* d, const string& prefix, const string& extension,
-                      const unsigned nofdigits)
+					  const unsigned nofdigits)
 {
 	const unsigned extensionlen = extension.length();
 	const unsigned prefixlen = prefix.length();
 	string name(d->d_name);
 
 	if ((name.length() != (prefixlen + nofdigits + extensionlen)) ||
-	    (name.substr(0, prefixlen) != prefix) ||
-	    (name.substr(prefixlen + nofdigits, extensionlen) != extension)) {
+		(name.substr(0, prefixlen) != prefix) ||
+		(name.substr(prefixlen + nofdigits, extensionlen) != extension)) {
 		return 0;
 	}
 	string num(name.substr(prefixlen, nofdigits));
@@ -526,18 +584,54 @@ string getNextNumberedFileName(
 
 string getTempDir()
 {
+#ifdef _WIN32
+	wchar_t* bufW;
+	DWORD len = GetTempPathW(0, NULL);
+	if (len) {
+		bufW = static_cast<wchar_t*>(_alloca((len+1)*sizeof(wchar_t)));
+		len = GetTempPathW(len, bufW);
+	}
+	if (!len) {
+		throw FatalError("GetTempPathW failed: " + 
+			StringOp::toString(GetLastError()));
+	}
+	// Strip last backslash
+	if (bufW[len-1] == L'\\') {
+		bufW[len-1] = L'\0';
+	}
+	string result = utf16to8(bufW);
+#else
 	const char* result = NULL;
 	if (!result) result = getenv("TMPDIR");
 	if (!result) result = getenv("TMP");
 	if (!result) result = getenv("TEMP");
 	if (!result) {
-#ifdef _WIN32
-		result = "C:/WINDOWS/TEMP";
-#else
 		result = "/tmp";
-#endif
 	}
+#endif
 	return result;
+}
+
+FILE* openUniqueFile(const std::string& directory, std::string& filename)
+{
+#ifdef _WIN32
+	std::wstring directoryW = utf8to16(directory);
+	wchar_t filenameW[MAX_PATH];
+	if (!GetTempFileNameW(directoryW.c_str(), L"msx", 0, filenameW)) {
+		throw FileException("GetTempFileNameW failed: " +
+			StringOp::toString(GetLastError()));
+	}
+	filename = utf16to8(filenameW);
+	FILE* fp = _wfopen(filenameW, L"wb");
+#else
+	filename = directory + "/XXXXXX";
+	int fd = mkstemp(const_cast<char*>(filename.c_str()));
+	if (fd == -1) {
+		throw FileException("Coundn't get temp file name");
+	}
+	FILE* fp = fdopen(fd, "wb");
+#endif
+	return fp;
 }
 
 } // namespace FileOperations

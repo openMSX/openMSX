@@ -9,10 +9,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
 
 using std::string;
 
@@ -41,12 +37,9 @@ void LocalFileReference::init(const string& url)
 
 	// create temp dir
 #ifdef _WIN32
-	char tmppath[MAX_PATH];
-	if (!GetTempPathA(MAX_PATH, tmppath)) {
-		throw FileException("Coundn't get temp file path");
-	}
-	tmpDir = string(tmppath) + "\\openmsx";
+	tmpDir = FileOperations::getTempDir() + FileOperations::nativePathSeparator + "openmsx";
 #else
+	// TODO - why not just use getTempDir()?
 	tmpDir = "/tmp/openmsx." + StringOp::toString(getpid());
 #endif
 	// it's possible this directory already exists, in that case the
@@ -54,21 +47,7 @@ void LocalFileReference::init(const string& url)
 	FileOperations::mkdirp(tmpDir);
 
 	// create temp file
-#ifdef _WIN32
-	char tmpname[MAX_PATH];
-	if (!GetTempFileNameA(tmpDir.c_str(), "openmsx", 0, tmpname)) {
-		throw FileException("Coundn't get temp file name");
-	}
-	tmpFile = tmpname;
-	FILE* fp = fopen(tmpFile.c_str(), "wb");
-#else
-	tmpFile = tmpDir + "/XXXXXX";
-	int fd = mkstemp(const_cast<char*>(tmpFile.c_str()));
-	if (fd == -1) {
-		throw FileException("Coundn't get temp file name");
-	}
-	FILE* fp = fdopen(fd, "wb");
-#endif
+	FILE* fp = FileOperations::openUniqueFile(tmpDir, tmpFile);
 	if (!fp) {
 		throw FileException("Couldn't create temp file");
 	}
@@ -85,10 +64,10 @@ void LocalFileReference::init(const string& url)
 LocalFileReference::~LocalFileReference()
 {
 	if (!tmpDir.empty()) {
-		unlink(tmpFile.c_str());
+		FileOperations::unlink(tmpFile);
 		// it's possible the directory is not empty, in that case
 		// the following function will fail, we ignore that error
-		rmdir(tmpDir.c_str());
+		FileOperations::rmdir(tmpDir);
 	}
 }
 

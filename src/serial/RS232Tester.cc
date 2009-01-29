@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
+#include "FileOperations.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -37,7 +38,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
 	std::string outName = rs232OutputFilenameSetting->getValue();
-	outFile.open(outName.c_str());
+	FileOperations::openofstream(outFile, outName);
 	if (outFile.fail()) {
 		outFile.clear();
 		throw PlugException("Error opening output file: " + outName);
@@ -45,7 +46,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	// input
 	std::string inName = rs232InputFilenameSetting->getValue();
-	inFile = fopen(inName.c_str(), "rb");
+	inFile = FileOperations::openFile(inName, "rb");
 	if (!inFile) {
 		outFile.close();
 		throw PlugException("Error opening input file: " + inName);

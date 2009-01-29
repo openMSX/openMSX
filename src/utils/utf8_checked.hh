@@ -326,6 +326,11 @@ public:
 	}
 };
 
+#ifdef _WIN32
+std::wstring utf8to16(const std::string& utf8);
+std::string utf16to8(const std::wstring& utf16);
+#endif
+
 } // namespace utf8
 
 #endif

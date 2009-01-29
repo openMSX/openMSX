@@ -146,8 +146,9 @@ void CliServer::createSocket()
 	portNumber = openPort(listenSock);
 
 	// write port number to file
-	unlink(socketName.c_str()); // ignore error
-	std::ofstream out(socketName.c_str());
+	FileOperations::unlink(socketName); // ignore error
+	std::ofstream out;
+	FileOperations::openofstream(out, socketName);
 	out << portNumber << std::endl;
 	if (!out.good()) {
 		throw MSXException("Couldn't open socket.");
@@ -159,7 +160,7 @@ void CliServer::createSocket()
 		throw MSXException(sock_error());
 	}
 
-	unlink(socketName.c_str()); // ignore error
+	FileOperations::unlink(socketName); // ignore error
 
 	sockaddr_un addr;
 	strcpy(addr.sun_path, socketName.c_str());
@@ -212,9 +213,9 @@ bool CliServer::exitAcceptLoop()
 
 static void deleteSocket(const string& socket)
 {
-	unlink(socket.c_str()); // ignore errors
+	FileOperations::unlink(socket); // ignore errors
 	string dir = socket.substr(0, socket.find_last_of('/'));
-	rmdir(dir.c_str()); // ignore errors
+	FileOperations::rmdir(dir); // ignore errors
 }
 
 

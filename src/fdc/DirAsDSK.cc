@@ -8,6 +8,7 @@
 #include "EnumSetting.hh"
 #include "File.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "ReadDir.hh"
 #include "StringOp.hh"
 #include "unistdp.hh"
@@ -753,7 +754,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			// delete file from host OS and 'clear' all sector
 			// data pointing to this HOST OS file
 			string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-			unlink(fullfilename.c_str());
+			FileOperations::unlink(fullfilename);
 			for (int i = 14; i < 1440; ++i) {
 				if (sectormap[i].dirEntryNr == dirindex) {
 					 sectormap[i].usage = CACHED;

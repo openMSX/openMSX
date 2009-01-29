@@ -95,7 +95,8 @@ void FilePool::readSha1sums()
 void FilePool::writeSha1sums()
 {
 	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
-	ofstream file(cacheFile.c_str());
+	ofstream file;
+	FileOperations::openofstream(file, cacheFile);
 	if (!file.is_open()) {
 		return;
 	}

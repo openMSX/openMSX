@@ -3,6 +3,7 @@
 #include "MidiOutLogger.hh"
 #include "PlugException.hh"
 #include "FilenameSetting.hh"
+#include "FileOperations.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -18,7 +19,7 @@ MidiOutLogger::MidiOutLogger(CommandController& commandController)
 void MidiOutLogger::plugHelper(Connector& /*connector*/,
                                EmuTime::param /*time*/)
 {
-	file.open(logFilenameSetting->getValue().c_str());
+	FileOperations::openofstream(file, logFilenameSetting->getValue());
 	if (file.fail()) {
 		file.clear();
 		throw PlugException("Error opening log file");

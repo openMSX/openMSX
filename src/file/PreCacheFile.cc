@@ -1,6 +1,7 @@
 // $Id$
 
 #include "PreCacheFile.hh"
+#include "FileOperations.hh"
 #include "statp.hh"
 #include <cstdio>
 #include <sys/types.h>
@@ -22,7 +23,7 @@ void PreCacheFile::run()
 		return;
 	}
 
-	FILE* file = fopen(name.c_str(), "rb");
+	FILE* file = FileOperations::openFile(name, "rb");
 	if (!file) return;
 
 	fseek(file, 0, SEEK_END);

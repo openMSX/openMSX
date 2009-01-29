@@ -550,8 +550,8 @@ class TextOutputArchive : public OutputArchiveBase<TextOutputArchive>
 {
 public:
 	TextOutputArchive(const std::string& filename)
-		: os(filename.c_str())
 	{
+		FileOperations::openofstream(os, filename);
 	}
 
 	template<typename T> void save(const T& t)

@@ -31,13 +31,16 @@
 
 #include <sys/types.h>
 #include <basetsd.h> // for INT_PTR
+#include <string>
+
+namespace openmsx {
 
 struct dirstream
 {
-	INT_PTR fd;    // File descriptor.
-	void* data;    // Directory block.
-	off_t filepos; // Position of next entry to read.
-	char* mask;    // Initial file mask.
+	INT_PTR fd;			// File descriptor.
+	void* data;			// Directory block.
+	off_t filepos;		// Position of next entry to read.
+	std::wstring mask;  // Initial file mask.
 };
 
 struct dirent
@@ -62,6 +65,8 @@ void rewinddir(DIR* dir);
 void seekdir(DIR* dir, off_t offset);
 off_t telldir(DIR* dir);
 //int dirfd(DIR* dir);
+
+} // namespace openmsx
 
 #endif
 
