@@ -256,7 +256,7 @@ int statGetMode(const string& filename, mode_t& mode)
 	int result = _wstat(utf8to16(filename).c_str(), &st);
 #else
 	struct stat st;
-	int result = stat(filename, &st);
+	int result = stat(filename.c_str(), &st);
 #endif
 	mode = st.st_mode;
 	return result;
