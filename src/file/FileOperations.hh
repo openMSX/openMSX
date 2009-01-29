@@ -12,7 +12,7 @@ namespace openmsx {
 
 namespace FileOperations {
 
-	const char nativePathSeparator = 
+	const char nativePathSeparator =
 #ifdef _WIN32
 		'\\';
 #else

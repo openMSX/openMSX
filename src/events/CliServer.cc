@@ -7,7 +7,6 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "build-info.hh"
-#include "unistdp.hh"
 #include "statp.hh"
 #include <string>
 #include <memory>

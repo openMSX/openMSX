@@ -402,10 +402,10 @@ string getUserHomeDir(const string& username)
 {
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
-	
+
 	wchar_t bufW[MAXPATHLEN + 1];
 	if (!SHGetSpecialFolderPathW(NULL, bufW, CSIDL_PERSONAL, TRUE)) {
-		throw FatalError("SHGetSpecialFolderPathW failed: " + 
+		throw FatalError("SHGetSpecialFolderPathW failed: " +
 			StringOp::toString(GetLastError()));
 	}
 
@@ -592,7 +592,7 @@ string getTempDir()
 		len = GetTempPathW(len, bufW);
 	}
 	if (!len) {
-		throw FatalError("GetTempPathW failed: " + 
+		throw FatalError("GetTempPathW failed: " +
 			StringOp::toString(GetLastError()));
 	}
 	// Strip last backslash

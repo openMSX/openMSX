@@ -39,8 +39,8 @@ DIR* opendir(const char* name)
 	if (!name || !*name) return NULL;
 
 	std::wstring nameW = utf8::utf8to16(name);
-	if (!StringOp::endsWith(name, "/") && 
-		!StringOp::endsWith(name, "\\")) {
+	if (!StringOp::endsWith(name, "/") &&
+	    !StringOp::endsWith(name, "\\")) {
 		nameW += L"\\*";
 	} else {
 		nameW += L"*";
@@ -75,7 +75,8 @@ dirent* readdir(DIR* dir)
 	}
 
 	std::string d_name = utf8::utf16to8(find->cFileName);
-	strncpy(entry.d_name, d_name.c_str(), sizeof(entry.d_name)/sizeof(entry.d_name[0]));
+	strncpy(entry.d_name, d_name.c_str(),
+	        sizeof(entry.d_name) / sizeof(entry.d_name[0]));
 
 	entry.d_off = dir->filepos;
 	entry.d_reclen = strlen(entry.d_name);

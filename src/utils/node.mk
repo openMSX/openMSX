@@ -34,7 +34,6 @@ HDR_ONLY:= \
 	type_traits \
 	DivModByConst \
 	utf8_core \
-	utf8_checked \
 	utf8_unchecked \
 	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla
 
