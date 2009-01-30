@@ -260,7 +260,7 @@ int statGetMode(const string& filename, mode_t& mode)
 	int result = _wstat(utf8to16(filename).c_str(), &st);
 #else
 	struct stat st;
-	int result = stat(filename, &st);
+	int result = stat(filename.c_str(), &st);
 #endif
 	mode = st.st_mode;
 	return result;
@@ -413,7 +413,7 @@ string getUserHomeDir(const string& username)
 	
 	wchar_t bufW[MAXPATHLEN + 1];
 	if (!SHGetSpecialFolderPathW(NULL, bufW, CSIDL_PERSONAL, TRUE)) {
-		throw FatalError("SHGetSpecialFolderPathW failed: " + 
+		throw FatalError("SHGetSpecialFolderPathW failed: " +
 			StringOp::toString(GetLastError()));
 	}
 
@@ -477,7 +477,7 @@ string getSystemDataDir()
 	wchar_t bufW[MAXPATHLEN + 1];
 	int res = GetModuleFileNameW(NULL, bufW, sizeof(bufW)/sizeof(bufW[0]));
 	if (!res) {
-		throw FatalError("Cannot detect openMSX directory. GetModuleFileNameW failed: " + 
+		throw FatalError("Cannot detect openMSX directory. GetModuleFileNameW failed: " +
 			StringOp::toString(GetLastError()));
 	}
 
