@@ -1,7 +1,11 @@
 // $Id$
 
 #ifdef	_WIN32
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0500	// For SHGetSpecialFolderPathW with MinGW
+#endif
 #include "utf8_checked.hh"
+#include "vla.hh"
 #include <windows.h>
 #include <shlobj.h>
 #include <io.h>
@@ -252,11 +256,11 @@ int rmdir(const std::string& path)
 int statGetMode(const string& filename, mode_t& mode)
 {
 #ifdef _WIN32
-	struct _stat64i32 st;
+	struct _stat st;
 	int result = _wstat(utf8to16(filename).c_str(), &st);
 #else
 	struct stat st;
-	int result = stat(filename.c_str(), &st);
+	int result = stat(filename, &st);
 #endif
 	mode = st.st_mode;
 	return result;
@@ -275,7 +279,9 @@ FILE* openFile(const std::string& filename, const std::string& mode)
 
 void openofstream(std::ofstream& stream, const std::string& filename)
 {
-#ifdef _WIN32
+#if defined _WIN32 && defined _MSC_VER
+	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
+	// TODO - this means that unicode text may not work right here
 	stream.open(utf8to16(filename).c_str());
 #else
 	stream.open(filename.c_str());
@@ -285,7 +291,9 @@ void openofstream(std::ofstream& stream, const std::string& filename)
 void openofstream(std::ofstream& stream, const std::string& filename,
 				  std::ios_base::openmode mode)
 {
-#ifdef _WIN32
+#if defined _WIN32 && defined _MSC_VER
+	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
+	// TODO - this means that unicode text may not work right here
 	stream.open(utf8to16(filename).c_str(), mode);
 #else
 	stream.open(filename.c_str(), mode);
@@ -402,10 +410,10 @@ string getUserHomeDir(const string& username)
 {
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
-
+	
 	wchar_t bufW[MAXPATHLEN + 1];
 	if (!SHGetSpecialFolderPathW(NULL, bufW, CSIDL_PERSONAL, TRUE)) {
-		throw FatalError("SHGetSpecialFolderPathW failed: " +
+		throw FatalError("SHGetSpecialFolderPathW failed: " + 
 			StringOp::toString(GetLastError()));
 	}
 
@@ -585,21 +593,19 @@ string getNextNumberedFileName(
 string getTempDir()
 {
 #ifdef _WIN32
-	wchar_t* bufW;
 	DWORD len = GetTempPathW(0, NULL);
 	if (len) {
-		bufW = static_cast<wchar_t*>(_alloca((len+1)*sizeof(wchar_t)));
+		VLA(wchar_t, bufW, (len+1));
 		len = GetTempPathW(len, bufW);
+		if (len) {
+			// Strip last backslash
+			if (bufW[len-1] == L'\\') {
+				bufW[len-1] = L'\0';
+			}
+			return utf16to8(bufW);
+		}
 	}
-	if (!len) {
-		throw FatalError("GetTempPathW failed: " +
-			StringOp::toString(GetLastError()));
-	}
-	// Strip last backslash
-	if (bufW[len-1] == L'\\') {
-		bufW[len-1] = L'\0';
-	}
-	string result = utf16to8(bufW);
+	throw FatalError("GetTempPathW failed: " + StringOp::toString(GetLastError()));
 #else
 	const char* result = NULL;
 	if (!result) result = getenv("TMPDIR");
@@ -608,8 +614,8 @@ string getTempDir()
 	if (!result) {
 		result = "/tmp";
 	}
-#endif
 	return result;
+#endif
 }
 
 FILE* openUniqueFile(const std::string& directory, std::string& filename)
