@@ -125,19 +125,19 @@ octet_iterator append(uint32_t cp, octet_iterator result)
 		*result++ = cp;
 	} else if (cp < 0x800) {
 		// two octets
-		*result++ = (cp >>  6)        | 0xc0;
-		*result++ = (cp >>  0) & 0x3f | 0x80;
+		*result++ = ((cp >>  6)       ) | 0xc0;
+		*result++ = ((cp >>  0) & 0x3f) | 0x80;
 	} else if (cp < 0x10000) {
 		// three octets
-		*result++ = (cp >> 12)        | 0xe0;
-		*result++ = (cp >>  6) & 0x3f | 0x80;
-		*result++ = (cp >>  0) & 0x3f | 0x80;
+		*result++ = ((cp >> 12)       ) | 0xe0;
+		*result++ = ((cp >>  6) & 0x3f) | 0x80;
+		*result++ = ((cp >>  0) & 0x3f) | 0x80;
 	} else if (cp <= internal::CODE_POINT_MAX) {
 		// four octets
-		*result++ = (cp >> 18)        | 0xf0;
-		*result++ = (cp >> 12) & 0x3f | 0x80;
-		*result++ = (cp >>  6) & 0x3f | 0x80;
-		*result++ = (cp >>  0) & 0x3f | 0x80;
+		*result++ = ((cp >> 18)       ) | 0xf0;
+		*result++ = ((cp >> 12) & 0x3f) | 0x80;
+		*result++ = ((cp >>  6) & 0x3f) | 0x80;
+		*result++ = ((cp >>  0) & 0x3f) | 0x80;
 	} else {
 		throw invalid_code_point(cp);
 	}
