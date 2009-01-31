@@ -1203,7 +1203,7 @@ void V9990CmdEngine::CmdCMMC<Mode>::execute(EmuTime::param time)
 		int dy = (engine.ARG & DIY) ? -1 : 1;
 		const byte* lut = Mode::getLogOpLUT(engine.LOG);
 		for (unsigned i = 0; i < 8; ++i) {
-			bool bit = engine.data & 0x80;
+			bool bit = (engine.data & 0x80) != 0;
 			engine.data <<= 1;
 
 			word src = bit ? engine.fgCol : engine.bgCol;
@@ -1284,7 +1284,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(EmuTime::param time)
 			engine.bitsLeft = 8;
 		}
 		--engine.bitsLeft;
-		bool bit = engine.data & 0x80;
+		bool bit = (engine.data & 0x80) != 0;
 		engine.data <<= 1;
 
 		word color = bit ? engine.fgCol : engine.bgCol;
@@ -1627,7 +1627,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(EmuTime::param time)
 	typename Mode::Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
 
 	int TX = (engine.ARG & DIX) ? -1 : 1;
-	bool AEQ = engine.ARG & NEQ;
+	bool AEQ = (engine.ARG & NEQ) != 0;
 
 	while (engine.clock.before(time)) {
 		engine.clock += delta;
@@ -1636,7 +1636,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(EmuTime::param time)
 		typename Mode::Type mask2;
 		if (Mode::BITS_PER_PIXEL == 16) {
 			value = Mode::point(vram, engine.ASX, engine.SY, pitch);
-			col = engine.fgCol;
+			col = static_cast<typename Mode::Type>(engine.fgCol);
 			mask2 = ~static_cast<typename Mode::Type>(0);
 		} else {
 			// TODO check

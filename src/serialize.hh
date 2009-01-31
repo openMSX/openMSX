@@ -620,7 +620,7 @@ public:
 	}
 	void save(const std::string& s)
 	{
-		unsigned size = s.size();
+		unsigned size = unsigned(s.size());
 		save(size);
 		put(s.data(), size);
 	}
@@ -633,13 +633,13 @@ public:
 	{
 		unsigned skip = 0; // filled in later
 		save(skip);
-		unsigned beginPos = buffer.size();
+		unsigned beginPos = unsigned(buffer.size());
 		openSections.push_back(beginPos);
 	}
 	void endSection()
 	{
 		assert(!openSections.empty());
-		unsigned endPos   = buffer.size();
+		unsigned endPos   = unsigned(buffer.size());
 		unsigned beginPos = openSections.back();
 		openSections.pop_back();
 		unsigned skip = endPos - beginPos;
@@ -651,7 +651,7 @@ private:
 	void put(const void* data, unsigned len)
 	{
 		if (len) {
-			unsigned pos = buffer.size();
+			unsigned pos = unsigned(buffer.size());
 			buffer.resize(pos + len);
 			memcpy(&buffer[pos], data, len);
 		}

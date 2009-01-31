@@ -67,7 +67,14 @@ public:
 	const EmuDuration operator/(unsigned fact) const
 		{ return EmuDuration(time / fact); }
 	unsigned operator/(EmuDuration::param d) const
-		{ return time / d.time; }
+	{
+		uint64 result = time / d.time;
+#ifdef DEBUG
+		// we don't even want this overhead in devel builds
+		assert(result == unsigned(result));
+#endif
+		return unsigned(result);
+	}
 	double div(EmuDuration::param d) const
 		{ return double(time) / d.time; }
 
@@ -79,7 +86,14 @@ public:
 	// ticks
 	// TODO: Used in WavAudioInput. Keep or use DynamicClock instead?
 	unsigned getTicksAt(unsigned freq) const
-		{ return time / (MAIN_FREQ32 / freq); }
+	{
+		uint64 result = time / (MAIN_FREQ32 / freq);
+#ifdef DEBUG
+		// we don't even want this overhead in devel builds
+		assert(result == unsigned(result));
+#endif
+		return unsigned(result);
+	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

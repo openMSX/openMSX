@@ -55,14 +55,14 @@ public:
 	  * @return True iff even/odd page alternation is enabled.
 	  */
 	inline bool isEvenOddEnabled() const {
-		return regs[SCREEN_MODE_1] & 0x04;
+		return (regs[SCREEN_MODE_1] & 0x04) != 0;
 	}
 
 	/** Is the even or odd field being displayed?
 	  * @return True iff the odd lines should be displayed.
 	  */
 	inline bool getEvenOdd() const {
-		return status & 0x02;
+		return (status & 0x02) != 0;
 	}
 
 	/** Is the display enabled?

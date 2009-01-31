@@ -28,9 +28,13 @@
 
 namespace openmsx {
 
+// Note: without appending 'f' to the values in ResampleCoeffs.ii,
+// this will generate thousands of C4305 warnings in VC++
+// E.g. warning C4305: 'initializing' : truncation from 'double' to 'const float'
 static const float coeffs[] = {
 	#include "ResampleCoeffs.ii"
 };
+
 static const int INDEX_INC = 128;
 static const int COEFF_LEN = sizeof(coeffs) / sizeof(float);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;

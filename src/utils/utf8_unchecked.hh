@@ -230,7 +230,7 @@ public:
 // convenience functions
 inline unsigned size(const std::string& utf8)
 {
-	return utf8::unchecked::distance(utf8.begin(), utf8.end());
+	return unsigned(utf8::unchecked::distance(utf8.begin(), utf8.end()));
 }
 inline std::string substr(const std::string& utf8, std::string::size_type first = 0,
                    std::string::size_type len = std::string::npos)

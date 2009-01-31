@@ -75,7 +75,7 @@ private:
 
 	std::string name;
 
-	friend class SerializeConstructorArgs<HardwareConfig>;
+	friend struct SerializeConstructorArgs<HardwareConfig>;
 };
 
 template<> struct SerializeConstructorArgs<HardwareConfig>

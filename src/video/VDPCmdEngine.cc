@@ -717,7 +717,7 @@ void PointCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.clock.reset(time);
 	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, time);
 	vram.cmdWriteWindow.disable(time);
-	bool srcExt  = engine.ARG & MXS;
+	bool srcExt  = (engine.ARG & MXS) != 0;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 
 	engine.COL = likely(doPoint)
@@ -740,7 +740,7 @@ void PsetCmd<Mode, LogOp>::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.clock.reset(time);
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, time);
-	bool dstExt = engine.ARG & MXD;
+	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	if (likely(doPset)) {
@@ -783,7 +783,7 @@ void SrchCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 
 	// TODO use MXS or MXD here?
 	//  datasheet says MXD but MXS seems more logical
-	bool srcExt  = engine.ARG & MXS;
+	bool srcExt  = (engine.ARG & MXS) != 0;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 
 	while (engine.clock.before(time)) {
@@ -836,7 +836,7 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	int TY = (engine.ARG & DIY) ? -1 : 1;
 	unsigned delta = LINE_TIMING[engine.getTiming()];
-	bool dstExt = engine.ARG & MXD;
+	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	if ((engine.ARG & MAJ) == 0) {
@@ -939,7 +939,7 @@ void LmmvCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	engine.ANX = clipNX_1_pixel<Mode>(engine.ADX, engine.ANX, engine.ARG);
 	byte CL = engine.COL & Mode::COLOR_MASK;
 	unsigned delta = LMMV_TIMING[engine.getTiming()];
-	bool dstExt = engine.ARG & MXD;
+	bool dstExt = (engine.ARG & MXD) != 0;
 
 	if (unlikely(dstExt)) {
 		bool doPset = !dstExt || engine.hasExtendedVRAM;
@@ -1038,8 +1038,8 @@ void LmmmCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_2_pixel<Mode>(engine.ASX, engine.ADX, engine.ANX, engine.ARG);
 	unsigned delta = LMMM_TIMING[engine.getTiming()];
-	bool srcExt  = engine.ARG & MXS;
-	bool dstExt  = engine.ARG & MXD;
+	bool srcExt  = (engine.ARG & MXS) != 0;
+	bool dstExt  = (engine.ARG & MXD) != 0;
 
 	if (unlikely(srcExt) || unlikely(dstExt)) {
 		bool doPoint = !srcExt || engine.hasExtendedVRAM;
@@ -1145,7 +1145,7 @@ void LmcmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_pixel<Mode>(engine.ASX, engine.ANX, engine.ARG);
-	bool srcExt  = engine.ARG & MXS;
+	bool srcExt  = (engine.ARG & MXS) != 0;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 
 	if (engine.transfer) {
@@ -1206,7 +1206,7 @@ void LmmcCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_pixel<Mode>(engine.ADX, engine.ANX, engine.ARG);
-	bool dstExt = engine.ARG & MXD;
+	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
 	if (engine.transfer) {
@@ -1271,7 +1271,7 @@ void HmmvCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	engine.ANX = clipNX_1_byte<Mode>(
 		engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
 	unsigned delta = HMMV_TIMING[engine.getTiming()];
-	bool dstExt = engine.ARG & MXD;
+	bool dstExt = (engine.ARG & MXD) != 0;
 
 	if (unlikely(dstExt)) {
 		bool doPset = !dstExt || engine.hasExtendedVRAM;
@@ -1364,8 +1364,8 @@ void HmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	engine.ANX = clipNX_2_byte<Mode>(
 		engine.ASX, engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
 	unsigned delta = HMMM_TIMING[engine.getTiming()];
-	bool srcExt  = engine.ARG & MXS;
-	bool dstExt  = engine.ARG & MXD;
+	bool srcExt  = (engine.ARG & MXS) != 0;
+	bool dstExt  = (engine.ARG & MXD) != 0;
 
 	if (unlikely(srcExt || dstExt)) {
 		bool doPoint = !srcExt || engine.hasExtendedVRAM;
@@ -1471,7 +1471,7 @@ void YmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	// TODO does this use MXD for both read and write?
 	//  it says so in the datasheet, but it seems unlogical
 	//  OTOH YMMM also uses DX for both read and write
-	bool dstExt = engine.ARG & MXD;
+	bool dstExt = (engine.ARG & MXD) != 0;
 
 	if (unlikely(dstExt)) {
 		bool doPset  = !dstExt || engine.hasExtendedVRAM;
@@ -1567,7 +1567,7 @@ void HmmcCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_byte<Mode>(
 		engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
-	bool dstExt = engine.ARG & MXD;
+	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	if (engine.transfer) {

@@ -246,7 +246,12 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		return res;
 	#else
 		uint64 h = mla64(dividend, R::M2, 0);
-		return h >> R::S2;
+		uint64 result = h >> R::S2;
+	#ifdef DEBUG
+		// we don't even want this overhead in devel builds
+		assert(result == unsigned(result));
+	#endif
+		return unsigned(result);
 	#endif
 	}
 };
@@ -399,11 +404,17 @@ template<unsigned DIVISOR> struct DivModByConst
 
 	unsigned mod(unsigned long long dividend) const
 	{
+		unsigned long long result;
 	#ifdef ASM_X86_64
-		return dividend % DIVISOR;
+		result = dividend % DIVISOR;
 	#else
-		return dividend - DIVISOR * div(dividend);
+		result = dividend - DIVISOR * div(dividend);
 	#endif
+	#ifdef DEBUG
+		// we don't even want this overhead in devel builds
+		assert(result == unsigned(result));
+	#endif
+		return unsigned(result);
 	}
 };
 

@@ -221,25 +221,25 @@ private:
 	  */
 	bool brokenTiming;
 
-	friend class AbortCmd;
-	friend class SrchBaseCmd;
-	friend class LineBaseCmd;
+	friend struct AbortCmd;
+	friend struct SrchBaseCmd;
+	friend struct LineBaseCmd;
 	friend class BlockCmd;
-	template<typename> friend class PointCmd;
-	template<typename> friend class SrchCmd;
-	template<typename> friend class LmcmCmd;
-	template<typename> friend class HmmvCmd;
-	template<typename> friend class HmmmCmd;
-	template<typename> friend class YmmmCmd;
-	template<typename> friend class HmmcCmd;
-	template<typename> friend class LmmvBaseCmd;
-	template<typename> friend class LmmmBaseCmd;
-	template<typename> friend class LmmcBaseCmd;
-	template<typename, typename> friend class PsetCmd;
-	template<typename, typename> friend class LineCmd;
-	template<typename, typename> friend class LmmvCmd;
-	template<typename, typename> friend class LmmmCmd;
-	template<typename, typename> friend class LmmcCmd;
+	template<typename> friend struct PointCmd;
+	template<typename> friend struct SrchCmd;
+	template<typename> friend struct LmcmCmd;
+	template<typename> friend struct HmmvCmd;
+	template<typename> friend struct HmmmCmd;
+	template<typename> friend struct YmmmCmd;
+	template<typename> friend struct HmmcCmd;
+	template<typename> friend struct LmmvBaseCmd;
+	template<typename> friend struct LmmmBaseCmd;
+	template<typename> friend struct LmmcBaseCmd;
+	template<typename, typename> friend struct PsetCmd;
+	template<typename, typename> friend struct LineCmd;
+	template<typename, typename> friend struct LmmvCmd;
+	template<typename, typename> friend struct LmmmCmd;
+	template<typename, typename> friend struct LmmcCmd;
 };
 
 } // namespace openmsx

@@ -142,7 +142,7 @@ void MidiInWindows::run()
 				break;
 			case MM_MIM_DATA:
 			case MM_MIM_MOREDATA:
-				procShortMsg(msg.lParam);
+				procShortMsg(DWORD(msg.lParam));
 				break;
 			case MM_MIM_LONGDATA:
 				procLongMsg(reinterpret_cast<LPMIDIHDR>(msg.lParam));

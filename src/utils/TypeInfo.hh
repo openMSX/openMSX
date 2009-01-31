@@ -46,7 +46,8 @@ inline const std::type_info& TypeInfo::get() const
 
 inline bool TypeInfo::before(const TypeInfo& rhs) const
 {
-	return info->before(*rhs.info);
+	// gcc version of std::type_info::before() returns bool
+	return info->before(*rhs.info) != 0;
 }
 
 inline const char* TypeInfo::name() const

@@ -6,7 +6,7 @@
 #include "BaseImage.hh"
 #include <string>
 
-class SDL_Surface;
+struct SDL_Surface;
 
 namespace openmsx {
 

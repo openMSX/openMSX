@@ -187,7 +187,7 @@ void ZMBVEncoder::addXorFrame()
 	signed char* vectors = reinterpret_cast<signed char*>(&work[workUsed]);
 
 	// Align the following xor data on 4 byte boundary
-	unsigned blockcount = blockOffsets.size();
+	unsigned blockcount = unsigned(blockOffsets.size());
 	workUsed = (workUsed + blockcount * 2 + 3) & ~3;
 	for (unsigned b = 0; b < blockcount; ++b) {
 		unsigned offset = blockOffsets[b];
@@ -195,7 +195,7 @@ void ZMBVEncoder::addXorFrame()
 		int bestvy = 0;
 		unsigned bestchange = compareBlock<P>(0, 0, offset);
 		int possibles = 64;
-		unsigned vectorCount = vectorTable.size();
+		unsigned vectorCount = unsigned(vectorTable.size());
 		for (unsigned v = 0; v < vectorCount && possibles; ++v) {
 			if (bestchange < 4) break;
 			int vx = vectorTable[v].x;

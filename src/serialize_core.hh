@@ -404,7 +404,7 @@ template<typename TC> struct CollectionSaver
 			// e.g. in an XML archive the loader can look-ahead and
 			// count the number of sub-tags, so no need to
 			// explicitly store the size for such archives.
-			int n = std::distance(begin, end);
+			int n = int(std::distance(begin, end));
 			ar.serialize("size", n);
 		}
 		for (/**/; begin != end; ++begin) {

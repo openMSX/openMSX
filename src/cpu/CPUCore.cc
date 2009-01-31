@@ -3943,7 +3943,7 @@ template <class T> int CPUCore<T>::daa() {
 template <class T> int CPUCore<T>::neg() {
 	// alternative: LUT   word negTable[256]
 	unsigned a = R.getA();
-	unsigned res = -a;
+	unsigned res = unsigned(-a);
 	byte f = ((res & 0x100) ? C_FLAG : 0) |
 	         N_FLAG |
 	         ((res ^ a) & H_FLAG) |

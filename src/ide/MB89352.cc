@@ -775,7 +775,7 @@ SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 template<typename Archive>
 void MB89352::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("buffer", &buffer[0], buffer.size());
+	ar.serialize_blob("buffer", &buffer[0], unsigned int(buffer.size()));
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
 		std::string tag = std::string("device") + char('0' + i);
 		ar.serializePolymorphic(tag.c_str(), *dev[i]);

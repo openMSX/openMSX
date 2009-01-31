@@ -66,7 +66,12 @@ public:
 	  */
 	unsigned getTicksTill(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
-		return (e.time - lastTick.time) / MASTER_TICKS;
+		unsigned long long result = (e.time - lastTick.time) / MASTER_TICKS;
+#ifdef DEBUG
+		// we don't even want this overhead in devel builds
+		assert(result == unsigned(result));
+#endif
+		return unsigned(result);
 	}
 	/** Same as above, only faster, Though the time interval may not
 	  * be too large.

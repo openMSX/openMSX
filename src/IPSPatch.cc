@@ -13,7 +13,7 @@ namespace openmsx {
 
 static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
 {
-	return it->first + it->second.size();
+	return unsigned(it->first + it->second.size());
 }
 
 IPSPatch::IPSPatch(const Filename& filename_,

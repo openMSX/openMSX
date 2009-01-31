@@ -156,7 +156,7 @@ inline byte reverseByte(byte a)
 	// This only works for 8 bits (on a 32 bit machine) but it's slightly faster
 	// Found trick on this page:
 	//    http://graphics.stanford.edu/~seander/bithacks.html
-	return ((a * 0x0802LU & 0x22110LU) | (a * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+	return byte(((a * 0x0802LU & 0x22110LU) | (a * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16);
 }
 
 /** Returns the smallest number of the form 2^n-1 that is greater or equal
@@ -212,7 +212,12 @@ inline unsigned div_64_32(unsigned long long dividend, unsigned divisor)
 	);
 	return quotient;
 #else
-	return dividend / divisor;
+	unsigned long long result = dividend / divisor;
+#ifdef DEBUG
+	// we don't even want this overhead in devel builds
+	assert(result == unsigned(result));
+#endif
+	return unsigned(result);
 #endif
 }
 

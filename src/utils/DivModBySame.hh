@@ -152,7 +152,12 @@ public:
 		uint64 s3 = uint64(unsigned(s2)) + unsigned(t3);
 		uint64 s4 = (s3 >> 32) + (s2 >> 32) + (t3 >> 32) + t4;
 
-		return s4 >> s;
+		uint64 result = s4 >> s;
+	#ifdef DEBUG
+		// we don't even want this overhead in devel builds
+		assert(result == unsigned(result));
+	#endif
+		return unsigned(result);
 	#endif
 	}
 

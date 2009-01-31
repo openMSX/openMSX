@@ -119,14 +119,14 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 				offsets[i] = unsigned(-1);
 			} else if ((&(*rom)[0] <= bank[i]) &&
 			           (bank[i] <= &(*rom)[romSize - 1])) {
-				offsets[i] = bank[i] - &(*rom)[0];
+				offsets[i] = unsigned(bank[i] - &(*rom)[0]);
 			} else if (sram.get() &&
 			           (&(*sram)[0] <= bank[i]) &&
 			           (bank[i] <= &(*sram)[sramSize - 1])) {
-				offsets[i] = bank[i] - &(*sram)[0] + romSize;
+				offsets[i] = unsigned(bank[i] - &(*sram)[0] + romSize);
 			} else if ((extraMem <= bank[i]) &&
 			           (bank[i] <= &extraMem[extraSize - 1])) {
-				offsets[i] = bank[i] - extraMem + romSize + sramSize;
+				offsets[i] = unsigned(bank[i] - extraMem + romSize + sramSize);
 			} else {
 				assert(false);
 			}

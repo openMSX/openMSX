@@ -169,7 +169,7 @@ public:
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*>& alreadyRemoved) const;
-	inline bool isExpanded(int ps) const { return expanded[ps]; }
+	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 
 	void setWatchPoint(std::auto_ptr<WatchPoint> watchPoint);
 	void removeWatchPoint(WatchPoint& watchPoint);

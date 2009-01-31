@@ -6,6 +6,9 @@
 
 #include "SoundDriver.hh"
 #include "noncopyable.hh"
+#ifdef WIN32_LEAN_AND_MEAN
+#undef WIN32_LEAN_AND_MEAN // Needed for <dsound.h>
+#endif
 #define DIRECTSOUND_VERSION 0x0500
 #include <windows.h>
 #include <dsound.h>

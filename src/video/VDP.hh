@@ -249,7 +249,7 @@ public:
 	  * @return true iff enabled.
 	  */
 	inline bool isBorderMasked() const {
-		return controlRegs[25] & 0x02;
+		return (controlRegs[25] & 0x02) != 0;
 	}
 
 	/** Is multi page scrolling enabled?
@@ -315,14 +315,14 @@ public:
 	  * @return True iff even/odd page alternation is enabled.
 	  */
 	inline bool isEvenOddEnabled() const {
-		return controlRegs[9] & 4;
+		return (controlRegs[9] & 4) != 0;
 	}
 
 	/** Is the even or odd field being displayed?
 	  * @return True iff this field should be displayed half a line lower.
 	  */
 	inline bool getEvenOdd() const {
-		return statusReg2 & 2;
+		return (statusReg2 & 2) != 0;
 	}
 
 	/** Expresses the state of even/odd page interchange in a mask
@@ -378,7 +378,7 @@ public:
 	  * @return True iff CMD bit set.
 	  */
 	inline bool getCmdBit() const {
-		return controlRegs[25] & 0x40;
+		return (controlRegs[25] & 0x40) != 0;
 	}
 
 	/** Gets the number of VDP clockticks (21MHz) per frame.
