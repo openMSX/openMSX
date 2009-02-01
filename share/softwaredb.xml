@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1233033794">
+<softwaredb xml:lang="en" timestamp="1233473842">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -2124,6 +2124,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">8c5cf2df5f0b9df67239161aa843d9804af46f0e</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Danger Tower</title>
+	<system>MSX</system>
+	<company>Danger Team</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">595ed23f45a8382739a3b865e153583f41f4ead7</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Danger X4</title>
 	<system>MSX</system>
 	<company>Ascii</company>
@@ -2183,6 +2191,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a1656f612360a126e09ef2baaa8002d92054125d</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Deep Dungeon</title>
+	<system>MSX</system>
+	<company>Ragozini/Hassink/Cornelisse</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">4233ab2fb0d956e0efb43e2a489ca46b65aeda8f</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Deep Dungeon 1</title>
@@ -3601,6 +3617,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">91505fccdcc43230550d101967010bed27f9b573</hash><remark>[o]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">8b7e4bc408a8c715943bfa00069f2d517b39a748</hash><remark>English Translation</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">678efe599b8085bd27f9d3d42cfbbd7ca74ceb89</hash><remark>English Translation</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">05767fec34beaaee390a86be496d98d2b27de641</hash><remark>English Translation</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gomok Narabe - Omo Go</title>
@@ -4184,6 +4201,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">dd9a41e4c8802cd4bbb87e30281711f4e7ae017f</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Hose Diogo Martinez: The Bussas Quest</title>
+	<system>MSX</system>
+	<company>Muffie Co. International Holding</company>
+	<year>2009</year>
+	<country>BR</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">21e44cc5957b65b24c34d2c42b39879cacd82ff9</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Hot-Assembler</title>
 	<system>MSX</system>
 	<company>Epcom</company>
@@ -4373,6 +4398,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">6842fb21abb2531c17fe0687d77e012348d3dc2c</hash><remark>[RC-733]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">3d45014accbee7c0df798a7c77771666f863dfd5</hash><remark>[RC-733]</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">00f6e7efbb5a50b66723a3130009a96d8a588363</hash><remark>Konami Antiques MSX Collection 2</remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">I need speed</title>
+	<system>MSX</system>
+	<company>CEZ GS (ComputerEmuzone Game Studio)</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">bd46981d1b580ec9a2d1d909f5c1a8dfd9a71ed7</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">I.N.E.R.T.I.A.</title>
@@ -5365,6 +5398,17 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">22f5998b4de47bf2ccc077d5881ac448e6b0484d</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">La Corona Encatada</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="false"/><rom><hash algo="sha1">97b8ef65d86ec425d5901fce80d33a3d731e50e1</hash><remark>English Version / MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">d76a904dd88f7360fe79000c374f40a69b801325</hash><remark>English Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">03ae0eebbbf80f8e51c5892a74aa2b4f287a9319</hash><remark>Spanish Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">761071622b60384ec38e964fa2b2ee12d3d0b2c9</hash><remark>Spanish Version / MSXDEV 08 Entry</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Labyrinth</title>
 	<system>MSX</system>
 	<company>Pack In Video</company>
@@ -5465,6 +5509,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1990</year>
 	<country>GB</country>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">0442dd29ea0f7b78c9cd5849ec7ef5bb21ec0bf5</hash><remark>Infogrames - New Frontier</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Limaribu</title>
+	<system>MSX</system>
+	<company>Arnold Metselaar</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6baf75aa6024cb1311fc1171cce4560e16de6d9a</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Livingstone Supongo 2</title>
@@ -7103,6 +7155,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>EU</country>
 		<dump><original value="false"/><rom><hash algo="sha1">d92c82e155cb34f65587d472d4eb5ed1b9e68018</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">a0b45f208df3091e461e15f6182896d2716c2a11</hash><remark>MSXDEV 08 Entry (v2)</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Peetan</title>
@@ -7595,6 +7648,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a36c00f32cad6b603bc5525a741cb09064670f34</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">PWND - of je worst lust (special edition)</title>
+	<system>MSX</system>
+	<company>Metal Soft aka Vampier</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Pyramid Warp</title>
@@ -8527,6 +8588,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2004</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">0306181bb8babbc215e8c5066c1f490719541665</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Sp8 Invaders</title>
+	<system>MSX</system>
+	<company>Dioniso</company>
+	<year>2009</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">78e833c0a94478b9c07e974f311dbfef1e014f1c</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Space Arithmetic</title>
@@ -9480,6 +9549,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">a031ff5aeafb7d470e810bd6cd08c92394f66295</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
 </software>
 <software>
+	<title xml:lang="en">Tomb of Genghis Khan</title>
+	<system>MSX</system>
+	<company>Impulse9</company>
+	<year>2009</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">da80f0bc07cb0ed36c7c106564b5f04353eb176a</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Toobin</title>
 	<system>MSX</system>
 	<company>Domark</company>
@@ -10294,6 +10371,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2170
-Parse time 4.389 seconds on Tue Jan 27 6:23:18 CET 2009
+Roms in this database:2184
+Parse time 4.735 seconds on Sun Feb 1 8:37:27 CET 2009
  -->
