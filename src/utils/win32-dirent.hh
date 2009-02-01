@@ -27,7 +27,7 @@
 // NB: Taken from http://www.koders.com/c/fid5F00BC983E0F005E15E8E590E461D363F6146CEB.aspx
 // Slightly reformatted/simplified to fit openMSX coding style.
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 
 #include <sys/types.h>
 #include <basetsd.h> // for INT_PTR

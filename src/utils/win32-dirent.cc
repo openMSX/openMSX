@@ -21,7 +21,7 @@
 // Also modified to use Unicode calls explicitly
 // Slightly reformatted/simplified to fit openMSX coding style.
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 
 #include "win32-dirent.hh"
 #include "utf8_checked.hh"
@@ -87,7 +87,7 @@ dirent* readdir(DIR* dir)
 int closedir(DIR* dir)
 {
 	HANDLE hnd = reinterpret_cast<HANDLE>(dir->fd);
-	delete dir->data;
+	delete static_cast<WIN32_FIND_DATAW*>(dir->data);
 	delete dir;
 	return FindClose(hnd) ? 0 : -1;
 }

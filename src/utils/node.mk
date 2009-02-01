@@ -15,7 +15,7 @@ SRC_HDR:= \
 	sha1 \
 	uint128 \
 	DivModBySame \
-	AltSpaceSuppressor sdlwin32 utf8_checked
+	AltSpaceSuppressor sdlwin32 utf8_checked win32-dirent
 
 HDR_ONLY:= \
 	my_auto_ptr \
