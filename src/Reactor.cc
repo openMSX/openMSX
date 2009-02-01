@@ -539,13 +539,13 @@ void Reactor::run(CommandLineParser& parser)
 	PollEventGenerator pollEventGenerator(getEventDistributor());
 
 	while (running) {
-		PRT_DEBUG("Reactor::run While running... clear garbageboards...");
+		//PRT_DEBUG("Reactor::run While running... clear garbageboards...");
 		garbageBoards.clear(); // see deleteBoard()
-		PRT_DEBUG("Reactor::run While running... deliver events...");
+		//PRT_DEBUG("Reactor::run While running... deliver events...");
 		getEventDistributor().deliverEvents();
 		MSXMotherBoard* motherboard = activeBoard.get();
 		bool blocked = (blockedCounter > 0) || !motherboard;
-		PRT_DEBUG("Reactor::run While running... motherboard execute...");
+		//PRT_DEBUG("Reactor::run While running... motherboard execute...");
 		if (!blocked) blocked = !motherboard->execute();
 		if (blocked) {
 			PRT_DEBUG("Reactor::run While running... repaint display...");
