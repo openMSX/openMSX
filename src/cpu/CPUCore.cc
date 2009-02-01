@@ -185,7 +185,10 @@
 // very small caches (16kb data 16kb instruction (no L2 cache)). On this type
 // of CPU, the threaded interpreter model does not offer any advantage.
 #else
+#if (__GNUC__ > 3 ) || !defined(_WIN32)
+// On MinGW with GCC 3.x at least, we get an out of memory when enabling this
 #define USE_COMPUTED_GOTO
+#endif
 #endif
 #else
 // VC++ doesn't support this
