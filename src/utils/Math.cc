@@ -178,7 +178,7 @@ double round(double x)
 	// Poor man's implementations to get 32-bit openmsx building with VC++
 
 	// lrint(): round double according to current floating-point rounding direction
-	static ALWAYS_INLINE long lrint(double x)
+	long lrint(double x)
 	{
 		if (x >= 0) {
 			long t = long(ceil(x));
@@ -192,7 +192,7 @@ double round(double x)
 	}
 
 	// lrint(): round float according to current floating-point rounding direction
-	static ALWAYS_INLINE long lrintf(float x)
+	long lrintf(float x)
 	{
 		if (x >= 0) {
 			long t = long(ceil(x));
@@ -206,13 +206,13 @@ double round(double x)
 	}
 
 	// truncf(): round x to the nearest integer not larger in absolute value
-	static ALWAYS_INLINE float truncf(float x)
+	float truncf(float x)
 	{
 		return (x < 0) ? ceil(x) : floor(x);
 	}
 
 	// round(): round to nearest integer, away from zero
-	static double round(double x)
+	double round(double x)
 	{
 		if (x >= 0) {
 			double t = ceil(x);
