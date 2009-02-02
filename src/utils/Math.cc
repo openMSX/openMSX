@@ -21,9 +21,47 @@ namespace openmsx {
 // of using the hand-written versions in a separate .asm file. The resulting 
 // optimized code is pretty close to the hand-written code.
 
+// gcc-generated data section
+//;.LC0:
+//;	.long	0
+//;	.long	1127219200
+//;	.section	.rodata.cst16,"aM",@progbits,16
+//;	.align 16
+//;.LC1:
+//;	.long	4294967295
+//;	.long	2147483647
+//;	.long	0
+//;	.long	0
+//;	.section	.rodata.cst8
+//;	.align 8
+//;.LC2:
+//;	.long	4294967295
+//;	.long	1071644671
+//;	.section	.rodata.cst4,"aM",@progbits,4
+//;	.align 4
+//;.LC3:
+//;	.long	1258291200
+//;	.section	.rodata.cst16
+//;	.align 16
+//;.LC4:
+//;	.long	2147483647
+//;	.long	0
+//;	.long	0
+//;	.long	0
+//;	.ident	"GCC: (GNU) 4.4.0 20090130 (experimental)"
+//;	.section	.note.GNU-stack,"",@progbits
+// ML64 hand-written data section:
+//LC0 QWORD  4330000000000000h
+//LC1 QWORD  7FFFFFFFFFFFFFFFh
+//LC2 QWORD  3FDFFFFFFFFFFFFFh
+//LC3 DWORD          4B000000h
+//LC4 DWORD          7FFFFFFFh
+
 // lrint(): round double according to current floating-point rounding direction
+// gcc-generated:
 //;	cvtsd2siq	%xmm0, %rax
 //;	ret
+// ML64 hand-written:
 //LEAF_ENTRY lrinta, Math
 //    cvtsd2si	rax, xmm0
 //    ret
