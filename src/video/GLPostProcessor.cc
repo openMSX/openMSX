@@ -189,7 +189,7 @@ void GLPostProcessor::paint()
 			glBegin(GL_QUADS);
 			int w = screen.getWidth();
 			int h = screen.getHeight();
-			GLfloat x1 = (320.0f - horStretch) / (2.0f * 320.0f);
+			GLfloat x1 = (320.0f - (GLfloat)horStretch) / (2.0f * 320.0f);
 			GLfloat x2 = 1.0f - x1;
 			glTexCoord2f(x1, 0.0f); glVertex2i(0, h);
 			glTexCoord2f(x1, 1.0f); glVertex2i(0, 0);
@@ -397,13 +397,13 @@ void GLPostProcessor::drawNoise()
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	noiseTextureA.bind();
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + noiseX, 1.875f + noiseY);
+	glTexCoord2f(0.0f + (GLfloat)noiseX, 1.875f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][0][0] * zoom, coord[seq][0][1] * zoom);
-	glTexCoord2f(2.5f + noiseX, 1.875f + noiseY);
+	glTexCoord2f(2.5f + (GLfloat)noiseX, 1.875f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][1][0] * zoom, coord[seq][1][1] * zoom);
-	glTexCoord2f(2.5f + noiseX, 0.000f + noiseY);
+	glTexCoord2f(2.5f + (GLfloat)noiseX, 0.000f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][2][0] * zoom, coord[seq][2][1] * zoom);
-	glTexCoord2f(0.0f + noiseX, 0.000f + noiseY);
+	glTexCoord2f(0.0f + (GLfloat)noiseX, 0.000f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][3][0] * zoom, coord[seq][3][1] * zoom);
 	glEnd();
 	// Note: If glBlendEquation is not present, the second noise texture will
@@ -412,13 +412,13 @@ void GLPostProcessor::drawNoise()
 	if (glBlendEquation) glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	noiseTextureB.bind();
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + noiseX, 1.875f + noiseY);
+	glTexCoord2f(0.0f + (GLfloat)noiseX, 1.875f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][0][0] * zoom, coord[seq][0][1] * zoom);
-	glTexCoord2f(2.5f + noiseX, 1.875f + noiseY);
+	glTexCoord2f(2.5f + (GLfloat)noiseX, 1.875f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][1][0] * zoom, coord[seq][1][1] * zoom);
-	glTexCoord2f(2.5f + noiseX, 0.000f + noiseY);
+	glTexCoord2f(2.5f + (GLfloat)noiseX, 0.000f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][2][0] * zoom, coord[seq][2][1] * zoom);
-	glTexCoord2f(0.0f + noiseX, 0.000f + noiseY);
+	glTexCoord2f(0.0f + (GLfloat)noiseX, 0.000f + (GLfloat)noiseY);
 	glVertex2i(coord[seq][3][0] * zoom, coord[seq][3][1] * zoom);
 	glEnd();
 	glPopAttrib();
@@ -435,8 +435,8 @@ void GLPostProcessor::preCalc3DDisplayList(double width)
 		GLfloat tx, ty;
 	} points[GRID_SIZE + 1][GRID_SIZE + 1];
 	const int GRID_SIZE2 = GRID_SIZE / 2;
-	GLfloat s = width / 320.0f;
-	GLfloat b = (320.0f - width) / (2.0f * 320.0f);
+	GLfloat s = (GLfloat)width / 320.0f;
+	GLfloat b = (320.0f - (GLfloat)width) / (2.0f * 320.0f);
 
 	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
 		for (int sy = 0; sy <= GRID_SIZE; ++sy) {

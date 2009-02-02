@@ -117,7 +117,7 @@ void GLHQLiteScaler::scaleImage(
 		scalerProgram->deactivate();
 	}
 
-	GLfloat height = src.getHeight();
+	GLfloat height = (GLfloat)src.getHeight();
 	src.drawRect(0.0f,  srcStartY            / height,
 	             1.0f, (srcEndY - srcStartY) / height,
 	             0, dstStartY, dstWidth, dstEndY - dstStartY);

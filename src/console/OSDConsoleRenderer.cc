@@ -206,14 +206,14 @@ byte OSDConsoleRenderer::getVisibility() const
 			return 255;
 		} else {
 			reactor.getDisplay().repaintDelayed(40000); // 25 fps
-			return (dur * 255) / FADE_IN_DURATION;
+			return (openmsx::byte)((dur * 255) / FADE_IN_DURATION);
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
 			reactor.getDisplay().repaintDelayed(40000); // 25 fps
-			return 255 - ((dur * 255) / FADE_OUT_DURATION);
+			return (openmsx::byte)(255 - ((dur * 255) / FADE_OUT_DURATION));
 		}
 	}
 }

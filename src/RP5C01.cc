@@ -200,16 +200,16 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 		reference.advance(time);
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz
-		fraction += (modeReg & MODE_TIMERENABLE) ? elapsed : 0;
+		fraction += (modeReg & MODE_TIMERENABLE) ? (unsigned int)elapsed : 0;
 		unsigned carrySeconds = (testReg & TEST_SECONDS)
-		                      ? elapsed : fraction / FREQ;
+		                      ? (unsigned int)elapsed : fraction / FREQ;
 		seconds  += carrySeconds;
 		unsigned carryMinutes = (testReg & TEST_MINUTES)
-		                      ? elapsed : seconds / 60;
+		                      ? (unsigned int)elapsed : seconds / 60;
 		minutes  += carryMinutes;
 		hours    += minutes / 60;
 		unsigned carryDays = (testReg & TEST_DAYS)
-		                   ? elapsed : hours / 24;
+		                   ? (unsigned int)elapsed : hours / 24;
 		days     += carryDays;
 		dayWeek  += carryDays;
 		while (days >= daysInMonth(months, leapYear)) {
@@ -220,7 +220,7 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 			months++;
 		}
 		unsigned carryYears = (testReg & TEST_YEARS)
-		                    ? elapsed : months / 12;
+		                    ? (unsigned int)elapsed : months / 12;
 		years    += carryYears;
 		leapYear += carryYears;
 

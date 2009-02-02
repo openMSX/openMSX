@@ -205,7 +205,7 @@ static void setBootSector(byte* buf, unsigned nbSectors,
 	static bool init = false;
 	if (!init) {
 		init = true;
-		srand(time(0));
+		srand((unsigned)time(0));
 	}
 	for (int i = 0x27; i < 0x2B; ++i) {
 		buf[i] = rand() & 0x7F;

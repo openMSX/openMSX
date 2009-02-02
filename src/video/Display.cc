@@ -374,7 +374,7 @@ void Display::repaintDelayed(unsigned long long delta)
 		return;
 	}
 	PRT_DEBUG("Display::repaintDelayed... scheduling alarm with delta " << delta);
-	alarm->schedule(delta);
+	alarm->schedule((unsigned int)delta);
 	PRT_DEBUG("Display::repaintDelayed... DONE!");
 }
 

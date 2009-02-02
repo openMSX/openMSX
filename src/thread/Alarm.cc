@@ -190,7 +190,7 @@ unsigned AlarmManager::timerCallback2()
 	if (earliest != std::numeric_limits<long long>::max()) {
 		time = earliest + now;
 		assert(id != NULL);
-		return convert(earliest);
+		return convert((int)earliest);
 	} else {
 		for (Alarms::const_iterator it = alarms.begin();
 		     it != alarms.end(); ++it) {

@@ -287,7 +287,7 @@ void Counter::writeIO(word value, EmuTime::param time)
 	case WF_BOTH:
 		if (writeOrder == LOW) {
 			writeOrder = HIGH;
-			writeLatch = value;
+			writeLatch = (openmsx::byte)value;
 			if ((control & CNTR_MODE) == CNTR_M0)
 				// pauze counting when in mode 0
 				counting = false;
@@ -432,7 +432,7 @@ void Counter::advance(EmuTime::param time)
 	switch (control & CNTR_MODE) {
 	case CNTR_M0:
 		if (gate && counting) {
-			counter -= ticks;
+			counter -= (int)ticks;
 			if (counter < 0) {
 				counter &= 0xFFFF;
 				if (active) {
@@ -443,7 +443,7 @@ void Counter::advance(EmuTime::param time)
 		}
 		break;
 	case CNTR_M1:
-		counter -= ticks;
+		counter -= (int)ticks;
 		if (triggered) {
 			if (counter < 0) {
 				output.setState(true, time);
@@ -455,7 +455,7 @@ void Counter::advance(EmuTime::param time)
 	case CNTR_M2:
 	case CNTR_M2_:
 		if (gate) {
-			counter -= ticks;
+			counter -= (int)ticks;
 			if (active) {
 				// TODO not completely correct
 				if (counterLoad != 0) {
@@ -469,7 +469,7 @@ void Counter::advance(EmuTime::param time)
 	case CNTR_M3:
 	case CNTR_M3_:
 		if (gate) {
-			counter -= 2 * ticks;
+			counter -= 2 * (int)ticks;
 			if (active) {
 				// TODO not correct
 				if (counterLoad != 0) {
@@ -482,7 +482,7 @@ void Counter::advance(EmuTime::param time)
 		break;
 	case CNTR_M4:
 		if (gate) {
-			counter -= ticks;
+			counter -= (int)ticks;
 			if (active) {
 				if (counter == 0) {
 					output.setState(false, time);
@@ -495,7 +495,7 @@ void Counter::advance(EmuTime::param time)
 		}
 		break;
 	case CNTR_M5:
-		counter -= ticks;
+		counter -= (int)ticks;
 		if (triggered) {
 			if (counter == 0)
 				output.setState(false, time);

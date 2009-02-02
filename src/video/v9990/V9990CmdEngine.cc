@@ -1117,7 +1117,7 @@ void V9990CmdEngine::CmdLMCM<Mode>::execute(EmuTime::param /*time*/)
 			engine.partial = tmp >> 8;
 			engine.bitsLeft = 1;
 		} else {
-			engine.data = data;
+			engine.data = (openmsx::byte)data;
 		}
 	}
 }

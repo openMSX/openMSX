@@ -40,7 +40,7 @@ void GLRGBScaler::scaleImage(
 		scanline = 1.0f;
 		yScale = 1;
 	}
-	GLfloat height = src.getHeight();
+	GLfloat height = (GLfloat)src.getHeight();
 	if (srcWidth != 1) {
 		// workaround for ATI cards
 		src.enableInterpolation();
@@ -50,10 +50,10 @@ void GLRGBScaler::scaleImage(
 	}
 	if (GLEW_VERSION_2_0 && ((blur != 0.0f) || (scanline != 1.0f))) {
 		scalerProgram->activate();
-		glUniform2f(texSizeLoc, srcWidth, height);
+		glUniform2f(texSizeLoc, (GLfloat)srcWidth, height);
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat c1 = blur;
-		GLfloat c2 = 3.0 - 2.0 * c1;
+		GLfloat c2 = (GLfloat)3.0 - (GLfloat)2.0 * c1;
 		glUniform4f(cnstsLoc,
 		            a,                             // scan_a
 		            (1.0f - scanline) * 2.0f * c2, // scan_b_c2
