@@ -12,63 +12,13 @@
 
 namespace openmsx {
 
-#ifdef _MSC_VER  // or replace this with     #ifndef HAVE_C99MATHOPS
-
-	// Poor man's implementations to get things compiling
-
-	// rint(): round according to current floating-point rounding direction
-	// Assuming banker's rounding by default
-	static ALWAYS_INLINE long lrint(double x)
-	{
-		if (x >= 0) {
-			long t = long(ceil(x));
-			if (t % 2) t--;
-			return t;
-		} else {
-			long t = long(ceil(-x));
-			if (t % 2) t--;
-			return -t;
-		}
-	}
-
-	// lrintf(): see lrint()
-	static ALWAYS_INLINE long lrintf(float x)
-	{
-		if (x >= 0) {
-			long t = long(ceil(x));
-			if (t % 2) t--;
-			return t;
-		} else {
-			long t = long(ceil(-x));
-			if (t % 2) t--;
-			return -t;
-		}
-	}
-
-	// truncf(): round x to the nearest integer not larger in absolute value
-	static ALWAYS_INLINE float truncf(float x)
-	{
-		return (x < 0) ? ceil(x) : floor(x);
-	}
-
-	// round(): round to nearest integer, away from zero
-	static double round(double x)
-	{
-		if (x >= 0) {
-			double t = ceil(x);
-			if ((t - x) > 0.5) {
-				t--;
-			}
-			return t;
-		} else {
-			double t = ceil(-x);
-			if ((t + x) > 0.5) {
-				t--;
-			}
-			return -t;
-		}
-	}
-
+#ifdef _MSC_VER
+	// C99 math functions missing from VC++'s CRT as of 2008
+	// TODO - define HAVE_C99MATHOPS instead
+	long lrint(double x);
+	long lrintf(float x);
+	float truncf(float x);
+	double round(double x);
 #endif
 
 namespace Math {
