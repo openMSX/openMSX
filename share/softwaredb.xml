@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1233473842">
+<softwaredb xml:lang="en" timestamp="1233555355">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -2195,7 +2195,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Deep Dungeon</title>
 	<system>MSX</system>
-	<company>Ragozini/Hassink/Cornelisse</company>
+	<company>Trilobyte</company>
 	<year>2009</year>
 	<country>EU</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">4233ab2fb0d956e0efb43e2a489ca46b65aeda8f</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
@@ -5403,10 +5403,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Karoshi Corporation</company>
 	<year>2009</year>
 	<country>EU</country>
-		<dump><original value="false"/><rom><hash algo="sha1">97b8ef65d86ec425d5901fce80d33a3d731e50e1</hash><remark>English Version / MSXDEV 08 Entry</remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">d76a904dd88f7360fe79000c374f40a69b801325</hash><remark>English Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">03ae0eebbbf80f8e51c5892a74aa2b4f287a9319</hash><remark>Spanish Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">761071622b60384ec38e964fa2b2ee12d3d0b2c9</hash><remark>Spanish Version / MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">97b8ef65d86ec425d5901fce80d33a3d731e50e1</hash><remark>English Version / MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d76a904dd88f7360fe79000c374f40a69b801325</hash><remark>English Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">03ae0eebbbf80f8e51c5892a74aa2b4f287a9319</hash><remark>Spanish Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">761071622b60384ec38e964fa2b2ee12d3d0b2c9</hash><remark>Spanish Version / MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Labyrinth</title>
@@ -7154,8 +7154,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>DVIK &#38; joyrex productions</company>
 	<year>2008</year>
 	<country>EU</country>
-		<dump><original value="false"/><rom><hash algo="sha1">d92c82e155cb34f65587d472d4eb5ed1b9e68018</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">a0b45f208df3091e461e15f6182896d2716c2a11</hash><remark>MSXDEV 08 Entry (v2)</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d92c82e155cb34f65587d472d4eb5ed1b9e68018</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">a0b45f208df3091e461e15f6182896d2716c2a11</hash><remark>MSXDEV 08 Entry (v2)</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Peetan</title>
@@ -7655,7 +7655,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Metal Soft aka Vampier</company>
 	<year>2009</year>
 	<country>EU</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Pyramid Warp</title>
@@ -8714,6 +8714,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">49e14b0248c649e7b5754357597695abef70c17d</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Sphere Redux</title>
+	<system>MSX</system>
+	<company>Impulse9</company>
+	<year>2007</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><start>ASCII8</start><type>Normal</type><hash algo="sha1">22a927a7bc70a36379404743a3fde5df8ca543ce</hash><remark>MSXDEV 07 Entry (Canceled)</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Spider, The</title>
@@ -10371,6 +10379,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2184
-Parse time 4.735 seconds on Sun Feb 1 8:37:27 CET 2009
+Roms in this database:2185
+Parse time 4.858 seconds on Mon Feb 2 7:16:00 CET 2009
  -->
