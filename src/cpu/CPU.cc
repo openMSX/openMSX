@@ -141,8 +141,11 @@ void CPU::checkBreakPoints(std::pair<BreakPoints::const_iterator,
 	}
 }
 
+// version 1: Initial version.
+// version 2: Replaced 'afterEI' boolean with 'after' byte
+//            (holds both afterEI and afterLDAI information).
 template<typename Archive>
-void CPU::CPURegs::serialize(Archive& ar, unsigned /*version*/)
+void CPU::CPURegs::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("af",  AF_.w);
 	ar.serialize("bc",  BC_.w);
@@ -163,7 +166,15 @@ void CPU::CPURegs::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("im",  IM_);
 	ar.serialize("iff1", IFF1_);
 	ar.serialize("iff2", IFF2_);
-	ar.serialize("afterEI", afterEI_);
+	if (version < 2) {
+		// loading only
+		bool afterEI = false; // initialize to avoid warning
+		ar.serialize("afterEI", afterEI);
+		clearAfter();
+		if (afterEI) setAfterEI();
+	} else {
+		ar.serialize("after", after_);
+	}
 	ar.serialize("halt", HALT_);
 }
 INSTANTIATE_SERIALIZE_METHODS(CPU::CPURegs);

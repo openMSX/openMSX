@@ -4,6 +4,7 @@
 #define CPU_HH
 
 #include "EmuTime.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "build-info.hh"
@@ -303,8 +304,11 @@ public:
 
 		inline void incR(byte x) { R_ += x; }
 
-		inline bool getAfterEI() const { return afterEI_; }
-		inline void setAfterEI(bool x) { afterEI_ = x; }
+		inline bool getAfterEI()   const { return (after_ & 0x01) != 0; }
+		inline bool getAfterLDAI() const { return (after_ & 0x02) != 0; }
+		inline void setAfterEI()   { after_ |= 0x01; }
+		inline void setAfterLDAI() { after_ |= 0x02; }
+		inline void clearAfter() { after_ = 0x00; }
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -313,7 +317,8 @@ public:
 		z80regpair AF_, BC_, DE_, HL_;
 		z80regpair AF2_, BC2_, DE2_, HL2_;
 		z80regpair IX_, IY_, PC_, SP_;
-		bool IFF1_, IFF2_, afterEI_;
+		bool IFF1_, IFF2_;
+		byte after_;
 		byte HALT_;
 		byte IM_, I_;
 		byte R_, R2_; // refresh = R&127 | R2&128
@@ -466,6 +471,7 @@ private:
 
 	static BreakPoints breakPoints;
 };
+SERIALIZE_CLASS_VERSION(CPU::CPURegs, 2);
 
 } // namespace openmsx
 

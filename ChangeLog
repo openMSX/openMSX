@@ -1,5 +1,10 @@
 $Id$
 
+2009-02-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 'ld a,i' Z80 quirk:
+	  See comments in CPUCore.cc for details. Thanks to n_n for reporting
+	  this issue and writing a test program.
+
 2009-01-25 Maarten ter Huurne <maarten@treewalker.org>
 	* Use Python to generate "Version.ii".
 	* Use Python to generate "build-info.hh".

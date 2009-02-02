@@ -313,7 +313,7 @@ template <class T> void CPUCore<T>::doReset(EmuTime::param time)
 	R.setBC2(0xFFFF);
 	R.setDE2(0xFFFF);
 	R.setHL2(0xFFFF);
-	R.setAfterEI(false);
+	R.clearAfter();
 	R.setIFF1(false);
 	R.setIFF2(false);
 	R.setHALT(false);
@@ -2386,6 +2386,27 @@ template <class T> void CPUCore<T>::executeSlow()
 		nmi(); // NMI occured
 	} else if (unlikely(IRQStatus && R.getIFF1() && !R.getAfterEI())) {
 		// normal interrupt
+		if (unlikely(R.getAfterLDAI())) {
+			// HACK!!!
+			// The 'ld a,i' or 'ld a,r' instruction copies the IFF2
+			// bit to the V flag. Though when the Z80 accepts an
+			// IRQ directly after this instruction, the V flag is 0
+			// (instead of the expected value 1). This can probably
+			// be explained if you look at the pipeline of the Z80.
+			// But for speed reasons we implement it here as a
+			// fix-up (a hack) in the IRQ routine. This behaviour
+			// is actually a bug in the Z80.
+			// Thanks to n_n for reporting this behaviour. I think
+			// this was discovered by GuyveR800. Also thanks to
+			// n_n for writing a test program that demonstrates
+			// this quirk.
+			// I also wrote a test program that demonstrates this
+			// behaviour is the same whether 'ld a,i' is preceded
+			// by a 'ei' instruction or not (so it's not caused by
+			// the 'delayed IRQ acceptance of ei').
+			assert(R.getF() & V_FLAG);
+			R.setF(R.getF() & ~V_FLAG);
+		}
 		IRQAccept.signal();
 		switch (R.getIM()) {
 			case 0: irq0();
@@ -2402,7 +2423,7 @@ template <class T> void CPUCore<T>::executeSlow()
 		R.incR(T::advanceHalt(T::haltStates(), scheduler.getNext()));
 		setSlowInstructions();
 	} else {
-		R.setAfterEI(false);
+		R.clearAfter();
 		cpuTracePre();
 		assert(T::limitReached()); // we want only one instruction
 		executeInstructions();
@@ -4003,7 +4024,7 @@ template <class T> int CPUCore<T>::di() {
 template <class T> int CPUCore<T>::ei() {
 	R.setIFF1(true);
 	R.setIFF2(true);
-	R.setAfterEI(true); // no ints directly after this instr
+	R.setAfterEI(); // no ints directly after this instr
 	setSlowInstructions();
 	return T::CC_EI;
 }
@@ -4032,6 +4053,9 @@ template <class T> template<CPU::Reg8 REG> int CPUCore<T>::ld_a_IR() {
 	} else {
 		f |= R.getF() & C_FLAG;
 		f |= ZSXYTable[R.getA()];
+		// see comment in the IRQ acceptance part of executeSlow().
+		R.setAfterLDAI(); // only Z80 (not R800) has this quirk
+		setSlowInstructions();
 	}
 	R.setF(f);
 	return T::CC_LD_A_I;
