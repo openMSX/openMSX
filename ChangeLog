@@ -3,7 +3,8 @@ $Id$
 2009-02-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'ld a,i' Z80 quirk:
 	  See comments in CPUCore.cc for details. Thanks to n_n for reporting
-	  this issue and writing a test program.
+	  this issue (first discovered by GuyveR800) and writing a test
+	  program for it.
 
 2009-01-25 Maarten ter Huurne <maarten@treewalker.org>
 	* Use Python to generate "Version.ii".
