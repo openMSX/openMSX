@@ -196,20 +196,20 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 {
 	if (modeSetting->getValue() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
-		uint64 elapsed = reference.getTicksTill(time);
+		unsigned elapsed = unsigned(reference.getTicksTill(time));
 		reference.advance(time);
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz
-		fraction += (modeReg & MODE_TIMERENABLE) ? (unsigned int)elapsed : 0;
+		fraction += (modeReg & MODE_TIMERENABLE) ? elapsed : 0;
 		unsigned carrySeconds = (testReg & TEST_SECONDS)
-		                      ? (unsigned int)elapsed : fraction / FREQ;
+		                      ? elapsed : fraction / FREQ;
 		seconds  += carrySeconds;
 		unsigned carryMinutes = (testReg & TEST_MINUTES)
-		                      ? (unsigned int)elapsed : seconds / 60;
+		                      ? elapsed : seconds / 60;
 		minutes  += carryMinutes;
 		hours    += minutes / 60;
 		unsigned carryDays = (testReg & TEST_DAYS)
-		                   ? (unsigned int)elapsed : hours / 24;
+		                   ? elapsed : hours / 24;
 		days     += carryDays;
 		dayWeek  += carryDays;
 		while (days >= daysInMonth(months, leapYear)) {
@@ -220,7 +220,7 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 			months++;
 		}
 		unsigned carryYears = (testReg & TEST_YEARS)
-		                    ? (unsigned int)elapsed : months / 12;
+		                    ? elapsed : months / 12;
 		years    += carryYears;
 		leapYear += carryYears;
 

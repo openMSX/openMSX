@@ -109,7 +109,7 @@ static int openPort(SOCKET listenSock)
 	const int BASE = 9938;
 	const int RANGE = 64;
 
-	srand((unsigned int)time(0)); // easily predicatble, but doesn't matter
+	srand(unsigned(time(0))); // easily predicatble, but doesn't matter
 	int first = rand();
 
 	for (int n = 0; n < RANGE; ++n) {

@@ -97,7 +97,7 @@ void Y8950Adpcm::schedule(EmuTime::param time)
 	if ((stopAddr > startAddr) && (delta != 0)) {
 		uint64 samples = stopAddr - memPntr + 1;
 		Clock<Y8950::CLOCK_FREQ> stop(time);
-		stop += (unsigned int)(samples * (72 << 16) / delta);
+		stop += unsigned(samples * (72 << 16) / delta);
 		setSyncPoint(stop.getTime());
 	}
 }

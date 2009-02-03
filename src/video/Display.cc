@@ -367,15 +367,11 @@ void Display::repaint()
 
 void Display::repaintDelayed(unsigned long long delta)
 {
-	PRT_DEBUG("Display::repaintDelayed...");
 	if (alarm->pending()) {
-		PRT_DEBUG("Display::repaintDelayed... already pending");
 		// already a pending repaint
 		return;
 	}
-	PRT_DEBUG("Display::repaintDelayed... scheduling alarm with delta " << delta);
-	alarm->schedule((unsigned int)delta);
-	PRT_DEBUG("Display::repaintDelayed... DONE!");
+	alarm->schedule(unsigned(delta));
 }
 
 void Display::addLayer(Layer& layer)

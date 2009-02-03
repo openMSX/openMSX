@@ -42,18 +42,18 @@ MSXDevice*& VDPIODelay::getOutDevicePtr(byte port)
 byte VDPIODelay::readIO(word port, EmuTime::param time)
 {
 	delay(time);
-	return getInDevicePtr((openmsx::byte)port)->readIO((openmsx::byte)port, lastTime.getTime());
+	return getInDevicePtr(byte(port))->readIO(byte(port), lastTime.getTime());
 }
 
 byte VDPIODelay::peekIO(word port, EmuTime::param time) const
 {
-	return getInDevice((openmsx::byte)port).peekIO((openmsx::byte)port, time);
+	return getInDevice(byte(port)).peekIO(byte(port), time);
 }
 
 void VDPIODelay::writeIO(word port, byte value, EmuTime::param time)
 {
 	delay(time);
-	getOutDevicePtr((openmsx::byte)port)->writeIO((openmsx::byte)port, value, lastTime.getTime());
+	getOutDevicePtr(byte(port))->writeIO(byte(port), value, lastTime.getTime());
 }
 
 void VDPIODelay::delay(EmuTime::param time)

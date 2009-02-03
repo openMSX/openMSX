@@ -111,7 +111,7 @@ byte OSDImageBasedWidget::getAlpha(unsigned long long now) const
 		return a;
 	}
 
-	int diff = (int)now - (int)setFadeTime; // int should be big enough
+	int diff = int(now - setFadeTime); // int should be big enough
 	double ratio = diff / (1000000.0 * fadePeriod);
 	int dAlpha = int(256.0 * ratio);
 	if (a < fadeTarget) {

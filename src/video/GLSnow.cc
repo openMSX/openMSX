@@ -48,20 +48,20 @@ void GLSnow::paint()
 	static unsigned cnt = 0;
 
 	// Draw noise texture.
-	double x = double(rand()) / RAND_MAX;
-	double y = double(rand()) / RAND_MAX;
+	GLfloat x = GLfloat(rand()) / RAND_MAX;
+	GLfloat y = GLfloat(rand()) / RAND_MAX;
 	cnt = (cnt + 1) % 8;
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + (GLfloat)x, 2.0f + (GLfloat)y);
+	glTexCoord2f(0.0f + x, 2.0f + y);
 	glVertex2i(coord[cnt][0][0] * width, coord[cnt][0][1] * height);
-	glTexCoord2f(2.0f + (GLfloat)x, 2.0f + (GLfloat)y);
+	glTexCoord2f(2.0f + x, 2.0f + y);
 	glVertex2i(coord[cnt][1][0] * width, coord[cnt][1][1] * height);
-	glTexCoord2f(2.0f + (GLfloat)x, 0.0f + (GLfloat)y);
+	glTexCoord2f(2.0f + x, 0.0f + y);
 	glVertex2i(coord[cnt][2][0] * width, coord[cnt][2][1] * height);
-	glTexCoord2f(0.0f + (GLfloat)x, 0.0f + (GLfloat)y);
+	glTexCoord2f(0.0f + x, 0.0f + y);
 	glVertex2i(coord[cnt][3][0] * width, coord[cnt][3][1] * height);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);

@@ -254,16 +254,16 @@ void LineTexture::update(const GLuint* dataBGR, int lineWidth)
 void LineTexture::draw(
 	int texX, int screenX, int screenY, int width, int height)
 {
-	double texL = texX / 512.0f;
-	double texR = (texX + width) / 512.0f;
+	GLfloat texL = texX / 512.0f;
+	GLfloat texR = (texX + width) / 512.0f;
 	int screenL = screenX;
 	int screenR = screenL + width;
 	bind();
 	glBegin(GL_QUADS);
-	glTexCoord2f((GLfloat)texL, 1.0f); glVertex2i(screenL, screenY);
-	glTexCoord2f((GLfloat)texR, 1.0f); glVertex2i(screenR, screenY);
-	glTexCoord2f((GLfloat)texR, 0.0f); glVertex2i(screenR, screenY + height);
-	glTexCoord2f((GLfloat)texL, 0.0f); glVertex2i(screenL, screenY + height);
+	glTexCoord2f(texL, 1.0f); glVertex2i(screenL, screenY);
+	glTexCoord2f(texR, 1.0f); glVertex2i(screenR, screenY);
+	glTexCoord2f(texR, 0.0f); glVertex2i(screenR, screenY + height);
+	glTexCoord2f(texL, 0.0f); glVertex2i(screenL, screenY + height);
 	glEnd();
 }
 
@@ -336,7 +336,7 @@ void StoredFrame::drawBlend(
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// RGB come from texture, alpha comes from fragment colour.
-	glColor4f(1.0, 0.0, 0.0, (GLfloat)alpha);
+	glColor4f(1.0, 0.0, 0.0, GLfloat(alpha));
 	draw(offsetX, offsetY, width, height);
 	glDisable(GL_BLEND);
 }

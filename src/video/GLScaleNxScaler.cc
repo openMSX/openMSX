@@ -27,7 +27,7 @@ void GLScaleNxScaler::scaleImage(
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	GLfloat height = (GLfloat)src.getHeight();
+	GLfloat height = GLfloat(src.getHeight());
 	if (srcWidth == 320) {
 		scalerProgram->activate();
 		if (GLEW_VERSION_2_0) {

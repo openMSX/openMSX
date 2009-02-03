@@ -27,10 +27,10 @@ void GLSaIScaler::scaleImage(
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	GLfloat height = (GLfloat)src.getHeight();
+	GLfloat height = GLfloat(src.getHeight());
 	scalerProgram->activate();
 	if (GLEW_VERSION_2_0) {
-		glUniform2f(texSizeLoc, (GLfloat)srcWidth, height);
+		glUniform2f(texSizeLoc, GLfloat(srcWidth), height);
 	}
 	src.drawRect(0.0f,  srcStartY            / height,
 	             1.0f, (srcEndY - srcStartY) / height,

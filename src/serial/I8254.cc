@@ -23,7 +23,7 @@ public:
 	void reset(EmuTime::param time);
 	byte readIO(EmuTime::param time);
 	byte peekIO(EmuTime::param time) const;
-	void writeIO(word value, EmuTime::param time);
+	void writeIO(byte value, EmuTime::param time);
 	void setGateStatus(bool status, EmuTime::param time);
 	void writeControlWord(byte value, EmuTime::param time);
 	void latchStatus(EmuTime::param time);
@@ -272,7 +272,7 @@ byte Counter::peekIO(EmuTime::param time) const
 	}
 }
 
-void Counter::writeIO(word value, EmuTime::param time)
+void Counter::writeIO(byte value, EmuTime::param time)
 {
 	advance(time);
 	switch (control & WRT_FRMT) {
@@ -287,7 +287,7 @@ void Counter::writeIO(word value, EmuTime::param time)
 	case WF_BOTH:
 		if (writeOrder == LOW) {
 			writeOrder = HIGH;
-			writeLatch = (openmsx::byte)value;
+			writeLatch = value;
 			if ((control & CNTR_MODE) == CNTR_M0)
 				// pauze counting when in mode 0
 				counting = false;
@@ -427,12 +427,12 @@ void Counter::advance(EmuTime::param time)
 {
 	// TODO !!!! Set SP !!!!
 	// TODO BCD counting
-	uint64 ticks = clock.getTicksBetween(currentTime, time);
+	int ticks = int(clock.getTicksBetween(currentTime, time));
 	currentTime = time;
 	switch (control & CNTR_MODE) {
 	case CNTR_M0:
 		if (gate && counting) {
-			counter -= (int)ticks;
+			counter -= ticks;
 			if (counter < 0) {
 				counter &= 0xFFFF;
 				if (active) {
@@ -443,7 +443,7 @@ void Counter::advance(EmuTime::param time)
 		}
 		break;
 	case CNTR_M1:
-		counter -= (int)ticks;
+		counter -= ticks;
 		if (triggered) {
 			if (counter < 0) {
 				output.setState(true, time);
@@ -455,7 +455,7 @@ void Counter::advance(EmuTime::param time)
 	case CNTR_M2:
 	case CNTR_M2_:
 		if (gate) {
-			counter -= (int)ticks;
+			counter -= ticks;
 			if (active) {
 				// TODO not completely correct
 				if (counterLoad != 0) {
@@ -469,7 +469,7 @@ void Counter::advance(EmuTime::param time)
 	case CNTR_M3:
 	case CNTR_M3_:
 		if (gate) {
-			counter -= 2 * (int)ticks;
+			counter -= 2 * ticks;
 			if (active) {
 				// TODO not correct
 				if (counterLoad != 0) {
@@ -482,7 +482,7 @@ void Counter::advance(EmuTime::param time)
 		break;
 	case CNTR_M4:
 		if (gate) {
-			counter -= (int)ticks;
+			counter -= ticks;
 			if (active) {
 				if (counter == 0) {
 					output.setState(false, time);
@@ -495,7 +495,7 @@ void Counter::advance(EmuTime::param time)
 		}
 		break;
 	case CNTR_M5:
-		counter -= (int)ticks;
+		counter -= ticks;
 		if (triggered) {
 			if (counter == 0)
 				output.setState(false, time);

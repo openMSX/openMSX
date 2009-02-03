@@ -163,8 +163,8 @@ int AY8910::ToneGenerator::getDetune()
 			parent->detuneFrequency->getValue();
 		detuneCount += period;
 		double noiseIdx = detuneCount / detunePeriod;
-		double noise = noiseValue((float)noiseIdx);
-		noise += noiseValue(float(2.0) * (float)noiseIdx) / 2.0;
+		double noise = noiseValue(float(noiseIdx));
+		noise += noiseValue(2.0f * float(noiseIdx)) / 2.0;
 		result += int(noise * detunePerc * 0.01 * period);
 	}
 	return std::min(result, period - 1);

@@ -32,7 +32,7 @@ void GLTVScaler::scaleImage(
 	unsigned srcStartY, unsigned srcEndY, unsigned /*srcWidth*/,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	GLfloat height = (GLfloat)src.getHeight();
+	GLfloat height = GLfloat(src.getHeight());
 	scalerProgram->activate();
 	if (GLEW_VERSION_2_0) {
 		// always do as-if there are 640 dots on a line to get the

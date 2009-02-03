@@ -159,10 +159,10 @@ void SDLGLVisibleSurface::drawFrameBuffer()
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0,       (GLfloat)texCoordY); glVertex2i(0,     height);
-	glTexCoord2f((GLfloat)texCoordX, (GLfloat)texCoordY); glVertex2i(width, height);
-	glTexCoord2f((GLfloat)texCoordX, 0.0      ); glVertex2i(width, 0     );
-	glTexCoord2f(0.0,       0.0      ); glVertex2i(0,     0     );
+	glTexCoord2f(0.0,                GLfloat(texCoordY)); glVertex2i(0,     height);
+	glTexCoord2f(GLfloat(texCoordX), GLfloat(texCoordY)); glVertex2i(width, height);
+	glTexCoord2f(GLfloat(texCoordX), 0.0               ); glVertex2i(width, 0     );
+	glTexCoord2f(0.0,                0.0               ); glVertex2i(0,     0     );
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 }

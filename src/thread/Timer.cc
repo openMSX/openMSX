@@ -86,7 +86,7 @@ void sleep(unsigned long long us)
 #ifdef HAVE_USLEEP
 	usleep(us);
 #else
-	SDL_Delay((Uint32)us / 1000);
+	SDL_Delay(unsigned(us / 1000));
 #endif
 }
 

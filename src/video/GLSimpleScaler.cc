@@ -32,8 +32,8 @@ void GLSimpleScaler::scaleImage(
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	GLfloat blur = renderSettings.getBlurFactor() / (GLfloat)256.0;
-	GLfloat scanline = renderSettings.getScanlineFactor() / (GLfloat)255.0;
+	GLfloat blur = renderSettings.getBlurFactor() / 256.0f;
+	GLfloat scanline = renderSettings.getScanlineFactor() / 255.0f;
 	unsigned yScale = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 	if (yScale == 0) {
 		// less lines in destination than in source
@@ -41,14 +41,14 @@ void GLSimpleScaler::scaleImage(
 		scanline = 1.0f;
 		yScale = 1;
 	}
-	GLfloat height = (GLfloat)src.getHeight();
+	GLfloat height = GLfloat(src.getHeight());
 	if ((blur != 0) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
 		src.enableInterpolation();
 	}
 	if (GLEW_VERSION_2_0 && ((blur != 0.0) || (scanline != 1.0))) {
 		scalerProgram->activate();
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
-		glUniform2f(texSizeLoc, (GLfloat)srcWidth, height);
+		glUniform2f(texSizeLoc, GLfloat(srcWidth), height);
 		glUniform3f(texStepXLoc, 1.0f / srcWidth, 1.0f / srcWidth, 0.0f);
 		glUniform4f(cnstLoc, a,                // scan_a
 		                     1.0f - scanline,  // scan_b
