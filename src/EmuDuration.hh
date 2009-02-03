@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "static_assert.hh"
+#include <cassert>
 
 namespace openmsx {
 
