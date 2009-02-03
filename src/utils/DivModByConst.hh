@@ -32,10 +32,10 @@ template<unsigned A, unsigned R = 0> struct log2
 template<uint64 RH, uint64 RL, uint64 QH, uint64 QL, uint64 DH, uint64 DL, unsigned BITS>
 struct Div128_helper
 {
-	static const uint64 QL2 = QL * 2;
-	static const uint64 QH2 = QH * 2 + (QL2 < QL);
-	static const uint64 RL2 = RL * 2 + (QH2 < QH);
-	static const uint64 RH2 = RH * 2 + (RL2 < RL);
+	static const uint64 QL2 = (QL << 1);
+	static const uint64 QH2 = (QH << 1) + (QL2 < QL);
+	static const uint64 RL2 = (RL << 1) + (QH2 < QH);
+	static const uint64 RH2 = (RH << 1) + (RL2 < RL);
 
 	static const bool C = (RH2 != DH) ? (RH2 < DH) : (RL2 < DL);
 	static const uint64 RL3 = C ? RL2 : RL2 - DL;

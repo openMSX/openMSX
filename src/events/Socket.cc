@@ -102,7 +102,7 @@ void sock_cleanup()
 #endif
 }
 
-void sock_reuseAddr(int sd)
+void sock_reuseAddr(SOCKET sd)
 {
 #ifdef _WIN32
 	// nothing similar exists in win32?
@@ -116,7 +116,7 @@ void sock_reuseAddr(int sd)
 }
 
 // close a connection
-void sock_close(int sd)
+void sock_close(SOCKET sd)
 {
 #ifdef _WIN32
 	closesocket(sd);
@@ -126,7 +126,7 @@ void sock_close(int sd)
 }
 
 
-int sock_recv(int sd, char* buf, size_t count)
+int sock_recv(SOCKET sd, char* buf, size_t count)
 {
 	int num = recv(sd, buf, count, 0);
 	if (num >  0) return num; // normal case
@@ -149,7 +149,7 @@ int sock_recv(int sd, char* buf, size_t count)
 }
 
 
-int sock_send(int sd, const char* buf, size_t count)
+int sock_send(SOCKET sd, const char* buf, size_t count)
 {
 	int num = send(sd, buf, count, 0);
 	if (num >= 0) return num; // normal case

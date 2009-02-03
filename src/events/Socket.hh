@@ -31,10 +31,10 @@ static const SOCKET OPENMSX_INVALID_SOCKET = static_cast<SOCKET>(~0);
 std::string sock_error();
 void sock_startup();
 void sock_cleanup();
-void sock_reuseAddr(int sd);
-void sock_close(int sd);
-int sock_recv(int sd, char* buf, size_t count);
-int sock_send(int sd, const char* buf, size_t count);
+void sock_reuseAddr(SOCKET sd);
+void sock_close(SOCKET sd);
+int sock_recv(SOCKET sd, char* buf, size_t count);
+int sock_send(SOCKET sd, const char* buf, size_t count);
 
 } // namespace openmsx
 

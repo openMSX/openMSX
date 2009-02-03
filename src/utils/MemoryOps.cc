@@ -1,4 +1,4 @@
-// $Id: MemoryOps.cc 7147 2007-10-16 09:24:15Z m9710797 $
+// $Id$
 
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
@@ -357,14 +357,14 @@ void MemSet2<Pixel, STREAMING>::operator()(
 }
 
 // Force template instantiation
-template class MemSet <word,     true >;
-template class MemSet <word,     false>;
-template class MemSet <unsigned, true >;
-template class MemSet <unsigned, false>;
-template class MemSet2<word,     true >;
-template class MemSet2<word,     false>;
-template class MemSet2<unsigned, true >;
-template class MemSet2<unsigned, false>;
+template struct MemSet <word,     true >;
+template struct MemSet <word,     false>;
+template struct MemSet <unsigned, true >;
+template struct MemSet <unsigned, false>;
+template struct MemSet2<word,     true >;
+template struct MemSet2<word,     false>;
+template struct MemSet2<unsigned, true >;
+template struct MemSet2<unsigned, false>;
 
 #ifdef COMPONENT_GL
 #ifdef _MSC_VER
