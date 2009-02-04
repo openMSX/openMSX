@@ -30,10 +30,9 @@ public:
 
 	unsigned div(uint64 dividend) const
 	{
-	#ifdef ASM_X86_64
+	#if defined __x86_64 && !defined _MSC_VER
 		uint64 t = (__uint128_t(dividend) * m + a) >> 64;
 		return t >> s;
-
 	#elif defined (ASM_X86_32)
 		unsigned dummy;
 		unsigned th, tl;

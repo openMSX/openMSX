@@ -392,10 +392,10 @@ template<unsigned DIVISOR> struct DivModByConst
 {
 	unsigned div(unsigned long long dividend) const
 	{
-	#ifdef ASM_X86_64
+	#ifdef __x86_64
 		// on 64-bit CPUs gcc already does this
 		// optimization (and better)
-		return dividend / DIVISOR;
+		return unsigned(dividend / DIVISOR);
 	#else
 		DivModByConstPrivate::DBCHelper1<DIVISOR, 0> dbc;
 		return dbc(dividend);
@@ -405,7 +405,7 @@ template<unsigned DIVISOR> struct DivModByConst
 	unsigned mod(unsigned long long dividend) const
 	{
 		unsigned long long result;
-	#ifdef ASM_X86_64
+	#ifdef __x86_64
 		result = dividend % DIVISOR;
 	#else
 		result = dividend - DIVISOR * div(dividend);

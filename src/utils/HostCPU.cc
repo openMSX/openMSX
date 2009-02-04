@@ -65,7 +65,7 @@ HostCPU::HostCPU()
 			}
 		}
 	#endif
-	#ifdef ASM_X86_64
+	#ifdef __x86_64
 		// X86_64 machines always have mmx, sse, sse2
 		mmxFlag  = true;
 		sseFlag  = true;

@@ -2,14 +2,14 @@
 
 #include "Math.hh"
 
-#if defined _MSC_VER && defined _WIN64
+#if defined _MSC_VER && defined __x86_64
 #include <emmintrin.h>
 #endif
 
 namespace openmsx {
 
 #ifdef _MSC_VER
-#ifdef _WIN64
+#ifdef __x86_64
 
 // What follows below are C++ implementations of several C99 math functions missing 
 // from VC++'s CRT as of 2008. These implementations using SSE/SSE2 intrinsics
@@ -229,8 +229,8 @@ double round(double x)
 		}
 	}
 
-#endif
-#endif
+#endif	// __x86_64
+#endif	// _MSC_VER
 
 namespace Math {
 

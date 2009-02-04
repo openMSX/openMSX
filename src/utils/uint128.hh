@@ -5,14 +5,14 @@
 
 typedef unsigned long long uint64;
 
-#ifdef __x86_64
-
+#if defined __x86_64 && !defined _MSC_VER
 // On 64-bit CPUs gcc already provides a 128-bit type,
 // use that type because it's most likely much more efficient.
+// VC++ 2008 does not provide a 128-bit integer type
 typedef __uint128_t uint128;
 inline uint64 toUint64(uint128 a) { return a; }
 
-#else // __x86_64
+#else // __x86_64 && !_MSC_VER
 
 /** Unsigned 128-bit integer type.
  * Very simple implementation, not optimized for speed.
@@ -237,6 +237,6 @@ inline uint64 toUint64(const uint128& a)
 	return a.lo;
 }
 
-#endif // __x86_64
+#endif // __x86_64 && !_MSC_VER
 
 #endif // UINT128_HH

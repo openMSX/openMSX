@@ -1,10 +1,10 @@
 // $Id:$
 
-#ifdef __x86_64
+#if defined __x86_64 && !defined _MSC_VER
 
 // nothing
 
-#else // __x86_64
+#else // __x86_64 && !_MSC_VER
 
 #include "uint128.hh"
 
@@ -75,4 +75,4 @@ void uint128::setBit(unsigned n)
 	}
 }
 
-#endif // __x86_64
+#endif // __x86_64 && !_MSC_VER
