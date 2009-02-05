@@ -1,5 +1,3 @@
-; Copyright (c) Microsoft Corporation.  All rights reserved.
-
 .686
 .XMM
 .model flat, c

@@ -1,5 +1,3 @@
-; Copyright (c) Microsoft Corporation.  All rights reserved.
-
 INCLUDE macamd64.inc
 
 .code
