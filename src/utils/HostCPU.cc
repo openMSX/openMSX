@@ -21,7 +21,7 @@ HostCPU::HostCPU()
 	mmxFlag  = true;
 	sseFlag  = true;
 	sse2Flag = true;
-	#elif _MSC_VER
+	#elif defined _MSC_VER
 	// TODO - mfeingol - reconcile _MSC_VER, ASM_X86, ASM_X86_32 compilation flags
 	unsigned hasCPUID;
 	__asm {
@@ -52,7 +52,7 @@ HostCPU::HostCPU()
 		}
 	}
 
-	#elif ASM_X86_32
+	#elif defined ASM_X86_32
 		// Note: On Mac OS X, EBX is in use by the OS,
 		//       so we have to restore it.
 		// Is CPUID instruction supported?
