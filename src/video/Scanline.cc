@@ -101,7 +101,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 		Scanline_draw_4_SSE2(src1, src2, dst, factor, width);
 		return;
 	}
-#elif ASM_X86
+#elif defined ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
 		// SSE2 routine, 32bpp
