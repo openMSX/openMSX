@@ -72,6 +72,17 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
+//
+// Assembly functions
+//
+#ifdef _MSC_VER
+extern "C"
+{
+	void __cdecl Scanline_draw_4_SSE2(const void* src1, const void* src2,
+		void* dst, unsigned factor, unsigned long width);
+}
+#endif
+
 } // namespace openmsx
 
 #endif

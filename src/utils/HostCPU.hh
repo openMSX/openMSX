@@ -55,6 +55,7 @@ public:
 
 private:
 	HostCPU();
+	void setFeatures(unsigned features);
 
 	bool mmxFlag;
 	bool sseFlag;
