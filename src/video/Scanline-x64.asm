@@ -8,7 +8,7 @@ INCLUDE macamd64.inc
 ;   r8 = Pixel* dst
 ;   r9 = unsigned factor
 ;   [rsp+28h] = unsigned long width
-; Note: rax, rcx, rdx, r8, r9, r10, and r11 are all scratch registers 
+; Scratch registers: rax, rcx, rdx, r8, r9, r10, and r11
 LEAF_ENTRY Scanline_draw_4_SSE2, Video
 
 ; rax = width * 4

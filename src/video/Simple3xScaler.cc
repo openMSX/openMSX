@@ -276,6 +276,14 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 
 // class Blur_1on3
 
+// Assembly functions
+#ifdef _MSC_VER
+extern "C"
+{
+	void __cdecl Blur_1on3_4_SSE(const void* in, void* out, unsigned dstWidth, void* c);
+}
+#endif
+
 template <class Pixel>
 Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps,
                             const RenderSettings& settings_)
@@ -312,14 +320,10 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 	 */
 	unsigned long alpha = settings.getBlurFactor() / 3;
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// MMX-EXT routine, 32bpp
 		alpha *= 256;
-		unsigned t0, t1, t2, t3;
 		struct {
 			unsigned long long zero;
 			unsigned long long c0;
@@ -335,7 +339,11 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 		c.c1_ = alpha + c.c0_;
 		c.c2_ = 0x10000 - c.c1_;
 		c.c3_ = 0x10000 - 2 * c.c0_;
-
+	#ifdef _MSC_VER
+		Blur_1on3_4_SSE(in, out, dstWidth, &c);
+		return;
+	#else
+		unsigned t0, t1, t2, t3;
 		asm volatile (
 			"pxor      %%mm0, %%mm0;"
 			"pshufw    $0,40(%[CNST]),%%mm1;"
@@ -439,8 +447,8 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 			#endif
 		);
 		return;
-	}
 	#endif
+	}
 	#endif
 
 	// non-MMX routine, both 16bpp and 32bpp

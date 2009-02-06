@@ -5,13 +5,12 @@
 .code
 
 ; Scanline_draw_4_SSE2
-;   rcx = const Pixel* src1
-;   rdx = const Pixel* src2
-;   r8 = Pixel* dst
-;   r9 = unsigned factor
-;   [rsp+28h] = unsigned long width
-;   [rsp+30h] = sizeof(Pixel)
-; Preserve the EDI, ESI, EBP, and EBX registers
+;   const Pixel* src1
+;   const Pixel* src2
+;   Pixel* dst
+;   unsigned factor
+;   unsigned long width
+; Scratch registers: edi, esi, ebp, ebx
 Scanline_draw_4_SSE2 PROC C uses edi esi ebx src1:NEAR PTR, src2:NEAR PTR, dst:NEAR PTR, factor:DWORD, _width:DWORD
 
 ; ebx = src1 + width;
