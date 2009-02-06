@@ -255,6 +255,9 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		const Pixel* in, Pixel* out, unsigned long width)
 {
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 2) && streaming && cpu.hasSSE()) {
 		// extended-MMX routine 16bpp
@@ -456,7 +459,8 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		return;
 	}
 	#endif
-
+	#endif
+	
 	for (unsigned x = 0; x < width / 2; x++) {
 		out[x * 2] = out[x * 2 + 1] = in[x];
 	}
@@ -468,6 +472,9 @@ void Scale_1on1<Pixel, streaming>::operator()(
 {
 	unsigned long nBytes = width * sizeof(Pixel);
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	assert((nBytes % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (streaming && cpu.hasSSE()) {
@@ -550,6 +557,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 		return;
 	}
 	#endif
+	#endif
 
 #ifdef __arm__
 	assert(nBytes > 0);
@@ -589,6 +597,9 @@ template <typename Pixel>
 void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX routine, 32bpp
@@ -798,6 +809,7 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long wi
 		);
 		return;
 	}
+	#endif
 	#endif
 
 	// pure C++ version

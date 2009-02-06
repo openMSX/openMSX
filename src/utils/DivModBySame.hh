@@ -34,6 +34,9 @@ public:
 		uint64 t = (__uint128_t(dividend) * m + a) >> 64;
 		return t >> s;
 	#elif defined (ASM_X86_32)
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 		unsigned dummy;
 		unsigned th, tl;
 		unsigned ch = a >> 32;
@@ -106,7 +109,7 @@ public:
 			, [SH] "c"    (s)
 		);
 		return cl;
-
+	#endif
 	#elif defined(__arm__)
 		unsigned res;
 		unsigned dummy;
@@ -139,8 +142,7 @@ public:
 			: "r3","r4","r5","r6","r7"
 		);
 		return res;
-
-	#else
+	#endif
 		uint64 t1 = uint64(unsigned(dividend)) * unsigned(m);
 		uint64 t2 = (dividend >> 32) * unsigned(m);
 		uint64 t3 = unsigned(dividend) * (m >> 32);
@@ -157,7 +159,6 @@ public:
 		assert(result == unsigned(result));
 	#endif
 		return unsigned(result);
-	#endif
 	}
 
 	unsigned mod(uint64 dividend) const

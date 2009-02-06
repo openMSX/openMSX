@@ -21,8 +21,8 @@ HostCPU::HostCPU()
 	mmxFlag  = true;
 	sseFlag  = true;
 	sse2Flag = true;
-	#elif defined _MSC_VER
-	// TODO - mfeingol - reconcile _MSC_VER, ASM_X86, ASM_X86_32 compilation flags
+	#elif defined ASM_X86_32
+	#ifdef _MSC_VER
 	unsigned hasCPUID;
 	__asm {
 		// Load EFLAGS into EAX
@@ -51,8 +51,7 @@ HostCPU::HostCPU()
 			setFeatures(cpuInfo[3]);
 		}
 	}
-
-	#elif defined ASM_X86_32
+	#else
 		// Note: On Mac OS X, EBX is in use by the OS,
 		//       so we have to restore it.
 		// Is CPUID instruction supported?
@@ -103,6 +102,7 @@ HostCPU::HostCPU()
 				setFeatures(features);
 			}
 		}
+	#endif
 	#endif
 
 	PRT_DEBUG("MMX:  " << mmxFlag);

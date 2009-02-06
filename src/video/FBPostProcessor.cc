@@ -49,6 +49,9 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		Pixel* in, Pixel* out, signed char* noise, unsigned long width)
 {
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
 		// SSE2 32bpp
@@ -182,6 +185,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		);
 		return;
 	}
+	#endif
 	#endif
 
 	// c++ version

@@ -194,6 +194,9 @@ void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 	int bufIdx = bufStart * CHANNELS;
 
 	#if defined(ASM_X86) && !defined(__APPLE__)
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	// On Mac OS X, we are one register short, because EBX is not available.
 	// We disable this piece of assembly and fall back to the C++ code.
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -337,6 +340,7 @@ void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 		);
 		return;
 	}
+	#endif
 	#endif
 
 	// c++ version, both mono and stereo

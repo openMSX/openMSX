@@ -21,6 +21,9 @@ namespace openmsx {
 namespace MemoryOps {
 
 #ifdef ASM_X86
+#ifdef _MSC_VER
+// TODO - VC++ ASM implementation
+#else
 // note: xmm0 must already be filled in
 //       bit0 of num is ignored
 static inline void memset_128_SSE_streaming(
@@ -167,6 +170,7 @@ static inline void memset_64_MMX(
 	asm volatile ("emms");
 }
 #endif
+#endif
 
 template<bool STREAMING>
 static inline void memset_64(
@@ -175,6 +179,9 @@ static inline void memset_64(
 	assert((long(out) & 7) == 0); // must be 8-byte aligned
 
 #ifdef ASM_X86
+#ifdef _MSC_VER
+// TODO - VC++ ASM implementation
+#else
 	HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		memset_64_SSE<STREAMING>(out, num, val);
@@ -185,7 +192,7 @@ static inline void memset_64(
 		return;
 	}
 #endif
-
+#endif
 	unsigned long long* e = out + num - 3;
 	for (/**/; out < e; out += 4) {
 		out[0] = val;
@@ -232,8 +239,12 @@ static inline void memset_32(unsigned* out, unsigned num, unsigned val)
 	assert((long(out) & 3) == 0); // must be 4-byte aligned
 
 #ifdef ASM_X86
+#ifdef _MSC_VER
+// TODO - VC++ ASM implementation
+#else
 	memset_32_2<STREAMING>(out, num, val, val);
 	return;
+#endif
 #endif
 
 #ifdef __arm__
@@ -390,6 +401,9 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 	// be 4-byte aligned, but it's not strictly needed.
 	assert((long(dst) & 3) == 0);
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(num == 0)) return;
@@ -492,6 +506,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 		asm volatile ( "emms" );
 		return;
 	}
+#endif
 	#endif
 	memcpy(dst, src, num * sizeof(unsigned));
 }
@@ -502,6 +517,9 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	// be 2-byte aligned, but it's not strictly needed.
 	assert((long(dst) & 1) == 0);
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(!num)) return;
@@ -518,6 +536,7 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 		}
 		return;
 	}
+	#endif
 	#endif
 	memcpy(dst, src, num * sizeof(word));
 }

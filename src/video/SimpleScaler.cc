@@ -102,6 +102,9 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 	unsigned c2 = 256 - c1;
 
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
@@ -191,6 +194,7 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 		return;
 	}
 	#endif
+	#endif
 
 	// non-MMX routine, both 16bpp and 32bpp
 	mult1.setFactor32(c1);
@@ -273,6 +277,9 @@ void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha
 	unsigned c2 = 256 - alpha / 2;
 
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
@@ -354,6 +361,7 @@ void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha
 		);
 		return;
 	}
+	#endif
 	#endif
 
 	mult1.setFactor32(c1);

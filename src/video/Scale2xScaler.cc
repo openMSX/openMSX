@@ -40,6 +40,9 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 	//             d =   .. swap w/e  n/s
 
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		asm (
@@ -582,6 +585,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 		return;
 	};
 	#endif
+	#endif
 
 	// First pixel.
 	Pixel mid   = src1[0];
@@ -618,6 +622,9 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 	//    cd gh
 
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		asm (
@@ -1052,6 +1059,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 		);
 		return;
 	};
+	#endif
 	#endif
 
 	// First pixel.

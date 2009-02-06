@@ -173,6 +173,9 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		const unsigned bl = unsigned(dividend);
 	#endif
 	#ifdef ASM_X86_32
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 		unsigned th, tl, ch, cl;
 		asm (
 			"mov	%[AH],%%eax\n\t"
@@ -215,7 +218,7 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			, [SH] "i"    (R::S2)
 		);
 		return cl;
-
+	#endif
 	#elif defined(__arm__)
 		unsigned res;
 		unsigned th,tl;
@@ -244,7 +247,7 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			, [S32] "M"   (32 - R::S2)
 		);
 		return res;
-	#else
+	#endif
 		uint64 h = mla64(dividend, R::M2, 0);
 		uint64 result = h >> R::S2;
 	#ifdef DEBUG
@@ -252,7 +255,6 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		assert(result == unsigned(result));
 	#endif
 		return unsigned(result);
-	#endif
 	}
 };
 

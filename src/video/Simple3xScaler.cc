@@ -312,6 +312,9 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 	 */
 	unsigned long alpha = settings.getBlurFactor() / 3;
 	#ifdef ASM_X86
+	#ifdef _MSC_VER
+	// TODO - VC++ ASM implementation
+	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// MMX-EXT routine, 32bpp
@@ -437,6 +440,7 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 		);
 		return;
 	}
+	#endif
 	#endif
 
 	// non-MMX routine, both 16bpp and 32bpp

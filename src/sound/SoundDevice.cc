@@ -260,6 +260,9 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 
 		if (numMix & 1) {
 			#ifdef ASM_X86
+			#ifdef _MSC_VER
+			// TODO - VC++ ASM implementation
+			#else
 			const HostCPU& cpu = HostCPU::getInstance();
 			if (cpu.hasSSE2()) {
 				long dummy1;
@@ -305,6 +308,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				return true;
 			}
 			#endif
+			#endif
 
 			unsigned i = 0;
 			do {
@@ -332,6 +336,9 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			} while (i < num);
 		} else {
 			#ifdef ASM_X86
+			#ifdef _MSC_VER
+			// TODO - VC++ ASM implementation
+			#else
 			const HostCPU& cpu = HostCPU::getInstance();
 			if (cpu.hasSSE2()) {
 				long dummy1;
@@ -374,6 +381,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				);
 				return true;
 			}
+			#endif
 			#endif
 
 			unsigned i = 0;

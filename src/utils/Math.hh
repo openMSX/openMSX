@@ -150,6 +150,9 @@ inline unsigned countLeadingZeros(unsigned x)
 inline unsigned div_64_32(unsigned long long dividend, unsigned divisor)
 {
 #ifdef ASM_X86
+#ifdef _MSC_VER
+// TODO - VC++ ASM implementation
+#else
 	unsigned quotient, remainder;
 	asm (
 		"divl %4;"
@@ -161,6 +164,7 @@ inline unsigned div_64_32(unsigned long long dividend, unsigned divisor)
 		: "cc"
 	);
 	return quotient;
+#endif
 #else
 	unsigned long long result = dividend / divisor;
 #ifdef DEBUG
@@ -176,6 +180,9 @@ inline unsigned div_64_32(unsigned long long dividend, unsigned divisor)
 inline unsigned mod_64_32(unsigned long long dividend, unsigned divisor)
 {
 #ifdef ASM_X86
+#ifdef _MSC_VER
+// TODO - VC++ ASM implementation
+#else
 	unsigned quotient, remainder;
 	asm (
 		"divl %4;"
@@ -187,6 +194,7 @@ inline unsigned mod_64_32(unsigned long long dividend, unsigned divisor)
 		: "cc"
 	);
 	return remainder;
+#endif
 #else
 	return dividend % divisor;
 #endif
