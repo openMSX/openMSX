@@ -193,7 +193,7 @@ int XSAExtractor::rdstrpos()
 			hufpos = hufpos->child1;
 		}
 	}
-	byte cpdindex = hufpos-huftbl;
+	byte cpdindex = byte(hufpos-huftbl);
 	++tblsizes[cpdindex];
 
 	int strpos;

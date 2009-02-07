@@ -1332,8 +1332,8 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 				resetStatus(0x60);
 			} else {
 				changeStatusMask((~v) & 0x60);
-				timer1.setStart(v & R04_ST1, time);
-				timer2.setStart(v & R04_ST2, time);
+				timer1.setStart((v & R04_ST1) != 0, time);
+				timer2.setStart((v & R04_ST2) != 0, time);
 			}
 			break;
 

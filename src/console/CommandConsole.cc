@@ -337,7 +337,7 @@ void CommandConsole::tabCompletion()
 	string front = utf8::unchecked::substr(lines[0], pl, cursorPosition - pl);
 	string back  = utf8::unchecked::substr(lines[0], cursorPosition);
 	commandController.tabCompletion(front);
-	cursorPosition = pl + utf8::unchecked::size(front);
+	cursorPosition = unsigned(pl + utf8::unchecked::size(front));
 	currentLine = lines[0] = prompt + front + back;
 }
 

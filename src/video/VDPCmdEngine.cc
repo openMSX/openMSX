@@ -440,13 +440,13 @@ struct IncrPixelAddr5
 	void init(unsigned x, unsigned y, int tx)
 	{
 		addr = Graphic5Mode::addressOf(x, y, false);
-		                   // x |  0 |  1 |  2 |  3
-		                   //-----------------------
-		c1 = -(x & 1);     //   |  0 | -1 |  0 | -1
-		c2 = (x & 2) >> 1; //   |  0 |  0 |  1 |  1
+								// x |  0 |  1 |  2 |  3
+								//-----------------------
+		c1 = -(signed(x) & 1);	//   |  0 | -1 |  0 | -1
+		c2 = (x & 2) >> 1;		//   |  0 |  0 |  1 |  1
 		if (tx < 0) {
-			c1 = ~c1;  //   | -1 |  0 | -1 |  0
-			c2 -= 1;   //   | -1 | -1 |  0 |  0
+			c1 = ~c1;			//   | -1 |  0 | -1 |  0
+			c2 -= 1;			//   | -1 | -1 |  0 |  0
 		}
 	}
 	unsigned getAddr() const { return addr; }
@@ -467,7 +467,7 @@ struct IncrPixelAddr6
 	void init(unsigned x, unsigned y, int tx)
 	{
 		addr = Graphic6Mode::addressOf(x, y, false);
-		c1 = -(x & 1);
+		c1 = -(signed(x) & 1);
 		if (tx == 1) {
 			c2 = (x & 2) ? (1 - 0x10000) :  0x10000;
 			c3 = 0x10000 ^ (1 - 0x10000);  // == -0x1FFFF
@@ -1964,8 +1964,8 @@ void VDPCmdEngine::reportVdpCommand()
 	std::cerr << "VDPCmd " << COMMANDS[CMD >> 4] << '-' << OPS[CMD & 15]
 		<<  '(' << int(SX) << ',' << int(SY) << ")->("
 		        << int(DX) << ',' << int(DY) << ")," << int(COL)
-		<< " [" << int((ARG & DIX) ? -NX : NX)
-		<<  ',' << int((ARG & DIY) ? -NY : NY) << ']' << std::endl;
+		<< " [" << int((ARG & DIX) ? -signed(NX) : NX)
+		<<  ',' << int((ARG & DIY) ? -signed(NY) : NY) << ']' << std::endl;
 }
 
 void VDPCmdEngine::commandDone(EmuTime::param time)

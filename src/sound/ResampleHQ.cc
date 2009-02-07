@@ -144,7 +144,7 @@ void ResampleCoeffs::calcTable(
 		int bufIndex = -coeffCount;
 		do {
 			table[t * filterLen + bufIndex - min_idx] =
-				getCoeff(filterIndex) * normFactor;
+				float(getCoeff(filterIndex) * normFactor);
 			filterIndex -= increment;
 			bufIndex += 1;
 		} while (filterIndex >= FilterIndex(0));
@@ -155,7 +155,7 @@ void ResampleCoeffs::calcTable(
 		bufIndex = 1 + coeffCount;
 		do {
 			table[t * filterLen + bufIndex - min_idx] =
-				getCoeff(filterIndex) * normFactor;
+				float(getCoeff(filterIndex) * normFactor);
 			filterIndex -= increment;
 			bufIndex -= 1;
 		} while (filterIndex > FilterIndex(0));
@@ -167,7 +167,7 @@ void ResampleCoeffs::calcTable(
 template <unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(Resample& input_, double ratio_)
 	: input(input_)
-	, ratio(ratio_)
+	, ratio(float(ratio_))
 {
 	lastPos = 0.0f;
 
@@ -387,7 +387,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned request)
 	VLA_ALIGNED(int, tmpBuf, missing * CHANNELS + 3, 16);
 	if (input.generateInput(tmpBuf, missing)) {
 		for (unsigned i = 0; i < missing * CHANNELS; ++i) {
-			buffer[bufEnd * CHANNELS + i] = tmpBuf[i];
+			buffer[bufEnd * CHANNELS + i] = float(tmpBuf[i]);
 		}
 		bufEnd += missing;
 		nonzeroSamples = bufEnd - bufStart;

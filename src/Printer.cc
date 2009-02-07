@@ -365,9 +365,9 @@ void ImagePrinter::printVisibleCharacter(byte data)
 			charBits = compress9(charBits);
 		}
 
-		for (int d = 0; d <= doubleWidth; d++) {
-			for (int b = 0; b <= bold; ++b) {
-				for (int y = 0; y <= doubleStrike; ++y) {
+		for (int d = 0; d <= (doubleWidth?1:0); d++) {
+			for (int b = 0; b <= (bold?1:0); ++b) {
+				for (int y = 0; y <= (doubleStrike?1:0); ++y) {
 					double destX = (hPos + (d + b / 2.0) / fontDensity) * pixelSizeX;
 					plot9Dots(destX, destY + y * dblStrikeOffset, charBits);
 				}

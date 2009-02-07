@@ -82,8 +82,8 @@ static char inlongmes[OPENMSX_W32_MIDI_SYSMES_MAXLEN];
 
 static void w32_midiDevNameConv(char *dst, char *src)
 {
-	unsigned len = strlen(src);
-	unsigned i;
+	size_t len = strlen(src);
+	size_t i;
 	for (i = 0; i < len; ++i) {
 		if ((src[i] < '0') || (src[i] > 'z') ||
 		    ((src[i] > '9') && (src[i] < 'A')) ||

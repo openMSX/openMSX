@@ -202,13 +202,13 @@ namespace openmsx {
 typedef signed char offset;
 
 // conditions
-struct CondC  { bool operator()(byte f) const { return  (f & CPU::C_FLAG); } };
+struct CondC  { bool operator()(byte f) const { return  (f & CPU::C_FLAG) != 0; } };
 struct CondNC { bool operator()(byte f) const { return !(f & CPU::C_FLAG); } };
-struct CondZ  { bool operator()(byte f) const { return  (f & CPU::Z_FLAG); } };
+struct CondZ  { bool operator()(byte f) const { return  (f & CPU::Z_FLAG) != 0; } };
 struct CondNZ { bool operator()(byte f) const { return !(f & CPU::Z_FLAG); } };
-struct CondM  { bool operator()(byte f) const { return  (f & CPU::S_FLAG); } };
+struct CondM  { bool operator()(byte f) const { return  (f & CPU::S_FLAG) != 0; } };
 struct CondP  { bool operator()(byte f) const { return !(f & CPU::S_FLAG); } };
-struct CondPE { bool operator()(byte f) const { return  (f & CPU::V_FLAG); } };
+struct CondPE { bool operator()(byte f) const { return  (f & CPU::V_FLAG) != 0; } };
 struct CondPO { bool operator()(byte f) const { return !(f & CPU::V_FLAG); } };
 struct CondTrue { bool operator()(byte) const { return true; } };
 
@@ -3967,7 +3967,7 @@ template <class T> int CPUCore<T>::daa() {
 template <class T> int CPUCore<T>::neg() {
 	// alternative: LUT   word negTable[256]
 	unsigned a = R.getA();
-	unsigned res = unsigned(-a);
+	unsigned res = -signed(a);
 	byte f = ((res & 0x100) ? C_FLAG : 0) |
 	         N_FLAG |
 	         ((res ^ a) & H_FLAG) |

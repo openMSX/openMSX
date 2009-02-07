@@ -79,7 +79,7 @@ dirent* readdir(DIR* dir)
 	        sizeof(entry.d_name) / sizeof(entry.d_name[0]));
 
 	entry.d_off = dir->filepos;
-	entry.d_reclen = strlen(entry.d_name);
+	entry.d_reclen = static_cast<unsigned short>(strlen(entry.d_name));
 	dir->filepos++;
 	return &entry;
 }

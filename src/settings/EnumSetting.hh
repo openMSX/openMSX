@@ -84,15 +84,15 @@ std::string EnumSettingPolicy<T>::toString(T value) const
 	return toStringBase(static_cast<int>(value));
 }
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4800)
+// C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+#endif
 template<typename T>
 T EnumSettingPolicy<T>::fromString(const std::string& str) const
 {
 	return static_cast<T>(fromStringBase(str));
-}
-
-template<typename T>
-void EnumSettingPolicy<T>::checkSetValue(T& /*value*/) const
-{
 }
 
 template<typename T>
@@ -101,6 +101,15 @@ void EnumSettingPolicy<T>::checkSetValueBase(int& value) const
 	T t = static_cast<T>(value);
 	checkSetValue(t);
 	value = static_cast<int>(t);
+}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+template<typename T>
+void EnumSettingPolicy<T>::checkSetValue(T& /*value*/) const
+{
 }
 
 template<typename T>
