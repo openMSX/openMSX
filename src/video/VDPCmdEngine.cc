@@ -968,7 +968,9 @@ void LmmvCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			dstAddr.init(engine.ADX, engine.DY, TX);
 			dstMask.init(engine.ADX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
-			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			unsigned num = delta
+			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
+			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				byte mask = dstMask.getMask();
 				psetFast(engine.clock.getTime(), vram, dstAddr.getAddr(),
@@ -1075,7 +1077,9 @@ void LmmmCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			dstMask.init(engine.ADX);
 			shift  .init(engine.ASX, engine.ADX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
-			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			unsigned num = delta
+			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
+			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
 				p = shift.doShift(p);
@@ -1297,7 +1301,9 @@ void HmmvCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 		while (engine.clock.before(time)) {
 			dstAddr.init(engine.ADX, engine.DY, TX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
-			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			unsigned num = delta
+			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
+			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				vram.cmdWrite(dstAddr.getAddr(), engine.COL,
 					      engine.clock.getTime());
@@ -1398,7 +1404,9 @@ void HmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			srcAddr.init(engine.ASX, engine.SY, TX);
 			dstAddr.init(engine.ADX, engine.DY, TX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
-			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			unsigned num = delta
+			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
+			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
 				vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
@@ -1501,7 +1509,9 @@ void YmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			srcAddr.init(engine.ADX, engine.SY, TX);
 			dstAddr.init(engine.ADX, engine.DY, TX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
-			unsigned num = std::min((ticks + delta - 1) / delta, engine.ANX);
+			unsigned num = delta
+			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
+			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
 				vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
