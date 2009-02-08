@@ -123,7 +123,7 @@ Every section starts with generic instructions, that apply to all platforms. At 
 <h3><a id="tools">2.1 Build Tools</a></h3>
 
 <p>
-For compilation, you need GNU Make and a C++ compiler.
+For compilation, you need GNU Make, Python and a C++ compiler.
 If you have compiled packages from source before,
 you probably have these installed already.
 </p>
@@ -134,6 +134,12 @@ you probably have these installed already.
 <dd>GNU implementation of the Make tool.
 Make interprets rules that define how a project should be built.
 Version 3.79 or higher should suffice.</dd>
+
+<dt><code>python</code></dt>
+<dd>A compact and dynamic programming language.
+Version 2.5 or later is required. However, Python 3.0 contains incompatible changes in the language, so make sure you install a version from the 2.x series.
+Eventually Python will replace Make completely in our build system, but at the moment both are required.
+</dd>
 
 <dt><code>g++</code></dt>
 <dd>The GNU C++ compiler.
