@@ -26,7 +26,7 @@ HostCPU::HostCPU()
 	unsigned hasCPUID;
 	__asm {
 		// Load EFLAGS into EAX
-		pushf
+		pushfd
 		pop		eax
 		// Save current value.
 		mov		ecx,eax
@@ -34,9 +34,9 @@ HostCPU::HostCPU()
 		xor		eax,200000h
 		// Load EAX into EFLAGS.
 		push	eax
-		popf
+		popfd
 		// Load EFLAGS into EAX.
-		pushf
+		pushfd
 		pop		eax
 		// Did bit 21 change?
 		xor		eax,ecx
