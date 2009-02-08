@@ -50,14 +50,14 @@ DOWNLOAD_DIRECTX:=http://alleg.sourceforge.net/files
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
 PACKAGE_ZLIB:=zlib-1.2.3
-PACKAGE_PNG:=libpng-1.2.33
-PACKAGE_FREETYPE:=freetype-2.3.5
-PACKAGE_SDL:=SDL-1.2.12
+PACKAGE_PNG:=libpng-1.2.34
+PACKAGE_FREETYPE:=freetype-2.3.5 # 2.3.8 is latest, but gives install problem?
+PACKAGE_SDL:=SDL-1.2.12 # 1.2.13 is latest, need to migrate patches
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.7
 PACKAGE_SDL_TTF:=SDL_ttf-2.0.9
-PACKAGE_GLEW:=glew-1.4.0
-PACKAGE_TCL:=tcl8.4.19
-PACKAGE_XML:=libxml2-2.6.32
+PACKAGE_GLEW:=glew-1.4.0 # 1.5.1 is latest, need to migrate patches
+PACKAGE_TCL:=tcl8.4.19 # 8.5.6 is latest, need to migrate patches
+PACKAGE_XML:=libxml2-2.6.32 # 2.7.3 is latest! Does it work?
 PACKAGE_DIRECTX:=dx70
 
 # Create a GNU-style system triple.
