@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1233555355">
+<softwaredb xml:lang="en" timestamp="1234135541">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -4585,7 +4585,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Impulse9</company>
 	<year>2007</year>
-	<country>EU</country>
+	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">64f921c9c57aedb47663a269046d4c51388f41fb</hash><remark>Unsafe PSG write / MSX-DEV07</remark></rom></dump>
 </software>
 <software>
@@ -5996,6 +5996,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">ad621247f95f80a1a32e67def5e978c845d19208</hash><remark>[b][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a7b196f7e934faa76602c8c00bd2f6e6d2d70787</hash><remark>[tr En][a][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7be2f14fd0df5718cdb69b972c5f7c1f284b03e6</hash><remark>[tr En][RC-767]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">9de8d411f1ed021014708ada45899beb4fc80c29</hash><remark>[tr En][turbo-R patch][RC-767]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">187b469e348f71b7376f063a5fd0a4fd971fa0e3</hash><remark>[tr En][turbo-R patch][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4b78514753008cabda2ff3d3cb537b2429efd7d2</hash><remark>[tr En][RC-767] / Ulver full crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">53e1fb8ee77757cd20bf4c7aa4a5c6c786c664d6</hash><remark>[tr En][RC-767]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">e7b8574a42b1029539632ce0f5161b1c38d5e95f</hash><remark>[RC-767] / Needs SCC in slot 2</remark></megarom></dump>
@@ -8721,7 +8723,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Impulse9</company>
 	<year>2007</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>ASCII8</start><type>Normal</type><hash algo="sha1">22a927a7bc70a36379404743a3fde5df8ca543ce</hash><remark>MSXDEV 07 Entry (Canceled)</remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">22a927a7bc70a36379404743a3fde5df8ca543ce</hash><remark>MSXDEV 07 Entry (Canceled)</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Spider, The</title>
@@ -10379,6 +10381,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2185
-Parse time 4.858 seconds on Mon Feb 2 7:16:00 CET 2009
+Roms in this database:2187
+Parse time 4.937 seconds on Mon Feb 9 0:25:46 CET 2009
  -->
