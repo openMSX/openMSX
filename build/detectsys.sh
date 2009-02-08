@@ -9,8 +9,8 @@ case "$UNAME_OS" in
 		OPENMSX_TARGET_OS=linux;;
 	Darwin)
 		OPENMSX_TARGET_OS=darwin;;
-	# Note: For FreeBSD we want to know the difference between FreeBSD4,
-	#       FreeBSD5+ and Debian kFreeBSD, so we need config.guess.
+	# Note: For FreeBSD we want to know the difference between real FreeBSD
+	#       and Debian kFreeBSD, so we need config.guess.
 	NetBSD)
 		OPENMSX_TARGET_OS=netbsd;;
 	OpenBSD)
@@ -99,8 +99,6 @@ case "$GUESSED_OS" in
 		OPENMSX_TARGET_OS=linux;;
 	*darwin*)
 		OPENMSX_TARGET_OS=darwin;;
-	*freebsd4*)
-		OPENMSX_TARGET_OS=freebsd4;;
 	*kfreebsd*)
 		OPENMSX_TARGET_OS=gnu;;
 	*freebsd*)

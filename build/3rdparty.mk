@@ -79,7 +79,7 @@ TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 
 # Although X11 is available on Windows and Mac OS X, most people do not have
 # it installed, so do not link against it.
-ifeq ($(filter linux freebsd freebsd4 netbsd openbsd gnu,$(OPENMSX_TARGET_OS)),)
+ifeq ($(filter linux freebsd netbsd openbsd gnu,$(OPENMSX_TARGET_OS)),)
 USE_VIDEO_X11:=disable
 else
 USE_VIDEO_X11:=enable
