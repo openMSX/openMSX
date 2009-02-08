@@ -10,7 +10,7 @@
 ;   Pixel* dst
 ;   unsigned factor
 ;   unsigned long width
-; Scratch registers: edi, esi, ebp, ebx
+; Preserved registers: edi, esi, ebp, ebx
 Scanline_draw_4_SSE2 PROC C uses edi esi ebx src1:NEAR PTR, src2:NEAR PTR, dst:NEAR PTR, factor:DWORD, _width:DWORD
 
 ; ebx = src1 + width;

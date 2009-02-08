@@ -58,6 +58,15 @@ void SimpleScaler<Pixel>::scaleBlank1to2(
 	}
 }
 
+// Assembly functions
+#ifdef _MSC_VER
+extern "C"
+{
+	void __cdecl SimpleScaler_blur1on2_4_MMX(const void* pIn, void* pOut, 
+											 unsigned long srcWidth, unsigned c1, unsigned c2);
+}
+#endif
+
 template <class Pixel>
 void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha,
                                    unsigned long srcWidth)
@@ -102,13 +111,13 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 	unsigned c2 = 256 - c1;
 
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		assert(((srcWidth * 4) % 8) == 0);
+	#ifdef _MSC_VER
+		SimpleScaler_blur1on2_4_MMX(pIn, pOut, srcWidth, c1, c2);
+	#else
 		asm (
 			"movd	%2, %%mm5;"
 			"punpcklwd %%mm5, %%mm5;"
@@ -191,9 +200,9 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
+	#endif
 		return;
 	}
-	#endif
 	#endif
 
 	// non-MMX routine, both 16bpp and 32bpp

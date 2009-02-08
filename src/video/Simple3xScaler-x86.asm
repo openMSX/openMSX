@@ -9,7 +9,7 @@
 ;   Pixel* out
 ;   unsigned long dstWidth
 ;   &c
-; Scratch registers: edi, esi, ebp, ebx
+; Preserved registers: edi, esi, ebp, ebx
 Blur_1on3_4_SSE PROC C uses ebx _in:NEAR PTR, _out:NEAR PTR, dstWidth:DWORD, _c:NEAR PTR
 
 ; edx = in
