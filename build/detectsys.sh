@@ -17,6 +17,8 @@ case "$UNAME_OS" in
 		OPENMSX_TARGET_OS=openbsd;;
 	MINGW*)
 		OPENMSX_TARGET_OS=mingw32;;
+	GNU)
+		OPENMSX_TARGET_OS=gnu;;
 	*)
 		OPENMSX_TARGET_OS=;;
 esac
@@ -100,7 +102,7 @@ case "$GUESSED_OS" in
 	*freebsd4*)
 		OPENMSX_TARGET_OS=freebsd4;;
 	*kfreebsd*)
-		OPENMSX_TARGET_OS=kfreebsd;;
+		OPENMSX_TARGET_OS=gnu;;
 	*freebsd*)
 		OPENMSX_TARGET_OS=freebsd;;
 	*netbsd*)
@@ -109,6 +111,8 @@ case "$GUESSED_OS" in
 		OPENMSX_TARGET_OS=openbsd;;
 	*mingw*)
 		OPENMSX_TARGET_OS=mingw32;;
+	*gnu*)
+		OPENMSX_TARGET_OS=gnu;;
 	*)
 		echo "Unknown OS \"$GUESSED_OS\"!" 1>&2
 		exit 1
