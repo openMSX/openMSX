@@ -2596,6 +2596,122 @@
 				RelativePath="..\..\src\sound\ResampleCoeffs.ii"
 				>
 			</File>
+      <File
+				RelativePath="..\..\src\sound\ResampleHQ-x64.asm"
+				>
+        <FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Debug|x64"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Release|x64"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Developer|x64"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+        </FileConfiguration>
+      </File>
+      <File
+				RelativePath="..\..\src\sound\ResampleHQ-x86.asm"
+				>
+        <FileConfiguration
+					Name="Debug|Win32"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Release|Win32"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="ml -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Developer|Win32"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+						Description="Assembling..."
+						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+        </FileConfiguration>
+        <FileConfiguration
+					Name="Developer|x64"
+					ExcludedFromBuild="true"
+					>
+          <Tool
+						Name="VCCustomBuildTool"
+					/>
+        </FileConfiguration>
+      </File>
 			<File
 				RelativePath="..\..\src\sound\ResampleHQ.cc"
 				>
