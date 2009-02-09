@@ -26,6 +26,10 @@
 #include <cstring>
 #include <cassert>
 
+#ifdef _MSC_VER
+#include <basetsd.h> // For LONG_PTR
+#endif
+
 namespace openmsx {
 
 // Note: without appending 'f' to the values in ResampleCoeffs.ii,
@@ -40,6 +44,16 @@ static const int COEFF_LEN = sizeof(coeffs) / sizeof(float);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 static const unsigned TAB_LEN = 4096;
 
+// Assembly functions
+#ifdef _MSC_VER
+extern "C"
+{
+	// Note - filterLen16Product needs to be sign extended
+	void __cdecl ResampleHQ_calcOutput_1_SSE(
+		const void* bufferOffset, const void* tableOffset, 
+		void* output, LONG_PTR filterLen16Product, unsigned filterLenRest);
+}
+#endif
 
 class ResampleCoeffs : private noncopyable
 {
@@ -194,9 +208,6 @@ void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 	int bufIdx = bufStart * CHANNELS;
 
 	#if defined(ASM_X86) && !defined(__APPLE__)
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	// On Mac OS X, we are one register short, because EBX is not available.
 	// We disable this piece of assembly and fall back to the C++ code.
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -204,6 +215,19 @@ void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 		// SSE version, mono
 		long filterLen16 = filterLen & ~15;
 		unsigned filterLenRest = filterLen - filterLen16;
+	#ifdef _MSC_VER
+		// It's quite inelegant to execute these computations outside
+		// the ASM function, but it does reduce the number of parameters
+		// passed to the function from 8 to 5
+		ResampleHQ_calcOutput_1_SSE(
+			&buffer[bufIdx + filterLen16],
+			&table[tabIdx + filterLen16],
+			output,
+			-4 * filterLen16,
+			filterLenRest);
+		return;
+	}
+	#else
 		asm (
 			"xorps	%%xmm0,%%xmm0;"
 			"xorps	%%xmm1,%%xmm1;"

@@ -180,29 +180,23 @@ double round(double x)
 	// lrint(): round double according to current floating-point rounding direction
 	long lrint(double x)
 	{
-		if (x >= 0) {
-			long t = long(ceil(x));
-			if (t % 2) t--;
-			return t;
-		} else {
-			long t = long(ceil(-x));
-			if (t % 2) t--;
-			return -t;
+		long retval;
+		__asm {
+			fld	    x
+			fistp	retval
 		}
+		return retval;
 	}
 
 	// lrint(): round float according to current floating-point rounding direction
 	long lrintf(float x)
 	{
-		if (x >= 0) {
-			long t = long(ceil(x));
-			if (t % 2) t--;
-			return t;
-		} else {
-			long t = long(ceil(-x));
-			if (t % 2) t--;
-			return -t;
+		long retval;
+		__asm {
+			fld	    x
+			fistp	retval
 		}
+		return retval;
 	}
 
 	// truncf(): round x to the nearest integer not larger in absolute value
