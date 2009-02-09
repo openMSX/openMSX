@@ -21,6 +21,15 @@ Visit the Scale2x site for info:
 
 namespace openmsx {
 
+// Assembly functions
+#ifdef _MSC_VER
+extern "C"
+{
+	void __cdecl Scale2xScaler_scaleLineHalf_1on2_4_SSE(
+		void* dst, const void* src0, const void* src1, const void* src2, unsigned long srcWidth);
+}
+#endif
+
 template <class Pixel>
 Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps)
 	: Scaler2<Pixel>(pixelOps)
@@ -40,11 +49,13 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 	//             d =   .. swap w/e  n/s
 
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	#ifdef _MSC_VER
+		Scale2xScaler_scaleLineHalf_1on2_4_SSE(dst, src0, src1, src2, srcWidth);
+		return;
+	}
+	#else
 		asm (
 			"movq	(%0,%4), %%mm1;"     // m1 | e1  or  w2 | m2
 			"pshufw	$238, %%mm1, %%mm0;" // xx | w1

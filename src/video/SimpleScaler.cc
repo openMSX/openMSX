@@ -64,6 +64,9 @@ extern "C"
 {
 	void __cdecl SimpleScaler_blur1on2_4_MMX(const void* pIn, void* pOut, 
 											 unsigned long srcWidth, unsigned c1, unsigned c2);
+
+	void __cdecl SimpleScaler_blur1on1_4_MMX(const void* pIn, void* pOut, 
+											 unsigned long srcWidth, unsigned c1, unsigned c2);
 }
 #endif
 
@@ -286,13 +289,13 @@ void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha
 	unsigned c2 = 256 - alpha / 2;
 
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		assert(((srcWidth * 4) % 8) == 0);
+	#ifdef _MSC_VER
+		SimpleScaler_blur1on1_4_MMX(pIn, pOut, srcWidth, c1, c2);
+	#else
 		asm (
 			"movd	%2, %%mm5;"
 			"punpcklwd %%mm5, %%mm5;"
@@ -368,9 +371,9 @@ void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
+	#endif
 		return;
 	}
-	#endif
 	#endif
 
 	mult1.setFactor32(c1);

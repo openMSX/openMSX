@@ -21,6 +21,15 @@ static const unsigned NOISE_SHIFT = 8192;
 static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
 ALIGNED(static signed char noiseBuf[NOISE_BUF_SIZE], 16);
 
+// Assembly functions
+#ifdef _MSC_VER
+extern "C"
+{
+	void __cdecl FBPostProcessor_drawNoiseLine_4_SSE2(
+		void* in, void* out, void* noise, unsigned long width);
+}
+#endif
+
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(double factor)
 {
@@ -49,13 +58,15 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		Pixel* in, Pixel* out, signed char* noise, unsigned long width)
 {
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
 		// SSE2 32bpp
 		assert(((4 * width) % 64) == 0);
+	#ifdef _MSC_VER
+		FBPostProcessor_drawNoiseLine_4_SSE2(in, out, noise, width);
+		return;
+	}
+	#else
 		asm (
 			"pcmpeqb  %%xmm7, %%xmm7;"
 			"psllw    $15, %%xmm7;"

@@ -216,6 +216,16 @@ private:
 
 // implementation
 
+// Assembly functions
+#ifdef _MSC_VER
+extern "C"
+{
+	void __cdecl Scale_1on2_4_MMX(const void* in, void* out, unsigned long width);
+	void __cdecl Scale_1on1_SSE(const void* in, void* out, unsigned long nBytes);
+	void __cdecl Scale_2on1_SSE(const void* in, void* out, unsigned long width);
+}
+#endif
+
 template <typename Pixel, unsigned N>
 static inline void scale_1onN(const Pixel* in, Pixel* out, unsigned long width)
 {
@@ -255,10 +265,8 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		const Pixel* in, Pixel* out, unsigned long width)
 {
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	const HostCPU& cpu = HostCPU::getInstance();
+	#ifndef _MSC_VER
 	if ((sizeof(Pixel) == 2) && streaming && cpu.hasSSE()) {
 		// extended-MMX routine 16bpp
 		assert((width % 32) == 0);
@@ -408,10 +416,13 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		);
 		return;
 	}
-
+	#endif
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX routine 32bpp
 		assert(((2 * width) % 32) == 0);
+	#ifdef _MSC_VER
+		Scale_1on2_4_MMX(in, out, width);
+	#else
 		asm (
 			".p2align 4,,15;"
 		"0:"
@@ -456,9 +467,9 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
+	#endif
 		return;
 	}
-	#endif
 	#endif
 	
 	for (unsigned x = 0; x < width / 2; x++) {
@@ -472,13 +483,15 @@ void Scale_1on1<Pixel, streaming>::operator()(
 {
 	unsigned long nBytes = width * sizeof(Pixel);
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	assert((nBytes % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (streaming && cpu.hasSSE()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
+	#ifdef _MSC_VER
+		Scale_1on1_SSE(in, out, nBytes);
+		return;
+	}
+	#else
 		asm (
 			".p2align 4,,15;"
 		"0:"
@@ -597,13 +610,15 @@ template <typename Pixel>
 void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX routine, 32bpp
 		assert(((4 * width) % 16) == 0);
+	#ifdef _MSC_VER
+		Scale_2on1_SSE(in, out, width);
+		return;
+	}
+	#else
 		asm volatile (
 			".p2align 4,,15;"
 		"0:"
