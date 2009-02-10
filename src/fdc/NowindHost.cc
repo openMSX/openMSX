@@ -6,6 +6,7 @@
 #include "serialize_stl.hh"
 #include <fstream>
 #include <algorithm>
+#include <cassert>
 #include <ctype.h>
 #include <time.h>
 
