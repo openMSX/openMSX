@@ -10,8 +10,6 @@
 #include <ctype.h>
 #include <time.h>
 
-#include <iostream>
-
 using std::string;
 using std::vector;
 using std::fstream;
@@ -144,7 +142,6 @@ void NowindHost::write(byte data, EmuTime::param time)
 
 void NowindHost::msxReset()
 {
-	std::cout << "NowindHost::msxReset()" << std::endl;
 	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
 		devices[i].fs.reset();
 	}
