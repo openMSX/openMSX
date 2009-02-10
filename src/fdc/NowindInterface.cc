@@ -13,7 +13,7 @@ namespace openmsx {
 NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
-	, flash(new AmdFlash(*rom, 16, 512 / 64, 0, config))
+	, flash(new AmdFlash(*rom, 16, rom->getSize() / (1024 * 64), 0, config))
 	, changer(new DiskChanger("nowind",
 	                          motherBoard.getCommandController(),
 	                          motherBoard.getDiskManipulator(),
@@ -29,8 +29,12 @@ NowindInterface::~NowindInterface()
 
 void NowindInterface::reset(EmuTime::param /*time*/)
 {
-	flash->reset();
-	bank = 0; // TODO is this changed on reset? Probably not
+	// version 1 didn't change the bank number
+	// version 2 (produced by Sunrise) does reset the bank number
+	bank = 0;
+
+	// Flash state is NOT changed on reset
+	//flash->reset();
 }
 
 byte NowindInterface::peek(word address, EmuTime::param /*time*/) const
@@ -83,7 +87,8 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 		host->write(value, time);
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {
-		bank = value & 0x1F;
+		byte max = rom->getSize() / (16 * 1024);
+		bank = (value < max) ? value : value & (max - 1);
 		invalidateMemCache(0x4000, 0x4000);
 		invalidateMemCache(0xA000, 0x2000);
 	}

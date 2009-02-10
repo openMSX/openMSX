@@ -227,6 +227,8 @@ void NowindHost::DSKCHG()
 		send(sectorBuffer[0]); // new mediadescriptor
 	} else {
 		send(0); // not changed
+		// TODO shouldn't we send some (dummy) byte here?
+		//      nowind-diskrom seems to read it (but doesn't use it)
 	}
 }
 
