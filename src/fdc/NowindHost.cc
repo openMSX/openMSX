@@ -53,11 +53,6 @@ bool NowindHost::getEnablePhantomDrives() const
 }
 
 
-bool NowindHost::isDataAvailable() const
-{
-	return !hostToMsxFifo.empty();
-}
-
 byte NowindHost::peek() const
 {
 	return isDataAvailable() ? hostToMsxFifo.front() : 0xFF;
@@ -66,9 +61,17 @@ byte NowindHost::peek() const
 // receive:  msx <- pc
 byte NowindHost::read()
 {
-	byte result = peek();
+	if (!isDataAvailable()) {
+		return 0xff;
+	}
+	byte result = hostToMsxFifo.front();
 	hostToMsxFifo.pop_front();
 	return result;
+}
+
+bool NowindHost::isDataAvailable() const
+{
+	return !hostToMsxFifo.empty();
 }
 
 
