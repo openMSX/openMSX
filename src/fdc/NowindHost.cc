@@ -53,6 +53,16 @@ bool NowindHost::getEnablePhantomDrives() const
 }
 
 
+bool NowindHost::isDataAvailable() const
+{
+	return !hostToMsxFifo.empty();
+}
+
+byte NowindHost::peek() const
+{
+	return isDataAvailable() ? hostToMsxFifo.front() : 0xFF;
+}
+
 // receive:  msx <- pc
 byte NowindHost::read()
 {
@@ -61,13 +71,6 @@ byte NowindHost::read()
 	return result;
 }
 
-byte NowindHost::peek() const
-{
-	if (hostToMsxFifo.empty()) {
-		return 0xff;
-	}
-	return hostToMsxFifo.front();
-}
 
 // send:  msx -> pc
 void NowindHost::write(byte data, EmuTime::param time)

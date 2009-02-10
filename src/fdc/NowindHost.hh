@@ -20,6 +20,8 @@ public:
 	NowindHost(const std::vector<DiskContainer*>& drives);
 	~NowindHost();
 
+	bool isDataAvailable() const;
+
 	// read one byte of response-data from the host (msx <- pc)
 	byte read();
 	byte peek() const;
