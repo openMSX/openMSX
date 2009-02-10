@@ -47,7 +47,7 @@
 #include "DebugDevice.hh"
 #include "V9990.hh"
 #include "ADVram.hh"
-#include "Nowind.hh"
+#include "NowindInterface.hh"
 #include "DummyDevice.hh"
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
@@ -157,7 +157,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "ADVram") {
 		result.reset(new ADVram(motherBoard, conf));
 	} else if (type == "Nowind") {
-		result.reset(new Nowind(motherBoard, conf));
+		result.reset(new NowindInterface(motherBoard, conf));
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");

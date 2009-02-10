@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef NOWIND_HH
-#define NOWIND_HH
+#ifndef NOWINDINTERFACE_HH
+#define NOWINDINTERFACE_HH
 
 #include "MSXDevice.hh"
 #include <memory>
@@ -13,11 +13,11 @@ class AmdFlash;
 class DiskChanger;
 class NowindHost;
 
-class Nowind : public MSXDevice
+class NowindInterface : public MSXDevice
 {
 public:
-	Nowind(MSXMotherBoard& motherBoard, const XMLElement& config);
-	virtual ~Nowind();
+	NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& config);
+	virtual ~NowindInterface();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peek(word address, EmuTime::param time) const;

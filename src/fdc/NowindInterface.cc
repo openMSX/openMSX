@@ -1,6 +1,6 @@
 // $Id$
 
-#include "Nowind.hh"
+#include "NowindInterface.hh"
 #include "Rom.hh"
 #include "AmdFlash.hh"
 #include "DiskChanger.hh"
@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-Nowind::Nowind(MSXMotherBoard& motherBoard, const XMLElement& config)
+NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, flash(new AmdFlash(*rom, 16, 512 / 64, 0, config))
@@ -23,17 +23,17 @@ Nowind::Nowind(MSXMotherBoard& motherBoard, const XMLElement& config)
 	reset(EmuTime::dummy());
 }
 
-Nowind::~Nowind()
+NowindInterface::~NowindInterface()
 {
 }
 
-void Nowind::reset(EmuTime::param /*time*/)
+void NowindInterface::reset(EmuTime::param /*time*/)
 {
 	flash->reset();
-	bank = 0;
+	bank = 0; // TODO is this changed on reset? Probably not
 }
 
-byte Nowind::peek(word address, EmuTime::param /*time*/) const
+byte NowindInterface::peek(word address, EmuTime::param /*time*/) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -47,7 +47,7 @@ byte Nowind::peek(word address, EmuTime::param /*time*/) const
 	}
 }
 
-byte Nowind::readMem(word address, EmuTime::param /*time*/)
+byte NowindInterface::readMem(word address, EmuTime::param /*time*/)
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -60,7 +60,7 @@ byte Nowind::readMem(word address, EmuTime::param /*time*/)
 	}
 }
 
-const byte* Nowind::getReadCacheLine(word address) const
+const byte* NowindInterface::getReadCacheLine(word address) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -74,7 +74,7 @@ const byte* Nowind::getReadCacheLine(word address) const
 	}
 }
 
-void Nowind::writeMem(word address, byte value, EmuTime::param time)
+void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (address < 0x4000) {
 		flash->write(bank * 0x4000 + address, value);
@@ -89,7 +89,7 @@ void Nowind::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* Nowind::getWriteCacheLine(word address) const
+byte* NowindInterface::getWriteCacheLine(word address) const
 {
 	if (address < 0xC000) {
 		// not cachable
@@ -101,7 +101,7 @@ byte* Nowind::getWriteCacheLine(word address) const
 
 
 template<typename Archive>
-void Nowind::serialize(Archive& ar, unsigned /*version*/)
+void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash", *flash);
@@ -109,7 +109,7 @@ void Nowind::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("nowindhost", *host);
 	ar.serialize("bank", bank);
 }
-INSTANTIATE_SERIALIZE_METHODS(Nowind);
-REGISTER_MSXDEVICE(Nowind, "Nowind");
+INSTANTIATE_SERIALIZE_METHODS(NowindInterface);
+REGISTER_MSXDEVICE(NowindInterface, "NowindInterface");
 
 } // namespace openmsx
