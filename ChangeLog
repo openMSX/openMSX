@@ -1,14 +1,58 @@
 $Id$
 
+2009-02-09 Max Feingold <maf6@cornell.edu>
+	* Ported most significant inline assembly code to VC++ format, 
+	  where significance is defined as 'being noticeable in kernrate'.
+	  Still TODO: DivModBySame.hh and MemoryOps.cc - will update this entry when done
+    * VC++ binaries now benchmark 15% faster than mingw32 binaries on my system
+      openMSX svn VC++ x64 - 10.72 seconds
+      openMSX svn VC++ x86 - 11.19 seconds
+      openMSX svn mingw x86 - 12.62 seconds
+      openMSX 0.7.0 mingw x86 - 13.96 seconds
+
+2009-02-07 Max Feingold <maf6@cornell.edu>
+    * Reduced VC++ W3 warning load to ~250, with help from Vampier and Wouter
+    
+2009-02-05 Max Feingold <maf6@cornell.edu>
+	* Rationalized the following definitions throughout the codebase:
+	  - ASM_X86 = build assembly code on x86 and x64 platforms
+	    (gcc's inline asm can target both; VC++ doesn't support x64 inline asm)
+	  - ASM_X86_32 = build assembly code on x86 platforms (assumes ASM_X86)
+	  - ASM_X86_64 = build assembly code on x64 platforms (assumes ASM_X86)
+	  - __x86_64 = x64 target is specified
+	  - _WIN64 = Windows x64 target is specified (same as _WIN32 && __x86_64)
+	* These definitions should act that same for both mingw32 and VC++.
+
 2009-02-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'ld a,i' Z80 quirk:
 	  See comments in CPUCore.cc for details. Thanks to n_n for reporting
 	  this issue (first discovered by GuyveR800) and writing a test
 	  program for it.
 
+2009-01-29 Max Feingold <maf6@cornell.edu>
+	* Unicode filename support on Windows platforms
+	  - On Windows, standard CRT functions and 'ANSI' Win32 API calls
+	    expect and return ANSI encodings, not UTF8. Unicode support on
+	    Windows is generally achieved by calling CRT functions that accept 
+	    wchar_t and 'wide char' xxxW Win32 API calls.
+	  - openMSX uses std::string and UTF8-encoded strings throughout.
+	    Consequently, on Windows we wrap all system calls that might
+	    touch the filesystem in UTF8-to-UTF16 conversions before calling
+	    the 'wide char' API and (if necessary) converting back to UTF8.
+	* As a side effect, this checkin also deprecates openMSX support for
+	  Windows 95-based platforms, as well as for Windows NT 4.0.
+	  At the time of writing, only Windows 2000 and above are supported.
+      
 2009-01-25 Maarten ter Huurne <maarten@treewalker.org>
 	* Use Python to generate "Version.ii".
 	* Use Python to generate "build-info.hh".
+
+2009-01-18 Max Feingold <maf6@cornell.edu>
+	* Fixed bug [ 1206036 ] Windows Control Menu while using ALT
+	  With this fix in place, the ALT+SPACE combination no longer
+	  pops up an annoying context menu on Windows.
+	* The solution was to register our own winproc, filter out the
+      offending WM_SYSCOMMAND events, and delegate the rest to SDL.
 
 2009-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Console refactoring:
@@ -24,6 +68,15 @@ $Id$
 	    see comments in src/cpu/CPUCore.cc for details.
 	  - But even without this part, the threaded interpreter model is a
 	    big win (more than 10% faster) over the old model.
+	    
+2009-01-23 Max Feingold <maf6@cornell.edu>
+	* Checked in VC++ project files that build dependencies and openMSX itself.
+	  The project files are in VC9 (Visual C++ 2008) format and should be usable
+	  with the Windows SDK's msbuild tool, as well as with the free (as in beer)
+	  Visual C++ 2008 Express Edition.
+	* This checkin also brings the first 64-bit Windows build of openMSX.
+	  x64 binaries are fully functional and I'm pleased to note that I found no 
+	  significant 64-bit portability issues in the codebase (inline asm aside).
 
 2009-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Initial implementation of the VDP sprite collision coordinate status
