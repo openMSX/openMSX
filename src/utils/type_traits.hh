@@ -7,6 +7,11 @@
 #include "build-info.hh" // for PLATFORM_GP2X
 #include <string>
 
+#if __GNUC__ >= 4
+// tr1 library was added in gcc-4.0
+#include <tr1/type_traits>
+#endif
+
 
 // if_<C, T, F>
 template<bool C, class T, class F> struct if_c             : F {};
@@ -71,12 +76,16 @@ template<typename T> struct is_polymorphic
 // is_abstract<T>
 template<typename T> struct is_abstract
 {
-#if PLATFORM_GP2X
-	// The stuff below doesn't work with my arm-open2x-linux-g++ compiler,
-	// while the boost::is_abstract implementation does work.
-	// TODO investigate this
-	//      ATM it's only used in STATIC_ASSERT's, so it's not urgent
-	static const bool value = false;
+#if __GNUC__ >= 4
+	// The implementation below doesn't work on arm-gcc (for some unknown
+	// reason). However the version in the tr1 library does work, so we
+	// use that if it's available (gcc started shipping this library from
+	// version gcc-4.0).
+	// Once we drop support for gcc-3.4 and when VC++ has tr1, we can
+	// unconditionally use the tr1 version. In that case we can even use
+	// tr1 for all functions in this file, so we can remove this file
+	// completely.
+	static const bool value = std::tr1::is_abstract<T>::value;
 #else
 	// T must be a complete type (otherwise result is always false)
 	STATIC_ASSERT(sizeof(T) != 0);
