@@ -11,20 +11,27 @@
 
 namespace openmsx {
 
-class DiskChanger;
+class DiskContainer;
 class SectorAccessibleDisk;
 
 class NowindHost
 {
 public:
-	NowindHost(DiskChanger& changer);
+	NowindHost(const std::vector<DiskContainer*>& drives);
 	~NowindHost();
 
 	// read one byte of response-data from the host (msx <- pc)
 	byte read();
+	byte peek() const;
 
 	// write one byte of command-data to the host   (msx -> pc)
 	void write(byte value, EmuTime::param time);
+
+	void setAllowOtherDiskroms(bool allow);
+	bool getAllowOtherDiskroms() const;
+
+	void setEnablePhantomDrives(bool enable);
+	bool getEnablePhantomDrives() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -41,6 +48,7 @@ public:
 	};
 private:
 	void msxReset();
+	SectorAccessibleDisk* getDisk() const;
 	void executeCommand();
 
 	void send(byte value);
@@ -83,7 +91,7 @@ private:
 	void callImage(const std::string& filename);
 
 
-	DiskChanger& changer;
+	const std::vector<DiskContainer*>& drives;
 
 	// queue
 	std::deque<byte> hostToMsxFifo;
@@ -104,6 +112,10 @@ private:
 		std::auto_ptr<std::fstream> fs; // not in use when fs == NULL
 		unsigned fcb;
 	} devices[MAX_DEVICES];
+
+	byte romdisk;            // index of romdisk (255 = no romdisk)
+	bool allowOtherDiskroms;
+	bool enablePhantomDrives;
 };
 
 } // namespace openmsx

@@ -797,6 +797,17 @@ const std::string& SCSILS120::getContainerName() const
 	return name;
 }
 
+bool SCSILS120::diskChanged()
+{
+	return mediaChanged; // TODO not reset on read
+}
+
+void SCSILS120::insertDisk(const std::string& filename)
+{
+	insert(filename);
+}
+
+
 // class LSXCommand
 
 LSXCommand::LSXCommand(CommandController& commandController,

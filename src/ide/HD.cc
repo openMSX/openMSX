@@ -163,6 +163,16 @@ const std::string& HD::getContainerName() const
 	return getName();
 }
 
+bool HD::diskChanged()
+{
+	return false; // TODO not implemented
+}
+
+void HD::insertDisk(const std::string& filename)
+{
+	switchImage(Filename(filename));
+}
+
 
 template<typename Archive>
 void HD::serialize(Archive& ar, unsigned /*version*/)

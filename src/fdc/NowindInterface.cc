@@ -18,8 +18,9 @@ NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& 
 	                          motherBoard.getCommandController(),
 	                          motherBoard.getDiskManipulator(),
 	                          &motherBoard))
-	, host(new NowindHost(*changer))
+	, host(new NowindHost(drives))
 {
+	drives.push_back(changer.get()); // TODO make dynamic
 	reset(EmuTime::dummy());
 }
 

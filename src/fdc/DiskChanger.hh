@@ -34,16 +34,14 @@ public:
 
 	const std::string& getDriveName() const;
 	const Filename& getDiskName() const;
-	bool diskChanged();
 	bool peekDiskChanged() const;
 	Disk& getDisk();
-
-	// for nowind
-	void insertDisk(const std::string& filename);
 
 	// DiskContainer
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
+	virtual bool diskChanged();
+	virtual void insertDisk(const std::string& filename);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -5,12 +5,14 @@
 
 #include "MSXDevice.hh"
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
 class Rom;
 class AmdFlash;
 class DiskChanger;
+class DiskContainer;
 class NowindHost;
 
 class NowindInterface : public MSXDevice
@@ -32,7 +34,8 @@ public:
 private:
 	const std::auto_ptr<Rom>         rom;
 	const std::auto_ptr<AmdFlash>    flash;
-	const std::auto_ptr<DiskChanger> changer;
+	const std::auto_ptr<DiskChanger> changer;  //
+	std::vector<DiskContainer*>      drives; //
 	const std::auto_ptr<NowindHost>  host;
 	byte bank;
 };

@@ -1,5 +1,6 @@
 #include "NowindHost.hh"
-#include "DiskChanger.hh"
+#include "NowindRomDisk.hh"
+#include "DiskContainer.hh"
 #include "SectorAccessibleDisk.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -12,14 +13,19 @@
 #include <iostream>
 
 using std::string;
+using std::vector;
 using std::fstream;
 using std::ios;
 
 namespace openmsx {
 
-NowindHost::NowindHost(DiskChanger& changer_)
-	: changer(changer_)
+NowindHost::NowindHost(const vector<DiskContainer*>& drives_)
+	: drives(drives_)
 	, lastTime(EmuTime::zero)
+	, state(STATE_SYNC1)
+	, romdisk(255)
+	, allowOtherDiskroms(false)
+	, enablePhantomDrives(false)
 {
 }
 
@@ -27,15 +33,40 @@ NowindHost::~NowindHost()
 {
 }
 
+
+void NowindHost::setAllowOtherDiskroms(bool allow)
+{
+	allowOtherDiskroms = allow;
+}
+bool NowindHost::getAllowOtherDiskroms() const
+{
+	return allowOtherDiskroms;
+}
+
+void NowindHost::setEnablePhantomDrives(bool enable)
+{
+	enablePhantomDrives = enable;
+}
+bool NowindHost::getEnablePhantomDrives() const
+{
+	return enablePhantomDrives;
+}
+
+
 // receive:  msx <- pc
 byte NowindHost::read()
+{
+	byte result = peek();
+	hostToMsxFifo.pop_front();
+	return result;
+}
+
+byte NowindHost::peek() const
 {
 	if (hostToMsxFifo.empty()) {
 		return 0xff;
 	}
-	byte result = hostToMsxFifo.front();
-	hostToMsxFifo.pop_front();
-	return result;
+	return hostToMsxFifo.front();
 }
 
 // send:  msx -> pc
@@ -113,6 +144,15 @@ void NowindHost::msxReset()
 	}
 }
 
+SectorAccessibleDisk* NowindHost::getDisk() const
+{
+	byte num = cmdData[7]; // reg_a
+	if (num >= drives.size()) {
+		return 0;
+	}
+	return drives[num]->getSectorAccessibleDisk();
+}
+
 void NowindHost::executeCommand()
 {
 	assert(recvCount == 9);
@@ -144,15 +184,10 @@ void NowindHost::executeCommand()
 	//case 0x30: BDOS_30H_WriteLogicalSector();
 
 	case 0x80: { // DSKIO
-		byte reg_a = cmdData[7];
-		if (reg_a != 0) {
-			// invalid drive number
-			state = STATE_SYNC1;
-			return;
-		}
-		SectorAccessibleDisk* disk = changer.getSectorAccessibleDisk();
+		SectorAccessibleDisk* disk = getDisk();
 		if (!disk) {
-			// no disk inserted (causes a timeout)
+			// no such drive or no disk inserted
+			// (causes a timeout on the MSX side)
 			state = STATE_SYNC1;
 			return;
 		}
@@ -214,19 +249,16 @@ void NowindHost::sendHeader()
 
 void NowindHost::DSKCHG()
 {
-	byte reg_a = cmdData[7];
-	if (reg_a != 0) {
-		// invalid drive number
-		return;
-	}
-	SectorAccessibleDisk* disk = changer.getSectorAccessibleDisk();
+	SectorAccessibleDisk* disk = getDisk();
 	if (!disk) {
-		// no disk inserted (causes a timeout)
+		// no such drive or no disk inserted
 		return;
 	}
 
 	sendHeader();
-	if (changer.diskChanged()) {
+	byte num = cmdData[7]; // reg_a
+	assert(num < drives.size());
+	if (drives[num]->diskChanged()) {
 		send(255); // changed
 		byte sectorBuffer[512];
 		try {
@@ -245,21 +277,28 @@ void NowindHost::DSKCHG()
 
 void NowindHost::DRIVES()
 {
-	byte numberOfDrives = 1; // at least one drive (MSXDOS1 cannot handle 0 drives)
-	bool bootWithShift = false;
-	bool bootWithCtrl = false;
+	// at least one drive (MSXDOS1 cannot handle 0 drives)
+	byte numberOfDrives = std::max<byte>(1, drives.size());
 
 	byte reg_a = cmdData[7];
 	sendHeader();
-	send(bootWithCtrl ? 0 : 0x02);
-	send(reg_a | (bootWithShift ? 0x80 : 0));
+	send(getEnablePhantomDrives() ? 0 : 0x02);
+	send(reg_a | (getAllowOtherDiskroms() ? 0x80 : 0));
 	send(numberOfDrives);
+
+	romdisk = 255; // no romdisk
+	for (unsigned i = 0; i < drives.size(); ++i) {
+		if (dynamic_cast<NowindRomDisk*>(drives[i])) {
+			romdisk = i;
+			break;
+		}
+	}
 }
 
 void NowindHost::INIENV()
 {
 	sendHeader();
-	send(255); // no romdisk
+	send(romdisk); // calculated in DRIVES()
 }
 
 void NowindHost::setDateMSX()
@@ -451,7 +490,7 @@ void NowindHost::doDiskWrite1()
 		// All data transferred!
 		unsigned sectorAmount = buffer.size() / 512;
 		unsigned startSector = getStartSector();
-		if (SectorAccessibleDisk* disk = changer.getSectorAccessibleDisk()) {
+		if (SectorAccessibleDisk* disk = getDisk()) {
 			try {
 				for (unsigned i = 0; i < sectorAmount; ++i) {
 					disk->writeSector(startSector + i, &buffer[512 * i]);
@@ -709,13 +748,13 @@ static string stripquotes(const string& str)
 
 void NowindHost::callImage(const string& filename)
 {
-	byte reg_a = cmdData[7];
-	if (reg_a != 0) {
+	byte num = cmdData[7]; // reg_a
+	if (num >= drives.size()) {
 		// invalid drive number
 		return;
 	}
 	try {
-		changer.insertDisk(stripquotes(filename));
+		drives[num]->insertDisk(stripquotes(filename));
 	} catch (MSXException& e) {
 		// TODO
 	}
@@ -736,6 +775,8 @@ SERIALIZE_ENUM(NowindHost::State, stateInfo);
 template<typename Archive>
 void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 {
+	// drives is serialized elsewhere
+
 	ar.serialize("hostToMsxFifo", hostToMsxFifo);
 	ar.serialize("lastTime", lastTime);
 	ar.serialize("state", state);
@@ -746,6 +787,9 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("transfered", transfered);
 	ar.serialize("retryCount", retryCount);
 	ar.serialize("transferSize", transferSize);
+	ar.serialize("romdisk", romdisk);
+	ar.serialize("allowOtherDiskroms", allowOtherDiskroms);
+	ar.serialize("enablePhantomDrives", enablePhantomDrives);
 
 	// Note: We don't serialize 'devices'. So after a loadstate it will be
 	// as-if the devices are closed again. The reason for not serializing
