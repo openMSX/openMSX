@@ -26,10 +26,6 @@
 #include <cstring>
 #include <cassert>
 
-#ifdef _MSC_VER
-#include <basetsd.h> // For LONG_PTR
-#endif
-
 namespace openmsx {
 
 // Note: without appending 'f' to the values in ResampleCoeffs.ii,
@@ -48,10 +44,9 @@ static const unsigned TAB_LEN = 4096;
 #ifdef _MSC_VER
 extern "C"
 {
-	// Note - filterLen16Product needs to be sign extended
 	void __cdecl ResampleHQ_calcOutput_1_SSE(
 		const void* bufferOffset, const void* tableOffset, 
-		void* output, LONG_PTR filterLen16Product, unsigned filterLenRest);
+		void* output, long filterLen16Product, unsigned filterLenRest);
 }
 #endif
 

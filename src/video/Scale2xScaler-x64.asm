@@ -16,7 +16,7 @@ LEAF_ENTRY Scale2xScaler_scaleLineHalf_1on2_4_SSE, Video
 ; r9 = src2 + srcWidth - 2
 ; rcx = dst + 2 * (srcWidth - 2)
 ; rax = -4 * (srcWidth - 2)
-    mov         rax,[rsp+28h]
+    mov         eax,dword ptr [rsp+28h]
     sub         rax,2
     shl         rax,2
     lea         r8,[r8+rax]

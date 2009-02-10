@@ -21,7 +21,7 @@ LEAF_ENTRY SimpleScaler_blur1on2_4_MMX, Video
     lea         rcx,[rcx+r8]
     shl         r8,1
     lea         rdx,[rdx+r8]
-    mov         r10,[rsp+28h]
+    mov         r10d,dword ptr[rsp+28h]
     shr         r8,1
     neg         r8
 
@@ -112,7 +112,7 @@ LEAF_ENTRY SimpleScaler_blur1on1_4_MMX, Video
     shl         r8,2
     lea         rcx,[rcx+r8]
     lea         rdx,[rdx+r8]
-    mov         r10,[rsp+28h]
+    mov         r10d,dword ptr [rsp+28h]
     neg         r8
 
     movd        mm5,r9

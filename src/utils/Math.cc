@@ -9,6 +9,9 @@
 namespace openmsx {
 
 #ifdef _MSC_VER
+	
+// Poor man's implementations to get openmsx building with VC++
+
 #ifdef __x86_64
 
 // What follows below are C++ implementations of several C99 math functions missing 
@@ -85,7 +88,7 @@ long lrintf(float x)
 	return _mm_cvtss_si32(_mm_load_ss(&x));
 }
 
-// truncf(): round x to the nearest integer not larger in absolute value
+// truncf(): round float to the nearest integer not larger in absolute value
 // gcc-generated:
 //;	movss	.LC4(%rip), %xmm1
 //;	movaps	%xmm0, %xmm2
@@ -119,7 +122,7 @@ float truncf(float x)
 	return ret;
 }
 
-// round(): round to nearest integer, away from zero
+// round(): round double to nearest integer, away from zero
 // gcc-generated:
 //;	movsd	.LC1(%rip), %xmm1
 //;	movapd	%xmm0, %xmm2
@@ -175,53 +178,71 @@ double round(double x)
 
 #else
 
-	// Poor man's implementations to get 32-bit openmsx building with VC++
-
-	// lrint(): round double according to current floating-point rounding direction
-	long lrint(double x)
-	{
-		long retval;
-		__asm {
-			fld	    x
-			fistp	retval
-		}
-		return retval;
+// lrint(): round double according to current floating-point rounding direction
+long lrint(double x)
+{
+	long retval;
+	__asm {
+		fld			qword ptr [x]
+		fistp		dword ptr [retval]
 	}
+	return retval;
+}
 
-	// lrint(): round float according to current floating-point rounding direction
-	long lrintf(float x)
-	{
-		long retval;
-		__asm {
-			fld	    x
-			fistp	retval
-		}
-		return retval;
+// lrint(): round float according to current floating-point rounding direction
+long lrintf(float x)
+{
+	long retval;
+	__asm {
+		fld			dword ptr [x]
+		fistp		dword ptr [retval]
 	}
+	return retval;
+}
 
-	// truncf(): round x to the nearest integer not larger in absolute value
-	float truncf(float x)
-	{
-		return (x < 0) ? ceil(x) : floor(x);
+// trunc(): round double to the nearest integer not larger in absolute value
+double trunc(double x)
+{
+	short ctrl1, ctrl2;
+	double retval;
+	__asm {
+		fnstcw		word ptr [ctrl1]
+		movzx		eax,word ptr [ctrl1]
+		or			ah,0Ch
+		mov			word ptr [ctrl2],ax
+		fldcw		word ptr [ctrl2]
+		fld			qword ptr [x]
+		frndint
+		fldcw		word ptr [ctrl1]
+		fstp		qword ptr [retval]
 	}
+	return retval;
+}
 
-	// round(): round to nearest integer, away from zero
-	double round(double x)
-	{
-		if (x >= 0) {
-			double t = ceil(x);
-			if ((t - x) > 0.5) {
-				t--;
-			}
-			return t;
-		} else {
-			double t = ceil(-x);
-			if ((t + x) > 0.5) {
-				t--;
-			}
-			return -t;
-		}
+// truncf(): round float to the nearest integer not larger in absolute value
+float truncf(float x)
+{
+	short ctrl1, ctrl2;
+	float retval;
+	__asm {
+		fnstcw		word ptr [ctrl1]
+		movzx		eax,word ptr [ctrl1]
+		or			ah,0Ch
+		mov			word ptr [ctrl2],ax
+		fldcw		word ptr [ctrl2]
+		fld			dword ptr[x]
+		frndint
+		fldcw		word ptr [ctrl1]
+		fstp		dword ptr [retval]
 	}
+	return retval;
+}
+
+// round(): round double to nearest integer, away from zero
+double round(double x)
+{
+	return (x > 0) ? trunc(x + 0.5) : trunc(x - 0.5);
+}
 
 #endif	// __x86_64
 #endif	// _MSC_VER

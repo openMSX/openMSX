@@ -167,14 +167,56 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 	{
 		typedef DBCReduce<M, S> R;
 	#if defined(ASM_X86_32) || defined(__arm__)
-		const unsigned ah = R::M2 >> 32;
-		const unsigned al = unsigned(R::M2);
-		const unsigned bh = dividend >> 32;
-		const unsigned bl = unsigned(dividend);
+		const unsigned _ah_ = R::M2 >> 32;
+		const unsigned _al_ = unsigned(R::M2);
+		const unsigned _bh_ = dividend >> 32;
+		const unsigned _bl_ = unsigned(dividend);
 	#endif
 	#ifdef ASM_X86_32
 	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
+		unsigned _tl_;
+		register unsigned result;
+		__asm {
+			// It's worth noting that simple benchmarks show this to be
+			// no faster than straight division on an Intel E8400
+			// 
+			// eax and edx are used with mul
+			// ecx = bl
+			// esi = ah
+			mov		ecx,_bl_
+			mov		esi,_ah_
+			// ebx is th
+			mov     eax,esi
+			mul     ecx
+			mov     _tl_,eax
+			mov     ebx,edx
+			mov     eax,_al_
+			mul     ecx
+			add     _tl_,edx
+			adc     ebx,0
+			// ecx = bh now
+			// edi is cl
+			mov		ecx,_bh_
+			mov     eax,esi
+			mul     ecx
+			mov     edi,eax
+			// esi is ch now
+			mov     esi,edx
+			mov     eax,_al_
+			mul     ecx
+			add     _tl_,eax
+			adc     ebx,edx
+			adc     esi,0
+			add     edi,ebx
+			adc     esi,0
+			// Sadly, no way to make this an immediate in VC++
+			mov		cl,byte ptr [R::S2]
+			shrd    edi,esi,cl
+			mov		result,edi
+		}
+		unsigned realResult = unsigned(mla64(dividend, R::M2, 0) >> R::S2);
+		assert(realResult == result);
+		return result;
 	#else
 		unsigned th, tl, ch, cl;
 		asm (
@@ -203,10 +245,10 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			, [TH] "=&r"  (th)
 			, [CL] "=rm"  (cl)
 			, [TL] "=&rm" (tl)
-			: [AH] "g"    (ah)
-			, [AL] "g"    (al)
-			, [BH] "rm"   (bh)
-			, [BL] "[CL]" (bl)
+			: [AH] "g"    (_ah_)
+			, [AL] "g"    (_al_)
+			, [BH] "rm"   (_bh_)
+			, [BL] "[CL]" (_bl_)
 			: "eax","edx"
 		);
 		asm (
@@ -239,15 +281,15 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			: [RES] "=r"    (res)
 			, [TH]  "=&r"   (th)
 			, [TL]  "=&r"   (tl)
-			: [AH]  "r"     (ah)
-			, [AL]  "r"     (al)
-			, [BH]  "r"     (bh)
-			, [BL]  "[RES]" (bl)
+			: [AH]  "r"     (_ah_)
+			, [AL]  "r"     (_al_)
+			, [BH]  "r"     (_bh_)
+			, [BL]  "[RES]" (_bl_)
 			, [S]   "M"   (R::S2)
 			, [S32] "M"   (32 - R::S2)
 		);
 		return res;
-	#endif
+	#else
 		uint64 h = mla64(dividend, R::M2, 0);
 		uint64 result = h >> R::S2;
 	#ifdef DEBUG
@@ -255,6 +297,7 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		assert(result == unsigned(result));
 	#endif
 		return unsigned(result);
+	#endif
 	}
 };
 

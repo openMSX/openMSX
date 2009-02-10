@@ -6,7 +6,7 @@ INCLUDE macamd64.inc
 ;   rcx = const Pixel* in
 ;   rdx = Pixel* out
 ;   r8 = unsigned long dstWidth
-;   r9 = &c
+;   r9 = struct* &c
 ; Scratch registers: rax, rcx, rdx, r8, r9, r10, and r11
 LEAF_ENTRY Blur_1on3_4_SSE, Video
 

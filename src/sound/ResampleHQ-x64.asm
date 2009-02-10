@@ -3,11 +3,11 @@ INCLUDE macamd64.inc
 .code
 
 ; ResampleHQ_calcOutput_1_SSE
-;   rcx = &buffer[bufIdx + filterLen16]
-;   rdx = &table[tabIdx + filterLen16]
+;   rcx = float* &buffer[bufIdx + filterLen16]
+;   rdx = float* &table[tabIdx + filterLen16]
 ;   r8 = int* output
-;   r9 = -4 * filterLen16
-;   [rsp+28h] = filterLenRest
+;   r9 = long -4 * filterLen16
+;   [rsp+28h] = unsigned int filterLenRest
 ; Scratch registers: rax, rcx, rdx, r8, r9, r10, and r11
 LEAF_ENTRY ResampleHQ_calcOutput_1_SSE, Video
 
@@ -16,7 +16,8 @@ LEAF_ENTRY ResampleHQ_calcOutput_1_SSE, Video
 ; r8 = output
 ; r9 = filterLen16Product
 ; r10 = filterLenRest
-    mov         r10,[rsp+28h]
+    movsxd      r9,r9d
+    mov         r10d,dword ptr [rsp+28h]
 
     xorps       xmm0,xmm0
     xorps       xmm1,xmm1

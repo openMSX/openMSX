@@ -11,7 +11,7 @@
 ;   -4 * filterLen16
 ;   filterLenRest
 ; Preserved registers: edi, esi, ebp, ebx
-ResampleHQ_calcOutput_1_SSE PROC C uses edi esi ebx bufferOffset:NEAR PTR, tableOffset:NEAR PTR, output:NEAR PTR, filterLen16Product:DWORD, filterLenRest:DWORD
+ResampleHQ_calcOutput_1_SSE PROC C uses edi esi ebx bufferOffset:NEAR PTR, tableOffset:NEAR PTR, output:NEAR PTR, filterLen16Product:SDWORD, filterLenRest:DWORD
 
 ; ebx = bufferOffset
 ; ecx = tableOffset
