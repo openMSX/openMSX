@@ -1,5 +1,11 @@
 // $Id$
 
+// TODO
+// - multiple drives, including romdisk
+// - allowOtherDiskroms / enablePhantomDrives
+// - add 'usbhost' command to control these features (with same syntax as
+//   the 'usbhost' command of the real nowind interface)
+
 #include "NowindInterface.hh"
 #include "Rom.hh"
 #include "AmdFlash.hh"
@@ -42,8 +48,7 @@ byte NowindInterface::peek(word address, EmuTime::param /*time*/) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
-		// debug read from 'nowind' region not supported
-		return 0xFF;
+		return host->peek();
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// note: range 0x8000-0xA000 is already handled above
 		return flash->peek(bank * 0x4000 + (address & 0x3FFF));
