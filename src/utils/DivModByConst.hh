@@ -214,8 +214,10 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			shrd    edi,esi,cl
 			mov		result,edi
 		}
+	#ifdef DEBUG
 		unsigned realResult = unsigned(mla64(dividend, R::M2, 0) >> R::S2);
 		assert(realResult == result);
+	#endif
 		return result;
 	#else
 		unsigned th, tl, ch, cl;
