@@ -40,6 +40,7 @@ public:
 		STATE_IMAGE,     // waiting for filename
 	};
 private:
+	void msxReset();
 	void executeCommand();
 
 	void send(byte value);
@@ -73,6 +74,7 @@ private:
 	unsigned readHelper1(unsigned dev, char* buffer);
 	void readHelper2(unsigned len, const char* buffer);
 	int getDeviceNum() const;
+	int getFreeDeviceNum();
 	void deviceOpen();
 	void deviceClose();
 	void deviceWrite();
@@ -97,10 +99,11 @@ private:
 	unsigned retryCount;     // only used for diskread
 	unsigned transferSize;   // size of current chunk
 
+	static const unsigned MAX_DEVICES = 16;
 	struct {
-		std::auto_ptr<std::fstream> fs;
+		std::auto_ptr<std::fstream> fs; // not in use when fs == NULL
 		unsigned fcb;
-	} devices[4];
+	} devices[MAX_DEVICES];
 };
 
 } // namespace openmsx

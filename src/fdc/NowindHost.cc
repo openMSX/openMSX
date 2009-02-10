@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <time.h>
 
+#include <iostream>
+
 using std::string;
 using std::fstream;
 using std::ios;
@@ -56,6 +58,7 @@ void NowindHost::write(byte data, EmuTime::param time)
 		switch (data) {
 		case 0x05: state = STATE_COMMAND; recvCount = 0; break;
 		case 0xAF: state = STATE_SYNC2; break;
+		case 0xFF: state = STATE_SYNC1; msxReset(); break;
 		default:   state = STATE_SYNC1; break;
 		}
 		break;
@@ -99,6 +102,14 @@ void NowindHost::write(byte data, EmuTime::param time)
 		break;
 	default:
 		assert(false);
+	}
+}
+
+void NowindHost::msxReset()
+{
+	std::cout << "NowindHost::msxReset()" << std::endl;
+	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
+		devices[i].fs.reset();
 	}
 }
 
@@ -525,6 +536,39 @@ string NowindHost::extractName(int begin, int end) const
 	return result;
 }
 
+int NowindHost::getDeviceNum() const
+{
+	unsigned fcb = getFCB();
+	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
+		if (devices[i].fs.get() &&
+		    devices[i].fcb == fcb) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int NowindHost::getFreeDeviceNum()
+{
+	int dev = getDeviceNum();
+	if (dev != -1) {
+		// There already was a device open with this fcb address,
+		// reuse that device.
+		return dev;
+	}
+	// Search for free device.
+	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
+		if (!devices[i].fs.get()) {
+			return i;
+		}
+	}
+	// All devices are in use. This can't happen when the MSX software
+	// functions correctly. We'll simply reuse the first device. It would
+	// be nicer if we reuse the oldest device, but that's harder to
+	// implement, and actually it doesn't really matter.
+	return 0;
+}
+
 void NowindHost::deviceOpen()
 {
 	state = STATE_SYNC1;
@@ -537,9 +581,8 @@ void NowindHost::deviceOpen()
 		filename += ext;
 	}
 
-	byte reg_d = cmdData[3];
-	byte dev = reg_d & 3; // masking is really needed
 	unsigned fcb = getFCB();
+	unsigned dev = getFreeDeviceNum();
 	devices[dev].fs.reset(new fstream()); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
@@ -591,7 +634,7 @@ void NowindHost::deviceOpen()
 	send(0);
 	send(0);
 	send(0);
-	send(reg_d);
+	send(cmdData[3]); // reg_d
 	send(0);
 	send(0);
 	send(0);
@@ -600,18 +643,6 @@ void NowindHost::deviceOpen()
 	if (openMode == 1) {
 		readHelper2(readLen, buffer);
 	}
-}
-
-int NowindHost::getDeviceNum() const
-{
-	unsigned fcb = getFCB();
-	for (int dev = 0; dev < 4; ++dev) {
-		if (devices[dev].fs.get() &&
-		    devices[dev].fcb == fcb) {
-			return dev;
-		}
-	}
-	return -1;
 }
 
 void NowindHost::deviceClose()
@@ -647,7 +678,7 @@ void NowindHost::deviceRead()
 
 unsigned NowindHost::readHelper1(unsigned dev, char* buffer)
 {
-	assert(dev < 4);
+	assert(dev < MAX_DEVICES);
 	unsigned len = 0;
 	for (/**/; len < 256; ++len) {
 		devices[dev].fs->read(&buffer[len], 1);
