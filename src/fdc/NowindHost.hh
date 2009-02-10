@@ -5,6 +5,7 @@
 #include "openmsx.hh"
 #include <deque>
 #include <vector>
+#include <string>
 
 namespace openmsx {
 
@@ -32,6 +33,7 @@ public:
 		STATE_COMMAND,   // waiting for command (9 bytes)
 		STATE_DISKREAD,  // waiting for AF07
 		STATE_DISKWRITE, // waiting for AA<data>AA
+		STATE_IMAGE,     // waiting for filename
 	};
 private:
 	void executeCommand();
@@ -61,6 +63,8 @@ private:
 	void diskWriteInit(SectorAccessibleDisk& disk);
 	void doDiskWrite1();
 	void doDiskWrite2();
+
+	void callImage(const std::string& filename);
 
 
 	DiskChanger& changer;

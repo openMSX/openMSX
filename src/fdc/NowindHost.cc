@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <time.h>
 
+using std::string;
+
 namespace openmsx {
 
 NowindHost::NowindHost(DiskChanger& changer_)
@@ -68,6 +70,16 @@ void NowindHost::write(byte data, EmuTime::param time)
 		extraData[recvCount] = data;
 		if (++recvCount == (transferSize + 2)) {
 			doDiskWrite2();
+		}
+		break;
+	case STATE_IMAGE:
+		assert(recvCount < 40);
+		extraData[recvCount] = data;
+		if ((data == 0) || (data == ':') ||
+		    (++recvCount == 40)) {
+			char* data = reinterpret_cast<char*>(extraData);
+			callImage(string(data, recvCount));
+			state = STATE_SYNC1;
 		}
 		break;
 	default:
@@ -142,8 +154,8 @@ void NowindHost::executeCommand()
 	//case 0x8D: deviceEof(fcb);
 	//case 0x8E: auxIn();
 	//case 0x8F: auxOut();
-	//case 0xa0: call_image();
-	//case 0xff: vramDump();
+	case 0xA0: state = STATE_IMAGE; recvCount = 0; break;
+	//case 0xFF: vramDump();
 	default:
 		// Unknown USB command!
 		state = STATE_SYNC1;
@@ -477,7 +489,6 @@ void NowindHost::doDiskWrite2()
 }
 
 
-/*
 static string stripquotes(const string& str)
 {
 	string::size_type first = str.find_first_of('\"') + 1;
@@ -487,23 +498,19 @@ static string stripquotes(const string& str)
 	return str.substr(first, last - first);
 }
 
-void NowindHost::call_image()
+void NowindHost::callImage(const string& filename)
 {
 	byte reg_a = cmdData[7];
 	if (reg_a != 0) {
 		// invalid drive number
-		state = STATE_SYNC1;
 		return;
 	}
-	string fileName;
-	for (int i = 0; i < 40; ++i) {
-		byte c = receive();
-		if ((c == ':') || (c == 0)) break;
-		fileName += c;
+	try {
+		changer.insertDisk(stripquotes(filename));
+	} catch (MSXException& e) {
+		// TODO
 	}
-	changer.insertDisk(stripquotes(fileName));
 }
-*/
 
 
 static enum_string<NowindHost::State> stateInfo[] = {
@@ -511,7 +518,8 @@ static enum_string<NowindHost::State> stateInfo[] = {
 	{ "SYNC2",     NowindHost::STATE_SYNC2     },
 	{ "COMMAND",   NowindHost::STATE_COMMAND   },
 	{ "DISKREAD",  NowindHost::STATE_DISKREAD  },
-	{ "DISKWRITE", NowindHost::STATE_DISKWRITE }
+	{ "DISKWRITE", NowindHost::STATE_DISKWRITE },
+	{ "IMAGE",     NowindHost::STATE_IMAGE     }
 };
 SERIALIZE_ENUM(NowindHost::State, stateInfo);
 

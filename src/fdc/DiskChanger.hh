@@ -38,6 +38,9 @@ public:
 	bool peekDiskChanged() const;
 	Disk& getDisk();
 
+	// for nowind
+	void insertDisk(const std::string& filename);
+
 	// DiskContainer
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;

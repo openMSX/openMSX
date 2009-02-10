@@ -137,6 +137,16 @@ void DiskChanger::signalEvent(
 	}
 }
 
+void DiskChanger::insertDisk(const string& filename)
+{
+	TclObject arg0("dummy");
+	TclObject arg1(filename);
+	vector<TclObject*> args;
+	args.push_back(&arg0);
+	args.push_back(&arg1);
+	insertDisk(args);
+}
+
 void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
 	std::auto_ptr<Disk> newDisk;
