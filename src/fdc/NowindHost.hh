@@ -6,6 +6,8 @@
 #include <deque>
 #include <vector>
 #include <string>
+#include <memory>
+#include <iosfwd>
 
 namespace openmsx {
 
@@ -16,6 +18,7 @@ class NowindHost
 {
 public:
 	NowindHost(DiskChanger& changer);
+	~NowindHost();
 
 	// read one byte of response-data from the host (msx <- pc)
 	byte read();
@@ -33,6 +36,7 @@ public:
 		STATE_COMMAND,   // waiting for command (9 bytes)
 		STATE_DISKREAD,  // waiting for AF07
 		STATE_DISKWRITE, // waiting for AA<data>AA
+		STATE_DEVOPEN,   // waiting for filename (11 bytes)
 		STATE_IMAGE,     // waiting for filename
 	};
 private:
@@ -64,6 +68,16 @@ private:
 	void doDiskWrite1();
 	void doDiskWrite2();
 
+	unsigned getFCB() const;
+	std::string extractName(int begin, int end) const;
+	unsigned readHelper1(unsigned dev, char* buffer);
+	void readHelper2(unsigned len, const char* buffer);
+	int getDeviceNum() const;
+	void deviceOpen();
+	void deviceClose();
+	void deviceWrite();
+	void deviceRead();
+
 	void callImage(const std::string& filename);
 
 
@@ -82,6 +96,11 @@ private:
 	unsigned transfered;     // progress within diskread/write
 	unsigned retryCount;     // only used for diskread
 	unsigned transferSize;   // size of current chunk
+
+	struct {
+		std::auto_ptr<std::fstream> fs;
+		unsigned fcb;
+	} devices[4];
 };
 
 } // namespace openmsx

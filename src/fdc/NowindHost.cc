@@ -4,16 +4,24 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include <fstream>
 #include <algorithm>
+#include <ctype.h>
 #include <time.h>
 
 using std::string;
+using std::fstream;
+using std::ios;
 
 namespace openmsx {
 
 NowindHost::NowindHost(DiskChanger& changer_)
 	: changer(changer_)
 	, lastTime(EmuTime::zero)
+{
+}
+
+NowindHost::~NowindHost()
 {
 }
 
@@ -70,6 +78,13 @@ void NowindHost::write(byte data, EmuTime::param time)
 		extraData[recvCount] = data;
 		if (++recvCount == (transferSize + 2)) {
 			doDiskWrite2();
+		}
+		break;
+	case STATE_DEVOPEN:
+		assert(recvCount < 11);
+		extraData[recvCount] = data;
+		if (++recvCount == 11) {
+			deviceOpen();
 		}
 		break;
 	case STATE_IMAGE:
@@ -139,18 +154,18 @@ void NowindHost::executeCommand()
 		break;
 	}
 
-	case 0x81: DSKCHG();     state = STATE_SYNC1; break;
+	case 0x81: DSKCHG();      state = STATE_SYNC1; break;
 	//case 0x82: GETDPB();
 	//case 0x83: CHOICE();
 	//case 0x84: DSKFMT();
-	case 0x85: DRIVES();     state = STATE_SYNC1; break;
-	case 0x86: INIENV();     state = STATE_SYNC1; break;
-	case 0x87: setDateMSX(); state = STATE_SYNC1; break;
-	//case 0x88: deviceOpen();
-	//case 0x89: deviceClose(fcb);
+	case 0x85: DRIVES();      state = STATE_SYNC1; break;
+	case 0x86: INIENV();      state = STATE_SYNC1; break;
+	case 0x87: setDateMSX();  state = STATE_SYNC1; break;
+	case 0x88: state = STATE_DEVOPEN; recvCount = 0; break;
+	case 0x89: deviceClose(); state = STATE_SYNC1; break;
 	//case 0x8A: deviceRandomIO(fcb);
-	//case 0x8B: deviceWrite(fcb);
-	//case 0x8C: deviceRead(fcb);
+	case 0x8B: deviceWrite(); state = STATE_SYNC1; break;
+	case 0x8C: deviceRead();  state = STATE_SYNC1; break;
 	//case 0x8D: deviceEof(fcb);
 	//case 0x8E: auxIn();
 	//case 0x8F: auxOut();
@@ -489,6 +504,167 @@ void NowindHost::doDiskWrite2()
 }
 
 
+unsigned NowindHost::getFCB() const
+{
+	// note: same code as getStartAddress(), merge???
+	byte reg_l = cmdData[4];
+	byte reg_h = cmdData[5];
+	return reg_h * 256 + reg_l;
+}
+
+string NowindHost::extractName(int begin, int end) const
+{
+	string result;
+	for (int i = begin; i < end; ++i) {
+		char c = extraData[i];
+		if (c == ' ') break;
+		result += toupper(c);
+	}
+	return result;
+}
+
+void NowindHost::deviceOpen()
+{
+	state = STATE_SYNC1;
+
+	assert(recvCount == 11);
+	string filename = extractName(0, 8);
+	string ext      = extractName(8, 11);
+	if (!ext.empty()) {
+		filename += '.';
+		filename += ext;
+	}
+
+	byte reg_d = cmdData[3];
+	byte dev = reg_d & 3; // masking is really needed
+	unsigned fcb = getFCB();
+	devices[dev].fs.reset(new fstream()); // takes care of deleting old fs
+	devices[dev].fcb = fcb;
+
+	sendHeader();
+	byte errorCode = 0;
+	byte openMode = cmdData[2]; // reg_e
+	switch (openMode) {
+	case 1: // read-only mode
+		devices[dev].fs->open(filename.c_str(), ios::in  | ios::binary);
+		errorCode = 53; // file not found
+		break;
+	case 2: // create new file, write-only
+		devices[dev].fs->open(filename.c_str(), ios::out | ios::binary);
+		errorCode = 56; // bad file name
+		break;
+	case 8: // append to existing file, write-only
+		devices[dev].fs->open(filename.c_str(), ios::out | ios::binary | ios::app);
+		errorCode = 53; // file not found
+		break;
+	case 4:
+		send(58); // sequential I/O only
+		return;
+	default:
+		send(0xFF); // TODO figure out a good error number
+		return;
+	}
+	assert(errorCode != 0);
+	if (devices[dev].fs->fail()) {
+		devices[dev].fs.reset();
+		send(errorCode);
+		return;
+	}
+
+	unsigned readLen = 0;
+	bool eof = false;
+	char buffer[256];
+	if (openMode == 1) {
+		// read-only mode, already buffer first 256 bytes
+		readLen = readHelper1(dev, buffer);
+		assert(readLen <= 256);
+		eof = readLen < 256;
+	}
+
+	send(0x00); // no error
+	send16(fcb);
+	send16(9 + readLen + (eof ? 1 : 0)); // number of bytes to transfer
+
+	send(openMode);
+	send(0);
+	send(0);
+	send(0);
+	send(reg_d);
+	send(0);
+	send(0);
+	send(0);
+	send(0);
+
+	if (openMode == 1) {
+		readHelper2(readLen, buffer);
+	}
+}
+
+int NowindHost::getDeviceNum() const
+{
+	unsigned fcb = getFCB();
+	for (int dev = 0; dev < 4; ++dev) {
+		if (devices[dev].fs.get() &&
+		    devices[dev].fcb == fcb) {
+			return dev;
+		}
+	}
+	return -1;
+}
+
+void NowindHost::deviceClose()
+{
+	int dev = getDeviceNum();
+	if (dev == -1) return;
+	devices[dev].fs.reset();
+}
+
+void NowindHost::deviceWrite()
+{
+	int dev = getDeviceNum();
+	if (dev == -1) return;
+	char data = cmdData[0]; // reg_c
+	devices[dev].fs->write(&data, 1);
+}
+
+void NowindHost::deviceRead()
+{
+	int dev = getDeviceNum();
+	if (dev == -1) return;
+
+	char buffer[256];
+	unsigned readLen = readHelper1(dev, buffer);
+	bool eof = readLen < 256;
+	send(0xAF);
+	send(0x05);
+	send(0x00); // dummy
+	send16(getFCB() + 9);
+	send16(readLen + (eof ? 1 : 0));
+	readHelper2(readLen, buffer);
+}
+
+unsigned NowindHost::readHelper1(unsigned dev, char* buffer)
+{
+	assert(dev < 4);
+	unsigned len = 0;
+	for (/**/; len < 256; ++len) {
+		devices[dev].fs->read(&buffer[len], 1);
+		if (devices[dev].fs->eof()) break;
+	}
+	return len;
+}
+
+void NowindHost::readHelper2(unsigned len, const char* buffer)
+{
+	for (unsigned i = 0; i < len; ++i) {
+		send(buffer[i]);
+	}
+	if (len < 256) {
+		send(0x1A); // end-of-file
+	}
+}
+
+
 static string stripquotes(const string& str)
 {
 	string::size_type first = str.find_first_of('\"') + 1;
@@ -519,7 +695,8 @@ static enum_string<NowindHost::State> stateInfo[] = {
 	{ "COMMAND",   NowindHost::STATE_COMMAND   },
 	{ "DISKREAD",  NowindHost::STATE_DISKREAD  },
 	{ "DISKWRITE", NowindHost::STATE_DISKWRITE },
-	{ "IMAGE",     NowindHost::STATE_IMAGE     }
+	{ "DEVOPEN",   NowindHost::STATE_DEVOPEN   },
+	{ "IMAGE",     NowindHost::STATE_IMAGE     },
 };
 SERIALIZE_ENUM(NowindHost::State, stateInfo);
 
@@ -536,6 +713,11 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("transfered", transfered);
 	ar.serialize("retryCount", retryCount);
 	ar.serialize("transferSize", transferSize);
+
+	// Note: We don't serialize 'devices'. So after a loadstate it will be
+	// as-if the devices are closed again. The reason for not serializing
+	// this is that it's very hard to serialize a fstream (and we anyway
+	// can't restore the state of the host filesystem).
 }
 INSTANTIATE_SERIALIZE_METHODS(NowindHost);
 
