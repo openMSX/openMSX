@@ -30,6 +30,7 @@ SRC_HDR:= \
 	SectorAccessibleDisk \
 	DiskManipulator \
 	BootBlocks \
+	Nowind NowindHost
 
 HDR_ONLY:= \
 	DiskExceptions \

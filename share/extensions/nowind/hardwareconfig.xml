@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <!--TODO-->
+    <name></name>
+    <manufacturer></manufacturer>
+    <code/>
+    <release_year></release_year>
+    <description></description>
+    <type></type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <Nowind id="Nowind">
+          <mem base="0x0000" size="0x10000"/>
+          <rom>
+            <filename>roms/nowindDos2.rom</filename>
+            <sha1>7f49675940b9a4ffff4e8abc0b410c7b1fe22b87</sha1> <!-- dos1 -->
+            <sha1>2c359c979fbfe5c7c3cce90b4593dba4b7cbcd92</sha1> <!-- dos2 -->
+          </rom>
+          <sramname>nowind.flash</sramname>
+        </Nowind>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

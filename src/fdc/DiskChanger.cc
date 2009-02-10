@@ -97,6 +97,9 @@ Disk& DiskChanger::getDisk()
 
 SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 {
+	if (dynamic_cast<DummyDisk*>(disk.get())) {
+		return NULL;
+	}
 	return dynamic_cast<SectorAccessibleDisk*>(disk.get());
 }
 
