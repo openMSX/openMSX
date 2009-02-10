@@ -25,6 +25,15 @@ public:
 	 */
 	const std::string& getSHA1Sum();
 
+	// For compatibility with nowind
+	//  - read/write multiple sectors instead of one-per-one
+	//  - use error codes instead of exceptions
+	//  - different order of parameters
+	int readSectors (      byte* buffer, unsigned startSector,
+	                 unsigned nbSectors);
+	int writeSectors(const byte* buffer, unsigned startSector,
+	                 unsigned nbSectors);
+
 private:
 	virtual void readSectorImpl(unsigned sector, byte* buf) = 0;
 	virtual void writeSectorImpl(unsigned sector, const byte* buf) = 0;

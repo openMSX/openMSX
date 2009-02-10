@@ -1,7 +1,6 @@
 // $Id$
 
 #include "NowindRomDisk.hh"
-#include "MSXException.hh"
 
 namespace openmsx {
 
@@ -21,9 +20,9 @@ bool NowindRomDisk::diskChanged()
 	return false;
 }
 
-void NowindRomDisk::insertDisk(const std::string& filename)
+int NowindRomDisk::insertDisk(const std::string& filename)
 {
-	throw MSXException("Can't change NowindRomDisk disk image");
+	return -1; // Can't change NowindRomDisk disk image
 }
 
 } // namespace openmsx

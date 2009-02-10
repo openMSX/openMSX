@@ -15,7 +15,10 @@ public:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk() = 0;
 	virtual const std::string& getContainerName() const = 0;
 	virtual bool diskChanged() = 0;
-	virtual void insertDisk(const std::string& filename) = 0; // for nowind
+
+	// for nowind
+	//  - error handling with return values instead of exceptions
+	virtual int insertDisk(const std::string& filename) = 0;
 
 protected:
 	virtual ~DiskContainer();

@@ -137,14 +137,19 @@ void DiskChanger::signalEvent(
 	}
 }
 
-void DiskChanger::insertDisk(const string& filename)
+int DiskChanger::insertDisk(const string& filename)
 {
 	TclObject arg0("dummy");
 	TclObject arg1(filename);
 	vector<TclObject*> args;
 	args.push_back(&arg0);
 	args.push_back(&arg1);
-	insertDisk(args);
+	try {
+		insertDisk(args);
+		return 0;
+	} catch (MSXException& e) {
+		return -1;
+	}
 }
 
 void DiskChanger::insertDisk(const vector<TclObject*>& args)

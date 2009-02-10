@@ -2,7 +2,6 @@
 #include "NowindRomDisk.hh"
 #include "DiskContainer.hh"
 #include "SectorAccessibleDisk.hh"
-#include "MSXException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include <fstream>
@@ -263,11 +262,10 @@ void NowindHost::DSKCHG()
 	assert(num < drives.size());
 	if (drives[num]->diskChanged()) {
 		send(255); // changed
+		// read first FAT sector (contains media descriptor)
 		byte sectorBuffer[512];
-		try {
-			disk->readSector(1, sectorBuffer); // read first FAT
-		} catch (MSXException& e) {
-			// TODO
+		if (disk->readSectors(sectorBuffer, 1, 1)) {
+			// TODO read error
 			sectorBuffer[0] = 0;
 		}
 		send(sectorBuffer[0]); // new mediadescriptor
@@ -351,12 +349,8 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 	unsigned sectorAmount = getSectorAmount();
 	buffer.resize(sectorAmount * 512);
 	unsigned startSector = getStartSector();
-	try {
-		for (unsigned i = 0; i < sectorAmount; ++i) {
-			disk.readSector(startSector + i, &buffer[512 * i]);
-		}
-	} catch (MSXException& e) {
-		// TODO
+	if (disk.readSectors(&buffer[0], startSector, sectorAmount)) {
+		// TODO read error
 	}
 
 	transfered = 0;
@@ -494,12 +488,8 @@ void NowindHost::doDiskWrite1()
 		unsigned sectorAmount = buffer.size() / 512;
 		unsigned startSector = getStartSector();
 		if (SectorAccessibleDisk* disk = getDisk()) {
-			try {
-				for (unsigned i = 0; i < sectorAmount; ++i) {
-					disk->writeSector(startSector + i, &buffer[512 * i]);
-				}
-			} catch (MSXException& e) {
-				// TODO
+			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
+				// TODO write error
 			}
 		}
 		sendHeader();
@@ -765,10 +755,8 @@ void NowindHost::callImage(const string& filename)
 		// invalid drive number
 		return;
 	}
-	try {
-		drives[num]->insertDisk(stripquotes(filename));
-	} catch (MSXException& e) {
-		// TODO
+	if (drives[num]->insertDisk(stripquotes(filename))) {
+		// TODO error handling
 	}
 }
 

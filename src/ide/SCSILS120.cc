@@ -802,9 +802,14 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-void SCSILS120::insertDisk(const std::string& filename)
+int SCSILS120::insertDisk(const std::string& filename)
 {
-	insert(filename);
+	try {
+		insert(filename);
+		return 0;
+	} catch (MSXException& e) {
+		return -1;
+	}
 }
 
 

@@ -44,4 +44,30 @@ const std::string& SectorAccessibleDisk::getSHA1Sum()
 	return sha1cache;
 }
 
+int SectorAccessibleDisk::readSectors (
+	byte* buffer, unsigned startSector, unsigned nbSectors)
+{
+	try {
+		for (unsigned i = 0; i < nbSectors; ++i) {
+			readSector(startSector + i, &buffer[i * SECTOR_SIZE]);
+		}
+		return 0;
+	} catch (MSXException& e) {
+		return -1;
+	}
+}
+
+int SectorAccessibleDisk::writeSectors(
+	const byte* buffer, unsigned startSector, unsigned nbSectors)
+{
+	try {
+		for (unsigned i = 0; i < nbSectors; ++i) {
+			writeSector(startSector + i, &buffer[i * SECTOR_SIZE]);
+		}
+		return 0;
+	} catch (MSXException& e) {
+		return -1;
+	}
+}
+
 } // namespace openmsx
