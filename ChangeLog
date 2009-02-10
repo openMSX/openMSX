@@ -1,18 +1,22 @@
 $Id$
 
+2009-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Initial nowind implementation:
+	  still need to work on the nowind openmsx commands
+
 2009-02-09 Max Feingold <maf6@cornell.edu>
 	* Ported most significant inline assembly code to VC++ format, 
 	  where significance is defined as 'being noticeable in kernrate'.
 	  Still TODO: DivModBySame.hh and MemoryOps.cc - will update this entry when done
-    * VC++ binaries now benchmark 15% faster than mingw32 binaries on my system
-      openMSX svn VC++ x64 - 10.72 seconds
-      openMSX svn VC++ x86 - 11.19 seconds
-      openMSX svn mingw x86 - 12.62 seconds
-      openMSX 0.7.0 mingw x86 - 13.96 seconds
+	* VC++ binaries now benchmark 15% faster than mingw32 binaries on my system
+	  openMSX svn VC++ x64 - 10.72 seconds
+	  openMSX svn VC++ x86 - 11.19 seconds
+	  openMSX svn mingw x86 - 12.62 seconds
+	  openMSX 0.7.0 mingw x86 - 13.96 seconds
 
 2009-02-07 Max Feingold <maf6@cornell.edu>
-    * Reduced VC++ W3 warning load to ~250, with help from Vampier and Wouter
-    
+	* Reduced VC++ W3 warning load to ~250, with help from Vampier and Wouter
+
 2009-02-05 Max Feingold <maf6@cornell.edu>
 	* Rationalized the following definitions throughout the codebase:
 	  - ASM_X86 = build assembly code on x86 and x64 platforms
@@ -42,7 +46,7 @@ $Id$
 	* As a side effect, this checkin also deprecates openMSX support for
 	  Windows 95-based platforms, as well as for Windows NT 4.0.
 	  At the time of writing, only Windows 2000 and above are supported.
-      
+
 2009-01-25 Maarten ter Huurne <maarten@treewalker.org>
 	* Use Python to generate "Version.ii".
 	* Use Python to generate "build-info.hh".
@@ -52,7 +56,7 @@ $Id$
 	  With this fix in place, the ALT+SPACE combination no longer
 	  pops up an annoying context menu on Windows.
 	* The solution was to register our own winproc, filter out the
-      offending WM_SYSCOMMAND events, and delegate the rest to SDL.
+	  offending WM_SYSCOMMAND events, and delegate the rest to SDL.
 
 2009-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Console refactoring:
@@ -68,7 +72,7 @@ $Id$
 	    see comments in src/cpu/CPUCore.cc for details.
 	  - But even without this part, the threaded interpreter model is a
 	    big win (more than 10% faster) over the old model.
-	    
+
 2009-01-23 Max Feingold <maf6@cornell.edu>
 	* Checked in VC++ project files that build dependencies and openMSX itself.
 	  The project files are in VC9 (Visual C++ 2008) format and should be usable
