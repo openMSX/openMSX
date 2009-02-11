@@ -1253,6 +1253,30 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\fdc\NowindHost.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\fdc\NowindHost.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\fdc\NowindInterface.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\fdc\NowindInterface.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\fdc\NowindRomDisk.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\fdc\NowindRomDisk.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\fdc\PhilipsFDC.cc"
 				>
 			</File>
@@ -2596,122 +2620,122 @@
 				RelativePath="..\..\src\sound\ResampleCoeffs.ii"
 				>
 			</File>
-      <File
+			<File
 				RelativePath="..\..\src\sound\ResampleHQ-x64.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-      </File>
-      <File
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\sound\ResampleHQ-x86.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-      </File>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="..\..\src\sound\ResampleHQ.cc"
 				>
@@ -3284,122 +3308,122 @@
 				RelativePath="..\..\src\video\DummyVideoSystem.hh"
 				>
 			</File>
-      <File
+			<File
 				RelativePath="..\..\src\video\FBPostProcessor-x64.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-      </File>
-      <File
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\video\FBPostProcessor-x86.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-      </File>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="..\..\src\video\FBPostProcessor.cc"
 				>
@@ -3596,122 +3620,122 @@
 				RelativePath="..\..\src\video\LayerListener.hh"
 				>
 			</File>
-      <File
+			<File
 				RelativePath="..\..\src\video\LineScalers-x64.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-      </File>
-      <File
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\video\LineScalers-x86.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-      </File>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="..\..\src\video\LineScalers.hh"
 				>
@@ -3820,122 +3844,122 @@
 				RelativePath="..\..\src\video\SaI3xScaler.hh"
 				>
 			</File>
-      <File
+			<File
 				RelativePath="..\..\src\video\Scale2xScaler-x64.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-      </File>
-      <File
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\video\Scale2xScaler-x86.asm"
 				>
-        <FileConfiguration
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
 					/>
-        </FileConfiguration>
-        <FileConfiguration
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|x64"
 					ExcludedFromBuild="true"
 					>
-          <Tool
+					<Tool
 						Name="VCCustomBuildTool"
 					/>
-        </FileConfiguration>
-      </File>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="..\..\src\video\Scale2xScaler.cc"
 				>
@@ -4169,7 +4193,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						/>
+					/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
