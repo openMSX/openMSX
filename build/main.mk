@@ -260,6 +260,7 @@ PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 COMPONENTS_MAKE:=$(MAKE_PATH)/components.mk
 COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
+COMPONENTS_DEFS:=$(CONFIG_PATH)/components_defs.mk
 GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
 
 
@@ -272,9 +273,7 @@ ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
 -include $(PROBE_MAKE)
 ifeq ($(PROBE_MAKE_INCLUDED),true)
 include $(COMPONENTS_MAKE)
-$(call BOOLCHECK,COMPONENT_CORE)
-$(call BOOLCHECK,COMPONENT_GL)
-$(call BOOLCHECK,COMPONENT_JACK)
+-include $(COMPONENTS_DEFS)
 endif # PROBE_MAKE_INCLUDED
 endif # goal requires dependencies
 endif # universal binary
@@ -480,7 +479,7 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 		3RDPARTY_INSTALL_DIR=$(3RDPARTY_INSTALL_DIR) \
 		LINK_MODE=$(LINK_MODE)
 	@$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk \
-		PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH)
+		PROBE_MAKE=$(PROBE_MAKE)
 
 # Default target.
 all: $(BINARY_FULL)

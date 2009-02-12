@@ -3,6 +3,7 @@
 # Display probe results, so user can decide whether to start the build,
 # or to change system configuration and rerun "configure".
 
+from components import checkComponents, componentNames
 from makeutils import extractMakeVariables, parseBool
 
 import sys
@@ -39,9 +40,10 @@ components = (
 	('SDLGL renderer', 'GL'),
 	)
 
-def iterProbeResults(probeMakePath, componentStatus):
+def iterProbeResults(probeMakePath):
 	probeVars = extractMakeVariables(probeMakePath)
 	customVars = extractMakeVariables('build/custom.mk')
+	componentStatus = dict(zip(componentNames, checkComponents(probeVars)))
 	maxLen = max(
 		len(niceName)
 		for niceName, _ in libraries + headers + components
@@ -105,17 +107,12 @@ def iterProbeResults(probeMakePath, componentStatus):
 				'and rerun "configure".'
 		yield ''
 
-if len(sys.argv) == 2 + len(components):
+if len(sys.argv) == 2:
 	probeMakePath = sys.argv[1]
-	componentStatus = dict(
-		( varName, parseBool(value) )
-		for (niceName_, varName), value in zip(components, sys.argv[2 : ])
-		)
-	for line in iterProbeResults(probeMakePath, componentStatus):
+	for line in iterProbeResults(probeMakePath):
 		print line
 else:
 	print >>sys.stderr, (
-		'Usage: python probe-results.py '
-		'PROBE_MAKE COMPONENT_CORE COMPONENT_JACK COMPONENT_GL'
+		'Usage: python probe-results.py PROBE_MAKE'
 		)
 	sys.exit(2)
