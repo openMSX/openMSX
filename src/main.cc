@@ -12,7 +12,6 @@
 #include "CliServer.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
-#include "Math.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
@@ -56,11 +55,6 @@ static void unexpectedExceptionHandler()
 
 static int main(int argc, char **argv)
 {
-#ifdef _WIN32
-	LARGE_INTEGER begin;
-	BOOL began = QueryPerformanceCounter(&begin);
-#endif
-
 	std::set_unexpected(unexpectedExceptionHandler);
 
 	int err = 0;
@@ -107,18 +101,6 @@ static int main(int argc, char **argv)
 	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
 		SDL_Quit();
 	}
-
-#ifdef _WIN32
-	if (began) {
-		LARGE_INTEGER end, frequency;
-		if (QueryPerformanceCounter(&end) &&
-			QueryPerformanceFrequency(&frequency) && 
-			frequency.QuadPart) {
-			double hectaseconds = 100 * double(end.QuadPart - begin.QuadPart) / frequency.QuadPart;
-			std::cout << "openMSX ran for " << (round(hectaseconds) / 100) << " seconds";
-		}
-	}
-#endif
 
 	return err;
 }
