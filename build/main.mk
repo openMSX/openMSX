@@ -262,12 +262,14 @@ else
 endif
 
 LOG_PATH:=$(BUILD_PATH)/log
-
 CONFIG_PATH:=$(BUILD_PATH)/config
+
+BUILDINFO_SCRIPT:=$(MAKE_PATH)/buildinfo2code.py
 CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
 PROBE_SCRIPT:=$(MAKE_PATH)/probe.mk
 PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
 PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
+VERSION_SCRIPT:=$(MAKE_PATH)/version2code.py
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 COMPONENTS_HEADER_SCRIPT:=$(MAKE_PATH)/components2code.py
 COMPONENTS_DEFS_SCRIPT:=$(MAKE_PATH)/components2defs.py
@@ -279,7 +281,6 @@ GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
 # Configuration
 # =============
 
-include $(MAKE_PATH)/info2code.mk
 ifneq ($(OPENMSX_TARGET_CPU),univ)
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
 -include $(PROBE_MAKE)
@@ -489,6 +490,20 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 		LINK_MODE=$(LINK_MODE) \
 		PYTHON=$(PYTHON)
 	@$(PYTHON) $(MAKE_PATH)/probe-results.py $(PROBE_MAKE)
+
+# Generate configuration header.
+$(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk
+	@echo "Creating $@..."
+	@mkdir -p $(@D)
+	@$(PYTHON) $(BUILDINFO_SCRIPT) \
+		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
+		$(INSTALL_SHARE_DIR) > $@
+
+# Generate version header.
+$(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog $(MAKE_PATH)/version.mk
+	@echo "Creating $@..."
+	@mkdir -p $(@D)
+	@$(PYTHON) $(VERSION_SCRIPT) > $@
 
 # Generate components header.
 $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE)
