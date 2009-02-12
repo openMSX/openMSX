@@ -490,9 +490,7 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 		3RDPARTY_INSTALL_DIR=$(3RDPARTY_INSTALL_DIR) \
 		LINK_MODE=$(LINK_MODE) \
 		PYTHON=$(PYTHON)
-	@$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk \
-		PROBE_MAKE=$(PROBE_MAKE) \
-		PYTHON=$(PYTHON)
+	@$(PYTHON) $(MAKE_PATH)/probe-results.py $(PROBE_MAKE)
 
 # Default target.
 all: $(BINARY_FULL)
