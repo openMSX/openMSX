@@ -330,6 +330,7 @@ OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 RESOURCE_SRC:=src/resource/openmsx.rc
 RESOURCE_OBJ:=$(OBJECTS_PATH)/resources.o
+RESOURCE_SCRIPT:=$(MAKE_PATH)/win-resource.py
 RESOURCE_HEADER:=$(CONFIG_PATH)/resource-info.h
 else
 RESOURCE_OBJ:=
@@ -585,14 +586,13 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 # in normal operation this rule is never triggered.
 $(DEPEND_FULL):
 
-# Win32 resources that are added to the executable.
+# Windows resources that are added to the executable.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
-WIN32_FILEVERSION:=$(shell echo $(PACKAGE_VERSION) $(CHANGELOG_REVISION) | sed -ne 's/\([0-9]\)*\.\([0-9]\)*\.\([0-9]\)*[^ ]* \([0-9]*\)/\1, \2, \3, \4/p' -)
-$(RESOURCE_HEADER): $(INIT_DUMMY_FILE) ChangeLog $(MAKE_PATH)/version.mk
+$(RESOURCE_HEADER): $(INIT_DUMMY_FILE) $(RESOURCE_SCRIPT) \
+		ChangeLog $(MAKE_PATH)/version.mk
 	@echo "Writing resource header..."
 	@mkdir -p $(@D)
-	@echo "#define OPENMSX_VERSION_INT $(WIN32_FILEVERSION)" > $@
-	@echo "#define OPENMSX_VERSION_STR \"$(PACKAGE_VERSION)\0\"" >> $@
+	@$(PYTHON) $(RESOURCE_SCRIPT) > $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
 	@echo "Compiling resources..."
 	@mkdir -p $(@D)
