@@ -34,24 +34,74 @@ public:
 		uint64 t = (__uint128_t(dividend) * m + a) >> 64;
 		return t >> s;
 	#elif defined (ASM_X86_32)
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
-		unsigned dummy;
-		unsigned th, tl;
-		unsigned ch = a >> 32;
-		unsigned cl = a;
+		unsigned _ch_ = a >> 32;
+		unsigned _cl_ = unsigned(a);
 		// g++-3.4 gives this warning when the vars below are const.
 		//    use of memory input without lvalue in asm operand n is deprecated
 		// For newer gcc versions it's ok.
-		/*const*/ unsigned ah = dividend >> 32;
-		/*const*/ unsigned al = dividend;
-		/*const*/ unsigned bh = m >> 32;
-		/*const*/ unsigned bl = m;
+		/*const*/ unsigned _ah_ = dividend >> 32;
+		/*const*/ unsigned _al_ = unsigned(dividend);
+		/*const*/ unsigned _bh_ = m >> 32;
+		/*const*/ unsigned _bl_ = unsigned(m);
+	#ifdef _MSC_VER
+		unsigned _s_ = s, result;
+		__asm {
+			// It's worth noting that simple benchmarks show this to be
+			// no faster than straight division on an Intel E8400
+			//
+			// eax and edx are clobbered by mul
+			// eax = _ah_
+			// ebx is _cl_
+			// ecx is _tl_ - not initialized
+			// edi is _th_ - not initialized
+			// esi is _ch_
+			mov		eax,_ah_
+			mov		esi,_ch_
+			mov		ebx,_cl_
+
+			mul		_bl_
+			mov		ecx,eax
+			mov		edi,edx
+			mov		eax,_al_
+			mul		_bl_
+			add		ebx,eax
+			adc		esi,edx
+			adc		edi,0
+			add		ecx,esi
+			adc		edi,0
+
+			// eax = _ah_
+			// ecx is now free - use it for _bh_
+			mov		ecx,_bh_
+			mov		eax,_ah_
+
+			mul		ecx
+			mov		ebx,eax
+			mov		esi,edx
+			mov		eax,_al_
+			mul		ecx
+			add		ecx,eax
+			adc		edi,edx
+			adc		esi,0
+			add		ebx,edi
+			adc		esi,0
+
+			mov		cl,byte ptr [_s_]
+			shrd	ebx,esi,cl
+			mov		result,ebx
+		}
+	#ifdef DEBUG
+		unsigned checkResult = divinC(dividend);
+		assert(checkResult == result);
+	#endif
+		return result;
+	#else
 		// Split in 3 asm sections to be able to satisfy operand
 		// constraints: between two sections gcc can reassign operands
 		// to different registers or memory locations. Apparently there
 		// are only 3 free registers available on OSX (devel flavour).
+		unsigned _th_, _tl_;
+		unsigned dummy;
 		asm (
 			"mull	%[BL]\n\t"       // eax = [AH]
 			"mov	%%eax,%[TL]\n\t"
@@ -64,16 +114,16 @@ public:
 			"add	%[CH],%[TL]\n\t"
 			"adc	$0,%[TH]\n\t"
 
-			: [TH]  "=&rm"  (th)
-			, [TL]  "=&r"   (tl)
-			, [CH]  "=rm"   (ch)
-			, [CL]  "=rm"   (cl)
+			: [TH]  "=&rm"  (_th_)
+			, [TL]  "=&r"   (_tl_)
+			, [CH]  "=rm"   (_ch_)
+			, [CL]  "=rm"   (_cl_)
 			, [EAX] "=&a"   (dummy)
-			:       "[CH]"  (ch)
-			,       "[CL]"  (cl)
-			,       "[EAX]" (ah)
-			, [AL]  "m"     (al)
-			, [BL]  "m"     (bl)
+			:       "[CH]"  (_ch_)
+			,       "[CL]"  (_cl_)
+			,       "[EAX]" (_ah_)
+			, [AL]  "m"     (_al_)
+			, [BL]  "m"     (_bl_)
 			: "edx"
 		);
 		asm (
@@ -88,27 +138,27 @@ public:
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			: [CH]  "=rm"   (ch)
-			, [CL]  "=r"    (cl)
-			, [TH]  "=&rm"  (th)
-			, [TL]  "=&rm"  (tl)
+			: [CH]  "=rm"   (_ch_)
+			, [CL]  "=r"    (_cl_)
+			, [TH]  "=&rm"  (_th_)
+			, [TL]  "=&rm"  (_tl_)
 			, [EAX] "=&a"   (dummy)
-			:       "[TH]"  (th)
-			,       "[TL]"  (tl)
-			,       "[EAX]" (ah)
-			, [AL]  "m"     (al)
-			, [BH]  "m"     (bh)
+			:       "[TH]"  (_th_)
+			,       "[TL]"  (_tl_)
+			,       "[EAX]" (_ah_)
+			, [AL]  "m"     (_al_)
+			, [BH]  "m"     (_bh_)
 			: "edx"
 		);
 		asm (
 			"shrd   %%cl,%[CH],%[CL]\n\t" // SH = ecx
 
-			: [CL] "=rm"  (cl)
-			: [CH] "r"    (ch)
-			,      "[CL]" (cl)
+			: [CL] "=rm"  (_cl_)
+			: [CH] "r"    (_ch_)
+			,      "[CL]" (_cl_)
 			, [SH] "c"    (s)
 		);
-		return cl;
+		return _cl_;
 	#endif
 	#elif defined(__arm__)
 		unsigned res;
@@ -142,7 +192,13 @@ public:
 			: "r3","r4","r5","r6","r7"
 		);
 		return res;
+	#else
+		return divinC(dividend);
 	#endif
+	}
+
+	inline unsigned divinC(uint64 dividend) const
+	{
 		uint64 t1 = uint64(unsigned(dividend)) * unsigned(m);
 		uint64 t2 = (dividend >> 32) * unsigned(m);
 		uint64 t3 = unsigned(dividend) * (m >> 32);
