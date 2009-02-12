@@ -280,8 +280,6 @@ PRINT_LIBS:=$(addsuffix -print,$(CHECK_LIBS))
 
 .PHONY: all init check-targets print-libs $(CHECK_TARGETS) $(PRINT_LIBS)
 
-PYTHON?=python
-
 # Default target.
 all: check-targets print-libs
 	@$(PYTHON) build/probe-header.py $(OUTMAKE) > $(OUTHEADER)

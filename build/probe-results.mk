@@ -11,8 +11,6 @@ endif
 
 include $(PROBE_MAKE)
 
-PYTHON?=python
-
 .PHONY: all
 
 all:

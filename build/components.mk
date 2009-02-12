@@ -1,7 +1,6 @@
 # $Id$
 # Defines the building blocks of openMSX and their dependencies.
 
-PYTHON?=python
 COMPONENTS_HEADER_SCRIPT:=$(MAKE_PATH)/components2code.py
 COMPONENTS_DEFS_SCRIPT:=$(MAKE_PATH)/components2defs.py
 

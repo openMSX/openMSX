@@ -16,6 +16,17 @@
 # - Make XRenderer into a component.
 
 
+# Python Interpreter
+# ==================
+
+# We need Python from the 2.x series, version 2.5 or higher.
+# Usually this executable is available as just "python", but on some systems
+# you might have to be more specific, for example "python2" or "python2.6".
+# Or if the Python interpreter is not in the search path, you can specify its
+# full path.
+PYTHON?=python
+
+
 # Delete on Error
 # ===============
 
@@ -477,9 +488,11 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		COMPILE="$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
 		3RDPARTY_INSTALL_DIR=$(3RDPARTY_INSTALL_DIR) \
-		LINK_MODE=$(LINK_MODE)
+		LINK_MODE=$(LINK_MODE) \
+		PYTHON=$(PYTHON)
 	@$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk \
-		PROBE_MAKE=$(PROBE_MAKE)
+		PROBE_MAKE=$(PROBE_MAKE) \
+		PYTHON=$(PYTHON)
 
 # Default target.
 all: $(BINARY_FULL)

@@ -5,7 +5,6 @@
 # - file dates used for dependency checks (as opposed to "-D" compile flag)
 # - inactive code is still checked by compiler (as opposed to "#if")
 
-PYTHON?=python
 BUILDINFO_SCRIPT:=$(MAKE_PATH)/buildinfo2code.py
 VERSION_SCRIPT:=$(MAKE_PATH)/version2code.py
 
