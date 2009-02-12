@@ -11,7 +11,7 @@
 # http://www.tip.net.au/~millerp/rmch/recu-make-cons-harm.html
 
 # TODO:
-# - Move calculation of CFLAGS and LDFLAGS to components.mk?
+# - Move calculation of CFLAGS and LDFLAGS to components2defs.py?
 # - Change output format of tcl-search.sh to match probed_defs.mk format.
 # - Make XRenderer into a component.
 
@@ -269,7 +269,8 @@ PROBE_SCRIPT:=$(MAKE_PATH)/probe.mk
 PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
 PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
-COMPONENTS_MAKE:=$(MAKE_PATH)/components.mk
+COMPONENTS_HEADER_SCRIPT:=$(MAKE_PATH)/components2code.py
+COMPONENTS_DEFS_SCRIPT:=$(MAKE_PATH)/components2defs.py
 COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
 COMPONENTS_DEFS:=$(CONFIG_PATH)/components_defs.mk
 GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
@@ -282,10 +283,7 @@ include $(MAKE_PATH)/info2code.mk
 ifneq ($(OPENMSX_TARGET_CPU),univ)
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
 -include $(PROBE_MAKE)
-ifeq ($(PROBE_MAKE_INCLUDED),true)
-include $(COMPONENTS_MAKE)
 -include $(COMPONENTS_DEFS)
-endif # PROBE_MAKE_INCLUDED
 endif # goal requires dependencies
 endif # universal binary
 
@@ -491,6 +489,18 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 		LINK_MODE=$(LINK_MODE) \
 		PYTHON=$(PYTHON)
 	@$(PYTHON) $(MAKE_PATH)/probe-results.py $(PROBE_MAKE)
+
+# Generate components header.
+$(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE)
+	@echo "Creating $@..."
+	@mkdir -p $(@D)
+	@$(PYTHON) $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE) > $@
+
+# Generate components Makefile.
+$(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE)
+	@echo "Creating $@..."
+	@mkdir -p $(@D)
+	@$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) > $@
 
 # Default target.
 all: $(BINARY_FULL)
