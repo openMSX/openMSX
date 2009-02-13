@@ -786,6 +786,7 @@ $(addprefix 3rdparty-,$(CPU_LIST)):
 #       "linux-icc", design a proper way of handling them.
 run-3rdparty:
 	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
+		PYTHON=$(PYTHON) \
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(firstword $(subst -, ,$(OPENMSX_TARGET_OS))) \

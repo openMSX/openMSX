@@ -4,6 +4,9 @@
 # It enables only the features needed by openMSX: for example from SDL_image
 # we only need PNG handling cability.
 
+ifeq ($(origin PYTHON),undefined)
+$(error You should pass PYTHON)
+endif
 ifeq ($(origin BUILD_PATH),undefined)
 $(error You should pass BUILD_PATH)
 endif
@@ -348,6 +351,6 @@ $(foreach PACKAGE,$(PACKAGES_BUILD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 TARBALLS:=$(foreach PACKAGE,$(PACKAGES),$(TARBALLS_DIR)/$(TARBALL_$(PACKAGE)))
 download: $(TARBALLS)
 $(TARBALLS):
-	@false; curl --version ; if [ $$? != 0 -a $$? != 2 ]; then echo "Please install CURL (http://curl.haxx.se/) and put it in the PATH."; false; fi
 	mkdir -p $(@D)
-	curl --fail --location --retry 5 -o $@ $(DOWNLOAD_$(call findpackage,TARBALL,$(@F)))/$(@F)
+	$(PYTHON) build/download.py \
+		$(DOWNLOAD_$(call findpackage,TARBALL,$(@F)))/$(@F) $(@D)
