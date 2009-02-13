@@ -14,6 +14,9 @@ public:
 	virtual const std::string& getContainerName() const;
 	virtual bool diskChanged();
 	virtual int insertDisk(const std::string& filename);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 
 } // namespace openmsx

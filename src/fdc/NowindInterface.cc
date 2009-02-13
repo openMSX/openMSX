@@ -15,6 +15,8 @@
 #include "Filename.hh"
 #include "CommandException.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
+#include "ref.hh"
 #include <deque>
 
 using std::deque;
@@ -62,6 +64,11 @@ NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& 
 }
 
 NowindInterface::~NowindInterface()
+{
+	deleteDrives();
+}
+
+void NowindInterface::deleteDrives()
 {
 	for (Drives::const_iterator it = drives.begin();
 	     it != drives.end(); ++it) {
@@ -311,10 +318,10 @@ string NowindCommand::execute(const vector<string>& tokens)
 
 	// calculate result string
 	string result;
-	if (tmpDrives.size() != drives.size()) {
+	if (changeDrives && (tmpDrives.size() != drives.size())) {
 		result += "Number of drives changed. ";
 	}
-	if (romdisk != oldRomdisk) {
+	if (changeDrives && (romdisk != oldRomdisk)) {
 		if (oldRomdisk == 255) {
 			result += "Romdisk added. ";
 		} else if (romdisk == 255) {
@@ -395,9 +402,13 @@ void NowindCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 {
+	if (ar.isLoader()) {
+		deleteDrives();
+	}
+
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash", *flash);
-	//ar.serialize("drives", drives); // TODO
+	ar.serialize("drives", drives, ref(getMotherBoard()));
 	ar.serialize("nowindhost", *host);
 	ar.serialize("bank", bank);
 }

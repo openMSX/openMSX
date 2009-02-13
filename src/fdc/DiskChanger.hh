@@ -31,6 +31,7 @@ public:
 	            DiskManipulator& manipulator,
 	            MSXMotherBoard* board,
 	            bool createCommand = true);
+	DiskChanger(MSXMotherBoard& board, const std::string& driveName);
 	~DiskChanger();
 
 	void createCommand();
@@ -50,6 +51,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void init(MSXMotherBoard* board, bool createCmd);
 	void insertDisk(const std::vector<TclObject*>& args);
 	void ejectDisk();
 	void changeDisk(std::auto_ptr<Disk> newDisk);

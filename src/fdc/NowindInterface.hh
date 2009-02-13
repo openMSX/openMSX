@@ -33,6 +33,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void deleteDrives();
+
 	const std::auto_ptr<NowindCommand> command;
 	const std::auto_ptr<Rom> rom;
 	const std::auto_ptr<AmdFlash> flash;

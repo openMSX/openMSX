@@ -22,6 +22,8 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "serialize_constr.hh"
+#include "ref.hh"
 
 using std::set;
 using std::string;
@@ -52,6 +54,22 @@ DiskChanger::DiskChanger(const string& driveName_,
 	, scheduler(board ? &board->getScheduler() : NULL)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
+{
+	init(board, createCmd);
+}
+
+// only used for polymorphic de-serialization (for Nowind)
+DiskChanger::DiskChanger(MSXMotherBoard& board, const std::string& driveName_)
+	: controller(board.getCommandController())
+	, msxEventDistributor(&board.getMSXEventDistributor())
+	, scheduler(&board.getScheduler())
+	, manipulator(board.getDiskManipulator())
+	, driveName(driveName_)
+{
+	init(&board, true);
+}
+
+void DiskChanger::init(MSXMotherBoard* board, bool createCmd)
 {
 	if (createCmd) createCommand();
 	ejectDisk();
@@ -388,6 +406,28 @@ void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 }
+
+// extra (local) constructor arguments for polymorphic de-serialization
+template<> struct SerializeConstructorArgs<DiskChanger>
+{
+	typedef Tuple<std::string> type;
+
+	template<typename Archive>
+	void save(Archive& ar, const DiskChanger& changer)
+	{
+		ar.serialize("driveName", changer.getDriveName());
+	}
+
+	template<typename Archive> type load(Archive& ar, unsigned version)
+	{
+		string driveName;
+		ar.serialize("driveName", driveName);
+		return make_tuple(driveName);
+	}
+};
+
 INSTANTIATE_SERIALIZE_METHODS(DiskChanger);
+REGISTER_POLYMORPHIC_CLASS_1(DiskContainer, DiskChanger, "DiskChanger",
+                             reference_wrapper<MSXMotherBoard>);
 
 } // namespace openmsx
