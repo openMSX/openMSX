@@ -1,6 +1,6 @@
 // $Id$
 
-// TODO command conflicts when multiple nowind interfaces are used.
+// TODO implement hard disk partition stuff (also in DiskChanger)
 
 #include "NowindInterface.hh"
 #include "NowindRomDisk.hh"
@@ -17,6 +17,8 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ref.hh"
+#include <bitset>
+#include <cassert>
 #include <deque>
 
 using std::deque;
@@ -26,10 +28,15 @@ using std::vector;
 
 namespace openmsx {
 
+static const unsigned MAX_NOWINDS = 8; // a-h
+typedef std::bitset<MAX_NOWINDS> NowindsInUse;
+
+
 class NowindCommand : public SimpleCommand
 {
 public:
-	NowindCommand(CommandController& commandController,
+	NowindCommand(const string& basename,
+	              CommandController& commandController,
 	              NowindInterface& interface);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
@@ -39,9 +46,11 @@ private:
 	NowindInterface& interface;
 };
 
-static DiskChanger* createDiskChanger(unsigned n, MSXMotherBoard& motherBoard)
+
+static DiskChanger* createDiskChanger(const string& basename, unsigned n,
+                                      MSXMotherBoard& motherBoard)
 {
-	string name = "nowind" + StringOp::toString(n + 1);
+	string name = basename + StringOp::toString(n + 1);
 	DiskChanger* drive = new DiskChanger(
 		name, motherBoard.getCommandController(),
 		motherBoard.getDiskManipulator(), &motherBoard, false);
@@ -50,13 +59,33 @@ static DiskChanger* createDiskChanger(unsigned n, MSXMotherBoard& motherBoard)
 
 NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
-	, command(new NowindCommand(motherBoard.getCommandController(), *this))
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, flash(new AmdFlash(*rom, 16, rom->getSize() / (1024 * 64), 0, config))
 	, host(new NowindHost(drives))
 {
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("nowindsInUse");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new NowindsInUse();
+	}
+	++info.counter;
+	NowindsInUse& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
+
+	unsigned i = 0;
+	while (nowindsInUse[i]) {
+		if (++i == MAX_NOWINDS) {
+			throw MSXException("Too many nowind interfaces.");
+		}
+	}
+	nowindsInUse[i] = true;
+	basename = string("nowind") + char('a' + i);
+
+	command.reset(new NowindCommand(
+		basename, motherBoard.getCommandController(), *this));
+
 	// start with one (empty) drive
-	DiskChanger* drive = createDiskChanger(0, motherBoard);
+	DiskChanger* drive = createDiskChanger(basename, 0, motherBoard);
 	drive->createCommand();
 	drives.push_back(drive);
 
@@ -66,6 +95,23 @@ NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& 
 NowindInterface::~NowindInterface()
 {
 	deleteDrives();
+
+	MSXMotherBoard::SharedStuff& info =
+		getMotherBoard().getSharedStuff("nowindsInUse");
+	assert(info.counter);
+	assert(info.stuff);
+	NowindsInUse& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
+
+	unsigned i = basename[6] - 'a';
+	assert(nowindsInUse[i]);
+	nowindsInUse[i] = false;
+
+	--info.counter;
+	if (info.counter == 0) {
+		assert(nowindsInUse.none());
+		delete &nowindsInUse;
+		info.stuff = NULL;
+	}
 }
 
 void NowindInterface::deleteDrives()
@@ -155,9 +201,10 @@ byte* NowindInterface::getWriteCacheLine(word address) const
 
 // class NowindCommand
 
-NowindCommand::NowindCommand(CommandController& commandController,
+NowindCommand::NowindCommand(const string& basename,
+                             CommandController& commandController,
                              NowindInterface& interface_)
-	: SimpleCommand(commandController, "nowind")
+	: SimpleCommand(commandController, basename)
 	, interface(interface_)
 {
 }
@@ -260,7 +307,8 @@ string NowindCommand::execute(const vector<string>& tokens)
 
 		if (createDrive) {
 			DiskChanger* drive = createDiskChanger(
-				tmpDrives.size(), interface.getMotherBoard());
+				interface.basename, tmpDrives.size(),
+				interface.getMotherBoard());
 			tmpDrives.push_back(drive);
 			changeDrives = true;
 			if (!image.empty()) {
@@ -411,6 +459,8 @@ void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("drives", drives, ref(getMotherBoard()));
 	ar.serialize("nowindhost", *host);
 	ar.serialize("bank", bank);
+
+	// don't serialize command, rom, basename
 }
 INSTANTIATE_SERIALIZE_METHODS(NowindInterface);
 REGISTER_MSXDEVICE(NowindInterface, "NowindInterface");

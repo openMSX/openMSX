@@ -6,6 +6,7 @@
 #include "MSXDevice.hh"
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace openmsx {
 
@@ -35,12 +36,13 @@ public:
 private:
 	void deleteDrives();
 
-	const std::auto_ptr<NowindCommand> command;
 	const std::auto_ptr<Rom> rom;
 	const std::auto_ptr<AmdFlash> flash;
+	const std::auto_ptr<NowindHost> host;
+	std::auto_ptr<NowindCommand> command;
 	typedef std::vector<DiskContainer*> Drives;
 	Drives drives;
-	const std::auto_ptr<NowindHost> host;
+	std::string basename;
 	byte bank;
 
 	friend class NowindCommand;
