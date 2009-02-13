@@ -183,6 +183,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-debug \
 		--disable-cdrom \
 		--disable-stdio-redirect \
+		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
@@ -209,6 +210,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--disable-tif \
 		--disable-xcf \
 		--disable-xpm \
+		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)" \
@@ -222,6 +224,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-sdltest \
+		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-sdl-prefix=$(PWD)/$(INSTALL_DIR) \
@@ -237,6 +240,7 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
   $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
+		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
@@ -248,6 +252,7 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_FREETYPE)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
+		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
@@ -257,9 +262,6 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
 # Configure zlib.
 # Although it uses "configure", zlib does not support building outside of the
 # source tree, so just copy everything over (it's a small package).
-# You can configure zlib to build either a static lib, or a dynamic one, not
-# both. So we configure it for both types, store the resulting Makefiles and
-# replace the main Makefile to invoke both actual Makefiles.
 $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_ZLIB)
 	mkdir -p $(dir $(@D))
@@ -267,14 +269,6 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 	cp -r $< $(@D)
 	cd $(@D) && ./configure \
 		--prefix=$(PWD)/$(INSTALL_DIR)
-	mv $(@D)/Makefile $(@D)/Makefile.static
-	cd $(@D) && ./configure \
-		--shared \
-		--prefix=$(PWD)/$(INSTALL_DIR)
-	mv $(@D)/Makefile $(@D)/Makefile.shared
-	echo 'all $$(MAKECMDGOALS):' > $(@D)/Makefile
-	echo '	make -f Makefile.static $$(MAKECMDGOALS)' >> $(@D)/Makefile
-	echo '	make -f Makefile.shared $$(MAKECMDGOALS)' >> $(@D)/Makefile
 # It is not possible to pass CFLAGS to zlib's configure.
 MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # Note: zlib's Makefile uses LDFLAGS to link its examples, not the library
@@ -324,6 +318,7 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		--with-minimum \
 		--with-push \
 		--with-sax1 \
+		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		$(if $(filter-out $(SYSTEM_LIBS),ZLIB),--with-zlib=$(PWD)/$(INSTALL_DIR),) \
