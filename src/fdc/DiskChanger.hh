@@ -29,8 +29,11 @@ public:
 	DiskChanger(const std::string& driveName,
 	            CommandController& commandController,
 	            DiskManipulator& manipulator,
-	            MSXMotherBoard* board);
+	            MSXMotherBoard* board,
+	            bool createCommand = true);
 	~DiskChanger();
+
+	void createCommand();
 
 	const std::string& getDriveName() const;
 	const Filename& getDiskName() const;
@@ -65,7 +68,7 @@ private:
 	std::auto_ptr<Disk> disk;
 
 	friend class DiskCommand;
-	const std::auto_ptr<DiskCommand> diskCommand; // must come after driveName
+	std::auto_ptr<DiskCommand> diskCommand; // must come after driveName
 
 	bool diskChangedFlag;
 };

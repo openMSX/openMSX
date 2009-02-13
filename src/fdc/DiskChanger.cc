@@ -45,19 +45,26 @@ private:
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& controller_,
                          DiskManipulator& manipulator_,
-                         MSXMotherBoard* board)
+                         MSXMotherBoard* board,
+                         bool createCmd)
 	: controller(controller_)
 	, msxEventDistributor(board ? &board->getMSXEventDistributor() : NULL)
 	, scheduler(board ? &board->getScheduler() : NULL)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
-	, diskCommand(new DiskCommand(controller, *this))
 {
+	if (createCmd) createCommand();
 	ejectDisk();
 	manipulator.registerDrive(*this, board);
 	if (msxEventDistributor) {
 		msxEventDistributor->registerEventListener(*this);
 	}
+}
+
+void DiskChanger::createCommand()
+{
+	if (diskCommand.get()) return;
+	diskCommand.reset(new DiskCommand(controller, *this));
 }
 
 DiskChanger::~DiskChanger()

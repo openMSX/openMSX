@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class NowindCommand;
 class Rom;
 class AmdFlash;
 class DiskChanger;
@@ -32,12 +33,15 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Rom>         rom;
-	const std::auto_ptr<AmdFlash>    flash;
-	const std::auto_ptr<DiskChanger> changer;  //
-	std::vector<DiskContainer*>      drives; //
-	const std::auto_ptr<NowindHost>  host;
+	const std::auto_ptr<NowindCommand> command;
+	const std::auto_ptr<Rom> rom;
+	const std::auto_ptr<AmdFlash> flash;
+	typedef std::vector<DiskContainer*> Drives;
+	Drives drives;
+	const std::auto_ptr<NowindHost> host;
 	byte bank;
+
+	friend class NowindCommand;
 };
 
 } // namespace openmsx
