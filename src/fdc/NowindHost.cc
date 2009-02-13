@@ -1,5 +1,4 @@
 #include "NowindHost.hh"
-#include "NowindRomDisk.hh"
 #include "DiskContainer.hh"
 #include "SectorAccessibleDisk.hh"
 #include "serialize.hh"
@@ -23,7 +22,7 @@ NowindHost::NowindHost(const vector<DiskContainer*>& drives_)
 	, state(STATE_SYNC1)
 	, romdisk(255)
 	, allowOtherDiskroms(false)
-	, enablePhantomDrives(false)
+	, enablePhantomDrives(true)
 {
 }
 
@@ -284,13 +283,13 @@ void NowindHost::DRIVES()
 
 	byte reg_a = cmdData[7];
 	sendHeader();
-	send(getEnablePhantomDrives() ? 0 : 0x02);
-	send(reg_a | (getAllowOtherDiskroms() ? 0x80 : 0));
+	send(getEnablePhantomDrives() ? 0x02 : 0);
+	send(reg_a | (getAllowOtherDiskroms() ? 0 : 0x80));
 	send(numberOfDrives);
 
 	romdisk = 255; // no romdisk
 	for (unsigned i = 0; i < drives.size(); ++i) {
-		if (dynamic_cast<NowindRomDisk*>(drives[i])) {
+		if (drives[i]->isRomdisk()) {
 			romdisk = i;
 			break;
 		}

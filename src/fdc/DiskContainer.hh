@@ -19,6 +19,8 @@ public:
 	// for nowind
 	//  - error handling with return values instead of exceptions
 	virtual int insertDisk(const std::string& filename) = 0;
+	// for nowind
+	bool isRomdisk() const;
 
 protected:
 	virtual ~DiskContainer();

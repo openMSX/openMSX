@@ -20,10 +20,13 @@ public:
 	NowindHost(const std::vector<DiskContainer*>& drives);
 	~NowindHost();
 
+	// public for usb-host implementation
 	bool isDataAvailable() const;
 
 	// read one byte of response-data from the host (msx <- pc)
 	byte read();
+
+	// like read(), but without side effects (doesn't consume the data)
 	byte peek() const;
 
 	// write one byte of command-data to the host   (msx -> pc)
@@ -48,6 +51,7 @@ public:
 		STATE_DEVOPEN,   // waiting for filename (11 bytes)
 		STATE_IMAGE,     // waiting for filename
 	};
+
 private:
 	void msxReset();
 	SectorAccessibleDisk* getDisk() const;
@@ -122,4 +126,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // NOWINDHOST_HH
