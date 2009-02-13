@@ -399,11 +399,11 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 {
 	// 'dst' must be 4-byte aligned. For best performance 'src' should also
 	// be 4-byte aligned, but it's not strictly needed.
-	assert((long(dst) & 3) == 0);
-	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
+	assert((size_t(dst) & 3) == 0);
+	// VC++'s memcpy function results in emulator benchmarks 
+	// running about 5% faster than with stream_memcpy.
+	// Consequently, we disable this functionality in VC++.
+	#if defined ASM_X86 && !defined _MSC_VER
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(num == 0)) return;
@@ -412,6 +412,79 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 			*dst++ = *src++;
 			--num;
 		}
+	#ifdef _MSC_VER
+		__asm {
+			mov			ebx,dword ptr [src]
+			mov			edi,dword ptr [dst]
+			mov			esi,dword ptr [num]
+			mov         eax,esi
+			and         eax,0FFFFFFF0h
+			je          label1
+			shl         eax,2
+			add         ebx,eax
+			add         edi,eax
+			neg         eax
+	mainloop:
+			prefetchnta [ebx+eax+140h]
+			movq        mm0,mmword ptr [ebx+eax]
+			movq        mm1,mmword ptr [ebx+eax+8]
+			movq        mm2,mmword ptr [ebx+eax+10h]
+			movq        mm3,mmword ptr [ebx+eax+18h]
+			movq        mm4,mmword ptr [ebx+eax+20h]
+			movq        mm5,mmword ptr [ebx+eax+28h]
+			movq        mm6,mmword ptr [ebx+eax+30h]
+			movq        mm7,mmword ptr [ebx+eax+38h]
+			movntq      mmword ptr [edi+eax],mm0
+			movntq      mmword ptr [edi+eax+8],mm1
+			movntq      mmword ptr [edi+eax+10h],mm2
+			movntq      mmword ptr [edi+eax+18h],mm3
+			movntq      mmword ptr [edi+eax+20h],mm4
+			movntq      mmword ptr [edi+eax+28h],mm5
+			movntq      mmword ptr [edi+eax+30h],mm6
+			movntq      mmword ptr [edi+eax+38h],mm7
+			add         eax,40h
+			jne         mainloop
+			and         esi,0Fh
+	label1:
+			test        esi,8
+			je          label2
+			movq        mm0,mmword ptr [ebx]
+			movq        mm1,mmword ptr [ebx+8]
+			movq        mm2,mmword ptr [ebx+10h]
+			movq        mm3,mmword ptr [ebx+18h]
+			movntq      mmword ptr [edi],mm0
+			movntq      mmword ptr [edi+8],mm1
+			movntq      mmword ptr [edi+10h],mm2
+			movntq      mmword ptr [edi+18h],mm3
+			add         ebx,20h
+			add         edi,20h   
+	label2:
+			test        esi,4
+			je          label3
+			movq        mm0,mmword ptr [ebx]
+			movq        mm1,mmword ptr [ebx+8]
+			movntq      mmword ptr [edi],mm0
+			movntq      mmword ptr [edi+8],mm1
+			add         ebx,10h
+			add         edi,10h
+	label3:
+			test        esi,2
+			je          label4
+			movq        mm0,mmword ptr [ebx]
+			movntq      mmword ptr [edi],mm0
+			add         ebx,8
+			add         edi,8
+	label4:
+			and         esi,1
+			je          label5
+			mov         edx,dword ptr [ebx]
+			mov         dword ptr [edi],edx
+	label5:
+			emms
+		}
+		return;
+	}
+	#else
 		// copy chunks of 64 bytes
 		unsigned long n2 = num & ~15;
 		if (likely(n2)) {
@@ -516,10 +589,10 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	// 'dst' must be 2-byte aligned. For best performance 'src' should also
 	// be 2-byte aligned, but it's not strictly needed.
 	assert((long(dst) & 1) == 0);
-	#ifdef ASM_X86
-	#ifdef _MSC_VER
-	// TODO - VC++ ASM implementation
-	#else
+	// VC++'s memcpy function results in emulator benchmarks 
+	// running about 5% faster than with stream_memcpy.
+	// Consequently, we disable this functionality in VC++.
+	#if defined ASM_X86 && !defined _MSC_VER
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(!num)) return;
@@ -536,7 +609,6 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 		}
 		return;
 	}
-	#endif
 	#endif
 	memcpy(dst, src, num * sizeof(word));
 }
@@ -591,6 +663,8 @@ void* mallocAligned(unsigned alignment, unsigned size)
 	AllocMap::instance().insert(aligned, aligned);
 	#endif
 	return aligned;
+#elif defined _MSC_VER
+	return _aligned_malloc(size, alignment);
 #else
 	unsigned long t = alignment - 1;
 	void* unaligned = malloc(size + t);
@@ -611,6 +685,8 @@ void freeAligned(void* aligned)
 	AllocMap::instance().remove(aligned);
 	#endif
 	free(aligned);
+#elif defined _MSC_VER
+	return _aligned_free(aligned);
 #else
 	void* unaligned = AllocMap::instance().remove(aligned);
 	free(unaligned);
