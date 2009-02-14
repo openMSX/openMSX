@@ -20,67 +20,96 @@ namespace openmsx {
 
 namespace MemoryOps {
 
-#ifdef ASM_X86
-#ifdef _MSC_VER
-// TODO - VC++ ASM implementation
-#else
+// This provides no noticeable performance improvement in
+// emulator benchmarks with VC++. Consequently, there's no reason 
+// to write a Win64 ASM version of this.
+#if defined ASM_X86 && !defined _WIN64
 // note: xmm0 must already be filled in
 //       bit0 of num is ignored
 static inline void memset_128_SSE_streaming(
-	unsigned long long* out, unsigned num)
+	unsigned long long* dest, unsigned num)
 {
-	assert((long(out) & 15) == 0); // must be 16-byte aligned
-	unsigned long long* e = out + num - 3;
-	for (/**/; out < e; out += 4) {
+	assert((size_t(dest) & 15) == 0); // must be 16-byte aligned
+	unsigned long long* e = dest + num - 3;
+	for (/**/; dest < e; dest += 4) {
+#ifdef _MSC_VER
+		__asm {
+			mov				eax,dest
+			movntps			xmmword ptr [eax],xmm0
+			movntps			xmmword ptr [eax+10h],xmm0
+		}
+#else
 		asm volatile (
 			"movntps %%xmm0,   (%0);"
 			"movntps %%xmm0, 16(%0);"
 			: // no output
-			: "r" (out)
+			: "r" (dest)
 		);
+#endif
 	}
 	if (unlikely(num & 2)) {
+#ifdef _MSC_VER
+		__asm {
+			movntps			qword ptr [dest],xmm0
+		}
+#else
 		asm volatile (
 			"movntps %%xmm0, (%0);"
 			: // no output
-			: "r" (out)
+			: "r" (dest)
 		);
+#endif
 	}
 }
 
 static inline void memset_128_SSE(
-	unsigned long long* out, unsigned num)
+	unsigned long long* dest, unsigned num)
 {
-	assert((long(out) & 15) == 0); // must be 16-byte aligned
-	unsigned long long* e = out + num - 3;
-	for (/**/; out < e; out += 4) {
+	assert((size_t(dest) & 15) == 0); // must be 16-byte aligned
+	unsigned long long* e = dest + num - 3;
+	for (/**/; dest < e; dest += 4) {
+#ifdef _MSC_VER
+		__asm {
+			mov			eax,dest
+			movaps		xmmword ptr [eax],xmm0
+			movaps		xmmword ptr [eax+10h],xmm0
+		}
+#else
 		asm volatile (
 			"movaps %%xmm0,   (%0);"
 			"movaps %%xmm0, 16(%0);"
 			: // no output
-			: "r" (out)
+			: "r" (dest)
 		);
+#endif
 	}
 	if (unlikely(num & 2)) {
+#ifdef _MSC_VER
+		__asm {
+			mov			eax,dest
+			movaps		xmmword ptr [eax],xmm0
+		}
+#else
 		asm volatile (
 			"movaps %%xmm0, (%0);"
 			: // no output
-			: "r" (out)
+			: "r" (dest)
 		);
+#endif
 	}
 }
 
 template<bool STREAMING>
 static inline void memset_64_SSE(
-	unsigned long long* out, unsigned num, unsigned long long val)
+	unsigned long long* dest, unsigned num, unsigned long long val)
 {
-	assert((long(out) & 7) == 0); // must be 8-byte aligned
+	assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
 	if (unlikely(num == 0)) return;
-	if (unlikely(long(out) & 8)) {
+	if (unlikely(size_t(dest) & 8)) {
 		// SSE *must* have 16-byte aligned data
-		out[0] = val;
-		++out; --num;
+		dest[0] = val;
+		++dest; --num;
 	}
 #ifdef ASM_X86_64
 	asm volatile (
@@ -97,8 +126,17 @@ static inline void memset_64_SSE(
 		#endif
 	);
 #else
-	unsigned low  = unsigned(val >>  0);
-	unsigned high = unsigned(val >> 32);
+	unsigned _low_  = unsigned(val >>  0);
+	unsigned _high_ = unsigned(val >> 32);
+#ifdef _MSC_VER
+	__asm {
+		movss		xmm0,dword ptr [_low_]
+		movss		xmm1,dword ptr [_high_]
+		unpcklps	xmm0,xmm0
+		unpcklps	xmm1,xmm1
+		unpcklps	xmm0,xmm1
+	}
+#else
 	asm volatile (
 		"movss        %0, %%xmm0;"
 		"movss        %1, %%xmm1;"
@@ -106,28 +144,64 @@ static inline void memset_64_SSE(
 		"unpcklps %%xmm1, %%xmm1;"
 		"unpcklps %%xmm1, %%xmm0;"
 		: // no output
-		: "m" (low)
-		, "m" (high)
+		: "m" (_low_)
+		, "m" (_high_)
 		#ifdef __SSE__
 		: "xmm0", "xmm1"
 		#endif
 	);
 #endif
+#endif
 	if (STREAMING) {
-		memset_128_SSE_streaming(out, num);
+		memset_128_SSE_streaming(dest, num);
 	} else {
-		memset_128_SSE(out, num);
+		memset_128_SSE(dest, num);
 	}
 	if (unlikely(num & 1)) {
-		out[num - 1] = val;
+		dest[num - 1] = val;
 	}
 }
 
 static inline void memset_64_MMX(
-	unsigned long long* out, unsigned num, unsigned long long val)
+	unsigned long long* dest, unsigned num, unsigned long long val)
 {
-        assert((long(out) & 7) == 0); // must be 8-byte aligned
+    assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
+#ifdef _MSC_VER
+	unsigned lo = unsigned(val >> 0);
+	unsigned hi = unsigned(val >> 32);
+	unsigned long long* e = dest + num - 3;
+
+	__asm {
+		movd		mm0,dword ptr [lo]
+		movd		mm1,dword ptr [hi]
+		punpckldq	mm0,mm1
+
+		mov			eax,e
+		mov			ecx,dest
+		mov			edx,dword ptr [num]
+mainloop:
+		movq		mmword ptr [ecx],mm0
+		movq		mmword ptr [ecx+8],mm0
+		movq		mmword ptr [ecx+10h],mm0
+		movq		mmword ptr [ecx+18h],mm0
+		add			ecx,20h
+		cmp			ecx,eax
+		jb			mainloop
+
+		test		edx,2
+		je			test1
+		movq		mmword ptr [ecx],mm0
+		movq		mmword ptr [ecx+8],mm0
+		add			ecx,10h
+test1:
+		test		edx,1
+		je			end
+		movq		mmword ptr [ecx],mm0
+end:
+		emms
+	}
+#else
 	// note can be better on X86_64, but there we anyway use SSE
 	asm volatile (
 		"movd      %0,%%mm0;"
@@ -140,15 +214,15 @@ static inline void memset_64_MMX(
 		: "mm0", "mm1"
 		#endif
 	);
-	unsigned long long* e = out + num - 3;
-	for (/**/; out < e; out += 4) {
+	unsigned long long* e = dest + num - 3;
+	for (/**/; dest < e; dest += 4) {
 		asm volatile (
 			"movq %%mm0,   (%0);"
 			"movq %%mm0,  8(%0);"
 			"movq %%mm0, 16(%0);"
 			"movq %%mm0, 24(%0);"
 			: // no output
-			: "r" (out)
+			: "r" (dest)
 		);
 	}
 	if (unlikely(num & 2)) {
@@ -156,98 +230,92 @@ static inline void memset_64_MMX(
 			"movq %%mm0,  (%0);"
 			"movq %%mm0, 8(%0);"
 			: // no output
-			: "r" (out)
+			: "r" (dest)
 		);
-		out += 2;
+		dest += 2;
 	}
 	if (unlikely(num & 1)) {
 		asm volatile (
 			"movq %%mm0, (%0);"
 			: // no output
-			: "r" (out)
+			: "r" (dest)
 		);
 	}
 	asm volatile ("emms");
-}
 #endif
+}
 #endif
 
 template<bool STREAMING>
 static inline void memset_64(
-        unsigned long long* out, unsigned num, unsigned long long val)
+        unsigned long long* dest, unsigned num, unsigned long long val)
 {
-	assert((long(out) & 7) == 0); // must be 8-byte aligned
+	assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
-#ifdef ASM_X86
-#ifdef _MSC_VER
-// TODO - VC++ ASM implementation
-#else
+#if defined ASM_X86 && !defined _WIN64
 	HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
-		memset_64_SSE<STREAMING>(out, num, val);
+		memset_64_SSE<STREAMING>(dest, num, val);
 		return;
 	}
 	if (cpu.hasMMX()) {
-		memset_64_MMX(out, num, val);
+		memset_64_MMX(dest, num, val);
 		return;
 	}
 #endif
-#endif
-	unsigned long long* e = out + num - 3;
-	for (/**/; out < e; out += 4) {
-		out[0] = val;
-		out[1] = val;
-		out[2] = val;
-		out[3] = val;
+	unsigned long long* e = dest + num - 3;
+	for (/**/; dest < e; dest += 4) {
+		dest[0] = val;
+		dest[1] = val;
+		dest[2] = val;
+		dest[3] = val;
 	}
 	if (unlikely(num & 2)) {
-		out[0] = val;
-		out[1] = val;
-		out += 2;
+		dest[0] = val;
+		dest[1] = val;
+		dest += 2;
 	}
 	if (unlikely(num & 1)) {
-		out[0] = val;
+		dest[0] = val;
 	}
 }
 
 template<bool STREAMING>
 static inline void memset_32_2(
-	unsigned* out, unsigned num, unsigned val0, unsigned val1)
+	unsigned* dest, unsigned num, unsigned val0, unsigned val1)
 {
-	assert((long(out) & 3) == 0); // must be 4-byte aligned
+	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
 
 	if (unlikely(num == 0)) return;
-	if (unlikely(long(out) & 4)) {
-		out[0] = val1; // start at odd pixel
-		++out; --num;
+	if (unlikely(size_t(dest) & 4)) {
+		dest[0] = val1; // start at odd pixel
+		++dest; --num;
 	}
 
 	unsigned long long val = OPENMSX_BIGENDIAN
 		? (static_cast<unsigned long long>(val0) << 32) | val1
 		: val0 | (static_cast<unsigned long long>(val1) << 32);
 	memset_64<STREAMING>(
-		reinterpret_cast<unsigned long long*>(out), num / 2, val);
+		reinterpret_cast<unsigned long long*>(dest), num / 2, val);
 
 	if (unlikely(num & 1)) {
-		out[num - 1] = val0;
+		dest[num - 1] = val0;
 	}
 }
 
 template<bool STREAMING>
-static inline void memset_32(unsigned* out, unsigned num, unsigned val)
+static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 {
-	assert((long(out) & 3) == 0); // must be 4-byte aligned
+	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
 
-#ifdef ASM_X86
 #ifdef _MSC_VER
-// TODO - VC++ ASM implementation
-#else
-	memset_32_2<STREAMING>(out, num, val, val);
-	return;
-#endif
-#endif
-
-#ifdef __arm__
+	// VC++'s memset function results in emulator benchmarks 
+	// running about 5% faster than with memset_32_2, streaming or not.
+	// It's also slightly faster than the C code below
+	memset(dest, val, num*sizeof(dest[0]));
+#elif defined ASM_X86 
+	memset_32_2<STREAMING>(dest, num, val, val);
+#elif defined __arm__
 	asm volatile (
 		"mov     r3, %[val]\n\t"
 		"mov     r4, %[val]\n\t"
@@ -260,93 +328,93 @@ static inline void memset_32(unsigned* out, unsigned num, unsigned val)
 		"mov     r9, %[val]\n\t"
 		"mov     r10,%[val]\n\t"
 	"0:\n\t"
-		"stmia   %[out]!,{r3-r10}\n\t"
+		"stmia   %[dest]!,{r3-r10}\n\t"
 		"subs    %[num],%[num],#8\n\t"
 		"bpl     0b\n\t"
 	"1:\n\t"
 		"tst     %[num],#4\n\t"
-		"stmneia %[out]!,{r3-r6}\n\t"
+		"stmneia %[dest]!,{r3-r6}\n\t"
 		"tst     %[num],#2\n\t"
-		"stmneia %[out]!,{r3-r4}\n\t"
+		"stmneia %[dest]!,{r3-r4}\n\t"
 		"tst     %[num],#1\n\t"
-		"strne   r3,[%[out]]\n\t"
+		"strne   r3,[%[dest]]\n\t"
 
-		: [out] "=r"    (out)
+		: [dest] "=r"    (dest)
 		, [num] "=r"    (num)
-		:       "[out]" (out)
+		:       "[dest]" (dest)
 		,       "[num]" (num)
 		, [val] "r"     (val)
 		: "r3","r4","r5","r6","r7","r8","r9","r10"
 	);
 	return;
-#endif
-
-	unsigned* e = out + num - 7;
-	for (/**/; out < e; out += 8) {
-		out[0] = val;
-		out[1] = val;
-		out[2] = val;
-		out[3] = val;
-		out[4] = val;
-		out[5] = val;
-		out[6] = val;
-		out[7] = val;
+#else
+	unsigned* e = dest + num - 7;
+	for (/**/; dest < e; dest += 8) {
+		dest[0] = val;
+		dest[1] = val;
+		dest[2] = val;
+		dest[3] = val;
+		dest[4] = val;
+		dest[5] = val;
+		dest[6] = val;
+		dest[7] = val;
 	}
 	if (unlikely(num & 4)) {
-		out[0] = val;
-		out[1] = val;
-		out[2] = val;
-		out[3] = val;
-		out += 4;
+		dest[0] = val;
+		dest[1] = val;
+		dest[2] = val;
+		dest[3] = val;
+		dest += 4;
 	}
 	if (unlikely(num & 2)) {
-		out[0] = val;
-		out[1] = val;
-		out += 2;
+		dest[0] = val;
+		dest[1] = val;
+		dest += 2;
 	}
 	if (unlikely(num & 1)) {
-		out[0] = val;
+		dest[0] = val;
 	}
+#endif
 }
 
 template<bool STREAMING>
 static inline void memset_16_2(
-	word* out, unsigned num, word val0, word val1)
+	word* dest, unsigned num, word val0, word val1)
 {
-	assert((long(out) & 1) == 0); // must be 2-byte aligned
+	assert((size_t(dest) & 1) == 0); // must be 2-byte aligned
 
 	if (unlikely(num == 0)) return;
-	if (unlikely(long(out) & 2)) {
-		out[0] = val1; // start at odd pixel
-		++out; --num;
+	if (unlikely(size_t(dest) & 2)) {
+		dest[0] = val1; // start at odd pixel
+		++dest; --num;
 	}
 
 	unsigned val = OPENMSX_BIGENDIAN
 	             ? (val0 << 16) | val1
 	             : val0 | (val1 << 16);
-	memset_32<STREAMING>(reinterpret_cast<unsigned*>(out), num / 2, val);
+	memset_32<STREAMING>(reinterpret_cast<unsigned*>(dest), num / 2, val);
 
 	if (unlikely(num & 1)) {
-		out[num - 1] = val0;
+		dest[num - 1] = val0;
 	}
 }
 
 template<bool STREAMING>
-static inline void memset_16(word* out, unsigned num, word val)
+static inline void memset_16(word* dest, unsigned num, word val)
 {
-        memset_16_2<STREAMING>(out, num, val, val);
+	memset_16_2<STREAMING>(dest, num, val, val);
 }
 
 template <typename Pixel, bool STREAMING>
 void MemSet<Pixel, STREAMING>::operator()(
-	Pixel* out, unsigned num, Pixel val) const
+	Pixel* dest, unsigned num, Pixel val) const
 {
 	if (sizeof(Pixel) == 2) {
 		memset_16<STREAMING>(
-			reinterpret_cast<word*    >(out), num, val);
+			reinterpret_cast<word*    >(dest), num, val);
 	} else if (sizeof(Pixel) == 4) {
 		memset_32<STREAMING>(
-			reinterpret_cast<unsigned*>(out), num, val);
+			reinterpret_cast<unsigned*>(dest), num, val);
 	} else {
 		assert(false);
 	}
@@ -354,14 +422,14 @@ void MemSet<Pixel, STREAMING>::operator()(
 
 template <typename Pixel, bool STREAMING>
 void MemSet2<Pixel, STREAMING>::operator()(
-	Pixel* out, unsigned num, Pixel val0, Pixel val1) const
+	Pixel* dest, unsigned num, Pixel val0, Pixel val1) const
 {
 	if (sizeof(Pixel) == 2) {
 		memset_16_2<STREAMING>(
-			reinterpret_cast<word*    >(out), num, val0, val1);
+			reinterpret_cast<word*    >(dest), num, val0, val1);
 	} else if (sizeof(Pixel) == 4) {
 		memset_32_2<STREAMING>(
-			reinterpret_cast<unsigned*>(out), num, val0, val1);
+			reinterpret_cast<unsigned*>(dest), num, val0, val1);
 	} else {
 		assert(false);
 	}
