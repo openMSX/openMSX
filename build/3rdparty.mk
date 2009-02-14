@@ -218,6 +218,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LIBS="-lz" \
 		LDFLAGS="$(_LDFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
 
 # Configure SDL_ttf.
