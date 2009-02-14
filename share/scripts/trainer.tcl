@@ -116,15 +116,16 @@ proc __trainer_exec {} {
 }
 proc __trainer_deactivate {} {
 	if ![info exists ::__trainer_after_id] return ;# no trainer active
-	after cancel $::__trainer_after_id
+	catch { after cancel $::__trainer_after_id }
 	unset ::__trainer_after_id
 	set ::__active_trainer ""
 }
-proc __trainer_deactivate_after_boot {} {
+proc __trainer_deactivate_after { event } {
 	__trainer_deactivate
-	after boot __trainer_deactivate_after_boot
+	after $event "__trainer_deactivate_after $event"
 }
-__trainer_deactivate_after_boot
+__trainer_deactivate_after boot
+__trainer_deactivate_after machine_switch
 
 proc create_trainer {name repeat items} {
 	set ::__trainers($name) [list $items $repeat]
