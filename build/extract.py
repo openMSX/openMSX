@@ -19,8 +19,7 @@ def extract(archivePath, destDir, rename = None):
 	created files and ignores the ownership and permissions from the archive,
 	since we are not restoring a backup.
 	'''
-	absDestDir = abspath(destDir)
-	absDestDir += sep
+	absDestDir = abspath(destDir) + sep
 	if not isdir(absDestDir):
 		raise ValueError(
 			'Destination directory "%s" does not exist' % absDestDir
