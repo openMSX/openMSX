@@ -336,15 +336,13 @@ $(foreach PACKAGE,$(PACKAGES_STD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))): \
   $(SOURCE_DIR)/%: $(TARBALLS_DIR)/%.tar.gz
 # Name mapping for GLEW:
 $(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALLS_DIR)/$(TARBALL_GLEW)
-EXTRACTED_NAME_GLEW:=glew
 # Name mapping for Tcl:
 $(SOURCE_DIR)/$(PACKAGE_TCL): $(TARBALLS_DIR)/$(TARBALL_TCL)
 # Extraction rule:
 $(foreach PACKAGE,$(PACKAGES_BUILD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	rm -rf $@
 	mkdir -p $(@D)
-	tar -zxf $< -C $(@D)
-	if [ -n "$(EXTRACTED_NAME_$(call findpackage,TARBALL,$(<F)))" ]; then mv $(@D)/$(EXTRACTED_NAME_$(call findpackage,TARBALL,$(<F))) $@ ; fi
+	$(PYTHON) build/extract.py $< $(@D) $(@F)
 	test ! -e $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff
 	touch $@
 
