@@ -15,7 +15,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <new> // for std::bad_alloc
-#ifdef _MSC_VER
+#if defined ASM_X86 && defined _MSC_VER
 #include <intrin.h>	// for __stosd intrinsic
 #endif
 
@@ -311,13 +311,15 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 {
 	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
 
+#ifdef ASM_X86
 #ifdef _MSC_VER
 	// VC++'s __stosd intrinsic results in emulator benchmarks 
 	// running about 7% faster than with memset_32_2, streaming or not,
 	// and about 3% faster than the C code below.
 	__stosd(reinterpret_cast<unsigned long*>(dest), val, num);
-#elif defined ASM_X86
+#else
 	memset_32_2<STREAMING>(dest, num, val, val);
+#endif
 #elif defined __arm__
 	asm volatile (
 		"mov     r3, %[val]\n\t"
