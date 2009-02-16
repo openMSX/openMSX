@@ -389,7 +389,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 	return result;
 }
 
-string NowindCommand::help(const vector<string>& tokens) const
+string NowindCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "This command is modeled after the 'usbhost' command of the "
 	       "real nowind interface. Though only a subset of the options "

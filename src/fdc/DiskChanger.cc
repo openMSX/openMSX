@@ -418,7 +418,7 @@ template<> struct SerializeConstructorArgs<DiskChanger>
 		ar.serialize("driveName", changer.getDriveName());
 	}
 
-	template<typename Archive> type load(Archive& ar, unsigned version)
+	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
 	{
 		string driveName;
 		ar.serialize("driveName", driveName);
