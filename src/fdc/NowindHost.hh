@@ -1,7 +1,6 @@
 #ifndef NOWINDHOST_HH
 #define NOWINDHOST_HH
 
-#include "EmuTime.hh"
 #include "openmsx.hh"
 #include <deque>
 #include <vector>
@@ -29,8 +28,10 @@ public:
 	// like read(), but without side effects (doesn't consume the data)
 	byte peek() const;
 
-	// write one byte of command-data to the host   (msx -> pc)
-	void write(byte value, EmuTime::param time);
+	// Write one byte of command-data to the host   (msx -> pc)
+	// Time parameter is in milliseconds. Emulators can pass emulation
+	// time, usbhost can pass real time.
+	void write(byte value, unsigned time);
 
 	void setAllowOtherDiskroms(bool allow);
 	bool getAllowOtherDiskroms() const;
@@ -103,10 +104,10 @@ private:
 	std::deque<byte> hostToMsxFifo;
 
 	// state-machine
-	EmuTime lastTime; // last time a byte was received from MSX
+	unsigned lastTime;       // last time a byte was received from MSX
 	State state;
 	unsigned recvCount;      // how many bytes recv in this state
-	byte cmdData[9];         // reg_[afbcdehl] cmd
+	byte cmdData[9];         // reg_[cbedlhfa] + cmd
 	byte extraData[240 + 2]; // extra data for diskread/write
 	std::vector<byte> buffer;// work buffer for diskread/write
 	unsigned transfered;     // progress within diskread/write

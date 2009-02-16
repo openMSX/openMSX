@@ -18,7 +18,7 @@ namespace openmsx {
 
 NowindHost::NowindHost(const vector<DiskContainer*>& drives_)
 	: drives(drives_)
-	, lastTime(EmuTime::zero)
+	, lastTime(0)
 	, state(STATE_SYNC1)
 	, romdisk(255)
 	, allowOtherDiskroms(false)
@@ -73,13 +73,12 @@ bool NowindHost::isDataAvailable() const
 
 
 // send:  msx -> pc
-void NowindHost::write(byte data, EmuTime::param time)
+void NowindHost::write(byte data, unsigned time)
 {
-	EmuDuration dur = time - lastTime;
+	unsigned duration = time - lastTime;
 	lastTime = time;
-	static const EmuDuration TIMEOUT = EmuDuration(0.5);
-	if (dur >= TIMEOUT) {
-		// timeout, start looking for AF05
+	if (duration >= 500) {
+		// timeout (500ms), start looking for AF05
 		purge();
 		state = STATE_SYNC1;
 	}
@@ -350,7 +349,9 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 	buffer.resize(sectorAmount * 512);
 	unsigned startSector = getStartSector();
 	if (disk.readSectors(&buffer[0], startSector, sectorAmount)) {
-		// TODO read error
+		// read error
+		state = STATE_SYNC1;
+		return;
 	}
 
 	transfered = 0;

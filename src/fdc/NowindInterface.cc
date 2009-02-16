@@ -9,6 +9,7 @@
 #include "Rom.hh"
 #include "AmdFlash.hh"
 #include "DiskChanger.hh"
+#include "Clock.hh"
 #include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "StringOp.hh"
@@ -178,7 +179,8 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 		flash->write(bank * 0x4000 + address, value);
 	} else if (((0x4000 <= address) && (address < 0x6000)) ||
 	           ((0x8000 <= address) && (address < 0xA000))) {
-		host->write(value, time);
+		static const Clock<1000> clock(EmuTime::zero);
+		host->write(value, clock.getTicksTill(time));
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {
 		byte max = rom->getSize() / (16 * 1024);
