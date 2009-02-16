@@ -7,7 +7,6 @@ $Id$
 2009-02-09 Max Feingold <maf6@cornell.edu>
 	* Ported most significant inline assembly code to VC++ format, 
 	  where significance is defined as 'being noticeable in kernrate'.
-	  Still TODO: DivModBySame.hh and MemoryOps.cc - will update this entry when done
 	* VC++ binaries now benchmark 15% faster than mingw32 binaries on my system
 	  openMSX svn VC++ x64 - 10.72 seconds
 	  openMSX svn VC++ x86 - 11.19 seconds
