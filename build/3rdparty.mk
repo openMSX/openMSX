@@ -343,7 +343,7 @@ $(foreach PACKAGE,$(PACKAGES_BUILD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	rm -rf $@
 	mkdir -p $(@D)
 	$(PYTHON) build/extract.py $< $(@D) $(@F)
-	test ! -e $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff
+	test ! -e $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff || $(PYTHON) build/patch.py $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff $(@D)
 	touch $@
 
 # Download source packages.
