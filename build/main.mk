@@ -697,7 +697,8 @@ endif
 	@install $(BINARY_FULL) \
 		$(INSTALL_PREFIX)$(INSTALL_BINARY_DIR)/$(BINARY_FILE)
 	@echo "  Data files..."
-	@sh build/install-recursive.sh share . \
+	@install -d $(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)
+	@$(PYTHON) build/install-recursive.py share . \
 		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)
 	@echo "  Documentation..."
 	@install -d  $(INSTALL_PREFIX)$(INSTALL_DOC_DIR)
@@ -711,7 +712,7 @@ ifeq ($(INSTALL_CONTRIB),true)
 	@echo "  C-BIOS..."
 	@install -m 0644 Contrib/README.cbios \
 		$(INSTALL_PREFIX)$(INSTALL_DOC_DIR)/cbios.txt
-	@sh build/install-recursive.sh Contrib/cbios . \
+	@$(PYTHON) build/install-recursive.py Contrib/cbios . \
 		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines
 endif
 ifeq ($(USE_SYMLINK),true)
@@ -752,9 +753,9 @@ dist: $(DETECTSYS_SCRIPT)
 	@rm -rf $(DIST_PATH)
 	@echo "Gathering files for distribution..."
 	@mkdir -p $(DIST_PATH)
-	@build/install-recursive.sh . $(DIST_FULL) $(DIST_PATH)
-	@build/install-recursive.sh . $(HEADERS_FULL) $(DIST_PATH)
-	@build/install-recursive.sh . $(SOURCES_FULL) $(DIST_PATH)
+	@$(PYTHON) build/install-recursive.py . $(DIST_FULL) $(DIST_PATH)
+	@$(PYTHON) build/install-recursive.py . $(HEADERS_FULL) $(DIST_PATH)
+	@$(PYTHON) build/install-recursive.py . $(SOURCES_FULL) $(DIST_PATH)
 	@echo "Creating tarball..."
 	@cd $(DIST_BASE) && \
 		GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)

@@ -6,7 +6,7 @@ SUBDIRS:= \
 	3rdparty package-darwin package-slackware
 
 DIST:= \
-	config.guess detectsys.sh tcl-search.sh install-recursive.sh \
+	config.guess detectsys.sh tcl-search.sh \
 	main.mk node-end.mk node-start.mk entry.mk \
 	probe.mk \
 	version.mk custom.mk 3rdparty.mk bindist.mk \
