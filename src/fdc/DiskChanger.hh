@@ -48,6 +48,9 @@ public:
 	virtual bool diskChanged();
 	virtual int insertDisk(const std::string& filename);
 
+	// for NowindCommand
+	void changeDisk(std::auto_ptr<Disk> newDisk);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -55,7 +58,6 @@ private:
 	void init(MSXMotherBoard* board, bool createCmd);
 	void insertDisk(const std::vector<TclObject*>& args);
 	void ejectDisk();
-	void changeDisk(std::auto_ptr<Disk> newDisk);
 	void sendChangeDiskEvent(const std::vector<std::string>& args);
 
 	// MSXEventListener

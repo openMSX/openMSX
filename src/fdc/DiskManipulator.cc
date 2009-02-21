@@ -121,18 +121,18 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		SectorAccessibleDisk* disk =
 			it->drive->getSectorAccessibleDisk();
 		int partition = strtol(num.c_str(), NULL, 10);
-		DiskImageUtils::checkValidPartition(*disk, partition);
+		DiskImageUtils::checkFAT12Partition(*disk, partition);
 		it->partition = partition;
 	}
 	return *it;
 }
 
-auto_ptr<SectorAccessibleDisk> DiskManipulator::getPartition(
+auto_ptr<DiskPartition> DiskManipulator::getPartition(
 	const DriveSettings& driveData)
 {
 	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return auto_ptr<SectorAccessibleDisk>(
+	return auto_ptr<DiskPartition>(
 		new DiskPartition(*disk, driveData.partition));
 }
 
@@ -306,7 +306,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 				it->drive->getSectorAccessibleDisk()) {
 				for (int i = 1; i <= 31; ++i) {
 					try {
-						DiskImageUtils::checkValidPartition(*disk, i);
+						DiskImageUtils::checkFAT12Partition(*disk, i);
 						names.insert(name1 + StringOp::toString(i));
 						names.insert(name2 + StringOp::toString(i));
 					} catch (MSXException& e) {
@@ -336,7 +336,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 void DiskManipulator::savedsk(const DriveSettings& driveData,
                               const string& filename)
 {
-	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	unsigned nrsectors = partition->getNbSectors();
 	byte buf[SectorBasedDisk::SECTOR_SIZE];
 	File file(filename, File::CREATE);
@@ -423,7 +423,7 @@ void DiskManipulator::create(const vector<string>& tokens)
 
 void DiskManipulator::format(DriveSettings& driveData)
 {
-	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	DiskImageUtils::format(*partition);
 	driveData.workingDir[driveData.partition] = "/";
 }
@@ -451,7 +451,7 @@ auto_ptr<MSXtar> DiskManipulator::getMSXtar(
 
 void DiskManipulator::dir(DriveSettings& driveData, string& result)
 {
-	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	result += workhorse->dir();
 }
@@ -459,7 +459,7 @@ void DiskManipulator::dir(DriveSettings& driveData, string& result)
 void DiskManipulator::chdir(DriveSettings& driveData,
                             const string& filename, string& result)
 {
-	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->chdir(filename);
@@ -479,7 +479,7 @@ void DiskManipulator::chdir(DriveSettings& driveData,
 
 void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 {
-	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->mkdir(filename);
@@ -491,7 +491,7 @@ void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 string DiskManipulator::import(DriveSettings& driveData,
                              const vector<string>& lists)
 {
-	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 
 	string messages;
@@ -522,7 +522,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
                             const vector<string>& lists)
 {
-	auto_ptr<SectorAccessibleDisk> partition = getPartition(driveData);
+	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
 		if (lists.empty()) {

@@ -15,6 +15,7 @@ $Id$
 	      <hd-image>:<num>
 	  This is a preparartion to support disk partitions in the nowind
 	  interface.
+	* Implemented hard disk support for nowind interface
 
 2009-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Initial nowind implementation:

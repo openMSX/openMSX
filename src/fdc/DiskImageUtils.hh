@@ -28,13 +28,16 @@ namespace DiskImageUtils {
 
 	/** Checks whether
 	 *   the disk is partitioned
-	 *   the specified partition
-	 *   partition is of type FAT12
+	 *   the specified partition exists
 	 * throws a CommandException if one of these conditions is false
 	 * @param disk The disk to check.
 	 * @param partition Partition number, in range [1..31].
 	 */
 	void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition);
+
+	/** Like above, but also check whether partition is of type FAT12.
+	 */
+	void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition);
 
 	/** Check whether the given disk is partitioned.
 	 */

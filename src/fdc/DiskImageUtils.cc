@@ -64,7 +64,8 @@ bool hasPartitionTable(SectorAccessibleDisk& disk)
 	return isPartitionTableSector(buf);
 }
 
-void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition)
+
+static Partition* checkImpl(SectorAccessibleDisk& disk, unsigned partition, byte* buf)
 {
 	// check number in range
 	if (partition < 1 || partition > 31) {
@@ -72,19 +73,31 @@ void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition)
 			"Invalid partition number specified (must be 1-31).");
 	}
 	// check drive has a partition table
-	byte buf[SECTOR_SIZE];
 	disk.readSector(0, buf);
 	if (!isPartitionTableSector(buf)) {
 		throw CommandException(
-			"Device has no (or invalid) partition table.");
+			"No (or invalid) partition table.");
 	}
 	// check valid partition number
 	Partition* p = reinterpret_cast<Partition*>(&buf[14 + (31 - partition) * 16]);
 	if (read32LE(p->start4) == 0) {
 		throw CommandException(
-			"Device has no partition number " +
-			StringOp::toString(partition));
+			"No partition number " + StringOp::toString(partition));
 	}
+	return p;
+}
+
+void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition)
+{
+	byte buf[SECTOR_SIZE];
+	checkImpl(disk, partition, buf);
+}
+
+void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
+{
+	byte buf[SECTOR_SIZE];
+	Partition* p = checkImpl(disk, partition, buf);
+
 	// check partition type
 	if (p->sys_ind != 0x01) {
 		throw CommandException(

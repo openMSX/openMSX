@@ -13,6 +13,7 @@ class CommandController;
 class DiskContainer;
 class DiskChanger;
 class SectorAccessibleDisk;
+class DiskPartition;
 class MSXtar;
 class MSXMotherBoard;
 
@@ -46,7 +47,7 @@ private:
 	Drives::iterator findDriveSettings(DiskContainer& drive);
 	Drives::iterator findDriveSettings(const std::string& name);
 	DriveSettings& getDriveSettings(const std::string& diskname);
-	std::auto_ptr<SectorAccessibleDisk> getPartition(
+	std::auto_ptr<DiskPartition> getPartition(
 		const DriveSettings& driveData);
 	std::auto_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
 	                                DriveSettings& driveData);
