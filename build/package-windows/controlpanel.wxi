@@ -1,0 +1,25 @@
+﻿<Include>
+  <Property Id="ARPCOMMENTS" Value="!(loc.TagLine)" />
+  <!--Property Id="ARPCONTACT" Value="Put your contact name in here" /-->
+  <Property Id="ARPPRODUCTICON" Value="..\..\src\resource\openmsx.ico" />
+  <Property Id="ARPURLINFOABOUT" Value="!(loc.Website)" />
+  <!--Property Id="ARPREADME" Value="Your README link" /-->
+  <!--Property Id="ARPURLINFOABOUT" Value="Your &apos;About&apos; information" /-->
+  <Property Id="ARPURLUPDATEINFO" Value="!(loc.Website)" />
+  <Property Id="ARPHELPLINK" Value="!(loc.Website)" />
+  <!--Property Id="ARPHELPTELEPHONE" Value="URL where users can find your support phone number" /-->
+  <!--Property Id="ARPAUTHORIZEDCDFPREFIX" Value="URL of the update channel for the application" /-->
+  <!--Property Id="ARPSIZE" Value="3" /-->
+
+  <Property Id="ARPNOMODIFY" Value="1" />
+  <!--Property Id="ARPNOREPAIR" Value="0" /-->
+  <!--Property Id="ARPNOREMOVE" Value="0" /-->
+  <!--Property Id="ARPSYSTEMCOMPONENT" Value="0" /-->
+
+  <!-- Set up ARPINSTALLLOCATION property -->
+  <CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
+  <InstallExecuteSequence>
+    <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate"></Custom>
+  </InstallExecuteSequence>
+</Include>
+

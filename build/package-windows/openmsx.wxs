@@ -1,0 +1,248 @@
+﻿<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <!-- Some useful local variables -->
+  <?define ProductVersion=$(env.openMSXVersion).0 ?>
+  <?define LastNonMSIProductVersion=0.7.0.0 ?>
+  <?define MinInstallerVersion=200 ?>
+  <?if $(sys.BUILDARCH)=x86 ?>
+    <?define ProductName=!(loc.openMSX) ?>
+    <?define ProgramFilesFolderNative=ProgramFilesFolder ?>
+    <?define UpgradeCode=9e38eab5-7a1c-4b43-ae24-c2152a4018f1 ?>
+  <?else?>
+    <?define ProductName=!(loc.openMSX) (64-bit) ?>
+    <?define ProgramFilesFolderNative=ProgramFiles64Folder ?>
+    <?define UpgradeCode=c7bd4b4d-1307-4a0d-b3f8-69744c7e5801 ?>
+  <?endif?>
+
+  <!-- To keep things simple, our installer considers each new release
+       a major upgrade, so we change the Product Id on every build -->
+  <Product Id="*"
+           UpgradeCode="$(var.UpgradeCode)"
+           Name="$(var.ProductName)"
+           Language="!(loc.LANG)"
+           Version="$(var.ProductVersion)"
+           Manufacturer="!(loc.openMSX)">
+
+    <!-- Package Ids change on every build by definition -->
+    <Package Id="*"
+             Platform="$(sys.BUILDARCH)"
+             Description="$(var.ProductName)"
+             InstallerVersion="$(var.MinInstallerVersion)"
+             Compressed="yes" />
+
+    <!-- Populate useful control panel fields -->
+    <?include ControlPanel.wxi ?>
+
+    <!--
+      Upgrade handling
+      -->
+
+    <Upgrade Id="$(var.UpgradeCode)">
+      <UpgradeVersion Minimum="$(var.ProductVersion)"
+                  IncludeMinimum="no"
+                  OnlyDetect="yes"
+                  Language="!(loc.LANG)"
+                  Property="NEWPRODUCTFOUND" />
+      <UpgradeVersion Minimum="$(var.LastNonMSIProductVersion)"
+                      Maximum="$(var.ProductVersion)"
+                      Property="PREVIOUSVERSIONSINSTALLED"
+                      IncludeMinimum="no"
+                      IncludeMaximum="no" />
+    </Upgrade>
+
+    <InstallExecuteSequence>
+      <!-- Prevent downgrades -->
+      <Custom Action="PreventDowngrades"
+              After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
+      <!-- Remove the previous product /before/ installing the new one -->
+      <RemoveExistingProducts After="InstallValidate">PREVIOUSVERSIONSINSTALLED</RemoveExistingProducts>
+    </InstallExecuteSequence>
+
+    <CustomAction Id="PreventDowngrades"
+                  Error="!(loc.NewerVersionError)" />
+
+    <!-- We only support Windows 2000 and above -->
+    <Condition Message="!(loc.OldWindowsError)">
+      <![CDATA[VersionNT >= 500]]>
+    </Condition>
+
+    <!-- Compress installation files in an embedded cab file -->
+    <Media Id="1" Cabinet="openmsx.cab" EmbedCab="yes" />
+
+    <!-- The default installation directory is under [ProgramFilesFolder] or [ProgramFiles64Folder] -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.ProgramFilesFolderNative)">
+        <Directory Id="OPENMSXINSTALLDIR" Name="openMSX">
+          <!-- This dummy component has one purpose: to remove the annoying 'run from the network' option on the root feature 
+               Apparently features without components have that option enabled. Shrug. -->
+          <Component Id="DummyComponent" Guid="1ce98c66-b014-4d3f-b926-b08f65a7f3f3">
+            <CreateFolder />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="openMSXStartMenuDir" Name="openMSX"/>
+      </Directory>
+    </Directory>
+
+    <!--
+      User interface
+      -->
+
+    <!-- Use the WixUI_FeatureTree UI in order to customize features and installation directory -->
+    <Property Id="WIXUI_INSTALLDIR" Value="OPENMSXINSTALLDIR" />
+    <UIRef Id="WixUI_FeatureTree" />
+    <!-- Remove the license agreement dialog, which sits between WelcomeDlg and CustomizeDlg -->
+    <UI>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="CustomizeDlg">1</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="3">NOT Installed</Publish>
+    </UI>
+    <!-- We have no license agreement at the moment. This is how we'd reference one -->
+    <!-->WixVariable Id="WixUILicenseRtf" Value="license1033.rtf" /-->
+
+    <!--
+      Start Menu shortcuts
+      -->
+    
+    <DirectoryRef Id="openMSXStartMenuDir">
+      <Component Id="openMSXShortcuts" Guid="*">
+
+        <!-- Shortcut to openmsx.exe  -->
+        <Shortcut Id="openMSXExeShortcut"
+                  Name="!(loc.openMSX)"
+                  Description="!(loc.TagLine)"
+                  Target="[OPENMSXINSTALLDIR]openmsx.exe"
+                  WorkingDirectory="OPENMSXINSTALLDIR" />
+        
+        <!-- Shortcut to openMSX manual -->
+        <Shortcut Id="openMSXManualShortcut"
+                  Name="!(loc.openMSXManual)"
+                  Description="!(loc.openMSXManual)"
+                  Target="[OPENMSXINSTALLDIR]doc\manual\index.html"
+                  WorkingDirectory="OPENMSXINSTALLDIR" />
+
+        <!-- Shortcut to openMSX website -->
+        <util:InternetShortcut Id="openMSXWebSiteShortcut"
+                               Name="!(loc.openMSXWebSite)"
+                               Target="http://openmsx.sourceforge.net/" />
+
+        <!-- Shortcut to uninstall - do we really need this? 
+             Note that [SystemFolder64] is always the native system folder -->
+        <Shortcut Id="UninstallProduct"
+                  Name="!(loc.UninstallopenMSX)"
+                  Description="!(loc.UninstallopenMSX)"
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]" />
+
+        <!-- This is needed to fix two errors:
+            ICE38: Component openMSXShortcuts installs to user profile. It must use a registry key under HKCU as its KeyPath, not a file.
+            ICE43: Component openMSXShortcuts has non-advertised shortcuts. It should use a registry key under HKCU as its KeyPath, not a file. -->
+        <RegistryValue Root="HKCU" Key="Software\$(var.ProductName)" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+
+      <!-- Use a hardcoded guid here to work around what appears to be a WiX bug 
+           Otherwise, we get ICE08: Component: CatapultShortcuts has a duplicate GUID: {69F885AD-19F6-5D4D-89DC-E05C05A3D761} -->
+      <Component Id="CatapultShortcuts" Guid="5ad9c567-56a1-4d61-9edc-5504f2ae673e">
+
+        <!-- Shortcut to catapult.exe -->
+        <Shortcut Id="CatapultExeShortcut"
+                    Name="!(loc.Catapult)"
+                    Description="!(loc.CatapultDescription)"
+                    Target="[OPENMSXINSTALLDIR]Catapult\bin\catapult.exe"
+                    WorkingDirectory="OPENMSXINSTALLDIR" />
+        
+        <!-- Shortcut to Catapult manual -->
+        <Shortcut Id="CatapultManualShortcut"
+                  Name="!(loc.CatapultManual)"
+                  Description="!(loc.CatapultManual)"
+                  Target="[OPENMSXINSTALLDIR]Catapult\doc\manual\index.html"
+                  WorkingDirectory="OPENMSXINSTALLDIR" />
+
+        <RegistryValue Root="HKCU" Key="Software\$(var.ProductName)" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+
+      <!-- Use a hardcoded guid here to work around what appears to be a WiX bug 
+           Otherwise, we get ICE08: Component: ZMBVCodecShortcuts has a duplicate GUID: {69F885AD-19F6-5D4D-89DC-E05C05A3D761} -->
+      <Component Id="ZMBVCodecShortcuts" Guid="6ca29fec-57a3-4e20-b2e8-74e46eb0661b">
+
+        <!-- Link to ZMBV codec installation command
+             Note that [SystemFolder] is 32-bit even on 64-bit platforms, just like the codec -->
+        <Shortcut Id="ZMBVInstallCodecShortcut"
+                  Name="!(loc.InstallZMBVVideoCodec)"
+                  Description="!(loc.InstallZMBVVideoCodec)"
+                  Target="[SystemFolder]rundll32.exe"
+                  Arguments="setupapi,InstallHinfSection DefaultInstall 128 [ZMBVCodecDir]zmbv.inf"
+                  WorkingDirectory="SystemFolder" />
+
+        <RegistryValue Root="HKCU" Key="Software\$(var.ProductName)" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+
+        <!-- This is needed to prevent the following error:
+             ICE64: The directory openMSXStartMenuDir is in the user profile but is not listed in the RemoveFile table. -->
+        <RemoveFolder Id="openMSXStartMenuDir" On="uninstall" />
+      </Component>
+
+    </DirectoryRef>
+
+    <!--
+      Features
+      -->
+
+    <!-- openMSX is composed of three features:
+         1) The required Core Emulator
+         2) The optional Catapult UI
+         3) The optional ZMBV codec
+         Each feature consists of several components: largely files and shortcuts
+         The individual file list for feature is dynamically generated 
+         via file harvesting scripts, whose output is references as 
+         component groups. -->
+    <Feature Id="openMSX"
+             Title="!(loc.openMSXEmulator)"
+             Description="!(loc.TagLine)"
+             Level="1"
+             Absent="disallow"
+             AllowAdvertise="no"
+             ConfigurableDirectory="OPENMSXINSTALLDIR">
+
+      <ComponentRef Id="DummyComponent" />
+
+      <Feature Id="openMSXCore"
+               Title="!(loc.CoreEmulator)"
+               Description="Command line MSX emulator"
+               Level="1"
+               Absent="disallow"
+               AllowAdvertise="no">
+
+        <ComponentGroupRef Id="openMSXExe" />
+        <ComponentGroupRef Id="openMSXShare" />
+        <ComponentGroupRef Id="openMSXDoc" />
+        <ComponentRef Id="openMSXShortcuts" />
+      </Feature>
+
+      <Feature Id="Catapult"
+               Title="!(loc.CatapultUI)"
+               Description="!(loc.CatapultDescription)"
+               Level="1"
+               Absent="allow"
+               AllowAdvertise="no">
+        <ComponentGroupRef Id="CatapultBin" />
+        <ComponentGroupRef Id="CatapultResources" />
+        <ComponentGroupRef Id="CatapultDoc" />
+        <ComponentRef Id="CatapultShortcuts" />
+      </Feature>
+
+      <Feature Id="ZMBVCodec"
+               Title="!(loc.ZMBVVideoCodec)"
+               Description="!(loc.ZMBVVideoCodecDescription)"
+               Level="1"
+               Absent="allow"
+               AllowAdvertise="no">
+        <ComponentGroupRef Id="ZMBVCodecFiles" />
+        <ComponentRef Id="ZMBVCodecShortcuts" />
+      </Feature>
+
+    </Feature>
+
+  </Product>
+</Wix>
