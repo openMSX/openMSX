@@ -3,13 +3,28 @@
 #ifndef DISK_IMAGE_UTILS_HH
 #define DISK_IMAGE_UTILS_HH
 
-#include "SectorAccessibleDisk.hh"
+#include "openmsx.hh"
 #include <vector>
 #include <memory>
 
 namespace openmsx {
 
+class SectorAccessibleDisk;
+
 namespace DiskImageUtils {
+
+	struct Partition {
+		byte boot_ind;     // 0x80 - active
+		byte head;         // starting head
+		byte sector;       // starting sector
+		byte cyl;          // starting cylinder
+		byte sys_ind;      // what partition type
+		byte end_head;     // end head
+		byte end_sector;   // end sector
+		byte end_cyl;      // end cylinder
+		byte start4[4];    // starting sector counting from 0
+		byte size4[4];     // nr of sectors in partition
+	};
 
 	/** Checks whether
 	 *   the disk is partitioned
@@ -35,33 +50,6 @@ namespace DiskImageUtils {
 	 * @param sizes The number of sectors for each partition.
 	 */
 	void partition(SectorAccessibleDisk& disk, std::vector<unsigned> sizes);
-
-	/** Return a partition (as a SectorAccessibleDisk) from another
-	 *  SectorAccessibleDisk.
-	 * @param disk The whole disk.
-	 * @param partition The partition number.
-	 *        0 for the whole disk
-	 *        1-31 for a specific partition, this must be a valid partition.
-	 */
-	std::auto_ptr<SectorAccessibleDisk> getPartition(
-		SectorAccessibleDisk& disk, unsigned partition);
-};
-
-class DiskPartition : public SectorAccessibleDisk
-{
-public:
-	DiskPartition(SectorAccessibleDisk& parent,
-	              unsigned start, unsigned length);
-
-private:
-	virtual void readSectorImpl(unsigned sector, byte* buf);
-	virtual void writeSectorImpl(unsigned sector, const byte* buf);
-	virtual unsigned getNbSectorsImpl() const;
-	virtual bool isWriteProtectedImpl() const;
-
-	SectorAccessibleDisk& parent;
-	const unsigned start;
-	const unsigned length;
 };
 
 } // namespace openmsx

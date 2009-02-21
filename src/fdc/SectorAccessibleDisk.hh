@@ -3,22 +3,35 @@
 #ifndef SECTORACCESSIBLEDISK_HH
 #define SECTORACCESSIBLEDISK_HH
 
-#include "WriteProtectableDisk.hh"
+#include "Filename.hh"
 #include "openmsx.hh"
+#include <vector>
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
-class SectorAccessibleDisk : public virtual WriteProtectableDisk
+class PatchInterface;
+
+class SectorAccessibleDisk
 {
 public:
 	static const unsigned SECTOR_SIZE = 512;
 
 	virtual ~SectorAccessibleDisk();
 
+	// sector stuff
 	void readSector(unsigned sector, byte* buf);
 	void writeSector(unsigned sector, const byte* buf);
 	unsigned getNbSectors() const;
+
+	// write protected stuff
+	bool isWriteProtected() const;
+	void forceWriteProtect();
+
+	// patch stuff
+	void applyPatch(const Filename& patchFile);
+	void getPatches(std::vector<Filename>& result) const;
 
 	/** Calculate SHA1 of the content of this disk.
 	 * This value is cached (and flushed on writes).
@@ -34,12 +47,20 @@ public:
 	int writeSectors(const byte* buffer, unsigned startSector,
 	                 unsigned nbSectors);
 
+protected:
+	SectorAccessibleDisk();
+
 private:
 	virtual void readSectorImpl(unsigned sector, byte* buf) = 0;
 	virtual void writeSectorImpl(unsigned sector, const byte* buf) = 0;
 	virtual unsigned getNbSectorsImpl() const = 0;
+	virtual bool isWriteProtectedImpl() const = 0;
 
+	std::auto_ptr<const PatchInterface> patch;
 	std::string sha1cache;
+	bool forcedWriteProtect;
+
+	friend class EmptyDiskPatch;
 };
 
 } // namespace openmsx

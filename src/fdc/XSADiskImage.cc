@@ -63,12 +63,12 @@ XSADiskImage::XSADiskImage(const Filename& filename)
 	setNbSectors(data.size() / 512);
 }
 
-void XSADiskImage::readSectorSBD(unsigned sector, byte* buf)
+void XSADiskImage::readSectorImpl(unsigned sector, byte* buf)
 {
 	memcpy(buf, &data[sector * SECTOR_SIZE], SECTOR_SIZE);
 }
 
-void XSADiskImage::writeSectorSBD(unsigned /*sector*/, const byte* /*buf*/)
+void XSADiskImage::writeSectorImpl(unsigned /*sector*/, const byte* /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }

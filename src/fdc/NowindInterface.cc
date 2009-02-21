@@ -13,7 +13,7 @@
 #include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "StringOp.hh"
-#include "Filename.hh"
+#include "DiskName.hh"
 #include "CommandException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"

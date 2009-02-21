@@ -6,6 +6,7 @@
 #include "MSXtar.hh"
 #include "DiskImageUtils.hh"
 #include "DSKDiskImage.hh"
+#include "DiskPartition.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
@@ -131,7 +132,8 @@ auto_ptr<SectorAccessibleDisk> DiskManipulator::getPartition(
 {
 	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return DiskImageUtils::getPartition(*disk, driveData.partition);
+	return auto_ptr<SectorAccessibleDisk>(
+		new DiskPartition(*disk, driveData.partition));
 }
 
 

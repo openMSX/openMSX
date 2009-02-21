@@ -5,6 +5,7 @@
 
 #include "DiskContainer.hh"
 #include "MSXEventListener.hh"
+#include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <string>
@@ -20,7 +21,7 @@ class DiskManipulator;
 class Disk;
 class DiskCommand;
 class TclObject;
-class Filename;
+class DiskName;
 
 class DiskChanger : public DiskContainer, private MSXEventListener,
                     private noncopyable
@@ -37,7 +38,7 @@ public:
 	void createCommand();
 
 	const std::string& getDriveName() const;
-	const Filename& getDiskName() const;
+	const DiskName& getDiskName() const;
 	bool peekDiskChanged() const;
 	Disk& getDisk();
 
@@ -74,6 +75,7 @@ private:
 
 	bool diskChangedFlag;
 };
+SERIALIZE_CLASS_VERSION(DiskChanger, 2);
 
 } // namespace openmsx
 

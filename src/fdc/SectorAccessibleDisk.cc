@@ -1,10 +1,18 @@
 // $Id$
 
 #include "SectorAccessibleDisk.hh"
+#include "EmptyDiskPatch.hh"
+#include "IPSPatch.hh"
 #include "DiskExceptions.hh"
 #include "sha1.hh"
 
 namespace openmsx {
+
+SectorAccessibleDisk::SectorAccessibleDisk()
+	: patch(new EmptyDiskPatch(*this))
+	, forcedWriteProtect(false)
+{
+}
 
 SectorAccessibleDisk::~SectorAccessibleDisk()
 {
@@ -12,7 +20,17 @@ SectorAccessibleDisk::~SectorAccessibleDisk()
 
 void SectorAccessibleDisk::readSector(unsigned sector, byte* buf)
 {
-	readSectorImpl(sector, buf);
+	unsigned nbSectors = getNbSectors();
+	if ((nbSectors != 0) && // in this case we want DriveEmptyException
+	    (nbSectors <= sector)) {
+		throw NoSuchSectorException("No such sector");
+	}
+	try {
+		// in the end this calls readSectorImpl()
+		patch->copyBlock(sector * SECTOR_SIZE, buf, SECTOR_SIZE);
+	} catch (MSXException& e) {
+		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
+	}
 }
 
 void SectorAccessibleDisk::writeSector(unsigned sector, const byte* buf)
@@ -20,13 +38,31 @@ void SectorAccessibleDisk::writeSector(unsigned sector, const byte* buf)
 	if (isWriteProtected()) {
 		throw WriteProtectedException("");
 	}
+	unsigned nbSectors = getNbSectors();
+	if ((nbSectors != 0) && (nbSectors <= sector)) {
+		throw NoSuchSectorException("No such sector");
+	}
+	try {
+		writeSectorImpl(sector, buf);
+	} catch (MSXException& e) {
+		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
+	}
 	sha1cache.clear();
-	writeSectorImpl(sector, buf);
 }
 
 unsigned SectorAccessibleDisk::getNbSectors() const
 {
 	return getNbSectorsImpl();
+}
+
+void SectorAccessibleDisk::applyPatch(const Filename& patchFile)
+{
+	patch.reset(new IPSPatch(patchFile, patch));
+}
+
+void SectorAccessibleDisk::getPatches(std::vector<Filename>& result) const
+{
+	patch->getFilenames(result);
 }
 
 const std::string& SectorAccessibleDisk::getSHA1Sum()
@@ -68,6 +104,17 @@ int SectorAccessibleDisk::writeSectors(
 	} catch (MSXException& e) {
 		return -1;
 	}
+}
+
+bool SectorAccessibleDisk::isWriteProtected() const
+{
+	return forcedWriteProtect || isWriteProtectedImpl();
+}
+
+void SectorAccessibleDisk::forceWriteProtect()
+{
+	// can't be undone
+	forcedWriteProtect = true;
 }
 
 } // namespace openmsx

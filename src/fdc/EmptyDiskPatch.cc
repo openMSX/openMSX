@@ -1,12 +1,12 @@
 // $Id$
 
 #include "EmptyDiskPatch.hh"
-#include "SectorBasedDisk.hh"
+#include "SectorAccessibleDisk.hh"
 #include <cassert>
 
 namespace openmsx {
 
-EmptyDiskPatch::EmptyDiskPatch(SectorBasedDisk& disk_)
+EmptyDiskPatch::EmptyDiskPatch(SectorAccessibleDisk& disk_)
 	: disk(disk_)
 {
 }
@@ -14,13 +14,13 @@ EmptyDiskPatch::EmptyDiskPatch(SectorBasedDisk& disk_)
 void EmptyDiskPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 {
 	(void)num;
-	assert(num == SectorBasedDisk::SECTOR_SIZE);
-	disk.readSectorSBD(src / SectorBasedDisk::SECTOR_SIZE, dst);
+	assert(num == SectorAccessibleDisk::SECTOR_SIZE);
+	disk.readSectorImpl(src / SectorAccessibleDisk::SECTOR_SIZE, dst);
 }
 
 unsigned EmptyDiskPatch::getSize() const
 {
-	return disk.getNbSectors() * SectorBasedDisk::SECTOR_SIZE;
+	return disk.getNbSectors() * SectorAccessibleDisk::SECTOR_SIZE;
 }
 
 void EmptyDiskPatch::getFilenames(std::vector<Filename>& /*result*/) const

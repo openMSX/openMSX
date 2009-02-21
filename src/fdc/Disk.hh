@@ -3,21 +3,20 @@
 #ifndef DISK_HH
 #define DISK_HH
 
-#include "WriteProtectableDisk.hh"
-#include "Filename.hh"
+#include "SectorAccessibleDisk.hh"
+#include "DiskName.hh"
 #include "openmsx.hh"
-#include <vector>
 
 namespace openmsx {
 
-class Disk : public virtual WriteProtectableDisk
+class Disk : public SectorAccessibleDisk
 {
 public:
 	static const int RAWTRACK_SIZE = 6850;
 
 	virtual ~Disk();
 
-	const Filename& getName() const;
+	const DiskName& getName() const;
 
 	virtual void read(byte track, byte sector,
 	                  byte side, unsigned size, byte* buf) = 0;
@@ -33,16 +32,12 @@ public:
 	virtual bool isReady() const = 0;
 	bool isDoubleSided() const;
 
-	virtual void applyPatch(const Filename& patchFile);
-	virtual void getPatches(std::vector<Filename>& result) const;
-
 protected:
-	explicit Disk(const Filename& name);
+	explicit Disk(const DiskName& name);
 	int physToLog(byte track, byte side, byte sector);
 	void logToPhys(int log, byte& track, byte& side, byte& sector);
 
 	virtual void detectGeometry();
-	virtual int getImageSize();
 
 	void setSectorsPerTrack(unsigned num);
 	void setNbSides(unsigned num);
@@ -54,7 +49,7 @@ protected:
 private:
 	void detectGeometryFallback();
 
-	const Filename name;
+	const DiskName name;
 	unsigned sectorsPerTrack;
 	unsigned nbSides;
 };

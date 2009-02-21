@@ -22,8 +22,8 @@ public:
 
 private:
 	// SectorBasedDisk
-	virtual void readSectorSBD(unsigned sector, byte* buf);
-	virtual void writeSectorSBD(unsigned sector, const byte* buf);
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
 	virtual bool isWriteProtectedImpl() const;
 
 	std::vector<byte> data;

@@ -17,6 +17,7 @@ SRC_HDR:= \
 	DiskChanger \
 	DriveMultiplexer \
 	Disk \
+	DiskName \
 	SectorBasedDisk \
 	DummyDisk \
 	DSKDiskImage \
@@ -24,6 +25,7 @@ SRC_HDR:= \
 	DirAsDSK \
 	EmptyDiskPatch \
 	RamDSKDiskImage \
+	DiskPartition \
 	MSXtar \
 	DiskImageUtils \
 	DiskContainer \
@@ -34,7 +36,6 @@ SRC_HDR:= \
 
 HDR_ONLY:= \
 	DiskExceptions \
-	WriteProtectableDisk
 
 include build/node-end.mk
 

@@ -272,9 +272,9 @@ DirAsDSK::~DirAsDSK()
 {
 }
 
-void DirAsDSK::readSectorSBD(unsigned sector, byte* buf)
+void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 {
-	debug("DirAsDSK::readSectorSBD: %i ", sector);
+	debug("DirAsDSK::readSectorImpl: %i ", sector);
 	switch (sector) {
 		case 0: debug("boot sector\n");
 			break;
@@ -602,12 +602,12 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 }
 
 
-void DirAsDSK::writeSectorSBD(unsigned sector, const byte* buf)
+void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	// is this actually needed ?
 	if (syncMode == GlobalSettings::SYNC_READONLY) return;
 
-	debug("DirAsDSK::writeSectorSBD: %i ", sector);
+	debug("DirAsDSK::writeSectorImpl: %i ", sector);
 	switch (sector) {
 		case 0: debug("boot sector\n");
 			break;

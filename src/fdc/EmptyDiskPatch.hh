@@ -7,19 +7,19 @@
 
 namespace openmsx {
 
-class SectorBasedDisk;
+class SectorAccessibleDisk;
 
 class EmptyDiskPatch : public PatchInterface
 {
 public:
-	explicit EmptyDiskPatch(SectorBasedDisk& disk);
+	explicit EmptyDiskPatch(SectorAccessibleDisk& disk);
 
 	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
 	virtual unsigned getSize() const;
 	virtual void getFilenames(std::vector<Filename>& result) const;
 
 private:
-	SectorBasedDisk& disk;
+	SectorAccessibleDisk& disk;
 };
 
 } // namespace openmsx

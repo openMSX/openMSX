@@ -6,6 +6,7 @@
 #include "XSADiskImage.hh"
 #include "DirAsDSK.hh"
 #include "DSKDiskImage.hh"
+#include "DiskPartition.hh"
 #include "CommandController.hh"
 #include "Command.hh"
 #include "MSXEventDistributor.hh"
@@ -98,7 +99,7 @@ const string& DiskChanger::getDriveName() const
 	return driveName;
 }
 
-const Filename& DiskChanger::getDiskName() const
+const DiskName& DiskChanger::getDiskName() const
 {
 	return disk->getName();
 }
@@ -189,21 +190,46 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 			// first try XSA
 			newDisk.reset(new XSADiskImage(filename));
 		} catch (MSXException& e) {
-			try {
-				// First try the fake disk, because a DSK will always
-				// succeed if diskImage can be resolved
-				// It is simply stat'ed, so even a directory name
-				// can be resolved and will be accepted as dsk name
-				// try to create fake DSK from a dir on host OS
-				newDisk.reset(new DirAsDSK(
-					controller.getCliComm(),
-					controller.getGlobalSettings(),
-					filename));
-			} catch (MSXException& e) {
-				// then try normal DSK
-				newDisk.reset(new DSKDiskImage(filename));
+		try {
+			// First try the fake disk, because a DSK will always
+			// succeed if diskImage can be resolved
+			// It is simply stat'ed, so even a directory name
+			// can be resolved and will be accepted as dsk name
+			// try to create fake DSK from a dir on host OS
+			newDisk.reset(new DirAsDSK(
+				controller.getCliComm(),
+				controller.getGlobalSettings(),
+				filename));
+		} catch (MSXException& e) {
+		try {
+			// then try normal DSK
+			newDisk.reset(new DSKDiskImage(filename));
+		} catch (MSXException& e1) {
+			// Finally try to interpret the filename as
+			//    <filename>:<partition-number>
+			// Try this last because the ':' character could be
+			// part of the filename itself. So only try this if
+			// the name could not be interpreted as a valid
+			// filename.
+			string::size_type pos = diskImage.find_last_of(':');
+			if (pos == string::npos) {
+				// does not contain ':', throw previous exception
+				throw;
 			}
-		}
+			shared_ptr<SectorAccessibleDisk> wholeDisk;
+			try {
+				Filename file(diskImage.substr(0, pos));
+				wholeDisk.reset(new DSKDiskImage(file));
+			} catch (MSXException& e) {
+				// If this fails we still prefer to show the
+				// previous error message, because it's most
+				// likely more descriptive.
+				throw e1;
+			}
+			unsigned num = StringOp::stringToUint(
+				diskImage.substr(pos + 1));
+			newDisk.reset(new DiskPartition(*wholeDisk, num, wholeDisk));
+		}}}
 	}
 	for (unsigned i = 2; i < args.size(); ++i) {
 		Filename filename(args[i]->getString(), controller);
@@ -341,11 +367,25 @@ static string calcSha1(SectorAccessibleDisk* disk)
 	return disk ? disk->getSHA1Sum() : "";
 }
 
+// version 1:  initial version
+// version 2:  replaced Filename with DiskName
 template<typename Archive>
-void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
+void DiskChanger::serialize(Archive& ar, unsigned version)
 {
-	Filename diskname = disk->getName();
-	ar.serializeNoID("disk", diskname);
+	DiskName diskname = disk->getName();
+	if (version < 2) {
+		// there was no DiskName yet, just a plain Filename
+		assert(ar.isLoader());
+		Filename filename;
+		ar.serializeNoID("disk", filename);
+		if (filename.getOriginal() == "ramdisk") {
+			diskname = DiskName(Filename(), "ramdisk");
+		} else {
+			diskname = DiskName(filename, "");
+		}
+	} else {
+		ar.serializeNoID("disk", diskname);
+	}
 
 	vector<Filename> patches;
 	if (!ar.isLoader()) {

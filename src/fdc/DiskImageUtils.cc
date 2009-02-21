@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DiskImageUtils.hh"
+#include "DiskPartition.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include "BootBlocks.hh"
@@ -29,19 +30,6 @@ struct MSXBootSector {
 	byte nrsides[2];         // number of sides
 	byte hiddensectors[2];   // not used
 	byte bootprogram[512-30];// actual bootprogram
-};
-
-struct Partition {
-	byte boot_ind;         // 0x80 - active
-	byte head;             // starting head
-	byte sector;           // starting sector
-	byte cyl;              // starting cylinder
-	byte sys_ind;          // What partition type
-	byte end_head;         // end head
-	byte end_sector;       // end sector
-	byte end_cyl;          // end cylinder
-	byte start4[4];        // starting sector counting from 0
-	byte size4[4];         // nr of sectors in partition
 };
 
 static inline void write16LE(byte* x, unsigned y)
@@ -297,61 +285,5 @@ void partition(SectorAccessibleDisk& disk, std::vector<unsigned> sizes)
 	disk.writeSector(0, buf);
 }
 
-std::auto_ptr<SectorAccessibleDisk> getPartition(
-	SectorAccessibleDisk& disk, unsigned partition)
-{
-	unsigned start, size;
-	if (partition == 0) {
-		start = 0;
-		size = disk.getNbSectors();
-	} else {
-		#ifndef NDEBUG
-		try {
-			checkValidPartition(disk, partition);
-		} catch (MSXException& e) {
-			assert(false);
-		}
-		#endif
-		byte buf[SECTOR_SIZE];
-		disk.readSector(0, buf);
-		Partition* p = reinterpret_cast<Partition*>(
-			&buf[14 + (31 - partition) * 16]);
-		start = read32LE(p->start4);
-		size  = read32LE(p->size4);
-	}
-	return std::auto_ptr<SectorAccessibleDisk>(
-		new DiskPartition(disk, start, size));
-}
-
 } // namespace DiskImageUtils
-
-
-DiskPartition::DiskPartition(SectorAccessibleDisk& parent_,
-                             unsigned start_, unsigned length_)
-	: parent(parent_)
-	, start(start_)
-	, length(length_)
-{
-}
-
-void DiskPartition::readSectorImpl(unsigned sector, byte* buf)
-{
-	parent.readSector(start + sector, buf);
-}
-
-void DiskPartition::writeSectorImpl(unsigned sector, const byte* buf)
-{
-	parent.writeSector(start + sector, buf);
-}
-
-unsigned DiskPartition::getNbSectorsImpl() const
-{
-	return length;
-}
-
-bool DiskPartition::isWriteProtectedImpl() const
-{
-	return parent.isWriteProtected();
-}
-
 } // namespace openmsx

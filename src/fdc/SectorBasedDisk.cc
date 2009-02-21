@@ -8,9 +8,8 @@
 
 namespace openmsx {
 
-SectorBasedDisk::SectorBasedDisk(const Filename& name)
+SectorBasedDisk::SectorBasedDisk(const DiskName& name)
 	: Disk(name)
-	, patch(new EmptyDiskPatch(*this))
 	, nbSectors(unsigned(-1)) // to detect misuse
 {
 }
@@ -37,16 +36,6 @@ void SectorBasedDisk::writeImpl(byte track, byte sector, byte side,
 	writeSector(logicalSector, buf);
 	// it's important to use writeSector() and not writeSectorImpl()
 	// because only the former flushes SHA1 cache
-}
-
-void SectorBasedDisk::applyPatch(const Filename& patchFile)
-{
-	patch.reset(new IPSPatch(patchFile, patch));
-}
-
-void SectorBasedDisk::getPatches(std::vector<Filename>& result) const
-{
-	patch->getFilenames(result);
 }
 
 void SectorBasedDisk::writeTrackDataImpl(byte track, byte side, const byte* data)
@@ -137,36 +126,6 @@ void SectorBasedDisk::readTrackData(byte track, byte side, byte* output)
 bool SectorBasedDisk::isReady() const
 {
 	return true;
-}
-
-void SectorBasedDisk::readSectorImpl(unsigned sector, byte* buf)
-{
-	unsigned nbSectors = getNbSectors();
-	if ((nbSectors != 0) && // in this case we want DriveEmptyException
-	    (nbSectors <= sector)) {
-		throw NoSuchSectorException("No such sector");
-	}
-	try {
-		patch->copyBlock(sector * SECTOR_SIZE, buf, SECTOR_SIZE);
-	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
-	}
-}
-
-void SectorBasedDisk::writeSectorImpl(unsigned sector, const byte* buf)
-{
-	if (isWriteProtected()) {
-		throw WriteProtectedException("");
-	}
-	unsigned nbSectors = getNbSectors();
-	if ((nbSectors != 0) && (nbSectors <= sector)) {
-		throw NoSuchSectorException("No such sector");
-	}
-	try {
-		writeSectorSBD(sector, buf);
-	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
-	}
 }
 
 unsigned SectorBasedDisk::getNbSectorsImpl() const

@@ -1,5 +1,21 @@
 $Id$
 
+2009-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored disk classes:
+	  - simplified class hierarchy:
+	     - removed virtual inheritance
+	     - merged WriteProtectableDisk into SectorAccessibleDisk
+	     - Disk now inherits from SectorAccessibleDisk,
+	       ATM we don't support disk image formats that are lower level
+	       than sector level. But even for those images it makes sense
+	       to support reading/writing sectors.
+	     - moved patch functionality up in the class hierarchy,
+	       to SectorAccessibleDisk
+	* Added syntax to insert a partition of a hard disk image:
+	      <hd-image>:<num>
+	  This is a preparartion to support disk partitions in the nowind
+	  interface.
+
 2009-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Initial nowind implementation:
 	  still need to work on the nowind openmsx commands

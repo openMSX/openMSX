@@ -3,9 +3,11 @@
 #include "Disk.hh"
 #include "DiskExceptions.hh"
 
+using std::string;
+
 namespace openmsx {
 
-Disk::Disk(const Filename& name_)
+Disk::Disk(const DiskName& name_)
 	: name(name_), nbSides(0)
 {
 }
@@ -14,7 +16,7 @@ Disk::~Disk()
 {
 }
 
-const Filename& Disk::getName() const
+const DiskName& Disk::getName() const
 {
 	return name;
 }
@@ -64,16 +66,6 @@ bool Disk::isDoubleSided() const
 	return nbSides == 2;
 }
 
-void Disk::applyPatch(const Filename& /*patchFile*/)
-{
-	throw MSXException("Patching of this disk image format not supported.");
-}
-
-void Disk::getPatches(std::vector<Filename>& /*result*/) const
-{
-	// nothing
-}
-
 int Disk::physToLog(byte track, byte side, byte sector)
 {
 	if ((track == 0) && (side == 0)) {
@@ -112,10 +104,10 @@ void Disk::setNbSides(unsigned num)
 
 void Disk::detectGeometryFallback() // if all else fails, use statistics
 {
-	// TODO maybe also check for 8*80*512 for 8 sectors per track
+	// TODO maybe also check for 8*80 for 8 sectors per track
 	sectorsPerTrack = 9; // most of the time (sorry 5.25" disk users...)
 	// 360k disks are likely to be single sided:
-	nbSides = (getImageSize() == (720 * 512)) ? 1 : 2;
+	nbSides = (getNbSectors() == 720) ? 1 : 2;
 }
 
 void Disk::detectGeometry()
@@ -154,8 +146,8 @@ void Disk::detectGeometry()
 	//     ...
 
 	try {
-		byte buf[512];
-		read(0, 1, 0, 512, buf);
+		byte buf[SECTOR_SIZE];
+		read(0, 1, 0, SECTOR_SIZE, buf);
 		if ((buf[0] == 0xE9) || (buf[0] ==0xEB)) {
 			// use values from bootsector
 			sectorsPerTrack = buf[0x18] + 256 * buf[0x19];
@@ -166,7 +158,7 @@ void Disk::detectGeometry()
 				detectGeometryFallback();
 			}
 		} else {
-			read(0, 2, 0, 512, buf);
+			read(0, 2, 0, SECTOR_SIZE, buf);
 			byte mediaDescriptor = buf[0];
 			if (mediaDescriptor >= 0xF8) {
 				sectorsPerTrack = (mediaDescriptor & 2) ? 8 : 9;
@@ -181,11 +173,6 @@ void Disk::detectGeometry()
 		// read error, assume it's a 3.5" DS or SS DD disk
 		detectGeometryFallback();
 	}
-}
-
-int Disk::getImageSize()
-{
-	return 0; // by default we know nothing of the image size
 }
 
 } // namespace openmsx

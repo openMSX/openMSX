@@ -16,13 +16,13 @@ DSKDiskImage::~DSKDiskImage()
 {
 }
 
-void DSKDiskImage::readSectorSBD(unsigned sector, byte* buf)
+void DSKDiskImage::readSectorImpl(unsigned sector, byte* buf)
 {
 	file->seek(sector * SECTOR_SIZE);
 	file->read(buf, SECTOR_SIZE);
 }
 
-void DSKDiskImage::writeSectorSBD(unsigned sector, const byte* buf)
+void DSKDiskImage::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	file->seek(sector * SECTOR_SIZE);
 	file->write(buf, SECTOR_SIZE);
