@@ -21,7 +21,7 @@
 	/>
 	<UserMacro
 		Name="BuildFlavor"
-		Value="$(PlatformName)-VC-$(ConfigurationName)-3rd"
+		Value="$(PlatformName)-VC-$(ConfigurationName)"
 		InheritsFromParent="true"
 		Delimiter=";"
 		PerformEnvironmentSet="true"
@@ -48,12 +48,12 @@
 	/>
 	<UserMacro
 		Name="OpenMSXIntDir"
-		Value="$(BuildDir)\build\openmsx"
+		Value="$(BuildDir)\build"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
 		Name="OpenMSXOutDir"
-		Value="$(BuildDir)\install\exe"
+		Value="$(BuildDir)\install"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
