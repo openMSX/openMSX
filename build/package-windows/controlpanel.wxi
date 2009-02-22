@@ -1,7 +1,7 @@
 ﻿<Include>
   <Property Id="ARPCOMMENTS" Value="!(loc.TagLine)" />
   <!--Property Id="ARPCONTACT" Value="Put your contact name in here" /-->
-  <Property Id="ARPPRODUCTICON" Value="..\..\src\resource\openmsx.ico" />
+  <Property Id="ARPPRODUCTICON" Value="openMSXIcon" />
   <Property Id="ARPURLINFOABOUT" Value="!(loc.Website)" />
   <!--Property Id="ARPREADME" Value="Your README link" /-->
   <!--Property Id="ARPURLINFOABOUT" Value="Your &apos;About&apos; information" /-->

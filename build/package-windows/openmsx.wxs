@@ -3,7 +3,7 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
   <!-- Some useful local variables -->
-  <?define ProductVersion=$(env.openMSXVersion).0 ?>
+  <?define ProductVersion=$(env.OPENMSX_VERSION).0 ?>
   <?define LastNonMSIProductVersion=0.7.0.0 ?>
   <?define MinInstallerVersion=200 ?>
   <?if $(sys.BUILDARCH)=x86 ?>
@@ -32,7 +32,9 @@
              InstallerVersion="$(var.MinInstallerVersion)"
              Compressed="yes" />
 
-    <!-- Populate useful control panel fields -->
+    <Icon Id="openMSXIcon" SourceFile="$(env.OPENMSX_ICON_PATH)"/>
+
+      <!-- Populate useful control panel fields -->
     <?include ControlPanel.wxi ?>
 
     <!--
@@ -215,8 +217,9 @@
                AllowAdvertise="no">
 
         <ComponentGroupRef Id="openMSXExe" />
-        <ComponentGroupRef Id="openMSXShare" />
         <ComponentGroupRef Id="openMSXDoc" />
+        <ComponentGroupRef Id="openMSXShare" />
+        <ComponentGroupRef Id="openMSXIcon" />
         <ComponentRef Id="openMSXShortcuts" />
       </Feature>
 
@@ -227,8 +230,13 @@
                Absent="allow"
                AllowAdvertise="no">
         <ComponentGroupRef Id="CatapultBin" />
-        <ComponentGroupRef Id="CatapultResources" />
         <ComponentGroupRef Id="CatapultDoc" />
+        <ComponentGroupRef Id="CatapultBitmaps" />
+        <ComponentGroupRef Id="CatapultDialogs" />
+        <ComponentGroupRef Id="CatapultIcons" />
+        <ComponentGroupRef Id="CatapultAuthors" />
+        <ComponentGroupRef Id="CatapultGpl" />
+        <ComponentGroupRef Id="CatapultReadme" />
         <ComponentRef Id="CatapultShortcuts" />
       </Feature>
 

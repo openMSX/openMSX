@@ -8,7 +8,7 @@ from optparse import OptionParser
 indentSize = 2
 
 excludedDirectories = [".svn", "CVS"]
-excludedFiles = ["node.mk", "node.mk"]
+excludedFiles = ["node.mk"]
 
 # Bit of a hack, but it works
 def isParentDir(child, parent):
@@ -28,12 +28,15 @@ def newGuid():
 
 class WixFragment:
 
-    def __init__(self, fileGenerator, componentGroup, directoryRef, virtualDir):
+    def __init__(self, fileGenerator, componentGroup, directoryRef, virtualDir, excludedFile):
         self.fileGenerator = fileGenerator
         self.componentGroup = componentGroup
         self.directoryRef = directoryRef
         self.virtualDir = virtualDir
         self.indent = 0
+        
+        if excludedFile:
+            excludedFiles.append(excludedFile)
 
     def incrementIndent(self):
         self.indent += indentSize
@@ -227,6 +230,7 @@ parser.add_option("-c", "--componentGroup", type="string", dest="componentGroup"
 parser.add_option("-r", "--directoryRef", type="string", dest="directoryRef")
 parser.add_option("-s", "--sourcePath", type="string", dest="sourcePath")
 parser.add_option("-v", "--virtualDir", type="string", dest="virtualDir")
+parser.add_option("-x", "--excludedFile", type="string", dest="excludedFile")
 
 (options, args) = parser.parse_args()
 fileGenerator = Walk(options.sourcePath)
@@ -236,5 +240,5 @@ fileGenerator = Walk(options.sourcePath)
 #    for f in filenames:
 #        print f
 
-wf = WixFragment(Walk(options.sourcePath), options.componentGroup, options.directoryRef, options.virtualDir)
+wf = WixFragment(Walk(options.sourcePath), options.componentGroup, options.directoryRef, options.virtualDir, options.excludedFile)
 wf.printFragment()
