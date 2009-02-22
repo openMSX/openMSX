@@ -101,6 +101,10 @@ def main(
 		print >> sys.stderr, 'Invalid argument:', ex
 		sys.exit(2)
 
+	if not installPrefix.endswith('/'):
+		# Just in case the destination directories are not absolute.
+		installPrefix += '/'
+
 	if verbose:
 		print 'Installing openMSX:'
 
@@ -127,6 +131,6 @@ if len(sys.argv) == 9:
 else:
 	print >> sys.stderr, \
 		'Usage: python install.py ' \
-		'INSTALL_PREFIX INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR ' \
+		'DESTDIR INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR ' \
 		'BINARY_FULL OPENMSX_TARGET_OS INSTALL_VERBOSE INSTALL_CONTRIB'
 	sys.exit(2)

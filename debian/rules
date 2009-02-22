@@ -43,7 +43,7 @@ clean:
 	- rm -f debian/openmsx.1
 
 
-	dh_clean 
+	dh_clean
 
 install: install-arch install-indep
 
@@ -54,7 +54,7 @@ install-arch: build
 	dh_installdirs
 
 	$(MAKE) install \
-		INSTALL_PREFIX=$(CURDIR)/debian/tmp
+		DESTDIR=$(CURDIR)/debian/tmp
 	@echo "  Cleaning up the installed package..."
 	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx-data/GPL
 	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf

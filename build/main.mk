@@ -676,10 +676,8 @@ INSTALL_VERBOSE?=true
 
 # DESTDIR is a convention shared by at least GNU and FreeBSD to specify a path
 # prefix that will be used for all installed files.
-INSTALL_PREFIX:=$(if $(DESTDIR),$(DESTDIR)/,)
-
 install: all
-	@$(PYTHON) build/install.py "$(INSTALL_PREFIX)" \
+	@$(PYTHON) build/install.py "$(DESTDIR)" \
 		$(INSTALL_BINARY_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR) \
 		$(BINARY_FULL) $(OPENMSX_TARGET_OS) \
 		$(INSTALL_VERBOSE) $(INSTALL_CONTRIB)
