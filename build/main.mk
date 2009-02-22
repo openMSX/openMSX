@@ -408,16 +408,6 @@ ifeq ($(USE_CCACHE),true)
 	override CC:=ccache $(CC)
 	override CXX:=ccache $(CXX)
 endif
-# Use precompiled headers?
-# TODO: Autodetect this: USE_PRECOMPH == compiler_is_g++ && g++_version >= 3.4
-#       In new approach, Make >= 3.80 is needed for precompiled header rules.
-USE_PRECOMPH?=false
-$(call BOOLCHECK,USE_PRECOMPH)
-# Problem: When using precompiled headers, the generated dependency files
-#          only contain dependencies 1 level deep.
-#          If generated without compiling as well, it depends on every
-#          include there is.
-# So one-shot compilation works great, but incremental compilation does not.
 
 # Strip binary?
 OPENMSX_STRIP?=false
@@ -577,7 +567,7 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	@echo "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	@mkdir -p $(@D)
 	@mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
-	@$(COMPILE_ENV) $(CXX) $(PRECOMPH_FLAGS) \
+	@$(COMPILE_ENV) $(CXX) \
 		$(DEPEND_FLAGS) -MMD -MF $(DEPEND_SUBST) \
 		-o $@ $(CXXFLAGS) $(COMPILE_FLAGS) -c $<
 	@touch $@ # Force .o file to be newer than .d file.
@@ -754,33 +744,5 @@ staticbindist: 3rdparty
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
 		3RDPARTY_FLAG=true
-
-
-# Precompiled Headers
-# ===================
-
-ifeq ($(USE_PRECOMPH),true)
-
-# Precompiled headers.
-PRECOMPH_PATH:=$(BUILD_PATH)/hdr
-PRECOMPH_COMB:=$(PRECOMPH_PATH)/all.h
-PRECOMPH_FILE:=$(PRECOMPH_COMB).gch
-PRECOMPH_FLAGS:=-include $(PRECOMPH_COMB)
-
-$(OBJECTS_FULL): | $(PRECOMPH_FILE)
-
-$(PRECOMPH_COMB): $(HEADERS_FULL)
-	@echo "Generating combined header..."
-	@mkdir -p $(PRECOMPH_PATH)
-	@for header in $(HEADERS); do echo "#include \"$$header\""; done > $@
-
-.DELETE_ON_ERROR: $(PRECOMPH_FILE)
-$(PRECOMPH_FILE): $(PRECOMPH_COMB)
-	@echo "Precompiling headers..."
-	@$(CXX) $(CXXFLAGS) $(COMPILE_FLAGS) $<
-
-else # USE_PRECOMPH == false
-PRECOMPH_FLAGS:=
-endif
 
 endif # PLATFORM
