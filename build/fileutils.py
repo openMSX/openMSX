@@ -1,8 +1,16 @@
 # $Id$
 
-from os import altsep, chmod, mkdir, sep, stat, walk
-from os.path import exists, isdir, isfile, islink, join as joinpath, normpath
+from os import altsep, chmod, mkdir, remove, sep, stat, walk
+from os.path import (
+	exists, isabs, isdir, isfile, islink, join as joinpath, normpath
+	)
 from shutil import copyfile
+
+try:
+	from os import symlink
+except ImportError:
+	def symlink(src, dst):
+		raise OSError('This platform does not support symbolic links')
 
 def scanTree(baseDir, selection = None):
 	'''Scans files and directories from the given base directory and iterates
@@ -90,6 +98,60 @@ def scanTree(baseDir, selection = None):
 		for fileName in fileNames:
 			yield joinpath(relDir, fileName)
 
+def installDir(path):
+	'''Creates the given path, excluding parent directories.
+	The directory is created with permissions such that all users can read what
+	is installed and only the owner can modify what is installed.
+	If the given path already exists, nothing happens.
+	'''
+	if not isdir(path):
+		# We have to do chmod() separately because the "mode" argument of
+		# mkdir() is modified by umask.
+		mkdir(path)
+		chmod(path, 0755)
+
+def installDirs(path):
+	'''Creates the given path, including any parent directories if necessary.
+	Any newly created directories are created with permissions such that all
+	users can read what is installed and only the owner can modify what is
+	installed.
+	If the given path already exists, nothing happens.
+	'''
+	if altsep is not None:
+		path = path.replace(altsep, sep)
+	dirNames = path.split(sep)
+	if isabs(path):
+		currPath = dirNames[0] + sep
+		del dirNames[0]
+	else:
+		currPath = '.' + sep
+	assert isdir(currPath)
+
+	for dirName in dirNames:
+		currPath += dirName + sep
+		installDir(currPath)
+
+def installFile(srcPath, destPath):
+	'''Copies a file from the given source path to the given destination path.
+	The destination file is created with permissions such that all users can
+	read (and execute, if appropriate) what is installed and only the owner
+	can modify what is installed.
+	Raises IOError if there is a problem reading or writing files.
+	'''
+	copyfile(srcPath, destPath)
+	chmod(destPath, 0755 if (stat(srcPath).st_mode & 0100) else 0644)
+
+def installSymlink(target, link):
+	'''Creates a symbolic link with the given name to the given target.
+	If a symbolic link with the given name already exists, it is replaced.
+	If a different file type with the given name already exists, OSError is
+	raised.
+	Also raises OSError if this platform lacks os.symlink().
+	'''
+	if islink(link):
+		remove(link)
+	symlink(target, link)
+
 def installTree(srcDir, destDir, paths):
 	'''Copies files and directories from the given source directory to the
 	given destination directory. The given paths argument is a sequence of
@@ -110,13 +172,8 @@ def installTree(srcDir, destDir, paths):
 		if islink(srcPath):
 			print 'Skipping symbolic link:', srcPath
 		elif isdir(srcPath):
-			if not isdir(destPath):
-				# We have to do chmod() separately because the "mode" argument
-				# of mkdir() is modified by umask.
-				mkdir(destPath)
-				chmod(destPath, 0755)
+			installDir(destPath)
 		elif isfile(srcPath):
-			copyfile(srcPath, destPath)
-			chmod(destPath, 0755 if (stat(srcPath).st_mode & 0100) else 0644)
+			installFile(srcPath, destPath)
 		else:
 			print 'Skipping unknown file type:', srcPath

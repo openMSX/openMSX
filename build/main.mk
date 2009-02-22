@@ -689,57 +689,10 @@ INSTALL_VERBOSE?=true
 INSTALL_PREFIX:=$(if $(DESTDIR),$(DESTDIR)/,)
 
 install: all
-ifeq ($(INSTALL_VERBOSE),true)
-	@echo "Installing openMSX:"
-endif
-	@echo "  Executable..."
-	@install -d $(INSTALL_PREFIX)$(INSTALL_BINARY_DIR)
-	@install $(BINARY_FULL) \
-		$(INSTALL_PREFIX)$(INSTALL_BINARY_DIR)/$(BINARY_FILE)
-	@echo "  Data files..."
-	@install -d $(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)
-	@$(PYTHON) build/install-recursive.py share . \
-		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)
-	@echo "  Documentation..."
-	@install -d  $(INSTALL_PREFIX)$(INSTALL_DOC_DIR)
-	@install -m 0644 README GPL AUTHORS $(INSTALL_PREFIX)$(INSTALL_DOC_DIR)
-	@install -m 0644 $(addprefix doc/,$(INSTALL_DOCS)) \
-		$(INSTALL_PREFIX)$(INSTALL_DOC_DIR)
-	@install -d $(INSTALL_PREFIX)$(INSTALL_DOC_DIR)/manual
-	@install -m 0644 $(addprefix doc/manual/,*.html *.css *.png) \
-		$(INSTALL_PREFIX)$(INSTALL_DOC_DIR)/manual
-ifeq ($(INSTALL_CONTRIB),true)
-	@echo "  C-BIOS..."
-	@install -m 0644 Contrib/README.cbios \
-		$(INSTALL_PREFIX)$(INSTALL_DOC_DIR)/cbios.txt
-	@$(PYTHON) build/install-recursive.py Contrib/cbios . \
-		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines
-endif
-ifeq ($(USE_SYMLINK),true)
-	@echo "  Creating symlinks..."
-	@ln -nsf Toshiba_HX-10 \
-		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/msx1
-	@ln -nsf Philips_NMS_8250 \
-		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/msx2
-	@ln -nsf Panasonic_FS-A1FX \
-		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/msx2plus
-	@ln -nsf Panasonic_FS-A1GT \
-		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/turbor
-  ifeq ($(SYMLINK_FOR_BINARY),true)
-	@if [ $(INSTALL_BINARY_DIR) != /usr/local/bin \
-			-a -z "$(INSTALL_PREFIX)" ]; then \
-		if [ -d /usr/local/bin -a -w /usr/local/bin ]; then \
-			ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
-		elif [ $(INSTALL_BINARY_DIR) != ~/bin -a -d ~/bin ]; then \
-			ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) ~/bin/openmsx; \
-		fi; \
-	fi
-  endif
-endif
-ifeq ($(INSTALL_VERBOSE),true)
-	@echo "Installation complete... have fun!"
-	@echo "Notice: if you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in one of the following directories: $(INSTALL_SHARE_DIR)/systemroms or ~/.openMSX/share/systemroms"
-endif
+	@$(PYTHON) build/install.py "$(INSTALL_PREFIX)" \
+		$(INSTALL_BINARY_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR) \
+		$(BINARY_FULL) $(OPENMSX_TARGET_OS) \
+		$(INSTALL_VERBOSE) $(INSTALL_CONTRIB)
 
 
 # Source Packaging
