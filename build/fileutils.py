@@ -90,7 +90,7 @@ def scanTree(baseDir, selection = None):
 		for fileName in fileNames:
 			yield joinpath(relDir, fileName)
 
-def install(srcDir, destDir, paths):
+def installTree(srcDir, destDir, paths):
 	'''Copies files and directories from the given source directory to the
 	given destination directory. The given paths argument is a sequence of
 	paths relative to the source directory; only those files and directories

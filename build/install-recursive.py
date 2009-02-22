@@ -2,13 +2,13 @@
 
 import sys
 
-from fileutils import install, scanTree
+from fileutils import installTree, scanTree
 
 def main(srcDir, selection, destDir):
 	if selection == [ '.' ]:
 		selection = None
 	try:
-		install(srcDir, destDir, scanTree(srcDir, selection))
+		installTree(srcDir, destDir, scanTree(srcDir, selection))
 	except ValueError, ex:
 		print >> sys.stderr, 'Invalid argument:', ex
 		sys.exit(2)
