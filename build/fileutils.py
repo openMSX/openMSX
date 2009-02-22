@@ -111,7 +111,10 @@ def install(srcDir, destDir, paths):
 			print 'Skipping symbolic link:', srcPath
 		elif isdir(srcPath):
 			if not isdir(destPath):
-				mkdir(destPath, 0755)
+				# We have to do chmod() separately because the "mode" argument
+				# of mkdir() is modified by umask.
+				mkdir(destPath)
+				chmod(destPath, 0755)
 		elif isfile(srcPath):
 			copyfile(srcPath, destPath)
 			chmod(destPath, 0755 if (stat(srcPath).st_mode & 0100) else 0644)
