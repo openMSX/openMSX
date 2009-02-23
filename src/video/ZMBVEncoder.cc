@@ -4,6 +4,7 @@
 
 #include "ZMBVEncoder.hh"
 #include "build-info.hh"
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -18,7 +19,29 @@ static const unsigned BLOCK_WIDTH  = MAX_VECTOR;
 static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
 static const unsigned FLAG_KEYFRAME = 0x01;
 
+struct CodecVector {
+	bool operator<(const CodecVector& other) const {
+		int d1 = this->x * this->x + this->y * this->y;
+		int d2 = other.x * other.x + other.y * other.y;
+		return d1 < d2;
+	}
+	int x;
+	int y;
+};
+static const unsigned VECTOR_TAB_SIZE = 21 * 21 - 1;
+CodecVector vectorTable[VECTOR_TAB_SIZE];
+
+struct KeyframeHeader {
+	unsigned char high_version;
+	unsigned char low_version;
+	unsigned char compression;
+	unsigned char format;
+	unsigned char blockwidth;
+	unsigned char blockheight;
+};
+
 const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
+
 
 static inline short pixelBEtoLE(short pixel)
 {
@@ -29,6 +52,21 @@ static inline unsigned pixelBEtoLE(unsigned pixel)
 {
 	return ((pixel << 24)             ) | ((pixel <<  8) & 0x00FF0000)
 	     | ((pixel >>  8) & 0x0000FF00) | ((pixel >> 24)             );
+}
+
+static void createVectorTable()
+{
+	unsigned i = 0;
+	for (int y = -10; y <= 10; ++y) {
+		for (int x = -10; x <= 10; ++x) {
+			if ((x == 0) && (y == 0)) continue;
+			vectorTable[i].x = x;
+			vectorTable[i].y = y;
+			++i;
+		}
+	}
+	assert(i == VECTOR_TAB_SIZE);
+	std::sort(&vectorTable[0], &vectorTable[VECTOR_TAB_SIZE]);
 }
 
 ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
@@ -65,19 +103,6 @@ ZMBVEncoder::~ZMBVEncoder()
 	delete[] newframe;
 	delete[] work;
 	delete[] output;
-}
-
-void ZMBVEncoder::createVectorTable()
-{
-	for (int s = 1; s <= 10; ++s) {
-		for (int y = -s; y <= s; ++y) {
-			for (int x = -s; x <= s; ++x) {
-				if ((abs(x) == s) || (abs(y) == s)) {
-					vectorTable.push_back(CodecVector(x, y));
-				}
-			}
-		}
-	}
 }
 
 void ZMBVEncoder::setupBuffers(unsigned bpp)
@@ -194,19 +219,21 @@ void ZMBVEncoder::addXorFrame()
 		int bestvx = 0;
 		int bestvy = 0;
 		unsigned bestchange = compareBlock<P>(0, 0, offset);
-		int possibles = 64;
-		unsigned vectorCount = unsigned(vectorTable.size());
-		for (unsigned v = 0; v < vectorCount && possibles; ++v) {
-			if (bestchange < 4) break;
-			int vx = vectorTable[v].x;
-			int vy = vectorTable[v].y;
-			if (possibleBlock<P>(vx, vy, offset) < 4) {
-				--possibles;
-				unsigned testchange = compareBlock<P>(vx, vy, offset);
-				if (testchange < bestchange) {
-					bestchange = testchange;
-					bestvx = vx;
-					bestvy = vy;
+		if (bestchange >= 4) {
+			int possibles = 64;
+			for (unsigned v = 0; v < VECTOR_TAB_SIZE; ++v) {
+				int vx = vectorTable[v].x;
+				int vy = vectorTable[v].y;
+				if (possibleBlock<P>(vx, vy, offset) < 4) {
+					unsigned testchange = compareBlock<P>(vx, vy, offset);
+					if (testchange < bestchange) {
+						bestchange = testchange;
+						bestvx = vx;
+						bestvy = vy;
+						if (bestchange < 4) break;
+					}
+					--possibles;
+					if (possibles == 0) break;
 				}
 			}
 		}

@@ -28,7 +28,6 @@ private:
 		ZMBV_FORMAT_32BPP = 8
 	};
 
-	void createVectorTable();
 	void setupBuffers(unsigned bpp);
 	unsigned neededSize();
 	template<class P> void addXorFrame();
@@ -36,20 +35,6 @@ private:
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
 	template<class P> void addXorBlock(int vx, int vy, unsigned offset);
 	template<class P> void lineBEtoLE(unsigned char* input, unsigned width);
-
-	struct CodecVector {
-		CodecVector(int x_, int y_) : x(x_), y(y_) {}
-		int x;
-		int y;
-	};
-	struct KeyframeHeader {
-		unsigned char high_version;
-		unsigned char low_version;
-		unsigned char compression;
-		unsigned char format;
-		unsigned char blockwidth;
-		unsigned char blockheight;
-	};
 
 	unsigned char* oldframe;
 	unsigned char* newframe;
@@ -59,7 +44,6 @@ private:
 	unsigned workUsed;
 
 	std::vector<unsigned> blockOffsets;
-	std::vector<CodecVector> vectorTable;
 	z_stream zstream;
 
 	const unsigned width;
