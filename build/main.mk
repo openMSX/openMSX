@@ -484,11 +484,10 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 
 # Generate configuration header.
 $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk
-	@echo "Creating $@..."
-	@mkdir -p $(@D)
-	@$(PYTHON) $(BUILDINFO_SCRIPT) \
+	@$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
 		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
-		$(INSTALL_SHARE_DIR) > $@
+		$(INSTALL_SHARE_DIR)
+	@touch $@
 
 # Generate version header.
 $(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog $(MAKE_PATH)/version.mk
