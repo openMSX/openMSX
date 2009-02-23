@@ -601,7 +601,8 @@ $(SINGLE_CPU_BINARIES):
 		OPENMSX_TARGET_CPU=$(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
-		3RDPARTY_FLAG=$(3RDPARTY_FLAG)
+		3RDPARTY_FLAG=$(3RDPARTY_FLAG) \
+		PYTHON=$(PYTHON)
 	@echo "Finished compile for $(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) CPU."
 
 $(BINARY_FULL): $(SINGLE_CPU_BINARIES)
@@ -720,7 +721,8 @@ $(addprefix 3rdparty-,$(CPU_LIST)):
 		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
-		3RDPARTY_FLAG=true
+		3RDPARTY_FLAG=true \
+		PYTHON=$(PYTHON)
 
 # Call third party Makefile with the right arguments.
 # This is an internal target, users should select "3rdparty" instead.
@@ -728,19 +730,20 @@ $(addprefix 3rdparty-,$(CPU_LIST)):
 #       "linux-icc", design a proper way of handling them.
 run-3rdparty:
 	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
-		PYTHON=$(PYTHON) \
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(firstword $(subst -, ,$(OPENMSX_TARGET_OS))) \
 		_CC=$(CC) _CFLAGS="$(TARGET_FLAGS) $(CXXFLAGS)" \
 		_LD=$(LD) _LDFLAGS="$(TARGET_FLAGS)" \
-		LINK_MODE=$(LINK_MODE) $(COMPILE_ENV)
+		LINK_MODE=$(LINK_MODE) $(COMPILE_ENV) \
+		PYTHON=$(PYTHON)
 
 staticbindist: 3rdparty
 	$(MAKE) -f build/main.mk bindist \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
-		3RDPARTY_FLAG=true
+		3RDPARTY_FLAG=true \
+		PYTHON=$(PYTHON)
 
 endif # PLATFORM
