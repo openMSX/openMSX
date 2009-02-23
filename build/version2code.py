@@ -1,7 +1,7 @@
 # $Id$
 # Generates version include file.
 
-from outpututils import createDirFor, rewriteIfChanged
+from outpututils import rewriteIfChanged
 from version import extractRevision, packageVersion, releaseFlag
 
 import sys
