@@ -15,7 +15,7 @@ def installAll(
 	binaryBuildPath, targetPlatform, cbios, symlinkForBinary
 	):
 	platformVars = extractMakeVariables('build/platform-%s.mk' % targetPlatform)
-	binaryFileName = 'openmsx' + platformVars['EXEEXT']
+	binaryFileName = 'openmsx' + platformVars.get('EXEEXT', '')
 
 	docNodeVars = extractMakeVariables('doc/node.mk')
 	docsToInstall = [
