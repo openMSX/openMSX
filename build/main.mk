@@ -576,9 +576,8 @@ $(DEPEND_FULL):
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 $(RESOURCE_HEADER): $(INIT_DUMMY_FILE) $(RESOURCE_SCRIPT) \
 		ChangeLog $(MAKE_PATH)/version.mk
-	@echo "Writing resource header..."
-	@mkdir -p $(@D)
-	@$(PYTHON) $(RESOURCE_SCRIPT) > $@
+	@$(PYTHON) $(RESOURCE_SCRIPT) $@
+	@touch $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
 	@echo "Compiling resources..."
 	@mkdir -p $(@D)
