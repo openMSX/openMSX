@@ -496,9 +496,8 @@ $(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog $(MAKE_PATH)/version.mk
 
 # Generate components header.
 $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE)
-	@echo "Creating $@..."
-	@mkdir -p $(@D)
-	@$(PYTHON) $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE) > $@
+	@$(PYTHON) $(COMPONENTS_HEADER_SCRIPT) $@ $(PROBE_MAKE)
+	@touch $@
 
 # Generate components Makefile.
 $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE)

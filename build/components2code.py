@@ -3,6 +3,7 @@
 
 from components import checkComponents, componentNames
 from makeutils import extractMakeVariables
+from outpututils import rewriteIfChanged
 
 import sys
 
@@ -33,12 +34,10 @@ def iterComponentsHeader(probeMakePath):
 	yield ''
 	yield '#endif // COMPONENTS_HH'
 
-if len(sys.argv) == 2:
-	probeMakePath = sys.argv[1]
-	for line in iterComponentsHeader(probeMakePath):
-		print line
+if len(sys.argv) == 3:
+	rewriteIfChanged(sys.argv[1], iterComponentsHeader(sys.argv[2]))
 else:
-	print >>sys.stderr, (
-		'Usage: python components2code.py PROBE_MAKE'
+	print >> sys.stderr, (
+		'Usage: python components2code.py COMPONENTS_HEADER PROBE_MAKE'
 		)
 	sys.exit(2)
