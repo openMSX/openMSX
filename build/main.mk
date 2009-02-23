@@ -492,9 +492,8 @@ $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk
 
 # Generate version header.
 $(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog $(MAKE_PATH)/version.mk
-	@echo "Creating $@..."
-	@mkdir -p $(@D)
-	@$(PYTHON) $(VERSION_SCRIPT) > $@
+	@$(PYTHON) $(VERSION_SCRIPT) $@
+	@touch $@
 
 # Generate components header.
 $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE)
