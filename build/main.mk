@@ -501,9 +501,8 @@ $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE)
 
 # Generate components Makefile.
 $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE)
-	@echo "Creating $@..."
-	@mkdir -p $(@D)
-	@$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) > $@
+	@$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $@ $(PROBE_MAKE)
+	@touch $@
 
 # Default target.
 all: $(BINARY_FULL)
