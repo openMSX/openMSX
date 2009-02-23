@@ -101,7 +101,7 @@ def main(
 		print >> sys.stderr, 'Invalid argument:', ex
 		sys.exit(2)
 
-	if not installPrefix.endswith('/'):
+	if installPrefix and not installPrefix.endswith('/'):
 		# Just in case the destination directories are not absolute.
 		installPrefix += '/'
 
