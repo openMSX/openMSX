@@ -17,7 +17,6 @@
   <String Id="InstallZMBVVideoCodec">Install ZMBV Video Codec</String>
 
   <!-- UI -->
-  <String Id="openMSXEmulator">openMSX Emulator</String>
   <String Id="CoreEmulator">Core Emulator</String>
   <String Id="CatapultUI">Catapult UI</String>
   <String Id="ZMBVVideoCodec">ZMBV Video Codec</String>

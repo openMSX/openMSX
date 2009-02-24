@@ -204,7 +204,7 @@
          via file harvesting scripts, whose output is references as 
          component groups. -->
     <Feature Id="openMSX"
-             Title="!(loc.openMSXEmulator)"
+             Title="!(loc.openMSX)"
              Description="!(loc.TagLine)"
              Level="1"
              Absent="disallow"
