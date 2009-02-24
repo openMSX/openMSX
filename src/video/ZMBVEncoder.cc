@@ -43,7 +43,7 @@ bool operator<(const CodecVector& l, const CodecVector& r)
 	return l.cost() < r.cost();
 }
 
-static const unsigned VECTOR_TAB_SIZE = 21 * 21 - 1;
+static const unsigned VECTOR_TAB_SIZE = 21 * 21;
 CodecVector vectorTable[VECTOR_TAB_SIZE];
 
 struct KeyframeHeader {
@@ -74,7 +74,6 @@ static void createVectorTable()
 	unsigned i = 0;
 	for (int y = -10; y <= 10; ++y) {
 		for (int x = -10; x <= 10; ++x) {
-			if ((x == 0) && (y == 0)) continue;
 			vectorTable[i].x = x;
 			vectorTable[i].y = y;
 			++i;
@@ -229,11 +228,13 @@ void ZMBVEncoder::addXorFrame()
 	// Align the following xor data on 4 byte boundary
 	unsigned blockcount = unsigned(blockOffsets.size());
 	workUsed = (workUsed + blockcount * 2 + 3) & ~3;
+
+	int bestvx = 0;
+	int bestvy = 0;
 	for (unsigned b = 0; b < blockcount; ++b) {
 		unsigned offset = blockOffsets[b];
-		int bestvx = 0;
-		int bestvy = 0;
-		unsigned bestchange = compareBlock<P>(0, 0, offset);
+		// first try best vector of previous block
+		unsigned bestchange = compareBlock<P>(bestvx, bestvy, offset);
 		if (bestchange >= 4) {
 			int possibles = 64;
 			for (unsigned v = 0; v < VECTOR_TAB_SIZE; ++v) {
