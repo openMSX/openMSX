@@ -22,7 +22,7 @@ static const unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
 	double cost() const {
-		double c = sqrt(x * x + y * y);
+		double c = sqrt(double(x * x + y * y));
 		if ((x == 0) || (y == 0)) {
 			// no penalty for purely horizontal/vertical offset
 			c *= 1.0;
