@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 
 namespace openmsx {
 
@@ -20,14 +21,28 @@ static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
 static const unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
-	bool operator<(const CodecVector& other) const {
-		int d1 = this->x * this->x + this->y * this->y;
-		int d2 = other.x * other.x + other.y * other.y;
-		return d1 < d2;
+	double cost() const {
+		double c = sqrt(x * x + y * y);
+		if ((x == 0) || (y == 0)) {
+			// no penalty for purely horizontal/vertical offset
+			c *= 1.0;
+		} else if (abs(x) == abs(y)) {
+			// small penalty for pure diagonal
+			c *= 2.0;
+		} else {
+			// bigger penalty for 'random' direction
+			c *= 4.0;
+		}
+		return c;
 	}
 	int x;
 	int y;
 };
+bool operator<(const CodecVector& l, const CodecVector& r)
+{
+	return l.cost() < r.cost();
+}
+
 static const unsigned VECTOR_TAB_SIZE = 21 * 21 - 1;
 CodecVector vectorTable[VECTOR_TAB_SIZE];
 
