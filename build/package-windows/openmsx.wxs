@@ -34,6 +34,11 @@
 
     <Icon Id="openMSXIcon" SourceFile="$(env.OPENMSX_ICON_PATH)"/>
 
+    <!-- Installer Graphics -->
+    <WixVariable Id="WixUIDialogBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/SideBanner.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/TopBanner.bmp" />
+
+
       <!-- Populate useful control panel fields -->
     <?include ControlPanel.wxi ?>
 
