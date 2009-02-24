@@ -43,7 +43,10 @@ bool operator<(const CodecVector& l, const CodecVector& r)
 	return l.cost() < r.cost();
 }
 
-static const unsigned VECTOR_TAB_SIZE = 21 * 21;
+static const unsigned VECTOR_TAB_SIZE =
+	1 +                                       // center
+	8 * MAX_VECTOR +                          // horizontal, vertial, diagonal
+	MAX_VECTOR * MAX_VECTOR - 2 * MAX_VECTOR; // rest (only MAX_VECTOR/2)
 CodecVector vectorTable[VECTOR_TAB_SIZE];
 
 struct KeyframeHeader {
@@ -71,15 +74,48 @@ static inline unsigned pixelBEtoLE(unsigned pixel)
 
 static void createVectorTable()
 {
-	unsigned i = 0;
-	for (int y = -10; y <= 10; ++y) {
-		for (int x = -10; x <= 10; ++x) {
-			vectorTable[i].x = x;
-			vectorTable[i].y = y;
-			++i;
+	unsigned p = 0;
+	// center
+	vectorTable[p].x = 0;
+	vectorTable[p].y = 0;
+	p += 1;
+	// horizontal, vertial, diagonal
+	for (int i = 1; i <= int(MAX_VECTOR); ++i) {
+		vectorTable[p + 0].x =  i;
+		vectorTable[p + 0].y =  0;
+		vectorTable[p + 1].x = -i;
+		vectorTable[p + 1].y =  0;
+		vectorTable[p + 2].x =  0;
+		vectorTable[p + 2].y =  i;
+		vectorTable[p + 3].x =  0;
+		vectorTable[p + 3].y = -i;
+		vectorTable[p + 4].x =  i;
+		vectorTable[p + 4].y =  i;
+		vectorTable[p + 5].x = -i;
+		vectorTable[p + 5].y =  i;
+		vectorTable[p + 6].x =  i;
+		vectorTable[p + 6].y = -i;
+		vectorTable[p + 7].x = -i;
+		vectorTable[p + 7].y = -i;
+		p += 8;
+	}
+	// rest
+	for (int y = 1; y <= int(MAX_VECTOR / 2); ++y) {
+		for (int x = 1; x <= int(MAX_VECTOR / 2); ++x) {
+			if (x == y) continue; // already have diagonal
+			vectorTable[p + 0].x =  x;
+			vectorTable[p + 0].y =  y;
+			vectorTable[p + 1].x = -x;
+			vectorTable[p + 1].y =  y;
+			vectorTable[p + 2].x =  x;
+			vectorTable[p + 2].y = -y;
+			vectorTable[p + 3].x = -x;
+			vectorTable[p + 3].y = -y;
+			p += 4;
 		}
 	}
-	assert(i == VECTOR_TAB_SIZE);
+	assert(p == VECTOR_TAB_SIZE);
+
 	std::sort(&vectorTable[0], &vectorTable[VECTOR_TAB_SIZE]);
 }
 

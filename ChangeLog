@@ -1,5 +1,18 @@
 $Id$
 
+2009-02-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* ZMBVEncoder motion vector search heuristic tweaks:
+	  - try vectors with smallest euclidean size first (was Chebyshev size)
+	    also give preference to purely horizontal/vertical motions and to a
+	    lesser degree purely diagonal motions
+	  - start search at best motion vector of previous block (before we
+	    always started from the center)
+	  - use different set of possible motion vectors, search further in
+	    pure hor/ver/diag directions, less far in other (random) directions
+	  Combined these tweaks give measurable smaller video files (5% - 25%)
+	  and also run faster (2% - 6%). The 2nd tweak (start from previous
+	  best) has the largest effect.
+
 2009-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored disk classes:
 	  - simplified class hierarchy:
