@@ -105,8 +105,8 @@
     <!-- We have no license agreement at the moment. This is how we'd reference one -->
     <!-->WixVariable Id="WixUILicenseRtf" Value="license1033.rtf" /-->
     <!-- Installer Graphics -->
-    <WixVariable Id="WixUIDialogBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/SideBanner.bmp" />
-    <WixVariable Id="WixUIBannerBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/TopBanner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/SideBanner.jpg" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/TopBanner.jpg" />
 
     <!--
       Start Menu shortcuts
