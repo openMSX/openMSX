@@ -32,14 +32,10 @@
              InstallerVersion="$(var.MinInstallerVersion)"
              Compressed="yes" />
 
+    <!-- Icon used in the control panel -->
     <Icon Id="openMSXIcon" SourceFile="$(env.OPENMSX_ICON_PATH)"/>
 
-    <!-- Installer Graphics -->
-    <WixVariable Id="WixUIDialogBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/SideBanner.bmp" />
-    <WixVariable Id="WixUIBannerBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/TopBanner.bmp" />
-
-
-      <!-- Populate useful control panel fields -->
+    <!-- Populate useful control panel fields -->
     <?include ControlPanel.wxi ?>
 
     <!--
@@ -76,7 +72,7 @@
     </Condition>
 
     <!-- Compress installation files in an embedded cab file -->
-    <Media Id="1" Cabinet="openmsx.cab" EmbedCab="yes" />
+    <Media Id="1" Cabinet="openmsx.cab" EmbedCab="yes" CompressionLevel="high" />
 
     <!-- The default installation directory is under [ProgramFilesFolder] or [ProgramFiles64Folder] -->
     <Directory Id="TARGETDIR" Name="SourceDir">
@@ -108,6 +104,9 @@
     </UI>
     <!-- We have no license agreement at the moment. This is how we'd reference one -->
     <!-->WixVariable Id="WixUILicenseRtf" Value="license1033.rtf" /-->
+    <!-- Installer Graphics -->
+    <WixVariable Id="WixUIDialogBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/SideBanner.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/TopBanner.bmp" />
 
     <!--
       Start Menu shortcuts

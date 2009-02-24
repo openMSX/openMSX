@@ -10,7 +10,6 @@
 @rem **** Variables that need to come from the broader build environment ****
 @rem **** OPENMSX_ARCH is { x86, x64 } ****
 @rem **** OPENMSX_CONFIGURATION is { Release, Developer, Debug } ****
-@rem **** OPENMSX_VERSION needs to be set for the WiX script to work
 @rem
 @set OPENMSX_ARCH=x64
 @set OPENMSX_CONFIGURATION=Release
@@ -34,6 +33,9 @@
 
 @set OPENMSX_MAKEINSTALL_PATH=%OPENMSX_BUILD_PATH%\build\install
 @echo OPENMSX_MAKEINSTALL_PATH is %OPENMSX_MAKEINSTALL_PATH%
+
+@set OPENMSX_ICON_PATH=%OPENMSX_MAKEINSTALL_PATH%\bin\openmsx.exe
+@echo OPENMSX_ICON_PATH is %OPENMSX_ICON_PATH%
 
 @echo CATAPULT_BASEPATH is $CATAPULT_BASEPATH%
 @set CATAPULT_BUILD_FLAVOR=%OPENMSX_PLATFORM%-VC-Unicode %OPENMSX_CONFIGURATION%
@@ -92,8 +94,10 @@ python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c CatapultReadme -r OPENMSXI
 @rem **** Compile the MSI ****
 @rem
 
-@rem OPENMSX_ICON_PATH needs to be set for the WiX script to work
-@set OPENMSX_ICON_PATH=%OPENMSX_MAKEINSTALL_PATH%\bin\openmsx.exe
+@rem Variables needed inside the WiX scripts:
+@rem OPENMSX_VERSION to tell it the product version
+@rem OPENMSX_ICON_PATH to locate the MSI's control panel icon
+@rem OPENMSX_PACKAGE_WINDOWS_PATH to locate the bmps used in the UI
 
 candle.exe -arch %OPENMSX_ARCH% -o %WIX_INTERMEDIATE_PATH%\ -ext WixUtilExtension %OPENMSX_PACKAGE_WINDOWS_PATH%\openmsx.wxs %WIX_INTERMEDIATE_PATH%\openmsxexe.wxs %WIX_INTERMEDIATE_PATH%\openmsxdoc.wxs %WIX_INTERMEDIATE_PATH%\openmsxshare.wxs %WIX_INTERMEDIATE_PATH%\openmsxicon.wxs %WIX_INTERMEDIATE_PATH%\zmbvcodec.wxs %WIX_INTERMEDIATE_PATH%\catapultbin.wxs %WIX_INTERMEDIATE_PATH%\catapultdoc.wxs %WIX_INTERMEDIATE_PATH%\catapultbitmaps.wxs %WIX_INTERMEDIATE_PATH%\catapultdialogs.wxs %WIX_INTERMEDIATE_PATH%\catapulticons.wxs %WIX_INTERMEDIATE_PATH%\catapultauthors.wxs %WIX_INTERMEDIATE_PATH%\catapultgpl.wxs %WIX_INTERMEDIATE_PATH%\catapultreadme.wxs
 light.exe -o %WIX_OUTPUT_FILE% -ext WixUtilExtension -ext WixUIExtension -loc %OPENMSX_PACKAGE_WINDOWS_PATH%\openmsx1033.wxl %WIX_INTERMEDIATE_PATH%\openmsx.wixobj %WIX_INTERMEDIATE_PATH%\openmsxexe.wixobj %WIX_INTERMEDIATE_PATH%\openmsxdoc.wixobj %WIX_INTERMEDIATE_PATH%\openmsxshare.wixobj %WIX_INTERMEDIATE_PATH%\openmsxicon.wixobj %WIX_INTERMEDIATE_PATH%\zmbvcodec.wixobj %WIX_INTERMEDIATE_PATH%\catapultbin.wixobj %WIX_INTERMEDIATE_PATH%\catapultdoc.wixobj %WIX_INTERMEDIATE_PATH%\catapultbitmaps.wixobj %WIX_INTERMEDIATE_PATH%\catapultdialogs.wixobj %WIX_INTERMEDIATE_PATH%\catapulticons.wixobj %WIX_INTERMEDIATE_PATH%\catapultauthors.wixobj %WIX_INTERMEDIATE_PATH%\catapultgpl.wixobj %WIX_INTERMEDIATE_PATH%\catapultreadme.wixobj
