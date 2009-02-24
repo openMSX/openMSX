@@ -132,7 +132,7 @@ required-attributes=
 no-docstring-rgx=__.*__
 
 # Regular expression which should only match correct module names
-module-rgx=([a-z_][a-z0-9_\-]*)$
+module-rgx=([a-z_][a-z0-9_]*)$
 
 # Regular expression which should only match correct module level names
 const-rgx=([a-z_][A-Za-z_]*)$
