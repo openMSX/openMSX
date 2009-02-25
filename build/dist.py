@@ -41,8 +41,10 @@ def main(paths):
 	# TODO: Try to generate the tarball directly from the provided file lists,
 	#       without creating a copy in the "dist" directory first.
 	tar = tarfile.open(distBase + versionedPackageName + '.tar.gz', 'w:gz')
-	tar.add(distPath, versionedPackageName)
-	tar.close()
+	try:
+		tar.add(distPath, versionedPackageName)
+	finally:
+		tar.close()
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
