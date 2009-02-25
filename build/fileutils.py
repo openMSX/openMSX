@@ -2,7 +2,7 @@
 
 from os import altsep, chmod, mkdir, remove, sep, stat, walk
 from os.path import (
-	exists, isabs, isdir, isfile, islink, join as joinpath, normpath
+	dirname, exists, isdir, isfile, islink, join as joinpath, normpath
 	)
 from shutil import copyfile
 
@@ -110,6 +110,16 @@ def installDir(path):
 		mkdir(path)
 		chmod(path, 0755)
 
+def _installDirsRec(path):
+	'''Like installDirs(), except that "altsep" is not supported as directory
+	separator in "path'.
+	'''
+	if not isdir(path):
+		parent = path[ : path.rindex(sep)]
+		_installDirsRec(parent)
+		mkdir(path)
+		chmod(path, 0755)
+
 def installDirs(path):
 	'''Creates the given path, including any parent directories if necessary.
 	Any newly created directories are created with permissions such that all
@@ -119,17 +129,7 @@ def installDirs(path):
 	'''
 	if altsep is not None:
 		path = path.replace(altsep, sep)
-	dirNames = path.split(sep)
-	if isabs(path):
-		currPath = dirNames[0] + sep
-		del dirNames[0]
-	else:
-		currPath = '.' + sep
-	assert isdir(currPath)
-
-	for dirName in dirNames:
-		currPath += dirName + sep
-		installDir(currPath)
+	_installDirsRec(path)
 
 def installFile(srcPath, destPath):
 	'''Copies a file from the given source path to the given destination path.
@@ -167,6 +167,8 @@ def installTree(srcDir, destDir, paths):
 		raise IOError('Destination directory "%s" does not exist' % destDir)
 
 	for relPath in paths:
+		if altsep is not None:
+			relPath = relPath.replace(altsep, sep)
 		srcPath = joinpath(srcDir, relPath)
 		destPath = joinpath(destDir, relPath)
 		if islink(srcPath):
@@ -174,6 +176,7 @@ def installTree(srcDir, destDir, paths):
 		elif isdir(srcPath):
 			installDir(destPath)
 		elif isfile(srcPath):
+			_installDirsRec(dirname(destPath))
 			installFile(srcPath, destPath)
 		else:
 			print 'Skipping unknown file type:', srcPath
