@@ -47,7 +47,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;ASM_X86;ASM_X86_32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -126,7 +126,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;ASM_X86;ASM_X86_64;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -208,7 +208,7 @@
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;ASM_X86;ASM_X86_32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				SmallerTypeCheck="false"
 				RuntimeLibrary="0"
@@ -295,7 +295,7 @@
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;ASM_X86;ASM_X86_64;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -376,7 +376,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;ASM_X86;ASM_X86_32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
 				WarningLevel="3"
@@ -458,7 +458,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;ASM_X86;ASM_X86_64;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
 				WarningLevel="3"
@@ -5168,6 +5168,66 @@
 		<File
 			RelativePath="..\..\src\openmsx.hh"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) $(ConfigurationName)&#x0D; %CONFIG_DIR%&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) $(ConfigurationName)&#x0D; %CONFIG_DIR%&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) $(ConfigurationName)&#x0D; %CONFIG_DIR%&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) $(ConfigurationName)&#x0D; %CONFIG_DIR%&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Developer|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) $(ConfigurationName)&#x0D; %CONFIG_DIR%&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Developer|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) $(ConfigurationName)&#x0D; %CONFIG_DIR%&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\..\src\PasswordCart.cc"

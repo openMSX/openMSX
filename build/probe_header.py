@@ -17,12 +17,13 @@ def iterProbeHeader(probeMakePath):
 			else:
 				yield '// #undef %s' % name
 
-if len(sys.argv) == 2:
-	probeMakePath = sys.argv[1]
-	for line in iterProbeHeader(probeMakePath):
-		print line
-else:
-	print >>sys.stderr, (
-		'Usage: python probe-header.py PROBE_MAKE'
-		)
-	sys.exit(2)
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+	    probeMakePath = sys.argv[1]
+	    for line in iterProbeHeader(probeMakePath):
+		    print line
+    else:
+	    print >>sys.stderr, (
+		    'Usage: python probe-header.py PROBE_MAKE'
+		    )
+	    sys.exit(2)

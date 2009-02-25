@@ -318,7 +318,7 @@ OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 RESOURCE_SRC:=src/resource/openmsx.rc
 RESOURCE_OBJ:=$(OBJECTS_PATH)/resources.o
-RESOURCE_SCRIPT:=$(MAKE_PATH)/win-resource.py
+RESOURCE_SCRIPT:=$(MAKE_PATH)/win_resource.py
 RESOURCE_HEADER:=$(CONFIG_PATH)/resource-info.h
 else
 RESOURCE_OBJ:=
@@ -457,7 +457,7 @@ probe: $(PROBE_MAKE)
 endif
 
 # Probe for headers and functions.
-# TODO: It would be cleaner to include probe.mk and probe-results.mk,
+# TODO: It would be cleaner to include probe.mk and probe_results.mk,
 #       instead of executing them in a sub-make.
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 	@$(MAKE) --no-print-directory -f $< \
@@ -468,7 +468,7 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 		3RDPARTY_INSTALL_DIR=$(3RDPARTY_INSTALL_DIR) \
 		LINK_MODE=$(LINK_MODE) \
 		PYTHON=$(PYTHON)
-	@$(PYTHON) $(MAKE_PATH)/probe-results.py $(PROBE_MAKE)
+	@$(PYTHON) $(MAKE_PATH)/probe_results.py $(PROBE_MAKE)
 
 # Generate configuration header.
 $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk

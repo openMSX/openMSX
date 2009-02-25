@@ -34,10 +34,11 @@ def iterComponentsHeader(probeMakePath):
 	yield ''
 	yield '#endif // COMPONENTS_HH'
 
-if len(sys.argv) == 3:
-	rewriteIfChanged(sys.argv[1], iterComponentsHeader(sys.argv[2]))
-else:
-	print >> sys.stderr, (
-		'Usage: python components2code.py COMPONENTS_HEADER PROBE_MAKE'
-		)
-	sys.exit(2)
+if __name__ == '__main__':
+    if len(sys.argv) == 3:
+	    rewriteIfChanged(sys.argv[1], iterComponentsHeader(sys.argv[2]))
+    else:
+	    print >> sys.stderr, (
+		    'Usage: python components2code.py COMPONENTS_HEADER PROBE_MAKE'
+		    )
+	    sys.exit(2)

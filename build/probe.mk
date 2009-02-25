@@ -282,7 +282,7 @@ PRINT_LIBS:=$(addsuffix -print,$(CHECK_LIBS))
 
 # Default target.
 all: check-targets print-libs
-	@$(PYTHON) build/probe-header.py $(OUTMAKE) > $(OUTHEADER)
+	@$(PYTHON) build/probe_header.py $(OUTMAKE) > $(OUTHEADER)
 
 check-targets: $(CHECK_TARGETS)
 print-libs: $(PRINT_LIBS)

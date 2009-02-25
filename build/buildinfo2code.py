@@ -66,10 +66,11 @@ def iterBuildInfoHeader(targetPlatform, targetCPU, flavour, installShareDir):
 	yield ''
 	yield '#endif // BUILD_INFO_HH'
 
-if len(sys.argv) == 6:
-	rewriteIfChanged(sys.argv[1], iterBuildInfoHeader(*sys.argv[2 : ]))
-else:
-	print >> sys.stderr, \
-		'Usage: python buildinfo2code.py CONFIG_HEADER ' \
-		'platform cpu flavour share-install-dir'
-	sys.exit(2)
+if __name__ == '__main__':
+    if len(sys.argv) == 6:
+	    rewriteIfChanged(sys.argv[1], iterBuildInfoHeader(*sys.argv[2 : ]))
+    else:
+	    print >> sys.stderr, \
+		    'Usage: python buildinfo2code.py CONFIG_HEADER ' \
+		    'platform cpu flavour share-install-dir'
+	    sys.exit(2)
