@@ -685,7 +685,7 @@ install: all
 DIST_BASE:=$(BUILD_BASE)/dist
 DIST_PATH:=$(DIST_BASE)/$(PACKAGE_FULL)
 
-dist: $(DETECTSYS_SCRIPT)
+dist:
 	@echo "Removing any old distribution files..."
 	@rm -rf $(DIST_PATH)
 	@echo "Gathering files for distribution..."
