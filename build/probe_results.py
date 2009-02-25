@@ -53,7 +53,9 @@ def iterProbeResults(probeMakePath):
 	if not parseBool(probeVars['COMPILER']):
 		yield 'No working C++ compiler was found.'
 		yield "Please install a C++ compiler, such as GCC's g++."
-		yield 'If you have a C++ compiler installed and openMSX did not detect it, please set the environment variable OPENMSX_CXX to the name of your C++ compiler.'
+		yield 'If you have a C++ compiler installed and openMSX did not ' \
+			'detect it, please set the environment variable OPENMSX_CXX to ' \
+			'the name of your C++ compiler.'
 		yield 'After you have corrected the situation, rerun "configure".'
 		yield ''
 	else:
@@ -108,8 +110,7 @@ def iterProbeResults(probeMakePath):
 		yield ''
 
 if len(sys.argv) == 2:
-	probeMakePath = sys.argv[1]
-	for line in iterProbeResults(probeMakePath):
+	for line in iterProbeResults(sys.argv[1]):
 		print line
 else:
 	print >> sys.stderr, (
