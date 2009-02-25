@@ -112,11 +112,13 @@ def installDir(path):
 
 def _installDirsRec(path):
 	'''Like installDirs(), except that "altsep" is not supported as directory
-	separator in "path'.
+	separator in "path".
 	'''
+	path = path.rstrip(sep)
 	if not isdir(path):
-		parent = path[ : path.rindex(sep)]
-		_installDirsRec(parent)
+		index = path.rfind(sep)
+		if index != -1:
+			_installDirsRec(path[ : index])
 		mkdir(path)
 		chmod(path, 0755)
 
