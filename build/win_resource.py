@@ -18,9 +18,9 @@ def iterResourceHeader():
 	yield '#define OPENMSX_VERSION_STR "%s\\0"' % packageVersion
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-	    rewriteIfChanged(sys.argv[1], iterResourceHeader())
-    else:
-	    print >> sys.stderr, \
-		    'Usage: python win-resource.py RESOURCE_HEADER'
-	    sys.exit(2)
+	if len(sys.argv) == 2:
+		rewriteIfChanged(sys.argv[1], iterResourceHeader())
+	else:
+		print >> sys.stderr, \
+			'Usage: python win-resource.py RESOURCE_HEADER'
+		sys.exit(2)

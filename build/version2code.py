@@ -15,9 +15,9 @@ def iterVersionInclude():
 	yield 'const std::string Version::REVISION = "%s";' % revision
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-	    rewriteIfChanged(sys.argv[1], iterVersionInclude())
-    else:
-	    print >> sys.stderr, \
-		    'Usage: python version2code.py VERSION_HEADER'
-	    sys.exit(2)
+	if len(sys.argv) == 2:
+		rewriteIfChanged(sys.argv[1], iterVersionInclude())
+	else:
+		print >> sys.stderr, \
+			'Usage: python version2code.py VERSION_HEADER'
+		sys.exit(2)
