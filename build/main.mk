@@ -123,20 +123,6 @@ $(call BOOLCHECK,SYMLINK_FOR_BINARY)
 $(call BOOLCHECK,INSTALL_CONTRIB)
 
 
-# Version
-# =======
-
-include $(MAKE_PATH)/version.mk
-CHANGELOG_REVISION:=\
-	$(shell sed -ne "s/\$$Id: ChangeLog \([^ ]*\).*/\1/p" ChangeLog)
-ifeq ($(RELEASE_FLAG),true)
-PACKAGE_DETAILED_VERSION:=$(PACKAGE_VERSION)
-else
-PACKAGE_DETAILED_VERSION:=$(PACKAGE_VERSION)-$(CHANGELOG_REVISION)
-endif
-PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_DETAILED_VERSION)
-
-
 # Platforms
 # =========
 
@@ -256,6 +242,8 @@ SOURCES_PATH:=src
 BINARY_PATH:=$(BUILD_PATH)/bin
 BINARY_FILE:=openmsx$(EXEEXT)
 ifeq ($(VERSION_EXEC),true)
+  CHANGELOG_REVISION:=\
+    $(shell sed -ne "s/\$$Id: ChangeLog \([^ ]*\).*/\1/p" ChangeLog)
   BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
 else
   BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
@@ -682,20 +670,8 @@ install: all
 # Source Packaging
 # ================
 
-DIST_BASE:=$(BUILD_BASE)/dist
-DIST_PATH:=$(DIST_BASE)/$(PACKAGE_FULL)
-
 dist:
-	@echo "Removing any old distribution files..."
-	@rm -rf $(DIST_PATH)
-	@echo "Gathering files for distribution..."
-	@mkdir -p $(DIST_PATH)
-	@$(PYTHON) build/install-recursive.py . $(DIST_FULL) $(DIST_PATH)
-	@$(PYTHON) build/install-recursive.py . $(HEADERS_FULL) $(DIST_PATH)
-	@$(PYTHON) build/install-recursive.py . $(SOURCES_FULL) $(DIST_PATH)
-	@echo "Creating tarball..."
-	@cd $(DIST_BASE) && \
-		GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
+	@$(PYTHON) build/dist.py $(DIST_FULL) $(HEADERS_FULL) $(SOURCES_FULL)
 
 
 # Binary Packaging Using 3rd Party Libraries

@@ -3,6 +3,7 @@
 from makeutils import extractMakeVariables, filterFile, parseBool
 
 _versionVars = extractMakeVariables('build/version.mk')
+packageName = _versionVars['PACKAGE_NAME']
 packageVersion = _versionVars['PACKAGE_VERSION']
 releaseFlag = parseBool(_versionVars['RELEASE_FLAG'])
 
@@ -35,3 +36,9 @@ def extractRevision():
 		extractChangeLogRevision() or
 		'unknown'
 		)
+
+def getVersionedPackageName():
+	if releaseFlag:
+		return '%s-%s' % (packageName, packageVersion)
+	else:
+		return '%s-%s-%s' % (packageName, packageVersion, extractRevision())
