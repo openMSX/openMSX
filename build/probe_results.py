@@ -112,7 +112,7 @@ if len(sys.argv) == 2:
 	for line in iterProbeResults(probeMakePath):
 		print line
 else:
-	print >>sys.stderr, (
+	print >> sys.stderr, (
 		'Usage: python probe-results.py PROBE_MAKE'
 		)
 	sys.exit(2)

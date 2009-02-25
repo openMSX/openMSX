@@ -93,6 +93,6 @@ if 3 <= len(sys.argv) <= 4:
 		renameTopLevelDir = None
 	extract(sys.argv[1], sys.argv[2], renameTopLevelDir)
 else:
-	print >>sys.stderr, \
+	print >> sys.stderr, \
 		'Usage: python extract.py archive destination [new-top-level-dir]'
 	sys.exit(2)
