@@ -174,7 +174,7 @@ def installTree(srcDir, destDir, paths):
 		if islink(srcPath):
 			print 'Skipping symbolic link:', srcPath
 		elif isdir(srcPath):
-			installDir(destPath)
+			_installDirsRec(destPath)
 		elif isfile(srcPath):
 			_installDirsRec(dirname(destPath))
 			installFile(srcPath, destPath)
