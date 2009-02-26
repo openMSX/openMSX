@@ -1,11 +1,16 @@
 # $Id$
+# Contains the openMSX version number and versioning related functions.
 
-from makeutils import extractMakeVariables, filterFile, parseBool
+from makeutils import filterFile
 
-_versionVars = extractMakeVariables('build/version.mk')
-packageName = _versionVars['PACKAGE_NAME']
-packageVersion = _versionVars['PACKAGE_VERSION']
-releaseFlag = parseBool(_versionVars['RELEASE_FLAG'])
+# Name used for packaging.
+packageName = 'openmsx'
+
+# Version number.
+packageVersion = '0.7.0'
+
+# Is this a release version ("True") or development version ("False").
+releaseFlag = False
 
 # TODO: Before extraction of SVN or git-SVN revision number can be done, we
 #       should figure out a way to avoid rewriting Version.ii on every build.

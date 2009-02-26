@@ -449,7 +449,7 @@ $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk
 	@touch $@
 
 # Generate version header.
-$(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog $(MAKE_PATH)/version.mk
+$(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog $(MAKE_PATH)/version.py
 	@$(PYTHON) $(VERSION_SCRIPT) $@
 	@touch $@
 
@@ -533,7 +533,7 @@ $(DEPEND_FULL):
 # Windows resources that are added to the executable.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 $(RESOURCE_HEADER): $(INIT_DUMMY_FILE) $(RESOURCE_SCRIPT) \
-		ChangeLog $(MAKE_PATH)/version.mk
+		ChangeLog $(MAKE_PATH)/version.py
 	@$(PYTHON) $(RESOURCE_SCRIPT) $@
 	@touch $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)

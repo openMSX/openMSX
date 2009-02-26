@@ -9,7 +9,7 @@
 INSTALL_BASE:=/opt/openMSX
 
 # Add ChangeLog version number to executable file name? This applies only to
-# development versions, not to release versions (see version.mk).
+# development versions, not to release versions (see version.py).
 VERSION_EXEC:=false
 
 # Create a symbolic link to the installed binary?
