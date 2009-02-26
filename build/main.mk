@@ -242,8 +242,9 @@ SOURCES_PATH:=src
 BINARY_PATH:=$(BUILD_PATH)/bin
 BINARY_FILE:=openmsx$(EXEEXT)
 ifeq ($(VERSION_EXEC),true)
-  CHANGELOG_REVISION:=\
-    $(shell sed -ne "s/\$$Id: ChangeLog \([^ ]*\).*/\1/p" ChangeLog)
+  CHANGELOG_REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
+    "import version; print version.extractRevision()" \
+    )
   BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
 else
   BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
