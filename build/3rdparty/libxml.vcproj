@@ -28,6 +28,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Running configure.js..."
+				CommandLine="pushd $(3rdPartySrcDir)\$(LibNameLibXml)\win32&#x0D;&#x0A;cscript configure.js iconv=no zlib=no&#x0D;&#x0A;popd&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -90,6 +92,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Running configure.js..."
+				CommandLine="pushd $(3rdPartySrcDir)\$(LibNameLibXml)\win32&#x0D;&#x0A;cscript configure.js iconv=no zlib=no&#x0D;&#x0A;popd&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -154,6 +158,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Running configure.js..."
+				CommandLine="pushd $(3rdPartySrcDir)\$(LibNameLibXml)\win32&#x0D;&#x0A;cscript configure.js iconv=no zlib=no&#x0D;&#x0A;popd&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -223,6 +229,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Running configure.js..."
+				CommandLine="pushd $(3rdPartySrcDir)\$(LibNameLibXml)\win32&#x0D;&#x0A;cscript configure.js iconv=no zlib=no&#x0D;&#x0A;popd&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -292,6 +300,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Running configure.js..."
+				CommandLine="pushd $(3rdPartySrcDir)\$(LibNameLibXml)\win32&#x0D;&#x0A;cscript configure.js iconv=no zlib=no&#x0D;&#x0A;popd&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -355,6 +365,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Running configure.js..."
+				CommandLine="pushd $(3rdPartySrcDir)\$(LibNameLibXml)\win32&#x0D;&#x0A;cscript configure.js iconv=no zlib=no&#x0D;&#x0A;popd&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
