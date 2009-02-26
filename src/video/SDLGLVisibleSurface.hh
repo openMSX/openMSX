@@ -18,7 +18,6 @@ public:
 	                   FrameBuffer frameBuffer = FB_NONE);
 	virtual ~SDLGLVisibleSurface();
 
-	virtual void init();
 	virtual void drawFrameBuffer();
 	virtual void finish();
 

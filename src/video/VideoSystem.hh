@@ -48,11 +48,6 @@ public:
 	  */
 	virtual bool checkSettings();
 
-	/** Prepare video system for drawing operations.
-	  * The default implementation does nothing.
-	  */
-	virtual void prepare();
-
 	/** Finish pending drawing operations and make them visible to the user.
 	  */
 	virtual void flush() = 0;

@@ -4,7 +4,7 @@ $Id$
 	* Updated VC++ projects with a Python-based script that builds config
 	  headers using mth's Python scripts. This automates one of the more
 	  annoying manual steps in the VC++ build process.
-	  
+
 2009-02-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* ZMBVEncoder motion vector search heuristic tweaks:
 	  - try vectors with smallest euclidean size first (was Chebyshev size)

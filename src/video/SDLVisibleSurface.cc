@@ -54,11 +54,6 @@ SDLVisibleSurface::SDLVisibleSurface(
 	setBufferPtr(static_cast<char*>(workSurface->pixels), workSurface->pitch);
 }
 
-void SDLVisibleSurface::init()
-{
-	// nothing
-}
-
 void SDLVisibleSurface::drawFrameBuffer()
 {
 	// nothing

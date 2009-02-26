@@ -136,11 +136,6 @@ SDLGLVisibleSurface::~SDLGLVisibleSurface()
 	delete[] buffer;
 }
 
-void SDLGLVisibleSurface::init()
-{
-	// nothing
-}
-
 void SDLGLVisibleSurface::drawFrameBuffer()
 {
 	assert((frameBuffer == FB_16BPP) || (frameBuffer == FB_32BPP));

@@ -207,11 +207,6 @@ bool SDLVideoSystem::checkSettings()
 	return screen->setFullScreen(fullScreenTarget);
 }
 
-void SDLVideoSystem::prepare()
-{
-	screen->init();
-}
-
 void SDLVideoSystem::flush()
 {
 	screen->finish();

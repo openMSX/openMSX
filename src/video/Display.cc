@@ -346,7 +346,6 @@ void Display::repaint()
 	alarm->cancel(); // cancel delayed repaint
 
 	assert(videoSystem.get());
-	videoSystem->prepare();
 
 	for (Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
 		if ((*it)->coverage != Layer::COVER_NONE) {

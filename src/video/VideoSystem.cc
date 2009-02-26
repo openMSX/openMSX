@@ -15,11 +15,6 @@ bool VideoSystem::checkSettings()
 	return true;
 }
 
-void VideoSystem::prepare()
-{
-	// nothing
-}
-
 void VideoSystem::takeScreenShot(const std::string& /*filename*/)
 {
 	throw CommandException(
