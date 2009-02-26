@@ -83,18 +83,6 @@ BOOLCHECK=$(DEFCHECK)$(strip \
 		$(error Value of $(1) ("$($(1))") should be "true" or "false") ) \
 	)
 
-# Function to check whether a variable equals a given string.
-# If it does, the string "true" is returned, otherwise "false".
-# Usage: $(call EQUALS,VARIABLE_NAME,STRING)
-EQUALS=$(DEFCHECK)$(if $(filter $(2),$($(1))),true,false)
-
-# Shell function for indenting output.
-# Usage: command | $(INDENT)
-# TODO: Disabled for now, the exit status of a piped command is the exit
-#       status of the command after the pipe, which is not what we want
-#       in the case of indenting.
-INDENT:=sed -e "s/^/  /"
-
 # Will be added to by platform specific Makefile, by flavour specific Makefile
 # and by this Makefile.
 # Note: CXXFLAGS is overridable from the command line; COMPILE_FLAGS is not.
