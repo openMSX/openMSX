@@ -198,26 +198,12 @@ include $(MAKE_PATH)/flavour-$(OPENMSX_FLAVOUR).mk
 endif
 
 
-# Profiling
-# =========
-
-OPENMSX_PROFILE?=false
-$(call BOOLCHECK,OPENMSX_PROFILE)
-ifeq ($(OPENMSX_PROFILE),true)
-  COMPILE_FLAGS+=-pg
-  LINK_FLAGS+=-pg
-endif
-
-
 # Paths
 # =====
 
 BUILD_PATH:=$(BUILD_BASE)/$(PLATFORM)-$(OPENMSX_FLAVOUR)
 ifeq ($(3RDPARTY_FLAG),true)
   BUILD_PATH:=$(BUILD_PATH)-3rd
-endif
-ifeq ($(OPENMSX_PROFILE),true)
-  BUILD_PATH:=$(BUILD_PATH)-profile
 endif
 
 # Own build of 3rd party libs.
@@ -390,10 +376,6 @@ endif
 OPENMSX_STRIP?=false
 $(call BOOLCHECK,OPENMSX_STRIP)
 STRIP_SEPARATE:=false
-ifeq ($(OPENMSX_PROFILE),true)
-  # Profiling does not work with stripped binaries, so override.
-  OPENMSX_STRIP:=false
-endif
 ifeq ($(OPENMSX_STRIP),true)
   ifeq ($(filter darwin%,$(OPENMSX_TARGET_OS)),)
     # Tell GCC to produce a stripped binary.
@@ -501,7 +483,6 @@ config:
 	@echo "  Platform: $(PLATFORM)"
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
 	@echo "  Compiler: $(CXX)"
-	@echo "  Profile:  $(OPENMSX_PROFILE)"
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
 
 # Include dependency files.
@@ -602,18 +583,8 @@ endif # universal binary
 
 # Run executable.
 run: all
-ifeq ($(OPENMSX_PROFILE),true)
-	@echo "Profiling $(notdir $(BINARY_FULL))..."
-	@cd $(dir $(BINARY_FULL)) ; ./$(notdir $(BINARY_FULL))
-	@mkdir -p $(LOG_PATH)
-	@echo "Creating report..."
-	@gprof $(BINARY_FULL) $(dir $(BINARY_FULL))gmon.out \
-		> $(LOG_PATH)/profile.txt
-	@echo "Report written: $(LOG_PATH)/profile.txt"
-else
 	@echo "Running $(notdir $(BINARY_FULL))..."
 	@$(BINARY_FULL)
-endif
 
 
 # Installation and Binary Packaging
