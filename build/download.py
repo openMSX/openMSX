@@ -43,13 +43,14 @@ def downloadURL(url, localDir):
 	finally:
 		print
 
-if len(sys.argv) == 3:
-	try:
-		downloadURL(*sys.argv[1 : ])
-	except IOError, ex:
-		print >> sys.stderr, ex
-		sys.exit(1)
-else:
-	print >> sys.stderr, \
-		'Usage: python download.py url localdir'
-	sys.exit(2)
+if __name__ == '__main__':
+	if len(sys.argv) == 3:
+		try:
+			downloadURL(*sys.argv[1 : ])
+		except IOError, ex:
+			print >> sys.stderr, ex
+			sys.exit(1)
+	else:
+		print >> sys.stderr, \
+			'Usage: python download.py url localdir'
+		sys.exit(2)
