@@ -29,6 +29,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Unzipping VisualC.zip..."
+				CommandLine="python unzip.py $(3rdPartySrcDir)\$(LibNameSDL_Image)\VisualC.zip $(3rdPartySrcDir)\$(LibNameSDL_Image)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -103,6 +105,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Unzipping VisualC.zip..."
+				CommandLine="python unzip.py $(3rdPartySrcDir)\$(LibNameSDL_Image)\VisualC.zip $(3rdPartySrcDir)\$(LibNameSDL_Image)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -177,6 +181,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Unzipping VisualC.zip..."
+				CommandLine="python unzip.py $(3rdPartySrcDir)\$(LibNameSDL_Image)\VisualC.zip $(3rdPartySrcDir)\$(LibNameSDL_Image)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -256,6 +262,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Unzipping VisualC.zip..."
+				CommandLine="python unzip.py $(3rdPartySrcDir)\$(LibNameSDL_Image)\VisualC.zip $(3rdPartySrcDir)\$(LibNameSDL_Image)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -335,6 +343,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Unzipping VisualC.zip..."
+				CommandLine="python unzip.py $(3rdPartySrcDir)\$(LibNameSDL_Image)\VisualC.zip $(3rdPartySrcDir)\$(LibNameSDL_Image)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -410,6 +420,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Unzipping VisualC.zip..."
+				CommandLine="python unzip.py $(3rdPartySrcDir)\$(LibNameSDL_Image)\VisualC.zip $(3rdPartySrcDir)\$(LibNameSDL_Image)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
