@@ -1,8 +1,17 @@
 # $Id: 3rdparty-download.py 9252 2009-02-26 10:27:25Z vampier $
-
 from download import downloadURL
 import os.path
+import sys
 from urlparse import urljoin
+
+if len(sys.argv) < 2:
+	print >> sys.stderr, "Usage: python 3rdparty-download.py platform TARBALLS_DIR"
+	sys.exit(2)
+
+# One of { Win32, x64, mingw }
+platform = sys.argv[1]
+TARBALLS_DIR = sys.argv[2]
+
 
 #TODO:
 #	Specify downloads for:
@@ -11,15 +20,6 @@ from urlparse import urljoin
 #	- OTHER
 #
 # required components -> required packages -> minus system packages -> 3rdparty packages
-
-TARBALLS_DIR="../derived/3rdparty/download"
-#SOURCE_DIR="derived/3rdparty/src"
-#PATCHES_DIR="build/3rdparty"
-#TIMESTAMP_DIR="$(BUILD_PATH)/timestamps"
-#BUILD_DIR="$(BUILD_PATH)/build"
-#INSTALL_DIR="$(BUILD_PATH)/install"
-
-
 
 #Create Generic download class
 class Package(object):
@@ -104,8 +104,20 @@ class DIRECTX(Package):
 		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
 
 
+#Make Package selection
+if platform=='Win32':
+	download_packages = GLEW, ZLib,libPNG,TCL,SDL,SDL_image,SDL_ttf,Freetype,libXML2
+elif platform=='x64':
+	download_packages = GLEW, ZLib,libPNG,TCL,SDL,SDL_image,SDL_ttf,Freetype,libXML2
+elif platform=='mingw':	
+	download_packages = GLEW, ZLib,libPNG,TCL,SDL,SDL_image,SDL_ttf,Freetype,libXML2,DIRECTX
+	#add platform etc
+else:
+	print >> sys.stderr, "Error platform: '"+platform+"' not found"
+	sys.exit(2)
+
 #download the packages
-for package in (GLEW, ZLib,libPNG,TCL,SDL,SDL_image,SDL_ttf,Freetype,libXML2,DIRECTX):
+for package in (download_packages):
 	if not(package.checkFile()):
 		downloadURL(package.getURL(),TARBALLS_DIR)
 	else:
