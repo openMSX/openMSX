@@ -5174,7 +5174,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
 					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
 				/>
 			</FileConfiguration>
@@ -5184,7 +5184,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
 					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
 				/>
 			</FileConfiguration>
@@ -5194,7 +5194,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
 					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
 				/>
 			</FileConfiguration>
@@ -5204,7 +5204,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
 					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
 				/>
 			</FileConfiguration>
@@ -5214,7 +5214,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
 					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
 				/>
 			</FileConfiguration>
@@ -5224,7 +5224,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python %MSVC_DIR%\genconfig.py $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
 					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
 				/>
 			</FileConfiguration>
