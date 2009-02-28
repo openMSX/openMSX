@@ -1,4 +1,4 @@
-# $Id: 3rdparty-download.py 9252 2009-02-26 10:27:25Z vampier $
+# $Id$
 from download import downloadURL
 import os.path
 import sys
