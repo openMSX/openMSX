@@ -52,7 +52,7 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	try {
 		file.reset(new File(filename));
 		filesize = file->getSize();
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		// Image didn't exist yet, but postpone image creation:
 		// we don't want to create images during 'testconfig'
 		filesize = config.getChildDataAsInt("size") * 1024 * 1024;
@@ -173,7 +173,7 @@ int HD::insertDisk(const std::string& filename)
 	try {
 		switchImage(Filename(filename));
 		return 0;
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		return -1;
 	}
 }

@@ -123,6 +123,7 @@ void CommandConsole::loadHistory()
 		}
 	} catch (FileException& e) {
 		PRT_DEBUG(e.getMessage());
+		&e;	// Prevent warning
 	}
 }
 
@@ -200,7 +201,7 @@ void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_RETURN:
 		case Keys::K_KP_ENTER:
 			commandExecute();
-			cursorPosition = prompt.size();
+			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_LEFT:
 			if (cursorPosition > prompt.size()) {
@@ -214,7 +215,7 @@ void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			break;
 		case Keys::K_HOME:
 		case Keys::K_A | Keys::KM_CTRL:
-			cursorPosition = prompt.size();
+			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_END:
 		case Keys::K_E | Keys::KM_CTRL:
@@ -327,7 +328,7 @@ void CommandConsole::putPrompt()
 {
 	commandScrollBack = history.end();
 	currentLine = lines[0] = prompt;
-	cursorPosition = prompt.size();
+	cursorPosition = unsigned(prompt.size());
 }
 
 void CommandConsole::tabCompletion()
@@ -392,7 +393,7 @@ void CommandConsole::clearCommand()
 {
 	resetScrollBack();
 	currentLine = lines[0] = prompt;
-	cursorPosition = prompt.size();
+	cursorPosition = unsigned(prompt.size());
 }
 
 void CommandConsole::backspace()

@@ -363,7 +363,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 				// altered data if filesize has been changed and not if only
 				// content in file has changed
 				memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
-			} catch (FileException& e) {
+			} catch (FileException&) {
 				// couldn't open/read cached sector file
 			}
 		}
@@ -475,7 +475,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 			}
 			// Continuing at cluster 'curcl'
 		}
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		// Error opening or reading host file
 		cliComm.printWarning("Error reading host file: " +
 		                     mapdir[dirindex].shortname +
@@ -543,7 +543,7 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 		File file(fullfilename, File::CREATE);
 		file.truncate(cursize);
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		cliComm.printWarning("Error while truncating host file: " +
 		                     mapdir[dirindex].shortname);
 	}
@@ -595,7 +595,7 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 			}
 			curcl = readFAT(curcl);
 		}
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		cliComm.printWarning("Error while syncing host file: " +
 		                     mapdir[dirindex].shortname);
 	}
@@ -773,7 +773,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 				// will update this later when the size is altered
 				try {
 					File file(newfilename, File::TRUNCATE);
-				} catch (FileException& e) {
+				} catch (FileException&) {
 					cliComm.printWarning("Couldn't create new file.");
 				}
 			} else {
@@ -854,7 +854,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 			int cursize = getLE32(mapdir[dirent].msxinfo.size);
 			unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
 			file.write(buf, writesize);
-		} catch (FileException& e) {
+		} catch (FileException&) {
 			cliComm.printWarning("Couldn't write to file.");
 		}
 	} else {

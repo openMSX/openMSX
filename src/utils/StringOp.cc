@@ -53,7 +53,7 @@ bool startsWith(const string& total, const string& part)
 
 bool endsWith(const string& total, const string& part)
 {
-	int offset = total.size() - part.size();
+	string::size_type offset = total.size() - part.size();
 	if (offset < 0) return false;
 	return equal(part.begin(), part.end(), total.begin() + offset);
 }

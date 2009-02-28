@@ -81,8 +81,8 @@ string decode(const string& input)
 	string ret;
 	int i = 0;
 	byte buf4[4];
-	const int len = input.size();
-	for (int in = 0; in < len; ++in) {
+	const size_t len = input.size();
+	for (size_t in = 0; in < len; ++in) {
 		byte d = decode(input[in]);
 		if (d == (byte)-1) continue;
 		buf4[i++] = d;

@@ -111,12 +111,13 @@ const string FileContext::resolveCreate(const string& filename) const
 	vector<string> pathList = getPathsHelper(*controller, savePaths);
 	try {
 		result = resolveHelper(pathList, filename);
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		string path = pathList.front();
 		try {
 			FileOperations::mkdirp(path);
 		} catch (FileException& e) {
 			PRT_DEBUG(e.getMessage());
+			&e;	// Prevent warning
 		}
 		result = FileOperations::join(path, filename);
 	}

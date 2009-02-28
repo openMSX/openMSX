@@ -435,7 +435,7 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 		currentLength -= numSectors;
 		blocks = currentLength;
 		return counter;
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		blocks = 0;
 		keycode = SCSI::SENSE_UNRECOVERED_READ_ERROR;
 		return 0;
@@ -474,7 +474,7 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 		blocks = currentLength - tmp;
 		unsigned counter = tmp * SECTOR_SIZE;
 		return counter;
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		keycode = SCSI::SENSE_WRITE_FAULT;
 		blocks = 0;
 		return 0;
@@ -501,7 +501,7 @@ void SCSILS120::formatUnit()
 			file->write(buffer, SECTOR_SIZE);
 			unitAttention = true;
 			mediaChanged = true;
-		} catch (FileException& e) {
+		} catch (FileException&) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
 		}
 	}
@@ -807,7 +807,7 @@ int SCSILS120::insertDisk(const std::string& filename)
 	try {
 		insert(filename);
 		return 0;
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		return -1;
 	}
 }

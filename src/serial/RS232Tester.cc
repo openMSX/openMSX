@@ -98,7 +98,7 @@ void RS232Tester::run()
 	byte buf;
 	if (!inFile) return;
 	while (true) {
-		int num = fread(&buf, 1, 1, inFile);
+		size_t num = fread(&buf, 1, 1, inFile);
 		if (num != 1) {
 			continue;
 		}

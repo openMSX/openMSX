@@ -180,7 +180,7 @@ void Keyboard::loadKeymapfile(const string& filename)
 		File file(filename);
 		byte* buf = file.mmap();
 		parseKeymapfile(buf, file.getSize());
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		throw MSXException("Couldn't load keymap file: " + filename);
 	}
 }
@@ -1036,7 +1036,7 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 			}
 		}
 		reschedule(time);
-	} catch (std::exception& e) {
+	} catch (std::exception&) {
 		// utf8 encoding error
 		text_utf8.clear();
 	}

@@ -37,7 +37,7 @@ void PreCacheFile::run()
 		while (true) {
 			char buf[BLOCK_SIZE];
 			fseek(file, block * BLOCK_SIZE, SEEK_SET);
-			unsigned read = fread(buf, 1, BLOCK_SIZE, file);
+			size_t read = fread(buf, 1, BLOCK_SIZE, file);
 			if (read != BLOCK_SIZE) {
 				// error or end-of-file reached,
 				// in both cases stop pre-caching

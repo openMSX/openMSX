@@ -60,7 +60,7 @@ XSADiskImage::XSADiskImage(const Filename& filename)
 {
 	XSAExtractor extractor(filename);
 	extractor.getData(data);
-	setNbSectors(data.size() / 512);
+	setNbSectors(unsigned(data.size()) / 512);
 }
 
 void XSADiskImage::readSectorImpl(unsigned sector, byte* buf)

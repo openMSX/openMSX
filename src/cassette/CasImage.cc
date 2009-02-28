@@ -47,7 +47,7 @@ short CasImage::getSampleAt(EmuTime::param time)
 EmuTime CasImage::getEndTime() const
 {
 	Clock<OUTPUT_FREQUENCY> clk(EmuTime::zero);
-	clk += output.size();
+	clk += unsigned(output.size());
 	return clk.getTime();
 }
 
@@ -58,7 +58,7 @@ unsigned CasImage::getFrequency() const
 
 void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 {
-	unsigned nbSamples = output.size();
+	size_t nbSamples = output.size();
 	if (pos < nbSamples) {
 		for (unsigned i = 0; i < num; ++i, ++pos) {
 			bufs[0][i] = (pos < nbSamples) ? output[pos] * 256 : 0;

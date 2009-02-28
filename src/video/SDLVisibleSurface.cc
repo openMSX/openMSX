@@ -77,7 +77,7 @@ void SDLVisibleSurface::takeScreenShot(const std::string& filename)
 	lock();
 	try {
 		ScreenShotSaver::save(getSDLWorkSurface(), filename);
-	} catch (CommandException& e) {
+	} catch (CommandException&) {
 		throw;
 	}
 }

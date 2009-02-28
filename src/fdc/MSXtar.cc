@@ -177,7 +177,7 @@ MSXtar::~MSXtar()
 		for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
 			try {
 				disk.writeSector(i + 1, &fatBuffer[SECTOR_SIZE * i]);
-			} catch (MSXException& e) {
+			} catch (MSXException&) {
 				// nothing
 			}
 		}
@@ -509,7 +509,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 				writeFAT(newcl, EOF_FAT);
 				curcl = newcl;
 			}
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			// no more free clusters
 			break;
 		}
@@ -610,7 +610,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 
 	try {
 		alterFileInDSK(direntry, fullname);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		// still write directory entry
 		writeLogicalSector(dirEntry.sector, buf);
 		throw;

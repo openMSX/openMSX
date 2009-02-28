@@ -166,7 +166,7 @@ void AviRecorder::addImage(const void** lines, EmuTime::param time)
 		assert(motherBoard);
 		mixer->updateStream(motherBoard->getCurrentTime());
 	}
-	aviWriter->addFrame(lines, audioBuf.size() / 2, &audioBuf[0]);
+	aviWriter->addFrame(lines, unsigned(audioBuf.size()) / 2, &audioBuf[0]);
 	audioBuf.clear();
 }
 

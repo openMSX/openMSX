@@ -87,7 +87,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		"consolefont", "console font file", defaultFont));
 	try {
 		fontSetting->setChecker(settingChecker.get());
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		// This will happen when you upgrade from the old .png based
 		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
 		reactor.getCliComm().printWarning(
@@ -326,7 +326,7 @@ void OSDConsoleRenderer::paint()
 	if (updateConsoleRect()) {
 		try {
 			loadBackground(backgroundSetting->getValue());
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			// ignore
 		}
 	}
@@ -345,7 +345,7 @@ void OSDConsoleRenderer::paint()
 					destW, destH, CONSOLE_ALPHA));
 			}
 #endif
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			// nothing
 		}
 	}

@@ -332,7 +332,7 @@ void SocketConnection::output(const std::string& message)
 {
 	const char* data = message.data();
 	unsigned pos = 0;
-	unsigned bytesLeft = message.size();
+	size_t bytesLeft = message.size();
 	while (bytesLeft) {
 		int bytesSend;
 		{

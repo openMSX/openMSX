@@ -278,7 +278,7 @@ void NowindHost::DSKCHG()
 void NowindHost::DRIVES()
 {
 	// at least one drive (MSXDOS1 cannot handle 0 drives)
-	byte numberOfDrives = std::max<byte>(1, drives.size());
+	byte numberOfDrives = std::max<byte>(1, byte(drives.size()));
 
 	byte reg_a = cmdData[7];
 	sendHeader();
@@ -361,7 +361,7 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 
 void NowindHost::doDiskRead1()
 {
-	unsigned bytesLeft = buffer.size() - transfered;
+	unsigned bytesLeft = unsigned(buffer.size()) - transfered;
 	if (bytesLeft == 0) {
 		sendHeader();
 		send(0x01); // end of receive-loop
@@ -408,7 +408,7 @@ void NowindHost::doDiskRead2()
 		retryCount = 0;
 
 		unsigned address = getCurrentAddress();
-		unsigned bytesLeft = buffer.size() - transfered;
+		size_t bytesLeft = buffer.size() - transfered;
 		if ((address == 0x8000) && (bytesLeft > 0)) {
 			sendHeader();
 			send(0x01); // end of receive-loop
@@ -483,10 +483,10 @@ void NowindHost::diskWriteInit(SectorAccessibleDisk& disk)
 
 void NowindHost::doDiskWrite1()
 {
-	unsigned bytesLeft = buffer.size() - transfered;
+	unsigned bytesLeft = unsigned(buffer.size()) - transfered;
 	if (bytesLeft == 0) {
 		// All data transferred!
-		unsigned sectorAmount = buffer.size() / 512;
+		unsigned sectorAmount = unsigned(buffer.size()) / 512;
 		unsigned startSector = getStartSector();
 		if (SectorAccessibleDisk* disk = getDisk()) {
 			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
@@ -534,7 +534,7 @@ void NowindHost::doDiskWrite2()
 		transfered += transferSize;
 
 		unsigned address = getCurrentAddress();
-		unsigned bytesLeft = buffer.size() - transfered;
+		size_t bytesLeft = buffer.size() - transfered;
 		if ((address == 0x8000) && (bytesLeft > 0)) {
 			sendHeader();
 			send(254); // more data for page 2/3

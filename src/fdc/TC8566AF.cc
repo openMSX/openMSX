@@ -445,7 +445,7 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 						sectorNumber, sectorBuf,
 						onDiskTrack, onDiskSector,
 						onDiskSide,  onDiskSize);
-				} catch (MSXException& e) {
+				} catch (MSXException&) {
 					status0 |= ST0_IC0;
 					status1 |= ST1_ND;
 				}
@@ -571,7 +571,7 @@ void TC8566AF::executionPhaseWrite(byte value)
 						sectorNumber, sectorBuf,
 						onDiskTrack, onDiskSector,
 						onDiskSide,  onDiskSize);
-				} catch (MSXException& e) {
+				} catch (MSXException&) {
 					status1 |= ST1_NW;
 				}
 				phase       = PHASE_RESULT;
@@ -598,7 +598,7 @@ void TC8566AF::executionPhaseWrite(byte value)
 					sectorNumber, sectorBuf,
 					onDiskTrack, onDiskSector,
 					onDiskSide,  onDiskSize);
-			} catch (MSXException& e) {
+			} catch (MSXException&) {
 				status1 |= ST1_NW;
 			}
 			break;

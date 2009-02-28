@@ -265,7 +265,7 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 		UserFileContext context;
 		File file(context.resolve(getCommandController(), arg));
 		originalName = file.getOriginalName();
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		// ignore
 	}
 	string::size_type begin = originalName.find_last_of('.');
@@ -312,7 +312,7 @@ void CommandLineParser::parse(int argc, char** argv)
 						"Loading of settings failed: " +
 						e.getMessage() + "\n"
 						"Reverting to default settings.");
-				} catch (FileException& e) {
+				} catch (FileException&) {
 					// settings.xml not found
 				} catch (ConfigException& e) {
 					throw FatalError("Error in default settings: "

@@ -304,7 +304,7 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 				widget.getProperties(properties);
 			}
 			completeString(tokens, properties);
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			// ignore
 		}
 	}

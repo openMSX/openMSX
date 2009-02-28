@@ -78,7 +78,7 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 		if (resolvedFilenameElem) {
 			try {
 				file.reset(new File(resolvedFilenameElem->getData()));
-			} catch (FileException& e) {
+			} catch (FileException&) {
 				// ignore
 			}
 		}
@@ -104,7 +104,7 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 					                  config.getFileContext(),
 					                  controller);
 					file.reset(new File(filename));
-				} catch (FileException& e) {
+				} catch (FileException&) {
 					throw MSXException("Error reading ROM: " +
 					                   name);
 				}
@@ -223,7 +223,7 @@ void Rom::read(const XMLElement& config)
 	try {
 		tmp = file->mmap() + offset;
 		rom = tmp;
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		throw MSXException("Error reading ROM image: " +
 		                   file->getURL());
 	}

@@ -78,7 +78,7 @@ void InputArchiveBase<Derived>::serialize_blob(
 		tmp = Base64::decode(tmp);
 		uLongf dstLen = len;
 		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
-		                reinterpret_cast<const Bytef*>(tmp.data()), tmp.size())
+		                reinterpret_cast<const Bytef*>(tmp.data()), uLong(tmp.size()))
 		     != Z_OK) ||
 		    (dstLen != len)) {
 			throw MSXException("Error while decompressing blob.");
@@ -135,10 +135,10 @@ XmlOutputArchive::~XmlOutputArchive()
 	const char* header =
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	gzwrite(file, const_cast<char*>(header), strlen(header));
+	gzwrite(file, const_cast<char*>(header), unsigned(strlen(header)));
 	string dump = current->dump();
 	delete current;
-	gzwrite(file, const_cast<char*>(dump.data()), dump.size());
+	gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size()));
 	gzclose(file);
 }
 
@@ -266,7 +266,7 @@ bool XmlInputArchive::hasAttribute(const string& name)
 }
 int XmlInputArchive::countChildren() const
 {
-	return elems.back()->getChildren().size();
+	return int(elems.back()->getChildren().size());
 }
 
 } // namespace openmsx

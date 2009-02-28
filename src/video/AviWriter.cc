@@ -67,7 +67,7 @@ AviWriter::~AviWriter()
 
 	// write avi header
 	AVIOUT4("RIFF");                    // Riff header
-	AVIOUTd(AVI_HEADER_SIZE + written - 8 + index.size());
+	AVIOUTd(AVI_HEADER_SIZE + written - 8 + unsigned(index.size()));
 	AVIOUT4("AVI ");
 	AVIOUT4("LIST");                    // List header
 	unsigned main_list = header_pos;
@@ -172,10 +172,10 @@ AviWriter::~AviWriter()
 		); // size of the list
 	AVIOUT4("INFO");
 	AVIOUT4("ISFT");
-	AVIOUTd(strlen(versionStr) + 1); // # of bytes to follow
+	AVIOUTd(unsigned(strlen(versionStr)) + 1); // # of bytes to follow
 	AVIOUTs(versionStr);
 	AVIOUT4("ICRD");
-	AVIOUTd(strlen(dateStr) + 1); // # of bytes to follow
+	AVIOUTd(unsigned(strlen(dateStr)) + 1); // # of bytes to follow
 	AVIOUTs(dateStr);
 	// TODO: add artist (IART), comments (ICMT), name (INAM), etc.
 	// use a loop over chunks (type + string) to create the above bytes in
@@ -199,11 +199,11 @@ AviWriter::~AviWriter()
 	try {
 		// First add the index table to the end
 		memcpy(&index[0], "idx1", 4);
-		writeLE4(&index[4], index.size() - 8);
-		file->write(&index[0], index.size());
+		writeLE4(&index[4], unsigned(index.size()) - 8);
+		file->write(&index[0], unsigned(index.size()));
 		file->seek(0);
 		file->write(&avi_header, AVI_HEADER_SIZE);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		// can't throw from destructor
 	}
 }
@@ -228,7 +228,7 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 	unsigned pos = written + 4;
 	written += writesize + 8;
 
-	unsigned idxsize = index.size();
+	size_t idxsize = index.size();
 	index.resize(idxsize + 16);
 	index[idxsize + 0] = tag[0];
 	index[idxsize + 1] = tag[1];

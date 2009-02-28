@@ -65,7 +65,7 @@ void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	try {
 		eventDistributor.distributeEvent(scheduledEvents.front(), time);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		// ignore
 	}
 	scheduledEvents.pop_front();

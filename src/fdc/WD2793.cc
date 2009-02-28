@@ -290,7 +290,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 					// TODO multi sector write
 					endCmd();
 				}
-			} catch (MSXException& e) {
+			} catch (MSXException&) {
 				// Backend couldn't write data
 				// TODO which status bit should be set?
 				statusReg |= RECORD_NOT_FOUND;
@@ -418,6 +418,7 @@ void WD2793::tryToReadSector()
 		transferring = true;
 	} catch (MSXException& e) {
 		PRT_DEBUG("WD2793: read sector failed: " << e.getMessage());
+		&e;	// Prevent warning
 		DRQ = false; // TODO data not ready (read error)
 		statusReg = 0; // reset flags
 	}
@@ -732,7 +733,7 @@ void WD2793::endWriteTrackCmd()
 {
 	try {
 		drive.writeTrackData(dataBuffer);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		// Ignore. Should rarely happen, because
 		// write-protected is already checked at the
 		// beginning of write-track command (maybe

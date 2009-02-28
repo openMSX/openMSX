@@ -475,8 +475,8 @@ void CassettePlayer::fillBuf(size_t length, double x)
 	double y = lastY + (x - lastX);
 
 	while (length) {
-		int len = std::min(length, BUF_SIZE - sampcnt);
-		for (int j = 0; j < len; ++j) {
+		size_t len = std::min(length, BUF_SIZE - sampcnt);
+		for (size_t j = 0; j < len; ++j) {
 			buf[sampcnt++] = int(y) + 128;
 			y *= A;
 		}
@@ -492,7 +492,7 @@ void CassettePlayer::fillBuf(size_t length, double x)
 
 void CassettePlayer::flushOutput()
 {
-	recordImage->write8mono(buf, sampcnt);
+	recordImage->write8mono(buf, unsigned(sampcnt));
 	sampcnt = 0;
 	recordImage->flush(); // update wav header
 }

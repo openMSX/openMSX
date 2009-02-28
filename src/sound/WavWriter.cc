@@ -68,7 +68,7 @@ WavWriter::~WavWriter()
 		}
 
 		flush(); // write header
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		// ignore, can't throw from destructor
 	}
 }

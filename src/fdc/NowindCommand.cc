@@ -137,11 +137,11 @@ void NowindCommand::processHdimage(
 			auto_ptr<DiskPartition> partition(
 				new DiskPartition(*wholeDisk, *it, wholeDisk));
 			DiskChanger* drive = createDiskChanger(
-				interface.basename, drives.size(),
+				interface.basename, unsigned(drives.size()),
 				interface.getMotherBoard());
 			drive->changeDisk(auto_ptr<Disk>(partition));
 			drives.push_back(drive);
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			if (failOnError) throw;
 		}
 	}
@@ -213,7 +213,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 			if (romdisk != 255) {
 				error = "Can only have one romdisk";
 			} else {
-				romdisk = tmpDrives.size();
+				romdisk = unsigned(tmpDrives.size());
 				tmpDrives.push_back(new NowindRomDisk());
 				changeDrives = true;
 			}
@@ -249,7 +249,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 
 		if (createDrive) {
 			DiskChanger* drive = createDiskChanger(
-				interface.basename, tmpDrives.size(),
+				interface.basename, unsigned(tmpDrives.size()),
 				interface.getMotherBoard());
 			tmpDrives.push_back(drive);
 			changeDrives = true;

@@ -31,7 +31,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 				motherBoard.getCommandController(), filename));
 			int romSize = file.getSize();
 			file.read(&(*ram)[0], romSize);
-		} catch (FileException& e) {
+		} catch (FileException&) {
 			throw MSXException("Error reading file: " + filename);
 		}
 	}

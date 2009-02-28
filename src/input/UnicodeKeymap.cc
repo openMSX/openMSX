@@ -24,7 +24,7 @@ UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 		File file(filename);
 		byte* buf = file.mmap();
 		parseUnicodeKeymapfile(buf, file.getSize());
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: " + filename);
 	}
 }

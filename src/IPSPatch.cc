@@ -50,7 +50,7 @@ IPSPatch::IPSPatch(const Filename& filename_,
 			--b;
 			if (getStop(b) < offset) ++b;
 		}
-		PatchMap::iterator e = patchMap.upper_bound(offset + v.size());
+		PatchMap::iterator e = patchMap.upper_bound(offset + unsigned(v.size()));
 		if (b != e) {
 			// remove operlapping regions, merge adjacent regions
 			--e;
@@ -90,7 +90,7 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 	PatchMap::const_iterator e = patchMap.upper_bound(src + num - 1);
 	for (PatchMap::const_iterator it = b; it != e; ++it) {
 		unsigned chunkStart = it->first;
-		int chunkSize = it->second.size();
+		int chunkSize = int(it->second.size());
 		// calc chunkOffset, chunkStart
 		int chunkOffset = src - chunkStart;
 		if (chunkOffset < 0) {

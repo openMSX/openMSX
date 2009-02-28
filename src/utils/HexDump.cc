@@ -48,10 +48,10 @@ static int decode(char x)
 string decode(const string& input)
 {
 	string ret;
-	const int len = input.size();
+	const size_t len = input.size();
 	bool flip = true;
 	char tmp = 0;
-	for (int in = 0; in < len; ++in) {
+	for (size_t in = 0; in < len; ++in) {
 		int d = decode(input[in]);
 		if (d == -1) continue;
 		if (flip) {

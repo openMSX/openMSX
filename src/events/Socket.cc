@@ -128,7 +128,7 @@ void sock_close(SOCKET sd)
 
 int sock_recv(SOCKET sd, char* buf, size_t count)
 {
-	int num = recv(sd, buf, count, 0);
+	int num = recv(sd, buf, int(count), 0);
 	if (num >  0) return num; // normal case
 	if (num == 0) return -1;  // socket was closed by client
 #ifdef _WIN32
@@ -151,7 +151,7 @@ int sock_recv(SOCKET sd, char* buf, size_t count)
 
 int sock_send(SOCKET sd, const char* buf, size_t count)
 {
-	int num = send(sd, buf, count, 0);
+	int num = send(sd, buf, int(count), 0);
 	if (num >= 0) return num; // normal case
 #ifdef _WIN32
 	int err;

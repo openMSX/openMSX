@@ -66,7 +66,7 @@ void Filename::updateAfterLoadState(CommandController& controller)
 
 	try {
 		resolvedFilename = resolveUser(originalFilename, controller);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		// nothing
 	}
 }

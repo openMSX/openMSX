@@ -88,7 +88,7 @@ int SectorAccessibleDisk::readSectors (
 			readSector(startSector + i, &buffer[i * SECTOR_SIZE]);
 		}
 		return 0;
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		return -1;
 	}
 }
@@ -101,7 +101,7 @@ int SectorAccessibleDisk::writeSectors(
 			writeSector(startSector + i, &buffer[i * SECTOR_SIZE]);
 		}
 		return 0;
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		return -1;
 	}
 }

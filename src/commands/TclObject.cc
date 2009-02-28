@@ -20,13 +20,13 @@ TclObject::TclObject(Tcl_Interp* interp_, Tcl_Obj* obj_)
 TclObject::TclObject(Tcl_Interp* interp_, const string& value)
 	: interp(interp_)
 {
-	init(Tcl_NewStringObj(value.data(), value.size()));
+	init(Tcl_NewStringObj(value.data(), int(value.size())));
 }
 
 TclObject::TclObject(const string& value)
 	: interp(0)
 {
-	init(Tcl_NewStringObj(value.data(), value.size()));
+	init(Tcl_NewStringObj(value.data(), int(value.size())));
 }
 
 TclObject::TclObject(Tcl_Interp* interp_)
@@ -110,7 +110,7 @@ void TclObject::throwException() const
 void TclObject::setString(const string& value)
 {
 	unshare();
-	Tcl_SetStringObj(obj, value.c_str(), value.length());
+	Tcl_SetStringObj(obj, value.c_str(), int(value.length()));
 }
 
 void TclObject::setInt(int value)
@@ -139,7 +139,7 @@ void TclObject::setBinary(byte* buf, unsigned length)
 
 void TclObject::addListElement(const string& element)
 {
-	addListElement(Tcl_NewStringObj(element.data(), element.size()));
+	addListElement(Tcl_NewStringObj(element.data(), int(element.size())));
 }
 
 void TclObject::addListElement(int value)
@@ -236,13 +236,13 @@ bool TclObject::evalBool() const
 void TclObject::checkExpression() const
 {
 	string tmp = getString();
-	parse(tmp.data(), tmp.size(), true);
+	parse(tmp.data(), int(tmp.size()), true);
 }
 
 void TclObject::checkCommand() const
 {
 	string tmp = getString();
-	parse(tmp.data(), tmp.size(), false);
+	parse(tmp.data(), int(tmp.size()), false);
 }
 
 void TclObject::parse(const char* str, int len, bool expression) const

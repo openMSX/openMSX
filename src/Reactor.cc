@@ -501,7 +501,7 @@ void Reactor::run(CommandLineParser& parser)
 		PreferSystemFileContext context;
 		commandController.source(
 			context.resolve(commandController, "init.tcl"));
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		// no init.tcl, ignore
 	}
 

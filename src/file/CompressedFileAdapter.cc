@@ -44,7 +44,7 @@ void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
 unsigned CompressedFileAdapter::getSize()
 {
 	fillBuffer();
-	return buf.size();
+	return unsigned(buf.size());
 }
 
 void CompressedFileAdapter::seek(unsigned newpos)

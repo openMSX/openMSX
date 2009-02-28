@@ -173,7 +173,7 @@ int DiskChanger::insertDisk(const string& filename)
 	try {
 		insertDisk(args);
 		return 0;
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		return -1;
 	}
 }
@@ -189,7 +189,7 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 		try {
 			// first try XSA
 			newDisk.reset(new XSADiskImage(filename));
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 		try {
 			// First try the fake disk, because a DSK will always
 			// succeed if diskImage can be resolved
@@ -200,7 +200,7 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 				controller.getCliComm(),
 				controller.getGlobalSettings(),
 				filename));
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 		try {
 			// then try normal DSK
 			newDisk.reset(new DSKDiskImage(filename));
@@ -220,7 +220,7 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 			try {
 				Filename file(diskImage.substr(0, pos));
 				wholeDisk.reset(new DSKDiskImage(file));
-			} catch (MSXException& e) {
+			} catch (MSXException&) {
 				// If this fails we still prefer to show the
 				// previous error message, because it's most
 				// likely more descriptive.

@@ -545,8 +545,8 @@ bool exists(const string& filename)
 static int getNextNum(dirent* d, const string& prefix, const string& extension,
 					  const unsigned nofdigits)
 {
-	const unsigned extensionlen = extension.length();
-	const unsigned prefixlen = prefix.length();
+	const size_t extensionlen = extension.length();
+	const size_t prefixlen = prefix.length();
 	string name(d->d_name);
 
 	if ((name.length() != (prefixlen + nofdigits + extensionlen)) ||
@@ -573,7 +573,7 @@ string getNextNumberedFileName(
 	string dirName = getUserOpenMSXDir() + "/" + directory;
 	try {
 		mkdirp(dirName);
-	} catch (FileException& e) {
+	} catch (FileException&) {
 		// ignore
 	}
 

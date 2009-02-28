@@ -363,7 +363,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// doesn't exist at this point
 				variable->setValueStringDirect(
 					variable->getRestoreValueString());
-			} catch (CommandException& e) {
+			} catch (CommandException&) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource
 				// setting before turning on (set power on) the

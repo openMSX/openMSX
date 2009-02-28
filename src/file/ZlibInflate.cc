@@ -82,7 +82,7 @@ void ZlibInflate::inflate(std::vector<byte>& output, unsigned sizeHint)
 	buf.resize(sizeHint); // initial buffer size
 	while (true) {
 		s.next_out = &buf[0] + s.total_out;
-		s.avail_out = buf.size() - s.total_out;
+		s.avail_out = uInt(buf.size() - s.total_out);
 		int err = ::inflate(&s, Z_NO_FLUSH);
 		if (err == Z_STREAM_END) {
 			break;

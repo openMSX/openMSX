@@ -146,7 +146,7 @@ auto_ptr<File> FilePool::getFromPool(const string& sha1sum)
 			pool.erase(it++);
 			pool.insert(make_pair(newSum,
 			                 make_pair(newTime, filename)));
-		} catch (FileException& e) {
+		} catch (FileException&) {
 			// error reading file, remove from db
 			pool.erase(it++);
 		}
@@ -188,7 +188,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 			if (sum == sha1sum) {
 				return file;
 			}
-		} catch (FileException& e) {
+		} catch (FileException&) {
 			// ignore
 		}
 	} else {
@@ -214,7 +214,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 					return file;
 				}
 			}
-		} catch (FileException& e) {
+		} catch (FileException&) {
 			// error reading file, remove from db
 			pool.erase(it);
 		}

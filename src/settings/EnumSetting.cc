@@ -46,7 +46,7 @@ void EnumSettingPolicyBase::getPossibleValues(std::set<std::string>& result) con
 			int value = it->second;
 			checkSetValueBase(value);
 			result.insert(it->first);
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			// ignore
 		}
 	}

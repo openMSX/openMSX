@@ -85,7 +85,7 @@ void MidiInReader::run()
 	byte buf;
 	if (!file) return;
 	while (true) {
-		int num = fread(&buf, 1, 1, file);
+		size_t num = fread(&buf, 1, 1, file);
 		if (num != 1) {
 			continue;
 		}

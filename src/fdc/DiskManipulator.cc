@@ -309,7 +309,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 						DiskImageUtils::checkFAT12Partition(*disk, i);
 						names.insert(name1 + StringOp::toString(i));
 						names.insert(name2 + StringOp::toString(i));
-					} catch (MSXException& e) {
+					} catch (MSXException&) {
 						// skip invalid partition
 					}
 				}
@@ -439,7 +439,7 @@ auto_ptr<MSXtar> DiskManipulator::getMSXtar(
 	auto_ptr<MSXtar> result(new MSXtar(disk));
 	try {
 		result->chdir(driveData.workingDir[driveData.partition]);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		driveData.workingDir[driveData.partition] = "/";
 		throw CommandException(
 		    "Directory " + driveData.workingDir[driveData.partition] +

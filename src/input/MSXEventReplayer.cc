@@ -54,7 +54,7 @@ void MSXEventReplayer::executeUntil(EmuTime::param time, int /*userData*/)
 			InputEventFactory::createInputEvent(eventString);
 		try {
 			eventDistributor.distributeEvent(eventPtr, time);
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			// ignore
 		}
 	} catch (CommandException& e) {

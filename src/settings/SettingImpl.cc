@@ -33,7 +33,7 @@ void SettingImplBase::init()
 			if (elem) {
 				try {
 					setValueString2(elem->getData(), false);
-				} catch (MSXException& e) {
+				} catch (MSXException&) {
 					// saved value no longer valid, just keep default
 				}
 			}

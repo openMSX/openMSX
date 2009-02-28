@@ -494,9 +494,9 @@ void GlobalCommandController::tabCompletion(string& command)
 	// complete last token
 	vector<string> tokens;
 	removeEscaping(originalTokens, tokens, true);
-	unsigned oldNum = tokens.size();
+	size_t oldNum = tokens.size();
 	tabCompletion(tokens);
-	unsigned newNum = tokens.size();
+	size_t newNum = tokens.size();
 	bool tokenFinished = oldNum != newNum;
 
 	// replace last token
