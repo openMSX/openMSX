@@ -17,6 +17,20 @@ class Package(object):
 	def getURL(cls):
 		return urljoin(cls.downloadURL + '/', cls.getTarballName())
 
+class DirectX(Package):
+	downloadURL = 'http://alleg.sourceforge.net/files'
+	name = 'dx'
+	version = '70'
+
+	@classmethod
+	def getTarballName(cls):
+		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
+
+class Freetype(Package):
+	downloadURL = 'http://nongnu.askapache.com/freetype'
+	name = 'freetype'
+	version = '2.3.7'
+
 class GLEW(Package):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	name = 'glew'
@@ -26,24 +40,15 @@ class GLEW(Package):
 	def getTarballName(cls):
 		return '%s-%s-src.tgz' % (cls.name, cls.version)
 
-class ZLib(Package):
-	downloadURL = 'http://downloads.sourceforge.net/libpng'
-	name = 'zlib'
-	version = '1.2.3'
-
 class LibPNG(Package):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	name = 'libpng'
 	version = '1.2.34'
 
-class TCL(Package):
-	downloadURL = 'http://downloads.sourceforge.net/tcl'
-	name = 'tcl'
-	version = '8.5.6'
-
-	@classmethod
-	def getTarballName(cls):
-		return '%s%s-src.tar.gz' % (cls.name, cls.version)
+class LibXML2(Package):
+	downloadURL = 'http://xmlsoft.org/sources'
+	name = 'libxml2'
+	version = '2.7.2'
 
 class SDL(Package):
 	downloadURL = 'http://www.libsdl.org/release'
@@ -60,21 +65,16 @@ class SDL_ttf(Package):
 	name = 'SDL_ttf'
 	version = '2.0.9'
 
-class Freetype(Package):
-	downloadURL = 'http://nongnu.askapache.com/freetype'
-	name = 'freetype'
-	version = '2.3.7'
-
-class LibXML2(Package):
-	downloadURL = 'http://xmlsoft.org/sources'
-	name = 'libxml2'
-	version = '2.7.2'
-
-class DirectX(Package):
-	downloadURL = 'http://alleg.sourceforge.net/files'
-	name = 'dx'
-	version = '70'
+class TCL(Package):
+	downloadURL = 'http://downloads.sourceforge.net/tcl'
+	name = 'tcl'
+	version = '8.5.6'
 
 	@classmethod
 	def getTarballName(cls):
-		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
+		return '%s%s-src.tar.gz' % (cls.name, cls.version)
+
+class ZLib(Package):
+	downloadURL = 'http://downloads.sourceforge.net/libpng'
+	name = 'zlib'
+	version = '1.2.3'
