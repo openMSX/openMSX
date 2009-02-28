@@ -101,7 +101,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 			setRom(bank, value);
 			if (bank == 2) {
 				// sram enable/disable
-				bool newSramEnabled = value & 0x80;
+				bool newSramEnabled = (value & 0x80) != 0;
 				if (newSramEnabled != sramEnabled) {
 					sramEnabled = newSramEnabled;
 					if (sramEnabled) {
@@ -114,7 +114,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 				}
 			} else if (bank == 3) {
 				// sub-mapper enable/disable
-				bool newSubMapperEnabled = value & 0x80;
+				bool newSubMapperEnabled = (value & 0x80) != 0;
 				if (newSubMapperEnabled != subMapperEnabled) {
 					subMapperEnabled = newSubMapperEnabled;
 					invalidateMemCache(0x7000, 0x1000);

@@ -14,7 +14,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
-	bool singleSided = config.findChild("singlesided");
+	bool singleSided = config.findChild("singlesided") != NULL;
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 >= numDrives) || (numDrives >= 4)) {
 		throw MSXException("Invalid number of drives: " +

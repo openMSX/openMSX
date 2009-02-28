@@ -284,7 +284,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_ACTIVEEVENT:
-		event = new FocusEvent(evt.active.gain);
+		event = new FocusEvent(evt.active.gain != 0);
 		break;
 
 	case SDL_VIDEORESIZE:

@@ -81,7 +81,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// calculate region in switch zone
 		byte region = (address >> 11) & 3;
-		redirectToSamplePlayer[region] = value & 0x80;
+		redirectToSamplePlayer[region] = (value & 0x80) != 0;
 		if (redirectToSamplePlayer[region]) {
 			setBank(region + 2, unmappedRead);
 		} else {

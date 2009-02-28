@@ -26,7 +26,7 @@ struct dirent* ReadDir::getEntry()
 
 bool ReadDir::isValid() const
 {
-	return dir;
+	return dir != NULL;
 }
 
 } // namespace openmsx

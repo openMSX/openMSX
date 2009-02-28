@@ -175,7 +175,7 @@ void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
 		multiplexer->selectDrive(drive, time);
-		multiplexer->setMotor((value & 128), time);
+		multiplexer->setMotor((value & 128) != 0, time);
 		break;
 	}
 }

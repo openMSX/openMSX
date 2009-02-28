@@ -854,8 +854,8 @@ void YM2151Impl::writeReg(byte r, byte v, EmuTime::param time)
 			if (v & 0x20) { // reset timer B irq flag
 				resetStatus(2);
 			}
-			timer1.setStart(v & 4, time);
-			timer2.setStart(v & 8, time);
+			timer1.setStart((v & 4) != 0, time);
+			timer2.setStart((v & 8) != 0, time);
 			break;
 
 		case 0x18: // LFO frequency

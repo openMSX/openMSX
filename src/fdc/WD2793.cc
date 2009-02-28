@@ -498,7 +498,7 @@ void WD2793::startType1Cmd(EmuTime::param time)
 	statusReg |= BUSY;
 	setDRQ(false, time);
 
-	drive.setHeadLoaded(commandReg & H_FLAG, time);
+	drive.setHeadLoaded((commandReg & H_FLAG) != 0, time);
 
 	switch (commandReg & 0xF0) {
 		case 0x00: // restore

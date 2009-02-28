@@ -1084,8 +1084,8 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 				resetStatus(0x78);	// reset all flags
 			} else {
 				changeStatusMask((~data) & 0x78);
-				timer1.setStart(data & Y8950::R04_ST1, time);
-				timer2.setStart(data & Y8950::R04_ST2, time);
+				timer1.setStart((data & Y8950::R04_ST1) != 0, time);
+				timer2.setStart((data & Y8950::R04_ST2) != 0, time);
 				reg[rg] = data;
 			}
 			break;
@@ -1096,7 +1096,7 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 			break;
 
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
-			perihery.setSPOFF(data & 8, time); // bit 3
+			perihery.setSPOFF((data & 8) != 0, time); // bit 3
 			// fall-through
 
 		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM
@@ -1154,7 +1154,7 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 			slot.patch.AM = (data >> 7) &  1;
 			slot.patch.PM = (data >> 6) &  1;
 			slot.patch.EG = (data >> 5) &  1;
-			slot.patch.setKeyScaleRate(data & 0x10);
+			slot.patch.setKeyScaleRate((data & 0x10) != 0);
 			slot.patch.ML = (data >> 0) & 15;
 			slot.updateAll(chan.freq);
 		}
@@ -1197,8 +1197,8 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 	}
 	case 0xa0: {
 		if (rg == 0xbd) {
-			am_mode = data & 0x80;
-			pm_mode = data & 0x40;
+			am_mode = (data & 0x80) != 0;
+			pm_mode = (data & 0x40) != 0;
 
 			setRythmMode(data);
 			if (rythm_mode) {

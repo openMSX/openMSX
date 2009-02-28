@@ -52,9 +52,9 @@ CPU::CPU()
 	assert(ZSXYTable [255] == ZSXY255);
 
 	for (int x = 0; x < 0x800; ++x) {
-		bool hf = x & 0x400;
-		bool nf = x & 0x200;
-		bool cf = x & 0x100;
+		bool hf = (x & 0x400) != 0;
+		bool nf = (x & 0x200) != 0;
+		bool cf = (x & 0x100) != 0;
 		byte a = x & 0xFF;
 		byte hi = a / 16;
 		byte lo = a & 15;

@@ -1244,10 +1244,10 @@ void Channel::updateInstrumentPart(Global& global, int instrument, int part)
 		Slot& slot = slots[part];
 		byte value = inst[part];
 		slot.setFrequencyMultiplier(value & 0x0F);
-		slot.setKeyScaleRate(value & 0x10);
-		slot.setEnvelopeSustained(value & 0x20);
-		slot.setVibrato(value & 0x40);
-		slot.setAmplitudeModulation(value & 0x80);
+		slot.setKeyScaleRate((value & 0x10) != 0);
+		slot.setEnvelopeSustained((value & 0x20) != 0);
+		slot.setVibrato((value & 0x40) != 0);
+		slot.setAmplitudeModulation((value & 0x80) != 0);
 		slot.updateGenerators();
 		break;
 	}
@@ -1364,19 +1364,19 @@ void Global::setRhythmMode(bool rhythm)
 void Global::setRhythmFlags(byte flags)
 {
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
-	setRhythmMode(flags & 0x20);
+	setRhythmMode((flags & 0x20) != 0);
 	if (rhythm) {
 		// BD key on/off
-		channels[6].slots[MOD].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
-		channels[6].slots[CAR].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
+		channels[6].slots[MOD].setKeyOnOff(KEY_RHYTHM, (flags & 0x10) != 0);
+		channels[6].slots[CAR].setKeyOnOff(KEY_RHYTHM, (flags & 0x10) != 0);
 		// HH key on/off
-		channels[7].slots[MOD].setKeyOnOff(KEY_RHYTHM, flags & 0x01);
+		channels[7].slots[MOD].setKeyOnOff(KEY_RHYTHM, (flags & 0x01) != 0);
 		// SD key on/off
-		channels[7].slots[CAR].setKeyOnOff(KEY_RHYTHM, flags & 0x08);
+		channels[7].slots[CAR].setKeyOnOff(KEY_RHYTHM, (flags & 0x08) != 0);
 		// TOM key on/off
-		channels[8].slots[MOD].setKeyOnOff(KEY_RHYTHM, flags & 0x04);
+		channels[8].slots[MOD].setKeyOnOff(KEY_RHYTHM, (flags & 0x04) != 0);
 		// TOP-CY key on/off
-		channels[8].slots[CAR].setKeyOnOff(KEY_RHYTHM, flags & 0x02);
+		channels[8].slots[CAR].setKeyOnOff(KEY_RHYTHM, (flags & 0x02) != 0);
 	}
 }
 
@@ -1567,9 +1567,9 @@ void Global::writeReg(byte r, byte v, EmuTime::param time)
 	case 0x20: {
 		// 20-28: suson, keyon, block, FNUM 8
 		Channel& ch = getChannelForReg(r);
-		ch.slots[MOD].setKeyOnOff(KEY_MAIN, v & 0x10);
-		ch.slots[CAR].setKeyOnOff(KEY_MAIN, v & 0x10);
-		ch.setSustain(v & 0x20);
+		ch.slots[MOD].setKeyOnOff(KEY_MAIN, (v & 0x10) != 0);
+		ch.slots[CAR].setKeyOnOff(KEY_MAIN, (v & 0x10) != 0);
+		ch.setSustain((v & 0x20) != 0);
 		// Note: When changing the frequency, a new value for RS is
 		//       computed using the sustain value, so make sure the new
 		//       sustain value is committed first.

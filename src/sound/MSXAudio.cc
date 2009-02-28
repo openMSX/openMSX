@@ -215,8 +215,8 @@ void MusicModulePeriphery::write(nibble outputs, nibble values,
                                  EmuTime::param time)
 {
 	nibble actual = (outputs & values) | (~outputs & read(time));
-	audio.y8950->setEnabled(actual & 8, time);
-	audio.enableDAC(actual & 1, time);
+	audio.y8950->setEnabled((actual & 8) != 0, time);
+	audio.enableDAC((actual & 1) != 0, time);
 }
 
 nibble MusicModulePeriphery::read(EmuTime::param /*time*/)
@@ -337,10 +337,10 @@ void PanasonicAudioPeriphery::setIOPorts(byte value)
 {
 	byte diff = ioPorts ^ value;
 	if (diff & 1) {
-		setIOPortsHelper(0xC0, value & 1);
+		setIOPortsHelper(0xC0, (value & 1) != 0);
 	}
 	if (diff & 2) {
-		setIOPortsHelper(0xC2, value & 2);
+		setIOPortsHelper(0xC2, (value & 2) != 0);
 	}
 	ioPorts = value;
 }

@@ -133,7 +133,7 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 
 void ESE_SCC::setMapperHigh(byte value)
 {
-	writeEnable = value & 0x10; // no need to flush cache
+	writeEnable = (value & 0x10) != 0; // no need to flush cache
 	if (!spc.get()) {
 		return; // only WAVE-SCSI supports 1024kB
 	}

@@ -204,7 +204,7 @@ void I8251::setMode(byte value)
 	}
 	interf.setStopBits(stopBits);
 
-	bool parityEnable = mode & MODE_PARITYEN;
+	bool parityEnable = (mode & MODE_PARITYEN) != 0;
 	SerialDataInterface::ParityBit parity = (mode & MODE_PARITEVEN) ?
 		SerialDataInterface::EVEN : SerialDataInterface::ODD;
 	interf.setParityBit(parityEnable, parity);
@@ -239,8 +239,8 @@ void I8251::writeCommand(byte value, EmuTime::param time)
 
 	// CMD_RESET, CMD_TXEN, CMD_RXE  handled in other routines
 
-	interf.setRTS(command & CMD_RTS, time);
-	interf.setDTR(command & CMD_DTR, time);
+	interf.setRTS((command & CMD_RTS) != 0, time);
+	interf.setDTR((command & CMD_DTR) != 0, time);
 
 	if (!(command & CMD_TXEN)) {
 		// disable transmitter
@@ -348,7 +348,7 @@ bool I8251::isRecvReady()
 }
 bool I8251::isRecvEnabled()
 {
-	return command & CMD_RXE;
+	return (command & CMD_RXE) != 0;
 }
 
 void I8251::send(byte value, EmuTime::param time)

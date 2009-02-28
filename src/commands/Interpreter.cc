@@ -203,7 +203,7 @@ void Interpreter::getCommandNames(set<string>& result)
 
 bool Interpreter::isComplete(const string& command) const
 {
-	return Tcl_CommandComplete(command.c_str());
+	return Tcl_CommandComplete(command.c_str()) != 0;
 }
 
 string Interpreter::execute(const string& command)

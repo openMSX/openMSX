@@ -171,7 +171,7 @@ void SCSILS120::busReset()
 {
 	PRT_DEBUG("SCSI: bus reset on " << int(scsiId));
 	keycode = 0;
-	unitAttention = (mode & MODE_UNITATTENTION);
+	unitAttention = (mode & MODE_UNITATTENTION) != 0;
 }
 
 void SCSILS120::disconnect()

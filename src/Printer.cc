@@ -1365,7 +1365,7 @@ void ImagePrinterEpson::processEscSequence()
 			sizeRemainingDataBytes = parseNumber(2, 2);
 			break;
 		case '-': // Turn Underline Mode ON/OFF
-			underline = parseNumber(1, 1);
+			underline = parseNumber(1, 1) != 0;
 			break;
 		case '/': // Selects Vertical Tab Channel
 			break;
@@ -1512,11 +1512,11 @@ void ImagePrinterEpson::processEscSequence()
 			superscript = false;
 			break;
 		case 'U': // Turn Uni-directional mode ON/OFF
-			leftToRight = parseNumber(1, 1);
+			leftToRight = parseNumber(1, 1) != 0;
 			break;
 		case 'W': // Turn Expanded Mode ON/OFF
 			normalAfterLine = false;
-			doubleWidth = parseNumber(1, 1);
+			doubleWidth = parseNumber(1, 1) != 0;
 			break;
 		case 'Y': // Turn High Speed Double Density Graphics ON
 			break;
@@ -1543,7 +1543,7 @@ void ImagePrinterEpson::processEscSequence()
 		case 'l': // Set Left Margin
 			break;
 		case 'p': // Turn proportional mode ON/OFF
-			proportional = parseNumber(1, 1);
+			proportional = parseNumber(1, 1) != 0;
 			break;
 		case 's': // Set Print Speed
 			break;

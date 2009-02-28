@@ -65,7 +65,7 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 
 bool MSXDeviceSwitch::hasRegisteredDevices() const
 {
-	return count;
+	return count != 0;
 }
 
 void MSXDeviceSwitch::reset(EmuTime::param /*time*/)

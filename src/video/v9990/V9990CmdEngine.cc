@@ -615,7 +615,7 @@ inline void V9990CmdEngine::V9990Bpp16::pset(
 	unsigned addr = addressOf(x, y, pitch);
 	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
 	                vram.readVRAMDirect(addr + 0x40000) * 256;
-	word newColor = logOp(lut, srcColor, dstColor, op & 0x10);
+	word newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
 	word result = (dstColor & ~mask) | (newColor & mask);
 	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
 	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
@@ -628,7 +628,7 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
 	unsigned addr = addressOf(x, y, pitch);
 	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
 	                vram.readVRAMDirect(addr + 0x40000) * 256;
-	word newColor = logOp(lut, srcColor, dstColor, op & 0x10);
+	word newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
 	word result = (dstColor & ~mask) | (newColor & mask);
 	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
 	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
@@ -1485,7 +1485,7 @@ void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(EmuTime::param
 	// timing value is times 2, because it does 2 bytes per iteration:
 	unsigned delta = engine.getTiming(BMLL_TIMING) * 2;
 	const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
-	bool transp = engine.LOG & 0x10;
+	bool transp = (engine.LOG & 0x10) != 0;
 	while (engine.clock.before(time)) {
 		engine.clock += delta;
 		// VRAM always mapped as in Bx modes

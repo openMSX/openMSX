@@ -137,8 +137,8 @@ void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
 		multiplexer->selectDrive(drive, time);
-		multiplexer->setSide(value & 0x04);
-		multiplexer->setMotor((value & 0x08), time);
+		multiplexer->setSide((value & 0x04) != 0);
+		multiplexer->setMotor((value & 0x08) != 0, time);
 		break;
 	}
 }

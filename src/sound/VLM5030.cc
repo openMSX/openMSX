@@ -510,9 +510,9 @@ void VLM5030Impl::writeData(byte data)
 void VLM5030Impl::writeControl(byte data, EmuTime::param time)
 {
 	updateStream(time);
-	setRST(data & 0x01);
-	setVCU(data & 0x04);
-	setST (data & 0x02);
+	setRST((data & 0x01) != 0);
+	setVCU((data & 0x04) != 0);
+	setST ((data & 0x02) != 0);
 }
 
 // set RST pin level : reset / set table address A8-A15

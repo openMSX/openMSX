@@ -632,9 +632,9 @@ void V9990::createRenderer(EmuTime::param time)
 void V9990::frameStart(EmuTime::param time)
 {
 	// Update setings that are fixed at the start of a frame
-	displayEnabled = regs[CONTROL]       & 0x80;
-	palTiming      = regs[SCREEN_MODE_1] & 0x08;
-	interlaced     = regs[SCREEN_MODE_1] & 0x02;
+	displayEnabled = (regs[CONTROL]       & 0x80) != 0;
+	palTiming      = (regs[SCREEN_MODE_1] & 0x08) != 0;
+	interlaced     = (regs[SCREEN_MODE_1] & 0x02) != 0;
 	scrollAYHigh   = regs[SCROLL_CONTROL_AY1];
 	scrollBYHigh   = regs[SCROLL_CONTROL_BY1];
 	setVerticalTiming();

@@ -146,7 +146,7 @@ Setting* MSXCommandController::findSetting(const std::string& name)
 
 bool MSXCommandController::hasCommand(const string& command) const
 {
-	return findCommand(command);
+	return findCommand(command) != NULL;
 }
 
 string MSXCommandController::executeCommand(const string& command,

@@ -548,8 +548,8 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 
 void MSXMixer::setRecorder(AviRecorder* newRecorder)
 {
-	if (bool(recorder) != bool(newRecorder)) {
-		setSynchronousMode(newRecorder);
+	if ((recorder != NULL) != (newRecorder != NULL)) {
+		setSynchronousMode(newRecorder != NULL);
 	}
 	recorder = newRecorder;
 	reInit();

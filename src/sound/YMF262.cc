@@ -887,9 +887,9 @@ inline int YMF262Impl::genPhaseHighHat()
 
 	// base frequency derived from operator 1 in channel 7
 	int op71phase = channel[7].slot[MOD].Cnt.toInt();
-	bool bit7 = op71phase & 0x80;
-	bool bit3 = op71phase & 0x08;
-	bool bit2 = op71phase & 0x04;
+	bool bit7 = (op71phase & 0x80) != 0;
+	bool bit3 = (op71phase & 0x08) != 0;
+	bool bit2 = (op71phase & 0x04) != 0;
 	bool res1 = (bit2 ^ bit7) | bit3;
 	// when res1 = 0 phase = 0x000 | 0xd0;
 	// when res1 = 1 phase = 0x200 | (0xd0>>2);
@@ -897,8 +897,8 @@ inline int YMF262Impl::genPhaseHighHat()
 
 	// enable gate based on frequency of operator 2 in channel 8
 	int op82phase = channel[8].slot[CAR].Cnt.toInt();
-	bool bit5e= op82phase & 0x20;
-	bool bit3e= op82phase & 0x08;
+	bool bit5e= (op82phase & 0x20) != 0;
+	bool bit3e= (op82phase & 0x08) != 0;
 	bool res2 = (bit3e ^ bit5e);
 	// when res2 = 0 pass the phase from calculation above (res1);
 	// when res2 = 1 phase = 0x200 | (0xd0>>2);
@@ -943,9 +943,9 @@ inline int YMF262Impl::genPhaseCymbal()
 	} else {
 		// base frequency derived from operator 1 in channel 7
 		int op71phase = channel[7].slot[MOD].Cnt.toInt();
-		bool bit7 = op71phase & 0x80;
-		bool bit3 = op71phase & 0x08;
-		bool bit2 = op71phase & 0x04;
+		bool bit7 = (op71phase & 0x80) != 0;
+		bool bit3 = (op71phase & 0x08) != 0;
+		bool bit2 = (op71phase & 0x04) != 0;
 		return ((bit2 ^ bit7) | bit3) ? 0x300 : 0x100;
 	}
 }
@@ -1196,8 +1196,8 @@ void YMF262Impl::set_mul(unsigned sl, byte v)
 
 	slot.mul     = mul_tab[v & 0x0f];
 	slot.KSR     = (v & 0x10) ? 0 : 2;
-	slot.eg_type = (v & 0x20);
-	slot.vib     = (v & 0x40);
+	slot.eg_type = (v & 0x20) != 0;
+	slot.vib     = (v & 0x40) != 0;
 	slot.AMmask  = (v & 0x80) ? ~0 : 0;
 
 	if (isExtended(chan_no)) {
@@ -1284,12 +1284,12 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 	switch (r) {
 	case 0x104:
 		// 6 channels enable
-		channel[ 0].extended = v & 0x01;
-		channel[ 1].extended = v & 0x02;
-		channel[ 2].extended = v & 0x04;
-		channel[ 9].extended = v & 0x08;
-		channel[10].extended = v & 0x10;
-		channel[11].extended = v & 0x20;
+		channel[ 0].extended = (v & 0x01) != 0;
+		channel[ 1].extended = (v & 0x02) != 0;
+		channel[ 2].extended = (v & 0x04) != 0;
+		channel[ 9].extended = (v & 0x08) != 0;
+		channel[10].extended = (v & 0x10) != 0;
+		channel[11].extended = (v & 0x20) != 0;
 		return;
 
 	case 0x105:
@@ -1338,7 +1338,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			break;
 
 		case 0x08: // x,NTS,x,x, x,x,x,x
-			nts = v & 0x40;
+			nts = (v & 0x40) != 0;
 			break;
 
 		default:
@@ -1374,7 +1374,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 		// note: not r != 0x1BD, only first register block
 		if (r == 0xBD) {
 			// am depth, vibrato depth, r,bd,sd,tom,tc,hh
-			lfo_am_depth = v & 0x80;
+			lfo_am_depth = (v & 0x80) != 0;
 			lfo_pm_depth_range = (v & 0x40) ? 8 : 0;
 			rhythm = v & 0x3F;
 
@@ -1726,7 +1726,7 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		return;
 	}
 
-	bool rhythmEnabled = rhythm & 0x20;
+	bool rhythmEnabled = (rhythm & 0x20) != 0;
 
 	for (unsigned j = 0; j < num; ++j) {
 		// Amplitude modulation: 27 output levels (triangle waveform);

@@ -114,14 +114,14 @@ void SoundDevice::setInputRate(unsigned sampleRate)
 void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
 {
 	assert(channel < numChannels);
-	bool wasRecording = writer[channel].get();
+	bool wasRecording = writer[channel].get() != NULL;
 	if (!filename.empty()) {
 		writer[channel].reset(new WavWriter(
 			filename, stereo, 16, inputSampleRate));
 	} else {
 		writer[channel].reset();
 	}
-	bool recording = writer[channel].get();
+	bool recording = writer[channel].get() != NULL;
 	if (recording != wasRecording) {
 		if (recording) {
 			if (numRecordChannels == 0) {

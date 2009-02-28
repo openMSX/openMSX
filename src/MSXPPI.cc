@@ -177,16 +177,16 @@ nibble MSXPPI::peekC0(EmuTime::param /*time*/) const
 void MSXPPI::writeC1(nibble value, EmuTime::param time)
 {
 	if ((prevBits ^ value) & 1) {
-		cassettePort.setMotor(!(value & 1), time); // 0=0n, 1=Off
+		cassettePort.setMotor((value & 1) == 0, time); // 0=0n, 1=Off
 	}
 	if ((prevBits ^ value) & 2) {
-		cassettePort.cassetteOut(value & 2, time);
+		cassettePort.cassetteOut((value & 2) != 0, time);
 	}
 	if ((prevBits ^ value) & 4) {
-		getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, !(value & 4));
+		getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, (value & 4) == 0);
 	}
 	if ((prevBits ^ value) & 8) {
-		click->setClick(value & 8, time);
+		click->setClick((value & 8) != 0, time);
 	}
 	prevBits = value;
 }

@@ -51,7 +51,7 @@ byte MSXTurboRPause::peekIO(word /*port*/, EmuTime::param /*time*/) const
 void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	status = value;
-	bool newTurboLed = (status & 0x80);
+	bool newTurboLed = (status & 0x80) != 0;
 	if (newTurboLed != turboLed) {
 		turboLed = newTurboLed;
 		getMotherBoard().getLedStatus().setLed(LedStatus::TURBO, turboLed);

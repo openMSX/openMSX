@@ -127,8 +127,8 @@ void MicrosolFDC::writeIO(word port, byte value, EmuTime::param time)
 			drive = DriveMultiplexer::NO_DRIVE;
 		}
 		multiplexer->selectDrive(drive, time);
-		multiplexer->setSide(value & 0x10);
-		multiplexer->setMotor(value & 0x20, time);
+		multiplexer->setSide((value & 0x10) != 0);
+		multiplexer->setMotor((value & 0x20) != 0, time);
 		break;
 	}
 }

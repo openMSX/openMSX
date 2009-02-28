@@ -57,7 +57,7 @@ MSXMegaRam::~MSXMegaRam()
 void MSXMegaRam::reset(EmuTime::param /*time*/)
 {
 	// selected banks nor writeMode does change after reset
-	romMode = rom.get(); // select rom mode if there is a rom
+	romMode = rom.get() != NULL; // select rom mode if there is a rom
 }
 
 byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)

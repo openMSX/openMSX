@@ -157,7 +157,7 @@ public:
 	virtual void writeReg(byte reg, byte value, EmuTime::param time);
 
 	bool isRhythm() {
-		return reg[0x0E] & 0x20;
+		return (reg[0x0E] & 0x20) != 0;
 	}
 
 	inline void keyOn_BD();
@@ -986,21 +986,21 @@ void Global::update_rhythm_mode()
 void Global::update_key_status()
 {
 	for (unsigned i = 0; i < 9; ++i) {
-		bool slot_on = reg[0x20 + i] & 0x10;
+		bool slot_on = (reg[0x20 + i] & 0x10) != 0;
 		Channel& ch = channels[i];
 		ch.mod.slot_on_flag = slot_on;
 		ch.car.slot_on_flag = slot_on;
 	}
 	if (isRhythm()) {
 		Channel& ch6 = channels[6];
-		ch6.mod.slot_on_flag |= reg[0x0e] & 0x10; // BD1
-		ch6.car.slot_on_flag |= reg[0x0e] & 0x10; // BD2
+		ch6.mod.slot_on_flag |= (reg[0x0e] & 0x10) != 0; // BD1
+		ch6.car.slot_on_flag |= (reg[0x0e] & 0x10) != 0; // BD2
 		Channel& ch7 = channels[7];
-		ch7.mod.slot_on_flag |= reg[0x0e] & 0x01; // HH
-		ch7.car.slot_on_flag |= reg[0x0e] & 0x08; // SD
+		ch7.mod.slot_on_flag |= (reg[0x0e] & 0x01) != 0; // HH
+		ch7.car.slot_on_flag |= (reg[0x0e] & 0x08) != 0; // SD
 		Channel& ch8 = channels[8];
-		ch8.mod.slot_on_flag |= reg[0x0e] & 0x04; // TOM
-		ch8.car.slot_on_flag |= reg[0x0e] & 0x02; // SYM
+		ch8.mod.slot_on_flag |= (reg[0x0e] & 0x04) != 0; // TOM
+		ch8.car.slot_on_flag |= (reg[0x0e] & 0x02) != 0; // SYM
 	}
 }
 

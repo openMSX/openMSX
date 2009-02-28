@@ -185,7 +185,7 @@ void PostProcessor::setRecorder(AviRecorder* recorder_)
 
 bool PostProcessor::isRecording() const
 {
-	return recorder;
+	return recorder != NULL;
 }
 
 unsigned PostProcessor::getBpp() const

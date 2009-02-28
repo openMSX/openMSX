@@ -393,7 +393,7 @@ bool MSXMotherBoardImpl::isTurboR() const
 {
 	const HardwareConfig* config = getMachineConfig();
 	assert(config);
-	return config->getConfig().getChild("devices").findChild("S1990");
+	return config->getConfig().getChild("devices").findChild("S1990") != NULL;
 }
 
 void MSXMotherBoardImpl::loadMachine(const string& machine)

@@ -345,7 +345,7 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 			time);
 		break;
 	case SET_BLANK: {
-		bool newDisplayEnabled = controlRegs[1] & 0x40;
+		bool newDisplayEnabled = (controlRegs[1] & 0x40) != 0;
 		if (isDisplayArea) {
 			vram->updateDisplayEnabled(newDisplayEnabled, time);
 		}
@@ -496,8 +496,8 @@ void VDP::frameStart(EmuTime::param time)
 	//       maybe even having this variable is not necessary.
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
-	palTiming = controlRegs[9] & 0x02;
-	interlaced = controlRegs[9] & 0x08;
+	palTiming = (controlRegs[9] & 0x02) != 0;
+	interlaced = (controlRegs[9] & 0x08) != 0;
 	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 
 	// Blinking.
@@ -782,7 +782,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		// MXC belongs to CPU interface;
 		// other bits in this register belong to command engine.
 		if (reg == 45) {
-			cpuExtendedVram = val & 0x40;
+			cpuExtendedVram = (val & 0x40) != 0;
 		}
 		// Pass command register writes to command engine.
 		if (reg < 47) {
@@ -903,10 +903,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			syncAtNextLine(HOR_ADJUST, time);
 		}
 		if (change & 0x02) {
-			renderer->updateBorderMask(val & 0x02, time);
+			renderer->updateBorderMask((val & 0x02) != 0, time);
 		}
 		if (change & 0x01) {
-			renderer->updateMultiPage(val & 0x01, time);
+			renderer->updateMultiPage((val & 0x01) != 0, time);
 		}
 		break;
 	case 26:
@@ -940,7 +940,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		if ((change & 0x80) && isMSX1VDP()) {
 			// confirmed: VRAM remapping does not happen on a V99x8
 			// see VDPVRAM for details on the remapping itself
-			vram->change4k8kMapping(val & 0x80);
+			vram->change4k8kMapping((val & 0x80) != 0);
 		}
 		break;
 	case 2:

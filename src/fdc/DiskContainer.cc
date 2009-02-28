@@ -11,7 +11,7 @@ DiskContainer::~DiskContainer()
 
 bool DiskContainer::isRomdisk() const
 {
-	return dynamic_cast<const NowindRomDisk*>(this);
+	return dynamic_cast<const NowindRomDisk*>(this) != NULL;
 }
 
 } // namespace openmsx

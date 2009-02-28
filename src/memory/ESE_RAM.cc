@@ -118,7 +118,7 @@ void ESE_RAM::setSRAM(unsigned region, byte block)
 {
 	invalidateMemCache(region * 0x2000 + 0x4000, 0x2000);
 	assert(region < 4);
-	isWriteable[region] = block & 0x80;
+	isWriteable[region] = (block & 0x80) != 0;
 	mapped[region] = block & blockMask;
 }
 

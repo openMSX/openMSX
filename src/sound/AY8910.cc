@@ -302,7 +302,7 @@ inline unsigned AY8910::Amplitude::getVolume(unsigned chan) const
 
 inline void AY8910::Amplitude::setChannelVolume(unsigned chan, unsigned value)
 {
-	envChan[chan] = value & 0x10;
+	envChan[chan] = (value & 0x10) != 0;
 	vol[chan] = volTable[value & 0x0F];
 }
 
@@ -403,10 +403,10 @@ inline void AY8910::Envelope::setShape(unsigned shape)
 		// If Continue = 0, map the shape to the equivalent one
 		// which has Continue = 1.
 		hold = true;
-		alternate = attack;
+		alternate = attack != 0;
 	} else {
-		hold = shape & 0x01;
-		alternate = shape & 0x02;
+		hold = (shape & 0x01) != 0;
+		alternate = (shape & 0x02) != 0;
 	}
 	count = 0;
 	step = 0x1F;

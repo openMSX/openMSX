@@ -60,9 +60,9 @@ uint128 uint128::div(const uint128& ds, uint128& remainder) const
 bool uint128::bit(unsigned n) const
 {
 	if (n < 64) {
-		return lo & (1ull << n);
+		return (lo & (1ull << n)) != 0;
 	} else {
-		return hi & (1ull << (n - 64));
+		return (hi & (1ull << (n - 64))) != 0;
 	}
 }
 

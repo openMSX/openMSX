@@ -289,10 +289,10 @@ void TC8566AF::writeReg(int reg, byte data, EmuTime::param time)
 {
 	switch (reg) {
 	case 2: // control register 0
-		drive[3]->setMotor(data & 0x80, time);
-		drive[2]->setMotor(data & 0x40, time);
-		drive[1]->setMotor(data & 0x20, time);
-		drive[0]->setMotor(data & 0x10, time);
+		drive[3]->setMotor((data & 0x80) != 0, time);
+		drive[2]->setMotor((data & 0x40) != 0, time);
+		drive[1]->setMotor((data & 0x20) != 0, time);
+		drive[0]->setMotor((data & 0x10) != 0, time);
 		//enableIntDma = data & 0x08;
 		//notReset     = data & 0x04;
 		driveSelect = data & 0x03;
@@ -390,7 +390,7 @@ void TC8566AF::idlePhaseWrite(byte value)
 
 void TC8566AF::commandPhase1(byte value)
 {
-	drive[driveSelect]->setSide(value & 0x04);
+	drive[driveSelect]->setSide((value & 0x04) != 0);
 	status0 &= ~(ST0_DS0 | ST0_DS1 | ST0_IC0 | ST0_IC1);
 	status0 |= //(drive[driveSelect]->isReady() ? 0 : ST0_DS0) |
 	           (value & (ST0_DS0 | ST0_DS1)) |

@@ -180,7 +180,7 @@ bool TclObject::getBoolean() const
 	if (Tcl_GetBooleanFromObj(interp, obj, &result) != TCL_OK) {
 		throwException();
 	}
-	return result;
+	return result != 0;
 }
 
 double TclObject::getDouble() const
@@ -230,7 +230,7 @@ bool TclObject::evalBool() const
 	if (Tcl_ExprBooleanObj(interp, obj, &result) != TCL_OK) {
 		throwException();
 	}
-	return result;
+	return result != 0;
 }
 
 void TclObject::checkExpression() const

@@ -382,8 +382,8 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 		if (value < 3) regs.setIM(value);
 		break;
 	case 27:
-		regs.setIFF1(value & 0x01);
-		regs.setIFF2(value & 0x02);
+		regs.setIFF1((value & 0x01) != 0);
+		regs.setIFF2((value & 0x02) != 0);
 		break;
 	default:
 		assert(false);
