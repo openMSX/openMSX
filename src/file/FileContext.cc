@@ -117,7 +117,7 @@ const string FileContext::resolveCreate(const string& filename) const
 			FileOperations::mkdirp(path);
 		} catch (FileException& e) {
 			PRT_DEBUG(e.getMessage());
-			&e;	// Prevent warning
+			(void)&e; // Prevent warning
 		}
 		result = FileOperations::join(path, filename);
 	}

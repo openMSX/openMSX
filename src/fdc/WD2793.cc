@@ -418,7 +418,7 @@ void WD2793::tryToReadSector()
 		transferring = true;
 	} catch (MSXException& e) {
 		PRT_DEBUG("WD2793: read sector failed: " << e.getMessage());
-		&e;	// Prevent warning
+		(void)&e; // Prevent warning
 		DRQ = false; // TODO data not ready (read error)
 		statusReg = 0; // reset flags
 	}

@@ -123,7 +123,7 @@ void CommandConsole::loadHistory()
 		}
 	} catch (FileException& e) {
 		PRT_DEBUG(e.getMessage());
-		&e;	// Prevent warning
+		(void)&e; // Prevent warning
 	}
 }
 
