@@ -1,9 +1,8 @@
 # $Id$
-#
 # Display probe results, so user can decide whether to start the build,
 # or to change system configuration and rerun "configure".
 
-from components import checkComponents
+from components import iterComponents
 from makeutils import extractMakeVariables, parseBool
 
 import sys
@@ -34,19 +33,12 @@ headers = (
 	('zlib', 'ZLIB'),
 	)
 
-components = (
-	('Emulation core', 'CORE'),
-	('CassetteJack', 'JACK'),
-	('SDLGL renderer', 'GL'),
-	)
-
 def iterProbeResults(probeMakePath):
 	probeVars = extractMakeVariables(probeMakePath)
 	customVars = extractMakeVariables('build/custom.mk')
-	componentStatus = checkComponents(probeVars)
-	maxLen = max(
-		len(niceName)
-		for niceName, _ in libraries + headers + components
+	componentStatus = dict(
+		(component.makeName, component.canBuild(probeVars))
+		for component in iterComponents()
 		)
 
 	yield ''
@@ -59,9 +51,17 @@ def iterProbeResults(probeMakePath):
 		yield 'After you have corrected the situation, rerun "configure".'
 		yield ''
 	else:
+		# Compute how wide the first column should be.
+		def iterNiceNames():
+			for niceName, _ in libraries + headers:
+				yield niceName
+			for component in iterComponents():
+				yield component.niceName
+		maxLen = max(len(niceName) for niceName in iterNiceNames())
+		formatStr = '  %-' + str(maxLen + 3) + 's %s'
+
 		yield 'Found libraries:'
 		disabledLibs = probeVars['DISABLED_LIBS'].split()
-		formatStr = '  %-' + str(maxLen + 3) + 's %s'
 		for niceName, varName in libraries:
 			found = probeVars['HAVE_%s_LIB' % varName] or (
 				'disabled' if varName in disabledLibs else 'no'
@@ -87,9 +87,11 @@ def iterProbeResults(probeMakePath):
 		yield ''
 
 		yield 'Components overview:'
-		for niceName, varName in components:
-			buildable = componentStatus[varName]
-			yield formatStr % (niceName + ':', 'yes' if buildable else 'no')
+		for component in iterComponents():
+			yield formatStr % (
+				component.niceName + ':',
+				'yes' if componentStatus[component.makeName] else 'no'
+				)
 		yield ''
 
 		yield 'Customisable options:'

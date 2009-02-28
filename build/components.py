@@ -8,6 +8,7 @@
 coreLibs = ( 'SDL_IMAGE', 'SDL_TTF', 'SDL', 'PNG', 'TCL', 'XML', 'ZLIB' )
 
 class Component(object):
+	niceName = None
 	makeName = None
 
 	@classmethod
@@ -15,6 +16,7 @@ class Component(object):
 		raise NotImplementedError
 
 class EmulationCore(Component):
+	niceName = 'Emulation core'
 	makeName = 'CORE'
 
 	@classmethod
@@ -25,6 +27,7 @@ class EmulationCore(Component):
 			)
 
 class GLRenderer(Component):
+	niceName = 'GL renderer'
 	makeName = 'GL'
 
 	@classmethod
@@ -37,14 +40,14 @@ class GLRenderer(Component):
 			))
 
 class CassetteJack(Component):
+	niceName = 'CassetteJack'
 	makeName = 'JACK'
 
 	@classmethod
 	def canBuild(cls, probeVars):
 		return bool(probeVars['HAVE_JACK_LIB'] and probeVars['HAVE_JACK_H'])
 
-def checkComponents(probeVars):
-	return dict(
-		(component.makeName, component.canBuild(probeVars))
-		for component in ( EmulationCore, GLRenderer, CassetteJack )
-		)
+def iterComponents():
+	yield EmulationCore
+	yield GLRenderer
+	yield CassetteJack
