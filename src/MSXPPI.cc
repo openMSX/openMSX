@@ -150,7 +150,7 @@ byte MSXPPI::peekB(EmuTime::param time) const
        if (selectedRow != 8) {
                return keyboard->getKeys()[selectedRow];
        } else {
-               return keyboard->getKeys()[8] | renshaTurbo.getSignal(time);
+               return keyboard->getKeys()[8] | (renshaTurbo.getSignal(time) ? 1:0);
        }
 }
 void MSXPPI::writeB(byte /*value*/, EmuTime::param /*time*/)

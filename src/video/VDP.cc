@@ -674,7 +674,7 @@ byte VDP::peekStatusReg(byte reg, EmuTime::param time) const
 		return statusReg0;
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
-			return statusReg1 | irqHorizontal.getState();
+			return statusReg1 | (irqHorizontal.getState() ? 1:0);
 		} else { // line int disabled
 			// FH goes up at the start of the right border of IL and
 			// goes down at the start of the next left border.

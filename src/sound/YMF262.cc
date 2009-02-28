@@ -1552,7 +1552,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			unsigned chan_no3 = chan_no + 3;
 			YMF262Channel& ch0 = getFirstOfPair(chan_no);
 			YMF262Channel& ch3 = getSecondOfPair(chan_no);
-			switch ((ch0.slot[MOD].CON << 1) | ch3.slot[MOD].CON) {
+			switch ((ch0.slot[MOD].CON ? 2:0) | (ch3.slot[MOD].CON ? 1:0)) {
 			case 0:
 				// 1 -> 2 -> 3 -> 4 -> out
 				ch0.slot[MOD].connect = &phase_modulation;

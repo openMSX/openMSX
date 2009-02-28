@@ -176,7 +176,7 @@ int XSAExtractor::rdstrlen()
 
 	int len = 1;
 	while (nrbits--) {
-		len = (len << 1) | bitin();
+		len = (len << 1) | (bitin() ? 1:0);
 	}
 	return (len + 1);
 }
@@ -200,13 +200,13 @@ int XSAExtractor::rdstrpos()
 	if (cpdbmask[cpdindex] >= 256) {
 		byte strposlsb = charin();
 		byte strposmsb = 0;
-		for (byte nrbits = cpdext[cpdindex]-8; nrbits--; strposmsb |= bitin()) {
+		for (byte nrbits = cpdext[cpdindex]-8; nrbits--; strposmsb |= (bitin() ? 1:0)) {
 			strposmsb <<= 1;
 		}
 		strpos = strposlsb + 256 * strposmsb;
 	} else {
 		strpos = 0;
-		for (byte nrbits = cpdext[cpdindex]; nrbits--; strpos |= bitin()) {
+		for (byte nrbits = cpdext[cpdindex]; nrbits--; strpos |= (bitin() ? 1:0)) {
 			strpos <<= 1;
 		}
 	}
