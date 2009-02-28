@@ -33,6 +33,7 @@ def scanTree(baseDir, selection = None):
 		baseDir = baseDir.replace(altsep, sep)
 		if selection is not None:
 			selection = [ path.replace(altsep, sep) for path in selection ]
+	baseDir = baseDir.rstrip(sep)
 
 	if not isdir(baseDir):
 		raise IOError('Directory "%s" does not exist' % baseDir)
@@ -92,7 +93,7 @@ def scanTree(baseDir, selection = None):
 		if dirPath == baseDir:
 			relDir = ''
 		else:
-			assert dirPath.startswith(baseDir + sep)
+			assert dirPath.startswith(baseDir + sep), dirPath
 			relDir = dirPath[len(baseDir) + 1 : ]
 			yield relDir
 		for fileName in fileNames:
