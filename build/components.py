@@ -1,8 +1,6 @@
 # $Id$
 # Defines the building blocks of openMSX and their dependencies.
 
-componentNames = ( 'CORE', 'GL', 'JACK' )
-
 # For static linking, it's important that if lib A depends on B, A is in the
 # list before B.
 # TODO: It would be better if libraries would declare their dependencies and
@@ -21,4 +19,8 @@ def checkComponents(probeVars):
 		probeVars['HAVE_GLEW_H'] or probeVars['HAVE_GL_GLEW_H'],
 		))
 	buildJack = bool(probeVars['HAVE_JACK_LIB'] and probeVars['HAVE_JACK_H'])
-	return buildCore, buildGL, buildJack
+	return {
+		'CORE': buildCore,
+		'GL': buildGL,
+		'JACK': buildJack,
+		}

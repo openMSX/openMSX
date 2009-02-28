@@ -3,7 +3,7 @@
 # Display probe results, so user can decide whether to start the build,
 # or to change system configuration and rerun "configure".
 
-from components import checkComponents, componentNames
+from components import checkComponents
 from makeutils import extractMakeVariables, parseBool
 
 import sys
@@ -43,7 +43,7 @@ components = (
 def iterProbeResults(probeMakePath):
 	probeVars = extractMakeVariables(probeMakePath)
 	customVars = extractMakeVariables('build/custom.mk')
-	componentStatus = dict(zip(componentNames, checkComponents(probeVars)))
+	componentStatus = checkComponents(probeVars)
 	maxLen = max(
 		len(niceName)
 		for niceName, _ in libraries + headers + components
