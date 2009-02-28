@@ -144,62 +144,6 @@ inline unsigned countLeadingZeros(unsigned x)
 #endif
 }
 
-
-// Perform a 64bit divide-by 32-bit operation. The quotient must fit in
-// 32-bit (results in a coredump otherwise)
-inline unsigned div_64_32(unsigned long long dividend, unsigned divisor)
-{
-#ifdef ASM_X86
-#ifdef _MSC_VER
-// TODO - VC++ ASM implementation
-#else
-	unsigned quotient, remainder;
-	asm (
-		"divl %4;"
-		: "=a"(quotient)
-		, "=d"(remainder)
-		: "a"(unsigned(dividend >>  0))
-		, "d"(unsigned(dividend >> 32))
-		, "rm"(divisor)
-		: "cc"
-	);
-	return quotient;
-#endif
-#else
-	unsigned long long result = dividend / divisor;
-#ifdef DEBUG
-	// we don't even want this overhead in devel builds
-	assert(result == unsigned(result));
-#endif
-	return unsigned(result);
-#endif
-}
-
-// Perform a 64bit modulo 32-bit operation. The quotient must fit in
-// 32-bit (results in a coredump otherwise)
-inline unsigned mod_64_32(unsigned long long dividend, unsigned divisor)
-{
-#ifdef ASM_X86
-#ifdef _MSC_VER
-// TODO - VC++ ASM implementation
-#else
-	unsigned quotient, remainder;
-	asm (
-		"divl %4;"
-		: "=a"(quotient)
-		, "=d"(remainder)
-		: "a"(unsigned(dividend >>  0))
-		, "d"(unsigned(dividend >> 32))
-		, "rm"(divisor)
-		: "cc"
-	);
-	return remainder;
-#endif
-#else
-	return dividend % divisor;
-#endif
-}
-
 } // namespace Math
 
 } // namespace openmsx

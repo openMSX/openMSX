@@ -201,6 +201,7 @@ string expandTilde(const string& path)
 void mkdir(const string& path, mode_t mode)
 {
 #ifdef _WIN32
+	(void)&mode; // Suppress C4100 VC++ warning
 	if ((path == "/") ||
 		StringOp::endsWith(path, ":") ||
 		StringOp::endsWith(path, ":/")) {

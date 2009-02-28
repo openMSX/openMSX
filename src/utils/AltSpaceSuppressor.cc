@@ -127,7 +127,7 @@ LRESULT AltSpaceSuppressor::InterceptorWndProc(
 }
 
 bool AltSpaceSuppressor::SuppressAltSpace(
-	HWND hWnd, 
+	HWND /*hWnd*/, 
 	UINT message, 
 	WPARAM wParam, 
 	LPARAM lParam, 

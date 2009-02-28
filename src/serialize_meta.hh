@@ -221,6 +221,7 @@ public:
 	template<typename T> const PolymorphicSaverBase<Archive>& getSaver(T& t)
 	{
 		return getSaver(TypeInfo(typeid(t)));
+		(void)&t; // Suppress VC++ C4100 warning
 	}
 
 private:

@@ -102,19 +102,6 @@ void sock_cleanup()
 #endif
 }
 
-void sock_reuseAddr(SOCKET sd)
-{
-#ifdef _WIN32
-	// nothing similar exists in win32?
-#else
-	// Used so we can re-bind to our port while a previous connection is
-	// still in TIME_WAIT state.
-	int reuse_addr = 1;
-	setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &reuse_addr,
-	           sizeof(reuse_addr));
-#endif
-}
-
 // close a connection
 void sock_close(SOCKET sd)
 {

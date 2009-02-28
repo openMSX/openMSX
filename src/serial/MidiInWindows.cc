@@ -55,7 +55,7 @@ MidiInWindows::~MidiInWindows()
 }
 
 // Pluggable
-void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param time)
+void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
 	if (devidx == unsigned(-1)) {
@@ -72,7 +72,7 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param time)
 	thread.start();
 }
 
-void MidiInWindows::unplugHelper(EmuTime::param time)
+void MidiInWindows::unplugHelper(EmuTime::param /*time*/)
 {
 	ScopedLock l(lock);
 	thread.stop();
