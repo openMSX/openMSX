@@ -1,17 +1,10 @@
 # $Id$
+
 from download import downloadURL
-import os.path
-import sys
+
+from os.path import isdir, isfile, join as joinpath
 from urlparse import urljoin
-
-if len(sys.argv) < 2:
-	print >> sys.stderr, "Usage: python 3rdparty-download.py platform TARBALLS_DIR"
-	sys.exit(2)
-
-# One of { Win32, x64, mingw }
-platform = sys.argv[1]
-tarballsDir = sys.argv[2]
-
+import sys
 
 #TODO:
 #	Specify downloads for:
@@ -27,10 +20,6 @@ class Package(object):
 	downloadURL = None
 	name = None
 	version = None
-
-	@classmethod
-	def checkFile(cls):
-		return os.path.isfile('%s/%s' % (tarballsDir, cls.getTarballName()))
 
 	@classmethod
 	def getTarballName(cls):
@@ -103,31 +92,48 @@ class DIRECTX(Package):
 	def getTarballName(cls):
 		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
 
+def downloadPackages(packages):
+	for package in packages:
+		if isfile(joinpath(tarballsDir, package.getTarballName())):
+			print '%s version %s - already downloaded' % (
+				package.name, package.version
+				)
+		else:
+			downloadURL(package.getURL(), tarballsDir)
 
-#Make Package selection
-if platform == 'Win32':
-	download_packages = (
-		GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype, LibXML2
-		)
-elif platform == 'x64':
-	download_packages = (
-		GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype, LibXML2
-		)
-elif platform == 'mingw':
-	download_packages = (
-		GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype, LibXML2,
-		DIRECTX
-		)
-	#add platform etc
-else:
-	print >> sys.stderr, 'Unknown platform "%s"' % platform
-	sys.exit(2)
+if __name__ == '__main__':
+	if len(sys.argv) == 3:
+		platform = sys.argv[1] # One of { Win32, x64, mingw }
+		tarballsDir = sys.argv[2]
 
-#download the packages
-for package in (download_packages):
-	if not(package.checkFile()):
-		downloadURL(package.getURL(), tarballsDir)
+		#Make Package selection
+		if platform == 'Win32':
+			download_packages = (
+				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype,
+				LibXML2
+				)
+		elif platform == 'x64':
+			download_packages = (
+				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype,
+				LibXML2
+				)
+		elif platform == 'mingw':
+			download_packages = (
+				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype,
+				LibXML2, DIRECTX
+				)
+			#add platform etc
+		else:
+			print >> sys.stderr, 'Unknown platform "%s"' % platform
+			sys.exit(2)
+
+		if not isdir(tarballsDir):
+			print >> sys.stderr, \
+				'Output directory "%s" does not exist' % tarballsDir
+			sys.exit(2)
+
+		downloadPackages(download_packages)
 	else:
-		print '%s version %s - already downloaded' % (
-			package.name, package.version
-			)
+		print >> sys.stderr, \
+			'Usage: python 3rdparty_download.py platform TARBALLS_DIR'
+		sys.exit(2)
