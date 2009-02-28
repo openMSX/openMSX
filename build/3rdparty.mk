@@ -56,7 +56,7 @@ DOWNLOAD_DIRECTX:=http://alleg.sourceforge.net/files
 #       a space in the value and spaces are separators for Make so the whole
 #       build process will break.
 PACKAGE_ZLIB:=zlib-1.2.3
-PACKAGE_PNG:=libpng-1.2.34
+PACKAGE_PNG:=libpng-1.2.35
 # 2.3.8 is latest, but gives install problem?
 PACKAGE_FREETYPE:=freetype-2.3.5
 # 1.2.13 is latest, need to migrate patches
