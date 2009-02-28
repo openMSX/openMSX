@@ -8,6 +8,7 @@ class Package(object):
 	downloadURL = None
 	name = None
 	version = None
+	dependsOn = ()
 
 	@classmethod
 	def getTarballName(cls):
@@ -30,6 +31,7 @@ class Freetype(Package):
 	downloadURL = 'http://nongnu.askapache.com/freetype'
 	name = 'freetype'
 	version = '2.3.7'
+	dependsOn = ('zlib', )
 
 class GLEW(Package):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
@@ -44,11 +46,13 @@ class LibPNG(Package):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	name = 'libpng'
 	version = '1.2.34'
+	dependsOn = ('zlib', )
 
 class LibXML2(Package):
 	downloadURL = 'http://xmlsoft.org/sources'
 	name = 'libxml2'
 	version = '2.7.2'
+	dependsOn = ('zlib', )
 
 class SDL(Package):
 	downloadURL = 'http://www.libsdl.org/release'
@@ -59,11 +63,13 @@ class SDL_image(Package):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_image/release'
 	name = 'SDL_image'
 	version = '1.2.7'
+	dependsOn = ('SDL', 'libpng')
 
 class SDL_ttf(Package):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	name = 'SDL_ttf'
 	version = '2.0.9'
+	dependsOn = ('SDL', 'freetype')
 
 class TCL(Package):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
