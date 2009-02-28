@@ -10,7 +10,7 @@ if len(sys.argv) < 2:
 
 # One of { Win32, x64, mingw }
 platform = sys.argv[1]
-TARBALLS_DIR = sys.argv[2]
+tarballsDir = sys.argv[2]
 
 
 #TODO:
@@ -19,19 +19,19 @@ TARBALLS_DIR = sys.argv[2]
 #	- VC++
 #	- OTHER
 #
-# required components -> required packages -> minus system packages -> 3rdparty packages
+# required components -> required packages -> minus system packages
+#   -> 3rdparty packages
 
 #Create Generic download class
 class Package(object):
 	downloadURL = None
 	name = None
 	version = None
-	
+
 	@classmethod
 	def checkFile(cls):
-		check= TARBALLS_DIR+'/%s' % (cls.getTarballName())
-		return os.path.isfile(check)
-		
+		return os.path.isfile('%s/%s' % (tarballsDir, cls.getTarballName()))
+
 	@classmethod
 	def getTarballName(cls):
 		return '%s-%s.tar.gz' % (cls.name, cls.version)
@@ -55,7 +55,7 @@ class ZLib(Package):
 	name = 'zlib'
 	version = '1.2.3'
 
-class libPNG(Package):
+class LibPNG(Package):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	name = 'libpng'
 	version = '1.2.34'
@@ -64,7 +64,7 @@ class TCL(Package):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	name = 'tcl'
 	version = '8.5.6'
-	
+
 	@classmethod
 	def getTarballName(cls):
 		return '%s%s-src.tar.gz' % (cls.name, cls.version)
@@ -73,12 +73,12 @@ class SDL(Package):
 	downloadURL = 'http://www.libsdl.org/release'
 	name = 'SDL'
 	version = '1.2.13'
-	
+
 class SDL_image(Package):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_image/release'
 	name = 'SDL_image'
 	version = '1.2.7'
-	
+
 class SDL_ttf(Package):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	name = 'SDL_ttf'
@@ -88,8 +88,8 @@ class Freetype(Package):
 	downloadURL = 'http://nongnu.askapache.com/freetype'
 	name = 'freetype'
 	version = '2.3.7'
-	
-class libXML2(Package):
+
+class LibXML2(Package):
 	downloadURL = 'http://xmlsoft.org/sources'
 	name = 'libxml2'
 	version = '2.7.2'
@@ -98,27 +98,36 @@ class DIRECTX(Package):
 	downloadURL = 'http://alleg.sourceforge.net/files'
 	name = 'dx'
 	version = '70'
-	
+
 	@classmethod
 	def getTarballName(cls):
 		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
 
 
 #Make Package selection
-if platform=='Win32':
-	download_packages = GLEW, ZLib,libPNG,TCL,SDL,SDL_image,SDL_ttf,Freetype,libXML2
-elif platform=='x64':
-	download_packages = GLEW, ZLib,libPNG,TCL,SDL,SDL_image,SDL_ttf,Freetype,libXML2
-elif platform=='mingw':	
-	download_packages = GLEW, ZLib,libPNG,TCL,SDL,SDL_image,SDL_ttf,Freetype,libXML2,DIRECTX
+if platform == 'Win32':
+	download_packages = (
+		GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype, LibXML2
+		)
+elif platform == 'x64':
+	download_packages = (
+		GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype, LibXML2
+		)
+elif platform == 'mingw':
+	download_packages = (
+		GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype, LibXML2,
+		DIRECTX
+		)
 	#add platform etc
 else:
-	print >> sys.stderr, "Error platform: '"+platform+"' not found"
+	print >> sys.stderr, 'Unknown platform "%s"' % platform
 	sys.exit(2)
 
 #download the packages
 for package in (download_packages):
 	if not(package.checkFile()):
-		downloadURL(package.getURL(),TARBALLS_DIR)
+		downloadURL(package.getURL(), tarballsDir)
 	else:
-		print "%s version %s - already downloaded" % (package.name,package.version)
+		print '%s version %s - already downloaded' % (
+			package.name, package.version
+			)
