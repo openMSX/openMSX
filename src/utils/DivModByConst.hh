@@ -168,7 +168,7 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		typedef DBCReduce<M, S> R;
 	#if defined(ASM_X86_32) || defined(__arm__)
 		const unsigned _ah_ = R::M2 >> 32;
-		const unsigned _al_ = unsigned(R::M2);
+		const unsigned _al_ = unsigned((R::M2 << 32) >> 32); // Suppress VC++ C4310 warning
 		const unsigned _bh_ = dividend >> 32;
 		const unsigned _bl_ = unsigned(dividend);
 	#endif
