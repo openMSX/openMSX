@@ -2,7 +2,7 @@
 
 from download import downloadURL
 from packages import (
-	DirectX, Freetype, GLEW, LibPNG, LibXML2, SDL, SDL_image, SDL_ttf, TCL, ZLib
+	DirectX, FreeType, GLEW, LibPNG, LibXML2, SDL, SDL_image, SDL_ttf, TCL, ZLib
 	)
 
 from os.path import isdir, isfile, join as joinpath
@@ -34,17 +34,17 @@ if __name__ == '__main__':
 		#Make Package selection
 		if platform == 'Win32':
 			download_packages = (
-				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype,
+				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, FreeType,
 				LibXML2
 				)
 		elif platform == 'x64':
 			download_packages = (
-				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype,
+				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, FreeType,
 				LibXML2
 				)
 		elif platform == 'mingw':
 			download_packages = (
-				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, Freetype,
+				GLEW, ZLib, LibPNG, TCL, SDL, SDL_image, SDL_ttf, FreeType,
 				LibXML2, DirectX
 				)
 			#add platform etc

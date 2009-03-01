@@ -27,7 +27,7 @@ class DirectX(Package):
 	def getTarballName(cls):
 		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
 
-class Freetype(Package):
+class FreeType(Package):
 	downloadURL = 'http://nongnu.askapache.com/freetype'
 	name = 'freetype'
 	version = '2.3.7'
