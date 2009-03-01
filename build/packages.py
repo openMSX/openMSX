@@ -84,3 +84,14 @@ class ZLib(Package):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	name = 'zlib'
 	version = '1.2.3'
+
+# Build a dictionary of packages using introspection.
+def _discoverPackages(localObjects):
+	for obj in localObjects:
+		if isinstance(obj, type) and issubclass(obj, Package):
+			if not obj is Package:
+				yield obj.name, obj
+_packagesByName = dict(_discoverPackages(locals().itervalues()))
+
+def getPackage(name):
+	return _packagesByName[name]
