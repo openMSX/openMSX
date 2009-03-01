@@ -470,11 +470,11 @@ struct IncrPixelAddr6
 		c1 = -(signed(x) & 1);
 		if (tx == 1) {
 			c2 = (x & 2) ? (1 - 0x10000) :  0x10000;
-			c3 = 0x10000 ^ (1 - 0x10000);  // == -0x1FFFF
+			c3 = unsigned(0x10000 ^ (1 - 0x10000));  // == -0x1FFFF
 		} else {
 			c1 = ~c1;
 			c2 = (x & 2) ? -0x10000 : (0x10000 - 1);
-			c3 = -0x10000 ^ (0x10000 - 1); // == -1
+			c3 = unsigned(-0x10000 ^ (0x10000 - 1)); // == -1
 		}
 	}
 	unsigned getAddr() const { return addr; }

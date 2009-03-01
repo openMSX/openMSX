@@ -11,8 +11,6 @@ namespace openmsx {
 class MidiOutDevice : public Pluggable, public SerialDataInterface
 {
 public:
-	virtual ~MidiOutDevice() = 0;
-
 	// Pluggable (part)
 	virtual const std::string& getClass() const;
 

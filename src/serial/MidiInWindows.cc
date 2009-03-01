@@ -133,8 +133,9 @@ void MidiInWindows::run()
 	MSG msg;
 	bool fexit = false;
 	int gmer;
-	while (!fexit && (gmer = GetMessage(&msg, NULL, 0, 0))) {
-		if (gmer == -1) {
+	while (!fexit) {
+		gmer = GetMessage(&msg, NULL, 0, 0);
+		if (gmer == 0 || gmer == -1) {
 			break;
 		}
 		switch (msg.message) {

@@ -51,7 +51,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4244;4355;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4355;4512;4611"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -130,7 +130,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4244;4355;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4355;4512;4611"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -216,7 +216,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4244;4355;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4355;4512;4611"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -302,7 +302,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4244;4355;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4355;4512;4611"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -381,7 +381,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4244;4355;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4355;4512;4611"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -463,7 +463,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4244;4355;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4355;4512;4611"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

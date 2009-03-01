@@ -481,7 +481,8 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 						product1 = bilinear<Pixel>(A, C, f2 - x1);
 					} else if (y1 >= x1) { // close to C
 						product1 = bilinear<Pixel>(A, C, y1 - x1);
-					} else if (y1 <= x1) { // close to B
+					} else {
+						assert(y1 < x1); // close to B
 						product1 = bilinear<Pixel>(A, B, x1 - y1);
 					}
 					*dp++ = product1;
@@ -505,7 +506,8 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 						product1 = bilinear<Pixel>(B, D, f2 - x2);
 					} else if (y2 >= x1) { // close to A
 						product1 = bilinear<Pixel>(B, A, y2 - x1);
-					} else if (y2 <= x1) { // close to D
+					} else {
+						assert(y2 < x1); // close to D
 						product1 = bilinear<Pixel>(B, D, x1 - y2);
 					}
 					*dp++ = product1;

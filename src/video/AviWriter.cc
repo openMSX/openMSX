@@ -108,7 +108,7 @@ AviWriter::~AviWriter()
 	AVIOUTd(0);                         // Start
 	AVIOUTd(frames);                    // Length
 	AVIOUTd(0);                         // SuggestedBufferSize
-	AVIOUTd(~0);                        // Quality
+	AVIOUTd(unsigned(~0));              // Quality
 	AVIOUTd(0);                         // SampleSize
 	AVIOUTd(0);                         // Frame
 	AVIOUTd(0);                         // Frame
@@ -144,7 +144,7 @@ AviWriter::~AviWriter()
 		AVIOUTd(0);                 // Start
 		AVIOUTd(audiowritten);      // Length
 		AVIOUTd(0);                 // SuggestedBufferSize
-		AVIOUTd(~0);                // Quality
+		AVIOUTd(unsigned(~0));      // Quality
 		AVIOUTd(4);                 // SampleSize
 		AVIOUTd(0);                 // Frame
 		AVIOUTd(0);                 // Frame

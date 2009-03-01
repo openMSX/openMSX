@@ -118,9 +118,10 @@ BaseImage* OSDText::createGL(OutputSurface& output)
 {
 #ifdef COMPONENT_GL
 	return create<GLImage>(output);
-#endif
+#else
 	(void)&output;
 	return NULL;
+#endif
 }
 
 } // namespace openmsx

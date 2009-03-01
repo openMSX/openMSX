@@ -82,11 +82,11 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 		if (token != NULL) {
 			// Parse first token
 			// It is either a unicode value or the keyword DEADKEY
-			int unicode;
+			int unicode = 0;
 			bool isDeadKey = (strcmp(token, "DEADKEY") == 0);
 			if (!isDeadKey) {
-				sscanf(token, "%x", &unicode);
-				if (unicode < 0 || unicode > 65535) {
+				int rdnum = sscanf(token, "%x", &unicode);
+				if (rdnum != 1 || unicode < 0 || unicode > 65535) {
 					throw MSXException("Wrong unicode value in keymap file");
 				}
 			}
@@ -97,8 +97,8 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 				throw MSXException("Missing <ROW><COL> in unicode file");
 			}
 			int rowcol;
-			sscanf(token, "%x", &rowcol);
-			if (rowcol < 0 || rowcol >= 11*16 ) {
+			int rdnum = sscanf(token, "%x", &rowcol);
+			if (rdnum != 1 || rowcol < 0 || rowcol >= 11*16 ) {
 				throw MSXException("Wrong rowcol value in keymap file");
 			}
 			if ((rowcol & 0x0f) > 7) {

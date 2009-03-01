@@ -629,22 +629,22 @@ void YM2151Impl::envelopeKONKOFF(YM2151Operator* op, int v)
 	if (v & 0x08) { // M1
 		keyOn (op + 0, 1);
 	} else {
-		keyOff(op + 0,~1);
+		keyOff(op + 0,unsigned(~1));
 	}
 	if (v & 0x20) { // M2
 		keyOn (op + 1, 1);
 	} else {
-		keyOff(op + 1,~1);
+		keyOff(op + 1,unsigned(~1));
 	}
 	if (v & 0x10) { // C1
 		keyOn (op + 2, 1);
 	} else {
-		keyOff(op + 2,~1);
+		keyOff(op + 2,unsigned(~1));
 	}
 	if (v & 0x40) { // C2
 		keyOn (op + 3, 1);
 	} else {
-		keyOff(op + 3,~1);
+		keyOff(op + 3,unsigned(~1));
 	}
 }
 
@@ -1632,7 +1632,7 @@ void YM2151Impl::advance()
 			op = &oper[0]; // CH 0 M1
 			i = 32;
 			do {
-				keyOff(op,~2);
+				keyOff(op,unsigned(~2));
 				op++;
 				i--;
 			} while (i);

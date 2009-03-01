@@ -4,10 +4,6 @@
 
 namespace openmsx {
 
-MidiOutDevice::~MidiOutDevice()
-{
-}
-
 const std::string& MidiOutDevice::getClass() const
 {
 	static const std::string className("midi out");

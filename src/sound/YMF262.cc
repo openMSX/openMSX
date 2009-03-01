@@ -1163,8 +1163,8 @@ void YMF262Slot::calc_fc(const YMF262Channel& ch)
 }
 
 static const unsigned channelPairTab[18] = {
-	0,  1,  2,  0,  1,  2, ~0, ~0, ~0,
-	9, 10, 11,  9, 10, 11, ~0, ~0, ~0,
+	0,  1,  2,  0,  1,  2, unsigned(~0), unsigned(~0), unsigned(~0),
+	9, 10, 11,  9, 10, 11, unsigned(~0), unsigned(~0), unsigned(~0),
 };
 inline bool YMF262Impl::isExtended(unsigned ch) const
 {
