@@ -706,9 +706,8 @@ string MSXtar::dir()
 		readLogicalSector(sector, buf);
 		MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
 		for (unsigned i = 0; i < 16; ++i) {
-			const unsigned char e5 = 0xe5;
-			if ((direntry[i].filename[0] != e5) &&
-			    (direntry[i].filename[0] != 0) &&
+			if ((direntry[i].filename[0] != char(0xe5)) &&
+			    (direntry[i].filename[0] != char(0x00)) &&
 			    (direntry[i].attrib != T_MSX_LFN)) {
 				// filename first (in condensed form for human readablitly)
 				string tmp = condensName(direntry[i]);
@@ -840,9 +839,8 @@ void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 		readLogicalSector(sector, buf);
 		MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
 		for (unsigned i = 0; i < 16; ++i) {
-			const unsigned char e5 = 0xe5;
-			if ((direntry[i].filename[0] != e5) &&
-			    (direntry[i].filename[0] != 0) &&
+			if ((direntry[i].filename[0] != char(0xe5)) &&
+			    (direntry[i].filename[0] != char(0x00)) &&
 			    (direntry[i].filename[0] != '.')) {
 				string filename = condensName(direntry[i]);
 				string fullname = filename;

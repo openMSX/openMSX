@@ -393,12 +393,11 @@ void DirAsDSK::checkAlterFileInDisk(unsigned dirindex)
 			updateFileInDisk(dirindex, fst);
 		}
 	} else {
-		const unsigned char e5 = 0xe5;
 		// file can not be stat'ed => assume it has been deleted
 		// and thus delete it from the MSX DIR sectors by marking
 		// the first filename char as 0xE5
 		debug(" host os file deleted ? %s\n", mapdir[dirindex].shortname.c_str());
-		mapdir[dirindex].msxinfo.filename[0] = e5;
+		mapdir[dirindex].msxinfo.filename[0] = char(0xE5);
 		mapdir[dirindex].shortname.clear();
 		// Since we do not clear the FAT (a real MSX doesn't either)
 		// and all data is cached in memmory you now can use MSX-DOS
@@ -526,12 +525,11 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 {
 	if (!mapdir[dirindex].inUse()) {
-		const unsigned char e5 = 0xE5;
 		// a total new file so we create the new name from the msx name
 		const char* buf = mapdir[dirindex].msxinfo.filename;
 		// special case file is deleted but becuase rest of dirEntry changed
 		// while file is still deleted...
-		if (buf[0] == e5) return;
+		if (buf[0] == char(0xE5)) return;
 		string shname = condenseName(buf);
 		mapdir[dirindex].shortname = shname;
 		debug("      truncateCorrespondingFile of new Host OS file\n");
@@ -554,12 +552,11 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 void DirAsDSK::extractCacheToFile(unsigned dirindex)
 {
 	if (!mapdir[dirindex].inUse()) {
-		const unsigned char e5 = 0xE5;
 		// a total new file so we create the new name from the msx name
 		const char* buf = mapdir[dirindex].msxinfo.filename;
 		// special case: the file is deleted and we get here because the
 		// startcluster is still intact
-		if (buf[0] == e5) return;
+		if (buf[0] == char(0xE5)) return;
 		string shname = condenseName(buf);
 		mapdir[dirindex].shortname = shname;
 	}
@@ -750,8 +747,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 	debug("  Old size %i  New size %i\n\n", oldSize, newSize);
 
 	if (chgName && !chgClus && !chgSize) {
-		const unsigned char e5 = 0xE5;
-		if ((entry.filename[0] == e5) &&
+		if ((entry.filename[0] == char(0xE5)) &&
 		    (syncMode == GlobalSettings::SYNC_FULL)) {
 			// dir entry has been deleted
 			// delete file from host OS and 'clear' all sector
@@ -765,7 +761,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			}
 			mapdir[dirindex].shortname.clear();
 
-		} else if ((entry.filename[0] != e5) &&
+		} else if ((entry.filename[0] != char(0xE5)) &&
 			   ((syncMode == GlobalSettings::SYNC_FULL) ||
 			    (syncMode == GlobalSettings::SYNC_NODELETE))) {
 			string shname = condenseName(entry.filename);
