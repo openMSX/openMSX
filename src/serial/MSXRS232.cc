@@ -137,7 +137,6 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param /*time*/)
 
 byte* MSXRS232::getWriteCacheLine(word start) const
 {
-	return NULL;
 	word addr = start & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
