@@ -1,11 +1,49 @@
 # $Id$
 # Defines the building blocks of openMSX and their dependencies.
 
-# For static linking, it's important that if lib A depends on B, A is in the
-# list before B.
-# TODO: It would be better if libraries would declare their dependencies and
-#       we would compute the link flags order from that.
-coreLibs = ( 'SDL_IMAGE', 'SDL_TTF', 'SDL', 'PNG', 'TCL', 'XML', 'ZLIB' )
+from packages import getPackage
+
+def _computeCoreLibs():
+	'''Returns the Make names of the libraries needed by the emulation core
+	component, in the proper order for static linking.
+	For static linking, if lib A depends on B, A must be in the list before B.
+	TODO: Actually the link flags of lib A should already reflect that.
+	      Are we compensating for bad link flags?
+	'''
+	coreDependsOn = set((
+		'SDL_image', 'SDL_ttf', 'SDL', 'libpng', 'tcl', 'libxml2', 'zlib'
+		))
+	dependencies = dict(
+		(name, set(getPackage(name).dependsOn) & coreDependsOn)
+		for name in coreDependsOn
+		)
+
+	# Flatten dependency graph.
+	# The algorithm is quadratic, but that doesn't matter for the small data
+	# sizes we're feeding it.
+	orderedDependencies = []
+	while dependencies:
+		# Find a package that does not depend on anything is not in
+		# orderedDependencies yet.
+		freePackages = set(
+			name
+			for name, dependsOn in dependencies.iteritems()
+			if not dependsOn
+			)
+		if not freePackages:
+			raise ValueError('Circular dependency between packages')
+		orderedDependencies += reversed(sorted(freePackages))
+		# Remove dependency just moved to orderedDependencies.
+		for name in freePackages:
+			del dependencies[name]
+		for dependsOn in dependencies.itervalues():
+			dependsOn -= freePackages
+
+	# Reverse order and output Make names.
+	for name in reversed(orderedDependencies):
+		yield getPackage(name).getMakeName()
+
+coreLibs = tuple(_computeCoreLibs())
 
 class Component(object):
 	niceName = None

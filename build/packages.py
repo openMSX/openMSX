@@ -11,6 +11,10 @@ class Package(object):
 	dependsOn = ()
 
 	@classmethod
+	def getMakeName(cls):
+		return cls.name.upper()
+
+	@classmethod
 	def getTarballName(cls):
 		return '%s-%s.tar.gz' % (cls.name, cls.version)
 
@@ -48,11 +52,19 @@ class LibPNG(Package):
 	version = '1.2.34'
 	dependsOn = ('zlib', )
 
+	@classmethod
+	def getMakeName(cls):
+		return 'PNG'
+
 class LibXML2(Package):
 	downloadURL = 'http://xmlsoft.org/sources'
 	name = 'libxml2'
 	version = '2.7.2'
 	dependsOn = ('zlib', )
+
+	@classmethod
+	def getMakeName(cls):
+		return 'XML'
 
 class SDL(Package):
 	downloadURL = 'http://www.libsdl.org/release'
