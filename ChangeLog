@@ -1,5 +1,13 @@
 $Id$
 
+2009-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split Y8950Adpcm sample generation part in two:
+	  - There is now an emulation and an audio part. See comments in
+	    Y8950Adpcm.cc for details. The emulation state is now no longer
+	    dependant on the audio-thread. So in UR, the scope part keeps
+	    on working when the audio is muted.
+	  - Also made some minor adjustments to the rest of the adpcm code.
+
 2009-02-24 Max Feingold <maf6@cornell.edu>
 	* Updated VC++ projects with a Python-based script that builds config
 	  headers using mth's Python scripts. This automates one of the more

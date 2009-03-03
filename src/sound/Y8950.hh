@@ -18,7 +18,8 @@ class Y8950Impl;
 class Y8950
 {
 public:
-	static const int CLOCK_FREQ = 3579545;
+	static const int CLOCK_FREQ     = 3579545;
+	static const int CLOCK_FREQ_DIV = 72;
 
 	// Bitmask for register 0x04
 	// Timer1 Start.
@@ -60,6 +61,7 @@ public:
 	// for ADPCM
 	void setStatus(byte flags);
 	void resetStatus(byte flags);
+	byte peekRawStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

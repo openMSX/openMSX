@@ -3,7 +3,10 @@
 #ifndef Y8950ADPCM_HH
 #define Y8950ADPCM_HH
 
+#include "Y8950.hh"
 #include "Schedulable.hh"
+#include "Clock.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -21,53 +24,65 @@ public:
 	virtual ~Y8950Adpcm();
 
 	void reset(EmuTime::param time);
-	bool muted() const;
+	bool isMuted() const;
 	void writeReg(byte rg, byte data, EmuTime::param time);
-	byte readReg(byte rg);
-	byte peekReg(byte rg) const;
+	byte readReg(byte rg, EmuTime::param time);
+	byte peekReg(byte rg, EmuTime::param time);
 	int calcSample();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	// This data is updated while playing
+	struct PlayData {
+		unsigned memPntr;
+		unsigned nowStep;
+		int out;
+		int output;
+		int diff;
+		int nextLeveling;
+		int sampleStep;
+		byte adpcm_data;
+	};
+
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
+	void sync(EmuTime::param time);
 	void schedule(EmuTime::param time);
-	void restart();
+	void restart(PlayData& pd);
 
-	bool playing() const;
+	bool isPlaying() const;
 	void writeData(byte data);
+	byte peekReg(byte rg) const;
 	byte readData();
 	byte peekData() const;
-	void writeMemory(byte value);
-	byte readMemory() const;
+	void writeMemory(unsigned memPntr, byte value);
+	byte readMemory(unsigned memPntr) const;
+	int calcSample(bool doEmu);
 
 	Y8950& y8950;
 	const std::auto_ptr<Ram> ram;
 
+	Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> clock;
+
 	unsigned startAddr;
 	unsigned stopAddr;
 	unsigned addrMask;
-	unsigned memPntr;
-
-	unsigned nowStep;
 	int volume;
-	int out, output;
-	int diff;
-	int nextLeveling;
-	int sampleStep;
 	int volumeWStep;
 	int readDelay;
 	int delta;
-
 	byte reg7;
 	byte reg15;
-	byte adpcm_data;
 	bool romBank;
+
+	PlayData emu; // used for emulator behaviour (read back of sample data)
+	PlayData aud; // used by audio generation thread
 };
+SERIALIZE_CLASS_VERSION(Y8950Adpcm, 2);
 
 } // namespace openmsx
 

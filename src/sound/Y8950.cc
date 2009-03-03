@@ -156,6 +156,7 @@ public:
 
 	void setStatus(byte flags);
 	void resetStatus(byte flags);
+	byte peekRawStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -301,8 +302,8 @@ static const int AM_DP_BITS = 16;
 static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 // LFO Table
-static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ/72.0));
-static const unsigned AM_DPHASE = unsigned(AM_SPEED * AM_DP_WIDTH / (Y8950::CLOCK_FREQ/72.0));
+static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
+static const unsigned AM_DPHASE = unsigned(AM_SPEED * AM_DP_WIDTH / (Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 static int pmtable[2][PM_PG_WIDTH];
 static int amtable[2][AM_PG_WIDTH];
 
@@ -680,7 +681,7 @@ Y8950Impl::~Y8950Impl()
 
 void Y8950Impl::setOutputRate(unsigned sampleRate)
 {
-	double input = Y8950::CLOCK_FREQ / 72.0;
+	double input = Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV);
 	setInputRate(int(input + 0.5));
 	setResampleRatio(input, sampleRate);
 }
@@ -922,7 +923,7 @@ bool Y8950Impl::checkMuteHelper()
 		if (ch[8].slot[CAR].isActive()) return false;
 	}
 
-	return adpcm->muted();
+	return adpcm->isMuted();
 }
 
 void Y8950Impl::generateChannels(int** bufs, unsigned num)
@@ -1271,7 +1272,7 @@ byte Y8950Impl::readReg(byte rg, EmuTime::param time)
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1A: // PCM-DATA
-			result = adpcm->readReg(rg);
+			result = adpcm->readReg(rg, time);
 			break;
 		default:
 			result = peekReg(rg, time);
@@ -1290,7 +1291,7 @@ byte Y8950Impl::peekReg(byte rg, EmuTime::param time) const
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1A: // PCM-DATA
-			return adpcm->peekReg(rg);
+			return adpcm->peekReg(rg, time);
 
 		case 0x19: { // I/O DATA
 			byte input = perihery.read(time);
@@ -1336,6 +1337,10 @@ void Y8950Impl::resetStatus(byte flags)
 		status &= 0x7f;
 		irq.reset();
 	}
+}
+byte Y8950Impl::peekRawStatus() const
+{
+	return status;
 }
 void Y8950Impl::changeStatusMask(byte newMask)
 {
@@ -1514,6 +1519,11 @@ void Y8950::setStatus(byte flags)
 void Y8950::resetStatus(byte flags)
 {
 	pimple->resetStatus(flags);
+}
+
+byte Y8950::peekRawStatus() const
+{
+	return pimple->peekRawStatus();
 }
 
 template<typename Archive>
