@@ -43,6 +43,8 @@ public:
 	void distributeEvent(EventPtr event, EmuTime::param time);
 
 private:
+	bool isRegistered(MSXEventListener* listener) const;
+
 	typedef std::vector<MSXEventListener*> Listeners;
 	Listeners listeners;
 };
