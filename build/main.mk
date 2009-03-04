@@ -124,8 +124,8 @@ LINK_MODE:=$(if $(filter true,$(3RDPARTY_FLAG)),3RD_STA,SYS_DYN)
 
 # Do not perform autodetection if platform was specified by the user.
 ifneq ($(filter undefined,$(origin OPENMSX_TARGET_CPU) $(origin OPENMSX_TARGET_OS)),)
-DETECTSYS_SCRIPT:=$(MAKE_PATH)/detectsys.sh
-LOCAL_PLATFORM:=$(shell $(DETECTSYS_SCRIPT))
+DETECTSYS_SCRIPT:=$(MAKE_PATH)/detectsys.py
+LOCAL_PLATFORM:=$(shell $(PYTHON) $(DETECTSYS_SCRIPT))
 ifeq ($(LOCAL_PLATFORM),)
 $(error No platform specified using OPENMSX_TARGET_CPU and OPENMSX_TARGET_OS and autodetection of local platform failed)
 endif
