@@ -4,11 +4,12 @@
 # that the openMSX build understands.
 
 from platform import libc_ver, machine, system
+import sys
 
 def detectCPU():
 	'''Detects the CPU family (not the CPU model) of the machine were are
 	running on.
-	If no known CPU is detected, None is returned.
+	Raises ValueError if no known CPU is detected.
 	'''
 	cpu = machine().lower()
 	if cpu in ('x86_64', 'amd64'):
@@ -34,11 +35,11 @@ def detectCPU():
 	elif cpu.startswith('sparc'):
 		return 'sparc'
 	else:
-		return None
+		raise ValueError('Unsupported or unrecognised CPU "%s"' % cpu)
 
 def detectOS():
 	'''Detects the operating system of the machine were are running on.
-	If no known OS is detected, None is returned.
+	Raises ValueError if no known OS is detected.
 	'''
 	os = system().lower()
 	if os in ('linux', 'darwin', 'netbsd', 'openbsd', 'gnu'):
@@ -56,7 +57,11 @@ def detectOS():
 	elif os.startswith('mingw') or os == 'windows':
 		return 'mingw32'
 	else:
-		return None
+		raise ValueError('Unsupported or unrecognised OS "%s"' % os)
 
 if __name__ == '__main__':
-	print '%s-%s' % (detectCPU(), detectOS())
+	try:
+		print '%s-%s' % (detectCPU(), detectOS())
+	except ValueError, ex:
+		print >> sys.stderr, ex
+		sys.exit(1)
