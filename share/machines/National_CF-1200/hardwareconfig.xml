@@ -15,7 +15,10 @@
 
   <devices>
 
+  <!-- CPU: NEC -->
+
     <PPI id="ppi">
+      <!-- brand: NEC -->
       <key_ghosting>true</key_ghosting>
       <sound>
         <volume>16000</volume>
@@ -29,11 +32,12 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS99X8A</version>
+      <version>TMS99X8A</version> <!-- TMS 9918A -->
       <io base="0x98" num="2"/>
     </VDP>
 
     <PSG id="PSG">
+      <type>AY8910</type>
       <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
