@@ -34,6 +34,13 @@ def detectCPU():
 		return 's390'
 	elif cpu.startswith('sparc'):
 		return 'sparc'
+	elif cpu == '':
+		# Python couldn't figure it out.
+		os = system().lower()
+		if os == 'windows':
+			# Relatively safe bet.
+			return 'x86'
+		raise ValueError('Unable to detect CPU')
 	else:
 		raise ValueError('Unsupported or unrecognised CPU "%s"' % cpu)
 
@@ -56,6 +63,9 @@ def detectOS():
 			return 'freebsd'
 	elif os.startswith('mingw') or os == 'windows':
 		return 'mingw32'
+	elif os == '':
+		# Python couldn't figure it out.
+		raise ValueError('Unable to detect OS')
 	else:
 		raise ValueError('Unsupported or unrecognised OS "%s"' % os)
 
