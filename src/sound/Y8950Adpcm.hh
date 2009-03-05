@@ -51,7 +51,7 @@ private:
 	virtual const std::string& schedName() const;
 
 	void sync(EmuTime::param time);
-	void schedule(EmuTime::param time);
+	void schedule();
 	void restart(PlayData& pd);
 
 	bool isPlaying() const;

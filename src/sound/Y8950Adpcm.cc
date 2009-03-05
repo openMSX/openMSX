@@ -114,7 +114,7 @@ void Y8950Adpcm::sync(EmuTime::param time)
 	clock.advance(time);
 }
 
-void Y8950Adpcm::schedule(EmuTime::param time)
+void Y8950Adpcm::schedule()
 {
 	assert(isPlaying());
 	if ((stopAddr > startAddr) && (delta != 0)) {
@@ -132,7 +132,7 @@ void Y8950Adpcm::executeUntil(EmuTime::param time, int /*userData*/)
 	sync(time); // should set STATUS_EOS
 	assert(y8950.peekRawStatus() & Y8950::STATUS_EOS);
 	if (isPlaying() && (reg7 & R07_REPEAT)) {
-		schedule(time);
+		schedule();
 	}
 }
 
@@ -170,7 +170,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 		}
 		removeSyncPoint();
 		if (isPlaying()) {
-			schedule(time);
+			schedule();
 		}
 		break;
 
@@ -190,14 +190,14 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 		stopAddr = (stopAddr & 0x7F807) | (data << 3);
 		if (isPlaying()) {
 			removeSyncPoint();
-			schedule(time);
+			schedule();
 		}
 		break;
 	case 0x0C: // STOP ADDRESS (H)
 		stopAddr = (stopAddr & 0x007FF) | (data << 11);
 		if (isPlaying()) {
 			removeSyncPoint();
-			schedule(time);
+			schedule();
 		}
 		break;
 
@@ -501,7 +501,7 @@ void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 		// can be off, because clock.getTime() != getCurrentTime()
 		removeSyncPoint();
 		if (isPlaying()) {
-			schedule(getCurrentTime());
+			schedule();
 		}
 	}
 }
