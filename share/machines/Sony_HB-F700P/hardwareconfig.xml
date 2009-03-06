@@ -5,13 +5,11 @@
 
   <info>
     <manufacturer>Sony</manufacturer>
-    <code>HB-F700D</code>
+    <code>HB-F700P</code>
     <release_year>1985</release_year>
-    <description>German version of the Sony HB-F700</description>
+    <description>European MSX2 with a lot of RAM (256kB).</description>
     <type>MSX2</type>
   </info>
-
-<!-- Note: I'm not 100% sure the mentioned SHA1 sums are of correct dumps -->
 
   <MapperReadBackBits>largest</MapperReadBackBits>
 
@@ -25,7 +23,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>de</keyboard_type>
+      <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
@@ -51,7 +49,7 @@
     </PSG>
 
     <RTC id="Real time clock">
-      <sramname>hb-f700d.cmos</sramname>
+      <sramname>hb-f700p.cmos</sramname>
       <io base="0xb4" num="2" type="O"/>
       <io base="0xb5" num="1" type="I"/>
     </RTC>
@@ -65,8 +63,8 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>roms/hb-f700d_basic-bios2.rom</filename>
-            <sha1>cef16eb95502ba6ab2265fcafcedde470a101541</sha1>
+            <filename>roms/hb-f700p_basic-bios2.rom</filename>
+            <sha1>0de3c802057560560a03d7965fcc4cff69f8575c</sha1> <!-- Verified on Meits' machine -->
           </rom>
         <mem base="0x0000" size="0x8000"/>
         </ROM>
@@ -83,8 +81,9 @@
         <secondary slot="0">
           <ROM id="MSX Sub ROM">
           <rom>
-             <filename>roms/hb-f700d_msx2sub.rom</filename>
-             <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1>
+             <filename>roms/hb-f700p_msx2sub.rom</filename>
+             <sha1>24624c5fa3a8069b1d865cdea8a029f15c1955ea</sha1> <!-- On Meits' machine -->
+             <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1> <!-- According to team blueMSX -->
            </rom>
            <mem base="0x0000" size="0x4000"/>
          </ROM>
@@ -92,9 +91,9 @@
           <broken_fdc_read>true</broken_fdc_read>
           <drives>1</drives>
           <rom>
-            <filename>roms/hb-f700d_disk.rom</filename>
-            <sha1>0e081572f84555dc13bdb0c7044a19d6c164d985</sha1>
-            <sha1>7dcd434d9a244e23afd212d3fea4c3bf3fe2a300</sha1> <!-- This seems to be some kind of faster disk ROM, certainly not original! -->
+            <filename>roms/hb-f700p_disk.rom</filename>
+            <sha1>3376cf9dd2b1ac9b41bf6bf6598b33136e86f9d5</sha1> <!-- According to team blueMSX -->
+            <sha1>7dcd434d9a244e23afd212d3fea4c3bf3fe2a300</sha1> <!-- This is a fast diskROM, which is also in Meits' machine, certainly not original -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </WD2793>
