@@ -28,12 +28,13 @@ def newGuid():
 
 class WixFragment:
 
-    def __init__(self, fileGenerator, componentGroup, directoryRef, virtualDir, excludedFile):
+    def __init__(self, fileGenerator, componentGroup, directoryRef, virtualDir, excludedFile, win64):
         self.fileGenerator = fileGenerator
         self.componentGroup = componentGroup
         self.directoryRef = directoryRef
         self.virtualDir = virtualDir
         self.indent = 0
+        self.win64 = win64
         
         if excludedFile:
             excludedFiles.append(excludedFile)
@@ -103,8 +104,12 @@ class WixFragment:
         self.printIndented("</Directory>")
 
     def startComponent(self, componentId, guid):
-        self.printIndented("<Component Id=\"" + componentId + "\" Guid=\"" + guid + "\" DiskId=\"1\">")
-        self.incrementIndent()
+		component = "<Component Id=\"" + componentId + "\" Guid=\"" + guid + "\" DiskId=\"1\""
+		if self.win64:
+			component += " Win64=\"" + self.win64 + "\""
+		component += ">"
+		self.printIndented(component)
+		self.incrementIndent()
         
     def endComponent(self):
         self.decrementIndent()
@@ -231,6 +236,7 @@ parser.add_option("-r", "--directoryRef", type="string", dest="directoryRef")
 parser.add_option("-s", "--sourcePath", type="string", dest="sourcePath")
 parser.add_option("-v", "--virtualDir", type="string", dest="virtualDir")
 parser.add_option("-x", "--excludedFile", type="string", dest="excludedFile")
+parser.add_option("-w", "--win64", type="string", dest="win64")
 
 (options, args) = parser.parse_args()
 fileGenerator = Walk(options.sourcePath)
@@ -240,5 +246,5 @@ fileGenerator = Walk(options.sourcePath)
 #    for f in filenames:
 #        print f
 
-wf = WixFragment(Walk(options.sourcePath), options.componentGroup, options.directoryRef, options.virtualDir, options.excludedFile)
+wf = WixFragment(Walk(options.sourcePath), options.componentGroup, options.directoryRef, options.virtualDir, options.excludedFile, options.win64)
 wf.printFragment()

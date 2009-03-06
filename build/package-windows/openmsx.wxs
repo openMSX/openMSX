@@ -88,6 +88,7 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="openMSXStartMenuDir" Name="openMSX"/>
       </Directory>
+      <Directory Id="SystemFolder" />
     </Directory>
 
     <!--
@@ -143,9 +144,13 @@
                   Arguments="/x [ProductCode]" />
 
         <!-- This is needed to fix two errors:
-            ICE38: Component openMSXShortcuts installs to user profile. It must use a registry key under HKCU as its KeyPath, not a file.
-            ICE43: Component openMSXShortcuts has non-advertised shortcuts. It should use a registry key under HKCU as its KeyPath, not a file. -->
+             ICE38: Component openMSXShortcuts installs to user profile. It must use a registry key under HKCU as its KeyPath, not a file.
+             ICE43: Component openMSXShortcuts has non-advertised shortcuts. It should use a registry key under HKCU as its KeyPath, not a file. -->
         <RegistryValue Root="HKCU" Key="Software\$(var.ProductName)" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+
+        <!-- This is needed to prevent the following error:
+             ICE64: The directory openMSXStartMenuDir is in the user profile but is not listed in the RemoveFile table. -->
+        <RemoveFolder Id="openMSXStartMenuDir" On="uninstall" />
       </Component>
 
       <!-- Use a hardcoded guid here to work around what appears to be a WiX bug 
@@ -169,27 +174,26 @@
         <RegistryValue Root="HKCU" Key="Software\$(var.ProductName)" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
 
-      <!-- Use a hardcoded guid here to work around what appears to be a WiX bug 
-           Otherwise, we get ICE08: Component: ZMBVCodecShortcuts has a duplicate GUID: {69F885AD-19F6-5D4D-89DC-E05C05A3D761} -->
-      <Component Id="ZMBVCodecShortcuts" Guid="6ca29fec-57a3-4e20-b2e8-74e46eb0661b">
-
-        <!-- Link to ZMBV codec installation command
-             Note that [SystemFolder] is 32-bit even on 64-bit platforms, just like the codec -->
-        <Shortcut Id="ZMBVInstallCodecShortcut"
-                  Name="!(loc.InstallZMBVVideoCodec)"
-                  Description="!(loc.InstallZMBVVideoCodec)"
-                  Target="[SystemFolder]rundll32.exe"
-                  Arguments="setupapi,InstallHinfSection DefaultInstall 128 [ZMBVCodecDir]zmbv.inf"
-                  WorkingDirectory="SystemFolder" />
-
-        <RegistryValue Root="HKCU" Key="Software\$(var.ProductName)" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
-
-        <!-- This is needed to prevent the following error:
-             ICE64: The directory openMSXStartMenuDir is in the user profile but is not listed in the RemoveFile table. -->
-        <RemoveFolder Id="openMSXStartMenuDir" On="uninstall" />
-      </Component>
-
     </DirectoryRef>
+
+    <!-- Use a hardcoded guid to work around CNDL0230 -->
+    <Component Id="ZMBVRegistryValues" Guid="52db293d-8b1e-4598-9c9a-c71ed3a5ecb9" KeyPath="yes" Win64="no" Directory="SystemFolder">
+      <RegistryValue Id="Drivers32"
+                     Name="VIDC.ZMBV"
+                     Value="zmbv.dll"
+                     Type="string"
+                     Root="HKLM"
+                     Key="SOFTWARE\Microsoft\Windows NT\CurrentVersion\Drivers32"
+                     Action="write" />
+
+      <RegistryValue Id="drivers.desc"
+                     Name="zmbv.dll"
+                     Value="!(loc.ZMBVVideoCodecDesc)"
+                     Type="string"
+                     Root="HKLM"
+                     Key="SOFTWARE\Microsoft\Windows NT\CurrentVersion\drivers.desc"
+                     Action="write" />
+    </Component>
 
     <!--
       Features
@@ -208,6 +212,7 @@
              Description="!(loc.TagLine)"
              Level="1"
              Absent="disallow"
+             Display="expand"
              AllowAdvertise="no"
              ConfigurableDirectory="OPENMSXINSTALLDIR">
 
@@ -247,11 +252,12 @@
       <Feature Id="ZMBVCodec"
                Title="!(loc.ZMBVVideoCodec)"
                Description="!(loc.ZMBVVideoCodecDescription)"
-               Level="1"
+               Level="2"
                Absent="allow"
                AllowAdvertise="no">
-        <ComponentGroupRef Id="ZMBVCodecFiles" />
-        <ComponentRef Id="ZMBVCodecShortcuts" />
+        <ComponentGroupRef Id="ZMBVCodec" />
+        <ComponentGroupRef Id="ZMBVFiles" />
+        <ComponentRef Id="ZMBVRegistryValues" />
       </Feature>
 
     </Feature>

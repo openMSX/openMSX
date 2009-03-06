@@ -3,18 +3,29 @@
 @rem **** Run this from the root openMSX source directory with no arguments: ****
 @rem **** build\package-windows\package.cmd ****
 @rem
+@rem Usage: package.cmd OPENMSX_ARCH OPENMSX_CONFIGURATION OPENMSX_VERSION CATAPULT_BASEPATH
+@rem
+@rem **** OPENMSX_ARCH is { x86, x64 } ****
+@rem **** OPENMSX_CONFIGURATION is { Release, Developer, Debug } ****
+@rem **** OPENMSX_VERSION is 0.7.0 or some such
+
+@rem **** CATAPULT_BASEPATH is ..\wxCatapult or some such
+@rem
+@rem **** These variables need to come from the broader build environment, obviously ****
 
 @setlocal
 
-@rem
-@rem **** Variables that need to come from the broader build environment ****
-@rem **** OPENMSX_ARCH is { x86, x64 } ****
-@rem **** OPENMSX_CONFIGURATION is { Release, Developer, Debug } ****
-@rem
-@set OPENMSX_ARCH=x64
-@set OPENMSX_CONFIGURATION=Release
-@set OPENMSX_VERSION=0.7.1
-@set CATAPULT_BASEPATH=..\wxCatapult
+@set OPENMSX_ARCH=%1
+@echo OPENMSX_ARCH is %OPENMSX_ARCH%
+
+@set OPENMSX_CONFIGURATION=%2
+@echo OPENMSX_CONFIGURATION is %OPENMSX_CONFIGURATION%
+
+@set OPENMSX_VERSION=%3
+@echo OPENMSX_VERSION is %OPENMSX_VERSION%
+
+@set CATAPULT_BASEPATH=%4
+@echo CATAPULT_BASEPATH is %CATAPULT_BASEPATH%
 
 @rem
 @rem **** Variables derived from the above ****
@@ -79,7 +90,8 @@ python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c openMSXDoc -r OPENMSXINSTA
 python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c openMSXShare -r OPENMSXINSTALLDIR -v share -s "%OPENMSX_MAKEINSTALL_PATH%\share" > "%WIX_INTERMEDIATE_PATH%\openmsxshare.wxs"
 python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c openMSXIcon -r OPENMSXINSTALLDIR -v share\icons -s "src\resource\openmsx.ico" > "%WIX_INTERMEDIATE_PATH%\openmsxicon.wxs"
 
-python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c ZMBVCodecFiles -r OPENMSXINSTALLDIR -v codec -s "Contrib\codec\Win32" > "%WIX_INTERMEDIATE_PATH%\zmbvcodec.wxs"
+python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c ZMBVCodec -w no -r SystemFolder -s "Contrib\codec\Win32\zmbv.dll" > "%WIX_INTERMEDIATE_PATH%\zmbvcodec.wxs"
+python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c ZMBVFiles -r OPENMSXINSTALLDIR -v codec -x zmbv.dll -s "Contrib\codec\Win32" > "%WIX_INTERMEDIATE_PATH%\zmbvfiles.wxs"
 
 python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c CatapultBin -r OPENMSXINSTALLDIR -v Catapult\bin -s "%CATAPULT_BUILD_PATH%\install\catapult.exe" > "%WIX_INTERMEDIATE_PATH%\catapultbin.wxs"
 python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c CatapultDoc -r OPENMSXINSTALLDIR -v Catapult\doc -s "%CATAPULT_BASEPATH%\doc" -x release-process.txt > "%WIX_INTERMEDIATE_PATH%\catapultdoc.wxs"
@@ -99,7 +111,7 @@ python "%OPENMSX_PACKAGE_WINDOWS_PATH%\harvest.py" -c CatapultReadme -r OPENMSXI
 @rem OPENMSX_ICON_PATH to locate the MSI's control panel icon
 @rem OPENMSX_PACKAGE_WINDOWS_PATH to locate the bmps used in the UI
 
-candle.exe -arch %OPENMSX_ARCH% -o %WIX_INTERMEDIATE_PATH%\ -ext WixUtilExtension %OPENMSX_PACKAGE_WINDOWS_PATH%\openmsx.wxs %WIX_INTERMEDIATE_PATH%\openmsxexe.wxs %WIX_INTERMEDIATE_PATH%\openmsxdoc.wxs %WIX_INTERMEDIATE_PATH%\openmsxshare.wxs %WIX_INTERMEDIATE_PATH%\openmsxicon.wxs %WIX_INTERMEDIATE_PATH%\zmbvcodec.wxs %WIX_INTERMEDIATE_PATH%\catapultbin.wxs %WIX_INTERMEDIATE_PATH%\catapultdoc.wxs %WIX_INTERMEDIATE_PATH%\catapultbitmaps.wxs %WIX_INTERMEDIATE_PATH%\catapultdialogs.wxs %WIX_INTERMEDIATE_PATH%\catapulticons.wxs %WIX_INTERMEDIATE_PATH%\catapultauthors.wxs %WIX_INTERMEDIATE_PATH%\catapultgpl.wxs %WIX_INTERMEDIATE_PATH%\catapultreadme.wxs
-light.exe -o %WIX_OUTPUT_FILE% -ext WixUtilExtension -ext WixUIExtension -loc %OPENMSX_PACKAGE_WINDOWS_PATH%\openmsx1033.wxl %WIX_INTERMEDIATE_PATH%\openmsx.wixobj %WIX_INTERMEDIATE_PATH%\openmsxexe.wixobj %WIX_INTERMEDIATE_PATH%\openmsxdoc.wixobj %WIX_INTERMEDIATE_PATH%\openmsxshare.wixobj %WIX_INTERMEDIATE_PATH%\openmsxicon.wixobj %WIX_INTERMEDIATE_PATH%\zmbvcodec.wixobj %WIX_INTERMEDIATE_PATH%\catapultbin.wixobj %WIX_INTERMEDIATE_PATH%\catapultdoc.wixobj %WIX_INTERMEDIATE_PATH%\catapultbitmaps.wixobj %WIX_INTERMEDIATE_PATH%\catapultdialogs.wixobj %WIX_INTERMEDIATE_PATH%\catapulticons.wixobj %WIX_INTERMEDIATE_PATH%\catapultauthors.wixobj %WIX_INTERMEDIATE_PATH%\catapultgpl.wixobj %WIX_INTERMEDIATE_PATH%\catapultreadme.wixobj
+candle.exe -arch %OPENMSX_ARCH% -o %WIX_INTERMEDIATE_PATH%\ -ext WixUtilExtension %OPENMSX_PACKAGE_WINDOWS_PATH%\openmsx.wxs %WIX_INTERMEDIATE_PATH%\openmsxexe.wxs %WIX_INTERMEDIATE_PATH%\openmsxdoc.wxs %WIX_INTERMEDIATE_PATH%\openmsxshare.wxs %WIX_INTERMEDIATE_PATH%\openmsxicon.wxs %WIX_INTERMEDIATE_PATH%\zmbvcodec.wxs %WIX_INTERMEDIATE_PATH%\zmbvfiles.wxs %WIX_INTERMEDIATE_PATH%\catapultbin.wxs %WIX_INTERMEDIATE_PATH%\catapultdoc.wxs %WIX_INTERMEDIATE_PATH%\catapultbitmaps.wxs %WIX_INTERMEDIATE_PATH%\catapultdialogs.wxs %WIX_INTERMEDIATE_PATH%\catapulticons.wxs %WIX_INTERMEDIATE_PATH%\catapultauthors.wxs %WIX_INTERMEDIATE_PATH%\catapultgpl.wxs %WIX_INTERMEDIATE_PATH%\catapultreadme.wxs
+light.exe -o %WIX_OUTPUT_FILE% -sw1076 -ext WixUtilExtension -ext WixUIExtension -loc %OPENMSX_PACKAGE_WINDOWS_PATH%\openmsx1033.wxl %WIX_INTERMEDIATE_PATH%\openmsx.wixobj %WIX_INTERMEDIATE_PATH%\openmsxexe.wixobj %WIX_INTERMEDIATE_PATH%\openmsxdoc.wixobj %WIX_INTERMEDIATE_PATH%\openmsxshare.wixobj %WIX_INTERMEDIATE_PATH%\openmsxicon.wixobj %WIX_INTERMEDIATE_PATH%\zmbvcodec.wixobj %WIX_INTERMEDIATE_PATH%\zmbvfiles.wixobj %WIX_INTERMEDIATE_PATH%\catapultbin.wixobj %WIX_INTERMEDIATE_PATH%\catapultdoc.wixobj %WIX_INTERMEDIATE_PATH%\catapultbitmaps.wixobj %WIX_INTERMEDIATE_PATH%\catapultdialogs.wixobj %WIX_INTERMEDIATE_PATH%\catapulticons.wixobj %WIX_INTERMEDIATE_PATH%\catapultauthors.wixobj %WIX_INTERMEDIATE_PATH%\catapultgpl.wixobj %WIX_INTERMEDIATE_PATH%\catapultreadme.wixobj
 
 @endlocal
