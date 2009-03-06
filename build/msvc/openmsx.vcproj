@@ -4874,10 +4874,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ClassDiagram1.cd"
-			>
-		</File>
-		<File
 			RelativePath="..\..\src\CliExtension.cc"
 			>
 		</File>
