@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1234135541">
+<softwaredb xml:lang="en" timestamp="1236408343">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -4405,6 +4405,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>CEZ GS (ComputerEmuzone Game Studio)</company>
 	<year>2009</year>
 	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">0293bc55df4f9b7fb97ae9cded8ab2c5c9ed0fd4</hash><remark>After MSXDEV 08 version</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">bd46981d1b580ec9a2d1d909f5c1a8dfd9a71ed7</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
@@ -5979,6 +5980,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">b656bd19df58fc1ba4628342b87beeec5948e0b3</hash><remark>[tr En][RC-750]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">aa881a2936f368ab887c296b837a8f7f553a3fb2</hash><remark>[tr Sp][RC-750]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">65040fb1e9bc4b2d027d7d81e44be30e7620e368</hash><remark>[RC-750] / Ulver crack / Does not work on Non Japanese systems</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">8449cdf161babec85508c35c8ca64a5c1fd7671d</hash><remark>[RC-750] / French translation by Django</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark>[tr En][RC-750][JP/EU patch]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">31b8b69de88d84aabdb762af1adeac815723562c</hash><remark>[RC-750] / Save to disk</remark></megarom></dump>
 </software>
@@ -7657,6 +7659,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Metal Soft aka Vampier</company>
 	<year>2009</year>
 	<country>EU</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">681c30c7539ec738be2e36ddca408eed392f3b6d</hash><remark>After MSXDEV 08 Version</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
 </software>
 <software>
@@ -7687,7 +7690,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">29a42c2b679bac55a0318ce8c97708e402e2779b</hash><remark>[RC-769] / Needs SCC in slot 2</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">0c62591033aa4e5e6b9eeb21eb2e5e60dcd8ee8e</hash><remark>[RC-769]</remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2312bff70c83e60d1ca0fb9ca78a50637d02771c</hash><remark>[RC-769] / JP-KR</remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Quarth</title>
+	<system>MSX</system>
+	<company>Konami / Daou</company>
+	<year>1990</year>
+	<country>JP/KR</country>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2312bff70c83e60d1ca0fb9ca78a50637d02771c</hash><remark>Korean version / JP-KR</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Quarth Demo Version</title>
@@ -9339,6 +9349,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">00c70cf37c71cb8f99567ae407ff6dd52c4774c2</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">aba839d554733850902f3073f7974e2e87c488ba</hash><remark>French translation by Django</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tengoku Yoitoko - Heaven</title>
@@ -10381,6 +10392,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2187
-Parse time 4.937 seconds on Mon Feb 9 0:25:46 CET 2009
+Roms in this database:2191
+Parse time 4.207 seconds on Sat Mar 7 7:45:47 CET 2009
  -->
