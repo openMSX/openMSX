@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1236408343">
+<softwaredb xml:lang="en" timestamp="1236409680">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -8055,6 +8055,13 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">0d459788b6c464b50cbc2436e67a2cef248e0c4a</hash><remark>[RC-758]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">655b15e8fd81866492bcf2b1d6609211b30efce1</hash><remark>[RC-758] / cheat version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">df15daf1e68e9c8cd95c4431803d86fe6c2f985e</hash><remark>[RC-758] / Ulver crack</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">0b2538fa04604b0f55b49207ab41e29413830403</hash><remark>[RC-758] / Ripple Fix+Trainer</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2530570394b17c895f1860c3a87a6cf1c6e93a72</hash><remark>[RC-758] / Ripple Fix</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">764e74c1cc48cc96f00c501994b8e881370fdb59</hash><remark>[RC-758] / Trainer</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7ca40f36821dbc99ca326fbfda200a1d42dabce6</hash><remark>[RC-758] / FRS dynamic Vsync+trainer</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">96509c8824cbf95843418f3b55f4abf8125e7e57</hash><remark>[RC-758] / FRS dynamic Vsync+Ripple Fix+Trainer</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">41e456910399d4c31894b533c0b2c6ebeac3a47e</hash><remark>[RC-758] / FRS dynamic Vsync+Ripple Fix</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">24f88556ec603e258e6047dd166d9350f53608b2</hash><remark>[RC-758] / FRS dynamic Vsync</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Salamander - Operation X</title>
@@ -10392,6 +10399,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2191
-Parse time 4.207 seconds on Sat Mar 7 7:45:47 CET 2009
+Roms in this database:2198
+Parse time 4.906 seconds on Sat Mar 7 8:08:05 CET 2009
  -->
