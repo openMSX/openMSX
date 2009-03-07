@@ -172,12 +172,21 @@ EmuTime RealDrive::getTimeTillSector(byte sector, EmuTime::param time)
 		return time;
 	}
 	// TODO this really belongs in the Disk class
-	int sectorAngle = ((sector - 1) * (TICKS_PER_ROTATION / 9)) %
-	                  TICKS_PER_ROTATION;
+	int delta;
+	if (sector == 0) {
+		// there is no sector 0 on normal disks, but it triggers with
+		// the following command:
+		//    openmsx -machine Sony_HB-F700D -ext msxdos2 -diska dos2.dsk
+		// we'll just search for a complete rotation
+		delta = TICKS_PER_ROTATION - 1;
+	} else {
+		int sectorAngle = ((sector - 1) * (TICKS_PER_ROTATION / 9)) %
+				  TICKS_PER_ROTATION;
 
-	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
-	int delta = sectorAngle - angle;
-	if (delta < 0) delta += TICKS_PER_ROTATION;
+		int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
+		delta = sectorAngle - angle;
+		if (delta < 0) delta += TICKS_PER_ROTATION;
+	}
 	assert((0 <= delta) && (delta < TICKS_PER_ROTATION));
 
 	EmuDuration dur = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>::
