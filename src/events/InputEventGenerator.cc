@@ -291,6 +291,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		event = new ResizeEvent(evt.resize.w, evt.resize.h);
 		break;
 
+	case SDL_VIDEOEXPOSE:
+		event = new SimpleEvent<OPENMSX_EXPOSE_EVENT>();
+		break;
+
 	case SDL_QUIT:
 		event = new QuitEvent();
 		break;

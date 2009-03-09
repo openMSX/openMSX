@@ -70,6 +70,10 @@ enum EventType
 	OPENMSX_MACHINE_ACTIVATED,
 	OPENMSX_MACHINE_DEACTIVATED,
 
+	/** Send when (part of) the openMSX window gets exposed, and thus
+	  * should be repainted. */
+	OPENMSX_EXPOSE_EVENT,
+
 	OPENMSX_MIDI_IN_READER_EVENT,
 	OPENMSX_MIDI_IN_WINDOWS_EVENT,
 	OPENMSX_RS232_TESTER_EVENT,

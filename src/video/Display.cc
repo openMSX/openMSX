@@ -99,6 +99,8 @@ Display::Display(Reactor& reactor_)
 			*this);
 	eventDistributor.registerEventListener(OPENMSX_MACHINE_LOADED_EVENT,
 			*this);
+	eventDistributor.registerEventListener(OPENMSX_EXPOSE_EVENT,
+			*this);
 
 	renderSettings->getRenderer().attach(*this);
 	renderSettings->getFullScreen().attach(*this);
@@ -114,6 +116,8 @@ Display::~Display()
 	renderSettings->getVideoSource().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
+	eventDistributor.unregisterEventListener(OPENMSX_EXPOSE_EVENT,
+			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_MACHINE_LOADED_EVENT,
 			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
@@ -232,6 +236,10 @@ bool Display::signalEvent(shared_ptr<const Event> event)
 		doRendererSwitch();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
 		setWindowTitle();
+	} else if (event->getType() == OPENMSX_EXPOSE_EVENT) {
+		// Don't render too often, and certainly not when the screen
+		// will anyway soon be rendered.
+		repaintDelayed(100 * 1000); // 10fps
 	}
 	return true;
 }

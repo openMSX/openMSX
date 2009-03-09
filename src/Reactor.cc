@@ -489,7 +489,6 @@ void Reactor::enterMainLoop()
 
 void Reactor::run(CommandLineParser& parser)
 {
-	Display& display = getDisplay();
 	GlobalCommandController& commandController = getGlobalCommandController();
 	getDiskManipulator(); // make sure it gets instantiated
 	                      // (also on machines without disk drive)
@@ -539,18 +538,18 @@ void Reactor::run(CommandLineParser& parser)
 	PollEventGenerator pollEventGenerator(getEventDistributor());
 
 	while (running) {
-		//PRT_DEBUG("Reactor::run While running... clear garbageboards...");
 		garbageBoards.clear(); // see deleteBoard()
-		//PRT_DEBUG("Reactor::run While running... deliver events...");
 		getEventDistributor().deliverEvents();
 		MSXMotherBoard* motherboard = activeBoard.get();
 		bool blocked = (blockedCounter > 0) || !motherboard;
-		//PRT_DEBUG("Reactor::run While running... motherboard execute...");
 		if (!blocked) blocked = !motherboard->execute();
 		if (blocked) {
-			PRT_DEBUG("Reactor::run While running... repaint display...");
-			display.repaint();
-			PRT_DEBUG("Reactor::run While running... sleep...");
+			// At first sight a better alternative is to use the
+			// SDL_WaitEvent() function. Though when inspecting
+			// the implementation of that function, it turns out
+			// to also use a sleep/poll loop, with even shorter
+			// sleep periods as we use here. Maybe in future
+			// SDL implementations this will be improved.
 			getEventDistributor().sleep(100 * 1000);
 		}
 	}

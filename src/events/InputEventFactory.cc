@@ -127,7 +127,7 @@ static EventPtr parseQuitEvent(
 		const string& str, const vector<string>& components)
 {
 	if (components.size() != 1) {
-		throw CommandException("Invalid resize event: " + str);
+		throw CommandException("Invalid quit event: " + str);
 	}
 	return EventPtr(new QuitEvent());
 }
