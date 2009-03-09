@@ -612,13 +612,16 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 	if (type == OPENMSX_QUIT_EVENT) {
 		getCommandController().executeCommand("exit");
 	} else if (type == OPENMSX_FOCUS_EVENT) {
-		if (pauseOnLostFocusSetting.getValue()) {
-			const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
-			if ((focusEvent.getGain() == true) && (pauseSetting.getValue() == false)) {
+		if (!pauseOnLostFocusSetting.getValue()) return;
+		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
+		if (focusEvent.getGain()) {
+			// gained focus
+			if (!pauseSetting.getValue()) {
 				unpause();
-			} else if (focusEvent.getGain() == false) {
-				pause();
 			}
+		} else {
+			// lost focus
+			pause();
 		}
 	} else {
 		assert(false); // we didn't subscribe to this event...
