@@ -6,6 +6,7 @@
 #include "GlobalCommandController.hh"
 #include "CommandConsole.hh"
 #include "InputEventGenerator.hh"
+#include "InputEvents.hh"
 #include "DiskManipulator.hh"
 #include "FilePool.hh"
 #include "UserSettings.hh"
@@ -33,6 +34,7 @@
 #include "Timer.hh"
 #include "serialize.hh"
 #include "openmsx.hh"
+#include "checked_cast.hh"
 #include "statp.hh"
 #include <cassert>
 #include <memory>
@@ -200,6 +202,7 @@ private:
 Reactor::Reactor()
 	: mbSem(1)
 	, pauseSetting(getGlobalSettings().getPauseSetting())
+	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(getCommandController()))
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
@@ -226,6 +229,8 @@ Reactor::Reactor()
 
 	getEventDistributor().registerEventListener(
 		OPENMSX_QUIT_EVENT, *this);
+	getEventDistributor().registerEventListener(
+		OPENMSX_FOCUS_EVENT, *this);
 }
 
 Reactor::~Reactor()
@@ -234,6 +239,8 @@ Reactor::~Reactor()
 
 	getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this);
+	getEventDistributor().unregisterEventListener(
+		OPENMSX_FOCUS_EVENT, *this);
 
 	pauseSetting.detach(*this);
 }
@@ -601,10 +608,20 @@ void Reactor::update(const Setting& setting)
 // EventListener
 bool Reactor::signalEvent(shared_ptr<const Event> event)
 {
-	if (event->getType() == OPENMSX_QUIT_EVENT) {
+	EventType type = event->getType();
+	if (type == OPENMSX_QUIT_EVENT) {
 		getCommandController().executeCommand("exit");
+	} else if (type == OPENMSX_FOCUS_EVENT) {
+		if (pauseOnLostFocusSetting.getValue()) {
+			const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
+			if ((focusEvent.getGain() == true) && (pauseSetting.getValue() == false)) {
+				unpause();
+			} else if (focusEvent.getGain() == false) {
+				pause();
+			}
+		}
 	} else {
-		assert(false);
+		assert(false); // we didn't subscribe to this event...
 	}
 	return true;
 }

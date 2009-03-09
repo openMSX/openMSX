@@ -132,6 +132,7 @@ private:
 	std::auto_ptr<FilePool> filePool;
 
 	BooleanSetting& pauseSetting;
+	BooleanSetting& pauseOnLostFocusSetting;
 	std::auto_ptr<EnumSetting<int> > machineSetting;
 
 	const std::auto_ptr<UserSettings> userSettings;

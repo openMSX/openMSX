@@ -1,5 +1,10 @@
 $Id$
 
+2009-03-09 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added pause_on_lost_focus setting. After enabling it, openMSX will
+	  pause when your cursor leaves the openMSX window. Useful in some
+	  cases. This was default in fMSX, but in openMSX it is off by default.
+
 2009-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split Y8950Adpcm sample generation part in two:
 	  - There is now an emulation and an audio part. See comments in

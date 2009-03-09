@@ -28,6 +28,8 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	        "turns console display on/off", false, Setting::DONT_SAVE));
 	userDirSetting.reset(new StringSetting(commandController,
 	        "user_directories", "list of user directories", ""));
+	pauseOnLostFocusSetting.reset(new BooleanSetting(commandController, "pause_on_lost_focus",
+	       "pause emulation when the openMSX window loses focus", false));
 	umrCallBackSetting.reset(new StringSetting(commandController,
 	        "umr_callback", "Tcl proc to call when an UMR is detected", ""));
 	EnumSetting<SyncMode>::Map syncDirAsDSKMap;
@@ -102,6 +104,11 @@ StringSetting& GlobalSettings::getUMRCallBackSetting()
 StringSetting& GlobalSettings::getUserDirSetting()
 {
 	return *userDirSetting.get();
+}
+
+BooleanSetting& GlobalSettings::getPauseOnLostFocusSetting()
+{
+	return *pauseOnLostFocusSetting.get();
 }
 
 EnumSetting<GlobalSettings::SyncMode>& GlobalSettings::getSyncDirAsDSKSetting()

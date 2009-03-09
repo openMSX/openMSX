@@ -37,6 +37,7 @@ public:
 	BooleanSetting& getAutoSaveSetting();
 	BooleanSetting& getConsoleSetting();
 	StringSetting&  getUserDirSetting();
+	BooleanSetting& getPauseOnLostFocusSetting();
 	StringSetting&  getUMRCallBackSetting();
 	EnumSetting<bool>& getBootSectorSetting();
 	EnumSetting<SyncMode>& getSyncDirAsDSKSetting();
@@ -55,6 +56,7 @@ private:
 	std::auto_ptr<BooleanSetting> autoSaveSetting;
 	std::auto_ptr<BooleanSetting> consoleSetting;
 	std::auto_ptr<StringSetting>  userDirSetting;
+	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
 	std::auto_ptr<EnumSetting<bool> > bootSectorSetting;
 	std::auto_ptr<EnumSetting<SyncMode> > syncDirAsDSKSetting;
