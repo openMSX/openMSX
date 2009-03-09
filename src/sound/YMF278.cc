@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <vector>
 
 namespace openmsx {
 
@@ -162,9 +163,9 @@ private:
 	int pcm_l, pcm_r;
 
 	const std::auto_ptr<Rom> rom;
-	byte* ram;
-	unsigned endRom;
-	unsigned endRam;
+	std::vector<byte> ram;
+	const unsigned endRom;
+	const unsigned endRam;
 
 	/** Precalculated attenuation values with some marging for
 	  * enveloppe and pan levels.
@@ -397,7 +398,7 @@ void YMF278Slot::set_lfo(int newlfo)
 void YMF278Impl::advance()
 {
 	eg_cnt++;
-	for (int i = 0; i < 24; i++) {
+	for (int i = 0; i < 24; ++i) {
 		YMF278Slot& op = slots[i];
 
 		if (op.lfo_active) {
@@ -579,7 +580,7 @@ short YMF278Impl::getSample(YMF278Slot& op)
 
 bool YMF278Impl::anyActive()
 {
-	for (int i = 0; i < 24; i++) {
+	for (int i = 0; i < 24; ++i) {
 		if (slots[i].active) {
 			return true;
 		}
@@ -601,7 +602,7 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 	int vl = mix_level[pcm_l];
 	int vr = mix_level[pcm_r];
 	for (unsigned j = 0; j < num; ++j) {
-		for (int i = 0; i < 24; i++) {
+		for (int i = 0; i < 24; ++i) {
 			YMF278Slot& sl = slots[i];
 			if (!sl.active) {
 				//bufs[i][2 * j + 0] += 0;
@@ -704,7 +705,7 @@ void YMF278Impl::writeReg(byte reg, byte data, EmuTime::param time)
 			           (slot.wave * 12) :
 			           (wavetblhdr * 0x80000 + ((slot.wave - 384) * 12));
 			byte buf[12];
-			for (int i = 0; i < 12; i++) {
+			for (int i = 0; i < 12; ++i) {
 				buf[i] = readMem(base + i);
 			}
 			slot.bits = (buf[0] & 0xC0) >> 6;
@@ -936,24 +937,21 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	, loadTime(motherBoard.getCurrentTime())
 	, busyTime(motherBoard.getCurrentTime())
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
+	, ram(ramSize * 1024) // in kB
+	, endRom(rom->getSize())
+	, endRam(endRom + ram.size())
 {
 	memadr = 0; // avoid UMR
-	setOutputRate(44100);	// make valgrind happy
-
-	endRom = rom->getSize();
-	ramSize *= 1024; // in kb
-	ram = new byte[ramSize];
-	endRam = endRom + ramSize;
-	memset(ram, 0, ramSize);
+	setOutputRate(44100); // make valgrind happy
 
 	reset(motherBoard.getCurrentTime());
 	registerSound(config);
 
 	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < 256; ++i) {
 		volume[i] = int(32768.0 * pow(2.0, (-0.375 / 6) * i));
 	}
-	for (int i = 256; i < 256 * 4; i++) {
+	for (int i = 256; i < 256 * 4; ++i) {
 		volume[i] = 0;
 	}
 }
@@ -961,17 +959,16 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 YMF278Impl::~YMF278Impl()
 {
 	unregisterSound();
-	delete[] ram;
 }
 
 void YMF278Impl::reset(EmuTime::param time)
 {
 	eg_cnt   = 0;
 
-	for (int i = 0; i < 24; i++) {
+	for (int i = 0; i < 24; ++i) {
 		slots[i].reset();
 	}
-	for (int i = 255; i >= 0; i--) { // reverse order to avoid UMR
+	for (int i = 255; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegOPL4(i, 0, time);
 	}
 	wavetblhdr = memmode = memadr = 0;
@@ -1059,7 +1056,7 @@ void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("busyTime", busyTime);
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
-	ar.serialize_blob("ram", ram, endRam - endRom);
+	ar.serialize_blob("ram", &ram[0], ram.size());
 	ar.serialize_blob("registers", regs, sizeof(regs));
 
 	// TODO restore more state from registers
