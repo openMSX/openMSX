@@ -6,8 +6,10 @@
 #include <fstream>
 #include <algorithm>
 #include <cassert>
+#include <cstdio>
 #include <ctype.h>
 #include <time.h>
+#include <stdarg.h>
 
 using std::string;
 using std::vector;
@@ -15,6 +17,19 @@ using std::fstream;
 using std::ios;
 
 namespace openmsx {
+
+static void DBERR(const char* message, ...)
+{
+	(void)message;
+#if 0
+	va_list args;
+	va_start(args, message);
+	printf("nowind: ");
+	vprintf(message, args);
+	va_end(args);
+#endif
+}
+
 
 NowindHost::NowindHost(const vector<DiskContainer*>& drives_)
 	: drives(drives_)
@@ -133,6 +148,15 @@ void NowindHost::write(byte data, unsigned time)
 			state = STATE_SYNC1;
 		}
 		break;
+	case STATE_MESSAGE:
+		assert(recvCount < (240 - 1));
+		extraData[recvCount] = data;
+		if ((data == 0) || (++recvCount == (240 - 1))) {
+			extraData[recvCount] = 0;
+			DBERR("%s\n", reinterpret_cast<char*>(extraData));
+			state = STATE_SYNC1;
+		}
+		break;
 	default:
 		assert(false);
 	}
@@ -143,6 +167,7 @@ void NowindHost::msxReset()
 	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
 		devices[i].fs.reset();
 	}
+	DBERR("MSX reset\n");
 }
 
 SectorAccessibleDisk* NowindHost::getDisk() const
@@ -216,7 +241,8 @@ void NowindHost::executeCommand()
 	//case 0x8D: deviceEof(fcb);
 	//case 0x8E: auxIn();
 	//case 0x8F: auxOut();
-	case 0xA0: state = STATE_IMAGE; recvCount = 0; break;
+	case 0x90: state = STATE_MESSAGE; recvCount = 0; break;
+	case 0xA0: state = STATE_IMAGE;   recvCount = 0; break;
 	//case 0xFF: vramDump();
 	default:
 		// Unknown USB command!

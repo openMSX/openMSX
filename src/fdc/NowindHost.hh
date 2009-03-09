@@ -51,6 +51,7 @@ public:
 		STATE_DISKWRITE, // waiting for AA<data>AA
 		STATE_DEVOPEN,   // waiting for filename (11 bytes)
 		STATE_IMAGE,     // waiting for filename
+		STATE_MESSAGE,   // waiting for null-terminated message
 	};
 
 private:
