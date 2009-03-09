@@ -130,3 +130,13 @@ proc step_over {} {
 		debug step
 	}
 }
+
+#
+# skip one instruction
+#
+set_help_text skip_instruction \
+{Skip the current instruction. In other words increase the program counter with the length of the current instruction.}
+proc skip_instruction {} {
+	set pc [reg pc]
+	reg pc [expr $pc + [llength [debug disasm $pc]] - 1]
+}
