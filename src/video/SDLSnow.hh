@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class OutputSurface;
+class Display;
 
 /** Snow effect for background layer.
   */
@@ -16,7 +17,7 @@ template <class Pixel>
 class SDLSnow : public Layer, private noncopyable
 {
 public:
-	explicit SDLSnow(OutputSurface& output);
+	SDLSnow(OutputSurface& output, Display& display);
 
 	// Layer interface:
 	virtual void paint();
@@ -24,6 +25,7 @@ public:
 
 private:
 	OutputSurface& output;
+	Display& display;
 
 	/** Gray values for noise.
 	  */

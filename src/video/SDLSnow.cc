@@ -2,6 +2,7 @@
 
 #include "SDLSnow.hh"
 #include "OutputSurface.hh"
+#include "Display.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
 #include <cstring>
@@ -9,9 +10,10 @@
 namespace openmsx {
 
 template <class Pixel>
-SDLSnow<Pixel>::SDLSnow(OutputSurface& output_)
+SDLSnow<Pixel>::SDLSnow(OutputSurface& output_, Display& display_)
 	: Layer(COVER_FULL, Z_BACKGROUND)
 	, output(output_)
+	, display(display_)
 {
 	// Precalc gray values for noise
 	for (unsigned i = 0; i < 256; ++i) {
@@ -52,7 +54,7 @@ void SDLSnow<Pixel>::paint()
 		memcpy(p1, p0, width * sizeof(Pixel));
 	}
 
-	// TODO: Mark dirty in 100ms.
+	display.repaintDelayed(100 * 1000); // 10fps
 }
 
 template <class Pixel>

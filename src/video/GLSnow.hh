@@ -9,12 +9,14 @@
 
 namespace openmsx {
 
+class Display;
+
 /** Snow effect for background layer.
   */
 class GLSnow : public Layer, private noncopyable
 {
 public:
-	GLSnow(unsigned width, unsigned height);
+	GLSnow(Display& display, unsigned width, unsigned height);
 	virtual ~GLSnow();
 
 	// Layer interface:
@@ -22,6 +24,7 @@ public:
 	virtual const std::string& getName();
 
 private:
+	Display& display;
 	const unsigned width;
 	const unsigned height;
 	GLuint noiseTextureId;

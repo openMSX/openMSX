@@ -17,7 +17,7 @@ public:
 
 	virtual void takeScreenShot(const std::string& filename);
 
-	virtual std::auto_ptr<Layer> createSnowLayer();
+	virtual std::auto_ptr<Layer> createSnowLayer(Display& display);
 	virtual std::auto_ptr<Layer> createConsoleLayer(Reactor& reactor);
 	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
 };

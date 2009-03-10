@@ -39,7 +39,7 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
 	resize();
 
 	console = screen->createConsoleLayer(reactor);
-	snowLayer = screen->createSnowLayer();
+	snowLayer = screen->createSnowLayer(display);
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
 	display.addLayer(*console);
 	display.addLayer(*snowLayer);

@@ -32,7 +32,7 @@ public:
 	virtual void finish() = 0;
 	virtual void takeScreenShot(const std::string& filename) = 0;
 
-	virtual std::auto_ptr<Layer> createSnowLayer() = 0;
+	virtual std::auto_ptr<Layer> createSnowLayer(Display& display) = 0;
 	virtual std::auto_ptr<Layer> createConsoleLayer(
 		Reactor& reactor) = 0;
 	virtual std::auto_ptr<Layer> createOSDGUILayer(

@@ -82,16 +82,16 @@ void SDLVisibleSurface::takeScreenShot(const std::string& filename)
 	}
 }
 
-std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer()
+std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
 {
 	switch (getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 	case 2:
-		return std::auto_ptr<Layer>(new SDLSnow<word>(*this));
+		return std::auto_ptr<Layer>(new SDLSnow<word>(*this, display));
 #endif
 #if HAVE_32BPP
 	case 4:
-		return std::auto_ptr<Layer>(new SDLSnow<unsigned>(*this));
+		return std::auto_ptr<Layer>(new SDLSnow<unsigned>(*this, display));
 #endif
 	default:
 		assert(false);

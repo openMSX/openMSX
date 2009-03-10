@@ -1,6 +1,7 @@
 // $Id$
 
 #include "GLSnow.hh"
+#include "Display.hh"
 #include "openmsx.hh"
 #include <cstdlib>
 
@@ -8,8 +9,9 @@ using std::string;
 
 namespace openmsx {
 
-GLSnow::GLSnow(unsigned width_, unsigned height_)
+GLSnow::GLSnow(Display& display_, unsigned width_, unsigned height_)
 	: Layer(COVER_FULL, Z_BACKGROUND)
+	, display(display_)
 	, width(width_), height(height_)
 {
 	// Create noise texture.
@@ -66,7 +68,7 @@ void GLSnow::paint()
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
-	// TODO: Mark dirty in 100ms.
+	display.repaintDelayed(100 * 1000); // 10fps
 }
 
 const string& GLSnow::getName()

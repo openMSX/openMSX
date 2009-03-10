@@ -180,9 +180,9 @@ void SDLGLVisibleSurface::takeScreenShot(const std::string& filename)
 	ScreenShotSaver::save(width, height, rowPointers, filename);
 }
 
-std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
+std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
 {
-	return std::auto_ptr<Layer>(new GLSnow(getWidth(), getHeight()));
+	return std::auto_ptr<Layer>(new GLSnow(display, getWidth(), getHeight()));
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
