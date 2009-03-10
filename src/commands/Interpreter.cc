@@ -259,6 +259,14 @@ const char* Interpreter::getVariable(const string& name) const
 	return getVar(interp, name.c_str());
 }
 
+static string getSafeValueString(Setting& setting)
+{
+	try {
+		return setting.getValueString();
+	} catch (MSXException& e) {
+		return "proxy";
+	}
+}
 void Interpreter::registerSetting(Setting& variable, const string& name)
 {
 	const char* tclVarValue = getVariable(name);
@@ -267,7 +275,7 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 		variable.setValueStringDirect(tclVarValue);
 	} else {
 		// define Tcl var
-		setVariable(name, variable.getValueString());
+		setVariable(name, getSafeValueString(variable));
 	}
 	long traceID = traceCount++;
 	traceMap[traceID] = &variable;
@@ -339,7 +347,12 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 		static string static_string;
 		if (flags & TCL_TRACE_READS) {
-			setVar(interp, part1, variable->getValueString().c_str());
+			try {
+				setVar(interp, part1, variable->getValueString().c_str());
+			} catch (MSXException& e) {
+				static_string = e.getMessage();
+				return const_cast<char*>(static_string.c_str());
+			}
 		}
 		if (flags & TCL_TRACE_WRITES) {
 			try {
@@ -351,7 +364,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 					setVar(interp, part1, newValue2.c_str());
 				}
 			} catch (MSXException& e) {
-				setVar(interp, part1, variable->getValueString().c_str());
+				setVar(interp, part1, getSafeValueString(*variable).c_str());
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
@@ -363,13 +376,13 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// doesn't exist at this point
 				variable->setValueStringDirect(
 					variable->getRestoreValueString());
-			} catch (CommandException&) {
+			} catch (MSXException&) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource
 				// setting before turning on (set power on) the
 				// MSX machine)
 			}
-			setVar(interp, part1, variable->getValueString().c_str());
+			setVar(interp, part1, getSafeValueString(*variable).c_str());
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
 			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 			             traceProc,

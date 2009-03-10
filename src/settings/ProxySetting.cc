@@ -5,6 +5,7 @@
 #include "MSXCommandController.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXException.hh"
 #include "checked_cast.hh"
 
 using std::string;
@@ -54,7 +55,7 @@ string ProxySetting::getValueString() const
 	if (const Setting* setting = getSetting()) {
 		return setting->getValueString();
 	} else {
-		return "proxy";
+		throw MSXException("No setting '" + getName() + "' on current machine.");
 	}
 }
 
@@ -81,6 +82,8 @@ void ProxySetting::setValueStringDirect(const string& valueString)
 	if (Setting* setting = getSetting()) {
 		// note: not setValueStringDirect()
 		setting->changeValueString(valueString);
+	} else {
+		throw MSXException("No setting '" + getName() + "' on current machine.");
 	}
 }
 
