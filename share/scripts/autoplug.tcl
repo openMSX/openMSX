@@ -2,7 +2,12 @@
 # in the cassetteplayer
 
 proc __do_autoplug {} {
-	if { [lsearch [machine_info connector] "cassetteport"] != -1 } {
+	set connectors [list]
+	catch {
+		#can fail when you activate an 'empty' machine
+		set connectors [machine_info connector]
+	}
+	if {[lsearch $connectors "cassetteport"] != -1} {
 		if {[string first "--empty--" [plug cassetteport]] != -1} {
 			# only when nothing already plugged
 			plug cassetteport cassetteplayer
