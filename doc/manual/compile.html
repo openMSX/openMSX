@@ -40,10 +40,14 @@
 	<li><a class="internal" href="#local">4. Binary for Local System</a>
 		<ol class="toc">
 			<li><a class="internal" href="#compilelocal">4.1 Compilation</a></li>
-			<li><a class="internal" href="#install">4.2 Installation</a></li>
+			<li><a class="internal" href="#installlocal">4.2 Installation</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#standalone">5. Stand-alone Binary</a></li>
+	<li><a class="internal" href="#standalone">5. Stand-alone Binary</a><ol class="toc">
+		<li><a class="internal" href="#compilestandalone">5.1 Compilation</a></li>
+		<li><a class="internal" href="#installstandalone">5.2 Installation</a></li>
+	</ol>
+	</li>
 	<li><a class="internal" href="#next">6. Next Steps</a></li>
 <li><a class="internal" href="#contact">7. Contact Info</a></li>
 </ol>
@@ -117,31 +121,47 @@ has all the necessary build tools installed, as well as the libraries
 openMSX depends upon. The following sections tell you how you can prepare your system.
 </p>
 <p>
-Every section starts with generic instructions, that apply to all platforms. At the end of each section, platform specific notes cover differences or additional steps for certain platforms.
+Every section starts with generic instructions, that apply to all platforms and 
+compilers. At the end of each section, platform specific notes cover differences or additional steps for certain platforms 
+or compilers.
 </p>
 
 <h3><a id="tools">2.1 Build Tools</a></h3>
 
 <p>
-For compilation, you need GNU Make, Python and a C++ compiler.
+For compilation, you need <a href="http://www.python.org/download/">Python</a>, a C++ compiler, 
+and some compiler-specific programs.
 If you have compiled packages from source before,
-you probably have these installed already.
+you probably some of have these installed already. The following sections 
+describe
 </p>
 
 <dl>
 
-<dt><code>make</code></dt>
+<dt> <a href="http://www.python.org/download/">Python</a></dt>
+<dd>A compact and dynamic programming language. Version 2.5 or later is 
+required. However, Python 3.0 contains incompatible changes in the language, so 
+make sure you install a version from the 2.x series. Eventually Python will 
+replace Make completely in our build system, but at the moment both are 
+required.</dd>
+	<dt>There are two compilers that are can be used to build openMSX: gcc 
+	and Visual C++. The gcc compiler builds openMSX on all supported platforms, 
+	while Visual C++ is an alternative option on Windows.</dt>
+
+</dl>
+
+	<h4>gcc</h4>
+	
+	<p>For compilation with gcc, you need GNU Make and g++:</p>
+	
+<dl>
+
+	<dt>make</dt>
 <dd>GNU implementation of the Make tool.
 Make interprets rules that define how a project should be built.
 Version 3.79 or higher should suffice.</dd>
 
-<dt><code>python</code></dt>
-<dd>A compact and dynamic programming language.
-Version 2.5 or later is required. However, Python 3.0 contains incompatible changes in the language, so make sure you install a version from the 2.x series.
-Eventually Python will replace Make completely in our build system, but at the moment both are required.
-</dd>
-
-<dt><code>g++</code></dt>
+<dt>g++</dt>
 <dd>The GNU C++ compiler.
 Version 4.1 or later is recommended; any version lower than 3.4 will not be able to build openMSX at all.
 </dd>
@@ -169,7 +189,49 @@ Double click on the MinGW package after downloading, choose "Download and Instal
 <p>Note: there is a bug in the <a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=2435&amp;package_id=11598">MinGW Runtime (mingwrt)</a> package version 3.15.1, which will cause FreeType not to compile (and probably more). This has been reported <a class="external" href="http://thread.gmane.org/gmane.comp.gnu.mingw.user/27765">here</a> and the fix in the code can be found <a class="external" href="http://cygwin.com/cgi-bin/cvsweb.cgi/src/winsup/mingw/include/stdlib.h.diff?r1=1.36&amp;r2=1.37&amp;cvsroot=src&amp;f=h">here</a>. You need to apply this small fix to your MinGW <code>stdlib.h</code> header file in order to be able to compile openMSX, if you are using this version of the MinGW run time package.
 </p>
 
-<h3><a id="libs">2.2 Libraries</a></h3>
+<h4>Visual C++</h4>
+
+<p>There are three different ways to obtain the Visual C++ compiler:</p>
+<dl>
+
+<dt>
+<a href="http://msdn.microsoft.com/en-us/vstudio/default.aspx">Visual C++ 2008</a></dt>
+<dd>This is the professional IDE that comes with Visual Studio, as a standalone 
+purchase, or via an MSDN subscription.</dd>
+
+	<dt><a href="http://msdn.microsoft.com/en-us/windows/bb980924.aspx">Windows 
+	SDK</a></dt>
+	<dd>This is a free (as in beer) command line environment that provides 
+	a full set of compilers, headers and libraries. This is the best option for 
+	people who simply wish to build openMSX with minimal hassle. It is a large 
+	download.</dd>
+	<dt><a href="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</a></dt>
+	<dd>This is a free (again as in beer) IDE and 
+	development environment. It builds 32-bit binaries out of the box, and can 
+	be made to build 64-bit binaries with 
+	some
+		<a href="http://social.msdn.microsoft.com/Forums/en-US/Vsexpressvc/thread/38544c63-d12a-4a05-9ea7-5b4124152801/">
+		coaxing</a>. This is the best option for developers looking to browse the code or use other benefits of an 
+	IDE. It's also a smaller download than the Windows SDK.</dd>
+	<dt>For compilation with Visual C++, you need the
+<a href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a>. 
+	To generate an MSI installer, you need <a href="http://wix.sourceforge.net/">WiX</a>.</dt>
+
+</dl>
+	
+<dl>
+
+	<dt>
+<a href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a></dt>
+<dd>SDK containing DirectX headers and libs. Any recent version will suffice. 
+The November 2008 version has been confirmed to work. This too is a large 
+download.</dd>
+
+<dt> <a href="http://wix.sourceforge.net/">WiX</a></dt>
+<dd>A tool that generates MSI installers. Version 3.0 or higher is required.</dd>
+
+</dl>
+	<h3><a id="libs">2.2 Libraries</a></h3>
 
 <p>
 openMSX depends on the following libraries:
@@ -208,10 +270,10 @@ openMSX depends on the following libraries:
 
 </dl>
 
+<h4>gcc</h4>
 <p>
 You can install the required libraries systemwide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. Systemwide is recommended if you run a modular operating system (such as Linux, BSD or Mac OS X with MacPorts or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain Mac OS X or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
 </p>
-
 <h5>Debian and Ubuntu Linux</h5>
 <p>
 You can easily install all required packages using the "build dependencies" feature of the APT package manager:
@@ -232,7 +294,7 @@ Applications that use a library only require the runtime package to be installed
 <h5>Mac OS X</h5>
 
 <p>
-The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which will get the libraries automatically. If you want to do things manually, you can get the libraries from either
+The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a>  method, which will get the libraries automatically. If you want to do things manually, you can get the libraries from either
 <a class="external" href="http://www.macports.org/">MacPorts</a>
 or
 <a class="external" href="http://www.finkproject.org/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports).
@@ -245,9 +307,26 @@ If you are using Fink, you should install the packages
 <h5>Microsoft Windows</h5>
 
 <p>
-We strongly recommend to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which means the openMSX build system will download and compile all libraries automatically.
+We strongly recommend using the <a class="internal" href="#standalone">Stand-alone 
+Binary</a> method, which means the openMSX build system will download and compile all libraries automatically.
 </p>
 
+<h4>Visual C++</h4>
+
+<p>
+When building with Visual C++, the optional libraries mentioned above are 
+arranged as follows:</p>
+<ul>
+	<li>Headers and libraries for OpenGL are included with Visual C++.</li>
+	<li>The GLEW library is required.</li>
+	<li>The JACK library is not supported.</li>
+</ul>
+<p>
+Also, when building with Visual C++, the &quot;3rd party libraries&quot; support in the openMSX 
+build system must be used. The resulting binary statically links in all 
+dependencies, including the C runtime. For more details, please see the <a class="internal" href="#standalone">
+Stand-alone Binary</a> chapter.
+</p>
 <h2><a id="getsource">3. Getting the Source Code</a></h2>
 
 <p>
@@ -287,7 +366,7 @@ Also there may be changes that are not documented yet.
 <dt><a class="internal" href="#getsnapshot">SVN Snapshot</a></dt>
 <dd>
 A snapshot is created from a recent SVN checkout,
-in a <code>tar.gz</code> archive.
+in a <code>tar.gz</code>  archive.
 A snapshot is therefore quite similar to a SVN checkout,
 but it doesn't require you to install and use SVN. It may lag a couple of days from the latest SVN sources. Moreover, SF.net turned off cron jobs, which means the snapshots may be updated on a very irregular basis.
 </dd>
@@ -322,14 +401,13 @@ The latest version is probably the best one. This guide assumes that you are usi
 </p>
 
 <p>
-After downloading, type:
+After downloading, type the following in a UNIX or MSYS shell, or use another 
+decompression tool:
 </p>
 <div class="commandline">tar xzvf openmsx-VERSION.tar.gz</div>
 <p>
 in which <code>VERSION</code> is the openMSX version you downloaded, or use the
-file name you saved the tar.gz file with. This works in a UNIX or MSYS shell,
-you can also use another decompression tool, of course.
-The directory that is created by uncompressing the <code>tar.gz</code> file
+file name you saved the tar.gz file with. The directory that is created by uncompressing the <code>tar.gz</code> file
 is called <em>the top of the source tree</em>.
 </p>
 
@@ -341,11 +419,16 @@ of the source code of openMSX.
 This means you will need to install an SVN client.
 This package is usually named <code>subversion</code>.
 There are graphical front-ends for SVN,
-but this guide will tell you how to use SVN from the command line.
-More information about SVN can be found on the <a class="external"
-href="http://svnbook.red-bean.com/en/1.1/">Subversion book</a> site. Windows
-users might want to look at <a class="external"
-href="http://tortoisesvn.tigris.org/">TortoiseSVN</a>.
+but this guide will tell you how to use SVN from the command line. More information about SVN can be found on the <a class="external"
+href="http://svnbook.red-bean.com/en/1.1/">Subversion book</a> site.</p>
+<p>
+Windows
+users might want to look at <a href="http://www.sliksvn.com/en/download">SlikSVN</a> 
+for a command line tool,
+<a class="external"
+href="http://tortoisesvn.tigris.org/">TortoiseSVN</a> for Windows Explorer 
+integration, or <a href="http://ankhsvn.open.collab.net/">ankhSVN</a> for Visual 
+Studio integration.
 </p>
 
 <p>
@@ -364,7 +447,11 @@ to retrieve (<em>trunk</em> in this case, which is the main development branch) 
 checked out to (we chose <em>openMSX</em> in this example).
 </p>
 
-<p>In TortoiseSVN, use <code>https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk</code> as "URL of repository" and e.g. <code>C:\msys\1.0\home\&lt;username&gt;\openMSX</code> (this is easy to reach from an MSYS shell, it's your MSYS home directory) as "Checkout directory". Use the <code>HEAD</code> revision and click OK.
+<p>In TortoiseSVN, use <code>https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk</code> as 
+the "URL of repository&quot; and the directory of your choice as the "Checkout directory". Use the <code>HEAD</code> revision and click OK. 
+When compiling openMSX on Windows with gcc, it's often convenient to use <code>C:\msys\1.0\home\&lt;username&gt;\openMSX</code> 
+as the checkout directory, as this is easy to reach from an MSYS shell - it's 
+your MSYS home directory.
 </p>
 
 <p>
@@ -392,7 +479,7 @@ go to the top of the source tree and type:
 svn up
 </div>
 <p>
-or rightclick on the openMSX directory in your Windows explorer and select "SVN Update".
+or right click on the openMSX directory in Windows Explorer and select "SVN Update".
 </p>
 
 <h3><a id="getsnapshot">3.3 SVN Snapshot</a></h3>
@@ -405,12 +492,11 @@ href="http://openmsx.sourceforge.net/temp/openmsx-SVN-snapshot.tar.gz"
 </p>
 
 <p>
-After downloading, type:
+After downloading, type the following in a UNIX or MSYS shell, or use another 
+decompression tool:
 </p>
 <div class="commandline">tar xzvf openmsx-SVN-snapshot.tar.gz</div>
 <p>
-This works in a UNIX or MSYS shell, you can also use another decompression
-tool, of course.
 The directory that is created by uncompressing the <code>tar.gz</code> file
 is called <em>the top of the source tree</em>.
 </p>
@@ -427,6 +513,7 @@ This section explains how to build openMSX for a local system. If you want to cr
 Now that all the necessary tools and libraries are installed,
 you are almost ready to start the actual compilation of openMSX.
 </p>
+<h4>gcc</h4>
 
 <p>
 The first thing you may want to know is that you can build openMSX in
@@ -524,7 +611,14 @@ If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</co
 By default, only the openMSX executable itself is produced. If you want to create an application folder, define <code>export OPENMSX_TARGET_OS=darwin-app</code> before compilation. This application folder will still depend on the systemwide libraries, so it will not work on Macs without those libraries. But unlike the plain executable, it has a high resolution icon.
 </p>
 
-<h3><a id="install">4.2 Installation</a></h3>
+<h4>Visual C++</h4>
+
+<p>
+While it is possible to configure the supplied Visual C++ project files to 
+dynamically link against import libraries, this is not currently supported.</p>
+<h3><a id="installlocal">4.2 Installation</a></h3>
+
+<h4>gcc</h4>
 
 <p>
 To install openMSX, run the following command:
@@ -558,7 +652,13 @@ This chapter describes how to build a binary of openMSX that does not depend on 
 </p>
 
 <p>
-The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX. If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile.
+The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX.</p>
+
+<h3><a id="compilestandalone">5.1 Compilation</a></h3>
+
+<h4>gcc</h4>
+<p>
+If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile.
 </p>
 
 <p>
@@ -584,19 +684,102 @@ The final output is a DMG file (Mac disk image) containing the openMSX applicati
 <h5>Microsoft Windows</h5>
 
 <p>
-Here's the very short version if you want quick results on Microsoft Windows:
+Here's the very short version if you want quick results on Microsoft Windows 
+with gcc:
 </p>
 <ul>
-<li>open an MSYS shell</li>
-<li>go to the <em>top of the source tree</em> (e.g.: <code>cd openMSX</code> if you chose the MSYS home directory as checkout directory)</li>
-<li>type: <code>make staticbindist</code></li>
+<li>Open an MSYS shell</li>
+<li>Go to the <em>top of the source tree</em> (e.g.: <code>cd openMSX</code> if you chose the MSYS home directory as checkout directory)</li>
+<li>Type: <code>make staticbindist</code></li>
 </ul>
-<p>You get a complete package in <code>derived\x86-mingw32-i686-3rd\bindist\install</code>.
+<p>A complete package will be created in <code>derived\x86-mingw32-i686-3rd\bindist\install</code>.
 </p>
 
 <p>
 If you additionally want to build the openMSX installer, you should refer to the <code>package-win32</code> module in our Subversion repository. It contains a README file with a manual.
 </p>
+
+<h4>Visual C++</h4>
+
+<p>When building with Visual C++, the result is a static executable with minimal 
+dynamic library dependencies. Two platforms are supported:</p>
+<ul>
+	<li>Win32 - a 32-bit binary that runs on both 32 and 64-bit versions of Windows</li>
+	<li>x64 - a 64-bit binary that runs only on 64-bit versions of Windows</li>
+</ul>
+<p>Three different configurations are supported:</p>
+<ul>
+	<li>Debug: assertions enabled, debug prints enabled, no optimization</li>
+	<li>Developer: assertions enabled, debug prints disabled, no optimization</li>
+	<li>Release: assertions disabled, debug prints disabled, full optimization</li>
+</ul>
+<!-- TODO - Replace this section when we have integration with the broader 3rd party system -->
+<p>In order to build openMSX, the following 3rd party libraries need to be 
+downloaded and unzipped into derived\3rdparty\src</p>
+<ul>
+	<li>ft237.zip</li>
+	<li>glew-1.5.1-src.zip</li>
+	<li>libpng-1.2.35.tar.gz</li>
+	<li>libxml2-2.7.2.tar.gz</li>
+	<li>SDL-1.2.13.zip</li>
+	<li>SDL_image-1.2.7.zip</li>
+	<li>SDL_ttf-2.0.9.zip</li>
+	<li>tcl856-src.zip</li>
+	<li>zlib-1.2.3.tar.gz</li>
+</ul>
+<p>
+The following steps build openMSX:</p>
+<ul>
+<li>Open a Visual Studio command prompt. A shortcut can usually be found in your start 
+menu.
+<ul>
+	<li>For Visual C++ 2008, it will be in &quot;Microsoft Visual Studio 2008\Visual 
+	Studio Tools&quot; as the &quot;Visual Studio 2008 Command Prompt&quot;</li>
+	<li>For the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the 
+	&quot;CMD Shell&quot;</li>
+</ul>
+	<li>Go to the <em>top of the openMSX source tree</em></li>
+	<li>To build all 3rd party libraries, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>Win32</strong> build\3rdparty\3rdparty.sln</code></li>
+	<li>To build openMSX, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>Win32</strong> build\msvc\openmsx.sln</code></li>
+</ul>
+
+<p>The openMSX executable will be generated in <code>derived\Win32-VC-Release\install</code>.</p>
+<p>To build for other platforms or configurations, simply replace &quot;Release&quot; and 
+&quot;Win32&quot;&nbsp;in the command lines above with the desired options.</p>
+<p>To build from the Visual C++ or Express IDE, simply open the aforementioned 
+solution files and from the Build menu select &quot;Build Solution&quot;. This 
+is exactly equivalent to running msbuild from a command - the two methods can be 
+safely used interchangeably.</p>
+<h3><a id="installstandalone">5.2 Installation</a></h3>
+
+<!-- TODO - generalize this for both MinGW and VC++, integrate into make install -->
+<!-- TODO - ensure wxCatapult is optional -->
+<h4>Visual C++</h4>
+<p>
+The following step create an installer package for openMSX 
+on Windows:</p>
+<ul>
+	<li>Build <a href="#standalone_compilation">openMSX</a> and 
+	<a href="http://openmsx.sourceforge.net/catapult-manual/compile.html">wxCatapult</a> 
+	for a given platform (Win32 or x64) and configuration (usually Release 
+	builds)</li>
+	<li>Go to the <em>top of the openMSX source tree</em></li>
+	<li>Run <code>build\package-windows\package.cmd <strong>arch</strong>
+	<strong>configuration</strong> <strong>version</strong> <strong>catapult_source_path</strong></code>, where:<ul>
+		<li><strong>arch</strong> is one of { x86, x64 }</li>
+		<li><strong>configuration</strong> is one of { Release, Developer, Debug }</li>
+		<li><strong>version</strong> is the desired version number: e.g. 0.7.1</li>
+		<li><strong>catapult_source_path</strong> is the path to the wxCatapult directory</li>
+	</ul>
+	</li>
+</ul>
+
+<p>An example command line would be:</p>
+<div class="commandline">
+	build\package-windows\package.cmd x64 Release 0.7.1 ..\wxCatapult</div>
+	
+<p>The resulting MSI can be found in <code>derived\x64-VC-Release\package-windows</code> 
+and will be named <code>openmsx-0.7.1-VC-x64.msi</code>.</p>
 
 <h2><a id="next">6. Next Steps</a></h2>
 
@@ -688,10 +871,16 @@ open derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist/openMSX.app
 We do not have a finished GUI yet that works on Mac OS X, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a> or <a class="external" href="http://www.cescoware.com/">openMSX Peashooter</a>.
 </p>
 
+<h5>Microsoft Windows</h5>
+
+<p>
+You can use the <a href="http://openmsx.sourceforge.net/catapult-manual/">
+Catapult</a> launcher to run openMSX.</p>
+
 <h2><a id="contact">7. Contact Info</a></h2>
 
 <p>
-Since openMSX is still in heavy development, feedback and bug reports are very
+Since openMSX is still under heavy development, feedback and bug reports are very
 welcome!
 </p>
 
@@ -731,20 +920,25 @@ Post a message on the forum on <a class="external" href="http://www.openmsx.org/
 </ol>
 
 <p>
-For experienced users: if you get a crash,
+In all cases, please provide as much information as possible when you describe your
+bug or request.
+</p>
+
+<h4>gcc</h4><p>For experienced users: if you get a crash or a hang,
 try to provide a <code>gdb</code> backtrace.
 This will only work if you did not strip the openMSX binary
-of its debug symbols.
+of its debug symbols.</p>
 
-Another useful thing to do is to install the debug versions of libstdc++ and libc6,
+<p>Another useful thing to do is to install the debug versions of libstdc++ and libc6,
 and then run openmsx with an <code>LD_LIBRARY_PATH=/usr/lib/debug</code> exported in the environment.
 This will give a more detailed stacktrace, especially in optimized code.
 </p>
 
-<p>
-In any case, try to give as much information as possible when you describe your
-bug or request.
-</p>
+<h4>Visual C++</h4><p>For experienced users: if you get a crash or a hang, 
+try to provide a user dump. This will work for any openMSX binary, including 
+pre-built binaries obtained from <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a>. 
+For more information on generating a user dump, please read
+<a href="http://support.microsoft.com/kb/241215">KB241215</a>.</p>
 
 <p class="version">
 $Id$
