@@ -17,6 +17,7 @@
 #include "EventDistributor.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "Version.hh"
 #include "checked_cast.hh"
 #include "utf8_unchecked.hh"
@@ -44,20 +45,16 @@ CommandConsole::CommandConsole(
 	, eventDistributor(eventDistributor_)
 	, display(display_)
 	, consoleSetting(commandController.getGlobalSettings().getConsoleSetting())
+	, historySizeSetting(new IntegerSetting(commandController, "console_history_size",
+		"amount of commands kept in console history", 100, 0, 10000))
+	, removeDoublesSetting(new BooleanSetting(commandController,
+		"console_remove_doubles", "don't add the command to history if "
+		"it's the same as the previous one", true))
 {
 	resetScrollBack();
 	prompt = PROMPT1;
 	newLineConsole(prompt);
 	putPrompt();
-	maxHistory = 100;
-	removeDoubles = true;
-	if (const XMLElement* config = commandController.getSettingsConfig().
-		                        getXMLElement().findChild("Console")) {
-		maxHistory = config->getChildDataAsInt(
-			"historysize", maxHistory);
-		removeDoubles = config->getChildDataAsBool(
-			"removedoubles", removeDoubles);
-	}
 	loadHistory();
 	Completer::setOutput(this);
 
@@ -288,12 +285,15 @@ void CommandConsole::putCommandHistory(const string& command)
 	if (command == prompt) {
 		return;
 	}
-	if (removeDoubles && !history.empty() && (history.back() == command)) {
+	if (removeDoublesSetting->getValue() && !history.empty()
+		&& (history.back() == command)) {
 		return;
 	}
 
 	history.push_back(command);
-	if (history.size() > maxHistory) {
+
+	// if necessary, shrink history to the desired (smaller) size
+	while (history.size() > unsigned(historySizeSetting->getValue())) {
 		history.pop_front();
 	}
 }

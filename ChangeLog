@@ -1,5 +1,9 @@
 $Id$
 
+2009-03-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Convert ancient history_size and remove_doubles settings to modern
+	  settings. They influence how openMSX handles console history.
+
 2009-03-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added pause_on_lost_focus setting. After enabling it, openMSX will
 	  pause when your cursor leaves the openMSX window. Useful in some

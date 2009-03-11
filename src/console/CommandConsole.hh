@@ -10,6 +10,7 @@
 #include "noncopyable.hh"
 #include <list>
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
@@ -17,6 +18,7 @@ class CommandController;
 class EventDistributor;
 class KeyEvent;
 class BooleanSetting;
+class IntegerSetting;
 class Display;
 
 class CommandConsole : private EventListener,
@@ -71,6 +73,8 @@ private:
 	EventDistributor& eventDistributor;
 	Display& display;
 	BooleanSetting& consoleSetting;
+	std::auto_ptr<IntegerSetting> historySizeSetting;
+	std::auto_ptr<BooleanSetting> removeDoublesSetting;
 
 	static const int LINESHISTORY = 1000;
 	CircularBuffer<std::string, LINESHISTORY> lines;
@@ -81,14 +85,11 @@ private:
 	typedef std::list<std::string> History;
 	History history;
 	History::const_iterator commandScrollBack;
-	unsigned maxHistory;
 	unsigned columns;
 	unsigned rows;
 	int consoleScrollBack;
 	/** Position within the current command. */
 	unsigned cursorPosition;
-	/** Are double commands allowed? */
-	bool removeDoubles;
 };
 
 } // namespace openmsx
