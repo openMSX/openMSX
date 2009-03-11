@@ -17,15 +17,19 @@ void OutputSurface::lock()
 {
 	if (isLocked()) return;
 	locked = true;
-	if (SDL_MUSTLOCK(workSurface)) SDL_LockSurface(workSurface);
-	// Note: we ignore the return value from SDL_LockSurface()
+	if (workSurface && SDL_MUSTLOCK(workSurface)) {
+		// Note: we ignore the return value from SDL_LockSurface()
+		SDL_LockSurface(workSurface);
+	}
 }
 
 void OutputSurface::unlock()
 {
 	if (!isLocked()) return;
 	locked = false;
-	if (SDL_MUSTLOCK(workSurface)) SDL_UnlockSurface(workSurface);
+	if (workSurface && SDL_MUSTLOCK(workSurface)) {
+		SDL_UnlockSurface(workSurface);
+	}
 }
 
 unsigned OutputSurface::mapRGB(double dr, double dg, double db)
