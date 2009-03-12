@@ -164,9 +164,13 @@
 
         <li><a class="internal" href="#consolefont">consolefont</a></li>
 
+        <li><a class="internal" href="#console_history_size">console_history_size</a></li>
+
         <li><a class="internal" href="#consoleplacement">consoleplacement</a></li>
 
         <li><a class="internal" href="#consolerows">consolerows</a></li>
+
+        <li><a class="internal" href="#console_remove_doubles">console_remove_doubles</a></li>
 
         <li><a class="internal" href="#contrast">contrast</a></li>
 
@@ -235,6 +239,8 @@
         <li><a class="internal" href="#noise">noise</a></li>
 
         <li><a class="internal" href="#pause">pause</a></li>
+
+        <li><a class="internal" href="#pause_on_lost_focus">pause_on_lost_focus</a></li>
 
         <li><a class="internal" href="#power">power</a></li>
 
@@ -2640,6 +2646,28 @@
     </tr>
   </table>
 
+  <h3><a id="console_history_size">console_history_size</a></h3>
+
+  <p>Determines how many commands are saved into the console history.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set console_history_size</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set console_history_size 5000</code></td>
+
+      <td>Keep a maximum of 5000 commands in the console history</td>
+    </tr>
+  </table>
+
   <h3><a id="consoleplacement">consoleplacement</a></h3>
 
   <p>Changes the position of the console on the emulator screen.</p>
@@ -2681,6 +2709,34 @@
       <td><code>set consolerows &lt;value&gt;</code></td>
 
       <td>Set the specified width</td>
+    </tr>
+  </table>
+
+  <h3><a id="console_remove_doubles">console_remove_doubles</a></h3>
+
+  <p>Determines whether the console history remembers two identical subsequent commands.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set console_remove_doubles</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set console_remove_doubles on</code></td>
+
+      <td>Remove (do not remember) the last command if it's the same as the previous (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set console_remove_doubles off</code></td>
+
+      <td>Allow double subsequent command entries in the console history</td>
     </tr>
   </table>
 
@@ -3682,6 +3738,35 @@
   <div class="note">
     Note: Some video settings cannot be applied to an already rendered frame and will therefore not take effect until openMSX is unpaused.
   </div>
+
+  <h3><a id="pause_on_lost_focus">pause_on_lost_focus</a></h3>
+
+  <p>When this setting is enabled, the emulation will be paused when the
+  openMSX window loses focus.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set pause_on_lost_focus</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set pause_on_lost_focus on</code></td>
+
+      <td>Emulation will be paused when the openMSX window loses focus</td>
+    </tr>
+
+    <tr>
+      <td><code>set pause_on_lost_focus off</code></td>
+
+      <td>Emulation will continue when the openMSX window loses focus (default)</td>
+    </tr>
+  </table>
 
   <h3><a id="power">power</a></h3>
 
