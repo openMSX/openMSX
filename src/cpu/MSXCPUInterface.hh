@@ -163,6 +163,7 @@ public:
 	 */
 	byte peekMem(word address, EmuTime::param time) const;
 	byte peekSlottedMem(unsigned address, EmuTime::param time) const;
+	byte readSlottedMem(unsigned address, EmuTime::param time);
 	void writeSlottedMem(unsigned address, byte value,
 	                     EmuTime::param time);
 

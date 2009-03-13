@@ -624,6 +624,23 @@ byte MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime::param time) cons
 	}
 }
 
+byte MSXCPUInterface::readSlottedMem(unsigned address, EmuTime::param time)
+{
+	byte primSlot = (address & 0xC0000) >> 18;
+	byte subSlot = (address & 0x30000) >> 16;
+	byte page = (address & 0x0C000) >> 14;
+	word offset = (address & 0xFFFF); // includes page
+	if (!isExpanded(primSlot)) {
+		subSlot = 0;
+	}
+
+	if ((offset == 0xFFFF) && isExpanded(primSlot)) {
+		return 0xFF ^ subSlotRegister[primSlot];
+	} else {
+		return slotLayout[primSlot][subSlot][page]->peekMem(offset, time);
+	}
+}
+
 void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
                                       EmuTime::param time)
 {

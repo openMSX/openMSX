@@ -54,7 +54,12 @@
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
-      <!-- NOTE: page 3 actually mirrors page 3 of the RAM in slot 3! This also happens in older versions of the Sony HB-20P. This is not emulated yet! See feature request 2194939. -->
+      <!-- NOTE: page 3 actually mirrors page 3 of the RAM in slot 3!
+           This also happens in older versions of the Sony HB-20P. -->
+      <Mirror id="Main RAM mirror">
+        <mem base="0xc000" size="0x4000"/>
+        <ps>3</ps>
+      </Mirror>
     </primary>
 
     <primary external="true" slot="1"/>

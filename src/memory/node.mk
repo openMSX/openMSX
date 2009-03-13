@@ -6,6 +6,7 @@ SRC_HDR:= \
 	MSXMapperIO MSXMapperIOPhilips MSXMapperIOTurboR \
 	MSXMemoryMapper \
 	MSXRam \
+	MSXMirrorDevice \
 	MSXRomCLI \
 	Ram SRAM CheckedRam \
 	Rom AmdFlash \

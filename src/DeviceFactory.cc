@@ -48,6 +48,7 @@
 #include "V9990.hh"
 #include "ADVram.hh"
 #include "NowindInterface.hh"
+#include "MSXMirrorDevice.hh"
 #include "DummyDevice.hh"
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
@@ -158,6 +159,8 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new ADVram(motherBoard, conf));
 	} else if (type == "Nowind") {
 		result.reset(new NowindInterface(motherBoard, conf));
+	} else if (type == "Mirror") {
+		result.reset(new MSXMirrorDevice(motherBoard, conf));
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");
