@@ -392,6 +392,8 @@ void CommandConsole::nextCommand()
 void CommandConsole::clearCommand()
 {
 	resetScrollBack();
+	commandBuffer.clear();
+	prompt = PROMPT1;
 	currentLine = lines[0] = prompt;
 	cursorPosition = unsigned(prompt.size());
 }
