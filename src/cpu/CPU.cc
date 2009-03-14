@@ -15,11 +15,6 @@ byte CPU::ZSPHTable[256];
 word CPU::DAATable[0x800];
 
 CPU::BreakPoints CPU::breakPoints;
-bool CPU::breaked = false;
-bool CPU::continued = false;
-bool CPU::step = false;
-
-word CPU::start_pc;
 
 
 CPU::CPU()
@@ -93,11 +88,6 @@ CPU::~CPU()
 	     it != breakPoints.end(); ++it) {
 		//delete it->second;
 	}
-}
-
-bool CPU::isBreaked() const
-{
-	return breaked;
 }
 
 void CPU::insertBreakPoint(std::auto_ptr<BreakPoint> bp_)

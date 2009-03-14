@@ -284,15 +284,15 @@ void DebugCmd::execute(const vector<TclObject*>& tokens,
 	} else if (subCmd == "list") {
 		list(result);
 	} else if (subCmd == "step") {
-		debugger.cpu->doStep();
+		debugger.motherBoard.getCPUInterface().doStep();
 	} else if (subCmd == "cont") {
-		debugger.cpu->doContinue();
+		debugger.motherBoard.getCPUInterface().doContinue();
 	} else if (subCmd == "disasm") {
 		debugger.cpu->disasmCommand(tokens, result);
 	} else if (subCmd == "break") {
-		debugger.cpu->doBreak();
+		debugger.motherBoard.getCPUInterface().doBreak();
 	} else if (subCmd == "breaked") {
-		result.setInt(debugger.cpu->isBreaked());
+		result.setInt(debugger.motherBoard.getCPUInterface().isBreaked());
 	} else if (subCmd == "set_bp") {
 		setBreakPoint(tokens, result);
 	} else if (subCmd == "remove_bp") {

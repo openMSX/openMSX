@@ -88,6 +88,9 @@ public:
 	static void getHwConfigs(const std::string& type,
 	                         std::set<std::string>& result);
 
+	void block();
+	void unblock();
+
 	// convenience methods
 	GlobalSettings& getGlobalSettings();
 	InfoCommand& getOpenMSXInfoCommand();
@@ -110,9 +113,6 @@ private:
 
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
-
-	void block();
-	void unblock();
 
 	void unpause();
 	void pause();

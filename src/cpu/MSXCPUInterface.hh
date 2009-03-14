@@ -177,6 +177,17 @@ public:
 	typedef std::vector<WatchPoint*> WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
+	bool isBreaked() const { return breaked; }
+	void doBreak();
+	void doStep();
+	void doContinue();
+
+	// should only be used by CPUCore
+	bool isStep()     const  { return step; }
+	void setStep    (bool x) { step = x; }
+	bool isContinue() const  { return continued; }
+	void setContinue(bool x) { continued = x; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -199,6 +210,8 @@ private:
 	void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices);
 	void updateMemWatch(WatchPoint::Type type);
 	void executeMemWatch(word address, WatchPoint::Type type);
+
+	void doContinue2();
 
 	friend class SlotInfo;
 	friend class IODebug;
@@ -253,6 +266,12 @@ private:
 	byte primarySlotState[4];
 	byte secondarySlotState[4];
 	unsigned expanded[4];
+
+	//  All CPUs (Z80 and R800) of all MSX machines share this state.
+	// TODO move breakpoints and watchpoints here
+	static bool breaked;
+	static bool continued;
+	static bool step;
 };
 
 } // namespace openmsx

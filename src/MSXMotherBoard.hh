@@ -129,6 +129,7 @@ public:
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
+	Reactor& getReactor();
 
 	// These are only convenience methods, Reactor keeps these objects
 	EventDistributor& getEventDistributor();

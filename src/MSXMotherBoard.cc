@@ -118,6 +118,7 @@ public:
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
+	Reactor& getReactor();
 	EventDistributor& getEventDistributor();
 	Display& getDisplay();
 	DiskManipulator& getDiskManipulator();
@@ -656,6 +657,11 @@ LedStatus& MSXMotherBoardImpl::getLedStatus()
 		ledStatus.reset(new LedStatus(self));
 	}
 	return *ledStatus;
+}
+
+Reactor& MSXMotherBoardImpl::getReactor()
+{
+	return reactor;
 }
 
 EventDistributor& MSXMotherBoardImpl::getEventDistributor()
@@ -1469,6 +1475,10 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 LedStatus& MSXMotherBoard::getLedStatus()
 {
 	return pimple->getLedStatus();
+}
+Reactor& MSXMotherBoard::getReactor()
+{
+	return pimple->getReactor();
 }
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {

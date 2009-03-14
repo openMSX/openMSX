@@ -377,28 +377,12 @@ public:
 
 	/**
 	 */
-	virtual void doStep() = 0;
-
-	/**
-	 */
 	virtual void disasmCommand(const std::vector<TclObject*>& tokens,
 	                           TclObject& result) const = 0;
 
 	/**
 	 */
-	virtual void doContinue() = 0;
-
-	/**
-	 */
-	virtual void doBreak() = 0;
-
-	/**
-	 */
 	CPURegs& getRegisters() { return R; }
-
-	/**
-	 */
-	bool isBreaked() const;
 
 	/**
 	 */
@@ -453,15 +437,6 @@ protected:
 	static const byte ZSPXY0  = Z_FLAG | V_FLAG;
 	static const byte ZS255   = S_FLAG;
 	static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
-
-	// TODO why exactly are these static?
-	// debug variables
-	static bool breaked;
-	static bool continued;
-	static bool step;
-
-	// CPU tracing
-	static word start_pc;
 
 	CPURegs R;
 

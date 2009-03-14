@@ -224,26 +224,6 @@ void MSXCPU::update(const Setting& setting)
 
 // Command
 
-void MSXCPU::doStep()
-{
-	activeCPU->doStep();
-}
-
-void MSXCPU::doContinue()
-{
-	activeCPU->doContinue();
-}
-
-void MSXCPU::doBreak()
-{
-	activeCPU->doBreak();
-}
-
-bool MSXCPU::isBreaked()
-{
-	return activeCPU->isBreaked();
-}
-
 void MSXCPU::disasmCommand(const vector<TclObject*>& tokens,
                            TclObject& result) const
 {
@@ -264,7 +244,6 @@ const CPU::BreakPoints& MSXCPU::getBreakPoints() const
 {
 	return activeCPU->getBreakPoints();
 }
-
 
 void MSXCPU::setPaused(bool paused)
 {

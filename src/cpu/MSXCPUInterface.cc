@@ -6,6 +6,7 @@
 #include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "VDPIODelay.hh"
@@ -15,6 +16,8 @@
 #include "MSXWatchIODevice.hh"
 #include "MSXException.hh"
 #include "CartridgeSlotManager.hh"
+#include "EventDistributor.hh"
+#include "Event.hh"
 #include "DeviceFactory.hh"
 #include "serialize.hh"
 #include "StringOp.hh"
@@ -120,6 +123,12 @@ private:
 	MSXCPUInterface& interface;
 	bool input;
 };
+
+
+// Global variables
+bool MSXCPUInterface::breaked = false;
+bool MSXCPUInterface::continued = false;
+bool MSXCPUInterface::step = false;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
@@ -794,6 +803,44 @@ void MSXCPUInterface::executeMemWatch(word address, WatchPoint::Type type)
 	}
 }
 
+
+void MSXCPUInterface::doBreak()
+{
+	if (breaked) return;
+	breaked = true;
+
+	Reactor& reactor = motherBoard.getReactor();
+	reactor.block();
+	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
+	reactor.getEventDistributor().distributeEvent(
+		new SimpleEvent<OPENMSX_BREAK_EVENT>());
+}
+
+void MSXCPUInterface::doStep()
+{
+	if (breaked) {
+		step = true;
+		doContinue2();
+	}
+}
+
+void MSXCPUInterface::doContinue()
+{
+	if (breaked) {
+		continued = true;
+		doContinue2();
+	}
+}
+
+void MSXCPUInterface::doContinue2()
+{
+	breaked = false;
+	Reactor& reactor = motherBoard.getReactor();
+	reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
+	reactor.unblock();
+}
+
+
 // class MemoryDebug
 
 MemoryDebug::MemoryDebug(
@@ -984,7 +1031,6 @@ string IOInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }
-
 
 template<typename Archive>
 void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)

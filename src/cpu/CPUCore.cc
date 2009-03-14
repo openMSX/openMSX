@@ -156,16 +156,14 @@
 // instruction, otherwise we would enter the IRQ routine a couple of
 // instructions too late.
 
+#include "CPUCore.hh"
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
-#include "Event.hh"
-#include "EventDistributor.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "Dasm.hh"
-#include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
 #include "Thread.hh"
@@ -200,6 +198,12 @@ using std::string;
 namespace openmsx {
 
 typedef signed char offset;
+
+// Global variable, because it should be shared between Z80 and R800.
+// It must not be shared between the CPUs of different MSX machines, but
+// the (logical) lifetime of this variable cannot overlap between execution
+// of two MSX machines.
+static word start_pc;
 
 // conditions
 struct CondC  { bool operator()(byte f) const { return  (f & CPU::C_FLAG) != 0; } };
@@ -412,42 +416,6 @@ template <class T> void CPUCore<T>::waitCycles(unsigned cycles)
 template <class T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)
 {
 	T::setLimit(time);
-}
-
-template <class T> void CPUCore<T>::doBreak()
-{
-	if (!breaked) {
-		breaked = true;
-
-		motherboard.block();
-
-		motherboard.getMSXCliComm().update(CliComm::STATUS, "cpu", "suspended");
-		motherboard.getEventDistributor().distributeEvent(
-			new SimpleEvent<OPENMSX_BREAK_EVENT>());
-	}
-}
-
-template <class T> void CPUCore<T>::doStep()
-{
-	if (breaked) {
-		step = true;
-		doContinue2();
-	}
-}
-
-template <class T> void CPUCore<T>::doContinue()
-{
-	if (breaked) {
-		continued = true;
-		doContinue2();
-	}
-}
-
-template <class T> void CPUCore<T>::doContinue2()
-{
-	breaked = false;
-	motherboard.getMSXCliComm().update(CliComm::STATUS, "cpu", "running");
-	motherboard.unblock();
 }
 
 
@@ -2433,7 +2401,7 @@ template <class T> void CPUCore<T>::executeSlow()
 
 template <class T> void CPUCore<T>::execute()
 {
-	assert(!breaked);
+	assert(!interface->isBreaked());
 
 	// note: Don't use getTimeFast() here, because 'once in a while' we
 	//       need to CPUClock::sync() to avoid overflow.
@@ -2442,15 +2410,15 @@ template <class T> void CPUCore<T>::execute()
 	scheduler.schedule(T::getTime());
 	setSlowInstructions();
 
-	if (continued || step) {
+	if (interface->isContinue() || interface->isStep()) {
 		// at least one instruction
-		continued = false;
+		interface->setContinue(false);
 		executeSlow();
 		scheduler.schedule(T::getTimeFast());
 		--slowInstructions;
-		if (step) {
-			step = false;
-			doBreak();
+		if (interface->isStep()) {
+			interface->setStep(false);
+			interface->doBreak();
 			return;
 		}
 	}
@@ -2480,7 +2448,8 @@ template <class T> void CPUCore<T>::execute()
 	} else {
 		while (!needExitCPULoop()) {
 			if (checkBreakPoints(R)) {
-				continued = true; // skip bp check on next instr
+				// skip bp check on next instr
+				interface->setContinue(true);
 				break;
 			}
 			if (slowInstructions == 0) {

@@ -46,9 +46,6 @@ public:
 	virtual void waitCycles(unsigned cycles);
 	virtual void setNextSyncPoint(EmuTime::param time);
 	virtual void invalidateMemCache(unsigned start, unsigned size);
-	virtual void doStep();
-	virtual void doContinue();
-	virtual void doBreak();
 
 	virtual void disasmCommand(const std::vector<TclObject*>& tokens,
                                    TclObject& result) const;
@@ -86,7 +83,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void doContinue2();
 	bool needExitCPULoop();
 	void setSlowInstructions();
 
