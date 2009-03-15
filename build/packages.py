@@ -54,7 +54,7 @@ class DirectX(DownloadablePackage):
 		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
 
 class FreeType(DownloadablePackage):
-	downloadURL = 'http://nongnu.askapache.com/freetype'
+	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
 	name = 'freetype'
 	version = '2.3.7'
