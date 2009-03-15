@@ -11,6 +11,14 @@ class Package(object):
 	def getMakeName(cls):
 		return cls.name.upper()
 
+	@classmethod
+	def isAvailable(cls, probeVars):
+		makeName = cls.getMakeName()
+		return (
+			probeVars['HAVE_%s_LIB' % makeName] and
+			probeVars['HAVE_%s_H' % makeName]
+			)
+
 class DownloadablePackage(Package):
 	'''Abstract base class for packages that can be downloaded.
 	'''
@@ -55,6 +63,21 @@ class GLEW(DownloadablePackage):
 	def getTarballName(cls):
 		return '%s-%s-src.tgz' % (cls.name, cls.version)
 
+	@classmethod
+	def isAvailable(cls, probeVars):
+		return probeVars['HAVE_GLEW_LIB'] and (
+			probeVars['HAVE_GLEW_H'] or probeVars['HAVE_GL_GLEW_H']
+			)
+
+class JACK(DownloadablePackage):
+	downloadURL = 'http://jackaudio.org/downloads/'
+	name = 'jack-audio-connection-kit'
+	version = '0.116.2'
+
+	@classmethod
+	def getMakeName(cls):
+		return 'JACK'
+
 class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	name = 'libpng'
@@ -77,6 +100,12 @@ class LibXML2(DownloadablePackage):
 
 class OpenGL(Package):
 	name = 'gl'
+
+	@classmethod
+	def isAvailable(cls, probeVars):
+		return probeVars['HAVE_GL_LIB'] and (
+			probeVars['HAVE_GL_H'] or probeVars['HAVE_GL_GL_H']
+			)
 
 class SDL(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'

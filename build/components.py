@@ -48,42 +48,31 @@ coreLibs = tuple(_computeCoreLibs())
 class Component(object):
 	niceName = None
 	makeName = None
-
-	@classmethod
-	def canBuild(cls, probeVars):
-		raise NotImplementedError
-
-class EmulationCore(Component):
-	niceName = 'Emulation core'
-	makeName = 'CORE'
+	dependsOn = None
 
 	@classmethod
 	def canBuild(cls, probeVars):
 		return all(
-			probeVars['HAVE_%s_LIB' % lib] and probeVars['HAVE_%s_H' % lib]
-			for lib in coreLibs
+			getPackage(packageName).isAvailable(probeVars)
+			for packageName in cls.dependsOn
 			)
+
+class EmulationCore(Component):
+	niceName = 'Emulation core'
+	makeName = 'CORE'
+	dependsOn = (
+		'SDL', 'SDL_image', 'SDL_ttf', 'libpng', 'tcl', 'libxml2', 'zlib'
+		)
 
 class GLRenderer(Component):
 	niceName = 'GL renderer'
 	makeName = 'GL'
-
-	@classmethod
-	def canBuild(cls, probeVars):
-		return all((
-			probeVars['HAVE_GL_LIB'],
-			probeVars['HAVE_GL_H'] or probeVars['HAVE_GL_GL_H'],
-			probeVars['HAVE_GLEW_LIB'],
-			probeVars['HAVE_GLEW_H'] or probeVars['HAVE_GL_GLEW_H'],
-			))
+	dependsOn = ('gl', 'glew')
 
 class CassetteJack(Component):
 	niceName = 'CassetteJack'
 	makeName = 'JACK'
-
-	@classmethod
-	def canBuild(cls, probeVars):
-		return bool(probeVars['HAVE_JACK_LIB'] and probeVars['HAVE_JACK_H'])
+	dependsOn = ('jack-audio-connection-kit', )
 
 def iterComponents():
 	yield EmulationCore
