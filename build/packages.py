@@ -21,7 +21,7 @@ class Package(object):
 
 	@classmethod
 	def isAvailable(cls, probeVars):
-		return cls.haveHeaders() and cls.haveLibrary()
+		return cls.haveHeaders(probeVars) and cls.haveLibrary(probeVars)
 
 class DownloadablePackage(Package):
 	'''Abstract base class for packages that can be downloaded.
