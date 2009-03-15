@@ -8,26 +8,19 @@ from packages import getPackage
 
 import sys
 
-# TODO: Compute this list from the components.
-libraries = (
-	'libpng',
-	'libxml2',
-	'glew',
-	'jack-audio-connection-kit',
-	'gl',
-	'SDL',
-	'SDL_image',
-	'SDL_ttf',
-	'tcl',
-	'zlib',
-	)
-
 def iterProbeResults(probeMakePath):
 	probeVars = extractMakeVariables(probeMakePath)
 	customVars = extractMakeVariables('build/custom.mk')
 	componentStatus = dict(
 		(component.makeName, component.canBuild(probeVars))
 		for component in iterComponents()
+		)
+	libraries = sorted(
+		(	getPackage(packageName)
+			for component in iterComponents()
+			for packageName in component.dependsOn
+			),
+		key = lambda package: package.niceName.lower()
 		)
 
 	yield ''
@@ -42,8 +35,8 @@ def iterProbeResults(probeMakePath):
 	else:
 		# Compute how wide the first column should be.
 		def iterNiceNames():
-			for packageName in libraries:
-				yield getPackage(packageName).niceName
+			for package in libraries:
+				yield package.niceName
 			for component in iterComponents():
 				yield component.niceName
 		maxLen = max(len(niceName) for niceName in iterNiceNames())
@@ -51,8 +44,7 @@ def iterProbeResults(probeMakePath):
 
 		yield 'Found libraries:'
 		disabledLibs = probeVars['DISABLED_LIBS'].split()
-		for packageName in libraries:
-			package = getPackage(packageName)
+		for package in libraries:
 			if package.getMakeName() in disabledLibs:
 				found = 'disabled'
 			elif package.haveLibrary(probeVars):
@@ -64,8 +56,7 @@ def iterProbeResults(probeMakePath):
 
 		yield 'Found headers:'
 		disabledHeaders = probeVars['DISABLED_HEADERS'].split()
-		for packageName in libraries:
-			package = getPackage(packageName)
+		for package in libraries:
 			if package.getMakeName() in disabledHeaders:
 				found = 'disabled'
 			elif package.haveHeaders(probeVars):
