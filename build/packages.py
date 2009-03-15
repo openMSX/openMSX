@@ -12,12 +12,16 @@ class Package(object):
 		return cls.name.upper()
 
 	@classmethod
+	def haveHeaders(cls, probeVars):
+		return bool(probeVars['HAVE_%s_H' % cls.getMakeName()])
+
+	@classmethod
+	def haveLibrary(cls, probeVars):
+		return bool(probeVars['HAVE_%s_LIB' % cls.getMakeName()])
+
+	@classmethod
 	def isAvailable(cls, probeVars):
-		makeName = cls.getMakeName()
-		return (
-			probeVars['HAVE_%s_LIB' % makeName] and
-			probeVars['HAVE_%s_H' % makeName]
-			)
+		return cls.haveHeaders() and cls.haveLibrary()
 
 class DownloadablePackage(Package):
 	'''Abstract base class for packages that can be downloaded.
@@ -64,10 +68,8 @@ class GLEW(DownloadablePackage):
 		return '%s-%s-src.tgz' % (cls.name, cls.version)
 
 	@classmethod
-	def isAvailable(cls, probeVars):
-		return probeVars['HAVE_GLEW_LIB'] and (
-			probeVars['HAVE_GLEW_H'] or probeVars['HAVE_GL_GLEW_H']
-			)
+	def haveHeaders(cls, probeVars):
+		return bool(probeVars['HAVE_GLEW_H'] or probeVars['HAVE_GL_GLEW_H'])
 
 class JACK(DownloadablePackage):
 	downloadURL = 'http://jackaudio.org/downloads/'
@@ -102,10 +104,8 @@ class OpenGL(Package):
 	name = 'gl'
 
 	@classmethod
-	def isAvailable(cls, probeVars):
-		return probeVars['HAVE_GL_LIB'] and (
-			probeVars['HAVE_GL_H'] or probeVars['HAVE_GL_GL_H']
-			)
+	def haveHeaders(cls, probeVars):
+		return bool(probeVars['HAVE_GL_H'] or probeVars['HAVE_GL_GL_H'])
 
 class SDL(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
