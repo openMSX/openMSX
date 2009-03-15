@@ -4,33 +4,22 @@
 
 from components import iterComponents
 from makeutils import extractMakeVariables, parseBool
+from packages import getPackage
 
 import sys
 
+# TODO: Compute this list from the components.
 libraries = (
-	('libpng', 'PNG'),
-	('libxml2', 'XML'),
-	('OpenGL', 'GL'),
-	('GLEW', 'GLEW'),
-	('Jack', 'JACK'),
-	('SDL', 'SDL'),
-	('SDL_image', 'SDL_IMAGE'),
-	('SDL_ttf', 'SDL_TTF'),
-	('Tcl', 'TCL'),
-	('zlib', 'ZLIB'),
-	)
-
-headers = (
-	('libpng', 'PNG'),
-	('libxml2', 'XML'),
-	('OpenGL', ('GL', 'GL_GL')),
-	('GLEW', ('GLEW', 'GL_GLEW')),
-	('Jack', 'JACK'),
-	('SDL', 'SDL'),
-	('SDL_image', 'SDL_IMAGE'),
-	('SDL_ttf', 'SDL_TTF'),
-	('Tcl', 'TCL'),
-	('zlib', 'ZLIB'),
+	'libpng',
+	'libxml2',
+	'glew',
+	'jack-audio-connection-kit',
+	'gl',
+	'SDL',
+	'SDL_image',
+	'SDL_ttf',
+	'tcl',
+	'zlib',
 	)
 
 def iterProbeResults(probeMakePath):
@@ -53,8 +42,8 @@ def iterProbeResults(probeMakePath):
 	else:
 		# Compute how wide the first column should be.
 		def iterNiceNames():
-			for niceName, _ in libraries + headers:
-				yield niceName
+			for packageName in libraries:
+				yield getPackage(packageName).niceName
 			for component in iterComponents():
 				yield component.niceName
 		maxLen = max(len(niceName) for niceName in iterNiceNames())
@@ -62,28 +51,28 @@ def iterProbeResults(probeMakePath):
 
 		yield 'Found libraries:'
 		disabledLibs = probeVars['DISABLED_LIBS'].split()
-		for niceName, varName in libraries:
-			found = probeVars['HAVE_%s_LIB' % varName] or (
-				'disabled' if varName in disabledLibs else 'no'
-				)
-			yield formatStr % (niceName + ':', found)
+		for packageName in libraries:
+			package = getPackage(packageName)
+			if package.getMakeName() in disabledLibs:
+				found = 'disabled'
+			elif package.haveLibrary(probeVars):
+				found = probeVars['HAVE_%s_LIB' % package.getMakeName()]
+			else:
+				found = 'no'
+			yield formatStr % (package.niceName + ':', found)
 		yield ''
 
 		yield 'Found headers:'
 		disabledHeaders = probeVars['DISABLED_HEADERS'].split()
-		for niceName, varNames in headers:
-			if not hasattr(varNames, '__iter__'):
-				varNames = (varNames, )
-			for varName in varNames:
-				if probeVars['HAVE_%s_H' % varName]:
-					found = 'yes'
-					break
+		for packageName in libraries:
+			package = getPackage(packageName)
+			if package.getMakeName() in disabledHeaders:
+				found = 'disabled'
+			elif package.haveHeaders(probeVars):
+				found = 'yes'
 			else:
-				if any(varName in disabledHeaders for varName in varNames):
-					found = 'disabled'
-				else:
-					found = 'no'
-			yield formatStr % (niceName + ':', found)
+				found = 'no'
+			yield formatStr % (package.niceName + ':', found)
 		yield ''
 
 		yield 'Components overview:'

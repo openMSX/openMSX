@@ -5,6 +5,7 @@ from urlparse import urljoin
 class Package(object):
 	'''Abstract base class for packages.
 	'''
+	niceName = None
 	name = None
 
 	@classmethod
@@ -44,6 +45,7 @@ class DownloadablePackage(Package):
 
 class DirectX(DownloadablePackage):
 	downloadURL = 'http://alleg.sourceforge.net/files'
+	niceName = 'DirectX'
 	name = 'dx'
 	version = '70'
 
@@ -53,12 +55,14 @@ class DirectX(DownloadablePackage):
 
 class FreeType(DownloadablePackage):
 	downloadURL = 'http://nongnu.askapache.com/freetype'
+	niceName = 'FreeType'
 	name = 'freetype'
 	version = '2.3.7'
 	dependsOn = ('zlib', )
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
+	niceName = 'GLEW'
 	name = 'glew'
 	version = '1.5.1'
 	dependsOn = ('gl', )
@@ -73,6 +77,7 @@ class GLEW(DownloadablePackage):
 
 class JACK(DownloadablePackage):
 	downloadURL = 'http://jackaudio.org/downloads/'
+	niceName = 'Jack'
 	name = 'jack-audio-connection-kit'
 	version = '0.116.2'
 
@@ -82,6 +87,7 @@ class JACK(DownloadablePackage):
 
 class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
+	niceName = 'libpng'
 	name = 'libpng'
 	version = '1.2.34'
 	dependsOn = ('zlib', )
@@ -92,6 +98,7 @@ class LibPNG(DownloadablePackage):
 
 class LibXML2(DownloadablePackage):
 	downloadURL = 'http://xmlsoft.org/sources'
+	niceName = 'libxml2'
 	name = 'libxml2'
 	version = '2.7.2'
 	dependsOn = ('zlib', )
@@ -101,6 +108,7 @@ class LibXML2(DownloadablePackage):
 		return 'XML'
 
 class OpenGL(Package):
+	niceName = 'OpenGL'
 	name = 'gl'
 
 	@classmethod
@@ -109,23 +117,27 @@ class OpenGL(Package):
 
 class SDL(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
+	niceName = 'SDL'
 	name = 'SDL'
 	version = '1.2.13'
 
 class SDL_image(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_image/release'
+	niceName = 'SDL_image'
 	name = 'SDL_image'
 	version = '1.2.7'
 	dependsOn = ('SDL', 'libpng')
 
 class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
+	niceName = 'SDL_ttf'
 	name = 'SDL_ttf'
 	version = '2.0.9'
 	dependsOn = ('SDL', 'freetype')
 
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
+	niceName = 'Tcl'
 	name = 'tcl'
 	version = '8.5.6'
 
@@ -135,6 +147,7 @@ class TCL(DownloadablePackage):
 
 class ZLib(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
+	niceName = 'zlib'
 	name = 'zlib'
 	version = '1.2.3'
 
