@@ -41,12 +41,12 @@ void MSXMirrorDevice::writeMem(word address, byte value, EmuTime::param time)
 	interface.writeSlottedMem(addressHigh | address, value, time);
 }
 
-const byte* MSXMirrorDevice::getReadCacheLine(word start) const
+const byte* MSXMirrorDevice::getReadCacheLine(word /*start*/) const
 {
 	return NULL;
 }
 
-byte* MSXMirrorDevice::getWriteCacheLine(word start) const
+byte* MSXMirrorDevice::getWriteCacheLine(word /*start*/) const
 {
 	return NULL;
 }
