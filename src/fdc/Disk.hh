@@ -29,7 +29,6 @@ public:
 	void writeTrackData(byte track, byte side, const byte* data);
 	virtual void readTrackData(byte track, byte side, byte* output);
 
-	virtual bool isReady() const = 0;
 	bool isDoubleSided() const;
 
 protected:

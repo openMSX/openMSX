@@ -81,9 +81,9 @@ RealDrive::~RealDrive()
 	}
 }
 
-bool RealDrive::isReady() const
+bool RealDrive::isDiskInserted() const
 {
-	return changer->getDisk().isReady();
+	return !changer->getDisk().isDummyDisk();
 }
 
 bool RealDrive::isWriteProtected() const
@@ -148,7 +148,7 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 
 bool RealDrive::indexPulse(EmuTime::param time)
 {
-	if (!motorStatus && isReady()) {
+	if (!motorStatus && isDiskInserted()) {
 		return false;
 	}
 	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
@@ -158,7 +158,7 @@ bool RealDrive::indexPulse(EmuTime::param time)
 int RealDrive::indexPulseCount(EmuTime::param begin,
                                EmuTime::param end)
 {
-	if (!motorStatus && isReady()) {
+	if (!motorStatus && isDiskInserted()) {
 		return 0;
 	}
 	int t1 = motorTimer.before(begin) ? motorTimer.getTicksTill(begin) : 0;
@@ -168,7 +168,7 @@ int RealDrive::indexPulseCount(EmuTime::param begin,
 
 EmuTime RealDrive::getTimeTillSector(byte sector, EmuTime::param time)
 {
-	if (!motorStatus || !isReady()) { // TODO is this correct?
+	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
 		return time;
 	}
 	// TODO this really belongs in the Disk class
@@ -196,7 +196,7 @@ EmuTime RealDrive::getTimeTillSector(byte sector, EmuTime::param time)
 
 EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
 {
-	if (!motorStatus || !isReady()) { // TODO is this correct?
+	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
 		return time;
 	}
 	int delta = TICKS_PER_ROTATION -

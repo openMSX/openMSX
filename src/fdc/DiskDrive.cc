@@ -14,7 +14,7 @@ DiskDrive::~DiskDrive()
 
 // class DummyDrive
 
-bool DummyDrive::isReady() const
+bool DummyDrive::isDiskInserted() const
 {
 	return false;
 }

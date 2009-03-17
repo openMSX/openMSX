@@ -123,11 +123,6 @@ void SectorBasedDisk::readTrackData(byte track, byte side, byte* output)
 	assert((out - output) == RAWTRACK_SIZE);
 }
 
-bool SectorBasedDisk::isReady() const
-{
-	return true;
-}
-
 unsigned SectorBasedDisk::getNbSectorsImpl() const
 {
 	assert(nbSectors != unsigned(-1)); // must have been initialized

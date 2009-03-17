@@ -4,6 +4,7 @@
 #include "FileException.hh"
 #include <cstdlib>
 #include <cstring>
+#include <cassert>
 
 using std::string;
 
@@ -32,7 +33,13 @@ void CompressedFileAdapter::fillBuffer()
 void CompressedFileAdapter::read(void* buffer, unsigned num)
 {
 	fillBuffer();
-	memcpy(buffer, &buf[pos], num);
+	if (!buf.empty()) {
+		memcpy(buffer, &buf[pos], num);
+	} else {
+		// in DEBUG mode buf[0] triggers an error on an empty vector
+		//  vector::data() will solve this in new C++ standard
+		assert((num == 0) && (pos == 0));
+	}
 	pos += num;
 }
 

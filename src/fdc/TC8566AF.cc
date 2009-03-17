@@ -392,14 +392,14 @@ void TC8566AF::commandPhase1(byte value)
 {
 	drive[driveSelect]->setSide((value & 0x04) != 0);
 	status0 &= ~(ST0_DS0 | ST0_DS1 | ST0_IC0 | ST0_IC1);
-	status0 |= //(drive[driveSelect]->isReady() ? 0 : ST0_DS0) |
+	status0 |= //(drive[driveSelect]->isDiskInserted() ? 0 : ST0_DS0) |
 	           (value & (ST0_DS0 | ST0_DS1)) |
 	           (drive[driveSelect]->isDummyDrive() ? ST0_IC1 : 0);
 	status3  = (value & (ST3_DS0 | ST3_DS1)) |
 	           (drive[driveSelect]->isTrack00()        ? ST3_TK0 : 0) |
 	           (drive[driveSelect]->isDoubleSided()    ? ST3_HD  : 0) |
 	           (drive[driveSelect]->isWriteProtected() ? ST3_WP  : 0) |
-	           (drive[driveSelect]->isReady()          ? ST3_RDY : 0);
+	           (drive[driveSelect]->isDiskInserted()   ? ST3_RDY : 0);
 }
 
 void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)

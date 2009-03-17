@@ -28,7 +28,7 @@ public:
 	void selectDrive(DriveNum num, EmuTime::param time);
 
 	// DiskDrive interface
-	virtual bool isReady() const;
+	virtual bool isDiskInserted() const;
 	virtual bool isWriteProtected() const;
 	virtual bool isDoubleSided() const;
 	virtual bool isTrack00() const;

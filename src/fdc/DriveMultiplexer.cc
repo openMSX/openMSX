@@ -32,9 +32,9 @@ void DriveMultiplexer::selectDrive(DriveNum num, EmuTime::param time)
 	}
 }
 
-bool DriveMultiplexer::isReady() const
+bool DriveMultiplexer::isDiskInserted() const
 {
-	return drive[selected]->isReady();
+	return drive[selected]->isDiskInserted();
 }
 
 bool DriveMultiplexer::isWriteProtected() const

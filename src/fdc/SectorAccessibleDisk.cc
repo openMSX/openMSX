@@ -20,9 +20,8 @@ SectorAccessibleDisk::~SectorAccessibleDisk()
 
 void SectorAccessibleDisk::readSector(unsigned sector, byte* buf)
 {
-	unsigned nbSectors = getNbSectors();
-	if ((nbSectors != 0) && // in this case we want DriveEmptyException
-	    (nbSectors <= sector)) {
+	if (!isDummyDisk() && // in that case we want DriveEmptyException
+	    (getNbSectors() <= sector)) {
 		throw NoSuchSectorException("No such sector");
 	}
 	try {
@@ -38,8 +37,7 @@ void SectorAccessibleDisk::writeSector(unsigned sector, const byte* buf)
 	if (isWriteProtected()) {
 		throw WriteProtectedException("");
 	}
-	unsigned nbSectors = getNbSectors();
-	if ((nbSectors != 0) && (nbSectors <= sector)) {
+	if (!isDummyDisk() && (getNbSectors() <= sector)) {
 		throw NoSuchSectorException("No such sector");
 	}
 	try {
@@ -115,6 +113,11 @@ void SectorAccessibleDisk::forceWriteProtect()
 {
 	// can't be undone
 	forcedWriteProtect = true;
+}
+
+bool SectorAccessibleDisk::isDummyDisk() const
+{
+	return false;
 }
 
 } // namespace openmsx

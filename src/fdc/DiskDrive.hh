@@ -19,7 +19,7 @@ public:
 
 	/** Is drive ready?
 	 */
-	virtual bool isReady() const = 0;
+	virtual bool isDiskInserted() const = 0;
 
 	/** Is disk write protected?
 	 */
@@ -124,7 +124,7 @@ public:
 class DummyDrive : public DiskDrive
 {
 public:
-	virtual bool isReady() const;
+	virtual bool isDiskInserted() const;
 	virtual bool isWriteProtected() const;
 	virtual bool isDoubleSided() const;
 	virtual bool isTrack00() const;

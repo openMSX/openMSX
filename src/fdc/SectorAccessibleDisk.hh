@@ -29,6 +29,8 @@ public:
 	bool isWriteProtected() const;
 	void forceWriteProtect();
 
+	virtual bool isDummyDisk() const;
+
 	// patch stuff
 	void applyPatch(const Filename& patchFile);
 	void getPatches(std::vector<Filename>& result) const;

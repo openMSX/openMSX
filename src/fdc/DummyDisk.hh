@@ -11,7 +11,7 @@ class DummyDisk : public SectorBasedDisk
 {
 public:
 	DummyDisk();
-	virtual bool isReady() const;
+	virtual bool isDummyDisk() const;
 
 private:
 	virtual void readSectorImpl(unsigned sector, byte* buf);

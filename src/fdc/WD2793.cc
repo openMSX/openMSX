@@ -202,7 +202,7 @@ byte WD2793::getStatusReg(EmuTime::param time)
 		}
 	}
 
-	if (drive.isReady()) {
+	if (drive.isDiskInserted()) {
 		statusReg &= ~NOT_READY;
 	} else {
 		statusReg |=  NOT_READY;
@@ -593,7 +593,7 @@ void WD2793::startType2Cmd(EmuTime::param time)
 	statusReg |= BUSY;
 	setDRQ(false, time);
 
-	if (!drive.isReady()) {
+	if (!drive.isDiskInserted()) {
 		endCmd();
 	} else {
 		// WD2795/WD2797 would now set SSO output
@@ -656,7 +656,7 @@ void WD2793::startType3Cmd(EmuTime::param time)
 	setDRQ(false, time);
 	commandStart = time; // done again later
 
-	if (!drive.isReady()) {
+	if (!drive.isDiskInserted()) {
 		endCmd();
 	} else {
 		drive.setHeadLoaded(true, time);
@@ -760,7 +760,7 @@ void WD2793::startType4Cmd(EmuTime::param time)
 	if (flags == 0x00) {
 		immediateIRQ = false;
 	}
-	if ((flags & IDX_IRQ) && drive.isReady()) {
+	if ((flags & IDX_IRQ) && drive.isDiskInserted()) {
 		setSyncPoint(drive.getTimeTillIndexPulse(time), SCHED_IDX_IRQ);
 	} else {
 		removeSyncPoint(SCHED_IDX_IRQ);

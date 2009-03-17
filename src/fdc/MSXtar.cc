@@ -124,7 +124,6 @@ void MSXtar::parseBootSector(const byte* buf)
 
 void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 {
-	assert(sector < disk.getNbSectors());
 	unsigned fatSector = sector - 1;
 	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT
@@ -138,7 +137,6 @@ void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 
 void MSXtar::readLogicalSector(unsigned sector, byte* buf)
 {
-	assert(sector < disk.getNbSectors());
 	unsigned fatSector = sector - 1;
 	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT

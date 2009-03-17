@@ -11,9 +11,9 @@ DummyDisk::DummyDisk()
 	setNbSectors(0);
 }
 
-bool DummyDisk::isReady() const
+bool DummyDisk::isDummyDisk() const
 {
-	return false;
+	return true;
 }
 
 bool DummyDisk::isWriteProtectedImpl() const
