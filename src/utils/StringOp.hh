@@ -24,6 +24,7 @@ namespace StringOp
 		s << std::hex << std::setw(width) << std::setfill('0') << t;
 		return s.str();
 	}
+	std::string toHexString(unsigned char t, int width);
 
 	int stringToInt(const std::string& str);
 	unsigned stringToUint(const std::string& str);

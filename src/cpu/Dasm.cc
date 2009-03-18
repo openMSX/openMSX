@@ -37,20 +37,8 @@ unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
 			i = 2;
 			break;
 		case 0xDD:
-			r = "ix";
-			buf[1] = interf.peekMem(pc + 1, time);
-			if (buf[1] != 0xcb) {
-				s = mnemonic_xx[buf[1]];
-				i = 2;
-			} else {
-				buf[2] = interf.peekMem(pc + 2, time);
-				buf[3] = interf.peekMem(pc + 3, time);
-				s = mnemonic_xx_cb[buf[3]];
-				i = 4;
-			}
-			break;
 		case 0xFD:
-			r = "iy";
+			r = (buf[0] == 0xDD) ? "ix" : "iy";
 			buf[1] = interf.peekMem(pc + 1, time);
 			if (buf[1] != 0xcb) {
 				s = mnemonic_xx[buf[1]];
@@ -100,13 +88,17 @@ unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
 			dest += r;
 			break;
 		case '!':
-			dest = "db     #ED,#" + StringOp::toHexString(buf[1], 2);
+			dest = "db     #ED,#" + StringOp::toHexString(buf[1], 2) +
+			       "     ";
 			return 2;
 		case '@':
-			dest = "db     #" + StringOp::toHexString(buf[0], 2);
+			dest = "db     #" + StringOp::toHexString(buf[0], 2) +
+			       "         ";
 			return 1;
 		case '#':
-			dest = "db     #" + StringOp::toHexString(buf[0], 2) + ",#CB,#" + StringOp::toHexString(buf[2], 2);
+			dest = "db     #" + StringOp::toHexString(buf[0], 2) +
+			         ",#CB,#" + StringOp::toHexString(buf[2], 2) +
+			         " ";
 			return 2;
 		case ' ': {
 			dest.resize(7, ' ');

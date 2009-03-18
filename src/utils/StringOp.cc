@@ -12,6 +12,12 @@ using std::vector;
 
 namespace StringOp {
 
+std::string toHexString(unsigned char t, int width)
+{
+	// promote byte to int before printing
+	return toHexString(unsigned(t), width);
+}
+
 int stringToInt(const string& str)
 {
 	return strtol(str.c_str(), NULL, 0);
