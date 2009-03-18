@@ -2,6 +2,7 @@
 
 #include "MSXCPUInterface.hh"
 #include "BreakPoint.hh"
+#include "DebugCondition.hh"
 #include "DummyDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
@@ -131,6 +132,8 @@ bool MSXCPUInterface::breaked = false;
 bool MSXCPUInterface::continued = false;
 bool MSXCPUInterface::step = false;
 MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
+//TODO watchpoints
+MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
@@ -204,7 +207,6 @@ MSXCPUInterface::~MSXCPUInterface()
 	     it != breakPoints.end(); ++it) {
 		delete it->second;
 	}
-
 	removeAllWatchPoints();
 
 	if (delayDevice.get()) {
@@ -708,6 +710,11 @@ void MSXCPUInterface::checkBreakPoints(
 	     it != range.second; ++it) {
 		it->second->checkAndExecute();
 	}
+	Conditions condCopy(conditions);
+	for (Conditions::const_iterator it = condCopy.begin();
+	     it != condCopy.end(); ++it) {
+		(*it)->checkAndExecute();
+	}
 }
 
 
@@ -763,6 +770,29 @@ const MSXCPUInterface::WatchPoints& MSXCPUInterface::getWatchPoints() const
 {
 	return watchPoints;
 }
+
+
+void MSXCPUInterface::setCondition(shared_ptr<DebugCondition> cond)
+{
+	conditions.push_back(cond);
+}
+
+void MSXCPUInterface::removeCondition(const DebugCondition& cond)
+{
+	for (Conditions::iterator it = conditions.begin();
+	     it != conditions.end(); ++it) {
+		if (it->get() == &cond) {
+			conditions.erase(it);
+			break;
+		}
+	}
+}
+
+const MSXCPUInterface::Conditions& MSXCPUInterface::getConditions()
+{
+	return conditions;
+}
+
 
 void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 {

@@ -789,6 +789,26 @@
     </tr>
 
     <tr>
+      <td><code>debug list_conditions</code></td>
+
+      <td>List the active conditions</td>
+    </tr>
+
+    <tr>
+      <td><code>debug set_condition &lt;cond&gt; [&lt;cmd&gt;]</code></td>
+
+      <td>Set a new debugger condition. Conditions are like breakpoints, but not
+          tied to a specific address. Simulation is much slower when conditions
+          are used (though generally while debugging this is not a problem).</td>
+    </tr>
+
+    <tr>
+      <td><code>debug remove_condition &lt;id&gt;</code></td>
+
+      <td>Remove a certain condition</td>
+    </tr>
+
+    <tr>
       <td><code>debug disasm [&lt;addr&gt;]</code></td>
 
       <td>Disassemble instructions at PC or given address</td>
@@ -2151,6 +2171,10 @@
     <tr>
       <td><code>step_over</code></td>
       <td>Execute one CPU instruction, but don't go into subroutines</td>
+    </tr>
+    <tr>
+      <td><code>step_out</code></td>
+      <td>Step out of the current subroutine</td>
     </tr>
     <tr>
       <td><code>text_echo</code></td>

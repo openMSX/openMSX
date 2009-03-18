@@ -8,11 +8,13 @@
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "BreakPoint.hh"
+#include "DebugCondition.hh"
 #include "MSXWatchIODevice.hh"
 #include "TclObject.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
+#include "shared_ptr.hh"
 #include <cassert>
 #include <memory>
 
@@ -61,12 +63,19 @@ private:
 	                     TclObject& result);
 	set<string> getBreakPointIdsAsStringSet() const;
 	set<string> getWatchPointIdsAsStringSet() const;
+	set<string> getConditionIdsAsStringSet() const;
 	void setWatchPoint(const vector<TclObject*>& tokens,
 	                   TclObject& result);
 	void removeWatchPoint(const vector<TclObject*>& tokens,
 	                      TclObject& result);
 	void listWatchPoints(const vector<TclObject*>& tokens,
 	                     TclObject& result);
+	void setCondition(const vector<TclObject*>& tokens,
+	                  TclObject& result);
+	void removeCondition(const vector<TclObject*>& tokens,
+	                     TclObject& result);
+	void listConditions(const vector<TclObject*>& tokens,
+	                    TclObject& result);
 	void probe(const vector<TclObject*>& tokens,
 	           TclObject& result);
 	void probeList(const vector<TclObject*>& tokens,
@@ -307,6 +316,12 @@ void DebugCmd::execute(const vector<TclObject*>& tokens,
 		removeWatchPoint(tokens, result);
 	} else if (subCmd == "list_watchpoints") {
 		listWatchPoints(tokens, result);
+	} else if (subCmd == "set_condition") {
+		setCondition(tokens, result);
+	} else if (subCmd == "remove_condition") {
+		removeCondition(tokens, result);
+	} else if (subCmd == "list_conditions") {
+		listConditions(tokens, result);
 	} else if (subCmd == "probe") {
 		probe(tokens, result);
 	} else {
@@ -512,6 +527,7 @@ void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
 	result.setString(res);
 }
 
+
 void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
                              TclObject& result)
 {
@@ -653,6 +669,82 @@ void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
 	result.setString(res);
 }
 
+
+void DebugCmd::setCondition(const vector<TclObject*>& tokens,
+                            TclObject& result)
+{
+	shared_ptr<DebugCondition> dc;
+	auto_ptr<TclObject> command(
+		new TclObject(result.getInterpreter(), "debug break"));
+	auto_ptr<TclObject> condition;
+
+	switch (tokens.size()) {
+	case 4: // command
+		command->setString(tokens[3]->getString());
+		command->checkCommand();
+		// fall-through
+	case 3: // condition
+		if (!tokens[2]->getString().empty()) {
+			condition.reset(new TclObject(*tokens[2]));
+			condition->checkExpression();
+		}
+		dc.reset(new DebugCondition(cliComm, command, condition));
+		break;
+	default:
+		if (tokens.size() < 3) {
+			throw CommandException("Too few arguments.");
+		} else {
+			throw CommandException("Too many arguments.");
+		}
+	}
+	result.setString("cond#" + StringOp::toString(dc->getId()));
+	debugger.motherBoard.getCPUInterface().setCondition(dc);
+}
+
+void DebugCmd::removeCondition(const vector<TclObject*>& tokens,
+                               TclObject& /*result*/)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
+	const MSXCPUInterface::Conditions& conditions = interface.getConditions();
+
+	string tmp = tokens[2]->getString();
+	if (StringOp::startsWith(tmp, "cond#")) {
+		// remove by id
+		unsigned id = StringOp::stringToInt(tmp.substr(5));
+		for (MSXCPUInterface::Conditions::const_iterator it =
+			conditions.begin(); it != conditions.end(); ++it) {
+			DebugCondition& cond = **it;
+			if (cond.getId() == id) {
+				interface.removeCondition(cond);
+				return;
+			}
+		}
+	}
+	throw CommandException("No such condition: " + tmp);
+}
+
+void DebugCmd::listConditions(const vector<TclObject*>& /*tokens*/,
+                              TclObject& result)
+{
+	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
+	const MSXCPUInterface::Conditions& conditions = interface.getConditions();
+	string res;
+	for (MSXCPUInterface::Conditions::const_iterator it = conditions.begin();
+	     it != conditions.end(); ++it) {
+		const DebugCondition& cond = **it;
+		TclObject line(result.getInterpreter());
+		line.addListElement("cond#" + StringOp::toString(cond.getId()));
+		line.addListElement(cond.getCondition());
+		line.addListElement(cond.getCommand());
+		res += line.getString() + '\n';
+	}
+	result.setString(res);
+}
+
+
 void DebugCmd::probe(const vector<TclObject*>& tokens,
                      TclObject& result)
 {
@@ -779,6 +871,9 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"    set_watchpoint    insert a new watchpoint\n"
 		"    remove_watchpoint remove a certain watchpoint\n"
 		"    list_watchpoints  list the active watchpoints\n"
+		"    set_condition     insert a new condition\n"
+		"    remove_condition  remove a certain condition\n"
+		"    list_conditions   list the active conditions\n"
 		"    probe             probe related subcommands\n"
 		"    cont              continue execution after break\n"
 		"    step              execute one instruction\n"
@@ -881,9 +976,28 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"'list_watchpoints' subcommand to see all valid IDs.\n";
 	static const string listWatchPointsHelp =
 		"debug list_watchpoints\n"
-		"  Lists all active breakpoints. The result is similar to the "
+		"  Lists all active watchpoints. The result is similar to the "
 		"'list_bp' subcommand, but there is an extra column (2nd column) "
 		"that contains the type of the watchpoint.\n";
+	static const string setCondHelp =
+		"debug set_condition <cond> [<cmd>]\n"
+		"  Insert a new condition. These are much like breakpoints, "
+		"except that they are checked before every instruction "
+		"(breakpoints are tied to a specific address).\n"
+		"  Conditions will slow down simulation MUCH more than "
+		"breakpoints. So only use them when you don't care about "
+		"simulation speed (when you're debugging this is usually not "
+		"a problem).\n"
+		"  See 'help debug set_bp' for more details.\n";
+	static const string removeCondHelp =
+		"debug remove_condition <id>\n"
+		"  Remove the condition with given ID again. You can use the "
+		"'list_conditions' subcommand to see all valid IDs.\n";
+	static const string listCondHelp =
+		"debug list_conditions\n"
+		"  Lists all active conditions. The result is similar to the "
+		"'list_bp' subcommand, but without the 2nd column that would "
+		"show the address.\n";
 	static const string probeHelp =
 		"debug probe <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
@@ -950,6 +1064,12 @@ string DebugCmd::help(const vector<string>& tokens) const
 		return removeWatchPointHelp;
 	} else if (tokens[1] == "list_watchpoints") {
 		return listWatchPointsHelp;
+	} else if (tokens[1] == "set_condition") {
+		return setCondHelp;
+	} else if (tokens[1] == "remove_condition") {
+		return removeCondHelp;
+	} else if (tokens[1] == "list_conditions") {
+		return listCondHelp;
 	} else if (tokens[1] == "probe") {
 		return probeHelp;
 	} else if (tokens[1] == "cont") {
@@ -989,6 +1109,17 @@ set<string> DebugCmd::getWatchPointIdsAsStringSet() const
 	}
 	return wpids;
 }
+set<string> DebugCmd::getConditionIdsAsStringSet() const
+{
+	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
+	const MSXCPUInterface::Conditions& conditions = interface.getConditions();
+	set<string> condids;
+	for (MSXCPUInterface::Conditions::const_iterator it = conditions.begin();
+	     it != conditions.end(); ++it) {
+		condids.insert("cond#" + StringOp::toString((*it)->getId()));
+	}
+	return condids;
+}
 
 void DebugCmd::tabCompletion(vector<string>& tokens) const
 {
@@ -1000,6 +1131,7 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 	singleArgCmds.insert("breaked");
 	singleArgCmds.insert("list_bp");
 	singleArgCmds.insert("list_watchpoints");
+	singleArgCmds.insert("list_conditions");
 	set<string> debuggableArgCmds;
 	debuggableArgCmds.insert("desc");
 	debuggableArgCmds.insert("size");
@@ -1013,6 +1145,8 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 	otherCmds.insert("remove_bp");
 	otherCmds.insert("set_watchpoint");
 	otherCmds.insert("remove_watchpoint");
+	otherCmds.insert("set_condition");
+	otherCmds.insert("remove_condition");
 	otherCmds.insert("probe");
 	switch (tokens.size()) {
 	case 2: {
@@ -1041,6 +1175,10 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 				// this one takes a wp id
 				set<string> wpids = getWatchPointIdsAsStringSet();
 				completeString(tokens, wpids);
+			} else if (tokens[1] == "remove_condition") {
+				// this one takes a cond id
+				set<string> condids = getConditionIdsAsStringSet();
+				completeString(tokens, condids);
 			} else if (tokens[1] == "set_watchpoint") {
 				set<string> types;
 				types.insert("write_io");

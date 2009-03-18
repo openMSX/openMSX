@@ -7,6 +7,7 @@
 #include "MSXDevice.hh"
 #include "WatchPoint.hh"
 #include "openmsx.hh"
+#include "shared_ptr.hh"
 #include "noncopyable.hh"
 #include "likely.hh"
 #include <bitset>
@@ -29,6 +30,7 @@ class SubSlottedInfo;
 class ExternalSlotInfo;
 class IOInfo;
 class BreakPoint;
+class DebugCondition;
 
 class MSXCPUInterface : private noncopyable
 {
@@ -185,6 +187,11 @@ public:
 	typedef std::vector<WatchPoint*> WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
+	static void setCondition(shared_ptr<DebugCondition> cond);
+	static void removeCondition(const DebugCondition& cond);
+	typedef std::vector<shared_ptr<DebugCondition> > Conditions;
+	static const Conditions& getConditions();
+
 	static bool isBreaked() { return breaked; }
 	void doBreak();
 	void doStep();
@@ -199,14 +206,16 @@ public:
 	// breakpoint methods used by CPUCore
 	static bool anyBreakPoints()
 	{
-		return !breakPoints.empty();
+		return !breakPoints.empty() || !conditions.empty();
 	}
 	static bool checkBreakPoints(unsigned pc)
 	{
 		std::pair<BreakPoints::const_iterator,
 		          BreakPoints::const_iterator> range =
 		                  breakPoints.equal_range(pc);
-		if (range.first == range.second) return false;
+		if (conditions.empty() && (range.first == range.second)) {
+			return false;
+		}
 
 		// slow path non-inlined
 		checkBreakPoints(range);
@@ -271,7 +280,8 @@ private:
 	std::auto_ptr<VDPIODelay> delayDevice;
 
 	static BreakPoints breakPoints;
-	WatchPoints watchPoints;
+	WatchPoints watchPoints; // TODO must also be static
+	static Conditions conditions;
 
 	byte disallowReadCache [CacheLine::NUM];
 	byte disallowWriteCache[CacheLine::NUM];

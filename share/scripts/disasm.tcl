@@ -83,7 +83,6 @@ set_help_text run_to \
 {Run to the specified address, if a breakpoint is reached earlier we stop
 at that breakpoint.}
 proc run_to {address} {
-#	after break "debug remove_bp $address"
 	set bp [ debug set_bp $address ]
 	after break "debug remove_bp $bp"
 	debug cont
@@ -100,7 +99,47 @@ proc step_in {} {
 }
 
 
-# TODO step_out   needs changes in openMSX itself
+#
+# step_out
+#
+set_help_text step_out \
+{Step out of the current subroutine. In other words, execute till right after
+the next 'ret' instruction (more if there were also extra 'call' instructions).
+Note: simulation can be slow during execution of 'step_out', though for not
+extremely large subroutines this is not a problem.}
+proc __step_out_is_ret {} {
+	# ret        0xC9
+	# ret <cc>   0xC0,0xC8,0xD0,..,0xF8
+	# reti retn  0xED + 0x45,0x4D,0x55,..,0x7D
+	set instr [peek16 [reg pc]]
+	expr {(($instr & 0x00FF) == 0x00C9) ||
+	      (($instr & 0x00C7) == 0x00C0) ||
+	      (($instr & 0xC7FF) == 0x45ED)}
+}
+proc __step_out_after_break {} {
+	# also clean up when breaked, but not because of step_out
+	catch { debug remove_condition $::__step_out_bp1 }
+	catch { debug remove_condition $::__step_out_bp2 }
+}
+proc __step_out_after_next {} {
+	catch { debug remove_condition $::__step_out_bp2 }
+	if {[reg sp] > $::__step_out_sp} {
+		catch { debug remove_condition $::__step_out_bp1 }
+		debug break
+	}
+}
+proc __step_out_after_ret {} {
+	catch { debug remove_condition $::__step_out_bp2 }
+	set ::__step_out_bp2 [debug set_condition 1 __step_out_after_next]
+}
+proc step_out {} {
+	catch { debug remove_condition $::__step_out_bp1 }
+	catch { debug remove_condition $::__step_out_bp2 }
+	set ::__step_out_sp [reg sp]
+	set ::__step_out_bp1 [debug set_condition {[__step_out_is_ret]} __step_out_after_ret]
+	after break __step_out_after_break
+	debug cont
+}
 
 
 #
