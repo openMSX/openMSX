@@ -797,7 +797,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 	static const string readHelp =
 		"debug read <name> <addr>\n"
 		"  Read a byte at offset <addr> from the given debuggable.\n"
-		"  The offset must be smaller then the value returned from the "
+		"  The offset must be smaller than the value returned from the "
 		"'size' subcommand\n"
 		"  Note that openMSX comes with a bunch of Tcl scripts that make "
 		"some of the debug reads much more convenient (e.g. reading from "
@@ -806,7 +806,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 	static const string writeHelp =
 		"debug write <name> <addr> <val>\n"
 		"  Write a byte to the given debuggable at a certain offset.\n"
-		"  The offset must be smaller then the value returned from the "
+		"  The offset must be smaller than the value returned from the "
 		"'size' subcommand\n";
 	static const string readBlockHelp =
 		"debug read_block <name> <addr> <size>\n"
@@ -913,7 +913,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"resulting list can be used to derive the number of bytes in the "
 		"instruction).\n"
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
-		"more convenient to use then this subcommand.";
+		"more convenient to use than this subcommand.";
 	static const string unknownHelp =
 		"Unknown subcommand, use 'help debug' to see a list of valid "
 		"subcommands.\n";
