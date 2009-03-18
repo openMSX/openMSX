@@ -775,11 +775,11 @@
     <tr>
       <td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
-      <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or IO region,
+      <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or I/O region,
       the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
-      command are similar to the ones in the 'set_bp' subcommand. A watchpoint can either be set on a single memory
-      address or IO port (specify a single value), or on a whole memory or IO port range (specify a begin/end pair).
-      For example: <code>debug set_watchpoint write_mem {0x8000 0x8fff}</code></td>
+      command are similar to the ones in the <code>set_bp</code> subcommand. A watchpoint can either be set on a single memory
+      address or I/O port (specify a single value), or on a whole memory or I/O port range (specify a begin/end pair).
+      For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code></td>
     </tr>
 
     <tr>
@@ -838,6 +838,21 @@
       <td>You can set breakpoints on a probe (and sometimes this is the only purpose of a probe).</td>
     </tr>
   </table>
+
+  <p>Many examples of usage of the debug command can be found in the scripts that come with openMSX (in the <code>share/scripts</code> directory). We also list a few here.
+  </p>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>debug set_watchpoint write_mem 0x8000 {[debug read "memory" 0x8000] ==
+0x00}</code> (break (only!) after 0 is written to 0x8000)<br />
+    <code>debug set_bp 0xF37D {[reg C] == 0x2F}</code>(break on address 0xF37D, but only when Z80 register C has the value 0x2F)<br />
+    <code>debug set_watchpoint read_mem {0xFBE5 0xFBEF}</code>(break when CPU reads from any addresses between 0xFBE5 and 0xFBEF)<br />
+    <code>debug set_watchpoint write_io 0x99 {[reg A] == 0x81}</code> (break after a write was done to I/O port 0x99, but only when Z80 register A has a value of 0x81)
+  </div>
 
   <div class="note">
     Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some Tcl scripts that
