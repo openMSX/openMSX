@@ -85,6 +85,7 @@ public:
 private:
 	bool needExitCPULoop();
 	void setSlowInstructions();
+	void doSetFreq();
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

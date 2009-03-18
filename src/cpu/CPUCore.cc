@@ -241,7 +241,7 @@ template <class T> CPUCore<T>::CPUCore(
 	        name + "_freq",
 	        "custom " + name + " frequency (only valid when unlocked)",
 	        T::CLOCK_FREQ, 1000000, 100000000))
-	, freq(freqValue->getValue())
+	, freq(T::CLOCK_FREQ)
 	, NMIStatus(0)
 	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",
 	            "Non-zero if there are pending IRQs (thus CPU would enter "
@@ -255,14 +255,7 @@ template <class T> CPUCore<T>::CPUCore(
 	, exitLoop(false)
 	, isTurboR(motherboard.isTurboR())
 {
-	if (freqLocked->getValue()) {
-		// locked
-		T::setFreq(T::CLOCK_FREQ);
-	} else {
-		// unlocked
-		T::setFreq(freqValue->getValue());
-	}
-
+	doSetFreq();
 	freqLocked->attach(*this);
 	freqValue->attach(*this);
 	doReset(time);
@@ -449,17 +442,9 @@ template <class T> void CPUCore<T>::disasmCommand(
 template <class T> void CPUCore<T>::update(const Setting& setting)
 {
 	if (&setting == freqLocked.get()) {
-		if (freqLocked->getValue()) {
-			// locked
-			T::setFreq(freq);
-		} else {
-			// unlocked
-			T::setFreq(freqValue->getValue());
-		}
+		doSetFreq();
 	} else if (&setting == freqValue.get()) {
-		if (!freqLocked->getValue()) {
-			T::setFreq(freqValue->getValue());
-		}
+		doSetFreq();
 	} else {
 		assert(false);
 	}
@@ -468,9 +453,17 @@ template <class T> void CPUCore<T>::update(const Setting& setting)
 template <class T> void CPUCore<T>::setFreq(unsigned freq_)
 {
 	freq = freq_;
+	doSetFreq();
+}
+
+template <class T> void CPUCore<T>::doSetFreq()
+{
 	if (freqLocked->getValue()) {
-		// locked
+		// locked, use value set via setFreq()
 		T::setFreq(freq);
+	} else {
+		// unlocked, use value set by user
+		T::setFreq(freqValue->getValue());
 	}
 }
 
