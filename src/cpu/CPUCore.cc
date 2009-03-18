@@ -2419,7 +2419,7 @@ template <class T> void CPUCore<T>::execute()
 	// Note: we call scheduler _after_ executing the instruction and before
 	// deciding between executeFast() and executeSlow() (because a
 	// SyncPoint could set an IRQ and then we must choose executeSlow())
-	if (!anyBreakPoints() && !traceSetting.getValue()) {
+	if (!interface->anyBreakPoints() && !traceSetting.getValue()) {
 		// fast path, no breakpoints, no tracing
 		while (!needExitCPULoop()) {
 			if (slowInstructions) {
@@ -2440,9 +2440,8 @@ template <class T> void CPUCore<T>::execute()
 		}
 	} else {
 		while (!needExitCPULoop()) {
-			if (checkBreakPoints(R)) {
-				// skip bp check on next instr
-				interface->setContinue(true);
+			if (interface->checkBreakPoints(R.getPC())) {
+				assert(interface->isBreaked());
 				break;
 			}
 			if (slowInstructions == 0) {
@@ -2450,12 +2449,11 @@ template <class T> void CPUCore<T>::execute()
 				assert(T::limitReached()); // only one instruction
 				executeInstructions();
 				cpuTracePost();
-				scheduler.schedule(T::getTimeFast());
 			} else {
 				--slowInstructions;
 				executeSlow();
-				scheduler.schedule(T::getTimeFast());
 			}
+			scheduler.schedule(T::getTimeFast());
 		}
 	}
 }

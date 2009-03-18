@@ -112,11 +112,6 @@ public:
 	void disasmCommand(const std::vector<TclObject*>& tokens,
                            TclObject& result) const;
 
-	// Breakpoint stuff
-	void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
-	void removeBreakPoint(const BreakPoint& bp);
-	const CPU::BreakPoints& getBreakPoints() const;
-
 	// Pause
 	void setPaused(bool paused);
 

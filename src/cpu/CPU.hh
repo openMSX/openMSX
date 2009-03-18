@@ -9,14 +9,12 @@
 #include "noncopyable.hh"
 #include "build-info.hh"
 #include <vector>
-#include <map>
 #include <memory>
 #include <cassert>
 
 namespace openmsx {
 
 class TclObject;
-class BreakPoint;
 
 template <bool bigEndian> struct z80regpair_8bit;
 template <> struct z80regpair_8bit<false> { byte l, h; };
@@ -39,8 +37,6 @@ public:
 	static const byte P_FLAG = V_FLAG;
 	static const byte N_FLAG = 0x02;
 	static const byte C_FLAG = 0x01;
-
-	typedef std::multimap<word, BreakPoint*> BreakPoints;
 
 /*
  * Below are two different implementations for the CPURegs class:
@@ -385,18 +381,6 @@ public:
 	CPURegs& getRegisters() { return R; }
 
 	/**
-	 */
-	void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
-
-	/**
-	 */
-	void removeBreakPoint(const BreakPoint& bp);
-
-	/**
-	 */
-	const BreakPoints& getBreakPoints() const;
-
-	/**
 	 * (un)pause CPU. During pause the CPU executes NOP instructions
 	 * continuously (just like during HALT). Used by turbor hw pause.
 	 */
@@ -405,24 +389,6 @@ public:
 protected:
 	CPU();
 	virtual ~CPU();
-
-	// breakpoint methods used by CPUCore
-	inline bool anyBreakPoints() const
-	{
-		return !breakPoints.empty();
-	}
-	bool checkBreakPoints(CPURegs& regs) const
-	{
-		std::pair<BreakPoints::const_iterator,
-		          BreakPoints::const_iterator> range =
-		                  breakPoints.equal_range(regs.getPC());
-		if (range.first == range.second) {
-			return false;
-		}
-		// slow path non-inlined
-		checkBreakPoints(range);
-		return true;
-	}
 
 	// flag-register tables, initialized at run-time
 	static byte ZSTable[256];
@@ -439,12 +405,6 @@ protected:
 	static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
 
 	CPURegs R;
-
-private:
-	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
-	                              BreakPoints::const_iterator> range) const;
-
-	static BreakPoints breakPoints;
 };
 SERIALIZE_CLASS_VERSION(CPU::CPURegs, 2);
 

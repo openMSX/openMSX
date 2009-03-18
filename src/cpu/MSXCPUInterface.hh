@@ -10,6 +10,8 @@
 #include "noncopyable.hh"
 #include "likely.hh"
 #include <bitset>
+#include <vector>
+#include <map>
 #include <memory>
 
 namespace openmsx {
@@ -26,6 +28,7 @@ class SlotInfo;
 class SubSlottedInfo;
 class ExternalSlotInfo;
 class IOInfo;
+class BreakPoint;
 
 class MSXCPUInterface : private noncopyable
 {
@@ -172,21 +175,43 @@ public:
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*>& alreadyRemoved) const;
 	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 
+	static void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
+	static void removeBreakPoint(const BreakPoint& bp);
+	typedef std::multimap<word, BreakPoint*> BreakPoints;
+	static const BreakPoints& getBreakPoints();
+
 	void setWatchPoint(std::auto_ptr<WatchPoint> watchPoint);
 	void removeWatchPoint(WatchPoint& watchPoint);
 	typedef std::vector<WatchPoint*> WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
-	bool isBreaked() const { return breaked; }
+	static bool isBreaked() { return breaked; }
 	void doBreak();
 	void doStep();
 	void doContinue();
 
 	// should only be used by CPUCore
-	bool isStep()     const  { return step; }
-	void setStep    (bool x) { step = x; }
-	bool isContinue() const  { return continued; }
-	void setContinue(bool x) { continued = x; }
+	static bool isStep()            { return step; }
+	static void setStep    (bool x) { step = x; }
+	static bool isContinue()        { return continued; }
+	static void setContinue(bool x) { continued = x; }
+
+	// breakpoint methods used by CPUCore
+	static bool anyBreakPoints()
+	{
+		return !breakPoints.empty();
+	}
+	static bool checkBreakPoints(unsigned pc)
+	{
+		std::pair<BreakPoints::const_iterator,
+		          BreakPoints::const_iterator> range =
+		                  breakPoints.equal_range(pc);
+		if (range.first == range.second) return false;
+
+		// slow path non-inlined
+		checkBreakPoints(range);
+		return isBreaked();
+	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -204,6 +229,10 @@ private:
 	                  int ps, int ss, int base, int size);
 	void unregisterSlot(MSXDevice& device,
 	                    int ps, int ss, int base, int size);
+
+
+	static void checkBreakPoints(std::pair<BreakPoints::const_iterator,
+	                                       BreakPoints::const_iterator> range);
 
 	void removeAllWatchPoints();
 	void registerIOWatch  (WatchPoint& watchPoint, MSXDevice** devices);
@@ -241,7 +270,9 @@ private:
 
 	std::auto_ptr<VDPIODelay> delayDevice;
 
+	static BreakPoints breakPoints;
 	WatchPoints watchPoints;
+
 	byte disallowReadCache [CacheLine::NUM];
 	byte disallowWriteCache[CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];

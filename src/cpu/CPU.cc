@@ -1,7 +1,6 @@
 // $Id$
 
 #include "CPU.hh"
-#include "BreakPoint.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -13,8 +12,6 @@ byte CPU::ZSPTable[256];
 byte CPU::ZSPXYTable[256];
 byte CPU::ZSPHTable[256];
 word CPU::DAATable[0x800];
-
-CPU::BreakPoints CPU::breakPoints;
 
 
 CPU::CPU()
@@ -81,39 +78,6 @@ CPU::CPU()
 
 CPU::~CPU()
 {
-	// TODO deleting bp still crashes for some reason, I suspect
-	// destruction order of MSXCPU and Interpreter. MSXCPU shouldn't
-	// be a singleton anyway.
-	for (BreakPoints::const_iterator it = breakPoints.begin();
-	     it != breakPoints.end(); ++it) {
-		//delete it->second;
-	}
-}
-
-void CPU::insertBreakPoint(std::auto_ptr<BreakPoint> bp_)
-{
-	BreakPoint* bp = bp_.release();
-	breakPoints.insert(std::make_pair(bp->getAddress(), bp));
-	exitCPULoopSync();
-}
-
-void CPU::removeBreakPoint(const BreakPoint& bp)
-{
-	std::pair<BreakPoints::iterator, BreakPoints::iterator> range =
-		breakPoints.equal_range(bp.getAddress());
-	for (BreakPoints::iterator it = range.first; it != range.second; ++it) {
-		if (it->second == &bp) {
-			delete &bp;
-			breakPoints.erase(it);
-			break;
-		}
-	}
-	exitCPULoopSync();
-}
-
-const CPU::BreakPoints& CPU::getBreakPoints() const
-{
-	return breakPoints;
 }
 
 void CPU::setPaused(bool paused)
@@ -122,14 +86,6 @@ void CPU::setPaused(bool paused)
 	exitCPULoopSync();
 }
 
-void CPU::checkBreakPoints(std::pair<BreakPoints::const_iterator,
-                                     BreakPoints::const_iterator> range) const
-{
-	for (BreakPoints::const_iterator it = range.first;
-	     it != range.second; ++it) {
-		it->second->checkAndExecute();
-	}
-}
 
 // version 1: Initial version.
 // version 2: Replaced 'afterEI' boolean with 'after' byte

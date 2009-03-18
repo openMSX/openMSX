@@ -24,6 +24,8 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+typedef MSXCPUInterface::BreakPoints BreakPoints;
+
 class DebugCmd : public RecordedCommand
 {
 public:
@@ -447,7 +449,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 		}
 	}
 	result.setString("bp#" + StringOp::toString(bp->getId()));
-	debugger.cpu->insertBreakPoint(bp);
+	debugger.motherBoard.getCPUInterface().insertBreakPoint(bp);
 }
 
 void DebugCmd::removeBreakPoint(const vector<TclObject*>& tokens,
@@ -456,17 +458,18 @@ void DebugCmd::removeBreakPoint(const vector<TclObject*>& tokens,
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
+	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
+	const BreakPoints& breakPoints = interface.getBreakPoints();
 
 	string tmp = tokens[2]->getString();
 	if (StringOp::startsWith(tmp, "bp#")) {
 		// remove by id
 		unsigned id = StringOp::stringToInt(tmp.substr(3));
-		for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
+		for (BreakPoints::const_iterator it = breakPoints.begin();
 		     it != breakPoints.end(); ++it) {
 			const BreakPoint& bp = *it->second;
 			if (bp.getId() == id) {
-				debugger.cpu->removeBreakPoint(bp);
+				interface.removeBreakPoint(bp);
 				return;
 			}
 		}
@@ -474,14 +477,14 @@ void DebugCmd::removeBreakPoint(const vector<TclObject*>& tokens,
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(tokens);
-		std::pair<CPU::BreakPoints::const_iterator,
-			  CPU::BreakPoints::const_iterator> range =
+		std::pair<BreakPoints::const_iterator,
+			  BreakPoints::const_iterator> range =
 				breakPoints.equal_range(addr);
-		for (CPU::BreakPoints::const_iterator it = range.first;
+		for (BreakPoints::const_iterator it = range.first;
 		     it != range.second; ++it) {
 			const BreakPoint& bp = *it->second;
 			if (bp.getCondition().empty()) {
-				debugger.cpu->removeBreakPoint(bp);
+				interface.removeBreakPoint(bp);
 				return;
 			}
 		}
@@ -493,9 +496,10 @@ void DebugCmd::removeBreakPoint(const vector<TclObject*>& tokens,
 void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
                                TclObject& result)
 {
-	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
+	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
+	const BreakPoints& breakPoints = interface.getBreakPoints();
 	string res;
-	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
+	for (BreakPoints::const_iterator it = breakPoints.begin();
 	     it != breakPoints.end(); ++it) {
 		const BreakPoint& bp = *it->second;
 		TclObject line(result.getInterpreter());
@@ -965,9 +969,10 @@ string DebugCmd::help(const vector<string>& tokens) const
 
 set<string> DebugCmd::getBreakPointIdsAsStringSet() const
 {
-	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
+	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
+	const BreakPoints& breakPoints = interface.getBreakPoints();
 	set<string> bpids;
-	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
+	for (BreakPoints::const_iterator it = breakPoints.begin();
 	     it != breakPoints.end(); ++it) {
 		bpids.insert("bp#" + StringOp::toString((*it->second).getId()));
 	}

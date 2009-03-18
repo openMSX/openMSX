@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXCPUInterface.hh"
+#include "BreakPoint.hh"
 #include "DummyDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
@@ -129,6 +130,7 @@ private:
 bool MSXCPUInterface::breaked = false;
 bool MSXCPUInterface::continued = false;
 bool MSXCPUInterface::step = false;
+MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
@@ -198,6 +200,11 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 MSXCPUInterface::~MSXCPUInterface()
 {
+	for (BreakPoints::const_iterator it = breakPoints.begin();
+	     it != breakPoints.end(); ++it) {
+		delete it->second;
+	}
+
 	removeAllWatchPoints();
 
 	if (delayDevice.get()) {
@@ -665,6 +672,41 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 		setSubSlot(primSlot, value);
 	} else {
 		slotLayout[primSlot][subSlot][page]->writeMem(offset, value, time);
+	}
+}
+
+
+void MSXCPUInterface::insertBreakPoint(std::auto_ptr<BreakPoint> bp_)
+{
+	BreakPoint* bp = bp_.release();
+	breakPoints.insert(std::make_pair(bp->getAddress(), bp));
+}
+
+void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
+{
+	std::pair<BreakPoints::iterator, BreakPoints::iterator> range =
+		breakPoints.equal_range(bp.getAddress());
+	for (BreakPoints::iterator it = range.first; it != range.second; ++it) {
+		if (it->second == &bp) {
+			delete &bp;
+			breakPoints.erase(it);
+			break;
+		}
+	}
+}
+
+const MSXCPUInterface::BreakPoints& MSXCPUInterface::getBreakPoints()
+{
+	return breakPoints;
+}
+
+void MSXCPUInterface::checkBreakPoints(
+	std::pair<BreakPoints::const_iterator,
+	          BreakPoints::const_iterator> range)
+{
+	for (BreakPoints::const_iterator it = range.first;
+	     it != range.second; ++it) {
+		it->second->checkAndExecute();
 	}
 }
 

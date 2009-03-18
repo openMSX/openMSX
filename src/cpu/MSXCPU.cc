@@ -230,21 +230,6 @@ void MSXCPU::disasmCommand(const vector<TclObject*>& tokens,
 	activeCPU->disasmCommand(tokens, result);
 }
 
-void MSXCPU::insertBreakPoint(std::auto_ptr<BreakPoint> bp)
-{
-	activeCPU->insertBreakPoint(bp);
-}
-
-void MSXCPU::removeBreakPoint(const BreakPoint& bp)
-{
-	activeCPU->removeBreakPoint(bp);
-}
-
-const CPU::BreakPoints& MSXCPU::getBreakPoints() const
-{
-	return activeCPU->getBreakPoints();
-}
-
 void MSXCPU::setPaused(bool paused)
 {
 	activeCPU->setPaused(paused);
