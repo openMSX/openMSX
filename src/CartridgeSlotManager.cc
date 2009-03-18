@@ -6,6 +6,7 @@
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
+#include "InfoTopic.hh"
 #include "FileContext.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
@@ -34,6 +35,18 @@ private:
 	CliComm& cliComm;
 };
 
+class CartridgeSlotInfo : public InfoTopic
+{
+public:
+	CartridgeSlotInfo(InfoCommand& machineInfoCommand,
+	                 CartridgeSlotManager& manger);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help(const vector<string>& tokens) const;
+private:
+	CartridgeSlotManager& manager;
+};
+
 
 // CartridgeSlotManager::Slot
 CartridgeSlotManager::Slot::Slot()
@@ -60,12 +73,13 @@ bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 	, cartCmd(new CartCmd(*this, motherBoard, "cart"))
+	, extSlotInfo(new CartridgeSlotInfo(motherBoard.getMachineInfoCommand(), *this))
 {
 }
 
 CartridgeSlotManager::~CartridgeSlotManager()
 {
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		assert(!slots[slot].exists());
 		assert(!slots[slot].used());
 	}
@@ -104,7 +118,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 	if (isExternalSlot(ps, ss, false)) {
 		throw MSXException("Slot is already an external slot.");
 	}
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (!slots[slot].exists()) {
 			slots[slot].ps = ps;
 			slots[slot].ss = ss;
@@ -123,7 +137,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 
 int CartridgeSlotManager::getSlot(int ps, int ss) const
 {
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (slots[slot].exists() &&
 		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
 			return slot;
@@ -163,11 +177,10 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 	slots[slot].command.reset();
 }
 
-int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss,
+int CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss,
                                           const HardwareConfig& hwConfig)
 {
-	assert((0 <= slot) && (slot < MAX_SLOTS));
-
+	assert(slot < MAX_SLOTS);
 	if (!slots[slot].exists()) {
 		throw MSXException(string("slot-") + char('a' + slot) +
 		                   " not defined.");
@@ -188,7 +201,7 @@ int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
 	// search for the lowest free slot
 	int result = -1;
 	unsigned slotNum = unsigned(-1);
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (slots[slot].exists() && !slots[slot].used()) {
 			unsigned p = slots[slot].ps;
 			unsigned s = (slots[slot].ss != -1) ? slots[slot].ss : 0;
@@ -212,7 +225,7 @@ int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
 int CartridgeSlotManager::getFreePrimarySlot(
 		int& ps, const HardwareConfig& hwConfig)
 {
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		ps = slots[slot].ps;
 		if (slots[slot].exists() && (slots[slot].ss == -1) &&
 		    !slots[slot].used()) {
@@ -226,7 +239,7 @@ int CartridgeSlotManager::getFreePrimarySlot(
 int CartridgeSlotManager::useExternalSlot(
 		int ps, int ss, const HardwareConfig& hwConfig)
 {
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (!slots[slot].exists()) continue;
 		int tmp = (slots[slot].ss == -1) ? 0 : slots[slot].ss;
 		if ((slots[slot].ps == ps) && (tmp == ss)) {
@@ -247,7 +260,7 @@ void CartridgeSlotManager::freeSlot(int slot)
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
 		if (slots[slot].exists() &&
 		    (slots[slot].ps == ps) && (tmp == ss)) {
@@ -376,6 +389,66 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 	}
 	UserFileContext context;
 	completeFileName(getCommandController(), tokens, context, extra);
+}
+
+
+// class CartridgeSlotInfo
+
+CartridgeSlotInfo::CartridgeSlotInfo(InfoCommand& machineInfoCommand,
+                                   CartridgeSlotManager& manager_)
+	: InfoTopic(machineInfoCommand, "external_slot")
+	, manager(manager_)
+{
+}
+
+void CartridgeSlotInfo::execute(const vector<TclObject*>& tokens,
+                               TclObject& result) const
+{
+	switch (tokens.size()) {
+	case 2:
+		// return list of slots
+		for (unsigned i = 0; i < CartridgeSlotManager::MAX_SLOTS; ++i) {
+			if (!manager.slots[i].exists()) continue;
+			result.addListElement(string("slot") + char('a' + i));
+		}
+		break;
+	case 3: {
+		// return info on a particular slot
+		string name = tokens[2]->getString();
+		if ((name.size() != 5) || (name.substr(0, 4) != "slot")) {
+			throw CommandException("Invalid slot name: " + name);
+		}
+		unsigned num = name[4] - 'a';
+		if (num >= CartridgeSlotManager::MAX_SLOTS) {
+			throw CommandException("Invalid slot name: " + name);
+		}
+		CartridgeSlotManager::Slot& slot = manager.slots[num];
+		if (!slot.exists()) {
+			throw CommandException("Slot '" + name + "' doesn't currently exist in this msx machine.");
+		}
+		result.addListElement(slot.ps);
+		if (slot.ss == -1) {
+			result.addListElement("X");
+		} else {
+			result.addListElement(slot.ss);
+		}
+		if (slot.config) {
+			result.addListElement(slot.config->getName());
+		} else {
+			result.addListElement("");
+		}
+		break;
+	}
+	default:
+		throw SyntaxError();
+	}
+}
+
+string CartridgeSlotInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Without argument: show list of available external slots.\n"
+	       "With argument: show primary and secondary slot number for "
+	       "given external slot.\n";
 }
 
 } // namespace openmsx

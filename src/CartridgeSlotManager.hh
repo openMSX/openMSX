@@ -12,6 +12,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class CartCmd;
 class HardwareConfig;
+class CartridgeSlotInfo;
 
 class CartridgeSlotManager : private noncopyable
 {
@@ -28,7 +29,7 @@ public:
 	void testRemoveExternalSlot(int ps, const HardwareConfig& allowed) const;
 	void testRemoveExternalSlot(int ps, int ss, const HardwareConfig& allowed) const;
 
-	int getSpecificSlot(int slot, int& ps, int& ss,
+	int getSpecificSlot(unsigned slot, int& ps, int& ss,
 	                    const HardwareConfig& hwConfig);
 	int getAnyFreeSlot(int& ps, int& ss, const HardwareConfig& hwConfig);
 	int getFreePrimarySlot(int& ps, const HardwareConfig& hwConfig);
@@ -51,11 +52,13 @@ private:
 		std::auto_ptr<CartCmd> command;
 		const HardwareConfig* config;
 	};
-	static const int MAX_SLOTS = 16 + 4;
+	static const unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];
 	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<CartCmd> cartCmd;
+	const std::auto_ptr<CartridgeSlotInfo> extSlotInfo;
 	friend class CartCmd;
+	friend class CartridgeSlotInfo;
 };
 
 } // namespace openmsx

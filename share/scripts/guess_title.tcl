@@ -6,14 +6,8 @@ the inserted ROM cartridges or disks.
 
 proc guess_rom_title { ps ss } {
 	# check device name at address #4000 in given slot
-	set slots [split [slotmap] \n]
-	set slot_name "$ps"
-	if [machine_info issubslotted $ps] { append slot_name ".$ss" }
-	set index [lsearch $slots "slot $slot_name:"]
-	if {$index != -1} {
-		set rom [lrange [lindex $slots [expr $index + 2]] 1 end]
-		if { $rom != "empty" } { return $rom }
-	}
+	set rom [machine_info slot $ps $ss 1]
+	if { $rom != "empty" } { return $rom }
 	return ""
 }
 

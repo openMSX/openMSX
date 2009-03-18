@@ -50,11 +50,7 @@ Result is 0 when there is no memory mapper in the slot.}
 proc get_mapper_size { ps ss } {
 	set result 0
 	catch {
-		set slots [split [slotmap] \n]
-		set slot_name "$ps"
-		if [machine_info issubslotted $ps] { append slot_name ".$ss" }
-		set index [lsearch $slots "slot $slot_name:"]
-		set device [lrange [lindex $slots [expr $index + 2]] 1 end]
+		set device [machine_info slot $ps $ss 0]
 		if { [debug desc $device] == "memory mapper" } {
 			set result [expr [debug size $device] / 0x4000]
 		}
@@ -96,16 +92,25 @@ proc __slotmap_helper { ps ss } {
 	}
 	return $result
 }
+proc __slotmap_name { ps ss } {
+	set t [list $ps $ss]
+	foreach slot [machine_info external_slot] {
+		if {[string equal [lrange [machine_info external_slot $slot] 0 1] $t]} {
+			return " (${slot})"
+		}
+	}
+	return ""
+}
 proc slotmap { } {
 	set result ""
 	for { set ps 0 } { $ps < 4 } { incr ps } {
 		if [machine_info issubslotted $ps] {
 			for { set ss 0 } { $ss < 4 } { incr ss } {
-				append result "slot $ps.$ss:\n"
+				append result "slot $ps.$ss[__slotmap_name $ps $ss]:\n"
 				append result [__slotmap_helper $ps $ss]
 			}
 		} else {
-			append result "slot $ps:\n"
+			append result "slot $ps[__slotmap_name $ps X]:\n"
 			append result [__slotmap_helper $ps 0]
 		}
 	}
