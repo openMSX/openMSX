@@ -880,6 +880,10 @@
          <code>debug set_watchpoint read_mem {0xFBE5 0xFBEF}</code></li>
       <li>break after a write was done to I/O port 0x99, but only when Z80 register A has a value of 0x81:<br/>
          <code>debug set_watchpoint write_io 0x99 {[reg A] == 0x81}</code></li>
+      <li>break as soon as there is a pending Z80 IRQ (even when in DI mode):<br/>
+         <code>debug probe set_bp z80.pendingIRQ<code></li>
+      <li>break when register HL has the value 1234:<br/>
+         <code>debug set_condition {[reg hl] == 1234}<code></li>
     </ul>
   </div>
 
