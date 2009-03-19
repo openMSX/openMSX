@@ -118,7 +118,22 @@ proc load_icons { set_name { set_position "" } } {
 	}
 	set vertical [expr !$horizontal]
 
+	proc __get_image { directory file } {
+		if [file isfile $directory/$file] {
+			return $directory/$file
+		}
+		return ""
+	}
+	proc __try_dirs { dir_list file fallback } {
+		if {[string index $file 0] == "/"} { return $file }
+		foreach dir $dir_list {
+			set f [__get_image $dir $file]
+			if {$f != ""} { return $f }
+		}
+		return $fallback
+	}
 	# Calculate default parameter values ...
+	set dirs [list $directory [data_file "skins"]]
 	for { set i 0 } { $i < [llength $icons] } { incr i } {
 		set icon [lindex $icons $i]
 
@@ -134,19 +149,21 @@ proc load_icons { set_name { set_position "" } } {
 		switch -glob $icon {
 			led_* {
 				set base [string tolower [string range $icon 4 end]]
+				set image_on     "${base}-on.png"
+				set image_off    "${base}-off.png"
+				set fallback_on  "led-on.png"
+				set fallback_off "led-off.png"
 			}
 			default {
-				set base $icon
+				set image_on     "${icon}.png"
+				set image_off    ""
+				set fallback_on  ""
+				set fallback_off ""
+				set fade_delay_active($icon) 0
 			}
 		}
-		set active_image($icon) led-on.png
-		if [file exists $directory/${base}-on.png] {
-			set active_image($icon) ${base}-on.png
-		}
-		set non_active_image($icon) led-off.png
-		if [file exists $directory/${base}-off.png] {
-			set non_active_image($icon) ${base}-off.png
-		}
+		set active_image($icon)     [__try_dirs $dirs $image_on  $fallback_on ]
+		set non_active_image($icon) [__try_dirs $dirs $image_off $fallback_off]
 	}
 
 	# ... but allow to override these calculated values (again) by the skin script
@@ -154,24 +171,18 @@ proc load_icons { set_name { set_position "" } } {
 
 	osd configure osd_icons -x $xbase -y $ybase
 
-	proc __get_image { directory file } {
-		if [file isfile $directory/$file] {
-			return $directory/$file
-		}
-		return ""
-	}
 	foreach icon $::__icons {
 		osd configure osd_icons.${icon}_on \
 		       -x $xcoord($icon) \
 		       -y $ycoord($icon) \
 		       -fadePeriod $fade_duration_active($icon) \
-		       -image [__get_image $directory $active_image($icon)] \
+		       -image [__try_dirs $dirs $active_image($icon) ""] \
 		       -scale $invscale
 		osd configure osd_icons.${icon}_off \
 		       -x $xcoord($icon) \
 		       -y $ycoord($icon) \
 		       -fadePeriod $fade_duration_non_active($icon) \
-		       -image [__get_image $directory $non_active_image($icon)] \
+		       -image [__try_dirs $dirs $non_active_image($icon) ""] \
 		       -scale $invscale
 	}
 
@@ -216,7 +227,8 @@ proc __machine_switch_osd_icons {} {
 }
 
 # Available icons. Icons are also drawn in this order (by default)
-set __icons "led_power led_caps led_kana led_pause led_turbo led_FDD"
+set __icons [list "led_power" "led_caps" "led_kana" "led_pause" "led_turbo" "led_FDD" \
+                  "pause" "mute" "breaked"]
 
 # create OSD widgets
 osd create rectangle osd_icons -scaled true -alpha 0 -z 1
