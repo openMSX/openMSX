@@ -1,4 +1,4 @@
-foreach led $leds {
-	set active_image($led) ""
-	set non_active_image($led) ""
+foreach icon $icons {
+	set active_image($icon) ""
+	set non_active_image($icon) ""
 }

@@ -1,8 +1,8 @@
 set_help_text load_icons \
-{Load a different set of OSD LED icons.
+{Load a different set of OSD icons.
  usage:  load_icons <name> [<position>]
           <name> is the name of a directory (share/skins/<name>) that
-          contains the led images
+          contains the icon images
           <position> can be one of the following 'bottom', 'top',
           'left' or 'right'. Default is 'bottom'
  example: load_icons set1 top
@@ -20,27 +20,27 @@ proc __tab_load_icons { args } {
 	}
 }
 
-proc __trace_led_status { name1 name2 op } {
+proc __trace_icon_status { name1 name2 op } {
 	global $name1 __last_change
-	set led [string trimleft $name1 ":"]
-	set __last_change($led) [openmsx_info realtime]
-	__redraw_osd_leds $led
+	set icon [string trimleft $name1 ":"]
+	set __last_change($icon) [openmsx_info realtime]
+	__redraw_osd_icons $icon
 }
 
-proc __redraw_osd_leds { led } {
-	global __fade_delay_active __fade_delay_non_active __last_change __fade_id $led
+proc __redraw_osd_icons { icon } {
+	global __fade_delay_active __fade_delay_non_active __last_change __fade_id $icon
 
 	# handle 'unset' variables  (when current msx machine got deleted)
-	if [catch {set value [set ${led}]}] { set value false }
+	if [catch {set value [set $icon]}] { set value false }
 
 	if $value {
-		set widget  osd_leds.${led}_on
-		set widget2 osd_leds.${led}_off
-		set fade_delay $__fade_delay_active($led)
+		set widget  osd_icons.${icon}_on
+		set widget2 osd_icons.${icon}_off
+		set fade_delay $__fade_delay_active($icon)
 	} else {
-		set widget  osd_leds.${led}_off
-		set widget2 osd_leds.${led}_on
-		set fade_delay $__fade_delay_non_active($led)
+		set widget  osd_icons.${icon}_off
+		set widget2 osd_icons.${icon}_on
+		set fade_delay $__fade_delay_non_active($icon)
 	}
 	osd configure $widget2 -alpha 0 -fadeTarget 0
 
@@ -48,14 +48,14 @@ proc __redraw_osd_leds { led } {
 		# no fading yet
 		osd configure $widget -alpha 255 -fadeTarget 255
 	} else {
-		set diff [expr [openmsx_info realtime] - $__last_change($led)]
+		set diff [expr [openmsx_info realtime] - $__last_change($icon)]
 		if {$diff < $fade_delay} {
 			# no fading yet
 			osd configure $widget -alpha 255 -fadeTarget 255
 			catch {
-				after cancel $__fade_id($led)
+				after cancel $__fade_id($icon)
 			}
-			set __fade_id($led) [after realtime [expr $fade_delay - $diff] "__redraw_osd_leds $led"]
+			set __fade_id($icon) [after realtime [expr $fade_delay - $diff] "__redraw_osd_icons $icon"]
 		} else {
 			# fading out
 			osd configure $widget -fadeTarget 0
@@ -67,7 +67,7 @@ proc load_icons { set_name { set_position "" } } {
 	# Check skin directory
 	set directory [data_file "skins/$set_name"]
 	if { ![file exists $directory] } {
-		error "No such LED skin: $set_name"
+		error "No such icon skin: $set_name"
 	}
 
 	# Check position
@@ -82,7 +82,7 @@ proc load_icons { set_name { set_position "" } } {
 		error "Invalid position: $set_position"
 	}
 
-	# Defaut LED positions
+	# Defaut icon positions
 	set xbase 0
 	set ybase 0
 	set xwidth 50
@@ -95,7 +95,7 @@ proc load_icons { set_name { set_position "" } } {
 	set scale 2
 
 	# but allow to override these values by the skin script
-	set leds $::__leds  ;# the 'none' skin needs this
+	set icons $::__icons  ;# the 'none' skin needs this
 	set script $directory/skin.tcl
 	if [file exists $script] { source $script }
 
@@ -119,33 +119,40 @@ proc load_icons { set_name { set_position "" } } {
 	set vertical [expr !$horizontal]
 
 	# Calculate default parameter values ...
-	for { set i 0 } { $i < [llength $::__leds] } { incr i } {
-		set led [lindex $::__leds $i]
-		set led_lower [string tolower $led]
+	for { set i 0 } { $i < [llength $icons] } { incr i } {
+		set icon [lindex $icons $i]
 
-		set xcoord($led) [expr $i * $xspacing * $horizontal]
-		set ycoord($led) [expr $i * $yspacing * $vertical]
+		set xcoord($icon) [expr $i * $xspacing * $horizontal]
+		set ycoord($icon) [expr $i * $yspacing * $vertical]
 
-		set fade_delay_active($led)     $fade_delay
-		set fade_delay_non_active($led) $fade_delay
+		set fade_delay_active($icon)     $fade_delay
+		set fade_delay_non_active($icon) $fade_delay
 
-		set fade_duration_active($led)     $fade_duration
-		set fade_duration_non_active($led) $fade_duration
+		set fade_duration_active($icon)     $fade_duration
+		set fade_duration_non_active($icon) $fade_duration
 
-		set active_image($led) led-on.png
-		if [file exists $directory/${led_lower}-on.png] {
-			set active_image($led) ${led_lower}-on.png
+		switch -glob $icon {
+			led_* {
+				set base [string tolower [string range $icon 4 end]]
+			}
+			default {
+				set base $icon
+			}
 		}
-		set non_active_image($led) led-off.png
-		if [file exists $directory/${led_lower}-off.png] {
-			set non_active_image($led) ${led_lower}-off.png
+		set active_image($icon) led-on.png
+		if [file exists $directory/${base}-on.png] {
+			set active_image($icon) ${base}-on.png
+		}
+		set non_active_image($icon) led-off.png
+		if [file exists $directory/${base}-off.png] {
+			set non_active_image($icon) ${base}-off.png
 		}
 	}
 
 	# ... but allow to override these calculated values (again) by the skin script
 	if [file exists $script] { source $script }
 
-	osd configure osd_leds -x $xbase -y $ybase
+	osd configure osd_icons -x $xbase -y $ybase
 
 	proc __get_image { directory file } {
 		if [file isfile $directory/$file] {
@@ -153,18 +160,18 @@ proc load_icons { set_name { set_position "" } } {
 		}
 		return ""
 	}
-	foreach led $::__leds {
-		osd configure osd_leds.led_${led}_on \
-		       -x $xcoord($led) \
-		       -y $ycoord($led) \
-		       -fadePeriod $fade_duration_active($led) \
-		       -image [__get_image $directory $active_image($led)] \
+	foreach icon $::__icons {
+		osd configure osd_icons.${icon}_on \
+		       -x $xcoord($icon) \
+		       -y $ycoord($icon) \
+		       -fadePeriod $fade_duration_active($icon) \
+		       -image [__get_image $directory $active_image($icon)] \
 		       -scale $invscale
-		osd configure osd_leds.led_${led}_off \
-		       -x $xcoord($led) \
-		       -y $ycoord($led) \
-		       -fadePeriod $fade_duration_non_active($led) \
-		       -image [__get_image $directory $non_active_image($led)] \
+		osd configure osd_icons.${icon}_off \
+		       -x $xcoord($icon) \
+		       -y $ycoord($icon) \
+		       -fadePeriod $fade_duration_non_active($icon) \
+		       -image [__get_image $directory $non_active_image($icon)] \
 		       -scale $invscale
 	}
 
@@ -181,15 +188,15 @@ proc load_icons { set_name { set_position "" } } {
 	set ::osd_leds_set $set_name
 	set ::__osd_leds_pos $set_position
 	set ::osd_leds_pos $set_position
-	foreach led $::__leds {
-		set ::__fade_delay_active(led_${led})     $fade_delay_active($led)
-		set ::__fade_delay_non_active(led_${led}) $fade_delay_non_active($led)
+	foreach icon $::__icons {
+		set ::__fade_delay_active($icon)     $fade_delay_active($icon)
+		set ::__fade_delay_non_active($icon) $fade_delay_non_active($icon)
 	}
 
 	return ""
 }
 
-proc __trace_osd_led_vars {name1 name2 op} {
+proc __trace_osd_icon_vars {name1 name2 op} {
 	# avoid executing load_icons multiple times
 	# (because of the assignments to the settings in that proc)
 	if {($::osd_leds_set == $::__osd_leds_set) &&
@@ -199,34 +206,34 @@ proc __trace_osd_led_vars {name1 name2 op} {
 	load_icons $::osd_leds_set $::osd_leds_pos
 }
 
-proc __machine_switch_osd_leds {} {
-	foreach led $::__leds {
-		trace remove variable ::led_${led} "write unset" __trace_led_status
-		trace add    variable ::led_${led} "write unset" __trace_led_status
-		__redraw_osd_leds led_$led
+proc __machine_switch_osd_icons {} {
+	foreach icon $::__icons {
+		trace remove variable ::$icon "write unset" __trace_icon_status
+		trace add    variable ::$icon "write unset" __trace_icon_status
+		__redraw_osd_icons $icon
 	}
-	after machine_switch __machine_switch_osd_leds
+	after machine_switch __machine_switch_osd_icons
 }
 
-# Available LEDs. LEDs are also drawn in this order (by default)
-set __leds "power caps kana pause turbo FDD"
+# Available icons. Icons are also drawn in this order (by default)
+set __icons "led_power led_caps led_kana led_pause led_turbo led_FDD"
 
 # create OSD widgets
-osd create rectangle osd_leds -scaled true -alpha 0 -z 1
-foreach __led $__leds {
-	osd create rectangle osd_leds.led_${__led}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
-	osd create rectangle osd_leds.led_${__led}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
-	trace add variable ::led_${__led} "write unset" __trace_led_status
-	set ::__last_change(led_${__led}) [openmsx_info realtime]
+osd create rectangle osd_icons -scaled true -alpha 0 -z 1
+foreach __icon $__icons {
+	osd create rectangle osd_icons.${__icon}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
+	osd create rectangle osd_icons.${__icon}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
+	trace add variable ::$__icon "write unset" __trace_icon_status
+	set ::__last_change($__icon) [openmsx_info realtime]
 }
 
 # Restore settings from previous session
-user_setting create string osd_leds_set "Name of the OSD LED icon set" set1
-user_setting create string osd_leds_pos "Position of the OSD LEDs" bottom
+user_setting create string osd_leds_set "Name of the OSD icon set" set1
+user_setting create string osd_leds_pos "Position of the OSD icons" bottom
 set __osd_leds_set $osd_leds_set
 set __osd_leds_pos $osd_leds_pos
-trace add variable osd_leds_set write __trace_osd_led_vars
-trace add variable osd_leds_pos write __trace_osd_led_vars
-after machine_switch __machine_switch_osd_leds
+trace add variable osd_leds_set write __trace_osd_icon_vars
+trace add variable osd_leds_pos write __trace_osd_icon_vars
+after machine_switch __machine_switch_osd_icons
 
 load_icons $osd_leds_set $osd_leds_pos
