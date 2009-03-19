@@ -21,6 +21,8 @@
 #include "EventDistributor.hh"
 #include "Event.hh"
 #include "DeviceFactory.hh"
+#include "ReadOnlySetting.hh"
+#include "BooleanSetting.hh"
 #include "serialize.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
@@ -135,6 +137,9 @@ MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
 //TODO watchpoints
 MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
 
+static ReadOnlySetting<BooleanSetting>* breakedSetting = 0;
+static unsigned breakedSettingCount = 0;
+
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
 static const byte SECUNDARY_SLOT_BIT = 0x01;
@@ -199,10 +204,23 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 			IO_Out[port] = delayDevice.get();
 		}
 	}
+
+	if (breakedSettingCount++ == 0) {
+		assert(!breakedSetting);
+		breakedSetting = new ReadOnlySetting<BooleanSetting>(
+			motherBoard.getReactor().getCommandController(),
+			"breaked", "Similar to 'debug breaked'", false);
+	}
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
+	if (--breakedSettingCount == 0) {
+		assert(breakedSetting);
+		delete breakedSetting;
+		breakedSetting = 0;
+	}
+
 	for (BreakPoints::const_iterator it = breakPoints.begin();
 	     it != breakPoints.end(); ++it) {
 		delete it->second;
@@ -883,6 +901,7 @@ void MSXCPUInterface::doBreak()
 
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.block();
+	breakedSetting->setReadOnlyValue(true);
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
 	reactor.getEventDistributor().distributeEvent(
 		new SimpleEvent<OPENMSX_BREAK_EVENT>());
@@ -908,6 +927,7 @@ void MSXCPUInterface::doContinue2()
 {
 	breaked = false;
 	Reactor& reactor = motherBoard.getReactor();
+	breakedSetting->setReadOnlyValue(false);
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
 	reactor.unblock();
 }
