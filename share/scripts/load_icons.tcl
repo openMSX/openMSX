@@ -235,7 +235,7 @@ proc __machine_switch_osd_icons {} {
 
 # Available icons. Icons are also drawn in this order (by default)
 set __icons [list "led_power" "led_caps" "led_kana" "led_pause" "led_turbo" "led_FDD" \
-                  "pause" "mute" "breaked" "throttle"]
+                  "pause" "throttle" "mute" "breaked"]
 
 # create OSD widgets
 osd create rectangle osd_icons -scaled true -alpha 0 -z 1
