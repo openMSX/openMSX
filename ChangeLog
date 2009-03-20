@@ -1,5 +1,8 @@
 $Id$
 
+2009-03-20 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added throttle setting to the new OSD icons (thanks Wouter).
+
 2009-03-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Convert ancient history_size and remove_doubles settings to modern
 	  settings. They influence how openMSX handles console history.

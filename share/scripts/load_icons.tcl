@@ -154,6 +154,13 @@ proc load_icons { set_name { set_position "" } } {
 				set fallback_on  "led-on.png"
 				set fallback_off "led-off.png"
 			}
+			throttle {
+				set image_on     ""
+				set image_off    "${icon}.png"
+				set fallback_on  ""
+				set fallback_off ""
+				set fade_delay_non_active($icon) 0
+			}
 			default {
 				set image_on     "${icon}.png"
 				set image_off    ""
@@ -228,7 +235,7 @@ proc __machine_switch_osd_icons {} {
 
 # Available icons. Icons are also drawn in this order (by default)
 set __icons [list "led_power" "led_caps" "led_kana" "led_pause" "led_turbo" "led_FDD" \
-                  "pause" "mute" "breaked"]
+                  "pause" "mute" "breaked" "throttle"]
 
 # create OSD widgets
 osd create rectangle osd_icons -scaled true -alpha 0 -z 1
