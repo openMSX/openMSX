@@ -354,15 +354,15 @@ void Display::repaint()
 	alarm->cancel(); // cancel delayed repaint
 
 	assert(videoSystem.get());
-
-	for (Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
-		if ((*it)->coverage != Layer::COVER_NONE) {
-			//std::cout << "Painting layer " << (*it)->getName() << std::endl;
-			(*it)->paint();
+	OutputSurface* surface = videoSystem->getOutputSurface();
+	if (surface) {
+		for (Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
+			if ((*it)->coverage != Layer::COVER_NONE) {
+				(*it)->paint(*surface);
+			}
 		}
+		videoSystem->flush();
 	}
-
-	videoSystem->flush();
 
 	// update fps statistics
 	unsigned long long now = Timer::getTime();

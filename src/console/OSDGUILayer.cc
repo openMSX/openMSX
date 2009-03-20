@@ -3,13 +3,8 @@
 #include "OSDGUILayer.hh"
 #include "OSDGUI.hh"
 #include "OSDWidget.hh"
-#include "Display.hh"
-#include "VideoSystem.hh"
-#include "openmsx.hh"
 
 namespace openmsx {
-
-class OutputSurface;
 
 // class OSDGUILayer
 
@@ -21,9 +16,7 @@ OSDGUILayer::OSDGUILayer(OSDGUI& gui_)
 
 OSDGUILayer::~OSDGUILayer()
 {
-	PRT_DEBUG("Destructing OSDGUILayer... ");
 	getGUI().getTopWidget().invalidateRecursive();
-	PRT_DEBUG("Destructing OSDGUILayer... DONE");
 }
 
 OSDGUI& OSDGUILayer::getGUI()
@@ -45,12 +38,9 @@ SDLOSDGUILayer::SDLOSDGUILayer(OSDGUI& gui)
 {
 }
 
-void SDLOSDGUILayer::paint()
+void SDLOSDGUILayer::paint(OutputSurface& output)
 {
-	OutputSurface* output =
-		getGUI().getDisplay().getVideoSystem().getOutputSurface();
-	if (!output) return;
-	getGUI().getTopWidget().paintSDLRecursive(*output);
+	getGUI().getTopWidget().paintSDLRecursive(output);
 }
 
 
@@ -61,12 +51,9 @@ GLOSDGUILayer::GLOSDGUILayer(OSDGUI& gui)
 {
 }
 
-void GLOSDGUILayer::paint()
+void GLOSDGUILayer::paint(OutputSurface& output)
 {
-	OutputSurface* output =
-		getGUI().getDisplay().getVideoSystem().getOutputSurface();
-	if (!output) return;
-	getGUI().getTopWidget().paintGLRecursive(*output);
+	getGUI().getTopWidget().paintGLRecursive(output);
 }
 
 } // namespace openmsx

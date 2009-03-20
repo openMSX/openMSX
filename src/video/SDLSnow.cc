@@ -10,9 +10,8 @@
 namespace openmsx {
 
 template <class Pixel>
-SDLSnow<Pixel>::SDLSnow(OutputSurface& output_, Display& display_)
+SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 	: Layer(COVER_FULL, Z_BACKGROUND)
-	, output(output_)
 	, display(display_)
 {
 	// Precalc gray values for noise
@@ -39,7 +38,7 @@ static int random()
 }
 
 template <class Pixel>
-void SDLSnow<Pixel>::paint()
+void SDLSnow<Pixel>::paint(OutputSurface& output)
 {
 	output.lock();
 	const unsigned width = output.getWidth();

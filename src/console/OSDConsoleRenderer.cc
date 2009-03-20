@@ -9,7 +9,6 @@
 #include "GlobalSettings.hh"
 #include "TTFFont.hh"
 #include "SDLImage.hh"
-#include "OutputSurface.hh"
 #include "Display.hh"
 #include "Event.hh"
 #include "InputEvents.hh"
@@ -56,12 +55,14 @@ private:
 // class OSDConsoleRenderer
 
 OSDConsoleRenderer::OSDConsoleRenderer(
-		Reactor& reactor_, OutputSurface& output_, bool openGL_)
+		Reactor& reactor_, unsigned screenW_, unsigned screenH_,
+		bool openGL_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
-	, output(output_)
 	, consoleSetting(reactor.getGlobalSettings().getConsoleSetting())
 	, settingChecker(new OSDSettingChecker(*this))
+	, screenW(screenW_)
+	, screenH(screenH_)
 	, openGL(openGL_)
 {
 #ifndef COMPONENT_GL
@@ -102,8 +103,8 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	}
 
 	// rows / columns
-	int columns = (((output.getWidth() - CHAR_BORDER) / font->getWidth()) * 30) / 32;
-	int rows = ((output.getHeight() / font->getHeight()) * 6) / 15;
+	int columns = (((screenW - CHAR_BORDER) / font->getWidth()) * 30) / 32;
+	int rows = ((screenH / font->getHeight()) * 6) / 15;
 	consoleColumnsSetting.reset(new IntegerSetting(commandController,
 		"consolecolumns", "number of columns in the console", columns,
 		32, 999));
@@ -155,10 +156,10 @@ void OSDConsoleRenderer::adjustColRow()
 {
 	unsigned consoleColumns = std::min<unsigned>(
 		consoleColumnsSetting->getValue(),
-		(output.getWidth() - CHAR_BORDER) / font->getWidth());
+		(screenW - CHAR_BORDER) / font->getWidth());
 	unsigned consoleRows = std::min<unsigned>(
 		consoleRowsSetting->getValue(),
-		output.getHeight() / font->getHeight());
+		screenH / font->getHeight());
 	CommandConsole& console = reactor.getCommandConsole();
 	console.setColumns(consoleColumns);
 	console.setRows(consoleRows);
@@ -220,8 +221,6 @@ byte OSDConsoleRenderer::getVisibility() const
 
 bool OSDConsoleRenderer::updateConsoleRect()
 {
-	unsigned screenW = output.getWidth();
-	unsigned screenH = output.getHeight();
 	adjustColRow();
 
 	unsigned x, y, w, h;
@@ -300,7 +299,8 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 #endif
 }
 
-void OSDConsoleRenderer::drawText(const string& text, int x, int y, byte alpha)
+void OSDConsoleRenderer::drawText(OutputSurface& output, const string& text,
+                                  int x, int y, byte alpha)
 {
 	if (text.empty()) return;
 	SDL_Surface* surf = font->render(text, 255, 255, 255);
@@ -316,7 +316,7 @@ void OSDConsoleRenderer::drawText(const string& text, int x, int y, byte alpha)
 #endif
 }
 
-void OSDConsoleRenderer::paint()
+void OSDConsoleRenderer::paint(OutputSurface& output)
 {
 	byte visibility = getVisibility();
 	if (!visibility) return;
@@ -354,7 +354,8 @@ void OSDConsoleRenderer::paint()
 	CommandConsole& console = reactor.getCommandConsole();
 	int screenlines = destH / font->getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
-		drawText(console.getLine(loop + console.getScrollBack()),
+		drawText(output,
+		         console.getLine(loop + console.getScrollBack()),
 		         destX + CHAR_BORDER,
 		         destY + destH - (1 + loop) * font->getHeight() - 1,
 		         visibility);
@@ -376,7 +377,7 @@ void OSDConsoleRenderer::paint()
 		lastCursorY = cursorY;
 	}
 	if (blink && (console.getScrollBack() == 0)) {
-		drawText("_",
+		drawText(output, "_",
 		         destX + CHAR_BORDER + cursorX * font->getWidth(),
 		         destY + destH - (font->getHeight() * (cursorY + 1)) - 1,
 		         visibility);

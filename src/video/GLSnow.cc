@@ -33,7 +33,7 @@ GLSnow::~GLSnow()
 	glDeleteTextures(1, &noiseTextureId);
 }
 
-void GLSnow::paint()
+void GLSnow::paint(OutputSurface& /*output*/)
 {
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.

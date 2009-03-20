@@ -103,7 +103,8 @@ std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		Reactor& reactor)
 {
 	const bool openGL = false;
-	return std::auto_ptr<Layer>(new OSDConsoleRenderer(reactor, *this, openGL));
+	return std::auto_ptr<Layer>(new OSDConsoleRenderer(
+		reactor, getWidth(), getHeight(), openGL));
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)

@@ -127,7 +127,7 @@ void GLPostProcessor::createRegions()
 }
 
 
-void GLPostProcessor::paint()
+void GLPostProcessor::paint(OutputSurface& /*output*/)
 {
 	RenderSettings::DisplayDeform deform =
 		renderSettings.getDisplayDeform().getValue();

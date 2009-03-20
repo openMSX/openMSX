@@ -29,7 +29,7 @@ public:
 	virtual ~PostProcessor();
 
 	// Layer interface:
-	virtual void paint() = 0;
+	virtual void paint(OutputSurface& output) = 0;
 	virtual const std::string& getName();
 
 	/** Sets up the "abcdFrame" variables for a new frame.

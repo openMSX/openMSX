@@ -77,7 +77,7 @@ void DummyRenderer::updateVRAM(unsigned /*offset*/, EmuTime::param /*time*/) {
 void DummyRenderer::updateWindow(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::paint() {
+void DummyRenderer::paint(OutputSurface& /*output*/) {
 }
 
 const std::string& DummyRenderer::getName() {

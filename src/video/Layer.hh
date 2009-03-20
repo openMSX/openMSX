@@ -7,6 +7,7 @@
 
 namespace openmsx {
 
+class OutputSurface;
 class LayerListener;
 
 /** Interface for display layers.
@@ -31,7 +32,7 @@ public:
 
 	/** Paint this layer.
 	  */
-	virtual void paint() = 0;
+	virtual void paint(OutputSurface& output) = 0;
 
 	/** Returns the name of this layer. Used for debugging.
 	  */

@@ -31,7 +31,7 @@ public:
 	virtual ~GLPostProcessor();
 
 	// Layer interface:
-	virtual void paint();
+	virtual void paint(OutputSurface& output);
 
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field,

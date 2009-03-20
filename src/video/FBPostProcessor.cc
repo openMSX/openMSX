@@ -241,15 +241,15 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 }
 
 template <class Pixel>
-void FBPostProcessor<Pixel>::drawNoise()
+void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
 {
 	if (renderSettings.getNoise().getValue() == 0) return;
 
-	unsigned height = screen.getHeight();
-	unsigned width = screen.getWidth();
-	screen.lock();
+	unsigned height = output.getHeight();
+	unsigned width = output.getWidth();
+	output.lock();
 	for (unsigned y = 0; y < height; ++y) {
-		Pixel* buf = screen.getLinePtrDirect<Pixel>(y);
+		Pixel* buf = output.getLinePtrDirect<Pixel>(y);
 		drawNoiseLine(buf, buf, &noiseBuf[noiseShift[y]], width);
 	}
 }
@@ -291,7 +291,7 @@ FBPostProcessor<Pixel>::~FBPostProcessor()
 }
 
 template <class Pixel>
-void FBPostProcessor<Pixel>::paint()
+void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 {
 	if (!paintFrame) return;
 
@@ -303,12 +303,12 @@ void FBPostProcessor<Pixel>::paint()
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			PixelOperations<Pixel>(screen.getSDLFormat()), renderSettings);
+			PixelOperations<Pixel>(output.getSDLFormat()), renderSettings);
 	}
 
 	// Scale image.
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getHeight();
+	const unsigned dstHeight = output.getHeight();
 
 	unsigned g = Math::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
@@ -338,7 +338,7 @@ void FBPostProcessor<Pixel>::paint()
 		//	srcStartY, srcEndY, lineWidth );
 		currScaler->scaleImage(
 			*paintFrame, srcStartY, srcEndY, lineWidth, // source
-			screen, dstStartY, dstEndY); // dest
+			output, dstStartY, dstEndY); // dest
 		paintFrame->freeLineBuffers();
 
 		// next region
@@ -346,11 +346,13 @@ void FBPostProcessor<Pixel>::paint()
 		dstStartY = dstEndY;
 	}
 
-	drawNoise();
+	drawNoise(output);
 
-	// TODO: This statement is the only reason FBPostProcessor uses "screen"
-	//       as a VisibleSurface instead of as an OutputSurface.
-	screen.drawFrameBuffer();
+	// TODO: This statement is (was?) the only reason FBPostProcessor uses
+	//       "screen" as a VisibleSurface instead of as an OutputSurface.
+	if (VisibleSurface* vis = dynamic_cast<VisibleSurface*>(&output)) {
+		vis->drawFrameBuffer();
+	}
 }
 
 template <class Pixel>

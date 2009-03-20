@@ -40,7 +40,7 @@ public:
 	void updateWindow(bool enabled, EmuTime::param time);
 
 	// Layer interface:
-	virtual void paint();
+	virtual void paint(OutputSurface& output);
 	virtual const std::string& getName();
 };
 

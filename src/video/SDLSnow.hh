@@ -20,11 +20,10 @@ public:
 	SDLSnow(OutputSurface& output, Display& display);
 
 	// Layer interface:
-	virtual void paint();
+	virtual void paint(OutputSurface& output);
 	virtual const std::string& getName();
 
 private:
-	OutputSurface& output;
 	Display& display;
 
 	/** Gray values for noise.

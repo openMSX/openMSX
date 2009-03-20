@@ -28,7 +28,7 @@ public:
 	virtual ~FBPostProcessor();
 
 	// Layer interface:
-	virtual void paint();
+	virtual void paint(OutputSurface& output);
 
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field,
@@ -36,7 +36,7 @@ public:
 
 private:
 	void preCalcNoise(double factor);
-	void drawNoise();
+	void drawNoise(OutputSurface& output);
 	void drawNoiseLine(Pixel* in, Pixel* out, signed char* noise,
 	                   unsigned long width);
 

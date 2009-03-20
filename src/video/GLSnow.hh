@@ -20,7 +20,7 @@ public:
 	virtual ~GLSnow();
 
 	// Layer interface:
-	virtual void paint();
+	virtual void paint(OutputSurface& output);
 	virtual const std::string& getName();
 
 private:

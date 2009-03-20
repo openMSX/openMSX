@@ -18,7 +18,6 @@ class Setting;
 class BooleanSetting;
 class IntegerSetting;
 class FilenameSetting;
-class OutputSurface;
 class OSDSettingChecker;
 template <typename T> class EnumSetting;
 
@@ -26,12 +25,13 @@ class OSDConsoleRenderer : public Layer, private Observer<Setting>,
                            private noncopyable
 {
 public:
-	OSDConsoleRenderer(Reactor& reactor, OutputSurface& output, bool openGL);
+	OSDConsoleRenderer(Reactor& reactor, unsigned screenW, unsigned screenH,
+	                   bool openGL);
 	~OSDConsoleRenderer();
 
 private:
 	// Layer
-	virtual void paint();
+	virtual void paint(OutputSurface& output);
 	virtual const std::string& getName();
 
 	// Observer
@@ -44,7 +44,8 @@ private:
 	void loadFont      (const std::string& value);
 	void loadBackground(const std::string& value);
 	byte getVisibility() const;
-	void drawText(const std::string& text, int x, int y, byte alpha);
+	void drawText(OutputSurface& output, const std::string& text,
+	              int x, int y, byte alpha);
 
 	enum Placement {
 		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
@@ -53,7 +54,6 @@ private:
 	};
 
 	Reactor& reactor;
-	OutputSurface& output;
 	BooleanSetting& consoleSetting;
 	const std::auto_ptr<OSDSettingChecker> settingChecker;
 	std::auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
@@ -67,6 +67,8 @@ private:
 
 	unsigned long long lastBlinkTime;
 	unsigned long long activeTime;
+	const unsigned screenW;
+	const unsigned screenH;
 	unsigned destX;
 	unsigned destY;
 	unsigned destW;
