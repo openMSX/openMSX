@@ -263,7 +263,7 @@ static string getSafeValueString(Setting& setting)
 {
 	try {
 		return setting.getValueString();
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		return "proxy";
 	}
 }

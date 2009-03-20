@@ -939,7 +939,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, ram(ramSize * 1024) // in kB
 	, endRom(rom->getSize())
-	, endRam(endRom + ram.size())
+	, endRam(unsigned(endRom + ram.size()))
 {
 	memadr = 0; // avoid UMR
 	setOutputRate(44100); // make valgrind happy
@@ -1056,7 +1056,7 @@ void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("busyTime", busyTime);
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
-	ar.serialize_blob("ram", &ram[0], ram.size());
+	ar.serialize_blob("ram", &ram[0], unsigned(ram.size()));
 	ar.serialize_blob("registers", regs, sizeof(regs));
 
 	// TODO restore more state from registers
