@@ -208,7 +208,7 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 	if ((getAlpha() != 0) && image.get()) {
 		double x, y;
 		getTransformedXY(output, x, y);
-		image->draw(int(x), int(y), getAlpha());
+		image->draw(output, int(x), int(y), getAlpha());
 	}
 	if (isFading()) {
 		gui.refresh();

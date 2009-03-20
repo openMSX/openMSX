@@ -12,23 +12,19 @@ struct SDL_Surface;
 
 namespace openmsx {
 
-class OutputSurface;
-
 class GLImage : public BaseImage
 {
 public:
-	GLImage(OutputSurface& output, const std::string& filename);
-	GLImage(OutputSurface& output, const std::string& filename,
-	        double scaleFactor);
-	GLImage(OutputSurface& output, const std::string& filename,
-	        unsigned width, unsigned height);
-	GLImage(OutputSurface& output,
-	        unsigned width, unsigned height, byte alpha,
-	        byte r = 0, byte g = 0, byte b = 0);
-	GLImage(OutputSurface& output, SDL_Surface* image);
+	GLImage(const std::string& filename);
+	GLImage(const std::string& filename, double scaleFactor);
+	GLImage(const std::string& filename, unsigned width, unsigned height);
+	GLImage(unsigned width, unsigned height,
+	        byte alpha, byte r = 0, byte g = 0, byte b = 0);
+	GLImage(SDL_Surface* image);
 	virtual ~GLImage();
 
-	virtual void draw(unsigned x, unsigned y, unsigned char alpha = 255);
+	virtual void draw(OutputSurface& output, unsigned x, unsigned y,
+	                  byte alpha = 255);
 	virtual unsigned getWidth() const;
 	virtual unsigned getHeight() const;
 

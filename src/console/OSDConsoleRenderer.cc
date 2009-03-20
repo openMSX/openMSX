@@ -291,13 +291,11 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 	CommandController* controller = NULL; // ok for SystemFileContext
 	string filename = context.resolve(*controller, value);
 	if (!openGL) {
-		backgroundImage.reset(
-			new SDLImage(output, filename, destW, destH));
+		backgroundImage.reset(new SDLImage(filename, destW, destH));
 	}
 #ifdef COMPONENT_GL
 	else {
-		backgroundImage.reset(
-			new GLImage(output, filename, destW, destH));
+		backgroundImage.reset(new GLImage(filename, destW, destH));
 	}
 #endif
 }
@@ -307,13 +305,13 @@ void OSDConsoleRenderer::drawText(const string& text, int x, int y, byte alpha)
 	if (text.empty()) return;
 	SDL_Surface* surf = font->render(text, 255, 255, 255);
 	if (!openGL) {
-		SDLImage image(output, surf);
-		image.draw(x, y, alpha);
+		SDLImage image(surf);
+		image.draw(output, x, y, alpha);
 	}
 #ifdef COMPONENT_GL
 	else {
-		GLImage image(output, surf);
-		image.draw(x, y, alpha);
+		GLImage image(surf);
+		image.draw(output, x, y, alpha);
 	}
 #endif
 }
@@ -336,12 +334,12 @@ void OSDConsoleRenderer::paint()
 		// no background image, try to create an empty one
 		try {
 			if (!openGL) {
-				backgroundImage.reset(new SDLImage(output,
+				backgroundImage.reset(new SDLImage(
 					destW, destH, CONSOLE_ALPHA));
 			}
 #ifdef COMPONENT_GL
 			else {
-				backgroundImage.reset(new GLImage(output,
+				backgroundImage.reset(new GLImage(
 					destW, destH, CONSOLE_ALPHA));
 			}
 #endif
@@ -350,7 +348,7 @@ void OSDConsoleRenderer::paint()
 		}
 	}
 	if (backgroundImage.get()) {
-		backgroundImage->draw(destX, destY, visibility);
+		backgroundImage->draw(output, destX, destY, visibility);
 	}
 
 	CommandConsole& console = reactor.getCommandConsole();

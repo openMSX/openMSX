@@ -87,7 +87,7 @@ string OSDText::getType() const
 template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
 	if (text.empty()) {
-		return new IMAGE(output, 0, 0, 0);
+		return new IMAGE(0, 0, 0);
 	}
 	if (!font.get()) {
 		try {
@@ -103,7 +103,7 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 	try {
 		SDL_Surface* surface = font->render(
 			text, getRed(), getGreen(), getBlue());
-		return new IMAGE(output, surface);
+		return new IMAGE(surface);
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: " + e.getMessage());
 	}

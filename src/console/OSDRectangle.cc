@@ -104,7 +104,7 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 			//  alpha is applied during drawing. This way we
 			//  can also reuse the same image if only alpha
 			//  changes.
-			return new IMAGE(output, sw, sh, 255,
+			return new IMAGE(sw, sh, 255,
 			                 getRed(), getGreen(), getBlue());
 		} else {
 			// optimization: Sometimes it's useful to have a
@@ -119,9 +119,9 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		CommandController* controller = NULL; // ok for SystemFileContext
 		string file = context.resolve(*controller, imageName);
 		if (sw && sh) {
-			return new IMAGE(output, file, sw, sh);
+			return new IMAGE(file, sw, sh);
 		} else {
-			return new IMAGE(output, file, factor);
+			return new IMAGE(file, factor);
 		}
 	}
 }

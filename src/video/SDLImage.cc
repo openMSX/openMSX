@@ -17,34 +17,31 @@ using std::string;
 
 namespace openmsx {
 
-SDLImage::SDLImage(OutputSurface& output_, const string& filename)
-	: output(output_)
+SDLImage::SDLImage(const string& filename)
 {
 	image = loadImage(filename);
 	init(filename);
 }
 
-SDLImage::SDLImage(OutputSurface& output_, const std::string& filename,
-                   double scaleFactor)
-	: output(output_)
+SDLImage::SDLImage(const std::string& filename, double scaleFactor)
 {
 	image = loadImage(filename, scaleFactor);
 	init(filename);
 }
 
-SDLImage::SDLImage(OutputSurface& output_, const string& filename,
-	           unsigned width, unsigned height)
-	: output(output_)
+SDLImage::SDLImage(const string& filename, unsigned width, unsigned height)
 {
 	image = loadImage(filename, width, height);
 	init(filename);
 }
 
-SDLImage::SDLImage(OutputSurface& output_, unsigned width, unsigned height,
+SDLImage::SDLImage(unsigned width, unsigned height,
                    byte alpha, byte r, byte g, byte b)
-	: output(output_)
 {
-	const SDL_PixelFormat& format = output.getSDLFormat();
+	SDL_Surface* videoSurface = SDL_GetVideoSurface();
+	assert(videoSurface);
+	const SDL_PixelFormat& format = *videoSurface->format;
+
 	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
 		width, height, format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, 0);
@@ -52,16 +49,14 @@ SDLImage::SDLImage(OutputSurface& output_, unsigned width, unsigned height,
 		throw MSXException("Couldn't allocate surface.");
 	}
 	if (r || g || b) {
-		SDL_FillRect(image, NULL,
-			     SDL_MapRGB(&output.getSDLFormat(), r, g, b));
+		SDL_FillRect(image, NULL, SDL_MapRGB(&format, r, g, b));
 	}
 	a = (alpha == 255) ? 256 : alpha;
 	workImage = NULL;
 }
 
-SDLImage::SDLImage(OutputSurface& output_, SDL_Surface* image_)
-	: output(output_)
-	, image(image_)
+SDLImage::SDLImage(SDL_Surface* image_)
+	: image(image_)
 {
 	init("");
 }
@@ -92,7 +87,7 @@ SDLImage::~SDLImage()
 	if (workImage) SDL_FreeSurface(workImage);
 }
 
-void SDLImage::draw(unsigned x, unsigned y, byte alpha)
+void SDLImage::draw(OutputSurface& output, unsigned x, unsigned y, byte alpha)
 {
 	output.unlock();
 	SDL_Surface* outputSurface = output.getSDLWorkSurface();

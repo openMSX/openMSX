@@ -10,30 +10,27 @@ using std::string;
 
 namespace openmsx {
 
-GLImage::GLImage(OutputSurface& /*output*/, const string& filename)
+GLImage::GLImage(const string& filename)
 {
 	texture = loadTexture(filename, width, height, texCoord);
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, const string& filename,
-                 double scalefactor)
+GLImage::GLImage(const string& filename, double scalefactor)
 {
 	texture = loadTexture(filename, width, height, texCoord);
 	width  = unsigned(scalefactor * width);
 	height = unsigned(scalefactor * height);
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, const string& filename,
-                 unsigned width_, unsigned height_)
+GLImage::GLImage(const string& filename, unsigned width_, unsigned height_)
 {
 	texture = loadTexture(filename, width, height, texCoord);
 	width  = width_;
 	height = height_;
 }
 
-GLImage::GLImage(OutputSurface& /*output*/,
-        unsigned width_, unsigned height_, byte alpha,
-	byte r_, byte g_, byte b_)
+GLImage::GLImage(unsigned width_, unsigned height_,
+                 byte alpha, byte r_, byte g_, byte b_)
 {
 	texture = 0;
 	width  = width_;
@@ -44,7 +41,7 @@ GLImage::GLImage(OutputSurface& /*output*/,
 	a = (alpha == 255) ? 256 : alpha;
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, SDL_Surface* image)
+GLImage::GLImage(SDL_Surface* image)
 {
 	texture = loadTexture(image, width, height, texCoord);
 	SDL_FreeSurface(image);
@@ -55,7 +52,8 @@ GLImage::~GLImage()
 	glDeleteTextures(1, &texture);
 }
 
-void GLImage::draw(unsigned x, unsigned y, unsigned char alpha)
+void GLImage::draw(OutputSurface& /*output*/, unsigned x, unsigned y,
+                   unsigned char alpha)
 {
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
