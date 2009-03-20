@@ -153,10 +153,9 @@ void GLPostProcessor::paint()
 		currScaler = GLScalerFactory::createScaler(renderSettings);
 	}
 
-
 	if (renderToTexture) {
 		glBindTexture(GL_TEXTURE_2D, 0);
-		fbo[frameCounter & 1]->bind();
+		fbo[frameCounter & 1]->push();
 	}
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -179,7 +178,7 @@ void GLPostProcessor::paint()
 	drawGlow(glow);
 
 	if (renderToTexture) {
-		fbo[frameCounter & 1]->unbind();
+		fbo[frameCounter & 1]->pop();
 		colorTex[frameCounter & 1]->bind();
 
 		glEnable(GL_TEXTURE_2D);

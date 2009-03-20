@@ -23,7 +23,6 @@
 
 #include "build-info.hh"
 #include <string>
-#include <vector>
 #include <cassert>
 
 namespace openmsx {
@@ -204,15 +203,11 @@ public:
 	FrameBufferObject(Texture& texture);
 	~FrameBufferObject();
 
-	void bind();
-	static void unbind();
 	void push();
-	static void pop();
+	void pop();
 
 private:
 	GLuint bufferId;
-	static GLuint currentId;
-	static std::vector<GLuint> stack;
 };
 
 /** Wrapper around a pixel buffer.

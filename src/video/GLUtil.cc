@@ -9,6 +9,7 @@
 #include "vla.hh"
 #include "Version.hh"
 #include <iostream>
+#include <vector>
 #include <memory>
 #include <cstring>
 #include <cstdio>
@@ -344,8 +345,8 @@ void StoredFrame::drawBlend(
 
 // class FrameBufferObject
 
-GLuint FrameBufferObject::currentId = 0;
-std::vector<GLuint> FrameBufferObject::stack;
+static GLuint currentId = 0;
+static std::vector<GLuint> stack;
 
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
@@ -355,13 +356,14 @@ FrameBufferObject::FrameBufferObject(Texture& texture)
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
 	                          GL_COLOR_ATTACHMENT0_EXT,
 	                          GL_TEXTURE_2D, texture.textureId, 0);
-	if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
-	    GL_FRAMEBUFFER_COMPLETE_EXT) {
+	bool success = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) ==
+	               GL_FRAMEBUFFER_COMPLETE_EXT;
+	pop();
+	if (!success) {
 		throw InitException(
 			"Your OpenGL implementation support for "
 			"framebuffer objects is too limited.");
 	}
-	pop();
 }
 
 FrameBufferObject::~FrameBufferObject()
@@ -370,31 +372,22 @@ FrameBufferObject::~FrameBufferObject()
 	glDeleteFramebuffersEXT(1, &bufferId);
 }
 
-void FrameBufferObject::bind()
+void FrameBufferObject::push()
 {
+	stack.push_back(currentId);
 	currentId = bufferId;
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
 }
 
-void FrameBufferObject::unbind()
-{
-	currentId = 0;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
-}
-
-void FrameBufferObject::push()
-{
-	stack.push_back(currentId);
-	bind();
-}
-
 void FrameBufferObject::pop()
 {
+	assert(currentId == bufferId);
 	assert(!stack.empty());
 	currentId = stack.back();
 	stack.pop_back();
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
 }
+
 
 bool PixelBuffers::enabled = true;
 
