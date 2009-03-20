@@ -6,7 +6,7 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "EnumSetting.hh"
-#include "VisibleSurface.hh"
+#include "OutputSurface.hh"
 #include "Math.hh"
 #include "MemoryOps.hh"
 #include "InitException.hh"
@@ -17,7 +17,7 @@ namespace openmsx {
 
 GLPostProcessor::GLPostProcessor(
 	MSXMotherBoard& motherBoard, Display& display,
-	VisibleSurface& screen, VideoSource videoSource,
+	OutputSurface& screen, VideoSource videoSource,
 	unsigned maxWidth, unsigned height_)
 	: PostProcessor(motherBoard, display, screen,
 	                videoSource, maxWidth, height_)

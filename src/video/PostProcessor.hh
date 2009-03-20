@@ -11,7 +11,6 @@ namespace openmsx {
 
 class Display;
 class RenderSettings;
-class VisibleSurface;
 class RawFrame;
 class DeinterlacedFrame;
 class DoubledFrame;
@@ -75,14 +74,14 @@ protected:
 
 	PostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
-		VisibleSurface& screen, VideoSource videoSource,
+		OutputSurface& screen, VideoSource videoSource,
 		unsigned maxWidth, unsigned height);
 
 	/** Render settings */
 	RenderSettings& renderSettings;
 
 	/** The surface which is visible to the user. */
-	VisibleSurface& screen;
+	OutputSurface& screen;
 
 	/** The last finished frame, ready to be displayed. */
 	RawFrame* currFrame;

@@ -2,7 +2,7 @@
 
 #include "PostProcessor.hh"
 #include "Display.hh"
-#include "VisibleSurface.hh"
+#include "OutputSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
 #include "ScreenShotSaver.hh"
@@ -20,7 +20,7 @@
 namespace openmsx {
 
 PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
-	Display& display_, VisibleSurface& screen_, VideoSource videoSource,
+	Display& display_, OutputSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
 	: VideoLayer(motherBoard, videoSource, display_)
 	, renderSettings(display_.getRenderSettings())

@@ -267,7 +267,7 @@ void FBPostProcessor<Pixel>::update(const Setting& setting)
 
 template <class Pixel>
 FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
-	Display& display, VisibleSurface& screen_, VideoSource videoSource,
+	Display& display, OutputSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
 	: PostProcessor(
 		motherBoard, display, screen_, videoSource, maxWidth, height)

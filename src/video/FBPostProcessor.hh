@@ -13,7 +13,6 @@ namespace openmsx {
 class MSXMotherBoard;
 class Scaler;
 class Display;
-class VisibleSurface;
 
 /** Rasterizer using SDL.
   */
@@ -23,7 +22,7 @@ class FBPostProcessor : public PostProcessor
 public:
 	FBPostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
-		VisibleSurface& screen, VideoSource videoSource,
+		OutputSurface& screen, VideoSource videoSource,
 		unsigned maxWidth, unsigned height);
 	virtual ~FBPostProcessor();
 

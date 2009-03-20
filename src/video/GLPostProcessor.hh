@@ -15,7 +15,6 @@ namespace openmsx {
 class GLScaler;
 class MSXMotherBoard;
 class Display;
-class VisibleSurface;
 class Texture;
 class FrameBufferObject;
 
@@ -26,7 +25,7 @@ class GLPostProcessor : public PostProcessor
 public:
 	GLPostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
-		VisibleSurface& screen, VideoSource videoSource,
+		OutputSurface& screen, VideoSource videoSource,
 		unsigned maxWidth, unsigned height);
 	virtual ~GLPostProcessor();
 
