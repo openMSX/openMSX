@@ -302,17 +302,8 @@ init:
 
 # Check compiler with the most famous program.
 hello: init
-	@echo "#include <iostream>" > $(OUTDIR)/$@.cc
-	@echo "int main(int argc, char** argv) {" >> $(OUTDIR)/$@.cc
-	@echo "  std::cout << \"Hello World!\" << std::endl;" >> $(OUTDIR)/$@.cc
-	@echo "}" >> $(OUTDIR)/$@.cc
-	@if $(COMPILE) $(COMPILE_FLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
-	then echo "Compiler works: $(COMPILE) $(COMPILE_FLAGS)" >> $(LOG); \
-	     echo "COMPILER:=true" >> $(OUTMAKE); \
-	else echo "Compiler broken: $(COMPILE) $(COMPILE_FLAGS)" >> $(LOG); \
-	     echo "COMPILER:=false" >> $(OUTMAKE); \
-	fi
-	@rm -f $(OUTDIR)/$@.cc $(OUTDIR)/$@.o
+	@$(PYTHON) build/probe_run_compiler.py \
+		'$(COMPILE)' '$(COMPILE_FLAGS)' $(OUTDIR) $(LOG) $(OUTMAKE)
 
 # Probe for function:
 # Try to include the necessary header and get the function address.
