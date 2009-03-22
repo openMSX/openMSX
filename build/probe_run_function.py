@@ -22,34 +22,16 @@ def main(
 	compileCommandStr, compileFlagsStr, outDir, logPath, makePath,
 	makeName, funcName, headerStr
 	):
+	compileCommand = CompileCommand.fromLine(compileCommandStr, compileFlagsStr)
 	log = open(logPath, 'a')
 	try:
-		compileCmdParts = compileCommandStr.split()
-		compileFlags = compileFlagsStr.split()
-		compileEnv = {}
-		while compileCmdParts:
-			if '=' in compileCmdParts[0]:
-				name, value = compileCmdParts[0].split('=', 1)
-				del compileCmdParts[0]
-				compileEnv[name] = value
-			else:
-				compileFlags = compileCmdParts[1 : ] + compileFlags
-				compileCommand = CompileCommand(
-					compileEnv, compileCmdParts[0], compileFlags
-					)
-				ok = checkFunc(
-					log, compileCommand, outDir,
-					makeName, funcName, headerStr.split()
-					)
-				print >> log, '%s function: %s' % (
-					'Found' if ok else 'Missing',
-					makeName
-					)
-				break
-		else:
-			raise ValueError(
-				'No compiler specified in "%s"' % compileCommandStr
-				)
+		ok = checkFunc(
+			log, compileCommand, outDir, makeName, funcName, headerStr.split()
+			)
+		print >> log, '%s function: %s' % (
+			'Found' if ok else 'Missing',
+			makeName
+			)
 	finally:
 		log.close()
 

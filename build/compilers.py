@@ -14,6 +14,26 @@ def writeFile(path, lines):
 
 class CompileCommand(object):
 
+	@classmethod
+	def fromLine(cls, compileCommandStr, compileFlagsStr):
+		compileCmdParts = compileCommandStr.split()
+		compileFlags = compileFlagsStr.split()
+		compileEnv = {}
+		while compileCmdParts:
+			if '=' in compileCmdParts[0]:
+				name, value = compileCmdParts[0].split('=', 1)
+				del compileCmdParts[0]
+				compileEnv[name] = value
+			else:
+				compileFlags = compileCmdParts[1 : ] + compileFlags
+				return cls(
+					compileEnv, compileCmdParts[0], compileFlags
+					)
+		else:
+			raise ValueError(
+				'No compiler specified in "%s"' % compileCommandStr
+				)
+
 	def __init__(self, env, executable, flags):
 		self.__env = env
 		self.__executable = executable
