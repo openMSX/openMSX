@@ -305,23 +305,11 @@ hello: init
 	@$(PYTHON) build/probe_run_compiler.py \
 		'$(COMPILE)' '$(COMPILE_FLAGS)' $(OUTDIR) $(LOG) $(OUTMAKE)
 
-# Probe for function:
-# Try to include the necessary header and get the function address.
+# Probe for function.
 $(CHECK_FUNCS): init
-	@echo > $(OUTDIR)/$@.cc
-	@if [ -n "$($@_PREHEADER)" ]; then echo "#include $($@_PREHEADER)"; fi \
-		>> $(OUTDIR)/$@.cc
-	@echo "#include $($@_HEADER)" >> $(OUTDIR)/$@.cc
-	@echo "void (*f)() = reinterpret_cast<void (*)()>($($@_FUNC));" \
-		>> $(OUTDIR)/$@.cc
-	@if $(COMPILE) $(COMPILE_FLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o \
-		2>> $(LOG); \
-	then echo "Found function: $@" >> $(LOG); \
-	     echo "HAVE_$@:=true" >> $(OUTMAKE); \
-	else echo "Missing function: $@" >> $(LOG); \
-	     echo "HAVE_$@:=" >> $(OUTMAKE); \
-	fi
-	@rm -f $(OUTDIR)/$@.cc $(OUTDIR)/$@.o
+	@$(PYTHON) build/probe_run_function.py \
+		'$(COMPILE)' '$(COMPILE_FLAGS)' $(OUTDIR) $(LOG) $(OUTMAKE) \
+		$@ $($@_FUNC) '$($@_PREHEADER) $($@_HEADER)'
 
 $(DISABLED_FUNCS): init
 	@echo "Disabled function: $@" >> $(LOG)
