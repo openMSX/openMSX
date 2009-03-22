@@ -303,12 +303,12 @@ init:
 # Check compiler with the most famous program.
 hello: init
 	@$(PYTHON) build/probe_run_compiler.py \
-		'$(COMPILE)' '$(COMPILE_FLAGS)' $(OUTDIR) $(LOG) $(OUTMAKE)
+		"$(COMPILE)" "$(COMPILE_FLAGS)" $(OUTDIR) $(LOG) $(OUTMAKE)
 
 # Probe for function.
 $(CHECK_FUNCS): init
 	@$(PYTHON) build/probe_run_function.py \
-		'$(COMPILE)' '$(COMPILE_FLAGS)' $(OUTDIR) $(LOG) $(OUTMAKE) \
+		"$(COMPILE)" "$(COMPILE_FLAGS)" $(OUTDIR) $(LOG) $(OUTMAKE) \
 		$@ $($@_FUNC) '$($@_PREHEADER) $($@_HEADER)'
 
 $(DISABLED_FUNCS): init
@@ -318,7 +318,7 @@ $(DISABLED_FUNCS): init
 # Probe for header.
 $(CHECK_HEADERS): init
 	@FLAGS="$($(@:%_H=%_CFLAGS))" && $(PYTHON) build/probe_run_header.py \
-		'$(COMPILE)' "$(COMPILE_FLAGS) $$FLAGS" $(OUTDIR) $(LOG) $(OUTMAKE) \
+		"$(COMPILE)" "$(COMPILE_FLAGS) $$FLAGS" $(OUTDIR) $(LOG) $(OUTMAKE) \
 		$(@:%_H=%) '$($(@:%_H=%)_PREHEADER) $($(@:%_H=%)_HEADER)'
 
 $(DISABLED_HEADERS): init
