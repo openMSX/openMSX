@@ -41,9 +41,9 @@ def main(compileCommandStr, compileFlagsStr, outDir, logPath, makePath):
 					)
 				break
 		else:
-			ok = False
-			print >> log, 'No compiler specified in "%s"' % compileCommandStr
-
+			raise ValueError(
+				'No compiler specified in "%s"' % compileCommandStr
+				)
 	finally:
 		log.close()
 
@@ -55,7 +55,11 @@ def main(compileCommandStr, compileFlagsStr, outDir, logPath, makePath):
 
 if __name__ == '__main__':
 	if len(sys.argv) == 6:
-		main(*sys.argv[1 : ])
+		try:
+			main(*sys.argv[1 : ])
+		except ValueError, ex:
+			print >> sys.stderr, ex
+			sys.exit(2)
 	else:
 		print >> sys.stderr, (
 			'Usage: python probe_run_compiler.py '

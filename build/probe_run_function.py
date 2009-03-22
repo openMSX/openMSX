@@ -47,9 +47,9 @@ def main(
 					)
 				break
 		else:
-			ok = False
-			print >> log, 'No compiler specified in "%s"' % compileCommandStr
-
+			raise ValueError(
+				'No compiler specified in "%s"' % compileCommandStr
+				)
 	finally:
 		log.close()
 
@@ -61,7 +61,11 @@ def main(
 
 if __name__ == '__main__':
 	if len(sys.argv) == 9:
-		main(*sys.argv[1 : ])
+		try:
+			main(*sys.argv[1 : ])
+		except ValueError, ex:
+			print >> sys.stderr, ex
+			sys.exit(2)
 	else:
 		print >> sys.stderr, (
 			'Usage: python probe_run_function.py '
