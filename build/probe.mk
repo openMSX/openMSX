@@ -315,22 +315,11 @@ $(DISABLED_FUNCS): init
 	@echo "Disabled function: $@" >> $(LOG)
 	@echo "HAVE_$@:=" >> $(OUTMAKE)
 
-# Probe for header:
-# Try to include the header.
+# Probe for header.
 $(CHECK_HEADERS): init
-	@echo > $(OUTDIR)/$@.cc
-	@if [ -n "$($(@:%_H=%)_PREHEADER)" ]; then \
-		echo "#include $($(@:%_H=%)_PREHEADER)"; fi >> $(OUTDIR)/$@.cc
-	@echo "#include $($(@:%_H=%)_HEADER)" >> $(OUTDIR)/$@.cc
-	@if FLAGS="$($(@:%_H=%_CFLAGS))" && eval $(COMPILE) \
-		$(COMPILE_FLAGS) "$$FLAGS" \
-		-c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
-	then echo "Found header: $(@:%_H=%)" >> $(LOG); \
-	     echo "HAVE_$@:=true" >> $(OUTMAKE); \
-	else echo "Missing header: $(@:%_H=%)" >> $(LOG); \
-	     echo "HAVE_$@:=" >> $(OUTMAKE); \
-	fi
-	@rm -f $(OUTDIR)/$@.cc $(OUTDIR)/$@.o
+	@FLAGS="$($(@:%_H=%_CFLAGS))" && $(PYTHON) build/probe_run_header.py \
+		'$(COMPILE)' "$(COMPILE_FLAGS) $$FLAGS" $(OUTDIR) $(LOG) $(OUTMAKE) \
+		$(@:%_H=%) '$($(@:%_H=%)_PREHEADER) $($(@:%_H=%)_HEADER)'
 
 $(DISABLED_HEADERS): init
 	@echo "Disabled header: $(@:%_H=%)" >> $(LOG)
