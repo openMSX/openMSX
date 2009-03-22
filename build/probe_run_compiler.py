@@ -1,11 +1,11 @@
 # $Id$
 # Perform a sanity check on the compiler.
 
-from compilers import tryCompile
+from compilers import CompileCommand
 
 import sys
 
-def checkCompiler(log, compileEnv, compileCommand, compileFlags, outDir):
+def checkCompiler(log, compileCommand, outDir):
 	'''Checks whether compiler can compile anything at all.
 	Returns True iff the compiler works.
 	'''
@@ -16,36 +16,28 @@ def checkCompiler(log, compileEnv, compileCommand, compileFlags, outDir):
 		yield '  std::cout << "Hello World!" << std::endl;'
 		yield '  return 0;'
 		yield '}'
-	return tryCompile(
-		log, compileEnv, compileCommand, compileFlags,
-		outDir + '/hello.cc', hello()
-		)
+	return compileCommand.tryCompile(log, outDir + '/hello.cc', hello())
 
 def main(compileCommandStr, compileFlagsStr, outDir, logPath, makePath):
 	log = open(logPath, 'a')
 	try:
-		compileCommand = compileCommandStr.split()
+		compileCmdParts = compileCommandStr.split()
 		compileFlags = compileFlagsStr.split()
 		compileEnv = {}
-		while compileCommand:
-			if '=' in compileCommand[0]:
-				name, value = compileCommand[0].split('=', 1)
-				del compileCommand[0]
+		while compileCmdParts:
+			if '=' in compileCmdParts[0]:
+				name, value = compileCmdParts[0].split('=', 1)
+				del compileCmdParts[0]
 				compileEnv[name] = value
 			else:
-				compileFlags = compileCommand[1 : ] + compileFlags
-				ok = checkCompiler(
-					log, compileEnv, compileCommand[0], compileFlags, outDir
+				compileFlags = compileCmdParts[1 : ] + compileFlags
+				compileCommand = CompileCommand(
+					compileEnv, compileCmdParts[0], compileFlags
 					)
+				ok = checkCompiler(log, compileCommand, outDir)
 				print >> log, 'Compiler %s: %s' % (
 					'works' if ok else 'broken',
-					' '.join(
-						[ compileCommand[0] ] + compileFlags +
-						([ '(%s)' % ' '.join(
-							'%s=%s' % item
-							for item in sorted(compileEnv.iteritems())
-							) ] if compileEnv else [])
-						),
+					compileCommand
 					)
 				break
 		else:

@@ -1,14 +1,11 @@
 # $Id$
 # Check the existence of a certain function in the standard library.
 
-from compilers import tryCompile
+from compilers import CompileCommand
 
 import sys
 
-def checkFunc(
-	log, compileEnv, compileCommand, compileFlags, outDir,
-	makeName, funcName, headers
-	):
+def checkFunc(log, compileCommand, outDir, makeName, funcName, headers):
 	'''Checks whether the given function is declared by the given headers.
 	Returns True iff the function is declared.
 	'''
@@ -17,9 +14,8 @@ def checkFunc(
 		for header in headers:
 			yield '#include %s' % header
 		yield 'void (*f)() = reinterpret_cast<void (*)()>(%s);' % funcName
-	return tryCompile(
-		log, compileEnv, compileCommand, compileFlags,
-		outDir + '/' + makeName + '.cc', takeFuncAddr()
+	return compileCommand.tryCompile(
+		log, outDir + '/' + makeName + '.cc', takeFuncAddr()
 		)
 
 def main(
@@ -28,18 +24,21 @@ def main(
 	):
 	log = open(logPath, 'a')
 	try:
-		compileCommand = compileCommandStr.split()
+		compileCmdParts = compileCommandStr.split()
 		compileFlags = compileFlagsStr.split()
 		compileEnv = {}
-		while compileCommand:
-			if '=' in compileCommand[0]:
-				name, value = compileCommand[0].split('=', 1)
-				del compileCommand[0]
+		while compileCmdParts:
+			if '=' in compileCmdParts[0]:
+				name, value = compileCmdParts[0].split('=', 1)
+				del compileCmdParts[0]
 				compileEnv[name] = value
 			else:
-				compileFlags = compileCommand[1 : ] + compileFlags
+				compileFlags = compileCmdParts[1 : ] + compileFlags
+				compileCommand = CompileCommand(
+					compileEnv, compileCmdParts[0], compileFlags
+					)
 				ok = checkFunc(
-					log, compileEnv, compileCommand[0], compileFlags, outDir,
+					log, compileCommand, outDir,
 					makeName, funcName, headerStr.split()
 					)
 				print >> log, '%s function: %s' % (
