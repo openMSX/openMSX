@@ -2,6 +2,7 @@
 
 from os import environ, remove
 from os.path import isfile
+from shlex import split as shsplit
 from subprocess import PIPE, STDOUT, Popen
 
 def writeFile(path, lines):
@@ -16,8 +17,8 @@ class CompileCommand(object):
 
 	@classmethod
 	def fromLine(cls, compileCommandStr, compileFlagsStr):
-		compileCmdParts = compileCommandStr.split()
-		compileFlags = compileFlagsStr.split()
+		compileCmdParts = shsplit(compileCommandStr)
+		compileFlags = shsplit(compileFlagsStr)
 		compileEnv = {}
 		while compileCmdParts:
 			if '=' in compileCmdParts[0]:
