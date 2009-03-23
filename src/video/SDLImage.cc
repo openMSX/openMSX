@@ -17,185 +17,7 @@ using std::string;
 
 namespace openmsx {
 
-SDLImage::SDLImage(const string& filename)
-{
-	image = loadImage(filename);
-	init(filename);
-}
-
-SDLImage::SDLImage(const std::string& filename, double scaleFactor)
-{
-	image = loadImage(filename, scaleFactor);
-	init(filename);
-}
-
-SDLImage::SDLImage(const string& filename, unsigned width, unsigned height)
-{
-	image = loadImage(filename, width, height);
-	init(filename);
-}
-
-SDLImage::SDLImage(unsigned width, unsigned height,
-                   byte alpha, byte r, byte g, byte b)
-{
-	SDL_Surface* videoSurface = SDL_GetVideoSurface();
-	assert(videoSurface);
-	const SDL_PixelFormat& format = *videoSurface->format;
-
-	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-		width, height, format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, 0);
-	if (!image) {
-		throw MSXException("Couldn't allocate surface.");
-	}
-	if (r || g || b) {
-		SDL_FillRect(image, NULL, SDL_MapRGB(&format, r, g, b));
-	}
-	a = (alpha == 255) ? 256 : alpha;
-	workImage = NULL;
-}
-
-SDLImage::SDLImage(SDL_Surface* image_)
-	: image(image_)
-{
-	init("");
-}
-
-void SDLImage::init(const string& filename)
-{
-	assert(image);
-	const SDL_PixelFormat* format = image->format;
-	int flags = SDL_SWSURFACE;
-	if (PLATFORM_GP2X) {
-		flags = SDL_HWSURFACE;
-	}
-	workImage = SDL_CreateRGBSurface(flags,
-		image->w, image->h, format->BitsPerPixel,
-		format->Rmask, format->Gmask, format->Bmask, 0);
-	if (!workImage) {
-		SDL_FreeSurface(image);
-		throw MSXException("Error loading image " + filename);
-	}
-#if PLATFORM_GP2X
-	GP2XMMUHack::instance().patchPageTables();
-#endif
-}
-
-SDLImage::~SDLImage()
-{
-	SDL_FreeSurface(image);
-	if (workImage) SDL_FreeSurface(workImage);
-}
-
-void SDLImage::draw(OutputSurface& output, unsigned x, unsigned y, byte alpha)
-{
-	output.unlock();
-	SDL_Surface* outputSurface = output.getSDLWorkSurface();
-	SDL_Rect rect;
-	rect.x = x;
-	rect.y = y;
-	if (alpha == 255) {
-		SDL_BlitSurface(image, NULL, outputSurface, &rect);
-	} else {
-		if (workImage) {
-			rect.w = image->w;
-			rect.h = image->h;
-			SDL_BlitSurface(outputSurface, &rect, workImage, NULL);
-			SDL_BlitSurface(image,         NULL,  workImage, NULL);
-			SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
-			SDL_BlitSurface(workImage,    NULL,  outputSurface, &rect);
-		} else {
-			SDL_SetAlpha(image, SDL_SRCALPHA, (a * alpha) / 256);
-			SDL_BlitSurface(image, NULL, outputSurface, &rect);
-		}
-	}
-}
-
-unsigned SDLImage::getWidth() const
-{
-	return image->w;
-}
-
-unsigned SDLImage::getHeight() const
-{
-	return image->h;
-}
-
-
-
-SDL_Surface* SDLImage::loadImage(const string& filename)
-{
-	SDL_Surface* picture = readImage(filename);
-	SDL_Surface* result = convertToDisplayFormat(picture);
-	SDL_FreeSurface(picture);
-	return result;
-}
-
-SDL_Surface* SDLImage::loadImage(const string& filename, double scaleFactor)
-{
-	if (scaleFactor == 1.0) {
-		return loadImage(filename);
-	}
-	SDL_Surface* picture = readImage(filename);
-	SDL_Surface* scaled = scaleImage32(picture,
-		unsigned(picture->w * scaleFactor),
-		unsigned(picture->h * scaleFactor));
-	SDL_FreeSurface(picture);
-
-	SDL_Surface* result = convertToDisplayFormat(scaled);
-	SDL_FreeSurface(scaled);
-	return result;
-}
-
-SDL_Surface* SDLImage::loadImage(const string& filename,
-                                 unsigned width, unsigned height)
-{
-	SDL_Surface* picture = readImage(filename);
-	SDL_Surface* scaled = scaleImage32(picture, width, height);
-	SDL_FreeSurface(picture);
-
-	SDL_Surface* result = convertToDisplayFormat(scaled);
-	SDL_FreeSurface(scaled);
-	return result;
-}
-
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	static const Uint32 rmask = 0xff000000;
-	static const Uint32 gmask = 0x00ff0000;
-	static const Uint32 bmask = 0x0000ff00;
-	static const Uint32 amask = 0x000000ff;
-#else
-	static const Uint32 rmask = 0x000000ff;
-	static const Uint32 gmask = 0x0000ff00;
-	static const Uint32 bmask = 0x00ff0000;
-	static const Uint32 amask = 0xff000000;
-#endif
-
-SDL_Surface* SDLImage::readImage(const string& filename)
-{
-	LocalFileReference file(filename);
-	SDL_Surface* result = IMG_Load(file.getFilename().c_str());
-	if (!result) {
-		throw MSXException("File \"" + filename + "\" is not a valid image");
-	}
-	return result;
-}
-
-SDL_Surface* SDLImage::scaleImage32(
-	SDL_Surface* input, unsigned width, unsigned height)
-{
-	// create a 32 bpp surface that will hold the scaled version
-	SDL_Surface* result = SDL_CreateRGBSurface(
-		SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, amask);
-	SDL_Surface* tmp32 =
-		SDL_ConvertSurface(input, result->format, SDL_SWSURFACE);
-	zoomSurface(tmp32, result, true);
-	SDL_FreeSurface(tmp32);
-	return result;
-}
-
-SDL_Surface* SDLImage::convertToDisplayFormat(SDL_Surface* input)
+static SDL_Surface* convertToDisplayFormat(SDL_Surface* input)
 {
 	// scan image, are all alpha values the same?
 	const char* pixels = static_cast<const char*>(input->pixels);
@@ -233,129 +55,220 @@ SDL_Surface* SDLImage::convertToDisplayFormat(SDL_Surface* input)
 	return result;
 }
 
-
-// TODO: Replacing this by a 4-entry array would simplify the code.
-struct ColorRGBA {
-	Uint8 r;
-	Uint8 g;
-	Uint8 b;
-	Uint8 a;
-};
-
-void SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
+static void zoomSurface(SDL_Surface* src, SDL_Surface* dst)
 {
-	int x, y, sx, sy, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
-	ColorRGBA *c00, *c01, *c10, *c11;
-	ColorRGBA *sp, *csp, *dp;
-	int dgap;
+	// For interpolation: assume source dimension is one pixel
+	// smaller to avoid overflow on right and bottom edge.
+	int sx = int(65536.0 * double(src->w - 1) / double(dst->w));
+	int sy = int(65536.0 * double(src->h - 1) / double(dst->h));
 
-	// Variable setup
-	if (smooth) {
-		// For interpolation: assume source dimension is one pixel
-		// smaller to avoid overflow on right and bottom edge.
-		sx = int(65536.0 * double(src->w - 1) / double(dst->w));
-		sy = int(65536.0 * double(src->h - 1) / double(dst->h));
-	} else {
-		sx = int(65536.0 * double(src->w) / double(dst->w));
-		sy = int(65536.0 * double(src->h) / double(dst->h));
-	}
-
-	// Allocate memory for row increments
-	VLA(int, sax, dst->w + 1);
-	VLA(int, say, dst->h + 1);
-
-	// Precalculate row increments
-	csx = 0;
-	csax = sax;
-	for (x = 0; x <= dst->w; x++) {
-		*csax = csx;
-		csax++;
-		csx &= 0xffff;
-		csx += sx;
-	}
-	csy = 0;
-	csay = say;
-	for (y = 0; y <= dst->h; y++) {
-		*csay = csy;
-		csay++;
+	// Interpolating Zoom, Scan destination
+	Uint8* sp = static_cast<Uint8*>(src->pixels);
+	Uint8* dp = static_cast<Uint8*>(dst->pixels);
+	for (int y = 0, csy = 0; y < dst->h; ++y, csy += sy) {
+		sp += (csy >> 16) * src->pitch;
+		Uint8* c00 = sp;
+		Uint8* c10 = sp + src->pitch;
+		Uint8* c01 = c00 + 4;
+		Uint8* c11 = c10 + 4;
 		csy &= 0xffff;
-		csy += sy;
-	}
-
-	// Pointer setup
-	sp = csp = static_cast<ColorRGBA*>(src->pixels);
-	dp =       static_cast<ColorRGBA*>(dst->pixels);
-	dgap = dst->pitch - dst->w * 4;
-
-	// Switch between interpolating and non-interpolating code
-	if (smooth) {
-		// Interpolating Zoom
-		// Scan destination
-		csay = say;
-		for (y = 0; y < dst->h; y++) {
-			// Setup color source pointers
-			c00 = csp;
-			c01 = csp;
-			c01++;
-			c10 = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(csp) + src->pitch);
-			c11 = c10;
-			c11++;
-			csax = sax;
-			for (x = 0; x < dst->w; x++) {
-				// Interpolate colors
-				ex = (*csax & 0xffff);
-				ey = (*csay & 0xffff);
-				t1 = ((((c01->r - c00->r) * ex) >> 16) + c00->r) & 0xff;
-				t2 = ((((c11->r - c10->r) * ex) >> 16) + c10->r) & 0xff;
-				dp->r = (((t2 - t1) * ey) >> 16) + t1;
-				t1 = ((((c01->g - c00->g) * ex) >> 16) + c00->g) & 0xff;
-				t2 = ((((c11->g - c10->g) * ex) >> 16) + c10->g) & 0xff;
-				dp->g = (((t2 - t1) * ey) >> 16) + t1;
-				t1 = ((((c01->b - c00->b) * ex) >> 16) + c00->b) & 0xff;
-				t2 = ((((c11->b - c10->b) * ex) >> 16) + c10->b) & 0xff;
-				dp->b = (((t2 - t1) * ey) >> 16) + t1;
-				t1 = ((((c01->a - c00->a) * ex) >> 16) + c00->a) & 0xff;
-				t2 = ((((c11->a - c10->a) * ex) >> 16) + c10->a) & 0xff;
-				dp->a = (((t2 - t1) * ey) >> 16) + t1;
-
-				// Advance source pointers
-				csax++;
-				sstep = (*csax >> 16);
-				c00 += sstep;
-				c01 += sstep;
-				c10 += sstep;
-				c11 += sstep;
-				// Advance destination pointer
-				dp++;
+		for (int x = 0, csx = 0; x < dst->w; ++x, csx += sx) {
+			int sstep = csx >> 16;
+			c00 += 4 * sstep;
+			c01 += 4 * sstep;
+			c10 += 4 * sstep;
+			c11 += 4 * sstep;
+			csx &= 0xffff;
+			// Interpolate RGBA
+			for (int i = 0; i < 4; ++i) {
+				int t1 = (((c01[i] - c00[i]) * csx) >> 16) + c00[i];
+				int t2 = (((c11[i] - c10[i]) * csx) >> 16) + c10[i];
+				dp[4 * x + i] = (((t2 - t1) * csy) >> 16) + t1;
 			}
-			// Advance source pointer
-			csay++;
-			csp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(csp) + (*csay >> 16) * src->pitch);
-			// Advance destination pointers
-			dp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(dp) + dgap);
 		}
+		dp += dst->pitch;
+	}
+}
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	static const Uint32 rmask = 0xff000000;
+	static const Uint32 gmask = 0x00ff0000;
+	static const Uint32 bmask = 0x0000ff00;
+	static const Uint32 amask = 0x000000ff;
+#else
+	static const Uint32 rmask = 0x000000ff;
+	static const Uint32 gmask = 0x0000ff00;
+	static const Uint32 bmask = 0x00ff0000;
+	static const Uint32 amask = 0xff000000;
+#endif
+static SDL_Surface* scaleImage32(
+	SDL_Surface* input, unsigned width, unsigned height)
+{
+	// create a 32 bpp surface that will hold the scaled version
+	SDL_Surface* result = SDL_CreateRGBSurface(
+		SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, amask);
+	SDL_Surface* tmp32 =
+		SDL_ConvertSurface(input, result->format, SDL_SWSURFACE);
+	zoomSurface(tmp32, result);
+	SDL_FreeSurface(tmp32);
+	return result;
+}
+
+static SDL_Surface* loadImage(const string& filename)
+{
+	SDL_Surface* picture = SDLImage::readImage(filename);
+	SDL_Surface* result = convertToDisplayFormat(picture);
+	SDL_FreeSurface(picture);
+	return result;
+}
+
+static SDL_Surface* loadImage(const string& filename, double scaleFactor)
+{
+	if (scaleFactor == 1.0) {
+		return loadImage(filename);
+	}
+	SDL_Surface* picture = SDLImage::readImage(filename);
+	SDL_Surface* scaled = scaleImage32(picture,
+		unsigned(picture->w * scaleFactor),
+		unsigned(picture->h * scaleFactor));
+	SDL_FreeSurface(picture);
+
+	SDL_Surface* result = convertToDisplayFormat(scaled);
+	SDL_FreeSurface(scaled);
+	return result;
+}
+
+static SDL_Surface* loadImage(
+	const string& filename, unsigned width, unsigned height)
+{
+	SDL_Surface* picture = SDLImage::readImage(filename);
+	SDL_Surface* scaled = scaleImage32(picture, width, height);
+	SDL_FreeSurface(picture);
+
+	SDL_Surface* result = convertToDisplayFormat(scaled);
+	SDL_FreeSurface(scaled);
+	return result;
+}
+
+
+// class SDLImage
+
+SDL_Surface* SDLImage::readImage(const string& filename)
+{
+	LocalFileReference file(filename);
+	SDL_Surface* result = IMG_Load(file.getFilename().c_str());
+	if (!result) {
+		throw MSXException("File \"" + filename + "\" is not a valid image");
+	}
+	return result;
+}
+
+
+SDLImage::SDLImage(const string& filename)
+	: workImage(NULL), a(-1)
+{
+	image = loadImage(filename);
+}
+
+SDLImage::SDLImage(const std::string& filename, double scaleFactor)
+	: workImage(NULL), a(-1)
+{
+	image = loadImage(filename, scaleFactor);
+}
+
+SDLImage::SDLImage(const string& filename, unsigned width, unsigned height)
+	: workImage(NULL), a(-1)
+{
+	image = loadImage(filename, width, height);
+}
+
+SDLImage::SDLImage(unsigned width, unsigned height,
+                   byte alpha, byte r, byte g, byte b)
+	: workImage(NULL)
+{
+	SDL_Surface* videoSurface = SDL_GetVideoSurface();
+	assert(videoSurface);
+	const SDL_PixelFormat& format = *videoSurface->format;
+
+	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
+		width, height, format.BitsPerPixel,
+		format.Rmask, format.Gmask, format.Bmask, 0);
+	if (!image) {
+		throw MSXException("Couldn't allocate surface.");
+	}
+	if (r || g || b) {
+		SDL_FillRect(image, NULL, SDL_MapRGB(&format, r, g, b));
+	}
+	a = (alpha == 255) ? 256 : alpha;
+}
+
+SDLImage::SDLImage(SDL_Surface* image_)
+	: image(image_)
+	, workImage(NULL), a(-1)
+{
+}
+
+SDLImage::~SDLImage()
+{
+	SDL_FreeSurface(image);
+	if (workImage) SDL_FreeSurface(workImage);
+}
+
+void SDLImage::allocateWorkImage()
+{
+	int flags = SDL_SWSURFACE;
+	if (PLATFORM_GP2X) {
+		flags = SDL_HWSURFACE;
+	}
+	const SDL_PixelFormat* format = image->format;
+	workImage = SDL_CreateRGBSurface(flags,
+		image->w, image->h, format->BitsPerPixel,
+		format->Rmask, format->Gmask, format->Bmask, 0);
+	if (!workImage) {
+		throw FatalError("Couldn't allocate SDLImage workimage");
+	}
+#if PLATFORM_GP2X
+	GP2XMMUHack::instance().patchPageTables();
+#endif
+}
+
+void SDLImage::draw(OutputSurface& output, unsigned x, unsigned y, byte alpha)
+{
+	output.unlock();
+	SDL_Surface* outputSurface = output.getSDLWorkSurface();
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	if (alpha == 255) {
+		SDL_BlitSurface(image, NULL, outputSurface, &rect);
 	} else {
-		// Non-Interpolating Zoom
-		csay = say;
-		for (y = 0; y < dst->h; y++) {
-			sp = csp;
-			csax = sax;
-			for (x = 0; x < dst->w; x++) {
-				// Draw
-				*dp = *sp;
-				// Advance source pointers
-				csax++;
-				sp += (*csax >> 16);
-				// Advance destination pointer
-				dp++;
+		if (a == -1) {
+			if (!workImage) {
+				allocateWorkImage();
 			}
-			// Advance source pointer
-			csay++;
-			csp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(csp) + (*csay >> 16) * src->pitch);
-			// Advance destination pointers
-			dp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(dp) + dgap);
+			rect.w = image->w;
+			rect.h = image->h;
+			SDL_BlitSurface(outputSurface, &rect, workImage, NULL);
+			SDL_BlitSurface(image,         NULL,  workImage, NULL);
+			SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
+			SDL_BlitSurface(workImage, NULL, outputSurface, &rect);
+		} else {
+			SDL_SetAlpha(image, SDL_SRCALPHA, (a * alpha) / 256);
+			SDL_BlitSurface(image, NULL, outputSurface, &rect);
 		}
 	}
 }
+
+unsigned SDLImage::getWidth() const
+{
+	return image->w;
+}
+
+unsigned SDLImage::getHeight() const
+{
+	return image->h;
+}
+
+
 
 } // namespace openmsx

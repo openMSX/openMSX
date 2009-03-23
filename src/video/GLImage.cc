@@ -10,6 +10,67 @@ using std::string;
 
 namespace openmsx {
 
+GLuint loadTexture(SDL_Surface* surface,
+	unsigned& width, unsigned& height, GLfloat* texCoord)
+{
+	width  = surface->w;
+	height = surface->h;
+	int w2 = Math::powerOfTwo(width);
+	int h2 = Math::powerOfTwo(height);
+	texCoord[0] = 0.0f;                 // min X
+	texCoord[1] = 0.0f;                 // min Y
+	texCoord[2] = GLfloat(width)  / w2; // max X
+	texCoord[3] = GLfloat(height) / h2; // max Y
+
+	SDL_Surface* image2 = SDL_CreateRGBSurface(SDL_SWSURFACE, w2, h2, 32,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+		0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
+#else
+		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
+#endif
+	);
+	if (image2 == NULL) {
+		throw MSXException("Couldn't allocate surface");
+	}
+
+	SDL_Rect area;
+	area.x = 0;
+	area.y = 0;
+	area.w = width;
+	area.h = height;
+	SDL_SetAlpha(surface, 0, 0);
+	SDL_BlitSurface(surface, &area, image2, &area);
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w2, h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
+	SDL_FreeSurface(image2);
+	return texture;
+}
+
+GLuint loadTexture(const string& filename,
+	unsigned& width, unsigned& height, GLfloat* texCoord)
+{
+	SDL_Surface* surface = SDLImage::readImage(filename);
+	if (surface == NULL) {
+		throw MSXException("Error loading image " + filename);
+	}
+	GLuint result;
+	try {
+		result = loadTexture(surface, width, height, texCoord);
+	} catch (MSXException& e) {
+		SDL_FreeSurface(surface);
+		throw MSXException("Error loading image " + filename +
+		                   ": " + e.getMessage());
+	}
+	SDL_FreeSurface(surface);
+	return result;
+}
+
+
 GLImage::GLImage(const string& filename)
 {
 	texture = loadTexture(filename, width, height, texCoord);
@@ -90,66 +151,6 @@ unsigned GLImage::getWidth() const
 unsigned GLImage::getHeight() const
 {
 	return height;
-}
-
-GLuint GLImage::loadTexture(const string& filename,
-	unsigned& width, unsigned& height, GLfloat* texCoord)
-{
-	SDL_Surface* surface = SDLImage::readImage(filename);
-	if (surface == NULL) {
-		throw MSXException("Error loading image " + filename);
-	}
-	GLuint result;
-	try {
-		result = loadTexture(surface, width, height, texCoord);
-	} catch (MSXException& e) {
-		SDL_FreeSurface(surface);
-		throw MSXException("Error loading image " + filename +
-		                   ": " + e.getMessage());
-	}
-	SDL_FreeSurface(surface);
-	return result;
-}
-
-GLuint GLImage::loadTexture(SDL_Surface* surface,
-	unsigned& width, unsigned& height, GLfloat* texCoord)
-{
-	width  = surface->w;
-	height = surface->h;
-	int w2 = Math::powerOfTwo(width);
-	int h2 = Math::powerOfTwo(height);
-	texCoord[0] = 0.0f;                 // min X
-	texCoord[1] = 0.0f;                 // min Y
-	texCoord[2] = GLfloat(width)  / w2; // max X
-	texCoord[3] = GLfloat(height) / h2; // max Y
-
-	SDL_Surface* image2 = SDL_CreateRGBSurface(SDL_SWSURFACE, w2, h2, 32,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-		0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
-#else
-		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
-#endif
-	);
-	if (image2 == NULL) {
-		throw MSXException("Couldn't allocate surface");
-	}
-
-	SDL_Rect area;
-	area.x = 0;
-	area.y = 0;
-	area.w = width;
-	area.h = height;
-	SDL_SetAlpha(surface, 0, 0);
-	SDL_BlitSurface(surface, &area, image2, &area);
-
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w2, h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
-	SDL_FreeSurface(image2);
-	return texture;
 }
 
 } // namespace openmsx

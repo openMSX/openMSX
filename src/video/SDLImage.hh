@@ -27,23 +27,14 @@ public:
 	virtual unsigned getHeight() const;
 
 private:
-	void init(const std::string& filename);
+	void allocateWorkImage();
 
 	SDL_Surface* image;
 	SDL_Surface* workImage;
-	unsigned a;
+	int a;
 
 public:
-	static SDL_Surface* loadImage(const std::string& filename);
-	static SDL_Surface* loadImage(const std::string& filename,
-	                              double scaleFactor);
-	static SDL_Surface* loadImage(const std::string& filename,
-	                              unsigned width, unsigned height);
 	static SDL_Surface* readImage(const std::string& filename);
-	static SDL_Surface* scaleImage32(SDL_Surface* input,
-	                                 unsigned width, unsigned height);
-	static SDL_Surface* convertToDisplayFormat(SDL_Surface* input);
-	static void zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
 };
 
 } // namespace openmsx

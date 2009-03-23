@@ -35,14 +35,6 @@ private:
 	GLfloat texCoord[4];
 	byte r, g, b;
 	int a;
-
-public:
-	static GLuint loadTexture(const std::string& filename,
-	                          unsigned& width, unsigned& height,
-	                          GLfloat* texcoord);
-	static GLuint loadTexture(SDL_Surface* surface,
-	                          unsigned& width, unsigned& height,
-	                          GLfloat* texCoord);
 };
 
 } // namespace openmsx
