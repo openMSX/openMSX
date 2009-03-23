@@ -65,8 +65,12 @@ proc __redraw_osd_icons { icon } {
 
 proc load_icons { set_name { set_position "" } } {
 	# Check skin directory
-	set directory [data_file "skins/$set_name"]
-	if { ![file exists $directory] } {
+	#  All files belonging to this skin must come from this directory.
+	#  So we don't allow mixing individual files for one skin from the
+	#  system and from the user directory. Though fallback images are
+	#  again searched in both system and user dirs.
+	set skin_set_dir [data_file "skins/$set_name"]
+	if {![file isdirectory $skin_set_dir]} {
 		error "No such icon skin: $set_name"
 	}
 
@@ -96,8 +100,8 @@ proc load_icons { set_name { set_position "" } } {
 
 	# but allow to override these values by the skin script
 	set icons $::__icons  ;# the 'none' skin needs this
-	set script $directory/skin.tcl
-	if [file exists $script] { source $script }
+	set script $skin_set_dir/skin.tcl
+	if [file isfile $script] { source $script }
 
 	set invscale [expr 1.0 / $scale]
 	set xbase    [expr $xbase    * $invscale]
@@ -118,22 +122,26 @@ proc load_icons { set_name { set_position "" } } {
 	}
 	set vertical [expr !$horizontal]
 
-	proc __get_image { directory file } {
-		if [file isfile $directory/$file] {
-			return $directory/$file
+	proc __try_dirs { skin_set_dir file fallback } {
+		# don't touch absolute pathnames
+		if {[string index $file 0] == "/"} {
+			if [file isfile $file] { return $file }
+			return ""
 		}
+		# first look in specified skin-set directory
+		set f1 $skin_set_dir/$file
+		if [file isfile $f1] { return $f1 }
+		# if it's not there look in the root skin directory
+		# (system or user directory)
+		set f2 [data_file "skins/$file"]
+		if [file isfile $f2] { return $f2 }
+		# still not found, look for the fallback image in system and
+		# user root skin dir
+		set f3 [data_file "skins/$fallback"]
+		if [file isfile $f3] { return $f3 }
 		return ""
 	}
-	proc __try_dirs { dir_list file fallback } {
-		if {[string index $file 0] == "/"} { return $file }
-		foreach dir $dir_list {
-			set f [__get_image $dir $file]
-			if {$f != ""} { return $f }
-		}
-		return $fallback
-	}
 	# Calculate default parameter values ...
-	set dirs [list $directory [data_file "skins"]]
 	for { set i 0 } { $i < [llength $icons] } { incr i } {
 		set icon [lindex $icons $i]
 
@@ -169,12 +177,12 @@ proc load_icons { set_name { set_position "" } } {
 				set fade_delay_active($icon) 0
 			}
 		}
-		set active_image($icon)     [__try_dirs $dirs $image_on  $fallback_on ]
-		set non_active_image($icon) [__try_dirs $dirs $image_off $fallback_off]
+		set active_image($icon)     [__try_dirs $skin_set_dir $image_on  $fallback_on ]
+		set non_active_image($icon) [__try_dirs $skin_set_dir $image_off $fallback_off]
 	}
 
 	# ... but allow to override these calculated values (again) by the skin script
-	if [file exists $script] { source $script }
+	if [file isfile $script] { source $script }
 
 	osd configure osd_icons -x $xbase -y $ybase
 
@@ -183,20 +191,20 @@ proc load_icons { set_name { set_position "" } } {
 		       -x $xcoord($icon) \
 		       -y $ycoord($icon) \
 		       -fadePeriod $fade_duration_active($icon) \
-		       -image [__try_dirs $dirs $active_image($icon) ""] \
+		       -image [__try_dirs $skin_set_dir $active_image($icon) ""] \
 		       -scale $invscale
 		osd configure osd_icons.${icon}_off \
 		       -x $xcoord($icon) \
 		       -y $ycoord($icon) \
 		       -fadePeriod $fade_duration_non_active($icon) \
-		       -image [__try_dirs $dirs $non_active_image($icon) ""] \
+		       -image [__try_dirs $skin_set_dir $non_active_image($icon) ""] \
 		       -scale $invscale
 	}
 
 	# Also try to load "frame.png"
 	catch { osd destroy osd_frame }
-	set framefile [__get_image $directory "frame.png"]
-	if [file exists $framefile] {
+	set framefile "$skin_set_dir/frame.png"
+	if [file isfile $framefile] {
 		osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 \
 		                               -scaled true -image $framefile
 	}
