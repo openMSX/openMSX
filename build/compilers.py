@@ -2,6 +2,7 @@
 
 from os import environ, remove
 from os.path import isfile
+from platform import system
 from shlex import split as shsplit
 from subprocess import PIPE, STDOUT, Popen
 
@@ -12,6 +13,28 @@ def writeFile(path, lines):
 			print >> out, line
 	finally:
 		out.close()
+
+if system().lower() == 'windows':
+	# TODO: This should only be done for MinGW, not for all Windows builds.
+	#       But right now GCC is the only Windows compiler we can drive
+	#       directly anyway (MSVC++ is driven through msbuild).
+	def fixMinGWPath(path):
+		if len(path) >= 2 and path[0] == '/' and (
+			len(path) == 2 or path[2] == '/'
+			):
+			return '%s:/%s' % (path[1], path[3 : ])
+		else:
+			return path
+	def fixFlags(flags):
+		for i in xrange(len(flags)):
+			flag = flags[i]
+			if flag.startswith('-I'):
+				yield '-I' + fixMinGWPath(flag[2 : ])
+			else:
+				yield flag
+else:
+	def fixFlags(flags):
+		return iter(flags)
 
 class CompileCommand(object):
 
@@ -26,9 +49,10 @@ class CompileCommand(object):
 				del compileCmdParts[0]
 				compileEnv[name] = value
 			else:
-				compileFlags = compileCmdParts[1 : ] + compileFlags
 				return cls(
-					compileEnv, compileCmdParts[0], compileFlags
+					compileEnv,
+					compileCmdParts[0],
+					list(fixFlags(compileCmdParts[1 : ] + compileFlags))
 					)
 		else:
 			raise ValueError(
