@@ -123,11 +123,8 @@ proc load_icons { set_name { set_position "" } } {
 	set vertical [expr !$horizontal]
 
 	proc __try_dirs { skin_set_dir file fallback } {
-		# don't touch absolute pathnames
-		if {[string index $file 0] == "/"} {
-			if [file isfile $file] { return $file }
-			return ""
-		}
+		# don't touch already resolved pathnames
+		if [file isfile $file] { return $file }
 		# first look in specified skin-set directory
 		set f1 $skin_set_dir/$file
 		if [file isfile $f1] { return $f1 }
