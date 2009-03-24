@@ -177,14 +177,14 @@ public:
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*>& alreadyRemoved) const;
 	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 
-	static void insertBreakPoint(std::auto_ptr<BreakPoint> bp);
+	static void insertBreakPoint(shared_ptr<BreakPoint> bp);
 	static void removeBreakPoint(const BreakPoint& bp);
-	typedef std::multimap<word, BreakPoint*> BreakPoints;
+	typedef std::multimap<word, shared_ptr<BreakPoint> > BreakPoints;
 	static const BreakPoints& getBreakPoints();
 
-	void setWatchPoint(std::auto_ptr<WatchPoint> watchPoint);
+	void setWatchPoint(shared_ptr<WatchPoint> watchPoint);
 	void removeWatchPoint(WatchPoint& watchPoint);
-	typedef std::vector<WatchPoint*> WatchPoints;
+	typedef std::vector<shared_ptr<WatchPoint> > WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
 	static void setCondition(shared_ptr<DebugCondition> cond);
@@ -279,10 +279,6 @@ private:
 
 	std::auto_ptr<VDPIODelay> delayDevice;
 
-	static BreakPoints breakPoints;
-	WatchPoints watchPoints; // TODO must also be static
-	static Conditions conditions;
-
 	byte disallowReadCache [CacheLine::NUM];
 	byte disallowWriteCache[CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];
@@ -309,7 +305,9 @@ private:
 	unsigned expanded[4];
 
 	//  All CPUs (Z80 and R800) of all MSX machines share this state.
-	// TODO move breakpoints and watchpoints here
+	static BreakPoints breakPoints;
+	WatchPoints watchPoints; // TODO must also be static
+	static Conditions conditions;
 	static bool breaked;
 	static bool continued;
 	static bool step;

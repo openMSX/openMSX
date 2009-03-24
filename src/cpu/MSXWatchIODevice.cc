@@ -2,6 +2,7 @@
 
 #include "MSXWatchIODevice.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "TclObject.hh"
 #include <cassert>
 
@@ -45,6 +46,13 @@ byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
 	assert(device);
 	//std::cout << "Watch readIO " << port << std::endl;
 	byte result = device->readIO(port, time);
+
+	// keep this object alive by holding a shared_ptr to it, for the case
+	// this watchpoint deletes itself in checkAndExecute()
+	// TODO can be implemented more efficiently by using
+	//    std::shared_ptr::shared_from_this
+	MSXCPUInterface::WatchPoints wpCopy(
+		getMotherBoard().getCPUInterface().getWatchPoints());
 	checkAndExecute();
 	return result;
 }
@@ -54,6 +62,10 @@ void MSXWatchIODevice::writeIO(word port, byte value, EmuTime::param time)
 	assert(device);
 	//std::cout << "Watch writeIO " << port << " " << value << std::endl;
 	device->writeIO(port, value, time);
+
+	// see comment in readIO() above
+	MSXCPUInterface::WatchPoints wpCopy(
+		getMotherBoard().getCPUInterface().getWatchPoints());
 	checkAndExecute();
 }
 

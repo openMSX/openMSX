@@ -221,10 +221,6 @@ MSXCPUInterface::~MSXCPUInterface()
 		breakedSetting = 0;
 	}
 
-	for (BreakPoints::const_iterator it = breakPoints.begin();
-	     it != breakPoints.end(); ++it) {
-		delete it->second;
-	}
 	removeAllWatchPoints();
 
 	if (delayDevice.get()) {
@@ -696,9 +692,8 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 }
 
 
-void MSXCPUInterface::insertBreakPoint(std::auto_ptr<BreakPoint> bp_)
+void MSXCPUInterface::insertBreakPoint(shared_ptr<BreakPoint> bp)
 {
-	BreakPoint* bp = bp_.release();
 	breakPoints.insert(std::make_pair(bp->getAddress(), bp));
 }
 
@@ -707,8 +702,7 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 	std::pair<BreakPoints::iterator, BreakPoints::iterator> range =
 		breakPoints.equal_range(bp.getAddress());
 	for (BreakPoints::iterator it = range.first; it != range.second; ++it) {
-		if (it->second == &bp) {
-			delete &bp;
+		if (it->second.get() == &bp) {
 			breakPoints.erase(it);
 			break;
 		}
@@ -724,8 +718,12 @@ void MSXCPUInterface::checkBreakPoints(
 	std::pair<BreakPoints::const_iterator,
 	          BreakPoints::const_iterator> range)
 {
-	for (BreakPoints::const_iterator it = range.first;
-	     it != range.second; ++it) {
+	// create copy for the case that breakpoint/condition removes itself
+	//  - keeps object alive by holding a shared_ptr to it
+	//  - avoids iterating over a changing collection
+	BreakPoints bpCopy(range.first, range.second);
+	for (BreakPoints::const_iterator it = bpCopy.begin();
+	     it != bpCopy.end(); ++it) {
 		it->second->checkAndExecute();
 	}
 	Conditions condCopy(conditions);
@@ -736,9 +734,8 @@ void MSXCPUInterface::checkBreakPoints(
 }
 
 
-void MSXCPUInterface::setWatchPoint(auto_ptr<WatchPoint> watchPoint_)
+void MSXCPUInterface::setWatchPoint(shared_ptr<WatchPoint> watchPoint)
 {
-	WatchPoint* watchPoint = watchPoint_.release();
 	watchPoints.push_back(watchPoint);
 	WatchPoint::Type type = watchPoint->getType();
 	switch (type) {
@@ -760,28 +757,29 @@ void MSXCPUInterface::setWatchPoint(auto_ptr<WatchPoint> watchPoint_)
 
 void MSXCPUInterface::removeWatchPoint(WatchPoint& watchPoint)
 {
-	WatchPoints::iterator it = find(watchPoints.begin(), watchPoints.end(),
-	                                &watchPoint);
-	assert(it != watchPoints.end());
-	watchPoints.erase(it);
-
-	WatchPoint::Type type = watchPoint.getType();
-	switch (type) {
-	case WatchPoint::READ_IO:
-		unregisterIOWatch(watchPoint, IO_In);
-		break;
-	case WatchPoint::WRITE_IO:
-		unregisterIOWatch(watchPoint, IO_Out);
-		break;
-	case WatchPoint::READ_MEM:
-	case WatchPoint::WRITE_MEM:
-		updateMemWatch(type);
-		break;
-	default:
-		assert(false);
-		break;
+	for (WatchPoints::iterator it = watchPoints.begin();
+	     it != watchPoints.end(); ++it) {
+		if (it->get() == &watchPoint) {
+			WatchPoint::Type type = watchPoint.getType();
+			switch (type) {
+			case WatchPoint::READ_IO:
+				unregisterIOWatch(watchPoint, IO_In);
+				break;
+			case WatchPoint::WRITE_IO:
+				unregisterIOWatch(watchPoint, IO_Out);
+				break;
+			case WatchPoint::READ_MEM:
+			case WatchPoint::WRITE_MEM:
+				updateMemWatch(type);
+				break;
+			default:
+				assert(false);
+				break;
+			}
+			watchPoints.erase(it);
+			break;
+		}
 	}
-	delete &watchPoint;
 }
 
 const MSXCPUInterface::WatchPoints& MSXCPUInterface::getWatchPoints() const
@@ -883,8 +881,9 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 
 void MSXCPUInterface::executeMemWatch(word address, WatchPoint::Type type)
 {
-	for (WatchPoints::const_iterator it = watchPoints.begin();
-	     it != watchPoints.end(); ++it) {
+	WatchPoints wpCopy(watchPoints);
+	for (WatchPoints::const_iterator it = wpCopy.begin();
+	     it != wpCopy.end(); ++it) {
 		if (((*it)->getBeginAddress() <= address) &&
 		    ((*it)->getEndAddress()   >= address) &&
 		    ((*it)->getType()         == type)) {

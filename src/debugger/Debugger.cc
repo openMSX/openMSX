@@ -436,7 +436,7 @@ void DebugCmd::writeBlock(const vector<TclObject*>& tokens,
 void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
                              TclObject& result)
 {
-	auto_ptr<BreakPoint> bp;
+	shared_ptr<BreakPoint> bp;
 	word addr;
 	auto_ptr<TclObject> command(
 		new TclObject(result.getInterpreter(), "debug break"));
@@ -531,7 +531,7 @@ void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
 void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
                              TclObject& result)
 {
-	auto_ptr<WatchPoint> wp;
+	shared_ptr<WatchPoint> wp;
 	auto_ptr<TclObject> command(
 		new TclObject(result.getInterpreter(), "debug break"));
 	auto_ptr<TclObject> condition;
