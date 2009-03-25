@@ -186,6 +186,10 @@ SDLImage::SDLImage(unsigned width, unsigned height,
                    byte alpha, byte r, byte g, byte b)
 	: workImage(NULL)
 {
+	if ((width == 0) || (height == 0)) {
+		image = NULL;
+		return;
+	}
 	SDL_Surface* videoSurface = SDL_GetVideoSurface();
 	assert(videoSurface);
 	const SDL_PixelFormat& format = *videoSurface->format;
@@ -197,6 +201,8 @@ SDLImage::SDLImage(unsigned width, unsigned height,
 		throw MSXException("Couldn't allocate surface.");
 	}
 	if (r || g || b) {
+		// crashes on zero-width surfaces, that's why we
+		// check for it at the beginning of this method
 		SDL_FillRect(image, NULL, SDL_MapRGB(&format, r, g, b));
 	}
 	a = (alpha == 255) ? 256 : alpha;
@@ -210,7 +216,7 @@ SDLImage::SDLImage(SDL_Surface* image_)
 
 SDLImage::~SDLImage()
 {
-	SDL_FreeSurface(image);
+	if (image)     SDL_FreeSurface(image);
 	if (workImage) SDL_FreeSurface(workImage);
 }
 
@@ -234,6 +240,8 @@ void SDLImage::allocateWorkImage()
 
 void SDLImage::draw(OutputSurface& output, unsigned x, unsigned y, byte alpha)
 {
+	if (!image) return;
+
 	output.unlock();
 	SDL_Surface* outputSurface = output.getSDLWorkSurface();
 	SDL_Rect rect;
@@ -261,14 +269,12 @@ void SDLImage::draw(OutputSurface& output, unsigned x, unsigned y, byte alpha)
 
 unsigned SDLImage::getWidth() const
 {
-	return image->w;
+	return image ? image->w : 0;
 }
 
 unsigned SDLImage::getHeight() const
 {
-	return image->h;
+	return image ? image->h : 0;
 }
-
-
 
 } // namespace openmsx
