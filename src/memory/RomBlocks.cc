@@ -3,6 +3,8 @@
 #include "RomBlocks.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -10,16 +12,20 @@ namespace openmsx {
 template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		std::auto_ptr<Rom> rom)
-	: MSXRom(motherBoard, config, rom)
+		std::auto_ptr<Rom> rom_)
+	: MSXRom(motherBoard, config, rom_)
+	, nrBlocks(rom->getSize() / BANK_SIZE)
 {
+	if ((nrBlocks * BANK_SIZE) != rom->getSize()) {
+		throw MSXException(
+			"(uncompressed) ROM image filesize must be a multiple of " +
+			StringOp::toString(BANK_SIZE / 1024) + " kB (for this "
+			"mapper type).");
+	}
 	// by default no extra mappable memory block
 	extraMem = NULL;
 	extraSize = 0;
 
-	// Note: Do not use the "rom" parameter, because an auto_ptr contains NULL
-	//       after it is copied.
-	nrBlocks = this->rom->getSize() / BANK_SIZE;
 	// Default mask: wraps at end of ROM image.
 	blockMask = nrBlocks - 1;
 	for (unsigned i = 0; i < NUM_BANKS; i++) {

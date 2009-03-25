@@ -64,7 +64,7 @@ protected:
 private:
 	const byte* extraMem;
 	unsigned extraSize;
-	int nrBlocks;
+	const int nrBlocks;
 	int blockMask;
 };
 
