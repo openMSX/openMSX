@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include <map>
 #include <cerrno>
+#include <cstring>
 
 namespace openmsx {
 
