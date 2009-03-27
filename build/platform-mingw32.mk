@@ -20,7 +20,7 @@ COMPILE_FLAGS+= \
 	-DFS_CASEINSENSE
 
 # Linker flags.
-LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32 -lwinmm -ldsound \
+LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32 -lwinmm -ldsound -lsecur32 \
 	`if test -d /usr/local/lib; then echo '-L/usr/local/lib'; fi` \
 	$(LINK_FLAGS)
 

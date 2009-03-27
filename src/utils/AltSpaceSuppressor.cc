@@ -107,7 +107,7 @@ LRESULT AltSpaceSuppressor::InterceptorWndProc(
 	WPARAM wParam,
 	LPARAM lParam)
 {
-	PRT_DEBUG("message = " << message << ", wParam = " << wParam << ", lParam = " << lParam);
+	//PRT_DEBUG("message = " << message << ", wParam = " << wParam << ", lParam = " << lParam);
 
 	LRESULT lResult = 0;
 	if (SuppressAltSpace(hWnd, message, wParam, lParam, &lResult)) {

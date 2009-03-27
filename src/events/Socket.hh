@@ -13,7 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #else
-#include <winsock.h>
+#include <winsock2.h>
 #endif
 
 namespace openmsx {

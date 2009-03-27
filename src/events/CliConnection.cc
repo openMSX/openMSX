@@ -19,6 +19,11 @@
 #include <cassert>
 #include <iostream>
 
+#ifdef _WIN32
+#include "SocketStreamWrapper.hh"
+#include "SspiNegotiateServer.hh"
+#endif
+
 using std::string;
 
 namespace openmsx {
@@ -90,7 +95,6 @@ bool CliConnection::getUpdateEnable(CliComm::UpdateType type) const
 
 void CliConnection::start()
 {
-	output("<openmsx-output>\n");
 	thread.start();
 }
 
@@ -315,6 +319,17 @@ void SocketConnection::run()
 	// TODO is locking correct?
 	// No need to lock in this thread because we don't write to 'sd'
 	// and 'sd' only gets written to in this thread.
+
+#ifdef _WIN32
+	SocketStreamWrapper stream(sd);
+	SspiNegotiateServer server(stream);
+	if (!server.Authenticate() || !server.Authorize()) {
+		closesocket(sd);
+		return;
+	}
+#endif
+	output("<openmsx-output>\n");
+
 	while (true) {
 		if (sd == OPENMSX_INVALID_SOCKET) return;
 		char buf[BUF_SIZE];
