@@ -1,10 +1,11 @@
 set_help_text load_icons \
 {Load a different set of OSD icons.
- usage:  load_icons <name> [<position>]
-          <name> is the name of a directory (share/skins/<name>) that
-          contains the icon images
-          <position> can be one of the following 'bottom', 'top',
-          'left' or 'right'. Default is 'bottom'
+ usage:  load_icons [<name> [<position>]]
+   <name> is the name of a directory (share/skins/<name>) that
+          contains the icon images. If this parameter is not given,
+          a list of available skins will be printed.
+   <position> can be one of the following 'bottom', 'top', 'left'
+              or 'right'. The default depends on the selected skin.
  example: load_icons set1 top
 }
 
@@ -63,7 +64,16 @@ proc __redraw_osd_icons { icon } {
 	}
 }
 
-proc load_icons { set_name { set_position "" } } {
+proc load_icons {{set_name "-show"} { position_param "default" }} {
+	if {$set_name == "-show"} {
+		# Show list of available skins
+		set user_skins   \
+		    [glob -tails -types d -directory $::env(OPENMSX_USER_DATA)/skins   *]
+		set system_skins \
+		    [glob -tails -types d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
+		return [lsort -unique [concat $user_skins $system_skins]]
+	}
+
 	# Check skin directory
 	#  All files belonging to this skin must come from this directory.
 	#  So we don't allow mixing individual files for one skin from the
@@ -75,15 +85,12 @@ proc load_icons { set_name { set_position "" } } {
 	}
 
 	# Check position
-	if {$set_position == ""} {
-		# keep current position
-		set set_position $::osd_leds_pos
-	}
-	if {($set_position != "top") &&
-	    ($set_position != "bottom") &&
-	    ($set_position != "left") &&
-	    ($set_position != "right")} {
-		error "Invalid position: $set_position"
+	if {($position_param != "top") &&
+	    ($position_param != "bottom") &&
+	    ($position_param != "left") &&
+	    ($position_param != "right") &&
+	    ($position_param != "default")} {
+		error "Invalid position: $position_param"
 	}
 
 	# Defaut icon positions
@@ -97,6 +104,7 @@ proc load_icons { set_name { set_position "" } } {
 	set fade_delay 5
 	set fade_duration 5
 	set scale 2
+	set position $position_param
 
 	# but allow to override these values by the skin script
 	set icons $::__icons  ;# the 'none' skin needs this
@@ -112,12 +120,16 @@ proc load_icons { set_name { set_position "" } } {
 	set yspacing [expr $yspacing * $invscale]
 
 	# change according to <position> parameter
-	if { $set_position == "left" } {
+	if {$position == "default"} {
+		# script didn't set a default, so we choose a "default default"
+		set position "bottom"
+	}
+	if { $position == "left" } {
 		set horizontal 0
-	} elseif { $set_position == "right" } {
+	} elseif { $position == "right" } {
 		set horizontal 0
 	        set xbase [ expr 320 - $xwidth]
-	} elseif { $set_position == "bottom" } {
+	} elseif { $position == "bottom" } {
 	        set ybase [ expr 240 - $yheight ]
 	}
 	set vertical [expr !$horizontal]
@@ -209,8 +221,8 @@ proc load_icons { set_name { set_position "" } } {
 	# If successful, store in settings (order of assignments is important!)
 	set ::__osd_leds_set $set_name
 	set ::osd_leds_set $set_name
-	set ::__osd_leds_pos $set_position
-	set ::osd_leds_pos $set_position
+	set ::__osd_leds_pos $position_param
+	set ::osd_leds_pos $position_param
 	foreach icon $::__icons {
 		set ::__fade_delay_active($icon)     $fade_delay_active($icon)
 		set ::__fade_delay_non_active($icon) $fade_delay_non_active($icon)
@@ -252,8 +264,8 @@ foreach __icon $__icons {
 }
 
 # Restore settings from previous session
-user_setting create string osd_leds_set "Name of the OSD icon set" set1
-user_setting create string osd_leds_pos "Position of the OSD icons" bottom
+user_setting create string osd_leds_set "Name of the OSD icon set" "set1"
+user_setting create string osd_leds_pos "Position of the OSD icons" "default"
 set __osd_leds_set $osd_leds_set
 set __osd_leds_pos $osd_leds_pos
 trace add variable osd_leds_set write __trace_osd_icon_vars

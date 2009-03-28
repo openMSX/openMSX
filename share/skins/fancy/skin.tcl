@@ -6,4 +6,4 @@ set xspacing 32
 set yspacing 32
 set scale 4
 set fade_delay 0 ;#no fading
-set set_position left ;#don't allow to override the position
+set position "left" ;#don't allow to override the position

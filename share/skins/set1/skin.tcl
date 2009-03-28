@@ -11,6 +11,9 @@
 #  horizontal        1       1 -> horizontal   0 -> vertical
 #  fade_delay        5       time before LEDs start fading
 #  fade_duration     5       time it takes to fade from opaque to transparent
+#  position        default   chosen position, can be left/right/top/bottom/default
+#                            Scripts *should* overrule the value 'default', but
+#                            they *may* also overrule other values.
 #
 # per LED settings
 #   default values are calcluated from the global settings
@@ -31,3 +34,4 @@ set xwidth 49
 set yheight 36
 set xspacing 60
 set yspacing 45
+if {$position == "default"} { set position "bottom" }
