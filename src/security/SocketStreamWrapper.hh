@@ -20,8 +20,8 @@ private:
 public:
 	SocketStreamWrapper(SOCKET userSock);
 
-	unsigned int Read(void* buffer, unsigned int cb);
-	unsigned int Write(void* buffer, unsigned int cb);
+	uint32 Read(void* buffer, uint32 cb);
+	uint32 Write(void* buffer, uint32 cb);
 };
 
 

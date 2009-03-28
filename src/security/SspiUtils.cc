@@ -3,7 +3,6 @@
 #ifdef _WIN32
 
 #include "SspiUtils.hh"
-#include "openmsx.hh"
 #include "MSXException.hh"
 #include <sddl.h>
 #include <cassert>
@@ -233,12 +232,12 @@ unsigned long GetPackageMaxTokenSize(wchar_t* package)
 	return cbMaxToken;
 }
 
-bool Send(StreamWrapper& stream, void* buffer, unsigned int cb)
+bool Send(StreamWrapper& stream, void* buffer, uint32 cb)
 {
-	unsigned int sent = 0;
+	uint32 sent = 0;
 	while (sent < cb)
 	{
-		unsigned int ret = stream.Write((char*)buffer + sent, cb - sent);
+		uint32 ret = stream.Write((char*)buffer + sent, cb - sent);
 		if (ret == STREAM_ERROR) {
 			return false;
 		}
@@ -247,9 +246,9 @@ bool Send(StreamWrapper& stream, void* buffer, unsigned int cb)
 	return true;
 }
 
-bool SendChunk(StreamWrapper& stream, void* buffer, unsigned int cb)
+bool SendChunk(StreamWrapper& stream, void* buffer, uint32 cb)
 {
-	unsigned int nl = htonl(cb);
+	uint32 nl = htonl(cb);
 	if (!Send(stream, &nl, sizeof(nl))) {
 		return false;
 	}
@@ -258,9 +257,9 @@ bool SendChunk(StreamWrapper& stream, void* buffer, unsigned int cb)
 
 bool Recv(StreamWrapper& stream, void* buffer, unsigned int cb)
 {
-	unsigned int recvd = 0;
+	uint32 recvd = 0;
 	while (recvd < cb) {
-		unsigned int ret = stream.Read((char*)buffer + recvd, cb - recvd);
+		uint32 ret = stream.Read((char*)buffer + recvd, cb - recvd);
 		if (ret == STREAM_ERROR) {
 			return false;
 		}
@@ -270,9 +269,9 @@ bool Recv(StreamWrapper& stream, void* buffer, unsigned int cb)
 	return true;
 }
 
-bool RecvChunkSize(StreamWrapper& stream, unsigned int* pcb)
+bool RecvChunkSize(StreamWrapper& stream, uint32* pcb)
 {
-	unsigned int cb;
+	uint32 cb;
 	bool ret = Recv(stream, &cb, sizeof(cb));
 	if (ret) {
 		*pcb = ntohl(cb);
@@ -280,9 +279,9 @@ bool RecvChunkSize(StreamWrapper& stream, unsigned int* pcb)
 	return ret;
 }
 
-bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, unsigned int cbMaxSize)
+bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32 cbMaxSize)
 {
-	unsigned int cb;
+	uint32 cb;
 	if (!RecvChunkSize(stream, &cb) || cb > cbMaxSize) {
 		return false;
 	}

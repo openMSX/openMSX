@@ -11,7 +11,7 @@ SocketStreamWrapper::SocketStreamWrapper(SOCKET userSock)
 {
 }
 
-unsigned int SocketStreamWrapper::Read(void* buffer, unsigned int cb)
+uint32 SocketStreamWrapper::Read(void* buffer, uint32 cb)
 {
 	int recvd = recv(sock, static_cast<char*>(buffer), cb, 0);
 	if (recvd == 0 || recvd == SOCKET_ERROR) {
@@ -20,7 +20,7 @@ unsigned int SocketStreamWrapper::Read(void* buffer, unsigned int cb)
 	return recvd;
 }
 
-unsigned int SocketStreamWrapper::Write(void* buffer, unsigned int cb)
+uint32 SocketStreamWrapper::Write(void* buffer, uint32 cb)
 {
 	int sent = send(sock, static_cast<char*>(buffer), cb, 0);
 	if (sent == 0 || sent == SOCKET_ERROR) {

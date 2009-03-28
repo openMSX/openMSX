@@ -3,7 +3,6 @@
 #ifdef _WIN32
 
 #include "SspiNegotiateServer.hh"
-#include "openmsx.hh"
 #include "MSXException.hh"
 
 namespace openmsx {

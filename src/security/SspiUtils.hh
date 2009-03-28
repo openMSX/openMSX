@@ -15,6 +15,7 @@
 #endif
 #include <security.h>
 #include <vector>
+#include "openmsx.hh"
 
 //
 // NOTE: This file MUST be kept in sync between the openmsx and openmsx-debugger projects
@@ -28,8 +29,8 @@ const unsigned STREAM_ERROR = 0xffffffff;
 class StreamWrapper
 {
 public:
-	virtual unsigned Read(void* buffer, unsigned cb) = 0;
-	virtual unsigned Write(void* buffer, unsigned cb) = 0;
+	virtual uint32 Read(void* buffer, uint32 cb) = 0;
+	virtual uint32 Write(void* buffer, uint32 cb) = 0;
 };
 
 class SspiPackageBase
