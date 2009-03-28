@@ -277,6 +277,8 @@ void OSDWidget::invalidateChildren()
 
 void OSDWidget::paintSDLRecursive(OutputSurface& output)
 {
+	paintSDL(output);
+
 	std::auto_ptr<SDLScopedClip> scopedClip;
 	if (clip) {
 		int x, y, w, h;
@@ -284,7 +286,6 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 		scopedClip.reset(new SDLScopedClip(output, x, y, w, h));
 	}
 
-	paintSDL(output);
 	for (SubWidgets::const_iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
 		(*it)->paintSDLRecursive(output);
@@ -295,6 +296,8 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 {
 	(void)output;
 #ifdef COMPONENT_GL
+	paintGL(output);
+
 	std::auto_ptr<GLScopedClip> scopedClip;
 	if (clip) {
 		int x, y, w, h;
@@ -302,7 +305,6 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 		scopedClip.reset(new GLScopedClip(output, x, y, w, h));
 	}
 
-	paintGL(output);
 	for (SubWidgets::const_iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
 		(*it)->paintGLRecursive(output);
