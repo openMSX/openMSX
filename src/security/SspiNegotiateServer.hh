@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+using namespace sspiutils;
+
 class SspiNegotiateServer : public SspiPackageBase
 {
 private:

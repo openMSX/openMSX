@@ -10,6 +10,8 @@
 
 namespace openmsx {
 
+using namespace sspiutils;
+
 class SocketStreamWrapper : public StreamWrapper
 {
 private:
@@ -18,8 +20,8 @@ private:
 public:
 	SocketStreamWrapper(SOCKET userSock);
 
-	unsigned Read(void* buffer, unsigned cb);
-	unsigned Write(void* buffer, unsigned cb);
+	unsigned int Read(void* buffer, unsigned int cb);
+	unsigned int Write(void* buffer, unsigned int cb);
 };
 
 

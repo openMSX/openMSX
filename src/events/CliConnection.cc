@@ -321,11 +321,13 @@ void SocketConnection::run()
 	// and 'sd' only gets written to in this thread.
 
 #ifdef _WIN32
+	{ // Scope to release resources before connection ends
 	SocketStreamWrapper stream(sd);
 	SspiNegotiateServer server(stream);
 	if (!server.Authenticate() || !server.Authorize()) {
 		closesocket(sd);
 		return;
+	}
 	}
 #endif
 	output("<openmsx-output>\n");

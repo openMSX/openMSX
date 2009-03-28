@@ -9,7 +9,7 @@
 namespace openmsx {
 
 SspiNegotiateServer::SspiNegotiateServer(StreamWrapper& serverStream)
-	: SspiPackageBase(serverStream)
+	: SspiPackageBase(serverStream, NEGOSSP_NAME_W)
 {
 	// We should probably cache the security descriptor, but this
 	// isn't exactly a performance-sensitive part of the code
@@ -38,7 +38,7 @@ bool SspiNegotiateServer::Authenticate()
 		&hCreds,
 		&tsCredsExpiry);
 
-	PrintSecurityStatus("AcquireCredentialsHandleW", ss);
+	DebugPrintSecurityStatus("AcquireCredentialsHandleW", ss);
 	if (ss != SEC_E_OK) {
 		return false;
 	}
@@ -54,14 +54,14 @@ bool SspiNegotiateServer::Authenticate()
 
 		// Receive another buffer from the client
 		PRT_DEBUG("Receiving client chunk");
-		unsigned cb = RecvChunk(stream, buffer, cbMaxTokenSize);
-		PRT_DEBUG("Received " << cb << " bytes");
-		if (!cb) {
-			PRT_DEBUG("Receive failed");
+		bool ret = RecvChunk(stream, buffer, cbMaxTokenSize);
+		if (!ret) {
+			PRT_DEBUG("RecvChunk failed");
 			return false;
 		}
+		PRT_DEBUG("Received " << buffer.size() << " bytes");
 
-		secClientBuffer.cbBuffer = cb;
+		secClientBuffer.cbBuffer = static_cast<unsigned long>(buffer.size());
 		secClientBuffer.pvBuffer = &buffer[0];
 
 		ULONG fContextAttr;
@@ -77,7 +77,7 @@ bool SspiNegotiateServer::Authenticate()
 			&fContextAttr,
 			&tsContextExpiry);
 
-		PrintSecurityStatus("AcceptSecurityContext", ss);
+		DebugPrintSecurityStatus("AcceptSecurityContext", ss);
 		if (ss != SEC_E_OK && ss != SEC_I_CONTINUE_NEEDED) {
 			return false;
 		}
@@ -89,15 +89,15 @@ bool SspiNegotiateServer::Authenticate()
 			bool ret = SendChunk(stream, secServerBuffer.pvBuffer, secServerBuffer.cbBuffer);
 			ClearContextBuffers(&secServerBufferDesc);
 			if (!ret) {
-				PRT_DEBUG("Send failed");
+				PRT_DEBUG("SendChunk failed");
 				return false;
 			}
 		}
 
 		// SEC_E_OK means that we're done
 		if (ss == SEC_E_OK) {
-			PrintSecurityPackageName(&hContext);
-			PrintSecurityPrincipalName(&hContext);
+			DebugPrintSecurityPackageName(&hContext);
+			DebugPrintSecurityPrincipalName(&hContext);
 			return true;
 		}
 
@@ -109,7 +109,9 @@ bool SspiNegotiateServer::Authenticate()
 bool SspiNegotiateServer::Authorize()
 {
 #ifdef __GNUC__
-	// MinGW32's security support has issues
+	// MinGW32's headers do not define QuerySecurityContextToken,
+	// nor does its import library provide an export for it.
+	// So when building with MinGW32, we load the export by hand.
 	HMODULE secur32 = GetModuleHandleW(L"secur32.dll");
 	if (!secur32) {
 		return false;
@@ -123,7 +125,7 @@ bool SspiNegotiateServer::Authorize()
 
 	HANDLE hClientToken;
 	SECURITY_STATUS ss = QuerySecurityContextToken(&hContext, &hClientToken);
-	PrintSecurityStatus("QuerySecurityContextToken", ss);
+	DebugPrintSecurityStatus("QuerySecurityContextToken", ss);
 	if (ss != SEC_E_OK) {
 		return false;
 	}
@@ -142,9 +144,9 @@ bool SspiNegotiateServer::Authorize()
 		&dwGranted,
 		&fAccess);
 
-	PrintSecurityBool("AccessCheck", ret);
+	DebugPrintSecurityBool("AccessCheck", ret);
 	PRT_DEBUG("Access " << (ret && fAccess ? "granted" : "denied"));
-	PrintSecurityPrincipalName(&hContext);
+	DebugPrintSecurityPrincipalName(&hContext);
 
 	CloseHandle(hClientToken);
 

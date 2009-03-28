@@ -7,8 +7,10 @@
 
 #include <winsock2.h>
 #ifdef __GNUC__
-// MinGW32's security support has issues
+// MinGW32 requires that subauth.h be included before security.h, in order to define several things
+// This differs from VC++, which only needs security.h
 #include <subauth.h>
+// MinGW32 does not define NEGOSSP_NAME_W anywhere. It should.
 #define NEGOSSP_NAME_W  L"Negotiate"
 #endif
 #include <security.h>
@@ -19,6 +21,7 @@
 //
 
 namespace openmsx {
+namespace sspiutils {
 
 const unsigned STREAM_ERROR = 0xffffffff;
 
@@ -36,10 +39,9 @@ protected:
 	CtxtHandle hContext;
 
 	StreamWrapper& stream;
-	unsigned cbMaxTokenSize;
+	const unsigned int cbMaxTokenSize;
 
-public:
-	SspiPackageBase(StreamWrapper& stream);
+	SspiPackageBase(StreamWrapper& stream, wchar_t* securityPackage);
 	~SspiPackageBase();
 };
 
@@ -54,17 +56,18 @@ const GENERIC_MAPPING mapping = {
 
 void InitTokenContextBuffer(PSecBufferDesc pSecBufferDesc, PSecBuffer pSecBuffer);
 void ClearContextBuffers(PSecBufferDesc pSecBufferDesc);
-void PrintSecurityStatus(const char* context, SECURITY_STATUS ss);
-void PrintSecurityBool(const char* context, BOOL ret);
-void PrintSecurityPackageName(PCtxtHandle phContext);
-void PrintSecurityPrincipalName(PCtxtHandle phContext);
-void PrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd);
+void DebugPrintSecurityStatus(const char* context, SECURITY_STATUS ss);
+void DebugPrintSecurityBool(const char* context, BOOL ret);
+void DebugPrintSecurityPackageName(PCtxtHandle phContext);
+void DebugPrintSecurityPrincipalName(PCtxtHandle phContext);
+void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd);
 PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor();
 unsigned long GetPackageMaxTokenSize(wchar_t* package);
 
-bool SendChunk(StreamWrapper& stream, void* buffer, unsigned cb);
-unsigned RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, unsigned cbMaxSize);
+bool SendChunk(StreamWrapper& stream, void* buffer, unsigned int cb);
+bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, unsigned int cbMaxSize);
 
+} // namespace sspiutils
 } // namespace openmsx
 
 #endif // _WIN32

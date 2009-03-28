@@ -13,14 +13,15 @@
 //
 
 namespace openmsx {
+namespace sspiutils {
 
-SspiPackageBase::SspiPackageBase(StreamWrapper& userStream) 
+SspiPackageBase::SspiPackageBase(StreamWrapper& userStream, wchar_t* securityPackage) 
 	: stream(userStream)
+	, cbMaxTokenSize(GetPackageMaxTokenSize(securityPackage))
 {
 	memset(&hCreds, 0, sizeof(hCreds));
 	memset(&hContext, 0, sizeof(hContext));
 
-	cbMaxTokenSize = GetPackageMaxTokenSize(NEGOSSP_NAME_W);
 	if (!cbMaxTokenSize) {
 		throw MSXException("GetPackageMaxTokenSize failed");
 	}
@@ -53,7 +54,7 @@ void ClearContextBuffers(PSecBufferDesc pSecBufferDesc)
 	}
 }
 
-void PrintSecurityStatus(const char* context, SECURITY_STATUS ss)
+void DebugPrintSecurityStatus(const char* context, SECURITY_STATUS ss)
 {
 	(void)&context;
 	(void)&ss;
@@ -85,7 +86,7 @@ void PrintSecurityStatus(const char* context, SECURITY_STATUS ss)
 #endif
 }
 
-void PrintSecurityBool(const char* context, BOOL ret)
+void DebugPrintSecurityBool(const char* context, BOOL ret)
 {
 	(void)&context;
 	(void)&ret;
@@ -98,7 +99,7 @@ void PrintSecurityBool(const char* context, BOOL ret)
 #endif
 }
 
-void PrintSecurityPackageName(PCtxtHandle phContext)
+void DebugPrintSecurityPackageName(PCtxtHandle phContext)
 {
 	(void)&phContext;
 #ifdef DEBUG
@@ -110,7 +111,7 @@ void PrintSecurityPackageName(PCtxtHandle phContext)
 #endif
 }
 
-void PrintSecurityPrincipalName(PCtxtHandle phContext)
+void DebugPrintSecurityPrincipalName(PCtxtHandle phContext)
 {
 	(void)&phContext;
 #ifdef DEBUG
@@ -122,7 +123,7 @@ void PrintSecurityPrincipalName(PCtxtHandle phContext)
 #endif
 }
 
-void PrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
+void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 {
 	(void)&psd;
 #ifdef DEBUG
@@ -149,7 +150,7 @@ PTOKEN_USER GetProcessToken()
 
 	HANDLE hProcessToken;
 	BOOL ret = OpenProcessToken(GetCurrentProcess(), TOKEN_READ, &hProcessToken);
-	PrintSecurityBool("OpenProcessToken", ret);
+	DebugPrintSecurityBool("OpenProcessToken", ret);
 	if (ret) {
 
 		DWORD cbToken;
@@ -159,7 +160,7 @@ PTOKEN_USER GetProcessToken()
 		pToken = (TOKEN_USER*)LocalAlloc(LMEM_ZEROINIT, cbToken);
 		if (pToken) {
 			ret = GetTokenInformation(hProcessToken, TokenUser, pToken, cbToken, &cbToken);
-			PrintSecurityBool("GetTokenInformation", ret);
+			DebugPrintSecurityBool("GetTokenInformation", ret);
 			if (!ret) {
 				LocalFree(pToken);
 				pToken = NULL;
@@ -212,7 +213,7 @@ PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 
 	if (psd) {
 		assert(IsValidSecurityDescriptor(psd));
-		PrintSecurityDescriptor(psd);
+		DebugPrintSecurityDescriptor(psd);
 	}
 
 	return psd;
@@ -222,7 +223,7 @@ unsigned long GetPackageMaxTokenSize(wchar_t* package)
 {
 	PSecPkgInfoW pkgInfo;
 	SECURITY_STATUS ss = QuerySecurityPackageInfoW(package, &pkgInfo);
-	PrintSecurityStatus("QuerySecurityPackageInfoW", ss);
+	DebugPrintSecurityStatus("QuerySecurityPackageInfoW", ss);
 	if (ss != SEC_E_OK) {
 		return 0;
 	}
@@ -232,12 +233,12 @@ unsigned long GetPackageMaxTokenSize(wchar_t* package)
 	return cbMaxToken;
 }
 
-bool Send(StreamWrapper& stream, void* buffer, unsigned cb)
+bool Send(StreamWrapper& stream, void* buffer, unsigned int cb)
 {
-	unsigned sent = 0;
+	unsigned int sent = 0;
 	while (sent < cb)
 	{
-		unsigned ret = stream.Write((char*)buffer + sent, cb - sent);
+		unsigned int ret = stream.Write((char*)buffer + sent, cb - sent);
 		if (ret == STREAM_ERROR) {
 			return false;
 		}
@@ -246,20 +247,20 @@ bool Send(StreamWrapper& stream, void* buffer, unsigned cb)
 	return true;
 }
 
-bool SendChunk(StreamWrapper& stream, void* buffer, unsigned cb)
+bool SendChunk(StreamWrapper& stream, void* buffer, unsigned int cb)
 {
-	unsigned nl = htonl(cb);
+	unsigned int nl = htonl(cb);
 	if (!Send(stream, &nl, sizeof(nl))) {
 		return false;
 	}
 	return Send(stream, buffer, cb);
 }
 
-bool Recv(StreamWrapper& stream, void* buffer, unsigned cb)
+bool Recv(StreamWrapper& stream, void* buffer, unsigned int cb)
 {
-	unsigned recvd = 0;
+	unsigned int recvd = 0;
 	while (recvd < cb) {
-		unsigned ret = stream.Read((char*)buffer + recvd, cb - recvd);
+		unsigned int ret = stream.Read((char*)buffer + recvd, cb - recvd);
 		if (ret == STREAM_ERROR) {
 			return false;
 		}
@@ -269,9 +270,9 @@ bool Recv(StreamWrapper& stream, void* buffer, unsigned cb)
 	return true;
 }
 
-bool RecvChunkSize(StreamWrapper& stream, unsigned* pcb)
+bool RecvChunkSize(StreamWrapper& stream, unsigned int* pcb)
 {
-	unsigned cb;
+	unsigned int cb;
 	bool ret = Recv(stream, &cb, sizeof(cb));
 	if (ret) {
 		*pcb = ntohl(cb);
@@ -279,21 +280,20 @@ bool RecvChunkSize(StreamWrapper& stream, unsigned* pcb)
 	return ret;
 }
 
-unsigned RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, unsigned cbMaxSize)
+bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, unsigned int cbMaxSize)
 {
-	unsigned cb;
+	unsigned int cb;
 	if (!RecvChunkSize(stream, &cb) || cb > cbMaxSize) {
-		return 0;
+		return false;
 	}
-	if (cb > buffer.size()) {
-		buffer.resize(cb);
-	}
+	buffer.resize(cb);
 	if (!Recv(stream, &buffer[0], cb)) {
-		return 0;
+		return false;
 	}
-	return cb;
+	return true;
 }
 
+} // namespace sspiutils
 } // namespace openmsx
 
 #endif
