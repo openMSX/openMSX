@@ -255,7 +255,7 @@ bool SendChunk(StreamWrapper& stream, void* buffer, uint32 cb)
 	return Send(stream, buffer, cb);
 }
 
-bool Recv(StreamWrapper& stream, void* buffer, unsigned int cb)
+bool Recv(StreamWrapper& stream, void* buffer, uint32 cb)
 {
 	uint32 recvd = 0;
 	while (recvd < cb) {

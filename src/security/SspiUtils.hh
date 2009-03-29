@@ -65,8 +65,8 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd);
 PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor();
 unsigned long GetPackageMaxTokenSize(wchar_t* package);
 
-bool SendChunk(StreamWrapper& stream, void* buffer, unsigned int cb);
-bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, unsigned int cbMaxSize);
+bool SendChunk(StreamWrapper& stream, void* buffer, uint32 cb);
+bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32 cbMaxSize);
 
 } // namespace sspiutils
 } // namespace openmsx
