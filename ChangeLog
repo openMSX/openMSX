@@ -1,5 +1,9 @@
 $Id$
 
+2009-03-30 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added a fun OSD VU-meter script, see script for details.
+	  Thanks to Wouter and BiFi for their support.
+
 2009-03-26 Max Feingold <maf6@cornell.edu>
 	* Secure sockets used by CliServer on Windows by requiring authentication
 	  and authorizing only the user that launches the openMSX process.
