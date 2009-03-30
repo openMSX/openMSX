@@ -5,13 +5,13 @@
 #include "CliComm.hh"
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
-#include "Event.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Alarm.hh"
 #include "EmuTime.hh"
 #include "CommandException.hh"
 #include "openmsx.hh"
+#include <algorithm>
 #include <cstdlib>
 #include <sstream>
 
@@ -33,6 +33,7 @@ public:
 protected:
 	AfterCmd(AfterCommand& afterCommand,
 		 const std::string& command);
+	shared_ptr<AfterCmd> removeSelf();
 private:
 	AfterCommand& afterCommand;
 	std::string command;
@@ -144,10 +145,6 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 
 AfterCommand::~AfterCommand()
 {
-	while (!afterCmds.empty()) {
-		delete afterCmds.begin()->second; // removes itself from map
-	}
-
 	eventDistributor.unregisterEventListener(
 		OPENMSX_AFTER_REALTIME_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -176,16 +173,6 @@ AfterCommand::~AfterCommand()
 		OPENMSX_KEY_UP_EVENT, *this);
 }
 
-template<EventType T>
-static string afterEvent(const vector<string>& tokens, AfterCommand& after)
-{
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(after, tokens[1], tokens[2]);
-	return cmd->getId();
-}
-
 string AfterCommand::execute(const vector<string>& tokens)
 {
 	if (tokens.size() < 2) {
@@ -198,13 +185,13 @@ string AfterCommand::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "idle") {
 		return afterIdle(tokens);
 	} else if (tokens[1] == "frame") {
-		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens, *this);
+		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens);
 	} else if (tokens[1] == "break") {
-		return afterEvent<OPENMSX_BREAK_EVENT>(tokens, *this);
+		return afterEvent<OPENMSX_BREAK_EVENT>(tokens);
 	} else if (tokens[1] == "boot") {
-		return afterEvent<OPENMSX_BOOT_EVENT>(tokens, *this);
+		return afterEvent<OPENMSX_BOOT_EVENT>(tokens);
 	} else if (tokens[1] == "machine_switch") {
-		return afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens, *this);
+		return afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens);
 	} else if (tokens[1] == "info") {
 		return afterInfo(tokens);
 	} else if (tokens[1] == "cancel") {
@@ -235,8 +222,9 @@ string AfterCommand::afterTime(const vector<string>& tokens)
 		return "";
 	}
 	double time = getTime(tokens[2]);
-	AfterTimeCmd* cmd = new AfterTimeCmd(
-		motherBoard->getScheduler(), *this, tokens[3], time);
+	shared_ptr<AfterCmd> cmd(new AfterTimeCmd(
+		motherBoard->getScheduler(), *this, tokens[3], time));
+	afterCmds.push_back(cmd);
 	return cmd->getId();
 }
 
@@ -246,8 +234,20 @@ string AfterCommand::afterRealTime(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double time = getTime(tokens[2]);
-	AfterRealTimeCmd* cmd = new AfterRealTimeCmd(
-		*this, eventDistributor, tokens[3], time);
+	shared_ptr<AfterCmd> cmd(new AfterRealTimeCmd(
+		*this, eventDistributor, tokens[3], time));
+	afterCmds.push_back(cmd);
+	return cmd->getId();
+}
+
+template<EventType T>
+string AfterCommand::afterEvent(const vector<string>& tokens)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	shared_ptr<AfterCmd> cmd(new AfterEventCmd<T>(*this, tokens[1], tokens[2]));
+	afterCmds.push_back(cmd);
 	return cmd->getId();
 }
 
@@ -261,17 +261,18 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 		return "";
 	}
 	double time = getTime(tokens[2]);
-	AfterIdleCmd* cmd = new AfterIdleCmd(
-		motherBoard->getScheduler(), *this, tokens[3], time);
+	shared_ptr<AfterCmd> cmd(new AfterIdleCmd(
+		motherBoard->getScheduler(), *this, tokens[3], time));
+	afterCmds.push_back(cmd);
 	return cmd->getId();
 }
 
 string AfterCommand::afterInfo(const vector<string>& /*tokens*/)
 {
 	string result;
-	for (AfterCmdMap::const_iterator it = afterCmds.begin();
+	for (AfterCmds::const_iterator it = afterCmds.begin();
 	     it != afterCmds.end(); ++it) {
-		const AfterCmd* cmd = it->second;
+		const AfterCmd* cmd = it->get();
 		ostringstream str;
 		str << cmd->getId() << ": ";
 		str << cmd->getType() << ' ';
@@ -291,11 +292,16 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	AfterCmdMap::iterator it = afterCmds.find(tokens[2]);
+	AfterCmds::iterator it = afterCmds.begin();
+	for (/**/; it != afterCmds.end(); ++it) {
+		if ((*it)->getId() == tokens[2]) {
+			break;
+		}
+	}
 	if (it == afterCmds.end()) {
 		throw CommandException("No delayed command with this id");
 	}
-	delete it->second;
+	afterCmds.erase(it);
 	return "";
 }
 
@@ -328,36 +334,43 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 	// TODO : make more complete
 }
 
-template<EventType T> static void executeEvents(
-    const AfterCommand::AfterCmdMap& afterCmds)
-{
-	vector<AfterCmd*> tmp; // make copy because map will change
-	for (AfterCommand::AfterCmdMap::const_iterator it = afterCmds.begin();
-	     it != afterCmds.end(); ++it) {
-		if (dynamic_cast<AfterEventCmd<T>*>(it->second)) {
-			tmp.push_back(it->second);
-		}
+
+template<EventType T> struct AfterEventPred {
+	bool operator()(shared_ptr<AfterCmd> x) const {
+		return !dynamic_cast<AfterEventCmd<T>*>(x.get());
 	}
-	for (vector<AfterCmd*>::iterator it = tmp.begin();
-	     it != tmp.end(); ++it) {
+};
+template<EventType T> void AfterCommand::executeEvents()
+{
+	AfterCmds::iterator it = partition(afterCmds.begin(), afterCmds.end(),
+	                                   AfterEventPred<T>());
+	AfterCmds tmp(it, afterCmds.end());
+	afterCmds.erase(it, afterCmds.end());
+
+	for (AfterCmds::iterator it = tmp.begin(); it != tmp.end(); ++it) {
 		(*it)->execute();
 	}
 }
 
-void AfterCommand::executeRealTime()
-{
-	vector<AfterCmd*> tmp; // make copy because map will change
-	for (AfterCmdMap::const_iterator it = afterCmds.begin();
-	     it != afterCmds.end(); ++it) {
+struct AfterTimePred {
+	bool operator()(shared_ptr<AfterCmd> x) const {
 		if (AfterRealTimeCmd* realtimeCmd =
-		              dynamic_cast<AfterRealTimeCmd*>(it->second)) {
+		              dynamic_cast<AfterRealTimeCmd*>(x.get())) {
 			if (realtimeCmd->hasExpired()) {
-				tmp.push_back(it->second);
+				return false;
 			}
 		}
+		return true;
 	}
-	for (vector<AfterCmd*>::iterator it = tmp.begin();
-	     it != tmp.end(); ++it) {
+};
+void AfterCommand::executeRealTime()
+{
+	AfterCmds::iterator it = partition(afterCmds.begin(), afterCmds.end(),
+	                                   AfterTimePred());
+	AfterCmds tmp(it, afterCmds.end());
+	afterCmds.erase(it, afterCmds.end());
+
+	for (AfterCmds::iterator it = tmp.begin(); it != tmp.end(); ++it) {
 		(*it)->execute();
 	}
 }
@@ -365,20 +378,21 @@ void AfterCommand::executeRealTime()
 bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		executeEvents<OPENMSX_FINISH_FRAME_EVENT>(afterCmds);
+		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
 	} else if (event->getType() == OPENMSX_BREAK_EVENT) {
-		executeEvents<OPENMSX_BREAK_EVENT>(afterCmds);
+		executeEvents<OPENMSX_BREAK_EVENT>();
 	} else if (event->getType() == OPENMSX_BOOT_EVENT) {
-		executeEvents<OPENMSX_BOOT_EVENT>(afterCmds);
+		executeEvents<OPENMSX_BOOT_EVENT>();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>(afterCmds);
+		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
 	} else if (event->getType() == OPENMSX_AFTER_REALTIME_EVENT) {
 		executeRealTime();
 	} else {
-		for (AfterCmdMap::const_iterator it = afterCmds.begin();
+		for (AfterCmds::const_iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
-			if (dynamic_cast<AfterIdleCmd*>(it->second)) {
-				static_cast<AfterIdleCmd*>(it->second)->reschedule();
+			if (AfterIdleCmd* idleCmd =
+			              dynamic_cast<AfterIdleCmd*>(it->get())) {
+				idleCmd->reschedule();
 			}
 		}
 	}
@@ -390,20 +404,16 @@ bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 
 unsigned AfterCmd::lastAfterId = 0;
 
-AfterCmd::AfterCmd(AfterCommand& afterCommand_,
-                                 const string& command_)
+AfterCmd::AfterCmd(AfterCommand& afterCommand_, const string& command_)
 	: afterCommand(afterCommand_), command(command_)
 {
 	ostringstream str;
 	str << "after#" << ++lastAfterId;
 	id = str.str();
-
-	afterCommand.afterCmds[id] = this;
 }
 
 AfterCmd::~AfterCmd()
 {
-	afterCommand.afterCmds.erase(id);
 }
 
 const string& AfterCmd::getCommand() const
@@ -424,7 +434,20 @@ void AfterCmd::execute()
 		afterCommand.getCommandController().getCliComm().printWarning(
 			"Error executing delayed command: " + e.getMessage());
 	}
-	delete this;
+}
+
+shared_ptr<AfterCmd> AfterCmd::removeSelf()
+{
+	for (AfterCommand::AfterCmds::iterator it = afterCommand.afterCmds.begin();
+	     it != afterCommand.afterCmds.end(); ++it) {
+		if (it->get() == this) {
+			shared_ptr<AfterCmd> result = *it;
+			afterCommand.afterCmds.erase(it);
+			return result;
+		}
+	}
+	assert(false);
+	return shared_ptr<AfterCmd>(0);
 }
 
 
@@ -456,14 +479,13 @@ void AfterTimedCmd::reschedule()
 void AfterTimedCmd::executeUntil(EmuTime::param /*time*/,
                                  int /*userData*/)
 {
-	PRT_DEBUG("Going to execute after command....");
+	shared_ptr<AfterCmd> self = removeSelf();
 	execute();
-	PRT_DEBUG("Going to execute after command.... DONE!");
 }
 
 void AfterTimedCmd::schedulerDeleted()
 {
-	delete this;
+	removeSelf();
 }
 
 const string& AfterTimedCmd::schedName() const
@@ -549,14 +571,11 @@ const std::string& AfterRealTimeCmd::getType() const
 
 bool AfterRealTimeCmd::alarm()
 {
-	PRT_DEBUG("AfterRealTimeCmd::alarm()...");
 	// this runs in a different thread, so we can't directly execute the
 	// command here
 	expired = true;
-	PRT_DEBUG("AfterRealTimeCmd::alarm()... distribute AFTER REALTIME EVENT");
 	eventDistributor.distributeEvent(
 			new SimpleEvent<OPENMSX_AFTER_REALTIME_EVENT>());
-	PRT_DEBUG("AfterRealTimeCmd::alarm()... distribute AFTER REALTIME EVENT, DONE! Don't repeat.");
 	return false; // don't repeat alarm
 }
 
