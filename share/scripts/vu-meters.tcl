@@ -8,7 +8,6 @@
 # - actually, don't use regs to calc volume but actual wave data (needs openMSX
 #   changes)
 # - handle insertion/removal of sound devices (needs openMSX changes)
-# - see also in get_volume_expr_for_channel
 #
 # Thanks to BiFi for helping out with the expressions for the devices.
 # Thanks to Wouter for the Tcl support.
@@ -64,7 +63,9 @@ proc vu_meters_init {} {
 			set nof_channels($soundchip) $channel_count
 		}
 	}
-	
+
+#	puts stderr [parray volume_expr]; # debug
+
 	set bar_width 2; # this value could be customized
 	set vu_meter_title_height 8; # this value could be customized
 	set bar_length [expr (320 - [llength $soundchips]) / [llength $soundchips] ]
@@ -143,13 +144,13 @@ proc get_volume_expr_for_channel {soundchip channel} {
 	# note: channel number starts with 0 here
 	switch [machine_info sounddevice $soundchip] {
 		"PSG" {
-			return "expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 8] \] &0xF) ) / 15.0"
+			return "set keybits \[debug read \"${soundchip} regs\" 7 \]; expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 8] \] &0xF) ) / 15.0 * ( 1 - (!((\$keybits >> $channel) | !(\$keybits >> [expr $channel + 3])) & 1) )"
 		}
 		"MoonSound wave-part" {
 			return "expr (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50] \] >> 1) ) / 127.0 * \[expr \[debug read \"${soundchip} regs\" [expr $channel + 0x68] \] >> 7\]";
 		}
 		"Konami SCC" {
-			return "expr ( (\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA] \] &0xF) ) / 15.0"
+			return "expr ( (\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA] \] &0xF) ) / 15.0 * \[ expr ( (\[debug read \"${soundchip} SCC\" 0xAF\] >> $channel) &1) \]"
 		}
 		"MSX-MUSIC" {
 			return "expr (15 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x30] \] &0xF) ) / 15.0 * \[ expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 0x20] ] &16) ) >> 4\]";# carrier total level, but only when key bit is on for this channel
@@ -175,6 +176,7 @@ proc get_volume_expr_for_channel {soundchip channel} {
 }
 
 proc vu_meters_reset {} {
+	variable vu_meters_active
 	if {!$vu_meters_active} {
 		error "Please fix a bug in this script!"
 	}
@@ -185,6 +187,9 @@ proc vu_meters_reset {} {
 proc toggle_vu_meters {} {
 	variable vu_meters_active
 	variable vu_meter_trigger_id
+	variable soundchips
+	variable bar_length
+	variable volume_cache
 
 	if {$vu_meters_active} {
 		catch {after cancel $vu_meter_trigger_id}
@@ -198,8 +203,19 @@ proc toggle_vu_meters {} {
 	}
 }
 
+#proc parray {name} {
+#	upvar $name local
+#	set result ""
+#	foreach key [array names local] {
+#		append result "${name}(${key}) = $local($key)\n"
+#	}
+#	return $result
+#}
+
 namespace export toggle_vu_meters
 
 } ;# namespace vu_meters
 
 namespace import vu_meters::*
+
+
