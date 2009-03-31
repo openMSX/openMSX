@@ -584,12 +584,14 @@ void Reactor::block()
 {
 	++blockedCounter;
 	enterMainLoop();
+	getMixer().mute();
 }
 
 void Reactor::unblock()
 {
 	--blockedCounter;
 	assert(blockedCounter >= 0);
+	getMixer().unmute();
 }
 
 

@@ -66,12 +66,6 @@ public:
 	void exitCPULoopAsync();
 
 	/**
-	 * Block the complete MSX (CPU and devices), used by breakpoints
-	 */
-	void block();
-	void unblock();
-
-	/**
 	 * Pause MSX machine. Only CPU is paused, other devices continue
 	 * running. Used by turbor hardware pause.
 	 */

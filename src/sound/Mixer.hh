@@ -67,7 +67,6 @@ private:
 	const std::auto_ptr<IntegerSetting> samplesSetting;
 	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
 	std::auto_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
-	BooleanSetting& pauseSetting;
 
 	int muteCount;
 };

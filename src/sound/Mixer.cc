@@ -7,7 +7,6 @@
 #include "DirectXSoundDriver.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
-#include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -33,7 +32,6 @@ Mixer::Mixer(CommandController& commandController_)
 		"frequency", "mixer frequency", 44100, 11025, 48000))
 	, samplesSetting(new IntegerSetting(commandController,
 		"samples", "mixer samples", defaultsamples, 64, 8192))
-	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
 	, muteCount(0)
 {
 	EnumSetting<SoundDriverType>::Map soundDriverMap;
@@ -55,11 +53,9 @@ Mixer::Mixer(CommandController& commandController_)
 	frequencySetting->attach(*this);
 	samplesSetting->attach(*this);
 	soundDriverSetting->attach(*this);
-	pauseSetting.attach(*this);
 
 	// Set correct initial mute state.
 	if (muteSetting->getValue()) ++muteCount;
-	if (pauseSetting.getValue()) ++muteCount;
 
 	reloadDriver();
 }
@@ -69,7 +65,6 @@ Mixer::~Mixer()
 	assert(msxMixers.empty());
 	driver.reset();
 
-	pauseSetting.detach(*this);
 	soundDriverSetting->detach(*this);
 	samplesSetting->detach(*this);
 	frequencySetting->detach(*this);
@@ -173,12 +168,6 @@ void Mixer::update(const Setting& setting)
 {
 	if (&setting == muteSetting.get()) {
 		if (muteSetting->getValue()) {
-			mute();
-		} else {
-			unmute();
-		}
-	} else if (&setting == &pauseSetting) {
-		if (pauseSetting.getValue()) {
 			mute();
 		} else {
 			unmute();

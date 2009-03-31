@@ -74,8 +74,6 @@ public:
 	bool execute();
 	void exitCPULoopSync();
 	void exitCPULoopAsync();
-	void block();
-	void unblock();
 	void pause();
 	void unpause();
 	void powerUp();
@@ -208,7 +206,6 @@ private:
 
 	BooleanSetting& powerSetting;
 
-	int blockedCounter;
 	bool powered;
 	bool needReset;
 	bool needPowerDown;
@@ -312,7 +309,6 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
 	, powerSetting(getGlobalSettings().getPowerSetting())
-	, blockedCounter(0)
 	, powered(false)
 	, needReset(false)
 	, needPowerDown(false)
@@ -711,7 +707,7 @@ EmuTime::param MSXMotherBoardImpl::getCurrentTime()
 
 bool MSXMotherBoardImpl::execute()
 {
-	if (!powered || blockedCounter) {
+	if (!powered) {
 		return false;
 	}
 	assert(getMachineConfig()); // otherwise powered cannot be true
@@ -727,20 +723,6 @@ bool MSXMotherBoardImpl::execute()
 
 	getCPU().execute();
 	return true;
-}
-
-void MSXMotherBoardImpl::block()
-{
-	++blockedCounter;
-	exitCPULoopSync();
-	getMSXMixer().mute();
-}
-
-void MSXMotherBoardImpl::unblock()
-{
-	--blockedCounter;
-	assert(blockedCounter >= 0);
-	getMSXMixer().unmute();
 }
 
 void MSXMotherBoardImpl::pause()
@@ -1309,14 +1291,6 @@ void MSXMotherBoard::exitCPULoopSync()
 void MSXMotherBoard::exitCPULoopAsync()
 {
 	pimple->exitCPULoopAsync();
-}
-void MSXMotherBoard::block()
-{
-	pimple->block();
-}
-void MSXMotherBoard::unblock()
-{
-	pimple->unblock();
 }
 void MSXMotherBoard::pause()
 {
