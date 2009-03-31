@@ -14,11 +14,8 @@ def writeFile(path, lines):
 	finally:
 		out.close()
 
-if system().lower() == 'windows':
-	# TODO: This should only be done for MinGW, not for all Windows builds.
-	#       But right now GCC is the only Windows compiler we can drive
-	#       directly anyway (MSVC++ is driven through msbuild).
-	def fixMinGWPath(path):
+if environ['OSTYPE'] == 'msys':
+	def fixMSYSPath(path):
 		if len(path) >= 2 and path[0] == '/' and (
 			len(path) == 2 or path[2] == '/'
 			):
@@ -29,7 +26,7 @@ if system().lower() == 'windows':
 		for i in xrange(len(flags)):
 			flag = flags[i]
 			if flag.startswith('-I'):
-				yield '-I' + fixMinGWPath(flag[2 : ])
+				yield '-I' + fixMSYSPath(flag[2 : ])
 			else:
 				yield flag
 else:
