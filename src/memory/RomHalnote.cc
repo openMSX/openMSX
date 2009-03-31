@@ -29,14 +29,19 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, rom)
+                       std::auto_ptr<Rom> rom_)
+	: Rom8kBBlocks(motherBoard, config, rom_)
 {
+	if (rom->getSize() != 0x100000) {
+		throw MSXException(
+			"Rom for HALNOTE mapper must be exactly 1MB in size.");
+	}
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x4000, config));
 	reset(EmuTime::dummy());
 }

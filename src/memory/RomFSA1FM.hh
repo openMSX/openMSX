@@ -12,7 +12,17 @@ class MSXMotherBoard;
 class FirmwareSwitch;
 class SRAM;
 
-class RomFSA1FM1 : public MSXRom
+class RomFSA1FMSram
+{
+protected:
+	RomFSA1FMSram(MSXMotherBoard& motherBoard, const XMLElement& config);
+	~RomFSA1FMSram();
+
+	MSXMotherBoard& motherBoard;
+	SRAM* fsSram;
+};
+
+class RomFSA1FM1 : public MSXRom, private RomFSA1FMSram
 {
 public:
 	RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -32,10 +42,9 @@ public:
 
 private:
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
-	SRAM& sram;
 };
 
-class RomFSA1FM2 : public Rom8kBBlocks
+class RomFSA1FM2 : public Rom8kBBlocks, private RomFSA1FMSram
 {
 public:
 	RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -56,7 +65,6 @@ public:
 private:
 	void changeBank(byte region, byte bank);
 
-	SRAM& sram;
 	byte bankSelect[8];
 	bool isRam[8];
 	bool isEmpty[8];

@@ -106,7 +106,8 @@
           <sramname>fs-a1fm_modem.sram</sramname>
           <rom>
             <filename>roms/fs-a1fm_firmware.rom</filename>
-            <sha1>716952eab41077f18e6835d11caad6761b17d400</sha1>
+            <sha1>f89e3d8f3b6855c29d71d3149cc762e0f6918ad5</sha1> <!-- 1MB -->
+            <sha1>716952eab41077f18e6835d11caad6761b17d400</sha1> <!-- 2MB -->
           </rom>
           <mem base="0x4000" size="0x4000"/>
         </ROM>
@@ -130,7 +131,8 @@
           <sramname>fs-a1fm.sram</sramname>
           <rom>
             <filename>roms/fs-a1fm_firmware.rom</filename>
-            <sha1>716952eab41077f18e6835d11caad6761b17d400</sha1>
+            <sha1>f89e3d8f3b6855c29d71d3149cc762e0f6918ad5</sha1> <!-- 1MB -->
+            <sha1>716952eab41077f18e6835d11caad6761b17d400</sha1> <!-- 2MB -->
           </rom>
           <mem base="0x0000" size="0x10000"/>
         </ROM>
