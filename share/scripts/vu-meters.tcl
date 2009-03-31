@@ -146,7 +146,7 @@ proc get_volume_expr_for_channel {soundchip channel} {
 			return "expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 8] \] &0xF) ) / 15.0"
 		}
 		"MoonSound wave-part" {
-			return "expr (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50] \] >> 1) ) / 127.0";# TODO: check on key bit, if possible
+			return "expr (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50] \] >> 1) ) / 127.0 * \[expr \[debug read \"${soundchip} regs\" [expr $channel + 0x68] \] >> 7\]";
 		}
 		"Konami SCC" {
 			return "expr ( (\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA] \] &0xF) ) / 15.0"
