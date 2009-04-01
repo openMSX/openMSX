@@ -144,7 +144,7 @@ proc get_volume_expr_for_channel {soundchip channel} {
 	# note: channel number starts with 0 here
 	switch [machine_info sounddevice $soundchip] {
 		"PSG" {
-			return "set keybits \[debug read \"${soundchip} regs\" 7 \]; expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 8] \] &0xF) ) / 15.0 * ( 1 - (!((\$keybits >> $channel) | !(\$keybits >> [expr $channel + 3])) & 1) )"
+			return "set keybits \[debug read \"${soundchip} regs\" 7 \]; expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 8] \] &0xF) ) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr $channel + 3]) & 1)"
 		}
 		"MoonSound wave-part" {
 			return "expr (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50] \] >> 1) ) / 127.0 * \[expr \[debug read \"${soundchip} regs\" [expr $channel + 0x68] \] >> 7\]";
