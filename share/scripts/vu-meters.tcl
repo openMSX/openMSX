@@ -2,8 +2,12 @@
 #
 # Search in the script for 'customized' to see what you could customize ;-)
 #
+# The volume calculations are the volume setting of the channel, unless nothing
+# is played, then 0 is output. This is done by looking at 'key on' bits, as far
+# as they exist.
+#
 # TODO:
-# - optimize  more?
+# - optimize more?
 # - implement volume for MoonSound FM (tricky stuff)
 # - actually, don't use regs to calc volume but actual wave data (needs openMSX
 #   changes)
@@ -16,7 +20,7 @@ set_help_text toggle_vu_meters \
 {Puts a rough volume unit display for each channel and for all sound chips on
 the On-Screen-Display. Use the command again to remove it. Note: it cannot
 handle run-time insertion/removal of sound devices. It can handle changing
-of machines, though. MoonSound FM is not supported yet.
+of machines, though. Not all chips are supported yet.
 Note that displaying these VU-meters may cause quite some CPU load!}
 
 namespace eval vu_meters {
@@ -76,6 +80,7 @@ proc vu_meters_init {} {
 	set bar_width 2; # this value could be customized
 	set vu_meter_title_height 8; # this value could be customized
 	set bar_length [expr (320 - [llength $soundchips]) / [llength $soundchips] ]
+	if {$bar_length > (320/4)} {set bar_length [expr 320/4]}
 
 	# create widgets for each sound chip:
 
@@ -174,7 +179,7 @@ proc get_volume_expr_for_channel {soundchip channel} {
 				if {$channel > 5} {
 					incr offset 5
 				}
-				return "expr (63 - ( \[debug read \"${soundchip} regs\" [expr $offset + 0x43] \] &63) ) / 63.0 * \[ expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 0xB0] ] &32) ) >> 5\] ";# carrier total level, but only when key bit is on for this channel
+				return "expr (63 - ( \[debug read \"${soundchip} regs\" [expr $offset + 0x43] \] &63) ) / 63.0 * \[ expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 0xB0] ] &32) ) >> 5\] "
 			}
 		}
 		default {
@@ -199,12 +204,13 @@ proc toggle_vu_meters {} {
 	variable bar_length
 	variable volume_cache
 	variable volume_expr
+	variable nof_channels
 
 	if {$vu_meters_active} {
 		catch {after cancel $vu_meter_trigger_id}
 		set vu_meters_active false
 		osd destroy vu_meters
-		unset soundchips bar_length volume_cache volume_expr
+		unset soundchips bar_length volume_cache volume_expr nof_channels
 	} else {
 		set vu_meters_active true
 		vu_meters_init
