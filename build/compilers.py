@@ -2,9 +2,9 @@
 
 from os import environ, remove
 from os.path import isfile
-from platform import system
 from shlex import split as shsplit
 from subprocess import PIPE, STDOUT, Popen
+import sys
 
 def writeFile(path, lines):
 	out = open(path, 'w')
@@ -15,11 +15,59 @@ def writeFile(path, lines):
 		out.close()
 
 if environ['OSTYPE'] == 'msys':
+	# The MSYS shell provides a Unix-like file system by translating paths on
+	# the command line to Windows paths. Usually this is transparent, but not
+	# for us since we call GCC without going through the shell.
+
+	# Figure out the root directory of MSYS.
+	proc = Popen(
+		[ environ['SHELL'], '-c', '%s -c \'import sys ; print sys.argv[1]\' /'
+			% sys.executable.replace('\\', '\\\\') ],
+		stdin = None,
+		stdout = PIPE,
+		stderr = PIPE,
+		)
+	stdoutdata, stderrdata = proc.communicate()
+	if stderrdata or proc.returncode:
+		if stderrdata:
+			print >> sys.stderr, 'Error determining MSYS root:', stderrdata
+		if proc.returncode:
+			print >> sys.stderr, 'Exit code %d' % proc.returncode
+		raise IOError('Error determining MSYS root')
+	msysRoot = stdoutdata.strip()
+
+	# Figure out all mount points of MSYS.
+	msysMounts = { '/': msysRoot + '/' }
+	try:
+		inp = open(msysRoot + '/etc/fstab')
+		try:
+			for line in inp:
+				line = line.strip()
+				if line and not line.startswith('#'):
+					nativePath, mountPoint = (
+						path.rstrip('/') + '/' for path in line.split()
+						)
+					msysMounts[mountPoint] = nativePath
+		finally:
+			inp.close()
+	except IOError, ex:
+		print >> sys.stderr, 'Failed to read MSYS fstab:', ex
+	except ValueError, ex:
+		print >> sys.stderr, 'Failed to parse MSYS fstab:', ex
+
+	print msysMounts
+
 	def fixMSYSPath(path):
-		if len(path) >= 2 and path[0] == '/' and (
-			len(path) == 2 or path[2] == '/'
-			):
-			return '%s:/%s' % (path[1], path[3 : ])
+		if path.startswith('/'):
+			if len(path) == 2 or (len(path) > 2 and path[2] == '/'):
+				# Support drive letters as top-level dirs.
+				return '%s:/%s' % (path[1], path[3 : ])
+			longestMatch = ''
+			for mountPoint in msysMounts.iterkeys():
+				if path.startswith(mountPoint):
+					if len(mountPoint) > len(longestMatch):
+						longestMatch = mountPoint
+			return msysMounts[longestMatch] + path[len(longestMatch) : ]
 		else:
 			return path
 	def fixFlags(flags):
