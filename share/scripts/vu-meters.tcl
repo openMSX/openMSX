@@ -61,8 +61,6 @@ proc vu_meters_init {} {
 	foreach soundchip [machine_info sounddevice] {
 		# determine number of channels
 		set channel_count [ get_num_channels $soundchip]
-		# skip devices with only one channel (they are not very interesting)
-		if {$channel_count <= 1} continue
 		# skip devices which don't have volume expressions (not implemented yet)
 		if {[get_volume_expr_for_channel $soundchip 0] == "x"} continue
 			
