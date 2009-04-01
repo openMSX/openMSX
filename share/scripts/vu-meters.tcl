@@ -29,6 +29,14 @@ variable bar_length
 variable soundchips
 variable vu_meter_trigger_id
 
+proc get_num_channels {soundchip} {
+	set num 1
+	while {[info exists ::${soundchip}_ch${num}_mute]} {
+		incr num
+	}
+	expr $num - 1
+}
+
 proc vu_meters_init {} {
 
 	variable volume_cache
@@ -46,25 +54,22 @@ proc vu_meters_init {} {
 
 	set soundchips [list]
 
-	# skip devices with only one channel (they are not very interesting)
 	foreach soundchip [machine_info sounddevice] {
 		# determine number of channels
-		set channel_count 1
-		while {[info exists ::${soundchip}_ch${channel_count}_mute]} {
-			set channel [expr $channel_count - 1]
-			incr channel_count
-			# while we're at it, also create the volume cache and the expressions
-			set volume_cache($soundchip,$channel) -1
-			set volume_expr($soundchip,$channel) [get_volume_expr_for_channel $soundchip $channel]
-		}
-		incr channel_count -1
-		if {$channel_count > 1} {
-			lappend soundchips $soundchip
-			set nof_channels($soundchip) $channel_count
+		set channel_count [ get_num_channels $soundchip]
+		# skip devices with only one channel (they are not very interesting)
+		if {$channel_count <= 1} continue
+		
+		lappend soundchips $soundchip
+		set nof_channels($soundchip) $channel_count
+		for {set i 0} {$i < $channel_count} {incr i} {
+			# create the volume cache and the expressions
+			set volume_cache($soundchip,$i) -1
+			set volume_expr($soundchip,$i) [get_volume_expr_for_channel $soundchip $i]
 		}
 	}
 
-#	puts stderr [parray volume_expr]; # debug
+	puts stderr [parray volume_expr]; # debug
 
 	set bar_width 2; # this value could be customized
 	set vu_meter_title_height 8; # this value could be customized
@@ -203,14 +208,14 @@ proc toggle_vu_meters {} {
 	}
 }
 
-#proc parray {name} {
-#	upvar $name local
-#	set result ""
-#	foreach key [array names local] {
-#		append result "${name}(${key}) = $local($key)\n"
-#	}
-#	return $result
-#}
+proc parray {name} {
+	upvar $name local
+	set result ""
+	foreach key [array names local] {
+		append result "${name}(${key}) = $local($key)\n"
+	}
+	return $result
+}
 
 namespace export toggle_vu_meters
 
