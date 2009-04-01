@@ -70,6 +70,8 @@
 
 	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
 
+        <li><a class="internal" href="#nowind">nowind&lt;x&gt;</a></li>
+
         <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
 
         <li><a class="internal" href="#osd">osd</a></li>
@@ -1382,6 +1384,70 @@
     <code>unmute_channels PSG 1 SCC 1,3-4</code><br />
     <code>solo PSG 3</code>
   </div>
+
+
+  <h3><a id="nowind">nowind&lt;x&gt;</a></h3>
+
+  <p>Similar to the <code><a class="internal" href="#disk">disk&lt;x&gt;</a></code>
+  commands there is a <code>nowind&lt;x&gt;</code> command for each nowind
+  interface. This command is modeled after the 'usbhost' command of the real
+  nowind interface. Though only a subset of the options is supported. Here's a
+  short overview:</p>
+
+  <table>
+    <tr>Command line options</tr>
+    <tr><td>long</td>      <td>short</td><td>explanation</td></tr>
+    <tr><td>--image</td>   <td>-i</td>   <td>specify disk image</td></tr>
+    <tr><td>--hdimage</td> <td>-m</td>   <td>specify harddisk image</td></tr>
+    <tr><td>--romdisk</td> <td>-j</td>   <td>enable romdisk</td></tr>
+    <tr><td>--ctrl</td>    <td>-c</td>   <td>no phantom disks</td></tr>
+    <tr><td>--no-ctrl</td> <td>-C</td>   <td>enable phantom disks</td></tr>
+    <tr><td>--allow</td>   <td>-a</td>   <td>allow other diskroms to initialize</td></tr>
+    <tr><td>--no-allow</td><td>-A</td>   <td>don't allow other diskroms to initialize</td></tr>
+  </table>
+
+  <p>If you don't pass any arguments to this command, you'll get an overview of
+  the current nowind status.</p>
+
+  <p>This command will create a certain amount of drives on the nowind
+  interface and (optionally) insert diskimages in those drives. For each of
+  these drives there will also be a
+  <code><a class="internal" href="#disk">nowind&lt;x&gt;&lt;1..8&gt;</a></code>
+  command created. Those commands are similar to e.g. the
+  <code><a class="internal" href="#disk">diska</a></code>
+  command. They can be used to access the more advanced diskimage insertion
+  options.</p>
+
+  <p>In some cases it is needed to reboot the MSX before the changes take
+  effect. In those cases you'll get a message that warns about this.</p>
+
+  <div class="subsectiontitle">examples:</div>
+  <table>
+    <tr>
+      <td><code>nowinda -a image.dsk -j</code></td>
+      <td>Image.dsk is inserted into drive A: and the romdisk will be drive B:.
+      Other diskroms will be able to install drives as well. For example when
+      the MSX has an internal diskdrive, drive C: en D: will be available as
+      well.</td>
+    </tr>
+    <tr>
+      <td><code>nowinda disk1.dsk disk2.dsk</code></td>
+      <td>The two images will be inserted in A: and B: respectively.</td>
+    </tr>
+    <tr>
+      <td><code>nowinda -m hdimage.dsk</code></td>
+      <td>Inserts a harddisk image. All available partitions will be mounted
+      as drives.</td>
+    </tr>
+    <tr>
+      <td><code>nowinda -m hdimage.dsk:1</code></td>
+      <td>Inserts the first partition only.</td>
+    </tr>
+    <tr>
+      <td><code>nowinda -m hdimage.dsk:2-4</code></td>
+      <td>Inserts the 2nd, 3th and 4th partition as drive A: B: and C:.</td>
+    </tr>
+  </table>
 
 
   <h3><a id="openmsx_info">openmsx_info</a></h3>

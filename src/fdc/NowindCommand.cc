@@ -331,9 +331,10 @@ string NowindCommand::execute(const vector<string>& tokens)
 
 string NowindCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "This command is modeled after the 'usbhost' command of the "
-	       "real nowind interface. Though only a subset of the options "
-	       "is supported. Here's a short overview.\n"
+	return "Similar to the disk<x> commands there is a nowind<x> command "
+	       "for each nowind interface. This command is modeled after the "
+	       "'usbhost' command of the real nowind interface. Though only a "
+	       "subset of the options is supported. Here's a short overview.\n"
 	       "\n"
 	       "Command line options\n"
 	       " long      short explanation\n"
@@ -366,17 +367,17 @@ string NowindCommand::help(const vector<string>& /*tokens*/) const
 	       "that warns about this.\n"
 	       "\n"
 	       "Examples:\n"
-	       "nowind -a image.dsk -j      Image.dsk is inserted into drive A: and the romdisk\n"
+	       "nowinda -a image.dsk -j     Image.dsk is inserted into drive A: and the romdisk\n"
 	       "                            will be drive B:. Other diskroms will be able to\n"
 	       "                            install drives as well. For example when the MSX has\n"
 	       "                            an internal diskdrive, drive C: en D: will be\n"
 	       "                            available as well.\n"
-	       "nowind disk1.dsk disk2.dsk  The two images will be inserted in A: and B:\n"
+	       "nowinda disk1.dsk disk2.dsk The two images will be inserted in A: and B:\n"
 	       "                            respectively.\n"
-	       "usbhost -m hdimage.dsk      Inserts a harddisk image. All available partitions\n"
-	       "                            will mounted as drives.\n"
-               "usbhost -m hdimage.dsk:1    Inserts the first partition only.\n"
-	       "usbhost -m hdimage.dsk:2-4  Inserts the 2nd, 3th and 4th partition as drive A:\n"
+	       "nowinda -m hdimage.dsk      Inserts a harddisk image. All available partitions\n"
+	       "                            will be mounted as drives.\n"
+               "nowinda -m hdimage.dsk:1    Inserts the first partition only.\n"
+	       "nowinda -m hdimage.dsk:2-4  Inserts the 2nd, 3th and 4th partition as drive A:\n"
 	       "                            B: and C:.\n";
 }
 
