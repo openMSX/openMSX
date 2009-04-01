@@ -59,7 +59,9 @@ proc vu_meters_init {} {
 		set channel_count [ get_num_channels $soundchip]
 		# skip devices with only one channel (they are not very interesting)
 		if {$channel_count <= 1} continue
-		
+		# skip devices which don't have volume expressions (not implemented yet)
+		if {[get_volume_expr_for_channel $soundchip 0] == "x"} continue
+			
 		lappend soundchips $soundchip
 		set nof_channels($soundchip) $channel_count
 		for {set i 0} {$i < $channel_count} {incr i} {
@@ -69,7 +71,7 @@ proc vu_meters_init {} {
 		}
 	}
 
-	puts stderr [parray volume_expr]; # debug
+#	puts stderr [parray volume_expr]; # debug
 
 	set bar_width 2; # this value could be customized
 	set vu_meter_title_height 8; # this value could be customized
@@ -154,7 +156,8 @@ proc get_volume_expr_for_channel {soundchip channel} {
 		"MoonSound wave-part" {
 			return "expr (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50] \] >> 1) ) / 127.0 * \[expr \[debug read \"${soundchip} regs\" [expr $channel + 0x68] \] >> 7\]";
 		}
-		"Konami SCC" {
+		"Konami SCC" -
+		"Konami SCC+" {
 			return "expr ( (\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA] \] &0xF) ) / 15.0 * \[ expr ( (\[debug read \"${soundchip} SCC\" 0xAF\] >> $channel) &1) \]"
 		}
 		"MSX-MUSIC" {
@@ -175,7 +178,7 @@ proc get_volume_expr_for_channel {soundchip channel} {
 			}
 		}
 		default {
-			return "expr 0"
+			return "x"
 		}
 	}
 }
@@ -195,12 +198,13 @@ proc toggle_vu_meters {} {
 	variable soundchips
 	variable bar_length
 	variable volume_cache
+	variable volume_expr
 
 	if {$vu_meters_active} {
 		catch {after cancel $vu_meter_trigger_id}
 		set vu_meters_active false
 		osd destroy vu_meters
-		unset soundchips bar_length volume_cache
+		unset soundchips bar_length volume_cache volume_expr
 	} else {
 		set vu_meters_active true
 		vu_meters_init
@@ -208,14 +212,14 @@ proc toggle_vu_meters {} {
 	}
 }
 
-proc parray {name} {
-	upvar $name local
-	set result ""
-	foreach key [array names local] {
-		append result "${name}(${key}) = $local($key)\n"
-	}
-	return $result
-}
+#proc parray {name} {
+#	upvar $name local
+#	set result ""
+#	foreach key [array names local] {
+#		append result "${name}(${key}) = $local($key)\n"
+#	}
+#	return $result
+#}
 
 namespace export toggle_vu_meters
 
