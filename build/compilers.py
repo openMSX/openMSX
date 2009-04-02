@@ -1,6 +1,6 @@
 # $Id$
 
-from msysutils import msysPathToNative
+from msysutils import msysActive, msysPathToNative
 
 from os import environ, remove
 from os.path import isfile
@@ -15,7 +15,7 @@ def writeFile(path, lines):
 	finally:
 		out.close()
 
-if environ['OSTYPE'] == 'msys':
+if msysActive():
 	def fixFlags(flags):
 		for flag in flags:
 			if flag.startswith('-I'):

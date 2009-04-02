@@ -60,7 +60,10 @@ def msysPathToNative(path):
 	else:
 		return path
 
-if environ['OSTYPE'] == 'msys':
+def msysActive():
+	return environ.get('OSTYPE') == 'msys'
+
+if msysActive():
 	msysMounts = _determineMounts()
 else:
 	msysMounts = None
