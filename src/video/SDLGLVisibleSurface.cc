@@ -15,8 +15,10 @@ namespace openmsx {
 
 SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen,
-		FrameBuffer frameBuffer_)
-	: buffer(0)
+		RenderSettings& renderSettings, EventDistributor&
+		eventDistributor, FrameBuffer frameBuffer_)
+	: VisibleSurface(renderSettings, eventDistributor)
+	, buffer(0)
 	, frameBuffer(frameBuffer_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);

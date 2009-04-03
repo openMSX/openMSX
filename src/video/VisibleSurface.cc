@@ -3,6 +3,10 @@
 #include "VisibleSurface.hh"
 #include "InitException.hh"
 #include "Icon.hh"
+#include "RenderSettings.hh"
+#include "IntegerSetting.hh"
+#include "Event.hh"
+#include "EventDistributor.hh"
 #include "build-info.hh"
 #include "openmsx.hh"
 
@@ -14,7 +18,10 @@ static int lastWindowY = 0;
 
 namespace openmsx {
 
-VisibleSurface::VisibleSurface()
+VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
+		EventDistributor& eventDistributor_)
+	: renderSettings(renderSettings_)
+	, eventDistributor(eventDistributor_)
 {
 	if (!SDL_WasInit(SDL_INIT_VIDEO) &&
 	    SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
@@ -39,8 +46,15 @@ VisibleSurface::VisibleSurface()
 		SDL_FreeSurface(iconSurf);
 	}
 
-	// hide mouse cursor
-	SDL_ShowCursor(SDL_DISABLE);
+	renderSettings.getPointerHideDelay().attach(*this);
+	eventDistributor.registerEventListener(
+		OPENMSX_POINTER_TIMER_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_MOTION_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 }
 
 void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
@@ -97,6 +111,17 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 
 VisibleSurface::~VisibleSurface()
 {
+	prepareDelete();
+	eventDistributor.unregisterEventListener(
+		OPENMSX_POINTER_TIMER_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_MOTION_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+	renderSettings.getPointerHideDelay().detach(*this);
+
 #ifdef _WIN32
 	// Find our current location.
 	SDL_Surface* surface = getSDLDisplaySurface();
@@ -139,6 +164,52 @@ bool VisibleSurface::setFullScreen(bool wantedState)
 	bool newState = (surface->flags & SDL_FULLSCREEN) != 0;
 	return newState == wantedState;
 	*/
+}
+
+void VisibleSurface::update(const Setting& setting)
+{
+	cancel();
+	int delay = static_cast<const IntegerSetting*>(&setting)->getValue();
+	if (delay < 0) {
+		SDL_ShowCursor(SDL_ENABLE);
+	} else if (delay == 0) {
+		SDL_ShowCursor(SDL_DISABLE);
+	} else {
+		// alternatively, we could leave out the next line and just
+		// let it appear automatically in case of mouse action
+		SDL_ShowCursor(SDL_ENABLE);
+		schedule(delay * 1000); // delay in ms, schedule in microseconds
+	}
+}
+
+bool VisibleSurface::signalEvent(shared_ptr<const Event> event)
+{
+	EventType type = event->getType();
+	if (type == OPENMSX_POINTER_TIMER_EVENT) {
+		// timer expired, hide cursor
+		SDL_ShowCursor(SDL_DISABLE);
+	} else if ((type == OPENMSX_MOUSE_MOTION_EVENT) ||
+			(type == OPENMSX_MOUSE_BUTTON_UP_EVENT) ||
+			(type == OPENMSX_MOUSE_BUTTON_DOWN_EVENT)) {
+		// mouse action, show cursor unless we always hide it
+		cancel();
+		int delay = renderSettings.getPointerHideDelay().getValue();
+		if (delay != 0) {
+			// TODO: don't show cursor when MSX mouse is plugged in?
+			SDL_ShowCursor(SDL_ENABLE);
+			schedule(delay * 1000); // delay in ms, schedule in microseconds
+		}
+	}
+	return true;
+}
+
+bool VisibleSurface::alarm()
+{
+	// this runs in a different thread, so we can't directly do our tricks
+	// here
+        eventDistributor.distributeEvent(
+                        new SimpleEvent<OPENMSX_POINTER_TIMER_EVENT>());
+        return false; // don't repeat alarm
 }
 
 } // namespace openmsx

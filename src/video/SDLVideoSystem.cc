@@ -229,26 +229,33 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 
 void SDLVideoSystem::resize()
 {
+	EventDistributor& eventDistributor = reactor.getEventDistributor();
+
 	unsigned width, height;
 	getWindowSize(width, height);
 	const bool fullscreen = renderSettings.getFullScreen().getValue();
 	// Destruct existing output surface before creating a new one.
 	screen.reset();
+
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
-		screen.reset(new SDLVisibleSurface(width, height, fullscreen));
+		screen.reset(new SDLVisibleSurface(width, height, fullscreen,
+					renderSettings, eventDistributor));
 		break;
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
-		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen));
+		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
+					renderSettings, eventDistributor));
 		break;
 	case RendererFactory::SDLGL_FB16:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-		             SDLGLVisibleSurface::FB_16BPP));
+					renderSettings, eventDistributor,
+					SDLGLVisibleSurface::FB_16BPP));
 		break;
 	case RendererFactory::SDLGL_FB32:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-		             SDLGLVisibleSurface::FB_32BPP));
+					renderSettings, eventDistributor,
+					SDLGLVisibleSurface::FB_32BPP));
 		break;
 #endif
 	default:
