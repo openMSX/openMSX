@@ -16,6 +16,7 @@ SRC_HDR:= \
 	Mouse \
 	JoyTap \
 	NinjaTap \
+	ArkanoidPad \
 	EventTranslator \
 	EventDelay \
 	MSXEventDistributor \

@@ -1,5 +1,9 @@
 $Id$
 
+2009-04-04 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented enough of the Arkanoid pad to make it work. Use the
+	  mouse to control it.
+
 2009-04-03 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added pointer_hide_delay setting to control visibility of the mouse
 	  pointer. If you set it to -1, it will be always shown. 0 (the default)

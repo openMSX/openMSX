@@ -4,6 +4,7 @@
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
 #include "Joystick.hh"
+#include "ArkanoidPad.hh"
 #include "JoyTap.hh"
 #include "NinjaTap.hh"
 #include "SETetrisDongle.hh"
@@ -37,6 +38,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
 	// - real joysticks and mice can be hotplugged (USB)
+	controller.registerPluggable(new ArkanoidPad(motherBoard.getMSXEventDistributor()));
 	controller.registerPluggable(new Mouse(motherBoard.getMSXEventDistributor()));
 	controller.registerPluggable(new JoyTap(controller, "joytap"));
 	controller.registerPluggable(new NinjaTap(controller, "ninjatap"));
