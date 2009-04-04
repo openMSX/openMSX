@@ -5,6 +5,7 @@
 #include "Icon.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "build-info.hh"
@@ -47,6 +48,7 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 	}
 
 	renderSettings.getPointerHideDelay().attach(*this);
+	renderSettings.getFullScreen().attach(*this);
 	eventDistributor.registerEventListener(
 		OPENMSX_POINTER_TIMER_EVENT, *this);
 	eventDistributor.registerEventListener(
@@ -121,6 +123,7 @@ VisibleSurface::~VisibleSurface()
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	renderSettings.getPointerHideDelay().detach(*this);
+	renderSettings.getFullScreen().detach(*this);
 
 #ifdef _WIN32
 	// Find our current location.
@@ -169,10 +172,11 @@ bool VisibleSurface::setFullScreen(bool wantedState)
 void VisibleSurface::update(const Setting& setting)
 {
 	cancel();
-	int delay = static_cast<const IntegerSetting*>(&setting)->getValue();
-	if (delay < 0) {
+	int delay = renderSettings.getPointerHideDelay().getValue();
+	bool fullscreen = renderSettings.getFullScreen().getValue();
+	if (delay < 0 && !fullscreen) {
 		SDL_ShowCursor(SDL_ENABLE);
-	} else if (delay == 0) {
+	} else if (delay == 0 || fullscreen) {
 		SDL_ShowCursor(SDL_DISABLE);
 	} else {
 		// alternatively, we could leave out the next line and just
@@ -194,7 +198,8 @@ bool VisibleSurface::signalEvent(shared_ptr<const Event> event)
 		// mouse action, show cursor unless we always hide it
 		cancel();
 		int delay = renderSettings.getPointerHideDelay().getValue();
-		if (delay != 0) {
+		bool fullscreen = renderSettings.getFullScreen().getValue();
+		if (delay != 0 && !fullscreen) {
 			// TODO: don't show cursor when MSX mouse is plugged in?
 			SDL_ShowCursor(SDL_ENABLE);
 			schedule(delay * 1000); // delay in ms, schedule in microseconds
