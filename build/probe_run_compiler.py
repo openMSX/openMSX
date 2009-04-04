@@ -1,7 +1,7 @@
 # $Id$
 # Perform a sanity check on the compiler.
 
-from compilers import CompileCommand
+from compilers import CompileCommand, tryCompile
 
 import sys
 
@@ -16,7 +16,7 @@ def checkCompiler(log, compileCommand, outDir):
 		yield '  std::cout << "Hello World!" << std::endl;'
 		yield '  return 0;'
 		yield '}'
-	return compileCommand.tryCompile(log, outDir + '/hello.cc', hello())
+	return tryCompile(log, compileCommand, outDir + '/hello.cc', hello())
 
 def main(compileCommandStr, compileFlagsStr, outDir, logPath, makePath):
 	compileCommand = CompileCommand.fromLine(compileCommandStr, compileFlagsStr)

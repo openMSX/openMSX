@@ -1,7 +1,7 @@
 # $Id$
 # Check the existence of a certain function in the standard library.
 
-from compilers import CompileCommand
+from compilers import CompileCommand, tryCompile
 
 import sys
 
@@ -14,8 +14,8 @@ def checkFunc(log, compileCommand, outDir, makeName, funcName, headers):
 		for header in headers:
 			yield '#include %s' % header
 		yield 'void (*f)() = reinterpret_cast<void (*)()>(%s);' % funcName
-	return compileCommand.tryCompile(
-		log, outDir + '/' + makeName + '.cc', takeFuncAddr()
+	return tryCompile(
+		log, compileCommand, outDir + '/' + makeName + '.cc', takeFuncAddr()
 		)
 
 def main(

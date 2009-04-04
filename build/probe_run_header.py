@@ -1,7 +1,7 @@
 # $Id$
 # Check the existence of a given header.
 
-from compilers import CompileCommand
+from compilers import CompileCommand, tryCompile
 
 import sys
 
@@ -13,8 +13,8 @@ def checkFunc(log, compileCommand, outDir, makeName, headers):
 		# Try to include the headers.
 		for header in headers:
 			yield '#include %s' % header
-	return compileCommand.tryCompile(
-		log, outDir + '/' + makeName + '.cc', includeHeaders()
+	return tryCompile(
+		log, compileCommand, outDir + '/' + makeName + '.cc', includeHeaders()
 		)
 
 def main(

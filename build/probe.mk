@@ -317,7 +317,7 @@ $(DISABLED_FUNCS): init
 
 # Probe for header.
 $(CHECK_HEADERS): init
-	@FLAGS="$($(@:%_H=%_CFLAGS))" && $(PYTHON) build/probe_run_header.py \
+	@FLAGS="$($(@:%_H=%_CFLAGS))" ; $(PYTHON) build/probe_run_header.py \
 		"$(COMPILE)" "$(COMPILE_FLAGS) $$FLAGS" $(OUTDIR) $(LOG) $(OUTMAKE) \
 		$(@:%_H=%) '$($(@:%_H=%)_PREHEADER) $($(@:%_H=%)_HEADER)'
 
@@ -325,19 +325,11 @@ $(DISABLED_HEADERS): init
 	@echo "Disabled header: $(@:%_H=%)" >> $(LOG)
 	@echo "HAVE_$@:=" >> $(OUTMAKE)
 
-# Probe for library:
-# Try to link dummy program to the library.
+# Probe for library.
 $(CHECK_LIBS): init
-	@echo "int main(int argc, char **argv) { return 0; }" > $(OUTDIR)/$@.cc
-	@if FLAGS="$($@_LDFLAGS)" && eval $(COMPILE) \
-		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe \
-		$(LINK_FLAGS) "$$FLAGS" 2>> $(LOG); \
-	then echo "Found library: $@" >> $(LOG); \
-	     echo "HAVE_$@_LIB:=$($@_RESULT)" >> $(OUTMAKE); \
-	else echo "Missing library: $@" >> $(LOG); \
-	     echo "HAVE_$@_LIB:=" >> $(OUTMAKE); \
-	fi
-	@rm -f $(OUTDIR)/$@.cc $(OUTDIR)/$@.exe
+	@FLAGS="$($@_LDFLAGS)" ; $(PYTHON) build/probe_run_library.py \
+		"$(COMPILE)" "$(LINK_FLAGS) $$FLAGS" $(OUTDIR) $(LOG) $(OUTMAKE) \
+		$@
 
 $(DISABLED_LIBS): init
 	@echo "Disabled library: $@" >> $(LOG)
