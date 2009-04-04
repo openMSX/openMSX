@@ -11,8 +11,8 @@ class SDLVisibleSurface : public VisibleSurface
 {
 public:
 	SDLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
-			RenderSettings& renderSettings, EventDistributor&
-			eventDistributor);
+	                  RenderSettings& renderSettings,
+	                  EventDistributor& eventDistributor);
 
 	virtual void drawFrameBuffer();
 	virtual void finish();

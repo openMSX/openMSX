@@ -132,12 +132,12 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 		"  good values are 272 or 284\n"
 		"This setting has only effect when using the SDLGL-PP renderer.",
 		284.0, 256.0, 320.0));
-	
-	pointerHideDelay.reset(new IntegerSetting(commandController,
-		"pointer_hide_delay", "amount of milliseconds after which the "
-		"pointer is hidden in the openMSX window: -1 = no hiding, 0 = "
+
+	pointerHideDelay.reset(new FloatSetting(commandController,
+		"pointer_hide_delay", "amount of seconds after which the "
+		"pointer is hidden in the openMSX window: negative = no hiding, 0 = "
 		"immediately",
-		0, -1, 60000));
+		0.0, -1.0, 60.0));
 }
 
 RenderSettings::~RenderSettings()

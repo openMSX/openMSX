@@ -119,8 +119,8 @@ public:
 	FloatSetting& getHorizontalStretch() const { return *horizontalStretch; }
 
 	/** The amount of time until the pointer is hidden in the openMSX
-	  * window. -1 means: no hiding, 0 means immediately. */
-	IntegerSetting& getPointerHideDelay() const { return *pointerHideDelay; }
+	  * window. negative means: no hiding, 0 means immediately. */
+	FloatSetting& getPointerHideDelay() const { return *pointerHideDelay; }
 
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color. The R, G and B component are expected to be in the range
@@ -155,7 +155,7 @@ private:
 	std::auto_ptr<VideoSourceSetting> videoSource;
 	std::auto_ptr<EnumSetting<DisplayDeform> > displayDeform;
 	std::auto_ptr<FloatSetting> horizontalStretch;
-	std::auto_ptr<IntegerSetting> pointerHideDelay;
+	std::auto_ptr<FloatSetting> pointerHideDelay;
 
 	CommandController& commandController;
 	double cm[3][3]; // parsed color matrix, should always be in sync with

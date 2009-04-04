@@ -15,8 +15,9 @@ public:
 	enum FrameBuffer { FB_NONE, FB_16BPP, FB_32BPP };
 
 	SDLGLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
-			RenderSettings& renderSettings, EventDistributor&
-			eventDistributor, FrameBuffer frameBuffer = FB_NONE);
+	                    RenderSettings& renderSettings,
+	                    EventDistributor& eventDistributor,
+	                    FrameBuffer frameBuffer = FB_NONE);
 	virtual ~SDLGLVisibleSurface();
 
 	virtual void drawFrameBuffer();

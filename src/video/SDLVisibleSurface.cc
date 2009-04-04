@@ -17,8 +17,8 @@ namespace openmsx {
 
 SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen,
-		RenderSettings& renderSettings, EventDistributor&
-		eventDistributor)
+		RenderSettings& renderSettings,
+		EventDistributor& eventDistributor)
 	: VisibleSurface(renderSettings, eventDistributor)
 {
 #if PLATFORM_GP2X

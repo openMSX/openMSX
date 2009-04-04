@@ -26,8 +26,8 @@ class OSDGUI;
   * This class provides a frame buffer based renderer a common interface,
   * no matter whether the back-end is plain SDL or SDL+OpenGL.
   */
-class VisibleSurface : public OutputSurface, public EventListener, private
-		       Observer<Setting>, private Alarm
+class VisibleSurface : public OutputSurface, public EventListener,
+                       private Observer<Setting>, private Alarm
 {
 public:
 	virtual ~VisibleSurface();
@@ -49,6 +49,8 @@ protected:
 	void createSurface(unsigned width, unsigned height, int flags);
 
 private:
+	void updateCursor();
+
 	// Observer
 	virtual void update(const Setting& setting);
 	// EventListener
@@ -58,7 +60,6 @@ private:
 
 	RenderSettings& renderSettings;
 	EventDistributor& eventDistributor;
-
 };
 
 } // namespace openmsx
