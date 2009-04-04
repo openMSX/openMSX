@@ -52,13 +52,8 @@ set_help_text listing \
 {Interpret the content of the memory as a BASIC program and return the equivalent output of the BASIC LIST command. (May not be terribly useful, but it does show the power of openMSX scripts ;-)
 }
 
-proc __getLineNumber {addr} {
-	#return "\n[peek16 [expr $addr + 2]] "
-	return "\n0x[format %x [peek16 $addr]] > [peek16 [expr $addr + 2]] "
-}
-
 proc listing {} {
-	set token1 [list \
+	set tokens1 [list \
 		"" "END" "FOR" "NEXT" "DATA" "INPUT" "DIM" "READ" "LET" \
 		"GOTO" "RUN" "IF" "RESTORE" "GOSUB" "RETURN" "REM" "STOP" \
 		"PRINT" "CLEAR" "LIST" "NEW" "ON" "WAIT" "DEF" "POKE" "CONT" \
@@ -75,7 +70,7 @@ proc listing {} {
 		"ATTR$" "DSKI$" "OFF" "INKEY$" "POINT" ">" "=" "<" "+" "-" "*" \
 		"/" "^" "AND" "OR" "XOR" "EQV" "IMP" "MOD" "\\" "" "" \
 		"{escape-code}" ]
-	set token2 [list \
+	set tokens2 [list \
 		"" "LEFT$" "RIGHT$" "MID$" "SGN" "INT" "ABS" "SQR" "RND" "SIN" \
 		"LOG" "EXP" "COS" "TAN" "ATN" "FRE" "INP" "POS" "LEN" "STR$" \
 		"VAL" "ASC" "CHR$" "PEEK" "VPEEK" "SPACE$" "OCT$" "HEX$" \
@@ -86,113 +81,62 @@ proc listing {} {
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ]
 
-	set go 1
-	set addr [peek16 0xf676]
+	# Loop over all lines
 	set listing ""
-	set tok ""
-
-	# Check for listing
-	if {[peek16 $addr] == 0} {
-		return "No Listing In Memory"
-	}
-
-	# Initial Line Number
-	append listing [__getLineNumber $addr]
-	incr addr 4
-
-	# Loop through the memory
-	while {$go == 1} {
-		set tok ""
-		if {[peek $addr] > 0x80 && [peek $addr] < 0xff} {
-			set tok [lindex $token1 [expr [peek $addr] - 0x80]]
-		} else {
-			if {[peek $addr] == 0xff} {
+	for {set addr [peek16 0xf676]} {[peek $addr] != 0} {} {
+		append listing "0x[format %x $addr] > "
+		incr addr 2
+		append listing "[peek16 $addr] "
+		incr addr 2
+		# Loop over tokens in one line
+		while {true} {
+			set token [peek $addr] ; incr addr
+			if {0x80 < $token && $token < 0xff} {
+				set t [lindex $tokens1 [expr $token - 0x80]]
+			} elseif {$token == 0xff} {
+				set t [lindex $tokens2 [expr [peek $addr] - 0x80]]
 				incr addr
-				set tok [lindex $token2 [expr [peek $addr]-0x80]]
-			} else {
-				if {[peek $addr] == 0x3a} {
-					set forward 0
-					incr addr
-					if {[peek $addr] == 0xa1} {
-						set tok "ELSE"
-						set forward 1
-					}
-					if {[peek $addr] == 0x8f} {
-						set tok "'"
-						set forward 1
-					}
-					if {$forward == 0} {
-						set tok ":"
-						incr addr -1
-					}
-				} else {
-					set forward 0
-					if {[peek $addr] == 0x0} {
-						incr addr
-						set tok [__getLineNumber $addr]
-						incr addr 3
-						set forward 1
-					}
-					if {[peek $addr] == 0x0B && $forward == 0} {
-						incr addr
-						set tok [format "&O%o" [peek16 $addr]]
-						incr addr
-						set forward 1
-					}
-					if {[peek $addr] == 0x0C && $forward == 0} {
-						incr addr
-						set tok [format "&H%x" [peek16 $addr]]
-						incr addr
-						set forward 1
-					}
-					if {[peek $addr] == 0x0D && $forward == 0} {
-						set tok "(TODO GOSUB)"
-						incr addr 2
-						set forward 1
-					}
-					if {[peek $addr] == 0x0E && $forward == 0} {
-						incr addr
-						set tok [format "%d" [peek16 $addr]]
-						incr addr
-						set forward 1
-					}
-					if {[peek $addr] == 0x0F && $forward == 0} {
-						incr addr
-						set tok [format "%d" [peek $addr]]
-						set forward 1
-					}
-					if {[peek $addr] == 0x1C && $forward == 0} {
-						incr addr
-						set tok [format "%d" [peek16 $addr]]
-						incr addr
-						set forward 1
-					}
-					if {[peek $addr] == 0x1D && $forward == 0} {
-						incr addr
-						set tok "(TODO: Single)"
-						set forward 1
-					}
-					if {[peek $addr] == 0x1F && $forward == 0} {
-						incr addr
-						set tok "(TODO: Double)"
-						set forward 1
-					}
-					if {[peek $addr] >= 0x11 && [peek $addr] <= 0x1a} {
-						set tok [expr [peek $addr] - 0x11]
-						set forward 1
-					}
-					if {$forward == 0} {
-						set tok [format "%c" [peek $addr]]
-					}
+			} elseif {$token == 0x3a} {
+				switch [peek $addr] {
+					0xa1    { set t "ELSE" ; incr addr }
+					0x8f    { set t "'"    ; incr addr }
+					default { set t ":"                }
 				}
+			} elseif {$token == 0x0} {
+				break
+			} elseif {$token == 0x0B} {
+				set t [format "&O%o" [peek16 $addr]]
+				incr addr 2
+			} elseif {$token == 0x0C} {
+				set t [format "&H%x" [peek16 $addr]]
+				incr addr 2
+			} elseif {$token == 0x0D} {
+				# line number (stored as address)
+				set t "0x[format %x [expr [peek16 $addr] + 1]]"
+				incr addr 2
+			} elseif {$token == 0x0E} {
+				set t [format "%d" [peek16 $addr]]
+				incr addr 2
+			} elseif {$token == 0x0F} {
+				set t [format "%d" [peek $addr]]
+				incr addr
+			} elseif {$token == 0x1C} {
+				set t [format "%d" [peek16 $addr]]
+				incr addr 2
+			} elseif {$token == 0x1D} {
+				set t "(TODO: Single)"
+				incr addr
+			} elseif {$token == 0x1F} {
+				set t "(TODO: Double)"
+				incr addr
+			} elseif {0x11 <= $token && $token <= 0x1a} {
+				set t [expr $token - 0x11]
+			} else {
+				set t [format "%c" $token]
 			}
+			append listing $t
 		}
-
-		incr addr
-		append listing $tok
-		if {[peek16 $addr] == 0 || $addr >= 0xffff} {
-			set go 0
-		}
+		append listing "\n"
 	}
 	return $listing
 }
