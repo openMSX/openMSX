@@ -136,17 +136,17 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 
 	proc __try_dirs { skin_set_dir file fallback } {
 		# don't touch already resolved pathnames
-		if [file isfile $file] { return $file }
+		if {[file normalize $file] == $file} { return $file }
 		# first look in specified skin-set directory
-		set f1 $skin_set_dir/$file
+		set f1 [file normalize $skin_set_dir/$file]
 		if [file isfile $f1] { return $f1 }
 		# if it's not there look in the root skin directory
 		# (system or user directory)
-		set f2 [data_file "skins/$file"]
+		set f2 [file normalize [data_file "skins/$file"]]
 		if [file isfile $f2] { return $f2 }
 		# still not found, look for the fallback image in system and
 		# user root skin dir
-		set f3 [data_file "skins/$fallback"]
+		set f3 [file normalize [data_file "skins/$fallback"]]
 		if [file isfile $f3] { return $f3 }
 		return ""
 	}
