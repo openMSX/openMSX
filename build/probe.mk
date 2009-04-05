@@ -4,27 +4,6 @@
 # Performs some test compiles, to check for headers and functions.
 # Unlike configure, it does not run any test code, so it is more friendly for
 # cross compiles.
-#
-# Some notes about static linking:
-# There are two ways of linking to static library: using the -l command line
-# option or specifying the full path to the library file as one of the inputs.
-# When using the -l option, the library search paths will be searched for a
-# dynamic version of the library, if that is not found, the search paths will
-# be searched for a static version of the library. This means we cannot force
-# static linking of a library this way. It is possible to force static linking
-# of all libraries, but we want to control it per library.
-# Conclusion: We have to specify the full path to each library that should be
-#             linked statically.
-#
-# Legend of the suffixes:
-# _SYS_DYN: link dynamically against system libs
-#           this is the default mode; useful for local binaries
-# _SYS_STA: link statically against system libs
-#           this seems pointless to me; not implemented
-# _3RD_DYN: link dynamically against libs from non-system dir
-#           might be useful; not implemented
-# _3RD_STA: link statically against libs from non-system dir
-#           this is how we build our redistributable binaries
 
 # This Makefile needs parameters to operate; check that they were specified:
 # - output directory
