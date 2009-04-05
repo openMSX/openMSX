@@ -94,22 +94,30 @@ bool CliConnection::getUpdateEnable(CliComm::UpdateType type) const
 	return updateEnabled[type];
 }
 
+void CliConnection::startOutput()
+{
+	output("<openmsx-output>\n");
+}
+
+void CliConnection::endOutput()
+{
+	output("</openmsx-output>\n");
+}
+
 void CliConnection::start()
 {
+	beforeConnection();
 	thread.start();
 }
 
 void CliConnection::run()
 {
-	if (beforeConnection()) {
-		output("<openmsx-output>\n");
-		connection();
-	}
+	connection();
 }
 
 void CliConnection::end()
 {
-	output("</openmsx-output>\n");
+	endOutput();
 	close();
 }
 
@@ -219,9 +227,9 @@ StdioConnection::~StdioConnection()
 	end();
 }
 
-bool StdioConnection::beforeConnection()
+void StdioConnection::beforeConnection()
 {
-	return true;
+	startOutput();
 }
 
 void StdioConnection::connection()
@@ -282,9 +290,12 @@ PipeConnection::~PipeConnection()
 	end();
 }
 
-bool PipeConnection::beforeConnection()
+void PipeConnection::beforeConnection()
 {
-	return true;
+	// Emit the output element on this thread...
+	// Otherwise, this thread's startup actions will race with the
+	// connection thread.
+	startOutput();
 }
 
 void PipeConnection::connection()
@@ -335,21 +346,24 @@ SocketConnection::~SocketConnection()
 	end();
 }
 
-bool SocketConnection::beforeConnection()
+void SocketConnection::beforeConnection()
+{
+	// We're on the accept thread, which we don't want to block
+}
+
+void SocketConnection::connection()
 {
 #ifdef _WIN32
 	// Authenticate and authorize the caller
 	SocketStreamWrapper stream(sd);
 	SspiNegotiateServer server(stream);
 	if (!server.Authenticate() || !server.Authorize()) {
-		return false;
+		return;
 	}
 #endif
-	return true;
-}
+	// Start output element
+	startOutput();
 
-void SocketConnection::connection()
-{
 	// TODO is locking correct?
 	// No need to lock in this thread because we don't write to 'sd'
 	// and 'sd' only gets written to in this thread.

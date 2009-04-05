@@ -44,9 +44,12 @@ protected:
 
 	void run();
 
-	virtual bool beforeConnection() = 0;
+	virtual void beforeConnection() = 0;
 	virtual void connection() = 0;
 	virtual void close() = 0;
+
+	void startOutput();
+	void endOutput();
 
 	xmlParserCtxt* parser_context;
 	Thread thread; // TODO: Possible to make this private?
@@ -92,7 +95,7 @@ public:
 
 private:
 	virtual void close();
-	virtual bool beforeConnection();
+	virtual void beforeConnection();
 	virtual void connection();
 
 	bool ok;
@@ -111,7 +114,7 @@ public:
 
 private:
 	virtual void close();
-	virtual bool beforeConnection();
+	virtual void beforeConnection();
 	virtual void connection();
 
 	HANDLE pipeHandle;
@@ -130,7 +133,7 @@ public:
 
 private:
 	virtual void close();
-	virtual bool beforeConnection();
+	virtual void beforeConnection();
 	virtual void connection();
 
 	Semaphore sem;
