@@ -16,15 +16,17 @@ def writeFile(path, lines):
 		out.close()
 
 if msysActive():
-	def fixFlags(flags):
-		for flag in flags:
-			if flag.startswith('-I') or flag.startswith('-L'):
-				yield flag[ : 2] + msysPathToNative(flag[2 : ])
+	def fixArgs(args):
+		for arg in args:
+			if arg.startswith('-I') or arg.startswith('-L'):
+				yield arg[ : 2] + msysPathToNative(arg[2 : ])
+			elif arg.startswith('/'):
+				yield msysPathToNative(arg)
 			else:
-				yield flag
+				yield arg
 else:
-	def fixFlags(flags):
-		return iter(flags)
+	def fixArgs(args):
+		return iter(args)
 
 class _Command(object):
 	name = None
@@ -43,7 +45,7 @@ class _Command(object):
 				return cls(
 					env,
 					commandParts[0],
-					list(fixFlags(commandParts[1 : ] + flags))
+					list(fixArgs(commandParts[1 : ] + flags))
 					)
 		else:
 			raise ValueError(
