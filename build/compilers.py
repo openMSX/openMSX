@@ -83,8 +83,12 @@ class _Command(object):
 			return False
 		stdoutdata, stderrdata = proc.communicate()
 		if stdoutdata:
+			log.write('%s command: %s\n' % (self.name, ' '.join(commandLine)))
+			# pylint 0.18.0 somehow thinks stdoutdata is a list, not a string.
+			# pylint: disable-msg=E1103
+			stdoutdata = stdoutdata.replace('\r', '')
 			log.write(stdoutdata)
-			if not stdoutdata.endswith('\n'): # pylint: disable-msg=E1103
+			if not stdoutdata.endswith('\n'):
 				log.write('\n')
 		assert stderrdata is None, stderrdata
 		if proc.returncode == 0:
