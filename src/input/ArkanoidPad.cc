@@ -18,7 +18,7 @@ namespace openmsx {
 
 // this should be 163, but for some reason it's not wide enough then to reach
 // the left side of the playing field in Arkanoid 2 (Arkanoid 1 is fine).
-static const int POS_MIN = 153;
+static const int POS_MIN = 152;
 static const int POS_MAX = 309;
 static const int POS_CENTER = (POS_MIN + POS_MAX) / 2;
 static const int SCALE = 2;
