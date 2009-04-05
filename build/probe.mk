@@ -328,8 +328,8 @@ $(DISABLED_HEADERS): init
 # Probe for library.
 $(CHECK_LIBS): init
 	@FLAGS="$($@_LDFLAGS)" ; $(PYTHON) build/probe_run_library.py \
-		"$(COMPILE)" "$(LINK_FLAGS) $$FLAGS" $(OUTDIR) $(LOG) $(OUTMAKE) \
-		$@
+		"$(COMPILE)" "$(COMPILE_FLAGS)" "$(LINK_FLAGS) $$FLAGS" \
+		$(OUTDIR) $(LOG) $(OUTMAKE) $@
 
 $(DISABLED_LIBS): init
 	@echo "Disabled library: $@" >> $(LOG)

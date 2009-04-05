@@ -14,17 +14,14 @@ def checkLib(log, compileCommand, linkCommand, outDir, makeName):
 		)
 
 def main(
-	compileCommandStr, compileFlagsStr, outDir, logPath, makePath,
+	compileCommandStr, compileFlagsStr, linkFlagsStr, outDir, logPath, makePath,
 	makeName
 	):
-	# TODO: We provide the same flags to the compile and link step, because
-	#       that seems to work in practice. In the future, use compiile
-	#       flags and link flags only for their respective steps.
 	compileCommand = CompileCommand.fromLine(
 		compileCommandStr, compileFlagsStr
 		)
 	linkCommand = LinkCommand.fromLine(
-		compileCommandStr, compileFlagsStr
+		compileCommandStr, linkFlagsStr
 		)
 	log = open(logPath, 'a')
 	try:
@@ -45,7 +42,7 @@ def main(
 		make.close()
 
 if __name__ == '__main__':
-	if len(sys.argv) == 7:
+	if len(sys.argv) == 8:
 		try:
 			main(*sys.argv[1 : ])
 		except ValueError, ex:
@@ -54,6 +51,6 @@ if __name__ == '__main__':
 	else:
 		print >> sys.stderr, (
 			'Usage: python probe_run_library.py '
-			'COMPILE COMPILE_FLAGS OUTDIR LOG OUTMAKE MAKENAME'
+			'COMPILE COMPILE_FLAGS LINK_FLAGS OUTDIR LOG OUTMAKE MAKENAME'
 			)
 		sys.exit(2)
