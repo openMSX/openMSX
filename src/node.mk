@@ -39,7 +39,7 @@ SRC_HDR:= \
 	EmptyPatch IPSPatch \
 	Version \
 	LedStatus \
-	serialize serialize_meta
+	serialize serialize_meta openmsx
 
 SRC_ONLY:= \
 	main
