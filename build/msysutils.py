@@ -11,7 +11,7 @@ def _determineMounts():
 
 	# Figure out the root directory of MSYS.
 	proc = Popen(
-		[ environ['SHELL'], '-c', '%s -c \'import sys ; print sys.argv[1]\' /'
+		[ environ['SHELL'], '-c', '"%s" -c \'import sys ; print sys.argv[1]\' /'
 			% sys.executable.replace('\\', '\\\\') ],
 		stdin = None,
 		stdout = PIPE,
