@@ -16,14 +16,16 @@ using std::string;
 
 namespace openmsx {
 
-static const int POS_MIN = 163;
+// this should be 163, but for some reason it's not wide enough then to reach
+// the left side of the playing field in Arkanoid 2 (Arkanoid 1 is fine).
+static const int POS_MIN = 153;
 static const int POS_MAX = 309;
 static const int POS_CENTER = (POS_MIN + POS_MAX) / 2;
 static const int SCALE = 2;
 
 ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
-	, shiftreg(0)
+	, shiftreg(511) // the 9 bit shift register contains 1's if there's no value in
 	, dialpos(POS_CENTER)
 	, buttonStatus(0x3E)
 	, lastValue(0)
@@ -75,7 +77,7 @@ void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 	}
 	if (diff & value & 0x1) {
 		// pin 6 from low to high: shift the shift reg
-		shiftreg <<= 1;
+		shiftreg = (shiftreg << 1) | 0x1; // restore 1's in shift reg
 	}
 }
 
