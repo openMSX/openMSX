@@ -8,7 +8,7 @@
 #include "serialize_meta.hh"
 #include <algorithm>
 
-// Implemented according to the info here: http://www.msx.org/forumtopic7661.html
+// Implemented mostly according to the info here: http://www.msx.org/forumtopic7661.html
 // This is absolutely not accurate, but good enough to make the pad work in the
 // Arkanoid games.
 
@@ -16,10 +16,8 @@ using std::string;
 
 namespace openmsx {
 
-// this should be 163, but for some reason it's not wide enough then to reach
-// the left side of the playing field in Arkanoid 2 (Arkanoid 1 is fine).
-static const int POS_MIN = 152;
-static const int POS_MAX = 309;
+static const int POS_MIN = 152; // minimum to be able to use left exit door in Arkanoid 2
+static const int POS_MAX = 309; // minimum to be able to use right exit door in Arkanoid 1
 static const int POS_CENTER = (POS_MIN + POS_MAX) / 2;
 static const int SCALE = 2;
 
