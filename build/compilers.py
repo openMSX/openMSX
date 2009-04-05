@@ -26,27 +26,28 @@ else:
 	def fixFlags(flags):
 		return iter(flags)
 
-class CompileCommand(object):
+class _Command(object):
+	name = None
 
 	@classmethod
-	def fromLine(cls, compileCommandStr, compileFlagsStr):
-		compileCmdParts = shsplit(compileCommandStr)
-		compileFlags = shsplit(compileFlagsStr)
-		compileEnv = {}
-		while compileCmdParts:
-			if '=' in compileCmdParts[0]:
-				name, value = compileCmdParts[0].split('=', 1)
-				del compileCmdParts[0]
-				compileEnv[name] = value
+	def fromLine(cls, commandStr, flagsStr):
+		commandParts = shsplit(commandStr)
+		flags = shsplit(flagsStr)
+		env = {}
+		while commandParts:
+			if '=' in commandParts[0]:
+				name, value = commandParts[0].split('=', 1)
+				del commandParts[0]
+				env[name] = value
 			else:
 				return cls(
-					compileEnv,
-					compileCmdParts[0],
-					list(fixFlags(compileCmdParts[1 : ] + compileFlags))
+					env,
+					commandParts[0],
+					list(fixFlags(commandParts[1 : ] + flags))
 					)
 		else:
 			raise ValueError(
-				'No compiler specified in "%s"' % compileCommandStr
+				'No %s command specified in "%s"' % (cls.name, commandStr)
 				)
 
 	def __init__(self, env, executable, flags):
@@ -65,103 +66,46 @@ class CompileCommand(object):
 					) ] if self.__env else []
 				)
 			)
+
+	def _run(self, log, args):
+		commandLine = [ self.__executable ] + self.__flags + args
+		try:
+			proc = Popen(
+				commandLine,
+				bufsize = -1,
+				env = self.__env,
+				stdin = None,
+				stdout = PIPE,
+				stderr = STDOUT,
+				)
+		except OSError, ex:
+			print >> log, 'failed to execute %s: %s' % (self.name, ex)
+			return False
+		stdoutdata, stderrdata = proc.communicate()
+		if stdoutdata:
+			log.write(stdoutdata)
+			if not stdoutdata.endswith('\n'): # pylint: disable-msg=E1103
+				log.write('\n')
+		assert stderrdata is None, stderrdata
+		if proc.returncode == 0:
+			return True
+		else:
+			print >> log, 'return code from %s: %d' % (
+				self.name, proc.returncode
+				)
+			return False
+
+class CompileCommand(_Command):
+	name = 'compiler'
 
 	def compile(self, log, sourcePath, objectPath):
-		try:
-			proc = Popen(
-				[ self.__executable ] + self.__flags +
-					[ '-c', sourcePath, '-o', objectPath ],
-				bufsize = -1,
-				env = self.__env,
-				stdin = None,
-				stdout = PIPE,
-				stderr = STDOUT,
-				)
-		except OSError, ex:
-			print >> log, 'failed to execute compiler: %s' % ex
-			return False
-		stdoutdata, stderrdata = proc.communicate()
-		if stdoutdata:
-			log.write(stdoutdata)
-			if not stdoutdata.endswith('\n'): # pylint: disable-msg=E1103
-				log.write('\n')
-		assert stderrdata is None, stderrdata
-		if proc.returncode == 0:
-			return True
-		else:
-			print >> log, 'return code from compile command: %d' % (
-				proc.returncode
-				)
-			return False
+		return self._run(log, [ '-c', sourcePath, '-o', objectPath ])
 
-class LinkCommand(object):
-
-	@classmethod
-	def fromLine(cls, compileCommandStr, compileFlagsStr):
-		# TODO: This is a copy of CompileCommand.fromLine().
-		compileCmdParts = shsplit(compileCommandStr)
-		compileFlags = shsplit(compileFlagsStr)
-		compileEnv = {}
-		while compileCmdParts:
-			if '=' in compileCmdParts[0]:
-				name, value = compileCmdParts[0].split('=', 1)
-				del compileCmdParts[0]
-				compileEnv[name] = value
-			else:
-				return cls(
-					compileEnv,
-					compileCmdParts[0],
-					list(fixFlags(compileCmdParts[1 : ] + compileFlags))
-					)
-		else:
-			raise ValueError(
-				'No linker specified in "%s"' % compileCommandStr
-				)
-
-	def __init__(self, env, executable, flags):
-		mergedEnv = dict(environ)
-		mergedEnv.update(env)
-		self.__env = mergedEnv
-		self.__executable = executable
-		self.__flags = flags
-
-	def __str__(self):
-		return ' '.join(
-			[ self.__executable ] + self.__flags + (
-				[ '(%s)' % ' '.join(
-					'%s=%s' % item
-					for item in sorted(self.__env.iteritems())
-					) ] if self.__env else []
-				)
-			)
+class LinkCommand(_Command):
+	name = 'linker'
 
 	def link(self, log, objectPaths, binaryPath):
-		try:
-			proc = Popen(
-				[ self.__executable ] + self.__flags +
-					objectPaths + [ '-o', binaryPath ],
-				bufsize = -1,
-				env = self.__env,
-				stdin = None,
-				stdout = PIPE,
-				stderr = STDOUT,
-				)
-		except OSError, ex:
-			print >> log, 'failed to execute linker: %s' % ex
-			return False
-		stdoutdata, stderrdata = proc.communicate()
-		if stdoutdata:
-			log.write(stdoutdata)
-			if not stdoutdata.endswith('\n'): # pylint: disable-msg=E1103
-				log.write('\n')
-		assert stderrdata is None, stderrdata
-		if proc.returncode == 0:
-			return True
-		else:
-			print >> log, 'return code from link command: %d' % (
-				proc.returncode
-				)
-			return False
+		return self._run(log, objectPaths + [ '-o', binaryPath ])
 
 def tryCompile(log, compileCommand, sourcePath, lines):
 	'''Write the program defined by "lines" to a text file specified
