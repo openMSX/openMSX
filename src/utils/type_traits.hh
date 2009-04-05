@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef TYPE_TRAITS_HH
 #define TYPE_TRAITS_HH
