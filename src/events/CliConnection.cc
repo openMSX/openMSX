@@ -16,6 +16,7 @@
 #include "checked_cast.hh"
 #include "cstdiop.hh"
 #include "unistdp.hh"
+#include "openmsx.hh"
 #include <cassert>
 #include <iostream>
 
