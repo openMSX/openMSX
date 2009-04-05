@@ -5,6 +5,7 @@
 #include "InputEvents.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "serialize_meta.hh"
 
 using std::string;
 

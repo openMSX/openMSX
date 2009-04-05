@@ -4,7 +4,6 @@
 #define SETETRISDONGLE_HH
 
 #include "JoystickDevice.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx {
 

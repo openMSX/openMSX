@@ -5,8 +5,6 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
-#include "Clock.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -37,11 +35,10 @@ public:
 
 private:
 	MSXEventDistributor& eventDistributor;
-	byte status;
 	int shiftreg;
 	int dialpos;
-	bool readShiftRegMode;
-	bool lastTimeShifted;
+	byte buttonStatus;
+	byte lastValue;
 };
 
 } // namespace openmsx

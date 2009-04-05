@@ -5,7 +5,6 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
-#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {

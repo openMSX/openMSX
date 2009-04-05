@@ -5,24 +5,28 @@
 #include "InputEvents.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "serialize_meta.hh"
+#include <algorithm>
 
-// implemented accoring to the info here: http://www.msx.org/forumtopic7661.html
-// this is absolutely not accurate, but good enough to make the pad work in the
+// Implemented according to the info here: http://www.msx.org/forumtopic7661.html
+// This is absolutely not accurate, but good enough to make the pad work in the
 // Arkanoid games.
 
 using std::string;
 
 namespace openmsx {
 
-const int SCALE = 2;
+static const int POS_MIN = 163;
+static const int POS_MAX = 309;
+static const int POS_CENTER = (POS_MIN + POS_MAX) / 2;
+static const int SCALE = 2;
 
 ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
-	, status(0x3E)
 	, shiftreg(0)
-	, dialpos(236) // center position
-	, readShiftRegMode(false)
-	, lastTimeShifted(false)
+	, dialpos(POS_CENTER)
+	, buttonStatus(0x3E)
+	, lastValue(0)
 {
 	eventDistributor.registerEventListener(*this);
 }
@@ -57,26 +61,21 @@ void ArkanoidPad::unplugHelper(EmuTime::param /*time*/)
 // JoystickDevice
 byte ArkanoidPad::read(EmuTime::param /*time*/)
 {
-	return status | ((shiftreg & 256) >> 8);
+	return buttonStatus | ((shiftreg & 0x100) >> 8);
 }
 
 void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 {
-	if (!readShiftRegMode) {
-		if (value & 0x4) { // pin 8 from low to high
-			readShiftRegMode = true;
-			shiftreg = dialpos;
-		}
-	} else if (!(value & 0x4)) {
-		readShiftRegMode = false;
+	byte diff = lastValue ^ value;
+	lastValue = value;
+
+	if (diff & value & 0x4) {
+		// pin 8 from low to high: copy dial position into shift reg
+		shiftreg = dialpos;
 	}
-	if (!lastTimeShifted) {
-		if (value & 0x1) {
-			lastTimeShifted = true;
-			shiftreg = shiftreg << 1;
-		}
-	} else if (!(value & 0x1)) {
-		lastTimeShifted = false;
+	if (diff & value & 0x1) {
+		// pin 6 from low to high: shift the shift reg
+		shiftreg <<= 1;
 	}
 }
 
@@ -88,20 +87,17 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param /*ti
 		const MouseMotionEvent& motionEvent =
 			checked_cast<const MouseMotionEvent&>(*event);
 		dialpos += (motionEvent.getX() / SCALE);
-		if (dialpos > 309) dialpos = 309;
-		if (dialpos < 163) dialpos = 163;
+		dialpos = std::min(POS_MAX, std::max(POS_MIN, dialpos));
 		break;
 	}
-	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
+	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT:
 		// any button will press the Arkanoid Pad button
-		status &= 0xFD; // reset bit 1
+		buttonStatus &= ~0x02;
 		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
+	case OPENMSX_MOUSE_BUTTON_UP_EVENT:
 		// any button will unpress the Arkanoid Pad button
-		status |= 0x02; // set bit 1
+		buttonStatus |= 0x02;
 		break;
-	}
 	default:
 		// ignore
 		break;
@@ -112,10 +108,10 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param /*ti
 template<typename Archive>
 void ArkanoidPad::serialize(Archive& ar, unsigned /*version*/)
 {
-	// is this enough?? TODO: check
 	ar.serialize("shiftreg", shiftreg);
+	ar.serialize("lastValue", lastValue);
 
-	// Don't serialzie status, dialpos.
+	// Don't serialize buttonStatus, dialpos.
 	// These are controlled via (mouse button/motion) events
 }
 INSTANTIATE_SERIALIZE_METHODS(ArkanoidPad);
