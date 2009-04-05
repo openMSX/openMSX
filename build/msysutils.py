@@ -1,6 +1,7 @@
 # $Id$
 
 from os import environ
+from os.path import isfile
 from subprocess import PIPE, Popen
 import sys
 
@@ -28,22 +29,24 @@ def _determineMounts():
 
 	# Figure out all mount points of MSYS.
 	mounts = { '/': msysRoot + '/' }
-	try:
-		inp = open(msysRoot + '/etc/fstab')
+	fstab = msysRoot + '/etc/fstab'
+	if isfile(fstab):
 		try:
-			for line in inp:
-				line = line.strip()
-				if line and not line.startswith('#'):
-					nativePath, mountPoint = (
-						path.rstrip('/') + '/' for path in line.split()
-						)
-					mounts[mountPoint] = nativePath
-		finally:
-			inp.close()
-	except IOError, ex:
-		print >> sys.stderr, 'Failed to read MSYS fstab:', ex
-	except ValueError, ex:
-		print >> sys.stderr, 'Failed to parse MSYS fstab:', ex
+			inp = open(fstab, 'r')
+			try:
+				for line in inp:
+					line = line.strip()
+					if line and not line.startswith('#'):
+						nativePath, mountPoint = (
+							path.rstrip('/') + '/' for path in line.split()
+							)
+						mounts[mountPoint] = nativePath
+			finally:
+				inp.close()
+		except IOError, ex:
+			print >> sys.stderr, 'Failed to read MSYS fstab:', ex
+		except ValueError, ex:
+			print >> sys.stderr, 'Failed to parse MSYS fstab:', ex
 	return mounts
 
 def msysPathToNative(path):
