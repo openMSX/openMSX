@@ -6,6 +6,7 @@
 // don't just always include this, saves about 1 minute build time!!
 #ifdef DEBUG
 #include <iostream>
+#include <sstream>
 #endif
 
 /// Namespace of the openMSX emulation core.
@@ -41,11 +42,23 @@ typedef unsigned long long uint64;
 
 #ifdef DEBUG
 
+#ifdef _WIN32
+
+void DebugPrint(const char* output);
+
+#define PRT_DEBUG(mes)				\
+	do {					\
+		std::ostringstream output;			\
+		output << mes;						\
+		std::cout << output << std::endl;	\
+		DebugPrint(output.str().c_str());	\
+	} while (0)
+#else
 #define PRT_DEBUG(mes)				\
 	do {					\
 		std::cout << mes << std::endl;	\
 	} while (0)
-
+#endif
 #else
 
 #define PRT_DEBUG(mes)

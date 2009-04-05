@@ -1665,6 +1665,14 @@
 			Name="input"
 			>
 			<File
+				RelativePath="..\..\src\input\ArkanoidPad.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input\ArkanoidPad.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input\DummyJoystick.cc"
 				>
 			</File>
@@ -5195,6 +5203,10 @@
 		</File>
 		<File
 			RelativePath="..\..\src\MSXTurboRPause.hh"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\openmsx.cc"
 			>
 		</File>
 		<File

@@ -98,6 +98,14 @@ void CliConnection::start()
 	thread.start();
 }
 
+void CliConnection::run()
+{
+	if (beforeConnection()) {
+		output("<openmsx-output>\n");
+		connection();
+	}
+}
+
 void CliConnection::end()
 {
 	output("</openmsx-output>\n");
@@ -106,6 +114,7 @@ void CliConnection::end()
 
 void CliConnection::execute(const string& command)
 {
+	PRT_DEBUG("CliConnection::execute: " << command);
 	eventDistributor.distributeEvent(new CliCommandEvent(command, this));
 }
 
@@ -123,6 +132,7 @@ bool CliConnection::signalEvent(shared_ptr<const Event> event)
 		try {
 			string result = commandController.executeCommand(
 				commandEvent.getCommand(), this);
+			PRT_DEBUG("CliConnection::signalEvent result: " << result);
 			output(reply(result, true));
 		} catch (CommandException& e) {
 			string result = e.getMessage() + '\n';
@@ -208,7 +218,12 @@ StdioConnection::~StdioConnection()
 	end();
 }
 
-void StdioConnection::run()
+bool StdioConnection::beforeConnection()
+{
+	return true;
+}
+
+void StdioConnection::connection()
 {
 	while (ok) {
 		char buf[BUF_SIZE];
@@ -266,7 +281,12 @@ PipeConnection::~PipeConnection()
 	end();
 }
 
-void PipeConnection::run()
+bool PipeConnection::beforeConnection()
+{
+	return true;
+}
+
+void PipeConnection::connection()
 {
 	while (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		char buf[BUF_SIZE];
@@ -314,24 +334,24 @@ SocketConnection::~SocketConnection()
 	end();
 }
 
-void SocketConnection::run()
+bool SocketConnection::beforeConnection()
+{
+#ifdef _WIN32
+	// Authenticate and authorize the caller
+	SocketStreamWrapper stream(sd);
+	SspiNegotiateServer server(stream);
+	if (!server.Authenticate() || !server.Authorize()) {
+		return false;
+	}
+#endif
+	return true;
+}
+
+void SocketConnection::connection()
 {
 	// TODO is locking correct?
 	// No need to lock in this thread because we don't write to 'sd'
 	// and 'sd' only gets written to in this thread.
-
-#ifdef _WIN32
-	{ // Scope to release resources before connection ends
-	SocketStreamWrapper stream(sd);
-	SspiNegotiateServer server(stream);
-	if (!server.Authenticate() || !server.Authorize()) {
-		closesocket(sd);
-		return;
-	}
-	}
-#endif
-	output("<openmsx-output>\n");
-
 	while (true) {
 		if (sd == OPENMSX_INVALID_SOCKET) return;
 		char buf[BUF_SIZE];

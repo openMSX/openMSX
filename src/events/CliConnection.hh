@@ -42,7 +42,10 @@ protected:
 	  */
 	void end();
 
-	virtual void run() = 0;
+	void run();
+
+	virtual bool beforeConnection() = 0;
+	virtual void connection() = 0;
 	virtual void close() = 0;
 
 	xmlParserCtxt* parser_context;
@@ -89,7 +92,8 @@ public:
 
 private:
 	virtual void close();
-	virtual void run();
+	virtual bool beforeConnection();
+	virtual void connection();
 
 	bool ok;
 };
@@ -107,7 +111,8 @@ public:
 
 private:
 	virtual void close();
-	virtual void run();
+	virtual bool beforeConnection();
+	virtual void connection();
 
 	HANDLE pipeHandle;
 };
@@ -125,7 +130,8 @@ public:
 
 private:
 	virtual void close();
-	virtual void run();
+	virtual bool beforeConnection();
+	virtual void connection();
 
 	Semaphore sem;
 	SOCKET sd;
