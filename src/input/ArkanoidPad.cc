@@ -60,7 +60,7 @@ byte ArkanoidPad::read(EmuTime::param /*time*/)
 	return status | ((shiftreg & 256) >> 8);
 }
 
-void ArkanoidPad::write(byte value, EmuTime::param time)
+void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 {
 	if (!readShiftRegMode) {
 		if (value & 0x4) { // pin 8 from low to high
