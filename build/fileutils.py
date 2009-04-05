@@ -9,7 +9,7 @@ from shutil import copyfile
 try:
 	from os import symlink
 except ImportError:
-	def symlink(src, dst):
+	def symlink(src, dst): # pylint: disable-msg=W0613
 		raise OSError('This platform does not support symbolic links')
 
 def scanTree(baseDir, selection = None):
