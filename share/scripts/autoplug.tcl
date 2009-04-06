@@ -1,7 +1,9 @@
 # if this machine has a cassetteport, then automaticaly plug
 # in the cassetteplayer
 
-proc __do_autoplug {} {
+namespace eval autoplug {
+
+proc do_autoplug {} {
 	set connectors [list]
 	catch {
 		#can fail when you activate an 'empty' machine
@@ -13,6 +15,9 @@ proc __do_autoplug {} {
 			plug cassetteport cassetteplayer
 		}
 	}
-	after machine_switch __do_autoplug
+	after machine_switch [namespace code do_autoplug]
 }
-__do_autoplug
+
+};# namespace autoplug
+
+autoplug::do_autoplug
