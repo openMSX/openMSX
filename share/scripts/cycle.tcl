@@ -1,4 +1,6 @@
-set __help_cycle \
+namespace eval cycle {
+
+set help_cycle \
 {Cycle through the possible values of an enum setting.
 'cycle_back' does the same as 'cycle', but it goes in the opposite direction.
 
@@ -7,15 +9,16 @@ Usage:
   cycle_back <enum_setting> [<cycle_list>]
 
 Example:
-  cycle scaler_algorithm
-  cycle scaler_algorithm "hq2x hq2xlite"
+  cycle scale_algorithm
+  cycle scale_algorithm "hq2x hq2xlite"
 }
 
-set_help_text cycle      $__help_cycle
-set_help_text cycle_back $__help_cycle
-set_tabcompletion_proc cycle      __tab_cycle
-set_tabcompletion_proc cycle_back __tab_cycle
-proc __tab_cycle { args } {
+set_help_text cycle      $help_cycle
+set_help_text cycle_back $help_cycle
+set_tabcompletion_proc cycle      [namespace code tab_cycle]
+set_tabcompletion_proc cycle_back [namespace code tab_cycle]
+
+proc tab_cycle { args } {
 	set result [list]
 	foreach setting [openmsx_info setting] {
 		set type [lindex [openmsx_info setting $setting] 0]
@@ -57,8 +60,16 @@ Example:
   toggle fullscreen
 }
 
-set_tabcompletion_proc toggle __tab_cycle
+set_tabcompletion_proc toggle [namespace code tab_cycle]
 
 proc toggle { setting } {
         cycle $setting "on off"
 }
+
+namespace export cycle
+namespace export cycle_back
+namespace export toggle
+
+} ;# namespace cycle
+
+namespace import cycle::*
