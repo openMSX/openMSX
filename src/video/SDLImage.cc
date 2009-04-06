@@ -128,9 +128,13 @@ static SDL_Surface* loadImage(const string& filename, double scaleFactor)
 		return loadImage(filename);
 	}
 	SDL_Surface* picture = SDLImage::readImage(filename);
-	SDL_Surface* scaled = scaleImage32(picture,
-		unsigned(picture->w * scaleFactor),
-		unsigned(picture->h * scaleFactor));
+	unsigned width  = unsigned(picture->w * scaleFactor);
+	unsigned height = unsigned(picture->h * scaleFactor);
+	if ((width == 0) || (height == 0)) {
+		SDL_FreeSurface(picture);
+		return NULL;
+	}
+	SDL_Surface* scaled = scaleImage32(picture, width, height);
 	SDL_FreeSurface(picture);
 
 	SDL_Surface* result = convertToDisplayFormat(scaled);
@@ -141,6 +145,9 @@ static SDL_Surface* loadImage(const string& filename, double scaleFactor)
 static SDL_Surface* loadImage(
 	const string& filename, unsigned width, unsigned height)
 {
+	if ((width == 0) || (height == 0)) {
+		return NULL;
+	}
 	SDL_Surface* picture = SDLImage::readImage(filename);
 	SDL_Surface* scaled = scaleImage32(picture, width, height);
 	SDL_FreeSurface(picture);
