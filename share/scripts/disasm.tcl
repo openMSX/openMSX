@@ -1,12 +1,4 @@
-# helper functions
-proc getPC {} {
-	expr [debug read "CPU regs" 20] * 256 + \
-	     [debug read "CPU regs" 21]
-}
-proc getSP {} {
-	expr [debug read "CPU regs" 22] * 256 + \
-	     [debug read "CPU regs" 23]
-}
+namespace eval disasm {
 
 # very common debug functions
 
@@ -66,7 +58,7 @@ Usage:
   disasm <addr> <num>   Disassemble <num> instr starting at address <addr>
 }
 proc disasm {{address -1} {num 8}} {
-	if {$address == -1} { set address [getPC] }
+	if {$address == -1} { set address [reg PC] }
 	for {set i 0} {$i < $num} {incr i} {
 		set l [debug disasm $address]
 		append result [format "%04X  %s\n" $address [join $l]]
@@ -107,7 +99,11 @@ set_help_text step_out \
 the next 'ret' instruction (more if there were also extra 'call' instructions).
 Note: simulation can be slow during execution of 'step_out', though for not
 extremely large subroutines this is not a problem.}
-proc __step_out_is_ret {} {
+
+variable step_out_bp1
+variable step_out_bp2
+
+proc step_out_is_ret {} {
 	# ret        0xC9
 	# ret <cc>   0xC0,0xC8,0xD0,..,0xF8
 	# reti retn  0xED + 0x45,0x4D,0x55,..,0x7D
@@ -116,28 +112,41 @@ proc __step_out_is_ret {} {
 	      (($instr & 0x00C7) == 0x00C0) ||
 	      (($instr & 0xC7FF) == 0x45ED)}
 }
-proc __step_out_after_break {} {
+proc step_out_after_break {} {
+	variable step_out_bp1
+	variable step_out_bp2
+
 	# also clean up when breaked, but not because of step_out
-	catch { debug remove_condition $::__step_out_bp1 }
-	catch { debug remove_condition $::__step_out_bp2 }
+	catch { debug remove_condition $step_out_bp1 }
+	catch { debug remove_condition $step_out_bp2 }
 }
-proc __step_out_after_next {} {
-	catch { debug remove_condition $::__step_out_bp2 }
-	if {[reg sp] > $::__step_out_sp} {
-		catch { debug remove_condition $::__step_out_bp1 }
+proc step_out_after_next {} {
+	variable step_out_bp1
+	variable step_out_bp2
+	variable step_out_sp
+
+	catch { debug remove_condition $step_out_bp2 }
+	if {[reg sp] > $step_out_sp} {
+		catch { debug remove_condition $step_out_bp1 }
 		debug break
 	}
 }
-proc __step_out_after_ret {} {
-	catch { debug remove_condition $::__step_out_bp2 }
-	set ::__step_out_bp2 [debug set_condition 1 __step_out_after_next]
+proc step_out_after_ret {} {
+	variable step_out_bp2
+
+	catch { debug remove_condition $step_out_bp2 }
+	set step_out_bp2 [debug set_condition 1 [namespace code step_out_after_next]]
 }
 proc step_out {} {
-	catch { debug remove_condition $::__step_out_bp1 }
-	catch { debug remove_condition $::__step_out_bp2 }
-	set ::__step_out_sp [reg sp]
-	set ::__step_out_bp1 [debug set_condition {[__step_out_is_ret]} __step_out_after_ret]
-	after break __step_out_after_break
+	variable step_out_bp1
+	variable step_out_bp2
+	variable step_out_sp
+
+	catch { debug remove_condition $step_out_bp1 }
+	catch { debug remove_condition $step_out_bp2 }
+	set step_out_sp [reg sp]
+	set step_out_bp1 [debug set_condition {[disasm::step_out_is_ret]} [namespace code step_out_after_ret]]
+	after break [namespace code step_out_after_break]
 	debug cont
 }
 
@@ -151,7 +160,7 @@ Only 'call' or 'rst' instructions are stepped over. Note: 'push xx / jp nn'
 sequences can in theory also be used as calls but these are not skipped
 by this command.}
 proc step_over {} {
-	set address [getPC]
+	set address [reg PC]
 	set l [debug disasm $address]
 	if {[string match "call*" [lindex $l 0]] ||
 	    [string match "rst*"  [lindex $l 0]] ||
@@ -179,3 +188,18 @@ proc skip_instruction {} {
 	set pc [reg pc]
 	reg pc [expr $pc + [llength [debug disasm $pc]] - 1]
 }
+
+namespace export peek
+namespace export peek16
+namespace export poke
+namespace export poke16
+namespace export disasm
+namespace export run_to
+namespace export step_over
+namespace export step_out
+namespace export step_in
+namespace export skip_instruction
+
+} ;# namespace disasm
+
+namespace import disasm::*
