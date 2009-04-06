@@ -3,7 +3,7 @@ package provide cheatfinder 0.5
 set_help_text findcheat \
 {Cheat finder version 0.5
 
-Welcome to the openMSX findcheater. Please visit
+Welcome to the openMSX cheat finder. Please visit
   http://forum.openmsx.org/viewtopic.php?t=32
 for a quick tutorial
 
@@ -27,35 +27,39 @@ Examples:
   findcheat -max 40 smaller    search for smaller values, show max 40 results
 }
 
+namespace eval cheat_finder {
 
 #set maximum to display cheats
-set __findcheat_max  15
+variable max_num_results 15
+variable mem
+variable translate
 
-# Restart cheat finder. Should not be used directly by the user
-proc __findcheat_start {} {
-	global findcheat_mem
-	set mem [debug read_block memory 0 0x10000]
-	binary scan $mem c* values
+# Restart cheat finder.
+proc start {} {
+	variable mem
+	
+	set mymem [debug read_block memory 0 0x10000]
+	binary scan $mymem c* values
 	set addr 0
 	foreach val $values {
-		set findcheat_mem($addr) $val
+		set mem($addr) $val
 		incr addr
 	}
 }
 
 # Helper function to do the actual search.
-# Should not be used directly by the user.
 # Returns a list of triplets (addr, old, new)
-proc __findcheat_helper { expression } {
-	global findcheat_mem
+proc search { expression } {
+	variable mem
+
 	set result [list]
-	foreach {addr old} [array get findcheat_mem] {
+	foreach {addr old} [array get mem] {
 		set new [debug read memory $addr]
 		if [expr $expression] {
-			set findcheat_mem($addr) $new
+			set mem($addr) $new
 			lappend result [list $addr $old $new]
 		} else {
-			unset findcheat_mem($addr)
+			unset mem($addr)
 		}
 	}
 	return $result
@@ -63,41 +67,40 @@ proc __findcheat_helper { expression } {
 
 # main routine
 proc findcheat { args } {
-	# create findcheat_mem array
-	global findcheat_mem
-	if ![array exists findcheat_mem] __findcheat_start
+	variable mem
+	variable max_num_results
+	variable translate
 
-	# get the maximum results to display
-	global __findcheat_max
+	# create mem array
+	if ![array exists mem] start
 
 	# build translation array for convenience expressions
-	global findcheat_translate
-	if ![array exists findcheat_translate] {
+	if ![array exists translate] {
 		# TODO add more here
-		set findcheat_translate()         "true"
+		set translate()         "true"
 
-		set findcheat_translate(bigger)   "new > old"
-		set findcheat_translate(smaller)  "new < old"
+		set translate(bigger)   "new > old"
+		set translate(smaller)  "new < old"
 
-		set findcheat_translate(more)     "new > old"
-		set findcheat_translate(less)     "new < old"
+		set translate(more)     "new > old"
+		set translate(less)     "new < old"
 
-		set findcheat_translate(notequal) "new != old"
-		set findcheat_translate(equal)    "new == old"
+		set translate(notequal) "new != old"
+		set translate(equal)    "new == old"
 
-		set findcheat_translate(loe)      "new <= old"
-		set findcheat_translate(moe)      "new >= old"
+		set translate(loe)      "new <= old"
+		set translate(moe)      "new >= old"
 	}
 
 	# parse options
 	while (1) {
 		switch -- [lindex $args 0] {
-		  "-max" {
-			  set __findcheat_max  [lindex $args 1]
+		"-max" {
+			  set max_num_results  [lindex $args 1]
 			  set args [lrange $args 2 end]
 		}
 		"-start" {
-			__findcheat_start
+			start
 			set args [lrange $args 1 end]
 		}
 		"default" break
@@ -107,9 +110,9 @@ proc findcheat { args } {
 	# all remaining arguments form the expression
 	set expression [join $args]
 
-	if [info exists findcheat_translate($expression)] {
+	if [info exists translate($expression)] {
 		# translate a convenience expression into a real expression
-		set expression $findcheat_translate($expression)
+		set expression $translate($expression)
 	} elseif [string is integer $expression] {
 		# search for a specific value
 		set expression "new == $expression"
@@ -119,20 +122,26 @@ proc findcheat { args } {
 	set expression [string map {old $old new $new addr $addr} $expression]
 
 	# search memory
-	set result [__findcheat_helper $expression]
+	set result [search $expression]
 
 	# display the result
 	set num [llength $result]
 	set output ""
 	if {$num == 0} {
 		return "No results left"
-	} elseif {$num <= $__findcheat_max} {
+	} elseif {$num <= $max_num_results} {
 		set sorted [lsort -integer -index 0 $result]
 		foreach {addr old new} [join $sorted] {
 			append output "[format 0x%04X $addr] : $old -> $new \n"
 		}
 		return $output
 	} else {
-		return "$num results found -> Maximum result to display set to $__findcheat_max "
+		return "$num results found -> Maximum result to display set to $max_num_results "
 	}
 }
+
+namespace export findcheat
+
+} ;# namespace cheat_finder
+
+namespace import cheat_finder::*
