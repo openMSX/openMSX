@@ -51,7 +51,6 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
 		OPENMSX_RESIZE_EVENT, *this);
 
 #ifdef _WIN32
-	PRT_DEBUG("Starting ALT+SPACE suppressor");
 	HWND hWnd = getSDLWindowHandle();
 	assert(hWnd);
 	AltSpaceSuppressor::Start(hWnd);
@@ -62,26 +61,18 @@ SDLVideoSystem::~SDLVideoSystem()
 {
 #ifdef _WIN32
 	// This needs to be done while the SDL window handle is still valid
-	PRT_DEBUG("Stopping ALT+SPACE suppressor");
 	assert(getSDLWindowHandle());
 	AltSpaceSuppressor::Stop();
 #endif
 
-	PRT_DEBUG("Destructing SDLVideoSystem... ");
-	PRT_DEBUG("Unregistering RESIZE_EVENT... ");
 	reactor.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
 
-	PRT_DEBUG("Detach from scale factor setting... ");
 	renderSettings.getScaleFactor().detach(*this);
 
-	PRT_DEBUG("Removing osdGuiLayer... ");
 	display.removeLayer(*osdGuiLayer);
-	PRT_DEBUG("Removing snowLayer... ");
 	display.removeLayer(*snowLayer);
-	PRT_DEBUG("Removing consoleLayer... ");
 	display.removeLayer(*console);
-	PRT_DEBUG("Destructing SDLVideoSystem... DONE!");
 }
 
 Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)

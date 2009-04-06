@@ -138,9 +138,7 @@ VisibleSurface::~VisibleSurface()
 		lastWindowY = windowRect.top;
 	}
 #endif
-	PRT_DEBUG("Destructing VisibleSurface - SDL_QuitSubSystem");
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-	PRT_DEBUG("Destructing VisibleSurface - SDL_QuitSubSystem DONE!");
 }
 
 void VisibleSurface::setWindowTitle(const std::string& title)

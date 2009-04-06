@@ -141,22 +141,17 @@ void OSDWidget::setParent(OSDWidget* parent_)
 
 OSDWidget* OSDWidget::findSubWidget(const string& name)
 {
-	PRT_DEBUG("OSDWidget::findSubWidget... ");
 	if (name.empty()) {
 		return this;
 	}
 	string first, last;
 	StringOp::splitOnFirst(name, ".", first, last);
-	PRT_DEBUG("OSDWidget::findSubWidget... looping over subwidgets, first = " << first << ", last = " << last);
 	for (SubWidgets::const_iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
-		PRT_DEBUG("OSDWidget::findSubWidget... looping over subwidgets: " << (*it)->getName());
 		if ((*it)->getName() == first) {
-			PRT_DEBUG("OSDWidget::findSubWidget... looping over subwidgets: yay, found first! returning findSubWidget of last!");
 			return (*it)->findSubWidget(last);
 		}
 	}
-	PRT_DEBUG("OSDWidget::findSubWidget... DONE, returning NULL");
 	return NULL;
 }
 
@@ -174,18 +169,14 @@ void OSDWidget::addWidget(std::auto_ptr<OSDWidget> widget)
 
 void OSDWidget::deleteWidget(OSDWidget& widget)
 {
-	PRT_DEBUG("deleteWidget... looping through subwidgets...");
 	for (SubWidgets::iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
 		if (*it == &widget) {
-			PRT_DEBUG("deleteWidget... deleting subwidget...");
 			delete *it;
-			PRT_DEBUG("deleteWidget... removing subwidget from container...");
 			subWidgets.erase(it);
 			return;
 		}
 	}
-	PRT_DEBUG("deleteWidget... looping through subwidgets... DONE!");
 	assert(false);
 }
 

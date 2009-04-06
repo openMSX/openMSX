@@ -55,7 +55,6 @@ OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 
 OSDGUI::~OSDGUI()
 {
-	PRT_DEBUG("Destructing OSD GUI...");
 }
 
 Display& OSDGUI::getDisplay() const
@@ -151,18 +150,14 @@ auto_ptr<OSDWidget> OSDCommand::create(
 
 void OSDCommand::destroy(const vector<TclObject*>& tokens, TclObject& /*result*/)
 {
-	PRT_DEBUG("OSDCommand::Destroy!");
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	PRT_DEBUG("OSDCommand::Destroy: gettingWidget " << tokens[2]->getString());
 	OSDWidget& widget = getWidget(tokens[2]->getString());
-	PRT_DEBUG("OSDCommand::Destroy: getting parent");
 	OSDWidget* parent = widget.getParent();
 	if (!parent) {
 		throw CommandException("Can't destroy the top widget.");
 	}
-	PRT_DEBUG("OSDCommand::Destroy: deleting the widget");
 	parent->deleteWidget(widget);
 }
 
@@ -312,14 +307,10 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 
 OSDWidget& OSDCommand::getWidget(const string& name) const
 {
-	PRT_DEBUG("OSDCommand:getWidget " << name);
 	OSDWidget* widget = gui.getTopWidget().findSubWidget(name);
-	PRT_DEBUG("OSDCommand:getWidget " << name << " DONE");
 	if (!widget) {
-		PRT_DEBUG("OSDCommand:getWidget " << name << " NOT FOUND");
 		throw CommandException("No widget with name " + name);
 	}
-	PRT_DEBUG("OSDCommand:getWidget " << name << " returning dereference");
 	return *widget;
 }
 
