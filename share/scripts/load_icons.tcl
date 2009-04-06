@@ -27,8 +27,8 @@ variable icon_list
 variable last_change
 variable current_osd_leds_set
 variable current_osd_leds_pos
-variable fade_delay_active
-variable fade_delay_non_active
+variable current_fade_delay_active
+variable current_fade_delay_non_active
 variable fade_id
 
 proc trace_icon_status { name1 name2 op } {
@@ -36,13 +36,13 @@ proc trace_icon_status { name1 name2 op } {
 	global $name1
 	set icon [string trimleft $name1 ":"]
 	set last_change($icon) [openmsx_info realtime]
-	load_icons::redraw_osd_icons $icon
+	redraw_osd_icons $icon
 }
 
 proc redraw_osd_icons { icon } {
 	variable last_change
-	variable fade_delay_active
-	variable fade_delay_non_active
+	variable current_fade_delay_active
+	variable current_fade_delay_non_active
 	variable fade_id
 	global $icon
 
@@ -52,11 +52,11 @@ proc redraw_osd_icons { icon } {
 	if $value {
 		set widget  osd_icons.${icon}_on
 		set widget2 osd_icons.${icon}_off
-		set fade_delay $fade_delay_active($icon)
+		set fade_delay $current_fade_delay_active($icon)
 	} else {
 		set widget  osd_icons.${icon}_off
 		set widget2 osd_icons.${icon}_on
-		set fade_delay $fade_delay_non_active($icon)
+		set fade_delay $current_fade_delay_non_active($icon)
 	}
 	osd configure $widget2 -alpha 0 -fadeTarget 0
 
@@ -83,8 +83,8 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 	variable icon_list
 	variable current_osd_leds_set
 	variable current_osd_leds_pos
-	variable fade_delay_active
-	variable fade_delay_non_active
+	variable current_fade_delay_active
+	variable current_fade_delay_non_active
 
 	if {$set_name == "-show"} {
 		# Show list of available skins
@@ -178,8 +178,8 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 		set xcoord($icon) [expr $i * $xspacing * $horizontal]
 		set ycoord($icon) [expr $i * $yspacing * $vertical]
 
-		set my_fade_delay_active($icon)     $fade_delay
-		set my_fade_delay_non_active($icon) $fade_delay
+		set fade_delay_active($icon)     $fade_delay
+		set fade_delay_non_active($icon) $fade_delay
 
 		set fade_duration_active($icon)     $fade_duration
 		set fade_duration_non_active($icon) $fade_duration
@@ -197,14 +197,14 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 				set image_off    "${icon}.png"
 				set fallback_on  ""
 				set fallback_off ""
-				set my_fade_delay_non_active($icon) 0
+				set current_fade_delay_non_active($icon) 0
 			}
 			default {
 				set image_on     "${icon}.png"
 				set image_off    ""
 				set fallback_on  ""
 				set fallback_off ""
-				set my_fade_delay_active($icon) 0
+				set fade_delay_active($icon) 0
 			}
 		}
 		set active_image($icon)     [__try_dirs $skin_set_dir $image_on  $fallback_on ]
@@ -245,8 +245,8 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 	set current_osd_leds_pos $position_param
 	set osd_leds_pos $position_param
 	foreach icon $icon_list {
-		set fade_delay_active($icon)     $my_fade_delay_active($icon)
-		set fade_delay_non_active($icon) $my_fade_delay_non_active($icon)
+		set current_fade_delay_active($icon)     $fade_delay_active($icon)
+		set current_fade_delay_non_active($icon) $fade_delay_non_active($icon)
 	}
 
 	return ""
@@ -271,7 +271,7 @@ proc machine_switch_osd_icons {} {
 	foreach icon $icon_list {
 		trace remove variable ::$icon "write unset" [namespace code trace_icon_status]
 		trace add    variable ::$icon "write unset" [namespace code trace_icon_status]
-		load_icons::redraw_osd_icons $icon
+		redraw_osd_icons $icon
 	}
 	after machine_switch [namespace code machine_switch_osd_icons]
 }
