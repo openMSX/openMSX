@@ -44,17 +44,23 @@ void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 {
 	if (name == "-rgba") {
 		unsigned color = StringOp::stringToUint(value);
-		r = (color >> 24) & 255;
-		g = (color >> 16) & 255;
-		b = (color >>  8) & 255;
+		byte r2 = (color >> 24) & 255;
+		byte g2 = (color >> 16) & 255;
+		byte b2 = (color >>  8) & 255;
+		if ((r != r2) || (g != g2) || (b != b2)) {
+			r = r2; g = g2; b = b2;
+			invalidateLocal();
+		}
 		setAlpha((color >>  0) & 255);
-		invalidateLocal();
 	} else if (name == "-rgb") {
 		unsigned color = StringOp::stringToUint(value);
-		r = (color >> 16) & 255;
-		g = (color >>  8) & 255;
-		b = (color >>  0) & 255;
-		invalidateLocal();
+		byte r2 = (color >> 24) & 255;
+		byte g2 = (color >> 16) & 255;
+		byte b2 = (color >>  8) & 255;
+		if ((r != r2) || (g != g2) || (b != b2)) {
+			r = r2; g = g2; b = b2;
+			invalidateLocal();
+		}
 	} else if (name == "-alpha") {
 		// don't invalidate
 		setAlpha(StringOp::stringToUint(value));

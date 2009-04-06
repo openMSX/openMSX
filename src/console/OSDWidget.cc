@@ -211,17 +211,23 @@ void OSDWidget::setProperty(const string& name, const string& value)
 	} else if (name == "-y") {
 		y = StringOp::stringToDouble(value);
 	} else if (name == "-z") {
-		z = StringOp::stringToDouble(value);
-		if (OSDWidget* parent = getParent()) {
-			parent->resort();
+		double z2 = StringOp::stringToDouble(value);
+		if (z != z2) {
+			z = z2;
+			if (OSDWidget* parent = getParent()) {
+				parent->resort();
+			}
 		}
 	} else if (name == "-relx") {
 		relx = StringOp::stringToDouble(value);
 	} else if (name == "-rely") {
 		rely = StringOp::stringToDouble(value);
 	} else if (name == "-scaled") {
-		scaled = StringOp::stringToBool(value);
-		invalidateRecursive();
+		bool scaled2 = StringOp::stringToBool(value);
+		if (scaled != scaled2) {
+			scaled = scaled2;
+			invalidateRecursive();
+		}
 	} else if (name == "-clip") {
 		clip = StringOp::stringToBool(value);
 	} else {

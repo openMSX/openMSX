@@ -38,22 +38,29 @@ void OSDText::getProperties(std::set<string>& result) const
 void OSDText::setProperty(const string& name, const string& value)
 {
 	if (name == "-text") {
-		text = value;
-		// note: don't invalidate font (don't reopen font file)
-		OSDImageBasedWidget::invalidateLocal();
-		invalidateChildren();
-	} else if (name == "-font") {
-		SystemFileContext context;
-		CommandController* controller = NULL; // ok for SystemFileContext
-		string file = context.resolve(*controller, value);
-		if (!FileOperations::isRegularFile(file)) {
-			throw CommandException("Not a valid font file: " + value);
+		if (text != value) {
+			text = value;
+			// note: don't invalidate font (don't reopen font file)
+			OSDImageBasedWidget::invalidateLocal();
+			invalidateChildren();
 		}
-		fontfile = value;
-		invalidateRecursive();
+	} else if (name == "-font") {
+		if (fontfile != value) {
+			SystemFileContext context;
+			CommandController* controller = NULL; // ok for SystemFileContext
+			string file = context.resolve(*controller, value);
+			if (!FileOperations::isRegularFile(file)) {
+				throw CommandException("Not a valid font file: " + value);
+			}
+			fontfile = value;
+			invalidateRecursive();
+		}
 	} else if (name == "-size") {
-		size = StringOp::stringToInt(value);
-		invalidateRecursive();
+		int size2 = StringOp::stringToInt(value);
+		if (size != size2) {
+			size = size2;
+			invalidateRecursive();
+		}
 	} else {
 		OSDImageBasedWidget::setProperty(name, value);
 	}
