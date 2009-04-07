@@ -1,4 +1,3 @@
-#
 # Binary format PSG logger
 #
 # (see http://www.msx.org/forumtopic6258.html for more context)
@@ -23,7 +22,8 @@
 #  #FD - EOF (usually not used in real logs, and not all progs can handle it)
 #  #FE - number of interrupts (followed byte with number of interrupts/4, usually not used)
 #  #FF - single interrupt
-#
+
+namespace eval psg_log {
 
 set_help_text psg_log \
 {This script logs PSG registers 0 through 14 to a file at every frame end.
@@ -42,40 +42,47 @@ Examples:
    psg_log stop              stop logging PSG registers
 }
 
-set_tabcompletion_proc psg_log __tab_psg_log
-proc __tab_psg_log { args } {
+set_tabcompletion_proc psg_log [namespace code tab_psg_log]
+
+proc tab_psg_log { args } {
 	if {[llength $args] == 2} {
 		return "start stop"
 	}
 }
 
-set __psg_log_file -1
+variable psg_log_file -1
 
 proc psg_log { subcommand {filename "log.psg"} } {
-	global __psg_log_file
+	variable psg_log_file
 	if [string equal $subcommand "start"] {
-		set __psg_log_file [open $filename {WRONLY TRUNC CREAT}]
-		fconfigure $__psg_log_file -translation binary
+		set psg_log_file [open $filename {WRONLY TRUNC CREAT}]
+		fconfigure $psg_log_file -translation binary
 		set header "0x50 0x53 0x47 0x1A 0 0 0 0 0 0 0 0 0 0 0 0"
-		puts -nonewline $__psg_log_file [binary format c16 $header]
-		__do_psg_log
+		puts -nonewline $psg_log_file [binary format c16 $header]
+		do_psg_log
 		return ""
 	} elseif [string equal $subcommand "stop"] {
-		close $__psg_log_file
-		set __psg_log_file -1
+		close $psg_log_file
+		set psg_log_file -1
 		return ""
 	} else {
 		error "bad option \"$subcommand\": must be start, stop"
 	}
 }
 
-proc __do_psg_log {} {
-	global __psg_log_file
-	if {$__psg_log_file == -1} return
+proc do_psg_log {} {
+	variable psg_log_file
+	if {$psg_log_file == -1} return
 	for {set i 0} {$i < 14} {incr i} {
 		set value [debug read "PSG regs" $i]
-		puts -nonewline $__psg_log_file [binary format c2 "$i $value"]
+		puts -nonewline $psg_log_file [binary format c2 "$i $value"]
 	}
-	puts -nonewline $__psg_log_file [binary format c 0xFF]
-	after frame __do_psg_log
+	puts -nonewline $psg_log_file [binary format c 0xFF]
+	after frame [namespace code do_psg_log]
 }
+
+namespace export psg_log
+
+} ;# namespace psg_log
+
+namespace import psg_log::*
