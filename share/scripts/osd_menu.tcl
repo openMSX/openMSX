@@ -1,3 +1,5 @@
+namespace eval osd_menu {
+
 set_help_text main_menu_open   "(experimental) Show the OSD menu."
 set_help_text main_menu_close  "(experimental) Remove the OSD menu."
 set_help_text main_menu_toggle "(experimental) Toggle the OSD menu."
@@ -18,28 +20,29 @@ proc set_optional { array_name key value } {
 	}
 }
 
-set __menuinfos [list]
+variable menuinfos [list]
+variable main_menu
 
-proc __pack_menu_info {} {
+proc pack_menu_info {} {
 	uplevel {list $name $menutexts $selectinfo $selectidx $scrollidx $on_close}
 }
-proc __unpack_menu_info { data } {
+proc unpack_menu_info { data } {
 	set cmd [list foreach {name menutexts selectinfo selectidx scrollidx on_close} $data {}]
 	uplevel $cmd
 }
-proc __set_selectidx { value } {
-	global __menuinfos
-	lset __menuinfos {end 3} $value
+proc set_selectidx { value } {
+	variable menuinfos
+	lset menuinfos {end 3} $value
 }
-proc __set_scrollidx { value } {
-	global __menuinfos
-	lset __menuinfos {end 4} $value
+proc set_scrollidx { value } {
+	variable menuinfos
+	lset menuinfos {end 4} $value
 }
 
-proc __menu_create { menu_def_list } {
-	global __menuinfos
+proc menu_create { menu_def_list } {
+	variable menuinfos
 
-	set name "menu[expr [llength $__menuinfos] + 1]"
+	set name "menu[expr [llength $menuinfos] + 1]"
 
 	array set menudef $menu_def_list
 
@@ -94,28 +97,28 @@ proc __menu_create { menu_def_list } {
 
 	set selectidx 0
 	set scrollidx 0
-	lappend __menuinfos [__pack_menu_info]
+	lappend menuinfos [pack_menu_info]
 
 	uplevel #0 $on_open
-	__menu_on_select $selectinfo $selectidx
+	menu_on_select $selectinfo $selectidx
 
-	__menu_refresh_top
+	menu_refresh_top
 }
 
-proc __menu_refresh_top {} {
-	global __menuinfos
-	__menu_refresh_helper [lindex $__menuinfos end]
+proc menu_refresh_top {} {
+	variable menuinfos
+	menu_refresh_helper [lindex $menuinfos end]
 }
 
-proc __menu_refresh_all {} {
-	global __menuinfos
-	foreach menuinfo $__menuinfos {
-		__menu_refresh_helper $menuinfo
+proc menu_refresh_all {} {
+	variable menuinfos
+	foreach menuinfo $menuinfos {
+		menu_refresh_helper $menuinfo
 	}
 }
 
-proc __menu_refresh_helper { menuinfo } {
-	__unpack_menu_info $menuinfo
+proc menu_refresh_helper { menuinfo } {
+	unpack_menu_info $menuinfo
 
 	foreach { osdid text } $menutexts {
 		set cmd [list subst $text]
@@ -127,91 +130,94 @@ proc __menu_refresh_helper { menuinfo } {
 	osd configure "${name}.selection" -y $sely -h $selh
 }
 
-proc __menu_close_top {} {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
-	__menu_on_deselect $selectinfo $selectidx
+proc menu_close_top {} {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
+	menu_on_deselect $selectinfo $selectidx
 	uplevel #0 $on_close
 	osd destroy $name
-	set __menuinfos [lreplace $__menuinfos end end]
-	if {[llength $__menuinfos] == 0} {
-		__menu_last_closed
+	set menuinfos [lreplace $menuinfos end end]
+	if {[llength $menuinfos] == 0} {
+		menu_last_closed
 	}
 }
 
-proc __menu_close_all {} {
-	global __menuinfos
-	while {[llength $__menuinfos]} {
-		__menu_close_top
+proc menu_close_all {} {
+	variable menuinfos
+	while {[llength $menuinfos]} {
+		menu_close_top
 	}
 }
 
-proc __menu_updown { delta } {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
-	__menu_on_deselect $selectinfo $selectidx
+proc menu_updown { delta } {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
+	menu_on_deselect $selectinfo $selectidx
 	set selectidx [expr ($selectidx + $delta) % [llength $selectinfo]]
-	__set_selectidx $selectidx
-	__menu_on_select $selectinfo $selectidx
-	__menu_refresh_top
+	set_selectidx $selectidx
+	menu_on_select $selectinfo $selectidx
+	menu_refresh_top
 }
-proc __menu_on_select { selectinfo selectidx } {
+proc menu_on_select { selectinfo selectidx } {
 	set on_select [lindex $selectinfo $selectidx 3]
 	uplevel #0 $on_select
 }
-proc __menu_on_deselect { selectinfo selectidx } {
+proc menu_on_deselect { selectinfo selectidx } {
 	set on_deselect [lindex $selectinfo $selectidx 4]
 	uplevel #0 $on_deselect
 }
-proc __menu_up {}   { __menu_updown -1 }
-proc __menu_down {} { __menu_updown  1 }
-proc __menu_action { button } {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
+proc menu_up {}   { menu_updown -1 }
+proc menu_down {} { menu_updown  1 }
+proc menu_action { button } {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
 	array set actions [lindex $selectinfo $selectidx 2]
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
-	__menu_refresh_all
+	menu_refresh_all
 }
 
 user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
 user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
-if ![file exists $osd_rom_path] {
+if ![file exists $::osd_rom_path] {
 	# revert to default (should always exist)
-	unset osd_rom_path
+	unset ::osd_rom_path
 }
-if ![file exists $osd_disk_path] {
+if ![file exists $::osd_disk_path] {
 	# revert to default (should always exist)
-	unset osd_disk_path
+	unset ::osd_disk_path
 }
 
 proc main_menu_open {} {
-	__menu_create $::__main_menu
+	variable main_menu
+
+	menu_create $main_menu
 
 	set ::pause true
 	# TODO make these bindings easier to customize
-	bind_default "keyb UP"     -repeat { __menu_action UP    }
-	bind_default "keyb DOWN"   -repeat { __menu_action DOWN  }
-	bind_default "keyb LEFT"   -repeat { __menu_action LEFT  }
-	bind_default "keyb RIGHT"  -repeat { __menu_action RIGHT }
-	bind_default "keyb SPACE"          { __menu_action A     }
-	bind_default "keyb RETURN"         { __menu_action A     }
-	bind_default "keyb ESCAPE"         { __menu_action B     }
+	bind_default "keyb UP"     -repeat { osd_menu::menu_action UP    }
+	bind_default "keyb DOWN"   -repeat { osd_menu::menu_action DOWN  }
+	bind_default "keyb LEFT"   -repeat { osd_menu::menu_action LEFT  }
+	bind_default "keyb RIGHT"  -repeat { osd_menu::menu_action RIGHT }
+	bind_default "keyb SPACE"          { osd_menu::menu_action A     }
+	bind_default "keyb RETURN"         { osd_menu::menu_action A     }
+	bind_default "keyb ESCAPE"         { osd_menu::menu_action B     }
 }
 proc main_menu_close {} {
-	__menu_close_all
+	menu_close_all
 }
 proc main_menu_toggle {} {
-	global __menuinfos
-	if [llength $__menuinfos] {
+	variable menuinfos
+	if [llength $menuinfos] {
 		# there is at least one menu open, close it
-		__menu_close_all
+		menu_close_all
 	} else {
 		# none open yet, open main menu
 		main_menu_open
 	}
 }
-proc __menu_last_closed {} {
+
+proc menu_last_closed {} {
 	set ::pause false
 	# TODO avoid duplication with 'main_menu_open'
 	unbind_default "keyb UP"
@@ -223,17 +229,17 @@ proc __menu_last_closed {} {
 	unbind_default "keyb ESCAPE"
 }
 
-proc __prepare_menu { menu_def_list } {
+proc prepare_menu { menu_def_list } {
 	array set menudef $menu_def_list
 	array set actions [get_optional menudef actions ""]
-	set_optional actions UP   __menu_up
-	set_optional actions DOWN __menu_down
-	set_optional actions B    __menu_close_top
+	set_optional actions UP   osd_menu::menu_up
+	set_optional actions DOWN osd_menu::menu_down
+	set_optional actions B    osd_menu::menu_close_top
 	set menudef(actions) [array get actions]
 	return [array get menudef]
 }
 
-proc __prepare_menu_list { lst num menu_def_list } {
+proc prepare_menu_list { lst num menu_def_list } {
 	array set menudef $menu_def_list
 	set execute $menudef(execute)
 	set header $menudef(header)
@@ -243,57 +249,61 @@ proc __prepare_menu_list { lst num menu_def_list } {
 	lappend header "selectable" "false"
 	set items [list $header]
 	for {set i 0} {$i < $num} {incr i} {
-		set actions [list "A" "__list_menu_item_exec $execute \{$lst\} $i"]
+		set actions [list "A" "osd_menu::list_menu_item_exec $execute \{$lst\} $i"]
 		if {$i == 0} {
-			lappend actions "UP" "__list_menu_item_up"
+			lappend actions "UP" "osd_menu::list_menu_item_up"
 		}
 		if {$i == ($num - 1)} {
-			lappend actions "DOWN" "__list_menu_item_down [llength $lst] $i"
+			lappend actions "DOWN" "osd_menu::list_menu_item_down [llength $lst] $i"
 		}
-		set item [list "text" "\[__list_menu_item_show \{$lst\} $i\]" \
+		set item [list "text" "\[osd_menu::list_menu_item_show \{$lst\} $i\]" \
 		               "actions" $actions]
 		if {$on_select != ""} {
-			lappend item "on-select" "__list_menu_item_select \{$lst\} $i $on_select"
+			lappend item "on-select" "osd_menu::list_menu_item_select \{$lst\} $i $on_select"
 		}
 		if {$on_deselect != ""} {
-			lappend item "on-deselect" "__list_menu_item_select \{$lst\} $i $on_deselect"
+			lappend item "on-deselect" "osd_menu::list_menu_item_select \{$lst\} $i $on_deselect"
 		}
 		lappend items [join [list $item $item_extra]]
 	}
 	set menudef(items) $items
-	return [__prepare_menu [array get menudef]]
+	return [prepare_menu [array get menudef]]
 }
-proc __list_menu_item_exec { execute lst pos } {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
+proc list_menu_item_exec { execute lst pos } {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
 	$execute [lindex $lst [expr $pos + $scrollidx]]
 }
-proc __list_menu_item_show { lst pos } {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
+proc list_menu_item_show { lst pos } {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
 	return [lindex $lst [expr $pos + $scrollidx]]
 }
-proc __list_menu_item_select { lst pos select_proc } {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
+proc list_menu_item_select { lst pos select_proc } {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
 	$select_proc [lindex $lst [expr $pos + $scrollidx]]
 }
-proc __list_menu_item_up { } {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
+proc list_menu_item_up { } {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
 	if {$scrollidx > 0} {incr scrollidx -1}
-	__set_scrollidx $scrollidx
-	__menu_refresh_top
+	set_scrollidx $scrollidx
+	menu_refresh_top
 }
-proc __list_menu_item_down { size pos } {
-	global __menuinfos
-	__unpack_menu_info [lindex $__menuinfos end]
+proc list_menu_item_down { size pos } {
+	variable menuinfos
+	unpack_menu_info [lindex $menuinfos end]
 	if {($scrollidx + $pos + 1) < $size} {incr scrollidx}
-	__set_scrollidx $scrollidx
-	__menu_refresh_top
+	set_scrollidx $scrollidx
+	menu_refresh_top
 }
 
-set __main_menu [__prepare_menu {
+#
+# definitions of menus
+#
+
+set main_menu [prepare_menu {
 	bg-color 0x000000a0
 	text-color 0xffffffff
 	select-color 0x8080ffd0
@@ -306,28 +316,28 @@ set __main_menu [__prepare_menu {
 	         post-spacing 6
 	         selectable false }
 	       { text "Load ROM..."
-	         actions { A { __menu_create [__menu_create_ROM_list $::osd_rom_path] }}}
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_ROM_list $::osd_rom_path] }}}
 	       { text "Insert Disk..."
-	         actions { A { __menu_create [__menu_create_disk_list $::osd_disk_path] }}
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_disk_list $::osd_disk_path] }}
 	         post-spacing 3 }
 	       { text "Save State..."
-	         actions { A { __menu_create [__menu_create_save_state] }}}
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_save_state] }}}
 	       { text "Load State..."
-	         actions { A { __menu_create [__menu_create_load_state] }}
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_state] }}
 	         post-spacing 3 }
 	       { text "openMSX Settings..."
-	         actions { A { __menu_create $::__misc_setting_menu }}}
+	         actions { A { osd_menu::menu_create $osd_menu::misc_setting_menu }}}
 	       { text "Sound Settings..."
-	         actions { A { __menu_create $::__sound_setting_menu }}}
+	         actions { A { osd_menu::menu_create $osd_menu::sound_setting_menu }}}
 	       { text "Video Settings..."
-	         actions { A { __menu_create $::__video_setting_menu }}
+	         actions { A { osd_menu::menu_create $osd_menu::video_setting_menu }}
 	         post-spacing 10 }
 	       { text "Reset MSX"
-	         actions { A { reset ; __menu_close_all }}}
+	         actions { A { reset ; osd_menu::menu_close_all }}}
 	       { text "Exit openMSX"
 	         actions { A exit }}}}]
 
-set __misc_setting_menu [__prepare_menu {
+set misc_setting_menu [prepare_menu {
 	bg-color 0x000000a0
 	text-color 0xffffffff
 	select-color 0x8080ffd0
@@ -351,7 +361,7 @@ set __misc_setting_menu [__prepare_menu {
 	         actions { LEFT  { incr maxframeskip -1 }
 	                   RIGHT { incr maxframeskip  1 }}}}}]
 
-set __sound_setting_menu [__prepare_menu {
+set sound_setting_menu [prepare_menu {
 	bg-color 0x000000a0
 	text-color 0xffffffff
 	select-color 0x8080ffd0
@@ -372,7 +382,7 @@ set __sound_setting_menu [__prepare_menu {
 	         actions { LEFT  { cycle_back mute }
 	                   RIGHT { cycle mute }}}}}]
 
-set __video_setting_menu [__prepare_menu {
+set video_setting_menu [prepare_menu {
 	bg-color 0x000000a0
 	text-color 0xffffffff
 	select-color 0x8080ffd0
@@ -403,7 +413,7 @@ set __video_setting_menu [__prepare_menu {
 	         actions { LEFT  { incr glow -1 }
 	                   RIGHT { incr glow  1 }}}}}]
 
-proc __ls { directory extensions } {
+proc ls { directory extensions } {
 	set roms [glob -nocomplain -tails -directory $directory -type f *.{$extensions}]
 	set dirs [glob -nocomplain -tails -directory $directory -type d *]
 	set dirs2 [list]
@@ -413,25 +423,25 @@ proc __ls { directory extensions } {
 	return [join [list ".." [lsort $dirs2] [lsort $roms]]]
 }
 
-proc __displayOSDText { message } {
-	if ![info exists ::__displayOSDText_bg] {
-		set ::__displayOSDText_bg  [osd create rectangle "displayOSDText" \
+proc displayOSDText { message } {
+	if ![info exists displayOSDText_bg] {
+		set displayOSDText_bg  [osd create rectangle "displayOSDText" \
 		                                -x 3 -y 12 -z 5 -w 314 -h 9 \
 		                                -rgb 0x002090 -scaled true -clip true]
-		set ::__displayOSDText_txt [osd create text "displayOSDText.txt" \
+		set displayOSDText_txt [osd create text "displayOSDText.txt" \
 		                                -size 6 -rgb 0xffffff \
 		                                -font "skins/Vera.ttf.gz"]
 	}
-	osd configure $::__displayOSDText_bg  -alpha 190 \
+	osd configure $displayOSDText_bg  -alpha 190 \
 	                                      -fadeTarget 0 -fadePeriod 5.0
-	osd configure $::__displayOSDText_txt -alpha 255 -text $message \
+	osd configure $displayOSDText_txt -alpha 255 -text $message \
 	                                      -fadeTarget 0 -fadePeriod 5.0
 }
 
-proc __menu_create_ROM_list { path } {
-	return [__prepare_menu_list [__ls $path "rom,zip,gz"] \
+proc menu_create_ROM_list { path } {
+	return [prepare_menu_list [ls $path "rom,zip,gz"] \
 	                          10 \
-	                          { execute __menu_select_rom
+	                          { execute menu_select_rom
 	                            bg-color 0x000000a0
 	                            text-color 0xffffffff
 	                            select-color 0x8080ffd0
@@ -446,25 +456,25 @@ proc __menu_create_ROM_list { path } {
                                              post-spacing 6 }}]
 }
 
-proc __menu_select_rom { item } {
+proc menu_select_rom { item } {
 	set fullname [file join $::osd_rom_path $item]
 	if [file isdirectory $fullname] {
-		__menu_close_top
+		menu_close_top
 		set ::osd_rom_path [file normalize $fullname]
-		__menu_create [__menu_create_ROM_list $::osd_rom_path]
+		menu_create [menu_create_ROM_list $::osd_rom_path]
 	} else {
-		__menu_close_all
+		menu_close_all
 		carta $fullname
-		__displayOSDText "Now running ROM: $item"
+		displayOSDText "Now running ROM: $item"
 		reset
 	}
 }
 
-proc __menu_create_disk_list { path } {
-	set disks [concat "--eject--" [__ls $path "dsk,zip,gz"]]
-	return [__prepare_menu_list $disks \
+proc menu_create_disk_list { path } {
+	set disks [concat "--eject--" [ls $path "dsk,zip,gz"]]
+	return [prepare_menu_list $disks \
 	                          10 \
-	                          { execute __menu_select_disk
+	                          { execute menu_select_disk
 	                            bg-color 0x000000a0
 	                            text-color 0xffffffff
 	                            select-color 0x8080ffd0
@@ -479,26 +489,26 @@ proc __menu_create_disk_list { path } {
 	                                     post-spacing 6 }}]
 }
 
-proc __menu_select_disk { item } {
+proc menu_select_disk { item } {
 	if [string equal $item "--eject--"] {
-		__menu_close_all
+		menu_close_all
 		diska eject
 	} else {
 		set fullname [file join $::osd_disk_path $item]
 		if [file isdirectory $fullname] {
-			__menu_close_top
+			menu_close_top
 			set ::osd_disk_path [file normalize $fullname]
-			__menu_create [__menu_create_disk_list $::osd_disk_path]
+			menu_create [menu_create_disk_list $::osd_disk_path]
 		} else {
-			__menu_close_all
+			menu_close_all
 			diska $fullname
 		}
 	}
 }
 
-proc __menu_create_load_state {} {
-	return [__prepare_menu_list [list_savestates] 10 \
-	       { execute __menu_loadstate_exec
+proc menu_create_load_state {} {
+	return [prepare_menu_list [list_savestates] 10 \
+	       { execute menu_loadstate_exec
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
@@ -509,17 +519,17 @@ proc __menu_create_load_state {} {
 	         ypos 120
 	         on-open  {osd create rectangle "preview" -x 225 -y 5 -w 90 -h 70 -rgba 0x30303080 -scaled true}
 	         on-close {osd destroy "preview"}
-	         on-select   __menu_loadstate_select
-	         on-deselect __menu_loadstate_deselect
+	         on-select   menu_loadstate_select
+	         on-deselect menu_loadstate_deselect
 	         header { text "Loadstate"
 	                  text-color 0x00ff00ff
 	                  font-size 12
                           post-spacing 6 }}]
 }
-proc __menu_create_save_state {} {
+proc menu_create_save_state {} {
 	set items [concat [list "create new"] [list_savestates]]
-	return [__prepare_menu_list $items 10 \
-	       { execute __menu_savestate_exec
+	return [prepare_menu_list $items 10 \
+	       { execute menu_savestate_exec
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
@@ -530,36 +540,36 @@ proc __menu_create_save_state {} {
 	         ypos 120
 	         on-open  {osd create rectangle "preview" -x 225 -y 5 -w 90 -h 70 -rgba 0x30303080 -scaled true}
 	         on-close {osd destroy "preview"}
-	         on-select   __menu_loadstate_select
-	         on-deselect __menu_loadstate_deselect
+	         on-select   menu_loadstate_select
+	         on-deselect menu_loadstate_deselect
 	         header { text "Savestate"
 	                  text-color 0xff0000ff
 	                  font-size 12
 	                  post-spacing 6 }}]
 }
-proc __menu_loadstate_select { item } {
+proc menu_loadstate_select { item } {
 	set png $::env(OPENMSX_USER_DATA)/../savestates/${item}.png
 	catch {osd create rectangle "preview.image" -relx 0.05 -rely 0.05 -w 80 -h 60 -image $png}
 }
-proc __menu_loadstate_deselect { item } {
+proc menu_loadstate_deselect { item } {
 	catch {osd destroy "preview.image"}
 }
-proc __menu_loadstate_exec { item } {
-	__menu_close_all
+proc menu_loadstate_exec { item } {
+	menu_close_all
 	loadstate $item
 }
-proc __menu_savestate_exec { item } {
+proc menu_savestate_exec { item } {
 	if {$item == "create new"} {
-		set item [__menu_free_savestate_name]
-		__menu_close_all
+		set item [menu_free_savestate_name]
+		menu_close_all
 		savestate $item
 	} else {
 		#TODO "Overwrite are you sure?" -dialog
-		__menu_close_all
+		menu_close_all
 		savestate $item
 	}
 }
-proc __menu_free_savestate_name {} {
+proc menu_free_savestate_name {} {
 	set existing [list_savestates]
 	set i 1
 	while 1 {
@@ -578,3 +588,10 @@ if {$tcl_platform(os) == "Darwin"} {
 	bind_default "keyb MENU" main_menu_toggle
 }
 
+namespace export main_menu_open
+namespace export main_menu_close
+namespace export main_menu_toggle
+
+} ;# namespace osd_menu
+
+namespace import osd_menu::*
