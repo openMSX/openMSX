@@ -1,3 +1,5 @@
+namespace eval multi_screenshot {
+
 set_help_text multi_screenshot \
 {Take multiple screenshots
 
@@ -6,13 +8,19 @@ Usage:
 }
 
 proc multi_screenshot {num {base ""} } {
-	__multi_screenshot_helper 1 $num $base
+	multi_screenshot_helper 1 $num $base
 	return ""
 }
 
-proc __multi_screenshot_helper {acc max {base ""} } {
+proc multi_screenshot_helper {acc max {base ""} } {
 	if {$acc <= $max} {
 		if {$base == ""} { screenshot } { screenshot -prefix ${base} }
-		after frame "__multi_screenshot_helper [expr $acc + 1] $max $base"
+		after frame "[namespace code multi_screenshot_helper] [expr $acc + 1] $max $base"
 	}
 }
+
+namespace export multi_screenshot
+
+} ;# namespace multi_screenshot
+
+namespace import multi_screenshot::*
