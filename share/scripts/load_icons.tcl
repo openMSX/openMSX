@@ -161,14 +161,17 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 		# first look in specified skin-set directory
 		set f1 [file normalize $skin_set_dir/$file]
 		if [file isfile $f1] { return $f1 }
+		# look for the falback image in the skin directory
+		set f2 [file normalize $skin_set_dir/$fallback]
+		if [file isfile $f2] { return $f2 }
 		# if it's not there look in the root skin directory
 		# (system or user directory)
-		set f2 [file normalize [data_file "skins/$file"]]
-		if [file isfile $f2] { return $f2 }
+		set f3 [file normalize [data_file "skins/$file"]]
+		if [file isfile $f3] { return $f3 }
 		# still not found, look for the fallback image in system and
 		# user root skin dir
-		set f3 [file normalize [data_file "skins/$fallback"]]
-		if [file isfile $f3] { return $f3 }
+		set f4 [file normalize [data_file "skins/$fallback"]]
+		if [file isfile $f4] { return $f4 }
 		return ""
 	}
 	# Calculate default parameter values ...
@@ -241,12 +244,17 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 
 	# If successful, store in settings (order of assignments is important!)
 	set current_osd_leds_set $set_name
-	set osd_leds_set $set_name
+	set ::osd_leds_set $set_name
 	set current_osd_leds_pos $position_param
-	set osd_leds_pos $position_param
+	set ::osd_leds_pos $position_param
 	foreach icon $icon_list {
 		set current_fade_delay_active($icon)     $fade_delay_active($icon)
 		set current_fade_delay_non_active($icon) $fade_delay_non_active($icon)
+	}
+
+	# Force redrawing of all icons
+	foreach icon $icon_list {
+		redraw_osd_icons $icon
 	}
 
 	return ""
@@ -258,11 +266,11 @@ proc trace_osd_icon_vars {name1 name2 op} {
 
 	# avoid executing load_icons multiple times
 	# (because of the assignments to the settings in that proc)
-	if {($osd_leds_set == $current_osd_leds_set) &&
-	    ($osd_leds_pos == $current_osd_leds_pos)} {
+	if {($::osd_leds_set == $current_osd_leds_set) &&
+	    ($::osd_leds_pos == $current_osd_leds_pos)} {
 		return
 	}
-	load_icons $osd_leds_set $osd_leds_pos
+	load_icons $::osd_leds_set $::osd_leds_pos
 }
 
 proc machine_switch_osd_icons {} {
@@ -290,19 +298,20 @@ foreach icon $icon_list {
 	set last_change($icon) [openmsx_info realtime]
 }
 
-# Restore settings from previous session
-user_setting create string osd_leds_set "Name of the OSD icon set" "set1"
-user_setting create string osd_leds_pos "Position of the OSD icons" "default"
-set current_osd_leds_set $osd_leds_set
-set current_osd_leds_pos $osd_leds_pos
-trace add variable osd_leds_set write [namespace code trace_osd_icon_vars]
-trace add variable osd_leds_pos write [namespace code trace_osd_icon_vars]
-after machine_switch [namespace code machine_switch_osd_icons]
-
-load_icons $osd_leds_set $osd_leds_pos
-
 namespace export load_icons
 
 } ;# namespace load_icons
 
 namespace import load_icons::*
+
+# Restore settings from previous session
+user_setting create string osd_leds_set "Name of the OSD icon set" "set1"
+user_setting create string osd_leds_pos "Position of the OSD icons" "default"
+set load_icons::current_osd_leds_set $osd_leds_set
+set load_icons::current_osd_leds_pos $osd_leds_pos
+trace add variable osd_leds_set write load_icons::trace_osd_icon_vars
+trace add variable osd_leds_pos write load_icons::trace_osd_icon_vars
+after machine_switch load_icons::machine_switch_osd_icons
+
+load_icons $osd_leds_set $osd_leds_pos
+
