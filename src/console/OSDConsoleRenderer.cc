@@ -303,7 +303,18 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, const string& text,
                                   int x, int y, byte alpha)
 {
 	if (text.empty()) return;
-	SDL_Surface* surf = font->render(text, 255, 255, 255);
+	SDL_Surface* surf;
+	try {
+		surf = font->render(text, 255, 255, 255);
+	} catch (MSXException& e) {
+		static bool alreadyPrinted = false;
+		if (!alreadyPrinted) {
+			alreadyPrinted = true;
+			reactor.getCliComm().printWarning(
+				"Invalid console text (invalid UTF-8): " + e.getMessage());
+		}
+		return;
+	}
 	if (!openGL) {
 		SDLImage image(surf);
 		image.draw(output, x, y, alpha);
