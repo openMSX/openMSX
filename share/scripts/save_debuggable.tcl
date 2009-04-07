@@ -1,5 +1,7 @@
+namespace eval save_debuggable {
+
 set_help_text save_debuggable \
-{Save a debuggable to file. Examples of debuggables are memory, vram, ...
+{Save a debuggable to file. Examples of debuggables are memory, VRAM, ...
 Use 'debug list' to get a complete list of all debuggables.
 
 Usage:
@@ -18,7 +20,8 @@ proc save_debuggable {debuggable filename} {
 set_help_text load_debuggable \
 {Load a raw data file into a certain debuggable (see also save_debuggable).
 Note that saving and reloading the same data again does not always bring the
-MSX in the same state (e.g. the subslotregister)
+MSX in the same state (e.g. the subslotregister). Use 'savestate' and 'loadstate'
+if you want that.
 }
 proc load_debuggable {debuggable filename} {
 	set size [debug size $debuggable]
@@ -29,24 +32,25 @@ proc load_debuggable {debuggable filename} {
 	debug write_block $debuggable 0 $data
 }
 
-set_tabcompletion_proc save_debuggable __tab_loadsave_debuggable
-set_tabcompletion_proc load_debuggable __tab_loadsave_debuggable
-proc __tab_loadsave_debuggable { args } {
+set_tabcompletion_proc save_debuggable [namespace code tab_loadsave_debuggable]
+set_tabcompletion_proc load_debuggable [namespace code tab_loadsave_debuggable]
+proc tab_loadsave_debuggable { args } {
 	if {[llength $args] == 2} {
 		return [debug list]
 	}
 }
 
-
 # TODO remove these two procs?
 #  They were meant as a very quick-and-dirty savestate mechanism, but it
 #  doesn't work (e.g. because of subslot register)
 proc save_all { directory } {
+	puts stderr "This command ('save_all') has been deprecated (and may be removed in a future release). In contrast to what you might think, it cannot be used to save the machine state. You probably just want to use 'save_state' instead!"
 	foreach debuggable [debug list] {
 		save_debuggable $debuggable ${directory}/${debuggable}.sav
 	}
 }
 proc load_all { directory } {
+	puts stderr "This command ('load_all') has been deprecated (and may be removed in a future release). In contrast to what you might think, it cannot be used to load the machine state. You probably just want to use 'load_state' instead!"
 	foreach debuggable [debug list] {
 		load_debuggable $debuggable ${directory}/${debuggable}.sav
 	}
@@ -54,6 +58,16 @@ proc load_all { directory } {
 
 # for backwards compatibility
 proc vramdump { { filename "vramdump"} } {
+	puts stderr "This command ('vramdump') has been deprecated (and may be removed in a future release), please use 'save_debuggable VRAM' instead!"
 	save_debuggable "VRAM" $filename
 }
 
+namespace export save_debuggable
+namespace export load_debuggable
+namespace export save_all
+namespace export load_all
+namespace export vramdump
+
+} ;# namespace save_debuggable
+
+namespace import save_debuggable::*
