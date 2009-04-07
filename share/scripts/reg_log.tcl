@@ -1,3 +1,4 @@
+namespace eval reg_log {
 
 set_help_text reg_log \
 {Logs the contents (e.g. registers) of a given debuggable or replays such a log.
@@ -18,83 +19,93 @@ Examples:
    reg_log play "PSG regs" my.log   replay the log of "PSG regs" in my.log
 }
 
-set_tabcompletion_proc reg_log __tab_reg_log
-proc __tab_reg_log { args } {
+set_tabcompletion_proc reg_log [namespace code tab_reg_log]
+proc tab_reg_log { args } {
 	switch [llength $args] {
 		2 { return "record play stop" }
 		3 { return [debug list] }
 	}
 }
 
+variable log_file
+variable data
+
 proc reg_log { subcommand debuggable {filename ""} } {
 	if {$filename == ""} { set filename ${debuggable}.log }
 	switch $subcommand {
-		"record" { return [__reg_log_record $debuggable $filename] }
-		"play"   { return [__reg_log_play $debuggable $filename] }
-		"stop"   { return [__reg_log_stop $debuggable] }
+		"record" { return [record $debuggable $filename] }
+		"play"   { return [play $debuggable $filename] }
+		"stop"   { return [stop $debuggable] }
 		default  { error "bad option \"$subcommand\": must be start stop" }
 	}
 }
 
-proc __reg_log_check { debuggable } {
+proc check { debuggable } {
 	if {[lsearch [debug list] $debuggable] == -1} {
 		error "No such debuggable: $debuggable"
 	}
 }
 
-proc __reg_log_record { debuggable filename } {
-	global __reg_log_file
-	__reg_log_check $debuggable
-	__reg_log_stop $debuggable
-	set __reg_log_file($debuggable) [open $filename {WRONLY TRUNC CREAT}]
-	__do_reg_record $debuggable
+proc record { debuggable filename } {
+	variable log_file
+	check $debuggable
+	stop $debuggable
+	set log_file($debuggable) [open $filename {WRONLY TRUNC CREAT}]
+	do_reg_record $debuggable
 	return ""
 }
 
-proc __reg_log_play { debuggable filename } {
-	global __reg_log_data
-	__reg_log_check $debuggable
-	__reg_log_stop $debuggable
-	set file [open $filename RDONLY]
-	set __reg_log_data($debuggable) [split [read $file] \n]
-	close $file
-	__do_reg_play $debuggable
+proc play { debuggable filename } {
+	variable data
+	check $debuggable
+	stop $debuggable
+	set log_file [open $filename RDONLY]
+	set data($debuggable) [split [read $log_file] \n]
+	close $log_file
+	do_reg_play $debuggable
 	return ""
 }
 
-proc __reg_log_stop { debuggable } {
-	global __reg_log_file __reg_log_data
-	if [info exists __reg_log_file($debuggable)] {
-		close $__reg_log_file($debuggable)
-		unset __reg_log_file($debuggable)
+proc stop { debuggable } {
+	variable log_file
+	global file data
+	if [info exists log_file($debuggable)] {
+		close $log_file($debuggable)
+		unset log_file($debuggable)
 	}
-	if [info exists __reg_log_data($debuggable)] {
-		unset __reg_log_data($debuggable)
+	if [info exists data($debuggable)] {
+		unset data($debuggable)
 	}
 	return ""
 }
 
-proc __do_reg_record { debuggable } {
-	global __reg_log_file
-	if ![info exists __reg_log_file($debuggable)] return
+proc do_reg_record { debuggable } {
+	variable log_file
+	if ![info exists log_file($debuggable)] return
 	set size [debug size $debuggable]
 	for {set i 0} {$i < $size} {incr i} {
-		puts -nonewline $__reg_log_file($debuggable) "[debug read $debuggable $i] "
+		puts -nonewline $log_file($debuggable) "[debug read $debuggable $i] "
 	}
-	puts $__reg_log_file($debuggable) ""  ;#newline
-	after frame [list __do_reg_record $debuggable]
+	puts $log_file($debuggable) ""  ;#newline
+	after frame [list reg_log::do_reg_record $debuggable]
 }
 
-proc __do_reg_play { debuggable } {
-	global __reg_log_data
-	if ![info exists __reg_log_data($debuggable)] return
+proc do_reg_play { debuggable } {
+	variable data
+	if ![info exists data($debuggable)] return
 	set reg 0
-	foreach val [lindex $__reg_log_data($debuggable) 0] {
+	foreach val [lindex $data($debuggable) 0] {
 		debug write $debuggable $reg $val
 		incr reg
 	}
-	set __reg_log_data($debuggable) [lrange $__reg_log_data($debuggable) 1 end]
-	if {[llength $__reg_log_data($debuggable)] > 0} {
-		after frame [list __do_reg_play $debuggable]
+	set data($debuggable) [lrange $data($debuggable) 1 end]
+	if {[llength $data($debuggable)] > 0} {
+		after frame [list reg_log::do_reg_play $debuggable]
 	}
 }
+
+namespace export reg_log
+
+} ;# namespace reg_log
+
+namespace import reg_log::*
