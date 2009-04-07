@@ -6,7 +6,7 @@
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "StringOp.hh"
+#include "TclObject.hh"
 #include "components.hh"
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
@@ -35,28 +35,30 @@ void OSDText::getProperties(std::set<string>& result) const
 	OSDImageBasedWidget::getProperties(result);
 }
 
-void OSDText::setProperty(const string& name, const string& value)
+void OSDText::setProperty(const string& name, const TclObject& value)
 {
 	if (name == "-text") {
-		if (text != value) {
-			text = value;
+		string val = value.getString();
+		if (text != val) {
+			text = val;
 			// note: don't invalidate font (don't reopen font file)
 			OSDImageBasedWidget::invalidateLocal();
 			invalidateChildren();
 		}
 	} else if (name == "-font") {
-		if (fontfile != value) {
+		string val = value.getString();
+		if (fontfile != val) {
 			SystemFileContext context;
 			CommandController* controller = NULL; // ok for SystemFileContext
-			string file = context.resolve(*controller, value);
+			string file = context.resolve(*controller, val);
 			if (!FileOperations::isRegularFile(file)) {
-				throw CommandException("Not a valid font file: " + value);
+				throw CommandException("Not a valid font file: " + val);
 			}
-			fontfile = value;
+			fontfile = val;
 			invalidateRecursive();
 		}
 	} else if (name == "-size") {
-		int size2 = StringOp::stringToInt(value);
+		int size2 = value.getInt();
 		if (size != size2) {
 			size = size2;
 			invalidateRecursive();
@@ -66,16 +68,16 @@ void OSDText::setProperty(const string& name, const string& value)
 	}
 }
 
-string OSDText::getProperty(const string& name) const
+void OSDText::getProperty(const string& name, TclObject& result) const
 {
 	if (name == "-text") {
-		return text;
+		result.setString(text);
 	} else if (name == "-font") {
-		return fontfile;
+		result.setString(fontfile);
 	} else if (name == "-size") {
-		return StringOp::toString(size);
+		result.setInt(size);
 	} else {
-		return OSDImageBasedWidget::getProperty(name);
+		OSDImageBasedWidget::getProperty(name, result);
 	}
 }
 

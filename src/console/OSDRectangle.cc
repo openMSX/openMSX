@@ -5,7 +5,7 @@
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "StringOp.hh"
+#include "TclObject.hh"
 #include "components.hh"
 #include <cassert>
 #ifdef COMPONENT_GL
@@ -32,32 +32,33 @@ void OSDRectangle::getProperties(set<string>& result) const
 	OSDImageBasedWidget::getProperties(result);
 }
 
-void OSDRectangle::setProperty(const string& name, const string& value)
+void OSDRectangle::setProperty(const string& name, const TclObject& value)
 {
 	if (name == "-w") {
-		double w2 = StringOp::stringToDouble(value);
+		double w2 = value.getDouble();
 		if (w != w2) {
 			w = w2;
 			invalidateRecursive();
 		}
 	} else if (name == "-h") {
-		double h2 = StringOp::stringToDouble(value);
+		double h2 = value.getDouble();
 		if (h != h2) {
 			h = h2;
 			invalidateRecursive();
 		}
 	} else if (name == "-scale") {
-		double scale2 = StringOp::stringToDouble(value);
+		double scale2 = value.getDouble();
 		if (scale != scale2) {
 			scale = scale2;
 			invalidateRecursive();
 		}
 	} else if (name == "-image") {
-		if (imageName != value) {
-			if (!value.empty() && !FileOperations::isRegularFile(value)) {
-				throw CommandException("Not a valid image file: " + value);
+		string val = value.getString();
+		if (imageName != val) {
+			if (!val.empty() && !FileOperations::isRegularFile(val)) {
+				throw CommandException("Not a valid image file: " + val);
 			}
-			imageName = value;
+			imageName = val;
 			invalidateRecursive();
 		}
 	} else {
@@ -65,18 +66,18 @@ void OSDRectangle::setProperty(const string& name, const string& value)
 	}
 }
 
-std::string OSDRectangle::getProperty(const string& name) const
+void OSDRectangle::getProperty(const string& name, TclObject& result) const
 {
 	if (name == "-w") {
-		return StringOp::toString(w);
+		result.setDouble(w);
 	} else if (name == "-h") {
-		return StringOp::toString(h);
+		result.setDouble(h);
 	} else if (name == "-scale") {
-		return StringOp::toString(scale);
+		result.setDouble(scale);
 	} else if (name == "-image") {
-		return imageName;
+		result.setString(imageName);
 	} else {
-		return OSDImageBasedWidget::getProperty(name);
+		OSDImageBasedWidget::getProperty(name, result);
 	}
 }
 

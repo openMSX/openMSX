@@ -22,8 +22,8 @@ public:
 	byte getAlpha() const; // returns faded value
 
 	virtual void getProperties(std::set<std::string>& result) const;
-	virtual void setProperty(const std::string& name, const std::string& value);
-	virtual std::string getProperty(const std::string& name) const;
+	virtual void setProperty(const std::string& name, const TclObject& value);
+	virtual void getProperty(const std::string& name, TclObject& result) const;
 
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);

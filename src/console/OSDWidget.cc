@@ -3,6 +3,7 @@
 #include "OSDWidget.hh"
 #include "OutputSurface.hh"
 #include "CommandException.hh"
+#include "TclObject.hh"
 #include "StringOp.hh"
 #include "GLUtil.hh"
 #include "openmsx.hh"
@@ -202,16 +203,16 @@ void OSDWidget::getProperties(set<string>& result) const
 	result.insert("-clip");
 }
 
-void OSDWidget::setProperty(const string& name, const string& value)
+void OSDWidget::setProperty(const string& name, const TclObject& value)
 {
 	if (name == "-type") {
 		throw CommandException("-type property is readonly");
 	} else if (name == "-x") {
-		x = StringOp::stringToDouble(value);
+		x = value.getDouble();
 	} else if (name == "-y") {
-		y = StringOp::stringToDouble(value);
+		y = value.getDouble();
 	} else if (name == "-z") {
-		double z2 = StringOp::stringToDouble(value);
+		double z2 = value.getDouble();
 		if (z != z2) {
 			z = z2;
 			if (OSDWidget* parent = getParent()) {
@@ -219,40 +220,40 @@ void OSDWidget::setProperty(const string& name, const string& value)
 			}
 		}
 	} else if (name == "-relx") {
-		relx = StringOp::stringToDouble(value);
+		relx = value.getDouble();
 	} else if (name == "-rely") {
-		rely = StringOp::stringToDouble(value);
+		rely = value.getDouble();
 	} else if (name == "-scaled") {
-		bool scaled2 = StringOp::stringToBool(value);
+		bool scaled2 = value.getBoolean();
 		if (scaled != scaled2) {
 			scaled = scaled2;
 			invalidateRecursive();
 		}
 	} else if (name == "-clip") {
-		clip = StringOp::stringToBool(value);
+		clip = value.getBoolean();
 	} else {
 		throw CommandException("No such property: " + name);
 	}
 }
 
-string OSDWidget::getProperty(const string& name) const
+void OSDWidget::getProperty(const string& name, TclObject& result) const
 {
 	if (name == "-type") {
-		return getType();
+		result.setString(getType());
 	} else if (name == "-x") {
-		return StringOp::toString(x);
+		result.setDouble(x);
 	} else if (name == "-y") {
-		return StringOp::toString(y);
+		result.setDouble(y);
 	} else if (name == "-z") {
-		return StringOp::toString(z);
+		result.setDouble(z);
 	} else if (name == "-relx") {
-		return StringOp::toString(relx);
+		result.setDouble(relx);
 	} else if (name == "-rely") {
-		return StringOp::toString(rely);
+		result.setDouble(rely);
 	} else if (name == "-scaled") {
-		return scaled ? "true" : "false";
+		result.setBoolean(scaled);
 	} else if (name == "-clip") {
-		return clip ? "true" : "false";
+		result.setBoolean(clip);
 	} else {
 		throw CommandException("No such property: " + name);
 	}

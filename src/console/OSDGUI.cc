@@ -182,7 +182,7 @@ void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
 	case 4: {
 		// get current value for given widget/property
 		const OSDWidget& widget = getWidget(tokens[2]->getString());
-		result.setString(widget.getProperty(tokens[3]->getString()));
+		widget.getProperty(tokens[3]->getString(), result);
 		break;
 	}
 	default:
@@ -210,8 +210,7 @@ void OSDCommand::configure(OSDWidget& widget, const vector<TclObject*>& tokens,
 
 	for (unsigned i = skip; i < tokens.size(); i += 2) {
 		string name  = tokens[i + 0]->getString();
-		string value = tokens[i + 1]->getString();
-		widget.setProperty(name, value);
+		widget.setProperty(name, *tokens[i + 1]);
 	}
 }
 

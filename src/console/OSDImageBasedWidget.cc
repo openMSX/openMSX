@@ -5,8 +5,8 @@
 #include "BaseImage.hh"
 #include "Display.hh"
 #include "CliComm.hh"
+#include "TclObject.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "Timer.hh"
 #include <cassert>
 
@@ -40,10 +40,10 @@ void OSDImageBasedWidget::getProperties(set<string>& result) const
 	OSDWidget::getProperties(result);
 }
 
-void OSDImageBasedWidget::setProperty(const string& name, const string& value)
+void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value)
 {
 	if (name == "-rgba") {
-		unsigned color = StringOp::stringToUint(value);
+		unsigned color = value.getInt();
 		byte r2 = (color >> 24) & 255;
 		byte g2 = (color >> 16) & 255;
 		byte b2 = (color >>  8) & 255;
@@ -53,7 +53,7 @@ void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 		}
 		setAlpha((color >>  0) & 255);
 	} else if (name == "-rgb") {
-		unsigned color = StringOp::stringToUint(value);
+		unsigned color = value.getInt();
 		byte r2 = (color >> 24) & 255;
 		byte g2 = (color >> 16) & 255;
 		byte b2 = (color >>  8) & 255;
@@ -63,36 +63,36 @@ void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 		}
 	} else if (name == "-alpha") {
 		// don't invalidate
-		setAlpha(StringOp::stringToUint(value));
+		setAlpha(value.getInt());
 	} else if (name == "-fadePeriod") {
 		unsigned long long now = Timer::getTime();
 		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
-		fadePeriod = StringOp::stringToDouble(value);
+		fadePeriod = value.getDouble();
 	} else if (name == "-fadeTarget") {
 		unsigned long long now = Timer::getTime();
 		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
-		fadeTarget = StringOp::stringToUint(value);
+		fadeTarget = value.getInt();
 	} else {
 		OSDWidget::setProperty(name, value);
 	}
 }
 
-string OSDImageBasedWidget::getProperty(const string& name) const
+void OSDImageBasedWidget::getProperty(const string& name, TclObject& result) const
 {
 	if (name == "-rgba") {
 		unsigned color = (r << 24) | (g << 16) | (b << 8) | (a << 0);
-		return StringOp::toString(color);
+		result.setInt(color);
 	} else if (name == "-rgb") {
 		unsigned color = (r << 16) | (g << 8) | (b << 0);
-		return StringOp::toString(color);
+		result.setInt(color);
 	} else if (name == "-alpha") {
-		return StringOp::toString(unsigned(getAlpha()));
+		result.setInt(getAlpha());
 	} else if (name == "-fadePeriod") {
-		return StringOp::toString(fadePeriod);
+		result.setDouble(fadePeriod);
 	} else if (name == "-fadeTarget") {
-		return StringOp::toString(unsigned(fadeTarget));
+		result.setInt(fadeTarget);
 	} else {
-		return OSDWidget::getProperty(name);
+		OSDWidget::getProperty(name, result);
 	}
 }
 
