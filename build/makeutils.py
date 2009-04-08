@@ -43,18 +43,51 @@ def joinContinuedLines(lines):
 	if buf:
 		raise ValueError('Continuation on last line')
 
-def extractMakeVariables(filePath):
+_reEval = re.compile('(\$\(|\))')
+def evaluate(expr, makeVars):
+	'''Evaluates variable references in an expression.
+	Raises ValueError if there is a syntax error in the expression.
+	Raises KeyError if the expression references a non-existing variable.
+	'''
+	stack = [ [] ]
+	for part in _reEval.split(expr):
+		if part == '$(':
+			stack.append([])
+		elif part == ')' and len(stack) != 1:
+			name = ''.join(stack.pop())
+			if name.startswith('addsuffix '):
+				suffix, args = name[len('addsuffix') : ].split(',')
+				suffix = suffix.strip()
+				value = ' '.join(arg + suffix for arg in args.split())
+			else:
+				value = makeVars[name]
+			stack[-1].append(value)
+		else:
+			stack[-1].append(part)
+	if len(stack) != 1:
+		raise ValueError('Open without close in "%s"' % expr)
+	return ''.join(stack.pop())
+
+def extractMakeVariables(filePath, makeVars = None):
 	'''Extract all variable definitions from the given Makefile.
+	The optional makeVars argument is a dictionary containing the already
+	defined variables. These variables will be included in the output; the
+	given dictionary is not modified.
 	Returns a dictionary that maps each variable name to its value.
 	'''
-	makeVars = {}
+	makeVars = {} if makeVars is None else dict(makeVars)
 	inp = open(filePath, 'r')
 	try:
-		for name, value in filterLines(
+		for name, assign, value in filterLines(
 			joinContinuedLines(inp),
-			r'[ ]*([A-Za-z0-9_]+)[ ]*:=(.*)'
+			r'[ ]*([A-Za-z0-9_]+)[ ]*(:?=)(.*)'
 			):
-			makeVars[name] = value.strip()
+			if assign == '=':
+				makeVars[name] = value.strip()
+			elif assign == ':=':
+				makeVars[name] = evaluate(value, makeVars).strip()
+			else:
+				assert False, assign
 	finally:
 		inp.close()
 	return makeVars
