@@ -22,6 +22,7 @@ public:
 	virtual std::string getType() const;
 
 private:
+	bool takeImageDimensions() const;
 	virtual void getWidthHeight(const OutputSurface& output,
 	                            double& width, double& height) const;
 	virtual BaseImage* createSDL(OutputSurface& output);
@@ -29,7 +30,7 @@ private:
 	template <typename IMAGE> BaseImage* create(OutputSurface& output);
 
 	std::string imageName;
-	double w, h, scale;
+	double w, h, relw, relh, scale;
 };
 
 } // namespace openmsx

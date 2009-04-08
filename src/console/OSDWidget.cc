@@ -342,10 +342,10 @@ void OSDWidget::getBoundingBox(const OutputSurface& output,
 	double x1, y1, x2, y2;
 	transformXY(output, 0.0, 0.0, 0.0, 0.0, x1, y1);
 	transformXY(output, 0.0, 0.0, 1.0, 1.0, x2, y2);
-	x = int(x1);
-	y = int(y1);
-	w = int(x2) - int(x1);
-	h = int(y2) - int(y1);
+	x = int(x1 + 0.5);
+	y = int(y1 + 0.5);
+	w = int(x2 - x1 + 0.5);
+	h = int(y2 - y1 + 0.5);
 }
 
 void OSDWidget::listWidgetNames(const string& parentName, set<string>& result) const

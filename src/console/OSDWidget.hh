@@ -47,14 +47,14 @@ public:
 	                 double& outx, double& outy) const;
 	void getBoundingBox(const OutputSurface& output,
 	                    int& x, int& y, int& w, int& h);
+	virtual void getWidthHeight(const OutputSurface& output,
+	                            double& width, double& height) const = 0;
 
 protected:
 	OSDWidget(const std::string& name);
 	void invalidateChildren();
 
 	virtual void invalidateLocal() = 0;
-	virtual void getWidthHeight(const OutputSurface& output,
-	                            double& width, double& height) const = 0;
 	virtual void paintSDL(OutputSurface& output) = 0;
 	virtual void paintGL (OutputSurface& output) = 0;
 

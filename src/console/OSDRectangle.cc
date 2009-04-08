@@ -19,7 +19,7 @@ namespace openmsx {
 
 OSDRectangle::OSDRectangle(const OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
-	, w(0.0), h(0.0), scale(1.0)
+	, w(0.0), h(0.0), relw(0.0), relh(0.0), scale(1.0)
 {
 }
 
@@ -27,6 +27,8 @@ void OSDRectangle::getProperties(set<string>& result) const
 {
 	result.insert("-w");
 	result.insert("-h");
+	result.insert("-relw");
+	result.insert("-relh");
 	result.insert("-scale");
 	result.insert("-image");
 	OSDImageBasedWidget::getProperties(result);
@@ -44,6 +46,18 @@ void OSDRectangle::setProperty(const string& name, const TclObject& value)
 		double h2 = value.getDouble();
 		if (h != h2) {
 			h = h2;
+			invalidateRecursive();
+		}
+	} else if (name == "-relw") {
+		double relw2 = value.getDouble();
+		if (relw != relw2) {
+			relw = relw2;
+			invalidateRecursive();
+		}
+	} else if (name == "-relh") {
+		double relh2 = value.getDouble();
+		if (relh != relh2) {
+			relh = relh2;
 			invalidateRecursive();
 		}
 	} else if (name == "-scale") {
@@ -72,6 +86,10 @@ void OSDRectangle::getProperty(const string& name, TclObject& result) const
 		result.setDouble(w);
 	} else if (name == "-h") {
 		result.setDouble(h);
+	} else if (name == "-relw") {
+		result.setDouble(relw);
+	} else if (name == "-relh") {
+		result.setDouble(relh);
 	} else if (name == "-scale") {
 		result.setDouble(scale);
 	} else if (name == "-image") {
@@ -86,32 +104,40 @@ std::string OSDRectangle::getType() const
 	return "rectangle";
 }
 
+bool OSDRectangle::takeImageDimensions() const
+{
+	return (w    == 0.0) && (h    == 0.0) &&
+	       (relw == 0.0) && (relh == 0.0);
+}
+
 void OSDRectangle::getWidthHeight(const OutputSurface& output,
                                   double& width, double& height) const
 {
-	if (image.get()) {
-		OSDImageBasedWidget::getWidthHeight(output, width, height);
+	if (!imageName.empty() && image.get() && takeImageDimensions()) {
+		width  = image->getWidth();
+		height = image->getHeight();
 	} else {
-		// No image allocated, must be either because of
-		//  - an error: in this case we can still do better than the
-		//              implementation in the base class
-		//  - the alpha=0 optimization
-		//  - calculation of clip rectangle when image was not yet
-		//    allocated (new widget or invalidated)
 		double factor = getScaleFactor(output) * scale;
 		width  = factor * w;
 		height = factor * h;
+
+		double pwidth, pheight;
+		getParent()->getWidthHeight(output, pwidth, pheight);
+		width  += pwidth  * relw;
+		height += pheight * relh;
 	}
+	//std::cout << "rectangle getWH " << getName() << "  " << width << " x " << height << std::endl;
 }
 
 template <typename IMAGE> BaseImage* OSDRectangle::create(
 	OutputSurface& output)
 {
-	double factor = getScaleFactor(output) * scale;
-	int sw = int(factor * w);
-	int sh = int(factor * h);
 	if (imageName.empty()) {
 		if (getAlpha()) {
+			double width, height;
+			getWidthHeight(output, width, height);
+			int sw = int(width  + 0.5);
+			int sh = int(height + 0.5);
 			// note: Image is create with alpha = 255. Actual
 			//  alpha is applied during drawing. This way we
 			//  can also reuse the same image if only alpha
@@ -130,10 +156,15 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		SystemFileContext context;
 		CommandController* controller = NULL; // ok for SystemFileContext
 		string file = context.resolve(*controller, imageName);
-		if (sw && sh) {
-			return new IMAGE(file, sw, sh);
-		} else {
+		if (takeImageDimensions()) {
+			double factor = getScaleFactor(output) * scale;
 			return new IMAGE(file, factor);
+		} else {
+			double width, height;
+			getWidthHeight(output, width, height);
+			int sw = int(width  + 0.5);
+			int sh = int(height + 0.5);
+			return new IMAGE(file, sw, sh);
 		}
 	}
 }

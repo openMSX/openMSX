@@ -93,6 +93,20 @@ string OSDText::getType() const
 	return "text";
 }
 
+void OSDText::getWidthHeight(const OutputSurface& /*output*/,
+                             double& width, double& height) const
+{
+	if (image.get()) {
+		width  = image->getWidth();
+		height = image->getHeight();
+	} else {
+		// we don't know the dimensions, must be because of an error
+		assert(hasError());
+		width  = 0;
+		height = 0;
+	}
+}
+
 template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
 	if (text.empty()) {

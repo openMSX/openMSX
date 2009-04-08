@@ -28,8 +28,6 @@ public:
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
 	virtual void invalidateLocal();
-	virtual void getWidthHeight(const OutputSurface& output,
-	                            double& width, double& height) const;
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
 	virtual BaseImage* createSDL(OutputSurface& output) = 0;

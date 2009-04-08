@@ -54,9 +54,9 @@ void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value
 		setAlpha((color >>  0) & 255);
 	} else if (name == "-rgb") {
 		unsigned color = value.getInt();
-		byte r2 = (color >> 24) & 255;
-		byte g2 = (color >> 16) & 255;
-		byte b2 = (color >>  8) & 255;
+		byte r2 = (color >> 16) & 255;
+		byte g2 = (color >>  8) & 255;
+		byte b2 = (color >>  0) & 255;
 		if ((r != r2) || (g != g2) || (b != b2)) {
 			r = r2; g = g2; b = b2;
 			invalidateLocal();
@@ -154,20 +154,6 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-void OSDImageBasedWidget::getWidthHeight(const OutputSurface& /*output*/,
-                                         double& width, double& height) const
-{
-	if (image.get()) {
-		width  = image->getWidth();
-		height = image->getHeight();
-	} else {
-		// we don't know the dimensions, must be because of an error
-		assert(hasError());
-		width  = 0;
-		height = 0;
-	}
-}
-
 void OSDImageBasedWidget::getTransformedXY(const OutputSurface& output,
                                            double& outx, double& outy) const
 {
@@ -214,7 +200,8 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 	if ((getAlpha() != 0) && image.get()) {
 		double x, y;
 		getTransformedXY(output, x, y);
-		image->draw(output, int(x), int(y), getAlpha());
+		//std::cout << "draw " << getName() << "(" << image->getWidth() << "," << image->getHeight() << ") @ (" << x << "," << y << ")" << std::endl;
+		image->draw(output, int(x + 0.5), int(y + 0.5), getAlpha());
 	}
 	if (isFading()) {
 		gui.refresh();
