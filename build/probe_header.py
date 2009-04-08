@@ -23,6 +23,6 @@ if __name__ == '__main__':
 			print line
 	else:
 		print >> sys.stderr, (
-			'Usage: python probe-header.py PROBE_MAKE'
+			'Usage: python probe_header.py PROBE_MAKE'
 			)
 		sys.exit(2)

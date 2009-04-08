@@ -96,6 +96,6 @@ if len(sys.argv) == 2:
 		print line
 else:
 	print >> sys.stderr, (
-		'Usage: python probe-results.py PROBE_MAKE'
+		'Usage: python probe_results.py PROBE_MAKE'
 		)
 	sys.exit(2)
