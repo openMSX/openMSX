@@ -36,7 +36,7 @@ public:
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
 	virtual bool checkSettings();
 	virtual void flush();
-	virtual void takeScreenShot(const std::string& filename);
+	virtual void takeScreenShot(const std::string& filename, bool withOsd);
 	virtual void setWindowTitle(const std::string& title);
 	virtual OutputSurface* getOutputSurface();
 

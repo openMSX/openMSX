@@ -2,7 +2,6 @@
 
 #include "VideoSystem.hh"
 #include "CommandException.hh"
-#include <cassert>
 
 namespace openmsx {
 
@@ -15,7 +14,8 @@ bool VideoSystem::checkSettings()
 	return true;
 }
 
-void VideoSystem::takeScreenShot(const std::string& /*filename*/)
+void VideoSystem::takeScreenShot(
+	const std::string& /*filename*/, bool /*withOsd*/)
 {
 	throw CommandException(
 		"Taking screenshot not possible with current renderer.");

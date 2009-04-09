@@ -31,21 +31,29 @@ class VisibleSurface : public OutputSurface, public EventListener,
 {
 public:
 	virtual ~VisibleSurface();
-
 	void setWindowTitle(const std::string& title);
 	bool setFullScreen(bool fullscreen);
-	virtual void drawFrameBuffer() = 0;
+
+	/** When a complete frame is finished, call this method.
+	  * It will 'actually' display it. E.g. when using double buffering
+	  * it will swap the front and back buffer.
+	  */
 	virtual void finish() = 0;
-	virtual void takeScreenShot(const std::string& filename) = 0;
 
 	virtual std::auto_ptr<Layer> createSnowLayer(Display& display) = 0;
 	virtual std::auto_ptr<Layer> createConsoleLayer(
 		Reactor& reactor) = 0;
-	virtual std::auto_ptr<Layer> createOSDGUILayer(
-		OSDGUI& gui) = 0;
+	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
+
+	/** Create an off-screen OutputSurface which has similar properties
+	  * as this VisibleSurface. E.g. used to re-render the current frame
+	  * without OSD elements to take a screenshot.
+	  */
+	virtual std::auto_ptr<OutputSurface> createOffScreenSurface() = 0;
 
 protected:
-	VisibleSurface(RenderSettings& renderSettings, EventDistributor& eventDistributor);
+	VisibleSurface(RenderSettings& renderSettings,
+	               EventDistributor& eventDistributor);
 	void createSurface(unsigned width, unsigned height, int flags);
 
 private:

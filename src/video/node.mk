@@ -19,6 +19,7 @@ SRC_HDR:= \
 	SDLImage \
 	FrameSource RawFrame DeinterlacedFrame DoubledFrame PostProcessor \
 	OutputSurface VisibleSurface SDLVisibleSurface \
+	SDLOffScreenSurface \
 	Icon \
 	AviRecorder AviWriter ZMBVEncoder \
 	ScalerFactory \
@@ -64,7 +65,8 @@ DIST:= \
 	HQ3xLiteScaler-1x1to3x3.nn
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVisibleSurface GLSnow GLUtil GLImage \
+	SDLGLOutputSurface SDLGLVisibleSurface SDLGLOffScreenSurface \
+	GLSnow GLUtil GLImage \
 	GLPostProcessor GLScalerFactory \
 	GLSimpleScaler GLScaleNxScaler GLSaIScaler GLTVScaler \
 	GLRGBScaler GLHQScaler GLHQLiteScaler

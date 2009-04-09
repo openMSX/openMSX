@@ -26,6 +26,7 @@ class RepaintAlarm;
 class ScreenShotCmd;
 class FpsInfoTopic;
 class OSDGUI;
+class OutputSurface;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -47,6 +48,7 @@ public:
 	/** Redraw the display.
 	  */
 	void repaint();
+	void repaint(OutputSurface& surface);
 	void repaintDelayed(unsigned long long delta);
 
 	void addLayer(Layer& layer);

@@ -4,10 +4,10 @@
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
+#include "OutputSurface.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "EnumSetting.hh"
-#include "VisibleSurface.hh"
 #include "HostCPU.hh"
 #include "Math.hh"
 #include "aligned.hh"
@@ -348,11 +348,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 
 	drawNoise(output);
 
-	// TODO: This statement is (was?) the only reason FBPostProcessor uses
-	//       "screen" as a VisibleSurface instead of as an OutputSurface.
-	if (VisibleSurface* vis = dynamic_cast<VisibleSurface*>(&output)) {
-		vis->drawFrameBuffer();
-	}
+	output.flushFrameBuffer(); // for SDLGL-FBxx
 }
 
 template <class Pixel>

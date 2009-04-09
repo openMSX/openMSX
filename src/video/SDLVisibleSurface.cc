@@ -1,8 +1,8 @@
 // $Id$
 
 #include "SDLVisibleSurface.hh"
+#include "SDLOffScreenSurface.hh"
 #include "ScreenShotSaver.hh"
-#include "CommandException.hh"
 #include "SDLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
@@ -57,11 +57,6 @@ SDLVisibleSurface::SDLVisibleSurface(
 	setBufferPtr(static_cast<char*>(workSurface->pixels), workSurface->pitch);
 }
 
-void SDLVisibleSurface::drawFrameBuffer()
-{
-	// nothing
-}
-
 void SDLVisibleSurface::finish()
 {
 	unlock();
@@ -73,16 +68,6 @@ void SDLVisibleSurface::finish()
 	                getSDLDisplaySurface(), NULL);
 #endif
 	SDL_Flip(getSDLDisplaySurface());
-}
-
-void SDLVisibleSurface::takeScreenShot(const std::string& filename)
-{
-	lock();
-	try {
-		ScreenShotSaver::save(getSDLWorkSurface(), filename);
-	} catch (CommandException&) {
-		throw;
-	}
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
@@ -113,6 +98,18 @@ std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 std::auto_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
 	return std::auto_ptr<Layer>(new SDLOSDGUILayer(gui));
+}
+
+std::auto_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
+{
+	return std::auto_ptr<OutputSurface>(
+		new SDLOffScreenSurface(*getSDLWorkSurface()));
+}
+
+void SDLVisibleSurface::saveScreenshot(const std::string& filename)
+{
+	lock();
+	ScreenShotSaver::save(getSDLWorkSurface(), filename);
 }
 
 } // namespace openmsx

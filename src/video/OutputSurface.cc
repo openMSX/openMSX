@@ -56,4 +56,8 @@ void OutputSurface::setBufferPtr(char* data_, unsigned pitch_)
 	pitch = pitch_;
 }
 
+void OutputSurface::flushFrameBuffer()
+{
+}
+
 } // namespace openmsx

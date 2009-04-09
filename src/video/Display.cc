@@ -215,7 +215,7 @@ Display::Layers::iterator Display::baseLayer()
 			return it;
 		}
 		--it;
-		if ((*it)->coverage == Layer::COVER_FULL) return it;
+		if ((*it)->getCoverage() == Layer::COVER_FULL) return it;
 	}
 }
 
@@ -356,11 +356,7 @@ void Display::repaint()
 	assert(videoSystem.get());
 	OutputSurface* surface = videoSystem->getOutputSurface();
 	if (surface) {
-		for (Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
-			if ((*it)->coverage != Layer::COVER_NONE) {
-				(*it)->paint(*surface);
-			}
-		}
+		repaint(*surface);
 		videoSystem->flush();
 	}
 
@@ -370,6 +366,15 @@ void Display::repaint()
 	prevTimeStamp = now;
 	frameDurationSum += duration - frameDurations.removeBack();
 	frameDurations.addFront(duration);
+}
+
+void Display::repaint(OutputSurface& surface)
+{
+	for (Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
+		if ((*it)->getCoverage() != Layer::COVER_NONE) {
+			(*it)->paint(surface);
+		}
+	}
 }
 
 void Display::repaintDelayed(unsigned long long delta)
@@ -385,10 +390,11 @@ void Display::addLayer(Layer& layer)
 {
 	int z = layer.getZ();
 	Layers::iterator it;
-	for (it = layers.begin(); it != layers.end() && (*it)->getZ() < z; ++it)
-		/* do nothing */;
-	layer.display = this;
+	for (it = layers.begin(); it != layers.end() && (*it)->getZ() < z; ++it) {
+		// nothing
+	}
 	layers.insert(it, &layer);
+	layer.setDisplay(*this);
 }
 
 void Display::removeLayer(Layer& layer)
@@ -443,6 +449,7 @@ ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
 string ScreenShotCmd::execute(const vector<string>& tokens)
 {
 	bool msxOnly = false;
+	bool withOsd = false;
 	bool doubleSize = false;
 	string prefix = "openmsx";
 	vector<string> arguments;
@@ -462,6 +469,8 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 				msxOnly = true;
 			} else if (tokens[i] == "-doublesize") {
 				doubleSize = true;
+			} else if (tokens[i] == "-with-osd") {
+				withOsd = true;
 			} else {
 				throw CommandException("Invalid option: " + tokens[i]);
 			}
@@ -471,6 +480,10 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 	}
 	if (doubleSize && !msxOnly) {
 		throw CommandException("-doublesize option can only be used in "
+		                       "combination with -msxonly");
+	}
+	if (msxOnly && withOsd) {
+		throw CommandException("-with-osd cannot be used in "
 		                       "combination with -msxonly");
 	}
 
@@ -489,7 +502,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 
 	if (!msxOnly) {
 		// include all layers (OSD stuff, console)
-		display.getVideoSystem().takeScreenShot(filename);
+		display.getVideoSystem().takeScreenShot(filename, withOsd);
 	} else {
 		VideoSourceSetting& videoSource =
 			display.getRenderSettings().getVideoSource();
@@ -516,7 +529,8 @@ string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 		"screenshot <filename>            Write screenshot to indicated file\n"
 		"screenshot -prefix foo           Write screenshot to file \"fooNNNN.png\"\n"
 		"screenshot -msxonly              320x240 screenshot of MSX screen only\n"
-		"screenshot -msxonly -doublesize  640x480 screenshot of MSX screen only\n";
+		"screenshot -msxonly -doublesize  640x480 screenshot of MSX screen only\n"
+		"screenshot -with-osd             Include OSD elements in the screenshot\n";
 }
 
 void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
@@ -525,6 +539,7 @@ void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 	extra.insert("-prefix");
 	extra.insert("-msxonly");
 	extra.insert("-doublesize");
+	extra.insert("-with-osd");
 	UserFileContext context;
 	completeFileName(getCommandController(), tokens, context, extra);
 }

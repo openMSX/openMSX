@@ -4,8 +4,9 @@
 #define OUTPUTSURFACE_HH
 
 #include "noncopyable.hh"
-#include <SDL.h>
+#include <string>
 #include <cassert>
+#include <SDL.h>
 
 namespace openmsx {
 
@@ -21,6 +22,9 @@ public:
 	unsigned getWidth() const  { return displaySurface->w; }
 	unsigned getHeight() const { return displaySurface->h; }
 	SDL_PixelFormat& getSDLFormat() { return format; }
+	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
+	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
+	unsigned mapRGB(double dr, double dg, double db);
 
 	/** Lock this OutputSurface.
 	  * Direct pixel access is only allowed on a locked surface.
@@ -37,16 +41,24 @@ public:
 	  */
 	bool isLocked() const { return locked; }
 
+	/** Returns a pointer to the requested line in the pixel buffer.
+	  * Not all implementations support this operation, e.g. in SDLGL
+	  * (non FB version) you don't have direct access to a pixel buffer.
+	  */
 	template <typename Pixel>
 	Pixel* getLinePtrDirect(unsigned y) {
 		assert(isLocked());
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
-	unsigned mapRGB(double dr, double dg, double db);
+	/** For SDLGL-FB-nn, copy frame buffer to openGL display.
+	  * The default implementation does nothing.
+	  */
+	virtual void flushFrameBuffer();
 
-	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
-	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
+	/** Save the content of this OutputSurface to a png file.
+	  */
+	virtual void saveScreenshot(const std::string& filename) = 0;
 
 protected:
 	OutputSurface();
@@ -61,6 +73,8 @@ private:
 	char* data;
 	unsigned pitch;
 	bool locked;
+
+	friend class SDLGLOutputSurface; // for setBufferPtr()
 };
 
 } // namespace openmsx

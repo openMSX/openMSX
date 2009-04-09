@@ -1,5 +1,11 @@
 $Id$
 
+2009-04-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added support for taking screenshots without OSD elements:
+	  Restructured OutputSurface and child classes to make it possible
+	  to render to an off-screen surface, so that it becomes possible
+	  to re-render the current frame without the OSD layers.
+
 2009-04-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented enough of the Arkanoid pad to make it work. Use the
 	  mouse to control it.
@@ -18,7 +24,7 @@ $Id$
 2009-03-26 Max Feingold <maf6@cornell.edu>
 	* Secure sockets used by CliServer on Windows by requiring authentication
 	  and authorizing only the user that launches the openMSX process.
-	  
+
 2009-03-24 David Heremans <david.heremans@gnu-linux.net>
 	* Added new emu-state icons for set1 and replaced the default
 	  ones in share/skins.

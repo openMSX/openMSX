@@ -28,21 +28,6 @@ public:
 		Z_CONSOLE = 100
 	};
 
-	virtual ~Layer();
-
-	/** Paint this layer.
-	  */
-	virtual void paint(OutputSurface& output) = 0;
-
-	/** Returns the name of this layer. Used for debugging.
-	  */
-	virtual const std::string& getName() = 0;
-
-	/** Query the Z-index of this layer.
-	  */
-	ZIndex getZ() const;
-
-protected:
 	/** Describes how much of the screen is currently covered by a particular
 	  * layer.
 	  */
@@ -59,6 +44,30 @@ protected:
 		COVER_NONE
 	};
 
+	virtual ~Layer();
+
+	/** Paint this layer.
+	  */
+	virtual void paint(OutputSurface& output) = 0;
+
+	/** Returns the name of this layer. Used for debugging.
+	  */
+	virtual const std::string& getName() = 0;
+
+	/** Query the Z-index of this layer.
+	  */
+	ZIndex getZ() const { return z; }
+
+	/** Query the coverage of this layer.
+	 */
+	Coverage getCoverage() const { return coverage; }
+
+	/** Store pointer to Display.
+	  * Will be called by Display::addLayer().
+	  */
+	void setDisplay(LayerListener& display);
+
+protected:
 	/** Construct a layer. */
 	explicit Layer(Coverage coverage = COVER_NONE, ZIndex z = Z_DUMMY);
 
@@ -71,9 +80,6 @@ protected:
 	void setZ(ZIndex z);
 
 private:
-	friend class LayerListener;
-	friend class Display;
-
 	/** The display this layer is part of. */
 	LayerListener* display;
 
@@ -84,6 +90,19 @@ private:
 	  * painted.
 	  */
 	ZIndex z;
+
+	friend class ScopedLayerHider; // for setCoverage()
+};
+
+
+class ScopedLayerHider
+{
+public:
+	explicit ScopedLayerHider(Layer& layer);
+	~ScopedLayerHider();
+private:
+	Layer& layer;
+	Layer::Coverage originalCoverage;
 };
 
 } // namespace openmsx

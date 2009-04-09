@@ -4,38 +4,32 @@
 #define SDLGLVISIBLESURFACE_HH
 
 #include "VisibleSurface.hh"
-#include "GLUtil.hh"
-#include <memory>
+#include "SDLGLOutputSurface.hh"
 
 namespace openmsx {
 
-class SDLGLVisibleSurface : public VisibleSurface
+/** Visible surface for openGL renderers, both SDLGL-PP and SDLGL-FBxx
+ */
+class SDLGLVisibleSurface : public VisibleSurface, public SDLGLOutputSurface
 {
 public:
-	enum FrameBuffer { FB_NONE, FB_16BPP, FB_32BPP };
-
 	SDLGLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
 	                    RenderSettings& renderSettings,
 	                    EventDistributor& eventDistributor,
 	                    FrameBuffer frameBuffer = FB_NONE);
 	virtual ~SDLGLVisibleSurface();
 
-	virtual void drawFrameBuffer();
+private:
+	// OutputSurface
+	virtual void flushFrameBuffer();
+	virtual void saveScreenshot(const std::string& filename);
+
+	// VisibleSurface
 	virtual void finish();
-
-	virtual void takeScreenShot(const std::string& filename);
-
 	virtual std::auto_ptr<Layer> createSnowLayer(Display& display);
 	virtual std::auto_ptr<Layer> createConsoleLayer(Reactor& reactor);
 	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
-
-private:
-	char* buffer;
-	FrameBuffer frameBuffer;
-	// Note: This must be a pointer because the texture should not be allocated
-	//       before the createSurface call.
-	std::auto_ptr<Texture> texture;
-	double texCoordX, texCoordY;
+	virtual std::auto_ptr<OutputSurface> createOffScreenSurface();
 };
 
 } // namespace openmsx

@@ -14,14 +14,16 @@ public:
 	                  RenderSettings& renderSettings,
 	                  EventDistributor& eventDistributor);
 
-	virtual void drawFrameBuffer();
+private:
+	// OutputSurface
+	virtual void saveScreenshot(const std::string& filename);
+
+	// VisibleSurface
 	virtual void finish();
-
-	virtual void takeScreenShot(const std::string& filename);
-
 	virtual std::auto_ptr<Layer> createSnowLayer(Display& display);
 	virtual std::auto_ptr<Layer> createConsoleLayer(Reactor& reactor);
 	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
+	virtual std::auto_ptr<OutputSurface> createOffScreenSurface();
 };
 
 } // namespace openmsx

@@ -307,6 +307,8 @@ void CommandConsole::commandExecute()
 	commandBuffer += lines[0].substr(prompt.size()) + '\n';
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
+		prompt = PROMPT1;
+		putPrompt();
 		try {
 			string result = commandController.executeCommand(
 				commandBuffer);
@@ -317,11 +319,10 @@ void CommandConsole::commandExecute()
 			print(e.getMessage());
 		}
 		commandBuffer.clear();
-		prompt = PROMPT1;
 	} else {
 		prompt = PROMPT2;
+		putPrompt();
 	}
-	putPrompt();
 }
 
 void CommandConsole::putPrompt()

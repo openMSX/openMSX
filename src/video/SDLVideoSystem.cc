@@ -17,6 +17,7 @@
 #include "V9990.hh"
 #include "build-info.hh"
 #include "openmsx.hh"
+#include <memory>
 #include <cassert>
 
 #ifdef _WIN32
@@ -203,9 +204,20 @@ void SDLVideoSystem::flush()
 	screen->finish();
 }
 
-void SDLVideoSystem::takeScreenShot(const std::string& filename)
+void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 {
-	screen->takeScreenShot(filename);
+	if (withOsd) {
+		// we can directly save current content as screenshot
+		screen->saveScreenshot(filename);
+	} else {
+		// we first need to re-render to an off-screen surface
+		// with OSD layers disabled
+		ScopedLayerHider hideConsole(*console);
+		ScopedLayerHider hideOsd(*osdGuiLayer);
+		std::auto_ptr<OutputSurface> surf = screen->createOffScreenSurface();
+		display.repaint(*surf);
+		surf->saveScreenshot(filename);
+	}
 }
 
 void SDLVideoSystem::setWindowTitle(const std::string& title)

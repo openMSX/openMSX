@@ -57,7 +57,7 @@ public:
 	  * @param filename Name of the file to save the screenshot to.
 	  * @throw CommandException If taking the screen shot fails.
 	  */
-	virtual void takeScreenShot(const std::string& filename);
+	virtual void takeScreenShot(const std::string& filename, bool withOsd);
 
 	/** Change the window title.
 	  */
