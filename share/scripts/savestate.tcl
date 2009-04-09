@@ -1,6 +1,8 @@
 # convenience wrappers around the low level savestate commands
 
-proc __savestate_common { name } {
+namespace eval savestate {
+
+proc savestate_common { name } {
 	uplevel {
 		if {$name == ""} { set name "quicksave" }
 		set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
@@ -10,7 +12,7 @@ proc __savestate_common { name } {
 }
 
 proc savestate { {name ""} } {
-	__savestate_common $name
+	savestate_common $name
 	if {[catch { screenshot -msxonly -doublesize $png }]} {
 		# some renderers don't support msx-only screenshots
 		if {[catch { screenshot $png }]} {
@@ -26,8 +28,9 @@ proc savestate { {name ""} } {
 }
 
 proc loadstate { {name ""} } {
-	__savestate_common $name
-	set newID [restore_machine $fullname]
+	savestate_common $name
+	# work around namespace probelm with the restore_machine command:
+	set newID [namespace eval :: "restore_machine $fullname"]
 	set currentID [machine]
 	if {$currentID != ""} { delete_machine $currentID }
 	activate_machine $newID
@@ -44,13 +47,13 @@ proc list_savestates {} {
 }
 
 proc delete_savestate { {name ""} } {
-	__savestate_common $name
+	savestate_common $name
 	catch { file delete -- $fullname }
 	catch { file delete -- $png }
 	return ""
 }
 
-proc __savestate_tab { args } {
+proc savestate_tab { args } {
 	return [list_savestates]
 }
 
@@ -64,7 +67,7 @@ Optionally you can specify a name for the savestate. If you omit this the defaul
 
 See also 'loadstate', 'list_savestates', 'delete_savestate'.
 }
-set_tabcompletion_proc savestate __savestate_tab
+set_tabcompletion_proc savestate [namespace code savestate_tab]
 
 # loadstate
 set_help_text loadstate \
@@ -76,7 +79,7 @@ You can specify the name of the savestate that should be loaded. If you omit thi
 
 See also 'savestate', 'list_savestates', 'delete_savestate'.
 }
-set_tabcompletion_proc loadstate __savestate_tab
+set_tabcompletion_proc loadstate [namespace code savestate_tab]
 
 # list_savestates
 set_help_text list_savestates \
@@ -95,7 +98,7 @@ Delete a previously created savestate.
 
 See also 'savestate', 'loadstate', 'list_savestates'.
 }
-set_tabcompletion_proc delete_savestate __savestate_tab
+set_tabcompletion_proc delete_savestate [namespace code savestate_tab]
 
 
 # keybindings
@@ -106,3 +109,12 @@ if {$tcl_platform(os) == "Darwin"} {
 	bind_default ALT+F8 savestate
 	bind_default ALT+F7 loadstate
 }
+
+namespace export savestate
+namespace export loadstate
+namespace export delete_savestate
+namespace export list_savestates
+
+} ;# namespace savestate
+
+namespace import savestate::*
