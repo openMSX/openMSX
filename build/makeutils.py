@@ -44,7 +44,7 @@ def joinContinuedLines(lines):
 		raise ValueError('Continuation on last line')
 
 _reEval = re.compile('(\$\(|\))')
-def evaluate(expr, makeVars):
+def evalMakeExpr(expr, makeVars):
 	'''Evaluates variable references in an expression.
 	Raises ValueError if there is a syntax error in the expression.
 	Raises KeyError if the expression references a non-existing variable.
@@ -85,7 +85,7 @@ def extractMakeVariables(filePath, makeVars = None):
 			if assign == '=':
 				makeVars[name] = value.strip()
 			elif assign == ':=':
-				makeVars[name] = evaluate(value, makeVars).strip()
+				makeVars[name] = evalMakeExpr(value, makeVars).strip()
 			else:
 				assert False, assign
 	finally:
