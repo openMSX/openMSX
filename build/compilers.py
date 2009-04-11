@@ -53,11 +53,13 @@ class _Command(object):
 				)
 
 	def __init__(self, env, executable, flags):
-		mergedEnv = dict(environ)
-		mergedEnv.update(env)
-		self.__env = mergedEnv
+		self.__env = env
 		self.__executable = executable
 		self.__flags = flags
+
+		mergedEnv = dict(environ)
+		mergedEnv.update(env)
+		self.__mergedEnv = mergedEnv
 
 	def __str__(self):
 		return ' '.join(
@@ -75,7 +77,7 @@ class _Command(object):
 			proc = Popen(
 				commandLine,
 				bufsize = -1,
-				env = self.__env,
+				env = self.__mergedEnv,
 				stdin = None,
 				stdout = PIPE,
 				stderr = STDOUT,
