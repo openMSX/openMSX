@@ -5,7 +5,7 @@ from compilers import CompileCommand, tryCompile
 
 import sys
 
-def checkFunc(log, compileCommand, outDir, makeName, headers):
+def checkHeader(log, compileCommand, outDir, makeName, headers):
 	'''Checks whether the given headers can be included.
 	Returns True iff the headers are available.
 	'''
@@ -24,7 +24,7 @@ def main(
 	compileCommand = CompileCommand.fromLine(compileCommandStr, compileFlagsStr)
 	log = open(logPath, 'a')
 	try:
-		ok = checkFunc(
+		ok = checkHeader(
 			log, compileCommand, outDir, makeName, headerStr.split()
 			)
 		print >> log, '%s header: %s' % (
