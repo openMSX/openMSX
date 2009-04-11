@@ -26,6 +26,17 @@ variable items [list "" "Arrow" "Ceramic Arrow" "Rolling Fire" "Fire" "Mine" \
                      "Bronze Shield" "Bread and Water" "Salt" "Silver Shield" \
                      "Gold Shield" "Quiver of Arrows" "Coins" "Keys"]
 
+variable enemy_names [list \
+	"00" "01" "Twinkle" "HorBlob" "Gate" "05" "06" "07" "08" "09" "Knight" "0B" "0C" "Fish" "Bat" "0F" \
+	"Insect" "Hedgehog" "12" "13" "14" "15" "16" "17" "Worm" "Butterfly" "1A" "1B" "1C" "1D" "1E" "1F" \
+	"20" "Crawler" "22" "23" "Swine" "Bones" "26" "27" "Flake" "29" "Uh" "2B" "Shoe 1" "Polar Bear" "Bamboo" "Frog" \
+	"30" "31" "32" "33" "Bally" "35" "36" "37" "VerBlob" "39" "3A" "3B" "3C" "3D" "3E" "3F" \
+	"40" "41" "Maner" "43" "44" "45" "46" "47" "48" "Bat Boss" "4A" "4B" "4C" "4D" "4E" "4F" \
+	"50" "51" "Bat Subboss" "Mini Bat" "Bone" "55" "56" "57" "58" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
+	"Maner's Arm" "61" "62" "63" "Shoe 2" "65" "66" "67" "68" "69" "6A" "6B" "6C" "6D" "6E" "6F" \
+	"70" "71" "72" "73" "74" "75" "76" "77" "78" "79" "7A" "7B" "7C" "7D" "7E" "7F" \
+	"80" "81" "82" "83" "84" "85" "86" "87" "88" "89" "8A" "8B" "8C" "8D" "8E" "8F" ]
+
 #Init Overlays
 proc init {} {
 	variable num_enemies
@@ -98,6 +109,7 @@ proc update_overlay {} {
 	variable spell
 	variable demon_power
 	variable items
+	variable enemy_names
 	variable ep
 
 	if {!$mog_overlay_active} return
@@ -125,7 +137,7 @@ proc update_overlay {} {
 			set pos_x [expr  8 + [peek [expr $addr + 7]]]
 			set pos_y [expr -6 + [peek [expr $addr + 5]]]
 			set power [expr 1.00 * $enemy_hp / $ep($enemy_type)]
-			set text [format "(%d): #%02X %d %d" $i $enemy_type $enemy_hp $ep($enemy_type)]
+			set text [format "%s (%d): %d/%d" [lindex $enemy_names $enemy_type] $i $enemy_hp $ep($enemy_type)]
 			update_power_bar mog.powerbar$i $pos_x $pos_y $power $text
 		} else {
 			hide_power_bar mog.powerbar$i
@@ -138,7 +150,7 @@ proc update_overlay {} {
 		if {$item_cache} {
 			set height [expr ($item_cache < 7) ? 8 : 16]
 			osd configure mog.item -relh $height
-			osd configure mog.item.text -text [lindex $items $item_cache]]
+			osd configure mog.item.text -text [lindex $items $item_cache]
 			osd configure mog.item -relx [peek 0xe743] -rely [peek 0xe742]
 		} else {
 			osd configure mog.item -rely 999
@@ -179,7 +191,7 @@ proc update_overlay {} {
 	}
 
 	if {[peek 0xea20] != 0} {
-		set text [format "-: -- (%02X)" [peek 0xea23]]
+		set text [format "Wall (%02d)" [peek 0xea23]]
 		osd configure mog.wall2 -relx [peek 0xea22] -rely [peek 0xea21]
 		osd configure mog.wall2.text -text $text
 	} else {
@@ -191,7 +203,7 @@ proc update_overlay {} {
 			set pos_x [expr  8 + [peek [expr $addr + 3]]]
 			set pos_y [expr -6 + [peek [expr $addr + 2]]]
 			set rock_hp [peek [expr $addr + 6]]
-			set text [format "$i: -- (%02X)" $rock_hp]
+			set text [format "Rock %d (%02d)" $i $rock_hp]
 			osd configure mog.rock$i -relx $pos_x -rely $pos_y
 			osd configure mog.rock$i.text -text $text
 		} else {
