@@ -177,7 +177,6 @@ class TargetSystem(object):
 		print >> self.log, 'Probing system:'
 
 		self.outVars.update(
-			PROBE_MAKE_INCLUDED = 'true',
 			DISABLED_FUNCS = ' '.join(sorted(self.disabledFuncs)),
 			DISABLED_LIBS = ' '.join(sorted(self.disabledLibraries)),
 			DISABLED_HEADERS = ' '.join(sorted(self.disabledHeaders)),
