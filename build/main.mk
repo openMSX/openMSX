@@ -229,7 +229,7 @@ CONFIG_PATH:=$(BUILD_PATH)/config
 
 BUILDINFO_SCRIPT:=$(MAKE_PATH)/buildinfo2code.py
 CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
-PROBE_SCRIPT:=$(MAKE_PATH)/probe.mk
+PROBE_SCRIPT:=$(MAKE_PATH)/probe.py
 PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
 PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_SCRIPT:=$(MAKE_PATH)/version2code.py
@@ -431,14 +431,9 @@ endif
 # TODO: It would be cleaner to include probe.mk and probe_results.mk,
 #       instead of executing them in a sub-make.
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
-	@$(MAKE) --no-print-directory -f $< \
-		OUTDIR=$(@D) \
-		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
-		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
-		COMPILE="$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
-		3RDPARTY_INSTALL_DIR=$(3RDPARTY_INSTALL_DIR) \
-		LINK_MODE=$(LINK_MODE) \
-		PYTHON=$(PYTHON)
+	@$(PYTHON) $(PROBE_SCRIPT) \
+		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
+		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
 	@$(PYTHON) $(MAKE_PATH)/probe_results.py $(PROBE_MAKE)
 
 # Generate configuration header.
