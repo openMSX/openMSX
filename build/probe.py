@@ -360,39 +360,17 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		# System headers.
 		SYS_MMAN_CFLAGS = '',
 		SYS_SOCKET_CFLAGS = '',
-
 		# OpenGL is always a system lib.
 		GL_CFLAGS = probeVars['GL_CFLAGS'],
 		GL_GL_CFLAGS = probeVars['GL_GL_CFLAGS'],
 		GL_LDFLAGS = probeVars['GL_LDFLAGS'],
-
-		GLEW_CFLAGS = resolveMode('GLEW', 'CFLAGS'),
-		GLEW_LDFLAGS = resolveMode('GLEW', 'LDFLAGS'),
-
-		JACK_CFLAGS = resolveMode('JACK', 'CFLAGS'),
-		JACK_LDFLAGS = resolveMode('JACK', 'LDFLAGS'),
-
-		PNG_CFLAGS = resolveMode('PNG', 'CFLAGS'),
-		PNG_LDFLAGS = resolveMode('PNG', 'LDFLAGS'),
-
-		SDL_CFLAGS = resolveMode('SDL', 'CFLAGS'),
-		SDL_LDFLAGS = resolveMode('SDL', 'LDFLAGS'),
-
-		SDL_IMAGE_CFLAGS = resolveMode('SDL_IMAGE', 'CFLAGS'),
-		SDL_IMAGE_LDFLAGS = resolveMode('SDL_IMAGE', 'LDFLAGS'),
-
-		SDL_TTF_CFLAGS = resolveMode('SDL_TTF', 'CFLAGS'),
-		SDL_TTF_LDFLAGS = resolveMode('SDL_TTF', 'LDFLAGS'),
-
-		TCL_CFLAGS = resolveMode('TCL', 'CFLAGS'),
-		TCL_LDFLAGS = resolveMode('TCL', 'LDFLAGS'),
-
-		XML_CFLAGS = resolveMode('XML', 'CFLAGS'),
-		XML_LDFLAGS = resolveMode('XML', 'LDFLAGS'),
-
-		ZLIB_CFLAGS = resolveMode('ZLIB', 'CFLAGS'),
-		ZLIB_LDFLAGS = resolveMode('ZLIB', 'LDFLAGS'),
 		)
+	for package in probeVars['ALL_LIBS'].split():
+		if package == 'GL':
+			continue
+		for flagsType in ('CFLAGS', 'LDFLAGS'):
+			flags = resolveMode(package, flagsType)
+			resolvedVars['%s_%s' % (package, flagsType)] = flags
 	resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
 
 	TargetSystem(
