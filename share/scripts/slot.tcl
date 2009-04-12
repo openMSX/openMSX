@@ -1,3 +1,5 @@
+namespace eval slot {
+
 #
 # get_selected_slot
 #
@@ -84,7 +86,7 @@ proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
 #
 set_help_text slotmap \
 {Gives an overview of the devices in the different slots.}
-proc __slotmap_helper { ps ss } {
+proc slotmap_helper { ps ss } {
 	set result ""
 	for { set page 0 } { $page < 4 } { incr page } {
 		set name [machine_info slot $ps $ss $page]
@@ -92,7 +94,7 @@ proc __slotmap_helper { ps ss } {
 	}
 	return $result
 }
-proc __slotmap_name { ps ss } {
+proc slotmap_name { ps ss } {
 	set t [list $ps $ss]
 	foreach slot [machine_info external_slot] {
 		if {[string equal [lrange [machine_info external_slot $slot] 0 1] $t]} {
@@ -106,12 +108,12 @@ proc slotmap { } {
 	for { set ps 0 } { $ps < 4 } { incr ps } {
 		if [machine_info issubslotted $ps] {
 			for { set ss 0 } { $ss < 4 } { incr ss } {
-				append result "slot $ps.$ss[__slotmap_name $ps $ss]:\n"
-				append result [__slotmap_helper $ps $ss]
+				append result "slot $ps.$ss[slotmap_name $ps $ss]:\n"
+				append result [slotmap_helper $ps $ss]
 			}
 		} else {
-			append result "slot $ps[__slotmap_name $ps X]:\n"
-			append result [__slotmap_helper $ps 0]
+			append result "slot $ps[slotmap_name $ps X]:\n"
+			append result [slotmap_helper $ps 0]
 		}
 	}
 	return $result
@@ -121,8 +123,8 @@ proc slotmap { } {
 # iomap
 #
 set_help_text iomap \
-{Gives an overview of the devices connected to the different IO ports.}
-proc __iomap_helper { prefix begin end name } {
+{Gives an overview of the devices connected to the different I/O ports.}
+proc iomap_helper { prefix begin end name } {
 	if [string equal $name "empty"] return ""
 	set result [format "port %02X" $begin]
 	if {$begin == ($end - 1)} {
@@ -145,12 +147,23 @@ proc iomap {} {
 			incr end
 		}
 		if [string equal $in $out] {
-			append result [__iomap_helper "I/O" $port $end $in ]
+			append result [iomap_helper "I/O" $port $end $in ]
 		} else {
-			append result [__iomap_helper "I  " $port $end $in ]
-			append result [__iomap_helper "  O" $port $end $out]
+			append result [iomap_helper "I  " $port $end $in ]
+			append result [iomap_helper "  O" $port $end $out]
 		}
 		set port $end
 	}
 	return $result
 }
+
+namespace export get_selected_slot
+namespace export slotselect
+namespace export get_mapper_size
+namespace export pc_in_slot
+namespace export slotmap
+namespace export iomap
+
+} ;# namespace slot
+
+namespace import slot::*
