@@ -17,7 +17,7 @@ variable spell [list "" "YOMAR" "ELOHIM" "HAHAKLA" "BARECHET" "HEOTYMEO" \
 variable demon_power [list -1 -1 24 40 64 112 72 56 64 80 80 248]
 # Item names
 variable items [list "" "Arrow" "Ceramic Arrow" "Rolling Fire" "Fire" "Mine" \
-                     "Magnifying Glass" "Holy Water" "Cape" "Magic Rod" \
+                     "Magnifying Glass" "Holy Water" "Cape" "Magical Rod" \
                      "World Map" "Cross" "Great Key" "Necklace" "Crown" \
                      "Helm" "Oar" "Boots" "Doll" "Halo" "Bell" "Halo" "Candle" \
                      "Armor" "Carpet" "Helmet" "Lamp" "Vase" "Pendant" \
@@ -27,15 +27,19 @@ variable items [list "" "Arrow" "Ceramic Arrow" "Rolling Fire" "Fire" "Mine" \
                      "Gold Shield" "Quiver of Arrows" "Coins" "Keys"]
 
 variable enemy_names [list \
-	"Gorilla" "01" "Twinkle" "HorBlob" "Gate" "Snake" "06" "Ring Worm" "08" "09" "Knight" "Water Strider" "Flame" "Fish" "Bat" "Pacman" \
-	"Insect" "Hedgehog" "Rockman" "Cloud Demon" "Mudman" "Gargoyle" "16" "Egg Bird" "Worm" "Butterfly" "1A" "Fireball" "1C" "1D" "1E" "Goblin" \
-	"20" "Crawler" "Pea Shooter" "Trapwall" "Swine" "Bones" "26" "Owl" "Flake" "29" "Poltergeist" "Wizzard" "Shoe 1" "Frost Demon" "Bamboo" "Frog Plant" \
-	"Seahorse demon" "31" "32" "33" "Bally" "35" "36" "Great Butterfly" "VerBlob" "39" "3A" "Easterhead projectile" "Trickster Ghost" "Star" "Flocking Bird" "3F" \
-	"Cyclop's Ghost" "41" "Maner" "Chameleon" "44" "45" "46" "47" "48" "Bat Boss" "4A" "4B" "Fuzzball" "4D" "4E" "4F" \
-	"50" "51" "Bat Subboss" "Mini Bat" "Bone" "55" "Small Fireball" "57" "58" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
-	"Maner's Arm" "61" "Chameleon Tongue" "63" "Shoe 2" "65" "66" "67" "68" "69" "6A" "6B" "6C" "6D" "6E" "6F" \
-	"70" "71" "72" "73" "74" "75" "76" "77" "78" "79" "7A" "7B" "7C" "7D" "7E" "7F" \
-	"80" "81" "82" "83" "84" "85" "86" "87" "88" "89" "8A" "8B" "8C" "8D" "8E" "8F" ]
+	"" "Gorilla" "Twinkle" "HorBlob" "Gate" "Fire Snake" "06" "Ring Worm" \
+	"08" "09" "Knight" "Water Strider" "Sparky" "Fish" "Bat" "Pacman" \
+	"Insect" "Hedgehog" "Rockman" "Cloud Demon" "Mudman" "Ill" "Bird Dragon" "Egg Bird" \
+	"Worm" "Butterfly" "Snake's Fire" "Fireball" "1C" "1D" "1E" "Goblin" \
+	"20" "Crawler" "Pea Shooter" "Trapwall" "Swine" "Bones" "Living Helmet" "Owl" \
+	"Ectoplasm" "29" "Poltergeist" "Wizard" "Shoe 1" "Frost Demon" "Bamboo Shoot" "Frog Plant" \
+	"Seahorse Demon" "31" "32" "33" "Bally" "35" "36" "Great Butterfly"\
+	"VerBlob" "39" "3A" "Moai Head Projectile" "Trickster Ghost" "Star" "Flocking Bird" "3F" \
+	"Cyclop's Ghost" "41" "Maner" "Gero" "44" "45" "46" "47" \
+	"48" "Huge Bat" "4A" "4B" "Fuzzball" "4D" "4E" "4F" \
+	"50" "51" "Middle Bat" "Mini Bat" "Bone" "55" "Small Fireball" "57" \
+	"58" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
+	"Maner's Arm" "61" "Gero's Tongue" "63" "Shoe 2" "65" "66" "67" ]
 
 #Init Overlays
 proc init {} {
