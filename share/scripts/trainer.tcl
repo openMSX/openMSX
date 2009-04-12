@@ -1,3 +1,5 @@
+namespace eval trainer {
+
 set_help_text trainer "
 Usage:
   trainer                      see which trainer is currently active
@@ -13,16 +15,24 @@ Examples:
 
 When switching trainers, the currently active trainer will be deactivated.
 "
-set_tabcompletion_proc trainer __tab_trainer false
-proc __tab_trainer {args} {
+
+variable trainers
+variable active_trainer ""
+variable items_active
+variable after_id
+
+set_tabcompletion_proc trainer [namespace code tab_trainer] false
+proc tab_trainer {args} {
+	variable trainers
+
 	if {[llength $args] == 2} {
-		set result [array names ::__trainers]
+		set result [array names trainers]
 		lappend result "deactivate"
 	} else {
 		set result [list]
 		set name [lindex $args 1]
-		if [info exists ::__trainers($name)] {
-			set stuff $::__trainers($name)
+		if [info exists trainers($name)] {
+			set stuff $trainers($name)
 			set items [lindex $stuff 0]
 			set i 1
 			foreach {item_name item_impl} $items {
@@ -35,37 +45,43 @@ proc __tab_trainer {args} {
 	}
 	return $result
 }
+
 proc trainer {args} {
+	variable trainers
+	variable active_trainer
+	variable items_active
+
 	if {[llength $args] > 0} {
 		set name [lindex $args 0]
 		if {$name != "deactivate"} {
 			set requested_items [lrange $args 1 end]
-			if ![info exists ::__trainers($name)] {
+			if ![info exists trainers($name)] {
 				error "no trainer for $name."
 			}
-			set same_trainer [string equal $name $::__active_trainer]
-			set items [__trainer_parse_items $name $requested_items]
+			set same_trainer [string equal $name $active_trainer]
+			set items [parse_items $name $requested_items]
 			if $same_trainer {
 				set new_items [list]
-				foreach item1 $items item2 $::__trainer_items_active {
+				foreach item1 $items item2 $items_active {
 					lappend new_items [expr $item1 ^ $item2]
 				}
-				set ::__trainer_items_active $new_items
+				set items_active $new_items
 			} else {
-				__trainer_deactivate
-				set ::__active_trainer $name
-				set ::__trainer_items_active $items
-				__trainer_exec
+				deactivate
+				set active_trainer $name
+				set items_active $items
+				execute
 			}
 		} else {
-			__trainer_deactivate
+			deactivate
 			return ""
 		}
 	}
-	__trainer_print
+	print
 }
-proc __trainer_parse_items {name requested_items} {
-	set stuff $::__trainers($name)
+proc parse_items {name requested_items} {
+	variable trainers
+	set stuff $trainers($name)
 	set items [lindex $stuff 0]
 	set result [list]
 	set i 1
@@ -81,16 +97,20 @@ proc __trainer_parse_items {name requested_items} {
 	}
 	return $result
 }
-proc __trainer_print {} {
-	if {$::__active_trainer == ""} {
+proc print {} {
+	variable trainers
+	variable active_trainer
+	variable items_active
+
+	if {$active_trainer == ""} {
 		return "no trainer active"
 	}
 	set result [list]
-	set stuff $::__trainers($::__active_trainer)
+	set stuff $trainers($active_trainer)
 	set items [lindex $stuff 0]
-	lappend result "active trainer: $::__active_trainer"
+	lappend result "active trainer: $active_trainer"
 	set i 1
-	foreach {item_name item_impl} $items item_active $::__trainer_items_active {
+	foreach {item_name item_impl} $items item_active $items_active {
 		set line "$i \["
 		if $item_active {
 			append line "x"
@@ -103,36 +123,49 @@ proc __trainer_print {} {
 	}
 	join $result \n
 }
-proc __trainer_exec {} {
-	set stuff $::__trainers($::__active_trainer)
+proc execute {} {
+	variable trainers
+	variable active_trainer
+	variable items_active
+	variable after_id
+	
+	set stuff $trainers($active_trainer)
 	set items [lindex $stuff 0]
 	set repeat [lindex $stuff 1]
-	foreach {item_name item_impl} $items item_active $::__trainer_items_active {
+	foreach {item_name item_impl} $items item_active $items_active {
 		if $item_active {
 			eval $item_impl
 		}
 	}
-	set ::__trainer_after_id [eval "after $repeat __trainer_exec"]
+	set after_id [eval "after $repeat trainer::execute"]
 }
-proc __trainer_deactivate {} {
-	if ![info exists ::__trainer_after_id] return ;# no trainer active
-	catch { after cancel $::__trainer_after_id }
-	unset ::__trainer_after_id
-	set ::__active_trainer ""
+proc deactivate {} {
+	variable after_id
+	variable active_trainer
+
+	if ![info exists after_id] return ;# no trainer active
+	catch { after cancel $after_id }
+	unset after_id
+	set active_trainer ""
 }
-proc __trainer_deactivate_after { event } {
-	__trainer_deactivate
-	after $event "__trainer_deactivate_after $event"
+proc deactivate_after { event } {
+	deactivate
+	after $event "trainer::deactivate_after $event"
 }
-__trainer_deactivate_after boot
-__trainer_deactivate_after machine_switch
+deactivate_after boot
+deactivate_after machine_switch
 
 proc create_trainer {name repeat items} {
-	set ::__trainers($name) [list $items $repeat]
+	variable trainers
+	set trainers($name) [list $items $repeat]
 }
 
 # source the trainer definitions (user may override system defaults) and ignore errors
 catch {source $env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}
 catch {source $env(OPENMSX_USER_DATA)/scripts/trainerdefs.tclinclude}
 
-set ::__active_trainer ""
+namespace export trainer
+
+} ;# namespace trainer
+
+namespace import trainer::*
