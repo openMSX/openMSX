@@ -292,6 +292,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	# Define default compile/link flags.
 	baseVars = {
 		'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
+		'LINK_FLAGS': '',
 		}
 	probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
 	# Allow the OS specific Makefile to override if necessary.
