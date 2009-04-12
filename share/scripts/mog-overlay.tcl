@@ -64,7 +64,7 @@ proc init {} {
 	set item_cache 0
 
 	osd create rectangle mog.tomb -rely 999 -w 16 -h 16 -rgba 0x00000080
-	osd create text mog.tomb.text -x 1 -y 1 -size 4 -rgb 0xffffff
+	osd create text mog.tomb.text -x 1 -y 1 -size 5 -rgb 0xffffff
 	set tomb_cache 0
 
 	osd create rectangle mog.ladder -rely 999 -relw 16 -rgba 0xffffff80
@@ -74,7 +74,7 @@ proc init {} {
 	set wall_cache 0
 
 	osd create rectangle mog.wall2 -rely 999 -relw 32 -relh 24 -rgba 0x00000080
-	osd create text mog.wall2.text -x 1 -y 1 -size 5 -rgb 0xffffff
+	osd create text mog.wall2.text -x 1 -y 1 -size 4 -rgb 0xffffff
 
 	for {set i 0} {$i < $num_rocks} {incr i} {
 		osd create rectangle mog.rock$i  -rely 999 -w 24 -h 4 -rgba 0x0000ff80
