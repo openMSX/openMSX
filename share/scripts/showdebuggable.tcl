@@ -1,3 +1,5 @@
+namespace eval showdebuggable {
+
 #
 # show_debuggable
 #
@@ -8,7 +10,14 @@ Usage:
    showdebuggable <debuggable> <address> [<linecount>]
 }
 
-proc __showdebuggable_line {debuggable address } {
+set_tabcompletion_proc showdebuggable [namespace code tab_showdebuggable]
+proc tab_showdebuggable { args } {
+        if {[llength $args] == 2} {
+                return [debug list]
+        }
+}
+
+proc showdebuggable_line {debuggable address } {
 	set mem "[debug read_block $debuggable $address 16]"
 	binary scan $mem c* values
 	set hex ""
@@ -21,12 +30,12 @@ proc __showdebuggable_line {debuggable address } {
 
 proc showdebuggable {debuggable address {lines 8}} {
 	for {set i 0} {$i < $lines} {incr i} {
-		puts [__showdebuggable_line $debuggable $address]
+		puts [showdebuggable_line $debuggable $address]
 		incr address 16
 	}
 }
 
-# some stuff for backwards compatibility
+# some stuff for backwards compatibility. Do we want to deprecate them?
 
 set_help_text showmem \
 {Print the content of the CPU visible memory nicely formatted
@@ -41,7 +50,13 @@ proc showmem {address {lines 8}} {
 }
 
 proc showmem_line {address } {
-	puts [__showdebuggable_line memory $address ]
+	puts [showdebuggable_line memory $address ]
 }
 
+namespace export showdebuggable
+namespace export showmem
+namespace export showmem_line
 
+} ;# namespace showdebuggable
+
+namespace import showdebuggable::*
