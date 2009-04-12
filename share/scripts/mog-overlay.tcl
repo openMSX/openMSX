@@ -271,10 +271,10 @@ namespace export toggle_mog_overlay
 
 proc create_power_bar {name w h barcolor background edgecolor} {
 	osd create rectangle $name        -rely 999 -relw $w -relh $h -rgba $background
-	osd create rectangle $name.top    -x 0 -y   -1 -relw 1 -h 1 -rgba $edgecolor
-	osd create rectangle $name.bottom -x 0 -rely 1 -relw 1 -h 1 -rgba $edgecolor
-	osd create rectangle $name.left   -x   -1 -y 0 -w 1 -relh 1 -rgba $edgecolor
-	osd create rectangle $name.right  -relx 1 -y 0 -w 1 -relh 1 -rgba $edgecolor
+	osd create rectangle $name.top    -x -1 -y   -1 -relw 1 -w 2 -h 1 -rgba $edgecolor
+	osd create rectangle $name.bottom -x -1 -rely 1 -relw 1 -w 2 -h 1 -rgba $edgecolor
+	osd create rectangle $name.left   -x   -1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
+	osd create rectangle $name.right  -relx 1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
 	osd create rectangle $name.bar    -relw 1 -relh 1 -rgba $barcolor
 	osd create text      $name.text   -x 0 -y -6 -size 4 -rgba $edgecolor
 }
