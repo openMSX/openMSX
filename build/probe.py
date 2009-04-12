@@ -352,10 +352,17 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			for flagsType in ('CFLAGS', 'LDFLAGS'):
 				# TODO: Since for example "sdl-config" is used in more than one
 				#       CFLAGS definition, it will be executed multiple times.
-				flags = normalizeWhitespace(
-					evaluateBackticks(log, resolveMode(package, flagsType))
-					)
-				resolvedVars['%s_%s' % (package, flagsType)] = flags
+				try:
+					flags = evaluateBackticks(
+						log, resolveMode(package, flagsType)
+						)
+				except IOError:
+					# Executing a lib-config script is expected to fail if the
+					# script is not installed.
+					# TODO: Report this explicitly in the probe results table.
+					flags = ''
+				resolvedVars['%s_%s' % (package, flagsType)] = \
+					normalizeWhitespace(flags)
 		resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
 
 		TargetSystem(
