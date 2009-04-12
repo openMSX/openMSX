@@ -33,11 +33,11 @@ variable enemy_names [list \
 	"Worm" "Butterfly" "Snake's Fire" "Fireball" "1C" "1D" "1E" "Goblin" \
 	"20" "Crawler" "Pea Shooter" "Trapwall" "Swine" "Bones" "Living Helmet" "Owl" \
 	"Ectoplasm" "29" "Poltergeist" "Wizard" "Shoe 1" "Frost Demon" "Bamboo Shoot" "Frog Plant" \
-	"Seahorse Demon" "31" "32" "33" "Bally" "35" "36" "Great Butterfly"\
+	"Seahorse Demon" "31" "32" "Armor's Dart" "Bally" "35" "36" "Great Butterfly"\
 	"VerBlob" "39" "3A" "Moai Head Projectile" "Trickster Ghost" "Star" "Flocking Bird" "3F" \
 	"Cyclop's Ghost" "41" "Maner" "Gero" "44" "45" "46" "47" \
 	"48" "Huge Bat" "4A" "4B" "Fuzzball" "4D" "4E" "4F" \
-	"50" "51" "Middle Bat" "Mini Bat" "Bone" "55" "Small Fireball" "57" \
+	"50" "51" "Middle Bat" "Mini Bat" "Bone" "Small Bone" "Small Fireball" "57" \
 	"58" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
 	"Maner's Arm" "61" "Gero's Tongue" "63" "Shoe 2" "65" "66" "67" ]
 
@@ -64,7 +64,7 @@ proc init {} {
 	set item_cache 0
 
 	osd create rectangle mog.tomb -rely 999 -w 16 -h 16 -rgba 0x00000080
-	osd create text mog.tomb.text -x 1 -y 1 -size 5 -rgb 0xffffff
+	osd create text mog.tomb.text -x 1 -y 1 -size 4 -rgb 0xffffff
 	set tomb_cache 0
 
 	osd create rectangle mog.ladder -rely 999 -relw 16 -rgba 0xffffff80
