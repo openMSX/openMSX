@@ -1,43 +1,58 @@
 # $Id$
 
+# TODO: add a way to turn this off...
+
+namespace eval text_echo {
+
 set_help_text text_echo \
 {Echoes all characters printed in text mode to stderr, meaning they will appear on the command line that openMSX was started from.
 }
 
+variable graph
+variable escape
+variable escape_count
+
 proc text_echo {} {
-	set ::text_echo_graph 0
-	set ::text_echo_escape 0
-	set ::text_echo_escape_count 0
-	debug set_bp 0x0018 {} { __text_echo_print }
-	debug set_bp 0x00A2 {} { __text_echo_print }
+	variable graph
+	variable escape
+	variable escape_count
+	set graph 0
+	set escape 0
+	set escape_count 0
+	debug set_bp 0x0018 {} { text_echo::print }
+	debug set_bp 0x00A2 {} { text_echo::print }
 	return ""
 }
 
-proc __text_echo_print { } {
+proc print {} {
+	variable graph
+	variable escape
+	variable escape_count
+
 	set slot [ get_selected_slot 0 ]
 	if { $slot == "0 0" || $slot == "0 X" } {
 		set char [ reg A ]
-		if { $::text_echo_graph } {
+		if { $graph } {
 			#puts stderr [ format "\[G%x\]" $char ] nonewline
-			set ::text_echo_graph 0
-		} elseif { $::text_echo_escape } {
+			set graph 0
+		} elseif { $escape } {
 			#puts stderr [ format "\[E%x\]" $char ] nonewline
-			if { $::text_echo_escape_count == 0 } {
+			if { $escape_count == 0 } {
 				if { $char == 0x59 } {
-					set ::text_echo_escape_count 2
+					set escape_count 2
 				} else {
-					set ::text_echo_escape_count 1
+					set escape_count 1
 				}
 			} else {
-				incr ::text_echo_escape_count -1
-				if { $::text_echo_escape_count == 0 } {
-					set ::text_echo_escape 0
+				incr escape_count -1
+				if { $escape_count == 0 } {
+					set escape 0
 				}
 			}
 		} elseif { $char == 0x01 } {
-			set ::text_echo_graph 1
+			set graph 1
 		} elseif { $char == 0x1B } {
-			set ::text_echo_escape 1
+			set escape 1
 		} elseif { $char == 0x0A || $char >= 0x20 } {
 			puts stderr [ format %c $char ] nonewline
 		} else {
@@ -45,3 +60,9 @@ proc __text_echo_print { } {
 		}
 	}
 }
+
+namespace export text_echo
+
+} ;# namespace text_echo
+
+namespace import text_echo::*
