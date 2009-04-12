@@ -1,3 +1,5 @@
+namespace eval soundlog {
+
 # Backwards compatibility:
 #  The 'soundlog' command used to be a built-in openmsx command.
 #  Reimplemented now via the 'record -novideo' command.
@@ -11,8 +13,8 @@ soundlog stop               Stop logging sound
 soundlog toggle             Toggle sound logging state
 }
 
-set_tabcompletion_proc soundlog __soundlog_tab
-proc __soundlog_tab {args} {
+set_tabcompletion_proc soundlog [namespace code soundlog_tab]
+proc soundlog_tab {args} {
 	if {[llength $args] == 2} {
 		return [list "start" "stop" "toggle"]
 	} elseif {[llength $args] == 3 && [lindex $args 2] == "start"} {
@@ -28,3 +30,9 @@ proc soundlog {args} {
 		eval "record $args -audioonly"
 	}
 }
+
+namespace export soundlog
+
+} ;# namespace soundlog
+
+namespace import soundlog::*
