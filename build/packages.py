@@ -13,8 +13,12 @@ class Package(object):
 		return cls.name.upper()
 
 	@classmethod
+	def iterHeaderMakeNames(cls):
+		yield 'HAVE_%s_H' % cls.getMakeName()
+
+	@classmethod
 	def haveHeaders(cls, probeVars):
-		return bool(probeVars['HAVE_%s_H' % cls.getMakeName()])
+		return any(probeVars[name] for name in cls.iterHeaderMakeNames())
 
 	@classmethod
 	def haveLibrary(cls, probeVars):
@@ -72,8 +76,9 @@ class GLEW(DownloadablePackage):
 		return '%s-%s-src.tgz' % (cls.name, cls.version)
 
 	@classmethod
-	def haveHeaders(cls, probeVars):
-		return bool(probeVars['HAVE_GLEW_H'] or probeVars['HAVE_GL_GLEW_H'])
+	def iterHeaderMakeNames(cls):
+		yield 'HAVE_GLEW_H'
+		yield 'HAVE_GL_GLEW_H'
 
 class JACK(DownloadablePackage):
 	downloadURL = 'http://jackaudio.org/downloads/'
@@ -112,8 +117,9 @@ class OpenGL(Package):
 	name = 'gl'
 
 	@classmethod
-	def haveHeaders(cls, probeVars):
-		return bool(probeVars['HAVE_GL_H'] or probeVars['HAVE_GL_GL_H'])
+	def iterHeaderMakeNames(cls):
+		yield 'HAVE_GL_H'
+		yield 'HAVE_GL_GL_H'
 
 class SDL(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
