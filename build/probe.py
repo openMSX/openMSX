@@ -11,6 +11,7 @@ from probe_run_function import checkFunc
 from probe_run_header import checkHeader
 from probe_run_library import checkLib
 
+from msysutils import msysActive
 from os import environ, makedirs
 from os.path import isdir
 from shlex import split as shsplit
@@ -36,6 +37,9 @@ def backtick(log, commandLine):
 		raise ValueError(
 			'No command specified in "%s"' % commandLine
 			)
+
+	if msysActive():
+		commandParts = [ environ['SHELL'], '-c', shjoin(commandParts) ]
 
 	try:
 		proc = Popen(
