@@ -27,13 +27,13 @@ variable items [list "" "Arrow" "Ceramic Arrow" "Rolling Fire" "Fire" "Mine" \
                      "Gold Shield" "Quiver of Arrows" "Coins" "Keys"]
 
 variable enemy_names [list \
-	"00" "01" "Twinkle" "HorBlob" "Gate" "05" "06" "07" "08" "09" "Knight" "0B" "0C" "Fish" "Bat" "0F" \
-	"Insect" "Hedgehog" "12" "13" "14" "15" "16" "17" "Worm" "Butterfly" "1A" "1B" "1C" "1D" "1E" "1F" \
-	"20" "Crawler" "22" "23" "Swine" "Bones" "26" "27" "Flake" "29" "Uh" "2B" "Shoe 1" "Polar Bear" "Bamboo" "Frog" \
-	"30" "31" "32" "33" "Bally" "35" "36" "37" "VerBlob" "39" "3A" "3B" "3C" "3D" "3E" "3F" \
-	"40" "41" "Maner" "43" "44" "45" "46" "47" "48" "Bat Boss" "4A" "4B" "4C" "4D" "4E" "4F" \
-	"50" "51" "Bat Subboss" "Mini Bat" "Bone" "55" "56" "57" "58" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
-	"Maner's Arm" "61" "62" "63" "Shoe 2" "65" "66" "67" "68" "69" "6A" "6B" "6C" "6D" "6E" "6F" \
+	"Gorilla" "01" "Twinkle" "HorBlob" "Gate" "Snake" "06" "Ring Worm" "08" "09" "Knight" "Water Strider" "Flame" "Fish" "Bat" "Pacman" \
+	"Insect" "Hedgehog" "Rockman" "Cloud Demon" "Mudman" "Gargoyle" "16" "Egg Bird" "Worm" "Butterfly" "1A" "Fireball" "1C" "1D" "1E" "Goblin" \
+	"20" "Crawler" "Pea Shooter" "Trapwall" "Swine" "Bones" "26" "Owl" "Flake" "29" "Poltergeist" "Wizzard" "Shoe 1" "Frost Demon" "Bamboo" "Frog Plant" \
+	"Seahorse demon" "31" "32" "33" "Bally" "35" "36" "Great Butterfly" "VerBlob" "39" "3A" "Easterhead projectile" "Trickster Ghost" "Star" "Flocking Bird" "3F" \
+	"Cyclop's Ghost" "41" "Maner" "Chameleon" "44" "45" "46" "47" "48" "Bat Boss" "4A" "4B" "Fuzzball" "4D" "4E" "4F" \
+	"50" "51" "Bat Subboss" "Mini Bat" "Bone" "55" "Small Fireball" "57" "58" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
+	"Maner's Arm" "61" "Chameleon Tongue" "63" "Shoe 2" "65" "66" "67" "68" "69" "6A" "6B" "6C" "6D" "6E" "6F" \
 	"70" "71" "72" "73" "74" "75" "76" "77" "78" "79" "7A" "7B" "7C" "7D" "7E" "7F" \
 	"80" "81" "82" "83" "84" "85" "86" "87" "88" "89" "8A" "8B" "8C" "8D" "8E" "8F" ]
 
