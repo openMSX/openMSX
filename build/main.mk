@@ -415,12 +415,6 @@ endif
 # Build Rules
 # ===========
 
-# Do not build if core component dependencies are not met.
-ifeq ($(COMPONENT_CORE),false)
-$(error Cannot build openMSX because essential libraries are unavailable. \
-Please install the needed libraries and their header files and rerun "configure")
-endif
-
 # Force a probe if "probe" target is passed explicitly.
 ifeq ($(MAKECMDGOALS),probe)
 probe: $(PROBE_MAKE)
@@ -474,6 +468,12 @@ $(INIT_DUMMY_FILE): config $(GENERATED_HEADERS)
 
 # Print configuration.
 config:
+ifeq ($(COMPONENT_CORE),false)
+# Do not build if core component dependencies are not met.
+	@echo 'Cannot build openMSX because essential libraries are unavailable.'
+	@echo 'Please install the needed libraries and their header files and rerun "configure"'
+	@false
+endif
 	@echo "Build configuration:"
 	@echo "  Platform: $(PLATFORM)"
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
