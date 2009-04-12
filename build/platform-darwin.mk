@@ -32,7 +32,7 @@ SYSTEM_LIBS:=ZLIB TCL XML
 #       But at the moment I don't want to make this more complex than it
 #       already is.
 ifeq ($(OPENMSX_TARGET_CPU),ppc)
-SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
+SDK_PATH:=/Developer/SDKs/MacOSX10.3.9.sdk
 OSX_VER:=10.3
 OSX_MIN_REQ:=1030
 else
