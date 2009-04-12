@@ -5,6 +5,7 @@
 
 from compilers import CompileCommand, LinkCommand, tryCompile, tryLink
 from makeutils import evalMakeExpr, extractMakeVariables
+from outpututils import rewriteIfChanged
 
 from msysutils import msysActive
 from os import environ, makedirs
@@ -222,12 +223,7 @@ class TargetSystem(object):
 			yield '# Non-empty value means found, empty means not found.'
 			for item in sorted(self.outVars.iteritems()):
 				yield '%s:=%s' % item
-		outMake = open(self.outMakePath, 'w')
-		try:
-			for line in iterVars():
-				print >> outMake, line
-		finally:
-			outMake.close()
+		rewriteIfChanged(self.outMakePath, iterVars())
 
 	def everything(self):
 		self.start()
@@ -236,12 +232,7 @@ class TargetSystem(object):
 			self.printAll()
 		finally:
 			self.done()
-		outHeader = open(self.outHeaderPath, 'w')
-		try:
-			for line in iterProbeHeader(self.outVars):
-				print >> outHeader, line
-		finally:
-			outHeader.close()
+		rewriteIfChanged(self.outHeaderPath, iterProbeHeader(self.outVars))
 
 	def hello(self):
 		'''Check compiler with the most famous program.
