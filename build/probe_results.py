@@ -43,7 +43,7 @@ def iterProbeResults(probeMakePath):
 		formatStr = '  %-' + str(maxLen + 3) + 's %s'
 
 		yield 'Found libraries:'
-		disabledLibs = probeVars['DISABLED_LIBS'].split()
+		disabledLibs = set(probeVars['DISABLED_LIBS'].split())
 		for package in libraries:
 			if package.getMakeName() in disabledLibs:
 				found = 'disabled'
@@ -55,9 +55,9 @@ def iterProbeResults(probeMakePath):
 		yield ''
 
 		yield 'Found headers:'
-		disabledHeaders = probeVars['DISABLED_HEADERS'].split()
+		disabledHeaders = set(probeVars['DISABLED_HEADERS'].split())
 		for package in libraries:
-			if package.getMakeName() in disabledHeaders:
+			if set(package.iterHeaderMakeNames()).issubset(disabledHeaders):
 				found = 'disabled'
 			elif package.haveHeaders(probeVars):
 				found = 'yes'
