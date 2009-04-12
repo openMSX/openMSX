@@ -1,5 +1,6 @@
 # $Id$
 
+from os.path import isdir
 import re
 
 def filterLines(lines, regex):
@@ -59,6 +60,11 @@ def evalMakeExpr(expr, makeVars):
 				suffix, args = name[len('addsuffix') : ].split(',')
 				suffix = suffix.strip()
 				value = ' '.join(arg + suffix for arg in args.split())
+			elif name.startswith('call DIR_IF_EXISTS,'):
+				# This is our function, not a Make function, but the goal is
+				# not to emulate Make, so we emulate our function instead.
+				path = name[len('call DIR_IF_EXISTS,'): ]
+				value = path if isdir(path) else ''
 			else:
 				value = makeVars[name]
 			stack[-1].append(value)
