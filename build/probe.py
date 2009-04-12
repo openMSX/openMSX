@@ -151,11 +151,12 @@ class TargetSystem(object):
 
 	def __init__(
 		self,
-		compileCommandStr, outDir, probeVars, resolvedVars,
+		log, compileCommandStr, outDir, probeVars, resolvedVars,
 		disabledLibraries, disabledFuncs, disabledHeaders
 		):
 		'''Create empty log and result files.
 		'''
+		self.log = log
 		self.compileCommandStr = compileCommandStr
 		self.outDir = outDir
 		self.probeVars = probeVars
@@ -165,28 +166,12 @@ class TargetSystem(object):
 		self.disabledHeaders = disabledHeaders
 		self.outMakePath = outDir + '/probed_defs.mk'
 		self.outHeaderPath = outDir + '/probed_defs.hh'
-		self.log = None
-		self.outVars = {}
-
-	def start(self):
-		if not isdir(self.outDir):
-			makedirs(self.outDir)
-		logPath = self.outDir + '/probe.log'
-		self.log = open(logPath, 'w')
-
-		print 'Probing target system...'
-		print >> self.log, 'Probing system:'
-
-		self.outVars.update(
+		self.outVars = dict(
 			DISABLED_FUNCS = ' '.join(sorted(self.disabledFuncs)),
 			DISABLED_LIBS = ' '.join(sorted(self.disabledLibraries)),
 			DISABLED_HEADERS = ' '.join(sorted(self.disabledHeaders)),
 			HAVE_X11 = '',
 			)
-
-	def done(self):
-		self.log.close()
-		self.log = None
 
 	def checkAll(self):
 		'''Run all probes.
@@ -226,12 +211,8 @@ class TargetSystem(object):
 		rewriteIfChanged(self.outMakePath, iterVars())
 
 	def everything(self):
-		self.start()
-		try:
-			self.checkAll()
-			self.printAll()
-		finally:
-			self.done()
+		self.checkAll()
+		self.printAll()
 		rewriteIfChanged(self.outHeaderPath, iterProbeHeader(self.outVars))
 
 	def hello(self):
@@ -315,67 +296,78 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s_LIB' % library] = ''
 
 def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
-	customVars = extractMakeVariables('build/custom.mk')
-	disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
-	disabledFuncs = set()
-	disabledHeaders = set()
+	if not isdir(outDir):
+		makedirs(outDir)
+	log = open(outDir + '/probe.log', 'w')
+	print 'Probing target system...'
+	print >> log, 'Probing system:'
+	try:
+		customVars = extractMakeVariables('build/custom.mk')
+		disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
+		disabledFuncs = set()
+		disabledHeaders = set()
 
-	if linkMode.startswith('3RD_'):
-		# Disable Jack: The CassetteJack feature is not useful for most end
-		# users, so do not include Jack in the binary distribution of openMSX.
-		disabledLibraries.add('JACK')
+		if linkMode.startswith('3RD_'):
+			# Disable Jack: The CassetteJack feature is not useful for most end
+			# users, so do not include Jack in the binary distribution of
+			# openMSX.
+			disabledLibraries.add('JACK')
 
-		# GLEW header can be <GL/glew.h> or just <glew.h>; the dedicated version
-		# we use resides in the "GL" dir, so don't look for the other one, or we
-		# might pick up a different version somewhere on the system.
-		disabledHeaders.add('GLEW')
+			# GLEW header can be <GL/glew.h> or just <glew.h>; the dedicated
+			# version we use resides in the "GL" dir, so don't look for the
+			# other one, or we might pick up a different version somewhere on
+			# the system.
+			disabledHeaders.add('GLEW')
 
-	disabledHeaders |= disabledLibraries
+		disabledHeaders |= disabledLibraries
 
-	systemLibs = set()
+		systemLibs = set()
 
-	# Define default compile/link flags.
-	baseVars = {
-		'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
-		'LINK_FLAGS': '',
-		}
-	probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
-	# Allow the OS specific Makefile to override if necessary.
-	probePlatformVars = extractMakeVariables(
-		'build/platform-%s.mk' % platform, probeDefVars
-		)
-	probeVars = dict(
-		( key, evalMakeExpr(value, probePlatformVars) )
-		for key, value in probePlatformVars.iteritems()
-		)
+		# Define default compile/link flags.
+		baseVars = {
+			'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
+			'LINK_FLAGS': '',
+			}
+		probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
+		# Allow the OS specific Makefile to override if necessary.
+		probePlatformVars = extractMakeVariables(
+			'build/platform-%s.mk' % platform, probeDefVars
+			)
+		probeVars = dict(
+			( key, evalMakeExpr(value, probePlatformVars) )
+			for key, value in probePlatformVars.iteritems()
+			)
 
-	def resolveMode(library, flags):
-		'''Resolve probe strings depending on link mode and list of system libs.
-		'''
-		mode = 'SYS_DYN' if library in systemLibs else linkMode
-		return probeVars['%s_%s_%s' % (library, flags, mode)]
+		def resolveMode(library, flags):
+			'''Resolve probe strings depending on link mode and list of system
+			libs.
+			'''
+			mode = 'SYS_DYN' if library in systemLibs else linkMode
+			return probeVars['%s_%s_%s' % (library, flags, mode)]
 
-	resolvedVars = dict(
-		# System headers.
-		SYS_MMAN_CFLAGS = '',
-		SYS_SOCKET_CFLAGS = '',
-		# OpenGL is always a system lib.
-		GL_CFLAGS = probeVars['GL_CFLAGS'],
-		GL_GL_CFLAGS = probeVars['GL_GL_CFLAGS'],
-		GL_LDFLAGS = probeVars['GL_LDFLAGS'],
-		)
-	for package in probeVars['ALL_LIBS'].split():
-		if package == 'GL':
-			continue
-		for flagsType in ('CFLAGS', 'LDFLAGS'):
-			flags = resolveMode(package, flagsType)
-			resolvedVars['%s_%s' % (package, flagsType)] = flags
-	resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
+		resolvedVars = dict(
+			# System headers.
+			SYS_MMAN_CFLAGS = '',
+			SYS_SOCKET_CFLAGS = '',
+			# OpenGL is always a system lib.
+			GL_CFLAGS = probeVars['GL_CFLAGS'],
+			GL_GL_CFLAGS = probeVars['GL_GL_CFLAGS'],
+			GL_LDFLAGS = probeVars['GL_LDFLAGS'],
+			)
+		for package in probeVars['ALL_LIBS'].split():
+			if package == 'GL':
+				continue
+			for flagsType in ('CFLAGS', 'LDFLAGS'):
+				flags = resolveMode(package, flagsType)
+				resolvedVars['%s_%s' % (package, flagsType)] = flags
+		resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
 
-	TargetSystem(
-		compileCommandStr, outDir, probeVars, resolvedVars,
-		disabledLibraries, disabledFuncs, disabledHeaders
-		).everything()
+		TargetSystem(
+			log, compileCommandStr, outDir, probeVars, resolvedVars,
+			disabledLibraries, disabledFuncs, disabledHeaders
+			).everything()
+	finally:
+		log.close()
 
 if __name__ == '__main__':
 	if len(sys.argv) == 6:
