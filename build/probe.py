@@ -308,7 +308,7 @@ class TargetSystem(object):
 
 	def disabledHeader(self, header):
 		print >> self.log, 'Disabled header: %s' % header
-		self.outVars['HAVE_%s' % header] = ''
+		self.outVars['HAVE_%s_H' % header] = ''
 
 	def disabledLibrary(self, library):
 		print >> self.log, 'Disabled library: %s' % library
@@ -328,7 +328,9 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		# GLEW header can be <GL/glew.h> or just <glew.h>; the dedicated version
 		# we use resides in the "GL" dir, so don't look for the other one, or we
 		# might pick up a different version somewhere on the system.
-		disabledHeaders.add('GLEW_H')
+		disabledHeaders.add('GLEW')
+
+	disabledHeaders |= disabledLibraries
 
 	systemLibs = set()
 
@@ -346,9 +348,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		( key, evalMakeExpr(value, probePlatformVars) )
 		for key, value in probePlatformVars.iteritems()
 		)
-
-	for library in disabledLibraries:
-		disabledHeaders.add(library + '_H')
 
 	def resolveMode(library, flags):
 		'''Resolve probe strings depending on link mode and list of system libs.
