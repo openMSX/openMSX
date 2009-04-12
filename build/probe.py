@@ -61,8 +61,6 @@ def backtick(log, commandLine):
 		print >> log, 'Execution failed with exit code %d' % proc.returncode
 		return None
 
-# TODO: This will be obsolete soon.
-_logRedirection = '2>> REMOVE-ME'
 def evaluateBackticks(log, expression):
 	parts = []
 	index = 0
@@ -75,9 +73,7 @@ def evaluateBackticks(log, expression):
 		if end == -1:
 			raise ValueError('Unmatched backtick: %s' % expression)
 		parts.append(expression[index : start])
-		command = expression[start + 1 : end]
-		assert command.endswith(_logRedirection)
-		command = command[ : -len(_logRedirection)].strip()
+		command = expression[start + 1 : end].strip()
 		result = backtick(log, command)
 		if result is None:
 			raise IOError('Backtick evaluation failed; see log')
@@ -295,9 +291,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	# Define default compile/link flags.
 	baseVars = {
 		'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
-		# TODO: Remove redirection to $(LOG) from the definitions, since we
-		#       just capture stderr with subprocess.
-		'LOG': 'REMOVE-ME',
 		}
 	probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
 	# Allow the OS specific Makefile to override if necessary.

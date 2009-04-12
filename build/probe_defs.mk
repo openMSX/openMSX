@@ -84,14 +84,14 @@ JACK_CFLAGS_SYS_DYN:=
 JACK_CFLAGS_3RD_STA:=-I$(3RDPARTY_INSTALL_DIR)/include
 
 PNG_HEADER:=<png.h>
-PNG_CFLAGS_SYS_DYN:=`libpng-config --cflags 2>> $(LOG)`
+PNG_CFLAGS_SYS_DYN:=`libpng-config --cflags`
 # Note: The additional -I is to pick up the zlib headers when zlib is not
 #       installed systemwide.
-PNG_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --cflags 2>> $(LOG)` -I$(3RDPARTY_INSTALL_DIR)/include
+PNG_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --cflags` -I$(3RDPARTY_INSTALL_DIR)/include
 
 SDL_HEADER:=<SDL.h>
-SDL_CFLAGS_SYS_DYN:=`sdl-config --cflags 2>> $(LOG)`
-SDL_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --cflags 2>> $(LOG)`
+SDL_CFLAGS_SYS_DYN:=`sdl-config --cflags`
+SDL_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --cflags`
 
 SDL_IMAGE_HEADER:=<SDL_image.h>
 # Note: "=" instead of ":=", so overriden value of SDL_CFLAGS will be used.
@@ -108,12 +108,12 @@ SYS_MMAN_HEADER:=<sys/mman.h>
 SYS_SOCKET_HEADER:=<sys/socket.h>
 
 TCL_HEADER:=<tcl.h>
-TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags 2>> $(LOG)`
-TCL_CFLAGS_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --cflags 2>> $(LOG)`
+TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags`
+TCL_CFLAGS_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --cflags`
 
 XML_HEADER:=<libxml/parser.h>
-XML_CFLAGS_SYS_DYN:=`xml2-config --cflags 2>> $(LOG)`
-XML_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --cflags 2>> $(LOG)` -DLIBXML_STATIC
+XML_CFLAGS_SYS_DYN:=`xml2-config --cflags`
+XML_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --cflags` -DLIBXML_STATIC
 
 ZLIB_HEADER:=<zlib.h>
 ZLIB_CFLAGS_SYS_DYN:=
@@ -137,12 +137,12 @@ JACK_LDFLAGS_SYS_DYN:=-ljack
 JACK_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libjack.a
 JACK_RESULT:=yes
 
-PNG_LDFLAGS_SYS_DYN:=`libpng-config --ldflags 2>> $(LOG)`
+PNG_LDFLAGS_SYS_DYN:=`libpng-config --ldflags`
 PNG_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libpng12.a
 PNG_RESULT_SYS_DYN:=`libpng-config --version`
 PNG_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --version`
 
-SDL_LDFLAGS_SYS_DYN:=`sdl-config --libs 2>> $(LOG)`
+SDL_LDFLAGS_SYS_DYN:=`sdl-config --libs`
 SDL_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libSDL.a
 SDL_RESULT_SYS_DYN:=`sdl-config --version`
 SDL_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --version`
@@ -156,15 +156,15 @@ SDL_TTF_LDFLAGS_SYS_DYN=-lSDL_ttf $(SDL_LDFLAGS_SYS_DYN)
 SDL_TTF_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_ttf.a $(3RDPARTY_INSTALL_DIR)/lib/libfreetype.a
 SDL_TTF_RESULT:=yes
 
-TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
+TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags`
 # Note: Tcl can be compiled with a static or a dynamic library, not both.
 #       So whether this returns static or dynamic link flags depends on how
 #       this copy of Tcl was built.
-TCL_LDFLAGS_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --static-libs 2>> $(LOG)`
-TCL_RESULT_SYS_DYN:=`build/tcl-search.sh --version 2>> $(LOG)`
-TCL_RESULT_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --version 2>> $(LOG)`
+TCL_LDFLAGS_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --static-libs`
+TCL_RESULT_SYS_DYN:=`build/tcl-search.sh --version`
+TCL_RESULT_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --version`
 
-XML_LDFLAGS_SYS_DYN:=`xml2-config --libs 2>> $(LOG)`
+XML_LDFLAGS_SYS_DYN:=`xml2-config --libs`
 XML_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libxml2.a
 XML_RESULT_SYS_DYN:=`xml2-config --version`
 XML_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --version`
@@ -176,7 +176,7 @@ ZLIB_RESULT:=yes
 # Libraries that do not exist:
 # (these are to test error reporting, it is expected that they are not found)
 
-ABC_LDFLAGS:=`abc-config --libs 2>> $(LOG)`
+ABC_LDFLAGS:=`abc-config --libs`
 ABC_RESULT:=impossible
 
 XYZ_LDFLAGS:=-lxyz

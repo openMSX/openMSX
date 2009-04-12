@@ -94,19 +94,19 @@ GLEW_LDFLAGS_SYS_DYN+=$(MACPORTS_LDFLAGS) $(FINK_LDFLAGS)
 JACK_CFLAGS_SYS_DYN+=$(MACPORTS_CFLAGS) $(FINK_CFLAGS)
 JACK_LDFLAGS_SYS_DYN+=$(MACPORTS_LDFLAGS) $(FINK_LDFLAGS)
 
-SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs 2>> $(LOG)`
+SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs`
 
 ifneq ($(filter 3RD_%,$(LINK_MODE)),)
 # Use tclConfig.sh from /usr: ideally we would use tclConfig.sh from the SDK,
 # but the SDK doesn't contain that file. The -isysroot compiler argument makes
 # sure the headers are taken from the SDK though.
-TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags 2>> $(LOG)`
-TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
+TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags`
+TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags`
 
 # Use xml2-config from /usr: ideally we would use xml2-config from the SDK,
 # but the SDK doesn't contain that file. The -isysroot compiler argument makes
 # sure the headers are taken from the SDK though.
-XML_CFLAGS_SYS_DYN:=`/usr/bin/xml2-config --cflags 2>> $(LOG)`
-XML_LDFLAGS_SYS_DYN:=`/usr/bin/xml2-config --libs 2>> $(LOG)`
+XML_CFLAGS_SYS_DYN:=`/usr/bin/xml2-config --cflags`
+XML_LDFLAGS_SYS_DYN:=`/usr/bin/xml2-config --libs`
 XML_RESULT_SYS_DYN:=`/usr/bin/xml2-config --version`
 endif
