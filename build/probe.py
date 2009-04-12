@@ -181,14 +181,15 @@ class TargetSystem(object):
 		try:
 			self.checkAll()
 			self.printAll()
-			outHeader = open(self.outHeaderPath, 'w')
-			try:
-				for line in iterProbeHeader(self.outMakePath):
-					print >> outHeader, line
-			finally:
-				outHeader.close()
 		finally:
 			self.done()
+		# TODO: Pass dictionary instead of file name.
+		outHeader = open(self.outHeaderPath, 'w')
+		try:
+			for line in iterProbeHeader(self.outMakePath):
+				print >> outHeader, line
+		finally:
+			outHeader.close()
 
 	def hello(self):
 		'''Check compiler with the most famous program.
