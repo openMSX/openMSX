@@ -1,3 +1,5 @@
+namespace eval vdp {
+
 set_help_text getcolor \
 {Return the current V99x8 palette settings for the given color index (0-15).
 The result is format as RGB, with each component in the range 0-7.
@@ -31,7 +33,7 @@ proc setcolor { index rgb } {
 	}
 }
 
-proc __format_table { entries columns frmt sep func } {
+proc format_table { entries columns frmt sep func } {
 	set rows [expr ($entries + $columns - 1) / $columns]
 	for {set row 0} { $row < $rows } { incr row } {
 		set line ""
@@ -56,7 +58,7 @@ proc vdpreg {reg {value ""}} {
 
 set_help_text vdpregs "Gives an overview of the V99x8 registers."
 proc vdpregs { } {
-	__format_table 32 4 "%2d : 0x%02x" "   " vdpreg
+	format_table 32 4 "%2d : 0x%02x" "   " vdpreg
 }
 
 set_help_text v9990reg "Read or write a V9990 register."
@@ -70,10 +72,21 @@ proc v9990reg {reg {value ""}} {
 
 set_help_text v9990regs "Gives an overview of the V9990 registers."
 proc v9990regs { } {
-	__format_table 55 5 "%2d : 0x%02x" "   " v9990reg
+	format_table 55 5 "%2d : 0x%02x" "   " v9990reg
 }
 
 set_help_text palette "Gives an overview of the V99x8 palette registers."
 proc palette { } {
-	__format_table 16 4 "%x:%s" "  " getcolor
+	format_table 16 4 "%x:%s" "  " getcolor
 }
+
+namespace export getcolor
+namespace export setcolor
+namespace export vdpreg
+namespace export vdpregs
+namespace export v9990regs
+namespace export palette
+
+} ;# namespace vdp
+
+namespace import vdp::*
