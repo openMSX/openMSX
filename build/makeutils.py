@@ -56,7 +56,11 @@ def evalMakeExpr(expr, makeVars):
 			stack.append([])
 		elif part == ')' and len(stack) != 1:
 			name = ''.join(stack.pop())
-			if name.startswith('addsuffix '):
+			if name.startswith('addprefix '):
+				prefix, args = name[len('addprefix') : ].split(',')
+				prefix = prefix.strip()
+				value = ' '.join(prefix + arg for arg in args.split())
+			elif name.startswith('addsuffix '):
 				suffix, args = name[len('addsuffix') : ].split(',')
 				suffix = suffix.strip()
 				value = ' '.join(arg + suffix for arg in args.split())
