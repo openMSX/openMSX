@@ -374,11 +374,9 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 
 		PNG_CFLAGS = resolveMode('PNG', 'CFLAGS'),
 		PNG_LDFLAGS = resolveMode('PNG', 'LDFLAGS'),
-		PNG_RESULT = resolveMode('PNG', 'RESULT'),
 
 		SDL_CFLAGS = resolveMode('SDL', 'CFLAGS'),
 		SDL_LDFLAGS = resolveMode('SDL', 'LDFLAGS'),
-		SDL_RESULT = resolveMode('SDL', 'RESULT'),
 
 		SDL_IMAGE_CFLAGS = resolveMode('SDL_IMAGE', 'CFLAGS'),
 		SDL_IMAGE_LDFLAGS = resolveMode('SDL_IMAGE', 'LDFLAGS'),
@@ -388,11 +386,9 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 
 		TCL_CFLAGS = resolveMode('TCL', 'CFLAGS'),
 		TCL_LDFLAGS = resolveMode('TCL', 'LDFLAGS'),
-		TCL_RESULT = resolveMode('TCL', 'RESULT'),
 
 		XML_CFLAGS = resolveMode('XML', 'CFLAGS'),
 		XML_LDFLAGS = resolveMode('XML', 'LDFLAGS'),
-		XML_RESULT = resolveMode('XML', 'RESULT'),
 
 		ZLIB_CFLAGS = resolveMode('ZLIB', 'CFLAGS'),
 		ZLIB_LDFLAGS = resolveMode('ZLIB', 'LDFLAGS'),
