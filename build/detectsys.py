@@ -12,6 +12,10 @@ def detectCPU():
 	Raises ValueError if no known CPU is detected.
 	'''
 	cpu = machine().lower()
+	dashIndex = cpu.find('-')
+	if dashIndex != -1:
+		# Hurd returns "cputype-cpusubtype" instead of just "cputype".
+		cpu = cpu[ : dashIndex]
 	if cpu in ('x86_64', 'amd64'):
 		return 'x86_64'
 	elif cpu in ('x86', 'i386', 'i486', 'i586', 'i686'):
