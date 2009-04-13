@@ -52,7 +52,7 @@ proc init {} {
 	variable ladder_cache
 	variable wall_cache
 	variable demon_cache
-	variable ep
+	variable max_ep
 
 	osd create rectangle mog -scaled true -alpha 0
 
@@ -95,7 +95,7 @@ proc init {} {
 #	}
 
 	# Enemy Power
-	for {set i 0} {$i < 256} {incr i} {set ep($i) 1}
+	for {set i 0} {$i < $num_enemies} {incr i} {set max_ep($i) 0}
 }
 
 # Update the overlays
@@ -114,7 +114,7 @@ proc update_overlay {} {
 	variable demon_power
 	variable items
 	variable enemy_names
-	variable ep
+	variable max_ep
 
 	if {!$mog_overlay_active} return
 
@@ -134,14 +134,19 @@ proc update_overlay {} {
 	for {set i 0; set addr 0xe800} {$i < $num_enemies} {incr i; incr addr 0x20} {
 		set enemy_type [peek $addr]
 		set enemy_hp [peek [expr $addr + 0x10]]
+		
+		# If enemy's power is 0 set max power to 0
+		if {$enemy_hp==0 && $max_ep($i)>0} {set max_ep($i) 0}
+		
 		if {$enemy_type > 0 && $enemy_hp > 0 && $enemy_hp < 200} {
-			# Record Highest Power for an enemy
-			if {$ep($enemy_type) < $enemy_hp} {set ep($enemy_type) $enemy_hp}
+			
+			#Set Max Power Recorded for Enemy
+			if {$max_ep($i) < $enemy_hp} {set max_ep($i) $enemy_hp}
 
 			set pos_x [expr  8 + [peek [expr $addr + 7]]]
 			set pos_y [expr -6 + [peek [expr $addr + 5]]]
-			set power [expr 1.00 * $enemy_hp / $ep($enemy_type)]
-			set text [format "%s (%d): %d/%d" [lindex $enemy_names $enemy_type] $i $enemy_hp $ep($enemy_type)]
+			set power [expr 1.00 * $enemy_hp / $max_ep($i)]
+			set text [format "%s (%d): %d/%d" [lindex $enemy_names $enemy_type] $i $enemy_hp $max_ep($i)]
 			update_power_bar mog.powerbar$i $pos_x $pos_y $power $text
 		} else {
 			hide_power_bar mog.powerbar$i
@@ -265,6 +270,9 @@ proc toggle_mog_overlay {} {
 
 namespace export toggle_mog_overlay
 
+};# namespace mog_overlay
+
+namespace import mog_overlay::*
 
 # these procs are generic and are supposed to be moved to a generic OSD
 # library or something similar.
@@ -290,7 +298,3 @@ proc update_power_bar {name x y power text} {
 proc hide_power_bar {name} {
 	osd configure $name -rely 999
 }
-
-};# namespace mog_overlay
-
-namespace import mog_overlay::*
