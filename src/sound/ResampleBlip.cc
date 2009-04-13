@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #include "ResampleBlip.hh"
 #include "Resample.hh"

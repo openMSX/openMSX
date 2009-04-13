@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef TUPLE_HH
 #define TUPLE_HH

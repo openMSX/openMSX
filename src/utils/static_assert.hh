@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef STATIC_ASSERT_HH
 #define STATIC_ASSERT_HH

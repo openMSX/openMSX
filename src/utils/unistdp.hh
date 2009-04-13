@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef UNISTDP_HH
 #define UNISTDP_HH

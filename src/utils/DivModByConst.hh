@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef DIVMODBYCONST
 #define DIVMODBYCONST

@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #include "CPUClock.hh"
 #include "Scheduler.hh"

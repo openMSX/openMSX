@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef DIRENTP_HH
 #define DIRENTP_HH

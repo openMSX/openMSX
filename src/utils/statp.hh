@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef STATP_HH
 #define STATP_HH

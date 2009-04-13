@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #include "ResampleTrivial.hh"
 #include "Resample.hh"

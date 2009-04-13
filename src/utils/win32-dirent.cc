@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 /* Copyright (C) 2001, 2006 Free Software Foundation, Inc.
  *

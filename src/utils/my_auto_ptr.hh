@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef MY_AUTO_PTR_HH
 #define MY_AUTO_PTR_HH

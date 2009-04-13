@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef ALIGNED_HH
 #define ALIGNED_HH

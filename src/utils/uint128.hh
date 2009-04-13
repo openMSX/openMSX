@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef UINT128_HH
 #define UINT128_HH

@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #include "BlipBuffer.hh"
 #include <algorithm>

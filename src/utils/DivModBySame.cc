@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #include "DivModBySame.hh"
 #include "uint128.hh"

@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef STRINGPOOL_HH
 #define STRINGPOOL_HH

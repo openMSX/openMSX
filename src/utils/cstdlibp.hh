@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef CSTDLIBP_HH
 #define CSTDLIBP_HH

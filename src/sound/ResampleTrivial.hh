@@ -1,4 +1,4 @@
-// $Id:$
+// $Id$
 
 #ifndef RESAMPLETRIVIAL_HH
 #define RESAMPLETRIVIAL_HH
