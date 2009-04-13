@@ -210,7 +210,12 @@ SDLImage::SDLImage(unsigned width, unsigned height,
 	if (r || g || b) {
 		// crashes on zero-width surfaces, that's why we
 		// check for it at the beginning of this method
+#if SDL_VERSION_ATLEAST(1, 2, 12)
 		SDL_FillRect(image, NULL, SDL_MapRGB(&format, r, g, b));
+#else
+		// work around const correctness bug in SDL 1.2.11 (Bugzilla #421)
+		SDL_FillRect(image, NULL, SDL_MapRGB(const_cast<SDL_PixelFormat*>(&format), r, g, b));
+#endif
 	}
 	a = (alpha == 255) ? 256 : alpha;
 }
