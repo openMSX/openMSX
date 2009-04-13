@@ -115,9 +115,9 @@ HostCPU::HostCPU()
 
 void HostCPU::setFeatures(unsigned features) {
 
-	const unsigned CPUID_FEATURE_MMX	= 0x0800000;
-	const unsigned CPUID_FEATURE_SSE	= 0x2000000;
-	const unsigned CPUID_FEATURE_SSE2	= 0x4000000;
+	const unsigned CPUID_FEATURE_MMX	= 0x00800000;
+	const unsigned CPUID_FEATURE_SSE	= 0x02000000;
+	const unsigned CPUID_FEATURE_SSE2	= 0x04000000;
 
 	mmxFlag  = (features & CPUID_FEATURE_MMX)	!= 0;
 	sseFlag  = (features & CPUID_FEATURE_SSE)	!= 0;
