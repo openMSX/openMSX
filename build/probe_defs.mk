@@ -50,9 +50,9 @@ POSIX_MEMALIGN_HEADER:=<stdlib.h>
 # Headers
 # =======
 
-ALL_HEADERS:=$(addsuffix _H, \
+ALL_HEADERS:= \
 	GL GL_GL GLEW GL_GLEW JACK PNG SDL SDL_IMAGE SDL_TTF \
-	SYS_MMAN SYS_SOCKET TCL XML ZLIB )
+	SYS_MMAN SYS_SOCKET TCL XML ZLIB
 
 # Location of GL headers is not standardised; if one of these matches,
 # we consider the GL headers found.

@@ -183,8 +183,6 @@ class TargetSystem(object):
 			else:
 				self.checkFunc(func)
 		for header in self.probeVars['ALL_HEADERS'].split():
-			assert header.endswith('_H')
-			header = header[ : -2]
 			if header in self.disabledHeaders:
 				self.disabledHeader(header)
 			else:
