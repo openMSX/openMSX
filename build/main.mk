@@ -426,6 +426,7 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 	@$(PYTHON) $(PROBE_SCRIPT) \
 		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
+	@touch $@
 
 # Generate configuration header.
 $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk
