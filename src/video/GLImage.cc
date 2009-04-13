@@ -10,7 +10,7 @@ using std::string;
 
 namespace openmsx {
 
-GLuint loadTexture(SDL_Surface* surface,
+static GLuint loadTexture(SDL_Surface* surface,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {
 	width  = surface->w;
@@ -51,7 +51,7 @@ GLuint loadTexture(SDL_Surface* surface,
 	return texture;
 }
 
-GLuint loadTexture(const string& filename,
+static GLuint loadTexture(const string& filename,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {
 	SDL_Surface* surface = SDLImage::readImage(filename);
@@ -79,19 +79,18 @@ GLImage::GLImage(const string& filename)
 GLImage::GLImage(const string& filename, double scalefactor)
 {
 	texture = loadTexture(filename, width, height, texCoord);
-	width  = unsigned(scalefactor * width);
-	height = unsigned(scalefactor * height);
+	width  = int(scalefactor * width);
+	height = int(scalefactor * height);
 }
 
-GLImage::GLImage(const string& filename, unsigned width_, unsigned height_)
+GLImage::GLImage(const string& filename, int width_, int height_)
 {
 	texture = loadTexture(filename, width, height, texCoord);
 	width  = width_;
 	height = height_;
 }
 
-GLImage::GLImage(unsigned width_, unsigned height_,
-                 byte alpha, byte r_, byte g_, byte b_)
+GLImage::GLImage(int width_, int height_, byte alpha, byte r_, byte g_, byte b_)
 {
 	texture = 0;
 	width  = width_;
@@ -113,8 +112,7 @@ GLImage::~GLImage()
 	glDeleteTextures(1, &texture);
 }
 
-void GLImage::draw(OutputSurface& /*output*/, unsigned x, unsigned y,
-                   unsigned char alpha)
+void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 {
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
@@ -143,12 +141,12 @@ void GLImage::draw(OutputSurface& /*output*/, unsigned x, unsigned y,
 	glPopAttrib();
 }
 
-unsigned GLImage::getWidth() const
+int GLImage::getWidth() const
 {
 	return width;
 }
 
-unsigned GLImage::getHeight() const
+int GLImage::getHeight() const
 {
 	return height;
 }

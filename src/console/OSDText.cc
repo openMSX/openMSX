@@ -110,7 +110,7 @@ void OSDText::getWidthHeight(const OutputSurface& /*output*/,
 template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
 	if (text.empty()) {
-		return new IMAGE(0, 0, 0);
+		return new IMAGE(0, 0, byte(0));
 	}
 	if (!font.get()) {
 		try {

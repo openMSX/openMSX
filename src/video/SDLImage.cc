@@ -9,9 +9,10 @@
 #if PLATFORM_GP2X
 #include "GP2XMMUHack.hh"
 #endif
+#include <cassert>
+#include <cstdlib>
 #include <SDL_image.h>
 #include <SDL.h>
-#include <cassert>
 
 using std::string;
 
@@ -55,7 +56,7 @@ static SDL_Surface* convertToDisplayFormat(SDL_Surface* input)
 	return result;
 }
 
-static void zoomSurface(SDL_Surface* src, SDL_Surface* dst)
+static void zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool flipX, bool flipY)
 {
 	// For interpolation: assume source dimension is one pixel
 	// smaller to avoid overflow on right and bottom edge.
@@ -65,6 +66,7 @@ static void zoomSurface(SDL_Surface* src, SDL_Surface* dst)
 	// Interpolating Zoom, Scan destination
 	Uint8* sp = static_cast<Uint8*>(src->pixels);
 	Uint8* dp = static_cast<Uint8*>(dst->pixels);
+	if (flipY) dp += (dst->h - 1) * dst->pitch;
 	for (int y = 0, csy = 0; y < dst->h; ++y, csy += sy) {
 		sp += (csy >> 16) * src->pitch;
 		Uint8* c00 = sp;
@@ -72,21 +74,40 @@ static void zoomSurface(SDL_Surface* src, SDL_Surface* dst)
 		Uint8* c01 = c00 + 4;
 		Uint8* c11 = c10 + 4;
 		csy &= 0xffff;
-		for (int x = 0, csx = 0; x < dst->w; ++x, csx += sx) {
-			int sstep = csx >> 16;
-			c00 += 4 * sstep;
-			c01 += 4 * sstep;
-			c10 += 4 * sstep;
-			c11 += 4 * sstep;
-			csx &= 0xffff;
-			// Interpolate RGBA
-			for (int i = 0; i < 4; ++i) {
-				int t1 = (((c01[i] - c00[i]) * csx) >> 16) + c00[i];
-				int t2 = (((c11[i] - c10[i]) * csx) >> 16) + c10[i];
-				dp[4 * x + i] = (((t2 - t1) * csy) >> 16) + t1;
+		if (!flipX) {
+			// not horizontally mirrored
+			for (int x = 0, csx = 0; x < dst->w; ++x, csx += sx) {
+				int sstep = csx >> 16;
+				c00 += 4 * sstep;
+				c01 += 4 * sstep;
+				c10 += 4 * sstep;
+				c11 += 4 * sstep;
+				csx &= 0xffff;
+				// Interpolate RGBA
+				for (int i = 0; i < 4; ++i) {
+					int t1 = (((c01[i] - c00[i]) * csx) >> 16) + c00[i];
+					int t2 = (((c11[i] - c10[i]) * csx) >> 16) + c10[i];
+					dp[4 * x + i] = (((t2 - t1) * csy) >> 16) + t1;
+				}
+			}
+		} else {
+			// not horizontally mirrored
+			for (int x = dst->w - 1, csx = 0; x >= 0; --x, csx += sx) {
+				int sstep = csx >> 16;
+				c00 += 4 * sstep;
+				c01 += 4 * sstep;
+				c10 += 4 * sstep;
+				c11 += 4 * sstep;
+				csx &= 0xffff;
+				// Interpolate RGBA
+				for (int i = 0; i < 4; ++i) {
+					int t1 = (((c01[i] - c00[i]) * csx) >> 16) + c00[i];
+					int t2 = (((c11[i] - c10[i]) * csx) >> 16) + c10[i];
+					dp[4 * x + i] = (((t2 - t1) * csy) >> 16) + t1;
+				}
 			}
 		}
-		dp += dst->pitch;
+		dp += flipY ? -dst->pitch : dst->pitch;
 	}
 }
 
@@ -102,14 +123,14 @@ static void zoomSurface(SDL_Surface* src, SDL_Surface* dst)
 	static const Uint32 amask = 0xff000000;
 #endif
 static SDL_Surface* scaleImage32(
-	SDL_Surface* input, unsigned width, unsigned height)
+	SDL_Surface* input, int width, int height)
 {
 	// create a 32 bpp surface that will hold the scaled version
 	SDL_Surface* result = SDL_CreateRGBSurface(
-		SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, amask);
+		SDL_SWSURFACE, abs(width), abs(height), 32, rmask, gmask, bmask, amask);
 	SDL_Surface* tmp32 =
 		SDL_ConvertSurface(input, result->format, SDL_SWSURFACE);
-	zoomSurface(tmp32, result);
+	zoomSurface(tmp32, result, width < 0, height < 0);
 	SDL_FreeSurface(tmp32);
 	return result;
 }
@@ -128,8 +149,8 @@ static SDL_Surface* loadImage(const string& filename, double scaleFactor)
 		return loadImage(filename);
 	}
 	SDL_Surface* picture = SDLImage::readImage(filename);
-	unsigned width  = unsigned(picture->w * scaleFactor);
-	unsigned height = unsigned(picture->h * scaleFactor);
+	int width  = int(picture->w * scaleFactor);
+	int height = int(picture->h * scaleFactor);
 	if ((width == 0) || (height == 0)) {
 		SDL_FreeSurface(picture);
 		return NULL;
@@ -143,7 +164,7 @@ static SDL_Surface* loadImage(const string& filename, double scaleFactor)
 }
 
 static SDL_Surface* loadImage(
-	const string& filename, unsigned width, unsigned height)
+	const string& filename, int width, int height)
 {
 	if ((width == 0) || (height == 0)) {
 		return NULL;
@@ -172,26 +193,26 @@ SDL_Surface* SDLImage::readImage(const string& filename)
 
 
 SDLImage::SDLImage(const string& filename)
-	: workImage(NULL), a(-1)
+	: workImage(NULL), a(-1), flipX(false), flipY(false)
 {
 	image = loadImage(filename);
 }
 
 SDLImage::SDLImage(const std::string& filename, double scaleFactor)
-	: workImage(NULL), a(-1)
+	: workImage(NULL), a(-1), flipX(scaleFactor < 0), flipY(scaleFactor < 0)
 {
 	image = loadImage(filename, scaleFactor);
 }
 
-SDLImage::SDLImage(const string& filename, unsigned width, unsigned height)
-	: workImage(NULL), a(-1)
+SDLImage::SDLImage(const string& filename, int width, int height)
+	: workImage(NULL), a(-1), flipX(width < 0), flipY(height < 0)
 {
 	image = loadImage(filename, width, height);
 }
 
-SDLImage::SDLImage(unsigned width, unsigned height,
+SDLImage::SDLImage(int width, int height,
                    byte alpha, byte r, byte g, byte b)
-	: workImage(NULL)
+	: workImage(NULL), flipX(width < 0), flipY(height < 0)
 {
 	if ((width == 0) || (height == 0)) {
 		image = NULL;
@@ -222,7 +243,7 @@ SDLImage::SDLImage(unsigned width, unsigned height,
 
 SDLImage::SDLImage(SDL_Surface* image_)
 	: image(image_)
-	, workImage(NULL), a(-1)
+	, workImage(NULL), a(-1), flipX(false), flipY(false)
 {
 }
 
@@ -250,9 +271,11 @@ void SDLImage::allocateWorkImage()
 #endif
 }
 
-void SDLImage::draw(OutputSurface& output, unsigned x, unsigned y, byte alpha)
+void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 {
 	if (!image) return;
+	if (flipX) x -= image->w - 1;
+	if (flipY) y -= image->h - 1;
 
 	output.unlock();
 	SDL_Surface* outputSurface = output.getSDLWorkSurface();
@@ -279,12 +302,12 @@ void SDLImage::draw(OutputSurface& output, unsigned x, unsigned y, byte alpha)
 	}
 }
 
-unsigned SDLImage::getWidth() const
+int SDLImage::getWidth() const
 {
 	return image ? image->w : 0;
 }
 
-unsigned SDLImage::getHeight() const
+int SDLImage::getHeight() const
 {
 	return image ? image->h : 0;
 }
