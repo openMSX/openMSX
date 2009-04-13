@@ -8,9 +8,7 @@ from packages import getPackage
 
 import sys
 
-def iterProbeResults(probeMakePath):
-	probeVars = extractMakeVariables(probeMakePath)
-	customVars = extractMakeVariables('build/custom.mk')
+def iterProbeResults(probeVars, customVars):
 	componentStatus = dict(
 		(component.makeName, component.canBuild(probeVars))
 		for component in iterComponents()
@@ -92,7 +90,9 @@ def iterProbeResults(probeMakePath):
 		yield ''
 
 if len(sys.argv) == 2:
-	for line in iterProbeResults(sys.argv[1]):
+	probeVars = extractMakeVariables(sys.argv[1])
+	customVars = extractMakeVariables('build/custom.mk')
+	for line in iterProbeResults(probeVars, customVars):
 		print line
 else:
 	print >> sys.stderr, (
