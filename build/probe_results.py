@@ -3,10 +3,8 @@
 # or to change system configuration and rerun "configure".
 
 from components import iterComponents
-from makeutils import extractMakeVariables, parseBool
+from makeutils import parseBool
 from packages import getPackage
-
-import sys
 
 def iterProbeResults(probeVars, customVars):
 	componentStatus = dict(
@@ -88,14 +86,3 @@ def iterProbeResults(probeVars, customVars):
 			yield 'Please install missing libraries and headers ' \
 				'and rerun "configure".'
 		yield ''
-
-if len(sys.argv) == 2:
-	probeVars = extractMakeVariables(sys.argv[1])
-	customVars = extractMakeVariables('build/custom.mk')
-	for line in iterProbeResults(probeVars, customVars):
-		print line
-else:
-	print >> sys.stderr, (
-		'Usage: python probe_results.py PROBE_MAKE'
-		)
-	sys.exit(2)

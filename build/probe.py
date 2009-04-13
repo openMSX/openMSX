@@ -6,6 +6,7 @@
 from compilers import CompileCommand, LinkCommand, tryCompile, tryLink
 from makeutils import evalMakeExpr, extractMakeVariables
 from outpututils import rewriteIfChanged
+from probe_results import iterProbeResults
 
 from msysutils import msysActive
 from os import environ, makedirs
@@ -151,7 +152,7 @@ class TargetSystem(object):
 
 	def __init__(
 		self,
-		log, compileCommandStr, outDir, probeVars, resolvedVars,
+		log, compileCommandStr, outDir, probeVars, resolvedVars, customVars,
 		disabledLibraries, disabledFuncs, disabledHeaders
 		):
 		'''Create empty log and result files.
@@ -161,6 +162,7 @@ class TargetSystem(object):
 		self.outDir = outDir
 		self.probeVars = probeVars
 		self.resolvedVars = resolvedVars
+		self.customVars = customVars
 		self.disabledLibraries = disabledLibraries
 		self.disabledFuncs = disabledFuncs
 		self.disabledHeaders = disabledHeaders
@@ -206,10 +208,15 @@ class TargetSystem(object):
 				yield '%s:=%s' % item
 		rewriteIfChanged(self.outMakePath, iterVars())
 
+	def printResults(self):
+		for line in iterProbeResults(self.outVars, self.customVars):
+			print line
+
 	def everything(self):
 		self.checkAll()
 		self.printAll()
 		rewriteIfChanged(self.outHeaderPath, iterProbeHeader(self.outVars))
+		self.printResults()
 
 	def hello(self):
 		'''Check compiler with the most famous program.
@@ -364,7 +371,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
 
 		TargetSystem(
-			log, compileCommandStr, outDir, probeVars, resolvedVars,
+			log, compileCommandStr, outDir, probeVars, resolvedVars, customVars,
 			disabledLibraries, disabledFuncs, disabledHeaders
 			).everything()
 	finally:

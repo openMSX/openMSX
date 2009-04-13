@@ -422,13 +422,10 @@ probe: $(PROBE_MAKE)
 endif
 
 # Probe for headers and functions.
-# TODO: It would be cleaner to include probe.mk and probe_results.mk,
-#       instead of executing them in a sub-make.
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 	@$(PYTHON) $(PROBE_SCRIPT) \
 		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
-	@$(PYTHON) $(MAKE_PATH)/probe_results.py $(PROBE_MAKE)
 
 # Generate configuration header.
 $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk
