@@ -21,16 +21,6 @@
 # _3RD_STA: link statically against libs from non-system dir
 #           this is how we build our redistributable binaries
 
-# This Makefile needs parameters to operate; check that they were specified:
-# - log file
-ifeq ($(origin LOG),undefined)
-$(error Missing parameter: LOG)
-endif
-# - installation location of 3rd party libraries
-ifeq ($(origin 3RDPARTY_INSTALL_DIR),undefined)
-$(error Missing parameter: 3RDPARTY_INSTALL_DIR)
-endif
-
 
 # Functions
 # =========
