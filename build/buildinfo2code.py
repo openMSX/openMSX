@@ -1,19 +1,16 @@
 # $Id$
 
+from cpu import getCPU
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
 
 import sys
 
-def iterBuildInfoHeader(targetPlatform, targetCPU, flavour, installShareDir):
-	cpuVars = extractMakeVariables('build/cpu-%s.mk' % targetCPU)
-	bigEndian = parseBool(cpuVars['BIG_ENDIAN'])
-	unalignedMemoryAccess = parseBool(
-		cpuVars.get('UNALIGNED_MEMORY_ACCESS', 'false')
-		)
-
+def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	platformVars = extractMakeVariables('build/platform-%s.mk' % targetPlatform)
 	setWindowIcon = parseBool(platformVars.get('SET_WINDOW_ICON', 'true'))
+
+	targetCPU = getCPU(cpuName)
 
 	# TODO: Add support for device-specific configuration.
 	platformGP2X = False
@@ -35,13 +32,11 @@ def iterBuildInfoHeader(targetPlatform, targetCPU, flavour, installShareDir):
 	yield ''
 	yield '#include <string>'
 	yield ''
-	# Use a macro iso a boolean to prevent compilation errors on non-x86 machines.
-	if targetCPU == 'x86':
-		yield '#define ASM_X86_32'
-		yield '#define ASM_X86'
-	elif targetCPU == 'x86_64':
-		yield '#define ASM_X86_64'
-		yield '#define ASM_X86'
+	# Use a macro i.s.o. a boolean to prevent compilation errors on inline asm.
+	# A compiler will typically only understand the instruction set that it
+	# generates code for.
+	for define in targetCPU.asmDefines:
+		yield '#define %s' % define
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
 	yield '#define PLATFORM_GP2X %d' % platformGP2X
@@ -54,9 +49,10 @@ def iterBuildInfoHeader(targetPlatform, targetCPU, flavour, installShareDir):
 	yield ''
 	# Note: Don't call it "BIG_ENDIAN", because some system header may #define
 	#       that.
-	yield 'static const bool OPENMSX_BIGENDIAN = %s;' % str(bigEndian).lower()
+	yield 'static const bool OPENMSX_BIGENDIAN = %s;' \
+		% str(targetCPU.bigEndian).lower()
 	yield 'static const bool OPENMSX_UNALIGNED_MEMORY_ACCESS = %s;' \
-		% str(unalignedMemoryAccess).lower()
+		% str(targetCPU.unalignedMemoryAccess).lower()
 	yield 'static const bool OPENMSX_SET_WINDOW_ICON = %s;' \
 		% str(setWindowIcon).lower()
 	yield 'static const std::string DATADIR = "%s";' % installShareDir
