@@ -46,10 +46,6 @@ class DownloadablePackage(Package):
 	def getURL(cls):
 		return urljoin(cls.downloadURL + '/', cls.getTarballName())
 
-# The class names reflect package names, which do not necessarily follow our
-# naming convention.
-# pylint: disable-msg=C0103
-
 class DirectX(DownloadablePackage):
 	downloadURL = 'http://alleg.sourceforge.net/files'
 	niceName = 'DirectX'

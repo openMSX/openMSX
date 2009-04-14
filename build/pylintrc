@@ -138,7 +138,7 @@ module-rgx=([a-z_][a-z0-9_]*)$
 const-rgx=([a-z_][A-Za-z_]*)$
 
 # Regular expression which should only match correct class names
-class-rgx=[A-Z_][A-Za-z]+$
+class-rgx=[A-Z_][A-Za-z0-9_]+$
 
 # Regular expression which should only match correct function names
 function-rgx=[a-z_][A-Za-z_]{2,30}$
