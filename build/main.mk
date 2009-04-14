@@ -164,20 +164,21 @@ else
 CPU_LIST:=$(OPENMSX_TARGET_CPU)
 endif
 
-# Load CPU specific settings.
-# - by default assume the CPU doesnt support unaligned memory accesses
-UNALIGNED_MEMORY_ACCESS:=false
+# Default flavour.
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
-include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
-# Check that all expected variables were defined by CPU specific Makefile:
-# - endianess
-ifeq ($(OPENMSX_TARGET_CPU),univ)
-$(call DEFCHECK,BIG_ENDIAN)
+ifeq ($(OPENMSX_TARGET_CPU),x86)
+OPENMSX_FLAVOUR?=i686
 else
-$(call BOOLCHECK,BIG_ENDIAN)
+ifeq ($(OPENMSX_TARGET_CPU),ppc)
+OPENMSX_FLAVOUR?=ppc
+else
+ifeq ($(OPENMSX_TARGET_CPU),m68k)
+OPENMSX_FLAVOUR?=m68k
+else
+OPENMSX_FLAVOUR?=opt
 endif
-# - flavour (user selectable; platform specific default)
-$(call DEFCHECK,OPENMSX_FLAVOUR)
+endif
+endif
 
 # Load OS specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_OS)
