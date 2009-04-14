@@ -5,14 +5,15 @@ David Heremans       <david.heremans@gnu-linux.net>
 Wouter Vermaelen     <wouter.vermaelen@scarlet.be>
 Maarten ter Huurne   <maarten@treewalker.org>
 Manuel Bilderbeek    <manuel@msxnet.org>
-Herman Oudejans      <hn.oudejans@quicknet.nl>
-Reikan               <openMSX4Win32@ranpub.com>
 Eric Boon            <e.boon4@chello.nl>
 Arnold Metselaar     <arnold_m@operamail.com>
+Max Feingold
 
 Retired Developers:
 Joost Yervante Damad <joost@lumatec.be>
-who currently acts as our Debian developer.
+  who currently acts as our Debian developer.
+Herman Oudejans      <hn.oudejans@quicknet.nl>
+Reikan               <openMSX4Win32@ranpub.com>
 
 And before altering (or completely rewriting) we
 used code from the following contributors:
@@ -59,7 +60,6 @@ Albert Beevendorp    <bifi@msxnet.org>
 Jorrith Schaap       <jorrith@home.nl>
 Jan Lukens           <j.lukens@xs4all.nl>
 Daniel Vik           <daniel@vik.cc>
-Max Feingold
 SukkoPera
 Maarten van Strien
 
