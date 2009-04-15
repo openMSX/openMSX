@@ -579,9 +579,6 @@ run: all
 # Installation and Binary Packaging
 # =================================
 
-# First include the binary packaging Makefile, since it can redefine the
-# INSTALL_*_DIR variables.
-
 ifeq ($(OPENMSX_TARGET_OS),darwin-app)
 # Application directory for Darwin.
 # This handles the "bindist" target, but can also be used with the "install"
@@ -595,9 +592,14 @@ BINDIST_DIR:=$(BUILD_PATH)/bindist
 BINDIST_PACKAGE:=
 
 # Override install locations.
-# These can be overridden again in platform-specific bindist sections.
 INSTALL_ROOT:=$(BINDIST_DIR)/install
+ifeq ($(OPENMSX_TARGET_OS),mingw32)
+# In Windows the "share" dir is expected at the same level as the executable,
+# so do not put the executable in "bin".
+INSTALL_BINARY_DIR:=$(INSTALL_ROOT)
+else
 INSTALL_BINARY_DIR:=$(INSTALL_ROOT)/bin
+endif
 INSTALL_SHARE_DIR:=$(INSTALL_ROOT)/share
 INSTALL_DOC_DIR:=$(INSTALL_ROOT)/doc
 # C-BIOS should be included.
@@ -617,12 +619,6 @@ bindistclean: $(BINARY_FULL)
 	@rm -rf $(BINDIST_DIR)
 	@$(if $(BINDIST_PACKAGE),rm -f $(BINDIST_PACKAGE),)
 	@echo "Creating binary package:"
-
-ifeq ($(OPENMSX_TARGET_OS),mingw32)
-# In Windows the "share" dir is expected at the same level as the executable,
-# so do not put the executable in "bin".
-INSTALL_BINARY_DIR:=$(INSTALL_ROOT)
-endif
 endif
 endif
 
