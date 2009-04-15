@@ -9,7 +9,7 @@ DIST:= \
 	tcl-search.sh \
 	main.mk node-end.mk node-start.mk entry.mk \
 	probe_defs.mk \
-	custom.mk 3rdparty.mk bindist.mk \
+	custom.mk 3rdparty.mk \
 	flavour-*.mk platform-*.mk \
 	*.py
 
