@@ -121,7 +121,10 @@ void Y8950Adpcm::schedule()
 		// we already did a sync(time), so clock is up-to-date
 		Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> stop(clock);
 		uint64 samples = stopAddr - emu.memPntr + 1;
-		stop += unsigned((samples << 16) / delta);
+		uint64 length = (samples << STEP_BITS) +
+		                ((1 << STEP_BITS) - emu.nowStep) +
+		                (delta - 1);
+		stop += unsigned(length / delta);
 		setSyncPoint(stop.getTime());
 	}
 }
@@ -208,10 +211,18 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 	case 0x10: // DELTA-N (L)
 		delta = (delta & 0xFF00) | data;
 		volumeWStep = (volume * delta) >> STEP_BITS;
+		if (isPlaying()) {
+			removeSyncPoint();
+			schedule();
+		}
 		break;
 	case 0x11: // DELTA-N (H)
 		delta = (delta & 0x00FF) | (data << 8);
 		volumeWStep = (volume * delta) >> STEP_BITS;
+		if (isPlaying()) {
+			removeSyncPoint();
+			schedule();
+		}
 		break;
 
 	case 0x12: { // ENVELOP CONTROL
