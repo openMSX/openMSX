@@ -168,11 +168,7 @@ class TargetSystem(object):
 		self.disabledHeaders = disabledHeaders
 		self.outMakePath = outDir + '/probed_defs.mk'
 		self.outHeaderPath = outDir + '/probed_defs.hh'
-		self.outVars = dict(
-			DISABLED_FUNCS = ' '.join(sorted(self.disabledFuncs)),
-			DISABLED_LIBS = ' '.join(sorted(self.disabledLibraries)),
-			DISABLED_HEADERS = ' '.join(sorted(self.disabledHeaders)),
-			)
+		self.outVars = {}
 
 	def checkAll(self):
 		'''Run all probes.
@@ -208,7 +204,10 @@ class TargetSystem(object):
 		rewriteIfChanged(self.outMakePath, iterVars())
 
 	def printResults(self):
-		for line in iterProbeResults(self.outVars, self.customVars):
+		for line in iterProbeResults(
+			self.outVars, self.customVars,
+			self.disabledHeaders, self.disabledLibraries
+			):
 			print line
 
 	def everything(self):

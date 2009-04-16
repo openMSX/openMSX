@@ -6,7 +6,7 @@ from components import iterComponents
 from makeutils import parseBool
 from packages import getPackage
 
-def iterProbeResults(probeVars, customVars):
+def iterProbeResults(probeVars, customVars, disabledHeaders, disabledLibs):
 	componentStatus = dict(
 		(component.makeName, component.canBuild(probeVars))
 		for component in iterComponents()
@@ -39,7 +39,6 @@ def iterProbeResults(probeVars, customVars):
 		formatStr = '  %-' + str(maxLen + 3) + 's %s'
 
 		yield 'Found libraries:'
-		disabledLibs = set(probeVars['DISABLED_LIBS'].split())
 		for package in libraries:
 			if package.getMakeName() in disabledLibs:
 				found = 'disabled'
@@ -51,7 +50,6 @@ def iterProbeResults(probeVars, customVars):
 		yield ''
 
 		yield 'Found headers:'
-		disabledHeaders = set(probeVars['DISABLED_HEADERS'].split())
 		for package in libraries:
 			if set(package.iterHeaderMakeNames()).issubset(disabledHeaders):
 				found = 'disabled'
