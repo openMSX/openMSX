@@ -12,18 +12,23 @@
 // This is absolutely not accurate, but good enough to make the pad work in the
 // Arkanoid games.
 
+// The hardware works with a 556 dual timer that's unemulated here, it requires
+// short delays at each shift, and a long delay at latching. Too short delays
+// will cause garbage reads, and too long delays at shifting will eventually
+// cause the shift register bits to return to 0.
+
 using std::string;
 
 namespace openmsx {
 
-static const int POS_MIN = 152; // minimum to be able to use left exit door in Arkanoid 2
-static const int POS_MAX = 309; // minimum to be able to use right exit door in Arkanoid 1
-static const int POS_CENTER = (POS_MIN + POS_MAX) / 2;
+static const int POS_MIN = 55; // measured by hap
+static const int POS_MAX = 325; // measured by hap
+static const int POS_CENTER = 236; // approx. middle used by games
 static const int SCALE = 2;
 
 ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
-	, shiftreg(511) // the 9 bit shift register contains 1's if there's no value in
+	, shiftreg(0) // the 9 bit shift degrades to 0
 	, dialpos(POS_CENTER)
 	, buttonStatus(0x3E)
 	, lastValue(0)
@@ -75,7 +80,7 @@ void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 	}
 	if (diff & value & 0x1) {
 		// pin 6 from low to high: shift the shift reg
-		shiftreg = (shiftreg << 1) | 0x1; // restore 1's in shift reg
+		shiftreg = (shiftreg << 1) | (shiftreg & 1); // bit 0's value is 'shifted in'
 	}
 }
 
