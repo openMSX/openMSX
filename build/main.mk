@@ -13,7 +13,6 @@
 # TODO:
 # - Move calculation of CFLAGS and LDFLAGS to components2defs.py?
 # - Change output format of tcl-search.sh to match probed_defs.mk format.
-# - Make XRenderer into a component.
 
 
 # Python Interpreter

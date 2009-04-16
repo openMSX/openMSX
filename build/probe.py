@@ -172,7 +172,6 @@ class TargetSystem(object):
 			DISABLED_FUNCS = ' '.join(sorted(self.disabledFuncs)),
 			DISABLED_LIBS = ' '.join(sorted(self.disabledLibraries)),
 			DISABLED_HEADERS = ' '.join(sorted(self.disabledHeaders)),
-			HAVE_X11 = '',
 			)
 
 	def checkAll(self):
