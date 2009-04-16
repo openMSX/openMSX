@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1236409680">
+<softwaredb xml:lang="en" timestamp="1239913006">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -4008,6 +4008,22 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">4ee3e785e6949bd535804a32c6a1a31eeef30031</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Harry Fox - Yuki no Maou Hen</title>
+	<system>MSX</system>
+	<company>Micro Cabin</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><megarom><type>HarryFox</type><hash algo="sha1">3626b5dd3188ec2a16e102d05c79f8f242fbd892</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Harry Fox MSX Special</title>
+	<system>MSX</system>
+	<company>Micro Cabin</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16SRAM2</type><hash algo="sha1">a3de07612da7986387a4f5c41bbbc7e3b244e077</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Hayabusa - Moonsweeper</title>
 	<system>MSX</system>
 	<company>Toshiba Emi</company>
@@ -4239,22 +4255,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>ES</country>
 		<dump><original value="false"/><rom><hash algo="sha1">e6ba49603707c929291c39fbdf866474bf096316</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Hurry Fox MSX Special</title>
-	<system>MSX</system>
-	<company>Micro Cabin</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16SRAM2</type><hash algo="sha1">a3de07612da7986387a4f5c41bbbc7e3b244e077</hash></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Hurry Fox Yki no Maoh</title>
-	<system>MSX</system>
-	<company>Micro Cabin</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>HarryFox</type><hash algo="sha1">3626b5dd3188ec2a16e102d05c79f8f242fbd892</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Hustle Chummy</title>
@@ -6529,6 +6529,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1989</year>
 	<country>BR</country>
 		<dump><original value="false"/><rom><hash algo="sha1">2b80f46d1c40aede85a60e53ddcfcc0cbb6d6d5b</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">MSX-PLAN</title>
+	<system>MSX</system>
+	<company>ASCII/Microsoft</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><original value="false"/><rom><hash algo="sha1">61d99816055858b3bcde3416eed30fd86390393d</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">MSX-VTX Datagame</title>
@@ -10399,6 +10407,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2198
-Parse time 4.906 seconds on Sat Mar 7 8:08:05 CET 2009
+Roms in this database:2199
+Parse time 1.804 seconds on Thu Apr 16 22:16:48 CEST 2009
  -->
