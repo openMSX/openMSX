@@ -97,12 +97,17 @@ def extractMakeVariables(filePath, makeVars = None):
 	try:
 		for name, assign, value in filterLines(
 			joinContinuedLines(inp),
-			r'[ ]*([A-Za-z0-9_]+)[ ]*(:?=)(.*)'
+			r'[ ]*([A-Za-z0-9_]+)[ ]*([+:]?=)(.*)'
 			):
 			if assign == '=':
 				makeVars[name] = value.strip()
 			elif assign == ':=':
 				makeVars[name] = evalMakeExpr(value, makeVars).strip()
+			elif assign == '+=':
+				# Note: Make will or will note evaluate the added expression
+				#       depending on how the variable was originally defined,
+				#       but we don't store that information.
+				makeVars[name] = makeVars[name] + ' ' + value.strip()
 			else:
 				assert False, assign
 	finally:
