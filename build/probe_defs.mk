@@ -110,7 +110,6 @@ ZLIB_CFLAGS_3RD_STA:=-I$(3RDPARTY_INSTALL_DIR)/include
 # =========
 
 ALL_LIBS:=GL GLEW JACK PNG SDL SDL_IMAGE SDL_TTF TCL XML ZLIB
-ALL_LIBS+=ABC XYZ
 
 GL_LDFLAGS:=-lGL
 GL_RESULT:=yes
@@ -158,12 +157,3 @@ XML_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --version`
 ZLIB_LDFLAGS_SYS_DYN:=-lz
 ZLIB_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libz.a
 ZLIB_RESULT:=yes
-
-# Libraries that do not exist:
-# (these are to test error reporting, it is expected that they are not found)
-
-ABC_LDFLAGS:=`abc-config --libs`
-ABC_RESULT:=impossible
-
-XYZ_LDFLAGS:=-lxyz
-XYZ_RESULT:=impossible
