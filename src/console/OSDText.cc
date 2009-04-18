@@ -8,6 +8,7 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "components.hh"
+#include <cassert>
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
 #endif
