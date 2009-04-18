@@ -104,7 +104,7 @@ def extractMakeVariables(filePath, makeVars = None):
 			elif assign == ':=':
 				makeVars[name] = evalMakeExpr(value, makeVars).strip()
 			elif assign == '+=':
-				# Note: Make will or will note evaluate the added expression
+				# Note: Make will or will not evaluate the added expression
 				#       depending on how the variable was originally defined,
 				#       but we don't store that information.
 				makeVars[name] = makeVars[name] + ' ' + value.strip()
