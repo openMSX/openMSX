@@ -839,6 +839,8 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
+	// note: X-axis major and Y-axis major routines can be made more
+	// symmetrical by splitting the combined end-test
 	if ((engine.ARG & MAJ) == 0) {
 		// X-Axis is major direction.
 		while (engine.clock.before(time)) {
@@ -848,16 +850,20 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			}
 			engine.clock.fastAdd(delta);
 			engine.ADX += TX;
+			// confirmed on real HW:
+			//  - end-test happens before DY += TY
+			//  - (ADX & PPL) test only happens after first pixel
+			//    is drawn. And it does test with 'AND' (not with ==)
+			if (engine.ANX++ == engine.NX || (engine.ADX & Mode::PIXELS_PER_LINE)) {
+				engine.commandDone(engine.clock.getTime());
+				break;
+			}
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
 				engine.DY += TY;
 			}
 			engine.ASX -= engine.NY;
 			engine.ASX &= 1023; // mask to 10 bits range
-			if (engine.ANX++ == engine.NX || (engine.ADX & Mode::PIXELS_PER_LINE)) {
-				engine.commandDone(engine.clock.getTime());
-				break;
-			}
 		}
 	} else {
 		// Y-Axis is major direction.
@@ -867,6 +873,7 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 				           dstExt, CL, LogOp());
 			}
 			engine.clock.fastAdd(delta);
+			// confirmed on real HW: DY += TY happens before end-test
 			engine.DY += TY;
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
