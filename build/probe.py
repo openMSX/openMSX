@@ -298,7 +298,25 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	print >> log, 'Probing system:'
 	try:
 		customVars = extractMakeVariables('build/custom.mk')
-		disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
+
+		# Define default compile/link flags.
+		baseVars = dict(customVars)
+		baseVars.update({
+			'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
+			'LINK_FLAGS': '',
+			})
+
+		probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
+		# Allow the OS specific Makefile to override if necessary.
+		probePlatformVars = extractMakeVariables(
+			'build/platform-%s.mk' % platform, probeDefVars
+			)
+		probeVars = dict(
+			( key, evalMakeExpr(value, probePlatformVars) )
+			for key, value in probePlatformVars.iteritems()
+			)
+
+		disabledLibraries = set(probeVars['DISABLED_LIBRARIES'].split())
 		disabledFuncs = set()
 		disabledHeaders = set()
 
@@ -315,23 +333,12 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			disabledHeaders.add('GLEW')
 
 		disabledHeaders |= disabledLibraries
+		if 'GL' in disabledLibraries:
+			disabledHeaders.add('GL_GL')
+		if 'GLEW' in disabledLibraries:
+			disabledHeaders.add('GL_GLEW')
 
 		systemLibs = set()
-
-		# Define default compile/link flags.
-		baseVars = {
-			'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
-			'LINK_FLAGS': '',
-			}
-		probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
-		# Allow the OS specific Makefile to override if necessary.
-		probePlatformVars = extractMakeVariables(
-			'build/platform-%s.mk' % platform, probeDefVars
-			)
-		probeVars = dict(
-			( key, evalMakeExpr(value, probePlatformVars) )
-			for key, value in probePlatformVars.iteritems()
-			)
 
 		def resolveMode(library, flags):
 			'''Resolve probe strings depending on link mode and list of system
