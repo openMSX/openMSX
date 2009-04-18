@@ -24,7 +24,7 @@ VideoSource VideoSourceSettingPolicy::checkGetValue(VideoSource value) const
 		return value;
 	} else if (activeSources.find(VIDEO_MSX) != activeSources.end()) {
 		return VIDEO_MSX;
-	} else if (activeSources.find(VIDEO_MSX) != activeSources.end()) {
+	} else if (activeSources.find(VIDEO_GFX9000) != activeSources.end()) {
 		return VIDEO_GFX9000;
 	} else {
 		// happens during loading of setting
