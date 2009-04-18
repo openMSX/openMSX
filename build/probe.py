@@ -366,7 +366,8 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 					flags = ''
 				resolvedVars['%s_%s' % (package, flagsType)] = \
 					normalizeWhitespace(flags)
-		resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
+		if 'GLEW' not in disabledLibraries:
+			resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
 
 		TargetSystem(
 			log, compileCommandStr, outDir, probeVars, resolvedVars, customVars,
