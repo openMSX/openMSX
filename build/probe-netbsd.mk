@@ -1,6 +1,5 @@
 # $Id$
 
-MMAP_PREHEADER:=<sys/types.h>
 SYS_SOCKET_PREHEADER:=<sys/types.h>
 
 # Apparently libpng-config is not available.
