@@ -4,7 +4,7 @@
 #include "unistdp.hh"
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef	HAVE_SYS_MMAN_H
+#ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
 #include "LocalFile.hh"

@@ -349,7 +349,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 
 		resolvedVars = dict(
 			# System headers.
-			SYS_MMAN_CFLAGS = '',
 			SYS_SOCKET_CFLAGS = '',
 			# OpenGL is always a system lib.
 			GL_CFLAGS = probeVars['GL_CFLAGS'],
