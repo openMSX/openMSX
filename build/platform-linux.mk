@@ -10,3 +10,6 @@ OPENMSX_CXX?=g++
 
 # File name extension of executables.
 EXEEXT:=
+
+COMPILE_FLAGS+=-pthread
+LINK_FLAGS+=-pthread
