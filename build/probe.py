@@ -309,7 +309,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
 		# Allow the OS specific Makefile to override if necessary.
 		probePlatformVars = extractMakeVariables(
-			'build/platform-%s.mk' % platform, probeDefVars
+			'build/probe-%s.mk' % platform, probeDefVars
 			)
 		probeVars = dict(
 			( key, evalMakeExpr(value, probePlatformVars) )

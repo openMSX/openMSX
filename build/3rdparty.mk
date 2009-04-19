@@ -20,6 +20,7 @@ endif
 # Get information about the target OS.
 SYSTEM_LIBS:=
 include build/platform-$(OPENMSX_TARGET_OS).mk
+include build/probe-$(OPENMSX_TARGET_OS).mk
 
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.

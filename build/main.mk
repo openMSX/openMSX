@@ -177,6 +177,7 @@ endif
 # Load OS specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_OS)
 include $(MAKE_PATH)/platform-$(OPENMSX_TARGET_OS).mk
+include $(MAKE_PATH)/probe-$(OPENMSX_TARGET_OS).mk
 # Check that all expected variables were defined by OS specific Makefile:
 # - executable file name extension
 $(call DEFCHECK,EXEEXT)

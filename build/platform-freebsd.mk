@@ -30,11 +30,3 @@ COMPILE_FLAGS+=-D_REENTRANT -D_THREAD_SAFE \
 LINK_FLAGS+=-pthread \
 	`if [ -d $(X11BASE)/lib ]; then echo '-L$(X11BASE)/lib'; fi` \
 	`if [ -d $(PKGBASE)/lib ]; then echo '-L$(PKGBASE)/lib'; fi`
-
-
-# Probe Overrides
-# ===============
-
-MMAP_PREHEADER:=<sys/types.h>
-SYS_MMAN_PREHEADER:=<sys/types.h>
-SYS_SOCKET_PREHEADER:=<sys/types.h>
