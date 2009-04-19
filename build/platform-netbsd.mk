@@ -5,9 +5,6 @@
 # Does platform support symlinks?
 USE_SYMLINK:=true
 
-# Default compiler.
-OPENMSX_CXX?=$(CXX)
-
 # File name extension of executables.
 EXEEXT:=
 

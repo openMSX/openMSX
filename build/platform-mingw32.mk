@@ -5,9 +5,6 @@
 # Does platform support symlinks?
 USE_SYMLINK:=false
 
-# Default compiler.
-OPENMSX_CXX?=g++
-
 # File name extension of executables.
 EXEEXT:=.exe
 

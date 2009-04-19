@@ -5,9 +5,6 @@
 # Does platform support symlinks?
 USE_SYMLINK:=true
 
-# Default compiler.
-OPENMSX_CXX?=g++
-
 # Compile for the selected CPU.
 ifeq ($(OPENMSX_TARGET_CPU),x86)
 TARGET_FLAGS+=-arch i386

@@ -302,7 +302,7 @@ COMPILE_FLAGS+=$(TARGET_FLAGS)
 LINK_FLAGS+=$(TARGET_FLAGS)
 
 # Determine compiler.
-$(call DEFCHECK,OPENMSX_CXX)
+OPENMSX_CXX?=g++
 # Note: If CXX is passed as an argument to Make, it is not possible to change
 #       its value without the "override" directive.
 #       We respect the user's choices and only use "override" to add things.
