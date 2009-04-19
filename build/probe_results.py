@@ -24,8 +24,8 @@ def iterProbeResults(probeVars, customVars, disabledHeaders, disabledLibs):
 		yield 'No working C++ compiler was found.'
 		yield "Please install a C++ compiler, such as GCC's g++."
 		yield 'If you have a C++ compiler installed and openMSX did not ' \
-			'detect it, please set the environment variable OPENMSX_CXX to ' \
-			'the name of your C++ compiler.'
+			'detect it, please set the environment variable CXX to the name ' \
+			'of your C++ compiler.'
 		yield 'After you have corrected the situation, rerun "configure".'
 		yield ''
 	else:

@@ -302,11 +302,7 @@ COMPILE_FLAGS+=$(TARGET_FLAGS)
 LINK_FLAGS+=$(TARGET_FLAGS)
 
 # Determine compiler.
-OPENMSX_CXX?=g++
-# Note: If CXX is passed as an argument to Make, it is not possible to change
-#       its value without the "override" directive.
-#       We respect the user's choices and only use "override" to add things.
-CXX:=$(OPENMSX_CXX)
+CXX?=g++
 DEPEND_FLAGS:=
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Generic compilation flags.
@@ -321,7 +317,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   LD:=$(subst g++,ld,$(CXX:g++%=g++))
 else
   ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
-    $(error Set OPENMSX_CXX to your "g++" executable instead of "gcc")
+    $(error Set CXX to your "g++" executable instead of "gcc")
   endif
   ifneq ($(filter %icc,$(CXX)),)
     # Report all errors, warnings and remarks, except the following remarks:
