@@ -182,6 +182,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 	cd $(@D) && $(PWD)/$</configure \
 		--$(USE_VIDEO_X11)-video-x11 \
 		--disable-video-directfb \
+		--disable-video-svga \
+		--disable-nas \
 		--disable-directx \
 		--disable-debug \
 		--disable-cdrom \
