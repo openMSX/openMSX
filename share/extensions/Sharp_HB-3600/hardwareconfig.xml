@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml 6799 2007-08-04 22:24:13Z manuelbi $ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Floppydisk Drive</name>
+    <manufacturer>Sharp EPCOM</manufacturer>
+    <code>HB-3600</code>
+    <release_year>1985</release_year>
+    <description>External 5.25" disk drive.</description>
+    <type>external disk drive</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WD2793 id="Sharp Epcom HB-3600 diskROM/FDC">
+          <mem base="0x4000" size="0x4000"/>
+          <broken_fdc_read>false</broken_fdc_read>
+          <rom>
+            <sha1>608e8e9ab91c67f7015a67ea12f52ea3b0d609cd</sha1>
+            <filename>roms/hb3600_disk.rom</filename>
+          </rom>
+          <drives>2</drives>
+        </WD2793>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

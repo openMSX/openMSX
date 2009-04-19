@@ -1,5 +1,9 @@
 $Id$
 
+2009-04-19 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Sharp-Epcom HB-3600 dual 5.25" external disk drives, thanks to
+	  FRS for contributing it.
+
 2009-04-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added support for taking screenshots without OSD elements:
 	  Restructured OutputSurface and child classes to make it possible
