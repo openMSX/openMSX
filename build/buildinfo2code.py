@@ -7,7 +7,10 @@ from outpututils import rewriteIfChanged
 import sys
 
 def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
-	platformVars = extractMakeVariables('build/platform-%s.mk' % targetPlatform)
+	platformVars = extractMakeVariables(
+		'build/platform-%s.mk' % targetPlatform,
+		dict.fromkeys(('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS'), '')
+		)
 	setWindowIcon = parseBool(platformVars.get('SET_WINDOW_ICON', 'true'))
 
 	targetCPU = getCPU(cpuName)
