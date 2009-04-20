@@ -22,27 +22,6 @@
 #           this is how we build our redistributable binaries
 
 
-# Functions
-# =========
-
-ALL_FUNCS:=FTRUNCATE GETTIMEOFDAY MMAP USLEEP POSIX_MEMALIGN
-
-FTRUNCATE_FUNC:=ftruncate
-FTRUNCATE_HEADER:=<unistd.h>
-
-GETTIMEOFDAY_FUNC:=gettimeofday
-GETTIMEOFDAY_HEADER:=<sys/time.h>
-
-MMAP_FUNC:=mmap
-MMAP_HEADER:=<sys/mman.h>
-
-USLEEP_FUNC:=usleep
-USLEEP_HEADER:=<unistd.h>
-
-POSIX_MEMALIGN_FUNC:=posix_memalign
-POSIX_MEMALIGN_HEADER:=<stdlib.h>
-
-
 # Headers
 # =======
 

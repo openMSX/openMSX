@@ -15,6 +15,66 @@ from shlex import split as shsplit
 from subprocess import PIPE, Popen
 import sys
 
+class SystemFunction(object):
+	name = None
+
+	@classmethod
+	def getFunctionName(cls):
+		return cls.name
+
+	@classmethod
+	def getMakeName(cls):
+		return cls.name.upper()
+
+	@classmethod
+	def iterHeaders(cls, targetPlatform):
+		raise NotImplementedError
+
+class FTruncateFunction(SystemFunction):
+	name = 'ftruncate'
+
+	@classmethod
+	def iterHeaders(cls, targetPlatform):
+		yield '<unistd.h>'
+
+class GetTimeOfDayFunction(SystemFunction):
+	name = 'gettimeofday'
+
+	@classmethod
+	def iterHeaders(cls, targetPlatform):
+		yield '<sys/time.h>'
+
+class MMapFunction(SystemFunction):
+	name = 'mmap'
+
+	@classmethod
+	def iterHeaders(cls, targetPlatform):
+		if targetPlatform in ('darwin', 'openbsd'):
+			yield '<sys/types.h>'
+		yield '<sys/mman.h>'
+
+class PosixMemAlignFunction(SystemFunction):
+	name = 'posix_memalign'
+
+	@classmethod
+	def iterHeaders(cls, targetPlatform):
+		yield '<stdlib.h>'
+
+class USleepFunction(SystemFunction):
+	name = 'usleep'
+
+	@classmethod
+	def iterHeaders(cls, targetPlatform):
+		yield '<unistd.h>'
+
+# Build a list of system functions using introspection.
+def iterSystemFunctions(localObjects):
+	for obj in localObjects:
+		if isinstance(obj, type) and issubclass(obj, SystemFunction):
+			if obj is not SystemFunction:
+				yield obj
+systemFunctions = list(iterSystemFunctions(locals().itervalues()))
+
 def checkCompiler(log, compileCommand, outDir):
 	'''Checks whether compiler can compile anything at all.
 	Returns True iff the compiler works.
@@ -28,7 +88,7 @@ def checkCompiler(log, compileCommand, outDir):
 		yield '}'
 	return tryCompile(log, compileCommand, outDir + '/hello.cc', hello())
 
-def checkFunc(log, compileCommand, outDir, makeName, funcName, headers):
+def checkFunc(log, compileCommand, outDir, checkName, funcName, headers):
 	'''Checks whether the given function is declared by the given headers.
 	Returns True iff the function is declared.
 	'''
@@ -38,7 +98,7 @@ def checkFunc(log, compileCommand, outDir, makeName, funcName, headers):
 			yield '#include %s' % header
 		yield 'void (*f)() = reinterpret_cast<void (*)()>(%s);' % funcName
 	return tryCompile(
-		log, compileCommand, outDir + '/' + makeName + '.cc', takeFuncAddr()
+		log, compileCommand, outDir + '/' + checkName + '.cc', takeFuncAddr()
 		)
 
 def checkHeader(log, compileCommand, outDir, makeName, headers):
@@ -152,7 +212,8 @@ class TargetSystem(object):
 
 	def __init__(
 		self,
-		log, compileCommandStr, outDir, probeVars, resolvedVars, customVars,
+		log, compileCommandStr, outDir, platform,
+		probeVars, resolvedVars, customVars,
 		disabledLibraries, disabledFuncs, disabledHeaders
 		):
 		'''Create empty log and result files.
@@ -160,6 +221,7 @@ class TargetSystem(object):
 		self.log = log
 		self.compileCommandStr = compileCommandStr
 		self.outDir = outDir
+		self.platform = platform
 		self.probeVars = probeVars
 		self.resolvedVars = resolvedVars
 		self.customVars = customVars
@@ -174,8 +236,8 @@ class TargetSystem(object):
 		'''Run all probes.
 		'''
 		self.hello()
-		for func in self.probeVars['ALL_FUNCS'].split():
-			if func in self.disabledFuncs:
+		for func in systemFunctions:
+			if func.name in self.disabledFuncs:
 				self.disabledFunc(func)
 			else:
 				self.checkFunc(func)
@@ -227,24 +289,19 @@ class TargetSystem(object):
 			)
 		self.outVars['COMPILER'] = str(ok).lower()
 
-	def checkFunc(self, makeName):
+	def checkFunc(self, func):
 		'''Probe for function.
 		'''
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
-		headers = [ self.probeVars['%s_HEADER' % makeName] ]
-		preHeader = self.probeVars.get('%s_PREHEADER' % makeName)
-		if preHeader is not None:
-			headers.append(preHeader)
-
 		ok = checkFunc(
 			self.log, compileCommand, self.outDir,
-			makeName, self.probeVars['%s_FUNC' % makeName], headers
+			func.name, func.getFunctionName(), func.iterHeaders(self.platform)
 			)
 		print >> self.log, '%s function: %s' % (
 			'Found' if ok else 'Missing',
-			makeName
+			func.getFunctionName()
 			)
-		self.outVars['HAVE_%s' % makeName] = 'true' if ok else ''
+		self.outVars['HAVE_%s' % func.getMakeName()] = 'true' if ok else ''
 
 	def checkHeader(self, makeName):
 		'''Probe for header.
@@ -279,8 +336,8 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s_LIB' % makeName] = 'yes' if ok else ''
 
 	def disabledFunc(self, func):
-		print >> self.log, 'Disabled function: %s' % func
-		self.outVars['HAVE_%s' % func] = ''
+		print >> self.log, 'Disabled function: %s' % func.getFunctionName()
+		self.outVars['HAVE_%s' % func.getMakeName()] = ''
 
 	def disabledHeader(self, header):
 		print >> self.log, 'Disabled header: %s' % header
@@ -374,7 +431,8 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
 
 		TargetSystem(
-			log, compileCommandStr, outDir, probeVars, resolvedVars, customVars,
+			log, compileCommandStr, outDir, platform,
+			probeVars, resolvedVars, customVars,
 			disabledLibraries, disabledFuncs, disabledHeaders
 			).everything()
 	finally:
