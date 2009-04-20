@@ -1,7 +1,6 @@
 # $Id$
 
 MMAP_PREHEADER:=<sys/types.h>
-SYS_SOCKET_PREHEADER:=<sys/types.h>
 
 # TODO: tcl-search.sh should provide a proper value for CFLAGS, so do we really
 #       need this?

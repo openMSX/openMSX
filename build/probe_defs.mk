@@ -47,8 +47,7 @@ POSIX_MEMALIGN_HEADER:=<stdlib.h>
 # =======
 
 ALL_HEADERS:= \
-	GL GL_GL GLEW GL_GLEW JACK PNG SDL SDL_IMAGE SDL_TTF \
-	SYS_SOCKET TCL XML ZLIB
+	GL GL_GL GLEW GL_GLEW JACK PNG SDL SDL_IMAGE SDL_TTF TCL XML ZLIB
 
 # Location of GL headers is not standardised; if one of these matches,
 # we consider the GL headers found.
@@ -88,8 +87,6 @@ SDL_TTF_HEADER:=<SDL_ttf.h>
 # Note: "=" instead of ":=", so overriden value of SDL_CFLAGS will be used.
 SDL_TTF_CFLAGS_SYS_DYN=$(SDL_CFLAGS_SYS_DYN)
 SDL_TTF_CFLAGS_3RD_STA=$(SDL_CFLAGS_3RD_STA)
-
-SYS_SOCKET_HEADER:=<sys/socket.h>
 
 TCL_HEADER:=<tcl.h>
 TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags`

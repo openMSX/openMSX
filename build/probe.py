@@ -348,8 +348,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			return probeVars['%s_%s_%s' % (library, flags, mode)]
 
 		resolvedVars = dict(
-			# System headers.
-			SYS_SOCKET_CFLAGS = '',
 			# OpenGL is always a system lib.
 			GL_CFLAGS = probeVars['GL_CFLAGS'],
 			GL_GL_CFLAGS = probeVars['GL_GL_CFLAGS'],

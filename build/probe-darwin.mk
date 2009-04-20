@@ -11,7 +11,6 @@ FINK_CFLAGS:=$(addprefix -I,$(call DIR_IF_EXISTS,/sw/include))
 FINK_LDFLAGS:=$(addprefix -L,$(call DIR_IF_EXISTS,/sw/lib))
 
 MMAP_PREHEADER:=<sys/types.h>
-SYS_SOCKET_PREHEADER:=<sys/types.h>
 # TODO:
 # GL_HEADER:=<OpenGL/gl.h> iso GL_CFLAGS is cleaner,
 # but we have to modify the build before we can use it.
