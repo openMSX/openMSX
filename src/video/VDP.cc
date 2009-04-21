@@ -872,6 +872,9 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		if (change & 0x02) {
 			vram->updateSpritesEnabled((val & 0x02) == 0, time);
 		}
+		if (change & 0x08) {
+			vram->updateVRMode((val & 0x08) != 0, time);
+		}
 		break;
 	case 12:
 		if (change & 0xF0) {
@@ -1288,7 +1291,7 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	displayMode.setByte(mode);
 
 	ar.serialize("cmdEngine", *cmdEngine);
-	ar.serialize("vram", *vram);
+	ar.serialize("vram", *vram); // must come after controlRegs
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
 	if (ar.isLoader()) {
 		renderer->reset(Schedulable::getCurrentTime());

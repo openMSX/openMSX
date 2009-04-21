@@ -458,6 +458,13 @@ public:
 		statusReg0 = (statusReg0 & 0x80) | (value & 0x7F);
 	}
 
+	/** Returns current VR mode.
+	  * false -> VR=0,  true -> VR=1
+	  */
+	bool getVRMode() const {
+		return (controlRegs[8] & 8) != 0;
+	}
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

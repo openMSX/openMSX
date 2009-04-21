@@ -6,6 +6,7 @@
 #include "Math.hh"
 #include "SimpleDebuggable.hh"
 #include "serialize.hh"
+#include <algorithm>
 #include <cstring>
 
 namespace openmsx {
@@ -16,13 +17,14 @@ DummyVRAMOBserver VRAMWindow::dummyObserver;
 
 VRAMWindow::VRAMWindow(Ram& vram)
 	: data(&vram[0])
-	, sizeMask(Math::powerOfTwo(vram.getSize()) - 1)
 {
 	observer = &dummyObserver;
 	baseAddr  = -1; // disable window
-	baseMask = 0;
-	indexMask = 0; // these 3 don't matter but it makes valgrind happy
+	origBaseMask = 0;
+	effectiveBaseMask = 0;
+	indexMask = 0; // these 4 don't matter but it makes valgrind happy
 	combiMask = 0;
+	// sizeMask will be initialized shortly by the VDPVRAM class
 }
 
 
@@ -82,9 +84,12 @@ void LogicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param t
 
 static unsigned bufferSize(unsigned size)
 {
-	// for 16kb vram still allocate a 32kb buffer
-	//  (mirroring happens at 32kb, upper 16kb contains random data)
-	return (size != 0x4000) ? size : 0x8000;
+	// Always allocate at least a buffer of 128kB, this makes the VR0/VR1
+	// swapping a lot easier. Actually only in case there is also extended
+	// VRAM, we need to allocate more.
+	// TODO possible optimization: for TMS99x8 we could allocate 16kB, it
+	//      has no VR modes.
+	return std::max(0x20000u, size);
 }
 
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
@@ -95,7 +100,6 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	#ifdef DEBUG
 	, vramTime(time)
 	#endif
-	, sizeMask(Math::powerOfTwo(data.getSize()) - 1)
 	, actualSize(size)
 	, cmdReadWindow(data)
 	, cmdWriteWindow(data)
@@ -109,14 +113,18 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 {
 	(void)time;
 
+	vrMode = vdp.getVRMode();
+	setSizeMask(time);
+
 	// Initialise VRAM data array.
 	// TODO: Fill with checkerboard pattern NMS8250 has.
 	memset(&data[0], 0, data.getSize());
-	if (actualSize == 0x4000) {
-		// [0x4000,0x8000) contains random data
+	if (data.getSize() != actualSize) {
+		assert(data.getSize() > actualSize);
+		// Read from unconnected VRAM returns random data.
 		// TODO reading same location multiple times does not always
-		// give the same value
-		memset(&data[0x4000], 0xFF, 0x4000);
+		// give the same value.
+		memset(&data[actualSize], 0xFF, data.getSize() - actualSize);
 	}
 
 	// Whole VRAM is cachable.
@@ -150,6 +158,53 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime::param time)
 	renderer->updateSpritesEnabled(enabled, time);
 	cmdEngine->sync(time);
 	spriteChecker->updateSpritesEnabled(enabled, time);
+}
+
+void VDPVRAM::setSizeMask(EmuTime::param time)
+{
+	unsigned vrMask = vrMode ? 0xffffffff // VR=1, no extra masking
+	                         : 0x8000;    // VR=0, mask at 32kB
+	sizeMask = std::min(vrMask, Math::powerOfTwo(actualSize)) - 1;
+
+	cmdReadWindow.setSizeMask(sizeMask, time);
+	cmdWriteWindow.setSizeMask(sizeMask, time);
+	nameTable.setSizeMask(sizeMask, time);
+	colourTable.setSizeMask(sizeMask, time);
+	patternTable.setSizeMask(sizeMask, time);
+	bitmapVisibleWindow.setSizeMask(sizeMask, time);
+	bitmapCacheWindow.setSizeMask(sizeMask, time);
+	spriteAttribTable.setSizeMask(sizeMask, time);
+	spritePatternTable.setSizeMask(sizeMask, time);
+}
+static inline unsigned swapAddr(unsigned x)
+{
+	// translate VR0 address to corresponding VR1 address
+	//  note: output bit 0 is always 1
+	//        input bit 6 is taken twice
+	//        only 15 bits of the input are used
+	return 1 | ((x & 0x007F) << 1) | ((x & 0x7FC0) << 2);
+}
+void VDPVRAM::updateVRMode(bool newVRmode, EmuTime::param time)
+{
+	if (vrMode == newVRmode) {
+		// The swapping below may only happen when the mode is
+		// actually changed. So this test is not only an optimization.
+		return;
+	}
+	vrMode = newVRmode;
+	setSizeMask(time);
+
+	if (vrMode) {
+		// switch from VR=0 to VR=1
+		for (int i = 0x7FFF; i >=0; --i) {
+			std::swap(data[i], data[swapAddr(i)]);
+		}
+	} else {
+		// switch from VR=1 to VR=0
+		for (int i = 0; i < 0x8000; ++i) {
+			std::swap(data[i], data[swapAddr(i)]);
+		}
+	}
 }
 
 void VDPVRAM::setRenderer(Renderer* renderer, EmuTime::param time)
@@ -239,10 +294,11 @@ template<typename Archive>
 void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("baseAddr",  baseAddr);
-	ar.serialize("baseMask",  baseMask);
+	ar.serialize("baseMask",  origBaseMask);
 	ar.serialize("indexMask", indexMask);
 	if (ar.isLoader()) {
-		combiMask = ~baseMask | indexMask;
+		effectiveBaseMask = origBaseMask & sizeMask;
+		combiMask = ~effectiveBaseMask | indexMask;
 		// TODO ?  observer->updateWindow(isEnabled(), time);
 	}
 }
@@ -260,6 +316,11 @@ void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("bitmapCacheWindow",   bitmapCacheWindow);
 	ar.serialize("spriteAttribTable",   spriteAttribTable);
 	ar.serialize("spritePatternTable",  spritePatternTable);
+
+	if (ar.isLoader()) {
+		vrMode = vdp.getVRMode();
+		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(VDPVRAM);
 

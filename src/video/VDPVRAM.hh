@@ -148,7 +148,7 @@ public:
 	  */
 	inline int getMask() const {
 		assert(isEnabled());
-		return baseMask;
+		return effectiveBaseMask;
 	}
 
 	/** Sets the mask and enables this window.
@@ -165,17 +165,18 @@ public:
 	  */
 	inline void setMask(int newBaseMask, int newIndexMask,
 	                    EmuTime::param time) {
+		origBaseMask = newBaseMask;
 		newBaseMask &= sizeMask;
 		if (isEnabled() &&
-		    (newBaseMask  == baseMask) &&
+		    (newBaseMask  == effectiveBaseMask) &&
 		    (newIndexMask == indexMask)) {
 			return;
 		}
 		observer->updateWindow(true, time);
-		baseMask  = newBaseMask;
-		indexMask = newIndexMask;
-		baseAddr  =  baseMask & indexMask; // this enables window
-		combiMask = ~baseMask | indexMask;
+		effectiveBaseMask = newBaseMask;
+		indexMask         = newIndexMask;
+		baseAddr  =  effectiveBaseMask & indexMask; // this enables window
+		combiMask = ~effectiveBaseMask | indexMask;
 	}
 
 	/** Disable this window: no address will be considered inside.
@@ -196,10 +197,10 @@ public:
 		unsigned endIndex = index + size - 1;
 		unsigned areaBits = Math::floodRight(index ^ endIndex);
 		(void)areaBits;
-		assert((areaBits & baseMask) == areaBits);
-		assert((areaBits & ~indexMask) == areaBits);
+		assert((areaBits & effectiveBaseMask) == areaBits);
+		assert((areaBits & ~indexMask)        == areaBits);
 		assert(isEnabled());
-		return &data[baseMask & (indexMask | index)];
+		return &data[effectiveBaseMask & (indexMask | index)];
 	}
 
 	/** Similar to getReadArea(), but now with planar addressing mode.
@@ -217,10 +218,10 @@ public:
 		unsigned endIndex = index + size - 1;
 		unsigned areaBits = Math::floodRight(index ^ endIndex);
 		(void)areaBits;
-		assert((areaBits & baseMask) == areaBits);
-		assert((areaBits & ~indexMask) == areaBits);
+		assert((areaBits & effectiveBaseMask) == areaBits);
+		assert((areaBits & ~indexMask)        == areaBits);
 		assert(isEnabled());
-		unsigned addr = baseMask & (indexMask | index);
+		unsigned addr = effectiveBaseMask & (indexMask | index);
 		assert((addr & 1) == 0);
 		assert((size & 1) == 0);
 		ptr0 = &data[(addr / 2) | 0x00000];
@@ -232,7 +233,7 @@ public:
 	  */
 	inline byte readNP(unsigned index) const {
 		assert(isEnabled());
-		return data[baseMask & index];
+		return data[effectiveBaseMask & index];
 	}
 
 	/** Similar to readNP, but now with planar addressing.
@@ -240,7 +241,7 @@ public:
 	  */
 	inline byte readPlanar(unsigned index) const {
 		assert(isEnabled());
-		unsigned addr = baseMask & index;
+		unsigned addr = effectiveBaseMask & index;
 		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 		return data[addr];
 	}
@@ -288,11 +289,22 @@ public:
 		}
 	}
 
+	/** Inform VRAMWindow of changed sizeMask.
+	  * For the moment this only happens when switching the VR bit in VDP
+	  * register 8 (in VR=0 mode only 32kB VRAM is addressable).
+	  */
+	void setSizeMask(unsigned newSizeMask, EmuTime::param time) {
+		sizeMask = newSizeMask;
+		if (isEnabled()) {
+			setMask(origBaseMask, indexMask, time);
+		}
+	}
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	/** For access to setData.
+	/** Only VDPVRAM may construct VRAMWindow objects.
 	  */
 	friend class VDPVRAM;
 
@@ -305,33 +317,39 @@ private:
 	  */
 	byte* data;
 
-	/** Mask of this window.
-	  */
-	int baseMask;
-
-	/** Index mask of this window.
-	  */
-	int indexMask;
-
-	/** Lowest address in this window.
-	  */
-	int baseAddr;
-
-	/** Combination of baseMask and index mask used for "inside" checks.
-	  */
-	int combiMask;
-
 	/** Observer associated with this VRAM window.
 	  * It will be called when changes occur within the window.
 	  * If there is no observer, this variable contains NULL.
 	  */
 	VRAMObserver* observer;
 
+	/** Base mask as passed to the setMask() method.
+	 */
+	int origBaseMask;
+
+	/** Effective mask of this window.
+	  * This is always equal to 'origBaseMask & sizeMask'.
+	  */
+	int effectiveBaseMask;
+
+	/** Index mask of this window.
+	  */
+	int indexMask;
+
+	/** Lowest address in this window.
+	  * Or -1 when this window is disabled.
+	  */
+	int baseAddr;
+
+	/** Combination of effectiveBaseMask and index mask used for "inside" checks.
+	  */
+	int combiMask;
+
 	/** Mask to handle vram mirroring
 	  * Note: this only handles mirroring for power-of-2 sizes
 	  *       mirroring of extended VRAM is handled in a different way
 	  */
-	const int sizeMask;
+	int sizeMask;
 
 	static DummyVRAMOBserver dummyObserver;
 };
@@ -464,6 +482,12 @@ public:
 	  */
 	void updateSpritesEnabled(bool enabled, EmuTime::param time);
 
+	/** Change between VR=0 and VR=1 mode.
+	  * @param mode false->VR=0 true->VR=1
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	void updateVRMode(bool mode, EmuTime::param time);
+
 	void setRenderer(Renderer* renderer, EmuTime::param time);
 
 	/** Returns the size of VRAM in bytes
@@ -533,6 +557,8 @@ private:
 		*/
 	}
 
+	void setSizeMask(EmuTime::param time);
+
 	/** VDP this VRAM belongs to.
 	  */
 	VDP& vdp;
@@ -564,12 +590,16 @@ private:
 	  * Note: this only handles mirroring at power-of-2 sizes
 	  *       mirroring of extended VRAM is handled in a different way
 	  */
-	const unsigned sizeMask;
+	unsigned sizeMask;
 
 	/** Actual size of VRAM. Normally this is in sync with sizeMask, but
 	  * for 16kb VRAM sizeMask is 32kb-1 while actualSize is only 16kb.
 	  */
 	const unsigned actualSize;
+
+	/** Corresponds to the VR bit (bit 3 in VDP register 8).
+	  */
+	bool vrMode;
 
 public:
 	VRAMWindow cmdReadWindow;

@@ -286,3 +286,50 @@ Planar Addressing
 
 TODO: What is it? Where in the 'pipeline' does it happen?
 
+
+VR=0 / VR=1 mode
+----------------
+
+The VDP chip has 10 pins that are connected to the VRAM subsystem to control
+the read/write address. There are 8 address pins, these select the CAS/RAS
+address. And there is a CAS0 and CAS1 pin, these select one of two ram chip
+(groups). In total this allows for a 17-bit address space (=128kB). (I'm
+ignoring the extended VRAM here).
+
+When the VDP does a memory access, it's puts the 17-bit logical address on
+these pins. The way how this is done depends on the VR bit (bit 3 of register
+8), see table below.
+
+In VR=1 mode, it first puts the bits A15-A8 on the address bus, followed by the
+bits A7-A0. The whole time either pin CAS0 or CAS1 is selected, depending on
+address bit A16. In VR=0 mode, .. well see table ;)
+
+
+  VDP  |         VR=0         |         VR=1         |
+address|----------------------|----------------------|
+  pin  | RAS(high) | CAS(low) | RAS(high) | CAS(low) |
+-------+-----------+----------|-----------+----------|
+  AD0  |     A6  #2|     1  #1|     A8    |    A0    |
+  AD1  |     A7    |    A0    |     A9    |    A1    |
+  AD2  |     A8    |    A1    |    A10    |    A2    |
+  AD3  |     A9    |    A2    |    A11    |    A3    |
+  AD4  |    A10    |    A3    |    A12    |    A4    |
+  AD5  |    A11    |    A4    |    A13    |    A5    |
+  AD6  |    A12    |    A5    |    A14    |    A6    |
+  AD7  |    A13    |    A6  #2|    A15    |    A7    |
+-------+-----------+----------|-----------+----------|
+CAS0/1 |          A14         |          A16         |
+
+#1  this pin is always '1' in the CAS phase
+#2  A6 is output both in CAS and RAS phase, this allows to use both 8/6 and 7/7
+    RAS/CAS configurations (see VDP datasheet for details)
+
+
+One important side-effect is that in VR=0 mode, the VDP can only address 32kB
+memory. This is what makes the demo 'syntax infinity' work even though R14 is
+programmed 'wrongly' (it writes to address 0x1????, but expects the data to end
+up at address 0x0????).
+
+Another side effect is that when switching between VR=0 and VR=1 modes, the
+address space gets shuffled around, much like bit 7 in VDP register 1 for
+TMS99x8 chips.
