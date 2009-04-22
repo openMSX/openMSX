@@ -46,10 +46,7 @@ set_tabcompletion_proc reg [namespace code __tab_reg] false
 proc __tab_reg { args } {
 	variable regB
 	variable regW
-
-	set r1 [array names regB]
-	set r2 [array names regW]
-	join [list $r1 $r2]
+	concat [array names regB] [array names regW]
 }
 
 proc reg { name { val "" } } {
@@ -97,10 +94,12 @@ proc cw { reg } { format "%04X" [reg $reg] }
 proc cb { reg } { format "%02X" [reg $reg] }
 
 proc cpuregs {} {
-	puts "AF =[cw AF]  BC =[cw BC]  DE =[cw DE]  HL =[cw HL]"
-	puts "AF'=[cw AF2]  BC'=[cw BC2]  DE'=[cw DE2]  HL'=[cw HL2]"
-	puts "IX =[cw IX]  IY =[cw IY]  PC =[cw PC]  SP =[cw SP]"
-	puts "I  =[cb I]    R  =[cb R]    IM =[cb IM]    IFF=[cb IFF]"
+	set result ""
+	append result "AF =[cw AF ]  BC =[cw BC ]  DE =[cw DE ]  HL =[cw HL ]\n"
+	append result "AF'=[cw AF2]  BC'=[cw BC2]  DE'=[cw DE2]  HL'=[cw HL2]\n"
+	append result "IX =[cw IX ]  IY =[cw IY ]  PC =[cw PC ]  SP =[cw SP ]\n"
+	append result "I  =[cb I  ]    R  =[cb R]    IM =[cb IM]    IFF=[cb IFF]"
+	return $result
 }
 
 namespace export cpuregs

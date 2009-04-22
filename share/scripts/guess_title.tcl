@@ -12,7 +12,7 @@ proc guess_rom_title { ps ss } {
 }
 
 proc guess_disk_title { drive_name } {
-	# check name of the diskimage (remove directoy part and extension)
+	# check name of the diskimage (remove directory part and extension)
 	set disk ""
 	catch { set disk [lindex [$drive_name] 1] }
 	set first [string last  "/" $disk]

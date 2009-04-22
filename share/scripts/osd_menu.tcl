@@ -78,7 +78,7 @@ proc menu_create { menu_def_list } {
 					-rgba $textcolor -x $bordersize -y $y
 		set selectable [get_optional itemarr "selectable" true]
 		if $selectable {
-			set allactions [join [list $defactions $actions]]
+			set allactions [concat $defactions $actions]
 			lappend selectinfo [list $y $fontsize $allactions $on_select $on_deselect]
 		}
 		incr y $fontsize
@@ -264,7 +264,7 @@ proc prepare_menu_list { lst num menu_def_list } {
 		if {$on_deselect != ""} {
 			lappend item "on-deselect" "osd_menu::list_menu_item_select \{$lst\} $i $on_deselect"
 		}
-		lappend items [join [list $item $item_extra]]
+		lappend items [concat $item $item_extra]
 	}
 	set menudef(items) $items
 	return [prepare_menu [array get menudef]]
@@ -420,7 +420,7 @@ proc ls { directory extensions } {
 	foreach dir $dirs {
 		lappend dirs2 "$dir/"
 	}
-	return [join [list ".." [lsort $dirs2] [lsort $roms]]]
+	return [concat ".." [lsort $dirs2] [lsort $roms]]
 }
 
 proc displayOSDText { message } {

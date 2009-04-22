@@ -17,26 +17,32 @@ proc tab_showdebuggable { args } {
         }
 }
 
-proc showdebuggable_line {debuggable address } {
-	set mem "[debug read_block $debuggable $address 16]"
+proc showdebuggable_line {debuggable address} {
+	set size [debug size $debuggable]
+	set num [expr (($address + 16) <= $size) ? 16 : ($size - $address)]
+	set mem "[debug read_block $debuggable $address $num]"
 	binary scan $mem c* values
 	set hex ""
 	foreach val $values {
-		append hex "[format %02x [expr $val & 0xff]] "
+		append hex [format "%02x " [expr $val & 0xff]]
 	}
+	set pad [string repeat "   " [expr 16 - $num]]
 	set asc [regsub -all {[^ !-~]} $mem {.}]
-	return "[format %04x $address]: $hex $asc"
+	return [format "%04x: %s%s %s\n" $address $hex $pad $asc]
 }
 
-proc showdebuggable {debuggable address {lines 8}} {
+proc showdebuggable {debuggable {address 0} {lines 8}} {
+	set result ""
 	for {set i 0} {$i < $lines} {incr i} {
-		puts [showdebuggable_line $debuggable $address]
+		if {$address >= [debug size $debuggable]} break
+		append result [showdebuggable_line $debuggable $address]
 		incr address 16
 	}
+	return $result
 }
 
-# some stuff for backwards compatibility. Do we want to deprecate them?
-
+# Some stuff for backwards compatibility. Do we want to deprecate them?
+# I prefer to keep this as a convenience function.
 set_help_text showmem \
 {Print the content of the CPU visible memory nicely formatted
 This is a shortcut for 'showdebuggable memory <address>'.
@@ -45,17 +51,12 @@ Usage:
    showmem <address> [<linecount>]
 }
 
-proc showmem {address {lines 8}} {
-	puts [showdebuggable memory $address $lines]
-}
-
-proc showmem_line {address } {
-	puts [showdebuggable_line memory $address ]
+proc showmem {{address 0} {lines 8}} {
+	return [showdebuggable memory $address $lines]
 }
 
 namespace export showdebuggable
 namespace export showmem
-namespace export showmem_line
 
 } ;# namespace showdebuggable
 

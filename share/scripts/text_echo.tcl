@@ -13,14 +13,11 @@ variable escape
 variable escape_count
 
 proc text_echo {} {
-	variable graph
-	variable escape
-	variable escape_count
-	set graph 0
-	set escape 0
-	set escape_count 0
-	debug set_bp 0x0018 {} { text_echo::print }
-	debug set_bp 0x00A2 {} { text_echo::print }
+	variable graph 0
+	variable escape 0
+	variable escape_count 0
+	debug set_bp 0x0018 {[pc_in_slot 0 0]} { text_echo::print }
+	debug set_bp 0x00A2 {[pc_in_slot 0 0]} { text_echo::print }
 	return ""
 }
 
@@ -29,35 +26,32 @@ proc print {} {
 	variable escape
 	variable escape_count
 
-	set slot [ get_selected_slot 0 ]
-	if { $slot == "0 0" || $slot == "0 X" } {
-		set char [ reg A ]
-		if { $graph } {
-			#puts stderr [ format "\[G%x\]" $char ] nonewline
-			set graph 0
-		} elseif { $escape } {
-			#puts stderr [ format "\[E%x\]" $char ] nonewline
-			if { $escape_count == 0 } {
-				if { $char == 0x59 } {
-					set escape_count 2
-				} else {
-					set escape_count 1
-				}
+	set char [reg A]
+	if {$graph} {
+		#puts -nonewline stderr [format "\[G%x\]" $char]
+		set graph 0
+	} elseif {$escape} {
+		#puts -nonewline stderr [format "\[E%x\]" $char]
+		if {$escape_count == 0} {
+			if {$char == 0x59} {
+				set escape_count 2
 			} else {
-				incr escape_count -1
-				if { $escape_count == 0 } {
-					set escape 0
-				}
+				set escape_count 1
 			}
-		} elseif { $char == 0x01 } {
-			set graph 1
-		} elseif { $char == 0x1B } {
-			set escape 1
-		} elseif { $char == 0x0A || $char >= 0x20 } {
-			puts stderr [ format %c $char ] nonewline
 		} else {
-			#puts stderr [ format "\[N%x\]" $char ] nonewline
+			incr escape_count -1
+			if {$escape_count == 0} {
+				set escape 0
+			}
 		}
+	} elseif {$char == 0x01} {
+		set graph 1
+	} elseif {$char == 0x1B} {
+		set escape 1
+	} elseif {$char == 0x0A || $char >= 0x20} {
+		puts -nonewline stderr [format %c $char]
+	} else {
+		#puts -nonewline stderr [format "\[N%x\]" $char]
 	}
 }
 

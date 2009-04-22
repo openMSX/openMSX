@@ -75,7 +75,7 @@ set_help_text run_to \
 {Run to the specified address, if a breakpoint is reached earlier we stop
 at that breakpoint.}
 proc run_to {address} {
-	set bp [ debug set_bp $address ]
+	set bp [debug set_bp $address]
 	after break "debug remove_bp $bp"
 	debug cont
 }
@@ -162,17 +162,18 @@ by this command.}
 proc step_over {} {
 	set address [reg PC]
 	set l [debug disasm $address]
-	if {[string match "call*" [lindex $l 0]] ||
-	    [string match "rst*"  [lindex $l 0]] ||
-	    [string match "ldir*" [lindex $l 0]] ||
-	    [string match "cpir*" [lindex $l 0]] ||
-	    [string match "inir*" [lindex $l 0]] ||
-	    [string match "otir*" [lindex $l 0]] ||
-	    [string match "lddr*" [lindex $l 0]] ||
-	    [string match "cpdr*" [lindex $l 0]] ||
-	    [string match "indr*" [lindex $l 0]] ||
-	    [string match "otdr*" [lindex $l 0]] ||
-	    [string match "halt*" [lindex $l 0]]} {
+	set instr [lindex $l 0]
+	if {[string match "call*" $instr] ||
+	    [string match "rst*"  $instr] ||
+	    [string match "ldir*" $instr] ||
+	    [string match "cpir*" $instr] ||
+	    [string match "inir*" $instr] ||
+	    [string match "otir*" $instr] ||
+	    [string match "lddr*" $instr] ||
+	    [string match "cpdr*" $instr] ||
+	    [string match "indr*" $instr] ||
+	    [string match "otdr*" $instr] ||
+	    [string match "halt*" $instr]} {
 		run_to [expr $address + [llength $l] - 1]
 	} else {
 		debug step

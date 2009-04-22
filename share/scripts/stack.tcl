@@ -4,12 +4,10 @@ set_help_text stack \
 Usage:
    stack [<count>]
 }
-proc stack { { depth 8 } } {
-	set stackpointer [expr [debug read "CPU regs" 22] * 256 + [debug read "CPU regs" 23]]
-	for {set i 0} {$i < $depth} {incr i} {
-		set val [expr [debug read memory $stackpointer] + 256 * [debug read memory [expr $stackpointer + 1 ]] ]
-		puts "[format %04x $stackpointer]: [format %04x $val]"
-		incr stackpointer
-		incr stackpointer
+proc stack {{depth 8}} {
+	set result ""
+	for {set i 0; set sp [reg SP]} {$i < $depth} {incr i; incr sp 2} {
+		append result [format "%04x: %04x\n" $sp [peek16 $sp]]
 	}
+	return $result
 }

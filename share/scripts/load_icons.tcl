@@ -17,7 +17,7 @@ proc tab_load_icons { args } {
 	if {$num == 2} {
 		set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
 		set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
-		join [list $r1 $r2]
+		concat $r1 $r2
 	} elseif {$num == 3} {
 		list "top" "bottom" "left" "right"
 	}
@@ -149,9 +149,9 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 		set horizontal 0
 	} elseif { $position == "right" } {
 		set horizontal 0
-	        set xbase [ expr 320 - $xwidth]
+	        set xbase [expr 320 - $xwidth]
 	} elseif { $position == "bottom" } {
-	        set ybase [ expr 240 - $yheight ]
+	        set ybase [expr 240 - $yheight]
 	}
 	set vertical [expr !$horizontal]
 
@@ -314,4 +314,3 @@ trace add variable osd_leds_pos write load_icons::trace_osd_icon_vars
 after machine_switch load_icons::machine_switch_osd_icons
 
 load_icons $osd_leds_set $osd_leds_pos
-

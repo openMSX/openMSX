@@ -126,13 +126,13 @@ proc findcheat { args } {
 
 	# display the result
 	set num [llength $result]
-	set output ""
 	if {$num == 0} {
 		return "No results left"
 	} elseif {$num <= $max_num_results} {
+		set output ""
 		set sorted [lsort -integer -index 0 $result]
 		foreach {addr old new} [join $sorted] {
-			append output "[format 0x%04X $addr] : $old -> $new \n"
+			append output [format "0x%04X : %d -> %d\n" $addr $old $new]
 		}
 		return $output
 	} else {

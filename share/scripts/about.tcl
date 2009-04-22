@@ -12,16 +12,18 @@ proc about { cmd } {
 			}
 		}
 	}
+	set result ""
 	if {[llength $matches] == 0} {
 		error "No candidates found."
 	} elseif {[llength $matches] == 1} {
 		set match [lindex $matches 0]
-		puts "$match:"
-		puts [help $match]
+		append result "$match:\n"
+		append result "[help $match]\n"
 	} else {
-		puts "Multiple candidates found:"
+		append result "Multiple candidates found:\n"
 		foreach match $matches {
-			puts "  $match"
+			append result "  $match\n"
 		}
 	}
+	return $result
 }

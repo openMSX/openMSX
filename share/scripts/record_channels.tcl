@@ -48,7 +48,7 @@ set_tabcompletion_proc solo            [namespace code tab_sounddevice_channels]
 proc tab_sounddevice_channels { args } {
 	set result [machine_info sounddevice]
 	if {([lindex $args 0] == "record_channels") && ([llength $args] == 2)} {
-		set result [join [list $result "start stop list"]]
+		set result [concat $result "start stop list"]
 	}
 	return $result
 }

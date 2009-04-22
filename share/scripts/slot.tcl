@@ -33,10 +33,8 @@ set_help_text slotselect \
 proc slotselect { } {
 	set result ""
 	for { set page 0 } { $page < 4 } { incr page } {
-		set tmp [get_selected_slot $page]
-		set ps [lindex $tmp 0]
-		set ss [lindex $tmp 1]
-		append result [format "%04X" [expr 0x4000 * $page]] ": slot " $ps
+		foreach {ps ss} [get_selected_slot $page] {}
+		append result [format "%04X: slot %d" [expr 0x4000 * $page] $ps]
 		if {$ss != "X"} { append result "." $ss }
 		append result "\n"
 	}
@@ -67,16 +65,12 @@ set_help_text pc_in_slot \
 {Test whether the CPU's program counter is inside a certain slot.
 Typically used to set breakpoints in specific slots.}
 proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
-	set d "CPU regs"
-	set pc [expr [debug read $d 20] * 256 + [debug read $d 21]]
-	set page [expr $pc >> 14]
-	set tmp [get_selected_slot $page]
-	set pc_ps [lindex $tmp 0]
-	set pc_ss [lindex $tmp 1]
-	if { $ps != $pc_ps } { return false }
+	set page [expr [reg PC] >> 14]
+	foreach {pc_ps pc_ss} [get_selected_slot $page] {}
+	if {$ps != $pc_ps} { return false }
 	if {($ss != "X") && ($pc_ss != "X") && ($pc_ss != $ss)} { return false }
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]
-	if { ($mapper_size == 0) || ($mapper == "X" ) } { return true }
+	if {($mapper_size == 0) || ($mapper == "X")} { return true }
 	set pc_mapper [debug read "MapperIO" $page]
 	return [expr $mapper == ($pc_mapper & ($mapper_size - 1))]
 }
@@ -140,7 +134,7 @@ proc iomap {} {
 	while {$port < 256} {
 		set in  [machine_info input_port  $port]
 		set out [machine_info output_port $port]
-		set end [ expr $port + 1]
+		set end [expr $port + 1]
 		while { ($end < 256) &&
 		        [string equal $in  [machine_info input_port  $end]] &&
 		        [string equal $out [machine_info output_port $end]] } {

@@ -58,7 +58,8 @@ proc load_all { directory } {
 
 # for backwards compatibility
 proc vramdump { { filename "vramdump"} } {
-	puts stderr "This command ('vramdump') has been deprecated (and may be removed in a future release), please use 'save_debuggable VRAM' instead!"
+	#puts stderr "This command ('vramdump') has been deprecated (and may be removed in a future release), please use 'save_debuggable VRAM' instead!"
+	# I prefer to keep this command as a convenience shortcut
 	save_debuggable "VRAM" $filename
 }
 

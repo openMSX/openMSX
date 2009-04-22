@@ -6,37 +6,31 @@ set_help_text getScreen \
 
 proc getScreen {} {
 	# screen detection
-	if {[peek 0xfcaf] > 1} {
-		return [concat "Screen Mode " [peek 0xfcaf] " Not Supported"]
-	}
-	if {[peek 0xfcaf] == 0} {
-		# screen 0
-		if {[debug read VDP\ regs 0] & 0x04} {
-			set chars 80
-		} else {
-			set chars 40
+	set mode [peek 0xfcaf]
+	switch $mode {
+		0 {
+			set addr 0
+			set width [expr ([debug read "VDP regs" 0] & 0x04) ? 80 : 40]
 		}
-		set word 0
-	} else {
-		# screen 1
-		set word 6144
-		set chars 32
+		1 {
+			set addr 6144
+			set width 32
+		}
+		default {
+			error "Screen Mode $mode Not Supported"
+		}
 	}
-
-	set line ""
-	set screen ""
 
 	# scrape screen and build string
-	for {set y 0} {$y < 23} {incr y } {
-		set row [expr {$y * $chars}]
-		for {set x 0} {$x < $chars} {incr x } {
-			append line [format %c [debug read VRAM [expr {$word + $x + $row}]]]
-		}
-		append screen [string trim $line]
-		append screen "\n"
+	set screen ""
+	for {set y 0} {$y < 23} {incr y} {
 		set line ""
+		for {set x 0} {$x < $width} {incr x} {
+			append line [format %c [debug read VRAM $addr]]
+			incr addr
+		}
+		append screen [string trim $line] "\n"
 	}
-
 	return [string trim $screen]
 }
 
@@ -84,7 +78,7 @@ proc listing {} {
 	# Loop over all lines
 	set listing ""
 	for {set addr [peek16 0xf676]} {[peek $addr] != 0} {} {
-		append listing "0x[format %x $addr] > "
+		append listing [format "0x%x > " $addr]
 		incr addr 2
 		append listing "[peek16 $addr] "
 		incr addr 2
@@ -112,7 +106,7 @@ proc listing {} {
 				incr addr 2
 			} elseif {$token == 0x0D} {
 				# line number (stored as address)
-				set t "0x[format %x [expr [peek16 $addr] + 1]]"
+				set t [format "0x%x" [expr [peek16 $addr] + 1]]
 				incr addr 2
 			} elseif {$token == 0x0E} {
 				set t [format "%d" [peek16 $addr]]

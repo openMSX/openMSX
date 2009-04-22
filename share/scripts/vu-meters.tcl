@@ -60,7 +60,7 @@ proc vu_meters_init {} {
 
 	foreach soundchip [machine_info sounddevice] {
 		# determine number of channels
-		set channel_count [ get_num_channels $soundchip]
+		set channel_count [get_num_channels $soundchip]
 		# skip devices which don't have volume expressions (not implemented yet)
 		if {[get_volume_expr_for_channel $soundchip 0] == "x"} continue
 			
@@ -77,7 +77,7 @@ proc vu_meters_init {} {
 
 	set bar_width 2; # this value could be customized
 	set vu_meter_title_height 8; # this value could be customized
-	set bar_length [expr (320 - [llength $soundchips]) / [llength $soundchips] ]
+	set bar_length [expr (320 - [llength $soundchips]) / [llength $soundchips]]
 	if {$bar_length > (320/4)} {set bar_length [expr 320/4]}
 
 	# create widgets for each sound chip:
@@ -106,7 +106,7 @@ proc vu_meters_init {} {
 				osd create rectangle vu_meters.${soundchip}.ch${channel} \
 				-rgba 0xff0000ff \
 				-x 0 \
-				-y [expr $vu_meter_title_height + 1 + ( ($bar_width + 1) * $channel) ] \
+				-y [expr $vu_meter_title_height + 1 + (($bar_width + 1) * $channel)] \
 				-w 0 \
 				-h $bar_width \
 		}
@@ -147,24 +147,24 @@ proc update_meter {meter volume} {
 	set byte_val [expr round(255 * $volume)]
 	osd configure $meter \
 		-w [expr $bar_length * $volume] \
-		-rgba [expr ($byte_val << 24) + ((255 ^ $byte_val) << 8) + ( 0x008000C0)]
+		-rgba [expr ($byte_val << 24) + ((255 ^ $byte_val) << 8) + 0x008000C0]
 }
 
 proc get_volume_expr_for_channel {soundchip channel} {
 	# note: channel number starts with 0 here
 	switch [machine_info sounddevice $soundchip] {
 		"PSG" {
-			return "set keybits \[debug read \"${soundchip} regs\" 7 \]; expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 8] \] &0xF) ) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr $channel + 3]) & 1)"
+			return "set keybits \[debug read \"${soundchip} regs\" 7\]; expr ((\[debug read \"${soundchip} regs\" [expr $channel + 8]\] &0xF)) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr $channel + 3]) & 1)"
 		}
 		"MoonSound wave-part" {
-			return "expr (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50] \] >> 1) ) / 127.0 * \[expr \[debug read \"${soundchip} regs\" [expr $channel + 0x68] \] >> 7\]";
+			return "expr (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50]\] >> 1)) / 127.0 * \[expr \[debug read \"${soundchip} regs\" [expr $channel + 0x68]\] >> 7\]";
 		}
 		"Konami SCC" -
 		"Konami SCC+" {
-			return "expr ( (\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA] \] &0xF) ) / 15.0 * \[ expr ( (\[debug read \"${soundchip} SCC\" 0xAF\] >> $channel) &1) \]"
+			return "expr ((\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA]\] &0xF)) / 15.0 * \[expr ((\[debug read \"${soundchip} SCC\" 0xAF\] >> $channel) &1)\]"
 		}
 		"MSX-MUSIC" {
-			return "expr (15 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x30] \] &0xF) ) / 15.0 * \[ expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 0x20] ] &16) ) >> 4\]";# carrier total level, but only when key bit is on for this channel
+			return "expr (15 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x30]\] &0xF)) / 15.0 * \[expr ((\[debug read \"${soundchip} regs\" [expr $channel + 0x20]] &16)) >> 4\]";# carrier total level, but only when key bit is on for this channel
 		}
 		"MSX-AUDIO" {
 			if {$channel == 11} { ;# ADPCM
@@ -177,7 +177,7 @@ proc get_volume_expr_for_channel {soundchip channel} {
 				if {$channel > 5} {
 					incr offset 5
 				}
-				return "expr (63 - ( \[debug read \"${soundchip} regs\" [expr $offset + 0x43] \] &63) ) / 63.0 * \[ expr ( (\[debug read \"${soundchip} regs\" [expr $channel + 0xB0] ] &32) ) >> 5\] "
+				return "expr (63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] &63)) / 63.0 * \[expr ((\[debug read \"${soundchip} regs\" [expr $channel + 0xB0]] &32)) >> 5\] "
 			}
 		}
 		default {
@@ -230,5 +230,3 @@ namespace export toggle_vu_meters
 } ;# namespace vu_meters
 
 namespace import vu_meters::*
-
-
