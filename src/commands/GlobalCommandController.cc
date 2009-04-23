@@ -523,7 +523,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 			it->second->tabCompletion(tokens);
 		} else {
 			TclObject command(getInterpreter());
-			command.addListElement("__tabcompletion");
+			command.addListElement("openmsx::tabcompletion");
 			command.addListElements(tokens.begin(), tokens.end());
 			try {
 				string result = command.executeCommand();
@@ -587,7 +587,7 @@ void HelpCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 			result.setString(it->second->help(tokens2));
 		} else {
 			TclObject command(result.getInterpreter());
-			command.addListElement("__help");
+			command.addListElement("openmsx::help");
 			vector<TclObject*>::const_iterator it2 = tokens.begin();
 			for (++it2; it2 != tokens.end(); ++it2) {
 				command.addListElement(**it2);

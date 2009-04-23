@@ -1,5 +1,8 @@
 $Id$
 
+2009-04-24 Manuel Bilderbeek <manuel@msxnet.org>
+	* Final step in un-uglifying Tcl scripts using Tcl namespaces :)
+
 2009-04-19 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Sharp-Epcom HB-3600 dual 5.25" external disk drives, thanks to
 	  FRS for contributing it.
