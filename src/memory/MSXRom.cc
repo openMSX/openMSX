@@ -36,6 +36,9 @@ void MSXRom::setRomType(RomType type_)
 void MSXRom::getExtraDeviceInfo(TclObject& result) const
 {
 	result.addListElement(RomInfo::romTypeToName(type));
+	// add sha1sum, to be able to get a unique key for this ROM device,
+	// so that it can be used to look up things in databases
+	result.addListElement(rom->getOriginalSHA1());
 }
 
 } // namespace openmsx
