@@ -90,7 +90,7 @@ set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *
 set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
 foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
 	set script [data_file scripts/$script]
-	if {[catch {namespace eval :: "source $script"}]} {
+	if {[catch {namespace eval :: "source {$script}"}]} {
 		puts stderr "Error while executing $script\n$errorInfo"
 	}
 }
