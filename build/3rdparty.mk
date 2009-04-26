@@ -184,6 +184,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-video-directfb \
 		--disable-video-svga \
 		--disable-nas \
+		--disable-esd \
 		--disable-directx \
 		--disable-debug \
 		--disable-cdrom \
