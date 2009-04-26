@@ -57,17 +57,12 @@ DOWNLOAD_DIRECTX:=http://alleg.sourceforge.net/files
 #       build process will break.
 PACKAGE_ZLIB:=zlib-1.2.3
 PACKAGE_PNG:=libpng-1.2.35
-# 2.3.8 is latest, but gives install problem?
 PACKAGE_FREETYPE:=freetype-2.3.9
-# 1.2.13 is latest, need to migrate patches
 PACKAGE_SDL:=SDL-1.2.13
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.7
 PACKAGE_SDL_TTF:=SDL_ttf-2.0.9
-# 1.5.1 is latest, need to migrate patches
 PACKAGE_GLEW:=glew-1.5.1
-# 8.5.6 is latest, need to migrate patches
 PACKAGE_TCL:=tcl8.5.6
-# 2.7.3 is latest! Does it work?
 PACKAGE_XML:=libxml2-2.7.3
 PACKAGE_DIRECTX:=dx70
 
