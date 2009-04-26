@@ -30,9 +30,9 @@ protected:
 	CliConnection(CommandController& commandController,
 	              EventDistributor& eventDistributor);
 
-	/** Starts this connection by writing the opening tag
-	  * and starting the listener thread.
+	/** Starts the helper thread.
 	  * Subclasses should call this method at the end of their constructor.
+	  * Subclasses should themself send the opening tag (startOutput()).
 	  */
 	void start();
 
@@ -42,14 +42,17 @@ protected:
 	  */
 	void end();
 
-	void run();
-
-	virtual void beforeConnection() = 0;
-	virtual void connection() = 0;
+	/** Close the connection. After this method is called, calls to
+	  * output() should be ignored.
+	  */
 	virtual void close() = 0;
 
+	/** Send opening XML tag, should be called exactly once by a subclass
+	  * shortly after opening a connection. Cannot be implemented in the
+	  * base class because some subclasses (want to send data before this
+	  * tag).
+	  */
 	void startOutput();
-	void endOutput();
 
 	xmlParserCtxt* parser_context;
 	Thread thread; // TODO: Possible to make this private?
@@ -95,8 +98,7 @@ public:
 
 private:
 	virtual void close();
-	virtual void beforeConnection();
-	virtual void connection();
+	virtual void run();
 
 	bool ok;
 };
@@ -114,8 +116,7 @@ public:
 
 private:
 	virtual void close();
-	virtual void beforeConnection();
-	virtual void connection();
+	virtual void run();
 
 	HANDLE pipeHandle;
 };
@@ -133,11 +134,11 @@ public:
 
 private:
 	virtual void close();
-	virtual void beforeConnection();
-	virtual void connection();
+	virtual void run();
 
 	Semaphore sem;
 	SOCKET sd;
+	bool established;
 };
 
 } // namespace openmsx

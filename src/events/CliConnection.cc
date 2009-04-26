@@ -99,25 +99,14 @@ void CliConnection::startOutput()
 	output("<openmsx-output>\n");
 }
 
-void CliConnection::endOutput()
-{
-	output("</openmsx-output>\n");
-}
-
 void CliConnection::start()
 {
-	beforeConnection();
 	thread.start();
-}
-
-void CliConnection::run()
-{
-	connection();
 }
 
 void CliConnection::end()
 {
-	endOutput();
+	output("</openmsx-output>\n");
 	close();
 }
 
@@ -219,6 +208,7 @@ StdioConnection::StdioConnection(CommandController& commandController,
 	: CliConnection(commandController, eventDistributor)
 	, ok(true)
 {
+	startOutput();
 	start();
 }
 
@@ -227,13 +217,9 @@ StdioConnection::~StdioConnection()
 	end();
 }
 
-void StdioConnection::beforeConnection()
+void StdioConnection::run()
 {
-	startOutput();
-}
-
-void StdioConnection::connection()
-{
+	// runs in helper thread
 	while (ok) {
 		char buf[BUF_SIZE];
 		int n = read(STDIN_FILENO, buf, sizeof(buf));
@@ -282,6 +268,7 @@ PipeConnection::PipeConnection(CommandController& commandController,
 		throw FatalError(msg);
 	}
 
+	startOutput();
 	start();
 }
 
@@ -290,16 +277,9 @@ PipeConnection::~PipeConnection()
 	end();
 }
 
-void PipeConnection::beforeConnection()
+void PipeConnection::run()
 {
-	// Emit the output element on this thread...
-	// Otherwise, this thread's startup actions will race with the
-	// connection thread.
-	startOutput();
-}
-
-void PipeConnection::connection()
-{
+	// runs in helper thread
 	while (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		char buf[BUF_SIZE];
 		unsigned long bytesRead;
@@ -336,7 +316,7 @@ SocketConnection::SocketConnection(CommandController& commandController,
                                    EventDistributor& eventDistributor,
                                    SOCKET sd_)
 	: CliConnection(commandController, eventDistributor)
-	, sem(1), sd(sd_)
+	, sem(1), sd(sd_), established(false)
 {
 	start();
 }
@@ -346,23 +326,25 @@ SocketConnection::~SocketConnection()
 	end();
 }
 
-void SocketConnection::beforeConnection()
+void SocketConnection::run()
 {
-	// We're on the accept thread, which we don't want to block
-}
-
-void SocketConnection::connection()
-{
+	// runs in helper thread
 #ifdef _WIN32
-	// Authenticate and authorize the caller
-	SocketStreamWrapper stream(sd);
-	SspiNegotiateServer server(stream);
-	if (!server.Authenticate() || !server.Authorize()) {
+	{
+		ScopedLock lock(sem);
+		// Authenticate and authorize the caller
+		SocketStreamWrapper stream(sd);
+		SspiNegotiateServer server(stream);
+		bool ok = server.Authenticate() && server.Authorize();
+	}
+	if (!ok) {
+		close();
 		return;
 	}
 #endif
 	// Start output element
 	startOutput();
+	established = true; // TODO needs locking?
 
 	// TODO is locking correct?
 	// No need to lock in this thread because we don't write to 'sd'
@@ -382,6 +364,11 @@ void SocketConnection::connection()
 
 void SocketConnection::output(const std::string& message)
 {
+	if (!established) { // TODO needs locking?
+		// Connection isn't authorized yet (and opening tag is not
+		// yet send). Ignore log and update messages for now.
+		return;
+	}
 	const char* data = message.data();
 	unsigned pos = 0;
 	size_t bytesLeft = message.size();
