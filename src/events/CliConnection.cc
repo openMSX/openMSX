@@ -330,12 +330,13 @@ void SocketConnection::run()
 {
 	// runs in helper thread
 #ifdef _WIN32
+	bool ok;
 	{
 		ScopedLock lock(sem);
 		// Authenticate and authorize the caller
 		SocketStreamWrapper stream(sd);
 		SspiNegotiateServer server(stream);
-		bool ok = server.Authenticate() && server.Authorize();
+		ok = server.Authenticate() && server.Authorize();
 	}
 	if (!ok) {
 		close();
