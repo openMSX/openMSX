@@ -1,0 +1,52 @@
+diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m
+--- SDL-1.2.13.orig/src/video/quartz/SDL_QuartzEvents.m	2009-04-16 11:21:48.000000000 +0200
++++ SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m	2009-04-16 11:31:09.000000000 +0200
+@@ -267,7 +267,9 @@ static void QZ_DoKey (_THIS, int state, 
+         the scancode/keysym.
+     */
+     if (SDL_TranslateUNICODE && state == SDL_PRESSED) {
+-        [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
++        if (!([event modifierFlags] & NSCommandKeyMask)) {
++            [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
++        }
+         chars = [ event characters ];
+         numChars = [ chars length ];
+         if (numChars > 0)
+@@ -305,7 +307,7 @@ static void QZ_DoKey (_THIS, int state, 
+         }
+     }
+     
+-    if (SDL_getenv ("SDL_ENABLEAPPEVENTS"))
++    if (SDL_getenv ("SDL_ENABLEAPPEVENTS") && !(mode_flags & SDL_FULLSCREEN))
+         [ NSApp sendEvent:event ];
+ }
+ 
+diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.h
+--- SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.h	2009-04-16 11:21:48.000000000 +0200
++++ SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.h	2009-04-16 11:23:43.000000000 +0200
+@@ -30,6 +30,7 @@
+ - (void)appWillUnhide:(NSNotification*)note;
+ - (void)appDidUnhide:(NSNotification*)note;
+ - (id)initWithContentRect:(NSRect)contentRect styleMask:(unsigned int)styleMask backing:(NSBackingStoreType)backingType defer:(BOOL)flag;
++- (BOOL)performKeyEquivalent:(NSEvent*)event;
+ @end
+ 
+ /* Delegate for our NSWindow to send SDLQuit() on close */
+diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.m
+--- SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.m	2009-04-16 11:21:48.000000000 +0200
++++ SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.m	2009-04-16 11:23:43.000000000 +0200
+@@ -198,6 +198,14 @@ static void QZ_SetPortAlphaOpaque () {
+     return [ super initWithContentRect:contentRect styleMask:styleMask backing:backingType defer:flag ];
+ }
+ 
++- (BOOL)performKeyEquivalent:(NSEvent*)event
++{
++	/* give the menu a chance to handle the key equivalent */
++	[[NSApp mainMenu] performKeyEquivalent:event];
++	/* avoid beep by pretending we handled it */
++	return YES;	
++}
++
+ @end
+ 
+ @implementation SDL_QuartzWindowDelegate
