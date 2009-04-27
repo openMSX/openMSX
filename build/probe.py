@@ -6,6 +6,7 @@
 from compilers import CompileCommand, LinkCommand, tryCompile, tryLink
 from makeutils import evalMakeExpr, extractMakeVariables
 from outpututils import rewriteIfChanged
+from probe_defs import librariesByName
 from probe_results import iterProbeResults
 
 from msysutils import msysActive
@@ -241,19 +242,20 @@ class TargetSystem(object):
 				self.disabledFunc(func)
 			else:
 				self.checkFunc(func)
-		for header in self.probeVars['ALL_HEADERS'].split():
+		for header in sorted(librariesByName.iterkeys()) + \
+				[ 'GL_GL', 'GL_GLEW' ]:
 			if header in self.disabledHeaders:
 				self.disabledHeader(header)
 			else:
 				self.checkHeader(header)
-		for library in self.probeVars['ALL_LIBS'].split():
+		for library in sorted(librariesByName.iterkeys()):
 			if library in self.disabledLibraries:
 				self.disabledLibrary(library)
 			else:
 				self.checkLib(library)
 
 	def printAll(self):
-		for package in self.probeVars['ALL_LIBS'].split():
+		for package in sorted(librariesByName.iterkeys()):
 			if package not in self.disabledLibraries:
 				for name in ('%s_CFLAGS' % package, '%s_LDFLAGS' % package):
 					self.outVars[name] = self.resolvedVars[name]
@@ -354,26 +356,30 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	print 'Probing target system...'
 	print >> log, 'Probing system:'
 	try:
-		customVars = extractMakeVariables('build/custom.mk')
+		probeDefVars = {}
+		for name, library in sorted(librariesByName.iteritems()):
+			header = library.header
+			if hasattr(header, '__iter__'):
+				header, altheader = header
+				probeDefVars['GL_%s_HEADER' % name] = altheader
+			probeDefVars['%s_HEADER' % name] = header
+			probeDefVars['%s_CFLAGS' % name] = \
+				library.getCompileFlags(platform, linkMode)
+			probeDefVars['%s_LDFLAGS' % name] = \
+				library.getLinkFlags(platform, linkMode)
+			probeDefVars['%s_RESULT' % name] = \
+				library.getResult(platform, linkMode)
 
-		# Define default compile/link flags.
-		baseVars = dict(customVars)
-		baseVars.update({
+		baseVars = {
 			'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
-			'LINK_FLAGS': '',
-			})
-
-		probeDefVars = extractMakeVariables('build/probe_defs.mk', baseVars)
-		# Allow the OS specific Makefile to override if necessary.
-		probePlatformVars = extractMakeVariables(
-			'build/probe-%s.mk' % platform, probeDefVars
-			)
+			}
 		probeVars = dict(
-			( key, evalMakeExpr(value, probePlatformVars) )
-			for key, value in probePlatformVars.iteritems()
+			( key, evalMakeExpr(value, baseVars) )
+			for key, value in probeDefVars.iteritems()
 			)
 
-		disabledLibraries = set(probeVars['DISABLED_LIBRARIES'].split())
+		customVars = extractMakeVariables('build/custom.mk')
+		disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
 		disabledFuncs = set()
 		disabledHeaders = set()
 
@@ -395,22 +401,13 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		if 'GLEW' in disabledLibraries:
 			disabledHeaders.add('GL_GLEW')
 
-		systemLibs = set()
-
-		def resolveMode(library, flags):
-			'''Resolve probe strings depending on link mode and list of system
-			libs.
-			'''
-			mode = 'SYS_DYN' if library in systemLibs else linkMode
-			return probeVars['%s_%s_%s' % (library, flags, mode)]
-
 		resolvedVars = dict(
 			# OpenGL is always a system lib.
 			GL_CFLAGS = probeVars['GL_CFLAGS'],
-			GL_GL_CFLAGS = probeVars['GL_GL_CFLAGS'],
+			GL_GL_CFLAGS = probeVars['GL_CFLAGS'],
 			GL_LDFLAGS = probeVars['GL_LDFLAGS'],
 			)
-		for package in probeVars['ALL_LIBS'].split():
+		for package in librariesByName.iterkeys():
 			if package == 'GL' or package in disabledLibraries:
 				continue
 			for flagsType in ('CFLAGS', 'LDFLAGS'):
@@ -418,7 +415,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 				#       CFLAGS definition, it will be executed multiple times.
 				try:
 					flags = evaluateBackticks(
-						log, resolveMode(package, flagsType)
+						log, probeVars['%s_%s' % (package, flagsType)]
 						)
 				except IOError:
 					# Executing a lib-config script is expected to fail if the
