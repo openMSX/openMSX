@@ -197,3 +197,11 @@ class LibXML2(Library):
 class ZLib(Library):
 	libName = 'z'
 	header = '<zlib.h>'
+
+# Build a dictionary of libraries using introspection.
+def _discoverLibraries(localObjects):
+	for obj in localObjects:
+		if isinstance(obj, type) and issubclass(obj, Library):
+			if not (obj is Library):
+				yield obj.libName, obj
+librariesByName = dict(_discoverLibraries(locals().itervalues()))
