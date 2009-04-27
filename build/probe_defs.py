@@ -194,10 +194,10 @@ class SDL(Library):
 		flags = super(SDL, cls).getLinkFlags(platform, linkMode)
 		if platform in ('linux', 'gnu'):
 			if cls.isSystemLibrary(platform, linkMode):
+				return flags
+			else:
 				# TODO: Fix sdl-config instead.
 				return '%s -ldl' % flags
-			else:
-				return flags
 		elif platform == 'mingw32':
 			if cls.isSystemLibrary(platform, linkMode):
 				return flags.replace('-mwindows', '-mconsole')
