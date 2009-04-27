@@ -167,7 +167,7 @@ class LibPNG(Library):
 	libName = 'png12'
 	makeName = 'PNG'
 	header = '<png.h>'
-	configScript = 'libpng-config'
+	configScriptName = 'libpng-config'
 
 	@classmethod
 	def getDynamicLibsOption(cls, platform):
@@ -187,7 +187,7 @@ class SDL(Library):
 	libName = 'SDL'
 	makeName = 'SDL'
 	header = '<SDL.h>'
-	configScript = 'sdl-config'
+	configScriptName = 'sdl-config'
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode):
@@ -278,7 +278,7 @@ class LibXML2(Library):
 	libName = 'xml2'
 	makeName = 'XML'
 	header = '<libxml/parser.h>'
-	configScript = 'xml2-config'
+	configScriptName = 'xml2-config'
 
 	@classmethod
 	def getConfigScript(cls, platform, linkMode):
