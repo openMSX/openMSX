@@ -356,28 +356,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	print 'Probing target system...'
 	print >> log, 'Probing system:'
 	try:
-		probeDefVars = {}
-		for name, library in sorted(librariesByName.iteritems()):
-			header = library.header
-			if hasattr(header, '__iter__'):
-				header, altheader = header
-				probeDefVars['GL_%s_HEADER' % name] = altheader
-			probeDefVars['%s_HEADER' % name] = header
-			probeDefVars['%s_CFLAGS' % name] = \
-				library.getCompileFlags(platform, linkMode)
-			probeDefVars['%s_LDFLAGS' % name] = \
-				library.getLinkFlags(platform, linkMode)
-			probeDefVars['%s_RESULT' % name] = \
-				library.getResult(platform, linkMode)
-
-		baseVars = {
-			'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
-			}
-		probeVars = dict(
-			( key, evalMakeExpr(value, baseVars) )
-			for key, value in probeDefVars.iteritems()
-			)
-
 		customVars = extractMakeVariables('build/custom.mk')
 		disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
 		disabledFuncs = set()
@@ -401,28 +379,50 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		if 'GLEW' in disabledLibraries:
 			disabledHeaders.add('GL_GLEW')
 
+		baseVars = {
+			'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
+			}
+		def resolve(expr):
+			expr2 = evalMakeExpr(expr, baseVars)
+			# TODO: Since for example "sdl-config" is used in more than one
+			#       CFLAGS definition, it will be executed multiple times.
+			try:
+				value = evaluateBackticks(log, expr2)
+			except IOError:
+				# Executing a lib-config script is expected to fail if the
+				# script is not installed.
+				# TODO: Report this explicitly in the probe results table.
+				value = ''
+			return normalizeWhitespace(value)
+
+		probeVars = {}
 		resolvedVars = {}
-		for package in librariesByName.iterkeys():
-			if package in disabledLibraries:
+		for name, library in sorted(librariesByName.iteritems()):
+			if name in disabledLibraries:
 				continue
-			for flagsType in ('CFLAGS', 'LDFLAGS'):
-				# TODO: Since for example "sdl-config" is used in more than one
-				#       CFLAGS definition, it will be executed multiple times.
-				try:
-					flags = evaluateBackticks(
-						log, probeVars['%s_%s' % (package, flagsType)]
-						)
-				except IOError:
-					# Executing a lib-config script is expected to fail if the
-					# script is not installed.
-					# TODO: Report this explicitly in the probe results table.
-					flags = ''
-				resolvedVars['%s_%s' % (package, flagsType)] = \
-					normalizeWhitespace(flags)
-		if 'GL' not in disabledLibraries:
-			resolvedVars['GL_GL_CFLAGS'] = resolvedVars['GL_CFLAGS']
-		if 'GLEW' not in disabledLibraries:
-			resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
+
+			header = library.header
+			if hasattr(header, '__iter__'):
+				header, altheader = header
+			else:
+				altheader = None
+
+			probeVars['%s_HEADER' % name] = header
+			if altheader is not None:
+				probeVars['GL_%s_HEADER' % name] = altheader
+
+			resolvedVars['%s_CFLAGS' % name] = resolve(
+				library.getCompileFlags(platform, linkMode)
+				)
+			if altheader is not None:
+				resolvedVars['GL_%s_CFLAGS' % name] = \
+					resolvedVars['%s_CFLAGS' % name]
+			resolvedVars['%s_LDFLAGS' % name] = resolve(
+				library.getLinkFlags(platform, linkMode)
+				)
+			resolvedVars['%s_RESULT' % name] = resolve(
+				library.getResult(platform, linkMode)
+				)
 
 		TargetSystem(
 			log, compileCommandStr, outDir, platform,
