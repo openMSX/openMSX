@@ -23,6 +23,7 @@
 
 class Library(object):
 	libName = None
+	makeName = None
 	header = None
 	configScriptName = None
 
@@ -98,6 +99,7 @@ class Library(object):
 
 class GL(Library):
 	libName = 'GL'
+	makeName = 'GL'
 	# Location of GL headers is not standardised; if one of these matches,
 	# we consider the GL headers found.
 	header = ( '<gl.h>', '<GL/gl.h>' )
@@ -127,6 +129,7 @@ class GL(Library):
 
 class GLEW(Library):
 	libName = 'GLEW'
+	makeName = 'GLEW'
 	# The comment for the GL headers applies to GLEW as well.
 	header = ( '<glew.h>', '<GL/glew.h>' )
 
@@ -157,10 +160,12 @@ class GLEW(Library):
 
 class JACK(Library):
 	libName = 'jack'
+	makeName = 'JACK'
 	header = '<jack/jack.h>'
 
 class LibPNG(Library):
 	libName = 'png12'
+	makeName = 'PNG'
 	header = '<png.h>'
 	configScript = 'libpng-config'
 
@@ -180,6 +185,7 @@ class LibPNG(Library):
 
 class SDL(Library):
 	libName = 'SDL'
+	makeName = 'SDL'
 	header = '<SDL.h>'
 	configScript = 'sdl-config'
 
@@ -208,6 +214,7 @@ class SDL(Library):
 
 class SDL_image(Library):
 	libName = 'SDL_image'
+	makeName = 'SDL_IMAGE'
 	header = '<SDL_image.h>'
 
 	@classmethod
@@ -223,6 +230,7 @@ class SDL_image(Library):
 
 class SDL_ttf(Library):
 	libName = 'SDL_ttf'
+	makeName = 'SDL_TTF'
 	header = '<SDL_ttf.h>'
 
 	@classmethod
@@ -231,6 +239,7 @@ class SDL_ttf(Library):
 
 class TCL(Library):
 	libName = 'tcl'
+	makeName = 'TCL'
 	header = '<tcl.h>'
 
 	@classmethod
@@ -267,6 +276,7 @@ class TCL(Library):
 
 class LibXML2(Library):
 	libName = 'xml2'
+	makeName = 'XML'
 	header = '<libxml/parser.h>'
 	configScript = 'xml2-config'
 
@@ -291,6 +301,7 @@ class LibXML2(Library):
 
 class ZLib(Library):
 	libName = 'z'
+	makeName = 'ZLIB'
 	header = '<zlib.h>'
 
 # Build a dictionary of libraries using introspection.
@@ -298,5 +309,5 @@ def _discoverLibraries(localObjects):
 	for obj in localObjects:
 		if isinstance(obj, type) and issubclass(obj, Library):
 			if not (obj is Library):
-				yield obj.libName, obj
+				yield obj.makeName, obj
 librariesByName = dict(_discoverLibraries(locals().itervalues()))
