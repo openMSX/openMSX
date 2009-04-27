@@ -27,11 +27,11 @@ class Library(object):
 	configScriptName = None
 
 	@classmethod
-	def getDynamicLibsOption(cls, platform):
+	def getDynamicLibsOption(cls, platform): # pylint: disable-msg=W0613
 		return '--libs'
 
 	@classmethod
-	def getStaticLibsOption(cls, platform):
+	def getStaticLibsOption(cls, platform): # pylint: disable-msg=W0613
 		return None
 
 	@classmethod
@@ -58,6 +58,9 @@ class Library(object):
 	def getCompileFlags(cls, platform, linkMode):
 		configScript = cls.getConfigScript(platform, linkMode)
 		if configScript is None:
+			# TODO: We should allow multiple locations where libraries can be
+			#       searched for. For example, MacPorts and Fink are neither
+			#       systemwide nor our 3rdparty area.
 			if cls.isSystemLibrary(platform, linkMode):
 				return ''
 			else:
@@ -103,10 +106,54 @@ class GL(Library):
 	def isSystemLibrary(cls, platform, linkMode):
 		return True
 
+	@classmethod
+	def getCompileFlags(cls, platform, linkMode):
+		if platform == 'darwin':
+			# TODO: GL_HEADER:=<OpenGL/gl.h> iso GL_CFLAGS is cleaner,
+			#       but we have to modify the build before we can use it.
+			return '-I/System/Library/Frameworks/OpenGL.framework/Headers'
+		else:
+			return Library.getCompileFlags(cls, platform, linkMode)
+
+	@classmethod
+	def getLinkFlags(cls, platform, linkMode):
+		if platform == 'darwin':
+			return '-framework OpenGL -lGL ' \
+				'-L/System/Library/Frameworks/OpenGL.framework/Libraries'
+		elif platform == 'mingw32':
+			return '-lopengl32'
+		else:
+			return Library.getLinkFlags(cls, platform, linkMode)
+
 class GLEW(Library):
 	libName = 'GLEW'
 	# The comment for the GL headers applies to GLEW as well.
 	header = ( '<glew.h>', '<GL/glew.h>' )
+
+	@classmethod
+	def getCompileFlags(cls, platform, linkMode):
+		flags = Library.getCompileFlags(cls, platform, linkMode)
+		if platform == 'mingw32':
+			if cls.isSystemLibrary(platform, linkMode):
+				return flags
+			else:
+				return '%s -DGLEW_STATIC' % flags
+		else:
+			return flags
+
+	@classmethod
+	def getLinkFlags(cls, platform, linkMode):
+		flags = Library.getLinkFlags(cls, platform, linkMode)
+		if platform == 'mingw32':
+			# TODO: An alternative implementation would be to convert libName
+			#       into a method.
+			if cls.isSystemLibrary(platform, linkMode):
+				return '-lglew32'
+			else:
+				# TODO: Plus GL link flags (see TODO in Library).
+				return '$(3RDPARTY_INSTALL_DIR)/lib/libglew32.a'
+		else:
+			return flags
 
 class JACK(Library):
 	libName = 'jack'
@@ -136,9 +183,39 @@ class SDL(Library):
 	header = '<SDL.h>'
 	configScript = 'sdl-config'
 
+	@classmethod
+	def getLinkFlags(cls, platform, linkMode):
+		flags = Library.getLinkFlags(cls, platform, linkMode)
+		if platform in ('linux', 'gnu'):
+			if cls.isSystemLibrary(platform, linkMode):
+				# TODO: Fix sdl-config instead.
+				return '%s -ldl' % flags
+			else:
+				return flags
+		elif platform == 'mingw32':
+			if cls.isSystemLibrary(platform, linkMode):
+				return flags.replace('-mwindows', '-mconsole')
+			else:
+				return ' '.join(
+					'$(3RDPARTY_INSTALL_DIR)/lib/libSDL.a',
+					'/mingw/lib/libmingw32.a',
+					'$(3RDPARTY_INSTALL_DIR)/lib/libSDLmain.a'
+					'-lwinmm',
+					'-lgdi32'
+					)
+		else:
+			return flags
+
 class SDL_image(Library):
 	libName = 'SDL_image'
 	header = '<SDL_image.h>'
+
+	@classmethod
+	def getStaticLibsOption(cls, platform):
+		if platform == 'darwin':
+			return '--static-libs'
+		else:
+			return Library.getStaticLibsOption(cls, platform)
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
@@ -159,13 +236,11 @@ class TCL(Library):
 	@classmethod
 	def getConfigScript(cls, platform, linkMode):
 		# TODO: Convert (part of) tcl-search.sh to Python as well?
-		if linkMode == 'SYS_DYN':
+		if cls.isSystemLibrary(platform, linkMode):
 			return 'build/tcl-search.sh'
-		elif linkMode == '3RD_STA':
+		else:
 			return 'TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib ' \
 				'build/tcl-search.sh'
-		else:
-			raise ValueError(linkMode)
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
@@ -194,6 +269,17 @@ class LibXML2(Library):
 	libName = 'xml2'
 	header = '<libxml/parser.h>'
 	configScript = 'xml2-config'
+
+	@classmethod
+	def getConfigScript(cls, platform, linkMode):
+		if platform == 'darwin':
+			# Use xml2-config from /usr: ideally we would use xml2-config from
+			# the SDK, but the SDK doesn't contain that file. The -isysroot
+			# compiler argument makes sure the headers are taken from the SDK
+			# though.
+			return '/usr/bin/%s' % cls.configScript
+		else:
+			return Library.getConfigScript(cls, platform, linkMode)
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
