@@ -25,8 +25,14 @@ class Library(object):
 	libName = None
 	header = None
 	configScriptName = None
-	dynamicLibsOption = '--libs'
-	staticLibsOption = None
+
+	@classmethod
+	def getDynamicLibsOption(cls, platform):
+		return '--libs'
+
+	@classmethod
+	def getStaticLibsOption(cls, platform):
+		return None
 
 	@classmethod
 	def isSystemLibrary(cls, platform, linkMode): # pylint: disable-msg=W0613
@@ -64,9 +70,9 @@ class Library(object):
 		configScript = cls.getConfigScript(platform, linkMode)
 		if configScript is not None:
 			libsOption = (
-				cls.dynamicLibsOption
+				cls.getDynamicLibsOption(platform)
 				if cls.isSystemLibrary(platform, linkMode)
-				else cls.staticLibsOption
+				else cls.getStaticLibsOption(platform)
 				)
 			if libsOption is not None:
 				return '`%s %s`' % (configScript, libsOption)
@@ -110,7 +116,10 @@ class LibPNG(Library):
 	libName = 'png12'
 	header = '<png.h>'
 	configScript = 'libpng-config'
-	dynamicLibsOption = '--ldflags'
+
+	@classmethod
+	def getDynamicLibsOption(cls, platform):
+		return '--ldflags'
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
