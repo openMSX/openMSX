@@ -46,6 +46,10 @@
 // INSTRUCTION EMULATION
 // ---------------------
 //
+// UPDATE: the 'threaded interpreter model' is not enabled by default
+//         main reason is the huge memory requirement while compiling
+//         and that it doesn't work on non-gcc compilers
+//
 // The current implementation is based on a 'threaded interpreter model'. In
 // the text below I'll call the older implementation the 'traditional
 // interpreter model'. From a very high level these two models look like this:
@@ -175,23 +179,25 @@
 #include <cassert>
 #include <cstring>
 
-#ifndef _MSC_VER
-// gcc has an extension called computed goto's
-// it allows to implement a more efficient instruction dispatching
-#if PLATFORM_GP2X
-// GP2X uses a ARM920T CPU, this CPU has no(?) indirect branch prediction and
-// very small caches (16kb data 16kb instruction (no L2 cache)). On this type
-// of CPU, the threaded interpreter model does not offer any advantage.
-#else
-#if (__GNUC__ > 3 ) || !defined(_WIN32)
-// On MinGW with GCC 3.x at least, we get an out of memory when enabling this
-#define USE_COMPUTED_GOTO
-#endif
-#endif
-#else
-// VC++ doesn't support this
-// we have to use a central switch statement to do all dispatching
-#endif
+
+//
+// #define USE_COMPUTED_GOTO
+//
+// Computed goto's are not enabled by default:
+// - Computed goto's are a gcc extension, it's not part of the official c++
+//   standard. So this will only work if you use gcc as your compiler (it
+//   won't work with visual c++ for example)
+// - This is only beneficial on CPUs with branch prediction for indirect jumps
+//   and a reasonable amout of cache. For example it is very benefical for a
+//   intel core2 cpu (10% faster), but not for a ARM920 (a few percent slower)
+// - Compiling src/cpu/CPUCore.cc with computed goto's enabled is very demanding
+//   on the compiler. On older gcc versions it requires up to 1.5GB of memory.
+//   But even on more recent gcc versions it still requires around 700MB.
+//
+// Probably the easiest way to enable this, is to pass the -DUSE_COMPUTED_GOTO
+// flag to the compiler. This is for example done in the super-opt flavour.
+// See build/flavour-super-opt.mk
+
 
 using std::string;
 
