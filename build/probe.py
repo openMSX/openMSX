@@ -401,14 +401,9 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		if 'GLEW' in disabledLibraries:
 			disabledHeaders.add('GL_GLEW')
 
-		resolvedVars = dict(
-			# OpenGL is always a system lib.
-			GL_CFLAGS = probeVars['GL_CFLAGS'],
-			GL_GL_CFLAGS = probeVars['GL_CFLAGS'],
-			GL_LDFLAGS = probeVars['GL_LDFLAGS'],
-			)
+		resolvedVars = {}
 		for package in librariesByName.iterkeys():
-			if package == 'GL' or package in disabledLibraries:
+			if package in disabledLibraries:
 				continue
 			for flagsType in ('CFLAGS', 'LDFLAGS'):
 				# TODO: Since for example "sdl-config" is used in more than one
@@ -424,6 +419,8 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 					flags = ''
 				resolvedVars['%s_%s' % (package, flagsType)] = \
 					normalizeWhitespace(flags)
+		if 'GL' not in disabledLibraries:
+			resolvedVars['GL_GL_CFLAGS'] = resolvedVars['GL_CFLAGS']
 		if 'GLEW' not in disabledLibraries:
 			resolvedVars['GL_GLEW_CFLAGS'] = resolvedVars['GLEW_CFLAGS']
 
