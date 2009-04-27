@@ -115,7 +115,7 @@ class GL(Library):
 			#       but we have to modify the build before we can use it.
 			return '-I/System/Library/Frameworks/OpenGL.framework/Headers'
 		else:
-			return Library.getCompileFlags(cls, platform, linkMode)
+			return Library.getCompileFlags(platform, linkMode)
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode):
@@ -125,7 +125,7 @@ class GL(Library):
 		elif platform == 'mingw32':
 			return '-lopengl32'
 		else:
-			return Library.getLinkFlags(cls, platform, linkMode)
+			return Library.getLinkFlags(platform, linkMode)
 
 class GLEW(Library):
 	libName = 'GLEW'
@@ -135,7 +135,7 @@ class GLEW(Library):
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
-		flags = Library.getCompileFlags(cls, platform, linkMode)
+		flags = Library.getCompileFlags(platform, linkMode)
 		if platform == 'mingw32':
 			if cls.isSystemLibrary(platform, linkMode):
 				return flags
@@ -146,7 +146,7 @@ class GLEW(Library):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode):
-		flags = Library.getLinkFlags(cls, platform, linkMode)
+		flags = Library.getLinkFlags(platform, linkMode)
 		if platform == 'mingw32':
 			# TODO: An alternative implementation would be to convert libName
 			#       into a method.
@@ -175,7 +175,7 @@ class LibPNG(Library):
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
-		flags = Library.getCompileFlags(cls, platform, linkMode)
+		flags = Library.getCompileFlags(platform, linkMode)
 		if cls.isSystemLibrary(platform, linkMode):
 			return flags
 		else:
@@ -191,7 +191,7 @@ class SDL(Library):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode):
-		flags = Library.getLinkFlags(cls, platform, linkMode)
+		flags = Library.getLinkFlags(platform, linkMode)
 		if platform in ('linux', 'gnu'):
 			if cls.isSystemLibrary(platform, linkMode):
 				# TODO: Fix sdl-config instead.
@@ -222,7 +222,7 @@ class SDL_image(Library):
 		if platform == 'darwin':
 			return '--static-libs'
 		else:
-			return Library.getStaticLibsOption(cls, platform)
+			return Library.getStaticLibsOption(platform)
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
@@ -289,11 +289,11 @@ class LibXML2(Library):
 			# though.
 			return '/usr/bin/%s' % cls.configScript
 		else:
-			return Library.getConfigScript(cls, platform, linkMode)
+			return Library.getConfigScript(platform, linkMode)
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode):
-		flags = Library.getCompileFlags(cls, platform, linkMode)
+		flags = Library.getCompileFlags(platform, linkMode)
 		if cls.isSystemLibrary(platform, linkMode):
 			return flags
 		else:
