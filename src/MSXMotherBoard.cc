@@ -77,12 +77,9 @@ public:
 	void pause();
 	void unpause();
 	void powerUp();
-	void schedulePowerDown();
-	void doPowerDown(EmuTime::param time);
+	void doReset();
 	void activate(bool active);
 	bool isActive() const;
-	void scheduleReset();
-	void doReset(EmuTime::param time);
 	byte readIRQVector();
 
 	const HardwareConfig* getMachineConfig() const;
@@ -142,6 +139,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void powerDown();
 	void deleteMachine();
 
 	// Observer<Setting>
@@ -207,8 +205,6 @@ private:
 	BooleanSetting& powerSetting;
 
 	bool powered;
-	bool needReset;
-	bool needPowerDown;
 	bool active;
 };
 
@@ -310,8 +306,6 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	, machineConfig(NULL)
 	, powerSetting(getGlobalSettings().getPowerSetting())
 	, powered(false)
-	, needReset(false)
-	, needPowerDown(false)
 	, active(false)
 {
 	self.pimple.reset(this);
@@ -712,15 +706,6 @@ bool MSXMotherBoardImpl::execute()
 	}
 	assert(getMachineConfig()); // otherwise powered cannot be true
 
-	if (needReset) {
-		needReset = false;
-		doReset(getCurrentTime());
-	}
-	if (needPowerDown) {
-		needPowerDown = false;
-		doPowerDown(getCurrentTime());
-	}
-
 	getCPU().execute();
 	return true;
 }
@@ -754,17 +739,12 @@ void MSXMotherBoardImpl::removeDevice(MSXDevice& device)
 	availableDevices.erase(it);
 }
 
-void MSXMotherBoardImpl::scheduleReset()
+void MSXMotherBoardImpl::doReset()
 {
 	if (!powered) return;
-	needReset = true;
-	exitCPULoopSync();
-}
-
-void MSXMotherBoardImpl::doReset(EmuTime::param time)
-{
 	assert(getMachineConfig());
 
+	EmuTime::param time = getCurrentTime();
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -817,13 +797,7 @@ void MSXMotherBoardImpl::powerUp()
 		new SimpleEvent<OPENMSX_BOOT_EVENT>());
 }
 
-void MSXMotherBoardImpl::schedulePowerDown()
-{
-	needPowerDown = true;
-	exitCPULoopSync();
-}
-
-void MSXMotherBoardImpl::doPowerDown(EmuTime::param time)
+void MSXMotherBoardImpl::powerDown()
 {
 	if (!powered) return;
 
@@ -837,6 +811,7 @@ void MSXMotherBoardImpl::doPowerDown(EmuTime::param time)
 
 	getMSXMixer().mute();
 
+	EmuTime::param time = getCurrentTime();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerDown(time);
@@ -880,7 +855,7 @@ void MSXMotherBoardImpl::update(const Setting& setting)
 		if (powerSetting.getValue()) {
 			powerUp();
 		} else {
-			schedulePowerDown();
+			powerDown();
 		}
 	} else {
 		assert(false);
@@ -993,7 +968,7 @@ ResetCmd::ResetCmd(MSXMotherBoardImpl& motherBoard_)
 string ResetCmd::execute(const vector<string>& /*tokens*/,
                          EmuTime::param /*time*/)
 {
-	motherBoard.scheduleReset();
+	motherBoard.doReset();
 	return "";
 }
 
@@ -1304,14 +1279,6 @@ void MSXMotherBoard::powerUp()
 {
 	pimple->powerUp();
 }
-void MSXMotherBoard::schedulePowerDown()
-{
-	pimple->schedulePowerDown();
-}
-void MSXMotherBoard::doPowerDown(EmuTime::param time)
-{
-	pimple->doPowerDown(time);
-}
 void MSXMotherBoard::activate(bool active)
 {
 	pimple->activate(active);
@@ -1319,14 +1286,6 @@ void MSXMotherBoard::activate(bool active)
 bool MSXMotherBoard::isActive() const
 {
 	return pimple->isActive();
-}
-void MSXMotherBoard::scheduleReset()
-{
-	pimple->scheduleReset();
-}
-void MSXMotherBoard::doReset(EmuTime::param time)
-{
-	pimple->doReset(time);
 }
 byte MSXMotherBoard::readIRQVector()
 {

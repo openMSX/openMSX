@@ -73,18 +73,9 @@ public:
 	void unpause();
 
 	void powerUp();
-	void schedulePowerDown();
-	void doPowerDown(EmuTime::param time);
 
 	void activate(bool active);
 	bool isActive() const;
-
-	/**
-	 * This will reset all MSXDevices (the reset() method of
-	 * all registered MSXDevices is called)
-	 */
-	void scheduleReset();
-	void doReset(EmuTime::param time);
 
 	byte readIRQVector();
 
