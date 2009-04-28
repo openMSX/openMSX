@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1239913006">
+<softwaredb xml:lang="en" timestamp="1240943544">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -7627,7 +7627,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Kogado</company>
 	<year>1987</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">16c692a2c9babfdadd8408d2f0f8fae3a8d96fd5</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">16c692a2c9babfdadd8408d2f0f8fae3a8d96fd5</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Punchy</title>
@@ -8080,18 +8080,18 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">d30c17109fa1c4a81e39dca57b79464b0aa0b7c2</hash><remark>[RC-758]</remark></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Sangokusi 1 - Romance Of Three Kingdoms - MSX1 Version</title>
+	<title xml:lang="en">Sangokushi 1 - Romance Of Three Kingdoms - MSX1 Version</title>
 	<system>MSX</system>
 	<company>Koei</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">14ff6fe464362c6b7dbb47b2ecda3a8c5f05ef79</hash></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">3f741ba2ab08c5e9fb658882b36b8e3d01682f58</hash><remark>[a1]</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">14ff6fe464362c6b7dbb47b2ecda3a8c5f05ef79</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">3f741ba2ab08c5e9fb658882b36b8e3d01682f58</hash><remark>[a1]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">96e2a7163c755fbea77abfd9d09a798687a5a993</hash><remark>[Kanji]</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7ad40ae512bbf4ba688467ba23e16354b8421d0a</hash><remark>[tr En]</remark></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Sangokusi 1 - Romance Of Three Kingdoms - MSX2 Version</title>
+	<title xml:lang="en">Sangokushi 1 - Romance Of Three Kingdoms - MSX2 Version</title>
 	<system>MSX</system>
 	<company>Koei</company>
 	<year>1988</year>
@@ -8099,7 +8099,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">dab5a9f93a35fcb92c01e4250b01928fe8bd294b</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Sangokusi 2</title>
+	<title xml:lang="en">Sangokushi 2</title>
 	<system>MSX</system>
 	<company>Koei</company>
 	<year>1991</year>
@@ -9242,12 +9242,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">ff999ca3e78c347bdbd23cb4c7adbfc02c20a397</hash><remark>2nd version</remark></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Taiyouno Sinden - Astekai</title>
+	<title xml:lang="en">Taiyou no Shinden - Asteka II</title>
 	<system>MSX</system>
 	<company>Falcom</company>
 	<year>1987</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">414fd2a22076f45502c2329b45bda9f8730dcaae</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">414fd2a22076f45502c2329b45bda9f8730dcaae</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Takahasi Meijin no Boukenjima - Wonder Boy</title>
@@ -10408,5 +10408,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2199
-Parse time 1.804 seconds on Thu Apr 16 22:16:48 CEST 2009
+Parse time 4.738 seconds on Tue Apr 28 20:32:29 CEST 2009
  -->
