@@ -344,8 +344,8 @@ void SocketConnection::run()
 	}
 #endif
 	// Start output element
-	startOutput();
 	established = true; // TODO needs locking?
+	startOutput();
 
 	// TODO is locking correct?
 	// No need to lock in this thread because we don't write to 'sd'
