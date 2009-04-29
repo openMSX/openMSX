@@ -122,6 +122,8 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 		controlValueMasks[27] = 0x07;
 	}
 
+	resetInit(); // must be done early to avoid UMRs
+
 	// Video RAM.
 	EmuTime::param time = Schedulable::getCurrentTime();
 	unsigned vramSize =
@@ -145,8 +147,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	cmdEngine.reset(new VDPCmdEngine(*this, renderSettings,
 		getMotherBoard().getCommandController()));
 	vram->setCmdEngine(cmdEngine.get());
-
-	resetInit(time); // must be done early to avoid UMRs
 
 	// Initialise renderer.
 	createRenderer();
@@ -182,8 +182,10 @@ void VDP::createRenderer()
 	vram->setRenderer(renderer.get(), frameStartTime.getTime());
 }
 
-void VDP::resetInit(EmuTime::param /*time*/)
+void VDP::resetInit()
 {
+	// note: vram, spriteChecker, cmdEngine, renderer may not yet be
+	//       created at this point
 	for (int i = 0; i < 32; i++) {
 		controlRegs[i] = 0;
 	}
@@ -259,7 +261,7 @@ void VDP::reset(EmuTime::param time)
 
 	// Reset subsystems.
 	cmdEngine->sync(time);
-	resetInit(time);
+	resetInit();
 	spriteChecker->reset(time);
 	cmdEngine->reset(time);
 	renderer->reset(time);

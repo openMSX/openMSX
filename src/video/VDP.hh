@@ -548,7 +548,7 @@ private:
 	  * Puts VDP into reset state.
 	  * Does not call any renderer methods.
 	  */
-	void resetInit(EmuTime::param time);
+	void resetInit();
 
 	/** Companion to resetInit: in resetInit the registers are reset,
 	  * in this method the new base masks are distributed to the VDP
