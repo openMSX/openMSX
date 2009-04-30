@@ -2,6 +2,11 @@
 # Extract files from archives.
 
 from os import O_CREAT, O_WRONLY, fdopen, mkdir, open as osopen
+try:
+	from os import O_BINARY
+except ImportError:
+	# Platforms that do not define O_BINARY do not need it either.
+	O_BINARY = 0
 from os.path import abspath, isdir, join as joinpath, sep, split as splitpath
 from stat import S_IRWXU, S_IRWXG, S_IRWXO, S_IXUSR, S_IXGRP, S_IXOTH
 import sys
@@ -52,7 +57,7 @@ def extract(archivePath, destDir, rename = None):
 				if not (member.mode & S_IXUSR):
 					mode &= ~(S_IXUSR | S_IXGRP | S_IXOTH)
 				out = fdopen(
-					osopen(absMemberPath, O_CREAT | O_WRONLY, mode),
+					osopen(absMemberPath, O_CREAT | O_WRONLY | O_BINARY, mode),
 					'wb'
 					)
 				try:
