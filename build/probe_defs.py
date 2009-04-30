@@ -238,13 +238,13 @@ class SDL(Library):
 			if cls.isSystemLibrary(platform, linkMode):
 				return flags.replace('-mwindows', '-mconsole')
 			else:
-				return ' '.join(
+				return ' '.join((
 					'%s/lib/libSDL.a' % distroRoot,
 					'/mingw/lib/libmingw32.a',
 					'%s/lib/libSDLmain.a' % distroRoot,
 					'-lwinmm',
 					'-lgdi32'
-					)
+					))
 		else:
 			return flags
 
