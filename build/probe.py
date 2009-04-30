@@ -76,6 +76,17 @@ def iterSystemFunctions(localObjects):
 				yield obj
 systemFunctions = list(iterSystemFunctions(locals().itervalues()))
 
+def resolve(log, expr):
+	# TODO: Since for example "sdl-config" is used in more than one
+	#       CFLAGS definition, it will be executed multiple times.
+	try:
+		return normalizeWhitespace(evaluateBackticks(log, expr))
+	except IOError:
+		# Executing a lib-config script is expected to fail if the
+		# script is not installed.
+		# TODO: Report this explicitly in the probe results table.
+		return ''
+
 def checkCompiler(log, compileCommand, outDir):
 	'''Checks whether compiler can compile anything at all.
 	Returns True iff the compiler works.
@@ -379,18 +390,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		if 'GLEW' in disabledLibraries:
 			disabledHeaders.add('GL_GLEW')
 
-		def resolve(expr):
-			# TODO: Since for example "sdl-config" is used in more than one
-			#       CFLAGS definition, it will be executed multiple times.
-			try:
-				value = evaluateBackticks(log, expr)
-			except IOError:
-				# Executing a lib-config script is expected to fail if the
-				# script is not installed.
-				# TODO: Report this explicitly in the probe results table.
-				value = ''
-			return normalizeWhitespace(value)
-
 		distroRoot = thirdPartyInstall or None
 
 		probeVars = {}
@@ -410,16 +409,16 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 				probeVars['GL_%s_HEADER' % name] = altheader
 
 			resolvedVars['%s_CFLAGS' % name] = resolve(
-				library.getCompileFlags(platform, linkMode, distroRoot)
+				log, library.getCompileFlags(platform, linkMode, distroRoot)
 				)
 			if altheader is not None:
 				resolvedVars['GL_%s_CFLAGS' % name] = \
 					resolvedVars['%s_CFLAGS' % name]
 			resolvedVars['%s_LDFLAGS' % name] = resolve(
-				library.getLinkFlags(platform, linkMode, distroRoot)
+				log, library.getLinkFlags(platform, linkMode, distroRoot)
 				)
 			resolvedVars['%s_RESULT' % name] = resolve(
-				library.getResult(platform, linkMode, distroRoot)
+				log, library.getResult(platform, linkMode, distroRoot)
 				)
 
 		TargetSystem(
