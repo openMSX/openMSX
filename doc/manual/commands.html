@@ -885,9 +885,9 @@
       <li>break after a write was done to I/O port 0x99, but only when Z80 register A has a value of 0x81:<br/>
          <code>debug set_watchpoint write_io 0x99 {[reg A] == 0x81}</code></li>
       <li>break as soon as there is a pending Z80 IRQ (even when in DI mode):<br/>
-         <code>debug probe set_bp z80.pendingIRQ<code></li>
+         <code>debug probe set_bp z80.pendingIRQ</code></li>
       <li>break when register HL has the value 1234:<br/>
-         <code>debug set_condition {[reg hl] == 1234}<code></li>
+         <code>debug set_condition {[reg hl] == 1234}</code></li>
     </ul>
   </div>
 
@@ -1394,11 +1394,10 @@
   commands there is a <code>nowind&lt;x&gt;</code> command for each nowind
   interface. This command is modeled after the 'usbhost' command of the real
   nowind interface. Though only a subset of the options is supported. Here's a
-  short overview:</p>
+  short overview of the command line options:</p>
 
   <table>
-    <tr>Command line options</tr>
-    <tr><td>long</td>      <td>short</td><td>explanation</td></tr>
+    <tr><th>long</th>      <th>short</th><th>explanation</th></tr>
     <tr><td>--image</td>   <td>-i</td>   <td>specify disk image</td></tr>
     <tr><td>--hdimage</td> <td>-m</td>   <td>specify harddisk image</td></tr>
     <tr><td>--romdisk</td> <td>-j</td>   <td>enable romdisk</td></tr>
