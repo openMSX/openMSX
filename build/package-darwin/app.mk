@@ -3,7 +3,7 @@
 # Create an application directory for Darwin.
 
 # Start from platform-independent bindist support.
-include $(MAKE_PATH)/bindist.mk
+include $(MAKE_PATH)/flavour-bindist.mk
 
 APP_SUPPORT_DIR:=build/package-darwin
 APP_DIR:=$(BINDIST_DIR)/openMSX.app
