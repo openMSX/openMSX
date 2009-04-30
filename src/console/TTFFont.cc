@@ -3,6 +3,7 @@
 #include "TTFFont.hh"
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
+#include "shared_ptr.hh"
 #include <SDL_ttf.h>
 #include <map>
 #include <algorithm>
@@ -33,7 +34,26 @@ private:
 	TTFFontPool();
 	~TTFFontPool();
 
-	typedef std::map<std::pair<string, int>, std::pair<TTF_Font*, int> > Pool;
+	// We want to keep the LocalFileReference object alive for as long as
+	// the SDL_ttf library uses the font. This solves a problem we had in
+	// the past on windows that temporary files were not cleaned up. The
+	// scenario went like this:
+	//  1. new LocalFileReference object (possibly) creates a temp file
+	//  2. SDL_ttf opens this file (and keeps it open)
+	//  3. LocalFileReference object goes out of scope and deletes the
+	//     temp file
+	//  4. (much later) we're done using the font and SDL_ttf closes the
+	//     file
+	// Step 3 goes wrong in windows because it's not possible to delete a
+	// still opened file (no problem in unix). Solved by swapping the order
+	// of step 3 and 4. Though this has the disadvantage that if openMSX
+	// crashes between step 3 and 4 the temp file is still left behind.
+	struct FontInfo {
+		shared_ptr<LocalFileReference> file; // c++0x unique_ptr may also work
+		TTF_Font* font;
+		int count;
+	};
+	typedef std::map<std::pair<string, int>, FontInfo> Pool;
 	Pool pool;
 };
 
@@ -82,27 +102,29 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 	Pool::key_type key = make_pair(filename, ptSize);
 	Pool::iterator it = pool.find(key);
 	if (it != pool.end()) {
-		++(it->second.second);
-		return it->second.first;
+		++(it->second.count);
+		return it->second.font;
 	}
 
 	SDLTTF::instance(); // init library
-	LocalFileReference file(filename);
-	TTF_Font* font = TTF_OpenFont(file.getFilename().c_str(), ptSize);
-	if (!font) {
+	FontInfo info;
+	info.file.reset(new LocalFileReference(filename));
+	info.font = TTF_OpenFont(info.file->getFilename().c_str(), ptSize);
+	if (!info.font) {
 		throw MSXException(TTF_GetError());
 	}
-	pool.insert(std::make_pair(key, std::make_pair(font, 1)));
-	return font;
+	info.count = 1;
+	pool.insert(std::make_pair(key, info));
+	return info.font;
 }
 
 void TTFFontPool::release(TTF_Font* font)
 {
 	for (Pool::iterator it = pool.begin(); it != pool.end(); ++it) {
-		if (it->second.first == font) {
-			--(it->second.second);
-			if (it->second.second == 0) {
-				TTF_CloseFont(it->second.first);
+		if (it->second.font == font) {
+			--(it->second.count);
+			if (it->second.count == 0) {
+				TTF_CloseFont(it->second.font);
 				pool.erase(it);
 			}
 			return;
