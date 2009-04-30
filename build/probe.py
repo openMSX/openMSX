@@ -224,8 +224,7 @@ class TargetSystem(object):
 
 	def __init__(
 		self,
-		log, compileCommandStr, outDir, platform,
-		probeVars, resolvedVars, customVars,
+		log, compileCommandStr, outDir, platform, probeVars, customVars,
 		disabledLibraries, disabledFuncs, disabledHeaders
 		):
 		'''Create empty log and result files.
@@ -235,7 +234,6 @@ class TargetSystem(object):
 		self.outDir = outDir
 		self.platform = platform
 		self.probeVars = probeVars
-		self.resolvedVars = resolvedVars
 		self.customVars = customVars
 		self.disabledLibraries = disabledLibraries
 		self.disabledFuncs = disabledFuncs
@@ -314,7 +312,7 @@ class TargetSystem(object):
 	def checkHeader(self, makeName):
 		'''Probe for header.
 		'''
-		flags = resolve(self.log, self.resolvedVars['%s_CFLAGS' % makeName])
+		flags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, flags)
 		headers = [ self.probeVars['%s_HEADER' % makeName] ]
 
@@ -331,7 +329,7 @@ class TargetSystem(object):
 	def checkLib(self, makeName):
 		'''Probe for library.
 		'''
-		flags = resolve(self.log, self.resolvedVars['%s_LDFLAGS' % makeName])
+		flags = resolve(self.log, self.probeVars['%s_LDFLAGS' % makeName])
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, flags)
 
@@ -343,9 +341,7 @@ class TargetSystem(object):
 			makeName
 			)
 		if ok:
-			result = resolve(
-				self.log, self.resolvedVars['%s_RESULT' % makeName]
-				)
+			result = resolve(self.log, self.probeVars['%s_RESULT' % makeName])
 		else:
 			result = ''
 		self.outVars['HAVE_%s_LIB' % makeName] = result
@@ -396,7 +392,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		distroRoot = thirdPartyInstall or None
 
 		probeVars = {}
-		resolvedVars = {}
 		for name, library in sorted(librariesByName.iteritems()):
 			if name in disabledLibraries:
 				continue
@@ -411,19 +406,17 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			if altheader is not None:
 				probeVars['GL_%s_HEADER' % name] = altheader
 
-			resolvedVars['%s_CFLAGS' % name] = \
+			probeVars['%s_CFLAGS' % name] = \
 				library.getCompileFlags(platform, linkMode, distroRoot)
 			if altheader is not None:
-				resolvedVars['GL_%s_CFLAGS' % name] = \
-					resolvedVars['%s_CFLAGS' % name]
-			resolvedVars['%s_LDFLAGS' % name] = \
+				probeVars['GL_%s_CFLAGS' % name] = probeVars['%s_CFLAGS' % name]
+			probeVars['%s_LDFLAGS' % name] = \
 				library.getLinkFlags(platform, linkMode, distroRoot)
-			resolvedVars['%s_RESULT' % name] = \
+			probeVars['%s_RESULT' % name] = \
 				library.getResult(platform, linkMode, distroRoot)
 
 		TargetSystem(
-			log, compileCommandStr, outDir, platform,
-			probeVars, resolvedVars, customVars,
+			log, compileCommandStr, outDir, platform, probeVars, customVars,
 			disabledLibraries, disabledFuncs, disabledHeaders
 			).everything()
 	finally:
