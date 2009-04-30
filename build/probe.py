@@ -346,7 +346,9 @@ class TargetSystem(object):
 			'Found' if ok else 'Missing',
 			makeName
 			)
-		self.outVars['HAVE_%s_LIB' % makeName] = 'yes' if ok else ''
+		self.outVars['HAVE_%s_LIB' % makeName] = (
+			self.resolvedVars['%s_RESULT' % makeName] if ok else ''
+			)
 
 	def disabledFunc(self, func):
 		print >> self.log, 'Disabled function: %s' % func.getFunctionName()
