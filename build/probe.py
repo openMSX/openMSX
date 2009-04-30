@@ -113,18 +113,6 @@ def checkFunc(log, compileCommand, outDir, checkName, funcName, headers):
 		log, compileCommand, outDir + '/' + checkName + '.cc', takeFuncAddr()
 		)
 
-def checkHeader(log, compileCommand, outDir, makeName, headers):
-	'''Checks whether the given headers can be included.
-	Returns True iff the headers are available.
-	'''
-	def includeHeaders():
-		# Try to include the headers.
-		for header in headers:
-			yield '#include %s' % header
-	return tryCompile(
-		log, compileCommand, outDir + '/' + makeName + '.cc', includeHeaders()
-		)
-
 def checkLib(log, compileCommand, linkCommand, outDir, makeName):
 	'''Checks whether the given library can be linked against.
 	Returns True iff the library is available.
@@ -315,9 +303,10 @@ class TargetSystem(object):
 		flags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, flags)
 		headers = [ self.probeVars['%s_HEADER' % makeName] ]
+		funcName = self.probeVars['%s_FUNCTION' % makeName]
 
-		ok = checkHeader(
-			self.log, compileCommand, self.outDir, makeName, headers
+		ok = checkFunc(
+			self.log, compileCommand, self.outDir, makeName, funcName, headers
 			)
 		print >> self.log, '%s header: %s' % (
 			'Found' if ok else 'Missing',
@@ -403,8 +392,10 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 				altheader = None
 
 			probeVars['%s_HEADER' % name] = header
+			probeVars['%s_FUNCTION' % name] = library.function
 			if altheader is not None:
 				probeVars['GL_%s_HEADER' % name] = altheader
+				probeVars['GL_%s_FUNCTION' % name] = library.function
 
 			probeVars['%s_CFLAGS' % name] = \
 				library.getCompileFlags(platform, linkMode, distroRoot)
