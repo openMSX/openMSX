@@ -3,11 +3,11 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>Floppydisk Drive</name>
+    <name>Dual Disk Drive Controller</name>
     <manufacturer>Sharp EPCOM</manufacturer>
     <code>HB-3600</code>
     <release_year>1985</release_year>
-    <description>External 5.25" disk drive.</description>
+    <description>External 5.25" disk drives.</description>
     <type>external disk drive</type>
   </info>
   <devices>
