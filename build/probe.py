@@ -260,7 +260,7 @@ class TargetSystem(object):
 	def __init__(
 		self,
 		log, compileCommandStr, outDir, platform, probeVars, customVars,
-		disabledLibraries, disabledFuncs, disabledHeaders
+		disabledLibraries, disabledHeaders
 		):
 		'''Create empty log and result files.
 		'''
@@ -271,7 +271,6 @@ class TargetSystem(object):
 		self.probeVars = probeVars
 		self.customVars = customVars
 		self.disabledLibraries = disabledLibraries
-		self.disabledFuncs = disabledFuncs
 		self.disabledHeaders = disabledHeaders
 		self.outMakePath = outDir + '/probed_defs.mk'
 		self.outHeaderPath = outDir + '/probed_defs.hh'
@@ -282,10 +281,7 @@ class TargetSystem(object):
 		'''
 		self.hello()
 		for func in systemFunctions:
-			if func.name in self.disabledFuncs:
-				self.disabledFunc(func)
-			else:
-				self.checkFunc(func)
+			self.checkFunc(func)
 		for header in sorted(librariesByName.iterkeys()) + \
 				[ 'GL_GL', 'GL_GLEW' ]:
 			if header in self.disabledHeaders:
@@ -383,10 +379,6 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s_LIB' % makeName] = result
 		self.outVars['%s_LDFLAGS' % makeName] = flags
 
-	def disabledFunc(self, func):
-		print >> self.log, 'Disabled function: %s' % func.getFunctionName()
-		self.outVars['HAVE_%s' % func.getMakeName()] = ''
-
 	def disabledHeader(self, header):
 		print >> self.log, 'Disabled header: %s' % header
 		self.outVars['HAVE_%s_H' % header] = ''
@@ -404,7 +396,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	try:
 		customVars = extractMakeVariables('build/custom.mk')
 		disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
-		disabledFuncs = set()
 		disabledHeaders = set()
 
 		if linkMode.startswith('3RD_'):
@@ -455,7 +446,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 
 		TargetSystem(
 			log, compileCommandStr, outDir, platform, probeVars, customVars,
-			disabledLibraries, disabledFuncs, disabledHeaders
+			disabledLibraries, disabledHeaders
 			).everything()
 	finally:
 		log.close()
