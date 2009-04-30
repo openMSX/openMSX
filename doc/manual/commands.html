@@ -244,6 +244,8 @@
 
         <li><a class="internal" href="#pause_on_lost_focus">pause_on_lost_focus</a></li>
 
+        <li><a class="internal" href="#pointer_hide_delay">pointer_hide_delay</a></li>
+
         <li><a class="internal" href="#power">power</a></li>
 
         <li><a class="internal" href="#printerlogfilename">printerlogfilename</a></li>
@@ -3883,6 +3885,43 @@
       <td><code>set pause_on_lost_focus off</code></td>
 
       <td>Emulation will continue when the openMSX window loses focus (default)</td>
+    </tr>
+  </table>
+
+  <h3><a id="pointer_hide_delay">pointer_hide_delay</a></h3>
+
+  <p>The amount of seconds before the mouse pointer will be automatically
+  hidden after it got shown due to mouse activity. A negative amount means that
+  it will never be hidden, an amount of 0 means that it will be always hidden
+  (this is the default).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set pointer_hide_delay</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set pointer_hide_delay -1</code></td>
+
+      <td>Never hide the mouse pointer</td>
+    </tr>
+
+    <tr>
+      <td><code>set pointer_hide_delay 0</code></td>
+
+      <td>Always hide the mouse pointer (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set pointer_hide_delay 3.4</code></td>
+
+      <td>Hide the mouse pointer after 3.4 seconds of inactivity</td>
     </tr>
   </table>
 
