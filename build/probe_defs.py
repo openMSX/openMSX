@@ -35,6 +35,7 @@ class Library(object):
 	makeName = None
 	header = None
 	configScriptName = None
+	function = None
 
 	@classmethod
 	def getDynamicLibsOption(cls, platform): # pylint: disable-msg=W0613
@@ -129,6 +130,7 @@ class GL(Library):
 	# Location of GL headers is not standardised; if one of these matches,
 	# we consider the GL headers found.
 	header = ( '<gl.h>', '<GL/gl.h>' )
+	function = 'glGenTextures'
 
 	@classmethod
 	def isSystemLibrary(cls, platform, linkMode):
@@ -160,6 +162,7 @@ class GLEW(Library):
 	makeName = 'GLEW'
 	# The comment for the GL headers applies to GLEW as well.
 	header = ( '<glew.h>', '<GL/glew.h>' )
+	function = 'glewInit'
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
@@ -190,12 +193,14 @@ class JACK(Library):
 	libName = 'jack'
 	makeName = 'JACK'
 	header = '<jack/jack.h>'
+	function = 'jack_client_new'
 
 class LibPNG(Library):
 	libName = 'png12'
 	makeName = 'PNG'
 	header = '<png.h>'
 	configScriptName = 'libpng-config'
+	function = 'png_write_image'
 
 	@classmethod
 	def getDynamicLibsOption(cls, platform):
@@ -218,6 +223,7 @@ class SDL(Library):
 	makeName = 'SDL'
 	header = '<SDL.h>'
 	configScriptName = 'sdl-config'
+	function = 'SDL_Init'
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode, distroRoot):
@@ -246,6 +252,7 @@ class SDL_image(Library):
 	libName = 'SDL_image'
 	makeName = 'SDL_IMAGE'
 	header = '<SDL_image.h>'
+	function = 'IMG_LoadPNG_RW'
 
 	@classmethod
 	def getStaticLibsOption(cls, platform):
@@ -262,6 +269,7 @@ class SDL_ttf(Library):
 	libName = 'SDL_ttf'
 	makeName = 'SDL_TTF'
 	header = '<SDL_ttf.h>'
+	function = 'TTF_OpenFont'
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
@@ -271,6 +279,7 @@ class TCL(Library):
 	libName = 'tcl'
 	makeName = 'TCL'
 	header = '<tcl.h>'
+	function = 'Tcl_CreateInterp'
 
 	@classmethod
 	def getConfigScript(cls, platform, linkMode, distroRoot):
@@ -303,6 +312,7 @@ class LibXML2(Library):
 	makeName = 'XML'
 	header = '<libxml/parser.h>'
 	configScriptName = 'xml2-config'
+	function = 'xmlSAXUserParseFile'
 
 	@classmethod
 	def getConfigScript(cls, platform, linkMode, distroRoot):
@@ -331,6 +341,7 @@ class ZLib(Library):
 	libName = 'z'
 	makeName = 'ZLIB'
 	header = '<zlib.h>'
+	function = 'inflate'
 
 # Build a dictionary of libraries using introspection.
 def _discoverLibraries(localObjects):
