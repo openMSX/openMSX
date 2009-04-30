@@ -6,7 +6,7 @@
 from compilers import CompileCommand, LinkCommand
 from makeutils import extractMakeVariables
 from outpututils import rewriteIfChanged
-from probe_defs import librariesByName
+from probe_defs import librariesByName, systemFunctions
 from probe_results import iterProbeResults
 
 from msysutils import msysActive
@@ -15,66 +15,6 @@ from os.path import isdir, isfile
 from shlex import split as shsplit
 from subprocess import PIPE, Popen
 import sys
-
-class SystemFunction(object):
-	name = None
-
-	@classmethod
-	def getFunctionName(cls):
-		return cls.name
-
-	@classmethod
-	def getMakeName(cls):
-		return cls.name.upper()
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		raise NotImplementedError
-
-class FTruncateFunction(SystemFunction):
-	name = 'ftruncate'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<unistd.h>'
-
-class GetTimeOfDayFunction(SystemFunction):
-	name = 'gettimeofday'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<sys/time.h>'
-
-class MMapFunction(SystemFunction):
-	name = 'mmap'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		if targetPlatform in ('darwin', 'openbsd'):
-			yield '<sys/types.h>'
-		yield '<sys/mman.h>'
-
-class PosixMemAlignFunction(SystemFunction):
-	name = 'posix_memalign'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<stdlib.h>'
-
-class USleepFunction(SystemFunction):
-	name = 'usleep'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<unistd.h>'
-
-# Build a list of system functions using introspection.
-def iterSystemFunctions(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, SystemFunction):
-			if obj is not SystemFunction:
-				yield obj
-systemFunctions = list(iterSystemFunctions(locals().itervalues()))
 
 def resolve(log, expr):
 	# TODO: Since for example "sdl-config" is used in more than one
