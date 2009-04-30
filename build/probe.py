@@ -4,7 +4,7 @@
 # It does not execute anything it builds, making it friendly for cross compiles.
 
 from compilers import CompileCommand, LinkCommand, tryCompile, tryLink
-from makeutils import evalMakeExpr, extractMakeVariables
+from makeutils import extractMakeVariables
 from outpututils import rewriteIfChanged
 from probe_defs import librariesByName
 from probe_results import iterProbeResults
@@ -379,21 +379,19 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		if 'GLEW' in disabledLibraries:
 			disabledHeaders.add('GL_GLEW')
 
-		baseVars = {
-			'3RDPARTY_INSTALL_DIR': thirdPartyInstall,
-			}
 		def resolve(expr):
-			expr2 = evalMakeExpr(expr, baseVars)
 			# TODO: Since for example "sdl-config" is used in more than one
 			#       CFLAGS definition, it will be executed multiple times.
 			try:
-				value = evaluateBackticks(log, expr2)
+				value = evaluateBackticks(log, expr)
 			except IOError:
 				# Executing a lib-config script is expected to fail if the
 				# script is not installed.
 				# TODO: Report this explicitly in the probe results table.
 				value = ''
 			return normalizeWhitespace(value)
+
+		distroRoot = thirdPartyInstall or None
 
 		probeVars = {}
 		resolvedVars = {}
@@ -412,16 +410,16 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 				probeVars['GL_%s_HEADER' % name] = altheader
 
 			resolvedVars['%s_CFLAGS' % name] = resolve(
-				library.getCompileFlags(platform, linkMode)
+				library.getCompileFlags(platform, linkMode, distroRoot)
 				)
 			if altheader is not None:
 				resolvedVars['GL_%s_CFLAGS' % name] = \
 					resolvedVars['%s_CFLAGS' % name]
 			resolvedVars['%s_LDFLAGS' % name] = resolve(
-				library.getLinkFlags(platform, linkMode)
+				library.getLinkFlags(platform, linkMode, distroRoot)
 				)
 			resolvedVars['%s_RESULT' % name] = resolve(
-				library.getResult(platform, linkMode)
+				library.getResult(platform, linkMode, distroRoot)
 				)
 
 		TargetSystem(
