@@ -314,7 +314,7 @@ class TargetSystem(object):
 	def checkHeader(self, makeName):
 		'''Probe for header.
 		'''
-		flags = self.resolvedVars['%s_CFLAGS' % makeName]
+		flags = resolve(self.log, self.resolvedVars['%s_CFLAGS' % makeName])
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, flags)
 		headers = [ self.probeVars['%s_HEADER' % makeName] ]
 
@@ -331,7 +331,7 @@ class TargetSystem(object):
 	def checkLib(self, makeName):
 		'''Probe for library.
 		'''
-		flags = self.resolvedVars['%s_LDFLAGS' % makeName]
+		flags = resolve(self.log, self.resolvedVars['%s_LDFLAGS' % makeName])
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, flags)
 
@@ -342,9 +342,13 @@ class TargetSystem(object):
 			'Found' if ok else 'Missing',
 			makeName
 			)
-		self.outVars['HAVE_%s_LIB' % makeName] = (
-			self.resolvedVars['%s_RESULT' % makeName] if ok else ''
-			)
+		if ok:
+			result = resolve(
+				self.log, self.resolvedVars['%s_RESULT' % makeName]
+				)
+		else:
+			result = ''
+		self.outVars['HAVE_%s_LIB' % makeName] = result
 		self.outVars['%s_LDFLAGS' % makeName] = flags
 
 	def disabledFunc(self, func):
@@ -407,18 +411,15 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			if altheader is not None:
 				probeVars['GL_%s_HEADER' % name] = altheader
 
-			resolvedVars['%s_CFLAGS' % name] = resolve(
-				log, library.getCompileFlags(platform, linkMode, distroRoot)
-				)
+			resolvedVars['%s_CFLAGS' % name] = \
+				library.getCompileFlags(platform, linkMode, distroRoot)
 			if altheader is not None:
 				resolvedVars['GL_%s_CFLAGS' % name] = \
 					resolvedVars['%s_CFLAGS' % name]
-			resolvedVars['%s_LDFLAGS' % name] = resolve(
-				log, library.getLinkFlags(platform, linkMode, distroRoot)
-				)
-			resolvedVars['%s_RESULT' % name] = resolve(
-				log, library.getResult(platform, linkMode, distroRoot)
-				)
+			resolvedVars['%s_LDFLAGS' % name] = \
+				library.getLinkFlags(platform, linkMode, distroRoot)
+			resolvedVars['%s_RESULT' % name] = \
+				library.getResult(platform, linkMode, distroRoot)
 
 		TargetSystem(
 			log, compileCommandStr, outDir, platform,
