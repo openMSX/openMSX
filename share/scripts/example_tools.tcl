@@ -1,10 +1,10 @@
 # Return the content of the MSX screen as a string (text-modes only)
 
-set_help_text getScreen \
+set_help_text get_screen \
 {Returns the content of the MSX screen as a string (only works for text-modes).
 }
 
-proc getScreen {} {
+proc get_screen {} {
 	# screen detection
 	set mode [peek 0xfcaf]
 	switch $mode {
