@@ -2,18 +2,9 @@
 
 from msysutils import msysActive, msysPathToNative
 
-from os import environ, remove
-from os.path import isfile
+from os import environ
 from shlex import split as shsplit
 from subprocess import PIPE, STDOUT, Popen
-
-def writeFile(path, lines):
-	out = open(path, 'w')
-	try:
-		for line in lines:
-			print >> out, line
-	finally:
-		out.close()
 
 if msysActive():
 	def fixArgs(args):
@@ -114,39 +105,3 @@ class LinkCommand(_Command):
 
 	def link(self, log, objectPaths, binaryPath):
 		return self._run(log, objectPaths + [ '-o', binaryPath ])
-
-def tryCompile(log, compileCommand, sourcePath, lines):
-	'''Write the program defined by "lines" to a text file specified
-	by "path" and try to compile it.
-	Returns True iff compilation succeeded.
-	'''
-	assert sourcePath.endswith('.cc')
-	objectPath = sourcePath[ : -3] + '.o'
-	writeFile(sourcePath, lines)
-	try:
-		return compileCommand.compile(log, sourcePath, objectPath)
-	finally:
-		remove(sourcePath)
-		if isfile(objectPath):
-			remove(objectPath)
-
-def tryLink(log, compileCommand, linkCommand, sourcePath):
-	assert sourcePath.endswith('.cc')
-	objectPath = sourcePath[ : -3] + '.o'
-	binaryPath = sourcePath[ : -3] + '.bin'
-	def dummyProgram():
-		# Try to link dummy program to the library.
-		yield 'int main(int argc, char **argv) { return 0; }'
-	writeFile(sourcePath, dummyProgram())
-	try:
-		compileOK = compileCommand.compile(log, sourcePath, objectPath)
-		if not compileOK:
-			print >> log, 'cannot test linking because compile failed'
-			return False
-		return linkCommand.link(log, [ objectPath ], binaryPath)
-	finally:
-		remove(sourcePath)
-		if isfile(objectPath):
-			remove(objectPath)
-		if isfile(binaryPath):
-			remove(binaryPath)

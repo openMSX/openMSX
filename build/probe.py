@@ -3,15 +3,15 @@
 # Performs some test compiles, to check for headers and functions.
 # It does not execute anything it builds, making it friendly for cross compiles.
 
-from compilers import CompileCommand, LinkCommand, tryCompile, tryLink
+from compilers import CompileCommand, LinkCommand
 from makeutils import extractMakeVariables
 from outpututils import rewriteIfChanged
 from probe_defs import librariesByName
 from probe_results import iterProbeResults
 
 from msysutils import msysActive
-from os import environ, makedirs
-from os.path import isdir
+from os import environ, makedirs, remove
+from os.path import isdir, isfile
 from shlex import split as shsplit
 from subprocess import PIPE, Popen
 import sys
@@ -86,6 +86,53 @@ def resolve(log, expr):
 		# script is not installed.
 		# TODO: Report this explicitly in the probe results table.
 		return ''
+
+def writeFile(path, lines):
+	out = open(path, 'w')
+	try:
+		for line in lines:
+			print >> out, line
+	finally:
+		out.close()
+
+def tryCompile(log, compileCommand, sourcePath, lines):
+	'''Write the program defined by "lines" to a text file specified
+	by "path" and try to compile it.
+	Returns True iff compilation succeeded.
+	'''
+	assert sourcePath.endswith('.cc')
+	objectPath = sourcePath[ : -3] + '.o'
+	writeFile(sourcePath, lines)
+	try:
+		return compileCommand.compile(log, sourcePath, objectPath)
+	finally:
+		remove(sourcePath)
+		if isfile(objectPath):
+			remove(objectPath)
+
+def tryLink(log, compileCommand, linkCommand, sourcePath):
+	assert sourcePath.endswith('.cc')
+	objectPath = sourcePath[ : -3] + '.o'
+	binaryPath = sourcePath[ : -3] + '.bin'
+	def dummyProgram():
+		# Try to link dummy program to the library.
+		# TODO: Use object file instead of dummy program.
+		#       That way, object file can refer to symbol from the lib and
+		#       we get more useful results from static libs.
+		yield 'int main(int argc, char **argv) { return 0; }'
+	writeFile(sourcePath, dummyProgram())
+	try:
+		compileOK = compileCommand.compile(log, sourcePath, objectPath)
+		if not compileOK:
+			print >> log, 'cannot test linking because compile failed'
+			return False
+		return linkCommand.link(log, [ objectPath ], binaryPath)
+	finally:
+		remove(sourcePath)
+		if isfile(objectPath):
+			remove(objectPath)
+		if isfile(binaryPath):
+			remove(binaryPath)
 
 def checkCompiler(log, compileCommand, outDir):
 	'''Checks whether compiler can compile anything at all.
