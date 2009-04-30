@@ -1,99 +1,79 @@
-Release Notes for openMSX 0.7.0 (2009-01-07)
+Release Notes for openMSX 0.7.1 (2009-07-01)
 ============================================
 
-This release contains several exciting new features, clearing some long standing
-feature requests! The most important one of all is that we have implemented save
-states! It took us a while to think of a way to implement it without having some
-disadvantages you could have with some other emulators. The biggest one is
-backwards compatibility. Our system is designed in such way that it is able to
-cope with older save states in future releases. So, you don't have to be afraid
-to upgrade to a new version of openMSX: your save states will remain usable!
+This release comes mostly with good news for Windows users: we have a brand new
+installer with binaries which have been created in a brand new way, using
+Microsoft Visual C++ 2008. This means smaller binaries and also support for
+64-bit Windows operating systems. Also, several long standing problems have
+been fixed in the Windows release of openMSX. It now includes full support for
+uniode, e.g.!
 
-Another big feature is the heavily improved keyboard support. In previous
-releases it was always a bit of an annoyance to work with emulated MSX machines
-which have a different keyboard layout than your host computer. E.g. using an
-MSX turboR, which has a Japanese keyboard, on a PC with a US-English keyboard
-was very annoying, as the characters that appear on the screen do not match the
-ones you typed on your PC keyboard. This problem has now been solved and you can
-use any combination of host computer keyboard and emulated MSX machine, without
-getting the wrong characters on the MSX screen.
-
-Full transparent dir-as-disk support has also been a long standing feature
-request. Well, it's here! Dir-as-disk now behaves as you might expect: any
-change on either the host or the MSX side is reflected on the other side
-immediately. This could help a lot for cross-platform development.
-
-Before we give you the list with details, we want to thank hap, the author of
-meisei, for helping us out with some of the features below; you might recognize
-them from his recent meisei releases.
+For the rest we have mostly fixed smaller issues (see below) and added some
+cool demonstrations of what one can do with the combination of (Tcl) scripting,
+the debug command and the OSD.
 
 New or improved emulator features:
-- Save states (keyboard short cuts: ALT-F7 or Cmd+R to quick-load and
-  ALT-F8 or Cmd-S to quick-save your state):
-  - Exchangeable between different host machines, OSes, platforms
-  - Designed to be forwards-compatible, i.e. they will work with future openMSX
-    releases
-  - As a side effect it is now possible to have multiple emulated MSX machines
-    in memory (comparable with tabbed browsing)
-- Fully automatic host-MSX keyboard mapping (enabled by default), support for
-  MSX keyboards of type: de, es, fr, gb, int, jp_ansi, jp_jis, kr, proto_fr
-  (e.g. French Philips VG 8010), proto_int (Philips VG 8010), ru
-- Fully transparent dir as disk (by default)
+- Removed buggy SDLGL renderer (use SDLGL-PP)
 - Debugging:
-  - It's now possible to break on changes of the IRQ lines: the global Z80 IRQ
-    input but also specific per-device IRQ outputs ("debug probe" command)
-  - Made more devices 'debuggable'
-  - Simplified usage of the 'debug device'
-- Recording movies in higher resolution: 640x480 using the "-doublesize" option
-- Major speed optimizations:
-  - Z80 and R800 emulation
-  - V99x8: command-engine, bitmap and sprite rendering
-  - SCC, YM2413, AY8910 and sound mixing in general
-  - rewrote some critical routines in x86 or ARM assembly
-  As a result most MSX1 and MSX2 software now runs realtime on a ARM9 200MHz
-  CPU, which you can find e.g. in a GP2X handheld console.
-- Screenshots can now be made of the MSX screen only (using the "-msxonly"
-  option)
-- Added an On-Screen-Display (OSD) framework, which will be useful to control
-  openMSX in full screen mode and especially on hand held machines like the
-  GP2X. There is already a proof-of-concept OSD available, which can be
-  accessed by pressing the MENU (or Cmd+O) key. Note that this is still an
-  experimental feature! Feedback is most welcome, of course.
-- Amount of horizontal stretch can be tweaked by the user (horizontal_stretch
-  setting)
+  - implemented step_out
+  - implemented skip_instruction
+  - implemented general debug conditions (not bound to addresses anymore, but
+    note: this is very CPU intensive!)
+- Major speed optimizations in the CPU emulation
+- Console now uses TrueType fonts, and can display localized text now (as long
+  as the characters are in the used font), in other words: it supports unicode
+- Optimizations in ZMBV encoding cause openMSX video recordings to become
+  smaller and the encoding to be faster
+- As is default in fMSX, it is now possible to automatically pause openMSX when
+  the mouse pointer leaves the openMSX window
+- Added icons in the OSD for 'pause', 'full throttle', 'debug break' and 'mute'
+  status
+- Added several improvements on the OSD, regarding features, bug fixes and speed
+- Fixed some long standing bugs on Windows:
+  - ALT-SPACE no longer pops up a context window
+  - Unicode is now fully supported (no more problems with localized versions of
+    Windows e.g.). Note: this means openMSX requires Windows 2000 or higher as
+    of this release.
+  - socket communication (e.g. with the openMSX debugger) is secure now. This
+    does mean that older builds of the openMSX debugger will not work anymore
+    with this openMSX release, you need an updated build!
+- Added the possiblity to include OSD elements in screenshots, which are now
+  not shown by default (e.g. typing screenshot in the console no longer shows
+  the console in the screenshot)
+- Added some scripts that demonstrate the OSD framework:
+  - vu_meters: shows graphical VU meters for each channel of each sound chip in
+    the currently emulated MSX
+  - mog_overlay: help and extra information when playing The Maze of Galious
 
 MSX device support:
-- Support for new mapper types: Nettou Yakyuu (with sample ROM, for Moero!!
-  Nettou Yakyuu '88), MatraInk (for Ink), Manbow2 (for Manbow 2),
-  MegaFlashRomScc (for new MegaFlashROM SCC extension)
-- Several new machines were added, e.g. Philips VG 8000, Philips VG 8010 (also
-  French version), Philips VG 8020/19, Sony HB-10P, Sony HB-20P, Sony HB-55P
-- Added Brazilian OPL3 Cartridge
-- Major accuracy improvements:
-  - turboR: extra wait cycle when accessing VDP
+- Several new machines were added, e.g. Sony HB-F700P, Panasonic CF-2700
+  (German), Talent DPC-200 (Argentinian), Yamaha CX5M, Sanyo PHC-28L, Sanyo
+  PHC-28S, Yamaha YIS-503F
+- Added Sharp HB-3600 dual disk drive
+- Accuracy improvements:
+  - Added difference between AY8910 and YM2149 PSG's when reading registers
   - Z80:
-    - more accurate IRQ timing
-    - fixed some undocumented flag behaviour (not caught by zexall)
-    - implemented differences between turboR-Z80 and normal Z80 (SCF and CCF)
-  - R800:
-    - more accurate timing (correct page break behaviour)
-    - more accurate flags (rexall passes now)
-  - SCC:
-    - fixes in rotation mode
-    - corrected power-on state
+    - added 'ld a,i' quirk
   - V99x8:
-    - implemented VRAM remapping (register R#1, bit7)
-    - implemented blink in bitmap mode
-  - V9990:
-    - much improved command timing
-    - bug fixes in command handling
-    - fixed vertical scroll details (in combination with screen splits)
-  - MSX-AUDIO: various fixes for the different MSX-AUDIO variants 
-  - PSG: emulate joystick input pin 6/7 mask quirk
-  - more accurate 'HarryFox' and 'CrossBlaim' mapper types
+    - added simple implementation of sprite collision coordinate status
+      registers
+    - fixed detail of LINE command (fixing one problemon Syntax Infinity)
+    - implemented VR bit (fixing another problem in Syntax Infinity)
+  - Added a memory mirror device to properly emulate the Sony HB-10P
+- Added emulation of Nowind (mostly useful for Nowind firmware developers)
+- Added emulation of the Arkanoid pad, using the mouse
 
 Build system, packaging, documentation:
-- Mostly updated support for building a statically linked executable on Windows.
+- Build support for Microsoft Visual C++ on Windows. As a result, we have
+  smaller binaries for Win32 and we now also have support for 64-bit Windows.
+- New installer based on WiX on Windows
+- Added a super-opt flavour which does the most aggressive optimizations. This
+  includes using "computed gotos" in the CPU code (which speeds it up by
+  roughly 10%), but may need 1GB of RAM at compile time.
+- Added support for Hurd operating systems (tested on Debian GNU/Hurd)
+- Converted (most of) the build system to Python, so that it is a lot better
+  maintainable and the Visual C++ build can also make use of it. Python (> 2.4
+  but < 3.0) is now required to compile openMSX.
 
 And of course the usual various bug fixes.
 
