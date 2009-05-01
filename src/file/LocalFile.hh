@@ -21,7 +21,7 @@ public:
 	virtual ~LocalFile();
 	virtual void read (void* buffer, unsigned num);
 	virtual void write(const void* buffer, unsigned num);
-#ifdef	HAVE_MMAP
+#ifdef HAVE_MMAP
 	virtual byte* mmap(bool writeBack);
 	virtual void munmap();
 #endif
