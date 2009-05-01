@@ -66,11 +66,6 @@ V9990Renderer* RendererFactory::createV9990Renderer(
 		case SDLGL_FB16:
 		case SDLGL_FB32:
 			return new V9990PixelRenderer(vdp);
-#ifdef HAVE_X11
-		case XLIB:
-			//return new V9990XRenderer(XLIB, vdp);
-			return new V9990DummyRenderer();
-#endif
 		default:
 			assert(false);
 			return 0;
