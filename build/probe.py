@@ -222,8 +222,7 @@ class TargetSystem(object):
 		self.hello()
 		for func in systemFunctions:
 			self.checkFunc(func)
-		for header in sorted(librariesByName.iterkeys()) + \
-				[ 'GL_GL', 'GL_GLEW' ]:
+		for header in sorted(librariesByName.iterkeys()):
 			if header in self.disabledHeaders:
 				self.disabledHeader(header)
 			else:
@@ -285,18 +284,22 @@ class TargetSystem(object):
 		'''
 		flags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, flags)
-		headers = [ self.probeVars['%s_HEADER' % makeName] ]
 		funcName = self.probeVars['%s_FUNCTION' % makeName]
-
-		ok = checkFunc(
-			self.log, compileCommand, self.outDir, makeName, funcName, headers
-			)
-		print >> self.log, '%s header: %s' % (
-			'Found' if ok else 'Missing',
-			makeName
-			)
-		self.outVars['HAVE_%s_H' % makeName] = 'true' if ok else ''
-		self.outVars['%s_CFLAGS' % makeName] = flags
+		headerAlts = self.probeVars['%s_HEADER' % makeName]
+		if not hasattr(headerAlts, '__iter__'):
+			headerAlts = ( headerAlts, )
+		for headerAlt, prefix in zip(headerAlts, ('', 'GL_')):
+			name = prefix + makeName
+			ok = checkFunc(
+				self.log, compileCommand, self.outDir, makeName, funcName,
+				[ headerAlt ]
+				)
+			print >> self.log, '%s header: %s' % (
+				'Found' if ok else 'Missing',
+				name
+				)
+			self.outVars['HAVE_%s_H' % name] = 'true' if ok else ''
+			self.outVars['%s_CFLAGS' % name] = flags
 
 	def checkLib(self, makeName):
 		'''Probe for library.
@@ -362,23 +365,10 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		for name, library in sorted(librariesByName.iteritems()):
 			if name in disabledLibraries:
 				continue
-
-			header = library.header
-			if hasattr(header, '__iter__'):
-				header, altheader = header
-			else:
-				altheader = None
-
-			probeVars['%s_HEADER' % name] = header
+			probeVars['%s_HEADER' % name] = library.header
 			probeVars['%s_FUNCTION' % name] = library.function
-			if altheader is not None:
-				probeVars['GL_%s_HEADER' % name] = altheader
-				probeVars['GL_%s_FUNCTION' % name] = library.function
-
 			probeVars['%s_CFLAGS' % name] = \
 				library.getCompileFlags(platform, linkMode, distroRoot)
-			if altheader is not None:
-				probeVars['GL_%s_CFLAGS' % name] = probeVars['%s_CFLAGS' % name]
 			probeVars['%s_LDFLAGS' % name] = \
 				library.getLinkFlags(platform, linkMode, distroRoot)
 			probeVars['%s_RESULT' % name] = \
