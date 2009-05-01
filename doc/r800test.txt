@@ -73,7 +73,7 @@ raw-result: this is the value of the E6 timer at the end of the test. Note
 that you cannot directly compare this number to other test because other
 test might have a different repeat-count.
 
-cycles: here i calculated the number of cycles required per
+cycles: here I calculated the number of cycles required per
 'instruction-sequence'-iteration. I calculated this by comparing the result
 to the 'nop' instruction (a nop takes 1 cycle). Note that the duration
 of most instructions in almost never exactly an integer multiple of the
@@ -216,7 +216,7 @@ ld (ix+o),n  [x 10000]
         in parallel with fetching the last opcode byte.
         Z80 shows the same parallelism.
   note: Even though it has the same number of cycles as 'ld (ix+o),r', it
-        is consistently slighty slower. A possible explanation is that there
+        is consistently slightly slower. A possible explanation is that there
         are page-breaks on opcode fetches in this test, since this instruction
         has length 4 instead of 3.
 
@@ -342,7 +342,7 @@ ld hl,#0100 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src == dst)
   openmsx: 11084 11377
   cycles: 7  [FfRW]
   note: same timing as above, even though the read and write addresses are
-        the same, there is a page-break inbetween
+        the same, there is a page-break in between
 
 
 * Read-modify-write 2 bytes
@@ -560,7 +560,7 @@ in a,(#98)  [x 20000]
   openmsx: 40713 40713
   cycles: +/- 54
   note: - Can be explained by the 'intelligent' VDP-delay added by the S1990 
-          Need additional tests to accuratly measure this.
+          Need additional tests to accurately measure this.
         - Only IO ports 0x98-0x9B show this behaviour
 
 [ ld b,0 ]

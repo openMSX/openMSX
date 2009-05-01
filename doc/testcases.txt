@@ -1,8 +1,8 @@
 # $Id$
-This file is a small and simple list of programs(mostly games and demo's) and why they make intresting test case for an MSX emulator:
+This file is a small and simple list of programs(mostly games and demo's) and why they make interesting test case for an MSX emulator:
 
 Time Curb:
-Beside that it is a nice test for tape support, the most ineteresting thing is the samples played(Time curb, world war one, world war two, etc...). The program puts the PSG channels on hold, so that they output a constant value (== like a zero frequency) and then uses the volume to alter the output voltage to play samples.
+Beside that it is a nice test for tape support, the most interesting thing is the samples played(Time curb, world war one, world war two, etc...). The program puts the PSG channels on hold, so that they output a constant value (== like a zero frequency) and then uses the volume to alter the output voltage to play samples.
 
 Hydefoss:
 A screensplit that switches between screen 5 and 4
@@ -14,10 +14,10 @@ F1 spirit 3d:
 Scroll registers at every line during gameplay
 
 Track and Field:
-Di when the VDP set the interrupt, so the emulator must react imedialtely on this pending interrupt when the EI instruction is executed.
+Di when the VDP set the interrupt, so the emulator must react immediately on this pending interrupt when the EI instruction is executed.
 
 Calculus:
-Heli-part: uses screen 3 and magnifiewd sprites
+Heli-part: uses screen 3 and magnified sprites
 Aquarel: 'illegal' use of vdp(2) combined with vdp(24)
 Picture: interlaced screen7 with vdp(24) trickery
 

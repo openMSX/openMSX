@@ -322,7 +322,7 @@ CAS0/1 |          A14         |          A16         |
 
 #1  this pin is always '1' in the CAS phase
 #2  A6 is output both in CAS and RAS phase, this allows to use both 8/6 and 7/7
-    RAS/CAS configurations (see VDP datasheet for details)
+    RAS/CAS configurations (see VDP data sheet for details)
 
 
 One important side-effect is that in VR=0 mode, the VDP can only address 32kB

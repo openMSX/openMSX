@@ -6,7 +6,7 @@ installer with binaries which have been created in a brand new way, using
 Microsoft Visual C++ 2008. This means smaller binaries and also support for
 64-bit Windows operating systems. Also, several long standing problems have
 been fixed in the Windows release of openMSX. It now includes full support for
-uniode, e.g.!
+unicode, e.g.!
 
 For the rest we have mostly fixed smaller issues (see below) and added some
 cool demonstrations of what one can do with the combination of (Tcl) scripting,
@@ -37,7 +37,7 @@ New or improved emulator features:
   - socket communication (e.g. with the openMSX debugger) is secure now. This
     does mean that older builds of the openMSX debugger will not work anymore
     with this openMSX release, you need an updated build!
-- Added the possiblity to include OSD elements in screenshots, which are now
+- Added the possibility to include OSD elements in screenshots, which are now
   not shown by default (e.g. typing screenshot in the console no longer shows
   the console in the screenshot)
 - Added some scripts that demonstrate the OSD framework:
@@ -57,7 +57,7 @@ MSX device support:
   - V99x8:
     - added simple implementation of sprite collision coordinate status
       registers
-    - fixed detail of LINE command (fixing one problemon Syntax Infinity)
+    - fixed detail of LINE command (fixing one problem in Syntax Infinity)
     - implemented VR bit (fixing another problem in Syntax Infinity)
   - Added a memory mirror device to properly emulate the Sony HB-10P
 - Added emulation of Nowind (mostly useful for Nowind firmware developers)
