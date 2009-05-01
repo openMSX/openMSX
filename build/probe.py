@@ -200,7 +200,7 @@ class TargetSystem(object):
 	def __init__(
 		self,
 		log, compileCommandStr, outDir, platform, probeVars, customVars,
-		disabledLibraries, disabledHeaders
+		disabledLibraries
 		):
 		'''Create empty log and result files.
 		'''
@@ -211,7 +211,6 @@ class TargetSystem(object):
 		self.probeVars = probeVars
 		self.customVars = customVars
 		self.disabledLibraries = disabledLibraries
-		self.disabledHeaders = disabledHeaders
 		self.outMakePath = outDir + '/probed_defs.mk'
 		self.outHeaderPath = outDir + '/probed_defs.hh'
 		self.outVars = {}
@@ -222,15 +221,12 @@ class TargetSystem(object):
 		self.hello()
 		for func in systemFunctions:
 			self.checkFunc(func)
-		for header in sorted(librariesByName.iterkeys()):
-			if header in self.disabledHeaders:
-				self.disabledHeader(header)
-			else:
-				self.checkHeader(header)
 		for library in sorted(librariesByName.iterkeys()):
 			if library in self.disabledLibraries:
+				self.disabledHeader(library)
 				self.disabledLibrary(library)
 			else:
+				self.checkHeader(library)
 				self.checkLib(library)
 
 	def printAll(self):
@@ -244,7 +240,7 @@ class TargetSystem(object):
 	def printResults(self):
 		for line in iterProbeResults(
 			self.outVars, self.customVars,
-			self.disabledHeaders, self.disabledLibraries
+			self.disabledLibraries, self.disabledLibraries
 			):
 			print line
 
@@ -339,28 +335,13 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	try:
 		customVars = extractMakeVariables('build/custom.mk')
 		disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
-		disabledHeaders = set()
-
 		if linkMode.startswith('3RD_'):
 			# Disable Jack: The CassetteJack feature is not useful for most end
 			# users, so do not include Jack in the binary distribution of
 			# openMSX.
 			disabledLibraries.add('JACK')
 
-			# GLEW header can be <GL/glew.h> or just <glew.h>; the dedicated
-			# version we use resides in the "GL" dir, so don't look for the
-			# other one, or we might pick up a different version somewhere on
-			# the system.
-			disabledHeaders.add('GLEW')
-
-		disabledHeaders |= disabledLibraries
-		if 'GL' in disabledLibraries:
-			disabledHeaders.add('GL_GL')
-		if 'GLEW' in disabledLibraries:
-			disabledHeaders.add('GL_GLEW')
-
 		distroRoot = thirdPartyInstall or None
-
 		probeVars = {}
 		for name, library in sorted(librariesByName.iteritems()):
 			if name in disabledLibraries:
@@ -376,7 +357,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 
 		TargetSystem(
 			log, compileCommandStr, outDir, platform, probeVars, customVars,
-			disabledLibraries, disabledHeaders
+			disabledLibraries
 			).everything()
 	finally:
 		log.close()
