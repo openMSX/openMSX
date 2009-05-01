@@ -210,6 +210,8 @@ class GL(Library):
 			return '-framework OpenGL'
 		elif platform == 'mingw32':
 			return '-lopengl32'
+		elif platform in ('netbsd', 'openbsd'):
+			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGL'
 		else:
 			return super(GL, cls).getLinkFlags(platform, linkMode, distroRoot)
 
