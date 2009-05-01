@@ -221,6 +221,9 @@ class GLEW(Library):
 	libName = 'GLEW'
 	makeName = 'GLEW'
 	# The comment for the GL headers applies to GLEW as well.
+	# TODO: If we want GLEW from 3rdparty, only the variant used there should
+	#       be tried, to avoid picking up a GLEW that may be installed
+	#       somewhere else on the system.
 	header = ( '<glew.h>', '<GL/glew.h>' )
 	function = 'glewInit'
 
