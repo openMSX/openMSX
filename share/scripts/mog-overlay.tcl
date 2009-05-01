@@ -19,7 +19,7 @@ variable demon_power [list -1 -1 24 40 64 112 72 56 64 80 80 248]
 variable items [list "" "Arrow" "Ceramic Arrow" "Rolling Fire" "Fire" "Mine" \
                      "Magnifying Glass" "Holy Water" "Cape" "Magical Rod" \
                      "World Map" "Cross" "Great Key" "Necklace" "Crown" \
-                     "Helm" "Oar" "Boots" "Doll" "Halo" "Bell" "Halo" "Candle" \
+                     "Helm" "Oar" "Boots" "Doll" "Robe" "Bell" "Halo" "Candle" \
                      "Armor" "Carpet" "Helmet" "Lamp" "Vase" "Pendant" \
                      "Earrings" "Bracelet" "Ring" "Bible" "Harp" "Triangle" \
                      "Trumpet Shell" "Pitcher" "Sabre" "Dagger" "Feather" \
