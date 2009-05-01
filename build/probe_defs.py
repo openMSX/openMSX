@@ -11,15 +11,6 @@
 # Conclusion: We have to specify the full path to each library that should be
 #             linked statically.
 #
-# TODO: How to probe for a static library?
-#       Currently we link an empty test program to it. Since the test program
-#       does not use any symbols from the library, the test can only fail if
-#       the ".a" file does not exist.
-#       We could test the existence of the ".a" file from Python, making the
-#       test more efficient.
-#       Or we could try to trigger a representative subset of the symbols in
-#       the library, so missing dependencies of this library would be caught.
-#
 # Legend of link modes:
 # SYS_DYN: link dynamically against system libs
 #          this is the default mode; useful for local binaries
@@ -198,7 +189,7 @@ class GL(Library):
 		return True
 
 	@classmethod
-	def getHeader(cls, platform): # pylint: disable-msg=W0613
+	def getHeader(cls, platform):
 		if platform == 'darwin':
 			return '<OpenGL/gl.h>'
 		else:
