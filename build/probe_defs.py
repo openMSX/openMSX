@@ -74,12 +74,12 @@ class USleepFunction(SystemFunction):
 		yield '<unistd.h>'
 
 # Build a list of system functions using introspection.
-def iterSystemFunctions(localObjects):
+def _discoverSystemFunctions(localObjects):
 	for obj in localObjects:
 		if isinstance(obj, type) and issubclass(obj, SystemFunction):
 			if obj is not SystemFunction:
 				yield obj
-systemFunctions = list(iterSystemFunctions(locals().itervalues()))
+systemFunctions = list(_discoverSystemFunctions(locals().itervalues()))
 
 class Library(object):
 	libName = None
