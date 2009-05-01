@@ -238,8 +238,7 @@ class TargetSystem(object):
 
 	def printResults(self):
 		for line in iterProbeResults(
-			self.outVars, self.customVars,
-			self.disabledLibraries, self.disabledLibraries
+			self.outVars, self.customVars, self.disabledLibraries
 			):
 			print line
 
@@ -320,7 +319,7 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s_H' % library] = ''
 		self.outVars['HAVE_%s_LIB' % library] = ''
 
-def iterProbeResults(probeVars, customVars, disabledHeaders, disabledLibs):
+def iterProbeResults(probeVars, customVars, disabledLibs):
 	'''Present probe results, so user can decide whether to start the build,
 	or to change system configuration and rerun "configure".
 	'''
@@ -361,17 +360,10 @@ def iterProbeResults(probeVars, customVars, disabledHeaders, disabledLibs):
 				found = 'disabled'
 			elif package.haveLibrary(probeVars):
 				found = probeVars['HAVE_%s_LIB' % package.getMakeName()]
-			else:
-				found = 'no'
-			yield formatStr % (package.niceName + ':', found)
-		yield ''
-
-		yield 'Found headers:'
-		for package in libraries:
-			if set(package.iterHeaderMakeNames()).issubset(disabledHeaders):
-				found = 'disabled'
 			elif package.haveHeaders(probeVars):
-				found = 'yes'
+				# Dependency resolution of a typical distro will not allow
+				# this situation. Most likely we got the link flags wrong.
+				found = 'headers found, link test failed'
 			else:
 				found = 'no'
 			yield formatStr % (package.niceName + ':', found)
