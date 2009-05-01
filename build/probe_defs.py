@@ -196,6 +196,15 @@ class GL(Library):
 			return '<GL/gl.h>'
 
 	@classmethod
+	def getCompileFlags(cls, platform, linkMode, distroRoot):
+		if platform in ('netbsd', 'openbsd'):
+			return '-I/usr/X11R6/include -I/usr/X11R7/include'
+		else:
+			return super(GL, cls).getCompileFlags(
+				platform, linkMode, distroRoot
+				)
+
+	@classmethod
 	def getLinkFlags(cls, platform, linkMode, distroRoot):
 		if platform == 'darwin':
 			return '-framework OpenGL'
