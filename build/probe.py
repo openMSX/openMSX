@@ -305,11 +305,10 @@ class TargetSystem(object):
 			'Found' if ok else 'Missing',
 			makeName
 			)
+		self.outVars['HAVE_%s_LIB' % makeName] = 'true' if ok else ''
 		if ok:
-			result = resolve(self.log, self.probeVars['%s_RESULT' % makeName])
-		else:
-			result = ''
-		self.outVars['HAVE_%s_LIB' % makeName] = result
+			self.outVars['RESULT_%s' % makeName] = \
+				resolve(self.log, self.probeVars['%s_RESULT' % makeName])
 
 	def checkLibrary(self, makeName):
 		cflags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
@@ -366,7 +365,7 @@ def iterProbeResults(probeVars, customVars, disabledLibs):
 			if package.getMakeName() in disabledLibs:
 				found = 'disabled'
 			elif package.haveLibrary(probeVars):
-				found = probeVars['HAVE_%s_LIB' % package.getMakeName()]
+				found = probeVars['RESULT_%s' % package.getMakeName()]
 			elif package.haveHeaders(probeVars):
 				# Dependency resolution of a typical distro will not allow
 				# this situation. Most likely we got the link flags wrong.
