@@ -205,19 +205,9 @@ class GL(Library):
 			return '<GL/gl.h>'
 
 	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		if platform == 'darwin':
-			return '-framework OpenGL'
-		else:
-			return super(GL, cls).getCompileFlags(
-				platform, linkMode, distroRoot
-				)
-
-	@classmethod
 	def getLinkFlags(cls, platform, linkMode, distroRoot):
 		if platform == 'darwin':
-			return '-framework OpenGL -lGL ' \
-				'-L/System/Library/Frameworks/OpenGL.framework/Libraries'
+			return '-framework OpenGL'
 		elif platform == 'mingw32':
 			return '-lopengl32'
 		else:
