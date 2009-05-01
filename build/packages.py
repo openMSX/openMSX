@@ -13,15 +13,8 @@ class Package(object):
 		return cls.name.upper()
 
 	@classmethod
-	def iterHeaderMakeNames(cls):
-		yield cls.getMakeName()
-
-	@classmethod
 	def haveHeaders(cls, probeVars):
-		return any(
-			probeVars['HAVE_%s_H' % name]
-			for name in cls.iterHeaderMakeNames()
-			)
+		return bool(probeVars['HAVE_%s_H' % cls.getMakeName()])
 
 	@classmethod
 	def haveLibrary(cls, probeVars):
@@ -74,11 +67,6 @@ class GLEW(DownloadablePackage):
 	def getTarballName(cls):
 		return '%s-%s-src.tgz' % (cls.name, cls.version)
 
-	@classmethod
-	def iterHeaderMakeNames(cls):
-		yield 'GLEW'
-		yield 'GL_GLEW'
-
 class JACK(DownloadablePackage):
 	downloadURL = 'http://jackaudio.org/downloads/'
 	niceName = 'Jack'
@@ -114,11 +102,6 @@ class LibXML2(DownloadablePackage):
 class OpenGL(Package):
 	niceName = 'OpenGL'
 	name = 'gl'
-
-	@classmethod
-	def iterHeaderMakeNames(cls):
-		yield 'GL'
-		yield 'GL_GL'
 
 class SDL(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
