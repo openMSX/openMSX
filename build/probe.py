@@ -223,11 +223,9 @@ class TargetSystem(object):
 			self.checkFunc(func)
 		for library in sorted(librariesByName.iterkeys()):
 			if library in self.disabledLibraries:
-				self.disabledHeader(library)
 				self.disabledLibrary(library)
 			else:
-				self.checkHeader(library)
-				self.checkLib(library)
+				self.checkLibrary(library)
 
 	def printAll(self):
 		def iterVars():
@@ -275,11 +273,7 @@ class TargetSystem(object):
 			)
 		self.outVars['HAVE_%s' % func.getMakeName()] = 'true' if ok else ''
 
-	def checkHeader(self, makeName):
-		'''Probe for header.
-		'''
-		flags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
-		compileCommand = CompileCommand.fromLine(self.compileCommandStr, flags)
+	def checkHeader(self, makeName, compileCommand):
 		funcName = self.probeVars['%s_FUNCTION' % makeName]
 		headerAlts = self.probeVars['%s_HEADER' % makeName]
 		if not hasattr(headerAlts, '__iter__'):
@@ -295,19 +289,12 @@ class TargetSystem(object):
 				name
 				)
 			self.outVars['HAVE_%s_H' % name] = 'true' if ok else ''
-			self.outVars['%s_CFLAGS' % name] = flags
 
-	def checkLib(self, makeName):
-		'''Probe for library.
-		'''
-		flags = resolve(self.log, self.probeVars['%s_LDFLAGS' % makeName])
-		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
-		linkCommand = LinkCommand.fromLine(self.compileCommandStr, flags)
-
+	def checkLib(self, makeName, compileCommand, linkCommand):
 		ok = checkLib(
 			self.log, compileCommand, linkCommand, self.outDir, makeName
 			)
-		print >> self.log, '%s library: %s' % (
+		print >> self.log, '%s lib: %s' % (
 			'Found' if ok else 'Missing',
 			makeName
 			)
@@ -316,14 +303,20 @@ class TargetSystem(object):
 		else:
 			result = ''
 		self.outVars['HAVE_%s_LIB' % makeName] = result
-		self.outVars['%s_LDFLAGS' % makeName] = flags
 
-	def disabledHeader(self, header):
-		print >> self.log, 'Disabled header: %s' % header
-		self.outVars['HAVE_%s_H' % header] = ''
+	def checkLibrary(self, makeName):
+		cflags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
+		ldflags = resolve(self.log, self.probeVars['%s_LDFLAGS' % makeName])
+		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
+		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
+		self.outVars['%s_CFLAGS' % makeName] = cflags
+		self.outVars['%s_LDFLAGS' % makeName] = ldflags
+		self.checkHeader(makeName, compileCommand)
+		self.checkLib(makeName, compileCommand, linkCommand)
 
 	def disabledLibrary(self, library):
 		print >> self.log, 'Disabled library: %s' % library
+		self.outVars['HAVE_%s_H' % library] = ''
 		self.outVars['HAVE_%s_LIB' % library] = ''
 
 def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
