@@ -127,6 +127,10 @@ class Library(object):
 			return '%s/bin/%s' % (distroRoot, scriptName)
 
 	@classmethod
+	def getHeader(cls, platform): # pylint: disable-msg=W0613
+		return cls.header
+
+	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
 		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
 		if configScript is None:
@@ -187,9 +191,6 @@ class Library(object):
 class GL(Library):
 	libName = 'GL'
 	makeName = 'GL'
-	# Location of GL headers is not standardised; if one of these matches,
-	# we consider the GL headers found.
-	header = ( '<gl.h>', '<GL/gl.h>' )
 	function = 'glGenTextures'
 
 	@classmethod
@@ -197,11 +198,16 @@ class GL(Library):
 		return True
 
 	@classmethod
+	def getHeader(cls, platform): # pylint: disable-msg=W0613
+		if platform == 'darwin':
+			return '<OpenGL/gl.h>'
+		else:
+			return '<GL/gl.h>'
+
+	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
 		if platform == 'darwin':
-			# TODO: GL_HEADER:=<OpenGL/gl.h> iso GL_CFLAGS is cleaner,
-			#       but we have to modify the build before we can use it.
-			return '-I/System/Library/Frameworks/OpenGL.framework/Headers'
+			return '-framework OpenGL'
 		else:
 			return super(GL, cls).getCompileFlags(
 				platform, linkMode, distroRoot
@@ -220,11 +226,7 @@ class GL(Library):
 class GLEW(Library):
 	libName = 'GLEW'
 	makeName = 'GLEW'
-	# The comment for the GL headers applies to GLEW as well.
-	# TODO: If we want GLEW from 3rdparty, only the variant used there should
-	#       be tried, to avoid picking up a GLEW that may be installed
-	#       somewhere else on the system.
-	header = ( '<glew.h>', '<GL/glew.h>' )
+	header = '<GL/glew.h>'
 	function = 'glewInit'
 
 	@classmethod

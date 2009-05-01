@@ -275,20 +275,16 @@ class TargetSystem(object):
 
 	def checkHeader(self, makeName, compileCommand):
 		funcName = self.probeVars['%s_FUNCTION' % makeName]
-		headerAlts = self.probeVars['%s_HEADER' % makeName]
-		if not hasattr(headerAlts, '__iter__'):
-			headerAlts = ( headerAlts, )
-		for headerAlt, prefix in zip(headerAlts, ('', 'GL_')):
-			name = prefix + makeName
-			ok = checkFunc(
-				self.log, compileCommand, self.outDir, makeName, funcName,
-				[ headerAlt ]
-				)
-			print >> self.log, '%s header: %s' % (
-				'Found' if ok else 'Missing',
-				name
-				)
-			self.outVars['HAVE_%s_H' % name] = 'true' if ok else ''
+		header = self.probeVars['%s_HEADER' % makeName]
+		ok = checkFunc(
+			self.log, compileCommand, self.outDir, makeName, funcName,
+			[ header ]
+			)
+		print >> self.log, '%s header: %s' % (
+			'Found' if ok else 'Missing',
+			makeName
+			)
+		self.outVars['HAVE_%s_H' % makeName] = 'true' if ok else ''
 
 	def checkLib(self, makeName, compileCommand, linkCommand):
 		ok = checkLib(
@@ -414,7 +410,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		for name, library in sorted(librariesByName.iteritems()):
 			if name in disabledLibraries:
 				continue
-			probeVars['%s_HEADER' % name] = library.header
+			probeVars['%s_HEADER' % name] = library.getHeader(platform)
 			probeVars['%s_FUNCTION' % name] = library.function
 			probeVars['%s_CFLAGS' % name] = \
 				library.getCompileFlags(platform, linkMode, distroRoot)

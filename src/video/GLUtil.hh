@@ -7,18 +7,13 @@
 #include "components.hh"
 #ifdef COMPONENT_GL
 
-#include "probed_defs.hh"
 // Include GLEW headers.
-#ifdef HAVE_GL_GLEW_H
 #include <GL/glew.h>
-#else // HAVE_GLEW_H
-#include <glew.h>
-#endif
 // Include OpenGL headers.
-#ifdef HAVE_GL_GL_H
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
-#else // HAVE_GL_H
-#include <gl.h>
 #endif
 
 #include "build-info.hh"
