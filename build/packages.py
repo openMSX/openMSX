@@ -6,11 +6,11 @@ class Package(object):
 	'''Abstract base class for packages.
 	'''
 	niceName = None
-	name = None
+	sourceName = None
 
 	@classmethod
 	def getMakeName(cls):
-		return cls.name.upper()
+		return cls.sourceName.upper()
 
 class DownloadablePackage(Package):
 	'''Abstract base class for packages that can be downloaded.
@@ -21,7 +21,7 @@ class DownloadablePackage(Package):
 
 	@classmethod
 	def getTarballName(cls):
-		return '%s-%s.tar.gz' % (cls.name, cls.version)
+		return '%s-%s.tar.gz' % (cls.sourceName, cls.version)
 
 	@classmethod
 	def getURL(cls):
@@ -30,35 +30,35 @@ class DownloadablePackage(Package):
 class DirectX(DownloadablePackage):
 	downloadURL = 'http://alleg.sourceforge.net/files'
 	niceName = 'DirectX'
-	name = 'dx'
+	sourceName = 'dx'
 	version = '70'
 
 	@classmethod
 	def getTarballName(cls):
-		return '%s%s_mgw.tar.gz' % (cls.name, cls.version)
+		return '%s%s_mgw.tar.gz' % (cls.sourceName, cls.version)
 
 class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
-	name = 'freetype'
+	sourceName = 'freetype'
 	version = '2.3.7'
 	dependsOn = ('zlib', )
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
-	name = 'glew'
+	sourceName = 'glew'
 	version = '1.5.1'
 	dependsOn = ('gl', )
 
 	@classmethod
 	def getTarballName(cls):
-		return '%s-%s-src.tgz' % (cls.name, cls.version)
+		return '%s-%s-src.tgz' % (cls.sourceName, cls.version)
 
 class JACK(DownloadablePackage):
 	downloadURL = 'http://jackaudio.org/downloads/'
 	niceName = 'Jack'
-	name = 'jack-audio-connection-kit'
+	sourceName = 'jack-audio-connection-kit'
 	version = '0.116.2'
 
 	@classmethod
@@ -68,7 +68,7 @@ class JACK(DownloadablePackage):
 class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
-	name = 'libpng'
+	sourceName = 'libpng'
 	version = '1.2.34'
 	dependsOn = ('zlib', )
 
@@ -79,7 +79,7 @@ class LibPNG(DownloadablePackage):
 class LibXML2(DownloadablePackage):
 	downloadURL = 'http://xmlsoft.org/sources'
 	niceName = 'libxml2'
-	name = 'libxml2'
+	sourceName = 'libxml2'
 	version = '2.7.2'
 	dependsOn = ('zlib', )
 
@@ -89,42 +89,42 @@ class LibXML2(DownloadablePackage):
 
 class OpenGL(Package):
 	niceName = 'OpenGL'
-	name = 'gl'
+	sourceName = 'gl'
 
 class SDL(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
 	niceName = 'SDL'
-	name = 'SDL'
+	sourceName = 'SDL'
 	version = '1.2.13'
 
 class SDL_image(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_image/release'
 	niceName = 'SDL_image'
-	name = 'SDL_image'
+	sourceName = 'SDL_image'
 	version = '1.2.7'
 	dependsOn = ('SDL', 'libpng')
 
 class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'
-	name = 'SDL_ttf'
+	sourceName = 'SDL_ttf'
 	version = '2.0.9'
 	dependsOn = ('SDL', 'freetype')
 
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
-	name = 'tcl'
+	sourceName = 'tcl'
 	version = '8.5.6'
 
 	@classmethod
 	def getTarballName(cls):
-		return '%s%s-src.tar.gz' % (cls.name, cls.version)
+		return '%s%s-src.tar.gz' % (cls.sourceName, cls.version)
 
 class ZLib(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'zlib'
-	name = 'zlib'
+	sourceName = 'zlib'
 	version = '1.2.3'
 
 # Build a dictionary of packages using introspection.
@@ -132,7 +132,7 @@ def _discoverPackages(localObjects):
 	for obj in localObjects:
 		if isinstance(obj, type) and issubclass(obj, Package):
 			if not (obj is Package or obj is DownloadablePackage):
-				yield obj.name, obj
+				yield obj.sourceName, obj
 _packagesByName = dict(_discoverPackages(locals().itervalues()))
 
 def getPackage(name):
