@@ -346,6 +346,14 @@ class TCL(Library):
 	function = 'Tcl_CreateInterp'
 
 	@classmethod
+	def getDynamicLibsOption(cls, platform):
+		return '--ldflags'
+
+	@classmethod
+	def getStaticLibsOption(cls, platform):
+		return '--static-libs'
+
+	@classmethod
 	def getConfigScript(cls, platform, linkMode, distroRoot):
 		# TODO: Convert (part of) tcl-search.sh to Python as well?
 		if cls.isSystemLibrary(platform, linkMode):
@@ -357,19 +365,6 @@ class TCL(Library):
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
 		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
 		return '`%s --cflags`' % configScript
-
-	@classmethod
-	def getLinkFlags(cls, platform, linkMode, distroRoot):
-		# Note: Tcl can be compiled with a static or a dynamic library, not
-		#       both. So whether this returns static or dynamic link flags
-		#       depends on how this copy of Tcl was built.
-		# TODO: If we are trying to link statically against a a dynamic
-		#       build of Tcl (or vice versa), consider it an error.
-		return '`%s %s`' % (
-			cls.getConfigScript(platform, linkMode, distroRoot),
-			'--ldflags' if cls.isSystemLibrary(platform, linkMode)
-				else '--static-libs'
-			)
 
 class LibXML2(Library):
 	libName = 'xml2'
