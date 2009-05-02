@@ -134,14 +134,22 @@ class Library(object):
 			#       searched for. For example, MacPorts and Fink are neither
 			#       systemwide nor our 3rdparty area.
 			if cls.isSystemLibrary(platform, linkMode):
-				return ''
+				flags = []
 			elif distroRoot is None:
 				raise ValueError(
 					'Library "%s" is not a system library and no alternative '
 					'location is available.' % cls.makeName
 					)
 			else:
-				return '-I%s/include' % distroRoot
+				flags = [ '-I%s/include' % distroRoot ]
+			return ' '.join(
+				flags + [
+					librariesByName[name].getCompileFlags(
+						platform, linkMode, distroRoot
+						)
+					for name in cls.dependsOn
+					]
+				)
 		else:
 			return '`%s --cflags`' % configScript
 
