@@ -125,7 +125,9 @@ else
 INSTALL_DIRECTX:=$(TIMESTAMP_DIR)/install-$(PACKAGE_DIRECTX)
 endif
 
-INSTALL_PARAMS_GLEW:=GLEW_DEST=$(PWD)/$(INSTALL_DIR)
+INSTALL_PARAMS_GLEW:=\
+	GLEW_DEST=$(PWD)/$(INSTALL_DIR) \
+	LIBDIR=$(PWD)/$(INSTALL_DIR)/lib
 
 # Function which, given a variable name prefix and the variable's value,
 # returns the name of the package.
