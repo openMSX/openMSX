@@ -87,6 +87,7 @@ class Library(object):
 	header = None
 	configScriptName = None
 	function = None
+	dependsOn = ()
 
 	@classmethod
 	def getDynamicLibsOption(cls, platform): # pylint: disable-msg=W0613
@@ -179,6 +180,11 @@ class Library(object):
 		else:
 			return '`%s --version`' % configScript
 
+class FreeType(Library):
+	libName = 'freetype'
+	makeName = 'FREETYPE'
+	dependsOn = ('ZLIB', )
+
 class GL(Library):
 	libName = 'GL'
 	makeName = 'GL'
@@ -220,6 +226,7 @@ class GLEW(Library):
 	makeName = 'GLEW'
 	header = '<GL/glew.h>'
 	function = 'glewInit'
+	dependsOn = ('GL', )
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
@@ -258,6 +265,7 @@ class LibPNG(Library):
 	header = '<png.h>'
 	configScriptName = 'libpng-config'
 	function = 'png_write_image'
+	dependsOn = ('ZLIB', )
 
 	@classmethod
 	def getDynamicLibsOption(cls, platform):
@@ -314,6 +322,7 @@ class SDL_image(Library):
 	makeName = 'SDL_IMAGE'
 	header = '<SDL_image.h>'
 	function = 'IMG_LoadPNG_RW'
+	dependsOn = ('SDL', 'PNG')
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
@@ -324,6 +333,7 @@ class SDL_ttf(Library):
 	makeName = 'SDL_TTF'
 	header = '<SDL_ttf.h>'
 	function = 'TTF_OpenFont'
+	dependsOn = ('SDL', 'FREETYPE')
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
@@ -367,6 +377,7 @@ class LibXML2(Library):
 	header = '<libxml/parser.h>'
 	configScriptName = 'xml2-config'
 	function = 'xmlSAXUserParseFile'
+	dependsOn = ('ZLIB', )
 
 	@classmethod
 	def getConfigScript(cls, platform, linkMode, distroRoot):

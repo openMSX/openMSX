@@ -1,7 +1,7 @@
 # $Id$
 # Defines the building blocks of openMSX and their dependencies.
 
-from packages import getPackage
+from probe_defs import librariesByName
 
 class Component(object):
 	niceName = None
@@ -45,7 +45,7 @@ def _computeCoreLibs():
 	'''
 	coreDependsOn = set(EmulationCore.dependsOn)
 	dependencies = dict(
-		(name, set(getPackage(name).dependsOn) & coreDependsOn)
+		(name, set(librariesByName[name].dependsOn) & coreDependsOn)
 		for name in coreDependsOn
 		)
 
