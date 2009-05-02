@@ -12,18 +12,6 @@ class Package(object):
 	def getMakeName(cls):
 		return cls.name.upper()
 
-	@classmethod
-	def haveHeaders(cls, probeVars):
-		return bool(probeVars['HAVE_%s_H' % cls.getMakeName()])
-
-	@classmethod
-	def haveLibrary(cls, probeVars):
-		return bool(probeVars['HAVE_%s_LIB' % cls.getMakeName()])
-
-	@classmethod
-	def isAvailable(cls, probeVars):
-		return cls.haveHeaders(probeVars) and cls.haveLibrary(probeVars)
-
 class DownloadablePackage(Package):
 	'''Abstract base class for packages that can be downloaded.
 	'''

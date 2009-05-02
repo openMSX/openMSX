@@ -347,11 +347,12 @@ def iterProbeResults(probeVars, customVars, disabledLibs):
 
 		yield 'Found libraries:'
 		for package in libraries:
-			if package.getMakeName() in disabledLibs:
+			makeName = package.getMakeName()
+			if makeName in disabledLibs:
 				found = 'disabled'
-			elif package.haveLibrary(probeVars):
-				found = probeVars['RESULT_%s' % package.getMakeName()]
-			elif package.haveHeaders(probeVars):
+			elif probeVars['HAVE_%s_LIB' % makeName]:
+				found = probeVars['RESULT_%s' % makeName]
+			elif probeVars['HAVE_%s_H' % makeName]:
 				# Dependency resolution of a typical distro will not allow
 				# this situation. Most likely we got the link flags wrong.
 				found = 'headers found, link test failed'

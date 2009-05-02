@@ -11,8 +11,12 @@ class Component(object):
 	@classmethod
 	def canBuild(cls, probeVars):
 		return all(
-			getPackage(packageName).isAvailable(probeVars)
-			for packageName in cls.dependsOn
+			probeVars['HAVE_%s_H' % makeName] and
+			probeVars['HAVE_%s_LIB' % makeName]
+			for makeName in (
+				getPackage(packageName).getMakeName()
+				for packageName in cls.dependsOn
+				)
 			)
 
 class EmulationCore(Component):
