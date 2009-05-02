@@ -21,7 +21,7 @@ def downloadPackages(packages):
 	for package in packages:
 		if isfile(joinpath(tarballsDir, package.getTarballName())):
 			print '%s version %s - already downloaded' % (
-				package.name, package.version
+				package.niceName, package.version
 				)
 		else:
 			downloadURL(package.getURL(), tarballsDir)
