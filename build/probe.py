@@ -18,13 +18,10 @@ from subprocess import PIPE, Popen
 import sys
 
 # Compute the packages used directly by openMSX.
-directPackages = frozenset(
-	getPackage(packageName)
-	for component in iterComponents()
-	for packageName in component.dependsOn
-	)
 directLibraryNames = frozenset(
-	package.getMakeName() for package in directPackages
+	makeName
+	for component in iterComponents()
+	for makeName in component.dependsOn
 	)
 
 def resolve(log, expr):
@@ -329,7 +326,7 @@ def iterProbeResults(probeVars, customVars, disabledLibs):
 		for component in iterComponents()
 		)
 	packages = sorted(
-		directPackages,
+		( getPackage(makeName) for makeName in directLibraryNames ),
 		key = lambda package: package.niceName.lower()
 		)
 

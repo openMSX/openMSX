@@ -42,14 +42,14 @@ class FreeType(DownloadablePackage):
 	niceName = 'FreeType'
 	sourceName = 'freetype'
 	version = '2.3.7'
-	dependsOn = ('zlib', )
+	dependsOn = ('ZLIB', )
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
 	sourceName = 'glew'
 	version = '1.5.1'
-	dependsOn = ('gl', )
+	dependsOn = ('GL', )
 
 	@classmethod
 	def getTarballName(cls):
@@ -70,7 +70,7 @@ class LibPNG(DownloadablePackage):
 	niceName = 'libpng'
 	sourceName = 'libpng'
 	version = '1.2.34'
-	dependsOn = ('zlib', )
+	dependsOn = ('ZLIB', )
 
 	@classmethod
 	def getMakeName(cls):
@@ -81,7 +81,7 @@ class LibXML2(DownloadablePackage):
 	niceName = 'libxml2'
 	sourceName = 'libxml2'
 	version = '2.7.2'
-	dependsOn = ('zlib', )
+	dependsOn = ('ZLIB', )
 
 	@classmethod
 	def getMakeName(cls):
@@ -102,14 +102,14 @@ class SDL_image(DownloadablePackage):
 	niceName = 'SDL_image'
 	sourceName = 'SDL_image'
 	version = '1.2.7'
-	dependsOn = ('SDL', 'libpng')
+	dependsOn = ('SDL', 'PNG')
 
 class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'
 	sourceName = 'SDL_ttf'
 	version = '2.0.9'
-	dependsOn = ('SDL', 'freetype')
+	dependsOn = ('SDL', 'FREETYPE')
 
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
@@ -132,8 +132,8 @@ def _discoverPackages(localObjects):
 	for obj in localObjects:
 		if isinstance(obj, type) and issubclass(obj, Package):
 			if not (obj is Package or obj is DownloadablePackage):
-				yield obj.sourceName, obj
+				yield obj.getMakeName(), obj
 _packagesByName = dict(_discoverPackages(locals().itervalues()))
 
-def getPackage(name):
-	return _packagesByName[name]
+def getPackage(makeName):
+	return _packagesByName[makeName]

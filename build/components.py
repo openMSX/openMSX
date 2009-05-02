@@ -13,28 +13,23 @@ class Component(object):
 		return all(
 			probeVars['HAVE_%s_H' % makeName] and
 			probeVars['HAVE_%s_LIB' % makeName]
-			for makeName in (
-				getPackage(packageName).getMakeName()
-				for packageName in cls.dependsOn
-				)
+			for makeName in cls.dependsOn
 			)
 
 class EmulationCore(Component):
 	niceName = 'Emulation core'
 	makeName = 'CORE'
-	dependsOn = (
-		'SDL', 'SDL_image', 'SDL_ttf', 'libpng', 'tcl', 'libxml2', 'zlib'
-		)
+	dependsOn = ('SDL', 'SDL_IMAGE', 'SDL_TTF', 'PNG', 'TCL', 'XML', 'ZLIB')
 
 class GLRenderer(Component):
 	niceName = 'GL renderer'
 	makeName = 'GL'
-	dependsOn = ('gl', 'glew')
+	dependsOn = ('GL', 'GLEW')
 
 class CassetteJack(Component):
 	niceName = 'CassetteJack'
 	makeName = 'JACK'
-	dependsOn = ('jack-audio-connection-kit', )
+	dependsOn = ('JACK', )
 
 def iterComponents():
 	yield EmulationCore
@@ -76,7 +71,6 @@ def _computeCoreLibs():
 			dependsOn -= freePackages
 
 	# Reverse order and output Make names.
-	for name in reversed(orderedDependencies):
-		yield getPackage(name).getMakeName()
+	return reversed(orderedDependencies)
 
 coreLibs = tuple(_computeCoreLibs())
