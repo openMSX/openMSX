@@ -283,6 +283,10 @@ class SDL(Library):
 	function = 'SDL_Init'
 
 	@classmethod
+	def getStaticLibsOption(cls, platform):
+		return '--static-libs'
+
+	@classmethod
 	def getLinkFlags(cls, platform, linkMode, distroRoot):
 		flags = super(SDL, cls).getLinkFlags(platform, linkMode, distroRoot)
 		if platform in ('linux', 'gnu'):
@@ -310,13 +314,6 @@ class SDL_image(Library):
 	makeName = 'SDL_IMAGE'
 	header = '<SDL_image.h>'
 	function = 'IMG_LoadPNG_RW'
-
-	@classmethod
-	def getStaticLibsOption(cls, platform):
-		if platform == 'darwin':
-			return '--static-libs'
-		else:
-			return super(SDL_image, cls).getStaticLibsOption(platform)
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
