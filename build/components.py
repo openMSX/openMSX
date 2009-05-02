@@ -1,8 +1,6 @@
 # $Id$
 # Defines the building blocks of openMSX and their dependencies.
 
-from probe_defs import librariesByName
-
 class Component(object):
 	niceName = None
 	makeName = None
@@ -35,42 +33,3 @@ def iterComponents():
 	yield EmulationCore
 	yield GLRenderer
 	yield CassetteJack
-
-def _computeCoreLibs():
-	'''Returns the Make names of the libraries needed by the emulation core
-	component, in the proper order for static linking.
-	For static linking, if lib A depends on B, A must be in the list before B.
-	TODO: Actually the link flags of lib A should already reflect that.
-	      Are we compensating for bad link flags?
-	'''
-	coreDependsOn = set(EmulationCore.dependsOn)
-	dependencies = dict(
-		(name, set(librariesByName[name].dependsOn) & coreDependsOn)
-		for name in coreDependsOn
-		)
-
-	# Flatten dependency graph.
-	# The algorithm is quadratic, but that doesn't matter for the small data
-	# sizes we're feeding it.
-	orderedDependencies = []
-	while dependencies:
-		# Find a package that does not depend on anything is not in
-		# orderedDependencies yet.
-		freePackages = set(
-			name
-			for name, dependsOn in dependencies.iteritems()
-			if not dependsOn
-			)
-		if not freePackages:
-			raise ValueError('Circular dependency between packages')
-		orderedDependencies += reversed(sorted(freePackages))
-		# Remove dependency just moved to orderedDependencies.
-		for name in freePackages:
-			del dependencies[name]
-		for dependsOn in dependencies.itervalues():
-			dependsOn -= freePackages
-
-	# Reverse order and output Make names.
-	return reversed(orderedDependencies)
-
-coreLibs = tuple(_computeCoreLibs())
