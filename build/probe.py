@@ -313,7 +313,7 @@ class TargetSystem(object):
 				resolve(self.log, self.probeVars['%s_RESULT' % makeName])
 
 	def disabledLibrary(self, library):
-		print >> self.log, 'Disabled library: %s' % library
+		print >> self.log, '%s: Disabled library' % library
 		self.outVars['HAVE_%s_H' % library] = ''
 		self.outVars['HAVE_%s_LIB' % library] = ''
 
