@@ -101,7 +101,7 @@ else
 			--cflags)
 				echo "$BEST_CFLAGS"
 				;;
-			--ldflags)
+			--libs)
 				echo "$BEST_LDFLAGS"
 				;;
 			--static-libs)
@@ -133,7 +133,7 @@ Usage: tcl-search.sh [OPTION] ...
 Possible values for OPTION are:
 
   --cflags        print compile flags
-  --ldflags       print linker flags
+  --libs          print linker flags for dynamic linking
   --static-libs   print linker flags for static linking
   --help          print this help and exit
   --version       print version information

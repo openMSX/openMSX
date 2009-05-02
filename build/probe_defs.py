@@ -346,10 +346,6 @@ class TCL(Library):
 	function = 'Tcl_CreateInterp'
 
 	@classmethod
-	def getDynamicLibsOption(cls, platform):
-		return '--ldflags'
-
-	@classmethod
 	def getStaticLibsOption(cls, platform):
 		return '--static-libs'
 
