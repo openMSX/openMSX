@@ -336,24 +336,21 @@ class SDL(Library):
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode, distroRoot):
 		flags = super(SDL, cls).getLinkFlags(platform, linkMode, distroRoot)
-		if platform in ('linux', 'gnu'):
-			if cls.isSystemLibrary(platform, linkMode):
-				return flags
-			else:
+		if cls.isSystemLibrary(platform, linkMode):
+			return flags
+		else:
+			if platform in ('linux', 'gnu'):
 				# TODO: Fix sdl-config instead.
 				return '%s -ldl' % flags
-		elif platform == 'mingw32':
-			if cls.isSystemLibrary(platform, linkMode):
-				return flags
-			else:
+			elif platform == 'mingw32':
 				return ' '.join((
 					'/mingw/lib/libmingw32.a',
 					'%s/lib/libSDLmain.a' % distroRoot,
 					'%s/lib/libSDL.a' % distroRoot,
 					'-mwindows'
 					))
-		else:
-			return flags
+			else:
+				return flags
 
 class SDL_image(Library):
 	libName = 'SDL_image'
