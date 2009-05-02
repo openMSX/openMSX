@@ -123,6 +123,10 @@ class Library(object):
 		return cls.header
 
 	@classmethod
+	def getLibName(cls, platform): # pylint: disable-msg=W0613
+		return cls.libName
+
+	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
 		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
 		if configScript is None:
@@ -133,9 +137,8 @@ class Library(object):
 				return ''
 			elif distroRoot is None:
 				raise ValueError(
-					# TODO: Use nice name instead of lib name.
 					'Library "%s" is not a system library and no alternative '
-					'location is available.' % cls.libName
+					'location is available.' % cls.makeName
 					)
 			else:
 				return '-I%s/include' % distroRoot
@@ -154,21 +157,26 @@ class Library(object):
 			if libsOption is not None:
 				return '`%s %s`' % (configScript, libsOption)
 		if cls.isSystemLibrary(platform, linkMode):
-			return '-l%s' % cls.libName
+			return '-l%s' % cls.getLibName(platform)
 		elif distroRoot is None:
 			raise ValueError(
-				# TODO: Use nice name instead of lib name.
 				'Library "%s" is not a system library and no alternative '
-				'location is available.' % cls.libName
+				'location is available.' % cls.makeName
 				)
 		else:
 			# TODO: "lib" vs "lib64".
 			if linkMode == 'SYS_DYN':
-				return '-L%s/lib -l%s' % (distroRoot, cls.libName)
+				return '-L%s/lib -l%s' % (distroRoot, cls.getLibName(platform))
 			elif linkMode == '3RD_STA':
-				# TODO: Also include libraries this lib depends on, in the
-				#       right order.
-				return '%s/lib/lib%s.a' % (distroRoot, cls.libName)
+				return ' '.join(
+					[ '%s/lib/lib%s.a' % (
+							distroRoot, cls.getLibName(platform)
+							) ] +
+					[ librariesByName[name].getLinkFlags(
+							platform, linkMode, distroRoot
+							)
+					  for name in cls.dependsOn ]
+					)
 			else:
 				raise ValueError('Invalid link mode "%s"' % linkMode)
 
@@ -222,11 +230,17 @@ class GL(Library):
 			return super(GL, cls).getLinkFlags(platform, linkMode, distroRoot)
 
 class GLEW(Library):
-	libName = 'GLEW'
 	makeName = 'GLEW'
 	header = '<GL/glew.h>'
 	function = 'glewInit'
 	dependsOn = ('GL', )
+
+	@classmethod
+	def getLibName(cls, platform):
+		if platform == 'mingw32':
+			return 'glew32'
+		else:
+			return 'GLEW'
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
@@ -236,20 +250,6 @@ class GLEW(Library):
 				return flags
 			else:
 				return '%s -DGLEW_STATIC' % flags
-		else:
-			return flags
-
-	@classmethod
-	def getLinkFlags(cls, platform, linkMode, distroRoot):
-		flags = super(GLEW, cls).getLinkFlags(platform, linkMode, distroRoot)
-		if platform == 'mingw32':
-			# TODO: An alternative implementation would be to convert libName
-			#       into a method.
-			if cls.isSystemLibrary(platform, linkMode):
-				return '-lglew32'
-			else:
-				# TODO: Plus GL link flags (see TODO in Library).
-				return '%s/lib/libglew32.a' % distroRoot
 		else:
 			return flags
 
