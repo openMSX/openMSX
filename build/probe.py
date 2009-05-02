@@ -51,30 +51,6 @@ def tryCompile(log, compileCommand, sourcePath, lines):
 		if isfile(objectPath):
 			remove(objectPath)
 
-def tryLink(log, compileCommand, linkCommand, sourcePath):
-	assert sourcePath.endswith('.cc')
-	objectPath = sourcePath[ : -3] + '.o'
-	binaryPath = sourcePath[ : -3] + '.bin'
-	def dummyProgram():
-		# Try to link dummy program to the library.
-		# TODO: Use object file instead of dummy program.
-		#       That way, object file can refer to symbol from the lib and
-		#       we get more useful results from static libs.
-		yield 'int main(int argc, char **argv) { return 0; }'
-	writeFile(sourcePath, dummyProgram())
-	try:
-		compileOK = compileCommand.compile(log, sourcePath, objectPath)
-		if not compileOK:
-			print >> log, 'cannot test linking because compile failed'
-			return False
-		return linkCommand.link(log, [ objectPath ], binaryPath)
-	finally:
-		remove(sourcePath)
-		if isfile(objectPath):
-			remove(objectPath)
-		if isfile(binaryPath):
-			remove(binaryPath)
-
 def checkCompiler(log, compileCommand, outDir):
 	'''Checks whether compiler can compile anything at all.
 	Returns True iff the compiler works.
@@ -99,14 +75,6 @@ def checkFunc(log, compileCommand, outDir, checkName, funcName, headers):
 		yield 'void (*f)() = reinterpret_cast<void (*)()>(%s);' % funcName
 	return tryCompile(
 		log, compileCommand, outDir + '/' + checkName + '.cc', takeFuncAddr()
-		)
-
-def checkLib(log, compileCommand, linkCommand, outDir, makeName):
-	'''Checks whether the given library can be linked against.
-	Returns True iff the library is available.
-	'''
-	return tryLink(
-		log, compileCommand, linkCommand, outDir + '/' + makeName + '.cc'
 		)
 
 def backtick(log, commandLine):
@@ -284,32 +252,6 @@ class TargetSystem(object):
 			)
 		self.outVars['HAVE_%s' % func.getMakeName()] = 'true' if ok else ''
 
-	def checkHeader(self, makeName, compileCommand):
-		funcName = self.probeVars['%s_FUNCTION' % makeName]
-		header = self.probeVars['%s_HEADER' % makeName]
-		ok = checkFunc(
-			self.log, compileCommand, self.outDir, makeName, funcName,
-			[ header ]
-			)
-		print >> self.log, '%s header: %s' % (
-			'Found' if ok else 'Missing',
-			makeName
-			)
-		self.outVars['HAVE_%s_H' % makeName] = 'true' if ok else ''
-
-	def checkLib(self, makeName, compileCommand, linkCommand):
-		ok = checkLib(
-			self.log, compileCommand, linkCommand, self.outDir, makeName
-			)
-		print >> self.log, '%s lib: %s' % (
-			'Found' if ok else 'Missing',
-			makeName
-			)
-		self.outVars['HAVE_%s_LIB' % makeName] = 'true' if ok else ''
-		if ok:
-			self.outVars['RESULT_%s' % makeName] = \
-				resolve(self.log, self.probeVars['%s_RESULT' % makeName])
-
 	def checkLibrary(self, makeName):
 		cflags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
 		ldflags = resolve(self.log, self.probeVars['%s_LDFLAGS' % makeName])
@@ -317,8 +259,51 @@ class TargetSystem(object):
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 		self.outVars['%s_CFLAGS' % makeName] = cflags
 		self.outVars['%s_LDFLAGS' % makeName] = ldflags
-		self.checkHeader(makeName, compileCommand)
-		self.checkLib(makeName, compileCommand, linkCommand)
+
+		sourcePath = self.outDir + '/' + makeName + '.cc'
+		objectPath = self.outDir + '/' + makeName + '.o'
+		binaryPath = self.outDir + '/' + makeName + '.bin'
+
+		funcName = self.probeVars['%s_FUNCTION' % makeName]
+		header = self.probeVars['%s_HEADER' % makeName]
+		def takeFuncAddr():
+			# Try to include the necessary headers and get the function address.
+			yield '#include %s' % header
+			yield 'void (*f)() = reinterpret_cast<void (*)()>(%s);' % funcName
+			yield 'int main(int argc, char** argv) {'
+			yield '  return 0;'
+			yield '}'
+		writeFile(sourcePath, takeFuncAddr())
+		try:
+			compileOK = compileCommand.compile(self.log, sourcePath, objectPath)
+			print >> self.log, '%s: %s header' % (
+				makeName,
+				'Found' if compileOK else 'Missing'
+				)
+			if compileOK:
+				linkOK = linkCommand.link(self.log, [ objectPath ], binaryPath)
+				print >> self.log, '%s: %s lib' % (
+					makeName,
+					'Found' if linkOK else 'Missing'
+					)
+			else:
+				linkOK = False
+				print >> self.log, (
+					'%s: Cannot test linking because compile failed'
+					% makeName
+					)
+		finally:
+			remove(sourcePath)
+			if isfile(objectPath):
+				remove(objectPath)
+			if isfile(binaryPath):
+				remove(binaryPath)
+
+		self.outVars['HAVE_%s_H' % makeName] = 'true' if compileOK else ''
+		self.outVars['HAVE_%s_LIB' % makeName] = 'true' if linkOK else ''
+		if linkOK:
+			self.outVars['RESULT_%s' % makeName] = \
+				resolve(self.log, self.probeVars['%s_RESULT' % makeName])
 
 	def disabledLibrary(self, library):
 		print >> self.log, 'Disabled library: %s' % library
