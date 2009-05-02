@@ -63,7 +63,7 @@
 	/>
 	<UserMacro
 		Name="LibNameFreeType"
-		Value="freetype-2.3.7"
+		Value="freetype-2.3.9"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
