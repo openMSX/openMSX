@@ -283,6 +283,37 @@ class LibPNG(Library):
 			#       is not installed systemwide.
 			return flags + ' -I%s/include' % distroRoot
 
+class LibXML2(Library):
+	libName = 'xml2'
+	makeName = 'XML'
+	header = '<libxml/parser.h>'
+	configScriptName = 'xml2-config'
+	function = 'xmlSAXUserParseFile'
+	dependsOn = ('ZLIB', )
+
+	@classmethod
+	def getConfigScript(cls, platform, linkMode, distroRoot):
+		if platform == 'darwin':
+			# Use xml2-config from /usr: ideally we would use xml2-config from
+			# the SDK, but the SDK doesn't contain that file. The -isysroot
+			# compiler argument makes sure the headers are taken from the SDK
+			# though.
+			return '/usr/bin/%s' % cls.configScriptName
+		else:
+			return super(LibXML2, cls).getConfigScript(
+				platform, linkMode, distroRoot
+				)
+
+	@classmethod
+	def getCompileFlags(cls, platform, linkMode, distroRoot):
+		flags = super(LibXML2, cls).getCompileFlags(
+			platform, linkMode, distroRoot
+			)
+		if cls.isSystemLibrary(platform, linkMode):
+			return flags
+		else:
+			return flags + ' -DLIBXML_STATIC'
+
 class SDL(Library):
 	libName = 'SDL'
 	makeName = 'SDL'
@@ -361,37 +392,6 @@ class TCL(Library):
 	def getCompileFlags(cls, platform, linkMode, distroRoot):
 		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
 		return '`%s --cflags`' % configScript
-
-class LibXML2(Library):
-	libName = 'xml2'
-	makeName = 'XML'
-	header = '<libxml/parser.h>'
-	configScriptName = 'xml2-config'
-	function = 'xmlSAXUserParseFile'
-	dependsOn = ('ZLIB', )
-
-	@classmethod
-	def getConfigScript(cls, platform, linkMode, distroRoot):
-		if platform == 'darwin':
-			# Use xml2-config from /usr: ideally we would use xml2-config from
-			# the SDK, but the SDK doesn't contain that file. The -isysroot
-			# compiler argument makes sure the headers are taken from the SDK
-			# though.
-			return '/usr/bin/%s' % cls.configScriptName
-		else:
-			return super(LibXML2, cls).getConfigScript(
-				platform, linkMode, distroRoot
-				)
-
-	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		flags = super(LibXML2, cls).getCompileFlags(
-			platform, linkMode, distroRoot
-			)
-		if cls.isSystemLibrary(platform, linkMode):
-			return flags
-		else:
-			return flags + ' -DLIBXML_STATIC'
 
 class ZLib(Library):
 	libName = 'z'
