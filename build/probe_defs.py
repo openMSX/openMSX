@@ -388,11 +388,6 @@ class TCL(Library):
 		else:
 			return 'TCL_CONFIG_DIR=%s/lib build/tcl-search.sh' % distroRoot
 
-	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
-		return '`%s --cflags`' % configScript
-
 class ZLib(Library):
 	libName = 'z'
 	makeName = 'ZLIB'
