@@ -63,7 +63,7 @@ class _Command(object):
 			)
 
 	def _run(self, log, args):
-		commandLine = [ self.__executable ] + self.__flags + args
+		commandLine = [ self.__executable ] + args + self.__flags
 		try:
 			proc = Popen(
 				commandLine,
