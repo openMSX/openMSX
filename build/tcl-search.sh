@@ -77,7 +77,7 @@ do
 					BEST_LDFLAGS="${BEST_LDFLAGS}${EVALFLAG} "
 				done
 			fi
-			eval BEST_STATIC_LIBS=${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE}
+			eval BEST_STATIC_LIBS='"'${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE} ${TCL_LIBS}'"'
 		fi
 	#else
 	#	echo "  No tclConfig.sh in $dir" 1>&2
