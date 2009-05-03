@@ -307,23 +307,6 @@ class SDL(Library):
 	staticLibsOption = '--static-libs'
 	function = 'SDL_Init'
 
-	@classmethod
-	def getLinkFlags(cls, platform, linkMode, distroRoot):
-		flags = super(SDL, cls).getLinkFlags(platform, linkMode, distroRoot)
-		if cls.isSystemLibrary(platform, linkMode):
-			return flags
-		else:
-			if platform == 'mingw32':
-				return ' '.join((
-					'/mingw/lib/libmingw32.a',
-					'%s/lib/libSDLmain.a' % distroRoot,
-					'%s/lib/libSDL.a' % distroRoot,
-					'-lwinmm',
-					'-mwindows'
-					))
-			else:
-				return flags
-
 class SDL_image(Library):
 	libName = 'SDL_image'
 	makeName = 'SDL_IMAGE'
