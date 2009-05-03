@@ -9,7 +9,11 @@ import sys
 def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	platformVars = extractMakeVariables(
 		'build/platform-%s.mk' % targetPlatform,
-		dict.fromkeys(('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS'), '')
+		dict.fromkeys(
+			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
+			 'COMPILE_ENV', 'LINK_ENV'),
+			''
+			)
 		)
 	setWindowIcon = parseBool(platformVars.get('SET_WINDOW_ICON', 'true'))
 
