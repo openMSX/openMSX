@@ -112,16 +112,14 @@ class Library(object):
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
-			# TODO: We should allow multiple locations where libraries can be
-			#       searched for. For example, MacPorts and Fink are neither
-			#       systemwide nor our 3rdparty area.
-			if cls.isSystemLibrary(platform, linkStatic):
-				flags = []
-			elif distroRoot is None:
-				raise ValueError(
-					'Library "%s" is not a system library and no alternative '
-					'location is available.' % cls.makeName
-					)
+			if distroRoot is None:
+				if cls.isSystemLibrary(platform, linkStatic):
+					flags = []
+				else:
+					raise ValueError(
+						'Library "%s" is not a system library and no '
+						'alternative location is available.' % cls.makeName
+						)
 			else:
 				flags = [ '-I%s/include' % distroRoot ]
 		else:
