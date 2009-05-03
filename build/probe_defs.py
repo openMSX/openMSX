@@ -166,7 +166,6 @@ class Library(object):
 				'location is available.' % cls.makeName
 				)
 		else:
-			# TODO: "lib" vs "lib64".
 			if linkMode == 'SYS_DYN':
 				return '-L%s/lib -l%s' % (distroRoot, cls.getLibName(platform))
 			elif linkMode == '3RD_STA':
