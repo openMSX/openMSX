@@ -279,18 +279,6 @@ class LibPNG(Library):
 	def getDynamicLibsOption(cls, platform):
 		return '--ldflags'
 
-	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		flags = super(LibPNG, cls).getCompileFlags(
-			platform, linkMode, distroRoot
-			)
-		if cls.isSystemLibrary(platform, linkMode):
-			return flags
-		else:
-			# Note: The additional -I is to pick up the zlib headers when zlib
-			#       is not installed systemwide.
-			return flags + ' -I%s/include' % distroRoot
-
 class LibXML2(Library):
 	libName = 'xml2'
 	makeName = 'XML'
@@ -360,20 +348,12 @@ class SDL_image(Library):
 	function = 'IMG_LoadPNG_RW'
 	dependsOn = ('SDL', 'PNG')
 
-	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		return SDL.getCompileFlags(platform, linkMode, distroRoot)
-
 class SDL_ttf(Library):
 	libName = 'SDL_ttf'
 	makeName = 'SDL_TTF'
 	header = '<SDL_ttf.h>'
 	function = 'TTF_OpenFont'
 	dependsOn = ('SDL', 'FREETYPE')
-
-	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		return SDL.getCompileFlags(platform, linkMode, distroRoot)
 
 class TCL(Library):
 	libName = 'tcl'
