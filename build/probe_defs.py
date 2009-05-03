@@ -154,7 +154,7 @@ class Library(object):
 			libsOption = (
 				cls.dynamicLibsOption
 				if cls.isSystemLibrary(platform, linkMode)
-				else staticLibsOption
+				else cls.staticLibsOption
 				)
 			if libsOption is not None:
 				return '`%s %s`' % (configScript, libsOption)
