@@ -12,7 +12,7 @@ from probe_defs import librariesByName, systemFunctions
 
 from msysutils import msysActive
 from os import environ, makedirs, remove
-from os.path import isdir, isfile
+from os.path import isdir, isfile, pathsep
 from shlex import split as shsplit
 from subprocess import PIPE, Popen
 import sys
@@ -410,6 +410,19 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			disabledLibraries.add('JACK')
 
 		distroRoot = thirdPartyInstall or None
+		if platform == 'darwin' and distroRoot is None:
+			for searchPath in environ.get('PATH', '').split(pathsep):
+				if searchPath == '/opt/local/bin':
+					print 'Using libraries from MacPorts.'
+					distroRoot = '/opt/local'
+					break
+				elif searchPath == '/sw/bin':
+					print 'Using libraries from Fink.'
+					distroRoot = '/sw'
+					break
+			else:
+				distroRoot = '/usr/locql'
+
 		probeVars = {}
 		for name, library in librariesByName.iteritems():
 			if name in disabledLibraries:
