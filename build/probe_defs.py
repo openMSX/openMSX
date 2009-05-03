@@ -10,16 +10,6 @@
 # of all libraries, but we want to control it per library.
 # Conclusion: We have to specify the full path to each library that should be
 #             linked statically.
-#
-# Legend of link modes:
-# SYS_DYN: link dynamically against system libs
-#          this is the default mode; useful for local binaries
-# SYS_STA: link statically against system libs
-#          this seems pointless to me; not implemented
-# 3RD_DYN: link dynamically against libs from non-system dir
-#          might be useful; not implemented
-# 3RD_STA: link statically against libs from non-system dir
-#          this is how we build our redistributable binaries
 
 class SystemFunction(object):
 	name = None
@@ -92,17 +82,15 @@ class Library(object):
 	dependsOn = ()
 
 	@classmethod
-	def isSystemLibrary(cls, platform, linkMode): # pylint: disable-msg=W0613
-		if linkMode == 'SYS_DYN':
-			return True
-		elif linkMode == '3RD_STA':
-			return False
-		else:
-			raise ValueError(linkMode)
+	def isSystemLibrary(cls, platform, linkStatic): # pylint: disable-msg=W0613
+		# TODO: Whether something is a system library or not should depend on
+		#       the target platform. Currently, we are implicitly selecting a
+		#       target platform with the static link flag, but that's a hack.
+		return not linkStatic
 
 	@classmethod
 	def getConfigScript( # pylint: disable-msg=W0613
-		cls, platform, linkMode, distroRoot
+		cls, platform, linkStatic, distroRoot
 		):
 		scriptName = cls.configScriptName
 		if scriptName is None:
@@ -121,13 +109,13 @@ class Library(object):
 		return cls.libName
 
 	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
+	def getCompileFlags(cls, platform, linkStatic, distroRoot):
+		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
 			# TODO: We should allow multiple locations where libraries can be
 			#       searched for. For example, MacPorts and Fink are neither
 			#       systemwide nor our 3rdparty area.
-			if cls.isSystemLibrary(platform, linkMode):
+			if cls.isSystemLibrary(platform, linkStatic):
 				flags = []
 			elif distroRoot is None:
 				raise ValueError(
@@ -140,24 +128,24 @@ class Library(object):
 			flags = [ '`%s --cflags`' % configScript ]
 		dependentFlags = [
 			librariesByName[name].getCompileFlags(
-				platform, linkMode, distroRoot
+				platform, linkStatic, distroRoot
 				)
 			for name in cls.dependsOn
 			]
 		return ' '.join(flags + dependentFlags)
 
 	@classmethod
-	def getLinkFlags(cls, platform, linkMode, distroRoot):
-		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is not None:
 			libsOption = (
 				cls.dynamicLibsOption
-				if cls.isSystemLibrary(platform, linkMode)
+				if cls.isSystemLibrary(platform, linkStatic)
 				else cls.staticLibsOption
 				)
 			if libsOption is not None:
 				return '`%s %s`' % (configScript, libsOption)
-		if cls.isSystemLibrary(platform, linkMode):
+		if cls.isSystemLibrary(platform, linkStatic):
 			return '-l%s' % cls.getLibName(platform)
 		elif distroRoot is None:
 			raise ValueError(
@@ -165,24 +153,22 @@ class Library(object):
 				'location is available.' % cls.makeName
 				)
 		else:
-			if linkMode == 'SYS_DYN':
-				return '-L%s/lib -l%s' % (distroRoot, cls.getLibName(platform))
-			elif linkMode == '3RD_STA':
+			if linkStatic:
 				return ' '.join(
 					[ '%s/lib/lib%s.a' % (
 							distroRoot, cls.getLibName(platform)
 							) ] +
 					[ librariesByName[name].getLinkFlags(
-							platform, linkMode, distroRoot
+							platform, linkStatic, distroRoot
 							)
 					  for name in cls.dependsOn ]
 					)
 			else:
-				raise ValueError('Invalid link mode "%s"' % linkMode)
+				return '-L%s/lib -l%s' % (distroRoot, cls.getLibName(platform))
 
 	@classmethod
-	def getResult(cls, platform, linkMode, distroRoot):
-		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
+	def getResult(cls, platform, linkStatic, distroRoot):
+		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
 			return 'yes'
 		else:
@@ -199,7 +185,7 @@ class GL(Library):
 	function = 'glGenTextures'
 
 	@classmethod
-	def isSystemLibrary(cls, platform, linkMode):
+	def isSystemLibrary(cls, platform, linkStatic):
 		return True
 
 	@classmethod
@@ -210,16 +196,16 @@ class GL(Library):
 			return '<GL/gl.h>'
 
 	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
+	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		if platform in ('netbsd', 'openbsd'):
 			return '-I/usr/X11R6/include -I/usr/X11R7/include'
 		else:
 			return super(GL, cls).getCompileFlags(
-				platform, linkMode, distroRoot
+				platform, linkStatic, distroRoot
 				)
 
 	@classmethod
-	def getLinkFlags(cls, platform, linkMode, distroRoot):
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
 		if platform == 'darwin':
 			return '-framework OpenGL'
 		elif platform == 'mingw32':
@@ -227,7 +213,7 @@ class GL(Library):
 		elif platform in ('netbsd', 'openbsd'):
 			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGL'
 		else:
-			return super(GL, cls).getLinkFlags(platform, linkMode, distroRoot)
+			return super(GL, cls).getLinkFlags(platform, linkStatic, distroRoot)
 
 class GLEW(Library):
 	makeName = 'GLEW'
@@ -243,10 +229,12 @@ class GLEW(Library):
 			return 'GLEW'
 
 	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
-		flags = super(GLEW, cls).getCompileFlags(platform, linkMode, distroRoot)
+	def getCompileFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(GLEW, cls).getCompileFlags(
+			platform, linkStatic, distroRoot
+			)
 		if platform == 'mingw32':
-			if cls.isSystemLibrary(platform, linkMode):
+			if cls.isSystemLibrary(platform, linkStatic):
 				return flags
 			else:
 				return '%s -DGLEW_STATIC' % flags
@@ -277,7 +265,7 @@ class LibXML2(Library):
 	dependsOn = ('ZLIB', )
 
 	@classmethod
-	def getConfigScript(cls, platform, linkMode, distroRoot):
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
 		if platform == 'darwin':
 			# Use xml2-config from /usr: ideally we would use xml2-config from
 			# the SDK, but the SDK doesn't contain that file. The -isysroot
@@ -286,15 +274,15 @@ class LibXML2(Library):
 			return '/usr/bin/%s' % cls.configScriptName
 		else:
 			return super(LibXML2, cls).getConfigScript(
-				platform, linkMode, distroRoot
+				platform, linkStatic, distroRoot
 				)
 
 	@classmethod
-	def getCompileFlags(cls, platform, linkMode, distroRoot):
+	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		flags = super(LibXML2, cls).getCompileFlags(
-			platform, linkMode, distroRoot
+			platform, linkStatic, distroRoot
 			)
-		if cls.isSystemLibrary(platform, linkMode):
+		if cls.isSystemLibrary(platform, linkStatic):
 			return flags
 		else:
 			return flags + ' -DLIBXML_STATIC'
@@ -329,8 +317,8 @@ class TCL(Library):
 	staticLibsOption = '--static-libs'
 
 	@classmethod
-	def getConfigScript(cls, platform, linkMode, distroRoot):
-		if cls.isSystemLibrary(platform, linkMode):
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		if cls.isSystemLibrary(platform, linkStatic):
 			return 'build/tcl-search.sh'
 		else:
 			return 'TCL_CONFIG_DIR=%s/lib build/tcl-search.sh' % distroRoot

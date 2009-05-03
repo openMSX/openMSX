@@ -391,6 +391,9 @@ def iterProbeResults(probeVars, customVars, disabledLibs):
 		yield ''
 
 def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
+	assert linkMode in ('SYS_DYN', '3RD_STA')
+	linkStatic = (linkMode == '3RD_STA')
+
 	if not isdir(outDir):
 		makedirs(outDir)
 	log = open(outDir + '/probe.log', 'w')
@@ -399,10 +402,11 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	try:
 		customVars = extractMakeVariables('build/custom.mk')
 		disabledLibraries = set(customVars['DISABLED_LIBRARIES'].split())
-		if linkMode.startswith('3RD_'):
+		if linkStatic:
 			# Disable Jack: The CassetteJack feature is not useful for most end
 			# users, so do not include Jack in the binary distribution of
 			# openMSX.
+			# TODO: Disable the CassetteJack component instead.
 			disabledLibraries.add('JACK')
 
 		distroRoot = thirdPartyInstall or None
@@ -413,11 +417,11 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			probeVars['%s_HEADER' % name] = library.getHeader(platform)
 			probeVars['%s_FUNCTION' % name] = library.function
 			probeVars['%s_CFLAGS' % name] = \
-				library.getCompileFlags(platform, linkMode, distroRoot)
+				library.getCompileFlags(platform, linkStatic, distroRoot)
 			probeVars['%s_LDFLAGS' % name] = \
-				library.getLinkFlags(platform, linkMode, distroRoot)
+				library.getLinkFlags(platform, linkStatic, distroRoot)
 			probeVars['%s_RESULT' % name] = \
-				library.getResult(platform, linkMode, distroRoot)
+				library.getResult(platform, linkStatic, distroRoot)
 
 		TargetSystem(
 			log, compileCommandStr, outDir, platform, probeVars, customVars,
