@@ -1,7 +1,62 @@
-diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m
---- SDL-1.2.13.orig/src/video/quartz/SDL_QuartzEvents.m	2009-04-16 11:21:48.000000000 +0200
-+++ SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m	2009-04-16 11:31:09.000000000 +0200
-@@ -267,7 +267,9 @@ static void QZ_DoKey (_THIS, int state, 
+diff -ru SDL-1.2.13.org/configure SDL-1.2.13/configure
+--- SDL-1.2.13.org/configure	2007-12-31 06:09:39.000000000 +0100
++++ SDL-1.2.13/configure	2009-05-03 11:12:44.000000000 +0200
+@@ -33781,6 +33781,7 @@
+ _ACEOF
+ 
+             SOURCES="$SOURCES $srcdir/src/audio/windib/*.c"
++            SDL_LIBS="$SDL_LIBS -lwinmm"
+             if test x$have_directx = xyes; then
+                 cat >>confdefs.h <<\_ACEOF
+ #define SDL_AUDIO_DRIVER_DSOUND 1
+@@ -33797,6 +33798,7 @@
+ _ACEOF
+ 
+             SOURCES="$SOURCES $srcdir/src/joystick/win32/*.c"
++            SDL_LIBS="$SDL_LIBS -lwinmm"
+             have_joystick=yes
+         fi
+         # Set up files for the cdrom library
+@@ -33827,6 +33829,7 @@
+ _ACEOF
+ 
+             SOURCES="$SOURCES $srcdir/src/timer/win32/*.c"
++            SDL_LIBS="$SDL_LIBS -lwinmm"
+             have_timers=yes
+         fi
+         # Set up files for the shared object loading library
+diff -ru SDL-1.2.13.org/configure.in SDL-1.2.13/configure.in
+--- SDL-1.2.13.org/configure.in	2007-12-31 05:48:39.000000000 +0100
++++ SDL-1.2.13/configure.in	2009-05-03 11:15:17.000000000 +0200
+@@ -2406,6 +2406,7 @@
+         if test x$enable_audio = xyes; then
+             AC_DEFINE(SDL_AUDIO_DRIVER_WAVEOUT)
+             SOURCES="$SOURCES $srcdir/src/audio/windib/*.c"
++            SDL_LIBS="$SDL_LIBS -lwinmm"
+             if test x$have_directx = xyes; then
+                 AC_DEFINE(SDL_AUDIO_DRIVER_DSOUND)
+                 SOURCES="$SOURCES $srcdir/src/audio/windx5/*.c"
+@@ -2416,6 +2417,7 @@
+         if test x$enable_joystick = xyes; then
+             AC_DEFINE(SDL_JOYSTICK_WINMM)
+             SOURCES="$SOURCES $srcdir/src/joystick/win32/*.c"
++            SDL_LIBS="$SDL_LIBS -lwinmm"
+             have_joystick=yes
+         fi
+         # Set up files for the cdrom library
+@@ -2437,6 +2439,7 @@
+         if test x$enable_timers = xyes; then
+             AC_DEFINE(SDL_TIMER_WIN32)
+             SOURCES="$SOURCES $srcdir/src/timer/win32/*.c"
++            SDL_LIBS="$SDL_LIBS -lwinmm"
+             have_timers=yes
+         fi
+         # Set up files for the shared object loading library
+Only in SDL-1.2.13.org/include: SDL_config.h
+diff -ru SDL-1.2.13.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m
+--- SDL-1.2.13.org/src/video/quartz/SDL_QuartzEvents.m	2007-12-31 07:16:32.000000000 +0100
++++ SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m	2009-04-29 02:13:53.000000000 +0200
+@@ -267,7 +267,9 @@
          the scancode/keysym.
      */
      if (SDL_TranslateUNICODE && state == SDL_PRESSED) {
@@ -12,7 +67,7 @@ diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.13/src/vid
          chars = [ event characters ];
          numChars = [ chars length ];
          if (numChars > 0)
-@@ -305,7 +307,7 @@ static void QZ_DoKey (_THIS, int state, 
+@@ -305,7 +307,7 @@
          }
      }
      
@@ -21,9 +76,9 @@ diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.13/src/vid
          [ NSApp sendEvent:event ];
  }
  
-diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.h
---- SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.h	2009-04-16 11:21:48.000000000 +0200
-+++ SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.h	2009-04-16 11:23:43.000000000 +0200
+diff -ru SDL-1.2.13.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.h
+--- SDL-1.2.13.org/src/video/quartz/SDL_QuartzWindow.h	2007-12-31 05:48:04.000000000 +0100
++++ SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.h	2009-04-29 02:13:53.000000000 +0200
 @@ -30,6 +30,7 @@
  - (void)appWillUnhide:(NSNotification*)note;
  - (void)appDidUnhide:(NSNotification*)note;
@@ -32,10 +87,10 @@ diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.13/src/vid
  @end
  
  /* Delegate for our NSWindow to send SDLQuit() on close */
-diff -urp SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.m
---- SDL-1.2.13.orig/src/video/quartz/SDL_QuartzWindow.m	2009-04-16 11:21:48.000000000 +0200
-+++ SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.m	2009-04-16 11:23:43.000000000 +0200
-@@ -198,6 +198,14 @@ static void QZ_SetPortAlphaOpaque () {
+diff -ru SDL-1.2.13.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.m
+--- SDL-1.2.13.org/src/video/quartz/SDL_QuartzWindow.m	2007-12-31 05:48:04.000000000 +0100
++++ SDL-1.2.13/src/video/quartz/SDL_QuartzWindow.m	2009-04-29 02:13:53.000000000 +0200
+@@ -198,6 +198,14 @@
      return [ super initWithContentRect:contentRect styleMask:styleMask backing:backingType defer:flag ];
  }
  
