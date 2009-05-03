@@ -86,16 +86,10 @@ class Library(object):
 	makeName = None
 	header = None
 	configScriptName = None
+	dynamicLibsOption = '--libs'
+	staticLibsOption = None
 	function = None
 	dependsOn = ()
-
-	@classmethod
-	def getDynamicLibsOption(cls, platform): # pylint: disable-msg=W0613
-		return '--libs'
-
-	@classmethod
-	def getStaticLibsOption(cls, platform): # pylint: disable-msg=W0613
-		return None
 
 	@classmethod
 	def isSystemLibrary(cls, platform, linkMode): # pylint: disable-msg=W0613
@@ -158,9 +152,9 @@ class Library(object):
 		configScript = cls.getConfigScript(platform, linkMode, distroRoot)
 		if configScript is not None:
 			libsOption = (
-				cls.getDynamicLibsOption(platform)
+				cls.dynamicLibsOption
 				if cls.isSystemLibrary(platform, linkMode)
-				else cls.getStaticLibsOption(platform)
+				else staticLibsOption
 				)
 			if libsOption is not None:
 				return '`%s %s`' % (configScript, libsOption)
@@ -272,12 +266,9 @@ class LibPNG(Library):
 	makeName = 'PNG'
 	header = '<png.h>'
 	configScriptName = 'libpng-config'
+	dynamicLibsOption = '--ldflags'
 	function = 'png_write_image'
 	dependsOn = ('ZLIB', )
-
-	@classmethod
-	def getDynamicLibsOption(cls, platform):
-		return '--ldflags'
 
 class LibXML2(Library):
 	libName = 'xml2'
@@ -315,11 +306,8 @@ class SDL(Library):
 	makeName = 'SDL'
 	header = '<SDL.h>'
 	configScriptName = 'sdl-config'
+	staticLibsOption = '--static-libs'
 	function = 'SDL_Init'
-
-	@classmethod
-	def getStaticLibsOption(cls, platform):
-		return '--static-libs'
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode, distroRoot):
@@ -360,10 +348,7 @@ class TCL(Library):
 	makeName = 'TCL'
 	header = '<tcl.h>'
 	function = 'Tcl_CreateInterp'
-
-	@classmethod
-	def getStaticLibsOption(cls, platform):
-		return '--static-libs'
+	staticLibsOption = '--static-libs'
 
 	@classmethod
 	def getConfigScript(cls, platform, linkMode, distroRoot):
