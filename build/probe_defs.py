@@ -347,6 +347,7 @@ class SDL(Library):
 					'/mingw/lib/libmingw32.a',
 					'%s/lib/libSDLmain.a' % distroRoot,
 					'%s/lib/libSDL.a' % distroRoot,
+					'-lwinmm',
 					'-mwindows'
 					))
 			else:
