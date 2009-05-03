@@ -314,10 +314,7 @@ class SDL(Library):
 		if cls.isSystemLibrary(platform, linkMode):
 			return flags
 		else:
-			if platform in ('linux', 'gnu'):
-				# TODO: Fix sdl-config instead.
-				return '%s -ldl' % flags
-			elif platform == 'mingw32':
+			if platform == 'mingw32':
 				return ' '.join((
 					'/mingw/lib/libmingw32.a',
 					'%s/lib/libSDLmain.a' % distroRoot,

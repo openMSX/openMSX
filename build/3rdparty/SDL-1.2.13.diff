@@ -1,57 +1,27 @@
 diff -ru SDL-1.2.13.org/configure SDL-1.2.13/configure
 --- SDL-1.2.13.org/configure	2007-12-31 06:09:39.000000000 +0100
-+++ SDL-1.2.13/configure	2009-05-03 11:12:44.000000000 +0200
-@@ -33781,6 +33781,7 @@
- _ACEOF
++++ SDL-1.2.13/configure	2009-05-03 11:28:01.000000000 +0200
+@@ -34221,7 +34221,7 @@
+     SDL_STATIC_LIBS="\${libdir}/libSDLmain.a \${libdir}/libSDL.a $EXTRA_LDFLAGS"
+     ;;
+   *)
+-    SDL_STATIC_LIBS="$SDL_LIBS"
++    SDL_STATIC_LIBS="$SDL_LIBS $EXTRA_LDFLAGS"
+     ;;
+ esac
  
-             SOURCES="$SOURCES $srcdir/src/audio/windib/*.c"
-+            SDL_LIBS="$SDL_LIBS -lwinmm"
-             if test x$have_directx = xyes; then
-                 cat >>confdefs.h <<\_ACEOF
- #define SDL_AUDIO_DRIVER_DSOUND 1
-@@ -33797,6 +33798,7 @@
- _ACEOF
- 
-             SOURCES="$SOURCES $srcdir/src/joystick/win32/*.c"
-+            SDL_LIBS="$SDL_LIBS -lwinmm"
-             have_joystick=yes
-         fi
-         # Set up files for the cdrom library
-@@ -33827,6 +33829,7 @@
- _ACEOF
- 
-             SOURCES="$SOURCES $srcdir/src/timer/win32/*.c"
-+            SDL_LIBS="$SDL_LIBS -lwinmm"
-             have_timers=yes
-         fi
-         # Set up files for the shared object loading library
 diff -ru SDL-1.2.13.org/configure.in SDL-1.2.13/configure.in
 --- SDL-1.2.13.org/configure.in	2007-12-31 05:48:39.000000000 +0100
-+++ SDL-1.2.13/configure.in	2009-05-03 11:15:17.000000000 +0200
-@@ -2406,6 +2406,7 @@
-         if test x$enable_audio = xyes; then
-             AC_DEFINE(SDL_AUDIO_DRIVER_WAVEOUT)
-             SOURCES="$SOURCES $srcdir/src/audio/windib/*.c"
-+            SDL_LIBS="$SDL_LIBS -lwinmm"
-             if test x$have_directx = xyes; then
-                 AC_DEFINE(SDL_AUDIO_DRIVER_DSOUND)
-                 SOURCES="$SOURCES $srcdir/src/audio/windx5/*.c"
-@@ -2416,6 +2417,7 @@
-         if test x$enable_joystick = xyes; then
-             AC_DEFINE(SDL_JOYSTICK_WINMM)
-             SOURCES="$SOURCES $srcdir/src/joystick/win32/*.c"
-+            SDL_LIBS="$SDL_LIBS -lwinmm"
-             have_joystick=yes
-         fi
-         # Set up files for the cdrom library
-@@ -2437,6 +2439,7 @@
-         if test x$enable_timers = xyes; then
-             AC_DEFINE(SDL_TIMER_WIN32)
-             SOURCES="$SOURCES $srcdir/src/timer/win32/*.c"
-+            SDL_LIBS="$SDL_LIBS -lwinmm"
-             have_timers=yes
-         fi
-         # Set up files for the shared object loading library
++++ SDL-1.2.13/configure.in	2009-05-03 11:28:14.000000000 +0200
+@@ -2749,7 +2749,7 @@
+     SDL_STATIC_LIBS="\${libdir}/libSDLmain.a \${libdir}/libSDL.a $EXTRA_LDFLAGS"
+     ;;
+   *)
+-    SDL_STATIC_LIBS="$SDL_LIBS"
++    SDL_STATIC_LIBS="$SDL_LIBS $EXTRA_LDFLAGS"
+     ;;
+ esac
+ 
 diff -ru SDL-1.2.13.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m
 --- SDL-1.2.13.org/src/video/quartz/SDL_QuartzEvents.m	2007-12-31 07:16:32.000000000 +0100
 +++ SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m	2009-04-29 02:13:53.000000000 +0200
