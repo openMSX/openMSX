@@ -52,7 +52,6 @@ diff -ru SDL-1.2.13.org/configure.in SDL-1.2.13/configure.in
              have_timers=yes
          fi
          # Set up files for the shared object loading library
-Only in SDL-1.2.13.org/include: SDL_config.h
 diff -ru SDL-1.2.13.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m
 --- SDL-1.2.13.org/src/video/quartz/SDL_QuartzEvents.m	2007-12-31 07:16:32.000000000 +0100
 +++ SDL-1.2.13/src/video/quartz/SDL_QuartzEvents.m	2009-04-29 02:13:53.000000000 +0200
