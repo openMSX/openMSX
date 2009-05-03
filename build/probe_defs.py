@@ -145,26 +145,27 @@ class Library(object):
 				)
 			if libsOption is not None:
 				return '`%s %s`' % (configScript, libsOption)
-		if cls.isSystemLibrary(platform, linkStatic):
-			return '-l%s' % cls.getLibName(platform)
-		elif distroRoot is None:
-			raise ValueError(
-				'Library "%s" is not a system library and no alternative '
-				'location is available.' % cls.makeName
-				)
-		else:
-			if linkStatic:
-				return ' '.join(
-					[ '%s/lib/lib%s.a' % (
-							distroRoot, cls.getLibName(platform)
-							) ] +
-					[ librariesByName[name].getLinkFlags(
-							platform, linkStatic, distroRoot
-							)
-					  for name in cls.dependsOn ]
-					)
+		if distroRoot is None:
+			if cls.isSystemLibrary(platform, linkStatic):
+				return '-l%s' % cls.getLibName(platform)
 			else:
-				return '-L%s/lib -l%s' % (distroRoot, cls.getLibName(platform))
+				raise ValueError(
+					'Library "%s" is not a system library and no alternative '
+					'location is available.' % cls.makeName
+					)
+		else:
+			flags = [
+				'%s/lib/lib%s.a' % (distroRoot, cls.getLibName(platform))
+				] if linkStatic else [
+				'-L%s/lib -l%s' % (distroRoot, cls.getLibName(platform))
+				]
+			dependentFlags = [
+				librariesByName[name].getLinkFlags(
+					platform, linkStatic, distroRoot
+					)
+				for name in cls.dependsOn
+				]
+			return ' '.join(flags + dependentFlags)
 
 	@classmethod
 	def getResult(cls, platform, linkStatic, distroRoot):
