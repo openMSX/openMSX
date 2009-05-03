@@ -136,16 +136,15 @@ class Library(object):
 					)
 			else:
 				flags = [ '-I%s/include' % distroRoot ]
-			return ' '.join(
-				flags + [
-					librariesByName[name].getCompileFlags(
-						platform, linkMode, distroRoot
-						)
-					for name in cls.dependsOn
-					]
-				)
 		else:
-			return '`%s --cflags`' % configScript
+			flags = [ '`%s --cflags`' % configScript ]
+		dependentFlags = [
+			librariesByName[name].getCompileFlags(
+				platform, linkMode, distroRoot
+				)
+			for name in cls.dependsOn
+			]
+		return ' '.join(flags + dependentFlags)
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkMode, distroRoot):
