@@ -129,33 +129,31 @@ or compilers.
 <h3><a id="tools">2.1 Build Tools</a></h3>
 
 <p>
-For compilation, you need <a href="http://www.python.org/download/">Python</a>, a C++ compiler,
-and some compiler-specific programs.
-If you have compiled packages from source before,
-you probably have some of these installed already.
+For compilation, you need <a href="http://www.python.org/download/">Python</a>, a C++ compiler, and some compiler-specific programs.
+If you have compiled packages from source before, you probably have some of these installed already.
 </p>
 
 <dl>
 
-<dt> <a href="http://www.python.org/download/">Python</a></dt>
+<dt><a href="http://www.python.org/download/">Python</a></dt>
 <dd>A compact and dynamic programming language. Version 2.5 or later is
 required. However, Python 3.0 contains incompatible changes in the language, so
 make sure you install a version from the 2.x series. Eventually Python will
 replace Make completely in our build system, but at the moment both are
 required.</dd>
-	<dt>There are two compilers that are can be used to build openMSX: gcc
-	and Visual C++. The gcc compiler builds openMSX on all supported platforms,
-	while Visual C++ is an alternative option on Windows.</dt>
+<dt>There are two compilers that are can be used to build openMSX: gcc
+and Visual C++. The gcc compiler builds openMSX on all supported platforms,
+while Visual C++ is an alternative option on Windows.</dt>
 
 </dl>
 
-	<h4>gcc</h4>
+<h4>gcc</h4>
 
-	<p>For compilation with gcc, you need GNU Make and g++:</p>
+<p>For compilation with gcc, you need GNU Make and g++:</p>
 
 <dl>
 
-	<dt>make</dt>
+<dt>make</dt>
 <dd>GNU implementation of the Make tool.
 Make interprets rules that define how a project should be built.
 Version 3.79 or higher should suffice.</dd>
@@ -183,6 +181,9 @@ Note that Mac OS X 10.3 uses GCC 3.3 as the system compiler, which is not able t
 
 <p>You can download MinGW and MSYS from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project. Download the latest version of the "Automated MinGW Installer" (5.1.4 is the latest at the time of writing) and download also "MSYS Base System" (use 1.0.10, because 1.0.11 seems to give problems and doesn't have an installer yet anyway).
 Double click on the MinGW package after downloading, choose "Download and Install", Package "Current" and add component "g++". Use the default installation directory (<code>C:\MinGW</code>), or at least a directory without spaces and <strong>not</strong> a network folder (i.e. shared folder on another computer). For MSYS, the installer's default settings (destination directory <code>C:\msys\1.0</code>) will be OK. If you get questions in a post-install Command Prompt dialog, type: <code>y</code>, <code>y</code>, <code>C:/MinGW</code> (or the other directory you chose without spaces; but do note that you should use <em>forward slashes</em> in the path here!), <code>y</code>.
+</p>
+
+<p>We recommend to upgrade the version of <code>make</code> to be able to build the stand-alone binary (which is the recommended way, see below). To do this, download the <a class ="external" href="https://sourceforge.net/project/downloading.php?group_id=2435&filename=make-3.81-MSYS-1.0.11-2.tar.bz2">make-3.81-MSYS-1.0.11-2.tar.bz2</a> package from the MSYS 1.0.11 release. Put it in a place where you can find it. Open an MSYS shell and go to the MSYS installation directory (if you chose the default: <code>cd /c/msys/1.0</code>). There, type: <code>tar xjvf path/to/make-3.81-MSYS-1.0.11-2.tar.bz2</code>, which will upgrade your MSYS make tool to version 3.81.
 </p>
 
 <p>Note: there is a bug in the <a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=2435&amp;package_id=11598">MinGW Runtime (mingwrt)</a> package version 3.15.1, which will cause FreeType not to compile (and probably more). This has been reported <a class="external" href="http://thread.gmane.org/gmane.comp.gnu.mingw.user/27765">here</a> and the fix in the code can be found <a class="external" href="http://cygwin.com/cgi-bin/cvsweb.cgi/src/winsup/mingw/include/stdlib.h.diff?r1=1.36&amp;r2=1.37&amp;cvsroot=src&amp;f=h">here</a>. You need to apply this small fix to your MinGW <code>stdlib.h</code> header file in order to be able to compile openMSX, if you are using this version of the MinGW run time package.
