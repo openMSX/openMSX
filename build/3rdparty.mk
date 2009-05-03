@@ -144,7 +144,7 @@ clean:
 
 # Install.
 $(INSTALL_BUILD_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
-	make -C $(BUILD_DIR)/$* install $(INSTALL_PARAMS_$(call findpackage,PACKAGE,$*))
+	$(MAKE) -C $(BUILD_DIR)/$* install $(INSTALL_PARAMS_$(call findpackage,PACKAGE,$*))
 	mkdir -p $(@D)
 	touch $@
 
@@ -159,7 +159,7 @@ endif
 
 # Build.
 $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
-	make -C $(<D) $(MAKEVAR_OVERRIDE_$(call findpackage,PACKAGE,$*))
+	$(MAKE) -C $(<D) $(MAKEVAR_OVERRIDE_$(call findpackage,PACKAGE,$*))
 	mkdir -p $(@D)
 	touch $@
 
