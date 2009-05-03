@@ -352,7 +352,6 @@ class TCL(Library):
 
 	@classmethod
 	def getConfigScript(cls, platform, linkMode, distroRoot):
-		# TODO: Convert (part of) tcl-search.sh to Python as well?
 		if cls.isSystemLibrary(platform, linkMode):
 			return 'build/tcl-search.sh'
 		else:
