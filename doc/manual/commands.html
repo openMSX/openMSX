@@ -167,6 +167,8 @@
 
         <li><a class="internal" href="#consolefont">consolefont</a></li>
 
+        <li><a class="internal" href="#consolefontsize">consolefontsize</a></li>
+
         <li><a class="internal" href="#console_history_size">console_history_size</a></li>
 
         <li><a class="internal" href="#consoleplacement">consoleplacement</a></li>
@@ -395,7 +397,7 @@
     <code>after time 2.6 "set renderer SDLGL-PP"</code><br />
     <code>after idle 100 exit</code><br />
     <code>after info</code><br />
-    <code>after cancel 2</code>
+    <code>after cancel after#2</code>
   </div>
 
   <h3><a id="bind">bind / unbind / bind_default / unbind_default</a></h3>
@@ -1223,7 +1225,7 @@
   </table>
 
   <div class="note">
-    Note: The machine handle mostly used for external applications controlling openMSX (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). For interactive use you can omit the machine handle to have the commands operate on the current machine.
+    Note: The machine handle is mostly used by external applications controlling openMSX (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). For interactive use you can omit the machine handle to have the commands operate on the current machine.
   </div>
 
 
@@ -1743,7 +1745,7 @@
 
   <h3><a id="screenshot">screenshot</a></h3>
 
-  <p>Take a screenshot of the openMSX screen. By default this takes a screenshot of the 'scaled' MSX screen (see <code><a class="internal" href="#scale_algorithm">#scale_algorithm</a></code> setting) without OSD elements (e.g. console and icons). If you want to include the OSD elements pass the <code>-with-osd</code> option. If you want a screenshot of the 'unscaled' MSX screen, pass the <code>-msxonly</code> option. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
+  <p>Take a screenshot of the openMSX screen. By default this takes a screenshot of the 'scaled' MSX screen (see <code><a class="internal" href="#scale_algorithm">scale_algorithm</a></code> setting) without OSD elements (e.g. console and icons). If you want to include the OSD elements pass the <code>-with-osd</code> option. If you want a screenshot of the 'unscaled' MSX screen, pass the <code>-msxonly</code> option. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2710,7 +2712,7 @@
 
   <h3><a id="consolebackground">consolebackground</a></h3>
 
-  <p>Change the console background image. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). Some renderers (OpenGL) can use an alpha channel, this channel is only present in PNG images.</p>
+  <p>Change the console background image. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). Background images may also have an alpha channel (amount of transparency per pixel), this channel is only present in PNG images.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2754,7 +2756,8 @@
 
   <h3><a id="consolefont">consolefont</a></h3>
 
-  <p>Change the console font. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). The image must contain a 16&times;16 matrix with the characters in ASCII order. Some renderers (OpenGL) require an alpha channel to have transparency in the font, this channel is only present in PNG images.</p>
+  <p>Change the console font. This should be the filename of a True Type Font. The default value is <code>skins/VeraMono.ttf.gz</code>.</p>
+  <p>In older openMSX releases (pre-0.7.1). You had to specify a PNG image here that contained a 16&times;16 matrix with the characters in ASCII order. This is no longer supported.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2768,9 +2771,31 @@
     </tr>
 
     <tr>
-      <td><code>set consolefont &lt;image&gt;</code></td>
+      <td><code>set consolefont &lt;myfont.ttf&gt;</code></td>
 
       <td>Sets a new font</td>
+    </tr>
+  </table>
+
+  <h3><a id="consolefontsize">consolefontsize</a></h3>
+
+  <p>Set the size for the console font. The default value is 12.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set consolefontsize</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set consolefont 16</code></td>
+
+      <td>Set a bigger than default font size</td>
     </tr>
   </table>
 
@@ -4429,7 +4454,7 @@
 
   <div class="examples">
     <code>set SCC_ch1_record</code><br />
-    <code>set PSG_ch3 /tmp/PSG_ch3.wav</code>
+    <code>set PSG_ch3_record /tmp/PSG_ch3.wav</code>
   </div>
 
   <h3><a id="soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></h3>
