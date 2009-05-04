@@ -82,11 +82,14 @@ class Library(object):
 	dependsOn = ()
 
 	@classmethod
-	def isSystemLibrary(cls, platform, linkStatic): # pylint: disable-msg=W0613
-		# TODO: Whether something is a system library or not should depend on
-		#       the target platform. Currently, we are implicitly selecting a
-		#       target platform with the static link flag, but that's a hack.
-		return not linkStatic
+	def isSystemLibrary(cls, platform): # pylint: disable-msg=W0613
+		'''Returns True iff this library is a system library on the given
+		platform.
+		A system library is a library that is available systemwide in the
+		minimal installation of the OS.
+		The default implementation returns False.
+		'''
+		return False
 
 	@classmethod
 	def getConfigScript( # pylint: disable-msg=W0613
@@ -111,19 +114,12 @@ class Library(object):
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
-		if configScript is None:
-			if distroRoot is None:
-				if cls.isSystemLibrary(platform, linkStatic):
-					flags = []
-				else:
-					raise ValueError(
-						'Library "%s" is not a system library and no '
-						'alternative location is available.' % cls.makeName
-						)
-			else:
-				flags = [ '-I%s/include' % distroRoot ]
-		else:
+		if configScript is not None:
 			flags = [ '`%s --cflags`' % configScript ]
+		elif distroRoot is None or cls.isSystemLibrary(platform):
+			flags = []
+		else:
+			flags = [ '-I%s/include' % distroRoot ]
 		dependentFlags = [
 			librariesByName[name].getCompileFlags(
 				platform, linkStatic, distroRoot
@@ -138,19 +134,13 @@ class Library(object):
 		if configScript is not None:
 			libsOption = (
 				cls.dynamicLibsOption
-				if cls.isSystemLibrary(platform, linkStatic)
+				if not linkStatic or cls.isSystemLibrary(platform)
 				else cls.staticLibsOption
 				)
 			if libsOption is not None:
 				return '`%s %s`' % (configScript, libsOption)
-		if distroRoot is None:
-			if cls.isSystemLibrary(platform, linkStatic):
-				return '-l%s' % cls.getLibName(platform)
-			else:
-				raise ValueError(
-					'Library "%s" is not a system library and no alternative '
-					'location is available.' % cls.makeName
-					)
+		if distroRoot is None or cls.isSystemLibrary(platform):
+			return '-l%s' % cls.getLibName(platform)
 		else:
 			flags = [
 				'%s/lib/lib%s.a' % (distroRoot, cls.getLibName(platform))
@@ -184,7 +174,7 @@ class GL(Library):
 	function = 'glGenTextures'
 
 	@classmethod
-	def isSystemLibrary(cls, platform, linkStatic):
+	def isSystemLibrary(cls, platform):
 		return True
 
 	@classmethod
@@ -232,11 +222,8 @@ class GLEW(Library):
 		flags = super(GLEW, cls).getCompileFlags(
 			platform, linkStatic, distroRoot
 			)
-		if platform == 'mingw32':
-			if cls.isSystemLibrary(platform, linkStatic):
-				return flags
-			else:
-				return '%s -DGLEW_STATIC' % flags
+		if platform == 'mingw32' and linkStatic:
+			return '%s -DGLEW_STATIC' % flags
 		else:
 			return flags
 
@@ -281,7 +268,7 @@ class LibXML2(Library):
 		flags = super(LibXML2, cls).getCompileFlags(
 			platform, linkStatic, distroRoot
 			)
-		if cls.isSystemLibrary(platform, linkStatic):
+		if not linkStatic or cls.isSystemLibrary(platform):
 			return flags
 		else:
 			return flags + ' -DLIBXML_STATIC'
@@ -317,7 +304,7 @@ class TCL(Library):
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
-		if cls.isSystemLibrary(platform, linkStatic):
+		if distroRoot is None or cls.isSystemLibrary(platform):
 			return 'build/tcl-search.sh'
 		else:
 			return 'TCL_CONFIG_DIR=%s/lib build/tcl-search.sh' % distroRoot
