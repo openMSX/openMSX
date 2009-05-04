@@ -16,15 +16,15 @@ namespace openmsx {
 template <class Pixel> class Blur_1on3
 {
 public:
-	Blur_1on3(const PixelOperations<Pixel>& pixelOps,
-	          const RenderSettings& settings);
+	Blur_1on3(const PixelOperations<Pixel>& pixelOps);
+	void setBlur(unsigned blur_) { blur = blur_; }
 	void operator()(const Pixel* in, Pixel* out, unsigned long dstWidth);
 private:
 	Multiply32<Pixel> mult0;
 	Multiply32<Pixel> mult1;
 	Multiply32<Pixel> mult2;
 	Multiply32<Pixel> mult3;
-	const RenderSettings& settings;
+	unsigned blur;
 };
 
 
@@ -35,7 +35,7 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 	, scanline(pixelOps_)
-	, blur_1on3(new Blur_1on3<Pixel>(pixelOps_, settings_))
+	, blur_1on3(new Blur_1on3<Pixel>(pixelOps_))
 	, settings(settings_)
 {
 }
@@ -129,10 +129,15 @@ void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	if (settings.getBlurFactor()) {
+	unsigned blur = settings.getBlurFactor() / 3;
+	if (blur) {
+		blur_1on3->setBlur(blur);
 		doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 			*blur_1on3);
 	} else {
+		// No blurring: this is an optimization but it's also needed
+		// for correctness (otherwise there's an overflow in 0.16 fixed
+		// point arithmetic).
 		Scale_1on3<Pixel> op;
 		doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 			op);
@@ -285,13 +290,11 @@ extern "C"
 #endif
 
 template <class Pixel>
-Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps,
-                            const RenderSettings& settings_)
+Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 	: mult0(pixelOps.format)
 	, mult1(pixelOps.format)
 	, mult2(pixelOps.format)
 	, mult3(pixelOps.format)
-	, settings(settings_)
 {
 }
 
@@ -302,8 +305,8 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 	 * and common subexpressions have been eliminated. The last iteration
 	 * is also moved outside the for loop.
 	 *
-	 *  unsigned c0 = alpha / 2;
-	 *  unsigned c1 = c0 + alpha;
+	 *  unsigned c0 = blur / 2;
+	 *  unsigned c1 = c0 + blur;
 	 *  unsigned c2 = 256 - c1;
 	 *  unsigned c3 = 256 - 2 * c0;
 	 *  Pixel prev, curr, next;
@@ -318,12 +321,11 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 	 *      curr = next;
 	 *  }
 	 */
-	unsigned long alpha = settings.getBlurFactor() / 3;
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// MMX-EXT routine, 32bpp
-		alpha *= 256;
+		unsigned long alpha = blur;
 		struct {
 			unsigned long long zero;
 			unsigned long long c0;
@@ -452,8 +454,8 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 	#endif
 
 	// non-MMX routine, both 16bpp and 32bpp
-	unsigned c0 = alpha / 2;
-	unsigned c1 = alpha + c0;
+	unsigned c0 = blur / 2;
+	unsigned c1 = blur + c0;
 	unsigned c2 = 256 - c1;
 	unsigned c3 = 256 - 2 * c0;
 	mult0.setFactor32(c0);
