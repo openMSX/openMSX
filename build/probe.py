@@ -166,8 +166,8 @@ class TargetSystem(object):
 
 	def __init__(
 		self,
-		log, compileCommandStr, outDir, platform, probeVars, customVars,
-		disabledLibraries
+		log, compileCommandStr, outDir, platform, linkStatic, distroRoot,
+		customVars, disabledLibraries
 		):
 		'''Create empty log and result files.
 		'''
@@ -175,7 +175,8 @@ class TargetSystem(object):
 		self.compileCommandStr = compileCommandStr
 		self.outDir = outDir
 		self.platform = platform
-		self.probeVars = probeVars
+		self.linkStatic = linkStatic
+		self.distroRoot = distroRoot
 		self.customVars = customVars
 		self.disabledLibraries = disabledLibraries
 		self.outMakePath = outDir + '/probed_defs.mk'
@@ -260,8 +261,19 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s' % func.getMakeName()] = 'true' if ok else ''
 
 	def checkLibrary(self, makeName):
-		cflags = resolve(self.log, self.probeVars['%s_CFLAGS' % makeName])
-		ldflags = resolve(self.log, self.probeVars['%s_LDFLAGS' % makeName])
+		library = librariesByName[makeName]
+		cflags = resolve(
+			self.log,
+			library.getCompileFlags(
+				self.platform, self.linkStatic, self.distroRoot
+				)
+			)
+		ldflags = resolve(
+			self.log,
+			library.getLinkFlags(
+				self.platform, self.linkStatic, self.distroRoot
+				)
+			)
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 		self.outVars['%s_CFLAGS' % makeName] = cflags
@@ -271,8 +283,8 @@ class TargetSystem(object):
 		objectPath = self.outDir + '/' + makeName + '.o'
 		binaryPath = self.outDir + '/' + makeName + '.bin'
 
-		funcName = self.probeVars['%s_FUNCTION' % makeName]
-		header = self.probeVars['%s_HEADER' % makeName]
+		funcName = library.function
+		header = library.getHeader(self.platform)
 		def takeFuncAddr():
 			# Try to include the necessary headers and get the function address.
 			yield '#include %s' % header
@@ -309,8 +321,12 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s_H' % makeName] = 'true' if compileOK else ''
 		self.outVars['HAVE_%s_LIB' % makeName] = 'true' if linkOK else ''
 		if linkOK:
-			self.outVars['RESULT_%s' % makeName] = \
-				resolve(self.log, self.probeVars['%s_RESULT' % makeName])
+			self.outVars['RESULT_%s' % makeName] = resolve(
+				self.log,
+				library.getResult(
+					self.platform, self.linkStatic, self.distroRoot
+					)
+				)
 
 	def disabledLibrary(self, library):
 		print >> self.log, '%s: Disabled library' % library
@@ -423,22 +439,9 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			else:
 				distroRoot = '/usr/locql'
 
-		probeVars = {}
-		for name, library in librariesByName.iteritems():
-			if name in disabledLibraries:
-				continue
-			probeVars['%s_HEADER' % name] = library.getHeader(platform)
-			probeVars['%s_FUNCTION' % name] = library.function
-			probeVars['%s_CFLAGS' % name] = \
-				library.getCompileFlags(platform, linkStatic, distroRoot)
-			probeVars['%s_LDFLAGS' % name] = \
-				library.getLinkFlags(platform, linkStatic, distroRoot)
-			probeVars['%s_RESULT' % name] = \
-				library.getResult(platform, linkStatic, distroRoot)
-
 		TargetSystem(
-			log, compileCommandStr, outDir, platform, probeVars, customVars,
-			disabledLibraries
+			log, compileCommandStr, outDir, platform, linkStatic, distroRoot,
+			customVars, disabledLibraries,
 			).everything()
 	finally:
 		log.close()
