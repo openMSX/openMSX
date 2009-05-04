@@ -251,6 +251,10 @@ class LibXML2(Library):
 	dependsOn = ('ZLIB', )
 
 	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform == 'darwin'
+
+	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
 		if platform == 'darwin':
 			# Use xml2-config from /usr: ideally we would use xml2-config from
@@ -303,6 +307,10 @@ class TCL(Library):
 	staticLibsOption = '--static-libs'
 
 	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform == 'darwin'
+
+	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
 		if distroRoot is None or cls.isSystemLibrary(platform):
 			return 'build/tcl-search.sh'
@@ -314,6 +322,10 @@ class ZLib(Library):
 	makeName = 'ZLIB'
 	header = '<zlib.h>'
 	function = 'inflate'
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform == 'darwin'
 
 # Build a dictionary of libraries using introspection.
 def _discoverLibraries(localObjects):
