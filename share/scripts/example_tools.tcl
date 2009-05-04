@@ -5,8 +5,7 @@ set_help_text get_screen \
 }
 
 proc get_screen {} {
-	# screen detection
-	set mode [peek 0xfcaf]
+	set mode [vdp::get_screen_mode]
 	switch $mode {
 		0 {
 			set addr 0
@@ -17,7 +16,7 @@ proc get_screen {} {
 			set width 32
 		}
 		default {
-			error "Screen Mode $mode Not Supported"
+			error "Screen mode $mode not supported"
 		}
 	}
 
