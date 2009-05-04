@@ -2,7 +2,8 @@
 # now 'exit'. Tcl normally only has a 'exit' command. Also most shells have
 # exit but no quit.
 proc quit { } {
-	puts stderr "This command ('quit') has been deprecated (and may be removed in a future release), please use 'exit' instead!"
+	# wouter: I prefer to not deprecate this, because I occasionally still
+	# use this myself.
 	exit
 }
 
