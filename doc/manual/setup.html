@@ -519,7 +519,7 @@ on your system.
 <h3><a id="opengl">6.1 OpenGL</a></h3>
 
 <p>
-The SDLGL and SDLGL-PP <a class="external" href="user.html#renderers">renderers</a> need hardware acceleration to run at a decent speed.
+The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed.
 If your OpenGL driver is not hardware accelerated,
 use the SDL renderer instead.
 If you have hardware accelerated OpenGL, but an older graphics card,
@@ -532,7 +532,7 @@ If you have an nVidia card, go to the
 for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
 For other cards, try Mesa, which can be found in packages like
 <code>libgl1-mesa-glx</code> and <code>ligl1-mesa-dev</code> (Debian)
-or <code>Mesa</code> and <code>Mesa-devel</code> (SUSE). 
+or <code>Mesa</code> and <code>Mesa-devel</code> (SUSE).
 However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
 </p>
 <p>
@@ -541,7 +541,7 @@ also accelerated graphics (DRI).
 You can verify this by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
 </p>
 <p>
-In conclusion: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP or SDLGL renderer.
+In conclusion: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
 </p>
 
 <h3><a id="tuningvarious">6.2 Various Tuning Tips</a></h3>

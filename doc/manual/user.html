@@ -825,7 +825,7 @@ If you are using openMSX in windowed mode, it might be tricky to use the mouse. 
 <h3><a id="renderers">6.1 Renderers</a></h3>
 
 <p>
-A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are three working renderers:
+A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are two working renderers:
 </p>
 
 <dl>
@@ -835,24 +835,12 @@ A renderer is a part of the emulator that generates the graphical part of the em
 This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX and using no special graphical effects (see below). The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
 </dd>
 
-<dt>SDLGL</dt>
-<dd>
-This renderer uses the OpenGL graphics library to optimise the rendering.
-Because part of the rendering is done by the graphics hardware,
-the CPU load can vary a lot.
-The SDLGL renderer is only useful if you have a hardware accelerated
-OpenGL library; a software GL implementation will be very slow.
-See the Setup Guide for
-<a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-Not everything is supported on this renderer, though. It is likely that it will disappear in the future.
-</dd>
-
 <dt>SDLGL-PP</dt>
 <dd>
 This renderer uses the OpenGL graphics library for all post processing (hence the PP), which includes scalers and other effects.
 Because part of the rendering is done by the graphics hardware,
 the CPU load can vary a lot.
-As with SDLGL, the SDLGL-PP renderer is only useful if you have a hardware accelerated
+The SDLGL-PP renderer is only useful if you have a hardware accelerated
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
@@ -867,7 +855,7 @@ You can set the renderer with the <code><a class="external" href="commands.html#
 </p>
 
 <p>
-Note that openMSX can be compiled without the SDLGL and SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL and SDLGL-PP renderer.
+Note that openMSX can be compiled without the SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL-PP renderer.
 </p>
 
 <h3><a id="accuracy">6.2 Accuracy</a></h3>
@@ -1039,7 +1027,7 @@ The after glow feature blends each frame with the frame before it.
 This results in moving objects leaving a trail (motion blur).
 The <code><a class="external" href="commands.html#glow">glow</a></code> setting controls the amount of after glow:
 0 means no after glow, 100 means maximum after glow.
-This feature works only in the <code>SDLGL</code> and <code>SDLGL-PP</code> renderers.
+This feature works only in the <code>SDLGL-PP</code> renderer.
 </dd>
 
 <dt><code><a class="external" href="commands.html#noise">noise</a></code></dt>
@@ -1065,9 +1053,8 @@ This feature works only in the <code>SDLGL-PP</code> renderer. In openMSX versio
 <h3><a id="gfx9000">6.6 GFX9000</a></h3>
 
 <p>
-openMSX has GFX9000 emulation. Note that it still quite new, so it is not as complete and functional as the video emulation of the classical MSX chips. It is also slower than the classical video chips and it does not work with the SDLGL
-renderer. Despite of all this, we thought you might wanted to play around
-with it anyway...
+openMSX has GFX9000 emulation. Note that it still quite new, so it is not as complete and functional as the video emulation of the classical MSX chips. It is also slower than the classical video chips.
+Despite of all this, we thought you might wanted to play around with it anyway...
 </p>
 
 <p>
