@@ -1,5 +1,5 @@
 # Provide 'quit' command for backwards compatibility. The prefered command is
-# now 'exit'. TCL normally only has a 'exit' command. Also most shells have
+# now 'exit'. Tcl normally only has a 'exit' command. Also most shells have
 # exit but no quit.
 proc quit { } {
 	puts stderr "This command ('quit') has been deprecated (and may be removed in a future release), please use 'exit' instead!"

@@ -286,7 +286,7 @@ string RecordCommand::execute(const vector<string>& tokens)
 
 string RecordCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "Controls video recording: write openmsx audio/video to a .avi file.\n"
+	return "Controls video recording: Write openMSX audio/video to a .avi file.\n"
 	       "record start              Record to file 'openmsxNNNN.avi'\n"
 	       "record start <filename>   Record to given file\n"
 	       "record start -prefix foo  Record to file 'fooNNNN.avi'\n"
@@ -296,7 +296,7 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 	       "The start subcommand also accepts an optional -audioonly, -videoonly and "
 	       "a -doublesize flag.\n"
 	       "Videos are recorded in a 320x240 size by default and at 640x480 when the "
-		   "-doublesize flag is used.";
+	       "-doublesize flag is used.";
 }
 
 void RecordCommand::tabCompletion(vector<string>& tokens) const

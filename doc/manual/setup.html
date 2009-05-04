@@ -343,11 +343,11 @@ printed.
 </p>
 
 <p>
-A typical case in which you can have problems with check sums (or ROMs not getting found in a ROM pool) is disk ROMs.
-The ROM dump can be correct, and still have a different check sum. This is because part of
+A typical case in which you can have problems with checksums (or ROMs not getting found in a ROM pool) is disk ROMs.
+The ROM dump can be correct, and still have a different checksum. This is because part of
 the ROM is not actually ROM, but mapped on the registers of the floppy
 controller. When you are sure it is correct, don't put it in a ROM pool, but put it in the proper directory, which is explained above.
-Alternatively, you could add the check sum in the XML file that describes
+Alternatively, you could add the checksum in the XML file that describes
 the machine you made the ROM dump for (multiple checksums can be present, they will be checked in the same order as they are in the file).
 </p>
 

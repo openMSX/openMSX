@@ -3,7 +3,7 @@
 /* On Sat, 3 Apr 2004, Manuel Pazos wrote:
  *
  * As you know, the cartridge has an 8bit D/A, accessed through
- * memory-mapped at address #4000 by the program. OpenMSX also uses that
+ * memory-mapped at address #4000 by the program. openMSX also uses that
  * address to access it. But examining the cartridge board I found that the
  * address is decoded by a LS138 in this way:
  *

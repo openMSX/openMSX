@@ -8,7 +8,7 @@ set_help_text get_selected_slot \
 This proc is typically used as a helper for a larger proc.
 
  @param page The memory page (0-3)
- @result Returns a TCL list with two elements.
+ @result Returns a Tcl list with two elements.
          First element is the primary slot (0-3).
          Second element is the secondary slot (0-3) or 'X'
          in case this slot was not expanded

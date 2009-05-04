@@ -1,9 +1,9 @@
 set_help_text vdrive \
-{v-drive functionality of blueMSX implemented in a TCL script for openMSX
+{v-drive functionality of blueMSX implemented in a Tcl script for openMSX
 version 1.0
 
 What does it do:
-  It is a simple TCL script that bound to a hotkey (f.i. F9+ALT) allows
+  It is a simple Tcl script that bound to a hotkey (f.i. F9+ALT) allows
   users to swap disks without using the commandconsole or Catapult for
   file selection. This is especially useful for games and demos that
   span over multiple disks.

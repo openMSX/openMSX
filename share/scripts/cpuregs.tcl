@@ -2,7 +2,7 @@
 
 set_help_text reg \
 {Convenience procs to read or write Z80 registers.
-Usage is similar to the builtin TCL proc 'set'
+Usage is similar to the builtin Tcl proc 'set'
 
  usage:
    reg <reg>            read from a Z80 register

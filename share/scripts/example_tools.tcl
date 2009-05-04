@@ -39,7 +39,7 @@ proc get_screen {} {
 #*
 #* A special thanks to Vincent van Dam for
 #* giving me permission to translate his
-#* script into TCL
+#* script into Tcl
 #***********************************************
 
 set_help_text listing \

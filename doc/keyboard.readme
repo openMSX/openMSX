@@ -55,7 +55,7 @@ In practice, this bit is only read by the Japanese ROM-BIOS to determine
 the keyboard layout; Japanese-JIS or Japanese-ANSI
 See http://map.tni.nl/articles/keymatrix.php for further details about
 Japanese keyboard layouts.
-Note that this setting is ignored by the keyboard driver of OpenMSX. The
+Note that this setting is ignored by the keyboard driver of openMSX. The
 keyboard driver only looks at the keyboard_type parameter in the PPI
 section to determine which unicode to keycombination mapping to apply.
 

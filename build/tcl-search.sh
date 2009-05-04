@@ -1,7 +1,7 @@
 #!/bin/sh
 # $Id$
 #
-# Look for the lowest TCL version >= 8.4.
+# Look for the lowest Tcl version >= 8.4.
 # Provides an interface similar to lib-config scripts.
 
 BEST_MAJOR_VERSION=9999
@@ -49,10 +49,10 @@ do
 					fi
 				fi
 			#else
-			#	echo "  Found too old TCL $TCL_VERSION in $dir" 1>&2
+			#	echo "  Found too old Tcl $TCL_VERSION in $dir" 1>&2
 			fi
 		#else
-		#	echo "  Found wrong major version TCL $TCL_VERSION in $dir" 1>&2
+		#	echo "  Found wrong major version Tcl $TCL_VERSION in $dir" 1>&2
 		fi
 		if [ "$REMEMBER" = true ]
 		then
@@ -86,7 +86,7 @@ done
 
 if [ $BEST_MAJOR_VERSION -eq 9999 ]
 then
-	echo "No TCL >= 8.4 found" 1>&2
+	echo "No Tcl >= 8.4 found" 1>&2
 	exit 1
 else
 	EXIT=0
@@ -109,7 +109,7 @@ else
 				then
 					echo "$BEST_STATIC_LIBS"
 				else
-					echo "This TCL was not built for static linking" 1>&2
+					echo "This Tcl was not built for static linking" 1>&2
 					EXIT=1
 				fi
 				;;
