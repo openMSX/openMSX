@@ -5,7 +5,7 @@ set_help_text get_screen \
 }
 
 proc get_screen {} {
-	set mode [vdp::get_screen_mode]
+	set mode [get_screen_mode]
 	switch $mode {
 		0 {
 			set addr 0
@@ -132,4 +132,114 @@ proc listing {} {
 		append listing "\n"
 	}
 	return $listing
+}
+
+set_help_text get_color_count "Gives some statistics on the used colors of the currently visible screen. Does not take into account sprites, screen splits and other trickery.
+
+Options:
+    -sort <field>, where <field> is either color (default) or amount
+    -reverse, to reverse the sorting order
+"
+proc get_color_count {args} {
+
+	set sortindex 0
+	set sortorder "-increasing"
+
+	# parse options
+	while (1) {
+		switch -- [lindex $args 0] {
+		"-sort" {
+			set sortfield [lindex $args 1]
+			if {$sortfield == "color"} {
+				set sortindex 0
+			} elseif {$sortfield == "amount"} {
+				set sortindex 1
+			} else {
+				error "Unsupported sort field $sortfield"
+			}
+			set args [lrange $args 2 end]
+		}
+		"-reverse" {
+			set sortorder "-decreasing"
+			set args [lrange $args 1 end]
+		}
+		"default" break
+		}
+	}
+
+	set mode [get_screen_mode]
+	if { $mode < 5 || $mode > 8 } {
+		error "Screen mode $mode not supported (yet)"
+	}
+	set page [expr (([debug read "VDP regs" 2] & 96) >> 5)]
+	if { [expr ([debug read "VDP regs" 9] & 128)] == 0} {
+		set noflines 192
+	} else {
+		set noflines 212
+	}
+	puts "Counting pixels of screen $mode, page $page with $noflines lines..."
+	
+	set nofbytes_per_line 256
+	switch $mode {
+		5 {
+			set nofbytes_per_line 128
+			set nofpixels_per_byte 2
+			set page_size [expr 32*1024]
+		}
+		6 {
+			set nofbytes_per_line 128
+			set nofpixels_per_byte 4
+			set page_size [expr 32*1024]
+		}
+		7 {
+			set nofpixels_per_byte 2
+			set page_size [expr 64*1024]
+		}
+		8 {
+			set nofpixels_per_byte 1
+			set page_size [expr 64*1024]
+		}
+	}
+	set bpp [expr 8 / $nofpixels_per_byte]
+
+	# get bytes into large list
+	set offset [expr $page_size * $page]
+	set nrbytes [expr $noflines * $nofbytes_per_line]
+	binary scan [debug read_block VRAM $offset $nrbytes] c* myvram
+
+	# analyze pixels
+	for {set p 0} { $p < 256 } {incr p} {
+		set pixelstats($p) 0
+	}
+	foreach byte $myvram {
+		for { set pixel 0} { $pixel < $nofpixels_per_byte} { incr pixel } {
+			set color [expr {($byte >> ($pixel * (8 / $nofpixels_per_byte))) & ((1 << $bpp) - 1)} ]
+			incr pixelstats($color)
+		}
+	}
+	# convert to list
+	set pixelstatlist [list]
+	foreach key [array names pixelstats] {
+		if { $pixelstats($key) != 0 } {
+			lappend pixelstatlist [list $key $pixelstats($key)]
+		}
+	}
+	set pixelstatlistsorted [lsort -integer $sortorder -index $sortindex $pixelstatlist]
+	# print results
+	set number 0
+	foreach pixelinfo $pixelstatlistsorted {
+		incr number
+		set color [lindex $pixelinfo 0]
+		set amount [lindex $pixelinfo 1]
+		set palette ""
+		set colorwidth 3
+		if {$mode != 8} {
+			set palette " ([getcolor $color])"
+			set colorwidth 2
+		}
+		set colorformat [format "%${colorwidth}d" $color]
+		set amountformat [format "%6d" $amount]
+		set numberformat [format "%${colorwidth}d" $number]
+		puts "$numberformat: color $colorformat$palette: amount: $amountformat"
+	}
 }
