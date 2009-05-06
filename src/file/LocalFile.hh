@@ -3,6 +3,9 @@
 #ifndef LOCALFILE_HH
 #define LOCALFILE_HH
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "File.hh"
 #include "FileBase.hh"
 #include "probed_defs.hh"
@@ -21,7 +24,7 @@ public:
 	virtual ~LocalFile();
 	virtual void read (void* buffer, unsigned num);
 	virtual void write(const void* buffer, unsigned num);
-#ifdef HAVE_MMAP
+#if defined HAVE_MMAP || defined _WIN32
 	virtual byte* mmap(bool writeBack);
 	virtual void munmap();
 #endif
@@ -40,6 +43,9 @@ public:
 private:
 	std::string filename;
 	FILE* file;
+#ifdef _WIN32
+	HANDLE hMmap;
+#endif
 	std::auto_ptr<PreCacheFile> cache;
 	bool readOnly;
 };

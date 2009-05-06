@@ -7,6 +7,9 @@
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
+#ifdef _WIN32
+#include <io.h>
+#endif
 #include "LocalFile.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
@@ -21,6 +24,9 @@ namespace openmsx {
 LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
 	, readOnly(false)
+#ifdef _WIN32
+	, hMmap(NULL)
+#endif
 {
 	PRT_DEBUG("LocalFile: " << filename);
 
@@ -102,7 +108,49 @@ void LocalFile::write(const void* buffer, unsigned num)
 	}
 }
 
-#ifdef HAVE_MMAP
+#ifdef _WIN32
+byte* LocalFile::mmap(bool writeBack)
+{
+	if (!mmem) {
+		int fd = _fileno(file);
+		if (fd == -1) {
+			throw FileException("_fileno failed");
+		}
+		HANDLE hFile = reinterpret_cast<HANDLE>(_get_osfhandle(fd)); // No need to close
+		if (hFile == INVALID_HANDLE_VALUE) {
+			throw FileException("_get_osfhandle failed");
+		}
+		assert(!hMmap);
+		hMmap = CreateFileMapping(hFile, NULL, writeBack ? PAGE_EXECUTE_READWRITE : PAGE_WRITECOPY, 0, 0, NULL);
+		if (!hMmap) {
+			throw FileException("CreateFileMapping failed: " + GetLastError());
+		}
+		mmem = static_cast<byte*>(MapViewOfFile(hMmap, writeBack ? FILE_MAP_ALL_ACCESS : FILE_MAP_COPY, 0, 0, 0));
+		if (!mmem) {
+			DWORD gle = GetLastError();
+			CloseHandle(hMmap);
+			hMmap = NULL;
+			throw FileException("MapViewOfFile failed: " + gle);
+		}
+	}
+	return mmem;
+}
+
+void LocalFile::munmap()
+{
+	if (mmem) {
+		if (!UnmapViewOfFile(mmem)) {
+			throw FileException("UnmapViewOfFile failed: " + GetLastError());
+		}
+		mmem = NULL;
+	}
+	if (hMmap) {
+		CloseHandle(hMmap);
+		hMmap = NULL;
+	}
+}
+
+#elif defined HAVE_MMAP
 byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {
