@@ -223,7 +223,7 @@ SDLImage::SDLImage(int width, int height,
 	const SDL_PixelFormat& format = *videoSurface->format;
 
 	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-		width, height, format.BitsPerPixel,
+		abs(width), abs(height), format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, 0);
 	if (!image) {
 		throw MSXException("Couldn't allocate surface.");
