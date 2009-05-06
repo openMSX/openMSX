@@ -134,20 +134,25 @@ proc listing {} {
 	return $listing
 }
 
-set_help_text get_color_count "Gives some statistics on the used colors of the currently visible screen. Does not take into account sprites, screen splits and other trickery.
+set_help_text get_color_count \
+"Gives some statistics on the used colors of the currently visible screen. Does not take into account sprites, screen splits and other trickery.
 
 Options:
-    -sort <field>, where <field> is either color (default) or amount
+    -sort <field>, where <field> is either 'color' (default) or 'amount'
     -reverse, to reverse the sorting order
+    -all, to also include colors that have a count of zero
 "
 proc get_color_count {args} {
+	set result ""
 
 	set sortindex 0
 	set sortorder "-increasing"
+	set showall false
 
 	# parse options
 	while (1) {
 		switch -- [lindex $args 0] {
+		"" break
 		"-sort" {
 			set sortfield [lindex $args 1]
 			if {$sortfield == "color"} {
@@ -155,7 +160,7 @@ proc get_color_count {args} {
 			} elseif {$sortfield == "amount"} {
 				set sortindex 1
 			} else {
-				error "Unsupported sort field $sortfield"
+				error "Unsupported sort field: $sortfield"
 			}
 			set args [lrange $args 2 end]
 		}
@@ -163,7 +168,13 @@ proc get_color_count {args} {
 			set sortorder "-decreasing"
 			set args [lrange $args 1 end]
 		}
-		"default" break
+		"-all" {
+			set showall true
+			set args [lrange $args 1 end]
+		}
+		"default" {
+			error "Invalid option: [lindex $args 0]"
+		}
 		}
 	}
 
@@ -172,14 +183,9 @@ proc get_color_count {args} {
 		error "Screen mode $mode not supported (yet)"
 	}
 	set page [expr (([debug read "VDP regs" 2] & 96) >> 5)]
-	if { [expr ([debug read "VDP regs" 9] & 128)] == 0} {
-		set noflines 192
-	} else {
-		set noflines 212
-	}
-	puts "Counting pixels of screen $mode, page $page with $noflines lines..."
-	
-	set nofbytes_per_line 256
+	set noflines [expr ([debug read "VDP regs" 9] & 128) ? 212 : 192]
+	append result "Counting pixels of screen $mode, page $page with $noflines lines...\n"
+
 	switch $mode {
 		5 {
 			set nofbytes_per_line 128
@@ -192,15 +198,18 @@ proc get_color_count {args} {
 			set page_size [expr 32*1024]
 		}
 		7 {
+			set nofbytes_per_line 256
 			set nofpixels_per_byte 2
 			set page_size [expr 64*1024]
 		}
 		8 {
+			set nofbytes_per_line 256
 			set nofpixels_per_byte 1
 			set page_size [expr 64*1024]
 		}
 	}
 	set bpp [expr 8 / $nofpixels_per_byte]
+	set nrcolors [expr 1 << $bpp]
 
 	# get bytes into large list
 	set offset [expr $page_size * $page]
@@ -208,38 +217,35 @@ proc get_color_count {args} {
 	binary scan [debug read_block VRAM $offset $nrbytes] c* myvram
 
 	# analyze pixels
-	for {set p 0} { $p < 256 } {incr p} {
+	for {set p 0} {$p < $nrcolors} {incr p} {
 		set pixelstats($p) 0
 	}
+	set mask [expr $nrcolors - 1]
 	foreach byte $myvram {
-		for { set pixel 0} { $pixel < $nofpixels_per_byte} { incr pixel } {
-			set color [expr {($byte >> ($pixel * (8 / $nofpixels_per_byte))) & ((1 << $bpp) - 1)} ]
+		for {set pixel 0} {$pixel < $nofpixels_per_byte} {incr pixel} {
+			set color [expr {($byte >> ($pixel * $bpp)) & $mask}]
 			incr pixelstats($color)
 		}
 	}
 	# convert to list
 	set pixelstatlist [list]
-	foreach key [array names pixelstats] {
-		if { $pixelstats($key) != 0 } {
-			lappend pixelstatlist [list $key $pixelstats($key)]
+	foreach {key val} [array get pixelstats] {
+		if {$showall || ($val != 0)} {
+			lappend pixelstatlist [list $key $val]
 		}
 	}
 	set pixelstatlistsorted [lsort -integer $sortorder -index $sortindex $pixelstatlist]
 	# print results
 	set number 0
+	set colorwidth [expr ($mode == 8) ? 3 : 2]
+	set palette ""
 	foreach pixelinfo $pixelstatlistsorted {
 		incr number
-		set color [lindex $pixelinfo 0]
-		set amount [lindex $pixelinfo 1]
-		set palette ""
-		set colorwidth 3
+		foreach {color amount} $pixelinfo {}
 		if {$mode != 8} {
 			set palette " ([getcolor $color])"
-			set colorwidth 2
 		}
-		set colorformat [format "%${colorwidth}d" $color]
-		set amountformat [format "%6d" $amount]
-		set numberformat [format "%${colorwidth}d" $number]
-		puts "$numberformat: color $colorformat$palette: amount: $amountformat"
+		append result [format "%${colorwidth}d: color %${colorwidth}d$palette: amount: %6d\n" $number $color $amount]
 	}
+	return $result
 }
