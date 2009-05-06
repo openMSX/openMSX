@@ -7,6 +7,7 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "components.hh"
+#include <cmath>
 #include <cassert>
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
@@ -136,8 +137,8 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		if (getAlpha()) {
 			double width, height;
 			getWidthHeight(output, width, height);
-			int sw = int(width  + 0.5);
-			int sh = int(height + 0.5);
+			int sw = int(round(width));
+			int sh = int(round(height));
 			// note: Image is create with alpha = 255. Actual
 			//  alpha is applied during drawing. This way we
 			//  can also reuse the same image if only alpha
@@ -162,8 +163,8 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		} else {
 			double width, height;
 			getWidthHeight(output, width, height);
-			int sw = int(width  + 0.5);
-			int sh = int(height + 0.5);
+			int sw = int(round(width));
+			int sh = int(round(height));
 			return new IMAGE(file, sw, sh);
 		}
 	}

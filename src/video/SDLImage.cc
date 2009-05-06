@@ -276,8 +276,8 @@ void SDLImage::allocateWorkImage()
 void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 {
 	if (!image) return;
-	if (flipX) x -= image->w - 1;
-	if (flipY) y -= image->h - 1;
+	if (flipX) x -= image->w;
+	if (flipY) y -= image->h;
 
 	output.unlock();
 	SDL_Surface* outputSurface = output.getSDLWorkSurface();
