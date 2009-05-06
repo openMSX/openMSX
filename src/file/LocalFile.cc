@@ -23,10 +23,10 @@ namespace openmsx {
 
 LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
-	, readOnly(false)
 #ifdef _WIN32
 	, hMmap(NULL)
 #endif
+	, readOnly(false)
 {
 	PRT_DEBUG("LocalFile: " << filename);
 
