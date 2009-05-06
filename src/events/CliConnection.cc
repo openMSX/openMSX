@@ -260,12 +260,17 @@ PipeConnection::PipeConnection(CommandController& commandController,
 {
 	string pipeName = "\\\\.\\pipe\\" + name;
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, NULL,
-	                         OPEN_EXISTING, 0, NULL);
+	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {
 		char msg[256];
 		snprintf(msg, 255, "Error reopening pipefile '%s': error %u",
 		         pipeName.c_str(), unsigned(GetLastError()));
 		throw FatalError(msg);
+	}
+
+	shutdownEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
+	if (shutdownEvent == NULL) {
+		throw FatalError("Error creating shutdown event: " + GetLastError());
 	}
 
 	startOutput();
@@ -275,20 +280,63 @@ PipeConnection::PipeConnection(CommandController& commandController,
 PipeConnection::~PipeConnection()
 {
 	end();
+
+	if (shutdownEvent) {
+		CloseHandle(shutdownEvent);
+	}
+}
+
+void InitOverlapped(LPOVERLAPPED overlapped)
+{
+	ZeroMemory(overlapped, sizeof(*overlapped));
+	overlapped->hEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
+	if (overlapped->hEvent == NULL) {
+		throw FatalError("Error creating overlapped event: " + GetLastError());
+	}
+}
+
+void ClearOverlapped(LPOVERLAPPED overlapped)
+{
+	if (overlapped->hEvent) {
+		CloseHandle(overlapped->hEvent);
+		overlapped->hEvent = NULL;
+	}
 }
 
 void PipeConnection::run()
 {
 	// runs in helper thread
+	OVERLAPPED overlapped;
+	InitOverlapped(&overlapped);
+	HANDLE waitHandles[2] = { shutdownEvent, overlapped.hEvent };
+
 	while (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		char buf[BUF_SIZE];
-		unsigned long bytesRead;
-		if (!ReadFile(pipeHandle, buf, BUF_SIZE, &bytesRead, NULL)) {
-			close();
-			break;
+		if (!ReadFile(pipeHandle, buf, BUF_SIZE, NULL, &overlapped) &&
+			GetLastError() != ERROR_IO_PENDING) {
+			break; // Pipe broke
 		}
-		xmlParseChunk(parser_context, buf, bytesRead, 0);
+		DWORD wait = WaitForMultipleObjects(2, waitHandles, FALSE, INFINITE);
+		if (wait == WAIT_OBJECT_0 + 1) {
+			DWORD bytesRead;
+			if (!GetOverlappedResult(pipeHandle, &overlapped, &bytesRead, TRUE)) {
+				break; // Pipe broke
+			}
+			xmlParseChunk(parser_context, buf, bytesRead, 0);
+		}
+		else if (wait == WAIT_OBJECT_0) {
+			break; // Shutdown
+		}
+		else {
+			throw FatalError("WaitForMultipleObjects returned unexpectedly: " + wait);
+		}
 	}
+
+	ClearOverlapped(&overlapped);
+
+	// We own the pipe handle, so close it here
+	CloseHandle(pipeHandle);
+	pipeHandle = OPENMSX_INVALID_HANDLE_VALUE;
 }
 
 void PipeConnection::output(const std::string& message)
@@ -300,11 +348,10 @@ void PipeConnection::output(const std::string& message)
 
 void PipeConnection::close()
 {
-	if (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
-		// TODO: Proper locking
-		HANDLE _pipeHandle = pipeHandle;
-		pipeHandle = OPENMSX_INVALID_HANDLE_VALUE;
-		CloseHandle(_pipeHandle);
+	if (shutdownEvent) {
+		SetEvent(shutdownEvent);
+		thread.join();
+		assert(pipeHandle == OPENMSX_INVALID_HANDLE_VALUE);
 	}
 }
 #endif // _WIN32

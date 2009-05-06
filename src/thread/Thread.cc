@@ -38,6 +38,9 @@ void Thread::start()
 {
 	assert(!thread);
 	thread = SDL_CreateThread(startThread, runnable);
+	if (thread == NULL) {
+		throw FatalError(std::string("Unable to create thread: ") + SDL_GetError());
+    }
 }
 
 void Thread::stop()

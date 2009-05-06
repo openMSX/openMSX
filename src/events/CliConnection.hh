@@ -119,6 +119,7 @@ private:
 	virtual void run();
 
 	HANDLE pipeHandle;
+	HANDLE shutdownEvent;
 };
 #endif
 
