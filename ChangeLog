@@ -1,5 +1,11 @@
 $Id$
 
+2009-05-05 Max Feingold <maf6@cornell.edu>
+	* Added a Win32 implementation of LocalFile:mmap().
+	  This should make file handling on Windows imperceptibly faster.
+	* Implemented correct shutdown logic for PipeConnection thread
+	  using async I/O and events.
+	  
 2009-04-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Final step in un-uglifying Tcl scripts using Tcl namespaces :)
 
@@ -29,7 +35,7 @@ $Id$
 	  Thanks to Wouter and BiFi for their support.
 
 2009-03-26 Max Feingold <maf6@cornell.edu>
-	* Secure sockets used by CliServer on Windows by requiring authentication
+	* Secured sockets used by CliServer on Windows by requiring authentication
 	  and authorizing only the user that launches the openMSX process.
 
 2009-03-24 David Heremans <david.heremans@gnu-linux.net>
