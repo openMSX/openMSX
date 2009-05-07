@@ -4,7 +4,7 @@
 # It does not execute anything it builds, making it friendly for cross compiles.
 
 from compilers import CompileCommand, LinkCommand
-from components import EmulationCore, CassetteJack, iterComponents
+from components import EmulationCore, GLRenderer, iterComponents
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
 from packages import getPackage
@@ -403,12 +403,15 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	assert linkMode in ('SYS_DYN', '3RD_STA')
 	linkStatic = (linkMode == '3RD_STA')
 
-	requiredComponents = set((EmulationCore, ))
-	desiredComponents = set(iterComponents())
 	if linkStatic:
-		# Disable Jack: The CassetteJack feature is not useful for most end
-		# users and it is the only component that requires the Jack library.
-		desiredComponents.remove(CassetteJack)
+		# The CassetteJack feature is not useful for most end users and it is
+		# the only component that requires the Jack library.
+		requiredComponents = set((EmulationCore, GLRenderer))
+		optionalComponents = set()
+	else:
+		requiredComponents = set((EmulationCore, ))
+		optionalComponents = set(iterComponents()) - requiredComponents
+	desiredComponents = requiredComponents | optionalComponents
 
 	if not isdir(outDir):
 		makedirs(outDir)
