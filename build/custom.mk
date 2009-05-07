@@ -21,10 +21,3 @@ SYMLINK_FOR_BINARY:=true
 # Install content of Contrib/ directory?
 # Currently this contains a version of C-BIOS.
 INSTALL_CONTRIB:=true
-
-# Forced disabling of libraries: these libraries will not be used, even if they
-# are present on the system and enabled for the platform+flavour you are using.
-# This works for every library openMSX uses, but disabling a mandatory library
-# will prevent openMSX from compiling.
-# Useful values are GL, GLEW and JACK.
-DISABLED_LIBRARIES:=

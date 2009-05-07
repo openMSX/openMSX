@@ -9,8 +9,8 @@ class Component(object):
 	@classmethod
 	def canBuild(cls, probeVars):
 		return all(
-			probeVars['HAVE_%s_H' % makeName] and
-			probeVars['HAVE_%s_LIB' % makeName]
+			probeVars.get('HAVE_%s_H' % makeName) and
+			probeVars.get('HAVE_%s_LIB' % makeName)
 			for makeName in cls.dependsOn
 			)
 
