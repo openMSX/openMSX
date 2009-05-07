@@ -2,7 +2,6 @@
 
 #include "Thread.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include <iostream>
 #include <cassert>
 #include <SDL_thread.h>
@@ -40,8 +39,8 @@ void Thread::start()
 	assert(!thread);
 	thread = SDL_CreateThread(startThread, runnable);
 	if (thread == NULL) {
-		throw FatalError("Unable to create thread: " + 
-			StringOp::toString(SDL_GetError()));
+		throw FatalError(std::string("Unable to create thread: ") +
+		                 SDL_GetError());
     }
 }
 
