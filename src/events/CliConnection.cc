@@ -17,6 +17,7 @@
 #include "cstdiop.hh"
 #include "unistdp.hh"
 #include "openmsx.hh"
+#include "StringOp.hh"
 #include <cassert>
 #include <iostream>
 
@@ -270,7 +271,8 @@ PipeConnection::PipeConnection(CommandController& commandController,
 
 	shutdownEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
 	if (shutdownEvent == NULL) {
-		throw FatalError("Error creating shutdown event: " + GetLastError());
+		throw FatalError("Error creating shutdown event: " + 
+			StringOp::toString(GetLastError()));
 	}
 
 	startOutput();
@@ -281,9 +283,7 @@ PipeConnection::~PipeConnection()
 {
 	end();
 
-	if (shutdownEvent) {
-		CloseHandle(shutdownEvent);
-	}
+	CloseHandle(shutdownEvent);
 }
 
 void InitOverlapped(LPOVERLAPPED overlapped)
@@ -291,7 +291,8 @@ void InitOverlapped(LPOVERLAPPED overlapped)
 	ZeroMemory(overlapped, sizeof(*overlapped));
 	overlapped->hEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
 	if (overlapped->hEvent == NULL) {
-		throw FatalError("Error creating overlapped event: " + GetLastError());
+		throw FatalError("Error creating overlapped event: " + 
+			StringOp::toString(GetLastError()));
 	}
 }
 
@@ -328,7 +329,8 @@ void PipeConnection::run()
 			break; // Shutdown
 		}
 		else {
-			throw FatalError("WaitForMultipleObjects returned unexpectedly: " + wait);
+			throw FatalError("WaitForMultipleObjects returned unexpectedly: " + 
+				StringOp::toString(wait));
 		}
 	}
 
@@ -348,11 +350,9 @@ void PipeConnection::output(const std::string& message)
 
 void PipeConnection::close()
 {
-	if (shutdownEvent) {
-		SetEvent(shutdownEvent);
-		thread.join();
-		assert(pipeHandle == OPENMSX_INVALID_HANDLE_VALUE);
-	}
+	SetEvent(shutdownEvent);
+	thread.join();
+	assert(pipeHandle == OPENMSX_INVALID_HANDLE_VALUE);
 }
 #endif // _WIN32
 
