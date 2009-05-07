@@ -483,6 +483,7 @@ create_trainer "Golvellius" {time 1} {
 	"do not get paralyzed when hit by an enemy (after frame)" {poke 0xd01a 0}
 	"get all crystals (bitmask)" {poke 0xe05f 255}
 	"open all holes" {poke 0xe096 1}
+	"All caves are easy" {poke 0xe05b 0}
 	"exit any cave to see ending" {poke 0xe01e 255}
 }
 
@@ -4912,6 +4913,12 @@ create_trainer "Blagger" {time 1} {
 	"lives" {poke 0x9233 0x99}
 	"keys" {poke 0x9a04 5}
 	"air (de-select to get bonus)" {poke 0x9a85 255}
+	"no enemy 1" {poke 0x9ec5 0}
+	"no enemy 2" {poke 0x9ecc 0}
+	"no enemy 3" {poke 0x9ed3 0}
+	"no enemy 4" {poke 0x9eda 0}
+	"x-pos (12-199)" {poke 0x9edc 12}
+	"y-pos (0-118)" {poke 0x9edd 0}
 }
 
 create_trainer "Chuckie Egg" {time 1} {
@@ -6610,4 +6617,230 @@ create_trainer "Montezuma's Revenge" {time 1} {
 create_trainer "Jungle Hunt" {time 1} {
 	"lives" {poke 0x732d 255}
 }
+
+create_trainer "Boulderdash2" {frame} {
+	"exit is always open" {poke 0xda60 1}
+	"time" {poke 0xda3c 255}
+	"invulnerable" {poke 0xd8ec 0}
+}
+
+create_trainer "Mine Clearer" {time 1} {
+	"lives" {poke 0xc940 4}
+	"time" {poke 0xc9a1 255}
+}
+
+create_trainer "Cocos" {time 1} {
+	"green ghost vulnerable" {poke 0xa124 171}
+	"dark blue ghost vulnerable" {poke 0xa125 171}
+	"red ghost vulnerable" {poke 0xa126 171}
+	"middle blue ghost vulnerable" {poke 0xa127 171}
+	"light blue ghost vulnerable" {poke 0xa128 171}
+	"dark orange ghost vulnerable" {poke 0xa129 171}
+	"light orange ghost vulnerable" {poke 0xa12a 171}
+	"yellow ghost vulnerable" {poke 0xa12b 171}
+	"lives" {poke 0xa776 3}
+	"speed (0-9)" {poke 0xa77a 0}
+}
+
+create_trainer "Street Neo Fighter 2" {time 1} {
+	"player 1 invulnerable" {poke 0x3c0a 100;poke 0x3c0b 100}
+	"player 1 will not win" {poke 0x3c0a 0;poke 0x3c0b 0}
+	"player 2 invulnerable" {poke 0x3d0a 100;poke 0x3d0b 100}
+	"player 2 will not win" {poke 0x3d0a 0;poke 0x3d0b 0}
+}
+
+create_trainer "Crimson DSK" {time 1} {
+	"red key" {poke 0xa9f9 1}
+	"white key" {poke 0xa9fa 1}
+	"blue key" {poke 0xa9fb 1}
+	"green key" {poke 0xa9fc 1}
+	"yellow key" {poke 0xa9fd 1}
+	"black key" {poke 0xa9fe 1}
+	"Badora power" {poke 0xa9ff 1}
+	"Rapnos power" {poke 0xaa00 1}
+	"Gorai power" {poke 0xaa01 1}
+	"heat ball" {poke 0xaa02 1}
+	"darkness ball" {poke 0xaa03 1}
+	"flame ball" {poke 0xaa04 1}
+	"light ball" {poke 0xaa05 1}
+	"ice ball" {poke 0xaa06 1}
+	"three stones (de-select to reveal stairs)" {poke 0xaa07 1;poke 0xaa08 1;poke 0xaa09 1}
+	"gold medal" {poke 0xaa0a 1}
+	"mirror of truth" {poke 0xaa0b 1}
+	"mini-boat" {poke 0xaa0c 1}
+	"vitality hero" {poke 0xaa24 255}
+	"magic hero" {poke 0xaa25 255}
+	"strength hero" {poke 0xaa26 240}
+	"defence hero" {poke 0xaa27 239}
+	"dexterity hero" {poke 0xaa28 255}
+	"maximum vitality hero" {poke 0xaa29 255}
+	"maximum magic hero" {poke 0xaa2a 255}
+	"experience hero" {poke 0xaa2b 152;poke 0xaa2c 1}
+	"vitality Isabel" {poke 0xaa44 255}
+	"magic Isabel" {poke 0xaa45 255}
+	"strength Isabel" {poke 0xaa46 240}
+	"defence Isabel" {poke 0xaa47 239}
+	"dexterity Isabel" {poke 0xaa48 255}
+	"maximum vitality Isabel" {poke 0xaa49 255}
+	"maximum magic Isabel" {poke 0xaa4a 255}
+	"experience Isabel" {poke 0xaa4b 152;poke 0xaa4c 1}
+	"vitality Arnold" {poke 0xaa64 255}
+	"magic Arnold" {poke 0xaa65 255}
+	"strength Arnold" {poke 0xaa66 240}
+	"defence Arnold" {poke 0xaa67 239}
+	"dexterity Arnold" {poke 0xaa68 255}
+	"maximum vitality Arnold" {poke 0xaa69 255}
+	"maximum magic Arnold" {poke 0xaa6a 255}
+	"experience Arnold" {poke 0xaa6b 152;poke 0xaa6c 1}
+	"equipment 1 hero (1-37)" {poke 0xaa81 1}
+	"equipment 2 hero (1-37)" {poke 0xaa83 1}
+	"equipment 3 hero (1-37)" {poke 0xaa85 1}
+	"equipment 4 hero (1-37)" {poke 0xaa87 1}
+	"equipment 5 hero (1-37)" {poke 0xaa89 1}
+	"equipment 6 hero (1-37)" {poke 0xaa8b 1}
+	"equipment 7 hero (1-37)" {poke 0xaa8d 1}
+	"equipment 8 hero (1-37)" {poke 0xaa8f 1}
+	"equipment 9 hero (1-37)" {poke 0xaa91 1}
+	"equipment 10 hero (1-37)" {poke 0xaa93 1}
+	"equipment 1 Isabel (1-37)" {poke 0xaa95 1}
+	"equipment 2 Isabel (1-37)" {poke 0xaa97 1}
+	"equipment 3 Isabel (1-37)" {poke 0xaa99 1}
+	"equipment 4 Isabel (1-37)" {poke 0xaa9b 1}
+	"equipment 5 Isabel (1-37)" {poke 0xaa9d 1}
+	"equipment 6 Isabel (1-37)" {poke 0xaa9f 1}
+	"equipment 7 Isabel (1-37)" {poke 0xaaa1 1}
+	"equipment 8 Isabel (1-37)" {poke 0xaaa3 1}
+	"equipment 9 Isabel (1-37)" {poke 0xaaa5 1}
+	"equipment 10 Isabel (1-37)" {poke 0xaaa7 1}
+	"equipment 1 Arnold (1-37)" {poke 0xaaa9 1}
+	"equipment 2 Arnold (1-37)" {poke 0xaaab 1}
+	"equipment 3 Arnold (1-37)" {poke 0xaaad 1}
+	"equipment 4 Arnold (1-37)" {poke 0xaaaf 1}
+	"equipment 5 Arnold (1-37)" {poke 0xaab1 1}
+	"equipment 6 Arnold (1-37)" {poke 0xaab3 1}
+	"equipment 7 Arnold (1-37)" {poke 0xaab5 1}
+	"equipment 8 Arnold (1-37)" {poke 0xaab7 1}
+	"equipment 9 Arnold (1-37)" {poke 0xaab9 1}
+	"equipment 10 Arnold (1-37)" {poke 0xaabb 1}   
+	"money" {poke 0xaabd 255;poke 0xaabe 255}
+	"monsters die faster" {poke 0xaf14 1}
+}
+
+create_trainer "Crimson" {time 1} {
+	"red key" {poke 0xc039 1}
+	"white key" {poke 0xc03a 1}
+	"blue key" {poke 0xc03b 1}
+	"green key" {poke 0xc03c 1}
+	"yellow key" {poke 0xc03d 1}
+	"black key" {poke 0xc03e 1}
+	"Badora power" {poke 0xc03f 1}
+	"Rapnos power" {poke 0xc040 1}
+	"Gorai power" {poke 0xc041 1}
+	"heat ball" {poke 0xc042 1}
+	"darkness ball" {poke 0xc043 1}
+	"flame ball" {poke 0xc044 1}
+	"light ball" {poke 0xc045 1}
+	"ice ball" {poke 0xc046 1}
+	"three stones (de-select to reveal stairs)" {poke 0xc047 1;poke 0xc048 1;poke 0xc049 1}
+	"gold medal" {poke 0xc04a 1}
+	"mirror of truth" {poke 0xc04b 1}
+	"mini-boat" {poke 0xc04c 1}
+	"vitality hero" {poke 0xc064 255}
+	"magic hero" {poke 0xc065 255}
+	"strength hero" {poke 0xc066 240}
+	"defence hero" {poke 0xc067 240}
+	"dexterity hero" {poke 0xc068 255}
+	"maximum vitality hero" {poke 0xc069 255}
+	"maximum magic hero" {poke 0xc06a 255}
+	"experience hero" {poke 0xc06b 152;poke 0xc06c 1}
+	"vitality Isabel" {poke 0xc084 255}
+	"magic Isabel" {poke 0xc085 255}
+	"strength Isabel" {poke 0xc086 240}
+	"defence Isabel" {poke 0xc087 239}
+	"dexterity Isabel" {poke 0xc088 255}
+	"maximum vitality Isabel" {poke 0xc089 255}
+	"maximum magic Isabel" {poke 0xc08a 255}
+	"experience Isabel" {poke 0xc08b 152;poke 0xc08c 1}
+	"vitality Arnold" {poke 0xc0a4 255}
+	"magic Arnold" {poke 0xc0a5 255}
+	"strength Arnold" {poke 0xc0a6 240}
+	"defence Arnold" {poke 0xc0a7 239}
+	"dexterity Arnold" {poke 0xc0a8 255}
+	"maximum vitality Arnold" {poke 0xc0a9 255}
+	"maximum magic Arnold" {poke 0xc0aa 255}
+	"experience Arnold" {poke 0xc0ab 152;poke 0xc0ac 1}
+	"equipment 1 hero (1-37)" {poke 0xc0c1 1}
+	"equipment 2 hero (1-37)" {poke 0xc0c3 1}
+	"equipment 3 hero (1-37)" {poke 0xc0c5 1}
+	"equipment 4 hero (1-37)" {poke 0xc0c7 1}
+	"equipment 5 hero (1-37)" {poke 0xc0c9 1}
+	"equipment 6 hero (1-37)" {poke 0xc0cb 1}
+	"equipment 7 hero (1-37)" {poke 0xc0cd 1}
+	"equipment 8 hero (1-37)" {poke 0xc0cf 1}
+	"equipment 9 hero (1-37)" {poke 0xc0d1 1}
+	"equipment 10 hero (1-37)" {poke 0xc0d3 1}
+	"equipment 1 Isabel (1-37)" {poke 0xc0d5 1}
+	"equipment 2 Isabel (1-37)" {poke 0xc0d7 1}
+	"equipment 3 Isabel (1-37)" {poke 0xc0d9 1}
+	"equipment 4 Isabel (1-37)" {poke 0xc0db 1}
+	"equipment 5 Isabel (1-37)" {poke 0xc0dd 1}
+	"equipment 6 Isabel (1-37)" {poke 0xc0df 1}
+	"equipment 7 Isabel (1-37)" {poke 0xc0e1 1}
+	"equipment 8 Isabel (1-37)" {poke 0xc0e3 1}
+	"equipment 9 Isabel (1-37)" {poke 0xc0e5 1}
+	"equipment 10 Isabel (1-37)" {poke 0xc0e7 1}
+	"equipment 1 Arnold (1-37)" {poke 0xc0e9 1}
+	"equipment 2 Arnold (1-37)" {poke 0xc0eb 1}
+	"equipment 3 Arnold (1-37)" {poke 0xc0ed 1}
+	"equipment 4 Arnold (1-37)" {poke 0xc0ef 1}
+	"equipment 5 Arnold (1-37)" {poke 0xc0f1 1}
+	"equipment 6 Arnold (1-37)" {poke 0xc0f3 1}
+	"equipment 7 Arnold (1-37)" {poke 0xc0f5 1}
+	"equipment 8 Arnold (1-37)" {poke 0xc0f7 1}
+	"equipment 9 Arnold (1-37)" {poke 0xc0f9 1}
+	"equipment 10 Arnold (1-37)" {poke 0xc0fb 1}
+	"money" {poke 0xc0fd 255;poke 0xc0fe 255}
+	"monsters die faster" {poke 0xc554 1}
+}
+
+# For Both Crimsons
+# -- Equipment
+# 1 = dagger
+# 2 = child sword
+# 3 = whip
+# 4 = axe
+# 5 = spear
+# 6 = steel sword
+# 7 = battle hammer
+# 8 = ceramic sword
+# 9 = brave sword
+# 10 = flame sword
+# 11 = great sword
+# 12 = breast armor
+# 13 = chain mail armor
+# 14 = steel armor
+# 15 = warrior armor
+# 16 = great armor
+# 17 = leather shield
+# 18 = wooden shield
+# 19 = steel shield
+# 20 = brave shield
+# 21 = great shield
+# 22 = leather hat
+# 23 = helmet
+# 24 = great mask
+# 25 = vitality help
+# 26 = antidote
+# 27 = medecine
+# 28 = poison killer
+# 29 = terror killer
+# 30 = medusa magic
+# 31 = spark magic
+# 32 = fire magic
+# 33 = crossfire magic
+# 34 = destroyer magic
+# 35 = Cygnus magic (warp)
+# 36 = Pegasus magic (warp)
+# 37 = Gratof poison
+
 ### EOF ###
