@@ -9,6 +9,7 @@
 #endif
 #ifdef _WIN32
 #include <io.h>
+#include <iostream>
 #endif
 #include "LocalFile.hh"
 #include "FileOperations.hh"
@@ -147,9 +148,12 @@ void LocalFile::munmap()
 		// and that can fail. However, mummap is called from 
 		// the destructor, for which there is no expectation 
 		// that it will fail. So this area needs some work.
+		// It is NOT an option to throw an exception (not even
+		// FatalError).
 		if (!UnmapViewOfFile(mmem)) {
-			throw FatalError("UnmapViewOfFile failed: " + 
-				StringOp::toString(GetLastError()));
+			std::cerr << "UnmapViewOfFile failed: "
+			          << StringOp::toString(GetLastError())
+			          << std::endl;
 		}
 		mmem = NULL;
 	}
