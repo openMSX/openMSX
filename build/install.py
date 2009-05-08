@@ -129,11 +129,12 @@ def main(
 			'~/.openMSX/share/systemroms'
 			) % shareDestDir
 
-if len(sys.argv) == 9:
-	main(*sys.argv[1 : ])
-else:
-	print >> sys.stderr, \
-		'Usage: python install.py ' \
-		'DESTDIR INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR ' \
-		'BINARY_FULL OPENMSX_TARGET_OS INSTALL_VERBOSE INSTALL_CONTRIB'
-	sys.exit(2)
+if __name__ == '__main__':
+	if len(sys.argv) == 9:
+		main(*sys.argv[1 : ])
+	else:
+		print >> sys.stderr, \
+			'Usage: python install.py ' \
+			'DESTDIR INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR ' \
+			'BINARY_FULL OPENMSX_TARGET_OS INSTALL_VERBOSE INSTALL_CONTRIB'
+		sys.exit(2)
