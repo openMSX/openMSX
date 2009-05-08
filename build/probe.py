@@ -319,9 +319,9 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s_H' % makeName] = 'true' if compileOK else ''
 		self.outVars['HAVE_%s_LIB' % makeName] = 'true' if linkOK else ''
 		if linkOK:
-			self.outVars['RESULT_%s' % makeName] = resolve(
+			self.outVars['VERSION_%s' % makeName] = resolve(
 				self.log,
-				library.getResult(
+				library.getVersion(
 					self.platform, self.linkStatic, self.distroRoot
 					)
 				)
@@ -363,7 +363,7 @@ def iterProbeResults(probeVars, requiredComponents, desiredComponents):
 		for package in packages:
 			makeName = package.getMakeName()
 			if probeVars['HAVE_%s_LIB' % makeName]:
-				found = probeVars['RESULT_%s' % makeName]
+				found = 'version %s' % probeVars['VERSION_%s' % makeName]
 			elif probeVars['HAVE_%s_H' % makeName]:
 				# Dependency resolution of a typical distro will not allow
 				# this situation. Most likely we got the link flags wrong.

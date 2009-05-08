@@ -156,10 +156,14 @@ class Library(object):
 			return ' '.join(flags + dependentFlags)
 
 	@classmethod
-	def getResult(cls, platform, linkStatic, distroRoot):
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		'''Returns the version of this library, "unknown" if there is no
+		mechanism to retrieve the version or None if there is a mechanism
+		to retrieve the version but it failed.
+		'''
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
-			return 'yes'
+			return 'unknown'
 		else:
 			return '`%s --version`' % configScript
 
