@@ -1,7 +1,9 @@
 # thanks to bifimsx for his help and his technical documentation @
 # http://bifi.msxnet.org/msxnet/tech/scc.html
 #
-# TODO: optimize! (A LOT!)
+# TODO: 
+# - optimize! (A LOT!)
+# - support SCC+
 
 namespace eval scc_viewer {
 
@@ -35,8 +37,8 @@ proc scc_viewer_init {} {
 
 	#set base element	
 	osd create rectangle scc_viewer \
-		-x 5 \
-		-y 5 \
+		-x 2 \
+		-y 2 \
 		-alpha 0
 
 	set textheight 15
@@ -113,14 +115,15 @@ proc update_scc_viewer {} {
 		for {set chan 0} {$chan < $num_channels} {incr chan} {
 			for {set pos 0} {$pos < $num_samples} {incr pos} {
 				osd configure scc_viewer.$device.$chan.$pos \
-					-h [expr [get_scc_wave [debug read "$device SCC" [expr (($chan * $num_samples) + $pos)]]] / $vertical_downscale_factor]
+					-h [expr { [get_scc_wave [debug read "$device SCC" [expr (($chan * $num_samples) + $pos)]]] / $vertical_downscale_factor}]
 			}
-			set volume [expr [debug read "$device SCC" [ expr $scc_viewer::volume_address + $chan]] * 4]
+			set volume [expr {[debug read "$device SCC" [ expr $scc_viewer::volume_address + $chan]] * 4}]
 			osd configure scc_viewer.$device.$chan.volume \
 				-h $volume \
-				-y [expr ($channel_height - $volume) / 2]
+				-y [expr {($channel_height - $volume) / 2}]
 		}
 	}
+	# after frame [namespace code {puts [time update_scc_viewer]}];# for profiling
 	after frame [namespace code update_scc_viewer]
 }
 
