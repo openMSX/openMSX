@@ -178,7 +178,7 @@ proc get_color_count {args} {
 		}
 	}
 
-	set mode [get_screen_mode]
+	set mode [get_screen_mode_number]
 	if { $mode < 5 || $mode > 8 } {
 		error "Screen mode $mode not supported (yet)"
 	}

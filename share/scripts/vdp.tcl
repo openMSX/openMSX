@@ -89,17 +89,27 @@ proc val2bin val {
 variable mode_lookup
 
 set mode_lookup(00000000) 1;# Screen 1
-set mode_lookup(00000001) 0;# Screen 0 (WIDTH 40)
+set mode_lookup(00000001) "TEXT40";# Screen 0 (WIDTH 40)
 set mode_lookup(00000010) 3;# Screen 3
 set mode_lookup(00000100) 2;# Screen 2
 set mode_lookup(00001000) 4;# Screen 4
-set mode_lookup(00001001) 0;# Screen 0 (WIDTH 80)
+set mode_lookup(00001001) "TEXT80";# Screen 0 (WIDTH 80)
 set mode_lookup(00001100) 5;# Screen 5
 set mode_lookup(00010000) 6;# Screen 6
 set mode_lookup(00010100) 7;# Screen 7
 set mode_lookup(00011100) 8;# Screen 8
 
-set_help_text get_screen_mode "Decodes the current screen mode from the VDP registers (as would be used in the BASIC SCREEN command)"
+set_help_text get_screen_mode_number "Decodes the current screen mode from the VDP registers (as would be used in the BASIC SCREEN command)"
+proc get_screen_mode_number {} {
+	set mode [get_screen_mode]
+	if {[string range $mode 0 3] == "TEXT"} {
+		return 0
+	} else {
+		return $mode
+	}
+}
+
+set_help_text get_screen_mode "Decodes the current screen mode from the VDP registers (and returns it as a string)."
 proc get_screen_mode {} {
 	variable mode_lookup
 	set val [expr (([vdpreg 0] & 14) << 1) | (([vdpreg 1] & 8) >> 2) |  (([vdpreg 1] & 16) >> 4)]
@@ -123,6 +133,7 @@ proc get_screen_mode {} {
 namespace export getcolor
 namespace export setcolor
 namespace export get_screen_mode
+namespace export get_screen_mode_number
 namespace export vdpreg
 namespace export vdpregs
 namespace export v9990regs
