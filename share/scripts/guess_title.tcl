@@ -14,10 +14,23 @@ proc guess_rom_title { ps ss } {
 proc guess_disk_title { drive_name } {
 	# check name of the diskimage (remove directory part and extension)
 	set disk ""
-	catch { set disk [lindex [$drive_name] 1] }
+	catch { set disk [lindex [$drive_name] 1] } {
+		return ""
+	}
 	set first [string last  "/" $disk]
 	set last  [string first "." $disk $first]
 	return [string range $disk [expr $first + 1] [expr $last - 1]]
+}
+
+proc guess_cassette_title { } {
+	set cassette ""
+	# check name of the cassette image (remove directory part and extension)
+	catch { set cassette [lindex [cassetteplayer] 1] } {
+		return ""
+	}
+	set first [string last  "/" $cassette]
+	set last  [string first "." $cassette $first]
+	return [string range $cassette [expr $first + 1] [expr $last - 1]]
 }
 
 proc guess_title { { fallback "" } } {
@@ -36,6 +49,10 @@ proc guess_title { { fallback "" } } {
 		set title [guess_disk_title $drive]
 		if { $title != "" } { return $title }
 	}
+
+	# then try cassette
+	set title [guess_cassette_title]
+	if { $title != "" } { return $title }
 
 	# guess failed, return fallback
 	return $fallback
