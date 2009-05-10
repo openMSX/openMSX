@@ -73,9 +73,8 @@ class _Command(object):
 		except OSError, ex:
 			print >> log, 'failed to execute %s: %s' % (name, ex)
 			return None if captureOutput else False
-		stdoutdata, stderrdata = proc.communicate(
-			None if inputSeq is None else '\n'.join(inputSeq)
-			)
+		inputText = None if inputSeq is None else '\n'.join(inputSeq)
+		stdoutdata, stderrdata = proc.communicate(inputText)
 		if captureOutput:
 			assert stderrdata is not None
 			messages = stderrdata
@@ -84,6 +83,12 @@ class _Command(object):
 			messages = stdoutdata
 		if messages:
 			log.write('%s command: %s\n' % (name, ' '.join(commandLine)))
+			if inputText is not None:
+				log.write('input:\n')
+				log.write(inputText)
+				if not inputText.endswith('\n'):
+					log.write('\n')
+				log.write('end input.\n')
 			# pylint 0.18.0 somehow thinks 'messages' is a list, not a string.
 			# pylint: disable-msg=E1103
 			messages = messages.replace('\r', '')
@@ -104,18 +109,20 @@ class CompileCommand(_Command):
 			log, 'compiler', [ '-c', sourcePath, '-o', objectPath ], None, False
 			)
 
-	def expand(self, log, headers, *keys):
+	def expand(self, log, header, *keys):
 		signature = self.__expandSignature
 		def iterLines():
-			for header in headers:
-				yield '#include %s' % header
+			yield '#include %s' % header
 			for key in keys:
 				yield '%s%s %s' % (signature, key, key)
 		output = self._run(
 			log, 'preprocessor', [ '-E', '-' ], iterLines(), True
 			)
 		if output is None:
-			return None
+			if len(keys) == 1:
+				return None
+			else:
+				return (None, ) * len(keys)
 		else:
 			expanded = {}
 			for line in output.split('\n'):
@@ -130,7 +137,10 @@ class CompileCommand(_Command):
 							'Ignoring macro expand signature match on '
 							'non-requested macro "%s"\n' % key
 							)
-			return expanded
+			if len(keys) == 1:
+				return expanded.get(keys[0])
+			else:
+				return tuple(expanded.get(key) for key in keys)
 
 class LinkCommand(_Command):
 
