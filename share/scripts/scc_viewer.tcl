@@ -3,7 +3,12 @@
 #
 # TODO: 
 # - optimize! (A LOT!)
-# - support SCC+
+# - support SCC-I
+
+set_help_text toggle_scc_viewer\
+{Toggles display of the SCC viewer in which you can follow the wave forms and
+volume per SCC channel in real time. Note: it doesn't explicitly support SCC-I
+yet and it can take up quite some CPU load...}
 
 namespace eval scc_viewer {
 
@@ -13,10 +18,13 @@ variable num_samples 32
 variable num_channels 5
 variable vertical_downscale_factor 4
 variable channel_height [expr 256 / $vertical_downscale_factor]
+variable machine_switch_trigger_id
+variable frame_trigger_id
 
 set volume_address [expr $num_samples * $num_channels + 2 * $num_channels]
 
 proc scc_viewer_init {} {
+	variable machine_switch_trigger_id
 	variable scc_viewer_active
 	variable scc_devices
 	variable num_channels
@@ -99,6 +107,7 @@ proc scc_viewer_init {} {
 		incr number
 		set offset 10
 	}
+	set machine_switch_trigger_id [after machine_switch [namespace code scc_viewer_reset]]	
 }
 
 proc update_scc_viewer {} {
@@ -108,6 +117,7 @@ proc update_scc_viewer {} {
 	variable num_samples
 	variable vertical_downscale_factor
 	variable channel_height
+	variable frame_trigger_id
 
 	if {!$scc_viewer_active} return
 
@@ -123,17 +133,29 @@ proc update_scc_viewer {} {
 				-y [expr {($channel_height - $volume) / 2}]
 		}
 	}
-	# after frame [namespace code {puts [time update_scc_viewer]}];# for profiling
-	after frame [namespace code update_scc_viewer]
+	# set frame_trigger_id [after frame [namespace code {puts [time update_scc_viewer]}]];# for profiling
+	set frame_trigger_id [after frame [namespace code update_scc_viewer]]
 }
 
 proc get_scc_wave {sccval} { return [expr $sccval < 128 ? $sccval : $sccval - 256] }
 
+proc scc_viewer_reset {} {
+	variable scc_viewer_active
+	if {!$scc_viewer_active} {
+		error "Please fix a bug in this script!"
+	}
+	toggle_scc_viewer
+	toggle_scc_viewer
+}
+
 proc toggle_scc_viewer {} {
 	variable scc_viewer_active
+	variable machine_switch_trigger_id
+	variable frame_trigger_id
 
 	if {$scc_viewer_active} {
-		catch {after cancel $vu_meter_trigger_id}
+		catch {after cancel $machine_switch_trigger_id}
+		catch {after cancel $frame_trigger_id}
 		set scc_viewer_active false
 		osd destroy scc_viewer
 	} else {
