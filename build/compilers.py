@@ -62,46 +62,86 @@ class _Command(object):
 				)
 			)
 
-	def _run(self, log, args):
+	def _run(self, log, args, inputSeq, captureOutput):
 		commandLine = [ self.__executable ] + args + self.__flags
 		try:
 			proc = Popen(
 				commandLine,
 				bufsize = -1,
 				env = self.__mergedEnv,
-				stdin = None,
+				stdin = None if inputSeq is None else PIPE,
 				stdout = PIPE,
-				stderr = STDOUT,
+				stderr = PIPE if captureOutput else STDOUT,
 				)
 		except OSError, ex:
 			print >> log, 'failed to execute %s: %s' % (self.name, ex)
-			return False
-		stdoutdata, stderrdata = proc.communicate()
-		if stdoutdata:
+			return None if captureOutput else False
+		stdoutdata, stderrdata = proc.communicate(
+			None if inputSeq is None else '\n'.join(inputSeq)
+			)
+		if captureOutput:
+			assert stderrdata is not None
+			messages = stderrdata
+		else:
+			assert stderrdata is None
+			messages = stdoutdata
+		if messages:
 			log.write('%s command: %s\n' % (self.name, ' '.join(commandLine)))
-			# pylint 0.18.0 somehow thinks stdoutdata is a list, not a string.
+			# pylint 0.18.0 somehow thinks 'messages' is a list, not a string.
 			# pylint: disable-msg=E1103
-			stdoutdata = stdoutdata.replace('\r', '')
-			log.write(stdoutdata)
-			if not stdoutdata.endswith('\n'):
+			messages = messages.replace('\r', '')
+			log.write(messages)
+			if not messages.endswith('\n'):
 				log.write('\n')
-		assert stderrdata is None, stderrdata
 		if proc.returncode == 0:
-			return True
+			return stdoutdata if captureOutput else True
 		else:
 			print >> log, 'return code from %s: %d' % (
 				self.name, proc.returncode
 				)
-			return False
+			return None if captureOutput else False
+
+class MacroExpandCommand(_Command):
+	name = 'preprocessor'
+	__signature = 'EXPAND_MACRO_'
+
+	def expand(self, log, headers, *keys):
+		def iterLines():
+			for header in headers:
+				yield '#include %s' % header
+			for key in keys:
+				yield '%s%s %s' % (self.__signature, key, key)
+		output = self._run(log, [ '-E', '-' ], iterLines(), True)
+		if output is None:
+			return None
+		else:
+			expanded = {}
+			for line in output.split('\n'):
+				if line.startswith(self.__signature):
+					key, value = line[len(self.__signature) : ].split(' ', 1)
+					value = value.strip()
+					if key in keys:
+						if value != key:
+							expanded[key] = value
+					else:
+						log.write(
+							'Ignoring macro expand signature match on '
+							'non-requested macro "%s"\n' % key
+							)
+			return expanded
 
 class CompileCommand(_Command):
 	name = 'compiler'
 
 	def compile(self, log, sourcePath, objectPath):
-		return self._run(log, [ '-c', sourcePath, '-o', objectPath ])
+		return self._run(
+			log, [ '-c', sourcePath, '-o', objectPath ], None, False
+			)
 
 class LinkCommand(_Command):
 	name = 'linker'
 
 	def link(self, log, objectPaths, binaryPath):
-		return self._run(log, objectPaths + [ '-o', binaryPath ])
+		return self._run(
+			log, objectPaths + [ '-o', binaryPath ], None, False
+			)
