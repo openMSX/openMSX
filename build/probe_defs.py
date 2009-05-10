@@ -210,6 +210,28 @@ class GL(Library):
 		else:
 			return super(GL, cls).getLinkFlags(platform, linkStatic, distroRoot)
 
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		def execute(cmd, log):
+			versionPairs = tuple(
+				( major, minor )
+				for major in range(1, 10)
+				for minor in range(0, 10)
+				)
+			version = cmd.expand(log, cls.getHeader(platform), *(
+				'GL_VERSION_%d_%d' % pair for pair in versionPairs
+				))
+			try:
+				return '%d.%d' % max(
+					ver
+					for ver, exp in zip(versionPairs, version)
+					if exp is not None
+					)
+			except ValueError:
+				return None
+
+		return execute
+
 class GLEW(Library):
 	makeName = 'GLEW'
 	header = '<GL/glew.h>'
