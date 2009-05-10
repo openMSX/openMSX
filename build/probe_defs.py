@@ -306,7 +306,7 @@ class SDL_image(Library):
 				'SDL_IMAGE_MINOR_VERSION',
 				'SDL_IMAGE_PATCHLEVEL',
 				)
-			return None if version is None else '%s.%s.%s' % version
+			return None if None in version else '%s.%s.%s' % version
 		return execute
 
 class SDL_ttf(Library):
@@ -324,7 +324,7 @@ class SDL_ttf(Library):
 				'SDL_TTF_MINOR_VERSION',
 				'SDL_TTF_PATCHLEVEL',
 				)
-			return None if version is None else '%s.%s.%s' % version
+			return None if None in version else '%s.%s.%s' % version
 		return execute
 
 class TCL(Library):
