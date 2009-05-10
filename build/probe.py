@@ -319,12 +319,16 @@ class TargetSystem(object):
 		self.outVars['HAVE_%s_H' % makeName] = 'true' if compileOK else ''
 		self.outVars['HAVE_%s_LIB' % makeName] = 'true' if linkOK else ''
 		if linkOK:
-			self.outVars['VERSION_%s' % makeName] = resolve(
-				self.log,
-				library.getVersion(
-					self.platform, self.linkStatic, self.distroRoot
-					)
+			versionGet = library.getVersion(
+				self.platform, self.linkStatic, self.distroRoot
 				)
+			if callable(versionGet):
+				version = versionGet(compileCommand, self.log)
+			else:
+				version = resolve(self.log, versionGet)
+			if version is None:
+				version = 'error'
+			self.outVars['VERSION_%s' % makeName] = version
 
 def iterProbeResults(probeVars, requiredComponents, desiredComponents):
 	'''Present probe results, so user can decide whether to start the build,
