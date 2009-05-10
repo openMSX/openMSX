@@ -31,7 +31,8 @@ variable volume_expr
 variable nof_channels
 variable bar_length
 variable soundchips
-variable vu_meter_trigger_id
+variable machine_switch_trigger_id
+variable frame_trigger_id
 
 proc get_num_channels {soundchip} {
 	set num 1
@@ -48,7 +49,7 @@ proc vu_meters_init {} {
 	variable nof_channels
 	variable bar_length
 	variable soundchips
-	variable vu_meter_trigger_id
+	variable machine_switch_trigger_id
 
 	# create root object for vu_meters
 	osd create rectangle vu_meters \
@@ -114,7 +115,7 @@ proc vu_meters_init {} {
 		incr vu_meter_offset [expr $bar_length + 1]
 	}
 
-	set vu_meter_trigger_id [after machine_switch [namespace code vu_meters_reset]]
+	set machine_switch_trigger_id [after machine_switch [namespace code vu_meters_reset]]
 }
 
 proc update_meters {} {
@@ -123,6 +124,7 @@ proc update_meters {} {
 	variable volume_expr
 	variable nof_channels
 	variable soundchips
+	variable frame_trigger_id
 
 	# update meters with the volumes
 	if {!$vu_meters_active} return
@@ -137,17 +139,17 @@ proc update_meters {} {
 		}
 	}
 	# here you can customize the update frequency (to reduce CPU load)
-	#after time 0.05 [namespace code update_meters]
-	after frame [namespace code update_meters]
+	#set frame_trigger_id [after time 0.05 [namespace code update_meters]]
+	set frame_trigger_id [after frame [namespace code update_meters]]
 }
 
 proc update_meter {meter volume} {
 	variable bar_length
 
-	set byte_val [expr round(255 * $volume)]
+	set byte_val [expr {round(255 * $volume)}]
 	osd configure $meter \
-		-w [expr $bar_length * $volume] \
-		-rgba [expr ($byte_val << 24) + ((255 ^ $byte_val) << 8) + 0x008000C0]
+		-w [expr {$bar_length * $volume}] \
+		-rgba [expr {($byte_val << 24) + ((255 ^ $byte_val) << 8) + 0x008000C0}]
 }
 
 proc get_volume_expr_for_channel {soundchip channel} {
@@ -197,7 +199,8 @@ proc vu_meters_reset {} {
 
 proc toggle_vu_meters {} {
 	variable vu_meters_active
-	variable vu_meter_trigger_id
+	variable machine_switch_trigger_id
+	variable frame_trigger_id
 	variable soundchips
 	variable bar_length
 	variable volume_cache
@@ -205,7 +208,8 @@ proc toggle_vu_meters {} {
 	variable nof_channels
 
 	if {$vu_meters_active} {
-		catch {after cancel $vu_meter_trigger_id}
+		catch {after cancel $machine_switch_trigger_id}
+		catch {after cancel $frame_trigger_id}
 		set vu_meters_active false
 		osd destroy vu_meters
 		unset soundchips bar_length volume_cache volume_expr nof_channels
