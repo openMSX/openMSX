@@ -158,8 +158,10 @@ class Library(object):
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		'''Returns the version of this library, "unknown" if there is no
-		mechanism to retrieve the version or None if there is a mechanism
-		to retrieve the version but it failed.
+		mechanism to retrieve the version, None if there is a mechanism
+		to retrieve the version but it failed, or a callable that takes a
+		CompileCommand and a log stream as its arguments and returns the
+		version or None if retrieval failed.
 		'''
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
@@ -330,6 +332,13 @@ class ZLib(Library):
 	@classmethod
 	def isSystemLibrary(cls, platform):
 		return platform == 'darwin'
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		def execute(cmd, log):
+			version = cmd.expand(log, cls.getHeader(platform), 'ZLIB_VERSION')
+			return None if version is None else version.strip('"')
+		return execute
 
 # Build a dictionary of libraries using introspection.
 def _discoverLibraries(localObjects):
