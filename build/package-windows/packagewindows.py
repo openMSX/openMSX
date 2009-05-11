@@ -68,8 +68,11 @@ class PackageInfo:
 		self.catapultBuildFlavor = self.platform + '-VC-' + self.catapultConfiguration
 		self.catapultBuildPath = os.path.join(self.catapultPath, os.path.join('derived', self.catapultBuildFlavor))
 		self.catapultExePath = os.path.join(self.catapultBuildPath, 'install\\Catapult.exe')
+		self.catapultPdbPath = os.path.join(self.catapultBuildPath, 'install\\Catapult.pdb')
 		
 		self.openmsxExePath = os.path.join(self.buildPath, 'install\\openmsx.exe')
+		self.openmsxPdbPath = os.path.join(self.buildPath, 'install\\openmsx.pdb')
+		
 		self.packagePath = os.path.join(self.buildPath, 'package-windows')
 		self.makeInstallPath = os.path.join(self.packagePath, 'install')
 		

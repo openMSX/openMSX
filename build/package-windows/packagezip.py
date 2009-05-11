@@ -32,7 +32,7 @@ def PackageZip(info):
 	AddDirectory(zip, os.path.join(info.makeInstallPath, 'doc'), 'doc')
 	AddDirectory(zip, os.path.join(info.makeInstallPath, 'share'), 'share')
 	AddDirectory(zip, info.codecPath, 'codec')
-	AddFile(zip, info.openmsxExePath, 'openmsx.exe')
+	AddFile(zip, info.openmsxExePath, os.path.basename(info.openmsxExePath))
 	AddFile(zip, os.path.join(info.sourcePath, 'resource\\openmsx.ico'), 'share\\icons\\openmsx.ico')
 	
 	AddFile(zip, info.catapultExePath, 'Catapult\\bin\\Catapult.exe')
@@ -43,10 +43,23 @@ def PackageZip(info):
 	AddFile(zip, os.path.join(info.catapultPath, 'AUTHORS'), 'Catapult\doc\\AUTHORS')
 	AddFile(zip, os.path.join(info.catapultPath, 'GPL'), 'Catapult\\doc\\GPL')
 	AddFile(zip, os.path.join(info.catapultPath, 'README'), 'Catapult\\doc\\README')
+	zip.close()
+	
+	zipFileName = info.installerFileName + '-pdb.zip'
+	zipFilePath = os.path.join(info.packagePath, zipFileName)
+	if os.path.exists(zipFilePath):
+		os.unlink(zipFilePath)
+
+	print 'Generating ' + zipFilePath
+	zip = zipfile.ZipFile(zipFilePath, 'w')
+	AddFile(zip, info.openmsxPdbPath, os.path.basename(info.openmsxPdbPath))
+	AddFile(zip, info.catapultPdbPath, os.path.basename(info.catapultPdbPath))
+	zip.close()
 
 if __name__ == '__main__':
 	if len(sys.argv) != 5:
 		print >> sys.stderr, 'Usage: python packagezip.py platform configuration version catapultPath'
+		# E.g. build\package-windows\package.cmd x64 Release 0.7.1 ..\wxCatapult
 		sys.exit(2)
 	else:
 		info = packagewindows.PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
