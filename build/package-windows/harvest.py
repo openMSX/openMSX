@@ -4,6 +4,7 @@ import os, sys
 import uuid
 from hashlib import md5
 from optparse import OptionParser
+import packagewindows
 
 indentSize = 2
 
@@ -34,8 +35,11 @@ class WixFragment:
         self.directoryRef = directoryRef
         self.virtualDir = virtualDir
         self.indent = 0
-        self.win64 = win64
-        
+        if win64:
+			self.win64 = 'yes'
+        else:
+			self.win64 = 'no'
+
         if excludedFile:
             excludedFiles.append(excludedFile)
 
@@ -52,78 +56,77 @@ class WixFragment:
     def printIndented(self, line):
         for space in self.getIndent():
             line = space + line
-        print line
+        yield line
 
     def startWix(self):
-        self.printIndented("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-        self.printIndented("<Wix xmlns=\"http://schemas.microsoft.com/wix/2006/wi\">")
+        for line in self.printIndented("<?xml version=\"1.0\" encoding=\"utf-8\"?>"): yield line
+        for line in self.printIndented("<Wix xmlns=\"http://schemas.microsoft.com/wix/2006/wi\">"): yield line
         self.incrementIndent()
 
     def endWix(self):
         self.decrementIndent()
-        self.printIndented("</Wix>")
+        for line in self.printIndented("</Wix>"): yield line
         
     def startFragment(self):
-        self.printIndented("<Fragment>")
+        for line in self.printIndented("<Fragment>"): yield line
         self.incrementIndent()
 
     def endFragment(self):
         self.decrementIndent()
-        self.printIndented("</Fragment>")
+        for line in self.printIndented("</Fragment>"): yield line
 
     def startDirectoryRef(self, id):
-        self.printIndented("<DirectoryRef Id=\"" + id + "\">")
+        for line in self.printIndented("<DirectoryRef Id=\"" + id + "\">"): yield line
         self.incrementIndent()
 
     def endDirectoryRef(self):
         self.decrementIndent()
-        self.printIndented("</DirectoryRef>")
+        for line in self.printIndented("</DirectoryRef>"): yield line
         
     def startComponentGroup(self, id):
-        self.printIndented("<ComponentGroup Id=\"" + id + "\">")
+        for line in self.printIndented("<ComponentGroup Id=\"" + id + "\">"): yield line
         self.incrementIndent()
 
     def endComponentGroup(self):
         self.decrementIndent()
-        self.printIndented("</ComponentGroup>")
+        for line in self.printIndented("</ComponentGroup>"): yield line
         
     def startComponentRef(self, id):
-        self.printIndented("<ComponentRef Id=\"" + id + "\">")
+        for line in self.printIndented("<ComponentRef Id=\"" + id + "\">"): yield line
         self.incrementIndent()
 
     def endComponentRef(self):
         self.decrementIndent()
-        self.printIndented("</ComponentRef>")
+        for line in self.printIndented("</ComponentRef>"): yield line
 
     def startDirectory(self, directoryId, directory):
-        self.printIndented("<Directory Id=\"" + directoryId + "\" Name=\"" + directory + "\">")
+        for line in self.printIndented("<Directory Id=\"" + directoryId + "\" Name=\"" + directory + "\">"): yield line
         self.incrementIndent()
 
     def endDirectory(self):
         self.decrementIndent()
-        self.printIndented("</Directory>")
+        for line in self.printIndented("</Directory>"): yield line
 
     def startComponent(self, componentId, guid):
 		component = "<Component Id=\"" + componentId + "\" Guid=\"" + guid + "\" DiskId=\"1\""
-		if self.win64:
-			component += " Win64=\"" + self.win64 + "\""
+		component += " Win64=\"" + self.win64 + "\""
 		component += ">"
-		self.printIndented(component)
+		for line in self.printIndented(component): yield line
 		self.incrementIndent()
         
     def endComponent(self):
         self.decrementIndent()
-        self.printIndented("</Component>")
+        for line in self.printIndented("</Component>"): yield line
 
     def startFile(self, fileId, fileName, sourcePath):
-        self.printIndented("<File Id=\"" + fileId + "\" Name=\"" + fileName + "\" Source=\"" + sourcePath + "\">")
+        for line in self.printIndented("<File Id=\"" + fileId + "\" Name=\"" + fileName + "\" Source=\"" + sourcePath + "\">"): yield line
         self.incrementIndent()
         
     def endFile(self):
         self.decrementIndent()
-        self.printIndented("</File>")
+        for line in self.printIndented("</File>"): yield line
 
-    def printFragment(self):
+    def yieldFragment(self):
     
         # List that stores the components we've added
         components = list()
@@ -134,9 +137,9 @@ class WixFragment:
         # List that stores the virtual directories we added
         virtualstack = list()
 
-        self.startWix()
-        self.startFragment()
-        self.startDirectoryRef(self.directoryRef)
+        for line in self.startWix(): yield line
+        for line in self.startFragment(): yield line
+        for line in self.startDirectoryRef(self.directoryRef): yield line
 
         # Add virtual directories
         if self.virtualDir:
@@ -147,7 +150,7 @@ class WixFragment:
                 virtualstack.insert(0, joinedPath)
             for dir in virtualstack:
                 componentId = "directory_" + (str)(uuid.uuid4()).replace("-", "_")
-                self.startDirectory(componentId, os.path.basename(dir))
+                for line in self.startDirectory(componentId, os.path.basename(dir)): yield line
 
         # Walk the provided file list
         firstDir = True
@@ -168,11 +171,11 @@ class WixFragment:
                         stack.append(popped)
                         break
                     else:
-                        self.endDirectory()
+                        for line in self.endDirectory(): yield line
 
                 # Enter new directory
                 stack.append(dirpath)
-                self.startDirectory(makeDirectoryId(newGuid()), os.path.basename(dirpath))
+                for line in self.startDirectory(makeDirectoryId(newGuid()), os.path.basename(dirpath)): yield line
             
             if filenames:
                 # Remove excluded files
@@ -186,65 +189,51 @@ class WixFragment:
                     componentId = makeComponentId(guid)
                     sourcePath = os.path.join(dirpath, file)
 
-                    self.startComponent(componentId, guid)
-                    self.startFile(makeFileId(guid), file, sourcePath)
-                    self.endFile()
+                    for line in self.startComponent(componentId, guid): yield line
+                    for line in self.startFile(makeFileId(guid), file, sourcePath): yield line
+                    for line in self.endFile(): yield line
                     
-                    self.endComponent()
+                    for line in self.endComponent(): yield line
                     components.append(componentId)
             
         # Drain pushed physical directories
         while stack:
             popped = stack.pop()
-            self.endDirectory()
+            for line in self.endDirectory(): yield line
                 
         # Drain pushed virtual directories
         while virtualstack:
             popped = virtualstack.pop()
-            self.endDirectory()
+            for line in self.endDirectory(): yield line
 
-        self.endDirectoryRef()
-        self.endFragment()
+        for line in self.endDirectoryRef(): yield line
+        for line in self.endFragment(): yield line
 
         # Emit ComponentGroup
-        self.startFragment()
-        self.startComponentGroup(self.componentGroup)
+        for line in self.startFragment(): yield line
+        for line in self.startComponentGroup(self.componentGroup): yield line
         for component in components:
-            self.startComponentRef(component)
-            self.endComponentRef()
-        self.endComponentGroup()
-        self.endFragment()
+            for line in self.startComponentRef(component): yield line
+            for line in self.endComponentRef(): yield line
+        for line in self.endComponentGroup(): yield line
+        for line in self.endFragment(): yield line
 
-        self.endWix()
+        for line in self.endWix(): yield line
 
+def GenerateWixFragment(sourcePath, componentGroup, directoryRef, virtualDir, excludedFile, win64):
+	fileGenerator = packagewindows.WalkPath(sourcePath)
+	wf = WixFragment(fileGenerator, componentGroup, directoryRef, virtualDir, excludedFile, win64)
+	for line in wf.yieldFragment(): yield line
 
-#
-# This function is a temporary anticipation of mth providing generators from make install
-#
-def Walk(sourcePath):
-    if os.path.isfile(sourcePath):
-        filenames = list()
-        filenames.append(os.path.basename(sourcePath))
-        yield os.path.dirname(sourcePath), list(), filenames
-    else:
-        for dirpath, dirnames, filenames in os.walk(sourcePath):
-            yield dirpath, dirnames, filenames
+if __name__ == '__main__':
+	parser = OptionParser()
+	parser.add_option("-c", "--componentGroup", type="string", dest="componentGroup")
+	parser.add_option("-r", "--directoryRef", type="string", dest="directoryRef")
+	parser.add_option("-s", "--sourcePath", type="string", dest="sourcePath")
+	parser.add_option("-v", "--virtualDir", type="string", dest="virtualDir")
+	parser.add_option("-x", "--excludedFile", type="string", dest="excludedFile")
+	parser.add_option("-w", "--win64", type="string", dest="win64")
+	(options, args) = parser.parse_args()
 
-parser = OptionParser()
-parser.add_option("-c", "--componentGroup", type="string", dest="componentGroup")
-parser.add_option("-r", "--directoryRef", type="string", dest="directoryRef")
-parser.add_option("-s", "--sourcePath", type="string", dest="sourcePath")
-parser.add_option("-v", "--virtualDir", type="string", dest="virtualDir")
-parser.add_option("-x", "--excludedFile", type="string", dest="excludedFile")
-parser.add_option("-w", "--win64", type="string", dest="win64")
-
-(options, args) = parser.parse_args()
-fileGenerator = Walk(options.sourcePath)
-
-#for dirpath, dirnames, filenames in fileGenerator:
-#    print dirpath, dirnames, filenames
-#    for f in filenames:
-#        print f
-
-wf = WixFragment(Walk(options.sourcePath), options.componentGroup, options.directoryRef, options.virtualDir, options.excludedFile, options.win64)
-wf.printFragment()
+	for line in GenerateWixFragment(options.sourcePath, options.componentGroup, options.directoryRef, options.virtualDir, options.excludedFile, options.win64):
+		print line

@@ -763,17 +763,16 @@ safely used interchangeably.</p>
 <!-- TODO - ensure wxCatapult is optional -->
 <h4>Visual C++</h4>
 <p>
-The following step create an installer package for openMSX
+The following step creates .zip and .msi installation packages for openMSX
 on Windows:</p>
 <ul>
 	<li>Build <a href="#standalone_compilation">openMSX</a> and
 	<a href="http://openmsx.sourceforge.net/catapult-manual/compile.html">wxCatapult</a>
-	for a given platform (Win32 or x64) and configuration (usually Release
+	for a given platform (Win32 or x64) and configuration (usually Release 
 	builds)</li>
 	<li>Go to the <em>top of the openMSX source tree</em></li>
-	<li>Run <code>build\package-windows\package.cmd <strong>arch</strong>
-	<strong>configuration</strong> <strong>version</strong> <strong>catapult_source_path</strong></code>, where:<ul>
-		<li><strong>arch</strong> is one of { x86, x64 }</li>
+	<li>Run <code>build\package-windows\package.cmd <strong>platform configuration</strong> <strong>version</strong> <strong>catapult_source_path</strong></code>:<ul>
+		<li><strong>platform</strong> is one of { Win32, x64 }</li>
 		<li><strong>configuration</strong> is one of { Release, Developer, Debug }</li>
 		<li><strong>version</strong> is the desired version number: e.g. 0.7.1</li>
 		<li><strong>catapult_source_path</strong> is the path to the wxCatapult directory</li>
@@ -785,8 +784,7 @@ on Windows:</p>
 <div class="commandline">
 	build\package-windows\package.cmd x64 Release 0.7.1 ..\wxCatapult</div>
 
-<p>The resulting MSI can be found in <code>derived\x64-VC-Release\package-windows</code>
-and will be named <code>openmsx-0.7.1-VC-x64.msi</code>.</p>
+<p>The resulting .zip and .msi files can be found in <code>derived\x64-VC-Release\package-windows.</code></p>
 
 <h2><a id="next">6. Next Steps</a></h2>
 

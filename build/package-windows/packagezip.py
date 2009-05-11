@@ -26,7 +26,7 @@ def PackageZip(info):
 	if os.path.exists(zipFilePath):
 		os.unlink(zipFilePath)
 
-	print 'Generating zip file...'
+	print 'Generating ' + zipFilePath
 	zip = zipfile.ZipFile(zipFilePath, 'w')
 	
 	AddDirectory(zip, os.path.join(info.makeInstallPath, 'doc'), 'doc')
@@ -46,7 +46,7 @@ def PackageZip(info):
 
 if __name__ == '__main__':
 	if len(sys.argv) != 5:
-		print >> sys.stderr, 'Usage: python packagewindowszip.py platform configuration version catapultPath'
+		print >> sys.stderr, 'Usage: python packagezip.py platform configuration version catapultPath'
 		sys.exit(2)
 	else:
 		info = packagewindows.PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

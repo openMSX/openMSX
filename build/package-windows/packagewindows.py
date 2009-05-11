@@ -1,6 +1,10 @@
 import os, sys
 import install
 
+def DeleteDirectoryIfExists(top):
+	if os.path.exists(top):
+		DeleteDirectory(top)
+		
 def DeleteDirectory(top):
 	for root, dirs, files in os.walk(top, topdown=False):
 		for name in files:
@@ -9,11 +13,17 @@ def DeleteDirectory(top):
 			os.rmdir(os.path.join(root, name))
 
 def GenerateInstallFiles(info):
-	
-	if os.path.exists(info.makeInstallPath):
-		DeleteDirectory(info.makeInstallPath)
-
+	DeleteDirectoryIfExists(info.makeInstallPath)
 	install.installAll(info.makeInstallPath + os.sep, 'bin', 'share', 'doc', info.openmsxExePath, 'mingw32', True, True)
+
+def WalkPath(sourcePath):
+    if os.path.isfile(sourcePath):
+        filenames = list()
+        filenames.append(os.path.basename(sourcePath))
+        yield os.path.dirname(sourcePath), list(), filenames
+    else:
+        for dirpath, dirnames, filenames in os.walk(sourcePath):
+            yield dirpath, dirnames, filenames
 
 class PackageInfo:
 
@@ -23,9 +33,11 @@ class PackageInfo:
 		if self.platform == 'win32':
 			self.architecture = 'x86'
 			self.platform = 'Win32'
+			self.win64 = False
 		elif self.platform == 'x64':
 			self.architecture = 'x64'
 			self.platform = 'x64'
+			self.win64 = True
 		else:
 			raise ValueError, 'Wrong platform: ' + platform
 			
@@ -33,10 +45,10 @@ class PackageInfo:
 		if self.configuration == 'release':
 			self.configuration = 'Release'
 			self.catapultConfiguration = 'Unicode Release'
-		elif self.architecture == 'Developer':
+		elif self.configuration == 'Developer':
 			self.configuration = 'Developer'
 			self.catapultConfiguration = 'Unicode Debug'
-		elif self.architecture == 'Debug':
+		elif self.configuration == 'Debug':
 			self.configuration = 'Debug'
 			self.catapultConfiguration = 'Unicode Debug'
 		else:
@@ -50,6 +62,7 @@ class PackageInfo:
 		self.buildPath = os.path.join('derived', self.buildFlavor)
 		self.sourcePath = 'src'
 		self.codecPath = 'Contrib\\codec\\Win32'
+		self.packageWindowsPath = 'build\\package-windows'
 		
 		self.catapultSourcePath = os.path.join(self.catapultPath, 'src')
 		self.catapultBuildFlavor = self.platform + '-VC-' + self.catapultConfiguration
