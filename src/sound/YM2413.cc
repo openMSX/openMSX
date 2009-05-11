@@ -651,7 +651,7 @@ void Slot::updateEG()
 		break;
 	case RELEASE: {
 		unsigned idx = sustain ? 5
-		                       : (patch.EG ? patch.AR
+		                       : (patch.EG ? patch.RR
 		                                   : 7);
 		eg_dphase = dphaseDRTableRks[idx];
 		break;
