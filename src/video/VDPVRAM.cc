@@ -55,7 +55,7 @@ private:
 
 
 LogicalVRAMDebuggable::LogicalVRAMDebuggable(VDP& vdp_)
-        : SimpleDebuggable(vdp_.getMotherBoard(), "VRAM",
+	: SimpleDebuggable(vdp_.getMotherBoard(), "VRAM",
 	                   "CPU view on video RAM given the current display mode.",
 	                   128 * 1024) // always 128kB
 	, vdp(vdp_)
@@ -80,6 +80,38 @@ void LogicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param t
 }
 
 
+// class PhysicalVRAMDebuggable
+
+class PhysicalVRAMDebuggable : public SimpleDebuggable
+{
+public:
+	PhysicalVRAMDebuggable(VDP& vdp, unsigned actualSize);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value, EmuTime::param time);
+private:
+	VDPVRAM& vram;
+};
+
+
+PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(VDP& vdp, unsigned actualSize)
+	: SimpleDebuggable(vdp.getMotherBoard(), "physical VRAM",
+	                   "VDP-screen-mode-independent view on the video RAM.",
+	                   actualSize)
+	, vram(vdp.getVRAM())
+{
+}
+
+byte PhysicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
+{
+	return vram.cpuRead(address, time);
+}
+
+void PhysicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param time)
+{
+	vram.cpuWrite(address, value, time);
+}
+
+
 // class VDPVRAM
 
 static unsigned bufferSize(unsigned size)
@@ -94,9 +126,9 @@ static unsigned bufferSize(unsigned size)
 
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	: vdp(vdp_)
-	, data(vdp.getMotherBoard(), "physical VRAM",
-	       "VDP-screen-mode-independent view on the video RAM.", bufferSize(size))
-	, logicalVRAMDebug(new LogicalVRAMDebuggable(vdp))
+	, data(bufferSize(size))
+	, logicalVRAMDebug (new LogicalVRAMDebuggable (vdp))
+	, physicalVRAMDebug(new PhysicalVRAMDebuggable(vdp, size))
 	#ifdef DEBUG
 	, vramTime(time)
 	#endif

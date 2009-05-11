@@ -17,8 +17,13 @@ class RamDebuggable;
 class Ram : private noncopyable
 {
 public:
+	/** Create Ram object with an associated debuggable. */
 	Ram(MSXMotherBoard& motherBoard, const std::string& name,
 	    const std::string& description, unsigned size);
+
+	/** Create Ram object without debuggable. */
+	explicit Ram(unsigned size);
+
 	~Ram();
 
 	const byte& operator[](unsigned addr) const {

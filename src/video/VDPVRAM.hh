@@ -19,6 +19,7 @@ namespace openmsx {
 class SpriteChecker;
 class Renderer;
 class LogicalVRAMDebuggable;
+class PhysicalVRAMDebuggable;
 
 /*
 Note: The way VRAM is accessed depends a lot on who is doing the accessing.
@@ -568,8 +569,17 @@ private:
 	Ram data;
 
 	/** Debuggable with mode dependend view on the vram
+	  *   Screen7/8 are not interleaved in this mode.
+	  *   This debuggable is also at least 128kB in size (it possibly
+	  *   contains unmapped regions).
 	  */
 	const std::auto_ptr<LogicalVRAMDebuggable> logicalVRAMDebug;
+
+	/** Physical view on the VRAM.
+	  *   Screen 7/8 are interleaved in this mode. The size of this
+	  *   debuggable is the same as the actual VRAM size.
+	  */
+	const std::auto_ptr<PhysicalVRAMDebuggable> physicalVRAMDebug;
 
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.

@@ -28,6 +28,13 @@ Ram::Ram(MSXMotherBoard& motherBoard, const std::string& name,
 	clear();
 }
 
+Ram::Ram(unsigned size_)
+	: size(size_)
+{
+	ram = new byte[size];
+	clear();
+}
+
 Ram::~Ram()
 {
 	delete[] ram;
