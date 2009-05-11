@@ -20,6 +20,9 @@ def PackageZip(info):
 
 	print 'Generating install files...'
 	packagewindows.GenerateInstallFiles(info);
+	
+	if not os.path.exists(info.packagePath):
+		os.mkdir(info.packagePath)
 
 	zipFileName = info.installerFileName + '.zip'
 	zipFilePath = os.path.join(info.packagePath, zipFileName)

@@ -17,6 +17,9 @@ def PackageMsi(info):
 		
 	wixIntermediatePath = os.path.join(info.buildPath, 'build\\WiX')
 	packagewindows.DeleteDirectoryIfExists(wixIntermediatePath)
+	
+	if not os.path.exists(info.packagePath):
+		os.mkdir(info.packagePath)
 
 	print 'Generating fragments...'
 
