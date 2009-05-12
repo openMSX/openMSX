@@ -34,6 +34,7 @@ proc setcolor { index rgb } {
 }
 
 proc format_table { entries columns frmt sep func } {
+	set result ""
 	set rows [expr ($entries + $columns - 1) / $columns]
 	for {set row 0} { $row < $rows } { incr row } {
 		set line ""
@@ -43,8 +44,9 @@ proc format_table { entries columns frmt sep func } {
 				append line [format $frmt $index [$func $index]] $sep
 			}
 		}
-		puts $line
+		append result "${line}\n"
 	}
+	return $result
 }
 
 set_help_text vdpreg "Read or write a V99x8 register."

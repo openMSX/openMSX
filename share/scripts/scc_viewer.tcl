@@ -20,8 +20,7 @@ variable vertical_downscale_factor 4
 variable channel_height [expr 256 / $vertical_downscale_factor]
 variable machine_switch_trigger_id
 variable frame_trigger_id
-
-set volume_address [expr $num_samples * $num_channels + 2 * $num_channels]
+variable volume_address [expr $num_samples * $num_channels + 2 * $num_channels]
 
 proc scc_viewer_init {} {
 	variable machine_switch_trigger_id
@@ -33,7 +32,6 @@ proc scc_viewer_init {} {
 	variable channel_height
 
 	set scc_devices [list]
-
 	foreach soundchip [machine_info sounddevice] {
 		switch [machine_info sounddevice $soundchip] {
 			"Konami SCC" -
@@ -118,16 +116,18 @@ proc update_scc_viewer {} {
 	variable vertical_downscale_factor
 	variable channel_height
 	variable frame_trigger_id
+	variable volume_address
 
 	if {!$scc_viewer_active} return
 
 	foreach device $scc_devices {
+		binary scan [debug read_block "$device SCC" 0 224] c* scc_regs
 		for {set chan 0} {$chan < $num_channels} {incr chan} {
 			for {set pos 0} {$pos < $num_samples} {incr pos} {
 				osd configure scc_viewer.$device.$chan.$pos \
-					-h [expr { [get_scc_wave [debug read "$device SCC" [expr (($chan * $num_samples) + $pos)]]] / $vertical_downscale_factor}]
+					-h [expr {[get_scc_wave [lindex $scc_regs [expr {($chan * $num_samples) + $pos}]]] / $vertical_downscale_factor}]
 			}
-			set volume [expr {[debug read "$device SCC" [ expr $scc_viewer::volume_address + $chan]] * 4}]
+			set volume [expr {[lindex $scc_regs [expr {$volume_address + $chan}]] * 4}]
 			osd configure scc_viewer.$device.$chan.volume \
 				-h $volume \
 				-y [expr {($channel_height - $volume) / 2}]
@@ -163,6 +163,7 @@ proc toggle_scc_viewer {} {
 		scc_viewer_init
 		update_scc_viewer
 	}
+	return ""
 }
 
 namespace export toggle_scc_viewer
