@@ -26,11 +26,12 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	inline word translate(word address) const;
+	virtual void init(const HardwareConfig& hwConf);
+	inline unsigned translate(unsigned address) const;
 
-	const unsigned base;
-	const unsigned size;
-	const std::auto_ptr<CheckedRam> checkedRam;
+	/*const*/ unsigned base;
+	/*const*/ unsigned size;
+	/*const*/ std::auto_ptr<CheckedRam> checkedRam;
 };
 
 } // namespace openmsx

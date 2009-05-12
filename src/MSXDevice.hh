@@ -79,6 +79,13 @@ public:
 	  */
 	void getDeviceInfo(TclObject& result) const;
 
+	/** Returns the range where this device is visible in memory.
+	  * This is the union of the <mem> tags inside the device tag in
+	  * hardwareconfig.xml (though practically always there is only one
+	  * <mem> tag). Information on possible holes in this range (when there
+	  * are multiple <mem> tags) is not returned by this method.
+	  */
+	void getVisibleMemRegion(unsigned& base, unsigned& size) const;
 
 	// IO
 

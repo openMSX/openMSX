@@ -265,6 +265,26 @@ void MSXDevice::unregisterSlots()
 	}
 }
 
+void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
+{
+	assert(hardwareConfig); // init() must already be called
+	if (memRegions.empty()) {
+		base = 0;
+		size = 0;
+		return;
+	}
+	MemRegions::const_iterator it = memRegions.begin();
+	unsigned lowest  = it->first;
+	unsigned highest = it->first + it->second;
+	for (++it; it != memRegions.end(); ++it) {
+		lowest  = std::min(lowest,  it->first);
+		highest = std::max(highest, it->first + it->second);
+	}
+	assert(lowest <= highest);
+	base = lowest;
+	size = highest - lowest;
+}
+
 void MSXDevice::registerPorts()
 {
 	XMLElement::Children ios;

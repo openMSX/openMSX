@@ -1,11 +1,9 @@
 // $Id$
 
 #include "MSXRam.hh"
-#include "CacheLine.hh"
 #include "CheckedRam.hh"
-#include "XMLElement.hh"
-#include "MSXException.hh"
 #include "serialize.hh"
+#include <cassert>
 
 #include "Ram.hh" // because we serialize Ram instead of CheckedRam
 
@@ -13,18 +11,21 @@ namespace openmsx {
 
 MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
-	, base(config.getChildDataAsInt("base", 0))
-	, size(config.getChildDataAsInt("size", 0x10000))
-	, checkedRam(new CheckedRam(motherBoard, getName(), "ram", size))
 {
-	if ((size > 0x10000) || (base >= 0x10000)) {
-		throw MSXException("Invalid base/size for " + getName() +
-		                   ", must be in range [0x0000,0x10000).");
-	}
-	if ((base & CacheLine::LOW) || (size & CacheLine::LOW)) {
-		throw MSXException("Invalid base/size alignment for " +
-		                   getName());
-	}
+	// Actual initialization is done in init() because <mem> tags
+	// are not yet processed.
+}
+
+void MSXRam::init(const HardwareConfig& hwConf)
+{
+	MSXDevice::init(hwConf); // parse mem regions
+
+	getVisibleMemRegion(base, size);
+	assert( base         <  0x10000);
+	assert((base + size) <= 0x10000);
+
+	checkedRam.reset(new CheckedRam(
+		getMotherBoard(), getName(), "ram", size));
 }
 
 void MSXRam::powerUp(EmuTime::param /*time*/)
@@ -32,10 +33,10 @@ void MSXRam::powerUp(EmuTime::param /*time*/)
 	checkedRam->clear();
 }
 
-word MSXRam::translate(word address) const
+unsigned MSXRam::translate(unsigned address) const
 {
-	word tmp = address - base;
-	return (tmp < size) ? tmp : tmp & (size - 1);
+	assert((address - base) < size);
+	return address - base;
 }
 
 byte MSXRam::peekMem(word address, EmuTime::param /*time*/) const
