@@ -104,8 +104,9 @@ class Library(object):
 			return '%s/bin/%s' % (distroRoot, scriptName)
 
 	@classmethod
-	def getHeader(cls, platform): # pylint: disable-msg=W0613
-		return cls.header
+	def getHeaders(cls, platform): # pylint: disable-msg=W0613
+		header = cls.header
+		return header if hasattr(header, '__iter__') else (header, )
 
 	@classmethod
 	def getLibName(cls, platform): # pylint: disable-msg=W0613
@@ -172,7 +173,15 @@ class Library(object):
 class FreeType(Library):
 	libName = 'freetype'
 	makeName = 'FREETYPE'
+	header = ('<ft2build.h>', 'FT_FREETYPE_H')
+	configScriptName = 'freetype-config'
+	function = 'FT_Open_Face'
 	dependsOn = ('ZLIB', )
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
+		return '`%s --ftversion`' % configScript
 
 class GL(Library):
 	libName = 'GL'
@@ -184,11 +193,11 @@ class GL(Library):
 		return True
 
 	@classmethod
-	def getHeader(cls, platform):
+	def getHeaders(cls, platform):
 		if platform == 'darwin':
-			return '<OpenGL/gl.h>'
+			return ('<OpenGL/gl.h>', )
 		else:
-			return '<GL/gl.h>'
+			return ('<GL/gl.h>', )
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
@@ -218,7 +227,7 @@ class GL(Library):
 				for major in range(1, 10)
 				for minor in range(0, 10)
 				)
-			version = cmd.expand(log, cls.getHeader(platform), *(
+			version = cmd.expand(log, cls.getHeaders(platform), *(
 				'GL_VERSION_%d_%d' % pair for pair in versionPairs
 				))
 			try:
@@ -229,7 +238,6 @@ class GL(Library):
 					)
 			except ValueError:
 				return None
-
 		return execute
 
 class GLEW(Library):
@@ -323,7 +331,7 @@ class SDL_image(Library):
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		def execute(cmd, log):
-			version = cmd.expand(log, cls.getHeader(platform),
+			version = cmd.expand(log, cls.getHeaders(platform),
 				'SDL_IMAGE_MAJOR_VERSION',
 				'SDL_IMAGE_MINOR_VERSION',
 				'SDL_IMAGE_PATCHLEVEL',
@@ -341,7 +349,7 @@ class SDL_ttf(Library):
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		def execute(cmd, log):
-			version = cmd.expand(log, cls.getHeader(platform),
+			version = cmd.expand(log, cls.getHeaders(platform),
 				'SDL_TTF_MAJOR_VERSION',
 				'SDL_TTF_MINOR_VERSION',
 				'SDL_TTF_PATCHLEVEL',
@@ -380,7 +388,7 @@ class ZLib(Library):
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		def execute(cmd, log):
-			version = cmd.expand(log, cls.getHeader(platform), 'ZLIB_VERSION')
+			version = cmd.expand(log, cls.getHeaders(platform), 'ZLIB_VERSION')
 			return None if version is None else version.strip('"')
 		return execute
 

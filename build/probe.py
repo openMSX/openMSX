@@ -282,10 +282,11 @@ class TargetSystem(object):
 		binaryPath = self.outDir + '/' + makeName + '.bin'
 
 		funcName = library.function
-		header = library.getHeader(self.platform)
+		headers = library.getHeaders(self.platform)
 		def takeFuncAddr():
 			# Try to include the necessary headers and get the function address.
-			yield '#include %s' % header
+			for header in headers:
+				yield '#include %s' % header
 			yield 'void (*f)() = reinterpret_cast<void (*)()>(%s);' % funcName
 			yield 'int main(int argc, char** argv) {'
 			yield '  return 0;'

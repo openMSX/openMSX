@@ -109,10 +109,11 @@ class CompileCommand(_Command):
 			log, 'compiler', [ '-c', sourcePath, '-o', objectPath ], None, False
 			)
 
-	def expand(self, log, header, *keys):
+	def expand(self, log, headers, *keys):
 		signature = self.__expandSignature
 		def iterLines():
-			yield '#include %s' % header
+			for header in headers:
+				yield '#include %s' % header
 			for key in keys:
 				yield '%s%s %s' % (signature, key, key)
 		output = self._run(
