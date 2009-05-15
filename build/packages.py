@@ -19,6 +19,14 @@ class DownloadablePackage(Package):
 	version = None
 
 	@classmethod
+	def getSourceDirName(cls):
+		'''Returns the desired name of the top-level source directory.
+		This might not match the actual name inside the downloaded archive,
+		but we can perform a rename on extraction to fix that.
+		'''
+		return '%s-%s' % (cls.sourceName, cls.version)
+
+	@classmethod
 	def getTarballName(cls):
 		return '%s-%s.tar.gz' % (cls.sourceName, cls.version)
 
