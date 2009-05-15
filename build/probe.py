@@ -6,10 +6,11 @@
 from compilers import CompileCommand, LinkCommand
 from components import iterComponents
 from configurations import getConfiguration
+from libraries import librariesByName
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
 from packages import getPackage
-from probe_defs import librariesByName, systemFunctions
+from systemfuncs import systemFunctions
 
 from msysutils import msysActive
 from os import environ, makedirs, remove

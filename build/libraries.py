@@ -11,66 +11,6 @@
 # Conclusion: We have to specify the full path to each library that should be
 #             linked statically.
 
-class SystemFunction(object):
-	name = None
-
-	@classmethod
-	def getFunctionName(cls):
-		return cls.name
-
-	@classmethod
-	def getMakeName(cls):
-		return cls.name.upper()
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		raise NotImplementedError
-
-class FTruncateFunction(SystemFunction):
-	name = 'ftruncate'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<unistd.h>'
-
-class GetTimeOfDayFunction(SystemFunction):
-	name = 'gettimeofday'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<sys/time.h>'
-
-class MMapFunction(SystemFunction):
-	name = 'mmap'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		if targetPlatform in ('darwin', 'openbsd'):
-			yield '<sys/types.h>'
-		yield '<sys/mman.h>'
-
-class PosixMemAlignFunction(SystemFunction):
-	name = 'posix_memalign'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<stdlib.h>'
-
-class USleepFunction(SystemFunction):
-	name = 'usleep'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<unistd.h>'
-
-# Build a list of system functions using introspection.
-def _discoverSystemFunctions(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, SystemFunction):
-			if obj is not SystemFunction:
-				yield obj
-systemFunctions = list(_discoverSystemFunctions(locals().itervalues()))
-
 class Library(object):
 	libName = None
 	makeName = None
