@@ -338,9 +338,10 @@ def main(diffPath, targetDir):
 		else:
 			print 'Patched:', targetPath
 
-if len(sys.argv) == 3:
-	main(*sys.argv[1 : ])
-else:
-	print >> sys.stderr, \
-		'Usage: python patch.py diff target'
-	sys.exit(2)
+if __name__ == '__main__':
+	if len(sys.argv) == 3:
+		main(*sys.argv[1 : ])
+	else:
+		print >> sys.stderr, \
+			'Usage: python patch.py diff target'
+		sys.exit(2)
