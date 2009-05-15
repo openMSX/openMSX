@@ -82,22 +82,29 @@ def extract(archivePath, destDir, rename = None):
 	finally:
 		tar.close()
 
-if 3 <= len(sys.argv) <= 4:
-	if len(sys.argv) == 4:
-		newName = sys.argv[3]
-		def renameTopLevelDir(oldPath):
-			head, tail = splitpath(oldPath)
-			headParts = head.split(sep)
-			if not headParts:
-				raise ValueError(
-					'Directory part is empty for entry "%s"' % oldPath
-					)
-			headParts[0] = newName
-			return sep.join(headParts + [ tail ])
+class TopLevelDirRenamer(object):
+
+	def __init__(self, newName):
+		self.newName = newName
+
+	def __call__(self, oldPath):
+		head, tail = splitpath(oldPath)
+		headParts = head.split(sep)
+		if not headParts:
+			raise ValueError(
+				'Directory part is empty for entry "%s"' % oldPath
+				)
+		headParts[0] = self.newName
+		return sep.join(headParts + [ tail ])
+
+if __name__ == '__main__':
+	if 3 <= len(sys.argv) <= 4:
+		if len(sys.argv) == 4:
+			renameTopLevelDir = TopLevelDirRenamer(sys.argv[3])
+		else:
+			renameTopLevelDir = None
+		extract(sys.argv[1], sys.argv[2], renameTopLevelDir)
 	else:
-		renameTopLevelDir = None
-	extract(sys.argv[1], sys.argv[2], renameTopLevelDir)
-else:
-	print >> sys.stderr, \
-		'Usage: python extract.py archive destination [new-top-level-dir]'
-	sys.exit(2)
+		print >> sys.stderr, \
+			'Usage: python extract.py archive destination [new-top-level-dir]'
+		sys.exit(2)
