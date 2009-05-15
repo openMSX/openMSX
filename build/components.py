@@ -33,3 +33,15 @@ def iterComponents():
 	yield EmulationCore
 	yield GLRenderer
 	yield CassetteJack
+
+def requiredLibrariesFor(components):
+	'''Compute the library packages required to build the given components.
+	Only the direct dependencies from openMSX are included, not dependencies
+	between libraries.
+	Returns a set of Make names.
+	'''
+	return set(
+		makeName
+		for comp in components
+		for makeName in comp.dependsOn
+		)

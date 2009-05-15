@@ -4,7 +4,7 @@
 # It does not execute anything it builds, making it friendly for cross compiles.
 
 from compilers import CompileCommand, LinkCommand
-from components import iterComponents
+from components import iterComponents, requiredLibrariesFor
 from configurations import getConfiguration
 from libraries import librariesByName
 from makeutils import extractMakeVariables, parseBool
@@ -18,18 +18,6 @@ from os.path import isdir, isfile, pathsep
 from shlex import split as shsplit
 from subprocess import PIPE, Popen
 import sys
-
-def requiredLibrariesFor(components):
-	'''Compute the library packages required to build the given components.
-	Only the direct dependencies from openMSX are included, not dependencies
-	between libraries.
-	Returns a set of Make names.
-	'''
-	return set(
-		makeName
-		for comp in components
-		for makeName in comp.dependsOn
-		)
 
 def resolve(log, expr):
 	# TODO: Since for example "sdl-config" is used in more than one
