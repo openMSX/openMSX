@@ -17,7 +17,7 @@ set border 1
 #	-rgb
 foreach {var val} $args {
 
-	switch $var {
+	switch -- $var {
 		-rgba
 			{set background $val}
 		-border
@@ -26,7 +26,7 @@ foreach {var val} $args {
 			{osd configure $name -rgba $val}
 		default
 			{osd configure $name $var $val
-			 puts "The value of $var is $val"}
+			 #puts "The value of $var is $val"}
 	}
 }
 
@@ -38,12 +38,11 @@ foreach {var val} $args {
 }
 
 proc create_power_bar {name w h barcolor background edgecolor} {
-	#osd create rectangle $name        -rely 999 -relw $w -relh $h -rgba $background
-	#osd create rectangle $name.top    -x -1 -y   -1 -relw 1 -w 2 -h 1 -rgba $edgecolor
-	#osd create rectangle $name.bottom -x -1 -rely 1 -relw 1 -w 2 -h 1 -rgba $edgecolor
-	#osd create rectangle $name.left   -x   -1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
-	#osd create rectangle $name.right  -relx 1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
-	osd_box $name        -rely 999 -relw [expr $w+1] -relh [expr $h+1] -fill $background -rgba $edgecolor -z 16
+	osd create rectangle $name        -rely 999 -relw $w -relh $h -rgba $background
+	osd create rectangle $name.top    -x -1 -y   -1 -relw 1 -w 2 -h 1 -rgba $edgecolor
+	osd create rectangle $name.bottom -x -1 -rely 1 -relw 1 -w 2 -h 1 -rgba $edgecolor
+	osd create rectangle $name.left   -x   -1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
+	osd create rectangle $name.right  -relx 1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
 	osd create rectangle $name.bar    -relw 1 -relh 1 -rgba $barcolor -z 18
 	osd create text      $name.text   -x 0 -y -6 -size 4 -rgba $edgecolor
 }
