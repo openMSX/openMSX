@@ -38,8 +38,8 @@ variable enemy_names [list \
 	"Cyclop's Ghost" "41" "Maner" "Gero" "44" "45" "46" "47" \
 	"48" "Huge Bat" "4A" "4B" "Fuzzball" "4D" "4E" "4F" \
 	"50" "51" "Middle Bat" "Mini Bat" "Bone" "Small Bone" "Small Fireball" "57" \
-	"58" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
-	"Maner's Arm" "61" "Gero's Tongue" "63" "Shoe 2" "65" "66" "67" ]
+	"Crap's Breath" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
+	"Maner's Arm" "61" "Gero's Tongue" "63" "Shoe 2" "Breath" "66" "67" ]
 
 #Init Overlays
 proc init {} {
@@ -273,3 +273,28 @@ namespace export toggle_mog_overlay
 };# namespace mog_overlay
 
 namespace import mog_overlay::*
+
+# these procs are generic and are supposed to be moved to a generic OSD
+# library or something similar.
+
+proc create_power_bar {name w h barcolor background edgecolor} {
+	osd create rectangle $name        -rely 999 -relw $w -relh $h -rgba $background
+	osd create rectangle $name.top    -x -1 -y   -1 -relw 1 -w 2 -h 1 -rgba $edgecolor
+	osd create rectangle $name.bottom -x -1 -rely 1 -relw 1 -w 2 -h 1 -rgba $edgecolor
+	osd create rectangle $name.left   -x   -1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
+	osd create rectangle $name.right  -relx 1 -y -1 -w 1 -relh 1 -h 2 -rgba $edgecolor
+	osd create rectangle $name.bar    -relw 1 -relh 1 -rgba $barcolor
+	osd create text      $name.text   -x 0 -y -6 -size 4 -rgba $edgecolor
+}
+
+proc update_power_bar {name x y power text} {
+	if {$power > 1.0} {set power 1.0}
+	if {$power < 0.0} {set power 0.0}
+	osd configure $name -relx $x -rely $y
+	osd configure $name.bar -relw $power
+	osd configure $name.text -text "$text"
+}
+
+proc hide_power_bar {name} {
+	osd configure $name -rely 999
+}
