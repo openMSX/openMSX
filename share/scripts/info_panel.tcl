@@ -166,13 +166,17 @@ proc update_speed {} {
 	variable measurement_time
 	variable last_emutime
 	variable last_realtime
-	
+
 	set new_emutime [machine_info time]
-	set new_realtime [clock clicks -millis]
-	set speed [expr ($new_emutime - $last_emutime) / (($new_realtime - $last_realtime) / 1000.0)  ]
-	#puts stderr [format "Realtime duration: %f, emutime duration: %f, speed ratio: %f" [expr (($new_realtime - $last_realtime) / 1000.0)] [expr ($new_emutime - $last_emutime)] [set speed]];# for debugging
+	if { [info command clock] == "clock" } {
+		set new_realtime [clock clicks -millis]
+		set speed [expr ($new_emutime - $last_emutime) / (($new_realtime - $last_realtime) / 1000.0)  ]
+		set last_realtime $new_realtime
+		#puts stderr [format "Realtime duration: %f, emutime duration: %f, speed ratio: %f" [expr (($new_realtime - $last_realtime) / 1000.0)] [expr ($new_emutime - $last_emutime)] [set speed]];# for debugging
+	} else {
+		set speed [expr ($new_emutime - $last_emutime) / (1.0 * $measurement_time)  ]
+	}
 	set last_emutime $new_emutime
-	set last_realtime $new_realtime
 	after realtime $measurement_time [namespace code update_speed]
 }
 
