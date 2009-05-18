@@ -33,6 +33,14 @@ static void intersect(int xa, int ya, int wa, int ha,
 
 ////
 
+static void normalize(int& x, int& w)
+{
+	if (w < 0) {
+		w = -w;
+		x -= w;
+	}
+}
+
 class SDLScopedClip
 {
 public:
@@ -47,6 +55,7 @@ private:
 SDLScopedClip::SDLScopedClip(OutputSurface& output, int x, int y, int w, int h)
 	: surface(output.getSDLWorkSurface())
 {
+	normalize(x, w); normalize(y, h);
 	SDL_GetClipRect(surface, &origClip);
 
 	int xn, yn, wn, hn;
@@ -79,21 +88,28 @@ private:
 
 GLScopedClip::GLScopedClip(OutputSurface& output, int x, int y, int w, int h)
 {
-	wasEnabled = glIsEnabled(GL_SCISSOR_TEST);
-	glGetIntegerv(GL_SCISSOR_BOX, &xo);
+	normalize(x, w); normalize(y, h);
+	y = output.getHeight() - y - h; // openGL sets (0,0) in LOWER-left corner
 
-	int xn, yn, wn, hn;
-	intersect(xo, yo, wo, ho,
-	          x,  y,  w,  h,
-	          xn, yn, wn, hn);
-	glScissor(xn, output.getHeight() - yn - hn, wn, hn);
-	glEnable(GL_SCISSOR_TEST);
+	wasEnabled = glIsEnabled(GL_SCISSOR_TEST);
+	if (wasEnabled == GL_TRUE) {
+		glGetIntegerv(GL_SCISSOR_BOX, &xo);
+		int xn, yn, wn, hn;
+		intersect(xo, yo, wo, ho,
+		          x,  y,  w,  h,
+		          xn, yn, wn, hn);
+		glScissor(xn, yn, wn, hn);
+	} else {
+		glScissor(x, y, w, h);
+		glEnable(GL_SCISSOR_TEST);
+	}
 }
 
 GLScopedClip::~GLScopedClip()
 {
-	glScissor(xo, yo, wo, ho);
-	if (wasEnabled == GL_FALSE) {
+	if (wasEnabled == GL_TRUE) {
+		glScissor(xo, yo, wo, ho);
+	} else {
 		glDisable(GL_SCISSOR_TEST);
 	}
 }
