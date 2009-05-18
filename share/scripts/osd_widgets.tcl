@@ -2,39 +2,41 @@
 # library or something similar.
 
 proc osd_box {name args} {
-
-#set parents widget
-osd create rectangle $name -alpha 0
-
-#init default properties
-set background 0xffffffff
-set border 1
-
-#set properties for the parent widget
-#
-#how to handle?
-#	-alpha
-#	-rgb
-foreach {var val} $args {
-
-	switch -- $var {
-		-rgba
-			{set background $val}
+	# process arguments
+	set b 1 ;# border width
+	set child_props  [list]
+	set parent_props [list]
+	foreach {key val} $args {
+		switch -- $key {
+		-rgba -
+		-rgb -
+		-alpha
+			{lappend child_props $key $val}
 		-border
-			{set border $val} 
+			{set b $val}
 		-fill
-			{osd configure $name -rgba $val}
+			{lappend parent_props -rgba $val}
 		default
-			{osd configure $name $var $val
-			 #puts "The value of $var is $val"}
+			{lappend parent_props $key $val}
+		}
 	}
-}
 
-#Set child widget properties
-	osd create rectangle $name.top -relx 0.0 -rely 0.0 -relw 1.0 -h $border -rgba $background
-	osd create rectangle $name.bottom -relx 0.0 -rely 1.0 -relw 1.0 -h -$border -rgba $background
-	osd create rectangle $name.left -relx 0.0 -rely 0.0 -relh 1.0 -w $border -rgba $background
-	osd create rectangle $name.right -relx 1.0 -rely -0.0 -relh 1.0 -w -$border -rgba $background
+	# parent widget
+	eval "osd create rectangle \{$name\} -alpha 0 $parent_props"
+
+	# child widgets, take care to not draw corner pixels twice (matters
+	# for semi transparent colors), also works for negative border widths
+	set bn [expr -$b]
+	eval "osd create rectangle \{$name.top\} \
+		-relx 0 -rely 0 -relw  1 -w $bn -h $b  $child_props"
+	eval "osd create rectangle \{$name.right\} \
+		-relx 1 -rely 0 -relh  1 -w $bn -h $bn $child_props"
+	eval "osd create rectangle \{$name.bottom\} \
+		-relx 1 -rely 1 -relw -1 -w $b  -h $bn $child_props"
+	eval "osd create rectangle \{$name.left\} \
+		-relx 0 -rely 1 -relh -1 -w $b  -h $b  $child_props"
+
+	return $name
 }
 
 proc create_power_bar {name w h barcolor background edgecolor} {
