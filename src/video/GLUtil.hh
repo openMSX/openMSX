@@ -255,7 +255,8 @@ public:
 	/** Maps the contents of this buffer into memory. The returned buffer
 	  * is write-only (reading could be very slow or even result in a
 	  * segfault).
-	  * @return Pointer through which you can write pixels to this buffer.
+	  * @return Pointer through which you can write pixels to this buffer,
+	  *         or 0 if the buffer could not be mapped.
 	  * @pre This PixelBuffer must be bound (see bind()) before calling
 	  *      this method.
 	  */

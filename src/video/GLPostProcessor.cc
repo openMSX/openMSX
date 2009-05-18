@@ -277,13 +277,19 @@ void GLPostProcessor::uploadBlock(
 	tex->bind();
 
 	// upload data
+	unsigned* mapped;
 	if (pbo) {
 		pbo->bind();
-		unsigned* mapped = pbo->mapWrite();
+		mapped = pbo->mapWrite();
+	} else {
+		mapped = 0;
+	}
+	if (mapped) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			const unsigned* data =
 				paintFrame->getLinePtr<unsigned>(y, lineWidth);
-			MemoryOps::stream_memcpy(mapped + y * lineWidth, data, lineWidth);
+			MemoryOps::stream_memcpy(
+				mapped + y * lineWidth, data, lineWidth);
 			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 		}
 		pbo->unmap();
@@ -297,8 +303,11 @@ void GLPostProcessor::uploadBlock(
 			GL_BGRA,             // format
 			GL_UNSIGNED_BYTE,    // type
 			pbo->getOffset(0, srcStartY)); // data
+	}
+	if (pbo) {
 		pbo->unbind();
-	} else {
+	}
+	if (!mapped) {
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
 		unsigned y = srcStartY;
 		unsigned remainingLines = srcEndY - srcStartY;

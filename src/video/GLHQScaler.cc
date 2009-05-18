@@ -162,24 +162,26 @@ void GLHQScaler::uploadBlock(
 
 	edgeBuffer->bind();
 	unsigned short* mapped = edgeBuffer->mapWrite();
-	for (unsigned y = srcStartY; y < srcEndY; ++y) {
-		curr = next;
-		next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
-		calcEdgesGL(curr, next, tmpBuf2, EdgeHQ());
-		memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
-	}
-	edgeBuffer->unmap();
+	if (mapped) {
+		for (unsigned y = srcStartY; y < srcEndY; ++y) {
+			curr = next;
+			next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
+			calcEdgesGL(curr, next, tmpBuf2, EdgeHQ());
+			memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
+		}
+		edgeBuffer->unmap();
 
-	edgeTexture->bind();
-	glTexSubImage2D(GL_TEXTURE_2D,       // target
-	                0,                   // level
-	                0,                   // offset x
-	                srcStartY,           // offset y
-	                lineWidth,           // width
-	                srcEndY - srcStartY, // height
-	                GL_LUMINANCE,        // format
-	                GL_UNSIGNED_SHORT,   // type
-	                edgeBuffer->getOffset(0, srcStartY)); // data
+		edgeTexture->bind();
+		glTexSubImage2D(GL_TEXTURE_2D,       // target
+		                0,                   // level
+		                0,                   // offset x
+		                srcStartY,           // offset y
+		                lineWidth,           // width
+		                srcEndY - srcStartY, // height
+		                GL_LUMINANCE,        // format
+		                GL_UNSIGNED_SHORT,   // type
+		                edgeBuffer->getOffset(0, srcStartY)); // data
+	}
 	edgeBuffer->unbind();
 }
 
