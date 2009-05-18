@@ -48,7 +48,7 @@ class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
 	sourceName = 'freetype'
-	version = '2.3.7'
+	version = '2.3.9'
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
@@ -74,7 +74,7 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.2.34'
+	version = '1.2.35'
 
 	@classmethod
 	def getMakeName(cls):
@@ -84,7 +84,7 @@ class LibXML2(DownloadablePackage):
 	downloadURL = 'http://xmlsoft.org/sources'
 	niceName = 'libxml2'
 	sourceName = 'libxml2'
-	version = '2.7.2'
+	version = '2.7.3'
 
 	@classmethod
 	def getMakeName(cls):
