@@ -59,14 +59,11 @@ proc scc_viewer_init {} {
 	foreach device $scc_devices {
 		osd create rectangle scc_viewer.$device \
 			-x [expr $offset + $number * $device_width] \
-			-y 0 \
 			-h [expr $channel_height + 2 * $border_width + $textheight] \
 			-w $device_width \
 			-rgba 0xffffff20 \
 			-clip true
 		osd create text scc_viewer.$device.title \
-			-x 0 \
-			-y 0 \
 			-rgba 0xffffffff \
 			-text $device \
 			-size $textheight
@@ -76,34 +73,31 @@ proc scc_viewer_init {} {
 				-y [expr $border_width + $textheight] \
 				-h $channel_height \
 				-w $num_samples \
-				-z 0 \
 				-rgba 0xffffff80 \
 				-fill 0x0000ff80 \
 				-clip true
 			osd_box scc_viewer.$device.$chan.volume \
-				-x 0 \
-				-y 0 \
-				-h 0 \
-				-w $num_samples \
-				-z 2 \
+				-relw 1 \
+				-z 1 \
 				-rgba 0x0077ff80 \
 				-fill 0x0077ff80
-			osd_box scc_viewer.$device.$chan.mid \
-				-x 0 \
-				-y [expr $channel_height / 2 - 1] \
+			osd create rectangle scc_viewer.$device.$chan.mid \
+				-y [expr $channel_height / 2] \
 				-h 1 \
-				-w $num_samples \
-				-z 32 \
-				-rgba 0xff000060 \
-				-border 2 \
-				-fill 0xdd0000ff
+				-relw 1 \
+				-z 3 \
+				-rgba 0xdd0000ff
+			osd create rectangle scc_viewer.$device.$chan.mid.2 \
+				-y -1 \
+				-h 3 \
+				-relw 1 \
+				-rgba 0xff000060
 			for {set pos 0} {$pos < $num_samples} {incr pos} {
 				osd create rectangle scc_viewer.$device.$chan.$pos \
 					-x $pos \
 					-y [expr $channel_height / 2] \
-					-h 0 \
 					-w 2 \
-					-z 16 \
+					-z 2 \
 					-rgba 0xffffffb0
 			}
 		}
