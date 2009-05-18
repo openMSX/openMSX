@@ -152,7 +152,15 @@ proc toggle_info_panel {} {
 ## stuff to calculate the speed, which could be made public later
 
 variable speed
-variable measurement_time 1;# in seconds
+if { [info command clock] == "clock" } {
+	variable measurement_time 1.0;# in seconds
+} else {
+	# if the clock command doesn't exist, we have a broken (limited) Tcl
+	# installation, which means we need to work around with a less accurate
+	# measurement method. This method starts to get reasonably accurate using
+	# longer measurement times, like 2.5 seconds.
+	variable measurement_time 2.5;# in seconds
+}
 variable last_emutime 0
 variable last_realtime 0
 
@@ -174,7 +182,7 @@ proc update_speed {} {
 		set last_realtime $new_realtime
 		#puts stderr [format "Realtime duration: %f, emutime duration: %f, speed ratio: %f" [expr (($new_realtime - $last_realtime) / 1000.0)] [expr ($new_emutime - $last_emutime)] [set speed]];# for debugging
 	} else {
-		set speed [expr ($new_emutime - $last_emutime) / (1.0 * $measurement_time)  ]
+		set speed [expr ($new_emutime - $last_emutime) / $measurement_time ]
 	}
 	set last_emutime $new_emutime
 	after realtime $measurement_time [namespace code update_speed]
