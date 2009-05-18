@@ -44,7 +44,7 @@ proc info_panel_init {} {
 	set panel_info(ram,title) "RAM"
 	set panel_info(ram,width) 51
 	set panel_info(ram,row) 1
-	set panel_info(ram,method) {set ramsize 0; foreach device [debug list] { set desc [debug desc $device]; if { $desc == "memory mapper" || $desc == "ram"} { incr ramsize [debug size $device] }}; format "%dkB" [expr $ramsize / 1024]}
+	set panel_info(ram,method) {set ramsize 0; foreach device [debug list] {set desc [debug desc $device]; if {$desc == "memory mapper" || $desc == "ram"} {incr ramsize [debug size $device]}}; format "%dkB" [expr $ramsize / 1024]}
 	set panel_info(mtime,title) "Time"
 	set panel_info(mtime,width) 60
 	set panel_info(mtime,row) 1
@@ -96,7 +96,7 @@ proc info_panel_init {} {
 	}
 }
 
-proc create_sub_panel { name title width row pos } {
+proc create_sub_panel {name title width row pos} {
 	variable textheight
 	variable panel_margin
 	variable sub_panel_height
@@ -152,7 +152,7 @@ proc toggle_info_panel {} {
 ## stuff to calculate the speed, which could be made public later
 
 variable speed
-if { [info command clock] == "clock" } {
+if {[info command clock] == "clock"} {
 	variable measurement_time 1.0;# in seconds
 } else {
 	# if the clock command doesn't exist, we have a broken (limited) Tcl
@@ -176,13 +176,13 @@ proc update_speed {} {
 	variable last_realtime
 
 	set new_emutime [machine_info time]
-	if { [info command clock] == "clock" } {
+	if {[info command clock] == "clock"} {
 		set new_realtime [clock clicks -millis]
-		set speed [expr ($new_emutime - $last_emutime) / (($new_realtime - $last_realtime) / 1000.0)  ]
+		set speed [expr ($new_emutime - $last_emutime) / (($new_realtime - $last_realtime) / 1000.0)]
 		set last_realtime $new_realtime
 		#puts stderr [format "Realtime duration: %f, emutime duration: %f, speed ratio: %f" [expr (($new_realtime - $last_realtime) / 1000.0)] [expr ($new_emutime - $last_emutime)] [set speed]];# for debugging
 	} else {
-		set speed [expr ($new_emutime - $last_emutime) / $measurement_time ]
+		set speed [expr ($new_emutime - $last_emutime) / $measurement_time]
 	}
 	set last_emutime $new_emutime
 	after realtime $measurement_time [namespace code update_speed]
