@@ -1,5 +1,40 @@
-# these procs are generic and are supposed to be moved to a generic OSD
-# library or something similar.
+namespace eval osd_widgets {
+
+set_help_text osd_box\
+{The command 'osd_box' takes in the same parameters as an 'osd create' command. There are a few exceptions:
+
+-fill: Defines the color within the box with a certain color and or alpha.
+    Example: '-fill 0xff000080' will fill the box with a red color which 
+    is 50% transparent
+-border: Defines the border-width
+    Example '-border 3' will create a box with a border 3 pixels wide
+
+The following values are redirected to the osd box border:
+    -rgba
+    -rgb
+    -alpha}
+
+set_help_text create_power_bar\
+{The command 'create_power_bar' takes in the following parameters:
+    -name == Name of the power bar
+    -w == Width of the power bar (in pixels)
+    -h == Height of the power bar
+    -barcolor == Powerbar color 
+    -background == When power declines this color is shown
+    -edgecolor == This is the edge color (try white when I doubt which color to use)
+
+colors must have the following format 0xRRGGBBAA
+
+The power bar is initially  created outside the viewable area we need to 
+invoke the 'updated_power_bar' command to make it visible}
+
+set_help_text update_power_bar\
+{The command 'update_power_bar' takes in the following parameters:
+    -name == Name of the power bar
+    -x == vertical position of the power bar
+    -y == horizontal position of the power bar
+    -power == fill rate of the power bar in decimal percentages (10% == 0.1)
+    -text == text to be printed above the power bar}
 
 proc osd_box {name args} {
 	# process arguments
@@ -60,3 +95,9 @@ proc update_power_bar {name x y power text} {
 proc hide_power_bar {name} {
 	osd configure $name -rely 999
 }
+
+namespace export *
+
+};# namespace osd_widgets
+
+namespace import osd_widgets::*

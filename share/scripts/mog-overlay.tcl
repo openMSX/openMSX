@@ -38,7 +38,7 @@ variable enemy_names [list \
 	"Cyclop's Ghost" "41" "Maner" "Gero" "44" "45" "46" "47" \
 	"48" "Huge Bat" "4A" "4B" "Fuzzball" "4D" "4E" "4F" \
 	"50" "51" "Middle Bat" "Mini Bat" "Bone" "Small Bone" "Small Fireball" "57" \
-	"Crap's Breath" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
+	"Crab's Breath" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
 	"Maner's Arm" "61" "Gero's Tongue" "63" "Shoe 2" "Breath" "66" "67" ]
 
 #Init Overlays
