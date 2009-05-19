@@ -701,43 +701,39 @@ dynamic library dependencies. Two platforms are supported:</p>
 	<li>Developer: assertions enabled, debug prints disabled, no optimization</li>
 	<li>Release: assertions disabled, debug prints disabled, full optimization</li>
 </ul>
+<p>When building with Visual C++, you can either use the IDE or build from the 
+command line using msbuild. To do the latter, you need to open a Visual Studio 
+command prompt. A shortcut to a Visual Studio command prompt can usually be 
+found in your start menu. For Visual C++ 2008, it will be in &quot;Microsoft Visual 
+Studio 2008\Visual Studio Tools&quot; as the &quot;Visual Studio 2008 Command Prompt&quot;. For 
+the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the &quot;CMD Shell&quot;</p>
 <!-- TODO - Replace this section when we have integration with the broader 3rd party system -->
-<p>In order to build openMSX, the following 3rd party libraries need to be
-downloaded and unzipped into derived\3rdparty\src</p>
+<p>In order to build openMSX, the libraries it depends on need to be
+downloaded and unpacked:</p>
 <ul>
-	<li>freetype-2.3.9.tar.gz</li>
-	<li>glew-1.5.1-src.zip</li>
-	<li>libpng-1.2.35.tar.gz</li>
-	<li>libxml2-2.7.2.tar.gz</li>
-	<li>SDL-1.2.13.zip</li>
-	<li>SDL_image-1.2.7.zip</li>
-	<li>SDL_ttf-2.0.9.zip</li>
-	<li>tcl856-src.zip</li>
-	<li>zlib-1.2.3.tar.gz</li>
+	<li>Open a command prompt and go to the <em>top of the openMSX source tree</em></li>
+	<li>Type <code>md derived\3rdparty\src</code></li>
+	<li>Type <code>python build\3rdparty_download.py mingw32 
+	derived\3rdparty\src</code></li>
 </ul>
+
+<p>Once all files have been downloaded, unpack them in place into the 
+derived\3rdparty\src directory.</p>
 <p>
-The following steps build openMSX:</p>
+The following steps can then be used to build openMSX:</p>
 <ul>
-<li>Open a Visual Studio command prompt. A shortcut can usually be found in your start
-menu.
-<ul>
-	<li>For Visual C++ 2008, it will be in &quot;Microsoft Visual Studio 2008\Visual
-	Studio Tools&quot; as the &quot;Visual Studio 2008 Command Prompt&quot;</li>
-	<li>For the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the
-	&quot;CMD Shell&quot;</li>
-</ul></li>
+<li>Open a Visual Studio command prompt</li>
 	<li>Go to the <em>top of the openMSX source tree</em></li>
-	<li>To build all 3rd party libraries, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>Win32</strong> build\3rdparty\3rdparty.sln</code></li>
+	<li>To build 3rd party libraries, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>Win32</strong> build\3rdparty\3rdparty.sln</code></li>
 	<li>To build openMSX, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>Win32</strong> build\msvc\openmsx.sln</code></li>
 </ul>
 
 <p>The openMSX executable will be generated in <code>derived\Win32-VC-Release\install</code>.</p>
 <p>To build for other platforms or configurations, simply replace &quot;Release&quot; and
 &quot;Win32&quot;&nbsp;in the command lines above with the desired options.</p>
-<p>To build from the Visual C++ or Express IDE, simply open the aforementioned
-solution files and from the Build menu select &quot;Build Solution&quot;. This
-is exactly equivalent to running msbuild from a command - the two methods can be
-safely used interchangeably.</p>
+<p>To build using the Visual C++ IDE, simply open the aforementioned solution 
+files and from the Build menu select &quot;Build Solution&quot;. This is exactly 
+equivalent to building from the command line using msbuild.</p>
 <h3><a id="installstandalone">5.2 Installation</a></h3>
 
 <!-- TODO - generalize this for both MinGW and VC++, integrate into make install -->
