@@ -25,34 +25,42 @@ proc info_panel_init {} {
 	set panel_info(software,width) 400;#whatever
 	set panel_info(software,row) 0
 	set panel_info(software,method) {guess_title}
+
 	set panel_info(mapper,title) "Mapper type"
 	set panel_info(mapper,width) 170
 	set panel_info(mapper,row) 0
 	set panel_info(mapper,method) {set val ""; catch {set val [openmsx_info romtype [lindex [machine_info device [guess_title]] 1]]}; set val}
+
 	set panel_info(fps,title) "FPS"
 	set panel_info(fps,width) 38
 	set panel_info(fps,row) 1
-	set panel_info(fps,method) {format "%2.1f" [expr (round([openmsx_info fps] * 10) / 10.0)]};# the * 10 and / 10.0 is for proper rounding on one decimal
+	set panel_info(fps,method) {format "%2.1f" [openmsx_info fps]}
+
 	set panel_info(screen,title) "Screen"
 	set panel_info(screen,width) 50
 	set panel_info(screen,row) 1
 	set panel_info(screen,method) {get_screen_mode}
+
 	set panel_info(vram,title) "VRAM"
 	set panel_info(vram,width) 42
 	set panel_info(vram,row) 1
 	set panel_info(vram,method) {format "%dkB" [expr [debug size "physical VRAM"] / 1024]};
+
 	set panel_info(ram,title) "RAM"
 	set panel_info(ram,width) 51
 	set panel_info(ram,row) 1
 	set panel_info(ram,method) {set ramsize 0; foreach device [debug list] {set desc [debug desc $device]; if {$desc == "memory mapper" || $desc == "ram"} {incr ramsize [debug size $device]}}; format "%dkB" [expr $ramsize / 1024]}
+
 	set panel_info(mtime,title) "Time"
 	set panel_info(mtime,width) 60
 	set panel_info(mtime,row) 1
 	set panel_info(mtime,method) {set mtime [machine_info time]; format "%02d:%02d:%02d" [expr int($mtime / 3600)] [expr int($mtime / 60) % 60] [expr int($mtime) % 60]}
+
 	set panel_info(speed,title) "Speed"
 	set panel_info(speed,width) 48
 	set panel_info(speed,row) 1
-	set panel_info(speed,method) {format "%d%%" [expr round([get_speed] * 100)]}
+	set panel_info(speed,method) {format "%d%%" [expr round([get_actual_speed] * 100)]}
+
 	set panel_info(machine,title) "Machine"
 	set panel_info(machine,width) 250
 	set panel_info(machine,row) 1
@@ -74,14 +82,14 @@ proc info_panel_init {} {
 	incr software_width -$panel_margin
 	set panel_info(software,width) $software_width
 
-	#set base element	
+	# set base element
 	osd create rectangle info_panel \
 		-x $panel_margin \
 		-y [expr -($sub_panel_height * 2 + (2 * $panel_margin))] \
 		-rely 1.0 \
 		-alpha 0
 
-	#create subpanels
+	# create subpanels
 	set curpos(0) 0
 	set curpos(1) 0
 	foreach name $panel_list {
@@ -139,7 +147,6 @@ proc toggle_info_panel {} {
 	variable info_panel_active
 
 	if {$info_panel_active} {
-		catch {after cancel $vu_meter_trigger_id}
 		set info_panel_active false
 		osd destroy info_panel
 	} else {
@@ -149,46 +156,41 @@ proc toggle_info_panel {} {
 	}
 }
 
-## stuff to calculate the speed, which could be made public later
+## Stuff to calculate the actual speed (could be made public later)
 
-variable speed
-if {[info command clock] == "clock"} {
-	variable measurement_time 1.0;# in seconds
-} else {
-	# if the clock command doesn't exist, we have a broken (limited) Tcl
-	# installation, which means we need to work around with a less accurate
-	# measurement method. This method starts to get reasonably accurate using
-	# longer measurement times, like 2.5 seconds.
-	variable measurement_time 2.5;# in seconds
-}
-variable last_emutime 0
-variable last_realtime 0
+# We keep two past data points (a data point consist out of a measured
+# emutime and realtime). These two data points are at least 1 second
+# apart in realtime.
+variable last_emutime1  -1.0
+variable last_realtime1 -1.0
+variable last_emutime2   0.0
+variable last_realtime2  0.0
 
-proc get_speed {} {
-	variable speed
-	return $speed
-}
+proc get_actual_speed {} {
+	variable last_emutime1
+	variable last_emutime2
+	variable last_realtime1
+	variable last_realtime2
 
-proc update_speed {} {
-	variable speed
-	variable measurement_time
-	variable last_emutime
-	variable last_realtime
+	set curr_emutime  [machine_info time]
+	set curr_realtime [openmsx_info realtime]
 
-	set new_emutime [machine_info time]
-	if {[info command clock] == "clock"} {
-		set new_realtime [clock clicks -millis]
-		set speed [expr ($new_emutime - $last_emutime) / (($new_realtime - $last_realtime) / 1000.0)]
-		set last_realtime $new_realtime
-		#puts stderr [format "Realtime duration: %f, emutime duration: %f, speed ratio: %f" [expr (($new_realtime - $last_realtime) / 1000.0)] [expr ($new_emutime - $last_emutime)] [set speed]];# for debugging
+	set diff_realtime [expr $curr_realtime - $last_realtime2]
+	if {$diff_realtime > 1.0} {
+		# Younger data point is old enough. Drop older data point and
+		# make current measurement a new data point.
+		set last_emutime   $last_emutime2
+		set last_emutime1  $last_emutime2
+		set last_emutime2  $curr_emutime
+		set last_realtime1 $last_realtime2
+		set last_realtime2 $curr_realtime
 	} else {
-		set speed [expr ($new_emutime - $last_emutime) / $measurement_time]
+		# Take older data point, don't change recorded data.
+		set last_emutime  $last_emutime1
+		set diff_realtime [expr $curr_realtime - $last_realtime1]
 	}
-	set last_emutime $new_emutime
-	after realtime $measurement_time [namespace code update_speed]
+	return [expr ($curr_emutime - $last_emutime) / $diff_realtime]
 }
-
-update_speed
 
 namespace export toggle_info_panel
 
