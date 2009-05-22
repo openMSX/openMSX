@@ -50,7 +50,7 @@ def downloadPackage(package, tarballsDir):
 				hasher.update(buf)
 	finally:
 		inp.close()
-	for algo, hasher in hashers.iteritems():
+	for algo, hasher in sorted(hashers.iteritems()):
 		if package.checksums[algo] != hasher.hexdigest():
 			raise IOError(
 				'%s corrupt: %s checksum mismatch' % (
