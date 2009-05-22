@@ -8,7 +8,7 @@ from libraries import librariesByName
 from packages import getPackage
 from patch import Diff, patch
 
-from os import makedirs
+from os import makedirs, stat
 from os.path import isdir, isfile, join as joinpath
 from shutil import rmtree
 import sys
@@ -19,12 +19,22 @@ import sys
 def downloadPackage(package, tarballsDir):
 	if not isdir(tarballsDir):
 		makedirs(tarballsDir)
-	if isfile(joinpath(tarballsDir, package.getTarballName())):
+	filePath = joinpath(tarballsDir, package.getTarballName())
+	if isfile(filePath):
 		print '%s version %s - already downloaded' % (
 			package.niceName, package.version
 			)
 	else:
 		downloadURL(package.getURL(), tarballsDir)
+	actualLength = stat(filePath).st_size
+	if actualLength != package.fileLength:
+		raise IOError(
+			'%s corrupt: expected length %d, actual length %d' % (
+				package.getTarballName(),
+				package.fileLength,
+				actualLength
+				)
+			)
 
 def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 	if not isdir(sourcesDir):
