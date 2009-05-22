@@ -8,6 +8,7 @@ from libraries import librariesByName
 from packages import getPackage
 from patch import Diff, patch
 
+from os import makedirs
 from os.path import isdir, isfile, join as joinpath
 from shutil import rmtree
 import sys
@@ -16,6 +17,8 @@ import sys
 #       driver a component.
 
 def downloadPackage(package, tarballsDir):
+	if not isdir(tarballsDir):
+		makedirs(tarballsDir)
 	if isfile(joinpath(tarballsDir, package.getTarballName())):
 		print '%s version %s - already downloaded' % (
 			package.niceName, package.version
@@ -24,6 +27,8 @@ def downloadPackage(package, tarballsDir):
 		downloadURL(package.getURL(), tarballsDir)
 
 def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
+	if not isdir(sourcesDir):
+		makedirs(sourcesDir)
 	sourceDirName = package.getSourceDirName()
 	packageSrcDir = joinpath(sourcesDir, sourceDirName)
 	if isdir(packageSrcDir):
@@ -40,15 +45,6 @@ def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 			print 'Patched:', diff.getPath()
 
 def main(platform, tarballsDir, sourcesDir, patchesDir):
-	if not isdir(tarballsDir):
-		print >> sys.stderr, \
-			'Output directory "%s" does not exist' % tarballsDir
-		sys.exit(2)
-	if not isdir(sourcesDir):
-		print >> sys.stderr, \
-			'Output directory "%s" does not exist' % sourcesDir
-		sys.exit(2)
-
 	configuration = getConfiguration('3RD_STA')
 
 	# Compute the set of all directly and indirectly required libraries.
