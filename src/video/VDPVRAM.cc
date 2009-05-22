@@ -85,7 +85,7 @@ void LogicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param t
 class PhysicalVRAMDebuggable : public SimpleDebuggable
 {
 public:
-	PhysicalVRAMDebuggable(VDP& vdp, unsigned actualSize);
+	PhysicalVRAMDebuggable(VDP& vdp, VDPVRAM& vram, unsigned actualSize);
 	virtual byte read(unsigned address, EmuTime::param time);
 	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
@@ -93,11 +93,12 @@ private:
 };
 
 
-PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(VDP& vdp, unsigned actualSize)
+PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(VDP& vdp, VDPVRAM& vram_,
+                                               unsigned actualSize)
 	: SimpleDebuggable(vdp.getMotherBoard(), "physical VRAM",
 	                   "VDP-screen-mode-independent view on the video RAM.",
 	                   actualSize)
-	, vram(vdp.getVRAM())
+	, vram(vram_) // vdp.getVRAM() doesn't work yet
 {
 }
 
@@ -128,7 +129,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	: vdp(vdp_)
 	, data(bufferSize(size))
 	, logicalVRAMDebug (new LogicalVRAMDebuggable (vdp))
-	, physicalVRAMDebug(new PhysicalVRAMDebuggable(vdp, size))
+	, physicalVRAMDebug(new PhysicalVRAMDebuggable(vdp, *this, size))
 	#ifdef DEBUG
 	, vramTime(time)
 	#endif
