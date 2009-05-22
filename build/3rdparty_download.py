@@ -3,10 +3,13 @@
 from components import requiredLibrariesFor
 from configurations import getConfiguration
 from download import downloadURL
+from extract import TopLevelDirRenamer, extract
 from libraries import librariesByName
 from packages import getPackage
+from patch import Diff, patch
 
 from os.path import isdir, isfile, join as joinpath
+from shutil import rmtree
 import sys
 
 # TODO: Make DirectX headers for MinGW a package and make the DirectX sound
@@ -20,10 +23,30 @@ def downloadPackage(package, tarballsDir):
 	else:
 		downloadURL(package.getURL(), tarballsDir)
 
-def main(platform, tarballsDir):
+def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
+	sourceDirName = package.getSourceDirName()
+	packageSrcDir = joinpath(sourcesDir, sourceDirName)
+	if isdir(packageSrcDir):
+		rmtree(packageSrcDir)
+	extract(
+		joinpath(tarballsDir, package.getTarballName()),
+		sourcesDir,
+		TopLevelDirRenamer(sourceDirName)
+		)
+	diffPath = joinpath(patchesDir, sourceDirName + '.diff')
+	if isfile(diffPath):
+		for diff in Diff.load(diffPath):
+			patch(diff, sourcesDir)
+			print 'Patched:', diff.getPath()
+
+def main(platform, tarballsDir, sourcesDir, patchesDir):
 	if not isdir(tarballsDir):
 		print >> sys.stderr, \
 			'Output directory "%s" does not exist' % tarballsDir
+		sys.exit(2)
+	if not isdir(sourcesDir):
+		print >> sys.stderr, \
+			'Output directory "%s" does not exist' % sourcesDir
 		sys.exit(2)
 
 	configuration = getConfiguration('3RD_STA')
@@ -45,11 +68,14 @@ def main(platform, tarballsDir):
 	for makeName in sorted(thirdPartyLibs):
 		package = getPackage(makeName)
 		downloadPackage(package, tarballsDir)
+		extractPackage(package, tarballsDir, sourcesDir, patchesDir)
 
 if __name__ == '__main__':
-	if len(sys.argv) == 3:
+	if len(sys.argv) == 5:
 		main(*sys.argv[1 : ])
 	else:
-		print >> sys.stderr, \
-			'Usage: python 3rdparty_download.py TARGET_OS TARBALLS_DIR'
+		print >> sys.stderr, (
+			'Usage: python 3rdparty_download.py '
+			'TARGET_OS TARBALLS_DIR SOURCES_DIR PATCHES_DIR'
+			)
 		sys.exit(2)
