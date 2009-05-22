@@ -67,11 +67,15 @@ def main(platform, tarballsDir, sourcesDir, patchesDir):
 		extractPackage(package, tarballsDir, sourcesDir, patchesDir)
 
 if __name__ == '__main__':
-	if len(sys.argv) == 5:
-		main(*sys.argv[1 : ])
+	if len(sys.argv) == 2:
+		main(
+			sys.argv[1],
+			'derived/3rdparty/download',
+			'derived/3rdparty/src',
+			'build/3rdparty'
+			)
 	else:
 		print >> sys.stderr, (
-			'Usage: python 3rdparty_download.py '
-			'TARGET_OS TARBALLS_DIR SOURCES_DIR PATCHES_DIR'
+			'Usage: python 3rdparty_download.py TARGET_OS'
 			)
 		sys.exit(2)
