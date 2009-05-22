@@ -18,6 +18,7 @@ class DownloadablePackage(Package):
 	downloadURL = None
 	version = None
 	fileLength = None
+	checksums = None
 
 	@classmethod
 	def getSourceDirName(cls):
@@ -41,6 +42,10 @@ class DirectX(DownloadablePackage):
 	sourceName = 'dx'
 	version = '70'
 	fileLength = 236675
+	checksums = {
+		'sha256':
+			'59f489a7d9f51c70fe37fbb5a6225d4716a97ab774c58138f1dc4661a80356f0',
+		}
 
 	@classmethod
 	def getTarballName(cls):
@@ -52,6 +57,10 @@ class FreeType(DownloadablePackage):
 	sourceName = 'freetype'
 	version = '2.3.9'
 	fileLength = 1809558
+	checksums = {
+		'sha256':
+			'3c3fc489c75af93e9f4367951114b0274bddef60d70ffe419b7e22cda210b9c0',
+		}
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
@@ -59,6 +68,10 @@ class GLEW(DownloadablePackage):
 	sourceName = 'glew'
 	version = '1.5.1'
 	fileLength = 394566
+	checksums = {
+		'sha256':
+			'89e63d085cb563c32a191e3cd4907a192484f10438a6679f1349456db4b9c10a',
+		}
 
 	@classmethod
 	def getTarballName(cls):
@@ -70,6 +83,10 @@ class JACK(DownloadablePackage):
 	sourceName = 'jack-audio-connection-kit'
 	version = '0.116.2'
 	fileLength = 944106
+	checksums = {
+		'sha256':
+			'ce6e1f61a3b003137af56b749e5ed4274584167c0877ea9ef2d83f47b11c8d3d',
+		}
 
 	@classmethod
 	def getMakeName(cls):
@@ -81,6 +98,10 @@ class LibPNG(DownloadablePackage):
 	sourceName = 'libpng'
 	version = '1.2.35'
 	fileLength = 802267
+	checksums = {
+		'sha256':
+			'1da5c80096e8a014911e00fab4661c0f77ce523ae4d41308815f307ee709fc7f',
+		}
 
 	@classmethod
 	def getMakeName(cls):
@@ -92,6 +113,10 @@ class LibXML2(DownloadablePackage):
 	sourceName = 'libxml2'
 	version = '2.7.3'
 	fileLength = 4789450
+	checksums = {
+		'sha256':
+			'432464d8c9bd8060d9c1fdef1cfa75803c1a363ceac20b21f8c7e34e056e5a98',
+		}
 
 	@classmethod
 	def getMakeName(cls):
@@ -107,6 +132,10 @@ class SDL(DownloadablePackage):
 	sourceName = 'SDL'
 	version = '1.2.13'
 	fileLength = 3373673
+	checksums = {
+		'sha256':
+			'94f99df1d60f296b57f4740650a71b6425da654044ca30f8f0ce34934429e132',
+		}
 
 class SDL_image(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_image/release'
@@ -114,6 +143,10 @@ class SDL_image(DownloadablePackage):
 	sourceName = 'SDL_image'
 	version = '1.2.7'
 	fileLength = 1315517
+	checksums = {
+		'sha256':
+			'14e4d9932ae2af03d814cca9e56ab9ba0091ffe06c9387dde74dfb03a4dde3b3',
+		}
 
 class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
@@ -121,6 +154,10 @@ class SDL_ttf(DownloadablePackage):
 	sourceName = 'SDL_ttf'
 	version = '2.0.9'
 	fileLength = 3143838
+	checksums = {
+		'sha256':
+			'b4248876798b43d0fae1931cf8ae249f4f67a87736f97183f035f34aab554653',
+		}
 
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
@@ -128,6 +165,10 @@ class TCL(DownloadablePackage):
 	sourceName = 'tcl'
 	version = '8.5.6'
 	fileLength = 4409651
+	checksums = {
+		'sha256':
+			'246d09da115307c60f1c91fcfcef8518952e166de058b6aef7fbcffa76ca150e',
+		}
 
 	@classmethod
 	def getTarballName(cls):
@@ -139,6 +180,10 @@ class ZLib(DownloadablePackage):
 	sourceName = 'zlib'
 	version = '1.2.3'
 	fileLength = 496597
+	checksums = {
+		'sha256':
+			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
+		}
 
 # Build a dictionary of packages using introspection.
 def _discoverPackages(localObjects):

@@ -8,6 +8,7 @@ from libraries import librariesByName
 from packages import getPackage
 from patch import Diff, patch
 
+from hashlib import new as newhash
 from os import makedirs, stat
 from os.path import isdir, isfile, join as joinpath
 from shutil import rmtree
@@ -35,6 +36,28 @@ def downloadPackage(package, tarballsDir):
 				actualLength
 				)
 			)
+	hashers = dict(
+		( algo, newhash(algo) ) for algo in package.checksums.iterkeys()
+		)
+	inp = open(filePath, 'rb')
+	bufSize = 16384
+	try:
+		while True:
+			buf = inp.read(bufSize)
+			if not buf:
+				break
+			for hasher in hashers.itervalues():
+				hasher.update(buf)
+	finally:
+		inp.close()
+	for algo, hasher in hashers.iteritems():
+		if package.checksums[algo] != hasher.hexdigest():
+			raise IOError(
+				'%s corrupt: %s checksum mismatch' % (
+					package.getTarballName(),
+					algo
+					)
+				)
 
 def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 	if not isdir(sourcesDir):
