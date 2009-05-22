@@ -17,6 +17,7 @@ class DownloadablePackage(Package):
 	'''
 	downloadURL = None
 	version = None
+	fileLength = None
 
 	@classmethod
 	def getSourceDirName(cls):
@@ -39,6 +40,7 @@ class DirectX(DownloadablePackage):
 	niceName = 'DirectX'
 	sourceName = 'dx'
 	version = '70'
+	fileLength = 236675
 
 	@classmethod
 	def getTarballName(cls):
@@ -49,12 +51,14 @@ class FreeType(DownloadablePackage):
 	niceName = 'FreeType'
 	sourceName = 'freetype'
 	version = '2.3.9'
+	fileLength = 1809558
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
 	sourceName = 'glew'
 	version = '1.5.1'
+	fileLength = 394566
 
 	@classmethod
 	def getTarballName(cls):
@@ -65,6 +69,7 @@ class JACK(DownloadablePackage):
 	niceName = 'Jack'
 	sourceName = 'jack-audio-connection-kit'
 	version = '0.116.2'
+	fileLength = 944106
 
 	@classmethod
 	def getMakeName(cls):
@@ -75,6 +80,7 @@ class LibPNG(DownloadablePackage):
 	niceName = 'libpng'
 	sourceName = 'libpng'
 	version = '1.2.35'
+	fileLength = 802267
 
 	@classmethod
 	def getMakeName(cls):
@@ -85,6 +91,7 @@ class LibXML2(DownloadablePackage):
 	niceName = 'libxml2'
 	sourceName = 'libxml2'
 	version = '2.7.3'
+	fileLength = 4789450
 
 	@classmethod
 	def getMakeName(cls):
@@ -99,24 +106,28 @@ class SDL(DownloadablePackage):
 	niceName = 'SDL'
 	sourceName = 'SDL'
 	version = '1.2.13'
+	fileLength = 3373673
 
 class SDL_image(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_image/release'
 	niceName = 'SDL_image'
 	sourceName = 'SDL_image'
 	version = '1.2.7'
+	fileLength = 1315517
 
 class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'
 	sourceName = 'SDL_ttf'
 	version = '2.0.9'
+	fileLength = 3143838
 
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
 	version = '8.5.6'
+	fileLength = 4409651
 
 	@classmethod
 	def getTarballName(cls):
@@ -127,6 +138,7 @@ class ZLib(DownloadablePackage):
 	niceName = 'zlib'
 	sourceName = 'zlib'
 	version = '1.2.3'
+	fileLength = 496597
 
 # Build a dictionary of packages using introspection.
 def _discoverPackages(localObjects):
