@@ -7,18 +7,32 @@ from urlparse import urlparse
 
 import sys
 
-class InteractiveStatusLine(object):
-	length = 0
+class StatusLine(object):
+
+	def __init__(self, out):
+		self._out = out
 
 	def __call__(self, message, progress = False):
-		sys.stdout.write(('\r%-' + str(self.length) + 's') % message)
-		self.length = max(self.length, len(message))
+		raise NotImplementedError
 
-class NoninteractiveStatusLine(object):
+class InteractiveStatusLine(StatusLine):
+	__length = 0
+
+	def __call__(self, message, progress = False):
+		self._out.write(('\r%-' + str(self.__length) + 's') % message)
+		self.__length = max(self.__length, len(message))
+
+class NoninteractiveStatusLine(StatusLine):
 
 	def __call__(self, message, progress = False):
 		if not progress:
-			sys.stdout.write(message + '\n')
+			self._out.write(message + '\n')
+
+def createStatusLine(out):
+	if out.isatty():
+		return InteractiveStatusLine(out)
+	else:
+		return NoninteractiveStatusLine(out)
 
 def downloadURL(url, localDir):
 	if not isdir(localDir):
@@ -28,10 +42,7 @@ def downloadURL(url, localDir):
 	localPath = joinpath(localDir, fileName)
 	prefix = 'Downloading %s: ' % fileName
 
-	if sys.stdout.isatty():
-		statusLine = InteractiveStatusLine()
-	else:
-		statusLine = NoninteractiveStatusLine()
+	statusLine = createStatusLine(sys.stdout)
 	statusLine(prefix + 'contacting server...')
 
 	def reportProgress(blocksDone, blockSize, totalSize):
