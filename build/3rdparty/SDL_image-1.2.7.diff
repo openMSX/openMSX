@@ -1,0 +1,12 @@
+diff -ru SDL_image-1.2.7.org/Makefile.in SDL_image-1.2.7/Makefile.in
+--- SDL_image-1.2.7.org/Makefile.in	2008-11-03 00:00:17.000000000 +0100
++++ SDL_image-1.2.7/Makefile.in	2009-05-22 22:32:38.000000000 +0200
+@@ -343,7 +343,7 @@
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
+ libSDL_image.la: $(libSDL_image_la_OBJECTS) $(libSDL_image_la_DEPENDENCIES) 
+-	$(libSDL_image_la_LINK) -rpath $(libdir) $(libSDL_image_la_OBJECTS) $(libSDL_image_la_LIBADD) $(LIBS)
++	$(libSDL_image_la_LINK) -rpath $(libdir) $(libSDL_image_la_OBJECTS) $(libSDL_image_la_LIBADD)
+ 
+ clean-noinstPROGRAMS:
+ 	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
