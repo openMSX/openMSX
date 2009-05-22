@@ -12,15 +12,13 @@ import sys
 # TODO: Make DirectX headers for MinGW a package and make the DirectX sound
 #       driver a component.
 
-def downloadPackages(tarballsDir, makeNames):
-	for makeName in sorted(makeNames):
-		package = getPackage(makeName)
-		if isfile(joinpath(tarballsDir, package.getTarballName())):
-			print '%s version %s - already downloaded' % (
-				package.niceName, package.version
-				)
-		else:
-			downloadURL(package.getURL(), tarballsDir)
+def downloadPackage(package, tarballsDir):
+	if isfile(joinpath(tarballsDir, package.getTarballName())):
+		print '%s version %s - already downloaded' % (
+			package.niceName, package.version
+			)
+	else:
+		downloadURL(package.getURL(), tarballsDir)
 
 def main(platform, tarballsDir):
 	if not isdir(tarballsDir):
@@ -44,7 +42,9 @@ def main(platform, tarballsDir):
 		if not librariesByName[makeName].isSystemLibrary(platform)
 		)
 
-	downloadPackages(tarballsDir, thirdPartyLibs)
+	for makeName in sorted(thirdPartyLibs):
+		package = getPackage(makeName)
+		downloadPackage(package, tarballsDir)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 3:
