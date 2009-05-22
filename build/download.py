@@ -1,6 +1,7 @@
 # $Id$
 
-from os.path import basename, isdir
+from os import remove
+from os.path import basename, isdir, isfile, join as joinpath
 from urllib import urlretrieve
 from urlparse import urlparse
 
@@ -24,6 +25,7 @@ def downloadURL(url, localDir):
 		raise IOError('Local directory "%s" does not exist' % localDir)
 
 	fileName = basename(urlparse(url).path)
+	localPath = joinpath(localDir, fileName)
 	prefix = 'Downloading %s: ' % fileName
 
 	if sys.stdout.isatty():
@@ -43,14 +45,20 @@ def downloadURL(url, localDir):
 			), True)
 
 	try:
-		urlretrieve(url, localDir + '/' + fileName, reportProgress)
-	except IOError:
-		statusLine(prefix + 'FAILED.')
+		try:
+			urlretrieve(url, localPath, reportProgress)
+		except IOError:
+			statusLine(prefix + 'FAILED.')
+			raise
+		else:
+			statusLine(prefix + 'done.')
+		finally:
+			print
+	except:
+		if isfile(localPath):
+			statusLine(prefix + 'removing partial download.')
+			remove(localPath)
 		raise
-	else:
-		statusLine(prefix + 'done.')
-	finally:
-		print
 
 if __name__ == '__main__':
 	if len(sys.argv) == 3:
