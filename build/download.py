@@ -6,12 +6,18 @@ from urlparse import urlparse
 
 import sys
 
-class StatusLine(object):
+class InteractiveStatusLine(object):
 	length = 0
 
-	def __call__(self, message):
+	def __call__(self, message, progress = False):
 		sys.stdout.write(('\r%-' + str(self.length) + 's') % message)
 		self.length = max(self.length, len(message))
+
+class NoninteractiveStatusLine(object):
+
+	def __call__(self, message, progress = False):
+		if not progress:
+			sys.stdout.write(message + '\n')
 
 def downloadURL(url, localDir):
 	if not isdir(localDir):
@@ -20,7 +26,10 @@ def downloadURL(url, localDir):
 	fileName = basename(urlparse(url).path)
 	prefix = 'Downloading %s: ' % fileName
 
-	statusLine = StatusLine()
+	if sys.stdout.isatty():
+		statusLine = InteractiveStatusLine()
+	else:
+		statusLine = NoninteractiveStatusLine()
 	statusLine(prefix + 'contacting server...')
 
 	def reportProgress(blocksDone, blockSize, totalSize):
@@ -31,7 +40,7 @@ def downloadURL(url, localDir):
 				)
 			if totalSize > 0 else
 			'%d bytes...' % doneSize
-			))
+			), True)
 
 	try:
 		urlretrieve(url, localDir + '/' + fileName, reportProgress)
