@@ -5,7 +5,7 @@ import os.path
 import outpututils
 import buildinfo2code
 import components2code
-import probe_header
+import systemfuncs2code
 import win_resource
 import version2code
 
@@ -44,11 +44,12 @@ def genConfig(platform, configuration, outputPath):
 	outpututils.rewriteIfChanged(componentsHeader, generator)
 
 	#
-	# probed_defs.hh
+	# systemfuncs.hh
 	#
-	probedDefsHeader = os.path.join(outputPath, 'probed_defs.hh')
-	generator = probe_header.iterProbeHeader(probeMakePath)
-	outpututils.rewriteIfChanged(probedDefsHeader, generator)
+	
+	systemFuncsHeader = os.path.join(outputPath, 'systemfuncs.hh')
+	generator = systemfuncs2code.iterSystemFuncsHeader(systemfuncs2code.getSystemFuncsInfo())
+	outpututils.rewriteIfChanged(systemFuncsHeader, generator)
 
 	#
 	# resource-info.hh
