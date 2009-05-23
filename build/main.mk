@@ -224,18 +224,17 @@ else
 endif
 
 LOG_PATH:=$(BUILD_PATH)/log
-CONFIG_PATH:=$(BUILD_PATH)/config
 
 BUILDINFO_SCRIPT:=$(MAKE_PATH)/buildinfo2code.py
-CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
+CONFIG_HEADER:=$(BUILD_PATH)/config/build-info.hh
 PROBE_SCRIPT:=$(MAKE_PATH)/probe.py
-PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
+PROBE_MAKE:=$(BUILD_PATH)/config/probed_defs.mk
 VERSION_SCRIPT:=$(MAKE_PATH)/version2code.py
-VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
+VERSION_HEADER:=$(BUILD_PATH)/config/Version.ii
 COMPONENTS_HEADER_SCRIPT:=$(MAKE_PATH)/components2code.py
 COMPONENTS_DEFS_SCRIPT:=$(MAKE_PATH)/components2defs.py
-COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
-COMPONENTS_DEFS:=$(CONFIG_PATH)/components_defs.mk
+COMPONENTS_HEADER:=$(BUILD_PATH)/config/components.hh
+COMPONENTS_DEFS:=$(BUILD_PATH)/config/components_defs.mk
 GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
 
 
@@ -292,7 +291,7 @@ ifeq ($(OPENMSX_TARGET_OS),mingw32)
 RESOURCE_SRC:=src/resource/openmsx.rc
 RESOURCE_OBJ:=$(OBJECTS_PATH)/resources.o
 RESOURCE_SCRIPT:=$(MAKE_PATH)/win_resource.py
-RESOURCE_HEADER:=$(CONFIG_PATH)/resource-info.h
+RESOURCE_HEADER:=$(BUILD_PATH)/config/resource-info.h
 else
 RESOURCE_OBJ:=
 endif
@@ -384,7 +383,7 @@ endif
 
 # Determine common compile flags.
 INCLUDE_INTERNAL:=$(sort $(foreach header,$(HEADERS_FULL),$(patsubst %/,%,$(dir $(header)))))
-INCLUDE_INTERNAL+=$(CONFIG_PATH)
+INCLUDE_INTERNAL+=$(BUILD_PATH)/config
 COMPILE_FLAGS+=$(addprefix -I,$(INCLUDE_INTERNAL))
 
 # Determine common link flags.
@@ -458,7 +457,7 @@ endif
 # target to be up-to-date. That way, the targets "init-dummy-file" depends on
 # will always be checked before compilation, but they will not cause all object
 # files to be considered outdated.
-INIT_DUMMY_FILE:=$(CONFIG_PATH)/init-dummy-file
+INIT_DUMMY_FILE:=$(BUILD_PATH)/config/init-dummy-file
 $(INIT_DUMMY_FILE): config $(GENERATED_HEADERS)
 	@test -e $@ || touch $@
 
