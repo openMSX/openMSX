@@ -446,7 +446,11 @@ $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE)
 	@touch $@
 
 # Default target.
+ifeq ($(OPENMSX_TARGET_OS),darwin)
+all: app
+else
 all: $(BINARY_FULL)
+endif
 
 # This is a workaround for the lack of order-only dependencies in GNU Make
 # versions older than 3.80 (for example Mac OS X 10.3 still ships with 3.79).
@@ -578,7 +582,7 @@ run: all
 # Installation and Binary Packaging
 # =================================
 
-ifneq ($(filter $(MAKECMDGOALS),bindist app),)
+ifneq ($(filter $(MAKECMDGOALS),bindist)$(filter $(OPENMSX_TARGET_OS),darwin),)
 # Create binary distribution directory.
 
 BINDIST_DIR:=$(BUILD_PATH)/bindist
