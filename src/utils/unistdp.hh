@@ -3,8 +3,6 @@
 #ifndef UNISTDP_HH
 #define UNISTDP_HH
 
-#include "systemfuncs.hh"
-
 #ifndef _MSC_VER
 
 #include <unistd.h>
