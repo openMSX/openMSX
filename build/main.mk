@@ -211,6 +211,9 @@ SOURCES_PATH:=src
 BINARY_PATH:=$(BUILD_PATH)/bin
 BINARY_FILE:=openmsx$(EXEEXT)
 
+BINDIST_DIR:=$(BUILD_PATH)/bindist
+BINDIST_PACKAGE:=
+
 ifeq ($(OPENMSX_TARGET_OS),darwin)
   # Write binary directly into application folder.
   BINARY_FULL:=$(BINDIST_DIR)/openMSX.app/Contents/MacOS/$(BINARY_FILE)
@@ -224,9 +227,6 @@ else
     BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
   endif
 endif
-
-BINDIST_DIR:=$(BUILD_PATH)/bindist
-BINDIST_PACKAGE:=
 
 LOG_PATH:=$(BUILD_PATH)/log
 CONFIG_PATH:=$(BUILD_PATH)/config
