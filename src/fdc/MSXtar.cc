@@ -1,5 +1,7 @@
 // $Id$
 
+// Note: For Mac OS X 10.3 <ctime> must be included before <utime.h>.
+#include <ctime>
 #ifndef _MSC_VER
 #include <utime.h>
 #else
@@ -16,7 +18,6 @@
 #include <cstring>
 #include <algorithm>
 #include <cassert>
-#include <ctime>
 #include <sys/stat.h>
 #include <ctype.h>
 
