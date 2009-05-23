@@ -595,9 +595,6 @@ By default, openMSX is compiled for the type of CPU that is present in your Mac.
 <p>
 If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
 </p>
-<p>
-By default, only the openMSX executable itself is produced. If you want to create an application folder, define <code>export OPENMSX_TARGET_OS=darwin-app</code> before compilation. This application folder will still depend on the systemwide libraries, so it will not work on Macs without those libraries. But unlike the plain executable, it has a high resolution icon.
-</p>
 
 <h4>Visual C++</h4>
 
@@ -624,19 +621,25 @@ so you may have to do <code>su</code> before <code>make install</code>, or use <
 <h5>Mac OS X</h5>
 
 <p>
-The easiest way to install openMSX system-wide is this command:
+On Mac OS X, the build creates an application folder. You can "install" this by copying it to a different location. The application folder will depend on systemwide installed libraries, so it will not work on Macs without those libraries.
+</p>
+<p>
+You can run openMSX from the application folder with the following command:
 </p>
 <div class="commandline">
-sudo make install
+open derived/&lt;cpu&gt;-darwin-&lt;flavour&gt;/bindist/openMSX.app
 </div>
 <p>
-If you defined <code>export OPENMSX_TARGET_OS=darwin-app</code>, <code>make install</code> will create an application folder in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>. No <code>sudo</code> is needed.
+If you want to see the messages openMSX prints to stdout and stderr, start openMSX like this:
 </p>
+<div class="commandline">
+derived/&lt;cpu&gt;-darwin-&lt;flavour&gt;/bindist/openMSX.app/Contents/MacOS/openmsx
+</div>
 
 <h2><a id="standalone">5. Stand-alone Binary</a></h2>
 
 <p>
-This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure is recommended to use on Mac OS X and especially on Microsoft Windows.
+This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure is highly recommended on Microsoft Windows. It is also recommended on Mac OS X if you are not a MacPorts or Fink user.
 </p>
 
 <p>
