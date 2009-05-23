@@ -9,7 +9,8 @@
 
 # All actions we want to expose to the user.
 USER_ACTIONS:=\
-	3rdparty all bindist clean createsubs dist install probe run staticbindist
+	3rdparty all app bindist clean createsubs dist install probe run \
+	staticbindist
 
 # Mark all actions as logical targets.
 .PHONY: $(USER_ACTIONS)

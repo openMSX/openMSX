@@ -1,9 +1,15 @@
 # $Id$
 #
-# Configuration for Darwin.
+# Configuration for creating a Darwin app folder.
+# In practice, this is used for Mac OS X; I'm not sure all of it applies to
+# other Darwin-based systems.
 
 # Does platform support symlinks?
 USE_SYMLINK:=true
+
+# The app folder will set a hi-res icon, so the openMSX process should not
+# replace this with its own low-res icon.
+SET_WINDOW_ICON:=false
 
 # Compile for the selected CPU.
 ifeq ($(OPENMSX_TARGET_CPU),x86)
@@ -49,6 +55,9 @@ ifeq ($(filter 3RD_%,$(LINK_MODE)),)
 # Note that even though we compile for local use, we still have to compile
 # against the SDK since OS X 10.3 will have link problems otherwise (the
 # QuickTime framework in particular is notorious for this).
+
+# TODO: Verify whether this is how to do it.
+COMPILE_FLAGS+=-I/usr/local/include
 
 # When NEXT_ROOT is defined, /usr/lib will not be scanned for libraries by
 # default, but users might have installed some dependencies there.

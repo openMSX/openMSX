@@ -210,14 +210,23 @@ SOURCES_PATH:=src
 
 BINARY_PATH:=$(BUILD_PATH)/bin
 BINARY_FILE:=openmsx$(EXEEXT)
-ifeq ($(VERSION_EXEC),true)
-  CHANGELOG_REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
-    "import version; print version.extractRevision()" \
-    )
-  BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
+
+ifeq ($(OPENMSX_TARGET_OS),darwin)
+  # Write binary directly into application folder.
+  BINARY_FULL:=$(BINDIST_DIR)/openMSX.app/Contents/MacOS/$(BINARY_FILE)
 else
-  BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
+  ifeq ($(VERSION_EXEC),true)
+    CHANGELOG_REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
+      "import version; print version.extractRevision()" \
+      )
+    BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
+  else
+    BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
+  endif
 endif
+
+BINDIST_DIR:=$(BUILD_PATH)/bindist
+BINDIST_PACKAGE:=
 
 LOG_PATH:=$(BUILD_PATH)/log
 CONFIG_PATH:=$(BUILD_PATH)/config
@@ -368,14 +377,14 @@ OPENMSX_STRIP?=false
 $(call BOOLCHECK,OPENMSX_STRIP)
 STRIP_SEPARATE:=false
 ifeq ($(OPENMSX_STRIP),true)
-  ifeq ($(filter darwin%,$(OPENMSX_TARGET_OS)),)
-    # Tell GCC to produce a stripped binary.
-    LINK_FLAGS+=-s
-  else
+  ifeq ($(OPENMSX_TARGET_OS),darwin)
     # Current (mid-2006) GCC 4.x for OS X will strip too many symbols,
     # resulting in a binary that cannot run.
     # However, the separate "strip" tool does work correctly.
     STRIP_SEPARATE:=true
+  else
+    # Tell GCC to produce a stripped binary.
+    LINK_FLAGS+=-s
   endif
 endif
 
@@ -445,7 +454,7 @@ $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE)
 all: $(BINARY_FULL)
 
 # This is a workaround for the lack of order-only dependencies in GNU Make
-# versions before than 3.80 (for example Mac OS X 10.3 still ships with 3.79).
+# versions older than 3.80 (for example Mac OS X 10.3 still ships with 3.79).
 # It creates a dummy file, which is never modified after its initial creation.
 # If a rule that produces a file does not modify that file, Make considers the
 # target to be up-to-date. That way, the targets "init-dummy-file" depends on
@@ -574,13 +583,7 @@ run: all
 # Installation and Binary Packaging
 # =================================
 
-ifeq ($(OPENMSX_TARGET_OS),darwin-app)
-# Application directory for Darwin.
-# This handles the "bindist" target, but can also be used with the "install"
-# target to create an app folder but no DMG.
-include $(MAKE_PATH)/package-darwin/app.mk
-else
-ifeq ($(MAKECMDGOALS),bindist)
+ifneq ($(filter $(MAKECMDGOALS),bindist app),)
 # Create binary distribution directory.
 
 BINDIST_DIR:=$(BUILD_PATH)/bindist
@@ -615,8 +618,12 @@ bindistclean: $(BINARY_FULL)
 	@$(if $(BINDIST_PACKAGE),rm -f $(BINDIST_PACKAGE),)
 	@echo "Creating binary package:"
 endif
-endif
-
+ifeq ($(OPENMSX_TARGET_OS),darwin)
+# Application directory for Darwin.
+# This handles the "bindist" target, but can also be used with the "install"
+# target to create an app folder but no DMG.
+include $(MAKE_PATH)/package-darwin/app.mk
+else
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
 OPENMSX_INSTALL?=$(INSTALL_BASE)
@@ -625,10 +632,11 @@ INSTALL_BINARY_DIR?=$(OPENMSX_INSTALL)/bin
 INSTALL_SHARE_DIR?=$(OPENMSX_INSTALL)/share
 INSTALL_DOC_DIR?=$(OPENMSX_INSTALL)/doc
 INSTALL_VERBOSE?=true
+endif
 
 # DESTDIR is a convention shared by at least GNU and FreeBSD to specify a path
 # prefix that will be used for all installed files.
-install: all
+install: $(BINARY_FULL)
 	@$(PYTHON) build/install.py "$(DESTDIR)" \
 		$(INSTALL_BINARY_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR) \
 		$(BINARY_FULL) $(OPENMSX_TARGET_OS) \
@@ -645,9 +653,6 @@ dist:
 # Binary Packaging Using 3rd Party Libraries
 # ==========================================
 
-# Select platform variant suitable for binary packaging.
-BINDIST_TARGET_OS=$(OPENMSX_TARGET_OS:darwin=darwin-app)
-
 .PHONY: $(addprefix 3rdparty-,$(CPU_LIST)) run-3rdparty
 
 3rdparty: $(addprefix 3rdparty-,$(CPU_LIST))
@@ -658,7 +663,7 @@ BINDIST_TARGET_OS=$(OPENMSX_TARGET_OS:darwin=darwin-app)
 $(addprefix 3rdparty-,$(CPU_LIST)):
 	$(MAKE) -f $(MAKE_PATH)/main.mk run-3rdparty \
 		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
-		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
+		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
 		3RDPARTY_FLAG=true \
 		PYTHON=$(PYTHON)
@@ -680,7 +685,7 @@ run-3rdparty:
 staticbindist: 3rdparty
 	$(MAKE) -f build/main.mk bindist \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
-		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
+		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
 		3RDPARTY_FLAG=true \
 		PYTHON=$(PYTHON)
