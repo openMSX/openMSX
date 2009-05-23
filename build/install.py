@@ -26,8 +26,6 @@ def installAll(
 
 	docNodeVars = extractMakeVariables('doc/node.mk')
 	docsToInstall = [
-		'README', 'GPL', 'AUTHORS'
-		] + [
 		'doc/' + fileName for fileName in docNodeVars['INSTALL_DOCS'].split()
 		]
 
