@@ -16,7 +16,11 @@ def installAll(
 	):
 	platformVars = extractMakeVariables(
 		'build/platform-%s.mk' % targetPlatform,
-		dict.fromkeys(('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS'), '')
+		dict.fromkeys(
+			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
+			 'COMPILE_ENV', 'LINK_ENV'),
+			''
+			)
 		)
 	binaryFileName = 'openmsx' + platformVars.get('EXEEXT', '')
 
