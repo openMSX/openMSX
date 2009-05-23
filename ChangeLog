@@ -1,5 +1,10 @@
 $Id$
 
+2009-05-23 Maarten ter Huurne <maarten@treewalker.org>
+	* Always build application folder on Mac OS X.
+	  This is the way we release and supporting both app folder and
+	  systemwide installation only adds to the  maintaince effort.
+
 2009-05-05 Max Feingold <maf6@cornell.edu>
 	* Added a Win32 implementation of LocalFile:mmap().
 	  This should make file handling on Windows imperceptibly faster.
