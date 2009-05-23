@@ -8,8 +8,7 @@ SUBDIRS:=manual
 # the implementation, or because they are too rough/unfinished.
 # Below is the list of docs that should be included in installation.
 INSTALL_DOCS:= \
-	release-notes.txt release-history.txt \
-	exampleconfigs.xml
+	release-notes.txt release-history.txt
 
 DIST:=$(INSTALL_DOCS) \
 	msxinfo-article.html schema1.png schema2.png \
