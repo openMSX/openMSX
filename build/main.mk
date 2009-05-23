@@ -223,8 +223,6 @@ else
   BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 endif
 
-LOG_PATH:=$(BUILD_PATH)/log
-
 BUILDINFO_SCRIPT:=$(MAKE_PATH)/buildinfo2code.py
 CONFIG_HEADER:=$(BUILD_PATH)/config/build-info.hh
 PROBE_SCRIPT:=$(MAKE_PATH)/probe.py
