@@ -19,7 +19,7 @@ PACKAGE_FULL:=$(shell PYTHONPATH=build $(PYTHON) -c \
   )
 BINDIST_PACKAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_README:=$(BINDIST_DIR)/README.html
-BINDIST_LICENSE:=$(INSTALL_DOC_DIR)/GPL
+BINDIST_LICENSE:=$(INSTALL_DOC_DIR)/GPL.txt
 
 # TODO: What is needed for an app folder?
 app: install $(APP_PLIST) $(APP_ICON)
@@ -49,7 +49,7 @@ $(BINDIST_README): $(APP_SUPPORT_DIR)/README.html
 	@mkdir -p $(@D)
 	@cp $< $@
 
-$(BINDIST_LICENSE): GPL
+$(BINDIST_LICENSE): doc/GPL.txt app
 	@echo "  Copying license..."
 	@mkdir -p $(@D)
 # Remove form feeds from the GPL document, so Safari will treat it as text.
