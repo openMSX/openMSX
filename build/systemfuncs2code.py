@@ -16,7 +16,10 @@ def iterSystemFuncsHeader(functionResults):
 			yield '// #undef HAVE_%s' % makeName
 
 def getSystemFuncsInfo():
-	raise NotImplementedError
+	return dict.fromkeys(
+		(func.getMakeName() for func in systemFunctions),
+		False
+		)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 2:
@@ -27,4 +30,7 @@ if __name__ == '__main__':
 	else:
 		print >> sys.stderr, \
 			'Usage: python systemfuncs2code.py CONFIG_HEADER '
+		print >> sys.stderr, \
+			'Note: Should only be called directly on systems where the probe ' \
+			'does not work.'
 		sys.exit(2)
