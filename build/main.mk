@@ -51,13 +51,6 @@ NODEPEND_TARGETS:=clean config probe 3rdparty staticbindist
 .PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
 
 
-# Base Directories
-# ================
-
-# All created files will be inside this directory.
-BUILD_BASE:=derived
-
-
 # Settings
 # ========
 #
@@ -193,7 +186,7 @@ endif
 # Paths
 # =====
 
-BUILD_PATH:=$(BUILD_BASE)/$(PLATFORM)-$(OPENMSX_FLAVOUR)
+BUILD_PATH:=derived/$(PLATFORM)-$(OPENMSX_FLAVOUR)
 ifeq ($(3RDPARTY_FLAG),true)
   BUILD_PATH:=$(BUILD_PATH)-3rd
 endif
@@ -529,19 +522,19 @@ endif
 
 # Link executable.
 ifeq ($(OPENMSX_TARGET_CPU),univ)
-BINARY_FOR_CPU=$(BINARY_FULL:$(BUILD_BASE)/univ-%=$(BUILD_BASE)/$(1)-%)
+BINARY_FOR_CPU=$(BINARY_FULL:derived/univ-%=derived/$(1)-%)
 SINGLE_CPU_BINARIES=$(foreach CPU,$(CPU_LIST),$(call BINARY_FOR_CPU,$(CPU)))
 
 .PHONY: $(SINGLE_CPU_BINARIES)
 $(SINGLE_CPU_BINARIES):
-	@echo "Start compile for $(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) CPU..."
+	@echo "Start compile for $(firstword $(subst -, ,$(@:derived/%=%))) CPU..."
 	@$(MAKE) -f build/main.mk all \
-		OPENMSX_TARGET_CPU=$(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) \
+		OPENMSX_TARGET_CPU=$(firstword $(subst -, ,$(@:derived/%=%))) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
 		3RDPARTY_FLAG=$(3RDPARTY_FLAG) \
 		PYTHON=$(PYTHON)
-	@echo "Finished compile for $(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) CPU."
+	@echo "Finished compile for $(firstword $(subst -, ,$(@:derived/%=%))) CPU."
 
 $(BINARY_FULL): $(SINGLE_CPU_BINARIES)
 	@mkdir -p $(@D)
@@ -557,9 +550,9 @@ ifeq ($(OPENMSX_SUBSET),)
 	@strip $@
   endif
   ifeq ($(USE_SYMLINK),true)
-	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(BINARY_FILE)
+	@ln -sf $(@:derived/%=%) derived/$(BINARY_FILE)
   else
-	@cp $@ $(BUILD_BASE)/$(BINARY_FILE)
+	@cp $@ derived/$(BINARY_FILE)
   endif
 else
 	@echo "Not linking $(notdir $@) because only a subset was built."
