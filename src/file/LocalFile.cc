@@ -125,7 +125,7 @@ byte* LocalFile::mmap(bool writeBack)
 		assert(!hMmap);
 		hMmap = CreateFileMapping(hFile, NULL, writeBack ? PAGE_EXECUTE_READWRITE : PAGE_WRITECOPY, 0, 0, NULL);
 		if (!hMmap) {
-			throw FileException("CreateFileMapping failed: " + 
+			throw FileException("CreateFileMapping failed: " +
 				StringOp::toString(GetLastError()));
 		}
 		mmem = static_cast<byte*>(MapViewOfFile(hMmap, writeBack ? FILE_MAP_ALL_ACCESS : FILE_MAP_COPY, 0, 0, 0));
@@ -133,7 +133,7 @@ byte* LocalFile::mmap(bool writeBack)
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
 			hMmap = NULL;
-			throw FileException("MapViewOfFile failed: " + 
+			throw FileException("MapViewOfFile failed: " +
 				StringOp::toString(gle));
 		}
 	}
@@ -145,8 +145,8 @@ void LocalFile::munmap()
 	if (mmem) {
 		// TODO: make this a valid failure path
 		// When pages are dirty, UnmapViewOfFile is a save operation,
-		// and that can fail. However, mummap is called from 
-		// the destructor, for which there is no expectation 
+		// and that can fail. However, mummap is called from
+		// the destructor, for which there is no expectation
 		// that it will fail. So this area needs some work.
 		// It is NOT an option to throw an exception (not even
 		// FatalError).

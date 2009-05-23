@@ -24,7 +24,7 @@ namespace openmsx {
 namespace MemoryOps {
 
 // This provides no noticeable performance improvement in
-// emulator benchmarks with VC++. Consequently, there's no reason 
+// emulator benchmarks with VC++. Consequently, there's no reason
 // to write a Win64 ASM version of this.
 #if defined ASM_X86 && !defined _WIN64
 // note: xmm0 must already be filled in
@@ -313,7 +313,7 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 
 #ifdef ASM_X86
 #ifdef _MSC_VER
-	// VC++'s __stosd intrinsic results in emulator benchmarks 
+	// VC++'s __stosd intrinsic results in emulator benchmarks
 	// running about 7% faster than with memset_32_2, streaming or not,
 	// and about 3% faster than the C code below.
 	__stosd(reinterpret_cast<unsigned long*>(dest), val, num);
@@ -473,7 +473,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 	// 'dst' must be 4-byte aligned. For best performance 'src' should also
 	// be 4-byte aligned, but it's not strictly needed.
 	assert((size_t(dst) & 3) == 0);
-	// VC++'s memcpy function results in emulator benchmarks 
+	// VC++'s memcpy function results in emulator benchmarks
 	// running about 5% faster than with stream_memcpy.
 	// Consequently, we disable this functionality in VC++.
 	#if defined ASM_X86 && !defined _MSC_VER
@@ -530,7 +530,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 			movntq      mmword ptr [edi+10h],mm2
 			movntq      mmword ptr [edi+18h],mm3
 			add         ebx,20h
-			add         edi,20h   
+			add         edi,20h
 	label2:
 			test        esi,4
 			je          label3
@@ -662,7 +662,7 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	// 'dst' must be 2-byte aligned. For best performance 'src' should also
 	// be 2-byte aligned, but it's not strictly needed.
 	assert((long(dst) & 1) == 0);
-	// VC++'s memcpy function results in emulator benchmarks 
+	// VC++'s memcpy function results in emulator benchmarks
 	// running about 5% faster than with stream_memcpy.
 	// Consequently, we disable this functionality in VC++.
 	#if defined ASM_X86 && !defined _MSC_VER
