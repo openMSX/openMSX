@@ -140,7 +140,7 @@ If you have compiled packages from source before, you probably have some of thes
 required. However, Python 3.0 contains incompatible changes in the language, so
 make sure you install a version from the 2.x series. Eventually Python will
 replace Make completely in our build system, but at the moment both are
-required.</dd>
+required. Note: on Windows 7 you may have to add the path to Python (e.g. <code>C:\Python26</code>) to your <code>PATH</code> manually.</dd>
 <dt>There are two compilers that are can be used to build openMSX: gcc
 and Visual C++. The gcc compiler builds openMSX on all supported platforms,
 while Visual C++ is an alternative option on Windows.</dt>
@@ -704,18 +704,13 @@ dynamic library dependencies. Two platforms are supported:</p>
 	<li>Developer: assertions enabled, debug prints disabled, no optimization</li>
 	<li>Release: assertions disabled, debug prints disabled, full optimization</li>
 </ul>
-<p>When building with Visual C++, you can either use the IDE or build from the 
-command line using msbuild. To do the latter, you need to open a Visual Studio 
-command prompt. A shortcut to a Visual Studio command prompt can usually be 
-found in your start menu. For Visual C++ 2008, it will be in &quot;Microsoft Visual 
-Studio 2008\Visual Studio Tools&quot; as the &quot;Visual Studio 2008 Command Prompt&quot;. For 
-the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the &quot;CMD Shell&quot;</p>
+<p>When building with Visual C++, you can either use the IDE or build from the command line using <code>msbuild</code>. To do the latter, you need to open a Visual Studio command prompt. A shortcut to a Visual Studio command prompt can usually be found in your start menu. For Visual C++ 2008, it will be in &quot;Microsoft Visual Studio 2008\Visual Studio Tools&quot; as the &quot;Visual Studio 2008 Command Prompt&quot;. For the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the &quot;CMD Shell&quot;</p>
 <!-- TODO - Replace this section when we have integration with the broader 3rd party system -->
 <p>In order to build openMSX, the libraries it depends on need to be
 downloaded and unpacked:</p>
 <ul>
 	<li>Open a command prompt and go to the <em>top of the openMSX source tree</em></li>
-	<li>Type <code>python build\3rdparty_download.py Windows</code></li>
+	<li>Type <code>python build\3rdparty_download.py windows</code></li>
 </ul>
 
 <p>
@@ -730,9 +725,7 @@ The following steps can then be used to build openMSX:</p>
 <p>The openMSX executable will be generated in <code>derived\Win32-VC-Release\install</code>.</p>
 <p>To build for other platforms or configurations, simply replace &quot;Release&quot; and
 &quot;Win32&quot;&nbsp;in the command lines above with the desired options.</p>
-<p>To build using the Visual C++ IDE, simply open the aforementioned solution 
-files and from the Build menu select &quot;Build Solution&quot;. This is exactly 
-equivalent to building from the command line using msbuild.</p>
+<p>To build using the Visual C++ IDE, simply open the aforementioned solution files and from the Build menu select &quot;Build Solution&quot;. This is exactly equivalent to building from the command line using <code>msbuild</code>.</p>
 <h3><a id="installstandalone">5.2 Installation</a></h3>
 
 <!-- TODO - generalize this for both MinGW and VC++, integrate into make install -->
