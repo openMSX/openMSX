@@ -229,7 +229,6 @@ CONFIG_PATH:=$(BUILD_PATH)/config
 BUILDINFO_SCRIPT:=$(MAKE_PATH)/buildinfo2code.py
 CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
 PROBE_SCRIPT:=$(MAKE_PATH)/probe.py
-PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
 PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_SCRIPT:=$(MAKE_PATH)/version2code.py
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
