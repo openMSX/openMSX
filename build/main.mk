@@ -57,9 +57,6 @@ NODEPEND_TARGETS:=clean config probe 3rdparty staticbindist
 # All created files will be inside this directory.
 BUILD_BASE:=derived
 
-# All global Makefiles are inside this directory.
-MAKE_PATH:=build
-
 
 # Settings
 # ========
@@ -103,7 +100,7 @@ TARGET_FLAGS:=
 # Customisation
 # =============
 
-include $(MAKE_PATH)/custom.mk
+include build/custom.mk
 $(call DEFCHECK,INSTALL_BASE)
 $(call BOOLCHECK,VERSION_EXEC)
 $(call BOOLCHECK,SYMLINK_FOR_BINARY)
@@ -123,7 +120,7 @@ LINK_MODE:=$(if $(filter true,$(3RDPARTY_FLAG)),3RD_STA,SYS_DYN)
 
 # Do not perform autodetection if platform was specified by the user.
 ifneq ($(filter undefined,$(origin OPENMSX_TARGET_CPU) $(origin OPENMSX_TARGET_OS)),)
-DETECTSYS_SCRIPT:=$(MAKE_PATH)/detectsys.py
+DETECTSYS_SCRIPT:=build/detectsys.py
 LOCAL_PLATFORM:=$(shell $(PYTHON) $(DETECTSYS_SCRIPT))
 ifeq ($(LOCAL_PLATFORM),)
 $(error No platform specified using OPENMSX_TARGET_CPU and OPENMSX_TARGET_OS and autodetection of local platform failed)
@@ -176,7 +173,7 @@ endif
 
 # Load OS specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_OS)
-include $(MAKE_PATH)/platform-$(OPENMSX_TARGET_OS).mk
+include build/platform-$(OPENMSX_TARGET_OS).mk
 # Check that all expected variables were defined by OS specific Makefile:
 # - executable file name extension
 $(call DEFCHECK,EXEEXT)
@@ -189,7 +186,7 @@ $(call BOOLCHECK,USE_SYMLINK)
 
 ifneq ($(OPENMSX_TARGET_CPU),univ)
 # Load flavour specific settings.
-include $(MAKE_PATH)/flavour-$(OPENMSX_FLAVOUR).mk
+include build/flavour-$(OPENMSX_FLAVOUR).mk
 endif
 
 
@@ -223,14 +220,14 @@ else
   BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 endif
 
-BUILDINFO_SCRIPT:=$(MAKE_PATH)/buildinfo2code.py
+BUILDINFO_SCRIPT:=build/buildinfo2code.py
 CONFIG_HEADER:=$(BUILD_PATH)/config/build-info.hh
-PROBE_SCRIPT:=$(MAKE_PATH)/probe.py
+PROBE_SCRIPT:=build/probe.py
 PROBE_MAKE:=$(BUILD_PATH)/config/probed_defs.mk
-VERSION_SCRIPT:=$(MAKE_PATH)/version2code.py
+VERSION_SCRIPT:=build/version2code.py
 VERSION_HEADER:=$(BUILD_PATH)/config/Version.ii
-COMPONENTS_HEADER_SCRIPT:=$(MAKE_PATH)/components2code.py
-COMPONENTS_DEFS_SCRIPT:=$(MAKE_PATH)/components2defs.py
+COMPONENTS_HEADER_SCRIPT:=build/components2code.py
+COMPONENTS_DEFS_SCRIPT:=build/components2defs.py
 COMPONENTS_HEADER:=$(BUILD_PATH)/config/components.hh
 COMPONENTS_DEFS:=$(BUILD_PATH)/config/components_defs.mk
 GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
@@ -288,7 +285,7 @@ OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 RESOURCE_SRC:=src/resource/openmsx.rc
 RESOURCE_OBJ:=$(OBJECTS_PATH)/resources.o
-RESOURCE_SCRIPT:=$(MAKE_PATH)/win_resource.py
+RESOURCE_SCRIPT:=build/win_resource.py
 RESOURCE_HEADER:=$(BUILD_PATH)/config/resource-info.h
 else
 RESOURCE_OBJ:=
@@ -413,21 +410,21 @@ probe: $(PROBE_MAKE)
 endif
 
 # Probe for headers and functions.
-$(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
+$(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk build/tcl-search.sh
 	@$(PYTHON) $(PROBE_SCRIPT) \
 		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
 	@touch $@
 
 # Generate configuration header.
-$(CONFIG_HEADER): $(BUILDINFO_SCRIPT) $(MAKE_PATH)/custom.mk
+$(CONFIG_HEADER): $(BUILDINFO_SCRIPT) build/custom.mk
 	@$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
 		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
 		$(INSTALL_SHARE_DIR)
 	@touch $@
 
 # Generate version header.
-$(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog $(MAKE_PATH)/version.py
+$(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog build/version.py
 	@$(PYTHON) $(VERSION_SCRIPT) $@
 	@touch $@
 
@@ -521,7 +518,7 @@ $(DEPEND_FULL):
 # Windows resources that are added to the executable.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 $(RESOURCE_HEADER): $(INIT_DUMMY_FILE) $(RESOURCE_SCRIPT) \
-		ChangeLog $(MAKE_PATH)/version.py
+		ChangeLog build/version.py
 	@$(PYTHON) $(RESOURCE_SCRIPT) $@
 	@touch $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
@@ -617,7 +614,7 @@ ifeq ($(OPENMSX_TARGET_OS),darwin)
 # Application directory for Darwin.
 # This handles the "bindist" target, but can also be used with the "install"
 # target to create an app folder but no DMG.
-include $(MAKE_PATH)/package-darwin/app.mk
+include build/package-darwin/app.mk
 else
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
@@ -656,7 +653,7 @@ dist:
 # This is used even when building for a single CPU, since the OS and flavour
 # can differ.
 $(addprefix 3rdparty-,$(CPU_LIST)):
-	$(MAKE) -f $(MAKE_PATH)/main.mk run-3rdparty \
+	$(MAKE) -f build/main.mk run-3rdparty \
 		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
@@ -668,7 +665,7 @@ $(addprefix 3rdparty-,$(CPU_LIST)):
 # TODO: Instead of filtering out pseudo-platform hacks like "darwin-app" and
 #       "linux-icc", design a proper way of handling them.
 run-3rdparty:
-	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
+	$(MAKE) -f build/3rdparty.mk \
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(firstword $(subst -, ,$(OPENMSX_TARGET_OS))) \
