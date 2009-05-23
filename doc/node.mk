@@ -8,6 +8,7 @@ SUBDIRS:=manual
 # the implementation, or because they are too rough/unfinished.
 # Below is the list of docs that should be included in installation.
 INSTALL_DOCS:= \
+	authors.txt GPL.txt \
 	release-notes.txt release-history.txt
 
 DIST:=$(INSTALL_DOCS) \

@@ -7,7 +7,7 @@ SUBDIRS:= \
 
 DIST:= \
 	GNUmakefile configure \
-	ChangeLog AUTHORS GPL README \
+	ChangeLog README \
 	share
 
 include build/node-end.mk
