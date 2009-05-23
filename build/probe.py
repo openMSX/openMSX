@@ -173,7 +173,7 @@ class TargetSystem(object):
 		self.distroRoot = distroRoot
 		self.configuration = configuration
 		self.outMakePath = outDir + '/probed_defs.mk'
-		self.outHeaderPath = outDir + '/probed_defs.hh'
+		self.outHeaderPath = outDir + '/systemfuncs.hh'
 		self.outVars = {}
 		self.functionResults = {}
 		self.libraries = sorted(requiredLibrariesFor(

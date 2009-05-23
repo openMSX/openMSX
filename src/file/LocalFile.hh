@@ -8,7 +8,7 @@
 #endif
 #include "File.hh"
 #include "FileBase.hh"
-#include "probed_defs.hh"
+#include "systemfuncs.hh"
 #include <cstdio>
 #include <memory>
 

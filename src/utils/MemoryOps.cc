@@ -5,7 +5,7 @@
 #include "likely.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
-#include "probed_defs.hh"
+#include "systemfuncs.hh"
 #include "GLUtil.hh"
 #include "Math.hh"
 #include "static_assert.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Timer.hh"
-#include "probed_defs.hh"
+#include "systemfuncs.hh"
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #include <ctime>
