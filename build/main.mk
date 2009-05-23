@@ -214,18 +214,13 @@ BINARY_FILE:=openmsx$(EXEEXT)
 BINDIST_DIR:=$(BUILD_PATH)/bindist
 BINDIST_PACKAGE:=
 
-ifeq ($(OPENMSX_TARGET_OS),darwin)
-  # Write binary directly into application folder.
-  BINARY_FULL:=$(BINDIST_DIR)/openMSX.app/Contents/MacOS/$(BINARY_FILE)
+ifeq ($(VERSION_EXEC),true)
+  CHANGELOG_REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
+    "import version; print version.extractRevision()" \
+    )
+  BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
 else
-  ifeq ($(VERSION_EXEC),true)
-    CHANGELOG_REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
-      "import version; print version.extractRevision()" \
-      )
-    BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
-  else
-    BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
-  endif
+  BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 endif
 
 LOG_PATH:=$(BUILD_PATH)/log
