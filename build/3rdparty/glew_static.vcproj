@@ -462,7 +462,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\glew\src\glew.c"
+				RelativePath="..\..\derived\3rdparty\src\glew-1.5.1\src\glew.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -543,11 +543,11 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\glew\include\GL\glew.h"
+				RelativePath="..\..\derived\3rdparty\src\glew-1.5.1\include\GL\glew.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\glew\include\GL\wglew.h"
+				RelativePath="..\..\derived\3rdparty\src\glew-1.5.1\include\GL\wglew.h"
 				>
 			</File>
 		</Filter>
@@ -555,7 +555,7 @@
 			Name="Resources"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\glew\build\vc6\glew.rc"
+				RelativePath="..\..\derived\3rdparty\src\glew-1.5.1\build\vc6\glew.rc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

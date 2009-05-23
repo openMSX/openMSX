@@ -68,7 +68,7 @@
 	/>
 	<UserMacro
 		Name="LibNameGlew"
-		Value="glew"
+		Value="glew-1.5.1"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
@@ -78,7 +78,7 @@
 	/>
 	<UserMacro
 		Name="LibNameLibXml"
-		Value="libxml2-2.7.2"
+		Value="libxml2-2.7.3"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
@@ -103,7 +103,7 @@
 	/>
 	<UserMacro
 		Name="LibNameTcl"
-		Value="tcl8.5.6"
+		Value="tcl-8.5.6"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
