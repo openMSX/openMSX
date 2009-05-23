@@ -6,6 +6,7 @@ Wouter Vermaelen     <wouter.vermaelen@scarlet.be>
 Maarten ter Huurne   <maarten@treewalker.org>
 Manuel Bilderbeek    <manuel@msxnet.org>
 Arnold Metselaar     <arnold_m@operamail.com>
+Patrick van Arkel    <vampiermsx@gmail.com>
 Max Feingold
 
 Retired Developers:
@@ -55,7 +56,6 @@ atarulum             <atarulum@yahoo.co.jp>
 Patriek Lesparre     <patriekl@dds.nl>
 Manuel Pazos         <mpazos@mundivia.es>
 Tetsuo Honda         <t-honda@hondarer-soft.com>
-Patrick van Arkel    <vampier@vampier.net>
 Albert Beevendorp    <bifi@msxnet.org>
 Jorrith Schaap       <jorrith@home.nl>
 Jan Lukens           <j.lukens@xs4all.nl>
