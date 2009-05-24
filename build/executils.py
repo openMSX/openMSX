@@ -41,7 +41,7 @@ def captureStdout(log, commandLine):
 	if stderrdata:
 		severity = 'warning' if proc.returncode == 0 else 'error'
 		log.write('%s executing "%s"\n' % (severity.capitalize(), commandLine))
-		# pylint 0.18.0 somehow thinks stdoutdata is a list, not a string.
+		# pylint 0.18.0 somehow thinks stderrdata is a list, not a string.
 		# pylint: disable-msg=E1103
 		stderrdata = stderrdata.replace('\r', '')
 		log.write(stderrdata)
