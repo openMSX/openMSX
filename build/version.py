@@ -32,10 +32,14 @@ def _extractRevisionFromStdout(log, command, regex):
 		return None
 
 def extractSVNRevision(log):
-	return _extractRevisionFromStdout(log, 'svn info', 'Revision:\s*(\d+)')
+	return _extractRevisionFromStdout(
+		log, 'svn info', r'Revision:\s*(\d+)'
+		)
 
 def extractSVNGitRevision(log):
-	return _extractRevisionFromStdout(log, 'git-log', 'git-svn-id:.*@(\d+)')
+	return _extractRevisionFromStdout(
+		log, 'git log -n 100', r'\s*git-svn-id:.*@(\d+)'
+		)
 
 def extractChangeLogRevision(log):
 	for revision, in filterFile('ChangeLog', r'\$Id: ChangeLog (\d+).*\$'):
