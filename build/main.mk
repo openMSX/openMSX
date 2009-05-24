@@ -417,9 +417,10 @@ $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) build/custom.mk
 	@touch $@
 
 # Generate version header.
-$(VERSION_HEADER): $(VERSION_SCRIPT) ChangeLog build/version.py
+.PHONY: forceversionextraction
+forceversionextraction:
+$(VERSION_HEADER): forceversionextraction
 	@$(PYTHON) $(VERSION_SCRIPT) $@
-	@touch $@
 
 # Generate components header.
 $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE)

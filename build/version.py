@@ -1,7 +1,8 @@
 # $Id$
 # Contains the openMSX version number and versioning related functions.
 
-from makeutils import filterFile
+from executils import captureStdout
+from makeutils import filterFile, filterLines
 
 # Name used for packaging.
 packageName = 'openmsx'
@@ -12,35 +13,47 @@ packageVersion = '0.7.0'
 # Is this a release version ("True") or development version ("False").
 releaseFlag = False
 
-# TODO: Before extraction of SVN or git-SVN revision number can be done, we
-#       should figure out a way to avoid rewriting Version.ii on every build.
-#       Option 1: Read Version.ii and do not write if new contents are the same.
-#       Option 2: Persist the extracted revision number.
-#       I prefer option 2, since it is more modular (separate extraction and
-#       include generation steps) but option 1 might be easier to imlement at
-#       first (no need to persist anything).
+def _extractRevisionFromStdout(log, command, regex):
+	text = captureStdout(log, command)
+	if text is None:
+		# Error logging already done by captureStdout().
+		return None
+	# pylint 0.18.0 somehow thinks captureStdout() returns a list, not a string.
+	lines = text.split('\n') # pylint: disable-msg=E1103
+	for revision, in filterLines(lines, regex):
+		return revision
+	else:
+		print >> log, 'Revision number not found in "%s" output:' % command
+		print >> log, text
+		return None
 
-def extractSVNRevision():
-	return None
-	# `svn info`, re = 'Revision:\s*(\d+)'
+def extractSVNRevision(log):
+	return _extractRevisionFromStdout(log, 'svn info', 'Revision:\s*(\d+)')
 
-def extractSVNGitRevision():
-	return None
-	# `git-log`, re = 'git-svn-id:.*@(\d+)'
+def extractSVNGitRevision(log):
+	return _extractRevisionFromStdout(log, 'git-log', 'git-svn-id:.*@(\d+)')
 
-def extractChangeLogRevision():
+def extractChangeLogRevision(log):
 	for revision, in filterFile('ChangeLog', r'\$Id: ChangeLog (\d+).*\$'):
 		return revision
 	else:
+		print >> log, 'Revision number not found in ChangeLog'
 		return None
 
 def extractRevision():
-	return (
-		extractSVNRevision() or
-		extractSVNGitRevision() or
-		extractChangeLogRevision() or
-		'unknown'
-		)
+	log = open('derived/version.log', 'w')
+	print >> log, 'Extracting revision number...'
+	try:
+		revision = (
+			extractSVNRevision(log) or
+			extractSVNGitRevision(log) or
+			extractChangeLogRevision(log) or
+			'unknown'
+			)
+		print >> log, 'Revision number: %s' % revision
+	finally:
+		log.close()
+	return revision
 
 def getVersionedPackageName():
 	if releaseFlag:
