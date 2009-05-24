@@ -511,10 +511,8 @@ $(DEPEND_FULL):
 
 # Windows resources that are added to the executable.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
-$(RESOURCE_HEADER): $(INIT_DUMMY_FILE) $(RESOURCE_SCRIPT) \
-		ChangeLog build/version.py
+$(RESOURCE_HEADER): $(INIT_DUMMY_FILE) forceversionextraction
 	@$(PYTHON) $(RESOURCE_SCRIPT) $@
-	@touch $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
 	@echo "Compiling resources..."
 	@mkdir -p $(@D)
