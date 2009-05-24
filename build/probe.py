@@ -410,7 +410,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 					distroRoot = '/sw'
 					break
 			else:
-				distroRoot = '/usr/locql'
+				distroRoot = '/usr/local'
 
 		configuration = getConfiguration(linkMode)
 
