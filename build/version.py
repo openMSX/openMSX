@@ -11,10 +11,10 @@ from os.path import isdir
 packageName = 'openmsx'
 
 # Version number.
-packageVersion = '0.7.0'
+packageVersion = '0.7.1-pre1'
 
 # Is this a release version ("True") or development version ("False").
-releaseFlag = False
+releaseFlag = True
 
 def _extractRevisionFromStdout(log, command, regex):
 	text = captureStdout(log, command)
