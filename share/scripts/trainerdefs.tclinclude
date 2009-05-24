@@ -2720,10 +2720,25 @@ create_trainer "Inspecteur Z" {time 1} {
 }
 
 create_trainer "1942" {time 1} {
-	"infinitive lives" {poke 0xed2f 9}
-	"infinitive loops" {poke 0xee81 9}
-	"get big shot and become invincible" {poke 0xee83 255}
-	"stage" {#poke 0xed20 x}
+	"stage (1-32)" {poke 0xed20 1}
+	"lives" {poke 0xed2f 9}
+	"right ghost plane" {poke 0xee66 1}
+	"left ghost plane" {poke 0xee76 1}
+	"loops" {poke 0xee81 9}
+	"two middle shots" {poke 0xee83 0}
+	"four middle shots" {poke 0xee83 1}
+	"two middle shots + right shot" {poke 0xee83 2}
+	"four middle shots + right shot" {poke 0xee83 3}
+	"left shot + two middle shots" {poke 0xee83 4}
+	"left shot + four middle shots" {poke 0xee83 5}
+	"left shot + two middle shots + right shot" {poke 0xee83 6}
+	"left shot + four middle shots + right shot" {poke 0xee83 7}
+	"invulnerable + two middle shots + right shot" {poke 0xee83 250}
+	"invulnerable + four middle shots + right shot" {poke 0xee83 251}
+	"invulnerable + left shot + two middle shots" {poke 0xee83 252}
+	"invulnerable + left shot + four middle shots" {poke 0xee83 253}
+	"invulnerable + left shot + two middle shots + right shot" {poke 0xee83 254}
+	"invulnerable + left shot + four middle shots + right shot" {poke 0xee83 255}
 }
 
 create_trainer "Boulderdash" {frame} {
@@ -6721,7 +6736,7 @@ create_trainer "Crimson DSK" {time 1} {
 	"equipment 7 Arnold (1-37)" {poke 0xaab5 1}
 	"equipment 8 Arnold (1-37)" {poke 0xaab7 1}
 	"equipment 9 Arnold (1-37)" {poke 0xaab9 1}
-	"equipment 10 Arnold (1-37)" {poke 0xaabb 1}   
+	"equipment 10 Arnold (1-37)" {poke 0xaabb 1}
 	"money" {poke 0xaabd 255;poke 0xaabe 255}
 	"monsters die faster" {poke 0xaf14 1}
 }
