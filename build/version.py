@@ -4,6 +4,9 @@
 from executils import captureStdout
 from makeutils import filterFile, filterLines
 
+from os import makedirs
+from os.path import isdir
+
 # Name used for packaging.
 packageName = 'openmsx'
 
@@ -21,6 +24,7 @@ def _extractRevisionFromStdout(log, command, regex):
 	# pylint 0.18.0 somehow thinks captureStdout() returns a list, not a string.
 	lines = text.split('\n') # pylint: disable-msg=E1103
 	for revision, in filterLines(lines, regex):
+		print >> log, 'Revision number found by "%s": %s' % (command, revision)
 		return revision
 	else:
 		print >> log, 'Revision number not found in "%s" output:' % command
@@ -35,12 +39,15 @@ def extractSVNGitRevision(log):
 
 def extractChangeLogRevision(log):
 	for revision, in filterFile('ChangeLog', r'\$Id: ChangeLog (\d+).*\$'):
+		print >> log, 'Revision number found in ChangeLog: %s' % revision
 		return revision
 	else:
 		print >> log, 'Revision number not found in ChangeLog'
 		return None
 
 def extractRevision():
+	if not isdir('derived'):
+		makedirs('derived')
 	log = open('derived/version.log', 'w')
 	print >> log, 'Extracting revision number...'
 	try:
