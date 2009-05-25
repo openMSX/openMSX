@@ -1,11 +1,13 @@
 import os, sys
 import install
 
-def DeleteDirectoryIfExists(top):
+def EmptyOrCreateDirectory(top):
 	if os.path.exists(top):
-		DeleteDirectory(top)
-		
-def DeleteDirectory(top):
+		EmptyDirectory(top)
+	else:
+		os.makedirs(top)
+
+def EmptyDirectory(top):
 	for root, dirs, files in os.walk(top, topdown=False):
 		for name in files:
 			os.remove(os.path.join(root, name))
@@ -13,7 +15,7 @@ def DeleteDirectory(top):
 			os.rmdir(os.path.join(root, name))
 
 def GenerateInstallFiles(info):
-	DeleteDirectoryIfExists(info.makeInstallPath)
+	EmptyOrCreateDirectory(info.makeInstallPath)
 	install.installAll(info.makeInstallPath + os.sep, 'bin', 'share', 'doc', info.openmsxExePath, 'mingw32', True, True)
 
 def WalkPath(sourcePath):
