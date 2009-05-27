@@ -154,6 +154,7 @@ proc toggle_info_panel {} {
 		info_panel_init
 		update_info_panel
 	}
+	return ""
 }
 
 ## Stuff to calculate the actual speed (could be made public later)

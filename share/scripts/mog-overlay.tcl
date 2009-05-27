@@ -266,6 +266,7 @@ proc toggle_mog_overlay {} {
 	} else {
 		osd destroy mog
 	}
+	return ""
 }
 
 namespace export toggle_mog_overlay

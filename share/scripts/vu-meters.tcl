@@ -218,6 +218,7 @@ proc toggle_vu_meters {} {
 		vu_meters_init
 		update_meters
 	}
+	return ""
 }
 
 #proc parray {name} {
