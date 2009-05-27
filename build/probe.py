@@ -343,18 +343,22 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	print >> log, 'Probing system:'
 	try:
 		distroRoot = thirdPartyInstall or None
-		if platform == 'darwin' and distroRoot is None:
-			for searchPath in environ.get('PATH', '').split(pathsep):
-				if searchPath == '/opt/local/bin':
-					print 'Using libraries from MacPorts.'
-					distroRoot = '/opt/local'
-					break
-				elif searchPath == '/sw/bin':
-					print 'Using libraries from Fink.'
-					distroRoot = '/sw'
-					break
-			else:
-				distroRoot = '/usr/local'
+		if distroRoot is None:
+			if platform == 'darwin':
+				for searchPath in environ.get('PATH', '').split(pathsep):
+					if searchPath == '/opt/local/bin':
+						print 'Using libraries from MacPorts.'
+						distroRoot = '/opt/local'
+						break
+					elif searchPath == '/sw/bin':
+						print 'Using libraries from Fink.'
+						distroRoot = '/sw'
+						break
+				else:
+					distroRoot = '/usr/local'
+			elif platform.endswith('bsd'):
+				distroRoot = environ.get('LOCALBASE', '/usr/local')
+				print 'Using libraries from ports directory %s.' % distroRoot
 
 		configuration = getConfiguration(linkMode)
 
