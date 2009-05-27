@@ -45,6 +45,8 @@ New or improved emulator features:
     the currently emulated MSX
   - scc_viewer: shows current waveform and volume of the SCC channels
   - mog_overlay: help and extra information when playing The Maze of Galious
+  - info_panel: a general information panel, similar to the DIGIblue v2 theme
+    of blueMSX
 
 MSX device support:
 - Several new machines were added, e.g. Sony HB-F700P, Panasonic CF-2700
