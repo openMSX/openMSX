@@ -734,13 +734,11 @@ The following steps can then be used to build openMSX:</p>
 <!-- TODO - ensure wxCatapult is optional -->
 <h4>Visual C++</h4>
 <p>
-The following step creates .zip and .msi installation packages for openMSX
-on Windows:</p>
+The following step creates .zip and .msi installation packages for openMSX on Windows using WiX:</p>
 <ul>
 	<li>Build <a href="#standalone_compilation">openMSX</a> and
 	<a class="external" href="http://openmsx.sourceforge.net/catapult-manual/compile.html">wxCatapult</a>
-	for a given platform (Win32 or x64) and configuration (usually Release 
-	builds)</li>
+	for a given platform (Win32 or x64) and configuration (usually Release builds)</li>
 	<li>Go to the <em>top of the openMSX source tree</em></li>
 	<li>Run <code>build\package-windows\package.cmd <strong>platform configuration</strong> <strong>version</strong> <strong>catapult_source_path</strong></code>:<ul>
 		<li><strong>platform</strong> is one of { Win32, x64 }</li>
@@ -751,7 +749,7 @@ on Windows:</p>
 	</li>
 </ul>
 
-<p>An example command line would be:</p>
+<p>An example command line would be (for 64 bit):</p>
 <div class="commandline">
 	build\package-windows\package.cmd x64 Release 0.7.1 ..\wxCatapult</div>
 
