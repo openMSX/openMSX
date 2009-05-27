@@ -25,7 +25,7 @@ proc get_screen {} {
 	for {set y 0} {$y < 23} {incr y} {
 		set line ""
 		for {set x 0} {$x < $width} {incr x} {
-			append line [format %c [debug read VRAM $addr]]
+			append line [format %c [vpeek $addr]]
 			incr addr
 		}
 		append screen [string trim $line] "\n"
