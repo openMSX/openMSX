@@ -14,9 +14,9 @@ def PackageMsi(info):
 
 	print 'Generating install files...'
 	packagewindows.GenerateInstallFiles(info);
-		
+
 	wixIntermediatePath = os.path.join(info.buildPath, 'build\\WiX')
-	packagewindows.DeleteDirectoryIfExists(wixIntermediatePath)
+	packagewindows.EmptyOrCreateDirectory(wixIntermediatePath)
 	
 	if not os.path.exists(info.packagePath):
 		os.mkdir(info.packagePath)
