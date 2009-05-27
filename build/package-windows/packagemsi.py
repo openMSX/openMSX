@@ -1,4 +1,5 @@
 import os, sys
+import zipfile
 import packagewindows
 import harvest
 
@@ -164,6 +165,15 @@ def PackageMsi(info):
 	# Run Light
 	print lightCmd
 	os.system(lightCmd)
+	
+	# Zip up the MSI
+	zipFileName = info.installerFileName + '-msi.zip'
+	zipFilePath = os.path.join(info.packagePath, zipFileName)
+	
+	print 'Generating ' + zipFilePath
+	zip = zipfile.ZipFile(zipFilePath, 'w')
+	zip.write(msiFilePath, msiFileName, zipfile.ZIP_DEFLATED)
+	zip.close()
 
 if __name__ == '__main__':
 	if len(sys.argv) != 5:
