@@ -13,19 +13,19 @@ cool demonstrations of what one can do with the combination of (Tcl) scripting,
 the debug command and the OSD.
 
 New or improved emulator features:
-- Removed buggy SDLGL renderer (use SDLGL-PP)
+- Removed buggy SDLGL renderer (instead use SDLGL-PP)
 - Debugging:
   - implemented step_out
   - implemented skip_instruction
   - implemented general debug conditions (not bound to addresses anymore, but
     note: this is very CPU intensive!)
-- Major speed optimizations in the CPU emulation
+- Speed optimizations in the CPU emulation
 - Console now uses TrueType fonts, and can display localized text now (as long
   as the characters are in the used font), in other words: it supports unicode
 - Optimizations in ZMBV encoding cause openMSX video recordings to become
   smaller and the encoding to be faster
 - As is default in fMSX, it is now possible to automatically pause openMSX when
-  the mouse pointer leaves the openMSX window
+  the mouse pointer leaves the openMSX window (not enabled by default)
 - Added icons in the OSD for 'pause', 'full throttle', 'debug break' and 'mute'
   status
 - Added several improvements on the OSD, regarding features, bug fixes and speed
@@ -38,11 +38,12 @@ New or improved emulator features:
     does mean that older builds of the openMSX debugger will not work anymore
     with this openMSX release, you need an updated build!
 - Added the possibility to include OSD elements in screenshots, which are now
-  not shown by default (e.g. typing screenshot in the console no longer shows
-  the console in the screenshot)
+  no longer included by default (e.g. typing screenshot in the console no longer
+  shows the console in the screenshot)
 - Added some scripts that demonstrate the OSD framework:
   - vu_meters: shows graphical VU meters for each channel of each sound chip in
     the currently emulated MSX
+  - scc_viewer: shows current waveform and volume of the SCC channels
   - mog_overlay: help and extra information when playing The Maze of Galious
 
 MSX device support:
@@ -55,11 +56,11 @@ MSX device support:
   - Z80:
     - added 'ld a,i' quirk
   - V99x8:
-    - added simple implementation of sprite collision coordinate status
-      registers
+    - implemented sprite collision coordinate status registers
     - fixed detail of LINE command (fixing one problem in Syntax Infinity)
     - implemented VR bit (fixing another problem in Syntax Infinity)
   - Added a memory mirror device to properly emulate the Sony HB-10P
+- Fixed sound quality regression in YM2413 emulation
 - Added emulation of Nowind (mostly useful for Nowind firmware developers)
 - Added emulation of the Arkanoid pad, using the mouse
 
