@@ -130,7 +130,8 @@ class GL(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return True
+		# On *BSD, OpenGL is in ports, not in the base system.
+		return not platform.endswith('bsd')
 
 	@classmethod
 	def getHeaders(cls, platform):
