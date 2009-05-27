@@ -5073,7 +5073,7 @@ create_trainer "Devil Zone" {time 1} {
 create_trainer "Word Invaders" {time 1} {
 "solve all words" {
 	set whole_page ""
-	for {set i 0} {$i < 600 } {incr i } {if {[debug read VRAM $i] > 33} {append whole_page [format %c [debug read VRAM $i]]}};
+	for {set i 0} {$i < 600 } {incr i } {if {[vpeek $i] > 33} {append whole_page [format %c [vpeek $i]]}};
 	type [string trim $whole_page];
 	poke 0xc3d2 255;
 	poke 0xc3da 255;

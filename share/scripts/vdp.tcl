@@ -132,7 +132,27 @@ proc get_screen_mode {} {
 	return $mode
 }
 
-proc vpeek {addr} {return [debug read VRAM $addr]
+set_help_text vpeek \
+{Similar to the BASIC vpeek command, read a byte from the video RAM.
+This command has the same view on the VRAM as the programmer sees (as opposed
+to the physical VRAM content):
+ - The whole 128kB address space is visible, if the machine has less VRAM
+   then some parts will either be mirrored or unmapped.
+ - Depending on the current screen mode, the VRAM addressing is interleaved
+   or not. This command follows that addressing scheme (IOW, normally you
+   don't have to care).
+See also the 'vpoke' command.
+}
+proc vpeek {addr} {
+	return [debug read VRAM $addr]
+}
+
+set_help_text vpoke \
+{Similar to the BASIC vpoke command, write a byte to the video RAM.
+See the 'vpeek' command for more info about the VRAM address space.
+}
+proc vpoke {addr val} {
+	debug write VRAM $addr $val
 }
 
 namespace export getcolor
@@ -143,6 +163,7 @@ namespace export vdpreg
 namespace export vdpregs
 namespace export v9990regs
 namespace export vpeek
+namespace export vpoke
 namespace export palette
 
 } ;# namespace vdp
