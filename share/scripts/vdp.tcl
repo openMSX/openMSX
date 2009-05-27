@@ -132,6 +132,9 @@ proc get_screen_mode {} {
 	return $mode
 }
 
+proc vpeek {addr} {return [debug read VRAM $addr]
+}
+
 namespace export getcolor
 namespace export setcolor
 namespace export get_screen_mode
@@ -139,6 +142,7 @@ namespace export get_screen_mode_number
 namespace export vdpreg
 namespace export vdpregs
 namespace export v9990regs
+namespace export vpeek
 namespace export palette
 
 } ;# namespace vdp
