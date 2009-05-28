@@ -84,9 +84,9 @@ files (no installer) and unpack it to the directory of your choice.</dd>
 <dt>openSUSE</dt>
 <dd>openSUSE 10.3 (and 11.x) seems to contain an openMSX package, but it seems to be somewhat outdated.</dd>
 <dt>Slackware</dt>
-<dd>You can find binary packages for Pentium 2 and higher on the <a href="http://www.linuxpackages.net/">Linux Packages</a> site, but they seem to be somewhat outdated.</dd>
+<dd>You can find binary packages for Pentium 2 and higher on the <a class="external" href="http://www.linuxpackages.net/">Linux Packages</a> site, but they seem to be somewhat outdated.</dd>
 <dt>Mandriva</dt>
-<dd>There seem to appear at least source RPM's on the <a href="http://rpmfind.net/linux/rpm2html/search.php?query=openmsx">RPMFind.net search for openMSX</a> sometimes, but we don't know how to use them exactly or if they are also included in the official distribution.</dd>
+<dd>There seem to appear at least source RPM's on the <a class="external" href="http://rpmfind.net/linux/rpm2html/search.php?query=openmsx">RPMFind.net search for openMSX</a> sometimes, but we don't know how to use them exactly or if they are also included in the official distribution.</dd>
 <dt>ArchLinux</dt>
 <dd>There are packages for <a class="external" href="http://aur.archlinux.org/packages.php?ID=23001">openMSX</a> and <a class="external" href="http://aur.archlinux.org/packages.php?ID=23005">Catapult</a> in the <a class="external" href="http://aur.archlinux.org/packages.php">ArchLinux User-community Respository (AUR)</a>.</dd>
 <dt>other</dt>
@@ -330,12 +330,8 @@ The ZMBV (Zip Motion Blocks Video) codec is used, which has been developed in th
 </p>
 
 <p>
-A developer of DosBox built a Win32 binary of the codec for our users. It is included with openMSX 
-0.6.2 (and up) for Win32. Note that the installer does not install the codec by 
-default, so you will need to enable this option when installing. You can also <a href="http://openmsx.sourceforge.net/util/zmbv_codec_win32.zip">download 
-the codec separately from our web site</a>. After unzipping the file, use the .INF file to install the codec (<code>zmbv.dll</code>) by right-clicking on it and selecting Install. Note that other binaries of this codec that you can find on the internet may not work, as not all of them have support for more than 8 bits per pixel recordings.
-Also note that this is a 32-bit codec, so it will not run inside 64-bit Windows 
-Media Player or Windows Media Center.</p>
+A developer of DosBox built a Win32 binary of the codec for our users. It is included with openMSX 0.6.2 (and up) for Win32. Note that the installer does not install the codec by default, so you will need to enable this option when installing. You can also <a class="external" href="http://openmsx.sourceforge.net/util/zmbv_codec_win32.zip">download the codec separately from our web site</a>. After unzipping the file, use the .INF file to install the codec (<code>zmbv.dll</code>) by right-clicking on it and selecting Install. Note that other binaries of this codec that you can find on the internet may not work, as not all of them have support for more than 8 bits per pixel recordings.
+Also note that this is a 32-bit codec, so it will not run inside 64-bit Windows Media Player or Windows Media Center.</p>
 
 <p>
 You only need this codec installer to be able to replay the videos on a Windows system. (Although a workaround could be to upload it to Google video, where it is re-encoded into a lossy MPEG-4 format.) Programs like Virtual Dub can use the codec and re-encode it in another way. On other operating systems, you can use any video player which supports this codec; e.g. <code>mplayer</code>. Re-encoding can be done with e.g. <code>mencoder</code>.
