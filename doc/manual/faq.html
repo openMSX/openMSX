@@ -57,8 +57,14 @@ The easiest way to install openMSX is to use a ready-made package. Whether one i
 </p>
 <dl>
 <dt>Windows</dt>
-<dd>The easiest way to install openMSX is by running the installer. It's the <code>.exe</code> file you can find in <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274">the downloads section</a> of the openMSX SourceForge.net site. After this, you should have a working openMSX and openMSX Catapult.
-</dd>
+<dd>The easiest way to install openMSX is by running the installer. Download the 
+installer from
+<a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274">the downloads section</a> of the openMSX SourceForge.net site, 
+unpack the <code>.zip</code>file, and double-click on the resulting <code>.msi</code> 
+file. After this, you should have a working openMSX and openMSX Catapult.<br />
+<br />
+You can also download the Zip distribution which contains only the emulator 
+files (no installer) and unpack it to the directory of your choice.</dd>
 <dt>Mac OS X</dt>
 <dd>The easiest way is to get the universal binary, which is in the <code>.dmg</code> file from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274">the downloads section</a> of the openMSX SourceForge.net site. The file name will contain <code>univ</code>. There is no Catapult for OS X yet, but <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">NekoLauncher openMSX</a> is a very good alternative.
 </dd>
@@ -104,18 +110,13 @@ Note that in any case, there are no system ROMs installed, so only the C-BIOS ma
 If you still think openMSX is difficult to install, <a class="external" href="compile.html#contact">please tell us why</a>!
 </p>
 
-<h3><a id="ziporexe">Should I download the ZIP or the EXE for Windows?</a></h3>
+<h3><a id="ziporexe">Should I download the Zip or the Installer for Windows?</a></h3>
 
 <p>
-We strongly recommend to use the EXE. It contains a very comfortable installer and <em>really</em> won't touch your Windows registry if you don't want that! The price you pay if you want the registry unharmed: you can't use the built-in uninstaller... Do note that Catapult saves its preferences in the User registry of Windows though. This is a very normal thing to do for user programs. If you don't want that, don't use Catapult (nor most other Windows programs).
-</p>
-
-<p>
-With the EXE, your openMSX experience is only about 3 clicks away. The ZIP file is meant for experienced users mostly.
-</p>
-
-<p>
-Maybe you noticed that for some releases the ZIP file is a little bit bigger than the EXE. The reason for this is that the EXE file has better compression! The actual contents is exactly the same.
+We strongly recommend to use the installer. It contains a straightforward 
+Windows Installer package.
+With the installer, your openMSX experience is only about 3 clicks away. The Zip file is meant for experienced users 
+and those familiar with openMSX and emulators in general.
 </p>
 
 <h3><a id="roms">Why doesn't openMSX come with system ROMs?</a></h3>
@@ -329,8 +330,12 @@ The ZMBV (Zip Motion Blocks Video) codec is used, which has been developed in th
 </p>
 
 <p>
-A developer of DosBox built a Win32 binary of the codec for our users. It is included with openMSX 0.6.2 (and up) for Win32 (the installer made a shortcut for you in the menu, so that you can install the codec), but you can also <a href="http://openmsx.sourceforge.net/util/zmbv_codec_win32.zip">download it separately from our web site</a>. After unzipping the file, use the .INF file to install the codec (<code>zmbv.dll</code>) by right-clicking on it and selecting Install. Note that other binaries of this codec that you can find on the internet may not work, as not all of them have support for more than 8 bits per pixel recordings.
-</p>
+A developer of DosBox built a Win32 binary of the codec for our users. It is included with openMSX 
+0.6.2 (and up) for Win32. Note that the installer does not install the codec by 
+default, so you will need to enable this option when installing. You can also <a href="http://openmsx.sourceforge.net/util/zmbv_codec_win32.zip">download 
+the codec separately from our web site</a>. After unzipping the file, use the .INF file to install the codec (<code>zmbv.dll</code>) by right-clicking on it and selecting Install. Note that other binaries of this codec that you can find on the internet may not work, as not all of them have support for more than 8 bits per pixel recordings.
+Also note that this is a 32-bit codec, so it will not run inside 64-bit Windows 
+Media Player or Windows Media Center.</p>
 
 <p>
 You only need this codec installer to be able to replay the videos on a Windows system. (Although a workaround could be to upload it to Google video, where it is re-encoded into a lossy MPEG-4 format.) Programs like Virtual Dub can use the codec and re-encode it in another way. On other operating systems, you can use any video player which supports this codec; e.g. <code>mplayer</code>. Re-encoding can be done with e.g. <code>mencoder</code>.
