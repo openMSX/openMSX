@@ -419,6 +419,7 @@ class TCL(Library):
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
 		# Tcl can be built as a shared or as a static library, but not both.
 		# Check whether the library type of Tcl matches the one we want.
+		wantShared = not linkStatic or cls.isSystemLibrary(platform)
 		tclShared = cls.runTclConfigCommand(
 			platform,
 			distroRoot,
@@ -428,14 +429,14 @@ class TCL(Library):
 		log = open('derived/tcl-search.log', 'a')
 		try:
 			if tclShared == '0':
-				if not linkStatic:
+				if wantShared:
 					print >> log, (
 						'Dynamic linking requested, but Tcl installation has '
 						'static library.'
 						)
 					return None
 			elif tclShared == '1':
-				if linkStatic:
+				if not wantShared:
 					print >> log, (
 						'Static linking requested, but Tcl installation has '
 						'dynamic library.'
@@ -451,7 +452,7 @@ class TCL(Library):
 			log.close()
 
 		# Now get the link flags.
-		if not linkStatic or cls.isSystemLibrary(platform):
+		if wantShared:
 			return cls.runTclConfigCommand(
 				platform,
 				distroRoot,
