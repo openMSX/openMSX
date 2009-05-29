@@ -370,8 +370,8 @@ class TCL(Library):
 							tclConfigs[path] = version
 			try:
 				# Minimum required version is 8.4.
-				# Pick the oldest possible version to minimize the risk of running
-				# into incompatible changes.
+				# Pick the oldest possible version to minimize the risk of
+				# running into incompatible changes.
 				tclConfig = min(
 					( version, path )
 					for path, version in tclConfigs.iteritems()
