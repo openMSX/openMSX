@@ -20,6 +20,8 @@ from shlex import split as shsplit
 import sys
 
 def resolve(log, expr):
+	if expr is None:
+		return ''
 	# TODO: Since for example "sdl-config" is used in more than one
 	#       CFLAGS definition, it will be executed multiple times.
 	try:
