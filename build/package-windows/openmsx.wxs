@@ -4,7 +4,7 @@
 
   <!-- Some useful local variables -->
   <?define ProductVersion=$(env.OPENMSX_VERSION).0 ?>
-  <?define LastNonMSIProductVersion=0.7.0.0 ?>
+  <?define LastNonMSIProductVersion=0.6.0.0 ?>
   <?define MinInstallerVersion=200 ?>
   <?if $(sys.BUILDARCH)=x86 ?>
     <?define ProductName=!(loc.openMSX) ?>
@@ -52,7 +52,7 @@
                       Maximum="$(var.ProductVersion)"
                       Property="PREVIOUSVERSIONSINSTALLED"
                       IncludeMinimum="no"
-                      IncludeMaximum="no" />
+                      IncludeMaximum="yes" />
     </Upgrade>
 
     <InstallExecuteSequence>

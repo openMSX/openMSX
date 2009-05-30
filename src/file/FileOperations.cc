@@ -500,8 +500,8 @@ string getSystemDataDir()
 #ifdef _WIN32
 bool driveExists(char driveLetter)
 {
-	char bufW[] = { driveLetter, ':', 0 };
-	return GetFileAttributesA(bufW) != INVALID_FILE_ATTRIBUTES;
+	char buf[] = { driveLetter, ':', 0 };
+	return GetFileAttributesA(buf) != INVALID_FILE_ATTRIBUTES;
 }
 #endif
 

@@ -1,5 +1,6 @@
 import os, sys
 import install
+import version
 
 def EmptyOrCreateDirectory(top):
 	if os.path.exists(top):
@@ -29,7 +30,7 @@ def WalkPath(sourcePath):
 
 class PackageInfo:
 
-	def __init__(self, platform, configuration, version, catapultPath):
+	def __init__(self, platform, configuration, catapultPath):
 		
 		self.platform = platform.lower()
 		if self.platform == 'win32':
@@ -56,7 +57,6 @@ class PackageInfo:
 		else:
 			raise ValueError, 'Wrong configuration: ' + architecture
 
-		self.version = version
 		self.catapultPath = catapultPath
 		
 		# Useful variables
@@ -78,8 +78,9 @@ class PackageInfo:
 		self.packagePath = os.path.join(self.buildPath, 'package-windows')
 		self.makeInstallPath = os.path.join(self.packagePath, 'install')
 		
-		self.installerFileName = 'openmsx-' + version + '-VC-' + self.architecture
-		
+		self.version = version.packageVersion
+		self.installerFileName = version.getVersionedPackageName() + '-VC-' + self.architecture
+
 if __name__ == '__main__':
 	if len(sys.argv) == 5:
 		info = PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

@@ -176,9 +176,9 @@ def PackageMsi(info):
 	zip.close()
 
 if __name__ == '__main__':
-	if len(sys.argv) != 5:
-		print >> sys.stderr, 'Usage: python packagemsi.py platform configuration version catapultPath'
+	if len(sys.argv) != 4:
+		print >> sys.stderr, 'Usage: python packagemsi.py platform configuration catapultPath'
 		sys.exit(2)
 	else:
-		info = packagewindows.PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+		info = packagewindows.PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3])
 		PackageMsi(info)
