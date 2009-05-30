@@ -497,6 +497,14 @@ string getSystemDataDir()
 	return newValue;
 }
 
+#ifdef _WIN32
+bool driveExists(char driveLetter)
+{
+	char bufW[] = { driveLetter, ':', 0 };
+	return GetFileAttributesA(bufW) != INVALID_FILE_ATTRIBUTES;
+}
+#endif
+
 string expandCurrentDirFromDrive(const string& path)
 {
 	string result = path;
@@ -507,7 +515,8 @@ string expandCurrentDirFromDrive(const string& path)
 		unsigned char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
 			wchar_t bufW[MAXPATHLEN + 1];
-			if (_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != NULL) {
+			if (driveExists(drive) && 
+				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != NULL) {
 				result = getConventionalPath(utf16to8(bufW));
 				if (*result.rbegin() != '/') {
 					result += '/';
