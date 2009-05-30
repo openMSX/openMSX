@@ -109,6 +109,13 @@
     <WixVariable Id="WixUIDialogBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/SideBanner.jpg" />
     <WixVariable Id="WixUIBannerBmp" Value="$(env.OPENMSX_PACKAGE_WINDOWS_PATH)/images/TopBanner.jpg" />
 
+    <!-- Add text to the final dialog; the custom action is needed to use the OPENMSXINSTALLDIR property -->
+    <CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" 
+                  Value="If you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in the following directory: [OPENMSXINSTALLDIR]share\systemroms" />
+    <InstallUISequence>
+      <Custom Action="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" After="CostFinalize" />
+    </InstallUISequence>
+
     <!--
       Start Menu shortcuts
       -->
@@ -175,6 +182,10 @@
       </Component>
 
     </DirectoryRef>
+    
+    <!-- 
+      Registry entries 
+    -->
 
     <!-- Use a hardcoded guid to work around CNDL0230 -->
     <Component Id="ZMBVRegistryValues" Guid="52db293d-8b1e-4598-9c9a-c71ed3a5ecb9" KeyPath="yes" Win64="no" Directory="SystemFolder">
