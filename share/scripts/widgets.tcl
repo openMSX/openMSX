@@ -2,7 +2,7 @@ namespace eval debug_widgets {
 
 #TODO: Help Texts
 
-proc toggle_colors {} {
+proc toggle_show_palette {} {
 
 	if {![catch {osd info colorbox -rgba} errmsg]} {
 		osd	destroy colorbox
@@ -16,11 +16,11 @@ proc toggle_colors {} {
 		osd create text colorbox.$i.text -x -16 -rgba 0xffffffff -size 10 -text ""
 	}
 	
-	update_colors
+	update_palette
 	return ""
 }
 
-proc update_colors {} {
+proc update_palette {} {
 	if {[catch {osd info colorbox -rgba} errmsg]} {
 	return ""
 	}
@@ -36,7 +36,7 @@ proc update_colors {} {
 			osd configure colorbox.$i -rgb $rgbval
 			osd configure colorbox.$i.text -text "[format %02d $i]     $color"
 		}
-	after frame update_colors
+	after frame [namespace code update_palette]
 	return ""
 }
 
@@ -114,7 +114,7 @@ return ""
 	set vdpsta [expr ([debug read slotted\ memory 0x2d]) ? 10 : 1]
 
 	for {set i 0} {$i < $vdpreg} {incr i} {
-		set vdp_stat "[format :\ 0x%02X [debug read VDP\ regs $i]]" 
+		set vdp_stat "[format :\ 0x%02X [debug read VDP\ regs $i]]"
 		if {$vdp_stat!=[osd info vdp.stat$i -text]} {
 			osd configure vdp.stat$i \
 				-text "$vdp_stat" \
@@ -139,15 +139,13 @@ return ""
 		}
 	}
 
-	after frame update_vdp
+	after frame [namespace code update_vdp]
 	return ""
 	}
 
-namespace export toggle_colors
-namespace export update_colors
+namespace export toggle_show_palette
 namespace export toggle_vdp_reg_viewer
-namespace export update_vdp
 
-} ;# namespace vu_meters
+} ;# namespace debug_widgets
 
 namespace import debug_widgets::*
