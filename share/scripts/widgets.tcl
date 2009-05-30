@@ -22,7 +22,7 @@ proc toggle_colors {} {
 
 proc update_colors {} {
 	if {[catch {osd info colorbox -rgba} errmsg]} {
-	return "use toggle_colors"
+	return ""
 	}
 
 		for {set i 0} {$i < 16} {incr i} {
@@ -40,7 +40,7 @@ proc update_colors {} {
 	return ""
 }
 
-proc toggle_vdp {} {
+proc toggle_vdp_reg_viewer {} {
 
 	if {![catch {osd info vdp -rgba} errmsg]} {
 		osd	destroy vdp
@@ -107,7 +107,7 @@ update_vdp
 proc update_vdp {} {
 
 if {[catch {osd info vdp -rgba} errmsg]} {
-return "use toggle_vdp to activate again"
+return ""
 }
 
 	set vdpreg [expr ([debug read slotted\ memory 0x2d]) ? 47 : 8]
@@ -145,7 +145,7 @@ return "use toggle_vdp to activate again"
 
 namespace export toggle_colors
 namespace export update_colors
-namespace export toggle_vdp
+namespace export toggle_vdp_reg_viewer
 namespace export update_vdp
 
 } ;# namespace vu_meters
