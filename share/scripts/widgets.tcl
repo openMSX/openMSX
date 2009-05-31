@@ -143,6 +143,58 @@ return ""
 	return ""
 	}
 
+### heavy WIP
+
+proc toggle_cheat_finder {} {
+
+	osd create rectangle cheats -x 0 -y 0 -w 120 -h 200 -rgba 0x00000080
+		
+	osd create rectangle cheats.head1 -x 1 -y 1 -w 35 -h 10 -rgba 0xff000080
+	osd create text cheats.head1.text -size 8 -text "Address" -rgba 0xffffffff
+
+	osd create rectangle cheats.head2 -x 37 -y 1 -w 20 -h 10 -rgba 0xff000080
+	osd create text cheats.head2.text -size 8 -text "Cur" -rgba 0xffffffff
+
+	osd create rectangle cheats.head3 -x 58 -y 1 -w 20 -h 10 -rgba 0xff000080
+	osd create text cheats.head3.text -size 8 -text "Pre" -rgba 0xffffffff
+
+	osd create rectangle cheats.head4 -x 79 -y 1 -w 40 -h 10 -rgba 0xff000080
+	osd create text cheats.head4.text -size 8 -text "Real" -rgba 0xffffffff
+
+	for {set i 0} {$i<17} {incr i} {
+		osd create rectangle cheats.addr$i -x 1 -y [expr $i*11+12] -w 35 -h 10 -rgba 0xf0000080
+		osd create text 	 cheats.addr$i.text -size 8 -text "" -rgba 0xffffffff
+
+		osd create rectangle cheats.pre$i -x 37 -y [expr $i*11+12] -w 20 -h 10 -rgba 0xf0000080
+		osd create text 	 cheats.pre$i.text -size 8 -text "" -rgba 0xffffffff
+
+		osd create rectangle cheats.aft$i -x 58 -y [expr $i*11+12] -w 20 -h 10 -rgba 0xf0000080
+		osd create text 	 cheats.aft$i.text -size 8 -text "" -rgba 0xffffffff
+
+		osd create rectangle cheats.real$i -x 79 -y [expr $i*11+12] -w 40 -h 10 -rgba 0xf0000080
+		osd create text 	 cheats.real$i.text -size 8 -text "" -rgba 0xffffffff
+	}
+}
+
+proc update_cheat_finder {} {
+	set cheats [split [[string trim findcheat]] "\n"]
+
+	for {set i 0} {$i<17} {incr i} {
+		
+		if {$i>[expr [llength $cheats]-2]} {
+			osd configure cheats.addr$i.text -text ""
+			osd configure cheats.real$i.text -text ""
+		
+		} else {
+			set line [lindex $cheats $i]
+			set addr  [string range $line 0 5]
+			osd configure cheats.addr$i.text -text $addr
+			osd configure cheats.real$i.text -text [peek $addr]
+		}
+	}
+after frame update_cheat_finder
+}
+
 namespace export toggle_show_palette
 namespace export toggle_vdp_reg_viewer
 
