@@ -22,20 +22,20 @@ proc toggle_show_palette {} {
 
 proc update_palette {} {
 	if {[catch {osd info colorbox -rgba} errmsg]} {
-	return ""
+		return ""
 	}
 
-		for {set i 0} {$i < 16} {incr i} {
-			set color [getcolor $i]
+	for {set i 0} {$i < 16} {incr i} {
+		set color [getcolor $i]
 
-			set r [string range $color 0 0]
-			set g [string range $color 1 1]
-			set b [string range $color 2 2]
-			
-			set rgbval [expr ($r << (5 + 16)) + ($g << (5 + 8)) + ($b << 5)]
-			osd configure colorbox.$i -rgb $rgbval
-			osd configure colorbox.$i.text -text "[format %02d $i]     $color"
-		}
+		set r [string range $color 0 0]
+		set g [string range $color 1 1]
+		set b [string range $color 2 2]
+		
+		set rgbval [expr ($r << (5 + 16)) + ($g << (5 + 8)) + ($b << 5)]
+		osd configure colorbox.$i -rgb $rgbval
+		osd configure colorbox.$i.text -text "[format %02d $i]     $color"
+	}
 	after frame [namespace code update_palette]
 	return ""
 }
@@ -101,14 +101,14 @@ proc toggle_vdp_reg_viewer {} {
 			-text "[format :\ 0x%02X [debug read VDP\ status\ regs $i]]" \
 			-rgba 0xffffffff
 	}
-update_vdp
+	update_vdp
 }
 
 proc update_vdp {} {
 
-if {[catch {osd info vdp -rgba} errmsg]} {
-return ""
-}
+	if {[catch {osd info vdp -rgba} errmsg]} {
+		return ""
+	}
 
 	set vdpreg [expr ([debug read slotted\ memory 0x2d]) ? 47 : 8]
 	set vdpsta [expr ([debug read slotted\ memory 0x2d]) ? 10 : 1]
@@ -140,7 +140,7 @@ return ""
 	}
 
 	after frame [namespace code update_vdp]
-	return ""
+		return ""
 	}
 
 ### heavy WIP
@@ -192,7 +192,7 @@ proc update_cheat_finder {} {
 			osd configure cheats.real$i.text -text [peek $addr]
 		}
 	}
-after frame update_cheat_finder
+	after frame update_cheat_finder
 }
 
 namespace export toggle_show_palette
