@@ -11,7 +11,7 @@
 # Conclusion: We have to specify the full path to each library that should be
 #             linked statically.
 
-from executils import captureStdout
+from executils import captureStdout, shjoin
 
 from os import listdir
 from os.path import isdir, isfile
@@ -389,7 +389,7 @@ class TCL(Library):
 		return tclConfig
 
 	@classmethod
-	def runTclConfigCommand(cls, platform, distroRoot, command, description):
+	def evalTclConfigExpr(cls, platform, distroRoot, expr, description):
 		tclConfig = cls.getTclConfig(platform, distroRoot)
 		if tclConfig is None:
 			return None
@@ -398,9 +398,9 @@ class TCL(Library):
 			print >> log, 'Getting Tcl %s...' % description
 			text = captureStdout(
 				log,
-				"sh -c '. %s && %s'" % (
-					tclConfig, command
-					)
+				shjoin([
+					'sh', '-c', '. %s && eval \'echo "%s"\'' % (tclConfig, expr)
+					])
 				)
 		finally:
 			log.close()
@@ -408,10 +408,10 @@ class TCL(Library):
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		return cls.runTclConfigCommand(
+		return cls.evalTclConfigExpr(
 			platform,
 			distroRoot,
-			'echo "${TCL_DEFS} ${TCL_INCLUDE_SPEC}"',
+			'${TCL_DEFS} ${TCL_INCLUDE_SPEC}',
 			'compile flags'
 			)
 
@@ -420,10 +420,10 @@ class TCL(Library):
 		# Tcl can be built as a shared or as a static library, but not both.
 		# Check whether the library type of Tcl matches the one we want.
 		wantShared = not linkStatic or cls.isSystemLibrary(platform)
-		tclShared = cls.runTclConfigCommand(
+		tclShared = cls.evalTclConfigExpr(
 			platform,
 			distroRoot,
-			'echo "${TCL_SHARED_BUILD}"',
+			'${TCL_SHARED_BUILD}',
 			'library type (shared/static)'
 			)
 		log = open('derived/tcl-search.log', 'a')
@@ -453,27 +453,26 @@ class TCL(Library):
 
 		# Now get the link flags.
 		if wantShared:
-			return cls.runTclConfigCommand(
+			return cls.evalTclConfigExpr(
 				platform,
 				distroRoot,
-				'echo "${TCL_LIB_SPEC}"',
+				'${TCL_LIB_SPEC}',
 				'dynamic link flags'
 				)
 		else:
-			return cls.runTclConfigCommand(
+			return cls.evalTclConfigExpr(
 				platform,
 				distroRoot,
-				'echo "${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE} ${TCL_LIBS}"',
+				'${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE} ${TCL_LIBS}',
 				'static link flags'
 				)
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
-		return cls.runTclConfigCommand(
+		return cls.evalTclConfigExpr(
 			platform,
 			distroRoot,
-			'echo "${TCL_MAJOR_VERSION}.${TCL_MINOR_VERSION}'
-				'${TCL_PATCH_LEVEL}"',
+			'${TCL_MAJOR_VERSION}.${TCL_MINOR_VERSION}${TCL_PATCH_LEVEL}',
 			'version'
 			)
 
