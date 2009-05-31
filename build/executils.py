@@ -1,6 +1,6 @@
 # $Id$
 
-from msysutils import msysActive
+from msysutils import msysActive, msysShell
 
 from os import environ
 from shlex import split as shsplit
@@ -27,7 +27,10 @@ def captureStdout(log, commandLine):
 			)
 
 	if msysActive():
-		commandParts = [ environ['SHELL'], '-c', shjoin(commandParts) ]
+		commandParts = [
+			environ.get('MSYSCON') or environ.get('SHELL') or 'sh.exe',
+			'-c', shjoin(commandParts)
+			]
 
 	try:
 		proc = Popen(

@@ -12,7 +12,7 @@ def _determineMounts():
 
 	# Figure out the root directory of MSYS.
 	proc = Popen(
-		[ environ['SHELL'], '-c', '"%s" -c \'import sys ; print sys.argv[1]\' /'
+		[ msysShell(), '-c', '"%s" -c \'import sys ; print sys.argv[1]\' /'
 			% sys.executable.replace('\\', '\\\\') ],
 		stdin = None,
 		stdout = PIPE,
@@ -64,7 +64,10 @@ def msysPathToNative(path):
 		return path
 
 def msysActive():
-	return environ.get('OSTYPE') == 'msys'
+	return environ.get('OSTYPE') == 'msys' or 'MSYSCON' in environ
+
+def msysShell():
+	return environ.get('MSYSCON') or environ.get('SHELL') or 'sh.exe'
 
 if msysActive():
 	msysMounts = _determineMounts()
