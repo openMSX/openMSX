@@ -399,7 +399,7 @@ class TCL(Library):
 			text = captureStdout(
 				log,
 				shjoin([
-					'sh', '-c', '. %s && eval \'echo "%s"\'' % (tclConfig, expr)
+					'sh', '-c', '. %s && eval "echo \\"%s\\""' % (tclConfig, expr)
 					])
 				)
 		finally:
