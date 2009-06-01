@@ -11,6 +11,11 @@
 # Conclusion: We have to specify the full path to each library that should be
 #             linked statically.
 
+from executils import captureStdout
+
+from os import listdir
+from os.path import isdir, isfile, join as joinpath
+
 class Library(object):
 	libName = None
 	makeName = None
@@ -303,18 +308,167 @@ class TCL(Library):
 	makeName = 'TCL'
 	header = '<tcl.h>'
 	function = 'Tcl_CreateInterp'
-	staticLibsOption = '--static-libs'
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
 		return platform == 'darwin'
 
 	@classmethod
-	def getConfigScript(cls, platform, linkStatic, distroRoot):
-		if distroRoot is None or cls.isSystemLibrary(platform):
-			return 'build/tcl-search.sh'
+	def getTclConfig(cls, distroRoot):
+		'''Tcl has a config script that is unlike the typical lib-config script.
+		Information is gathered by sourcing the config script, instead of
+		executing it and capturing the queried value from stdout. This script
+		is located in a library directory, not in a directory in the PATH.
+		Also, it does not have the executable bit set.
+		This method returns the location of the Tcl config script, or None if
+		it could not be found.
+		'''
+		if hasattr(cls, 'tclConfig'):
+			# Return cached value.
+			return cls.tclConfig
+
+		def iterLocations():
+			if distroRoot is None:
+				roots = ('/usr/local', '/usr')
+			else:
+				roots = (distroRoot, )
+			for root in roots:
+				if isdir(root):
+					for libdir in ('lib', 'lib64'):
+						libpath = joinpath(root, libdir)
+						if isdir(libpath):
+							yield libpath
+							for entry in listdir(libpath):
+								if entry.startswith('tcl8.'):
+									tclpath = joinpath(root, entry)
+									if isdir(tclpath):
+										yield tclpath
+
+		tclConfigs = {}
+		log = open('derived/tcl-search.log', 'w')
+		print >> log, 'Looking for Tcl...'
+		try:
+			for location in iterLocations():
+				path = joinpath(location, 'tclConfig.sh')
+				if isfile(path):
+					print >> log, 'Config script:', path
+					text = captureStdout(
+						log,
+						"sh -c '. %s && echo -n %s'" % (
+							path, '$TCL_MAJOR_VERSION $TCL_MINOR_VERSION'
+							)
+						)
+					if text is not None:
+						try:
+							# pylint: disable-msg=E1103
+							major, minor = text.split()
+							version = int(major), int(minor)
+						except ValueError:
+							pass
+						else:
+							print >> log, 'Found: version %d.%d' % version
+							tclConfigs[path] = version
+			try:
+				# Minimum required version is 8.4.
+				# Pick the oldest possible version to minimize the risk of running
+				# into incompatible changes.
+				tclConfig = min(
+					( version, path )
+					for path, version in tclConfigs.iteritems()
+					if version >= (8, 4)
+					)[1]
+			except ValueError:
+				tclConfig = None
+				print >> log, 'No suitable versions found.'
+			else:
+				print >> log, 'Selected:', tclConfig
+		finally:
+			log.close()
+
+		cls.tclConfig = tclConfig
+		return tclConfig
+
+	@classmethod
+	def runTclConfigCommand(cls, distroRoot, command, description):
+		tclConfig = cls.getTclConfig(distroRoot)
+		if tclConfig is None:
+			return None
+		log = open('derived/tcl-search.log', 'a')
+		try:
+			print >> log, 'Getting Tcl %s...' % description
+			return captureStdout(
+				log,
+				"sh -c '. %s && %s'" % (
+					tclConfig, command
+					)
+				)
+		finally:
+			log.close()
+
+	@classmethod
+	def getCompileFlags(cls, platform, linkStatic, distroRoot):
+		return cls.runTclConfigCommand(
+			distroRoot,
+			'echo -n "${TCL_DEFS} ${TCL_INCLUDE_SPEC}"',
+			'compile flags'
+			)
+
+	@classmethod
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		# Tcl can be built as a shared or as a static library, but not both.
+		# Check whether the library type of Tcl matches the one we want.
+		tclShared = cls.runTclConfigCommand(
+			distroRoot,
+			'echo -n "${TCL_SHARED_BUILD}"',
+			'library type (shared/static)'
+			)
+		log = open('derived/tcl-search.log', 'a')
+		try:
+			if tclShared == '0':
+				if not linkStatic:
+					print >> log, (
+						'Dynamic linking requested, but Tcl installation has '
+						'static library.'
+						)
+					return None
+			elif tclShared == '1':
+				if linkStatic:
+					print >> log, (
+						'Static linking requested, but Tcl installation has '
+						'dynamic library.'
+						)
+					return None
+			else:
+				print >> log, (
+					'Unable to determine whether Tcl installation has '
+					'shared or static library.'
+					)
+				return None
+		finally:
+			log.close()
+
+		# Now get the link flags.
+		if not linkStatic or cls.isSystemLibrary(platform):
+			return cls.runTclConfigCommand(
+				distroRoot,
+				'echo -n "${TCL_LIB_SPEC}"',
+				'dynamic link flags'
+				)
 		else:
-			return 'TCL_CONFIG_DIR=%s/lib build/tcl-search.sh' % distroRoot
+			return cls.runTclConfigCommand(
+				distroRoot,
+				'echo -n "${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE} ${TCL_LIBS}"',
+				'static link flags'
+				)
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		return cls.runTclConfigCommand(
+			distroRoot,
+			'echo -n '
+				'"${TCL_MAJOR_VERSION}.${TCL_MINOR_VERSION}${TCL_PATCH_LEVEL}"',
+			'version'
+			)
 
 class ZLib(Library):
 	libName = 'z'
