@@ -26,7 +26,7 @@ def captureStdout(log, commandLine):
 			'No command specified in "%s"' % commandLine
 			)
 
-	if msysActive():
+	if msysActive() and commandParts[0] != 'sh':
 		commandParts = [
 			environ.get('MSYSCON') or environ.get('SHELL') or 'sh.exe',
 			'-c', shjoin(commandParts)
