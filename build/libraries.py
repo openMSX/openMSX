@@ -14,7 +14,7 @@
 from executils import captureStdout
 
 from os import listdir
-from os.path import isdir, isfile, join as joinpath
+from os.path import isdir, isfile
 
 class Library(object):
 	libName = None
@@ -335,12 +335,12 @@ class TCL(Library):
 			for root in roots:
 				if isdir(root):
 					for libdir in ('lib', 'lib64'):
-						libpath = joinpath(root, libdir)
+						libpath = root + '/' + libdir
 						if isdir(libpath):
 							yield libpath
 							for entry in listdir(libpath):
 								if entry.startswith('tcl8.'):
-									tclpath = joinpath(root, entry)
+									tclpath = root + '/' + entry
 									if isdir(tclpath):
 										yield tclpath
 
@@ -349,7 +349,7 @@ class TCL(Library):
 		print >> log, 'Looking for Tcl...'
 		try:
 			for location in iterLocations():
-				path = joinpath(location, 'tclConfig.sh')
+				path = location + '/tclConfig.sh'
 				if isfile(path):
 					print >> log, 'Config script:', path
 					text = captureStdout(
