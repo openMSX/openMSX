@@ -354,7 +354,7 @@ class TCL(Library):
 					print >> log, 'Config script:', path
 					text = captureStdout(
 						log,
-						"sh -c '. %s && echo -n %s'" % (
+						"sh -c '. %s && echo %s'" % (
 							path, '$TCL_MAJOR_VERSION $TCL_MINOR_VERSION'
 							)
 						)
@@ -396,7 +396,7 @@ class TCL(Library):
 		log = open('derived/tcl-search.log', 'a')
 		try:
 			print >> log, 'Getting Tcl %s...' % description
-			return captureStdout(
+			text = captureStdout(
 				log,
 				"sh -c '. %s && %s'" % (
 					tclConfig, command
@@ -404,13 +404,14 @@ class TCL(Library):
 				)
 		finally:
 			log.close()
+		return None if text is None else text.strip()
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		return cls.runTclConfigCommand(
 			platform,
 			distroRoot,
-			'echo -n "${TCL_DEFS} ${TCL_INCLUDE_SPEC}"',
+			'echo "${TCL_DEFS} ${TCL_INCLUDE_SPEC}"',
 			'compile flags'
 			)
 
@@ -421,7 +422,7 @@ class TCL(Library):
 		tclShared = cls.runTclConfigCommand(
 			platform,
 			distroRoot,
-			'echo -n "${TCL_SHARED_BUILD}"',
+			'echo "${TCL_SHARED_BUILD}"',
 			'library type (shared/static)'
 			)
 		log = open('derived/tcl-search.log', 'a')
@@ -454,14 +455,14 @@ class TCL(Library):
 			return cls.runTclConfigCommand(
 				platform,
 				distroRoot,
-				'echo -n "${TCL_LIB_SPEC}"',
+				'echo "${TCL_LIB_SPEC}"',
 				'dynamic link flags'
 				)
 		else:
 			return cls.runTclConfigCommand(
 				platform,
 				distroRoot,
-				'echo -n "${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE} ${TCL_LIBS}"',
+				'echo "${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE} ${TCL_LIBS}"',
 				'static link flags'
 				)
 
@@ -470,8 +471,8 @@ class TCL(Library):
 		return cls.runTclConfigCommand(
 			platform,
 			distroRoot,
-			'echo -n '
-				'"${TCL_MAJOR_VERSION}.${TCL_MINOR_VERSION}${TCL_PATCH_LEVEL}"',
+			'echo "${TCL_MAJOR_VERSION}.${TCL_MINOR_VERSION}'
+				'${TCL_PATCH_LEVEL}"',
 			'version'
 			)
 
