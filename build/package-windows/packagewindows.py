@@ -79,6 +79,10 @@ class PackageInfo:
 		self.makeInstallPath = os.path.join(self.packagePath, 'install')
 		
 		self.version = version.packageVersion
+		if version.releaseFlag:
+			self.version += '.0'
+		else:
+			self.version += '.' + version.extractRevision()
 		self.installerFileName = version.getVersionedPackageName() + '-VC-' + self.architecture
 
 if __name__ == '__main__':

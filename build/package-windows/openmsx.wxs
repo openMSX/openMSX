@@ -3,7 +3,7 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
   <!-- Some useful local variables -->
-  <?define ProductVersion=$(env.OPENMSX_VERSION).0 ?>
+  <?define ProductVersion=$(env.OPENMSX_VERSION) ?>
   <?define LastNonMSIProductVersion=0.6.0.0 ?>
   <?define MinInstallerVersion=200 ?>
   <?if $(sys.BUILDARCH)=x86 ?>
