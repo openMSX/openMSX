@@ -156,7 +156,7 @@ while Visual C++ is an alternative option on Windows.</dt>
 <dt>make</dt>
 <dd>GNU implementation of the Make tool.
 Make interprets rules that define how a project should be built.
-Version 3.79 or higher should suffice.</dd>
+Version 3.79 or higher should suffice, but 3.80 or higher is recommended and even necessary if you are building a standalone binary with the method described below.</dd>
 
 <dt>g++</dt>
 <dd>The GNU C++ compiler.
@@ -179,17 +179,12 @@ Note that Mac OS X 10.3 uses GCC 3.3 as the system compiler, which is not able t
 
 <p>You need to install MinGW and MSYS.</p>
 
-<p>You can download MinGW and MSYS from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project. Download the latest version of the "Automated MinGW Installer" (5.1.4 is the latest at the time of writing) and download also "MSYS Base System" (use 1.0.10, because 1.0.11 seems to give problems and doesn't have an installer yet anyway).
+<p>You can download MinGW and MSYS from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project. Download the latest version of the "Automated MinGW Installer" (5.1.4 is the latest at the time of writing) and download also "MSYS Base System" (use 1.0.11 Release Candidate or newer, if available, because 1.0.10 is too old), i.e. the installer <code>.exe</code> file.
 Double click on the MinGW package after downloading, choose "Download and Install", Package "Current" and add component "g++". Use the default installation directory (<code>C:\MinGW</code>), or at least a directory without spaces and <strong>not</strong> a network folder (i.e. shared folder on another computer). For MSYS, the installer's default settings (destination directory <code>C:\msys\1.0</code>) will be OK. If you get questions in a post-install Command Prompt dialog, type: <code>y</code>, <code>y</code>, <code>C:/MinGW</code> (or the other directory you chose without spaces; but do note that you should use <em>forward slashes</em> in the path here!), <code>y</code>.
 </p>
 
-<p>We recommend to upgrade the version of <code>make</code> to be able to build the stand-alone binary (which is the recommended way, see below). To do this, download the <a class ="external" href="https://sourceforge.net/project/downloading.php?group_id=2435&amp;filename=make-3.81-MSYS-1.0.11-2.tar.bz2">make-3.81-MSYS-1.0.11-2.tar.bz2</a> package from the MSYS 1.0.11 release. Put it in a place where you can find it. Open an MSYS shell and go to the MSYS installation directory (if you chose the default: <code>cd /c/msys/1.0</code>). There, type: <code>tar xjvf path/to/make-3.81-MSYS-1.0.11-2.tar.bz2</code>, which will upgrade your MSYS make tool to version 3.81.
+<p>Note: there is a bug in the <a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=2435&amp;package_id=11598">MinGW Runtime (mingwrt)</a> package version 3.15.1, which will cause FreeType not to compile (and probably more). Make sure you have the latest (newer) version installed! (Which will be the case if you do a fresh install using the instructions above.)
 </p>
-
-<p>Note: there is a bug in the <a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=2435&amp;package_id=11598">MinGW Runtime (mingwrt)</a> package version 3.15.1, which will cause FreeType not to compile (and probably more). This has been reported <a class="external" href="http://thread.gmane.org/gmane.comp.gnu.mingw.user/27765">here</a> and the fix in the code can be found <a class="external" href="http://cygwin.com/cgi-bin/cvsweb.cgi/src/winsup/mingw/include/stdlib.h.diff?r1=1.36&amp;r2=1.37&amp;cvsroot=src&amp;f=h">here</a>. You need to apply this small fix to your MinGW <code>stdlib.h</code> header file in order to be able to compile openMSX, if you are using this version of the MinGW run time package.
-</p>
-
-<p>Another note: if you are going to use MinGW/MSYS on a Windows Vista installation, you might want to <a class="external" href="http://www.keathmilligan.net/mingwmsys-vista-issues">read this blog entry</a> to get that working.</p>
 
 <h4>Visual C++</h4>
 
@@ -358,7 +353,7 @@ Also there may be changes that are not documented yet.
 A snapshot is created from a recent SVN checkout,
 in a <code>tar.gz</code>  archive.
 A snapshot is therefore quite similar to a SVN checkout,
-but it doesn't require you to install and use SVN. It may lag a couple of days from the latest SVN sources. Moreover, SF.net turned off cron jobs, which means the snapshots may be updated on a very irregular basis.
+but it doesn't require you to install and use SVN. <strong>We really do not recommand to use SVN snapshots anymore, as they are usually very outdated and have other disadvantages.</strong>
 </dd>
 
 </dl>
@@ -413,16 +408,11 @@ but this guide will tell you how to use SVN from the command line. More informat
 href="http://svnbook.red-bean.com/en/1.1/">Subversion book</a> site.</p>
 <p>
 Windows
-users might want to look at <a class="external" href="http://www.sliksvn.com/en/download">SlikSVN</a>
-for a command line tool,
-<a class="external"
-href="http://tortoisesvn.tigris.org/">TortoiseSVN</a> for Windows Explorer
-integration, or <a class="external" href="http://ankhsvn.open.collab.net/">ankhSVN</a> for Visual
-Studio integration.
+users might want to look at <a class="external" href="http://www.sliksvn.com/en/download">SlikSVN</a> for a command line tool, <a class="external" href="http://tortoisesvn.tigris.org/">TortoiseSVN</a> for Windows Explorer integration, or <a class="external" href="http://ankhsvn.open.collab.net/">ankhSVN</a> for Visual Studio integration.
 </p>
 
 <p>
-With the following line you can retrieve the latest sources:
+With the following line you can retrieve the latest sources (also works on Windows when using SlikSVN):
 </p>
 <div class="commandline">
 svn co https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk openMSX
@@ -474,23 +464,21 @@ or right click on the openMSX directory in Windows Explorer and select "SVN Upda
 
 <h3><a id="getsnapshot">3.3 SVN Snapshot</a></h3>
 
+<p>As we stated above: better not use this anymore.</p>
+
+<!--
 <p>
-First, download the
-<a class="external"
-href="http://openmsx.sourceforge.net/temp/openmsx-SVN-snapshot.tar.gz"
->most recent SVN snapshot</a>.
+First, download the <a class="external" href="http://openmsx.sourceforge.net/temp/openmsx-SVN-snapshot.tar.gz" >most recent SVN snapshot</a>.
 </p>
 
 <p>
-After downloading, type the following in a UNIX or MSYS shell, or use another
-decompression tool:
+After downloading, type the following in a UNIX or MSYS shell, or use another decompression tool:
 </p>
 <div class="commandline">tar xzvf openmsx-SVN-snapshot.tar.gz</div>
 <p>
-The directory that is created by uncompressing the <code>tar.gz</code> file
-is called <em>the top of the source tree</em>.
+The directory that is created by uncompressing the <code>tar.gz</code> file is called <em>the top of the source tree</em>.
 </p>
-
+-->
 <h2><a id="local">4. Binary for Local System</a></h2>
 
 <p>
@@ -692,6 +680,10 @@ with gcc:
 If you additionally want to build the openMSX installer, you should refer to the <code>package-win32</code> module in our Subversion repository. It contains a README file with a manual.
 </p>
 
+<p>
+Note: on a 64-bit Windows system, MinGW will pretend to have built 64-bit binaries (target directory is <code>derived\x86_64-mingw32-opt-3rd\bindist\install</code>), but they're actually just 32-bit.
+</p>
+
 <h4>Visual C++</h4>
 
 <p>When building with Visual C++, the result is a static executable with minimal
@@ -740,7 +732,7 @@ The following step creates .zip and .msi installation packages for openMSX on Wi
 	<a class="external" href="http://openmsx.sourceforge.net/catapult-manual/compile.html">wxCatapult</a>
 	for a given platform (Win32 or x64) and configuration (usually Release builds)</li>
 	<li>Go to the <em>top of the openMSX source tree</em></li>
-	<li>Run <code>build\package-windows\package.cmd <strong>platform configuration</strong> 
+	<li>Run <code>build\package-windows\package.cmd <strong>platform configuration</strong>
 	<strong>catapult_source_path</strong></code>:<ul>
 		<li><strong>platform</strong> is one of { Win32, x64 }</li>
 		<li><strong>configuration</strong> is one of { Release, Developer, Debug }</li>
