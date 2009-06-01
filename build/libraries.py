@@ -340,7 +340,7 @@ class TCL(Library):
 							yield libpath
 							for entry in listdir(libpath):
 								if entry.startswith('tcl8.'):
-									tclpath = root + '/' + entry
+									tclpath = libpath + '/' + entry
 									if isdir(tclpath):
 										yield tclpath
 
