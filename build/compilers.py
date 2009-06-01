@@ -73,7 +73,7 @@ class _Command(object):
 		except OSError, ex:
 			print >> log, 'failed to execute %s: %s' % (name, ex)
 			return None if captureOutput else False
-		inputText = None if inputSeq is None else '\n'.join(inputSeq)
+		inputText = None if inputSeq is None else '\n'.join(inputSeq) + '\n'
 		stdoutdata, stderrdata = proc.communicate(inputText)
 		if captureOutput:
 			assert stderrdata is not None
