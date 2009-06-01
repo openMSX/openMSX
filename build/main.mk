@@ -12,7 +12,6 @@
 
 # TODO:
 # - Move calculation of CFLAGS and LDFLAGS to components2defs.py?
-# - Change output format of tcl-search.sh to match probed_defs.mk format.
 
 
 # Python Interpreter
@@ -403,7 +402,7 @@ probe: $(PROBE_MAKE)
 endif
 
 # Probe for headers and functions.
-$(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk build/tcl-search.sh
+$(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk
 	@$(PYTHON) $(PROBE_SCRIPT) \
 		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
