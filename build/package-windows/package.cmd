@@ -3,15 +3,14 @@
 rem
 rem **** Run this from the top of the openMSX source tree: ****
 rem
-rem Usage: package.cmd OPENMSX_PLATFORM OPENMSX_CONFIGURATION OPENMSX_VERSION CATAPULT_BASEPATH
+rem Usage: package.cmd OPENMSX_PLATFORM OPENMSX_CONFIGURATION CATAPULT_BASEPATH
 rem
 rem **** OPENMSX_PLATFORM is { Win32, x64 } ****
 rem **** OPENMSX_CONFIGURATION is { Release, Developer, Debug } ****
-rem **** OPENMSX_VERSION is a version string; e.g. 0.7.0  ****
 rem **** CATAPULT_BASEPATH is an absolute or relative path; e.g. ..\wxCatapult ****
 
-if "%4" == "" goto usage
-if "%5" NEQ "" goto usage
+if "%3" == "" goto usage
+if "%4" NEQ "" goto usage
 
 setlocal
 
@@ -21,21 +20,18 @@ echo OPENMSX_PLATFORM is %OPENMSX_PLATFORM%
 set OPENMSX_CONFIGURATION=%2
 echo OPENMSX_CONFIGURATION is %OPENMSX_CONFIGURATION%
 
-set OPENMSX_VERSION=%3
-echo OPENMSX_VERSION is %OPENMSX_VERSION%
-
-set CATAPULT_BASEPATH=%4
+set CATAPULT_BASEPATH=%3
 echo CATAPULT_BASEPATH is %CATAPULT_BASEPATH%
 
 set OPENMSX_PACKAGE_WINDOWS_PATH=.\build\package-windows
 set PYTHONPATH=%PYTHONPATH%;.\build
 
-python %OPENMSX_PACKAGE_WINDOWS_PATH%\packagezip.py %OPENMSX_PLATFORM% %OPENMSX_CONFIGURATION% %OPENMSX_VERSION% %CATAPULT_BASEPATH%
-python %OPENMSX_PACKAGE_WINDOWS_PATH%\packagemsi.py %OPENMSX_PLATFORM% %OPENMSX_CONFIGURATION% %OPENMSX_VERSION% %CATAPULT_BASEPATH%
+python %OPENMSX_PACKAGE_WINDOWS_PATH%\packagezip.py %OPENMSX_PLATFORM% %OPENMSX_CONFIGURATION% %CATAPULT_BASEPATH%
+python %OPENMSX_PACKAGE_WINDOWS_PATH%\packagemsi.py %OPENMSX_PLATFORM% %OPENMSX_CONFIGURATION% %CATAPULT_BASEPATH%
 
 endlocal
 goto end
 
 :usage
-echo Usage: package.cmd platform configuration version catapultPath
+echo Usage: package.cmd platform configuration catapultPath
 :end
