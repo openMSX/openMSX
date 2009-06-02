@@ -130,7 +130,7 @@ class FreeType(Library):
 				# FreeType is located in the X11 tree, not the ports tree.
 				distroRoot = '/usr/X11R6'
 		return super(FreeType, cls).getConfigScript(
-			cls, platform, linkStatic, distroRoot
+			platform, linkStatic, distroRoot
 			)
 
 	@classmethod
