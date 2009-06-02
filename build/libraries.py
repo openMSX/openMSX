@@ -124,6 +124,16 @@ class FreeType(Library):
 	dependsOn = ('ZLIB', )
 
 	@classmethod
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		if platform in ('netbsd', 'openbsd'):
+			if distroRoot == '/usr/local':
+				# FreeType is located in the X11 tree, not the ports tree.
+				distroRoot = '/usr/X11R6'
+		return super(FreeType, cls).getConfigScript(
+			cls, platform, linkStatic, distroRoot
+			)
+
+	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		return '`%s --ftversion`' % configScript
