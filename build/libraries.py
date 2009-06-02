@@ -225,6 +225,26 @@ class JACK(Library):
 	header = '<jack/jack.h>'
 	function = 'jack_client_new'
 
+	@classmethod
+	def getCompileFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(JACK, cls).getCompileFlags(
+			platform, linkStatic, distroRoot
+			)
+		if platform == 'openbsd':
+			return '%s -pthread' % flags
+		else:
+			return flags
+
+	@classmethod
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(JACK, cls).getLinkFlags(
+			platform, linkStatic, distroRoot
+			)
+		if platform == 'openbsd':
+			return '%s -pthread' % flags
+		else:
+			return flags
+
 class LibPNG(Library):
 	libName = 'png12'
 	makeName = 'PNG'
