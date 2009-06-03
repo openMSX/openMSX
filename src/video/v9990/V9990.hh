@@ -10,6 +10,7 @@
 #include "V9990DisplayTiming.hh"
 #include "V9990ModeEnum.hh"
 #include "Clock.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -531,6 +532,12 @@ private:
 	byte scrollAYHigh;
 	byte scrollBYHigh;
 
+	/** Corresponds to bit 1 in the System Control Port.
+	  * When this is true, all registers are held in the 'power ON reset'
+	  * state, so writes to registers are ignored.
+	  */
+	bool systemReset;
+
 	// --- methods ----------------------------------------------------
 
 	void setHorizontalTiming();
@@ -600,6 +607,7 @@ private:
 	  */
 	void scheduleHscan(EmuTime::param time);
 };
+SERIALIZE_CLASS_VERSION(V9990, 2);
 
 } // namespace openmsx
 

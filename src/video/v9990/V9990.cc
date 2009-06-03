@@ -134,6 +134,7 @@ void V9990::reset(EmuTime::param time)
 	memset(regs, 0, sizeof(regs));
 	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
+	systemReset = false; // verified on real MSX
 	calcDisplayMode();
 
 	isDisplayArea = false;
@@ -177,6 +178,8 @@ byte V9990::readIO(word port, EmuTime::param time)
 	default:
 		result = peekIO(port, time);
 	}
+	// TODO verify this, especially REGISTER_DATA
+	if (systemReset) return result; // no side-effects
 
 	// execute side-effects
 	switch (port) {
@@ -215,6 +218,7 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 	byte result;
 	switch (port & 0x0F) {
 	case VRAM_DATA: {
+		// TODO in 'systemReset' mode, this seems to hang the MSX
 		unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
 		result = vram->readVRAMCPU(addr, time);
 		break;
@@ -283,6 +287,12 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 	switch (port) {
 		case VRAM_DATA: {
 			// write VRAM
+			if (systemReset) {
+				// TODO writes in systemReset mode seem to have
+				//  'some' effect but it's not immediately clear
+				//  what the exact behaviour is
+				return;
+			}
 			unsigned addr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
 			vram->writeVRAMCPU(addr, val, time);
 			if (!(regs[VRAM_WRITE_ADDRESS_2] & 0x80)) {
@@ -291,6 +301,13 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			break;
 		}
 		case PALETTE_DATA: {
+			if (systemReset) {
+				// Equivalent to writing 0 and keeping palPtr = 0
+				// The above interpretation makes it similar to
+				// writes to REGISTER_DATA, REGISTER_SELECT.
+				writePaletteRegister(0, 0, time);
+				return;
+			}
 			byte& palPtr = regs[PALETTE_POINTER];
 			writePaletteRegister(palPtr, val, time);
 			switch (palPtr & 3) {
@@ -302,12 +319,24 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			break;
 		}
 		case COMMAND_DATA:
+			// systemReset state doesn't matter:
+			//   command below has no effect in systemReset mode
 			//assert(cmdEngine != NULL);
 			cmdEngine->setCmdData(val, time);
 			break;
 
 		case REGISTER_DATA: {
 			// write register
+			if (systemReset) {
+				// In systemReset mode, write has no effect,
+				// but 'regSelect' is increased.
+				// I don't know if write is ignored or a write
+				// with val=0 is executed. Though both have the
+				// same effect and the latter is more in line
+				// with writes to PALETTE_DATA and
+				// REGISTER_SELECT.
+				val = 0;
+			}
 			writeRegister(regSelect & 0x3F, val, time);
 			if (!(regSelect & 0x80)) {
 				regSelect = ( regSelect      & 0xC0) |
@@ -316,6 +345,14 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			break;
 		}
 		case REGISTER_SELECT:
+			if (systemReset) {
+				// Tested on real MSX. Also when no write is done
+				// to this port, regSelect is not RESET when
+				// entering/leaving systemReset mode.
+				// This behavior is similar to PALETTE_DATA and
+				// REGISTER_DATA.
+				val = 0;
+			}
 			regSelect = val;
 			break;
 
@@ -324,6 +361,8 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			break;
 
 		case INTERRUPT_FLAG:
+			// systemReset state doesn't matter:
+			//   stuff below has no effect in systemReset mode
 			pendingIRQs &= ~val;
 			if (!(pendingIRQs & regs[INTERRUPT_0])) {
 				irq.reset();
@@ -331,13 +370,28 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			scheduleHscan(time);
 			break;
 
-		case SYSTEM_CONTROL:
+		case SYSTEM_CONTROL: {
 			// TODO investigate: does switching overscan mode
 			//      happen at next line or next frame
 			status = (status & 0xFB) | ((val & 1) << 2);
 			syncAtNextLine(V9990_SET_MODE, time);
-		break;
 
+			bool newSystemReset = (val & 2) != 0;
+			if (newSystemReset != systemReset) {
+				systemReset = newSystemReset;
+				if (systemReset) {
+					// Enter systemReset mode
+					//   Verified on real MSX: palette data
+					//   and VRAM content are NOT reset.
+					for (int i = 0; i < 64; ++i) {
+						writeRegister(i, 0, time);
+					}
+					// TODO verify IRQ behaviour
+					writeIO(INTERRUPT_FLAG, 0xFF, time);
+				}
+			}
+			break;
+		}
 		case KANJI_ROM_0:
 		case KANJI_ROM_1:
 		case KANJI_ROM_2:
@@ -487,6 +541,7 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 byte V9990::readRegister(byte reg, EmuTime::param time) const
 {
 	// TODO sync(time) (if needed at all)
+	if (systemReset) return 255; // verified on real MSX
 
 	assert(reg < 64);
 	byte result;
@@ -820,8 +875,10 @@ static enum_string<V9990DisplayMode> displayModeInfo[] = {
 };
 SERIALIZE_ENUM(V9990DisplayMode, displayModeInfo);
 
+// version 1:  initial version
+// version 2:  added systemReset
 template<typename Archive>
-void V9990::serialize(Archive& ar, unsigned /*version*/)
+void V9990::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<Schedulable>(*this);
@@ -843,6 +900,13 @@ void V9990::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("displayEnabled", displayEnabled);
 	ar.serialize("scrollAYHigh", scrollAYHigh);
 	ar.serialize("scrollBYHigh", scrollBYHigh);
+
+	if (version >= 2) {
+		ar.serialize("systemReset", systemReset);
+	} else {
+		assert(ar.isLoader());
+		systemReset = false;
+	}
 
 	if (ar.isLoader()) {
 		// TODO This uses 'mode' to calculate 'horTiming' and
