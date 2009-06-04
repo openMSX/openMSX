@@ -35,8 +35,13 @@ private:
 };
 
 
-enum RegisterAccess { NO_ACCESS, RD_ONLY, WR_ONLY, RD_WR };
-static const RegisterAccess regAccess[64] = {
+static const byte ALLOW_READ  = 1;
+static const byte ALLOW_WRITE = 2;
+static const byte NO_ACCESS = 0;
+static const byte RD_ONLY   = ALLOW_READ;
+static const byte WR_ONLY   = ALLOW_WRITE;
+static const byte RD_WR     = ALLOW_READ | ALLOW_WRITE;
+static const byte regAccess[64] = {
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Write Address
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Read Address
 	RD_WR, RD_WR,                       // Screen Mode
@@ -545,7 +550,7 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 
 	assert(reg < 64);
 	byte result;
-	if (regAccess[reg] != NO_ACCESS && regAccess[reg] != WR_ONLY) {
+	if (regAccess[reg] & ALLOW_READ) {
 		if (reg < CMD_PARAM_BORDER_X_0) {
 			result = regs[reg];
 		} else {
@@ -587,7 +592,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 	//	                        " val=0x" << std::hex << int(val));
 
 	assert(reg < 64);
-	if ((regAccess[reg] == NO_ACCESS) || (regAccess[reg] == RD_ONLY)) {
+	if (!(regAccess[reg] & ALLOW_WRITE)) {
 		// register not writable
 		return;
 	}
