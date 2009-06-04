@@ -1,5 +1,18 @@
 $Id$
 
+2009-06-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed IE0 related VDP bug:
+	   When there is a pending VBLANK IRQ (bit 7 in S#00 is set) and you
+	   switch IE0 (bit 5 in R#1) on, there is immediately a IRQ send to
+	   the Z80. Before this fix openMSX would only generate one on the
+	   next VBLANK.
+	   This fixes two long-standing bugs:
+	    - [1849488] Game "Adonis" plays sound way too slowly
+	    - [ 739150] Zanac: title corrupted
+	   Thanks a lot to 'n_n' for providing a z80 trace of a Adonis run in
+	   meisei. Comparing this trace with a openMSX trace allowed to
+	   pin-point this bug.
+
 2009-05-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Always build application folder on Mac OS X.
 	  This is the way we release and supporting both app folder and
@@ -10,7 +23,7 @@ $Id$
 	  This should make file handling on Windows imperceptibly faster.
 	* Implemented correct shutdown logic for PipeConnection thread
 	  using async I/O and events.
-	  
+
 2009-04-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Final step in un-uglifying Tcl scripts using Tcl namespaces :)
 

@@ -940,7 +940,16 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		break;
 	case 1:
 		if (change & 0x20) { // IE0
-			if (!(val & 0x20)) irqVertical.reset();
+			if (val & 0x20) {
+				// This behaviour is important. Without it,
+				// the intro music in 'Andonis' is way too slow
+				// and the intro logo of 'Zanac' is corrupted.
+				if (statusReg0 & 0x80) {
+					irqVertical.set();
+				}
+			} else {
+				irqVertical.reset();
+			}
 		}
 		if ((change & 0x80) && isMSX1VDP()) {
 			// confirmed: VRAM remapping does not happen on a V99x8
