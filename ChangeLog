@@ -1,5 +1,9 @@
 $Id$
 
+2009-06-04 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Sanyo MPC-25FD, MSX2 with diskdrive and one cartridge slot
+	  only. Thanks to jltursan!
+
 2009-06-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed IE0 related VDP bug:
 	   When there is a pending VBLANK IRQ (bit 7 in S#00 is set) and you
