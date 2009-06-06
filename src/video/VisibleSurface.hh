@@ -16,6 +16,7 @@ class Layer;
 class Reactor;
 class CommandController;
 class EventDistributor;
+class InputEventGenerator;
 class RenderSettings;
 class Setting;
 class Display;
@@ -53,7 +54,8 @@ public:
 
 protected:
 	VisibleSurface(RenderSettings& renderSettings,
-	               EventDistributor& eventDistributor);
+	               EventDistributor& eventDistributor,
+	               InputEventGenerator& inputEventGenerator);
 	void createSurface(unsigned width, unsigned height, int flags);
 
 private:
@@ -68,6 +70,7 @@ private:
 
 	RenderSettings& renderSettings;
 	EventDistributor& eventDistributor;
+	InputEventGenerator& inputEventGenerator;
 };
 
 } // namespace openmsx

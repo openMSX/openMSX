@@ -18,8 +18,9 @@ namespace openmsx {
 SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen,
 		RenderSettings& renderSettings,
-		EventDistributor& eventDistributor)
-	: VisibleSurface(renderSettings, eventDistributor)
+		EventDistributor& eventDistributor,
+		InputEventGenerator& inputEventGenerator)
+	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator)
 {
 #if PLATFORM_GP2X
 	// We don't use HW double buffering, because that implies a vsync and

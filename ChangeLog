@@ -1,5 +1,9 @@
 $Id$
 
+2009-06-07 Manuel Bilderbeek <manuel@msxnet.org>
+	* Apart from full screen (which was already implemented), also hide
+	  the mouse pointer always when input grab is enabled.
+
 2009-06-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Sanyo MPC-25FD, MSX2 with diskdrive and one cartridge slot
 	  only. Thanks to jltursan!
@@ -10,9 +14,11 @@ $Id$
 	   switch IE0 (bit 5 in R#1) on, there is immediately a IRQ send to
 	   the Z80. Before this fix openMSX would only generate one on the
 	   next VBLANK.
-	   This fixes two long-standing bugs:
+	   This fixes several long-standing bugs:
 	    - [1849488] Game "Adonis" plays sound way too slowly
 	    - [ 739150] Zanac: title corrupted
+	    - [1847275] Penguin Adventure doesn't work on some machines
+	    - [ 658430] Galaga/Bosconian slows down when you die
 	   Thanks a lot to 'n_n' for providing a z80 trace of a Adonis run in
 	   meisei. Comparing this trace with a openMSX trace allowed to
 	   pin-point this bug.

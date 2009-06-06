@@ -16,6 +16,7 @@ public:
 	SDLGLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
 	                    RenderSettings& renderSettings,
 	                    EventDistributor& eventDistributor,
+	                    InputEventGenerator& inputEventGenerator,
 	                    FrameBuffer frameBuffer = FB_NONE);
 	virtual ~SDLGLVisibleSurface();
 

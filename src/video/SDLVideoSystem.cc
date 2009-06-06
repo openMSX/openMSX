@@ -233,6 +233,7 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 void SDLVideoSystem::resize()
 {
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
+	InputEventGenerator& inputEventGenerator = reactor.getInputEventGenerator();
 
 	unsigned width, height;
 	getWindowSize(width, height);
@@ -243,28 +244,28 @@ void SDLVideoSystem::resize()
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
 		screen.reset(new SDLVisibleSurface(width, height, fullscreen,
-					renderSettings, eventDistributor));
+				renderSettings, eventDistributor, inputEventGenerator));
 		break;
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-					renderSettings, eventDistributor));
+				renderSettings, eventDistributor, inputEventGenerator));
 		break;
 	case RendererFactory::SDLGL_FB16:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-					renderSettings, eventDistributor,
-					SDLGLVisibleSurface::FB_16BPP));
+				renderSettings, eventDistributor, inputEventGenerator,
+				SDLGLVisibleSurface::FB_16BPP));
 		break;
 	case RendererFactory::SDLGL_FB32:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-					renderSettings, eventDistributor,
-					SDLGLVisibleSurface::FB_32BPP));
+				renderSettings, eventDistributor, inputEventGenerator,
+				SDLGLVisibleSurface::FB_32BPP));
 		break;
 #endif
 	default:
 		assert(false);
 	}
-	reactor.getInputEventGenerator().reinit();
+	inputEventGenerator.reinit();
 }
 
 void SDLVideoSystem::update(const Setting& subject)
