@@ -75,7 +75,13 @@ def detectOS():
 
 if __name__ == '__main__':
 	try:
-		print '%s-%s' % (detectCPU(), detectOS())
+		hostCPU = detectCPU()
+		hostOS = detectOS()
+		if hostOS == 'mingw32' and hostCPU == 'x86_64':
+			# It is possible to run MinGW on 64-bit Windows, but producing
+			# 64-bit code is not supported yet.
+			hostCPU = 'x86'
+		print '%s-%s' % (hostCPU, hostOS)
 	except ValueError, ex:
 		print >> sys.stderr, ex
 		sys.exit(1)
