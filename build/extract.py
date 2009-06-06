@@ -1,7 +1,7 @@
 # $Id$
 # Extract files from archives.
 
-from os import O_CREAT, O_WRONLY, fdopen, mkdir, open as osopen
+from os import O_CREAT, O_WRONLY, fdopen, mkdir, open as osopen, utime
 try:
 	from os import O_BINARY
 except ImportError:
@@ -79,6 +79,11 @@ def extract(archivePath, destDir, rename = None):
 					'not a regular file or a directory'
 					% member.name
 					)
+			# Set file/directory modification time to match the archive.
+			# For example autotools track dependencies between archived files
+			# and will attempt to regenerate them if the time stamps indicate
+			# one is older than the other.
+			utime(absMemberPath, (member.mtime, member.mtime))
 	finally:
 		tar.close()
 
