@@ -54,7 +54,7 @@ proc init {} {
 	variable demon_cache
 	variable max_ep
 
-	osd create rectangle mog -scaled true -alpha 0
+	osd_init mog
 
 	for {set i 0} {$i < $num_enemies} {incr i} {
 		create_power_bar mog.powerbar$i 14 2 0xff0000ff 0x00000080 0xffffffff
@@ -117,19 +117,6 @@ proc update_overlay {} {
 	variable max_ep
 
 	if {!$mog_overlay_active} return
-
-	# compensate for horizontal-stretch and set-adjust
-	set hstretch [expr {$::renderer != "SDL"} ? $::horizontal_stretch : 320]
-	set xsize   [expr 320.0 / $hstretch]
-	set xoffset [expr ($hstretch - 256) / 2 * $xsize]
-	set ysize 1
-	set yoffset [expr (240 - 192) / 2 * $ysize]
-	set adjreg [vdpreg 18]
-	set hadj [expr (($adjreg & 15) ^ 7) - 7]
-	set vadj [expr (($adjreg >> 4) ^ 7) - 7]
-	set xoffset [expr $xoffset + $xsize * $hadj]
-	set yoffset [expr $yoffset + $ysize * $vadj]
-	osd configure mog -x $xoffset -y $yoffset -w $xsize -h $ysize
 
 	for {set i 0; set addr 0xe800} {$i < $num_enemies} {incr i; incr addr 0x20} {
 		set enemy_type [peek $addr]
