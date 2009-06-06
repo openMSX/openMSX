@@ -51,18 +51,20 @@ New or improved emulator features:
 MSX device support:
 - Several new machines were added, e.g. Sony HB-F700P, Panasonic CF-2700
   (German), Talent DPC-200 (Argentinian), Yamaha CX5M, Sanyo PHC-28L, Sanyo
-  PHC-28S, Yamaha YIS-503F
+  PHC-28S, Yamaha YIS-503F, Sanyo MPC-25FD (thanks jltursan)
 - Added Sharp HB-3600 dual disk drive
 - Accuracy improvements:
   - Added difference between AY8910 and YM2149 PSG's when reading registers
-  - Z80:
-    - added 'ld a,i' quirk
+  - Z80: added 'ld a,i' quirk
   - V99x8:
     - implemented sprite collision coordinate status registers
     - fixed detail of LINE command (fixing one problem in Syntax Infinity)
     - implemented VR bit (fixing another problem in Syntax Infinity)
   - Added a memory mirror device to properly emulate the Sony HB-10P
 - Fixed sound quality regression in YM2413 emulation
+- Fixed very long standing bug in vblank interrupt timing, resolving many
+  problems like the Zanac title screen, Adonis music speed, Galaga slowdowns,
+  Penguin Adventure start up, ...
 - Added emulation of Nowind (mostly useful for Nowind firmware developers)
 - Added emulation of the Arkanoid pad, using the mouse
 
