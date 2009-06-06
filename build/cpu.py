@@ -18,6 +18,9 @@ class CPU(object):
 	# Preprocessor defines that guard inline assembly for this CPU family.
 	asmDefines = ()
 
+	# GCC flags to pass to the compile and link commands.
+	gccFlags = ()
+
 class Alpha(CPU):
 	'''DEC Alpha.
 	'''
@@ -91,6 +94,7 @@ class X86(CPU):
 	bigEndian = False
 	unalignedMemoryAccess = True
 	asmDefines = 'ASM_X86', 'ASM_X86_32'
+	gccFlags = '-m32',
 
 class X86_64(CPU):
 	'''64-bit x86. Also known as AMD64 or x64.
@@ -99,6 +103,7 @@ class X86_64(CPU):
 	bigEndian = False
 	unalignedMemoryAccess = True
 	asmDefines = 'ASM_X86', 'ASM_X86_64'
+	gccFlags = '-m64',
 
 # Build a dictionary of CPUs using introspection.
 def _discoverCPUs(localObjects):
