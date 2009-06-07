@@ -257,11 +257,10 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-shared \
+		--without-zlib \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+		CFLAGS="$(_CFLAGS)"
 
 # Configure zlib.
 # Although it uses "configure", zlib does not support building outside of the

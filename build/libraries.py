@@ -121,7 +121,6 @@ class FreeType(Library):
 	header = ('<ft2build.h>', 'FT_FREETYPE_H')
 	configScriptName = 'freetype-config'
 	function = 'FT_Open_Face'
-	dependsOn = ('ZLIB', )
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):

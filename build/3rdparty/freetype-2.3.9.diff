@@ -1,6 +1,6 @@
 diff -ru freetype-2.3.9.org/modules.cfg freetype-2.3.9/modules.cfg
 --- freetype-2.3.9.org/modules.cfg	2009-01-22 10:46:29.000000000 +0100
-+++ freetype-2.3.9/modules.cfg	2009-06-08 00:46:42.000000000 +0200
++++ freetype-2.3.9/modules.cfg	2009-06-08 00:55:28.000000000 +0200
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
@@ -72,7 +72,13 @@ diff -ru freetype-2.3.9.org/modules.cfg freetype-2.3.9/modules.cfg
  
  # TrueType GX/AAT table validation.  Needs ftgxval.c below.
  # AUX_MODULES += gxvalid
-@@ -120,7 +120,7 @@
+@@ -115,12 +115,12 @@
+ # Support for streams compressed with gzip (files with suffix .gz).
+ #
+ # See include/freetype/ftgzip.h for the API.
+-AUX_MODULES += gzip
++#AUX_MODULES += gzip
+ 
  # Support for streams compressed with LZW (files with suffix .Z).
  #
  # See include/freetype/ftlzw.h for the API.
