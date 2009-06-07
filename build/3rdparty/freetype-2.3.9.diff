@@ -1,6 +1,117 @@
+diff -ru freetype-2.3.9.org/include/freetype/config/ftoption.h freetype-2.3.9/include/freetype/config/ftoption.h
+--- freetype-2.3.9.org/include/freetype/config/ftoption.h	2008-11-05 10:25:14.000000000 +0100
++++ freetype-2.3.9/include/freetype/config/ftoption.h	2009-06-08 01:43:05.000000000 +0200
+@@ -148,7 +148,7 @@
+   /*                                                                       */
+   /*   Define this macro if you want to enable this `feature'.             */
+   /*                                                                       */
+-#define FT_CONFIG_OPTION_USE_LZW
++/* #define FT_CONFIG_OPTION_USE_LZW */
+ 
+ 
+   /*************************************************************************/
+@@ -163,7 +163,7 @@
+   /*   Define this macro if you want to enable this `feature'.  See also   */
+   /*   the macro FT_CONFIG_OPTION_SYSTEM_ZLIB below.                       */
+   /*                                                                       */
+-#define FT_CONFIG_OPTION_USE_ZLIB
++/* #define FT_CONFIG_OPTION_USE_ZLIB */
+ 
+ 
+   /*************************************************************************/
+@@ -251,7 +251,7 @@
+   /*   You would normally undefine this configuration macro when building  */
+   /*   a version of FreeType that doesn't contain a Type 1 or CFF driver.  */
+   /*                                                                       */
+-#define FT_CONFIG_OPTION_POSTSCRIPT_NAMES
++#undef FT_CONFIG_OPTION_POSTSCRIPT_NAMES
+ 
+ 
+   /*************************************************************************/
+@@ -269,7 +269,7 @@
+   /*   able to synthesize a Unicode charmap out of the glyphs found in the */
+   /*   fonts.                                                              */
+   /*                                                                       */
+-#define FT_CONFIG_OPTION_ADOBE_GLYPH_LIST
++#undef FT_CONFIG_OPTION_ADOBE_GLYPH_LIST
+ 
+ 
+   /*************************************************************************/
+@@ -282,7 +282,7 @@
+   /*                                                                       */
+   /*   Note that the `FOND' resource isn't checked.                        */
+   /*                                                                       */
+-#define FT_CONFIG_OPTION_MAC_FONTS
++/* #define FT_CONFIG_OPTION_MAC_FONTS */
+ 
+ 
+   /*************************************************************************/
+@@ -412,7 +412,7 @@
+   /* embedded bitmaps in all formats using the SFNT module (namely         */
+   /* TrueType & OpenType).                                                 */
+   /*                                                                       */
+-#define TT_CONFIG_OPTION_EMBEDDED_BITMAPS
++/* #define TT_CONFIG_OPTION_EMBEDDED_BITMAPS */
+ 
+ 
+   /*************************************************************************/
+@@ -441,7 +441,7 @@
+   /* Accessing SFNT names is done through the functions declared in        */
+   /* `freetype/ftnames.h'.                                                 */
+   /*                                                                       */
+-#define TT_CONFIG_OPTION_SFNT_NAMES
++/* #define TT_CONFIG_OPTION_SFNT_NAMES */
+ 
+ 
+   /*************************************************************************/
+@@ -569,7 +569,7 @@
+   /* and avar tables).  This has many similarities to Type 1 Multiple      */
+   /* Masters support.                                                      */
+   /*                                                                       */
+-#define TT_CONFIG_OPTION_GX_VAR_SUPPORT
++/* #define TT_CONFIG_OPTION_GX_VAR_SUPPORT */
+ 
+ 
+   /*************************************************************************/
+@@ -577,7 +577,7 @@
+   /* Define TT_CONFIG_OPTION_BDF if you want to include support for        */
+   /* an embedded `BDF ' table within SFNT-based bitmap formats.            */
+   /*                                                                       */
+-#define TT_CONFIG_OPTION_BDF
++/* #define TT_CONFIG_OPTION_BDF */
+ 
+ 
+   /*************************************************************************/
+@@ -623,7 +623,7 @@
+   /* files into an existing face.  Note that if set, the T1 driver will be */
+   /* unable to produce kerning distances.                                  */
+   /*                                                                       */
+-#undef T1_CONFIG_OPTION_NO_AFM
++#define T1_CONFIG_OPTION_NO_AFM
+ 
+ 
+   /*************************************************************************/
+@@ -632,7 +632,7 @@
+   /* compilation of the Multiple Masters font support in the Type 1        */
+   /* driver.                                                               */
+   /*                                                                       */
+-#undef T1_CONFIG_OPTION_NO_MM_SUPPORT
++#define T1_CONFIG_OPTION_NO_MM_SUPPORT
+ 
+ 
+   /*************************************************************************/
+@@ -670,7 +670,7 @@
+    * is recommended to disable the macro since it reduces the library's code
+    * size and activates a few memory-saving optimizations as well.
+    */
+-#define FT_CONFIG_OPTION_OLD_INTERNALS
++/* #define FT_CONFIG_OPTION_OLD_INTERNALS */
+ 
+ 
+   /*
 diff -ru freetype-2.3.9.org/modules.cfg freetype-2.3.9/modules.cfg
 --- freetype-2.3.9.org/modules.cfg	2009-01-22 10:46:29.000000000 +0100
-+++ freetype-2.3.9/modules.cfg	2009-06-08 00:55:28.000000000 +0200
++++ freetype-2.3.9/modules.cfg	2009-06-08 01:03:06.000000000 +0200
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
