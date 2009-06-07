@@ -3,7 +3,8 @@
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"
-#include "LocalFileReference.hh"
+#include "File.hh"
+#include "FileException.hh"
 #include <cassert>
 #include <cstring>
 #include <libxml/parser.h>
@@ -28,17 +29,25 @@ struct XMLLoaderHelper
 	std::string systemID;
 };
 
-static void cbStartElement(XMLLoaderHelper* helper, const xmlChar* name,
-                           const xmlChar** attrs)
+static void cbStartElement(
+	XMLLoaderHelper* helper,
+	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/,
+	int /*nb_namespaces*/, const xmlChar** /*namespaces*/,
+	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs
+	)
 {
 	std::auto_ptr<XMLElement> newElem(
-		new XMLElement(reinterpret_cast<const char*>(name)));
+		new XMLElement(reinterpret_cast<const char*>(localname)));
 
-	if (attrs) {
-		for (/**/; *attrs; attrs += 2) {
-			newElem->addAttribute(reinterpret_cast<const char*>(attrs[0]),
-			                      reinterpret_cast<const char*>(attrs[1]));
-		}
+	for (int i = 0; i < nb_attributes; i++) {
+		const char* valueStart =
+			reinterpret_cast<const char*>(attrs[i * 5 + 3]);
+		const char* valueEnd =
+			reinterpret_cast<const char*>(attrs[i * 5 + 4]);
+		newElem->addAttribute(
+			reinterpret_cast<const char*>(attrs[i * 5 + 0]),
+			std::string(valueStart, valueEnd - valueStart)
+			);
 	}
 
 	XMLElement* newElem2 = newElem.get();
@@ -52,11 +61,15 @@ static void cbStartElement(XMLLoaderHelper* helper, const xmlChar* name,
 	helper->data.clear();
 }
 
-static void cbEndElement(XMLLoaderHelper* helper, const xmlChar* name)
+static void cbEndElement(
+	XMLLoaderHelper* helper,
+	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/
+	)
 {
 	assert(helper->current);
-	assert(reinterpret_cast<const char*>(name) == helper->current->getName());
-	(void)name;
+	assert(reinterpret_cast<const char*>(localname)
+		== helper->current->getName());
+	(void)localname;
 
 	helper->current->setData(helper->data);
 	helper->current = helper->current->getParent();
@@ -75,30 +88,40 @@ static void cbInternalSubset(XMLLoaderHelper* helper, const xmlChar* /*name*/,
 	helper->systemID = reinterpret_cast<const char*>(systemID);
 }
 
-auto_ptr<XMLElement> load(const string& filename_, const string& systemID)
+auto_ptr<XMLElement> load(const string& filename, const string& systemID)
 {
-#ifdef LIBXML_ZLIB_ENABLED
-	// libxml directly supports gzipped files
-	// this is more efficient than the alternative below
-	const string& filename = filename_;
-#else
-	// libxml was configured without zlib support (this is for example the
-	// case with the standard installed libxml on the GP2X)
-	// TODO a more efficient but also more complex alternative is to use
-	//      xmlParseChunk() in combination with gzread()
-	LocalFileReference fileRef(filename_);
-	const string& filename = fileRef.getFilename();
-#endif
+	File file(filename, "rb");
+	// TODO: Reading blocks to a fixed-size buffer would require less memory
+	//       when reading (g)zipped XML.
+	// Note: On destruction of "file", munmap() is called automatically.
+	byte* fileContent;
+	try {
+		fileContent = file.mmap();
+	} catch (FileException& e) {
+		throw XMLException(filename + ": failed to mmap: " + e.getMessage());
+	}
 
 	xmlSAXHandler handler;
 	memset(&handler, 0, sizeof(handler));
-	handler.startElement  = (startElementSAXFunc)   cbStartElement;
-	handler.endElement    = (endElementSAXFunc)     cbEndElement;
-	handler.characters    = (charactersSAXFunc)     cbCharacters;
-	handler.internalSubset = (internalSubsetSAXFunc)cbInternalSubset;
+	handler.startElementNs = (startElementNsSAX2Func)cbStartElement;
+	handler.endElementNs   = (endElementNsSAX2Func)  cbEndElement;
+	handler.characters     = (charactersSAXFunc)     cbCharacters;
+	handler.internalSubset = (internalSubsetSAXFunc) cbInternalSubset;
+	handler.initialized = XML_SAX2_MAGIC;
 
 	XMLLoaderHelper helper;
-	if (xmlSAXUserParseFile(&handler, &helper, filename.c_str())) {
+
+	xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(
+		&handler, &helper, NULL, 0, filename.c_str()
+		);
+	if (!ctxt) {
+		throw XMLException(filename + ": Could not create XML parser context");
+	}
+	const int parseError = xmlParseChunk(
+		ctxt, reinterpret_cast<const char *>(fileContent), file.getSize(), true
+		);
+	xmlFreeParserCtxt(ctxt);
+	if (parseError) {
 		throw XMLException(filename + ": Document parsing failed");
 	}
 
