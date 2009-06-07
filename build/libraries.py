@@ -259,7 +259,7 @@ class LibXML2(Library):
 	makeName = 'XML'
 	header = '<libxml/parser.h>'
 	configScriptName = 'xml2-config'
-	function = 'xmlSAXUserParseFile'
+	function = 'xmlParseDocument'
 	dependsOn = ('ZLIB', )
 
 	@classmethod
