@@ -321,7 +321,6 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 	cd $(@D) && $(PWD)/$</configure \
 		--with-minimum \
 		--with-push \
-		--with-sax1 \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
