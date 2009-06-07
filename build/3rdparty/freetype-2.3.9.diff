@@ -111,7 +111,7 @@ diff -ru freetype-2.3.9.org/include/freetype/config/ftoption.h freetype-2.3.9/in
    /*
 diff -ru freetype-2.3.9.org/modules.cfg freetype-2.3.9/modules.cfg
 --- freetype-2.3.9.org/modules.cfg	2009-01-22 10:46:29.000000000 +0100
-+++ freetype-2.3.9/modules.cfg	2009-06-08 01:03:06.000000000 +0200
++++ freetype-2.3.9/modules.cfg	2009-06-08 01:49:15.000000000 +0200
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
@@ -156,8 +156,12 @@ diff -ru freetype-2.3.9.org/modules.cfg freetype-2.3.9/modules.cfg
  
  # SFNT files support.  If used without `truetype' or `cff', it supports
  # bitmap-only fonts within an SFNT wrapper.
-@@ -82,7 +82,7 @@
- HINTING_MODULES += autofit
+@@ -79,10 +79,10 @@
+ ####
+ 
+ # FreeType's auto hinter.
+-HINTING_MODULES += autofit
++#HINTING_MODULES += autofit
  
  # PostScript hinter.
 -HINTING_MODULES += pshinter
