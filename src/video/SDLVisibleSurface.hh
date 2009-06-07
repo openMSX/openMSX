@@ -12,7 +12,8 @@ class SDLVisibleSurface : public VisibleSurface
 public:
 	SDLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
 	                  RenderSettings& renderSettings,
-	                  EventDistributor& eventDistributor);
+	                  EventDistributor& eventDistributor,
+	                  InputEventGenerator& inputEventGenerator);
 
 private:
 	// OutputSurface

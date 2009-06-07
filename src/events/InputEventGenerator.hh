@@ -45,6 +45,9 @@ public:
 	 */
 	void reinit();
 
+	/** Input Grab on or off */
+	BooleanSetting& getGrabInput() const { return *grabInput; }
+
 private:
 	void handle(const SDL_Event& event);
 	void setGrabInput(bool grab);

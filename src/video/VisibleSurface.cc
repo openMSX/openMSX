@@ -8,6 +8,7 @@
 #include "BooleanSetting.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
+#include "InputEventGenerator.hh"
 #include "build-info.hh"
 #include "openmsx.hh"
 
@@ -20,9 +21,11 @@ static int lastWindowY = 0;
 namespace openmsx {
 
 VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
-		EventDistributor& eventDistributor_)
+		EventDistributor& eventDistributor_,
+		InputEventGenerator& inputEventGenerator_)
 	: renderSettings(renderSettings_)
 	, eventDistributor(eventDistributor_)
+	, inputEventGenerator(inputEventGenerator_)
 {
 	if (!SDL_WasInit(SDL_INIT_VIDEO) &&
 	    SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
@@ -47,6 +50,7 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 		SDL_FreeSurface(iconSurf);
 	}
 
+	inputEventGenerator_.getGrabInput().attach(*this);
 	renderSettings.getPointerHideDelay().attach(*this);
 	renderSettings.getFullScreen().attach(*this);
 	eventDistributor.registerEventListener(
@@ -124,6 +128,7 @@ VisibleSurface::~VisibleSurface()
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+	inputEventGenerator.getGrabInput().detach(*this);
 	renderSettings.getPointerHideDelay().detach(*this);
 	renderSettings.getFullScreen().detach(*this);
 
@@ -193,8 +198,9 @@ bool VisibleSurface::signalEvent(shared_ptr<const Event> event)
 void VisibleSurface::updateCursor()
 {
 	cancel();
-	if (renderSettings.getFullScreen().getValue()) {
-		// always hide cursor in fullscreen mode
+	if (renderSettings.getFullScreen().getValue() ||
+			inputEventGenerator.getGrabInput().getValue()) {
+		// always hide cursor in fullscreen or grabinput mode
 		SDL_ShowCursor(SDL_DISABLE);
 		return;
 	}
