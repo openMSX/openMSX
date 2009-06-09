@@ -90,7 +90,7 @@ static void cbInternalSubset(XMLLoaderHelper* helper, const xmlChar* /*name*/,
 
 auto_ptr<XMLElement> load(const string& filename, const string& systemID)
 {
-	File file(filename, "rb");
+	File file(filename);
 	// TODO: Reading blocks to a fixed-size buffer would require less memory
 	//       when reading (g)zipped XML.
 	// Note: On destruction of "file", munmap() is called automatically.
