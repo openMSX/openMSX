@@ -184,9 +184,14 @@ static SDL_Surface* loadImage(
 SDL_Surface* SDLImage::readImage(const string& filename)
 {
 	LocalFileReference file(filename);
-	SDL_Surface* result = IMG_Load(file.getFilename().c_str());
+	SDL_RWops *src = SDL_RWFromFile(file.getFilename().c_str(), "rb");
+	if (!src) {
+		throw MSXException("Could not open image file \"" + filename + "\"");
+	}
+	SDL_Surface* result = IMG_LoadPNG_RW(src);
+	SDL_RWclose(src);
 	if (!result) {
-		throw MSXException("File \"" + filename + "\" is not a valid image");
+		throw MSXException("File \"" + filename + "\" is not a valid PNG image");
 	}
 	return result;
 }
