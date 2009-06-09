@@ -35,7 +35,7 @@ if __name__ == '__main__':
 		# Get symbol information.
 		symbolsBySource = defaultdict(list)
 		for name, typ, size, (source, lineNo) in parseSymbolSize(executable):
-			symbolsBySource[source].append((lineNo, name, typ, size))
+			symbolsBySource[source].append((name, typ, size, lineNo))
 
 		# Build directory tree.
 		def newDict():
@@ -52,6 +52,7 @@ if __name__ == '__main__':
 			for part in parts[ : -1]:
 				node = node[part + '/']
 			node[parts[-1]] = symbols
+
 		# Combine branches without forks.
 		def compactTree(node):
 			names = set(node.iterkeys())
@@ -70,21 +71,39 @@ if __name__ == '__main__':
 					compactTree(content)
 		compactTree(dirTree)
 
+		# Compute size of all nodes in the tree.
+		def buildSizeTree(node):
+			if isinstance(node, dict):
+				newNode = {}
+				for name, content in node.iteritems():
+					newNode[name] = buildSizeTree(content)
+				nodeSize = sum(size for size, subNode in newNode.itervalues())
+				return nodeSize, newNode
+			else:
+				nodeSize = sum(size for name, typ, size, lineNo in node)
+				return nodeSize, node
+		totalSize, sizeTree = buildSizeTree(dirTree)
+
 		# Output.
-		# TODO: Show aggregated size; sort decreasing by size.
-		def printTree(node, indent):
-			for name, content in sorted(node.iteritems()):
-				print indent + name
-				if isinstance(content, dict):
-					printTree(content, indent + '  ')
-				else:
-					for symbol in sorted(content):
-						lineNo, name, typ, size = symbol
-						print '%s%8d %s %s %s' % (
-							indent, size, typ, name,
-							'' if lineNo is None else '(line %d)' % lineNo
-							)
-		printTree(dirTree, '')
+		def printTree(size, node, indent):
+			if isinstance(node, dict):
+				for name, (contentSize, content) in sorted(
+					node.iteritems(),
+					key = lambda (name, (contentSize, content)):
+						( -contentSize, name )
+					):
+					print '%s%8d %s' % (indent, contentSize, name)
+					printTree(contentSize, content, indent + '  ')
+			else:
+				for name, typ, size, lineNo in sorted(
+					node,
+					key = lambda (name, typ, size, lineNo): ( -size, name )
+					):
+					print '%s%8d %s %s %s' % (
+						indent, size, typ, name,
+						'' if lineNo is None else '(line %d)' % lineNo
+						)
+		printTree(totalSize, sizeTree, '')
 	else:
 		print >> sys.stderr, 'Usage: python sizestats.py executable'
 		sys.exit(2)
