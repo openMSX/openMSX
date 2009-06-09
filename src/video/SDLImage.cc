@@ -2,7 +2,7 @@
 
 #include "SDLImage.hh"
 #include "OutputSurface.hh"
-#include "LocalFileReference.hh"
+#include "File.hh"
 #include "MSXException.hh"
 #include "vla.hh"
 #include "build-info.hh"
@@ -183,10 +183,12 @@ static SDL_Surface* loadImage(
 
 SDL_Surface* SDLImage::readImage(const string& filename)
 {
-	LocalFileReference file(filename);
-	SDL_RWops *src = SDL_RWFromFile(file.getFilename().c_str(), "rb");
+	File file(filename);
+	SDL_RWops *src = SDL_RWFromConstMem(file.mmap(), file.getSize());
 	if (!src) {
-		throw MSXException("Could not open image file \"" + filename + "\"");
+		throw MSXException(
+			"Failed to create SDL_RWops for mmapped file \"" + filename + "\""
+			);
 	}
 	SDL_Surface* result = IMG_LoadPNG_RW(src);
 	SDL_RWclose(src);
