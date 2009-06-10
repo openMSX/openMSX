@@ -315,8 +315,7 @@ MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE="$(_CFLAGS)"
 
 # Configure libxml2.
 $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_XML) \
-  $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+  $(SOURCE_DIR)/$(PACKAGE_XML)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--with-minimum \
@@ -324,10 +323,7 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		$(if $(filter-out $(SYSTEM_LIBS),ZLIB),--with-zlib=$(PWD)/$(INSTALL_DIR),) \
-		CFLAGS="$(_CFLAGS)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+		CFLAGS="$(_CFLAGS)"
 
 # Extract packages.
 # Name mapping for standardized packages:
