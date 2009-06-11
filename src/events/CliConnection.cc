@@ -66,9 +66,10 @@ CliConnection::CliConnection(CommandController& commandController_,
 	user_data.unknownLevel = 0;
 	user_data.object = this;
 	memset(&sax_handler, 0, sizeof(sax_handler));
-	sax_handler.startElement = cb_start_element;
-	sax_handler.endElement   = cb_end_element;
-	sax_handler.characters   = cb_text;
+	sax_handler.startElementNs = cb_start_element;
+	sax_handler.endElementNs   = cb_end_element;
+	sax_handler.characters     = cb_text;
+	sax_handler.initialized    = XML_SAX2_MAGIC;
 
 	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
 
@@ -141,8 +142,12 @@ bool CliConnection::signalEvent(shared_ptr<const Event> event)
 	return true;
 }
 
-void CliConnection::cb_start_element(void* user_data,
-                     const xmlChar* name, const xmlChar** /*attrs*/)
+void CliConnection::cb_start_element(
+	void* user_data,
+	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/,
+	int /*nb_namespaces*/, const xmlChar** /*namespaces*/,
+	int /*nb_attributes*/, int /*nb_defaulted*/, const xmlChar** /*attrs*/
+	)
 {
 	ParseState* parseState = static_cast<ParseState*>(user_data);
 	if (parseState->unknownLevel) {
@@ -151,14 +156,16 @@ void CliConnection::cb_start_element(void* user_data,
 	}
 	switch (parseState->state) {
 		case START:
-			if (strcmp(reinterpret_cast<const char*>(name), "openmsx-control") == 0) {
+			if (strcmp(reinterpret_cast<const char*>(localname),
+					"openmsx-control") == 0) {
 				parseState->state = TAG_OPENMSX;
 			} else {
 				++(parseState->unknownLevel);
 			}
 			break;
 		case TAG_OPENMSX:
-			if (strcmp(reinterpret_cast<const char*>(name), "command") == 0) {
+			if (strcmp(reinterpret_cast<const char*>(localname),
+					"command") == 0) {
 				parseState->state = TAG_COMMAND;
 			} else {
 				++(parseState->unknownLevel);
@@ -171,7 +178,11 @@ void CliConnection::cb_start_element(void* user_data,
 	parseState->content.clear();
 }
 
-void CliConnection::cb_end_element(void* user_data, const xmlChar* /*name*/)
+void CliConnection::cb_end_element(
+	void* user_data,
+	const xmlChar* /*localname*/, const xmlChar* /*prefix*/,
+	const xmlChar* /*uri*/
+	)
 {
 	ParseState* parseState = static_cast<ParseState*>(user_data);
 	if (parseState->unknownLevel) {
@@ -271,7 +282,7 @@ PipeConnection::PipeConnection(CommandController& commandController,
 
 	shutdownEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
 	if (shutdownEvent == NULL) {
-		throw FatalError("Error creating shutdown event: " + 
+		throw FatalError("Error creating shutdown event: " +
 			StringOp::toString(GetLastError()));
 	}
 
@@ -291,7 +302,7 @@ void InitOverlapped(LPOVERLAPPED overlapped)
 	ZeroMemory(overlapped, sizeof(*overlapped));
 	overlapped->hEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
 	if (overlapped->hEvent == NULL) {
-		throw FatalError("Error creating overlapped event: " + 
+		throw FatalError("Error creating overlapped event: " +
 			StringOp::toString(GetLastError()));
 	}
 }
@@ -329,7 +340,7 @@ void PipeConnection::run()
 			break; // Shutdown
 		}
 		else {
-			throw FatalError("WaitForMultipleObjects returned unexpectedly: " + 
+			throw FatalError("WaitForMultipleObjects returned unexpectedly: " +
 				StringOp::toString(wait));
 		}
 	}
