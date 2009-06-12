@@ -115,6 +115,23 @@ class Library(object):
 		else:
 			return '`%s --version`' % configScript
 
+class Expat(Library):
+	libName = 'expat'
+	makeName = 'EXPAT'
+	header = '<expat.h>'
+	function = 'XML_ParserCreate'
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		def execute(cmd, log):
+			versionTuple = cmd.expand(
+				log,
+				cls.getHeaders(platform),
+				'XML_MAJOR_VERSION', 'XML_MINOR_VERSION', 'XML_MICRO_VERSION'
+				)
+			return None if versionTuple is None else '.'.join(versionTuple)
+		return execute
+
 class FreeType(Library):
 	libName = 'freetype'
 	makeName = 'FREETYPE'
