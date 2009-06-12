@@ -5,7 +5,7 @@ set_help_text get_screen \
 }
 
 proc get_screen {} {
-	set mode [get_screen_mode]
+	set mode [get_screen_mode_number]
 	switch $mode {
 		0 {
 			set addr 0
