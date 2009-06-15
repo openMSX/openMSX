@@ -49,6 +49,9 @@ enum EventType
 	/** Delayed repaint */
 	OPENMSX_DELAYED_REPAINT_EVENT,
 
+	/** Throttle LED events */
+	OPENMSX_THROTTLE_LED_EVENT,
+
 	/** Send when main-thread should save SRAM contents */
 	OPENMSX_SAVE_SRAM,
 
