@@ -345,7 +345,7 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 		Blur_1on3_4_SSE(in, out, dstWidth, &c);
 		return;
 	#else
-		unsigned t0, t1, t2, t3;
+		unsigned long t0, t1, t2, t3;
 		asm volatile (
 			"pxor      %%mm0, %%mm0;"
 			"pshufw    $0,40(%[CNST]),%%mm1;"
