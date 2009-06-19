@@ -11,7 +11,9 @@ from os.path import isdir
 packageName = 'openmsx'
 
 # Version number.
-packageVersion = '0.7.0'
+packageVersionNumber = '0.7.0'
+packageVersionSuffix = ''
+packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
 releaseFlag = False

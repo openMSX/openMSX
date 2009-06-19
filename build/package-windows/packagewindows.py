@@ -78,7 +78,7 @@ class PackageInfo:
 		self.packagePath = os.path.join(self.buildPath, 'package-windows')
 		self.makeInstallPath = os.path.join(self.packagePath, 'install')
 		
-		self.version = version.packageVersion
+		self.version = version.packageVersionNumber
 		if version.releaseFlag:
 			self.version += '.0'
 		else:
