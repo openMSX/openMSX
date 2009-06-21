@@ -1,7 +1,6 @@
 namespace eval osd_nemesis {
 
 # todo: help text
-# load shield graphic from script dir ??
 
 	proc toggle_nemesis_1_shield {} {
 		if {![catch {osd info nem -rgba} errmsg]} {
@@ -12,7 +11,7 @@ namespace eval osd_nemesis {
 		osd_init nem
 		osd create rectangle nem.shield  \
 			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
-			-image c:/shield.png 
+			-image ${::env(OPENMSX_USER_DATA)}/scripts/shield.png 
 		create_shield
 	}
 
