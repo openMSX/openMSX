@@ -1,19 +1,18 @@
-namespace eval nemesis_1_shield {
+namespace eval osd_nemesis {
 
 # todo: help text
 # load shield graphic from script dir ??
 
-	proc toggle_nemesis_1_shield {} {
+	proc toggle_osd_nemesis {} {
 		if {![catch {osd info nem -rgba} errmsg]} {
 			osd destroy nem
 			return ""
 		}
 		
 		osd_init nem
-		## why specify -w and -h, probably better to create shield.png on correct size
 		osd create rectangle nem.shield  \
-		                                -alpha 0 -fadeTarget 0 -fadePeriod 2 \
-		                                -image c:/shield.png 
+			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
+			-image c:/shield.png 
 		create_shield
 	}
 
@@ -76,8 +75,8 @@ namespace eval nemesis_1_shield {
 		after frame [namespace code create_shield]
 	}
 
-	namespace export toggle_nemesis_1_shield
+	namespace export toggle_osd_nemesis
 
-} ;# namespace debug_widgets
+} ;# namespace osd_nemesis
 
-namespace import nemesis_1_shield::*
+namespace import osd_nemesis::*
