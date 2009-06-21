@@ -3,7 +3,7 @@ namespace eval osd_nemesis {
 # todo: help text
 # load shield graphic from script dir ??
 
-	proc toggle_osd_nemesis {} {
+	proc toggle_nemesis_1_shield {} {
 		if {![catch {osd info nem -rgba} errmsg]} {
 			osd destroy nem
 			return ""
@@ -75,7 +75,7 @@ namespace eval osd_nemesis {
 		after frame [namespace code create_shield]
 	}
 
-	namespace export toggle_osd_nemesis
+	namespace export toggle_nemesis_1_shield
 
 } ;# namespace osd_nemesis
 
