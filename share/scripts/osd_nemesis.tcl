@@ -6,20 +6,15 @@ variable scriptlocation [info script]
 
 	proc toggle_nemesis_1_shield {} {
 
-	#Can't we detect the script like this?
-	variable scriptlocation
-
 		if {![catch {osd info nem -rgba} errmsg]} {
 			osd destroy nem
 			return ""
 		}
 
-		puts "Script running in: $scriptlocation"
-
 		osd_init nem
 		osd create rectangle nem.shield  \
 			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
-			-image ${::env(OPENMSX_SYSTEM_DATA)}/scripts/shield.png
+			-image [data_file scripts/shield.png]
 
 		create_shield
 	}
