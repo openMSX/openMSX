@@ -1,17 +1,26 @@
 namespace eval osd_nemesis {
 
+variable scriptlocation [info script]
+
 # todo: help text
 
 	proc toggle_nemesis_1_shield {} {
+
+	#Can't we detect the script like this?
+	variable scriptlocation
+
 		if {![catch {osd info nem -rgba} errmsg]} {
 			osd destroy nem
 			return ""
 		}
-		
+
+		puts "Script running in: $scriptlocation"
+
 		osd_init nem
 		osd create rectangle nem.shield  \
 			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
-			-image ${::env(OPENMSX_SYSTEM_DATA)}/scripts/shield.png 
+			-image ${::env(OPENMSX_SYSTEM_DATA)}/scripts/shield.png
+
 		create_shield
 	}
 
@@ -20,21 +29,21 @@ namespace eval osd_nemesis {
 	}
 
 	proc create_shield {} {
-		
+
 		if {[catch {osd info nem -rgba} errmsg]} {
 			return ""
 		}
-		
+
 		# vic viper location
 		set x [peek 0xe206]
 		set y [peek 0xe204]
-		osd configure nem.shield -x [expr $x - 10] -y [expr $y - 14]
+		osd configure nem.shield -x [expr $x - 9] -y [expr $y - 9]
 
 		for {set i 0} {$i < 32} {incr i} {
-			
+
 			# set base address
 			set addr [expr 0xe300 + ($i*0x20)]
-			
+
 			# get enemy id
 			set id [peek $addr]
 
@@ -46,7 +55,8 @@ namespace eval osd_nemesis {
 			set b [peek [expr $addr + 4]]
 
 			# Not in contact with shield? Then do nothing.
-			if {(pow($a - $x, 2) + pow($b - ($y + 6), 2)) >= 900} continue
+
+			if {(pow($a - ($x+6), 2) + pow($b - ($y + 7), 2)) >= 961} continue
 
 			# ground turrets change into razor discs :)
 			if {$id == 1 && $i < 16} {poke $addr 2}
