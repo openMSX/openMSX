@@ -86,7 +86,7 @@ bool LedStatus::alarm()
 	return false; // don't repeat
 }
 
-bool LedStatus::signalEvent(shared_ptr<const Event> event)
+bool LedStatus::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	// Runs in main thread.
 	for (int i = 0; i < NUM_LEDS; ++i) {
