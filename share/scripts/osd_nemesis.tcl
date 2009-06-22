@@ -11,7 +11,7 @@ namespace eval osd_nemesis {
 		osd_init nem
 		osd create rectangle nem.shield  \
 			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
-			-image ${::env(OPENMSX_USER_DATA)}/scripts/shield.png 
+			-image ${::env(OPENMSX_SYSTEM_DATA)}/scripts/shield.png 
 		create_shield
 	}
 
