@@ -41,7 +41,14 @@ public:
 	void registerSetting(Setting& variable, const std::string& name);
 	void unregisterSetting(Setting& variable, const std::string& name);
 
+	/** Create the global namespace with given name.
+	  * @param name Name of the namespace, should not include '::' prefix.
+	  */
 	void createNamespace(const std::string& name);
+
+	/** Delete the global namespace with given name.
+	  * @param name Name of the namespace, should not include '::' prefix.
+	  */
 	void deleteNamespace(const std::string& name);
 
 	void splitList(const std::string& list,
