@@ -378,6 +378,9 @@ void MSXMotherBoardImpl::setMachineConfig(HardwareConfig* machineConfig_)
 {
 	assert(!getMachineConfig());
 	machineConfig = machineConfig_;
+
+	// make sure the CPU gets instantiated from the main thread
+	getCPU();
 }
 
 bool MSXMotherBoardImpl::isTurboR() const
