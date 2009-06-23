@@ -255,7 +255,7 @@ static string getSafeValueString(Setting& setting)
 	try {
 		return setting.getValueString();
 	} catch (MSXException&) {
-		return "proxy";
+		return "0"; // 'safe' value, see comment in registerSetting()
 	}
 }
 void Interpreter::registerSetting(Setting& variable, const string& name)
@@ -268,6 +268,31 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 		// define Tcl var
 		setVariable(name, getSafeValueString(variable));
 	}
+
+	// The call setVariable() above can already trigger traces on this
+	// variable (in Tcl it's possible to already set traces on a variable
+	// before that variable is defined). We didn't yet set a trace on it
+	// ourselves. So for example on proxy-settings we don't yet delegate
+	// read/writes to the actual setting. This means that inside the trace
+	// callback we see the value set above instead of the 'actual' value.
+	//
+	// This scenario can be triggered in the load_icons script by
+	// executing the following commands (interactively):
+	//   delete_machine machine1
+	//   create_machine
+	//   machine2::load_machine msx2
+	//
+	// Before changing the 'safe-value' (see getSafeValueString()) to '0',
+	// this gave errors because the load_icons script didn't expect to see
+	// 'proxy' (the old 'safe-value') as value.
+	//
+	// The current solution (choosing '0' as safe value) is not ideal, but
+	// good enough for now.
+	//
+	// A possible better solution is to move Tcl_TraceVar() before
+	// setVariable(), I did an initial attempt but there were some
+	// problems. TODO investigate this further.
+
 	long traceID = traceCount++;
 	traceMap[traceID] = &variable;
 	Tcl_TraceVar(interp, name.c_str(),
