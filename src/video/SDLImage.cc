@@ -18,42 +18,55 @@ using std::string;
 
 namespace openmsx {
 
+template<typename Pixel>
+static bool hasConstantAlpha(const SDL_Surface* surface, byte& alpha)
+{
+	unsigned Amask = surface->format->Amask;
+	const char* data = static_cast<const char*>(surface->pixels);
+	Pixel pixel0 = *reinterpret_cast<const Pixel*>(data);
+	if (Amask != 0) {
+		// There is an alpha layer. Scan image and compare alpha from
+		// each pixel. Are they all the same?
+		Pixel alpha0 = pixel0 & Amask;
+		for (int y = 0; y < surface->h; ++y) {
+			const char* p = data + y * surface->pitch;
+			for (int x = 0; x < surface->w; ++x) {
+				if ((*reinterpret_cast<const Pixel*>(p) & Amask)
+				    != alpha0) {
+					return false;
+				}
+				p += surface->format->BytesPerPixel;
+			}
+		}
+	}
+	byte dummyR, dummyG, dummyB;
+	SDL_GetRGBA(pixel0, surface->format, &dummyR, &dummyG, &dummyB, &alpha);
+	return true;
+}
+static bool hasConstantAlpha(const SDL_Surface* surface, byte& alpha)
+{
+	switch (surface->format->BytesPerPixel) {
+	case 1:
+		return hasConstantAlpha<byte>(surface, alpha);
+	case 2:
+		return hasConstantAlpha<word>(surface, alpha);
+	case 3: case 4:
+		return hasConstantAlpha<unsigned>(surface, alpha);
+	default:
+		assert(false);
+		return true;
+	}
+}
+
 static SDL_Surface* convertToDisplayFormat(SDL_Surface* input)
 {
-	// scan image, are all alpha values the same?
-	const char* pixels = static_cast<const char*>(input->pixels);
-	unsigned width = input->w;
-	unsigned height = input->h;
-	unsigned pitch = input->pitch;
-	unsigned Amask = input->format->Amask;
-	unsigned bytes = input->format->BytesPerPixel;
-	unsigned pixel = *reinterpret_cast<const unsigned*>(pixels);
-	unsigned alpha = pixel & Amask;
-
-	bool constant = true;
-	for (unsigned y = 0; y < height; ++y) {
-		const char* p = pixels + y * pitch;
-		for (unsigned x = 0; x < width; ++x) {
-			if ((*reinterpret_cast<const unsigned*>(p) & Amask) != alpha) {
-				constant = false;
-				break;
-			}
-			p += bytes;
-		}
-		if (!constant) break;
-	}
-
-	// convert the background to the right format
-	SDL_Surface* result;
-	if (constant) {
-		Uint8 r, g, b, a;
-		SDL_GetRGBA(pixel, input->format, &r, &g, &b, &a);
-		SDL_SetAlpha(input, SDL_SRCALPHA, a);
-		result = SDL_DisplayFormat(input);
+	byte alpha;
+	if (hasConstantAlpha(input, alpha)) {
+		SDL_SetAlpha(input, SDL_SRCALPHA, alpha);
+		return SDL_DisplayFormat(input);
 	} else {
-		result = SDL_DisplayFormatAlpha(input);
+		return SDL_DisplayFormatAlpha(input);
 	}
-	return result;
 }
 
 static void zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool flipX, bool flipY)
