@@ -387,12 +387,12 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 void Interpreter::createNamespace(const std::string& name)
 {
-	execute("namespace eval " + name + " {}");
+	execute("namespace eval ::" + name + " {}");
 }
 
 void Interpreter::deleteNamespace(const std::string& name)
 {
-	execute("namespace delete " + name);
+	execute("namespace delete ::" + name);
 }
 
 void Interpreter::splitList(const std::string& list,
