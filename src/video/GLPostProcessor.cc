@@ -293,6 +293,14 @@ void GLPostProcessor::uploadBlock(
 			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 		}
 		pbo->unmap();
+#if defined(__APPLE__)
+		// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
+		// on texture data replacements that are 1 pixel wide and start on a
+		// line number that is a non-zero multiple of 16.
+		if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
+			srcStartY--;
+		}
+#endif
 		glTexSubImage2D(
 			GL_TEXTURE_2D,       // target
 			0,                   // level
