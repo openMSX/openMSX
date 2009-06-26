@@ -54,7 +54,7 @@ proc init {} {
 	variable demon_cache
 	variable max_ep
 
-	osd_init mog
+	osd_msx_init mog
 
 	for {set i 0} {$i < $num_enemies} {incr i} {
 		create_power_bar mog.powerbar$i 14 2 0xff0000ff 0x00000080 0xffffffff
@@ -117,6 +117,8 @@ proc update_overlay {} {
 	variable max_ep
 
 	if {!$mog_overlay_active} return
+
+	osd_msx_update mog
 
 	for {set i 0; set addr 0xe800} {$i < $num_enemies} {incr i; incr addr 0x20} {
 		set enemy_type [peek $addr]

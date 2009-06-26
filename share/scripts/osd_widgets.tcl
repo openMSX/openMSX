@@ -1,56 +1,28 @@
 namespace eval osd_widgets {
 
-set_help_text osd_init\
-{The command 'osd_init' taken in one parameter, this parameter will be used as 
+set osd_msx_help_text \
+{The command 'osd_msx_init' takes one parameter, this parameter will be used as
 our base layer which will be scaled according to the MSX resultion adjusted for
-'set adjust' and 'scale factor'.
+'set adjust', 'scale factor' and 'horizontal_stretch'.
 
-Example: osd_init baselayer
+All these compensation factors ('set adjust', ...) can change over time. So it
+is needed to 'regularly' (e.g. in a 'after frame' callback) re-adjust the msx
+layer. This can be done with the 'osd_msx_update' proc.
+
+Example: osd_msx_init baselayer
          osd create rectangle baselayer.box -x 10 -y 10 -h 16 -w 16 -rgb 0xffffff
+         ...
+         osd_msx_update baselayer
 
-This will display a white 16x16 box at MSX location x,y == 10,10}
+This will display a white 16x16 box at MSX location x,y == 10,10.}
+set_help_text osd_msx_init   $osd_msx_help_text
+set_help_text osd_msx_update $osd_msx_help_text
 
-set_help_text osd_box\
-{The command 'osd_box' takes in the same parameters as an 'osd create' command. There are a few exceptions:
-
--fill: Defines the color within the box with a certain color and or alpha.
-    Example: '-fill 0xff000080' will fill the box with a red color which 
-    is 50% transparent
--border: Defines the border-width
-    Example '-border 3' will create a box with a border 3 pixels wide
-
-The following values are redirected to the osd box border:
-    -rgba
-    -rgb
-    -alpha}
-
-set_help_text create_power_bar\
-{The command 'create_power_bar' takes in the following parameters:
-    -name == Name of the power bar
-    -w == Width of the power bar (in pixels)
-    -h == Height of the power bar
-    -barcolor == Powerbar color 
-    -background == When power declines this color is shown
-    -edgecolor == This is the edge color (try white when I doubt which color to use)
-
-colors must have the following format 0xRRGGBBAA
-
-The power bar is initially  created outside the viewable area we need to 
-invoke the 'updated_power_bar' command to make it visible}
-
-set_help_text update_power_bar\
-{The command 'update_power_bar' takes in the following parameters:
-    -name == Name of the power bar
-    -x == vertical position of the power bar
-    -y == horizontal position of the power bar
-    -power == fill rate of the power bar in decimal percentages (10% == 0.1)
-    -text == text to be printed above the power bar}
-
-set_help_text toggle_fps \
-{Enable/disable a fps-indicator in the top-left corner of the screen.}
-
-proc osd_init {name} {
+proc osd_msx_init {name} {
 	osd create rectangle $name -scaled true -alpha 0
+	osd_msx_update $name
+}
+proc osd_msx_update {name} {
 	# compensate for horizontal-stretch and set-adjust
 	set hstretch [expr {$::renderer != "SDL"} ? $::horizontal_stretch : 320]
 	set xsize   [expr 320.0 / $hstretch]
@@ -64,6 +36,22 @@ proc osd_init {name} {
 	set yoffset [expr $yoffset + $ysize * $vadj]
 	osd configure $name -x $xoffset -y $yoffset -w $xsize -h $ysize
 }
+
+
+set_help_text osd_box\
+{The command 'osd_box' takes in the same parameters as an 'osd create' command.
+There are a few exceptions:
+
+-fill: Defines the color within the box with a certain color and or alpha.
+    Example: '-fill 0xff000080' will fill the box with a red color which
+    is 50% transparent
+-border: Defines the border-width
+    Example '-border 3' will create a box with a border 3 pixels wide
+
+The following values are redirected to the osd box border:
+    -rgba
+    -rgb
+    -alpha}
 
 proc osd_box {name args} {
 	# process arguments
@@ -103,6 +91,30 @@ proc osd_box {name args} {
 	return $name
 }
 
+
+set_help_text create_power_bar\
+{The command 'create_power_bar' takes in the following parameters:
+    -name == Name of the power bar
+    -w == Width of the power bar (in pixels)
+    -h == Height of the power bar
+    -barcolor == Powerbar color
+    -background == When power declines this color is shown
+    -edgecolor == This is the edge color (try white when I doubt which color to use)
+
+Colors must have the following format 0xRRGGBBAA.
+
+The power bar is initially created outside the viewable area we need to invoke
+the 'updated_power_bar' command to make it visible. Use 'hide_power_bar' to
+remove it again.}
+
+set_help_text update_power_bar\
+{The command 'update_power_bar' takes in the following parameters:
+    -name == Name of the power bar
+    -x == vertical position of the power bar
+    -y == horizontal position of the power bar
+    -power == fill rate of the power bar in decimal percentages (10% == 0.1)
+    -text == text to be printed above the power bar}
+
 proc create_power_bar {name w h barcolor background edgecolor} {
 	osd create rectangle $name        -rely 999 -relw $w -relh $h -rgba $background
 	osd create rectangle $name.top    -x -1 -y   -1 -relw 1 -w 2 -h 1 -rgba $edgecolor
@@ -124,6 +136,10 @@ proc update_power_bar {name x y power text} {
 proc hide_power_bar {name} {
 	osd configure $name -rely 999
 }
+
+
+set_help_text toggle_fps \
+{Enable/disable a fps-indicator in the top-left corner of the screen.}
 
 proc toggle_fps {} {
 	if [info exists ::__osd_fps_after] {
