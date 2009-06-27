@@ -33,7 +33,7 @@ variable scriptlocation [info script]
 		# vic viper location
 		set x [peek 0xe206]
 		set y [peek 0xe204]
-		osd configure nem.shield -x [expr $x - 9] -y [expr $y - 9]
+		osd configure nem.shield -relx [expr $x - 9] -rely [expr $y - 9]
 
 		for {set i 0} {$i < 32} {incr i} {
 
