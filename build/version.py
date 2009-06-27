@@ -11,7 +11,7 @@ from os.path import isdir
 packageName = 'openmsx'
 
 # Version number.
-packageVersionNumber = '0.7.0'
+packageVersionNumber = '0.7.1'
 packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
 
