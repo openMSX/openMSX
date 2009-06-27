@@ -12,7 +12,7 @@ packageName = 'openmsx'
 
 # Version number.
 packageVersionNumber = '0.7.1'
-packageVersionSuffix = '-pre1'
+packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
