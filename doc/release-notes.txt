@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.7.1 (2009-07-01)
+Release Notes for openMSX 0.7.1 (2009-06-28)
 ============================================
 
 This release comes mostly with good news for Windows users: we have a brand new
