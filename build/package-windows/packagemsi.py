@@ -81,17 +81,7 @@ def PackageMsi(info):
 	CatapultIconsObjFile = os.path.join(wixIntermediatePath, 'catapulticons.wixobj')
 	sourcePath = os.path.join(info.catapultBuildPath, 'src\\catapult.xpm')
 	WriteFragment(CatapultIconsFile, sourcePath, 'CatapultIcons', 'OPENMSXINSTALLDIR', 'Catapult\\resources\\icons', None, info.win64)
-	
-	CatapultAuthorsFile = os.path.join(wixIntermediatePath, 'catapultauthors.wxs')
-	CatapultAuthorsObjFile = os.path.join(wixIntermediatePath, 'catapultauthors.wixobj')
-	sourcePath = os.path.join(info.catapultPath, 'AUTHORS')
-	WriteFragment(CatapultAuthorsFile, sourcePath, 'CatapultAuthors', 'OPENMSXINSTALLDIR', 'Catapult\\doc', None, info.win64)
-	
-	CatapultGplFile = os.path.join(wixIntermediatePath, 'catapultgpl.wxs')
-	CatapultGplObjFile = os.path.join(wixIntermediatePath, 'catapultgpl.wixobj')
-	sourcePath = os.path.join(info.catapultPath, 'GPL')
-	WriteFragment(CatapultGplFile, sourcePath, 'CatapultGpl', 'OPENMSXINSTALLDIR', 'Catapult\\doc', None, info.win64)
-	
+
 	CatapultReadmeFile = os.path.join(wixIntermediatePath, 'catapultreadme.wxs')
 	CatapultReadmeObjFile = os.path.join(wixIntermediatePath, 'catapultreadme.wixobj')
 	sourcePath = os.path.join(info.catapultPath, 'README')
@@ -125,8 +115,6 @@ def PackageMsi(info):
 	candleCmd += ' \"' + CatapultBitmapsFile + '\"'
 	candleCmd += ' \"' + CatapultDialogsFile + '\"'
 	candleCmd += ' \"' + CatapultIconsFile + '\"'
-	candleCmd += ' \"' + CatapultAuthorsFile + '\"'
-	candleCmd += ' \"' + CatapultGplFile + '\"'
 	candleCmd += ' \"' + CatapultReadmeFile + '\"'
 
 	# Run Candle
@@ -158,8 +146,6 @@ def PackageMsi(info):
 	lightCmd += ' \"' + CatapultBitmapsObjFile + '\"'
 	lightCmd += ' \"' + CatapultDialogsObjFile + '\"'
 	lightCmd += ' \"' + CatapultIconsObjFile + '\"'
-	lightCmd += ' \"' + CatapultAuthorsObjFile + '\"'
-	lightCmd += ' \"' + CatapultGplObjFile + '\"'
 	lightCmd += ' \"' + CatapultReadmeObjFile + '\"'
 	
 	# Run Light

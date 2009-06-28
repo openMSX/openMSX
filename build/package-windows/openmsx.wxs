@@ -254,8 +254,6 @@
         <ComponentGroupRef Id="CatapultBitmaps" />
         <ComponentGroupRef Id="CatapultDialogs" />
         <ComponentGroupRef Id="CatapultIcons" />
-        <ComponentGroupRef Id="CatapultAuthors" />
-        <ComponentGroupRef Id="CatapultGpl" />
         <ComponentGroupRef Id="CatapultReadme" />
         <ComponentRef Id="CatapultShortcuts" />
       </Feature>
