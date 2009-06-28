@@ -43,8 +43,6 @@ def PackageZip(info):
 	AddDirectory(zip, os.path.join(info.catapultPath, 'resources\\bitmaps'), 'Catapult\\resources\\bitmaps')
 	AddDirectory(zip, os.path.join(info.catapultBuildPath, 'install\\dialogs'), 'Catapult\\resources\\dialogs')
 	AddFile(zip, os.path.join(info.catapultSourcePath, 'catapult.xpm'), 'Catapult\\resources\\icons\\catapult.xpm')
-	AddFile(zip, os.path.join(info.catapultPath, 'AUTHORS'), 'Catapult\doc\\AUTHORS')
-	AddFile(zip, os.path.join(info.catapultPath, 'GPL'), 'Catapult\\doc\\GPL')
 	AddFile(zip, os.path.join(info.catapultPath, 'README'), 'Catapult\\doc\\README')
 	zip.close()
 	
