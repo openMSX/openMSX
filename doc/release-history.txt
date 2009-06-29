@@ -3,15 +3,15 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-Release Notes for openMSX 0.7.2 (2009-06-30)
-============================================
+openMSX 0.7.2 (2009-06-30)
+--------------------------
 
 This is a quick fix for the 0.7.1 release. Due to a small bug in a Tcl script,
 openMSX wasn't able to load savestates with paths that contain spaces, which is
 the most common case on standard Windows installations. 0.7.2 fixes that.
 
-Release Notes for openMSX 0.7.1 (2009-06-28)
-============================================
+openMSX 0.7.1 (2009-06-28)
+--------------------------
 
 This release comes mostly with good news for Windows users: we have a brand new
 installer with binaries which have been created in a brand new way, using
