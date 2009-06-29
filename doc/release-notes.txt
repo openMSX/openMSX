@@ -1,3 +1,10 @@
+Release Notes for openMSX 0.7.2 (2009-06-30)
+============================================
+
+This is a quick fix for the 0.7.1 release. Due to a small bug in a Tcl script,
+openMSX wasn't able to load savestates with paths that contain spaces, which is
+the most common case on standard Windows installations. 0.7.2 fixes that.
+
 Release Notes for openMSX 0.7.1 (2009-06-28)
 ============================================
 
@@ -5,8 +12,8 @@ This release comes mostly with good news for Windows users: we have a brand new
 installer with binaries which have been created in a brand new way, using
 Microsoft Visual C++ 2008. This means smaller binaries and also support for
 64-bit Windows operating systems. Also, several long standing problems have
-been fixed in the Windows release of openMSX. It now includes full support for
-unicode, e.g.!
+been fixed in the Windows release of openMSX. E.g., it now includes full
+support for unicode!
 
 For the rest we have mostly fixed smaller issues (see below) and added some
 cool demonstrations of what one can do with the combination of (Tcl) scripting,
@@ -31,9 +38,9 @@ New or improved emulator features:
 - Added several improvements on the OSD, regarding features, bug fixes and speed
 - Fixed some long standing bugs on Windows:
   - ALT-SPACE no longer pops up a context window
-  - Unicode is now fully supported (no more problems with localized versions of
-    Windows e.g.). Note: this means openMSX requires Windows 2000 or higher as
-    of this release.
+  - Unicode is now fully supported (e.g, no more problems with localized
+    versions of Windows). Note: this means openMSX requires Windows 2000 or
+    higher as of this release.
   - socket communication (e.g. with the openMSX debugger) is secure now. This
     does mean that older builds of the openMSX debugger will not work anymore
     with this openMSX release, you need an updated build!
