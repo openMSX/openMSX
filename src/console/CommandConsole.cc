@@ -166,15 +166,42 @@ bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
-	switch (keyCode) {
-		case (Keys::K_PAGEUP | Keys::KM_SHIFT):
+	int key = keyCode &  Keys::K_MASK;
+	int mod = keyCode & ~Keys::K_MASK;
+	switch (mod) {
+	case Keys::KM_CTRL:
+		switch (key) {
+		case Keys::K_H:
+			backspace();
+			break;
+		case Keys::K_A:
+			cursorPosition = unsigned(prompt.size());
+			break;
+		case Keys::K_E:
+			cursorPosition = utf8::unchecked::size(lines[0]);
+			break;
+		case Keys::K_C:
+			clearCommand();
+			break;
+		}
+		break;
+	case Keys::KM_SHIFT:
+		switch (key) {
+		case Keys::K_PAGEUP:
 			scroll(max<int>(getRows() - 1, 1));
 			break;
+		case Keys::K_PAGEDOWN:
+			scroll(-max<int>(getRows() - 1, 1));
+			break;
+		default:
+			normalKey(keyEvent.getUnicode());
+			break;
+		}
+		break;
+	case 0:
+		switch (key) {
 		case Keys::K_PAGEUP:
 			scroll(1);
-			break;
-		case (Keys::K_PAGEDOWN | Keys::KM_SHIFT):
-			scroll(-max<int>(getRows() - 1, 1));
 			break;
 		case Keys::K_PAGEDOWN:
 			scroll(-1);
@@ -186,7 +213,6 @@ void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			nextCommand();
 			break;
 		case Keys::K_BACKSPACE:
-		case Keys::K_H | Keys::KM_CTRL:
 			backspace();
 			break;
 		case Keys::K_DELETE:
@@ -211,21 +237,16 @@ void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			}
 			break;
 		case Keys::K_HOME:
-		case Keys::K_A | Keys::KM_CTRL:
 			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_END:
-		case Keys::K_E | Keys::KM_CTRL:
 			cursorPosition = utf8::unchecked::size(lines[0]);
 			break;
-		case Keys::K_C | Keys::KM_CTRL:
-			clearCommand();
-			break;
 		default:
-			// Treat as normal key if no modifiers except shift.
-			if (!(keyCode & ~(Keys::K_MASK | Keys::KM_SHIFT))) {
-				normalKey(keyEvent.getUnicode());
-			}
+			normalKey(keyEvent.getUnicode());
+			break;
+		}
+		break;
 	}
 }
 
