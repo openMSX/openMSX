@@ -79,7 +79,7 @@ const byte* RomHalnote::getReadCacheLine(word address) const
 byte RomHalnote::readMem(word address, EmuTime::param /*time*/)
 {
 	// all reads are cacheable, reuse that implementation
-	return *getReadCacheLine(address);
+	return *RomHalnote::getReadCacheLine(address);
 }
 
 void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)

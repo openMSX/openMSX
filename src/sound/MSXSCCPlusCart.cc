@@ -92,7 +92,7 @@ byte MSXSCCPlusCart::readMem(word addr, EmuTime::param time)
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
 		result = scc->readMem(addr & 0xFF, time);
 	} else {
-		result = peekMem(addr, time);
+		result = MSXSCCPlusCart::peekMem(addr, time);
 	}
 	//PRT_DEBUG("SCC+ read "<< hex << (int)addr << " " << (int)result << dec);
 	return result;

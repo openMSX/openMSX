@@ -74,7 +74,7 @@ void GoudaSCSI::writeIO(word port, byte value, EmuTime::param time)
 
 byte GoudaSCSI::readMem(word address, EmuTime::param /*time*/)
 {
-	return *getReadCacheLine(address);
+	return *GoudaSCSI::getReadCacheLine(address);
 }
 
 const byte* GoudaSCSI::getReadCacheLine(word start) const

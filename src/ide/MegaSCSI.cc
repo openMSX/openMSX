@@ -113,7 +113,7 @@ byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 
 byte MegaSCSI::peekmem(word address, EmuTime::param /*time*/) const
 {
-	if (const byte* cacheline = getReadCacheLine(address)) {
+	if (const byte* cacheline = MegaSCSI::getReadCacheLine(address)) {
 		return *cacheline;
 	} else {
 		address &= 0x1FFF;

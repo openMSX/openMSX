@@ -64,7 +64,7 @@ void MSXMusic::writeDataPort(byte value, EmuTime::param time)
 
 byte MSXMusic::readMem(word address, EmuTime::param /*time*/)
 {
-	return *getReadCacheLine(address);
+	return *MSXMusic::getReadCacheLine(address);
 }
 
 const byte* MSXMusic::getReadCacheLine(word start) const

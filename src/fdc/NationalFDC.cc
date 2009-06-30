@@ -38,7 +38,7 @@ byte NationalFDC::readMem(word address, EmuTime::param time)
 		if (controller->getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
-		value = peekMem(address, time);
+		value = NationalFDC::peekMem(address, time);
 		break;
 	}
 	return value;

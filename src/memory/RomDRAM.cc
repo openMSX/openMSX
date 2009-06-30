@@ -28,7 +28,7 @@ RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 byte RomDRAM::readMem(word address, EmuTime::param /*time*/)
 {
-	return *getReadCacheLine(address);
+	return *RomDRAM::getReadCacheLine(address);
 }
 
 const byte* RomDRAM::getReadCacheLine(word address) const

@@ -45,7 +45,7 @@ byte PhilipsFDC::readMem(word address, EmuTime::param time)
 		if (controller->getDTRQ(time)) value &= ~0x80;
 		break;
 	default:
-		value = peekMem(address, time);
+		value = PhilipsFDC::peekMem(address, time);
 		break;
 	}
 	return value;

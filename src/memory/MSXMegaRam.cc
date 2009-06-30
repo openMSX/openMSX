@@ -68,7 +68,7 @@ void MSXMegaRam::reset(EmuTime::param /*time*/)
 
 byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)
 {
-	return *getReadCacheLine(address);
+	return *MSXMegaRam::getReadCacheLine(address);
 }
 
 const byte* MSXMegaRam::getReadCacheLine(word address) const

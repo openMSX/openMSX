@@ -50,13 +50,13 @@ byte TurboRFDC::readMem(word address, EmuTime::param time)
 			result = controller->readReg(5, time);
 			break;
 		default:
-			result = peekMem(address, time);
+			result = TurboRFDC::peekMem(address, time);
 			break;
 		}
 		//std::cout << "TurboRFDC read 0x" << std::hex << (int)address <<
 		//                           " 0x" << (int)result << std::dec << std::endl;
 	} else {
-		result = peekMem(address, time);
+		result = TurboRFDC::peekMem(address, time);
 	}
 	return result;
 }

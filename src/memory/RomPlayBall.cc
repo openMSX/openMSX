@@ -43,7 +43,7 @@ byte RomPlayBall::peekMem(word address, EmuTime::param time) const
 
 byte RomPlayBall::readMem(word address, EmuTime::param time)
 {
-	return peekMem(address, time);
+	return RomPlayBall::peekMem(address, time);
 }
 
 const byte* RomPlayBall::getReadCacheLine(word address) const

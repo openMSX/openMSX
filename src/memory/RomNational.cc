@@ -47,7 +47,7 @@ byte RomNational::peekMem(word address, EmuTime::param time) const
 
 byte RomNational::readMem(word address, EmuTime::param time)
 {
-	byte result = peekMem(address, time);
+	byte result = RomNational::peekMem(address, time);
 	if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
 		++sramAddr;
 	}

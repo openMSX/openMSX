@@ -130,7 +130,7 @@ byte RomFSA1FM1::peekMem(word address, EmuTime::param /*time*/) const
 
 byte RomFSA1FM1::readMem(word address, EmuTime::param time)
 {
-	return peekMem(address, time);
+	return RomFSA1FM1::peekMem(address, time);
 }
 
 const byte* RomFSA1FM1::getReadCacheLine(word address) const
@@ -233,7 +233,7 @@ byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
 
 byte RomFSA1FM2::readMem(word address, EmuTime::param time)
 {
-	return peekMem(address, time);
+	return RomFSA1FM2::peekMem(address, time);
 }
 
 const byte* RomFSA1FM2::getReadCacheLine(word address) const

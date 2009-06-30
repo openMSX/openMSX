@@ -83,7 +83,7 @@ byte RomPanasonic::peekMem(word address, EmuTime::param time) const
 
 byte RomPanasonic::readMem(word address, EmuTime::param time)
 {
-	return peekMem(address, time);
+	return RomPanasonic::peekMem(address, time);
 }
 
 const byte* RomPanasonic::getReadCacheLine(word address) const
