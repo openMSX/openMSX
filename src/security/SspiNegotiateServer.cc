@@ -7,6 +7,8 @@
 
 namespace openmsx {
 
+using namespace sspiutils;
+
 SspiNegotiateServer::SspiNegotiateServer(StreamWrapper& serverStream)
 	: SspiPackageBase(serverStream, NEGOSSP_NAME_W)
 {

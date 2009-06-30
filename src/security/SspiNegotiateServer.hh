@@ -12,7 +12,7 @@ namespace openmsx {
 class SspiNegotiateServer : public sspiutils::SspiPackageBase
 {
 public:
-	explicit SspiNegotiateServer(StreamWrapper& serverStream);
+	explicit SspiNegotiateServer(sspiutils::StreamWrapper& serverStream);
 	~SspiNegotiateServer();
 
 	bool Authenticate();

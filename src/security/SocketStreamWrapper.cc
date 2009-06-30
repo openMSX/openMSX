@@ -6,6 +6,8 @@
 
 namespace openmsx {
 
+using namespace sspiutils;
+
 SocketStreamWrapper::SocketStreamWrapper(SOCKET userSock)
 	: sock(userSock)
 {
