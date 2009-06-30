@@ -16,26 +16,36 @@ protected:
 	virtual ~EmuTimerCallback() {}
 };
 
+class EmuTimerBase : public Schedulable
+{
+public:
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+protected:
+	EmuTimerBase(Scheduler& scheduler, EmuTimerCallback& cb, unsigned count);
+	void unschedule();
+
+private:
+	virtual const std::string& schedName() const;
+
+protected:
+	EmuTimerCallback& cb;
+	int count;
+	bool counting;
+};
+
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
-class EmuTimer : public Schedulable
+class EmuTimer : public EmuTimerBase
 {
 public:
 	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb);
 	void setValue(int value);
 	void setStart(bool start, EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
 private:
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 	void schedule(EmuTime::param time);
-	void unschedule();
-
-	EmuTimerCallback& cb;
-	int count;
-	bool counting;
 };
 
 typedef EmuTimer<0x40,  3579545, 64 * 2     , 1024> EmuTimerOPM_1;
