@@ -14,13 +14,11 @@ namespace openmsx {
 class InputEvent : public Event
 {
 protected:
-	virtual bool lessImpl(const Event& other) const;
-	virtual bool lessImpl(const InputEvent& other) const = 0;
 	explicit InputEvent(EventType type);
 };
 
 
-class KeyEvent : public InputEvent
+class KeyEvent : public Event
 {
 public:
 	Keys::KeyCode getKeyCode() const;
@@ -31,7 +29,7 @@ protected:
 
 private:
 	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 	const Keys::KeyCode keyCode;
 	const word unicode;
 };
@@ -51,7 +49,7 @@ public:
 };
 
 
-class MouseButtonEvent : public InputEvent
+class MouseButtonEvent : public Event
 {
 public:
 	static const unsigned LEFT      = 1;
@@ -67,7 +65,7 @@ protected:
 	void toStringHelper(TclObject& result) const;
 
 private:
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 	const unsigned button;
 };
 
@@ -87,7 +85,7 @@ private:
 	virtual void toStringImpl(TclObject& result) const;
 };
 
-class MouseMotionEvent : public InputEvent
+class MouseMotionEvent : public Event
 {
 public:
 	MouseMotionEvent(int xrel, int yrel);
@@ -96,13 +94,13 @@ public:
 
 private:
 	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 	const int xrel;
 	const int yrel;
 };
 
 
-class JoystickEvent : public InputEvent
+class JoystickEvent : public Event
 {
 public:
 	unsigned getJoystick() const;
@@ -112,7 +110,7 @@ protected:
 	void toStringHelper(TclObject& result) const;
 
 private:
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 	virtual bool lessImpl(const JoystickEvent& other) const = 0;
 	const unsigned joystick;
 };
@@ -165,7 +163,7 @@ private:
 };
 
 
-class FocusEvent : public InputEvent
+class FocusEvent : public Event
 {
 public:
 	explicit FocusEvent(bool gain);
@@ -174,12 +172,12 @@ public:
 
 private:
 	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 	const bool gain;
 };
 
 
-class ResizeEvent : public InputEvent
+class ResizeEvent : public Event
 {
 public:
 	ResizeEvent(unsigned x, unsigned y);
@@ -189,19 +187,19 @@ public:
 
 private:
 	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 	const unsigned x;
 	const unsigned y;
 };
 
 
-class QuitEvent : public InputEvent
+class QuitEvent : public Event
 {
 public:
 	QuitEvent();
 private:
 	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 };
 
 
@@ -209,7 +207,7 @@ private:
   * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
   * event because the recording needs to see these.
   */
-class MSXCommandEvent : public InputEvent
+class MSXCommandEvent : public Event
 {
 public:
 	explicit MSXCommandEvent(const std::vector<std::string>& tokens);
@@ -218,7 +216,7 @@ public:
 	const std::vector<TclObject*>& getTokens() const;
 private:
 	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const Event& other) const;
 	std::vector<TclObject*> tokens;
 	const bool owned;
 };

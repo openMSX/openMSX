@@ -20,19 +20,11 @@ InputEvent::InputEvent(EventType type)
 {
 }
 
-bool InputEvent::lessImpl(const Event& other) const
-{
-	const InputEvent* otherEvent = checked_cast<const InputEvent*>(&other);
-	return (getType() != otherEvent->getType())
-	     ? (getType() <  otherEvent->getType())
-	     : lessImpl(*otherEvent);
-}
-
 
 // class KeyEvent
 
 KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
-	: InputEvent(type), keyCode(keyCode_), unicode(unicode_)
+	: Event(type), keyCode(keyCode_), unicode(unicode_)
 {
 }
 
@@ -55,7 +47,7 @@ void KeyEvent::toStringImpl(TclObject& result) const
 	}
 }
 
-bool KeyEvent::lessImpl(const InputEvent& other) const
+bool KeyEvent::lessImpl(const Event& other) const
 {
 	// note: don't compare unicode
 	const KeyEvent* otherKeyEvent = checked_cast<const KeyEvent*>(&other);
@@ -92,7 +84,7 @@ KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode, word unicode)
 // class MouseButtonEvent
 
 MouseButtonEvent::MouseButtonEvent(EventType type, unsigned button_)
-	: InputEvent(type), button(button_)
+	: Event(type), button(button_)
 {
 }
 
@@ -107,7 +99,7 @@ void MouseButtonEvent::toStringHelper(TclObject& result) const
 	result.addListElement("button" + StringOp::toString(getButton()));
 }
 
-bool MouseButtonEvent::lessImpl(const InputEvent& other) const
+bool MouseButtonEvent::lessImpl(const Event& other) const
 {
 	const MouseButtonEvent* otherMouseEvent =
 		checked_cast<const MouseButtonEvent*>(&other);
@@ -146,7 +138,7 @@ void MouseButtonDownEvent::toStringImpl(TclObject& result) const
 // class MouseMotionEvent
 
 MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_)
-	: InputEvent(OPENMSX_MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_)
+	: Event(OPENMSX_MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_)
 {
 }
 
@@ -168,7 +160,7 @@ void MouseMotionEvent::toStringImpl(TclObject& result) const
 	result.addListElement(getY());
 }
 
-bool MouseMotionEvent::lessImpl(const InputEvent& other) const
+bool MouseMotionEvent::lessImpl(const Event& other) const
 {
 	const MouseMotionEvent* otherMouseEvent =
 		checked_cast<const MouseMotionEvent*>(&other);
@@ -181,7 +173,7 @@ bool MouseMotionEvent::lessImpl(const InputEvent& other) const
 // class JoystickEvent
 
 JoystickEvent::JoystickEvent(EventType type, unsigned joystick_)
-	: InputEvent(type), joystick(joystick_)
+	: Event(type), joystick(joystick_)
 {
 }
 
@@ -195,7 +187,7 @@ void JoystickEvent::toStringHelper(TclObject& result) const
 	result.addListElement("joy" + StringOp::toString(getJoystick() + 1));
 }
 
-bool JoystickEvent::lessImpl(const InputEvent& other) const
+bool JoystickEvent::lessImpl(const Event& other) const
 {
 	const JoystickEvent* otherJoystickEvent =
 		checked_cast<const JoystickEvent*>(&other);
@@ -299,7 +291,7 @@ bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
 // class FocusEvent
 
 FocusEvent::FocusEvent(bool gain_)
-	: InputEvent(OPENMSX_FOCUS_EVENT), gain(gain_)
+	: Event(OPENMSX_FOCUS_EVENT), gain(gain_)
 {
 }
 
@@ -314,7 +306,7 @@ void FocusEvent::toStringImpl(TclObject& result) const
 	result.addListElement(getGain());
 }
 
-bool FocusEvent::lessImpl(const InputEvent& other) const
+bool FocusEvent::lessImpl(const Event& other) const
 {
 	const FocusEvent* otherFocusEvent =
 		checked_cast<const FocusEvent*>(&other);
@@ -325,7 +317,7 @@ bool FocusEvent::lessImpl(const InputEvent& other) const
 // class ResizeEvent
 
 ResizeEvent::ResizeEvent(unsigned x_, unsigned y_)
-	: InputEvent(OPENMSX_RESIZE_EVENT), x(x_), y(y_)
+	: Event(OPENMSX_RESIZE_EVENT), x(x_), y(y_)
 {
 }
 
@@ -346,7 +338,7 @@ void ResizeEvent::toStringImpl(TclObject& result) const
 	result.addListElement(int(getY()));
 }
 
-bool ResizeEvent::lessImpl(const InputEvent& other) const
+bool ResizeEvent::lessImpl(const Event& other) const
 {
 	const ResizeEvent* otherResizeEvent =
 		checked_cast<const ResizeEvent*>(&other);
@@ -358,7 +350,7 @@ bool ResizeEvent::lessImpl(const InputEvent& other) const
 
 // class QuitEvent
 
-QuitEvent::QuitEvent() : InputEvent(OPENMSX_QUIT_EVENT)
+QuitEvent::QuitEvent() : Event(OPENMSX_QUIT_EVENT)
 {
 }
 
@@ -367,7 +359,7 @@ void QuitEvent::toStringImpl(TclObject& result) const
 	result.addListElement("quit");
 }
 
-bool QuitEvent::lessImpl(const InputEvent& /*other*/) const
+bool QuitEvent::lessImpl(const Event& /*other*/) const
 {
 	return false;
 }
@@ -376,7 +368,7 @@ bool QuitEvent::lessImpl(const InputEvent& /*other*/) const
 // class MSXCommandEvent
 
 MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_)
-	: InputEvent(OPENMSX_MSX_COMMAND_EVENT)
+	: Event(OPENMSX_MSX_COMMAND_EVENT)
 	, owned(true)
 {
 	for (vector<string>::const_iterator it = tokens_.begin();
@@ -386,7 +378,7 @@ MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_)
 }
 
 MSXCommandEvent::MSXCommandEvent(const vector<TclObject*>& tokens_)
-	: InputEvent(OPENMSX_MSX_COMMAND_EVENT)
+	: Event(OPENMSX_MSX_COMMAND_EVENT)
 	, tokens(tokens_)
 	, owned(false)
 {
@@ -416,7 +408,7 @@ void MSXCommandEvent::toStringImpl(TclObject& result) const
 	}
 }
 
-bool MSXCommandEvent::lessImpl(const InputEvent& other) const
+bool MSXCommandEvent::lessImpl(const Event& other) const
 {
 	const MSXCommandEvent* otherCommandEvent =
 		checked_cast<const MSXCommandEvent*>(&other);

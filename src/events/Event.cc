@@ -29,9 +29,11 @@ std::string Event::toString() const
 	return result.getString();
 }
 
-bool Event::operator< (const Event& other) const
+bool Event::operator<(const Event& other) const
 {
-	return lessImpl(other);
+	return (getType() != other.getType())
+	     ? (getType() <  other.getType())
+	     : lessImpl(other);
 }
 
 bool Event::operator==(const Event& other) const
