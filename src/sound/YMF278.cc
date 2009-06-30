@@ -96,6 +96,7 @@ public:
 	YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	       int ramSize, const XMLElement& config);
 	virtual ~YMF278Impl();
+	void clearRam();
 	void reset(EmuTime::param time);
 	void writeRegOPL4(byte reg, byte data, EmuTime::param time);
 	byte readReg(byte reg, EmuTime::param time);
@@ -961,9 +962,14 @@ YMF278Impl::~YMF278Impl()
 	unregisterSound();
 }
 
+void YMF278Impl::clearRam()
+{
+	memset(&ram[0], 0, ram.size());
+}
+
 void YMF278Impl::reset(EmuTime::param time)
 {
-	eg_cnt   = 0;
+	eg_cnt = 0;
 
 	for (int i = 0; i < 24; ++i) {
 		slots[i].reset();
@@ -1127,6 +1133,11 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name,
 
 YMF278::~YMF278()
 {
+}
+
+void YMF278::clearRam()
+{
+	pimple->clearRam();
 }
 
 void YMF278::reset(EmuTime::param time)

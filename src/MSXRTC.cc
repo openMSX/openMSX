@@ -15,7 +15,7 @@ MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, rp5c01(new RP5C01(motherBoard.getCommandController(), *sram,
 	                    getCurrentTime()))
 {
-	registerLatch = 0; // TODO verify on real hardware
+	reset(getCurrentTime());
 }
 
 MSXRTC::~MSXRTC()
@@ -24,6 +24,10 @@ MSXRTC::~MSXRTC()
 
 void MSXRTC::reset(EmuTime::param time)
 {
+	// TODO verify on real hardware .. how?
+	//  - registerLatch set to zero or some other value?
+	//  - only on power-up or also on reset?
+	registerLatch = 0;
 	rp5c01->reset(time);
 }
 

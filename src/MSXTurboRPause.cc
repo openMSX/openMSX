@@ -24,17 +24,18 @@ MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
 
 MSXTurboRPause::~MSXTurboRPause()
 {
+	powerDown(EmuTime::dummy());
 	pauseSetting->detach(*this);
+}
+
+void MSXTurboRPause::powerDown(EmuTime::param dummy)
+{
+	writeIO(0, 0, dummy); // send LED OFF events (if needed)
 }
 
 void MSXTurboRPause::reset(EmuTime::param dummy)
 {
 	pauseSetting->changeValue(false);
-	writeIO(0, 0, dummy);
-}
-
-void MSXTurboRPause::powerDown(EmuTime::param dummy)
-{
 	writeIO(0, 0, dummy);
 }
 

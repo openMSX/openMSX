@@ -26,11 +26,17 @@ RomKonamiSCC::RomKonamiSCC(MSXMotherBoard& motherBoard, const XMLElement& config
 	: Rom8kBBlocks(motherBoard, config, rom)
 	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime()))
 {
-	reset(getCurrentTime());
+	powerUp(getCurrentTime());
 }
 
 RomKonamiSCC::~RomKonamiSCC()
 {
+}
+
+void RomKonamiSCC::powerUp(EmuTime::param time)
+{
+	scc->powerUp(time);
+	reset(time);
 }
 
 void RomKonamiSCC::reset(EmuTime::param time)

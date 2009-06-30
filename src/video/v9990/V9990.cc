@@ -114,7 +114,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	displayEnabled = false; // avoid UMR (used by createRenderer())
 	createRenderer(time);
 
-	reset(time);
+	powerUp(time);
 	getMotherBoard().getDisplay().attach(*this);
 }
 
@@ -126,6 +126,12 @@ V9990::~V9990()
 // -------------------------------------------------------------------------
 // MSXDevice
 // -------------------------------------------------------------------------
+
+void V9990::powerUp(EmuTime::param time)
+{
+	vram->clear();
+	reset(time);
+}
 
 void V9990::reset(EmuTime::param time)
 {

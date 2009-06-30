@@ -29,7 +29,7 @@ MSXTurboRPCM::~MSXTurboRPCM()
 
 void MSXTurboRPCM::reset(EmuTime::param time)
 {
-	reference.advance(time);
+	reference.reset(time);
 	status = 0;
 	DValue = 0x80; // TODO correct initial value?
 	hold = 0x80; // avoid UMR
@@ -132,13 +132,13 @@ bool MSXTurboRPCM::getComp(EmuTime::param time) const
 
 void MSXTurboRPCM::hardwareMute(bool mute)
 {
-	if (mute ^ hwMute) {
-		hwMute = mute;
-		if (hwMute) {
-			mixer.mute();
-		} else {
-			mixer.unmute();
-		}
+	if (mute == hwMute) return;
+
+	hwMute = mute;
+	if (hwMute) {
+		mixer.mute();
+	} else {
+		mixer.unmute();
 	}
 }
 

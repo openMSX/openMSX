@@ -25,6 +25,7 @@ public:
 	MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXRS232();
 
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);
 	virtual byte peekIO(word port, EmuTime::param time) const;

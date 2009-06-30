@@ -20,6 +20,7 @@ public:
 	MSXSCCPlusCart(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXSCCPlusCart();
 
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

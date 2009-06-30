@@ -16,11 +16,17 @@ MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard, const XMLElement& config
 	                    config.getChildDataAsInt("sampleram", 512), // size in kb
 	                    config))
 {
-	reset(getCurrentTime());
+	powerUp(getCurrentTime());
 }
 
 MSXMoonSound::~MSXMoonSound()
 {
+}
+
+void MSXMoonSound::powerUp(EmuTime::param time)
+{
+	ymf278->clearRam();
+	reset(time);
 }
 
 void MSXMoonSound::reset(EmuTime::param time)

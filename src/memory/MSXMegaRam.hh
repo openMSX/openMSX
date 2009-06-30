@@ -17,6 +17,7 @@ public:
 	MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXMegaRam();
 
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word address) const;

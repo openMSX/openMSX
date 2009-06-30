@@ -43,15 +43,21 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 	      : NULL)
 	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
 {
-	for (unsigned i = 0; i < 4; i++) {
-		setBank(i, 0);
-	}
-	writeMode = false;
-	reset(EmuTime::dummy());
+	powerUp(EmuTime::dummy());
 }
 
 MSXMegaRam::~MSXMegaRam()
 {
+}
+
+void MSXMegaRam::powerUp(EmuTime::param time)
+{
+	for (unsigned i = 0; i < 4; i++) {
+		setBank(i, 0);
+	}
+	writeMode = false;
+	ram->clear();
+	reset(time);
 }
 
 void MSXMegaRam::reset(EmuTime::param /*time*/)

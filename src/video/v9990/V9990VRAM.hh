@@ -28,6 +28,8 @@ public:
 	  */
 	V9990VRAM(V9990& vdp, EmuTime::param time);
 
+	void clear();
+
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */

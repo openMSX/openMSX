@@ -27,6 +27,7 @@ public:
 	virtual ~MSXS1985();
 
 	// MSXDevice
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 
 	// MSXSwitchedDevice

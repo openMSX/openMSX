@@ -96,6 +96,12 @@ ESE_SCC::~ESE_SCC()
 {
 }
 
+void ESE_SCC::powerUp(EmuTime::param time)
+{
+	scc->powerUp(time);
+	reset(time);
+}
+
 void ESE_SCC::reset(EmuTime::param time)
 {
 	setMapperHigh(0);

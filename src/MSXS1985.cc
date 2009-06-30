@@ -21,6 +21,11 @@ MSXS1985::~MSXS1985()
 	// TODO save ram
 }
 
+void MSXS1985::powerUp(EmuTime::param /*time*/)
+{
+	ram->clear();
+}
+
 void MSXS1985::reset(EmuTime::param /*time*/)
 {
 }

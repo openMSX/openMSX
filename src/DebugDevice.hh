@@ -17,6 +17,7 @@ public:
 	DebugDevice(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~DebugDevice();
 
+	virtual void reset(EmuTime::param time);
 	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	template<typename Archive>

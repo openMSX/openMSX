@@ -152,7 +152,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	createRenderer();
 
 	// Reset state.
-	reset(time);
+	powerUp(time);
 
 	display.attach(*this);
 }
@@ -247,6 +247,12 @@ void VDP::resetMasks(EmuTime::param time)
 	// TODO: It is not clear to me yet how bitmapWindow should be used.
 	//       Currently it always spans 128K of VRAM.
 	//vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
+}
+
+void VDP::powerUp(EmuTime::param time)
+{
+	vram->clear();
+	reset(time);
 }
 
 void VDP::reset(EmuTime::param time)

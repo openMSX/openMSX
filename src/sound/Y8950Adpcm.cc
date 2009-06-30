@@ -53,11 +53,16 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
 	, clock(motherBoard.getCurrentTime())
 	, volume(0)
 {
-	memset(&(*ram)[0], 0xFF, ram->getSize());
+	clearRam();
 }
 
 Y8950Adpcm::~Y8950Adpcm()
 {
+}
+
+void Y8950Adpcm::clearRam()
+{
+	memset(&(*ram)[0], 0xFF, ram->getSize());
 }
 
 void Y8950Adpcm::reset(EmuTime::param time)

@@ -20,7 +20,7 @@ class RealTime : private Schedulable, private EventListener,
                  private Observer<Setting>, private Observer<ThrottleManager>
 {
 public:
-	RealTime(MSXMotherBoard& motherBoard);
+	explicit RealTime(MSXMotherBoard& motherBoard);
 	~RealTime();
 
 	/** Convert EmuTime to RealTime.

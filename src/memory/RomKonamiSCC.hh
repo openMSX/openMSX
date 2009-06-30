@@ -16,6 +16,7 @@ public:
 	           std::auto_ptr<Rom> rom);
 	virtual ~RomKonamiSCC();
 
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual byte readMem(word address, EmuTime::param time);

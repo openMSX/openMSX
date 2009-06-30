@@ -23,6 +23,7 @@ public:
 	           const std::string& name, unsigned sampleRam);
 	virtual ~Y8950Adpcm();
 
+	void clearRam();
 	void reset(EmuTime::param time);
 	bool isMuted() const;
 	void writeReg(byte rg, byte data, EmuTime::param time);

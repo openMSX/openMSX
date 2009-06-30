@@ -17,6 +17,7 @@ public:
 	SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~SunriseIDE();
 
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 
 	virtual byte readMem(word address, EmuTime::param time);

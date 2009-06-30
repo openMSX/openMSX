@@ -42,9 +42,10 @@ MSXMemoryMapper::~MSXMemoryMapper()
 	getMotherBoard().destroyMapperIO();
 }
 
-void MSXMemoryMapper::powerUp(EmuTime::param /*time*/)
+void MSXMemoryMapper::powerUp(EmuTime::param time)
 {
 	checkedRam->clear();
+	reset(time);
 }
 
 void MSXMemoryMapper::reset(EmuTime::param time)

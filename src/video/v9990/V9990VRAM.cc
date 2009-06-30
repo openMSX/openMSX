@@ -12,6 +12,10 @@ V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
 	, data(vdp.getMotherBoard(), vdp.getName() + " VRAM",
 	       "V9990 Video RAM", VRAM_SIZE)
 {
+}
+
+void V9990VRAM::clear()
+{
 	memset(&data[0], 0, data.getSize());
 }
 

@@ -61,6 +61,8 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
 
 RealDrive::~RealDrive()
 {
+	setMotor(false, motherBoard.getCurrentTime()); // to send LED event
+
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("drivesInUse");
 	assert(info.counter);

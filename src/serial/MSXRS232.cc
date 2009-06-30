@@ -85,11 +85,17 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config)
 	i8254->getClockPin(1).setPeriodicState(total, hi, time);
 	i8254->getClockPin(2).setPeriodicState(total, hi, time);
 
-	reset(time);
+	powerUp(time);
 }
 
 MSXRS232::~MSXRS232()
 {
+}
+
+void MSXRS232::powerUp(EmuTime::param time)
+{
+	ram->clear();
+	reset(time);
 }
 
 void MSXRS232::reset(EmuTime::param /*time*/)

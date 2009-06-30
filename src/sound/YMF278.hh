@@ -20,6 +20,7 @@ public:
 	YMF278(MSXMotherBoard& motherBoard, const std::string& name,
 	       int ramSize, const XMLElement& config);
 	~YMF278();
+	void clearRam();
 	void reset(EmuTime::param time);
 	void writeRegOPL4(byte reg, byte data, EmuTime::param time);
 	byte readReg(byte reg, EmuTime::param time);

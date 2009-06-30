@@ -149,6 +149,18 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	vrMode = vdp.getVRMode();
 	setSizeMask(time);
 
+	// Whole VRAM is cachable.
+	// Because this window has no observer, any EmuTime can be passed.
+	// TODO: Move this to cache registration.
+	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
+}
+
+VDPVRAM::~VDPVRAM()
+{
+}
+
+void VDPVRAM::clear()
+{
 	// Initialise VRAM data array.
 	// TODO: Fill with checkerboard pattern NMS8250 has.
 	memset(&data[0], 0, data.getSize());
@@ -159,15 +171,6 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 		// give the same value.
 		memset(&data[actualSize], 0xFF, data.getSize() - actualSize);
 	}
-
-	// Whole VRAM is cachable.
-	// Because this window has no observer, any EmuTime can be passed.
-	// TODO: Move this to cache registration.
-	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
-}
-
-VDPVRAM::~VDPVRAM()
-{
 }
 
 void VDPVRAM::updateDisplayMode(DisplayMode mode, EmuTime::param time)

@@ -61,11 +61,17 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		mapper[i] = 0;
 	}
 
-	reset(getCurrentTime());
+	powerUp(getCurrentTime());
 }
 
 MSXSCCPlusCart::~MSXSCCPlusCart()
 {
+}
+
+void MSXSCCPlusCart::powerUp(EmuTime::param time)
+{
+	scc->powerUp(time);
+	reset(time);
 }
 
 void MSXSCCPlusCart::reset(EmuTime::param time)

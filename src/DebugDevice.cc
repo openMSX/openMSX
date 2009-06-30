@@ -17,17 +17,22 @@ namespace openmsx {
 DebugDevice::DebugDevice(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 {
-	mode = OFF;
-	modeParameter = 0;
 	string outputFile = config.getChildData("filename", "stdout");
 	fileNameSetting.reset(new FilenameSetting(
 		motherBoard.getCommandController(), "debugoutput",
 		"name of the file the debugdevice outputs to", outputFile));
 	openOutput(fileNameSetting->getValueString());
+	reset(EmuTime::dummy());
 }
 
 DebugDevice::~DebugDevice()
 {
+}
+
+void DebugDevice::reset(EmuTime::param /*time*/)
+{
+	mode = OFF;
+	modeParameter = 0;
 }
 
 void DebugDevice::writeIO(word port, byte value, EmuTime::param time)

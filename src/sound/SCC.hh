@@ -25,6 +25,7 @@ public:
 	virtual ~SCC();
 
 	// interaction with realCartridge
+	void powerUp(EmuTime::param time);
 	void reset(EmuTime::param time);
 	byte readMem(byte address,EmuTime::param time);
 	byte peekMem(byte address,EmuTime::param time) const;

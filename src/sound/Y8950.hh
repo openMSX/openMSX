@@ -51,6 +51,7 @@ public:
 	~Y8950();
 
 	void setEnabled(bool enabled, EmuTime::param time);
+	void clearRam();
 	void reset(EmuTime::param time);
 	void writeReg(byte reg, byte data, EmuTime::param time);
 	byte readReg(byte reg, EmuTime::param time);

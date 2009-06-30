@@ -113,7 +113,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config)
 	EmuTime::param time = getCurrentTime();
 	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024,
 	                      time, *periphery));
-	reset(time);
+	powerUp(time);
 }
 
 MSXAudio::~MSXAudio()
@@ -121,6 +121,12 @@ MSXAudio::~MSXAudio()
 	// delete soon, because PanasonicAudioPeriphery still uses
 	// this object in its destructor
 	periphery.reset();
+}
+
+void MSXAudio::powerUp(EmuTime::param time)
+{
+	y8950->clearRam();
+	reset(time);
 }
 
 void MSXAudio::reset(EmuTime::param time)

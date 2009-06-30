@@ -34,6 +34,7 @@ public:
 	virtual ~V9990();
 
 	// MSXDevice interface:
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);
 	virtual byte peekIO(word port, EmuTime::param time) const;

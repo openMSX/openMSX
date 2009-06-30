@@ -21,12 +21,17 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config)
 	internalBank = 0;
 	ideRegsEnabled = false;
 
-	writeControl(0xFF);
-	reset(getCurrentTime());
+	powerUp(getCurrentTime());
 }
 
 SunriseIDE::~SunriseIDE()
 {
+}
+
+void SunriseIDE::powerUp(EmuTime::param time)
+{
+	writeControl(0xFF);
+	reset(time);
 }
 
 void SunriseIDE::reset(EmuTime::param time)

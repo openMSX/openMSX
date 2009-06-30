@@ -13,7 +13,7 @@ MSXE6Timer::MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 void MSXE6Timer::reset(EmuTime::param time)
 {
-	reference.advance(time);
+	reference.reset(time);
 }
 
 void MSXE6Timer::writeIO(word /*port*/, byte /*value*/, EmuTime::param time)

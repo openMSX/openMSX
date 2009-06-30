@@ -365,6 +365,10 @@ public:
 	VDPVRAM(VDP& vdp, unsigned size, EmuTime::param time);
 	~VDPVRAM();
 
+	/** Initialize VRAM content to power-up state.
+	 */
+	void clear();
+
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to update VRAM to.
 	  * TODO: Replace this method by VRAMWindow::sync().

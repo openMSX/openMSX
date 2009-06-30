@@ -147,6 +147,7 @@ public:
 	virtual ~Y8950Impl();
 
 	void setEnabled(bool enabled, EmuTime::param time);
+	void clearRam();
 	void reset(EmuTime::param time);
 	void writeReg(byte reg, byte data, EmuTime::param time);
 	byte readReg(byte reg, EmuTime::param time);
@@ -684,6 +685,11 @@ void Y8950Impl::setOutputRate(unsigned sampleRate)
 	double input = Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV);
 	setInputRate(int(input + 0.5));
 	setResampleRatio(input, sampleRate);
+}
+
+void Y8950Impl::clearRam()
+{
+	adpcm->clearRam();
 }
 
 // Reset whole of opl except patch datas.
@@ -1479,6 +1485,11 @@ Y8950::~Y8950()
 void Y8950::setEnabled(bool enabled, EmuTime::param time)
 {
 	pimple->setEnabled(enabled, time);
+}
+
+void Y8950::clearRam()
+{
+	pimple->clearRam();
 }
 
 void Y8950::reset(EmuTime::param time)

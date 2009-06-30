@@ -52,6 +52,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 MSXPPI::~MSXPPI()
 {
+	powerDown(EmuTime::dummy());
 }
 
 void MSXPPI::reset(EmuTime::param time)

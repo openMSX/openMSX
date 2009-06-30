@@ -132,6 +132,21 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
+	// Make valgrind happy
+	for (int i = 0; i < 5; ++i) {
+		orgPeriod[i] = 0;
+	}
+	powerUp(time);
+	registerSound(config);
+}
+
+SCC::~SCC()
+{
+	unregisterSound();
+}
+
+void SCC::powerUp(EmuTime::param time)
+{
 	// Power on values, tested by enen (log from IRC #openmsx):
 	//
 	//  <enen>    wouter_: i did an scc poweron values test, deform=0,
@@ -141,12 +156,9 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	//    ...
 	//  <enen>    filled with $FF, some bits cleared but that seems random
 
-	// Make valgrind happy
-	for (int i = 0; i < 5; ++i) {
-		orgPeriod[i] = 0;
-	}
 	// Initialize ch_enable, deform (initialize this before period)
 	reset(time);
+
 	// Initialize waveform (initialize before volumes)
 	for (unsigned i = 0; i < 5; ++i) {
 		for (unsigned j = 0; j < 32; ++j) {
@@ -166,13 +178,6 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	for (int i = 0; i < 2 * 5; ++i) {
 		setFreqVol(i, 0, time);
 	}
-
-	registerSound(config);
-}
-
-SCC::~SCC()
-{
-	unregisterSound();
 }
 
 void SCC::reset(EmuTime::param /*time*/)

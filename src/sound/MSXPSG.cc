@@ -33,6 +33,7 @@ MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 MSXPSG::~MSXPSG()
 {
+	getMotherBoard().getLedStatus().setLed(LedStatus::KANA, false);
 }
 
 void MSXPSG::reset(EmuTime::param time)
