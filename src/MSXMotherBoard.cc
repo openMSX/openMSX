@@ -25,7 +25,6 @@
 #include "LedStatus.hh"
 #include "MSXEventDistributor.hh"
 #include "EventDelay.hh"
-#include "EventTranslator.hh"
 #include "RealTime.hh"
 #include "DeviceFactory.hh"
 #include "BooleanSetting.hh"
@@ -43,6 +42,7 @@
 #include "ref.hh"
 #include <cassert>
 #include <map>
+#include <vector>
 #include <iostream>
 
 using std::set;
@@ -72,7 +72,6 @@ public:
 	const string& getMachineName() const;
 
 	bool execute();
-	void exitCPULoopSync();
 	void exitCPULoopAsync();
 	void pause();
 	void unpause();
@@ -86,7 +85,9 @@ public:
 	void setMachineConfig(HardwareConfig* machineConfig);
 	bool isTurboR() const;
 	void loadMachine(const string& machine);
-	const MSXMotherBoard::Extensions& getExtensions() const;
+
+	typedef std::vector<HardwareConfig*> Extensions;
+	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(const string& extensionName);
 	string loadExtension(const string& extensionName);
 	string insertExtension(const std::string& name,
@@ -100,7 +101,6 @@ public:
 	Scheduler& getScheduler();
 	CartridgeSlotManager& getSlotManager();
 	EventDelay& getEventDelay();
-	EventTranslator& getEventTranslator();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
 	MSXMixer& getMSXMixer();
@@ -169,7 +169,7 @@ private:
 	auto_ptr<HardwareConfig> machineConfig2;
 	HardwareConfig* machineConfig;
 
-	MSXMotherBoard::Extensions extensions;
+	Extensions extensions;
 
 	// order of auto_ptr's is important!
 	auto_ptr<AddRemoveUpdate> addRemoveUpdate;
@@ -179,7 +179,6 @@ private:
 	auto_ptr<Scheduler> scheduler;
 	auto_ptr<CartridgeSlotManager> slotManager;
 	auto_ptr<EventDelay> eventDelay;
-	auto_ptr<EventTranslator> eventTranslator;
 	auto_ptr<RealTime> realTime;
 	auto_ptr<Debugger> debugger;
 	auto_ptr<MSXMixer> msxMixer;
@@ -320,7 +319,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 
 	getMSXMixer().mute(); // powered down
 	getRealTime(); // make sure it's instantiated
-	getEventTranslator();
+	getEventDelay();
 	powerSetting.attach(*this);
 
 	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
@@ -453,7 +452,7 @@ string MSXMotherBoardImpl::insertExtension(
 
 HardwareConfig* MSXMotherBoardImpl::findExtension(const string& extensionName)
 {
-	for (MSXMotherBoard::Extensions::const_iterator it = extensions.begin();
+	for (Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
 		if ((*it)->getName() == extensionName) {
 			return *it;
@@ -462,7 +461,7 @@ HardwareConfig* MSXMotherBoardImpl::findExtension(const string& extensionName)
 	return NULL;
 }
 
-const MSXMotherBoard::Extensions& MSXMotherBoardImpl::getExtensions() const
+const MSXMotherBoardImpl::Extensions& MSXMotherBoardImpl::getExtensions() const
 {
 	return extensions;
 }
@@ -470,7 +469,7 @@ const MSXMotherBoard::Extensions& MSXMotherBoardImpl::getExtensions() const
 void MSXMotherBoardImpl::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	MSXMotherBoard::Extensions::iterator it =
+	Extensions::iterator it =
 		find(extensions.begin(), extensions.end(), &extension);
 	assert(it != extensions.end());
 	self.getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
@@ -529,18 +528,9 @@ EventDelay& MSXMotherBoardImpl::getEventDelay()
 	if (!eventDelay.get()) {
 		eventDelay.reset(new EventDelay(
 			getScheduler(), getCommandController(),
-			getMSXEventDistributor()));
+			getEventDistributor(), getMSXEventDistributor()));
 	}
 	return *eventDelay;
-}
-
-EventTranslator& MSXMotherBoardImpl::getEventTranslator()
-{
-	if (!eventTranslator.get()) {
-		eventTranslator.reset(new EventTranslator(
-			getEventDistributor(), getEventDelay()));
-	}
-	return *eventTranslator;
 }
 
 RealTime& MSXMotherBoardImpl::getRealTime()
@@ -837,13 +827,6 @@ bool MSXMotherBoardImpl::isActive() const
 	return active;
 }
 
-void MSXMotherBoardImpl::exitCPULoopSync()
-{
-	if (getMachineConfig()) {
-		getCPU().exitCPULoopSync();
-	}
-}
-
 void MSXMotherBoardImpl::exitCPULoopAsync()
 {
 	if (getMachineConfig()) {
@@ -1023,8 +1006,8 @@ ListExtCmd::ListExtCmd(MSXMotherBoardImpl& motherBoard_)
 void ListExtCmd::execute(const vector<TclObject*>& /*tokens*/,
                          TclObject& result)
 {
-	const MSXMotherBoard::Extensions& extensions = motherBoard.getExtensions();
-	for (MSXMotherBoard::Extensions::const_iterator it = extensions.begin();
+	const MSXMotherBoardImpl::Extensions& extensions = motherBoard.getExtensions();
+	for (MSXMotherBoardImpl::Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
 		result.addListElement((*it)->getName());
 	}
@@ -1108,7 +1091,7 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> names;
-		for (MSXMotherBoard::Extensions::const_iterator it =
+		for (MSXMotherBoardImpl::Extensions::const_iterator it =
 		         motherBoard.getExtensions().begin();
 		     it != motherBoard.getExtensions().end(); ++it) {
 			names.insert((*it)->getName());
@@ -1198,7 +1181,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	// don't serialize:
 	//    machineID, userNames, availableDevices, addRemoveUpdate,
 	//    sharedStuffMap, msxCliComm, msxEventDistributor,
-	//    msxCommandController, slotManager, eventDelay, eventTranslator,
+	//    msxCommandController, slotManager, eventDelay,
 	//    debugger, msxMixer, dummyDevice, panasonicMemory, renShaTurbo,
 	//    ledStatus
 
@@ -1254,17 +1237,9 @@ const string& MSXMotherBoard::getMachineID()
 {
 	return pimple->getMachineID();
 }
-const string& MSXMotherBoard::getMachineName() const
-{
-	return pimple->getMachineName();
-}
 bool MSXMotherBoard::execute()
 {
 	return pimple->execute();
-}
-void MSXMotherBoard::exitCPULoopSync()
-{
-	pimple->exitCPULoopSync();
 }
 void MSXMotherBoard::exitCPULoopAsync()
 {
@@ -1309,10 +1284,6 @@ bool MSXMotherBoard::isTurboR() const
 void MSXMotherBoard::loadMachine(const string& machine)
 {
 	pimple->loadMachine(machine);
-}
-const MSXMotherBoard::Extensions& MSXMotherBoard::getExtensions() const
-{
-	return pimple->getExtensions();
 }
 HardwareConfig* MSXMotherBoard::findExtension(const string& extensionName)
 {
@@ -1359,10 +1330,6 @@ CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 EventDelay& MSXMotherBoard::getEventDelay()
 {
 	return pimple->getEventDelay();
-}
-EventTranslator& MSXMotherBoard::getEventTranslator()
-{
-	return pimple->getEventTranslator();
 }
 RealTime& MSXMotherBoard::getRealTime()
 {

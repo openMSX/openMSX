@@ -7,7 +7,6 @@
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
-#include <vector>
 #include <string>
 
 namespace openmsx {
@@ -22,7 +21,6 @@ class CartridgeSlotManager;
 class EventDistributor;
 class MSXEventDistributor;
 class EventDelay;
-class EventTranslator;
 class RealTime;
 class Debugger;
 class MSXMixer;
@@ -51,7 +49,6 @@ public:
 	~MSXMotherBoard();
 
 	const std::string& getMachineID();
-	const std::string& getMachineName() const;
 
 	/**
 	 * Run emulation.
@@ -60,8 +57,6 @@ public:
 	 */
 	bool execute();
 
-	/** See CPU::exitCPULoopSync(). */
-	void exitCPULoopSync();
 	/** See CPU::exitCPULoopAsync(). */
 	void exitCPULoopAsync();
 
@@ -85,8 +80,6 @@ public:
 
 	void loadMachine(const std::string& machine);
 
-	typedef std::vector<HardwareConfig*> Extensions;
-	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(const std::string& extensionName);
 	std::string loadExtension(const std::string& extensionName);
 	std::string insertExtension(const std::string& name,
@@ -101,7 +94,6 @@ public:
 	MSXEventDistributor& getMSXEventDistributor();
 	CartridgeSlotManager& getSlotManager();
 	EventDelay& getEventDelay();
-	EventTranslator& getEventTranslator();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
 	MSXMixer& getMSXMixer();

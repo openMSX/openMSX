@@ -3,10 +3,9 @@
 #ifndef EVENTDELAY_HH
 #define EVENTDELAY_HH
 
+#include "EventListener.hh"
 #include "Schedulable.hh"
-#include "Event.hh"
 #include "EmuTime.hh"
-#include "shared_ptr.hh"
 #include <vector>
 #include <deque>
 #include <memory>
@@ -15,27 +14,37 @@ namespace openmsx {
 
 class Scheduler;
 class CommandController;
+class Event;
+class EventDistributor;
 class MSXEventDistributor;
 class FloatSetting;
 
-class EventDelay : private Schedulable
+/** This class is responsible for translating host events into MSX events.
+  * It also translates host event timing into EmuTime. To better do this
+  * we introduce a small delay (default 0.03s) in this translation.
+  */
+class EventDelay : private EventListener, private Schedulable
 {
 public:
-	typedef shared_ptr<const Event> EventPtr;
-
 	EventDelay(Scheduler& scheduler, CommandController& commandController,
-	           MSXEventDistributor& eventDistributor);
+	           EventDistributor& eventDistributor,
+	           MSXEventDistributor& msxEventDistributor);
 	virtual ~EventDelay();
 
-	void queueEvent(EventPtr event);
 	void sync(EmuTime::param time);
 
 private:
+	typedef shared_ptr<const Event> EventPtr;
+
+	// EventListener
+	virtual bool signalEvent(EventPtr event);
+
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
-	MSXEventDistributor& eventDistributor;
+	EventDistributor& eventDistributor;
+	MSXEventDistributor& msxEventDistributor;
 
 	struct EventTime {
 		EventTime(EventPtr event_, unsigned long long time_)

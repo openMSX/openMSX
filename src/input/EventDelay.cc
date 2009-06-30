@@ -1,7 +1,9 @@
 // $Id$
 
 #include "EventDelay.hh"
+#include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
+#include "Event.hh"
 #include "FloatSetting.hh"
 #include "Timer.hh"
 #include "MSXException.hh"
@@ -11,24 +13,63 @@ namespace openmsx {
 
 EventDelay::EventDelay(Scheduler& scheduler,
                        CommandController& commandController,
-                       MSXEventDistributor& eventDistributor_)
+                       EventDistributor& eventDistributor_,
+                       MSXEventDistributor& msxEventDistributor_)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
+	, msxEventDistributor(msxEventDistributor_)
 	, prevEmu(EmuTime::zero)
 	, prevReal(Timer::getTime())
 	, delaySetting(new FloatSetting(commandController, "inputdelay",
 	               "delay input to avoid key-skips",
 	               0.03, 0.0, 10.0))
 {
+	eventDistributor.registerEventListener(
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::MSX);
+	eventDistributor.registerEventListener(
+		OPENMSX_KEY_UP_EVENT,   *this, EventDistributor::MSX);
+
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_MOTION_EVENT,      *this, EventDistributor::MSX);
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::MSX);
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this, EventDistributor::MSX);
+
+	eventDistributor.registerEventListener(
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::MSX);
+	eventDistributor.registerEventListener(
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::MSX);
+	eventDistributor.registerEventListener(
+		OPENMSX_JOY_BUTTON_UP_EVENT,   *this, EventDistributor::MSX);
 }
 
 EventDelay::~EventDelay()
 {
+	eventDistributor.unregisterEventListener(
+		OPENMSX_KEY_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_KEY_UP_EVENT,   *this);
+
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_MOTION_EVENT,      *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
+
+	eventDistributor.unregisterEventListener(
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
 }
 
-void EventDelay::queueEvent(EventPtr event)
+bool EventDelay::signalEvent(EventPtr event)
 {
 	toBeScheduledEvents.push_back(EventTime(event, Timer::getTime()));
+	return true;
 }
 
 void EventDelay::sync(EmuTime::param emuTime)
@@ -64,7 +105,7 @@ void EventDelay::sync(EmuTime::param emuTime)
 void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	try {
-		eventDistributor.distributeEvent(scheduledEvents.front(), time);
+		msxEventDistributor.distributeEvent(scheduledEvents.front(), time);
 	} catch (MSXException&) {
 		// ignore
 	}
