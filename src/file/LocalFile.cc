@@ -111,7 +111,7 @@ void LocalFile::write(const void* buffer, unsigned num)
 }
 
 #ifdef _WIN32
-byte* LocalFile::mmap(bool writeBack)
+byte* LocalFile::mmap()
 {
 	if (!mmem) {
 		int fd = _fileno(file);
@@ -123,12 +123,12 @@ byte* LocalFile::mmap(bool writeBack)
 			throw FileException("_get_osfhandle failed");
 		}
 		assert(!hMmap);
-		hMmap = CreateFileMapping(hFile, NULL, writeBack ? PAGE_EXECUTE_READWRITE : PAGE_WRITECOPY, 0, 0, NULL);
+		hMmap = CreateFileMapping(hFile, NULL, PAGE_WRITECOPY, 0, 0, NULL);
 		if (!hMmap) {
 			throw FileException("CreateFileMapping failed: " +
 				StringOp::toString(GetLastError()));
 		}
-		mmem = static_cast<byte*>(MapViewOfFile(hMmap, writeBack ? FILE_MAP_ALL_ACCESS : FILE_MAP_COPY, 0, 0, 0));
+		mmem = static_cast<byte*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
 		if (!mmem) {
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
@@ -164,13 +164,12 @@ void LocalFile::munmap()
 }
 
 #elif defined HAVE_MMAP
-byte* LocalFile::mmap(bool writeBack)
+byte* LocalFile::mmap()
 {
 	if (!mmem) {
-		int flags = writeBack ? MAP_SHARED : MAP_PRIVATE;
 		mmem = static_cast<byte*>(
 		          ::mmap(0, getSize(), PROT_READ | PROT_WRITE,
-		                 flags, fileno(file), 0));
+		                 MAP_PRIVATE, fileno(file), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning
 		void* MY_MAP_FAILED = reinterpret_cast<void*>(-1);

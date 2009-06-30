@@ -68,18 +68,13 @@ public:
 
 	/**
 	 * Map file in memory.
-	 * @param writeBack Set to true if writes to the memory block
-	 *              should also be written to the file. Note that
-	 *              the file may only be updated when you munmap
-	 *              again (may happen earlier but not guaranteed).
 	 * @result Pointer to memory block.
 	 * @throws FileException
 	 */
-	byte* mmap(bool writeBack = false);
+	byte* mmap();
 
 	/**
 	 * Unmap file from memory.
-	 * @throws FileException
 	 */
 	void munmap();
 

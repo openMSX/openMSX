@@ -59,9 +59,9 @@ void File::write(const void* buffer, unsigned num)
 	file->write(buffer, num);
 }
 
-byte* File::mmap(bool writeBack)
+byte* File::mmap()
 {
-	return file->mmap(writeBack);
+	return file->mmap();
 }
 
 void File::munmap()

@@ -19,10 +19,9 @@ FileBase::~FileBase()
 	munmap();
 }
 
-byte* FileBase::mmap(bool writeBack)
+byte* FileBase::mmap()
 {
 	if (!mmem) {
-		mmapWrite = writeBack;
 		mmapSize = getSize();
 		mmem = new byte[mmapSize];
 		read(mmem, mmapSize);
@@ -32,14 +31,8 @@ byte* FileBase::mmap(bool writeBack)
 
 void FileBase::munmap()
 {
-	if (mmem) {
-		if (mmapWrite) {
-			seek(0);
-			write(mmem, mmapSize);
-		}
-		delete[] mmem;
-		mmem = NULL;
-	}
+	delete[] mmem;
+	mmem = NULL;
 }
 
 void FileBase::truncate(unsigned newSize)

@@ -25,7 +25,7 @@ public:
 	virtual void read (void* buffer, unsigned num);
 	virtual void write(const void* buffer, unsigned num);
 #if defined HAVE_MMAP || defined _WIN32
-	virtual byte* mmap(bool writeBack);
+	virtual byte* mmap();
 	virtual void munmap();
 #endif
 	virtual unsigned getSize();

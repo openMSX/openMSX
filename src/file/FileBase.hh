@@ -20,7 +20,7 @@ public:
 
 	// If you override mmap(), make sure to call munmap() in
 	// your destructor.
-	virtual byte* mmap(bool writeBack = false);
+	virtual byte* mmap();
 	virtual void munmap();
 
 	virtual unsigned getSize() = 0;
@@ -40,7 +40,6 @@ protected:
 
 private:
 	unsigned mmapSize;
-	bool mmapWrite;
 };
 
 } // namespace openmsx
