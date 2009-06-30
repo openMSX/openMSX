@@ -82,13 +82,6 @@ void InputEventGenerator::poll()
 	}
 }
 
-void InputEventGenerator::notify()
-{
-	static SDL_Event event;
-	event.type = SDL_USEREVENT;
-	SDL_PushEvent(&event);
-}
-
 void InputEventGenerator::setKeyRepeat(bool enable)
 {
 	keyRepeat = enable;
@@ -236,8 +229,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 #if PLATFORM_GP2X
-	// SDL sees GP2X keys/joystick as a joystick events, for openMSX its
-	// easier to handle this as keyboard events (regular keys + cursors).
+	// SDL sees GP2X keys/joystick as joystick events, for openMSX it is
+	// easier to handle these as keyboard events (regular keys + cursors).
 	// Code below remaps the events. This will probably have to be rewritten
 	// to allow more dynamic mappings.
 	case SDL_JOYBUTTONUP:

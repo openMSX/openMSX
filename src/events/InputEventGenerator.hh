@@ -26,12 +26,10 @@ public:
 	                    EventDistributor& eventDistributor);
 	virtual ~InputEventGenerator();
 
-	/** Poll / wait for an event and handle it.
-	  * These methods should be called from the main thread.
+	/** Wait for event(s) and handle it.
+	  * This method should be called from the main thread.
 	  */
 	void wait();
-	void notify();
-	void poll();
 
 	/**
 	 * Enable or disable keyboard event repeats
@@ -49,6 +47,7 @@ public:
 	BooleanSetting& getGrabInput() const { return *grabInput; }
 
 private:
+	void poll();
 	void handle(const SDL_Event& event);
 	void setGrabInput(bool grab);
 
