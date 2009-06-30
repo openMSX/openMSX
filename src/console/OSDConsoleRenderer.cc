@@ -10,9 +10,6 @@
 #include "TTFFont.hh"
 #include "SDLImage.hh"
 #include "Display.hh"
-#include "Event.hh"
-#include "InputEvents.hh"
-#include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "Timer.hh"
 #include "FileContext.hh"
@@ -186,13 +183,6 @@ void OSDConsoleRenderer::setActive(bool active_)
 	activeTime = Timer::getTime();
 
 	reactor.getInputEventGenerator().setKeyRepeat(active);
-	if (active) {
-		reactor.getEventDistributor().distributeEvent(
-			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
-	} else {
-		reactor.getEventDistributor().distributeEvent(
-			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
-	}
 }
 
 byte OSDConsoleRenderer::getVisibility() const

@@ -39,8 +39,6 @@ private:
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         EmuTime::param time);
 
-	void allUp();
-
 	MSXEventDistributor& eventDistributor;
 	const std::string name;
 	const std::auto_ptr<KeyCodeSetting> up;

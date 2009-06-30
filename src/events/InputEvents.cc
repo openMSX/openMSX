@@ -423,12 +423,4 @@ bool MSXCommandEvent::lessImpl(const InputEvent& other) const
 	return getTokens() < otherCommandEvent->getTokens();
 }
 
-
-// class ConsoleEvent
-
-ConsoleEvent::ConsoleEvent(EventType type)
-	: Event(type)
-{
-}
-
 } // namespace openmsx

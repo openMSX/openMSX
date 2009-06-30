@@ -41,10 +41,6 @@ enum EventType
 
 	OPENMSX_BREAK_EVENT,
 	OPENMSX_SWITCH_RENDERER_EVENT,
-	/** Console events, allow the keyboard[joystick] to avoid
-            having `hanging' keys */
-	OPENMSX_CONSOLE_ON_EVENT,
-	OPENMSX_CONSOLE_OFF_EVENT,
 
 	/** Delayed repaint */
 	OPENMSX_DELAYED_REPAINT_EVENT,

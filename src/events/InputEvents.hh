@@ -223,21 +223,6 @@ private:
 	const bool owned;
 };
 
-
-/**
- * Used for console on/off events.
- * These events tell a lower layer (the MSX keyboard) that key down/up events
- * will be (on) or have been (off) withheld. With that information, the layer
- * can take measures against hanging keys.
- * TODO: Should this be modeled as an event, or as an additional call on
- *       the UserInputEventHandler interface?
- */
-class ConsoleEvent : public Event
-{
-public:
-	explicit ConsoleEvent(EventType type);
-};
-
 } // namespace openmsx
 
 #endif

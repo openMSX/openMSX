@@ -57,12 +57,6 @@ const string& KeyJoystick::getDescription() const
 	return desc;
 }
 
-void KeyJoystick::allUp()
-{
-	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB;
-}
-
 void KeyJoystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 }
@@ -89,9 +83,6 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
                               EmuTime::param /*time*/)
 {
 	switch (event->getType()) {
-	case OPENMSX_CONSOLE_ON_EVENT:
-		allUp();
-		break;
 	case OPENMSX_KEY_DOWN_EVENT:
 	case OPENMSX_KEY_UP_EVENT: {
 		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
