@@ -3,10 +3,11 @@
 #include "EventDelay.hh"
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
-#include "Event.hh"
+#include "InputEvents.hh"
 #include "FloatSetting.hh"
 #include "Timer.hh"
 #include "MSXException.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -68,7 +69,7 @@ EventDelay::~EventDelay()
 
 bool EventDelay::signalEvent(EventPtr event)
 {
-	toBeScheduledEvents.push_back(EventTime(event, Timer::getTime()));
+	toBeScheduledEvents.push_back(event);
 	return true;
 }
 
@@ -82,12 +83,15 @@ void EventDelay::sync(EmuTime::param emuTime)
 	EmuDuration extraDelay(delaySetting->getValue());
 
 	EmuTime time = prevEmu + extraDelay;
-	for (std::vector<EventTime>::const_iterator it =
+	for (std::vector<EventPtr>::const_iterator it =
 	        toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
-		assert(it->time <= curRealTime);
-		scheduledEvents.push_back(it->event);
-		unsigned long long offset = curRealTime - it->time;
+		scheduledEvents.push_back(*it);
+		const TimedEvent* timedEvent =
+			checked_cast<const TimedEvent*>(it->get());
+		unsigned long long eventRealTime = timedEvent->getRealTime();
+		assert(eventRealTime <= curRealTime);
+		unsigned long long offset = curRealTime - eventRealTime;
 		EmuDuration emuOffset(factor * offset);
 		EmuTime schedTime = time + emuOffset;
 		if (schedTime < emuTime) {

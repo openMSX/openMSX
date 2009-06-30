@@ -46,13 +46,7 @@ private:
 	EventDistributor& eventDistributor;
 	MSXEventDistributor& msxEventDistributor;
 
-	struct EventTime {
-		EventTime(EventPtr event_, unsigned long long time_)
-			: event(event_), time(time_) {}
-		EventPtr event;
-		unsigned long long time;
-	};
-	std::vector<EventTime> toBeScheduledEvents;
+	std::vector<EventPtr> toBeScheduledEvents;
 	std::deque<EventPtr> scheduledEvents;
 
 	EmuTime prevEmu;

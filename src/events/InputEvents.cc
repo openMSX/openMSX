@@ -4,6 +4,7 @@
 #include "Keys.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
+#include "Timer.hh"
 #include "checked_cast.hh"
 #include <string>
 #include <cassert>
@@ -13,18 +14,24 @@ using std::vector;
 
 namespace openmsx {
 
-// class InputEvent
+// class TimedEvent
 
-InputEvent::InputEvent(EventType type)
+TimedEvent::TimedEvent(EventType type)
 	: Event(type)
+	, realtime(Timer::getTime())
 {
+}
+
+unsigned long long TimedEvent::getRealTime() const
+{
+	return realtime;
 }
 
 
 // class KeyEvent
 
 KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
-	: Event(type), keyCode(keyCode_), unicode(unicode_)
+	: TimedEvent(type), keyCode(keyCode_), unicode(unicode_)
 {
 }
 
@@ -84,7 +91,7 @@ KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode, word unicode)
 // class MouseButtonEvent
 
 MouseButtonEvent::MouseButtonEvent(EventType type, unsigned button_)
-	: Event(type), button(button_)
+	: TimedEvent(type), button(button_)
 {
 }
 
@@ -138,7 +145,7 @@ void MouseButtonDownEvent::toStringImpl(TclObject& result) const
 // class MouseMotionEvent
 
 MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_)
-	: Event(OPENMSX_MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_)
+	: TimedEvent(OPENMSX_MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_)
 {
 }
 
@@ -173,7 +180,7 @@ bool MouseMotionEvent::lessImpl(const Event& other) const
 // class JoystickEvent
 
 JoystickEvent::JoystickEvent(EventType type, unsigned joystick_)
-	: Event(type), joystick(joystick_)
+	: TimedEvent(type), joystick(joystick_)
 {
 }
 

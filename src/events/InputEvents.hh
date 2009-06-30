@@ -11,14 +11,19 @@
 
 namespace openmsx {
 
-class InputEvent : public Event
+class TimedEvent : public Event
 {
+public:
+	/** Query creation time. */
+	unsigned long long getRealTime() const;
 protected:
-	explicit InputEvent(EventType type);
+	explicit TimedEvent(EventType type);
+private:
+	const unsigned long long realtime;
 };
 
 
-class KeyEvent : public Event
+class KeyEvent : public TimedEvent
 {
 public:
 	Keys::KeyCode getKeyCode() const;
@@ -49,7 +54,7 @@ public:
 };
 
 
-class MouseButtonEvent : public Event
+class MouseButtonEvent : public TimedEvent
 {
 public:
 	static const unsigned LEFT      = 1;
@@ -85,7 +90,7 @@ private:
 	virtual void toStringImpl(TclObject& result) const;
 };
 
-class MouseMotionEvent : public Event
+class MouseMotionEvent : public TimedEvent
 {
 public:
 	MouseMotionEvent(int xrel, int yrel);
@@ -100,7 +105,7 @@ private:
 };
 
 
-class JoystickEvent : public Event
+class JoystickEvent : public TimedEvent
 {
 public:
 	unsigned getJoystick() const;
