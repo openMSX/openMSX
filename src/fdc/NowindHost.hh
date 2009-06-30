@@ -16,7 +16,7 @@ class SectorAccessibleDisk;
 class NowindHost
 {
 public:
-	NowindHost(const std::vector<DiskContainer*>& drives);
+	explicit NowindHost(const std::vector<DiskContainer*>& drives);
 	~NowindHost();
 
 	// public for usb-host implementation

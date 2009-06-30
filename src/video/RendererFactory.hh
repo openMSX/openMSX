@@ -22,9 +22,8 @@ template <typename T> class EnumSetting;
   * A RendererFactory can be queried about the availability of the
   * associated Renderer and can instantiate that Renderer.
   */
-class RendererFactory
+namespace RendererFactory
 {
-public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
@@ -35,27 +34,27 @@ public:
 
 	/** Create the video system required by the current renderer setting.
 	  */
-	static VideoSystem* createVideoSystem(Reactor& reactor);
+	VideoSystem* createVideoSystem(Reactor& reactor);
 
 	/** Create the Renderer selected by the current renderer setting.
 	  * @param vdp The VDP whose display will be rendered.
 	  * @param display TODO
 	  */
-	static Renderer* createRenderer(VDP& vdp, Display& display);
+	Renderer* createRenderer(VDP& vdp, Display& display);
 
 	/** Create the V9990 Renderer selected by the current renderer setting.
 	  * @param vdp The V9990 VDP whose display will be rendered.
 	  * @param display TODO
 	  */
-	static V9990Renderer* createV9990Renderer(V9990& vdp, Display& display);
+	V9990Renderer* createV9990Renderer(V9990& vdp, Display& display);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.
 	  */
-	static std::auto_ptr<RendererSetting> createRendererSetting(
-			CommandController& commandController);
-};
+	std::auto_ptr<RendererSetting> createRendererSetting(
+		CommandController& commandController);
 
+} // namespace RendererFactory
 } // namespace openmsx
 
 #endif

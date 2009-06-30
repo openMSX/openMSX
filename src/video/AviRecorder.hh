@@ -4,6 +4,7 @@
 #define AVIRECORDER_HH
 
 #include "EmuTime.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -19,10 +20,10 @@ class PostProcessor;
 class MSXMixer;
 class RecordCommand;
 
-class AviRecorder
+class AviRecorder : private noncopyable
 {
 public:
-	AviRecorder(Reactor& reactor);
+	explicit AviRecorder(Reactor& reactor);
 	~AviRecorder();
 
 	void addWave(unsigned num, short* data);

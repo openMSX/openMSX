@@ -19,7 +19,7 @@ class FrameBufferObject;
 class SDLGLOffScreenSurface : public OutputSurface, private SDLGLOutputSurface
 {
 public:
-	SDLGLOffScreenSurface(const SDLGLVisibleSurface& output);
+	explicit SDLGLOffScreenSurface(const SDLGLVisibleSurface& output);
 	virtual ~SDLGLOffScreenSurface();
 
 private:

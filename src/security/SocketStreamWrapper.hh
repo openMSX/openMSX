@@ -10,20 +10,17 @@
 
 namespace openmsx {
 
-using namespace sspiutils;
-
-class SocketStreamWrapper : public StreamWrapper
+class SocketStreamWrapper : public sspiutils::StreamWrapper
 {
+public:
+	explicit SocketStreamWrapper(SOCKET userSock);
+
+	uint32 Read (void* buffer, uint32 cb);
+	uint32 Write(void* buffer, uint32 cb);
+
 private:
 	SOCKET sock;
-
-public:
-	SocketStreamWrapper(SOCKET userSock);
-
-	uint32 Read(void* buffer, uint32 cb);
-	uint32 Write(void* buffer, uint32 cb);
 };
-
 
 } // namespace openmsx
 

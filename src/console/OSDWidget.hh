@@ -51,7 +51,7 @@ public:
 	                            double& width, double& height) const = 0;
 
 protected:
-	OSDWidget(const std::string& name);
+	explicit OSDWidget(const std::string& name);
 	void invalidateChildren();
 
 	virtual void invalidateLocal() = 0;

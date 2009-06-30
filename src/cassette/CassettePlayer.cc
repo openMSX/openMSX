@@ -257,7 +257,7 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 		recordImage.reset();
 		if (empty) {
 			// delete the created WAV file, as it is useless
-			FileOperations::unlink(getImageName().getResolved());
+			FileOperations::unlink(getImageName().getResolved()); // ignore errors
 			setImageName(Filename());
 		}
 	}
@@ -492,9 +492,14 @@ void CassettePlayer::fillBuf(size_t length, double x)
 
 void CassettePlayer::flushOutput()
 {
-	recordImage->write8mono(buf, unsigned(sampcnt));
-	sampcnt = 0;
-	recordImage->flush(); // update wav header
+	try {
+		recordImage->write8mono(buf, unsigned(sampcnt));
+		sampcnt = 0;
+		recordImage->flush(); // update wav header
+	} catch (MSXException& e) {
+		cliComm.printWarning(
+			"Failed to write to tape: " + e.getMessage());
+	}
 }
 
 
@@ -522,6 +527,7 @@ void CassettePlayer::plugHelper(Connector& connector, EmuTime::param time)
 
 void CassettePlayer::unplugHelper(EmuTime::param time)
 {
+	// note: may not throw exceptions
 	setState(STOP, getImageName(), time); // keep current image
 }
 

@@ -29,7 +29,7 @@ const unsigned STREAM_ERROR = 0xffffffff;
 class StreamWrapper
 {
 public:
-	virtual uint32 Read(void* buffer, uint32 cb) = 0;
+	virtual uint32 Read (void* buffer, uint32 cb) = 0;
 	virtual uint32 Write(void* buffer, uint32 cb) = 0;
 };
 
@@ -52,9 +52,9 @@ const DWORD ACCESS_WRITE = 0x2;
 const DWORD ACCESS_EXECUTE = 0x4;
 const DWORD ACCESS_ALL = ACCESS_READ | ACCESS_WRITE | ACCESS_EXECUTE;
 
-const GENERIC_MAPPING mapping = { 
-	ACCESS_READ, ACCESS_WRITE, ACCESS_EXECUTE, ACCESS_ALL };
-
+const GENERIC_MAPPING mapping = {
+	ACCESS_READ, ACCESS_WRITE, ACCESS_EXECUTE, ACCESS_ALL
+};
 void InitTokenContextBuffer(PSecBufferDesc pSecBufferDesc, PSecBuffer pSecBuffer);
 void ClearContextBuffers(PSecBufferDesc pSecBufferDesc);
 void DebugPrintSecurityStatus(const char* context, SECURITY_STATUS ss);

@@ -15,12 +15,12 @@ namespace openmsx {
 class GLImage : public BaseImage
 {
 public:
-	GLImage(const std::string& filename);
+	explicit GLImage(const std::string& filename);
+	explicit GLImage(SDL_Surface* image);
 	GLImage(const std::string& filename, double scaleFactor);
 	GLImage(const std::string& filename, int width, int height);
 	GLImage(int width, int height,
 	        byte alpha, byte r = 0, byte g = 0, byte b = 0);
-	GLImage(SDL_Surface* image);
 	virtual ~GLImage();
 
 	virtual void draw(OutputSurface& output, int x, int y,

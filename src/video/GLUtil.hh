@@ -65,7 +65,7 @@ typedef ExpandFilter<GLuint>::ExpandType ExpandGL;
 class Texture
 {
 public:
-	Texture(int type = GL_TEXTURE_2D);
+	explicit Texture(int type = GL_TEXTURE_2D);
 	virtual ~Texture();
 
 	/** Makes this texture the active GL texture.
@@ -195,7 +195,7 @@ private:
 class FrameBufferObject
 {
 public:
-	FrameBufferObject(Texture& texture, bool doPush = false);
+	explicit FrameBufferObject(Texture& texture, bool doPush = false);
 	~FrameBufferObject();
 
 	void push();
@@ -436,7 +436,7 @@ public:
 	/** Instantiates a vertex shader.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	VertexShader(const std::string& filename);
+	explicit VertexShader(const std::string& filename);
 };
 
 /** Wrapper around an OpenGL fragment shader:
@@ -448,7 +448,7 @@ public:
 	/** Instantiates a fragment shader.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	FragmentShader(const std::string& filename);
+	explicit FragmentShader(const std::string& filename);
 };
 
 /** Wrapper around an OpenGL program:

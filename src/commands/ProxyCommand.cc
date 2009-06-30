@@ -13,7 +13,7 @@ using std::string;
 namespace openmsx {
 
 ProxyCmd::ProxyCmd(CommandController& controller, Reactor& reactor_)
-	: Command(controller)
+	: Command(controller, "")
 	, reactor(reactor_)
 {
 }
@@ -31,8 +31,7 @@ void ProxyCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 	if (Command* command = getMachineCommand(name)) {
 		command->execute(tokens, result);
 	} else {
-		throw CommandException("Invalid command name \"" +
-		                       tokens[0]->getString() + '"');
+		throw CommandException("Invalid command name \"" + name + '"');
 	}
 }
 

@@ -18,7 +18,7 @@ public:
 		byte row, keymask, modmask;
 	};
 
-	UnicodeKeymap(const std::string& keyboardType);
+	explicit UnicodeKeymap(const std::string& keyboardType);
 
 	KeyInfo get(int unicode) const;
 	KeyInfo getDeadkey() const;

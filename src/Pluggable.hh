@@ -48,6 +48,7 @@ public:
 
 protected:
 	virtual void plugHelper(Connector& newConnector, EmuTime::param time) = 0;
+	/* implementations of unplugHelper() may not throw exceptions. */
 	virtual void unplugHelper(EmuTime::param time) = 0;
 
 	friend class Connector; // for de-serialization

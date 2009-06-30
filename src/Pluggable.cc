@@ -38,7 +38,11 @@ void Pluggable::plug(Connector& newConnector, EmuTime::param time)
 
 void Pluggable::unplug(EmuTime::param time)
 {
-	unplugHelper(time);
+	try {
+		unplugHelper(time);
+	} catch (MSXException& e) {
+		assert(false);
+	}
 	setConnector(NULL);
 }
 

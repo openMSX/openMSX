@@ -50,7 +50,7 @@ public:
 
 protected:
 	Command(CommandController& commandController,
-	        const std::string& name = "");
+	        const std::string& name);
 	virtual ~Command();
 };
 

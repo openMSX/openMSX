@@ -22,8 +22,9 @@
 using std::auto_ptr;
 
 namespace openmsx {
+namespace RendererFactory {
 
-VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
+VideoSystem* createVideoSystem(Reactor& reactor)
 {
 	switch (reactor.getDisplay().getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
@@ -39,7 +40,7 @@ VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
 	}
 }
 
-Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
+Renderer* createRenderer(VDP& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
@@ -55,8 +56,7 @@ Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 	}
 }
 
-V9990Renderer* RendererFactory::createV9990Renderer(
-	V9990& vdp, Display& display)
+V9990Renderer* createV9990Renderer(V9990& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
@@ -72,9 +72,8 @@ V9990Renderer* RendererFactory::createV9990Renderer(
 	}
 }
 
-auto_ptr<RendererFactory::RendererSetting>
-	RendererFactory::createRendererSetting(
-		CommandController& commandController)
+auto_ptr<RendererSetting> createRendererSetting(
+	CommandController& commandController)
 {
 	typedef EnumSetting<RendererID>::Map RendererMap;
 	RendererMap rendererMap;
@@ -114,5 +113,6 @@ auto_ptr<RendererFactory::RendererSetting>
 	return setting;
 }
 
+} // namespace RendererFactory
 } // namespace openmsx
 

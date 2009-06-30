@@ -14,7 +14,7 @@
 namespace openmsx {
 namespace sspiutils {
 
-SspiPackageBase::SspiPackageBase(StreamWrapper& userStream, wchar_t* securityPackage) 
+SspiPackageBase::SspiPackageBase(StreamWrapper& userStream, wchar_t* securityPackage)
 	: stream(userStream)
 	, cbMaxTokenSize(GetPackageMaxTokenSize(securityPackage))
 {
@@ -129,10 +129,10 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 	char* sddl;
 	BOOL ret = ConvertSecurityDescriptorToStringSecurityDescriptorA(
 		psd,
-		SDDL_REVISION, 
+		SDDL_REVISION,
 		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
-		DACL_SECURITY_INFORMATION | SACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION, 
-		&sddl, 
+		DACL_SECURITY_INFORMATION | SACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
+		&sddl,
 		NULL);
 	if (ret) {
 		PRT_DEBUG("SecurityDescriptor: " << sddl);

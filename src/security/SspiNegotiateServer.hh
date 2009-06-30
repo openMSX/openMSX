@@ -9,18 +9,17 @@
 
 namespace openmsx {
 
-using namespace sspiutils;
-
-class SspiNegotiateServer : public SspiPackageBase
+class SspiNegotiateServer : public sspiutils::SspiPackageBase
 {
-private:
-	PSECURITY_DESCRIPTOR psd;
 public:
-	SspiNegotiateServer(StreamWrapper& serverStream);
+	explicit SspiNegotiateServer(StreamWrapper& serverStream);
 	~SspiNegotiateServer();
 
 	bool Authenticate();
 	bool Authorize();
+
+private:
+	PSECURITY_DESCRIPTOR psd;
 };
 
 } // namespace openmsx

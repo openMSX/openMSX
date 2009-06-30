@@ -45,7 +45,7 @@ public:
 	static void setOutput(InterpreterOutput* output);
 
 protected:
-	Completer(const std::string& name);
+	explicit Completer(const std::string& name);
 	virtual ~Completer();
 
 private:

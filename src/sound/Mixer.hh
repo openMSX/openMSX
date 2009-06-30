@@ -21,7 +21,7 @@ class Setting;
 class Mixer : private Observer<Setting>, private noncopyable
 {
 public:
-	Mixer(CommandController& commandController);
+	explicit Mixer(CommandController& commandController);
 	virtual ~Mixer();
 
 	/** Register per-machine mixer

@@ -24,22 +24,22 @@ private:
 // Suppressor of ALT+SPACE windows messages
 class AltSpaceSuppressor
 {
-private:
-	static WindowLongPtrStacker procStacker;
-	static LRESULT CALLBACK InterceptorWndProc(
-		HWND hWnd, 
-		UINT message, 
-		WPARAM wParam, 
-		LPARAM lParam);
-	static bool	SuppressAltSpace(
-		HWND hWnd, 
-		UINT message, 
-		WPARAM wParam, 
-		LPARAM lParam,
-		LRESULT* outResult);
 public:
 	static void Start(HWND hWnd);
 	static void Stop();
+private:
+	static WindowLongPtrStacker procStacker;
+	static LRESULT CALLBACK InterceptorWndProc(
+		HWND hWnd,
+		UINT message,
+		WPARAM wParam,
+		LPARAM lParam);
+	static bool SuppressAltSpace(
+		HWND hWnd,
+		UINT message,
+		WPARAM wParam,
+		LPARAM lParam,
+		LRESULT* outResult);
 };
 
 } // namespace openmsx

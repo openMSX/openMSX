@@ -10,7 +10,7 @@ namespace openmsx {
 class SDLOffScreenSurface : public OutputSurface
 {
 public:
-	SDLOffScreenSurface(const SDL_Surface& prototype);
+	explicit SDLOffScreenSurface(const SDL_Surface& prototype);
 	virtual ~SDLOffScreenSurface();
 
 private:
