@@ -324,9 +324,9 @@ class LineRepeater
 public:
 	template <unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		const Pixel* src3, unsigned srcWidth,
-		OutputSurface& dst, unsigned& dstY)
+		const Pixel* __restrict src0, const Pixel* __restrict src1,
+		const Pixel* __restrict src2, const Pixel* __restrict src3,
+		unsigned srcWidth, OutputSurface& dst, unsigned& dstY)
 	{
 		Pixel* dp = dst.getLinePtrDirect<Pixel>(dstY++);
 		// Calculate fixed point coordinate.
@@ -428,13 +428,13 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
 		// TODO possible optimization: reuse srcN from previous step
-		const Pixel* src0 = src.getLinePtr<Pixel>(line - 1, srcWidth);
-		const Pixel* src1 = src.getLinePtr<Pixel>(line + 0, srcWidth);
-		const Pixel* src2 = src.getLinePtr<Pixel>(line + 1, srcWidth);
-		const Pixel* src3 = src.getLinePtr<Pixel>(line + 2, srcWidth);
+		const Pixel* __restrict src0 = src.getLinePtr<Pixel>(line - 1, srcWidth);
+		const Pixel* __restrict src1 = src.getLinePtr<Pixel>(line + 0, srcWidth);
+		const Pixel* __restrict src2 = src.getLinePtr<Pixel>(line + 1, srcWidth);
+		const Pixel* __restrict src3 = src.getLinePtr<Pixel>(line + 2, srcWidth);
 
 		// Get destination line pointer.
-		Pixel* dp = dst.getLinePtrDirect<Pixel>(dstY);
+		Pixel* __restrict dp = dst.getLinePtrDirect<Pixel>(dstY);
 
 		// Fractional parts of the fixed point Y coordinates.
 		const unsigned y1 = h & 0xffff;
@@ -447,7 +447,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		unsigned pos3 = 1;
 		Pixel B = src1[0];
 		Pixel D = src2[0];
-		for (unsigned w = 0; w < wfinish; ) {
+		for (unsigned w = 0; w < wfinish; /**/) {
 			const unsigned pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;

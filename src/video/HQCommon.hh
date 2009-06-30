@@ -108,8 +108,8 @@ struct EdgeHQLite
 };
 
 template <typename EdgeOp>
-void calcEdgesGL(const unsigned* curr, const unsigned* next,
-                 unsigned* edges2, EdgeOp edgeOp)
+void calcEdgesGL(const unsigned* __restrict curr, const unsigned* __restrict next,
+                 unsigned* __restrict edges2, EdgeOp edgeOp)
 {
 	typedef unsigned Pixel;
 	if (OPENMSX_BIGENDIAN) {
@@ -196,9 +196,9 @@ void calcEdgesGL(const unsigned* curr, const unsigned* next,
 }
 
 template <typename Pixel, typename EdgeOp>
-static void calcInitialEdges(const Pixel* srcPrev, const Pixel* srcCurr,
-                             unsigned srcWidth, unsigned* edgeBuf,
-                             EdgeOp edgeOp)
+static void calcInitialEdges(
+	const Pixel* __restrict srcPrev, const Pixel* __restrict srcCurr,
+	unsigned srcWidth, unsigned* __restrict edgeBuf, EdgeOp edgeOp)
 {
 	unsigned x = 0;
 	unsigned c1 = readPixel(srcPrev[x]);

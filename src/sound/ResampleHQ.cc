@@ -45,7 +45,7 @@ static const unsigned TAB_LEN = 4096;
 extern "C"
 {
 	void __cdecl ResampleHQ_calcOutput_1_SSE(
-		const void* bufferOffset, const void* tableOffset, 
+		const void* bufferOffset, const void* tableOffset,
 		void* output, long filterLen16Product, unsigned filterLenRest);
 }
 #endif
@@ -194,7 +194,7 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 }
 
 template <unsigned CHANNELS>
-void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
+void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* __restrict output)
 {
 	assert((filterLen & 3) == 0);
 	int t = int(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
@@ -421,7 +421,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned request)
 }
 
 template <unsigned CHANNELS>
-bool ResampleHQ<CHANNELS>::generateOutput(int* dataOut, unsigned num)
+bool ResampleHQ<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
 {
 	bool anyNonZero = false;
 

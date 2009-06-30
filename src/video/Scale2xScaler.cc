@@ -37,8 +37,9 @@ Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps)
 }
 
 template <class Pixel>
-void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
-	const Pixel* src0, const Pixel* src1, const Pixel* src2,
+void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
+	Pixel* __restrict dst, const Pixel* __restrict src0,
+	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	unsigned long srcWidth)
 {
 	//   n      m is expaned to a b
@@ -156,7 +157,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		asm (
 			"movq	(%0,%4), %%mm1;"     // m1 | e1  or  w2 | m2
@@ -278,7 +279,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
 		//           mm2: abcd
 		//mm0: xxx0  mm1: 1234  mm0: 5xxx
@@ -388,7 +389,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
 		//           mm2: abcd
 		//mm0: xxx0  mm1: 1234  mm0: 5xxx
@@ -594,7 +595,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	#endif
 	#endif
 
@@ -624,8 +625,9 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 }
 
 template <class Pixel>
-void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
-	const Pixel* src0, const Pixel* src1, const Pixel* src2,
+void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
+	Pixel* __restrict dst, const Pixel* __restrict src0,
+	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	unsigned long srcWidth)
 {
 	//    ab ef
@@ -734,7 +736,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		asm (
 			"movq	(%0,%4), %%mm0;"     // 1 2
@@ -837,7 +839,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	//      aceg ikmo
 	// ...0 1234 5678 9...
 	//      bdfh jlnp
@@ -954,7 +956,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
 		asm (
 			"movq	(%0,%4), %%mm1;"     // 1234
@@ -1069,7 +1071,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			#endif
 		);
 		return;
-	};
+	}
 	#endif
 	#endif
 

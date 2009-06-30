@@ -57,9 +57,10 @@ inline Pixel SaI2xScaler<Pixel>::blend(Pixel p1, Pixel p2)
 
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleLine1on2(
-	const Pixel* srcLine0, const Pixel* srcLine1,
-	const Pixel* srcLine2, const Pixel* srcLine3,
-	Pixel* dstUpper, Pixel* dstLower, unsigned srcWidth)
+	const Pixel* __restrict srcLine0, const Pixel* __restrict srcLine1,
+	const Pixel* __restrict srcLine2, const Pixel* __restrict srcLine3,
+	Pixel* __restrict dstUpper, Pixel* __restrict dstLower,
+	unsigned srcWidth)
 {
 	// TODO: Scale border pixels as well.
 	for (unsigned x = 0; x < srcWidth; x++) {
@@ -191,9 +192,10 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleLine1on1(
-	const Pixel* srcLine0, const Pixel* srcLine1,
-	const Pixel* srcLine2, const Pixel* srcLine3,
-	Pixel* dstUpper, Pixel* dstLower, unsigned srcWidth)
+	const Pixel* __restrict srcLine0, const Pixel* __restrict srcLine1,
+	const Pixel* __restrict srcLine2, const Pixel* __restrict srcLine3,
+	Pixel* __restrict dstUpper, Pixel* __restrict dstLower,
+	unsigned srcWidth)
 {
 	// Apply 2xSaI and keep the bottom-left pixel.
 	// It's not great, but at least it looks better than doubling the pixel

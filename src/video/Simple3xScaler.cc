@@ -299,7 +299,9 @@ Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 }
 
 template <class Pixel>
-void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dstWidth)
+void Blur_1on3<Pixel>::operator()(
+	const Pixel* __restrict in, Pixel* __restrict out,
+	unsigned long dstWidth)
 {
 	/* The following code is equivalent to this loop. It is 2x unrolled
 	 * and common subexpressions have been eliminated. The last iteration

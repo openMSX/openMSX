@@ -41,7 +41,7 @@ void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::rgbify(
-		const Pixel* in, Pixel* out, unsigned inwidth)
+		const Pixel* __restrict in, Pixel* __restrict out, unsigned inwidth)
 {
 	unsigned r, g, b, rs, gs, bs;
 	unsigned i = 0;
@@ -269,7 +269,8 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 }
 
 template <typename Pixel>
-static void fillLoop(const Pixel* in, Pixel* out, unsigned dstWidth)
+static void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
+                     unsigned dstWidth)
 {
 	out[0] = in[0];
 	out[1] = in[1];

@@ -98,8 +98,9 @@ Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps)
 }
 
 template <class Pixel>
-void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
-		           Pixel* dst, unsigned factor, unsigned long width)
+void Scanline<Pixel>::draw(
+	const Pixel* __restrict src1, const Pixel* __restrict src2,
+	Pixel* __restrict dst, unsigned factor, unsigned long width)
 {
 #ifdef ASM_X86
 #ifdef _MSC_VER

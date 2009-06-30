@@ -25,7 +25,7 @@ V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYUV(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
@@ -48,7 +48,7 @@ void V9990BitmapConverter<Pixel>::rasterBYUV(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYUVP(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
@@ -75,7 +75,7 @@ void V9990BitmapConverter<Pixel>::rasterBYUVP(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYJK(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
@@ -98,7 +98,7 @@ void V9990BitmapConverter<Pixel>::rasterBYJK(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYJKP(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
@@ -125,7 +125,7 @@ void V9990BitmapConverter<Pixel>::rasterBYJKP(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBD16(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; ++p) {
 		byte low  = vram.readVRAMBx(address++);
@@ -136,7 +136,7 @@ void V9990BitmapConverter<Pixel>::rasterBD16(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBD8(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; ++p) {
 		*pixelPtr++ = palette256[vram.readVRAMBx(address++)];
@@ -145,7 +145,7 @@ void V9990BitmapConverter<Pixel>::rasterBD8(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP6(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; ++p) {
 		*pixelPtr++ = palette64[vram.readVRAMBx(address++) & 0x3F];
@@ -154,7 +154,7 @@ void V9990BitmapConverter<Pixel>::rasterBP6(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP4(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 2) {
 		byte data = vram.readVRAMBx(address++);
@@ -165,7 +165,7 @@ void V9990BitmapConverter<Pixel>::rasterBP4(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP2(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data = vram.readVRAMBx(address++);
@@ -205,7 +205,7 @@ void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode mode)
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::drawCursor(
-	Pixel* buffer, int displayY, unsigned attrAddr, unsigned patAddr)
+	Pixel* __restrict buffer, int displayY, unsigned attrAddr, unsigned patAddr)
 {
 	int cursorY = vram.readVRAMBx(attrAddr + 0) +
 	             (vram.readVRAMBx(attrAddr + 2) & 1) * 256;

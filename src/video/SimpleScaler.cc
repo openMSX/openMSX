@@ -62,17 +62,19 @@ void SimpleScaler<Pixel>::scaleBlank1to2(
 #ifdef _MSC_VER
 extern "C"
 {
-	void __cdecl SimpleScaler_blur1on2_4_MMX(const void* pIn, void* pOut, 
-											 unsigned long srcWidth, unsigned c1, unsigned c2);
-
-	void __cdecl SimpleScaler_blur1on1_4_MMX(const void* pIn, void* pOut, 
-											 unsigned long srcWidth, unsigned c1, unsigned c2);
+	void __cdecl SimpleScaler_blur1on2_4_MMX(
+		const void* pIn, void* pOut, unsigned long srcWidth,
+		unsigned c1, unsigned c2);
+	void __cdecl SimpleScaler_blur1on1_4_MMX(
+		const void* pIn, void* pOut, unsigned long srcWidth,
+		unsigned c1, unsigned c2);
 }
 #endif
 
 template <class Pixel>
-void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha,
-                                   unsigned long srcWidth)
+void SimpleScaler<Pixel>::blur1on2(
+	const Pixel* __restrict pIn, Pixel* __restrict pOut,
+	unsigned alpha, unsigned long srcWidth)
 {
 	/* This routine is functionally equivalent to the following:
 	 *
@@ -249,8 +251,9 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha,
-                                   unsigned long srcWidth)
+void SimpleScaler<Pixel>::blur1on1(
+	const Pixel* __restrict pIn, Pixel* __restrict pOut,
+	unsigned alpha, unsigned long srcWidth)
 {
 	/* This routine is functionally equivalent to the following:
 	 *

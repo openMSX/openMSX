@@ -29,9 +29,11 @@ template <typename Pixel> struct HQLite_1x1on3x3
 
 template <typename Pixel>
 void HQLite_1x1on3x3<Pixel>::operator()(
-	const Pixel* in0, const Pixel* in1, const Pixel* in2,
-	Pixel* out0, Pixel* out1, Pixel* out2, unsigned srcWidth,
-	unsigned* edgeBuf)
+	const Pixel* __restrict in0, const Pixel* __restrict in1,
+	const Pixel* __restrict in2,
+	Pixel* __restrict out0, Pixel* __restrict out1,
+	Pixel* __restrict out2,
+	unsigned srcWidth, unsigned* __restrict edgeBuf)
 {
 	unsigned c2, c4, c5, c6, c8, c9;
 	c2 =      readPixel(in0[0]);

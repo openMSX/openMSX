@@ -40,8 +40,10 @@ template <typename Pixel> struct HQLite_1x1on1x2
 
 template <typename Pixel>
 void HQLite_1x1on2x2<Pixel>::operator()(
-	const Pixel* in0, const Pixel* in1, const Pixel* in2,
-	Pixel* out0, Pixel* out1, unsigned srcWidth, unsigned* edgeBuf)
+	const Pixel* __restrict in0, const Pixel* __restrict in1,
+	const Pixel* __restrict in2,
+	Pixel* __restrict out0, Pixel* __restrict out1,
+	unsigned srcWidth, unsigned* __restrict edgeBuf)
 {
 	unsigned c2, c4, c5, c6, c8, c9;
 	c2 =      readPixel(in0[0]);
@@ -93,8 +95,10 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 
 template <typename Pixel>
 void HQLite_1x1on1x2<Pixel>::operator()(
-	const Pixel* in0, const Pixel* in1, const Pixel* in2,
-	Pixel* out0, Pixel* out1, unsigned srcWidth, unsigned* edgeBuf)
+	const Pixel* __restrict in0, const Pixel* __restrict in1,
+	const Pixel* __restrict in2,
+	Pixel* __restrict out0, Pixel* __restrict out1,
+	unsigned srcWidth, unsigned* __restrict edgeBuf)
 {
 	//  +---+---+---+
 	//  | 1 | 2 | 3 |

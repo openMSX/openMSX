@@ -22,7 +22,7 @@ ResampleLQ<CHANNELS>::ResampleLQ(Resample& input_, double ratio)
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQ<CHANNELS>::generateOutput(int* dataOut, unsigned num)
+bool ResampleLQ<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
 {
 	Pos end = pos + step * num;
 	int numInput = end.toInt();
