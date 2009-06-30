@@ -2,7 +2,7 @@
 
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
-#include "EventDistributor.hh"
+#include "AlarmEvent.hh"
 #include "CliComm.hh"
 #include "BooleanSetting.hh"
 #include "ReadOnlySetting.hh"
@@ -20,10 +20,9 @@ static std::string getLedName(LedStatus::Led led)
 
 LedStatus::LedStatus(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
+	, alarm(new AlarmEvent(motherBoard.getEventDistributor(), *this,
+	                       OPENMSX_THROTTLE_LED_EVENT))
 {
-	motherBoard.getEventDistributor().registerEventListener(
-		OPENMSX_THROTTLE_LED_EVENT, *this);
-
 	lastTime = Timer::getTime();
 	for (int i = 0; i < NUM_LEDS; ++i) {
 		ledValue[i] = false;
@@ -38,9 +37,6 @@ LedStatus::LedStatus(MSXMotherBoard& motherBoard_)
 
 LedStatus::~LedStatus()
 {
-	prepareDelete();
-	motherBoard.getEventDistributor().unregisterEventListener(
-		OPENMSX_THROTTLE_LED_EVENT, *this);
 }
 
 void LedStatus::setLed(Led led, bool status)
@@ -60,8 +56,8 @@ void LedStatus::setLed(Led led, bool status)
 		handleEvent(led);
 	} else {
 		// schedule to handle it later, if we didn't plan to do so already
-		if (!pending()) {
-			schedule(10000 - diff);
+		if (!alarm->pending()) {
+			alarm->schedule(10000 - diff);
 		}
 	}
 }
@@ -75,15 +71,6 @@ void LedStatus::handleEvent(Led led)
 	motherBoard.getMSXCliComm().update(
 		CliComm::LED, getLedName(led),
 		ledValue[led] ? ON : OFF);
-}
-
-bool LedStatus::alarm()
-{
-	// Runs in timer thread.
-	// Schedule event so that the main thread can do the real work
-	motherBoard.getEventDistributor().distributeEvent(
-		new SimpleEvent(OPENMSX_THROTTLE_LED_EVENT));
-	return false; // don't repeat
 }
 
 bool LedStatus::signalEvent(shared_ptr<const Event> /*event*/)

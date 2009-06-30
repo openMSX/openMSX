@@ -22,7 +22,7 @@ class CliComm;
 class RenderSettings;
 class VideoSystemChangeListener;
 class Setting;
-class RepaintAlarm;
+class AlarmEvent;
 class ScreenShotCmd;
 class FpsInfoTopic;
 class OSDGUI;
@@ -95,7 +95,7 @@ private:
 	unsigned long long prevTimeStamp;
 
 	friend class FpsInfoTopic;
-	const std::auto_ptr<RepaintAlarm> alarm; // delayed repaint
+	const std::auto_ptr<AlarmEvent> alarm; // delayed repaint
 	const std::auto_ptr<ScreenShotCmd> screenShotCmd;
 	const std::auto_ptr<FpsInfoTopic> fpsInfo;
 	const std::auto_ptr<OSDGUI> osdGui;

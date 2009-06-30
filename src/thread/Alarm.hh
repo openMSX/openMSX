@@ -33,12 +33,15 @@ protected:
 	/** Concrete subclasses MUST call this method in their destructor.
 	  * This makes sure the timer thread is not executing the alarm()
 	  * method (or will not execute it while this object is being
-	  * destrcuted).
+	  * destroyed).
 	  */
 	void prepareDelete();
 
 private:
 	/** This method gets called when the alarm timer expires.
+	  * Note: This method executes in the timer thread, _NOT_ in the main
+	  *       thread!!! Consider using the AlarmEvent class if you need
+	  *       a callback in the main thread.
 	  * @see schedule()
 	  * @result true iff alarm should be periodic
 	  */

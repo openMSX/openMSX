@@ -6,6 +6,7 @@
 #include "RenderSettings.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
+#include "AlarmEvent.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
@@ -26,6 +27,8 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 	: renderSettings(renderSettings_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
+	, alarm(new AlarmEvent(eventDistributor, *this,
+	                       OPENMSX_POINTER_TIMER_EVENT))
 {
 	if (!SDL_WasInit(SDL_INIT_VIDEO) &&
 	    SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
@@ -53,8 +56,6 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 	inputEventGenerator_.getGrabInput().attach(*this);
 	renderSettings.getPointerHideDelay().attach(*this);
 	renderSettings.getFullScreen().attach(*this);
-	eventDistributor.registerEventListener(
-		OPENMSX_POINTER_TIMER_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.registerEventListener(
@@ -119,9 +120,6 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 
 VisibleSurface::~VisibleSurface()
 {
-	prepareDelete();
-	eventDistributor.unregisterEventListener(
-		OPENMSX_POINTER_TIMER_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -197,9 +195,9 @@ bool VisibleSurface::signalEvent(shared_ptr<const Event> event)
 
 void VisibleSurface::updateCursor()
 {
-	cancel();
+	alarm->cancel();
 	if (renderSettings.getFullScreen().getValue() ||
-			inputEventGenerator.getGrabInput().getValue()) {
+	    inputEventGenerator.getGrabInput().getValue()) {
 		// always hide cursor in fullscreen or grabinput mode
 		SDL_ShowCursor(SDL_DISABLE);
 		return;
@@ -210,18 +208,9 @@ void VisibleSurface::updateCursor()
 	} else {
 		SDL_ShowCursor(SDL_ENABLE);
 		if (delay > 0.0) {
-			schedule(int(delay * 1e6)); // delay in s, schedule in us
+			alarm->schedule(int(delay * 1e6)); // delay in s, schedule in us
 		}
 	}
-}
-
-bool VisibleSurface::alarm()
-{
-	// this runs in a different thread,
-	// so we can't directly do our tricks here
-	eventDistributor.distributeEvent(
-		new SimpleEvent(OPENMSX_POINTER_TIMER_EVENT));
-	return false; // don't repeat alarm
 }
 
 } // namespace openmsx

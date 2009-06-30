@@ -8,7 +8,7 @@
 #include "FinishFrameEvent.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
-#include "Alarm.hh"
+#include "AlarmEvent.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
@@ -39,16 +39,6 @@ using std::set;
 
 namespace openmsx {
 
-class RepaintAlarm : public Alarm
-{
-public:
-	explicit RepaintAlarm(EventDistributor& eventDistributor);
-	virtual ~RepaintAlarm();
-private:
-	virtual bool alarm();
-	EventDistributor& eventDistributor;
-};
-
 class ScreenShotCmd : public SimpleCommand
 {
 public:
@@ -73,7 +63,8 @@ private:
 
 
 Display::Display(Reactor& reactor_)
-	: alarm(new RepaintAlarm(reactor_.getEventDistributor()))
+	: alarm(new AlarmEvent(reactor_.getEventDistributor(), *this,
+	                       OPENMSX_DELAYED_REPAINT_EVENT))
 	, screenShotCmd(new ScreenShotCmd(
 		reactor_.getCommandController(), *this))
 	, fpsInfo(new FpsInfoTopic(reactor_.getOpenMSXInfoCommand(), *this))
@@ -92,8 +83,6 @@ Display::Display(Reactor& reactor_)
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT,
-			*this);
-	eventDistributor.registerEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
 			*this);
 	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
 			*this);
@@ -121,8 +110,6 @@ Display::~Display()
 	eventDistributor.unregisterEventListener(OPENMSX_MACHINE_LOADED_EVENT,
 			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
-			*this);
-	eventDistributor.unregisterEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
 			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
 			*this);
@@ -410,30 +397,6 @@ void Display::updateZ(Layer& layer)
 	removeLayer(layer);
 	// ...and re-insert at new Z-index.
 	addLayer(layer);
-}
-
-
-// RepaintAlarm
-
-RepaintAlarm::RepaintAlarm(EventDistributor& eventDistributor_)
-	: eventDistributor(eventDistributor_)
-{
-}
-
-RepaintAlarm::~RepaintAlarm()
-{
-	prepareDelete();
-}
-
-bool RepaintAlarm::alarm()
-{
-	PRT_DEBUG("RepaintAlarm::alarm()");
-	// Note: runs is seperate thread, use event mechanism to repaint
-	//       in main thread
-	eventDistributor.distributeEvent(
-		new SimpleEvent(OPENMSX_DELAYED_REPAINT_EVENT));
-	PRT_DEBUG("RepaintAlarm::alarm(): event sent, returning false (no repeat)");
-	return false; // don't reschedule
 }
 
 

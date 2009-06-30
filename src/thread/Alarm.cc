@@ -166,7 +166,7 @@ unsigned AlarmManager::timerCallback2()
 		if (alarm.active) {
 			// timer active
 			// note: don't compare time directly (alarm.time < now),
-			//       because there is a small change time will wrap
+			//       because there is a small chance time will wrap
 			long long left = alarm.time - now;
 			if (left <= 0) {
 				// timer expired

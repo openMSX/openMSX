@@ -13,8 +13,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class XMLElement;
 class CliComm;
-class SRAMSync;
-class EventDistributor;
+class AlarmEvent;
 
 class SRAM : private EventListener, private noncopyable
 {
@@ -51,14 +50,12 @@ private:
 	void load(bool* loaded);
 	void save();
 
-	EventDistributor& eventDistributor;
 	Ram ram;
 	const XMLElement* config;
 	const char* const header;
 	CliComm& cliComm;
 
-	const std::auto_ptr<SRAMSync> sramSync;
-	friend class SRAMSync;
+	const std::auto_ptr<AlarmEvent> sramSync;
 };
 
 } // namespace openmsx

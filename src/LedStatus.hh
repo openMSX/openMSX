@@ -3,17 +3,18 @@
 #ifndef LEDSTATUS_HH
 #define LEDSTATUS_HH
 
-#include "Alarm.hh"
 #include "EventListener.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
+class AlarmEvent;
 class MSXMotherBoard;
 class BooleanSetting;
 template <typename> class ReadOnlySetting;
 
-class LedStatus : private Alarm, private EventListener
+class LedStatus : private EventListener, private noncopyable
 {
 public:
 	enum Led {
@@ -34,13 +35,11 @@ public:
 private:
 	void handleEvent(Led led);
 
-	// Alarm
-	virtual bool alarm();
-
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	MSXMotherBoard& motherBoard;
+	const std::auto_ptr<AlarmEvent> alarm;
 	std::auto_ptr<ReadOnlySetting<BooleanSetting> > ledStatus[NUM_LEDS];
 	unsigned long long lastTime;
 	bool ledValue[NUM_LEDS];

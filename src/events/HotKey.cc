@@ -10,7 +10,7 @@
 #include "InputEvents.hh"
 #include "XMLElement.hh"
 #include "SettingsConfig.hh"
-#include "Alarm.hh"
+#include "AlarmEvent.hh"
 #include <cassert>
 
 using std::string;
@@ -52,16 +52,6 @@ private:
 	const bool defaultCmd;
 };
 
-class RepeatAlarm : public Alarm
-{
-public:
-	explicit RepeatAlarm(EventDistributor& eventDistributor);
-	virtual ~RepeatAlarm();
-private:
-	virtual bool alarm();
-	EventDistributor& eventDistributor;
-};
-
 
 HotKey::HotKey(CommandController& commandController_,
                EventDistributor& eventDistributor_)
@@ -69,7 +59,8 @@ HotKey::HotKey(CommandController& commandController_,
 	, unbindCmd       (new UnbindCmd(commandController_, *this, false))
 	, bindDefaultCmd  (new BindCmd  (commandController_, *this, true))
 	, unbindDefaultCmd(new UnbindCmd(commandController_, *this, true))
-	, repeatAlarm(new RepeatAlarm(eventDistributor_))
+	, repeatAlarm(new AlarmEvent(eventDistributor_, *this,
+	                             OPENMSX_REPEAT_HOTKEY))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
@@ -89,13 +80,10 @@ HotKey::HotKey(CommandController& commandController_,
 		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		OPENMSX_REPEAT_HOTKEY, *this, EventDistributor::HOTKEY);
 }
 
 HotKey::~HotKey()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_REPEAT_HOTKEY, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
@@ -313,25 +301,6 @@ void HotKey::stopRepeat()
 {
 	lastEvent.reset();
 	repeatAlarm->cancel();
-}
-
-
-// class RepeatAlarm
-
-RepeatAlarm::RepeatAlarm(EventDistributor& eventDistributor_)
-	: eventDistributor(eventDistributor_)
-{
-}
-
-RepeatAlarm::~RepeatAlarm()
-{
-	prepareDelete();
-}
-
-bool RepeatAlarm::alarm()
-{
-	eventDistributor.distributeEvent(new SimpleEvent(OPENMSX_REPEAT_HOTKEY));
-	return false; // repeat handled elsewhere
 }
 
 

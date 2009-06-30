@@ -19,7 +19,7 @@ class EventDistributor;
 class XMLElement;
 class BindCmd;
 class UnbindCmd;
-class RepeatAlarm;
+class AlarmEvent;
 
 template<typename T> struct deref_less
 {
@@ -65,7 +65,7 @@ private:
 	const std::auto_ptr<UnbindCmd> unbindCmd;
 	const std::auto_ptr<BindCmd>   bindDefaultCmd;
 	const std::auto_ptr<UnbindCmd> unbindDefaultCmd;
-	const std::auto_ptr<RepeatAlarm> repeatAlarm;
+	const std::auto_ptr<AlarmEvent> repeatAlarm;
 
 	BindMap cmdMap;
 	BindMap defaultMap;

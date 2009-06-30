@@ -6,7 +6,6 @@
 #include "OutputSurface.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "Alarm.hh"
 #include <string>
 #include <memory>
 
@@ -15,6 +14,7 @@ namespace openmsx {
 class Layer;
 class Reactor;
 class CommandController;
+class AlarmEvent;
 class EventDistributor;
 class InputEventGenerator;
 class RenderSettings;
@@ -28,7 +28,7 @@ class OSDGUI;
   * no matter whether the back-end is plain SDL or SDL+OpenGL.
   */
 class VisibleSurface : public OutputSurface, public EventListener,
-                       private Observer<Setting>, private Alarm
+                       private Observer<Setting>
 {
 public:
 	virtual ~VisibleSurface();
@@ -65,12 +65,11 @@ private:
 	virtual void update(const Setting& setting);
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
-	// Alarm
-	virtual bool alarm();
 
 	RenderSettings& renderSettings;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
+	const std::auto_ptr<AlarmEvent> alarm;
 };
 
 } // namespace openmsx
