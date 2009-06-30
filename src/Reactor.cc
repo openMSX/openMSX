@@ -455,7 +455,7 @@ void Reactor::switchBoard(Board newBoard)
 		activeBoard = newBoard;
 	}
 	getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
+		new SimpleEvent(OPENMSX_MACHINE_LOADED_EVENT));
 	getGlobalCliComm().update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard.get()) {
 		activeBoard->activate(true);
@@ -1072,7 +1072,7 @@ PollEventGenerator::~PollEventGenerator()
 
 bool PollEventGenerator::alarm()
 {
-	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_POLL_EVENT>());
+	eventDistributor.distributeEvent(new SimpleEvent(OPENMSX_POLL_EVENT));
 	return true; // reschedule
 }
 

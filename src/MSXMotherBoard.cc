@@ -747,7 +747,7 @@ void MSXMotherBoardImpl::doReset()
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_BOOT_EVENT>());
+		new SimpleEvent(OPENMSX_BOOT_EVENT));
 }
 
 byte MSXMotherBoardImpl::readIRQVector()
@@ -787,7 +787,7 @@ void MSXMotherBoardImpl::powerUp()
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_BOOT_EVENT>());
+		new SimpleEvent(OPENMSX_BOOT_EVENT));
 }
 
 void MSXMotherBoardImpl::powerDown()
@@ -815,8 +815,8 @@ void MSXMotherBoardImpl::activate(bool active_)
 {
 	active = active_;
 	MSXEventDistributor::EventPtr event = active
-		? MSXEventDistributor::EventPtr(new SimpleEvent<OPENMSX_MACHINE_ACTIVATED>())
-		: MSXEventDistributor::EventPtr(new SimpleEvent<OPENMSX_MACHINE_DEACTIVATED>());
+		? MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_ACTIVATED))
+		: MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_DEACTIVATED));
 	getMSXEventDistributor().distributeEvent(event, getScheduler().getCurrentTime());
 	if (active) {
 		getRealTime().resync();

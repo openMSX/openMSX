@@ -228,7 +228,7 @@ bool Display::signalEvent(shared_ptr<const Event> event)
 		    (renderSettings->getVideoSource().getValue() == ffe.getSource())) {
 			repaint();
 			reactor.getEventDistributor().distributeEvent(
-				new SimpleEvent<OPENMSX_FRAME_DRAWN_EVENT>());
+				new SimpleEvent(OPENMSX_FRAME_DRAWN_EVENT));
 		}
 	} else if (event->getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
@@ -298,7 +298,7 @@ void Display::checkRendererSwitch()
 		// causes problems???
 		switchInProgress = true;
 		reactor.getEventDistributor().distributeEvent(
-			new SimpleEvent<OPENMSX_SWITCH_RENDERER_EVENT>());
+			new SimpleEvent(OPENMSX_SWITCH_RENDERER_EVENT));
 	}
 }
 
@@ -431,7 +431,7 @@ bool RepaintAlarm::alarm()
 	// Note: runs is seperate thread, use event mechanism to repaint
 	//       in main thread
 	eventDistributor.distributeEvent(
-		new SimpleEvent<OPENMSX_DELAYED_REPAINT_EVENT>());
+		new SimpleEvent(OPENMSX_DELAYED_REPAINT_EVENT));
 	PRT_DEBUG("RepaintAlarm::alarm(): event sent, returning false (no repeat)");
 	return false; // don't reschedule
 }

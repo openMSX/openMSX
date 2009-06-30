@@ -903,7 +903,7 @@ void MSXCPUInterface::doBreak()
 	breakedSetting->setReadOnlyValue(true);
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
 	reactor.getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_BREAK_EVENT>());
+		new SimpleEvent(OPENMSX_BREAK_EVENT));
 }
 
 void MSXCPUInterface::doStep()

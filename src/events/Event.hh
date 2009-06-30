@@ -102,11 +102,10 @@ private:
 };
 
 // implementation for events that don't need additional data
-template<EventType T>
 class SimpleEvent : public Event
 {
 public:
-	SimpleEvent() : Event(T) {}
+	SimpleEvent(EventType type) : Event(type) {}
 };
 
 } // namespace openmsx

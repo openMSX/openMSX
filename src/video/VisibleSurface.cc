@@ -220,7 +220,7 @@ bool VisibleSurface::alarm()
 	// this runs in a different thread,
 	// so we can't directly do our tricks here
 	eventDistributor.distributeEvent(
-		new SimpleEvent<OPENMSX_POINTER_TIMER_EVENT>());
+		new SimpleEvent(OPENMSX_POINTER_TIMER_EVENT));
 	return false; // don't repeat alarm
 }
 

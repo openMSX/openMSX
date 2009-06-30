@@ -106,7 +106,7 @@ void RS232Tester::run()
 		ScopedLock l(lock);
 		queue.push_back(buf);
 		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_RS232_TESTER_EVENT>());
+			new SimpleEvent(OPENMSX_RS232_TESTER_EVENT));
 	}
 }
 

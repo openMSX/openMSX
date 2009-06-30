@@ -330,7 +330,7 @@ RepeatAlarm::~RepeatAlarm()
 
 bool RepeatAlarm::alarm()
 {
-	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_REPEAT_HOTKEY>());
+	eventDistributor.distributeEvent(new SimpleEvent(OPENMSX_REPEAT_HOTKEY));
 	return false; // repeat handled elsewhere
 }
 

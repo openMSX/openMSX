@@ -82,7 +82,7 @@ bool LedStatus::alarm()
 	// Runs in timer thread.
 	// Schedule event so that the main thread can do the real work
 	motherBoard.getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_THROTTLE_LED_EVENT>());
+		new SimpleEvent(OPENMSX_THROTTLE_LED_EVENT));
 	return false; // don't repeat
 }
 

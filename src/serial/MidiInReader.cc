@@ -94,7 +94,7 @@ void MidiInReader::run()
 		ScopedLock l(lock);
 		queue.push_back(buf);
 		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_MIDI_IN_READER_EVENT>());
+			new SimpleEvent(OPENMSX_MIDI_IN_READER_EVENT));
 	}
 }
 

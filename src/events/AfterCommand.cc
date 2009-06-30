@@ -575,7 +575,7 @@ bool AfterRealTimeCmd::alarm()
 	// command here
 	expired = true;
 	eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_AFTER_REALTIME_EVENT>());
+			new SimpleEvent(OPENMSX_AFTER_REALTIME_EVENT));
 	return false; // don't repeat alarm
 }
 

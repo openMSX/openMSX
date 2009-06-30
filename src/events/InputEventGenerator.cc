@@ -285,7 +285,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_VIDEOEXPOSE:
-		event = new SimpleEvent<OPENMSX_EXPOSE_EVENT>();
+		event = new SimpleEvent(OPENMSX_EXPOSE_EVENT);
 		break;
 
 	case SDL_QUIT:
