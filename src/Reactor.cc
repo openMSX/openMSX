@@ -203,6 +203,7 @@ Reactor::Reactor()
 	: mbSem(1)
 	, eventDistributor(new EventDistributor(*this))
 	, globalCommandController(new GlobalCommandController(*eventDistributor, *this))
+	, globalCliComm(new GlobalCliComm(*globalCommandController, *eventDistributor))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(getCommandController()))
@@ -255,16 +256,12 @@ GlobalCommandController& Reactor::getGlobalCommandController()
 
 GlobalCliComm& Reactor::getGlobalCliComm()
 {
-	if (!globalCliComm.get()) {
-		globalCliComm.reset(new GlobalCliComm(
-			*globalCommandController, *eventDistributor));
-	}
 	return *globalCliComm;
 }
 
 CliComm& Reactor::getCliComm()
 {
-	return getGlobalCliComm();
+	return *globalCliComm;
 }
 
 InputEventGenerator& Reactor::getInputEventGenerator()
@@ -446,7 +443,7 @@ void Reactor::switchBoard(Board newBoard)
 	}
 	eventDistributor->distributeEvent(
 		new SimpleEvent(OPENMSX_MACHINE_LOADED_EVENT));
-	getGlobalCliComm().update(CliComm::HARDWARE, getMachineID(), "select");
+	globalCliComm->update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard.get()) {
 		activeBoard->activate(true);
 	}
@@ -556,7 +553,7 @@ void Reactor::unpause()
 {
 	if (paused) {
 		paused = false;
-		getGlobalCliComm().update(CliComm::STATUS, "paused", "false");
+		globalCliComm->update(CliComm::STATUS, "paused", "false");
 		unblock();
 	}
 }
@@ -565,7 +562,7 @@ void Reactor::pause()
 {
 	if (!paused) {
 		paused = true;
-		getGlobalCliComm().update(CliComm::STATUS, "paused", "true");
+		globalCliComm->update(CliComm::STATUS, "paused", "true");
 		block();
 	}
 }
