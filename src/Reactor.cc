@@ -207,6 +207,7 @@ Reactor::Reactor()
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
 	, mixer(new Mixer(*globalCommandController))
+	, diskManipulator(new DiskManipulator(*globalCommandController))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))
@@ -297,10 +298,6 @@ CommandConsole& Reactor::getCommandConsole()
 
 DiskManipulator& Reactor::getDiskManipulator()
 {
-	if (!diskManipulator.get()) {
-		diskManipulator.reset(new DiskManipulator(
-			*globalCommandController));
-	}
 	return *diskManipulator;
 }
 
@@ -480,8 +477,6 @@ void Reactor::enterMainLoop()
 void Reactor::run(CommandLineParser& parser)
 {
 	GlobalCommandController& commandController = *globalCommandController;
-	getDiskManipulator(); // make sure it gets instantiated
-	                      // (also on machines without disk drive)
 
 	PRT_DEBUG("Reactor::run Trying to execute init.tcl...");
 
