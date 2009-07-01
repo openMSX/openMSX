@@ -32,7 +32,7 @@ def detectCPU():
 		return 'ia64'
 	elif cpu.startswith('alpha'):
 		return 'alpha'
-	elif cpu.startswith('hppa'):
+	elif cpu.startswith('hppa') or cpu.startswith('parisc'):
 		return 'hppa'
 	elif cpu.startswith('s390'):
 		return 's390'
