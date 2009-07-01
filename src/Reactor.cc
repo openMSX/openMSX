@@ -206,18 +206,18 @@ Reactor::Reactor()
 	, globalCliComm(new GlobalCliComm(*globalCommandController, *eventDistributor))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
-	, userSettings(new UserSettings(getCommandController()))
-	, quitCommand(new QuitCommand(getCommandController(), *this))
-	, machineCommand(new MachineCommand(getCommandController(), *this))
-	, testMachineCommand(new TestMachineCommand(getCommandController(), *this))
-	, createMachineCommand(new CreateMachineCommand(getCommandController(), *this))
-	, deleteMachineCommand(new DeleteMachineCommand(getCommandController(), *this))
-	, listMachinesCommand(new ListMachinesCommand(getCommandController(), *this))
-	, activateMachineCommand(new ActivateMachineCommand(getCommandController(), *this))
-	, storeMachineCommand(new StoreMachineCommand(getCommandController(), *this))
-	, restoreMachineCommand(new RestoreMachineCommand(getCommandController(), *this))
-	, storeMachineMemCommand(new StoreMachineMemCommand(getCommandController(), *this))
-	, restoreMachineMemCommand(new RestoreMachineMemCommand(getCommandController(), *this))
+	, userSettings(new UserSettings(*globalCommandController))
+	, quitCommand(new QuitCommand(*globalCommandController, *this))
+	, machineCommand(new MachineCommand(*globalCommandController, *this))
+	, testMachineCommand(new TestMachineCommand(*globalCommandController, *this))
+	, createMachineCommand(new CreateMachineCommand(*globalCommandController, *this))
+	, deleteMachineCommand(new DeleteMachineCommand(*globalCommandController, *this))
+	, listMachinesCommand(new ListMachinesCommand(*globalCommandController, *this))
+	, activateMachineCommand(new ActivateMachineCommand(*globalCommandController, *this))
+	, storeMachineCommand(new StoreMachineCommand(*globalCommandController, *this))
+	, restoreMachineCommand(new RestoreMachineCommand(*globalCommandController, *this))
+	, storeMachineMemCommand(new StoreMachineMemCommand(*globalCommandController, *this))
+	, restoreMachineMemCommand(new RestoreMachineMemCommand(*globalCommandController, *this))
 	, aviRecordCommand(new AviRecorder(*this))
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
@@ -268,7 +268,7 @@ InputEventGenerator& Reactor::getInputEventGenerator()
 {
 	if (!inputEventGenerator.get()) {
 		inputEventGenerator.reset(new InputEventGenerator(
-			getCommandController(), *eventDistributor));
+			*globalCommandController, *eventDistributor));
 	}
 	return *inputEventGenerator;
 }
@@ -285,7 +285,7 @@ Display& Reactor::getDisplay()
 Mixer& Reactor::getMixer()
 {
 	if (!mixer.get()) {
-		mixer.reset(new Mixer(getCommandController()));
+		mixer.reset(new Mixer(*globalCommandController));
 	}
 	return *mixer;
 }
@@ -294,7 +294,7 @@ CommandConsole& Reactor::getCommandConsole()
 {
 	if (!commandConsole.get()) {
 		commandConsole.reset(new CommandConsole(
-			getCommandController(), *eventDistributor, getDisplay()));
+			*globalCommandController, *eventDistributor, getDisplay()));
 	}
 	return *commandConsole;
 }
@@ -303,7 +303,7 @@ DiskManipulator& Reactor::getDiskManipulator()
 {
 	if (!diskManipulator.get()) {
 		diskManipulator.reset(new DiskManipulator(
-			getCommandController()));
+			*globalCommandController));
 	}
 	return *diskManipulator;
 }
@@ -312,7 +312,7 @@ FilePool& Reactor::getFilePool()
 {
 	if (!filePool.get()) {
 		filePool.reset(new FilePool(
-			getCommandController().getSettingsConfig()));
+			globalCommandController->getSettingsConfig()));
 	}
 	return *filePool;
 }
@@ -324,7 +324,7 @@ EnumSetting<int>& Reactor::getMachineSetting()
 
 GlobalSettings& Reactor::getGlobalSettings()
 {
-	return getCommandController().getGlobalSettings();
+	return globalCommandController->getGlobalSettings();
 }
 
 CommandController& Reactor::getCommandController()
@@ -371,7 +371,7 @@ void Reactor::createMachineSetting()
 	machines["C-BIOS_MSX2+"] = 0; // default machine
 
 	machineSetting.reset(new EnumSetting<int>(
-		getCommandController(), "default_machine",
+		*globalCommandController, "default_machine",
 		"default machine (takes effect next time openMSX is started)",
 		0, machines));
 }
@@ -599,7 +599,7 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_QUIT_EVENT) {
-		getCommandController().executeCommand("exit");
+		globalCommandController->executeCommand("exit");
 	} else if (type == OPENMSX_FOCUS_EVENT) {
 		if (!pauseOnLostFocusSetting.getValue()) return true;
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
