@@ -204,6 +204,8 @@ Reactor::Reactor()
 	, eventDistributor(new EventDistributor(*this))
 	, globalCommandController(new GlobalCommandController(*eventDistributor, *this))
 	, globalCliComm(new GlobalCliComm(*globalCommandController, *eventDistributor))
+	, inputEventGenerator(new InputEventGenerator(
+		*globalCommandController, *eventDistributor))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))
@@ -266,10 +268,6 @@ CliComm& Reactor::getCliComm()
 
 InputEventGenerator& Reactor::getInputEventGenerator()
 {
-	if (!inputEventGenerator.get()) {
-		inputEventGenerator.reset(new InputEventGenerator(
-			*globalCommandController, *eventDistributor));
-	}
 	return *inputEventGenerator;
 }
 
