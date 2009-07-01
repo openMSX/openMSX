@@ -251,7 +251,7 @@ GlobalCommandController& Reactor::getGlobalCommandController()
 {
 	if (!globalCommandController.get()) {
 		globalCommandController.reset(new GlobalCommandController(
-			getEventDistributor(), *this));
+			*eventDistributor, *this));
 	}
 	return *globalCommandController;
 }
@@ -260,7 +260,7 @@ GlobalCliComm& Reactor::getGlobalCliComm()
 {
 	if (!globalCliComm.get()) {
 		globalCliComm.reset(new GlobalCliComm(
-			getGlobalCommandController(), getEventDistributor()));
+			getGlobalCommandController(), *eventDistributor));
 	}
 	return *globalCliComm;
 }
@@ -274,7 +274,7 @@ InputEventGenerator& Reactor::getInputEventGenerator()
 {
 	if (!inputEventGenerator.get()) {
 		inputEventGenerator.reset(new InputEventGenerator(
-			getCommandController(), getEventDistributor()));
+			getCommandController(), *eventDistributor));
 	}
 	return *inputEventGenerator;
 }
@@ -300,8 +300,7 @@ CommandConsole& Reactor::getCommandConsole()
 {
 	if (!commandConsole.get()) {
 		commandConsole.reset(new CommandConsole(
-			getCommandController(), getEventDistributor(),
-			getDisplay()));
+			getCommandController(), *eventDistributor, getDisplay()));
 	}
 	return *commandConsole;
 }
@@ -448,7 +447,7 @@ void Reactor::switchBoard(Board newBoard)
 		ScopedLock lock(mbSem);
 		activeBoard = newBoard;
 	}
-	getEventDistributor().distributeEvent(
+	eventDistributor->distributeEvent(
 		new SimpleEvent(OPENMSX_MACHINE_LOADED_EVENT));
 	getGlobalCliComm().update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard.get()) {
@@ -536,11 +535,11 @@ void Reactor::run(CommandLineParser& parser)
 	}
 
 	PRT_DEBUG("Reactor::run Instantiate poll event generator...");
-	PollEventGenerator pollEventGenerator(getEventDistributor());
+	PollEventGenerator pollEventGenerator(*eventDistributor);
 
 	while (running) {
 		garbageBoards.clear(); // see deleteBoard()
-		getEventDistributor().deliverEvents();
+		eventDistributor->deliverEvents();
 		MSXMotherBoard* motherboard = activeBoard.get();
 		bool blocked = (blockedCounter > 0) || !motherboard;
 		if (!blocked) blocked = !motherboard->execute();
@@ -551,7 +550,7 @@ void Reactor::run(CommandLineParser& parser)
 			// to also use a sleep/poll loop, with even shorter
 			// sleep periods as we use here. Maybe in future
 			// SDL implementations this will be improved.
-			getEventDistributor().sleep(100 * 1000);
+			eventDistributor->sleep(100 * 1000);
 		}
 	}
 }
