@@ -4,12 +4,13 @@
 #define MSXMUSIC_HH
 
 #include "MSXDevice.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
 
 class Rom;
-class YM2413Interface;
+class YM2413;
 
 class MSXMusic : public MSXDevice
 {
@@ -30,11 +31,12 @@ protected:
 	void writeDataPort(byte value, EmuTime::param time);
 
 	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<YM2413Interface> ym2413;
+	const std::auto_ptr<YM2413> ym2413;
 
 private:
 	int registerLatch;
 };
+SERIALIZE_CLASS_VERSION(MSXMusic, 2);
 
 } // namespace openmsx
 

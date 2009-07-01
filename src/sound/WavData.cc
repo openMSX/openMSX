@@ -26,6 +26,7 @@ WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFre
 	freq = (wantedFreq == 0) ? wavSpec.freq : wantedFreq;
 	bits = (wantedBits == 0) ? (is8Bit(wavSpec.format) ? 8 : 16)
 	                         : wantedBits;
+	channels = wavSpec.channels;
 	assert((bits == 8) || (bits == 16));
 	Uint16 format = (bits == 8) ? AUDIO_U8 : AUDIO_S16SYS;
 
@@ -61,6 +62,11 @@ unsigned WavData::getBits() const
 unsigned WavData::getSize() const
 {
 	return length;
+}
+
+unsigned WavData::getChannels() const
+{
+	return channels;
 }
 
 const void* WavData::getData() const

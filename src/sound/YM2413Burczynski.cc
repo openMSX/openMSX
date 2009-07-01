@@ -21,13 +21,13 @@
  *    Which games use this feature ?
  */
 
-#include "YM2413_2.hh"
-#include "YM2413Core.hh"
-#include "FixedPoint.hh"
+#include "YM2413Burczynski.hh"
 #include "serialize.hh"
 #include <cmath>
+#include <cstring>
 
 namespace openmsx {
+namespace YM2413Burczynski {
 
 // envelope output entries
 static const int ENV_BITS = 10;
@@ -46,14 +46,6 @@ static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 // Slot offsets
 static const byte MOD = 0;
 static const byte CAR = 1;
-
-// Envelope Generator phases
-// Note: These are ordered: phase constants are compared in the code.
-enum EnvelopeState {
-	EG_DUMP, EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
-};
-
-enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
@@ -365,10 +357,6 @@ static const byte table[16 + 3][8] = {
 	{ 0x05, 0x01, 0x00, 0x00, 0xf8, 0xba, 0x49, 0x55 },// TOM(multi,env verified), TOP CYM(multi verified, env verified)
 };
 
-/** 16.16 fixed point type for frequency calculations.
-  */
-typedef FixedPoint<16> FreqIndex;
-
 static inline FreqIndex fnumToIncrement(int block_fnum)
 {
 	// OPLL (YM2413) phase increment counter = 18bit
@@ -376,434 +364,6 @@ static inline FreqIndex fnumToIncrement(int block_fnum)
 	const int block = (block_fnum & 0x1C00) >> 10;
 	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
 }
-
-class Global;
-class Channel;
-
-class Slot
-{
-public:
-	Slot();
-
-	/**
-	 * Initializes those parts that cannot be initialized in the constructor,
-	 * because the constructor cannot have arguments since we want to create
-	 * an array of Slots.
-	 * This method should be called once, as soon as possible after
-	 * construction.
-	 */
-	void init(Channel& channel);
-
-	void resetOperators();
-
-	/**
-	 * Update phase increment counter of operator.
-	 * Also updates the EG rates if necessary.
-	 */
-	void updateGenerators();
-
-	inline int calcOutput(unsigned lfo_am, int phase) const;
-	inline void updateModulator(unsigned lfo_am);
-	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
-	inline void advancePhaseGenerator(unsigned lfo_pm);
-
-	void setKeyOn(KeyPart part);
-	void setKeyOff(KeyPart part);
-	void setKeyOnOff(KeyPart part, bool enabled) {
-		if (enabled) {
-			setKeyOn(part);
-		} else {
-			setKeyOff(part);
-		}
-	}
-
-	/**
-	 * Does this slot currently produce an output signal?
-	 */
-	bool isActive() const {
-		return state != EG_OFF;
-	}
-
-	/** Change envelope state
-	 */
-	void setEnvelopeState(EnvelopeState state_) {
-		state = state_;
-	}
-
-	/**
-	 * Returns the integer part of the frequency counter of this slot.
-	 */
-	int getPhase() const {
-		return phase.toInt();
-	}
-
-	/**
-	 * Output of SLOT 1 can be used to phase modulate SLOT 2.
-	 */
-	int getPhaseModulation() const {
-		return op1_out[0] << 1;
-	}
-
-	/**
-	 * Sets the frequency multiplier [0..15].
-	 */
-	void setFrequencyMultiplier(byte value) {
-		mul = mul_tab[value];
-	}
-
-	/**
-	 * Sets the key scale rate: true->0, false->2.
-	 */
-	void setKeyScaleRate(bool value) {
-		KSR = value ? 0 : 2;
-	}
-
-	/**
-	 * Sets the envelope type of the current instrument.
-	 * @param value true->sustained, false->percussive.
-	 */
-	void setEnvelopeSustained(bool value) {
-		eg_sustain = value;
-	}
-
-	/**
-	 * Enables (true) or disables (false) vibrato.
-	 */
-	void setVibrato(bool value) {
-		vib = value;
-	}
-
-	/**
-	 * Enables (true) or disables (false) amplitude modulation.
-	 */
-	void setAmplitudeModulation(bool value) {
-		AMmask = value ? ~0 : 0;
-	}
-
-	/**
-	 * Sets the total level: [0..63].
-	 */
-	void setTotalLevel(byte value) {
-		TL = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-		updateTotalLevel();
-	}
-
-	/**
-	 * Sets the key scale level: 0->0 / 1->1.5 / 2->3.0 / 3->6.0 dB/OCT.
-	 */
-	void setKeyScaleLevel(byte value) {
-		ksl = value ? (3 - value) : 31;
-		updateTotalLevel();
-	}
-
-	/**
-	 * Sets the waveform: 0 = sinus, 1 = half sinus, half silence.
-	 */
-	void setWaveform(byte value) {
-		wavetable = &sin_tab[value * SIN_LEN];
-	}
-
-	/**
-	 * Sets the amount of feedback [0..7].
-	 */
-	void setFeedbackShift(byte value) {
-		fb_shift = value ? 8 - value : 0;
-	}
-
-	/**
-	 * Sets the attack rate [0..15].
-	 */
-	void setAttackRate(byte value) {
-		ar = value ? 16 + (value << 2) : 0;
-		updateAttackRate();
-	}
-
-	/**
-	 * Sets the decay rate [0..15].
-	 */
-	void setDecayRate(byte value) {
-		dr = value ? 16 + (value << 2) : 0;
-		updateDecayRate();
-	}
-
-	/**
-	 * Sets the release rate [0..15].
-	 */
-	void setReleaseRate(byte value) {
-		rr = value ? 16 + (value << 2) : 0;
-		updateReleaseRate();
-	}
-
-	/**
-	 * Sets the sustain level [0..15].
-	 */
-	void setSustainLevel(byte value) {
-		sl = sl_tab[value];
-	}
-
-	/**
-	 * Called by Channel when block_fnum changes.
-	 */
-	void updateFrequency() {
-		updateTotalLevel();
-		updateGenerators();
-	}
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
-	inline void updateTotalLevel();
-	inline void updateAttackRate();
-	inline void updateDecayRate();
-	inline void updateReleaseRate();
-
-	Channel* channel;
-	unsigned* wavetable;	// waveform select
-
-	// Phase Generator
-	FreqIndex phase;	// frequency counter
-	FreqIndex freq;	// frequency counter step
-
-	// Envelope Generator
-	int TL;		// total level: TL << 2
-	int TLL;	// adjusted now TL
-	int volume;	// envelope counter
-	int sl;		// sustain level: sl_tab[SL]
-	EnvelopeState state;
-
-	int op1_out[2];	// MOD output for feedback
-	bool eg_sustain;// percussive/nonpercussive mode
-	byte fb_shift;	// feedback shift value
-
-	byte key;	// 0 = KEY OFF, >0 = KEY ON
-
-	byte eg_sh_dp;	// (dump state)
-	byte eg_sel_dp;	// (dump state)
-	byte eg_sh_ar;	// (attack state)
-	byte eg_sel_ar;	// (attack state)
-	byte eg_sh_dr;	// (decay state)
-	byte eg_sel_dr;	// (decay state)
-	byte eg_sh_rr;	// (release state for non-perc.)
-	byte eg_sel_rr;	// (release state for non-perc.)
-	byte eg_sh_rs;	// (release state for perc.mode)
-	byte eg_sel_rs;	// (release state for perc.mode)
-
-	byte ar;	// attack rate: AR<<2
-	byte dr;	// decay rate:  DR<<2
-	byte rr;	// release rate:RR<<2
-	byte KSR;	// key scale rate
-	byte ksl;	// keyscale level
-	byte kcodeScaled;	// key scale rate: kcode>>KSR
-	byte mul;	// multiple: mul_tab[ML]
-
-	// LFO
-	byte AMmask;	// LFO Amplitude Modulation enable mask
-	byte vib;	// LFO Phase Modulation enable flag (active high)
-};
-
-class Channel
-{
-public:
-	Channel();
-
-	/**
-	 * Calculate the value of the current sample produced by this channel.
-	 */
-	inline int calcOutput(unsigned lfo_am) const;
-
-	/**
-	 * Initializes those parts that cannot be initialized in the constructor,
-	 * because the constructor cannot have arguments since we want to create
-	 * an array of Channels.
-	 * This method should be called once, as soon as possible after
-	 * construction.
-	 */
-	void init();
-
-	/**
-	 * Sets the frequency for this channel.
-	 */
-	void setFrequency(int block_fnum);
-
-	/**
-	 * Changes the lower 8 bits of the frequency for this channel.
-	 */
-	void setFrequencyLow(byte value) {
-		setFrequency((block_fnum & 0x0F00) | value);
-	}
-
-	/**
-	 * Changes the higher 4 bits of the frequency for this channel.
-	 */
-	void setFrequencyHigh(byte value) {
-		setFrequency((value << 8) | (block_fnum & 0x00FF));
-	}
-
-	/**
-	 * Sets some synthesis parameters as specified by the instrument.
-	 * @param global the actual YM2413 core, private implementation
-	 * @param instrument Number of the instrument.
-	 * @param part Part [0..7] of the instrument.
-	 */
-	void updateInstrumentPart(Global& global, int instrument, int part);
-
-	/**
-	 * Sets all synthesis parameters as specified by the instrument.
-	 * @param global the actual YM2413 core, private implementation
-	 * @param instrument Number of the instrument.
-	 */
-	void updateInstrument(Global& global, int instrument);
-
-	/**
-	 * Sets all synthesis parameters as specified by the current instrument.
-	 * The current instrument is determined by instvol_r.
-	 * @param global the actual YM2413 core, private implementation
-	 */
-	void updateInstrument(Global& global) {
-		updateInstrument(global, instvol_r >> 4);
-	}
-
-	int getBlockFNum() {
-		return block_fnum;
-	}
-
-	FreqIndex getFrequencyIncrement() {
-		return fc;
-	}
-
-	int getKeyScaleLevelBase() {
-		return ksl_base;
-	}
-
-	byte getKeyCode() {
-		return kcode;
-	}
-
-	bool isSustained() {
-		return sus;
-	}
-
-	void setSustain(bool sustained) {
-		sus = sustained;
-	}
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-	Slot slots[2];
-
-	/**
-	 * Instrument/volume (or volume/volume in rhythm mode).
-	 */
-	byte instvol_r;
-
-private:
-	// phase generator state
-	int block_fnum;	// block+fnum
-	FreqIndex fc;	// Freq. freqement base
-	int ksl_base;	// KeyScaleLevel Base step
-	byte kcode;	// key code (for key scaling)
-	bool sus;	// sus on/off (release speed in percussive mode)
-};
-
-class Global : public YM2413Core
-{
-public:
-	Global(MSXMotherBoard& motherBoard, const std::string& name,
-	       const XMLElement& config, EmuTime::param time);
-	virtual ~Global();
-
-	const byte* getInstrument(int instrument) {
-		return inst_tab[instrument];
-	}
-
-	void reset(EmuTime::param time);
-
-	/**
-	 * Reset operator parameters.
-	 */
-	void resetOperators();
-
-	virtual int getAmplificationFactor() const;
-	virtual void generateChannels(int** bufs, unsigned num);
-
-	virtual void writeReg(byte r, byte v, EmuTime::param time);
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
-	/**
-	 * Initialize "tl_tab" and "sin_tab".
-	 */
-	static void initTables();
-
-	int getNumMelodicChannels() {
-		return rhythm ? 6 : 9;
-	}
-
-	Channel& getChannelForReg(byte reg) {
-		byte chan = (reg & 0x0F) % 9; // verified on real YM2413
-		return channels[chan];
-	}
-
-	/**
-	 * Advance envelope and phase generators to next sample.
-	 */
-	inline void advance();
-
-	inline int genPhaseHighHat();
-	inline int genPhaseSnare();
-	inline int genPhaseCymbal();
-
-	/**
-	 * Called when the custom instrument (instrument 0) has changed.
-	 * @param part Part [0..7] of the instrument.
-	 * @param value The new value.
-	 */
-	void updateCustomInstrument(int part, byte value);
-
-	void setRhythmMode(bool newMode);
-	void setRhythmFlags(byte flags);
-
-	/**
-	 * Instrument settings:
-	 *  0     - user instrument
-	 *  1-15  - fixed instruments
-	 *  16    - bass drum settings
-	 *  17-18 - other percussion instruments
-	 */
-	byte inst_tab[19][8];
-
-	/**
-	 * OPLL chips have 9 channels.
-	 */
-	Channel channels[9];
-
-	/**
-	 * Global envelope generator counter.
-	 */
-	unsigned eg_cnt;
-
-	/**
-	 * Random generator for noise: 23 bit shift register.
-	 */
-	int noise_rng;
-
-	/** Number of samples the output was completely silent. */
-	unsigned idleSamples;
-
-	typedef FixedPoint< 6> LFOAMIndex;
-	typedef FixedPoint<10> LFOPMIndex;
-	LFOAMIndex lfo_am_cnt;
-	LFOPMIndex lfo_pm_cnt;
-
-	/**
-	 * Rhythm mode.
-	 */
-	bool rhythm;
-};
 
 inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 {
@@ -929,7 +489,7 @@ inline void Slot::updateReleaseRate()
 	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
 }
 
-inline void Global::advance()
+inline void YM2413::advance()
 {
 	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
 	lfo_pm_cnt.addQuantum();
@@ -1039,7 +599,7 @@ inline int Channel::calcOutput(unsigned lfo_am) const
 //   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
 //            (same combination as HIGH HAT but different output phases)
 
-inline int Global::genPhaseHighHat()
+inline int YM2413::genPhaseHighHat()
 {
 	// hi == phase >= 0x200
 	bool hi;
@@ -1062,7 +622,7 @@ inline int Global::genPhaseHighHat()
 	}
 }
 
-inline int Global::genPhaseSnare()
+inline int YM2413::genPhaseSnare()
 {
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
@@ -1070,7 +630,7 @@ inline int Global::genPhaseSnare()
 	     ^ ((noise_rng & 1) << 8);
 }
 
-inline int Global::genPhaseCymbal()
+inline int YM2413::genPhaseCymbal()
 {
 	// enable gate based on frequency of operator 2 in channel 8
 	if (channels[8].slots[CAR].getPhase() & 0x28) {
@@ -1086,7 +646,7 @@ inline int Global::genPhaseCymbal()
 	}
 }
 
-void Global::initTables()
+static void initTables()
 {
 	static bool alreadyInit = false;
 	if (alreadyInit) {
@@ -1132,6 +692,26 @@ void Global::initTables()
 	}
 }
 
+
+Slot::Slot()
+	: phase(0), freq(0)
+{
+	ar = dr = rr = KSR = ksl = kcodeScaled = mul = 0;
+	fb_shift = op1_out[0] = op1_out[1] = 0;
+	TL = TLL = volume = sl = 0;
+	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
+	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
+	eg_sustain = false;
+	setEnvelopeState(EG_OFF);
+	key = AMmask = vib = 0;
+	wavetable = &sin_tab[0 * SIN_LEN];
+}
+
+void Slot::init(Channel& channel_)
+{
+	channel = &channel_;
+}
+
 void Slot::setKeyOn(KeyPart part)
 {
 	if (!key) {
@@ -1153,23 +733,109 @@ void Slot::setKeyOff(KeyPart part)
 	}
 }
 
-Slot::Slot()
-	: phase(0), freq(0)
+void Slot::setKeyOnOff(KeyPart part, bool enabled)
 {
-	ar = dr = rr = KSR = ksl = kcodeScaled = mul = 0;
-	fb_shift = op1_out[0] = op1_out[1] = 0;
-	TL = TLL = volume = sl = 0;
-	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
-	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
-	eg_sustain = false;
-	setEnvelopeState(EG_OFF);
-	key = AMmask = vib = 0;
-	wavetable = &sin_tab[0 * SIN_LEN];
+	if (enabled) {
+		setKeyOn(part);
+	} else {
+		setKeyOff(part);
+	}
 }
 
-void Slot::init(Channel& channel)
+bool Slot::isActive() const
 {
-	this->channel = &channel;
+	return state != EG_OFF;
+}
+
+void Slot::setEnvelopeState(EnvelopeState state_)
+{
+	state = state_;
+}
+
+int Slot::getPhase() const
+{
+	return phase.toInt();
+}
+
+int Slot::getPhaseModulation() const
+{
+	return op1_out[0] << 1;
+}
+
+void Slot::setFrequencyMultiplier(byte value)
+{
+	mul = mul_tab[value];
+}
+
+void Slot::setKeyScaleRate(bool value)
+{
+	KSR = value ? 0 : 2;
+}
+
+void Slot::setEnvelopeSustained(bool value)
+{
+	eg_sustain = value;
+}
+
+void Slot::setVibrato(bool value)
+{
+	vib = value;
+}
+
+void Slot::setAmplitudeModulation(bool value)
+{
+	AMmask = value ? ~0 : 0;
+}
+
+void Slot::setTotalLevel(byte value)
+{
+	TL = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
+	updateTotalLevel();
+}
+
+void Slot::setKeyScaleLevel(byte value)
+{
+	ksl = value ? (3 - value) : 31;
+	updateTotalLevel();
+}
+
+void Slot::setWaveform(byte value)
+{
+	wavetable = &sin_tab[value * SIN_LEN];
+}
+
+void Slot::setFeedbackShift(byte value)
+{
+	fb_shift = value ? 8 - value : 0;
+}
+
+void Slot::setAttackRate(byte value)
+{
+	ar = value ? 16 + (value << 2) : 0;
+	updateAttackRate();
+}
+
+void Slot::setDecayRate(byte value)
+{
+	dr = value ? 16 + (value << 2) : 0;
+	updateDecayRate();
+}
+
+void Slot::setReleaseRate(byte value)
+{
+	rr = value ? 16 + (value << 2) : 0;
+	updateReleaseRate();
+}
+
+void Slot::setSustainLevel(byte value)
+{
+	sl = sl_tab[value];
+}
+
+void Slot::updateFrequency()
+{
+	updateTotalLevel();
+	updateGenerators();
 }
 
 void Slot::resetOperators()
@@ -1208,10 +874,7 @@ Channel::Channel()
 	instvol_r = 0;
 	block_fnum = ksl_base = kcode = 0;
 	sus = false;
-}
 
-void Channel::init()
-{
 	slots[MOD].init(*this);
 	slots[CAR].init(*this);
 }
@@ -1233,9 +896,54 @@ void Channel::setFrequency(int block_fnum)
 	slots[CAR].updateFrequency();
 }
 
-void Channel::updateInstrumentPart(Global& global, int instrument, int part)
+void Channel::setFrequencyLow(byte value)
 {
-	const byte* inst = global.getInstrument(instrument);
+	setFrequency((block_fnum & 0x0F00) | value);
+}
+
+void Channel::setFrequencyHigh(byte value)
+{
+	setFrequency((value << 8) | (block_fnum & 0x00FF));
+}
+
+void Channel::updateInstrument(YM2413& ym2413)
+{
+	updateInstrument(ym2413, instvol_r >> 4);
+}
+
+int Channel::getBlockFNum() const
+{
+	return block_fnum;
+}
+
+FreqIndex Channel::getFrequencyIncrement() const
+{
+	return fc;
+}
+
+int Channel::getKeyScaleLevelBase() const
+{
+	return ksl_base;
+}
+
+byte Channel::getKeyCode() const
+{
+	return kcode;
+}
+
+bool Channel::isSustained() const
+{
+	return sus;
+}
+
+void Channel::setSustain(bool sustained)
+{
+	sus = sustained;
+}
+
+void Channel::updateInstrumentPart(YM2413& ym2413, int instrument, int part)
+{
+	const byte* inst = ym2413.getInstrument(instrument);
 	Slot& mod = slots[MOD];
 	Slot& car = slots[CAR];
 	switch (part) {
@@ -1280,37 +988,27 @@ void Channel::updateInstrumentPart(Global& global, int instrument, int part)
 	}
 }
 
-void Channel::updateInstrument(Global& global, int instrument)
+void Channel::updateInstrument(YM2413& ym2413, int instrument)
 {
-	for (int part = 0; part < 8; part++) {
-		updateInstrumentPart(global, instrument, part);
+	for (int part = 0; part < 8; ++part) {
+		updateInstrumentPart(ym2413, instrument, part);
 	}
 }
 
-Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config, EmuTime::param time)
-	: YM2413Core(motherBoard, name)
-	, lfo_am_cnt(0), lfo_pm_cnt(0)
+YM2413::YM2413()
+	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	initTables();
 
+	memset(reg, 0, sizeof(reg)); // avoid UMR
 	eg_cnt = 0;
 	rhythm = 0;
 	noise_rng = 0;
-	for (int ch = 0; ch < 9; ch++) {
-		channels[ch].init();
-	}
 
-	reset(time);
-	registerSound(config);
+	reset();
 }
 
-Global::~Global()
-{
-	unregisterSound();
-}
-
-void Global::updateCustomInstrument(int part, byte value)
+void YM2413::updateCustomInstrument(int part, byte value)
 {
 	// Update instrument definition.
 	inst_tab[0][part] = value;
@@ -1325,7 +1023,7 @@ void Global::updateCustomInstrument(int part, byte value)
 	}
 }
 
-void Global::setRhythmMode(bool rhythm)
+void YM2413::setRhythmMode(bool rhythm)
 {
 	if (this->rhythm == rhythm) {
 		return;
@@ -1348,39 +1046,39 @@ void Global::setRhythmMode(bool rhythm)
 		channels[7].updateInstrument(*this);
 		channels[8].updateInstrument(*this);
 		// BD key off
-		channels[6].slots[MOD].setKeyOff(KEY_RHYTHM);
-		channels[6].slots[CAR].setKeyOff(KEY_RHYTHM);
+		channels[6].slots[MOD].setKeyOff(Slot::KEY_RHYTHM);
+		channels[6].slots[CAR].setKeyOff(Slot::KEY_RHYTHM);
 		// HH key off
-		channels[7].slots[MOD].setKeyOff(KEY_RHYTHM);
+		channels[7].slots[MOD].setKeyOff(Slot::KEY_RHYTHM);
 		// SD key off
-		channels[7].slots[CAR].setKeyOff(KEY_RHYTHM);
+		channels[7].slots[CAR].setKeyOff(Slot::KEY_RHYTHM);
 		// TOM key off
-		channels[8].slots[MOD].setKeyOff(KEY_RHYTHM);
+		channels[8].slots[MOD].setKeyOff(Slot::KEY_RHYTHM);
 		// TOP-CY off
-		channels[8].slots[CAR].setKeyOff(KEY_RHYTHM);
+		channels[8].slots[CAR].setKeyOff(Slot::KEY_RHYTHM);
 	}
 }
 
-void Global::setRhythmFlags(byte flags)
+void YM2413::setRhythmFlags(byte flags)
 {
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
 	setRhythmMode((flags & 0x20) != 0);
 	if (rhythm) {
 		// BD key on/off
-		channels[6].slots[MOD].setKeyOnOff(KEY_RHYTHM, (flags & 0x10) != 0);
-		channels[6].slots[CAR].setKeyOnOff(KEY_RHYTHM, (flags & 0x10) != 0);
+		channels[6].slots[MOD].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
+		channels[6].slots[CAR].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
 		// HH key on/off
-		channels[7].slots[MOD].setKeyOnOff(KEY_RHYTHM, (flags & 0x01) != 0);
+		channels[7].slots[MOD].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x01) != 0);
 		// SD key on/off
-		channels[7].slots[CAR].setKeyOnOff(KEY_RHYTHM, (flags & 0x08) != 0);
+		channels[7].slots[CAR].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x08) != 0);
 		// TOM key on/off
-		channels[8].slots[MOD].setKeyOnOff(KEY_RHYTHM, (flags & 0x04) != 0);
+		channels[8].slots[MOD].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x04) != 0);
 		// TOP-CY key on/off
-		channels[8].slots[CAR].setKeyOnOff(KEY_RHYTHM, (flags & 0x02) != 0);
+		channels[8].slots[CAR].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x02) != 0);
 	}
 }
 
-void Global::reset(EmuTime::param time)
+void YM2413::reset()
 {
 	eg_cnt    = 0;
 	noise_rng = 1;    // noise shift register
@@ -1394,15 +1092,15 @@ void Global::reset(EmuTime::param time)
 	}
 
 	// reset with register write
-	writeReg(0x0F, 0, time); // test reg
+	writeReg(0x0F, 0); // test reg
 	for (int i = 0x3F; i >= 0x10; i--) {
-		writeReg(i, 0, time);
+		writeReg(i, 0);
 	}
 
 	resetOperators();
 }
 
-void Global::resetOperators()
+void YM2413::resetOperators()
 {
 	for (int c = 0; c < 9; c++) {
 		Channel& ch = channels[c];
@@ -1413,12 +1111,28 @@ void Global::resetOperators()
 	}
 }
 
-int Global::getAmplificationFactor() const
+const byte* YM2413::getInstrument(int instrument) const
+{
+	return inst_tab[instrument];
+}
+
+int YM2413::getNumMelodicChannels() const
+{
+	return rhythm ? 6 : 9;
+}
+
+Channel& YM2413::getChannelForReg(byte reg)
+{
+	byte chan = (reg & 0x0F) % 9; // verified on real YM2413
+	return channels[chan];
+}
+
+int YM2413::getAmplificationFactor() const
 {
 	return 1 << 4;
 }
 
-void Global::generateChannels(int** bufs, unsigned num)
+void YM2413::generateChannels(int* bufs[11], unsigned num)
 {
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
@@ -1529,12 +1243,9 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void Global::writeReg(byte r, byte v, EmuTime::param time)
+void YM2413::writeReg(byte r, byte v)
 {
 	PRT_DEBUG("YM2413: write reg " << int(r) << " " << int(v));
-
-	// update the output buffer before changing the register
-	updateStream(time);
 
 	reg[r] = v;
 
@@ -1567,8 +1278,8 @@ void Global::writeReg(byte r, byte v, EmuTime::param time)
 	case 0x20: {
 		// 20-28: suson, keyon, block, FNUM 8
 		Channel& ch = getChannelForReg(r);
-		ch.slots[MOD].setKeyOnOff(KEY_MAIN, (v & 0x10) != 0);
-		ch.slots[CAR].setKeyOnOff(KEY_MAIN, (v & 0x10) != 0);
+		ch.slots[MOD].setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
+		ch.slots[CAR].setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
 		ch.setSustain((v & 0x20) != 0);
 		// Note: When changing the frequency, a new value for RS is
 		//       computed using the sustain value, so make sure the new
@@ -1607,16 +1318,24 @@ void Global::writeReg(byte r, byte v, EmuTime::param time)
 	}
 }
 
+byte YM2413::peekReg(byte r) const
+{
+	return reg[r];
+}
 
-static enum_string<EnvelopeState> envelopeStateInfo[] = {
-	{ "DUMP",    EG_DUMP    },
-	{ "ATTACK",  EG_ATTACK  },
-	{ "DECAY",   EG_DECAY   },
-	{ "SUSTAIN", EG_SUSTAIN },
-	{ "RELEASE", EG_RELEASE },
-	{ "OFF",     EG_OFF     }
+} // namespace Burczynsk
+
+static enum_string<YM2413Burczynski::Slot::EnvelopeState> envelopeStateInfo[] = {
+	{ "DUMP",    YM2413Burczynski::Slot::EG_DUMP    },
+	{ "ATTACK",  YM2413Burczynski::Slot::EG_ATTACK  },
+	{ "DECAY",   YM2413Burczynski::Slot::EG_DECAY   },
+	{ "SUSTAIN", YM2413Burczynski::Slot::EG_SUSTAIN },
+	{ "RELEASE", YM2413Burczynski::Slot::EG_RELEASE },
+	{ "OFF",     YM2413Burczynski::Slot::EG_OFF     }
 };
-SERIALIZE_ENUM(EnvelopeState, envelopeStateInfo);
+SERIALIZE_ENUM(YM2413Burczynski::Slot::EnvelopeState, envelopeStateInfo);
+
+namespace YM2413Burczynski {
 
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
@@ -1673,10 +1392,15 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sus", sus);
 }
 
+// version 1:  initial version
+// version 2:  'registers' are moved here (no longer serialized in base class)
 template<typename Archive>
-void Global::serialize(Archive& ar, unsigned /*version*/)
+void YM2413::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeBase<YM2413Core>(*this);
+	if (version < 2) ar.beginTag("YM2413Core");
+	ar.serialize("registers", reg);
+	if (version < 2) ar.endTag("YM2413Core");
+
 	// only serialize user instrument
 	ar.serialize_blob("user_instrument", inst_tab[0], 8);
 	ar.serialize("channels", channels);
@@ -1688,35 +1412,10 @@ void Global::serialize(Archive& ar, unsigned /*version*/)
 	// don't serialize idleSamples, it's only an optimization
 }
 
+} // namespace Burczynsk
 
-// YM2413_2
-
-YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
-                   const XMLElement& config, EmuTime::param time)
-	: global(new Global(motherBoard, name, config, time))
-{
-}
-
-YM2413_2::~YM2413_2()
-{
-}
-
-void YM2413_2::reset(EmuTime::param time)
-{
-	global->reset(time);
-}
-
-void YM2413_2::writeReg(byte r, byte v, EmuTime::param time)
-{
-	global->writeReg(r, v, time);
-}
-
-template<typename Archive>
-void YM2413_2::serialize(Archive& ar, unsigned version)
-{
-	global->serialize(ar, version);
-}
-INSTANTIATE_SERIALIZE_METHODS(YM2413_2);
-REGISTER_POLYMORPHIC_INITIALIZER(YM2413Interface, YM2413_2, "YM2413-Jarek-Burczynski");
+using YM2413Burczynski::YM2413;
+INSTANTIATE_SERIALIZE_METHODS(YM2413);
+REGISTER_POLYMORPHIC_INITIALIZER(YM2413Core, YM2413, "YM2413-Jarek-Burczynski");
 
 } // namespace openmsx

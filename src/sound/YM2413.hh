@@ -3,37 +3,50 @@
 #ifndef YM2413_HH
 #define YM2413_HH
 
-#include "YM2413Interface.hh"
-#include "serialize_meta.hh"
-#include <string>
+#include "SoundDevice.hh"
+#include "Resample.hh"
+#include "EmuTime.hh"
+#include "openmsx.hh"
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
-// Defined in .cc:
-namespace YM2413Okazaki {
-class Global;
-}
+class YM2413Core;
+class YM2413Debuggable;
 class MSXMotherBoard;
 class XMLElement;
 
-class YM2413 : public YM2413Interface
+class YM2413 : public SoundDevice, protected Resample
 {
 public:
 	YM2413(MSXMotherBoard& motherBoard, const std::string& name,
-	       const XMLElement& config, EmuTime::param time);
+	       const XMLElement& config);
 	virtual ~YM2413();
 
-	virtual void reset(EmuTime::param time);
-	virtual void writeReg(byte reg, byte value, EmuTime::param time);
+	void reset(EmuTime::param time);
+	void writeReg(byte reg, byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<YM2413Okazaki::Global> global;
+	// SoundDevice
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
+	virtual int getAmplificationFactor() const;
+	virtual bool updateBuffer(unsigned length, int* buffer,
+		EmuTime::param time, EmuDuration::param sampDur);
+
+	// Resample
+	virtual bool generateInput(int* buffer, unsigned num);
+
+	const std::auto_ptr<YM2413Core> core;
+	const std::auto_ptr<YM2413Debuggable> debuggable;
+	friend class YM2413Debuggable;
 };
 
 } // namespace openmsx
 
 #endif
+

@@ -78,13 +78,13 @@ void WavWriter::write8mono(unsigned char val)
 	write8mono(&val, 1);
 }
 
-void WavWriter::write8mono(unsigned char* val, unsigned len)
+void WavWriter::write8mono(const unsigned char* val, unsigned len)
 {
 	file->write(val, len);
 	bytes += len;
 }
 
-void WavWriter::write16stereo(short* buffer, unsigned samples)
+void WavWriter::write16stereo(const short* buffer, unsigned samples)
 {
 	unsigned size = 2 * sizeof(short) * samples;
 	if (OPENMSX_BIGENDIAN) {
@@ -100,7 +100,7 @@ void WavWriter::write16stereo(short* buffer, unsigned samples)
 	bytes += size;
 }
 
-void WavWriter::write16mono(int* buffer, unsigned samples, int amp)
+void WavWriter::write16mono(const int* buffer, unsigned samples, int amp)
 {
 	VLA(short, buf, samples);
 	for (unsigned i = 0; i < samples; ++i) {
@@ -111,7 +111,7 @@ void WavWriter::write16mono(int* buffer, unsigned samples, int amp)
 	bytes += size;
 }
 
-void WavWriter::write16stereo(int* buffer, unsigned samples, int amp)
+void WavWriter::write16stereo(const int* buffer, unsigned samples, int amp)
 {
 	write16mono(buffer, 2 * samples, amp);
 }

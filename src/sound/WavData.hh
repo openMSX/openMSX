@@ -17,6 +17,7 @@ public:
 	unsigned getFreq() const;
 	unsigned getBits() const;
 	unsigned getSize() const;
+	unsigned getChannels() const;
 	const void* getData() const;
 
 private:
@@ -24,6 +25,7 @@ private:
 	unsigned bits;
 	unsigned freq;
 	unsigned length;
+	unsigned channels;
 };
 
 } // namespace openmsx

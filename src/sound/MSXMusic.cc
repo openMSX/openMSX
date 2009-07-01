@@ -2,28 +2,15 @@
 
 #include "MSXMusic.hh"
 #include "YM2413.hh"
-#include "YM2413_2.hh"
 #include "Rom.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-static YM2413Interface* createYM2413(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const std::string& name, EmuTime::param time)
-{
-	if (config.getChildDataAsBool("alternative", false)) {
-		return new YM2413_2(motherBoard, name, config, time);
-	} else {
-		return new YM2413  (motherBoard, name, config, time);
-	}
-}
-
 MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
-	, ym2413(createYM2413(motherBoard, config, getName(), getCurrentTime()))
+	, ym2413(new YM2413(motherBoard, getName(), config))
 {
 	reset(getCurrentTime());
 }
@@ -72,12 +59,21 @@ const byte* MSXMusic::getReadCacheLine(word start) const
 	return &(*rom)[start & (rom->getSize() - 1)];
 }
 
-
+// version 1:  initial version
+// version 2:  refactored YM2413 class structure
 template<typename Archive>
-void MSXMusic::serialize(Archive& ar, unsigned /*version*/)
+void MSXMusic::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serializePolymorphic("ym2413", *ym2413);
+
+	if (version >= 2) {
+		ar.serialize("ym2413", *ym2413);
+	} else {
+		// In older versions, the 'ym2413' level was missing, delegate
+		// directly to YM2413 without emitting the 'ym2413' tag.
+		ym2413->serialize(ar, version);
+	}
+
 	ar.serialize("registerLatch", registerLatch);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMusic);

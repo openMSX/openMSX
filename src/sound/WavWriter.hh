@@ -19,10 +19,10 @@ public:
 	~WavWriter();
 
 	void write8mono(unsigned char val);
-	void write8mono(unsigned char* buf, unsigned len);
-	void write16stereo(short* buffer, unsigned samples);
-	void write16mono  (int* buffer, unsigned samples, int amp = 1);
-	void write16stereo(int* buffer, unsigned samples, int amp = 1);
+	void write8mono(const unsigned char* buf, unsigned len);
+	void write16stereo(const short* buffer, unsigned samples);
+	void write16mono  (const int* buffer, unsigned samples, int amp = 1);
+	void write16stereo(const int* buffer, unsigned samples, int amp = 1);
 
 	/** Returns false if there has been data written to the wav image.
 	 */

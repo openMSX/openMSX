@@ -17,7 +17,7 @@ SRC_HDR:= \
 	Y8950Periphery \
 	Y8950KeyboardDevice DummyY8950KeyboardDevice \
 	MSXFmPac MSXMusic \
-	YM2413Core YM2413 YM2413_2 \
+	YM2413 YM2413Okazaki YM2413Burczynski \
 	MSXTurboRPCM \
 	YMF262 YMF278 MSXMoonSound MSXOPL3Cartridge \
 	YM2151 MSXYamahaSFG \
@@ -32,10 +32,13 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	SoundDriver \
 	ResampleAlgo \
-	YM2413Interface
+	YM2413Core \
 
 DIST:= \
 	ResampleCoeffs.ii
+
+#TODO
+#TEST:= YM2413Test
 
 include build/node-end.mk
 
