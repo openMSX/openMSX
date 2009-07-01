@@ -201,6 +201,7 @@ private:
 
 Reactor::Reactor()
 	: mbSem(1)
+	, eventDistributor(new EventDistributor(*this))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(getCommandController()))
@@ -227,29 +228,22 @@ Reactor::Reactor()
 
 	pauseSetting.attach(*this);
 
-	getEventDistributor().registerEventListener(
-		OPENMSX_QUIT_EVENT, *this);
-	getEventDistributor().registerEventListener(
-		OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor->registerEventListener(OPENMSX_QUIT_EVENT, *this);
+	eventDistributor->registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 }
 
 Reactor::~Reactor()
 {
 	deleteBoard(activeBoard);
 
-	getEventDistributor().unregisterEventListener(
-		OPENMSX_QUIT_EVENT, *this);
-	getEventDistributor().unregisterEventListener(
-		OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor->unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+	eventDistributor->unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 
 	pauseSetting.detach(*this);
 }
 
 EventDistributor& Reactor::getEventDistributor()
 {
-	if (!eventDistributor.get()) {
-		eventDistributor.reset(new EventDistributor(*this));
-	}
 	return *eventDistributor;
 }
 
