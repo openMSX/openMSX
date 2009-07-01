@@ -202,6 +202,7 @@ private:
 Reactor::Reactor()
 	: mbSem(1)
 	, eventDistributor(new EventDistributor(*this))
+	, globalCommandController(new GlobalCommandController(*eventDistributor, *this))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(getCommandController()))
@@ -249,10 +250,6 @@ EventDistributor& Reactor::getEventDistributor()
 
 GlobalCommandController& Reactor::getGlobalCommandController()
 {
-	if (!globalCommandController.get()) {
-		globalCommandController.reset(new GlobalCommandController(
-			*eventDistributor, *this));
-	}
 	return *globalCommandController;
 }
 
@@ -260,7 +257,7 @@ GlobalCliComm& Reactor::getGlobalCliComm()
 {
 	if (!globalCliComm.get()) {
 		globalCliComm.reset(new GlobalCliComm(
-			getGlobalCommandController(), *eventDistributor));
+			*globalCommandController, *eventDistributor));
 	}
 	return *globalCliComm;
 }
@@ -335,12 +332,12 @@ GlobalSettings& Reactor::getGlobalSettings()
 
 CommandController& Reactor::getCommandController()
 {
-	return getGlobalCommandController();
+	return *globalCommandController;
 }
 
 InfoCommand& Reactor::getOpenMSXInfoCommand()
 {
-	return getGlobalCommandController().getOpenMSXInfoCommand();
+	return globalCommandController->getOpenMSXInfoCommand();
 }
 
 void Reactor::getHwConfigs(const string& type, set<string>& result)
@@ -489,7 +486,7 @@ void Reactor::enterMainLoop()
 
 void Reactor::run(CommandLineParser& parser)
 {
-	GlobalCommandController& commandController = getGlobalCommandController();
+	GlobalCommandController& commandController = *globalCommandController;
 	getDiskManipulator(); // make sure it gets instantiated
 	                      // (also on machines without disk drive)
 
