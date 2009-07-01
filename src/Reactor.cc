@@ -206,6 +206,7 @@ Reactor::Reactor()
 	, globalCliComm(new GlobalCliComm(*globalCommandController, *eventDistributor))
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
+	, mixer(new Mixer(*globalCommandController))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))
@@ -282,9 +283,6 @@ Display& Reactor::getDisplay()
 
 Mixer& Reactor::getMixer()
 {
-	if (!mixer.get()) {
-		mixer.reset(new Mixer(*globalCommandController));
-	}
 	return *mixer;
 }
 
@@ -569,14 +567,14 @@ void Reactor::block()
 {
 	++blockedCounter;
 	enterMainLoop();
-	getMixer().mute();
+	mixer->mute();
 }
 
 void Reactor::unblock()
 {
 	--blockedCounter;
 	assert(blockedCounter >= 0);
-	getMixer().unmute();
+	mixer->unmute();
 }
 
 
