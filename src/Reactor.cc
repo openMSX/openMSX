@@ -208,6 +208,7 @@ Reactor::Reactor()
 		*globalCommandController, *eventDistributor))
 	, mixer(new Mixer(*globalCommandController))
 	, diskManipulator(new DiskManipulator(*globalCommandController))
+	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))
@@ -303,10 +304,6 @@ DiskManipulator& Reactor::getDiskManipulator()
 
 FilePool& Reactor::getFilePool()
 {
-	if (!filePool.get()) {
-		filePool.reset(new FilePool(
-			globalCommandController->getSettingsConfig()));
-	}
 	return *filePool;
 }
 
