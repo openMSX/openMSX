@@ -2,6 +2,7 @@
 #define SERIALIZE_HH
 
 #include "serialize_core.hh"
+#include "MemBuffer.hh"
 #include "TypeInfo.hh"
 #include "StringOp.hh"
 #include "shared_ptr.hh"
@@ -602,8 +603,7 @@ private:
 class MemOutputArchive : public OutputArchiveBase<MemOutputArchive>
 {
 public:
-	MemOutputArchive(std::vector<char>& buffer_)
-		: buffer(buffer_)
+	MemOutputArchive()
 	{
 	}
 
@@ -633,40 +633,39 @@ public:
 	{
 		unsigned skip = 0; // filled in later
 		save(skip);
-		unsigned beginPos = unsigned(buffer.size());
+		unsigned beginPos = buffer.getPosition();
 		openSections.push_back(beginPos);
 	}
 	void endSection()
 	{
 		assert(!openSections.empty());
-		unsigned endPos   = unsigned(buffer.size());
+		unsigned endPos   = buffer.getPosition();
 		unsigned beginPos = openSections.back();
 		openSections.pop_back();
 		unsigned skip = endPos - beginPos;
-		memcpy(&buffer[beginPos - sizeof(unsigned)],
-		       &skip, sizeof(skip));
+		buffer.insertAt(beginPos - sizeof(unsigned),
+		                &skip, sizeof(skip));
 	}
+
+	OutputBuffer& stealBuffer() { return buffer; }
 
 private:
 	void put(const void* data, unsigned len)
 	{
 		if (len) {
-			unsigned pos = unsigned(buffer.size());
-			buffer.resize(pos + len);
-			memcpy(&buffer[pos], data, len);
+			buffer.insert(data, len);
 		}
 	}
 
-	std::vector<char>& buffer;
+	OutputBuffer buffer;
 	std::vector<unsigned> openSections;
 };
 
 class MemInputArchive : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const std::vector<char>& buffer_)
-		: buffer(buffer_)
-		, pos(0)
+	MemInputArchive(const MemBuffer& mem)
+		: buffer(mem.getData(), mem.getLength())
 	{
 	}
 
@@ -695,8 +694,7 @@ public:
 		unsigned num;
 		load(num);
 		if (skip) {
-			pos += num;
-			assert(pos <= buffer.size());
+			buffer.skip(num);
 		}
 	}
 
@@ -704,13 +702,11 @@ private:
 	void get(void* data, unsigned len)
 	{
 		if (len) {
-			assert((pos + len) <= buffer.size());
-			memcpy(data, &buffer[pos], len);
-			pos += len;
+			buffer.read(data, len);
 		}
 	}
 
-	const std::vector<char>& buffer;
+	InputBuffer buffer;
 	unsigned pos;
 };
 

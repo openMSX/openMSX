@@ -47,6 +47,7 @@ class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class GlobalSettings;
+class MemBuffer;
 template <typename T> class EnumSetting;
 
 /**
@@ -151,7 +152,7 @@ private:
 	const std::auto_ptr<ConfigInfo> machineInfo;
 	const std::auto_ptr<RealTimeInfo> realTimeInfo;
 
-	std::vector<char> snapshot; // TODO temp code
+	std::auto_ptr<MemBuffer> snapshot; // TODO temp code
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock

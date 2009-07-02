@@ -32,6 +32,7 @@
 #include "ReadDir.hh"
 #include "Thread.hh"
 #include "Timer.hh"
+#include "MemBuffer.hh"
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "checked_cast.hh"
@@ -977,10 +978,10 @@ string StoreMachineMemCommand::execute(const vector<string>& tokens)
 	}
 	Reactor::Board board = reactor.getMachine(tokens[1]);
 
-	reactor.snapshot.clear();
-	MemOutputArchive out(reactor.snapshot);
+	MemOutputArchive out;
 	out.serialize("machine", *board);
-	return StringOp::toString(reactor.snapshot.size()); // size in bytes
+	reactor.snapshot.reset(new MemBuffer(out.stealBuffer()));
+	return StringOp::toString(reactor.snapshot->getLength()); // size in bytes
 }
 
 string StoreMachineMemCommand::help(const vector<string>& /*tokens*/) const
@@ -1008,8 +1009,11 @@ RestoreMachineMemCommand::RestoreMachineMemCommand(
 
 string RestoreMachineMemCommand::execute(const vector<string>& /*tokens*/)
 {
+	if (!reactor.snapshot.get()) {
+		throw CommandException("No previous memory snapshot");
+	}
 	Reactor::Board newBoard(new MSXMotherBoard(reactor, *reactor.filePool));
-	MemInputArchive in(reactor.snapshot);
+	MemInputArchive in(*reactor.snapshot);
 	in.serialize("machine", *newBoard);
 	reactor.boards.push_back(newBoard);
 	return newBoard->getMachineID();

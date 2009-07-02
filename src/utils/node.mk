@@ -6,6 +6,7 @@ SRC_HDR:= \
 	Base64 HexDump \
 	CRC16 \
 	CircularBuffer \
+	MemBuffer \
 	Date \
 	HostCPU \
 	Math \
