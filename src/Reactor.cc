@@ -206,6 +206,7 @@ Reactor::Reactor()
 	, globalCliComm(new GlobalCliComm(*globalCommandController, *eventDistributor))
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
+	, display(new Display(*this))
 	, mixer(new Mixer(*globalCommandController))
 	, diskManipulator(new DiskManipulator(*globalCommandController))
 	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
@@ -231,6 +232,11 @@ Reactor::Reactor()
 	, paused(false)
 	, running(true)
 {
+	// TODO: Currently it is not possible to move this call into the constructor
+	//       of Display because the call to createVideoSystem() indirectly calls
+	//       Reactor.getDisplay().
+	display->createVideoSystem();
+
 	createMachineSetting();
 
 	pauseSetting.attach(*this);
@@ -276,10 +282,6 @@ InputEventGenerator& Reactor::getInputEventGenerator()
 
 Display& Reactor::getDisplay()
 {
-	if (!display.get()) {
-		display.reset(new Display(*this));
-		display->createVideoSystem();
-	}
 	return *display;
 }
 
@@ -292,7 +294,7 @@ CommandConsole& Reactor::getCommandConsole()
 {
 	if (!commandConsole.get()) {
 		commandConsole.reset(new CommandConsole(
-			*globalCommandController, *eventDistributor, getDisplay()));
+			*globalCommandController, *eventDistributor, *display));
 	}
 	return *commandConsole;
 }
