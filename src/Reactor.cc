@@ -208,6 +208,8 @@ Reactor::Reactor()
 		*globalCommandController, *eventDistributor))
 	, display(new Display(*this))
 	, mixer(new Mixer(*globalCommandController))
+	, commandConsole(new CommandConsole(
+		*globalCommandController, *eventDistributor, *display))
 	, diskManipulator(new DiskManipulator(*globalCommandController))
 	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
@@ -292,10 +294,6 @@ Mixer& Reactor::getMixer()
 
 CommandConsole& Reactor::getCommandConsole()
 {
-	if (!commandConsole.get()) {
-		commandConsole.reset(new CommandConsole(
-			*globalCommandController, *eventDistributor, *display));
-	}
 	return *commandConsole;
 }
 
