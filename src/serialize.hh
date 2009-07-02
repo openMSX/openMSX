@@ -74,7 +74,7 @@ public:
 	void serializeBase(T& t)
 	{
 		const char* tag = BaseClassName<Base>::getName();
-		self().serializeNoID(tag, static_cast<Base&>(t));
+		self().serialize(tag, static_cast<Base&>(t));
 	}
 
 	/** Serialize the base class of this classtype.
@@ -104,7 +104,7 @@ public:
 	// interface is not explictly visible in the base class.
 	//
 	//
-	// template<typename T> void serialize(const char* tag, const T& t, ...)
+	// template<typename T> void serializeWithID(const char* tag, const T& t, ...)
 	//
 	//   This is _the_most_important_ method of the serialization
 	//   framework. Depending on the concrete archive type (loader/saver)
@@ -131,9 +131,9 @@ public:
 	//   type).
 	//
 	//
-	// template<typename T> void serializeNoID(const char* tag, const T& t)
+	// template<typename T> void serialize(const char* tag, const T& t)
 	//
-	//   This is much like the serialize() method above, but it doesn't
+	//   This is much like the serializeWithID() method above, but it doesn't
 	//   store an ID with this element. This means that it's not possible,
 	//   later on in the stream, to refer to this element. For many elements
 	//   you know this will not happen. This method results in a slightly
@@ -294,7 +294,7 @@ public:
 	inline bool isLoader() const { return false; }
 
 	// Main saver method. Heavy lifting is done in the Saver class.
-	template<typename T> void serialize(const char* tag, const T& t)
+	template<typename T> void serializeWithID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
 		Saver<T> saver;
@@ -306,26 +306,26 @@ public:
 	// anyway need to provide them because the same (templatized) code
 	// path is used both for saving and loading.
 	template<typename T, typename T1>
-	void serialize(const char* tag, const T& t, T1 /*t1*/)
+	void serializeWithID(const char* tag, const T& t, T1 /*t1*/)
 	{
-		serialize(tag, t);
+		serializeWithID(tag, t);
 	}
 	template<typename T, typename T1, typename T2>
-	void serialize(const char* tag, const T& t, T1 /*t1*/, T2 /*t2*/)
+	void serializeWithID(const char* tag, const T& t, T1 /*t1*/, T2 /*t2*/)
 	{
-		serialize(tag, t);
+		serializeWithID(tag, t);
 	}
 	template<typename T, typename T1, typename T2, typename T3>
-	void serialize(const char* tag, const T& t, T1 /*t1*/, T2 /*t2*/, T3 /*t3*/)
+	void serializeWithID(const char* tag, const T& t, T1 /*t1*/, T2 /*t2*/, T3 /*t3*/)
 	{
-		serialize(tag, t);
+		serializeWithID(tag, t);
 	}
 
 	// Default implementation is to base64-encode the blob and serialize
 	// the resulting string. But memory archives will memcpy the blob.
 	void serialize_blob(const char* tag, const void* data, unsigned len);
 
-	template<typename T> void serializeNoID(const char* tag, const T& t)
+	template<typename T> void serialize(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
 		Saver<T> saver;
@@ -434,29 +434,29 @@ public:
 	inline bool isLoader() const { return true; }
 
 	template<typename T>
-	void serialize(const char* tag, T& t)
+	void serializeWithID(const char* tag, T& t)
 	{
 		doSerialize(tag, t, make_tuple());
 	}
 	template<typename T, typename T1>
-	void serialize(const char* tag, T& t, T1 t1)
+	void serializeWithID(const char* tag, T& t, T1 t1)
 	{
 		doSerialize(tag, t, make_tuple(t1));
 	}
 	template<typename T, typename T1, typename T2>
-	void serialize(const char* tag, T& t, T1 t1, T2 t2)
+	void serializeWithID(const char* tag, T& t, T1 t1, T2 t2)
 	{
 		doSerialize(tag, t, make_tuple(t1, t2));
 	}
 	template<typename T, typename T1, typename T2, typename T3>
-	void serialize(const char* tag, T& t, T1 t1, T2 t2, T3 t3)
+	void serializeWithID(const char* tag, T& t, T1 t1, T2 t2, T3 t3)
 	{
 		doSerialize(tag, t, make_tuple(t1, t2, t3));
 	}
 	void serialize_blob(const char* tag, void* data, unsigned len);
 
 	template<typename T>
-	void serializeNoID(const char* tag, T& t)
+	void serialize(const char* tag, T& t)
 	{
 		this->self().beginTag(tag);
 		typedef typename remove_const<T>::type TNC;

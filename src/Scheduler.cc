@@ -194,7 +194,7 @@ void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 	// Schedulable has a collection of SynchronizationPoints, all with the
 	// same Schedulable. So there's no need to serialize 'device'.
 	//Schedulable* device;
-	ar.serializeNoID("time", timeStamp);
+	ar.serialize("time", timeStamp);
 	ar.serialize("type", userData);
 }
 INSTANTIATE_SERIALIZE_METHODS(SynchronizationPoint);

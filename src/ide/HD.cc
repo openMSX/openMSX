@@ -183,7 +183,7 @@ template<typename Archive>
 void HD::serialize(Archive& ar, unsigned /*version*/)
 {
 	Filename tmp = file.get() ? filename : Filename();
-	ar.serializeNoID("filename", tmp);
+	ar.serialize("filename", tmp);
 	if (ar.isLoader()) {
 		if (tmp.empty()) {
 			// lazily open file specified in config

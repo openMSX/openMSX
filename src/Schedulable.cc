@@ -61,7 +61,7 @@ void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 	if (!ar.isLoader()) {
 		scheduler.getSyncPoints(syncPoints, *this);
 	}
-	ar.serializeNoID("syncPoints", syncPoints); // no id because local var
+	ar.serialize("syncPoints", syncPoints);
 	if (ar.isLoader()) {
 		removeSyncPoints();
 		for (Scheduler::SyncPoints::const_iterator it = syncPoints.begin();

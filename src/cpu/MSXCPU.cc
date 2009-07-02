@@ -359,9 +359,9 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 template<typename Archive>
 void MSXCPU::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("z80",  *z80);
+	ar.serializeWithID("z80", *z80);
 	if (r800.get()) {
-		ar.serialize("r800", *r800);
+		ar.serializeWithID("r800", *r800);
 	}
 	ar.serializePointerID("activeCPU", activeCPU);
 	ar.serializePointerID("newCPU",    newCPU);

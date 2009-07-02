@@ -1196,9 +1196,9 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	getMSXMixer().reschedule();
 
 	ar.serialize("name", machineName);
-	ar.serialize("config", machineConfig2, ref(self));
+	ar.serializeWithID("config", machineConfig2, ref(self));
 	assert(getMachineConfig() == machineConfig2.get());
-	ar.serialize("extensions", extensions, ref(self));
+	ar.serializeWithID("extensions", extensions, ref(self));
 
 	if (mapperIO.get()) {
 		ar.serialize("mapperIO", *mapperIO);

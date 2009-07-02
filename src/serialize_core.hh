@@ -409,9 +409,9 @@ template<typename TC> struct CollectionSaver
 		}
 		for (/**/; begin != end; ++begin) {
 			if (saveId) {
-				ar.serialize("item", *begin);
+				ar.serializeWithID("item", *begin);
 			} else {
-				ar.serializeNoID("item", *begin);
+				ar.serialize("item", *begin);
 			}
 		}
 	}

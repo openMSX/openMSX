@@ -174,7 +174,7 @@ void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash", *flash);
-	ar.serialize("drives", drives, ref(getMotherBoard()));
+	ar.serializeWithID("drives", drives, ref(getMotherBoard()));
 	ar.serialize("nowindhost", *host);
 	ar.serialize("bank", bank);
 

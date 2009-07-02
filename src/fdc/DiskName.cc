@@ -41,10 +41,8 @@ const Filename& DiskName::getFilename() const
 template<typename Archive>
 void DiskName::serialize(Archive& ar, unsigned /*version*/)
 {
-	// serializeNoID because we sometimes serialize DiskName objects that
-	// are allocated on the stack
-	ar.serializeNoID("filename", name);
-	ar.serializeNoID("extra", extra);
+	ar.serialize("filename", name);
+	ar.serialize("extra", extra);
 }
 INSTANTIATE_SERIALIZE_METHODS(DiskName);
 

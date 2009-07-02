@@ -377,21 +377,21 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 		// there was no DiskName yet, just a plain Filename
 		assert(ar.isLoader());
 		Filename filename;
-		ar.serializeNoID("disk", filename);
+		ar.serialize("disk", filename);
 		if (filename.getOriginal() == "ramdisk") {
 			diskname = DiskName(Filename(), "ramdisk");
 		} else {
 			diskname = DiskName(filename, "");
 		}
 	} else {
-		ar.serializeNoID("disk", diskname);
+		ar.serialize("disk", diskname);
 	}
 
 	vector<Filename> patches;
 	if (!ar.isLoader()) {
 		disk->getPatches(patches);
 	}
-	ar.serializeNoID("patches", patches);
+	ar.serialize("patches", patches);
 
 	if (ar.isLoader()) {
 		diskname.updateAfterLoadState(controller);
