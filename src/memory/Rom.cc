@@ -41,31 +41,32 @@ private:
 };
 
 
-Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
+Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
          const string& description_, const XMLElement& config)
-	: motherBoard(motherBoard_), name(name_), description(description_)
+	: name(name_), description(description_)
 {
-	init(motherBoard.getGlobalCliComm(), config.getChild("rom"));
+	init(motherBoard, motherBoard.getGlobalCliComm(), config.getChild("rom"));
 }
 
-Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
+Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
          const string& description_, const XMLElement& config,
          const string& id)
-	: motherBoard(motherBoard_), name(name_), description(description_)
+	: name(name_), description(description_)
 {
 	XMLElement::Children romConfigs;
 	config.getChildren("rom", romConfigs);
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getId() == id) {
-			init(motherBoard.getGlobalCliComm(), **it);
+			init(motherBoard, motherBoard.getGlobalCliComm(), **it);
 			return;
 		}
 	}
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
 
-void Rom::init(CliComm& cliComm, const XMLElement& config)
+void Rom::init(MSXMotherBoard& motherBoard, CliComm& cliComm,
+               const XMLElement& config)
 {
 	CommandController& controller = motherBoard.getCommandController();
 
@@ -114,6 +115,13 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 			}
 		}
 		read(config);
+		// verify SHA1
+		if (!checkSHA1(config)) {
+			motherBoard.getMSXCliComm().printWarning(
+				"SHA1 sum for '" + config.getId() +
+				"' does not match with sum of '" +
+				file->getURL() + "'.");
+		}
 
 	} else if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
@@ -226,14 +234,6 @@ void Rom::read(const XMLElement& config)
 	} catch (FileException&) {
 		throw MSXException("Error reading ROM image: " +
 		                   file->getURL());
-	}
-
-	// verify SHA1
-	if (!checkSHA1(config)) {
-		motherBoard.getMSXCliComm().printWarning(
-			"SHA1 sum for '" + config.getId() +
-			"' does not match with sum of '" +
-			file->getURL() + "'.");
 	}
 }
 
