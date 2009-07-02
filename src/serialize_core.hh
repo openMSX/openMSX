@@ -298,7 +298,7 @@ template<typename T> struct ClassSaver
 {
 	template<typename Archive> void operator()(
 		Archive& ar, const T& t, bool saveId,
-		const std::string& type = "", bool saveConstrArgs = false)
+		const std::string* type = NULL, bool saveConstrArgs = false)
 	{
 		// Order is important (for non-xml archives). We use this order:
 		//    - id
@@ -317,8 +317,8 @@ template<typename T> struct ClassSaver
 			ar.attribute("id", id);
 		}
 
-		if (!type.empty()) {
-			ar.attribute("type", type);
+		if (type != NULL) {
+			ar.attribute("type", *type);
 		}
 
 		unsigned version = SerializeClassVersion<T>::value;
@@ -367,7 +367,7 @@ template<typename TP> struct PointerSaver
 				ClassSaver<T> saver;
 				// don't store type
 				// store id, constr-args
-				saver(ar, *tp, true, "", true);
+				saver(ar, *tp, true, NULL, true);
 			}
 		}
 	}

@@ -165,7 +165,7 @@ public:
 		const BaseType* base = static_cast<const BaseType*>(v);
 		const T* tp = static_cast<const T*>(base);
 		ClassSaver<T> saver;
-		saver(ar, *tp, true, name, true); // save id, type, constr-args
+		saver(ar, *tp, true, &name, true); // save id, type, constr-args
 	}
 private:
 	const std::string name;
