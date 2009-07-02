@@ -3,6 +3,7 @@
 #include "Filename.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 #include <cassert>
 

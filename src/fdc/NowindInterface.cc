@@ -8,6 +8,7 @@
 #include "DiskChanger.hh"
 #include "Clock.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ref.hh"

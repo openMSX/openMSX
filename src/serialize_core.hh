@@ -6,8 +6,8 @@
 #include "shared_ptr.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
-#include "StringOp.hh"
-#include "MSXException.hh"
+#include "inline.hh"
+#include "likely.hh"
 #include <string>
 #include <cassert>
 #include <memory>
@@ -476,18 +476,7 @@ template<typename T> struct EnumLoader
 	}
 };
 
-template<typename T> static inline void versionError(
-	unsigned latestVersion, unsigned version)
-{
-	// note: the result of type_info::name() is implementation defined
-	//       but should be ok to show in an error message
-	throw MSXException(
-		std::string("your openMSX installation is too old "
-		"(state contains type '") + typeid(T).name() +
-		"' with version " + StringOp::toString(version) +
-		", while this openMSX installation only supports up to version " +
-		StringOp::toString(latestVersion) + ").");
-}
+void versionError(const char* className, unsigned latestVersion, unsigned version);
 template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
 {
 	unsigned latestVersion = SerializeClassVersion<T>::value;
@@ -496,8 +485,8 @@ template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
 		if (!ar.canHaveOptionalAttributes() ||
 		    ar.hasAttribute("version")) {
 			ar.attribute("version", version);
-			if (version > latestVersion) {
-				versionError<T>(latestVersion, version);
+			if (unlikely(version > latestVersion)) {
+				versionError(typeid(T).name(), latestVersion, version);
 			}
 		} else {
 			version = 1;
@@ -615,6 +604,7 @@ template<typename TP> struct PointerLoader
 		serialize_as_pointer<TP>::setPointer(tp2, tp, ar);
 	}
 };
+void pointerError(unsigned id);
 template<typename TP> struct IDLoader
 {
 	template<typename Archive>
@@ -632,7 +622,7 @@ template<typename TP> struct IDLoader
 		} else {
 			void* p = ar.getPointer(id);
 			if (!p) {
-				throw MSXException("Couldn't find pointer in archive with id " + StringOp::toString(id));
+				pointerError(id);
 			}
 			tp = static_cast<T*>(p);
 		}

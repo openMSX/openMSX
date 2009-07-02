@@ -39,7 +39,7 @@ SRC_HDR:= \
 	EmptyPatch IPSPatch \
 	Version \
 	LedStatus \
-	serialize serialize_meta openmsx
+	serialize serialize_meta serialize_core openmsx
 
 SRC_ONLY:= \
 	main
@@ -49,7 +49,7 @@ HDR_ONLY:= \
 	Clock \
 	MSXException InitException PlugException \
 	PatchInterface I8255Interface \
-	serialize_core serialize_stl serialize_constr
+	serialize_stl serialize_constr
 
 DIST:= \
 	Doxyfile
