@@ -19,6 +19,7 @@ class Layer;
 class Reactor;
 class VideoSystem;
 class CliComm;
+class CommandConsole;
 class RenderSettings;
 class VideoSystemChangeListener;
 class Setting;
@@ -44,6 +45,7 @@ public:
 	CliComm& getCliComm() const;
 	RenderSettings& getRenderSettings() const;
 	OSDGUI& getOSDGUI() const;
+	CommandConsole& getCommandConsole();
 
 	/** Redraw the display.
 	  */
@@ -102,6 +104,7 @@ private:
 
 	Reactor& reactor;
 	const std::auto_ptr<RenderSettings> renderSettings;
+	const std::auto_ptr<CommandConsole> commandConsole;
 
 	// the current renderer
 	RendererFactory::RendererID currentRenderer;

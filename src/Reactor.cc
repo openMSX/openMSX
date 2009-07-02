@@ -4,7 +4,6 @@
 #include "CommandLineParser.hh"
 #include "EventDistributor.hh"
 #include "GlobalCommandController.hh"
-#include "CommandConsole.hh"
 #include "InputEventGenerator.hh"
 #include "InputEvents.hh"
 #include "DiskManipulator.hh"
@@ -209,8 +208,6 @@ Reactor::Reactor()
 		*globalCommandController, *eventDistributor))
 	, display(new Display(*this))
 	, mixer(new Mixer(*globalCommandController))
-	, commandConsole(new CommandConsole(
-		*globalCommandController, *eventDistributor, *display))
 	, diskManipulator(new DiskManipulator(*globalCommandController))
 	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
@@ -291,11 +288,6 @@ Display& Reactor::getDisplay()
 Mixer& Reactor::getMixer()
 {
 	return *mixer;
-}
-
-CommandConsole& Reactor::getCommandConsole()
-{
-	return *commandConsole;
 }
 
 DiskManipulator& Reactor::getDiskManipulator()

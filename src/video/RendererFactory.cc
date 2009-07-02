@@ -26,14 +26,15 @@ namespace RendererFactory {
 
 VideoSystem* createVideoSystem(Reactor& reactor)
 {
-	switch (reactor.getDisplay().getRenderSettings().getRenderer().getValue()) {
+	Display& display = reactor.getDisplay();
+	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
 			return new DummyVideoSystem();
 		case SDL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			return new SDLVideoSystem(reactor, reactor.getCommandConsole());
+			return new SDLVideoSystem(reactor, display.getCommandConsole());
 		default:
 			assert(false);
 			return 0;

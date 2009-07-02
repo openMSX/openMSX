@@ -23,7 +23,6 @@ class GlobalCliComm;
 class CliComm;
 class Display;
 class Mixer;
-class CommandConsole;
 class InputEventGenerator;
 class DiskManipulator;
 class FilePool;
@@ -78,7 +77,6 @@ public:
 	InputEventGenerator& getInputEventGenerator();
 	Display& getDisplay();
 	Mixer& getMixer();
-	CommandConsole& getCommandConsole();
 	DiskManipulator& getDiskManipulator();
 	EnumSetting<int>& getMachineSetting();
 
@@ -127,7 +125,6 @@ private:
 	std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;
 	std::auto_ptr<Mixer> mixer;
-	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<DiskManipulator> diskManipulator;
 	std::auto_ptr<FilePool> filePool;
 

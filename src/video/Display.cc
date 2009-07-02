@@ -13,6 +13,7 @@
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
 #include "CliComm.hh"
+#include "CommandConsole.hh"
 #include "Timer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -71,6 +72,8 @@ Display::Display(Reactor& reactor_)
 	, osdGui(new OSDGUI(reactor_.getCommandController(), *this))
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
+	, commandConsole(new CommandConsole(
+		reactor.getCommandController(), reactor.getEventDistributor(), *this))
 	, currentRenderer(RendererFactory::UNINITIALIZED)
 	, switchInProgress(false)
 {
@@ -160,6 +163,11 @@ RenderSettings& Display::getRenderSettings() const
 OSDGUI& Display::getOSDGUI() const
 {
 	return *osdGui;
+}
+
+CommandConsole& Display::getCommandConsole()
+{
+	return *commandConsole;
 }
 
 void Display::attach(VideoSystemChangeListener& listener)
