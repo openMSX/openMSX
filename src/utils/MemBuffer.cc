@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MemBuffer.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cstdlib>
 
@@ -16,16 +17,21 @@ OutputBuffer::~OutputBuffer()
 	free(begin);
 }
 
-void OutputBuffer::insertGrow(const void* __restrict data, unsigned len)
+void OutputBuffer::insert(const void* __restrict data, unsigned len)
 {
-	unsigned oldSize = end - begin;
-	unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
-	begin = reinterpret_cast<char*>(realloc(begin, newSize));
-	end = begin + oldSize + len;
-	finish = begin + newSize;
-	memcpy(begin + oldSize, data, len);
+	char* newEnd = end + len;
+	if (likely(newEnd <= finish)) {
+		memcpy(end, data, len);
+		end = newEnd;
+	} else {
+		unsigned oldSize = end - begin;
+		unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
+		begin = reinterpret_cast<char*>(realloc(begin, newSize));
+		end = begin + oldSize + len;
+		finish = begin + newSize;
+		memcpy(begin + oldSize, data, len);
+	}
 }
-
 
 MemBuffer::MemBuffer(OutputBuffer& buffer)
 {

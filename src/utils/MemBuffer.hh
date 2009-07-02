@@ -3,7 +3,6 @@
 #ifndef MEMBUFFER_HH
 #define MEMBUFFER_HH
 
-#include "likely.hh"
 #include <cstring>
 #include <cassert>
 
@@ -38,16 +37,7 @@ public:
 	/** Insert data at the end of this buffer.
 	  * This will automatically grow this buffer.
 	  */
-	void insert(const void* __restrict data, unsigned len)
-	{
-		char* newEnd = end + len;
-		if (likely(newEnd <= finish)) {
-			memcpy(end, data, len);
-			end = newEnd;
-		} else {
-			insertGrow(data, len);
-		}
-	}
+	void insert(const void* __restrict data, unsigned len);
 
 	/** Insert data at a given position. This will overwrite the old data.
 	  * It's not possible to grow the buffer via this method (so the buffer
@@ -67,8 +57,6 @@ public:
 	}
 
 private:
-	void insertGrow(const void* data, unsigned len);
-
 	char* begin;   // begin of allocated memory
 	char* end;     // points right after the last used byte
 	               // so   end - begin == size
