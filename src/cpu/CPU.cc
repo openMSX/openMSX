@@ -108,12 +108,11 @@ void CPU::CPURegs::serialize(Archive& ar, unsigned version)
 	ar.serialize("i",   I_);
 	byte r = getR();
 	ar.serialize("r",   r);  // combined R_ and R2_
-	setR(r);
+	if (ar.isLoader()) setR(r);
 	ar.serialize("im",  IM_);
 	ar.serialize("iff1", IFF1_);
 	ar.serialize("iff2", IFF2_);
-	if (version < 2) {
-		// loading only
+	if (ar.isLoader() && version < 2) {
 		bool afterEI = false; // initialize to avoid warning
 		ar.serialize("afterEI", afterEI);
 		clearAfter();

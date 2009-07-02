@@ -373,9 +373,8 @@ template<typename Archive>
 void DiskChanger::serialize(Archive& ar, unsigned version)
 {
 	DiskName diskname = disk->getName();
-	if (version < 2) {
+	if (ar.isLoader() && version < 2) {
 		// there was no DiskName yet, just a plain Filename
-		assert(ar.isLoader());
 		Filename filename;
 		ar.serialize("disk", filename);
 		if (filename.getOriginal() == "ramdisk") {

@@ -4076,8 +4076,7 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
 	T::serialize(ar, version);
 	ar.serialize("regs", R);
-	if (version < 2) {
-		assert(ar.isLoader());
+	if (ar.isLoader() && version < 2) {
 		unsigned memptr = 0; // dummy value (avoid warning)
 		ar.serialize("memptr", memptr);
 		T::setMemPtr(memptr);

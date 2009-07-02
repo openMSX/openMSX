@@ -11,7 +11,7 @@ void DynamicClock::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("lastTick", lastTick);
 	unsigned freq = getFreq();
 	ar.serialize("freq", freq);
-	setFreq(freq);
+	if (ar.isLoader()) setFreq(freq);
 }
 INSTANTIATE_SERIALIZE_METHODS(DynamicClock);
 

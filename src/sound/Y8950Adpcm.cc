@@ -507,18 +507,17 @@ void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 		aud = emu;
 	}
 
-	if (version >= 2) {
-		ar.serialize("clock", clock);
-	} else {
-		assert(ar.isLoader());
+	if (ar.isLoader() && version < 2) {
 		clock.reset(getCurrentTime());
 
-		// reschedule, because automatically derserialized sync-point
+		// reschedule, because automatically deserialized sync-point
 		// can be off, because clock.getTime() != getCurrentTime()
 		removeSyncPoint();
 		if (isPlaying()) {
 			schedule();
 		}
+	} else {
+		ar.serialize("clock", clock);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Y8950Adpcm);
