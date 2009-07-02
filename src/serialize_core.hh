@@ -298,7 +298,7 @@ template<typename T> struct ClassSaver
 {
 	template<typename Archive> void operator()(
 		Archive& ar, const T& t, bool saveId,
-		const std::string* type = NULL, bool saveConstrArgs = false)
+		const char* type = NULL, bool saveConstrArgs = false)
 	{
 		// Order is important (for non-xml archives). We use this order:
 		//    - id
@@ -318,7 +318,7 @@ template<typename T> struct ClassSaver
 		}
 
 		if (type != NULL) {
-			ar.attribute("type", *type);
+			ar.attribute("type", type);
 		}
 
 		unsigned version = SerializeClassVersion<T>::value;

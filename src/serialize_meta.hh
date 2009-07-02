@@ -155,7 +155,7 @@ template<typename Archive, typename T>
 class PolymorphicSaver : public PolymorphicSaverBase<Archive>
 {
 public:
-	PolymorphicSaver(const std::string& name_)
+	PolymorphicSaver(const char* name_)
 		: name(name_)
 	{
 	}
@@ -165,10 +165,10 @@ public:
 		const BaseType* base = static_cast<const BaseType*>(v);
 		const T* tp = static_cast<const T*>(base);
 		ClassSaver<T> saver;
-		saver(ar, *tp, true, &name, true); // save id, type, constr-args
+		saver(ar, *tp, true, name, true); // save id, type, constr-args
 	}
 private:
-	const std::string name;
+	const char* name;
 };
 
 template<typename Archive, typename T>
@@ -210,7 +210,7 @@ class PolymorphicSaverRegistry : private noncopyable
 public:
 	static PolymorphicSaverRegistry& instance();
 
-	template<typename T> void registerClass(const std::string& name)
+	template<typename T> void registerClass(const char* name)
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		STATIC_ASSERT(!is_abstract<T>::value);
@@ -285,7 +285,7 @@ private:
 
 template<typename Archive, typename T> struct RegisterSaverHelper
 {
-	RegisterSaverHelper(const std::string& name)
+	RegisterSaverHelper(const char* name)
 	{
 		PolymorphicSaverRegistry<Archive>::instance().
 			template registerClass<T>(name);

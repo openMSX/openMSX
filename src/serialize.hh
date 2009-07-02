@@ -187,6 +187,7 @@ public:
 	{
 		self().serialize(name, t);
 	}
+	void attribute(const char* name, const char* value);
 
 	/** Some archives (like XML archives) can store optional attributes.
 	 * This method indicates whether that's the case or not.

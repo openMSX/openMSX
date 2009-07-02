@@ -15,6 +15,16 @@ using std::string;
 namespace openmsx {
 
 template<typename Derived>
+void ArchiveBase<Derived>::attribute(const char* name, const char* value)
+{
+	string valueStr(value);
+	self().attribute(name, valueStr);
+}
+template class ArchiveBase<MemOutputArchive>;
+template class ArchiveBase<XmlOutputArchive>;
+
+
+template<typename Derived>
 OutputArchiveBase<Derived>::OutputArchiveBase()
 	: lastId(0)
 {
