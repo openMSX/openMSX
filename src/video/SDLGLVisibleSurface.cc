@@ -88,11 +88,11 @@ std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
-		Reactor& reactor)
+		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = true;
 	return std::auto_ptr<Layer>(new OSDConsoleRenderer(
-		reactor, getWidth(), getHeight(), openGL));
+		reactor, console, getWidth(), getHeight(), openGL));
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)

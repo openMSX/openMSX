@@ -13,6 +13,7 @@ namespace openmsx {
 
 class Layer;
 class Reactor;
+class CommandConsole;
 class CommandController;
 class AlarmEvent;
 class EventDistributor;
@@ -43,7 +44,7 @@ public:
 
 	virtual std::auto_ptr<Layer> createSnowLayer(Display& display) = 0;
 	virtual std::auto_ptr<Layer> createConsoleLayer(
-		Reactor& reactor) = 0;
+		Reactor& reactor, CommandConsole& console) = 0;
 	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
 
 	/** Create an off-screen OutputSurface which has similar properties

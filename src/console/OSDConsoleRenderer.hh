@@ -26,8 +26,8 @@ class OSDConsoleRenderer : public Layer, private Observer<Setting>,
                            private noncopyable
 {
 public:
-	OSDConsoleRenderer(Reactor& reactor, unsigned screenW, unsigned screenH,
-	                   bool openGL);
+	OSDConsoleRenderer(Reactor& reactor, CommandConsole& console,
+	                   unsigned screenW, unsigned screenH, bool openGL);
 	~OSDConsoleRenderer();
 
 private:

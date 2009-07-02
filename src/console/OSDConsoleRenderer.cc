@@ -52,11 +52,12 @@ private:
 // class OSDConsoleRenderer
 
 OSDConsoleRenderer::OSDConsoleRenderer(
-		Reactor& reactor_, unsigned screenW_, unsigned screenH_,
+		Reactor& reactor_, CommandConsole& console_,
+		unsigned screenW_, unsigned screenH_,
 		bool openGL_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
-	, console(reactor.getCommandConsole())
+	, console(console_)
 	, consoleSetting(reactor.getGlobalSettings().getConsoleSetting())
 	, settingChecker(new OSDSettingChecker(*this))
 	, screenW(screenW_)

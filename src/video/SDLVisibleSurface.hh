@@ -22,7 +22,8 @@ private:
 	// VisibleSurface
 	virtual void finish();
 	virtual std::auto_ptr<Layer> createSnowLayer(Display& display);
-	virtual std::auto_ptr<Layer> createConsoleLayer(Reactor& reactor);
+	virtual std::auto_ptr<Layer> createConsoleLayer(
+		Reactor& reactor, CommandConsole& console);
 	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
 	virtual std::auto_ptr<OutputSurface> createOffScreenSurface();
 };
