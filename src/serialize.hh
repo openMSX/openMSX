@@ -616,12 +616,7 @@ public:
 	{
 		put(&t, sizeof(t));
 	}
-	void save(const std::string& s)
-	{
-		unsigned size = unsigned(s.size());
-		save(size);
-		put(s.data(), size);
-	}
+	void save(const std::string& s);
 	void serialize_blob(const char*, const void* data, unsigned len)
 	{
 		put(data, len);
@@ -673,15 +668,7 @@ public:
 	{
 		get(&t, sizeof(t));
 	}
-	void load(std::string& s)
-	{
-		unsigned length;
-		load(length);
-		s.resize(length);
-		if (length) {
-			get(&s[0], length);
-		}
-	}
+	void load(std::string& s);
 	void serialize_blob(const char*, void* data, unsigned len)
 	{
 		get(data, len);
@@ -716,16 +703,23 @@ public:
 	XmlOutputArchive(const std::string& filename);
 	~XmlOutputArchive();
 
-	template <typename T> void save(const T& t)
+	template <typename T> void saveImpl(const T& t)
 	{
 		// TODO make sure floating point is printed with enough digits
 		//      maybe print as hex?
 		save(StringOp::toString(t));
 	}
+	template <typename T> void save(const T& t)
+	{
+		saveImpl(t);
+	}
 	void save(const std::string& str);
 	void save(bool b);
 	void save(unsigned char b);
 	void save(signed char c);
+	void save(int i);                  // these 3 are not strictly needed
+	void save(unsigned u);             // but having them non-inline
+	void save(unsigned long long ull); // saves quite a bit of code
 
 	void beginSection() { /*nothing*/ }
 	void endSection()   { /*nothing*/ }
@@ -754,17 +748,24 @@ class XmlInputArchive : public InputArchiveBase<XmlInputArchive>
 public:
 	XmlInputArchive(const std::string& filename);
 
-	template<typename T> void load(T& t)
+	template<typename T> void loadImpl(T& t)
 	{
 		std::string str;
 		load(str);
 		std::istringstream is(str);
 		is >> t;
 	}
+	template<typename T> void load(T& t)
+	{
+		loadImpl(t);
+	}
 	void load(std::string& t);
 	void load(bool& b);
 	void load(unsigned char& b);
 	void load(signed char& c);
+	void load(int& i);                  // these 3 are not strictly needed
+	void load(unsigned& u);             // but having them non-inline
+	void load(unsigned long long& ull); // saves quite a bit of code
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
 

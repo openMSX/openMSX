@@ -163,6 +163,27 @@ template class InputArchiveBase<XmlInputArchive>;
 
 ////
 
+void MemOutputArchive::save(const std::string& s)
+{
+	unsigned size = unsigned(s.size());
+	save(size);
+	put(s.data(), size);
+}
+
+////
+
+void MemInputArchive::load(std::string& s)
+{
+	unsigned length;
+	load(length);
+	s.resize(length);
+	if (length) {
+		get(&s[0], length);
+	}
+}
+
+////
+
 XmlOutputArchive::XmlOutputArchive(const string& filename)
 	: current(new XMLElement("serial"))
 {
@@ -203,6 +224,18 @@ void XmlOutputArchive::save(unsigned char b)
 void XmlOutputArchive::save(signed char c)
 {
 	save(int(c));
+}
+void XmlOutputArchive::save(int i)
+{
+	saveImpl(i);
+}
+void XmlOutputArchive::save(unsigned u)
+{
+	saveImpl(u);
+}
+void XmlOutputArchive::save(unsigned long long ull)
+{
+	saveImpl(ull);
 }
 
 void XmlOutputArchive::attribute(const string& name, const string& str)
@@ -274,6 +307,18 @@ void XmlInputArchive::load(signed char& c)
 	int i;
 	load(i);
 	c = i;
+}
+void XmlInputArchive::load(int& i)
+{
+	loadImpl(i);
+}
+void XmlInputArchive::load(unsigned& u)
+{
+	loadImpl(u);
+}
+void XmlInputArchive::load(unsigned long long& ull)
+{
+	loadImpl(ull);
 }
 
 void XmlInputArchive::beginTag(const char* tag_)
