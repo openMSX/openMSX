@@ -23,12 +23,51 @@ void ArchiveBase<Derived>::attribute(const char* name, const char* value)
 template class ArchiveBase<MemOutputArchive>;
 template class ArchiveBase<XmlOutputArchive>;
 
+////
 
-template<typename Derived>
-OutputArchiveBase<Derived>::OutputArchiveBase()
+OutputArchiveBase2::OutputArchiveBase2()
 	: lastId(0)
 {
 }
+
+unsigned OutputArchiveBase2::generateID1(const void* p)
+{
+	#ifdef linux
+	assert("Can't serialize ID of object located on the stack" &&
+	       !addressOnStack(p));
+	#endif
+	++lastId;
+	assert(polyIdMap.find(p) == polyIdMap.end());
+	polyIdMap[p] = lastId;
+	return lastId;
+}
+unsigned OutputArchiveBase2::generateID2(
+	const void* p, const std::type_info& typeInfo)
+{
+	#ifdef linux
+	assert("Can't serialize ID of object located on the stack" &&
+	       !addressOnStack(p));
+	#endif
+	++lastId;
+	IdKey key = std::make_pair(p, TypeInfo(typeInfo));
+	assert(idMap.find(key) == idMap.end());
+	idMap[key] = lastId;
+	return lastId;
+}
+
+unsigned OutputArchiveBase2::getID1(const void* p)
+{
+	PolyIdMap::const_iterator it = polyIdMap.find(p);
+	return it != polyIdMap.end() ? it->second : 0;
+}
+unsigned OutputArchiveBase2::getID2(
+	const void* p, const std::type_info& typeInfo)
+{
+	IdKey key = std::make_pair(p, TypeInfo(typeInfo));
+	IdMap::const_iterator it = idMap.find(key);
+	return it != idMap.end() ? it->second : 0;
+}
+
 
 template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
@@ -66,9 +105,16 @@ template class OutputArchiveBase<XmlOutputArchive>;
 
 ////
 
-template<typename Derived>
-InputArchiveBase<Derived>::InputArchiveBase()
+void* InputArchiveBase2::getPointer(unsigned id)
 {
+	IdMap::const_iterator it = idMap.find(id);
+	return it != idMap.end() ? it->second : NULL;
+}
+
+void InputArchiveBase2::addPointer(unsigned id, const void* p)
+{
+	assert(idMap.find(id) == idMap.end());
+	idMap[id] = const_cast<void*>(p);
 }
 
 template<typename Derived>
@@ -110,20 +156,6 @@ void InputArchiveBase<Derived>::serialize_blob(
 	} else {
 		throw XMLException("Unsupported encoding \"" + encoding + "\" for blob");
 	}
-}
-
-template<typename Derived>
-void* InputArchiveBase<Derived>::getPointer(unsigned id)
-{
-	IdMap::const_iterator it = idMap.find(id);
-	return it != idMap.end() ? it->second : NULL;
-}
-
-template<typename Derived>
-void InputArchiveBase<Derived>::addPointer(unsigned id, const void* p)
-{
-	assert(idMap.find(id) == idMap.end());
-	idMap[id] = const_cast<void*>(p);
 }
 
 template class InputArchiveBase<MemInputArchive>;

@@ -256,8 +256,8 @@ public:
 	//   attribute() and serialize_blob() is implemented, that data may
 	//   not pass via save()).
 	//
-	//   Often this method will be overloaded to handle different certain
-	//   types in a specific way.
+	//   Often this method will be overloaded to handle certain types in a
+	//   specific way.
 	//
 	//
 	// template<typename T> void load(T& t)
@@ -288,12 +288,87 @@ protected:
 	}
 };
 
-template<typename Derived>
-class OutputArchiveBase : public ArchiveBase<Derived>
+// The part of OutputArchiveBase that doesn't depend on the template parameter
+class OutputArchiveBase2
 {
 public:
 	inline bool isLoader() const { return false; }
 
+	void skipSection(bool /*skip*/)
+	{
+		assert(false);
+	}
+
+/*internal*/
+	#ifdef linux
+	// This routine is not portable, for example it breaks in
+	// windows (mingw) because there the location of the stack
+	// is _below_ the heap.
+	// But this is anyway only used to check assertions. So for now
+	// only do that in linux.
+	static NEVER_INLINE bool addressOnStack(const void* p)
+	{
+		// This is not portable, it assumes:
+		//  - stack grows downwards
+		//  - heap is at lower address than stack
+		// Also in c++ comparison between pointers is only defined when
+		// the two pointers point to objects in the same array.
+		int dummy;
+		return &dummy < p;
+	}
+	#endif
+
+	// Generate a new ID for the given pointer and store this association
+	// for later (see getId()).
+	template<typename T> unsigned generateId(const T* p)
+	{
+		// For composed structures, for example
+		//   struct A { ... };
+		//   struct B { A a; ... };
+		// The pointer to the outer and inner structure can be the
+		// same while we still want a different ID to refer to these
+		// two. That's why we use a std::pair<void*, TypeInfo> as key
+		// in the map.
+		// For polymorphic types you do sometimes use a base pointer
+		// to refer to a subtype. So there we only use the pointer
+		// value as key in the map.
+		if (is_polymorphic<T>::value) {
+			return generateID1(p);
+		} else {
+			return generateID2(p, typeid(T));
+		}
+	}
+
+	template<typename T> unsigned getId(const T* p)
+	{
+		if (is_polymorphic<T>::value) {
+			return getID1(p);
+		} else {
+			return getID2(p, typeid(T));
+		}
+	}
+
+protected:
+	OutputArchiveBase2();
+
+private:
+	unsigned generateID1(const void* p);
+	unsigned generateID2(const void* p, const std::type_info& typeInfo);
+	unsigned getID1(const void* p);
+	unsigned getID2(const void* p, const std::type_info& typeInfo);
+
+	typedef std::pair<const void*, TypeInfo> IdKey;
+	typedef std::map<IdKey, unsigned> IdMap;
+	typedef std::map<const void*, unsigned> PolyIdMap;
+	IdMap idMap;
+	PolyIdMap polyIdMap;
+	unsigned lastId;
+};
+
+template<typename Derived>
+class OutputArchiveBase : public ArchiveBase<Derived>, public OutputArchiveBase2
+{
+public:
 	// Main saver method. Heavy lifting is done in the Saver class.
 	template<typename T> void serializeWithID(const char* tag, const T& t)
 	{
@@ -346,89 +421,64 @@ public:
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
 
-	void skipSection(bool /*skip*/)
+protected:
+	OutputArchiveBase() {}
+};
+
+
+// Part of InputArchiveBase that doesn't depend on the template parameter
+class InputArchiveBase2
+{
+public:
+	inline bool isLoader() const { return true; }
+
+	void beginSection()
+	{
+		assert(false);
+	}
+	void endSection()
 	{
 		assert(false);
 	}
 
 /*internal*/
-	#ifdef linux
-	// This routine is not portable, for example it breaks in
-	// windows (mingw) because there the location of the stack
-	// is _below_ the heap.
-	// But this is anyway only used to check assertions. So for now
-	// only do that in linux.
-	static NEVER_INLINE bool addressOnStack(const void* p)
-	{
-		// This is not portable, it assumes:
-		//  - stack grows downwards
-		//  - heap is at lower address than stack
-		// Also in c++ comparison between pointers is only defined when
-		// the two pointers point to objects in the same array.
-		int dummy;
-		return &dummy < p;
-	}
-	#endif
+	void* getPointer(unsigned id);
+	void addPointer(unsigned id, const void* p);
 
-	// Generate a new ID for the given pointer and store this association
-	// for later (see getId()).
-	template<typename T> unsigned generateId(const T* p)
+	template<typename T> void resetSharedPtr(shared_ptr<T>& s, T* r)
 	{
-		// For composed structures, for example
-		//   struct A { ... };
-		//   struct B { A a; ... };
-		// The pointer to the outer and inner structure can be the
-		// same while we still want a different ID to refer to these
-		// two. That's why we use a std::pair<void*, TypeInfo> as key
-		// in the map.
-		// For polymorphic types you do sometimes use a base pointer
-		// to refer to a subtype. So there we only use the pointer
-		// value as key in the map.
-		#ifdef linux
-		assert("Can't serialize ID of object located on the stack" &&
-		       !addressOnStack(p));
-		#endif
-		++lastId;
-		if (is_polymorphic<T>::value) {
-			assert(polyIdMap.find(p) == polyIdMap.end());
-			polyIdMap[p] = lastId;
-		} else {
-			IdKey key = std::make_pair(p, TypeInfo(typeid(T)));
-			assert(idMap.find(key) == idMap.end());
-			idMap[key] = lastId;
+		if (r == NULL) {
+			s.reset();
+			return;
 		}
-		return lastId;
-	}
-	template<typename T> unsigned getId(const T* p)
-	{
-		if (is_polymorphic<T>::value) {
-			PolyIdMap::const_iterator it = polyIdMap.find(p);
-			return it != polyIdMap.end() ? it->second : 0;
+		SharedPtrMap::const_iterator it = sharedPtrMap.find(r);
+		if (it == sharedPtrMap.end()) {
+			s.reset(r);
+			sharedPtrMap[r] = &s;
+			//sharedPtrMap[r] = s;
 		} else {
-			IdKey key = std::make_pair(p, TypeInfo(typeid(T)));
-			IdMap::const_iterator it = idMap.find(key);
-			return it != idMap.end() ? it->second : 0;
+			shared_ptr<T>* s2 = static_cast<shared_ptr<T>*>(it->second);
+			s = *s2;
+			//s = std::tr1::static_pointer_cast<T>(it->second);
 		}
 	}
 
 protected:
-	OutputArchiveBase();
+	InputArchiveBase2() {}
 
 private:
-	typedef std::pair<const void*, TypeInfo> IdKey;
-	typedef std::map<IdKey, unsigned> IdMap;
-	typedef std::map<const void*, unsigned> PolyIdMap;
+	typedef std::map<unsigned, void*> IdMap;
 	IdMap idMap;
-	PolyIdMap polyIdMap;
-	unsigned lastId;
+
+	typedef std::map<void*, void*> SharedPtrMap;
+	//typedef std::map<void*, std::tr1::shared_ptr<void> > SharedPtrMap;
+	SharedPtrMap sharedPtrMap;
 };
 
 template<typename Derived>
-class InputArchiveBase : public ArchiveBase<Derived>
+class InputArchiveBase : public ArchiveBase<Derived>, public InputArchiveBase2
 {
 public:
-	inline bool isLoader() const { return true; }
-
 	template<typename T>
 	void serializeWithID(const char* tag, T& t)
 	{
@@ -476,37 +526,7 @@ public:
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
 	}
 
-	void beginSection()
-	{
-		assert(false);
-	}
-	void endSection()
-	{
-		assert(false);
-	}
-
 /*internal*/
-	void* getPointer(unsigned id);
-	void addPointer(unsigned id, const void* p);
-
-	template<typename T> void resetSharedPtr(shared_ptr<T>& s, T* r)
-	{
-		if (r == NULL) {
-			s.reset();
-			return;
-		}
-		SharedPtrMap::const_iterator it = sharedPtrMap.find(r);
-		if (it == sharedPtrMap.end()) {
-			s.reset(r);
-			sharedPtrMap[r] = &s;
-			//sharedPtrMap[r] = s;
-		} else {
-			shared_ptr<T>* s2 = static_cast<shared_ptr<T>*>(it->second);
-			s = *s2;
-			//s = std::tr1::static_pointer_cast<T>(it->second);
-		}
-	}
-
 	// Actual loader method. Heavy lifting is done in the Loader class.
 	template<typename T, typename TUPLE>
 	void doSerialize(const char* tag, T& t, TUPLE args, int id = 0)
@@ -520,15 +540,7 @@ public:
 	}
 
 protected:
-	InputArchiveBase();
-
-private:
-	typedef std::map<unsigned, void*> IdMap;
-	IdMap idMap;
-
-	typedef std::map<void*, void*> SharedPtrMap;
-	//typedef std::map<void*, std::tr1::shared_ptr<void> > SharedPtrMap;
-	SharedPtrMap sharedPtrMap;
+	InputArchiveBase() {}
 };
 
 ////
