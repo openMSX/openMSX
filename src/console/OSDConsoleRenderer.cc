@@ -56,6 +56,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		bool openGL_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
+	, console(reactor.getCommandConsole())
 	, consoleSetting(reactor.getGlobalSettings().getConsoleSetting())
 	, settingChecker(new OSDSettingChecker(*this))
 	, screenW(screenW_)
@@ -157,7 +158,6 @@ void OSDConsoleRenderer::adjustColRow()
 	unsigned consoleRows = std::min<unsigned>(
 		consoleRowsSetting->getValue(),
 		screenH / font->getHeight());
-	CommandConsole& console = reactor.getCommandConsole();
 	console.setColumns(consoleColumns);
 	console.setRows(consoleRows);
 }
@@ -214,7 +214,6 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	adjustColRow();
 
 	unsigned x, y, w, h;
-	CommandConsole& console = reactor.getCommandConsole();
 	h = font->getHeight() * console.getRows();
 	w = (font->getWidth() * console.getColumns()) + CHAR_BORDER;
 
@@ -352,7 +351,6 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		backgroundImage->draw(output, destX, destY, visibility);
 	}
 
-	CommandConsole& console = reactor.getCommandConsole();
 	int screenlines = destH / font->getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
 		drawText(output,

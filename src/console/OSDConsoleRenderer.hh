@@ -12,6 +12,7 @@
 namespace openmsx {
 
 class Reactor;
+class CommandConsole;
 class TTFFont;
 class BaseImage;
 class Setting;
@@ -54,6 +55,7 @@ private:
 	};
 
 	Reactor& reactor;
+	CommandConsole& console;
 	BooleanSetting& consoleSetting;
 	const std::auto_ptr<OSDSettingChecker> settingChecker;
 	std::auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
