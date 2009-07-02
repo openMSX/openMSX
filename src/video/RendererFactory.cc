@@ -33,7 +33,7 @@ VideoSystem* createVideoSystem(Reactor& reactor)
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			return new SDLVideoSystem(reactor);
+			return new SDLVideoSystem(reactor, reactor.getCommandConsole());
 		default:
 			assert(false);
 			return 0;

@@ -32,17 +32,17 @@
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
+SDLVideoSystem::SDLVideoSystem(Reactor& reactor, CommandConsole& console)
 	: reactor(reactor)
 	, display(reactor.getDisplay())
 	, renderSettings(reactor.getDisplay().getRenderSettings())
 {
 	resize();
 
-	console = screen->createConsoleLayer(reactor, reactor.getCommandConsole());
+	consoleLayer = screen->createConsoleLayer(reactor, console);
 	snowLayer = screen->createSnowLayer(display);
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
-	display.addLayer(*console);
+	display.addLayer(*consoleLayer);
 	display.addLayer(*snowLayer);
 	display.addLayer(*osdGuiLayer);
 
@@ -73,7 +73,7 @@ SDLVideoSystem::~SDLVideoSystem()
 
 	display.removeLayer(*osdGuiLayer);
 	display.removeLayer(*snowLayer);
-	display.removeLayer(*console);
+	display.removeLayer(*consoleLayer);
 }
 
 Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
@@ -212,7 +212,7 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 	} else {
 		// we first need to re-render to an off-screen surface
 		// with OSD layers disabled
-		ScopedLayerHider hideConsole(*console);
+		ScopedLayerHider hideConsole(*consoleLayer);
 		ScopedLayerHider hideOsd(*osdGuiLayer);
 		std::auto_ptr<OutputSurface> surf = screen->createOffScreenSurface();
 		display.repaint(*surf);
