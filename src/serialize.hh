@@ -737,8 +737,8 @@ public:
 	inline bool canHaveOptionalAttributes() const { return true; }
 	inline bool canCountChildren() const { return true; }
 
-	void beginTag(const std::string& tag);
-	void endTag(const std::string& tag);
+	void beginTag(const char* tag);
+	void endTag(const char* tag);
 
 	template<typename T> void attribute(const std::string& name, const T& t)
 	{
@@ -775,8 +775,8 @@ public:
 	inline bool canHaveOptionalAttributes() const { return true; }
 	inline bool canCountChildren() const { return true; }
 
-	void beginTag(const std::string& tag);
-	void endTag(const std::string& tag);
+	void beginTag(const char* tag);
+	void endTag(const char* tag);
 
 	template<typename T> void attribute(const std::string& name, T& t)
 	{

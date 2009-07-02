@@ -170,7 +170,7 @@ void XmlOutputArchive::attribute(const string& name, const string& str)
 	current->addAttribute(name, str);
 }
 
-void XmlOutputArchive::beginTag(const string& tag)
+void XmlOutputArchive::beginTag(const char* tag)
 {
 	XMLElement* elem = new XMLElement(tag);
 	if (current) {
@@ -178,7 +178,7 @@ void XmlOutputArchive::beginTag(const string& tag)
 	}
 	current = elem;
 }
-void XmlOutputArchive::endTag(const string& tag)
+void XmlOutputArchive::endTag(const char* tag)
 {
 	assert(current);
 	assert(current->getName() == tag);
@@ -234,17 +234,17 @@ void XmlInputArchive::load(signed char& c)
 	c = i;
 }
 
-void XmlInputArchive::beginTag(const string& tag)
+void XmlInputArchive::beginTag(const char* tag_)
 {
+	string tag(tag_);
 	const XMLElement* child = elems.back()->findChild(tag);
 	if (!child) {
 		throw XMLException("No child tag found in begin tag \"" + tag + "\"");
 	}
 	elems.push_back(child);
 }
-void XmlInputArchive::endTag(const string& tag)
+void XmlInputArchive::endTag(const char* tag)
 {
-	(void)tag;
 	if (elems.back()->getName() != tag) {
 		throw XMLException("End tag \"" + elems.back()->getName() + "\" not equal to begin tag \"" + tag + "\"");
 	}
