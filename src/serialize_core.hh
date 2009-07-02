@@ -359,10 +359,7 @@ template<typename TP> struct PointerSaver
 			ar.attribute("id_ref", id);
 		} else {
 			if (is_polymorphic<T>::value) {
-				const PolymorphicSaverBase<Archive>& saver =
-					PolymorphicSaverRegistry<Archive>::
-						instance().getSaver(*tp);
-				saver.save(ar, tp);
+				PolymorphicSaverRegistry<Archive>::save(ar, tp);
 			} else {
 				ClassSaver<T> saver;
 				// don't store type
@@ -552,11 +549,8 @@ template<typename T> struct PolymorphicPointerLoader
 	{
 		typedef typename PolymorphicConstructorArgs<T>::type ArgsType;
 		STATIC_ASSERT((is_same_type<TUPLE, ArgsType>::value));
-		std::string type;
-		ar.attribute("type", type);
-		const PolymorphicLoaderBase<Archive>& loader =
-			PolymorphicLoaderRegistry<Archive>::instance().getLoader(type);
-		return static_cast<T*>(loader.load(ar, id, args));
+		return static_cast<T*>(
+			PolymorphicLoaderRegistry<Archive>::load(ar, id, args));
 	}
 };
 template<typename T> struct PointerLoader2

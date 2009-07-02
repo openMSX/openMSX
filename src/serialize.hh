@@ -343,12 +343,7 @@ public:
 	template<typename T> void serializePolymorphic(const char* tag, const T& t)
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
-		this->self().beginTag(tag);
-		const PolymorphicSaverBase<Derived>& saver =
-			PolymorphicSaverRegistry<Derived>::
-				instance().getSaver(t);
-		saver.save(this->self(), &t);
-		this->self().endTag(tag);
+		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
 
 	void skipSection(bool /*skip*/)
@@ -478,17 +473,7 @@ public:
 	template<typename T> void serializePolymorphic(const char* tag, T& t)
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
-		this->self().beginTag(tag);
-		unsigned id;
-		this->self().attribute("id", id);
-		assert(id);
-		std::string type;
-		this->self().attribute("type", type);
-		const PolymorphicInitializerBase<Derived>& initializer =
-			PolymorphicInitializerRegistry<Derived>::instance().
-				getInitializer(type);
-		initializer.init(this->self(), &t, id);
-		this->self().endTag(tag);
+		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
 	}
 
 	void beginSection()

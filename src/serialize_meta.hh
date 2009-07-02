@@ -218,18 +218,24 @@ public:
 		saverMap[typeid(T)] = new PolymorphicSaver<Archive, T>(name);
 	}
 
-	template<typename T> const PolymorphicSaverBase<Archive>& getSaver(T& t)
+	template<typename T> static void save(Archive& ar, T* t)
 	{
-		return getSaver(TypeInfo(typeid(t)));
-		(void)&t; // Suppress VC++ C4100 warning
+		save(ar, t, typeid(*t));
+	}
+	template<typename T> static void save(const char* tag, Archive& ar, T& t)
+	{
+		save(tag, ar, &t, typeid(t));
 	}
 
 private:
 	PolymorphicSaverRegistry();
 	~PolymorphicSaverRegistry();
-	const PolymorphicSaverBase<Archive>& getSaver(TypeInfo typeInfo);
+	static void save(Archive& ar, const void* t,
+	                 const std::type_info& typeInfo);
+	static void save(const char* tag, Archive& ar, const void* t,
+	                 const std::type_info& typeInfo);
 
-	typedef std::map<TypeInfo, PolymorphicSaverBase <Archive>*> SaverMap;
+	typedef std::map<TypeInfo, PolymorphicSaverBase<Archive>*> SaverMap;
 	SaverMap saverMap;
 };
 
@@ -247,7 +253,7 @@ public:
 		loaderMap[name] = new PolymorphicLoader<Archive, T>();
 	}
 
-	const PolymorphicLoaderBase<Archive>& getLoader(const std::string& type);
+	static void* load(Archive& ar, unsigned id, TupleBase& args);
 
 private:
 	PolymorphicLoaderRegistry();
@@ -271,8 +277,7 @@ public:
 		initializerMap[name] = new PolymorphicInitializer<Archive, T>();
 	}
 
-	const PolymorphicInitializerBase<Archive>& getInitializer(
-		const std::string& type);
+	static void init(const char* tag, Archive& ar, void* t);
 
 private:
 	PolymorphicInitializerRegistry();
