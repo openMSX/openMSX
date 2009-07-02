@@ -20,7 +20,8 @@ RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom_, RomType type)
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime()))
-	, flash(new AmdFlash(*rom, 16, 512 / 64, getWriteProtected(type), config))
+	, flash(new AmdFlash(
+		motherBoard, *rom, 16, 512 / 64, getWriteProtected(type), config))
 {
 	reset(getCurrentTime());
 }

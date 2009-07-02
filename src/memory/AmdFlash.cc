@@ -13,9 +13,11 @@
 namespace openmsx {
 
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
-AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSectors,
+AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
+                   unsigned logSectorSize_, unsigned totalSectors,
                    unsigned writeProtectedFlags, const XMLElement& config)
-	: rom(rom_)
+	: motherBoard(motherBoard_)
+	, rom(rom_)
 	, logSectorSize(logSectorSize_)
 	, sectorMask((1 << logSectorSize) -1)
 	, size(totalSectors << logSectorSize)
@@ -24,9 +26,11 @@ AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSecto
 	init(totalSectors, writeProtectedFlags, &config);
 }
 
-AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSectors,
+AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
+                   unsigned logSectorSize_, unsigned totalSectors,
                    unsigned writeProtectedFlags)
-	: rom(rom_)
+	: motherBoard(motherBoard_)
+	, rom(rom_)
 	, logSectorSize(logSectorSize_)
 	, sectorMask((1 << logSectorSize) -1)
 	, size(totalSectors << logSectorSize)
@@ -53,8 +57,7 @@ void AmdFlash::init(unsigned totalSectors, unsigned writeProtectedFlags,
 	bool loaded = false;
 	if (writableSize) {
 		if (config) {
-			ram.reset(new SRAM(rom.getMotherBoard(),
-			                   rom.getName() + "_flash",
+			ram.reset(new SRAM(motherBoard, rom.getName() + "_flash",
 			                   "flash rom", writableSize, *config,
 			                   0, &loaded));
 		} else {
@@ -62,8 +65,7 @@ void AmdFlash::init(unsigned totalSectors, unsigned writeProtectedFlags,
 			// writes are never visible to the MSX (but the flash
 			// is not made write-protected). In this case it doesn't
 			// make sense to load/save the SRAM file.
-			ram.reset(new SRAM(rom.getMotherBoard(),
-			                   rom.getName() + "_flash",
+			ram.reset(new SRAM(motherBoard, rom.getName() + "_flash",
 			                   "flash rom", writableSize));
 		}
 	}
@@ -117,7 +119,7 @@ void AmdFlash::setState(State newState)
 {
 	if (state == newState) return;
 	state = newState;
-	rom.getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
+	motherBoard.getCPU().invalidateMemCache(0x0000, 0x10000);
 }
 
 unsigned AmdFlash::getSize() const

@@ -67,7 +67,7 @@ Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
 
 void Rom::init(CliComm& cliComm, const XMLElement& config)
 {
-	CommandController& controller = getMotherBoard().getCommandController();
+	CommandController& controller = motherBoard.getCommandController();
 
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
@@ -286,11 +286,6 @@ const string& Rom::getPatchedSHA1() const
 	assert(!originalSha1.empty());
 	assert(!patchedSha1.empty());
 	return patchedSha1;
-}
-
-MSXMotherBoard& Rom::getMotherBoard() const
-{
-	return motherBoard;
 }
 
 

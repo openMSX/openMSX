@@ -11,7 +11,7 @@ RomMatraInk::RomMatraInk(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
-	, flash(new AmdFlash(*rom, 16, 2, 0)) // don't load/save
+	, flash(new AmdFlash(motherBoard, *rom, 16, 2, 0)) // don't load/save
 {
 	reset(EmuTime::dummy());
 }

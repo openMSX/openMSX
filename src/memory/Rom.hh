@@ -41,8 +41,6 @@ public:
 	const std::string& getOriginalSHA1() const;
 	const std::string& getPatchedSHA1() const;
 
-	MSXMotherBoard& getMotherBoard() const;
-
 private:
 	void init(CliComm& cliComm, const XMLElement& config);
 	void read(const XMLElement& config);

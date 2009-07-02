@@ -10,6 +10,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class Rom;
 class SRAM;
 class XMLElement;
@@ -17,9 +18,11 @@ class XMLElement;
 class AmdFlash : private noncopyable
 {
 public:
-	AmdFlash(const Rom& rom, unsigned logSectorSize, unsigned totalSectors,
+	AmdFlash(MSXMotherBoard& motherBoard, const Rom& rom,
+	         unsigned logSectorSize, unsigned totalSectors,
 	         unsigned writeProtectedFlags, const XMLElement& config);
-	AmdFlash(const Rom& rom, unsigned logSectorSize, unsigned totalSectors,
+	AmdFlash(MSXMotherBoard& motherBoard, const Rom& rom,
+	         unsigned logSectorSize, unsigned totalSectors,
 	         unsigned writeProtectedFlags);
 	~AmdFlash();
 
@@ -56,6 +59,7 @@ private:
 	bool checkCommandManifacturer();
 	bool partialMatch(unsigned len, const byte* dataSeq) const;
 
+	MSXMotherBoard& motherBoard;
 	const Rom& rom;
 	std::auto_ptr<SRAM> ram;
 	const unsigned logSectorSize;
