@@ -1,5 +1,30 @@
 $Id$
 
+2009-07-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Major reductions in executable size for serialization code:
+	   See the commit messages for details, here I'll only list one line
+	   per commit and the size of the executable in each step (stripped
+	   devel flavour on linux x86_64 gcc-4.3):
+	      7200kB   [initial version]
+	      7140kB   MemBuffer iso std::vector
+	      7060kB   made serialize without ID default
+	      6920kB   string="" -> string*=NULL
+	      6918kB   XXX::serialize() tweaks
+	      6899kB   outline OutputBuffer::insert()
+	      6861kB   __builtin_constant_p
+	      6590kB   beginTag(const char*)
+	      6292kB   move error handling outline
+	      6171kB   moved more of loadVersion() outline
+	      6120kB   use const char* in PolymorphicSaver
+	      6109kB   moved more of PolymorphicXXXRegistry outline
+	      5781kB   give ArchiveXXX classes a non-templatized base
+	      5780kB   moved ArchiveXXX::load/save() methods outline
+	      5726kB   pass attrbute names as const char*
+	      5710kB   outline attribute(...) calls
+	   So combined this is an executable size reduction of over 1.4MB.
+	   Apart from this, compilation is also noticeably faster: went from
+	   8'00" to 6'23" on my machine (user time).
+
 2009-06-07 Manuel Bilderbeek <manuel@msxnet.org>
 	* Apart from full screen (which was already implemented), also hide
 	  the mouse pointer always when input grab is enabled.
