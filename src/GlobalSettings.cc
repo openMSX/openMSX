@@ -24,8 +24,6 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	autoSaveSetting.reset(new BooleanSetting(commandController,
 	        "save_settings_on_exit",
 	        "automatically save settings when openMSX exits", true));
-	consoleSetting.reset(new BooleanSetting(commandController, "console",
-	        "turns console display on/off", false, Setting::DONT_SAVE));
 	userDirSetting.reset(new StringSetting(commandController,
 	        "user_directories", "list of user directories", ""));
 	pauseOnLostFocusSetting.reset(new BooleanSetting(commandController, "pause_on_lost_focus",
@@ -84,11 +82,6 @@ BooleanSetting& GlobalSettings::getPowerSetting()
 BooleanSetting& GlobalSettings::getAutoSaveSetting()
 {
 	return *autoSaveSetting.get();
-}
-
-BooleanSetting& GlobalSettings::getConsoleSetting()
-{
-	return *consoleSetting.get();
 }
 
 ThrottleManager& GlobalSettings::getThrottleManager()

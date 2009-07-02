@@ -35,7 +35,6 @@ public:
 	BooleanSetting& getPauseSetting();
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
-	BooleanSetting& getConsoleSetting();
 	StringSetting&  getUserDirSetting();
 	BooleanSetting& getPauseOnLostFocusSetting();
 	StringSetting&  getUMRCallBackSetting();
@@ -54,7 +53,6 @@ private:
 	std::auto_ptr<BooleanSetting> pauseSetting;
 	std::auto_ptr<BooleanSetting> powerSetting;
 	std::auto_ptr<BooleanSetting> autoSaveSetting;
-	std::auto_ptr<BooleanSetting> consoleSetting;
 	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;

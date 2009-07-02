@@ -44,7 +44,8 @@ CommandConsole::CommandConsole(
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, display(display_)
-	, consoleSetting(commandController.getGlobalSettings().getConsoleSetting())
+	, consoleSetting(new BooleanSetting(commandController, "console",
+		"turns console display on/off", false, Setting::DONT_SAVE))
 	, historySizeSetting(new IntegerSetting(commandController, "console_history_size",
 		"amount of commands kept in console history", 100, 0, 10000))
 	, removeDoublesSetting(new BooleanSetting(commandController,
@@ -124,6 +125,11 @@ void CommandConsole::loadHistory()
 	}
 }
 
+BooleanSetting& CommandConsole::getConsoleSetting()
+{
+	return *consoleSetting.get();
+}
+
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
 	xPosition = cursorPosition % getColumns();
@@ -154,8 +160,8 @@ string CommandConsole::getLine(unsigned line) const
 bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
-	if ((event->getType() == OPENMSX_KEY_DOWN_EVENT) &&
-	    consoleSetting.getValue()) {
+	if (event->getType() == OPENMSX_KEY_DOWN_EVENT
+			&& consoleSetting->getValue()) {
 		handleEvent(keyEvent);
 		display.repaintDelayed(40000); // 25fps
 		return false; // deny event to other listeners

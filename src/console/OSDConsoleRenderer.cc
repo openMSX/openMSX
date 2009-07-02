@@ -58,7 +58,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
 	, console(console_)
-	, consoleSetting(reactor.getGlobalSettings().getConsoleSetting())
+	, consoleSetting(console.getConsoleSetting())
 	, settingChecker(new OSDSettingChecker(*this))
 	, screenW(screenW_)
 	, screenH(screenH_)

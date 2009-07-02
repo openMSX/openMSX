@@ -30,6 +30,8 @@ public:
 	               Display& display);
 	virtual ~CommandConsole();
 
+	BooleanSetting& getConsoleSetting();
+
 	unsigned getScrollBack() const;
 	std::string getLine(unsigned line) const;
 	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
@@ -72,7 +74,7 @@ private:
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
 	Display& display;
-	BooleanSetting& consoleSetting;
+	std::auto_ptr<BooleanSetting> consoleSetting;
 	std::auto_ptr<IntegerSetting> historySizeSetting;
 	std::auto_ptr<BooleanSetting> removeDoublesSetting;
 
