@@ -79,7 +79,6 @@ public:
 	Mixer& getMixer();
 	CommandConsole& getCommandConsole();
 	DiskManipulator& getDiskManipulator();
-	FilePool& getFilePool();
 	EnumSetting<int>& getMachineSetting();
 
 	void switchMachine(const std::string& machine);
@@ -177,6 +176,7 @@ private:
 
 	friend class QuitCommand;
 	friend class MachineCommand;
+	friend class TestMachineCommand;
 	friend class CreateMachineCommand;
 	friend class DeleteMachineCommand;
 	friend class ListMachinesCommand;

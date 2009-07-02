@@ -45,7 +45,7 @@ class MSXMapperIO;
 class MSXMotherBoard : private noncopyable
 {
 public:
-	explicit MSXMotherBoard(Reactor& reactor);
+	explicit MSXMotherBoard(Reactor& reactor, FilePool& filePool);
 	~MSXMotherBoard();
 
 	const std::string& getMachineID();

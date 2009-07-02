@@ -65,7 +65,8 @@ class DeviceInfo;
 class MSXMotherBoardImpl : private Observer<Setting>, private noncopyable
 {
 public:
-	MSXMotherBoardImpl(MSXMotherBoard& self, Reactor& reactor);
+	MSXMotherBoardImpl(MSXMotherBoard& self,
+	                   Reactor& reactor, FilePool& filePool);
 	virtual ~MSXMotherBoardImpl();
 
 	const string& getMachineID();
@@ -148,6 +149,7 @@ private:
 	MSXMotherBoard& self;
 
 	Reactor& reactor;
+	FilePool& filePool;
 	string machineID;
 	string machineName;
 
@@ -298,9 +300,11 @@ private:
 };
 
 
-MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
+MSXMotherBoardImpl::MSXMotherBoardImpl(
+		MSXMotherBoard& self_, Reactor& reactor_, FilePool& filePool_)
 	: self(self_)
 	, reactor(reactor_)
+	, filePool(filePool_)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
 	, powerSetting(getGlobalSettings().getPowerSetting())
@@ -674,7 +678,7 @@ GlobalCliComm& MSXMotherBoardImpl::getGlobalCliComm()
 
 FilePool& MSXMotherBoardImpl::getFilePool()
 {
-	return reactor.getFilePool();
+	return filePool;
 }
 
 CommandController& MSXMotherBoardImpl::getCommandController()
@@ -1226,9 +1230,9 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 
 // MSXMotherBoard
 
-MSXMotherBoard::MSXMotherBoard(Reactor& reactor)
+MSXMotherBoard::MSXMotherBoard(Reactor& reactor, FilePool& filePool)
 {
-	new MSXMotherBoardImpl(*this, reactor);
+	new MSXMotherBoardImpl(*this, reactor, filePool);
 }
 MSXMotherBoard::~MSXMotherBoard()
 {

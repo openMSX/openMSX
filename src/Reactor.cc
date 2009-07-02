@@ -302,11 +302,6 @@ DiskManipulator& Reactor::getDiskManipulator()
 	return *diskManipulator;
 }
 
-FilePool& Reactor::getFilePool()
-{
-	return *filePool;
-}
-
 EnumSetting<int>& Reactor::getMachineSetting()
 {
 	return *machineSetting;
@@ -405,7 +400,7 @@ void Reactor::switchMachine(const string& machine)
 	assert(Thread::isMainThread());
 	// Note: loadMachine can throw an exception and in that case the
 	//       motherboard must be considered as not created at all.
-	Board newBoard(new MSXMotherBoard(*this));
+	Board newBoard(new MSXMotherBoard(*this, *filePool));
 	newBoard->loadMachine(machine);
 	boards.push_back(newBoard);
 
@@ -685,7 +680,7 @@ string TestMachineCommand::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	try {
-		MSXMotherBoard mb(reactor);
+		MSXMotherBoard mb(reactor, *reactor.filePool);
 		mb.loadMachine(tokens[1]);
 		return ""; // success
 	} catch (MSXException& e) {
@@ -722,7 +717,7 @@ string CreateMachineCommand::execute(const vector<string>& tokens)
 	if (tokens.size() != 1) {
 		throw SyntaxError();
 	}
-	Reactor::Board newBoard(new MSXMotherBoard(reactor));
+	Reactor::Board newBoard(new MSXMotherBoard(reactor, *reactor.filePool));
 	reactor.boards.push_back(newBoard);
 	return newBoard->getMachineID();
 }
@@ -900,7 +895,7 @@ RestoreMachineCommand::RestoreMachineCommand(
 
 string RestoreMachineCommand::execute(const vector<string>& tokens)
 {
-	Reactor::Board newBoard(new MSXMotherBoard(reactor));
+	Reactor::Board newBoard(new MSXMotherBoard(reactor, *reactor.filePool));
 
 	string filename;
 	string machineID;
@@ -1013,7 +1008,7 @@ RestoreMachineMemCommand::RestoreMachineMemCommand(
 
 string RestoreMachineMemCommand::execute(const vector<string>& /*tokens*/)
 {
-	Reactor::Board newBoard(new MSXMotherBoard(reactor));
+	Reactor::Board newBoard(new MSXMotherBoard(reactor, *reactor.filePool));
 	MemInputArchive in(reactor.snapshot);
 	in.serialize("machine", *newBoard);
 	reactor.boards.push_back(newBoard);
