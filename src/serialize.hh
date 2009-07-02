@@ -200,7 +200,7 @@ public:
 	 * It's only allowed to call this method on archives that can have
 	 * optional attributes.
 	 */
-	bool hasAttribute(const std::string& /*name*/)
+	bool hasAttribute(const char* /*name*/)
 	{
 		assert(false); return false;
 	}
@@ -732,11 +732,11 @@ public:
 	void beginTag(const char* tag);
 	void endTag(const char* tag);
 
-	template<typename T> void attribute(const std::string& name, const T& t)
+	template<typename T> void attribute(const char* name, const T& t)
 	{
 		attribute(name, StringOp::toString(t));
 	}
-	void attribute(const std::string& name, const std::string& str);
+	void attribute(const char* name, const std::string& str);
 
 private:
 	gzFile file;
@@ -777,16 +777,16 @@ public:
 	void beginTag(const char* tag);
 	void endTag(const char* tag);
 
-	template<typename T> void attribute(const std::string& name, T& t)
+	template<typename T> void attribute(const char* name, T& t)
 	{
 		std::string str;
 		attribute(name, str);
 		std::istringstream is(str);
 		is >> t;
 	}
-	void attribute(const std::string& name, std::string& t);
+	void attribute(const char* name, std::string& t);
 
-	bool hasAttribute(const std::string& name);
+	bool hasAttribute(const char* name);
 	int countChildren() const;
 
 private:

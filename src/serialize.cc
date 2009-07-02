@@ -238,7 +238,7 @@ void XmlOutputArchive::save(unsigned long long ull)
 	saveImpl(ull);
 }
 
-void XmlOutputArchive::attribute(const string& name, const string& str)
+void XmlOutputArchive::attribute(const char* name, const string& str)
 {
 	assert(current);
 	assert(!current->hasAttribute(name));
@@ -340,14 +340,14 @@ void XmlInputArchive::endTag(const char* tag)
 	elems.pop_back();
 }
 
-void XmlInputArchive::attribute(const string& name, string& t)
+void XmlInputArchive::attribute(const char* name, string& t)
 {
 	if (!hasAttribute(name)) {
-		throw XMLException("Missing attribute \"" + name + "\"");
+		throw XMLException("Missing attribute \"" + string(name) + "\"");
 	}
 	t = elems.back()->getAttribute(name);
 }
-bool XmlInputArchive::hasAttribute(const string& name)
+bool XmlInputArchive::hasAttribute(const char* name)
 {
 	return elems.back()->hasAttribute(name);
 }
