@@ -244,6 +244,14 @@ void XmlOutputArchive::attribute(const char* name, const string& str)
 	assert(!current->hasAttribute(name));
 	current->addAttribute(name, str);
 }
+void XmlOutputArchive::attribute(const char* name, int i)
+{
+	attributeImpl(name, i);
+}
+void XmlOutputArchive::attribute(const char* name, unsigned u)
+{
+	attributeImpl(name, u);
+}
 
 void XmlOutputArchive::beginTag(const char* tag)
 {
@@ -346,6 +354,14 @@ void XmlInputArchive::attribute(const char* name, string& t)
 		throw XMLException("Missing attribute \"" + string(name) + "\"");
 	}
 	t = elems.back()->getAttribute(name);
+}
+void XmlInputArchive::attribute(const char* name, int& i)
+{
+	attributeImpl(name, i);
+}
+void XmlInputArchive::attribute(const char* name, unsigned& u)
+{
+	attributeImpl(name, u);
 }
 bool XmlInputArchive::hasAttribute(const char* name)
 {

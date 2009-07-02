@@ -732,11 +732,17 @@ public:
 	void beginTag(const char* tag);
 	void endTag(const char* tag);
 
-	template<typename T> void attribute(const char* name, const T& t)
+	template<typename T> void attributeImpl(const char* name, const T& t)
 	{
 		attribute(name, StringOp::toString(t));
 	}
+	template<typename T> void attribute(const char* name, const T& t)
+	{
+		attributeImpl(name, t);
+	}
 	void attribute(const char* name, const std::string& str);
+	void attribute(const char* name, int i);
+	void attribute(const char* name, unsigned u);
 
 private:
 	gzFile file;
@@ -777,14 +783,20 @@ public:
 	void beginTag(const char* tag);
 	void endTag(const char* tag);
 
-	template<typename T> void attribute(const char* name, T& t)
+	template<typename T> void attributeImpl(const char* name, T& t)
 	{
 		std::string str;
 		attribute(name, str);
 		std::istringstream is(str);
 		is >> t;
 	}
+	template<typename T> void attribute(const char* name, T& t)
+	{
+		attributeImpl(name, t);
+	}
 	void attribute(const char* name, std::string& t);
+	void attribute(const char* name, int& i);
+	void attribute(const char* name, unsigned& u);
 
 	bool hasAttribute(const char* name);
 	int countChildren() const;
