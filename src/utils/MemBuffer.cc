@@ -17,20 +17,43 @@ OutputBuffer::~OutputBuffer()
 	free(begin);
 }
 
-void OutputBuffer::insert(const void* __restrict data, unsigned len)
+#ifdef __GNUC__
+template<unsigned LEN> void OutputBuffer::insertN(const void* __restrict data)
+{
+	char* newEnd = end + LEN;
+	if (likely(newEnd <= finish)) {
+		memcpy(end, data, LEN);
+		end = newEnd;
+	} else {
+		insertGrow(data, LEN);
+	}
+}
+// Force template instantiation
+template void OutputBuffer::insertN<1>(const void* __restrict data);
+template void OutputBuffer::insertN<2>(const void* __restrict data);
+template void OutputBuffer::insertN<4>(const void* __restrict data);
+template void OutputBuffer::insertN<8>(const void* __restrict data);
+#endif
+
+void OutputBuffer::insertN(const void* __restrict data, unsigned len)
 {
 	char* newEnd = end + len;
 	if (likely(newEnd <= finish)) {
 		memcpy(end, data, len);
 		end = newEnd;
 	} else {
-		unsigned oldSize = end - begin;
-		unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
-		begin = reinterpret_cast<char*>(realloc(begin, newSize));
-		end = begin + oldSize + len;
-		finish = begin + newSize;
-		memcpy(begin + oldSize, data, len);
+		insertGrow(data, len);
 	}
+}
+
+void OutputBuffer::insertGrow(const void* __restrict data, unsigned len)
+{
+	unsigned oldSize = end - begin;
+	unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
+	begin = reinterpret_cast<char*>(realloc(begin, newSize));
+	end = begin + oldSize + len;
+	finish = begin + newSize;
+	memcpy(begin + oldSize, data, len);
 }
 
 MemBuffer::MemBuffer(OutputBuffer& buffer)

@@ -37,7 +37,27 @@ public:
 	/** Insert data at the end of this buffer.
 	  * This will automatically grow this buffer.
 	  */
-	void insert(const void* __restrict data, unsigned len);
+	void insert(const void* __restrict data, unsigned len)
+	{
+#ifdef __GNUC__
+		if (__builtin_constant_p(len)) {
+			if        (len == 1) {
+				insertN<1>(data); return;
+			} else if (len == 2) {
+				insertN<2>(data); return;
+			} else if (len == 4) {
+				insertN<4>(data); return;
+			} else if (len == 8) {
+				insertN<8>(data); return;
+			}
+		}
+#endif
+		insertN(data, len);
+	}
+#ifdef __GNUC__
+	template<unsigned N> void insertN(const void* __restrict data);
+#endif
+	void insertN(const void* __restrict data, unsigned len);
 
 	/** Insert data at a given position. This will overwrite the old data.
 	  * It's not possible to grow the buffer via this method (so the buffer
@@ -57,6 +77,8 @@ public:
 	}
 
 private:
+	void insertGrow(const void* __restrict data, unsigned len);
+
 	char* begin;   // begin of allocated memory
 	char* end;     // points right after the last used byte
 	               // so   end - begin == size
