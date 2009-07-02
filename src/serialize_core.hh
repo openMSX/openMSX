@@ -476,23 +476,18 @@ template<typename T> struct EnumLoader
 	}
 };
 
-void versionError(const char* className, unsigned latestVersion, unsigned version);
+unsigned loadVersionHelper(MemInputArchive& ar, const char* className,
+                           unsigned latestVersion);
+unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
+                           unsigned latestVersion);
 template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
 {
 	unsigned latestVersion = SerializeClassVersion<T>::value;
-	unsigned version = latestVersion;
-	if ((version != 0) && ar.needVersion()) {
-		if (!ar.canHaveOptionalAttributes() ||
-		    ar.hasAttribute("version")) {
-			ar.attribute("version", version);
-			if (unlikely(version > latestVersion)) {
-				versionError(typeid(T).name(), latestVersion, version);
-			}
-		} else {
-			version = 1;
-		}
+	if ((latestVersion != 0) && ar.needVersion()) {
+		return loadVersionHelper(ar, typeid(T).name(), latestVersion);
+	} else {
+		return latestVersion;
 	}
-	return version;
 }
 template<typename T> struct ClassLoader
 {
