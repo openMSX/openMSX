@@ -1689,14 +1689,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input\EventTranslator.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\input\EventTranslator.hh"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\input\Joystick.cc"
 				>
 			</File>
@@ -2929,15 +2921,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\sound\YM2413_2.cc"
+				RelativePath="..\..\src\sound\YM2413Burczynski.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\sound\YM2413_2.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\sound\YM2413Core.cc"
+				RelativePath="..\..\src\sound\YM2413Burczynski.hh"
 				>
 			</File>
 			<File
@@ -2946,6 +2934,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\sound\YM2413Interface.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\sound\YM2413Okazaki.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\sound\YM2413Okazaki.hh"
 				>
 			</File>
 			<File
@@ -2974,6 +2970,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\thread\Alarm.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\thread\AlarmEvent.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\thread\AlarmEvent.hh"
 				>
 			</File>
 			<File
@@ -3118,6 +3122,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\utils\Math.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utils\MemBuffer.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utils\MemBuffer.hh"
 				>
 			</File>
 			<File
@@ -5395,6 +5407,10 @@
 		</File>
 		<File
 			RelativePath="..\..\src\serialize_constr.hh"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\serialize_core.cc"
 			>
 		</File>
 		<File
