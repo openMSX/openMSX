@@ -9,6 +9,7 @@
 #include "FileException.hh"
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "Debugger.hh"
 #include "Debuggable.hh"
 #include "CliComm.hh"
@@ -45,7 +46,8 @@ Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
          const string& description_, const XMLElement& config)
 	: name(name_), description(description_)
 {
-	init(motherBoard, motherBoard.getGlobalCliComm(), config.getChild("rom"));
+	init(motherBoard, motherBoard.getReactor().getCliComm(),
+	     config.getChild("rom"));
 }
 
 Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
@@ -58,7 +60,7 @@ Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getId() == id) {
-			init(motherBoard, motherBoard.getGlobalCliComm(), **it);
+			init(motherBoard, motherBoard.getReactor().getCliComm(), **it);
 			return;
 		}
 	}

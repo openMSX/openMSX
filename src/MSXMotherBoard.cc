@@ -116,7 +116,6 @@ public:
 	LedStatus& getLedStatus();
 	Reactor& getReactor();
 	FilePool& getFilePool();
-	GlobalCliComm& getGlobalCliComm();
 	CommandController& getCommandController();
 	InfoCommand& getMachineInfoCommand();
 	EmuTime::param getCurrentTime();
@@ -480,7 +479,7 @@ void MSXMotherBoardImpl::removeExtension(const HardwareConfig& extension)
 CliComm& MSXMotherBoardImpl::getMSXCliComm()
 {
 	if (!msxCliComm.get()) {
-		msxCliComm.reset(new MSXCliComm(self, getGlobalCliComm()));
+		msxCliComm.reset(new MSXCliComm(self, reactor.getGlobalCliComm()));
 	}
 	return *msxCliComm;
 }
@@ -645,11 +644,6 @@ LedStatus& MSXMotherBoardImpl::getLedStatus()
 Reactor& MSXMotherBoardImpl::getReactor()
 {
 	return reactor;
-}
-
-GlobalCliComm& MSXMotherBoardImpl::getGlobalCliComm()
-{
-	return reactor.getGlobalCliComm();
 }
 
 FilePool& MSXMotherBoardImpl::getFilePool()
@@ -910,13 +904,13 @@ void MSXMotherBoardImpl::freeUserName(const string& hwName,
 AddRemoveUpdate::AddRemoveUpdate(MSXMotherBoardImpl& motherBoard_)
 	: motherBoard(motherBoard_)
 {
-	motherBoard.getGlobalCliComm().update(
+	motherBoard.getReactor().getGlobalCliComm().update(
 		CliComm::HARDWARE, motherBoard.getMachineID(), "add");
 }
 
 AddRemoveUpdate::~AddRemoveUpdate()
 {
-	motherBoard.getGlobalCliComm().update(
+	motherBoard.getReactor().getGlobalCliComm().update(
 		CliComm::HARDWARE, motherBoard.getMachineID(), "remove");
 }
 
@@ -1366,11 +1360,6 @@ Reactor& MSXMotherBoard::getReactor()
 FilePool& MSXMotherBoard::getFilePool()
 {
 	return pimple->getFilePool();
-}
-CliComm& MSXMotherBoard::getGlobalCliComm()
-{
-	// note: return-type is CliComm instead of GlobalCliComm
-	return pimple->getGlobalCliComm();
 }
 CommandController& MSXMotherBoard::getCommandController()
 {

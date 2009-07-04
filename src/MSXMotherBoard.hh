@@ -108,9 +108,7 @@ public:
 	LedStatus& getLedStatus();
 	Reactor& getReactor();
 
-	// These are only convenience methods, Reactor keeps these objects
 	FilePool& getFilePool();
-	CliComm& getGlobalCliComm();
 
 	// convenience methods
 	CommandController& getCommandController();
