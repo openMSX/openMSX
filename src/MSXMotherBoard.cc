@@ -309,6 +309,9 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
 	, msxEventDistributor(new MSXEventDistributor())
+	, msxCommandController(new MSXCommandController(
+		reactor.getGlobalCommandController(),
+		self, *msxEventDistributor, machineID))
 	, scheduler(new Scheduler())
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
@@ -501,11 +504,6 @@ MSXEventDistributor& MSXMotherBoardImpl::getMSXEventDistributor()
 
 MSXCommandController& MSXMotherBoardImpl::getMSXCommandController()
 {
-	if (!msxCommandController.get()) {
-		msxCommandController.reset(new MSXCommandController(
-			reactor.getGlobalCommandController(),
-			self, *msxEventDistributor, machineID));
-	}
 	return *msxCommandController;
 }
 
@@ -551,8 +549,8 @@ Debugger& MSXMotherBoardImpl::getDebugger()
 MSXMixer& MSXMotherBoardImpl::getMSXMixer()
 {
 	if (!msxMixer.get()) {
-		msxMixer.reset(new MSXMixer(reactor.getMixer(), *scheduler,
-		                            getMSXCommandController()));
+		msxMixer.reset(new MSXMixer(
+			reactor.getMixer(), *scheduler, *msxCommandController));
 	}
 	return *msxMixer;
 }
@@ -662,12 +660,12 @@ FilePool& MSXMotherBoardImpl::getFilePool()
 
 CommandController& MSXMotherBoardImpl::getCommandController()
 {
-	return getMSXCommandController();
+	return *msxCommandController;
 }
 
 InfoCommand& MSXMotherBoardImpl::getMachineInfoCommand()
 {
-	return getMSXCommandController().getMachineInfoCommand();
+	return msxCommandController->getMachineInfoCommand();
 }
 
 EmuTime::param MSXMotherBoardImpl::getCurrentTime()
