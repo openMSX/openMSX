@@ -206,7 +206,6 @@ Reactor::Reactor()
 	, globalCliComm(new GlobalCliComm(*globalCommandController, *eventDistributor))
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
-	, display(new Display(*this))
 	, mixer(new Mixer(*globalCommandController))
 	, diskManipulator(new DiskManipulator(*globalCommandController))
 	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
@@ -232,11 +231,6 @@ Reactor::Reactor()
 	, paused(false)
 	, running(true)
 {
-	// TODO: Currently it is not possible to move this call into the constructor
-	//       of Display because the call to createVideoSystem() indirectly calls
-	//       Reactor.getDisplay().
-	display->createVideoSystem();
-
 	createMachineSetting();
 
 	pauseSetting.attach(*this);
@@ -282,6 +276,7 @@ InputEventGenerator& Reactor::getInputEventGenerator()
 
 Display& Reactor::getDisplay()
 {
+	assert(display.get());
 	return *display;
 }
 
@@ -386,6 +381,14 @@ Reactor::Board Reactor::getMachine(const string& machineID) const
 
 void Reactor::switchMachine(const string& machine)
 {
+	if (!display.get()) {
+		display.reset(new Display(*this));
+		// TODO: Currently it is not possible to move this call into the
+		//       constructor of Display because the call to createVideoSystem()
+		//       indirectly calls Reactor.getDisplay().
+		display->createVideoSystem();
+	}
+
 	// create+load new machine
 	// switch to new machine
 	// delete old active machine
