@@ -305,6 +305,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, filePool(filePool_)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
+	, scheduler(new Scheduler())
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
 	, active(false)
@@ -512,9 +513,6 @@ MSXCommandController& MSXMotherBoardImpl::getMSXCommandController()
 
 Scheduler& MSXMotherBoardImpl::getScheduler()
 {
-	if (!scheduler.get()) {
-		scheduler.reset(new Scheduler());
-	}
 	return *scheduler;
 }
 
