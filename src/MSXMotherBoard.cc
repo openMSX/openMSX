@@ -526,7 +526,7 @@ EventDelay& MSXMotherBoardImpl::getEventDelay()
 {
 	if (!eventDelay.get()) {
 		eventDelay.reset(new EventDelay(
-			*scheduler, getCommandController(),
+			*scheduler, *msxCommandController,
 			reactor.getEventDistributor(), *msxEventDistributor));
 	}
 	return *eventDelay;
@@ -623,7 +623,7 @@ RenShaTurbo& MSXMotherBoardImpl::getRenShaTurbo()
 	if (!renShaTurbo.get()) {
 		assert(getMachineConfig());
 		renShaTurbo.reset(new RenShaTurbo(
-			getCommandController(),
+			*msxCommandController,
 			getMachineConfig()->getConfig()));
 	}
 	return *renShaTurbo;
@@ -635,7 +635,7 @@ LedStatus& MSXMotherBoardImpl::getLedStatus()
 		getMSXCliComm(); // force init, to be on the safe side
 		ledStatus.reset(new LedStatus(
 			reactor.getEventDistributor(),
-			getCommandController(),
+			*msxCommandController,
 			*msxCliComm));
 	}
 	return *ledStatus;
