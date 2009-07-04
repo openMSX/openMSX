@@ -21,10 +21,13 @@ const double             SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
-RealTime::RealTime(MSXMotherBoard& motherBoard_, GlobalSettings& globalSettings)
+RealTime::RealTime(
+		MSXMotherBoard& motherBoard_, GlobalSettings& globalSettings,
+		EventDelay& eventDelay_)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
+	, eventDelay(eventDelay_)
 	, throttleManager(globalSettings.getThrottleManager())
 	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
@@ -112,7 +115,7 @@ void RealTime::internalSync(EmuTime::param time, bool allowSleep)
 		}
 	}
 	if (allowSleep) {
-		motherBoard.getEventDelay().sync(time);
+		eventDelay.sync(time);
 	}
 
 	emuTime = time;

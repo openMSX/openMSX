@@ -102,7 +102,6 @@ public:
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
 	CartridgeSlotManager& getSlotManager();
-	EventDelay& getEventDelay();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
 	MSXMixer& getMSXMixer();
@@ -331,13 +330,14 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	deviceInfo.reset(new DeviceInfo(*this));
 
 	msxMixer->mute(); // powered down
-	realTime.reset(new RealTime(self, reactor.getGlobalSettings()));
 	// TODO: Initialization of this field cannot be done much earlier because
 	//       EventDelay creates a setting, calling getMSXCliCommIfAvailable()
 	//       on MSXMotherBoard, so "pimple" has to be set up already.
 	eventDelay.reset(new EventDelay(
 		*scheduler, *msxCommandController,
 		reactor.getEventDistributor(), *msxEventDistributor));
+	realTime.reset(new RealTime(
+		self, reactor.getGlobalSettings(), *eventDelay));
 	powerSetting.attach(*this);
 
 	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
@@ -525,11 +525,6 @@ CartridgeSlotManager& MSXMotherBoardImpl::getSlotManager()
 		slotManager.reset(new CartridgeSlotManager(self));
 	}
 	return *slotManager;
-}
-
-EventDelay& MSXMotherBoardImpl::getEventDelay()
-{
-	return *eventDelay;
 }
 
 RealTime& MSXMotherBoardImpl::getRealTime()
@@ -1302,10 +1297,6 @@ MSXEventDistributor& MSXMotherBoard::getMSXEventDistributor()
 CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 {
 	return pimple->getSlotManager();
-}
-EventDelay& MSXMotherBoard::getEventDelay()
-{
-	return pimple->getEventDelay();
 }
 RealTime& MSXMotherBoard::getRealTime()
 {

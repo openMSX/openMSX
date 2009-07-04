@@ -20,7 +20,6 @@ class Scheduler;
 class CartridgeSlotManager;
 class EventDistributor;
 class MSXEventDistributor;
-class EventDelay;
 class RealTime;
 class Debugger;
 class MSXMixer;
@@ -94,7 +93,6 @@ public:
 	Scheduler& getScheduler();
 	MSXEventDistributor& getMSXEventDistributor();
 	CartridgeSlotManager& getSlotManager();
-	EventDelay& getEventDelay();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
 	MSXMixer& getMSXMixer();
