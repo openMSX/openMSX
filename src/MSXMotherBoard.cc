@@ -313,6 +313,8 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 		reactor.getGlobalCommandController(),
 		self, *msxEventDistributor, machineID))
 	, scheduler(new Scheduler())
+	, msxMixer(new MSXMixer(
+		reactor.getMixer(), *scheduler, *msxCommandController))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
 	, active(false)
@@ -328,7 +330,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	machineNameInfo.reset(new MachineNameInfo(*this));
 	deviceInfo.reset(new DeviceInfo(*this));
 
-	getMSXMixer().mute(); // powered down
+	msxMixer->mute(); // powered down
 	getRealTime(); // make sure it's instantiated
 	getEventDelay();
 	powerSetting.attach(*this);
@@ -548,10 +550,6 @@ Debugger& MSXMotherBoardImpl::getDebugger()
 
 MSXMixer& MSXMotherBoardImpl::getMSXMixer()
 {
-	if (!msxMixer.get()) {
-		msxMixer.reset(new MSXMixer(
-			reactor.getMixer(), *scheduler, *msxCommandController));
-	}
 	return *msxMixer;
 }
 
@@ -689,7 +687,7 @@ void MSXMotherBoardImpl::pause()
 	if (getMachineConfig()) {
 		getCPU().setPaused(true);
 	}
-	getMSXMixer().mute();
+	msxMixer->mute();
 }
 
 void MSXMotherBoardImpl::unpause()
@@ -697,7 +695,7 @@ void MSXMotherBoardImpl::unpause()
 	if (getMachineConfig()) {
 		getCPU().setPaused(false);
 	}
-	getMSXMixer().unmute();
+	msxMixer->unmute();
 }
 
 void MSXMotherBoardImpl::addDevice(MSXDevice& device)
@@ -764,7 +762,7 @@ void MSXMotherBoardImpl::powerUp()
 		(*it)->powerUp(time);
 	}
 	getCPU().doReset(time);
-	getMSXMixer().unmute();
+	msxMixer->unmute();
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	reactor.getEventDistributor().distributeEvent(
@@ -783,7 +781,7 @@ void MSXMotherBoardImpl::powerDown()
 	powerSetting.changeValue(false);
 	getLedStatus().setLed(LedStatus::POWER, false);
 
-	getMSXMixer().mute();
+	msxMixer->mute();
 
 	EmuTime::param time = getCurrentTime();
 	for (Devices::iterator it = availableDevices.begin();
@@ -1170,7 +1168,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("scheduler", *scheduler);
 	// MSXMixer has already set syncpoints, those are invalid now
 	// the following call will fix this
-	getMSXMixer().reschedule();
+	msxMixer->reschedule();
 
 	ar.serialize("name", machineName);
 	ar.serializeWithID("config", machineConfig2, ref(self));
@@ -1199,7 +1197,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 		if (powerSetting.getValue()) {
 			powered = true;
 			getLedStatus().setLed(LedStatus::POWER, true);
-			getMSXMixer().unmute();
+			msxMixer->unmute();
 		}
 	}
 }
