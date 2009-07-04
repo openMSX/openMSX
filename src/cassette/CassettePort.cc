@@ -9,6 +9,7 @@
 #endif
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "PluggingController.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
@@ -59,7 +60,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getMSXMixer(),
 		motherBoard.getScheduler(),
 		motherBoard.getMSXEventDistributor(),
-		motherBoard.getEventDistributor(),
+		motherBoard.getReactor().getEventDistributor(),
 		motherBoard.getMSXCliComm()));
 	getPluggingController().registerPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK

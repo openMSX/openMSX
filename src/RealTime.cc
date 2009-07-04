@@ -8,6 +8,7 @@
 #include "FinishFrameEvent.hh"
 #include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
@@ -23,6 +24,7 @@ const unsigned long long ALLOWED_LAG   =  20000; // us
 RealTime::RealTime(MSXMotherBoard& motherBoard_)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
+	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, throttleManager(motherBoard.getGlobalSettings().getThrottleManager())
 	, speedSetting   (motherBoard.getGlobalSettings().getSpeedSetting())
 	, pauseSetting   (motherBoard.getGlobalSettings().getPauseSetting())
@@ -36,14 +38,12 @@ RealTime::RealTime(MSXMotherBoard& motherBoard_)
 
 	resync();
 
-	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
 	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
 	eventDistributor.registerEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
 }
 
 RealTime::~RealTime()
 {
-	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
 	eventDistributor.unregisterEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
 

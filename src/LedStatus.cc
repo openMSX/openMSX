@@ -2,6 +2,7 @@
 
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "AlarmEvent.hh"
 #include "CliComm.hh"
 #include "BooleanSetting.hh"
@@ -20,8 +21,8 @@ static std::string getLedName(LedStatus::Led led)
 
 LedStatus::LedStatus(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, alarm(new AlarmEvent(motherBoard.getEventDistributor(), *this,
-	                       OPENMSX_THROTTLE_LED_EVENT))
+	, alarm(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
+	                       *this, OPENMSX_THROTTLE_LED_EVENT))
 {
 	lastTime = Timer::getTime();
 	for (int i = 0; i < NUM_LEDS; ++i) {

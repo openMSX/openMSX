@@ -6,6 +6,7 @@
 #include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
 #include "XMLElement.hh"
@@ -30,7 +31,7 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
 	return new Keyboard(motherBoard.getScheduler(),
 	                    motherBoard.getCommandController(),
-	                    motherBoard.getEventDistributor(),
+	                    motherBoard.getReactor().getEventDistributor(),
 	                    motherBoard.getMSXEventDistributor(),
 	                    keyboardType, hasKeypad, keyGhosting,
 	                    keyGhostingSGCprotected, codeKanaLocks,

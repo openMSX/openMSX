@@ -22,7 +22,7 @@ namespace openmsx {
 
 V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	: vdp(vdp_)
-	, eventDistributor(vdp.getMotherBoard().getEventDistributor())
+	, eventDistributor(vdp.getMotherBoard().getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
 	, renderSettings(vdp.getMotherBoard().getReactor().getDisplay().
 	                    getRenderSettings())

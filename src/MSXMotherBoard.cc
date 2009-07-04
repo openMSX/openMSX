@@ -115,7 +115,6 @@ public:
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
 	Reactor& getReactor();
-	EventDistributor& getEventDistributor();
 	FilePool& getFilePool();
 	GlobalSettings& getGlobalSettings();
 	GlobalCliComm& getGlobalCliComm();
@@ -530,7 +529,7 @@ EventDelay& MSXMotherBoardImpl::getEventDelay()
 	if (!eventDelay.get()) {
 		eventDelay.reset(new EventDelay(
 			getScheduler(), getCommandController(),
-			getEventDistributor(), getMSXEventDistributor()));
+			reactor.getEventDistributor(), getMSXEventDistributor()));
 	}
 	return *eventDelay;
 }
@@ -649,11 +648,6 @@ Reactor& MSXMotherBoardImpl::getReactor()
 	return reactor;
 }
 
-EventDistributor& MSXMotherBoardImpl::getEventDistributor()
-{
-	return reactor.getEventDistributor();
-}
-
 GlobalSettings& MSXMotherBoardImpl::getGlobalSettings()
 {
 	return reactor.getGlobalSettings();
@@ -738,7 +732,7 @@ void MSXMotherBoardImpl::doReset()
 	getCPU().doReset(time);
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	getEventDistributor().distributeEvent(
+	reactor.getEventDistributor().distributeEvent(
 		new SimpleEvent(OPENMSX_BOOT_EVENT));
 }
 
@@ -778,7 +772,7 @@ void MSXMotherBoardImpl::powerUp()
 	getMSXMixer().unmute();
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	getEventDistributor().distributeEvent(
+	reactor.getEventDistributor().distributeEvent(
 		new SimpleEvent(OPENMSX_BOOT_EVENT));
 }
 
@@ -1374,10 +1368,6 @@ LedStatus& MSXMotherBoard::getLedStatus()
 Reactor& MSXMotherBoard::getReactor()
 {
 	return pimple->getReactor();
-}
-EventDistributor& MSXMotherBoard::getEventDistributor()
-{
-	return pimple->getEventDistributor();
 }
 FilePool& MSXMotherBoard::getFilePool()
 {

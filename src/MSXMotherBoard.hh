@@ -109,7 +109,6 @@ public:
 	Reactor& getReactor();
 
 	// These are only convenience methods, Reactor keeps these objects
-	EventDistributor& getEventDistributor();
 	FilePool& getFilePool();
 	GlobalSettings& getGlobalSettings();
 	CliComm& getGlobalCliComm();

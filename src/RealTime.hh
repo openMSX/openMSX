@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
+class EventDistributor;
 class IntegerSetting;
 class BooleanSetting;
 class ThrottleManager;
@@ -63,6 +64,7 @@ private:
 	void internalSync(EmuTime::param time, bool allowSleep);
 
 	MSXMotherBoard& motherBoard;
+	EventDistributor& eventDistributor;
 	ThrottleManager& throttleManager;
 	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;

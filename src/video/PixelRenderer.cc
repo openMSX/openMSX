@@ -20,6 +20,7 @@ TODO:
 #include "FinishFrameEvent.hh"
 #include "RealTime.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "Timer.hh"
 #include <algorithm>
 #include <cassert>
@@ -112,7 +113,7 @@ void PixelRenderer::subdivide(
 
 PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, eventDistributor(vdp.getMotherBoard().getEventDistributor())
+	, eventDistributor(vdp.getMotherBoard().getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
 	, renderSettings(display.getRenderSettings())
 	, spriteChecker(vdp.getSpriteChecker())

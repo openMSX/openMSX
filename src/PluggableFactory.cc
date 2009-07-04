@@ -3,6 +3,7 @@
 #include "PluggableFactory.hh"
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "Joystick.hh"
 #include "ArkanoidPad.hh"
 #include "JoyTap.hh"
@@ -29,7 +30,8 @@ namespace openmsx {
 void PluggableFactory::createAll(PluggingController& controller,
                                  MSXMotherBoard& motherBoard)
 {
-	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
+	EventDistributor& eventDistributor =
+		motherBoard.getReactor().getEventDistributor();
 	Scheduler& scheduler = motherBoard.getScheduler();
 	CommandController& commandController = motherBoard.getCommandController();
 	MSXEventDistributor& msxEventDistributor =

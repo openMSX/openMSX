@@ -6,6 +6,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "CliComm.hh"
 #include "AlarmEvent.hh"
 #include "serialize.hh"
@@ -29,8 +30,8 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const std::string& name,
 	, config(NULL)
 	, header(NULL) // not used
 	, cliComm(motherBoard.getMSXCliComm()) // not used
-	, sramSync(new AlarmEvent(motherBoard.getEventDistributor(), *this,
-	                          OPENMSX_SAVE_SRAM)) // used, but not needed
+	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
+	                          *this, OPENMSX_SAVE_SRAM)) // used, but not needed
 {
 }
 
@@ -40,8 +41,8 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
 	, config(&config_)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
-	, sramSync(new AlarmEvent(motherBoard.getEventDistributor(), *this,
-	                          OPENMSX_SAVE_SRAM))
+	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
+	                          *this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
 }
@@ -53,8 +54,8 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
 	, config(&config_)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
-	, sramSync(new AlarmEvent(motherBoard.getEventDistributor(), *this,
-	                          OPENMSX_SAVE_SRAM))
+	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
+	                          *this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
 }
