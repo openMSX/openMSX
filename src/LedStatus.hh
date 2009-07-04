@@ -10,8 +10,10 @@
 namespace openmsx {
 
 class AlarmEvent;
-class MSXMotherBoard;
 class BooleanSetting;
+class CommandController;
+class EventDistributor;
+class MSXCliComm;
 template <typename> class ReadOnlySetting;
 
 class LedStatus : private EventListener, private noncopyable
@@ -27,7 +29,10 @@ public:
 		NUM_LEDS // must be last
 	};
 
-	explicit LedStatus(MSXMotherBoard& motherBoard);
+	explicit LedStatus(
+		EventDistributor& eventDistributor,
+		CommandController& commandController,
+		MSXCliComm& msxCliComm);
 	~LedStatus();
 
 	void setLed(Led led, bool status);
@@ -38,7 +43,7 @@ private:
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
-	MSXMotherBoard& motherBoard;
+	MSXCliComm& msxCliComm;
 	const std::auto_ptr<AlarmEvent> alarm;
 	std::auto_ptr<ReadOnlySetting<BooleanSetting> > ledStatus[NUM_LEDS];
 	unsigned long long lastTime;

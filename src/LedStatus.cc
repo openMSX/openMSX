@@ -1,10 +1,9 @@
 // $Id$
 
 #include "LedStatus.hh"
-#include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "AlarmEvent.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "BooleanSetting.hh"
 #include "ReadOnlySetting.hh"
 #include "Timer.hh"
@@ -19,17 +18,19 @@ static std::string getLedName(LedStatus::Led led)
 	return names[led];
 }
 
-LedStatus::LedStatus(MSXMotherBoard& motherBoard_)
-	: motherBoard(motherBoard_)
-	, alarm(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
-	                       *this, OPENMSX_THROTTLE_LED_EVENT))
+LedStatus::LedStatus(
+		EventDistributor& eventDistributor,
+		CommandController& commandController,
+		MSXCliComm& msxCliComm_)
+	: msxCliComm(msxCliComm_)
+	, alarm(new AlarmEvent(eventDistributor, *this, OPENMSX_THROTTLE_LED_EVENT))
 {
 	lastTime = Timer::getTime();
 	for (int i = 0; i < NUM_LEDS; ++i) {
 		ledValue[i] = false;
 		std::string name = getLedName(static_cast<Led>(i));
 		ledStatus[i].reset(new ReadOnlySetting<BooleanSetting>(
-			motherBoard.getCommandController(),
+			commandController,
 			"led_" + name,
 			"Current status for LED: " + name,
 			ledValue[i]));
@@ -69,7 +70,7 @@ void LedStatus::handleEvent(Led led)
 
 	static const std::string ON  = "on";
 	static const std::string OFF = "off";
-	motherBoard.getMSXCliComm().update(
+	msxCliComm.update(
 		CliComm::LED, getLedName(led),
 		ledValue[led] ? ON : OFF);
 }

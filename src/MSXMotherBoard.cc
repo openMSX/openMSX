@@ -636,7 +636,11 @@ RenShaTurbo& MSXMotherBoardImpl::getRenShaTurbo()
 LedStatus& MSXMotherBoardImpl::getLedStatus()
 {
 	if (!ledStatus.get()) {
-		ledStatus.reset(new LedStatus(self));
+		getMSXCliComm(); // force init, to be on the safe side
+		ledStatus.reset(new LedStatus(
+			reactor.getEventDistributor(),
+			getCommandController(),
+			*msxCliComm));
 	}
 	return *ledStatus;
 }
