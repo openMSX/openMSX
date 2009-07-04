@@ -305,6 +305,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, filePool(filePool_)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
+	, msxEventDistributor(new MSXEventDistributor())
 	, scheduler(new Scheduler())
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
@@ -496,9 +497,6 @@ CliComm* MSXMotherBoardImpl::getMSXCliCommIfAvailable()
 
 MSXEventDistributor& MSXMotherBoardImpl::getMSXEventDistributor()
 {
-	if (!msxEventDistributor.get()) {
-		msxEventDistributor.reset(new MSXEventDistributor());
-	}
 	return *msxEventDistributor;
 }
 
@@ -529,7 +527,7 @@ EventDelay& MSXMotherBoardImpl::getEventDelay()
 	if (!eventDelay.get()) {
 		eventDelay.reset(new EventDelay(
 			*scheduler, getCommandController(),
-			reactor.getEventDistributor(), getMSXEventDistributor()));
+			reactor.getEventDistributor(), *msxEventDistributor));
 	}
 	return *eventDelay;
 }
@@ -802,7 +800,7 @@ void MSXMotherBoardImpl::activate(bool active_)
 	MSXEventDistributor::EventPtr event = active
 		? MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_ACTIVATED))
 		: MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_DEACTIVATED));
-	getMSXEventDistributor().distributeEvent(event, scheduler->getCurrentTime());
+	msxEventDistributor->distributeEvent(event, scheduler->getCurrentTime());
 	if (active) {
 		getRealTime().resync();
 	}
