@@ -298,11 +298,14 @@ private:
 };
 
 
+static unsigned machineIDCounter = 0;
+
 MSXMotherBoardImpl::MSXMotherBoardImpl(
 		MSXMotherBoard& self_, Reactor& reactor_, FilePool& filePool_)
 	: self(self_)
 	, reactor(reactor_)
 	, filePool(filePool_)
+	, machineID("machine" + StringOp::toString(++machineIDCounter))
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
 	, msxEventDistributor(new MSXEventDistributor())
@@ -361,10 +364,6 @@ void MSXMotherBoardImpl::deleteMachine()
 
 const string& MSXMotherBoardImpl::getMachineID()
 {
-	if (machineID.empty()) {
-		static unsigned counter = 0;
-		machineID = "machine" + StringOp::toString(++counter);
-	}
 	return machineID;
 }
 
