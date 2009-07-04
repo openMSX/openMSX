@@ -29,6 +29,7 @@ TODO:
 #include "Renderer.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
 #include <sstream>
@@ -81,6 +82,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
 	, cliComm(motherBoard.getMSXCliComm())
+	, display(motherBoard.getReactor().getDisplay())
 	, vdpRegDebug      (new VDPRegDebug      (*this))
 	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
 	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
@@ -136,7 +138,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 	vram.reset(new VDPVRAM(*this, vramSize * 1024, time));
 
-	Display& display = getMotherBoard().getDisplay();
 	RenderSettings& renderSettings = display.getRenderSettings();
 
 	// Create sprite checker.
@@ -159,7 +160,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 VDP::~VDP()
 {
-	getMotherBoard().getDisplay().detach(*this);
+	display.detach(*this);
 }
 
 void VDP::preVideoSystemChange()
@@ -174,7 +175,6 @@ void VDP::postVideoSystemChange()
 
 void VDP::createRenderer()
 {
-	Display& display = getMotherBoard().getDisplay();
 	renderer.reset(RendererFactory::createRenderer(*this, display));
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?

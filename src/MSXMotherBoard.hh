@@ -110,7 +110,6 @@ public:
 
 	// These are only convenience methods, Reactor keeps these objects
 	EventDistributor& getEventDistributor();
-	Display& getDisplay();
 	DiskManipulator& getDiskManipulator();
 	FilePool& getFilePool();
 	GlobalSettings& getGlobalSettings();

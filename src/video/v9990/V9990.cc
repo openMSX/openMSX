@@ -8,6 +8,7 @@
 #include "V9990Renderer.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "serialize.hh"
 #include <cassert>
 #include <cstring>
@@ -79,6 +80,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, v9990RegDebug(new V9990RegDebug(*this))
 	, v9990PalDebug(new V9990PalDebug(*this))
 	, irq(motherBoard, getName() + ".IRQ")
+	, display(motherBoard.getReactor().getDisplay())
 	, frameStartTime(Schedulable::getCurrentTime())
 	, hScanSyncTime(Schedulable::getCurrentTime())
 	, pendingIRQs(0)
@@ -100,8 +102,8 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	vram.reset(new V9990VRAM(*this, time));
 
 	// create Command Engine
-	cmdEngine.reset(new V9990CmdEngine(*this, time,
-		getMotherBoard().getDisplay().getRenderSettings()));
+	cmdEngine.reset(new V9990CmdEngine(
+		*this, time, display.getRenderSettings()));
 	vram->setCmdEngine(*cmdEngine);
 
 	// Start with NTSC timing
@@ -115,12 +117,12 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	createRenderer(time);
 
 	powerUp(time);
-	getMotherBoard().getDisplay().attach(*this);
+	display.attach(*this);
 }
 
 V9990::~V9990()
 {
-	getMotherBoard().getDisplay().detach(*this);
+	display.detach(*this);
 }
 
 // -------------------------------------------------------------------------
@@ -690,7 +692,6 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b) const
 void V9990::createRenderer(EmuTime::param time)
 {
 	assert(!renderer.get());
-	Display& display = getMotherBoard().getDisplay();
 	renderer.reset(RendererFactory::createV9990Renderer(*this, display));
 	renderer->reset(time);
 }

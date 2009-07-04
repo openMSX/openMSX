@@ -23,6 +23,7 @@ class VDPStatusRegDebug;
 class VDPPaletteDebug;
 class VRAMPointerDebug;
 class CliComm;
+class Display;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -646,6 +647,8 @@ private:
 	  * cause a normal MSX to freeze.
 	  */
 	CliComm& cliComm;
+
+	Display& display;
 
 	friend class VDPRegDebug;
 	friend class VDPStatusRegDebug;

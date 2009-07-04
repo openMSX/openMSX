@@ -16,6 +16,7 @@
 
 namespace openmsx {
 
+class Display;
 class V9990VRAM;
 class V9990CmdEngine;
 class V9990Renderer;
@@ -455,6 +456,8 @@ private:
 	const std::auto_ptr<V9990PalDebug> v9990PalDebug;
 
 	IRQHelper irq;
+
+	Display& display;
 
 	/** VRAM
 	  */
