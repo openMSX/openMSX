@@ -379,6 +379,19 @@ Reactor::Board Reactor::getMachine(const string& machineID) const
 	throw CommandException("No machine with ID: " + machineID);
 }
 
+Reactor::Board Reactor::createEmptyMotherBoard()
+{
+	return Board(new MSXMotherBoard(*this, *filePool));
+}
+
+void Reactor::replaceActiveBoard(Board newBoard)
+{
+	boards.push_back(newBoard);
+	Board oldBoard = activeBoard;
+	switchBoard(newBoard);
+	deleteBoard(oldBoard);
+}
+
 void Reactor::switchMachine(const string& machine)
 {
 	if (!display.get()) {
@@ -396,7 +409,7 @@ void Reactor::switchMachine(const string& machine)
 	assert(Thread::isMainThread());
 	// Note: loadMachine can throw an exception and in that case the
 	//       motherboard must be considered as not created at all.
-	Board newBoard(new MSXMotherBoard(*this, *filePool));
+	Board newBoard = createEmptyMotherBoard();
 	newBoard->loadMachine(machine);
 	boards.push_back(newBoard);
 
@@ -713,7 +726,7 @@ string CreateMachineCommand::execute(const vector<string>& tokens)
 	if (tokens.size() != 1) {
 		throw SyntaxError();
 	}
-	Reactor::Board newBoard(new MSXMotherBoard(reactor, *reactor.filePool));
+	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 	reactor.boards.push_back(newBoard);
 	return newBoard->getMachineID();
 }
@@ -891,7 +904,7 @@ RestoreMachineCommand::RestoreMachineCommand(
 
 string RestoreMachineCommand::execute(const vector<string>& tokens)
 {
-	Reactor::Board newBoard(new MSXMotherBoard(reactor, *reactor.filePool));
+	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 
 	string filename;
 	string machineID;
@@ -1007,7 +1020,7 @@ string RestoreMachineMemCommand::execute(const vector<string>& /*tokens*/)
 	if (!reactor.snapshot.get()) {
 		throw CommandException("No previous memory snapshot");
 	}
-	Reactor::Board newBoard(new MSXMotherBoard(reactor, *reactor.filePool));
+	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(*reactor.snapshot);
 	in.serialize("machine", *newBoard);
 	reactor.boards.push_back(newBoard);

@@ -3,6 +3,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXDevice.hh"
+#include "ReverseManager.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXCliComm.hh"
@@ -114,6 +115,7 @@ public:
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
+	ReverseManager& getReverseManager();
 	Reactor& getReactor();
 	FilePool& getFilePool();
 	CommandController& getCommandController();
@@ -189,6 +191,7 @@ private:
 	auto_ptr<RenShaTurbo> renShaTurbo;
 	auto_ptr<LedStatus> ledStatus;
 
+	auto_ptr<ReverseManager> reverseManager;
 	auto_ptr<ResetCmd>     resetCommand;
 	auto_ptr<LoadMachineCmd> loadMachineCommand;
 	auto_ptr<ListExtCmd>   listExtCommand;
@@ -308,6 +311,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 {
 	self.pimple.reset(this);
 
+	reverseManager.reset(new ReverseManager(self));
 	resetCommand.reset(new ResetCmd(*this));
 	loadMachineCommand.reset(new LoadMachineCmd(*this));
 	listExtCommand.reset(new ListExtCmd(*this));
@@ -643,6 +647,11 @@ LedStatus& MSXMotherBoardImpl::getLedStatus()
 			*msxCliComm));
 	}
 	return *ledStatus;
+}
+
+ReverseManager& MSXMotherBoardImpl::getReverseManager()
+{
+	return *reverseManager;
 }
 
 Reactor& MSXMotherBoardImpl::getReactor()
@@ -1356,6 +1365,10 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 LedStatus& MSXMotherBoard::getLedStatus()
 {
 	return pimple->getLedStatus();
+}
+ReverseManager& MSXMotherBoard::getReverseManager()
+{
+	return pimple->getReverseManager();
 }
 Reactor& MSXMotherBoard::getReactor()
 {

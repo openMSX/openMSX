@@ -96,8 +96,11 @@ public:
 	CliComm& getCliComm();
 	std::string getMachineID() const;
 
-private:
 	typedef shared_ptr<MSXMotherBoard> Board;
+	Board createEmptyMotherBoard();
+	void replaceActiveBoard(Board newBoard); // experiment for ReverseManager
+
+private:
 	typedef std::vector<Board> Boards;
 
 	void createMachineSetting();

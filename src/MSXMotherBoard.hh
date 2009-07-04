@@ -33,6 +33,7 @@ class MSXDeviceSwitch;
 class CassettePortInterface;
 class RenShaTurbo;
 class LedStatus;
+class ReverseManager;
 class Display;
 class DiskManipulator;
 class FilePool;
@@ -106,6 +107,7 @@ public:
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
+	ReverseManager& getReverseManager();
 	Reactor& getReactor();
 
 	FilePool& getFilePool();
