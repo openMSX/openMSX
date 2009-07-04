@@ -8,6 +8,7 @@
 #include "Rom.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "Clock.hh"
 #include "serialize.hh"
 #include <algorithm>
@@ -931,7 +932,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
                        int ramSize, const XMLElement& config)
 	: SoundDevice(motherBoard_.getMSXMixer(), name, "MoonSound wave-part",
 	              24, true)
-	, Resample(motherBoard_.getGlobalSettings(), 2)
+	, Resample(motherBoard_.getReactor().getGlobalSettings(), 2)
 	, motherBoard(motherBoard_)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))

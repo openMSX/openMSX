@@ -13,6 +13,7 @@
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "CliComm.hh"
 #include "SimpleDebuggable.hh"
 #include "XMLElement.hh"
@@ -482,7 +483,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, EmuTime::param time)
 	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG", 3)
-	, Resample(motherBoard.getGlobalSettings(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings(), 1)
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))

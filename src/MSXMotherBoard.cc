@@ -116,7 +116,6 @@ public:
 	LedStatus& getLedStatus();
 	Reactor& getReactor();
 	FilePool& getFilePool();
-	GlobalSettings& getGlobalSettings();
 	GlobalCliComm& getGlobalCliComm();
 	CommandController& getCommandController();
 	InfoCommand& getMachineInfoCommand();
@@ -304,7 +303,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, filePool(filePool_)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
-	, powerSetting(getGlobalSettings().getPowerSetting())
+	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
 	, active(false)
 {
@@ -537,7 +536,7 @@ EventDelay& MSXMotherBoardImpl::getEventDelay()
 RealTime& MSXMotherBoardImpl::getRealTime()
 {
 	if (!realTime.get()) {
-		realTime.reset(new RealTime(self));
+		realTime.reset(new RealTime(self, reactor.getGlobalSettings()));
 	}
 	return *realTime;
 }
@@ -646,11 +645,6 @@ LedStatus& MSXMotherBoardImpl::getLedStatus()
 Reactor& MSXMotherBoardImpl::getReactor()
 {
 	return reactor;
-}
-
-GlobalSettings& MSXMotherBoardImpl::getGlobalSettings()
-{
-	return reactor.getGlobalSettings();
 }
 
 GlobalCliComm& MSXMotherBoardImpl::getGlobalCliComm()
@@ -1372,10 +1366,6 @@ Reactor& MSXMotherBoard::getReactor()
 FilePool& MSXMotherBoard::getFilePool()
 {
 	return pimple->getFilePool();
-}
-GlobalSettings& MSXMotherBoard::getGlobalSettings()
-{
-	return pimple->getGlobalSettings();
 }
 CliComm& MSXMotherBoard::getGlobalCliComm()
 {

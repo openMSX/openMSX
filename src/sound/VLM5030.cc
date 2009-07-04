@@ -81,6 +81,7 @@ chirp 12-..: vokume   0   : silent
 #include "Resample.hh"
 #include "Rom.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
 #include "serialize.hh"
@@ -585,7 +586,7 @@ void VLM5030Impl::setST(bool pin)
 VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
-	, Resample(motherBoard.getGlobalSettings(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings(), 1)
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");

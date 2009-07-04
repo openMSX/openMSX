@@ -101,6 +101,7 @@
 #include "SCC.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "serialize.hh"
 #include "likely.hh"
 
@@ -127,7 +128,7 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, EmuTime::param time, ChipMode mode)
 	: SoundDevice(motherBoard.getMSXMixer(), name, calcDescription(mode), 5)
-	, Resample(motherBoard.getGlobalSettings(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings(), 1)
 	, debuggable(new SCCDebuggable(motherBoard, *this))
 	, deformTimer(time)
 	, currentChipMode(mode)

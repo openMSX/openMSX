@@ -21,14 +21,14 @@ const double             SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
-RealTime::RealTime(MSXMotherBoard& motherBoard_)
+RealTime::RealTime(MSXMotherBoard& motherBoard_, GlobalSettings& globalSettings)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
-	, throttleManager(motherBoard.getGlobalSettings().getThrottleManager())
-	, speedSetting   (motherBoard.getGlobalSettings().getSpeedSetting())
-	, pauseSetting   (motherBoard.getGlobalSettings().getPauseSetting())
-	, powerSetting   (motherBoard.getGlobalSettings().getPowerSetting())
+	, throttleManager(globalSettings.getThrottleManager())
+	, speedSetting   (globalSettings.getSpeedSetting())
+	, pauseSetting   (globalSettings.getPauseSetting())
+	, powerSetting   (globalSettings.getPowerSetting())
 	, emuTime(EmuTime::zero)
 {
 	speedSetting.attach(*this);

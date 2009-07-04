@@ -110,7 +110,6 @@ public:
 
 	// These are only convenience methods, Reactor keeps these objects
 	FilePool& getFilePool();
-	GlobalSettings& getGlobalSettings();
 	CliComm& getGlobalCliComm();
 
 	// convenience methods

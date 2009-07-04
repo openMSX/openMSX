@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
+class GlobalSettings;
 class EventDistributor;
 class IntegerSetting;
 class BooleanSetting;
@@ -21,7 +22,8 @@ class RealTime : private Schedulable, private EventListener,
                  private Observer<Setting>, private Observer<ThrottleManager>
 {
 public:
-	explicit RealTime(MSXMotherBoard& motherBoard);
+	explicit RealTime(
+		MSXMotherBoard& motherBoard, GlobalSettings& globalSettings);
 	~RealTime();
 
 	/** Convert EmuTime to RealTime.

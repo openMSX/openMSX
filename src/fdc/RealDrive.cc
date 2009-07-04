@@ -26,7 +26,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, loadingIndicator(new LoadingIndicator(
-	         motherBoard.getGlobalSettings().getThrottleManager()))
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
 	, motorTimer(motherBoard.getCurrentTime())
 	, headLoadTimer(motherBoard.getCurrentTime())
 	, headPos(0), side(0), motorStatus(false), headLoadStatus(false)

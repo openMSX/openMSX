@@ -47,6 +47,7 @@
 #include "FixedPoint.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
@@ -1654,7 +1655,7 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
                        const XMLElement& config)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
 	              18, true)
-	, Resample(motherBoard.getGlobalSettings(), 2)
+	, Resample(motherBoard.getReactor().getGlobalSettings(), 2)
 	, debuggable(new YMF262Debuggable(motherBoard, *this))
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)

@@ -5,6 +5,7 @@
 #include "YM2413Burczynski.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
 
@@ -56,7 +57,7 @@ static YM2413Core* createCore(const XMLElement& config)
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
-	, Resample(motherBoard.getGlobalSettings(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings(), 1)
 	, core(createCore(config))
 	, debuggable(new YM2413Debuggable(motherBoard, *this))
 {
