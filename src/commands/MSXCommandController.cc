@@ -18,21 +18,25 @@ using std::vector;
 namespace openmsx {
 
 MSXCommandController::MSXCommandController(
-	GlobalCommandController& globalCommandController_,
-	MSXMotherBoard& motherboard_)
+		GlobalCommandController& globalCommandController_,
+		MSXMotherBoard& motherboard_,
+		MSXEventDistributor& msxEventDistributor_,
+		const std::string& machineID_)
 	: globalCommandController(globalCommandController_)
 	, motherboard(motherboard_)
+	, msxEventDistributor(msxEventDistributor_)
+	, machineID(machineID_)
 {
-	getInterpreter().createNamespace(motherboard.getMachineID());
+	getInterpreter().createNamespace(machineID);
 
 	machineInfoCommand.reset(new InfoCommand(*this, "machine_info"));
 
-	motherboard.getMSXEventDistributor().registerEventListener(*this);
+	msxEventDistributor.registerEventListener(*this);
 }
 
 MSXCommandController::~MSXCommandController()
 {
-	motherboard.getMSXEventDistributor().unregisterEventListener(*this);
+	msxEventDistributor.unregisterEventListener(*this);
 
 	machineInfoCommand.reset();
 
@@ -49,7 +53,7 @@ MSXCommandController::~MSXCommandController()
 	assert(settingMap.empty());
 	#endif
 
-	getInterpreter().deleteNamespace(motherboard.getMachineID());
+	getInterpreter().deleteNamespace(machineID);
 }
 
 GlobalCommandController& MSXCommandController::getGlobalCommandController()
@@ -67,7 +71,7 @@ void MSXCommandController::registerCommand(Command& command, const string& str)
 	assert(!hasCommand(str));
 	commandMap[str] = &command;
 
-	string fullname = motherboard.getMachineID() + "::" + str;
+	string fullname = machineID + "::" + str;
 	globalCommandController.registerCommand(command, fullname);
 	globalCommandController.registerProxyCommand(str);
 }
@@ -78,21 +82,21 @@ void MSXCommandController::unregisterCommand(Command& command, const string& str
 	commandMap.erase(str);
 
 	globalCommandController.unregisterProxyCommand(str);
-	string fullname = motherboard.getMachineID() + "::" + str;
+	string fullname = machineID + "::" + str;
 	globalCommandController.unregisterCommand(command, fullname);
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
                                              const string& str)
 {
-	string fullname = motherboard.getMachineID() + "::" + str;
+	string fullname = machineID + "::" + str;
 	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
                                                const string& str)
 {
-	string fullname = motherboard.getMachineID() + "::" + str;
+	string fullname = machineID + "::" + str;
 	globalCommandController.unregisterCompleter(completer, fullname);
 }
 
@@ -103,7 +107,7 @@ void MSXCommandController::registerSetting(Setting& setting)
 	settingMap[name] = &setting;
 
 	globalCommandController.registerProxySetting(setting);
-	string fullname = motherboard.getMachineID() + "::" + name;
+	string fullname = machineID + "::" + name;
 	getSettingsConfig().getSettingsManager().registerSetting(setting, fullname);
 	getInterpreter().registerSetting(setting, fullname);
 }
@@ -115,14 +119,14 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	settingMap.erase(name);
 
 	globalCommandController.unregisterProxySetting(setting);
-	string fullname = motherboard.getMachineID() + "::" + name;
+	string fullname = machineID + "::" + name;
 	getInterpreter().unregisterSetting(setting, fullname);
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, fullname);
 }
 
 void MSXCommandController::changeSetting(Setting& setting, const string& value)
 {
-	string fullname = motherboard.getMachineID() + "::" + setting.getName();
+	string fullname = machineID + "::" + setting.getName();
 	globalCommandController.changeSetting(fullname, value);
 }
 

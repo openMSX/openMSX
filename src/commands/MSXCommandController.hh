@@ -13,6 +13,7 @@ namespace openmsx {
 
 class GlobalCommandController;
 class MSXMotherBoard;
+class MSXEventDistributor;
 class InfoCommand;
 
 class MSXCommandController : public CommandController, private MSXEventListener,
@@ -20,7 +21,9 @@ class MSXCommandController : public CommandController, private MSXEventListener,
 {
 public:
 	MSXCommandController(GlobalCommandController& globalCommandController,
-	                     MSXMotherBoard& motherboard);
+	                     MSXMotherBoard& motherboard,
+	                     MSXEventDistributor& msxEventDistributor,
+	                     const std::string& machineID);
 	~MSXCommandController();
 
 	GlobalCommandController& getGlobalCommandController();
@@ -66,6 +69,8 @@ private:
 
 	GlobalCommandController& globalCommandController;
 	MSXMotherBoard& motherboard;
+	MSXEventDistributor& msxEventDistributor;
+	const std::string& machineID;
 	std::auto_ptr<InfoCommand> machineInfoCommand;
 
 	typedef std::map<std::string, Command*> CommandMap;

@@ -503,7 +503,8 @@ MSXCommandController& MSXMotherBoardImpl::getMSXCommandController()
 {
 	if (!msxCommandController.get()) {
 		msxCommandController.reset(new MSXCommandController(
-			reactor.getGlobalCommandController(), self));
+			reactor.getGlobalCommandController(),
+			self, *msxEventDistributor, machineID));
 	}
 	return *msxCommandController;
 }
