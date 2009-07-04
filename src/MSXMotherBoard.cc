@@ -528,7 +528,7 @@ EventDelay& MSXMotherBoardImpl::getEventDelay()
 {
 	if (!eventDelay.get()) {
 		eventDelay.reset(new EventDelay(
-			getScheduler(), getCommandController(),
+			*scheduler, getCommandController(),
 			reactor.getEventDistributor(), getMSXEventDistributor()));
 	}
 	return *eventDelay;
@@ -553,7 +553,7 @@ Debugger& MSXMotherBoardImpl::getDebugger()
 MSXMixer& MSXMotherBoardImpl::getMSXMixer()
 {
 	if (!msxMixer.get()) {
-		msxMixer.reset(new MSXMixer(reactor.getMixer(), getScheduler(),
+		msxMixer.reset(new MSXMixer(reactor.getMixer(), *scheduler,
 		                            getMSXCommandController()));
 	}
 	return *msxMixer;
@@ -674,7 +674,7 @@ InfoCommand& MSXMotherBoardImpl::getMachineInfoCommand()
 
 EmuTime::param MSXMotherBoardImpl::getCurrentTime()
 {
-	return getScheduler().getCurrentTime();
+	return scheduler->getCurrentTime();
 }
 
 bool MSXMotherBoardImpl::execute()
@@ -802,7 +802,7 @@ void MSXMotherBoardImpl::activate(bool active_)
 	MSXEventDistributor::EventPtr event = active
 		? MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_ACTIVATED))
 		: MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_DEACTIVATED));
-	getMSXEventDistributor().distributeEvent(event, getScheduler().getCurrentTime());
+	getMSXEventDistributor().distributeEvent(event, scheduler->getCurrentTime());
 	if (active) {
 		getRealTime().resync();
 	}
@@ -1171,7 +1171,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//    ledStatus
 
 	// Scheduler must come early so that devices can query current time
-	ar.serialize("scheduler", getScheduler());
+	ar.serialize("scheduler", *scheduler);
 	// MSXMixer has already set syncpoints, those are invalid now
 	// the following call will fix this
 	getMSXMixer().reschedule();
