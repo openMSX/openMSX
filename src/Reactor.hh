@@ -119,14 +119,14 @@ private:
 	                 // the destructors of the auto_ptr below
 
 	// note: order of auto_ptr's is important
-	std::auto_ptr<EventDistributor> eventDistributor;
-	std::auto_ptr<GlobalCommandController> globalCommandController;
-	std::auto_ptr<GlobalCliComm> globalCliComm;
-	std::auto_ptr<InputEventGenerator> inputEventGenerator;
+	const std::auto_ptr<EventDistributor> eventDistributor;
+	const std::auto_ptr<GlobalCommandController> globalCommandController;
+	const std::auto_ptr<GlobalCliComm> globalCliComm;
+	const std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;
-	std::auto_ptr<Mixer> mixer;
-	std::auto_ptr<DiskManipulator> diskManipulator;
-	std::auto_ptr<FilePool> filePool;
+	const std::auto_ptr<Mixer> mixer;
+	const std::auto_ptr<DiskManipulator> diskManipulator;
+	const std::auto_ptr<FilePool> filePool;
 
 	BooleanSetting& pauseSetting;
 	BooleanSetting& pauseOnLostFocusSetting;
