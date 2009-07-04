@@ -331,7 +331,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	deviceInfo.reset(new DeviceInfo(*this));
 
 	msxMixer->mute(); // powered down
-	getRealTime(); // make sure it's instantiated
+	realTime.reset(new RealTime(self, reactor.getGlobalSettings()));
 	// TODO: Initialization of this field cannot be done much earlier because
 	//       EventDelay creates a setting, calling getMSXCliCommIfAvailable()
 	//       on MSXMotherBoard, so "pimple" has to be set up already.
@@ -534,9 +534,6 @@ EventDelay& MSXMotherBoardImpl::getEventDelay()
 
 RealTime& MSXMotherBoardImpl::getRealTime()
 {
-	if (!realTime.get()) {
-		realTime.reset(new RealTime(self, reactor.getGlobalSettings()));
-	}
 	return *realTime;
 }
 
@@ -798,7 +795,7 @@ void MSXMotherBoardImpl::activate(bool active_)
 		: MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_DEACTIVATED));
 	msxEventDistributor->distributeEvent(event, scheduler->getCurrentTime());
 	if (active) {
-		getRealTime().resync();
+		realTime->resync();
 	}
 }
 bool MSXMotherBoardImpl::isActive() const
