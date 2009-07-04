@@ -4,6 +4,7 @@
 #include "Disk.hh"
 #include "DiskChanger.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "LedStatus.hh"
 #include "CommandController.hh"
 #include "ThrottleManager.hh"
@@ -56,7 +57,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
 	changer.reset(new DiskChanger(
 		driveName, motherBoard.getCommandController(),
-		motherBoard.getDiskManipulator(), &motherBoard));
+		motherBoard.getReactor().getDiskManipulator(), &motherBoard));
 }
 
 RealDrive::~RealDrive()

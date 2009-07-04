@@ -13,6 +13,7 @@
 #include "InputEvents.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "DiskManipulator.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -64,7 +65,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board, const std::string& driveName_)
 	: controller(board.getCommandController())
 	, msxEventDistributor(&board.getMSXEventDistributor())
 	, scheduler(&board.getScheduler())
-	, manipulator(board.getDiskManipulator())
+	, manipulator(board.getReactor().getDiskManipulator())
 	, driveName(driveName_)
 {
 	init(&board, true);

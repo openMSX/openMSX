@@ -7,6 +7,7 @@
 #include "DSKDiskImage.hh"
 #include "DiskPartition.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "FileContext.hh"
 #include "StringOp.hh"
 #include "FileOperations.hh"
@@ -92,7 +93,7 @@ DiskChanger* NowindCommand::createDiskChanger(
 	string name = basename + StringOp::toString(n + 1);
 	DiskChanger* drive = new DiskChanger(
 		name, motherBoard.getCommandController(),
-		motherBoard.getDiskManipulator(), &motherBoard, false);
+		motherBoard.getReactor().getDiskManipulator(), &motherBoard, false);
 	return drive;
 }
 

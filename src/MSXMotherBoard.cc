@@ -116,7 +116,6 @@ public:
 	LedStatus& getLedStatus();
 	Reactor& getReactor();
 	EventDistributor& getEventDistributor();
-	DiskManipulator& getDiskManipulator();
 	FilePool& getFilePool();
 	GlobalSettings& getGlobalSettings();
 	GlobalCliComm& getGlobalCliComm();
@@ -653,11 +652,6 @@ Reactor& MSXMotherBoardImpl::getReactor()
 EventDistributor& MSXMotherBoardImpl::getEventDistributor()
 {
 	return reactor.getEventDistributor();
-}
-
-DiskManipulator& MSXMotherBoardImpl::getDiskManipulator()
-{
-	return reactor.getDiskManipulator();
 }
 
 GlobalSettings& MSXMotherBoardImpl::getGlobalSettings()
@@ -1384,10 +1378,6 @@ Reactor& MSXMotherBoard::getReactor()
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {
 	return pimple->getEventDistributor();
-}
-DiskManipulator& MSXMotherBoard::getDiskManipulator()
-{
-	return pimple->getDiskManipulator();
 }
 FilePool& MSXMotherBoard::getFilePool()
 {
