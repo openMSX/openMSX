@@ -332,7 +332,12 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 
 	msxMixer->mute(); // powered down
 	getRealTime(); // make sure it's instantiated
-	getEventDelay();
+	// TODO: Initialization of this field cannot be done much earlier because
+	//       EventDelay creates a setting, calling getMSXCliCommIfAvailable()
+	//       on MSXMotherBoard, so "pimple" has to be set up already.
+	eventDelay.reset(new EventDelay(
+		*scheduler, *msxCommandController,
+		reactor.getEventDistributor(), *msxEventDistributor));
 	powerSetting.attach(*this);
 
 	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
@@ -524,11 +529,6 @@ CartridgeSlotManager& MSXMotherBoardImpl::getSlotManager()
 
 EventDelay& MSXMotherBoardImpl::getEventDelay()
 {
-	if (!eventDelay.get()) {
-		eventDelay.reset(new EventDelay(
-			*scheduler, *msxCommandController,
-			reactor.getEventDistributor(), *msxEventDistributor));
-	}
 	return *eventDelay;
 }
 
