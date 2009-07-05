@@ -10,7 +10,6 @@
 namespace openmsx {
 
 class MapperIODebuggable;
-class MapperMask;
 
 class MSXMapperIO : public MSXDevice
 {
@@ -41,11 +40,27 @@ public:
 private:
 	void write(unsigned address, byte value);
 
+	/**
+	 * Updates the "mask" field after a mapper was registered or unregistered.
+	 */
+	void updateMask();
+
 	friend class MapperIODebuggable;
 	const std::auto_ptr<MapperIODebuggable> debuggable;
-	const std::auto_ptr<MapperMask> mapperMask;
 	std::multiset<unsigned> mapperSizes;
 	byte registers[4];
+
+	/**
+	 * The limit on which bits can be read back as imposed by the engine.
+	 * The S1990 engine of the MSX turbo R has such a limit, but other engines
+	 * do not.
+	 */
+	byte engineMask;
+
+	/**
+	 * Effective read mask: a combination of engineMask and the limit imposed
+	 * by the sizes of the inserted mappers.
+	 */
 	byte mask;
 };
 

@@ -24,56 +24,25 @@ private:
 };
 
 
-class MapperMask
-{
-public:
-	virtual ~MapperMask() {}
-	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes) = 0;
-};
-
-class MSXMapperIOPhilips : public MapperMask
-{
-public:
-	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes);
-};
-
-// unused bits read always "1"
-byte MSXMapperIOPhilips::calcMask(const std::multiset<unsigned>& mapperSizes)
-{
-	unsigned largest = (mapperSizes.empty()) ? 1 : *mapperSizes.rbegin();
-	return (256 - Math::powerOfTwo(largest)) & 255;
-}
-
-class MSXMapperIOTurboR : public MSXMapperIOPhilips
-{
-public:
-	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes);
-};
-
-byte MSXMapperIOTurboR::calcMask(const std::multiset<unsigned>& mapperSizes)
-{
-	// upper 3 bits are always "1"
-	return MSXMapperIOPhilips::calcMask(mapperSizes) | 0xe0;
-}
-
-static MapperMask* createMapperMask(MSXMotherBoard& motherBoard)
+static byte calcEngineMask(MSXMotherBoard& motherBoard)
 {
 	string type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "5") {
-		return new MSXMapperIOTurboR();
+		return 0xE0; // upper 3 bits always read "1"
 	} else if (type == "largest") {
-		return new MSXMapperIOPhilips();
+		return 0x00; // all bits can be read
+	} else {
+		throw FatalError("Unknown mapper type: \"" + type + "\".");
 	}
-	throw FatalError("Unknown mapper type: \"" + type + "\".");
 }
 
 MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, debuggable(new MapperIODebuggable(motherBoard, *this))
-	, mapperMask(createMapperMask(motherBoard))
+	, engineMask(calcEngineMask(motherBoard))
 {
-	mask = mapperMask->calcMask(mapperSizes);
+	updateMask();
 	reset(EmuTime::dummy());
 }
 
@@ -81,16 +50,23 @@ MSXMapperIO::~MSXMapperIO()
 {
 }
 
+void MSXMapperIO::updateMask()
+{
+	// unused bits always read "1"
+	unsigned largest = (mapperSizes.empty()) ? 1 : *mapperSizes.rbegin();
+	mask = ((256 - Math::powerOfTwo(largest)) & 255) | engineMask;
+}
+
 void MSXMapperIO::registerMapper(unsigned blocks)
 {
 	mapperSizes.insert(blocks);
-	mask = mapperMask->calcMask(mapperSizes);
+	updateMask();
 }
 
 void MSXMapperIO::unregisterMapper(unsigned blocks)
 {
 	mapperSizes.erase(mapperSizes.find(blocks));
-	mask = mapperMask->calcMask(mapperSizes);
+	updateMask();
 }
 
 void MSXMapperIO::reset(EmuTime::param /*time*/)
