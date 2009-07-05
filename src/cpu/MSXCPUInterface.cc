@@ -162,14 +162,14 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	        motherBoard_.getMachineInfoCommand(), *this, true))
 	, outputPortInfo(new IOInfo(
 	        motherBoard_.getMachineInfoCommand(), *this, false))
-	, dummyDevice(motherBoard_.getDummyDevice())
+	, dummyDevice(DeviceFactory::createDummyDevice(motherBoard_))
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)
 {
 	for (int port = 0; port < 256; ++port) {
-		IO_In [port] = &dummyDevice;
-		IO_Out[port] = &dummyDevice;
+		IO_In [port] = dummyDevice.get();
+		IO_Out[port] = dummyDevice.get();
 	}
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
 		primarySlotState[primSlot] = 0;
@@ -178,12 +178,12 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 		subSlotRegister[primSlot] = 0;
 		for (int secSlot = 0; secSlot < 4; ++secSlot) {
 			for (int page = 0; page < 4; ++page) {
-				slotLayout[primSlot][secSlot][page] = &dummyDevice;
+				slotLayout[primSlot][secSlot][page] = dummyDevice.get();
 			}
 		}
 	}
 	for (int page = 0; page < 4; ++page) {
-		visibleDevices[page] = &dummyDevice;
+		visibleDevices[page] = dummyDevice.get();
 	}
 
 	// initially allow all regions to be cached
@@ -196,10 +196,10 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 	if (motherBoard.isTurboR()) {
 		// TODO also MSX2+ needs (slightly different) VDPIODelay
-		delayDevice = DeviceFactory::createVDPIODelay(motherBoard);
+		delayDevice = DeviceFactory::createVDPIODelay(motherBoard, *this);
 		for (int port = 0x98; port <= 0x9B; ++port) {
-			assert(IO_In [port] == &dummyDevice);
-			assert(IO_Out[port] == &dummyDevice);
+			assert(IO_In [port] == dummyDevice.get());
+			assert(IO_Out[port] == dummyDevice.get());
 			IO_In [port] = delayDevice.get();
 			IO_Out[port] = delayDevice.get();
 		}
@@ -227,8 +227,8 @@ MSXCPUInterface::~MSXCPUInterface()
 		for (int port = 0x98; port <= 0x9B; ++port) {
 			assert(IO_In [port] == delayDevice.get());
 			assert(IO_Out[port] == delayDevice.get());
-			IO_In [port] = &dummyDevice;
-			IO_Out[port] = &dummyDevice;
+			IO_In [port] = dummyDevice.get();
+			IO_Out[port] = dummyDevice.get();
 		}
 	}
 
@@ -236,12 +236,12 @@ MSXCPUInterface::~MSXCPUInterface()
 
 	#ifndef NDEBUG
 	for (int port = 0; port < 256; ++port) {
-		if (IO_In[port] != &dummyDevice) {
+		if (IO_In[port] != dummyDevice.get()) {
 			std::cout << "In-port " << port << " still registered "
 			          << IO_In[port]->getName() << std::endl;
 			assert(false);
 		}
-		if (IO_Out[port] != &dummyDevice) {
+		if (IO_Out[port] != dummyDevice.get()) {
 			std::cout << "Out-port " << port << " still registered "
 			          << IO_Out[port]->getName() << std::endl;
 			assert(false);
@@ -251,7 +251,7 @@ MSXCPUInterface::~MSXCPUInterface()
 		assert(!isExpanded(primSlot));
 		for (int secSlot = 0; secSlot < 4; ++secSlot) {
 			for (int page = 0; page < 4; ++page) {
-				assert(slotLayout[primSlot][secSlot][page] == &dummyDevice);
+				assert(slotLayout[primSlot][secSlot][page] == dummyDevice.get());
 			}
 		}
 	}
@@ -313,7 +313,7 @@ void MSXCPUInterface::setExpanded(int ps)
 {
 	if (expanded[ps] == 0) {
 		for (int page = 0; page < 4; ++page) {
-			if (slotLayout[ps][0][page] != &dummyDevice) {
+			if (slotLayout[ps][0][page] != dummyDevice.get()) {
 				throw MSXException("Can't expand slot because "
 				                   "it's already in use.");
 			}
@@ -327,7 +327,7 @@ void MSXCPUInterface::testUnsetExpanded(
 {
 	// TODO handle multi-devices
 	std::set<MSXDevice*> allowed(alreadyRemoved.begin(), alreadyRemoved.end());
-	allowed.insert(&dummyDevice);
+	allowed.insert(dummyDevice.get());
 	assert(isExpanded(ps));
 	if (expanded[ps] == 1) {
 		for (int ss = 0; ss < 4; ++ss) {
@@ -399,7 +399,7 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 	PRT_DEBUG(device->getName() << " registers " << (isIn ? "In" : "Out") <<
 	          "-port " << std::hex << port << std::dec);
 
-	if (devicePtr == &dummyDevice) {
+	if (devicePtr == dummyDevice.get()) {
 		// first, replace DummyDevice
 		devicePtr = device;
 	} else {
@@ -439,7 +439,7 @@ void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 	} else {
 		// remove last, put back DummyDevice
 		assert(devicePtr == device);
-		devicePtr = &dummyDevice;
+		devicePtr = dummyDevice.get();
 	}
 }
 
@@ -468,16 +468,16 @@ void MSXCPUInterface::registerSlot(
 	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (size == 0x4000) {
 		// full 16kb, directly register device (no multiplexer)
-		if (slot != &dummyDevice) {
+		if (slot != dummyDevice.get()) {
 			reportMemOverlap(ps, ss, *slot, device);
 		}
 		slot = &device;
 	} else {
 		// partial page
-		if (slot == &dummyDevice) {
+		if (slot == dummyDevice.get()) {
 			// first
-			MSXMultiMemDevice* multi = new MSXMultiMemDevice(
-			                            device.getMotherBoard());
+			MSXMultiMemDevice* multi =
+				new MSXMultiMemDevice(device.getMotherBoard(), *this);
 			multi->add(device, base, size);
 			slot = multi;
 		} else if (MSXMultiMemDevice* multi =
@@ -504,12 +504,12 @@ void MSXCPUInterface::unregisterSlot(
 		multi->remove(device, base, size);
 		if (multi->empty()) {
 			delete multi;
-			slot = &dummyDevice;
+			slot = dummyDevice.get();
 		}
 	} else {
 		// full 16kb range
 		assert(slot == &device);
-		slot = &dummyDevice;
+		slot = dummyDevice.get();
 	}
 	updateVisible(page);
 }
@@ -689,6 +689,11 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	} else {
 		slotLayout[primSlot][subSlot][page]->writeMem(offset, value, time);
 	}
+}
+
+DummyDevice& MSXCPUInterface::getDummyDevice()
+{
+	return *dummyDevice;
 }
 
 

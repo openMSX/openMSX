@@ -9,12 +9,13 @@
 namespace openmsx {
 
 class MSXCPU;
+class MSXCPUInterface;
 
 class VDPIODelay : public MSXDevice
 {
 public:
 	VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
-	           EmuTime::param time);
+	           MSXCPUInterface& cpuInterface, EmuTime::param time);
 
 	virtual byte readIO(word port, EmuTime::param time);
 	virtual byte peekIO(word port, EmuTime::param time) const;

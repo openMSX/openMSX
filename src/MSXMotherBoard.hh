@@ -24,7 +24,6 @@ class RealTime;
 class Debugger;
 class MSXMixer;
 class PluggingController;
-class DummyDevice;
 class MSXCPU;
 class MSXCPUInterface;
 class PanasonicMemory;
@@ -97,7 +96,6 @@ public:
 	Debugger& getDebugger();
 	MSXMixer& getMSXMixer();
 	PluggingController& getPluggingController();
-	DummyDevice& getDummyDevice();
 	MSXCPU& getCPU();
 	MSXCPUInterface& getCPUInterface();
 	PanasonicMemory& getPanasonicMemory();

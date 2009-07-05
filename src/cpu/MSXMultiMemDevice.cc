@@ -3,6 +3,7 @@
 #include "MSXMultiMemDevice.hh"
 #include "DummyDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -22,11 +23,12 @@ bool MSXMultiMemDevice::Range::operator==(const Range& other) const
 }
 
 
-MSXMultiMemDevice::MSXMultiMemDevice(MSXMotherBoard& motherboard)
+MSXMultiMemDevice::MSXMultiMemDevice(
+		MSXMotherBoard& motherboard, MSXCPUInterface& cpuInterface)
 	: MSXMultiDevice(motherboard)
 {
 	// add sentinel at the end
-	ranges.push_back(Range(0x0000, 0x10000, motherboard.getDummyDevice()));
+	ranges.push_back(Range(0x0000, 0x10000, cpuInterface.getDummyDevice()));
 }
 
 MSXMultiMemDevice::~MSXMultiMemDevice()

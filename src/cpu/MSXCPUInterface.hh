@@ -177,6 +177,8 @@ public:
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*>& alreadyRemoved) const;
 	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 
+	DummyDevice& getDummyDevice();
+
 	static void insertBreakPoint(shared_ptr<BreakPoint> bp);
 	static void removeBreakPoint(const BreakPoint& bp);
 	typedef std::multimap<word, shared_ptr<BreakPoint> > BreakPoints;
@@ -272,7 +274,7 @@ private:
 	void updateVisible(int page);
 	void setSubSlot(byte primSlot, byte value);
 
-	DummyDevice& dummyDevice;
+	std::auto_ptr<DummyDevice> dummyDevice;
 	MSXCPU& msxcpu;
 	CliComm& cliComm;
 	MSXMotherBoard& motherBoard;

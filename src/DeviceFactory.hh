@@ -9,6 +9,7 @@ namespace openmsx {
 
 class MSXDevice;
 class MSXMotherBoard;
+class MSXCPUInterface;
 class HardwareConfig;
 class XMLElement;
 class DummyDevice;
@@ -29,7 +30,7 @@ public:
 	static std::auto_ptr<MSXMapperIO> createMapperIO(
 		MSXMotherBoard& motherBoard);
 	static std::auto_ptr<VDPIODelay> createVDPIODelay(
-		MSXMotherBoard& motherBoard);
+		MSXMotherBoard& motherBoard, MSXCPUInterface& cpuInterface);
 };
 
 } // namespace openmsx

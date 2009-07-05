@@ -8,10 +8,13 @@
 
 namespace openmsx {
 
+class MSXCPUInterface;
+
 class MSXMultiMemDevice : public MSXMultiDevice
 {
 public:
-	explicit MSXMultiMemDevice(MSXMotherBoard& motherboard);
+	explicit MSXMultiMemDevice(
+		MSXMotherBoard& motherboard, MSXCPUInterface& cpuInterface);
 	virtual ~MSXMultiMemDevice();
 
 	bool add(MSXDevice& device, int base, int size);

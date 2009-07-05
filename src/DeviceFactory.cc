@@ -209,11 +209,11 @@ std::auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 }
 
 std::auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
-		MSXMotherBoard& motherBoard)
+		MSXMotherBoard& motherBoard, MSXCPUInterface& cpuInterface)
 {
 	static XMLElement config(createConfig("VDPIODelay", "VDPIODelay"));
 	std::auto_ptr<VDPIODelay> result(
-		new VDPIODelay(motherBoard, config, EmuTime::zero));
+		new VDPIODelay(motherBoard, config, cpuInterface, EmuTime::zero));
 	result->init(*motherBoard.getMachineConfig());
 	return result;
 }

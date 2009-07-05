@@ -15,7 +15,6 @@
 #include "Debugger.hh"
 #include "MSXMixer.hh"
 #include "PluggingController.hh"
-#include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
 #include "PanasonicMemory.hh"
@@ -106,7 +105,6 @@ public:
 	Debugger& getDebugger();
 	MSXMixer& getMSXMixer();
 	PluggingController& getPluggingController();
-	DummyDevice& getDummyDevice();
 	MSXCPU& getCPU();
 	MSXCPUInterface& getCPUInterface();
 	PanasonicMemory& getPanasonicMemory();
@@ -181,7 +179,6 @@ private:
 	auto_ptr<Debugger> debugger;
 	auto_ptr<MSXMixer> msxMixer;
 	auto_ptr<PluggingController> pluggingController;
-	auto_ptr<DummyDevice> dummyDevice;
 	auto_ptr<MSXCPU> msxCpu;
 	auto_ptr<MSXCPUInterface> msxCpuInterface;
 	auto_ptr<PanasonicMemory> panasonicMemory;
@@ -551,14 +548,6 @@ PluggingController& MSXMotherBoardImpl::getPluggingController()
 		pluggingController.reset(new PluggingController(self));
 	}
 	return *pluggingController;
-}
-
-DummyDevice& MSXMotherBoardImpl::getDummyDevice()
-{
-	if (!dummyDevice.get()) {
-		dummyDevice = DeviceFactory::createDummyDevice(self);
-	}
-	return *dummyDevice;
 }
 
 MSXCPU& MSXMotherBoardImpl::getCPU()
@@ -1153,7 +1142,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//    machineID, userNames, availableDevices, addRemoveUpdate,
 	//    sharedStuffMap, msxCliComm, msxEventDistributor,
 	//    msxCommandController, slotManager, eventDelay,
-	//    debugger, msxMixer, dummyDevice, panasonicMemory, renShaTurbo,
+	//    debugger, msxMixer, panasonicMemory, renShaTurbo,
 	//    ledStatus
 
 	// Scheduler must come early so that devices can query current time
@@ -1313,10 +1302,6 @@ MSXMixer& MSXMotherBoard::getMSXMixer()
 PluggingController& MSXMotherBoard::getPluggingController()
 {
 	return pimple->getPluggingController();
-}
-DummyDevice& MSXMotherBoard::getDummyDevice()
-{
-	return pimple->getDummyDevice();
 }
 MSXCPU& MSXMotherBoard::getCPU()
 {
