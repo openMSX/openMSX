@@ -21,8 +21,7 @@ public:
 class MSXMapperIO : public MSXDevice
 {
 public:
-	MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
-	            EmuTime::param time);
+	MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXMapperIO();
 
 	virtual void reset(EmuTime::param time);

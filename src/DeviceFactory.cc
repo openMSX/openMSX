@@ -202,8 +202,7 @@ std::auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 		MSXMotherBoard& motherBoard)
 {
 	static XMLElement config(createConfig("MapperIO", "MapperIO"));
-	std::auto_ptr<MSXMapperIO> result(
-		new MSXMapperIO(motherBoard, config, EmuTime::zero));
+	std::auto_ptr<MSXMapperIO> result(new MSXMapperIO(motherBoard, config));
 	result->init(*motherBoard.getMachineConfig());
 	return result;
 }

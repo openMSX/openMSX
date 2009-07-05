@@ -37,14 +37,13 @@ static MapperMask* createMapperMask(MSXMotherBoard& motherBoard)
 	throw FatalError("Unknown mapper type: \"" + type + "\".");
 }
 
-MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         EmuTime::param time)
+MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, debuggable(new MapperIODebuggable(motherBoard, *this))
 	, mapperMask(createMapperMask(motherBoard))
 {
 	mask = mapperMask->calcMask(mapperSizes);
-	reset(time);
+	reset(EmuTime::dummy());
 }
 
 MSXMapperIO::~MSXMapperIO()
