@@ -1,13 +1,12 @@
 // $Id$
 
 #include "MSXMapperIO.hh"
-#include "MSXMapperIOTurboR.hh"
-#include "MSXMapperIOPhilips.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "Math.hh"
 #include "serialize.hh"
 
 using std::string;
@@ -24,6 +23,38 @@ private:
 	MSXMapperIO& mapperIO;
 };
 
+
+class MapperMask
+{
+public:
+	virtual ~MapperMask() {}
+	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes) = 0;
+};
+
+class MSXMapperIOPhilips : public MapperMask
+{
+public:
+	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes);
+};
+
+// unused bits read always "1"
+byte MSXMapperIOPhilips::calcMask(const std::multiset<unsigned>& mapperSizes)
+{
+	unsigned largest = (mapperSizes.empty()) ? 1 : *mapperSizes.rbegin();
+	return (256 - Math::powerOfTwo(largest)) & 255;
+}
+
+class MSXMapperIOTurboR : public MSXMapperIOPhilips
+{
+public:
+	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes);
+};
+
+byte MSXMapperIOTurboR::calcMask(const std::multiset<unsigned>& mapperSizes)
+{
+	// upper 3 bits are always "1"
+	return MSXMapperIOPhilips::calcMask(mapperSizes) | 0xe0;
+}
 
 static MapperMask* createMapperMask(MSXMotherBoard& motherBoard)
 {

@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	MSXMapperIO MSXMapperIOPhilips MSXMapperIOTurboR \
+	MSXMapperIO \
 	MSXMemoryMapper \
 	MSXRam \
 	MSXMirrorDevice \

@@ -10,13 +10,7 @@
 namespace openmsx {
 
 class MapperIODebuggable;
-
-class MapperMask
-{
-public:
-	virtual ~MapperMask() {}
-	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes) = 0;
-};
+class MapperMask;
 
 class MSXMapperIO : public MSXDevice
 {
