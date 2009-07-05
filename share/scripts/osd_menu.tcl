@@ -331,6 +331,9 @@ set main_menu [prepare_menu {
 	         actions { A { osd_menu::menu_create $osd_menu::sound_setting_menu }}}
 	       { text "Video Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::video_setting_menu }}
+	         post-spacing 3 }
+	       { text "Manage Running Machines..."
+	         actions { A { osd_menu::menu_create $osd_menu::running_machines_menu }}
 	         post-spacing 10 }
 	       { text "Reset MSX"
 	         actions { A { reset ; osd_menu::menu_close_all }}}
@@ -399,7 +402,7 @@ set video_setting_menu [prepare_menu {
 	       { text "Scaler: $scale_algorithm"
 	         actions { LEFT  { cycle_back scale_algorithm }
 	                   RIGHT { cycle scale_algorithm }}}
-	       { text "Scaler factor: $scale_factor X"
+	       { text "Scale Factor: $scale_factor X"
 	         actions { LEFT  { incr scale_factor -1 }
 	                   RIGHT { incr scale_factor  1 }}
 	         post-spacing 6 }
@@ -412,6 +415,77 @@ set video_setting_menu [prepare_menu {
 	       { text "Glow: $glow"
 	         actions { LEFT  { incr glow -1 }
 	                   RIGHT { incr glow  1 }}}}}]
+
+proc get_machine_display_name { machineid } {
+	set config_name [${machineid}::machine_info config_name]
+	array set names [openmsx_info machines $config_name]
+	return [format "%s %s" $names(manufacturer) $names(code)]
+}
+
+set running_machines_menu [prepare_menu {
+	bg-color 0x000000a0
+	text-color 0xffffffff
+	select-color 0x8080ffd0
+	font-size 8
+	border-size 2
+	width 175
+	xpos 100
+	ypos 120
+	items {{ text "Manage Running Machines"
+	         text-color 0xffff40ff
+	         font-size 10
+	         post-spacing 6
+	         selectable false }
+	       { text "Select Running Machine Tab: [ set name <none>; catch { set name [osd_menu::get_machine_display_name [activate_machine]]}; set name]" 
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_running_machine_list] }}}
+	       { text "New Running Machine Tab"
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
+	       { text "Close Current Machine Tab"
+	         actions { A { delete_machine [activate_machine]; catch { activate_machine [lindex [list_machines] 0]} }}}}}]
+
+proc menu_create_running_machine_list {} {
+	set items [list_machines]
+	return [prepare_menu_list $items 5 \
+	       { execute menu_machine_tab_select_exec
+	         bg-color 0x000000a0
+	         text-color 0xffffffff
+	         select-color 0x8080ffd0
+	         font-size 8
+	         border-size 2
+	         width 200
+	         xpos 100
+	         ypos 120
+	         header { text "Select Running Machine"
+	                  text-color 0xff0000ff
+	                  font-size 12
+	                  post-spacing 6 }}]
+}
+proc menu_machine_tab_select_exec { item } {
+	activate_machine $item
+}
+
+proc menu_create_load_machine_list {} {
+	set items [openmsx_info machines]
+	return [prepare_menu_list $items 10 \
+	       { execute osd_menu::menu_load_machine_exec
+	         bg-color 0x000000a0
+	         text-color 0xffffffff
+	         select-color 0x8080ffd0
+	         font-size 8
+	         border-size 2
+	         width 200
+	         xpos 100
+	         ypos 120
+	         header { text "Select Machine to Run"
+	                  text-color 0xff0000ff
+	                  font-size 12
+	                  post-spacing 6 }}]
+}
+proc menu_load_machine_exec { item } {
+	set id [create_machine]
+	${id}::load_machine $item
+	activate_machine ${id}
+}
 
 proc ls { directory extensions } {
 	set roms [glob -nocomplain -tails -directory $directory -type f *.{$extensions}]
