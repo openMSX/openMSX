@@ -165,7 +165,9 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		try {
 			command.execute(tokens, result);
 		} catch (MSXException& e) {
-			PRT_DEBUG("Interpreter: Got an exception when exuting a command: " << e.getMessage());
+			PRT_DEBUG(
+				"Interpreter: Got an exception while executing a command: "
+				<< e.getMessage());
 			result.setString(e.getMessage());
 			res = TCL_ERROR;
 		}
