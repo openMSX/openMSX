@@ -430,7 +430,7 @@ set running_machines_menu [prepare_menu {
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { text "Select Running Machine Tab: [ set name <none>; catch { set name [utils::get_machine_display_name [activate_machine]]}; set name]" 
+	       { text "Select Running Machine Tab: [utils::get_machine_display_name]" 
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_running_machine_list] }}}
 	       { text "New Running Machine Tab"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}

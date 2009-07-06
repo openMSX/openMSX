@@ -13,6 +13,9 @@ proc get_machine_display_name { { machineid "" } } {
 		set machineid [machine]
 	}
 	set config_name [${machineid}::machine_info config_name]
+	if {$config_name == ""} {
+		return "<none>"
+	}
 	array set names [openmsx_info machines $config_name]
 	return [format "%s %s" $names(manufacturer) $names(code)]
 }
@@ -21,7 +24,10 @@ proc get_machine_time { { machineid "" } } {
 	if {$machineid eq ""} {
 		set machineid [machine]
 	}
-	set mtime [${machineid}::machine_info time]
+	set err [catch {set mtime [${machineid}::machine_info time]}]
+	if {$err} {
+		return ""
+	}
 	return [format "%02d:%02d:%02d" [expr int($mtime / 3600)] [expr int($mtime / 60) % 60] [expr int($mtime) % 60]]
 }
 
