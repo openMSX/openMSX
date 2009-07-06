@@ -54,7 +54,7 @@ proc info_panel_init {} {
 	set panel_info(mtime,title) "Time"
 	set panel_info(mtime,width) 60
 	set panel_info(mtime,row) 1
-	set panel_info(mtime,method) {set mtime [machine_info time]; format "%02d:%02d:%02d" [expr int($mtime / 3600)] [expr int($mtime / 60) % 60] [expr int($mtime) % 60]}
+	set panel_info(mtime,method) {utils::get_machine_time}
 
 	set panel_info(speed,title) "Speed"
 	set panel_info(speed,width) 48
@@ -64,7 +64,7 @@ proc info_panel_init {} {
 	set panel_info(machine,title) "Machine"
 	set panel_info(machine,width) 250
 	set panel_info(machine,row) 1
-	set panel_info(machine,method) {array set names [openmsx_info machines [machine_info config_name]]; format "%s %s" $names(manufacturer) $names(code)}
+	set panel_info(machine,method) {utils::get_machine_display_name}
 
 	# calc width of software item
 	set software_width 0

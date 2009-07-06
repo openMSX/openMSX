@@ -416,12 +416,6 @@ set video_setting_menu [prepare_menu {
 	         actions { LEFT  { incr glow -1 }
 	                   RIGHT { incr glow  1 }}}}}]
 
-proc get_machine_display_name { machineid } {
-	set config_name [${machineid}::machine_info config_name]
-	array set names [openmsx_info machines $config_name]
-	return [format "%s %s" $names(manufacturer) $names(code)]
-}
-
 set running_machines_menu [prepare_menu {
 	bg-color 0x000000a0
 	text-color 0xffffffff
@@ -436,7 +430,7 @@ set running_machines_menu [prepare_menu {
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { text "Select Running Machine Tab: [ set name <none>; catch { set name [osd_menu::get_machine_display_name [activate_machine]]}; set name]" 
+	       { text "Select Running Machine Tab: [ set name <none>; catch { set name [utils::get_machine_display_name [activate_machine]]}; set name]" 
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_running_machine_list] }}}
 	       { text "New Running Machine Tab"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
