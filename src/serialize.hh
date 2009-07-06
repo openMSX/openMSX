@@ -686,7 +686,6 @@ private:
 	}
 
 	InputBuffer buffer;
-	unsigned pos;
 };
 
 ////
@@ -800,7 +799,6 @@ private:
 
 	std::auto_ptr<XMLElement> elem;
 	std::vector<const XMLElement*> elems;
-	unsigned pos;
 };
 
 /*#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
