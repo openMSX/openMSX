@@ -69,6 +69,29 @@ public:
 		memcpy(begin + pos, data, len);
 	}
 
+	/** Reserve space to insert the given number of bytes.
+	  * The returned pointer is only valid until the next internal
+	  * reallocate, so till the next call to insert() or allocate().
+	  *
+	  * If you don't know yet exactly how much memory to allocate (e.g.
+	  * when the buffer will be used for gzip output data), you can request
+	  * the maximum size and deallocate the unused space later.
+	  */
+	char* allocate(unsigned len);
+
+	/** Free part of a previously allocated buffer.
+	 *
+	  * The parameter must point right after the last byte of the used
+	  * portion of the buffer. So it must be in the range [buf, buf+num]
+	  * with buf and num respectively the return value and the parameter
+	  * of the last allocate() call.
+	  *
+	  * See comment in allocate(). This call must be done right after the
+	  * allocate() call, there cannot be any other (non-const) call to this
+	  * object in between.
+	  */
+	void deallocate(char* pos);
+
 	/** Get the current size of the buffer.
 	 */
 	unsigned getPosition() const
@@ -78,6 +101,7 @@ public:
 
 private:
 	void insertGrow(const void* __restrict data, unsigned len);
+	char* allocateGrow(unsigned len);
 
 	char* begin;   // begin of allocated memory
 	char* end;     // points right after the last used byte
@@ -149,6 +173,13 @@ public:
 		buf += len;
 		assert(buf <= finish);
 	}
+
+	/** Return a pointer to the current position in the buffer.
+	  * This is useful if you don't want to copy the data, but e.g. use it
+	  * as input for an uncompress algorithm. You can later use skip() to
+	  * actually consume the data.
+	  */
+	const char* getCurrentPos() const { return buf; }
 
 private:
 	const char* buf;

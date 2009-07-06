@@ -6,6 +6,7 @@
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"
+#include "minilzo.hh"
 #include "StringOp.hh"
 #include <cstring>
 #include <zlib.h>
@@ -180,6 +181,79 @@ void MemInputArchive::load(std::string& s)
 	if (length) {
 		get(&s[0], length);
 	}
+}
+
+////
+
+void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned len)
+{
+	// Compress in-memory blobs:
+	//
+	// This is a bit slower than memcpy, but it uses a lot less memory.
+	// Memory usage is important for the reverse feature, where we keep a
+	// lot of savestates in memory.
+	//
+	// I compared 'gzip level=1' (fastest version with lowest compression
+	// ratio) with 'lzo'. lzo was considerably faster. Compression ratio
+	// was about the same (maybe lzo was slightly better (OTOH on higher
+	// levels gzip compresses better)). So I decided to go with lzo.
+#if 0
+	// gzip
+	uLongf dstLen = len + len / 1000 + 12; // upper bound for required size
+	char* buf = buffer.allocate(sizeof(uLongf) + dstLen);
+
+	if (compress2(reinterpret_cast<Bytef*>(&buf[sizeof(uLongf)]), &dstLen,
+		      reinterpret_cast<const Bytef*>(data), len, 1)
+	    != Z_OK) {
+		assert(false);
+	}
+
+	memcpy(buf, &dstLen, sizeof(uLongf)); // fill-in actual size
+	buffer.deallocate(&buf[sizeof(uLongf) + dstLen]); // dealloc unused portion
+#else
+	// lzo
+	lzo_uint dstLen = len + len / 16 + 64 + 3; // upper bound
+	char* buf = buffer.allocate(sizeof(lzo_uint) + dstLen);
+
+	if (lzo_init() != LZO_E_OK) {
+		assert(false);
+	}
+	char wrkmem[LZO1X_1_MEM_COMPRESS];
+	if (lzo1x_1_compress(reinterpret_cast<const lzo_bytep>(data), len,
+		             reinterpret_cast<lzo_bytep>(&buf[sizeof(lzo_uint)]),
+		             &dstLen, wrkmem) != LZO_E_OK) {
+		assert(false);
+	}
+
+	memcpy(buf, &dstLen, sizeof(lzo_uint)); // fill-in actual size
+	buffer.deallocate(&buf[sizeof(lzo_uint) + dstLen]); // dealloc unused portion
+#endif
+}
+
+void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
+{
+#if 0
+	// gzip
+	uLongf srcLen; load(srcLen);
+	uLongf dstLen = len;
+	if (uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
+		       reinterpret_cast<const Bytef*>(buffer.getCurrentPos()), srcLen)
+	    != Z_OK) {
+		assert(false);
+	}
+	buffer.skip(srcLen);
+#else
+	// lzo
+	lzo_uint srcLen; load(srcLen);
+	lzo_uint dstLen = len;
+	if (lzo1x_decompress(reinterpret_cast<const lzo_bytep>(buffer.getCurrentPos()),
+	                     srcLen, reinterpret_cast<lzo_bytep>(data), &dstLen, NULL)
+	    != LZO_E_OK) {
+		assert(false);
+	}
+	assert(dstLen == len);
+	buffer.skip(srcLen);
+#endif
 }
 
 ////

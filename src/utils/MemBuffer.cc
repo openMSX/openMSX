@@ -46,14 +46,39 @@ void OutputBuffer::insertN(const void* __restrict data, unsigned len)
 	}
 }
 
+char* OutputBuffer::allocate(unsigned len)
+{
+	char* newEnd = end + len;
+	if (newEnd <= finish) {
+		char* result = end;
+		end = newEnd;
+		return result;
+	} else {
+		return allocateGrow(len);
+	}
+}
+
+void OutputBuffer::deallocate(char* pos)
+{
+	assert(begin <= pos);
+	assert(pos <= end);
+	end = pos;
+}
+
 void OutputBuffer::insertGrow(const void* __restrict data, unsigned len)
+{
+	char* pos = allocateGrow(len);
+	memcpy(pos, data, len);
+}
+
+char* OutputBuffer::allocateGrow(unsigned len)
 {
 	unsigned oldSize = end - begin;
 	unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
 	begin = reinterpret_cast<char*>(realloc(begin, newSize));
 	end = begin + oldSize + len;
 	finish = begin + newSize;
-	memcpy(begin + oldSize, data, len);
+	return begin + oldSize;
 }
 
 MemBuffer::MemBuffer(OutputBuffer& buffer)

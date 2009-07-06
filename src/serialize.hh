@@ -617,10 +617,7 @@ public:
 		put(&t, sizeof(t));
 	}
 	void save(const std::string& s);
-	void serialize_blob(const char*, const void* data, unsigned len)
-	{
-		put(data, len);
-	}
+	void serialize_blob(const char*, const void* data, unsigned len);
 
 	void beginSection()
 	{
@@ -669,10 +666,7 @@ public:
 		get(&t, sizeof(t));
 	}
 	void load(std::string& s);
-	void serialize_blob(const char*, void* data, unsigned len)
-	{
-		get(data, len);
-	}
+	void serialize_blob(const char*, void* data, unsigned len);
 
 	void skipSection(bool skip)
 	{
