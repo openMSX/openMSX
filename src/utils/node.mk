@@ -2,6 +2,8 @@
 
 include build/node-start.mk
 
+SUBDIRS:= minilzo-2.03
+
 SRC_HDR:= \
 	Base64 HexDump \
 	CRC16 \
