@@ -312,6 +312,8 @@ string AfterCommand::help(const vector<string>& /*tokens*/) const
 	       "after idle     <seconds> <command>  execute a command after some time being idle\n"
 	       "after frame <command>               execute a command after a new frame is drawn\n"
 	       "after break <command>               execute a command after a breakpoint is reached\n"
+	       "after boot <command>                execute a command after a (re)boot\n"
+	       "after machine_switch <command>      execute a command after a switch to a new machine\n"
 	       "after info                          list all postponed commands\n"
 	       "after cancel <id>                   cancel the postponed command with given id\n";
 }
