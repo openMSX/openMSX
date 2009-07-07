@@ -6,7 +6,6 @@
 #include "MSXCommandController.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
-#include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include <iostream>
 #include <cassert>
@@ -18,10 +17,8 @@ using std::vector;
 
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandController& commandController, const string& name,
-                         Reactor* reactor_)
+InfoCommand::InfoCommand(CommandController& commandController, const string& name)
 	: Command(commandController, name)
-	, reactor(reactor_)
 {
 }
 
@@ -54,31 +51,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic, const string& name)
 	infoTopics.erase(name);
 }
 
-bool InfoCommand::hasTopic(const std::string& name) const
-{
-	return infoTopics.find(name) != infoTopics.end();
-}
-
 // Command
-
-bool InfoCommand::executeBWC(const vector<TclObject*>& tokens,
-                             TclObject& result)
-{
-	if (!reactor) return false;
-	MSXMotherBoard* motherBoard = reactor->getMotherBoard();
-	if (!motherBoard) return false;
-	MSXCommandController& msxCommandController =
-		motherBoard->getMSXCommandController();
-	InfoCommand& machineInfoCommand =
-		msxCommandController.getMachineInfoCommand();
-	string topic = tokens[1]->getString();
-	if (!machineInfoCommand.hasTopic(topic)) return false;
-	msxCommandController.getCliComm().printWarning(
-		"'openmsx_info " + topic + "' is deprecated, "
-		"please use 'machine_info " + topic + "'.");
-	machineInfoCommand.execute(tokens, result);
-	return true;
-}
 
 void InfoCommand::execute(const vector<TclObject*>& tokens,
                           TclObject& result)
@@ -98,8 +71,6 @@ void InfoCommand::execute(const vector<TclObject*>& tokens,
 		map<string, const InfoTopic*>::const_iterator it =
 			infoTopics.find(topic);
 		if (it == infoTopics.end()) {
-			// backwards compatibility: also try machine_info
-			if (executeBWC(tokens, result)) return;
 			throw CommandException("No info on: " + topic);
 		}
 		it->second->execute(tokens, result);

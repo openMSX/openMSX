@@ -69,7 +69,7 @@ GlobalCommandController::GlobalCommandController(
 	, connection(NULL)
 	, eventDistributor(eventDistributor_)
 	, reactor(reactor_)
-	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info", &reactor))
+	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
 	, proxyCmd(new ProxyCmd(*this, reactor))
