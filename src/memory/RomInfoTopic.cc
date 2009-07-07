@@ -38,7 +38,8 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_ZEMINA80IN1] = "Zemina 80 in 1";
 	description[ROM_ZEMINA90IN1] = "Zemina 90 in 1";
 	description[ROM_ZEMINA126IN1] = "Zemina 126 in 1";
-	description[ROM_HOLY_QURAN] = "Holy Qu'ran";
+	description[ROM_HOLY_QURAN]  = "Holy Qu'ran (pre-decrypted)";
+	description[ROM_HOLY_QURAN2] = "Holy Qu'ran";
 	description[ROM_FSA1FM1] = "Panasonic FS-A1FM internal mapper 1";
 	description[ROM_FSA1FM2] = "Panasonic FS-A1FM internal mapper 2";
 	description[ROM_DRAM] = "MSXturboR DRAM";

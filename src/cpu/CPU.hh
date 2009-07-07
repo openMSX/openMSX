@@ -371,6 +371,9 @@ public:
 	 */
 	virtual void invalidateMemCache(unsigned start, unsigned num) = 0;
 
+	/** See MSXCPU::isM1Cycle(). */
+	virtual bool isM1Cycle(unsigned address) const = 0;
+
 	/**
 	 */
 	virtual void disasmCommand(const std::vector<TclObject*>& tokens,

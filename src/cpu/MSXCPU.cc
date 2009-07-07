@@ -195,6 +195,11 @@ void MSXCPU::lowerNMI()
 	}
 }
 
+bool MSXCPU::isM1Cycle(unsigned address) const
+{
+	return activeCPU->isM1Cycle(address);
+}
+
 bool MSXCPU::isR800Active()
 {
 	return activeCPU == r800.get();

@@ -92,6 +92,13 @@ public:
 	 */
 	void lowerNMI();
 
+	/** Should only be used from within a MSXDevice::readMem() method.
+	  * Returns true if that read was the first byte of an instruction
+	  * (the Z80 M1 pin is active). This implementation is not 100%
+	  * accurate, but good enough for now.
+	  */
+	bool isM1Cycle(unsigned address) const;
+
 	/** See CPU::exitCPULoopsync() */
 	void exitCPULoopSync();
 	/** See CPU::exitCPULoopAsync() */

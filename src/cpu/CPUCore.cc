@@ -400,6 +400,12 @@ template <class T> void CPUCore<T>::lowerNMI()
 	assert(NMIStatus >= 0);
 }
 
+template <class T> bool CPUCore<T>::isM1Cycle(unsigned address) const
+{
+	// PC was already increased, so decrease again
+	return address == ((R.getPC() - 1) & 0xFFFF);
+}
+
 template <class T> void CPUCore<T>::wait(EmuTime::param time)
 {
 	assert(time >= getCurrentTime());

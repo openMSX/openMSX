@@ -34,6 +34,7 @@
 #include "RomZemina90in1.hh"
 #include "RomZemina126in1.hh"
 #include "RomHolyQuran.hh"
+#include "RomHolyQuran2.hh"
 #include "RomFSA1FM.hh"
 #include "RomManbow2.hh"
 #include "RomMatraInk.hh"
@@ -307,6 +308,9 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config
 		break;
 	case ROM_HOLY_QURAN:
 		result.reset(new RomHolyQuran(motherBoard, config, rom));
+		break;
+	case ROM_HOLY_QURAN2:
+		result.reset(new RomHolyQuran2(motherBoard, config, rom));
 		break;
 	case ROM_FSA1FM1:
 		result.reset(new RomFSA1FM1(motherBoard, config, rom));

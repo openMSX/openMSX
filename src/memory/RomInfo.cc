@@ -49,7 +49,8 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Synthesizer"]    = ROM_SYNTHESIZER;
 		romTypeMap["PlayBall"]       = ROM_PLAYBALL;
 		romTypeMap["NettouYakyuu"]   = ROM_NETTOU_YAKYUU;
-		romTypeMap["HolyQuran"]      = ROM_HOLY_QURAN;
+		romTypeMap["AlQuranDecoded"] = ROM_HOLY_QURAN;
+		romTypeMap["AlQuran"]        = ROM_HOLY_QURAN2;
 		romTypeMap["Padial8"]        = ROM_PADIAL8;
 		romTypeMap["Padial16"]       = ROM_PADIAL16;
 		romTypeMap["SuperLodeRunner"]= ROM_SUPERLODERUNNER;
@@ -138,6 +139,7 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["KOREAN80IN1"]   = "Zemina80in1";
 		aliasMap["KOREAN90IN1"]   = "Zemina90in1";
 		aliasMap["KOREAN126IN1"]  = "Zemina126in1";
+		aliasMap["HolyQuran"]     = "AlQuranDecoded";
 	}
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	AliasMap::const_iterator alias_it = aliasMap.find(name);
