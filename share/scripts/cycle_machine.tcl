@@ -11,9 +11,11 @@ set_help_text cycle_back_machine $help_cycle_machine
 
 proc cycle_machine { {step 1} } {
 	set cycle_list [utils::get_ordered_machine_list]
-	set cur [lsearch -exact $cycle_list [activate_machine]]
-	set new [expr ($cur + $step) % [llength $cycle_list]]
-	activate_machine [lindex $cycle_list $new]
+	if { [llength $cycle_list] > 0 } {
+		set cur [lsearch -exact $cycle_list [activate_machine]]
+		set new [expr ($cur + $step) % [llength $cycle_list]]
+		activate_machine [lindex $cycle_list $new]
+	}
 }
 
 proc cycle_back_machine {} {
