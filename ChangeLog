@@ -1,5 +1,9 @@
 $Id$
 
+2009-07-08 Manuel Bilderbeek <manuel@msxnet.org>
+	* Renamed 'msxonly' option to 'raw', which fits much better to what it
+	  does.
+
 2009-07-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Major reductions in executable size for serialization code:
 	   See the commit messages for details, here I'll only list one line

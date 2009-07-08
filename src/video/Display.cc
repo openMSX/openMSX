@@ -419,7 +419,7 @@ ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
 
 string ScreenShotCmd::execute(const vector<string>& tokens)
 {
-	bool msxOnly = false;
+	bool rawShot = false;
 	bool withOsd = false;
 	bool doubleSize = false;
 	string prefix = "openmsx";
@@ -436,8 +436,14 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 					throw CommandException("Missing argument");
 				}
 				prefix = tokens[i];
+			} else if (tokens[i] == "-raw") {
+				rawShot = true;
 			} else if (tokens[i] == "-msxonly") {
-				msxOnly = true;
+				display.getCliComm().printWarning(
+					"The -msxonly option has been deprecated and will "
+					"be removed in a future release. Instead, use the "
+					"-raw option for the same effect.");
+				rawShot = true;
 			} else if (tokens[i] == "-doublesize") {
 				doubleSize = true;
 			} else if (tokens[i] == "-with-osd") {
@@ -449,13 +455,13 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 			arguments.push_back(tokens[i]);
 		}
 	}
-	if (doubleSize && !msxOnly) {
+	if (doubleSize && !rawShot) {
 		throw CommandException("-doublesize option can only be used in "
-		                       "combination with -msxonly");
+		                       "combination with -raw");
 	}
-	if (msxOnly && withOsd) {
+	if (rawShot && withOsd) {
 		throw CommandException("-with-osd cannot be used in "
-		                       "combination with -msxonly");
+		                       "combination with -raw");
 	}
 
 	string filename;
@@ -471,7 +477,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
-	if (!msxOnly) {
+	if (!rawShot) {
 		// include all layers (OSD stuff, console)
 		display.getVideoSystem().takeScreenShot(filename, withOsd);
 	} else {
@@ -496,19 +502,19 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	return
-		"screenshot                       Write screenshot to file \"openmsxNNNN.png\"\n"
-		"screenshot <filename>            Write screenshot to indicated file\n"
-		"screenshot -prefix foo           Write screenshot to file \"fooNNNN.png\"\n"
-		"screenshot -msxonly              320x240 screenshot of MSX screen only\n"
-		"screenshot -msxonly -doublesize  640x480 screenshot of MSX screen only\n"
-		"screenshot -with-osd             Include OSD elements in the screenshot\n";
+		"screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
+		"screenshot <filename>        Write screenshot to indicated file\n"
+		"screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
+		"screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
+		"screenshot -raw -doublesize  640x480 rw screenshot (of MSX screen only)\n"
+		"screenshot -with-osd         Include OSD elements in the screenshot\n";
 }
 
 void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 {
 	set<string> extra;
 	extra.insert("-prefix");
-	extra.insert("-msxonly");
+	extra.insert("-raw");
 	extra.insert("-doublesize");
 	extra.insert("-with-osd");
 	UserFileContext context;

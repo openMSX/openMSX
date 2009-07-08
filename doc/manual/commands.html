@@ -1745,7 +1745,7 @@
 
   <h3><a id="screenshot">screenshot</a></h3>
 
-  <p>Take a screenshot of the openMSX screen. By default this takes a screenshot of the 'scaled' MSX screen (see <code><a class="internal" href="#scale_algorithm">scale_algorithm</a></code> setting) without OSD elements (e.g. console and icons). If you want to include the OSD elements pass the <code>-with-osd</code> option. If you want a screenshot of the 'unscaled' MSX screen, pass the <code>-msxonly</code> option. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
+  <p>Take a screenshot of the openMSX screen. By default this takes a screenshot of the 'scaled' MSX screen (see <code><a class="internal" href="#scale_algorithm">scale_algorithm</a></code> setting) without OSD elements (e.g. console and icons). If you want to include the OSD elements pass the <code>-with-osd</code> option. If you want a screenshot of the 'unscaled' raw MSX screen, pass the <code>-raw</code> option. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1754,7 +1754,7 @@
   <table>
     <tr>
       <td>
-        <code>screenshot [-with-osd] [-msxonly [-doublesize]] [-prefix &lt;prefix&gt;] [&lt;filename&gt;]</code>
+        <code>screenshot [-with-osd] [-raw [-doublesize]] [-prefix &lt;prefix&gt;] [&lt;filename&gt;]</code>
       </td>
     </tr>
   </table>
@@ -1777,12 +1777,12 @@
       <td>Write screenshot to file "fooNNNN.png"</td>
     </tr>
     <tr>
-      <td><code>screenshot -msxonly</code></td>
-      <td>Create screenshot of the MSX screen only (so no icons or console)</td>
+      <td><code>screenshot -raw</code></td>
+      <td>Create screenshot of the raw MSX screen only (so no icons or console and no scaling)</td>
     </tr>
     <tr>
-      <td><code>screenshot -msxonly -doublesize</code></td>
-      <td>Create screenshot of the MSX screen only, with resolution 640&times;480</td>
+      <td><code>screenshot -raw -doublesize</code></td>
+      <td>Create screenshot of the raw MSX screen only, with resolution 640&times;480</td>
     </tr>
     <tr>
       <td><code>screenshot -with-osd</code></td>
