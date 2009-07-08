@@ -71,7 +71,7 @@ void MSXCommandController::registerCommand(Command& command, const string& str)
 	assert(!hasCommand(str));
 	commandMap[str] = &command;
 
-	string fullname = machineID + "::" + str;
+	string fullname = "::" + machineID + "::" + str;
 	globalCommandController.registerCommand(command, fullname);
 	globalCommandController.registerProxyCommand(str);
 }
@@ -82,21 +82,21 @@ void MSXCommandController::unregisterCommand(Command& command, const string& str
 	commandMap.erase(str);
 
 	globalCommandController.unregisterProxyCommand(str);
-	string fullname = machineID + "::" + str;
+	string fullname = "::" + machineID + "::" + str;
 	globalCommandController.unregisterCommand(command, fullname);
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
                                              const string& str)
 {
-	string fullname = machineID + "::" + str;
+	string fullname = "::" + machineID + "::" + str;
 	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
                                                const string& str)
 {
-	string fullname = machineID + "::" + str;
+	string fullname = "::" + machineID + "::" + str;
 	globalCommandController.unregisterCompleter(completer, fullname);
 }
 
@@ -107,7 +107,7 @@ void MSXCommandController::registerSetting(Setting& setting)
 	settingMap[name] = &setting;
 
 	globalCommandController.registerProxySetting(setting);
-	string fullname = machineID + "::" + name;
+	string fullname = "::" + machineID + "::" + name;
 	getSettingsConfig().getSettingsManager().registerSetting(setting, fullname);
 	getInterpreter().registerSetting(setting, fullname);
 }
@@ -119,14 +119,14 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	settingMap.erase(name);
 
 	globalCommandController.unregisterProxySetting(setting);
-	string fullname = machineID + "::" + name;
+	string fullname = "::" + machineID + "::" + name;
 	getInterpreter().unregisterSetting(setting, fullname);
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, fullname);
 }
 
 void MSXCommandController::changeSetting(Setting& setting, const string& value)
 {
-	string fullname = machineID + "::" + setting.getName();
+	string fullname = "::" + machineID + "::" + setting.getName();
 	globalCommandController.changeSetting(fullname, value);
 }
 
