@@ -9,13 +9,13 @@
 namespace eval utils {
 
 proc get_machine_display_name { { machineid "" } } {
-	if {$machineid eq ""} {
+	if {$machineid == ""} {
 		set machineid [machine]
 	}
-	set config_name [${machineid}::machine_info config_name]
-	if {$config_name == ""} {
+	if {$machineid == ""} {
 		return "<none>"
 	}
+	set config_name [${machineid}::machine_info config_name]
 	array set names [openmsx_info machines $config_name]
 	return [format "%s %s" $names(manufacturer) $names(code)]
 }
