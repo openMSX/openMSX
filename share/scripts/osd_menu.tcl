@@ -435,7 +435,7 @@ set running_machines_menu [prepare_menu {
 	       { text "New Running Machine Tab"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
 	       { text "Close Current Machine Tab"
-	         actions { A { delete_machine [activate_machine]; catch { activate_machine [lindex [list_machines] 0]} }}}}}]
+	         actions { A { set old_active_machine [activate_machine]; cycle_machine; delete_machine $old_active_machine }}}}}]
 
 proc menu_create_running_machine_list {} {
 	set items [utils::get_ordered_machine_list]
