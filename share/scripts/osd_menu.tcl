@@ -438,7 +438,7 @@ set running_machines_menu [prepare_menu {
 	         actions { A { delete_machine [activate_machine]; catch { activate_machine [lindex [list_machines] 0]} }}}}}]
 
 proc menu_create_running_machine_list {} {
-	set items [list_machines]
+	set items [utils::get_ordered_machine_list]
 	return [prepare_menu_list $items 5 \
 	       { execute menu_machine_tab_select_exec
 	         bg-color 0x000000a0

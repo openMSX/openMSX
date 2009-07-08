@@ -31,4 +31,8 @@ proc get_machine_time { { machineid "" } } {
 	return [format "%02d:%02d:%02d" [expr int($mtime / 3600)] [expr int($mtime / 60) % 60] [expr int($mtime) % 60]]
 }
 
+proc get_ordered_machine_list {} {
+	return [lsort -dictionary [list_machines]]
+}
+
 } ;# namespace utils
