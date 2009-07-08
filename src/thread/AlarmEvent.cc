@@ -1,18 +1,18 @@
 // $Id$
 
 #include "AlarmEvent.hh"
-#include "EventDistributor.hh"
 
 namespace openmsx {
 
 AlarmEvent::AlarmEvent(EventDistributor& distributor_,
                        EventListener& listener_,
-                       EventType type_)
+                       EventType type_,
+                       EventDistributor::Priority priority)
 	: distributor(distributor_)
 	, listener(listener_)
 	, type(type_)
 {
-	distributor.registerEventListener(type, listener);
+	distributor.registerEventListener(type, listener, priority);
 }
 
 AlarmEvent::~AlarmEvent()

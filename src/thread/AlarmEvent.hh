@@ -5,10 +5,10 @@
 
 #include "Alarm.hh"
 #include "Event.hh"
+#include "EventDistributor.hh"
 
 namespace openmsx {
 
-class EventDistributor;
 class EventListener;
 
 /** Convenience wrapper around the Alarm class.
@@ -21,7 +21,8 @@ class AlarmEvent : public Alarm
 {
 public:
 	AlarmEvent(EventDistributor& distributor, EventListener& listener,
-	           EventType type);
+	           EventType type,
+	           EventDistributor::Priority priority = EventDistributor::OTHER);
 	~AlarmEvent();
 
 private:

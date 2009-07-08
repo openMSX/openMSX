@@ -60,7 +60,8 @@ HotKey::HotKey(CommandController& commandController_,
 	, bindDefaultCmd  (new BindCmd  (commandController_, *this, true))
 	, unbindDefaultCmd(new UnbindCmd(commandController_, *this, true))
 	, repeatAlarm(new AlarmEvent(eventDistributor_, *this,
-	                             OPENMSX_REPEAT_HOTKEY))
+	                             OPENMSX_REPEAT_HOTKEY,
+	                             EventDistributor::HOTKEY))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
