@@ -477,8 +477,13 @@ proc menu_create_load_machine_list {} {
 }
 proc menu_load_machine_exec { item } {
 	set id [create_machine]
-	${id}::load_machine $item
-	activate_machine ${id}
+	set err [catch { ${id}::load_machine $item } ]
+	if {$err} {
+		delete_machine $id
+		puts "Error starting machine ${item}..." ;# how to log this better?
+	} else {
+		activate_machine $id
+	}
 }
 
 proc ls { directory extensions } {
