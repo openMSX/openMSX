@@ -17,10 +17,12 @@ variable curtab_text_color 0xFFFFFF
 variable inactive_tab_bgcolor 0x202040A0
 variable inactive_tab_text_color 0xA0A0A0
 variable background_color 0x00000060
+variable text_size 12
 variable tab_margin 2
 variable tab_main_spacing 3 ;# the width of the space between tab-row and main content
 variable total_height 20
 variable top_spacing 2
+
 
 proc update {} {
 	variable curtab_bgcolor
@@ -32,6 +34,7 @@ proc update {} {
 	variable tab_main_spacing
 	variable total_height
 	variable top_spacing
+	variable text_size
 
 	catch { osd destroy tabbed_machine_view }
 
@@ -69,6 +72,7 @@ proc update {} {
 				-clip true
 			osd create text tabbed_machine_view.${machine}_rect.text \
 				-text $display_text \
+				-size $text_size \
 				-rgb $text_color \
 				-x 1
 			incr tab_count
