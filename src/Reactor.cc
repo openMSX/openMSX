@@ -49,11 +49,11 @@ namespace openmsx {
 class QuitCommand : public SimpleCommand
 {
 public:
-	QuitCommand(CommandController& commandController, Reactor& reactor);
+	QuitCommand(CommandController& commandController, EventDistributor& distributor);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 private:
-	Reactor& reactor;
+	EventDistributor& distributor;
 };
 
 class MachineCommand : public SimpleCommand
@@ -212,7 +212,7 @@ Reactor::Reactor()
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))
-	, quitCommand(new QuitCommand(*globalCommandController, *this))
+	, quitCommand(new QuitCommand(*globalCommandController, *eventDistributor))
 	, machineCommand(new MachineCommand(*globalCommandController, *this))
 	, testMachineCommand(new TestMachineCommand(*globalCommandController, *this))
 	, createMachineCommand(new CreateMachineCommand(*globalCommandController, *this))
@@ -591,7 +591,8 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_QUIT_EVENT) {
-		globalCommandController->executeCommand("exit");
+		enterMainLoop();
+		running = false;
 	} else if (type == OPENMSX_FOCUS_EVENT) {
 		if (!pauseOnLostFocusSetting.getValue()) return true;
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
@@ -612,19 +613,17 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 
 
 // class QuitCommand
-// TODO: Unify QuitCommand and OPENMSX_QUIT_EVENT.
 
 QuitCommand::QuitCommand(CommandController& commandController,
-                         Reactor& reactor_)
+                         EventDistributor& distributor_)
 	: SimpleCommand(commandController, "exit")
-	, reactor(reactor_)
+	, distributor(distributor_)
 {
 }
 
 string QuitCommand::execute(const vector<string>& /*tokens*/)
 {
-	reactor.enterMainLoop();
-	reactor.running = false;
+	distributor.distributeEvent(new QuitEvent());
 	return "";
 }
 

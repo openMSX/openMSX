@@ -175,7 +175,6 @@ private:
 	 */
 	bool running;
 
-	friend class QuitCommand;
 	friend class MachineCommand;
 	friend class TestMachineCommand;
 	friend class CreateMachineCommand;
