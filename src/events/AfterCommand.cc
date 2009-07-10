@@ -206,7 +206,7 @@ static double getTime(const string& str)
 	// the libc of FreeBSD. It's not equivalent, but we don't need maximum
 	// precision or range checks, so it's close enough.
 	double time = strtod(str.c_str(), NULL);
-	if (time <= 0) {
+	if (time < 0) {
 		throw CommandException("Not a valid time specification");
 	}
 	return time;
