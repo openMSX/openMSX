@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\utils\minilzo-2.03&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="4"
@@ -74,6 +74,83 @@
 				SubSystem="1"
 				LinkTimeCodeGeneration="0"
 				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(OpenMSXOutDir)"
+			IntermediateDirectory="$(OpenMSXIntDir)"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\utils\minilzo-2.03&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				RuntimeLibrary="1"
+				WarningLevel="4"
+				DebugInformationFormat="3"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib SDL_image.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				OutputFile="$(OutDir)\openmsxdbg.exe"
+				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\$(PlatformName)&quot;;&quot;$(3rdPartyOutDir)&quot;"
+				DelayLoadDLLs="shell32.dll"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -130,7 +207,7 @@
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\utils\minilzo-2.03&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				SmallerTypeCheck="false"
@@ -161,164 +238,6 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Developer|Win32"
-			OutputDirectory="$(OpenMSXOutDir)"
-			IntermediateDirectory="$(OpenMSXIntDir)"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
-				StringPooling="true"
-				RuntimeLibrary="1"
-				WarningLevel="4"
-				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib SDL_image.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
-				OutputFile="$(OutDir)\openmsxd.exe"
-				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(3rdPartyOutDir)&quot;"
-				IgnoreDefaultLibraryNames=""
-				DelayLoadDLLs="shell32.dll"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				LinkTimeCodeGeneration="0"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="$(OpenMSXOutDir)"
-			IntermediateDirectory="$(OpenMSXIntDir)"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
-				RuntimeLibrary="1"
-				WarningLevel="4"
-				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib SDL_image.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
-				OutputFile="$(OutDir)\openmsxdbg.exe"
-				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\$(PlatformName)&quot;;&quot;$(3rdPartyOutDir)&quot;"
-				DelayLoadDLLs="shell32.dll"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -375,7 +294,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\utils\minilzo-2.03&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -430,6 +349,87 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Developer|Win32"
+			OutputDirectory="$(OpenMSXOutDir)"
+			IntermediateDirectory="$(OpenMSXIntDir)"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\utils\minilzo-2.03&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				StringPooling="true"
+				RuntimeLibrary="1"
+				WarningLevel="4"
+				DebugInformationFormat="3"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib SDL_image.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				OutputFile="$(OutDir)\openmsxd.exe"
+				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(3rdPartyOutDir)&quot;"
+				IgnoreDefaultLibraryNames=""
+				DelayLoadDLLs="shell32.dll"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Developer|x64"
 			OutputDirectory="$(OpenMSXOutDir)"
 			IntermediateDirectory="$(OpenMSXIntDir)"
@@ -457,7 +457,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_image)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\utils\minilzo-2.03&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
@@ -1881,22 +1881,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\memory\MSXMapperIOPhilips.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\memory\MSXMapperIOPhilips.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\memory\MSXMapperIOTurboR.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\memory\MSXMapperIOTurboR.hh"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\memory\MSXMegaRam.cc"
 				>
 			</File>
@@ -2110,6 +2094,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\memory\RomHolyQuran.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\memory\RomHolyQuran2.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\memory\RomHolyQuran2.hh"
 				>
 			</File>
 			<File
@@ -2668,22 +2660,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -2694,6 +2670,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -2701,6 +2685,14 @@
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2728,6 +2720,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -2738,6 +2738,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
 					<Tool
@@ -2745,22 +2753,6 @@
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3260,6 +3252,26 @@
 				RelativePath="..\..\src\utils\win32-dirent.hh"
 				>
 			</File>
+			<Filter
+				Name="minilzo-2.03"
+				>
+				<File
+					RelativePath="..\..\src\utils\minilzo-2.03\lzoconf.hh"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\minilzo-2.03\lzodefs.hh"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\minilzo-2.03\minilzo.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\minilzo-2.03\minilzo.hh"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="video"
@@ -3376,22 +3388,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -3402,6 +3398,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3409,6 +3413,14 @@
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3436,6 +3448,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -3446,6 +3466,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
 					<Tool
@@ -3453,22 +3481,6 @@
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3688,22 +3700,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -3714,6 +3710,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3721,6 +3725,14 @@
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3748,6 +3760,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -3758,6 +3778,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
 					<Tool
@@ -3765,22 +3793,6 @@
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3912,22 +3924,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -3938,6 +3934,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3945,6 +3949,14 @@
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3972,6 +3984,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -3982,6 +4002,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
 					<Tool
@@ -3989,22 +4017,6 @@
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4072,22 +4084,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -4098,6 +4094,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -4105,6 +4109,14 @@
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4132,6 +4144,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -4142,6 +4162,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
 					<Tool
@@ -4149,22 +4177,6 @@
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4264,22 +4276,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -4290,6 +4286,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -4297,6 +4301,14 @@
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4324,6 +4336,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -4334,6 +4354,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
 					<Tool
@@ -4341,22 +4369,6 @@
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4388,22 +4400,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -4414,6 +4410,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -4421,6 +4425,14 @@
 						Description="Assembling..."
 						CommandLine="ml64 -c -Cp -Cx -W3 &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4448,6 +4460,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -4458,6 +4478,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Developer|Win32"
 					>
 					<Tool
@@ -4465,22 +4493,6 @@
 						Description="Assembling..."
 						CommandLine="ml -c -Cp -Cx -W3 -Zi &quot;-Fl$(IntDir)\$(InputName).lst&quot; &quot;-Fo$(IntDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -5227,26 +5239,6 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
-					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Developer|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Generating config headers..."
-					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
-					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="Debug|x64"
 				>
 				<Tool
@@ -5257,7 +5249,27 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
 				Name="Release|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating config headers..."
+					CommandLine="for /f &quot;delims=&quot; %%d in (&quot;$(OpenMSXConfigDir)&quot;) do set CONFIG_DIR=%%~fd&#x0D;&#x0A;@rem echo CONFIG_DIR=%CONFIG_DIR%&#x0D;&#x0A;set MSVC_DIR=%CD%&#x0D;&#x0A;@rem echo MSVC_DIR=%MSVC_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set BUILD_DIR=%CD%&#x0D;&#x0A;@rem echo BUILD_DIR=%BUILD_DIR%&#x0D;&#x0A;cd ..&#x0D;&#x0A;set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%&#x0D;&#x0A;python &quot;%MSVC_DIR%\genconfig.py&quot; $(PlatformName) &quot;$(ConfigurationName)&quot; &quot;%CONFIG_DIR%&#x0D;&quot;&#x0D;&#x0A;cd %MSVC_DIR%&#x0D;&#x0A;"
+					Outputs="build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Developer|Win32"
 				>
 				<Tool
 					Name="VCCustomBuildTool"
