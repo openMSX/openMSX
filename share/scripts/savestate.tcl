@@ -91,7 +91,7 @@ See also 'savestate', 'loadstate', 'delete_savestate'.
 }
 
 # delete_savestate
-set_help_text loadstate \
+set_help_text delete_savestate \
 {delete_savestate [<name>]
 
 Delete a previously created savestate.
