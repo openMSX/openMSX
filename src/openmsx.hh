@@ -6,7 +6,6 @@
 // don't just always include this, saves about 1 minute build time!!
 #ifdef DEBUG
 #include <iostream>
-#include <cassert>
 #include <sstream>
 #endif
 

@@ -29,8 +29,8 @@ class CassetteJack(Component):
 	makeName = 'JACK'
 	dependsOn = ('JACK', )
 
-class LaserdiscPlayer(Component):
-	niceName = 'LaserdiscPlayer'
+class Laserdisc(Component):
+	niceName = 'Laserdisc'
 	makeName = 'LASERDISC'
 	dependsOn = ('LIBOGGZ', 'LIBVORBIS', 'LIBTHEORA')
 
@@ -38,7 +38,7 @@ def iterComponents():
 	yield EmulationCore
 	yield GLRenderer
 	yield CassetteJack
-	yield LaserdiscPlayer
+	yield Laserdisc
 
 def requiredLibrariesFor(components):
 	'''Compute the library packages required to build the given components.

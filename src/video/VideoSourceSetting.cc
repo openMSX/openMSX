@@ -39,7 +39,7 @@ static VideoSourceSetting::Map getVideoSourceMap()
 	VideoSourceSetting::Map result;
 	result["MSX"]     = VIDEO_MSX;
 	result["GFX9000"] = VIDEO_GFX9000;
-	result["LaserDisc"] = VIDEO_LASERDISC;
+	result["Laserdisc"] = VIDEO_LASERDISC;
 	return result;
 }
 

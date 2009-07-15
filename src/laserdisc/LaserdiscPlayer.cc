@@ -626,7 +626,6 @@ void LaserdiscPlayer::seekFrame(int frame, EmuTime::param time)
 void LaserdiscPlayer::seekChapter(int /*chapter*/, EmuTime::param /*time*/)
 {
 	if (player_state != PLAYER_STOPPED) {
-		PRT_DEBUG("Laserdisc::SeekChapter " << std::dec << chapter);
 		// we have no chapter information yet, so fail
 	}
 }
