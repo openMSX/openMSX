@@ -25,6 +25,9 @@ public:
 	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
 	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
 	unsigned mapRGB(double dr, double dg, double db);
+	unsigned getKeyColour();
+	bool canKeyColourClash();
+	void generateNewKeyColour();
 
 	/** Lock this OutputSurface.
 	  * Direct pixel access is only allowed on a locked surface.
@@ -72,6 +75,8 @@ private:
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
+	unsigned keyColour;
+
 	bool locked;
 
 	friend class SDLGLOutputSurface; // for setBufferPtr()

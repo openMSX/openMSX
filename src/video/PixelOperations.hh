@@ -10,6 +10,7 @@ namespace openmsx {
 // TODO: Needed for the "friend" declarations later.
 template <typename Pixel> class Scanline;
 template <typename Pixel> class SimpleScaler;
+template <typename Pixel> class TransparentScaler;
 template <typename Pixel> class Blur_1on3;
 
 template <typename Pixel>
@@ -82,6 +83,7 @@ private:
 	//       centralized somehow.
 	friend class Scanline<Pixel>;
 	friend class SimpleScaler<Pixel>;
+	friend class TransparentScaler<Pixel>;
 	friend class Blur_1on3<Pixel>;
 };
 

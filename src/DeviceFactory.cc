@@ -55,6 +55,9 @@
 #include "VDPIODelay.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#ifdef COMPONENT_LASERDISC
+#include "PioneerLDControl.hh"
+#endif
 
 namespace openmsx {
 
@@ -156,6 +159,12 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new V9990(motherBoard, conf));
 	} else if (type == "ADVram") {
 		result.reset(new ADVram(motherBoard, conf));
+	} else if (type == "PioneerLDControl") {
+#ifdef COMPONENT_LASERDISC
+		result.reset(new PioneerLDControl(motherBoard, conf));
+#else
+		throw MSXException("Laserdisc component not compiled in");
+#endif
 	} else if (type == "Nowind") {
 		result.reset(new NowindInterface(motherBoard, conf));
 	} else if (type == "Mirror") {

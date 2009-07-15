@@ -4,7 +4,8 @@ include build/node-start.mk
 
 SUBDIRS:= \
 	cassette commands config console cpu debugger events fdc file ide \
-	input memory resource security serial settings sound thread utils video
+	input laserdisc memory resource security serial settings sound thread \
+	utils video
 
 SRC_HDR:= \
 	EmuTime EmuDuration DynamicClock \

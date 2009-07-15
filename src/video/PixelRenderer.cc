@@ -255,6 +255,13 @@ void PixelRenderer::updateTransparency(
 	rasterizer->setTransparency(enabled);
 }
 
+void PixelRenderer::updateSuperimposing (
+	bool enabled, EmuTime::param time)
+{
+	if (displayEnabled) sync(time);
+	rasterizer->setSuperimposing(enabled);
+}
+
 void PixelRenderer::updateForegroundColour(
 	int /*colour*/, EmuTime::param time)
 {

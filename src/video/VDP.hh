@@ -118,6 +118,16 @@ public:
 		return *vram;
 	}
 
+	/** Are we superimposing?
+	  */
+	inline bool isSuperimposing() const {
+		/* Note that bit 0 of r#0 has no effect on an V9938 or
+		   higher, but this bit is masked out. Also note that 
+		   on an MSX1, if bit 0 of r#0 is enabled and there is 
+		   no external video source, then we lose sync. */
+		return (controlRegs[0] & 1) && externalVideo;
+	}
+
 	/** Get the sprite checker for this VDP.
 	  */
 	inline SpriteChecker& getSpriteChecker() {
@@ -466,6 +476,10 @@ public:
 	bool getVRMode() const {
 		return (controlRegs[8] & 8) != 0;
 	}
+
+	/** Enable superimposing
+	  */
+	void setExternalVideoSource(bool enabled);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -842,6 +856,15 @@ private:
 	  * This is set when a warning about setting the dotclock direction
 	  * is printed.  */
 	bool warningPrinted;
+
+	/** Is there an external video source which we must superimpose
+	  * upon?
+	  */
+	bool externalVideo;
+
+	/** Are we currently superimposing?
+	  */
+	bool superimposing;
 };
 
 } // namespace openmsx

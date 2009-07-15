@@ -13,7 +13,7 @@ class RenderSettings;
 
 /** Scaler which assigns the color of the original pixel to all pixels in
   * the 2x2 square. Optionally it can draw darkended scanlines (scanline has
-  * the averga color from the pixel above and below). It can also optionally
+  * the average color from the pixel above and below). It can also optionally
   * perform a horizontal blur.
   */
 template <class Pixel>

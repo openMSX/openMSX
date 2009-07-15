@@ -15,6 +15,8 @@ class Renderer;
 class VDP;
 class V9990Renderer;
 class V9990;
+class LDRenderer;
+class LaserdiscPlayer;
 template <typename T> class EnumSetting;
 
 /** Interface for renderer factories.
@@ -47,6 +49,14 @@ namespace RendererFactory
 	  * @param display TODO
 	  */
 	V9990Renderer* createV9990Renderer(V9990& vdp, Display& display);
+
+#ifdef COMPONENT_LASERDISC
+	/** Create the Laserdisc Renderer
+	  * @param ld The Laserdisc player whose display will be rendered.
+	  * @param display TODO
+	  */
+	LDRenderer* createLDRenderer(LaserdiscPlayer& ld, Display& display);
+#endif
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.

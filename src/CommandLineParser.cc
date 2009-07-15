@@ -12,6 +12,9 @@
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
 #include "CassettePlayerCLI.hh"
+#ifdef COMPONENT_LASERDISC
+#include "LaserdiscPlayerCLI.hh"
+#endif
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
@@ -157,6 +160,9 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new CassettePlayerCLI(*this))
+#ifdef COMPONENT_LASERDISC
+	, laserdiscPlayerCLI(new LaserdiscPlayerCLI(*this))
+#endif
 	, diskImageCLI(new DiskImageCLI(*this))
 	, hdImageCLI(new HDImageCLI(*this))
 	, cdImageCLI(new CDImageCLI(*this))

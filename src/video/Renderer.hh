@@ -47,6 +47,13 @@ public:
 	  */
 	virtual void updateTransparency(bool enabled, EmuTime::param time) = 0;
 
+	/** Informs the renderer of a VDP superimposing change.
+	  * @param enabled The new superimposing state.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateSuperimposing(bool enabled, EmuTime::param time) = 0;
+
+
 	/** Informs the renderer of a VDP foreground colour change.
 	  * @param colour The new foreground colour.
 	  * @param time The moment in emulated time this change occurs.

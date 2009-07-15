@@ -29,6 +29,10 @@
 #include "SDLGLVisibleSurface.hh"
 #include "GLPostProcessor.hh"
 #endif
+#ifdef COMPONENT_LASERDISC
+#include "LaserdiscPlayer.hh"
+#include "LDSDLRasterizer.hh"
+#endif
 
 namespace openmsx {
 
@@ -159,6 +163,52 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		return NULL;
 	}
 }
+
+#ifdef COMPONENT_LASERDISC
+LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
+{
+	MSXMotherBoard& motherBoard = ld.getMotherBoard();
+	switch (renderSettings.getRenderer().getValue()) {
+	case RendererFactory::SDL:
+	case RendererFactory::SDLGL_FB16:
+	case RendererFactory::SDLGL_FB32:
+		switch (screen->getSDLFormat().BytesPerPixel) {
+#if HAVE_16BPP
+		case 2:
+			return new LDSDLRasterizer<word>(
+				ld, display, *screen,
+				std::auto_ptr<PostProcessor>(
+					new FBPostProcessor<word>(
+					motherBoard, display, *screen,
+					VIDEO_LASERDISC, 640, 480)));
+#endif
+#if HAVE_32BPP
+		case 4:
+			return new LDSDLRasterizer<unsigned>(
+				ld, display, *screen,
+				std::auto_ptr<PostProcessor>(
+					new FBPostProcessor<unsigned>(
+					motherBoard, display, *screen,
+					VIDEO_LASERDISC, 640, 480)));
+#endif
+		default:
+			assert(false);
+			return NULL;
+		}
+#ifdef COMPONENT_GL
+	case RendererFactory::SDLGL_PP:
+		return new LDSDLRasterizer<unsigned>(
+			ld, display, *screen,
+			std::auto_ptr<PostProcessor>(new GLPostProcessor(
+				motherBoard, display, *screen,
+				VIDEO_LASERDISC, 640, 480)));
+#endif
+	default:
+		assert(false);
+		return NULL;
+	}
+}
+#endif
 
 void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {

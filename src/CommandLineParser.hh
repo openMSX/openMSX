@@ -5,6 +5,7 @@
 
 #include "StringOp.hh"
 #include "noncopyable.hh"
+#include "components.hh"
 #include <string>
 #include <vector>
 #include <deque>
@@ -31,6 +32,7 @@ class TestConfigOption;
 class MSXRomCLI;
 class CliExtension;
 class CassettePlayerCLI;
+class LaserdiscPlayerCLI;
 class DiskImageCLI;
 class HDImageCLI;
 class CDImageCLI;
@@ -103,6 +105,9 @@ private:
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<CassettePlayerCLI> cassettePlayerCLI;
+#ifdef COMPONENT_LASERDISC
+	const std::auto_ptr<LaserdiscPlayerCLI> laserdiscPlayerCLI;
+#endif
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;
 	const std::auto_ptr<HDImageCLI> hdImageCLI;
 	const std::auto_ptr<CDImageCLI> cdImageCLI;

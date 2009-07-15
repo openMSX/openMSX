@@ -46,6 +46,7 @@ public:
 	virtual void setPalette(int index, int grb);
 	virtual void setBackgroundColour(int index);
 	virtual void setTransparency(bool enabled);
+	virtual void setSuperimposing(bool enabled);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(
 		int fromX, int fromY,
@@ -83,7 +84,7 @@ private:
 	  * @param transparency True iff transparency is enabled.
 	  */
 	void precalcColourIndex0(DisplayMode mode, bool transparency,
-	                         byte bgcolorIndex);
+	                         bool superimposing, byte bgcolorIndex);
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
@@ -156,6 +157,10 @@ private:
 	/** Host colours corresponding to each possible V9958 colour.
 	  */
 	Pixel V9958_COLOURS[32768];
+
+	/** Host colour for transparent for superimposing
+	  */
+	Pixel colourkey;
 };
 
 } // namespace openmsx

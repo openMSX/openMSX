@@ -18,6 +18,7 @@ public:
 	virtual void setPalette(int index, int grb);
 	virtual void setBackgroundColour(int index);
 	virtual void setTransparency(bool enabled);
+	virtual void setSuperimposing(bool enabled);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(
 		int fromX, int fromY,

@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SUBDIRS:= \
-	v9990
+	v9990 ld
 
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker ADVram \
@@ -34,6 +34,7 @@ SRC_HDR += \
 	HQ3xScaler HQ3xLiteScaler \
 	RGBTriplet3xScaler \
 	Simple3xScaler \
+	TransparentScaler \
 	Multiply32
 endif
 

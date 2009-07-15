@@ -17,6 +17,7 @@
 #include "Simple3xScaler.hh"
 #include "LowScaler.hh"
 #include "build-info.hh"
+#include "TransparentScaler.hh"
 #include <cassert>
 
 using std::auto_ptr;
@@ -25,7 +26,8 @@ namespace openmsx {
 
 template <class Pixel>
 auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
-	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
+	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings,
+						bool transparent)
 {
 	switch (renderSettings.getScaleFactor().getValue()) {
 #if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)
@@ -34,6 +36,9 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
+		if (transparent)
+			return auto_ptr<Scaler>(
+				new TransparentScaler<Pixel>(pixelOps, renderSettings));
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return auto_ptr<Scaler>(

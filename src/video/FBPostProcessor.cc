@@ -299,11 +299,13 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 	RenderSettings::ScaleAlgorithm algo =
 		renderSettings.getScaleAlgorithm().getValue();
 	unsigned factor = renderSettings.getScaleFactor().getValue();
-	if ((scaleAlgorithm != algo) || (scaleFactor != factor)) {
+	bool transparent = getTransparency();
+	if ((scaleAlgorithm != algo) || (scaleFactor != factor) || (lastTransparency != transparent )) {
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
+		lastTransparency = transparent;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			PixelOperations<Pixel>(output.getSDLFormat()), renderSettings);
+			PixelOperations<Pixel>(output.getSDLFormat()), renderSettings, getTransparency());
 	}
 
 	// Scale image.

@@ -37,6 +37,10 @@ void DummyRasterizer::setTransparency(bool /*enabled*/)
 {
 }
 
+void DummyRasterizer::setSuperimposing(bool /*enabled*/)
+{
+}
+
 void DummyRasterizer::drawBorder(int /*fromX*/, int /*fromY*/,
                                  int /*limitX*/, int /*limitY*/)
 {

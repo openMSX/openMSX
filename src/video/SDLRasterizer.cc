@@ -136,6 +136,13 @@ void SDLRasterizer<Pixel>::resetPalette()
 	}
 }
 
+template<class Pixel>
+void SDLRasterizer<Pixel>::setSuperimposing(bool enabled)
+{
+	postProcessor->setTransparency(enabled);
+	setBackgroundColour(vdp.getBackgroundColour());
+}
+
 template <class Pixel>
 void SDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 {
@@ -167,8 +174,8 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter->setDisplayMode(mode);
 	}
-	precalcColourIndex0(mode, vdp.getTransparency(),
-	                    vdp.getBackgroundColour());
+	precalcColourIndex0(mode, vdp.getTransparency(), vdp.isSuperimposing(),
+				                    vdp.getBackgroundColour());
 	spriteConverter->setDisplayMode(mode);
 	spriteConverter->setPalette(mode.getByte() == DisplayMode::GRAPHIC7
 	                            ? palGraphic7Sprites : palBg);
@@ -185,22 +192,22 @@ void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 	bitmapConverter->palette16Changed();
 
 	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                    vdp.getBackgroundColour());
+	                    vdp.isSuperimposing(), vdp.getBackgroundColour());
 }
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::setBackgroundColour(int index)
 {
-	precalcColourIndex0(
-		vdp.getDisplayMode(), vdp.getTransparency(), index);
+	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+						vdp.isSuperimposing(), index);
 }
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 {
 	spriteConverter->setTransparency(enabled);
-	precalcColourIndex0(
-		vdp.getDisplayMode(), enabled, vdp.getBackgroundColour());
+	precalcColourIndex0(vdp.getDisplayMode(), enabled,
+			vdp.isSuperimposing(), vdp.getBackgroundColour());
 }
 
 template <class Pixel>
@@ -258,11 +265,53 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
+
+	for (;screen.canKeyColourClash();) {
+		Pixel colour = screen.getKeyColour();
+		bool found = false;
+
+		if (vdp.isMSX1VDP()) {
+			// Fixed palette.
+			for (int i = 0; i < 16 && !found; i++) {
+				if (colour == palFg[i]) found = true;
+			}
+		} else {
+			// Palette for V9938 colours.
+			for (int r = 0; r < 8 && !found; r++) {
+				for (int g = 0; g < 8 && !found; g++) {
+					for (int b = 0; b < 8 && !found; b++) {
+						if (colour == V9938_COLOURS[r][g][b]) {
+							found = true;
+						}
+					}
+				}
+			}
+
+			// Palette for V9958 colours.
+			for (int r = 0; r < 32 && !found; r++) {
+				for (int g = 0; g < 32 && !found; g++) {
+					for (int b = 0; b < 32 && !found; b++) {
+						if (colour == V9958_COLOURS[(r<<10) + (g<<5) + b]) {
+							found = true;
+						}
+					}
+				}
+			}
+		}
+
+		if (!found) {
+			break;
+		}
+
+		screen.generateNewKeyColour();
+	}
+
+	colourkey = screen.getKeyColour();
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::precalcColourIndex0(
-	DisplayMode mode, bool transparency, byte bgcolorIndex)
+void SDLRasterizer<Pixel>::precalcColourIndex0(DisplayMode mode,
+		bool transparency, bool superimposing, byte bgcolorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
@@ -271,8 +320,11 @@ void SDLRasterizer<Pixel>::precalcColourIndex0(
 
 	int tpIndex = transparency ? bgcolorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
-		if (palFg[0] != palBg[tpIndex]) {
-			palFg[0] = palBg[tpIndex];
+		Pixel c = (superimposing && bgcolorIndex == 0) ?
+						colourkey : palBg[tpIndex];
+
+		if (palFg[0] != c) {
+			palFg[0] = c;
 			bitmapConverter->palette16Changed();
 		}
 	} else {
@@ -301,7 +353,10 @@ void SDLRasterizer<Pixel>::drawBorder(
 	} else if (modeBase == DisplayMode::GRAPHIC7) {
 		border0 = border1 = PALETTE256[bgColor];
 	} else {
-		border0 = border1 = palBg[bgColor & 0x0F];
+		if (!bgColor && vdp.isSuperimposing())
+			border0 = border1 = colourkey;
+		else
+			border0 = border1 = palBg[bgColor];
 	}
 
 	int startY = std::max(fromY - lineRenderTop, 0);

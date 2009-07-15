@@ -7,7 +7,7 @@ namespace openmsx {
 
 /** Video sources: devices which produce a video stream.
   */
-enum VideoSource { VIDEO_MSX, VIDEO_GFX9000 };
+enum VideoSource { VIDEO_MSX, VIDEO_GFX9000, VIDEO_LASERDISC };
 
 } // namespace openmsx
 

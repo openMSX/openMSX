@@ -23,7 +23,7 @@ public:
 	  */
 	static std::auto_ptr<Scaler> createScaler(
 		const PixelOperations<Pixel>& pixelOps,
-		RenderSettings& renderSettings);
+		RenderSettings& renderSettings, bool transparent);
 };
 
 } // namespace openmsx

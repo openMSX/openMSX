@@ -54,6 +54,7 @@ public:
 	virtual void setBackgroundColour(int index) = 0;
 
 	virtual void setTransparency(bool enabled) = 0;
+	virtual void setSuperimposing(bool enabled) = 0;
 
 	/** Render a rectangle of border pixels on the host screen.
 	  * The units are absolute lines (Y) and VDP clockticks (X).

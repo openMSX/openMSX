@@ -26,6 +26,8 @@ class VideoLayer: public Layer, protected Observer<Setting>,
 public:
 	virtual ~VideoLayer();
 	VideoSource getVideoSource() const;
+	void setTransparency(bool enabled);
+	bool getTransparency() const { return transparency; }
 
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
@@ -58,6 +60,8 @@ private:
 	BooleanSetting& powerSetting;
 	/** Video source that displays on this layer. */
 	VideoSource videoSource;
+	/** Does this layer have transparent parts? */
+	bool transparency;
 };
 
 } // namespace openmsx

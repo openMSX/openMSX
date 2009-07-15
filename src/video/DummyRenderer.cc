@@ -17,6 +17,9 @@ void DummyRenderer::frameEnd(EmuTime::param /*time*/) {
 void DummyRenderer::updateTransparency(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
+void DummyRenderer::updateSuperimposing(bool /*enabled*/, EmuTime::param /*time*/) {
+}
+
 void DummyRenderer::updateForegroundColour(int /*colour*/, EmuTime::param /*time*/) {
 }
 

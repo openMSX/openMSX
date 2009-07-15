@@ -4,13 +4,16 @@
 #define VIDEOSYSTEM_HH
 
 #include <string>
+#include "components.hh"
 
 namespace openmsx {
 
 class Rasterizer;
 class VDP;
 class V9990Rasterizer;
+class LDRasterizer;
 class V9990;
+class LaserdiscPlayer;
 class OutputSurface;
 
 /** Video back-end system.
@@ -33,6 +36,10 @@ public:
 	  * @return The rasterizer created.
 	  */
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp) = 0;
+
+#ifdef COMPONENT_LASERDISC
+	virtual LDRasterizer* createLDRasterizer(LaserdiscPlayer &ld) = 0;
+#endif
 
 	/** Requests that this renderer checks its settings against the
 	  * current RenderSettings. If possible, update the settings of this

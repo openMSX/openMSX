@@ -18,6 +18,7 @@ public:
 	void frameStart(EmuTime::param time);
 	void frameEnd(EmuTime::param time);
 	void updateTransparency(bool enabled, EmuTime::param time);
+	void updateSuperimposing(bool enabled, EmuTime::param time);
 	void updateForegroundColour(int colour, EmuTime::param time);
 	void updateBackgroundColour(int colour, EmuTime::param time);
 	void updateBlinkForegroundColour(int colour, EmuTime::param time);

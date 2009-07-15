@@ -196,6 +196,39 @@ class ZLib(DownloadablePackage):
 			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
 		}
 
+class OGGZ(DownloadablePackage):
+	downloadURL = 'http://downloads.xiph.org/releases/liboggz'
+	niceName = 'liboggz'
+	sourceName = 'liboggz'
+	version = '0.9.9'
+	fileLength = 637538 
+	checksums = {
+		'sha256':
+			'8d8a05752f739d0b377040e36c9f6cfa4dac35b9d55deac2de30f377972fcf75',
+		}
+
+class Vorbis(DownloadablePackage):
+	downloadURL = 'http://downloads.xiph.org/releases/vorbis'
+	niceName = 'libvorbis'
+	sourceName = 'libvorbis'
+	version = '1.2.3'
+	fileLength = 1474492
+	checksums = {
+		'sha256':
+			'c679d1e5e45a3ec8aceb5e71de8e3712630b7a6dec6952886c17435a65955947',
+		}
+
+class Theora(DownloadablePackage):
+	downloadURL = 'http://downloads.xiph.org/releases/theora'
+	niceName = 'libtheora'
+	sourceName = 'libtheora'
+	version = '1.0'
+	fileLength = 1919343
+	checksums = {
+		'sha256':
+			'd5ac6867143b295da41aac1fb24357b6c7f388bf87985630168a47ed2ed8b048',
+		}
+
 # Build a dictionary of packages using introspection.
 def _discoverPackages(localObjects):
 	for obj in localObjects:

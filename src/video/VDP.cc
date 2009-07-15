@@ -216,6 +216,8 @@ void VDP::resetInit()
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
 	displayEnabled = false;
+	superimposing = false;
+	externalVideo = false;
 
 	// Init status registers.
 	statusReg0 = 0x00;
@@ -517,6 +519,12 @@ void VDP::frameStart(EmuTime::param time)
 			blinkCount = ( blinkState
 				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F ) * 10;
 		}
+	}
+
+	// TODO: Presumably this is done here
+	if (superimposing != isSuperimposing()) {
+		superimposing = isSuperimposing();
+		renderer->updateSuperimposing(superimposing, time);
 	}
 
 	// Schedule next VSYNC.
@@ -1166,6 +1174,11 @@ void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 	//       It's one line of code and overhead is not huge either.
 }
 
+void VDP::setExternalVideoSource(bool enabled)
+{
+	externalVideo = enabled;
+}
+
 // VDPRegDebug
 
 VDPRegDebug::VDPRegDebug(VDP& vdp_)
@@ -1310,6 +1323,10 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("cmdEngine", *cmdEngine);
 	ar.serialize("vram", *vram); // must come after controlRegs
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
+
+	// superimposing and externalVideo do not need serializing. The
+	// first is deduced from a register value and the second should
+	// set on load by the external video source (e.g. PioneerLDControl).
 	if (ar.isLoader()) {
 		renderer->reset(Schedulable::getCurrentTime());
 	}

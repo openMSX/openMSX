@@ -3,6 +3,9 @@
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
+#ifdef COMPONENT_LASERDISC
+#include "LaserdiscPlayer.hh"
+#endif
 #include "components.hh"
 #ifdef COMPONENT_JACK
 #include "CassetteJack.hh"
@@ -45,6 +48,12 @@ bool DummyCassettePort::lastOut() const
 {
 	return false; // not relevant
 }
+#ifdef COMPONENT_LASERDISC
+void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
+{
+	// do nothing
+}
+#endif
 
 
 // CassettePort
@@ -53,7 +62,11 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 	: Connector(motherBoard_.getPluggingController(), "cassetteport",
 	            auto_ptr<Pluggable>(new DummyCassetteDevice()))
 	, motherBoard(motherBoard_)
+#ifdef COMPONENT_LASERDISC
+	, laserdiscPlayer(NULL)
+#endif
 	, lastOutput(false)
+	, motorControl(false)
 {
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCommandController(),
@@ -82,6 +95,7 @@ CassettePort::~CassettePort()
 void CassettePort::setMotor(bool status, EmuTime::param time)
 {
 	// TODO make 'click' sound
+	motorControl = status;
 	getPluggedCasDev().setMotor(status, time);
 }
 
@@ -102,10 +116,25 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
-	short sample = getPluggedCasDev().readSample(time); // read 1 sample
+	short sample;
+#ifdef COMPONENT_LASERDISC
+	if (!motorControl && laserdiscPlayer != NULL) {
+		sample = laserdiscPlayer->readSample(time);
+	} else 
+#endif
+	{
+		sample = getPluggedCasDev().readSample(time); // read 1 sample
+	}
 	bool result = (sample >= 0); // comparator
 	return result;
 }
+
+#ifdef COMPONENT_LASERDISC
+void CassettePort::setLaserdiscPlayer(LaserdiscPlayer *laserdiscPlayer_)
+{
+	laserdiscPlayer = laserdiscPlayer_;
+}
+#endif
 
 void CassettePort::unplug(EmuTime::param time)
 {

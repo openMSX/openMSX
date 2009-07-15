@@ -27,6 +27,7 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 	, powerSetting(motherBoard.getCommandController().
 	                   getGlobalSettings().getPowerSetting())
 	, videoSource(videoSource_)
+	, transparency(false)
 {
 	calcCoverage();
 	calcZ();
@@ -71,9 +72,23 @@ void VideoLayer::calcZ()
 
 void VideoLayer::calcCoverage()
 {
-	setCoverage((powerSetting.getValue() && motherBoard.isActive())
-		? COVER_FULL
-		: COVER_NONE);
+	Coverage coverage;
+
+	if (!powerSetting.getValue() || !motherBoard.isActive()) {
+		coverage = COVER_NONE;
+	} else if (transparency) {
+		coverage = COVER_PARTIAL;
+	} else {
+		coverage = COVER_FULL;
+	}
+
+	setCoverage(coverage);
+}
+
+void VideoLayer::setTransparency(bool enabled)
+{
+	transparency = enabled;
+	calcCoverage();
 }
 
 void VideoLayer::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)

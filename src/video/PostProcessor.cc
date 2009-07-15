@@ -65,7 +65,16 @@ const std::string& PostProcessor::getName()
 {
 	static const std::string V99x8_NAME = "V99x8 PostProcessor";
 	static const std::string V9990_NAME = "V9990 PostProcessor";
-	return (getVideoSource() == VIDEO_GFX9000) ? V9990_NAME : V99x8_NAME;
+	static const std::string LASERDISC = "Laserdisc PostProcessor";
+	static const std::string DUMMY = "";
+	switch (getVideoSource()) {
+	case VIDEO_MSX: return V99x8_NAME;
+	case VIDEO_GFX9000: return V9990_NAME;
+	case VIDEO_LASERDISC: return LASERDISC;
+	}
+
+	assert(false);
+	return DUMMY;
 }
 
 RawFrame* PostProcessor::rotateFrames(

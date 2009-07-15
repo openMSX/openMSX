@@ -26,6 +26,8 @@ VideoSource VideoSourceSettingPolicy::checkGetValue(VideoSource value) const
 		return VIDEO_MSX;
 	} else if (activeSources.find(VIDEO_GFX9000) != activeSources.end()) {
 		return VIDEO_GFX9000;
+	} else if (activeSources.find(VIDEO_LASERDISC) != activeSources.end()) {
+		return VIDEO_LASERDISC;
 	} else {
 		// happens during loading of setting
 		return value;
@@ -37,6 +39,7 @@ static VideoSourceSetting::Map getVideoSourceMap()
 	VideoSourceSetting::Map result;
 	result["MSX"]     = VIDEO_MSX;
 	result["GFX9000"] = VIDEO_GFX9000;
+	result["LaserDisc"] = VIDEO_LASERDISC;
 	return result;
 }
 

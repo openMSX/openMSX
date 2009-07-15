@@ -19,6 +19,11 @@
 #include "V9990DummyRenderer.hh"
 #include "V9990PixelRenderer.hh"
 
+#ifdef COMPONENT_LASERDISC
+#include "LDDummyRenderer.hh"
+#include "LDPixelRenderer.hh"
+#endif
+
 using std::auto_ptr;
 
 namespace openmsx {
@@ -72,6 +77,24 @@ V9990Renderer* createV9990Renderer(V9990& vdp, Display& display)
 			return 0;
 	}
 }
+
+#ifdef COMPONENT_LASERDISC
+LDRenderer* createLDRenderer(LaserdiscPlayer& ld, Display& display)
+{
+	switch (display.getRenderSettings().getRenderer().getValue()) {
+		case DUMMY:
+			return new LDDummyRenderer();
+		case SDL:
+		case SDLGL_PP:
+		case SDLGL_FB16:
+		case SDLGL_FB32:
+			return new LDPixelRenderer(ld, display);
+		default:
+			assert(false);
+			return 0;
+	}
+}
+#endif
 
 auto_ptr<RendererSetting> createRendererSetting(
 	CommandController& commandController)

@@ -19,6 +19,7 @@ from os.path import isdir, isfile
 class Library(object):
 	libName = None
 	makeName = None
+	pkgName = None
 	header = None
 	configScriptName = None
 	dynamicLibsOption = '--libs'
@@ -60,7 +61,9 @@ class Library(object):
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
-		if configScript is not None:
+		if configScript is not None and cls.pkgName is not None:
+			flags = [ '`%s --cflags %s`' % (configScript, cls.pkgName) ]
+		elif configScript is not None:
 			flags = [ '`%s --cflags`' % configScript ]
 		elif distroRoot is None or cls.isSystemLibrary(platform):
 			flags = []
@@ -77,7 +80,15 @@ class Library(object):
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
-		if configScript is not None:
+		if configScript is not None and cls.pkgName is not None:
+			libsOption = (
+				cls.dynamicLibsOption
+				if not linkStatic or cls.isSystemLibrary(platform)
+				else cls.staticLibsOption
+				)
+			if libsOption is not None:
+				return '`%s %s %s`' % (configScript, libsOption, cls.pkgName)
+		elif configScript is not None:
 			libsOption = (
 				cls.dynamicLibsOption
 				if not linkStatic or cls.isSystemLibrary(platform)
@@ -112,6 +123,8 @@ class Library(object):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
 			return 'unknown'
+		elif cls.pkgName is not None:
+			return '`%s --modversion %s`' % (configScript, cls.pkgName)
 		else:
 			return '`%s --version`' % configScript
 
@@ -539,6 +552,30 @@ class ZLib(Library):
 			version = cmd.expand(log, cls.getHeaders(platform), 'ZLIB_VERSION')
 			return None if version is None else version.strip('"')
 		return execute
+
+class OGGZ(Library):
+	libName = 'oggz'
+	makeName = 'LIBOGGZ'
+	header = '<oggz/oggz.h>'
+	function = 'oggz_new'
+	pkgName = 'oggz'
+	configScriptName = 'pkg-config'
+
+class Vorbis(Library):
+	libName = 'vorbis'
+	makeName = 'LIBVORBIS'
+	header = '<vorbis/codec.h>'
+	function = 'vorbis_synthesis_pcmout'
+	pkgName = 'vorbis'
+	configScriptName = 'pkg-config'
+
+class Theora(Library):
+	libName = 'theora'
+	makeName = 'LIBTHEORA'
+	header = '<theora/theora.h>'
+	function = 'theora_decode_YUVout'
+	pkgName = 'theora'
+	configScriptName = 'pkg-config'
 
 # Build a dictionary of libraries using introspection.
 def _discoverLibraries(localObjects):

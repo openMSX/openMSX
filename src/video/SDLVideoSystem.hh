@@ -9,6 +9,8 @@
 #include "noncopyable.hh"
 #include <memory>
 
+#include "components.hh"
+
 namespace openmsx {
 
 class Reactor;
@@ -35,6 +37,9 @@ public:
 	// VideoSystem interface:
 	virtual Rasterizer* createRasterizer(VDP& vdp);
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
+#ifdef COMPONENT_LASERDISC
+	virtual LDRasterizer* createLDRasterizer(LaserdiscPlayer& ld);
+#endif
 	virtual bool checkSettings();
 	virtual void flush();
 	virtual void takeScreenShot(const std::string& filename, bool withOsd);
