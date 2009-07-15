@@ -65,21 +65,21 @@ void TransparentScaler<Pixel>::scaleBlank1to2(
 }
 
 template <class Pixel>
-void TransparentScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha,
+void TransparentScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned /*alpha*/,
                                    unsigned long srcWidth)
 {
 	for (unsigned x = 0; x < srcWidth; x++) {
-		if (transparent != pIn[x]) 
+		if (transparent != pIn[x])
 			pOut[x*2] = pOut[x*2+1] = pIn[x];
 	}
 }
 
 template <class Pixel>
-void TransparentScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha,
+void TransparentScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned /*alpha*/,
                                    unsigned long srcWidth)
 {
 	for (unsigned x = 0; x < srcWidth; x++) {
-		if (transparent != pIn[x]) 
+		if (transparent != pIn[x])
 			pOut[x] = pIn[x];
 	}
 }
