@@ -243,9 +243,10 @@ proc prepare_menu_list { lst num menu_def_list } {
 	array set menudef $menu_def_list
 	set execute $menudef(execute)
 	set header $menudef(header)
-	set item_extra  [get_optional menudef item ""]
-	set on_select   [get_optional menudef on-select ""]
-	set on_deselect [get_optional menudef on-deselect ""]
+	set item_extra   [get_optional menudef item ""]
+	set on_select    [get_optional menudef on-select ""]
+	set on_deselect  [get_optional menudef on-deselect ""]
+	set presentation [get_optional menudef presentation $lst]
 	lappend header "selectable" "false"
 	set items [list $header]
 	for {set i 0} {$i < $num} {incr i} {
@@ -256,7 +257,7 @@ proc prepare_menu_list { lst num menu_def_list } {
 		if {$i == ($num - 1)} {
 			lappend actions "DOWN" "osd_menu::list_menu_item_down [llength $lst] $i"
 		}
-		set item [list "text" "\[osd_menu::list_menu_item_show \{$lst\} $i\]" \
+		set item [list "text" "\[osd_menu::list_menu_item_show \{$presentation\} $i\]" \
 		               "actions" $actions]
 		if {$on_select != ""} {
 			lappend item "on-select" "osd_menu::list_menu_item_select \{$lst\} $i $on_select"
@@ -438,9 +439,8 @@ set running_machines_menu [prepare_menu {
 	         actions { A { set old_active_machine [activate_machine]; cycle_machine; delete_machine $old_active_machine }}}}}]
 
 proc menu_create_running_machine_list {} {
-	set items [utils::get_ordered_machine_list]
-	return [prepare_menu_list $items 5 \
-	       { execute menu_machine_tab_select_exec
+	set menu_def {
+	         execute menu_machine_tab_select_exec
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
@@ -452,16 +452,31 @@ proc menu_create_running_machine_list {} {
 	         header { text "Select Running Machine"
 	                  text-color 0xff0000ff
 	                  font-size 12
-	                  post-spacing 6 }}]
+	                  post-spacing 6 }}
+
+	set items [utils::get_ordered_machine_list]
+
+	set presentation [list]
+	foreach i $items {
+		if { [activate_machine] == $i } {
+			set postfix_text "current"
+		} else {
+			set postfix_text [utils::get_machine_time $i]
+		}
+		lappend presentation [format "%s (%s)" [utils::get_machine_display_name ${i}] $postfix_text]
+	}
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $items 5 $menu_def]
 }
 proc menu_machine_tab_select_exec { item } {
+	menu_close_top
 	activate_machine $item
 }
 
 proc menu_create_load_machine_list {} {
-	set items [openmsx_info machines]
-	return [prepare_menu_list $items 10 \
-	       { execute osd_menu::menu_load_machine_exec
+	set menu_def {
+	         execute osd_menu::menu_load_machine_exec
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
@@ -473,14 +488,25 @@ proc menu_create_load_machine_list {} {
 	         header { text "Select Machine to Run"
 	                  text-color 0xff0000ff
 	                  font-size 12
-	                  post-spacing 6 }}]
+	                  post-spacing 6 }}
+
+	set items [openmsx_info machines]
+
+	foreach i $items {
+		lappend presentation [utils::get_machine_display_name_by_config_name ${i}]
+	}
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $items 10 $menu_def]
 }
+
 proc menu_load_machine_exec { item } {
+	menu_close_top
 	set id [create_machine]
-	set err [catch { ${id}::load_machine $item } ]
+	set err [catch { ${id}::load_machine $item } error_result ]
 	if {$err} {
 		delete_machine $id
-		puts "Error starting machine ${item}..." ;# how to log this better?
+		puts "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result" ;# how/where to log this better?
 	} else {
 		activate_machine $id
 	}

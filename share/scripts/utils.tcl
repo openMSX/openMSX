@@ -1,5 +1,8 @@
 # several utility procs for usage in other scripts
-# don't export anything, just use it from the namespace
+# don't export anything, just use it from the namespace,
+# because these scripts aren't useful for console users
+# and should therefore not be exprted to the global
+# namespace.
 #
 # these procs are not specific to anything special,
 # they could be useful in any script.
@@ -16,6 +19,10 @@ proc get_machine_display_name { { machineid "" } } {
 		return "<none>"
 	}
 	set config_name [${machineid}::machine_info config_name]
+	return [get_machine_display_name_by_config_name $config_name]
+}
+
+proc get_machine_display_name_by_config_name { config_name } {
 	array set names [openmsx_info machines $config_name]
 	return [format "%s %s" $names(manufacturer) $names(code)]
 }
