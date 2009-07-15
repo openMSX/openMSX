@@ -4,6 +4,7 @@
 #define RENDERERFACTORY_HH
 
 #include <memory>
+#include "components.hh"
 
 namespace openmsx {
 

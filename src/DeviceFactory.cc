@@ -55,6 +55,8 @@
 #include "VDPIODelay.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "components.hh"
+
 #ifdef COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
 #endif

@@ -3,10 +3,10 @@
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
+#include "components.hh"
 #ifdef COMPONENT_LASERDISC
 #include "LaserdiscPlayer.hh"
 #endif
-#include "components.hh"
 #ifdef COMPONENT_JACK
 #include "CassetteJack.hh"
 #endif

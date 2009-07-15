@@ -12,9 +12,6 @@
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
 #include "CassettePlayerCLI.hh"
-#ifdef COMPONENT_LASERDISC
-#include "LaserdiscPlayerCLI.hh"
-#endif
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
@@ -30,6 +27,11 @@
 #include "Reactor.hh"
 #include "build-info.hh"
 #include "components.hh"
+
+#ifdef COMPONENT_LASERDISC
+#include "LaserdiscPlayerCLI.hh"
+#endif
+
 #include <cassert>
 #include <iostream>
 #include <cstdio>
