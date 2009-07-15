@@ -77,7 +77,7 @@ static void fill_audio(Reader *reader)
 	}
 }
 
-static int read_callback(OGGZ *oggz, ogg_packet *packet, long serial,
+static int read_callback(OGGZ * /*oggz*/, ogg_packet *packet, long serial,
 							void *userdata)
 {
 	struct Reader *reader = static_cast<Reader*>(userdata);
@@ -135,7 +135,7 @@ static int read_callback(OGGZ *oggz, ogg_packet *packet, long serial,
 	return 0;
 }
 
-static int seek_callback(OGGZ *oggz, ogg_packet *packet, long serial,
+static int seek_callback(OGGZ * /*oggz*/, ogg_packet *packet, long serial,
 							void *userdata)
 {
 	struct Reader *reader = static_cast<Reader*>(userdata);
@@ -180,7 +180,7 @@ OggReader::OggReader(const Filename& filename)
 
 	while ((reader->audio_remaining_header_packets ||
 		reader->video_remaining_header_packets) &&
-					oggz_read(reader->oggz, 1024) > 0);
+					oggz_read(reader->oggz, 1024) > 0) { /* */ };
 
 	if (reader->video_serial == -1) {
 		cleanup();

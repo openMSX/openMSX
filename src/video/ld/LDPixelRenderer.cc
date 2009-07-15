@@ -93,7 +93,7 @@ void LDPixelRenderer::sync(EmuTime::param time, bool force)
 	}
 }
 
-void LDPixelRenderer::renderUntil(EmuTime::param time)
+void LDPixelRenderer::renderUntil(EmuTime::param /*time*/)
 {
 }
 

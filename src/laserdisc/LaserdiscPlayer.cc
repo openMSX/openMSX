@@ -279,18 +279,18 @@ void LaserdiscPlayer::setack(EmuTime::param time, int wait)
 	ack = true;
 }
 
-bool LaserdiscPlayer::extack(EmuTime::param time)
+bool LaserdiscPlayer::extack(EmuTime::param /*time*/)
 {
 	return ack;
 }
 
-bool LaserdiscPlayer::extint(EmuTime::param time)
+bool LaserdiscPlayer::extint(EmuTime::param /*time*/)
 {
 	/* FIXME: How exactly is this implemented? */
 	return false;
 }
 
-void LaserdiscPlayer::button_repeat(EmuTime::param time)
+void LaserdiscPlayer::button_repeat(EmuTime::param /*time*/)
 {
 	PRT_DEBUG("NEC protocol repeat received");
 }
@@ -307,7 +307,7 @@ void LaserdiscPlayer::button(unsigned custom, unsigned code, EmuTime::param time
 	switch (code) {
 	case 0xe2: f = "C+"; break;
 	case 0x62: f = "C-"; break;
-	case 0xc2: f = "D+"; break; 	// Show Frame# & Chapter# OSD
+	case 0xc2: f = "D+"; break;	// Show Frame# & Chapter# OSD
 	case 0xd2: f = "L+"; break;
 	case 0x92: f = "L-"; break;
 	case 0x52: f = "L@"; break;
@@ -439,9 +439,9 @@ void LaserdiscPlayer::executeUntil(openmsx::EmuTime time, int userdata)
 	updateStream(time);
 
 	if (userdata == ACK) {
-		if (seeking)
+		if (seeking) {
 			PRT_DEBUG("Laserdisc: seek complete");
-
+		}
 		ack = false;
 		seeking = false;
 
@@ -464,7 +464,7 @@ void LaserdiscPlayer::executeUntil(openmsx::EmuTime time, int userdata)
 	}
 }
 
-void LaserdiscPlayer::setImageName(const Filename& newImage, EmuTime::param time)
+void LaserdiscPlayer::setImageName(const Filename& newImage, EmuTime::param /*time*/)
 {
 	video.reset(new OggReader(newImage));
 	filename = newImage;
@@ -623,7 +623,7 @@ void LaserdiscPlayer::seekFrame(int frame, EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
+void LaserdiscPlayer::seekChapter(int /*chapter*/, EmuTime::param /*time*/)
 {
 	if (player_state != PLAYER_STOPPED) {
 		PRT_DEBUG("Laserdisc::SeekChapter " << std::dec << chapter);
