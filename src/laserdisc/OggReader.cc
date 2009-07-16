@@ -82,8 +82,9 @@ static int read_callback(OGGZ * /*oggz*/, ogg_packet *packet, long serial,
 {
 	struct Reader *reader = static_cast<Reader*>(userdata);
 
-	if (reader->audio_serial == -1 && packet->b_o_s && packet->bytes >= 8) {
-		if (vorbis_synthesis_idheader(packet)) {
+	if (packet->b_o_s && packet->bytes >= 8) {
+		if (memcmp(packet->packet, "\001vorbis", 7) == 0) {
+			printf("%02x\n", packet->packet[0]);
 			reader->audio_serial = serial;
                 } else if (memcmp(packet->packet, "\200theora", 7) == 0) {
 			reader->video_serial = serial;
@@ -327,7 +328,7 @@ unsigned OggReader::fillFloatBuffer(float ***pcm, unsigned samples)
 
 			(*pcm) = reader->ret;
 
-			if (samples < len)
+			if (long(samples) < len)
 				len = samples;
 
 			reader->position += len;

@@ -434,7 +434,7 @@ const string& LaserdiscPlayer::getDescription() const
 	return name;
 }
 
-void LaserdiscPlayer::executeUntil(openmsx::EmuTime time, int userdata)
+void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 {
 	updateStream(time);
 
@@ -508,9 +508,10 @@ void LaserdiscPlayer::generateChannels(int **buffers, unsigned num)
 		if (rc == 0) {
 			// we've fallen of the end of the file. We 
 			// should raise an IRQ now.
-			if (pos == 0)
+			if (pos == 0) {
 				buffers[0] = 0;
-			else for (; pos<num; pos++) {
+				break;
+			} else for (; pos<num; pos++) {
 				buffers[0][pos*2+0] = 0;
 				buffers[0][pos*2+1] = 0;
 			}
@@ -519,11 +520,11 @@ void LaserdiscPlayer::generateChannels(int **buffers, unsigned num)
 			// maybe muting should be moved out of the loop?
 			for (i=0; i<rc; i++, pos++) {
 				buffers[0][pos*2+0] = mute_left ? 0 : 
-							pcm[0][i] * 65536.f;
+						int(pcm[0][i] * 65536.f);
 				buffers[0][pos*2+1] = mute_right ? 0 : 
-							pcm[1][i] * 65536.f;
+						int(pcm[1][i] * 65536.f);
 			}
-			tapein = pcm[1][rc-1] * 32767.f;
+			tapein = short(pcm[1][rc-1] * 32767.f);
 		}
 	}
 }

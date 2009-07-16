@@ -36,7 +36,7 @@ def detectCPU():
 		return 'hppa'
 	elif cpu.startswith('s390'):
 		return 's390'
-	elif cpu.startswith('sparc'):
+	elif cpu.startswith('sparc') or cpu.startswith('sun4u'):
 		return 'sparc'
 	elif cpu == '':
 		# Python couldn't figure it out.
@@ -67,6 +67,8 @@ def detectOS():
 			return 'freebsd'
 	elif os.startswith('mingw') or os == 'windows':
 		return 'mingw32'
+	elif os == 'sunos':
+		return 'solaris'
 	elif os == '':
 		# Python couldn't figure it out.
 		raise ValueError('Unable to detect OS')

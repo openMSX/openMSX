@@ -47,7 +47,7 @@ public:
 
 	// Schedulable
 	const std::string& schedName() const;
-	void executeUntil(openmsx::EmuTime, int);
+	void executeUntil(EmuTime::param, int);
 
 	// video interface
 	MSXMotherBoard& getMotherBoard() { return motherBoard; }
