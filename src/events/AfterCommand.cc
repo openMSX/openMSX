@@ -136,6 +136,8 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 	eventDistributor.registerEventListener(
 		OPENMSX_BREAK_EVENT, *this);
 	eventDistributor.registerEventListener(
+		OPENMSX_QUIT_EVENT, *this);
+	eventDistributor.registerEventListener(
 		OPENMSX_BOOT_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_MACHINE_LOADED_EVENT, *this);
@@ -151,6 +153,8 @@ AfterCommand::~AfterCommand()
 		OPENMSX_MACHINE_LOADED_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_BOOT_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_QUIT_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_BREAK_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -188,6 +192,8 @@ string AfterCommand::execute(const vector<string>& tokens)
 		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens);
 	} else if (tokens[1] == "break") {
 		return afterEvent<OPENMSX_BREAK_EVENT>(tokens);
+	} else if (tokens[1] == "quit") {
+		return afterEvent<OPENMSX_QUIT_EVENT>(tokens);
 	} else if (tokens[1] == "boot") {
 		return afterEvent<OPENMSX_BOOT_EVENT>(tokens);
 	} else if (tokens[1] == "machine_switch") {
@@ -385,6 +391,8 @@ bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 		executeEvents<OPENMSX_BREAK_EVENT>();
 	} else if (event->getType() == OPENMSX_BOOT_EVENT) {
 		executeEvents<OPENMSX_BOOT_EVENT>();
+	} else if (event->getType() == OPENMSX_QUIT_EVENT) {
+		executeEvents<OPENMSX_QUIT_EVENT>();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
 		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
 	} else if (event->getType() == OPENMSX_AFTER_REALTIME_EVENT) {

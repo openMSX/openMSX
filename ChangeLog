@@ -1,5 +1,14 @@
 $Id$
 
+2009-07-16 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added session management script. When you do:
+	  set enable_session_management true
+	  your session (all machines) will be saved when exiting openMSX and
+	  loaded again when starting openMSX (ignoring the machine/extensions
+	  you put on the command line). You can also save, load, list and
+	  delete sessions manually from the console. Default, this whole
+	  feature is disabled.
+
 2009-07-15 Sean Young <sean@mess.org>
 	* First commit of Laserdisc code. Some of the outstanding issues
 	  are listed in doc/laserdisc-todo.txt.
