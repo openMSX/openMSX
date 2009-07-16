@@ -29,8 +29,7 @@ proc savestate { {name ""} } {
 
 proc loadstate { {name ""} } {
 	savestate_common $name
-	# work around namespace probelm with the restore_machine command:
-	set newID [namespace eval :: [list restore_machine $fullname]]
+	set newID [restore_machine $fullname]
 	set currentID [machine]
 	if {$currentID != ""} { delete_machine $currentID }
 	activate_machine $newID
