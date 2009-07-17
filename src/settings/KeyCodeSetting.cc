@@ -44,4 +44,13 @@ KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
 {
 }
 
+KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
+                               const char* name, const char* description,
+                               Keys::KeyCode initialValue)
+	: SettingImpl<KeyCodeSettingPolicy>(
+		commandController, name, description, initialValue,
+		Setting::SAVE)
+{
+}
+
 } // namespace openmsx

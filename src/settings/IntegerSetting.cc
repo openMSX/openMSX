@@ -51,4 +51,13 @@ IntegerSetting::IntegerSetting(CommandController& commandController,
 {
 }
 
+IntegerSetting::IntegerSetting(CommandController& commandController,
+                               const char* name, const char* description,
+                               int initialValue, int minValue, int maxValue)
+	: SettingImpl<IntegerSettingPolicy>(
+		commandController, name, description, initialValue,
+		Setting::SAVE, minValue, maxValue)
+{
+}
+
 } // namespace openmsx

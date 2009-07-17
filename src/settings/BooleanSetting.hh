@@ -24,6 +24,9 @@ public:
 	BooleanSetting(CommandController& commandController,
 	               const std::string& name, const std::string& description,
 	               bool initialValue, SaveSetting save = SAVE);
+	BooleanSetting(CommandController& commandController,
+	               const char* name, const char* description,
+	               bool initialValue, SaveSetting save = SAVE);
 };
 
 } // namespace openmsx

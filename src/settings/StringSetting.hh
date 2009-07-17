@@ -23,6 +23,9 @@ public:
 	StringSetting(CommandController& commandController,
 	              const std::string& name, const std::string& description,
 	              const std::string& initialValue, SaveSetting save = SAVE);
+	StringSetting(CommandController& commandController,
+	              const char* name, const char* description,
+	              const char* initialValue, SaveSetting save = SAVE);
 };
 
 } // namespace openmsx

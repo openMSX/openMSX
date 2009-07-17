@@ -34,4 +34,14 @@ FilenameSetting::FilenameSetting(
 {
 }
 
+FilenameSetting::FilenameSetting(
+		CommandController& commandController,
+		const char* name, const char* description,
+		const char* initialValue)
+	: SettingImpl<FilenameSettingPolicy>(
+		commandController, name, description, initialValue,
+		Setting::SAVE)
+{
+}
+
 } // namespace openmsx

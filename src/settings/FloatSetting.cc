@@ -52,4 +52,13 @@ FloatSetting::FloatSetting(CommandController& commandController,
 {
 }
 
+FloatSetting::FloatSetting(CommandController& commandController,
+                           const char* name, const char* description,
+                           double initialValue, double minValue, double maxValue)
+	: SettingImpl<FloatSettingPolicy>(
+		commandController, name, description, initialValue,
+		Setting::SAVE, minValue, maxValue)
+{
+}
+
 } // namespace openmsx

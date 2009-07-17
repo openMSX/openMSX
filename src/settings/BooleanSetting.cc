@@ -64,4 +64,12 @@ BooleanSetting::BooleanSetting(
 {
 }
 
+BooleanSetting::BooleanSetting(
+		CommandController& commandController, const char* name,
+		const char* description, bool initialValue, SaveSetting save)
+	: SettingImpl<BooleanSettingPolicy>(
+		commandController, name, description, initialValue, save)
+{
+}
+
 } // namespace openmsx

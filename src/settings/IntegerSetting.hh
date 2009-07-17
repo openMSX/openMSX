@@ -26,6 +26,9 @@ public:
 	IntegerSetting(CommandController& commandController,
 	               const std::string& name, const std::string& description,
 	               int initialValue, int minValue, int maxValue);
+	IntegerSetting(CommandController& commandController,
+	               const char* name, const char* description,
+	               int initialValue, int minValue, int maxValue);
 };
 
 } // namespace openmsx

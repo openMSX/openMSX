@@ -38,4 +38,12 @@ StringSetting::StringSetting(CommandController& commandController,
 {
 }
 
+StringSetting::StringSetting(CommandController& commandController,
+                             const char* name, const char* description,
+                             const char* initialValue, SaveSetting save)
+	: SettingImpl<StringSettingPolicy>(
+		commandController, name, description, initialValue, save)
+{
+}
+
 } // namespace openmsx

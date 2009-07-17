@@ -60,6 +60,10 @@ public:
 	            const std::string& description, T initialValue,
 	            const typename EnumSettingPolicy<T>::Map& map_,
 	            Setting::SaveSetting save = Setting::SAVE);
+	EnumSetting(CommandController& commandController, const char* name,
+	            const char* description, T initialValue,
+	            const typename EnumSettingPolicy<T>::Map& map_,
+	            Setting::SaveSetting save = Setting::SAVE);
 };
 
 
@@ -135,6 +139,17 @@ template <typename T>
 EnumSetting<T>::EnumSetting(
 		CommandController& commandController, const std::string& name,
 		const std::string& description, T initialValue,
+		const typename EnumSettingPolicy<T>::Map& map_,
+		Setting::SaveSetting save)
+	: SettingImpl<EnumSettingPolicy<T> >(
+		commandController, name, description, initialValue, save, map_)
+{
+}
+
+template <typename T>
+EnumSetting<T>::EnumSetting(
+		CommandController& commandController, const char* name,
+		const char* description, T initialValue,
 		const typename EnumSettingPolicy<T>::Map& map_,
 		Setting::SaveSetting save)
 	: SettingImpl<EnumSettingPolicy<T> >(

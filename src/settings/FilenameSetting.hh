@@ -23,6 +23,9 @@ public:
 	FilenameSetting(CommandController& commandController,
 	                const std::string& name, const std::string& description,
 	                const std::string& initialValue);
+	FilenameSetting(CommandController& commandController,
+	                const char* name, const char* description,
+	                const char* initialValue);
 };
 
 } // namespace openmsx

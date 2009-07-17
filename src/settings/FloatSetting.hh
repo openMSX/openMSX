@@ -26,6 +26,9 @@ public:
 	FloatSetting(CommandController& commandController,
 	             const std::string& name, const std::string& description,
 	             double initialValue, double minValue, double maxValue);
+	FloatSetting(CommandController& commandController,
+	             const char* name, const char* description,
+	             double initialValue, double minValue, double maxValue);
 };
 
 } // namespace openmsx

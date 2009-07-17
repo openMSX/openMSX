@@ -51,7 +51,12 @@ public:
 protected:
 	Command(CommandController& commandController,
 	        const std::string& name);
+	Command(CommandController& commandController,
+	        const char* name);
 	virtual ~Command();
+
+private:
+	void init();
 };
 
 /**
@@ -69,6 +74,8 @@ public:
 protected:
 	SimpleCommand(CommandController& commandController,
 	              const std::string& name);
+	SimpleCommand(CommandController& commandController,
+	              const char* name);
 	virtual ~SimpleCommand();
 };
 

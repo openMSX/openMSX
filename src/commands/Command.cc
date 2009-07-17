@@ -39,6 +39,17 @@ CommandController& CommandCompleter::getCommandController() const
 Command::Command(CommandController& commandController, const string& name)
 	: CommandCompleter(commandController, name)
 {
+	init();
+}
+
+Command::Command(CommandController& commandController, const char* name)
+	: CommandCompleter(commandController, name)
+{
+	init();
+}
+
+void Command::init()
+{
 	if (!getName().empty()) {
 		getCommandController().registerCommand(*this, getName());
 	}
@@ -61,6 +72,12 @@ void Command::tabCompletion(vector<string>& /*tokens*/) const
 
 SimpleCommand::SimpleCommand(CommandController& commandController,
                              const string& name)
+	: Command(commandController, name)
+{
+}
+
+SimpleCommand::SimpleCommand(CommandController& commandController,
+                             const char* name)
 	: Command(commandController, name)
 {
 }

@@ -24,6 +24,9 @@ public:
 	KeyCodeSetting(CommandController& commandController,
 	               const std::string& name, const std::string& description,
 	               Keys::KeyCode initialValue);
+	KeyCodeSetting(CommandController& commandController,
+	               const char* name, const char* description,
+	               Keys::KeyCode initialValue);
 };
 
 } // namespace openmsx
