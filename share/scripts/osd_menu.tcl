@@ -189,8 +189,10 @@ if ![file exists $::osd_disk_path] {
 }
 
 proc main_menu_open {} {
-	set console off
 	variable main_menu
+	
+	# close console, because the menu interferes with it
+	set ::console off
 
 	menu_create $main_menu
 
