@@ -36,13 +36,60 @@ proc loadstate { {name ""} } {
 	return $name
 }
 
-proc list_savestates {} {
+# helper proc to get the raw savestate info
+proc list_savestates_raw {} {
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
-	set result [list]
+	set results [list]
 	foreach f [glob -tails -directory $directory -nocomplain *.xml.gz] {
-		lappend result [file rootname [file rootname $f]]
+		set name [file rootname [file rootname $f]]
+		set fullname [file join $directory $f]
+		set filetime [file mtime $fullname]
+		lappend results [list $name $filetime]
 	}
-	return [lsort $result]
+	return $results
+}
+
+proc list_savestates { args } {
+	set sort_key 0
+	set long_format false
+	set sort_option "-ascii"
+
+	#parse options
+	while (1) {
+		switch -- [lindex $args 0] {
+		"" break
+		"-t" {
+			set sort_key 1
+			set sort_option "-integer"
+			set args [lrange $args 1 end]
+		}
+		"-l" {
+			if {[info commands clock] != ""} {
+				set long_format true
+			} else {
+				error "Sorry, long format not supported on this system (missing clock.tcl)"
+			}
+			set args [lrange $args 1 end]
+		}
+		"default" {
+			error "Invalid option: [lindex $args 0]"
+		}
+		}
+	}
+
+	set sorted_sublists [lsort ${sort_option} -index $sort_key [list_savestates_raw]]
+	
+	if {!$long_format} {
+		set sorted_result [list]
+		foreach sublist $sorted_sublists {lappend sorted_result [lindex $sublist 0]}
+		return $sorted_result
+	} else {
+		set stringres ""
+		foreach sublist $sorted_sublists {
+			append stringres [format "%-[expr round(${::consolecolumns} / 2)]s %s\n" [lindex $sublist 0] [clock format [lindex $sublist 1] -format "%a %b %d %Y - %H:%M:%S" ]]
+		}
+		return $stringres
+	}
 }
 
 proc delete_savestate { {name ""} } {
@@ -54,6 +101,10 @@ proc delete_savestate { {name ""} } {
 
 proc savestate_tab { args } {
 	return [list_savestates]
+}
+
+proc savestate_list_tab { args } {
+	return {"-l" "-t"}
 }
 
 # savestate
@@ -82,12 +133,19 @@ set_tabcompletion_proc loadstate [namespace code savestate_tab]
 
 # list_savestates
 set_help_text list_savestates \
-{list_savestates
+{list_savestates [options]
 
 Return the names of all previously created savestates.
 
+Options:
+  -t      sort savestates by time
+  -l      long formatting, showing date of savestates
+
+Note: the -l option is not available on all systems.
+
 See also 'savestate', 'loadstate', 'delete_savestate'.
 }
+set_tabcompletion_proc list_savestates [namespace code savestate_list_tab]
 
 # delete_savestate
 set_help_text delete_savestate \

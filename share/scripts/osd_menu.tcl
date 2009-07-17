@@ -189,6 +189,7 @@ if ![file exists $::osd_disk_path] {
 }
 
 proc main_menu_open {} {
+	set console off
 	variable main_menu
 
 	menu_create $main_menu
@@ -605,15 +606,28 @@ proc menu_select_disk { item } {
 	}
 }
 
+proc get_savestates_list_presentation_sorted {} {
+	set presentation [list]
+	foreach i [lsort -integer -index 1 [savestate::list_savestates_raw]] {
+		if {[info commands clock] != ""} {
+			set pres_str [format "%s (%s)" [lindex $i 0] [clock format [lindex $i 1] -format "%x - %X" ]]
+		} else {
+			set pres_str [lindex $i 0]
+		}
+		lappend presentation $pres_str
+	}
+	return $presentation
+}
+
 proc menu_create_load_state {} {
-	return [prepare_menu_list [list_savestates] 10 \
+	set menu_def \
 	       { execute menu_loadstate_exec
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
 	         font-size 8
 	         border-size 2
-	         width 100
+	         width 200
 	         xpos 100
 	         ypos 120
 	         on-open  {osd create rectangle "preview" -x 225 -y 5 -w 90 -h 70 -rgba 0x30303080 -scaled true}
@@ -623,18 +637,25 @@ proc menu_create_load_state {} {
 	         header { text "Loadstate"
 	                  text-color 0x00ff00ff
 	                  font-size 12
-                          post-spacing 6 }}]
+                          post-spacing 6 }}
+
+	set items [list_savestates -t]
+
+	lappend menu_def presentation [get_savestates_list_presentation_sorted]
+
+	return [prepare_menu_list $items 10 $menu_def]
 }
+
 proc menu_create_save_state {} {
-	set items [concat [list "create new"] [list_savestates]]
-	return [prepare_menu_list $items 10 \
+	set items [concat [list "create new"] [list_savestates -t]]
+	set menu_def \
 	       { execute menu_savestate_exec
 	         bg-color 0x000000a0
 	         text-color 0xffffffff
 	         select-color 0x8080ffd0
 	         font-size 8
 	         border-size 2
-	         width 100
+	         width 200
 	         xpos 100
 	         ypos 120
 	         on-open  {osd create rectangle "preview" -x 225 -y 5 -w 90 -h 70 -rgba 0x30303080 -scaled true}
@@ -644,8 +665,13 @@ proc menu_create_save_state {} {
 	         header { text "Savestate"
 	                  text-color 0xff0000ff
 	                  font-size 12
-	                  post-spacing 6 }}]
+	                  post-spacing 6 }}
+
+	lappend menu_def presentation [get_savestates_list_presentation_sorted]
+
+	return [prepare_menu_list $items 10 $menu_def]
 }
+
 proc menu_loadstate_select { item } {
 	set png $::env(OPENMSX_USER_DATA)/../savestates/${item}.png
 	catch {osd create rectangle "preview.image" -relx 0.05 -rely 0.05 -w 80 -h 60 -image $png}
