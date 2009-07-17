@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "static_assert.hh"
 #include "inline.hh"
+#include "likely.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cmath>
@@ -50,7 +51,16 @@ inline int clip(int x)
 inline short clipIntToShort(int x)
 {
 	STATIC_ASSERT((-1 >> 1) == -1); // right-shift must preserve sign
-	return short(x) == x ? x : (0x7FFF - (x >> 31));
+	return likely(short(x) == x) ? x : (0x7FFF - (x >> 31));
+}
+
+/** Clip x to range [0,255].
+  * Optimized for the case when no clipping is needed.
+  */
+inline byte clipIntToByte(int x)
+{
+	STATIC_ASSERT((-1 >> 1) == -1); // right-shift must preserve sign
+	return likely(byte(x) == x) ? x : ~(x >> 31);
 }
 
 /** Clips r * factor to the range [LO,HI].
