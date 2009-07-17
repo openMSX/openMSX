@@ -214,8 +214,7 @@ public:
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		STATIC_ASSERT(!is_abstract<T>::value);
-		assert(saverMap.find(typeid(T)) == saverMap.end());
-		saverMap[typeid(T)] = new PolymorphicSaver<Archive, T>(name);
+		registerHelper(typeid(T), new PolymorphicSaver<Archive, T>(name));
 	}
 
 	template<typename T> static void save(Archive& ar, T* t)
@@ -230,6 +229,8 @@ public:
 private:
 	PolymorphicSaverRegistry();
 	~PolymorphicSaverRegistry();
+	void registerHelper(const std::type_info& type,
+	                    PolymorphicSaverBase<Archive>* saver);
 	static void save(Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 	static void save(const char* tag, Archive& ar, const void* t,
@@ -245,12 +246,11 @@ class PolymorphicLoaderRegistry : private noncopyable
 public:
 	static PolymorphicLoaderRegistry& instance();
 
-	template<typename T> void registerClass(const std::string& name)
+	template<typename T> void registerClass(const char* name)
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		STATIC_ASSERT(!is_abstract<T>::value);
-		assert(loaderMap.find(name) == loaderMap.end());
-		loaderMap[name] = new PolymorphicLoader<Archive, T>();
+		registerHelper(name, new PolymorphicLoader<Archive, T>());
 	}
 
 	static void* load(Archive& ar, unsigned id, TupleBase& args);
@@ -258,6 +258,8 @@ public:
 private:
 	PolymorphicLoaderRegistry();
 	~PolymorphicLoaderRegistry();
+	void registerHelper(const char* name,
+	                    PolymorphicLoaderBase<Archive>* loader);
 
 	typedef std::map<std::string, PolymorphicLoaderBase<Archive>*> LoaderMap;
 	LoaderMap loaderMap;
@@ -269,12 +271,11 @@ class PolymorphicInitializerRegistry : private noncopyable
 public:
 	static PolymorphicInitializerRegistry& instance();
 
-	template<typename T> void registerClass(const std::string& name)
+	template<typename T> void registerClass(const char* name)
 	{
 		STATIC_ASSERT(is_polymorphic<T>::value);
 		STATIC_ASSERT(!is_abstract<T>::value);
-		assert(initializerMap.find(name) == initializerMap.end());
-		initializerMap[name] = new PolymorphicInitializer<Archive, T>();
+		registerHelper(name, new PolymorphicInitializer<Archive, T>());
 	}
 
 	static void init(const char* tag, Archive& ar, void* t);
@@ -282,6 +283,8 @@ public:
 private:
 	PolymorphicInitializerRegistry();
 	~PolymorphicInitializerRegistry();
+	void registerHelper(const char* name,
+	                    PolymorphicInitializerBase<Archive>* initializer);
 
 	typedef std::map<std::string, PolymorphicInitializerBase<Archive>*> InitializerMap;
 	InitializerMap initializerMap;
@@ -298,7 +301,7 @@ template<typename Archive, typename T> struct RegisterSaverHelper
 };
 template<typename Archive, typename T> struct RegisterLoaderHelper
 {
-	RegisterLoaderHelper(const std::string& name)
+	RegisterLoaderHelper(const char* name)
 	{
 		PolymorphicLoaderRegistry<Archive>::instance().
 			template registerClass<T>(name);
@@ -306,7 +309,7 @@ template<typename Archive, typename T> struct RegisterLoaderHelper
 };
 template<typename Archive, typename T> struct RegisterInitializerHelper
 {
-	RegisterInitializerHelper(const std::string& name)
+	RegisterInitializerHelper(const char* name)
 	{
 		PolymorphicInitializerRegistry<Archive>::instance().
 			template registerClass<T>(name);

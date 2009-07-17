@@ -29,6 +29,14 @@ PolymorphicSaverRegistry<Archive>& PolymorphicSaverRegistry<Archive>::instance()
 }
 
 template<typename Archive>
+void PolymorphicSaverRegistry<Archive>::registerHelper(
+	const std::type_info& type, PolymorphicSaverBase<Archive>* saver)
+{
+	assert(saverMap.find(type) == saverMap.end());
+	saverMap[type] = saver;
+}
+
+template<typename Archive>
 void PolymorphicSaverRegistry<Archive>::save(
 	Archive& ar, const void* t, const std::type_info& typeInfo)
 {
@@ -78,6 +86,15 @@ PolymorphicLoaderRegistry<Archive>& PolymorphicLoaderRegistry<Archive>::instance
 }
 
 template<typename Archive>
+void PolymorphicLoaderRegistry<Archive>::registerHelper(
+	const char* name_, PolymorphicLoaderBase<Archive>* loader)
+{
+	std::string name(name_);
+	assert(loaderMap.find(name) == loaderMap.end());
+	loaderMap[name] = loader;
+}
+
+template<typename Archive>
 void* PolymorphicLoaderRegistry<Archive>::load(
 	Archive& ar, unsigned id, TupleBase& args)
 {
@@ -114,6 +131,15 @@ PolymorphicInitializerRegistry<Archive>& PolymorphicInitializerRegistry<Archive>
 {
 	static PolymorphicInitializerRegistry oneInstance;
 	return oneInstance;
+}
+
+template<typename Archive>
+void PolymorphicInitializerRegistry<Archive>::registerHelper(
+	const char* name_, PolymorphicInitializerBase<Archive>* initializer)
+{
+	std::string name(name_);
+	assert(initializerMap.find(name) == initializerMap.end());
+	initializerMap[name] = initializer;
 }
 
 template<typename Archive>
