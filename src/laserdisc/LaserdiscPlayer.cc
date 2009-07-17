@@ -10,6 +10,8 @@
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "PioneerLDControl.hh"
+#include "OggReader.hh"
+#include "LDRenderer.hh"
 
 using std::auto_ptr;
 using std::string;

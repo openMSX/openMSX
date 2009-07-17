@@ -5,6 +5,7 @@
 #include "CacheLine.hh"
 #include "serialize.hh"
 #include "PioneerLDControl.hh"
+#include "LaserdiscPlayer.hh"
 #include "MSXPPI.hh"
 #include "MSXException.hh"
 #include "VDP.hh"

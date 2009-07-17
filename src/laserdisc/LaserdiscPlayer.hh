@@ -10,16 +10,15 @@
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
 #include "Clock.hh"
-#include "IRQHelper.hh"
-#include "LDRenderer.hh"
 #include "VideoSystemChangeListener.hh"
-#include "OggReader.hh"
 
 namespace openmsx {
 
 class LaserdiscCommand;
 class PioneerLDControl;
 class MSXMotherBoard;
+class OggReader;
+class LDRenderer;
 
 class LaserdiscPlayer : public SoundDevice
 		      , public Schedulable

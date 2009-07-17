@@ -3,15 +3,16 @@
 #ifndef PIONEERLDCONTROL_HH
 #define PIONEERLDCONTROL_HH
 
-#include "LaserdiscPlayer.hh"
 #include "Clock.hh"
 #include "MSXDevice.hh"
+#include "IRQHelper.hh"
 
 namespace openmsx {
 
 class MSXPPI;
 class Rom;
 class VDP;
+class LaserdiscPlayer;
 
 class PioneerLDControl : public MSXDevice
 {

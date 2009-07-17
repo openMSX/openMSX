@@ -2,10 +2,9 @@
 
 #include "Math.hh"
 #include "yuv2rgb.hh"
+#include "likely.hh"
 
 #include <cassert>
-
-#ifdef OGG_SUPPORT
 
 namespace openmsx {
 namespace yuv2rgb {
@@ -26,13 +25,9 @@ static const int COEF_BU = (int)(2.018 * (1 << PREC) + 0.5);
 
 static inline byte clamp(int x)
 {
-/* 
-	Alternatively:
-
 	STATIC_ASSERT((-1 >> 1) == -1); // right-shift must preserve sign
 	return likely(byte(x) == x) ? x : ~(x >> 31);
-*/
-	return Math::clip<0, 255>(x);
+//	return Math::clip<0, 255>(x);
 }
 
 void convert(byte __restrict *rawFrame, const yuv_buffer *buffer)
@@ -103,5 +98,3 @@ void convert(byte __restrict *rawFrame, const yuv_buffer *buffer)
 
 } // namespace yuv2rgb
 } // namespace openmsx
-
-#endif

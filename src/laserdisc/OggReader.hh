@@ -5,25 +5,54 @@
 
 #include "openmsx.hh"
 
-namespace openmsx {
+#include <oggz/oggz.h>
+#include <vorbis/codec.h>
+#include <theora/theora.h>
 
-struct Reader;
+namespace openmsx {
 
 class OggReader
 {
 public:
 	OggReader(const Filename& filename);
 	~OggReader();
-	
+
 	bool seek(unsigned pos);
-	unsigned getSampleRate();
 	unsigned fillFloatBuffer(float ***pcm, unsigned num);
-	byte *getFrame();
+	unsigned getSampleRate() const { return vi.rate; }
+	byte *getFrame() const { return rawframe; }
 
 private:
 	void cleanup();
+	void readTheora(ogg_packet *packet);
+	void readVorbis(ogg_packet *packet);
+	static int readCallback(OGGZ * /*oggz*/, ogg_packet *packet,
+                                                long serial, void *userdata);
+	static int seekCallback(OGGZ * /*oggz*/, ogg_packet *packet,
+                                                long serial, void *userdata);
 
-	struct Reader *reader;
+	// ogg state
+	OGGZ *oggz;
+	long audio_serial;
+	long video_serial;
+
+	// video
+	int video_header_packets;
+	theora_state video_handle;
+	theora_info video_info;
+	theora_comment video_comment;
+	byte *rawframe;
+	int intraframes;
+
+	// audio
+	int audio_header_packets;
+	long readPos, writePos;
+	float *pcm[2], *ret[2];
+	long pcm_size;
+	vorbis_info vi;
+	vorbis_comment vc;
+	vorbis_dsp_state vd;
+	vorbis_block vb;
 };
 
 } // namespace openmsx
