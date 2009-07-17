@@ -23,8 +23,14 @@ proc get_machine_display_name { { machineid "" } } {
 }
 
 proc get_machine_display_name_by_config_name { config_name } {
-	array set names [openmsx_info machines $config_name]
-	return [format "%s %s" $names(manufacturer) $names(code)]
+	if {[catch {
+		array set names [openmsx_info machines $config_name]
+		set result [format "%s %s" $names(manufacturer) $names(code)]
+	}]} {
+		# hmm, XML file probably broken. Fallback:
+		set result "$config_name (CORRUPT)"
+	}
+	return $result
 }
 
 proc get_machine_time { { machineid "" } } {
