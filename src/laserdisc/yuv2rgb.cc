@@ -30,14 +30,14 @@ void convert(byte* __restrict rawFrame, const yuv_buffer* buffer)
 			coefs_gv[i] = -COEF_GV * (i - 128);
 			coefs_bu[i] =  COEF_BU * (i - 128);
 			coefs_rv[i] =  COEF_RV * (i - 128);
-			coefs_y[i]  =   COEF_Y * (i -  16) + (PREC / 2);
+			coefs_y[i]  =  COEF_Y  * (i -  16) + (PREC / 2);
 		}
 	}
 
 	assert(buffer->uv_width  * 2 == buffer->y_width);
 	assert(buffer->uv_height * 2 == buffer->y_height);
 
-	const int width = buffer->y_width;
+	const int width      = buffer->y_width;
 	const int y_stride   = buffer->y_stride;
 	const int uv_stride2 = buffer->uv_stride / 2;
 	const int raw_stride = 3 * width;
@@ -45,7 +45,7 @@ void convert(byte* __restrict rawFrame, const yuv_buffer* buffer)
 	for (int y = 0; y < buffer->y_height; y += 2) {
 		const byte* pY  = buffer->y + y * y_stride;
 		const byte* pCb = buffer->u + y * uv_stride2;
-		const byte* pCr = buffer->v + y + uv_stride2;
+		const byte* pCr = buffer->v + y * uv_stride2;
 		byte* out0      = rawFrame  + y * raw_stride;
 		byte* out1      = out0      +     raw_stride;
 
