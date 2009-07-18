@@ -795,6 +795,12 @@ inline int YMF262Slot::op_calc(unsigned phase, unsigned lfo_am)
 // (or 1st part of a 4-op channel)
 void YMF262Channel::chan_calc(unsigned lfo_am)
 {
+	// !! something is wrong with this, it caused bug
+	// !!    [2823673] moonsound 4 operator FM fail
+	// !! optimization disabled for now
+	// !! TODO investigate
+	// !!   maybe this micro optimization isn't worth the trouble/risk
+	// !!
 	// - mod.connect can point to 'phase_modulation'  or 'ch0-output'
 	// - car.connect can point to 'phase_modulation2' or 'ch0-output'
 	//    (see register #C0-#C8 writes)
@@ -803,14 +809,14 @@ void YMF262Channel::chan_calc(unsigned lfo_am)
 	//   an addition for car.connect (and initialize phase_modulation2 to
 	//   zero). For mod.connect we can directly assign the value.
 
+	// ?? is this paragraph correct ??
 	// phase_modulation should be initialized to zero here. But there seems
 	// to be an optimization bug in gcc-4.2: it *seems* that when we
 	// initialize phase_modulation to zero in this function, the optimizer
 	// assumes it still has value zero at the end of this function (where
 	// it's used to calculate car.connect). As a workaround we initialize
 	// phase_modulation each time before calling this function.
-	//phase_modulation = 0;
-
+	phase_modulation = 0;
 	phase_modulation2 = 0;
 
 	YMF262Slot& mod = slot[MOD];
@@ -819,7 +825,7 @@ void YMF262Channel::chan_calc(unsigned lfo_am)
 		: 0;
 	mod.op1_out[0] = mod.op1_out[1];
 	mod.op1_out[1] = mod.op_calc(mod.Cnt.toInt() + (out >> mod.fb_shift), lfo_am);
-	*mod.connect = mod.op1_out[1];
+	*mod.connect += mod.op1_out[1];
 
 	YMF262Slot& car = slot[CAR];
 	*car.connect += car.op_calc(car.Cnt.toInt() + phase_modulation, lfo_am);
@@ -828,6 +834,9 @@ void YMF262Channel::chan_calc(unsigned lfo_am)
 // calculate output of a 2nd part of 4-op channel
 void YMF262Channel::chan_calc_ext(unsigned lfo_am)
 {
+	// !! see remark in chan_cal(), something is wrong with this
+	// !! optimization disabled for now
+	// !!
 	// - mod.connect can point to 'phase_modulation' or 'ch3-output'
 	// - car.connect always points to 'ch3-output'  (always 4op-mode)
 	//    (see register #C0-#C8 writes)
@@ -835,11 +844,10 @@ void YMF262Channel::chan_calc_ext(unsigned lfo_am)
 	//   an addition for car.connect. For mod.connect we can directly assign
 	//   the value.
 
-	// gcc-4.2 workaround, see comments in chan_calc()
-	//phase_modulation = 0;
+	phase_modulation = 0;
 
 	YMF262Slot& mod = slot[MOD];
-	*mod.connect = mod.op_calc(mod.Cnt.toInt() + phase_modulation2, lfo_am);
+	*mod.connect += mod.op_calc(mod.Cnt.toInt() + phase_modulation2, lfo_am);
 
 	YMF262Slot& car = slot[CAR];
 	*car.connect += car.op_calc(car.Cnt.toInt() + phase_modulation, lfo_am);
@@ -1751,15 +1759,12 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 				YMF262Channel& ch0 = channel[k + i + 0];
 				YMF262Channel& ch3 = channel[k + i + 3];
 				// extended 4op ch#0 part 1 or 2op ch#0
-				phase_modulation = 0; // gcc-4.2 workaround
 				ch0.chan_calc(lfo_am);
 				if (ch0.extended) {
 					// extended 4op ch#0 part 2
-					phase_modulation = 0; // gcc-4.2 workaround
 					ch3.chan_calc_ext(lfo_am);
 				} else {
 					// standard 2op ch#3
-					phase_modulation = 0; // gcc-4.2 workaround
 					ch3.chan_calc(lfo_am);
 				}
 			}
@@ -1767,11 +1772,8 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 
 		// channels 6,7,8 rhythm or 2op mode
 		if (!rhythmEnabled) {
-			phase_modulation = 0; // gcc-4.2 workaround
 			channel[6].chan_calc(lfo_am);
-			phase_modulation = 0; // gcc-4.2 workaround
 			channel[7].chan_calc(lfo_am);
-			phase_modulation = 0; // gcc-4.2 workaround
 			channel[8].chan_calc(lfo_am);
 		} else {
 			// Rhythm part
@@ -1779,11 +1781,8 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		}
 
 		// channels 15,16,17 are fixed 2-operator channels only
-		phase_modulation = 0; // gcc-4.2 workaround
 		channel[15].chan_calc(lfo_am);
-		phase_modulation = 0; // gcc-4.2 workaround
 		channel[16].chan_calc(lfo_am);
-		phase_modulation = 0; // gcc-4.2 workaround
 		channel[17].chan_calc(lfo_am);
 
 		for (int i = 0; i < 18; ++i) {
