@@ -173,7 +173,6 @@ private:
 	auto_ptr<MSXEventDistributor> msxEventDistributor;
 	auto_ptr<MSXCommandController> msxCommandController;
 	auto_ptr<Scheduler> scheduler;
-	auto_ptr<CartridgeSlotManager> slotManager;
 	auto_ptr<EventDelay> eventDelay;
 	auto_ptr<RealTime> realTime;
 	auto_ptr<Debugger> debugger;
@@ -187,6 +186,7 @@ private:
 	auto_ptr<RenShaTurbo> renShaTurbo;
 	auto_ptr<LedStatus> ledStatus;
 
+	auto_ptr<CartridgeSlotManager> slotManager;
 	auto_ptr<ReverseManager> reverseManager;
 	auto_ptr<ResetCmd>     resetCommand;
 	auto_ptr<LoadMachineCmd> loadMachineCommand;
@@ -317,6 +317,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 {
 	self.pimple.reset(this);
 
+	slotManager.reset(new CartridgeSlotManager(self));
 	reverseManager.reset(new ReverseManager(self));
 	resetCommand.reset(new ResetCmd(*this));
 	loadMachineCommand.reset(new LoadMachineCmd(*this));
@@ -518,9 +519,6 @@ Scheduler& MSXMotherBoardImpl::getScheduler()
 
 CartridgeSlotManager& MSXMotherBoardImpl::getSlotManager()
 {
-	if (!slotManager.get()) {
-		slotManager.reset(new CartridgeSlotManager(self));
-	}
 	return *slotManager;
 }
 
