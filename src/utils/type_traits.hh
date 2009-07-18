@@ -4,7 +4,6 @@
 #define TYPE_TRAITS_HH
 
 #include "static_assert.hh"
-#include "build-info.hh" // for PLATFORM_GP2X
 #include <string>
 
 #if __GNUC__ >= 4
