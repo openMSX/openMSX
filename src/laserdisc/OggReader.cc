@@ -1,6 +1,5 @@
 // $Id$
 
-#include "Filename.hh"
 #include "LocalFileReference.hh"
 #include "OggReader.hh"
 #include "MSXException.hh"
@@ -12,7 +11,7 @@
 
 namespace openmsx {
 
-OggReader::OggReader(const Filename& filename)
+OggReader::OggReader(const std::string& filename)
 {
 	LocalFileReference file(filename);
 

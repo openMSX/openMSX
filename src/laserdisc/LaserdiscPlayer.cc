@@ -12,6 +12,7 @@
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
 #include "LDRenderer.hh"
+#include "Filename.hh"
 
 using std::auto_ptr;
 using std::string;
@@ -20,39 +21,40 @@ using std::set;
 
 namespace openmsx {
 
+// LaserdiscCommand
+
 class LaserdiscCommand : public RecordedCommand
 {
 public:
 	LaserdiscCommand(CommandController& commandController,
-			MSXEventDistributor& msxEventDistributor,
-			Scheduler& scheduler, 
-			LaserdiscPlayer& laserdiscPlayer);
-	virtual string execute(const vector<string>& tokens, 
-			EmuTime::param time);
+	                 MSXEventDistributor& msxEventDistributor,
+	                 Scheduler& scheduler,
+	                 LaserdiscPlayer& laserdiscPlayer);
+	virtual string execute(const vector<string>& tokens,
+	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	LaserdiscPlayer& laserdiscPlayer;
 };
 
-LaserdiscCommand::LaserdiscCommand(CommandController& commandController_,
-			MSXEventDistributor& msxEventDistributor,
-			Scheduler& scheduler, LaserdiscPlayer& laserdiscPlayer_)
+LaserdiscCommand::LaserdiscCommand(
+		CommandController& commandController_,
+		MSXEventDistributor& msxEventDistributor,
+		Scheduler& scheduler, LaserdiscPlayer& laserdiscPlayer_)
 	: RecordedCommand(commandController_, msxEventDistributor,
-			  scheduler, "laserdiscplayer")
-	, laserdiscPlayer(laserdiscPlayer_ )
+	                  scheduler, "laserdiscplayer")
+	, laserdiscPlayer(laserdiscPlayer_)
 {
 }
 
 string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param time)
 {
 	string result;
-
 	if (tokens.size() == 3 && tokens[1] == "insert") {
 		try {
 			result += "Changing laserdisc";
-			Filename filename(tokens[2], getCommandController());
-			laserdiscPlayer.setImageName(filename, time);
+			laserdiscPlayer.setImageName(tokens[2], time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
@@ -60,13 +62,13 @@ string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param ti
 		if (tokens[2] == "off") {
 			laserdiscPlayer.setMuting(false, false, time);
 			result += "Laserdisc muting off.";
-		} else if (tokens[2] == "left")  {
+		} else if (tokens[2] == "left") {
 			laserdiscPlayer.setMuting(true, false, time);
 			result += "Laserdisc muting left on, right off.";
-		} else if (tokens[2] == "right")  { 
+		} else if (tokens[2] == "right") {
 			laserdiscPlayer.setMuting(false, true, time);
 			result += "Laserdisc muting left off, and right on.";
-		} else if (tokens[2] == "both")  { 
+		} else if (tokens[2] == "both") {
 			laserdiscPlayer.setMuting(true, true, time);
 			result += "Laserdisc muting both left and right.";
 		} else {
@@ -75,35 +77,26 @@ string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param ti
 	} else {
 		throw SyntaxError();
 	}
-
 	return result;
 }
 
 string LaserdiscCommand::help(const vector<string>& tokens) const
 {
-	string helptext;
-
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "insert") {
-			helptext =
-				"Inserts the specfied laserdisc image into "
-				"the laserdisc player.";
+			return "Inserts the specfied laserdisc image into "
+			       "the laserdisc player.";
 		} else if (tokens[1] == "mute") {
-			helptext =
-				"Setting this to 'off' makes both left and "
-				"right audio channels audible. 'left' mutes "
-				"the left channels. 'right' mutes the left "
-				"audio channel. 'both' mutes both channels.";
+			return "Setting this to 'off' makes both left and "
+			       "right audio channels audible. 'left' mutes "
+			       "the left channels. 'right' mutes the left "
+			       "audio channel. 'both' mutes both channels.";
 		}
-	} else {
-		helptext = 
-			"laserdisc insert <filename> "
-			": insert a (different) laserdisc image\n"
-			"laserdisc mute              "
-			": set muting of laserdisc audio\n";
 	}
-
-	return helptext;
+	return "laserdisc insert <filename> "
+	       ": insert a (different) laserdisc image\n"
+	       "laserdisc mute              "
+	       ": set muting of laserdisc audio\n";
 }
 
 void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
@@ -126,27 +119,34 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-LaserdiscPlayer::LaserdiscPlayer(MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_)
-	: SoundDevice(motherBoard_.getMSXMixer(), getName(), getDescription(), 1, true)
+
+// LaserdiscPlayer
+
+LaserdiscPlayer::LaserdiscPlayer(
+		MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_)
+	: SoundDevice(motherBoard_.getMSXMixer(), "laserdiscplayer",
+	              "Laserdisc Player", 1, true)
 	, Schedulable(motherBoard_.getScheduler())
 	, Resample(motherBoard_.getReactor().getGlobalSettings(), 2)
-	, laserdiscCommand(new LaserdiscCommand(
-			motherBoard_.getCommandController(),
-			motherBoard_.getMSXEventDistributor(),
-			motherBoard_.getScheduler(),
-			*this))
 	, motherBoard(motherBoard_)
 	, ldcontrol(ldcontrol_)
+	, laserdiscCommand(new LaserdiscCommand(
+	                   motherBoard_.getCommandController(),
+	                   motherBoard_.getMSXEventDistributor(),
+	                   motherBoard_.getScheduler(),
+	                   *this))
 	, sampleClock(EmuTime::zero)
+	, tapeIn(0)
+	, muteLeft(false)
+	, muteRight(false)
 	, frameClock(EmuTime::zero)
-	, remote_state(REMOTE_GAP)
-	, remote_last_bit(false)
-	, remote_last_edge(EmuTime::zero)
+	, remoteState(REMOTE_GAP)
+	, remoteLastEdge(EmuTime::zero)
+	, remoteLastBit(false)
 	, ack(false)
 	, seeking(false)
-	, player_state(PLAYER_STOPPED)
+	, playerState(PLAYER_STOPPED)
 {
-	motherBoard_.getCassettePort().setLaserdiscPlayer(this);
 	static XMLElement laserdiscPlayerConfig("laserdiscplayer");
 	static bool init = false;
 	if (!init) {
@@ -156,13 +156,15 @@ LaserdiscPlayer::LaserdiscPlayer(MSXMotherBoard& motherBoard_, PioneerLDControl&
 		laserdiscPlayerConfig.addChild(sound);
 	}
 
-	Display& display = motherBoard_.getReactor().getDisplay();
+	motherBoard.getCassettePort().setLaserdiscPlayer(this);
 
+	Display& display = motherBoard_.getReactor().getDisplay();
 	display.attach(*this);
-	
+
 	createRenderer();
 
 	setSyncPoint(frameClock + 1, FRAME);
+
 	registerSound(laserdiscPlayerConfig);
 }
 
@@ -185,95 +187,91 @@ LaserdiscPlayer::~LaserdiscPlayer()
 // lirc. The software in the PBASIC generates a header pulse of 
 // 64 periods of 7812.5Hz, which is 0.008190s, which is 8190 
 // microseconds.
-void LaserdiscPlayer::extcontrol(bool bit, EmuTime::param time)
+void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 {
-	if (remote_last_bit == bit)
-		return;
+	if (remoteLastBit == bit) return;
+	remoteLastBit = bit;
 
 	// The tolerance we use here is not based on actual measurements;
 	// in fact I have no idea if the algorithm is correct, maybe the
 	// lirc source will reveal such information. Either way, this
 	// works with existing software (hopefully).
-	EmuDuration duration = time - remote_last_edge;
+	EmuDuration duration = time - remoteLastEdge;
+	remoteLastEdge = time;
 	unsigned usec = duration.getTicksAt(1000000); // microseconds
 
-	switch (remote_state) {
+	switch (remoteState) {
 	case REMOTE_GAP:
 		// Is there a minimum length of a gap?
 		if (bit) {
-			remote_bits = remote_bitno = 0;
-			remote_state = REMOTE_HEADER_PULSE;
+			remoteBits = remoteBitNr = 0;
+			remoteState = REMOTE_HEADER_PULSE;
 		}
 		break;
 	case REMOTE_HEADER_PULSE:
-		if (usec >= 8000 && usec < 8400)
-			remote_state = REMOTE_HEADER_SPACE;
-		else
-			remote_state = REMOTE_GAP;
+		if (8000 <= usec && usec < 8400) {
+			remoteState = REMOTE_HEADER_SPACE;
+		} else {
+			remoteState = REMOTE_GAP;
+		}
 		break;
 	case REMOTE_HEADER_SPACE:
-		if (usec >= 3800 && usec < 4200)
-			remote_state = REMOTE_BITS_PULSE;
-		else if (usec >= 2000 && usec < 2400)
-			remote_state = REMOTE_REPEAT_PULSE;
-		else
-			remote_state = REMOTE_GAP;
+		if (3800 <= usec && usec < 4200) {
+			remoteState = REMOTE_BITS_PULSE;
+		} else if (2000 <= usec && usec < 2400) {
+			remoteState = REMOTE_REPEAT_PULSE;
+		} else {
+			remoteState = REMOTE_GAP;
+		}
 		break;
 	case REMOTE_BITS_PULSE:
 		// Is there a minimum or maximum length for the trailing pulse?
-		if (usec < 400 ||  usec >= 700) {
-			remote_state = REMOTE_GAP;
+		if (400 <= usec && usec < 700) {
+			if (remoteBitNr == 32) {
+				byte custom      = ( remoteBits >> 24) & 0xff;
+				byte customCompl = (~remoteBits >> 16) & 0xff;
+				byte code        = ( remoteBits >>  8) & 0xff;
+				byte codeCompl   = (~remoteBits >>  0) & 0xff;
+				if (custom == customCompl && code == codeCompl) {
+					button(custom, code, time);
+				}
+				remoteState = REMOTE_GAP;
+			} else {
+				remoteState = REMOTE_BITS_SPACE;
+			}
+		} else {
+			remoteState = REMOTE_GAP;
 			break;
 		}
-
-		if (remote_bitno == 32) {
-			byte custom = (remote_bits >> 24) & 0xff;
-			byte custom_compl = (~remote_bits >> 16) & 0xff;
-			byte code = (remote_bits >> 8) & 0xff;
-			byte code_compl = ~remote_bits & 0xff;
-
-			if (custom == custom_compl && code == code_compl)
-				button(custom, code, time);
-
-			remote_state = REMOTE_GAP;
-			break;
-		}
-
-		remote_state = REMOTE_BITS_SPACE;
 		break;
 	case REMOTE_BITS_SPACE:
-		remote_bits <<= 1;
-		if (usec >= 1400 && usec < 1600) {
-			// bit set
-			remote_bits |= 1;
-		} else if (usec < 400 || usec >= 700) {
-			// not a bit unset, error
-			remote_state = REMOTE_GAP;
-			break;
+		if (1400 <= usec && usec < 1600) {
+			// bit 1
+			remoteBits = (remoteBits << 1) | 1;
+			++remoteBitNr;
+			remoteState = REMOTE_BITS_PULSE;
+		} else if (400 <= usec && usec < 700) {
+			// bit 0
+			remoteBits = (remoteBits << 1) | 0;
+			++remoteBitNr;
+			remoteState = REMOTE_BITS_PULSE;
+		} else {
+			// error
+			remoteState = REMOTE_GAP;
 		}
-
-		remote_bitno++;
-		remote_state = REMOTE_BITS_PULSE;
 		break;
 	case REMOTE_REPEAT_PULSE:
 		// We should check that last repeat/button was 110ms ago
 		// and succesful.
-		if (usec < 400 ||  usec >= 700) {
-			remote_state = REMOTE_GAP;
-			break;
+		if (400 <= usec && usec < 700) {
+			buttonRepeat(time);
 		}
-
-		button_repeat(time);
-
-		remote_state = REMOTE_GAP;
+		remoteState = REMOTE_GAP;
 		break;
 	}
-
-	remote_last_edge = time;
-	remote_last_bit = bit;
 }
 
-void LaserdiscPlayer::setack(EmuTime::param time, int wait)
+void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
 	removeSyncPoint(ACK);
 	Clock<1000> now(time);
@@ -281,31 +279,28 @@ void LaserdiscPlayer::setack(EmuTime::param time, int wait)
 	ack = true;
 }
 
-bool LaserdiscPlayer::extack(EmuTime::param /*time*/)
+bool LaserdiscPlayer::extAck(EmuTime::param /*time*/)
 {
 	return ack;
 }
 
-bool LaserdiscPlayer::extint(EmuTime::param /*time*/)
+bool LaserdiscPlayer::extInt(EmuTime::param /*time*/)
 {
 	/* FIXME: How exactly is this implemented? */
 	return false;
 }
 
-void LaserdiscPlayer::button_repeat(EmuTime::param /*time*/)
+void LaserdiscPlayer::buttonRepeat(EmuTime::param /*time*/)
 {
 	PRT_DEBUG("NEC protocol repeat received");
 }
 
 void LaserdiscPlayer::button(unsigned custom, unsigned code, EmuTime::param time)
 {
-	if (custom != 0x15) {
-		return;
-	}
+	if (custom != 0x15) return;
 
 #ifdef DEBUG
-	string f = "";
-
+	string f;
 	switch (code) {
 	case 0xe2: f = "C+"; break;
 	case 0x62: f = "C-"; break;
@@ -340,99 +335,88 @@ void LaserdiscPlayer::button(unsigned custom, unsigned code, EmuTime::param time
 	default: break;
 	}
 
-	if (f != "") {
+	if (!f.empty()) {
 		std::cout << "PioneerLD7000::remote " << f << std::endl;
 	} else {
-		std::cout << "PioneerLD7000::remote unknown " << 
-				std::hex << code << std::endl;
+		std::cout << "PioneerLD7000::remote unknown "
+		          << std::hex << code << std::endl;
 	}
 #endif
 
 	// deal with seeking.
-	if (player_state != PLAYER_STOPPED) {
+	if (playerState != PLAYER_STOPPED) {
 		bool ok = true;
 
 		switch (code) {
 		case 0x82:
-			seek_state = SEEK_FRAME_BEGIN;
-			seek_no = 0;
+			seekState = SEEK_FRAME_BEGIN;
+			seekNum = 0;
 			break;
 		case 0x02:
-			seek_state = SEEK_CHAPTER_BEGIN;
-			seek_no = 0;
+			seekState = SEEK_CHAPTER_BEGIN;
+			seekNum = 0;
 			ok = false; // FIXME: no chapter information yet
 			break;
-		case 0x00: seek_no = seek_no * 10 + 0; break;
-		case 0x80: seek_no = seek_no * 10 + 1; break;
-		case 0x40: seek_no = seek_no * 10 + 2; break;
-		case 0xc0: seek_no = seek_no * 10 + 3; break;
-		case 0x20: seek_no = seek_no * 10 + 4; break;
-		case 0xa0: seek_no = seek_no * 10 + 5; break;
-		case 0x60: seek_no = seek_no * 10 + 6; break;
-		case 0xe0: seek_no = seek_no * 10 + 7; break;
-		case 0x10: seek_no = seek_no * 10 + 8; break;
-		case 0x90: seek_no = seek_no * 10 + 9; break;
+		case 0x00: seekNum = seekNum * 10 + 0; break;
+		case 0x80: seekNum = seekNum * 10 + 1; break;
+		case 0x40: seekNum = seekNum * 10 + 2; break;
+		case 0xc0: seekNum = seekNum * 10 + 3; break;
+		case 0x20: seekNum = seekNum * 10 + 4; break;
+		case 0xa0: seekNum = seekNum * 10 + 5; break;
+		case 0x60: seekNum = seekNum * 10 + 6; break;
+		case 0xe0: seekNum = seekNum * 10 + 7; break;
+		case 0x10: seekNum = seekNum * 10 + 8; break;
+		case 0x90: seekNum = seekNum * 10 + 9; break;
 		case 0x42:
 			ok = false;
-			switch (seek_state) {
+			switch (seekState) {
 			case SEEK_FRAME_BEGIN:
-				seek_state = SEEK_FRAME_END;
+				seekState = SEEK_FRAME_END;
 				break;
 			case SEEK_FRAME_END:
-				seek_state = SEEK_NONE;
-				seekFrame(seek_no % 100000, time);
+				seekState = SEEK_NONE;
+				seekFrame(seekNum % 100000, time);
 				break;
 			case SEEK_CHAPTER_BEGIN:
-				seek_state = SEEK_CHAPTER_END;
+				seekState = SEEK_CHAPTER_END;
 				break;
 			case SEEK_CHAPTER_END:
-				seek_state = SEEK_NONE;
-				seekChapter(seek_no % 100, time);
+				seekState = SEEK_NONE;
+				seekChapter(seekNum % 100, time);
 				break;
 			default:
-				seek_state = SEEK_NONE;
+				seekState = SEEK_NONE;
 			}
 			break;
 		case 0xff:
 		default:
 			ok = false;
-			seek_state = SEEK_NONE;
+			seekState = SEEK_NONE;
 			break;
 		}
 
 		if (ok) {
 			// seeking will take much more than this!
-			setack(time, 46);
+			setAck(time, 46);
 		}
 	}
 
 	switch (code) {
-	case 0x18: /* P/ */
+	case 0x18: // P/
 		pause(time);
 		break;
-	case 0xe8: /* P+ */
+	case 0xe8: // P+
 		play(time);
 		break;
-	case 0x68: /* P@ (stop/eject) */
+	case 0x68: // P@ (stop/eject)
 		stop(time);
 		break;
 	}
 }
 
-const string& LaserdiscPlayer::getName() const
-{
-	static const string name("laserdiscplayer");
-	return name;
-}
-
 const string& LaserdiscPlayer::schedName() const
 {
-	return getName();
-}
-
-const string& LaserdiscPlayer::getDescription() const
-{
-	static const string name("Laserdisc Player");
+	static const string name("laserdiscplayer");
 	return name;
 }
 
@@ -447,36 +431,30 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		ack = false;
 		seeking = false;
 
-		if (player_state == PLAYER_PLAYING)
+		if (playerState == PLAYER_PLAYING) {
 			sampleClock.reset(time);
+		}
+
 	} else if (userdata == FRAME) {
 		renderer->frameStart(time);
-
 		if (isVideoOutputAvailable(time)) {
 			renderer->drawBitmap(video->getFrame());
 		} else {
 			renderer->drawBlank(0, 128, 196);
 		}
-
 		renderer->frameEnd(time);
 
 		frameClock.reset(time);
-
 		setSyncPoint(frameClock + 1, FRAME);
 	}
 }
 
-void LaserdiscPlayer::setImageName(const Filename& newImage, EmuTime::param /*time*/)
+void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param /*time*/)
 {
-	video.reset(new OggReader(newImage));
-	filename = newImage;
+	Filename filename(newImage, motherBoard.getCommandController());
+	video.reset(new OggReader(filename.getResolved()));
 	sampleClock.setFreq(video->getSampleRate());
 	setOutputRate(outputRate);
-}
-
-const Filename& LaserdiscPlayer::getImageName() const
-{
-	return filename;
 }
 
 void LaserdiscPlayer::setOutputRate(unsigned newOutputRate)
@@ -487,46 +465,44 @@ void LaserdiscPlayer::setOutputRate(unsigned newOutputRate)
 	setResampleRatio(inputRate, outputRate);
 }
 
-void LaserdiscPlayer::generateChannels(int **buffers, unsigned num)
+void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 {
 	// If both channels are muted, we could still be loading from
 	// tape. Therefore sound has to be generated and then discarded.
 	// This also ensures that we maintain the right position when
 	// both channels are muted.
-	if (player_state != PLAYER_PLAYING || seeking) {
+	if (playerState != PLAYER_PLAYING || seeking) {
 		buffers[0] = 0;
 		return;
 	}
 
-	for (unsigned pos=0; pos<num; ) {
-		float **pcm;
-		unsigned rc, i;
-
+	for (unsigned pos = 0; pos < num; /**/) {
 		// We are using floats here since otherwise we have to
 		// convert shorts to ints. libvorbisfile converts floats to
 		// shorts when we do not request floats leaving another
 		// conversion step up us.
-		rc = video->fillFloatBuffer(&pcm, num - pos);
+		float** pcm;
+		unsigned rc = video->fillFloatBuffer(&pcm, num - pos);
 		if (rc == 0) {
 			// we've fallen of the end of the file. We 
 			// should raise an IRQ now.
 			if (pos == 0) {
 				buffers[0] = 0;
 				break;
-			} else for (; pos<num; pos++) {
-				buffers[0][pos*2+0] = 0;
-				buffers[0][pos*2+1] = 0;
+			} else for (/**/; pos < num; ++pos) {
+				buffers[0][pos * 2 + 0] = 0;
+				buffers[0][pos * 2 + 1] = 0;
 			}
-			player_state = PLAYER_STOPPED;
+			playerState = PLAYER_STOPPED;
 		} else {
 			// maybe muting should be moved out of the loop?
-			for (i=0; i<rc; i++, pos++) {
-				buffers[0][pos*2+0] = mute_left ? 0 : 
-						int(pcm[0][i] * 65536.f);
-				buffers[0][pos*2+1] = mute_right ? 0 : 
-						int(pcm[1][i] * 65536.f);
+			for (unsigned i = 0; i < rc; ++i, ++pos) {
+				buffers[0][pos * 2 + 0] = muteLeft ? 0 :
+						int(pcm[0][i] * 65536.0f);
+				buffers[0][pos * 2 + 1] = muteRight ? 0 :
+						int(pcm[1][i] * 65536.0f);
 			}
-			tapein = short(pcm[1][rc-1] * 32767.f);
+			tapeIn = short(pcm[1][rc - 1] * 32767.f);
 		}
 	}
 }
@@ -545,12 +521,10 @@ bool LaserdiscPlayer::updateBuffer(unsigned length, int *buffer,
 void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime::param time)
 {
 	updateStream(time);
-
-	PRT_DEBUG("Laserdisc::setMuting L:" << 
-				(left ? "on  R:" : "off R:") <<  
-				(right ? "on" : "off"));
-	mute_left = left;
-	mute_right = right;
+	PRT_DEBUG("Laserdisc::setMuting L:" << (left  ? "on" : "off")
+	                           << " R:" << (right ? "on" : "off"));
+	muteLeft = left;
+	muteRight = right;
 }
 
 void LaserdiscPlayer::play(EmuTime::param time)
@@ -560,7 +534,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 	if (video.get()) {
 		updateStream(time);
 
-		if (player_state == PLAYER_STOPPED) {
+		if (playerState == PLAYER_STOPPED) {
 			// Disk needs to spin up, which takes 9.6s on
 			// my Pioneer LD-92000. Also always seek to 
 			// beginning (confirmed on real MSX and LD)
@@ -568,12 +542,12 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			playingFromSample = 0;
 			// Note that with "fullspeedwhenloading" this
 			// should be reduced to.
-			setack(time, 9600);
+			setAck(time, 9600);
 			seeking = true;
 		} else {
-			setack(time, 46);
+			setAck(time, 46);
 		}
-		player_state = PLAYER_PLAYING;
+		playerState = PLAYER_PLAYING;
 	}
 }
 
@@ -589,8 +563,8 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 		updateStream(time);
 
 		playingFromSample = getCurrentSample(time);
-		player_state = PLAYER_PAUSED;
-		setack(time, 46);
+		playerState = PLAYER_PAUSED;
+		setAck(time, 46);
 	}
 }
 
@@ -600,13 +574,13 @@ void LaserdiscPlayer::stop(EmuTime::param time)
 	if (video.get()) {
 		updateStream(time);
 
-		player_state = PLAYER_STOPPED;
+		playerState = PLAYER_STOPPED;
 	}
 }
 
 void LaserdiscPlayer::seekFrame(int frame, EmuTime::param time)
 {
-	if (player_state != PLAYER_STOPPED) {
+	if (playerState != PLAYER_STOPPED) {
 		PRT_DEBUG("Laserdisc::SeekFrame " << std::dec << frame);
 		if (video.get()) {
 			updateStream(time);
@@ -617,43 +591,39 @@ void LaserdiscPlayer::seekFrame(int frame, EmuTime::param time)
 			DivModByConst<30000> dm;
 			playingFromSample = dm.div(1001000ull * frame);
 			video->seek(playingFromSample);
-			player_state = PLAYER_FROZEN;
+			playerState = PLAYER_FROZEN;
 
 			// seeking to the current frame takes 0.350s
 			seeking = true;
-			setack(time, 350);
+			setAck(time, 350);
 		}
 	}
 }
 
 void LaserdiscPlayer::seekChapter(int /*chapter*/, EmuTime::param /*time*/)
 {
-	if (player_state != PLAYER_STOPPED) {
+	if (playerState != PLAYER_STOPPED) {
 		// we have no chapter information yet, so fail
 	}
 }
 
 short LaserdiscPlayer::readSample(EmuTime::param time)
 {
-	/*
-	 * Here we should return the value of the sample on the 
-	 * right audio channel, ignoring muting.
-	 */
-	if (video.get() && player_state == PLAYER_PLAYING && !seeking) {
+	// Here we should return the value of the sample on the
+	// right audio channel, ignoring muting.
+	if (video.get() && playerState == PLAYER_PLAYING && !seeking) {
 		updateStream(time);
-		return tapein;
+		return tapeIn;
 	}
-
 	return 0;
 }
 
 bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 {
-	bool videoOut;
-
 	updateStream(time);
 
-	switch (player_state) {
+	bool videoOut;
+	switch (playerState) {
 	case PLAYER_PLAYING:
 	case PLAYER_FROZEN:
 		videoOut = !seeking;
@@ -662,7 +632,6 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 		videoOut = false;
 		break;
 	}
-
 	ldcontrol.videoIn(videoOut);
 
 	return videoOut;
@@ -681,7 +650,6 @@ void LaserdiscPlayer::postVideoSystemChange()
 void LaserdiscPlayer::createRenderer()
 {
 	Display& display = getMotherBoard().getReactor().getDisplay();
-
 	renderer.reset(RendererFactory::createLDRenderer(*this, display));
 }
 

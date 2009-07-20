@@ -5,7 +5,6 @@
 
 #include "SoundDevice.hh"
 #include "Resample.hh"
-#include "Filename.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
@@ -26,37 +25,22 @@ class LaserdiscPlayer : public SoundDevice
 		      , private VideoSystemChangeListener
 {
 public:
-	LaserdiscPlayer(MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_);
+	LaserdiscPlayer(MSXMotherBoard& motherBoard, PioneerLDControl& ldcontrol);
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
 	short readSample(EmuTime::param time);
 
-	const std::string& getName() const;
-	const std::string& getDescription() const;
-
-	// SoundDevice
-	void setOutputRate(unsigned sampleRate);
-	void generateChannels(int** bufs, unsigned num);
-	bool updateBuffer(unsigned length, int *buffer,
-		EmuTime::param time, EmuDuration::param sampDur);
-	bool generateInput(int *buffer, unsigned num);
-
-	void sync(EmuTime::param time);
-
-	// Schedulable
-	const std::string& schedName() const;
-	void executeUntil(EmuTime::param, int);
+	// Called from PioneerLDControl
+	void setMuting(bool left, bool right, EmuTime::param time);
+	bool extAck(EmuTime::param time);
+	void extControl(bool bit, EmuTime::param time);
 
 	// video interface
 	MSXMotherBoard& getMotherBoard() { return motherBoard; }
 
 private:
-	/** Mute the left and/or right audio channel
-	  */
-	void setMuting(bool left, bool right, EmuTime::param time);
-	void setImageName(const Filename& newImage, EmuTime::param time);
-	const Filename& getImageName() const;
+	void setImageName(const std::string& newImage, EmuTime::param time);
 
 	/** Laserdisc player commands
 	  */
@@ -71,38 +55,42 @@ private:
 	/** Is video output being generated?
 	  */
 	bool isVideoOutputAvailable(EmuTime::param time);
-	bool extack(EmuTime::param time);
-	void extcontrol(bool bit, EmuTime::param time);
-	bool extint(EmuTime::param time);
-
+	bool extInt(EmuTime::param time);
 	void button(unsigned custom, unsigned code, EmuTime::param time);
-	void button_repeat(EmuTime::param time);
-	void setack(EmuTime::param time, int wait);
+	void buttonRepeat(EmuTime::param time);
+	void setAck(EmuTime::param time, int wait);
 	unsigned getCurrentSample(EmuTime::param time);
 	void createRenderer();
 
-	bool mute_left, mute_right;
-	Filename filename;
+	// SoundDevice
+	void setOutputRate(unsigned sampleRate);
+	void generateChannels(int** bufs, unsigned num);
+	bool updateBuffer(unsigned length, int* buffer,
+	                  EmuTime::param time, EmuDuration::param sampDur);
+	bool generateInput(int* buffer, unsigned num);
 
-	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
-	std::auto_ptr<OggReader> video;
-
-	friend class LaserdiscCommand;
-	friend class PioneerLDControl;
+	// Schedulable
+	const std::string& schedName() const;
+	void executeUntil(EmuTime::param time, int userData);
 
 	// VideoSystemChangeListener interface:
+	void preVideoSystemChange();
+	void postVideoSystemChange();
+
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldcontrol;
 
-	void preVideoSystemChange();
-	void postVideoSystemChange();
+	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
+	std::auto_ptr<OggReader> video;
 	std::auto_ptr<LDRenderer> renderer;
 
 	// Audio state
-	short tapein;
+	DynamicClock sampleClock;
 	unsigned outputRate;
 	unsigned playingFromSample;
-	DynamicClock sampleClock;
+	short tapeIn;
+	bool muteLeft, muteRight;
+
 	Clock<30000, 1001> frameClock;
 
 	enum SyncType {
@@ -118,12 +106,12 @@ private:
 		REMOTE_BITS_PULSE,
 		REMOTE_BITS_SPACE,
 		REMOTE_REPEAT_PULSE
-	} remote_state;
-	bool remote_last_bit;
-	unsigned remote_bitno;
-	unsigned remote_bits;
-	EmuTime remote_last_edge;
-	
+	} remoteState;
+	EmuTime remoteLastEdge;
+	unsigned remoteBitNr;
+	unsigned remoteBits;
+	bool remoteLastBit;
+
 	/* We need to maintain some state for seeking */
 	enum PioneerSeekState {
 		SEEK_NONE,
@@ -131,10 +119,10 @@ private:
 		SEEK_CHAPTER_END,
 		SEEK_FRAME_BEGIN,
 		SEEK_FRAME_END
-	} seek_state;
+	} seekState;
 
 	/* The specific frame or chapter we are seeking to */
-	unsigned seek_no;
+	unsigned seekNum;
 
 	// For ack
 	bool ack;
@@ -147,7 +135,9 @@ private:
 		PLAYER_PLAYING,
 		PLAYER_PAUSED,
 		PLAYER_FROZEN
-	} player_state;
+	} playerState;
+
+	friend class LaserdiscCommand;
 };
 
 } // namespace openmsx

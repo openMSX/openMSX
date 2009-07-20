@@ -98,7 +98,7 @@ byte PioneerLDControl::readMem(word address, EmuTime::param time)
 		if (clock.getTicksTill(time) & 1)
 			val &= 0xfe;
 
-		if (laserdisc->extack(time))
+		if (laserdisc->extAck(time))
 			val &= 0x7f;
 
 	} else if (address < 0x6000 && address >= 0x4000)
@@ -122,7 +122,7 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time)
 		if (clock.getTicksTill(time) & 1)
 			val &= 0xfe;
 
-		if (laserdisc->extack(time))
+		if (laserdisc->extAck(time))
 			val &= 0x7f;
 
 	} else if (address < 0x6000 && address >= 0x4000)
@@ -147,7 +147,7 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 		laserdisc->setMuting(mutel, muter, time);
 
 	} else if (address == 0x7ffe) {
-		laserdisc->extcontrol(value & 1, time);
+		laserdisc->extControl(value & 1, time);
 	}
 }
 

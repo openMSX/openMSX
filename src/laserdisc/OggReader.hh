@@ -4,7 +4,6 @@
 #define OGGREADER_HH
 
 #include "openmsx.hh"
-
 #include <oggz/oggz.h>
 #include <vorbis/codec.h>
 #include <theora/theora.h>
@@ -14,7 +13,7 @@ namespace openmsx {
 class OggReader
 {
 public:
-	OggReader(const Filename& filename);
+	OggReader(const std::string& filename);
 	~OggReader();
 
 	bool seek(unsigned pos);
