@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1248066154">
+<softwaredb xml:lang="en" timestamp="1248106018">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -227,6 +227,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Compile</company>
 	<year>1988</year>
 	<country>JP</country>
+		<dump><original value="false"/><megarom><type>ascii16</type><hash algo="sha1">11b712633bd0e44e8d59ceba5a2d6b1c20a43ef9</hash><remark>iPhone version (TR-En)</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">12f6f31f495bfb384c9ca9067bfbf8f98af6adf9</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">be2d023f5f1ee4cfbdc712c8ef9eda9d07278d88</hash><remark>tr En</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">4b506234dfd3b6aa1c315b40cd8ddca024dd15c9</hash></megarom></dump>
@@ -6898,6 +6899,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">fbfdd89ec183ceae63d3d66b0ab45faa951b525a</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Norakomi&#39;s demo Level</title>
+	<system>MSX</system>
+	<company>Norakomi</company>
+	<year>2009</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">df2d0a6ce5069b53f3de7a518d0c1cb948077948</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Norseman</title>
 	<system>MSX</system>
 	<company>Hudson</company>
@@ -10449,6 +10458,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2206
-Parse time 4.598 seconds on Mon Jul 20 7:02:38 CEST 2009
+Roms in this database:2208
+Parse time 4.626 seconds on Mon Jul 20 18:07:02 CEST 2009
  -->
