@@ -33,7 +33,7 @@ public:
 
 	// Called from PioneerLDControl
 	void setMuting(bool left, bool right, EmuTime::param time);
-	bool extAck(EmuTime::param time);
+	bool extAck(EmuTime::param time) const;
 	void extControl(bool bit, EmuTime::param time);
 
 	// video interface

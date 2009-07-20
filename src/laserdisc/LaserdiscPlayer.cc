@@ -279,7 +279,7 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 	ack = true;
 }
 
-bool LaserdiscPlayer::extAck(EmuTime::param /*time*/)
+bool LaserdiscPlayer::extAck(EmuTime::param /*time*/) const
 {
 	return ack;
 }

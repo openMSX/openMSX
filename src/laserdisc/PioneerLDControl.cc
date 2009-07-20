@@ -1,10 +1,10 @@
 // $Id$
 
+#include "PioneerLDControl.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "PioneerLDControl.hh"
 #include "LaserdiscPlayer.hh"
 #include "MSXPPI.hh"
 #include "MSXException.hh"
@@ -39,8 +39,8 @@ PioneerLDControl::PioneerLDControl(MSXMotherBoard& motherBoard, const XMLElement
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, laserdisc(new LaserdiscPlayer(motherBoard, *this))
 	, clock(EmuTime::zero)
-	, videoEnabled(false)
 	, irq(motherBoard, "PioneerLDControl.IRQdisplayoff")
+	, videoEnabled(false)
 {
 	reset(getCurrentTime());
 }
@@ -51,20 +51,18 @@ void PioneerLDControl::init(const HardwareConfig& hwConf)
 
 	const MSXDevice::Devices& references = getReferences();
 
-	ppi = references.size() >= 1 ? 
+	ppi = references.size() >= 1 ?
 		dynamic_cast<MSXPPI*>(references[0]) : 0;
-
 	if (!ppi) {
 		throw MSXException("Invalid PioneerLDControl configuration: "
-				   "need reference to PPI device.");
+		                   "need reference to PPI device.");
 	}
 
-	vdp = references.size() == 2 ? 
+	vdp = references.size() == 2 ?
 		dynamic_cast<VDP*>(references[1]) : 0;
-
 	if (!vdp) {
 		throw MSXException("Invalid PioneerLDControl configuration: "
-				   "need reference to VDP device.");
+		                   "need reference to VDP device.");
 	}
 }
 
@@ -83,80 +81,66 @@ void PioneerLDControl::reset(EmuTime::param time)
 
 byte PioneerLDControl::readMem(word address, EmuTime::param time)
 {
-	byte val = 0xff;
-
+	byte val = PioneerLDControl::peekMem(address, time);
 	if (address == 0x7fff) {
-		if (videoEnabled)
-			val &= 0x7f;
-
-		if (!irq.getState())
-			val &= 0xfe;
-		else
+		if (irq.getState()) {
 			irq.reset();
-
-	} else if (address == 0x7ffe) {
-		if (clock.getTicksTill(time) & 1)
-			val &= 0xfe;
-
-		if (laserdisc->extAck(time))
-			val &= 0x7f;
-
-	} else if (address < 0x6000 && address >= 0x4000)
-		val = (*rom)[address & 0x1fff];
-
+		}
+	}
 	return val;
 }
 
-byte PioneerLDControl::peekMem(word address, EmuTime::param time)
+byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 {
 	byte val = 0xff;
 
 	if (address == 0x7fff) {
-		if (videoEnabled)
+		if (videoEnabled) {
 			val &= 0x7f;
-
-		if (!irq.getState())
+		}
+		if (!irq.getState()) {
 			val &= 0xfe;
-
+		}
 	} else if (address == 0x7ffe) {
-		if (clock.getTicksTill(time) & 1)
+		if (clock.getTicksTill(time) & 1) {
 			val &= 0xfe;
-
-		if (laserdisc->extAck(time))
+		}
+		if (laserdisc->extAck(time)) {
 			val &= 0x7f;
-
-	} else if (address < 0x6000 && address >= 0x4000)
+		}
+	} else if (0x4000 <= address && address < 0x6000) {
 		val = (*rom)[address & 0x1fff];
-
+	}
 	return val;
+}
+
+const byte* PioneerLDControl::getReadCacheLine(word start) const
+{
+	if ((start & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
+		return NULL;
+	} else if (0x4000 <= start && start < 0x6000) {
+		return &(*rom)[start & 0x1fff];
+	} else {
+		return unmappedRead;
+	}
 }
 
 void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (address == 0x7fff) {
-		/* superimpose */
+		// superimpose
 		superimposing = !(value & 1);
 		vdp->setExternalVideoSource(videoEnabled && superimposing);
 
-		/* Muting */
-		if (!mutel && !(value & 0x80)) 
+		// Muting
+		if (!mutel && !(value & 0x80)) {
 			muter = !(ppi->peekIO(2, time) & 0x10);
-	
+		}
 		mutel = !(value & 0x80);
-
 		laserdisc->setMuting(mutel, muter, time);
 
 	} else if (address == 0x7ffe) {
 		laserdisc->extControl(value & 1, time);
-	}
-}
-
-const byte* PioneerLDControl::getReadCacheLine(word start) const
-{
-	if (start < 0x4000 || start > 0x5fff) {
-		return NULL;
-	} else {
-		return &(*rom)[start & 0x1fff];
 	}
 }
 
@@ -171,9 +155,9 @@ byte* PioneerLDControl::getWriteCacheLine(word start) const
 
 void PioneerLDControl::videoIn(bool enabled)
 {
-	if (superimposing && videoEnabled && !enabled) 
+	if (superimposing && videoEnabled && !enabled) {
 		irq.set();
-
+	}
 	videoEnabled = enabled;
 
 	vdp->setExternalVideoSource(videoEnabled && superimposing);
@@ -190,6 +174,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("videoEnabled", videoEnabled);
 	ar.serialize("superimposing", superimposing);
 	ar.serialize("irq", irq);
+	// TODO serialize laserdisc
 
 	if (ar.isLoader()) {
 		vdp->setExternalVideoSource(videoEnabled && superimposing);
