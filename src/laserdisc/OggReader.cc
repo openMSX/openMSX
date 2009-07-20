@@ -73,14 +73,9 @@ OggReader::OggReader(const Filename& filename)
 
 void OggReader::cleanup()
 {
-	if (pcm[0])
-		free(pcm[0]);
-
-	if (pcm[1])
-		free(pcm[1]);
-
-	if (rawframe)
-		delete[] rawframe;
+	free(pcm[0]);
+	free(pcm[1]);
+	delete[] rawframe;
 
 	if (audio_header_packets == 0) {
 		vorbis_dsp_clear(&vd);

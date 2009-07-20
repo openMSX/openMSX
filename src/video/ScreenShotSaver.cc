@@ -92,18 +92,14 @@ static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 	png_write_image(png_ptr, ptrs);
 	png_write_end(png_ptr, info_ptr);
 
-	if (info_ptr->palette) {
-		free(info_ptr->palette);
-	}
+	free(info_ptr->palette);
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	fclose(fp);
 	return true;
 
 error:
-	if (info_ptr->palette) {
-		free(info_ptr->palette);
-	}
+	free(info_ptr->palette);
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	fclose(fp);
