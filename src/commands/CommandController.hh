@@ -77,10 +77,6 @@ public:
 	virtual CliConnection* getConnection() const = 0;
 	virtual Reactor& getReactor() const = 0;
 
-	// like getCliComm(), but can return a NULL pointer early in the
-	// boot process
-	virtual CliComm* getCliCommIfAvailable() = 0;
-
 protected:
 	CommandController() {}
 	virtual ~CommandController() {}

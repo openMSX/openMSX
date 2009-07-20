@@ -42,18 +42,16 @@ void Setting::changeValueString(const std::string& valueString)
 void Setting::notify() const
 {
 	Subject<Setting>::notify();
-	if (CliComm* cliComm = commandController.getCliCommIfAvailable()) {
-		cliComm->update(CliComm::SETTING, getName(), getValueString());
-	}
+	commandController.getCliComm().update(
+		CliComm::SETTING, getName(), getValueString());
 }
 
 void Setting::notifyPropertyChange() const
 {
-	if (CliComm* cliComm = commandController.getCliCommIfAvailable()) {
-		TclObject result;
-		info(result);
-		cliComm->update(CliComm::SETTINGINFO, getName(), result.getString());
-	}
+	TclObject result;
+	info(result);
+	commandController.getCliComm().update(
+		CliComm::SETTINGINFO, getName(), result.getString());
 }
 
 bool Setting::needLoadSave() const

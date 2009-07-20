@@ -13,20 +13,18 @@
 
 namespace openmsx {
 
-class EventDistributor;
-class GlobalCommandController;
 class CliConnection;
-class UpdateCmd;
 
 class GlobalCliComm : public CliComm, private noncopyable
 {
 public:
-	GlobalCliComm(GlobalCommandController& commandController,
-	        EventDistributor& eventDistributor);
+	GlobalCliComm();
 	virtual ~GlobalCliComm();
 
+	static const char* const* getUpdateStrs();
+
 	void addConnection(std::auto_ptr<CliConnection> connection);
-	void startInput(const std::string& option);
+	void setXMLOutput();
 
 	// CliComm
 	virtual void log(LogLevel level, const std::string& message);
@@ -37,12 +35,7 @@ private:
 	void updateHelper(UpdateType type, const std::string& machine,
 	                  const std::string& name, const std::string& value);
 
-	const std::auto_ptr<UpdateCmd> updateCmd;
-
 	std::map<std::string, std::string> prevValues[NUM_UPDATES];
-
-	GlobalCommandController& commandController;
-	EventDistributor& eventDistributor;
 
 	typedef std::vector<CliConnection*> Connections;
 	Connections connections;

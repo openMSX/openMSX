@@ -11,6 +11,7 @@
 #include "Version.hh"
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
+#include "CliConnection.hh"
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
@@ -23,6 +24,7 @@
 #include "XMLElement.hh"
 #include "XMLException.hh"
 #include "HostCPU.hh"
+#include "StringOp.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
 #include "build-info.hh"
@@ -435,7 +437,36 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 
 bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 {
-	parser.reactor.getGlobalCliComm().startInput(getArgument(option, cmdLine));
+	string fullType = getArgument(option, cmdLine);
+	string type, arguments;
+	StringOp::splitOnFirst(fullType, ":", type, arguments);
+
+	CommandController& controller = parser.getCommandController();
+	EventDistributor& distributor = parser.reactor.getEventDistributor();
+	GlobalCliComm& cliComm        = parser.reactor.getGlobalCliComm();
+	std::auto_ptr<CliConnection> connection;
+	if (type == "stdio") {
+		connection.reset(new StdioConnection(
+			controller, distributor));
+#ifdef _WIN32
+	} else if (type == "pipe") {
+		OSVERSIONINFOA info;
+		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		GetVersionExA(&info);
+		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+			connection.reset(new PipeConnection(
+				controller, distributor, arguments));
+		} else {
+			throw FatalError("Pipes are not supported on this "
+			                 "version of Windows");
+		}
+#endif
+	} else {
+		throw FatalError("Unknown control type: '"  + type + "'");
+	}
+	cliComm.addConnection(connection);
+	cliComm.setXMLOutput();
+
 	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;
 }

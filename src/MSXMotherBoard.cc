@@ -96,7 +96,6 @@ public:
 	void removeExtension(const HardwareConfig& extension);
 
 	CliComm& getMSXCliComm();
-	CliComm* getMSXCliCommIfAvailable();
 	MSXEventDistributor& getMSXEventDistributor();
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
@@ -329,7 +328,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 
 	msxMixer->mute(); // powered down
 	// TODO: Initialization of this field cannot be done much earlier because
-	//       EventDelay creates a setting, calling getMSXCliCommIfAvailable()
+	//       EventDelay creates a setting, calling getMSXCliComm()
 	//       on MSXMotherBoard, so "pimple" has to be set up already.
 	eventDelay.reset(new EventDelay(
 		*scheduler, *msxCommandController,
@@ -495,11 +494,6 @@ CliComm& MSXMotherBoardImpl::getMSXCliComm()
 		msxCliComm.reset(new MSXCliComm(self, reactor.getGlobalCliComm()));
 	}
 	return *msxCliComm;
-}
-
-CliComm* MSXMotherBoardImpl::getMSXCliCommIfAvailable()
-{
-	return msxCliComm.get();
 }
 
 MSXEventDistributor& MSXMotherBoardImpl::getMSXEventDistributor()
@@ -1264,10 +1258,6 @@ CliComm& MSXMotherBoard::getMSXCliComm()
 {
 	// note: return-type is CliComm instead of MSXCliComm
 	return pimple->getMSXCliComm();
-}
-CliComm* MSXMotherBoard::getMSXCliCommIfAvailable()
-{
-	return pimple->getMSXCliCommIfAvailable();
 }
 MSXCommandController& MSXMotherBoard::getMSXCommandController()
 {

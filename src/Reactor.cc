@@ -202,8 +202,9 @@ private:
 Reactor::Reactor()
 	: mbSem(1)
 	, eventDistributor(new EventDistributor(*this))
-	, globalCommandController(new GlobalCommandController(*eventDistributor, *this))
-	, globalCliComm(new GlobalCliComm(*globalCommandController, *eventDistributor))
+	, globalCliComm(new GlobalCliComm())
+	, globalCommandController(new GlobalCommandController(
+		*eventDistributor, *globalCliComm, *this))
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
 	, mixer(new Mixer(*globalCommandController))

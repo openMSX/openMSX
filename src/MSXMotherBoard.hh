@@ -87,7 +87,6 @@ public:
 
 	// The following classes are unique per MSX machine
 	CliComm& getMSXCliComm();
-	CliComm* getMSXCliCommIfAvailable();
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
 	MSXEventDistributor& getMSXEventDistributor();

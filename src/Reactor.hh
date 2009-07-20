@@ -18,8 +18,8 @@ namespace openmsx {
 class EventDistributor;
 class CommandController;
 class InfoCommand;
-class GlobalCommandController;
 class GlobalCliComm;
+class GlobalCommandController;
 class CliComm;
 class Display;
 class Mixer;
@@ -72,8 +72,8 @@ public:
 	void enterMainLoop();
 
 	EventDistributor& getEventDistributor();
-	GlobalCommandController& getGlobalCommandController();
 	GlobalCliComm& getGlobalCliComm();
+	GlobalCommandController& getGlobalCommandController();
 	InputEventGenerator& getInputEventGenerator();
 	Display& getDisplay();
 	Mixer& getMixer();
@@ -123,8 +123,8 @@ private:
 
 	// note: order of auto_ptr's is important
 	const std::auto_ptr<EventDistributor> eventDistributor;
-	const std::auto_ptr<GlobalCommandController> globalCommandController;
 	const std::auto_ptr<GlobalCliComm> globalCliComm;
+	const std::auto_ptr<GlobalCommandController> globalCommandController;
 	const std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;
 	const std::auto_ptr<Mixer> mixer;

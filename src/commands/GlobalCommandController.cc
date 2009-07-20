@@ -8,7 +8,8 @@
 #include "InfoTopic.hh"
 #include "LocalFileReference.hh"
 #include "openmsx.hh"
-#include "CliComm.hh"
+#include "GlobalCliComm.hh"
+#include "CliConnection.hh"
 #include "HotKey.hh"
 #include "Interpreter.hh"
 #include "InfoCommand.hh"
@@ -53,6 +54,19 @@ private:
 	GlobalCommandController& controller;
 };
 
+class UpdateCmd : public SimpleCommand
+{
+public:
+	UpdateCmd(CommandController& commandController,
+	          GlobalCliComm& cliComm);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	CliConnection& getConnection();
+	GlobalCliComm& cliComm;
+};
+
 class VersionInfo : public InfoTopic
 {
 public:
@@ -64,14 +78,16 @@ public:
 
 
 GlobalCommandController::GlobalCommandController(
-	EventDistributor& eventDistributor_, Reactor& reactor_)
-	: cliComm(NULL)
+	EventDistributor& eventDistributor_,
+	GlobalCliComm& cliComm_, Reactor& reactor_)
+	: cliComm(cliComm_)
 	, connection(NULL)
 	, eventDistributor(eventDistributor_)
 	, reactor(reactor_)
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
+	, updateCmd(new UpdateCmd(*this, cliComm))
 	, proxyCmd(new ProxyCmd(*this, reactor))
 	, versionInfo(new VersionInfo(getOpenMSXInfoCommand()))
 	, romInfoTopic(new RomInfoTopic(getOpenMSXInfoCommand()))
@@ -85,6 +101,7 @@ GlobalCommandController::~GlobalCommandController()
 	// TODO find a cleaner way to do this
 	romInfoTopic.reset();
 	versionInfo.reset();
+	updateCmd.reset();
 	tabCompletionCmd.reset();
 	helpCmd.reset();
 	globalSettings.reset();
@@ -159,18 +176,7 @@ void GlobalCommandController::unregisterProxySetting(Setting& setting)
 	}
 }
 
-void GlobalCommandController::setCliComm(CliComm* cliComm_)
-{
-	cliComm = cliComm_;
-}
-
 CliComm& GlobalCommandController::getCliComm()
-{
-	assert(cliComm);
-	return *cliComm;
-}
-
-CliComm* GlobalCommandController::getCliCommIfAvailable()
 {
 	return cliComm;
 }
@@ -542,7 +548,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 				set<string> completions(split.begin(), split.end());
 				Completer::completeString(tokens, completions, sensitive);
 			} catch (CommandException& e) {
-				cliComm->printWarning(
+				cliComm.printWarning(
 					"Error while executing tab-completion "
 					"proc: " + e.getMessage());
 			}
@@ -642,6 +648,76 @@ string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
 	       "Tries to completes the given argument as if it were typed in "
 	       "the console. This command is only useful to provide "
 	       "tabcompletion to external console interfaces.";
+}
+
+
+// class UpdateCmd
+
+UpdateCmd::UpdateCmd(CommandController& commandController,
+                     GlobalCliComm& cliComm_)
+	: SimpleCommand(commandController, "update")
+	, cliComm(cliComm_)
+{
+}
+
+static GlobalCliComm::UpdateType getType(const string& name)
+{
+	const char* const* updateStr = GlobalCliComm::getUpdateStrs();
+	for (unsigned i = 0; i < CliComm::NUM_UPDATES; ++i) {
+		if (updateStr[i] == name) {
+			return static_cast<CliComm::UpdateType>(i);
+		}
+	}
+	throw CommandException("No such update type: " + name);
+}
+
+CliConnection& UpdateCmd::getConnection()
+{
+	CliConnection* connection = getCommandController().getConnection();
+	if (!connection) {
+		throw CommandException("This command only makes sense when "
+		                    "it's used from an external application.");
+	}
+	return *connection;
+}
+
+string UpdateCmd::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	if (tokens[1] == "enable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), true);
+	} else if (tokens[1] == "disable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), false);
+	} else {
+		throw SyntaxError();
+	}
+	return "";
+}
+
+string UpdateCmd::help(const vector<string>& /*tokens*/) const
+{
+	static const string helpText = "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
+	return helpText;
+}
+
+void UpdateCmd::tabCompletion(vector<string>& tokens) const
+{
+	switch (tokens.size()) {
+	case 2: {
+		set<string> ops;
+		ops.insert("enable");
+		ops.insert("disable");
+		completeString(tokens, ops);
+		break;
+	}
+	case 3: {
+		const char* const* updateStr = GlobalCliComm::getUpdateStrs();
+		set<string> types(updateStr, updateStr + CliComm::NUM_UPDATES);
+		completeString(tokens, types);
+	}
+	}
 }
 
 

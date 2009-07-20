@@ -14,13 +14,14 @@ namespace openmsx {
 
 class EventDistributor;
 class Reactor;
-class CliComm;
+class GlobalCliComm;
 class HotKey;
 class InfoCommand;
 class Interpreter;
 class FileContext;
 class HelpCmd;
 class TabCompletionCmd;
+class UpdateCmd;
 class ProxyCmd;
 class VersionInfo;
 class RomInfoTopic;
@@ -30,10 +31,9 @@ class GlobalCommandController : public CommandController, private noncopyable
 {
 public:
 	GlobalCommandController(EventDistributor& eventDistributor,
+	                        GlobalCliComm& cliComm,
 	                        Reactor& reactor);
 	~GlobalCommandController();
-
-	void setCliComm(CliComm* cliComm);
 
 	InfoCommand& getOpenMSXInfoCommand();
 	HotKey& getHotKey();
@@ -73,7 +73,6 @@ public:
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();
-	virtual CliComm* getCliCommIfAvailable();
 	virtual GlobalSettings& getGlobalSettings();
 	virtual Interpreter& getInterpreter();
 	virtual SettingsConfig& getSettingsConfig();
@@ -99,7 +98,7 @@ private:
 	CommandMap commands;
 	CompleterMap commandCompleters;
 
-	CliComm* cliComm;
+	GlobalCliComm& cliComm;
 	CliConnection* connection;
 
 	EventDistributor& eventDistributor;
@@ -114,6 +113,7 @@ private:
 	friend class HelpCmd;
 	std::auto_ptr<HelpCmd> helpCmd;
 	std::auto_ptr<TabCompletionCmd> tabCompletionCmd;
+	std::auto_ptr<UpdateCmd> updateCmd;
 	std::auto_ptr<ProxyCmd> proxyCmd;
 	std::auto_ptr<VersionInfo> versionInfo;
 	std::auto_ptr<RomInfoTopic> romInfoTopic;
