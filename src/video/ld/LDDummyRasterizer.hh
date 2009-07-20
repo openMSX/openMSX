@@ -16,7 +16,7 @@ public:
 	virtual void frameEnd();
 	virtual bool isRecording() const;
 	virtual void drawBlank(int r, int g, int b);
-	virtual void drawBitmap(byte *frame);
+	virtual void drawBitmap(const byte* frame);
 };
 
 } // namespace openmsx

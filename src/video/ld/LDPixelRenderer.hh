@@ -35,7 +35,7 @@ public:
 	virtual void frameEnd(EmuTime::param time);
 
 	virtual void drawBlank(int r, int g, int b);
-	virtual void drawBitmap(byte *frame);
+	virtual void drawBitmap(const byte* frame);
 
 private:
 	// Observer<Setting> interface:

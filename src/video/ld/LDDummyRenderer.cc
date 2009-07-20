@@ -1,7 +1,6 @@
 // $Id$
 
 #include "LDDummyRenderer.hh"
-#include "DisplayMode.hh"
 
 namespace openmsx {
 
@@ -20,7 +19,7 @@ void LDDummyRenderer::paint(OutputSurface& /*output*/) {
 void LDDummyRenderer::drawBlank(int /*r*/, int /*g*/, int /*b*/) {
 }
 
-void LDDummyRenderer::drawBitmap(byte * /*frame*/) {
+void LDDummyRenderer::drawBitmap(const byte* /*frame*/) {
 }
 
 const std::string& LDDummyRenderer::getName() {

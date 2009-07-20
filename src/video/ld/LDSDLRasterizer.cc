@@ -90,23 +90,17 @@ void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
 }
 
 template<class Pixel>
-void LDSDLRasterizer<Pixel>::drawBitmap(byte *bitmap)
+void LDSDLRasterizer<Pixel>::drawBitmap(const byte* bitmap)
 {
-	Pixel* line;
-	byte r, g, b;
-
-	for (unsigned y=0; y<480; y++) {
-		line = workFrame->getLinePtr<Pixel>(y);
-
-		for (unsigned x=0; x<640; x++) {
-			r = *bitmap++;
-			g = *bitmap++;
-			b = *bitmap++;
-
-			*line++ = static_cast<Pixel>(SDL_MapRGB(&pixelFormat, 
-								r, g, b));
+	for (unsigned y = 0; y < 480; ++y) {
+		Pixel* line = workFrame->getLinePtr<Pixel>(y);
+		for (unsigned x = 0; x < 640; ++x) {
+			byte r = *bitmap++;
+			byte g = *bitmap++;
+			byte b = *bitmap++;
+			*line++ = static_cast<Pixel>(
+				SDL_MapRGB(&pixelFormat, r, g, b));
 		}
-
 		workFrame->setLineWidth(y, 640);
 	}
 }

@@ -30,7 +30,7 @@ void LDDummyRasterizer::drawBlank(int /*r*/, int /*g*/, int /*b*/)
 {
 }
 
-void LDDummyRasterizer::drawBitmap(byte* /*bitmap*/)
+void LDDummyRasterizer::drawBitmap(const byte* /*bitmap*/)
 {
 }
 

@@ -40,7 +40,7 @@ public:
 
 	virtual void drawBlank(int r, int g, int b) = 0;
 
-	virtual void drawBitmap(byte *frame) = 0;
+	virtual void drawBitmap(const byte* frame) = 0;
 };
 
 } // namespace openmsx

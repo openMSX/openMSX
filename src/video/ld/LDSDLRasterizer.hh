@@ -28,7 +28,7 @@ template <class Pixel>
 class LDSDLRasterizer : public LDRasterizer, private noncopyable
 {
 public:
-	LDSDLRasterizer(LaserdiscPlayer& laserdiscPlayer_, Display& display, 
+	LDSDLRasterizer(LaserdiscPlayer& laserdiscPlayer_, Display& display,
 		VisibleSurface& screen_,
 		std::auto_ptr<PostProcessor> postProcessor);
 	virtual ~LDSDLRasterizer();
@@ -41,7 +41,7 @@ public:
 	virtual bool isRecording() const;
 
 	virtual void drawBlank(int r, int g, int b);
-	virtual void drawBitmap(byte *bitmap);
+	virtual void drawBitmap(const byte* bitmap);
 private:
 	/** The Laserdisc of which the video output is being rendered.
 	  */

@@ -102,7 +102,7 @@ void LDPixelRenderer::drawBlank(int r, int g, int b )
 	rasterizer->drawBlank(r, g, b);
 }
 
-void LDPixelRenderer::drawBitmap(byte *frame)
+void LDPixelRenderer::drawBitmap(const byte* frame)
 {
 	rasterizer->drawBitmap(frame);
 }

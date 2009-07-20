@@ -1,11 +1,10 @@
 // $Id$
 
-#include "LocalFileReference.hh"
 #include "OggReader.hh"
+#include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "yuv2rgb.hh"
 #include "likely.hh"
-
 #include <cstring>
 #include <cstdlib>
 
@@ -14,20 +13,19 @@ namespace openmsx {
 OggReader::OggReader(const std::string& filename)
 {
 	LocalFileReference file(filename);
-
 	oggz = oggz_open(file.getFilename().c_str(), OGGZ_READ | OGGZ_AUTO);
 	if (!oggz) {
-		throw MSXException("Failed to open " + file.getFilename());
+		throw MSXException("Failed to open " + filename);
 	}
 
 	pcm[0] = pcm[1] = 0;
-	pcm_size = 0;
+	pcmSize = 0;
 	readPos = writePos = 0;
 	audio_serial = -1;
 	video_serial = -1;
 	video_header_packets = 3;
 	audio_header_packets = 3;
-	rawframe = new byte[640*480*3];
+	rawframe = new byte[640 * 480 * 3];
 
 	oggz_set_read_callback(oggz, -1, readCallback, this);
 
@@ -64,7 +62,7 @@ OggReader::OggReader(const std::string& filename)
 	}
 
 	if (video_info.fps_numerator != 30000 ||
-				video_info.fps_denominator != 1001) {
+	    video_info.fps_denominator != 1001) {
 		cleanup();
 		throw MSXException("Video must be 29.97Hz");
 	}
@@ -99,10 +97,10 @@ OggReader::~OggReader()
 	cleanup();
 }
 
-int OggReader::readCallback(OGGZ * /*oggz*/, ogg_packet *packet, long serial,
-								void *userdata)
+int OggReader::readCallback(OGGZ* /*oggz*/, ogg_packet* packet,
+                            long serial, void* userdata)
 {
-	OggReader *reader = reinterpret_cast<OggReader*>(userdata);
+	OggReader* reader = static_cast<OggReader*>(userdata);
 
 	if (unlikely(packet->b_o_s && packet->bytes >= 8)) {
 		if (memcmp(packet->packet, "\001vorbis", 7) == 0) {
@@ -121,10 +119,10 @@ int OggReader::readCallback(OGGZ * /*oggz*/, ogg_packet *packet, long serial,
 	return 0;
 }
 
-int OggReader::seekCallback(OGGZ * /*oggz*/, ogg_packet *packet, long serial,
-								void *userdata)
+int OggReader::seekCallback(OGGZ* /*oggz*/, ogg_packet* packet,
+                            long serial, void* userdata)
 {
-	OggReader *reader = reinterpret_cast<OggReader*>(userdata);
+	OggReader* reader = static_cast<OggReader*>(userdata);
 
 	if (reader->video_serial == serial && reader->intraframes == -1) {
 		reader->intraframes = packet->granulepos &
@@ -135,17 +133,16 @@ int OggReader::seekCallback(OGGZ * /*oggz*/, ogg_packet *packet, long serial,
 }
 
 
-void OggReader::readVorbis(ogg_packet *packet)
+void OggReader::readVorbis(ogg_packet* packet)
 {
 	if (unlikely(audio_header_packets)) {
-		if (vorbis_synthesis_headerin(&vi, &vc, packet) < 0)
+		if (vorbis_synthesis_headerin(&vi, &vc, packet) < 0) {
 			return;
-
+		}
 		if (!--audio_header_packets) {
 			vorbis_synthesis_init(&vd, &vi);
 			vorbis_block_init(&vd, &vb);
 		}
-
 		return;
 	}
 
@@ -155,23 +152,22 @@ void OggReader::readVorbis(ogg_packet *packet)
 
 	vorbis_synthesis_blockin(&vd, &vb);
 
-	float **dpcm;
-	long decoded;
-
 	if (readPos == writePos) {
 		readPos = 0 ;
 		writePos = 0;
 	}
 
-	for (;(decoded = vorbis_synthesis_pcmout(&vd, &dpcm));) {
-		if (writePos + decoded > pcm_size) {
+	float** dpcm;
+	long decoded;
+	for (/**/; (decoded = vorbis_synthesis_pcmout(&vd, &dpcm)); /**/) {
+		if (writePos + decoded > pcmSize) {
 			long size = writePos + decoded + 4096;
-			pcm[0] = (float*)realloc(pcm[0], size * sizeof(float));
-			pcm[1] = (float*)realloc(pcm[1], size * sizeof(float));
-			pcm_size = size;
+			pcm[0] = static_cast<float*>(realloc(pcm[0], size * sizeof(float)));
+			pcm[1] = static_cast<float*>(realloc(pcm[1], size * sizeof(float)));
+			pcmSize = size;
 		}
 
-		for (long i=0; i<decoded; i++) {
+		for (long i = 0; i < decoded; ++i) {
 			pcm[0][writePos + i] = dpcm[0][i];
 			pcm[1][writePos + i] = dpcm[1][i];
 		}
@@ -181,30 +177,30 @@ void OggReader::readVorbis(ogg_packet *packet)
 	}
 }
 
-void OggReader::readTheora(ogg_packet *packet)
+void OggReader::readTheora(ogg_packet* packet)
 {
 	if (unlikely(theora_packet_isheader(packet))) {
 		if (theora_decode_header(&video_info, &video_comment,
-							 packet) < 0) {
+		                          packet) < 0) {
 			return;
 		}
-
 		if (--video_header_packets == 0) {
 			theora_decode_init(&video_handle, &video_info);
 		}
-
-		return;
-	} else if (video_header_packets)
 		return;
 
-	if (theora_decode_packetin(&video_handle, packet) < 0)
+	} else if (video_header_packets) {
 		return;
+	}
+
+	if (theora_decode_packetin(&video_handle, packet) < 0) {
+		return;
+	}
 
 	yuv_buffer yuv_frame;
-
-	if (theora_decode_YUVout(&video_handle, &yuv_frame) < 0)
+	if (theora_decode_YUVout(&video_handle, &yuv_frame) < 0) {
 		return;
-
+	}
 	yuv2rgb::convert(rawframe, &yuv_frame);
 }
 
@@ -215,7 +211,6 @@ bool OggReader::seek(unsigned pos)
 	writePos = 0;
 
 	ogg_int64_t newpos = oggz_seek_units(oggz, pos, SEEK_SET);
-
 	if (newpos == -1) {
 		return false;
 	}
@@ -233,20 +228,16 @@ bool OggReader::seek(unsigned pos)
 
 	// Seek to the keyframe, two extra for rounding errors
 	ogg_int64_t keyframe = pos - (intraframes + 2) * 1001 / 30;
-	newpos = oggz_seek_units(oggz, keyframe < 0 ? 0 : keyframe,
-								SEEK_SET);
+	newpos = oggz_seek_units(oggz, keyframe < 0 ? 0 : keyframe, SEEK_SET);
 
 	vorbis_synthesis_restart(&vd);
 
 	if (newpos >= 0 && newpos < pos) {
-		float **f;
 		unsigned samples = (pos - newpos) * vi.rate / 1000;
-
 		while (samples) {
+			float** f;
 			unsigned p = fillFloatBuffer(&f, samples);
-			if (!p)
-				break;
-
+			if (!p) break;
 			samples -= p;
 		}
 	}
@@ -254,32 +245,24 @@ bool OggReader::seek(unsigned pos)
 	return newpos != -1;
 }
 
-unsigned OggReader::fillFloatBuffer(float ***rpcm, unsigned samples)
+unsigned OggReader::fillFloatBuffer(float*** rpcm, unsigned samples)
 {
-	long len;
-
-	for (;;) {
-		len = writePos - readPos;
-
+	while (true) {
+		long len = writePos - readPos;
 		if (len > 0) {
 			ret[0] = pcm[0] + readPos;
 			ret[1] = pcm[1] + readPos;
-
 			(*rpcm) = ret;
 
-			if (long(samples) < len)
+			if (long(samples) < len) {
 				len = samples;
-
+			}
 			readPos += len;
-
 			return len;
 		}
 
-		if (oggz_read(oggz, 4096) <= 0)
-			break;
+		if (oggz_read(oggz, 4096) <= 0) return 0;
 	}
-
-	return 0;
 }
 
 } // namespace openmsx

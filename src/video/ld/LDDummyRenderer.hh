@@ -24,7 +24,7 @@ public:
 	virtual const std::string& getName();
 
 	void drawBlank(int r, int g, int b );
-	void drawBitmap(byte *frame);
+	void drawBitmap(const byte* frame);
 };
 
 } // namespace openmsx

@@ -7,6 +7,7 @@
 #include <oggz/oggz.h>
 #include <vorbis/codec.h>
 #include <theora/theora.h>
+#include <string>
 
 namespace openmsx {
 
@@ -17,21 +18,21 @@ public:
 	~OggReader();
 
 	bool seek(unsigned pos);
-	unsigned fillFloatBuffer(float ***pcm, unsigned num);
+	unsigned fillFloatBuffer(float*** pcm, unsigned num);
 	unsigned getSampleRate() const { return vi.rate; }
-	byte *getFrame() const { return rawframe; }
+	const byte* getFrame() const { return rawframe; }
 
 private:
 	void cleanup();
-	void readTheora(ogg_packet *packet);
-	void readVorbis(ogg_packet *packet);
-	static int readCallback(OGGZ * /*oggz*/, ogg_packet *packet,
-                                                long serial, void *userdata);
-	static int seekCallback(OGGZ * /*oggz*/, ogg_packet *packet,
-                                                long serial, void *userdata);
+	void readTheora(ogg_packet* packet);
+	void readVorbis(ogg_packet* packet);
+	static int readCallback(OGGZ* oggz, ogg_packet* packet,
+                                long serial, void* userdata);
+	static int seekCallback(OGGZ* oggz, ogg_packet* packet,
+                                long serial, void* userdata);
 
 	// ogg state
-	OGGZ *oggz;
+	OGGZ* oggz;
 	long audio_serial;
 	long video_serial;
 
@@ -40,14 +41,15 @@ private:
 	theora_state video_handle;
 	theora_info video_info;
 	theora_comment video_comment;
-	byte *rawframe;
+	byte* rawframe;
 	int intraframes;
 
 	// audio
 	int audio_header_packets;
 	long readPos, writePos;
-	float *pcm[2], *ret[2];
-	long pcm_size;
+	float* pcm[2];
+	float* ret[2];
+	long pcmSize;
 	vorbis_info vi;
 	vorbis_comment vc;
 	vorbis_dsp_state vd;
@@ -57,4 +59,3 @@ private:
 } // namespace openmsx
 
 #endif
-
