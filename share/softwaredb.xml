@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1240943544">
+<softwaredb xml:lang="en" timestamp="1248066154">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -2735,6 +2735,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">f2ac1ce7584297bb646caec3fe4f0384ed5b072f</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Equivocal</title>
+	<system>MSX</system>
+	<company>The New Image</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">a1fb6a9876601b343e1766935cedf61dab1a8f7d</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Eric And The Floaters</title>
 	<system>MSX</system>
 	<company>Hudson</company>
@@ -3678,6 +3686,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">dc49e2ac9985a417078412cc09fe7270033ffb17</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">GraCo</title>
+	<system>MSX</system>
+	<company>BifiMSX &#38; Vampier</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">3e0360a4f235522498682a714f523039a5ab6c7c</hash><remark>Graphic Coder</remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Gradius - Nemesis</title>
 	<system>MSX</system>
 	<company>Konami</company>
@@ -4193,12 +4209,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">14537ad9a551245261776bf9b64068fe4921ad47</hash><remark>[h Thevma]</remark></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Holy Quran</title>
+	<title xml:lang="en">Holy Quaran</title>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1987</year>
 	<country>MA</country>
-		<dump><original value="false"/><megarom><type>HolyQuran</type><hash algo="sha1">0dbc7defd96b71c1fe2d63cbc725f5e58aea2db0</hash><remark>Only for MSX2 Arabic</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>AlQuran</type><hash algo="sha1">a18b1d49df954a3316ed215b6facfc1ec020ce13</hash><remark>Only for MSX2 Arabic</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>AlQuranDecoded</type><hash algo="sha1">b40b178c6876cf3dedf4ae48262a5914c5f674fd</hash><remark>Only for MSX2 Arabic</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>AlQuranDecoded</type><hash algo="sha1">0dbc7defd96b71c1fe2d63cbc725f5e58aea2db0</hash><remark>Only for MSX2 Arabic</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Home Calc</title>
@@ -4793,8 +4811,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Sony</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16SRAM2</type><hash algo="sha1">0eb3a48a8ab90826726f0c06daadf4bf13390758</hash></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16SRAM2</type><hash algo="sha1">d78293133b075f48c9dc5c4cf0c4a985ae964b08</hash><remark>[a1]</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">0eb3a48a8ab90826726f0c06daadf4bf13390758</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">d78293133b075f48c9dc5c4cf0c4a985ae964b08</hash><remark>[a1]</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Jyanyuu</title>
@@ -5058,6 +5076,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e98e4351119d78b6402c4499ed16faeb3364f6c3</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Knightlore Remake</title>
+	<system>MSX</system>
+	<company>Manuel Pazos &#38; LordFred</company>
+	<year>2009</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d4a188a7ee514c18dc65f3c6dea7668b6cedc374</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Knightmare II - The Maze of Galious</title>
@@ -5408,6 +5434,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d76a904dd88f7360fe79000c374f40a69b801325</hash><remark>English Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">03ae0eebbbf80f8e51c5892a74aa2b4f287a9319</hash><remark>Spanish Version / MSXDEV 08 Entry (v2)</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">761071622b60384ec38e964fa2b2ee12d3d0b2c9</hash><remark>Spanish Version / MSXDEV 08 Entry</remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">La Corona Encatada Final Version</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">b5bb76d666dda2c3ad93f2ece44be72f5d0f61e3</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Labyrinth</title>
@@ -8338,6 +8372,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">a4d4a6fc06739c543ff0767a1006ae2860d9b635</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Shift</title>
+	<system>MSX</system>
+	<company>Edwin &#38; Wolf</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">dbcfa55870a267112c9a71bcf85b481b11d98e04</hash><remark>Passion MSX2 Contest #1</remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Shougi 1</title>
 	<system>MSX</system>
 	<company>Micro Cabin</company>
@@ -10407,6 +10449,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2199
-Parse time 4.738 seconds on Tue Apr 28 20:32:29 CEST 2009
+Roms in this database:2206
+Parse time 4.598 seconds on Mon Jul 20 7:02:38 CEST 2009
  -->
