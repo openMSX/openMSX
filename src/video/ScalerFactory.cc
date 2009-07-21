@@ -36,9 +36,10 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
-		if (transparent)
+		if (transparent) {
 			return auto_ptr<Scaler>(
-				new TransparentScaler<Pixel>(pixelOps, renderSettings));
+				new TransparentScaler<Pixel>(pixelOps));
+		}
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return auto_ptr<Scaler>(

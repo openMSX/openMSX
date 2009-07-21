@@ -1,20 +1,12 @@
 // $Id$
 
 #include "TransparentScaler.hh"
-#include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
-#include "RenderSettings.hh"
 #include "MemoryOps.hh"
-#include "HostCPU.hh"
-#include "openmsx.hh"
-#include "vla.hh"
 #include "build-info.hh"
-#include <cassert>
 
 namespace openmsx {
-
-// class TransparentScaler
 
 // This scaler should be selected when superimposing. Any pixels in the
 // source which match OutputSurface.getKeyColour() will not be copied.
@@ -23,13 +15,8 @@ namespace openmsx {
 // these videos would look awful so these effects are ignored.
 template <class Pixel>
 TransparentScaler<Pixel>::TransparentScaler(
-		const PixelOperations<Pixel>& pixelOps,
-		RenderSettings& renderSettings)
+		const PixelOperations<Pixel>& pixelOps)
 	: Scaler2<Pixel>(pixelOps)
-	, settings(renderSettings)
-	, mult1(pixelOps.format)
-	, mult2(pixelOps.format)
-	, mult3(pixelOps.format)
 {
 }
 
@@ -39,48 +26,40 @@ void TransparentScaler<Pixel>::scaleBlank1to2(
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	transparent = dst.getKeyColour();
+	Pixel transparent = dst.getKeyColour();
 
-	unsigned stopDstY = (dstEndY == dst.getHeight())
-	                  ? dstEndY : dstEndY - 2;
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
-	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
-		Pixel color0 = src.getLinePtr<Pixel>(srcY)[0];
-		if (color0 == transparent)
-			continue;
+	for (/**/; dstY < dstEndY; srcY += 1, dstY += 2) {
+		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+		if (color == transparent) continue;
 
 		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		memset(dstLine0, dst.getWidth(), color0);
+		memset(dstLine0, dst.getWidth(), color);
 		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		memset(dstLine1, dst.getWidth(), color0);
-	}
-	if (dstY != dst.getHeight()) {
-		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
-		assert(src.getLineWidth(srcY) == 1);
-		assert(nextLineWidth != 1);
-		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
-		                 dst, dstY, dstEndY);
+		memset(dstLine1, dst.getWidth(), color);
 	}
 }
 
 template <class Pixel>
-void TransparentScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned /*alpha*/,
-                                   unsigned long srcWidth)
+static inline void scale1on2(
+	const Pixel* pIn, Pixel* pOut, unsigned srcWidth, Pixel transparent)
 {
-	for (unsigned x = 0; x < srcWidth; x++) {
-		if (transparent != pIn[x])
-			pOut[x*2] = pOut[x*2+1] = pIn[x];
+	for (unsigned x = 0; x < srcWidth; ++x) {
+		if (transparent != pIn[x]) {
+			pOut[2 * x] = pOut[2 * x + 1] = pIn[x];
+		}
 	}
 }
 
 template <class Pixel>
-void TransparentScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned /*alpha*/,
-                                   unsigned long srcWidth)
+static inline void scale1on1(
+	const Pixel* pIn, Pixel* pOut, unsigned srcWidth, Pixel transparent)
 {
-	for (unsigned x = 0; x < srcWidth; x++) {
-		if (transparent != pIn[x])
+	for (unsigned x = 0; x < srcWidth; ++x) {
+		if (transparent != pIn[x]) {
 			pOut[x] = pIn[x];
+		}
 	}
 }
 
@@ -90,24 +69,15 @@ void TransparentScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	transparent = dst.getKeyColour();
-	int blur = settings.getBlurFactor();
+	Pixel transparent = dst.getKeyColour();
 
-	unsigned dstY = dstStartY;
-	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* prevDstLine0 = dst.getLinePtrDirect<Pixel>(dstY++);
-	blur1on2(srcLine, prevDstLine0, blur, srcWidth);
-
-	while (dstY < dstEndY - 1) {
-		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		blur1on2(srcLine, dstLine0, blur, srcWidth);
-
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY);
-		blur1on2(srcLine, dstLine1, blur, srcWidth);
-
-		prevDstLine0 = dstLine0;
-		dstY += 2;
+	unsigned srcY = srcStartY, dstY = dstStartY;
+	for (/**/; dstY < dstEndY; srcY += 1, dstY += 2) {
+		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
+		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		scale1on2(srcLine, dstLine0, srcWidth, transparent);
+		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		scale1on2(srcLine, dstLine1, srcWidth, transparent);
 	}
 }
 
@@ -117,24 +87,15 @@ void TransparentScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	transparent = dst.getKeyColour();
-	int blur = settings.getBlurFactor();
+	Pixel transparent = dst.getKeyColour();
 
-	unsigned dstY = dstStartY;
-	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* prevDstLine0 = dst.getLinePtrDirect<Pixel>(dstY++);
-	blur1on1(srcLine, prevDstLine0, blur, srcWidth);
-
-	while (dstY < dstEndY - 1) {
-		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		blur1on1(srcLine, dstLine0, blur, srcWidth);
-
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		blur1on1(srcLine, dstLine1, blur, srcWidth);
-
-		prevDstLine0 = dstLine0;
-		dstY += 2;
+	unsigned srcY = srcStartY, dstY = dstStartY;
+	for (/**/; dstY < dstEndY; srcY += 1, dstY += 2) {
+		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
+		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		scale1on1(srcLine, dstLine0, srcWidth, transparent);
+		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		scale1on1(srcLine, dstLine1, srcWidth, transparent);
 	}
 }
 
