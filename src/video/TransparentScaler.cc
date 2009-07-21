@@ -22,7 +22,7 @@ TransparentScaler<Pixel>::TransparentScaler(
 
 template <class Pixel>
 void TransparentScaler<Pixel>::scaleBlank1to2(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();

@@ -32,7 +32,7 @@ void LDPixelRenderer::frameStart(EmuTime::param time)
 	rasterizer->frameStart(time);
 }
 
-void LDPixelRenderer::frameEnd(EmuTime::param time)
+void LDPixelRenderer::frameEnd(EmuTime::param /*time*/)
 {
 	eventDistributor.distributeEvent(
 		new FinishFrameEvent(VIDEO_LASERDISC, false));
