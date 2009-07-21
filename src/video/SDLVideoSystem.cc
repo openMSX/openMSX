@@ -176,7 +176,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 #if HAVE_16BPP
 		case 2:
 			return new LDSDLRasterizer<word>(
-				ld, display, *screen,
+				*screen,
 				std::auto_ptr<PostProcessor>(
 					new FBPostProcessor<word>(
 					motherBoard, display, *screen,
@@ -185,7 +185,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 #if HAVE_32BPP
 		case 4:
 			return new LDSDLRasterizer<unsigned>(
-				ld, display, *screen,
+				*screen,
 				std::auto_ptr<PostProcessor>(
 					new FBPostProcessor<unsigned>(
 					motherBoard, display, *screen,
@@ -198,7 +198,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		return new LDSDLRasterizer<unsigned>(
-			ld, display, *screen,
+			*screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
 				motherBoard, display, *screen,
 				VIDEO_LASERDISC, 640, 480)));

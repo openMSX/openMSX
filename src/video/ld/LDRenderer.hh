@@ -21,11 +21,6 @@ class LDRenderer
 public:
 	virtual ~LDRenderer();
 
-	/** Reinitialise LDRenderer state.
-	  * @param time The moment in time this reset occurs.
-	  */
-	virtual void reset(EmuTime::param time) = 0;
-
 	/** Signals the start of a new frame.
 	  * The LDRenderer can use this to get fixed-per-frame settings from
 	  * the VDP, such as PAL/NTSC timing.

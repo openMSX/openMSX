@@ -2,64 +2,26 @@
 
 #include "LDSDLRasterizer.hh"
 #include "RawFrame.hh"
-#include "Display.hh"
-#include "Renderer.hh"
-#include "RenderSettings.hh"
 #include "PostProcessor.hh"
-#include "FloatSetting.hh"
-#include "StringSetting.hh"
-#include "MemoryOps.hh"
 #include "VisibleSurface.hh"
 #include "build-info.hh"
-#include <algorithm>
-#include <cassert>
 
 namespace openmsx {
 
 template <class Pixel>
-LDSDLRasterizer<Pixel>::LDSDLRasterizer(LaserdiscPlayer& laserdiscPlayer_, 
-		Display& display, VisibleSurface& screen_,
+LDSDLRasterizer<Pixel>::LDSDLRasterizer(
+		VisibleSurface& screen,
 		std::auto_ptr<PostProcessor> postProcessor_)
-	: laserdiscPlayer(laserdiscPlayer_)
-	, screen(screen_)
-	, postProcessor(postProcessor_)
-	, renderSettings(display.getRenderSettings())
+	: postProcessor(postProcessor_)
 {
 	workFrame = new RawFrame(screen.getSDLFormat(), 640, 480);
-
-	// This is the background colour of the Poneer LD-92000
-	pixelFormat = screen_.getSDLFormat();
-#if 0
-	renderSettings.getGamma()      .attach(*this);
-	renderSettings.getBrightness() .attach(*this);
-	renderSettings.getContrast()   .attach(*this);
-	renderSettings.getColorMatrix().attach(*this);
-#endif
+	pixelFormat = screen.getSDLFormat();
 }
 
 template <class Pixel>
 LDSDLRasterizer<Pixel>::~LDSDLRasterizer()
 {
-#if 0
-	renderSettings.getColorMatrix().detach(*this);
-	renderSettings.getGamma()      .detach(*this);
-	renderSettings.getBrightness() .detach(*this);
-	renderSettings.getContrast()   .detach(*this);
-#endif
-
 	delete workFrame;
-}
-
-template <class Pixel>
-bool LDSDLRasterizer<Pixel>::isActive()
-{
-	return postProcessor->getZ() != Layer::Z_MSX_PASSIVE;
-}
-
-template <class Pixel>
-void LDSDLRasterizer<Pixel>::reset()
-{
-	// Init renderer state.
 }
 
 template <class Pixel>
@@ -69,22 +31,14 @@ void LDSDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 		FrameSource::FIELD_NONINTERLACED, time);
 }
 
-template <class Pixel>
-void LDSDLRasterizer<Pixel>::frameEnd()
-{
-	// Nothing to do.
-}
-
 template<class Pixel>
 void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
 {
 	// We should really be presenting the "LASERVISION" text
 	// here, like the real laserdisc player does. Note that this
 	// changes when seeking or starting to play.
-	Pixel background = static_cast<Pixel>(SDL_MapRGB(&pixelFormat, r, g, 
-									b));
-
-	for (int y=0; y<480; y++) {
+	Pixel background = static_cast<Pixel>(SDL_MapRGB(&pixelFormat, r, g, b));
+	for (int y = 0; y < 480; ++y) {
 		workFrame->setBlank(y, background);
 	}
 }
@@ -103,13 +57,6 @@ void LDSDLRasterizer<Pixel>::drawBitmap(const byte* bitmap)
 		}
 		workFrame->setLineWidth(y, 640);
 	}
-}
-
-
-template<class Pixel>
-bool LDSDLRasterizer<Pixel>::isRecording() const
-{
-	return postProcessor->isRecording();
 }
 
 
