@@ -1,28 +1,29 @@
 namespace eval osd_widgets {
 
-set osd_msx_help_text \
-{The command 'osd_msx_init' takes one parameter, this parameter will be used as
+set help_text \
+{The command 'osd_widgets::msx_init' takes one parameter, this parameter will be used as
 our base layer which will be scaled according to the MSX resultion adjusted for
 'set adjust', 'scale factor' and 'horizontal_stretch'.
 
 All these compensation factors ('set adjust', ...) can change over time. So it
 is needed to 'regularly' (e.g. in a 'after frame' callback) re-adjust the msx
-layer. This can be done with the 'osd_msx_update' proc.
+layer. This can be done with the 'osd_widgets::msx_update' proc.
 
-Example: osd_msx_init baselayer
+Example: osd_widgets::msx_init baselayer
          osd create rectangle baselayer.box -x 10 -y 10 -h 16 -w 16 -rgb 0xffffff
          ...
-         osd_msx_update baselayer
+         osd_widgets::msx_update baselayer
 
 This will display a white 16x16 box at MSX location x,y == 10,10.}
-set_help_text osd_msx_init   $osd_msx_help_text
-set_help_text osd_msx_update $osd_msx_help_text
+set_help_text osd_widgets::msx_init   $help_text
+set_help_text osd_widgets::msx_update $help_text
 
-proc osd_msx_init {name} {
+proc msx_init {name} {
 	osd create rectangle $name -scaled true -alpha 0
-	osd_msx_update $name
+	msx_update $name
 }
-proc osd_msx_update {name} {
+
+proc msx_update {name} {
 	# compensate for horizontal-stretch and set-adjust
 	set hstretch [expr {$::renderer != "SDL"} ? $::horizontal_stretch : 320]
 	set xsize   [expr 320.0 / $hstretch]
@@ -38,8 +39,8 @@ proc osd_msx_update {name} {
 }
 
 
-set_help_text osd_box\
-{The command 'osd_box' takes in the same parameters as an 'osd create' command.
+set_help_text osd_widgets::box\
+{The command 'osd_widgets::box' takes in the same parameters as an 'osd create' command.
 There are a few exceptions:
 
 -fill: Defines the color within the box with a certain color and or alpha.
@@ -53,7 +54,7 @@ The following values are redirected to the osd box border:
     -rgb
     -alpha}
 
-proc osd_box {name args} {
+proc box {name args} {
 	# process arguments
 	set b 1 ;# border width
 	set child_props  [list]
@@ -93,7 +94,7 @@ proc osd_box {name args} {
 
 
 set_help_text create_power_bar\
-{The command 'create_power_bar' takes in the following parameters:
+{The command 'osd_widgets::create_power_bar' takes in the following parameters:
     -name == Name of the power bar
     -w == Width of the power bar (in pixels)
     -h == Height of the power bar
@@ -142,24 +143,24 @@ set_help_text toggle_fps \
 {Enable/disable a fps-indicator in the top-left corner of the screen.}
 
 proc toggle_fps {} {
-	if [info exists ::__osd_fps_after] {
-		after cancel $::__osd_fps_after
-		osd destroy $::__osd_fps_bg
-		unset ::__osd_fps_after ::__osd_fps_bg ::__osd_fps_txt
+	if [info exists osd_widgets::fps_after] {
+		after cancel $osd_widgets::fps_after
+		osd destroy fps_viewer
+		unset fps_after
 	} else {
-		set ::__osd_fps_bg  [osd create rectangle fps -x 5 -y 5 -z 0 -w 63 -h 20 -rgba 0x00000080]
-		set ::__osd_fps_txt [osd create text fps.text -x 5 -y 3 -z 1 -font skins/Vera.ttf.gz -rgba 0xffffffff]
-		proc __osd_fps_refresh {} {
-			set fps [format "%2.1fFPS" [openmsx_info fps]]
-			osd configure $::__osd_fps_txt -text $fps
-			set ::__osd_fps_after [after time .2 __osd_fps_refresh]
+		osd create rectangle fps_viewer -x 5 -y 5 -z 0 -w 63 -h 20 -rgba 0x00000080
+		osd create text fps_viewer.text -x 5 -y 3 -z 1 -rgba 0xffffffff
+		proc fps_refresh {} {
+			osd configure fps_viewer.text -text [format "%2.1fFPS" [openmsx_info fps]]
+			set fps_after [after time .2 [namespace code fps_refresh]]
 		}
-		__osd_fps_refresh
+		fps_refresh
 	}
 	return ""
 }
 
-namespace export *
+# only export stuff that is useful outside of scripts (i.e. for the console user)
+namespace export toggle_fps
 
 };# namespace osd_widgets
 

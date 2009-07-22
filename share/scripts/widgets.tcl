@@ -9,10 +9,10 @@ proc toggle_show_palette {} {
 		return ""
 	}
 
-	osd_box palette_viewer -x 4 -y 4 -w 56 -h 194 -rgba 0xffffffff -fill 0x00000080
+	osd_widgets::box palette_viewer -x 4 -y 4 -w 56 -h 194 -rgba 0xffffffff -fill 0x00000080
 
 	for {set i 0} {$i < 16} {incr i} {
-		osd_box palette_viewer.$i \
+		osd_widgets::box palette_viewer.$i \
 			-x 20 \
 			-y [expr ($i*12)+2] \
 			-w 10 \

@@ -11,7 +11,7 @@ variable scriptlocation [info script]
 			return ""
 		}
 
-		osd_msx_init nem
+		osd_widgets::msx_init nem
 		osd create rectangle nem.shield  \
 			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
 			-image [data_file scripts/shield.png]
@@ -28,7 +28,7 @@ variable scriptlocation [info script]
 		if {[catch {osd info nem -rgba} errmsg]} {
 			return ""
 		}
-		osd_msx_update nem
+		osd_widgets::msx_update nem
 
 		# vic viper location
 		set x [peek 0xe206]

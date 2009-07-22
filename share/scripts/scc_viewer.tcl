@@ -68,7 +68,7 @@ proc scc_viewer_init {} {
 			-text $device \
 			-size $textheight
 		for {set chan 0} {$chan < $num_channels} {incr chan} {
-			osd_box scc_viewer.$device.$chan \
+			osd_widgets::box scc_viewer.$device.$chan \
 				-x [expr ($chan * ($num_samples + $inter_channel_spacing)) + $border_width] \
 				-y [expr $border_width + $textheight] \
 				-h $channel_height \
@@ -76,7 +76,7 @@ proc scc_viewer_init {} {
 				-rgba 0xffffff80 \
 				-fill 0x0000ff80 \
 				-clip true
-			osd_box scc_viewer.$device.$chan.volume \
+			osd_widgets::box scc_viewer.$device.$chan.volume \
 				-relw 1 \
 				-z 1 \
 				-rgba 0x0077ff80 \
