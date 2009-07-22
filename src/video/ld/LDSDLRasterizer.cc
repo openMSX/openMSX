@@ -13,9 +13,9 @@ LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 		VisibleSurface& screen,
 		std::auto_ptr<PostProcessor> postProcessor_)
 	: postProcessor(postProcessor_)
+	, workFrame(new RawFrame(screen.getSDLFormat(), 640, 480))
+	, pixelFormat(screen.getSDLFormat())
 {
-	workFrame = new RawFrame(screen.getSDLFormat(), 640, 480);
-	pixelFormat = screen.getSDLFormat();
 }
 
 template <class Pixel>

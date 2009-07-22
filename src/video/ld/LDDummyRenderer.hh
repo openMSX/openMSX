@@ -10,10 +10,10 @@ namespace openmsx {
 class LDDummyRenderer : public LDRenderer
 {
 public:
-	void frameStart(EmuTime::param time);
-	void frameEnd(EmuTime::param time);
-	void drawBlank(int r, int g, int b );
-	void drawBitmap(const byte* frame);
+	virtual void frameStart(EmuTime::param time);
+	virtual void frameEnd();
+	virtual void drawBlank(int r, int g, int b);
+	virtual void drawBitmap(const byte* frame);
 };
 
 } // namespace openmsx

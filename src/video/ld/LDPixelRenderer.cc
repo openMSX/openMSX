@@ -1,10 +1,5 @@
 // $Id$
 
-/*
-TODO:
-- Implement blinking (of page mask) in bitmap modes.
-*/
-
 #include "LDPixelRenderer.hh"
 #include "LDRasterizer.hh"
 #include "Display.hh"
@@ -32,7 +27,7 @@ void LDPixelRenderer::frameStart(EmuTime::param time)
 	rasterizer->frameStart(time);
 }
 
-void LDPixelRenderer::frameEnd(EmuTime::param /*time*/)
+void LDPixelRenderer::frameEnd()
 {
 	eventDistributor.distributeEvent(
 		new FinishFrameEvent(VIDEO_LASERDISC, false));

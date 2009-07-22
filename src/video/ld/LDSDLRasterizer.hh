@@ -22,7 +22,7 @@ class LDSDLRasterizer : public LDRasterizer, private noncopyable
 {
 public:
 	LDSDLRasterizer(
-		VisibleSurface& screen_,
+		VisibleSurface& screen,
 		std::auto_ptr<PostProcessor> postProcessor);
 	virtual ~LDSDLRasterizer();
 
@@ -41,7 +41,7 @@ private:
 	  */
 	RawFrame* workFrame;
 
-	SDL_PixelFormat pixelFormat;
+	const SDL_PixelFormat pixelFormat;
 };
 
 } // namespace openmsx

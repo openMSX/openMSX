@@ -29,10 +29,8 @@ public:
 	virtual void frameStart(EmuTime::param time) = 0;
 
 	/** Signals the end of a frame.
-	  * @param time The moment in emulated time the frame ends.
-	  *   Note: this is the same time stamp as the start of the next frame.
 	  */
-	virtual void frameEnd(EmuTime::param time) = 0;
+	virtual void frameEnd() = 0;
 
 	virtual void drawBlank(int r, int g, int b) = 0;
 

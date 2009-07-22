@@ -442,7 +442,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		} else {
 			renderer->drawBlank(0, 128, 196);
 		}
-		renderer->frameEnd(time);
+		renderer->frameEnd();
 
 		frameClock.reset(time);
 		setSyncPoint(frameClock + 1, FRAME);
