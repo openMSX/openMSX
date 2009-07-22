@@ -1,30 +1,28 @@
 // $Id$
 
 #include "DummyVideoSystem.hh"
-#include "DummyRasterizer.hh"
-#include "V9990DummyRasterizer.hh"
 #include "components.hh"
-
-#ifdef COMPONENT_LASERDISC
-#include "LDDummyRasterizer.hh"
-#endif
+#include <cassert>
 
 namespace openmsx {
 
 Rasterizer* DummyVideoSystem::createRasterizer(VDP& /*vdp*/)
 {
-	return new DummyRasterizer();
+	assert(false);
+	return NULL;
 }
 
 V9990Rasterizer* DummyVideoSystem::createV9990Rasterizer(V9990& /*vdp*/)
 {
-	return new V9990DummyRasterizer();
+	assert(false);
+	return NULL;
 }
 
 #ifdef COMPONENT_LASERDISC
 LDRasterizer* DummyVideoSystem::createLDRasterizer(LaserdiscPlayer& /*ld*/)
 {
-	return new LDDummyRasterizer();
+	assert(false);
+	return NULL;
 }
 #endif
 

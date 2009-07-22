@@ -2,10 +2,10 @@
 
 include build/node-start.mk
 
-SRC_HDR_$(COMPONENT_LASERDISC)+= LDSDLRasterizer LDDummyRasterizer \
-			LDPixelRenderer LDRenderer LDDummyRenderer
+SRC_HDR_$(COMPONENT_LASERDISC)+= \
+	LDSDLRasterizer \
+	LDPixelRenderer LDRenderer LDDummyRenderer
 
-HDR_ONLY:= 
+HDR_ONLY:=
 
 include build/node-end.mk
-

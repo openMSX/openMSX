@@ -10,7 +10,7 @@ SRC_HDR:= \
 	VideoSourceSetting \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRasterizer FBPostProcessor SDLSnow \
-	DummyRenderer DummyRasterizer \
+	DummyRenderer \
 	BitmapConverter CharacterConverter \
 	ScreenShotSaver \
 	VideoSystem Display VideoLayer \
