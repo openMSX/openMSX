@@ -3,10 +3,11 @@
 #ifndef LDRENDERER_HH
 #define LDRENDERER_HH
 
-#include "openmsx.hh"
 #include "EmuTime.hh"
 
 namespace openmsx {
+
+class RawFrame;
 
 /** Abstract base class for LDRenderers.
   * A LDRenderer is a class that converts VDP state to visual
@@ -34,7 +35,7 @@ public:
 
 	virtual void drawBlank(int r, int g, int b) = 0;
 
-	virtual void drawBitmap(const byte* frame) = 0;
+	virtual RawFrame* getRawFrame() = 0;
 
 protected:
 	LDRenderer();

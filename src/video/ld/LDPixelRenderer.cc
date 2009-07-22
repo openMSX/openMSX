@@ -38,9 +38,9 @@ void LDPixelRenderer::drawBlank(int r, int g, int b )
 	rasterizer->drawBlank(r, g, b);
 }
 
-void LDPixelRenderer::drawBitmap(const byte* frame)
+RawFrame* LDPixelRenderer::getRawFrame()
 {
-	rasterizer->drawBitmap(frame);
+	return rasterizer->getRawFrame();
 }
 
 } // namespace openmsx

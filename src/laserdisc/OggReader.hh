@@ -11,6 +11,8 @@
 
 namespace openmsx {
 
+class RawFrame;
+
 class OggReader
 {
 public:
@@ -20,7 +22,7 @@ public:
 	bool seek(unsigned pos);
 	unsigned fillFloatBuffer(float*** pcm, unsigned num);
 	unsigned getSampleRate() const { return vi.rate; }
-	const byte* getFrame() const { return rawframe; }
+	void getFrame(RawFrame& result);
 
 private:
 	void cleanup();
@@ -41,8 +43,9 @@ private:
 	theora_state video_handle;
 	theora_info video_info;
 	theora_comment video_comment;
-	byte* rawframe;
+	yuv_buffer yuv_frame;
 	int intraframes;
+	bool yuv_valid;
 
 	// audio
 	int audio_header_packets;

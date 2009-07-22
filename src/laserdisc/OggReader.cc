@@ -25,12 +25,12 @@ OggReader::OggReader(const std::string& filename)
 	video_serial = -1;
 	video_header_packets = 3;
 	audio_header_packets = 3;
-	rawframe = new byte[640 * 480 * 3];
 
 	oggz_set_read_callback(oggz, -1, readCallback, this);
 
 	theora_info_init(&video_info);
 	theora_comment_init(&video_comment);
+	yuv_valid = false;
 
 	vorbis_info_init(&vi);
 	vorbis_comment_init(&vc);
@@ -72,7 +72,6 @@ void OggReader::cleanup()
 {
 	free(pcm[0]);
 	free(pcm[1]);
-	delete[] rawframe;
 
 	if (audio_header_packets == 0) {
 		vorbis_dsp_clear(&vd);
@@ -193,17 +192,24 @@ void OggReader::readTheora(ogg_packet* packet)
 		return;
 	}
 
+	yuv_valid = false;
 	if (theora_decode_packetin(&video_handle, packet) < 0) {
 		return;
 	}
-
-	yuv_buffer yuv_frame;
 	if (theora_decode_YUVout(&video_handle, &yuv_frame) < 0) {
 		return;
 	}
-	yuv2rgb::convert(rawframe, &yuv_frame);
+	yuv_valid = true;
 }
 
+void OggReader::getFrame(RawFrame& result)
+{
+	// TODO When exactly does yuv_frame contain valid data?
+	//      Are the assignments to 'yuv_valid' in the method above correct?
+	if (yuv_valid) {
+		yuv2rgb::convert(yuv_frame, result);
+	}
+}
 
 bool OggReader::seek(unsigned pos)
 {

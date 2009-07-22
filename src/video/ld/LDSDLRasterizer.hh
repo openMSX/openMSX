@@ -29,7 +29,7 @@ public:
 	// Rasterizer interface:
 	virtual void frameStart(EmuTime::param time);
 	virtual void drawBlank(int r, int g, int b);
-	virtual void drawBitmap(const byte* bitmap);
+	virtual RawFrame* getRawFrame();
 
 private:
 	/** The video post processor which displays the frames produced by this

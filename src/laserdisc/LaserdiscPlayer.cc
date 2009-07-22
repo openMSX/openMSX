@@ -436,13 +436,15 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		}
 
 	} else if (userdata == FRAME) {
-		renderer->frameStart(time);
-		if (isVideoOutputAvailable(time)) {
-			renderer->drawBitmap(video->getFrame());
-		} else {
-			renderer->drawBlank(0, 128, 196);
+		if (RawFrame* rawFrame = renderer->getRawFrame()) {
+			renderer->frameStart(time);
+			if (isVideoOutputAvailable(time)) {
+				video->getFrame(*rawFrame);
+			} else {
+				renderer->drawBlank(0, 128, 196);
+			}
+			renderer->frameEnd();
 		}
-		renderer->frameEnd();
 
 		frameClock.reset(time);
 		setSyncPoint(frameClock + 1, FRAME);

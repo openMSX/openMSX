@@ -29,10 +29,18 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	, recorder(0)
 	, display(display_)
 {
-	currFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
-	prevFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
-	deinterlacedFrame = new DeinterlacedFrame(screen.getSDLFormat());
-	interlacedFrame   = new DoubledFrame     (screen.getSDLFormat());
+	if (getVideoSource() != VIDEO_LASERDISC) {
+		currFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
+		prevFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
+		deinterlacedFrame = new DeinterlacedFrame(screen.getSDLFormat());
+		interlacedFrame   = new DoubledFrame     (screen.getSDLFormat());
+	} else {
+		// Laserdisc always produces non-interlaced frames, so we don't
+		// need prevFrame, deinterlacedFrame and interlacedFrame. Also
+		// it produces a complete frame at a time, so we don't need
+		// currFrame (and have a separate work buffer, for partially
+		// rendered frames).
+	}
 }
 
 PostProcessor::~PostProcessor()
@@ -44,10 +52,12 @@ PostProcessor::~PostProcessor()
 			"during recording.");
 		recorder->stop();
 	}
-	delete currFrame;
-	delete prevFrame;
-	delete deinterlacedFrame;
-	delete interlacedFrame;
+	if (getVideoSource() != VIDEO_LASERDISC) {
+		delete currFrame;
+		delete prevFrame;
+		delete deinterlacedFrame;
+		delete interlacedFrame;
+	}
 }
 
 unsigned PostProcessor::getLineWidth(
@@ -81,9 +91,17 @@ RawFrame* PostProcessor::rotateFrames(
 	RawFrame* finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
-	RawFrame* reuseFrame = prevFrame;
-	prevFrame = currFrame;
-	currFrame = finishedFrame;
+	RawFrame* reuseFrame;
+	if (getVideoSource() != VIDEO_LASERDISC) {
+		reuseFrame = prevFrame;
+		prevFrame = currFrame;
+		currFrame = finishedFrame;
+	} else {
+		reuseFrame = finishedFrame;
+		currFrame = finishedFrame;
+		assert(field == FrameSource::FIELD_NONINTERLACED);
+
+	}
 	reuseFrame->init(field);
 
 	// TODO: When frames are being skipped or if (de)interlace was just

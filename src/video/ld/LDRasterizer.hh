@@ -8,13 +8,15 @@
 
 namespace openmsx {
 
+class RawFrame;
+
 class LDRasterizer
 {
 public:
 	virtual ~LDRasterizer() {}
 	virtual void frameStart(EmuTime::param time) = 0;
 	virtual void drawBlank(int r, int g, int b) = 0;
-	virtual void drawBitmap(const byte* frame) = 0;
+	virtual RawFrame* getRawFrame() = 0;
 };
 
 } // namespace openmsx
