@@ -454,7 +454,7 @@ endif
 # files to be considered outdated.
 INIT_DUMMY_FILE:=$(BUILD_PATH)/config/init-dummy-file
 $(INIT_DUMMY_FILE): config $(GENERATED_HEADERS)
-	@test -e $@ || touch $@
+	@touch -a $@
 
 # Print configuration.
 config:
