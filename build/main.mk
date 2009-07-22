@@ -8,7 +8,7 @@
 #
 # Used a lot of ideas from Peter Miller's excellent paper
 # "Recursive Make Considered Harmful".
-# http://www.tip.net.au/~millerp/rmch/recu-make-cons-harm.html
+# http://miller.emu.id.au/pmiller/books/rmch/
 
 # TODO:
 # - Move calculation of CFLAGS and LDFLAGS to components2defs.py?
