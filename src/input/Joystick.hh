@@ -14,7 +14,10 @@ class PluggingController;
 
 /** Uses an SDL joystick to emulate an MSX joystick.
   */
-class Joystick : public JoystickDevice, private MSXEventListener
+class Joystick
+#ifndef SDL_JOYSTICK_DISABLED
+	: public JoystickDevice, private MSXEventListener
+#endif
 {
 public:
 	/** Register all available SDL joysticks.
@@ -24,6 +27,7 @@ public:
 	static void registerAll(MSXEventDistributor& eventDistributor,
 	                        PluggingController& controller);
 
+#ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
@@ -57,6 +61,7 @@ private:
 	const unsigned joyNum;
 
 	byte status;
+#endif // SDL_JOYSTICK_DISABLED
 };
 
 } // namespace openmsx

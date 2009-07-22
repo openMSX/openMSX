@@ -19,6 +19,10 @@ static const int THRESHOLD = 32768 / 10;
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            PluggingController& controller)
 {
+#ifdef SDL_JOYSTICK_DISABLED
+	(void)eventDistributor;
+	(void)controller;
+#else
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 		SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events
@@ -28,8 +32,10 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 	for (unsigned i = 0; i < numJoysticks; i++) {
 		controller.registerPluggable(new Joystick(eventDistributor, i));
 	}
+#endif
 }
 
+#ifndef SDL_JOYSTICK_DISABLED
 // Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
 // once per MSX machine). The SDL documentation doesn't state this, but I
 // checked the implementation and a SDL_Joystick uses a 'reference count' on
@@ -216,5 +222,7 @@ void Joystick::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(Joystick);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Joystick, "Joystick");
+
+#endif // SDL_JOYSTICK_DISABLED
 
 } // namespace openmsx
