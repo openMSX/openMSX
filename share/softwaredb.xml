@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1248341362">
+<softwaredb xml:lang="en" timestamp="1248375589">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -6011,7 +6011,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">8a6e0f932ce12318a1c5b8dbbfe44b213acb03ae</hash><remark>[RC-739] / Ulver crack</remark></rom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</hash><remark>[SCC][RC-739] / SCC enhanced version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark>[SCC][RC-739]</remark></megarom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark>[SD Snatcher RAM SCC+][RC-739]</remark></sccpluscart></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">f795668afe66c7d88e51f5a22471e2c0a42c7ffb</hash><remark>[SD Snatcher RAM SCC+][RC-739]</remark></sccpluscart></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">6448aa090d95ab42e8a63f52cd12e40c39521aa0</hash><remark>Konami Antiques MSX Collection 2</remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">7435a9caec4cdefe398299ba9b6adf89c302fda5</hash></rom></dump>
@@ -10540,33 +10539,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<title xml:lang="en">Waves</title>
 	<system>MSX</system>
 	<company>DVIK &#38; joyrex productions</company>
-	<year>2006</year>
-	<country>EU</country>
+	<year>2005</year>
+	<country>US</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">f50d0c66b08c47b59925952276243e2008668185</hash><remark>Version 1.3 Demo</remark></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Waves Demo 1.0</title>
-	<system>MSX</system>
-	<company>Daniel Vik</company>
-	<year>2005</year>
-	<country>US</country>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">47de7524c32e72e849daee4d7f3e6cf393e3b7dc</hash></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Waves Demo 1.1</title>
-	<system>MSX</system>
-	<company>Daniel Vik</company>
-	<year>2005</year>
-	<country>US</country>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">b188980c998d1dfb5dfbc21837ffbbb5affdbb3c</hash></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Waves Demo 1.2</title>
-	<system>MSX</system>
-	<company>Daniel Vik</company>
-	<year>2006</year>
-	<country>US</country>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">badcb43e490e3713bf291e83cff204e1c57ecdfe</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">47de7524c32e72e849daee4d7f3e6cf393e3b7dc</hash><remark>Demo 1.0</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">b188980c998d1dfb5dfbc21837ffbbb5affdbb3c</hash><remark>Demo 1.1</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">badcb43e490e3713bf291e83cff204e1c57ecdfe</hash><remark>Demo 1.2</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Wedding Bells</title>
@@ -10998,6 +10976,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2377
-Parse time 5.508 seconds on Thu Jul 23 11:29:28 CEST 2009
+Roms in this database:2376
+Parse time 8.421 seconds on Thu Jul 23 20:59:57 CEST 2009
  -->
