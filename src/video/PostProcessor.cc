@@ -46,7 +46,7 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 PostProcessor::~PostProcessor()
 {
 	if (recorder) {
-		display.getCliComm().printWarning(
+		getCliComm().printWarning(
 			"Videorecording stopped, because you quit openMSX, "
 			"changed machine, or changed a video setting "
 			"during recording.");
@@ -58,6 +58,11 @@ PostProcessor::~PostProcessor()
 		delete deinterlacedFrame;
 		delete interlacedFrame;
 	}
+}
+
+CliComm& PostProcessor::getCliComm()
+{
+	return display.getCliComm();
 }
 
 unsigned PostProcessor::getLineWidth(

@@ -1,69 +1,69 @@
 // $Id$
 
-#ifndef SCALER2_HH
-#define SCALER2_HH
+#ifndef TRANSPARENT1XSCALER_HH
+#define TRANSPARENT1XSCALER_HH
 
-#include "Scaler.hh"
-#include "PixelOperations.hh"
+#include "LowScaler.hh"
 
 namespace openmsx {
 
-/** Base class for 2x scalers.
-  */
-template <class Pixel> class Scaler2 : public Scaler
+class CliComm;
+
+template<typename Pixel>
+class Transparent1xScaler : public LowScaler<Pixel>
 {
 public:
-	virtual void scaleBlank1to2(
+	Transparent1xScaler(const PixelOperations<Pixel>& pixelOps,
+	                    CliComm& cliComm);
+
+	void scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scaleBlank1to1(
+	void scaleBlank2to1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to3x2(FrameSource& src,
+	void scale1x1to1x1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to3x1(FrameSource& src,
+	void scale1x2to1x1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to2x2(FrameSource& src,
+	void scale2x1to1x1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to2x1(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale2x1to3x2(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale2x1to3x1(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to1x2(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to1x1(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale4x1to3x2(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale4x1to3x1(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale2x1to1x2(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale2x1to1x1(FrameSource& src,
+	void scale2x2to1x1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scaleImage(FrameSource& src,
+	void scale2x1to3x1(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scale2x2to3x1(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scale4x1to3x1(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scale4x2to3x1(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scale8x1to3x1(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scale8x2to3x1(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scale4x1to1x1(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	void scale4x2to1x1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-protected:
-	explicit Scaler2(const PixelOperations<Pixel>& pixelOps);
+private:
+	void printWarning();
 
-	const PixelOperations<Pixel> pixelOps;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

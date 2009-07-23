@@ -305,7 +305,9 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		scaleFactor = factor;
 		lastTransparency = transparent;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			PixelOperations<Pixel>(output.getSDLFormat()), renderSettings, getTransparency());
+			PixelOperations<Pixel>(
+				output.getSDLFormat()), renderSettings,
+				getCliComm(), getTransparency());
 	}
 
 	// Scale image.

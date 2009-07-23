@@ -63,8 +63,7 @@ public:
 protected:
 	explicit Scaler3(const PixelOperations<Pixel>& pixelOps);
 
-private:
-	PixelOperations<Pixel> pixelOps;
+	const PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

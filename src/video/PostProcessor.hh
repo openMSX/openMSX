@@ -15,6 +15,7 @@ class RawFrame;
 class DeinterlacedFrame;
 class DoubledFrame;
 class AviRecorder;
+class CliComm;
 
 /** Abstract base class for post processors.
   * A post processor builds the frame that is displayed from the MSX frame,
@@ -66,6 +67,8 @@ public:
 
 	/** TODO */
 	void takeScreenShot(unsigned height, const std::string& filename);
+
+	CliComm& getCliComm();
 
 protected:
 	/** Returns the maximum width for lines [y..y+step).
