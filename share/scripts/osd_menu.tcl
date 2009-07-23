@@ -190,7 +190,7 @@ if ![file exists $::osd_disk_path] {
 
 proc main_menu_open {} {
 	variable main_menu
-	
+
 	# close console, because the menu interferes with it
 	set ::console off
 
@@ -252,13 +252,15 @@ proc prepare_menu_list { lst num menu_def_list } {
 	set presentation [get_optional menudef presentation $lst]
 	lappend header "selectable" "false"
 	set items [list $header]
-	for {set i 0} {$i < $num} {incr i} {
+	set lst_len [llength $lst]
+	set menu_len [expr $lst_len < $num ? $lst_len : $num]
+	for {set i 0} {$i < $menu_len} {incr i} {
 		set actions [list "A" "osd_menu::list_menu_item_exec $execute \{$lst\} $i"]
 		if {$i == 0} {
-			lappend actions "UP" "osd_menu::list_menu_item_up"
+			lappend actions "UP" "osd_menu::list_menu_item_updown -1 $lst_len $menu_len"
 		}
-		if {$i == ($num - 1)} {
-			lappend actions "DOWN" "osd_menu::list_menu_item_down [llength $lst] $i"
+		if {$i == ($menu_len - 1)} {
+			lappend actions "DOWN" "osd_menu::list_menu_item_updown 1 $lst_len $menu_len"
 		}
 		set item [list "text" "\[osd_menu::list_menu_item_show \{$presentation\} $i\]" \
 		               "actions" $actions]
@@ -288,17 +290,19 @@ proc list_menu_item_select { lst pos select_proc } {
 	unpack_menu_info [lindex $menuinfos end]
 	$select_proc [lindex $lst [expr $pos + $scrollidx]]
 }
-proc list_menu_item_up { } {
+proc list_menu_item_updown { delta listsize menusize } {
 	variable menuinfos
 	unpack_menu_info [lindex $menuinfos end]
-	if {$scrollidx > 0} {incr scrollidx -1}
-	set_scrollidx $scrollidx
-	menu_refresh_top
-}
-proc list_menu_item_down { size pos } {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
-	if {($scrollidx + $pos + 1) < $size} {incr scrollidx}
+	incr scrollidx $delta
+	set itemidx [expr $scrollidx + $selectidx]
+	if {$itemidx < 0} {
+		set scrollidx [expr $listsize - $menusize]
+		set_selectidx [expr $menusize - 1]
+	}
+	if {$itemidx >= $listsize} {
+		set scrollidx 0
+		set_selectidx 0
+	}
 	set_scrollidx $scrollidx
 	menu_refresh_top
 }
@@ -434,7 +438,7 @@ set running_machines_menu [prepare_menu {
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { text "Select Running Machine Tab: [utils::get_machine_display_name]" 
+	       { text "Select Running Machine Tab: [utils::get_machine_display_name]"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_running_machine_list] }}}
 	       { text "New Running Machine Tab"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
