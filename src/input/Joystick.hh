@@ -5,7 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
-#include <SDL.h> // TODO move this
+#include <SDL.h>
 
 namespace openmsx {
 
