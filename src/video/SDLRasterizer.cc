@@ -121,6 +121,7 @@ void SDLRasterizer<Pixel>::reset()
 	// Init renderer state.
 	setDisplayMode(vdp.getDisplayMode());
 	spriteConverter->setTransparency(vdp.getTransparency());
+	setSuperimposing(vdp.isSuperimposing());
 
 	resetPalette();
 }
