@@ -141,7 +141,8 @@ template<class Pixel>
 void SDLRasterizer<Pixel>::setSuperimposing(bool enabled)
 {
 	postProcessor->setTransparency(enabled);
-	setBackgroundColour(vdp.getBackgroundColour());
+	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+	                    enabled, vdp.getBackgroundColour());
 }
 
 template <class Pixel>
@@ -175,8 +176,8 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter->setDisplayMode(mode);
 	}
-	precalcColourIndex0(mode, vdp.getTransparency(), vdp.isSuperimposing(),
-				                    vdp.getBackgroundColour());
+	precalcColourIndex0(mode, vdp.getTransparency(),
+	                    vdp.isSuperimposing(), vdp.getBackgroundColour());
 	spriteConverter->setDisplayMode(mode);
 	spriteConverter->setPalette(mode.getByte() == DisplayMode::GRAPHIC7
 	                            ? palGraphic7Sprites : palBg);
@@ -200,7 +201,7 @@ template <class Pixel>
 void SDLRasterizer<Pixel>::setBackgroundColour(int index)
 {
 	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-						vdp.isSuperimposing(), index);
+	                    vdp.isSuperimposing(), index);
 }
 
 template <class Pixel>
@@ -208,7 +209,7 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 {
 	spriteConverter->setTransparency(enabled);
 	precalcColourIndex0(vdp.getDisplayMode(), enabled,
-			vdp.isSuperimposing(), vdp.getBackgroundColour());
+	                    vdp.isSuperimposing(), vdp.getBackgroundColour());
 }
 
 template <class Pixel>

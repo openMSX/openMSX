@@ -522,8 +522,9 @@ void VDP::frameStart(EmuTime::param time)
 	}
 
 	// TODO: Presumably this is done here
-	if (superimposing != isSuperimposing()) {
-		superimposing = isSuperimposing();
+	bool newSuperimposing = (controlRegs[0] & 1) && externalVideo;
+	if (superimposing != newSuperimposing) {
+		superimposing = newSuperimposing;
 		renderer->updateSuperimposing(superimposing, time);
 	}
 
@@ -1324,9 +1325,14 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("vram", *vram); // must come after controlRegs
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
 
-	// superimposing and externalVideo do not need serializing. The
-	// first is deduced from a register value and the second should
-	// set on load by the external video source (e.g. PioneerLDControl).
+	// externalVideo does not need serializing. It is set on load by the
+	// external video source (e.g. PioneerLDControl).
+	//
+	// TODO should superimposing be serialized? It cannot be recalculated
+	// from register values (it depends on the register values at the start
+	// of this frame). But it will be correct at the start of the next
+	// frame. Probably good enough.
+
 	if (ar.isLoader()) {
 		renderer->reset(Schedulable::getCurrentTime());
 	}

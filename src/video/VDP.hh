@@ -121,11 +121,13 @@ public:
 	/** Are we superimposing?
 	  */
 	inline bool isSuperimposing() const {
-		/* Note that bit 0 of r#0 has no effect on an V9938 or
-		   higher, but this bit is masked out. Also note that 
-		   on an MSX1, if bit 0 of r#0 is enabled and there is 
-		   no external video source, then we lose sync. */
-		return (controlRegs[0] & 1) && externalVideo;
+		// Note that bit 0 of r#0 has no effect on an V9938 or higher,
+		// but this bit is masked out. Also note that on an MSX1, if
+		// bit 0 of r#0 is enabled and there is no external video
+		// source, then we lose sync.
+		// Also note that because this property is fixed per frame we
+		// cannot (re)calculate it from register values.
+		return superimposing;
 	}
 
 	/** Get the sprite checker for this VDP.
