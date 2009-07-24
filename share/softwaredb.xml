@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1248408272">
+<softwaredb xml:lang="en" timestamp="1248458154">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -2492,6 +2492,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">5577e483caca553cfbfc0cba26f3ab2444569f81</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7e9a9ce7c18206b325830e9cdcbb27179118de96</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">27f9144fb24b434f7a75737aa694283084782766</hash><remark>[a]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7c3aa9cca2f1f6e81ae9d24b3a3c675f08a203ea</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Dragon Quest 2 - MSX1 Version</title>
@@ -3318,6 +3319,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>Normal</type><hash algo="sha1">2a4b4a4657e3077df8a88f98210b76883d3702b1</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>Normal</type><hash algo="sha1">7b1798561ee1844a7d6432924fbee9b4fc591c19</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>Normal</type><hash algo="sha1">30747a56f45389be76362f7fc55d673f1bff8312</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">FM Voicing Program YRM-102</title>
@@ -3536,6 +3539,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">273a3dab994b5b9c975fd12711dd19e0c6367caa</hash><remark>[RC-748][40E53EA3] / Ulver crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">f924980511d2ea191481c1e4ff5ab7adc3f082ab</hash><remark>[RC-748] / Ulver full crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">02cfc41132d518e2b9fc632ec6ad00656bd9ec92</hash><remark>[a][RC-748]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">f5009c44ba1e72b64e29fc734741d518b4167aea</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gang Master</title>
@@ -3826,6 +3830,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4127844955388f812e33437f618936dc98944c0a</hash><remark>[RC-751] / cheat version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4c15375910461a7a34a2fd54c7f51e712f06bc69</hash><remark>[RC-751] / Ulver crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">76666da5870d1901026e3dded3f22ce7a706689d</hash><remark>Konami Antiques MSX Collection 2</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">d441ccfede2c089fbef54e20b90c0d4b513c5196</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gradius 2 - Nemesis 2 (Demo)</title>
@@ -5164,6 +5169,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash><remark>[tr En][RC-745] / cheat version</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">de2349227d765db73cdc44efc6338f6b530eb133</hash><remark>[tr En][RC-745] / Ulver crack</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">a5963fa6c95fbe34482862b0f7221b7766e3a194</hash><remark>[RC-745]</remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">65a5bda34d1e1b22cfa697e4e7fdf1829cf2238d</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">King Kong 2</title>
@@ -5661,6 +5667,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">51e4231e245ffd733590e3205fa3ffea92ad509f</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">13c59dd8f7320856b15c834038af3c846db33e4e</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">68158290666f4d7ac1ada40d674a1160c162b193</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">d57fc4121d716182a091bb53c666b46c10142668</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Ladder Building</title>
@@ -5761,6 +5768,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2009</year>
 	<country>EU</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">6baf75aa6024cb1311fc1171cce4560e16de6d9a</hash><remark>MSXDEV 08 Entry</remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">2b9ab44526a19706de76ff374459cccae3e65c84</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Livingstone Supongo 2</title>
@@ -6043,6 +6051,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1988</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">e6c01bd90cf0b2793282fc53e9a3150a6d7804c5</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">c5e3845c74da6aea2cb68ccd765e4f606f10b5b6</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Manbow 2</title>
@@ -6121,6 +6130,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e4d61ee74867066b04b0f6aba35d98d72665e6e0</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">8f92ea214a7a11394c512080d3b65a7afa9a92ed</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">57a39f6947d1f87107961cd57ee6a52027d5c612</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Maxixdados</title>
@@ -6257,6 +6267,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">5ff1254dccd5dde58d3475a468178738d6260b05</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">c461efa942e1a3a1e580f9d04bf8d15c5e834f8b</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">847841ad88ff2eff6602f03b7231cd1e03f89ffc</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">804be21493a151a0be2075e86c94759dd96f0bf7</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">8dfe236a6a5734824035725a4f513b8fd31b310a</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">1417f9e8ca99deb3b422c5968fdfa03cfa633ec6</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Metal Gear 2 - Solid Snake</title>
@@ -6306,6 +6319,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">0e24c5c4f16d5f9564d1bcbf29e4187cb6ad9701</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">6ad2c394f8e3ace4c30c7b751fc2cf2c78f47bb4</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Midnight Brothers</title>
@@ -6518,6 +6532,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">9f2fb5f31c2bcff949e08449f197b0c31bdebe50</hash><remark>MRC MEGA-Challenge entry</remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">b493dd7d082e25fc40ad1cccc364e1945590a2f9</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">3ff276af654c7dc712abed79d9123317ce79b4e4</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">65160f0d59068dbbf76b11bc79e17a9369c8dcee</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Montezuma&#39;s Revenge</title>
@@ -8306,6 +8322,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>NL</country>
 		<dump><original value="false"/><rom><hash algo="sha1">94d7a756e199457ea9958c8f5d6860c9bf334126</hash></rom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">9a611007b58a001639676728614ffea61cd5ff85</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">River Raid</title>
@@ -8448,6 +8465,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>MA</country>
 		<dump><original value="false"/><rom><hash algo="sha1">f2b5b9029575b85f0730914a44e57f94c9313df5</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">a2901318f8216ccd2f4d08b0f272e1bf90ab197a</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Salamander - Operation X</title>
@@ -10888,6 +10906,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">3da301b1082c158e505523fa22c19f1b3f4d851c</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">57034994710a9d744c768493679b78ca06b9dc8d</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Zen Assembler</title>
@@ -10940,6 +10959,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">a322d4e572467be5e1b452214143f88db526b49f</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">67fa6e9005d23d9c49f77884a856cfb376194083</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">4cc5f197d2bd3f0306c07a880590b4b4a5574e12</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Zoo</title>
@@ -10977,5 +10997,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2376
-Parse time 1.350 seconds on Fri Jul 24 6:04:33 CEST 2009
+Parse time 6.424 seconds on Fri Jul 24 19:56:00 CEST 2009
  -->
