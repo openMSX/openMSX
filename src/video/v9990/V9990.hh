@@ -85,7 +85,8 @@ public:
 	}
 
 	/** Get palette offset.
-	  * This is a number between [0..63], lowest two bits are always 0.
+	  * Result is between [0..15] (this represents a logical number
+	  * between [0..63] with lowest two bits always 0).
 	  * @return palette offset
 	  */
 	inline byte getPaletteOffset() const {

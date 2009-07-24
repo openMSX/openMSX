@@ -29,6 +29,8 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, renderSettings(display.getRenderSettings())
+	, displayMode(P1) // dummy value
+	, colorMode(PP)   //   avoid UMR
 	, postProcessor(postProcessor_)
 	, bitmapConverter(new V9990BitmapConverter<Pixel>(
 	                           vdp, palette64, palette256, palette32768))
@@ -106,13 +108,14 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 {
 	displayMode = mode;
+	bitmapConverter->setColorMode(colorMode, displayMode);
 }
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 {
 	colorMode = mode;
-	bitmapConverter->setColorMode(mode);
+	bitmapConverter->setColorMode(colorMode, displayMode);
 }
 
 template <class Pixel>

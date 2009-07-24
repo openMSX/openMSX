@@ -20,7 +20,7 @@ V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 	, palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
 {
 	// make sure function pointers have valid values
-	setColorMode(PP);
+	setColorMode(PP, B0);
 }
 
 template <class Pixel>
@@ -50,6 +50,8 @@ template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYUVP(
 	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
+	// TODO this mode cannot be shown in B4 and higher resolution modes
+	//      (So the dual palette for B4 modes is not an issue here.)
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
@@ -100,6 +102,8 @@ template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYJKP(
 	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
+	// TODO this mode cannot be shown in B4 and higher resolution modes
+	//      (So the dual palette for B4 modes is not an issue here.)
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
@@ -156,10 +160,28 @@ template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP4(
 	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
+	byte offset = (vdp.getPaletteOffset() & 0xC) << 2;
+	const Pixel* pal = &palette64[offset];
 	for (int p = 0; p < nrPixels; p += 2) {
 		byte data = vram.readVRAMBx(address++);
-		*pixelPtr++ = palette64[data >> 4];
-		*pixelPtr++ = palette64[data & 0x0F];
+		*pixelPtr++ = pal[data >> 4];
+		*pixelPtr++ = pal[data & 0x0F];
+	}
+}
+template <class Pixel>
+void V9990BitmapConverter<Pixel>::rasterBP4HiRes(
+	Pixel* pixelPtr, unsigned address, int nrPixels)
+{
+	// Verified on real HW:
+	//   Bit PLT05 in palette offset is ignored, instead for even pixels
+	//   bit 'PLT05' is '0', for odd pixels it's '1'.
+	byte offset = (vdp.getPaletteOffset() & 0x4) << 2;
+	const Pixel* pal1 = &palette64[offset |  0];
+	const Pixel* pal2 = &palette64[offset | 32];
+	for (int p = 0; p < nrPixels; p += 2) {
+		byte data = vram.readVRAMBx(address++);
+		*pixelPtr++ = pal1[data >> 4  ];
+		*pixelPtr++ = pal2[data & 0x0F];
 	}
 }
 
@@ -167,12 +189,32 @@ template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP2(
 	Pixel* __restrict pixelPtr, unsigned address, int nrPixels)
 {
+	byte offset = vdp.getPaletteOffset() << 2;
+	const Pixel* pal = &palette64[offset];
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data = vram.readVRAMBx(address++);
-		*pixelPtr++ = palette64[(data & 0xC0) >> 6];
-		*pixelPtr++ = palette64[(data & 0x30) >> 4];
-		*pixelPtr++ = palette64[(data & 0x0C) >> 2];
-		*pixelPtr++ = palette64[(data & 0x03)];
+		*pixelPtr++ = pal[(data & 0xC0) >> 6];
+		*pixelPtr++ = pal[(data & 0x30) >> 4];
+		*pixelPtr++ = pal[(data & 0x0C) >> 2];
+		*pixelPtr++ = pal[(data & 0x03) >> 0];
+	}
+}
+template <class Pixel>
+void V9990BitmapConverter<Pixel>::rasterBP2HiRes(
+	Pixel* pixelPtr, unsigned address, int nrPixels)
+{
+	// Verified on real HW:
+	//   Bit PLT05 in palette offset is ignored, instead for even pixels
+	//   bit 'PLT05' is '0', for odd pixels it's '1'.
+	byte offset = (vdp.getPaletteOffset() & 0x7) << 2;
+	const Pixel* pal1 = &palette64[offset |  0];
+	const Pixel* pal2 = &palette64[offset | 32];
+	for (int p = 0; p < nrPixels; p += 4) {
+		byte data = vram.readVRAMBx(address++);
+		*pixelPtr++ = pal1[(data & 0xC0) >> 6];
+		*pixelPtr++ = pal2[(data & 0x30) >> 4];
+		*pixelPtr++ = pal1[(data & 0x0C) >> 2];
+		*pixelPtr++ = pal2[(data & 0x03) >> 0];
 	}
 }
 
@@ -183,11 +225,16 @@ void V9990BitmapConverter<Pixel>::rasterP(
 	assert(false);
 }
 
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode mode)
+static bool isHighRes(V9990DisplayMode display)
 {
-	switch (mode) {
+	return (display == B4) || (display == B5) ||
+	       (display == B6) || (display == B7);
+}
+template <class Pixel>
+void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode color,
+                                               V9990DisplayMode display)
+{
+	switch (color) {
 	case PP:    rasterMethod = &V9990BitmapConverter::rasterP;     break;
 	case BYUV:  rasterMethod = &V9990BitmapConverter::rasterBYUV;  break;
 	case BYUVP: rasterMethod = &V9990BitmapConverter::rasterBYUVP; break;
@@ -196,8 +243,12 @@ void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode mode)
 	case BD16:  rasterMethod = &V9990BitmapConverter::rasterBD16;  break;
 	case BD8:   rasterMethod = &V9990BitmapConverter::rasterBD8;   break;
 	case BP6:   rasterMethod = &V9990BitmapConverter::rasterBP6;   break;
-	case BP4:   rasterMethod = &V9990BitmapConverter::rasterBP4;   break;
-	case BP2:   rasterMethod = &V9990BitmapConverter::rasterBP2;   break;
+	case BP4:   rasterMethod = isHighRes(display) ?
+	                           &V9990BitmapConverter::rasterBP4HiRes :
+	                           &V9990BitmapConverter::rasterBP4;   break;
+	case BP2:   rasterMethod = isHighRes(display) ?
+	                           &V9990BitmapConverter::rasterBP2HiRes :
+	                           &V9990BitmapConverter::rasterBP2;   break;
 	default:    assert (false);
 	}
 }
@@ -230,6 +281,7 @@ void V9990BitmapConverter<Pixel>::drawCursor(
 	unsigned x = vram.readVRAMBx(attrAddr + 4) + (attr & 3) * 256;
 
 	// TODO EOR colors
+	// TODO investigate dual palette in B4 and higher modes
 	Pixel color = palette64[vdp.getSpritePaletteOffset() + (attr >> 6)];
 	for (int i = 0; i < 32; ++i) {
 		if (pattern & 0x80000000) {

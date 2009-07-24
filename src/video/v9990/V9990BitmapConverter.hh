@@ -26,7 +26,7 @@ public:
 
 	/** Set the color mode
 	  */
-	void setColorMode(V9990ColorMode mode);
+	void setColorMode(V9990ColorMode color, V9990DisplayMode display);
 
 private:
 	/** Reference to VDP
@@ -59,16 +59,18 @@ private:
 	const Pixel* const palette32768;
 
 	/* private Raster methods */
-	void rasterP    (Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBYUV (Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBYUVP(Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBYJK (Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBYJKP(Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBD16 (Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBD8  (Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBP6  (Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBP4  (Pixel* outPixels, unsigned address, int nrPixels);
-	void rasterBP2  (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterP       (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYUV    (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYUVP   (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYJK    (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBYJKP   (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBD16    (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBD8     (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP6     (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP4     (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP2     (Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP4HiRes(Pixel* outPixels, unsigned address, int nrPixels);
+	void rasterBP2HiRes(Pixel* outPixels, unsigned address, int nrPixels);
 
 	/* Cursor drawing methods */
 	void drawCursor(Pixel* buffer, int displayY,
