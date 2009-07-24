@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1248375589">
+<softwaredb xml:lang="en" timestamp="1248408272">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -10341,7 +10341,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">fa5badc3d9486d9789b05b909125bf74059d26e5</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Ultima Exodus</title>
+	<title xml:lang="en">Ultima III - Exodus</title>
 	<system>MSX</system>
 	<company>Pony Canyon</company>
 	<year>1987</year>
@@ -10977,5 +10977,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2376
-Parse time 8.421 seconds on Thu Jul 23 20:59:57 CEST 2009
+Parse time 1.350 seconds on Fri Jul 24 6:04:33 CEST 2009
  -->
