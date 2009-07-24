@@ -142,8 +142,11 @@ proc hide_power_bar {name} {
 set_help_text toggle_fps \
 {Enable/disable a fps-indicator in the top-left corner of the screen.}
 
+variable fps_after
+
 proc toggle_fps {} {
-	if [info exists osd_widgets::fps_after] {
+	variable fps_after
+	if [info exists fps_after] {
 		after cancel $osd_widgets::fps_after
 		osd destroy fps_viewer
 		unset fps_after
@@ -151,6 +154,7 @@ proc toggle_fps {} {
 		osd create rectangle fps_viewer -x 5 -y 5 -z 0 -w 63 -h 20 -rgba 0x00000080
 		osd create text fps_viewer.text -x 5 -y 3 -z 1 -rgba 0xffffffff
 		proc fps_refresh {} {
+			variable fps_after
 			osd configure fps_viewer.text -text [format "%2.1fFPS" [openmsx_info fps]]
 			set fps_after [after time .2 [namespace code fps_refresh]]
 		}
