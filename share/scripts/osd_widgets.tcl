@@ -163,9 +163,16 @@ proc toggle_fps {} {
 	return ""
 }
 
-# only export stuff that is useful outside of scripts (i.e. for the console user)
+# only export stuff that is useful in other scripts or for the console user
 namespace export toggle_fps
+namespace export msx_init
+namespace export msx_update
+namespace export box
+namespace export create_power_bar
+namespace export update_power_bar
+namespace export hide_power_bar
 
 };# namespace osd_widgets
 
-namespace import osd_widgets::*
+# only import stuff to global that is useful outside of scripts (i.e. for the console user)
+namespace import osd_widgets::toggle_fps
