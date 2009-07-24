@@ -529,18 +529,21 @@ proc ls { directory extensions } {
 	return [concat ".." [lsort $dirs2] [lsort $roms]]
 }
 
-proc displayOSDText { message } {
-	if ![info exists displayOSDText_bg] {
-		set displayOSDText_bg  [osd create rectangle "displayOSDText" \
+variable display_osd_text_created false
+
+proc display_osd_text { message } {
+	variable display_osd_text_created
+	if !$display_osd_text_created {
+		osd create rectangle "display_osd_text" \
 		                                -x 3 -y 12 -z 5 -w 314 -h 9 \
-		                                -rgb 0x002090 -scaled true -clip true]
-		set displayOSDText_txt [osd create text "displayOSDText.txt" \
-		                                -size 6 -rgb 0xffffff \
-		                                -font "skins/Vera.ttf.gz"]
+		                                -rgb 0x002090 -scaled true -clip true
+		osd create text "display_osd_text.txt" \
+		                                -size 6 -rgb 0xffffff
+		set display_osd_text_created true
 	}
-	osd configure $displayOSDText_bg  -alpha 190 \
+	osd configure display_osd_text  -alpha 190 \
 	                                      -fadeTarget 0 -fadePeriod 5.0
-	osd configure $displayOSDText_txt -alpha 255 -text $message \
+	osd configure display_osd_text.txt -alpha 255 -text $message \
 	                                      -fadeTarget 0 -fadePeriod 5.0
 }
 
@@ -571,7 +574,7 @@ proc menu_select_rom { item } {
 	} else {
 		menu_close_all
 		carta $fullname
-		displayOSDText "Now running ROM: $item"
+		display_osd_text "Now running ROM: $item"
 		reset
 	}
 }
