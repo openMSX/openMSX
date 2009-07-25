@@ -297,11 +297,17 @@ proc list_menu_item_updown { delta listsize menusize } {
 	set itemidx [expr $scrollidx + $selectidx]
 	if {$itemidx < 0} {
 		set scrollidx [expr $listsize - $menusize]
-		set_selectidx [expr $menusize - 1]
+		menu_on_deselect $selectinfo $selectidx
+		set selectidx [expr $menusize - 1]
+		set_selectidx $selectidx
+		menu_on_select $selectinfo $selectidx
 	}
 	if {$itemidx >= $listsize} {
 		set scrollidx 0
-		set_selectidx 0
+		menu_on_deselect $selectinfo $selectidx
+		set selectidx 0
+		set_selectidx $selectidx
+		menu_on_select $selectinfo $selectidx
 	}
 	set_scrollidx $scrollidx
 	menu_refresh_top
