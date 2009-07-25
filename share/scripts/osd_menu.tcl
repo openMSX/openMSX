@@ -152,11 +152,14 @@ proc menu_close_all {} {
 proc menu_updown { delta } {
 	variable menuinfos
 	unpack_menu_info [lindex $menuinfos end]
-	menu_on_deselect $selectinfo $selectidx
-	set selectidx [expr ($selectidx + $delta) % [llength $selectinfo]]
-	set_selectidx $selectidx
-	menu_on_select $selectinfo $selectidx
+	menu_move_selection $selectinfo \
+		$selectidx [expr ($selectidx + $delta) % [llength $selectinfo]]
 	menu_refresh_top
+}
+proc menu_move_selection { selectinfo from_idx to_idx } {
+	menu_on_deselect $selectinfo $from_idx
+	set_selectidx $to_idx
+	menu_on_select $selectinfo $to_idx
 }
 proc menu_on_select { selectinfo selectidx } {
 	set on_select [lindex $selectinfo $selectidx 3]
@@ -297,17 +300,11 @@ proc list_menu_item_updown { delta listsize menusize } {
 	set itemidx [expr $scrollidx + $selectidx]
 	if {$itemidx < 0} {
 		set scrollidx [expr $listsize - $menusize]
-		menu_on_deselect $selectinfo $selectidx
-		set selectidx [expr $menusize - 1]
-		set_selectidx $selectidx
-		menu_on_select $selectinfo $selectidx
+		menu_move_selection $selectinfo $selectidx [expr $menusize - 1]
 	}
 	if {$itemidx >= $listsize} {
 		set scrollidx 0
-		menu_on_deselect $selectinfo $selectidx
-		set selectidx 0
-		set_selectidx $selectidx
-		menu_on_select $selectinfo $selectidx
+		menu_move_selection $selectinfo $selectidx 0
 	}
 	set_scrollidx $scrollidx
 	menu_refresh_top
