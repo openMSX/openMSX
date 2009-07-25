@@ -250,6 +250,10 @@ proc prepare_menu_list { lst num menu_def_list } {
 	set on_select    [get_optional menudef on-select ""]
 	set on_deselect  [get_optional menudef on-deselect ""]
 	set presentation [get_optional menudef presentation $lst]
+	# 'assert': presentation should have same length as item list!
+	if { [llength $presentation] != [llength $lst]} {
+		error "Presentation should be of same length as item list!"
+	}
 	lappend header "selectable" "false"
 	set items [list $header]
 	set lst_len [llength $lst]
@@ -676,7 +680,8 @@ proc menu_create_save_state {} {
 	                  font-size 12
 	                  post-spacing 6 }}
 
-	lappend menu_def presentation [get_savestates_list_presentation_sorted]
+
+	lappend menu_def presentation [concat [list "create new"] [get_savestates_list_presentation_sorted]]
 
 	return [prepare_menu_list $items 10 $menu_def]
 }
