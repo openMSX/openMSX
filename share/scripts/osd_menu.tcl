@@ -263,6 +263,8 @@ proc prepare_menu_list { lst num menu_def_list } {
 		if {$i == ($menu_len - 1)} {
 			lappend actions "DOWN" "osd_menu::list_menu_item_updown 1 $lst_len $menu_len"
 		}
+		lappend actions "LEFT"  "osd_menu::list_menu_item_updown -$menu_len $lst_len $menu_len"
+		lappend actions "RIGHT" "osd_menu::list_menu_item_updown  $menu_len $lst_len $menu_len"
 		set item [list "text" "\[osd_menu::list_menu_item_show \{$presentation\} $i\]" \
 		               "actions" $actions]
 		if {$on_select != ""} {
@@ -295,19 +297,42 @@ proc list_menu_item_updown { delta listsize menusize } {
 	variable menuinfos
 	unpack_menu_info [lindex $menuinfos end]
 	menu_on_deselect $selectinfo $selectidx
+
+	set old_itemidx [expr $scrollidx + $selectidx]
 	incr scrollidx $delta
-	set itemidx [expr $scrollidx + $selectidx]
-	if {$itemidx < 0} {
-		set_scrollidx [expr $listsize - $menusize]
-		set selectidx [expr $menusize - 1]
-		set_selectidx $selectidx
-	} elseif {$itemidx >= $listsize} {
-		set_scrollidx 0
-		set selectidx 0
-		set_selectidx $selectidx
-	} else {
-		set_scrollidx $scrollidx
+	set new_itemidx [expr $scrollidx + $selectidx]
+	if {$new_itemidx < 0} {
+		if {$old_itemidx == 0} {
+			# Wrap around to bottom.
+			set scrollidx [expr $listsize - $menusize]
+			set selectidx [expr $menusize - 1]
+		} else {
+			# Clamp to top.
+			set scrollidx 0
+			set selectidx 0
+		}
+	} elseif {$new_itemidx >= $listsize} {
+		if {$old_itemidx == $listsize - 1} {
+			# Wrap around to top.
+			set scrollidx 0
+			set selectidx 0
+		} else {
+			# Clamp to bottom.
+			set scrollidx [expr $listsize - $menusize]
+			set selectidx [expr $menusize - 1]
+		}
+	} elseif {$scrollidx < 0} {
+		# Clamp to top.
+		set scrollidx 0
+		set selectidx $new_itemidx
+	} elseif {$scrollidx >= $listsize - $menusize} {
+		# Clamp to bottom.
+		set scrollidx [expr $listsize - $menusize]
+		set selectidx [expr $new_itemidx - $scrollidx]
 	}
+
+	set_selectidx $selectidx
+	set_scrollidx $scrollidx
 	menu_on_select $selectinfo $selectidx
 	menu_refresh_top
 }
