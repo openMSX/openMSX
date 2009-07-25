@@ -300,14 +300,14 @@ proc list_menu_item_updown { delta listsize menusize } {
 	incr scrollidx $delta
 	set itemidx [expr $scrollidx + $selectidx]
 	if {$itemidx < 0} {
-		set scrollidx [expr $listsize - $menusize]
+		set_scrollidx [expr $listsize - $menusize]
 		menu_move_selection $selectinfo $selectidx [expr $menusize - 1]
-	}
-	if {$itemidx >= $listsize} {
-		set scrollidx 0
+	} elseif {$itemidx >= $listsize} {
+		set_scrollidx 0
 		menu_move_selection $selectinfo $selectidx 0
+	} else {
+		set_scrollidx $scrollidx
 	}
-	set_scrollidx $scrollidx
 	menu_refresh_top
 }
 
