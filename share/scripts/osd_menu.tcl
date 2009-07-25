@@ -306,7 +306,9 @@ proc list_menu_item_updown { delta listsize menusize } {
 		set_scrollidx 0
 		menu_move_selection $selectinfo $selectidx 0
 	} else {
+		menu_on_deselect $selectinfo $selectidx
 		set_scrollidx $scrollidx
+		menu_on_select $selectinfo $selectidx
 	}
 	menu_refresh_top
 }
