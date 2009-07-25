@@ -169,8 +169,6 @@ proc menu_on_deselect { selectinfo selectidx } {
 	set on_deselect [lindex $selectinfo $selectidx 4]
 	uplevel #0 $on_deselect
 }
-proc menu_up {}   { menu_updown -1 }
-proc menu_down {} { menu_updown  1 }
 proc menu_action { button } {
 	variable menuinfos
 	unpack_menu_info [lindex $menuinfos end]
@@ -237,9 +235,9 @@ proc menu_last_closed {} {
 proc prepare_menu { menu_def_list } {
 	array set menudef $menu_def_list
 	array set actions [get_optional menudef actions ""]
-	set_optional actions UP   osd_menu::menu_up
-	set_optional actions DOWN osd_menu::menu_down
-	set_optional actions B    osd_menu::menu_close_top
+	set_optional actions UP   { osd_menu::menu_updown -1 }
+	set_optional actions DOWN { osd_menu::menu_updown  1 }
+	set_optional actions B    { osd_menu::menu_close_top }
 	set menudef(actions) [array get actions]
 	return [array get menudef]
 }
