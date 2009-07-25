@@ -301,7 +301,7 @@ proc list_menu_item_updown { delta listsize menusize } {
 	set old_itemidx [expr $scrollidx + $selectidx]
 	incr scrollidx $delta
 	set new_itemidx [expr $scrollidx + $selectidx]
-	if {$new_itemidx < 0} {
+	if {$scrollidx < 0} {
 		if {$old_itemidx == 0} {
 			# Wrap around to bottom.
 			set scrollidx [expr $listsize - $menusize]
@@ -309,9 +309,9 @@ proc list_menu_item_updown { delta listsize menusize } {
 		} else {
 			# Clamp to top.
 			set scrollidx 0
-			set selectidx 0
+			set selectidx [expr $new_itemidx < 0 ? 0 : $new_itemidx]
 		}
-	} elseif {$new_itemidx >= $listsize} {
+	} elseif {$scrollidx >= $listsize - $menusize} {
 		if {$old_itemidx == $listsize - 1} {
 			# Wrap around to top.
 			set scrollidx 0
@@ -319,16 +319,9 @@ proc list_menu_item_updown { delta listsize menusize } {
 		} else {
 			# Clamp to bottom.
 			set scrollidx [expr $listsize - $menusize]
-			set selectidx [expr $menusize - 1]
+			set selectidx [expr $new_itemidx < $listsize \
+			                  ? $new_itemidx - $scrollidx : $menusize - 1]
 		}
-	} elseif {$scrollidx < 0} {
-		# Clamp to top.
-		set scrollidx 0
-		set selectidx $new_itemidx
-	} elseif {$scrollidx >= $listsize - $menusize} {
-		# Clamp to bottom.
-		set scrollidx [expr $listsize - $menusize]
-		set selectidx [expr $new_itemidx - $scrollidx]
 	}
 
 	set_selectidx $selectidx
