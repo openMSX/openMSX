@@ -107,11 +107,7 @@ proc menu_create { menu_def_list } {
 
 proc menu_refresh_top {} {
 	variable menuinfos
-	menu_refresh_helper [lindex $menuinfos end]
-}
-
-proc menu_refresh_helper { menuinfo } {
-	unpack_menu_info $menuinfo
+	unpack_menu_info [lindex $menuinfos end]
 
 	foreach { osdid text } $menutexts {
 		set cmd [list subst $text]
