@@ -110,13 +110,6 @@ proc menu_refresh_top {} {
 	menu_refresh_helper [lindex $menuinfos end]
 }
 
-proc menu_refresh_all {} {
-	variable menuinfos
-	foreach menuinfo $menuinfos {
-		menu_refresh_helper $menuinfo
-	}
-}
-
 proc menu_refresh_helper { menuinfo } {
 	unpack_menu_info $menuinfo
 
