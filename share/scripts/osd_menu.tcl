@@ -149,6 +149,9 @@ proc menu_close_all {} {
 	}
 }
 
+proc menu_setting { cmd_result } {
+	menu_refresh_top
+}
 proc menu_updown { delta } {
 	variable menuinfos
 	unpack_menu_info [lindex $menuinfos end]
@@ -386,14 +389,14 @@ set misc_setting_menu [prepare_menu {
 	         post-spacing 6
 	         selectable false }
 	       { text "Speed: $speed"
-	         actions { LEFT  { incr speed -1 }
-	                   RIGHT { incr speed  1 }}}
+	         actions { LEFT  { osd_menu::menu_setting [incr speed -1] }
+	                   RIGHT { osd_menu::menu_setting [incr speed  1] }}}
 	       { text "Minimal Frameskip: $minframeskip"
-	         actions { LEFT  { incr minframeskip -1 }
-	                   RIGHT { incr minframeskip  1 }}}
+	         actions { LEFT  { osd_menu::menu_setting [incr minframeskip -1] }
+	                   RIGHT { osd_menu::menu_setting [incr minframeskip  1] }}}
 	       { text "Maximal Frameskip: $maxframeskip"
-	         actions { LEFT  { incr maxframeskip -1 }
-	                   RIGHT { incr maxframeskip  1 }}}}}]
+	         actions { LEFT  { osd_menu::menu_setting [incr maxframeskip -1] }
+	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}]
 
 set sound_setting_menu [prepare_menu {
 	bg-color 0x000000a0
@@ -410,11 +413,11 @@ set sound_setting_menu [prepare_menu {
 	         post-spacing 6
 	         selectable false }
 	       { text "Volume: $master_volume"
-	         actions { LEFT  { incr master_volume -5 }
-	                   RIGHT { incr master_volume  5 }}}
+	         actions { LEFT  { osd_menu::menu_setting [incr master_volume -5] }
+	                   RIGHT { osd_menu::menu_setting [incr master_volume  5] }}}
 	       { text "Mute: $mute"
-	         actions { LEFT  { cycle_back mute }
-	                   RIGHT { cycle mute }}}}}]
+	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
+	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}}}]
 
 set video_setting_menu [prepare_menu {
 	bg-color 0x000000a0
@@ -431,21 +434,21 @@ set video_setting_menu [prepare_menu {
 	         post-spacing 6
 	         selectable false }
 	       { text "Scaler: $scale_algorithm"
-	         actions { LEFT  { cycle_back scale_algorithm }
-	                   RIGHT { cycle scale_algorithm }}}
+	         actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
+	                   RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
 	       { text "Scale Factor: $scale_factor X"
-	         actions { LEFT  { incr scale_factor -1 }
-	                   RIGHT { incr scale_factor  1 }}
+	         actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
+	                   RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}
 	         post-spacing 6 }
 	       { text "Scanline: $scanline"
-	         actions { LEFT  { incr scanline -1 }
-	                   RIGHT { incr scanline  1 }}}
+	         actions { LEFT  { osd_menu::menu_setting [incr scanline -1] }
+	                   RIGHT { osd_menu::menu_setting [incr scanline  1] }}}
 	       { text "Blur: $blur"
-	         actions { LEFT  { incr blur -1 }
-	                   RIGHT { incr blur  1 }}}
+	         actions { LEFT  { osd_menu::menu_setting [incr blur -1] }
+	                   RIGHT { osd_menu::menu_setting [incr blur  1] }}}
 	       { text "Glow: $glow"
-	         actions { LEFT  { incr glow -1 }
-	                   RIGHT { incr glow  1 }}}}}]
+	         actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
+	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}]
 
 set running_machines_menu [prepare_menu {
 	bg-color 0x000000a0
