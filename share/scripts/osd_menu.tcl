@@ -20,32 +20,42 @@ proc set_optional { array_name key value } {
 	}
 }
 
-variable menuinfos [list]
+variable menulevels 0
 variable main_menu
 
 proc push_menu_info {} {
-	variable menuinfos
-	lappend menuinfos [uplevel {list $name $menutexts $selectinfo $selectidx $scrollidx $on_close}]
+	variable menulevels
+	incr menulevels 1
+	set levelname "menuinfo_$menulevels"
+	variable $levelname
+	array set $levelname [uplevel { list name $name menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
 }
-proc unpack_menu_info { } {
-	variable menuinfos
-	set data [lindex $menuinfos end]
-	set cmd [list foreach {name menutexts selectinfo selectidx scrollidx on_close} $data {}]
-	uplevel $cmd
+proc peek_menu_info {} {
+	variable menulevels
+	uplevel upvar #0 osd_menu::menuinfo_$menulevels menuinfo
+}
+proc unpack_menu_info {} {
+	peek_menu_info
+	uplevel [list set name "$menuinfo(name)"]
+	uplevel [list set menutexts "$menuinfo(menutexts)"]
+	uplevel [list set selectinfo "$menuinfo(selectinfo)"]
+	uplevel [list set selectidx "$menuinfo(selectidx)"]
+	uplevel [list set scrollidx "$menuinfo(scrollidx)"]
+	uplevel [list set on_close "$menuinfo(on_close)"]
 }
 proc set_selectidx { value } {
-	variable menuinfos
-	lset menuinfos {end 3} $value
+	peek_menu_info
+	array set menuinfo [list selectidx $value]
 }
 proc set_scrollidx { value } {
-	variable menuinfos
-	lset menuinfos {end 4} $value
+	peek_menu_info
+	array set menuinfo [list scrollidx $value]
 }
 
 proc menu_create { menu_def_list } {
-	variable menuinfos
+	variable menulevels
 
-	set name "menu[expr [llength $menuinfos] + 1]"
+	set name "menu[expr $menulevels + 1]"
 
 	array set menudef $menu_def_list
 
@@ -122,20 +132,22 @@ proc menu_refresh_top {} {
 }
 
 proc menu_close_top {} {
+	variable menulevels
 	unpack_menu_info
 	menu_on_deselect $selectinfo $selectidx
 	uplevel #0 $on_close
 	osd destroy $name
-	variable menuinfos
-	set menuinfos [lreplace $menuinfos end end]
-	if {[llength $menuinfos] == 0} {
+	peek_menu_info
+	array unset menuinfo
+	incr menulevels -1
+	if {$menulevels == 0} {
 		menu_last_closed
 	}
 }
 
 proc menu_close_all {} {
-	variable menuinfos
-	while {[llength $menuinfos]} {
+	variable menulevels
+	while {$menulevels} {
 		menu_close_top
 	}
 }
@@ -199,8 +211,8 @@ proc main_menu_close {} {
 	menu_close_all
 }
 proc main_menu_toggle {} {
-	variable menuinfos
-	if [llength $menuinfos] {
+	variable menulevels
+	if {$menulevels} {
 		# there is at least one menu open, close it
 		menu_close_all
 	} else {
