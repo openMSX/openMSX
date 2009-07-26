@@ -23,10 +23,13 @@ proc set_optional { array_name key value } {
 variable menuinfos [list]
 variable main_menu
 
-proc pack_menu_info {} {
-	uplevel {list $name $menutexts $selectinfo $selectidx $scrollidx $on_close}
+proc push_menu_info {} {
+	variable menuinfos
+	lappend menuinfos [uplevel {list $name $menutexts $selectinfo $selectidx $scrollidx $on_close}]
 }
-proc unpack_menu_info { data } {
+proc unpack_menu_info { } {
+	variable menuinfos
+	set data [lindex $menuinfos end]
 	set cmd [list foreach {name menutexts selectinfo selectidx scrollidx on_close} $data {}]
 	uplevel $cmd
 }
@@ -97,7 +100,7 @@ proc menu_create { menu_def_list } {
 
 	set selectidx 0
 	set scrollidx 0
-	lappend menuinfos [pack_menu_info]
+	push_menu_info
 
 	uplevel #0 $on_open
 	menu_on_select $selectinfo $selectidx
@@ -106,8 +109,7 @@ proc menu_create { menu_def_list } {
 }
 
 proc menu_refresh_top {} {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 
 	foreach { osdid text } $menutexts {
 		set cmd [list subst $text]
@@ -120,11 +122,11 @@ proc menu_refresh_top {} {
 }
 
 proc menu_close_top {} {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 	menu_on_deselect $selectinfo $selectidx
 	uplevel #0 $on_close
 	osd destroy $name
+	variable menuinfos
 	set menuinfos [lreplace $menuinfos end end]
 	if {[llength $menuinfos] == 0} {
 		menu_last_closed
@@ -142,8 +144,7 @@ proc menu_setting { cmd_result } {
 	menu_refresh_top
 }
 proc menu_updown { delta } {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 	menu_on_deselect $selectinfo $selectidx
 	set selectidx [expr ($selectidx + $delta) % [llength $selectinfo]]
 	set_selectidx $selectidx
@@ -159,8 +160,7 @@ proc menu_on_deselect { selectinfo selectidx } {
 	uplevel #0 $on_deselect
 }
 proc menu_action { button } {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 	array set actions [lindex $selectinfo $selectidx 2]
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
@@ -271,23 +271,19 @@ proc prepare_menu_list { lst num menu_def_list } {
 	return [prepare_menu [array get menudef]]
 }
 proc list_menu_item_exec { execute lst pos } {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 	$execute [lindex $lst [expr $pos + $scrollidx]]
 }
 proc list_menu_item_show { lst pos } {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 	return [lindex $lst [expr $pos + $scrollidx]]
 }
 proc list_menu_item_select { lst pos select_proc } {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 	$select_proc [lindex $lst [expr $pos + $scrollidx]]
 }
 proc list_menu_item_updown { delta listsize menusize } {
-	variable menuinfos
-	unpack_menu_info [lindex $menuinfos end]
+	unpack_menu_info
 	menu_on_deselect $selectinfo $selectidx
 
 	set old_itemidx [expr $scrollidx + $selectidx]
