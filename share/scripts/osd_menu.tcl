@@ -34,15 +34,6 @@ proc peek_menu_info {} {
 	variable menulevels
 	uplevel upvar #0 osd_menu::menuinfo_$menulevels menuinfo
 }
-proc unpack_menu_info {} {
-	peek_menu_info
-	uplevel [list set name "$menuinfo(name)"]
-	uplevel [list set menutexts "$menuinfo(menutexts)"]
-	uplevel [list set selectinfo "$menuinfo(selectinfo)"]
-	uplevel [list set selectidx "$menuinfo(selectidx)"]
-	uplevel [list set scrollidx "$menuinfo(scrollidx)"]
-	uplevel [list set on_close "$menuinfo(on_close)"]
-}
 proc set_selectidx { value } {
 	peek_menu_info
 	array set menuinfo [list selectidx $value]
@@ -119,25 +110,23 @@ proc menu_create { menu_def_list } {
 }
 
 proc menu_refresh_top {} {
-	unpack_menu_info
-
-	foreach { osdid text } $menutexts {
+	peek_menu_info
+	foreach { osdid text } $menuinfo(menutexts) {
 		set cmd [list subst $text]
 		osd configure $osdid -text [uplevel #0 $cmd]
 	}
 
-	set sely [lindex $selectinfo $selectidx 0]
-	set selh [lindex $selectinfo $selectidx 1]
-	osd configure "${name}.selection" -y $sely -h $selh
+	set sely [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 0]
+	set selh [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 1]
+	osd configure "$menuinfo(name).selection" -y $sely -h $selh
 }
 
 proc menu_close_top {} {
 	variable menulevels
-	unpack_menu_info
-	menu_on_deselect $selectinfo $selectidx
-	uplevel #0 $on_close
-	osd destroy $name
 	peek_menu_info
+	menu_on_deselect $menuinfo(selectinfo) $menuinfo(selectidx)
+	uplevel #0 $menuinfo(on_close)
+	osd destroy $menuinfo(name)
 	array unset menuinfo
 	incr menulevels -1
 	if {$menulevels == 0} {
@@ -156,11 +145,10 @@ proc menu_setting { cmd_result } {
 	menu_refresh_top
 }
 proc menu_updown { delta } {
-	unpack_menu_info
-	menu_on_deselect $selectinfo $selectidx
-	set selectidx [expr ($selectidx + $delta) % [llength $selectinfo]]
-	set_selectidx $selectidx
-	menu_on_select $selectinfo $selectidx
+	peek_menu_info
+	menu_on_deselect $menuinfo(selectinfo) $menuinfo(selectidx)
+	set_selectidx [expr ($menuinfo(selectidx) + $delta) % [llength $menuinfo(selectinfo)]]
+	menu_on_select $menuinfo(selectinfo) $menuinfo(selectidx)
 	menu_refresh_top
 }
 proc menu_on_select { selectinfo selectidx } {
@@ -172,8 +160,8 @@ proc menu_on_deselect { selectinfo selectidx } {
 	uplevel #0 $on_deselect
 }
 proc menu_action { button } {
-	unpack_menu_info
-	array set actions [lindex $selectinfo $selectidx 2]
+	peek_menu_info
+	array set actions [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 2]
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
 }
@@ -283,20 +271,23 @@ proc prepare_menu_list { lst num menu_def_list } {
 	return [prepare_menu [array get menudef]]
 }
 proc list_menu_item_exec { execute lst pos } {
-	unpack_menu_info
-	$execute [lindex $lst [expr $pos + $scrollidx]]
+	peek_menu_info
+	$execute [lindex $lst [expr $pos + $menuinfo(scrollidx)]]
 }
 proc list_menu_item_show { lst pos } {
-	unpack_menu_info
-	return [lindex $lst [expr $pos + $scrollidx]]
+	peek_menu_info
+	return [lindex $lst [expr $pos + $menuinfo(scrollidx)]]
 }
 proc list_menu_item_select { lst pos select_proc } {
-	unpack_menu_info
-	$select_proc [lindex $lst [expr $pos + $scrollidx]]
+	peek_menu_info
+	$select_proc [lindex $lst [expr $pos + $menuinfo(scrollidx)]]
 }
 proc list_menu_item_updown { delta listsize menusize } {
-	unpack_menu_info
-	menu_on_deselect $selectinfo $selectidx
+	peek_menu_info
+	set scrollidx $menuinfo(scrollidx)
+	set selectidx $menuinfo(selectidx)
+
+	menu_on_deselect $menuinfo(selectinfo) $selectidx
 
 	set old_itemidx [expr $scrollidx + $selectidx]
 	incr scrollidx $delta
@@ -326,7 +317,7 @@ proc list_menu_item_updown { delta listsize menusize } {
 
 	set_selectidx $selectidx
 	set_scrollidx $scrollidx
-	menu_on_select $selectinfo $selectidx
+	menu_on_select $menuinfo(selectinfo) $selectidx
 	menu_refresh_top
 }
 
