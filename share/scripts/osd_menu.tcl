@@ -28,7 +28,7 @@ proc push_menu_info {} {
 	incr menulevels 1
 	set levelname "menuinfo_$menulevels"
 	variable $levelname
-	array set $levelname [uplevel { list name $name presentation $presentation menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
+	array set $levelname [uplevel { list name $name lst $lst presentation $presentation menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
 }
 proc peek_menu_info {} {
 	variable menulevels
@@ -99,6 +99,7 @@ proc menu_create { menu_def_list } {
 	osd create rectangle "${name}.selection" -z -1 -rgba $selectcolor \
 		-x $bordersize -w $selw
 
+	set lst [get_optional menudef "lst" ""]
 	set presentation [get_optional menudef "presentation" ""]
 	set selectidx 0
 	set scrollidx 0
@@ -250,7 +251,7 @@ proc prepare_menu_list { lst num menu_def_list } {
 	set lst_len [llength $lst]
 	set menu_len [expr $lst_len < $num ? $lst_len : $num]
 	for {set i 0} {$i < $menu_len} {incr i} {
-		set actions [list "A" "osd_menu::list_menu_item_exec $execute \{$lst\} $i"]
+		set actions [list "A" "osd_menu::list_menu_item_exec $execute $i"]
 		if {$i == 0} {
 			lappend actions "UP" "osd_menu::list_menu_item_updown -1 $lst_len $menu_len"
 		}
@@ -262,27 +263,28 @@ proc prepare_menu_list { lst num menu_def_list } {
 		set item [list "text" "\[osd_menu::list_menu_item_show $i\]" \
 		               "actions" $actions]
 		if {$on_select != ""} {
-			lappend item "on-select" "osd_menu::list_menu_item_select \{$lst\} $i $on_select"
+			lappend item "on-select" "osd_menu::list_menu_item_select $i $on_select"
 		}
 		if {$on_deselect != ""} {
-			lappend item "on-deselect" "osd_menu::list_menu_item_select \{$lst\} $i $on_deselect"
+			lappend item "on-deselect" "osd_menu::list_menu_item_select $i $on_deselect"
 		}
 		lappend items [concat $item $item_extra]
 	}
 	set menudef(items) $items
+	set menudef(lst) $lst
 	return [prepare_menu [array get menudef]]
 }
-proc list_menu_item_exec { execute lst pos } {
+proc list_menu_item_exec { execute pos } {
 	peek_menu_info
-	$execute [lindex $lst [expr $pos + $menuinfo(scrollidx)]]
+	$execute [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
 }
 proc list_menu_item_show { pos } {
 	peek_menu_info
 	return [lindex $menuinfo(presentation) [expr $pos + $menuinfo(scrollidx)]]
 }
-proc list_menu_item_select { lst pos select_proc } {
+proc list_menu_item_select { pos select_proc } {
 	peek_menu_info
-	$select_proc [lindex $lst [expr $pos + $menuinfo(scrollidx)]]
+	$select_proc [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
 }
 proc list_menu_item_updown { delta listsize menusize } {
 	peek_menu_info
