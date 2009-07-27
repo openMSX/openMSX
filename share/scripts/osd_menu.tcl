@@ -28,7 +28,7 @@ proc push_menu_info {} {
 	incr menulevels 1
 	set levelname "menuinfo_$menulevels"
 	variable $levelname
-	array set $levelname [uplevel { list name $name menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
+	array set $levelname [uplevel { list name $name presentation $presentation menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
 }
 proc peek_menu_info {} {
 	variable menulevels
@@ -99,6 +99,7 @@ proc menu_create { menu_def_list } {
 	osd create rectangle "${name}.selection" -z -1 -rgba $selectcolor \
 		-x $bordersize -w $selw
 
+	set presentation [get_optional menudef "presentation" ""]
 	set selectidx 0
 	set scrollidx 0
 	push_menu_info
@@ -243,6 +244,7 @@ proc prepare_menu_list { lst num menu_def_list } {
 	if { [llength $presentation] != [llength $lst]} {
 		error "Presentation should be of same length as item list!"
 	}
+	set menudef(presentation) $presentation
 	lappend header "selectable" "false"
 	set items [list $header]
 	set lst_len [llength $lst]
@@ -257,7 +259,7 @@ proc prepare_menu_list { lst num menu_def_list } {
 		}
 		lappend actions "LEFT"  "osd_menu::list_menu_item_updown -$menu_len $lst_len $menu_len"
 		lappend actions "RIGHT" "osd_menu::list_menu_item_updown  $menu_len $lst_len $menu_len"
-		set item [list "text" "\[osd_menu::list_menu_item_show \{$presentation\} $i\]" \
+		set item [list "text" "\[osd_menu::list_menu_item_show $i\]" \
 		               "actions" $actions]
 		if {$on_select != ""} {
 			lappend item "on-select" "osd_menu::list_menu_item_select \{$lst\} $i $on_select"
@@ -274,9 +276,9 @@ proc list_menu_item_exec { execute lst pos } {
 	peek_menu_info
 	$execute [lindex $lst [expr $pos + $menuinfo(scrollidx)]]
 }
-proc list_menu_item_show { lst pos } {
+proc list_menu_item_show { pos } {
 	peek_menu_info
-	return [lindex $lst [expr $pos + $menuinfo(scrollidx)]]
+	return [lindex $menuinfo(presentation) [expr $pos + $menuinfo(scrollidx)]]
 }
 proc list_menu_item_select { lst pos select_proc } {
 	peek_menu_info
