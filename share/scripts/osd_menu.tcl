@@ -363,7 +363,7 @@ set main_menu [prepare_menu {
 	         post-spacing 3 }
 	       { text "Save State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_save_state] }}}
-	       { text "Restore State..."
+	       { text "Load State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_state] }}
 	         post-spacing 3 }
 	       { text "openMSX Settings..."
@@ -677,7 +677,7 @@ proc menu_create_load_state {} {
 	         on-close {osd destroy "preview"}
 	         on-select   menu_loadstate_select
 	         on-deselect menu_loadstate_deselect
-	         header { text "Loadstate"
+	         header { text "Load State"
 	                  text-color 0x00ff00ff
 	                  font-size 12
                           post-spacing 6 }}
@@ -705,7 +705,7 @@ proc menu_create_save_state {} {
 	         on-close {osd destroy "preview"}
 	         on-select   menu_loadstate_select
 	         on-deselect menu_loadstate_deselect
-	         header { text "Savestate"
+	         header { text "Save State"
 	                  text-color 0xff0000ff
 	                  font-size 12
 	                  post-spacing 6 }}
