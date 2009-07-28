@@ -13,6 +13,7 @@ proc get_optional { array_name key default } {
 		return $default
 	}
 }
+
 proc set_optional { array_name key value } {
 	upvar $array_name arr
 	if ![info exists arr($key)] {
@@ -30,14 +31,17 @@ proc push_menu_info {} {
 	variable $levelname
 	array set $levelname [uplevel { list name $name lst $lst presentation $presentation menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
 }
+
 proc peek_menu_info {} {
 	variable menulevels
 	uplevel upvar #0 osd_menu::menuinfo_$menulevels menuinfo
 }
+
 proc set_selectidx { value } {
 	peek_menu_info
 	array set menuinfo [list selectidx $value]
 }
+
 proc set_scrollidx { value } {
 	peek_menu_info
 	array set menuinfo [list scrollidx $value]
@@ -146,6 +150,7 @@ proc menu_close_all {} {
 proc menu_setting { cmd_result } {
 	menu_refresh_top
 }
+
 proc menu_updown { delta } {
 	peek_menu_info
 	menu_on_deselect $menuinfo(selectinfo) $menuinfo(selectidx)
@@ -153,14 +158,17 @@ proc menu_updown { delta } {
 	menu_on_select $menuinfo(selectinfo) $menuinfo(selectidx)
 	menu_refresh_top
 }
+
 proc menu_on_select { selectinfo selectidx } {
 	set on_select [lindex $selectinfo $selectidx 3]
 	uplevel #0 $on_select
 }
+
 proc menu_on_deselect { selectinfo selectidx } {
 	set on_deselect [lindex $selectinfo $selectidx 4]
 	uplevel #0 $on_deselect
 }
+
 proc menu_action { button } {
 	peek_menu_info
 	array set actions [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 2]
@@ -174,6 +182,7 @@ if ![file exists $::osd_rom_path] {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
 }
+
 if ![file exists $::osd_disk_path] {
 	# revert to default (should always exist)
 	unset ::osd_disk_path
@@ -197,9 +206,11 @@ proc main_menu_open {} {
 	bind_default "keyb RETURN"         { osd_menu::menu_action A     }
 	bind_default "keyb ESCAPE"         { osd_menu::menu_action B     }
 }
+
 proc main_menu_close {} {
 	menu_close_all
 }
+
 proc main_menu_toggle {} {
 	variable menulevels
 	if {$menulevels} {
@@ -274,18 +285,22 @@ proc prepare_menu_list { lst num menu_def_list } {
 	set menudef(lst) $lst
 	return [prepare_menu [array get menudef]]
 }
+
 proc list_menu_item_exec { execute pos } {
 	peek_menu_info
 	$execute [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
 }
+
 proc list_menu_item_show { pos } {
 	peek_menu_info
 	return [lindex $menuinfo(presentation) [expr $pos + $menuinfo(scrollidx)]]
 }
+
 proc list_menu_item_select { pos select_proc } {
 	peek_menu_info
 	$select_proc [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
 }
+
 proc list_menu_item_updown { delta listsize menusize } {
 	peek_menu_info
 	set scrollidx $menuinfo(scrollidx)
@@ -348,7 +363,7 @@ set main_menu [prepare_menu {
 	         post-spacing 3 }
 	       { text "Save State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_save_state] }}}
-	       { text "Load State..."
+	       { text "Restore State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_state] }}
 	         post-spacing 3 }
 	       { text "openMSX Settings..."
@@ -494,6 +509,7 @@ proc menu_create_running_machine_list {} {
 
 	return [prepare_menu_list $items 5 $menu_def]
 }
+
 proc menu_machine_tab_select_exec { item } {
 	menu_close_top
 	activate_machine $item
@@ -592,7 +608,7 @@ proc menu_select_rom { item } {
 	} else {
 		menu_close_all
 		carta $fullname
-		display_osd_text "Now running ROM: $item"
+		display_osd_text "Now running ROM: [guess_title]"
 		reset
 	}
 }
@@ -704,13 +720,16 @@ proc menu_loadstate_select { item } {
 	set png $::env(OPENMSX_USER_DATA)/../savestates/${item}.png
 	catch {osd create rectangle "preview.image" -relx 0.05 -rely 0.05 -w 80 -h 60 -image $png}
 }
+
 proc menu_loadstate_deselect { item } {
 	catch {osd destroy "preview.image"}
 }
+
 proc menu_loadstate_exec { item } {
 	menu_close_all
 	loadstate $item
 }
+
 proc menu_savestate_exec { item } {
 	if {$item == "create new"} {
 		set item [menu_free_savestate_name]
@@ -722,6 +741,7 @@ proc menu_savestate_exec { item } {
 		savestate $item
 	}
 }
+
 proc menu_free_savestate_name {} {
 	set existing [list_savestates]
 	set i 1
