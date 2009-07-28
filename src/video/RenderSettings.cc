@@ -9,6 +9,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "build-info.hh"
+#include <algorithm>
 #include <cmath>
 
 namespace openmsx {
@@ -98,8 +99,8 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 		SCALER_SIMPLE, scalerMap));
 
 	scaleFactor.reset(new IntegerSetting(commandController,
-		"scale_factor", "scale factor", 2,
-		MIN_SCALE_FACTOR, MAX_SCALE_FACTOR));
+		"scale_factor", "scale factor",
+		std::min(2, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR));
 
 	scanlineAlpha.reset(new IntegerSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
