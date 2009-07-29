@@ -151,6 +151,17 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (scaleAlgorithm != algo) {
 		scaleAlgorithm = algo;
 		currScaler = GLScalerFactory::createScaler(renderSettings);
+
+		// Re-upload frame data, this is both
+		//  - Chunks of RawFrame with a specific linewidth, possibly
+		//    with some extra lines above and below each chunk that are
+		//    also converted to this linewidth.
+		//  - Extra data that is specific for the scaler (ATM only the
+		//    hq and hqlite scalers require this).
+		// Re-uploading the first is not strictly needed. But switching
+		// scalers doesn't happen that often, so it also doesn't hurt
+		// and it keeps the code simpler.
+		uploadFrame();
 	}
 
 	if (renderToTexture) {
