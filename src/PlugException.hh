@@ -14,6 +14,8 @@ class PlugException : public MSXException
 public:
 	explicit PlugException(const std::string& message)
 		: MSXException(message) {}
+	explicit PlugException(const char*        message)
+		: MSXException(message) {}
 };
 
 } // namespace openmsx

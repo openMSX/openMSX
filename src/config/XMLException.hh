@@ -10,8 +10,10 @@ namespace openmsx {
 class XMLException : public MSXException
 {
 public:
-	explicit XMLException(const std::string& msg)
-		: MSXException(msg) {}
+	explicit XMLException(const std::string& message)
+		: MSXException(message) {}
+	explicit XMLException(const char*        message)
+		: MSXException(message) {}
 };
 
 } // namespace openmsx

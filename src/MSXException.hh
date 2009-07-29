@@ -10,9 +10,9 @@ namespace openmsx {
 class MSXException
 {
 public:
-	explicit MSXException(const std::string& message_)
-		: message(message_) { }
-	virtual ~MSXException() { }
+	explicit MSXException(const std::string& message);
+	explicit MSXException(const char*        message);
+	~MSXException();
 
 	const std::string& getMessage() const {
 		return message;
@@ -25,9 +25,9 @@ private:
 class FatalError
 {
 public:
-	explicit FatalError(const std::string& message_)
-		: message(message_) { }
-	virtual ~FatalError() { }
+	explicit FatalError(const std::string& message);
+	explicit FatalError(const char*        message);
+	~FatalError();
 
 	const std::string& getMessage() const {
 		return message;

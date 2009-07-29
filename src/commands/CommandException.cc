@@ -2,11 +2,15 @@
 
 #include "CommandException.hh"
 
-
 namespace openmsx {
 
-CommandException::CommandException(const std::string& desc)
-	: MSXException(desc)
+CommandException::CommandException(const std::string& message)
+	: MSXException(message)
+{
+}
+
+CommandException::CommandException(const char* message)
+	: MSXException(message)
 {
 }
 

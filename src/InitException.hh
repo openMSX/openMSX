@@ -14,7 +14,9 @@ class InitException: public MSXException
 {
 public:
 	explicit InitException(const std::string& message)
-		: MSXException(message) { }
+		: MSXException(message) {}
+	explicit InitException(const char*        message)
+		: MSXException(message) {}
 };
 
 } // namespace openmsx

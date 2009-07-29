@@ -41,7 +41,8 @@ SRC_HDR:= \
 	Version \
 	LedStatus \
 	serialize serialize_meta serialize_core openmsx \
-	ReverseManager
+	ReverseManager \
+	MSXException
 
 SRC_ONLY:= \
 	main
@@ -49,7 +50,7 @@ SRC_ONLY:= \
 HDR_ONLY:= \
 	openmsx \
 	Clock \
-	MSXException InitException PlugException \
+	InitException PlugException \
 	PatchInterface I8255Interface \
 	serialize_stl serialize_constr
 
