@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1248851419">
+<softwaredb xml:lang="en" timestamp="1248859446">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -790,7 +790,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>AG Software</company>
 	<year>2008</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">619a2d42263da74a723cceead5a19e0e0dd86c6f</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">619a2d42263da74a723cceead5a19e0e0dd86c6f</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Balance</title>
@@ -1010,7 +1010,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Dioniso</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash><remark><text>MSXDEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">BeeZ</title>
@@ -1147,7 +1147,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>MSxNAKE</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">3e44a4e5608e01793877e62f82c12c2b82908461</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">3e44a4e5608e01793877e62f82c12c2b82908461</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Boggy&#39;84</title>
@@ -1193,12 +1193,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Bomb Man</title>
-	<genmsxid>325</genmsxid>
 	<system>MSX</system>
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">46ecaf85f1ff1b4821670bf44ff1249fe1b13a35</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">46ecaf85f1ff1b4821670bf44ff1249fe1b13a35</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Bomber King</title>
@@ -1719,8 +1718,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">6aa9f75720bb38e410d751225d18e8985ab4d61f</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a5802d5fe8bcda79354519d7e7a7b710bb6f9db8</hash><remark><text>MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">983f97a0d8aedad52f5a2ade5fed6f2812218b2e</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a5802d5fe8bcda79354519d7e7a7b710bb6f9db8</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">983f97a0d8aedad52f5a2ade5fed6f2812218b2e</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">c5568fc07bfb193b43ad7c840787f274d9c1e42f</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
@@ -1842,7 +1841,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Crappysoft</company>
 	<year>2005</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">ca770384382bd487dd7330552403f85d7edbb8ce</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">ca770384382bd487dd7330552403f85d7edbb8ce</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Checkers In Tantan Tanuki</title>
@@ -2189,7 +2188,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Vendetta</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">30fa1447f8ef8e8ff9653dce6d7d672104f6e6ab</hash><remark><text>unfinished / MSXdev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">30fa1447f8ef8e8ff9653dce6d7d672104f6e6ab</hash><remark><text>unfinished / MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Cosmo Explorer</title>
@@ -2403,7 +2402,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Danger Team</company>
 	<year>2009</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">595ed23f45a8382739a3b865e153583f41f4ead7</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">595ed23f45a8382739a3b865e153583f41f4ead7</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Danger X4</title>
@@ -2475,12 +2474,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Deep Dungeon</title>
-	<genmsxid>1160</genmsxid>
 	<system>MSX</system>
 	<company>Trilobyte</company>
 	<year>2009</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">4233ab2fb0d956e0efb43e2a489ca46b65aeda8f</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">4233ab2fb0d956e0efb43e2a489ca46b65aeda8f</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Deep Dungeon 1</title>
@@ -4365,9 +4363,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Karoshi Corporation</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">989d9ba7c0f29694fa3b737d09cf102606b2fd5b</hash><remark><text>MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">acb6e93227bc89da119443e03890b58a1befc0b0</hash><remark><text>MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">4dd2ec21474720eb56f012bb761117b4d507f331</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">989d9ba7c0f29694fa3b737d09cf102606b2fd5b</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">acb6e93227bc89da119443e03890b58a1befc0b0</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">4dd2ec21474720eb56f012bb761117b4d507f331</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5a9364271ddca5208b625c891f01a89fd2367a8d</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
@@ -4880,7 +4878,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Muffie Co. International Holding</company>
 	<year>2009</year>
 	<country>BR</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">21e44cc5957b65b24c34d2c42b39879cacd82ff9</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">21e44cc5957b65b24c34d2c42b39879cacd82ff9</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Hot-Assembler</title>
@@ -5098,8 +5096,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>CEZ GS (ComputerEmuzone Game Studio)</company>
 	<year>2009</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">0293bc55df4f9b7fb97ae9cded8ab2c5c9ed0fd4</hash><remark><text>After MSXDEV 08 version</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">bd46981d1b580ec9a2d1d909f5c1a8dfd9a71ed7</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">0293bc55df4f9b7fb97ae9cded8ab2c5c9ed0fd4</hash><remark><text>After MSX-DEV08 version</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">bd46981d1b580ec9a2d1d909f5c1a8dfd9a71ed7</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">I.N.E.R.T.I.A.</title>
@@ -5107,7 +5105,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Andrea Rossetti</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a53610adcf84bdb1b84d94d4c6d1f0a7d45e9ddd</hash><remark><text>MSXDEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a53610adcf84bdb1b84d94d4c6d1f0a7d45e9ddd</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Ibn Maleck</title>
@@ -5594,14 +5592,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">632ef250c76b222158ba90dfc68b9e004dbafe3a</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Kanji ROM - JIS 1st Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">fc71561a64f73da0e0043d256f67fd18d7fc3a7f</hash><remark><text>For Jap. MSX-Write</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Karamaru</title>
@@ -6266,10 +6256,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Karoshi Corporation</company>
 	<year>2009</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">97b8ef65d86ec425d5901fce80d33a3d731e50e1</hash><remark><text>English Version / MSXDEV 08 Entry</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">d76a904dd88f7360fe79000c374f40a69b801325</hash><remark><text>English Version / MSXDEV 08 Entry (v2)</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">03ae0eebbbf80f8e51c5892a74aa2b4f287a9319</hash><remark><text>Spanish Version / MSXDEV 08 Entry (v2)</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">761071622b60384ec38e964fa2b2ee12d3d0b2c9</hash><remark><text>Spanish Version / MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">97b8ef65d86ec425d5901fce80d33a3d731e50e1</hash><remark><text>English Version / MSX-DEV08</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d76a904dd88f7360fe79000c374f40a69b801325</hash><remark><text>English Version / MSX-DEV08 (v2)</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">03ae0eebbbf80f8e51c5892a74aa2b4f287a9319</hash><remark><text>Spanish Version / MSX-DEV08 (v2)</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">761071622b60384ec38e964fa2b2ee12d3d0b2c9</hash><remark><text>Spanish Version / MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">La Corona Encatada Final Version</title>
@@ -6405,7 +6395,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Arnold Metselaar</company>
 	<year>2009</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">6baf75aa6024cb1311fc1171cce4560e16de6d9a</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6baf75aa6024cb1311fc1171cce4560e16de6d9a</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">2b9ab44526a19706de76ff374459cccae3e65c84</hash></rom></dump>
 </software>
 <software>
@@ -6423,7 +6413,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">ea774f43f9c02064fcc07d5131691f5bd4e9c4f5</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">ea774f43f9c02064fcc07d5131691f5bd4e9c4f5</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Lode Runner</title>
@@ -6460,7 +6450,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Hability game</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">ba6bff43e5773c6777f73ebc63b4f38466dc2630</hash><remark><text>MSXDEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">ba6bff43e5773c6777f73ebc63b4f38466dc2630</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">46611b1ab3b8ed272d989fe3b209ebe29a866718</hash><remark><text>MSX-DEV06</text></remark></megarom></dump>
 </software>
 <software>
@@ -7237,14 +7227,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">aa6055ba0e433aa9c93df4444783cacb9628a7e2</hash><remark><text>English Version - Push 0 to use SCC / MSX-DEV06</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash><remark><text>Spanish Version - Push 0 to use SCC / MSX-DEV06</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">1c238009e77c5536d0059631954c2c4a52527283</hash><remark><text>English Version - Push 0 to use SCC / MSX-DEV06</text></remark></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Monster Hunter</title>
-	<system>MSX</system>
-	<company>Spanish Version - Nerlaska Studio</company>
-	<year>2006</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">ca45da2f9cd8edf4ab04ffd542b9c60ef6a9a254</hash><remark><text>Push 0 to use SCC / MSX-DEV06</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">ca45da2f9cd8edf4ab04ffd542b9c60ef6a9a254</hash><remark><text>Push 0 to use SCC / MSX-DEV06 (Spanish Version)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Monster&#39;s Fair</title>
@@ -7724,8 +7707,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Buresto Faiya</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a39568be17b6ee5d10a61d82d8480cc859be778a</hash><remark><text>MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">05b8109f4f0a4d9c1bcb837982abb573236be936</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a39568be17b6ee5d10a61d82d8480cc859be778a</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">05b8109f4f0a4d9c1bcb837982abb573236be936</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Nausicaa</title>
@@ -8079,12 +8062,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Operation Wolf</title>
-	<genmsxid>2750</genmsxid>
 	<system>MSX</system>
 	<company>Toybox</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash><remark><text>FM Music (if OPL is detected) / MSXDEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash><remark><text>FM Music (if OPL is detected) / MSX-DEV06</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">016c63161d5112ef637d48920a85001c9eb6a10f</hash><remark><text>FM Music (if OPL is detected) - Version 2 / MSX-DEV06</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5971dd9906de38ff3668e9e0330008e204f60f23</hash></rom></dump>
 </software>
@@ -8220,7 +8202,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">9ab584be0a054e76d345ca937917f1ea195f7967</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">9ab584be0a054e76d345ca937917f1ea195f7967</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Pairs</title>
@@ -8259,8 +8241,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Paxanga</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">cda2df54006d98890feb1aac1dd955d0458132a4</hash><remark><text>MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">f0b65b71c505c68019e2285d3b8afcf068a74b9f</hash><remark><text>2nd release / MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">cda2df54006d98890feb1aac1dd955d0458132a4</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">f0b65b71c505c68019e2285d3b8afcf068a74b9f</hash><remark><text>2nd release / MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Parodius - Tako Saves Earth</title>
@@ -8330,8 +8312,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>DVIK &#38; joyrex productions</company>
 	<year>2008</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">d92c82e155cb34f65587d472d4eb5ed1b9e68018</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">a0b45f208df3091e461e15f6182896d2716c2a11</hash><remark><text>MSXDEV 08 Entry (v2)</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d92c82e155cb34f65587d472d4eb5ed1b9e68018</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">a0b45f208df3091e461e15f6182896d2716c2a11</hash><remark><text>MSX-DEV08 (v2)</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Peetan</title>
@@ -8374,7 +8356,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>The exMSXcaf&#233; Team</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">058af0079b868387ad39c6b8a390b18b936d0e48</hash><remark><text>MSXDEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">058af0079b868387ad39c6b8a390b18b936d0e48</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Penguin Mind</title>
@@ -8664,16 +8646,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>The New Image</company>
 	<year>2006</year>
-	<country>EU</country>
+	<country>NL</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">08d5a55b80726fb9c793be20e36f6d88beb643a6</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">31706b3fc6cf6ab1d2e3670ddead564564e96c45</hash><remark><text>Release 2</text></remark></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Pointless Platform</title>
-	<system>MSX</system>
-	<company>TNI</company>
-	<year>2006</year>
-	<country>NL</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">2d09b2ea90ad0cb0da104293d99623569c33b86a</hash></rom></dump>
 </software>
 <software>
@@ -8955,8 +8930,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Metal Soft aka Vampier</company>
 	<year>2009</year>
 	<country>US</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">681c30c7539ec738be2e36ddca408eed392f3b6d</hash><remark><text>After MSXDEV 08 Version</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">681c30c7539ec738be2e36ddca408eed392f3b6d</hash><remark><text>After MSX-DEV08 Version</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">1eb9f2bd558dd8ecafcde3ce61881bfa27f70f1f</hash></megarom></dump>
 </software>
 <software>
@@ -8990,15 +8965,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">29a42c2b679bac55a0318ce8c97708e402e2779b</hash><remark><text>[RC-769] / Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">0c62591033aa4e5e6b9eeb21eb2e5e60dcd8ee8e</hash><remark><text>[RC-769]</text></remark></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Quarth</title>
-	<genmsxid>1383</genmsxid>
-	<system>MSX</system>
-	<company>Konami / Daou</company>
-	<year>1990</year>
-	<country>JP/KR</country>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2312bff70c83e60d1ca0fb9ca78a50637d02771c</hash><remark><text>Korean version / JP-KR</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2312bff70c83e60d1ca0fb9ca78a50637d02771c</hash><remark><text>Korean version by Daou / JP-KR</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Quarth Demo Version</title>
@@ -9011,6 +8978,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Queen&#39;s Golf</title>
+	<genmsxid>444</genmsxid>
 	<system>MSX</system>
 	<company>Ascii</company>
 	<year>1984</year>
@@ -9082,16 +9050,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">4334acc2bd5c921bc4dcb6de9a1fcc79d843ee15</hash><remark><text>[a1]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">ac381dfb4d0b52dedb18a8df7a4651ed2978d12f</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">fe1d02284b0b051308e3c796e8e9eee2f86521b8</hash><remark><text>[a2]</text></remark></rom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">441dacb74a47ca4b7d1ce47300d182bc7424ffac</hash><remark><text>Alternative Intro</text></remark></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Rambo Plus</title>
-	<system>MSX</system>
-	<company>Pack In Video</company>
-	<year>1985</year>
-	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">1efcf9e9a8ea38bad319a70a5f7319e2589d4a8b</hash><remark><text>hacked by RicBit / hacked by RicBit</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">1a90b7c7f24bb7fa93c84bde2d1b655e30c4a7cb</hash><remark><text>hacked by RicBit / h RicBit</text></remark></rom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">441dacb74a47ca4b7d1ce47300d182bc7424ffac</hash><remark><text>Alternative Intro</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Rastan Saga</title>
@@ -9404,8 +9365,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Karoshi Corporation</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">f448289db0d5c8fe6c4b3ca863af73db3c4a5e45</hash><remark><text>Spanish / MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">fa29ca4486a089e32790a69a9598b051d6b7dac4</hash><remark><text>English / MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">f448289db0d5c8fe6c4b3ca863af73db3c4a5e45</hash><remark><text>Spanish / MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">fa29ca4486a089e32790a69a9598b051d6b7dac4</hash><remark><text>English / MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Sakhr Dictionary</title>
@@ -9421,7 +9382,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1987</year>
-	<country>SA</country>
+	<country>MA</country>
 		<dump><original value="false"/><rom><hash algo="sha1">f2b5b9029575b85f0730914a44e57f94c9313df5</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">a2901318f8216ccd2f4d08b0f272e1bf90ab197a</hash></rom></dump>
 </software>
@@ -10049,7 +10010,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">e168d460c2acc0f25523e2b99861d187d1aaac00</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">e168d460c2acc0f25523e2b99861d187d1aaac00</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">b9aad68e2338ab1814f2dac78b2c4b5877d29cee</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
@@ -10144,7 +10105,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Dioniso</company>
 	<year>2009</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">78e833c0a94478b9c07e974f311dbfef1e014f1c</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">78e833c0a94478b9c07e974f311dbfef1e014f1c</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Space Arithmetic</title>
@@ -10179,10 +10140,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Yermani Soft</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a21d354ddda95975d737746d27fd59cb908ddf0a</hash><remark><text>English / MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">0856cba14ff2396ea257ff927da0767ae74084c5</hash><remark><text>Spanish / MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">5bff56d5671d1131056451025b20c1ce192e279b</hash><remark><text>English Version / MSXDEV05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">96e1f8fa1f4f3fdfa999f6a999d60d75b590f070</hash><remark><text>Spanish Version / MSXDEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a21d354ddda95975d737746d27fd59cb908ddf0a</hash><remark><text>English / MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">0856cba14ff2396ea257ff927da0767ae74084c5</hash><remark><text>Spanish / MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">5bff56d5671d1131056451025b20c1ce192e279b</hash><remark><text>English Version / MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">96e1f8fa1f4f3fdfa999f6a999d60d75b590f070</hash><remark><text>Spanish Version / MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Space Invader</title>
@@ -10304,7 +10265,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Impulse9</company>
 	<year>2007</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">22a927a7bc70a36379404743a3fde5df8ca543ce</hash><remark><text>MSXDEV 07 Entry (Canceled)</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">22a927a7bc70a36379404743a3fde5df8ca543ce</hash><remark><text>MSX-DEV07 (Canceled)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Spider, The</title>
@@ -10533,7 +10494,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>DVIK &#38; joyrex productions</company>
 	<year>2006</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c44cccb53e2f0cc8560c288354744f29d2488850</hash><remark><text>MSXDEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c44cccb53e2f0cc8560c288354744f29d2488850</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">120d477cd28b48b8a63efb34920ac331b54e66e5</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 </software>
 <software>
@@ -10906,6 +10867,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Takeru Densetsu - Fuun Takeshijyou</title>
+	<genmsxid>1825</genmsxid>
 	<system>MSX</system>
 	<company>Takeru</company>
 	<year>1987</year>
@@ -10991,6 +10953,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Telebunnie</title>
+	<genmsxid>228</genmsxid>
 	<system>MSX</system>
 	<company>Ascii</company>
 	<year>1983</year>
@@ -11040,6 +11003,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Tensidachino Gogo</title>
+	<genmsxid>977</genmsxid>
 	<system>MSX</system>
 	<company>Jast</company>
 	<year>1987</year>
@@ -11048,6 +11012,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Tension</title>
+	<genmsxid>2293</genmsxid>
 	<system>MSX</system>
 	<company>System 4</company>
 	<year>1988</year>
@@ -11056,6 +11021,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Test your Intelligence</title>
+	<genmsxid>1962</genmsxid>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1985</year>
@@ -11064,6 +11030,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Test your Intelligence 2</title>
+	<genmsxid>1963</genmsxid>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1986</year>
@@ -11072,6 +11039,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Test your Knowledge</title>
+	<genmsxid>1921</genmsxid>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1985</year>
@@ -11080,6 +11048,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Test your Knowledge 2</title>
+	<genmsxid>1922</genmsxid>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1986</year>
@@ -11088,6 +11057,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Test your Knowledge 3</title>
+	<genmsxid>1923</genmsxid>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1988</year>
@@ -11114,21 +11084,22 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Tetris</title>
-	<system>MSX</system>
-	<company>Zemina</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><original value="false"/><rom><hash algo="sha1">e9398aceb9f8a648e4bcebe02e5d7b14a3744c7d</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">90df63292fc2f210b88cc8ec284391423d21c917</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Tetris</title>
 	<genmsxid>1167</genmsxid>
 	<system>MSX</system>
 	<company>Bps - ELORG</company>
 	<year>1988</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">af310ee21b5534f32ea92c0ae34a44d828d157a7</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Tetris</title>
+	<genmsxid>3236</genmsxid>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1987</year>
+	<country>KR</country>
+		<dump><original value="false"/><rom><hash algo="sha1">e9398aceb9f8a648e4bcebe02e5d7b14a3744c7d</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">90df63292fc2f210b88cc8ec284391423d21c917</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tetsuman</title>
@@ -11155,8 +11126,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>XL2S Entertainment</company>
 	<year>2005</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">882a63a9655e53fddb1cd48761a1a09b28f7e5a3</hash><remark><text>Winner MSXDev2005</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">e82bbd2d9dbbb30a2b4a259954c5484fa236733a</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">882a63a9655e53fddb1cd48761a1a09b28f7e5a3</hash><remark><text>MSX-DEV05 (Winner)</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">e82bbd2d9dbbb30a2b4a259954c5484fa236733a</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">The Energy</title>
@@ -11182,8 +11153,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Yermani Soft</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">b433357683fb1154d75c677ba01893665880f483</hash><remark><text>MSXDev05</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash><remark><text>English / MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">b433357683fb1154d75c677ba01893665880f483</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash><remark><text>English / MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">The Three Dragon Story</title>
@@ -11205,6 +11176,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">The Zoo</title>
+	<genmsxid>1968</genmsxid>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1989</year>
@@ -11226,6 +11198,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Three Dragon Story, The - Muffie version</title>
+	<genmsxid>3241</genmsxid>
 	<system>MSX</system>
 	<company>Zemina</company>
 	<year>1989</year>
@@ -11305,7 +11278,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Impulse9</company>
 	<year>2009</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">da80f0bc07cb0ed36c7c106564b5f04353eb176a</hash><remark><text>MSXDEV 08 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">da80f0bc07cb0ed36c7c106564b5f04353eb176a</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Toobin</title>
@@ -11327,6 +11300,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Topple Zip - MSX1 Version</title>
+	<genmsxid>803</genmsxid>
 	<system>MSX</system>
 	<company>Bothtec</company>
 	<year>1986</year>
@@ -11345,6 +11319,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Toque !</title>
+	<genmsxid>3403</genmsxid>
 	<system>MSX</system>
 	<company>Gradiente</company>
 	<year>19xx</year>
@@ -11353,6 +11328,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Tower of Druaga</title>
+	<genmsxid>808</genmsxid>
 	<system>MSX</system>
 	<company>Namcot</company>
 	<year>1986</year>
@@ -11361,6 +11337,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Track &#38; Field 1</title>
+	<genmsxid>261</genmsxid>
 	<system>MSX</system>
 	<company>Konami</company>
 	<year>1984</year>
@@ -11369,6 +11346,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Track &#38; Field 2</title>
+	<genmsxid>262</genmsxid>
 	<system>MSX</system>
 	<company>Konami</company>
 	<year>1984</year>
@@ -11391,8 +11369,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Imanok</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">0f7f55fe448d20fc65dc03c2a4f1717761671e43</hash><remark><text>MSXDEV06</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">e6af71c99290b6ff2da9d3667e2046651e2c9fca</hash><remark><text>MSXDEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">0f7f55fe448d20fc65dc03c2a4f1717761671e43</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">e6af71c99290b6ff2da9d3667e2046651e2c9fca</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Traga Perras</title>
@@ -11408,7 +11386,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>MSxNAKE</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">1074acd37ee42661d86b75a8491365ed8ceaa6e0</hash><remark><text>MSXDev05</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">1074acd37ee42661d86b75a8491365ed8ceaa6e0</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Treasure Of Usas, The</title>
@@ -11441,14 +11419,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">e93da3d1910d513dbb78ad599adbb05eb92b5930</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Trip to Mecca</title>
-	<system>MSX</system>
-	<company>al Alamiah</company>
-	<year>1985</year>
-	<country>MA</country>
-		<dump><original value="false"/><rom><hash algo="sha1">09d2563fd5d9df095aa48be5ead7771c23c50ad2</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tritorn</title>
@@ -11532,13 +11502,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d77a0208790f9563985d236d79a80d737b47f070</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">ca52d26e847b23c7caeb7d516b5fca5cbd686ef3</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d59ad9f16932cc3dadb22c25e64c10a73a055056</hash><remark><text>[b1]</text></remark></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Tutankham - Muffie version</title>
-	<system>MSX</system>
-	<company>Konami</company>
-	<year>2008</year>
-	<country>BR</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5925e88df896104e25fc6941fcb7925ac7a277b3</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d0ed63a8bd0302313fbdb7609d35f47ad096be3e</hash></rom></dump>
 </software>
@@ -11576,6 +11539,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">TZR Grand Prix Rider</title>
+	<genmsxid>796</genmsxid>
 	<system>MSX</system>
 	<company>Ascii</company>
 	<year>1986</year>
@@ -11609,11 +11573,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Ultraman</title>
+	<genmsxid>103</genmsxid>
 	<system>MSX</system>
-	<company>unkown</company>
+	<company>Bandai</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e73a449e34652c18af0a72ab5c3637afa57d5842</hash><remark><text>Bandai - Tsubaraya Pro</text></remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e73a449e34652c18af0a72ab5c3637afa57d5842</hash><remark><text>Tsubaraya Pro</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Universe Unknown</title>
@@ -11759,17 +11724,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Viking</title>
 	<system>MSX</system>
-	<company>JLTURSAN</company>
-	<year>2005</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">91186f361c8323605c79dc4551a768a4b9c5a320</hash><remark><text>MSXDev05</text></remark></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Viking</title>
-	<system>MSX</system>
 	<company>Jos&#233; Luis Tur</company>
 	<year>2005</year>
 	<country>EU</country>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">91186f361c8323605c79dc4551a768a4b9c5a320</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">4db63ea453df9d17cf84a0f977f4768438ec9c45</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">17315e6b40f89c2cd0d8929eefcb9394b04e4cc6</hash><remark><text>MSX-DEV05</text></remark></rom></dump>
 </software>
@@ -11781,6 +11739,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6dfc622e350d29859f05fddb3fa1f974cd4c8bf2</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Voyage to Mecca</title>
+	<genmsxid>1969</genmsxid>
+	<system>MSX</system>
+	<company>al Alamiah</company>
+	<year>1985</year>
+	<country>MA</country>
+		<dump><original value="false"/><rom><hash algo="sha1">09d2563fd5d9df095aa48be5ead7771c23c50ad2</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Warp &#38; Warp</title>
@@ -11814,6 +11781,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Water Driver</title>
+	<genmsxid>195</genmsxid>
 	<system>MSX</system>
 	<company>Colpax</company>
 	<year>1984</year>
@@ -11844,6 +11812,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Who Dares Wins 2</title>
+	<genmsxid>2414</genmsxid>
 	<system>MSX</system>
 	<company>Alligata</company>
 	<year>1986</year>
@@ -11936,6 +11905,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Xevious Micro</title>
+	<genmsxid>3245</genmsxid>
 	<system>MSX</system>
 	<company>Zemina</company>
 	<year>1990</year>
@@ -11944,6 +11914,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Xyxolog</title>
+	<genmsxid>485</genmsxid>
 	<system>MSX</system>
 	<company>Taito</company>
 	<year>1984</year>
@@ -11978,7 +11949,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">3e57fad130be79223068ab29f1e77ecb7f2ad237</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Yakyukyo - Baseball Crazy</title>
+	<title xml:lang="en">Yakyukyo - Baseball Craze</title>
+	<genmsxid>671</genmsxid>
 	<system>MSX</system>
 	<company>Hudson</company>
 	<year>1984</year>
@@ -12033,6 +12005,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Yokai Tanken Chima Chima</title>
+	<genmsxid>674</genmsxid>
 	<system>MSX</system>
 	<company>Bothtec</company>
 	<year>1985</year>
@@ -12041,6 +12014,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Yokai Yasiki - Boynight - Haunted House</title>
+	<genmsxid>874</genmsxid>
 	<system>MSX</system>
 	<company>Casio</company>
 	<year>1986</year>
@@ -12061,6 +12035,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Young Researcher</title>
+	<genmsxid>1977</genmsxid>
 	<system>MSX</system>
 	<company>al Alamiah</company>
 	<year>1989</year>
@@ -12069,6 +12044,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Young Sherlock - The Legacy Of Doyle</title>
+	<genmsxid>1032</genmsxid>
 	<system>MSX</system>
 	<company>Pack In Video</company>
 	<year>1985</year>
@@ -12203,6 +12179,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Zen Assembler</title>
+	<genmsxid>2424</genmsxid>
 	<system>MSX</system>
 	<company>Avalon Software</company>
 	<year>1986</year>
@@ -12288,6 +12265,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2461
-Parse time 6.399 seconds on Wed Jul 29 9:10:26 CEST 2009
+Roms in this database:2460
+Parse time 5.776 seconds on Wed Jul 29 11:24:12 CEST 2009
  -->
