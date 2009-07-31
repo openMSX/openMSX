@@ -26,6 +26,7 @@
 #include "serialize.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
+#include <tcl.h>
 #include <cstdio>
 #include <memory> // for auto_ptr
 #include <set>
@@ -273,7 +274,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 		// execute read watches before actual read
 		if (readWatchSet[address >> CacheLine::BITS]
 		                [address &  CacheLine::LOW]) {
-			executeMemWatch(address, WatchPoint::READ_MEM);
+			executeMemWatch(WatchPoint::READ_MEM, address);
 		}
 	}
 	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
@@ -304,7 +305,7 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 		// execute write watches after actual write
 		if (writeWatchSet[address >> CacheLine::BITS]
 		                 [address &  CacheLine::LOW]) {
-			executeMemWatch(address, WatchPoint::WRITE_MEM);
+			executeMemWatch(WatchPoint::WRITE_MEM, address, value);
 		}
 	}
 }
@@ -884,8 +885,19 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 	msxcpu.invalidateMemCache(0x0000, 0x10000);
 }
 
-void MSXCPUInterface::executeMemWatch(word address, WatchPoint::Type type)
+void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
+                                      unsigned address, unsigned value)
 {
+	assert(!watchPoints.empty());
+
+	Tcl_Interp* interp = watchPoints.front()->getInterpreter();
+	Tcl_SetVar(interp, "wp_last_address", StringOp::toString(address).c_str(),
+	           TCL_GLOBAL_ONLY);
+	if (value != -1u) {
+		Tcl_SetVar(interp, "wp_last_value", StringOp::toString(value).c_str(),
+			   TCL_GLOBAL_ONLY);
+	}
+
 	WatchPoints wpCopy(watchPoints);
 	for (WatchPoints::const_iterator it = wpCopy.begin();
 	     it != wpCopy.end(); ++it) {
@@ -895,6 +907,9 @@ void MSXCPUInterface::executeMemWatch(word address, WatchPoint::Type type)
 			(*it)->checkAndExecute();
 		}
 	}
+
+	Tcl_UnsetVar(interp, "wp_last_address", TCL_GLOBAL_ONLY);
+	Tcl_UnsetVar(interp, "wp_last_value", TCL_GLOBAL_ONLY);
 }
 
 

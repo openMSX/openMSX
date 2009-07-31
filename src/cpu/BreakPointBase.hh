@@ -7,6 +7,8 @@
 #include <string>
 #include <memory>
 
+struct Tcl_Interp;
+
 namespace openmsx {
 
 class CliComm;
@@ -20,6 +22,9 @@ public:
 	std::string getCondition() const;
 	std::string getCommand() const;
 	void checkAndExecute();
+
+	// get associated interpreter
+	Tcl_Interp* getInterpreter() const;
 
 protected:
 	BreakPointBase(CliComm& cliComm,

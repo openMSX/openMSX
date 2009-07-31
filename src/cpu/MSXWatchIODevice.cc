@@ -4,6 +4,8 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
+#include "StringOp.hh"
+#include <tcl.h>
 #include <cassert>
 
 namespace openmsx {
@@ -44,8 +46,10 @@ byte MSXWatchIODevice::peekIO(word port, EmuTime::param time) const
 byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
 {
 	assert(device);
-	//std::cout << "Watch readIO " << port << std::endl;
-	byte result = device->readIO(port, time);
+
+	Tcl_Interp* interp = getInterpreter();
+	Tcl_SetVar(interp, "wp_last_address",
+	           StringOp::toString(unsigned(port)).c_str(), TCL_GLOBAL_ONLY);
 
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
@@ -54,19 +58,33 @@ byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
 	MSXCPUInterface::WatchPoints wpCopy(
 		getMotherBoard().getCPUInterface().getWatchPoints());
 	checkAndExecute();
-	return result;
+
+	Tcl_UnsetVar(interp, "wp_last_address", TCL_GLOBAL_ONLY);
+
+	// first trigger watchpoint, then read from device
+	return device->readIO(port, time);
 }
 
 void MSXWatchIODevice::writeIO(word port, byte value, EmuTime::param time)
 {
 	assert(device);
-	//std::cout << "Watch writeIO " << port << " " << value << std::endl;
+
+	// first write to device, then trigger watchpoint
 	device->writeIO(port, value, time);
+
+	Tcl_Interp* interp = getInterpreter();
+	Tcl_SetVar(interp, "wp_last_address",
+	           StringOp::toString(unsigned(port)).c_str(), TCL_GLOBAL_ONLY);
+	Tcl_SetVar(interp, "wp_last_value",
+	           StringOp::toString(unsigned(value)).c_str(), TCL_GLOBAL_ONLY);
 
 	// see comment in readIO() above
 	MSXCPUInterface::WatchPoints wpCopy(
 		getMotherBoard().getCPUInterface().getWatchPoints());
 	checkAndExecute();
+
+	Tcl_UnsetVar(interp, "wp_last_address", TCL_GLOBAL_ONLY);
+	Tcl_UnsetVar(interp, "wp_last_value",   TCL_GLOBAL_ONLY);
 }
 
 } // namespace openmsx

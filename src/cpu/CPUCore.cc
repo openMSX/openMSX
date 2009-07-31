@@ -246,7 +246,7 @@ template <class T> CPUCore<T>::CPUCore(
 	, freqValue(new IntegerSetting(motherboard.getCommandController(),
 	        name + "_freq",
 	        "custom " + name + " frequency (only valid when unlocked)",
-	        T::CLOCK_FREQ, 1000000, 100000000))
+	        T::CLOCK_FREQ, 1000000, 1000000000))
 	, freq(T::CLOCK_FREQ)
 	, NMIStatus(0)
 	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",

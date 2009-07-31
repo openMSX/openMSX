@@ -60,5 +60,10 @@ void BreakPointBase::checkAndExecute()
 	}
 }
 
+Tcl_Interp* BreakPointBase::getInterpreter() const
+{
+	return command->getInterpreter();
+}
+
 } // namespace openmsx
 
