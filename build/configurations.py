@@ -1,6 +1,6 @@
 # $Id$
 
-from components import EmulationCore, GLRenderer, iterComponents
+from components import EmulationCore, GLRenderer, Laserdisc, iterComponents
 
 class Configuration(object):
 
@@ -32,7 +32,7 @@ def getConfiguration(name):
 		# The CassetteJack feature is not useful for most end users and it is
 		# the only component that requires the Jack library.
 		requiredComponents = set((EmulationCore, GLRenderer))
-		optionalComponents = set()
+		optionalComponents = set((Laserdisc, ))
 		linkStatic = True
 	else:
 		raise ValueError('No configuration named "%s"' % name)

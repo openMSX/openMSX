@@ -553,6 +553,14 @@ class ZLib(Library):
 			return None if version is None else version.strip('"')
 		return execute
 
+class OGG(Library):
+	libName = 'ogg'
+	makeName = 'LIBOGG'
+	header = '<ogg/ogg.h>'
+	function = 'ogg_stream_init'
+	pkgName = 'ogg'
+	configScriptName = 'pkg-config'
+
 class OGGZ(Library):
 	libName = 'oggz'
 	makeName = 'LIBOGGZ'
@@ -560,6 +568,7 @@ class OGGZ(Library):
 	function = 'oggz_new'
 	pkgName = 'oggz'
 	configScriptName = 'pkg-config'
+	dependsOn = ('LIBOGG', )
 
 class Vorbis(Library):
 	libName = 'vorbis'
@@ -568,6 +577,7 @@ class Vorbis(Library):
 	function = 'vorbis_synthesis_pcmout'
 	pkgName = 'vorbis'
 	configScriptName = 'pkg-config'
+	dependsOn = ('LIBOGG', )
 
 class Theora(Library):
 	libName = 'theora'
@@ -576,6 +586,7 @@ class Theora(Library):
 	function = 'theora_decode_YUVout'
 	pkgName = 'theora'
 	configScriptName = 'pkg-config'
+	dependsOn = ('LIBOGG', )
 
 # Build a dictionary of libraries using introspection.
 def _discoverLibraries(localObjects):

@@ -196,6 +196,17 @@ class ZLib(DownloadablePackage):
 			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
 		}
 
+class OGG(DownloadablePackage):
+	downloadURL = 'http://downloads.xiph.org/releases/ogg'
+	niceName = 'libogg'
+	sourceName = 'libogg'
+	version = '1.1.4'
+	fileLength = 439365
+	checksums = {
+		'sha256':
+			'9354c183fd88417c2860778b60b7896c9487d8f6e58b9fec3fdbf971142ce103',
+		}
+
 class OGGZ(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/liboggz'
 	niceName = 'liboggz'
