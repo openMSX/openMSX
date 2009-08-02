@@ -202,15 +202,10 @@ InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()
 	return *openMSXInfoCommand;
 }
 
-HotKey& GlobalCommandController::getHotKey()
-{
-	return *hotKey;
-}
-
 SettingsConfig& GlobalCommandController::getSettingsConfig()
 {
 	if (!settingsConfig.get()) {
-		settingsConfig.reset(new SettingsConfig(*this, getHotKey()));
+		settingsConfig.reset(new SettingsConfig(*this, *hotKey));
 	}
 	return *settingsConfig;
 }

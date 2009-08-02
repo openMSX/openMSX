@@ -36,7 +36,6 @@ public:
 	~GlobalCommandController();
 
 	InfoCommand& getOpenMSXInfoCommand();
-	HotKey& getHotKey();
 
 	/**
 	 * Executes all defined auto commands
