@@ -229,7 +229,7 @@ void GlobalCommandController::registerCommand(
 	assert(commands.find(str) == commands.end());
 
 	commands[str] = &command;
-	getInterpreter().registerCommand(str, command);
+	interpreter->registerCommand(str, command);
 }
 
 void GlobalCommandController::unregisterCommand(
@@ -238,7 +238,7 @@ void GlobalCommandController::unregisterCommand(
 	assert(commands.find(str) != commands.end());
 	assert(commands.find(str)->second == &command);
 
-	getInterpreter().unregisterCommand(str, command);
+	interpreter->unregisterCommand(str, command);
 	commands.erase(str);
 }
 
@@ -262,13 +262,13 @@ void GlobalCommandController::registerSetting(Setting& setting)
 {
 	const string& name = setting.getName();
 	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
-	getInterpreter().registerSetting(setting, name);
+	interpreter->registerSetting(setting, name);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
 	const string& name = setting.getName();
-	getInterpreter().unregisterSetting(setting, name);
+	interpreter->unregisterSetting(setting, name);
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
 }
 
@@ -280,7 +280,7 @@ Setting* GlobalCommandController::findSetting(const std::string& name)
 void GlobalCommandController::changeSetting(
 	const std::string& name, const string& value)
 {
-	getInterpreter().setVariable(name, value);
+	interpreter->setVariable(name, value);
 }
 
 void GlobalCommandController::changeSetting(Setting& setting, const string& value)
@@ -438,27 +438,27 @@ string GlobalCommandController::join(
 
 bool GlobalCommandController::isComplete(const string& command)
 {
-	return getInterpreter().isComplete(command);
+	return interpreter->isComplete(command);
 }
 
 string GlobalCommandController::executeCommand(
 	const string& cmd, CliConnection* connection_)
 {
 	ScopedAssign<CliConnection*> sa(connection, connection_);
-	return getInterpreter().execute(cmd);
+	return interpreter->execute(cmd);
 }
 
 void GlobalCommandController::splitList(
 	const string& list, vector<string>& result)
 {
-	getInterpreter().splitList(list, result);
+	interpreter->splitList(list, result);
 }
 
 void GlobalCommandController::source(const string& script)
 {
 	try {
 		LocalFileReference file(script);
-		getInterpreter().executeFile(file.getFilename());
+		interpreter->executeFile(file.getFilename());
 	} catch (CommandException& e) {
 		getCliComm().printWarning(
 			 "While executing init.tcl: " + e.getMessage());
@@ -516,14 +516,14 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 	if (tokens.size() == 1) {
 		// build a list of all command strings
 		set<string> cmds;
-		getInterpreter().getCommandNames(cmds);
+		interpreter->getCommandNames(cmds);
 		Completer::completeString(tokens, cmds);
 	} else {
 		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());
 		if (it != commandCompleters.end()) {
 			it->second->tabCompletion(tokens);
 		} else {
-			TclObject command(getInterpreter());
+			TclObject command(*interpreter);
 			command.addListElement("openmsx::tabcompletion");
 			command.addListElements(tokens.begin(), tokens.end());
 			try {
