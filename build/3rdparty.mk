@@ -49,6 +49,10 @@ DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
 DOWNLOAD_TCL:=http://downloads.sourceforge.net/tcl
 DOWNLOAD_XML:=http://xmlsoft.org/sources
 DOWNLOAD_DIRECTX:=http://alleg.sourceforge.net/files
+DOWNLOAD_OGG:=http://downloads.xiph.org/releases/ogg
+DOWNLOAD_OGGZ:=http://downloads.xiph.org/releases/liboggz
+DOWNLOAD_VORBIS:=http://downloads.xiph.org/releases/vorbis
+DOWNLOAD_THEORA:=http://downloads.xiph.org/releases/theora
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
@@ -65,6 +69,10 @@ PACKAGE_GLEW:=glew-1.5.1
 PACKAGE_TCL:=tcl8.5.6
 PACKAGE_XML:=libxml2-2.7.3
 PACKAGE_DIRECTX:=dx70
+PACKAGE_OGG:=libogg-1.1.4
+PACKAGE_OGGZ:=liboggz-0.9.9
+PACKAGE_VORBIS:=libvorbis-1.2.3
+PACKAGE_THEORA:=libtheora-1.0
 
 # Create a GNU-style system triple.
 ifeq ($(OPENMSX_TARGET_CPU),x86)
@@ -93,7 +101,7 @@ endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
-PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_IMAGE SDL_TTF XML
+PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_IMAGE SDL_TTF XML OGG OGGZ VORBIS THEORA
 PACKAGES_NONSTD:=GLEW TCL
 PACKAGES_NOBUILD:=
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
@@ -114,6 +122,10 @@ TARBALL_SDL:=$(PACKAGE_SDL).tar.gz
 TARBALL_SDL_IMAGE:=$(PACKAGE_SDL_IMAGE).tar.gz
 TARBALL_SDL_TTF:=$(PACKAGE_SDL_TTF).tar.gz
 TARBALL_XML:=$(PACKAGE_XML).tar.gz
+TARBALL_OGG:=$(PACKAGE_OGG).tar.gz
+TARBALL_OGGZ:=$(PACKAGE_OGGZ).tar.gz
+TARBALL_VORBIS:=$(PACKAGE_VORBIS).tar.gz
+TARBALL_THEORA:=$(PACKAGE_THEORA).tar.gz
 
 BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
 INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
@@ -323,6 +335,47 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(_CFLAGS)"
+
+# Configure Ogg, Vorbis and Theora for Laserdisc emulation.
+$(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_OGG)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--disable-shared \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(_CFLAGS)"
+
+$(BUILD_DIR)/$(PACKAGE_OGGZ)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_OGGZ)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--disable-shared \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(_CFLAGS)"
+
+$(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_VORBIS)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--disable-shared \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--with-ogg=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(_CFLAGS)"
+
+$(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_THEORA)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--disable-shared \
+		--disable-encode \
+		--disable-examples \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)"
 
 # Extract packages.
