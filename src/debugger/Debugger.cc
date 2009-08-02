@@ -967,9 +967,15 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"memory location or IO port. Otherwise region must be a list of "
 		"two values (enclosed in braces) that specify a begin and end "
 		"point of a whole memory region or a range of IO ports.\n"
-		"  Examples:\n"
-		"    debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n"
-		"    debug set_watchpoint read_mem {0xfbe5 0xfbef}\n";
+		"During the execution of <cmd>, the following global Tcl "
+		"variables are set:\n"
+		"  ::wp_last_address   this is the actual address of the mem/io "
+		"read/write that triggered the watchpoint\n"
+		"  ::wp_last_value     this is the actual value that was written "
+		"by the mem/io write that triggered the watchpoint\n"
+		"Examples:\n"
+		"  debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n"
+		"  debug set_watchpoint read_mem {0xfbe5 0xfbef}\n";
 	static const string removeWatchPointHelp =
 		"debug remove_watchpoint <id>\n"
 		"  Remove the watchpoint with given ID again. You can use the "
