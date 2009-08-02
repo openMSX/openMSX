@@ -4,6 +4,7 @@
 #include "Ram.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "CliComm.hh"
@@ -30,7 +31,7 @@ CheckedRam::CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
 	, ram(new Ram(motherBoard, name, description, size))
 	, msxcpu(motherBoard.getCPU())
 	, commandController(motherBoard.getCommandController())
-	, umrCallbackSetting(commandController.getGlobalSettings().getUMRCallBackSetting())
+	, umrCallbackSetting(motherBoard.getReactor().getGlobalSettings().getUMRCallBackSetting())
 {
 	umrCallbackSetting.attach(*this);
 	init();
