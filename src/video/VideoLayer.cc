@@ -3,7 +3,7 @@
 #include "VideoLayer.hh"
 #include "RenderSettings.hh"
 #include "Display.hh"
-#include "CommandController.hh"
+#include "Reactor.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
@@ -24,8 +24,7 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(new VideoSourceActivator(
               videoSourceSetting, videoSource_))
-	, powerSetting(motherBoard.getCommandController().
-	                   getGlobalSettings().getPowerSetting())
+	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
 	, videoSource(videoSource_)
 	, transparency(false)
 {
