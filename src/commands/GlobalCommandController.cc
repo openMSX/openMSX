@@ -84,6 +84,7 @@ GlobalCommandController::GlobalCommandController(
 	, connection(NULL)
 	, eventDistributor(eventDistributor_)
 	, reactor(reactor_)
+	, interpreter(new Interpreter(eventDistributor))
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
@@ -188,9 +189,6 @@ CliConnection* GlobalCommandController::getConnection() const
 
 Interpreter& GlobalCommandController::getInterpreter()
 {
-	if (!interpreter.get()) {
-		interpreter.reset(new Interpreter(eventDistributor));
-	}
 	return *interpreter;
 }
 
