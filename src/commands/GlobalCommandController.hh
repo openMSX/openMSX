@@ -101,7 +101,6 @@ private:
 	GlobalCliComm& cliComm;
 	CliConnection* connection;
 
-	EventDistributor& eventDistributor;
 	Reactor& reactor;
 
 	std::auto_ptr<Interpreter> interpreter;
