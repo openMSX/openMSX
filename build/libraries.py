@@ -546,20 +546,12 @@ class OGG(Library):
 	header = '<ogg/ogg.h>'
 	function = 'ogg_stream_init'
 
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform not in ('mingw32', 'darwin') 
-
 class OGGZ(Library):
 	libName = 'oggz'
 	makeName = 'LIBOGGZ'
 	header = '<oggz/oggz.h>'
 	function = 'oggz_new'
 	dependsOn = ('LIBOGG', )
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform not in ('mingw32', 'darwin') 
 
 class Vorbis(Library):
 	libName = 'vorbis'
@@ -568,20 +560,12 @@ class Vorbis(Library):
 	function = 'vorbis_synthesis_pcmout'
 	dependsOn = ('LIBOGG', )
 
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform not in ('mingw32', 'darwin') 
-
 class Theora(Library):
 	libName = 'theora'
 	makeName = 'LIBTHEORA'
 	header = '<theora/theora.h>'
 	function = 'theora_decode_YUVout'
 	dependsOn = ('LIBOGG', )
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform not in ('mingw32', 'darwin') 
 
 # Build a dictionary of libraries using introspection.
 def _discoverLibraries(localObjects):
