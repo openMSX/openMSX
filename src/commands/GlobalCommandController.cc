@@ -86,6 +86,7 @@ GlobalCommandController::GlobalCommandController(
 	, interpreter(new Interpreter(eventDistributor))
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
 	, hotKey(new HotKey(*this, eventDistributor))
+	, globalSettings(new GlobalSettings(*this))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
 	, updateCmd(new UpdateCmd(*this, cliComm))
@@ -212,9 +213,6 @@ SettingsConfig& GlobalCommandController::getSettingsConfig()
 
 GlobalSettings& GlobalCommandController::getGlobalSettings()
 {
-	if (!globalSettings.get()) {
-		globalSettings.reset(new GlobalSettings(*this));
-	}
 	return *globalSettings;
 }
 
