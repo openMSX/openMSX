@@ -78,11 +78,10 @@ public:
 
 
 GlobalCommandController::GlobalCommandController(
-	EventDistributor& eventDistributor_,
+	EventDistributor& eventDistributor,
 	GlobalCliComm& cliComm_, Reactor& reactor_)
 	: cliComm(cliComm_)
 	, connection(NULL)
-	, eventDistributor(eventDistributor_)
 	, reactor(reactor_)
 	, interpreter(new Interpreter(eventDistributor))
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
