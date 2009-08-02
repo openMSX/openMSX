@@ -86,6 +86,7 @@ GlobalCommandController::GlobalCommandController(
 	, reactor(reactor_)
 	, interpreter(new Interpreter(eventDistributor))
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
+	, hotKey(new HotKey(*this, eventDistributor))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
 	, updateCmd(new UpdateCmd(*this, cliComm))
@@ -204,9 +205,6 @@ InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()
 
 HotKey& GlobalCommandController::getHotKey()
 {
-	if (!hotKey.get()) {
-		hotKey.reset(new HotKey(*this, eventDistributor));
-	}
 	return *hotKey;
 }
 
