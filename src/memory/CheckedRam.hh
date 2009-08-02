@@ -18,6 +18,7 @@ class Ram;
 class MSXCPU;
 class CommandController;
 class Setting;
+class StringSetting;
 
 /**
  * This class keeps track of which bytes in the Ram have been written to. It
@@ -69,6 +70,7 @@ private:
 	const std::auto_ptr<Ram> ram;
 	MSXCPU& msxcpu;
 	CommandController& commandController;
+	StringSetting& umrCallbackSetting;
 };
 
 } // namespace openmsx

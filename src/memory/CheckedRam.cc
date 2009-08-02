@@ -30,14 +30,15 @@ CheckedRam::CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
 	, ram(new Ram(motherBoard, name, description, size))
 	, msxcpu(motherBoard.getCPU())
 	, commandController(motherBoard.getCommandController())
+	, umrCallbackSetting(commandController.getGlobalSettings().getUMRCallBackSetting())
 {
-	commandController.getGlobalSettings().getUMRCallBackSetting().attach(*this);
+	umrCallbackSetting.attach(*this);
 	init();
 }
 
 CheckedRam::~CheckedRam()
 {
-	commandController.getGlobalSettings().getUMRCallBackSetting().detach(*this);
+	umrCallbackSetting.detach(*this);
 }
 
 byte CheckedRam::read(unsigned addr)
@@ -86,9 +87,7 @@ void CheckedRam::clear()
 
 void CheckedRam::init()
 {
-	StringSetting& umrSetting = commandController.getGlobalSettings().
-	                                     getUMRCallBackSetting();
-	if (umrSetting.getValue().empty()) {
+	if (umrCallbackSetting.getValue().empty()) {
 		// there is no callback function,
 		// do as if everything is initialized
 		completely_initialized_cacheline.assign(
@@ -117,8 +116,7 @@ Ram& CheckedRam::getUncheckedRam() const
 
 void CheckedRam::callUMRCallBack(unsigned addr)
 {
-	const std::string callback = commandController.getGlobalSettings().
-	                                     getUMRCallBackSetting().getValue();
+	const std::string callback = umrCallbackSetting.getValue();
 	if (!callback.empty()) {
 		TclObject command(commandController.getInterpreter());
 		command.addListElement(callback);
@@ -138,8 +136,7 @@ void CheckedRam::callUMRCallBack(unsigned addr)
 
 void CheckedRam::update(const Setting& setting)
 {
-	assert(&setting ==
-	       &commandController.getGlobalSettings().getUMRCallBackSetting());
+	assert(&setting == &umrCallbackSetting);
 	(void)setting;
 	init();
 }
