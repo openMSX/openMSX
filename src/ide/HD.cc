@@ -7,6 +7,8 @@
 #include "XMLElement.hh"
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "HDCommand.hh"
 #include "serialize.hh"
@@ -63,7 +65,9 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	hdCommand.reset(new HDCommand(motherBoard.getCommandController(),
 	                              motherBoard.getMSXEventDistributor(),
 	                              motherBoard.getScheduler(),
-	                              *this));
+	                              *this,
+	                              motherBoard.getReactor().getGlobalSettings()
+	                                         .getPowerSetting()));
 
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }

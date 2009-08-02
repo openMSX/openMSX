@@ -14,13 +14,14 @@ class MSXEventDistributor;
 class Scheduler;
 class TclObject;
 class HD;
+class BooleanSetting;
 
 class HDCommand : public RecordedCommand
 {
 public:
 	HDCommand(CommandController& commandController,
 	          MSXEventDistributor& msxEventDistributor,
-	          Scheduler& scheduler, HD& hd);
+	          Scheduler& scheduler, HD& hd, BooleanSetting& powerSetting);
 	virtual void execute(const std::vector<TclObject*>& tokens,
 	                     TclObject& result, EmuTime::param time);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
@@ -28,6 +29,7 @@ public:
 
 private:
 	HD& hd;
+	const BooleanSetting& powerSetting;
 };
 
 } // namespace openmsx

@@ -5,9 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
-#include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "TclObject.hh"
 #include <set>
@@ -22,10 +20,12 @@ using std::set;
 
 HDCommand::HDCommand(CommandController& commandController,
                      MSXEventDistributor& msxEventDistributor,
-                     Scheduler& scheduler, HD& hd_)
+                     Scheduler& scheduler, HD& hd_,
+                     BooleanSetting& powerSetting_)
 	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, hd_.getName())
 	, hd(hd_)
+	, powerSetting(powerSetting_)
 {
 }
 
@@ -45,9 +45,7 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 		}
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && tokens[1]->getString() == "insert")) {
-		CommandController& controller = getCommandController();
-		if (controller.getGlobalSettings().
-				getPowerSetting().getValue()) {
+		if (powerSetting.getValue()) {
 			throw CommandException(
 				"Can only change hard disk image when MSX "
 				"is powered down.");
@@ -61,6 +59,7 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 					"Missing argument to insert subcommand");
 			}
 		}
+		CommandController& controller = getCommandController();
 		try {
 			Filename filename(tokens[fileToken]->getString(), controller);
 			hd.switchImage(filename);
