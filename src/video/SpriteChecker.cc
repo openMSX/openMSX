@@ -144,7 +144,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 			sip.pattern = calculatePatternNP(patternIndex, spriteLine);
 			sip.x = attributePtr[1];
 			if (attributePtr[3] & 0x80) sip.x -= 32;
-			sip.colourAttrib = attributePtr[3];
+			sip.colorAttrib = attributePtr[3];
 		}
 	}
 	byte status = vdp.getStatusReg0();
@@ -164,7 +164,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
 	Reset when status reg is read.
 	Set when sprite patterns overlap.
-	Colour doesn't matter: sprites of colour 0 can collide.
+	Color doesn't matter: sprites of color 0 can collide.
 	Sprites with off-screen position can collide.
 
 	Implemented by checking every pair for collisions.
@@ -288,9 +288,9 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				sip.pattern = calculatePatternPlanar(patternIndex, spriteLine);
 				sip.x = attributePtr1[2 * sprite + 0];
 				if (colorAttrib & 0x80) sip.x -= 32;
-				sip.colourAttrib = colorAttrib;
+				sip.colorAttrib = colorAttrib;
 				// set sentinel (see below)
-				spriteBuffer[line][visibleIndex + 1].colourAttrib = 0;
+				spriteBuffer[line][visibleIndex + 1].colorAttrib = 0;
 			}
 		}
 	} else {
@@ -335,7 +335,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				sip.pattern = calculatePatternNP(patternIndex, spriteLine);
 				sip.x = attributePtr0[4 * sprite + 1];
 				if (colorAttrib & 0x80) sip.x -= 32;
-				sip.colourAttrib = colorAttrib;
+				sip.colorAttrib = colorAttrib;
 				// Set sentinel. Sentinel is actually only
 				// needed for sprites with CC=1.
 				// In the past we set the sentinel (for all
@@ -344,7 +344,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				// contain sprites (even if sentinel gets
 				// overwritten a couple of times for lines with
 				// many sprites).
-				spriteBuffer[line][visibleIndex + 1].colourAttrib = 0;
+				spriteBuffer[line][visibleIndex + 1].colorAttrib = 0;
 			}
 		}
 	}
@@ -366,7 +366,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
 	Reset when status reg is read.
 	Set when sprite patterns overlap.
-	Colour doesn't matter: sprites of colour 0 can collide.
+	Color doesn't matter: sprites of color 0 can collide.
 	  TODO: V9938 data book denies this (page 98).
 	Sprites with off-screen position can collide.
 
@@ -381,13 +381,13 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 		SpriteInfo* visibleSprites = spriteBuffer[line];
 		for (int i = std::min(8, spriteCount[line]); --i >= 1; /**/) {
 			// If CC or IC is set, this sprite cannot collide.
-			if (visibleSprites[i].colourAttrib & 0x60) continue;
+			if (visibleSprites[i].colorAttrib & 0x60) continue;
 
 			int x_i = visibleSprites[i].x;
 			SpritePattern pattern_i = visibleSprites[i].pattern;
 			for (int j = i; --j >= 0; ) {
 				// If CC or IC is set, this sprite cannot collide.
-				if (visibleSprites[j].colourAttrib & 0x60) continue;
+				if (visibleSprites[j].colorAttrib & 0x60) continue;
 
 				// Do sprite i and sprite j collide?
 				int x_j = visibleSprites[j].x;

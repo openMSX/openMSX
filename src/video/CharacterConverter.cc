@@ -57,8 +57,8 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText1(
 	Pixel* __restrict pixelPtr, int line)
 {
-	Pixel fg = palFg[vdp.getForegroundColour()];
-	Pixel bg = palBg[vdp.getBackgroundColour()];
+	Pixel fg = palFg[vdp.getForegroundColor()];
+	Pixel bg = palBg[vdp.getBackgroundColor()];
 
 	// 8 * 256 is small enough to always be contiguous
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
@@ -86,8 +86,8 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* __restrict pixelPtr, int line)
 {
-	Pixel fg = palFg[vdp.getForegroundColour()];
-	Pixel bg = palBg[vdp.getBackgroundColour()];
+	Pixel fg = palFg[vdp.getForegroundColor()];
+	Pixel bg = palBg[vdp.getBackgroundColor()];
 
 	unsigned patternBaseLine = (-1 << 13) | ((line + vdp.getVerticalScroll()) & 7);
 
@@ -116,13 +116,13 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText2(
 	Pixel* __restrict pixelPtr, int line)
 {
-	Pixel plainFg = palFg[vdp.getForegroundColour()];
-	Pixel plainBg = palBg[vdp.getBackgroundColour()];
+	Pixel plainFg = palFg[vdp.getForegroundColor()];
+	Pixel plainBg = palBg[vdp.getBackgroundColor()];
 	Pixel blinkFg, blinkBg;
 	if (vdp.getBlinkState()) {
-		int fg = vdp.getBlinkForegroundColour();
-		blinkFg = palBg[fg ? fg : vdp.getBlinkBackgroundColour()];
-		blinkBg = palBg[vdp.getBlinkBackgroundColour()];
+		int fg = vdp.getBlinkForegroundColor();
+		blinkFg = palBg[fg ? fg : vdp.getBlinkBackgroundColor()];
+		blinkBg = palBg[vdp.getBlinkBackgroundColor()];
 	} else {
 		blinkFg = plainFg;
 		blinkBg = plainBg;
@@ -135,7 +135,7 @@ void CharacterConverter<Pixel>::renderText2(
 	unsigned colorStart = (line / 8) * (80 / 8);
 	unsigned nameStart  = (line / 8) * 80;
 	for (unsigned i = 0; i < (80 / 8); ++i) {
-		unsigned colorPattern = vram.colourTable.readNP(
+		unsigned colorPattern = vram.colorTable.readNP(
 			(colorStart + i) | (-1 << 9));
 		const byte* nameArea = vram.nameTable.getReadArea(
 			(nameStart + 8 * i) | (-1 << 12), 8);
@@ -238,7 +238,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 {
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
 	patternArea += line & 7;
-	const byte* colorArea = vram.colourTable.getReadArea(0, 256 / 8);
+	const byte* colorArea = vram.colorTable.getReadArea(0, 256 / 8);
 
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
@@ -280,7 +280,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 		unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
 		unsigned pattern = patternArea[charCode8];
 		unsigned index = charCode8 | baseLine;
-		unsigned color = vram.colourTable.readNP(index);
+		unsigned color = vram.colorTable.readNP(index);
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
 #ifdef __arm__
@@ -378,8 +378,8 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderBogus(
 	Pixel* __restrict pixelPtr, int /*line*/)
 {
-	Pixel fg = palFg[vdp.getForegroundColour()];
-	Pixel bg = palBg[vdp.getBackgroundColour()];
+	Pixel fg = palFg[vdp.getForegroundColor()];
+	Pixel bg = palBg[vdp.getBackgroundColor()];
 	for (int n = 8; n--; ) *pixelPtr++ = bg;
 	for (int c = 20; c--; ) {
 		for (int n = 4; n--; ) *pixelPtr++ = fg;

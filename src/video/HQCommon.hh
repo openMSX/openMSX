@@ -49,7 +49,7 @@ static inline unsigned interpolate(unsigned c1, unsigned c2, unsigned c3)
 {
 	enum { wsum = w1 + w2 + w3 };
 	if (wsum <= 8) {
-		// Because the lower 3 bits of each colour component (R,G,B) are
+		// Because the lower 3 bits of each color component (R,G,B) are
 		// zeroed out, we can operate on a single integer as if it is
 		// a vector.
 		return (c1 * w1 + c2 * w2 + c3 * w3) / wsum;

@@ -19,10 +19,10 @@ public:
 	void frameEnd(EmuTime::param time);
 	void updateTransparency(bool enabled, EmuTime::param time);
 	void updateSuperimposing(bool enabled, EmuTime::param time);
-	void updateForegroundColour(int colour, EmuTime::param time);
-	void updateBackgroundColour(int colour, EmuTime::param time);
-	void updateBlinkForegroundColour(int colour, EmuTime::param time);
-	void updateBlinkBackgroundColour(int colour, EmuTime::param time);
+	void updateForegroundColor(int color, EmuTime::param time);
+	void updateBackgroundColor(int color, EmuTime::param time);
+	void updateBlinkForegroundColor(int color, EmuTime::param time);
+	void updateBlinkBackgroundColor(int color, EmuTime::param time);
 	void updateBlinkState(bool enabled, EmuTime::param time);
 	void updatePalette(int index, int grb, EmuTime::param time);
 	void updateVerticalScroll(int scroll, EmuTime::param time);
@@ -35,7 +35,7 @@ public:
 	void updateDisplayMode(DisplayMode mode, EmuTime::param time);
 	void updateNameBase(int addr, EmuTime::param time);
 	void updatePatternBase(int addr, EmuTime::param time);
-	void updateColourBase(int addr, EmuTime::param time);
+	void updateColorBase(int addr, EmuTime::param time);
 	void updateSpritesEnabled(bool enabled, EmuTime::param time);
 	void updateVRAM(unsigned offset, EmuTime::param time);
 	void updateWindow(bool enabled, EmuTime::param time);

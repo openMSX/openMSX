@@ -20,16 +20,16 @@ void DummyRenderer::updateTransparency(bool /*enabled*/, EmuTime::param /*time*/
 void DummyRenderer::updateSuperimposing(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateForegroundColour(int /*colour*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateForegroundColor(int /*color*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBackgroundColour(int /*colour*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateBackgroundColor(int /*color*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBlinkForegroundColour(int /*colour*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateBlinkForegroundColor(int /*color*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBlinkBackgroundColour(int /*colour*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateBlinkBackgroundColor(int /*color*/, EmuTime::param /*time*/) {
 }
 
 void DummyRenderer::updateBlinkState(bool /*enabled*/, EmuTime::param /*time*/) {
@@ -68,7 +68,7 @@ void DummyRenderer::updateNameBase(int /*addr*/, EmuTime::param /*time*/) {
 void DummyRenderer::updatePatternBase(int /*addr*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateColourBase(int /*addr*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateColorBase(int /*addr*/, EmuTime::param /*time*/) {
 }
 
 void DummyRenderer::updateSpritesEnabled(bool /*enabled*/, EmuTime::param /*time*/) {

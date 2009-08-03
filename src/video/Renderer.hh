@@ -54,29 +54,29 @@ public:
 	virtual void updateSuperimposing(bool enabled, EmuTime::param time) = 0;
 
 
-	/** Informs the renderer of a VDP foreground colour change.
-	  * @param colour The new foreground colour.
+	/** Informs the renderer of a VDP foreground color change.
+	  * @param color The new foreground color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateForegroundColour(int colour, EmuTime::param time) = 0;
+	virtual void updateForegroundColor(int color, EmuTime::param time) = 0;
 
-	/** Informs the renderer of a VDP background colour change.
-	  * @param colour The new background colour.
+	/** Informs the renderer of a VDP background color change.
+	  * @param color The new background color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBackgroundColour(int colour, EmuTime::param time) = 0;
+	virtual void updateBackgroundColor(int color, EmuTime::param time) = 0;
 
-	/** Informs the renderer of a VDP blink foreground colour change.
-	  * @param colour The new blink foreground colour.
+	/** Informs the renderer of a VDP blink foreground color change.
+	  * @param color The new blink foreground color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkForegroundColour(int colour, EmuTime::param time) = 0;
+	virtual void updateBlinkForegroundColor(int color, EmuTime::param time) = 0;
 
-	/** Informs the renderer of a VDP blink background colour change.
-	  * @param colour The new blink background colour.
+	/** Informs the renderer of a VDP blink background color change.
+	  * @param color The new blink background color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkBackgroundColour(int colour, EmuTime::param time) = 0;
+	virtual void updateBlinkBackgroundColor(int color, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP blinking state change.
 	  * @param enabled The new blink state.
@@ -162,11 +162,11 @@ public:
 	  */
 	virtual void updatePatternBase(int addr, EmuTime::param time) = 0;
 
-	/** Informs the renderer of a colour table base address change.
+	/** Informs the renderer of a color table base address change.
 	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateColourBase(int addr, EmuTime::param time) = 0;
+	virtual void updateColorBase(int addr, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP sprites enabled change.
 	  * @param enabled The new sprites enabled state.

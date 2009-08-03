@@ -262,29 +262,29 @@ void PixelRenderer::updateSuperimposing (
 	rasterizer->setSuperimposing(enabled);
 }
 
-void PixelRenderer::updateForegroundColour(
-	int /*colour*/, EmuTime::param time)
+void PixelRenderer::updateForegroundColor(
+	int /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
-void PixelRenderer::updateBackgroundColour(
-	int colour, EmuTime::param time)
+void PixelRenderer::updateBackgroundColor(
+	int color, EmuTime::param time)
 {
 	sync(time);
 	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
-		rasterizer->setBackgroundColour(colour);
+		rasterizer->setBackgroundColor(color);
 	}
 }
 
-void PixelRenderer::updateBlinkForegroundColour(
-	int /*colour*/, EmuTime::param time)
+void PixelRenderer::updateBlinkForegroundColor(
+	int /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
-void PixelRenderer::updateBlinkBackgroundColour(
-	int /*colour*/, EmuTime::param time)
+void PixelRenderer::updateBlinkBackgroundColor(
+	int /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
@@ -305,15 +305,15 @@ void PixelRenderer::updatePalette(
 	if (displayEnabled) {
 		sync(time);
 	} else {
-		// Only sync if border colour changed.
+		// Only sync if border color changed.
 		DisplayMode mode = vdp.getDisplayMode();
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
-			int bgColour = vdp.getBackgroundColour();
-			if (index == (bgColour & 3) || (index == (bgColour >> 2))) {
+			int bgColor = vdp.getBackgroundColor();
+			if (index == (bgColor & 3) || (index == (bgColor >> 2))) {
 				sync(time);
 			}
 		} else if (mode.getByte() != DisplayMode::GRAPHIC7) {
-			if (index == vdp.getBackgroundColour()) {
+			if (index == vdp.getBackgroundColor()) {
 				sync(time);
 			}
 		}
@@ -360,7 +360,7 @@ void PixelRenderer::updatePatternBase(
 	if (displayEnabled) sync(time);
 }
 
-void PixelRenderer::updateColourBase(
+void PixelRenderer::updateColorBase(
 	int /*addr*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
@@ -413,14 +413,14 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 	switch(vdp.getDisplayMode().getBase()) {
 	case DisplayMode::GRAPHIC2:
 	case DisplayMode::GRAPHIC3:
-		if (vram.colourTable.isInside(offset)) {
+		if (vram.colorTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
-			int mask = (vram.colourTable.getMask() & 0x1800) >> 11;
+			int mask = (vram.colorTable.getMask() & 0x1800) >> 11;
 			for (int i = 0; i < 4; i++) {
 				if ( (i & mask) == vramQuarter
 				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
 					/*fprintf(stderr,
-						"colour table: %05X %04X - quarter %d\n",
+						"color table: %05X %04X - quarter %d\n",
 						offset, offset & 0x1FFF, i
 						);*/
 					return true;
@@ -471,7 +471,7 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 	default:
 		// Range unknown; assume full range.
 		return vram.nameTable.isInside(offset)
-			|| vram.colourTable.isInside(offset)
+			|| vram.colorTable.isInside(offset)
 			|| vram.patternTable.isInside(offset);
 	}
 }
@@ -479,7 +479,7 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 void PixelRenderer::updateVRAM(unsigned offset, EmuTime::param time)
 {
 	// Note: No need to sync if display is disabled, because then the
-	//       output does not depend on VRAM (only on background colour).
+	//       output does not depend on VRAM (only on background color).
 	if (renderFrame && displayEnabled && checkSync(offset, time)) {
 		//fprintf(stderr, "vram sync @ line %d\n",
 		//	vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE);
@@ -560,9 +560,9 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 
 		// Calculate start and end of borders in ticks since start of line.
 		// The 0..7 extra horizontal scroll low pixels should be drawn in
-		// border colour. These will be drawn together with the border,
+		// border color. These will be drawn together with the border,
 		// but sprites above these pixels are clipped at the actual border
-		// rather than the end of the border coloured area.
+		// rather than the end of the border colored area.
 		// TODO: Move these calculations and getDisplayLeft() to VDP.
 		int borderL = vdp.getLeftBorder();
 		int displayL =

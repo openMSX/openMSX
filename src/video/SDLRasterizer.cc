@@ -76,7 +76,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(new CharacterConverter<Pixel>(vdp, palFg, palBg))
 	, bitmapConverter(new BitmapConverter<Pixel>(
-	                                    palFg, PALETTE256, V9958_COLOURS))
+	                                    palFg, PALETTE256, V9958_COLORS))
 	, spriteConverter(new SpriteConverter<Pixel>(vdp.getSpriteChecker()))
 {
 	workFrame = new RawFrame(screen.getSDLFormat(), 640, 240);
@@ -88,7 +88,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	if (!vdp.isMSX1VDP()) {
 		for (int i = 0; i < 16; ++i) {
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				V9938_COLOURS[0][0][0];
+				V9938_COLORS[0][0][0];
 		}
 	}
 
@@ -141,8 +141,8 @@ template<class Pixel>
 void SDLRasterizer<Pixel>::setSuperimposing(bool enabled)
 {
 	postProcessor->setTransparency(enabled);
-	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                    enabled, vdp.getBackgroundColour());
+	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+	                    enabled, vdp.getBackgroundColor());
 }
 
 template <class Pixel>
@@ -176,8 +176,8 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter->setDisplayMode(mode);
 	}
-	precalcColourIndex0(mode, vdp.getTransparency(),
-	                    vdp.isSuperimposing(), vdp.getBackgroundColour());
+	precalcColorIndex0(mode, vdp.getTransparency(),
+	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
 	spriteConverter->setDisplayMode(mode);
 	spriteConverter->setPalette(mode.getByte() == DisplayMode::GRAPHIC7
 	                            ? palGraphic7Sprites : palBg);
@@ -186,21 +186,21 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 template <class Pixel>
 void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 {
-	// Update SDL colours in palette.
-	Pixel newColor = V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
+	// Update SDL colors in palette.
+	Pixel newColor = V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];
 	palFg[index     ] = newColor;
 	palFg[index + 16] = newColor;
 	palBg[index     ] = newColor;
 	bitmapConverter->palette16Changed();
 
-	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                    vdp.isSuperimposing(), vdp.getBackgroundColour());
+	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::setBackgroundColour(int index)
+void SDLRasterizer<Pixel>::setBackgroundColor(int index)
 {
-	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                    vdp.isSuperimposing(), index);
 }
 
@@ -208,8 +208,8 @@ template <class Pixel>
 void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 {
 	spriteConverter->setTransparency(enabled);
-	precalcColourIndex0(vdp.getDisplayMode(), enabled,
-	                    vdp.isSuperimposing(), vdp.getBackgroundColour());
+	precalcColorIndex0(vdp.getDisplayMode(), enabled,
+	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
 template <class Pixel>
@@ -227,7 +227,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				screen.mapRGB(dr, dg, db);
 		}
 	} else {
-		// Precalculate palette for V9938 colours.
+		// Precalculate palette for V9938 colors.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
@@ -235,12 +235,12 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					double dg = g / 7.0;
 					double db = b / 7.0;
 					renderSettings.transformRGB(dr, dg, db);
-					V9938_COLOURS[r][g][b] =
+					V9938_COLORS[r][g][b] =
 						screen.mapRGB(dr, dg, db);
 				}
 			}
 		}
-		// Precalculate palette for V9958 colours.
+		// Precalculate palette for V9958 colors.
 		for (int r = 0; r < 32; r++) {
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
@@ -248,14 +248,14 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					double dg = g / 31.0;
 					double db = b / 31.0;
 					renderSettings.transformRGB(dr, dg, db);
-					V9958_COLOURS[(r<<10) + (g<<5) + b] =
+					V9958_COLORS[(r<<10) + (g<<5) + b] =
 						screen.mapRGB(dr, dg, db);
 				}
 			}
 		}
 		// Precalculate Graphic 7 bitmap palette.
 		for (int i = 0; i < 256; i++) {
-			PALETTE256[i] = V9938_COLOURS
+			PALETTE256[i] = V9938_COLORS
 				[(i & 0x1C) >> 2]
 				[(i & 0xE0) >> 5]
 				[(i & 0x03) == 3 ? 7 : (i & 0x03) * 2];
@@ -264,36 +264,36 @@ void SDLRasterizer<Pixel>::precalcPalette()
 		for (int i = 0; i < 16; i++) {
 			word grb = Renderer::GRAPHIC7_SPRITE_PALETTE[i];
 			palGraphic7Sprites[i] =
-				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
+				V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
 
-	for (;screen.canKeyColourClash();) {
-		Pixel colour = screen.getKeyColour();
+	for (;screen.canKeyColorClash();) {
+		Pixel color = screen.getKeyColor();
 		bool found = false;
 
 		if (vdp.isMSX1VDP()) {
 			// Fixed palette.
 			for (int i = 0; i < 16 && !found; i++) {
-				if (colour == palFg[i]) found = true;
+				if (color == palFg[i]) found = true;
 			}
 		} else {
-			// Palette for V9938 colours.
+			// Palette for V9938 colors.
 			for (int r = 0; r < 8 && !found; r++) {
 				for (int g = 0; g < 8 && !found; g++) {
 					for (int b = 0; b < 8 && !found; b++) {
-						if (colour == V9938_COLOURS[r][g][b]) {
+						if (color == V9938_COLORS[r][g][b]) {
 							found = true;
 						}
 					}
 				}
 			}
 
-			// Palette for V9958 colours.
+			// Palette for V9958 colors.
 			for (int r = 0; r < 32 && !found; r++) {
 				for (int g = 0; g < 32 && !found; g++) {
 					for (int b = 0; b < 32 && !found; b++) {
-						if (colour == V9958_COLOURS[(r<<10) + (g<<5) + b]) {
+						if (color == V9958_COLORS[(r<<10) + (g<<5) + b]) {
 							found = true;
 						}
 					}
@@ -305,14 +305,14 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			break;
 		}
 
-		screen.generateNewKeyColour();
+		screen.generateNewKeyColor();
 	}
 
-	colourkey = screen.getKeyColour();
+	colorkey = screen.getKeyColor();
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::precalcColourIndex0(DisplayMode mode,
+void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 		bool transparency, bool superimposing, byte bgcolorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
@@ -323,7 +323,7 @@ void SDLRasterizer<Pixel>::precalcColourIndex0(DisplayMode mode,
 	int tpIndex = transparency ? bgcolorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
 		Pixel c = (superimposing && bgcolorIndex == 0) ?
-						colourkey : palBg[tpIndex];
+						colorkey : palBg[tpIndex];
 
 		if (palFg[0] != c) {
 			palFg[0] = c;
@@ -345,7 +345,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 {
 	DisplayMode mode = vdp.getDisplayMode();
 	byte modeBase = mode.getBase();
-	int bgColor = vdp.getBackgroundColour();
+	int bgColor = vdp.getBackgroundColor();
 	Pixel border0, border1;
 	if (modeBase == DisplayMode::GRAPHIC5) {
 		// border in SCREEN6 has separate color for even and odd pixels.
@@ -356,7 +356,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 		border0 = border1 = PALETTE256[bgColor];
 	} else {
 		if (!bgColor && vdp.isSuperimposing())
-			border0 = border1 = colourkey;
+			border0 = border1 = colorkey;
 		else
 			border0 = border1 = palBg[bgColor];
 	}

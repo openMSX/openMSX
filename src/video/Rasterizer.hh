@@ -48,10 +48,10 @@ public:
 	  */
 	virtual void setPalette(int index, int grb) = 0;
 
-	/** Changes the background colour.
-	  * @param index Palette index of the new background colour.
+	/** Changes the background color.
+	  * @param index Palette index of the new background color.
 	  */
-	virtual void setBackgroundColour(int index) = 0;
+	virtual void setBackgroundColor(int index) = 0;
 
 	virtual void setTransparency(bool enabled) = 0;
 	virtual void setSuperimposing(bool enabled) = 0;

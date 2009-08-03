@@ -42,10 +42,10 @@ public:
 	virtual void updateMultiPage(bool multiPage, EmuTime::param time);
 	virtual void updateTransparency(bool enabled, EmuTime::param time);
 	virtual void updateSuperimposing(bool enabled, EmuTime::param time);
-	virtual void updateForegroundColour(int colour, EmuTime::param time);
-	virtual void updateBackgroundColour(int colour, EmuTime::param time);
-	virtual void updateBlinkForegroundColour(int colour, EmuTime::param time);
-	virtual void updateBlinkBackgroundColour(int colour, EmuTime::param time);
+	virtual void updateForegroundColor(int color, EmuTime::param time);
+	virtual void updateBackgroundColor(int color, EmuTime::param time);
+	virtual void updateBlinkForegroundColor(int color, EmuTime::param time);
+	virtual void updateBlinkBackgroundColor(int color, EmuTime::param time);
 	virtual void updateBlinkState(bool enabled, EmuTime::param time);
 	virtual void updatePalette(int index, int grb, EmuTime::param time);
 	virtual void updateVerticalScroll(int scroll, EmuTime::param time);
@@ -54,7 +54,7 @@ public:
 	virtual void updateDisplayMode(DisplayMode mode, EmuTime::param time);
 	virtual void updateNameBase(int addr, EmuTime::param time);
 	virtual void updatePatternBase(int addr, EmuTime::param time);
-	virtual void updateColourBase(int addr, EmuTime::param time);
+	virtual void updateColorBase(int addr, EmuTime::param time);
 	virtual void updateSpritesEnabled(bool enabled, EmuTime::param time);
 	virtual void updateVRAM(unsigned offset, EmuTime::param time);
 	virtual void updateWindow(bool enabled, EmuTime::param time);

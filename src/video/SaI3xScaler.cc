@@ -348,9 +348,9 @@ public:
 			const Pixel sc = sd;
 			sd = src2[pos2];
 
-			// Compute and write colour of destination pixel.
+			// Compute and write color of destination pixel.
 			if (sa == sb && sc == sd && sa == sc) {
-				// All the same colour; fill.
+				// All the same color; fill.
 				PixelStripRepeater<NX>::template fill<Pixel>(dp, sa);
 			} else if (sa == sd && sb != sc) {
 				// Pattern in the form of a backslash.
@@ -458,7 +458,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 			const Pixel C = D;
 			D = src2[pos2];
 
-			// Compute and write colour of destination pixel.
+			// Compute and write color of destination pixel.
 			if (A == B && C == D && A == C) { // 0
 				do {
 					*dp++ = A;

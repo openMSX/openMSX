@@ -44,7 +44,7 @@ public:
 	virtual void frameEnd();
 	virtual void setDisplayMode(DisplayMode mode);
 	virtual void setPalette(int index, int grb);
-	virtual void setBackgroundColour(int index);
+	virtual void setBackgroundColor(int index);
 	virtual void setTransparency(bool enabled);
 	virtual void setSuperimposing(bool enabled);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
@@ -75,15 +75,15 @@ private:
 
 	/** Precalc palette values.
 	  * For MSX1 VDPs, results go directly into palFg/palBg.
-	  * For higher VDPs, results go into V9938_COLOURS and V9958_COLOURS.
+	  * For higher VDPs, results go into V9938_COLORS and V9958_COLORS.
 	  */
 	void precalcPalette();
 
-	/** Precalc foreground colour index 0 (palFg[0]).
+	/** Precalc foreground color index 0 (palFg[0]).
 	  * @param mode Current display mode.
 	  * @param transparency True iff transparency is enabled.
 	  */
-	void precalcColourIndex0(DisplayMode mode, bool transparency,
+	void precalcColorIndex0(DisplayMode mode, bool transparency,
 	                         bool superimposing, byte bgcolorIndex);
 
 	// Observer<Setting>
@@ -131,8 +131,8 @@ private:
 	  */
 	int lineRenderTop;
 
-	/** Host colours corresponding to each VDP palette entry.
-	  * palFg has entry 0 set to the current background colour.
+	/** Host colors corresponding to each VDP palette entry.
+	  * palFg has entry 0 set to the current background color.
 	  *       The 16 first entries are for even pixels, the next 16 are for
 	  *       odd pixels. Second part is only needed (and guaranteed to be
 	  *       up-to-date) in Graphics5 mode.
@@ -140,27 +140,27 @@ private:
 	  */
 	Pixel palFg[16 * 2], palBg[16];
 
-	/** Host colours corresponding to each Graphic 7 sprite colour.
+	/** Host colors corresponding to each Graphic 7 sprite color.
 	  */
 	Pixel palGraphic7Sprites[16];
 
-	/** Precalculated host colours corresponding to each possible V9938 colour.
+	/** Precalculated host colors corresponding to each possible V9938 color.
 	  * Used by updatePalette to adjust palFg and palBg.
 	  */
-	Pixel V9938_COLOURS[8][8][8];
+	Pixel V9938_COLORS[8][8][8];
 
-	/** Host colours corresponding to the 256 colour palette of Graphic7.
+	/** Host colors corresponding to the 256 color palette of Graphic7.
 	  * Used by BitmapConverter.
 	  */
 	Pixel PALETTE256[256];
 
-	/** Host colours corresponding to each possible V9958 colour.
+	/** Host colors corresponding to each possible V9958 color.
 	  */
-	Pixel V9958_COLOURS[32768];
+	Pixel V9958_COLORS[32768];
 
-	/** Host colour for transparent for superimposing
+	/** Host color for transparent for superimposing
 	  */
-	Pixel colourkey;
+	Pixel colorkey;
 };
 
 } // namespace openmsx

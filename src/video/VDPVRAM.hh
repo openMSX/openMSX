@@ -112,7 +112,7 @@ only to know whether there are any. If not, sync can be skipped.
 Is it possible to read multiple bytes at the same time?
 In other words, get a pointer to an array instead of reading single bytes.
 Yes, but only the first 64 bytes are guaranteed to be correct, because that
-is the granularity of the colour table.
+is the granularity of the color table.
 But since whatever is reading the VRAM knows what it is operating on, it
 can decide for itself how many bytes to read.
 
@@ -546,7 +546,7 @@ private:
 		assert(!nameTable.hasObserver());
 
 		// in the past GLRasterizer observed these two, now there are none
-		assert(!colourTable.hasObserver());
+		assert(!colorTable.hasObserver());
 		assert(!patternTable.hasObserver());
 
 		/* TODO:
@@ -619,7 +619,7 @@ public:
 	VRAMWindow cmdReadWindow;
 	VRAMWindow cmdWriteWindow;
 	VRAMWindow nameTable;
-	VRAMWindow colourTable;
+	VRAMWindow colorTable;
 	VRAMWindow patternTable;
 	VRAMWindow bitmapVisibleWindow;
 	VRAMWindow bitmapCacheWindow;

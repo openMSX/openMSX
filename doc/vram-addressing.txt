@@ -14,7 +14,7 @@ General formula for VRAM addressing:
 where:
   vram_address is the index in VRAM
   index1 is the index in the particular table, such as the name table or
-    colour table. The unused bits of index are all ones.
+    color table. The unused bits of index are all ones.
   mask is the value in the table's base register. The unused bits of mask
     are all ones.
 
@@ -106,7 +106,7 @@ Name table base address is [A16..A10] (R#2).
 Display mode:   Index width in bits:
    Text 1         12 (*1)
    Text 2         12
- Multicolour      10 (*2)
+ Multicolor       10 (*2)
   Graphic 1       10 (*2)
   Graphic 2       10 (*2)
   Graphic 3       10 (*2)
@@ -130,7 +130,7 @@ Pattern table base address is [A16..A11] (R#4).
 Display mode:   Index width in bits:
    Text 1         11
    Text 2         11
- Multicolour      11
+ Multicolor       11
   Graphic 1       11
   Graphic 2       13
   Graphic 3       13
@@ -139,14 +139,14 @@ Display mode:   Index width in bits:
   Graphic 6       -
   Graphic 7       -
 
-- Colour Table -
+- Color Table -
 
-Colour table base address is [A16..A6] (R#3 and R#10).
+Color table base address is [A16..A6] (R#3 and R#10).
 
 Display mode:   Index width in bits:
    Text 1         -
    Text 2         9
- Multicolour      -
+ Multicolor       -
   Graphic 1       6 (*1)
   Graphic 2       13
   Graphic 3       13
@@ -161,7 +161,7 @@ Display mode:   Index width in bits:
 Sprite mode:    Index width in bits:
    mode 1         7
    mode 2         10 (*1)
-(*1) Bit9 selects sprite colour table (0) or sprite attribute table (1).
+(*1) Bit9 selects sprite color table (0) or sprite attribute table (1).
      Bit8 and Bit7 are fixed to zero for the attribute table.
 
 - Sprite Pattern Table -
@@ -205,7 +205,7 @@ y = org_line / 8
 name_index = y * 80 + x
 pattern_index = name * 8 + line % 8
 
-- Multicolour -
+- Multicolor -
 
 Aka SCREEN3.
 0 <= x < 32
@@ -220,7 +220,7 @@ Aka SCREEN1.
 y = line / 8
 name_index = y * 32 + x
 pattern_index = name * 8 + line % 8
-colour_index = name / 8
+color_index = name / 8
 
 - Graphic 2 and 3 -
 
@@ -230,7 +230,7 @@ Aka SCREEN2 and SCREEN4.
 y = line / 8
 name_index = y * 32 + x
 pattern_index = ((line / 64) * 256 + name) * 8 + line % 8
-colour_index = ((line / 64) * 256 + name) * 8 + line % 8
+color_index = ((line / 64) * 256 + name) * 8 + line % 8
 
 - Graphic 4 -
 
@@ -271,7 +271,7 @@ Four patterns define the look of a single sprite, like this:
 
 0 <= sprite_nr < 32
 attrib_index = 512 + sprite_nr * 4
-colour_index = sprite_nr * 16
+color_index = sprite_nr * 16
 
 0 <= pattern_nr < 256
 pattern_index = pattern_nr * 8

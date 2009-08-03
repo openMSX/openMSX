@@ -34,10 +34,10 @@ public:
 		short int x;
 		/** Bit 3..0 are index in palette.
 		  * Bit 6 is 0 for sprite mode 1 like behaviour,
-		  * or 1 for OR-ing of sprite colours.
+		  * or 1 for OR-ing of sprite colors.
 		  * Other bits are undefined.
 		  */
-		byte colourAttrib;
+		byte colorAttrib;
 	};
 
 	/** Create a sprite checker.

@@ -9,7 +9,7 @@ namespace openmsx {
 
 /** Represents a VDP display mode.
   * A display mode determines how bytes in the VRAM are converted to pixel
-  * colours.
+  * colors.
   * A display mode consists of a base mode with YJK filters on top.
   * Only the V9958 supports YJK filters.
   */
@@ -27,7 +27,7 @@ public:
 	enum {
 		GRAPHIC1    = 0x00, // Graphic 1
 		TEXT1       = 0x01, // Text 1
-		MULTICOLOUR = 0x02, // Multicolour
+		MULTICOLOR = 0x02, // Multicolor
 		GRAPHIC2    = 0x04, // Graphic 2
 		TEXT1Q      = 0x05, // !!
 		MULTIQ      = 0x06, // !!

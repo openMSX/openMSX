@@ -908,7 +908,7 @@ openMSX 0.3.1 (2003-05-18)
   * Added resizing and moving to the console.
   * SDL console characters are no longer blended (improved readability).
   * SDL backgroundimage can be scaled and can have any pixel format.
-  * Fixed colour of font on GLConsole overlayed on Text1 mode.
+  * Fixed color of font on GLConsole overlayed on Text1 mode.
 - Emulation and event handling are now done in a single thread.
   The previous multi-threaded solution was not very portable among platforms
   or even different versions of the same platform.

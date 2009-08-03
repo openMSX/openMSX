@@ -20,7 +20,7 @@ class BitmapConverter
 public:
 	/** Create a new bitmap scanline converter.
 	  * @param palette16 Pointer to 2*16-entries array that specifies
-	  *   VDP colour index to host pixel mapping.
+	  *   VDP color index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine. Though to allow
 	  *   some internal optimizations, this class should be informed about
@@ -29,12 +29,12 @@ public:
 	  *   Used for display modes Graphic4, Graphic5 and Graphic6.
 	  *   First 16 entries are for even pixels, next 16 are for odd pixels
 	  * @param palette256 Pointer to 256-entries array that specifies
-	  *   VDP colour index to host pixel mapping.
+	  *   VDP color index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
 	  *   Used for display mode Graphic7.
 	  * @param palette32768 Pointer to 32768-entries array that specifies
-	  *   VDP colour index to host pixel mapping.
+	  *   VDP color index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
 	  *   Used when YJK filter is active.

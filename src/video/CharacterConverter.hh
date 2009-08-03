@@ -21,11 +21,11 @@ public:
 	/** Create a new bitmap scanline converter.
 	  * @param vdp The VDP of which the VRAM will be converted.
 	  * @param palFg Pointer to 16-entries array that specifies
-	  *   VDP foreground colour index to host pixel mapping.
+	  *   VDP foreground color index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
 	  * @param palBg Pointer to 16-entries array that specifies
-	  *   VDP background colour index to host pixel mapping.
+	  *   VDP background color index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
 	  */
@@ -45,8 +45,8 @@ private:
 	/** Convert a monochrome 8*1 character block row to host pixels.
 	  * @param blockPtr Pointer to array where host pixels will be written to.
 	  * @param pattern Pattern to convert.
-	  * @param fg Foreground colour.
-	  * @param bg Background colour.
+	  * @param fg Foreground color.
+	  * @param bg Background color.
 	  */
 	inline void convertBlockRow(
 		Pixel* blockPtr, byte pattern, Pixel fg, Pixel bg)
@@ -77,16 +77,16 @@ private:
 		blockPtr[7] = pattern & 0x01 ? 0xFF : 0;
 	}
 
-	/** Convert a coloured 8*1 character block row to host pixels.
+	/** Convert a colored 8*1 character block row to host pixels.
 	  * @param blockPtr Pointer to array where host pixels will be written to.
 	  * @param pattern Pattern to convert.
-	  * @param fg Foreground colour.
-	  * @param bg Background colour.
+	  * @param fg Foreground color.
+	  * @param bg Background color.
 	  */
-	inline void convertBlockRow(Pixel* blockPtr, byte pattern, byte colour)
+	inline void convertBlockRow(Pixel* blockPtr, byte pattern, byte color)
 	{
 		convertBlockRow(
-			blockPtr, pattern, palFg[colour >> 4], palFg[colour & 0x0F] );
+			blockPtr, pattern, palFg[color >> 4], palFg[color & 0x0F] );
 	}
 
 public:
@@ -106,22 +106,22 @@ public:
 		convertMonoBlockRow(blockPtr + 56, patternPtr[7]);
 	}
 
-	/** Convert a coloured 8*8 character block to host pixels.
+	/** Convert a colored 8*8 character block to host pixels.
 	  * @param blockPtr Pointer to array where host pixels will be written to.
 	  * @param patternPtr Pointer to 8 pattern entries to convert.
-	  * @param colourPtr Pointer to 8 colour entries to convert.
+	  * @param colorPtr Pointer to 8 color entries to convert.
 	  */
-	inline void convertColourBlock(
-		Pixel* blockPtr, const byte* patternPtr, const byte* colourPtr)
+	inline void convertColorBlock(
+		Pixel* blockPtr, const byte* patternPtr, const byte* colorPtr)
 	{
-		convertBlockRow(blockPtr,      patternPtr[0], colourPtr[0]);
-		convertBlockRow(blockPtr +  8, patternPtr[1], colourPtr[1]);
-		convertBlockRow(blockPtr + 16, patternPtr[2], colourPtr[2]);
-		convertBlockRow(blockPtr + 24, patternPtr[3], colourPtr[3]);
-		convertBlockRow(blockPtr + 32, patternPtr[4], colourPtr[4]);
-		convertBlockRow(blockPtr + 40, patternPtr[5], colourPtr[5]);
-		convertBlockRow(blockPtr + 48, patternPtr[6], colourPtr[6]);
-		convertBlockRow(blockPtr + 56, patternPtr[7], colourPtr[7]);
+		convertBlockRow(blockPtr,      patternPtr[0], colorPtr[0]);
+		convertBlockRow(blockPtr +  8, patternPtr[1], colorPtr[1]);
+		convertBlockRow(blockPtr + 16, patternPtr[2], colorPtr[2]);
+		convertBlockRow(blockPtr + 24, patternPtr[3], colorPtr[3]);
+		convertBlockRow(blockPtr + 32, patternPtr[4], colorPtr[4]);
+		convertBlockRow(blockPtr + 40, patternPtr[5], colorPtr[5]);
+		convertBlockRow(blockPtr + 48, patternPtr[6], colorPtr[6]);
+		convertBlockRow(blockPtr + 56, patternPtr[7], colorPtr[7]);
 	}
 
 	/** Select the display mode to use for scanline conversion.

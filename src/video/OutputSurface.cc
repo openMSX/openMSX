@@ -5,7 +5,7 @@
 namespace openmsx {
 
 OutputSurface::OutputSurface()
-	: displaySurface(0), workSurface(0), keyColour(0), locked(false)
+	: displaySurface(0), workSurface(0), keyColor(0), locked(false)
 {
 }
 
@@ -40,34 +40,34 @@ unsigned OutputSurface::mapRGB(double dr, double dg, double db)
 	return SDL_MapRGB(&format, r, g, b);
 }
 
-bool OutputSurface::canKeyColourClash()
+bool OutputSurface::canKeyColorClash()
 {
 	return format.BitsPerPixel == 16;
 }
 
-void OutputSurface::generateNewKeyColour()
+void OutputSurface::generateNewKeyColor()
 {
-	assert(canKeyColourClash());
+	assert(canKeyColorClash());
 
-	keyColour = (keyColour + 1) & 0xffff;
+	keyColor = (keyColor + 1) & 0xffff;
 }
 
-unsigned OutputSurface::getKeyColour()
+unsigned OutputSurface::getKeyColor()
 {
 	switch (format.BitsPerPixel) {
 	case 32:
 	case 24:
-		keyColour = 0xffffffff;
+		keyColor = 0xffffffff;
 		break;
 	case 15:
-		keyColour = 0xffff;
+		keyColor = 0xffff;
 	case 16:
 		break;
 	default:
 		assert(false);
 	}
 
-	return keyColour;
+	return keyColor;
 }
 
 void OutputSurface::setSDLDisplaySurface(SDL_Surface* surface)

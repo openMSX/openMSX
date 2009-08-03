@@ -440,7 +440,7 @@ public:
 };
 
 /** Wrapper around an OpenGL fragment shader:
-  * a program executed on the GPU that computes the colours of pixels.
+  * a program executed on the GPU that computes the colors of pixels.
   */
 class FragmentShader : public Shader
 {

@@ -336,7 +336,7 @@ void StoredFrame::drawBlend(
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// RGB come from texture, alpha comes from fragment colour.
+	// RGB come from texture, alpha comes from fragment color.
 	glColor4f(1.0, 0.0, 0.0, GLfloat(alpha));
 	draw(offsetX, offsetY, width, height);
 	glDisable(GL_BLEND);

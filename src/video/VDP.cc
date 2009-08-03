@@ -14,7 +14,7 @@ TODO:
   Current implementation would return FH=0 both times.
 - Check how Z80 should treat interrupts occurring during DI.
 - Bottom erase suspends display even on overscan.
-  However, it shows black, not border colour.
+  However, it shows black, not border color.
   How to handle this? Currently it is treated as "overscan" which
   falls outside of the rendered screen area.
 */
@@ -193,7 +193,7 @@ void VDP::resetInit()
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
 	}
-	// According to page 6 of the V9938 data book the colour burst registers
+	// According to page 6 of the V9938 data book the color burst registers
 	// are loaded with these values at power on.
 	controlRegs[21] = 0x3B;
 	controlRegs[22] = 0x05;
@@ -242,7 +242,7 @@ void VDP::resetMasks(EmuTime::param time)
 	// TODO: Use the updateNameBase method instead of duplicating the effort
 	//       here for the initial state.
 	vram->nameTable.setMask(~(-1 << 10), -1 << 17, time);
-	updateColourBase(time);
+	updateColorBase(time);
 	updatePatternBase(time);
 	updateSpriteAttributeBase(time);
 	updateSpritePatternBase(time);
@@ -823,10 +823,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		}
 
 		if ((val & 0xF0) && (val & 0x0F)) {
-			// Alternating colours, start with ON.
+			// Alternating colors, start with ON.
 			blinkCount = (val >> 4) * 10;
 		} else {
-			// Stable colour.
+			// Stable color.
 			blinkCount = 0;
 		}
 	}
@@ -873,13 +873,13 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 7:
 		if (getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
 			if (change & 0xF0) {
-				renderer->updateForegroundColour(val >> 4, time);
+				renderer->updateForegroundColor(val >> 4, time);
 			}
 			if (change & 0x0F) {
-				renderer->updateBackgroundColour(val & 0x0F, time);
+				renderer->updateBackgroundColor(val & 0x0F, time);
 			}
 		} else {
-			renderer->updateBackgroundColour(val, time);
+			renderer->updateBackgroundColor(val, time);
 		}
 		break;
 	case 8:
@@ -895,10 +895,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		break;
 	case 12:
 		if (change & 0xF0) {
-			renderer->updateBlinkForegroundColour(val >> 4, time);
+			renderer->updateBlinkForegroundColor(val >> 4, time);
 		}
 		if (change & 0x0F) {
-			renderer->updateBlinkBackgroundColour(val & 0x0F, time);
+			renderer->updateBlinkBackgroundColor(val & 0x0F, time);
 		}
 		break;
 	case 16:
@@ -977,7 +977,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		break;
 	case 3:
 	case 10:
-		updateColourBase(time);
+		updateColorBase(time);
 		break;
 	case 4:
 		updatePatternBase(time);
@@ -1065,25 +1065,25 @@ void VDP::updateNameBase(EmuTime::param time)
 	vram->nameTable.setMask(base, indexMask, time);
 }
 
-void VDP::updateColourBase(EmuTime::param time)
+void VDP::updateColorBase(EmuTime::param time)
 {
 	int base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6);
-	renderer->updateColourBase(base, time);
+	renderer->updateColorBase(base, time);
 	switch (displayMode.getBase()) {
 	case 0x09: // Text 2.
 		// TODO: Enable this only if dual color is actually active.
-		vram->colourTable.setMask(base, -1 << 9, time);
+		vram->colorTable.setMask(base, -1 << 9, time);
 		break;
 	case 0x00: // Graphic 1.
-		vram->colourTable.setMask(base, -1 << 6, time);
+		vram->colorTable.setMask(base, -1 << 6, time);
 		break;
 	case 0x04: // Graphic 2.
 	case 0x08: // Graphic 3.
-		vram->colourTable.setMask(base, -1 << 13, time);
+		vram->colorTable.setMask(base, -1 << 13, time);
 		break;
 	default:
-		// Other display modes do not use a colour table.
-		vram->colourTable.disable(time);
+		// Other display modes do not use a color table.
+		vram->colorTable.disable(time);
 	}
 }
 
@@ -1096,8 +1096,8 @@ void VDP::updatePatternBase(EmuTime::param time)
 	case 0x05: // Text 1 Q.
 	case 0x09: // Text 2.
 	case 0x00: // Graphic 1.
-	case 0x02: // Multicolour.
-	case 0x06: // Multicolour Q.
+	case 0x02: // Multicolor.
+	case 0x06: // Multicolor Q.
 		vram->patternTable.setMask(base, -1 << 11, time);
 		break;
 	case 0x04: // Graphic 2.
@@ -1159,7 +1159,7 @@ void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 	// leave last used character mode active.
 	// TODO: Disable it if not used for some time.
 	if (!displayMode.isBitmapMode()) {
-		updateColourBase(time);
+		updateColorBase(time);
 		updatePatternBase(time);
 	}
 	if (planarChange || spriteModeChange) {

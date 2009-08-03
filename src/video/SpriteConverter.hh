@@ -80,12 +80,12 @@ public:
 			// Get sprite info.
 			const SpriteChecker::SpriteInfo* sip =
 				&visibleSprites[visibleIndex];
-			Pixel colIndex = sip->colourAttrib & 0x0F;
+			Pixel colIndex = sip->colorAttrib & 0x0F;
 			// Don't draw transparent sprites in sprite mode 1.
 			// TODO: Verify on real V9938 that sprite mode 1 indeed
 			//       ignores the transparency bit.
 			if (colIndex == 0) continue;
-			Pixel colour = palette[colIndex];
+			Pixel color = palette[colIndex];
 			SpriteChecker::SpritePattern pattern = sip->pattern;
 			int x = sip->x;
 			// Clip sprite pattern to render range.
@@ -102,7 +102,7 @@ public:
 			while (pattern) {
 				// Draw pixel if sprite has a dot.
 				if (pattern & 0x80000000) {
-					*p = colour;
+					*p = color;
 				}
 				// Advancing behaviour.
 				pattern <<= 1;
@@ -148,7 +148,7 @@ public:
 				int mask = 0x80000000;
 				pattern &= (mask >> (d - 1));
 			}
-			byte c = info.colourAttrib & 0x0F;
+			byte c = info.colorAttrib & 0x0F;
 			if (c == 0 && transparency) continue;
 			while (pattern) {
 				if (pattern & 0x80000000) {
@@ -157,11 +157,11 @@ public:
 					for (int j = i + 1; /*sentinel*/; ++j) {
 						const SpriteChecker::SpriteInfo& info2 =
 							visibleSprites[j];
-						if (!(info2.colourAttrib & 0x40)) break;
+						if (!(info2.colorAttrib & 0x40)) break;
 						unsigned shift2 = x - info2.x;
 						if ((shift2 < 32) &&
 						   ((info2.pattern << shift2) & 0x80000000)) {
-							color |= info2.colourAttrib & 0x0F;
+							color |= info2.colorAttrib & 0x0F;
 						}
 					}
 					if (MODE == DisplayMode::GRAPHIC5) {

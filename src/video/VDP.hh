@@ -59,7 +59,7 @@ public:
 	enum VdpVersion {
 		/** MSX1 VDP, NTSC version.
 		  * TMS9918A has NTSC encoding built in,
-		  * while TMS9928A has colour difference output;
+		  * while TMS9928A has color difference output;
 		  * in emulation there is no difference.
 		  */
 		TMS99X8A,
@@ -137,28 +137,28 @@ public:
 	}
 
 	/** Gets the current transparency setting.
-	  * @return True iff colour 0 is transparent.
+	  * @return True iff color 0 is transparent.
 	  */
 	inline bool getTransparency() const {
 		return (controlRegs[8] & 0x20) == 0;
 	}
 
-	/** Gets the current foreground colour.
-	  * @return Colour index [0..15].
+	/** Gets the current foreground color.
+	  * @return Color index [0..15].
 	  */
-	inline int getForegroundColour() const {
+	inline int getForegroundColor() const {
 		return controlRegs[7] >> 4;
 	}
 
-	/** Gets the current background colour.
-	  * @return Colour index.
+	/** Gets the current background color.
+	  * @return Color index.
 	  *   In Graphic5 mode, the range is [0..15];
-	  *   bits 3-2 contains the colour for even pixels,
-	  *   bits 1-0 contains the colour for odd pixels.
+	  *   bits 3-2 contains the color for even pixels,
+	  *   bits 1-0 contains the color for odd pixels.
 	  *   In Graphic7 mode with YJK off, the range is [0..255].
 	  *   In other modes, the range is [0..15].
 	  */
-	inline int getBackgroundColour() const {
+	inline int getBackgroundColor() const {
 		byte reg7 = controlRegs[7];
 		if (displayMode.getByte() == DisplayMode::GRAPHIC7) {
 			return reg7;
@@ -167,22 +167,22 @@ public:
 		}
 	}
 
-	/** Gets the current blinking colour for blinking text.
-	  * @return Colour index [0..15].
+	/** Gets the current blinking color for blinking text.
+	  * @return Color index [0..15].
 	  */
-	inline int getBlinkForegroundColour() const {
+	inline int getBlinkForegroundColor() const {
 		return controlRegs[12] >> 4;
 	}
 
-	/** Gets the current blinking colour for blinking text.
-	  * @return Colour index [0..15].
+	/** Gets the current blinking color for blinking text.
+	  * @return Color index [0..15].
 	  */
-	inline int getBlinkBackgroundColour() const {
+	inline int getBlinkBackgroundColor() const {
 		return controlRegs[12] & 0x0F;
 	}
 
 	/** Gets the current blink state.
-	  * @return True iff alternate colours / page should be displayed.
+	  * @return True iff alternate colors / page should be displayed.
 	  */
 	inline bool getBlinkState() const {
 		return blinkState;
@@ -190,7 +190,7 @@ public:
 
 	/** Gets a palette entry.
 	  * @param index The index [0..15] in the palette.
-	  * @return Colour value in the format of the palette registers:
+	  * @return Color value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
 	inline word getPalette(int index) const {
@@ -624,10 +624,10 @@ private:
 	  */
 	void updateNameBase(EmuTime::param time);
 
-	/** Colour base mask has changed.
+	/** Color base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updateColourBase(EmuTime::param time);
+	void updateColorBase(EmuTime::param time);
 
 	/** Pattern base mask has changed.
 	  * Inform the renderer and the VRAM.
@@ -812,7 +812,7 @@ private:
 	  */
 	byte statusReg2;
 
-	/** Blinking state: should alternate colour / page be displayed?
+	/** Blinking state: should alternate color / page be displayed?
 	  */
 	bool blinkState;
 

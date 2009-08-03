@@ -77,7 +77,7 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 		// TODO: Possible performance improvements:
 		// - Play with order of fetching (effect on data cache).
 		// - Try not fetching at all (using srcLineN[x] in algorithm).
-		// - Try rotating the fetched colours (either in vars or in array).
+		// - Try rotating the fetched colors (either in vars or in array).
 		Pixel colorI = srcLine0[xl];
 		Pixel colorE = srcLine0[x];
 		Pixel colorF = srcLine0[xr];

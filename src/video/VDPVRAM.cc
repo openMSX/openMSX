@@ -137,7 +137,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	, cmdReadWindow(data)
 	, cmdWriteWindow(data)
 	, nameTable(data)
-	, colourTable(data)
+	, colorTable(data)
 	, patternTable(data)
 	, bitmapVisibleWindow(data)
 	, bitmapCacheWindow(data)
@@ -205,7 +205,7 @@ void VDPVRAM::setSizeMask(EmuTime::param time)
 	cmdReadWindow.setSizeMask(sizeMask, time);
 	cmdWriteWindow.setSizeMask(sizeMask, time);
 	nameTable.setSizeMask(sizeMask, time);
-	colourTable.setSizeMask(sizeMask, time);
+	colorTable.setSizeMask(sizeMask, time);
 	patternTable.setSizeMask(sizeMask, time);
 	bitmapVisibleWindow.setSizeMask(sizeMask, time);
 	bitmapCacheWindow.setSizeMask(sizeMask, time);
@@ -346,7 +346,9 @@ void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("cmdReadWindow",       cmdReadWindow);
 	ar.serialize("cmdWriteWindow",      cmdWriteWindow);
 	ar.serialize("nameTable",           nameTable);
-	ar.serialize("colourTable",         colourTable);
+	// TODO: Find a way of changing the line below to "colorTable",
+	// without breaking backwards compatibility
+	ar.serialize("colourTable",         colorTable);
 	ar.serialize("patternTable",        patternTable);
 	ar.serialize("bitmapVisibleWindow", bitmapVisibleWindow);
 	ar.serialize("bitmapCacheWindow",   bitmapCacheWindow);
