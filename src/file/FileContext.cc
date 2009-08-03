@@ -28,16 +28,16 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 static void getUserDirs(CommandController& controller, vector<string>& result)
 {
 	assert(&controller);
+	const string& list = controller.getGlobalSettings().
+		getUserDirSetting().getValue();
+	vector<string> dirs;
 	try {
-		const string& list = controller.getGlobalSettings().
-			getUserDirSetting().getValue();
-		vector<string> dirs;
 		controller.splitList(list, dirs);
-		result.insert(result.end(), dirs.begin(), dirs.end());
 	} catch (CommandException& e) {
 		controller.getCliComm().printWarning(
 			"user directories: " + e.getMessage());
 	}
+	result.insert(result.end(), dirs.begin(), dirs.end());
 }
 
 static string subst(const string& path, const string& before,
