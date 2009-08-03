@@ -1,5 +1,11 @@
 $Id$
 
+2009-08-02 Patrick van Arkel vampiermsx@gmail.com
+	 * Made some major changes to the ROM database 
+	   and added <text> tags to the <remark> field.
+	   Included are also Generation MSX-ids to have
+	   a common 'key' to bind databases.
+
 2009-07-16 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added session management script. When you do:
 	  set enable_session_management true
