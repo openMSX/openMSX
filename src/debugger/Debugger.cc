@@ -581,9 +581,9 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 		if (endAddr >= max) {
 			throw CommandException("Invalid address: out of range");
 		}
-		wp.reset(new MSXWatchIODevice(debugger.motherBoard, type,
-		                              beginAddr, endAddr,
-		                              command, condition));
+		wp.reset(new WatchIO(debugger.motherBoard, type,
+		                     beginAddr, endAddr,
+		                     command, condition));
 		break;
 	}
 	default:
