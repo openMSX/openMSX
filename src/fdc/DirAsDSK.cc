@@ -256,10 +256,11 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	setNbSides(2);
 
 	// use selected bootsector
-	const byte* bootSector
-		= globalSettings.getBootSectorSetting().getValue()
-		? BootBlocks::dos2BootBlock
-		: BootBlocks::dos1BootBlock;
+	const byte* bootSector =
+		  globalSettings.getBootSectorSetting().getValue()
+		  == GlobalSettings::BOOTSECTOR_DOS1
+		? BootBlocks::dos1BootBlock
+		: BootBlocks::dos2BootBlock;
 	memcpy(bootBlock, bootSector, SECTOR_SIZE);
 
 	// make a clean initial disk

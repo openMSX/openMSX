@@ -38,12 +38,12 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	syncDirAsDSKSetting.reset(new EnumSetting<SyncMode>(commandController,
 		"DirAsDSKmode", "type of syncronisation between host directory and dir-as-dsk diskimage",
 		SYNC_FULL, syncDirAsDSKMap));
-	EnumSetting<bool>::Map bootsectorMap;
-	bootsectorMap["DOS1"] = false;
-	bootsectorMap["DOS2"] = true;
-	bootSectorSetting.reset(new EnumSetting<bool>(commandController,
+	EnumSetting<BootSectorType>::Map bootsectorMap;
+	bootsectorMap["DOS1"] = BOOTSECTOR_DOS1;
+	bootsectorMap["DOS2"] = BOOTSECTOR_DOS2;
+	bootSectorSetting.reset(new EnumSetting<BootSectorType>(commandController,
 		"bootsector", "boot sector type for dir-as-dsk",
-		true, bootsectorMap));
+		BOOTSECTOR_DOS2, bootsectorMap));
 	EnumSetting<ResampleType>::Map resampleMap;
 	resampleMap["hq"]   = RESAMPLE_HQ;
 	resampleMap["fast"] = RESAMPLE_LQ;
@@ -109,7 +109,7 @@ EnumSetting<GlobalSettings::SyncMode>& GlobalSettings::getSyncDirAsDSKSetting()
 	return *syncDirAsDSKSetting.get();
 }
 
-EnumSetting<bool>& GlobalSettings::getBootSectorSetting()
+EnumSetting<GlobalSettings::BootSectorType>& GlobalSettings::getBootSectorSetting()
 {
 	return *bootSectorSetting.get();
 }
