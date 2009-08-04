@@ -3,9 +3,6 @@
 #include "DirAsDSK.hh"
 #include "CliComm.hh"
 #include "BootBlocks.hh"
-#include "GlobalSettings.hh"
-#include "BooleanSetting.hh"
-#include "EnumSetting.hh"
 #include "File.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
@@ -13,9 +10,10 @@
 #include "StringOp.hh"
 #include "statp.hh"
 #include <algorithm>
+#include <cassert>
+#include <cstdio>
 #include <cstring>
 #include <sys/types.h>
-#include <cstdio>
 
 using std::string;
 
@@ -234,15 +232,14 @@ void DirAsDSK::cleandisk()
 	}
 }
 
-DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
-                   const Filename& filename)
+DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& filename,
+		GlobalSettings::SyncMode syncMode_,
+		GlobalSettings::BootSectorType bootSectorType)
 	: SectorBasedDisk(filename)
 	, cliComm(cliComm_)
 	, hostDir(filename.getResolved())
-	, globalSettings(globalSettings_)
+	, syncMode(syncMode_)
 {
-	syncMode = globalSettings.getSyncDirAsDSKSetting().getValue();
-
 	// create the diskimage based upon the files that can be
 	// found in the host directory
 	ReadDir dir(hostDir);
@@ -257,8 +254,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 
 	// use selected bootsector
 	const byte* bootSector =
-		  globalSettings.getBootSectorSetting().getValue()
-		  == GlobalSettings::BOOTSECTOR_DOS1
+		  bootSectorType == GlobalSettings::BOOTSECTOR_DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
 	memcpy(bootBlock, bootSector, SECTOR_SIZE);

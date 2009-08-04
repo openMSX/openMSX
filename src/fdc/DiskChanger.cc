@@ -5,6 +5,8 @@
 #include "RamDSKDiskImage.hh"
 #include "XSADiskImage.hh"
 #include "DirAsDSK.hh"
+#include "GlobalSettings.hh"
+#include "EnumSetting.hh"
 #include "DSKDiskImage.hh"
 #include "DiskPartition.hh"
 #include "CommandController.hh"
@@ -199,8 +201,10 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 			// try to create fake DSK from a dir on host OS
 			newDisk.reset(new DirAsDSK(
 				controller.getCliComm(),
-				controller.getGlobalSettings(),
-				filename));
+				filename,
+				controller.getGlobalSettings().getSyncDirAsDSKSetting().getValue(),
+				controller.getGlobalSettings().getBootSectorSetting().getValue()
+				));
 		} catch (MSXException&) {
 		try {
 			// then try normal DSK

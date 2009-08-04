@@ -21,8 +21,9 @@ public:
 	static const unsigned SECTORS_PER_DIR = 7;
 	static const unsigned NUM_DIR_ENTRIES = SECTORS_PER_DIR * (SECTOR_SIZE / 32);
 
-	DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings,
-	         const Filename& filename);
+	DirAsDSK(CliComm& cliComm_, const Filename& filename,
+		GlobalSettings::SyncMode syncMode_,
+		GlobalSettings::BootSectorType bootSectorType);
 	virtual ~DirAsDSK();
 
 private:
@@ -102,7 +103,6 @@ private:
 	const std::string hostDir;
 	typedef std::map<unsigned, SectorData> CachedSectors;
 	CachedSectors cachedSectors;
-	GlobalSettings& globalSettings;
 
 	GlobalSettings::SyncMode syncMode;
 };
