@@ -28,8 +28,10 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 static void getUserDirs(CommandController& controller, vector<string>& result)
 {
 	assert(&controller);
-	const string& list = controller.getGlobalSettings().
-		getUserDirSetting().getValue();
+	// TODO: Either remove user dirs feature or find a better home for the
+	//       "user_directories" setting.
+	const string& list =
+		""; //controller.getGlobalSettings().getUserDirSetting().getValue();
 	vector<string> dirs;
 	try {
 		controller.splitList(list, dirs);
