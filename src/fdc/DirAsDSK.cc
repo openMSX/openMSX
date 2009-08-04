@@ -923,7 +923,7 @@ string DirAsDSK::condenseName(const char* buf)
 
 bool DirAsDSK::isWriteProtectedImpl() const
 {
-	return (syncMode != GlobalSettings::SYNC_READONLY) ? false : true;
+	return syncMode == GlobalSettings::SYNC_READONLY;
 }
 
 void DirAsDSK::updateFileInDisk(const string& filename)
