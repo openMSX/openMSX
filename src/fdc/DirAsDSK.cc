@@ -233,8 +233,7 @@ void DirAsDSK::cleandisk()
 }
 
 DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& filename,
-		GlobalSettings::SyncMode syncMode_,
-		GlobalSettings::BootSectorType bootSectorType)
+		SyncMode syncMode_, BootSectorType bootSectorType)
 	: SectorBasedDisk(filename)
 	, cliComm(cliComm_)
 	, hostDir(filename.getResolved())
@@ -254,7 +253,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& filename,
 
 	// use selected bootsector
 	const byte* bootSector =
-		  bootSectorType == GlobalSettings::BOOTSECTOR_DOS1
+		  bootSectorType == BOOTSECTOR_DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
 	memcpy(bootBlock, bootSector, SECTOR_SIZE);
@@ -602,7 +601,7 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	// is this actually needed ?
-	if (syncMode == GlobalSettings::SYNC_READONLY) return;
+	if (syncMode == SYNC_READONLY) return;
 
 	debug("DirAsDSK::writeSectorImpl: %i ", sector);
 	switch (sector) {
@@ -744,8 +743,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 	debug("  Old size %i  New size %i\n\n", oldSize, newSize);
 
 	if (chgName && !chgClus && !chgSize) {
-		if ((entry.filename[0] == char(0xE5)) &&
-		    (syncMode == GlobalSettings::SYNC_FULL)) {
+		if (entry.filename[0] == char(0xE5) && syncMode == SYNC_FULL) {
 			// dir entry has been deleted
 			// delete file from host OS and 'clear' all sector
 			// data pointing to this HOST OS file
@@ -759,8 +757,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			mapdir[dirindex].shortname.clear();
 
 		} else if ((entry.filename[0] != char(0xE5)) &&
-			   ((syncMode == GlobalSettings::SYNC_FULL) ||
-			    (syncMode == GlobalSettings::SYNC_NODELETE))) {
+			   (syncMode == SYNC_FULL || syncMode == SYNC_NODELETE)) {
 			string shname = condenseName(entry.filename);
 			string newfilename = hostDir + '/' + shname;
 			if (newClus == 0 && newSize == 0) {
@@ -832,7 +829,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
 
 	// if in SYNC_CACHEDWRITE then simply mark sector as cached and be done with it
-	if (syncMode == GlobalSettings::SYNC_CACHEDWRITE) {
+	if (syncMode == SYNC_CACHEDWRITE) {
 		// change to a regular cached sector
 		sectormap[sector].usage = CACHED;
 		sectormap[sector].dirEntryNr = 0;
@@ -920,7 +917,7 @@ string DirAsDSK::condenseName(const char* buf)
 
 bool DirAsDSK::isWriteProtectedImpl() const
 {
-	return syncMode == GlobalSettings::SYNC_READONLY;
+	return syncMode == SYNC_READONLY;
 }
 
 void DirAsDSK::updateFileInDisk(const string& filename)

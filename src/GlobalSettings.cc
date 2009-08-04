@@ -30,20 +30,21 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	       "pause emulation when the openMSX window loses focus", false));
 	umrCallBackSetting.reset(new StringSetting(commandController,
 	        "umr_callback", "Tcl proc to call when an UMR is detected", ""));
-	EnumSetting<SyncMode>::Map syncDirAsDSKMap;
-	syncDirAsDSKMap["read_only"] = SYNC_READONLY;
-	syncDirAsDSKMap["cached_write"] = SYNC_CACHEDWRITE;
-	syncDirAsDSKMap["nodelete"] = SYNC_NODELETE;
-	syncDirAsDSKMap["full"] = SYNC_FULL;
-	syncDirAsDSKSetting.reset(new EnumSetting<SyncMode>(commandController,
-		"DirAsDSKmode", "type of syncronisation between host directory and dir-as-dsk diskimage",
-		SYNC_FULL, syncDirAsDSKMap));
-	EnumSetting<BootSectorType>::Map bootsectorMap;
-	bootsectorMap["DOS1"] = BOOTSECTOR_DOS1;
-	bootsectorMap["DOS2"] = BOOTSECTOR_DOS2;
-	bootSectorSetting.reset(new EnumSetting<BootSectorType>(commandController,
-		"bootsector", "boot sector type for dir-as-dsk",
-		BOOTSECTOR_DOS2, bootsectorMap));
+	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap;
+	syncDirAsDSKMap["read_only"] = DirAsDSK::SYNC_READONLY;
+	syncDirAsDSKMap["cached_write"] = DirAsDSK::SYNC_CACHEDWRITE;
+	syncDirAsDSKMap["nodelete"] = DirAsDSK::SYNC_NODELETE;
+	syncDirAsDSKMap["full"] = DirAsDSK::SYNC_FULL;
+	syncDirAsDSKSetting.reset(new EnumSetting<DirAsDSK::SyncMode>(
+		commandController, "DirAsDSKmode",
+		"type of syncronisation between host directory and dir-as-dsk diskimage",
+		DirAsDSK::SYNC_FULL, syncDirAsDSKMap));
+	EnumSetting<DirAsDSK::BootSectorType>::Map bootsectorMap;
+	bootsectorMap["DOS1"] = DirAsDSK::BOOTSECTOR_DOS1;
+	bootsectorMap["DOS2"] = DirAsDSK::BOOTSECTOR_DOS2;
+	bootSectorSetting.reset(new EnumSetting<DirAsDSK::BootSectorType>(
+		commandController, "bootsector", "boot sector type for dir-as-dsk",
+		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap));
 	EnumSetting<ResampleType>::Map resampleMap;
 	resampleMap["hq"]   = RESAMPLE_HQ;
 	resampleMap["fast"] = RESAMPLE_LQ;
@@ -104,12 +105,12 @@ BooleanSetting& GlobalSettings::getPauseOnLostFocusSetting()
 	return *pauseOnLostFocusSetting.get();
 }
 
-EnumSetting<GlobalSettings::SyncMode>& GlobalSettings::getSyncDirAsDSKSetting()
+EnumSetting<DirAsDSK::SyncMode>& GlobalSettings::getSyncDirAsDSKSetting()
 {
 	return *syncDirAsDSKSetting.get();
 }
 
-EnumSetting<GlobalSettings::BootSectorType>& GlobalSettings::getBootSectorSetting()
+EnumSetting<DirAsDSK::BootSectorType>& GlobalSettings::getBootSectorSetting()
 {
 	return *bootSectorSetting.get();
 }

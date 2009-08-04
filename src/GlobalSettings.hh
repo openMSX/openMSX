@@ -5,6 +5,7 @@
 
 #include "Observer.hh"
 #include "noncopyable.hh"
+#include "DirAsDSK.hh"
 #include <memory>
 
 namespace openmsx {
@@ -26,8 +27,6 @@ class GlobalSettings : private Observer<Setting>, private noncopyable
 {
 public:
 	enum ResampleType { RESAMPLE_HQ, RESAMPLE_LQ, RESAMPLE_BLIP };
-	enum SyncMode { SYNC_READONLY, SYNC_CACHEDWRITE, SYNC_NODELETE, SYNC_FULL };
-	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
 
 	explicit GlobalSettings(CommandController& commandController);
 	~GlobalSettings();
@@ -39,8 +38,8 @@ public:
 	StringSetting&  getUserDirSetting();
 	BooleanSetting& getPauseOnLostFocusSetting();
 	StringSetting&  getUMRCallBackSetting();
-	EnumSetting<BootSectorType>& getBootSectorSetting();
-	EnumSetting<SyncMode>& getSyncDirAsDSKSetting();
+	EnumSetting<DirAsDSK::BootSectorType>& getBootSectorSetting();
+	EnumSetting<DirAsDSK::SyncMode>& getSyncDirAsDSKSetting();
 	EnumSetting<ResampleType>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
@@ -57,8 +56,8 @@ private:
 	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
-	std::auto_ptr<EnumSetting<BootSectorType> > bootSectorSetting;
-	std::auto_ptr<EnumSetting<SyncMode> > syncDirAsDSKSetting;
+	std::auto_ptr<EnumSetting<DirAsDSK::BootSectorType> > bootSectorSetting;
+	std::auto_ptr<EnumSetting<DirAsDSK::SyncMode> > syncDirAsDSKSetting;
 	std::auto_ptr<EnumSetting<ResampleType> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };

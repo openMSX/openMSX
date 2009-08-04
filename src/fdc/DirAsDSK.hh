@@ -4,7 +4,6 @@
 #define DIRASDSK_HH
 
 #include "SectorBasedDisk.hh"
-#include "GlobalSettings.hh"
 #include <map>
 
 struct stat;
@@ -16,14 +15,16 @@ class CliComm;
 class DirAsDSK : public SectorBasedDisk
 {
 public:
+	enum SyncMode { SYNC_READONLY, SYNC_CACHEDWRITE, SYNC_NODELETE, SYNC_FULL };
+	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
+
 	static const unsigned SECTORS_PER_FAT = 3;
 	static const unsigned NUM_FAT_ENTRIES = (SECTOR_SIZE * SECTORS_PER_FAT * 2) / 3;
 	static const unsigned SECTORS_PER_DIR = 7;
 	static const unsigned NUM_DIR_ENTRIES = SECTORS_PER_DIR * (SECTOR_SIZE / 32);
 
 	DirAsDSK(CliComm& cliComm_, const Filename& filename,
-		GlobalSettings::SyncMode syncMode_,
-		GlobalSettings::BootSectorType bootSectorType);
+		SyncMode syncMode_, BootSectorType bootSectorType);
 	virtual ~DirAsDSK();
 
 private:
@@ -104,7 +105,7 @@ private:
 	typedef std::map<unsigned, SectorData> CachedSectors;
 	CachedSectors cachedSectors;
 
-	GlobalSettings::SyncMode syncMode;
+	SyncMode syncMode;
 };
 
 } // namespace openmsx
