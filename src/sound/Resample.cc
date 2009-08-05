@@ -11,8 +11,8 @@
 
 namespace openmsx {
 
-Resample::Resample(GlobalSettings& globalSettings, unsigned channels_)
-	: resampleSetting(globalSettings.getResampleSetting())
+Resample::Resample(EnumSetting<GlobalSettings::ResampleType>& resampleSetting_, unsigned channels_)
+	: resampleSetting(resampleSetting_)
 	, channels(channels_)
 {
 	assert((channels == 1) || (channels == 2));

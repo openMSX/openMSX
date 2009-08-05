@@ -1679,7 +1679,7 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
                        const XMLElement& config, bool isYMF278_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
 	              18, true)
-	, Resample(motherBoard.getReactor().getGlobalSettings(), 2)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 2)
 	, debuggable(new YMF262Debuggable(motherBoard, *this))
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)

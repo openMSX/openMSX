@@ -1026,7 +1026,7 @@ YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                EmuTime::param time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
-	, Resample(motherBoard.getReactor().getGlobalSettings(), 2)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 2)
 	, irq(motherBoard, getName() + ".IRQ")
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)

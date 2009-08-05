@@ -127,7 +127,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	: SoundDevice(motherBoard_.getMSXMixer(), "laserdiscplayer",
 	              "Laserdisc Player", 1, true)
 	, Schedulable(motherBoard_.getScheduler())
-	, Resample(motherBoard_.getReactor().getGlobalSettings(), 2)
+	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting(), 2)
 	, motherBoard(motherBoard_)
 	, ldcontrol(ldcontrol_)
 	, laserdiscCommand(new LaserdiscCommand(

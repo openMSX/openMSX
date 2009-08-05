@@ -640,7 +640,7 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
                      const std::string& name, const XMLElement& config,
                      unsigned sampleRam, Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 12)
-	, Resample(motherBoard_.getReactor().getGlobalSettings(), 1)
+	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting(), 1)
 	, motherBoard(motherBoard_)
 	, perihery(perihery_)
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))

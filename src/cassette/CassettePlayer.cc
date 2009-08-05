@@ -83,7 +83,7 @@ CassettePlayer::CassettePlayer(
 		EventDistributor& eventDistributor_,
 		CliComm& cliComm_)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
-	, Resample(commandController_.getGlobalSettings(), 1)
+	, Resample(commandController_.getGlobalSettings().getResampleSetting(), 1)
 	, Schedulable(scheduler)
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)

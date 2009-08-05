@@ -17,7 +17,7 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
                            const std::string& desc, const XMLElement& config,
                            const std::string& samplesBaseName, unsigned numSamples)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
-	, Resample(motherBoard.getReactor().getGlobalSettings(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 1)
 	, inFreq(44100)
 {
 	bool alreadyWarned = false;
