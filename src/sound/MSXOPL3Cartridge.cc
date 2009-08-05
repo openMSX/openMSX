@@ -10,7 +10,7 @@ namespace openmsx {
 MSXOPL3Cartridge::MSXOPL3Cartridge(MSXMotherBoard& motherBoard,
                            const XMLElement& config)
 	: MSXDevice(motherBoard, config)
-	, ymf262(new YMF262(motherBoard, getName(), config))
+	, ymf262(new YMF262(motherBoard, getName(), config, false))
 {
 	reset(getCurrentTime());
 }

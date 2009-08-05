@@ -9,9 +9,15 @@
 
 namespace openmsx {
 
+// Verified on a real YMF278:
+//  When bit NEW2=0, writes to the wave-part ports (both register select and
+//  register data) are ignored. But reads happen normally. Also reads from the
+//  sample memory happen normally (and thus increase the internal memory
+//  pointer).
+
 MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
-	, ymf262(new YMF262(motherBoard, getName() + " FM", config))
+	, ymf262(new YMF262(motherBoard, getName() + " FM", config, true))
 	, ymf278(new YMF278(motherBoard, getName() + " wave",
 	                    config.getChildDataAsInt("sampleram", 512), // size in kb
 	                    config))
@@ -117,15 +123,19 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 	//PRT_DEBUG("MoonSound: write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	if ((port&0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
-		switch (port & 0x01) {
-		case 0: // select register
-			opl4latch = value;
-			break;
-		case 1:
-			ymf278->writeRegOPL4(opl4latch, value, time);
-			break;
-		default:
-			assert(false);
+		if (ymf262->peekReg(0x105) & 0x02) { // NEW2 bit
+			switch (port & 0x01) {
+			case 0: // select register
+				opl4latch = value;
+				break;
+			case 1:
+				ymf278->writeRegOPL4(opl4latch, value, time);
+				break;
+			default:
+				assert(false);
+			}
+		} else {
+			// writes are ignore when NEW2=0
 		}
 	} else {
 		// FM part  0xC4-0xC7

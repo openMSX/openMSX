@@ -49,6 +49,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "serialize.hh"
+#include "serialize_meta.hh"
 #include <cmath>
 #include <cstring>
 
@@ -183,7 +184,7 @@ class YMF262Impl : private SoundDevice, private EmuTimerCallback, private Resamp
 {
 public:
 	YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	           const XMLElement& config);
+	           const XMLElement& config, bool isYMF278);
 	virtual ~YMF262Impl();
 
 	void reset(EmuTime::param time);
@@ -276,7 +277,12 @@ private:
 	byte status;			// status flag
 	byte status2;
 	byte statusMask;		// status mask
+
+	bool alreadySignaledNEW2;
+	const bool isYMF278;		// true iff this is actually a YMF278
+					// ATM only used for NEW2 bit
 };
+SERIALIZE_CLASS_VERSION(YMF262Impl, 2);
 
 
 // envelope output entries
@@ -1304,8 +1310,17 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 	case 0x105:
 		// OPL3 mode when bit0=1 otherwise it is OPL2 mode
 		OPL3_mode = v & 0x01;
-		if (OPL3_mode) {
+
+		// When NEW2 bit is first set, a read from the status register
+		// (once) returns bit 1 set (0x02). This only happens once after
+		// reset, so clearing NEW2 and setting it again doesn't cause
+		// another change in the status register.
+		// This seems strange behaviour to me, but it is what I saw on
+		// a real YMF278. Also see page 10 in the 'OPL4 YMF278B
+		// Application Manual' (though it's not clear on the details).
+		if ((v & 0x02) && !alreadySignaledNEW2 && isYMF278) {
 			status2 = 0x02;
+			alreadySignaledNEW2 = true;
 		}
 
 		// following behaviour was tested on real YMF262,
@@ -1631,6 +1646,7 @@ void YMF262Impl::reset(EmuTime::param time)
 
 	noise_rng = 1; // noise shift register
 	nts = false; // note split
+	alreadySignaledNEW2 = false;
 	resetStatus(0x60);
 
 	// reset with register write
@@ -1660,7 +1676,7 @@ void YMF262Impl::reset(EmuTime::param time)
 }
 
 YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
-                       const XMLElement& config)
+                       const XMLElement& config, bool isYMF278_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
 	              18, true)
 	, Resample(motherBoard.getReactor().getGlobalSettings(), 2)
@@ -1669,6 +1685,7 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	, timer2(motherBoard.getScheduler(), *this)
 	, irq(motherBoard, getName() + ".IRQ")
 	, lfo_am_cnt(0), lfo_pm_cnt(0)
+	, isYMF278(isYMF278_)
 {
 	lfo_am_depth = false;
 	lfo_pm_depth_range = 0;
@@ -1872,8 +1889,10 @@ void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("extended", extended);
 }
 
+// version 1: initial version
+// version 2: added alreadySignaledNEW2
 template<typename Archive>
-void YMF262Impl::serialize(Archive& ar, unsigned /*version*/)
+void YMF262Impl::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("timer1", timer1);
 	ar.serialize("timer2", timer2);
@@ -1893,6 +1912,9 @@ void YMF262Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("status", status);
 	ar.serialize("status2", status2);
 	ar.serialize("statusMask", statusMask);
+	if (version >= 2) {
+		ar.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
+	}
 
 	// TODO restore more state by rewriting register values
 	//   this handles pan
@@ -1927,8 +1949,8 @@ void YMF262Debuggable::write(unsigned address, byte value, EmuTime::param time)
 // class YMF262
 
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config)
-	: pimple(new YMF262Impl(motherBoard, name, config))
+               const XMLElement& config, bool isYMF278)
+	: pimple(new YMF262Impl(motherBoard, name, config, isYMF278))
 {
 }
 

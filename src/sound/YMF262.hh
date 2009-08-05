@@ -18,7 +18,7 @@ class YMF262
 {
 public:
 	YMF262(MSXMotherBoard& motherBoard, const std::string& name,
-	       const XMLElement& config);
+	       const XMLElement& config, bool isYMF278);
 	~YMF262();
 
 	void reset(EmuTime::param time);
