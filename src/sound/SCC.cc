@@ -101,6 +101,7 @@
 #include "SCC.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "likely.hh"

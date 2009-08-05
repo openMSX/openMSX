@@ -8,6 +8,7 @@
 #include "Rom.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "Clock.hh"
 #include "serialize.hh"

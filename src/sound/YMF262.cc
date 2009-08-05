@@ -47,6 +47,7 @@
 #include "FixedPoint.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"

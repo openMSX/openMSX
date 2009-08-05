@@ -81,6 +81,7 @@ chirp 12-..: vokume   0   : silent
 #include "Resample.hh"
 #include "Rom.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"

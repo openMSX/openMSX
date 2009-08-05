@@ -5,13 +5,12 @@
 #include "ResampleHQ.hh"
 #include "ResampleLQ.hh"
 #include "ResampleBlip.hh"
-#include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include <cassert>
 
 namespace openmsx {
 
-Resample::Resample(EnumSetting<GlobalSettings::ResampleType>& resampleSetting_, unsigned channels_)
+Resample::Resample(EnumSetting<ResampleType>& resampleSetting_, unsigned channels_)
 	: resampleSetting(resampleSetting_)
 	, channels(channels_)
 {
@@ -48,21 +47,21 @@ void Resample::createResampler()
 		algo.reset(new ResampleTrivial(*this));
 	} else {
 		switch (resampleSetting.getValue()) {
-		case GlobalSettings::RESAMPLE_HQ:
+		case RESAMPLE_HQ:
 			if (channels == 1) {
 				algo.reset(new ResampleHQ<1>(*this, ratio));
 			} else {
 				algo.reset(new ResampleHQ<2>(*this, ratio));
 			}
 			break;
-		case GlobalSettings::RESAMPLE_LQ:
+		case RESAMPLE_LQ:
 			if (channels == 1) {
 				algo.reset(new ResampleLQ<1>(*this, ratio));
 			} else {
 				algo.reset(new ResampleLQ<2>(*this, ratio));
 			}
 			break;
-		case GlobalSettings::RESAMPLE_BLIP:
+		case RESAMPLE_BLIP:
 			if (channels == 1) {
 				algo.reset(new ResampleBlip<1>(*this, ratio));
 			} else {

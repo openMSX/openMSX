@@ -6,6 +6,7 @@
 #include "Observer.hh"
 #include "noncopyable.hh"
 #include "DirAsDSK.hh"
+#include "Resample.hh"
 #include <memory>
 
 namespace openmsx {
@@ -26,8 +27,6 @@ template <class T> class EnumSetting;
 class GlobalSettings : private Observer<Setting>, private noncopyable
 {
 public:
-	enum ResampleType { RESAMPLE_HQ, RESAMPLE_LQ, RESAMPLE_BLIP };
-
 	explicit GlobalSettings(CommandController& commandController);
 	~GlobalSettings();
 
@@ -40,7 +39,7 @@ public:
 	StringSetting&  getUMRCallBackSetting();
 	EnumSetting<DirAsDSK::BootSectorType>& getBootSectorSetting();
 	EnumSetting<DirAsDSK::SyncMode>& getSyncDirAsDSKSetting();
-	EnumSetting<ResampleType>& getResampleSetting();
+	EnumSetting<Resample::ResampleType>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
 private:
@@ -58,7 +57,7 @@ private:
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
 	std::auto_ptr<EnumSetting<DirAsDSK::BootSectorType> > bootSectorSetting;
 	std::auto_ptr<EnumSetting<DirAsDSK::SyncMode> > syncDirAsDSKSetting;
-	std::auto_ptr<EnumSetting<ResampleType> > resampleSetting;
+	std::auto_ptr<EnumSetting<Resample::ResampleType> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };
 

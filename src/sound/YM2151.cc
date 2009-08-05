@@ -12,6 +12,7 @@
 #include "Resample.hh"
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "serialize.hh"
 #include <cmath>

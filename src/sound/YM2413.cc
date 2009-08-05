@@ -5,6 +5,7 @@
 #include "YM2413Burczynski.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"

@@ -2,6 +2,7 @@
 
 #include "SamplePlayer.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "WavData.hh"
 #include "MSXCliComm.hh"

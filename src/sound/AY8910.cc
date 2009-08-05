@@ -13,6 +13,7 @@
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "CliComm.hh"
 #include "SimpleDebuggable.hh"

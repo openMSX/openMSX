@@ -9,6 +9,7 @@
 #include "Display.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
 #include "LDRenderer.hh"

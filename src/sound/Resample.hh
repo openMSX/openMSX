@@ -4,19 +4,19 @@
 #define RESAMPLE_HH
 
 #include "Observer.hh"
-#include "GlobalSettings.hh"
 #include <memory>
 
 namespace openmsx {
 
 class ResampleAlgo;
-class GlobalSettings;
 class Setting;
 template<typename T> class EnumSetting;
 
 class Resample : private Observer<Setting>
 {
 public:
+	enum ResampleType { RESAMPLE_HQ, RESAMPLE_LQ, RESAMPLE_BLIP };
+
 	/** Note: To enable various optimizations (like SSE), this method is
 	  * allowed to generate up to 3 extra sample.
 	  * @see SoundDevice::updateBuffer()
@@ -24,7 +24,7 @@ public:
 	virtual bool generateInput(int* buffer, unsigned num) = 0;
 
 protected:
-	Resample(EnumSetting<GlobalSettings::ResampleType>& resampleSetting, unsigned channels);
+	Resample(EnumSetting<ResampleType>& resampleSetting, unsigned channels);
 	virtual ~Resample();
 	void setResampleRatio(double inFreq, double outFreq);
 	bool generateOutput(int* dataOut, unsigned num);
@@ -37,7 +37,7 @@ private:
 
 	double ratio;
 	std::auto_ptr<ResampleAlgo> algo;
-	EnumSetting<GlobalSettings::ResampleType>& resampleSetting;
+	EnumSetting<ResampleType>& resampleSetting;
 	const unsigned channels;
 };
 

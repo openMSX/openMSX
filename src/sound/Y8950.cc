@@ -16,6 +16,7 @@
 #include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "DACSound16S.hh"
 #include "FixedPoint.hh"
