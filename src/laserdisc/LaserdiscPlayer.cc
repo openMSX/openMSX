@@ -182,10 +182,10 @@ LaserdiscPlayer::~LaserdiscPlayer()
 // the CU-CLD037. This is much like the CU-CLD106 which is described
 // here: http://lirc.sourceforge.net/remotes/pioneer/CU-CLD106
 // The codes and protocol are exactly the same.
-// 
-// For example, the header pulse is 8263 microseconds according to 
-// lirc. The software in the PBASIC generates a header pulse of 
-// 64 periods of 7812.5Hz, which is 0.008190s, which is 8190 
+//
+// For example, the header pulse is 8263 microseconds according to
+// lirc. The software in the PBASIC generates a header pulse of
+// 64 periods of 7812.5Hz, which is 0.008190s, which is 8190
 // microseconds.
 void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 {
@@ -486,7 +486,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 		float** pcm;
 		unsigned rc = video->fillFloatBuffer(&pcm, num - pos);
 		if (rc == 0) {
-			// we've fallen of the end of the file. We 
+			// we've fallen of the end of the file. We
 			// should raise an IRQ now.
 			if (pos == 0) {
 				buffers[0] = 0;
@@ -538,7 +538,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 
 		if (playerState == PLAYER_STOPPED) {
 			// Disk needs to spin up, which takes 9.6s on
-			// my Pioneer LD-92000. Also always seek to 
+			// my Pioneer LD-92000. Also always seek to
 			// beginning (confirmed on real MSX and LD)
 			video->seek(0);
 			playingFromSample = 0;
