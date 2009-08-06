@@ -28,6 +28,8 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+const unsigned DiskManipulator::MAX_PARTITIONS;
+
 DiskManipulator::DiskManipulator(CommandController& commandController)
 	: SimpleCommand(commandController, "diskmanipulator")
 	, virtualDrive(new DiskChanger("virtual_drive", commandController,
@@ -55,7 +57,7 @@ void DiskManipulator::registerDrive(DiskContainer& drive, MSXMotherBoard* board)
 	string prefix = board ? (board->getMachineID() + "::") : "";
 	driveSettings.driveName = prefix + drive.getContainerName();
 	driveSettings.partition = 0;
-	for (int i = 0; i < sizeof(driveSettings.workingDir) / sizeof(std::string); ++i) {
+	for (unsigned i = 0; i <= MAX_PARTITIONS; ++i) {
 		driveSettings.workingDir[i] = "/";
 	}
 	drives.push_back(driveSettings);
@@ -302,9 +304,9 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 			names.insert(name2);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
-			if (SectorAccessibleDisk* disk =
-				it->drive->getSectorAccessibleDisk()) {
-				for (int i = 1; i <= 31; ++i) {
+			SectorAccessibleDisk* disk = it->drive->getSectorAccessibleDisk();
+			if (disk) {
+				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
 						names.insert(name1 + StringOp::toString(i));
@@ -351,9 +353,10 @@ void DiskManipulator::create(const vector<string>& tokens)
 	vector<unsigned> sizes;
 	unsigned totalSectors = 0;
 	for (unsigned i = 3; i < tokens.size(); ++i) {
-		if (sizes.size() >= 31) {
+		if (sizes.size() >= MAX_PARTITIONS) {
 			throw CommandException(
-				"Maximum number of partitions is 31.");
+				"Maximum number of partitions is " +
+				StringOp::toString(MAX_PARTITIONS));
 		}
 		char* q;
 		int sectors = strtol(tokens[i].c_str(), &q, 0);
