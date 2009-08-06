@@ -12,6 +12,7 @@
 #endif
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "PluggingController.hh"
 #include "checked_cast.hh"
@@ -74,7 +75,10 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getScheduler(),
 		motherBoard.getMSXEventDistributor(),
 		motherBoard.getReactor().getEventDistributor(),
-		motherBoard.getMSXCliComm()));
+		motherBoard.getMSXCliComm(),
+		motherBoard.getReactor().getGlobalSettings().getResampleSetting(),
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager()
+		));
 	getPluggingController().registerPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK
 	cassetteJack.reset(new CassetteJack(motherBoard.getScheduler()));
@@ -120,7 +124,7 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 #ifdef COMPONENT_LASERDISC
 	if (!motorControl && laserdiscPlayer != NULL) {
 		sample = laserdiscPlayer->readSample(time);
-	} else 
+	} else
 #endif
 	{
 		sample = getPluggedCasDev().readSample(time); // read 1 sample

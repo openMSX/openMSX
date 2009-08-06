@@ -28,7 +28,6 @@
 #include "CassettePort.hh"
 #include "CommandController.hh"
 #include "RecordedCommand.hh"
-#include "GlobalSettings.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
 #include "WavImage.hh"
@@ -81,9 +80,11 @@ CassettePlayer::CassettePlayer(
 		MSXMixer& mixer, Scheduler& scheduler,
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_,
-		CliComm& cliComm_)
+		CliComm& cliComm_,
+		EnumSetting<ResampleType>& resampleSetting,
+		ThrottleManager& throttleManager)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
-	, Resample(commandController_.getGlobalSettings().getResampleSetting(), 1)
+	, Resample(resampleSetting, 1)
 	, Schedulable(scheduler)
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)
@@ -93,8 +94,7 @@ CassettePlayer::CassettePlayer(
 	, eventDistributor(eventDistributor_)
 	, tapeCommand(new TapeCommand(commandController, msxEventDistributor,
 	                              scheduler, *this))
-	, loadingIndicator(new LoadingIndicator(
-	       commandController.getGlobalSettings().getThrottleManager()))
+	, loadingIndicator(new LoadingIndicator(throttleManager))
 	, autoRunSetting(new BooleanSetting(commandController,
 		"autoruncassettes", "automatically try to run cassettes", false))
 	, sampcnt(0)

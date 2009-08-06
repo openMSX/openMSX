@@ -22,6 +22,7 @@ class Scheduler;
 class CliComm;
 class WavWriter;
 class LoadingIndicator;
+class ThrottleManager;
 class BooleanSetting;
 class TapeCommand;
 class CommandController;
@@ -37,7 +38,9 @@ public:
 	               MSXMixer& mixer, Scheduler& Scheduler,
 	               MSXEventDistributor& msxEventDistributor,
 	               EventDistributor& eventDistributor,
-	               CliComm& cliComm);
+	               CliComm& cliComm,
+	               EnumSetting<ResampleType>& resampleSetting,
+	               ThrottleManager& throttleManager);
 	virtual ~CassettePlayer();
 
 	// CassetteDevice
