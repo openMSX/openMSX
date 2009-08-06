@@ -55,7 +55,7 @@ void DiskManipulator::registerDrive(DiskContainer& drive, MSXMotherBoard* board)
 	string prefix = board ? (board->getMachineID() + "::") : "";
 	driveSettings.driveName = prefix + drive.getContainerName();
 	driveSettings.partition = 0;
-	for (int i = 0; i < 32; ++i) {
+	for (int i = 0; i < sizeof(driveSettings.workingDir) / sizeof(std::string); ++i) {
 		driveSettings.workingDir[i] = "/";
 	}
 	drives.push_back(driveSettings);
