@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1249109154">
+<softwaredb xml:lang="en" timestamp="1249593180">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -8027,6 +8027,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">e59d739ecd56a11ecf4020430585ea4cc61b02a6</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Photon</title>
+	<system>MSX</system>
+	<company>Ola Andersson</company>
+	<year>2009</year>
+	<country>SE</country>
+		<dump><original value="false"/><rom><hash algo="sha1">c10d2a3dc77816cfb5b5d4b983323284f4a4aef5</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Pickup</title>
 	<system>MSX</system>
 	<company>German Gomez Herrera</company>
@@ -11787,6 +11795,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2461
-Parse time 5.672 seconds on Sat Aug 1 8:45:59 CEST 2009
+Roms in this database:2462
+Parse time 5.362 seconds on Thu Aug 6 23:13:05 CEST 2009
  -->
