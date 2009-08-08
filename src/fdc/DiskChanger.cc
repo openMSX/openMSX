@@ -77,7 +77,8 @@ void DiskChanger::init(MSXMotherBoard* board, bool createCmd)
 {
 	if (createCmd) createCommand();
 	ejectDisk();
-	manipulator.registerDrive(*this, board);
+	string prefix = board ? (board->getMachineID() + "::") : "";
+	manipulator.registerDrive(*this, prefix);
 	if (msxEventDistributor) {
 		msxEventDistributor->registerEventListener(*this);
 	}

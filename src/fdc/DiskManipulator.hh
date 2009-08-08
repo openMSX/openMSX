@@ -15,7 +15,6 @@ class DiskChanger;
 class SectorAccessibleDisk;
 class DiskPartition;
 class MSXtar;
-class MSXMotherBoard;
 
 class DiskManipulator : public SimpleCommand
 {
@@ -23,7 +22,7 @@ public:
 	explicit DiskManipulator(CommandController& commandController);
 	~DiskManipulator();
 
-	void registerDrive(DiskContainer& drive, MSXMotherBoard* board);
+	void registerDrive(DiskContainer& drive, const std::string& prefix);
 	void unregisterDrive(DiskContainer& drive);
 
 private:

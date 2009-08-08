@@ -49,12 +49,12 @@ string DiskManipulator::getMachinePrefix() const
 	return id.empty() ? id : id + "::";
 }
 
-void DiskManipulator::registerDrive(DiskContainer& drive, MSXMotherBoard* board)
+void DiskManipulator::registerDrive(
+	DiskContainer& drive, const std::string& prefix)
 {
 	assert(findDriveSettings(drive) == drives.end());
 	DriveSettings driveSettings;
 	driveSettings.drive = &drive;
-	string prefix = board ? (board->getMachineID() + "::") : "";
 	driveSettings.driveName = prefix + drive.getContainerName();
 	driveSettings.partition = 0;
 	for (unsigned i = 0; i <= MAX_PARTITIONS; ++i) {
