@@ -30,8 +30,12 @@ public:
 	DiskChanger(const std::string& driveName,
 	            CommandController& commandController,
 	            DiskManipulator& manipulator,
-	            MSXMotherBoard* board,
-	            bool createCommand = true);
+	            MSXMotherBoard& board,
+	            bool createCommand);
+	DiskChanger(const std::string& driveName,
+	            CommandController& commandController,
+	            DiskManipulator& manipulator,
+	            bool createCommand);
 	DiskChanger(MSXMotherBoard& board, const std::string& driveName);
 	~DiskChanger();
 

@@ -33,7 +33,7 @@ const unsigned DiskManipulator::MAX_PARTITIONS;
 DiskManipulator::DiskManipulator(CommandController& commandController)
 	: SimpleCommand(commandController, "diskmanipulator")
 	, virtualDrive(new DiskChanger("virtual_drive", commandController,
-	                               *this, NULL))
+	                               *this, true))
 {
 }
 

@@ -51,15 +51,28 @@ private:
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& controller_,
                          DiskManipulator& manipulator_,
-                         MSXMotherBoard* board,
+                         MSXMotherBoard& board,
                          bool createCmd)
 	: controller(controller_)
-	, msxEventDistributor(board ? &board->getMSXEventDistributor() : NULL)
-	, scheduler(board ? &board->getScheduler() : NULL)
+	, msxEventDistributor(&board.getMSXEventDistributor())
+	, scheduler(&board.getScheduler())
 	, manipulator(manipulator_)
 	, driveName(driveName_)
 {
-	init(board ? (board->getMachineID() + "::") : "", createCmd);
+	init(board.getMachineID() + "::", createCmd);
+}
+
+DiskChanger::DiskChanger(const string& driveName_,
+                         CommandController& controller_,
+                         DiskManipulator& manipulator_,
+                         bool createCmd)
+	: controller(controller_)
+	, msxEventDistributor(NULL)
+	, scheduler(NULL)
+	, manipulator(manipulator_)
+	, driveName(driveName_)
+{
+	init("", createCmd);
 }
 
 // only used for polymorphic de-serialization (for Nowind)
