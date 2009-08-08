@@ -55,7 +55,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void init(MSXMotherBoard* board, bool createCmd);
+	void init(const std::string& prefix, bool createCmd);
 	void insertDisk(const std::vector<TclObject*>& args);
 	void ejectDisk();
 	void sendChangeDiskEvent(const std::vector<std::string>& args);

@@ -59,7 +59,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 	, manipulator(manipulator_)
 	, driveName(driveName_)
 {
-	init(board, createCmd);
+	init(board ? (board->getMachineID() + "::") : "", createCmd);
 }
 
 // only used for polymorphic de-serialization (for Nowind)
@@ -70,14 +70,13 @@ DiskChanger::DiskChanger(MSXMotherBoard& board, const std::string& driveName_)
 	, manipulator(board.getReactor().getDiskManipulator())
 	, driveName(driveName_)
 {
-	init(&board, true);
+	init(board.getMachineID() + "::", true);
 }
 
-void DiskChanger::init(MSXMotherBoard* board, bool createCmd)
+void DiskChanger::init(const string& prefix, bool createCmd)
 {
 	if (createCmd) createCommand();
 	ejectDisk();
-	string prefix = board ? (board->getMachineID() + "::") : "";
 	manipulator.registerDrive(*this, prefix);
 	if (msxEventDistributor) {
 		msxEventDistributor->registerEventListener(*this);
