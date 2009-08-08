@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1249699232">
+<softwaredb xml:lang="en" timestamp="1249708328">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -653,6 +653,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Astro Marine Corps</title>
 	<genmsxid>2112</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Dinamic</company>
 	<year>1989</year>
@@ -869,6 +870,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Batten Tanuki no Daibouken - Raccoon Dog</title>
 	<genmsxid>829</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Tecno Soft</company>
 	<year>1985</year>
@@ -1440,6 +1442,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Cannon Ball</title>
 	<genmsxid>137</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Hudson</company>
 	<year>1983</year>
@@ -2015,6 +2018,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Contra</title>
 	<genmsxid>1255</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Konami</company>
 	<year>1989</year>
@@ -2994,6 +2998,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Exerion 1</title>
 	<genmsxid>108</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Jaleco</company>
 	<year>1984</year>
@@ -3007,6 +3012,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Exerion 2 - Zorni</title>
 	<genmsxid>204</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Jaleco</company>
 	<year>1986</year>
@@ -3278,6 +3284,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Final Zone Wolf</title>
 	<genmsxid>838</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Telenet</company>
 	<year>1986</year>
@@ -4358,6 +4365,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Hayabusa - Moonsweeper</title>
 	<genmsxid>386</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Toshiba Emi</company>
 	<year>1985</year>
@@ -4974,6 +4982,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Iriegas - Illegus</title>
 	<genmsxid>99</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Ascii</company>
 	<year>1983</year>
@@ -5459,6 +5468,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Knight Lore</title>
 	<genmsxid>810</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Jaleco</company>
 	<year>1986</year>
@@ -6435,6 +6445,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Megalopolis SOS</title>
 	<genmsxid>78</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Compile</company>
 	<year>1983</year>
@@ -6649,6 +6660,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Moai no Hibou - Pascua</title>
 	<genmsxid>865</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Casio</company>
 	<year>1986</year>
@@ -6871,6 +6883,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Mr. Chin</title>
 	<genmsxid>333</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>HAL Laboratory</company>
 	<year>1984</year>
@@ -8302,6 +8315,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Psychic War - Cosmic Soldier 2</title>
 	<genmsxid>1117</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Kogado</company>
 	<year>1987</year>
@@ -9491,6 +9505,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Space Buster</title>
 	<genmsxid>2812</genmsxid>
+	<trainer>True</trainer>
 	<system>MSX</system>
 	<company>Bytebusters</company>
 	<year>1985</year>
@@ -11579,5 +11594,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2462
-Parse time 674.047 seconds on Fri Aug 7 19:51:45 PDT 2009
+Parse time 657.275 seconds on Fri Aug 7 22:23:05 PDT 2009
  -->
