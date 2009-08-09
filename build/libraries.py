@@ -305,6 +305,19 @@ class LibXML2(Library):
 		else:
 			return flags + ' -DLIBXML_STATIC'
 
+class OGG(Library):
+	libName = 'ogg'
+	makeName = 'LIBOGG'
+	header = '<ogg/ogg.h>'
+	function = 'ogg_stream_init'
+
+class OGGZ(Library):
+	libName = 'oggz'
+	makeName = 'LIBOGGZ'
+	header = '<oggz/oggz.h>'
+	function = 'oggz_new'
+	dependsOn = ('LIBOGG', )
+
 class SDL(Library):
 	libName = 'SDL'
 	makeName = 'SDL'
@@ -523,6 +536,20 @@ class TCL(Library):
 			'version'
 			)
 
+class Theora(Library):
+	libName = 'theora'
+	makeName = 'LIBTHEORA'
+	header = '<theora/theora.h>'
+	function = 'theora_decode_YUVout'
+	dependsOn = ('LIBOGG', )
+
+class Vorbis(Library):
+	libName = 'vorbis'
+	makeName = 'LIBVORBIS'
+	header = '<vorbis/codec.h>'
+	function = 'vorbis_synthesis_pcmout'
+	dependsOn = ('LIBOGG', )
+
 class ZLib(Library):
 	libName = 'z'
 	makeName = 'ZLIB'
@@ -539,33 +566,6 @@ class ZLib(Library):
 			version = cmd.expand(log, cls.getHeaders(platform), 'ZLIB_VERSION')
 			return None if version is None else version.strip('"')
 		return execute
-
-class OGG(Library):
-	libName = 'ogg'
-	makeName = 'LIBOGG'
-	header = '<ogg/ogg.h>'
-	function = 'ogg_stream_init'
-
-class OGGZ(Library):
-	libName = 'oggz'
-	makeName = 'LIBOGGZ'
-	header = '<oggz/oggz.h>'
-	function = 'oggz_new'
-	dependsOn = ('LIBOGG', )
-
-class Vorbis(Library):
-	libName = 'vorbis'
-	makeName = 'LIBVORBIS'
-	header = '<vorbis/codec.h>'
-	function = 'vorbis_synthesis_pcmout'
-	dependsOn = ('LIBOGG', )
-
-class Theora(Library):
-	libName = 'theora'
-	makeName = 'LIBTHEORA'
-	header = '<theora/theora.h>'
-	function = 'theora_decode_YUVout'
-	dependsOn = ('LIBOGG', )
 
 # Build a dictionary of libraries using introspection.
 def _discoverLibraries(localObjects):
