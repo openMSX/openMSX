@@ -362,6 +362,21 @@ class SDL_ttf(Library):
 			return None if None in version else '%s.%s.%s' % version
 		return execute
 
+class SQLite(Library):
+	libName = 'sqlite3'
+	makeName = 'SQLITE'
+	header = '<sqlite3.h>'
+	function = 'sqlite3_prepare_v2'
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		def execute(cmd, log):
+			version = cmd.expand(
+				log, cls.getHeaders(platform), 'SQLITE_VERSION'
+				)
+			return None if version is None else version.strip('"')
+		return execute
+
 class TCL(Library):
 	libName = 'tcl'
 	makeName = 'TCL'
