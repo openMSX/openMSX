@@ -133,6 +133,28 @@ class LibXML2(DownloadablePackage):
 	def getMakeName(cls):
 		return 'XML'
 
+class OGG(DownloadablePackage):
+	downloadURL = 'http://downloads.xiph.org/releases/ogg'
+	niceName = 'libogg'
+	sourceName = 'libogg'
+	version = '1.1.4'
+	fileLength = 439365
+	checksums = {
+		'sha256':
+			'9354c183fd88417c2860778b60b7896c9487d8f6e58b9fec3fdbf971142ce103',
+		}
+
+class OGGZ(DownloadablePackage):
+	downloadURL = 'http://downloads.xiph.org/releases/liboggz'
+	niceName = 'liboggz'
+	sourceName = 'liboggz'
+	version = '0.9.9'
+	fileLength = 637538
+	checksums = {
+		'sha256':
+			'8d8a05752f739d0b377040e36c9f6cfa4dac35b9d55deac2de30f377972fcf75',
+		}
+
 class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'
@@ -185,37 +207,15 @@ class TCL(DownloadablePackage):
 	def getTarballName(cls):
 		return '%s%s-src.tar.gz' % (cls.sourceName, cls.version)
 
-class ZLib(DownloadablePackage):
-	downloadURL = 'http://downloads.sourceforge.net/libpng'
-	niceName = 'zlib'
-	sourceName = 'zlib'
-	version = '1.2.3'
-	fileLength = 496597
+class Theora(DownloadablePackage):
+	downloadURL = 'http://downloads.xiph.org/releases/theora'
+	niceName = 'libtheora'
+	sourceName = 'libtheora'
+	version = '1.0'
+	fileLength = 1919343
 	checksums = {
 		'sha256':
-			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
-		}
-
-class OGG(DownloadablePackage):
-	downloadURL = 'http://downloads.xiph.org/releases/ogg'
-	niceName = 'libogg'
-	sourceName = 'libogg'
-	version = '1.1.4'
-	fileLength = 439365
-	checksums = {
-		'sha256':
-			'9354c183fd88417c2860778b60b7896c9487d8f6e58b9fec3fdbf971142ce103',
-		}
-
-class OGGZ(DownloadablePackage):
-	downloadURL = 'http://downloads.xiph.org/releases/liboggz'
-	niceName = 'liboggz'
-	sourceName = 'liboggz'
-	version = '0.9.9'
-	fileLength = 637538 
-	checksums = {
-		'sha256':
-			'8d8a05752f739d0b377040e36c9f6cfa4dac35b9d55deac2de30f377972fcf75',
+			'd5ac6867143b295da41aac1fb24357b6c7f388bf87985630168a47ed2ed8b048',
 		}
 
 class Vorbis(DownloadablePackage):
@@ -229,15 +229,15 @@ class Vorbis(DownloadablePackage):
 			'c679d1e5e45a3ec8aceb5e71de8e3712630b7a6dec6952886c17435a65955947',
 		}
 
-class Theora(DownloadablePackage):
-	downloadURL = 'http://downloads.xiph.org/releases/theora'
-	niceName = 'libtheora'
-	sourceName = 'libtheora'
-	version = '1.0'
-	fileLength = 1919343
+class ZLib(DownloadablePackage):
+	downloadURL = 'http://downloads.sourceforge.net/libpng'
+	niceName = 'zlib'
+	sourceName = 'zlib'
+	version = '1.2.3'
+	fileLength = 496597
 	checksums = {
 		'sha256':
-			'd5ac6867143b295da41aac1fb24357b6c7f388bf87985630168a47ed2ed8b048',
+			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
 		}
 
 # Build a dictionary of packages using introspection.
