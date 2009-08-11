@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1249934770">
+<softwaredb xml:lang="en" timestamp="1250030016">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1082,7 +1082,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<genmsxid>3446</genmsxid>
 	<system>MSX</system>
 	<company>Sega</company>
-	<year>1983-2008</year>
+	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">cef76580a01cc8e16704590d0d884d7eeadaa3a8</hash></rom></dump>
 </software>
@@ -6285,14 +6285,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">845b9263d75d89ef02c23fd05cccc13db5d512ea</hash><remark><text>[RC-750]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">495eb918ced94ef47885df40ceceef8b56e96691</hash><remark><text>[tr En][RC-750]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">495eb918ced94ef47885df40ceceef8b56e96691</hash><remark><text>[RC-750] / [tr En]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">a52021f1b257c7c35d626d5d642134091c45e4f4</hash><remark><text>[RC-750] / Does not work on Non Japanese systems</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7d685547c2a4b92fa62e00854e4a9689d495f93d</hash><remark><text>[RC-750] / Does not work on Non Japanese systems</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">b656bd19df58fc1ba4628342b87beeec5948e0b3</hash><remark><text>[tr En][RC-750]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">aa881a2936f368ab887c296b837a8f7f553a3fb2</hash><remark><text>[tr Sp][RC-750]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">b656bd19df58fc1ba4628342b87beeec5948e0b3</hash><remark><text>[RC-750] / [tr En]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">aa881a2936f368ab887c296b837a8f7f553a3fb2</hash><remark><text>[RC-750] / [tr Sp]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">65040fb1e9bc4b2d027d7d81e44be30e7620e368</hash><remark><text>[RC-750] / Ulver crack / Does not work on Non Japanese systems</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">8449cdf161babec85508c35c8ca64a5c1fd7671d</hash><remark><text>[RC-750] / French translation by Django</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark><text>[tr En][RC-750][JP/EU patch]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark><text>[RC-750] / [tr En][JP/EU patch]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">31b8b69de88d84aabdb762af1adeac815723562c</hash><remark><text>[RC-750] / Save to disk</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">5ff1254dccd5dde58d3475a468178738d6260b05</hash><remark><text>[RC-750]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">c461efa942e1a3a1e580f9d04bf8d15c5e834f8b</hash><remark><text>[RC-750]</text></remark></megarom></dump>
@@ -6309,22 +6309,23 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1990</year>
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">356a936987e62967597ec64a0d35a1e8ad1aa20b</hash><remark><text>[RC-767] / Needs SCC in slot 2</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">4ad4898db3bdcf87b2acd5755e06d45c73d338cd</hash><remark><text>[tr En][RC-767] / Needs SCC in slot 2</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">8262ac069e395ba020025caf0519e8eb5a63a0b8</hash><remark><text>[tr Sp][RC-767] / Needs SCC in slot 2</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">4ad4898db3bdcf87b2acd5755e06d45c73d338cd</hash><remark><text>[RC-767] / [tr En] Needs SCC in slot 2</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">8262ac069e395ba020025caf0519e8eb5a63a0b8</hash><remark><text>[RC-767] / [tr Sp] Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">af567ea6e27912d6d5bf1c8e9bc18e9b393fd1ab</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">983eb5deeb61af5ce82ad598692192b8ae8a2a08</hash><remark><text>[RC-767]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">ad621247f95f80a1a32e67def5e978c845d19208</hash><remark><text>[b][RC-767]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a7b196f7e934faa76602c8c00bd2f6e6d2d70787</hash><remark><text>[tr En][a][RC-767]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7be2f14fd0df5718cdb69b972c5f7c1f284b03e6</hash><remark><text>[tr En][RC-767]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">9de8d411f1ed021014708ada45899beb4fc80c29</hash><remark><text>[tr En][turbo-R patch][RC-767]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">187b469e348f71b7376f063a5fd0a4fd971fa0e3</hash><remark><text>[tr En][turbo-R patch][RC-767]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4b78514753008cabda2ff3d3cb537b2429efd7d2</hash><remark><text>[tr En][RC-767] / Ulver full crack</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">53e1fb8ee77757cd20bf4c7aa4a5c6c786c664d6</hash><remark><text>[tr En][RC-767]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">ad621247f95f80a1a32e67def5e978c845d19208</hash><remark><text>[RC-767] / [b]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a7b196f7e934faa76602c8c00bd2f6e6d2d70787</hash><remark><text>[RC-767] / [tr En][a]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7be2f14fd0df5718cdb69b972c5f7c1f284b03e6</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">9de8d411f1ed021014708ada45899beb4fc80c29</hash><remark><text>[RC-767] / [tr En][turbo-R patch]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">187b469e348f71b7376f063a5fd0a4fd971fa0e3</hash><remark><text>[RC-767] / [tr En][turbo-R patch]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4b78514753008cabda2ff3d3cb537b2429efd7d2</hash><remark><text>[RC-767] / [tr En] Ulver full crack</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">53e1fb8ee77757cd20bf4c7aa4a5c6c786c664d6</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">e7b8574a42b1029539632ce0f5161b1c38d5e95f</hash><remark><text>[RC-767] / Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">ac71117eb20ec8a84035acbbd380df8235a5c665</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">c18adae0ca1243e13a15d381a431cc0dfc68223b</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">ea0824ea0692d2cdff816a2b3c3eb9a587a5f536</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">e9e778c3d103cc8c32093cd6880fa8d7238bbd9e</hash><remark><text>[RC-767]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">89b1f403fac335344a54f23be5b30815449f3173</hash><remark><text>[RC-767] / [Turbo-R Patch]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Metal Gear 2 - Solid Snake (Demo)</title>
@@ -6334,7 +6335,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1990</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">21ac0ae7da47abf30986b479489134c79405f95d</hash><remark><text>[RC-767]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark><text>[tr En][RC-767]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Meteoritooo !!</title>
@@ -11250,6 +11251,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2462
-Parse time 5.902 seconds on Mon Aug 10 22:06:16 CEST 2009
+Roms in this database:2463
+Parse time 4.152 seconds on Wed Aug 12 0:33:40 CEST 2009
  -->
