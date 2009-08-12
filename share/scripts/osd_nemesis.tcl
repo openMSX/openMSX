@@ -19,10 +19,6 @@ variable scriptlocation [info script]
 		create_shield
 	}
 
-	proc clip {min max val} {
-		expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
-	}
-
 	proc create_shield {} {
 
 		if {[catch {osd info nem -rgba} errmsg]} {
@@ -69,8 +65,8 @@ variable scriptlocation [info script]
 			set dy [expr ($y > $b) ? -$shieldstrength : $shieldstrength]
 			set xn [expr $a + $dx]
 			set yn [expr $b + $dy]
-			poke [expr $addr + 6] [clip 0 255 $xn]
-			poke [expr $addr + 4] [clip 0 255 $yn]
+			poke [expr $addr + 6] [utils::clip 0 255 $xn]
+			poke [expr $addr + 4] [utils::clip 0 255 $yn]
 			poke [expr $addr + 8] [expr $dy & 255]
 			poke [expr $addr + 10] [expr $dx & 255]
 

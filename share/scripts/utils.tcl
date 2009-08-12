@@ -48,4 +48,12 @@ proc get_ordered_machine_list {} {
 	return [lsort -dictionary [list_machines]]
 }
 
+proc get_random_number {option} {
+	return value [expr floor(rand()*$option)]
+}
+
+proc clip {min max val} {
+	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
+}
+
 } ;# namespace utils
