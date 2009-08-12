@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/08/11
+# Updated @ 2009/08/12
 #
  
  
@@ -5543,22 +5543,33 @@ create_trainer "Space Invader" {time 1} {
 }
  
 create_trainer "Space Manbow" {time 1} {
-	"enable option 1" {poke 0xcb51 1}
-	"enable option 2" {poke 0xcb59 1}
+	"Easy End Bosses" {poke 0xce82 0;poke 0xce96 0;poke 0xced6 0;poke 0xCF16 0;poke 0xcfd6 0}
+	"Have Flash Bomb" {poke 0xcb1d 1}
 	"invincible" {poke 0xca53 03;poke 0xca54 03}
 	"lives" {poke 0xcb0f 153}
 	"missile" {poke 0xcb48 128;poke 0xcb49 3}
-	"option 1" {poke 0xcac0 2;poke 0xcac1 3;poke 0xcad8 253}
+	"option 1" {poke 0xcac0 2;poke 0xcac1 3;poke 0xcad8 253;poke 0xcb51 1}
 	"option 1 shoots backwards" {poke 0xcb50 6}
 	"option 1 shoots forwards" {poke 0xcb50 8}
 	"option 1 shoots upwards" {poke 0xcb50 7}
-	"option 2" {poke 0xcae0 2;poke 0xcae1 3;poke 0xcaf8 2}
+	"option 2" {poke 0xcae0 2;poke 0xcae1 3;poke 0xcaf8 2;poke 0xcb59 1}
 	"option 2 shoots backwards" {poke 0xcb58 4}
 	"option 2 shoots downwards" {poke 0xcb58 3}
 	"option 2 shoots forwards" {poke 0xcb58 2}
+	"Player Speed 1" {poke 0xcb01 1}
+	"Player Speed 2" {poke 0xcb01 2}
+	"Player Speed 3" {poke 0xcb01 3}
+	"Player Speed 4" {poke 0xcb01 4}
 	"power bar" {poke 0xcb08 16}
-	"speed (1-4)" {poke 0xcb01 2}
-	"stage (0-8)" {poke 0xca10 0}
+	"stage 0" {poke 0xca10 0}
+	"stage 1" {poke 0xca10 1}
+	"stage 2" {poke 0xca10 2}
+	"stage 3" {poke 0xca10 3}
+	"stage 4" {poke 0xca10 4}
+	"stage 5" {poke 0xca10 5}
+	"stage 6" {poke 0xca10 6}
+	"stage 7" {poke 0xca10 7}
+	"stage 8" {poke 0xca10 8}
 }
  
 create_trainer "Space Rescue" {time 1} {
@@ -6256,6 +6267,15 @@ create_trainer "Xak 2 - Rising of the red moon" {time 10} {
 	"money" {poke 0x6e14 255;poke 0x6e15 255}
 }
  
+create_trainer "Xak 3 - The Tower of Gazel" {} {
+	"Latok Life" {poke 0x69ef 15;poke 0x69f0 39}
+	"Latoks Max Life" {poke 0x69ed 15;poke 0x69ee 39}
+	"Latoks Max MP" {poke 0x69f1 15;poke 0x69f2 39}
+	"Latoks Max Strength" {poke 0x69f5 15;poke 0x69f6 39}
+	"Latoks MP" {poke 0x69f3 15;poke 0x69f4 39}
+	"Latoks Strength" {poke 0x69f7 15;poke 0x69f8 39}
+}
+ 
 create_trainer "Xevious - Fardraut Saga" {time 2} {
 	"have all weapons and shield" {poke 0xc005 255}
 	"lives" {poke 0xc502 99}
@@ -6527,4 +6547,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"something else" {poke 0xe062 153}
 }
  
-# File Created in : 1.936 seconds. 709 trainers -  having 5267 pokes
+# File Created in : 5.934 seconds. 710 trainers -  having 5296 pokes
