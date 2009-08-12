@@ -29,7 +29,8 @@ proc msx_update {name} {
 	set xsize   [expr 320.0 / $hstretch]
 	set xoffset [expr ($hstretch - 256) / 2 * $xsize]
 	set ysize 1
-	set yoffset [expr (240 - 192) / 2 * $ysize]
+	set lines [expr ([vdpreg 9] & 128) ? 212 : 192]
+	set yoffset [expr (240 - $lines) / 2 * $ysize]
 	set adjreg [vdpreg 18]
 	set hadj [expr (($adjreg & 15) ^ 7) - 7]
 	set vadj [expr (($adjreg >> 4) ^ 7) - 7]
