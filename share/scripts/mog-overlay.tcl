@@ -9,6 +9,7 @@ variable ladder_cache
 variable wall_cache
 variable demon_cache
 variable ep
+variable mouse1_pressed
 
 # Demon summon spells
 variable spell [list "" "YOMAR" "ELOHIM" "HAHAKLA" "BARECHET" "HEOTYMEO" \
@@ -58,6 +59,20 @@ proc init {} {
 	variable max_ep
 
 	msx_init mog
+
+	bind_default "mouse button1 down" {
+		set mog_overlay::mouse1_pressed true
+		mog_overlay::draw_block
+	}
+
+	bind_default "mouse button1 up" {
+		set mog_overlay::mouse1_pressed false
+	}
+
+	bind_default "mouse button3 down" {
+		puts "Set Popolon"
+		mog_overlay::put_popolon
+	}
 
 	for {set i 0} {$i < $num_enemies} {incr i} {
 		create_power_bar mog.powerbar$i 14 2 0xff0000ff 0x00000080 0xffffffff
@@ -249,6 +264,21 @@ proc print_mog_text {x y text} {
 	}
 }
 
+proc draw_block {} {
+	osd_widgets::msx_update "mog"
+	foreach {x y} [osd info "mog" -mousecoord] {}
+	poke [expr 0xed80 + int($x/8) + int(($y-32)/8) * 32] 240
+	if {$mog_overlay::mouse1_pressed} { after frame mog_overlay::draw_block }
+}
+
+proc put_popolon {} {
+	puts "put Popolon"
+	osd_widgets::msx_update "mog"
+	foreach {x y} [osd info "mog" -mousecoord] {}
+	poke 0xe507 [utils::clip 0 255 [expr int($x)]]
+	poke 0xe505 [utils::clip 0 212 [expr int($y)]]
+}
+
 proc toggle_mog_overlay {} {
 	variable mog_overlay_active
 	set mog_overlay_active [expr !$mog_overlay_active]
@@ -257,6 +287,9 @@ proc toggle_mog_overlay {} {
 		update_overlay
 	} else {
 		osd destroy mog
+		unbind_default "mouse button1 down"
+		unbind_default "mouse button1 up"
+		unbind_default "mouse button3 down"
 	}
 	return ""
 }
