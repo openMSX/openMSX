@@ -135,7 +135,8 @@ proc update_overlay {} {
 
 	if {!$mog_overlay_active} return
 
-	msx_update mog
+	#see if not in demo
+	if {[peek 0xe002]!=64} {osd configure mog -y 999} else {msx_update mog}
 
 	for {set i 0; set addr 0xe800} {$i < $num_enemies} {incr i; incr addr 0x20} {
 		set enemy_type [peek $addr]
