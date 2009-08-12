@@ -70,7 +70,6 @@ proc init {} {
 	}
 
 	bind_default "mouse button3 down" {
-		puts "Set Popolon"
 		mog_overlay::put_popolon
 	}
 
@@ -272,7 +271,6 @@ proc draw_block {} {
 }
 
 proc put_popolon {} {
-	puts "put Popolon"
 	osd_widgets::msx_update "mog"
 	foreach {x y} [osd info "mog" -mousecoord] {}
 	poke 0xe507 [utils::clip 0 255 [expr int($x)]]

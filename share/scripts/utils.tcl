@@ -48,8 +48,8 @@ proc get_ordered_machine_list {} {
 	return [lsort -dictionary [list_machines]]
 }
 
-proc get_random_number {option} {
-	return value [expr floor(rand()*$option)]
+proc get_random_number {max} {
+	return value [expr floor(rand()*$max)]
 }
 
 proc clip {min max val} {
