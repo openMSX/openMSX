@@ -2,6 +2,7 @@
 
 #include "OSDRectangle.hh"
 #include "SDLImage.hh"
+#include "OutputSurface.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -111,7 +112,7 @@ bool OSDRectangle::takeImageDimensions() const
 	       (relw == 0.0) && (relh == 0.0);
 }
 
-void OSDRectangle::getWidthHeight(const OutputSurface& output,
+void OSDRectangle::getWidthHeight(const OutputRectangle& output,
                                   double& width, double& height) const
 {
 	if (!imageName.empty() && image.get() && takeImageDimensions()) {

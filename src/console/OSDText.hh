@@ -24,7 +24,7 @@ public:
 
 private:
 	virtual void invalidateLocal();
-	virtual void getWidthHeight(const OutputSurface& output,
+	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const;
 	virtual BaseImage* createSDL(OutputSurface& output);
 	virtual BaseImage* createGL (OutputSurface& output);

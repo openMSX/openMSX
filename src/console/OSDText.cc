@@ -3,6 +3,7 @@
 #include "OSDText.hh"
 #include "TTFFont.hh"
 #include "SDLImage.hh"
+#include "OutputSurface.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -94,7 +95,7 @@ string OSDText::getType() const
 	return "text";
 }
 
-void OSDText::getWidthHeight(const OutputSurface& /*output*/,
+void OSDText::getWidthHeight(const OutputRectangle& /*output*/,
                              double& width, double& height) const
 {
 	if (image.get()) {

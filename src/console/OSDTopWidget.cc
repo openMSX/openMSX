@@ -15,11 +15,11 @@ std::string OSDTopWidget::getType() const
 	return "top";
 }
 
-void OSDTopWidget::getWidthHeight(const OutputSurface& output,
+void OSDTopWidget::getWidthHeight(const OutputRectangle& output,
                                   double& width, double& height) const
 {
-	width  = output.getWidth();
-	height = output.getHeight();
+	width  = output.getOutputWidth();
+	height = output.getOutputHeight();
 }
 
 void OSDTopWidget::invalidateLocal()

@@ -10,11 +10,20 @@
 
 namespace openmsx {
 
+class OutputRectangle
+{
+public:
+	virtual unsigned getOutputWidth()  const = 0;
+	virtual unsigned getOutputHeight() const = 0;
+protected:
+	virtual ~OutputRectangle() {}
+};
+
 /** A frame buffer where pixels can be written to.
   * It could be an in-memory buffer or a video buffer visible to the user
   * (see VisibleSurface subclass).
   */
-class OutputSurface : private noncopyable
+class OutputSurface : public OutputRectangle, private noncopyable
 {
 public:
 	virtual ~OutputSurface();
@@ -70,6 +79,9 @@ protected:
 	void setBufferPtr(char* data, unsigned pitch);
 
 private:
+	virtual unsigned getOutputWidth()  const { return getWidth(); }
+	virtual unsigned getOutputHeight() const { return getHeight(); }
+
 	SDL_Surface* displaySurface;
 	SDL_Surface* workSurface;
 	SDL_PixelFormat format;

@@ -217,11 +217,12 @@ void OSDWidget::getProperties(set<string>& result) const
 	result.insert("-rely");
 	result.insert("-scaled");
 	result.insert("-clip");
+	result.insert("-mousecoord");
 }
 
 void OSDWidget::setProperty(const string& name, const TclObject& value)
 {
-	if (name == "-type") {
+	if ((name == "-type") || (name == "-mousecoord")) {
 		throw CommandException("-type property is readonly");
 	} else if (name == "-x") {
 		x = value.getDouble();
@@ -252,6 +253,20 @@ void OSDWidget::setProperty(const string& name, const TclObject& value)
 	}
 }
 
+class DummyOutputRectangle : public OutputRectangle
+{
+public:
+	DummyOutputRectangle(unsigned width_, unsigned height_)
+		: width(width_), height(height_)
+	{
+	}
+	virtual unsigned getOutputWidth()  const { return width;  }
+	virtual unsigned getOutputHeight() const { return height; }
+private:
+	const unsigned width;
+	const unsigned height;
+};
+
 void OSDWidget::getProperty(const string& name, TclObject& result) const
 {
 	if (name == "-type") {
@@ -270,6 +285,11 @@ void OSDWidget::getProperty(const string& name, TclObject& result) const
 		result.setBoolean(scaled);
 	} else if (name == "-clip") {
 		result.setBoolean(clip);
+	} else if (name == "-mousecoord") {
+		double x, y;
+		getMouseCoord(x, y);
+		result.addListElement(x);
+		result.addListElement(y);
 	} else {
 		throw CommandException("No such property: " + name);
 	}
@@ -326,10 +346,10 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #endif
 }
 
-int OSDWidget::getScaleFactor(const OutputSurface& output) const
+int OSDWidget::getScaleFactor(const OutputRectangle& output) const
 {
 	if (scaled) {
-		return output.getWidth() / 320;;
+		return output.getOutputWidth() / 320;;
 	} else if (getParent()) {
 		return getParent()->getScaleFactor(output);
 	} else {
@@ -337,7 +357,7 @@ int OSDWidget::getScaleFactor(const OutputSurface& output) const
 	}
 }
 
-void OSDWidget::transformXY(const OutputSurface& output,
+void OSDWidget::transformXY(const OutputRectangle& output,
                             double x, double y, double relx, double rely,
                             double& outx, double& outy) const
 {
@@ -352,7 +372,49 @@ void OSDWidget::transformXY(const OutputSurface& output,
 	}
 }
 
-void OSDWidget::getBoundingBox(const OutputSurface& output,
+void OSDWidget::transformReverse(
+	const OutputRectangle& output, double x, double y,
+	double& outx, double& outy) const
+{
+	if (const OSDWidget* parent = getParent()) {
+		parent->transformReverse(output, x, y, x, y);
+		double width, height;
+		parent->getWidthHeight(output, width, height);
+		int factor = getScaleFactor(output);
+		outx = x - (getRelX() * width ) - (getX() * factor);
+		outy = y - (getRelY() * height) - (getY() * factor);
+	} else {
+		outx = x;
+		outy = y;
+	}
+}
+
+void OSDWidget::getMouseCoord(double& outx, double& outy) const
+{
+	SDL_Surface* surface = SDL_GetVideoSurface();
+	if (!surface) {
+		throw CommandException(
+			"-can't get mouse coordinates: no window visible");
+	}
+	DummyOutputRectangle output(surface->w, surface->h);
+
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	transformReverse(output, mouseX, mouseY, outx, outy);
+
+	double width, height;
+	getWidthHeight(output, width, height);
+	if ((width == 0) || (height == 0)) {
+		throw CommandException(
+			"-can't get mouse coordinates: "
+			"widget has zero width or height");
+	}
+	outx /= width;
+	outy /= height;
+}
+
+void OSDWidget::getBoundingBox(const OutputRectangle& output,
                                int& x, int& y, int& w, int& h)
 {
 	double x1, y1, x2, y2;

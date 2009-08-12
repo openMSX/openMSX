@@ -3,6 +3,7 @@
 #include "OSDImageBasedWidget.hh"
 #include "OSDGUI.hh"
 #include "BaseImage.hh"
+#include "OutputSurface.hh"
 #include "Display.hh"
 #include "CliComm.hh"
 #include "TclObject.hh"
