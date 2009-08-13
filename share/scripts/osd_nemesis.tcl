@@ -4,6 +4,8 @@ variable scriptlocation [info script]
 
 # todo: help text
 
+variable mouse1_pressed false
+
 	proc toggle_nemesis_1_shield {} {
 
 		if {![catch {osd info nem -rgba} errmsg]} {
@@ -11,10 +13,21 @@ variable scriptlocation [info script]
 			return ""
 		}
 
-		osd_widgets::msx_init nem
+		osd_widgets::msx_init "nem"
+
 		osd create rectangle nem.shield  \
 			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
 			-image [data_file scripts/shield.png]
+
+		#click to capture and click again to release 
+		bind_default "mouse button1 down" {
+			if { $osd_nemesis::mouse1_pressed } {
+				set osd_nemesis::mouse1_pressed false
+					} else {
+				set osd_nemesis::mouse1_pressed true
+				}
+			osd_nemesis::get_vixen
+		}
 
 		create_shield
 	}
@@ -24,6 +37,7 @@ variable scriptlocation [info script]
 		if {[catch {osd info nem -rgba} errmsg]} {
 			return ""
 		}
+
 		osd_widgets::msx_update nem
 
 		# vic viper location
@@ -74,6 +88,14 @@ variable scriptlocation [info script]
 			osd configure nem.shield -alpha 0x80
 		}
 		after frame [namespace code create_shield]
+	}
+
+	proc get_vixen {} {
+		osd_widgets::msx_update "nem"
+		foreach {x y} [osd info "nem" -mousecoord] {}
+			poke 0xe206 [utils::clip 0 255 [expr int($x)]]
+			poke 0xe204 [utils::clip 0 212 [expr int($y)]]
+		if {$osd_nemesis::mouse1_pressed} { after frame osd_nemesis::get_vixen }
 	}
 
 	namespace export toggle_nemesis_1_shield
