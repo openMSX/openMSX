@@ -268,7 +268,9 @@ void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("sram", *sram);
 	ar.serialize("scc", *scc);
-	ar.serialize("MB89352", *spc);
+	if (spc.get()) {
+		ar.serialize("MB89352", *spc);
+	}
 	ar.serialize("mapper", mapper);
 	ar.serialize("spcEnable", spcEnable);
 	ar.serialize("sccEnable", sccEnable);
