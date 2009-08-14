@@ -893,7 +893,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 	Tcl_Interp* interp = watchPoints.front()->getInterpreter();
 	Tcl_SetVar(interp, "wp_last_address", StringOp::toString(address).c_str(),
 	           TCL_GLOBAL_ONLY);
-	if (value != -1u) {
+	if (value != ~1) {
 		Tcl_SetVar(interp, "wp_last_value", StringOp::toString(value).c_str(),
 			   TCL_GLOBAL_ONLY);
 	}
