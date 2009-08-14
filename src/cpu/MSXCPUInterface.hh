@@ -250,7 +250,7 @@ private:
 	void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices);
 	void updateMemWatch(WatchPoint::Type type);
 	void executeMemWatch(WatchPoint::Type type, unsigned address,
-	                     unsigned value = ~1);
+	                     unsigned value = ~0);
 
 	void doContinue2();
 
