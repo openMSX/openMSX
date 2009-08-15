@@ -28,7 +28,11 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+#ifndef _MSC_EXTENSIONS
+// #ifdef required to avoid link error with vc++, see also
+//   http://www.codeguru.com/forum/showthread.php?t=430949
 const unsigned DiskManipulator::MAX_PARTITIONS;
+#endif
 
 DiskManipulator::DiskManipulator(CommandController& commandController)
 	: SimpleCommand(commandController, "diskmanipulator")
