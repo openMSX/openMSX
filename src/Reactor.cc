@@ -7,6 +7,7 @@
 #include "InputEventGenerator.hh"
 #include "InputEvents.hh"
 #include "DiskManipulator.hh"
+#include "DiskChanger.hh"
 #include "FilePool.hh"
 #include "UserSettings.hh"
 #include "MSXMotherBoard.hh"
@@ -209,6 +210,8 @@ Reactor::Reactor()
 		*globalCommandController, *eventDistributor))
 	, mixer(new Mixer(*globalCommandController))
 	, diskManipulator(new DiskManipulator(*globalCommandController))
+	, virtualDrive(new DiskChanger("virtual_drive", *globalCommandController,
+	                               *diskManipulator, true))
 	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())

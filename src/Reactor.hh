@@ -25,6 +25,7 @@ class Display;
 class Mixer;
 class InputEventGenerator;
 class DiskManipulator;
+class DiskChanger;
 class FilePool;
 class UserSettings;
 class BooleanSetting;
@@ -129,6 +130,7 @@ private:
 	std::auto_ptr<Display> display;
 	const std::auto_ptr<Mixer> mixer;
 	const std::auto_ptr<DiskManipulator> diskManipulator;
+	const std::auto_ptr<DiskChanger> virtualDrive;
 	const std::auto_ptr<FilePool> filePool;
 
 	BooleanSetting& pauseSetting;

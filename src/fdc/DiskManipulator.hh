@@ -11,7 +11,6 @@ namespace openmsx {
 
 class CommandController;
 class DiskContainer;
-class DiskChanger;
 class SectorAccessibleDisk;
 class DiskPartition;
 class MSXtar;
@@ -37,7 +36,6 @@ private:
 	};
 	typedef std::vector<DriveSettings> Drives;
 	Drives drives;
-	std::auto_ptr<DiskChanger> virtualDrive;
 
 	// Command interface
 	virtual std::string execute(const std::vector<std::string>& tokens);

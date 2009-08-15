@@ -2,7 +2,6 @@
 
 #include "DiskManipulator.hh"
 #include "DiskContainer.hh"
-#include "DiskChanger.hh"
 #include "MSXtar.hh"
 #include "DiskImageUtils.hh"
 #include "DSKDiskImage.hh"
@@ -36,14 +35,11 @@ const unsigned DiskManipulator::MAX_PARTITIONS;
 
 DiskManipulator::DiskManipulator(CommandController& commandController)
 	: SimpleCommand(commandController, "diskmanipulator")
-	, virtualDrive(new DiskChanger("virtual_drive", commandController,
-	                               *this, true))
 {
 }
 
 DiskManipulator::~DiskManipulator()
 {
-	virtualDrive.reset();
 	assert(drives.empty()); // all DiskContainers must be unregistered
 }
 
