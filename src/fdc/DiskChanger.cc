@@ -194,17 +194,15 @@ int DiskChanger::insertDisk(const string& filename)
 	}
 }
 
-void DiskChanger::insertDisk(const vector<TclObject*>& args)
+static Disk* createDisk(const string& diskImage, CommandController& controller)
 {
-	std::auto_ptr<Disk> newDisk;
-	const string& diskImage = args[1]->getString();
 	if (diskImage == "ramdsk") {
-		newDisk.reset(new RamDSKDiskImage());
+		return new RamDSKDiskImage();
 	} else {
 		Filename filename(diskImage, controller);
 		try {
 			// first try XSA
-			newDisk.reset(new XSADiskImage(filename));
+			return new XSADiskImage(filename);
 		} catch (MSXException&) {
 		try {
 			// First try the fake disk, because a DSK will always
@@ -212,16 +210,16 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 			// It is simply stat'ed, so even a directory name
 			// can be resolved and will be accepted as dsk name
 			// try to create fake DSK from a dir on host OS
-			newDisk.reset(new DirAsDSK(
+			return new DirAsDSK(
 				controller.getCliComm(),
 				filename,
 				controller.getGlobalSettings().getSyncDirAsDSKSetting().getValue(),
 				controller.getGlobalSettings().getBootSectorSetting().getValue()
-				));
+				);
 		} catch (MSXException&) {
 		try {
 			// then try normal DSK
-			newDisk.reset(new DSKDiskImage(filename));
+			return new DSKDiskImage(filename);
 		} catch (MSXException& e1) {
 			// Finally try to interpret the filename as
 			//    <filename>:<partition-number>
@@ -246,9 +244,15 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 			}
 			unsigned num = StringOp::stringToUint(
 				diskImage.substr(pos + 1));
-			newDisk.reset(new DiskPartition(*wholeDisk, num, wholeDisk));
+			return new DiskPartition(*wholeDisk, num, wholeDisk);
 		}}}
 	}
+}
+
+void DiskChanger::insertDisk(const vector<TclObject*>& args)
+{
+	const string& diskImage = args[1]->getString();
+	std::auto_ptr<Disk> newDisk(createDisk(diskImage, controller));
 	for (unsigned i = 2; i < args.size(); ++i) {
 		Filename filename(args[i]->getString(), controller);
 		newDisk->applyPatch(filename);
