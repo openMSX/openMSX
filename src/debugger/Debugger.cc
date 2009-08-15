@@ -612,8 +612,8 @@ void DebugCmd::removeWatchPoint(const vector<TclObject*>& tokens,
 		unsigned id = StringOp::stringToInt(tmp.substr(3));
 		for (MSXCPUInterface::WatchPoints::const_iterator it =
 			watchPoints.begin(); it != watchPoints.end(); ++it) {
-			WatchPoint& wp = **it;
-			if (wp.getId() == id) {
+			shared_ptr<WatchPoint> wp = *it;
+			if (wp->getId() == id) {
 				interface.removeWatchPoint(wp);
 				return;
 			}

@@ -262,7 +262,7 @@ MSXCPUInterface::~MSXCPUInterface()
 void MSXCPUInterface::removeAllWatchPoints()
 {
 	while (!watchPoints.empty()) {
-		removeWatchPoint(*watchPoints.back());
+		removeWatchPoint(watchPoints.back());
 	}
 
 }
@@ -761,18 +761,23 @@ void MSXCPUInterface::setWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	}
 }
 
-void MSXCPUInterface::removeWatchPoint(WatchPoint& watchPoint)
+void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 {
+	// Pass by shared_ptr to keep the object alive for the duration of
+	// this function, otherwise it gets deleted as soon as it's
+	// removed from the watchPoints collection.
 	for (WatchPoints::iterator it = watchPoints.begin();
 	     it != watchPoints.end(); ++it) {
-		if (it->get() == &watchPoint) {
-			WatchPoint::Type type = watchPoint.getType();
+		if (*it == watchPoint) {
+			// remove before calling updateMemWatch()
+			watchPoints.erase(it);
+			WatchPoint::Type type = watchPoint->getType();
 			switch (type) {
 			case WatchPoint::READ_IO:
-				unregisterIOWatch(watchPoint, IO_In);
+				unregisterIOWatch(*watchPoint, IO_In);
 				break;
 			case WatchPoint::WRITE_IO:
-				unregisterIOWatch(watchPoint, IO_Out);
+				unregisterIOWatch(*watchPoint, IO_Out);
 				break;
 			case WatchPoint::READ_MEM:
 			case WatchPoint::WRITE_MEM:
@@ -782,7 +787,6 @@ void MSXCPUInterface::removeWatchPoint(WatchPoint& watchPoint)
 				assert(false);
 				break;
 			}
-			watchPoints.erase(it);
 			break;
 		}
 	}

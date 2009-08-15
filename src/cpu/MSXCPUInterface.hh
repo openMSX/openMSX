@@ -185,7 +185,7 @@ public:
 	static const BreakPoints& getBreakPoints();
 
 	void setWatchPoint(shared_ptr<WatchPoint> watchPoint);
-	void removeWatchPoint(WatchPoint& watchPoint);
+	void removeWatchPoint(shared_ptr<WatchPoint> watchPoint);
 	typedef std::vector<shared_ptr<WatchPoint> > WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
