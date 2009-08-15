@@ -30,20 +30,17 @@ private:
 // struct ReverseHistory
 
 ReverseManager::ReverseHistory::ReverseHistory()
-	: totalSize(0)
 {
 }
 
 void ReverseManager::ReverseHistory::swap(ReverseHistory& other)
 {
-	std::swap(chunks,    other.chunks);
-	std::swap(totalSize, other.totalSize);
+	std::swap(chunks, other.chunks);
 }
 
 void ReverseManager::ReverseHistory::clear()
 {
 	Chunks().swap(chunks); // clear() and free storage capacity
-	totalSize = 0;
 }
 
 
@@ -53,7 +50,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, reverseCmd(new ReverseCmd(*this, motherBoard.getCommandController()))
-	, collecting(false)
+	, collectCount(0)
 {
 }
 
@@ -63,8 +60,8 @@ ReverseManager::~ReverseManager()
 
 string ReverseManager::start()
 {
-	if (!collecting) {
-		collecting = true;
+	if (!collectCount) {
+		collectCount = 1;
 		executeUntil(getCurrentTime(), 0);
 	}
 	return "";
@@ -74,20 +71,23 @@ string ReverseManager::stop()
 {
 	removeSyncPoint();
 	history.clear();
-	collecting = false;
+	collectCount = 0;
 	return "";
 }
 
 string ReverseManager::status()
 {
 	string result;
-	for (unsigned i = 0; i < history.chunks.size(); ++i) {
-		ReverseChunk& chunk = history.chunks[i];
-		result += StringOp::toString(i) + ' ';
+	unsigned totalSize = 0;
+	for (Chunks::const_iterator it = history.chunks.begin();
+	     it != history.chunks.end(); ++it) {
+		const ReverseChunk& chunk = it->second;
+		result += StringOp::toString(it->first) + ' ';
 		result += StringOp::toString((chunk.time - EmuTime::zero).toDouble());
 		result += " (" + StringOp::toString(chunk.savestate->getLength()) + ")\n";
+		totalSize += chunk.savestate->getLength();
 	}
-	result += "total size: " + StringOp::toString(history.totalSize) + '\n';
+	result += "total size: " + StringOp::toString(totalSize) + '\n';
 	return result;
 }
 
@@ -97,53 +97,73 @@ string ReverseManager::go(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	unsigned n = StringOp::stringToInt(tokens[2]);
-	if (n >= history.chunks.size()) {
+	Chunks::iterator it = history.chunks.find(n);
+	if (it == history.chunks.end()) {
 		throw CommandException("Out of range");
 	}
 
 	Reactor& reactor = motherBoard.getReactor();
 	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-	MemInputArchive in(*history.chunks[n].savestate);
+	MemInputArchive in(*it->second.savestate);
 	in.serialize("machine", *newBoard);
 
-	assert(collecting);
-	collecting = false;
 	removeSyncPoint();
-	newBoard->getReverseManager().transferHistory(history);
+	assert(collectCount);
+	newBoard->getReverseManager().transferHistory(history, collectCount);
+	collectCount = 0;
 	assert(history.chunks.empty());
-	assert(history.totalSize == 0);
 
 	reactor.replaceActiveBoard(newBoard); // TODO this board may not be the active board
 	return "";
 }
 
-void ReverseManager::transferHistory(ReverseHistory& oldHistory)
+void ReverseManager::transferHistory(ReverseHistory& oldHistory,
+                                     unsigned oldCollectCount)
 {
-	assert(!collecting);
+	assert(!collectCount);
 	assert(history.chunks.empty());
 	history.swap(oldHistory);
-	collecting = true;
+	collectCount = oldCollectCount;
 	schedule(getCurrentTime());
 }
 
 void ReverseManager::executeUntil(EmuTime::param time, int /*userData*/)
 {
-	static const unsigned MAX_SIZE = 100 * 1024 * 1024; // 100MB
-
-	assert(collecting);
-	while (history.totalSize >= MAX_SIZE) {
-		// drop oldest chunk if total size is more than 100MB
-		history.totalSize -= history.chunks.front().savestate->getLength();
-		history.chunks.erase(history.chunks.begin());
-	}
+	assert(collectCount);
+	dropOldSnapshots<25>(collectCount);
 
 	MemOutputArchive out;
 	out.serialize("machine", motherBoard);
-	ReverseChunk newChunk(time);
+	ReverseChunk& newChunk = history.chunks[collectCount];
+	newChunk.time = time;
 	newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
-	history.chunks.push_back(newChunk);
-	history.totalSize += newChunk.savestate->getLength();
+
+	++collectCount;
 	schedule(time);
+}
+
+// Should be called each time a new snapshot is added.
+// This function will erase zero or more earlier snapshots so that there are
+// more snapshots of recent history and less of distant history. It has the
+// following properties:
+//  - the very oldest snapshot is never deleted
+//  - it keeps the N or N+1 most recent snapshots (snapshot distance = 1)
+//  - then it keeps N or N+1 with snapshot distance 2
+//  - then N or N+1 with snapshot distance 4
+//  - ... and so on
+template<unsigned N>
+void ReverseManager::dropOldSnapshots(unsigned count)
+{
+	unsigned y = (count + N - 1) ^ (count + N);
+	unsigned d = N;
+	unsigned d2 = 2 * N + 1;
+	while (true) {
+		y >>= 1;
+		if ((y == 0) || (count <= d)) return;
+		history.chunks.erase(count - d);
+		d += d2;
+		d2 *= 2;
+	}
 }
 
 void ReverseManager::schedule(EmuTime::param time)
