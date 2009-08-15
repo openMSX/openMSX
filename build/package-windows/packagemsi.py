@@ -100,7 +100,7 @@ def PackageMsi(info):
 	openMSXObjFile = os.path.join(wixIntermediatePath, 'openmsx.wixobj')
 	
 	candleCmd = 'candle.exe'
-	candleCmd += ' -arch ' + info.architecture
+	candleCmd += ' -arch ' + info.cpu
 	candleCmd += ' -o ' + '\"' + wixIntermediatePath + '\\\\\"'
 	candleCmd += ' -ext WixUtilExtension'
 	candleCmd += ' \"' + openMSXFile + '\"'
@@ -121,7 +121,7 @@ def PackageMsi(info):
 	print candleCmd
 	os.system(candleCmd)
 	
-	msiFileName = info.installerFileName + '.msi'
+	msiFileName = info.packageFileName + '-bin.msi'
 	msiFilePath = os.path.join(info.packagePath, msiFileName)
 	if os.path.exists(msiFilePath):
 		os.unlink(msiFilePath)
@@ -153,7 +153,7 @@ def PackageMsi(info):
 	os.system(lightCmd)
 	
 	# Zip up the MSI
-	zipFileName = info.installerFileName + '-msi.zip'
+	zipFileName = info.packageFileName + '-bin-msi.zip'
 	zipFilePath = os.path.join(info.packagePath, zipFileName)
 	
 	print 'Generating ' + zipFilePath

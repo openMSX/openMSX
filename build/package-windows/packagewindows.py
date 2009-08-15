@@ -34,11 +34,11 @@ class PackageInfo:
 		
 		self.platform = platform.lower()
 		if self.platform == 'win32':
-			self.architecture = 'x86'
+			self.cpu = 'x86'
 			self.platform = 'Win32'
 			self.win64 = False
 		elif self.platform == 'x64':
-			self.architecture = 'x64'
+			self.cpu = 'x64'
 			self.platform = 'x64'
 			self.win64 = True
 		else:
@@ -48,14 +48,14 @@ class PackageInfo:
 		if self.configuration == 'release':
 			self.configuration = 'Release'
 			self.catapultConfiguration = 'Unicode Release'
-		elif self.configuration == 'Developer':
+		elif self.configuration == 'developer':
 			self.configuration = 'Developer'
 			self.catapultConfiguration = 'Unicode Debug'
-		elif self.configuration == 'Debug':
+		elif self.configuration == 'debug':
 			self.configuration = 'Debug'
 			self.catapultConfiguration = 'Unicode Debug'
 		else:
-			raise ValueError, 'Wrong configuration: ' + architecture
+			raise ValueError, 'Wrong configuration: ' + configuration
 
 		self.catapultPath = catapultPath
 		
@@ -69,8 +69,8 @@ class PackageInfo:
 		self.catapultSourcePath = os.path.join(self.catapultPath, 'src')
 		self.catapultBuildFlavor = self.platform + '-VC-' + self.catapultConfiguration
 		self.catapultBuildPath = os.path.join(self.catapultPath, os.path.join('derived', self.catapultBuildFlavor))
-		self.catapultExePath = os.path.join(self.catapultBuildPath, 'install\\Catapult.exe')
-		self.catapultPdbPath = os.path.join(self.catapultBuildPath, 'install\\Catapult.pdb')
+		self.catapultExePath = os.path.join(self.catapultBuildPath, 'install\\catapult.exe')
+		self.catapultPdbPath = os.path.join(self.catapultBuildPath, 'install\\catapult.pdb')
 		
 		self.openmsxExePath = os.path.join(self.buildPath, 'install\\openmsx.exe')
 		self.openmsxPdbPath = os.path.join(self.buildPath, 'install\\openmsx.pdb')
@@ -83,12 +83,20 @@ class PackageInfo:
 			self.version += '.0'
 		else:
 			self.version += '.' + version.extractRevision()
-		self.installerFileName = version.getVersionedPackageName() + '-VC-' + self.architecture
+
+		# <product>-<version>-<os>-<compiler>-<cpu>-<filetype>.ext
+		self.os = 'windows'
+		self.compiler = 'vc'
+
+		self.packageFileName = version.getVersionedPackageName()
+		self.packageFileName += '-' + self.os
+		self.packageFileName += '-' + self.compiler
+		self.packageFileName += '-' + self.cpu
 
 if __name__ == '__main__':
 	if len(sys.argv) == 5:
 		info = PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
 	else:
 		print >> sys.stderr, \
-			'Usage: python packagewindowsinfo.py architecture, configuration, version, catapultPath'
+			'Usage: python packagewindowsinfo.py platform, configuration, catapultPath'
 		sys.exit(2)

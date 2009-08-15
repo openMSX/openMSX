@@ -24,7 +24,7 @@ def PackageZip(info):
 	if not os.path.exists(info.packagePath):
 		os.mkdir(info.packagePath)
 
-	zipFileName = info.installerFileName + '.zip'
+	zipFileName = info.packageFileName + '-bin.zip'
 	zipFilePath = os.path.join(info.packagePath, zipFileName)
 	if os.path.exists(zipFilePath):
 		os.unlink(zipFilePath)
@@ -46,7 +46,7 @@ def PackageZip(info):
 	AddFile(zip, os.path.join(info.catapultPath, 'README'), 'Catapult\\doc\\README')
 	zip.close()
 	
-	zipFileName = info.installerFileName + '-pdb.zip'
+	zipFileName = info.packageFileName + '-pdb.zip'
 	zipFilePath = os.path.join(info.packagePath, zipFileName)
 	if os.path.exists(zipFilePath):
 		os.unlink(zipFilePath)
