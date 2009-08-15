@@ -15,6 +15,7 @@ SRC_HDR:= \
 	DiskDrive \
 	RealDrive \
 	DiskChanger \
+	DiskFactory \
 	DriveMultiplexer \
 	Disk \
 	DiskName \
