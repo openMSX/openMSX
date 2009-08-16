@@ -93,7 +93,9 @@ DiskChanger* NowindCommand::createDiskChanger(
 	string name = basename + StringOp::toString(n + 1);
 	DiskChanger* drive = new DiskChanger(
 		name, motherBoard.getCommandController(),
-		motherBoard.getReactor().getDiskManipulator(), motherBoard, false);
+		motherBoard.getReactor().getDiskFactory(),
+		motherBoard.getReactor().getDiskManipulator(),
+		motherBoard, false);
 	return drive;
 }
 

@@ -17,6 +17,7 @@ class CommandController;
 class MSXEventDistributor;
 class Scheduler;
 class MSXMotherBoard;
+class DiskFactory;
 class DiskManipulator;
 class Disk;
 class DiskCommand;
@@ -29,14 +30,17 @@ class DiskChanger : public DiskContainer, private MSXEventListener,
 public:
 	DiskChanger(const std::string& driveName,
 	            CommandController& commandController,
+	            DiskFactory& diskFactory,
 	            DiskManipulator& manipulator,
 	            MSXMotherBoard& board,
 	            bool createCommand);
 	DiskChanger(const std::string& driveName,
 	            CommandController& commandController,
+	            DiskFactory& diskFactory,
 	            DiskManipulator& manipulator,
 	            bool createCommand);
-	DiskChanger(MSXMotherBoard& board, const std::string& driveName);
+	DiskChanger(MSXMotherBoard& board,
+	            const std::string& driveName);
 	~DiskChanger();
 
 	void createCommand();
@@ -71,6 +75,7 @@ private:
 	CommandController& controller;
 	MSXEventDistributor* msxEventDistributor;
 	Scheduler* scheduler;
+	DiskFactory& diskFactory;
 	DiskManipulator& manipulator;
 
 	const std::string driveName;

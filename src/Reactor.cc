@@ -6,6 +6,7 @@
 #include "GlobalCommandController.hh"
 #include "InputEventGenerator.hh"
 #include "InputEvents.hh"
+#include "DiskFactory.hh"
 #include "DiskManipulator.hh"
 #include "DiskChanger.hh"
 #include "FilePool.hh"
@@ -209,9 +210,10 @@ Reactor::Reactor()
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
 	, mixer(new Mixer(*globalCommandController))
+	, diskFactory(new DiskFactory(*globalCommandController))
 	, diskManipulator(new DiskManipulator(*globalCommandController))
 	, virtualDrive(new DiskChanger("virtual_drive", *globalCommandController,
-	                               *diskManipulator, true))
+	                               *diskFactory, *diskManipulator, true))
 	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
@@ -287,6 +289,11 @@ Display& Reactor::getDisplay()
 Mixer& Reactor::getMixer()
 {
 	return *mixer;
+}
+
+DiskFactory& Reactor::getDiskFactory()
+{
+	return *diskFactory;
 }
 
 DiskManipulator& Reactor::getDiskManipulator()

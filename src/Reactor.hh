@@ -24,6 +24,7 @@ class CliComm;
 class Display;
 class Mixer;
 class InputEventGenerator;
+class DiskFactory;
 class DiskManipulator;
 class DiskChanger;
 class FilePool;
@@ -78,6 +79,7 @@ public:
 	InputEventGenerator& getInputEventGenerator();
 	Display& getDisplay();
 	Mixer& getMixer();
+	DiskFactory& getDiskFactory();
 	DiskManipulator& getDiskManipulator();
 	EnumSetting<int>& getMachineSetting();
 
@@ -129,6 +131,7 @@ private:
 	const std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;
 	const std::auto_ptr<Mixer> mixer;
+	const std::auto_ptr<DiskFactory> diskFactory;
 	const std::auto_ptr<DiskManipulator> diskManipulator;
 	const std::auto_ptr<DiskChanger> virtualDrive;
 	const std::auto_ptr<FilePool> filePool;

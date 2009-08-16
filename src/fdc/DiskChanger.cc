@@ -48,12 +48,14 @@ private:
 
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& controller_,
+                         DiskFactory& diskFactory_,
                          DiskManipulator& manipulator_,
                          MSXMotherBoard& board,
                          bool createCmd)
 	: controller(controller_)
 	, msxEventDistributor(&board.getMSXEventDistributor())
 	, scheduler(&board.getScheduler())
+	, diskFactory(diskFactory_)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
 {
@@ -62,11 +64,13 @@ DiskChanger::DiskChanger(const string& driveName_,
 
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& controller_,
+                         DiskFactory& diskFactory_,
                          DiskManipulator& manipulator_,
                          bool createCmd)
 	: controller(controller_)
 	, msxEventDistributor(NULL)
 	, scheduler(NULL)
+	, diskFactory(diskFactory_)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
 {
@@ -74,10 +78,12 @@ DiskChanger::DiskChanger(const string& driveName_,
 }
 
 // only used for polymorphic de-serialization (for Nowind)
-DiskChanger::DiskChanger(MSXMotherBoard& board, const std::string& driveName_)
+DiskChanger::DiskChanger(MSXMotherBoard& board,
+                         const std::string& driveName_)
 	: controller(board.getCommandController())
 	, msxEventDistributor(&board.getMSXEventDistributor())
 	, scheduler(&board.getScheduler())
+	, diskFactory(board.getReactor().getDiskFactory())
 	, manipulator(board.getReactor().getDiskManipulator())
 	, driveName(driveName_)
 {
@@ -195,7 +201,6 @@ int DiskChanger::insertDisk(const string& filename)
 void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
 	const string& diskImage = args[1]->getString();
-	DiskFactory diskFactory(controller);
 	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage));
 	for (unsigned i = 2; i < args.size(); ++i) {
 		Filename filename(args[i]->getString(), controller);
