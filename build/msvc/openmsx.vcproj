@@ -1150,6 +1150,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\fdc\DiskFactory.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\fdc\DiskFactory.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\fdc\DiskContainer.cc"
 				>
 			</File>
