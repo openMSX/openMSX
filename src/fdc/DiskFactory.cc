@@ -20,6 +20,22 @@ namespace openmsx {
 DiskFactory::DiskFactory(CommandController& controller_)
 	: controller(controller_)
 {
+	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap;
+	syncDirAsDSKMap["read_only"] = DirAsDSK::SYNC_READONLY;
+	syncDirAsDSKMap["cached_write"] = DirAsDSK::SYNC_CACHEDWRITE;
+	syncDirAsDSKMap["nodelete"] = DirAsDSK::SYNC_NODELETE;
+	syncDirAsDSKMap["full"] = DirAsDSK::SYNC_FULL;
+	syncDirAsDSKSetting.reset(new EnumSetting<DirAsDSK::SyncMode>(
+		controller, "DirAsDSKmode",
+		"type of syncronisation between host directory and dir-as-dsk diskimage",
+		DirAsDSK::SYNC_FULL, syncDirAsDSKMap));
+
+	EnumSetting<DirAsDSK::BootSectorType>::Map bootsectorMap;
+	bootsectorMap["DOS1"] = DirAsDSK::BOOTSECTOR_DOS1;
+	bootsectorMap["DOS2"] = DirAsDSK::BOOTSECTOR_DOS2;
+	bootSectorSetting.reset(new EnumSetting<DirAsDSK::BootSectorType>(
+		controller, "bootsector", "boot sector type for dir-as-dsk",
+		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap));
 }
 
 Disk* DiskFactory::createDisk(const string& diskImage)
@@ -41,8 +57,8 @@ Disk* DiskFactory::createDisk(const string& diskImage)
 			return new DirAsDSK(
 				controller.getCliComm(),
 				filename,
-				controller.getGlobalSettings().getSyncDirAsDSKSetting().getValue(),
-				controller.getGlobalSettings().getBootSectorSetting().getValue()
+				syncDirAsDSKSetting->getValue(),
+				bootSectorSetting->getValue()
 				);
 		} catch (MSXException&) {
 		try {

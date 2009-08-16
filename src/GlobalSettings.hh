@@ -5,7 +5,6 @@
 
 #include "Observer.hh"
 #include "noncopyable.hh"
-#include "DirAsDSK.hh"
 #include "Resample.hh"
 #include <memory>
 
@@ -37,8 +36,6 @@ public:
 	StringSetting&  getUserDirSetting();
 	BooleanSetting& getPauseOnLostFocusSetting();
 	StringSetting&  getUMRCallBackSetting();
-	EnumSetting<DirAsDSK::BootSectorType>& getBootSectorSetting();
-	EnumSetting<DirAsDSK::SyncMode>& getSyncDirAsDSKSetting();
 	EnumSetting<Resample::ResampleType>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
@@ -55,8 +52,6 @@ private:
 	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
-	std::auto_ptr<EnumSetting<DirAsDSK::BootSectorType> > bootSectorSetting;
-	std::auto_ptr<EnumSetting<DirAsDSK::SyncMode> > syncDirAsDSKSetting;
 	std::auto_ptr<EnumSetting<Resample::ResampleType> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };
