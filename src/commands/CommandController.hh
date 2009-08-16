@@ -13,7 +13,6 @@ class Command;
 class CliConnection;
 class Setting;
 class CliComm;
-class GlobalSettings;
 class Interpreter;
 class SettingsConfig;
 class Reactor;
@@ -71,7 +70,6 @@ public:
 	virtual std::string makeUniqueSettingName(const std::string& name) = 0;
 
 	virtual CliComm& getCliComm() = 0;
-	virtual GlobalSettings& getGlobalSettings() = 0;
 	virtual Interpreter& getInterpreter() = 0;
 	virtual SettingsConfig& getSettingsConfig() = 0;
 	virtual CliConnection* getConnection() const = 0;

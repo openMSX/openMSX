@@ -16,7 +16,6 @@
 #include "CommandException.hh"
 #include "SettingsConfig.hh"
 #include "SettingsManager.hh"
-#include "GlobalSettings.hh"
 #include "RomInfoTopic.hh"
 #include "TclObject.hh"
 #include "Version.hh"
@@ -86,7 +85,6 @@ GlobalCommandController::GlobalCommandController(
 	, interpreter(new Interpreter(eventDistributor))
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
 	, hotKey(new HotKey(*this, eventDistributor))
-	, globalSettings(new GlobalSettings(*this))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
 	, updateCmd(new UpdateCmd(*this, cliComm))
@@ -106,7 +104,6 @@ GlobalCommandController::~GlobalCommandController()
 	updateCmd.reset();
 	tabCompletionCmd.reset();
 	helpCmd.reset();
-	globalSettings.reset();
 	settingsConfig.reset();
 	hotKey.reset();
 	openMSXInfoCommand.reset();
@@ -209,11 +206,6 @@ SettingsConfig& GlobalCommandController::getSettingsConfig()
 		settingsConfig.reset(new SettingsConfig(*this, *hotKey));
 	}
 	return *settingsConfig;
-}
-
-GlobalSettings& GlobalCommandController::getGlobalSettings()
-{
-	return *globalSettings;
 }
 
 void GlobalCommandController::registerCommand(

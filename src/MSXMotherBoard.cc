@@ -309,7 +309,8 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 		self, *msxEventDistributor, machineID))
 	, scheduler(new Scheduler())
 	, msxMixer(new MSXMixer(
-		reactor.getMixer(), *scheduler, *msxCommandController))
+		reactor.getMixer(), *scheduler, *msxCommandController,
+		reactor.getGlobalSettings()))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
 	, active(false)

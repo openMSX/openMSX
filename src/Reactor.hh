@@ -20,6 +20,7 @@ class CommandController;
 class InfoCommand;
 class GlobalCliComm;
 class GlobalCommandController;
+class GlobalSettings;
 class CliComm;
 class Display;
 class Mixer;
@@ -128,6 +129,7 @@ private:
 	const std::auto_ptr<EventDistributor> eventDistributor;
 	const std::auto_ptr<GlobalCliComm> globalCliComm;
 	const std::auto_ptr<GlobalCommandController> globalCommandController;
+	const std::auto_ptr<GlobalSettings> globalSettings;
 	const std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;
 	const std::auto_ptr<Mixer> mixer;

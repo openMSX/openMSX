@@ -180,11 +180,6 @@ CliComm& MSXCommandController::getCliComm()
 	return motherboard.getMSXCliComm();
 }
 
-GlobalSettings& MSXCommandController::getGlobalSettings()
-{
-	return globalCommandController.getGlobalSettings();
-}
-
 Interpreter& MSXCommandController::getInterpreter()
 {
 	return globalCommandController.getInterpreter();

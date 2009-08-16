@@ -72,7 +72,6 @@ public:
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();
-	virtual GlobalSettings& getGlobalSettings();
 	virtual Interpreter& getInterpreter();
 	virtual SettingsConfig& getSettingsConfig();
 	virtual CliConnection* getConnection() const;
@@ -106,7 +105,6 @@ private:
 	std::auto_ptr<InfoCommand> openMSXInfoCommand;
 	std::auto_ptr<HotKey> hotKey;
 	std::auto_ptr<SettingsConfig> settingsConfig;
-	std::auto_ptr<GlobalSettings> globalSettings;
 
 	friend class HelpCmd;
 	std::auto_ptr<HelpCmd> helpCmd;

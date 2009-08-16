@@ -18,6 +18,7 @@ class Mixer;
 class Scheduler;
 class MSXCommandController;
 class CommandController;
+class GlobalSettings;
 class ThrottleManager;
 class IntegerSetting;
 class StringSetting;
@@ -31,7 +32,8 @@ class MSXMixer : private Schedulable, private Observer<Setting>
 {
 public:
 	MSXMixer(Mixer& mixer, Scheduler& scheduler,
-	         MSXCommandController& msxCommandController);
+	         MSXCommandController& msxCommandController,
+	         GlobalSettings& globalSettings);
 	virtual ~MSXMixer();
 
 	/**

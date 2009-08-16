@@ -44,15 +44,14 @@ private:
 
 
 MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
-                   MSXCommandController& msxCommandController_)
+                   MSXCommandController& msxCommandController_,
+                   GlobalSettings& globalSettings)
 	: Schedulable(scheduler)
 	, mixer(mixer_)
 	, commandController(msxCommandController_)
 	, masterVolume(mixer.getMasterVolume())
-	, speedSetting(
-		commandController.getGlobalSettings().getSpeedSetting())
-	, throttleManager(
-		commandController.getGlobalSettings().getThrottleManager())
+	, speedSetting(globalSettings.getSpeedSetting())
+	, throttleManager(globalSettings.getThrottleManager())
 	, prevTime(EmuTime::zero)
 	, soundDeviceInfo(new SoundDeviceInfoTopic(
 	              msxCommandController_.getMachineInfoCommand(), *this))

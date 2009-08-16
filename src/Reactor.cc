@@ -207,6 +207,7 @@ Reactor::Reactor()
 	, globalCliComm(new GlobalCliComm())
 	, globalCommandController(new GlobalCommandController(
 		*eventDistributor, *globalCliComm, *this))
+	, globalSettings(new GlobalSettings(*globalCommandController))
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
 	, mixer(new Mixer(*globalCommandController))
@@ -308,7 +309,7 @@ EnumSetting<int>& Reactor::getMachineSetting()
 
 GlobalSettings& Reactor::getGlobalSettings()
 {
-	return globalCommandController->getGlobalSettings();
+	return *globalSettings;
 }
 
 CommandController& Reactor::getCommandController()
