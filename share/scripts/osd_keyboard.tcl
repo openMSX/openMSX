@@ -32,6 +32,8 @@ proc keyboard_init {} {
 	bind_default "mouse button1 down" 	{osd_keyboard::key_handeler true}
 	bind_default "mouse button1 up" 	{osd_keyboard::key_handeler false}
 
+	bind_default "mouse button3 down" 	{osd_keyboard::special_key_hold}
+
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
 	set rows {"f-1*16|f-2*16|f-3*16|f-4*16|f-5*16|null*24|select|stop|home|ins|del" \
 			 "esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|bs" \
@@ -53,9 +55,8 @@ proc keyboard_init {} {
 					set key_text [lindex $key 0]
 					set key_width [lindex $key 1]
 
-					set keycolor 0xffffffa0
+					set keycolor 0xffffffc0
 
-					#if {$key_width>0} {set keycolor 0xaaaaaaa0}
 					if {$key_width<1} {set key_width 10;}
 
 
@@ -90,6 +91,26 @@ proc keyboard_init {} {
 		return ""
 	}
 
+proc special_key_hold {} {
+
+	variable keycount
+
+	for {set i 0;} {$i <= $keycount} {incr i;} {
+			foreach {x y} [osd info "kb.$i" -mousecoord] {}
+			if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
+			set keypressed [osd info kb.$i.text -text]
+			puts $keypressed
+			
+			#if pressed a 2nd time deactivate the key
+			puts [osd info kb.$i.text -rgb]
+				
+			if {$keypressed=="ctrl" || $keypressed=="code" || $keypressed=="graph" || $keypressed=="shift"} {
+				key_matrix $i down;osd configure kb.$i -rgba 0x00ff88c0
+			}
+		}
+	}
+}
+
 
 proc key_handeler {mouse_state} {
 
@@ -106,7 +127,7 @@ proc key_handeler {mouse_state} {
 			set key_pressed $i
 			}
 		}
-	} else {osd configure kb.$key_pressed -rgba 0xffffffa0;key_matrix $key_pressed up}
+	} else {osd configure kb.$key_pressed -rgba 0xffffffc0;key_matrix $key_pressed up}
 }
 
 proc key_matrix {keynum state} {
