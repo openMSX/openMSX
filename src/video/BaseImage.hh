@@ -15,7 +15,8 @@ class BaseImage : private noncopyable
 public:
 	/**
 	 * Performs a sanity check on image size.
-	 * Throws MSXException if width or height is negative or excessively large.
+	 * Throws MSXException if width or height is excessively large.
+	 * Negative image sizes are valid and flip the image.
 	 */
 	static void checkSize(int width, int height);
 
