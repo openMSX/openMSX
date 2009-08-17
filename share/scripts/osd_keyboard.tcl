@@ -50,34 +50,35 @@ proc toggle_osd_keyboard {} {
 
 	osd create rectangle kb.bg -h 59 -w 164 -rgba 0x88888880
 
+	set key_height 10
+	set key_color 0xffffffc0
+
 	for {set y 0;} {$y <= [llength $rows]} {incr y;} {
 		set x 0
 		foreach {keys} [split [lindex $rows $y]  "|"] {
 			set key [split $keys "*"]
 			set key_text [lindex $key 0]
 			set key_width [lindex $key 1]
-
-			set keycolor 0xffffffc0
-
 			if {$key_width < 1} {set key_width 10;}
 
-
 			if {$key_text != "null"} {
-				osd create rectangle kb.$keycount	-relx $x \
-													-rely [expr $y*10] \
-													-relh 9 \
-													-relw $key_width \
-													-rgba $keycolor \
+				osd create rectangle kb.$keycount \
+					-relx $x \
+					-rely [expr $y * $key_height] \
+					-relh [expr $key_height - 1] \
+					-relw $key_width \
+					-rgba $key_color
 
-				osd create text kb.$keycount.text 	-x 0.1 \
-													-y 0.1 \
-													-text $key_text \
-													-size 4
-
-				#enter key special handeling
+				osd create text kb.$keycount.text \
+					-x 0.1 \
+					-y 0.1 \
+					-text $key_text \
+					-size 4
 
 				if {$key_text == "ret"} {
-					osd configure kb.$keycount -y -10 -w 6 -h 10
+					# "return" key special handeling
+					osd configure kb.$keycount \
+						-y -$key_height -w 6 -h $key_height
 				}
 
 				incr keycount
