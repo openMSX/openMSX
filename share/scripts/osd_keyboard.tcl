@@ -35,7 +35,7 @@ proc toggle_osd_keyboard {} {
 	bind_default "mouse button1 down"  {osd_keyboard::key_handeler true}
 	bind_default "mouse button1 up"    {osd_keyboard::key_handeler false}
 
-	bind_default "mouse button3 down"  {osd_keyboard::key_hold}
+	bind_default "mouse button3 down"  {osd_keyboard::key_hold_toggle}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
 	set rows {"f-1*28|f-2*28|f-3*28|f-4*28|f-5*28|null*48|select|stop|home|ins|del" \
@@ -101,13 +101,19 @@ proc toggle_osd_keyboard {} {
 	return ""
 }
 
-proc key_hold {} {
+proc key_hold_toggle {} {
 	variable keycount
 	for {set i 0} {$i < $keycount} {incr i} {
 			foreach {x y} [osd info "kb.$i" -mousecoord] {}
 			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
-				key_matrix $i down
-				osd configure kb.$i -rgba 0x00ff88c0
+				
+				if {[osd info kb.$i -rgba]==-64} {
+					key_matrix $i down
+					osd configure kb.$i -rgba 0x00ff88c0
+				} else {
+					key_matrix $i up
+					osd configure kb.$i -rgba 0xffffffc0
+					}
 			}
 	}
 }
