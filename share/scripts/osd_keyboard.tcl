@@ -89,15 +89,13 @@ proc toggle_osd_keyboard {} {
 			set total [expr $total + $key_width + 1]
 		}
 	}
-	#sorry dirty solution
-	incr keycount -1
 
 	return ""
 }
 
 proc key_hold {} {
 	variable keycount
-	for {set i 0;} {$i <= $keycount} {incr i;} {
+	for {set i 0;} {$i < $keycount} {incr i;} {
 			foreach {x y} [osd info "kb.$i" -mousecoord] {}
 			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 				key_matrix $i down;osd configure kb.$i -rgba 0x00ff88c0
@@ -110,7 +108,7 @@ proc key_handeler {mouse_state} {
 	variable key_pressed
 	#scan which key is down (can be optimized but for now it's ok)
 	if {$mouse_state} {
-		for {set i 0;} {$i <= $keycount} {incr i;} {
+		for {set i 0;} {$i < $keycount} {incr i;} {
 		foreach {x y} [osd info "kb.$i" -mousecoord] {}
 		if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 			osd configure kb.$i -rgba 0xffcc8880
