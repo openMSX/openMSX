@@ -13,17 +13,20 @@ variable key_pressed 0
 
 proc toggle_osd_keyboard {} {
 
-		if {![catch {osd info kb -rgba} errmsg]} {
-			osd destroy kb
-			unbind_default "mouse button1 down"
-			unbind_default "mouse button1 up"
-			return ""
+	#If exists destory/reset and exit
+	if {![catch {osd info kb -rgba} errmsg]} {
+		#destroy virtual keyboard
+		osd destroy kb
+		#unbind mouse buttons
+		unbind_default "mouse button1 down"
+		unbind_default "mouse button1 up"
+		unbind_default "mouse button3 down"
+		#reset keyboard matrix
+		for {set i 0;} {$i <= 8} {incr i;} {	
+			keymatrixup $i 255
 		}
-		
-		keyboard_init
-}
-
-proc keyboard_init {} {
+		return ""
+	}
 
 	variable mouse1_pressed false
 	variable keycount 0
@@ -89,12 +92,10 @@ proc keyboard_init {} {
 		incr keycount -1
 
 		return ""
-	}
+}
 
 proc key_hold {} {
-
 	variable keycount
-
 	for {set i 0;} {$i <= $keycount} {incr i;} {
 			foreach {x y} [osd info "kb.$i" -mousecoord] {}
 			if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
@@ -104,10 +105,8 @@ proc key_hold {} {
 }
 
 proc key_handeler {mouse_state} {
-
 	variable keycount
 	variable key_pressed
-
 	#scan which key is down (can be optimized but for now it's ok)
 	if {$mouse_state} {
 		for {set i 0;} {$i <= $keycount} {incr i;} {
@@ -122,11 +121,9 @@ proc key_handeler {mouse_state} {
 }
 
 proc key_matrix {keynum state} {
-
 	set key_pressed $keynum
-
 	set key [string trim "[osd info kb.$keynum.text -text]"]
-
+	
 	#how dirty is this?
 	set km keymatrix$state
 
