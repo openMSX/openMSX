@@ -1,11 +1,9 @@
 namespace eval osd_keyboard {
 
 # KNOWN ISSUES/TODO:
-# * Any other rendered than SDL doesn't display the keyboard background correctly
 # * "-" key doesn't work (needs escaping) shouldn't use the keymatrix command,
 #   but the 'type' command for all keys that are not on the same position in the matrix
 #   for all machines
-# * don't use the MSX resolution (do not use osd_widgets::msx_init), but use -scaled true
 # * lots more? :P
 
 #init vars
@@ -120,11 +118,11 @@ proc key_handeler {mouse_state} {
 	#scan which key is down (can be optimized but for now it's ok)
 	if {$mouse_state} {
 		for {set i 0} {$i < $keycount} {incr i} {
-		foreach {x y} [osd info "kb.$i" -mousecoord] {}
-		if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
-			osd configure kb.$i -rgba 0xffcc8880
-			key_matrix $i down
-			set key_pressed $i
+			foreach {x y} [osd info "kb.$i" -mousecoord] {}
+			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
+				osd configure kb.$i -rgba 0xffcc8880
+				key_matrix $i down
+				set key_pressed $i
 			}
 		}
 	} else {
