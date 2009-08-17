@@ -40,53 +40,63 @@ proc toggle_osd_keyboard {} {
 	bind_default "mouse button3 down"  {osd_keyboard::key_hold}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
-	set rows {"f-1*16|f-2*16|f-3*16|f-4*16|f-5*16|null*24|select|stop|home|ins|del" \
+	set rows {"f-1*28|f-2*28|f-3*28|f-4*28|f-5*28|null*48|select|stop|home|ins|del" \
 			 "esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|bs" \
-			 "tab*13|Q|W|E|R|T|Y|U|I|O|P|\[|]" \
-			 "ctrl*15|A|S|D|F|G|H|J|K|L|;|'|`|ret" \
-			 "shift*21|Z|X|C|V|B|N|M|,|.|/|dead|shift*21" \
-			 "null*21|caps|graph|space*87|code"}
+			 "tab*28|Q|W|E|R|T|Y|U|I|O|P|\[|]|return*28" \
+			 "ctrl*32|A|S|D|F|G|H|J|K|L|;|'|`|<--*24" \
+			 "shift*40|Z|X|C|V|B|N|M|,|.|/|dead|shift*36" \
+			 "null*40|caps|graph|space*158|code"}
 
-	#Draw Keyboard
-	osd_widgets::msx_init kb
+	# Keyboard layout constants.
+	set key_basewidth 18
+	set key_height 16
+	set key_hspace 2
+	set key_vspace 2
+	set board_hborder 4
+	set board_vborder 4
 
-	osd create rectangle kb.bg -h 59 -w 164 -rgba 0x88888880
-
-	set key_height 10
-	set key_color 0xffffffc0
-
+	# Create widgets.
+	set board_width \
+		[expr 15 * $key_basewidth + 14 * $key_hspace + 2 * $board_hborder]
+	set board_height \
+		[expr 6 * $key_height + 5 * $key_vspace + 2 * $board_vborder]
+	osd create rectangle kb \
+		-x [expr (320 - $board_width) / 2 ] \
+		-y 4 \
+		-w $board_width \
+		-h $board_height -scaled true -rgba 0x88888880
 	for {set y 0} {$y <= [llength $rows]} {incr y} {
-		set x 0
+		set x $board_hborder
 		foreach {keys} [split [lindex $rows $y]  "|"] {
 			set key [split $keys "*"]
 			set key_text [lindex $key 0]
 			set key_width [lindex $key 1]
-			if {$key_width < 1} {set key_width 10}
+			if {$key_width < 1} {set key_width $key_basewidth}
 
 			if {$key_text != "null"} {
 				osd create rectangle kb.$keycount \
-					-relx $x \
-					-rely [expr $y * $key_height] \
-					-relh [expr $key_height - 1] \
-					-relw $key_width \
-					-rgba $key_color
+					-x $x \
+					-y [expr $board_vborder + $y * ($key_height + $key_vspace)] \
+					-w $key_width \
+					-h $key_height \
+					-rgba 0xffffffc0
 
+				if {$key_text == "<--"} {
+					# Merge bottom part of "return" key with top part.
+					osd configure kb.$keycount \
+						-y [expr [osd info kb.$keycount -y] - $key_vspace] \
+						-h [expr [osd info kb.$keycount -h] + $key_vspace]
+				}
 				osd create text kb.$keycount.text \
 					-x 0.1 \
 					-y 0.1 \
 					-text $key_text \
-					-size 4
-
-				if {$key_text == "ret"} {
-					# "return" key special handeling
-					osd configure kb.$keycount \
-						-y -$key_height -w 6 -h $key_height
-				}
+					-size 8
 
 				incr keycount
 			}
 
-			set x [expr $x + $key_width + 1]
+			set x [expr $x + $key_width + $key_hspace]
 		}
 	}
 
@@ -203,7 +213,8 @@ proc key_matrix {keynum state} {
 		"stop" 	{$km 7 16}
 		"bs" 	{$km 7 32}
 		"select" {$km 7 64}
-		"ret" 	{$km 7 128}
+		"return" {$km 7 128}
+		"<--"	{$km 7 128}
 
 		"space" {$km 8 1}
 		"home" 	{$km 8 2}
