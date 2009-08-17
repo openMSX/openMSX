@@ -1,10 +1,12 @@
 namespace eval osd_keyboard {
 
-#KNOWN ISSUES
-# Any other rendered than SDL doesn't display the keyboard background correctly
-#
-# todo: a lot
-
+# KNOWN ISSUES/TODO:
+# * Any other rendered than SDL doesn't display the keyboard background correctly
+# * "-" key doesn't work (needs escaping) shouldn't use the keymatrix command,
+#   but the 'type' command for all keys that are not on the same position in the matrix
+#   for all machines
+# * don't use the MSX resolution (do not use osd_widgets::msx_init), but use -scaled true
+# * lots more? :P
 
 #init vars
 variable mouse1_pressed false
@@ -22,7 +24,7 @@ proc toggle_osd_keyboard {} {
 		unbind_default "mouse button1 up"
 		unbind_default "mouse button3 down"
 		#reset keyboard matrix
-		for {set i 0;} {$i <= 8} {incr i;} {
+		for {set i 0} {$i <= 8} {incr i} {
 			keymatrixup $i 255
 		}
 		return ""
@@ -32,10 +34,10 @@ proc toggle_osd_keyboard {} {
 	variable keycount 0
 
 	#bind stuff
-	bind_default "mouse button1 down" 	{osd_keyboard::key_handeler true}
-	bind_default "mouse button1 up" 	{osd_keyboard::key_handeler false}
+	bind_default "mouse button1 down"  {osd_keyboard::key_handeler true}
+	bind_default "mouse button1 up"    {osd_keyboard::key_handeler false}
 
-	bind_default "mouse button3 down" 	{osd_keyboard::key_hold}
+	bind_default "mouse button3 down"  {osd_keyboard::key_hold}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
 	set rows {"f-1*16|f-2*16|f-3*16|f-4*16|f-5*16|null*24|select|stop|home|ins|del" \
@@ -53,13 +55,13 @@ proc toggle_osd_keyboard {} {
 	set key_height 10
 	set key_color 0xffffffc0
 
-	for {set y 0;} {$y <= [llength $rows]} {incr y;} {
+	for {set y 0} {$y <= [llength $rows]} {incr y} {
 		set x 0
 		foreach {keys} [split [lindex $rows $y]  "|"] {
 			set key [split $keys "*"]
 			set key_text [lindex $key 0]
 			set key_width [lindex $key 1]
-			if {$key_width < 1} {set key_width 10;}
+			if {$key_width < 1} {set key_width 10}
 
 			if {$key_text != "null"} {
 				osd create rectangle kb.$keycount \
@@ -93,10 +95,11 @@ proc toggle_osd_keyboard {} {
 
 proc key_hold {} {
 	variable keycount
-	for {set i 0;} {$i < $keycount} {incr i;} {
+	for {set i 0} {$i < $keycount} {incr i} {
 			foreach {x y} [osd info "kb.$i" -mousecoord] {}
 			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
-				key_matrix $i down;osd configure kb.$i -rgba 0x00ff88c0
+				key_matrix $i down
+				osd configure kb.$i -rgba 0x00ff88c0
 			}
 	}
 }
@@ -106,7 +109,7 @@ proc key_handeler {mouse_state} {
 	variable key_pressed
 	#scan which key is down (can be optimized but for now it's ok)
 	if {$mouse_state} {
-		for {set i 0;} {$i < $keycount} {incr i;} {
+		for {set i 0} {$i < $keycount} {incr i} {
 		foreach {x y} [osd info "kb.$i" -mousecoord] {}
 		if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 			osd configure kb.$i -rgba 0xffcc8880
@@ -114,7 +117,10 @@ proc key_handeler {mouse_state} {
 			set key_pressed $i
 			}
 		}
-	} else {osd configure kb.$key_pressed -rgba 0xffffffc0;key_matrix $key_pressed up}
+	} else {
+		osd configure kb.$key_pressed -rgba 0xffffffc0
+		key_matrix $key_pressed up
+	}
 }
 
 proc key_matrix {keynum state} {
@@ -210,6 +216,7 @@ proc key_matrix {keynum state} {
 }
 
 namespace export toggle_osd_keyboard
-}
+
+};# namespace osd_keyboard
 
 namespace import osd_keyboard::*
