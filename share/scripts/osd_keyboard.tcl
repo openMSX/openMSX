@@ -1,16 +1,15 @@
 namespace eval osd_keyboard {
 
 #KNOWN ISSUES
-# [ and ] keys don't work as expected
 # Any other rendered than SDL doesn't display the keyboard background correctly
 #
 # todo: a lot
 
 
-	#init vars
-	variable mouse1_pressed false
-	variable keycount 0
-	variable key_pressed 0
+#init vars
+variable mouse1_pressed false
+variable keycount 0
+variable key_pressed 0
 
 proc toggle_osd_keyboard {} {
 
@@ -34,12 +33,12 @@ proc keyboard_init {} {
 	bind_default "mouse button1 up" 	{osd_keyboard::key_handeler false}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
-	set rows {"f-1*15|f-2*15|f-3*15|f-4*15|f-5*15|null*52|stop*15|select*15" \
+	set rows {"f-1*16|f-2*16|f-3*16|f-4*16|f-5*16|null*24|select|stop|home|ins|del" \
 			 "esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|bs" \
 			 "tab*13|Q|W|E|R|T|Y|U|I|O|P|\[|]" \
 			 "ctrl*15|A|S|D|F|G|H|J|K|L|;|'|`|ret" \
 			 "shift*21|Z|X|C|V|B|N|M|,|.|/|dead|shift*21" \
-			 "null*21|graph|space*87|code"}
+			 "null*21|caps|graph|space*87|code"}
 
 	#Draw Keyboard
 	osd_widgets::msx_init kb
@@ -87,7 +86,10 @@ proc keyboard_init {} {
 		}
 		#sorry dirty solution
 		incr keycount -1
+
+		return ""
 	}
+
 
 proc key_handeler {mouse_state} {
 
@@ -133,8 +135,8 @@ proc key_matrix {keynum state} {
 		"-" 	{$km 1 4}
 		"=" 	{$km 1 8}
 		"\\" 	{$km 1 16}
-		"[" 	{$km 1 32}
-		"]" 	{$km 1 64}
+		"\[" 	{$km 1 32}
+		"\]" 	{$km 1 64}
 		";" 	{$km 1 128}
 
 		"'" 	{$km 2 1}
@@ -176,8 +178,8 @@ proc key_matrix {keynum state} {
 		"shift" {$km 6 1}
 		"ctrl" 	{$km 6 2}
 		"graph" {$km 6 4}
-		"code" 	{$km 6 8}
-		"caps" 	{$km 6 16}
+		"caps" 	{$km 6 8}
+		"code" 	{$km 6 16}
 		"f-1" 	{$km 6 32}
 		"f-2" 	{$km 6 64}
 		"f-3" 	{$km 6 128}
