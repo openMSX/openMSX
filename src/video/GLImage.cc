@@ -81,10 +81,12 @@ GLImage::GLImage(const string& filename, double scalefactor)
 	texture = loadTexture(filename, width, height, texCoord);
 	width  = int(scalefactor * width);
 	height = int(scalefactor * height);
+	checkSize(width, height);
 }
 
 GLImage::GLImage(const string& filename, int width_, int height_)
 {
+	checkSize(width_, height_);
 	texture = loadTexture(filename, width, height, texCoord);
 	width  = width_;
 	height = height_;
@@ -92,6 +94,7 @@ GLImage::GLImage(const string& filename, int width_, int height_)
 
 GLImage::GLImage(int width_, int height_, byte alpha, byte r_, byte g_, byte b_)
 {
+	checkSize(width_, height_);
 	texture = 0;
 	width  = width_;
 	height = height_;

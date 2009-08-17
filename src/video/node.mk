@@ -16,7 +16,7 @@ SRC_HDR:= \
 	VideoSystem Display VideoLayer \
 	Layer \
 	DummyVideoSystem \
-	SDLImage \
+	SDLImage BaseImage \
 	FrameSource RawFrame DeinterlacedFrame DoubledFrame PostProcessor \
 	OutputSurface VisibleSurface SDLVisibleSurface \
 	SDLOffScreenSurface \
@@ -54,8 +54,7 @@ HDR_ONLY:= \
 	HQCommon \
 	VideoSystemChangeListener \
 	LayerListener \
-	VideoSource \
-	BaseImage
+	VideoSource
 
 DIST:= \
 	HQ2xScaler-1x1to2x2.nn \

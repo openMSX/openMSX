@@ -164,6 +164,7 @@ static SDL_Surface* loadImage(const string& filename, double scaleFactor)
 	SDL_Surface* picture = SDLImage::readImage(filename);
 	int width  = int(picture->w * scaleFactor);
 	int height = int(picture->h * scaleFactor);
+	BaseImage::checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
 		SDL_FreeSurface(picture);
 		return NULL;
@@ -179,6 +180,7 @@ static SDL_Surface* loadImage(const string& filename, double scaleFactor)
 static SDL_Surface* loadImage(
 	const string& filename, int width, int height)
 {
+	BaseImage::checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
 		return NULL;
 	}
@@ -234,6 +236,7 @@ SDLImage::SDLImage(int width, int height,
                    byte alpha, byte r, byte g, byte b)
 	: workImage(NULL), flipX(width < 0), flipY(height < 0)
 {
+	checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
 		image = NULL;
 		return;

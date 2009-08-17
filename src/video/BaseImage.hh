@@ -13,6 +13,12 @@ class OutputSurface;
 class BaseImage : private noncopyable
 {
 public:
+	/**
+	 * Performs a sanity check on image size.
+	 * Throws MSXException if width or height is negative or excessively large.
+	 */
+	static void checkSize(int width, int height);
+
 	virtual ~BaseImage() {}
 	virtual void draw(OutputSurface& output, int x, int y,
 	                  byte alpha = 255) = 0;
