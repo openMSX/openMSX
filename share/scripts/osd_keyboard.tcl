@@ -22,7 +22,7 @@ proc toggle_osd_keyboard {} {
 		unbind_default "mouse button1 up"
 		unbind_default "mouse button3 down"
 		#reset keyboard matrix
-		for {set i 0;} {$i <= 8} {incr i;} {	
+		for {set i 0;} {$i <= 8} {incr i;} {
 			keymatrixup $i 255
 		}
 		return ""
@@ -53,17 +53,17 @@ proc toggle_osd_keyboard {} {
 	for {set y 0;} {$y <= [llength $rows]} {incr y;} {
 		set x 0
 		set total 0
-			foreach {keys} [split [lindex $rows $y]  "|"] {
-				set key [split $keys "*"]
-					set key_text [lindex $key 0]
-					set key_width [lindex $key 1]
+		foreach {keys} [split [lindex $rows $y]  "|"] {
+			set key [split $keys "*"]
+			set key_text [lindex $key 0]
+			set key_width [lindex $key 1]
 
-					set keycolor 0xffffffc0
+			set keycolor 0xffffffc0
 
-					if {$key_width<1} {set key_width 10;}
+			if {$key_width < 1} {set key_width 10;}
 
 
-		if {$key_text!="null"} {
+			if {$key_text != "null"} {
 				osd create rectangle kb.$keycount	-relx $total \
 													-rely [expr $y*10] \
 													-relh 9 \
@@ -77,28 +77,29 @@ proc toggle_osd_keyboard {} {
 
 				#enter key special handeling
 
-			if {$key_text=="ret"} {
-				osd configure kb.$keycount -x [expr $x-13] -y [expr $y-13] -w 6 -h 10
-			}
+				if {$key_text == "ret"} {
+					osd configure kb.$keycount \
+						-x [expr $x - 13] -y [expr $y - 13] -w 6 -h 10
+				}
 
 				incr x
 				incr keycount
-		}
-
-			set total [expr $total+$key_width+1]
 			}
-		}
-		#sorry dirty solution
-		incr keycount -1
 
-		return ""
+			set total [expr $total + $key_width + 1]
+		}
+	}
+	#sorry dirty solution
+	incr keycount -1
+
+	return ""
 }
 
 proc key_hold {} {
 	variable keycount
 	for {set i 0;} {$i <= $keycount} {incr i;} {
 			foreach {x y} [osd info "kb.$i" -mousecoord] {}
-			if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
+			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 				key_matrix $i down;osd configure kb.$i -rgba 0x00ff88c0
 			}
 	}
@@ -111,7 +112,7 @@ proc key_handeler {mouse_state} {
 	if {$mouse_state} {
 		for {set i 0;} {$i <= $keycount} {incr i;} {
 		foreach {x y} [osd info "kb.$i" -mousecoord] {}
-		if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
+		if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 			osd configure kb.$i -rgba 0xffcc8880
 			key_matrix $i down
 			set key_pressed $i
@@ -123,7 +124,7 @@ proc key_handeler {mouse_state} {
 proc key_matrix {keynum state} {
 	set key_pressed $keynum
 	set key [string trim "[osd info kb.$keynum.text -text]"]
-	
+
 	#how dirty is this?
 	set km keymatrix$state
 
