@@ -3310,6 +3310,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\video\BaseImage.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\video\BaseImage.hh"
 				>
 			</File>
