@@ -11,6 +11,22 @@
 
 namespace StringOp
 {
+	class Builder
+	{
+	public:
+		template <typename T> Builder& operator<<(const T& t) {
+			buf << t;
+			return *this;
+		}
+
+		operator std::string() {
+			return buf.str();
+		}
+
+	private:
+		std::ostringstream buf;
+	};
+
 	template <typename T> std::string toString(const T& t)
 	{
 		std::ostringstream s;
