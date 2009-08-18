@@ -81,8 +81,8 @@ static Partition* checkImpl(SectorAccessibleDisk& disk, unsigned partition, byte
 	// check valid partition number
 	Partition* p = reinterpret_cast<Partition*>(&buf[14 + (31 - partition) * 16]);
 	if (read32LE(p->start4) == 0) {
-		throw CommandException(
-			"No partition number " + StringOp::toString(partition));
+		throw CommandException(StringOp::Builder() <<
+			"No partition number " << partition);
 	}
 	return p;
 }

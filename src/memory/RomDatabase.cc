@@ -242,11 +242,11 @@ static void initDatabase(CliComm& cliComm)
 			"This may cause incorrect ROM mapper types to be used.");
 	}
 	if (!unknownTypes.empty()) {
-		string output = "Unknown mapper types in software database: ";
+		StringOp::Builder output;
+		output << "Unknown mapper types in software database: ";
 		for (UnknownTypes::iterator it = unknownTypes.begin();
 		     it != unknownTypes.end(); ++it) {
-			output += it->first +
-			       " (" + StringOp::toString(it->second) + "x); ";
+			output << it->first << " (" << it->second << "x); ";
 		}
 		cliComm.printWarning(output);
 	}

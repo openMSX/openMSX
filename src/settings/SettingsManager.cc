@@ -118,7 +118,7 @@ string SettingsManager::makeUnique(const string& name) const
 	string result = name;
 	unsigned n = 0;
 	while (getByName(result)) {
-		result = name + " (" + StringOp::toString(++n) + ")";
+		result = StringOp::Builder() << name << " (" << ++n << ')';
 	}
 	return result;
 }

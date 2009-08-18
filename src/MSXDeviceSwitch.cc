@@ -35,8 +35,8 @@ void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 {
 	if (devices[id]) {
 		// TODO implement multiplexing
-		throw MSXException("Already have a switched device with id " +
-		                   StringOp::toString(int(id)));
+		throw MSXException(StringOp::Builder() <<
+			"Already have a switched device with id " << int(id));
 	}
 	devices[id] = device;
 	if (count == 0) {

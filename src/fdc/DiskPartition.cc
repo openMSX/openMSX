@@ -20,7 +20,7 @@ static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
 	if (Disk* dsk = dynamic_cast<Disk*>(disk)) {
 		return DiskName(dsk->getName().getFilename(),
-		                ':' + StringOp::toString(partition));
+		                StringOp::Builder() << ':' << partition);
 	} else {
 		return DiskName(Filename("dummy"));
 	}

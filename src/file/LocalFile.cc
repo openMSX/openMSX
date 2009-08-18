@@ -125,16 +125,16 @@ byte* LocalFile::mmap()
 		assert(!hMmap);
 		hMmap = CreateFileMapping(hFile, NULL, PAGE_WRITECOPY, 0, 0, NULL);
 		if (!hMmap) {
-			throw FileException("CreateFileMapping failed: " +
-				StringOp::toString(GetLastError()));
+			throw FileException(StringOp::Builder() <<
+				"CreateFileMapping failed: " << GetLastError());
 		}
 		mmem = static_cast<byte*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
 		if (!mmem) {
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
 			hMmap = NULL;
-			throw FileException("MapViewOfFile failed: " +
-				StringOp::toString(gle));
+			throw FileException(StringOp::Builder() <<
+				"MapViewOfFile failed: " << gle);
 		}
 	}
 	return mmem;

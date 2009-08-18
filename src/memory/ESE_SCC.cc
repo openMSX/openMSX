@@ -44,7 +44,6 @@
  * 6000-7FFF   X     X     .    .    .
  * 8000-9FFF   X     .     .    .    X
  * A000-BFFF   X     .     .    .    .
- *
  */
 
 #include "ESE_SCC.hh"
@@ -64,9 +63,10 @@ static SRAM* createSRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException("SRAM size for " + name +
-			" should be 128, 256, 512 or 1024kB and not " +
-			StringOp::toString(sramSize) + "kB!");
+		throw MSXException(StringOp::Builder() <<
+			"SRAM size for " << name <<
+			" should be 128, 256, 512 or 1024kB and not " <<
+			sramSize << "kB!");
 	}
 	if (!withSCSI && sramSize == 1024) {
 		throw MSXException("1024kB SRAM is only allowed in WAVE-SCSI!");

@@ -46,7 +46,7 @@ void MSXDevice::initName(const string& name)
 	if (motherBoard.findDevice(deviceName)) {
 		unsigned n = 0;
 		do {
-			deviceName = name + " (" + StringOp::toString(++n) + ")";
+			deviceName = StringOp::Builder() << name << " (" << ++n << ')';
 		} while (motherBoard.findDevice(deviceName));
 	}
 }

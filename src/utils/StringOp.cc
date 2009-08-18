@@ -12,6 +12,52 @@ using std::vector;
 
 namespace StringOp {
 
+// class Builder
+
+Builder::Builder()
+{
+}
+
+Builder::~Builder()
+{
+}
+
+Builder& Builder::operator<<(const std::string& t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(const char* t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(unsigned t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(unsigned long t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(int t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(char t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(double t)
+{
+	buf << t; return *this;
+}
+
+Builder::operator std::string() const
+{
+	return buf.str();
+}
+
+
+
 std::string toHexString(unsigned char t, int width)
 {
 	// promote byte to int before printing

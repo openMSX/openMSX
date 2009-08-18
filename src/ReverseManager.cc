@@ -77,17 +77,17 @@ string ReverseManager::stop()
 
 string ReverseManager::status()
 {
-	string result;
+	StringOp::Builder result;
 	unsigned totalSize = 0;
 	for (Chunks::const_iterator it = history.chunks.begin();
 	     it != history.chunks.end(); ++it) {
 		const ReverseChunk& chunk = it->second;
-		result += StringOp::toString(it->first) + ' ';
-		result += StringOp::toString((chunk.time - EmuTime::zero).toDouble());
-		result += " (" + StringOp::toString(chunk.savestate->getLength()) + ")\n";
+		result << it->first << ' '
+		       << (chunk.time - EmuTime::zero).toDouble()
+		       << " (" << chunk.savestate->getLength() << ")\n";
 		totalSize += chunk.savestate->getLength();
 	}
-	result += "total size: " + StringOp::toString(totalSize) + '\n';
+	result << "total size: " << totalSize << '\n';
 	return result;
 }
 

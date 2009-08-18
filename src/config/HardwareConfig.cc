@@ -387,7 +387,7 @@ void HardwareConfig::setName(const string& proposedName)
 	} else {
 		unsigned n = 0;
 		do {
-			name = proposedName + " (" + StringOp::toString(++n) + ")";
+			name = StringOp::Builder() << proposedName << " (" << ++n << ')';
 		} while (motherBoard.findExtension(name));
 	}
 }

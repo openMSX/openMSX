@@ -66,8 +66,8 @@ GLHQScaler::GLHQScaler()
 	byte buffer[4 * 4 * 4 * 4096];
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-		string offsetsName = "shaders/HQ" + StringOp::toString(n) +
-		                     "xOffsets.dat";
+		string offsetsName = StringOp::Builder() <<
+			"shaders/HQ" << n << "xOffsets.dat";
 		File offsetsFile(context.resolve(*controller, offsetsName));
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
@@ -83,8 +83,8 @@ GLHQScaler::GLHQScaler()
 			     GL_UNSIGNED_BYTE,   // type
 			     buffer);            // data
 
-		string weightsName = "shaders/HQ" + StringOp::toString(n) +
-		                     "xWeights.dat";
+		string weightsName = StringOp::Builder() <<
+			"shaders/HQ" << n << "xWeights.dat";
 		File weightsFile(context.resolve(*controller, weightsName));
 		weightTexture[i].reset(new Texture());
 		weightTexture[i]->setWrapMode(false);

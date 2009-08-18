@@ -282,8 +282,8 @@ PipeConnection::PipeConnection(CommandController& commandController,
 
 	shutdownEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
 	if (shutdownEvent == NULL) {
-		throw FatalError("Error creating shutdown event: " +
-			StringOp::toString(GetLastError()));
+		throw FatalError(StringOp::Builder() <<
+			"Error creating shutdown event: " << GetLastError());
 	}
 
 	startOutput();
@@ -302,8 +302,8 @@ void InitOverlapped(LPOVERLAPPED overlapped)
 	ZeroMemory(overlapped, sizeof(*overlapped));
 	overlapped->hEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
 	if (overlapped->hEvent == NULL) {
-		throw FatalError("Error creating overlapped event: " +
-			StringOp::toString(GetLastError()));
+		throw FatalError(StringOp::Builder() <<
+			"Error creating overlapped event: " << GetLastError());
 	}
 }
 
@@ -340,8 +340,8 @@ void PipeConnection::run()
 			break; // Shutdown
 		}
 		else {
-			throw FatalError("WaitForMultipleObjects returned unexpectedly: " +
-				StringOp::toString(wait));
+			throw FatalError(StringOp::Builder() <<
+				"WaitForMultipleObjects returned unexpectedly: " << wait);
 		}
 	}
 

@@ -463,7 +463,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString("bp#" + StringOp::toString(bp->getId()));
+	result.setString(StringOp::Builder() << "bp#" << bp->getId());
 	debugger.motherBoard.getCPUInterface().insertBreakPoint(bp);
 }
 
@@ -518,7 +518,7 @@ void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
 	     it != breakPoints.end(); ++it) {
 		const BreakPoint& bp = *it->second;
 		TclObject line(result.getInterpreter());
-		line.addListElement("bp#" + StringOp::toString(bp.getId()));
+		line.addListElement(StringOp::Builder() << "bp#" << bp.getId());
 		line.addListElement("0x" + StringOp::toHexString(bp.getAddress(), 4));
 		line.addListElement(bp.getCondition());
 		line.addListElement(bp.getCommand());
@@ -593,7 +593,7 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString("wp#" + StringOp::toString(wp->getId()));
+	result.setString(StringOp::Builder() << "wp#" << wp->getId());
 	debugger.motherBoard.getCPUInterface().setWatchPoint(wp);
 }
 
@@ -632,7 +632,7 @@ void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
 	     it != watchPoints.end(); ++it) {
 		const WatchPoint& wp = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement("wp#" + StringOp::toString(wp.getId()));
+		line.addListElement(StringOp::Builder() << "wp#" << wp.getId());
 		string type;
 		switch (wp.getType()) {
 		case WatchPoint::READ_IO:
@@ -697,7 +697,7 @@ void DebugCmd::setCondition(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString("cond#" + StringOp::toString(dc->getId()));
+	result.setString(StringOp::Builder() << "cond#" << dc->getId());
 	debugger.motherBoard.getCPUInterface().setCondition(dc);
 }
 
@@ -736,7 +736,7 @@ void DebugCmd::listConditions(const vector<TclObject*>& /*tokens*/,
 	     it != conditions.end(); ++it) {
 		const DebugCondition& cond = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement("cond#" + StringOp::toString(cond.getId()));
+		line.addListElement(StringOp::Builder() << "cond#" << cond.getId());
 		line.addListElement(cond.getCondition());
 		line.addListElement(cond.getCommand());
 		res += line.getString() + '\n';
@@ -824,7 +824,7 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString("pp#" + StringOp::toString(bp->getId()));
+	result.setString(StringOp::Builder() << "pp#" << bp->getId());
 	debugger.insertProbeBreakPoint(bp);
 }
 void DebugCmd::probeRemoveBreakPoint(const vector<TclObject*>& tokens,
@@ -844,7 +844,7 @@ void DebugCmd::probeListBreakPoints(const vector<TclObject*>& /*tokens*/,
 	     it != debugger.probeBreakPoints.end(); ++it) {
 		const ProbeBreakPoint& bp = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement("pp#" + StringOp::toString(bp.getId()));
+		line.addListElement(StringOp::Builder() << "pp#" << bp.getId());
 		line.addListElement(bp.getProbe().getName());
 		line.addListElement(bp.getCondition());
 		line.addListElement(bp.getCommand());
@@ -1100,7 +1100,7 @@ set<string> DebugCmd::getBreakPointIdsAsStringSet() const
 	set<string> bpids;
 	for (BreakPoints::const_iterator it = breakPoints.begin();
 	     it != breakPoints.end(); ++it) {
-		bpids.insert("bp#" + StringOp::toString((*it->second).getId()));
+		bpids.insert(StringOp::Builder() << "bp#" << it->second->getId());
 	}
 	return bpids;
 }
@@ -1111,7 +1111,7 @@ set<string> DebugCmd::getWatchPointIdsAsStringSet() const
 	set<string> wpids;
 	for (MSXCPUInterface::WatchPoints::const_iterator it = watchPoints.begin();
 	     it != watchPoints.end(); ++it) {
-		wpids.insert("wp#" + StringOp::toString((*it)->getId()));
+		wpids.insert(StringOp::Builder() << "wp#" << (*it)->getId());
 	}
 	return wpids;
 }
@@ -1122,7 +1122,7 @@ set<string> DebugCmd::getConditionIdsAsStringSet() const
 	set<string> condids;
 	for (MSXCPUInterface::Conditions::const_iterator it = conditions.begin();
 	     it != conditions.end(); ++it) {
-		condids.insert("cond#" + StringOp::toString((*it)->getId()));
+		condids.insert(StringOp::Builder() << "cond#" << (*it)->getId());
 	}
 	return condids;
 }

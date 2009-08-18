@@ -116,12 +116,13 @@ WD33C93::WD33C93(MSXMotherBoard& motherBoard, const XMLElement& config)
 		const XMLElement& target = **it;
 		unsigned id = target.getAttributeAsInt("id");
 		if (id >= MAX_DEV) {
-			throw MSXException(
-				"Invalid SCSI id: " + StringOp::toString(id) +
-				" (should be 0.." + StringOp::toString(MAX_DEV - 1) + ")");
+			throw MSXException(StringOp::Builder() <<
+				"Invalid SCSI id: " << id <<
+				" (should be 0.." << MAX_DEV - 1 << ')');
 		}
 		if (dev[id].get()) {
-			throw MSXException("Duplicate SCSI id: " + StringOp::toString(id));
+			throw MSXException(StringOp::Builder() <<
+				"Duplicate SCSI id: " << id);
 		}
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();

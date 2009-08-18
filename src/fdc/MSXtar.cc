@@ -89,33 +89,33 @@ void MSXtar::parseBootSector(const byte* buf)
 	const MSXBootSector* boot = reinterpret_cast<const MSXBootSector*>(buf);
 	unsigned nbSectors = rdsh(boot->nrsectors);
 	if (nbSectors == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of sectors: " +
-			StringOp::toString(nbSectors));
+		throw MSXException(StringOp::Builder() <<
+			"Illegal number of sectors: " << nbSectors);
 	}
 	unsigned nbSides = rdsh(boot->nrsides);
 	if (nbSides == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of sides: " +
-			StringOp::toString(nbSides));
+		throw MSXException(StringOp::Builder() <<
+			"Illegal number of sides: " << nbSides);
 	}
 	unsigned nbFats = boot->nrfats[0];
 	if (nbFats == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of FATs: " +
-			StringOp::toString(nbFats));
+		throw MSXException(StringOp::Builder() <<
+			"Illegal number of FATs: " << nbFats);
 	}
 	sectorsPerFat = rdsh(boot->sectorsfat);
 	if (sectorsPerFat == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number sectors per FAT: " +
-			StringOp::toString(sectorsPerFat));
+		throw MSXException(StringOp::Builder() <<
+			"Illegal number sectors per FAT: " << sectorsPerFat);
 	}
 	unsigned nbRootDirSectors = rdsh(boot->direntries) / 16;
 	if (nbRootDirSectors == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of root dir sectors: " +
-			StringOp::toString(nbRootDirSectors));
+		throw MSXException(StringOp::Builder() <<
+			"Illegal number of root dir sectors: " << nbRootDirSectors);
 	}
 	sectorsPerCluster = boot->spcluster[0];
 	if (sectorsPerCluster == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of sectors per cluster: " +
-			StringOp::toString(sectorsPerCluster));
+		throw MSXException(StringOp::Builder() <<
+			"Illegal number of sectors per cluster: " << sectorsPerCluster);
 	}
 	rootDirStart = 1 + nbFats * sectorsPerFat;
 	chrootSector = rootDirStart;
@@ -699,7 +699,7 @@ void MSXtar::changeTime(string resultFile, MSXDirEntry& direntry)
 
 string MSXtar::dir()
 {
-	string result;
+	StringOp::Builder result;
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		byte buf[SECTOR_SIZE];
 		readLogicalSector(sector, buf);
@@ -711,16 +711,16 @@ string MSXtar::dir()
 				// filename first (in condensed form for human readablitly)
 				string tmp = condensName(direntry[i]);
 				tmp.resize(13, ' ');
-				result += tmp;
+				result << tmp;
 				// attributes
-				result += (direntry[i].attrib & T_MSX_DIR  ? "d" : "-");
-				result += (direntry[i].attrib & T_MSX_READ ? "r" : "-");
-				result += (direntry[i].attrib & T_MSX_HID  ? "h" : "-");
-				result += (direntry[i].attrib & T_MSX_VOL  ? "v" : "-"); // TODO check if this is the output of files,l
-				result += (direntry[i].attrib & T_MSX_ARC  ? "a" : "-"); // TODO check if this is the output of files,l
-				result += "  ";
+				result << (direntry[i].attrib & T_MSX_DIR  ? 'd' : '-')
+				       << (direntry[i].attrib & T_MSX_READ ? 'r' : '-')
+				       << (direntry[i].attrib & T_MSX_HID  ? 'h' : '-')
+				       << (direntry[i].attrib & T_MSX_VOL  ? 'v' : '-') // TODO check if this is the output of files,l
+				       << (direntry[i].attrib & T_MSX_ARC  ? 'a' : '-') // TODO check if this is the output of files,l
+				       << "  ";
 				// filesize
-				result += StringOp::toString(rdlg(direntry[i].size)) + "\n";
+				result << rdlg(direntry[i].size) << '\n';
 			}
 		}
 	}

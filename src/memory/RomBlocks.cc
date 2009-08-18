@@ -17,10 +17,9 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	, nrBlocks(rom->getSize() / BANK_SIZE)
 {
 	if ((nrBlocks * BANK_SIZE) != rom->getSize()) {
-		throw MSXException(
-			"(uncompressed) ROM image filesize must be a multiple of " +
-			StringOp::toString(BANK_SIZE / 1024) + " kB (for this "
-			"mapper type).");
+		throw MSXException(StringOp::Builder() <<
+			"(uncompressed) ROM image filesize must be a multiple of " <<
+			BANK_SIZE / 1024 << " kB (for this mapper type).");
 	}
 	// by default no extra mappable memory block
 	extraMem = NULL;

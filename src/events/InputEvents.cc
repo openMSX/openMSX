@@ -50,7 +50,8 @@ void KeyEvent::toStringImpl(TclObject& result) const
 	result.addListElement("keyb");
 	result.addListElement(Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
-		result.addListElement("unicode" + StringOp::toString(getUnicode()));
+		result.addListElement(StringOp::Builder() <<
+			"unicode" << getUnicode());
 	}
 }
 
@@ -103,7 +104,7 @@ unsigned MouseButtonEvent::getButton() const
 void MouseButtonEvent::toStringHelper(TclObject& result) const
 {
 	result.addListElement("mouse");
-	result.addListElement("button" + StringOp::toString(getButton()));
+	result.addListElement(StringOp::Builder() << "button" << getButton());
 }
 
 bool MouseButtonEvent::lessImpl(const Event& other) const
@@ -191,7 +192,7 @@ unsigned JoystickEvent::getJoystick() const
 
 void JoystickEvent::toStringHelper(TclObject& result) const
 {
-	result.addListElement("joy" + StringOp::toString(getJoystick() + 1));
+	result.addListElement(StringOp::Builder() << "joy" << getJoystick() + 1);
 }
 
 bool JoystickEvent::lessImpl(const Event& other) const
@@ -220,7 +221,7 @@ unsigned JoystickButtonEvent::getButton() const
 void JoystickButtonEvent::toStringHelper(TclObject& result) const
 {
 	JoystickEvent::toStringHelper(result);
-	result.addListElement("button" + StringOp::toString(getButton()));
+	result.addListElement(StringOp::Builder() << "button" << getButton());
 }
 
 bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
@@ -281,7 +282,7 @@ short JoystickAxisMotionEvent::getValue() const
 void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
 {
 	toStringHelper(result);
-	result.addListElement("axis" + StringOp::toString(getAxis()));
+	result.addListElement(StringOp::Builder() << "axis" << getAxis());
 	result.addListElement(getValue());
 }
 

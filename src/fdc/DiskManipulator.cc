@@ -354,9 +354,8 @@ void DiskManipulator::create(const vector<string>& tokens)
 	unsigned totalSectors = 0;
 	for (unsigned i = 3; i < tokens.size(); ++i) {
 		if (sizes.size() >= MAX_PARTITIONS) {
-			throw CommandException(
-				"Maximum number of partitions is " +
-				StringOp::toString(MAX_PARTITIONS));
+			throw CommandException(StringOp::Builder() <<
+				"Maximum number of partitions is " << MAX_PARTITIONS);
 		}
 		char* q;
 		int sectors = strtol(tokens[i].c_str(), &q, 0);

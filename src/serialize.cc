@@ -147,11 +147,9 @@ void InputArchiveBase<Derived>::serialize_blob(
 			tmp = Base64::decode(tmp);
 		}
 		if (tmp.size() != len) {
-			throw XMLException(
-				"Length of decoded blob: " +
-				StringOp::toString(tmp.size()) +
-				" not identical to expected value: " +
-				StringOp::toString(len));
+			throw XMLException(StringOp::Builder()
+				<< "Length of decoded blob: " << tmp.size()
+				<< " not identical to expected value: " << len);
 		}
 		memcpy(data, tmp.data(), len);
 	} else {

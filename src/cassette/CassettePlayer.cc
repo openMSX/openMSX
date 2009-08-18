@@ -628,7 +628,7 @@ TapeCommand::TapeCommand(CommandController& commandController,
 
 string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 {
-	string result;
+	StringOp::Builder result;
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
@@ -639,7 +639,7 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 		TclObject options(getCommandController().getInterpreter());
 		options.addListElement(cassettePlayer.getStateString());
 		tmp.addListElement(options);
-		result += tmp.getString();
+		result << tmp.getString();
 
 	} else if (tokens[1] == "new") {
 		string filename = (tokens.size() == 3)
@@ -647,12 +647,12 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 		                : FileOperations::getNextNumberedFileName(
 		                         "taperecordings", "openmsx", ".wav");
 		cassettePlayer.recordTape(Filename(filename), time);
-		result += "Created new cassette image file: " + filename
-		       + ", inserted it and set recording mode.";
+		result << "Created new cassette image file: " << filename
+		       << ", inserted it and set recording mode.";
 
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
-			result += "Changing tape";
+			result << "Changing tape";
 			Filename filename(tokens[2], getCommandController());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
@@ -662,10 +662,10 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
 		if (tokens[2] == "on") {
 			cassettePlayer.setMotorControl(true, time);
-			result += "Motor control enabled.";
+			result << "Motor control enabled.";
 		} else if (tokens[2] == "off") {
 			cassettePlayer.setMotorControl(false, time);
-			result += "Motor control disabled.";
+			result << "Motor control disabled.";
 		} else {
 			throw SyntaxError();
 		}
@@ -674,16 +674,16 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 		throw SyntaxError();
 
 	} else if (tokens[1] == "motorcontrol") {
-		result += "Motor control is ";
-		result += cassettePlayer.motorControl ? "on" : "off";
+		result << "Motor control is "
+		       << (cassettePlayer.motorControl ? "on" : "off");
 
 	} else if (tokens[1] == "record") {
-			result += "TODO: implement this... (sorry)";
+			result << "TODO: implement this... (sorry)";
 
 	} else if (tokens[1] == "play") {
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
-				result += "Play mode set, rewinding tape.";
+				result << "Play mode set, rewinding tape.";
 				cassettePlayer.playTape(
 					cassettePlayer.getImageName(), time);
 			} catch (MSXException& e) {
@@ -693,17 +693,17 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 			throw CommandException("No tape inserted or tape at end!");
 		} else {
 			// PLAY mode
-			result += "Already in play mode.";
+			result << "Already in play mode.";
 		}
 
 	} else if (tokens[1] == "eject") {
-		result += "Tape ejected";
+		result << "Tape ejected";
 		cassettePlayer.removeTape(time);
 
 	} else if (tokens[1] == "rewind") {
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
-				result += "First stopping recording... ";
+				result << "First stopping recording... ";
 				cassettePlayer.playTape(
 					cassettePlayer.getImageName(), time);
 			} catch (MSXException& e) {
@@ -711,17 +711,17 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 			}
 		}
 		cassettePlayer.rewind(time);
-		result += "Tape rewound";
+		result << "Tape rewound";
 
 	} else if (tokens[1] == "getpos") {
-		result += StringOp::toString(cassettePlayer.getTapePos(time));
+		result << cassettePlayer.getTapePos(time);
 
 	} else if (tokens[1] == "getlength") {
-		result += StringOp::toString(cassettePlayer.getTapeLength(time));
+		result << cassettePlayer.getTapeLength(time);
 
 	} else {
 		try {
-			result += "Changing tape";
+			result << "Changing tape";
 			Filename filename(tokens[1], getCommandController());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {

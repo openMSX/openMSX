@@ -21,7 +21,8 @@ std::wstring utf8to16(const std::string& utf8)
 			return utf16;
 		}
 	}
-	throw openmsx::FatalError("MultiByteToWideChar failed: " + StringOp::toString(GetLastError()));
+	throw openmsx::FatalError(StringOp::Builder() <<
+		"MultiByteToWideChar failed: " << GetLastError());
 }
 
 std::string utf16to8(const std::wstring& utf16)
@@ -35,7 +36,8 @@ std::string utf16to8(const std::wstring& utf16)
 			return utf8;
 		}
 	}
-	throw openmsx::FatalError("WideCharToMultiByte failed: " + StringOp::toString(GetLastError()));
+	throw openmsx::FatalError(StringOp::Builder() <<
+		"WideCharToMultiByte failed: " << GetLastError());
 }
 
 } // namespace utf8

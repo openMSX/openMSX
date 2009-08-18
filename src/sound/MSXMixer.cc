@@ -103,7 +103,7 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 
 	for (unsigned i = 0; i < numChannels; ++i) {
 		SoundDeviceInfo::ChannelSettings channelSettings;
-		string ch_name = name + "_ch" + StringOp::toString(i + 1);
+		string ch_name = StringOp::Builder() << name << "_ch" << i + 1;
 
 		channelSettings.recordSetting = new StringSetting(
 			commandController, ch_name + "_record",

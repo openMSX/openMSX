@@ -186,7 +186,7 @@ void Rom::init(MSXMotherBoard& motherBoard, CliComm& cliComm,
 			unsigned n = 0;
 			string tmp;
 			do {
-				tmp = name + " (" + StringOp::toString(++n) + ")";
+				tmp = StringOp::Builder() << name << " (" << ++n << ')';
 			} while (debugger.findDebuggable(tmp));
 			name = tmp;
 		}

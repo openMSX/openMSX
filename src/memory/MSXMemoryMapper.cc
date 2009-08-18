@@ -18,8 +18,8 @@ static CheckedRam* createRam(MSXMotherBoard& motherBoard, const XMLElement& conf
 {
 	int kSize = config.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
-		throw MSXException("Mapper size is not a multiple of 16K: " +
-		                   StringOp::toString(kSize));
+		throw MSXException(StringOp::Builder() <<
+			"Mapper size is not a multiple of 16K: " << kSize);
 	}
 	return new CheckedRam(motherBoard, name, "memory mapper",
 	                      (kSize / 16) * 0x4000);

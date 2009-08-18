@@ -414,8 +414,8 @@ string getUserHomeDir(const string& username)
 	
 	wchar_t bufW[MAXPATHLEN + 1];
 	if (!SHGetSpecialFolderPathW(NULL, bufW, CSIDL_PERSONAL, TRUE)) {
-		throw FatalError("SHGetSpecialFolderPathW failed: " +
-			StringOp::toString(GetLastError()));
+		throw FatalError(StringOp::Builder() <<
+			"SHGetSpecialFolderPathW failed: " << GetLastError());
 	}
 
 	return getConventionalPath(utf16to8(bufW));
@@ -478,8 +478,9 @@ string getSystemDataDir()
 	wchar_t bufW[MAXPATHLEN + 1];
 	int res = GetModuleFileNameW(NULL, bufW, sizeof(bufW)/sizeof(bufW[0]));
 	if (!res) {
-		throw FatalError("Cannot detect openMSX directory. GetModuleFileNameW failed: " +
-			StringOp::toString(GetLastError()));
+		throw FatalError(StringOp::Builder() <<
+			"Cannot detect openMSX directory. GetModuleFileNameW failed: " <<
+			GetLastError());
 	}
 
 	string filename = utf16to8(bufW);
@@ -615,7 +616,8 @@ string getTempDir()
 			return utf16to8(bufW);
 		}
 	}
-	throw FatalError("GetTempPathW failed: " + StringOp::toString(GetLastError()));
+	throw FatalError(StringOp::Builder() <<
+		"GetTempPathW failed: " << GetLastError());
 #else
 	const char* result = NULL;
 	if (!result) result = getenv("TMPDIR");
@@ -634,8 +636,8 @@ FILE* openUniqueFile(const std::string& directory, std::string& filename)
 	std::wstring directoryW = utf8to16(directory);
 	wchar_t filenameW[MAX_PATH];
 	if (!GetTempFileNameW(directoryW.c_str(), L"msx", 0, filenameW)) {
-		throw FileException("GetTempFileNameW failed: " +
-			StringOp::toString(GetLastError()));
+		throw FileException(StringOp::Builder() <<
+			"GetTempFileNameW failed: " << GetLastError());
 	}
 	filename = utf16to8(filenameW);
 	FILE* fp = _wfopen(filenameW, L"wb");

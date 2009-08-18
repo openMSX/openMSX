@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-static int MAX_SIZE = 2048;
+static const int MAX_SIZE = 2048;
 
 using StringOp::Builder;
 

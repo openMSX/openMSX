@@ -60,9 +60,10 @@ static SRAM* createSRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException("SRAM size for " + name +
-			" should be 128, 256, 512 or 1024kB and not " +
-			StringOp::toString(sramSize) + "kB!");
+		throw MSXException(StringOp::Builder() <<
+			"SRAM size for " << name <<
+			" should be 128, 256, 512 or 1024kB and not " <<
+			sramSize << "kB!");
 	}
 	sramSize *= 1024; // in bytes
 	return new SRAM(motherBoard, name + " SRAM", sramSize, config);

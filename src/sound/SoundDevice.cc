@@ -28,7 +28,7 @@ static string makeUnique(MSXMixer& mixer, const string& name)
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
-			result = name + " (" + StringOp::toString(++n) + ")";
+			result = StringOp::Builder() << name << " (" << ++n << ')';
 		} while (mixer.findDevice(result));
 	}
 	return result;

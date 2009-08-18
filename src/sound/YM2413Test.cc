@@ -121,23 +121,22 @@ static void test(YM2413Core& core, const Log& log,
 
 	// verify generated samples
 	for (unsigned i = 0; i < CHANNELS; ++i) {
-		string msg = "Error in channel " + StringOp::toString(i) + ": ";
+		StringOp::Builder msg;
+		msg << "Error in channel " << i << ": ";
 		bool err = false;
 		if (generatedSamples[i].size() != expectedSamples[i]->size()) {
-			msg += "wrong size, expected " +
-			       StringOp::toString(expectedSamples[i]->size()) +
-			       " but got " +
-			       StringOp::toString(generatedSamples[i].size());
+			msg << "wrong size, expected " << expectedSamples[i]->size()
+			    << " but got " << generatedSamples[i].size();
 			err = true;
 		} else if (generatedSamples[i] != *expectedSamples[i]) {
-			msg += "Wrong data";
+			msg << "Wrong data";
 			err = true;
 		}
 		if (err) {
-			string filename = "bad-" + coreName + "-" + testName +
-			                  "-ch" + StringOp::toString(i) +
-			                  ".wav";
-			msg += " writing data to " + filename;
+			StringOp::Builder filename;
+			filename << "bad-" << coreName << '-' << testName
+			         << "-ch" << i << ".wav";
+			msg << " writing data to " << std::string(filename);
 			error(msg);
 			saveWav(filename, generatedSamples[i]);
 		}

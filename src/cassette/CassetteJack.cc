@@ -245,7 +245,7 @@ const std::string& CassetteJack::getDescription() const
 
 void CassetteJack::plugHelper(Connector& connector, EmuTime::param time)
 {
-	std::string name = "omsx-" + StringOp::toString(getpid());
+	std::string name = StringOp::Builder() << "omsx-" << getpid();
 	self = jack_client_new(name.c_str());
 	if (!self) initError("Unable to initialize jack client");
 

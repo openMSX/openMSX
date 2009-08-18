@@ -447,10 +447,9 @@ void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 
 static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)
 {
-	throw MSXException("Overlapping memory devices in slot " +
-	                   StringOp::toString(ps) + "." +
-	                   StringOp::toString(ss) + ": " +
-	                   dev1.getName() + " and " + dev2.getName() + ".");
+	throw MSXException(StringOp::Builder() <<
+		"Overlapping memory devices in slot " << ps + '.' << ss <<
+		": " << dev1.getName() << " and " << dev2.getName() + '.');
 }
 
 void MSXCPUInterface::registerSlot(
@@ -460,9 +459,8 @@ void MSXCPUInterface::registerSlot(
 	          std::dec << ps << " " << ss << " 0x" <<
 	          std::hex << base << "-0x" << (base + size - 1));
 	if (!isExpanded(ps) && (ss != 0)) {
-		throw MSXException(
-			"Slot " + StringOp::toString(ps) +
-			"."     + StringOp::toString(ss) +
+		throw MSXException(StringOp::Builder() <<
+			"Slot " << ps << '.' << ss <<
 			" does not exist because slot is not expanded.");
 	}
 	int page = base >> 14;

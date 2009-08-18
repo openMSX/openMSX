@@ -300,7 +300,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	: self(self_)
 	, reactor(reactor_)
 	, filePool(filePool_)
-	, machineID("machine" + StringOp::toString(++machineIDCounter))
+	, machineID(StringOp::Builder() << "machine" << ++machineIDCounter)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
 	, msxEventDistributor(new MSXEventDistributor())
@@ -863,7 +863,7 @@ string MSXMotherBoardImpl::getUserName(const string& hwName)
 	unsigned n = 0;
 	string userName;
 	do {
-		userName = "untitled" + StringOp::toString(++n);
+		userName = StringOp::Builder() << "untitled" << ++n;
 	} while (s.find(userName) != s.end());
 	s.insert(userName);
 	return userName;

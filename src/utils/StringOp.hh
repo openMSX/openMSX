@@ -14,14 +14,31 @@ namespace StringOp
 	class Builder
 	{
 	public:
-		template <typename T> Builder& operator<<(const T& t) {
+		Builder();
+		~Builder();
+
+		// Overloaded for the most common types, to avoid having to use
+		// the templatized version below (expect for being implicitly
+		// inlined, the template is just fine).
+		Builder& operator<<(const std::string& t);
+		Builder& operator<<(const char* t);
+		Builder& operator<<(unsigned t);
+		Builder& operator<<(unsigned long t);
+		Builder& operator<<(int t);
+		Builder& operator<<(char t);
+		Builder& operator<<(double t);
+
+		// Templatized version is commented out. There's no problem in
+		// enabling it, but the code works ATM without, and having it
+		// disabled helps the catch future missing overloads in the
+		// list above.
+		/*template <typename T> Builder& operator<<(const T& t) {
 			buf << t;
 			return *this;
-		}
+		}*/
 
-		operator std::string() {
-			return buf.str();
-		}
+
+		operator std::string() const;
 
 	private:
 		std::ostringstream buf;

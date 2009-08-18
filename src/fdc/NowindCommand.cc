@@ -90,7 +90,7 @@ NowindCommand::NowindCommand(const string& basename,
 DiskChanger* NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
-	string name = basename + StringOp::toString(n + 1);
+	string name = StringOp::Builder() << basename << n + 1;
 	DiskChanger* drive = new DiskChanger(
 		name, motherBoard.getCommandController(),
 		motherBoard.getReactor().getDiskFactory(),
@@ -159,25 +159,25 @@ string NowindCommand::execute(const vector<string>& tokens)
 	if (tokens.size() == 1) {
 		// no arguments, show general status
 		assert(!drives.empty());
-		string result;
+		StringOp::Builder result;
 		for (unsigned i = 0; i < drives.size(); ++i) {
-			result += "nowind" + StringOp::toString(i + 1) + ": ";
+			result << "nowind" << i + 1 << ": ";
 			if (dynamic_cast<NowindRomDisk*>(drives[i])) {
-				result += "romdisk\n";
+				result << "romdisk\n";
 			} else if (DiskChanger* changer = dynamic_cast<DiskChanger*>(drives[i])) {
 				string filename = changer->getDiskName().getOriginal();
-				result += filename.empty() ? "--empty--" : filename;
-				result += '\n';
+				result << (filename.empty() ? "--empty--" : filename)
+				       << '\n';
 			} else {
 				assert(false);
 			}
 		}
-		result += string("phantom drives: ") +
-		          (host.getEnablePhantomDrives() ? "enabled" : "disabled") +
-		          '\n';
-		result += string("allow other diskroms: ") +
-		          (host.getAllowOtherDiskroms() ? "yes" : "no") +
-		          '\n';
+		result << "phantom drives: "
+		       << (host.getEnablePhantomDrives() ? "enabled" : "disabled")
+		       << '\n';
+		result << "allow other diskroms: "
+		       << (host.getAllowOtherDiskroms() ? "yes" : "no")
+		       << '\n';
 		return result;
 	}
 
