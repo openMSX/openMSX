@@ -8,14 +8,21 @@ namespace eval osd_keyboard {
 
 #init vars
 variable mouse1_pressed false
-variable keycount 0
 variable key_pressed 0
+variable row_starts
 
 #init colors
 variable key_color 0xffffffc0
 variable key_pressed_color 0xff8800ff
 variable key_background_color 0x88888880
 variable key_hold_color 0x00ff88ff
+
+# Keyboard layout constants.
+variable key_height 16
+variable key_hspace 2
+variable key_vspace 2
+variable board_hborder 4
+variable board_vborder 4
 
 proc toggle_osd_keyboard {} {
 
@@ -35,7 +42,7 @@ proc toggle_osd_keyboard {} {
 	}
 
 	variable mouse1_pressed false
-	variable keycount 0
+	variable row_starts [list]
 	variable key_color
 	variable key_background_color
 
@@ -46,6 +53,7 @@ proc toggle_osd_keyboard {} {
 	bind_default "mouse button3 down"  {osd_keyboard::key_hold_toggle}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
+	set key_basewidth 18
 	set rows {"f-1*28|f-2*28|f-3*28|f-4*28|f-5*28|null*48|select|stop|home|ins|del" \
 			 "esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|bs" \
 			 "tab*28|Q|W|E|R|T|Y|U|I|O|P|\[|]|return*28" \
@@ -54,12 +62,11 @@ proc toggle_osd_keyboard {} {
 			 "null*40|caps|graph|space*158|code"}
 
 	# Keyboard layout constants.
-	set key_basewidth 18
-	set key_height 16
-	set key_hspace 2
-	set key_vspace 2
-	set board_hborder 4
-	set board_vborder 4
+	variable key_height
+	variable key_hspace
+	variable key_vspace
+	variable board_hborder
+	variable board_vborder
 
 	# Create widgets.
 	set board_width \
@@ -71,7 +78,9 @@ proc toggle_osd_keyboard {} {
 		-y 4 \
 		-w $board_width \
 		-h $board_height -scaled true -rgba $key_background_color
+	set keycount 0
 	for {set y 0} {$y <= [llength $rows]} {incr y} {
+		lappend row_starts $keycount
 		set x $board_hborder
 		foreach {keys} [split [lindex $rows $y]  "|"] {
 			set key [split $keys "*"]
@@ -110,13 +119,21 @@ proc toggle_osd_keyboard {} {
 }
 
 proc key_at_coord {x y} {
-	variable keycount
-	for {set i 0} {$i < $keycount} {incr i} {
-		set rely [expr $y - [osd info kb.$i -y]]
-		if {$rely >= 0 && $rely < [osd info kb.$i -h]} {
-			set relx [expr $x - [osd info kb.$i -x]]
-			if {$relx >= 0 && $relx < [osd info kb.$i -w]} {
-				return $i
+	variable key_height
+	variable key_hspace
+	variable key_vspace
+	variable board_vborder
+	variable row_starts
+	set row [expr int(floor( \
+		($y - $board_vborder + $key_vspace / 2) / ($key_height + $key_vspace) \
+		))]
+	if {$row >= 0 && $row < [llength $row_starts] - 1} {
+		set row_start [lindex $row_starts $row]
+		set row_end [lindex $row_starts [expr $row + 1]]
+		for {set key_id $row_start} {$key_id < $row_end} {incr key_id} {
+			set relx [expr $x - [osd info kb.$key_id -x] + $key_hspace / 2]
+			if {$relx >= 0 && $relx < [osd info kb.$key_id -w] + $key_hspace} {
+				return $key_id
 			}
 		}
 	}
