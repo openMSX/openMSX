@@ -8,7 +8,9 @@ namespace eval osd_keyboard {
 
 #init vars
 variable mouse1_pressed false
-variable key_pressed 0
+variable key_pressed -1
+variable key_selected -1
+variable keys_held
 variable row_starts
 
 #init colors
@@ -16,6 +18,7 @@ variable key_color 0xffffffc0
 variable key_pressed_color 0xff8800ff
 variable key_background_color 0x88888880
 variable key_hold_color 0x00ff88ff
+variable key_select_color 0xffff88c0
 
 # Keyboard layout constants.
 variable key_height 16
@@ -30,10 +33,16 @@ proc toggle_osd_keyboard {} {
 	if {![catch {osd info kb -rgba} errmsg]} {
 		#destroy virtual keyboard
 		osd destroy kb
-		#unbind mouse buttons
+		#unbind mouse buttons and hotkeys
 		unbind_default "mouse button1 down"
 		unbind_default "mouse button1 up"
 		unbind_default "mouse button3 down"
+		unbind_default "keyb UP"
+		unbind_default "keyb DOWN"
+		unbind_default "keyb LEFT"
+		unbind_default "keyb RIGHT"
+		unbind_default "keyb SPACE,PRESS"
+		unbind_default "keyb SPACE,RELEASE"
 		#reset keyboard matrix
 		for {set i 0} {$i <= 8} {incr i} {
 			keymatrixup $i 255
@@ -42,6 +51,7 @@ proc toggle_osd_keyboard {} {
 	}
 
 	variable mouse1_pressed false
+	variable keys_held [list]
 	variable row_starts [list]
 	variable key_color
 	variable key_background_color
@@ -51,6 +61,13 @@ proc toggle_osd_keyboard {} {
 	bind_default "mouse button1 up"    {osd_keyboard::key_handler false}
 
 	bind_default "mouse button3 down"  {osd_keyboard::key_hold_toggle}
+
+	bind_default "keyb UP"     -repeat { osd_keyboard::selection_row -1  }
+	bind_default "keyb DOWN"   -repeat { osd_keyboard::selection_row +1  }
+	bind_default "keyb LEFT"   -repeat { osd_keyboard::selection_col -1  }
+	bind_default "keyb RIGHT"  -repeat { osd_keyboard::selection_col +1  }
+	bind_default "keyb SPACE,PRESS"    { osd_keyboard::selection_press   }
+	bind_default "keyb SPACE,RELEASE"  { osd_keyboard::selection_release }
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
 	set key_basewidth 18
@@ -115,12 +132,153 @@ proc toggle_osd_keyboard {} {
 		}
 	}
 
+	variable key_selected
+	if {$key_selected == -1} {
+		# Select the key in the middle of the keyboard.
+		key_select [key_at_coord \
+			[expr $board_width / 2] \
+			[expr $board_vborder + 3.5 * ($key_height + $key_vspace)] \
+			]
+	} else {
+		update_key_color $key_selected
+	}
+
 	return ""
 }
 
+proc selection_row {delta} {
+	variable row_starts
+	variable key_selected
+
+	# Note: Delta as bias makes sure that if a key is exactly in the middle
+	#       above/below two other keys, an up/down or down/up sequence will
+	#       end on the same key it started on.
+	set x [expr \
+		[osd info kb.$key_selected -x] + [osd info kb.$key_selected -w] / 2 \
+		+ $delta ]
+	set num_rows [expr [llength $row_starts] - 1]
+	set row [row_for_key $key_selected]
+	while {1} {
+		# Determine new row.
+		incr row $delta
+		if {$row < 0} {
+			set row [expr $num_rows - 1]
+		} elseif {$row >= $num_rows} {
+			set row 0
+		}
+
+		# Get key at new coordinates.
+		set first_key [lindex $row_starts $row]
+		set y [expr \
+			[osd info kb.$first_key -y] + [osd info kb.$first_key -h] / 2 \
+			]
+		set new_selection [key_at_coord $x $y]
+		if {$new_selection >= 0} {
+			break
+		}
+	}
+
+	key_select $new_selection
+}
+
+proc selection_col {delta} {
+	variable row_starts
+	variable key_selected
+
+	# Figure out first and last key of current row.
+	set row [row_for_key $key_selected]
+	set row_start [lindex $row_starts $row]
+	set row_end [lindex $row_starts [expr $row + 1]]
+
+	# Move left or right.
+	set new_selection [expr $key_selected + $delta]
+	if {$new_selection < $row_start} {
+		set new_selection [expr $row_end - 1]
+	} elseif {$new_selection >= $row_end} {
+		set new_selection $row_start
+	}
+
+	key_select $new_selection
+}
+
+proc selection_press {} {
+	variable key_selected
+	key_press $key_selected
+}
+
+proc selection_release {} {
+	key_release
+}
+
+proc key_press {key_id} {
+	variable key_pressed
+
+	set key_pressed $key_id
+	key_matrix $key_id down
+	update_key_color $key_id
+}
+
+proc key_release {} {
+	variable key_pressed
+	variable keys_held
+
+	set key_id $key_pressed
+	set key_pressed -1
+	set index [lsearch $keys_held $key_id]
+	if {$index != -1} {
+		set keys_held [lreplace $keys_held $index $index]
+	}
+	key_matrix $key_id up
+	update_key_color $key_id
+}
+
+proc key_select {key_id} {
+	variable key_selected
+
+	set old_selected $key_selected
+	set key_selected $key_id
+	update_key_color $key_selected
+	update_key_color $old_selected
+}
+
+proc row_for_key {key_id} {
+	variable row_starts
+	for {set row 0} {$row < [llength $row_starts] - 1} {incr row} {
+		set row_start [lindex $row_starts $row]
+		set row_end [lindex $row_starts [expr $row + 1]]
+		if {$row_start <= $key_id && $key_id < $row_end} {
+			return $row
+		}
+	}
+	return -1
+}
+
+proc update_key_color {key_id} {
+	variable key_selected
+	variable key_pressed
+	variable keys_held
+	variable key_color
+	variable key_select_color
+	variable key_pressed_color
+	variable key_hold_color
+
+	if {$key_id < 0} {
+		return
+	} elseif {$key_id == $key_pressed} {
+		set color $key_pressed_color
+	} elseif {$key_id == $key_selected} {
+		set color $key_select_color
+	} elseif {[lsearch $keys_held $key_id] != -1} {
+		set color $key_hold_color
+	} else {
+		set color $key_color
+	}
+	osd configure kb.$key_id -rgba $color
+}
+
 proc key_at_coord {x y} {
-	variable key_height
 	variable key_hspace
+	variable key_height
 	variable key_vspace
 	variable board_vborder
 	variable row_starts
@@ -150,43 +308,37 @@ proc key_at_mouse {} {
 }
 
 proc key_hold_toggle {} {
+	variable keys_held
 	variable key_color
 	variable key_hold_color
 
 	set key_id [key_at_mouse]
 	if {$key_id >= 0} {
-		if {[osd info kb.$key_id -rgba] == -64} {
+		set index [lsearch $keys_held $key_id]
+		if {$index == -1} {
 			key_matrix $key_id down
-			osd configure kb.$key_id -rgba $key_hold_color
+			lappend keys_held $key_id
 		} else {
 			key_matrix $key_id up
-			osd configure kb.$key_id -rgba $key_color
+			set keys_held [lreplace $keys_held $index $index]
 		}
+		update_key_color $key_id
 	}
 }
 
 proc key_handler {mouse_state} {
-	variable key_pressed
-
-	variable key_pressed_color
-	variable key_color
-
-	#scan which key is down (can be optimized but for now it's ok)
 	if {$mouse_state} {
 		set key_id [key_at_mouse]
 		if {$key_id >= 0} {
-			osd configure kb.$key_id -rgba $key_pressed_color
-			key_matrix $key_id down
-			set key_pressed $key_id
+			key_press $key_id
+			key_select $key_id
 		}
 	} else {
-		osd configure kb.$key_pressed -rgba $key_color
-		key_matrix $key_pressed up
+		key_release
 	}
 }
 
 proc key_matrix {keynum state} {
-	set key_pressed $keynum
 	set key [string trim "[osd info kb.$keynum.text -text]"]
 
 	#how dirty is this?
