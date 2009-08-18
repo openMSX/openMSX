@@ -40,8 +40,8 @@ proc toggle_osd_keyboard {} {
 	variable key_background_color
 
 	#bind stuff
-	bind_default "mouse button1 down"  {osd_keyboard::key_handeler true}
-	bind_default "mouse button1 up"    {osd_keyboard::key_handeler false}
+	bind_default "mouse button1 down"  {osd_keyboard::key_handler true}
+	bind_default "mouse button1 up"    {osd_keyboard::key_handler false}
 
 	bind_default "mouse button3 down"  {osd_keyboard::key_hold_toggle}
 
@@ -109,43 +109,58 @@ proc toggle_osd_keyboard {} {
 	return ""
 }
 
-proc key_hold_toggle {} {
-
+proc key_at_coord {x y} {
 	variable keycount
-	variable key_color
-	variable key_hold_color
-
 	for {set i 0} {$i < $keycount} {incr i} {
-			foreach {x y} [osd info "kb.$i" -mousecoord] {}
-			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
-				
-				if {[osd info kb.$i -rgba]==-64} {
-					key_matrix $i down
-					osd configure kb.$i -rgba $key_hold_color
-				} else {
-					key_matrix $i up
-					osd configure kb.$i -rgba $key_color
-					}
+		set rely [expr $y - [osd info kb.$i -y]]
+		if {$rely >= 0 && $rely < [osd info kb.$i -h]} {
+			set relx [expr $x - [osd info kb.$i -x]]
+			if {$relx >= 0 && $relx < [osd info kb.$i -w]} {
+				return $i
 			}
+		}
+	}
+	return -1
+}
+
+proc key_at_mouse {} {
+	foreach {x y} [osd info kb -mousecoord] {
+		return [key_at_coord \
+			[expr $x * [osd info kb -w]] \
+			[expr $y * [osd info kb -h]] \
+			]
 	}
 }
 
-proc key_handeler {mouse_state} {
-	variable keycount
+proc key_hold_toggle {} {
+	variable key_color
+	variable key_hold_color
+
+	set key_id [key_at_mouse]
+	if {$key_id >= 0} {
+		if {[osd info kb.$key_id -rgba] == -64} {
+			key_matrix $key_id down
+			osd configure kb.$key_id -rgba $key_hold_color
+		} else {
+			key_matrix $key_id up
+			osd configure kb.$key_id -rgba $key_color
+		}
+	}
+}
+
+proc key_handler {mouse_state} {
 	variable key_pressed
 
 	variable key_pressed_color
-	variable key_color 
+	variable key_color
 
 	#scan which key is down (can be optimized but for now it's ok)
 	if {$mouse_state} {
-		for {set i 0} {$i < $keycount} {incr i} {
-			foreach {x y} [osd info "kb.$i" -mousecoord] {}
-			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
-				osd configure kb.$i -rgba $key_pressed_color
-				key_matrix $i down
-				set key_pressed $i
-			}
+		set key_id [key_at_mouse]
+		if {$key_id >= 0} {
+			osd configure kb.$key_id -rgba $key_pressed_color
+			key_matrix $key_id down
+			set key_pressed $key_id
 		}
 	} else {
 		osd configure kb.$key_pressed -rgba $key_color
