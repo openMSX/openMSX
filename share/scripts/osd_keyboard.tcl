@@ -73,12 +73,12 @@ proc toggle_osd_keyboard {} {
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
 	set key_basewidth 18
-	set rows {"f-1*28|f-2*28|f-3*28|f-4*28|f-5*28|null*48|select|stop|home|ins|del" \
-			 "esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|bs" \
-			 "tab*28|Q|W|E|R|T|Y|U|I|O|P|\[|]|return*28" \
-			 "ctrl*32|A|S|D|F|G|H|J|K|L|;|'|`|<--*24" \
-			 "shift*40|Z|X|C|V|B|N|M|,|.|/|dead|shift*36" \
-			 "null*40|caps|graph|space*158|code"}
+	set rows {"F1*26|F2*26|F3*26|F4*26|F5*26|null*8|Select*26|Stop*26|null*8|Home*26|Ins*26|Del*26" \
+			 "Esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|BS" \
+			 "Tab*28|Q|W|E|R|T|Y|U|I|O|P|\[|]|Return*28" \
+			 "Ctrl*32|A|S|D|F|G|H|J|K|L|;|'|`|<--*24" \
+			 "Shift*40|Z|X|C|V|B|N|M|,|.|/|Acc|Shift*36" \
+			 "null*40|Cap|Grp|Space*158|Cod"}
 
 	# Keyboard layout constants.
 	variable key_height
@@ -116,7 +116,7 @@ proc toggle_osd_keyboard {} {
 					-rgba $key_color
 
 			#no edge for return key
-			if {$key_text != "return" && $key_text != "<--"} {
+			if {$key_text != "Return" && $key_text != "<--"} {
 				osd_widgets::box kb.$keycount.box \
 					-w $key_width \
 					-h $key_height \
@@ -380,7 +380,7 @@ proc key_matrix {keynum state} {
 		"," 	{$km 2 4}
 		"." 	{$km 2 8}
 		"/" 	{$km 2 16}
-		"dead" 	{$km 2 32}
+		"Acc" 	{$km 2 32}
 		"A" 	{$km 2 64}
 		"B" 	{$km 2 128}
 
@@ -411,29 +411,29 @@ proc key_matrix {keynum state} {
 		"Y" 	{$km 5 64}
 		"Z" 	{$km 5 128}
 
-		"shift" {$km 6 1}
-		"ctrl" 	{$km 6 2}
-		"graph" {$km 6 4}
-		"caps" 	{$km 6 8}
-		"code" 	{$km 6 16}
-		"f-1" 	{$km 6 32}
-		"f-2" 	{$km 6 64}
-		"f-3" 	{$km 6 128}
+		"Shift" {$km 6 1}
+		"Ctrl" 	{$km 6 2}
+		"Grp"	{$km 6 4}
+		"Cap" 	{$km 6 8}
+		"Cod" 	{$km 6 16}
+		"F1" 	{$km 6 32}
+		"F2" 	{$km 6 64}
+		"F3" 	{$km 6 128}
 
-		"f-4" 	{$km 7 1}
-		"f-5" 	{$km 7 2}
-		"esc" 	{$km 7 4}
-		"tab" 	{$km 7 8}
-		"stop" 	{$km 7 16}
-		"bs" 	{$km 7 32}
-		"select" {$km 7 64}
-		"return" {$km 7 128}
+		"F4" 	{$km 7 1}
+		"F5" 	{$km 7 2}
+		"Esc" 	{$km 7 4}
+		"Tab" 	{$km 7 8}
+		"Stop" 	{$km 7 16}
+		"BS" 	{$km 7 32}
+		"Select" {$km 7 64}
+		"Return" {$km 7 128}
 		"<--"	{$km 7 128}
 
-		"space" {$km 8 1}
-		"home" 	{$km 8 2}
-		"ins" 	{$km 8 4}
-		"del" 	{$km 8 8}
+		"Space" {$km 8 1}
+		"Home" 	{$km 8 2}
+		"Ins" 	{$km 8 4}
+		"Del" 	{$km 8 8}
 	}
 
 		#cursor keys etc (not implemented... should we?)
