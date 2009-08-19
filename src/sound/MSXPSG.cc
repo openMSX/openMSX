@@ -6,15 +6,28 @@
 #include "CassettePort.hh"
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
+#include "SimpleDebuggable.hh"
 #include "XMLElement.hh"
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
+class JoyPortDebuggable : public SimpleDebuggable
+{
+public:
+	JoyPortDebuggable(MSXMotherBoard& motherBoard, MSXPSG& psg);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value);
+private:
+	MSXPSG& psg;
+};
+
+
 // MSXDevice
 MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
+	, joyPortDebuggable(new JoyPortDebuggable(motherBoard, *this))
 	, cassette(motherBoard.getCassettePort())
 	, renShaTurbo(motherBoard.getRenShaTurbo())
 	, prev(255)
@@ -100,6 +113,25 @@ void MSXPSG::writeB(byte value, EmuTime::param time)
 		getMotherBoard().getLedStatus().setLed(LedStatus::KANA, !(value & 0x80));
 	}
 	prev = value;
+}
+
+
+// class JoyPortDebuggable
+
+JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard, MSXPSG& psg_)
+	: SimpleDebuggable(motherBoard, "joystickports", "MSX Joystick Ports", 2)
+	, psg(psg_)
+{
+}
+
+byte JoyPortDebuggable::read(unsigned address, EmuTime::param time)
+{
+	return psg.ports[address]->read(time);
+}
+
+void JoyPortDebuggable::write(unsigned /*address*/, byte /*value*/)
+{
+	// ignore
 }
 
 

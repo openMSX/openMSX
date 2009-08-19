@@ -13,6 +13,7 @@ class AY8910;
 class CassettePortInterface;
 class RenShaTurbo;
 class JoystickPort;
+class JoyPortDebuggable;
 
 class MSXPSG : public MSXDevice, public AY8910Periphery
 {
@@ -34,6 +35,7 @@ private:
 	virtual byte readA(EmuTime::param time);
 	virtual void writeB(byte value, EmuTime::param time);
 
+	const std::auto_ptr<JoyPortDebuggable> joyPortDebuggable;
 	std::auto_ptr<AY8910> ay8910;
 	std::auto_ptr<JoystickPort> ports[2];
 	CassettePortInterface& cassette;
@@ -43,6 +45,8 @@ private:
 	int selectedPort;
 	byte prev;
 	const bool keyLayoutBit;
+
+	friend class JoyPortDebuggable;
 };
 
 } // namespace openmsx
