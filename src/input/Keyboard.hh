@@ -13,6 +13,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class Scheduler;
 class CommandController;
 class EventDistributor;
@@ -26,14 +27,15 @@ class Setting;
 class KeyboardSettings;
 class MsxKeyEventQueue;
 class UnicodeKeymap;
+class KeybDebuggable;
 
 class Keyboard : private MSXEventListener, private Schedulable, private Observer<Setting>
 {
 public:
 	static const unsigned NR_KEYROWS = 16;
 
-	/**
-	 * Constructs a new Keyboard object.
+	/** Constructs a new Keyboard object.
+	 * @param motherBoard ref to the motherBoard
 	 * @param scheduler ref to the scheduler
 	 * @param commandController ref to the command controller
 	 * @param eventDistributor ref to the emu event distributor
@@ -45,7 +47,8 @@ public:
 	 * @param codeKanaLocks CodeKana key behave as a lock key on this machine
 	 * @param graphLocks Graph key behave as a lock key on this machine
 	 */
-	Keyboard(Scheduler& scheduler, CommandController& commandController,
+	Keyboard(MSXMotherBoard& motherBoard, Scheduler& scheduler,
+	         CommandController& commandController,
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         std::string& keyboardType, bool hasKeypad,
@@ -54,8 +57,7 @@ public:
 
 	virtual ~Keyboard();
 
-	/**
-	 * Returns a pointer to the current KeyBoard matrix
+	/** Returns a pointer to the current KeyBoard matrix
 	 */
 	const byte* getKeys();
 
@@ -108,6 +110,7 @@ private:
 	const std::auto_ptr<CapsLockAligner>  capsLockAligner;
 	const std::auto_ptr<KeyboardSettings> keyboardSettings;
 	const std::auto_ptr<MsxKeyEventQueue> msxKeyEventQueue;
+	const std::auto_ptr<KeybDebuggable>   keybDebuggable;
 
 	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
 	byte cmdKeyMatrix[NR_KEYROWS];

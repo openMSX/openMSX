@@ -29,7 +29,8 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 	bool hasKeypad = config.getChildDataAsBool("has_keypad", true);
 	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);
 	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
-	return new Keyboard(motherBoard.getScheduler(),
+	return new Keyboard(motherBoard,
+	                    motherBoard.getScheduler(),
 	                    motherBoard.getCommandController(),
 	                    motherBoard.getReactor().getEventDistributor(),
 	                    motherBoard.getMSXEventDistributor(),

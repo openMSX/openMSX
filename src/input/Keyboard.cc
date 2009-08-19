@@ -13,6 +13,7 @@
 #include "FileException.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
+#include "SimpleDebuggable.hh"
 #include "InputEvents.hh"
 #include "FilenameSetting.hh"
 #include "BooleanSetting.hh"
@@ -132,6 +133,16 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 };
 
+class KeybDebuggable : public SimpleDebuggable
+{
+public:
+	KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+private:
+	Keyboard& keyboard;
+};
+
 
 void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 {
@@ -185,7 +196,8 @@ void Keyboard::loadKeymapfile(const string& filename)
 	}
 }
 
-Keyboard::Keyboard(Scheduler& scheduler,
+Keyboard::Keyboard(MSXMotherBoard& motherBoard,
+                   Scheduler& scheduler,
                    CommandController& commandController_,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
@@ -205,6 +217,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
 		eventDistributor, msxEventDistributor, scheduler, *this))
 	, keyboardSettings(new KeyboardSettings(commandController))
 	, msxKeyEventQueue(new MsxKeyEventQueue(scheduler, *this))
+	, keybDebuggable(new KeybDebuggable(motherBoard, *this))
 	, unicodeKeymap(new UnicodeKeymap(keyboardType))
 	, hasKeypad(hasKP)
 	, keyGhosting(keyGhosting_)
@@ -1131,6 +1144,27 @@ const string& CapsLockAligner::schedName() const
 	static const string schedName = "CapsLockAligner";
 	return schedName;
 }
+
+
+// class KeybDebuggable
+
+KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard_)
+	: SimpleDebuggable(motherBoard, "keymatrix", "MSX Keyboard Matrix",
+	                   Keyboard::NR_KEYROWS)
+	, keyboard(keyboard_)
+{
+}
+
+byte KeybDebuggable::read(unsigned address)
+{
+	return keyboard.getKeys()[address];
+}
+
+void KeybDebuggable::write(unsigned /*address*/, byte /*value*/)
+{
+	// ignore
+}
+
 
 template<typename Archive>
 void KeyInserter::serialize(Archive& ar, unsigned /*version*/)
