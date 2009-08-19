@@ -13,11 +13,9 @@ variable latch -1
 variable regs [list 0xa0 0xa1 0xa2 0xa3 0xa4 0xa5 -1 0xaf 0xaa 0xab 0xac -1 -1 -1 -1 -1]
 
 proc init {} {
-	for {set i 0} {$i < 32} {incr i} {
 		set_scc_wave 0 3
 		set_scc_wave 1 3
 		set_scc_wave 2 3
-	}
 }
 
 proc update1 {} {
