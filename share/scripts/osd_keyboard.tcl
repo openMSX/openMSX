@@ -18,7 +18,8 @@ variable key_color 0xffffffc0
 variable key_pressed_color 0xff8800ff
 variable key_background_color 0x88888880
 variable key_hold_color 0x00ff88ff
-variable key_select_color 0xffff88c0
+variable key_select_color 0xffff88ff
+variable key_edge_color 0xaaaaaaa0
 
 # Keyboard layout constants.
 variable key_height 16
@@ -55,6 +56,7 @@ proc toggle_osd_keyboard {} {
 	variable row_starts [list]
 	variable key_color
 	variable key_background_color
+	variable key_edge_color
 
 	#bind stuff
 	bind_default "mouse button1 down"  {osd_keyboard::key_handler true}
@@ -113,12 +115,21 @@ proc toggle_osd_keyboard {} {
 					-h $key_height \
 					-rgba $key_color
 
+			#no edge for return key
+			if {$key_text != "return" && $key_text != "<--"} {
+				osd_widgets::box kb.$keycount.box \
+					-w $key_width \
+					-h $key_height \
+					-rgba $key_edge_color
+			}
+
 				if {$key_text == "<--"} {
 					# Merge bottom part of "return" key with top part.
 					osd configure kb.$keycount \
 						-y [expr [osd info kb.$keycount -y] - $key_vspace] \
 						-h [expr [osd info kb.$keycount -h] + $key_vspace]
 				}
+
 				osd create text kb.$keycount.text \
 					-x 0.1 \
 					-y 0.1 \
@@ -341,7 +352,6 @@ proc key_handler {mouse_state} {
 proc key_matrix {keynum state} {
 	set key [string trim "[osd info kb.$keynum.text -text]"]
 
-	#how dirty is this?
 	set km keymatrix$state
 
 	#info from http://map.grauw.nl/articles/keymatrix.php (thanks Grauw)
