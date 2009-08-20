@@ -64,7 +64,7 @@ A button            CTRL
 B button            Graph
 X button            Space
 Y button            Shift
-Left shoulder       Tab
+Left shoulder                           Toggle OSD keyboard
 Right shoulder                          Toggle OSD menu
 START button        Enter               Confirm
 SELECT button       Escape              Cancel
