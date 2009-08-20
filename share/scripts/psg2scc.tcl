@@ -83,13 +83,40 @@ proc set_scc_wave {channel form} {
 			set v1 [expr ($v1 >= 128) ? 127 : $v1]
 			debug write "SCC SCC" [expr $base+$i+ 0] [expr $v1 & 255]
 			debug write "SCC SCC" [expr $base+$i+16] [expr $v2 & 255]
-		}
+ 		}
 	}
+
 	3 {
-		#Sinus
-		set_scc_form $channel "01233952626F787E7A766B5D4F3C2C1A00E1C7B29F91898089909FB1C1DAEC00"
+		#Sin Wave
+		set_scc_form $channel "001931475A6A757D7F7D756A5A47311900E7CFB9A6968B8380838B96A6B9CFE7"
 	}
-}
+	
+	4 {
+		#Organ
+		set_scc_form $channel "0070502050703000507F6010304000B0106000E0F000B090C010E0A0C0F0C0A0"
+	}
+	
+	5 {
+		#SAWWY001
+		set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+	}
+	
+	6 {
+		
+		#SQROOT01
+		set_scc_form $channel "00407F401001EAD6C3B9AFA49C958F8A86838183868A8F959CA4AFB9C3D6EAFF"
+	}
+	
+	7 {
+		#SQROOT01
+		set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+	}
+	
+	8 {
+		#DYERVC01
+		set_scc_form $channel "00407F4001C081C001407F4001C0014001E0012001F0011001FFFFFFFF404040"
+	}
+	}
 }
 
 namespace export toggle_psg2scc
