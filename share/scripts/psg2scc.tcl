@@ -14,7 +14,7 @@ variable regs [list 0xa0 0xa1 0xa2 0xa3 0xa4 0xa5 -1 0xaf 0xaa 0xab 0xac -1 -1 -
 
 proc init {} {
 	set_scc_wave 0 3
-	set_scc_wave 1 3
+	set_scc_wave 1 2
 	set_scc_wave 2 3
 }
 
@@ -50,28 +50,33 @@ proc toggle_psg2scc {} {
 	}
 }
 
+proc set_scc_form {channel wave} {
+	set base [expr $channel*32]
+
+	for {set i 0} {$i < 32} {incr i} {	
+		debug write "SCC SCC" [expr $base+$i] "0x[string range $wave [expr $i*2] [expr $i*2]+1]"
+	}
+}
+
 proc set_scc_wave {channel form} {
 	
 	set base [expr $channel*32]
 
 	switch $form {
-	#saw tooth
-	1 {
+
+	0 {
+		#Saw Tooth
 		for {set i 0} {$i < 32} {incr i} {
 			debug write "SCC SCC" [expr $base+$i] [expr 255-($i*8)]
 		}
 	}
-	
-	#square
-	2 {
-		for {set i 0} {$i < 16} {incr i} {
-			debug write "SCC SCC" [expr $base+$i+ 0] 128
-			debug write "SCC SCC" [expr $base+$i+16] 127
-		}
+
+	1 {
+		#Square
+		set_scc_form $channel "7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f80808080808080808080808080808080"
 	}
 
-	#triangle
-	3 {
+	2 {	#Triangle
 		for {set i 0} {$i < 16} {incr i} {
 			set v1 [expr  128 - 16 * $i]
 			set v2 [expr -128 + 16 * $i]
@@ -80,7 +85,11 @@ proc set_scc_wave {channel form} {
 			debug write "SCC SCC" [expr $base+$i+16] [expr $v2 & 255]
 		}
 	}
+	3 {
+		#Sinus
+		set_scc_form $channel "01233952626F787E7A766B5D4F3C2C1A00E1C7B29F91898089909FB1C1DAEC00"
 	}
+}
 }
 
 namespace export toggle_psg2scc
