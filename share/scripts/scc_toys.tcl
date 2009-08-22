@@ -53,7 +53,8 @@ proc scc_viewer_init {} {
 	osd create rectangle scc_viewer \
 		-x 2 \
 		-y 2 \
-		-alpha 0
+		-alpha 0 \
+		-z 100
 
 	set textheight 15
 	set border_width 2
@@ -283,13 +284,21 @@ proc set_scc_wave {channel form} {
 #SCC editor/copier
 
 proc toggle_scc_editor {} {
+
+	
 	
 		#If exists destory/reset and exit
 	if {![catch {osd info scc -rgba} errmsg]} {
 			osd destroy scc
+			osd destroy selected 
 			unbind_default "mouse button1 down"
 			return ""
 		}
+	
+	variable select_device
+	variable scc_devices
+
+	set select_device [lindex scc_devices 0]
 	
 	bind_default "mouse button1 down"  	{scc_toys::checkclick}
 
@@ -313,18 +322,26 @@ proc toggle_scc_editor {} {
 		osd create rectangle scc.vmid1 -x 0 -y 63 -h 1 -w 255 -rgba 0xff000080
 		osd create rectangle scc.vmid2 -x 0 -y 127 -h 1 -w 255 -rgba 0xffffffff
 		osd create rectangle scc.vmid3 -x 0 -y 191 -h 1 -w 255 -rgba 0xff000080
+		
+		osd create rectangle selected
+		
 		return ""
 }
+
+variable select_device
+variable select_device_chan
 
 proc checkclick {} {
 	
 	variable scc_devices
+	variable select_device
+	variable select_device_chan
 
 	#check editor matrix
 	for {set i 0} {$i < 32} {incr i} {
 	foreach {x y} [osd info "scc.slider$i" -mousecoord] {}
 		if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
-			debug write "SCC SCC" $i [expr int(255*$y-128) & 0xff] 
+			debug write "$select_device SCC" [expr $select_device_chan*32+$i] [expr int(255*$y-128) & 0xff] 
 			osd configure scc.slider$i.val -y [expr $y*255] -h [expr 128-($y*255)]
 		}
 	}
@@ -334,7 +351,17 @@ proc checkclick {} {
 		for {set i 0} {$i < 5} {incr i} {
 			foreach {x y} [osd info "scc_viewer.$device.$i" -mousecoord] {}
 				if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
-				puts $i
+				set select_device $device
+				set select_device_chan $i
+
+				set abs_x [osd info "scc_viewer.$device" -x]
+				set sel_h [osd info "scc_viewer.$device.$i" -h]
+				set sel_w [osd info "scc_viewer.$device.$i" -w]
+				set sel_x [osd info "scc_viewer.$device.$i" -x]
+				set sel_y [osd info "scc_viewer.$device.$i" -y]
+
+				osd configure selected -x [expr int($sel_x)+$abs_x] -y [expr int($sel_y)] -w [expr $sel_w+4] -h [expr $sel_h+4] -z 1 -rgba 0xff0000ff
+
 				set base $i*32
 				for {set q 0} {$q < 32} {incr q} {	
 					set sccwave [debug read "$device SCC" [expr $base+$q]]
