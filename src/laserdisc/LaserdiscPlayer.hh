@@ -17,6 +17,7 @@ class LaserdiscCommand;
 class PioneerLDControl;
 class MSXMotherBoard;
 class OggReader;
+class AudioFragment;
 class LDRenderer;
 
 class LaserdiscPlayer : public SoundDevice
@@ -86,9 +87,10 @@ private:
 
 	// Audio state
 	DynamicClock sampleClock;
+	EmuTime start;
 	unsigned outputRate;
 	unsigned playingFromSample;
-	short tapeIn;
+	unsigned lastPlayedSample;
 	bool muteLeft, muteRight;
 
 	Clock<30000, 1001> frameClock;

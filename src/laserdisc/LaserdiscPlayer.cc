@@ -137,7 +137,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	                   motherBoard_.getScheduler(),
 	                   *this))
 	, sampleClock(EmuTime::zero)
-	, tapeIn(0)
+	, start(EmuTime::zero)
 	, muteLeft(false)
 	, muteRight(false)
 	, frameClock(EmuTime::zero)
@@ -426,20 +426,22 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 	updateStream(time);
 
 	if (userdata == ACK) {
+		if (seeking && playerState == PLAYER_PLAYING) {
+			sampleClock.advance(time);
+		}
+
 		if (seeking) {
 			PRT_DEBUG("Laserdisc: seek complete");
 		}
+
 		ack = false;
 		seeking = false;
-
-		if (playerState == PLAYER_PLAYING) {
-			sampleClock.reset(time);
-		}
-
 	} else if (userdata == FRAME) {
 		if (RawFrame* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
-			if (isVideoOutputAvailable(time)) {
+			// FIXME: When PLAYER_FROZEN, get first frame
+			if (isVideoOutputAvailable(time) &&
+					playerState == PLAYER_PLAYING) {
 				video->getFrame(*rawFrame);
 			} else {
 				renderer->drawBlank(0, 128, 196);
@@ -455,7 +457,8 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param /*time*/)
 {
 	Filename filename(newImage, motherBoard.getCommandController());
-	video.reset(new OggReader(filename.getResolved()));
+	video.reset(new OggReader(filename.getResolved(),
+				  motherBoard.getMSXCliComm()));
 	sampleClock.setFreq(video->getSampleRate());
 	setOutputRate(outputRate);
 }
@@ -470,23 +473,46 @@ void LaserdiscPlayer::setOutputRate(unsigned newOutputRate)
 
 void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 {
-	// If both channels are muted, we could still be loading from
-	// tape. Therefore sound has to be generated and then discarded.
-	// This also ensures that we maintain the right position when
-	// both channels are muted.
-	if (playerState != PLAYER_PLAYING || seeking) {
+	if (playerState != PLAYER_PLAYING || seeking ||
+						(muteLeft && muteRight)) {
 		buffers[0] = 0;
 		return;
 	}
 
-	for (unsigned pos = 0; pos < num; /**/) {
-		// We are using floats here since otherwise we have to
-		// convert shorts to ints. libvorbisfile converts floats to
-		// shorts when we do not request floats leaving another
-		// conversion step up us.
-		float** pcm;
-		unsigned rc = video->fillFloatBuffer(&pcm, num - pos);
-		if (rc == 0) {
+	unsigned pos = 0, len, currentSample;
+
+	if (unlikely(!sampleClock.before(start))) {
+		// Before playing of sounds begins
+		EmuDuration duration = sampleClock.getTime() - start;
+		len = duration.getTicksAt(video->getSampleRate());
+		if (len >= num) {
+			buffers[0] = 0;
+			return;
+		}
+
+		for (/**/; pos < len; ++pos) {
+			buffers[0][pos * 2 + 0] = 0;
+			buffers[0][pos * 2 + 1] = 0;
+		}
+
+		currentSample = playingFromSample;
+	} else {
+		currentSample = getCurrentSample(start);
+	}
+
+	unsigned drift = video->getSampleRate() / 30;
+
+	if (currentSample > (lastPlayedSample + drift) ||
+			(currentSample + drift) < lastPlayedSample) {
+		lastPlayedSample = currentSample;
+		PRT_DEBUG("Laserdisc audio drift: " << std::dec <<
+				lastPlayedSample << " " << currentSample);
+	}
+
+	while (pos < num) {
+		AudioFragment* audio = video->getAudio(lastPlayedSample);
+
+		if (!audio) {
 			// we've fallen of the end of the file. We
 			// should raise an IRQ now.
 			if (pos == 0) {
@@ -498,14 +524,18 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 			}
 			playerState = PLAYER_STOPPED;
 		} else {
+			unsigned offset = lastPlayedSample - audio->position;
+			len = std::min(audio->length - offset, num - pos);
+
 			// maybe muting should be moved out of the loop?
-			for (unsigned i = 0; i < rc; ++i, ++pos) {
+			for (unsigned i = 0; i < len; ++i, ++pos) {
 				buffers[0][pos * 2 + 0] = muteLeft ? 0 :
-						int(pcm[0][i] * 65536.0f);
+					int(audio->pcm[0][offset + i] * 65536.f);
 				buffers[0][pos * 2 + 1] = muteRight ? 0 :
-						int(pcm[1][i] * 65536.0f);
+					int(audio->pcm[1][offset + i] * 65536.f);
 			}
-			tapeIn = short(pcm[1][rc - 1] * 32767.f);
+
+			lastPlayedSample += len;
 		}
 	}
 }
@@ -516,8 +546,9 @@ bool LaserdiscPlayer::generateInput(int* buffer, unsigned num)
 }
 
 bool LaserdiscPlayer::updateBuffer(unsigned length, int *buffer,
-		EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
+		EmuTime::param start_, EmuDuration::param /*sampDur*/)
 {
+	start = start_;
 	return generateOutput(buffer, length);
 }
 
@@ -537,17 +568,25 @@ void LaserdiscPlayer::play(EmuTime::param time)
 	if (video.get()) {
 		updateStream(time);
 
+		if (seeking) {
+			PRT_DEBUG("FIXME: play while still seeking");
+		}
+
 		if (playerState == PLAYER_STOPPED) {
 			// Disk needs to spin up, which takes 9.6s on
 			// my Pioneer LD-92000. Also always seek to
 			// beginning (confirmed on real MSX and LD)
-			video->seek(0);
+			video->seek(1, 0);
 			playingFromSample = 0;
 			// Note that with "fullspeedwhenloading" this
 			// should be reduced to.
 			setAck(time, 9600);
 			seeking = true;
+		} else if (playerState == PLAYER_PLAYING) {
+			// ignore
 		} else {
+			// FROZEN or PAUSED
+			sampleClock.advance(time);
 			setAck(time, 46);
 		}
 		playerState = PLAYER_PLAYING;
@@ -561,11 +600,15 @@ unsigned LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 
 void LaserdiscPlayer::pause(EmuTime::param time)
 {
-	PRT_DEBUG("Laserdisc::Pause");
-	if (video.get()) {
+	if (video.get() && playerState != PLAYER_STOPPED) {
+		PRT_DEBUG("Laserdisc::Pause");
+
 		updateStream(time);
 
-		playingFromSample = getCurrentSample(time);
+		if (playerState == PLAYER_PLAYING) {
+			playingFromSample = getCurrentSample(time);
+		}
+
 		playerState = PLAYER_PAUSED;
 		setAck(time, 46);
 	}
@@ -573,28 +616,35 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 
 void LaserdiscPlayer::stop(EmuTime::param time)
 {
-	PRT_DEBUG("Laserdisc::Stop");
-	if (video.get()) {
+	if (video.get() && playerState != PLAYER_STOPPED) {
+		PRT_DEBUG("Laserdisc::Stop");
+
 		updateStream(time);
 
 		playerState = PLAYER_STOPPED;
 	}
 }
 
-void LaserdiscPlayer::seekFrame(int frame, EmuTime::param time)
+void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 {
+	long long frameno = toframe ? toframe : 1;
+
 	if (playerState != PLAYER_STOPPED) {
-		PRT_DEBUG("Laserdisc::SeekFrame " << std::dec << frame);
+		PRT_DEBUG("Laserdisc::SeekFrame " << std::dec << frameno);
+
+		if (seeking) {
+			PRT_DEBUG("FIXME: seek command while still seeking");
+		}
+
 		if (video.get()) {
 			updateStream(time);
 
-			// NTSC is 29.97Hz which is 30000 / 1001,
-			// so frame 2997 is 100s and we want ms. The frame
-			// number 5 digits, so we need 64 bits
-			DivModByConst<30000> dm;
-			playingFromSample = dm.div(1001000ull * frame);
-			video->seek(playingFromSample);
+			long long samplePos = (frameno - 1ll) * 1001ll *
+					video->getSampleRate() / 30000ll;
+
+			video->seek(frameno, samplePos);
 			playerState = PLAYER_FROZEN;
+			playingFromSample = samplePos;
 
 			// seeking to the current frame takes 0.350s
 			seeking = true;
@@ -615,9 +665,15 @@ short LaserdiscPlayer::readSample(EmuTime::param time)
 	// Here we should return the value of the sample on the
 	// right audio channel, ignoring muting.
 	if (video.get() && playerState == PLAYER_PLAYING && !seeking) {
-		updateStream(time);
-		return tapeIn;
+		unsigned sample = getCurrentSample(time);
+		AudioFragment* audio = video->getAudio(sample);
+
+		if (audio) {
+			return int(audio->pcm[1][sample - audio->position]
+								* 32767.f);
+		}
 	}
+
 	return 0;
 }
 

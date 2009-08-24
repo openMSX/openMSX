@@ -1,11 +1,10 @@
 TODO:
  - ack is low for 0.018s. This might be because it finishes the current frame?
- - Switching fullscreen stops superimposing
  - Superimposing not working in screen 0
  - Off-by-one in TransparentScaler
  - Need for LDSDLRasterizer?
  - Emulate r#0, bit 0
  - set svn:keywords
- - OGG_SUPPORT -> Components
- - TransparentScaler factor 1, 3, 4
  - serialize state
+ - Throttle when Laserdisc::readSample() is called many times per frame
+ - screenshot and video recording are broken 
