@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 #include <set>
 
@@ -72,7 +73,17 @@ private:
 	friend class OSDCommand;
 
 	typedef std::vector<OSDWidget*> SubWidgets;
+	typedef std::map<std::string, OSDWidget*> SubWidgetsMap;
+
+	/** Direct child widgets of this widget, sorted by z-coordinate.
+	  */
 	SubWidgets subWidgets;
+
+	/** Contains the same widgets as "subWidgets", but stored with their name
+	  * the key, so lookup by name is fast.
+	  */
+	SubWidgetsMap subWidgetsMap;
+
 	OSDWidget* parent;
 
 	const std::string name;

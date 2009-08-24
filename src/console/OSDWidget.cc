@@ -163,13 +163,8 @@ OSDWidget* OSDWidget::findSubWidget(const string& name)
 	}
 	string first, last;
 	StringOp::splitOnFirst(name, ".", first, last);
-	for (SubWidgets::const_iterator it = subWidgets.begin();
-	     it != subWidgets.end(); ++it) {
-		if ((*it)->getName() == first) {
-			return (*it)->findSubWidget(last);
-		}
-	}
-	return NULL;
+	SubWidgetsMap::const_iterator it = subWidgetsMap.find(first);
+	return it == subWidgetsMap.end() ? NULL : it->second->findSubWidget(last);
 }
 
 const OSDWidget* OSDWidget::findSubWidget(const std::string& name) const
@@ -180,7 +175,9 @@ const OSDWidget* OSDWidget::findSubWidget(const std::string& name) const
 void OSDWidget::addWidget(std::auto_ptr<OSDWidget> widget)
 {
 	widget->setParent(this);
-	subWidgets.push_back(widget.release());
+	OSDWidget* widgetPtr = widget.release();
+	subWidgets.push_back(widgetPtr);
+	subWidgetsMap[widgetPtr->getName()] = widgetPtr;
 	resort();
 }
 
@@ -191,6 +188,9 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 		if (*it == &widget) {
 			delete *it;
 			subWidgets.erase(it);
+			SubWidgetsMap::size_type existed =
+				subWidgetsMap.erase(widget.getName());
+			assert(existed); (void)existed;
 			return;
 		}
 	}
