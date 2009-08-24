@@ -30,7 +30,7 @@ variable cur_wp2
 variable latch -1
 variable regs [list 0xa0 0xa1 0xa2 0xa3 0xa4 0xa5 -1 0xaf 0xaa 0xab 0xac -1 -1 -1 -1 -1]
 variable select_device
-variable select_device_chan
+variable select_device_chan 0
 
 proc scc_viewer_init {} {
 	variable machine_switch_trigger_id
@@ -227,59 +227,54 @@ proc set_scc_wave {channel form} {
 	set base [expr $channel*32]
 
 	switch $form {
-
-	0 {
-		#Saw Tooth
-		for {set i 0} {$i < 32} {incr i} {
-			debug write "SCC SCC" [expr $base+$i] [expr 255-($i*8)]
+		0 {
+			#Saw Tooth
+			set_scc_form $channel "fff7efe7dfd7cfc7bfb7afa79f978f877f776f675f574f473f372f271f170f07"
 		}
-	}
 
-	1 {
-		#Square
-		set_scc_form $channel "7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f80808080808080808080808080808080"
-	}
+		1 {
+			#Square
+			set_scc_form $channel "7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f80808080808080808080808080808080"
+		}
 
-	2 {	#Triangle
-		for {set i 0} {$i < 16} {incr i} {
-			set v1 [expr  128 - 16 * $i]
-			set v2 [expr -128 + 16 * $i]
-			set v1 [expr ($v1 >= 128) ? 127 : $v1]
-			debug write "SCC SCC" [expr $base+$i+ 0] [expr $v1 & 255]
-			debug write "SCC SCC" [expr $base+$i+16] [expr $v2 & 255]
- 		}
-	}
+		2 {	#Triangle
+			set_scc_form $channel "7f7060504030201000f0e0d0c0b0a0908090a0b0c0d0e0f00010203040506070"
+		}
 
-	3 {
-		#Sin Wave
-		set_scc_form $channel "001931475A6A757D7F7D756A5A47311900E7CFB9A6968B8380838B96A6B9CFE7"
-	}
+		3 {
+			#Sin Wave
+			set_scc_form $channel "001931475A6A757D7F7D756A5A47311900E7CFB9A6968B8380838B96A6B9CFE7"
+		}
 
-	4 {
-		#Organ
-		set_scc_form $channel "0070502050703000507F6010304000B0106000E0F000B090C010E0A0C0F0C0A0"
-	}
+		4 {
+			#Organ
+			set_scc_form $channel "0070502050703000507F6010304000B0106000E0F000B090C010E0A0C0F0C0A0"
+		}
 
-	5 {
-		#SAWWY001
-		set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
-	}
+		5 {
+			#SAWWY001
+			set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+		}
 
-	6 {
+		6 {
+			#SQROOT01
+			set_scc_form $channel "00407F401001EAD6C3B9AFA49C958F8A86838183868A8F959CA4AFB9C3D6EAFF"
+		}
 
-		#SQROOT01
-		set_scc_form $channel "00407F401001EAD6C3B9AFA49C958F8A86838183868A8F959CA4AFB9C3D6EAFF"
-	}
+		7 {
+			#SQROOT01
+			set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+		}
 
-	7 {
-		#SQROOT01
-		set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
-	}
+		8 {
+			#DYERVC01
+			set_scc_form $channel "00407F4001C081C001407F4001C0014001E0012001F0011001FFFFFFFF404040"
+		}
 
-	8 {
-		#DYERVC01
-		set_scc_form $channel "00407F4001C081C001407F4001C0014001E0012001F0011001FFFFFFFF404040"
-	}
+		9 {
+			#SPACY
+			set_scc_form $channel "808ea0c0e000203f3e3c3a373129201c1000e6c0d000203f10e080c000200090"
+		}
 	}
 }
 
@@ -308,38 +303,38 @@ proc toggle_scc_editor {} {
 		osd create rectangle scc.slider$i.val -x 0 -y 127 -h 1 -w 8 -rgba 0xffffff90
 	}
 
-	for {set i 0} {$i < 33} {incr i} {
+	for {set i 0} {$i < 32} {incr i} {
 		osd create rectangle "scc.hline$i" -x [expr ($i*8)-1] -y 0 -h 255 -w 1 -rgba 0xffffff60
 		osd create rectangle "scc.vline$i" -x 0 -y [expr ($i*8)-1] -h 1 -w 255 -rgba 0xffffff60
 	}
 
-		osd create rectangle "scc.hmid1" -x 63 -y 0 -h 255 -w 1 -rgba 0xff000080
-		osd create text 	 "scc.hmid1.text" -x -2 -y -12 -text "7" -size 8 -rgba 0xffffffff
+	osd create rectangle "scc.hmid1" -x 63 -y 0 -h 255 -w 1 -rgba 0xff000080
+	osd create text 	 "scc.hmid1.text" -x -2 -y -12 -text "7" -size 8 -rgba 0xffffffff
 
-		osd create rectangle "scc.hmid2" -x 127 -y 0 -h 255 -w 1 -rgba 0xffffffff
-		osd create text 	 "scc.hmid2.text" -x -5 -y -12 -text "15" -size 8 -rgba 0xffffffff
+	osd create rectangle "scc.hmid2" -x 127 -y 0 -h 255 -w 1 -rgba 0xffffffff
+	osd create text 	 "scc.hmid2.text" -x -5 -y -12 -text "15" -size 8 -rgba 0xffffffff
 
-		osd create rectangle "scc.hmid3" -x 191 -y 0 -h 255 -w 1 -rgba 0xff000080
-		osd create text 	 "scc.hmid3.text" -x -5 -y -12 -text "23" -size 8 -rgba 0xffffffff
+	osd create rectangle "scc.hmid3" -x 191 -y 0 -h 255 -w 1 -rgba 0xff000080
+	osd create text 	 "scc.hmid3.text" -x -5 -y -12 -text "23" -size 8 -rgba 0xffffffff
 
-		osd create text 	 "scc.hline0.text" -x 0 -y -12 -text "0" -size 8 -rgba 0xffffffff
-		osd create text 	 "scc.hline31.text" -x 0 -y -12 -text "63" -size 8 -rgba 0xffffffff
+	osd create text 	 "scc.hline0.text" -x 0 -y -12 -text "0" -size 8 -rgba 0xffffffff
+	osd create text 	 "scc.hline31.text" -x 0 -y -12 -text "63" -size 8 -rgba 0xffffffff
 
-		osd create rectangle "scc.vmid1" -x 0 -y 63 -h 1 -w 255 -rgba 0xff000080
-		osd create text 	 "scc.vmid1.text" -x -20 -y -4 -text "+64" -size 8 -rgba 0xffffffff
+	osd create rectangle "scc.vmid1" -x 0 -y 63 -h 1 -w 255 -rgba 0xff000080
+	osd create text 	 "scc.vmid1.text" -x -20 -y -4 -text "+64" -size 8 -rgba 0xffffffff
 
-		osd create rectangle "scc.vmid2" -x 0 -y 127 -h 1 -w 255 -rgba 0xffffffff
-		osd create text 	 "scc.vmid2.text" -x -10 -y -4 -text "0" -size 8 -rgba 0xffffffff
+	osd create rectangle "scc.vmid2" -x 0 -y 127 -h 1 -w 255 -rgba 0xffffffff
+	osd create text 	 "scc.vmid2.text" -x -10 -y -4 -text "0" -size 8 -rgba 0xffffffff
 
-		osd create rectangle "scc.vmid3" -x 0 -y 191 -h 1 -w 255 -rgba 0xff000080
-		osd create text 	 "scc.vmid3.text" -x -18 -y -4 -text "-64" -size 8 -rgba 0xffffffff
+	osd create rectangle "scc.vmid3" -x 0 -y 191 -h 1 -w 255 -rgba 0xff000080
+	osd create text 	 "scc.vmid3.text" -x -18 -y -4 -text "-64" -size 8 -rgba 0xffffffff
 
-		osd create text 	 "scc.vline0.text" -x -25 -y 0 -text "+128" -size 8 -rgba 0xffffffff
-		osd create text 	 "scc.vline31.text" -x -22 -y 0 -text "-128" -size 8 -rgba 0xffffffff
+	osd create text 	 "scc.vline0.text" -x -25 -y 0 -text "+128" -size 8 -rgba 0xffffffff
+	osd create text 	 "scc.vline31.text" -x -22 -y 0 -text "-128" -size 8 -rgba 0xffffffff
 
-		osd create rectangle selected
+	osd create rectangle selected
 
-		return ""
+	return ""
 }
 
 proc checkclick {} {
@@ -393,10 +388,30 @@ proc checkclick {} {
 	}
 }
 
+proc get_val_matrix_column {sccval} { return [expr $sccval < 0 ? $sccval + 256 : $sccval] }
+
+proc get_scc_string_from_matrix {} {
+
+	set sccstring ""
+	set outputfile "outputfile.txt"
+	set output [open $outputfile "w"]
+
+	for {set i 0} {$i < 32} {incr i} {
+		set a [format %02x [get_val_matrix_column [expr int([osd info scc.slider$i.val -h])]]]
+		set sccstring [concat $sccstring$a]
+	}
+
+	close $output
+
+	puts "$outputfile writen"
+	return $sccstring
+}
+
 namespace export toggle_scc_editor
 namespace export toggle_psg2scc
 namespace export set_scc_wave
 namespace export toggle_scc_viewer
+namespace export get_scc_string_from_matrix
 
 } ;# namespace scc_toys
 
