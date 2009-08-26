@@ -144,6 +144,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, remoteState(REMOTE_GAP)
 	, remoteLastEdge(EmuTime::zero)
 	, remoteLastBit(false)
+	, waitFrame(0)
 	, ack(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
@@ -274,6 +275,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
+	PRT_DEBUG("Laserdisc: Lowering ACK for " << std::dec << wait << "s");
 	removeSyncPoint(ACK);
 	Clock<1000> now(time);
 	setSyncPoint(now + wait,  ACK);
@@ -349,6 +351,10 @@ void LaserdiscPlayer::button(unsigned custom, unsigned code, EmuTime::param time
 		bool ok = true;
 
 		switch (code) {
+		case 0xfa:
+			seekState = SEEK_WAIT_BEGIN;
+			seekNum = 0;
+			break;
 		case 0x82:
 			seekState = SEEK_FRAME_BEGIN;
 			seekNum = 0;
@@ -356,7 +362,7 @@ void LaserdiscPlayer::button(unsigned custom, unsigned code, EmuTime::param time
 		case 0x02:
 			seekState = SEEK_CHAPTER_BEGIN;
 			seekNum = 0;
-			ok = false; // FIXME: no chapter information yet
+			ok = video->chapter(0) != 0;
 			break;
 		case 0x00: seekNum = seekNum * 10 + 0; break;
 		case 0x80: seekNum = seekNum * 10 + 1; break;
@@ -385,14 +391,29 @@ void LaserdiscPlayer::button(unsigned custom, unsigned code, EmuTime::param time
 				seekState = SEEK_NONE;
 				seekChapter(seekNum % 100, time);
 				break;
+			case SEEK_WAIT_BEGIN:
+				seekState = SEEK_WAIT_END;
+				break;
+			case SEEK_WAIT_END:
+				seekState = SEEK_NONE;
+				waitFrame = seekNum % 100000;
+				PRT_DEBUG("Wait frame set to " << std::dec <<
+								waitFrame);
+				break;
 			default:
 				seekState = SEEK_NONE;
 			}
+			break;
+		case 0xa2: // "X+"
+			waitFrame = 0;
 			break;
 		case 0xff:
 		default:
 			ok = false;
 			seekState = SEEK_NONE;
+			break;
+		case 0x62: // C- ?? what does it do?
+		case 0xe2: // C+ ?? what does it do?
 			break;
 		}
 
@@ -439,10 +460,37 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 	} else if (userdata == FRAME) {
 		if (RawFrame* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
-			// FIXME: When PLAYER_FROZEN, get first frame
-			if (isVideoOutputAvailable(time) &&
-					playerState == PLAYER_PLAYING) {
-				video->getFrame(*rawFrame);
+
+			if (isVideoOutputAvailable(time)) {
+				switch (playerState) {
+				case PLAYER_FROZEN:
+					if (!getFirstFrame) {
+						break;
+					}
+				case PLAYER_PLAYING:
+					video->getFrame(*rawFrame);
+					getFirstFrame = false;
+					break;
+				default:
+					break;
+				}
+
+				// freeze if stop frame
+				if (video->stopFrame()) {
+					playingFromSample =
+							getCurrentSample(time);
+					playerState = PLAYER_FROZEN;
+				}
+
+				if (waitFrame && waitFrame ==
+					unsigned(video->getCurrentFrame())) {
+					PRT_DEBUG("LaserdiscPlayer: wait frame "
+						<< std::dec << waitFrame << 
+						" reached");
+
+					setAck(time, 100);
+					waitFrame = 0;
+				}
 			} else {
 				renderer->drawBlank(0, 128, 196);
 			}
@@ -582,6 +630,8 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			// should be reduced to.
 			setAck(time, 9600);
 			seeking = true;
+			getFirstFrame = false;
+			waitFrame = 0;
 		} else if (playerState == PLAYER_PLAYING) {
 			// ignore
 		} else {
@@ -645,6 +695,10 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 			video->seek(frameno, samplePos);
 			playerState = PLAYER_FROZEN;
 			playingFromSample = samplePos;
+			getFirstFrame = true;
+
+			// Seeking clears the frame to wait for
+			waitFrame = 0;
 
 			// seeking to the current frame takes 0.350s
 			seeking = true;
@@ -653,10 +707,16 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::seekChapter(int /*chapter*/, EmuTime::param /*time*/)
+void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
 	if (playerState != PLAYER_STOPPED) {
-		// we have no chapter information yet, so fail
+		if (video.get()) {
+			int frameno = video->chapter(chapter);
+			if (!frameno) {
+				return;
+			}
+			seekFrame(frameno, time);
+		}
 	}
 }
 

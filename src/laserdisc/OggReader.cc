@@ -46,6 +46,9 @@ OggReader::OggReader(const std::string& filename, CliComm& cli_)
 	audioList.clear();
 	recycleAudioList.clear();
 
+	chapters.clear();
+	stopFrames.clear();
+
 	while (audioHeaders || videoHeaders) {
 		if (oggz_read(oggz, 1024) <= 0) {
 			break;
@@ -190,7 +193,7 @@ void OggReader::vorbisFoundPosition()
 {
 	unsigned last = vorbisPos;
 
-	for (AudioFragments::reverse_iterator it = audioList.rbegin(); 
+	for (AudioFragments::reverse_iterator it = audioList.rbegin();
 						it != audioList.rend(); ++it) {
 		last -= (*it)->length;
 		(*it)->position = last;
@@ -315,6 +318,59 @@ int OggReader::frameNo(ogg_packet* packet)
 	return key + intra;
 }
 
+void OggReader::readMetadata()
+{
+	char *metadata = NULL, *p;
+
+	for (int i=0; i < video_comment.comments; i++) {
+		if (video_comment.user_comments[i] &&
+			video_comment.comment_lengths[i] >=
+							int(sizeof("location"))
+			&& !strcasecmp(video_comment.user_comments[i],
+								"location")) {
+			// ensure null termination
+			metadata = strndup(video_comment.user_comments[i] +
+							sizeof("location"),
+					video_comment.comment_lengths[i] -
+							sizeof("location"));
+			break;
+		}
+	}
+
+	if (!metadata) {
+		return;
+	}
+
+	p = metadata;
+
+	// Maybe there is a better way of doing this parsing in C++
+	while (p) {
+		if (strncmp(p, "chapter: ", 8) == 0) {
+			p += 8;
+			int chapter = atoi(p);
+			p = strchr(p, ',');
+			if (!p) {
+				break;
+			}
+			p++;
+			int frame = atoi(p);
+			if (frame) {
+				chapters[chapter] = frame;
+			}
+
+		} else if (strncmp(p, "stop: ", 6) == 0) {
+			int stopframe = atoi(p + 6);
+			if (stopframe) {
+				stopFrames[stopframe] =  1;
+			}
+		}
+		p = strchr(p, '\n');
+		if (p) p++;
+	}
+
+	free(metadata);
+}
+
 void OggReader::readTheora(ogg_packet* packet)
 {
 	if (unlikely(theora_packet_isheader(packet))) {
@@ -332,6 +388,7 @@ void OggReader::readTheora(ogg_packet* packet)
 
 		if (--videoHeaders == 0) {
 			theora_decode_init(&video_handle, &video_info);
+			readMetadata();
 		}
 
 		return;

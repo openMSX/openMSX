@@ -120,8 +120,13 @@ private:
 		SEEK_CHAPTER_BEGIN,
 		SEEK_CHAPTER_END,
 		SEEK_FRAME_BEGIN,
-		SEEK_FRAME_END
+		SEEK_FRAME_END,
+		SEEK_WAIT_BEGIN,
+		SEEK_WAIT_END
 	} seekState;
+
+	/* frame the MSX has requested to wait for */
+	unsigned waitFrame;
 
 	/* The specific frame or chapter we are seeking to */
 	unsigned seekNum;
@@ -138,6 +143,8 @@ private:
 		PLAYER_PAUSED,
 		PLAYER_FROZEN
 	} playerState;
+
+	bool getFirstFrame;
 
 	friend class LaserdiscCommand;
 };

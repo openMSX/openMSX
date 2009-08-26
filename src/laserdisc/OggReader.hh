@@ -10,6 +10,7 @@
 #include <theora/theora.h>
 #include <list>
 #include <string>
+#include <map>
 
 namespace openmsx {
 
@@ -36,9 +37,15 @@ public:
 	void getFrame(RawFrame& frame);
 	AudioFragment* getAudio(unsigned sample);
 
+	// metadata
+	bool stopFrame() { return stopFrames[currentFrame]; }
+	int chapter(int chapterNo) { return chapters[chapterNo]; }
+	int getCurrentFrame() { return currentFrame; }
+
 private:
 	void cleanup();
 	void readTheora(ogg_packet* packet);
+	void readMetadata();
 	void readVorbis(ogg_packet* packet);
 	void returnAudio(AudioFragment* audio);
 	void vorbisFoundPosition();
@@ -79,6 +86,10 @@ private:
 
 	AudioFragments audioList;
 	AudioFragments recycleAudioList;
+
+	// Metadata
+	std::map<int, int> stopFrames;
+	std::map<int, int> chapters;
 };
 
 } // namespace openmsx
