@@ -10,7 +10,7 @@
 #include "TclObject.hh"
 #include "components.hh"
 #include <cassert>
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #include "GLImage.hh"
 #endif
 
@@ -141,7 +141,7 @@ BaseImage* OSDText::createSDL(OutputSurface& output)
 
 BaseImage* OSDText::createGL(OutputSurface& output)
 {
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	return create<GLImage>(output);
 #else
 	(void)&output;

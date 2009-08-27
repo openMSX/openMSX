@@ -320,7 +320,7 @@ template class V9990BitmapConverter<word>;
 template class V9990BitmapConverter<unsigned>;
 #endif
 
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #ifdef _MSC_VER
 
 // The template stuff below fails to compile on VC++, it triggers this error

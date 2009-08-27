@@ -105,7 +105,7 @@ private:
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<CassettePlayerCLI> cassettePlayerCLI;
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	const std::auto_ptr<LaserdiscPlayerCLI> laserdiscPlayerCLI;
 #endif
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;

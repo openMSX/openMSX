@@ -57,7 +57,7 @@
 #include "MSXException.hh"
 #include "components.hh"
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
 #endif
 
@@ -162,7 +162,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "ADVram") {
 		result.reset(new ADVram(motherBoard, conf));
 	} else if (type == "PioneerLDControl") {
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 		result.reset(new PioneerLDControl(motherBoard, conf));
 #else
 		throw MSXException("Laserdisc component not compiled in");

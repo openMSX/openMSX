@@ -5,7 +5,7 @@
 
 // Check for availability of OpenGL.
 #include "components.hh"
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 
 // Include GLEW headers.
 #include <GL/glew.h>

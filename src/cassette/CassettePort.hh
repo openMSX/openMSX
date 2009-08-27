@@ -12,10 +12,10 @@ namespace openmsx {
 class MSXMotherBoard;
 class CassetteDevice;
 class CassettePlayer;
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 class LaserdiscPlayer;
 #endif
-#ifdef COMPONENT_JACK
+#if COMPONENT_JACK
 class CassetteJack;
 #endif
 
@@ -55,7 +55,7 @@ public:
 	*/
 	virtual bool cassetteIn(EmuTime::param time) = 0;
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	/**
 	* Set the Laserdisc Player; when the motor control is off, sound
 	* is read from the laserdisc.
@@ -72,7 +72,7 @@ public:
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual void cassetteOut(bool output, EmuTime::param time);
 	virtual bool cassetteIn(EmuTime::param time);
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	virtual void setLaserdiscPlayer(LaserdiscPlayer *laserdisc);
 #endif
 	virtual bool lastOut() const;
@@ -91,10 +91,10 @@ private:
 	MSXMotherBoard& motherBoard;
 
 	std::auto_ptr<CassettePlayer> cassettePlayer;
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	LaserdiscPlayer* laserdiscPlayer;
 #endif
-#ifdef COMPONENT_JACK
+#if COMPONENT_JACK
 	std::auto_ptr<CassetteJack> cassetteJack;
 #endif
 
@@ -108,7 +108,7 @@ public:
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual void cassetteOut(bool output, EmuTime::param time);
 	virtual bool cassetteIn(EmuTime::param time);
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	virtual void setLaserdiscPlayer(LaserdiscPlayer *laserdisc);
 #endif
 	virtual bool lastOut() const;

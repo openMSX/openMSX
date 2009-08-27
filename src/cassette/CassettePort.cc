@@ -4,10 +4,10 @@
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
 #include "components.hh"
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 #include "LaserdiscPlayer.hh"
 #endif
-#ifdef COMPONENT_JACK
+#if COMPONENT_JACK
 #include "CassetteJack.hh"
 #endif
 #include "DummyCassetteDevice.hh"
@@ -49,7 +49,7 @@ bool DummyCassettePort::lastOut() const
 {
 	return false; // not relevant
 }
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
 {
 	// do nothing
@@ -63,7 +63,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 	: Connector(motherBoard_.getPluggingController(), "cassetteport",
 	            auto_ptr<Pluggable>(new DummyCassetteDevice()))
 	, motherBoard(motherBoard_)
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	, laserdiscPlayer(NULL)
 #endif
 	, lastOutput(false)
@@ -80,7 +80,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()
 		));
 	getPluggingController().registerPluggable(cassettePlayer.get());
-#ifdef COMPONENT_JACK
+#if COMPONENT_JACK
 	cassetteJack.reset(new CassetteJack(motherBoard.getScheduler()));
 	getPluggingController().registerPluggable(cassetteJack.get());
 #endif
@@ -90,7 +90,7 @@ CassettePort::~CassettePort()
 {
 	unplug(motherBoard.getCurrentTime());
 	getPluggingController().unregisterPluggable(cassettePlayer.get());
-#ifdef COMPONENT_JACK
+#if COMPONENT_JACK
 	getPluggingController().unregisterPluggable(cassetteJack.get());
 #endif
 }
@@ -121,7 +121,7 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
 	short sample;
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	if (!motorControl && laserdiscPlayer != NULL) {
 		sample = laserdiscPlayer->readSample(time);
 	} else
@@ -133,7 +133,7 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	return result;
 }
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 void CassettePort::setLaserdiscPlayer(LaserdiscPlayer *laserdiscPlayer_)
 {
 	laserdiscPlayer = laserdiscPlayer_;

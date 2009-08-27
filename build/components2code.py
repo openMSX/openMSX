@@ -24,10 +24,7 @@ def iterComponentsHeader(probeMakePath):
 	yield ''
 	for component in iterComponents():
 		varName = component.makeName
-		if varName in buildComponents:
-			yield '#define COMPONENT_%s 1' % varName
-		else:
-			yield '// #undef COMPONENT_%s' % varName
+		yield '#define COMPONENT_%s %d' % (varName, varName in buildComponents)
 	yield ''
 	yield 'namespace openmsx {'
 	yield ''

@@ -286,7 +286,7 @@ template class BitmapConverter<word>;
 template class BitmapConverter<unsigned>;
 #endif
 
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #ifdef _MSC_VER
 // see comment in V9990BitmapConverter
 STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));

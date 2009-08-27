@@ -450,7 +450,7 @@ template struct MemSet2<word,     false>;
 template struct MemSet2<unsigned, true >;
 template struct MemSet2<unsigned, false>;
 
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #ifdef _MSC_VER
 // see comment in V9990BitmapConverter
 STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));

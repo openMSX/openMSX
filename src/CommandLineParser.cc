@@ -30,7 +30,7 @@
 #include "build-info.hh"
 #include "components.hh"
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 #include "LaserdiscPlayerCLI.hh"
 #endif
 
@@ -164,7 +164,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new CassettePlayerCLI(*this))
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	, laserdiscPlayerCLI(new LaserdiscPlayerCLI(*this))
 #endif
 	, diskImageCLI(new DiskImageCLI(*this))
@@ -189,7 +189,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-nosse",      *noSSEOption, 1, 1);
 	registerOption("-nosse2",     *noSSE2Option, 1, 1);
 	#endif
-	#ifdef COMPONENT_GL
+	#if COMPONENT_GL
 	registerOption("-nopbo",      *noPBOOption, 1, 1);
 	#endif
 	registerOption("-testconfig", *testConfigOption, 1, 1);
@@ -755,7 +755,7 @@ const string& NoSSE2Option::optionHelp() const
 bool NoPBOOption::parseOption(const string& /*option*/,
                               deque<string>& /*cmdLine*/)
 {
-	#ifdef COMPONENT_GL
+	#if COMPONENT_GL
 	cout << "Disabling PBO" << endl;
 	PixelBuffers::enabled = false;
 	#endif

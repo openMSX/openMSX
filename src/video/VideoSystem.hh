@@ -37,7 +37,7 @@ public:
 	  */
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp) = 0;
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	virtual LDRasterizer* createLDRasterizer(LaserdiscPlayer &ld) = 0;
 #endif
 

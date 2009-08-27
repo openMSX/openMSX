@@ -73,7 +73,7 @@ SDLScopedClip::~SDLScopedClip()
 
 ////
 
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 
 class GLScopedClip
 {
@@ -329,7 +329,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 void OSDWidget::paintGLRecursive (OutputSurface& output)
 {
 	(void)output;
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	paintGL(output);
 
 	std::auto_ptr<GLScopedClip> scopedClip;

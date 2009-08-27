@@ -19,7 +19,7 @@
 #include "V9990DummyRenderer.hh"
 #include "V9990PixelRenderer.hh"
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 #include "LDDummyRenderer.hh"
 #include "LDPixelRenderer.hh"
 #endif
@@ -78,7 +78,7 @@ V9990Renderer* createV9990Renderer(V9990& vdp, Display& display)
 	}
 }
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 LDRenderer* createLDRenderer(LaserdiscPlayer& ld, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer().getValue()) {
@@ -103,7 +103,7 @@ auto_ptr<RendererSetting> createRendererSetting(
 	RendererMap rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDL"] = SDL;
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	#ifdef GL_VERSION_2_0
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here

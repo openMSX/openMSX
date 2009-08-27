@@ -21,7 +21,7 @@
 #include <cassert>
 
 #include "components.hh"
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #include "GLImage.hh"
 #endif
 
@@ -64,7 +64,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, screenH(screenH_)
 	, openGL(openGL_)
 {
-#ifndef COMPONENT_GL
+#if !COMPONENT_GL
 	assert(!openGL);
 #endif
 	destX = destY = destW = destH = 0; // avoid UMR
@@ -282,7 +282,7 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 	if (!openGL) {
 		backgroundImage.reset(new SDLImage(filename, destW, destH));
 	}
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	else {
 		backgroundImage.reset(new GLImage(filename, destW, destH));
 	}
@@ -309,7 +309,7 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, const string& text,
 		SDLImage image(surf);
 		image.draw(output, x, y, alpha);
 	}
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	else {
 		GLImage image(surf);
 		image.draw(output, x, y, alpha);
@@ -338,7 +338,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 				backgroundImage.reset(new SDLImage(
 					destW, destH, CONSOLE_ALPHA));
 			}
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 			else {
 				backgroundImage.reset(new GLImage(
 					destW, destH, CONSOLE_ALPHA));

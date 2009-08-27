@@ -10,7 +10,7 @@
 #include "components.hh"
 #include "Math.hh"
 #include <cassert>
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #include "GLImage.hh"
 #endif
 
@@ -178,7 +178,7 @@ BaseImage* OSDRectangle::createSDL(OutputSurface& output)
 
 BaseImage* OSDRectangle::createGL(OutputSurface& output)
 {
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	return create<GLImage>(output);
 #else
 	(void)&output;

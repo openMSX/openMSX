@@ -51,7 +51,7 @@ namespace RendererFactory
 	  */
 	V9990Renderer* createV9990Renderer(V9990& vdp, Display& display);
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	/** Create the Laserdisc Renderer
 	  * @param ld The Laserdisc player whose display will be rendered.
 	  * @param display TODO

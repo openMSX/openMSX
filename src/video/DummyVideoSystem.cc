@@ -18,7 +18,7 @@ V9990Rasterizer* DummyVideoSystem::createV9990Rasterizer(V9990& /*vdp*/)
 	return NULL;
 }
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 LDRasterizer* DummyVideoSystem::createLDRasterizer(LaserdiscPlayer& /*ld*/)
 {
 	assert(false);

@@ -25,11 +25,11 @@
 #include "sdlwin32.hh"
 #endif
 #include "components.hh"
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #include "SDLGLVisibleSurface.hh"
 #include "GLPostProcessor.hh"
 #endif
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 #include "LaserdiscPlayer.hh"
 #include "LDSDLRasterizer.hh"
 #endif
@@ -108,7 +108,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 			assert(false);
 			return NULL;
 		}
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		return new SDLRasterizer<unsigned>(
 			vdp, display, *screen,
@@ -150,7 +150,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 			assert(false);
 			return NULL;
 		}
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		return new V9990SDLRasterizer<unsigned>(
 			vdp, display, *screen,
@@ -164,7 +164,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 	}
 }
 
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 {
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
@@ -195,7 +195,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 			assert(false);
 			return NULL;
 		}
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		return new LDSDLRasterizer<unsigned>(
 			*screen,
@@ -296,7 +296,7 @@ void SDLVideoSystem::resize()
 		screen.reset(new SDLVisibleSurface(width, height, fullscreen,
 				renderSettings, eventDistributor, inputEventGenerator));
 		break;
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
 				renderSettings, eventDistributor, inputEventGenerator));

@@ -223,7 +223,7 @@ template class V9990P2Converter<word>;
 template class V9990P2Converter<unsigned>;
 #endif
 
-#ifdef COMPONENT_GL
+#if COMPONENT_GL
 #ifdef _MSC_VER
 // see comment in V9990BitmapConverter
 STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));

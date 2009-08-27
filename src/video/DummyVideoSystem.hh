@@ -14,7 +14,7 @@ public:
 	// VideoSystem interface:
 	virtual Rasterizer* createRasterizer(VDP& vdp);
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
-#ifdef COMPONENT_LASERDISC
+#if COMPONENT_LASERDISC
 	virtual LDRasterizer* createLDRasterizer(LaserdiscPlayer& ld);
 #endif
 	virtual void flush();
