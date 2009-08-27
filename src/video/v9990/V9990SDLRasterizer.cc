@@ -14,6 +14,7 @@
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <algorithm>
 
 using std::min;
@@ -352,7 +353,7 @@ void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
 #if HAVE_16BPP
 template class V9990SDLRasterizer<word>;
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template class V9990SDLRasterizer<unsigned>;
 #endif
 

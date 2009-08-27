@@ -287,12 +287,14 @@ template class BitmapConverter<unsigned>;
 #endif
 
 #if COMPONENT_GL
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
 // see comment in V9990BitmapConverter
 STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
-#else
+#elif HAVE_32BPP
 template<> class BitmapConverter<GLUtil::NoExpansion> {};
 template class BitmapConverter<GLUtil::ExpandGL>;
+#else
+template class BitmapConverter<GLuint>;
 #endif
 #endif // COMPONENT_GL
 

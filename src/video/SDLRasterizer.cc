@@ -16,6 +16,7 @@
 #include "MemoryOps.hh"
 #include "VisibleSurface.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -589,7 +590,7 @@ void SDLRasterizer<Pixel>::update(const Setting& setting)
 #if HAVE_16BPP
 template class SDLRasterizer<word>;
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template class SDLRasterizer<unsigned>;
 #endif
 

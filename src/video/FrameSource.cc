@@ -6,6 +6,7 @@
 #include "LineScalers.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
+#include "components.hh"
 
 namespace openmsx {
 
@@ -348,7 +349,7 @@ template const word* FrameSource::scaleLine(const word*, unsigned, unsigned);
 template const word* FrameSource::getLinePtr320_240<word>(unsigned);
 template const word* FrameSource::getLinePtr640_480<word>(unsigned);
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template const unsigned* FrameSource::scaleLine(const unsigned*, unsigned, unsigned);
 template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned);
 template const unsigned* FrameSource::getLinePtr640_480<unsigned>(unsigned);

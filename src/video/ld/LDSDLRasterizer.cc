@@ -5,6 +5,7 @@
 #include "PostProcessor.hh"
 #include "VisibleSurface.hh"
 #include "build-info.hh"
+#include "components.hh"
 
 namespace openmsx {
 
@@ -54,7 +55,7 @@ RawFrame* LDSDLRasterizer<Pixel>::getRawFrame()
 #if HAVE_16BPP
 template class LDSDLRasterizer<word>;
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template class LDSDLRasterizer<unsigned>;
 #endif
 

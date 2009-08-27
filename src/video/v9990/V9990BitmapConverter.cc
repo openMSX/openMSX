@@ -321,8 +321,7 @@ template class V9990BitmapConverter<unsigned>;
 #endif
 
 #if COMPONENT_GL
-#ifdef _MSC_VER
-
+#if defined(_MSC_VER)
 // The template stuff below fails to compile on VC++, it triggers this error
 //   http://msdn.microsoft.com/en-us/library/9045w50z.aspx
 // It's not clear whether this is a limitation in VC++ or a C++ extension
@@ -331,12 +330,11 @@ template class V9990BitmapConverter<unsigned>;
 // so the stuff below is not required (it would only instantiate a dummy class
 // when these types are the same).
 STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
-
-#else
-
+#elif HAVE_32BPP
 template <> class V9990BitmapConverter<GLUtil::NoExpansion> {};
 template class V9990BitmapConverter<GLUtil::ExpandGL>;
-
+#else
+template class V9990BitmapConverter<GLuint>;
 #endif
 #endif // COMPONENT_GL
 
