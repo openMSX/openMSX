@@ -39,7 +39,7 @@ void LocalFileReference::init(const string& url)
 	tmpDir = FileOperations::getTempDir() + FileOperations::nativePathSeparator + "openmsx";
 #else
 	// TODO - why not just use getTempDir()?
-	tmpDir = StringOp::Builder() << "/tmp/openmsx." << getpid();
+	tmpDir = StringOp::Builder() << "/tmp/openmsx." << int(getpid());
 #endif
 	// it's possible this directory already exists, in that case the
 	// following function does nothing

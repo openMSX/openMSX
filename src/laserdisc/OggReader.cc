@@ -329,10 +329,12 @@ void OggReader::readMetadata()
 			&& !strcasecmp(video_comment.user_comments[i],
 								"location")) {
 			// ensure null termination
-			metadata = strndup(video_comment.user_comments[i] +
-							sizeof("location"),
-					video_comment.comment_lengths[i] -
-							sizeof("location"));
+			size_t len = video_comment.comment_lengths[i] - 
+							sizeof("location");
+			metadata = new char[len + 1];
+			memcpy(metadata, video_comment.user_comments[i] +
+						sizeof("location"), len);
+			metadata[len] = 0;
 			break;
 		}
 	}
@@ -368,7 +370,7 @@ void OggReader::readMetadata()
 		if (p) p++;
 	}
 
-	free(metadata);
+	delete metadata;
 }
 
 void OggReader::readTheora(ogg_packet* packet)

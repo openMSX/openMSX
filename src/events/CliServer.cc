@@ -135,7 +135,7 @@ void CliServer::createSocket()
 	if (!checkSocketDir(dir)) {
 		throw MSXException("Couldn't create socket directory.");
 	}
-	socketName = StringOp::Builder() << dir << "/socket." << getpid();
+	socketName = StringOp::Builder() << dir << "/socket." << int(getpid());
 
 #ifdef _WIN32
 	listenSock = socket(AF_INET, SOCK_STREAM, 0);
