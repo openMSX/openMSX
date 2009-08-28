@@ -407,12 +407,146 @@ proc get_scc_string_from_matrix {} {
 	return $sccstring
 }
 
+
+#the next procs are highly experimental and very much WIP
+
+variable line 1
+variable listing ""
+
+proc select_wave {} {
+
+variable line
+variable listing
+
+incr line 1
+append listing  "$line play\"[get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]]\"\r"
+
+	#set chan1 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]]
+	#set chan2 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 2] + [debug read "PSG regs" 3]*256]+1))]]
+	#set chan3 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 4] + [debug read "PSG regs" 5]*256]+1))]]
+
+after frame select_wave
+}
+
+proc save_listing {} {
+	variable listing
+	set outputfile "c:/outputfile.txt"
+	set output [open $outputfile "w"]
+	puts $output $listing
+	close $output
+}
+
+proc get_tone {hz} {
+	if {$hz<33} {return "o1c"}
+	if {$hz<35} {return "o1c#"}
+	if {$hz<37} {return "o1d"}
+	if {$hz<39.5} {return "o1d#"}
+	if {$hz<42} {return "o1e"}
+	if {$hz<44.5} {return "o1f"}
+	if {$hz<47} {return "o1f#"}
+	if {$hz<49.5} {return "o1g"}
+	if {$hz<52.5} {return "o1g#"}
+	if {$hz<56} {return "o1a"}
+	if {$hz<59.5} {return "o1a#"}
+	if {$hz<63} {return "o1b"}
+	if {$hz<67} {return "o2c"}
+	if {$hz<71} {return "o2c#"}
+	if {$hz<75} {return "o2d"}
+	if {$hz<79.5} {return "o2d#"}
+	if {$hz<84.5} {return "o2e"}
+	if {$hz<89.5} {return "o2f"}
+	if {$hz<94.5} {return "o2f#"}
+	if {$hz<100} {return "o2g"}
+	if {$hz<106} {return "o2g#"}
+	if {$hz<112.5} {return "o2a"}
+	if {$hz<119.5} {return "o2a#"}
+	if {$hz<126.5} {return "o2b"}
+	if {$hz<134} {return "o3c"}
+	if {$hz<142} {return "o3c#"}
+	if {$hz<150.5} {return "o3d"}
+	if {$hz<159.5} {return "o3d#"}
+	if {$hz<169} {return "o3e"}
+	if {$hz<179} {return "o3f"}
+	if {$hz<189.5} {return "o3f#"}
+	if {$hz<201} {return "o3g"}
+	if {$hz<213} {return "o3g#"}
+	if {$hz<225.5} {return "o3a"}
+	if {$hz<239} {return "o3a#"}
+	if {$hz<253} {return "o3b"}
+	if {$hz<268} {return "o4c"}
+	if {$hz<284} {return "o4c#"}
+	if {$hz<300.5} {return "o4d"}
+	if {$hz<319} {return "o4d#"}
+	if {$hz<338.5} {return "o4e"}
+	if {$hz<358.5} {return "o4f"}
+	if {$hz<380} {return "o4f#"}
+	if {$hz<402.5} {return "o4g"}
+	if {$hz<426} {return "o4g#"}
+	if {$hz<451} {return "o4a"}
+	if {$hz<477} {return "o4a#"}
+	if {$hz<505} {return "o4b"}
+	if {$hz<535.5} {return "o5c"}
+	if {$hz<568} {return "o5c#"}
+	if {$hz<601.5} {return "o5d"}
+	if {$hz<636} {return "o5d#"}
+	if {$hz<674} {return "o5e"}
+	if {$hz<714.5} {return "o5f"}
+	if {$hz<755.5} {return "o5f#"}
+	if {$hz<799} {return "o5g"}
+	if {$hz<847.5} {return "o5g#"}
+	if {$hz<898.5} {return "o5a"}
+	if {$hz<952.5} {return "o5a#"}
+	if {$hz<1008} {return "o5b"}
+	if {$hz<1065.5} {return "o6c"}
+	if {$hz<1130.5} {return "o6c#"}
+	if {$hz<1197} {return "o6d"}
+	if {$hz<1264.5} {return "o6d#"}
+	if {$hz<1340} {return "o6e"}
+	if {$hz<1416} {return "o6f"}
+	if {$hz<1502.5} {return "o6f#"}
+	if {$hz<1599} {return "o6g"}
+	if {$hz<1682.5} {return "o6g#"}
+	if {$hz<1776.5} {return "o6a"}
+	if {$hz<1880.5} {return "o6a#"}
+	if {$hz<1999.5} {return "o6b"}
+	if {$hz<2132} {return "o7c"}
+	if {$hz<2237.5} {return "o7c#"}
+	if {$hz<2356.5} {return "o7d"}
+	if {$hz<2516} {return "o7d#"}
+	if {$hz<2664.5} {return "o7e"}
+	if {$hz<2798} {return "o7f"}
+	if {$hz<2945.5} {return "o7f#"}
+	if {$hz<3109.5} {return "o7g"}
+	if {$hz<3292.5} {return "o7g#"}
+	if {$hz<3498.5} {return "o7a"}
+	if {$hz<3732.5} {return "o7a#"}
+	if {$hz<3926} {return "o7b"}
+	if {$hz<4148.5} {return "o8c"}
+	if {$hz<4388} {return "o8c#"}
+	if {$hz<4668.5} {return "o8d"}
+	if {$hz<5000} {return "o8d#"}
+	if {$hz>=5000} {return ""}
+return $hz
+}
+
+namespace export select_wave
+namespace export save_listing
+
+#end WIP
+
 namespace export toggle_scc_editor
 namespace export toggle_psg2scc
 namespace export set_scc_wave
 namespace export toggle_scc_viewer
 namespace export get_scc_string_from_matrix
 
+
 } ;# namespace scc_toys
 
 namespace import scc_toys::*
+
+proc show_freq {} {
+	set ftone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]
+	puts $ftone
+	after frame show_freq
+}
