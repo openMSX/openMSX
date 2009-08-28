@@ -4,6 +4,7 @@
 #define RENDERSETTINGS_HH
 
 #include "RendererFactory.hh"
+#include "Observer.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -11,6 +12,7 @@
 namespace openmsx {
 
 class CommandController;
+class Setting;
 class IntegerSetting;
 class FloatSetting;
 class BooleanSetting;
@@ -22,7 +24,7 @@ class ColorMatrixChecker;
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
   */
-class RenderSettings : private noncopyable
+class RenderSettings : private Observer<Setting>, private noncopyable
 {
 public:
 	/** Render accuracy: granularity of the rendered area.
@@ -139,6 +141,14 @@ public:
 	void transformRGB(double& r, double& g, double& b) const;
 
 private:
+	// Observer:
+	void update(const Setting&);
+
+	/** Sets the "brightness" and "contrast" fields according to the setting
+	  * values.
+	  */
+	void updateBrightnessAndContrast();
+
 	void parseColorMatrix(const std::string& value);
 
 	std::auto_ptr<EnumSetting<Accuracy> > accuracySetting;
@@ -164,6 +174,9 @@ private:
 	std::auto_ptr<EnumSetting<DisplayDeform> > displayDeformSetting;
 	std::auto_ptr<FloatSetting> horizontalStretchSetting;
 	std::auto_ptr<FloatSetting> pointerHideDelaySetting;
+
+	double brightness;
+	double contrast;
 
 	CommandController& commandController;
 	double cm[3][3]; // parsed color matrix, should always be in sync with

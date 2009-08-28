@@ -55,11 +55,13 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 		"brightness video setting: "
 		"0 is normal, lower is darker, higher is brighter",
 		0.0, -100.0, 100.0));
-
 	contrastSetting.reset(new FloatSetting(commandController, "contrast",
 		"contrast video setting: "
 		"0 is normal, lower is less contrast, higher is more contrast",
 		0.0, -100.0, 100.0));
+	brightnessSetting->attach(*this);
+	contrastSetting->attach(*this);
+	updateBrightnessAndContrast();
 
 	colorMatrixSetting.reset(new StringSetting(commandController,
 		"color_matrix",
@@ -144,6 +146,8 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 
 RenderSettings::~RenderSettings()
 {
+	brightnessSetting->detach(*this);
+	contrastSetting->detach(*this);
 }
 
 int RenderSettings::getBlurFactor() const
@@ -156,9 +160,24 @@ int RenderSettings::getScanlineFactor() const
 	return 255 - ((scanlineAlphaSetting->getValue() * 255) / 100);
 }
 
-static double conv1(double x, double brightness, double contrast)
+void RenderSettings::update(const Setting& setting)
 {
-	return (x + brightness - 0.5) * contrast + 0.5;
+	if (&setting == brightnessSetting.get()) {
+		updateBrightnessAndContrast();
+	} else if (&setting == contrastSetting.get()) {
+		updateBrightnessAndContrast();
+	} else {
+		assert(false);
+	}
+}
+
+void RenderSettings::updateBrightnessAndContrast()
+{
+	double contrastValue = getContrast().getValue();
+	contrast = (contrastValue >= 0.0) ? (1.0 + contrastValue / 25.0)
+	                                  : (1.0 + contrastValue / 125.0);
+	double brightnessValue = getBrightness().getValue();
+	brightness = (brightnessValue / 100.0 - 0.5) * contrast + 0.5;
 }
 
 static double conv2(double x, double gamma)
@@ -168,13 +187,9 @@ static double conv2(double x, double gamma)
 
 void RenderSettings::transformRGB(double& r, double& g, double& b) const
 {
-	double brightness = getBrightness().getValue() / 100.0;
-	double contrast = getContrast().getValue();
-	contrast = (contrast >= 0.0) ? (1 + contrast / 25.0)
-	                             : (1 + contrast / 125.0);
-	r = conv1(r, brightness, contrast);
-	g = conv1(g, brightness, contrast);
-	b = conv1(b, brightness, contrast);
+	r = r * contrast + brightness;
+	g = g * contrast + brightness;
+	b = b * contrast + brightness;
 
 	double r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
 	double g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
