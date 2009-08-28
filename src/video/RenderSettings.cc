@@ -187,21 +187,20 @@ static double conv2(double x, double gamma)
 
 void RenderSettings::transformRGB(double& r, double& g, double& b) const
 {
-	r = r * contrast + brightness;
-	g = g * contrast + brightness;
-	b = b * contrast + brightness;
-
 	double r2, g2, b2;
 	if (cmIdentity) {
 		// Most users use the "normal" monitor type; making this a special case
 		// speeds up palette precalculation a lot.
-		r2 = r;
-		g2 = g;
-		b2 = b;
+		r2 = r * contrast + brightness;
+		g2 = g * contrast + brightness;
+		b2 = b * contrast + brightness;
 	} else {
-		r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
-		g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
-		b2 = cm[2][0] * r + cm[2][1] * g + cm[2][2] * b;
+		double rbc = r * contrast + brightness;
+		double gbc = g * contrast + brightness;
+		double bbc = b * contrast + brightness;
+		r2 = cm[0][0] * rbc + cm[0][1] * gbc + cm[0][2] * bbc;
+		g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
+		b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
 	}
 
 	double gamma = 1.0 / getGamma().getValue();
