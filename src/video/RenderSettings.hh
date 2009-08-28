@@ -179,8 +179,10 @@ private:
 	double contrast;
 
 	CommandController& commandController;
-	double cm[3][3]; // parsed color matrix, should always be in sync with
-	                 // colorMatrix setting
+	/** Parsed color matrix, kept in sync with colorMatrix setting. */
+	double cm[3][3];
+	/** True iff color matrix is identity matrix. */
+	bool cmIdentity;
 
 	friend class ColorMatrixChecker;
 };

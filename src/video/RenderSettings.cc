@@ -191,9 +191,18 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 	g = g * contrast + brightness;
 	b = b * contrast + brightness;
 
-	double r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
-	double g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
-	double b2 = cm[2][0] * r + cm[2][1] * g + cm[2][2] * b;
+	double r2, g2, b2;
+	if (cmIdentity) {
+		// Most users use the "normal" monitor type; making this a special case
+		// speeds up palette precalculation a lot.
+		r2 = r;
+		g2 = g;
+		b2 = b;
+	} else {
+		r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
+		g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
+		b2 = cm[2][0] * r + cm[2][1] * g + cm[2][2] * b;
+	}
 
 	double gamma = 1.0 / getGamma().getValue();
 	r = conv2(r2, gamma);
@@ -208,6 +217,7 @@ void RenderSettings::parseColorMatrix(const std::string& value)
 	if (matrix.getListLength() != 3) {
 		throw CommandException("must have 3 rows");
 	}
+	bool identity = true;
 	for (int i = 0; i < 3; ++i) {
 		TclObject row = matrix.getListIndex(i);
 		if (row.getListLength() != 3) {
@@ -215,9 +225,12 @@ void RenderSettings::parseColorMatrix(const std::string& value)
 		}
 		for (int j = 0; j < 3; ++j) {
 			TclObject element = row.getListIndex(j);
-			cm[i][j] = element.getDouble();
+			double value = element.getDouble();
+			cm[i][j] = value;
+			identity &= (value == (i == j ? 1.0 : 0.0));
 		}
 	}
+	cmIdentity = identity;
 }
 
 
