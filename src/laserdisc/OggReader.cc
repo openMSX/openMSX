@@ -95,18 +95,18 @@ void OggReader::cleanup()
 
 	while (!frameList.empty()) {
 		yuv_buffer *buffer = frameList.front();
-		delete buffer->y;
-		delete buffer->u;
-		delete buffer->v;
+		delete[] buffer->y;
+		delete[] buffer->u;
+		delete[] buffer->v;
 		delete buffer;
 		frameList.pop_front();
 	}
 
 	while (!recycleFrameList.empty()) {
 		yuv_buffer *buffer = recycleFrameList.front();
-		delete buffer->y;
-		delete buffer->u;
-		delete buffer->v;
+		delete[] buffer->y;
+		delete[] buffer->u;
+		delete[] buffer->v;
 		delete buffer;
 		recycleFrameList.pop_front();
 	}
@@ -370,7 +370,7 @@ void OggReader::readMetadata()
 		if (p) p++;
 	}
 
-	delete metadata;
+	delete[] metadata;
 }
 
 void OggReader::readTheora(ogg_packet* packet)

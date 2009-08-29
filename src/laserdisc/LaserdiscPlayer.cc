@@ -138,6 +138,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	                   *this))
 	, sampleClock(EmuTime::zero)
 	, start(EmuTime::zero)
+	, lastPlayedSample(0)
 	, muteLeft(false)
 	, muteRight(false)
 	, frameClock(EmuTime::zero)
@@ -791,7 +792,8 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			getFirstFrame = false;
 			waitFrame = 0;
 		} else if (playerState == PLAYER_PLAYING) {
-			// ignore
+			// This breaks Astron Belt loading, uncommeted for now
+			//setAck(time, 46);
 		} else {
 			// FROZEN or PAUSED
 			sampleClock.advance(time);
