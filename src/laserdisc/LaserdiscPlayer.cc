@@ -141,7 +141,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, muteLeft(false)
 	, muteRight(false)
 	, frameClock(EmuTime::zero)
-	, remoteState(REMOTE_GAP)
+	, remoteState(REMOTE_IDLE)
 	, remoteLastEdge(EmuTime::zero)
 	, remoteLastBit(false)
 	, waitFrame(0)
@@ -203,7 +203,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	unsigned usec = duration.getTicksAt(1000000); // microseconds
 
 	switch (remoteState) {
-	case REMOTE_GAP:
+	case REMOTE_IDLE:
 		// Is there a minimum length of a gap?
 		if (bit) {
 			remoteBits = remoteBitNr = 0;
@@ -212,21 +212,62 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 		break;
 	case REMOTE_HEADER_PULSE:
 		if (8000 <= usec && usec < 8400) {
-			remoteState = REMOTE_HEADER_SPACE;
+			remoteState = NEC_HEADER_SPACE;
+		} else if (140 <= usec && usec < 280) {
+			remoteState = LD1100_BITS_SPACE;
 		} else {
-			remoteState = REMOTE_GAP;
+			remoteState = REMOTE_IDLE;
 		}
 		break;
-	case REMOTE_HEADER_SPACE:
+	// LD-1100
+	case LD1100_BITS_SPACE:
+		if (450 <= usec && usec < 550) {
+			remoteBits = (remoteBits << 1) | 0;
+			remoteState = LD1100_BITS_PULSE;
+			++remoteBitNr;
+		} else if (1350 <= usec && usec < 1650) {
+			remoteBits = (remoteBits << 1) | 1;
+			remoteState = LD1100_BITS_PULSE;
+			++remoteBitNr;
+		} else {
+			remoteState = REMOTE_IDLE;
+		}
+		break;
+	case LD1100_SEEN_GAP:
+	case LD1100_BITS_PULSE:
+		if (225 <= usec && usec < 275) {
+			if (remoteBitNr == 30) {
+				remoteButtonLD1100(remoteBits, time);
+
+				remoteState = REMOTE_IDLE;
+			} else if ((remoteBitNr == 10 || remoteBitNr == 20) &&
+					remoteState != LD1100_SEEN_GAP) {
+				remoteState = LD1100_GAP;
+			} else {
+				remoteState = LD1100_BITS_SPACE;
+			}
+		} else {
+			remoteState = REMOTE_IDLE;
+		}
+		break;
+	case LD1100_GAP:
+		if (9000 <= usec && usec < 11000) {
+			remoteState = LD1100_SEEN_GAP;
+		} else {
+			remoteState = REMOTE_IDLE;
+		}
+		break;
+	// NEC protocol
+	case NEC_HEADER_SPACE:
 		if (3800 <= usec && usec < 4200) {
-			remoteState = REMOTE_BITS_PULSE;
+			remoteState = NEC_BITS_PULSE;
 		} else if (2000 <= usec && usec < 2400) {
-			remoteState = REMOTE_REPEAT_PULSE;
+			remoteState = NEC_REPEAT_PULSE;
 		} else {
-			remoteState = REMOTE_GAP;
+			remoteState = REMOTE_IDLE;
 		}
 		break;
-	case REMOTE_BITS_PULSE:
+	case NEC_BITS_PULSE:
 		// Is there a minimum or maximum length for the trailing pulse?
 		if (400 <= usec && usec < 700) {
 			if (remoteBitNr == 32) {
@@ -235,40 +276,40 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 				byte code        = ( remoteBits >>  8) & 0xff;
 				byte codeCompl   = (~remoteBits >>  0) & 0xff;
 				if (custom == customCompl && code == codeCompl) {
-					button(custom, code, time);
+					remoteButtonNEC(custom, code, time);
 				}
-				remoteState = REMOTE_GAP;
+				remoteState = REMOTE_IDLE;
 			} else {
-				remoteState = REMOTE_BITS_SPACE;
+				remoteState = NEC_BITS_SPACE;
 			}
 		} else {
-			remoteState = REMOTE_GAP;
+			remoteState = REMOTE_IDLE;
 			break;
 		}
 		break;
-	case REMOTE_BITS_SPACE:
+	case NEC_BITS_SPACE:
 		if (1400 <= usec && usec < 1600) {
 			// bit 1
 			remoteBits = (remoteBits << 1) | 1;
 			++remoteBitNr;
-			remoteState = REMOTE_BITS_PULSE;
+			remoteState = NEC_BITS_PULSE;
 		} else if (400 <= usec && usec < 700) {
 			// bit 0
 			remoteBits = (remoteBits << 1) | 0;
 			++remoteBitNr;
-			remoteState = REMOTE_BITS_PULSE;
+			remoteState = NEC_BITS_PULSE;
 		} else {
 			// error
-			remoteState = REMOTE_GAP;
+			remoteState = REMOTE_IDLE;
 		}
 		break;
-	case REMOTE_REPEAT_PULSE:
+	case NEC_REPEAT_PULSE:
 		// We should check that last repeat/button was 110ms ago
 		// and succesful.
 		if (400 <= usec && usec < 700) {
 			buttonRepeat(time);
 		}
-		remoteState = REMOTE_GAP;
+		remoteState = REMOTE_IDLE;
 		break;
 	}
 }
@@ -298,7 +339,128 @@ void LaserdiscPlayer::buttonRepeat(EmuTime::param /*time*/)
 	PRT_DEBUG("NEC protocol repeat received");
 }
 
-void LaserdiscPlayer::button(unsigned custom, unsigned code, EmuTime::param time)
+// See:
+// http://www.laserdiscarchive.co.uk/laserdisc_archive/pioneer/pioneer_ld-1100/pioneer_ld-1100.htm
+//
+// Note there are more commands. The LD1100 is compatible with the PR8210. See
+// pr8210_command() in the Daphne source code. This seems to be the subset
+// needed to support Astron Belt. Also note that Daphne is more relaxed on
+// what sort of input it accepts.
+//
+// To test in P-BASIC:
+// CALL SEARCH(1,C,2) -> SEEK CHAPTER 0 0 0 0 2 SEEK
+// CALL SEARCH(1,F,12345) -> SEEK FRAME 1 2 3 4 5 SEEK
+//
+// Astron Belt only searches for frames and omits the FRAME
+void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
+{
+	if ((code & 0x383) != 0x80 ||
+			(code & 0x3ff) != ((code >> 10) & 0x3ff) ||
+			(code & 0x3ff) != ((code >> 20) & 0x3ff)) {
+		PRT_DEBUG("LD1100 remote: malformed 0x" << std::hex << code);
+		return;
+	}
+
+	unsigned command = (code >> 2) & 0x1f;
+
+	switch (command) {
+	case 0x14: // Play
+		PRT_DEBUG("LD1100 remote: play");
+		seekState = SEEK_NONE;
+		play(time);
+		break;
+	case 0x0a: // Pause
+		PRT_DEBUG("LD1100 remote: pause");
+		seekState = SEEK_NONE;
+		pause(time);
+		break;
+	case 0x0e: // Stop
+		PRT_DEBUG("LD1100 remote: stop");
+		seekState = SEEK_NONE;
+		stop(time);
+		break;
+	case 0x06: // Chapter
+		PRT_DEBUG("LD1100 remote: chapter");
+		if (seekState == SEEK_FRAME_BEGIN) {
+			seekState = SEEK_CHAPTER_BEGIN;
+		} else {
+			PRT_DEBUG("LD1100: remote: chapter unexpected");
+			seekState = SEEK_NONE;
+		}
+		break;
+	case 0x0b: // Frame
+		PRT_DEBUG("LD1100 remote: frame");
+		if (seekState != SEEK_FRAME_BEGIN) {
+			PRT_DEBUG("LD1100 remote: frame unexpected");
+			seekState = SEEK_NONE;
+		}
+		break;
+	case 0x1a: // Seek
+		PRT_DEBUG("LD1100 remote: seek");
+		switch (seekState) {
+		case SEEK_NONE:
+			seekState = SEEK_FRAME_BEGIN;
+			seekNum = 0;
+			break;
+		case SEEK_FRAME_BEGIN:
+			seekState = SEEK_NONE;
+			seekFrame(seekNum % 100000, time);
+			break;
+		case SEEK_CHAPTER_BEGIN:
+			seekState = SEEK_NONE;
+			seekChapter(seekNum % 100, time);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 0x01:
+		PRT_DEBUG("LD1100 remote: 0");
+		seekNum = seekNum * 10 + 0;
+		break;
+	case 0x11:
+		PRT_DEBUG("LD1100 remote: 1");
+		seekNum = seekNum * 10 + 1;
+		break;
+	case 0x09:
+		PRT_DEBUG("LD1100 remote: 2");
+		seekNum = seekNum * 10 + 2;
+		break;
+	case 0x19:
+		PRT_DEBUG("LD1100 remote: 3");
+		seekNum = seekNum * 10 + 3;
+		break;
+	case 0x05:
+		PRT_DEBUG("LD1100 remote: 4");
+		seekNum = seekNum * 10 + 4;
+		break;
+	case 0x15:
+		PRT_DEBUG("LD1100 remote: 5");
+		seekNum = seekNum * 10 + 5;
+		break;
+	case 0x0d:
+		PRT_DEBUG("LD1100 remote: 6");
+		seekNum = seekNum * 10 + 6;
+		break;
+	case 0x1d:
+		PRT_DEBUG("LD1100 remote: 7");
+		seekNum = seekNum * 10 + 7;
+		break;
+	case 0x03:
+		PRT_DEBUG("LD1100 remote: 8");
+		seekNum = seekNum * 10 + 8;
+		break;
+	case 0x13:
+		PRT_DEBUG("LD1100 remote: 9");
+		seekNum = seekNum * 10 + 9;
+		break;
+	default:
+		PRT_DEBUG("LD1100 remote: unknown 0x" << std::hex << command);
+		break;
+	}
+}
+
+void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::param time)
 {
 	if (custom != 0x15) return;
 
@@ -485,7 +647,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 				if (waitFrame && waitFrame ==
 					unsigned(video->getCurrentFrame())) {
 					PRT_DEBUG("LaserdiscPlayer: wait frame "
-						<< std::dec << waitFrame << 
+						<< std::dec << waitFrame <<
 						" reached");
 
 					setAck(time, 100);

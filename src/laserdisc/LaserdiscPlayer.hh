@@ -57,7 +57,8 @@ private:
 	  */
 	bool isVideoOutputAvailable(EmuTime::param time);
 	bool extInt(EmuTime::param time);
-	void button(unsigned custom, unsigned code, EmuTime::param time);
+	void remoteButtonLD1100(unsigned code, EmuTime::param time);
+	void remoteButtonNEC(unsigned custom, unsigned code, EmuTime::param time);
 	void buttonRepeat(EmuTime::param time);
 	void setAck(EmuTime::param time, int wait);
 	unsigned getCurrentSample(EmuTime::param time);
@@ -102,12 +103,16 @@ private:
 
 	// Ext Control
 	enum RemoteState {
-		REMOTE_GAP,
+		REMOTE_IDLE,
 		REMOTE_HEADER_PULSE,
-		REMOTE_HEADER_SPACE,
-		REMOTE_BITS_PULSE,
-		REMOTE_BITS_SPACE,
-		REMOTE_REPEAT_PULSE
+		NEC_HEADER_SPACE,
+		NEC_BITS_PULSE,
+		NEC_BITS_SPACE,
+		NEC_REPEAT_PULSE,
+		LD1100_GAP,
+		LD1100_SEEN_GAP,
+		LD1100_BITS_SPACE,
+		LD1100_BITS_PULSE
 	} remoteState;
 	EmuTime remoteLastEdge;
 	unsigned remoteBitNr;
