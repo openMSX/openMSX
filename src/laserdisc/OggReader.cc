@@ -518,12 +518,17 @@ AudioFragment* OggReader::getAudio(unsigned sample)
 		}
 
 		// read more if we're at the end of the list
-		while (it == audioList.end()) {
-			it--;
-			if (oggz_read(oggz, 4096) <= 0) {
-				return NULL;
+		if (it == audioList.end()) {
+			unsigned size = audioList.size();
+
+			while (size == audioList.size()) {
+				if (oggz_read(oggz, 4096) <= 0) {
+					return NULL;
+				}
 			}
-			it++;
+
+			// reset the iterator to not point to the end
+			it = audioList.begin();
 		}
 	}
 

@@ -374,7 +374,7 @@ void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
 		seekState = SEEK_NONE;
 		pause(time);
 		break;
-	case 0x0e: // Stop
+	case 0x1e: // Stop
 		PRT_DEBUG("LD1100 remote: stop");
 		seekState = SEEK_NONE;
 		stop(time);
@@ -462,8 +462,6 @@ void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
 
 void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::param time)
 {
-	if (custom != 0x15) return;
-
 #ifdef DEBUG
 	string f;
 	switch (code) {
@@ -507,6 +505,10 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		          << std::hex << code << std::endl;
 	}
 #endif
+	if (custom != 0x15) {
+		PRT_DEBUG("NEC remote: unknown device " << std::hex << custom);
+		return;
+	}
 
 	// deal with seeking.
 	if (playerState != PLAYER_STOPPED) {
@@ -623,19 +625,11 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		if (RawFrame* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
 
-			if (isVideoOutputAvailable(time)) {
-				switch (playerState) {
-				case PLAYER_FROZEN:
-					if (!getFirstFrame) {
-						break;
-					}
-				case PLAYER_PLAYING:
-					video->getFrame(*rawFrame);
-					getFirstFrame = false;
-					break;
-				default:
-					break;
-				}
+			if (isVideoOutputAvailable(time) &&
+				(playerState != PLAYER_FROZEN ||
+							getFirstFrame)) {
+				video->getFrame(*rawFrame);
+				getFirstFrame = false;
 
 				// freeze if stop frame
 				if (video->stopFrame()) {
@@ -654,7 +648,9 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 					waitFrame = 0;
 				}
 			} else {
-				renderer->drawBlank(0, 128, 196);
+				if (playerState != PLAYER_FROZEN) {
+					renderer->drawBlank(0, 128, 196);
+				}
 			}
 			renderer->frameEnd();
 		}
