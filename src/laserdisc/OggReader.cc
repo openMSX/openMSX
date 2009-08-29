@@ -502,7 +502,7 @@ AudioFragment* OggReader::getAudio(unsigned sample)
 	while (true) {
 		AudioFragment* audio = *it;
 
-		if (audio->position + audio->length <= sample - vi.rate) {
+		if (audio->position + audio->length + vi.rate <= sample) {
 			// Dispose if this, more than 1 second old
 			returnAudio(*it);
 			it = audioList.erase(it);
