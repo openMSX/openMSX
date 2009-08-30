@@ -94,20 +94,20 @@ void OggReader::cleanup()
 	}
 
 	while (!frameList.empty()) {
-		yuv_buffer *buffer = frameList.front();
-		delete[] buffer->y;
-		delete[] buffer->u;
-		delete[] buffer->v;
-		delete buffer;
+		Frame *frame = frameList.front();
+		delete[] frame->buffer.y;
+		delete[] frame->buffer.u;
+		delete[] frame->buffer.v;
+		delete frame;
 		frameList.pop_front();
 	}
 
 	while (!recycleFrameList.empty()) {
-		yuv_buffer *buffer = recycleFrameList.front();
-		delete[] buffer->y;
-		delete[] buffer->u;
-		delete[] buffer->v;
-		delete buffer;
+		Frame *frame = recycleFrameList.front();
+		delete[] frame->buffer.y;
+		delete[] frame->buffer.u;
+		delete[] frame->buffer.v;
+		delete frame;
 		recycleFrameList.pop_front();
 	}
 
@@ -422,61 +422,65 @@ void OggReader::readTheora(ogg_packet* packet)
 		return;
 	}
 
-	if (frameno != currentFrame) {
-		cli.printWarning("Unexpected theora frame " +
-			StringOp::toString(frameno) + ", expected " +
-			StringOp::toString(currentFrame));
+	currentFrame = frameno + 1;
 
-		currentFrame = frameno;
-	}
-
-	yuv_buffer* yuvcopy;
+	Frame* frame;
 	int y_size = yuv_theora.y_height * yuv_theora.y_stride;
 	int uv_size = yuv_theora.uv_height * yuv_theora.uv_stride;
 
 	if (recycleFrameList.empty()) {
-		yuvcopy = new yuv_buffer;
-		yuvcopy->y = new byte[y_size];
-		yuvcopy->u = new byte[uv_size];
-		yuvcopy->v = new byte[uv_size];
+		frame = new Frame;
+		frame->buffer.y = new byte[y_size];
+		frame->buffer.u = new byte[uv_size];
+		frame->buffer.v = new byte[uv_size];
 
-		yuvcopy->y_width = yuv_theora.y_width;
-		yuvcopy->y_height = yuv_theora.y_height;
-		yuvcopy->y_stride = yuv_theora.y_stride;
-		yuvcopy->uv_width = yuv_theora.uv_width;
-		yuvcopy->uv_height = yuv_theora.uv_height;
-		yuvcopy->uv_stride = yuv_theora.uv_stride;
+		frame->buffer.y_width = yuv_theora.y_width;
+		frame->buffer.y_height = yuv_theora.y_height;
+		frame->buffer.y_stride = yuv_theora.y_stride;
+		frame->buffer.uv_width = yuv_theora.uv_width;
+		frame->buffer.uv_height = yuv_theora.uv_height;
+		frame->buffer.uv_stride = yuv_theora.uv_stride;
 	} else {
-		yuvcopy = recycleFrameList.front();
+		frame = recycleFrameList.front();
 		recycleFrameList.pop_front();
 	}
 
-	memcpy(yuvcopy->y, yuv_theora.y, y_size);
-	memcpy(yuvcopy->u, yuv_theora.u, uv_size);
-	memcpy(yuvcopy->v, yuv_theora.v, uv_size);
+	memcpy(frame->buffer.y, yuv_theora.y, y_size);
+	memcpy(frame->buffer.u, yuv_theora.u, uv_size);
+	memcpy(frame->buffer.v, yuv_theora.v, uv_size);
+	frame->no = frameno;
 
-	frameList.push_back(yuvcopy);
-
-	currentFrame++;
+	frameList.push_back(frame);
 }
 
-void OggReader::getFrame(RawFrame& frame)
+void OggReader::getFrame(RawFrame& rawFrame, int frameno)
 {
-	while (frameList.empty()) {
+	Frame* frame;
+
+	// Note that when frames are unchanged they will simply not be
+	// present in the theora stream. This means that with frames
+	// 8,9,10,13,14 in the list, 11 and 12 must be drawn as 10.
+
+	while (true) {
+		// Remove unneeded frames
+		while (frameList.size() >= 2 && frameList[1]->no <= frameno) {
+			recycleFrameList.push_back(frameList[0]);
+			frameList.pop_front();
+		}
+
+		if (frameList.size() >= 2 && (frameList[0]->no == frameno ||
+					frameList[1]->no >= frameno)) {
+			frame = frameList[0];
+			break;
+		}
+
+		// ..add read some new ones
 		if (oggz_read(oggz, 4096) <= 0) {
 			return;
 		}
 	}
 
-	yuv_buffer* current = frameList.front();
-
-	yuv2rgb::convert(*current, frame);
-
-	frameList.pop_front();
-
-	recycleFrameList.push_back(current);
-
-	return;
+	yuv2rgb::convert(frame->buffer, rawFrame);
 }
 
 void OggReader::returnAudio(AudioFragment* audio)

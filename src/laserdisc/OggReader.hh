@@ -9,6 +9,7 @@
 #include <vorbis/codec.h>
 #include <theora/theora.h>
 #include <list>
+#include <deque>
 #include <string>
 #include <map>
 
@@ -26,6 +27,12 @@ struct AudioFragment
 	float pcm[2][MAX_SAMPLES];
 };
 
+struct Frame
+{
+	int no;
+	yuv_buffer buffer;
+};
+
 class OggReader
 {
 public:
@@ -34,13 +41,12 @@ public:
 
 	bool seek(int frame, int sample);
 	unsigned getSampleRate() const { return vi.rate; }
-	void getFrame(RawFrame& frame);
+	void getFrame(RawFrame& frame, int frameno);
 	AudioFragment* getAudio(unsigned sample);
 
 	// metadata
-	bool stopFrame() { return stopFrames[currentFrame]; }
+	bool stopFrame(int frame) { return stopFrames[frame]; }
 	int chapter(int chapterNo) { return chapters[chapterNo]; }
-	int getCurrentFrame() { return currentFrame; }
 
 private:
 	void cleanup();
@@ -70,8 +76,10 @@ private:
 	int keyFrame;
 	int currentFrame;
 
-	std::list<yuv_buffer*> frameList;
-	std::list<yuv_buffer*> recycleFrameList;
+	typedef std::deque<Frame*> Frames;
+
+	Frames frameList;
+	Frames recycleFrameList;
 
 	// audio
 	int audioHeaders;

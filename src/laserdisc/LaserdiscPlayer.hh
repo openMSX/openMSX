@@ -85,6 +85,7 @@ private:
 	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
 	std::auto_ptr<OggReader> video;
 	std::auto_ptr<LDRenderer> renderer;
+	unsigned currentFrame;
 
 	// Audio state
 	DynamicClock sampleClock;

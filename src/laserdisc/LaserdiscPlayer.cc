@@ -626,21 +626,17 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		if (RawFrame* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
 
-			if (isVideoOutputAvailable(time) &&
-				(playerState != PLAYER_FROZEN ||
-							getFirstFrame)) {
-				video->getFrame(*rawFrame);
-				getFirstFrame = false;
+			if (isVideoOutputAvailable(time)) {
+				video->getFrame(*rawFrame, currentFrame);
 
 				// freeze if stop frame
-				if (video->stopFrame()) {
+				if (video->stopFrame(currentFrame)) {
 					playingFromSample =
 							getCurrentSample(time);
 					playerState = PLAYER_FROZEN;
 				}
 
-				if (waitFrame && waitFrame ==
-					unsigned(video->getCurrentFrame())) {
+				if (waitFrame && waitFrame == currentFrame) {
 					PRT_DEBUG("LaserdiscPlayer: wait frame "
 						<< std::dec << waitFrame <<
 						" reached");
@@ -648,10 +644,12 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 					setAck(time, 100);
 					waitFrame = 0;
 				}
-			} else {
-				if (playerState != PLAYER_FROZEN) {
-					renderer->drawBlank(0, 128, 196);
+
+				if (playerState == PLAYER_PLAYING) {
+					currentFrame++;
 				}
+			} else {
+				renderer->drawBlank(0, 128, 196);
 			}
 			renderer->frameEnd();
 		}
@@ -785,6 +783,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			// beginning (confirmed on real MSX and LD)
 			video->seek(1, 0);
 			playingFromSample = 0;
+			currentFrame = 1;
 			// Note that with "fullspeedwhenloading" this
 			// should be reduced to.
 			setAck(time, 9600);
@@ -855,6 +854,7 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 			video->seek(frameno, samplePos);
 			playerState = PLAYER_FROZEN;
 			playingFromSample = samplePos;
+			currentFrame = frameno;
 			getFirstFrame = true;
 
 			// Seeking clears the frame to wait for
