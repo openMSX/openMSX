@@ -401,12 +401,6 @@ public:
 			return;
 		}
 
-		// Check that VRAM will actually be changed.
-		// A lot of costly syncs can be saved if the same value is written.
-		// For example Penguin Adventure always uploads the whole frame,
-		// even if it is the same as the previous frame.
-		if (data[address] == value) return;
-
 		writeCommon(address, value, time);
 	}
 
@@ -432,16 +426,16 @@ public:
 			return;
 		}
 
-		// Check that VRAM will actually be changed.
-		// A lot of costly syncs can be saved if the same value is written.
-		// For example Penguin Adventure always uploads the whole frame,
-		// even if it is the same as the previous frame.
-		if (data[address] == value) return;
-
+		// We should still sync with cmdEngine, even if the VRAM already
+		// contains the value we're about to write (e.g. it's possible
+		// syncing with cmdEngine changes that value, and this write
+		// restores it again). This fixes bug:
+		//   [2844043] Hinotori - Firebird small graphics corruption
 		if (cmdReadWindow .isInside(address) ||
 		    cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
+
 		writeCommon(address, value, time);
 	}
 
@@ -525,6 +519,12 @@ private:
 	/* Common code of cmdWrite() and cpuWrite()
 	 */
 	inline void writeCommon(unsigned address, byte value, EmuTime::param time) {
+		// Check that VRAM will actually be changed.
+		// A lot of costly syncs can be saved if the same value is written.
+		// For example Penguin Adventure always uploads the whole frame,
+		// even if it is the same as the previous frame.
+		if (data[address] == value) return;
+
 		// Subsystem synchronisation should happen before the commit,
 		// to be able to draw backlog using old state.
 		bitmapVisibleWindow.notify(address, time);
