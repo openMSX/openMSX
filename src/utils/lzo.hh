@@ -55,7 +55,6 @@
 #  error "you cannot use both LZO and miniLZO"
 #endif
 
-#undef LZO_HAVE_CONFIG_H
 #include "lzoconf.hh"
 
 #if !defined(LZO_VERSION) || (LZO_VERSION != MINILZO_VERSION)

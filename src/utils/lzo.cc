@@ -45,9 +45,6 @@
  *   http://www.oberhumer.com/opensource/lzo/
  */
 
-#ifdef MINILZO_HAVE_CONFIG_H
-#  include <config.h>
-#endif
 #include <limits.h>
 #include <stddef.h>
 #if defined(MINILZO_CFG_USE_INTERNAL_LZODEFS)
@@ -1820,15 +1817,10 @@ extern "C" {
 
 #endif
 
-#undef LZO_HAVE_CONFIG_H
 #include "lzo.hh"
 
 #if !defined(MINILZO_VERSION) || (MINILZO_VERSION != 0x2030)
 #  error "version mismatch in miniLZO source files"
-#endif
-
-#ifdef MINILZO_HAVE_CONFIG_H
-#  define LZO_HAVE_CONFIG_H
 #endif
 
 #ifndef __LZO_CONF_H
