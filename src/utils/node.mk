@@ -2,8 +2,6 @@
 
 include build/node-start.mk
 
-SUBDIRS:= minilzo-2.03
-
 SRC_HDR:= \
 	Base64 HexDump \
 	CRC16 \
@@ -18,7 +16,8 @@ SRC_HDR:= \
 	sha1 \
 	uint128 \
 	DivModBySame \
-	AltSpaceSuppressor sdlwin32 utf8_checked win32-dirent
+	AltSpaceSuppressor sdlwin32 utf8_checked win32-dirent \
+	lzo
 
 HDR_ONLY:= \
 	my_auto_ptr \
@@ -38,6 +37,7 @@ HDR_ONLY:= \
 	DivModByConst \
 	utf8_core \
 	utf8_unchecked \
-	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla
+	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla \
+	lzoconf lzodefs
 
 include build/node-end.mk

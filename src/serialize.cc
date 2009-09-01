@@ -6,7 +6,7 @@
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"
-#include "minilzo.hh"
+#include "lzo.hh"
 #include "StringOp.hh"
 #include <cstring>
 #include <zlib.h>
