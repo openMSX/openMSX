@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1251832477">
+<softwaredb xml:lang="en" timestamp="1251833649">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6200,7 +6200,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e4d61ee74867066b04b0f6aba35d98d72665e6e0</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">8f92ea214a7a11394c512080d3b65a7afa9a92ed</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">57a39f6947d1f87107961cd57ee6a52027d5c612</hash></rom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">a0396786630e4a56206531a2ac9ddc2456ab71d3</hash><remark><text>Translated into English by hap and Zan</text></remark></megarom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">a0396786630e4a56206531a2ac9ddc2456ab71d3</hash><remark><text>Translated into English by hap and Zan</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Maxixdados</title>
@@ -11269,5 +11269,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2472
-Parse time 4.114 seconds on Tue Sep 1 21:14:41 CEST 2009
+Parse time 4.040 seconds on Tue Sep 1 21:34:13 CEST 2009
  -->
