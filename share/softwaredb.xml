@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1251696167">
+<softwaredb xml:lang="en" timestamp="1251832477">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2567,6 +2567,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Dragon Slayer 4 - MSX1 Version</title>
+	<genmsxid>880</genmsxid>
+	<system>MSX</system>
+	<company>Falcom</company>
+	<year>1987</year>
+	<country>JP</country>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">a3584e9554bb3e9b384a3b2b80636709d9e842f2</hash><remark><text>Kralizec&#39;s Dragon Slayer 4 improved password readability patch</text></remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Dragon Slayer 4 - MSX1 Version</title>
 	<genmsxid>1377</genmsxid>
 	<system>MSX</system>
 	<company>Falcom</company>
@@ -2583,6 +2592,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">3f87c3413c8cc2a25e1f64cfdcd01155a13711f0</hash></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">6d7a8ea1b283ecc1cc94c359e5f053a6e82ab3f5</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">73ad5a90a963f7963a404816e8d6616bbe386ce2</hash><remark><text>Kralizec&#39;s Dragon Slayer 4 improved password readability patch</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Drainer</title>
@@ -4524,6 +4534,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII16SRAM2</type><hash algo="sha1">b18d36cc60d0e3b325138bb98472b685cca89f90</hash><remark><text>[b]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">552a758f77a7c35969523dbaca74587f0b59eb2b</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8SRAM8</type><hash algo="sha1">0fe07b5f62e179a1294253a505a296ffefca8c95</hash><remark><text>Woomb Retranslation</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII16SRAM2</type><hash algo="sha1">1eae08241c0681d6b6d87c68ebdaaff1baa40069</hash><remark><text>Translated into English</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Hydlide 3 - The Space Memories MSX1 Version</title>
@@ -6189,6 +6200,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e4d61ee74867066b04b0f6aba35d98d72665e6e0</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">8f92ea214a7a11394c512080d3b65a7afa9a92ed</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">57a39f6947d1f87107961cd57ee6a52027d5c612</hash></rom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">a0396786630e4a56206531a2ac9ddc2456ab71d3</hash><remark><text>Translated into English by hap and Zan</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Maxixdados</title>
@@ -10436,11 +10448,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7fe5f17ad7e6b70dd56cad2c8bdc516a86f03207</hash><remark><text>[RC-753]</text></remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">632cb0834441626d20cc113cfad2e3a7ec0e0dc7</hash><remark><text>[a1][RC-753]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">632cb0834441626d20cc113cfad2e3a7ec0e0dc7</hash><remark><text>[RC-753] / [a1]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">d7fb2ca6004c5fdf77c42a5eab102b95a9a862d7</hash><remark><text>[RC-753] / Alternative version</text></remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">4ff2aad8371e382e203c7f29b665612a8c9d937c</hash><remark><text>[a2][RC-753]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">4ff2aad8371e382e203c7f29b665612a8c9d937c</hash><remark><text>[RC-753] / [a2]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7c7d0bff4a51bb0f1f0cdb4132fdb11f8a71c623</hash><remark><text>[RC-753] / cheat version</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">216b2c181c9ee0fb48e2d9efdb88ea918c8ff04f</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">216b2c181c9ee0fb48e2d9efdb88ea918c8ff04f</hash><remark><text>[RC-753]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">5b545569a2d0452b9317490636c08a3221208961</hash><remark><text>[RC-753]  / Icon Patch</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Trial Ski</title>
@@ -11255,6 +11268,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2467
-Parse time 4.582 seconds on Mon Aug 31 7:22:52 CEST 2009
+Roms in this database:2472
+Parse time 4.114 seconds on Tue Sep 1 21:14:41 CEST 2009
  -->
