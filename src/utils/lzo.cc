@@ -339,45 +339,6 @@ lzo_full_align_t;
 
 #endif
 
-#if !defined(MINILZO_CFG_SKIP_LZO_PTR)
-
-LZO_PUBLIC(lzo_uintptr_t)
-__lzo_ptr_linear(const lzo_voidp ptr)
-{
-    lzo_uintptr_t p;
-
-#if (LZO_ARCH_I086)
-    p = (((lzo_uintptr_t)(ACC_PTR_FP_SEG(ptr))) << (16 - ACC_MM_AHSHIFT)) + (ACC_PTR_FP_OFF(ptr));
-#elif (LZO_MM_PVP)
-    p = (lzo_uintptr_t) (ptr);
-    p = (p << 3) | (p >> 61);
-#else
-    p = (lzo_uintptr_t) PTR_LINEAR(ptr);
-#endif
-
-    return p;
-}
-
-LZO_PUBLIC(unsigned)
-__lzo_align_gap(const lzo_voidp ptr, lzo_uint size)
-{
-#if defined(__LZO_UINTPTR_T_IS_POINTER)
-    size_t n = (size_t) ptr;
-    n = (((n + size - 1) / size) * size) - n;
-#else
-    lzo_uintptr_t p, n;
-    p = __lzo_ptr_linear(ptr);
-    n = (((p + size - 1) / size) * size) - p;
-#endif
-
-    assert(size > 0);
-    assert((long)n >= 0);
-    assert(n <= size);
-    return (unsigned)n;
-}
-
-#endif
-
 /* If you use the LZO library in a product, I would appreciate that you
  * keep this copyright string in the executable of your product.
  */
