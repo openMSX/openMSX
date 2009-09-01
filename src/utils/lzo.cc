@@ -45,9 +45,6 @@
  *   http://www.oberhumer.com/opensource/lzo/
  */
 
-#define __LZO_IN_MINILZO
-#define LZO_BUILD
-
 #if defined(LZO_CFG_FREESTANDING)
 #  undef MINILZO_HAVE_CONFIG_H
 #  define LZO_LIBC_FREESTANDING 1
@@ -1843,34 +1840,6 @@ extern "C" {
 #ifndef __LZO_CONF_H
 #define __LZO_CONF_H
 
-#if !defined(__LZO_IN_MINILZO)
-#if defined(LZO_CFG_FREESTANDING)
-#  define LZO_LIBC_FREESTANDING 1
-#  define LZO_OS_FREESTANDING 1
-#  define ACC_LIBC_FREESTANDING 1
-#  define ACC_OS_FREESTANDING 1
-#endif
-#if defined(LZO_CFG_NO_UNALIGNED)
-#  define ACC_CFG_NO_UNALIGNED 1
-#endif
-#if defined(LZO_ARCH_GENERIC)
-#  define ACC_ARCH_GENERIC 1
-#endif
-#if defined(LZO_ABI_NEUTRAL_ENDIAN)
-#  define ACC_ABI_NEUTRAL_ENDIAN 1
-#endif
-#if defined(LZO_HAVE_CONFIG_H)
-#  define ACC_CONFIG_NO_HEADER 1
-#endif
-#if defined(LZO_CFG_EXTRA_CONFIG_HEADER)
-#  include LZO_CFG_EXTRA_CONFIG_HEADER
-#endif
-#if defined(__LZOCONF_H) || defined(__LZOCONF_H_INCLUDED)
-#  error "include this file first"
-#endif
-#include "lzo/lzoconf.hh"
-#endif
-
 #if (LZO_VERSION < 0x02000) || !defined(__LZOCONF_H_INCLUDED)
 #  error "version mismatch"
 #endif
@@ -1894,17 +1863,6 @@ extern "C" {
 
 #if defined(__LZO_MMODEL_HUGE) && (!LZO_HAVE_MM_HUGE_PTR)
 #  error "this should not happen - check defines for __huge"
-#endif
-
-#if defined(__LZO_IN_MINILZO) || defined(LZO_CFG_FREESTANDING)
-#elif (LZO_OS_DOS16 || LZO_OS_OS216 || LZO_OS_WIN16)
-#  define ACC_WANT_ACC_INCD_H 1
-#  define ACC_WANT_ACC_INCE_H 1
-#  define ACC_WANT_ACC_INCI_H 1
-#elif 1
-#  include <string.h>
-#else
-#  define ACC_WANT_ACC_INCD_H 1
 #endif
 
 #if (LZO_ARCH_I086)
@@ -2416,32 +2374,6 @@ LZOLIB_PUBLIC(lzo_hvoid_p, lzo_hmemset) (lzo_hvoid_p s, int c, lzo_hsize_t len)
 #undef LZOLIB_PUBLIC
 #endif
 
-#if !defined(__LZO_IN_MINILZO)
-
-#define ACC_WANT_ACC_CHK_CH 1
-#undef ACCCHK_ASSERT
-
-    ACCCHK_ASSERT_IS_SIGNED_T(lzo_int)
-    ACCCHK_ASSERT_IS_UNSIGNED_T(lzo_uint)
-
-    ACCCHK_ASSERT_IS_SIGNED_T(lzo_int32)
-    ACCCHK_ASSERT_IS_UNSIGNED_T(lzo_uint32)
-    ACCCHK_ASSERT((LZO_UINT32_C(1) << (int)(8*sizeof(LZO_UINT32_C(1))-1)) > 0)
-    ACCCHK_ASSERT(sizeof(lzo_uint32) >= 4)
-
-#if !defined(__LZO_UINTPTR_T_IS_POINTER)
-    ACCCHK_ASSERT_IS_UNSIGNED_T(lzo_uintptr_t)
-#endif
-    ACCCHK_ASSERT(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
-
-    ACCCHK_ASSERT_IS_UNSIGNED_T(lzo_xint)
-    ACCCHK_ASSERT(sizeof(lzo_xint) >= sizeof(lzo_uint32))
-    ACCCHK_ASSERT(sizeof(lzo_xint) >= sizeof(lzo_uint))
-    ACCCHK_ASSERT(sizeof(lzo_xint) == sizeof(lzo_uint32) || sizeof(lzo_xint) == sizeof(lzo_uint))
-
-#endif
-#undef ACCCHK_ASSERT
-
 LZO_PUBLIC(int)
 _lzo_config_check(void)
 {
@@ -2482,15 +2414,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 {
     int r;
 
-#if defined(__LZO_IN_MINILZO)
-#elif (LZO_CC_MSC && ((_MSC_VER) < 700))
-#else
-#define ACC_WANT_ACC_CHK_CH 1
-#undef ACCCHK_ASSERT
-#define ACCCHK_ASSERT(expr)  LZO_COMPILE_TIME_ASSERT(expr)
-#endif
-#undef ACCCHK_ASSERT
-
     __lzo_init_done = 1;
 
     if (v == 0)
@@ -2515,25 +2438,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
     return r;
 }
 
-#if !defined(__LZO_IN_MINILZO)
-
-#if (LZO_OS_WIN16 && LZO_CC_WATCOMC) && defined(__SW_BD)
-
-#if 0
-BOOL FAR PASCAL LibMain ( HANDLE hInstance, WORD wDataSegment,
-                          WORD wHeapSize, LPSTR lpszCmdLine )
-#else
-int __far __pascal LibMain ( int a, short b, short c, long d )
-#endif
-{
-    LZO_UNUSED(a); LZO_UNUSED(b); LZO_UNUSED(c); LZO_UNUSED(d);
-    return 1;
-}
-
-#endif
-
-#endif
-
 #define do_compress         _lzo1x_1_do_compress
 
 #if !defined(MINILZO_CFG_SKIP_LZO1X_1_COMPRESS)
@@ -2548,10 +2452,6 @@ int __far __pascal LibMain ( int a, short b, short c, long d )
 
 #if !defined(LZO1X) && !defined(LZO1Y) && !defined(LZO1Z)
 #  define LZO1X
-#endif
-
-#if !defined(__LZO_IN_MINILZO)
-#include "lzo/lzo1x.h"
 #endif
 
 #define LZO_EOF_CODE
