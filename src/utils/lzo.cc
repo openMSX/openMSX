@@ -50,15 +50,7 @@
 
 #include "lzo.hh"
 
-#if !defined(MINILZO_VERSION) || (MINILZO_VERSION != 0x2030)
-#  error "version mismatch in miniLZO source files"
-#endif
-
 // Start of configuration.
-
-#if (LZO_VERSION < 0x02000)
-#  error "version mismatch"
-#endif
 
 #if defined(__LZO_MMODEL_HUGE) && (!LZO_HAVE_MM_HUGE_PTR)
 #  error "this should not happen - check defines for __huge"

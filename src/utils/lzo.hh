@@ -49,17 +49,11 @@
 #ifndef LZO_HH
 #define LZO_HH
 
-#define MINILZO_VERSION         0x2030
-
 #ifdef __LZOCONF_H
 #  error "you cannot use both LZO and miniLZO"
 #endif
 
 #include "lzoconf.hh"
-
-#if !defined(LZO_VERSION) || (LZO_VERSION != MINILZO_VERSION)
-#  error "version mismatch in header files"
-#endif
 
 
 #ifdef __cplusplus
