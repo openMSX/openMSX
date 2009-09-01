@@ -183,14 +183,7 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #  define LZO_BYTE(x)       ((unsigned char) ((x) & 0xff))
 #endif
 
-#define LZO_MAX(a,b)        ((a) >= (b) ? (a) : (b))
-#define LZO_MIN(a,b)        ((a) <= (b) ? (a) : (b))
-#define LZO_MAX3(a,b,c)     ((a) >= (b) ? LZO_MAX(a,c) : LZO_MAX(b,c))
-#define LZO_MIN3(a,b,c)     ((a) <= (b) ? LZO_MIN(a,c) : LZO_MIN(b,c))
-
 #define lzo_sizeof(type)    ((lzo_uint) (sizeof(type)))
-
-#define LZO_HIGH(array)     ((lzo_uint) (sizeof(array)/sizeof(*(array))))
 
 #define LZO_SIZE(bits)      (1u << (bits))
 #define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
@@ -319,8 +312,6 @@ lzo_full_align_t;
 #endif
 
 // End of pointer alignment definitions.
-
-#define LZO_DETERMINISTIC
 
 #define LZO_DICT_USE_PTR
 #if 0 && (LZO_ARCH_I086)
@@ -505,7 +496,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #endif
 
 #define LZO_EOF_CODE
-#undef LZO_DETERMINISTIC
 
 #define M1_MAX_OFFSET   0x0400
 #ifndef M2_MAX_OFFSET
@@ -748,12 +738,6 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
          ((m_off = pd(ip, in) - m_off) > max_offset) || \
          (m_pos = (ip) - (m_off), 0) )
 
-#endif
-
-#if defined(LZO_DETERMINISTIC)
-#  define LZO_CHECK_MPOS    LZO_CHECK_MPOS_DET
-#else
-#  define LZO_CHECK_MPOS    LZO_CHECK_MPOS_NON_DET
 #endif
 
 #ifdef __cplusplus
