@@ -198,41 +198,6 @@ typedef int
                                      const lzo_bytep dict, lzo_uint dict_len );
 
 
-/* Callback interface. Currently only the progress indicator ("nprogress")
- * is used, but this may change in a future release. */
-
-struct lzo_callback_t;
-typedef struct lzo_callback_t lzo_callback_t;
-#define lzo_callback_p lzo_callback_t *
-
-/* malloc & free function types */
-typedef lzo_voidp (__LZO_CDECL *lzo_alloc_func_t)
-    (lzo_callback_p self, lzo_uint items, lzo_uint size);
-typedef void      (__LZO_CDECL *lzo_free_func_t)
-    (lzo_callback_p self, lzo_voidp ptr);
-
-/* a progress indicator callback function */
-typedef void (__LZO_CDECL *lzo_progress_func_t)
-    (lzo_callback_p, lzo_uint, lzo_uint, int);
-
-struct lzo_callback_t
-{
-    /* custom allocators (set to 0 to disable) */
-    lzo_alloc_func_t nalloc;                /* [not used right now] */
-    lzo_free_func_t nfree;                  /* [not used right now] */
-
-    /* a progress indicator callback function (set to 0 to disable) */
-    lzo_progress_func_t nprogress;
-
-    /* NOTE: the first parameter "self" of the nalloc/nfree/nprogress
-     * callbacks points back to this struct, so you are free to store
-     * some extra info in the following variables. */
-    lzo_voidp user1;
-    lzo_xint user2;
-    lzo_xint user3;
-};
-
-
 /***********************************************************************
 // error codes and prototypes
 ************************************************************************/
@@ -265,9 +230,8 @@ struct lzo_callback_t
  */
 #define lzo_init() __lzo_init_v2(LZO_VERSION,(int)sizeof(short),(int)sizeof(int),\
     (int)sizeof(long),(int)sizeof(lzo_uint32),(int)sizeof(lzo_uint),\
-    (int)lzo_sizeof_dict_t,(int)sizeof(char *),(int)sizeof(lzo_voidp),\
-    (int)sizeof(lzo_callback_t))
-LZO_EXTERN(int) __lzo_init_v2(unsigned,int,int,int,int,int,int,int,int,int);
+    (int)lzo_sizeof_dict_t,(int)sizeof(char *),(int)sizeof(lzo_voidp))
+LZO_EXTERN(int) __lzo_init_v2(unsigned,int,int,int,int,int,int,int,int);
 
 /* version functions (useful for shared libraries) */
 LZO_EXTERN(unsigned) lzo_version(void);

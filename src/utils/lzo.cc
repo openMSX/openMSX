@@ -320,7 +320,7 @@ int __lzo_init_done = 0;
 
 LZO_PUBLIC(int)
 __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
-                          int s6, int s7, int s8, int s9)
+                          int s6, int s7, int s8)
 {
     int r;
 
@@ -336,8 +336,7 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
         (s5 == -1 || s5 == (int) sizeof(lzo_uint)) &&
         (s6 == -1 || s6 == (int) lzo_sizeof_dict_t) &&
         (s7 == -1 || s7 == (int) sizeof(char *)) &&
-        (s8 == -1 || s8 == (int) sizeof(lzo_voidp)) &&
-        (s9 == -1 || s9 == (int) sizeof(lzo_callback_t));
+        (s8 == -1 || s8 == (int) sizeof(lzo_voidp));
     if (!r)
         return LZO_E_ERROR;
 
