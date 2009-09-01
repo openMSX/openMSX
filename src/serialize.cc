@@ -201,7 +201,7 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 	char* buf = buffer.allocate(sizeof(uLongf) + dstLen);
 
 	if (compress2(reinterpret_cast<Bytef*>(&buf[sizeof(uLongf)]), &dstLen,
-		      reinterpret_cast<const Bytef*>(data), len, 1)
+	              reinterpret_cast<const Bytef*>(data), len, 1)
 	    != Z_OK) {
 		assert(false);
 	}
@@ -218,8 +218,8 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 	}
 	char wrkmem[LZO1X_1_MEM_COMPRESS];
 	if (lzo1x_1_compress(reinterpret_cast<const lzo_bytep>(data), len,
-		             reinterpret_cast<lzo_bytep>(&buf[sizeof(lzo_uint)]),
-		             &dstLen, wrkmem) != LZO_E_OK) {
+	                     reinterpret_cast<lzo_bytep>(&buf[sizeof(lzo_uint)]),
+	                     &dstLen, wrkmem) != LZO_E_OK) {
 		assert(false);
 	}
 
