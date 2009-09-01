@@ -395,8 +395,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
     return r;
 }
 
-#define do_compress         _lzo1x_1_do_compress
-
 #define D_BITS          14
 #define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
 #define D_INDEX2(d,p)       d = (d & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f)
@@ -652,12 +650,10 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
 
 // End of LZO1X.
 
-#define DO_COMPRESS     lzo1x_1_compress
-
 static __lzo_noinline lzo_uint
-do_compress ( const lzo_bytep in , lzo_uint  in_len,
-                    lzo_bytep out, lzo_uintp out_len,
-                    lzo_voidp wrkmem )
+_lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
+                     lzo_bytep out, lzo_uintp out_len,
+                     lzo_voidp wrkmem)
 {
     register const lzo_bytep ip;
     lzo_bytep op;
@@ -851,9 +847,9 @@ m3_m4_offset:
 }
 
 LZO_PUBLIC(int)
-DO_COMPRESS      ( const lzo_bytep in , lzo_uint  in_len,
-                         lzo_bytep out, lzo_uintp out_len,
-                         lzo_voidp wrkmem )
+lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
+                 lzo_bytep out, lzo_uintp out_len,
+                 lzo_voidp wrkmem)
 {
     lzo_bytep op = out;
     lzo_uint t;
@@ -862,7 +858,7 @@ DO_COMPRESS      ( const lzo_bytep in , lzo_uint  in_len,
         t = in_len;
     else
     {
-        t = do_compress(in,in_len,op,out_len,wrkmem);
+        t = _lzo1x_1_do_compress(in,in_len,op,out_len,wrkmem);
         op += *out_len;
     }
 
@@ -900,13 +896,9 @@ DO_COMPRESS      ( const lzo_bytep in , lzo_uint  in_len,
     return LZO_E_OK;
 }
 
-#undef do_compress
-#undef DO_COMPRESS
 #undef LZO_HASH
 
 #undef LZO_TEST_OVERRUN
-#undef DO_DECOMPRESS
-#define DO_DECOMPRESS       lzo1x_decompress
 
 #if defined(LZO_TEST_OVERRUN)
 #  if !defined(LZO_TEST_OVERRUN_INPUT)
@@ -1005,12 +997,10 @@ DO_COMPRESS      ( const lzo_bytep in , lzo_uint  in_len,
 #  define COPY4(dst,src)    __COPY4((lzo_uintptr_t)(dst),(lzo_uintptr_t)(src))
 #endif
 
-#if defined(DO_DECOMPRESS)
 LZO_PUBLIC(int)
-DO_DECOMPRESS  ( const lzo_bytep in , lzo_uint  in_len,
-                       lzo_bytep out, lzo_uintp out_len,
-                       lzo_voidp wrkmem )
-#endif
+lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
+                 lzo_bytep out, lzo_uintp out_len,
+                 lzo_voidp wrkmem)
 {
     register lzo_bytep op;
     register const lzo_bytep ip;
