@@ -238,52 +238,6 @@ _lzo_version_date(void)
     return LZO_VERSION_DATE;
 }
 
-#define LZO_BASE 65521u
-#define LZO_NMAX 5552
-
-#define LZO_DO1(buf,i)  s1 += buf[i]; s2 += s1
-#define LZO_DO2(buf,i)  LZO_DO1(buf,i); LZO_DO1(buf,i+1);
-#define LZO_DO4(buf,i)  LZO_DO2(buf,i); LZO_DO2(buf,i+2);
-#define LZO_DO8(buf,i)  LZO_DO4(buf,i); LZO_DO4(buf,i+4);
-#define LZO_DO16(buf,i) LZO_DO8(buf,i); LZO_DO8(buf,i+8);
-
-LZO_PUBLIC(lzo_uint32)
-lzo_adler32(lzo_uint32 adler, const lzo_bytep buf, lzo_uint len)
-{
-    lzo_uint32 s1 = adler & 0xffff;
-    lzo_uint32 s2 = (adler >> 16) & 0xffff;
-    unsigned k;
-
-    if (buf == NULL)
-        return 1;
-
-    while (len > 0)
-    {
-        k = len < LZO_NMAX ? (unsigned) len : LZO_NMAX;
-        len -= k;
-        if (k >= 16) do
-        {
-            LZO_DO16(buf,0);
-            buf += 16;
-            k -= 16;
-        } while (k >= 16);
-        if (k != 0) do
-        {
-            s1 += *buf++;
-            s2 += s1;
-        } while (--k > 0);
-        s1 %= LZO_BASE;
-        s2 %= LZO_BASE;
-    }
-    return (s2 << 16) | s1;
-}
-
-#undef LZO_DO1
-#undef LZO_DO2
-#undef LZO_DO4
-#undef LZO_DO8
-#undef LZO_DO16
-
 LZO_PUBLIC(int)
 _lzo_config_check(void)
 {

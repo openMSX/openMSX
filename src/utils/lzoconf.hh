@@ -250,14 +250,6 @@ lzo_memmove(lzo_voidp _dest, const lzo_voidp _src, lzo_uint _len);
 LZO_EXTERN(lzo_voidp)
 lzo_memset(lzo_voidp _s, int _c, lzo_uint _len);
 
-/* checksum functions */
-LZO_EXTERN(lzo_uint32)
-lzo_adler32(lzo_uint32 _adler, const lzo_bytep _buf, lzo_uint _len);
-LZO_EXTERN(lzo_uint32)
-lzo_crc32(lzo_uint32 _c, const lzo_bytep _buf, lzo_uint _len);
-LZO_EXTERN(const lzo_uint32p)
-lzo_get_crc32_table(void);
-
 /* misc. */
 LZO_EXTERN(int) _lzo_config_check(void);
 typedef union { lzo_bytep p; lzo_uint u; } __lzo_pu_u;
