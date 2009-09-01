@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1251833649">
+<softwaredb xml:lang="en" timestamp="1251836358">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6308,7 +6308,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">aa881a2936f368ab887c296b837a8f7f553a3fb2</hash><remark><text>[RC-750] / [tr Sp]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">65040fb1e9bc4b2d027d7d81e44be30e7620e368</hash><remark><text>[RC-750] / Ulver crack / Does not work on Non Japanese systems</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">8449cdf161babec85508c35c8ca64a5c1fd7671d</hash><remark><text>[RC-750] / French translation by Django</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark><text>[RC-750] / [tr En][JP/EU patch]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark><text>[RC-750] / [tr En][JP/EU patch]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">31b8b69de88d84aabdb762af1adeac815723562c</hash><remark><text>[RC-750] / Save to disk</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">5ff1254dccd5dde58d3475a468178738d6260b05</hash><remark><text>[RC-750]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">c461efa942e1a3a1e580f9d04bf8d15c5e834f8b</hash><remark><text>[RC-750]</text></remark></megarom></dump>
@@ -8619,11 +8619,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">96509c8824cbf95843418f3b55f4abf8125e7e57</hash><remark><text>[RC-758] / FRS dynamic Vsync+Ripple Fix+Trainer</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">41e456910399d4c31894b533c0b2c6ebeac3a47e</hash><remark><text>[RC-758] / FRS dynamic Vsync+Ripple Fix</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">24f88556ec603e258e6047dd166d9350f53608b2</hash><remark><text>[RC-758] / FRS dynamic Vsync</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">3b1fc45b04bd03f21d5b88330a0c5d16a9bd2d65</hash></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a676173780dc3ef4523ff3123fdf179279d22932</hash></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a1830ad66feb55f471d52210c6f07937f38238fe</hash></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">c19f67882b2586c4ba577ffc5d04197e757e19a5</hash></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">5261006ca4245653f5153074dfcc8ca27315bb59</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">3b1fc45b04bd03f21d5b88330a0c5d16a9bd2d65</hash><remark><text>[RC-758]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a676173780dc3ef4523ff3123fdf179279d22932</hash><remark><text>[RC-758]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">a1830ad66feb55f471d52210c6f07937f38238fe</hash><remark><text>[RC-758]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">c19f67882b2586c4ba577ffc5d04197e757e19a5</hash><remark><text>[RC-758]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">5261006ca4245653f5153074dfcc8ca27315bb59</hash><remark><text>[RC-758]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Sangokushi 1 - Romance Of Three Kingdoms - MSX1 Version</title>
@@ -8663,6 +8663,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">395c5f40692c45b891abe07c89d1e87829665fc7</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e767c0239b79821463fa42f2c1989d3fd1b4b868</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Satujinkurakubu - Murder Club</title>
@@ -9111,9 +9112,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">e8959529a71ce9d580766dd2074b2c17cde34c2d</hash><remark><text>[RC-721]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">5398bfcc6bf60d393755a0edc15f3b9c14180b47</hash><remark><text>[RC-721]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">0d53c456603a56b39392b203ad75323357895381</hash><remark><text>[RC-721] / Ulver crack</text></remark></rom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">ac4facb517e2383b4cb22504cda961b15af0a83e</hash><remark><text>[SD Snatcher RAM SCC+][RC-721]</text></remark></sccpluscart></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">c55b0daf698d93b8278a9d89f38272064d1594bd</hash><remark><text>Konami Antiques MSX Collection 1</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">e8d2f130b0937d1baced5a3996b78f163d4fa70a</hash></rom></dump>
+		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">ac4facb517e2383b4cb22504cda961b15af0a83e</hash><remark><text>[RC-721] / [SD Snatcher RAM SCC+]</text></remark></sccpluscart></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">c55b0daf698d93b8278a9d89f38272064d1594bd</hash><remark><text>[RC-721] / Konami Antiques MSX Collection 1</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">e8d2f130b0937d1baced5a3996b78f163d4fa70a</hash><remark><text>[RC-721]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Slapshot</title>
@@ -9288,7 +9289,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">e388e8d8546e329d2c58269d4fa026624a640f1b</hash><remark><text>[RC-768] / Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">f6199f48ff994fc9a8e33a8581bb3bb16dd301ab</hash><remark><text>[RC-768]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">9447e50d1266b7cb96a414eaf9ee16c0f99e55f3</hash><remark><text>[RC-768]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">ad1081f398ac69c0c92e4afadde482574fe875bb</hash><remark><text>[t][RC-768]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">ad1081f398ac69c0c92e4afadde482574fe875bb</hash><remark><text>[RC-768] / [t]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">17583adb63d16d64ae51820055cd32c0e935425a</hash><remark><text>[RC-768] / Ulver crack</text></remark></megarom></dump>
 </software>
 <software>
@@ -9680,10 +9681,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a84608f1c2fe1aea1a8a586f2e335cb64bb951fc</hash><remark><text>[RC-705]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">9fce4dde148a4a2e9cbb7731baf099d1d16e7c96</hash><remark><text>[RC-705]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">61383444e658bdcc4df61e1e393b2516bed18106</hash><remark><text>[RC-705]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">7ad00597ceb5a02379055230d907c4421982329a</hash><remark><text>[a][RC-705]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">31472edf134c8ba532e6a1eded0dcc1aa088e8ba</hash><remark><text>[o][RC-705]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">87a9f78c0bba4e38d98890e34033a7b14f75f5e2</hash><remark><text>[o2][RC-705]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">de2dd71730922168428dbc11a82fe91b84c23192</hash><remark><text>[o3][RC-705]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">7ad00597ceb5a02379055230d907c4421982329a</hash><remark><text>[RC-705] / [a]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">31472edf134c8ba532e6a1eded0dcc1aa088e8ba</hash><remark><text>[RC-705] / [o]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">87a9f78c0bba4e38d98890e34033a7b14f75f5e2</hash><remark><text>[RC-705] / [o2]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">de2dd71730922168428dbc11a82fe91b84c23192</hash><remark><text>[RC-705] / [o3]</text></remark></rom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">32972530da19cac5956f83c2253c7cbf41e14dc3</hash><remark><text>[SCC][RC-705]</text></remark></megarom></dump>
 		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">93ab050bc4965667ee863773b8ecd36dd4f3f86c</hash><remark><text>[SD Snatcher RAM SCC+][RC-705]</text></remark></sccpluscart></dump>
 </software>
@@ -11269,5 +11270,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2472
-Parse time 4.040 seconds on Tue Sep 1 21:34:13 CEST 2009
+Parse time 4.103 seconds on Tue Sep 1 22:19:22 CEST 2009
  -->
