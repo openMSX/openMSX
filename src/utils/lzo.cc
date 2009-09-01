@@ -54,8 +54,7 @@
 #  error "version mismatch in miniLZO source files"
 #endif
 
-#ifndef __LZO_CONF_H
-#define __LZO_CONF_H
+// Start of configuration.
 
 #if (LZO_VERSION < 0x02000) || !defined(__LZOCONF_H_INCLUDED)
 #  error "version mismatch"
@@ -244,8 +243,7 @@ __LZO_EXTERN_C int __lzo_init_done;
 __LZO_EXTERN_C const char __lzo_copyright[];
 LZO_EXTERN(const lzo_bytep) lzo_copyright(void);
 
-#ifndef __LZO_PTR_H
-#define __LZO_PTR_H
+// Start of pointer alignment definitions.
 
 #ifdef __cplusplus
 extern "C" {
@@ -320,7 +318,7 @@ lzo_full_align_t;
 }
 #endif
 
-#endif
+// End of pointer alignment definitions.
 
 #define LZO_DETERMINISTIC
 
@@ -337,7 +335,7 @@ lzo_full_align_t;
 #  define lzo_dict_p    lzo_dict_t __LZO_MMODEL *
 #endif
 
-#endif
+// End of configuration.
 
 /* If you use the LZO library in a product, I would appreciate that you
  * keep this copyright string in the executable of your product.
@@ -509,13 +507,11 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 
 #define do_compress         _lzo1x_1_do_compress
 
-#define LZO_NEED_DICT_H
 #define D_BITS          14
 #define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
 #define D_INDEX2(d,p)       d = (d & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f)
 
-#ifndef __LZO_CONFIG1X_H
-#define __LZO_CONFIG1X_H
+// Start of LZO1X.
 
 #if !defined(LZO1X) && !defined(LZO1Y) && !defined(LZO1Z)
 #  define LZO1X
@@ -553,15 +549,12 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #define MIN_LOOKAHEAD       (M2_MAX_LEN + 1)
 #endif
 
-#if defined(LZO_NEED_DICT_H)
-
 #ifndef LZO_HASH
 #define LZO_HASH            LZO_HASH_LZO_INCREMENTAL_B
 #endif
 #define DL_MIN_LEN          M2_MIN_LEN
 
-#ifndef __LZO_DICT_H
-#define __LZO_DICT_H
+// Start of dictionary macros.
 
 #ifdef __cplusplus
 extern "C" {
@@ -780,11 +773,9 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
 }
 #endif
 
-#endif
+// End of dictionary macros.
 
-#endif
-
-#endif
+// End of LZO1X.
 
 #define DO_COMPRESS     lzo1x_1_compress
 
