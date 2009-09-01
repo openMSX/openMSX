@@ -1119,56 +1119,6 @@
 #  endif
 #endif
 #endif
-#if (LZO_ARCH_ALPHA)
-#  define LZO_OPT_AVOID_UINT_INDEX  1
-#  define LZO_OPT_AVOID_SHORT       1
-#  define LZO_OPT_AVOID_USHORT      1
-#elif (LZO_ARCH_AMD64)
-#  define LZO_OPT_AVOID_INT_INDEX   1
-#  define LZO_OPT_AVOID_UINT_INDEX  1
-#  define LZO_OPT_UNALIGNED16       1
-#  define LZO_OPT_UNALIGNED32       1
-#  define LZO_OPT_UNALIGNED64       1
-#elif (LZO_ARCH_ARM && LZO_ARCH_ARM_THUMB)
-#elif (LZO_ARCH_ARM)
-#  define LZO_OPT_AVOID_SHORT       1
-#  define LZO_OPT_AVOID_USHORT      1
-#elif (LZO_ARCH_CRIS)
-#  define LZO_OPT_UNALIGNED16       1
-#  define LZO_OPT_UNALIGNED32       1
-#elif (LZO_ARCH_I386)
-#  define LZO_OPT_UNALIGNED16       1
-#  define LZO_OPT_UNALIGNED32       1
-#elif (LZO_ARCH_IA64)
-#  define LZO_OPT_AVOID_INT_INDEX   1
-#  define LZO_OPT_AVOID_UINT_INDEX  1
-#  define LZO_OPT_PREFER_POSTINC    1
-#elif (LZO_ARCH_M68K)
-#  define LZO_OPT_PREFER_POSTINC    1
-#  define LZO_OPT_PREFER_PREDEC     1
-#  if defined(__mc68020__) && !defined(__mcoldfire__)
-#    define LZO_OPT_UNALIGNED16     1
-#    define LZO_OPT_UNALIGNED32     1
-#  endif
-#elif (LZO_ARCH_MIPS)
-#  define LZO_OPT_AVOID_UINT_INDEX  1
-#elif (LZO_ARCH_POWERPC)
-#  define LZO_OPT_PREFER_PREINC     1
-#  define LZO_OPT_PREFER_PREDEC     1
-#  if defined(LZO_ABI_BIG_ENDIAN)
-#    define LZO_OPT_UNALIGNED16     1
-#    define LZO_OPT_UNALIGNED32     1
-#  endif
-#elif (LZO_ARCH_S390)
-#  define LZO_OPT_UNALIGNED16       1
-#  define LZO_OPT_UNALIGNED32       1
-#  if (LZO_SIZEOF_SIZE_T == 8)
-#    define LZO_OPT_UNALIGNED64     1
-#  endif
-#elif (LZO_ARCH_SH)
-#  define LZO_OPT_PREFER_POSTINC    1
-#  define LZO_OPT_PREFER_PREDEC     1
-#endif
 #if !defined(LZO_CFG_NO_INLINE_ASM)
 #if defined(LZO_CC_LLVM)
 #  define LZO_CFG_NO_INLINE_ASM 1
