@@ -73,11 +73,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
 #include <string.h>
 
-#  define lzo_memcmp(a,b,c)     memcmp(a,b,c)
-#  define lzo_memcpy(a,b,c)     memcpy(a,b,c)
-#  define lzo_memmove(a,b,c)    memmove(a,b,c)
-#  define lzo_memset(a,b,c)     memset(a,b,c)
-
 #undef NDEBUG
 #  if !defined(LZO_DEBUG)
 #    define NDEBUG 1
@@ -130,15 +125,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #elif defined(LZO_ALIGNED_OK_4)
   LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uint32) == 4)
 #endif
-
-#define MEMCPY8_DS(dest,src,len) \
-    lzo_memcpy(dest,src,len); dest += len; src += len
-
-#define BZERO8_PTR(s,l,n) \
-    lzo_memset((lzo_voidp)(s),0,(lzo_uint)(l)*(n))
-
-#define MEMCPY_DS(dest,src,len) \
-    do *dest++ = *src++; while (--len > 0)
 
 extern int __lzo_init_done;
 extern const char __lzo_copyright[];
