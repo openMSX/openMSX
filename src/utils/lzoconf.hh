@@ -367,44 +367,6 @@ LZO_EXTERN(unsigned) __lzo_align_gap(const lzo_voidp _ptr, lzo_uint _size);
     ((_ptr) + (lzo_uint) __lzo_align_gap((const lzo_voidp)(_ptr),(lzo_uint)(_size)))
 
 
-/***********************************************************************
-// deprecated macros - only for backward compatibility with LZO v1.xx
-************************************************************************/
-
-#if defined(LZO_CFG_COMPAT)
-
-#define __LZOCONF_H 1
-
-#if defined(LZO_ARCH_I086)
-#  define __LZO_i386 1
-#elif defined(LZO_ARCH_I386)
-#  define __LZO_i386 1
-#endif
-
-#if defined(LZO_OS_DOS16)
-#  define __LZO_DOS 1
-#  define __LZO_DOS16 1
-#elif defined(LZO_OS_DOS32)
-#  define __LZO_DOS 1
-#elif defined(LZO_OS_WIN16)
-#  define __LZO_WIN 1
-#  define __LZO_WIN16 1
-#elif defined(LZO_OS_WIN32)
-#  define __LZO_WIN 1
-#endif
-
-#define __LZO_CMODEL
-#define __LZO_DMODEL
-#define __LZO_ENTRY             __LZO_CDECL
-#define LZO_EXTERN_CDECL        LZO_EXTERN
-#define LZO_ALIGN               LZO_PTR_ALIGN_UP
-
-#define lzo_compress_asm_t      lzo_compress_t
-#define lzo_decompress_asm_t    lzo_decompress_t
-
-#endif /* LZO_CFG_COMPAT */
-
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
