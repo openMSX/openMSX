@@ -208,36 +208,6 @@ lzo_copyright(void)
     return (const lzo_bytep) __lzo_copyright;
 }
 
-LZO_PUBLIC(unsigned)
-lzo_version(void)
-{
-    return LZO_VERSION;
-}
-
-LZO_PUBLIC(const char *)
-lzo_version_string(void)
-{
-    return LZO_VERSION_STRING;
-}
-
-LZO_PUBLIC(const char *)
-lzo_version_date(void)
-{
-    return LZO_VERSION_DATE;
-}
-
-LZO_PUBLIC(const lzo_charp)
-_lzo_version_string(void)
-{
-    return LZO_VERSION_STRING;
-}
-
-LZO_PUBLIC(const lzo_charp)
-_lzo_version_date(void)
-{
-    return LZO_VERSION_DATE;
-}
-
 LZO_PUBLIC(int)
 _lzo_config_check(void)
 {

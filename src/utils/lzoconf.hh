@@ -190,13 +190,6 @@ typedef int lzo_bool;
     (int)lzo_sizeof_dict_t,(int)sizeof(char *),(int)sizeof(lzo_voidp))
 LZO_EXTERN(int) __lzo_init_v2(unsigned,int,int,int,int,int,int,int,int);
 
-/* version functions (useful for shared libraries) */
-LZO_EXTERN(unsigned) lzo_version(void);
-LZO_EXTERN(const char *) lzo_version_string(void);
-LZO_EXTERN(const char *) lzo_version_date(void);
-LZO_EXTERN(const lzo_charp) _lzo_version_string(void);
-LZO_EXTERN(const lzo_charp) _lzo_version_date(void);
-
 /* misc. */
 LZO_EXTERN(int) _lzo_config_check(void);
 
