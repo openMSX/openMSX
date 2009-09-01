@@ -240,16 +240,6 @@ LZO_EXTERN(const char *) lzo_version_date(void);
 LZO_EXTERN(const lzo_charp) _lzo_version_string(void);
 LZO_EXTERN(const lzo_charp) _lzo_version_date(void);
 
-/* string functions */
-LZO_EXTERN(int)
-lzo_memcmp(const lzo_voidp _s1, const lzo_voidp _s2, lzo_uint _len);
-LZO_EXTERN(lzo_voidp)
-lzo_memcpy(lzo_voidp _dest, const lzo_voidp _src, lzo_uint _len);
-LZO_EXTERN(lzo_voidp)
-lzo_memmove(lzo_voidp _dest, const lzo_voidp _src, lzo_uint _len);
-LZO_EXTERN(lzo_voidp)
-lzo_memset(lzo_voidp _s, int _c, lzo_uint _len);
-
 /* misc. */
 LZO_EXTERN(int) _lzo_config_check(void);
 typedef union { lzo_bytep p; lzo_uint u; } __lzo_pu_u;
