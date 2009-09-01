@@ -60,23 +60,6 @@
 #  error "version mismatch"
 #endif
 
-#if (LZO_CC_BORLANDC && LZO_ARCH_I086)
-#  pragma option -h
-#endif
-
-#if (LZO_CC_MSC && (_MSC_VER >= 1000))
-#  pragma warning(disable: 4127 4701)
-#endif
-#if (LZO_CC_MSC && (_MSC_VER >= 1300))
-#  pragma warning(disable: 4820)
-#  pragma warning(disable: 4514 4710 4711)
-#endif
-
-#if (LZO_CC_SUNPROC)
-#  pragma error_messages(off,E_END_OF_LOOP_CODE_NOT_REACHED)
-#  pragma error_messages(off,E_LOOP_NOT_ENTERED_AT_TOP)
-#endif
-
 #if defined(__LZO_MMODEL_HUGE) && (!LZO_HAVE_MM_HUGE_PTR)
 #  error "this should not happen - check defines for __huge"
 #endif

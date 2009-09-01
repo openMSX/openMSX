@@ -60,20 +60,6 @@
 #    define __LONG_MAX__ 9223372036854775807L
 #  endif
 #endif
-#if defined(__INTEL_COMPILER) && defined(__linux__)
-#  pragma warning(disable: 193)
-#endif
-#if defined(__KEIL__) && defined(__C166__)
-#  pragma warning disable = 322
-#endif
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__MWERKS__)
-#  if (_MSC_VER >= 1300)
-#    pragma warning(disable: 4668)
-#  endif
-#endif
-#if defined(__BORLANDC__) && defined(__MSDOS__) && !defined(__FLAT__)
-#  pragma option -h
-#endif
 #define LZO_0xffffL             65535ul
 #define LZO_0xffffffffL         4294967295ul
 #if (LZO_0xffffL == LZO_0xffffffffL)
