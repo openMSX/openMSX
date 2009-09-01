@@ -183,15 +183,8 @@ lzo_full_align_t;
 
 // End of pointer alignment definitions.
 
-#define LZO_DICT_USE_PTR
-
-#if defined(LZO_DICT_USE_PTR)
 #  define lzo_dict_t    const lzo_bytep
 #  define lzo_dict_p    lzo_dict_t *
-#else
-#  define lzo_dict_t    lzo_uint
-#  define lzo_dict_p    lzo_dict_t *
-#endif
 
 // End of configuration.
 
@@ -469,13 +462,8 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
 #endif
 #endif
 
-#if defined(LZO_DICT_USE_PTR)
 #  define DENTRY(p,in)                          (p)
 #  define GINDEX(m_pos,m_off,dict,dindex,in)    m_pos = dict[dindex]
-#else
-#  define DENTRY(p,in)                          ((lzo_uint) ((p)-(in)))
-#  define GINDEX(m_pos,m_off,dict,dindex,in)    m_off = dict[dindex]
-#endif
 
 #if (DD_BITS == 0)
 
@@ -494,8 +482,6 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
 
 #endif
 
-#if defined(LZO_DICT_USE_PTR)
-
 #define LZO_CHECK_MPOS_DET(m_pos,m_off,in,ip,max_offset) \
         (m_pos == NULL || (m_off = pd(ip, m_pos)) > max_offset)
 
@@ -505,20 +491,6 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
         PTR_LT(m_pos,in) || \
         (m_off = (lzo_uint) PTR_DIFF(ip,m_pos)) <= 0 || \
          m_off > max_offset )
-
-#else
-
-#define LZO_CHECK_MPOS_DET(m_pos,m_off,in,ip,max_offset) \
-        (m_off == 0 || \
-         ((m_off = pd(ip, in) - m_off) > max_offset) || \
-         (m_pos = (ip) - (m_off), 0) )
-
-#define LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,max_offset) \
-        (pd(ip, in) <= m_off || \
-         ((m_off = pd(ip, in) - m_off) > max_offset) || \
-         (m_pos = (ip) - (m_off), 0) )
-
-#endif
 
 // End of dictionary macros.
 
