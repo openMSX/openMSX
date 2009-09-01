@@ -91,7 +91,7 @@
 #if !defined(lzo_uintptr_t)
 #  if defined(__LZO_MMODEL_HUGE)
 #    define lzo_uintptr_t       unsigned long
-#  elif 1 && defined(LZO_OS_OS400) && (LZO_SIZEOF_VOID_P == 16)
+#  elif defined(LZO_OS_OS400) && (LZO_SIZEOF_VOID_P == 16)
 #    define __LZO_UINTPTR_T_IS_POINTER 1
      typedef char*              lzo_uintptr_t;
 #    define lzo_uintptr_t       lzo_uintptr_t
@@ -134,11 +134,7 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #  define __lzo_noinline
 #endif
 
-#if 1
 #  define LZO_BYTE(x)       ((unsigned char) (x))
-#else
-#  define LZO_BYTE(x)       ((unsigned char) ((x) & 0xff))
-#endif
 
 #define lzo_sizeof(type)    ((lzo_uint) (sizeof(type)))
 
@@ -152,16 +148,11 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #define LZO_UMASK(bits)     (LZO_USIZE(bits) - 1)
 
 #if !defined(DMUL)
-#if 0
-
-#  define DMUL(a,b) ((lzo_xint) ((lzo_uint32)(a) * (lzo_uint32)(b)))
-#else
 #  define DMUL(a,b) ((lzo_xint) ((a) * (b)))
 #endif
-#endif
 
-#if 1 && !defined(LZO_CFG_NO_UNALIGNED)
-#if 1 && (LZO_ARCH_AMD64 || LZO_ARCH_I386)
+#if !defined(LZO_CFG_NO_UNALIGNED)
+#if (LZO_ARCH_AMD64 || LZO_ARCH_I386)
 #  if (LZO_SIZEOF_SHORT == 2)
 #    define LZO_UNALIGNED_OK_2
 #  endif
@@ -271,9 +262,6 @@ lzo_full_align_t;
 // End of pointer alignment definitions.
 
 #define LZO_DICT_USE_PTR
-#if 0 && (LZO_ARCH_I086)
-#  undef LZO_DICT_USE_PTR
-#endif
 
 #if defined(LZO_DICT_USE_PTR)
 #  define lzo_dict_t    const lzo_bytep
@@ -735,11 +723,9 @@ do_compress ( const lzo_bytep in , lzo_uint  in_len,
         GINDEX(m_pos,m_off,dict,dindex,in);
         if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET))
             goto literal;
-#if 1
         if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3])
             goto try_match;
         DINDEX2(dindex,ip);
-#endif
         GINDEX(m_pos,m_off,dict,dindex,in);
         if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET))
             goto literal;
@@ -748,7 +734,7 @@ do_compress ( const lzo_bytep in , lzo_uint  in_len,
         goto literal;
 
 try_match:
-#if 1 && defined(LZO_UNALIGNED_OK_2)
+#if defined(LZO_UNALIGNED_OK_2)
         if (* (const lzo_ushortp) m_pos != * (const lzo_ushortp) ip)
 #else
         if (m_pos[0] != ip[0] || m_pos[1] != ip[1])
@@ -759,43 +745,7 @@ try_match:
         {
             if __lzo_likely(m_pos[2] == ip[2])
             {
-#if 0
-                if (m_off <= M2_MAX_OFFSET)
                     goto match;
-                if (lit <= 3)
-                    goto match;
-                if (lit == 3)
-                {
-                    assert(op - 2 > out); op[-2] |= LZO_BYTE(3);
-                    *op++ = *ii++; *op++ = *ii++; *op++ = *ii++;
-                    goto code_match;
-                }
-                if (m_pos[3] == ip[3])
-#endif
-                    goto match;
-            }
-            else
-            {
-#if 0
-#if 0
-                if (m_off <= M1_MAX_OFFSET && lit > 0 && lit <= 3)
-#else
-                if (m_off <= M1_MAX_OFFSET && lit == 3)
-#endif
-                {
-                    register lzo_uint t;
-
-                    t = lit;
-                    assert(op - 2 > out); op[-2] |= LZO_BYTE(t);
-                    do *op++ = *ii++; while (--t > 0);
-                    assert(ii == ip);
-                    m_off -= 1;
-                    *op++ = LZO_BYTE(M1_MARKER | ((m_off & 3) << 2));
-                    *op++ = LZO_BYTE(m_off >> 2);
-                    ip += 2;
-                    goto match_done;
-                }
-#endif
             }
         }
 
@@ -932,9 +882,6 @@ m3_m4_offset:
             *op++ = LZO_BYTE(m_off >> 6);
         }
 
-#if 0
-match_done:
-#endif
         ii = ip;
         if __lzo_unlikely(ip >= ip_end)
             break;
@@ -1452,12 +1399,8 @@ match_done:
 
 match_next:
             assert(t > 0); assert(t < 4); NEED_OP(t); NEED_IP(t+1);
-#if 0
-            do *op++ = *ip++; while (--t > 0);
-#else
             *op++ = *ip++;
             if (t > 1) { *op++ = *ip++; if (t > 2) { *op++ = *ip++; } }
-#endif
             t = *ip++;
         } while (TEST_IP && TEST_OP);
     }

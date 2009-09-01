@@ -52,7 +52,7 @@
 #if defined(__ICL) && defined(_WIN32) && !defined(__INTEL_COMPILER)
 #  define __INTEL_COMPILER __ICL
 #endif
-#if 1 && defined(__INTERIX) && defined(__GNUC__) && !defined(_ALL_SOURCE)
+#if defined(__INTERIX) && defined(__GNUC__) && !defined(_ALL_SOURCE)
 #  define _ALL_SOURCE 1
 #endif
 #if defined(__mips__) && defined(__R5900__)
@@ -65,42 +65,22 @@
 #endif
 #if defined(__KEIL__) && defined(__C166__)
 #  pragma warning disable = 322
-#elif 0 && defined(__C251__)
-#  pragma warning disable = 322
 #endif
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__MWERKS__)
 #  if (_MSC_VER >= 1300)
 #    pragma warning(disable: 4668)
 #  endif
 #endif
-#if 0 && defined(__WATCOMC__)
-#  if (__WATCOMC__ >= 1050) && (__WATCOMC__ < 1060)
-#    pragma warning 203 9
-#  endif
-#endif
 #if defined(__BORLANDC__) && defined(__MSDOS__) && !defined(__FLAT__)
 #  pragma option -h
 #endif
-#if 0
-#define LZO_0xffffL             0xfffful
-#define LZO_0xffffffffL         0xfffffffful
-#else
 #define LZO_0xffffL             65535ul
 #define LZO_0xffffffffL         4294967295ul
-#endif
 #if (LZO_0xffffL == LZO_0xffffffffL)
 #  error "your preprocessor is broken 1"
 #endif
 #if (16ul * 16384ul != 262144ul)
 #  error "your preprocessor is broken 2"
-#endif
-#if 0
-#if (32767 >= 4294967295ul)
-#  error "your preprocessor is broken 3"
-#endif
-#if (65535u >= 4294967295ul)
-#  error "your preprocessor is broken 4"
-#endif
 #endif
 #if (UINT_MAX == LZO_0xffffL)
 #if defined(__ZTC__) && defined(__I86__) && !defined(__OS2__)
@@ -109,15 +89,6 @@
 #  endif
 #  if !defined(_MSDOS)
 #    define _MSDOS 1
-#  endif
-#elif 0 && defined(__VERSION) && defined(MB_LEN_MAX)
-#  if (__VERSION == 520) && (MB_LEN_MAX == 1)
-#    if !defined(__AZTEC_C__)
-#      define __AZTEC_C__ __VERSION
-#    endif
-#    if !defined(__DOS__)
-#      define __DOS__ 1
-#    endif
 #  endif
 #endif
 #endif
@@ -240,7 +211,6 @@
 #define LZO_PP_ECONCAT3(a,b,c)          LZO_PP_CONCAT3(a,b,c)
 #define LZO_PP_ECONCAT4(a,b,c,d)        LZO_PP_CONCAT4(a,b,c,d)
 #define LZO_PP_ECONCAT5(a,b,c,d,e)      LZO_PP_CONCAT5(a,b,c,d,e)
-#if 1
 #define LZO_CPP_STRINGIZE(x)            #x
 #define LZO_CPP_MACRO_EXPAND(x)         LZO_CPP_STRINGIZE(x)
 #define LZO_CPP_CONCAT2(a,b)            a ## b
@@ -251,9 +221,8 @@
 #define LZO_CPP_ECONCAT3(a,b,c)         LZO_CPP_CONCAT3(a,b,c)
 #define LZO_CPP_ECONCAT4(a,b,c,d)       LZO_CPP_CONCAT4(a,b,c,d)
 #define LZO_CPP_ECONCAT5(a,b,c,d,e)     LZO_CPP_CONCAT5(a,b,c,d,e)
-#endif
 #define __LZO_MASK_GEN(o,b)     (((((o) << ((b)-1)) - (o)) << 1) + (o))
-#if 1 && defined(__cplusplus)
+#if defined(__cplusplus)
 #  if !defined(__STDC_CONSTANT_MACROS)
 #    define __STDC_CONSTANT_MACROS 1
 #  endif
@@ -271,7 +240,7 @@
 #  define LZO_INFO_OS           "freestanding"
 #elif defined(LZO_OS_EMBEDDED)
 #  define LZO_INFO_OS           "embedded"
-#elif 1 && defined(__IAR_SYSTEMS_ICC__)
+#elif defined(__IAR_SYSTEMS_ICC__)
 #  define LZO_OS_EMBEDDED       1
 #  define LZO_INFO_OS           "embedded"
 #elif defined(__CYGWIN__) && defined(__GNUC__)
@@ -457,10 +426,6 @@
 #  else
 #    define LZO_INFO_CCVER      "unknown"
 #  endif
-#elif 0 && defined(SDCC) && defined(__VERSION__) && !defined(__GNUC__)
-#  define LZO_CC_SDCC           1
-#  define LZO_INFO_CC           "sdcc"
-#  define LZO_INFO_CCVER        LZO_PP_MACRO_EXPAND(SDCC)
 #elif defined(__PATHSCALE__) && defined(__PATHCC_PATCHLEVEL__)
 #  define LZO_CC_PATHSCALE      (__PATHCC__ * 0x10000L + __PATHCC_MINOR__ * 0x100 + __PATHCC_PATCHLEVEL__)
 #  define LZO_INFO_CC           "Pathscale C"
@@ -631,9 +596,6 @@
 #  define LZO_INFO_CC           "unknown"
 #  define LZO_INFO_CCVER        "unknown"
 #endif
-#if 0 && (LZO_CC_MSC && (_MSC_VER >= 1200)) && !defined(_MSC_FULL_VER)
-#  error "LZO_CC_MSC: _MSC_FULL_VER is not defined"
-#endif
 #if !defined(__LZO_ARCH_OVERRIDE) && !defined(LZO_ARCH_GENERIC) && defined(_CRAY)
 #  if (UINT_MAX > LZO_0xffffffffL) && defined(_CRAY)
 #    if defined(_CRAYMPP) || defined(_CRAYT3D) || defined(_CRAYT3E)
@@ -779,25 +741,25 @@
 #  define LZO_INFO_ARCH             "unknown"
 #endif
 #endif
-#if 1 && (LZO_ARCH_UNKNOWN) && (LZO_OS_DOS32 || LZO_OS_OS2)
+#if (LZO_ARCH_UNKNOWN) && (LZO_OS_DOS32 || LZO_OS_OS2)
 #  error "FIXME - missing define for CPU architecture"
 #endif
-#if 1 && (LZO_ARCH_UNKNOWN) && (LZO_OS_WIN32)
+#if (LZO_ARCH_UNKNOWN) && (LZO_OS_WIN32)
 #  error "FIXME - missing WIN32 define for CPU architecture"
 #endif
-#if 1 && (LZO_ARCH_UNKNOWN) && (LZO_OS_WIN64)
+#if (LZO_ARCH_UNKNOWN) && (LZO_OS_WIN64)
 #  error "FIXME - missing WIN64 define for CPU architecture"
 #endif
 #if (LZO_OS_OS216 || LZO_OS_WIN16)
 #  define LZO_ARCH_I086PM           1
 #  define LZO_ARCH_IA16PM           1
-#elif 1 && (LZO_OS_DOS16 && defined(BLX286))
+#elif (LZO_OS_DOS16 && defined(BLX286))
 #  define LZO_ARCH_I086PM           1
 #  define LZO_ARCH_IA16PM           1
-#elif 1 && (LZO_OS_DOS16 && defined(DOSX286))
+#elif (LZO_OS_DOS16 && defined(DOSX286))
 #  define LZO_ARCH_I086PM           1
 #  define LZO_ARCH_IA16PM           1
-#elif 1 && (LZO_OS_DOS16 && LZO_CC_BORLANDC && defined(__DPMI16__))
+#elif (LZO_OS_DOS16 && LZO_CC_BORLANDC && defined(__DPMI16__))
 #  define LZO_ARCH_I086PM           1
 #  define LZO_ARCH_IA16PM           1
 #endif
@@ -1122,7 +1084,7 @@ extern "C" {
 #elif (defined(__vms) || defined(__VMS)) && (__INITIAL_POINTER_SIZE+0 == 64)
 #  define LZO_SIZEOF_LONG_LONG      8
 #elif (LZO_CC_SDCC) && (LZO_SIZEOF_INT == 2)
-#elif 1 && defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 #  define LZO_SIZEOF_LONG_LONG      8
 #endif
 #endif
@@ -1192,9 +1154,6 @@ extern "C" {
 #  define LZO_SIZEOF_SIZE_T         LZO_SIZEOF_LONG
 #  define LZO_SIZEOF_PTRDIFF_T      LZO_SIZEOF_LONG
 #elif (LZO_ARCH_SPU)
-# if 0
-#  define __LZO_WORDSIZE            16
-# endif
 #  define LZO_SIZEOF_VOID_P         4
 #else
 #  define LZO_SIZEOF_VOID_P         LZO_SIZEOF_LONG
@@ -1241,23 +1200,23 @@ extern "C" {
 #  define LZO_ABI_LITTLE_ENDIAN     1
 #elif (LZO_ARCH_M68K || LZO_ARCH_S390)
 #  define LZO_ABI_BIG_ENDIAN        1
-#elif 1 && defined(__IAR_SYSTEMS_ICC__) && defined(__LITTLE_ENDIAN__)
+#elif defined(__IAR_SYSTEMS_ICC__) && defined(__LITTLE_ENDIAN__)
 #  if (__LITTLE_ENDIAN__ == 1)
 #    define LZO_ABI_LITTLE_ENDIAN   1
 #  else
 #    define LZO_ABI_BIG_ENDIAN      1
 #  endif
-#elif 1 && defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__)
+#elif defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__)
 #  define LZO_ABI_BIG_ENDIAN        1
-#elif 1 && defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
+#elif defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
 #  define LZO_ABI_LITTLE_ENDIAN     1
-#elif 1 && (LZO_ARCH_ARM) && defined(__ARMEB__) && !defined(__ARMEL__)
+#elif (LZO_ARCH_ARM) && defined(__ARMEB__) && !defined(__ARMEL__)
 #  define LZO_ABI_BIG_ENDIAN        1
-#elif 1 && (LZO_ARCH_ARM) && defined(__ARMEL__) && !defined(__ARMEB__)
+#elif (LZO_ARCH_ARM) && defined(__ARMEL__) && !defined(__ARMEB__)
 #  define LZO_ABI_LITTLE_ENDIAN     1
-#elif 1 && (LZO_ARCH_MIPS) && defined(__MIPSEB__) && !defined(__MIPSEL__)
+#elif (LZO_ARCH_MIPS) && defined(__MIPSEB__) && !defined(__MIPSEL__)
 #  define LZO_ABI_BIG_ENDIAN        1
-#elif 1 && (LZO_ARCH_MIPS) && defined(__MIPSEL__) && !defined(__MIPSEB__)
+#elif (LZO_ARCH_MIPS) && defined(__MIPSEL__) && !defined(__MIPSEB__)
 #  define LZO_ABI_LITTLE_ENDIAN     1
 #endif
 #endif
@@ -1323,7 +1282,7 @@ extern "C" {
 #elif (LZO_CC_MWERKS) && defined(__MSL__)
 #  define LZO_LIBC_MSL          __MSL__
 #  define LZO_INFO_LIBC         "msl"
-#elif 1 && defined(__IAR_SYSTEMS_ICC__)
+#elif defined(__IAR_SYSTEMS_ICC__)
 #  define LZO_LIBC_ISOC90       1
 #  define LZO_INFO_LIBC         "isoc90"
 #else
@@ -1426,7 +1385,7 @@ extern "C" {
 #  define __lzo_forceinline
 #endif
 #if !defined(__lzo_noinline)
-#if 1 && (LZO_ARCH_I386) && (LZO_CC_GNUC >= 0x040000ul) && (LZO_CC_GNUC < 0x040003ul)
+#if (LZO_ARCH_I386) && (LZO_CC_GNUC >= 0x040000ul) && (LZO_CC_GNUC < 0x040003ul)
 #  define __lzo_noinline        __attribute__((__noinline__,__used__))
 #elif (LZO_CC_GNUC >= 0x030200ul)
 #  define __lzo_noinline        __attribute__((__noinline__))
@@ -1573,13 +1532,7 @@ extern "C" {
 #  endif
 #endif
 #if !defined(LZO_DEFINE_UNINITIALIZED_VAR)
-#  if 0
-#    define LZO_DEFINE_UNINITIALIZED_VAR(type,var,init)  type var
-#  elif 0 && (LZO_CC_GNUC)
-#    define LZO_DEFINE_UNINITIALIZED_VAR(type,var,init)  type var = var
-#  else
 #    define LZO_DEFINE_UNINITIALIZED_VAR(type,var,init)  type var = init
-#  endif
 #endif
 #if !defined(LZO_COMPILE_TIME_ASSERT_HEADER)
 #  if (LZO_CC_AZTECC || LZO_CC_ZORTECHC)
