@@ -1109,68 +1109,6 @@
 #    define LZO_COMPILE_TIME_ASSERT(e)  {typedef int __lzo_cta_t[1-2*!(e)];}
 #  endif
 #endif
-#if (LZO_ARCH_I386) && (LZO_OS_DOS32 || LZO_OS_OS2 || LZO_OS_WIN32 || LZO_OS_WIN64)
-#  if (LZO_CC_GNUC || LZO_CC_HIGHC || LZO_CC_NDPC || LZO_CC_PACIFICC)
-#  elif (LZO_CC_DMC || LZO_CC_SYMANTECC || LZO_CC_ZORTECHC)
-#    define __lzo_cdecl                 __cdecl
-#    define __lzo_cdecl_atexit
-#    define __lzo_cdecl_main            __cdecl
-#    if (LZO_OS_OS2 && (LZO_CC_DMC || LZO_CC_SYMANTECC))
-#      define __lzo_cdecl_qsort         __pascal
-#    elif (LZO_OS_OS2 && (LZO_CC_ZORTECHC))
-#      define __lzo_cdecl_qsort         _stdcall
-#    else
-#      define __lzo_cdecl_qsort         __cdecl
-#    endif
-#  elif (LZO_CC_WATCOMC)
-#    define __lzo_cdecl                 __cdecl
-#  else
-#    define __lzo_cdecl                 __cdecl
-#    define __lzo_cdecl_atexit          __cdecl
-#    define __lzo_cdecl_main            __cdecl
-#    define __lzo_cdecl_qsort           __cdecl
-#  endif
-#  if (LZO_CC_GNUC || LZO_CC_HIGHC || LZO_CC_NDPC || LZO_CC_PACIFICC || LZO_CC_WATCOMC)
-#  elif (LZO_OS_OS2 && (LZO_CC_DMC || LZO_CC_SYMANTECC))
-#    define __lzo_cdecl_sighandler      __pascal
-#  elif (LZO_OS_OS2 && (LZO_CC_ZORTECHC))
-#    define __lzo_cdecl_sighandler      _stdcall
-#  elif (LZO_CC_MSC && (_MSC_VER >= 1400)) && defined(_M_CEE_PURE)
-#    define __lzo_cdecl_sighandler      __clrcall
-#  elif (LZO_CC_MSC && (_MSC_VER >= 600 && _MSC_VER < 700))
-#    if defined(_DLL)
-#      define __lzo_cdecl_sighandler    _far _cdecl _loadds
-#    elif defined(_MT)
-#      define __lzo_cdecl_sighandler    _far _cdecl
-#    else
-#      define __lzo_cdecl_sighandler    _cdecl
-#    endif
-#  else
-#    define __lzo_cdecl_sighandler      __cdecl
-#  endif
-#elif (LZO_ARCH_I386) && (LZO_CC_WATCOMC)
-#  define __lzo_cdecl                   __cdecl
-#elif (LZO_ARCH_M68K && LZO_OS_TOS && (LZO_CC_PUREC || LZO_CC_TURBOC))
-#  define __lzo_cdecl                   cdecl
-#endif
-#if !defined(__lzo_cdecl)
-#  define __lzo_cdecl
-#endif
-#if !defined(__lzo_cdecl_atexit)
-#  define __lzo_cdecl_atexit
-#endif
-#if !defined(__lzo_cdecl_main)
-#  define __lzo_cdecl_main
-#endif
-#if !defined(__lzo_cdecl_qsort)
-#  define __lzo_cdecl_qsort
-#endif
-#if !defined(__lzo_cdecl_sighandler)
-#  define __lzo_cdecl_sighandler
-#endif
-#if !defined(__lzo_cdecl_va)
-#  define __lzo_cdecl_va                __lzo_cdecl
-#endif
 #if !defined(LZO_CFG_NO_WINDOWS_H)
 #if (LZO_OS_CYGWIN || (LZO_OS_EMX && defined(__RSXNT__)) || LZO_OS_WIN32 || LZO_OS_WIN64)
 #  if (LZO_CC_WATCOMC && (__WATCOMC__ < 1000))
