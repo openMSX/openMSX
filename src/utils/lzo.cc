@@ -340,20 +340,7 @@ lzo_full_align_t;
 /* If you use the LZO library in a product, I would appreciate that you
  * keep this copyright string in the executable of your product.
  */
-
-const char __lzo_copyright[] =
-#if !defined(__LZO_IN_MINLZO)
-    LZO_VERSION_STRING;
-#else
-    "\r\n\n"
-    "LZO data compression library.\n"
-    "$Copyright: LZO (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 Markus Franz Xaver Johannes Oberhumer\n"
-    "<markus@oberhumer.com>\n"
-    "http://www.oberhumer.com $\n\n"
-    "$" "Id: LZO version: v" LZO_VERSION_STRING ", " LZO_VERSION_DATE " $\n"
-    "$Built: " __DATE__ " " __TIME__ " $\n"
-    "$Info: " LZO_INFO_STRING " $\n";
-#endif
+const char __lzo_copyright[] = LZO_VERSION_STRING;
 
 LZO_PUBLIC(const lzo_bytep)
 lzo_copyright(void)
