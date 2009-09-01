@@ -152,38 +152,8 @@ typedef int lzo_bool;
 // function types
 ************************************************************************/
 
-#  define __LZO_CDECL
-#  define LZO_PUBLIC(_rettype)  _rettype __LZO_CDECL
+#  define LZO_PUBLIC(_rettype)  _rettype
 #  define LZO_EXTERN(_rettype)  extern LZO_PUBLIC(_rettype)
-
-/* function types */
-typedef int
-(__LZO_CDECL *lzo_compress_t)   ( const lzo_bytep src, lzo_uint  src_len,
-                                        lzo_bytep dst, lzo_uintp dst_len,
-                                        lzo_voidp wrkmem );
-
-typedef int
-(__LZO_CDECL *lzo_decompress_t) ( const lzo_bytep src, lzo_uint  src_len,
-                                        lzo_bytep dst, lzo_uintp dst_len,
-                                        lzo_voidp wrkmem );
-
-typedef int
-(__LZO_CDECL *lzo_optimize_t)   (       lzo_bytep src, lzo_uint  src_len,
-                                        lzo_bytep dst, lzo_uintp dst_len,
-                                        lzo_voidp wrkmem );
-
-typedef int
-(__LZO_CDECL *lzo_compress_dict_t)(const lzo_bytep src, lzo_uint  src_len,
-                                         lzo_bytep dst, lzo_uintp dst_len,
-                                         lzo_voidp wrkmem,
-                                   const lzo_bytep dict, lzo_uint dict_len );
-
-typedef int
-(__LZO_CDECL *lzo_decompress_dict_t)(const lzo_bytep src, lzo_uint  src_len,
-                                           lzo_bytep dst, lzo_uintp dst_len,
-                                           lzo_voidp wrkmem,
-                                     const lzo_bytep dict, lzo_uint dict_len );
-
 
 /***********************************************************************
 // error codes and prototypes
