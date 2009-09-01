@@ -124,13 +124,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #  endif
 #  include <assert.h>
 
-#if 0 && defined(__BOUNDS_CHECKING_ON)
-#  include <unchecked.h>
-#else
-#  define BOUNDS_CHECKING_OFF_DURING(stmt)      stmt
-#  define BOUNDS_CHECKING_OFF_IN_EXPR(expr)     (expr)
-#endif
-
 #if !defined(__lzo_inline)
 #  define __lzo_inline
 #endif
@@ -684,11 +677,11 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
         (m_pos == NULL || (m_off = pd(ip, m_pos)) > max_offset)
 
 #define LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,max_offset) \
-    (BOUNDS_CHECKING_OFF_IN_EXPR(( \
+    ( \
         m_pos = ip - (lzo_uint) PTR_DIFF(ip,m_pos), \
         PTR_LT(m_pos,in) || \
         (m_off = (lzo_uint) PTR_DIFF(ip,m_pos)) <= 0 || \
-         m_off > max_offset )))
+         m_off > max_offset )
 
 #else
 

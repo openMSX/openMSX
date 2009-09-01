@@ -86,19 +86,6 @@ extern "C" {
 #  endif
 #endif
 
-/* memory checkers */
-#if !defined(__LZO_CHECKER)
-#  if defined(__BOUNDS_CHECKING_ON)
-#    define __LZO_CHECKER       1
-#  elif defined(__CHECKER__)
-#    define __LZO_CHECKER       1
-#  elif defined(__INSURE__)
-#    define __LZO_CHECKER       1
-#  elif defined(__PURIFY__)
-#    define __LZO_CHECKER       1
-#  endif
-#endif
-
 
 /***********************************************************************
 // integral and pointer types
