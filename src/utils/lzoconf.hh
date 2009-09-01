@@ -199,13 +199,5 @@ LZO_EXTERN(const lzo_charp) _lzo_version_date(void);
 
 /* misc. */
 LZO_EXTERN(int) _lzo_config_check(void);
-typedef union { lzo_bytep p; lzo_uint u; } __lzo_pu_u;
-typedef union { lzo_bytep p; lzo_uint32 u32; } __lzo_pu32_u;
-typedef union { void *vp; lzo_bytep bp; lzo_uint32 u32; long l; } lzo_align_t;
-
-/* align a char pointer on a boundary that is a multiple of `size' */
-LZO_EXTERN(unsigned) __lzo_align_gap(const lzo_voidp _ptr, lzo_uint _size);
-#define LZO_PTR_ALIGN_UP(_ptr,_size) \
-    ((_ptr) + (lzo_uint) __lzo_align_gap((const lzo_voidp)(_ptr),(lzo_uint)(_size)))
 
 #endif // LZOCONF_HH
