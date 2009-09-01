@@ -45,12 +45,6 @@
  *   http://www.oberhumer.com/opensource/lzo/
  */
 
-#if defined(LZO_CFG_FREESTANDING)
-#  undef MINILZO_HAVE_CONFIG_H
-#  define LZO_LIBC_FREESTANDING 1
-#  define LZO_OS_FREESTANDING 1
-#endif
-
 #ifdef MINILZO_HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -1893,7 +1887,6 @@ extern "C" {
 #endif
 LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
-#if 1 && !defined(LZO_CFG_FREESTANDING)
 #if 1 && !defined(HAVE_STRING_H)
 #define HAVE_STRING_H 1
 #endif
@@ -1909,17 +1902,9 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #if 1 && !defined(HAVE_MEMSET)
 #define HAVE_MEMSET 1
 #endif
-#endif
 
 #if 1 && defined(HAVE_STRING_H)
 #include <string.h>
-#endif
-
-#if defined(LZO_CFG_FREESTANDING)
-#  undef HAVE_MEMCMP
-#  undef HAVE_MEMCPY
-#  undef HAVE_MEMMOVE
-#  undef HAVE_MEMSET
 #endif
 
 #if !defined(HAVE_MEMCMP)
@@ -1948,17 +1933,10 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #endif
 
 #undef NDEBUG
-#if defined(LZO_CFG_FREESTANDING)
-#  undef LZO_DEBUG
-#  define NDEBUG 1
-#  undef assert
-#  define assert(e) ((void)0)
-#else
 #  if !defined(LZO_DEBUG)
 #    define NDEBUG 1
 #  endif
 #  include <assert.h>
-#endif
 
 #if 0 && defined(__BOUNDS_CHECKING_ON)
 #  include <unchecked.h>
