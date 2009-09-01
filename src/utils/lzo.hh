@@ -46,8 +46,8 @@
  */
 
 
-#ifndef __MINILZO_H
-#define __MINILZO_H
+#ifndef LZO_HH
+#define LZO_HH
 
 #define MINILZO_VERSION         0x2030
 
@@ -103,5 +103,4 @@ lzo1x_decompress_safe   ( const lzo_bytep src, lzo_uint  src_len,
 } /* extern "C" */
 #endif
 
-#endif /* already included */
-
+#endif // LZO_HH

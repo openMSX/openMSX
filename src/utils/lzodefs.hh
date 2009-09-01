@@ -40,8 +40,8 @@
  */
 
 
-#ifndef __LZODEFS_H_INCLUDED
-#define __LZODEFS_H_INCLUDED 1
+#ifndef LZODEFS_HH
+#define LZODEFS_HH
 
 #if defined(__CYGWIN32__) && !defined(__CYGWIN__)
 #  define __CYGWIN__ __CYGWIN32__
@@ -1804,6 +1804,4 @@ extern "C" {
     LZO_INFO_ARCH __LZO_INFOSTR_MM __LZO_INFOSTR_PM __LZO_INFOSTR_ENDIAN \
     " " __LZO_INFOSTR_OSNAME __LZO_INFOSTR_LIBC " " LZO_INFO_CC __LZO_INFOSTR_CCVER
 
-#endif /* already included */
-
-/* vim:set ts=4 et: */
+#endif // LZODEFS_HH

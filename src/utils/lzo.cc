@@ -56,7 +56,7 @@
 
 // Start of configuration.
 
-#if (LZO_VERSION < 0x02000) || !defined(__LZOCONF_H_INCLUDED)
+#if (LZO_VERSION < 0x02000)
 #  error "version mismatch"
 #endif
 

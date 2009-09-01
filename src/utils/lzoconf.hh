@@ -40,8 +40,8 @@
  */
 
 
-#ifndef __LZOCONF_H_INCLUDED
-#define __LZOCONF_H_INCLUDED
+#ifndef LZOCONF_HH
+#define LZOCONF_HH
 
 #define LZO_VERSION             0x2030
 #define LZO_VERSION_STRING      "2.03"
@@ -66,9 +66,7 @@
 #endif
 
 /* get OS and architecture defines */
-#ifndef __LZODEFS_H_INCLUDED
 #include "lzodefs.hh"
-#endif
 
 
 #ifdef __cplusplus
@@ -371,7 +369,4 @@ LZO_EXTERN(unsigned) __lzo_align_gap(const lzo_voidp _ptr, lzo_uint _size);
 } /* extern "C" */
 #endif
 
-#endif /* already included */
-
-
-/* vim:set ts=4 et: */
+#endif // LZOCONF_HH
