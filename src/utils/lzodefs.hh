@@ -1119,32 +1119,9 @@
 #  endif
 #endif
 #endif
-#if !defined(LZO_CFG_NO_INLINE_ASM)
-#if defined(LZO_CC_LLVM)
-#  define LZO_CFG_NO_INLINE_ASM 1
-#endif
-#endif
 #if !defined(LZO_CFG_NO_UNALIGNED)
 #if defined(LZO_ABI_NEUTRAL_ENDIAN) || defined(LZO_ARCH_GENERIC)
 #  define LZO_CFG_NO_UNALIGNED 1
-#endif
-#endif
-#if defined(LZO_CFG_NO_INLINE_ASM)
-#elif (LZO_ARCH_I386 && (LZO_OS_DOS32 || LZO_OS_WIN32) && (LZO_CC_DMC || LZO_CC_INTELC || LZO_CC_MSC || LZO_CC_PELLESC))
-#  define LZO_ASM_SYNTAX_MSC 1
-#elif (LZO_OS_WIN64 && (LZO_CC_DMC || LZO_CC_INTELC || LZO_CC_MSC || LZO_CC_PELLESC))
-#elif (LZO_ARCH_I386 && (LZO_CC_GNUC || LZO_CC_INTELC || LZO_CC_PATHSCALE))
-#  define LZO_ASM_SYNTAX_GNUC 1
-#elif (LZO_ARCH_AMD64 && (LZO_CC_GNUC || LZO_CC_INTELC || LZO_CC_PATHSCALE))
-#  define LZO_ASM_SYNTAX_GNUC 1
-#endif
-#if (LZO_ASM_SYNTAX_GNUC)
-#if (LZO_ARCH_I386 && LZO_CC_GNUC && (LZO_CC_GNUC < 0x020000ul))
-#  define __LZO_ASM_CLOBBER         "ax"
-#elif (LZO_CC_INTELC)
-#  define __LZO_ASM_CLOBBER         "memory"
-#else
-#  define __LZO_ASM_CLOBBER         "cc", "memory"
 #endif
 #endif
 #if defined(__LZO_INFOSTR_PM)
