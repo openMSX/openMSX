@@ -142,33 +142,21 @@
 #  define lzo_xint              lzo_uint32
 #endif
 
-/* Memory model that allows to access memory at offsets of lzo_uint. */
-#if !defined(__LZO_MMODEL)
-#  if (LZO_UINT_MAX <= UINT_MAX)
-#    define __LZO_MMODEL
-#  elif defined(LZO_HAVE_MM_HUGE_PTR)
-#    define __LZO_MMODEL_HUGE   1
-#    define __LZO_MMODEL        __huge
-#  else
-#    define __LZO_MMODEL
-#  endif
-#endif
-
 /* no typedef here because of const-pointer issues */
-#define lzo_bytep               unsigned char __LZO_MMODEL *
-#define lzo_charp               char __LZO_MMODEL *
-#define lzo_voidp               void __LZO_MMODEL *
-#define lzo_shortp              short __LZO_MMODEL *
-#define lzo_ushortp             unsigned short __LZO_MMODEL *
-#define lzo_uint32p             lzo_uint32 __LZO_MMODEL *
-#define lzo_int32p              lzo_int32 __LZO_MMODEL *
-#define lzo_uintp               lzo_uint __LZO_MMODEL *
-#define lzo_intp                lzo_int __LZO_MMODEL *
-#define lzo_xintp               lzo_xint __LZO_MMODEL *
-#define lzo_voidpp              lzo_voidp __LZO_MMODEL *
-#define lzo_bytepp              lzo_bytep __LZO_MMODEL *
+#define lzo_bytep               unsigned char *
+#define lzo_charp               char *
+#define lzo_voidp               void *
+#define lzo_shortp              short *
+#define lzo_ushortp             unsigned short *
+#define lzo_uint32p             lzo_uint32 *
+#define lzo_int32p              lzo_int32 *
+#define lzo_uintp               lzo_uint *
+#define lzo_intp                lzo_int *
+#define lzo_xintp               lzo_xint *
+#define lzo_voidpp              lzo_voidp *
+#define lzo_bytepp              lzo_bytep *
 /* deprecated - use `lzo_bytep' instead of `lzo_byte *' */
-#define lzo_byte                unsigned char __LZO_MMODEL
+#define lzo_byte                unsigned char
 
 typedef int lzo_bool;
 
@@ -215,7 +203,7 @@ typedef int
 
 struct lzo_callback_t;
 typedef struct lzo_callback_t lzo_callback_t;
-#define lzo_callback_p lzo_callback_t __LZO_MMODEL *
+#define lzo_callback_p lzo_callback_t *
 
 /* malloc & free function types */
 typedef lzo_voidp (__LZO_CDECL *lzo_alloc_func_t)

@@ -52,21 +52,8 @@
 
 // Start of configuration.
 
-#if defined(__LZO_MMODEL_HUGE) && (!LZO_HAVE_MM_HUGE_PTR)
-#  error "this should not happen - check defines for __huge"
-#endif
-
-#if (LZO_ARCH_I086)
-#  define ACC_MM_AHSHIFT        LZO_MM_AHSHIFT
-#  define ACC_PTR_FP_OFF(x)     (((const unsigned __far*)&(x))[0])
-#  define ACC_PTR_FP_SEG(x)     (((const unsigned __far*)&(x))[1])
-#  define ACC_PTR_MK_FP(s,o)    ((void __far*)(((unsigned long)(s)<<16)+(unsigned)(o)))
-#endif
-
 #if !defined(lzo_uintptr_t)
-#  if defined(__LZO_MMODEL_HUGE)
-#    define lzo_uintptr_t       unsigned long
-#  elif defined(LZO_OS_OS400) && (LZO_SIZEOF_VOID_P == 16)
+#  if defined(LZO_OS_OS400) && (LZO_SIZEOF_VOID_P == 16)
 #    define __LZO_UINTPTR_T_IS_POINTER 1
      typedef char*              lzo_uintptr_t;
 #    define lzo_uintptr_t       lzo_uintptr_t
@@ -86,12 +73,10 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
 #include <string.h>
 
-#if !defined(__LZO_MMODEL_HUGE)
 #  define lzo_memcmp(a,b,c)     memcmp(a,b,c)
 #  define lzo_memcpy(a,b,c)     memcpy(a,b,c)
 #  define lzo_memmove(a,b,c)    memmove(a,b,c)
 #  define lzo_memset(a,b,c)     memset(a,b,c)
-#endif
 
 #undef NDEBUG
 #  if !defined(LZO_DEBUG)
@@ -162,32 +147,18 @@ LZO_EXTERN(const lzo_bytep) lzo_copyright(void);
 // Start of pointer alignment definitions.
 
 #if !defined(lzo_uintptr_t)
-#  if defined(__LZO_MMODEL_HUGE)
-#    define lzo_uintptr_t   unsigned long
-#  else
 #    define lzo_uintptr_t   acc_uintptr_t
 #    ifdef __ACC_INTPTR_T_IS_POINTER
 #      define __LZO_UINTPTR_T_IS_POINTER 1
 #    endif
-#  endif
 #endif
 
-#if (LZO_ARCH_I086)
-#define PTR(a)              ((lzo_bytep) (a))
-#define PTR_ALIGNED_4(a)    ((ACC_PTR_FP_OFF(a) & 3) == 0)
-#define PTR_ALIGNED2_4(a,b) (((ACC_PTR_FP_OFF(a) | ACC_PTR_FP_OFF(b)) & 3) == 0)
-#elif (LZO_MM_PVP)
-#define PTR(a)              ((lzo_bytep) (a))
-#define PTR_ALIGNED_8(a)    ((((lzo_uintptr_t)(a)) >> 61) == 0)
-#define PTR_ALIGNED2_8(a,b) ((((lzo_uintptr_t)(a)|(lzo_uintptr_t)(b)) >> 61) == 0)
-#else
 #define PTR(a)              ((lzo_uintptr_t) (a))
 #define PTR_LINEAR(a)       PTR(a)
 #define PTR_ALIGNED_4(a)    ((PTR_LINEAR(a) & 3) == 0)
 #define PTR_ALIGNED_8(a)    ((PTR_LINEAR(a) & 7) == 0)
 #define PTR_ALIGNED2_4(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 3) == 0)
 #define PTR_ALIGNED2_8(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 7) == 0)
-#endif
 
 #define PTR_LT(a,b)         (PTR(a) < PTR(b))
 #define PTR_GE(a,b)         (PTR(a) >= PTR(b))
@@ -232,10 +203,10 @@ lzo_full_align_t;
 
 #if defined(LZO_DICT_USE_PTR)
 #  define lzo_dict_t    const lzo_bytep
-#  define lzo_dict_p    lzo_dict_t __LZO_MMODEL *
+#  define lzo_dict_p    lzo_dict_t *
 #else
 #  define lzo_dict_t    lzo_uint
-#  define lzo_dict_p    lzo_dict_t __LZO_MMODEL *
+#  define lzo_dict_p    lzo_dict_t *
 #endif
 
 // End of configuration.
@@ -248,11 +219,7 @@ const char __lzo_copyright[] = LZO_VERSION_STRING;
 LZO_PUBLIC(const lzo_bytep)
 lzo_copyright(void)
 {
-#if (LZO_OS_DOS16 && LZO_CC_TURBOC)
-    return (lzo_voidp) __lzo_copyright;
-#else
     return (const lzo_bytep) __lzo_copyright;
-#endif
 }
 
 LZO_PUBLIC(unsigned)
