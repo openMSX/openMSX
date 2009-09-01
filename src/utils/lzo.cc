@@ -155,15 +155,11 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #define MEMCPY_DS(dest,src,len) \
     do *dest++ = *src++; while (--len > 0)
 
-__LZO_EXTERN_C int __lzo_init_done;
-__LZO_EXTERN_C const char __lzo_copyright[];
+extern int __lzo_init_done;
+extern const char __lzo_copyright[];
 LZO_EXTERN(const lzo_bytep) lzo_copyright(void);
 
 // Start of pointer alignment definitions.
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #if !defined(lzo_uintptr_t)
 #  if defined(__LZO_MMODEL_HUGE)
@@ -229,10 +225,6 @@ typedef union
     char *          a_char_p;
 }
 lzo_full_align_t;
-
-#ifdef __cplusplus
-}
-#endif
 
 // End of pointer alignment definitions.
 
@@ -453,10 +445,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 
 // Start of dictionary macros.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #if !defined(D_BITS) && defined(DBITS)
 #  define D_BITS        DBITS
 #endif
@@ -658,10 +646,6 @@ static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
          ((m_off = pd(ip, in) - m_off) > max_offset) || \
          (m_pos = (ip) - (m_off), 0) )
 
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 // End of dictionary macros.

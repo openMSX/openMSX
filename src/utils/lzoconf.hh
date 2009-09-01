@@ -69,11 +69,6 @@
 #include "lzodefs.hh"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /***********************************************************************
 // some core defines
 ************************************************************************/
@@ -182,38 +177,9 @@ typedef int lzo_bool;
 // function types
 ************************************************************************/
 
-/* name mangling */
-#if !defined(__LZO_EXTERN_C)
-#  ifdef __cplusplus
-#    define __LZO_EXTERN_C      extern "C"
-#  else
-#    define __LZO_EXTERN_C      extern
-#  endif
-#endif
-
-/* calling convention */
-#if !defined(__LZO_CDECL)
-#  define __LZO_CDECL           __lzo_cdecl
-#endif
-
-/* DLL export information */
-#if !defined(__LZO_EXPORT1)
-#  define __LZO_EXPORT1
-#endif
-#if !defined(__LZO_EXPORT2)
-#  define __LZO_EXPORT2
-#endif
-
-/* __cdecl calling convention for public C and assembly functions */
-#if !defined(LZO_PUBLIC)
-#  define LZO_PUBLIC(_rettype)  __LZO_EXPORT1 _rettype __LZO_EXPORT2 __LZO_CDECL
-#endif
-#if !defined(LZO_EXTERN)
-#  define LZO_EXTERN(_rettype)  __LZO_EXTERN_C LZO_PUBLIC(_rettype)
-#endif
-#if !defined(LZO_PRIVATE)
-#  define LZO_PRIVATE(_rettype) static _rettype __LZO_CDECL
-#endif
+#  define __LZO_CDECL
+#  define LZO_PUBLIC(_rettype)  _rettype __LZO_CDECL
+#  define LZO_EXTERN(_rettype)  extern LZO_PUBLIC(_rettype)
 
 /* function types */
 typedef int
@@ -350,10 +316,5 @@ typedef union { void *vp; lzo_bytep bp; lzo_uint32 u32; long l; } lzo_align_t;
 LZO_EXTERN(unsigned) __lzo_align_gap(const lzo_voidp _ptr, lzo_uint _size);
 #define LZO_PTR_ALIGN_UP(_ptr,_size) \
     ((_ptr) + (lzo_uint) __lzo_align_gap((const lzo_voidp)(_ptr),(lzo_uint)(_size)))
-
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif // LZOCONF_HH

@@ -56,15 +56,6 @@
 #include "lzoconf.hh"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-/***********************************************************************
-//
-************************************************************************/
-
 /* Memory required for the wrkmem parameter.
  * When the required size is 0, you can also pass a NULL pointer.
  */
@@ -85,10 +76,5 @@ LZO_EXTERN(int)
 lzo1x_decompress        ( const lzo_bytep src, lzo_uint  src_len,
                                 lzo_bytep dst, lzo_uintp dst_len,
                                 lzo_voidp wrkmem /* NOT USED */ );
-
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif // LZO_HH

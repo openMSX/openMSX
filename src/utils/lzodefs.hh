@@ -216,11 +216,6 @@
 #    define __STDC_LIMIT_MACROS 1
 #  endif
 #endif
-#if defined(__cplusplus)
-#  define LZO_EXTERN_C extern "C"
-#else
-#  define LZO_EXTERN_C extern
-#endif
 #if !defined(__LZO_OS_OVERRIDE)
 #if defined(LZO_OS_FREESTANDING)
 #  define LZO_INFO_OS           "freestanding"
@@ -833,9 +828,6 @@
 #    error "this should not happen"
 #  endif
 #endif
-#ifdef __cplusplus
-extern "C" {
-#endif
 #if (LZO_CC_BORLANDC && (__BORLANDC__ >= 0x0200))
    extern void __near __cdecl _AHSHIFT(void);
 #  define LZO_MM_AHSHIFT      ((unsigned) _AHSHIFT)
@@ -855,9 +847,6 @@ extern "C" {
 #  define LZO_MM_AHSHIFT      ((unsigned) _HShift)
 #else
 #  error "FIXME - implement LZO_MM_AHSHIFT"
-#endif
-#ifdef __cplusplus
-}
 #endif
 #endif
 #elif (LZO_ARCH_C166)
