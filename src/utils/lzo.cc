@@ -91,8 +91,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
 #  define LZO_BYTE(x)       ((unsigned char) (x))
 
-#define lzo_sizeof(type)    ((lzo_uint) (sizeof(type)))
-
 #define LZO_SIZE(bits)      (1u << (bits))
 #define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
 
