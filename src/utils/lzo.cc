@@ -509,8 +509,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 
 #define do_compress         _lzo1x_1_do_compress
 
-#if !defined(MINILZO_CFG_SKIP_LZO1X_1_COMPRESS)
-
 #define LZO_NEED_DICT_H
 #define D_BITS          14
 #define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
@@ -1077,8 +1075,6 @@ DO_COMPRESS      ( const lzo_bytep in , lzo_uint  in_len,
     return LZO_E_OK;
 }
 
-#endif
-
 #undef do_compress
 #undef DO_COMPRESS
 #undef LZO_HASH
@@ -1086,8 +1082,6 @@ DO_COMPRESS      ( const lzo_bytep in , lzo_uint  in_len,
 #undef LZO_TEST_OVERRUN
 #undef DO_DECOMPRESS
 #define DO_DECOMPRESS       lzo1x_decompress
-
-#if !defined(MINILZO_CFG_SKIP_LZO1X_DECOMPRESS)
 
 #if defined(LZO_TEST_OVERRUN)
 #  if !defined(LZO_TEST_OVERRUN_INPUT)
@@ -1578,5 +1572,3 @@ lookbehind_overrun:
     return LZO_E_LOOKBEHIND_OVERRUN;
 #endif
 }
-
-#endif
