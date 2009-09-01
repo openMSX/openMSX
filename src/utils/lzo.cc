@@ -109,48 +109,12 @@
 #endif
 LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
-#if 1 && !defined(HAVE_STRING_H)
-#define HAVE_STRING_H 1
-#endif
-#if 1 && !defined(HAVE_MEMCMP)
-#define HAVE_MEMCMP 1
-#endif
-#if 1 && !defined(HAVE_MEMCPY)
-#define HAVE_MEMCPY 1
-#endif
-#if 1 && !defined(HAVE_MEMMOVE)
-#define HAVE_MEMMOVE 1
-#endif
-#if 1 && !defined(HAVE_MEMSET)
-#define HAVE_MEMSET 1
-#endif
-
-#if 1 && defined(HAVE_STRING_H)
 #include <string.h>
-#endif
 
-#if !defined(HAVE_MEMCMP)
-#  undef memcmp
-#  define memcmp(a,b,c)         lzo_memcmp(a,b,c)
-#elif !defined(__LZO_MMODEL_HUGE)
+#if !defined(__LZO_MMODEL_HUGE)
 #  define lzo_memcmp(a,b,c)     memcmp(a,b,c)
-#endif
-#if !defined(HAVE_MEMCPY)
-#  undef memcpy
-#  define memcpy(a,b,c)         lzo_memcpy(a,b,c)
-#elif !defined(__LZO_MMODEL_HUGE)
 #  define lzo_memcpy(a,b,c)     memcpy(a,b,c)
-#endif
-#if !defined(HAVE_MEMMOVE)
-#  undef memmove
-#  define memmove(a,b,c)        lzo_memmove(a,b,c)
-#elif !defined(__LZO_MMODEL_HUGE)
 #  define lzo_memmove(a,b,c)    memmove(a,b,c)
-#endif
-#if !defined(HAVE_MEMSET)
-#  undef memset
-#  define memset(a,b,c)         lzo_memset(a,b,c)
-#elif !defined(__LZO_MMODEL_HUGE)
 #  define lzo_memset(a,b,c)     memset(a,b,c)
 #endif
 
