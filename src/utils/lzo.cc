@@ -79,16 +79,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #  endif
 #  include <assert.h>
 
-#if !defined(__lzo_inline)
-#  define __lzo_inline
-#endif
-#if !defined(__lzo_forceinline)
-#  define __lzo_forceinline
-#endif
-#if !defined(__lzo_noinline)
-#  define __lzo_noinline
-#endif
-
 #  define LZO_BYTE(x)       ((unsigned char) (x))
 
 #define LZO_SIZE(bits)      (1u << (bits))
@@ -420,7 +410,7 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 
 // End of LZO1X.
 
-static __lzo_noinline lzo_uint
+static lzo_uint
 _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
                      lzo_bytep out, lzo_uintp out_len,
                      lzo_voidp wrkmem)
