@@ -84,12 +84,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #define LZO_SIZE(bits)      (1u << (bits))
 #define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
 
-#define LZO_LSIZE(bits)     (1ul << (bits))
-#define LZO_LMASK(bits)     (LZO_LSIZE(bits) - 1)
-
-#define LZO_USIZE(bits)     ((lzo_uint) 1 << (bits))
-#define LZO_UMASK(bits)     (LZO_USIZE(bits) - 1)
-
 #if !defined(DMUL)
 #  define DMUL(a,b) ((lzo_xint) ((a) * (b)))
 #endif
