@@ -265,7 +265,7 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
     ( \
         m_pos = ip - (lzo_uint) (PTR(ip) - PTR(m_pos)), \
         (PTR(m_pos) < PTR(in)) || \
-        (m_off = (lzo_uint) (PTR(ip) - PTR(m_pos)) <= 0 || \
+        (m_off = (lzo_uint) (PTR(ip) - PTR(m_pos))) <= 0 || \
          m_off > max_offset )
 
 // End of dictionary macros.
