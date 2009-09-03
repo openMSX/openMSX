@@ -123,14 +123,8 @@ LZO_EXTERN(const lzo_bytep) lzo_copyright(void);
 
 #define PTR(a)              ((lzo_uintptr_t) (a))
 #define PTR_LINEAR(a)       PTR(a)
-#define PTR_ALIGNED_4(a)    ((PTR_LINEAR(a) & 3) == 0)
-#define PTR_ALIGNED_8(a)    ((PTR_LINEAR(a) & 7) == 0)
 #define PTR_ALIGNED2_4(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 3) == 0)
-#define PTR_ALIGNED2_8(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 7) == 0)
 
-#define PTR_LT(a,b)         (PTR(a) < PTR(b))
-#define PTR_GE(a,b)         (PTR(a) >= PTR(b))
-#define PTR_DIFF(a,b)       (PTR(a) - PTR(b))
 #define pd(a,b)             ((lzo_uint) ((a)-(b)))
 
 LZO_EXTERN(lzo_uintptr_t)
@@ -274,9 +268,9 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 
 #define LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,max_offset) \
     ( \
-        m_pos = ip - (lzo_uint) PTR_DIFF(ip,m_pos), \
-        PTR_LT(m_pos,in) || \
-        (m_off = (lzo_uint) PTR_DIFF(ip,m_pos)) <= 0 || \
+        m_pos = ip - (lzo_uint) (PTR(ip) - PTR(m_pos)), \
+        (PTR(m_pos) < PTR(in)) || \
+        (m_off = (lzo_uint) (PTR(ip) - PTR(m_pos)) <= 0 || \
          m_off > max_offset )
 
 // End of dictionary macros.
