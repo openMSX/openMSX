@@ -666,48 +666,6 @@ lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
     return LZO_E_OK;
 }
 
-#undef TEST_IP
-#undef TEST_OP
-#undef TEST_LB
-#undef TEST_LBO
-#undef NEED_IP
-#undef NEED_OP
-#undef HAVE_TEST_IP
-#undef HAVE_TEST_OP
-#undef HAVE_NEED_IP
-#undef HAVE_NEED_OP
-#undef HAVE_ANY_IP
-#undef HAVE_ANY_OP
-
-#if defined(TEST_IP)
-#  define HAVE_TEST_IP
-#else
-#  define TEST_IP               1
-#endif
-#if defined(TEST_OP)
-#  define HAVE_TEST_OP
-#else
-#  define TEST_OP               1
-#endif
-
-#if defined(NEED_IP)
-#  define HAVE_NEED_IP
-#else
-#  define NEED_IP(x)            ((void) 0)
-#endif
-#if defined(NEED_OP)
-#  define HAVE_NEED_OP
-#else
-#  define NEED_OP(x)            ((void) 0)
-#endif
-
-#if defined(HAVE_TEST_IP) || defined(HAVE_NEED_IP)
-#  define HAVE_ANY_IP
-#endif
-#if defined(HAVE_TEST_OP) || defined(HAVE_NEED_OP)
-#  define HAVE_ANY_OP
-#endif
-
 #undef __COPY4
 #define __COPY4(dst,src)    * (lzo_uint32p)(dst) = * (const lzo_uint32p)(src)
 
@@ -734,9 +692,6 @@ lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
 #endif
 
     const lzo_bytep const ip_end = in + in_len;
-#if defined(HAVE_ANY_OP)
-    lzo_bytep const op_end = out + *out_len;
-#endif
 #if defined(LZO1Z)
     lzo_uint last_m_off = 0;
 #endif
@@ -770,28 +725,26 @@ lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
         t = *ip++ - 17;
         if (t < 4)
             goto match_next;
-        assert(t > 0); NEED_OP(t); NEED_IP(t+1);
+        assert(t > 0);
         do *op++ = *ip++; while (--t > 0);
         goto first_literal_run;
     }
 
-    while (TEST_IP && TEST_OP)
+    while (true)
     {
         t = *ip++;
         if (t >= 16)
             goto match;
         if (t == 0)
         {
-            NEED_IP(1);
             while (*ip == 0)
             {
                 t += 255;
                 ip++;
-                NEED_IP(1);
             }
             t += 15 + *ip++;
         }
-        assert(t > 0); NEED_OP(t+3); NEED_IP(t+4);
+        assert(t > 0);
 #if defined(LZO_UNALIGNED_OK_4) || defined(LZO_ALIGNED_OK_4)
 #if !defined(LZO_UNALIGNED_OK_4)
         if (PTR_ALIGNED2_4(op,ip))
@@ -836,7 +789,6 @@ first_literal_run:
 #else
         m_off = (1 + M2_MAX_OFFSET) + (t >> 2) + (*ip++ << 2);
 #endif
-        NEED_OP(3);
         t = 3; COPY_DICT(t,m_off)
 #else
 #if defined(LZO1Z)
@@ -848,7 +800,6 @@ first_literal_run:
         m_pos -= t >> 2;
         m_pos -= *ip++ << 2;
 #endif
-        NEED_OP(3);
         *op++ = *m_pos++; *op++ = *m_pos++; *op++ = *m_pos;
 #endif
         goto match_done;
@@ -904,7 +855,7 @@ match:
                 }
                 t = (t >> 5) - 1;
 #endif
-                assert(t > 0); NEED_OP(t+3-1);
+                assert(t > 0);
                 goto copy_match;
 #endif
             }
@@ -913,12 +864,10 @@ match:
                 t &= 31;
                 if (t == 0)
                 {
-                    NEED_IP(1);
                     while (*ip == 0)
                     {
                         t += 255;
                         ip++;
-                        NEED_IP(1);
                     }
                     t += 31 + *ip++;
                 }
@@ -957,12 +906,10 @@ match:
                 t &= 7;
                 if (t == 0)
                 {
-                    NEED_IP(1);
                     while (*ip == 0)
                     {
                         t += 255;
                         ip++;
-                        NEED_IP(1);
                     }
                     t += 7 + *ip++;
                 }
@@ -1005,7 +952,6 @@ match:
 #else
                 m_off = 1 + (t >> 2) + (*ip++ << 2);
 #endif
-                NEED_OP(2);
                 t = 2; COPY_DICT(t,m_off)
 #else
 #if defined(LZO1Z)
@@ -1017,7 +963,6 @@ match:
                 m_pos -= t >> 2;
                 m_pos -= *ip++ << 2;
 #endif
-                NEED_OP(2);
                 *op++ = *m_pos++; *op++ = *m_pos;
 #endif
                 goto match_done;
@@ -1025,12 +970,11 @@ match:
 
 #if defined(COPY_DICT)
 
-            NEED_OP(t+3-1);
             t += 3-1; COPY_DICT(t,m_off)
 
 #else
 
-            assert(t > 0); NEED_OP(t+3-1);
+            assert(t > 0);
 #if defined(LZO_UNALIGNED_OK_4) || defined(LZO_ALIGNED_OK_4)
 #if !defined(LZO_UNALIGNED_OK_4)
             if (t >= 2 * 4 - (3 - 1) && PTR_ALIGNED2_4(op,m_pos))
@@ -1068,33 +1012,16 @@ match_done:
                 break;
 
 match_next:
-            assert(t > 0); assert(t < 4); NEED_OP(t); NEED_IP(t+1);
+            assert(t > 0); assert(t < 4);
             *op++ = *ip++;
             if (t > 1) { *op++ = *ip++; if (t > 2) { *op++ = *ip++; } }
             t = *ip++;
-        } while (TEST_IP && TEST_OP);
+        } while (true);
     }
-
-#if defined(HAVE_TEST_IP) || defined(HAVE_TEST_OP)
-    *out_len = pd(op, out);
-    return LZO_E_EOF_NOT_FOUND;
-#endif
 
 eof_found:
     assert(t == 1);
     *out_len = pd(op, out);
     return (ip == ip_end ? LZO_E_OK :
            (ip < ip_end  ? LZO_E_INPUT_NOT_CONSUMED : LZO_E_INPUT_OVERRUN));
-
-#if defined(HAVE_NEED_IP)
-input_overrun:
-    *out_len = pd(op, out);
-    return LZO_E_INPUT_OVERRUN;
-#endif
-
-#if defined(HAVE_NEED_OP)
-output_overrun:
-    *out_len = pd(op, out);
-    return LZO_E_OUTPUT_OVERRUN;
-#endif
 }
