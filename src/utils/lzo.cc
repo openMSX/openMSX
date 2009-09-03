@@ -252,7 +252,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
     return r;
 }
 
-#define D_BITS          14
 #define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
 #define D_INDEX2(d,p)       d = (d & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f)
 
@@ -266,117 +265,22 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #define M3_MAX_OFFSET   0x4000
 #define M4_MAX_OFFSET   0xbfff
 
-#define M2_MIN_LEN      3
 #define M2_MAX_LEN      8
 #define M4_MAX_LEN      9
 
 #define M3_MARKER       32
 #define M4_MARKER       16
 
-#define DL_MIN_LEN          M2_MIN_LEN
-
 // Start of dictionary macros.
 
-#if !defined(D_BITS) && defined(DBITS)
-#  define D_BITS        DBITS
-#endif
-#if !defined(D_BITS)
-#  error "D_BITS is not defined"
-#endif
-#if (D_BITS < 16)
-#  define D_SIZE        LZO_SIZE(D_BITS)
+#define D_BITS          14
 #  define D_MASK        LZO_MASK(D_BITS)
-#else
-#  define D_SIZE        LZO_USIZE(D_BITS)
-#  define D_MASK        LZO_UMASK(D_BITS)
-#endif
 #define D_HIGH          ((D_MASK >> 1) + 1)
 
-#if !defined(DD_BITS)
-#  define DD_BITS       0
-#endif
-#define DD_SIZE         LZO_SIZE(DD_BITS)
-#define DD_MASK         LZO_MASK(DD_BITS)
-
-#if !defined(DL_BITS)
-#  define DL_BITS       (D_BITS - DD_BITS)
-#endif
-#if (DL_BITS < 16)
-#  define DL_SIZE       LZO_SIZE(DL_BITS)
-#  define DL_MASK       LZO_MASK(DL_BITS)
-#else
-#  define DL_SIZE       LZO_USIZE(DL_BITS)
-#  define DL_MASK       LZO_UMASK(DL_BITS)
-#endif
-
-#if (D_BITS != DL_BITS + DD_BITS)
-#  error "D_BITS does not match"
-#endif
-#if (D_BITS < 8 || D_BITS > 18)
-#  error "invalid D_BITS"
-#endif
-#if (DL_BITS < 8 || DL_BITS > 20)
-#  error "invalid DL_BITS"
-#endif
-#if (DD_BITS < 0 || DD_BITS > 6)
-#  error "invalid DD_BITS"
-#endif
-
-#if !defined(DL_MIN_LEN)
-#  define DL_MIN_LEN    3
-#endif
-#if !defined(DL_SHIFT)
-#  define DL_SHIFT      ((DL_BITS + (DL_MIN_LEN - 1)) / DL_MIN_LEN)
-#endif
-
-#undef DM
-#undef DX
-
-#if (DL_MIN_LEN == 3)
-#  define _DV2_A(p,shift1,shift2) \
-        (((( (lzo_xint)((p)[0]) << shift1) ^ (p)[1]) << shift2) ^ (p)[2])
-#  define _DV2_B(p,shift1,shift2) \
-        (((( (lzo_xint)((p)[2]) << shift1) ^ (p)[1]) << shift2) ^ (p)[0])
-#  define _DV3_B(p,shift1,shift2,shift3) \
-        ((_DV2_B((p)+1,shift1,shift2) << (shift3)) ^ (p)[0])
-#elif (DL_MIN_LEN == 2)
-#  define _DV2_A(p,shift1,shift2) \
-        (( (lzo_xint)(p[0]) << shift1) ^ p[1])
-#  define _DV2_B(p,shift1,shift2) \
-        (( (lzo_xint)(p[1]) << shift1) ^ p[2])
-#else
-#  error "invalid DL_MIN_LEN"
-#endif
-#define _DV_A(p,shift)      _DV2_A(p,shift,shift)
-#define _DV_B(p,shift)      _DV2_B(p,shift,shift)
-#define DA2(p,s1,s2) \
-        (((((lzo_xint)((p)[2]) << (s2)) + (p)[1]) << (s1)) + (p)[0])
-#define DS2(p,s1,s2) \
-        (((((lzo_xint)((p)[2]) << (s2)) - (p)[1]) << (s1)) - (p)[0])
 #define DX2(p,s1,s2) \
         (((((lzo_xint)((p)[2]) << (s2)) ^ (p)[1]) << (s1)) ^ (p)[0])
-#define DA3(p,s1,s2,s3) ((DA2((p)+1,s2,s3) << (s1)) + (p)[0])
-#define DS3(p,s1,s2,s3) ((DS2((p)+1,s2,s3) << (s1)) - (p)[0])
 #define DX3(p,s1,s2,s3) ((DX2((p)+1,s2,s3) << (s1)) ^ (p)[0])
-#define DMS(v,s)        ((lzo_uint) (((v) & (D_MASK >> (s))) << (s)))
-#define DM(v)           DMS(v,0)
-
-#  define DENTRY(p,in)                          (p)
-#  define GINDEX(m_pos,m_off,dict,dindex,in)    m_pos = dict[dindex]
-
-#if (DD_BITS == 0)
-
-#  define UPDATE_I(dict,drun,index,p,in)    dict[index] = DENTRY(p,in)
-#  define UPDATE_P(ptr,drun,p,in)           (ptr)[0] = DENTRY(p,in)
-
-#else
-
-#  define UPDATE_I(dict,drun,index,p,in)    \
-        dict[ (index) + drun++ ] = DENTRY(p,in); drun &= DD_MASK
-#  define UPDATE_P(ptr,drun,p,in)   \
-        (ptr) [ drun++ ] = DENTRY(p,in); drun &= DD_MASK
-
-#endif
+#define DM(v)           ((lzo_uint) ((v) & D_MASK))
 
 #define LZO_CHECK_MPOS_DET(m_pos,m_off,in,ip,max_offset) \
         (m_pos == NULL || (m_off = pd(ip, m_pos)) > max_offset)
@@ -417,13 +321,13 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
         lzo_uint dindex;
 
         D_INDEX1(dindex,ip);
-        GINDEX(m_pos,m_off,dict,dindex,in);
+        m_pos = dict[dindex];
         if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET))
             goto literal;
         if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3])
             goto try_match;
         D_INDEX2(dindex,ip);
-        GINDEX(m_pos,m_off,dict,dindex,in);
+        m_pos = dict[dindex];
         if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET))
             goto literal;
         if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3])
@@ -447,14 +351,14 @@ try_match:
         }
 
 literal:
-        UPDATE_I(dict,0,dindex,ip,in);
+        dict[dindex] = ip;
         ++ip;
         if __lzo_unlikely(ip >= ip_end)
             break;
         continue;
 
 match:
-        UPDATE_I(dict,0,dindex,ip,in);
+        dict[dindex] = ip;
         if (pd(ip,ii) > 0)
         {
             register lzo_uint t = pd(ip,ii);
