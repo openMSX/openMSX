@@ -666,20 +666,6 @@ lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
     return LZO_E_OK;
 }
 
-#undef LZO_TEST_OVERRUN
-
-#if defined(LZO_TEST_OVERRUN)
-#  if !defined(LZO_TEST_OVERRUN_INPUT)
-#    define LZO_TEST_OVERRUN_INPUT       2
-#  endif
-#  if !defined(LZO_TEST_OVERRUN_OUTPUT)
-#    define LZO_TEST_OVERRUN_OUTPUT      2
-#  endif
-#  if !defined(LZO_TEST_OVERRUN_LOOKBEHIND)
-#    define LZO_TEST_OVERRUN_LOOKBEHIND
-#  endif
-#endif
-
 #undef TEST_IP
 #undef TEST_OP
 #undef TEST_LB
@@ -692,35 +678,6 @@ lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 #undef HAVE_NEED_OP
 #undef HAVE_ANY_IP
 #undef HAVE_ANY_OP
-
-#if defined(LZO_TEST_OVERRUN_INPUT)
-#  if (LZO_TEST_OVERRUN_INPUT >= 1)
-#    define TEST_IP             (ip < ip_end)
-#  endif
-#  if (LZO_TEST_OVERRUN_INPUT >= 2)
-#    define NEED_IP(x) \
-            if ((lzo_uint)(ip_end - ip) < (lzo_uint)(x))  goto input_overrun
-#  endif
-#endif
-
-#if defined(LZO_TEST_OVERRUN_OUTPUT)
-#  if (LZO_TEST_OVERRUN_OUTPUT >= 1)
-#    define TEST_OP             (op <= op_end)
-#  endif
-#  if (LZO_TEST_OVERRUN_OUTPUT >= 2)
-#    undef TEST_OP
-#    define NEED_OP(x) \
-            if ((lzo_uint)(op_end - op) < (lzo_uint)(x))  goto output_overrun
-#  endif
-#endif
-
-#if defined(LZO_TEST_OVERRUN_LOOKBEHIND)
-#  define TEST_LB(m_pos)        if (m_pos < out || m_pos >= op) goto lookbehind_overrun
-#  define TEST_LBO(m_pos,o)     if (m_pos < out || m_pos >= op - (o)) goto lookbehind_overrun
-#else
-#  define TEST_LB(m_pos)        ((void) 0)
-#  define TEST_LBO(m_pos,o)     ((void) 0)
-#endif
 
 #if defined(TEST_IP)
 #  define HAVE_TEST_IP
@@ -891,7 +848,7 @@ first_literal_run:
         m_pos -= t >> 2;
         m_pos -= *ip++ << 2;
 #endif
-        TEST_LB(m_pos); NEED_OP(3);
+        NEED_OP(3);
         *op++ = *m_pos++; *op++ = *m_pos++; *op++ = *m_pos;
 #endif
         goto match_done;
@@ -947,7 +904,7 @@ match:
                 }
                 t = (t >> 5) - 1;
 #endif
-                TEST_LB(m_pos); assert(t > 0); NEED_OP(t+3-1);
+                assert(t > 0); NEED_OP(t+3-1);
                 goto copy_match;
 #endif
             }
@@ -1060,7 +1017,7 @@ match:
                 m_pos -= t >> 2;
                 m_pos -= *ip++ << 2;
 #endif
-                TEST_LB(m_pos); NEED_OP(2);
+                NEED_OP(2);
                 *op++ = *m_pos++; *op++ = *m_pos;
 #endif
                 goto match_done;
@@ -1073,7 +1030,7 @@ match:
 
 #else
 
-            TEST_LB(m_pos); assert(t > 0); NEED_OP(t+3-1);
+            assert(t > 0); NEED_OP(t+3-1);
 #if defined(LZO_UNALIGNED_OK_4) || defined(LZO_ALIGNED_OK_4)
 #if !defined(LZO_UNALIGNED_OK_4)
             if (t >= 2 * 4 - (3 - 1) && PTR_ALIGNED2_4(op,m_pos))
@@ -1139,11 +1096,5 @@ input_overrun:
 output_overrun:
     *out_len = pd(op, out);
     return LZO_E_OUTPUT_OVERRUN;
-#endif
-
-#if defined(LZO_TEST_OVERRUN_LOOKBEHIND)
-lookbehind_overrun:
-    *out_len = pd(op, out);
-    return LZO_E_LOOKBEHIND_OVERRUN;
 #endif
 }
