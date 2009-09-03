@@ -272,8 +272,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #  define LZO1X
 #endif
 
-#define LZO_EOF_CODE
-
 #define M1_MAX_OFFSET   0x0400
 #ifndef M2_MAX_OFFSET
 #define M2_MAX_OFFSET   0x0800
@@ -722,10 +720,6 @@ lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 #else
 #  define TEST_LB(m_pos)        ((void) 0)
 #  define TEST_LBO(m_pos,o)     ((void) 0)
-#endif
-
-#if !defined(LZO_EOF_CODE) && !defined(TEST_IP)
-#  define TEST_IP               (ip < ip_end)
 #endif
 
 #if defined(TEST_IP)
