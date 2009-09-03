@@ -841,109 +841,6 @@
 #  define LZO_INFO_LIBC         "default"
 #endif
 #endif
-#if !defined(__lzo_gnuc_extension__)
-#if (LZO_CC_GNUC >= 0x020800ul)
-#  define __lzo_gnuc_extension__    __extension__
-#elif (LZO_CC_LLVM || LZO_CC_PATHSCALE)
-#  define __lzo_gnuc_extension__    __extension__
-#else
-#  define __lzo_gnuc_extension__
-#endif
-#endif
-#if !defined(__lzo_ua_volatile)
-#  define __lzo_ua_volatile     volatile
-#endif
-#if !defined(__lzo_alignof)
-#if (LZO_CC_CILLY || LZO_CC_GNUC || LZO_CC_LLVM || LZO_CC_PATHSCALE || LZO_CC_PGI)
-#  define __lzo_alignof(e)      __alignof__(e)
-#elif (LZO_CC_INTELC && (__INTEL_COMPILER >= 700))
-#  define __lzo_alignof(e)      __alignof__(e)
-#elif (LZO_CC_MSC && (_MSC_VER >= 1300))
-#  define __lzo_alignof(e)      __alignof(e)
-#endif
-#endif
-#if defined(__lzo_alignof)
-#  define __lzo_HAVE_alignof 1
-#endif
-#if !defined(__lzo_constructor)
-#if (LZO_CC_GNUC >= 0x030400ul)
-#  define __lzo_constructor     __attribute__((__constructor__,__used__))
-#elif (LZO_CC_GNUC >= 0x020700ul)
-#  define __lzo_constructor     __attribute__((__constructor__))
-#elif (LZO_CC_LLVM || LZO_CC_PATHSCALE)
-#  define __lzo_constructor     __attribute__((__constructor__))
-#endif
-#endif
-#if defined(__lzo_constructor)
-#  define __lzo_HAVE_constructor 1
-#endif
-#if !defined(__lzo_destructor)
-#if (LZO_CC_GNUC >= 0x030400ul)
-#  define __lzo_destructor      __attribute__((__destructor__,__used__))
-#elif (LZO_CC_GNUC >= 0x020700ul)
-#  define __lzo_destructor      __attribute__((__destructor__))
-#elif (LZO_CC_LLVM || LZO_CC_PATHSCALE)
-#  define __lzo_destructor      __attribute__((__destructor__))
-#endif
-#endif
-#if defined(__lzo_destructor)
-#  define __lzo_HAVE_destructor 1
-#endif
-#if defined(__lzo_HAVE_destructor) && !defined(__lzo_HAVE_constructor)
-#  error "this should not happen"
-#endif
-#if !defined(__lzo_noreturn)
-#if (LZO_CC_GNUC >= 0x020700ul)
-#  define __lzo_noreturn        __attribute__((__noreturn__))
-#elif (LZO_CC_INTELC && (__INTEL_COMPILER >= 450) && LZO_CC_SYNTAX_MSC)
-#  define __lzo_noreturn        __declspec(noreturn)
-#elif (LZO_CC_INTELC && (__INTEL_COMPILER >= 600) && LZO_CC_SYNTAX_GNUC)
-#  define __lzo_noreturn        __attribute__((__noreturn__))
-#elif (LZO_CC_LLVM || LZO_CC_PATHSCALE)
-#  define __lzo_noreturn        __attribute__((__noreturn__))
-#elif (LZO_CC_MSC && (_MSC_VER >= 1200))
-#  define __lzo_noreturn        __declspec(noreturn)
-#endif
-#endif
-#if defined(__lzo_noreturn)
-#  define __lzo_HAVE_noreturn 1
-#else
-#  define __lzo_noreturn
-#endif
-#if !defined(__lzo_nothrow)
-#if (LZO_CC_GNUC >= 0x030300ul)
-#  define __lzo_nothrow         __attribute__((__nothrow__))
-#elif (LZO_CC_INTELC && (__INTEL_COMPILER >= 450) && LZO_CC_SYNTAX_MSC) && defined(__cplusplus)
-#  define __lzo_nothrow         __declspec(nothrow)
-#elif (LZO_CC_INTELC && (__INTEL_COMPILER >= 800) && LZO_CC_SYNTAX_GNUC)
-#  define __lzo_nothrow         __attribute__((__nothrow__))
-#elif (LZO_CC_LLVM || LZO_CC_PATHSCALE)
-#  define __lzo_nothrow         __attribute__((__nothrow__))
-#elif (LZO_CC_MSC && (_MSC_VER >= 1200)) && defined(__cplusplus)
-#  define __lzo_nothrow         __declspec(nothrow)
-#endif
-#endif
-#if defined(__lzo_nothrow)
-#  define __lzo_HAVE_nothrow 1
-#else
-#  define __lzo_nothrow
-#endif
-#if !defined(__lzo_restrict)
-#if (LZO_CC_GNUC >= 0x030400ul)
-#  define __lzo_restrict        __restrict__
-#elif (LZO_CC_INTELC && (__INTEL_COMPILER >= 600) && LZO_CC_SYNTAX_GNUC)
-#  define __lzo_restrict        __restrict__
-#elif (LZO_CC_LLVM)
-#  define __lzo_restrict        __restrict__
-#elif (LZO_CC_MSC && (_MSC_VER >= 1400))
-#  define __lzo_restrict        __restrict
-#endif
-#endif
-#if defined(__lzo_restrict)
-#  define __lzo_HAVE_restrict 1
-#else
-#  define __lzo_restrict
-#endif
 #if !defined(__lzo_likely) && !defined(__lzo_unlikely)
 #if (LZO_CC_GNUC >= 0x030200ul)
 #  define __lzo_likely(e)       (__builtin_expect(!!(e),1))
@@ -985,35 +882,6 @@
 #    define LZO_UNUSED(var)         ((void) &var)
 #  endif
 #endif
-#if !defined(LZO_UNUSED_FUNC)
-#  if (LZO_CC_BORLANDC && (__BORLANDC__ >= 0x0600))
-#    define LZO_UNUSED_FUNC(func)   ((void) func)
-#  elif (LZO_CC_BORLANDC || LZO_CC_NDPC || LZO_CC_TURBOC)
-#    define LZO_UNUSED_FUNC(func)   if (func) ; else
-#  elif (LZO_CC_LLVM)
-#    define LZO_UNUSED_FUNC(func)   ((void) &func)
-#  elif (LZO_CC_MSC && (_MSC_VER < 900))
-#    define LZO_UNUSED_FUNC(func)   if (func) ; else
-#  elif (LZO_CC_MSC)
-#    define LZO_UNUSED_FUNC(func)   ((void) &func)
-#  elif (LZO_CC_KEILC || LZO_CC_PELLESC)
-#    define LZO_UNUSED_FUNC(func)   {extern int __lzo_unused[1-2*!(sizeof((int)func)>0)];}
-#  else
-#    define LZO_UNUSED_FUNC(func)   ((void) func)
-#  endif
-#endif
-#if !defined(LZO_UNUSED_LABEL)
-#  if (LZO_CC_WATCOMC) && defined(__cplusplus)
-#    define LZO_UNUSED_LABEL(l)     switch(0) case 1:goto l
-#  elif (LZO_CC_INTELC || LZO_CC_WATCOMC)
-#    define LZO_UNUSED_LABEL(l)     if (0) goto l
-#  else
-#    define LZO_UNUSED_LABEL(l)     switch(0) case 1:goto l
-#  endif
-#endif
-#if !defined(LZO_DEFINE_UNINITIALIZED_VAR)
-#    define LZO_DEFINE_UNINITIALIZED_VAR(type,var,init)  type var = init
-#endif
 #if !defined(LZO_COMPILE_TIME_ASSERT_HEADER)
 #  if (LZO_CC_AZTECC || LZO_CC_ZORTECHC)
 #    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-!(e)];
@@ -1024,29 +892,6 @@
 #  else
 #    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-2*!(e)];
 #  endif
-#endif
-#if !defined(LZO_COMPILE_TIME_ASSERT)
-#  if (LZO_CC_AZTECC)
-#    define LZO_COMPILE_TIME_ASSERT(e)  {typedef int __lzo_cta_t[1-!(e)];}
-#  elif (LZO_CC_DMC || LZO_CC_PACIFICC || LZO_CC_SYMANTECC || LZO_CC_ZORTECHC)
-#    define LZO_COMPILE_TIME_ASSERT(e)  switch(0) case 1:case !(e):break;
-#  elif (LZO_CC_MSC && (_MSC_VER < 900))
-#    define LZO_COMPILE_TIME_ASSERT(e)  switch(0) case 1:case !(e):break;
-#  elif (LZO_CC_TURBOC && (__TURBOC__ == 0x0295))
-#    define LZO_COMPILE_TIME_ASSERT(e)  switch(0) case 1:case !(e):break;
-#  else
-#    define LZO_COMPILE_TIME_ASSERT(e)  {typedef int __lzo_cta_t[1-2*!(e)];}
-#  endif
-#endif
-#if !defined(LZO_CFG_NO_WINDOWS_H)
-#if (LZO_OS_CYGWIN || (LZO_OS_EMX && defined(__RSXNT__)) || LZO_OS_WIN32 || LZO_OS_WIN64)
-#  if (LZO_CC_WATCOMC && (__WATCOMC__ < 1000))
-#  elif (LZO_OS_WIN32 && LZO_CC_GNUC) && defined(__PW32__)
-#  elif ((LZO_OS_CYGWIN || defined(__MINGW32__)) && (LZO_CC_GNUC && (LZO_CC_GNUC < 0x025f00ul)))
-#  else
-#    define LZO_HAVE_WINDOWS_H 1
-#  endif
-#endif
 #endif
 #if !defined(LZO_CFG_NO_UNALIGNED)
 #if defined(LZO_ABI_NEUTRAL_ENDIAN) || defined(LZO_ARCH_GENERIC)
