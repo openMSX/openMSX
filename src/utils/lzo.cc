@@ -513,10 +513,7 @@ lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
     return LZO_E_OK;
 }
 
-#undef __COPY4
 #define __COPY4(dst,src)    * (lzo_uint32p)(dst) = * (const lzo_uint32p)(src)
-
-#undef COPY4
 #if defined(LZO_UNALIGNED_OK_4)
 #  define COPY4(dst,src)    __COPY4(dst,src)
 #elif defined(LZO_ALIGNED_OK_4)
