@@ -272,9 +272,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #define DX3(p,s1,s2,s3) ((DX2((p)+1,s2,s3) << (s1)) ^ (p)[0])
 #define DM(v)           ((lzo_uint) ((v) & D_MASK))
 
-#define LZO_CHECK_MPOS_DET(m_pos,m_off,in,ip,max_offset) \
-        (m_pos == NULL || (m_off = pd(ip, m_pos)) > max_offset)
-
 #define LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,max_offset) \
     ( \
         m_pos = ip - (lzo_uint) PTR_DIFF(ip,m_pos), \
