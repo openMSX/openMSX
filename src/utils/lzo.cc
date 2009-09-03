@@ -684,12 +684,7 @@ lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
     register lzo_bytep op;
     register const lzo_bytep ip;
     register lzo_uint t;
-#if defined(COPY_DICT)
-    lzo_uint m_off;
-    const lzo_bytep dict_end;
-#else
     register const lzo_bytep m_pos;
-#endif
 
     const lzo_bytep const ip_end = in + in_len;
 #if defined(LZO1Z)
@@ -697,23 +692,6 @@ lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
 #endif
 
     LZO_UNUSED(wrkmem);
-
-#if defined(COPY_DICT)
-    if (dict)
-    {
-        if (dict_len > M4_MAX_OFFSET)
-        {
-            dict += dict_len - M4_MAX_OFFSET;
-            dict_len = M4_MAX_OFFSET;
-        }
-        dict_end = dict + dict_len;
-    }
-    else
-    {
-        dict_len = 0;
-        dict_end = NULL;
-    }
-#endif
 
     *out_len = 0;
 
@@ -782,15 +760,6 @@ first_literal_run:
         t = *ip++;
         if (t >= 16)
             goto match;
-#if defined(COPY_DICT)
-#if defined(LZO1Z)
-        m_off = (1 + M2_MAX_OFFSET) + (t << 6) + (*ip++ >> 2);
-        last_m_off = m_off;
-#else
-        m_off = (1 + M2_MAX_OFFSET) + (t >> 2) + (*ip++ << 2);
-#endif
-        t = 3; COPY_DICT(t,m_off)
-#else
 #if defined(LZO1Z)
         t = (1 + M2_MAX_OFFSET) + (t << 6) + (*ip++ >> 2);
         m_pos = op - t;
@@ -801,32 +770,12 @@ first_literal_run:
         m_pos -= *ip++ << 2;
 #endif
         *op++ = *m_pos++; *op++ = *m_pos++; *op++ = *m_pos;
-#endif
         goto match_done;
 
         do {
 match:
             if (t >= 64)
             {
-#if defined(COPY_DICT)
-#if defined(LZO1X)
-                m_off = 1 + ((t >> 2) & 7) + (*ip++ << 3);
-                t = (t >> 5) - 1;
-#elif defined(LZO1Y)
-                m_off = 1 + ((t >> 2) & 3) + (*ip++ << 2);
-                t = (t >> 4) - 3;
-#elif defined(LZO1Z)
-                m_off = t & 0x1f;
-                if (m_off >= 0x1c)
-                    m_off = last_m_off;
-                else
-                {
-                    m_off = 1 + (m_off << 6) + (*ip++ >> 2);
-                    last_m_off = m_off;
-                }
-                t = (t >> 5) - 1;
-#endif
-#else
 #if defined(LZO1X)
                 m_pos = op - 1;
                 m_pos -= (t >> 2) & 7;
@@ -857,7 +806,6 @@ match:
 #endif
                 assert(t > 0);
                 goto copy_match;
-#endif
             }
             else if (t >= 32)
             {
@@ -871,14 +819,6 @@ match:
                     }
                     t += 31 + *ip++;
                 }
-#if defined(COPY_DICT)
-#if defined(LZO1Z)
-                m_off = 1 + (ip[0] << 6) + (ip[1] >> 2);
-                last_m_off = m_off;
-#else
-                m_off = 1 + (ip[0] >> 2) + (ip[1] << 6);
-#endif
-#else
 #if defined(LZO1Z)
                 {
                     lzo_uint off = 1 + (ip[0] << 6) + (ip[1] >> 2);
@@ -892,17 +832,12 @@ match:
                 m_pos = op - 1;
                 m_pos -= (ip[0] >> 2) + (ip[1] << 6);
 #endif
-#endif
                 ip += 2;
             }
             else if (t >= 16)
             {
-#if defined(COPY_DICT)
-                m_off = (t & 8) << 11;
-#else
                 m_pos = op;
                 m_pos -= (t & 8) << 11;
-#endif
                 t &= 7;
                 if (t == 0)
                 {
@@ -913,20 +848,6 @@ match:
                     }
                     t += 7 + *ip++;
                 }
-#if defined(COPY_DICT)
-#if defined(LZO1Z)
-                m_off += (ip[0] << 6) + (ip[1] >> 2);
-#else
-                m_off += (ip[0] >> 2) + (ip[1] << 6);
-#endif
-                ip += 2;
-                if (m_off == 0)
-                    goto eof_found;
-                m_off += 0x4000;
-#if defined(LZO1Z)
-                last_m_off = m_off;
-#endif
-#else
 #if defined(LZO1Z)
                 m_pos -= (ip[0] << 6) + (ip[1] >> 2);
 #elif defined(LZO_UNALIGNED_OK_2) && defined(LZO_ABI_LITTLE_ENDIAN)
@@ -941,19 +862,9 @@ match:
 #if defined(LZO1Z)
                 last_m_off = pd((const lzo_bytep)op, m_pos);
 #endif
-#endif
             }
             else
             {
-#if defined(COPY_DICT)
-#if defined(LZO1Z)
-                m_off = 1 + (t << 6) + (*ip++ >> 2);
-                last_m_off = m_off;
-#else
-                m_off = 1 + (t >> 2) + (*ip++ << 2);
-#endif
-                t = 2; COPY_DICT(t,m_off)
-#else
 #if defined(LZO1Z)
                 t = 1 + (t << 6) + (*ip++ >> 2);
                 m_pos = op - t;
@@ -964,15 +875,8 @@ match:
                 m_pos -= *ip++ << 2;
 #endif
                 *op++ = *m_pos++; *op++ = *m_pos;
-#endif
                 goto match_done;
             }
-
-#if defined(COPY_DICT)
-
-            t += 3-1; COPY_DICT(t,m_off)
-
-#else
 
             assert(t > 0);
 #if defined(LZO_UNALIGNED_OK_4) || defined(LZO_ALIGNED_OK_4)
@@ -999,8 +903,6 @@ copy_match:
                 *op++ = *m_pos++; *op++ = *m_pos++;
                 do *op++ = *m_pos++; while (--t > 0);
             }
-
-#endif
 
 match_done:
 #if defined(LZO1Z)
