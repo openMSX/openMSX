@@ -257,10 +257,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 
 // Start of LZO1X.
 
-#if !defined(LZO1X) && !defined(LZO1Y) && !defined(LZO1Z)
-#  define LZO1X
-#endif
-
 #define M2_MAX_OFFSET   0x0800
 #define M3_MAX_OFFSET   0x4000
 #define M4_MAX_OFFSET   0xbfff
@@ -390,10 +386,6 @@ match:
         ip += 3;
         if (m_pos[3] != *ip++ || m_pos[4] != *ip++ || m_pos[5] != *ip++ ||
             m_pos[6] != *ip++ || m_pos[7] != *ip++ || m_pos[8] != *ip++
-#ifdef LZO1Y
-            || m_pos[ 9] != *ip++ || m_pos[10] != *ip++ || m_pos[11] != *ip++
-            || m_pos[12] != *ip++ || m_pos[13] != *ip++ || m_pos[14] != *ip++
-#endif
            )
         {
             --ip;
@@ -403,13 +395,8 @@ match:
             if (m_off <= M2_MAX_OFFSET)
             {
                 m_off -= 1;
-#if defined(LZO1X)
                 *op++ = LZO_BYTE(((m_len - 1) << 5) | ((m_off & 7) << 2));
                 *op++ = LZO_BYTE(m_off >> 3);
-#elif defined(LZO1Y)
-                *op++ = LZO_BYTE(((m_len + 1) << 4) | ((m_off & 3) << 2));
-                *op++ = LZO_BYTE(m_off >> 2);
-#endif
             }
             else if (m_off <= M3_MAX_OFFSET)
             {
@@ -418,7 +405,6 @@ match:
                 goto m3_m4_offset;
             }
             else
-#if defined(LZO1X)
             {
                 m_off -= 0x4000;
                 assert(m_off > 0); assert(m_off <= 0x7fff);
@@ -426,9 +412,6 @@ match:
                                  ((m_off & 0x4000) >> 11) | (m_len - 2));
                 goto m3_m4_offset;
             }
-#elif defined(LZO1Y)
-                goto m4_match;
-#endif
         }
         else
         {
@@ -455,9 +438,6 @@ match:
             }
             else
             {
-#if defined(LZO1Y)
-m4_match:
-#endif
                 m_off -= 0x4000;
                 assert(m_off > 0); assert(m_off <= 0x7fff);
                 if (m_len <= M4_MAX_LEN)
@@ -563,9 +543,6 @@ lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
     register const lzo_bytep m_pos;
 
     const lzo_bytep const ip_end = in + in_len;
-#if defined(LZO1Z)
-    lzo_uint last_m_off = 0;
-#endif
 
     LZO_UNUSED(wrkmem);
 
@@ -636,15 +613,9 @@ first_literal_run:
         t = *ip++;
         if (t >= 16)
             goto match;
-#if defined(LZO1Z)
-        t = (1 + M2_MAX_OFFSET) + (t << 6) + (*ip++ >> 2);
-        m_pos = op - t;
-        last_m_off = t;
-#else
         m_pos = op - (1 + M2_MAX_OFFSET);
         m_pos -= t >> 2;
         m_pos -= *ip++ << 2;
-#endif
         *op++ = *m_pos++; *op++ = *m_pos++; *op++ = *m_pos;
         goto match_done;
 
@@ -652,34 +623,10 @@ first_literal_run:
 match:
             if (t >= 64)
             {
-#if defined(LZO1X)
                 m_pos = op - 1;
                 m_pos -= (t >> 2) & 7;
                 m_pos -= *ip++ << 3;
                 t = (t >> 5) - 1;
-#elif defined(LZO1Y)
-                m_pos = op - 1;
-                m_pos -= (t >> 2) & 3;
-                m_pos -= *ip++ << 2;
-                t = (t >> 4) - 3;
-#elif defined(LZO1Z)
-                {
-                    lzo_uint off = t & 0x1f;
-                    m_pos = op;
-                    if (off >= 0x1c)
-                    {
-                        assert(last_m_off > 0);
-                        m_pos -= last_m_off;
-                    }
-                    else
-                    {
-                        off = 1 + (off << 6) + (*ip++ >> 2);
-                        m_pos -= off;
-                        last_m_off = off;
-                    }
-                }
-                t = (t >> 5) - 1;
-#endif
                 assert(t > 0);
                 goto copy_match;
             }
@@ -695,13 +642,7 @@ match:
                     }
                     t += 31 + *ip++;
                 }
-#if defined(LZO1Z)
-                {
-                    lzo_uint off = 1 + (ip[0] << 6) + (ip[1] >> 2);
-                    m_pos = op - off;
-                    last_m_off = off;
-                }
-#elif defined(LZO_UNALIGNED_OK_2) && defined(LZO_ABI_LITTLE_ENDIAN)
+#if defined(LZO_UNALIGNED_OK_2) && defined(LZO_ABI_LITTLE_ENDIAN)
                 m_pos = op - 1;
                 m_pos -= (* (const lzo_ushortp) ip) >> 2;
 #else
@@ -724,9 +665,7 @@ match:
                     }
                     t += 7 + *ip++;
                 }
-#if defined(LZO1Z)
-                m_pos -= (ip[0] << 6) + (ip[1] >> 2);
-#elif defined(LZO_UNALIGNED_OK_2) && defined(LZO_ABI_LITTLE_ENDIAN)
+#if defined(LZO_UNALIGNED_OK_2) && defined(LZO_ABI_LITTLE_ENDIAN)
                 m_pos -= (* (const lzo_ushortp) ip) >> 2;
 #else
                 m_pos -= (ip[0] >> 2) + (ip[1] << 6);
@@ -735,21 +674,12 @@ match:
                 if (m_pos == op)
                     goto eof_found;
                 m_pos -= 0x4000;
-#if defined(LZO1Z)
-                last_m_off = pd((const lzo_bytep)op, m_pos);
-#endif
             }
             else
             {
-#if defined(LZO1Z)
-                t = 1 + (t << 6) + (*ip++ >> 2);
-                m_pos = op - t;
-                last_m_off = t;
-#else
                 m_pos = op - 1;
                 m_pos -= t >> 2;
                 m_pos -= *ip++ << 2;
-#endif
                 *op++ = *m_pos++; *op++ = *m_pos;
                 goto match_done;
             }
@@ -781,11 +711,7 @@ copy_match:
             }
 
 match_done:
-#if defined(LZO1Z)
-            t = ip[-1] & 3;
-#else
             t = ip[-2] & 3;
-#endif
             if (t == 0)
                 break;
 
