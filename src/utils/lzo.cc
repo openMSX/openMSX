@@ -184,7 +184,6 @@ _lzo_config_check(void)
     union { unsigned char c[2*sizeof(lzo_xint)]; lzo_xint l[2]; } u;
     lzo_uintptr_t p;
 
-#if !defined(LZO_CFG_NO_CONFIG_CHECK)
 #if defined(LZO_ABI_BIG_ENDIAN)
     u.l[0] = u.l[1] = 0; u.c[sizeof(lzo_xint) - 1] = 128;
     r &= (u.l[0] == 128);
@@ -202,7 +201,6 @@ _lzo_config_check(void)
     p = (lzo_uintptr_t) (const lzo_voidp) &u.c[0];
     u.l[0] = u.l[1] = 0;
     r &= ((* (const lzo_uint32p) (p+1)) == 0);
-#endif
 #endif
 
     LZO_UNUSED(u); LZO_UNUSED(p);
