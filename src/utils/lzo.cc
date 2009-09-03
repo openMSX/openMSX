@@ -262,34 +262,16 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #  define LZO1X
 #endif
 
-#define M1_MAX_OFFSET   0x0400
-#ifndef M2_MAX_OFFSET
 #define M2_MAX_OFFSET   0x0800
-#endif
 #define M3_MAX_OFFSET   0x4000
 #define M4_MAX_OFFSET   0xbfff
 
-#define MX_MAX_OFFSET   (M1_MAX_OFFSET + M2_MAX_OFFSET)
-
-#define M1_MIN_LEN      2
-#define M1_MAX_LEN      2
 #define M2_MIN_LEN      3
-#ifndef M2_MAX_LEN
 #define M2_MAX_LEN      8
-#endif
-#define M3_MIN_LEN      3
-#define M3_MAX_LEN      33
-#define M4_MIN_LEN      3
 #define M4_MAX_LEN      9
 
-#define M1_MARKER       0
-#define M2_MARKER       64
 #define M3_MARKER       32
 #define M4_MARKER       16
-
-#ifndef MIN_LOOKAHEAD
-#define MIN_LOOKAHEAD       (M2_MAX_LEN + 1)
-#endif
 
 #define DL_MIN_LEN          M2_MIN_LEN
 
