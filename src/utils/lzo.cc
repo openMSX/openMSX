@@ -303,9 +303,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #define MIN_LOOKAHEAD       (M2_MAX_LEN + 1)
 #endif
 
-#ifndef LZO_HASH
-#define LZO_HASH            LZO_HASH_LZO_INCREMENTAL_B
-#endif
 #define DL_MIN_LEN          M2_MIN_LEN
 
 // Start of dictionary macros.
@@ -362,15 +359,6 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #  define DL_SHIFT      ((DL_BITS + (DL_MIN_LEN - 1)) / DL_MIN_LEN)
 #endif
 
-#define LZO_HASH_GZIP                   1
-#define LZO_HASH_GZIP_INCREMENTAL       2
-#define LZO_HASH_LZO_INCREMENTAL_A      3
-#define LZO_HASH_LZO_INCREMENTAL_B      4
-
-#if !defined(LZO_HASH)
-#  error "choose a hashing strategy"
-#endif
-
 #undef DM
 #undef DX
 
@@ -403,78 +391,16 @@ __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #define DMS(v,s)        ((lzo_uint) (((v) & (D_MASK >> (s))) << (s)))
 #define DM(v)           DMS(v,0)
 
-#if (LZO_HASH == LZO_HASH_GZIP)
-#  define _DINDEX(dv,p)     (_DV_A((p),DL_SHIFT))
-
-#elif (LZO_HASH == LZO_HASH_GZIP_INCREMENTAL)
-#  define __LZO_HASH_INCREMENTAL
-#  define DVAL_FIRST(dv,p)  dv = _DV_A((p),DL_SHIFT)
-#  define DVAL_NEXT(dv,p)   dv = (((dv) << DL_SHIFT) ^ p[2])
-#  define _DINDEX(dv,p)     (dv)
-#  define DVAL_LOOKAHEAD    DL_MIN_LEN
-
-#elif (LZO_HASH == LZO_HASH_LZO_INCREMENTAL_A)
-#  define __LZO_HASH_INCREMENTAL
-#  define DVAL_FIRST(dv,p)  dv = _DV_A((p),5)
-#  define DVAL_NEXT(dv,p) \
-                dv ^= (lzo_xint)(p[-1]) << (2*5); dv = (((dv) << 5) ^ p[2])
-#  define _DINDEX(dv,p)     ((DMUL(0x9f5f,dv)) >> 5)
-#  define DVAL_LOOKAHEAD    DL_MIN_LEN
-
-#elif (LZO_HASH == LZO_HASH_LZO_INCREMENTAL_B)
-#  define __LZO_HASH_INCREMENTAL
-#  define DVAL_FIRST(dv,p)  dv = _DV_B((p),5)
-#  define DVAL_NEXT(dv,p) \
-                dv ^= p[-1]; dv = (((dv) >> 5) ^ ((lzo_xint)(p[2]) << (2*5)))
-#  define _DINDEX(dv,p)     ((DMUL(0x9f5f,dv)) >> 5)
-#  define DVAL_LOOKAHEAD    DL_MIN_LEN
-
-#else
-#  error "choose a hashing strategy"
-#endif
-
-#ifndef DINDEX
-#define DINDEX(dv,p)        ((lzo_uint)((_DINDEX(dv,p)) & DL_MASK) << DD_BITS)
-#endif
-#if !defined(DINDEX1) && defined(D_INDEX1)
-#define DINDEX1             D_INDEX1
-#endif
-#if !defined(DINDEX2) && defined(D_INDEX2)
-#define DINDEX2             D_INDEX2
-#endif
-
-#if !defined(__LZO_HASH_INCREMENTAL)
-#  define DVAL_FIRST(dv,p)  ((void) 0)
-#  define DVAL_NEXT(dv,p)   ((void) 0)
-#  define DVAL_LOOKAHEAD    0
-#endif
-
-#if !defined(DVAL_ASSERT)
-#if defined(__LZO_HASH_INCREMENTAL) && !defined(NDEBUG)
-static void DVAL_ASSERT(lzo_xint dv, const lzo_bytep p)
-{
-    lzo_xint df;
-    DVAL_FIRST(df,(p));
-    assert(DINDEX(dv,p) == DINDEX(df,p));
-}
-#else
-#  define DVAL_ASSERT(dv,p) ((void) 0)
-#endif
-#endif
-
 #  define DENTRY(p,in)                          (p)
 #  define GINDEX(m_pos,m_off,dict,dindex,in)    m_pos = dict[dindex]
 
 #if (DD_BITS == 0)
 
-#  define UPDATE_D(dict,drun,dv,p,in)       dict[ DINDEX(dv,p) ] = DENTRY(p,in)
 #  define UPDATE_I(dict,drun,index,p,in)    dict[index] = DENTRY(p,in)
 #  define UPDATE_P(ptr,drun,p,in)           (ptr)[0] = DENTRY(p,in)
 
 #else
 
-#  define UPDATE_D(dict,drun,dv,p,in)   \
-        dict[ DINDEX(dv,p) + drun++ ] = DENTRY(p,in); drun &= DD_MASK
 #  define UPDATE_I(dict,drun,index,p,in)    \
         dict[ (index) + drun++ ] = DENTRY(p,in); drun &= DD_MASK
 #  define UPDATE_P(ptr,drun,p,in)   \
@@ -520,13 +446,13 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
         lzo_uint m_len;
         lzo_uint dindex;
 
-        DINDEX1(dindex,ip);
+        D_INDEX1(dindex,ip);
         GINDEX(m_pos,m_off,dict,dindex,in);
         if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET))
             goto literal;
         if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3])
             goto try_match;
-        DINDEX2(dindex,ip);
+        D_INDEX2(dindex,ip);
         GINDEX(m_pos,m_off,dict,dindex,in);
         if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET))
             goto literal;
@@ -741,8 +667,6 @@ lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
     *out_len = pd(op, out);
     return LZO_E_OK;
 }
-
-#undef LZO_HASH
 
 #undef LZO_TEST_OVERRUN
 
