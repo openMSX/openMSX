@@ -127,9 +127,6 @@ LZO_EXTERN(const lzo_bytep) lzo_copyright(void);
 
 #define pd(a,b)             ((lzo_uint) ((a)-(b)))
 
-LZO_EXTERN(lzo_uintptr_t)
-__lzo_ptr_linear(const lzo_voidp ptr);
-
 typedef union
 {
     char            a_char;
