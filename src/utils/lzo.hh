@@ -49,10 +49,6 @@
 #ifndef LZO_HH
 #define LZO_HH
 
-#ifdef __LZOCONF_H
-#  error "you cannot use both LZO and miniLZO"
-#endif
-
 #include "lzoconf.hh"
 
 
