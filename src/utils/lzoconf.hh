@@ -149,12 +149,6 @@ typedef int lzo_bool;
 
 
 /***********************************************************************
-// function types
-************************************************************************/
-
-#  define LZO_EXTERN(_rettype)  extern _rettype
-
-/***********************************************************************
 // error codes and prototypes
 ************************************************************************/
 
@@ -187,9 +181,9 @@ typedef int lzo_bool;
 #define lzo_init() __lzo_init_v2(LZO_VERSION,(int)sizeof(short),(int)sizeof(int),\
     (int)sizeof(long),(int)sizeof(lzo_uint32),(int)sizeof(lzo_uint),\
     (int)lzo_sizeof_dict_t,(int)sizeof(char *),(int)sizeof(lzo_voidp))
-LZO_EXTERN(int) __lzo_init_v2(unsigned,int,int,int,int,int,int,int,int);
+int __lzo_init_v2(unsigned,int,int,int,int,int,int,int,int);
 
 /* misc. */
-LZO_EXTERN(int) _lzo_config_check(void);
+int _lzo_config_check(void);
 
 #endif // LZOCONF_HH

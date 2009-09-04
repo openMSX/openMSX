@@ -66,15 +66,13 @@
 
 
 /* compression */
-LZO_EXTERN(int)
-lzo1x_1_compress        ( const lzo_bytep src, lzo_uint  src_len,
-                                lzo_bytep dst, lzo_uintp dst_len,
-                                lzo_voidp wrkmem );
+int lzo1x_1_compress(const lzo_bytep src, lzo_uint  src_len,
+                     lzo_bytep dst, lzo_uintp dst_len,
+                     lzo_voidp wrkmem);
 
 /* decompression */
-LZO_EXTERN(int)
-lzo1x_decompress        ( const lzo_bytep src, lzo_uint  src_len,
-                                lzo_bytep dst, lzo_uintp dst_len,
-                                lzo_voidp wrkmem /* NOT USED */ );
+int lzo1x_decompress(const lzo_bytep src, lzo_uint  src_len,
+                     lzo_bytep dst, lzo_uintp dst_len,
+                     lzo_voidp wrkmem /* NOT USED */);
 
 #endif // LZO_HH
