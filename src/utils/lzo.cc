@@ -108,10 +108,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
   LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uint32) == 4)
 #endif
 
-extern int __lzo_init_done;
-extern const char __lzo_copyright[];
-LZO_EXTERN(const lzo_bytep) lzo_copyright(void);
-
 // Start of pointer alignment definitions.
 
 #if !defined(lzo_uintptr_t)
