@@ -84,10 +84,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #define LZO_SIZE(bits)      (1u << (bits))
 #define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
 
-#if !defined(DMUL)
-#  define DMUL(a,b) ((lzo_xint) ((a) * (b)))
-#endif
-
 #if !defined(LZO_CFG_NO_UNALIGNED)
 #if (LZO_ARCH_AMD64 || LZO_ARCH_I386)
 #  if (LZO_SIZEOF_SHORT == 2)
@@ -199,6 +195,7 @@ int __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
     return r;
 }
 
+#define DMUL(a,b) ((lzo_xint) ((a) * (b)))
 #define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
 #define D_INDEX2(d,p)       d = (d & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f)
 
