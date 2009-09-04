@@ -45,10 +45,11 @@
  *   http://www.oberhumer.com/opensource/lzo/
  */
 
+#include "lzo.hh"
+#include "likely.hh"
+
 #include <limits.h>
 #include <stddef.h>
-
-#include "lzo.hh"
 
 // Start of configuration.
 
@@ -281,7 +282,7 @@ try_match:
         }
         else
         {
-            if __lzo_likely(m_pos[2] == ip[2])
+            if (likely(m_pos[2] == ip[2]))
             {
                     goto match;
             }
@@ -290,7 +291,7 @@ try_match:
 literal:
         dict[dindex] = ip;
         ++ip;
-        if __lzo_unlikely(ip >= ip_end)
+        if (unlikely(ip >= ip_end))
             break;
         continue;
 
@@ -405,7 +406,7 @@ m3_m4_offset:
         }
 
         ii = ip;
-        if __lzo_unlikely(ip >= ip_end)
+        if (unlikely(ip >= ip_end))
             break;
     }
 
@@ -420,7 +421,7 @@ int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
     lzo_bytep op = out;
     lzo_uint t;
 
-    if __lzo_unlikely(in_len <= M2_MAX_LEN + 5)
+    if (unlikely(in_len <= M2_MAX_LEN + 5))
         t = in_len;
     else
     {

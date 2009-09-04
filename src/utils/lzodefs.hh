@@ -841,28 +841,6 @@
 #  define LZO_INFO_LIBC         "default"
 #endif
 #endif
-#if !defined(__lzo_likely) && !defined(__lzo_unlikely)
-#if (LZO_CC_GNUC >= 0x030200ul)
-#  define __lzo_likely(e)       (__builtin_expect(!!(e),1))
-#  define __lzo_unlikely(e)     (__builtin_expect(!!(e),0))
-#elif (LZO_CC_INTELC && (__INTEL_COMPILER >= 800))
-#  define __lzo_likely(e)       (__builtin_expect(!!(e),1))
-#  define __lzo_unlikely(e)     (__builtin_expect(!!(e),0))
-#elif (LZO_CC_LLVM || LZO_CC_PATHSCALE)
-#  define __lzo_likely(e)       (__builtin_expect(!!(e),1))
-#  define __lzo_unlikely(e)     (__builtin_expect(!!(e),0))
-#endif
-#endif
-#if defined(__lzo_likely)
-#  define __lzo_HAVE_likely 1
-#else
-#  define __lzo_likely(e)       (e)
-#endif
-#if defined(__lzo_unlikely)
-#  define __lzo_HAVE_unlikely 1
-#else
-#  define __lzo_unlikely(e)     (e)
-#endif
 #if !defined(LZO_UNUSED)
 #  if (LZO_CC_BORLANDC && (__BORLANDC__ >= 0x0600))
 #    define LZO_UNUSED(var)         ((void) &var)
