@@ -48,8 +48,9 @@
 #include "lzo.hh"
 #include "likely.hh"
 
-#include <limits.h>
-#include <stddef.h>
+#include <climits>
+#include <cstddef>
+#include <cstring>
 
 // Start of configuration.
 
@@ -71,8 +72,6 @@
 #  endif
 #endif
 LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
-
-#include <string.h>
 
 #undef NDEBUG
 #  if !defined(LZO_DEBUG)
