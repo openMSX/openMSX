@@ -121,6 +121,8 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
 // End of configuration.
 
+namespace openmsx {
+
 /* If you use the LZO library in a product, I would appreciate that you
  * keep this copyright string in the executable of your product.
  */
@@ -657,3 +659,5 @@ eof_found:
     return (ip == ip_end ? LZO_E_OK :
            (ip < ip_end  ? LZO_E_INPUT_NOT_CONSUMED : LZO_E_INPUT_OVERRUN));
 }
+
+} // namespace openmsx

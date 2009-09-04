@@ -172,6 +172,8 @@ typedef int lzo_bool;
 #  define lzo_sizeof_dict_t     ((unsigned)sizeof(lzo_bytep))
 #endif
 
+namespace openmsx {
+
 /* lzo_init() should be the first function you call.
  * Check the return code !
  *
@@ -185,5 +187,7 @@ int __lzo_init_v2(unsigned,int,int,int,int,int,int,int,int);
 
 /* misc. */
 int _lzo_config_check(void);
+
+} // namespace openmsx
 
 #endif // LZOCONF_HH
