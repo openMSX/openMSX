@@ -238,7 +238,7 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
                      lzo_bytep out, lzo_uintp out_len,
                      lzo_voidp wrkmem)
 {
-	register const lzo_bytep ip;
+	const lzo_bytep ip;
 	lzo_bytep op;
 	const lzo_bytep const in_end = in + in_len;
 	const lzo_bytep const ip_end = in + in_len - M2_MAX_LEN - 5;
@@ -251,7 +251,7 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
 
 	ip += 4;
 	for (;;) {
-		register const lzo_bytep m_pos;
+		const lzo_bytep m_pos;
 		lzo_uint m_off;
 		lzo_uint m_len;
 		lzo_uint dindex;
@@ -295,7 +295,7 @@ literal:
 match:
 		dict[dindex] = ip;
 		if (pd(ip,ii) > 0) {
-			register lzo_uint t = pd(ip,ii);
+			lzo_uint t = pd(ip,ii);
 
 			if (t <= 3) {
 				assert(op - 2 > out);
@@ -303,7 +303,7 @@ match:
 			} else if (t <= 18) {
 				*op++ = LZO_BYTE(t - 3);
 			} else {
-				register lzo_uint tt = t - 18;
+				lzo_uint tt = t - 18;
 
 				*op++ = 0;
 				while (tt > 255) {
@@ -449,10 +449,10 @@ int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
                      lzo_bytep out, lzo_uintp out_len)
 {
-	register lzo_bytep op;
-	register const lzo_bytep ip;
-	register lzo_uint t;
-	register const lzo_bytep m_pos;
+	lzo_bytep op;
+	const lzo_bytep ip;
+	lzo_uint t;
+	const lzo_bytep m_pos;
 
 	const lzo_bytep const ip_end = in + in_len;
 
