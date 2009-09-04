@@ -471,8 +471,7 @@ int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 #endif
 
 int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
-                     lzo_bytep out, lzo_uintp out_len,
-                     lzo_voidp wrkmem)
+                     lzo_bytep out, lzo_uintp out_len)
 {
     register lzo_bytep op;
     register const lzo_bytep ip;
@@ -480,8 +479,6 @@ int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
     register const lzo_bytep m_pos;
 
     const lzo_bytep const ip_end = in + in_len;
-
-    LZO_UNUSED(wrkmem);
 
     *out_len = 0;
 
