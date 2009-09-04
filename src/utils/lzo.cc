@@ -123,35 +123,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
 #define pd(a,b)             ((lzo_uint) ((a)-(b)))
 
-typedef union
-{
-    char            a_char;
-    unsigned char   a_uchar;
-    short           a_short;
-    unsigned short  a_ushort;
-    int             a_int;
-    unsigned int    a_uint;
-    long            a_long;
-    unsigned long   a_ulong;
-    lzo_int         a_lzo_int;
-    lzo_uint        a_lzo_uint;
-    lzo_int32       a_lzo_int32;
-    lzo_uint32      a_lzo_uint32;
-    ptrdiff_t       a_ptrdiff_t;
-    lzo_uintptr_t   a_lzo_uintptr_t;
-    lzo_voidp       a_lzo_voidp;
-    void *          a_void_p;
-    lzo_bytep       a_lzo_bytep;
-    lzo_bytepp      a_lzo_bytepp;
-    lzo_uintp       a_lzo_uintp;
-    lzo_uint *      a_lzo_uint_p;
-    lzo_uint32p     a_lzo_uint32p;
-    lzo_uint32 *    a_lzo_uint32_p;
-    unsigned char * a_uchar_p;
-    char *          a_char_p;
-}
-lzo_full_align_t;
-
 // End of pointer alignment definitions.
 
 #  define lzo_dict_t    const lzo_bytep
