@@ -841,25 +841,6 @@
 #  define LZO_INFO_LIBC         "default"
 #endif
 #endif
-#if !defined(LZO_UNUSED)
-#  if (LZO_CC_BORLANDC && (__BORLANDC__ >= 0x0600))
-#    define LZO_UNUSED(var)         ((void) &var)
-#  elif (LZO_CC_BORLANDC || LZO_CC_HIGHC || LZO_CC_NDPC || LZO_CC_PELLESC || LZO_CC_TURBOC)
-#    define LZO_UNUSED(var)         if (&var) ; else
-#  elif (LZO_CC_GNUC || LZO_CC_LLVM || LZO_CC_PATHSCALE)
-#    define LZO_UNUSED(var)         ((void) var)
-#  elif (LZO_CC_MSC && (_MSC_VER < 900))
-#    define LZO_UNUSED(var)         if (&var) ; else
-#  elif (LZO_CC_KEILC)
-#    define LZO_UNUSED(var)         {extern int __lzo_unused[1-2*!(sizeof(var)>0)];}
-#  elif (LZO_CC_PACIFICC)
-#    define LZO_UNUSED(var)         ((void) sizeof(var))
-#  elif (LZO_CC_WATCOMC) && defined(__cplusplus)
-#    define LZO_UNUSED(var)         ((void) var)
-#  else
-#    define LZO_UNUSED(var)         ((void) &var)
-#  endif
-#endif
 #if !defined(LZO_COMPILE_TIME_ASSERT_HEADER)
 #  if (LZO_CC_AZTECC || LZO_CC_ZORTECHC)
 #    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-!(e)];

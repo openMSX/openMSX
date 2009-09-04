@@ -162,7 +162,7 @@ int _lzo_config_check(void)
     r &= ((* (const lzo_uint32p) (p+1)) == 0);
 #endif
 
-    LZO_UNUSED(u); LZO_UNUSED(p);
+    (void)u; (void)p;
     return r == 1 ? LZO_E_OK : LZO_E_ERROR;
 }
 
