@@ -152,8 +152,7 @@ typedef int lzo_bool;
 // function types
 ************************************************************************/
 
-#  define LZO_PUBLIC(_rettype)  _rettype
-#  define LZO_EXTERN(_rettype)  extern LZO_PUBLIC(_rettype)
+#  define LZO_EXTERN(_rettype)  extern _rettype
 
 /***********************************************************************
 // error codes and prototypes

@@ -135,14 +135,12 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
  */
 const char __lzo_copyright[] = LZO_VERSION_STRING;
 
-LZO_PUBLIC(const lzo_bytep)
-lzo_copyright(void)
+const lzo_bytep lzo_copyright(void)
 {
     return (const lzo_bytep) __lzo_copyright;
 }
 
-LZO_PUBLIC(int)
-_lzo_config_check(void)
+int _lzo_config_check(void)
 {
     lzo_bool r = 1;
     union { unsigned char c[2*sizeof(lzo_xint)]; lzo_xint l[2]; } u;
@@ -173,9 +171,8 @@ _lzo_config_check(void)
 
 int __lzo_init_done = 0;
 
-LZO_PUBLIC(int)
-__lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
-                          int s6, int s7, int s8)
+int __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
+                  int s6, int s7, int s8)
 {
     int r;
 
@@ -419,10 +416,9 @@ m3_m4_offset:
     return pd(in_end,ii);
 }
 
-LZO_PUBLIC(int)
-lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
-                 lzo_bytep out, lzo_uintp out_len,
-                 lzo_voidp wrkmem)
+int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
+                     lzo_bytep out, lzo_uintp out_len,
+                     lzo_voidp wrkmem)
 {
     lzo_bytep op = out;
     lzo_uint t;
@@ -476,10 +472,9 @@ lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 #  define COPY4(dst,src)    __COPY4((lzo_uintptr_t)(dst),(lzo_uintptr_t)(src))
 #endif
 
-LZO_PUBLIC(int)
-lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
-                 lzo_bytep out, lzo_uintp out_len,
-                 lzo_voidp wrkmem)
+int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
+                     lzo_bytep out, lzo_uintp out_len,
+                     lzo_voidp wrkmem)
 {
     register lzo_bytep op;
     register const lzo_bytep ip;
