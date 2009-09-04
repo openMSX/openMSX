@@ -48,6 +48,7 @@
 #include "lzo.hh"
 #include "likely.hh"
 
+#include <cassert>
 #include <climits>
 #include <cstddef>
 #include <cstring>
@@ -72,12 +73,6 @@
 #  endif
 #endif
 LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
-
-#undef NDEBUG
-#  if !defined(LZO_DEBUG)
-#    define NDEBUG 1
-#  endif
-#  include <assert.h>
 
 #  define LZO_BYTE(x)       ((unsigned char) (x))
 
