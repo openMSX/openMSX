@@ -426,20 +426,21 @@ static ALWAYS_INLINE unsigned read16LE(const byte* p)
 	}
 }
 
-int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
-                     lzo_bytep out, lzo_uintp out_len)
-{
+int lzo1x_decompress(
+	const lzo_bytep __restrict src, lzo_uint __restrict src_len,
+	lzo_bytep __restrict dst, lzo_uintp __restrict dst_len
+) {
 	lzo_bytep op;
 	const lzo_bytep ip;
 	lzo_uint t;
 	const lzo_bytep m_pos;
 
-	const lzo_bytep const ip_end = in + in_len;
+	const lzo_bytep const src_end = src + src_len;
 
-	*out_len = 0;
+	*dst_len = 0;
 
-	op = out;
-	ip = in;
+	op = dst;
+	ip = src;
 
 	if (*ip > 17) {
 		t = *ip++ - 17;
@@ -544,10 +545,10 @@ match_next:
 
 eof_found:
 	assert(t == 1);
-	*out_len = pd(op, out);
-	return ip == ip_end
+	*dst_len = pd(op, dst);
+	return src == src_end
 	       ? LZO_E_OK
-	       : (ip < ip_end ? LZO_E_INPUT_NOT_CONSUMED : LZO_E_INPUT_OVERRUN);
+	       : (src < src_end ? LZO_E_INPUT_NOT_CONSUMED : LZO_E_INPUT_OVERRUN);
 }
 
 } // namespace openmsx

@@ -68,8 +68,9 @@ int lzo1x_1_compress(const lzo_bytep src, lzo_uint  src_len,
                      lzo_voidp wrkmem);
 
 /* decompression */
-int lzo1x_decompress(const lzo_bytep src, lzo_uint  src_len,
-                     lzo_bytep dst, lzo_uintp dst_len);
+int lzo1x_decompress(
+	const lzo_bytep __restrict src, lzo_uint __restrict src_len,
+	lzo_bytep __restrict dst, lzo_uintp __restrict dst_len);
 
 } // namespace openmsx
 
