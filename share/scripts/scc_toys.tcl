@@ -410,30 +410,54 @@ proc get_scc_string_from_matrix {} {
 
 #the next procs are highly experimental and very much WIP
 
-variable line 1
-variable listing ""
+#variable line 1
+#variable listing ""
+#proc select_wave {} {
+#
+#variable line
+#variable listing
+#
+#incr line 1
+#append listing  "$line play\"[get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]]\"\r"
+#
+#	#set chan1 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]]
+#	#set chan2 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 2] + [debug read "PSG regs" 3]*256]+1))]]
+#	#set chan3 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 4] + [debug read "PSG regs" 5]*256]+1))]]
+#
+#after frame select_wave
+#}
 
-proc select_wave {} {
+#proc save_listing {} {
+#	variable listing
+#	set outputfile "c:/outputfile.txt"
+#	set output [open $outputfile "w"]
+#	puts $output $listing
+#	close $output
+#}
 
-variable line
-variable listing
+proc toggle_psg_tones {} {
 
-incr line 1
-append listing  "$line play\"[get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]]\"\r"
+	if {![catch {osd info tones -rgba} errmsg]} {
+			osd destroy tones
+			return ""
+		}
 
-	#set chan1 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]]
-	#set chan2 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 2] + [debug read "PSG regs" 3]*256]+1))]]
-	#set chan3 [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 4] + [debug read "PSG regs" 5]*256]+1))]]
+	osd create rectangle tones -x 0 -y 0 -h 15 -w 120 -rgba 0x0000ff80
+	osd create rectangle tones.channel1 -x 0 
+	osd create rectangle tones.channel2 -x 40
+	osd create rectangle tones.channel3 -x 80
 
-after frame select_wave
+	osd create text tones.channel1.text -text "" -rgba 0xffffffff
+	osd create text tones.channel2.text -text "" -rgba 0xffffffff
+	osd create text tones.channel3.text  -text "" -rgba 0xffffffff
+	update_tones
 }
 
-proc save_listing {} {
-	variable listing
-	set outputfile "c:/outputfile.txt"
-	set output [open $outputfile "w"]
-	puts $output $listing
-	close $output
+proc update_tones {} {
+	osd configure tones.channel1.text -text [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]]
+	osd configure tones.channel2.text -text [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 2] + [debug read "PSG regs" 3]*256]+1))]]
+	osd configure tones.channel3.text -text [get_tone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 4] + [debug read "PSG regs" 5]*256]+1))]]
+	after frame scc_toys::update_tones 
 }
 
 proc get_tone {hz} {
@@ -539,7 +563,7 @@ namespace export toggle_psg2scc
 namespace export set_scc_wave
 namespace export toggle_scc_viewer
 namespace export get_scc_string_from_matrix
-
+namespace export toggle_psg_tones
 
 } ;# namespace scc_toys
 
