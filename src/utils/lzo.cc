@@ -426,7 +426,7 @@ static ALWAYS_INLINE unsigned read16LE(const byte* p)
 	}
 }
 
-int lzo1x_decompress(
+void lzo1x_decompress(
 	const lzo_bytep __restrict src, lzo_uint __restrict src_len,
 	lzo_bytep __restrict dst, lzo_uintp __restrict dst_len
 ) {
@@ -546,9 +546,7 @@ match_next:
 eof_found:
 	assert(t == 1);
 	*dst_len = pd(op, dst);
-	return src == src_end
-	       ? LZO_E_OK
-	       : (src < src_end ? LZO_E_INPUT_NOT_CONSUMED : LZO_E_INPUT_OVERRUN);
+	assert(src == src_end); (void)src_end;
 }
 
 } // namespace openmsx

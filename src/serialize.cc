@@ -244,11 +244,8 @@ void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
 	// lzo
 	lzo_uint srcLen; load(srcLen);
 	lzo_uint dstLen = len;
-	if (lzo1x_decompress(reinterpret_cast<const lzo_bytep>(buffer.getCurrentPos()),
-	                     srcLen, reinterpret_cast<lzo_bytep>(data), &dstLen)
-	    != LZO_E_OK) {
-		assert(false);
-	}
+	lzo1x_decompress(reinterpret_cast<const lzo_bytep>(buffer.getCurrentPos()),
+	                 srcLen, reinterpret_cast<lzo_bytep>(data), &dstLen);
 	assert(dstLen == len);
 	buffer.skip(srcLen);
 #endif
