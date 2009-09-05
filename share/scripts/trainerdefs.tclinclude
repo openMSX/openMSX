@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/08/12
+# Updated @ 2009/09/05
 #
  
  
@@ -675,6 +675,10 @@ create_trainer "Back To The Future" {time 0.1} {
 	"enemy 5 y-x-pos" {poke 0xf136 200;poke 0xf137 255;poke 0xf150 200;poke 0xf151 255}
 	"lives" {poke 0xf235 99}
 	"time" {poke 0xf232 13}
+}
+ 
+create_trainer "Badlands" {frame} {
+	"Lives" {poke 0xe050 99}
 }
  
 create_trainer "Ball Out 1" {time 60} {
@@ -5872,15 +5876,19 @@ create_trainer "Thexder" {time 2} {
 }
  
 create_trainer "Thexder 2 (Firehawk)" {time 2} {
-	"dart missiles" {poke 0x134e 99}
-	"do not loose power while shooting" {poke 0x12d5 255}
-	"ecm gas" {poke 0x1351 99}
-	"flashers" {poke 0x1350 99}
-	"max energy 500" {poke 0x12d8 250}
-	"missiles" {poke 0x12e6 99}
-	"napalm bombs" {poke 0x134f 99}
-	"shield power does not decline" {poke 0x12f8 255}
-	"stoppers" {poke 0x134d 99}
+	"Dart Missiles" {poke 0x134e 99}
+	"Do not loose power while shooting" {poke 0x12d5 255}
+	"ECM gas" {poke 0x1351 99}
+	"Flashers" {poke 0x1350 99}
+	"Full Power" {poke 0x12d5 250}
+	"Get Extremely Powerfull Laser" {poke 0x130f 255}
+	"Get Normal Laser" {poke 0x130f 1}
+	"Get Very Weak Laser" {poke 0x130f 0}
+	"Max energy 500" {poke 0x12d8 250}
+	"Missiles" {poke 0x12e6 99}
+	"Napalm bombs" {poke 0x134f 99}
+	"Shield power does not decline" {poke 0x12f8 255}
+	"Stoppers" {poke 0x134d 99}
 }
  
 create_trainer "Thing Bounces Back" {time 1} {
@@ -6264,14 +6272,15 @@ create_trainer "Xak 1 - The Art of Visual Stage" {time 2} {
  
 create_trainer "Xak 2 - Rising of the red moon" {time 10} {
 	"max life" {poke 0x6dfe 255;poke 0x6dff 255}
+	"Max Out Experience" {poke 0x6e10 255;poke 0x6e11 255}
 	"money" {poke 0x6e14 255;poke 0x6e15 255}
 }
  
-create_trainer "Xak 3 - The Tower of Gazel" {} {
+create_trainer "Xak 3 - The Tower of Gazel" {time 1} {
 	"Latok Life" {poke 0x69ef 15;poke 0x69f0 39}
+	"Latoks Defense" {poke 0x69f5 15;poke 0x69f6 39}
 	"Latoks Max Life" {poke 0x69ed 15;poke 0x69ee 39}
 	"Latoks Max MP" {poke 0x69f1 15;poke 0x69f2 39}
-	"Latoks Max Strength" {poke 0x69f5 15;poke 0x69f6 39}
 	"Latoks MP" {poke 0x69f3 15;poke 0x69f4 39}
 	"Latoks Strength" {poke 0x69f7 15;poke 0x69f8 39}
 }
@@ -6279,6 +6288,31 @@ create_trainer "Xak 3 - The Tower of Gazel" {} {
 create_trainer "Xevious - Fardraut Saga" {time 2} {
 	"have all weapons and shield" {poke 0xc005 255}
 	"lives" {poke 0xc502 99}
+}
+ 
+create_trainer "Xevious Demo 1" {time 2} {
+	"invulnerable (select after mission start)" {poke 0xc800 129}
+	"lives" {poke 0xce08 99}
+	"one front shoot" {poke 0xc805 0}
+	"one front shoot + shield" {poke 0xc805 2}
+	"one front shoot + two back shoots" {poke 0xc805 8}
+	"one front shoot + two back shoots + shield" {poke 0xc805 10}
+	"three front shoots" {poke 0xc805 4}
+	"three front shoots + one back shoot" {poke 0xc805 12}
+	"three front shoots + one back shoot + shield" {poke 0xc805 14}
+	"three front shoots + shield" {poke 0xc805 6}
+}
+ 
+create_trainer "Xevious Demo 2" {time 2} {
+	"invulnerable (select after mission start)" {poke 0xb400 129}
+	"one front shoot" {poke 0xb405 0}
+	"one front shoot + shield" {poke 0xb405 2}
+	"one front shoot + two back shoots" {poke 0xb405 8}
+	"one front shoot + two back shoots + shield" {poke 0xb405 10}
+	"three front shoots" {poke 0xb405 4}
+	"three front shoots + one back shoot" {poke 0xb405 12}
+	"three front shoots + one back shoot + shield" {poke 0xb405 14}
+	"three front shoots + shield" {poke 0xb405 6}
 }
  
 create_trainer "Xyxolog" {time 5} {
@@ -6547,4 +6581,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"something else" {poke 0xe062 153}
 }
  
-# File Created in : 5.934 seconds. 710 trainers -  having 5296 pokes
+# File Created in : 2.934 seconds. 713 trainers -  having 5322 pokes
