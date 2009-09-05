@@ -217,11 +217,9 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 		assert(false);
 	}
 	char wrkmem[LZO1X_1_MEM_COMPRESS];
-	if (lzo1x_1_compress(reinterpret_cast<const lzo_bytep>(data), len,
-	                     reinterpret_cast<lzo_bytep>(&buf[sizeof(lzo_uint)]),
-	                     &dstLen, wrkmem) != LZO_E_OK) {
-		assert(false);
-	}
+	lzo1x_1_compress(reinterpret_cast<const lzo_bytep>(data), len,
+	                 reinterpret_cast<lzo_bytep>(&buf[sizeof(lzo_uint)]),
+	                 &dstLen, wrkmem);
 
 	memcpy(buf, &dstLen, sizeof(lzo_uint)); // fill-in actual size
 	buffer.deallocate(&buf[sizeof(lzo_uint) + dstLen]); // dealloc unused portion

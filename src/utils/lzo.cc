@@ -212,7 +212,7 @@ int __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 // End of LZO1X.
 
 static lzo_uint
-_lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
+_lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
                      lzo_bytep out, lzo_uintp out_len,
                      lzo_voidp wrkmem)
 {
@@ -371,9 +371,9 @@ m3_m4_offset:
 	return pd(in_end,ii);
 }
 
-int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
-                     lzo_bytep out, lzo_uintp out_len,
-                     lzo_voidp wrkmem)
+void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
+                      lzo_bytep out, lzo_uintp out_len,
+                      lzo_voidp wrkmem)
 {
 	lzo_bytep op = out;
 	lzo_uint t;
@@ -413,7 +413,6 @@ int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 	*op++ = 0;
 
 	*out_len = pd(op, out);
-	return LZO_E_OK;
 }
 
 // TODO: This function was copy-pasted from CPUCore.cc.
