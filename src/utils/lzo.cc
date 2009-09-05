@@ -47,6 +47,7 @@
 
 #include "lzo.hh"
 #include "likely.hh"
+#include "build-info.hh"
 
 #include <cassert>
 #include <climits>
@@ -78,26 +79,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
 #define LZO_SIZE(bits)      (1u << (bits))
 #define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
-
-#if !defined(LZO_CFG_NO_UNALIGNED)
-#if (LZO_ARCH_AMD64 || LZO_ARCH_I386)
-#  if (LZO_SIZEOF_SHORT == 2)
-#    define LZO_UNALIGNED_OK_2
-#  endif
-#  if (LZO_SIZEOF_INT == 4)
-#    define LZO_UNALIGNED_OK_4
-#  endif
-#endif
-#endif
-
-#if defined(LZO_UNALIGNED_OK_2)
-	LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(short) == 2)
-#endif
-#if defined(LZO_UNALIGNED_OK_4)
-	LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uint32) == 4)
-#elif defined(LZO_ALIGNED_OK_4)
-	LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uint32) == 4)
-#endif
 
 // Start of pointer alignment definitions.
 
@@ -139,24 +120,19 @@ int _lzo_config_check(void)
 	union { unsigned char c[2*sizeof(lzo_xint)]; lzo_xint l[2]; } u;
 	lzo_uintptr_t p;
 
-#if defined(LZO_ABI_BIG_ENDIAN)
-	u.l[0] = u.l[1] = 0; u.c[sizeof(lzo_xint) - 1] = 128;
-	r &= (u.l[0] == 128);
-#endif
-#if defined(LZO_ABI_LITTLE_ENDIAN)
-	u.l[0] = u.l[1] = 0; u.c[0] = 128;
-	r &= (u.l[0] == 128);
-#endif
-#if defined(LZO_UNALIGNED_OK_2)
-	p = (lzo_uintptr_t) (const lzo_voidp) &u.c[0];
-	u.l[0] = u.l[1] = 0;
-	r &= ((* (const lzo_ushortp) (p+1)) == 0);
-#endif
-#if defined(LZO_UNALIGNED_OK_4)
-	p = (lzo_uintptr_t) (const lzo_voidp) &u.c[0];
-	u.l[0] = u.l[1] = 0;
-	r &= ((* (const lzo_uint32p) (p+1)) == 0);
-#endif
+	if (OPENMSX_BIGENDIAN) {
+		u.l[0] = u.l[1] = 0; u.c[sizeof(lzo_xint) - 1] = 128;
+		r &= (u.l[0] == 128);
+	} else {
+		u.l[0] = u.l[1] = 0; u.c[0] = 128;
+		r &= (u.l[0] == 128);
+	}
+	if (OPENMSX_UNALIGNED_MEMORY_ACCESS) {
+		p = (lzo_uintptr_t) (const lzo_voidp) &u.c[0];
+		u.l[0] = u.l[1] = 0;
+		r &= ((* (const lzo_ushortp) (p+1)) == 0);
+		r &= ((* (const lzo_uint32p) (p+1)) == 0);
+	}
 
 	(void)u; (void)p;
 	return r == 1 ? LZO_E_OK : LZO_E_ERROR;
@@ -275,11 +251,10 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint  in_len,
 		goto literal;
 
 try_match:
-#if defined(LZO_UNALIGNED_OK_2)
-		if (* (const lzo_ushortp) m_pos != * (const lzo_ushortp) ip) {
-#else
-		if (m_pos[0] != ip[0] || m_pos[1] != ip[1]) {
-#endif
+		if (OPENMSX_UNALIGNED_MEMORY_ACCESS
+			? (*(const lzo_ushortp)m_pos != *(const lzo_ushortp)ip)
+			: (m_pos[0] != ip[0] || m_pos[1] != ip[1])
+		) {
 		} else if (likely(m_pos[2] == ip[2])) {
 			goto match;
 		}
@@ -439,13 +414,6 @@ int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 	return LZO_E_OK;
 }
 
-#define __COPY4(dst,src)    * (lzo_uint32p)(dst) = * (const lzo_uint32p)(src)
-#if defined(LZO_UNALIGNED_OK_4)
-#  define COPY4(dst,src)    __COPY4(dst,src)
-#elif defined(LZO_ALIGNED_OK_4)
-#  define COPY4(dst,src)    __COPY4((lzo_uintptr_t)(dst),(lzo_uintptr_t)(src))
-#endif
-
 int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
                      lzo_bytep out, lzo_uintp out_len)
 {
@@ -484,35 +452,26 @@ int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
 			t += 15 + *ip++;
 		}
 		assert(t > 0);
-#if defined(LZO_UNALIGNED_OK_4) || defined(LZO_ALIGNED_OK_4)
-#if !defined(LZO_UNALIGNED_OK_4)
-		if (PTR_ALIGNED2_4(op,ip)) {
-#endif
-		COPY4(op,ip);
-		op += 4; ip += 4;
-		if (--t > 0) {
-			if (t >= 4) {
-				do {
-					COPY4(op,ip);
-					op += 4; ip += 4; t -= 4;
-				} while (t >= 4);
-				if (t > 0) {
+		if (OPENMSX_UNALIGNED_MEMORY_ACCESS || PTR_ALIGNED2_4(op,ip)) {
+			*(lzo_uint32p)(op) = *(const lzo_uint32p)(ip);
+			op += 4; ip += 4;
+			if (--t > 0) {
+				if (t >= 4) {
+					do {
+						*(lzo_uint32p)(op) = *(const lzo_uint32p)(ip);
+						op += 4; ip += 4; t -= 4;
+					} while (t >= 4);
+					if (t > 0) {
+						do { *op++ = *ip++; } while (--t > 0);
+					}
+				} else {
 					do { *op++ = *ip++; } while (--t > 0);
 				}
-			} else {
-				do { *op++ = *ip++; } while (--t > 0);
 			}
-		}
-#if !defined(LZO_UNALIGNED_OK_4)
-		} else
-#endif
-#endif
-#if !defined(LZO_UNALIGNED_OK_4)
-		{
+		} else {
 			*op++ = *ip++; *op++ = *ip++; *op++ = *ip++;
-			do *op++ = *ip++; while (--t > 0);
+			do { *op++ = *ip++; } while (--t > 0);
 		}
-#endif
 
 first_literal_run:
 
@@ -544,13 +503,11 @@ match:
 					}
 					t += 31 + *ip++;
 				}
-#if defined(LZO_UNALIGNED_OK_2) && defined(LZO_ABI_LITTLE_ENDIAN)
-				m_pos = op - 1;
-				m_pos -= (* (const lzo_ushortp) ip) >> 2;
-#else
-				m_pos = op - 1;
-				m_pos -= (ip[0] >> 2) + (ip[1] << 6);
-#endif
+				m_pos = op - 1 - (
+					  (OPENMSX_UNALIGNED_MEMORY_ACCESS && !OPENMSX_BIGENDIAN)
+					? (*(const lzo_ushortp)ip) >> 2
+					: (ip[0] >> 2) + (ip[1] << 6)
+					);
 				ip += 2;
 			} else if (t >= 16) {
 				m_pos = op;
@@ -563,11 +520,11 @@ match:
 					}
 					t += 7 + *ip++;
 				}
-#if defined(LZO_UNALIGNED_OK_2) && defined(LZO_ABI_LITTLE_ENDIAN)
-				m_pos -= (* (const lzo_ushortp) ip) >> 2;
-#else
-				m_pos -= (ip[0] >> 2) + (ip[1] << 6);
-#endif
+				m_pos -= (
+					  (OPENMSX_UNALIGNED_MEMORY_ACCESS && !OPENMSX_BIGENDIAN)
+					? (*(const lzo_ushortp)ip) >> 2
+					: (ip[0] >> 2) + (ip[1] << 6)
+					);
 				ip += 2;
 				if (m_pos == op) {
 					goto eof_found;
@@ -582,25 +539,22 @@ match:
 			}
 
 			assert(t > 0);
-#if defined(LZO_UNALIGNED_OK_4) || defined(LZO_ALIGNED_OK_4)
-#if !defined(LZO_UNALIGNED_OK_4)
-			if (t >= 2 * 4 - (3 - 1) && PTR_ALIGNED2_4(op,m_pos)) {
-				assert((op - m_pos) >= 4);
-#else
-			if (t >= 2 * 4 - (3 - 1) && (op - m_pos) >= 4) {
-#endif
-				COPY4(op,m_pos);
+			if (t >= 2 * 4 - (3 - 1) && (
+				  OPENMSX_UNALIGNED_MEMORY_ACCESS
+				? ((op - m_pos) >= 4)
+				: PTR_ALIGNED2_4(op,m_pos)
+			)) {
+				assert(OPENMSX_UNALIGNED_MEMORY_ACCESS || (op - m_pos) >= 4);
+				*(lzo_uint32p)(op) = *(const lzo_uint32p)(m_pos);
 				op += 4; m_pos += 4; t -= 4 - (3 - 1);
 				do {
-					COPY4(op,m_pos);
+					*(lzo_uint32p)(op) = *(const lzo_uint32p)(m_pos);
 					op += 4; m_pos += 4; t -= 4;
 				} while (t >= 4);
 				if (t > 0) {
 					do { *op++ = *m_pos++; } while (--t > 0);
 				}
-			} else
-#endif
-			{
+			} else {
 copy_match:
 				*op++ = *m_pos++; *op++ = *m_pos++;
 				do { *op++ = *m_pos++; } while (--t > 0);

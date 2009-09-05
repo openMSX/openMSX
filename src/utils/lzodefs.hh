@@ -741,46 +741,6 @@
 #if !defined(LZO_SIZEOF_PTRDIFF_T)
 #  define LZO_SIZEOF_PTRDIFF_T      LZO_SIZEOF_SIZE_T
 #endif
-#if defined(LZO_ABI_NEUTRAL_ENDIAN)
-#  undef LZO_ABI_BIG_ENDIAN
-#  undef LZO_ABI_LITTLE_ENDIAN
-#elif !defined(LZO_ABI_BIG_ENDIAN) && !defined(LZO_ABI_LITTLE_ENDIAN)
-#if (LZO_ARCH_ALPHA) && (LZO_ARCH_CRAY_MPP)
-#  define LZO_ABI_BIG_ENDIAN        1
-#elif (LZO_ARCH_ALPHA || LZO_ARCH_AMD64 || LZO_ARCH_BLACKFIN || LZO_ARCH_CRIS || LZO_ARCH_I386)
-#  define LZO_ABI_LITTLE_ENDIAN     1
-#elif (LZO_ARCH_M68K || LZO_ARCH_S390)
-#  define LZO_ABI_BIG_ENDIAN        1
-#elif defined(__IAR_SYSTEMS_ICC__) && defined(__LITTLE_ENDIAN__)
-#  if (__LITTLE_ENDIAN__ == 1)
-#    define LZO_ABI_LITTLE_ENDIAN   1
-#  else
-#    define LZO_ABI_BIG_ENDIAN      1
-#  endif
-#elif defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__)
-#  define LZO_ABI_BIG_ENDIAN        1
-#elif defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
-#  define LZO_ABI_LITTLE_ENDIAN     1
-#elif (LZO_ARCH_ARM) && defined(__ARMEB__) && !defined(__ARMEL__)
-#  define LZO_ABI_BIG_ENDIAN        1
-#elif (LZO_ARCH_ARM) && defined(__ARMEL__) && !defined(__ARMEB__)
-#  define LZO_ABI_LITTLE_ENDIAN     1
-#elif (LZO_ARCH_MIPS) && defined(__MIPSEB__) && !defined(__MIPSEL__)
-#  define LZO_ABI_BIG_ENDIAN        1
-#elif (LZO_ARCH_MIPS) && defined(__MIPSEL__) && !defined(__MIPSEB__)
-#  define LZO_ABI_LITTLE_ENDIAN     1
-#endif
-#endif
-#if defined(LZO_ABI_BIG_ENDIAN) && defined(LZO_ABI_LITTLE_ENDIAN)
-#  error "this should not happen"
-#endif
-#if defined(LZO_ABI_BIG_ENDIAN)
-#  define LZO_INFO_ABI_ENDIAN       "be"
-#elif defined(LZO_ABI_LITTLE_ENDIAN)
-#  define LZO_INFO_ABI_ENDIAN       "le"
-#elif defined(LZO_ABI_NEUTRAL_ENDIAN)
-#  define LZO_INFO_ABI_ENDIAN       "neutral"
-#endif
 #if (LZO_SIZEOF_INT == 1 && LZO_SIZEOF_LONG == 2 && LZO_SIZEOF_VOID_P == 2)
 #  define LZO_ABI_I8LP16         1
 #  define LZO_INFO_ABI_PM       "i8lp16"
@@ -852,22 +812,11 @@
 #    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-2*!(e)];
 #  endif
 #endif
-#if !defined(LZO_CFG_NO_UNALIGNED)
-#if defined(LZO_ABI_NEUTRAL_ENDIAN) || defined(LZO_ARCH_GENERIC)
-#  define LZO_CFG_NO_UNALIGNED 1
-#endif
-#endif
 #if defined(__LZO_INFOSTR_PM)
 #elif defined(LZO_INFO_ABI_PM)
 #  define __LZO_INFOSTR_PM          "." LZO_INFO_ABI_PM
 #else
 #  define __LZO_INFOSTR_PM          ""
-#endif
-#if defined(__LZO_INFOSTR_ENDIAN)
-#elif defined(LZO_INFO_ABI_ENDIAN)
-#  define __LZO_INFOSTR_ENDIAN      "." LZO_INFO_ABI_ENDIAN
-#else
-#  define __LZO_INFOSTR_ENDIAN      ""
 #endif
 #if defined(__LZO_INFOSTR_OSNAME)
 #elif defined(LZO_INFO_OS_CONSOLE)
@@ -890,7 +839,7 @@
 #  define __LZO_INFOSTR_CCVER       ""
 #endif
 #define LZO_INFO_STRING \
-    LZO_INFO_ARCH __LZO_INFOSTR_PM __LZO_INFOSTR_ENDIAN \
+    LZO_INFO_ARCH __LZO_INFOSTR_PM \
     " " __LZO_INFOSTR_OSNAME __LZO_INFOSTR_LIBC " " LZO_INFO_CC __LZO_INFOSTR_CCVER
 
 #endif // LZODEFS_HH
