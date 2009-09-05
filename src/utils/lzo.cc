@@ -46,7 +46,9 @@
  */
 
 #include "lzo.hh"
+#include "inline.hh"
 #include "likely.hh"
+#include "openmsx.hh"
 #include "build-info.hh"
 
 #include <cassert>
@@ -414,6 +416,16 @@ int lzo1x_1_compress(const lzo_bytep in, lzo_uint  in_len,
 	return LZO_E_OK;
 }
 
+// TODO: This function was copy-pasted from CPUCore.cc.
+static ALWAYS_INLINE unsigned read16LE(const byte* p)
+{
+	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
+		return p[0] + 256 * p[1];
+	} else {
+		return *reinterpret_cast<const word*>(p);
+	}
+}
+
 int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
                      lzo_bytep out, lzo_uintp out_len)
 {
@@ -452,26 +464,7 @@ int lzo1x_decompress(const lzo_bytep in, lzo_uint  in_len,
 			t += 15 + *ip++;
 		}
 		assert(t > 0);
-		if (OPENMSX_UNALIGNED_MEMORY_ACCESS || PTR_ALIGNED2_4(op,ip)) {
-			*(lzo_uint32p)(op) = *(const lzo_uint32p)(ip);
-			op += 4; ip += 4;
-			if (--t > 0) {
-				if (t >= 4) {
-					do {
-						*(lzo_uint32p)(op) = *(const lzo_uint32p)(ip);
-						op += 4; ip += 4; t -= 4;
-					} while (t >= 4);
-					if (t > 0) {
-						do { *op++ = *ip++; } while (--t > 0);
-					}
-				} else {
-					do { *op++ = *ip++; } while (--t > 0);
-				}
-			}
-		} else {
-			*op++ = *ip++; *op++ = *ip++; *op++ = *ip++;
-			do { *op++ = *ip++; } while (--t > 0);
-		}
+		memcpy(op, ip, t + 3);
 
 first_literal_run:
 
@@ -503,11 +496,7 @@ match:
 					}
 					t += 31 + *ip++;
 				}
-				m_pos = op - 1 - (
-					  (OPENMSX_UNALIGNED_MEMORY_ACCESS && !OPENMSX_BIGENDIAN)
-					? (*(const lzo_ushortp)ip) >> 2
-					: (ip[0] >> 2) + (ip[1] << 6)
-					);
+				m_pos = op - 1 - (read16LE(ip) >> 2);
 				ip += 2;
 			} else if (t >= 16) {
 				m_pos = op;
@@ -520,11 +509,7 @@ match:
 					}
 					t += 7 + *ip++;
 				}
-				m_pos -= (
-					  (OPENMSX_UNALIGNED_MEMORY_ACCESS && !OPENMSX_BIGENDIAN)
-					? (*(const lzo_ushortp)ip) >> 2
-					: (ip[0] >> 2) + (ip[1] << 6)
-					);
+				m_pos -= read16LE(ip) >> 2;
 				ip += 2;
 				if (m_pos == op) {
 					goto eof_found;
@@ -539,26 +524,9 @@ match:
 			}
 
 			assert(t > 0);
-			if (t >= 2 * 4 - (3 - 1) && (
-				  OPENMSX_UNALIGNED_MEMORY_ACCESS
-				? ((op - m_pos) >= 4)
-				: PTR_ALIGNED2_4(op,m_pos)
-			)) {
-				assert(OPENMSX_UNALIGNED_MEMORY_ACCESS || (op - m_pos) >= 4);
-				*(lzo_uint32p)(op) = *(const lzo_uint32p)(m_pos);
-				op += 4; m_pos += 4; t -= 4 - (3 - 1);
-				do {
-					*(lzo_uint32p)(op) = *(const lzo_uint32p)(m_pos);
-					op += 4; m_pos += 4; t -= 4;
-				} while (t >= 4);
-				if (t > 0) {
-					do { *op++ = *m_pos++; } while (--t > 0);
-				}
-			} else {
 copy_match:
-				*op++ = *m_pos++; *op++ = *m_pos++;
-				do { *op++ = *m_pos++; } while (--t > 0);
-			}
+			t += 2;
+			memmove(op, m_pos, t);
 
 match_done:
 			t = ip[-2] & 3;
