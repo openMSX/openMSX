@@ -9,6 +9,7 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "RawFrame.hh"
+#include "MemoryOps.hh"
 
 #include <cstring>
 
@@ -95,18 +96,18 @@ void OggReader::cleanup()
 
 	while (!frameList.empty()) {
 		Frame *frame = frameList.front();
-		delete[] frame->buffer.y;
-		delete[] frame->buffer.u;
-		delete[] frame->buffer.v;
+		MemoryOps::freeAligned(frame->buffer.y);
+		MemoryOps::freeAligned(frame->buffer.u);
+		MemoryOps::freeAligned(frame->buffer.v);
 		delete frame;
 		frameList.pop_front();
 	}
 
 	while (!recycleFrameList.empty()) {
 		Frame *frame = recycleFrameList.front();
-		delete[] frame->buffer.y;
-		delete[] frame->buffer.u;
-		delete[] frame->buffer.v;
+		MemoryOps::freeAligned(frame->buffer.y);
+		MemoryOps::freeAligned(frame->buffer.u);
+		MemoryOps::freeAligned(frame->buffer.v);
 		delete frame;
 		recycleFrameList.pop_front();
 	}
@@ -430,9 +431,12 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	if (recycleFrameList.empty()) {
 		frame = new Frame;
-		frame->buffer.y = new byte[y_size];
-		frame->buffer.u = new byte[uv_size];
-		frame->buffer.v = new byte[uv_size];
+		frame->buffer.y = static_cast<unsigned char*>(
+					MemoryOps::mallocAligned(16, y_size));
+		frame->buffer.u = static_cast<unsigned char*>(
+					MemoryOps::mallocAligned(16, uv_size));
+		frame->buffer.v = static_cast<unsigned char*>(
+					MemoryOps::mallocAligned(16, uv_size));
 
 		frame->buffer.y_width = yuv_theora.y_width;
 		frame->buffer.y_height = yuv_theora.y_height;
