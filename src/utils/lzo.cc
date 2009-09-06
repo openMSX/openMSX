@@ -95,8 +95,6 @@ LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 #define PTR_LINEAR(a)       PTR(a)
 #define PTR_ALIGNED2_4(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 3) == 0)
 
-#define pd(a,b)             ((lzo_uint) ((a)-(b)))
-
 // End of pointer alignment definitions.
 
 #  define lzo_dict_t    const lzo_bytep
@@ -271,8 +269,8 @@ literal:
 
 match:
 		dict[dindex] = ip;
-		if (pd(ip,ii) > 0) {
-			lzo_uint t = pd(ip,ii);
+		if (ip > ii) {
+			lzo_uint t = ip - ii;
 
 			if (t <= 3) {
 				assert(op - 2 > out);
@@ -299,7 +297,7 @@ match:
 			m_pos[6] != *ip++ || m_pos[7] != *ip++ || m_pos[8] != *ip++
 		) {
 			--ip;
-			m_len = pd(ip, ii);
+			m_len = ip - ii;
 			assert(m_len >= 3); assert(m_len <= M2_MAX_LEN);
 
 			if (m_off <= M2_MAX_OFFSET) {
@@ -324,7 +322,7 @@ match:
 				while (ip < end && *m == *ip) {
 					m++, ip++;
 				}
-				m_len = pd(ip, ii);
+				m_len = ip - ii;
 			}
 			assert(m_len > M2_MAX_LEN);
 
@@ -367,8 +365,8 @@ m3_m4_offset:
 		}
 	}
 
-	*out_len = pd(op, out);
-	return pd(in_end,ii);
+	*out_len = op - out;
+	return in_end - ii;
 }
 
 void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
@@ -412,7 +410,7 @@ void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
 	*op++ = 0;
 	*op++ = 0;
 
-	*out_len = pd(op, out);
+	*out_len = op - out;
 }
 
 // TODO: This function was copy-pasted from CPUCore.cc.
@@ -544,7 +542,7 @@ match_next:
 
 eof_found:
 	assert(t == 1);
-	*dst_len = pd(op, dst);
+	*dst_len = op - dst;
 	assert(src == src_end); (void)src_end;
 }
 
