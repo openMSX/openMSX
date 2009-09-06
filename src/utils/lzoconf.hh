@@ -172,22 +172,4 @@ typedef int lzo_bool;
 #  define lzo_sizeof_dict_t     ((unsigned)sizeof(lzo_bytep))
 #endif
 
-namespace openmsx {
-
-/* lzo_init() should be the first function you call.
- * Check the return code !
- *
- * lzo_init() is a macro to allow checking that the library and the
- * compiler's view of various types are consistent.
- */
-#define lzo_init() __lzo_init_v2(LZO_VERSION,(int)sizeof(short),(int)sizeof(int),\
-    (int)sizeof(long),(int)sizeof(lzo_uint32),(int)sizeof(lzo_uint),\
-    (int)lzo_sizeof_dict_t,(int)sizeof(char *),(int)sizeof(lzo_voidp))
-int __lzo_init_v2(unsigned,int,int,int,int,int,int,int,int);
-
-/* misc. */
-int _lzo_config_check(void);
-
-} // namespace openmsx
-
 #endif // LZOCONF_HH

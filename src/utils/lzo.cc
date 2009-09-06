@@ -97,63 +97,6 @@ const lzo_bytep lzo_copyright(void)
 	return (const lzo_bytep) __lzo_copyright;
 }
 
-int _lzo_config_check(void)
-{
-	lzo_bool r = 1;
-	union { unsigned char c[2*sizeof(lzo_xint)]; lzo_xint l[2]; } u;
-	lzo_uintptr_t p;
-
-	if (OPENMSX_BIGENDIAN) {
-		u.l[0] = u.l[1] = 0; u.c[sizeof(lzo_xint) - 1] = 128;
-		r &= (u.l[0] == 128);
-	} else {
-		u.l[0] = u.l[1] = 0; u.c[0] = 128;
-		r &= (u.l[0] == 128);
-	}
-	if (OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		p = (lzo_uintptr_t) (const lzo_voidp) &u.c[0];
-		u.l[0] = u.l[1] = 0;
-		r &= ((* (const lzo_ushortp) (p+1)) == 0);
-		r &= ((* (const lzo_uint32p) (p+1)) == 0);
-	}
-
-	(void)u; (void)p;
-	return r == 1 ? LZO_E_OK : LZO_E_ERROR;
-}
-
-int __lzo_init_done = 0;
-
-int __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
-                  int s6, int s7, int s8)
-{
-	int r;
-
-	__lzo_init_done = 1;
-
-	if (v == 0) {
-		return LZO_E_ERROR;
-	}
-
-	r = (s1 == -1 || s1 == (int) sizeof(short)) &&
-		(s2 == -1 || s2 == (int) sizeof(int)) &&
-		(s3 == -1 || s3 == (int) sizeof(long)) &&
-		(s4 == -1 || s4 == (int) sizeof(lzo_uint32)) &&
-		(s5 == -1 || s5 == (int) sizeof(lzo_uint)) &&
-		(s6 == -1 || s6 == (int) lzo_sizeof_dict_t) &&
-		(s7 == -1 || s7 == (int) sizeof(char *)) &&
-		(s8 == -1 || s8 == (int) sizeof(lzo_voidp));
-	if (!r) {
-		return LZO_E_ERROR;
-	}
-
-	r = _lzo_config_check();
-	if (r != LZO_E_OK) {
-		return r;
-	}
-
-	return r;
-}
-
 #define DMUL(a,b) ((lzo_xint) ((a) * (b)))
 #define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
 #define D_INDEX2(d,p)       d = (d & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f)
