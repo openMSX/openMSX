@@ -123,12 +123,9 @@ private:
 	/* We need to maintain some state for seeking */
 	enum PioneerSeekState {
 		SEEK_NONE,
-		SEEK_CHAPTER_BEGIN,
-		SEEK_CHAPTER_END,
-		SEEK_FRAME_BEGIN,
-		SEEK_FRAME_END,
-		SEEK_WAIT_BEGIN,
-		SEEK_WAIT_END
+		SEEK_CHAPTER,
+		SEEK_FRAME,
+		SEEK_WAIT,
 	} seekState;
 
 	/* frame the MSX has requested to wait for */

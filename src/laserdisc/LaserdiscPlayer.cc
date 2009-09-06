@@ -382,8 +382,8 @@ void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
 		break;
 	case 0x06: // Chapter
 		PRT_DEBUG("LD1100 remote: chapter");
-		if (seekState == SEEK_FRAME_BEGIN) {
-			seekState = SEEK_CHAPTER_BEGIN;
+		if (seekState == SEEK_FRAME) {
+			seekState = SEEK_CHAPTER;
 		} else {
 			PRT_DEBUG("LD1100: remote: chapter unexpected");
 			seekState = SEEK_NONE;
@@ -391,7 +391,7 @@ void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
 		break;
 	case 0x0b: // Frame
 		PRT_DEBUG("LD1100 remote: frame");
-		if (seekState != SEEK_FRAME_BEGIN) {
+		if (seekState != SEEK_FRAME) {
 			PRT_DEBUG("LD1100 remote: frame unexpected");
 			seekState = SEEK_NONE;
 		}
@@ -400,14 +400,14 @@ void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
 		PRT_DEBUG("LD1100 remote: seek");
 		switch (seekState) {
 		case SEEK_NONE:
-			seekState = SEEK_FRAME_BEGIN;
+			seekState = SEEK_FRAME;
 			seekNum = 0;
 			break;
-		case SEEK_FRAME_BEGIN:
+		case SEEK_FRAME:
 			seekState = SEEK_NONE;
 			seekFrame(seekNum % 100000, time);
 			break;
-		case SEEK_CHAPTER_BEGIN:
+		case SEEK_CHAPTER:
 			seekState = SEEK_NONE;
 			seekChapter(seekNum % 100, time);
 			break;
@@ -517,15 +517,15 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 
 		switch (code) {
 		case 0xfa:
-			seekState = SEEK_WAIT_BEGIN;
+			seekState = SEEK_WAIT;
 			seekNum = 0;
 			break;
 		case 0x82:
-			seekState = SEEK_FRAME_BEGIN;
+			seekState = SEEK_FRAME;
 			seekNum = 0;
 			break;
 		case 0x02:
-			seekState = SEEK_CHAPTER_BEGIN;
+			seekState = SEEK_CHAPTER;
 			seekNum = 0;
 			ok = video->chapter(0) != 0;
 			break;
@@ -542,24 +542,15 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		case 0x42:
 			ok = false;
 			switch (seekState) {
-			case SEEK_FRAME_BEGIN:
-				seekState = SEEK_FRAME_END;
-				break;
-			case SEEK_FRAME_END:
+			case SEEK_FRAME:
 				seekState = SEEK_NONE;
 				seekFrame(seekNum % 100000, time);
 				break;
-			case SEEK_CHAPTER_BEGIN:
-				seekState = SEEK_CHAPTER_END;
-				break;
-			case SEEK_CHAPTER_END:
+			case SEEK_CHAPTER:
 				seekState = SEEK_NONE;
 				seekChapter(seekNum % 100, time);
 				break;
-			case SEEK_WAIT_BEGIN:
-				seekState = SEEK_WAIT_END;
-				break;
-			case SEEK_WAIT_END:
+			case SEEK_WAIT:
 				seekState = SEEK_NONE;
 				waitFrame = seekNum % 100000;
 				PRT_DEBUG("Wait frame set to " << std::dec <<
