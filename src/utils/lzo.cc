@@ -80,10 +80,6 @@ const lzo_bytep lzo_copyright(void)
 	return (const lzo_bytep) __lzo_copyright;
 }
 
-#define DMUL(a,b) ((lzo_uint) ((a) * (b)))
-#define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
-#define D_INDEX2(d,p)       d = (d & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f)
-
 // Start of LZO1X.
 
 #define M2_MAX_OFFSET   0x0800
@@ -134,7 +130,7 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 		lzo_uint m_len;
 		lzo_uint dindex;
 
-		D_INDEX1(dindex,ip);
+		dindex = DM(((lzo_uint)(0x21 * DX3(ip, 5, 5, 6))) >> 5);
 		m_pos = dict[dindex];
 		if (m_pos < in
 		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
@@ -143,7 +139,7 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 		if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3]) {
 			goto try_match;
 		}
-		D_INDEX2(dindex,ip);
+		dindex = (dindex & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f);
 		m_pos = dict[dindex];
 		if (m_pos < in
 		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
