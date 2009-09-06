@@ -526,7 +526,7 @@ match:
 			assert(t > 0);
 copy_match:
 			t += 2;
-			memmove(op, m_pos, t);
+			do { *op++ = *m_pos++; } while (--t > 0);
 
 match_done:
 			t = ip[-2] & 3;
