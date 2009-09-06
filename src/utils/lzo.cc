@@ -58,23 +58,6 @@
 
 // Start of configuration.
 
-#  if defined(LZO_OS_OS400) && (LZO_SIZEOF_VOID_P == 16)
-#    define __LZO_UINTPTR_T_IS_POINTER 1
-	typedef char*              lzo_uintptr_t;
-#    define lzo_uintptr_t       lzo_uintptr_t
-#  elif (LZO_SIZEOF_SIZE_T == LZO_SIZEOF_VOID_P)
-#    define lzo_uintptr_t       size_t
-#  elif (LZO_SIZEOF_LONG == LZO_SIZEOF_VOID_P)
-#    define lzo_uintptr_t       unsigned long
-#  elif (LZO_SIZEOF_INT == LZO_SIZEOF_VOID_P)
-#    define lzo_uintptr_t       unsigned int
-#  elif (LZO_SIZEOF_LONG_LONG == LZO_SIZEOF_VOID_P)
-#    define lzo_uintptr_t       unsigned long long
-#  else
-#    define lzo_uintptr_t       size_t
-#  endif
-LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
-
 #  define LZO_BYTE(x)       ((unsigned char) (x))
 
 #define LZO_SIZE(bits)      (1u << (bits))
