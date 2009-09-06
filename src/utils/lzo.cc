@@ -58,7 +58,6 @@
 
 // Start of configuration.
 
-#if !defined(lzo_uintptr_t)
 #  if defined(LZO_OS_OS400) && (LZO_SIZEOF_VOID_P == 16)
 #    define __LZO_UINTPTR_T_IS_POINTER 1
 	typedef char*              lzo_uintptr_t;
@@ -74,28 +73,12 @@
 #  else
 #    define lzo_uintptr_t       size_t
 #  endif
-#endif
 LZO_COMPILE_TIME_ASSERT_HEADER(sizeof(lzo_uintptr_t) >= sizeof(lzo_voidp))
 
 #  define LZO_BYTE(x)       ((unsigned char) (x))
 
 #define LZO_SIZE(bits)      (1u << (bits))
 #define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
-
-// Start of pointer alignment definitions.
-
-#if !defined(lzo_uintptr_t)
-#    define lzo_uintptr_t   acc_uintptr_t
-#    ifdef __ACC_INTPTR_T_IS_POINTER
-#      define __LZO_UINTPTR_T_IS_POINTER 1
-#    endif
-#endif
-
-#define PTR(a)              ((lzo_uintptr_t) (a))
-#define PTR_LINEAR(a)       PTR(a)
-#define PTR_ALIGNED2_4(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 3) == 0)
-
-// End of pointer alignment definitions.
 
 #  define lzo_dict_t    const lzo_bytep
 #  define lzo_dict_p    lzo_dict_t *
@@ -198,6 +181,7 @@ int __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #define DX3(p,s1,s2,s3) ((DX2((p)+1,s2,s3) << (s1)) ^ (p)[0])
 #define DM(v)           ((lzo_uint) ((v) & D_MASK))
 
+#define PTR(a)              ((lzo_uintptr_t) (a))
 #define LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,max_offset) \
     ( \
         m_pos = ip - (lzo_uint) (PTR(ip) - PTR(m_pos)), \
