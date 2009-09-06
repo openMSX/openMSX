@@ -80,7 +80,7 @@ const lzo_bytep lzo_copyright(void)
 	return (const lzo_bytep) __lzo_copyright;
 }
 
-#define DMUL(a,b) ((lzo_xint) ((a) * (b)))
+#define DMUL(a,b) ((lzo_uint) ((a) * (b)))
 #define D_INDEX1(d,p)       d = DM(DMUL(0x21,DX3(p,5,5,6)) >> 5)
 #define D_INDEX2(d,p)       d = (d & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f)
 
@@ -103,7 +103,7 @@ const lzo_bytep lzo_copyright(void)
 #define D_HIGH          ((D_MASK >> 1) + 1)
 
 #define DX2(p,s1,s2) \
-        (((((lzo_xint)((p)[2]) << (s2)) ^ (p)[1]) << (s1)) ^ (p)[0])
+        (((((lzo_uint)((p)[2]) << (s2)) ^ (p)[1]) << (s1)) ^ (p)[0])
 #define DX3(p,s1,s2,s3) ((DX2((p)+1,s2,s3) << (s1)) ^ (p)[0])
 #define DM(v)           ((lzo_uint) ((v) & D_MASK))
 

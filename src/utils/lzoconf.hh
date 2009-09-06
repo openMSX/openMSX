@@ -122,13 +122,6 @@
 #  endif
 #endif
 
-/* The larger type of lzo_uint and lzo_uint32. */
-#if (LZO_UINT_MAX >= LZO_UINT32_MAX)
-#  define lzo_xint              lzo_uint
-#else
-#  define lzo_xint              lzo_uint32
-#endif
-
 /* no typedef here because of const-pointer issues */
 #define lzo_bytep               unsigned char *
 #define lzo_charp               char *
@@ -139,7 +132,6 @@
 #define lzo_int32p              lzo_int32 *
 #define lzo_uintp               lzo_uint *
 #define lzo_intp                lzo_int *
-#define lzo_xintp               lzo_xint *
 #define lzo_voidpp              lzo_voidp *
 #define lzo_bytepp              lzo_bytep *
 /* deprecated - use `lzo_bytep' instead of `lzo_byte *' */
