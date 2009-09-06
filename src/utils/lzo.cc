@@ -181,14 +181,6 @@ int __lzo_init_v2(unsigned v, int s1, int s2, int s3, int s4, int s5,
 #define DX3(p,s1,s2,s3) ((DX2((p)+1,s2,s3) << (s1)) ^ (p)[0])
 #define DM(v)           ((lzo_uint) ((v) & D_MASK))
 
-#define PTR(a)              ((lzo_uintptr_t) (a))
-#define LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,max_offset) \
-    ( \
-        m_pos = ip - (lzo_uint) (PTR(ip) - PTR(m_pos)), \
-        (PTR(m_pos) < PTR(in)) || \
-        (m_off = (lzo_uint) (PTR(ip) - PTR(m_pos))) <= 0 || \
-         m_off > max_offset )
-
 // End of dictionary macros.
 
 // End of LZO1X.
@@ -218,7 +210,8 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 
 		D_INDEX1(dindex,ip);
 		m_pos = dict[dindex];
-		if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET)) {
+		if (m_pos < in
+		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
 			goto literal;
 		}
 		if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3]) {
@@ -226,7 +219,8 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 		}
 		D_INDEX2(dindex,ip);
 		m_pos = dict[dindex];
-		if (LZO_CHECK_MPOS_NON_DET(m_pos,m_off,in,ip,M4_MAX_OFFSET)) {
+		if (m_pos < in
+		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
 			goto literal;
 		}
 		if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3]) {
