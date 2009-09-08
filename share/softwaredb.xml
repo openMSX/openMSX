@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1251836358">
+<softwaredb xml:lang="en" timestamp="1252436332">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2875,6 +2875,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">caeca37113c56e696d7053d90f5f9f3e02de8ad1</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">98f6769741a1c9df4fd203ed19d70b283c94e41a</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Est&#225; en la Caja</title>
+	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2009</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">76b7fd1aed062d3ee5dbad6a94fb81c3e753e9f6</hash><remark><text>RLV902 / Spanish Version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Europe War</title>
@@ -11269,6 +11277,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2472
-Parse time 4.103 seconds on Tue Sep 1 22:19:22 CEST 2009
+Roms in this database:2473
+Parse time 5.374 seconds on Tue Sep 8 20:58:57 CEST 2009
  -->
