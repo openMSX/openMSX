@@ -358,48 +358,42 @@ void lzo1x_decompress(
 		t = *ip++ - 17;
 		if (t < 4) {
 			goto match_next;
+		} else {
+			copyRepeat(op, ip, t);
+			goto first_literal_run;
 		}
-		assert(t > 0);
-		copyRepeat(op, ip, t);
-		goto first_literal_run;
 	}
 
 	while (true) {
 		t = *ip++;
-		if (t >= 16) {
-			goto match;
-		}
-		if (t == 0) {
-			while (*ip == 0) {
-				t += 255;
-				ip++;
+		if (t < 16) {
+			if (t == 0) {
+				while (*ip == 0) {
+					t += 255;
+					ip++;
+				}
+				t += 15 + *ip++;
 			}
-			t += 15 + *ip++;
-		}
-		assert(t > 0);
-		copyRepeat(op, ip, t + 3);
+			assert(t > 0);
+			copyRepeat(op, ip, t + 3);
 
 first_literal_run:
-
-		t = *ip++;
-		if (t >= 16) {
-			goto match;
+			t = *ip++;
+			if (t < 16) {
+				m_pos = op - (1 + M2_MAX_OFFSET);
+				m_pos -= t >> 2;
+				m_pos -= *ip++ << 2;
+				copyRepeat(op, m_pos, 3);
+				goto match_done;
+			}
 		}
-		m_pos = op - (1 + M2_MAX_OFFSET);
-		m_pos -= t >> 2;
-		m_pos -= *ip++ << 2;
-		copyRepeat(op, m_pos, 3);
-		goto match_done;
 
-		do {
-match:
+		while (true) {
 			if (t >= 64) {
 				m_pos = op - 1;
 				m_pos -= (t >> 2) & 7;
 				m_pos -= *ip++ << 3;
 				t = (t >> 5) - 1;
-				assert(t > 0);
-				goto copy_match;
 			} else if (t >= 32) {
 				t &= 31;
 				if (t == 0) {
@@ -425,19 +419,18 @@ match:
 				m_pos -= read16LE(ip) >> 2;
 				ip += 2;
 				if (m_pos == op) {
-					goto eof_found;
+					assert(t == 1);
+					*dst_len = op - dst;
+					assert(src == src_end); (void)src_end;
+					return;
 				}
 				m_pos -= 0x4000;
 			} else {
 				m_pos = op - 1;
 				m_pos -= t >> 2;
 				m_pos -= *ip++ << 2;
-				copyRepeat(op, m_pos, 2);
-				goto match_done;
+				t = 0;
 			}
-
-			assert(t > 0);
-copy_match:
 			copyRepeat(op, m_pos, t + 2);
 
 match_done:
@@ -450,13 +443,8 @@ match_next:
 			assert(t > 0); assert(t < 4);
 			copyRepeat(op, ip, t);
 			t = *ip++;
-		} while (true);
+		}
 	}
-
-eof_found:
-	assert(t == 1);
-	*dst_len = op - dst;
-	assert(src == src_end); (void)src_end;
 }
 
 } // namespace openmsx
