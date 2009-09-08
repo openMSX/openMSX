@@ -314,12 +314,27 @@ void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
 }
 
 // TODO: This function was copy-pasted from CPUCore.cc.
-static ALWAYS_INLINE unsigned read16LE(const byte* p)
+static ALWAYS_INLINE
+unsigned read16LE(const byte* p)
 {
 	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return p[0] + 256 * p[1];
 	} else {
 		return *reinterpret_cast<const word*>(p);
+	}
+}
+
+/**
+ * Copies "count" bytes from "src" to "dst".
+ * If "dst" is inside the source memory region, the region [src..dst) is
+ * repeated in the end result.
+ * Both "src" and "dst" are incremented by "count".
+ */
+static ALWAYS_INLINE
+void copyRepeat(byte*& dst, const byte*& src, unsigned count)
+{
+	for (; count; count--) {
+		*dst++ = *src++;
 	}
 }
 
@@ -345,7 +360,7 @@ void lzo1x_decompress(
 			goto match_next;
 		}
 		assert(t > 0);
-		do { *op++ = *ip++; } while (--t > 0);
+		copyRepeat(op, ip, t);
 		goto first_literal_run;
 	}
 
@@ -362,7 +377,7 @@ void lzo1x_decompress(
 			t += 15 + *ip++;
 		}
 		assert(t > 0);
-		memcpy(op, ip, t + 3);
+		copyRepeat(op, ip, t + 3);
 
 first_literal_run:
 
@@ -373,7 +388,7 @@ first_literal_run:
 		m_pos = op - (1 + M2_MAX_OFFSET);
 		m_pos -= t >> 2;
 		m_pos -= *ip++ << 2;
-		*op++ = *m_pos++; *op++ = *m_pos++; *op++ = *m_pos;
+		copyRepeat(op, m_pos, 3);
 		goto match_done;
 
 		do {
@@ -417,14 +432,13 @@ match:
 				m_pos = op - 1;
 				m_pos -= t >> 2;
 				m_pos -= *ip++ << 2;
-				*op++ = *m_pos++; *op++ = *m_pos;
+				copyRepeat(op, m_pos, 2);
 				goto match_done;
 			}
 
 			assert(t > 0);
 copy_match:
-			t += 2;
-			do { *op++ = *m_pos++; } while (--t > 0);
+			copyRepeat(op, m_pos, t + 2);
 
 match_done:
 			t = ip[-2] & 3;
@@ -434,8 +448,7 @@ match_done:
 
 match_next:
 			assert(t > 0); assert(t < 4);
-			*op++ = *ip++;
-			if (t > 1) { *op++ = *ip++; if (t > 2) { *op++ = *ip++; } }
+			copyRepeat(op, ip, t);
 			t = *ip++;
 		} while (true);
 	}
