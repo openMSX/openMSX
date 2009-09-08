@@ -58,8 +58,6 @@
 
 // Start of configuration.
 
-#  define LZO_BYTE(x)       ((unsigned char) (x))
-
 #define LZO_SIZE(bits)      (1u << (bits))
 #define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
 
@@ -174,9 +172,9 @@ match:
 
 			if (t <= 3) {
 				assert(op - 2 > out);
-				op[-2] |= LZO_BYTE(t);
+				op[-2] |= byte(t);
 			} else if (t <= 18) {
-				*op++ = LZO_BYTE(t - 3);
+				*op++ = byte(t - 3);
 			} else {
 				lzo_uint tt = t - 18;
 
@@ -186,7 +184,7 @@ match:
 					*op++ = 0;
 				}
 				assert(tt > 0);
-				*op++ = LZO_BYTE(tt);
+				*op++ = byte(tt);
 			}
 			do { *op++ = *ii++; } while (--t > 0);
 		}
@@ -202,17 +200,16 @@ match:
 
 			if (m_off <= M2_MAX_OFFSET) {
 				m_off -= 1;
-				*op++ = LZO_BYTE(((m_len - 1) << 5) | ((m_off & 7) << 2));
-				*op++ = LZO_BYTE(m_off >> 3);
+				*op++ = byte(((m_len - 1) << 5) | ((m_off & 7) << 2));
+				*op++ = byte(m_off >> 3);
 			} else if (m_off <= M3_MAX_OFFSET) {
 				m_off -= 1;
-				*op++ = LZO_BYTE(M3_MARKER | (m_len - 2));
+				*op++ = byte(M3_MARKER | (m_len - 2));
 				goto m3_m4_offset;
 			} else {
 				m_off -= 0x4000;
 				assert(m_off > 0); assert(m_off <= 0x7fff);
-				*op++ = LZO_BYTE(M4_MARKER |
-								((m_off & 0x4000) >> 11) | (m_len - 2));
+				*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
 				goto m3_m4_offset;
 			}
 		} else {
@@ -229,7 +226,7 @@ match:
 			if (m_off <= M3_MAX_OFFSET) {
 				m_off -= 1;
 				if (m_len <= 33) {
-					*op++ = LZO_BYTE(M3_MARKER | (m_len - 2));
+					*op++ = byte(M3_MARKER | (m_len - 2));
 				} else {
 					m_len -= 33;
 					*op++ = M3_MARKER | 0;
@@ -239,24 +236,23 @@ match:
 				m_off -= 0x4000;
 				assert(m_off > 0); assert(m_off <= 0x7fff);
 				if (m_len <= M4_MAX_LEN) {
-					*op++ = LZO_BYTE(M4_MARKER |
-									((m_off & 0x4000) >> 11) | (m_len - 2));
+					*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
 				} else {
 					m_len -= M4_MAX_LEN;
-					*op++ = LZO_BYTE(M4_MARKER | ((m_off & 0x4000) >> 11));
+					*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11));
 m3_m4_len:
 					while (m_len > 255) {
 						m_len -= 255;
 						*op++ = 0;
 					}
 					assert(m_len > 0);
-					*op++ = LZO_BYTE(m_len);
+					*op++ = byte(m_len);
 				}
 			}
 
 m3_m4_offset:
-			*op++ = LZO_BYTE((m_off & 63) << 2);
-			*op++ = LZO_BYTE(m_off >> 6);
+			*op++ = byte((m_off & 63) << 2);
+			*op++ = byte(m_off >> 6);
 		}
 
 		ii = ip;
@@ -287,11 +283,11 @@ void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
 		const lzo_bytep ii = in + in_len - t;
 
 		if (op == out && t <= 238) {
-			*op++ = LZO_BYTE(17 + t);
+			*op++ = byte(17 + t);
 		} else if (t <= 3) {
-			op[-2] |= LZO_BYTE(t);
+			op[-2] |= byte(t);
 		} else if (t <= 18) {
-			*op++ = LZO_BYTE(t - 3);
+			*op++ = byte(t - 3);
 		} else {
 			lzo_uint tt = t - 18;
 
@@ -301,7 +297,7 @@ void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
 				*op++ = 0;
 			}
 			assert(tt > 0);
-			*op++ = LZO_BYTE(tt);
+			*op++ = byte(tt);
 		}
 		do { *op++ = *ii++; } while (--t > 0);
 	}
