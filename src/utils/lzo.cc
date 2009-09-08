@@ -58,9 +58,6 @@
 
 // Start of configuration.
 
-#define LZO_SIZE(bits)      (1u << (bits))
-#define LZO_MASK(bits)      (LZO_SIZE(bits) - 1)
-
 #  define lzo_dict_t    const lzo_bytep
 #  define lzo_dict_p    lzo_dict_t *
 
@@ -93,7 +90,7 @@ const lzo_bytep lzo_copyright(void)
 // Start of dictionary macros.
 
 #define D_BITS          14
-#  define D_MASK        LZO_MASK(D_BITS)
+#define D_MASK          ((1u << D_BITS) - 1)
 #define D_HIGH          ((D_MASK >> 1) + 1)
 
 #define DX2(p,s1,s2) \
