@@ -414,7 +414,7 @@ first_literal_run:
 				if (m_pos == op) {
 					assert(t == 1);
 					*dst_len = op - dst;
-					assert(src == src_end); (void)src_end;
+					assert(ip == src_end); (void)src_end;
 					return;
 				}
 				m_pos -= 0x4000;
