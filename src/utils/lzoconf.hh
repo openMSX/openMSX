@@ -65,22 +65,7 @@
 // integral and pointer types
 ************************************************************************/
 
-/* lzo_uint should match size_t */
-#if !defined(LZO_UINT_MAX)
-#  if defined(LZO_ABI_LLP64) /* WIN64 */
-#    if defined(LZO_OS_WIN64)
-     typedef unsigned __int64   lzo_uint;
-#    else
-     typedef unsigned long long lzo_uint;
-#    endif
-#  elif defined(LZO_ABI_IP32L64) /* MIPS R5900 */
-     typedef unsigned int       lzo_uint;
-#  elif (ULONG_MAX >= 0xffffffffL)
-     typedef unsigned long      lzo_uint;
-#  else
-#    error "lzo_uint"
-#  endif
-#endif
+typedef unsigned lzo_uint;
 
 /* no typedef here because of const-pointer issues */
 #define lzo_bytep               unsigned char *
