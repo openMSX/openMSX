@@ -42,25 +42,6 @@
 #ifndef LZOCONF_HH
 #define LZOCONF_HH
 
-#include <climits>
-#include <cstddef>
-
-
-/***********************************************************************
-// LZO requires a conforming <limits.h>
-************************************************************************/
-
-#if !defined(CHAR_BIT) || (CHAR_BIT != 8)
-#  error "invalid CHAR_BIT"
-#endif
-#if !defined(UCHAR_MAX) || !defined(UINT_MAX) || !defined(ULONG_MAX)
-#  error "check your compiler installation"
-#endif
-#if (USHRT_MAX < 1) || (UINT_MAX < 1) || (ULONG_MAX < 1)
-#  error "your limits.h macros are broken"
-#endif
-
-
 /***********************************************************************
 // integral and pointer types
 ************************************************************************/

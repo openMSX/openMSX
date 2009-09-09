@@ -50,11 +50,7 @@
 #include "likely.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
-
 #include <cassert>
-#include <climits>
-#include <cstddef>
-#include <cstring>
 
 // Start of configuration.
 
