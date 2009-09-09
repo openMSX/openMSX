@@ -42,23 +42,6 @@
 #ifndef LZODEFS_HH
 #define LZODEFS_HH
 
-#if defined(__CYGWIN32__) && !defined(__CYGWIN__)
-#  define __CYGWIN__ __CYGWIN32__
-#endif
-#if defined(__IBMCPP__) && !defined(__IBMC__)
-#  define __IBMC__ __IBMCPP__
-#endif
-#if defined(__ICL) && defined(_WIN32) && !defined(__INTEL_COMPILER)
-#  define __INTEL_COMPILER __ICL
-#endif
-#if defined(__INTERIX) && defined(__GNUC__) && !defined(_ALL_SOURCE)
-#  define _ALL_SOURCE 1
-#endif
-#if defined(__mips__) && defined(__R5900__)
-#  if !defined(__LONG_MAX__)
-#    define __LONG_MAX__ 9223372036854775807L
-#  endif
-#endif
 #define LZO_0xffffL             65535ul
 #define LZO_0xffffffffL         4294967295ul
 #if (LZO_0xffffL == LZO_0xffffffffL)
@@ -67,13 +50,6 @@
 #if (16ul * 16384ul != 262144ul)
 #  error "your preprocessor is broken 2"
 #endif
-#if defined(__WATCOMC__) && (__WATCOMC__ < 900)
-#  define LZO_BROKEN_INTEGRAL_CONSTANTS 1
-#endif
-#if defined(_CRAY) && defined(_CRAY1)
-#  define LZO_BROKEN_SIGNED_RIGHT_SHIFT 1
-#endif
-#define __LZO_MASK_GEN(o,b)     (((((o) << ((b)-1)) - (o)) << 1) + (o))
 #if defined(__cplusplus)
 #  if !defined(__STDC_CONSTANT_MACROS)
 #    define __STDC_CONSTANT_MACROS 1
@@ -82,6 +58,5 @@
 #    define __STDC_LIMIT_MACROS 1
 #  endif
 #endif
-#define __LZO_LSR(x,b)    (((x)+0ul) >> (b))
 
 #endif // LZODEFS_HH
