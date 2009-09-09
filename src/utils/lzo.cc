@@ -48,13 +48,12 @@
 #include "lzo.hh"
 #include "inline.hh"
 #include "likely.hh"
-#include "openmsx.hh"
 #include "build-info.hh"
 #include <cassert>
 
 // Start of configuration.
 
-#  define lzo_dict_t    const lzo_bytep
+#  define lzo_dict_t    const byte*;
 #  define lzo_dict_p    lzo_dict_t *
 
 // End of configuration.
@@ -64,10 +63,10 @@ namespace openmsx {
 /* If you use the LZO library in a product, I would appreciate that you
  * keep this copyright string in the executable of your product.
  */
-const lzo_bytep lzo_copyright()
+const char* lzo_copyright()
 {
 	static const char* const lzo_copyright = "2.03";
-	return (const lzo_bytep)lzo_copyright;
+	return lzo_copyright;
 }
 
 // Start of LZO1X.
@@ -90,23 +89,23 @@ const lzo_bytep lzo_copyright()
 
 // End of LZO1X.
 
-lzo_uint dict_hash(const lzo_bytep p)
+unsigned dict_hash(const byte* p)
 {
 	unsigned t = p[0] ^ (p[1] << 5) ^ (p[2] << 10) ^ (p[3] << 16);
 	return (t + (t >> 5)) & D_MASK;
 }
 
-static lzo_uint
-_lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
-                     lzo_bytep out, lzo_uintp out_len)
+static unsigned
+_lzo1x_1_do_compress(const byte* in, unsigned in_len,
+                     byte* out, unsigned& out_len)
 {
-	const lzo_bytep ip;
-	lzo_bytep op;
-	const lzo_bytep const in_end = in + in_len;
-	const lzo_bytep const ip_end = in + in_len - M2_MAX_LEN - 5;
-	const lzo_bytep ii;
+	const byte* ip;
+	byte* op;
+	const byte* const in_end = in + in_len;
+	const byte* const ip_end = in + in_len - M2_MAX_LEN - 5;
+	const byte* ii;
 
-	const lzo_bytep dict[D_SIZE];
+	const byte* dict[D_SIZE];
 
 	op = out;
 	ip = in;
@@ -114,10 +113,10 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 
 	ip += 4;
 	for (;;) {
-		const lzo_bytep m_pos;
-		lzo_uint m_off;
-		lzo_uint m_len;
-		lzo_uint dindex;
+		const byte* m_pos;
+		unsigned m_off;
+		unsigned m_len;
+		unsigned dindex;
 
 		dindex = dict_hash(ip);
 		m_pos = dict[dindex];
@@ -141,7 +140,7 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 
 try_match:
 		if (OPENMSX_UNALIGNED_MEMORY_ACCESS
-			? (*(const lzo_ushortp)m_pos != *(const lzo_ushortp)ip)
+			? (*(word*)m_pos != *(word*)ip)
 			: (m_pos[0] != ip[0] || m_pos[1] != ip[1])
 		) {
 		} else if (likely(m_pos[2] == ip[2])) {
@@ -159,7 +158,7 @@ literal:
 match:
 		dict[dindex] = ip;
 		if (ip > ii) {
-			lzo_uint t = ip - ii;
+			unsigned t = ip - ii;
 
 			if (t <= 3) {
 				assert(op - 2 > out);
@@ -167,7 +166,7 @@ match:
 			} else if (t <= 18) {
 				*op++ = byte(t - 3);
 			} else {
-				lzo_uint tt = t - 18;
+				unsigned tt = t - 18;
 
 				*op++ = 0;
 				while (tt > 255) {
@@ -205,8 +204,8 @@ match:
 			}
 		} else {
 			{
-				const lzo_bytep end = in_end;
-				const lzo_bytep m = m_pos + M2_MAX_LEN + 1;
+				const byte* end = in_end;
+				const byte* m = m_pos + M2_MAX_LEN + 1;
 				while (ip < end && *m == *ip) {
 					m++, ip++;
 				}
@@ -252,25 +251,25 @@ m3_m4_offset:
 		}
 	}
 
-	*out_len = op - out;
+	out_len = op - out;
 	return in_end - ii;
 }
 
-void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
-                      lzo_bytep out, lzo_uintp out_len)
+void lzo1x_1_compress(const byte* in, unsigned in_len,
+                      byte* out, unsigned& out_len)
 {
-	lzo_bytep op = out;
-	lzo_uint t;
+	byte* op = out;
+	unsigned t;
 
 	if (unlikely(in_len <= M2_MAX_LEN + 5)) {
 		t = in_len;
 	} else {
 		t = _lzo1x_1_do_compress(in, in_len, op, out_len);
-		op += *out_len;
+		op += out_len;
 	}
 
 	if (t > 0) {
-		const lzo_bytep ii = in + in_len - t;
+		const byte* ii = in + in_len - t;
 
 		if (op == out && t <= 238) {
 			*op++ = byte(17 + t);
@@ -279,7 +278,7 @@ void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
 		} else if (t <= 18) {
 			*op++ = byte(t - 3);
 		} else {
-			lzo_uint tt = t - 18;
+			unsigned tt = t - 18;
 
 			*op++ = 0;
 			while (tt > 255) {
@@ -296,7 +295,7 @@ void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
 	*op++ = 0;
 	*op++ = 0;
 
-	*out_len = op - out;
+	out_len = op - out;
 }
 
 // TODO: This function was copy-pasted from CPUCore.cc.
@@ -325,17 +324,17 @@ void copyRepeat(byte*& dst, const byte*& src, unsigned count)
 }
 
 void lzo1x_decompress(
-	const lzo_bytep __restrict src, lzo_uint __restrict src_len,
-	lzo_bytep __restrict dst, lzo_uintp __restrict dst_len
-) {
-	lzo_bytep op;
-	const lzo_bytep ip;
-	lzo_uint t;
-	const lzo_bytep m_pos;
+	const byte* __restrict src, unsigned src_len,
+	byte* __restrict dst, unsigned& dst_len)
+{
+	byte* op;
+	const byte* ip;
+	unsigned t;
+	const byte* m_pos;
 
-	const lzo_bytep const src_end = src + src_len;
+	const byte* const src_end = src + src_len;
 
-	*dst_len = 0;
+	dst_len = 0;
 
 	op = dst;
 	ip = src;
@@ -406,7 +405,7 @@ first_literal_run:
 				ip += 2;
 				if (m_pos == op) {
 					assert(t == 1);
-					*dst_len = op - dst;
+					dst_len = op - dst;
 					assert(ip == src_end); (void)src_end;
 					return;
 				}

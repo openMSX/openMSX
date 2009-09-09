@@ -37,7 +37,6 @@ HDR_ONLY:= \
 	DivModByConst \
 	utf8_core \
 	utf8_unchecked \
-	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla \
-	lzoconf
+	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla
 
 include build/node-end.mk

@@ -210,15 +210,15 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 	buffer.deallocate(&buf[sizeof(uLongf) + dstLen]); // dealloc unused portion
 #else
 	// lzo
-	lzo_uint dstLen = len + len / 16 + 64 + 3; // upper bound
-	char* buf = buffer.allocate(sizeof(lzo_uint) + dstLen);
+	unsigned dstLen = len + len / 16 + 64 + 3; // upper bound
+	char* buf = buffer.allocate(sizeof(unsigned) + dstLen);
 
-	lzo1x_1_compress(reinterpret_cast<const lzo_bytep>(data), len,
-	                 reinterpret_cast<lzo_bytep>(&buf[sizeof(lzo_uint)]),
-	                 &dstLen);
+	lzo1x_1_compress(reinterpret_cast<const byte*>(data), len,
+	                 reinterpret_cast<byte*>(&buf[sizeof(unsigned)]),
+	                 dstLen);
 
-	memcpy(buf, &dstLen, sizeof(lzo_uint)); // fill-in actual size
-	buffer.deallocate(&buf[sizeof(lzo_uint) + dstLen]); // dealloc unused portion
+	memcpy(buf, &dstLen, sizeof(unsigned)); // fill-in actual size
+	buffer.deallocate(&buf[sizeof(unsigned) + dstLen]); // dealloc unused portion
 #endif
 }
 
@@ -236,10 +236,10 @@ void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
 	buffer.skip(srcLen);
 #else
 	// lzo
-	lzo_uint srcLen; load(srcLen);
-	lzo_uint dstLen = len;
-	lzo1x_decompress(reinterpret_cast<const lzo_bytep>(buffer.getCurrentPos()),
-	                 srcLen, reinterpret_cast<lzo_bytep>(data), &dstLen);
+	unsigned srcLen; load(srcLen);
+	unsigned dstLen = len;
+	lzo1x_decompress(reinterpret_cast<const byte*>(buffer.getCurrentPos()),
+	                 srcLen, reinterpret_cast<byte*>(data), dstLen);
 	assert(dstLen == len);
 	buffer.skip(srcLen);
 #endif
