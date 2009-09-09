@@ -612,32 +612,6 @@
 #elif (LZO_SIZEOF_INT == 4 && LZO_SIZEOF_LONG == 8 && LZO_SIZEOF_VOID_P == 4)
 #  define LZO_ABI_IP32L64       1
 #endif
-#if !defined(__LZO_LIBC_OVERRIDE)
-#if defined(LZO_LIBC_NAKED)
-#elif defined(LZO_LIBC_FREESTANDING)
-#elif defined(LZO_LIBC_MOSTLY_FREESTANDING)
-#elif defined(LZO_LIBC_ISOC90)
-#elif defined(LZO_LIBC_ISOC99)
-#elif defined(__dietlibc__)
-#  define LZO_LIBC_DIETLIBC     1
-#elif defined(_NEWLIB_VERSION)
-#  define LZO_LIBC_NEWLIB       1
-#elif defined(__UCLIBC__) && defined(__UCLIBC_MAJOR__) && defined(__UCLIBC_MINOR__)
-#  if defined(__UCLIBC_SUBLEVEL__)
-#    define LZO_LIBC_UCLIBC     (__UCLIBC_MAJOR__ * 0x10000L + __UCLIBC_MINOR__ * 0x100 + __UCLIBC_SUBLEVEL__)
-#  else
-#    define LZO_LIBC_UCLIBC     0x00090bL
-#  endif
-#elif defined(__GLIBC__) && defined(__GLIBC_MINOR__)
-#  define LZO_LIBC_GLIBC        (__GLIBC__ * 0x10000L + __GLIBC_MINOR__ * 0x100)
-#elif (LZO_CC_MWERKS) && defined(__MSL__)
-#  define LZO_LIBC_MSL          __MSL__
-#elif defined(__IAR_SYSTEMS_ICC__)
-#  define LZO_LIBC_ISOC90       1
-#else
-#  define LZO_LIBC_DEFAULT      1
-#endif
-#endif
 #if !defined(LZO_COMPILE_TIME_ASSERT_HEADER)
 #  if (LZO_CC_AZTECC || LZO_CC_ZORTECHC)
 #    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-!(e)];
