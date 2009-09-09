@@ -65,9 +65,6 @@
 #  error "your limits.h macros are broken"
 #endif
 
-/* get OS and architecture defines */
-#include "lzodefs.hh"
-
 
 /***********************************************************************
 // integral and pointer types

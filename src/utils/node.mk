@@ -38,6 +38,6 @@ HDR_ONLY:= \
 	utf8_core \
 	utf8_unchecked \
 	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla \
-	lzoconf lzodefs
+	lzoconf
 
 include build/node-end.mk
