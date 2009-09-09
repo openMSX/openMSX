@@ -75,47 +75,15 @@
 #  if defined(LZO_ABI_LLP64) /* WIN64 */
 #    if defined(LZO_OS_WIN64)
      typedef unsigned __int64   lzo_uint;
-     typedef __int64            lzo_int;
 #    else
      typedef unsigned long long lzo_uint;
-     typedef long long          lzo_int;
 #    endif
-#    define LZO_UINT_MAX        0xffffffffffffffffull
-#    define LZO_INT_MAX         9223372036854775807LL
-#    define LZO_INT_MIN         (-1LL - LZO_INT_MAX)
 #  elif defined(LZO_ABI_IP32L64) /* MIPS R5900 */
      typedef unsigned int       lzo_uint;
-     typedef int                lzo_int;
-#    define LZO_UINT_MAX        UINT_MAX
-#    define LZO_INT_MAX         INT_MAX
-#    define LZO_INT_MIN         INT_MIN
 #  elif (ULONG_MAX >= 0xffffffffL)
      typedef unsigned long      lzo_uint;
-     typedef long               lzo_int;
-#    define LZO_UINT_MAX        ULONG_MAX
-#    define LZO_INT_MAX         LONG_MAX
-#    define LZO_INT_MIN         LONG_MIN
 #  else
 #    error "lzo_uint"
-#  endif
-#endif
-
-/* Integral types with 32 bits or more. */
-#if !defined(LZO_UINT32_MAX)
-#  if (UINT_MAX >= 0xffffffffL)
-     typedef unsigned int       lzo_uint32;
-     typedef int                lzo_int32;
-#    define LZO_UINT32_MAX      UINT_MAX
-#    define LZO_INT32_MAX       INT_MAX
-#    define LZO_INT32_MIN       INT_MIN
-#  elif (ULONG_MAX >= 0xffffffffL)
-     typedef unsigned long      lzo_uint32;
-     typedef long               lzo_int32;
-#    define LZO_UINT32_MAX      ULONG_MAX
-#    define LZO_INT32_MAX       LONG_MAX
-#    define LZO_INT32_MIN       LONG_MIN
-#  else
-#    error "lzo_uint32"
 #  endif
 #endif
 
@@ -125,8 +93,6 @@
 #define lzo_voidp               void *
 #define lzo_shortp              short *
 #define lzo_ushortp             unsigned short *
-#define lzo_uint32p             lzo_uint32 *
-#define lzo_int32p              lzo_int32 *
 #define lzo_uintp               lzo_uint *
 #define lzo_intp                lzo_int *
 #define lzo_voidpp              lzo_voidp *
