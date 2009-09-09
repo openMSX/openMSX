@@ -159,9 +159,4 @@ typedef int lzo_bool;
 #define LZO_E_INPUT_NOT_CONSUMED    (-8)
 #define LZO_E_NOT_YET_IMPLEMENTED   (-9)    /* [not used right now] */
 
-
-#ifndef lzo_sizeof_dict_t
-#  define lzo_sizeof_dict_t     ((unsigned)sizeof(lzo_bytep))
-#endif
-
 #endif // LZOCONF_HH

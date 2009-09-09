@@ -213,10 +213,9 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 	lzo_uint dstLen = len + len / 16 + 64 + 3; // upper bound
 	char* buf = buffer.allocate(sizeof(lzo_uint) + dstLen);
 
-	char wrkmem[LZO1X_1_MEM_COMPRESS];
 	lzo1x_1_compress(reinterpret_cast<const lzo_bytep>(data), len,
 	                 reinterpret_cast<lzo_bytep>(&buf[sizeof(lzo_uint)]),
-	                 &dstLen, wrkmem);
+	                 &dstLen);
 
 	memcpy(buf, &dstLen, sizeof(lzo_uint)); // fill-in actual size
 	buffer.deallocate(&buf[sizeof(lzo_uint) + dstLen]); // dealloc unused portion

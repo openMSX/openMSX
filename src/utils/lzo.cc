@@ -104,15 +104,15 @@ const lzo_bytep lzo_copyright(void)
 
 static lzo_uint
 _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
-                     lzo_bytep out, lzo_uintp out_len,
-                     lzo_voidp wrkmem)
+                     lzo_bytep out, lzo_uintp out_len)
 {
 	const lzo_bytep ip;
 	lzo_bytep op;
 	const lzo_bytep const in_end = in + in_len;
 	const lzo_bytep const ip_end = in + in_len - M2_MAX_LEN - 5;
 	const lzo_bytep ii;
-	lzo_dict_p const dict = (lzo_dict_p) wrkmem;
+
+	const lzo_bytep dict[16384];
 
 	op = out;
 	ip = in;
@@ -263,8 +263,7 @@ m3_m4_offset:
 }
 
 void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
-                      lzo_bytep out, lzo_uintp out_len,
-                      lzo_voidp wrkmem)
+                      lzo_bytep out, lzo_uintp out_len)
 {
 	lzo_bytep op = out;
 	lzo_uint t;
@@ -272,7 +271,7 @@ void lzo1x_1_compress(const lzo_bytep in, lzo_uint in_len,
 	if (unlikely(in_len <= M2_MAX_LEN + 5)) {
 		t = in_len;
 	} else {
-		t = _lzo1x_1_do_compress(in,in_len,op,out_len,wrkmem);
+		t = _lzo1x_1_do_compress(in, in_len, op, out_len);
 		op += *out_len;
 	}
 
