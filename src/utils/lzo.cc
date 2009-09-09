@@ -86,7 +86,7 @@ unsigned dict_hash(const byte* p)
 static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
                                            byte* out, unsigned& out_len)
 {
-	const byte* dict[D_SIZE];
+	const byte* dict[D_SIZE] = {}; // init with NULL pointers
 
 	byte* op = out;
 	const byte* ip = in;
