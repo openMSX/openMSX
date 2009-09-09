@@ -92,7 +92,7 @@
 #    define LZO_UINT_MAX        UINT_MAX
 #    define LZO_INT_MAX         INT_MAX
 #    define LZO_INT_MIN         INT_MIN
-#  elif (ULONG_MAX >= LZO_0xffffffffL)
+#  elif (ULONG_MAX >= 0xffffffffL)
      typedef unsigned long      lzo_uint;
      typedef long               lzo_int;
 #    define LZO_UINT_MAX        ULONG_MAX
@@ -105,13 +105,13 @@
 
 /* Integral types with 32 bits or more. */
 #if !defined(LZO_UINT32_MAX)
-#  if (UINT_MAX >= LZO_0xffffffffL)
+#  if (UINT_MAX >= 0xffffffffL)
      typedef unsigned int       lzo_uint32;
      typedef int                lzo_int32;
 #    define LZO_UINT32_MAX      UINT_MAX
 #    define LZO_INT32_MAX       INT_MAX
 #    define LZO_INT32_MIN       INT_MIN
-#  elif (ULONG_MAX >= LZO_0xffffffffL)
+#  elif (ULONG_MAX >= 0xffffffffL)
      typedef unsigned long      lzo_uint32;
      typedef long               lzo_int32;
 #    define LZO_UINT32_MAX      ULONG_MAX

@@ -42,14 +42,6 @@
 #ifndef LZODEFS_HH
 #define LZODEFS_HH
 
-#define LZO_0xffffL             65535ul
-#define LZO_0xffffffffL         4294967295ul
-#if (LZO_0xffffL == LZO_0xffffffffL)
-#  error "your preprocessor is broken 1"
-#endif
-#if (16ul * 16384ul != 262144ul)
-#  error "your preprocessor is broken 2"
-#endif
 #if defined(__cplusplus)
 #  if !defined(__STDC_CONSTANT_MACROS)
 #    define __STDC_CONSTANT_MACROS 1
