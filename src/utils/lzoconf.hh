@@ -39,13 +39,8 @@
    http://www.oberhumer.com/opensource/lzo/
  */
 
-
 #ifndef LZOCONF_HH
 #define LZOCONF_HH
-
-#define LZO_VERSION             0x2030
-#define LZO_VERSION_STRING      "2.03"
-#define LZO_VERSION_DATE        "Apr 30 2008"
 
 #include <climits>
 #include <cstddef>
@@ -89,17 +84,7 @@
 
 /* no typedef here because of const-pointer issues */
 #define lzo_bytep               unsigned char *
-#define lzo_charp               char *
-#define lzo_voidp               void *
-#define lzo_shortp              short *
 #define lzo_ushortp             unsigned short *
 #define lzo_uintp               lzo_uint *
-#define lzo_intp                lzo_int *
-#define lzo_voidpp              lzo_voidp *
-#define lzo_bytepp              lzo_bytep *
-/* deprecated - use `lzo_bytep' instead of `lzo_byte *' */
-#define lzo_byte                unsigned char
-
-typedef int lzo_bool;
 
 #endif // LZOCONF_HH

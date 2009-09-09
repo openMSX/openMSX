@@ -68,11 +68,10 @@ namespace openmsx {
 /* If you use the LZO library in a product, I would appreciate that you
  * keep this copyright string in the executable of your product.
  */
-const char __lzo_copyright[] = LZO_VERSION_STRING;
-
-const lzo_bytep lzo_copyright(void)
+const lzo_bytep lzo_copyright()
 {
-	return (const lzo_bytep) __lzo_copyright;
+	static const char* const lzo_copyright = "2.03";
+	return (const lzo_bytep)lzo_copyright;
 }
 
 // Start of LZO1X.
