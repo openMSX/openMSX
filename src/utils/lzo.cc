@@ -51,13 +51,6 @@
 #include "build-info.hh"
 #include <cassert>
 
-// Start of configuration.
-
-#  define lzo_dict_t    const byte*;
-#  define lzo_dict_p    lzo_dict_t *
-
-// End of configuration.
-
 namespace openmsx {
 
 /* If you use the LZO library in a product, I would appreciate that you
@@ -69,25 +62,20 @@ const char* lzo_copyright()
 	return lzo_copyright;
 }
 
-// Start of LZO1X.
 
-#define M2_MAX_OFFSET   0x0800
-#define M3_MAX_OFFSET   0x4000
-#define M4_MAX_OFFSET   0xbfff
+static const unsigned M2_MAX_OFFSET = 0x0800;
+static const unsigned M3_MAX_OFFSET = 0x4000;
+static const unsigned M4_MAX_OFFSET = 0xbfff;
+static const unsigned M2_MAX_LEN = 8;
+static const unsigned M4_MAX_LEN = 9;
+static const byte M3_MARKER = 32;
+static const byte M4_MARKER = 16;
 
-#define M2_MAX_LEN      8
-#define M4_MAX_LEN      9
+static const unsigned D_BITS = 14;
+static const unsigned D_SIZE = (1 << D_BITS);
+static const unsigned D_MASK = (D_SIZE - 1);
+static const unsigned D_HIGH = ((D_MASK >> 1) + 1);
 
-#define M3_MARKER       32
-#define M4_MARKER       16
-
-// Dictionary macros.
-#define D_BITS          14
-#define D_SIZE          (1 << D_BITS)
-#define D_MASK          (D_SIZE - 1)
-#define D_HIGH          ((D_MASK >> 1) + 1)
-
-// End of LZO1X.
 
 unsigned dict_hash(const byte* p)
 {
@@ -95,9 +83,8 @@ unsigned dict_hash(const byte* p)
 	return (t + (t >> 5)) & D_MASK;
 }
 
-static unsigned
-_lzo1x_1_do_compress(const byte* in, unsigned in_len,
-                     byte* out, unsigned& out_len)
+static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
+                                           byte* out, unsigned& out_len)
 {
 	const byte* ip;
 	byte* op;
@@ -255,8 +242,8 @@ m3_m4_offset:
 	return in_end - ii;
 }
 
-void lzo1x_1_compress(const byte* in, unsigned in_len,
-                      byte* out, unsigned& out_len)
+void lzo1x_1_compress(const byte* in,  unsigned  in_len,
+                            byte* out, unsigned& out_len)
 {
 	byte* op = out;
 	unsigned t;
@@ -323,9 +310,8 @@ void copyRepeat(byte*& dst, const byte*& src, unsigned count)
 	}
 }
 
-void lzo1x_decompress(
-	const byte* __restrict src, unsigned src_len,
-	byte* __restrict dst, unsigned& dst_len)
+void lzo1x_decompress(const byte* __restrict src, unsigned  src_len,
+	                    byte* __restrict dst, unsigned& dst_len)
 {
 	byte* op;
 	const byte* ip;
