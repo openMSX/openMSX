@@ -87,20 +87,19 @@ const lzo_bytep lzo_copyright(void)
 #define M3_MARKER       32
 #define M4_MARKER       16
 
-// Start of dictionary macros.
-
+// Dictionary macros.
 #define D_BITS          14
-#define D_MASK          ((1u << D_BITS) - 1)
+#define D_SIZE          (1 << D_BITS)
+#define D_MASK          (D_SIZE - 1)
 #define D_HIGH          ((D_MASK >> 1) + 1)
 
-#define DX2(p,s1,s2) \
-        (((((lzo_uint)((p)[2]) << (s2)) ^ (p)[1]) << (s1)) ^ (p)[0])
-#define DX3(p,s1,s2,s3) ((DX2((p)+1,s2,s3) << (s1)) ^ (p)[0])
-#define DM(v)           ((lzo_uint) ((v) & D_MASK))
-
-// End of dictionary macros.
-
 // End of LZO1X.
+
+lzo_uint dict_hash(const lzo_bytep p)
+{
+	unsigned t = p[0] ^ (p[1] << 5) ^ (p[2] << 10) ^ (p[3] << 16);
+	return (t + (t >> 5)) & D_MASK;
+}
 
 static lzo_uint
 _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
@@ -112,7 +111,7 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 	const lzo_bytep const ip_end = in + in_len - M2_MAX_LEN - 5;
 	const lzo_bytep ii;
 
-	const lzo_bytep dict[16384];
+	const lzo_bytep dict[D_SIZE];
 
 	op = out;
 	ip = in;
@@ -125,7 +124,7 @@ _lzo1x_1_do_compress(const lzo_bytep in, lzo_uint in_len,
 		lzo_uint m_len;
 		lzo_uint dindex;
 
-		dindex = DM(((lzo_uint)(0x21 * DX3(ip, 5, 5, 6))) >> 5);
+		dindex = dict_hash(ip);
 		m_pos = dict[dindex];
 		if (m_pos < in
 		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
