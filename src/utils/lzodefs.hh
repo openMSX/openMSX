@@ -597,21 +597,6 @@
 #if !defined(LZO_SIZEOF_PTRDIFF_T)
 #  define LZO_SIZEOF_PTRDIFF_T      LZO_SIZEOF_SIZE_T
 #endif
-#if (LZO_SIZEOF_INT == 1 && LZO_SIZEOF_LONG == 2 && LZO_SIZEOF_VOID_P == 2)
-#  define LZO_ABI_I8LP16         1
-#elif (LZO_SIZEOF_INT == 2 && LZO_SIZEOF_LONG == 2 && LZO_SIZEOF_VOID_P == 2)
-#  define LZO_ABI_ILP16         1
-#elif (LZO_SIZEOF_INT == 4 && LZO_SIZEOF_LONG == 4 && LZO_SIZEOF_VOID_P == 4)
-#  define LZO_ABI_ILP32         1
-#elif (LZO_SIZEOF_INT == 4 && LZO_SIZEOF_LONG == 4 && LZO_SIZEOF_VOID_P == 8 && LZO_SIZEOF_SIZE_T == 8)
-#  define LZO_ABI_LLP64         1
-#elif (LZO_SIZEOF_INT == 4 && LZO_SIZEOF_LONG == 8 && LZO_SIZEOF_VOID_P == 8)
-#  define LZO_ABI_LP64          1
-#elif (LZO_SIZEOF_INT == 8 && LZO_SIZEOF_LONG == 8 && LZO_SIZEOF_VOID_P == 8)
-#  define LZO_ABI_ILP64         1
-#elif (LZO_SIZEOF_INT == 4 && LZO_SIZEOF_LONG == 8 && LZO_SIZEOF_VOID_P == 4)
-#  define LZO_ABI_IP32L64       1
-#endif
 #if !defined(LZO_COMPILE_TIME_ASSERT_HEADER)
 #  if (LZO_CC_AZTECC || LZO_CC_ZORTECHC)
 #    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-!(e)];
