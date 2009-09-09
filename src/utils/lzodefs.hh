@@ -385,16 +385,5 @@
 #if !defined(LZO_SIZEOF_PTRDIFF_T)
 #  define LZO_SIZEOF_PTRDIFF_T      LZO_SIZEOF_SIZE_T
 #endif
-#if !defined(LZO_COMPILE_TIME_ASSERT_HEADER)
-#  if (LZO_CC_AZTECC || LZO_CC_ZORTECHC)
-#    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-!(e)];
-#  elif (LZO_CC_DMC || LZO_CC_SYMANTECC)
-#    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1u-2*!(e)];
-#  elif (LZO_CC_TURBOC && (__TURBOC__ == 0x0295))
-#    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-!(e)];
-#  else
-#    define LZO_COMPILE_TIME_ASSERT_HEADER(e)  extern int __lzo_cta[1-2*!(e)];
-#  endif
-#endif
 
 #endif // LZODEFS_HH
