@@ -86,27 +86,21 @@ unsigned dict_hash(const byte* p)
 static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
                                            byte* out, unsigned& out_len)
 {
-	const byte* ip;
-	byte* op;
-	const byte* const in_end = in + in_len;
-	const byte* const ip_end = in + in_len - M2_MAX_LEN - 5;
-	const byte* ii;
-
 	const byte* dict[D_SIZE];
 
-	op = out;
-	ip = in;
-	ii = ip;
+	byte* op = out;
+	const byte* ip = in;
+	const byte* ii = ip;
+	const byte* const in_end = in + in_len;
+	const byte* const ip_end = in + in_len - M2_MAX_LEN - 5;
 
 	ip += 4;
-	for (;;) {
-		const byte* m_pos;
-		unsigned m_off;
+	while (true) {
 		unsigned m_len;
-		unsigned dindex;
 
-		dindex = dict_hash(ip);
-		m_pos = dict[dindex];
+		unsigned dindex = dict_hash(ip);
+		const byte* m_pos = dict[dindex];
+		unsigned m_off;
 		if (m_pos < in
 		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
 			goto literal;
@@ -130,6 +124,7 @@ try_match:
 			? (*(word*)m_pos != *(word*)ip)
 			: (m_pos[0] != ip[0] || m_pos[1] != ip[1])
 		) {
+			// nothing
 		} else if (likely(m_pos[2] == ip[2])) {
 			goto match;
 		}
@@ -246,8 +241,8 @@ void lzo1x_1_compress(const byte* in,  unsigned  in_len,
                             byte* out, unsigned& out_len)
 {
 	byte* op = out;
-	unsigned t;
 
+	unsigned t;
 	if (unlikely(in_len <= M2_MAX_LEN + 5)) {
 		t = in_len;
 	} else {
@@ -305,7 +300,7 @@ unsigned read16LE(const byte* p)
 static ALWAYS_INLINE
 void copyRepeat(byte*& dst, const byte*& src, unsigned count)
 {
-	for (; count; count--) {
+	for (/**/; count; count--) {
 		*dst++ = *src++;
 	}
 }
@@ -313,17 +308,13 @@ void copyRepeat(byte*& dst, const byte*& src, unsigned count)
 void lzo1x_decompress(const byte* __restrict src, unsigned  src_len,
 	                    byte* __restrict dst, unsigned& dst_len)
 {
-	byte* op;
-	const byte* ip;
 	unsigned t;
-	const byte* m_pos;
 
+	byte* op = dst;
+	const byte* ip = src;
 	const byte* const src_end = src + src_len;
 
 	dst_len = 0;
-
-	op = dst;
-	ip = src;
 
 	if (*ip > 17) {
 		t = *ip++ - 17;
@@ -351,7 +342,7 @@ void lzo1x_decompress(const byte* __restrict src, unsigned  src_len,
 first_literal_run:
 			t = *ip++;
 			if (t < 16) {
-				m_pos = op - (1 + M2_MAX_OFFSET);
+				const byte* m_pos = op - (1 + M2_MAX_OFFSET);
 				m_pos -= t >> 2;
 				m_pos -= *ip++ << 2;
 				copyRepeat(op, m_pos, 3);
@@ -360,6 +351,7 @@ first_literal_run:
 		}
 
 		while (true) {
+			const byte* m_pos;
 			if (t >= 64) {
 				m_pos = op - 1;
 				m_pos -= (t >> 2) & 7;
