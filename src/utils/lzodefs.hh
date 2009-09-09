@@ -74,26 +74,6 @@
 #if defined(_CRAY) && defined(_CRAY1)
 #  define LZO_BROKEN_SIGNED_RIGHT_SHIFT 1
 #endif
-#define LZO_PP_STRINGIZE(x)             #x
-#define LZO_PP_MACRO_EXPAND(x)          LZO_PP_STRINGIZE(x)
-#define LZO_PP_CONCAT2(a,b)             a ## b
-#define LZO_PP_CONCAT3(a,b,c)           a ## b ## c
-#define LZO_PP_CONCAT4(a,b,c,d)         a ## b ## c ## d
-#define LZO_PP_CONCAT5(a,b,c,d,e)       a ## b ## c ## d ## e
-#define LZO_PP_ECONCAT2(a,b)            LZO_PP_CONCAT2(a,b)
-#define LZO_PP_ECONCAT3(a,b,c)          LZO_PP_CONCAT3(a,b,c)
-#define LZO_PP_ECONCAT4(a,b,c,d)        LZO_PP_CONCAT4(a,b,c,d)
-#define LZO_PP_ECONCAT5(a,b,c,d,e)      LZO_PP_CONCAT5(a,b,c,d,e)
-#define LZO_CPP_STRINGIZE(x)            #x
-#define LZO_CPP_MACRO_EXPAND(x)         LZO_CPP_STRINGIZE(x)
-#define LZO_CPP_CONCAT2(a,b)            a ## b
-#define LZO_CPP_CONCAT3(a,b,c)          a ## b ## c
-#define LZO_CPP_CONCAT4(a,b,c,d)        a ## b ## c ## d
-#define LZO_CPP_CONCAT5(a,b,c,d,e)      a ## b ## c ## d ## e
-#define LZO_CPP_ECONCAT2(a,b)           LZO_CPP_CONCAT2(a,b)
-#define LZO_CPP_ECONCAT3(a,b,c)         LZO_CPP_CONCAT3(a,b,c)
-#define LZO_CPP_ECONCAT4(a,b,c,d)       LZO_CPP_CONCAT4(a,b,c,d)
-#define LZO_CPP_ECONCAT5(a,b,c,d,e)     LZO_CPP_CONCAT5(a,b,c,d,e)
 #define __LZO_MASK_GEN(o,b)     (((((o) << ((b)-1)) - (o)) << 1) + (o))
 #if defined(__cplusplus)
 #  if !defined(__STDC_CONSTANT_MACROS)
