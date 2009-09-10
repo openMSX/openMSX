@@ -22,10 +22,17 @@ namespace StringOp
 		// inlined, the template is just fine).
 		Builder& operator<<(const std::string& t);
 		Builder& operator<<(const char* t);
+		Builder& operator<<(unsigned char t);
+		Builder& operator<<(unsigned short t);
 		Builder& operator<<(unsigned t);
 		Builder& operator<<(unsigned long t);
-		Builder& operator<<(int t);
+		Builder& operator<<(unsigned long long t);
 		Builder& operator<<(char t);
+		Builder& operator<<(short t);
+		Builder& operator<<(int t);
+		Builder& operator<<(long t);
+		Builder& operator<<(long long t);
+		Builder& operator<<(float t);
 		Builder& operator<<(double t);
 
 		// Templatized version is commented out. There's no problem in
@@ -36,7 +43,6 @@ namespace StringOp
 			buf << t;
 			return *this;
 		}*/
-
 
 		operator std::string() const;
 

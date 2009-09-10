@@ -30,6 +30,14 @@ Builder& Builder::operator<<(const char* t)
 {
 	buf << t; return *this;
 }
+Builder& Builder::operator<<(unsigned char t)
+{
+	return operator<<(unsigned(t));
+}
+Builder& Builder::operator<<(unsigned short t)
+{
+	buf << t; return *this;
+}
 Builder& Builder::operator<<(unsigned t)
 {
 	buf << t; return *this;
@@ -38,11 +46,31 @@ Builder& Builder::operator<<(unsigned long t)
 {
 	buf << t; return *this;
 }
-Builder& Builder::operator<<(int t)
+Builder& Builder::operator<<(unsigned long long t)
 {
 	buf << t; return *this;
 }
 Builder& Builder::operator<<(char t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(short t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(int t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(long t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(long long t)
+{
+	buf << t; return *this;
+}
+Builder& Builder::operator<<(float t)
 {
 	buf << t; return *this;
 }
