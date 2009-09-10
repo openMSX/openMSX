@@ -782,7 +782,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			getFirstFrame = false;
 			waitFrame = 0;
 		} else if (playerState == PLAYER_PLAYING) {
-			// This breaks Astron Belt loading, uncommeted for now
+			// This breaks Astron Belt loading, commented for now
 			//setAck(time, 46);
 		} else {
 			// FROZEN or PAUSED
@@ -827,8 +827,6 @@ void LaserdiscPlayer::stop(EmuTime::param time)
 
 void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 {
-	long long frameno = toframe ? toframe : 1;
-
 	if (playerState != PLAYER_STOPPED) {
 		PRT_DEBUG("Laserdisc::SeekFrame " << std::dec << frameno);
 
@@ -839,21 +837,42 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 		if (video.get()) {
 			updateStream(time);
 
-			long long samplePos = (frameno - 1ll) * 1001ll *
+			if (toframe <= 0)  {
+				toframe = 1;
+			}
+			// FIXME: check if seeking beyond end
+
+			// Seek time needs to be emulated correctly since
+			// e.g. Astron Belt does not wait for the seek
+			// to complete, it simply assumes a certain
+			// delay.
+			//
+			// This calculation is based on measurements on
+			// a Pioneer LD-92000.
+			int dist = abs(toframe - currentFrame);
+			int seektime; // time in ms
+
+			if (dist < 1000) {
+				seektime = dist + 300;
+			} else {
+				seektime = 1800 + dist / 12;
+			}
+
+			long long samplePos = (toframe - 1ll) * 1001ll *
 					video->getSampleRate() / 30000ll;
 
-			video->seek(frameno, samplePos);
+			video->seek(toframe, samplePos);
+
 			playerState = PLAYER_FROZEN;
 			playingFromSample = samplePos;
-			currentFrame = frameno;
+			currentFrame = toframe;
 			getFirstFrame = true;
 
 			// Seeking clears the frame to wait for
 			waitFrame = 0;
 
-			// seeking to the current frame takes 0.350s
 			seeking = true;
-			setAck(time, 350);
+			setAck(time, seektime);
 		}
 	}
 }
