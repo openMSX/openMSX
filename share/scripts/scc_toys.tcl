@@ -23,6 +23,15 @@ variable machine_switch_trigger_id
 variable frame_trigger_id
 variable volume_address [expr $num_samples * $num_channels + 2 * $num_channels]
 
+#scc editor / PSG2SCC
+variable active false
+variable cur_wp1
+variable cur_wp2
+variable latch -1
+variable regs [list 0xa0 0xa1 0xa2 0xa3 0xa4 0xa5 -1 0xaf 0xaa 0xab 0xac -1 -1 -1 -1 -1]
+variable select_device
+variable select_device_chan 0
+
 proc scc_viewer_init {} {
 	variable machine_switch_trigger_id
 	variable scc_viewer_active
@@ -188,9 +197,233 @@ proc update2 {} {
 	if {$reg != -1} { debug write "SCC SCC" $reg $val }
 }
 
+proc toggle_psg2scc {} {
+	variable active
+	variable cur_wp1
+	variable cur_wp2
+
+	set active [expr !$active]
+	if {$active} {
+		init
+		set cur_wp1 [debug set_watchpoint write_io 0xa0 1 { scc_toys::update1 }]
+		set cur_wp2 [debug set_watchpoint write_io 0xa1 1 { scc_toys::update2 }]
+	} else {
+		debug remove_watchpoint $cur_wp1
+		debug remove_watchpoint $cur_wp2
+		debug write "SCC SCC" 0xaf 0
+	}
+}
+
+proc set_scc_form {channel wave} {
+	set base [expr $channel*32]
+
+	for {set i 0} {$i < 32} {incr i} {
+		debug write "SCC SCC" [expr $base+$i] "0x[string range $wave [expr $i*2] [expr $i*2]+1]"
+	}
+}
+
+proc set_scc_wave {channel form} {
+
+	set base [expr $channel*32]
+
+	switch $form {
+		0 {
+			#Saw Tooth
+			set_scc_form $channel "fff7efe7dfd7cfc7bfb7afa79f978f877f776f675f574f473f372f271f170f07"
+		}
+
+		1 {
+			#Square
+			set_scc_form $channel "7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f80808080808080808080808080808080"
+		}
+
+		2 {	#Triangle
+			set_scc_form $channel "7f7060504030201000f0e0d0c0b0a0908090a0b0c0d0e0f00010203040506070"
+		}
+
+		3 {
+			#Sin Wave
+			set_scc_form $channel "001931475A6A757D7F7D756A5A47311900E7CFB9A6968B8380838B96A6B9CFE7"
+		}
+
+		4 {
+			#Organ
+			set_scc_form $channel "0070502050703000507F6010304000B0106000E0F000B090C010E0A0C0F0C0A0"
+		}
+
+		5 {
+			#SAWWY001
+			set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+		}
+
+		6 {
+			#SQROOT01
+			set_scc_form $channel "00407F401001EAD6C3B9AFA49C958F8A86838183868A8F959CA4AFB9C3D6EAFF"
+		}
+
+		7 {
+			#SQROOT01
+			set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+		}
+
+		8 {
+			#DYERVC01
+			set_scc_form $channel "00407F4001C081C001407F4001C0014001E0012001F0011001FFFFFFFF404040"
+		}
+
+		9 {
+			#SPACY
+			set_scc_form $channel "808ea0c0e000203f3e3c3a373129201c1000e6c0d000203f10e080c000200090"
+		}
+	}
+}
+
+#SCC editor/copier
+proc toggle_scc_editor {} {
+
+	if {[catch {osd info scc_viewer -rgba} errmsg]} {toggle_scc_viewer}	
+	
+	#If exists destory/reset and exit
+	if {![catch {osd info scc -rgba} errmsg]} {
+			osd destroy scc
+			osd destroy selected
+			#Let's assume the user doesn't have the SCC Viewer active
+			toggle_scc_viewer
+			unbind_default "mouse button1 down"
+			return ""
+		}
+
+	variable select_device
+	variable scc_devices
+
+	set select_device [lindex scc_devices 0]
+
+	bind_default "mouse button1 down"  	{scc_toys::checkclick}
+
+	osd_widgets::box scc -x 200 -y 100 -h 256 -w 256 -rgba 0xffffffff -fill 0x0000ff80 \
+
+	for {set i 0} {$i < 32} {incr i} {
+		osd create rectangle scc.slider$i -x [expr ($i*8)] -y 0 -h 255 -w 8 -rgba 0x0000ff80
+		osd create rectangle scc.slider$i.val -x 0 -y 127 -h 1 -w 8 -rgba 0xffffff90
+	}
+
+	for {set i 0} {$i < 32} {incr i} {
+		osd create rectangle "scc.hline$i" -x [expr ($i*8)-1] -y 0 -h 255 -w 1 -rgba 0xffffff60
+		osd create rectangle "scc.vline$i" -x 0 -y [expr ($i*8)-1] -h 1 -w 255 -rgba 0xffffff60
+	}
+
+	osd create rectangle "scc.hmid1" -x 63 -y 0 -h 255 -w 1 -rgba 0xff000080
+	osd create text 	 "scc.hmid1.text" -x -2 -y -12 -text "7" -size 8 -rgba 0xffffffff
+
+	osd create rectangle "scc.hmid2" -x 127 -y 0 -h 255 -w 1 -rgba 0xffffffff
+	osd create text 	 "scc.hmid2.text" -x -5 -y -12 -text "15" -size 8 -rgba 0xffffffff
+
+	osd create rectangle "scc.hmid3" -x 191 -y 0 -h 255 -w 1 -rgba 0xff000080
+	osd create text 	 "scc.hmid3.text" -x -5 -y -12 -text "23" -size 8 -rgba 0xffffffff
+
+	osd create text 	 "scc.hline0.text" -x 0 -y -12 -text "0" -size 8 -rgba 0xffffffff
+	osd create text 	 "scc.hline31.text" -x 0 -y -12 -text "63" -size 8 -rgba 0xffffffff
+
+	osd create rectangle "scc.vmid1" -x 0 -y 63 -h 1 -w 255 -rgba 0xff000080
+	osd create text 	 "scc.vmid1.text" -x -20 -y -4 -text "+64" -size 8 -rgba 0xffffffff
+
+	osd create rectangle "scc.vmid2" -x 0 -y 127 -h 1 -w 255 -rgba 0xffffffff
+	osd create text 	 "scc.vmid2.text" -x -10 -y -4 -text "0" -size 8 -rgba 0xffffffff
+
+	osd create rectangle "scc.vmid3" -x 0 -y 191 -h 1 -w 255 -rgba 0xff000080
+	osd create text 	 "scc.vmid3.text" -x -18 -y -4 -text "-64" -size 8 -rgba 0xffffffff
+
+	osd create text 	 "scc.vline0.text" -x -25 -y 0 -text "+128" -size 8 -rgba 0xffffffff
+	osd create text 	 "scc.vline31.text" -x -22 -y 0 -text "-128" -size 8 -rgba 0xffffffff
+
+	osd create rectangle selected
+
+	return ""
+}
+
+proc checkclick {} {
+
+	variable scc_devices
+	variable select_device
+	variable select_device_chan
+
+	#check editor matrix
+	for {set i 0} {$i < 32} {incr i} {
+	foreach {x y} [osd info "scc.slider$i" -mousecoord] {}
+		if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
+			debug write "$select_device SCC" [expr $select_device_chan*32+$i] [expr int(255*$y-128) & 0xff]
+			osd configure scc.slider$i.val	-y [expr $y*255] \
+											-h [expr 128-($y*255)]
+		}
+	}
+
+	#check scc viewer channels
+	foreach device $scc_devices {
+		for {set i 0} {$i < 5} {incr i} {
+			foreach {x y} [osd info "scc_viewer.$device.$i" -mousecoord] {}
+				if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
+
+				#store device and channel picked from the SCC_viewer in memory
+				set select_device $device
+				set select_device_chan $i
+
+				set abs_x [osd info "scc_viewer.$device" -x]
+				set sel_h [osd info "scc_viewer.$device.$i" -h]
+				set sel_w [osd info "scc_viewer.$device.$i" -w]
+				set sel_x [osd info "scc_viewer.$device.$i" -x]
+				set sel_y [osd info "scc_viewer.$device.$i" -y]
+
+				osd configure selected 	-x [expr int($sel_x)+$abs_x] \
+										-y [expr int($sel_y)] \
+										-w [expr $sel_w+4] \
+										-h [expr $sel_h+4] \
+										-z 1 \
+										-rgba 0xff0000ff
+
+				set base $i*32
+
+				for {set q 0} {$q < 32} {incr q} {
+					set sccwave [debug read "$device SCC" [expr $base+$q]]
+					osd configure scc.slider$q.val 	-y [expr 128+$y] \
+													-h [get_scc_wave [expr $sccwave]]
+				}
+			}
+		}
+	}
+}
+
+proc get_val_matrix_column {sccval} { return [expr $sccval < 0 ? $sccval + 256 : $sccval] }
+
+proc get_scc_string_from_matrix {} {
+
+	set sccstring ""
+	set outputfile "outputfile.txt"
+	set output [open $outputfile "w"]
+
+	for {set i 0} {$i < 32} {incr i} {
+		set a [format %02x [get_val_matrix_column [expr int([osd info scc.slider$i.val -h])]]]
+		set sccstring [concat $sccstring$a]
+	}
+
+	close $output
+
+	puts "$outputfile writen"
+	return $sccstring
+}
+
+namespace export toggle_scc_editor
+namespace export toggle_psg2scc
+namespace export set_scc_wave
 namespace export toggle_scc_viewer
+namespace export get_scc_string_from_matrix
+namespace export toggle_psg_tones
 
 } ;# namespace scc_toys
 
 namespace import scc_toys::*
 
+proc show_freq {} {
+	set ftone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]
+	puts $ftone
+	after frame show_freq
+}
