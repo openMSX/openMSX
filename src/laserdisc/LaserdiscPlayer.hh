@@ -143,9 +143,23 @@ private:
 	enum PlayerState {
 		PLAYER_STOPPED,
 		PLAYER_PLAYING,
+		PLAYER_PLAYING_SPEED,
 		PLAYER_PAUSED,
 		PLAYER_FROZEN
 	} playerState;
+
+	enum PlayingSpeed {
+		SPEED_STEP3 = -5,
+		SPEED_STEP1 = -4,
+		SPEED_1IN16 = -3,
+		SPEED_1IN8 = -2,
+		SPEED_1IN4 = -1,
+		SPEED_1IN2 = 0,
+		SPEED_X1 = 1,
+		SPEED_X2 = 2,
+		SPEED_X3 = 3
+	};
+	int playingSpeed;
 
 	bool getFirstFrame;
 
