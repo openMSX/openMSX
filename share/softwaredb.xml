@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1252436332">
+<softwaredb xml:lang="en" timestamp="1252712846">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -433,17 +433,17 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">2185be579cb51729f66bf02bdf3a7b6a3cbd7b40</hash><remark><text>[RC-701] / European version</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">44deaef747c572a4550681fcccc1bbbdc46a1ffc</hash><remark><text>[a][RC-701] / European version</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">44deaef747c572a4550681fcccc1bbbdc46a1ffc</hash><remark><text>[RC-701] / [a] European version</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">292215c95c82948823eb0fbe1b081f14d6b6290d</hash><remark><text>[RC-701] / Japanese version</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e894a38f3e2ad435cc5d17a66600e6016b5e47fb</hash><remark><text>[RC-701] / Japanese version</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">8999a51c94460c8db1ca033b64b568bf919300c2</hash><remark><text>[o][RC-701] / Japanese version</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">e8af1da8478ebfd796b1f04a2429073259761ebb</hash><remark><text>[h by Prosoft][RC-701] / Japanese version</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">63d3755c81b2c294ff3bd96cfb9f5a2f3d83b86c</hash><remark><text>[h by Prosoft][RC-701] / Japanese version</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">46d1c97b97a837387445e6039669fd9d04df8873</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">0ede48e253729833963f1239932d8d26a5e618a1</hash></rom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">6bd5b97baceb3bc8da3571590e2a6a761bb90b48</hash><remark><text>[SCC][RC-701]</text></remark></megarom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">e1c7169bd44a3c67f2941a14699b954d7e337d29</hash><remark><text>[SD Snatcher RAM SCC+][RC-701]</text></remark></sccpluscart></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">c7af3306dbae898fcc077492cc4574298951df34</hash><remark><text>Konami Antiques MSX Collection 1</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">8999a51c94460c8db1ca033b64b568bf919300c2</hash><remark><text>[RC-701] / [o] Japanese version</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">e8af1da8478ebfd796b1f04a2429073259761ebb</hash><remark><text>[RC-701] / [h by Prosoft] Japanese version</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">63d3755c81b2c294ff3bd96cfb9f5a2f3d83b86c</hash><remark><text>[RC-701] / [h by Prosoft] Japanese version</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">46d1c97b97a837387445e6039669fd9d04df8873</hash><remark><text>[RC-701]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">0ede48e253729833963f1239932d8d26a5e618a1</hash><remark><text>[RC-701]</text></remark></rom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">6bd5b97baceb3bc8da3571590e2a6a761bb90b48</hash><remark><text>[RC-701] / [SCC]</text></remark></megarom></dump>
+		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">e1c7169bd44a3c67f2941a14699b954d7e337d29</hash><remark><text>[RC-701] / [SD Snatcher RAM SCC+]</text></remark></sccpluscart></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">c7af3306dbae898fcc077492cc4574298951df34</hash><remark><text>[RC-701] / Konami Antiques MSX Collection 1</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Anty</title>
@@ -463,7 +463,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Compile - Nisso</company>
 	<year>1983</year>
 	<country>JP</country>
-		<dump><original value="false"/><rom><hash algo="sha1">0400bf9fcebf76ead52a702a00b51eef991f730a</hash><remark><text>[h Sammy] / only for MSX1</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">0400bf9fcebf76ead52a702a00b51eef991f730a</hash><remark><text>only for MSX1 [h Sammy]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">633cb458eeab0fea59a70a9a620b7783a44eb0a6</hash><remark><text>only for MSX1</text></remark></rom></dump>
 </software>
 <software>
@@ -654,9 +654,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">c0476fab5ca3c69b381bb8c43efea1277d7a1b43</hash><remark><text>[RC-700]</text></remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">866cb3ab10f17e4fb356fbd7277bbf17c4e27ebe</hash><remark><text>[a1][RC-700]</text></remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">866cb3ab10f17e4fb356fbd7277bbf17c4e27ebe</hash><remark><text>[RC-700] / [a1]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">90bdd12d632d2e909ac5d69235ad0366f430b734</hash><remark><text>[RC-700]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">29e2f2daed13cef12c20c9c0d383b99d18e489de</hash><remark><text>[o][RC-700] / [b]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">29e2f2daed13cef12c20c9c0d383b99d18e489de</hash><remark><text>[RC-700] / [b][o]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">de9eb0e9ef183f49e9d9b631f8818f9cac5df409</hash><remark><text>[RC-700] / [b]</text></remark></rom></dump>
 </software>
 <software>
@@ -1372,7 +1372,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">c06de0eda82e1daa3ea3cbc5eba5d884fd0ce8e8</hash><remark><text>[RC-716]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">7b6e64511a55eed58ba04f34cf2547f7df631c33</hash><remark><text>[RC-716]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">286094c7127bf98d53d8862427487b49132b16da</hash><remark><text>[RC-716]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">c6e0b0bc71059583e7e9da22fe13be9e937ad7dc</hash><remark><text>[h][RC-716]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">c6e0b0bc71059583e7e9da22fe13be9e937ad7dc</hash><remark><text>[RC-716] / [h]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">2a0f9899a4d8dba76db501d6e3435546cc7cd9aa</hash><remark><text>[RC-716]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">ed547caf3e45f621b588cb1fa91008c9c1bc9ed7</hash></rom></dump>
 </software>
@@ -1860,7 +1860,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">fc327d3946366ca75de0d0619eb0917a27e1bd61</hash><remark><text>[RC-714]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">d2604a1f76cadd36ede570e23ad49b0885187e25</hash><remark><text>[a][RC-714]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">d2604a1f76cadd36ede570e23ad49b0885187e25</hash><remark><text>[RC-714] / [a]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">8cf06f93d4e8bcf7be04ae8532f72e6eec8ba2f1</hash><remark><text>[RC-714]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">553ed3a8577f25b6ee884ba78fba5454dd5cac36</hash><remark><text>[RC-714] / Ulver crack</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">9aab2b5dd7ae963d2f1eb7b35122221996b96ffe</hash><remark><text>[RC-714] / Ulver crack</text></remark></rom></dump>
@@ -1880,10 +1880,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami - Sony</company>
 	<year>1983</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">630aec6f93df8d1ef83c52a0bb6ec571b9c6eed4</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">0d8b7fffbaccddcae324e38f7f85722ece8d5976</hash><remark><text>[a]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">fa9ae3205ac5fe8304d53d94bb8b1cb394183c3a</hash><remark><text>[a2]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">76461e053178371aeb457588233cbfccd0d6c02a</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">630aec6f93df8d1ef83c52a0bb6ec571b9c6eed4</hash><remark><text>[RC-706]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">0d8b7fffbaccddcae324e38f7f85722ece8d5976</hash><remark><text>[RC-706] / [a]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">fa9ae3205ac5fe8304d53d94bb8b1cb394183c3a</hash><remark><text>[RC-706] / [a2]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">76461e053178371aeb457588233cbfccd0d6c02a</hash><remark><text>[RC-706]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Computer Music Composer</title>
@@ -2922,9 +2922,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">c221c5d90c3c6eabf1a651072cd9841ad1b25d7d</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">09b0ea7c5595f4e9c9a15219f30e3423bbc25f66</hash><remark><text>[a] / Jaleco</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">8ecc34ebff9d37c0fe9560cfdc53a052cff3d1ab</hash><remark><text>[a2] / Jaleco</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">5be82c297566b3e08fa1fe2534be06ca2f95d565</hash><remark><text>[tr Br Uriano] / Jaleco</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">09b0ea7c5595f4e9c9a15219f30e3423bbc25f66</hash><remark><text>[a]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">8ecc34ebff9d37c0fe9560cfdc53a052cff3d1ab</hash><remark><text>[a2]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">5be82c297566b3e08fa1fe2534be06ca2f95d565</hash><remark><text>[tr Br Uriano]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">975fdf521c08030896eb50af4f39a23500eaf7ac</hash><remark><text>Jaleco</text></remark></rom></dump>
 </software>
 <software>
@@ -2994,8 +2994,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">3880b064dcb851ca221ff67e435137a7cf1141f8</hash><remark><text>[RC-752] / Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">ff72a1788d47f9876d9fabd720f6a289fb409090</hash><remark><text>[RC-752]</text></remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">42fbb18722df3e34e5b0f935a2dc0ce0d85099e9</hash><remark><text>[RC-752][a1]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">8b252fe784692fc15290a04fa59848f609216f16</hash><remark><text>[RC-752][b]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">42fbb18722df3e34e5b0f935a2dc0ce0d85099e9</hash><remark><text>[RC-752] / [a1]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">8b252fe784692fc15290a04fa59848f609216f16</hash><remark><text>[RC-752] / [b]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">f0be97ceca47b65b46c9518e6157b295f8c99c38</hash><remark><text>[RC-752] / Ulver crack</text></remark></megarom></dump>
 </software>
 <software>
@@ -3447,7 +3447,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a194b845857c8b33ef4fd5e53d7f38150b4fa4cf</hash><remark><text>[RC-704]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">c84487e485b8739ec75e09a031f84260fb0e319c</hash><remark><text>[RC-704]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">0a272147999e5075987e864935c84ab3def2c47d</hash><remark><text>[RC-704]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">d8e9fd3e9420bcbb1dd530fda1e9c718aa08d8e4</hash><remark><text>[a][RC-704]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">d8e9fd3e9420bcbb1dd530fda1e9c718aa08d8e4</hash><remark><text>[RC-704] / [a]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Front Line</title>
@@ -6014,7 +6014,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">b82dc590aadc930b43db303bb3e3458e7695e3b5</hash><remark><text>[RC-713]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">f4b58fecbcbc8cd307c34806ecece2a204c26c65</hash><remark><text>[RC-713]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">4ef4cd14a70e5eef213f8d70877dd394cb1999b1</hash><remark><text>[h Magicalsoft][RC-713]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">4ef4cd14a70e5eef213f8d70877dd394cb1999b1</hash><remark><text>[RC-713] / [h Magicalsoft]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">bf5678f3c065a4507f71ed6206a63ac922ad93dd</hash><remark><text>[RC-713]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">dceffda922852fd22e1a566b9cb3106d82db5847</hash><remark><text>[RC-713] / Ulver crack</text></remark></rom></dump>
 </software>
@@ -6082,18 +6082,18 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">c8ff858d239c62a859f15c2f1bf44e1d657cec13</hash><remark><text>[RC-739]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">da8249452da86c0ba44f0ae279ccff82a1ddd756</hash><remark><text>[a][RC-739]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">e568e3455c14cab8992b58c2849a745ef5b19b21</hash><remark><text>[b][RC-739]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">da8249452da86c0ba44f0ae279ccff82a1ddd756</hash><remark><text>[RC-739] / [a]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">e568e3455c14cab8992b58c2849a745ef5b19b21</hash><remark><text>[RC-739] / [b]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">1d6a355a9ce84c78e3bafc27a4f1151e240f68f0</hash><remark><text>[RC-739]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">c484f44af0ab1bcaf46ae5f14a3b38a53ee77f31</hash><remark><text>[RC-739]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">8a6e0f932ce12318a1c5b8dbbfe44b213acb03ae</hash><remark><text>[RC-739] / Ulver crack</text></remark></rom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</hash><remark><text>[SCC][RC-739] / SCC enhanced version</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark><text>[SCC][RC-739]</text></remark></megarom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">f795668afe66c7d88e51f5a22471e2c0a42c7ffb</hash><remark><text>[SD Snatcher RAM SCC+][RC-739]</text></remark></sccpluscart></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">6448aa090d95ab42e8a63f52cd12e40c39521aa0</hash><remark><text>Konami Antiques MSX Collection 2</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">7435a9caec4cdefe398299ba9b6adf89c302fda5</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">e234060800fdcca41eb3f7019edd21c28c9ce223</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">df203139ad0cd2357f3125417a4157e701dbacf6</hash></rom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</hash><remark><text>[RC-739] / SCC enhanced version</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">19a95d8e0fd5cb61ed02e0641ed15454f0b9de42</hash><remark><text>[RC-739] / [SCC]</text></remark></megarom></dump>
+		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">f795668afe66c7d88e51f5a22471e2c0a42c7ffb</hash><remark><text>[RC-739] / [SD Snatcher RAM SCC+]</text></remark></sccpluscart></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">6448aa090d95ab42e8a63f52cd12e40c39521aa0</hash><remark><text>[RC-739] / Konami Antiques MSX Collection 2</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">7435a9caec4cdefe398299ba9b6adf89c302fda5</hash><remark><text>[RC-739]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">e234060800fdcca41eb3f7019edd21c28c9ce223</hash><remark><text>[RC-739]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">df203139ad0cd2357f3125417a4157e701dbacf6</hash><remark><text>[RC-739]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Makaijima - Higemaru</title>
@@ -6570,8 +6570,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">8b2626f8dbbb3e97a5087b340a3f3d56c8ee84d1</hash><remark><text>[RC-702]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">3d840685daac4960ce3a6d0850a49044bf44c607</hash><remark><text>[RC-702]</text></remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e61f407e51ea4411145e236272842bdb3e0743e6</hash><remark><text>[a1][RC-702]</text></remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6fefe304cc8cd099456bbbbbcb23ff776cb113c9</hash><remark><text>[a2][RC-702]</text></remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e61f407e51ea4411145e236272842bdb3e0743e6</hash><remark><text>[RC-702] / [a1]</text></remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6fefe304cc8cd099456bbbbbcb23ff776cb113c9</hash><remark><text>[RC-702] / [a2]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">e0d84b3b2ac7675c3ed104797840d43bc2347a5b</hash><remark><text>[RC-702]</text></remark></rom></dump>
 </software>
 <software>
@@ -6646,12 +6646,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">33ec3136dfb6fd44014c8bbffc8ac79c3cafe75c</hash><remark><text>[RC-728]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">9255b2ac6d03fddf3df8880ec247dd3446e3209f</hash><remark><text>[RC-728]</text></remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">4a185a3db81c2ce20d176d13fa5f619c6b7a170c</hash><remark><text>[a1][RC-728]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">14e7ef125cc902001995bbd8acca0eae2f213dc1</hash><remark><text>[a][RC-728]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">ddc458bb3c70e0708841e516d9b89220c0e098a1</hash><remark><text>[a3][RC-728]</text></remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">4a185a3db81c2ce20d176d13fa5f619c6b7a170c</hash><remark><text>[RC-728] / [a1]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">14e7ef125cc902001995bbd8acca0eae2f213dc1</hash><remark><text>[RC-728] / [a]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">ddc458bb3c70e0708841e516d9b89220c0e098a1</hash><remark><text>[RC-728] / [a3]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">1b3059c7873765a476fb7791a4d6fc846ab05ade</hash><remark><text>[RC-728]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">9d8029aafc4125af7f151f377978389963432d49</hash><remark><text>Konami Antiques MSX Collection 1</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">dd9d6ed442122d142987fd691001efcc2bc18c7c</hash></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">9d8029aafc4125af7f151f377978389963432d49</hash><remark><text>[RC-728] / Konami Antiques MSX Collection 1</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">dd9d6ed442122d142987fd691001efcc2bc18c7c</hash><remark><text>[RC-728]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Morita Kazurou no Othello</title>
@@ -8070,7 +8070,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">9c26a5a89f543050db2d614f8405c659f5baae08</hash><remark><text>1st version</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">c80228bd14f149dbccf57bf9c00f34a4df953d85</hash><remark><text>2nd version</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">f6eb344408fbf69332fdf865a8c213455f0a024c</hash><remark><text>[NEW] / 3rd version</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">f6eb344408fbf69332fdf865a8c213455f0a024c</hash><remark><text>[NEW]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">PSG Sound Test</title>
@@ -8392,7 +8392,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>R.Bittencourt</company>
 	<year>2004</year>
 	<country>BR</country>
-		<dump><original value="false"/><rom><hash algo="sha1">0f1c600fc3c3f7ef390214ee8028ce118d2cf5b8</hash><remark><text>[NEW] / only for Turbo-R</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">0f1c600fc3c3f7ef390214ee8028ce118d2cf5b8</hash><remark><text>[NEW]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Rice</title>
@@ -11022,16 +11022,16 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="false"/><rom><hash algo="sha1">8b3994ab39768f15617fb2cd9199000226b935bd</hash><remark><text>[a][RC-725]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">8b3994ab39768f15617fb2cd9199000226b935bd</hash><remark><text>[RC-725] / [a]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a3090a15c95334da3e0f94030eadee02b5032c0c</hash><remark><text>[RC-725]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">4ac9fc27a4a7b87e2c2347f5a420a6e846555263</hash><remark><text>[RC-725] / Ulver crack</text></remark></rom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">003d58988d120823c84f6617326f5df83c7e5131</hash><remark><text>[SCC][RC-725]</text></remark></megarom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">0f81ebbd3d02796500b3f862fe1a8d584fb228d3</hash><remark><text>[SD Snatcher RAM SCC+][RC-725]</text></remark></sccpluscart></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">176c82d969a8bef171bdc2b7915201957f43b260</hash><remark><text>Konami Antiques MSX Collection 1</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">b0406a38453c3bffcc990576bb725bbf7acaf132</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">a68733d22706aa04d261147d67f2a0a9c17c386f</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">d0018f192ca6a1b78fed9acef58db389848add3e</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">65e427d3282fb47192e4a0f4a09245cfe1b00834</hash></rom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">003d58988d120823c84f6617326f5df83c7e5131</hash><remark><text>[RC-725] / [SCC]</text></remark></megarom></dump>
+		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">0f81ebbd3d02796500b3f862fe1a8d584fb228d3</hash><remark><text>[RC-725] / [SD Snatcher RAM SCC+]</text></remark></sccpluscart></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">176c82d969a8bef171bdc2b7915201957f43b260</hash><remark><text>[RC-725] / Konami Antiques MSX Collection 1</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">b0406a38453c3bffcc990576bb725bbf7acaf132</hash><remark><text>[RC-725]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">a68733d22706aa04d261147d67f2a0a9c17c386f</hash><remark><text>[RC-725]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">d0018f192ca6a1b78fed9acef58db389848add3e</hash><remark><text>[RC-725]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">65e427d3282fb47192e4a0f4a09245cfe1b00834</hash><remark><text>[RC-725]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Yie Ar Kung-Fu II - The Emperor Yie-Gah</title>
@@ -11040,16 +11040,16 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">609d0bac4933d1bcc877746a3e14d82c204f40e7</hash><remark><text>[a1][RC-737]</text></remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">609d0bac4933d1bcc877746a3e14d82c204f40e7</hash><remark><text>[RC-737] / [a1]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">57827f8d49369e4dbf20a968e535374d35ff1648</hash><remark><text>[RC-737]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">5017abeca8fbed43ff2fd1a936843acdc7192dcc</hash><remark><text>[a][RC-737]</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">78d3dc3e48724c1f570d1ee1671100cdd539ad2b</hash><remark><text>[t][RC-737]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">5017abeca8fbed43ff2fd1a936843acdc7192dcc</hash><remark><text>[RC-737] / [a]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">78d3dc3e48724c1f570d1ee1671100cdd539ad2b</hash><remark><text>[RC-737] / [t]</text></remark></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">d65f0010dacbd2528eaa25467ef007a87f17ae7a</hash><remark><text>[RC-737] / Ulver crack</text></remark></rom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">181c62bf30a66ca3c74b4165c230fb44674bdb5d</hash><remark><text>[SCC][RC-737]</text></remark></megarom></dump>
-		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">b27a3e67215aadc9bafd80f184c6be0b26731076</hash><remark><text>[SD Snatcher RAM SCC+][RC-737]</text></remark></sccpluscart></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">3136bee4c7d4d20c1a5ba49516fc9499f405a5bf</hash><remark><text>Konami Antiques MSX Collection 2</text></remark></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">c45a710fccac84de0d3bffed8095344ac1838f1d</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">4108d6dfce393ba267993a9e51f8ad9b3ee7d3f9</hash></rom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">181c62bf30a66ca3c74b4165c230fb44674bdb5d</hash><remark><text>[RC-737] / [SCC]</text></remark></megarom></dump>
+		<dump><original value="false"/><sccpluscart><boot>scc+</boot><hash algo="sha1">b27a3e67215aadc9bafd80f184c6be0b26731076</hash><remark><text>[RC-737] / [SD Snatcher RAM SCC+]</text></remark></sccpluscart></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">3136bee4c7d4d20c1a5ba49516fc9499f405a5bf</hash><remark><text>[RC-737] / Konami Antiques MSX Collection 2</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">c45a710fccac84de0d3bffed8095344ac1838f1d</hash><remark><text>[RC-737]</text></remark></rom></dump>
+		<dump><original value="false"/><rom><hash algo="sha1">4108d6dfce393ba267993a9e51f8ad9b3ee7d3f9</hash><remark><text>[RC-737]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Yokai Tanken Chima Chima</title>
@@ -11110,8 +11110,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">fa6c059e14092d023b1f9f2df28e482f966287db</hash><remark><text>[RC-743]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">d53e0c8bcd98820afe820f756af35cc97911bfe4</hash><remark><text>[RC-743]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">d0706fd10e418eba2929d515cc0994f49376a63f</hash><remark><text>[t][RC-743]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">898bda19f882c6d1dffdb2173db84a97dc21f7d6</hash><remark><text>[h Screen][RC-743]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">d0706fd10e418eba2929d515cc0994f49376a63f</hash><remark><text>[RC-743] / [t]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">898bda19f882c6d1dffdb2173db84a97dc21f7d6</hash><remark><text>[RC-743] / [h Screen]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">4f35f676d2f382078078343921374c2889d06e11</hash><remark><text>[RC-743] / Ulver full crack</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">05a531043d13ba261b0db37e4ef8b257986ce05f</hash><remark><text>[RC-743] / Konami Antiques MSX Collection 3</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">632bdb164acab52ee715c7eefed60e0b1ae629e0</hash><remark><text>[RC-743]</text></remark></megarom></dump>
@@ -11278,5 +11278,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2473
-Parse time 5.374 seconds on Tue Sep 8 20:58:57 CEST 2009
+Parse time 4.290 seconds on Sat Sep 12 1:47:30 CEST 2009
  -->
