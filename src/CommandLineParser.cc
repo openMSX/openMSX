@@ -25,6 +25,7 @@
 #include "XMLException.hh"
 #include "HostCPU.hh"
 #include "StringOp.hh"
+#include "utf8_checked.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
 #include "build-info.hh"
@@ -45,6 +46,10 @@ using std::map;
 using std::set;
 using std::string;
 using std::vector;
+
+#ifdef _WIN32
+using namespace utf8;
+#endif
 
 namespace openmsx {
 
@@ -304,7 +309,14 @@ void CommandLineParser::parse(int argc, char** argv)
 	deque<string> cmdLine;
 	deque<string> backupCmdLine;
 	for (int i = 1; i < argc; i++) {
-		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
+		string argv(argv[i]);
+#ifdef _WIN32
+		// All strings inside openMSX should be UTF8
+		// Unfortunately, strings from the console come in using the console's codepage
+		// So we convert from CP_ACP to UTF16 to UTF8 here
+		argv = utf8::utf16to8(utf8::acptoutf16(argv));
+#endif
+		cmdLine.push_back(FileOperations::getConventionalPath(argv));
 	}
 
 	for (int priority = 1; (priority <= 8) && (parseStatus != EXIT); ++priority) {

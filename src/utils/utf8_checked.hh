@@ -327,6 +327,7 @@ public:
 };
 
 #ifdef _WIN32
+std::wstring acptoutf16(const std::string& acp);
 std::wstring utf8to16(const std::string& utf8);
 std::string utf16to8(const std::wstring& utf16);
 #endif
