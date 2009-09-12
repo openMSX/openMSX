@@ -7,4 +7,3 @@ TODO:
  - serialize state
  - Throttle when Laserdisc::readSample() is called many times per frame
  - screenshot and video recording are broken 
- - Astron Belt sends LD1100 remote commands, not NEC IR protocol

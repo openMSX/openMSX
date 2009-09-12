@@ -317,7 +317,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
-	PRT_DEBUG("Laserdisc: Lowering ACK for " << std::dec << wait << "s");
+	PRT_DEBUG("Laserdisc: Lowering ACK for " << std::dec << wait << "ms");
 	removeSyncPoint(ACK);
 	Clock<1000> now(time);
 	setSyncPoint(now + wait,  ACK);
@@ -472,8 +472,8 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 	case 0xd2: f = "L+"; break;
 	case 0x92: f = "L-"; break;
 	case 0x52: f = "L@"; break;
-	case 0x1a: f = "M+"; break;	// half speed forwards
-	case 0xaa: f = "M-"; break;	// half speed backwards
+	case 0x1a: f = "M+"; break;	// multi speed forwards
+	case 0xaa: f = "M-"; break;	// multi speed backwards
 	case 0xe8: f = "P+"; break;	// play
 	case 0x68: f = "P@"; break;	// stop
 	case 0x18: f = "P/"; break;	// pause
@@ -561,7 +561,13 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 				seekState = SEEK_NONE;
 			}
 			break;
-		case 0xa2: // "X+"
+		case 0xa2: // Clear "X+"
+			if (seekState != SEEK_NONE && seekNum != 0) {
+				seekNum = 0;
+			} else {
+				seekState = SEEK_NONE;
+				seekNum = 0;
+			}
 			waitFrame = 0;
 			break;
 		case 0xff:
@@ -569,17 +575,24 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			ok = false;
 			seekState = SEEK_NONE;
 			break;
-		case 0x1a: // M+ (play at nonstandard speed)
-			playerState = PLAYER_PLAYING_SPEED;
+		case 0xaa: // M- (multispeed backwards)
+			// Not supported
+			ok = false;
+			break;
+		case 0x1a: // M+ (multispeed forwards)
+			playerState = PLAYER_PLAYING_MULTISPEED;
+			setFrameStep();
 			break;
 		case 0x62: // C- (play slower)
 			if (playingSpeed >= SPEED_STEP1) {
 				playingSpeed--;
+				frameStep = 1;
 			}
 			break;
 		case 0xe2: // C+ (play faster)
 			if (playingSpeed <= SPEED_X2) {
 				playingSpeed++;
+				frameStep = 1;
 			}
 			break;
 		}
@@ -631,29 +644,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 			if (isVideoOutputAvailable(time)) {
 				video->getFrame(*rawFrame, currentFrame);
 
-				if (waitFrame && waitFrame == currentFrame) {
-					PRT_DEBUG("LaserdiscPlayer: wait frame "
-						<< std::dec << waitFrame <<
-						" reached");
-
-					setAck(time, 100);
-					waitFrame = 0;
-				}
-
-				if (playerState == PLAYER_PLAYING_SPEED) {
-					if (playingSpeed >= SPEED_X1) {
-						currentFrame += playingSpeed;
-					}
-				} else if (playerState == PLAYER_PLAYING) {
-					currentFrame++;
-				}
-
-				// freeze if stop frame
-				if (video->stopFrame(currentFrame)) {
-					playingFromSample =
-							getCurrentSample(time);
-					playerState = PLAYER_FROZEN;
-				}
+				nextFrame(time);
 			} else {
 				renderer->drawBlank(0, 128, 196);
 			}
@@ -662,6 +653,74 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 
 		frameClock.reset(time);
 		setSyncPoint(frameClock + 1, FRAME);
+	}
+}
+
+void LaserdiscPlayer::setFrameStep()
+{
+	switch (playingSpeed) {
+	case SPEED_X3:
+	case SPEED_X2:
+	case SPEED_X1:
+		frameStep = 1;
+		break;
+	case SPEED_1IN2:
+		frameStep = 2;
+		break;
+	case SPEED_1IN4:
+		frameStep = 4;
+		break;
+	case SPEED_1IN8:
+		frameStep = 8;
+		break;
+	case SPEED_1IN16:
+		frameStep = 16;
+		break;
+	case SPEED_STEP1:
+		frameStep = 30;
+		break;
+	case SPEED_STEP3:
+		frameStep = 90;
+		break;
+	}
+}
+
+void LaserdiscPlayer::nextFrame(EmuTime::param time)
+{
+	if (waitFrame && waitFrame == currentFrame) {
+		PRT_DEBUG("LaserdiscPlayer: wait frame "
+			<< std::dec << waitFrame << " reached");
+
+		setAck(time, 100);
+		waitFrame = 0;
+	}
+
+	if (playerState == PLAYER_PLAYING_MULTISPEED) {
+		if (--frameStep)  {
+			return;
+		}
+
+		switch (playingSpeed) {
+		case SPEED_X3:
+			currentFrame += 3;
+			break;
+		case SPEED_X2:
+			currentFrame += 2;
+			break;
+		default:
+			currentFrame += 1;
+			break;
+		}
+		setFrameStep();
+	} else if (playerState == PLAYER_PLAYING) {
+		currentFrame++;
+	}
+
+	// freeze if stop frame
+	if (video->stopFrame(currentFrame)) {
+		playingFromSample =
+				getCurrentSample(time);
+		playerState = PLAYER_FROZEN;
 	}
 }
 
@@ -800,7 +859,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 		} else if (playerState == PLAYER_PLAYING) {
 			// This breaks Astron Belt loading, commented for now
 			//setAck(time, 46);
-		} else if (playerState == PLAYER_PLAYING_SPEED) {
+		} else if (playerState == PLAYER_PLAYING_MULTISPEED) {
 			// Should be hearing stuff again
 			playingFromSample = (currentFrame - 1ll) * 1001ll *
 					video->getSampleRate() / 30000ll;
@@ -829,7 +888,7 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 
 		if (playerState == PLAYER_PLAYING) {
 			playingFromSample = getCurrentSample(time);
-		} else if (playerState == PLAYER_PLAYING_SPEED) {
+		} else if (playerState == PLAYER_PLAYING_MULTISPEED) {
 			playingFromSample = (currentFrame - 1ll) * 1001ll *
 					video->getSampleRate() / 30000ll;
 			sampleClock.advance(time);
@@ -940,7 +999,7 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 	bool videoOut;
 	switch (playerState) {
 	case PLAYER_PLAYING:
-	case PLAYER_PLAYING_SPEED:
+	case PLAYER_PLAYING_MULTISPEED:
 	case PLAYER_FROZEN:
 		videoOut = !seeking;
 		break;

@@ -85,7 +85,11 @@ private:
 	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
 	std::auto_ptr<OggReader> video;
 	std::auto_ptr<LDRenderer> renderer;
+
+	void nextFrame(EmuTime::param time);
+	void setFrameStep();
 	unsigned currentFrame;
+	unsigned frameStep;
 
 	// Audio state
 	DynamicClock sampleClock;
@@ -143,17 +147,17 @@ private:
 	enum PlayerState {
 		PLAYER_STOPPED,
 		PLAYER_PLAYING,
-		PLAYER_PLAYING_SPEED,
+		PLAYER_PLAYING_MULTISPEED,
 		PLAYER_PAUSED,
 		PLAYER_FROZEN
 	} playerState;
 
 	enum PlayingSpeed {
-		SPEED_STEP3 = -5,
-		SPEED_STEP1 = -4,
-		SPEED_1IN16 = -3,
-		SPEED_1IN8 = -2,
-		SPEED_1IN4 = -1,
+		SPEED_STEP3 = -5,	// Each frame is repeated 90 times
+		SPEED_STEP1 = -4,	// Each frame is repeated 30 times
+		SPEED_1IN16 = -3,	// Each frame is repeated 16 times
+		SPEED_1IN8 = -2,	// Each frame is repeated 8 times
+		SPEED_1IN4 = -1,	// Each frame is repeated 4 times
 		SPEED_1IN2 = 0,
 		SPEED_X1 = 1,
 		SPEED_X2 = 2,
