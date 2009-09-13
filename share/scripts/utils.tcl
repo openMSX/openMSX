@@ -56,4 +56,13 @@ proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
 }
 
+proc print_array {name} {
+	upvar $name local
+	set result ""
+	foreach key [array names local] {
+		append result "${name}(${key}) = $local($key)\n"
+	}
+	return $result
+}
+
 } ;# namespace utils
