@@ -309,14 +309,36 @@ void CommandLineParser::parse(int argc, char** argv)
 	deque<string> cmdLine;
 	deque<string> backupCmdLine;
 	for (int i = 1; i < argc; i++) {
-		string argv(argv[i]);
+		string sargv(argv[i]);
 #ifdef _WIN32
-		// All strings inside openMSX should be UTF8
-		// Unfortunately, strings from the console come in using the console's codepage
-		// So we convert from CP_ACP to UTF16 to UTF8 here
-		argv = utf8::utf16to8(utf8::acptoutf16(argv));
+		// All strings inside openMSX should be UTF8.
+		// Unfortunately, some strings arrive here using the system default codepage 
+		// (e.g. when openmsx is run from the cmd.exe console).
+		// Other string arrive here using UTF8 (e.g. when openmsx is run from a program 
+		// like Catapult, using CreateProcessA/W with a UTF8/UTF16 string).
+		// 
+		// This means that we have to use our psychic powers to guess the encoding used 
+		// when the program was executed.
+		//
+		// The right fix would probably be to change SDL_main to use wchar_t instead 
+		// of char. This would at least let Windows figure it out instead of us.
+		// However, we don't own SDL_main.
+		if (IsTextUnicode(argv[i], int(sargv.length()), NULL))
+		{
+			// Major hack alert!!
+			// Instead of changing SDL_main, we ask the OS-provided encoding guesser 
+			// to examine the string. This function returns false for UTF8 strings, and
+			// true when the string contains a character that isn't UTF8 friendly 
+			// (e.g. the 1252 encoding for ó).
+			// When we see a string like that, we use the system default code page to convert to 
+			// UTF16 and then to UTF8.
+			// I suspect this approach won't work in every scenario. But it does work for
+			// UTF8 input trivially, and it also works with accented characters from the console 
+			// on a EN-US Windows 7 system.
+			sargv = utf8::utf16to8(utf8::acptoutf16(sargv));
+		}
 #endif
-		cmdLine.push_back(FileOperations::getConventionalPath(argv));
+		cmdLine.push_back(FileOperations::getConventionalPath(sargv));
 	}
 
 	for (int priority = 1; (priority <= 8) && (parseStatus != EXIT); ++priority) {
