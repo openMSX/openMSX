@@ -10,29 +10,50 @@
 
 namespace utf8 {
 
-std::wstring ansitouf16(const std::string& ansi, UINT cp, DWORD dwFlags)
+bool ansitouf16(const std::string& ansi, UINT cp, DWORD dwFlags, std::wstring& utf16)
 {
 	const char* ansiA = ansi.c_str();
 	int len = MultiByteToWideChar(cp, dwFlags, ansiA, -1, NULL, 0);
 	if (len) {
-		VLA(wchar_t, utf16, len);
-		len = MultiByteToWideChar(cp, dwFlags, ansiA, -1, utf16, len);
+		VLA(wchar_t, utf16W, len);
+		len = MultiByteToWideChar(cp, dwFlags, ansiA, -1, utf16W, len);
 		if (len) {
-			return utf16;
+			utf16 = utf16W;
+			return true;
 		}
 	}
-	throw openmsx::FatalError(StringOp::Builder() <<
-		"MultiByteToWideChar failed: " << GetLastError());
+	return false;
 }
 
-std::wstring acptoutf16(const std::string& acp)
+std::string unknowntoutf8(const std::string& unknown)
 {
-	return ansitouf16(acp, CP_ACP, MB_ERR_INVALID_CHARS);
+	std::wstring utf16;
+
+	// Try UTF8 to UTF16 conversion first
+	// If that fails, try CP_ACP to UTF16
+	// If that fails, give up
+	if (ansitouf16(unknown, CP_UTF8, MB_ERR_INVALID_CHARS, utf16) ||
+		(GetLastError() == ERROR_NO_UNICODE_TRANSLATION &&
+		ansitouf16(unknown, CP_ACP, MB_ERR_INVALID_CHARS, utf16)))
+	{
+		return utf16to8(utf16);
+	}
+	else
+	{
+		throw openmsx::FatalError(StringOp::Builder() <<
+			"MultiByteToWideChar failed: " << GetLastError());
+	}
 }
 
 std::wstring utf8to16(const std::string& utf8)
 {
-	return ansitouf16(utf8, CP_UTF8, MB_ERR_INVALID_CHARS);
+	std::wstring utf16;
+	if (!ansitouf16(utf8, CP_UTF8, MB_ERR_INVALID_CHARS, utf16))
+	{
+		throw openmsx::FatalError(StringOp::Builder() <<
+		"MultiByteToWideChar failed: " << GetLastError());
+	}
+	return utf16;
 }
 
 std::string utf16to8(const std::wstring& utf16)
