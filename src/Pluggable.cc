@@ -40,7 +40,7 @@ void Pluggable::unplug(EmuTime::param time)
 {
 	try {
 		unplugHelper(time);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		assert(false);
 	}
 	setConnector(NULL);
