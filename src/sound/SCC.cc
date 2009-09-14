@@ -105,6 +105,7 @@
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "likely.hh"
+#include "unreachable.hh"
 
 using std::string;
 
@@ -265,8 +266,7 @@ byte SCC::peekMem(byte address, EmuTime::param time) const
 		}
 		break;
 	default:
-		assert(false);
-		result = 0xFF;
+		UNREACHABLE; return 0;
 	}
 	//PRT_DEBUG("SCC: read " << (int)address << " " << (int)result);
 	return result;
@@ -358,7 +358,7 @@ void SCC::writeMem(byte address, byte value, EmuTime::param time)
 		}
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -482,7 +482,7 @@ void SCC::setDeformRegHelper(byte value)
 		}
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

@@ -3,6 +3,7 @@
 #include "Pluggable.hh"
 #include "PlugException.hh"
 #include "Connector.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 using std::string;
@@ -41,7 +42,7 @@ void Pluggable::unplug(EmuTime::param time)
 	try {
 		unplugHelper(time);
 	} catch (MSXException&) {
-		assert(false);
+		UNREACHABLE;
 	}
 	setConnector(NULL);
 }

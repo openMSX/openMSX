@@ -19,8 +19,8 @@
 #include "Transparent1xScaler.hh"
 #include "Transparent2xScaler.hh"
 #include "Transparent3xScaler.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
-#include <cassert>
 
 using std::auto_ptr;
 
@@ -65,7 +65,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 				new SimpleScaler<Pixel>(pixelOps, renderSettings)
 				);
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 #endif
 #if (MIN_SCALE_FACTOR <= 4) && (MAX_SCALE_FACTOR >= 3)
@@ -94,11 +94,11 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings)
 				);
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 #endif
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 	return auto_ptr<Scaler>(); // avoid warning
 }

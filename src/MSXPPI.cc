@@ -12,8 +12,8 @@
 #include "XMLElement.hh"
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <string>
-#include <cassert>
 
 namespace openmsx {
 
@@ -80,7 +80,7 @@ byte MSXPPI::readIO(word port, EmuTime::param time)
 	case 3:
 		return i8255->readControlPort(time);
 	default: // unreachable, avoid warning
-		assert(false);
+		UNREACHABLE;
 		return 0;
 	}
 }
@@ -97,7 +97,7 @@ byte MSXPPI::peekIO(word port, EmuTime::param time) const
 	case 3:
 		return i8255->readControlPort(time);
 	default: // unreachable, avoid warning
-		assert(false);
+		UNREACHABLE;
 		return 0;
 	}
 }
@@ -118,7 +118,7 @@ void MSXPPI::writeIO(word port, byte value, EmuTime::param time)
 		i8255->writeControlPort(value, time);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

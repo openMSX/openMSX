@@ -9,6 +9,7 @@
 #include "EnumSetting.hh"
 #include "serialize.hh"
 #include "likely.hh"
+#include "unreachable.hh"
 #include <iostream>
 
 namespace openmsx {
@@ -832,7 +833,7 @@ void V9990CmdEngine::setCurrentCommand()
 	} else { // Bx
 		switch (vdp.getColorMode()) {
 			default:
-				assert(false);
+				UNREACHABLE;
 			case BP2:
 				cmdMode = CMD_BPP2;
 				break;

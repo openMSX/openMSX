@@ -10,6 +10,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <cstring>
 
@@ -463,7 +464,7 @@ void V9990::executeUntil(EmuTime::param time, int userData)
 		break;
 
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -749,7 +750,7 @@ void V9990::setHorizontalTiming()
 	case B5: case B6:
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -769,7 +770,7 @@ void V9990::setVerticalTiming()
 	case B5: case B6:
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -789,11 +790,11 @@ V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 					case 0x40: mode = BD8; break;
 					case 0x80: mode = BYJK; break;
 					case 0xC0: mode = BYUV; break;
-					default: assert(false); break;
+					default: UNREACHABLE;
 				}
 				break;
 			case 0x03: mode = BD16; break;
-			default: assert(false); break;
+			default: UNREACHABLE;
 		}
 	}
 
@@ -824,7 +825,7 @@ void V9990::calcDisplayMode()
 				case 0x10: mode = B2; break;
 				case 0x20: mode = B4; break;
 				case 0x30: mode = INVALID_DISPLAY_MODE; break;
-				default: assert(false);
+				default: UNREACHABLE;
 				}
 			} else { // XTAL1 timing
 				switch(regs[SCREEN_MODE_0] & 0x30) {

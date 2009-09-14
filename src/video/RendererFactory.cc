@@ -7,6 +7,7 @@
 #include "Display.hh"
 #include "Version.hh"
 #include "GLUtil.hh"
+#include "unreachable.hh"
 
 // Video systems:
 #include "components.hh"
@@ -41,8 +42,7 @@ VideoSystem* createVideoSystem(Reactor& reactor)
 		case SDLGL_FB32:
 			return new SDLVideoSystem(reactor, display.getCommandConsole());
 		default:
-			assert(false);
-			return 0;
+			UNREACHABLE; return NULL;
 	}
 }
 
@@ -57,8 +57,7 @@ Renderer* createRenderer(VDP& vdp, Display& display)
 		case SDLGL_FB32:
 			return new PixelRenderer(vdp, display);
 		default:
-			assert(false);
-			return 0;
+			UNREACHABLE; return NULL;
 	}
 }
 
@@ -73,8 +72,7 @@ V9990Renderer* createV9990Renderer(V9990& vdp, Display& display)
 		case SDLGL_FB32:
 			return new V9990PixelRenderer(vdp);
 		default:
-			assert(false);
-			return 0;
+			UNREACHABLE; return NULL;
 	}
 }
 
@@ -90,8 +88,7 @@ LDRenderer* createLDRenderer(LaserdiscPlayer& ld, Display& display)
 		case SDLGL_FB32:
 			return new LDPixelRenderer(ld, display);
 		default:
-			assert(false);
-			return 0;
+			UNREACHABLE; return NULL;
 	}
 }
 #endif

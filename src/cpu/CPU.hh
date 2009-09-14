@@ -7,10 +7,10 @@
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <vector>
 #include <memory>
-#include <cassert>
 
 namespace openmsx {
 
@@ -191,7 +191,7 @@ public:
 			else if (R8 == REG_I) { return getI(); }
 			else if (R8 == REG_R) { return getR(); }
 			else if (R8 == DUMMY) { return 0; }
-			else { assert(false); return 0; }
+			else { UNREACHABLE; return 0; }
 		}
 
 		inline unsigned getAF()  const { return AF_.w; }
@@ -214,7 +214,7 @@ public:
 			else if (R16 == IX) { return getIX(); }
 			else if (R16 == IY) { return getIY(); }
 			else if (R16 == SP) { return getSP(); }
-			else { assert(false); return 0; }
+			else { UNREACHABLE; return 0; }
 		}
 
 		inline byte getIM()  const { return IM_; }
@@ -264,7 +264,7 @@ public:
 			else if (R8 == REG_I) { setI(x); }
 			else if (R8 == REG_R) { setR(x); }
 			else if (R8 == DUMMY) { /* nothing */ }
-			else { assert(false); }
+			else { UNREACHABLE; }
 		}
 
 		inline void setAF(unsigned x)  { AF_.w = x; }
@@ -287,7 +287,7 @@ public:
 			else if (R16 == IX) { setIX(x); }
 			else if (R16 == IY) { setIY(x); }
 			else if (R16 == SP) { setSP(x); }
-			else { assert(false); }
+			else { UNREACHABLE; }
 		}
 
 		inline void setIM(byte x)  { IM_ = x; }

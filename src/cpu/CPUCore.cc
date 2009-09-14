@@ -173,6 +173,7 @@
 #include "Thread.hh"
 #include "likely.hh"
 #include "inline.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <iomanip>
 #include <iostream>
@@ -385,7 +386,7 @@ template <class T> void CPUCore<T>::raiseNMI()
 {
 	// NMIs are currently disabled, they are anyway not used in MSX and
 	// not having to check for them allows to emulate slightly faster
-	assert(false);
+	UNREACHABLE;
 	assert(NMIStatus >= 0);
 	if (NMIStatus == 0) {
 		nmiEdge = true;
@@ -458,7 +459,7 @@ template <class T> void CPUCore<T>::update(const Setting& setting)
 	} else if (&setting == freqValue.get()) {
 		doSetFreq();
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -1383,7 +1384,7 @@ CASE(CB) {
 		case 0xee: { int c = set_N_xhl<5>(); NEXT; }
 		case 0xf6: { int c = set_N_xhl<6>(); NEXT; }
 		case 0xfe: { int c = set_N_xhl<7>(); NEXT; }
-		default: assert(false); return;
+		default: UNREACHABLE; return;
 	}
 }
 CASE(ED) {
@@ -1522,7 +1523,7 @@ CASE(ED) {
 		case 0xd9: { int c = T::isR800() ? mulub_a_R<E>() : nop(); NEXT; }
 		case 0xc3: { int c = T::isR800() ? muluw_hl_SS<BC>() : nop(); NEXT; }
 		case 0xf3: { int c = T::isR800() ? muluw_hl_SS<SP>() : nop(); NEXT; }
-		default: assert(false); return;
+		default: UNREACHABLE; return;
 	}
 }
 opDD_2:
@@ -1804,7 +1805,7 @@ CASE(DD) {
 		case 0xcb: ixy = R.getIX(); goto xx_cb;
 		case 0xdd: T::add(T::CC_DD); goto opDD_2;
 		case 0xfd: T::add(T::CC_DD); goto opFD_2;
-		default: assert(false); return;
+		default: UNREACHABLE; return;
 	}
 }
 opFD_2:
@@ -2086,11 +2087,11 @@ CASE(FD) {
 		case 0xcb: ixy = R.getIY(); goto xx_cb;
 		case 0xdd: T::add(T::CC_DD); goto opDD_2;
 		case 0xfd: T::add(T::CC_DD); goto opFD_2;
-		default: assert(false); return;
+		default: UNREACHABLE; return;
 	}
 }
 #ifndef USE_COMPUTED_GOTO
-	default: assert(false); return;
+	default: UNREACHABLE; return;
 }
 #endif
 
@@ -2319,7 +2320,7 @@ xx_cb: {
 			case 0xee: { int c = set_N_xix_R<5,DUMMY>(addr); NEXT; }
 			case 0xf6: { int c = set_N_xix_R<6,DUMMY>(addr); NEXT; }
 			case 0xfe: { int c = set_N_xix_R<7,DUMMY>(addr); NEXT; }
-			default: assert(false);
+			default: UNREACHABLE;
 		}
 	}
 }
@@ -2389,7 +2390,7 @@ template <class T> void CPUCore<T>::executeSlow()
 			case 2: irq2();
 				break;
 			default:
-				assert(false);
+				UNREACHABLE;
 		}
 	} else if (unlikely(R.getHALT())) {
 		// in halt mode

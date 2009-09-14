@@ -13,6 +13,7 @@
 #include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 using std::string;
@@ -106,7 +107,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			tmp = r800.get();
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 			tmp = NULL; // prevent warning
 	}
 	if (tmp != activeCPU) {
@@ -312,9 +313,8 @@ byte MSXCPUDebuggable::read(unsigned address)
 	case 25: return regs.getR();
 	case 26: return regs.getIM();
 	case 27: return regs.getIFF1() + 2 * regs.getIFF2();
+	default: UNREACHABLE; return 0;
 	}
-	assert(false);
-	return 0;
 }
 
 void MSXCPUDebuggable::write(unsigned address, byte value)
@@ -355,8 +355,7 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 		regs.setIFF2((value & 0x02) != 0);
 		break;
 	default:
-		assert(false);
-		break;
+		UNREACHABLE;
 	}
 }
 

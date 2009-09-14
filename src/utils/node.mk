@@ -31,6 +31,7 @@ HDR_ONLY:= \
 	noncopyable \
 	shared_ptr \
 	static_assert \
+	unreachable \
 	tuple \
 	TypeInfo \
 	type_traits \

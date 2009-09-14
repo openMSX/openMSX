@@ -7,6 +7,7 @@
 #include "FirmwareSwitch.hh"
 #include "SimpleDebuggable.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -53,7 +54,7 @@ byte MSXS1990::peekIO(word port, EmuTime::param /*time*/) const
 	case 1:
 		return readRegister(registerSelect);
 	default: // unreachable, avoid warning
-		assert(false);
+		UNREACHABLE;
 		return 0;
 	}
 }
@@ -68,7 +69,7 @@ void MSXS1990::writeIO(word port, byte value, EmuTime::param /*time*/)
 		writeRegister(registerSelect, value);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

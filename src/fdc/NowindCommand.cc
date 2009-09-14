@@ -12,6 +12,7 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "CommandException.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <deque>
 
@@ -169,7 +170,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 				result << (filename.empty() ? "--empty--" : filename)
 				       << '\n';
 			} else {
-				assert(false);
+				UNREACHABLE;
 			}
 		}
 		result << "phantom drives: "

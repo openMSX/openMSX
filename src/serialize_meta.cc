@@ -2,6 +2,7 @@
 
 #include "serialize_meta.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <iostream>
 
@@ -46,7 +47,7 @@ void PolymorphicSaverRegistry<Archive>::save(
 	if (it == reg.saverMap.end()) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
 			  << typeInfo.name() << std::endl;
-		assert(false);
+		UNREACHABLE;
 	}
 	it->second->save(ar, t);
 }

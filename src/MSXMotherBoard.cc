@@ -39,6 +39,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "unreachable.hh"
 #include "ref.hh"
 #include <cassert>
 #include <map>
@@ -362,7 +363,7 @@ void MSXMotherBoardImpl::deleteMachine()
 			std::cerr << "Internal error: failed to remove "
 			             "extension while deleting a machine: "
 			          << e.getMessage() << std::endl;
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 
@@ -797,7 +798,7 @@ void MSXMotherBoardImpl::update(const Setting& setting)
 			powerDown();
 		}
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

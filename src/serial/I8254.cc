@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "ClockPin.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -101,8 +102,7 @@ byte I8254::readIO(word port, EmuTime::param time)
 		case 3: // read from control word, illegal
 			return 255; // TODO check value
 		default:
-			assert(false);
-			return 255;
+			UNREACHABLE; return 0;
 	}
 }
 
@@ -115,8 +115,7 @@ byte I8254::peekIO(word port, EmuTime::param time) const
 		case 3: // read from control word, illegal
 			return 255; // TODO check value
 		default:
-			assert(false);
-			return 255;
+			UNREACHABLE; return 0;
 	}
 }
 
@@ -147,7 +146,7 @@ void I8254::writeIO(word port, byte value, EmuTime::param time)
 			}
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 	}
 }
 
@@ -222,7 +221,7 @@ byte Counter::readIO(EmuTime::param time)
 	word readData = ltchCntr ? latchedCounter : counter;
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
-		assert(false);
+		UNREACHABLE;
 	case WF_LOW:
 		ltchCntr = false;
 		return readData & 0x00FF;
@@ -239,8 +238,7 @@ byte Counter::readIO(EmuTime::param time)
 			return readData >> 8;
 		}
 	default:
-		assert(false);
-		return 0; // avoid warning
+		UNREACHABLE; return 0;
 	}
 }
 
@@ -255,7 +253,7 @@ byte Counter::peekIO(EmuTime::param time) const
 	word readData = ltchCntr ? latchedCounter : counter;
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
-		assert(false);
+		UNREACHABLE;
 	case WF_LOW:
 		return readData & 0x00FF;
 	case WF_HIGH:
@@ -267,8 +265,7 @@ byte Counter::peekIO(EmuTime::param time) const
 			return readData >> 8;
 		}
 	default:
-		assert(false);
-		return 0; // avoid warning
+		UNREACHABLE; return 0;
 	}
 }
 
@@ -277,7 +274,7 @@ void Counter::writeIO(byte value, EmuTime::param time)
 	advance(time);
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
-		assert(false);
+		UNREACHABLE;
 	case WF_LOW:
 		writeLoad((counterLoad & 0xFF00) | value, time);
 		break;
@@ -298,7 +295,7 @@ void Counter::writeIO(byte value, EmuTime::param time)
 		}
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 void Counter::writeLoad(word value, EmuTime::param time)
@@ -351,7 +348,7 @@ void Counter::writeControlWord(byte value, EmuTime::param time)
 			output.setState(true, time);
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 }
@@ -418,7 +415,7 @@ void Counter::setGateStatus(bool newStatus, EmuTime::param time)
 			}
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 }
@@ -507,7 +504,7 @@ void Counter::advance(EmuTime::param time)
 		counter &= 0xFFFF;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

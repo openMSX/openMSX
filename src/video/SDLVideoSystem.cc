@@ -17,6 +17,7 @@
 #include "V9990.hh"
 #include "build-info.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include <memory>
 #include <cassert>
 
@@ -105,8 +106,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 					VIDEO_MSX, 640, 240)));
 #endif
 		default:
-			assert(false);
-			return NULL;
+			UNREACHABLE; return NULL;
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
@@ -117,8 +117,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 				VIDEO_MSX, 640, 240)));
 #endif
 	default:
-		assert(false);
-		return NULL;
+		UNREACHABLE; return NULL;
 	}
 }
 
@@ -147,8 +146,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 					VIDEO_GFX9000, 1280, 240)));
 #endif
 		default:
-			assert(false);
-			return NULL;
+			UNREACHABLE; return NULL;
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
@@ -159,8 +157,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 				VIDEO_GFX9000, 1280, 240)));
 #endif
 	default:
-		assert(false);
-		return NULL;
+		UNREACHABLE; return NULL;
 	}
 }
 
@@ -192,8 +189,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 					VIDEO_LASERDISC, 640, 480)));
 #endif
 		default:
-			assert(false);
-			return NULL;
+			UNREACHABLE; return NULL;
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
@@ -204,8 +200,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 				VIDEO_LASERDISC, 640, 480)));
 #endif
 	default:
-		assert(false);
-		return NULL;
+		UNREACHABLE; return NULL;
 	}
 }
 #endif
@@ -227,7 +222,7 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 		factor = 0;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 	width  = 320 * factor;
 	height = 240 * factor;
@@ -313,7 +308,7 @@ void SDLVideoSystem::resize()
 		break;
 #endif
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 	inputEventGenerator.reinit();
 }
@@ -325,7 +320,7 @@ void SDLVideoSystem::update(const Setting& subject)
 		//       but is that still needed?
 		//resize();
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

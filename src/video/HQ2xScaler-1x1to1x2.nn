@@ -5431,6 +5431,6 @@ case 4095:
 	pixel2 = c5;
 	break;
 default:
-	assert(false);
+	UNREACHABLE;
 	pixel1 = pixel2 = 0; // avoid warning
 }

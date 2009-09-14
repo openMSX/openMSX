@@ -14,6 +14,7 @@ Visit the HiEnd3D site for info:
 #include "HQCommon.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 
 namespace openmsx {

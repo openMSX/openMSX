@@ -16,6 +16,7 @@
 #include "serialize_stl.hh"
 #include "StringOp.hh"
 #include "ref.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 #include <iostream>
@@ -164,7 +165,7 @@ HardwareConfig::~HardwareConfig()
 		testRemove();
 	} catch (MSXException& e) {
 		std::cerr << e.getMessage() << std::endl;
-		assert(false);
+		UNREACHABLE;
 	}
 #endif
 	for (Devices::reverse_iterator it = devices.rbegin();

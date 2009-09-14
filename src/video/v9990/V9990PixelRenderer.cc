@@ -17,6 +17,7 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -162,7 +163,7 @@ void V9990PixelRenderer::renderUntil(EmuTime::param time)
 		             V9990DisplayTiming::UC_TICKS_PER_LINE;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 		toX = toY = 0; // avoid warning
 	}
 
@@ -316,7 +317,7 @@ void V9990PixelRenderer::update(const Setting& setting)
 		// Force drawing of frame
 		frameSkipCounter = 999;
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

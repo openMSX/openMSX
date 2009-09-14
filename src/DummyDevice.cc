@@ -1,7 +1,7 @@
 // $Id$
 
 #include "DummyDevice.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -12,8 +12,7 @@ DummyDevice::DummyDevice(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 void DummyDevice::reset(EmuTime::param /*time*/)
 {
-	// Block usage
-	assert(false);
+	UNREACHABLE;
 }
 
 } // namespace openmsx

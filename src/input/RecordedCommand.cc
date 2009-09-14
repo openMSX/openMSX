@@ -8,6 +8,7 @@
 #include "InputEvents.hh"
 #include "ScopedAssign.hh"
 #include "checked_cast.hh"
+#include "unreachable.hh"
 
 using std::vector;
 using std::string;
@@ -98,9 +99,7 @@ string RecordedCommand::execute(const vector<string>& /*tokens*/,
 {
 	// either this method or the method above should be reimplemented
 	// by the subclasses
-	assert(false);
-	// avoid warning:
-	return string("");
+	UNREACHABLE; return "";
 }
 
 } // namespace openmsx

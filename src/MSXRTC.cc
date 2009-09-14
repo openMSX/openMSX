@@ -5,7 +5,7 @@
 #include "RP5C01.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -51,7 +51,7 @@ void MSXRTC::writeIO(word port, byte value, EmuTime::param time)
 		rp5c01->writePort(registerLatch, value & 0x0F, time);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

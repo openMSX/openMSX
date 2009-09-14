@@ -32,6 +32,7 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
+#include "unreachable.hh"
 #include <sstream>
 #include <cstring>
 #include <cassert>
@@ -363,7 +364,7 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 		break;
 	}
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -780,8 +781,7 @@ byte VDP::readIO(word port, EmuTime::param time)
 		return readStatusReg(controlRegs[15], time);
 	default:
 		// These ports should not be registered for reading.
-		assert(false);
-		return 0xFF;
+		UNREACHABLE; return 0xFF;
 	}
 }
 

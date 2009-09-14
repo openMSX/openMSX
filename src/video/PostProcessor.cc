@@ -13,6 +13,7 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "vla.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -86,10 +87,8 @@ const std::string& PostProcessor::getName()
 	case VIDEO_MSX: return V99x8_NAME;
 	case VIDEO_GFX9000: return V9990_NAME;
 	case VIDEO_LASERDISC: return LASERDISC;
+	default: UNREACHABLE; return DUMMY;
 	}
-
-	assert(false);
-	return DUMMY;
 }
 
 RawFrame* PostProcessor::rotateFrames(

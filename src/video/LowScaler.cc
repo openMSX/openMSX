@@ -8,6 +8,7 @@
 #include "MemoryOps.hh"
 #include "openmsx.hh"
 #include "vla.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -298,8 +299,7 @@ void LowScaler<Pixel>::scaleImage(FrameSource& src,
 			              dst, dstStartY, dstEndY);
 			break;
 		default:
-			assert(false);
-			break;
+			UNREACHABLE;
 		}
 	} else {
 		assert(src.getHeight() == 480);
@@ -333,8 +333,7 @@ void LowScaler<Pixel>::scaleImage(FrameSource& src,
 			              dst, dstStartY, dstEndY);
 			break;
 		default:
-			assert(false);
-			break;
+			UNREACHABLE;
 		}
 	}
 }

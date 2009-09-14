@@ -4,7 +4,7 @@
 #include "WD33C93.hh"
 #include "Rom.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -35,8 +35,7 @@ byte GoudaSCSI::readIO(word port, EmuTime::param /*time*/)
 	case 2:
 		return 0xb0; // bit 4: 1 = Halt on SCSI parity error
 	default:
-		assert(false);
-		return 0;
+		UNREACHABLE; return 0;
 	}
 }
 
@@ -50,8 +49,7 @@ byte GoudaSCSI::peekIO(word port, EmuTime::param /*time*/) const
 	case 2:
 		return 0xb0; // bit 4: 1 = Halt on SCSI parity error
 	default:
-		assert(false);
-		return 0;
+		UNREACHABLE; return 0;
 	}
 }
 
@@ -68,7 +66,7 @@ void GoudaSCSI::writeIO(word port, byte value, EmuTime::param time)
 		reset(time);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

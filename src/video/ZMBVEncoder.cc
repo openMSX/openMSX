@@ -3,6 +3,7 @@
 // Code based on DOSBox-0.65
 
 #include "ZMBVEncoder.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -171,7 +172,7 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 		pixelsize = 4;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 
 	pitch = width + 2 * MAX_VECTOR;

@@ -8,6 +8,7 @@
 #include "shared_ptr.hh"
 #include "type_traits.hh"
 #include "inline.hh"
+#include "unreachable.hh"
 #include <string>
 #include <cstring>
 #include <vector>
@@ -202,7 +203,7 @@ public:
 	 */
 	bool hasAttribute(const char* /*name*/)
 	{
-		assert(false); return false;
+		UNREACHABLE; return false;
 	}
 
 	/** Some archives (like XML archives) can count the number of subtags
@@ -219,7 +220,10 @@ public:
 	 * It's only allowed to call this method on archives that have support
 	 * for this operation.
 	 */
-	int countChildren() const { assert(false); return -1; }
+	int countChildren() const
+	{
+		UNREACHABLE; return 0;
+	}
 
 	/** Indicate begin of a tag.
 	 * Only XML archives use this, other archives ignore it.
@@ -296,7 +300,7 @@ public:
 
 	void skipSection(bool /*skip*/)
 	{
-		assert(false);
+		UNREACHABLE;
 	}
 
 /*internal*/
@@ -434,11 +438,11 @@ public:
 
 	void beginSection()
 	{
-		assert(false);
+		UNREACHABLE;
 	}
 	void endSection()
 	{
-		assert(false);
+		UNREACHABLE;
 	}
 
 /*internal*/

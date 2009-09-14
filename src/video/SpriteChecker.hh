@@ -7,6 +7,7 @@
 #include "VDPVRAM.hh"
 #include "VRAMObserver.hh"
 #include "DisplayMode.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -104,7 +105,7 @@ public:
 			updateSpritesMethod = &SpriteChecker::updateSprites2;
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		if (mode0) {
 			// switch from mode0 to some other mode

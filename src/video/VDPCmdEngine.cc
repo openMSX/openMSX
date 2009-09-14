@@ -42,6 +42,7 @@ TODO:
 #include "EnumSetting.hh"
 #include "RenderSettings.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <iostream>
 #include <cassert>
 #include <algorithm>
@@ -1869,7 +1870,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
 		executeCommand(time);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -1894,7 +1895,7 @@ byte VDPCmdEngine::peekCmdReg(byte index)
 	case 0x0C: return COL;
 	case 0x0D: return ARG;
 	case 0x0E: return CMD;
-	default: assert(false); return 0;
+	default: UNREACHABLE; return 0;
 	}
 }
 

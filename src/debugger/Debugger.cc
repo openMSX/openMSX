@@ -15,6 +15,7 @@
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include "shared_ptr.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <memory>
 
@@ -648,8 +649,7 @@ void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
 			type = "write_mem";
 			break;
 		default:
-			assert(false);
-			break;
+			UNREACHABLE; break;
 		}
 		line.addListElement(type);
 		unsigned beginAddr = wp.getBeginAddress();

@@ -17,6 +17,7 @@
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -67,7 +68,7 @@ void RomZemina90in1::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 		setRom(5, page + 0);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

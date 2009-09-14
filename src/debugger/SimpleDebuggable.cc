@@ -3,7 +3,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -45,8 +45,7 @@ byte SimpleDebuggable::read(unsigned address)
 
 byte SimpleDebuggable::read(unsigned /*address*/, EmuTime::param /*time*/)
 {
-	assert(false);
-	return 0;
+	UNREACHABLE; return 0;
 }
 
 void SimpleDebuggable::write(unsigned address, byte value)

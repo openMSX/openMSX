@@ -7,9 +7,9 @@
 #include "StringOp.hh"
 #include "GLUtil.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include <SDL.h>
 #include <algorithm>
-#include <cassert>
 
 using std::string;
 using std::set;
@@ -194,7 +194,7 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 			return;
 		}
 	}
-	assert(false);
+	UNREACHABLE;
 }
 
 struct AscendingZ {

@@ -11,6 +11,7 @@
 #include "XMLElement.hh"
 #include "SettingsConfig.hh"
 #include "AlarmEvent.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 using std::string;
@@ -334,7 +335,7 @@ string BindCmd::execute(const vector<string>& tokens)
 	string result;
 	switch (tokens.size()) {
 	case 0:
-		assert(false);
+		UNREACHABLE;
 	case 1:
 		// show all bounded keys
 		for (HotKey::BindMap::const_iterator it = cmdMap.begin();

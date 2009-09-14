@@ -3,6 +3,7 @@
 #include "RomInfo.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <map>
 
@@ -163,8 +164,7 @@ string RomInfo::romTypeToName(RomType type)
 			return it->first;
 		}
 	}
-	assert(false);
-	return "";
+	UNREACHABLE; return "";
 }
 
 void RomInfo::getAllRomTypes(set<string>& result)

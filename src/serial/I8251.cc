@@ -2,6 +2,7 @@
 
 #include "I8251.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 using std::string;
@@ -90,8 +91,7 @@ byte I8251::readIO(word port, EmuTime::param time)
 		result = readStatus(time);
 		break;
 	default:
-		assert(false);
-		result = 0xFF;
+		UNREACHABLE; return 0;
 	}
 	//PRT_DEBUG("I8251: read " << (int)port << " " << (int)result);
 	return result;
@@ -99,19 +99,14 @@ byte I8251::readIO(word port, EmuTime::param time)
 
 byte I8251::peekIO(word port, EmuTime::param /*time*/) const
 {
-	byte result;
 	switch (port & 1) {
 	case 0:
-		result = recvBuf;
-		break;
+		return recvBuf;
 	case 1:
-		result = status; // TODO peekStatus()
-		break;
+		return status; // TODO peekStatus()
 	default:
-		assert(false);
-		result = 0xFF;
+		UNREACHABLE; return 0;
 	}
-	return result;
 }
 
 
@@ -152,11 +147,11 @@ void I8251::writeIO(word port, byte value, EmuTime::param time)
 			}
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -179,7 +174,7 @@ void I8251::setMode(byte value)
 		dataBits = SerialDataInterface::DATA_8;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 		dataBits = SerialDataInterface::DATA_8;
 	}
 	interf.setDataBits(dataBits);
@@ -199,7 +194,7 @@ void I8251::setMode(byte value)
 		stopBits = SerialDataInterface::STOP_2;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 		stopBits = SerialDataInterface::STOP_2;
 	}
 	interf.setStopBits(stopBits);
@@ -224,7 +219,7 @@ void I8251::setMode(byte value)
 		baudrate = 64;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 		baudrate = 1;
 	}
 
@@ -381,7 +376,7 @@ void I8251::executeUntil(EmuTime::param time, int userData)
 		}
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

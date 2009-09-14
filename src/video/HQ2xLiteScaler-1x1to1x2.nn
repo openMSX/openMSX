@@ -4255,6 +4255,6 @@ case 3951:
 	pixel2 = ((((c5 & 0x00FF00) * 15 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 15 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
 	break;
 default:
-	assert(false);
+	UNREACHABLE;
 	pixel1 = pixel2 = 0; // avoid warning
 }

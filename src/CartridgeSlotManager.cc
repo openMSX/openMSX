@@ -13,6 +13,7 @@
 #include "StringOp.hh"
 #include "openmsx.hh"
 #include "CliComm.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 using std::string;
@@ -131,7 +132,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			return;
 		}
 	}
-	assert(false);
+	UNREACHABLE;
 }
 
 
@@ -143,7 +144,7 @@ int CartridgeSlotManager::getSlot(int ps, int ss) const
 			return slot;
 		}
 	}
-	assert(false); // was not an external slot
+	UNREACHABLE; // was not an external slot
 	return 0; // avoid warning
 }
 
@@ -248,7 +249,7 @@ int CartridgeSlotManager::useExternalSlot(
 			return slot;
 		}
 	}
-	assert(false); // ps-ss is not an external slot
+	UNREACHABLE; // ps-ss is not an external slot
 	return 0; // avoid warning
 }
 

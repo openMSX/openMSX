@@ -5,7 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 using std::string;
 
@@ -53,7 +53,7 @@ void MSXPrinterPort::writeIO(word port, byte value, EmuTime::param time)
 		writeData(value, time);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

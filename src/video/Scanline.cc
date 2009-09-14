@@ -2,6 +2,7 @@
 
 #include "Scanline.hh"
 #include "HostCPU.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstring>
@@ -74,8 +75,7 @@ inline unsigned Multiply<unsigned>::multiply(unsigned p) const
 
 const unsigned* Multiply<unsigned>::getTable() const
 {
-	assert(false);
-	return NULL;
+	UNREACHABLE; return NULL;
 }
 
 

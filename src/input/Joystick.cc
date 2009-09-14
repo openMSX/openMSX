@@ -8,7 +8,7 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 using std::string;
 
@@ -204,7 +204,7 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*
 		break;
 	}
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

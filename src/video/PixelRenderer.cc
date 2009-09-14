@@ -22,6 +22,7 @@ TODO:
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -541,7 +542,7 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 		break;
 	}
 	default:
-		assert(false);
+		UNREACHABLE;
 		limitX = limitY = 0; // avoid warning
 	}
 
@@ -594,7 +595,7 @@ void PixelRenderer::update(const Setting& setting)
 		// Force drawing of frame.
 		frameSkipCounter = 999;
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

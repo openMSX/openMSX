@@ -10,6 +10,7 @@
 #include "openmsx.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
+#include "unreachable.hh"
 #include <iostream>
 //#include <tk.h>
 #include "openmsx.hh"
@@ -129,7 +130,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 			output->output(text);
 		}
 	} catch (...) {
-		assert(false); // we cannot let exceptions pass through Tcl
+		UNREACHABLE; // we cannot let exceptions pass through Tcl
 	}
 	return toWrite;
 }
@@ -178,7 +179,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		}
 		return res;
 	} catch (...) {
-		assert(false); // we cannot let exceptions pass through Tcl
+		UNREACHABLE; // we cannot let exceptions pass through Tcl
 		return TCL_ERROR;
 	}
 }
@@ -407,7 +408,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			             reinterpret_cast<ClientData>(traceID));
 		}
 	} catch (...) {
-		assert(false); // we cannot let exceptions pass through Tcl
+		UNREACHABLE; // we cannot let exceptions pass through Tcl
 	}
 	return NULL;
 }

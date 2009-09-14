@@ -7,6 +7,7 @@
 #include "Math.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -222,7 +223,7 @@ template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterP(
 	Pixel* /*pixelPtr*/, unsigned /*address*/, int /*nrPixels*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 static bool isHighRes(V9990DisplayMode display)
@@ -249,7 +250,7 @@ void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode color,
 	case BP2:   rasterMethod = isHighRes(display) ?
 	                           &V9990BitmapConverter::rasterBP2HiRes :
 	                           &V9990BitmapConverter::rasterBP2;   break;
-	default:    assert (false);
+	default:    UNREACHABLE;
 	}
 }
 

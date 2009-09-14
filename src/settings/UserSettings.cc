@@ -9,6 +9,7 @@
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 using std::set;
@@ -75,7 +76,7 @@ void UserSettings::deleteSetting(Setting& setting)
 			return;
 		}
 	}
-	assert(false);
+	UNREACHABLE;
 }
 
 Setting* UserSettings::findSetting(const std::string& name) const

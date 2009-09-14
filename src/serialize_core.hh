@@ -6,6 +6,7 @@
 #include "shared_ptr.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
+#include "unreachable.hh"
 #include <string>
 #include <cassert>
 #include <memory>
@@ -88,7 +89,7 @@ template<typename T> struct serialize_as_enum_impl : is_true {
 			if (p->e == t) return p->str;
 			++p;
 		}
-		assert(false); return "";
+		UNREACHABLE; return "";
 	}
 	T fromString(const std::string& str) const {
 		enum_string<T>* p = info;
@@ -96,7 +97,7 @@ template<typename T> struct serialize_as_enum_impl : is_true {
 			if (p->str == str) return p->e;
 			++p;
 		}
-		assert(false); return T(0);
+		UNREACHABLE; return T();
 	}
 private:
 	enum_string<T>* info;

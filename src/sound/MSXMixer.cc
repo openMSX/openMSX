@@ -18,6 +18,7 @@
 #include "Math.hh"
 #include "StringOp.hh"
 #include "vla.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -579,7 +580,7 @@ void MSXMixer::update(const Setting& setting)
 	} else if (dynamic_cast<const BooleanSetting*>(&setting)) {
 		changeMuteSetting(setting);
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -599,7 +600,7 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			}
 		}
 	}
-	assert(false);
+	UNREACHABLE;
 }
 
 void MSXMixer::changeMuteSetting(const Setting& setting)
@@ -617,7 +618,7 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 			}
 		}
 	}
-	assert(false);
+	UNREACHABLE;
 }
 
 void MSXMixer::update(const ThrottleManager& /*throttleManager*/)

@@ -6,6 +6,7 @@
 #include "ResampleLQ.hh"
 #include "ResampleBlip.hh"
 #include "EnumSetting.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -69,7 +70,7 @@ void Resample::createResampler()
 			}
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 }

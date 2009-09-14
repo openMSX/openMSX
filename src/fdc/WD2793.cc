@@ -4,6 +4,7 @@
 #include "DiskDrive.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -482,7 +483,7 @@ void WD2793::executeUntil(EmuTime::param time, int userData)
 			}
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 	}
 }
 

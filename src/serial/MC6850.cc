@@ -2,7 +2,7 @@
 
 #include "MC6850.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -31,8 +31,7 @@ byte MC6850::peekIO(word port, EmuTime::param /*time*/) const
 		result = 0;
 		break;
 	default: // unreachable, avoid warning
-		assert(false);
-		result = 0;
+		UNREACHABLE; result = 0;
 	}
 	//PRT_DEBUG("Audio: read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;

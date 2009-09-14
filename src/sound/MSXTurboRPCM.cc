@@ -6,6 +6,7 @@
 #include "DACSound8U.hh"
 #include "MSXMixer.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -67,8 +68,7 @@ byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 		result = (getComp(time) ? 0x80 : 0x00) | (status & 0x1F);
 		break;
 	default: // unreachable, avoid warning
-		assert(false);
-		result = 0;
+		UNREACHABLE; result = 0;
 	}
 	//PRT_DEBUG("PCM: read " << hex << (int)port << " " << (int)result << dec);
 	return result;

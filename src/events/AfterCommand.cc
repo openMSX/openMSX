@@ -12,6 +12,7 @@
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <cstdlib>
 #include <sstream>
@@ -454,8 +455,7 @@ shared_ptr<AfterCmd> AfterCmd::removeSelf()
 			return result;
 		}
 	}
-	assert(false);
-	return shared_ptr<AfterCmd>(0);
+	UNREACHABLE; return shared_ptr<AfterCmd>(0);
 }
 
 

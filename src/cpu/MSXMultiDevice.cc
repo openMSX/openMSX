@@ -2,7 +2,7 @@
 
 #include "MSXMultiDevice.hh"
 #include "XMLElement.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -19,17 +19,17 @@ MSXMultiDevice::MSXMultiDevice(MSXMotherBoard& motherboard)
 
 void MSXMultiDevice::reset(EmuTime::param /*time*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 void MSXMultiDevice::powerUp(EmuTime::param /*time*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 void MSXMultiDevice::powerDown(EmuTime::param /*time*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 } // namespace openmsx

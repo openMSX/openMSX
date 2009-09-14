@@ -8,6 +8,7 @@
 #include "VideoSourceSetting.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cmath>
@@ -167,7 +168,7 @@ void RenderSettings::update(const Setting& setting)
 	} else if (&setting == contrastSetting.get()) {
 		updateBrightnessAndContrast();
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

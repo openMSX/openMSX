@@ -6,6 +6,7 @@
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -238,8 +239,7 @@ void Scaler2<Pixel>::scaleImage(FrameSource& src,
 			              dst, dstStartY, dstEndY);
 			break;
 		default:
-			assert(false);
-			break;
+			UNREACHABLE;
 		}
 	} else {
 		assert(src.getHeight() == 480);
@@ -273,8 +273,7 @@ void Scaler2<Pixel>::scaleImage(FrameSource& src,
 			              dst, dstStartY, dstEndY);
 			break;
 		default:
-			assert(false);
-			break;
+			UNREACHABLE;
 		}
 	}
 }

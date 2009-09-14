@@ -424,7 +424,7 @@ void SpriteChecker::updateSprites0(int /*limit*/)
 	// mode 0 is missing and performance is being wasted.
 	// The updateSpritesN methods are called by checkUntil, which is
 	// documented as not allowed to be called in sprite mode 0.
-	assert(false);
+	UNREACHABLE;
 }
 
 template<typename Archive>

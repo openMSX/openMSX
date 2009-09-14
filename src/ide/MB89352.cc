@@ -401,7 +401,7 @@ void MB89352::resetACKREQ()
 		return;
 
 	default:
-		//assert(false);
+		//UNREACHABLE;
 		PRT_DEBUG("reset ACK/REQ code error");
 		break;
 	}

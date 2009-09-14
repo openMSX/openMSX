@@ -7984,7 +7984,7 @@ case 4095:
 	pixel9 = c5;
 	break;
 default:
-	assert(false);
+	UNREACHABLE;
 	pixel1 = pixel2 = pixel3 = pixel4 =
 	pixel6 = pixel7 = pixel8 = pixel9 = 0; // avoid warning
 }

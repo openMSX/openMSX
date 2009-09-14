@@ -4,6 +4,7 @@
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "shared_ptr.hh"
+#include "unreachable.hh"
 #include <SDL_ttf.h>
 #include <map>
 #include <algorithm>
@@ -130,7 +131,7 @@ void TTFFontPool::release(TTF_Font* font)
 			return;
 		}
 	}
-	assert(false);
+	UNREACHABLE;
 }
 
 

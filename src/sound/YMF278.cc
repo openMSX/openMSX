@@ -540,8 +540,7 @@ void YMF278Impl::advance()
 			break;
 
 		default:
-			assert(false);
-			break;
+			UNREACHABLE;
 		}
 	}
 }

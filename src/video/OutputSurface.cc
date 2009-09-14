@@ -1,6 +1,7 @@
 // $Id$
 
 #include "OutputSurface.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -64,7 +65,7 @@ unsigned OutputSurface::getKeyColor()
 	case 16:
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 
 	return keyColor;

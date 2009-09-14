@@ -27,6 +27,7 @@
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include <tcl.h>
+#include "unreachable.hh"
 #include <cstdio>
 #include <memory> // for auto_ptr
 #include <set>
@@ -240,12 +241,12 @@ MSXCPUInterface::~MSXCPUInterface()
 		if (IO_In[port] != dummyDevice.get()) {
 			std::cout << "In-port " << port << " still registered "
 			          << IO_In[port]->getName() << std::endl;
-			assert(false);
+			UNREACHABLE;
 		}
 		if (IO_Out[port] != dummyDevice.get()) {
 			std::cout << "Out-port " << port << " still registered "
 			          << IO_Out[port]->getName() << std::endl;
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
@@ -351,7 +352,7 @@ void MSXCPUInterface::unsetExpanded(int ps)
 		vector<MSXDevice*> dummy;
 		testUnsetExpanded(ps, dummy);
 	} catch (...) {
-		assert(false);
+		UNREACHABLE;
 	}
 #endif
 	expanded[ps]--;
@@ -754,8 +755,7 @@ void MSXCPUInterface::setWatchPoint(shared_ptr<WatchPoint> watchPoint)
 		updateMemWatch(type);
 		break;
 	default:
-		assert(false);
-		break;
+		UNREACHABLE; break;
 	}
 }
 
@@ -782,8 +782,7 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 				updateMemWatch(type);
 				break;
 			default:
-				assert(false);
-				break;
+				UNREACHABLE; break;
 			}
 			break;
 		}

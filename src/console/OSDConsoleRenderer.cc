@@ -17,6 +17,7 @@
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -170,7 +171,7 @@ void OSDConsoleRenderer::update(const Setting& setting)
 	} else if (&setting == fontSizeSetting.get()) {
 		loadFont(fontSetting->getValue());
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -406,7 +407,7 @@ void OSDSettingChecker::check(SettingImpl<FilenameSetting::Policy>& setting,
 	} else if (&setting == renderer.fontSetting.get()) {
 		renderer.loadFont(value);
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

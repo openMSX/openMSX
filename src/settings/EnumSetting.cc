@@ -5,7 +5,7 @@
 #include "Completer.hh"
 #include "CommandException.hh"
 #include "stringsp.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -34,8 +34,7 @@ std::string EnumSettingPolicyBase::toStringBase(int value) const
 			return it->first;
 		}
 	}
-	assert(false);
-	return ""; // avoid warning
+	UNREACHABLE; return "";
 }
 
 void EnumSettingPolicyBase::getPossibleValues(std::set<std::string>& result) const

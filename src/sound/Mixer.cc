@@ -11,6 +11,7 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -93,7 +94,7 @@ void Mixer::reloadDriver()
 			break;
 #endif
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 	} catch (MSXException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
@@ -177,7 +178,7 @@ void Mixer::update(const Setting& setting)
 	           (&setting == frequencySetting.get())) {
 		reloadDriver();
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

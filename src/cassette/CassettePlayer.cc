@@ -42,6 +42,7 @@
 #include "DynamicClock.hh"
 #include "Clock.hh"
 #include "StringOp.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -149,7 +150,7 @@ void CassettePlayer::autoRun()
 			loadingInstruction = "CLOAD\\\\rRUN";
 			break;
 		default:
-			assert(false); // Shouldn't be possible
+			UNREACHABLE; // Shouldn't be possible
 	}
 	string var = "::auto_run_cas_counter";
 	string command =
@@ -178,8 +179,7 @@ string CassettePlayer::getStateString() const
 		case RECORD: return "record";
 		case STOP:   return "stop";
 	}
-	assert(false);
-	return "";
+	UNREACHABLE; return "";
 }
 
 bool CassettePlayer::isRolling() const
@@ -232,7 +232,7 @@ void CassettePlayer::checkInvariants() const
 		assert(!playImage.get());
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

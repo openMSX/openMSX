@@ -5,6 +5,7 @@
 #include "MemoryOps.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
 
@@ -95,7 +96,7 @@ const Pixel* FrameSource::scaleLine(
 			out[0] = in[0];
 			break;
 		case 213:
-			assert(false);
+			UNREACHABLE;
 		case 320: {
 			Scale_2on3<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
@@ -127,7 +128,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		break;
 	case 320:
@@ -141,7 +142,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 320:
-			assert(false);
+			UNREACHABLE;
 		case 426: {
 			Scale_3on4<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
@@ -168,7 +169,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		break;
 	case 426:
@@ -187,7 +188,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 426:
-			assert(false);
+			UNREACHABLE;
 		case 640: {
 			Scale_2on3<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
@@ -209,7 +210,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		break;
 	case 640:
@@ -233,7 +234,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 640:
-			assert(false);
+			UNREACHABLE;
 		case 853: {
 			Scale_3on4<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
@@ -250,7 +251,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		break;
 	case 853:
@@ -279,7 +280,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 853:
-			assert(false);
+			UNREACHABLE;
 		case 960: {
 			Scale_8on9<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
@@ -291,7 +292,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		break;
 	case 1280:
@@ -330,13 +331,13 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 1280:
-			assert(false);
+			UNREACHABLE;
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 
 	return out;

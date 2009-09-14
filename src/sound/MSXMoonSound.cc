@@ -5,7 +5,7 @@
 #include "YMF278.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -58,8 +58,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 			result = ymf278->readReg(opl4latch, time);
 			break;
 		default: // unreachable, avoid warning
-			assert(false);
-			result = 255;
+			UNREACHABLE; result = 255;
 		}
 	} else {
 		// FM part  0xC4-0xC7
@@ -74,8 +73,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 			result = ymf262->readReg(opl3latch);
 			break;
 		default: // unreachable, avoid warning
-			assert(false);
-			result = 255;
+			UNREACHABLE; result = 255;
 		}
 	}
 	//PRT_DEBUG("MoonSound: read "<<hex<<(int)port<<" "<<(int)result<<dec);
@@ -95,8 +93,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 			result = ymf278->peekReg(opl4latch);
 			break;
 		default: // unreachable, avoid warning
-			assert(false);
-			result = 255;
+			UNREACHABLE; result = 255;
 		}
 	} else {
 		// FM part  0xC4-0xC7
@@ -111,8 +108,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 			result = ymf262->peekReg(opl3latch);
 			break;
 		default: // unreachable, avoid warning
-			assert(false);
-			result = 255;
+			UNREACHABLE; result = 255;
 		}
 	}
 	return result;
@@ -132,7 +128,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 				ymf278->writeRegOPL4(opl4latch, value, time);
 				break;
 			default:
-				assert(false);
+				UNREACHABLE;
 			}
 		} else {
 			// writes are ignore when NEW2=0
@@ -151,7 +147,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 			ymf262->writeReg(opl3latch, value, time);
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 }

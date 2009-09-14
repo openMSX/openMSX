@@ -29,6 +29,7 @@
 #include "Version.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
+#include "unreachable.hh"
 #include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
@@ -206,7 +207,7 @@ Display::Layers::iterator Display::baseLayer()
 			// TODO: This is not true for DummyVideoSystem.
 			//       Anyway, a missing layer will probably stand out visually,
 			//       so do we really have to assert on it?
-			//assert(false);
+			//UNREACHABLE;
 			return it;
 		}
 		--it;
@@ -267,7 +268,7 @@ void Display::update(const Setting& setting)
 	} else if (&setting == &renderSettings->getVideoSource()) {
 		checkRendererSwitch();
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

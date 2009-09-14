@@ -11,6 +11,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <set>
 #include <algorithm>
 #include <cassert>
@@ -424,7 +425,7 @@ byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
 void MSXDevice::globalWrite(word /*address*/, byte /*value*/,
                             EmuTime::param /*time*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 byte* MSXDevice::getWriteCacheLine(word /*start*/) const

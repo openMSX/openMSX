@@ -6,6 +6,7 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "unreachable.hh"
 
 using std::string;
 
@@ -81,8 +82,7 @@ byte Mouse::read(EmuTime::param /*time*/)
 		case FAZE_YLOW:
 			return  ((yrel / SCALE)       & 0x0F) | status;
 		default:
-			assert(false);
-			return status; // avoid warning
+			UNREACHABLE; return 0;
 		}
 	} else {
 		emulateJoystick();

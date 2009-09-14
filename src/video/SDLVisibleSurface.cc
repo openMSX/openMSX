@@ -6,6 +6,7 @@
 #include "SDLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <cstring>
 #include <cassert>
@@ -83,8 +84,7 @@ std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
 		return std::auto_ptr<Layer>(new SDLSnow<unsigned>(*this, display));
 #endif
 	default:
-		assert(false);
-		return std::auto_ptr<Layer>(); // avoid warning
+		UNREACHABLE; return std::auto_ptr<Layer>();
 	}
 }
 

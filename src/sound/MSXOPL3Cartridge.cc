@@ -3,7 +3,7 @@
 #include "MSXOPL3Cartridge.hh"
 #include "YMF262.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -41,8 +41,7 @@ byte MSXOPL3Cartridge::readIO(word port, EmuTime::param /*time*/)
 			result = ymf262->readReg(opl3latch);
 			break;
 		default: // unreachable, avoid warning
-			assert(false);
-			result = 255;
+			UNREACHABLE; result = 255;
 		}
 	return result;
 }
@@ -60,8 +59,7 @@ byte MSXOPL3Cartridge::peekIO(word port, EmuTime::param /*time*/) const
 			result = ymf262->peekReg(opl3latch);
 			break;
 		default: // unreachable, avoid warning
-			assert(false);
-			result = 255;
+			UNREACHABLE; result = 255;
 		}
 	return result;
 }
@@ -80,7 +78,7 @@ void MSXOPL3Cartridge::writeIO(word port, byte value, EmuTime::param time)
 			ymf262->writeReg(opl3latch, value, time);
 			break;
 		default:
-			assert(false);
+			UNREACHABLE;
 	}
 }
 

@@ -10,6 +10,7 @@
 #include "Math.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
+#include "unreachable.hh"
 #include <map>
 #include <cassert>
 #include <cstring>
@@ -421,7 +422,7 @@ void MemSet<Pixel, STREAMING>::operator()(
 		memset_32<STREAMING>(
 			reinterpret_cast<unsigned*>(dest), num, val);
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -436,7 +437,7 @@ void MemSet2<Pixel, STREAMING>::operator()(
 		memset_32_2<STREAMING>(
 			reinterpret_cast<unsigned*>(dest), num, val0, val1);
 	} else {
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

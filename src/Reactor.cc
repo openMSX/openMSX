@@ -38,6 +38,7 @@
 #include "openmsx.hh"
 #include "checked_cast.hh"
 #include "statp.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <memory>
 #include <iostream>
@@ -618,7 +619,7 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 			pause();
 		}
 	} else {
-		assert(false); // we didn't subscribe to this event...
+		UNREACHABLE; // we didn't subscribe to this event...
 	}
 	return true;
 }

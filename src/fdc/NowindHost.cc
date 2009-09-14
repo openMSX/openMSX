@@ -3,6 +3,7 @@
 #include "SectorAccessibleDisk.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "unreachable.hh"
 #include <fstream>
 #include <algorithm>
 #include <cassert>
@@ -158,7 +159,7 @@ void NowindHost::write(byte data, unsigned time)
 		}
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

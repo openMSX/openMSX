@@ -8,6 +8,7 @@
 #include "Keys.hh" // GP2X
 #include "openmsx.hh"
 #include "checked_cast.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 using std::string;
@@ -331,7 +332,7 @@ bool InputEventGenerator::signalEvent(shared_ptr<const Event> event)
 				setGrabInput(true);
 				break;
 			default:
-				assert(false);
+				UNREACHABLE;
 		}
 	} else if (event->getType() == OPENMSX_POLL_EVENT) {
 		poll();

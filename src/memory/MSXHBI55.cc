@@ -36,7 +36,7 @@
 #include "I8255.hh"
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -81,8 +81,7 @@ byte MSXHBI55::readIO(word port, EmuTime::param time)
 		result = i8255->readControlPort(time);
 		break;
 	default: // unreachable, avoid warning
-		assert(false);
-		result = 0;
+		UNREACHABLE; result = 0;
 	}
 	//PRT_DEBUG("HBI-55 read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
@@ -105,8 +104,7 @@ byte MSXHBI55::peekIO(word port, EmuTime::param time) const
 		result = i8255->readControlPort(time);
 		break;
 	default: // unreachable, avoid warning
-		assert(false);
-		result = 0;
+		UNREACHABLE; result = 0;
 	}
 	return result;
 }
@@ -128,7 +126,7 @@ void MSXHBI55::writeIO(word port, byte value, EmuTime::param time)
 		i8255->writeControlPort(value, time);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 

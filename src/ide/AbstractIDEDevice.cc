@@ -5,6 +5,7 @@
 #include "LedStatus.hh"
 #include "Version.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <cstring>
 #include <cstdio>
@@ -102,8 +103,7 @@ byte AbstractIDEDevice::readReg(nibble reg, EmuTime::param /*time*/)
 	case 14:// alternate status reg, converted to read from normal
 		// status register by IDE interface
 	default:
-		assert(false);
-		return 0x7F; // avoid warning
+		UNREACHABLE; return 0x7F; // avoid warning
 	}
 }
 
@@ -157,8 +157,7 @@ void AbstractIDEDevice::writeReg(
 
 	case 0: // data register, converted to readData by IDE interface
 	default:
-		assert(false);
-		break;
+		UNREACHABLE; break;
 	}
 }
 

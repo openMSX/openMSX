@@ -5,7 +5,7 @@
 #include "CacheLine.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -42,7 +42,7 @@ void RomMSXDOS2::writeMem(word address, byte value, EmuTime::param /*time*/)
 		if (address != 0x7ffe) return;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 	setRom(1, value);
 }
@@ -60,7 +60,7 @@ byte* RomMSXDOS2::getWriteCacheLine(word address) const
 		if (address == (0x7ffe & CacheLine::HIGH)) return NULL;
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 	return unmappedWrite;
 }

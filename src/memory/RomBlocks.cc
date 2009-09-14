@@ -6,6 +6,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -115,7 +116,8 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			} else if (offsets[i] < (romSize + sramSize + extraSize)) {
 				bank[i] = &extraMem[offsets[i] - romSize - sramSize];
 			} else {
-				assert(false); // TODO throw
+				// TODO throw
+				UNREACHABLE;
 			}
 		}
 	} else {
@@ -133,7 +135,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			           (bank[i] <= &extraMem[extraSize - 1])) {
 				offsets[i] = unsigned(bank[i] - extraMem + romSize + sramSize);
 			} else {
-				assert(false);
+				UNREACHABLE;
 			}
 		}
 		ar.serialize("banks", offsets);

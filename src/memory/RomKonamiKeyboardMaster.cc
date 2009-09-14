@@ -6,7 +6,7 @@
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "serialize.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -53,7 +53,7 @@ void RomKonamiKeyboardMaster::writeIO(word port, byte value, EmuTime::param time
 		vlm5030->writeControl(value, time);
 		break;
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 }
 
@@ -62,13 +62,10 @@ byte RomKonamiKeyboardMaster::readIO(word port, EmuTime::param time)
 	switch (port & 0xFF) {
 	case 0x00:
 		return vlm5030->getBSY(time) ? 0x10 : 0x00;
-		break;
 	case 0x20:
 		return 0xFF;
-		break;
 	default:
-		assert(false);
-		return 0xFF;
+		UNREACHABLE; return 0xFF;
 	}
 }
 

@@ -7,6 +7,7 @@
 #include "MidiOutConnector.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -114,8 +115,7 @@ byte MSXMidi::readIO(word port, EmuTime::param time)
 			result = i8254->readIO(port - 4, time);
 			break;
 		default:
-			assert(false);
-			result = 0xFF; // avoid warning
+			UNREACHABLE; return 0;
 	}
 	//PRT_DEBUG("MSX-Midi read " << (int)port << " " << (int)result);
 	return result;
@@ -141,8 +141,7 @@ byte MSXMidi::peekIO(word port, EmuTime::param time) const
 			result = i8254->peekIO(port - 4, time);
 			break;
 		default:
-			assert(false);
-			result = 0xFF; // avoid warning
+			UNREACHABLE; return 0;
 	}
 	return result;
 }
@@ -317,7 +316,7 @@ void MSXMidiCounter0::signal(ClockPin& pin, EmuTime::param time)
 
 void MSXMidiCounter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 

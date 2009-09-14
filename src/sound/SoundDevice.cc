@@ -10,6 +10,7 @@
 #include "MemoryOps.hh"
 #include "aligned.hh"
 #include "vla.hh"
+#include "unreachable.hh"
 #include <cstring>
 #include <cassert>
 
@@ -219,7 +220,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	// actually mix channels
 	switch (numMix) {
 	case 0:
-		assert(false);
+		UNREACHABLE;
 	case 1:
 		// all extra channels muted
 		return anyUnmuted;

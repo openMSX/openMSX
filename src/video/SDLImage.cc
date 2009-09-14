@@ -5,6 +5,7 @@
 #include "File.hh"
 #include "MSXException.hh"
 #include "vla.hh"
+#include "unreachable.hh"
 #include "build-info.hh"
 #if PLATFORM_GP2X
 #include "GP2XMMUHack.hh"
@@ -53,8 +54,7 @@ static bool hasConstantAlpha(const SDL_Surface* surface, byte& alpha)
 	case 3: case 4:
 		return hasConstantAlpha<unsigned>(surface, alpha);
 	default:
-		assert(false);
-		return true;
+		UNREACHABLE; return false;
 	}
 }
 

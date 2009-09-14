@@ -9,6 +9,7 @@
 #include "YM2413Okazaki.hh"
 #include "serialize.hh"
 #include "inline.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -853,7 +854,7 @@ void Slot::calc_envelope_outline(unsigned& out)
 	case SUSHOLD:
 	case FINISH:
 	default:
-		assert(false);
+		UNREACHABLE;
 		break;
 	}
 }
@@ -1084,7 +1085,7 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 			case 29: calcChannel<29>(ch, bufs[i], num); break;
 			case 30: calcChannel<30>(ch, bufs[i], num); break;
 			case 31: calcChannel<31>(ch, bufs[i], num); break;
-			default: assert(false);
+			default: UNREACHABLE;
 			}
 		}
 	}

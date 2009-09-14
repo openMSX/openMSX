@@ -203,7 +203,7 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 	if (compress2(reinterpret_cast<Bytef*>(&buf[sizeof(uLongf)]), &dstLen,
 	              reinterpret_cast<const Bytef*>(data), len, 1)
 	    != Z_OK) {
-		assert(false);
+		UNREACHABLE;
 	}
 
 	memcpy(buf, &dstLen, sizeof(uLongf)); // fill-in actual size
@@ -231,7 +231,7 @@ void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
 	if (uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
 		       reinterpret_cast<const Bytef*>(buffer.getCurrentPos()), srcLen)
 	    != Z_OK) {
-		assert(false);
+		UNREACHABLE;
 	}
 	buffer.skip(srcLen);
 #else

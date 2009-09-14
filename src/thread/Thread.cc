@@ -2,6 +2,7 @@
 
 #include "Thread.hh"
 #include "MSXException.hh"
+#include "unreachable.hh"
 #include <iostream>
 #include <cassert>
 #include <SDL_thread.h>
@@ -71,11 +72,11 @@ int Thread::startThread(void* runnable)
 	} catch (FatalError& e) {
 		std::cerr << "Fatal error in subthread: "
 		     << e.getMessage() << std::endl;
-		assert(false);
+		UNREACHABLE;
 	} catch (MSXException& e) {
 		std::cerr << "Uncaught exception in subthread: "
 		     << e.getMessage() << std::endl;
-		assert(false);
+		UNREACHABLE;
 	} // don't catch(..), thread cancelation seems to depend on it
 	return 0;
 }

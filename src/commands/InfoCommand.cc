@@ -7,6 +7,7 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
+#include "unreachable.hh"
 #include <iostream>
 #include <cassert>
 
@@ -33,7 +34,7 @@ void InfoCommand::registerTopic(InfoTopic& topic, const string& name)
 	if (infoTopics.find(name) != infoTopics.end()) {
 		std::cerr << "INTERNAL ERROR: already have a info topic with "
 		             "name " << name << std::endl;
-		assert(false);
+		UNREACHABLE;
 	}
 #endif
 	infoTopics[name] = &topic;
@@ -45,7 +46,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic, const string& name)
 	if (infoTopics.find(name) == infoTopics.end()) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
 			"name " << name << ", not found!" << std::endl;
-		assert(false);
+		UNREACHABLE;
 	}
 	assert(infoTopics[name] == &topic);
 	infoTopics.erase(name);

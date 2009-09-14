@@ -10,7 +10,7 @@
 #include "GLHQLiteScaler.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 using std::auto_ptr;
 
@@ -40,7 +40,7 @@ auto_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 	case RenderSettings::SCALER_HQLITE:
 		return auto_ptr<GLScaler>(new GLHQLiteScaler());
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
 	return auto_ptr<GLScaler>(); // avoid warning
 }

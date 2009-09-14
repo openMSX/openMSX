@@ -12,6 +12,7 @@
 #include "Clock.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -184,7 +185,7 @@ public:
 		case BD16: offset *= 2; break;
 		case BP4:  offset /= 2; *x &= ~1; break;
 		case BP2:  offset /= 4; *x &= ~3; break;
-		default: assert(false); break;
+		default: UNREACHABLE;
 		}
 		return offset;
 	}
@@ -279,8 +280,7 @@ public:
 		case B5: case B6: return    1; // not supported
 		case B7:          return 1280;
 		default:
-			assert(false);
-			return 0;
+			UNREACHABLE; return 0;
 		}
 	}
 
