@@ -74,7 +74,7 @@ proc vu_meters_init {} {
 		}
 	}
 
-#	puts stderr [utils::print_array volume_expr]; # debug
+	#puts stderr [utils::print_array volume_expr]; # debug
 
 	set bar_width 2; # this value could be customized
 	set vu_meter_title_height 8; # this value could be customized
@@ -172,15 +172,15 @@ proc get_volume_expr_for_channel {soundchip channel} {
 			} else {
 				if { $channel < 9 } {
 					set vol_expr "(\[debug read \"${soundchip} regs\" [expr $channel + 0x30]\] & 15)"
-				} else {					
+				} else {
 					set vol_expr "(\[debug read \"${soundchip} regs\" [expr $channel + 0x2E]\] >> 4)"
 				}
 				switch $channel {
-					6 { set onmask 16 }
-					7 { set onmask 8 }
-					8 { set onmask 2 }
-					9 { set onmask 1 }
-					10 { set onmask 4 }
+					6  { set onmask 16 } ;# BD
+					7  { set onmask 8  } ;# SD
+					8  { set onmask 2  } ;# T-CYM
+					9  { set onmask 1  } ;# HH
+					10 { set onmask 4  } ;# TOM
 					default {
 						error "Unknown channel: $channel for $soundchip!"
 					}
@@ -199,7 +199,22 @@ proc get_volume_expr_for_channel {soundchip channel} {
 				if {$channel > 5} {
 					incr offset 5
 				}
-				return "expr ((\[debug read \"${soundchip} regs\" [expr $channel + 0xB0]] &32)) ? (63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0 : 0.0"
+				set music_mode_expr "(((\[debug read \"${soundchip} regs\" [expr $channel + 0xB0]] &32)) ? (63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0 : 0.0)"
+				if {$channel < 6} {
+					return "expr $music_mode_expr"
+				} else {
+					switch $channel {
+						6  { set onmask 16; set offset 0x10 } ;# BD (slot 16)
+						7  { set onmask 8;  set offset 0x11 } ;# SD (slot 17)
+						8  { set onmask 2;  set offset 0x12 } ;# T-CYM (slot 18)
+						9  { set onmask 1;  set offset 0x0E } ;# HH (slot 13)
+						10 { set onmask 4;  set offset 0x0F } ;# TOM (slot 14)
+						default {
+							error "Unknown channel: $channel for $soundchip!"
+						}
+					}
+					return "set rhythm \[debug read \"${soundchip} regs\" 0xBD\]; expr (\$rhythm & 32) ? ((\$rhythm & $onmask) ? ((63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0) : 0.0) : $music_mode_expr"
+				}
 			}
 		}
 		default {
