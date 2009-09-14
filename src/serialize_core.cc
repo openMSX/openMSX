@@ -2,6 +2,7 @@
 #include "serialize.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "likely.hh"
 
 namespace openmsx {
 

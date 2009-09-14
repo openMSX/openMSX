@@ -14,6 +14,7 @@
 #include "OggReader.hh"
 #include "LDRenderer.hh"
 #include "Filename.hh"
+#include "likely.hh"
 
 using std::auto_ptr;
 using std::string;

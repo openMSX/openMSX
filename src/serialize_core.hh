@@ -6,8 +6,6 @@
 #include "shared_ptr.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
-#include "inline.hh"
-#include "likely.hh"
 #include <string>
 #include <cassert>
 #include <memory>
