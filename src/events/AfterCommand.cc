@@ -468,7 +468,7 @@ struct AfterMSXEventPred {
 	AfterCommand::EventPtr event;
 };
 void AfterCommand::signalEvent(shared_ptr<const Event> event,
-                               EmuTime::param time)
+                               EmuTime::param /*time*/)
 {
 	executeMatches(AfterMSXEventPred(event));
 }
