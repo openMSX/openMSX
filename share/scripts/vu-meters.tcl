@@ -34,14 +34,6 @@ variable soundchips
 variable machine_switch_trigger_id
 variable frame_trigger_id
 
-proc get_num_channels {soundchip} {
-	set num 1
-	while {[info exists ::${soundchip}_ch${num}_mute]} {
-		incr num
-	}
-	expr $num - 1
-}
-
 proc vu_meters_init {} {
 
 	variable volume_cache
@@ -61,16 +53,16 @@ proc vu_meters_init {} {
 
 	foreach soundchip [machine_info sounddevice] {
 		# determine number of channels
-		set channel_count [get_num_channels $soundchip]
+		set channel_count [soundchip_utils::get_num_channels $soundchip]
 		# skip devices which don't have volume expressions (not implemented yet)
-		if {[get_volume_expr_for_channel $soundchip 0] == "x"} continue
+		if {[soundchip_utils::get_volume_expr $soundchip 0] == "x"} continue
 			
 		lappend soundchips $soundchip
 		set nof_channels($soundchip) $channel_count
 		for {set i 0} {$i < $channel_count} {incr i} {
 			# create the volume cache and the expressions
 			set volume_cache($soundchip,$i) -1
-			set volume_expr($soundchip,$i) [get_volume_expr_for_channel $soundchip $i]
+			set volume_expr($soundchip,$i) [soundchip_utils::get_volume_expr $soundchip $i]
 		}
 	}
 
@@ -152,76 +144,6 @@ proc update_meter {meter volume} {
 		-rgba [expr {($byte_val << 24) + ((255 ^ $byte_val) << 8) + 0x008000C0}]
 }
 
-proc get_volume_expr_for_channel {soundchip channel} {
-	# note: channel number starts with 0 here
-	switch [machine_info sounddevice $soundchip] {
-		"PSG" {
-			return "set keybits \[debug read \"${soundchip} regs\" 7\]; expr ((\[debug read \"${soundchip} regs\" [expr $channel + 8]\] &0xF)) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr $channel + 3]) & 1)"
-		}
-		"MoonSound wave-part" {
-			return "expr (\[debug read \"${soundchip} regs\" [expr $channel + 0x68]\]) ? (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50]\] >> 1)) / 127.0 : 0.0";
-		}
-		"Konami SCC" -
-		"Konami SCC+" {
-			return "expr ((\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA]\] &0xF)) / 15.0 * ((\[debug read \"${soundchip} SCC\" 0xAF\] >> $channel) &1)"
-		}
-		"MSX-MUSIC" {
-			set music_mode_expr "(((\[debug read \"${soundchip} regs\" [expr $channel + 0x20]] &16)) ? ((15 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x30]\] &0xF)) / 15.0) : 0.0)";# carrier total level, but only when key bit is on for this channel
-			if {$channel < 6} {
-				return "expr $music_mode_expr"
-			} else {
-				if { $channel < 9 } {
-					set vol_expr "(\[debug read \"${soundchip} regs\" [expr $channel + 0x30]\] & 15)"
-				} else {
-					set vol_expr "(\[debug read \"${soundchip} regs\" [expr $channel + 0x2E]\] >> 4)"
-				}
-				switch $channel {
-					6  { set onmask 16 } ;# BD
-					7  { set onmask 8  } ;# SD
-					8  { set onmask 2  } ;# T-CYM
-					9  { set onmask 1  } ;# HH
-					10 { set onmask 4  } ;# TOM
-					default {
-						error "Unknown channel: $channel for $soundchip!"
-					}
-				}
-				return "set rhythm \[debug read \"${soundchip} regs\" 0x0E\]; expr (\$rhythm & 32) ? ((\$rhythm & $onmask) ? (15 - $vol_expr) / 15.0 : 0.0) : $music_mode_expr"
-			}
-		}
-		"MSX-AUDIO" {
-			if {$channel == 11} { ;# ADPCM
-				return "expr \[debug read \"${soundchip} regs\" 0x12\] / 255.0";# can we output 0 when no sample is playing?
-			} else {
-				set offset $channel
-				if {$channel > 2} {
-					incr offset 5
-				}
-				if {$channel > 5} {
-					incr offset 5
-				}
-				set music_mode_expr "(((\[debug read \"${soundchip} regs\" [expr $channel + 0xB0]] &32)) ? (63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0 : 0.0)"
-				if {$channel < 6} {
-					return "expr $music_mode_expr"
-				} else {
-					switch $channel {
-						6  { set onmask 16; set offset 0x10 } ;# BD (slot 16)
-						7  { set onmask 8;  set offset 0x11 } ;# SD (slot 17)
-						8  { set onmask 2;  set offset 0x12 } ;# T-CYM (slot 18)
-						9  { set onmask 1;  set offset 0x0E } ;# HH (slot 13)
-						10 { set onmask 4;  set offset 0x0F } ;# TOM (slot 14)
-						default {
-							error "Unknown channel: $channel for $soundchip!"
-						}
-					}
-					return "set rhythm \[debug read \"${soundchip} regs\" 0xBD\]; expr (\$rhythm & 32) ? ((\$rhythm & $onmask) ? ((63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0) : 0.0) : $music_mode_expr"
-				}
-			}
-		}
-		default {
-			return "x"
-		}
-	}
-}
 
 proc vu_meters_reset {} {
 	variable vu_meters_active
