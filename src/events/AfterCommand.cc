@@ -6,6 +6,7 @@
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
+#include "InputEventFactory.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Alarm.hh"
@@ -29,18 +30,18 @@ class AfterCmd
 {
 public:
 	virtual ~AfterCmd();
-	const std::string& getCommand() const;
-	const std::string& getId() const;
-	virtual const std::string& getType() const = 0;
+	const string& getCommand() const;
+	const string& getId() const;
+	virtual string getType() const = 0;
 	void execute();
 protected:
 	AfterCmd(AfterCommand& afterCommand,
-		 const std::string& command);
+		 const string& command);
 	shared_ptr<AfterCmd> removeSelf();
 private:
 	AfterCommand& afterCommand;
-	std::string command;
-	std::string id;
+	string command;
+	string id;
 	static unsigned lastAfterId;
 };
 
@@ -52,11 +53,11 @@ public:
 protected:
 	AfterTimedCmd(Scheduler& scheduler,
 		      AfterCommand& afterCommand,
-		      const std::string& command, double time);
+		      const string& command, double time);
 private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual void schedulerDeleted();
-	virtual const std::string& schedName() const;
+	virtual const string& schedName() const;
 
 	double time;
 };
@@ -66,8 +67,8 @@ class AfterTimeCmd : public AfterTimedCmd
 public:
 	AfterTimeCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
-		     const std::string& command, double time);
-	virtual const std::string& getType() const;
+		     const string& command, double time);
+	virtual string getType() const;
 };
 
 class AfterIdleCmd : public AfterTimedCmd
@@ -75,8 +76,8 @@ class AfterIdleCmd : public AfterTimedCmd
 public:
 	AfterIdleCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
-		     const std::string& command, double time);
-	virtual const std::string& getType() const;
+		     const string& command, double time);
+	virtual string getType() const;
 };
 
 template<EventType T>
@@ -84,11 +85,23 @@ class AfterEventCmd : public AfterCmd
 {
 public:
 	AfterEventCmd(AfterCommand& afterCommand,
-		      const std::string& type,
-		      const std::string& command);
-	virtual const std::string& getType() const;
+		      const string& type,
+		      const string& command);
+	virtual string getType() const;
 private:
-	const std::string type;
+	const string type;
+};
+
+class AfterMSXEventCmd : public AfterCmd
+{
+public:
+	AfterMSXEventCmd(AfterCommand& afterCommand,
+	                 AfterCommand::EventPtr event,
+	                 const string& command);
+	virtual string getType() const;
+	AfterCommand::EventPtr getEvent() const { return event; }
+private:
+	AfterCommand::EventPtr event;
 };
 
 class AfterRealTimeCmd : public AfterCmd, private Alarm
@@ -96,9 +109,9 @@ class AfterRealTimeCmd : public AfterCmd, private Alarm
 public:
 	AfterRealTimeCmd(AfterCommand& afterCommand,
 	                 EventDistributor& eventDistributor,
-	                 const std::string& command, double time);
+	                 const string& command, double time);
 	virtual ~AfterRealTimeCmd();
-	virtual const std::string& getType() const;
+	virtual string getType() const;
 	bool hasExpired() const;
 
 private:
@@ -212,8 +225,15 @@ string AfterCommand::execute(const vector<string>& tokens)
 		return afterInfo(tokens);
 	} else if (tokens[1] == "cancel") {
 		return afterCancel(tokens);
+	} else {
+		// try to interpret token as an event name
+		try {
+			EventPtr event(InputEventFactory::createInputEvent(tokens[1]));
+			return afterMSXEvent(event, tokens);
+		} catch (MSXException&) {
+			throw SyntaxError();
+		}
 	}
-	throw SyntaxError();
 }
 
 static double getTime(const string& str)
@@ -260,6 +280,16 @@ string AfterCommand::afterEvent(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	shared_ptr<AfterCmd> cmd(new AfterEventCmd<T>(*this, tokens[1], tokens[2]));
+	afterCmds.push_back(cmd);
+	return cmd->getId();
+}
+
+string AfterCommand::afterMSXEvent(EventPtr event, const vector<string>& tokens)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	shared_ptr<AfterCmd> cmd(new AfterMSXEventCmd(*this, event, tokens[2]));
 	afterCmds.push_back(cmd);
 	return cmd->getId();
 }
@@ -349,6 +379,16 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 	// TODO : make more complete
 }
 
+template<typename PRED> void AfterCommand::executeMatches(PRED pred)
+{
+	// predicate should return false on matches
+	AfterCmds::iterator it = partition(afterCmds.begin(), afterCmds.end(), pred);
+	AfterCmds tmp(it, afterCmds.end());
+	afterCmds.erase(it, afterCmds.end());
+	for (AfterCmds::iterator it = tmp.begin(); it != tmp.end(); ++it) {
+		(*it)->execute();
+	}
+}
 
 template<EventType T> struct AfterEventPred {
 	bool operator()(shared_ptr<AfterCmd> x) const {
@@ -357,14 +397,7 @@ template<EventType T> struct AfterEventPred {
 };
 template<EventType T> void AfterCommand::executeEvents()
 {
-	AfterCmds::iterator it = partition(afterCmds.begin(), afterCmds.end(),
-	                                   AfterEventPred<T>());
-	AfterCmds tmp(it, afterCmds.end());
-	afterCmds.erase(it, afterCmds.end());
-
-	for (AfterCmds::iterator it = tmp.begin(); it != tmp.end(); ++it) {
-		(*it)->execute();
-	}
+	executeMatches(AfterEventPred<T>());
 }
 
 struct AfterTimePred {
@@ -380,14 +413,7 @@ struct AfterTimePred {
 };
 void AfterCommand::executeRealTime()
 {
-	AfterCmds::iterator it = partition(afterCmds.begin(), afterCmds.end(),
-	                                   AfterTimePred());
-	AfterCmds tmp(it, afterCmds.end());
-	afterCmds.erase(it, afterCmds.end());
-
-	for (AfterCmds::iterator it = tmp.begin(); it != tmp.end(); ++it) {
-		(*it)->execute();
-	}
+	executeMatches(AfterTimePred());
 }
 
 bool AfterCommand::signalEvent(shared_ptr<const Event> event)
@@ -429,10 +455,22 @@ void AfterCommand::machineSwitch()
 	}
 }
 
+
+struct AfterMSXEventPred {
+	AfterMSXEventPred(AfterCommand::EventPtr event_)
+		: event(event_) {}
+	bool operator()(shared_ptr<AfterCmd> x) const {
+		if (AfterMSXEventCmd* cmd = dynamic_cast<AfterMSXEventCmd*>(x.get())) {
+			if (*cmd->getEvent() == *event) return false;
+		}
+		return true;
+	}
+	AfterCommand::EventPtr event;
+};
 void AfterCommand::signalEvent(shared_ptr<const Event> event,
                                EmuTime::param time)
 {
-	// TODO
+	executeMatches(AfterMSXEventPred(event));
 }
 
 
@@ -540,10 +578,9 @@ AfterTimeCmd::AfterTimeCmd(
 {
 }
 
-const string& AfterTimeCmd::getType() const
+string AfterTimeCmd::getType() const
 {
-	static const string type("time");
-	return type;
+	return "time";
 }
 
 
@@ -557,10 +594,9 @@ AfterIdleCmd::AfterIdleCmd(
 {
 }
 
-const string& AfterIdleCmd::getType() const
+string AfterIdleCmd::getType() const
 {
-	static const string type("idle");
-	return type;
+	return "idle";
 }
 
 
@@ -575,17 +611,32 @@ AfterEventCmd<T>::AfterEventCmd(
 }
 
 template<EventType T>
-const string& AfterEventCmd<T>::getType() const
+string AfterEventCmd<T>::getType() const
 {
 	return type;
 }
 
 
+// AfterMSXEventCmd
+
+AfterMSXEventCmd::AfterMSXEventCmd(
+		AfterCommand& afterCommand, AfterCommand::EventPtr event_,
+		const string& command)
+	: AfterCmd(afterCommand, command)
+	, event(event_)
+{
+}
+
+string AfterMSXEventCmd::getType() const
+{
+	return event->toString();
+}
+
 // class AfterRealTimeCmd
 
 AfterRealTimeCmd::AfterRealTimeCmd(
 		AfterCommand& afterCommand, EventDistributor& eventDistributor_,
-		const std::string& command, double time)
+		const string& command, double time)
 	: AfterCmd(afterCommand, command)
 	, eventDistributor(eventDistributor_)
 	, expired(false)
@@ -598,10 +649,9 @@ AfterRealTimeCmd::~AfterRealTimeCmd()
 	prepareDelete();
 }
 
-const std::string& AfterRealTimeCmd::getType() const
+string AfterRealTimeCmd::getType() const
 {
-	static const string type("realtime");
-	return type;
+	return "realtime";
 }
 
 bool AfterRealTimeCmd::alarm()

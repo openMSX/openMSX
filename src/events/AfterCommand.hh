@@ -7,6 +7,7 @@
 #include "EventListener.hh"
 #include "MSXEventListener.hh"
 #include "Event.hh"
+#include "shared_ptr.hh"
 #include <vector>
 
 namespace openmsx {
@@ -22,6 +23,8 @@ class AfterCommand : public SimpleCommand, private EventListener,
                      private MSXEventListener
 {
 public:
+	typedef shared_ptr<const Event> EventPtr;
+
 	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
 	             CommandController& commandController);
@@ -32,9 +35,11 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
+	template<typename PRED> void executeMatches(PRED pred);
 	template<EventType T> void executeEvents();
 	template<EventType T> std::string afterEvent(
 		const std::vector<std::string>& tokens);
+	std::string afterMSXEvent(EventPtr event, const std::vector<std::string>& tokens);
 	std::string afterTime(const std::vector<std::string>& tokens);
 	std::string afterRealTime(const std::vector<std::string>& tokens);
 	std::string afterIdle(const std::vector<std::string>& tokens);
