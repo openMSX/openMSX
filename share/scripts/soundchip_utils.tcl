@@ -31,6 +31,10 @@ proc get_num_channels {soundchip} {
 # by the record_channels command
 # @return expression to calculate the volume of the device for that channel in
 # range [0-1]; returns just 'x' in case the chip is not supported
+# @todo:
+#  - implement volume for MoonSound FM (tricky stuff)
+#  - actually, don't use regs to calc volume but actual wave data (needs openMSX
+#    changes)
 #
 proc get_volume_expr {soundchip channel} {
 	# note: channel number starts with 0 here

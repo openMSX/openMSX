@@ -8,9 +8,6 @@
 #
 # TODO:
 # - optimize more?
-# - implement volume for MoonSound FM (tricky stuff)
-# - actually, don't use regs to calc volume but actual wave data (needs openMSX
-#   changes)
 # - handle insertion/removal of sound devices (needs openMSX changes)
 #
 # Thanks to BiFi for helping out with the expressions for the devices.
