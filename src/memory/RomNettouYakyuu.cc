@@ -61,14 +61,14 @@ RomNettouYakyuu::RomNettouYakyuu(
 void RomNettouYakyuu::reset(EmuTime::param /*time*/)
 {
 	// ASCII8 behaviour
-	setBank(0, unmappedRead);
-	setBank(1, unmappedRead);
+	setUnmapped(0);
+	setUnmapped(1);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, 0);
 		redirectToSamplePlayer[i - 2] = false;
 	}
-	setBank(6, unmappedRead);
-	setBank(7, unmappedRead);
+	setUnmapped(6);
+	setUnmapped(7);
 
 	samplePlayer->reset();
 }
@@ -83,7 +83,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/
 		byte region = (address >> 11) & 3;
 		redirectToSamplePlayer[region] = (value & 0x80) != 0;
 		if (redirectToSamplePlayer[region]) {
-			setBank(region + 2, unmappedRead);
+			setUnmapped(region + 2);
 		} else {
 			setRom(region + 2, value);
 		}

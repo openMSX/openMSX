@@ -41,22 +41,22 @@ void RomCrossBlaim::writeMem(word /*address*/, byte value, EmuTime::param /*time
 	switch (value & 3) {
 		case 0:
 		case 1:
-			setRom (0, 1);
-			setRom (1, 0);
-			setRom (2, 1);
-			setRom (3, 1);
+			setRom(0, 1);
+			setRom(1, 0);
+			setRom(2, 1);
+			setRom(3, 1);
 			break;
 		case 2:
-			setBank(0, unmappedRead);
-			setRom (1, 0);
-			setRom (2, 2);
-			setBank(3, unmappedRead);
+			setUnmapped(0);
+			setRom(1, 0);
+			setRom(2, 2);
+			setUnmapped(3);
 			break;
 		case 3:
-			setBank(0, unmappedRead);
-			setRom (1, 0);
-			setRom (2, 3);
-			setBank(3, unmappedRead);
+			setUnmapped(0);
+			setRom(1, 0);
+			setRom(2, 3);
+			setUnmapped(3);
 			break;
 	}
 }

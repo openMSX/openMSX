@@ -22,10 +22,10 @@ RomPadial16kB::RomPadial16kB(
 
 void RomPadial16kB::reset(EmuTime::param /*time*/)
 {
-	setRom (0, 0);
-	setRom (1, 0);
-	setRom (2, 2);
-	setBank(3, unmappedRead);
+	setRom(0, 0);
+	setRom(1, 0);
+	setRom(2, 2);
+	setUnmapped(3);
 }
 
 REGISTER_MSXDEVICE(RomPadial16kB, "RomPadial16kB");

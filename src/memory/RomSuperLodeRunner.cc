@@ -25,10 +25,10 @@ RomSuperLodeRunner::~RomSuperLodeRunner()
 
 void RomSuperLodeRunner::reset(EmuTime::param /*time*/)
 {
-	setBank(0, unmappedRead);
-	setBank(1, unmappedRead);
-	setRom (2, 0);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setUnmapped(1);
+	setRom(2, 0);
+	setUnmapped(3);
 }
 
 void RomSuperLodeRunner::globalWrite(word address, byte value, EmuTime::param /*time*/)

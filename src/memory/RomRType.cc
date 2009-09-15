@@ -25,10 +25,10 @@ RomRType::RomRType(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 void RomRType::reset(EmuTime::param /*time*/)
 {
-	setBank(0, unmappedRead);
-	setRom (1, 0x17);
-	setRom (2, 0);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setRom(1, 0x17);
+	setRom(2, 0);
+	setUnmapped(3);
 }
 
 void RomRType::writeMem(word address, byte value, EmuTime::param /*time*/)

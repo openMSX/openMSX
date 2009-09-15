@@ -65,7 +65,7 @@ RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
 			if (mirrored == MIRRORED) {
 				setRom(page, romPage & (numPages - 1));
 			} else {
-				setBank(page, unmappedRead);
+				setUnmapped(page);
 			}
 		}
 

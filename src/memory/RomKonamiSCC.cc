@@ -41,13 +41,13 @@ void RomKonamiSCC::powerUp(EmuTime::param time)
 
 void RomKonamiSCC::reset(EmuTime::param time)
 {
-	setBank(0, unmappedRead);
-	setBank(1, unmappedRead);
+	setUnmapped(0);
+	setUnmapped(1);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, i - 2);
 	}
-	setBank(6, unmappedRead);
-	setBank(7, unmappedRead);
+	setUnmapped(6);
+	setUnmapped(7);
 
 	sccEnabled = false;
 	scc->reset(time);

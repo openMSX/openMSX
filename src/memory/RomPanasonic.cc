@@ -174,7 +174,8 @@ void RomPanasonic::changeBank(byte region, int bank)
 		if (offset >= sramSize) {
 			offset &= (sramSize - 1);
 		}
-		setBank(region, &sram->operator[](offset));
+		// TODO romblock debuggable is only 8 bits, here bank is 9 bits
+		setBank(region, &sram->operator[](offset), bank);
 	} else if (panasonicMem.getRamSize() && (RAM_BASE <= bank)) {
 		// RAM
 		// Only lazily (=not in constructor) inform base class about
@@ -183,7 +184,8 @@ void RomPanasonic::changeBank(byte region, int bank)
 		// this device). It's ok to call setExtraMemory() multiple times.
 		setExtraMemory(panasonicMem.getRamBlock(0),
 		               panasonicMem.getRamSize());
-		setBank(region, panasonicMem.getRamBlock(bank - RAM_BASE));
+		// TODO romblock debuggable is only 8 bits, here bank is 9 bits
+		setBank(region, panasonicMem.getRamBlock(bank - RAM_BASE), bank);
 	} else {
 		// ROM
 		setRom(region, bank);

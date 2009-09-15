@@ -16,10 +16,10 @@ RomGeneric16kB::RomGeneric16kB(
 
 void RomGeneric16kB::reset(EmuTime::param /*time*/)
 {
-	setBank(0, unmappedRead);
-	setRom (1, 0);
-	setRom (2, 1);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setRom(1, 0);
+	setRom(2, 1);
+	setUnmapped(3);
 }
 
 void RomGeneric16kB::writeMem(word address, byte value, EmuTime::param /*time*/)

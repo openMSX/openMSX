@@ -26,13 +26,13 @@ RomAscii8kB::RomAscii8kB(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 void RomAscii8kB::reset(EmuTime::param /*time*/)
 {
-	setBank(0, unmappedRead);
-	setBank(1, unmappedRead);
+	setUnmapped(0);
+	setUnmapped(1);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, 0);
 	}
-	setBank(6, unmappedRead);
-	setBank(7, unmappedRead);
+	setUnmapped(6);
+	setUnmapped(7);
 }
 
 void RomAscii8kB::writeMem(word address, byte value, EmuTime::param /*time*/)

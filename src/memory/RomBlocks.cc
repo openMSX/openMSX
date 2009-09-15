@@ -3,6 +3,7 @@
 #include "RomBlocks.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
@@ -11,10 +12,33 @@
 namespace openmsx {
 
 template <unsigned BANK_SIZE>
+class RomBlockDebuggable : public SimpleDebuggable
+{
+public:
+	explicit RomBlockDebuggable(RomBlocks<BANK_SIZE>& rom_)
+		: SimpleDebuggable(rom_.getMotherBoard(),
+		                   rom_.getName() + " romblocks",
+		                   "Shows for each byte of the mapper which memory block is selected.",
+		                   0x10000)
+		, rom(rom_)
+	{
+	}
+
+	virtual byte read(unsigned address)
+	{
+		return rom.blockNr[address / BANK_SIZE];
+	}
+private:
+	RomBlocks<BANK_SIZE>& rom;
+};
+
+
+template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
+	, romBlockDebug(new RomBlockDebuggable<BANK_SIZE>(*this))
 	, nrBlocks(rom->getSize() / BANK_SIZE)
 {
 	if ((nrBlocks * BANK_SIZE) != rom->getSize()) {
@@ -51,7 +75,7 @@ const byte* RomBlocks<BANK_SIZE>::getReadCacheLine(word address) const
 }
 
 template <unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr)
+void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 {
 	assert("address passed to setBank() is not serializable" &&
 	       ((adr == unmappedRead) ||
@@ -60,7 +84,14 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr)
 	                       (adr <= &(*sram)[sram->getSize() - 1])) ||
 	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
 	bank[region] = adr;
+	blockNr[region] = block; // only for debuggable
 	invalidateMemCache(region * BANK_SIZE, BANK_SIZE);
+}
+
+template <unsigned BANK_SIZE>
+void RomBlocks<BANK_SIZE>::setUnmapped(byte region)
+{
+	setBank(region, unmappedRead, 255);
 }
 
 template <unsigned BANK_SIZE>
@@ -83,12 +114,14 @@ void RomBlocks<BANK_SIZE>::setRom(byte region, int block)
 	//       for those we have to make an exception for "block < nrBlocks".
 	block = (block < nrBlocks) ? block : block & blockMask;
 	if (block < nrBlocks) {
-		setBank(region, &(*rom)[block * BANK_SIZE]);
+		setBank(region, &(*rom)[block * BANK_SIZE], block);
 	} else {
-		setBank(region, unmappedRead);
+		setBank(region, unmappedRead, 255);
 	}
 }
 
+// version 1: initial version
+// version 2: added blockNr
 template <unsigned BANK_SIZE>
 template<typename Archive>
 void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
@@ -140,6 +173,18 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 		}
 		ar.serialize("banks", offsets);
 	}
+
+	// Commented out because versioning doesn't work correct on subclasses
+	// that don't override the serialize() method (e.g. RomPlain)
+	/*if (version >= 2) {
+		ar.serialize("blockNr", blockNr);
+	} else {
+		assert(ar.isLoader());
+		// set dummy value, anyway only used for debuggable
+		for (unsigned i = 0; i < NUM_BANKS; ++i) {
+			blockNr[i] = 255;
+		}
+	}*/
 }
 
 template class RomBlocks<0x1000>;

@@ -34,10 +34,10 @@ RomSynthesizer::RomSynthesizer(
 	, dac(new DACSound8U(motherBoard.getMSXMixer(), "Synthesizer-DAC",
 	                     "Konami Synthesizer's DAC", config))
 {
-	setBank(0, unmappedRead);
-	setRom (1, 0);
-	setRom (2, 1);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setRom(1, 0);
+	setRom(2, 1);
+	setUnmapped(3);
 
 	reset(getCurrentTime());
 }

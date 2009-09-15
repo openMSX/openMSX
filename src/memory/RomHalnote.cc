@@ -56,13 +56,13 @@ void RomHalnote::reset(EmuTime::param /*time*/)
 	sramEnabled = false;
 	subMapperEnabled = false;
 
-	setBank(0, unmappedRead);
-	setBank(1, unmappedRead);
+	setUnmapped(0);
+	setUnmapped(1);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, 0);
 	}
-	setBank(6, unmappedRead);
-	setBank(7, unmappedRead);
+	setUnmapped(6);
+	setUnmapped(7);
 }
 
 const byte* RomHalnote::getReadCacheLine(word address) const
@@ -110,11 +110,11 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 				if (newSramEnabled != sramEnabled) {
 					sramEnabled = newSramEnabled;
 					if (sramEnabled) {
-						setBank(0, &(*sram)[0x0000]);
-						setBank(1, &(*sram)[0x2000]);
+						setBank(0, &(*sram)[0x0000], value);
+						setBank(1, &(*sram)[0x2000], value);
 					} else {
-						setBank(0, unmappedRead);
-						setBank(1, unmappedRead);
+						setUnmapped(0);
+						setUnmapped(1);
 					}
 				}
 			} else if (bank == 3) {

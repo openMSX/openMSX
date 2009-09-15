@@ -37,10 +37,10 @@ RomZemina90in1::~RomZemina90in1()
 
 void RomZemina90in1::reset(EmuTime::param dummy)
 {
-	setBank(0, unmappedRead);
-	setBank(1, unmappedRead);
-	setBank(6, unmappedRead);
-	setBank(7, unmappedRead);
+	setUnmapped(0);
+	setUnmapped(1);
+	setUnmapped(6);
+	setUnmapped(7);
 	writeIO(0x77, 0, dummy);
 }
 

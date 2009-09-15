@@ -24,10 +24,10 @@ RomZemina126in1::RomZemina126in1(
 
 void RomZemina126in1::reset(EmuTime::param /*time*/)
 {
-	setBank(0, unmappedRead);
-	setRom (1, 0);
-	setRom (2, 1);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setRom(1, 0);
+	setRom(2, 1);
+	setUnmapped(3);
 }
 
 void RomZemina126in1::writeMem(word address, byte value, EmuTime::param /*time*/)

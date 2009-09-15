@@ -15,10 +15,10 @@ RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                                "Sony Playball's DAC", config,
 	                                "playball/playball_", 15))
 {
-	setBank(0, unmappedRead);
-	setRom (1, 0);
-	setRom (2, 1);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setRom(1, 0);
+	setRom(2, 1);
+	setUnmapped(3);
 
 	reset(EmuTime::dummy());
 }

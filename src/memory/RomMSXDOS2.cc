@@ -23,10 +23,10 @@ RomMSXDOS2::RomMSXDOS2(
 
 void RomMSXDOS2::reset(EmuTime::param /*time*/)
 {
-	setBank(0, unmappedRead);
-	setRom (1, 0);
-	setBank(2, unmappedRead);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setRom(1, 0);
+	setUnmapped(2);
+	setUnmapped(3);
 }
 
 void RomMSXDOS2::writeMem(word address, byte value, EmuTime::param /*time*/)

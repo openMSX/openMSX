@@ -23,13 +23,13 @@ RomPadial8kB::RomPadial8kB(MSXMotherBoard& motherBoard, const XMLElement& config
 
 void RomPadial8kB::reset(EmuTime::param /*time*/)
 {
-	setRom (0, 0);
-	setRom (1, 0);
+	setRom(0, 0);
+	setRom(1, 0);
 	for (int i = 2; i < 6; ++i) {
 		setRom(i, i - 2);
 	}
-	setBank(6, unmappedRead);
-	setBank(7, unmappedRead);
+	setUnmapped(6);
+	setUnmapped(7);
 }
 
 REGISTER_MSXDEVICE(RomPadial8kB, "RomPadial8kB");

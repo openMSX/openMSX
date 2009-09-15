@@ -43,13 +43,13 @@ RomAscii8_8::~RomAscii8_8()
 
 void RomAscii8_8::reset(EmuTime::param /*time*/)
 {
-	setBank(0, unmappedRead);
-	setBank(1, unmappedRead);
+	setUnmapped(0);
+	setUnmapped(1);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, 0);
 	}
-	setBank(6, unmappedRead);
-	setBank(7, unmappedRead);
+	setUnmapped(6);
+	setUnmapped(7);
 
 	sramEnabled = 0;
 }
@@ -62,7 +62,7 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 		if (value & sramEnableBit) {
 			sramEnabled |= (1 << region) & sramPages;
 			sramBlock[region] = value & ((sram->getSize() / 0x2000) - 1);
-			setBank(region, &(*sram)[sramBlock[region] * 0x2000]);
+			setBank(region, &(*sram)[sramBlock[region] * 0x2000], value);
 		} else {
 			sramEnabled &= ~(1 << region);
 			setRom(region, value);

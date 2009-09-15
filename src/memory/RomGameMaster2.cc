@@ -61,13 +61,13 @@ RomGameMaster2::~RomGameMaster2()
 void RomGameMaster2::reset(EmuTime::param /*time*/)
 {
 	for (int i = 0; i < 4; i++) {
-		setBank(i, unmappedRead);
+		setUnmapped(i);
 	}
 	for (int i = 4; i < 12; i++) {
 		setRom(i, i - 4);
 	}
 	for (int i = 12; i < 16; i++) {
-		setBank(i, unmappedRead);
+		setUnmapped(i);
 	}
 	sramOffset = 0;
 	sramEnabled = false;
@@ -84,8 +84,8 @@ void RomGameMaster2::writeMem(word address, byte value, EmuTime::param /*time*/)
 			if (value & 0x10) {
 				// switch SRAM
 				sramOffset = (value & 0x20) ? 0x1000: 0x0000;
-				setBank(region,     &(*sram)[sramOffset]);
-				setBank(region + 1, &(*sram)[sramOffset]);
+				setBank(region,     &(*sram)[sramOffset], value);
+				setBank(region + 1, &(*sram)[sramOffset], value);
 			} else {
 				// switch ROM
 				setRom(region,     2 * (value & 0x0F));

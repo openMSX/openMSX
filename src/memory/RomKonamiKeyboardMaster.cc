@@ -17,10 +17,10 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 	, vlm5030(new VLM5030(motherBoard, "VLM5030",
 	                      "Konami Keyboard Master's VLM5030", config))
 {
-	setBank(0, unmappedRead);
-	setRom (1, 0);
-	setBank(2, unmappedRead);
-	setBank(3, unmappedRead);
+	setUnmapped(0);
+	setRom(1, 0);
+	setUnmapped(2);
+	setUnmapped(3);
 
 	reset(EmuTime::dummy());
 

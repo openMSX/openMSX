@@ -16,8 +16,8 @@ RomPageNN::RomPageNN(MSXMotherBoard& motherBoard, const XMLElement& config,
 			setRom(page * 2 + 0, bank++);
 			setRom(page * 2 + 1, bank++);
 		} else {
-			setBank(page * 2 + 0, unmappedRead);
-			setBank(page * 2 + 1, unmappedRead);
+			setUnmapped(page * 2 + 0);
+			setUnmapped(page * 2 + 1);
 		}
 	}
 }

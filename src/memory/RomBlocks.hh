@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class SRAM;
+template<unsigned> class RomBlockDebuggable;
 
 template <unsigned BANK_SIZE>
 class RomBlocks : public MSXRom
@@ -27,12 +28,18 @@ protected:
 	          std::auto_ptr<Rom> rom);
 	~RomBlocks();
 
+	/** Select 'unmapped' memory for this region. Reads from this
+	  * region will return 0xff.
+	  */
+	void setUnmapped(byte region);
+
 	/** Sets the memory visible for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space
 	  *   (region i starts at Z80 address i * 0x2000)
 	  * @param adr pointer to memory, area must be at least 0x2000 bytes long
+	  * @param block Block number, only used for the 'romblock' debuggable.
 	  */
-	void setBank(byte region, const byte* adr);
+	void setBank(byte region, const byte* adr, int block);
 
 	/** Selects a block of the ROM image for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space
@@ -60,12 +67,16 @@ protected:
 
 	const byte* bank[NUM_BANKS];
 	std::auto_ptr<SRAM> sram; // can be a NULL ptr
+	byte blockNr[NUM_BANKS];
 
 private:
+	const std::auto_ptr<RomBlockDebuggable<BANK_SIZE> > romBlockDebug;
 	const byte* extraMem;
 	unsigned extraSize;
 	const int nrBlocks;
 	int blockMask;
+
+	friend class RomBlockDebuggable<BANK_SIZE>;
 };
 
 typedef RomBlocks<0x1000> Rom4kBBlocks;
@@ -75,6 +86,11 @@ typedef RomBlocks<0x4000> Rom16kBBlocks;
 REGISTER_BASE_CLASS(Rom4kBBlocks,  "Rom4kBBlocks");
 REGISTER_BASE_CLASS(Rom8kBBlocks,  "Rom8kBBlocks");
 REGISTER_BASE_CLASS(Rom16kBBlocks, "Rom16kBBlocks");
+
+// TODO see comment in .cc
+//SERIALIZE_CLASS_VERSION(Rom4kBBlocks,  2);
+//SERIALIZE_CLASS_VERSION(Rom8kBBlocks,  2);
+//SERIALIZE_CLASS_VERSION(Rom16kBBlocks, 2);
 
 } // namespace openmsx
 
