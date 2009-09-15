@@ -5,6 +5,7 @@
 #include "CliComm.hh"
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
+#include "MSXEventDistributor.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Alarm.hh"
@@ -114,6 +115,7 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 	: SimpleCommand(commandController, "after")
 	, reactor(reactor_)
 	, eventDistributor(eventDistributor_)
+	, msxEvents(NULL)
 {
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
@@ -145,10 +147,16 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 		OPENMSX_MACHINE_LOADED_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_AFTER_REALTIME_EVENT, *this);
+
+	machineSwitch();
 }
 
 AfterCommand::~AfterCommand()
 {
+	if (msxEvents) {
+		msxEvents->unregisterEventListener(*this);
+	}
+
 	eventDistributor.unregisterEventListener(
 		OPENMSX_AFTER_REALTIME_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -393,6 +401,7 @@ bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 	} else if (event->getType() == OPENMSX_QUIT_EVENT) {
 		executeEvents<OPENMSX_QUIT_EVENT>();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
+		machineSwitch();
 		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
 	} else if (event->getType() == OPENMSX_AFTER_REALTIME_EVENT) {
 		executeRealTime();
@@ -406,6 +415,24 @@ bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 		}
 	}
 	return true;
+}
+
+void AfterCommand::machineSwitch()
+{
+	if (msxEvents) {
+		msxEvents->unregisterEventListener(*this);
+	}
+	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
+	msxEvents = motherBoard ? &motherBoard->getMSXEventDistributor() : NULL;
+	if (msxEvents) {
+		msxEvents->registerEventListener(*this);
+	}
+}
+
+void AfterCommand::signalEvent(shared_ptr<const Event> event,
+                               EmuTime::param time)
+{
+	// TODO
 }
 
 

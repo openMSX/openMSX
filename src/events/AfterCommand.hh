@@ -5,6 +5,7 @@
 
 #include "Command.hh"
 #include "EventListener.hh"
+#include "MSXEventListener.hh"
 #include "Event.hh"
 #include <vector>
 
@@ -12,11 +13,13 @@ namespace openmsx {
 
 class Reactor;
 class EventDistributor;
+class MSXEventDistributor;
 class CommandController;
 class AfterCmd;
 class Event;
 
-class AfterCommand : public SimpleCommand, private EventListener
+class AfterCommand : public SimpleCommand, private EventListener,
+                     private MSXEventListener
 {
 public:
 	AfterCommand(Reactor& reactor,
@@ -39,13 +42,20 @@ private:
 	std::string afterCancel(const std::vector<std::string>& tokens);
 	void executeRealTime();
 
+	void machineSwitch();
+
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
+
+	// MSXEventListener
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         EmuTime::param time);
 
 	typedef std::vector<shared_ptr<AfterCmd> > AfterCmds;
 	AfterCmds afterCmds;
 	Reactor& reactor;
 	EventDistributor& eventDistributor;
+	MSXEventDistributor* msxEvents;
 
 	friend class AfterCmd;
 };

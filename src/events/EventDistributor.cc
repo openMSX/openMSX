@@ -75,32 +75,41 @@ void EventDistributor::distributeEvent(Event* event)
 void EventDistributor::deliverEvents()
 {
 	ScopedLock lock(sem);
-	EventQueue eventsCopy;
-	swap(eventsCopy, scheduledEvents);
+	// It's possible that executing an event triggers scheduling of another
+	// event. We also want to execute those secondary events. That's why
+	// we have this while loop here.
+	// For example the 'loadstate' command event, triggers a machine switch
+	// event and as reaction to the latter event, AfterCommand will
+	// unsubscribe from the ols MSXEventDistributor. This really should be
+	// done before we exit this method.
+	while (!scheduledEvents.empty()) {
+		EventQueue eventsCopy;
+		swap(eventsCopy, scheduledEvents);
 
-	for (EventQueue::const_iterator it = eventsCopy.begin();
-	     it != eventsCopy.end(); ++it) {
-		EventPtr event = *it;
-		PriorityMap priorityMapCopy = listeners[event->getType()];
-		sem.up();
-		Priority currentPriority = OTHER;
-		bool stopEventDelivery = false;
-		for (PriorityMap::const_iterator it = priorityMapCopy.begin();
-		     it != priorityMapCopy.end(); ++it) {
-			if (currentPriority != it->first) {
-				currentPriority = it->first;
-				if (stopEventDelivery) {
-					break;
+		for (EventQueue::const_iterator it = eventsCopy.begin();
+		     it != eventsCopy.end(); ++it) {
+			EventPtr event = *it;
+			PriorityMap priorityMapCopy = listeners[event->getType()];
+			sem.up();
+			Priority currentPriority = OTHER;
+			bool stopEventDelivery = false;
+			for (PriorityMap::const_iterator it = priorityMapCopy.begin();
+			     it != priorityMapCopy.end(); ++it) {
+				if (currentPriority != it->first) {
+					currentPriority = it->first;
+					if (stopEventDelivery) {
+						break;
+					}
+				}
+				if (!(it->second->signalEvent(event))) {
+					// only named priorities can prohibit events
+					// for lower priorities
+					assert(it->first != OTHER);
+					stopEventDelivery = true;
 				}
 			}
-			if (!(it->second->signalEvent(event))) {
-				// only named priorities can prohibit events
-				// for lower priorities
-				assert(it->first != OTHER);
-				stopEventDelivery = true;
-			}
+			sem.down();
 		}
-		sem.down();
 	}
 }
 
