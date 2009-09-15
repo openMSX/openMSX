@@ -18,7 +18,6 @@ proc get_num_channels {soundchip} {
 	expr $num - 1
 }
 
-#
 # It is advised to cache the result of this proc for each channel of each sound device
 # before using it, because then a lot will be pre-evaluated and at run time only the
 # actual variable stuff will be evaluated.
@@ -37,7 +36,6 @@ proc get_num_channels {soundchip} {
 #    changes)
 #
 proc get_volume_expr {soundchip channel} {
-	# note: channel number starts with 0 here
 	switch [machine_info sounddevice $soundchip] {
 		"PSG" {
 			return "set keybits \[debug read \"${soundchip} regs\" 7\]; expr ((\[debug read \"${soundchip} regs\" [expr $channel + 8]\] &0xF)) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr $channel + 3]) & 1)"
@@ -99,6 +97,53 @@ proc get_volume_expr {soundchip channel} {
 					}
 					return "set rhythm \[debug read \"${soundchip} regs\" 0xBD\]; expr (\$rhythm & 32) ? ((\$rhythm & $onmask) ? ((63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0) : 0.0) : $music_mode_expr"
 				}
+			}
+		}
+		default {
+			return "x"
+		}
+	}
+}
+
+# It is advised to cache the result of this proc for each channel of each sound device
+# before using it, because then a lot will be pre-evaluated and at run time only the
+# actual variable stuff will be evaluated.
+# We cannot cache it here, because we don't know the names of the sound chips in the
+# machine you are going to use this on.
+# @param soundchip the name of the soundchip as it appears in the output of
+# "machine_info sounddevice"
+# @channel the channel for which you want the expression to get the frequency, the
+# first channel is channel 0 and the channels are the ones as they are output
+# by the record_channels command
+# @return expression to calculate the frequency of the device for that channel in
+# Hz; returns just 'x' in case the chip is not supported
+# @todo:
+#  - implement frequency for MoonSound
+#
+proc get_frequency_expr {soundchip channel} {
+	switch [machine_info sounddevice $soundchip] {
+		"PSG" {
+			set basefreq [expr 3579545.454545/32.0]
+			return "set val \[expr {\[debug read  \"${soundchip} regs\" \[expr 0 + ($channel * 2)\]\] + 256 * ((\[debug read  \"${soundchip} regs\" \[expr 1 + ($channel * 2)\]\]) & 15)}\]; expr {$basefreq/(\$val < 1 ? 1 : \$val)}"
+		}
+		"Konami SCC" -
+		"Konami SCC+" {
+			set basefreq [expr 3579545.454545/32.0]
+			return "set val \[expr {\[debug read  \"${soundchip} SCC\" \[expr 0xA0 + 0 + ($channel * 2)\]\] + 256 * ((\[debug read  \"${soundchip} SCC\" \[expr 0xA0 + 1 + ($channel * 2)\]\]) & 15)}\]; expr {$basefreq/(\$val < 1 ? 1 : \$val)}"
+		}
+		"MSX-MUSIC" {
+			set basefreq [expr 3579545.454545/72.0]
+			set factor [expr $basefreq / (1 << 18)]
+			return "expr { (\[ debug read \"${soundchip} regs\" [expr $channel + 0x10]\] + 256 * ((\[ debug read \"${soundchip} regs\" [expr $channel + 0x20]\]) & 1)) * $factor * (1 << (((\[ debug read \"${soundchip} regs\" [expr $channel + 0x20]\]) & 15) >> 1) ) }"
+		}
+		"MSX-AUDIO" {
+			set basefreq [expr 3579545.454545/72.0]
+			if {$channel == 11} { ;# ADPCM
+				set factor [expr $basefreq / (1 << 16)]
+				return "expr { (\[debug read \"${soundchip} regs\" 0x10\] + 256 * \[debug read \"${soundchip} regs\" 0x11\]) * $factor / 10 }";# /10 is just to make it fall a bit into a decent range...
+			} else {
+				set factor [expr $basefreq / (1 << 19)]
+				return "expr { (\[ debug read \"${soundchip} regs\" [expr $channel + 0xA0]\] + 256 * ((\[ debug read \"${soundchip} regs\" [expr $channel + 0xB0]\]) & 3)) * $factor * (1 << (((\[ debug read \"${soundchip} regs\" [expr $channel + 0xB0]\]) & 31) >> 2) ) }"
 			}
 		}
 		default {
