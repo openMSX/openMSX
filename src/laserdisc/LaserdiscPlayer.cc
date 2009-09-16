@@ -207,7 +207,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	switch (remoteState) {
 	case REMOTE_IDLE:
 		// Anything < 35ms seems to be repeats with the NEC protocol
-		if ((usec > 35000 || usec < 2600) && bit) {
+		if ((usec > 35000 || usec < 15000) && bit) {
 			remoteBits = remoteBitNr = 0;
 			remoteState = REMOTE_HEADER_PULSE;
 		} else if (bit) {
