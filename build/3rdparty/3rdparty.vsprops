@@ -103,7 +103,7 @@
 	/>
 	<UserMacro
 		Name="LibNameTcl"
-		Value="tcl-8.5.6"
+		Value="tcl-8.5.7"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
