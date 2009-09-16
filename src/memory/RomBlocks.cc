@@ -11,34 +11,46 @@
 
 namespace openmsx {
 
-template <unsigned BANK_SIZE>
 class RomBlockDebuggable : public SimpleDebuggable
 {
 public:
-	explicit RomBlockDebuggable(RomBlocks<BANK_SIZE>& rom_)
-		: SimpleDebuggable(rom_.getMotherBoard(),
-		                   rom_.getName() + " romblocks",
+	RomBlockDebuggable(MSXRom& rom, const byte* blockNr_,
+	                   unsigned bankSizeShift_, unsigned debugShift_)
+		: SimpleDebuggable(rom.getMotherBoard(),
+		                   rom.getName() + " romblocks",
 		                   "Shows for each byte of the mapper which memory block is selected.",
 		                   0x10000)
-		, rom(rom_)
+		, blockNr(blockNr_), bankSizeShift(bankSizeShift_)
+		, debugShift(debugShift_), debugMask(~((1 << debugShift) - 1))
 	{
 	}
 
 	virtual byte read(unsigned address)
 	{
-		return rom.blockNr[address / BANK_SIZE];
+		byte tmp = blockNr[(address >> bankSizeShift) & debugMask];
+		return (tmp != 255) ? (tmp >> debugShift) : tmp;
 	}
+
 private:
-	RomBlocks<BANK_SIZE>& rom;
+	const byte* blockNr;
+	const unsigned bankSizeShift;
+	const unsigned debugShift;
+	const unsigned debugMask;
 };
 
+template<bool C, class T, class F> struct if_             : F {};
+template<        class T, class F> struct if_<true, T, F> : T {};
+template<int I> struct int_ { static const int value = I; };
+template<unsigned A, unsigned R = 0> struct log2
+	: if_<A == 1, int_<R>, log2<A / 2, R + 1> > {};
 
 template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		std::auto_ptr<Rom> rom_)
+		std::auto_ptr<Rom> rom_, unsigned debugBankSizeShift)
 	: MSXRom(motherBoard, config, rom_)
-	, romBlockDebug(new RomBlockDebuggable<BANK_SIZE>(*this))
+	, romBlockDebug(new RomBlockDebuggable(*this, blockNr,
+	                         log2<BANK_SIZE>::value, debugBankSizeShift))
 	, nrBlocks(rom->getSize() / BANK_SIZE)
 {
 	if ((nrBlocks * BANK_SIZE) != rom->getSize()) {

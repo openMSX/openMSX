@@ -9,7 +9,7 @@
 namespace openmsx {
 
 class SRAM;
-template<unsigned> class RomBlockDebuggable;
+class RomBlockDebuggable;
 
 template <unsigned BANK_SIZE>
 class RomBlocks : public MSXRom
@@ -24,8 +24,21 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
+	/** Constructor
+	 * @param motherBoard
+	 * @param config
+	 * @param rom
+	 * @debugBankSizeShift Sometimes the mapper is implemented with a
+	 *      smaller block size than the blocks that get logically switched.
+	 *      For example RomGameMaster2 is implemented as a 4kB mapper but
+	 *      blocks get switched in 8kB chunks (done like this because there
+	 *      is only 4kB SRAM, that needs to be mirrored in a 8kB chunk).
+	 *      This parameter indicates how much bigger the logical blocks are
+	 *      compared to the implementation block size, it's only used to
+	 *      correctly implement the 'romblocks' debuggable.
+	 */
 	RomBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
-	          std::auto_ptr<Rom> rom);
+	          std::auto_ptr<Rom> rom, unsigned debugBankSizeShift = 0);
 	~RomBlocks();
 
 	/** Select 'unmapped' memory for this region. Reads from this
@@ -70,13 +83,11 @@ protected:
 	byte blockNr[NUM_BANKS];
 
 private:
-	const std::auto_ptr<RomBlockDebuggable<BANK_SIZE> > romBlockDebug;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 	const byte* extraMem;
 	unsigned extraSize;
 	const int nrBlocks;
 	int blockMask;
-
-	friend class RomBlockDebuggable<BANK_SIZE>;
 };
 
 typedef RomBlocks<0x1000> Rom4kBBlocks;
