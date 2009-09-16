@@ -7,3 +7,16 @@ TODO:
  - serialize state
  - Throttle when Laserdisc::readSample() is called many times per frame
  - screenshot and video recording are broken 
+ - Judging from the intel graphics hardware documentation, the video card
+   itself can do both YUV -> RGB conversion and color keying, see:
+
+	http://intellinuxgraphics.org/documentation.html
+
+   However, Linux support is limited right now:
+
+	http://www.phoronix.com/scan.php?page=news_item&px=NzQ0Nw
+
+   (Maybe it does work with UMS?)
+
+   In addition, SDL does have SDL_CreateYUVOverlay() which might just
+   do the trick when hardware support is available.

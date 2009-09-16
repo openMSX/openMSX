@@ -206,14 +206,19 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 
 	switch (remoteState) {
 	case REMOTE_IDLE:
-		// Is there a minimum length of a gap?
-		if (bit) {
+		// Anything < 35ms seems to be repeats with the NEC protocol
+		if ((usec > 35000 || usec < 2600) && bit) {
 			remoteBits = remoteBitNr = 0;
 			remoteState = REMOTE_HEADER_PULSE;
+		} else if (bit) {
+			remoteBits = remoteBitNr = 0;
+			remoteState = LD1100_HEADER_PULSE;
 		}
 		break;
 	case REMOTE_HEADER_PULSE:
-		if (8000 <= usec && usec < 8400) {
+	case LD1100_HEADER_PULSE:
+		if (8000 <= usec && usec < 8400 &&
+				remoteState == REMOTE_HEADER_PULSE) {
 			remoteState = NEC_HEADER_SPACE;
 		} else if (140 <= usec && usec < 280) {
 			remoteState = LD1100_BITS_SPACE;
@@ -308,6 +313,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	case NEC_REPEAT_PULSE:
 		// We should check that last repeat/button was 110ms ago
 		// and succesful.
+		PRT_DEBUG("Laserdisc::extControl repeat: " << std::dec << usec);
 		if (400 <= usec && usec < 700) {
 			buttonRepeat(time);
 		}
@@ -318,7 +324,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
-	PRT_DEBUG("Laserdisc: Lowering ACK for " << std::dec << wait << "ms");
+	PRT_DEBUG("Laserdisc::Lowering ACK for " << std::dec << wait << "ms");
 	removeSyncPoint(ACK);
 	Clock<1000> now(time);
 	setSyncPoint(now + wait,  ACK);
@@ -521,6 +527,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		case 0xfa:
 			seekState = SEEK_WAIT;
 			seekNum = 0;
+			ok = false;
 			break;
 		case 0x82:
 			seekState = SEEK_FRAME;
@@ -587,13 +594,13 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		case 0x62: // C- (play slower)
 			if (playingSpeed >= SPEED_STEP1) {
 				playingSpeed--;
-				frameStep = 1;
+				frameStep = 1;	// FIXME: is this correct?
 			}
 			break;
 		case 0xe2: // C+ (play faster)
 			if (playingSpeed <= SPEED_X2) {
 				playingSpeed++;
-				frameStep = 1;
+				frameStep = 1;	// FIXME: is this correct?
 			}
 			break;
 		}
@@ -840,10 +847,9 @@ void LaserdiscPlayer::play(EmuTime::param time)
 		updateStream(time);
 
 		if (seeking) {
-			PRT_DEBUG("FIXME: play while still seeking");
-		}
-
-		if (playerState == PLAYER_STOPPED) {
+			// Do not ACK
+			PRT_DEBUG("play while seeking");
+		} else if (playerState == PLAYER_STOPPED) {
 			// Disk needs to spin up, which takes 9.6s on
 			// my Pioneer LD-92000. Also always seek to
 			// beginning (confirmed on real MSX and LD)
@@ -858,8 +864,10 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			waitFrame = 0;
 			playingSpeed = SPEED_1IN4;
 		} else if (playerState == PLAYER_PLAYING) {
-			// This breaks Astron Belt loading, commented for now
-			//setAck(time, 46);
+			// If Play command is issued while the player
+			// is already playing, then if no ACK is sent then
+			// Astron Belt will send LD1100 commands
+			setAck(time, 46);
 		} else if (playerState == PLAYER_PLAYING_MULTISPEED) {
 			// Should be hearing stuff again
 			playingFromSample = (currentFrame - 1ll) * 1001ll *
