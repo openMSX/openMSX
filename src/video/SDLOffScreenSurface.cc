@@ -8,7 +8,7 @@ namespace openmsx {
 SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 {
 	int flags = SDL_SWSURFACE;
-	SDL_PixelFormat& format = *proto.format;
+	format = *proto.format;
 	surface = SDL_CreateRGBSurface(
 		flags, proto.w, proto.h, format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, format.Amask);

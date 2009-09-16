@@ -78,13 +78,14 @@ protected:
 	void setSDLWorkSurface   (SDL_Surface* surface);
 	void setBufferPtr(char* data, unsigned pitch);
 
+	SDL_PixelFormat format;
+
 private:
 	virtual unsigned getOutputWidth()  const { return getWidth(); }
 	virtual unsigned getOutputHeight() const { return getHeight(); }
 
 	SDL_Surface* displaySurface;
 	SDL_Surface* workSurface;
-	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
 	unsigned keyColor;

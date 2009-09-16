@@ -6,7 +6,6 @@ TODO:
  - set svn:keywords
  - serialize state
  - Throttle when Laserdisc::readSample() is called many times per frame
- - screenshot and video recording are broken 
  - Judging from the intel graphics hardware documentation, the video card
    itself can do both YUV -> RGB conversion and color keying, see:
 
