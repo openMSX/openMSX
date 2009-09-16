@@ -956,10 +956,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\tcl-8.5.7\generic\tclUniData.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\derived\3rdparty\src\tcl-8.5.7\generic\tclUtf.c"
 				>
 			</File>
@@ -1110,11 +1106,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\tcl-8.5.7\libtommath\tommath.h"
+				RelativePath="..\..\derived\3rdparty\src\tcl-8.5.7\generic\tommath.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\tcl-8.5.7\generic\tommath.h"
+				RelativePath="..\..\derived\3rdparty\src\tcl-8.5.7\libtommath\tommath.h"
 				>
 			</File>
 			<File

@@ -111,4 +111,9 @@
 		Value="zlib-1.2.3"
 		PerformEnvironmentSet="true"
 	/>
+	<UserMacro
+		Name="LibNameTk"
+		Value="tk8.5.7"
+		PerformEnvironmentSet="true"
+	/>
 </VisualStudioPropertySheet>
