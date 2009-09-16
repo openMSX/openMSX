@@ -331,6 +331,7 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 			bitmapConverter->palette16Changed();
 		}
 	} else {
+		// TODO: superimposing
 		if ((palFg[ 0] != palBg[tpIndex >> 2]) ||
 		    (palFg[16] != palBg[tpIndex &  3])) {
 			palFg[ 0] = palBg[tpIndex >> 2];

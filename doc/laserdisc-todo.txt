@@ -6,6 +6,8 @@ TODO:
  - set svn:keywords
  - serialize state
  - Throttle when Laserdisc::readSample() is called many times per frame
+ - volume of Laserdisc is too low compared to PSG
+ - Three keys missing from Pioneer_PX-V60
  - Judging from the intel graphics hardware documentation, the video card
    itself can do both YUV -> RGB conversion and color keying, see:
 
