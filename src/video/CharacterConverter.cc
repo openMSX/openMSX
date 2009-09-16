@@ -58,7 +58,7 @@ void CharacterConverter<Pixel>::renderText1(
 	Pixel* __restrict pixelPtr, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
-	Pixel bg = palBg[vdp.getBackgroundColor()];
+	Pixel bg = palFg[vdp.getBackgroundColor()];
 
 	// 8 * 256 is small enough to always be contiguous
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
