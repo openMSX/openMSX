@@ -645,6 +645,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 
 		ack = false;
 		seeking = false;
+		PRT_DEBUG("Laserdisc: ACK cleared");
 	} else if (userdata == FRAME) {
 		if (RawFrame* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
@@ -696,8 +697,8 @@ void LaserdiscPlayer::setFrameStep()
 void LaserdiscPlayer::nextFrame(EmuTime::param time)
 {
 	if (waitFrame && waitFrame == currentFrame) {
-		PRT_DEBUG("LaserdiscPlayer: wait frame "
-			<< std::dec << waitFrame << " reached");
+		PRT_DEBUG("LaserdiscPlayer: wait frame " << std::dec <<
+						waitFrame << " reached");
 
 		setAck(time, 100);
 		waitFrame = 0;
@@ -725,9 +726,11 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 
 	// freeze if stop frame
-	if (video->stopFrame(currentFrame)) {
-		playingFromSample =
-				getCurrentSample(time);
+	if (video->stopFrame(currentFrame) && playerState == PLAYER_PLAYING) {
+		PRT_DEBUG("LaserdiscPlayer: stopFrame" << std::dec <<
+						currentFrame << " reached");
+
+		playingFromSample = getCurrentSample(time);
 		playerState = PLAYER_FROZEN;
 	}
 }
@@ -782,9 +785,9 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 
 	if (currentSample > (lastPlayedSample + drift) ||
 			(currentSample + drift) < lastPlayedSample) {
-		lastPlayedSample = currentSample;
 		PRT_DEBUG("Laserdisc audio drift: " << std::dec <<
 				lastPlayedSample << " " << currentSample);
+		lastPlayedSample = currentSample;
 	}
 
 	while (pos < num) {
