@@ -8,9 +8,13 @@
 // __builtin_unreachable() was introduced in gcc-4.5
 #define UNREACHABLE __builtin_unreachable()
 
+#elif defined(_MSC_VER) && defined(NDEBUG)
+
+#define UNREACHABLE __assume(0)
+
 #else
 
-// pre gcc-4.5 (or non-gcc compiler) or asserts enabled,
+// pre gcc-4.5 (or non-gcc/VC++ compiler) or asserts enabled,
 #include <cassert>
 #define UNREACHABLE assert(false)
 

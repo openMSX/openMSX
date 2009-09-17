@@ -51,7 +51,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -130,7 +130,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -216,7 +216,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -303,7 +303,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -382,7 +382,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -464,7 +464,7 @@
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611"
+				DisableSpecificWarnings="4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
