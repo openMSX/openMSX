@@ -3158,6 +3158,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\utils\my_auto_ptr.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\utils\noncopyable.hh"
 				>
 			</File>
@@ -3247,6 +3251,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\utils\unistdp.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utils\unreachable.hh"
 				>
 			</File>
 			<File
