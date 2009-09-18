@@ -58,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -137,7 +137,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -223,7 +223,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -310,7 +310,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -389,7 +389,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -471,7 +471,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(OpenMSXConfigDir)"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"

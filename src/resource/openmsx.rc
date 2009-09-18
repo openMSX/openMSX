@@ -13,6 +13,8 @@
 // Include resource info from the openMSX build process.
 #include "resource-info.h"
 
+//#include "tk_base.rc"
+
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
