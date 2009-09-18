@@ -87,7 +87,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* __restrict pixelPtr, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
-	Pixel bg = palBg[vdp.getBackgroundColor()];
+	Pixel bg = palFg[vdp.getBackgroundColor()];
 
 	unsigned patternBaseLine = (-1 << 13) | ((line + vdp.getVerticalScroll()) & 7);
 
@@ -117,7 +117,7 @@ void CharacterConverter<Pixel>::renderText2(
 	Pixel* __restrict pixelPtr, int line)
 {
 	Pixel plainFg = palFg[vdp.getForegroundColor()];
-	Pixel plainBg = palBg[vdp.getBackgroundColor()];
+	Pixel plainBg = palFg[vdp.getBackgroundColor()];
 	Pixel blinkFg, blinkBg;
 	if (vdp.getBlinkState()) {
 		int fg = vdp.getBlinkForegroundColor();
@@ -379,7 +379,7 @@ void CharacterConverter<Pixel>::renderBogus(
 	Pixel* __restrict pixelPtr, int /*line*/)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
-	Pixel bg = palBg[vdp.getBackgroundColor()];
+	Pixel bg = palFg[vdp.getBackgroundColor()];
 	for (int n = 8; n--; ) *pixelPtr++ = bg;
 	for (int c = 20; c--; ) {
 		for (int n = 4; n--; ) *pixelPtr++ = fg;
