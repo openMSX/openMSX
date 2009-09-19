@@ -96,10 +96,22 @@ int stringToInt(const string& str)
 {
 	return strtol(str.c_str(), NULL, 0);
 }
+bool stringToInt(const string& str, int& result)
+{
+	char* endptr;
+	result = strtol(str.c_str(), &endptr, 0);
+	return *endptr == '\0';
+}
 
 unsigned stringToUint(const string& str)
 {
 	return strtoul(str.c_str(), NULL, 0);
+}
+bool stringToUint(const string& str, unsigned& result)
+{
+	char* endptr;
+	result = strtoul(str.c_str(), &endptr, 0);
+	return *endptr == '\0';
 }
 
 unsigned long long stringToUint64(const string& str)
@@ -116,6 +128,12 @@ bool stringToBool(const string& str)
 double stringToDouble(const string& str)
 {
 	return strtod(str.c_str(), NULL);
+}
+bool stringToDouble(const string& str, double& result)
+{
+	char* endptr;
+	result = strtod(str.c_str(), &endptr);
+	return *endptr == '\0';
 }
 
 string toLower(const string& str)

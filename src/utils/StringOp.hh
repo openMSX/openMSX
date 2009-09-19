@@ -66,10 +66,13 @@ namespace StringOp
 	std::string toHexString(unsigned char t, int width);
 
 	int stringToInt(const std::string& str);
+	bool stringToInt(const std::string& str, int& result);
 	unsigned stringToUint(const std::string& str);
+	bool stringToUint(const std::string& str, unsigned& result);
 	unsigned long long stringToUint64(const std::string& str);
 	bool stringToBool(const std::string& str);
 	double stringToDouble(const std::string& str);
+	bool stringToDouble(const std::string& str, double& result);
 
 	std::string toLower(const std::string& str);
 

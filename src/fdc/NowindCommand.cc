@@ -31,9 +31,8 @@ static unsigned parseNumber(string str)
 	if (str.empty()) {
 		throw MSXException("Invalid integer: empty string");
 	}
-	char* endptr;
-	unsigned result = strtoul(str.c_str(), &endptr, 0);
-	if (*endptr != '\0') {
+	unsigned result;
+	if (!StringOp::stringToUint(str, result)) {
 		throw MSXException("Invalid integer: " + str);
 	}
 	return result;
