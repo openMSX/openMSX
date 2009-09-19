@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1252712846">
+<softwaredb xml:lang="en" timestamp="1253378466">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3787,8 +3787,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">f416b424fb913ca067fe75279c924a20fac5c6a1</hash><remark><text>[RC-764] / Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">b4788d85e67950177882ea4cf6a5fa3219f3fbd0</hash><remark><text>[RC-764]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">7393f677e0fae5fc83071c6b74756117b7d75e2d</hash><remark><text>[RC-764] / MSX1 Mode</text></remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">0413bb3aeacb0c28429b8c85b42796dbe48bef6d</hash><remark><text>[a1][RC-764] / MSX1 Mode</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">40a0f35dccc7572ae53bcd4be70abfe477d49bc9</hash><remark><text>[b][o][RC-764]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">0413bb3aeacb0c28429b8c85b42796dbe48bef6d</hash><remark><text>[RC-764] / MSX1 Mode [a1]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">40a0f35dccc7572ae53bcd4be70abfe477d49bc9</hash><remark><text>[RC-764] / [b][o]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">5692e41b3a4c5e767cf290fd6c24942d0fd7b2e3</hash><remark><text>[RC-764]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">520739caa1e0aac1b8eabc4305556aa75f3f5a3b</hash><remark><text>[RC-764] / Cheat version</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">c84ea9e7a02609c71ff75893cbb948fc1f1cf21c</hash><remark><text>[RC-764] / Ulver crack</text></remark></megarom></dump>
@@ -3910,7 +3910,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">50efb7040339632cf8bddbc1d3eaae1fb2e2188f</hash><remark><text>[RC-742]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">e31ac6520e912c27ce96431a1dfb112bf71cb7b9</hash><remark><text>[RC-742]</text></remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">f0e4168ea18188fca2581526c2503223b9a28581</hash><remark><text>[a1][RC-742]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">f0e4168ea18188fca2581526c2503223b9a28581</hash><remark><text>[RC-742] / [a1]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">98748c364e7bff50cf073c1a421ebe5b5d8b7025</hash><remark><text>[RC-742] / cheat version</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">910b156b562880ace789fb3f9b11848163c2df20</hash><remark><text>[RC-742] / Ulver crack</text></remark></megarom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">6b42315eddefa0a33ea0c4510d6a4bc1086a5163</hash><remark><text>[RC-742]</text></remark></rom></dump>
@@ -3922,6 +3922,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Gradius 2 - Nemesis 2</title>
+	<genmsxid>111</genmsxid>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>1987</year>
+	<country>JP</country>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">7561f3c70c221df40f1b28209c59882ca065603d</hash><remark><text>[RC-751] / Demo Version</text></remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Gradius 2 - Nemesis 2</title>
 	<genmsxid>932</genmsxid>
 	<system>MSX</system>
 	<company>Konami</company>
@@ -3930,13 +3939,13 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash><remark><text>[RC-751] / Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">2ae97f3c8152f56695c3d3a2dedaa781bf0a15f1</hash><remark><text>[RC-751]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">076c45e152598777cdb1ace82b11994018bfed83</hash><remark><text>[RC-751]</text></remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">ab30cdeaacbdf14e6366d43d881338178fc665cb</hash><remark><text>[a1][RC-751]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">ab30cdeaacbdf14e6366d43d881338178fc665cb</hash><remark><text>[RC-751] / [a1]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">d63e20369f98487767810a0c57603bef6a2a07e5</hash><remark><text>[RC-751]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">c66483cd0d83292e4f2b54a3e89bd96b8bf9abb2</hash><remark><text>[RC-751] / Penguin cheat version</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4127844955388f812e33437f618936dc98944c0a</hash><remark><text>[RC-751] / cheat version</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4c15375910461a7a34a2fd54c7f51e712f06bc69</hash><remark><text>[RC-751] / Ulver crack</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">06aa7bdc1d8f01e67d1a1736084384393074e613</hash><remark><text>[RC-751] / Beta Release</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4c2f015685a17db7a8c3893e868e0a84a8dbf1e5</hash><remark><text>[a][RC-751] / Beta Release</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">4c2f015685a17db7a8c3893e868e0a84a8dbf1e5</hash><remark><text>[RC-751] / Beta Release[a]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">6844758ff5c2c410115d4d7cf12498c42e931732</hash><remark><text>[RC-751] / Beta Release</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">76666da5870d1901026e3dded3f22ce7a706689d</hash><remark><text>[RC-751] / Konami Antiques MSX Collection 2</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">87b7c80069a15fdb90b40dfed736fb8492104cd9</hash><remark><text>[RC-751] / Demo</text></remark></megarom></dump>
@@ -5511,7 +5520,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="false"/><megarom><type>ASCII8SRAM8</type><hash algo="sha1">f02281aa13cb34d2f10add301529b95adff7f768</hash><remark><text>[RC-755]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>GameMaster2</type><hash algo="sha1">fe74b4df9698a61dffd3ac88f47619675514ba1c</hash><remark><text>[a][RC-755]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>GameMaster2</type><hash algo="sha1">fe74b4df9698a61dffd3ac88f47619675514ba1c</hash><remark><text>[RC-755] / [a]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>GameMaster2</type><hash algo="sha1">5c00f9e3a48411e08fac89b1dfdd2a6e95853919</hash><remark><text>[RC-755] / MSX1 Mode</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">0099492bd11dfa3ddf87af3aeb4c92b29f78bd82</hash><remark><text>[RC-755]</text></remark></megarom></dump>
 </software>
@@ -11277,6 +11286,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2473
-Parse time 4.290 seconds on Sat Sep 12 1:47:30 CEST 2009
+Roms in this database:2474
+Parse time 4.206 seconds on Sat Sep 19 18:41:10 CEST 2009
  -->
