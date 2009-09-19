@@ -146,8 +146,11 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, remoteState(REMOTE_IDLE)
 	, remoteLastEdge(EmuTime::zero)
 	, remoteLastBit(false)
+	, lastNECButtonTime(EmuTime::zero)
+	, lastNECButtonCode(0x100)
 	, waitFrame(0)
 	, ack(false)
+	, foundFrame(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
 {
@@ -204,21 +207,18 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	remoteLastEdge = time;
 	unsigned usec = duration.getTicksAt(1000000); // microseconds
 
+//	PRT_DEBUG("LaserdiscPlayer::extControl bit:" << std::dec <<
+//		bit << " state:" << remoteState << " usec:" << usec);
+
 	switch (remoteState) {
 	case REMOTE_IDLE:
-		// Anything < 35ms seems to be repeats with the NEC protocol
-		if ((usec > 35000 || usec < 15000) && bit) {
+		if (bit) {
 			remoteBits = remoteBitNr = 0;
 			remoteState = REMOTE_HEADER_PULSE;
-		} else if (bit) {
-			remoteBits = remoteBitNr = 0;
-			remoteState = LD1100_HEADER_PULSE;
 		}
 		break;
 	case REMOTE_HEADER_PULSE:
-	case LD1100_HEADER_PULSE:
-		if (8000 <= usec && usec < 8400 &&
-				remoteState == REMOTE_HEADER_PULSE) {
+		if (8000 <= usec && usec < 8400) {
 			remoteState = NEC_HEADER_SPACE;
 		} else if (140 <= usec && usec < 280) {
 			remoteState = LD1100_BITS_SPACE;
@@ -329,11 +329,12 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 	Clock<1000> now(time);
 	setSyncPoint(now + wait,  ACK);
 	ack = true;
+	foundFrame = false;
 }
 
 bool LaserdiscPlayer::extAck(EmuTime::param /*time*/) const
 {
-	return ack;
+	return ack || foundFrame;
 }
 
 bool LaserdiscPlayer::extInt(EmuTime::param /*time*/)
@@ -519,6 +520,20 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		return;
 	}
 
+	if (code == lastNECButtonCode) {
+		EmuDuration duration = time - lastNECButtonTime;
+		unsigned msec = duration.getTicksAt(1000); // miliseconds
+		PRT_DEBUG("PioneerLD7000::NEC repeat within " << std::dec <<
+								msec << "ms");
+		if (msec < 100) {
+			lastNECButtonTime = time;
+			return;
+		}
+	}
+
+	lastNECButtonTime = time;
+	lastNECButtonCode = code;
+
 	// deal with seeking.
 	if (playerState != PLAYER_STOPPED) {
 		bool ok = true;
@@ -549,7 +564,6 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		case 0x10: seekNum = seekNum * 10 + 8; break;
 		case 0x90: seekNum = seekNum * 10 + 9; break;
 		case 0x42:
-			ok = false;
 			switch (seekState) {
 			case SEEK_FRAME:
 				seekState = SEEK_NONE;
@@ -567,6 +581,8 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 				break;
 			default:
 				seekState = SEEK_NONE;
+				ok = false;
+				break;
 			}
 			break;
 		case 0xa2: // Clear "X+"
@@ -700,8 +716,8 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 		PRT_DEBUG("LaserdiscPlayer: wait frame " << std::dec <<
 						waitFrame << " reached");
 
-		setAck(time, 100);
 		waitFrame = 0;
+		foundFrame = true;
 	}
 
 	if (playerState == PLAYER_PLAYING_MULTISPEED) {

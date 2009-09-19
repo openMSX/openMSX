@@ -114,7 +114,6 @@ private:
 		NEC_BITS_PULSE,
 		NEC_BITS_SPACE,
 		NEC_REPEAT_PULSE,
-		LD1100_HEADER_PULSE,
 		LD1100_GAP,
 		LD1100_SEEN_GAP,
 		LD1100_BITS_SPACE,
@@ -124,6 +123,8 @@ private:
 	unsigned remoteBitNr;
 	unsigned remoteBits;
 	bool remoteLastBit;
+	EmuTime lastNECButtonTime;
+	unsigned lastNECButtonCode;
 
 	/* We need to maintain some state for seeking */
 	enum PioneerSeekState {
@@ -141,6 +142,7 @@ private:
 
 	// For ack
 	bool ack;
+	bool foundFrame;
 
 	// State of the video itself
 	bool seeking;
