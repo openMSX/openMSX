@@ -348,16 +348,30 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	AfterCmds::iterator it = afterCmds.begin();
-	for (/**/; it != afterCmds.end(); ++it) {
-		if ((*it)->getId() == tokens[2]) {
-			break;
+	if (tokens.size() == 3) {
+		AfterCmds::iterator it = afterCmds.begin();
+		for (AfterCmds::iterator it = afterCmds.begin();
+		     it != afterCmds.end(); ++it) {
+			if ((*it)->getId() == tokens[2]) {
+				afterCmds.erase(it);
+				return "";
+			}
 		}
 	}
-	if (it == afterCmds.end()) {
-		throw CommandException("No delayed command with this id");
+	string command = Interpreter::mergeList(tokens.begin() + 2, tokens.end());
+	AfterCmds::iterator it = afterCmds.begin();
+	for (AfterCmds::iterator it = afterCmds.begin();
+	     it != afterCmds.end(); ++it) {
+		if ((*it)->getCommand() == command) {
+			afterCmds.erase(it);
+			// Tcl manual is not clear about this, but it seems
+			// there's only occurence of this command canceled.
+			// It's also not clear which of the (possibly) several
+			// matches is canceled.
+			return "";
+		}
 	}
-	afterCmds.erase(it);
+	// It's not an error if no match is found
 	return "";
 }
 
