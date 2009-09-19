@@ -5,6 +5,7 @@
 
 #include "EventListener.hh"
 #include "noncopyable.hh"
+#include "vla.hh"
 #include <map>
 #include <set>
 #include <string>
@@ -56,6 +57,20 @@ public:
 	static void splitList(const std::string& list,
 	                      std::vector<std::string>& result,
 	                      Tcl_Interp* interp);
+
+	template<typename FwIter>
+	static std::string mergeList(FwIter begin, FwIter end)
+	{
+		int argc = std::distance(begin, end);
+		VLA(const char*, argv, argc);
+		for (int i = 0; begin != end; ++begin, ++i) {
+			argv[i] = (*begin).c_str();
+		}
+		char* result = Tcl_Merge(argc, argv);
+		std::string result2 = result;
+		Tcl_Free(result);
+		return result2;
+	}
 
 private:
 	// EventListener

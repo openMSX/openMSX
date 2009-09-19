@@ -12,6 +12,7 @@
 #include "Alarm.hh"
 #include "EmuTime.hh"
 #include "CommandException.hh"
+#include "Interpreter.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
 #include "unreachable.hh"
@@ -205,6 +206,7 @@ string AfterCommand::execute(const vector<string>& tokens)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
+	int time;
 	if (tokens[1] == "time") {
 		return afterTime(tokens);
 	} else if (tokens[1] == "realtime") {
@@ -225,6 +227,8 @@ string AfterCommand::execute(const vector<string>& tokens)
 		return afterInfo(tokens);
 	} else if (tokens[1] == "cancel") {
 		return afterCancel(tokens);
+	} else if (StringOp::stringToInt(tokens[1], time)) {
+		return afterTclTime(time, tokens);
 	} else {
 		// try to interpret token as an event name
 		try {
@@ -269,6 +273,15 @@ string AfterCommand::afterRealTime(const vector<string>& tokens)
 	double time = getTime(tokens[2]);
 	shared_ptr<AfterCmd> cmd(new AfterRealTimeCmd(
 		*this, eventDistributor, tokens[3], time));
+	afterCmds.push_back(cmd);
+	return cmd->getId();
+}
+
+string AfterCommand::afterTclTime(int ms, const vector<string>& tokens)
+{
+	string command = Interpreter::mergeList(tokens.begin() + 2, tokens.end());
+	shared_ptr<AfterCmd> cmd(new AfterRealTimeCmd(
+		*this, eventDistributor, command, ms / 1000.0));
 	afterCmds.push_back(cmd);
 	return cmd->getId();
 }
