@@ -632,7 +632,7 @@ proc display_osd_text { message } {
 }
 
 proc menu_create_ROM_list { path } {
-	return [prepare_menu_list [ls $path "rom,zip,gz"] \
+	return [prepare_menu_list [concat "--eject--" [ls $path "rom,zip,gz"]] \
 	                          10 \
 	                          { execute menu_select_rom
 	                            bg-color 0x000000a0
@@ -650,22 +650,27 @@ proc menu_create_ROM_list { path } {
 }
 
 proc menu_select_rom { item } {
-	set fullname [file join $::osd_rom_path $item]
-	if [file isdirectory $fullname] {
-		menu_close_top
-		set ::osd_rom_path [file normalize $fullname]
-		menu_create [menu_create_ROM_list $::osd_rom_path]
-	} else {
+	if [string equal $item "--eject--"] {
 		menu_close_all
-		carta $fullname
-		display_osd_text "Now running ROM: [guess_title]"
+		carta eject
 		reset
+	} else {
+		set fullname [file join $::osd_rom_path $item]
+		if [file isdirectory $fullname] {
+			menu_close_top
+			set ::osd_rom_path [file normalize $fullname]
+			menu_create [menu_create_ROM_list $::osd_rom_path]
+		} else {
+			menu_close_all
+			carta $fullname
+			display_osd_text "Now running ROM: [guess_title]"
+			reset
+		}
 	}
 }
 
 proc menu_create_disk_list { path } {
-	set disks [concat "--eject--" [ls $path "dsk,zip,gz"]]
-	return [prepare_menu_list $disks \
+	return [prepare_menu_list [concat "--eject--" [ls $path "dsk,zip,gz"]] \
 	                          10 \
 	                          { execute menu_select_disk
 	                            bg-color 0x000000a0
