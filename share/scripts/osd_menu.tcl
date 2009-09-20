@@ -373,8 +373,8 @@ set main_menu [prepare_menu {
 	       { text "Video Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::video_setting_menu }}
 	         post-spacing 3 }
-	       { text "Manage Running Machines..."
-	         actions { A { osd_menu::menu_create $osd_menu::running_machines_menu }}
+	       { text "Advanced..."
+	         actions { A { osd_menu::menu_create $osd_menu::advanced_menu }}
 	         post-spacing 10 }
 	       { text "Reset MSX"
 	         actions { A { reset ; osd_menu::menu_close_all }}}
@@ -456,6 +456,25 @@ set video_setting_menu [prepare_menu {
 	       { text "Glow: $glow"
 	         actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
 	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}]
+
+set advanced_menu [prepare_menu {
+	bg-color 0x000000a0
+	text-color 0xffffffff
+	select-color 0x8080ffd0
+	font-size 8
+	border-size 2
+	width 175
+	xpos 100
+	ypos 120
+	items {{ text "Advanced"
+	         text-color 0xffff40ff
+	         font-size 10
+	         post-spacing 6
+	         selectable false }
+	       { text "Manage Running Machines..."
+	         actions { A { osd_menu::menu_create $osd_menu::running_machines_menu }}}
+	       { text "Toys..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_toys_list] }}}}}]
 
 set running_machines_menu [prepare_menu {
 	bg-color 0x000000a0
@@ -551,6 +570,37 @@ proc menu_load_machine_exec { item } {
 	} else {
 		activate_machine $id
 	}
+}
+
+proc menu_create_toys_list {} {
+	set menu_def {
+	         execute menu_toys_exec
+	         bg-color 0x000000a0
+	         text-color 0xffffffff
+	         select-color 0x8080ffd0
+	         font-size 8
+	         border-size 2
+	         width 200
+	         xpos 100
+	         ypos 120
+	         header { text "Toys"
+	                  text-color 0xff0000ff
+	                  font-size 12
+	                  post-spacing 6 }}
+
+	set items [info commands toggle_*]
+
+	set presentation [list]
+	foreach i $items {
+		lappend presentation [string range $i 7 end]
+	}
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $items 5 $menu_def]
+}
+
+proc menu_toys_exec { toy } {
+	return [$toy]
 }
 
 proc ls { directory extensions } {
