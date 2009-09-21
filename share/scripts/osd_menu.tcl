@@ -4,6 +4,11 @@ set_help_text main_menu_open   "(experimental) Show the OSD menu."
 set_help_text main_menu_close  "(experimental) Remove the OSD menu."
 set_help_text main_menu_toggle "(experimental) Toggle the OSD menu."
 
+# default colors defined here, for easy global tweaking
+variable default_bg_color 0xc0e0ffe8
+variable default_text_color 0x002040ff
+variable default_select_color 0x80a0c0ff
+variable default_header_text_color 0xff2040ff
 
 proc get_optional { array_name key default } {
 	upvar $array_name arr
@@ -49,15 +54,19 @@ proc set_scrollidx { value } {
 
 proc menu_create { menu_def_list } {
 	variable menulevels
+	variable default_bg_color
+	variable default_text_color
+	variable default_select_color
+	variable default_header_text_color
 
 	set name "menu[expr $menulevels + 1]"
 
 	array set menudef $menu_def_list
 
 	set defactions   [get_optional menudef "actions" ""]
-	set bgcolor      [get_optional menudef "bg-color" 0]
-	set deftextcolor [get_optional menudef "text-color" 0xffffffff]
-	set selectcolor  [get_optional menudef "select-color" 0x0000ffff]
+	set bgcolor      [get_optional menudef "bg-color" $default_bg_color]
+	set deftextcolor [get_optional menudef "text-color" $default_text_color]
+	set selectcolor  [get_optional menudef "select-color" $default_select_color]
 	set deffontsize  [get_optional menudef "font-size" 12]
 	set deffont      [get_optional menudef "font" "skins/Vera.ttf.gz"]
 	set bordersize   [get_optional menudef "border-size" 0]
@@ -72,10 +81,15 @@ proc menu_create { menu_def_list } {
 	foreach itemdef $items {
 		array unset itemarr
 		array set itemarr $itemdef
+		set selectable [get_optional itemarr "selectable" true]
 		incr y [get_optional itemarr "pre-spacing" 0]
 		set fontsize  [get_optional itemarr "font-size"  $deffontsize]
 		set font      [get_optional itemarr "font"       $deffont]
-		set textcolor [get_optional itemarr "text-color" $deftextcolor]
+		if {$selectable} {
+			set textcolor [get_optional itemarr "text-color" $deftextcolor]
+		} else {
+			set textcolor [get_optional itemarr "text-color" $default_header_text_color]
+		}
 		set actions   [get_optional itemarr "actions"    ""]
 		set on_select   [get_optional itemarr "on-select"   ""]
 		set on_deselect [get_optional itemarr "on-deselect" ""]
@@ -84,7 +98,6 @@ proc menu_create { menu_def_list } {
 		lappend menutexts $textid $text
 		osd create text $textid -font $font -size $fontsize \
 					-rgba $textcolor -x $bordersize -y $y
-		set selectable [get_optional itemarr "selectable" true]
 		if $selectable {
 			set allactions [concat $defactions $actions]
 			lappend selectinfo [list $y $fontsize $allactions $on_select $on_deselect]
@@ -345,14 +358,10 @@ proc list_menu_item_updown { delta listsize menusize } {
 #
 
 set main_menu [prepare_menu {
-	bg-color 0x000000a0
-	text-color 0xffffffff
-	select-color 0x8080ffd0
 	font-size 10
 	border-size 2
 	width 160
 	items {{ text "Menu"
-	         text-color 0x00ffffff
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
@@ -382,16 +391,12 @@ set main_menu [prepare_menu {
 	         actions { A exit }}}}]
 
 set misc_setting_menu [prepare_menu {
-	bg-color 0x000000a0
-	text-color 0xffffffff
-	select-color 0x8080ffd0
 	font-size 8
 	border-size 2
 	width 150
 	xpos 100
 	ypos 120
 	items {{ text "Misc Settings"
-	         text-color 0xffff40ff
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
@@ -406,16 +411,12 @@ set misc_setting_menu [prepare_menu {
 	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}]
 
 set sound_setting_menu [prepare_menu {
-	bg-color 0x000000a0
-	text-color 0xffffffff
-	select-color 0x8080ffd0
 	font-size 8
 	border-size 2
 	width 150
 	xpos 100
 	ypos 120
 	items {{ text "Sound Settings"
-	         text-color 0xffff40ff
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
@@ -427,16 +428,12 @@ set sound_setting_menu [prepare_menu {
 	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}}}]
 
 set video_setting_menu [prepare_menu {
-	bg-color 0x000000a0
-	text-color 0xffffffff
-	select-color 0x8080ffd0
 	font-size 8
 	border-size 2
 	width 150
 	xpos 100
 	ypos 120
 	items {{ text "Video Settings"
-	         text-color 0xffff40ff
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
@@ -458,16 +455,12 @@ set video_setting_menu [prepare_menu {
 	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}]
 
 set advanced_menu [prepare_menu {
-	bg-color 0x000000a0
-	text-color 0xffffffff
-	select-color 0x8080ffd0
 	font-size 8
 	border-size 2
 	width 175
 	xpos 100
 	ypos 120
 	items {{ text "Advanced"
-	         text-color 0xffff40ff
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
@@ -477,16 +470,12 @@ set advanced_menu [prepare_menu {
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_toys_list] }}}}}]
 
 set running_machines_menu [prepare_menu {
-	bg-color 0x000000a0
-	text-color 0xffffffff
-	select-color 0x8080ffd0
 	font-size 8
 	border-size 2
 	width 175
 	xpos 100
 	ypos 120
 	items {{ text "Manage Running Machines"
-	         text-color 0xffff40ff
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
@@ -500,16 +489,12 @@ set running_machines_menu [prepare_menu {
 proc menu_create_running_machine_list {} {
 	set menu_def {
 	         execute menu_machine_tab_select_exec
-	         bg-color 0x000000a0
-	         text-color 0xffffffff
-	         select-color 0x8080ffd0
 	         font-size 8
 	         border-size 2
 	         width 200
 	         xpos 100
 	         ypos 120
 	         header { text "Select Running Machine"
-	                  text-color 0xff0000ff
 	                  font-size 12
 	                  post-spacing 6 }}
 
@@ -537,16 +522,12 @@ proc menu_machine_tab_select_exec { item } {
 proc menu_create_load_machine_list {} {
 	set menu_def {
 	         execute osd_menu::menu_load_machine_exec
-	         bg-color 0x000000a0
-	         text-color 0xffffffff
-	         select-color 0x8080ffd0
 	         font-size 8
 	         border-size 2
 	         width 200
 	         xpos 100
 	         ypos 120
 	         header { text "Select Machine to Run"
-	                  text-color 0xff0000ff
 	                  font-size 12
 	                  post-spacing 6 }}
 
@@ -575,16 +556,12 @@ proc menu_load_machine_exec { item } {
 proc menu_create_toys_list {} {
 	set menu_def {
 	         execute menu_toys_exec
-	         bg-color 0x000000a0
-	         text-color 0xffffffff
-	         select-color 0x8080ffd0
 	         font-size 8
 	         border-size 2
 	         width 200
 	         xpos 100
 	         ypos 120
 	         header { text "Toys"
-	                  text-color 0xff0000ff
 	                  font-size 12
 	                  post-spacing 6 }}
 
@@ -635,16 +612,12 @@ proc menu_create_ROM_list { path } {
 	return [prepare_menu_list [concat "--eject--" [ls $path "rom,zip,gz"]] \
 	                          10 \
 	                          { execute menu_select_rom
-	                            bg-color 0x000000a0
-	                            text-color 0xffffffff
-	                            select-color 0x8080ffd0
 	                            font-size 8
 	                            border-size 2
 	                            width 200
 	                            xpos 100
 	                            ypos 120
 	                            header { text "ROMS  $::osd_rom_path"
-	                                     text-color 0xff0000ff
 	                                     font-size 10
                                              post-spacing 6 }}]
 }
@@ -673,16 +646,12 @@ proc menu_create_disk_list { path } {
 	return [prepare_menu_list [concat "--eject--" [ls $path "dsk,zip,gz"]] \
 	                          10 \
 	                          { execute menu_select_disk
-	                            bg-color 0x000000a0
-	                            text-color 0xffffffff
-	                            select-color 0x8080ffd0
 	                            font-size 8
 	                            border-size 2
 	                            width 200
 	                            xpos 100
 	                            ypos 120
 	                            header { text "Disks  $::osd_disk_path"
-	                                     text-color 0xff0000ff
 	                                     font-size 10
 	                                     post-spacing 6 }}]
 }
@@ -720,9 +689,6 @@ proc get_savestates_list_presentation_sorted {} {
 proc menu_create_load_state {} {
 	set menu_def \
 	       { execute menu_loadstate_exec
-	         bg-color 0x000000a0
-	         text-color 0xffffffff
-	         select-color 0x8080ffd0
 	         font-size 8
 	         border-size 2
 	         width 200
@@ -733,7 +699,6 @@ proc menu_create_load_state {} {
 	         on-select   menu_loadstate_select
 	         on-deselect menu_loadstate_deselect
 	         header { text "Load State"
-	                  text-color 0x00ff00ff
 	                  font-size 12
                           post-spacing 6 }}
 
@@ -748,9 +713,6 @@ proc menu_create_save_state {} {
 	set items [concat [list "create new"] [list_savestates -t]]
 	set menu_def \
 	       { execute menu_savestate_exec
-	         bg-color 0x000000a0
-	         text-color 0xffffffff
-	         select-color 0x8080ffd0
 	         font-size 8
 	         border-size 2
 	         width 200
@@ -761,7 +723,6 @@ proc menu_create_save_state {} {
 	         on-select   menu_loadstate_select
 	         on-deselect menu_loadstate_deselect
 	         header { text "Save State"
-	                  text-color 0xff0000ff
 	                  font-size 12
 	                  post-spacing 6 }}
 
