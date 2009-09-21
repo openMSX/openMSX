@@ -183,13 +183,14 @@ void OSDWidget::addWidget(std::auto_ptr<OSDWidget> widget)
 
 void OSDWidget::deleteWidget(OSDWidget& widget)
 {
+	string widgetName = widget.getName();
 	for (SubWidgets::iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
 		if (*it == &widget) {
 			delete *it;
 			subWidgets.erase(it);
 			SubWidgetsMap::size_type existed =
-				subWidgetsMap.erase(widget.getName());
+				subWidgetsMap.erase(widgetName);
 			assert(existed); (void)existed;
 			return;
 		}
