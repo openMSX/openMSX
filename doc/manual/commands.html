@@ -75,6 +75,8 @@
 
         <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
 
+        <li><a class="internal" href="#openmsx_update">openmsx_update</a></li>
+
         <li><a class="internal" href="#osd">osd</a></li>
 
         <li><a class="internal" href="#palette">palette</a></li>
@@ -116,8 +118,6 @@
         <li><a class="internal" href="#type">type</a></li>
 
         <li><a class="internal" href="#unset">unset</a></li>
-
-        <li><a class="internal" href="#update">update</a></li>
 
         <li><a class="internal" href="#user_setting">user_setting</a></li>
 
@@ -1477,6 +1477,38 @@
   </table>
 
 
+  <h3><a id="openmsx_update">openmsx_update</a></h3>
+
+  <p>Enable or disable update notifications of a certain type. This command is intended for external programs controlling openMSX. More about this in <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>openmsx_update enable &lt;type&gt;</code></td>
+
+      <td>enable notifications for this type</td>
+    </tr>
+
+    <tr>
+      <td><code>openmsx_update disable &lt;type&gt;</code></td>
+
+      <td>disable notifications for this type</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>openmsx_update enable led</code><br />
+    <code>openmsx_update disable setting</code>
+  </div>
+
+
   <h3><a id="osd">osd</a></h3>
 
   <p>openMSX has the possibility to show OSD (on screen display) elements. For example, the LEDs and the fps-indicator are implemented via OSD elements. This command allows to create new OSD elements, configure existing elements or delete elements.</p>
@@ -2070,38 +2102,6 @@
       <td>Reverts the given setting to its default value</td>
     </tr>
   </table>
-
-  <h3><a id="update">update</a></h3>
-
-  <p>Enable or disable update notifications of a certain type. This command is intended for external programs controlling openMSX. More about this in <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>update enable &lt;type&gt;</code></td>
-
-      <td>enable notifications for this type</td>
-    </tr>
-
-    <tr>
-      <td><code>update disable &lt;type&gt;</code></td>
-
-      <td>disable notifications for this type</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>update enable led</code><br />
-    <code>update disable setting</code>
-  </div>
-
 
   <h3><a id="user_setting">user_setting</a></h3>
   <p>This command is only meant to be used in Tcl scripts. It allows to create Tcl variables that act very much like built-in openMSX settings. They have a description (can be queried with "<code>help set &lt;setting-name&gt;</code>") and their value is stored saved/restored when openMSX is quit/restarted.</p>

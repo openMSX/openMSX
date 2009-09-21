@@ -87,11 +87,36 @@ GlobalCommandController::GlobalCommandController(
 	, hotKey(new HotKey(*this, eventDistributor))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
-	, updateCmd(new UpdateCmd(*this, cliComm))
 	, proxyCmd(new ProxyCmd(*this, reactor))
 	, versionInfo(new VersionInfo(getOpenMSXInfoCommand()))
 	, romInfoTopic(new RomInfoTopic(getOpenMSXInfoCommand()))
 {
+	// For backwards compatibility:
+	//  In the past we had an openMSX command 'update'. This was a mistake
+	//  because it overlaps with the native Tcl command with the same name.
+	//  We renamed 'update' to 'openmsx_update'. And installed a wrapper
+	//  around 'update' that either forwards to the native Tcl command or
+	//  to the 'openmsx_update' command.
+	//  In future openMSX versions this wrapper will be removed.
+	interpreter->execute("rename update __tcl_update");
+	interpreter->execute(
+		"proc update { args } {\n"
+		"    if {$args == \"\"} {\n"
+		"        __tcl_update\n"
+		"    } elseif {$args == \"idletasks\"} {\n"
+		"        __tcl_update idletasks\n"
+		"    } else {\n"
+		"        puts stderr \"Warning: the openMSX \\'update\\' command "
+		                      "overlapped with a native Tcl command "
+		                      "and has been renamed to \\'openmsx_update\\'. "
+		                      "In future openMSX releases this forwarder "
+		                      "will stop working, so please change your "
+		                      "scripts to use the \\'openmsx_update\\' "
+		                      "command instead of \\'update\\'.\"\n"
+		"        eval \"openmsx_update $args\"\n"
+		"    }\n"
+		"}\n");
+	updateCmd.reset(new UpdateCmd(*this, cliComm));
 }
 
 GlobalCommandController::~GlobalCommandController()
@@ -635,7 +660,7 @@ string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
 
 UpdateCmd::UpdateCmd(CommandController& commandController,
                      GlobalCliComm& cliComm_)
-	: SimpleCommand(commandController, "update")
+	: SimpleCommand(commandController, "openmsx_update")
 	, cliComm(cliComm_)
 {
 }
