@@ -38,6 +38,7 @@
 #include "RomFSA1FM.hh"
 #include "RomManbow2.hh"
 #include "RomMatraInk.hh"
+#include "RomArc.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -325,6 +326,9 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config
 		break;
 	case ROM_MATRAINK:
 		result.reset(new RomMatraInk(motherBoard, config, rom));
+		break;
+	case ROM_ARC:
+		result.reset(new RomArc(motherBoard, config, rom));
 		break;
 	default:
 		throw MSXException("Unknown ROM type");

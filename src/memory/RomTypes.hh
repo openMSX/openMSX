@@ -34,6 +34,7 @@ enum RomType {
 	ROM_MEGAFLASHROMSCC = 25,
 	ROM_MATRAINK     = 26,
 	ROM_HOLY_QURAN2  = 27,
+	ROM_ARC          = 28,
 
 	ROM_PAGE0        = 32 + 1,
 	ROM_PAGE1        = 32 + 2,

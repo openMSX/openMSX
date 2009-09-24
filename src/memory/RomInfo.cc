@@ -59,6 +59,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Manbow2"]        = ROM_MANBOW2;
 		romTypeMap["MegaFlashRomScc"]= ROM_MEGAFLASHROMSCC;
 		romTypeMap["MatraInk"]       = ROM_MATRAINK;
+		romTypeMap["Arc"]            = ROM_ARC;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]      = ROM_PANASONIC;
