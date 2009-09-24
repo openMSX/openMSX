@@ -9,7 +9,6 @@
 #include "LocalFileReference.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "StringPool.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"
@@ -34,9 +33,6 @@ UnknownTypes unknownTypes;
 
 RomDatabase::RomDatabase()
 {
-	// make sure StringPool has longer lifetime than RomDatabase
-	// (needed because of lazy initialization of RomDatabase)
-	StringPool::instance();
 }
 
 RomDatabase::~RomDatabase()

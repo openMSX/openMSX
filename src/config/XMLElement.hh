@@ -4,7 +4,6 @@
 #define XMLELEMENT_HH
 
 #include "serialize_constr.hh"
-#include "StringPool.hh"
 #include <map>
 #include <string>
 #include <vector>
@@ -29,11 +28,11 @@ public:
 	~XMLElement();
 
 	// name
-	StringRef getName() const { return name; }
+	const std::string& getName() const { return name; }
 	void setName(const std::string& name);
 
 	// data
-	StringRef getData() const { return data; }
+	const std::string& getData() const { return data; }
 	void setData(const std::string& data);
 
 	// attribute
@@ -119,8 +118,8 @@ public:
 private:
 	void dump(std::string& result, unsigned indentNum) const;
 
-	StringRef name;
-	StringRef data;
+	std::string name;
+	std::string data;
 	Children children;
 	Attributes attributes;
 	XMLElement* parent;
@@ -132,8 +131,8 @@ template<> struct SerializeConstructorArgs<XMLElement>
 	typedef Tuple<std::string, std::string> type;
 	template<typename Archive> void save(Archive& ar, const XMLElement& xml)
 	{
-		ar.serialize("name", xml.getName().str());
-		ar.serialize("data", xml.getData().str());
+		ar.serialize("name", xml.getName());
+		ar.serialize("data", xml.getData());
 	}
 	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
 	{
