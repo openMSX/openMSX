@@ -2309,6 +2309,14 @@
 				RelativePath="..\..\src\memory\SRAM.hh"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\memory\RomArc.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\memory\RomArc.hh"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="resource"

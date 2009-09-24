@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1253378466">
+<softwaredb xml:lang="en" timestamp="1253820286">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -492,6 +492,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">ec53d72e41e114574f4c116cab19e1633f3da207</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">ARC</title>
+	<genmsxid>2865</genmsxid>
+	<system>MSX</system>
+	<company>Parallax/Checkmark</company>
+	<year>1990</year>
+	<country>NL</country>
+		<dump><original value="false"/><megarom><type>Arc</type><hash algo="sha1">ac43445c9e0a097b6d8116017645fe96b054a111</hash><remark><text>Original, confirmed by dumps from 2 different sources</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Arctic</title>
@@ -11286,6 +11295,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2474
-Parse time 4.206 seconds on Sat Sep 19 18:41:10 CEST 2009
+Roms in this database:2475
+Parse time 4.584 seconds on Thu Sep 24 21:24:51 CEST 2009
  -->
