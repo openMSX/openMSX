@@ -306,13 +306,14 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					}
 				}
 			}
-
-			// Palette for V9958 colors.
-			for (int r = 0; r < 32 && !found; r++) {
-				for (int g = 0; g < 32 && !found; g++) {
-					for (int b = 0; b < 32 && !found; b++) {
-						if (color == V9958_COLORS[(r<<10) + (g<<5) + b]) {
-							found = true;
+			if (vdp.hasYJK()) {
+				// Palette for V9958 colors.
+				for (int r = 0; r < 32 && !found; r++) {
+					for (int g = 0; g < 32 && !found; g++) {
+						for (int b = 0; b < 32 && !found; b++) {
+							if (color == V9958_COLORS[(r<<10) + (g<<5) + b]) {
+								found = true;
+							}
 						}
 					}
 				}
