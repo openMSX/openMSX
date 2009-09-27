@@ -1,7 +1,15 @@
 $Id$
 
+2009-09-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Corrected palette colors on V9958:
+	  The V9958 uses 5-bit DACs for R/G/B, shared by the YJK colors and
+	  the V9938-compatible palette colors. The R/G/B palette colors are
+	  converted from 3 bits to 5 bits in the same way the V9990 does.
+	  Thanks to n_n for capturing the output of my test program a real
+	  turbo R.
+
 2009-08-02 Patrick van Arkel vampiermsx@gmail.com
-	 * Made some major changes to the ROM database 
+	 * Made some major changes to the ROM database
 	   and added <text> tags to the <remark> field.
 	   Included are also Generation MSX-ids to have
 	   a common 'key' to bind databases.
@@ -186,7 +194,7 @@ $Id$
 	  still need to work on the nowind openmsx commands
 
 2009-02-09 Max Feingold <maf6@cornell.edu>
-	* Ported most significant inline assembly code to VC++ format, 
+	* Ported most significant inline assembly code to VC++ format,
 	  where significance is defined as 'being noticeable in kernrate'.
 	* VC++ binaries now benchmark 15% faster than mingw32 binaries on my system
 	  openMSX svn VC++ x64 - 10.72 seconds
@@ -217,7 +225,7 @@ $Id$
 	* Unicode filename support on Windows platforms
 	  - On Windows, standard CRT functions and 'ANSI' Win32 API calls
 	    expect and return ANSI encodings, not UTF8. Unicode support on
-	    Windows is generally achieved by calling CRT functions that accept 
+	    Windows is generally achieved by calling CRT functions that accept
 	    wchar_t and 'wide char' xxxW Win32 API calls.
 	  - openMSX uses std::string and UTF8-encoded strings throughout.
 	    Consequently, on Windows we wrap all system calls that might
@@ -259,7 +267,7 @@ $Id$
 	  with the Windows SDK's msbuild tool, as well as with the free (as in beer)
 	  Visual C++ 2008 Express Edition.
 	* This checkin also brings the first 64-bit Windows build of openMSX.
-	  x64 binaries are fully functional and I'm pleased to note that I found no 
+	  x64 binaries are fully functional and I'm pleased to note that I found no
 	  significant 64-bit portability issues in the codebase (inline asm aside).
 
 2009-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

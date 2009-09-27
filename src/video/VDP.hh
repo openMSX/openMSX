@@ -105,6 +105,13 @@ public:
 		return version == TMS99X8A || version == TMS9929A;
 	}
 
+	/** Does this VDP support YJK display?
+	  * @return True for V9958, false otherwise.
+	  */
+	inline bool hasYJK() const {
+		return version == V9958;
+	}
+
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.
 	  */

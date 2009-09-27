@@ -228,29 +228,46 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				screen.mapRGB(dr, dg, db);
 		}
 	} else {
-		// Precalculate palette for V9938 colors.
-		for (int r = 0; r < 8; r++) {
-			for (int g = 0; g < 8; g++) {
-				for (int b = 0; b < 8; b++) {
-					double dr = r / 7.0;
-					double dg = g / 7.0;
-					double db = b / 7.0;
-					renderSettings.transformRGB(dr, dg, db);
-					V9938_COLORS[r][g][b] =
-						screen.mapRGB(dr, dg, db);
+		if (vdp.hasYJK()) {
+			// Precalculate palette for V9958 colors.
+			for (int r = 0; r < 32; r++) {
+				for (int g = 0; g < 32; g++) {
+					for (int b = 0; b < 32; b++) {
+						double dr = r / 31.0;
+						double dg = g / 31.0;
+						double db = b / 31.0;
+						renderSettings.transformRGB(dr, dg, db);
+						V9958_COLORS[(r<<10) + (g<<5) + b] =
+							screen.mapRGB(dr, dg, db);
+					}
 				}
 			}
-		}
-		// Precalculate palette for V9958 colors.
-		for (int r = 0; r < 32; r++) {
-			for (int g = 0; g < 32; g++) {
-				for (int b = 0; b < 32; b++) {
-					double dr = r / 31.0;
-					double dg = g / 31.0;
-					double db = b / 31.0;
-					renderSettings.transformRGB(dr, dg, db);
-					V9958_COLORS[(r<<10) + (g<<5) + b] =
-						screen.mapRGB(dr, dg, db);
+			// Precalculate palette for V9938 colors.
+			// Based on comparing red and green gradients, using palette and
+			// YJK, in SCREEN11 on a real turbo R.
+			for (int r = 0; r < 8; r++) {
+				int r5 = (r << 2) | (r >> 1);
+				for (int g = 0; g < 8; g++) {
+					int g5 = (g << 2) | (g >> 1);
+					for (int b = 0; b < 8; b++) {
+						int b5 = (b << 2) | (b >> 1);
+						V9938_COLORS[r][g][b] =
+							V9958_COLORS[(r5<<10) + (g5<<5) + b5];
+					}
+				}
+			}
+		} else {
+			// Precalculate palette for V9938 colors.
+			for (int r = 0; r < 8; r++) {
+				for (int g = 0; g < 8; g++) {
+					for (int b = 0; b < 8; b++) {
+						double dr = r / 7.0;
+						double dg = g / 7.0;
+						double db = b / 7.0;
+						renderSettings.transformRGB(dr, dg, db);
+						V9938_COLORS[r][g][b] =
+							screen.mapRGB(dr, dg, db);
+					}
 				}
 			}
 		}
