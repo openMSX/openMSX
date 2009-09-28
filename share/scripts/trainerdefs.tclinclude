@@ -808,7 +808,7 @@ create_trainer "Black Beard" {time 1} {
 	"Weapon (1=pistol 2=knife)" {poke 0x8e27 1}
 }
 
-create_trainer "Black Cyclon" {time 0.1} {
+create_trainer "Black Cyclon" {frame} {
 	"Enemy 01 Power" {poke 0xc049 0}
 	"Enemy 02 Power" {poke 0xc089 0}
 	"Enemy 03 Power" {poke 0xc0c9 0}
@@ -6174,6 +6174,36 @@ create_trainer "Vaxol - Heavy Armed Storm Vehicle" {time 1} {
 	"Power" {poke 0xc148 255}
 }
 
+create_trainer "Vectron" {time 1} {
+	"Full Credits" {poke 0xd906 153;poke 0xd907 153}
+	"Full Power" {poke 0xd905 40}
+	"Invincible" {poke 0xd821 255}
+	"Item 00" {poke 0xd830 0}
+	"Item 00 X99" {poke 0xd831 153}
+	"Item 01" {poke 0xd832 1}
+	"Item 01 X99" {poke 0xd833 153}
+	"Item 02" {poke 0xd834 2}
+	"Item 02 X99" {poke 0xd835 153}
+	"Item 03" {poke 0xd836 5}
+	"Item 03 X99" {poke 0xd837 153}
+	"Item 04" {poke 0xd838 6}
+	"Item 04 X99" {poke 0xd839 153}
+	"Item 05" {poke 0xd83a 7}
+	"Item 05 X99" {poke 0xd83b 153}
+	"Item 06" {poke 0xd83c 10}
+	"Item 06 X99" {poke 0xd83d 153}
+	"Item 07" {poke 0xd83e 11}
+	"Item 07 X99" {poke 0xd83f 153}
+	"Item 08" {poke 0xd840 12}
+	"Item 08 X99" {poke 0xd841 153}
+	"Item 09" {poke 0xd842 13}
+	"Item 09 X 99" {poke 0xd843 153}
+	"Item 10" {poke 0xd844 14}
+	"Item 10 X99" {poke 0xd845 153}
+	"Item 11" {poke 0xd846 15}
+	"Item 11 X99" {poke 0xd847 153}
+}
+
 create_trainer "Venom Strikes Back" {time 1} {
 	"Lives" {poke 0x2bb1 255;poke 0x2bb2 255}
 	"Power Slot 1 Filled With Penetrator" {poke 0x2c33 1;poke 0x2c34 153}
@@ -6626,4 +6656,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 4.350 seconds. 716 trainers -  having 5370 pokes
+# File Created in : 1.776 seconds. 717 trainers -  having 5398 pokes
