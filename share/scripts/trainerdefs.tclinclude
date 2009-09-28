@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/09/25
+# Updated @ 2009/09/28
 #
 
 
@@ -456,9 +456,15 @@ create_trainer "Aramo" {time 1} {
 
 create_trainer "Arc" {time 1} {
 	"All Areas Are Accesible" {poke 0xc030 255}
-	"Open Laser Doors" {poke 0xc020 255}
+	"All Weapons" {poke 0xc061 3}
+	"Open Laser Doors Hi-tech Stage" {poke 0xc020 255}
 	"Power" {poke 0xc019 255}
+	"Set Weapon 1 : Beamslash" {poke 0xc01c 0}
+	"Set Weapon 2 : Bullet" {poke 0xc01c 1}
+	"Set Weapon 3 : Wavegun" {poke 0xc01c 2}
+	"Set Weapon 4 : Mega Laser" {poke 0xc01c 3}
 	"Time To 00:00:00" {poke 0xc000 0;poke 0xc001 0;poke 0xc002 0}
+	"Transformation Possible" {poke 0xc063 255}
 }
 
 create_trainer "Arkanoid" {time 0.1} {
@@ -802,9 +808,32 @@ create_trainer "Black Beard" {time 1} {
 	"Weapon (1=pistol 2=knife)" {poke 0x8e27 1}
 }
 
-create_trainer "Black Cyclon" {frame} {
+create_trainer "Black Cyclon" {time 0.1} {
+	"Enemy 01 Power" {poke 0xc049 0}
+	"Enemy 02 Power" {poke 0xc089 0}
+	"Enemy 03 Power" {poke 0xc0c9 0}
+	"Enemy 04 Power" {poke 0xc109 0}
+	"Enemy 05 Power" {poke 0xc149 0}
+	"Enemy 06 Power" {poke 0xc189 0}
+	"Enemy 07 Power" {poke 0xc1c9 0}
+	"Enemy 08 Power" {poke 0xc209 0}
+	"Enemy 09 Power" {poke 0xc249 0}
+	"Enemy 10 Power" {poke 0xc289 0}
+	"Enemy 11 Power" {poke 0xc2c9 0}
+	"Enemy 12 Power" {poke 0xc309 0}
+	"Enemy 13 Power" {poke 0xc349 0}
+	"Enemy 14 Power" {poke 0xc389 0}
+	"Enemy 15 Power" {poke 0xc3c9 0}
+	"Enemy 16 Power" {poke 0xc409 0}
+	"Enemy 17 Power" {poke 0xc449 0}
+	"Enemy 18 Power" {poke 0xc489 0}
+	"Enemy 19 Power" {poke 0xc4c9 0}
 	"Lives" {poke 0xd15a 8}
 	"Power" {poke 0xd13e 255}
+	"Weapon 1 : Wave Gun" {poke 0xd125 0}
+	"Weapon 2 : Needle Gun" {poke 0xd125 1}
+	"Weapon 3 : Spread Gun" {poke 0xd125 2}
+	"Weapon 4 : Bomb Gun" {poke 0xd125 3}
 }
 
 create_trainer "Black Jack Hentai" {time 1} {
@@ -4085,7 +4114,10 @@ create_trainer "Magical Tree" {time 2} {
 }
 
 create_trainer "Magnar" {time 1} {
+	"Ammo Weapon 1 : Normal Gun" {poke 0xca52 255}
+	"Invincible" {poke 0xca44 1}
 	"Lives (255 Is Game Over)" {poke 0xca7f 250}
+	"Power" {poke 0xca09 24}
 }
 
 create_trainer "Magunam" {time 1} {
@@ -6594,4 +6626,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 2.404 seconds. 716 trainers -  having 5338 pokes
+# File Created in : 4.350 seconds. 716 trainers -  having 5370 pokes
