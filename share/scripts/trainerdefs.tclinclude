@@ -14,28 +14,59 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/09/28
+# Updated @ 2009/09/29
 #
 
 
 create_trainer "1942 - MSX1 Version" {time 1} {
+	"9 Lives Left" {poke 0xed2f 9}
+	"9 Loops Left" {poke 0xee81 9}
 	"Four Middle Shots" {poke 0xee83 1}
 	"Four Middle Shots + Right Shot" {poke 0xee83 3}
+	"Ghost Plane Left" {poke 0xee76 1}
+	"Ghost Plane Right" {poke 0xee66 1}
 	"Invulnerable + Four Middle Shots + Right Shot" {poke 0xee83 251}
 	"Invulnerable + Left Shot + Four Middle Shots" {poke 0xee83 253}
 	"Invulnerable + Left Shot + Four Middle Shots + Right Shot" {poke 0xee83 255}
 	"Invulnerable + Left Shot + Two Middle Shots" {poke 0xee83 252}
 	"Invulnerable + Left Shot + Two Middle Shots + Right Shot" {poke 0xee83 254}
 	"Invulnerable + Two Middle Shots + Right Shot" {poke 0xee83 250}
-	"Left Ghost Plane" {poke 0xee76 1}
 	"Left Shot + Four Middle Shots" {poke 0xee83 5}
 	"Left Shot + Four Middle Shots + Right Shot" {poke 0xee83 7}
 	"Left Shot + Two Middle Shots" {poke 0xee83 4}
 	"Left Shot + Two Middle Shots + Right Shot" {poke 0xee83 6}
-	"Lives" {poke 0xed2f 9}
-	"Loops" {poke 0xee81 9}
-	"Right Ghost Plane" {poke 0xee66 1}
-	"Stage (1-32)" {poke 0xed20 1}
+	"Stage 01" {poke 0xed20 1}
+	"Stage 02" {poke 0xed20 2}
+	"Stage 03" {poke 0xed20 3}
+	"Stage 04" {poke 0xed20 4}
+	"Stage 05" {poke 0xed20 5}
+	"Stage 06" {poke 0xed20 6}
+	"Stage 07" {poke 0xed20 7}
+	"Stage 08" {poke 0xed20 8}
+	"Stage 09" {poke 0xed20 9}
+	"Stage 10" {poke 0xed20 10}
+	"Stage 11" {poke 0xed20 11}
+	"Stage 12" {poke 0xed20 12}
+	"Stage 13" {poke 0xed20 13}
+	"Stage 14" {poke 0xed20 14}
+	"Stage 15" {poke 0xed20 15}
+	"Stage 16" {poke 0xed20 16}
+	"Stage 17" {poke 0xed20 17}
+	"Stage 18" {poke 0xed20 18}
+	"Stage 19" {poke 0xed20 19}
+	"Stage 20" {poke 0xed20 20}
+	"Stage 21" {poke 0xed20 21}
+	"Stage 22" {poke 0xed20 22}
+	"Stage 23" {poke 0xed20 23}
+	"Stage 24" {poke 0xed20 24}
+	"Stage 25" {poke 0xed20 25}
+	"Stage 26" {poke 0xed20 26}
+	"Stage 27" {poke 0xed20 27}
+	"Stage 28" {poke 0xed20 28}
+	"Stage 29" {poke 0xed20 29}
+	"Stage 30" {poke 0xed20 30}
+	"Stage 31" {poke 0xed20 31}
+	"Stage 32" {poke 0xed20 32}
 	"Two Middle Shots" {poke 0xee83 0}
 	"Two Middle Shots + Right Shot" {poke 0xee83 2}
 }
@@ -49,16 +80,16 @@ create_trainer "A Life M36 Planet" {time 1} {
 }
 
 create_trainer "A1 Spirit - The Way To Formula 1" {time 1} {
-	"All Combis With Konami Carts" {poke roke 57822}
-	"Escon" {poke roke 57853}
-	"Hyperoff" {poke roke 57814}
-	"Maxpoint" {poke roke 57823}
-	"Player 1 Always First Place" {poke roke 58161}
-	"Player 1 Fuel" {poke roke 58128}
-	"Player 1 No Damage (bitmask)" {poke roke 58152}
-	"Player 2 Damage" {poke roke 58344}
-	"Player 2 Fuel" {poke roke 58320}
-	"Player 2 Position" {poke roke 58353}
+	"All Combis With Konami Carts" {poke 0xe1de 2}
+	"Escon Cheat Active" {poke 0xe1fd 1}
+	"Hyperoff  Cheat Active" {poke 0xe1d6 1}
+	"Maxpoint Cheat Active" {poke 0xe1df 1}
+	"Player 1 First Position" {poke 0xe331 1}
+	"Player 1 Full Fuel" {poke 0xe310 255}
+	"Player 1 No Damage" {poke 0xe328 0}
+	"Player 2 First Position" {poke 0xe3f1 1}
+	"Player 2 Full Fuel" {poke 0xe3d0 255}
+	"Player 2 No Damage" {poke 0xe3e8 0}
 }
 
 create_trainer "Abu Simbel Profanation MSX1" {time 1} {
@@ -163,8 +194,9 @@ create_trainer "Akumajyo Drakyula - Vampire Killer" {time 1} {
 	"Candle + Black Bible" {poke 0xc702 65}
 	"Candle + White Bible" {poke 0xc702 129}
 	"Chain Whip" {poke 0xc416 1}
+	"Enemies Frozen" {poke 0xd010 1}
+	"Enemies Unfrozen " {poke 0xd010 0}
 	"Flashing Screen (gold Cross)" {poke 0xc43e 255}
-	"Freeze Enemeis" {poke 0xd010 1}
 	"Game Master Combo" {poke 0xe600 255}
 	"Have Yellow Key" {poke 0xc700 255}
 	"Hearts" {poke 0xc417 153}
@@ -181,7 +213,6 @@ create_trainer "Akumajyo Drakyula - Vampire Killer" {time 1} {
 	"Power" {poke 0xc415 32}
 	"Silver Cross" {poke 0xc440 255}
 	"Sword" {poke 0xc416 2}
-	"Unfreeze Enemies" {poke 0xd010 0}
 	"White Bible" {poke 0xc702 128}
 	"White Key" {poke 0xc701 1}
 	"White Key + Gold Shield" {poke 0xc701 32}
@@ -469,14 +500,44 @@ create_trainer "Arc" {time 1} {
 
 create_trainer "Arkanoid" {time 0.1} {
 	"Always Fire" {poke 0xe551 1}
-	"Ball Above Bat" {poke 0xe0f6 14}
 	"Invulnerable" {poke 0xe24e 1;poke 0xe54b 1;poke 0xe54e 0}
 	"Lives" {poke 0xe01d 99}
 	"Long Bat" {poke 0xe0d7 4;poke 0xe0d8 14;poke 0xe0db 12;poke 0xe0dc 8;poke 0xe321 2;poke 0xe550 2}
 	"Magnetic Ball" {poke 0xe324 1}
 	"Normal Ball Speed" {poke 0xe255 12}
 	"Open Door To Next Round" {poke 0xe326 1}
-	"Round (0-32)" {poke 0xe01b 0}
+	"Round 00" {poke 0xe01b 0}
+	"Round 01" {poke 0xe01b 1}
+	"Round 02" {poke 0xe01b 2}
+	"Round 03" {poke 0xe01b 3}
+	"Round 04" {poke 0xe01b 4}
+	"Round 05" {poke 0xe01b 5}
+	"Round 06" {poke 0xe01b 6}
+	"Round 07" {poke 0xe01b 7}
+	"Round 08" {poke 0xe01b 8}
+	"Round 09" {poke 0xe01b 9}
+	"Round 10" {poke 0xe01b 10}
+	"Round 11" {poke 0xe01b 11}
+	"Round 12" {poke 0xe01b 12}
+	"Round 13" {poke 0xe01b 13}
+	"Round 14" {poke 0xe01b 14}
+	"Round 15" {poke 0xe01b 15}
+	"Round 16" {poke 0xe01b 16}
+	"Round 17" {poke 0xe01b 17}
+	"Round 18" {poke 0xe01b 18}
+	"Round 19" {poke 0xe01b 19}
+	"Round 20" {poke 0xe01b 20}
+	"Round 21" {poke 0xe01b 21}
+	"Round 22" {poke 0xe01b 22}
+	"Round 23" {poke 0xe01b 23}
+	"Round 24" {poke 0xe01b 24}
+	"Round 25" {poke 0xe01b 25}
+	"Round 26" {poke 0xe01b 26}
+	"Round 27" {poke 0xe01b 27}
+	"Round 28" {poke 0xe01b 28}
+	"Round 29" {poke 0xe01b 29}
+	"Round 30" {poke 0xe01b 30}
+	"Round 31" {poke 0xe01b 31}
 	"Second Ball" {poke 0xe262 1}
 	"Third Ball" {poke 0xe276 1}
 }
@@ -1155,9 +1216,9 @@ create_trainer "Cabbage Patch Kids" {time 0.1} {
 	"Lives" {poke 0xe050 99}
 	"No Cabbages" {poke 0xe159 0}
 	"No Enemies" {poke 0xe158 20}
-	"Scene (0-99)" {poke 0xe054 99}
-	"Stage (1-99)" {poke 0xe051 1}
-	"X-pos (0-255) Heroine" {poke 0xe135 0}
+	"Set Scene 99" {poke 0xe054 99}
+	"Set Stage 99" {poke 0xe051 99}
+	"X-pos (0-255)" {poke 0xe135 0}
 	"X-pos Bird" {poke 0xe101 0}
 	"X-pos First Cabbage" {poke 0xe0e9 0}
 	"X-pos First Fish" {poke 0xe0dd 0}
@@ -1168,7 +1229,7 @@ create_trainer "Cabbage Patch Kids" {time 0.1} {
 	"X-pos Stone" {poke 0xe109 0}
 	"X-pos Third Fish" {poke 0xe0e5 0}
 	"X-pos Third Spider" {poke 0xe0f9 0}
-	"Y-pos (0-108) Heroine" {poke 0xe134 0}
+	"Y-pos (0-108)" {poke 0xe134 0}
 	"Y-pos Bird" {poke 0xe100 0}
 	"Y-pos First Cabbage" {poke 0xe0e8 0}
 	"Y-pos First Fish" {poke 0xe0dc 0}
@@ -2013,7 +2074,6 @@ create_trainer "Dragon Slayer 6" {time 60} {
 	"Experience Ro (max Exp)" {poke 0x238c 255;poke 0x238d 255;poke 0x238e 255}
 	"Experience Runan (max Exp)" {poke 0x234c 255;poke 0x234d 255;poke 0x234e 255}
 	"Experience Selios (max Exp)" {poke 0x230c 255;poke 0x230d 255;poke 0x230e 255}
-	"Gold" {poke 0x208c 255;poke 0x208d 255;poke 0x208e 255}
 	"Life Gale" {poke 0x23c4 15;poke 0x23c5 39}
 	"Life Ro" {poke 0x2384 15;poke 0x2385 39}
 	"Life Runan" {poke 0x2344 15;poke 0x2345 39}
@@ -2022,6 +2082,7 @@ create_trainer "Dragon Slayer 6" {time 60} {
 	"Magic Ro" {poke 0x2388 15;poke 0x2389 39}
 	"Magic Runan" {poke 0x2348 15;poke 0x2349 39}
 	"Magic Selios" {poke 0x2308 15;poke 0x2309 39}
+	"Max Gold" {poke 0x208c 255;poke 0x208d 255;poke 0x208e 255}
 	"Max Life Gale" {poke 0x23c6 15;poke 0x23c7 39}
 	"Max Life Ro" {poke 0x2386 15;poke 0x2387 39}
 	"Max Life Runan" {poke 0x2346 15;poke 0x2347 39}
@@ -6175,8 +6236,8 @@ create_trainer "Vaxol - Heavy Armed Storm Vehicle" {time 1} {
 }
 
 create_trainer "Vectron" {time 1} {
-	"Full Credits" {poke 0xd906 153;poke 0xd907 153}
-	"Full Power" {poke 0xd905 40}
+	"Full Credits" {poke 0xd906 255;poke 0xd907 255}
+	"Full Power" {poke 0xd905 48}
 	"Invincible" {poke 0xd821 255}
 	"Item 00" {poke 0xd830 0}
 	"Item 00 X99" {poke 0xd831 153}
@@ -6656,4 +6717,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 1.776 seconds. 717 trainers -  having 5398 pokes
+# File Created in : 3.438 seconds. 717 trainers -  having 5459 pokes
