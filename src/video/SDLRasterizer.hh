@@ -78,6 +78,7 @@ private:
 	  * For higher VDPs, results go into V9938_COLORS and V9958_COLORS.
 	  */
 	void precalcPalette();
+	Pixel calcColorHelper(double r, double g, double b);
 
 	/** Precalc foreground color index 0 (palFg[0]).
 	  * @param mode Current display mode.
@@ -157,10 +158,6 @@ private:
 	/** Host colors corresponding to each possible V9958 color.
 	  */
 	Pixel V9958_COLORS[32768];
-
-	/** Host color for transparent for superimposing
-	  */
-	Pixel colorkey;
 };
 
 } // namespace openmsx

@@ -38,37 +38,7 @@ unsigned OutputSurface::mapRGB(double dr, double dg, double db)
 	int r = int(dr * 255.0);
 	int g = int(dg * 255.0);
 	int b = int(db * 255.0);
-	return SDL_MapRGB(&format, r, g, b);
-}
-
-bool OutputSurface::canKeyColorClash()
-{
-	return format.BitsPerPixel == 16;
-}
-
-void OutputSurface::generateNewKeyColor()
-{
-	assert(canKeyColorClash());
-
-	keyColor = (keyColor + 1) & 0xffff;
-}
-
-unsigned OutputSurface::getKeyColor()
-{
-	switch (format.BitsPerPixel) {
-	case 32:
-	case 24:
-		keyColor = 0xffffffff;
-		break;
-	case 15:
-		keyColor = 0xffff;
-	case 16:
-		break;
-	default:
-		UNREACHABLE;
-	}
-
-	return keyColor;
+	return SDL_MapRGB(&format, r, g, b); // alpha is fully opaque
 }
 
 void OutputSurface::setSDLDisplaySurface(SDL_Surface* surface)

@@ -10,7 +10,7 @@
 namespace openmsx {
 
 // This scaler should be selected when superimposing. Any pixels in the
-// source which match OutputSurface.getKeyColor() will not be copied.
+// source which match OutputSurface::getKeyColor() will not be copied.
 // This is used by the Laserdisc MSX. The VDP image is superimposed on
 // the Laserdisc output; applying the blurring/scanlines effects on
 // these videos would look awful so these effects are ignored.
@@ -29,7 +29,7 @@ void Transparent2xScaler<Pixel>::scaleBlank1to2(
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
@@ -48,7 +48,7 @@ void Transparent2xScaler<Pixel>::scaleBlank1to1(
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
@@ -66,7 +66,7 @@ void Transparent2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
@@ -89,7 +89,7 @@ void Transparent2xScaler<Pixel>::scale1x1to2x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
@@ -109,7 +109,7 @@ void Transparent2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
@@ -130,7 +130,7 @@ void Transparent2xScaler<Pixel>::scale1x1to1x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);

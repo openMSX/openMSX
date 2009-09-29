@@ -36,7 +36,7 @@ void Transparent3xScaler<Pixel>::scaleBlank1to3(
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 3) {
@@ -57,8 +57,7 @@ void Transparent3xScaler<Pixel>::scaleBlank2to3(
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
-
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
@@ -87,7 +86,7 @@ void Transparent3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 3) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
@@ -116,7 +115,7 @@ void Transparent3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
 		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
@@ -154,7 +153,7 @@ void Transparent3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 3) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
@@ -191,7 +190,7 @@ void Transparent3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	dst.lock();
-	Pixel transparent = dst.getKeyColor();
+	Pixel transparent = dst.getKeyColor<Pixel>();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
 		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);

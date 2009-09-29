@@ -34,9 +34,19 @@ public:
 	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
 	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
 	unsigned mapRGB(double dr, double dg, double db);
-	unsigned getKeyColor();
-	bool canKeyColorClash();
-	void generateNewKeyColor();
+
+	template<typename Pixel> inline Pixel getKeyColor() const
+	{
+		return sizeof(Pixel) == 2
+			? 0x0001      // lowest bit of 'some' color component is set
+			: 0x00000000; // alpha = 0
+	}
+	template<typename Pixel> inline Pixel getKeyColorClash() const
+	{
+		assert(sizeof(Pixel) != 4); // shouldn't get clashes in 32bpp
+		return 0; // is visually very close, practically
+		          // indistinguishable, from the actual KeyColor
+	}
 
 	/** Lock this OutputSurface.
 	  * Direct pixel access is only allowed on a locked surface.

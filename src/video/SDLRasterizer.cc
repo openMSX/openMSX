@@ -213,6 +213,21 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
+template<typename Pixel>
+Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b)
+{
+	renderSettings.transformRGB(r, g, b);
+	Pixel p = screen.mapRGB(r, g, b);
+	if (sizeof(Pixel) == 2) {
+		return (p != screen.getKeyColor<Pixel>())
+		      ? p
+		      : screen.getKeyColorClash<Pixel>();
+	} else {
+		assert(p != screen.getKeyColor<Pixel>());
+		return p;
+	}
+}
+
 template <class Pixel>
 void SDLRasterizer<Pixel>::precalcPalette()
 {
@@ -223,9 +238,8 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			double dr = rgb[0] / 255.0;
 			double dg = rgb[1] / 255.0;
 			double db = rgb[2] / 255.0;
-			renderSettings.transformRGB(dr, dg, db);
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				screen.mapRGB(dr, dg, db);
+				calcColorHelper(dr, dg, db);
 		}
 	} else {
 		if (vdp.hasYJK()) {
@@ -236,9 +250,8 @@ void SDLRasterizer<Pixel>::precalcPalette()
 						double dr = r / 31.0;
 						double dg = g / 31.0;
 						double db = b / 31.0;
-						renderSettings.transformRGB(dr, dg, db);
 						V9958_COLORS[(r<<10) + (g<<5) + b] =
-							screen.mapRGB(dr, dg, db);
+							calcColorHelper(dr, dg, db);
 					}
 				}
 			}
@@ -264,9 +277,8 @@ void SDLRasterizer<Pixel>::precalcPalette()
 						double dr = r / 7.0;
 						double dg = g / 7.0;
 						double db = b / 7.0;
-						renderSettings.transformRGB(dr, dg, db);
 						V9938_COLORS[r][g][b] =
-							screen.mapRGB(dr, dg, db);
+							calcColorHelper(dr, dg, db);
 					}
 				}
 			}
@@ -285,44 +297,6 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
-
-	for (;screen.canKeyColorClash();) {
-		Pixel color = screen.getKeyColor();
-		bool found = false;
-
-		if (vdp.isMSX1VDP()) {
-			// Fixed palette.
-			for (int i = 0; i < 16 && !found; i++) {
-				if (color == palFg[i]) found = true;
-			}
-		} else {
-			if (vdp.hasYJK()) {
-				// Palette for V9958 colors.
-				for (int i = 0; i < (1 << 15) && !found; i++) {
-					if (color == V9958_COLORS[i]) found = true;
-				}
-				// Note that the V9938 colors are taken from the V9958 colors,
-				// so there is no need to check them as well.
-			} else {
-				// Palette for V9938 colors.
-				for (int r = 0; r < 8 && !found; r++) {
-					for (int g = 0; g < 8 && !found; g++) {
-						for (int b = 0; b < 8 && !found; b++) {
-							if (color == V9938_COLORS[r][g][b]) found = true;
-						}
-					}
-				}
-			}
-		}
-
-		if (!found) {
-			break;
-		}
-
-		screen.generateNewKeyColor();
-	}
-
-	colorkey = screen.getKeyColor();
 }
 
 template <class Pixel>
@@ -336,8 +310,9 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 
 	int tpIndex = transparency ? bgcolorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
-		Pixel c = (superimposing && bgcolorIndex == 0) ?
-						colorkey : palBg[tpIndex];
+		Pixel c = (superimposing && bgcolorIndex == 0)
+		        ? screen.getKeyColor<Pixel>()
+		        : palBg[tpIndex];
 
 		if (palFg[0] != c) {
 			palFg[0] = c;
@@ -370,10 +345,11 @@ void SDLRasterizer<Pixel>::drawBorder(
 	} else if (modeBase == DisplayMode::GRAPHIC7) {
 		border0 = border1 = PALETTE256[bgColor];
 	} else {
-		if (!bgColor && vdp.isSuperimposing())
-			border0 = border1 = colorkey;
-		else
+		if (!bgColor && vdp.isSuperimposing()) {
+			border0 = border1 = screen.getKeyColor<Pixel>();
+		} else {
 			border0 = border1 = palBg[bgColor];
+		}
 	}
 
 	int startY = std::max(fromY - lineRenderTop, 0);
