@@ -155,8 +155,10 @@ private:
 	unsigned inputSampleRate;
 	const unsigned numChannels;
 	const unsigned stereo;
+	bool balanceCenter;
 	unsigned numRecordChannels;
 	bool channelMuted[MAX_CHANNELS];
+	int channelBalance[MAX_CHANNELS];
 };
 
 } // namespace openmsx

@@ -130,7 +130,7 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, EmuTime::param time, ChipMode mode)
 	: SoundDevice(motherBoard.getMSXMixer(), name, calcDescription(mode), 5)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 	, debuggable(new SCCDebuggable(motherBoard, *this))
 	, deformTimer(time)
 	, currentChipMode(mode)
@@ -197,7 +197,7 @@ void SCC::setOutputRate(unsigned sampleRate)
 {
 	double input = 3579545.0 / 32;
 	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate);
+	setResampleRatio(input, sampleRate, isStereo());
 }
 
 void SCC::setChipMode(ChipMode newMode)

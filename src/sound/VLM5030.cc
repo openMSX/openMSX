@@ -587,7 +587,7 @@ void VLM5030Impl::setST(bool pin)
 VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
@@ -624,7 +624,7 @@ void VLM5030Impl::setOutputRate(unsigned sampleRate)
        const int CLOCK_FREQ = 3579545;
        double input = CLOCK_FREQ / 440.0;
        setInputRate(int(input + 0.5));
-       setResampleRatio(input, sampleRate);
+       setResampleRatio(input, sampleRate, isStereo());
 }
 
 bool VLM5030Impl::generateInput(int* buffer, unsigned length)

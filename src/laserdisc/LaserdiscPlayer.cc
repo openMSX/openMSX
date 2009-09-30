@@ -129,7 +129,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	: SoundDevice(motherBoard_.getMSXMixer(), "laserdiscplayer",
 	              "Laserdisc Player", 1, true)
 	, Schedulable(motherBoard_.getScheduler())
-	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting(), 2)
+	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
 	, ldcontrol(ldcontrol_)
 	, laserdiscCommand(new LaserdiscCommand(
@@ -765,7 +765,7 @@ void LaserdiscPlayer::setOutputRate(unsigned newOutputRate)
 	outputRate = newOutputRate;
 	unsigned inputRate = video.get() ? video->getSampleRate() : outputRate;
 	setInputRate(inputRate);
-	setResampleRatio(inputRate, outputRate);
+	setResampleRatio(inputRate, outputRate, isStereo());
 }
 
 void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)

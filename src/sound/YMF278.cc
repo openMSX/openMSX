@@ -932,7 +932,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
                        int ramSize, const XMLElement& config)
 	: SoundDevice(motherBoard_.getMSXMixer(), name, "MoonSound wave-part",
 	              24, true)
-	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting(), 2)
+	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
@@ -987,7 +987,7 @@ void YMF278Impl::reset(EmuTime::param time)
 void YMF278Impl::setOutputRate(unsigned sampleRate)
 {
 	setInputRate(44100);
-	setResampleRatio(44100, sampleRate);
+	setResampleRatio(44100, sampleRate, isStereo());
 }
 
 byte YMF278Impl::readMem(unsigned address) const

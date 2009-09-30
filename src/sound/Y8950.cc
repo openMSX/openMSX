@@ -641,7 +641,7 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
                      const std::string& name, const XMLElement& config,
                      unsigned sampleRam, Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 12)
-	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting(), 1)
+	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
 	, perihery(perihery_)
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
@@ -686,7 +686,7 @@ void Y8950Impl::setOutputRate(unsigned sampleRate)
 {
 	double input = Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV);
 	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate);
+	setResampleRatio(input, sampleRate, isStereo());
 }
 
 void Y8950Impl::clearRam()

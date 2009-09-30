@@ -1114,7 +1114,7 @@ void YMF262Impl::setOutputRate(unsigned sampleRate)
 	const int CLOCK_FREQ = 3579545 * 4;
 	double input = CLOCK_FREQ / (8.0 * 36.0);
 	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate);
+	setResampleRatio(input, sampleRate, isStereo());
 }
 
 void YMF262Slot::FM_KEYON(byte key_set)
@@ -1680,7 +1680,7 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
                        const XMLElement& config, bool isYMF278_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
 	              18, true)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 2)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 	, debuggable(new YMF262Debuggable(motherBoard, *this))
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)

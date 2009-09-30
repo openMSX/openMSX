@@ -24,9 +24,9 @@ public:
 	virtual bool generateInput(int* buffer, unsigned num) = 0;
 
 protected:
-	Resample(EnumSetting<ResampleType>& resampleSetting, unsigned channels);
+	Resample(EnumSetting<ResampleType>& resampleSetting);
 	virtual ~Resample();
-	void setResampleRatio(double inFreq, double outFreq);
+	void setResampleRatio(double inFreq, double outFreq, bool stereo);
 	bool generateOutput(int* dataOut, unsigned num);
 
 private:
@@ -38,7 +38,7 @@ private:
 	double ratio;
 	std::auto_ptr<ResampleAlgo> algo;
 	EnumSetting<ResampleType>& resampleSetting;
-	const unsigned channels;
+	unsigned channels;
 };
 
 } // namespace openmsx

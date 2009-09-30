@@ -223,6 +223,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 	static const unsigned HAS_STEREO_FLAG = 2;
 	unsigned usedBuffers = 0;
 
+	// FIXME: The Infos should be ordered such that all the mono
+	// devices are handled first
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
 		SoundDevice& device = *it->first;

@@ -1027,7 +1027,7 @@ YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                EmuTime::param time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 2)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 	, irq(motherBoard, getName() + ".IRQ")
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
@@ -1687,7 +1687,7 @@ void YM2151Impl::setOutputRate(unsigned sampleRate)
 	static const int CLCK_FREQ = 3579545;
 	double input = CLCK_FREQ / 64.0;
 	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate);
+	setResampleRatio(input, sampleRate, isStereo());
 }
 
 void YM2151Impl::callback(byte flag)

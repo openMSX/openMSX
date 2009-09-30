@@ -85,7 +85,7 @@ CassettePlayer::CassettePlayer(
 		EnumSetting<ResampleType>& resampleSetting,
 		ThrottleManager& throttleManager)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
-	, Resample(resampleSetting, 1)
+	, Resample(resampleSetting)
 	, Schedulable(scheduler)
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)
@@ -538,7 +538,7 @@ void CassettePlayer::setOutputRate(unsigned newOutputRate)
 	unsigned inputRate = playImage.get() ? playImage->getFrequency()
 	                                     : outputRate;
 	setInputRate(inputRate);
-	setResampleRatio(inputRate, outputRate);
+	setResampleRatio(inputRate, outputRate, isStereo());
 }
 
 void CassettePlayer::generateChannels(int** buffers, unsigned num)

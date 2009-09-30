@@ -484,7 +484,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, EmuTime::param time)
 	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG", 3)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting(), 1)
+	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))
@@ -669,7 +669,7 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 void AY8910::setOutputRate(unsigned sampleRate)
 {
 	setInputRate(NATIVE_FREQ_INT);
-	setResampleRatio(NATIVE_FREQ_DOUBLE, sampleRate);
+	setResampleRatio(NATIVE_FREQ_DOUBLE, sampleRate, isStereo());
 }
 
 static void addFill(int*& buf, int val, unsigned num)

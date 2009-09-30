@@ -11,11 +11,9 @@
 
 namespace openmsx {
 
-Resample::Resample(EnumSetting<ResampleType>& resampleSetting_, unsigned channels_)
+Resample::Resample(EnumSetting<ResampleType>& resampleSetting_)
 	: resampleSetting(resampleSetting_)
-	, channels(channels_)
 {
-	assert((channels == 1) || (channels == 2));
 	resampleSetting.attach(*this);
 }
 
@@ -24,8 +22,9 @@ Resample::~Resample()
 	resampleSetting.detach(*this);
 }
 
-void Resample::setResampleRatio(double inFreq, double outFreq)
+void Resample::setResampleRatio(double inFreq, double outFreq, bool stereo)
 {
+	channels = stereo ? 2 : 1;
 	ratio = inFreq / outFreq;
 	createResampler();
 }
