@@ -79,17 +79,13 @@ unsigned RawFrame::getLineBufferSize() const
 	return pitch;
 }
 
-unsigned RawFrame::getLineWidth(unsigned line) const
-{
-	assert(line < getHeight());
-	return lineWidth[line];
-}
-
-void* RawFrame::getLinePtrImpl(unsigned line)
+const void* RawFrame::getLineInfo(unsigned line, unsigned& width) const
 {
 	if (PLATFORM_GP2X) {
-		if (!isLocked()) lock();
+		if (!isLocked()) const_cast<RawFrame*>(this)->lock();
 	}
+	assert(line < getHeight());
+	width = lineWidth[line];
 	return data + line * pitch;
 }
 

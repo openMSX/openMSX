@@ -57,13 +57,18 @@ public:
 	/** Gets the number of display pixels on the given line.
 	  * @return line width, or 0 for a border line.
 	  */
-	virtual unsigned getLineWidth(unsigned line) const = 0;
+	unsigned getLineWidth(unsigned line) const {
+		unsigned width;
+		getLineInfo(line, width); // ignore return value
+		return width;
+	}
 
 	/** Gets a pointer to the pixels of the given line number.
 	  */
 	template <typename Pixel>
-	inline Pixel* getLinePtr(unsigned line) {
-		return reinterpret_cast<Pixel*>(getLinePtrImpl(line));
+	inline const Pixel* getLinePtr(unsigned line) const {
+		unsigned dummy;
+		return reinterpret_cast<const Pixel*>(getLineInfo(line, dummy));
 	}
 
 	/** Gets a pointer to the pixels of the given line number.
@@ -73,10 +78,12 @@ public:
 	  * buffers can be recycled.
 	  */
 	template <typename Pixel>
-	inline const Pixel* getLinePtr(int line, unsigned width) {
+	inline const Pixel* getLinePtr(int line, unsigned width)
+	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
-		const Pixel* internalData = getLinePtr<Pixel>(line);
-		unsigned internalWidth = getLineWidth(line);
+		unsigned internalWidth;
+		const Pixel* internalData = reinterpret_cast<const Pixel*>(
+			getLineInfo(line, internalWidth));
 		if (internalWidth == width) {
 			return internalData;
 		} else {
@@ -100,8 +107,9 @@ public:
 		if ((line < 0) || (height <= line)) {
 			return getLinePtr<Pixel>(line, width);
 		}
-		const Pixel* internalData = getLinePtr<Pixel>(line);
-		unsigned internalWidth = getLineWidth(line);
+		unsigned internalWidth;
+		const Pixel* internalData = reinterpret_cast<const Pixel*>(
+			getLineInfo(line, internalWidth));
 		if (internalWidth != width) {
 			return scaleLine(internalData, internalWidth, width);
 		}
@@ -160,8 +168,9 @@ protected:
 
 	/** Actual implementation of getLinePtr(unsigned, Pixel) but without
 	  * a typed return value.
+	  * TODO
 	  */
-	virtual void* getLinePtrImpl(unsigned line) = 0;
+	virtual const void* getLineInfo(unsigned line, unsigned& width) const = 0;
 
 	/** Returns true when two consecutive rows are also consecutive in
 	  * memory.

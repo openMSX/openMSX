@@ -29,7 +29,6 @@ public:
 	}
 
 	virtual unsigned getLineBufferSize() const;
-	virtual unsigned getLineWidth(unsigned line) const;
 
 	inline void setLineWidth(unsigned line, unsigned width) {
 		assert(line < getHeight());
@@ -65,7 +64,7 @@ public:
 	SDL_Surface* getSDLSurface() const { return surface; }
 
 protected:
-	virtual void* getLinePtrImpl(unsigned line);
+	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
 	virtual bool hasContiguousStorage() const;
 
 private:

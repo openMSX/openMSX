@@ -22,17 +22,16 @@ unsigned DoubledFrame::getLineBufferSize() const
 	return field->getLineBufferSize();
 }
 
-unsigned DoubledFrame::getLineWidth(unsigned line) const
+const void* DoubledFrame::getLineInfo(unsigned line, unsigned& width) const
 {
+	static const unsigned blackPixel = 0; // both 16bppp and 32bpp
 	int t = line - skip;
-	return (t >= 0) ? field->getLineWidth(t / 2) : 1;
-}
-
-void* DoubledFrame::getLinePtrImpl(unsigned line)
-{
-	static unsigned blackPixel = 0; // both 16bppp and 32bpp
-	int t = line - skip;
-	return (t >= 0) ? field->getLinePtrImpl(t / 2) : &blackPixel;
+	if (t >= 0) {
+		return field->getLineInfo(t / 2, width);
+	} else {
+		width = 1;
+		return &blackPixel;
+	}
 }
 
 } // namespace openmsx

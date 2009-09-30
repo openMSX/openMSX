@@ -29,14 +29,9 @@ unsigned DeinterlacedFrame::getLineBufferSize() const
 	return fields[0]->getLineBufferSize();
 }
 
-unsigned DeinterlacedFrame::getLineWidth(unsigned line) const
+const void* DeinterlacedFrame::getLineInfo(unsigned line, unsigned& width) const
 {
-	return fields[line & 1]->getLineWidth(line >> 1);
-}
-
-void* DeinterlacedFrame::getLinePtrImpl(unsigned line)
-{
-	return fields[line & 1]->getLinePtrImpl(line >> 1);
+	return fields[line & 1]->getLineInfo(line >> 1, width);
 }
 
 } // namespace openmsx
