@@ -8,6 +8,7 @@
 #include "StringOp.hh"
 #include "HostCPU.hh"
 #include "MemoryOps.hh"
+#include "MSXException.hh"
 #include "aligned.hh"
 #include "vla.hh"
 #include "unreachable.hh"
@@ -93,6 +94,8 @@ void SoundDevice::registerSound(const XMLElement& config)
 		balance = -100;
 	} else if (mode == "right") {
 		balance = 100;
+	} else {
+		throw MSXException("balance \"" + mode + "\" illegal");
 	}
 	balance = soundConfig.getChildDataAsInt("balance", balance);
 
@@ -100,9 +103,10 @@ void SoundDevice::registerSound(const XMLElement& config)
 	soundConfig.getChildren("channel", channels);
 	for (XMLElement::Children::const_iterator it = channels.begin();
 	     it != channels.end(); ++it) {
-		unsigned num = StringOp::stringToInt((*it)->getAttribute("num"));
-		if (num > numChannels) {
-			continue;
+		int num = (*it)->getAttributeAsInt("num");
+		if (num <= 0 || unsigned(num) > numChannels) {
+			throw MSXException(StringOp::Builder() <<
+					"channel " << num << " out of range");
 		}
 
 		const string str = (*it)->getData();
@@ -115,6 +119,8 @@ void SoundDevice::registerSound(const XMLElement& config)
 		} else if (str == "right") {
 			channelBalance[num - 1] = 100;
 			balanceCenter = false;
+		} else {
+			throw MSXException("balance \"" + str + "\" illegal");
 		}
 	}
 
@@ -257,11 +263,11 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			unsigned j = 0;
 			do {
 				if (channelBalance[j] <= 0) {
-					left0 += bufs[j][i];
-					left1 += bufs[j][i];
+					left0 += bufs[j][i+0];
+					left1 += bufs[j][i+1];
 				} else if (channelBalance[j] >= 0) {
-					right0 += bufs[j][i];
-					right1 += bufs[j][i];
+					right0 += bufs[j][i+0];
+					right1 += bufs[j][i+1];
 				}
 				j++;
 			} while (j < numMix);
