@@ -214,10 +214,13 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 }
 
 template<typename Pixel>
-Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b)
+Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b, Pixel extra)
 {
 	renderSettings.transformRGB(r, g, b);
 	Pixel p = screen.mapRGB(r, g, b);
+	if (sizeof(Pixel) == 4) {
+		p |= extra;
+	}
 	if (sizeof(Pixel) == 2) {
 		return (p != screen.getKeyColor<Pixel>())
 		      ? p
@@ -231,6 +234,18 @@ Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b)
 template <class Pixel>
 void SDLRasterizer<Pixel>::precalcPalette()
 {
+	// In 32bpp SDL doesn't always fill in the alpha channel information in
+	// the SDL_PixelFormat struct (it does when using the SDLGL-PP renderer
+	// but not for the SDL renderer, though you can argue there really is
+	// no alpha channel in the latter case). We DO want to calculate 32bpp
+	// colors WITH an opaque alpha channel, so as a workaround we set all
+	// bits that are not used for red, green or blue.
+	Pixel extra = 0;
+	if (sizeof(Pixel) == 4) {
+		const SDL_PixelFormat& format = screen.getSDLFormat();
+		extra = ~(format.Rmask | format.Gmask | format.Bmask);
+	}
+
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
@@ -239,7 +254,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			double dg = rgb[1] / 255.0;
 			double db = rgb[2] / 255.0;
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				calcColorHelper(dr, dg, db);
+				calcColorHelper(dr, dg, db, extra);
 		}
 	} else {
 		if (vdp.hasYJK()) {
@@ -251,7 +266,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 						double dg = g / 31.0;
 						double db = b / 31.0;
 						V9958_COLORS[(r<<10) + (g<<5) + b] =
-							calcColorHelper(dr, dg, db);
+							calcColorHelper(dr, dg, db, extra);
 					}
 				}
 			}
@@ -278,7 +293,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 						double dg = g / 7.0;
 						double db = b / 7.0;
 						V9938_COLORS[r][g][b] =
-							calcColorHelper(dr, dg, db);
+							calcColorHelper(dr, dg, db, extra);
 					}
 				}
 			}
