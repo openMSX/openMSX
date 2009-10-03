@@ -281,10 +281,6 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		return true;
 	}
 
-	// also add output buffer
-	bufs[numMix] = dataOut;
-	++numMix;
-
 	// In the past we had ARM and x86-SSE2 optimized assembly routines for
 	// the stuff below. Currently this code is only rarely used anymore
 	// (only when recording or muting individual soundchip channels), so
@@ -292,10 +288,10 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	unsigned num = samples * stereo;
 	unsigned i = 0;
 	do {
-		int out0 = 0;
-		int out1 = 0;
-		int out2 = 0;
-		int out3 = 0;
+		int out0 = dataOut[i + 0];
+		int out1 = dataOut[i + 1];
+		int out2 = dataOut[i + 2];
+		int out3 = dataOut[i + 3];
 		unsigned j = 0;
 		do {
 			out0 += bufs[j][i + 0];
