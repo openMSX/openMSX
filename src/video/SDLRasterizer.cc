@@ -214,12 +214,9 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 }
 
 template<typename Pixel>
-Pixel SDLRasterizer<Pixel>::calcColorHelper(int r8, int g8, int b8, Pixel extra)
+Pixel SDLRasterizer<Pixel>::calcColorHelper(int r8, int g8, int b8)
 {
 	Pixel p = screen.mapRGB(r8, g8, b8);
-	if (sizeof(Pixel) == 4) {
-		p |= extra;
-	}
 	if (sizeof(Pixel) == 2) {
 		return (p != screen.getKeyColor<Pixel>())
 		      ? p
@@ -231,12 +228,9 @@ Pixel SDLRasterizer<Pixel>::calcColorHelper(int r8, int g8, int b8, Pixel extra)
 }
 
 template<typename Pixel>
-Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b, Pixel extra)
+Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b)
 {
 	Pixel p = screen.mapRGB(r, g, b);
-	if (sizeof(Pixel) == 4) {
-		p |= extra;
-	}
 	if (sizeof(Pixel) == 2) {
 		return (p != screen.getKeyColor<Pixel>())
 		      ? p
@@ -250,18 +244,6 @@ Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b, Pixel 
 template <class Pixel>
 void SDLRasterizer<Pixel>::precalcPalette()
 {
-	// In 32bpp SDL doesn't always fill in the alpha channel information in
-	// the SDL_PixelFormat struct (it does when using the SDLGL-PP renderer
-	// but not for the SDL renderer, though you can argue there really is
-	// no alpha channel in the latter case). We DO want to calculate 32bpp
-	// colors WITH an opaque alpha channel, so as a workaround we set all
-	// bits that are not used for red, green or blue.
-	Pixel extra = 0;
-	if (sizeof(Pixel) == 4) {
-		const SDL_PixelFormat& format = screen.getSDLFormat();
-		extra = ~(format.Rmask | format.Gmask | format.Bmask);
-	}
-
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
@@ -270,8 +252,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			double dg = rgb[1] / 255.0;
 			double db = rgb[2] / 255.0;
 			renderSettings.transformRGB(dr, dg, db);
-			palFg[i] = palFg[i + 16] = palBg[i] =
-				calcColorHelper(dr, dg, db, extra);
+			palFg[i] = palFg[i + 16] = palBg[i] = calcColorHelper(dr, dg, db);
 		}
 	} else {
 		if (vdp.hasYJK()) {
@@ -288,8 +269,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					V9958_COLORS[rgb] = calcColorHelper(
 						intensity[(rgb >> 10)     ],
 						intensity[(rgb >>  5) & 31],
-						intensity[ rgb        & 31],
-						extra);
+						intensity[ rgb        & 31]);
 				}
 			} else {
 				for (int r5 = 0; r5 < 32; r5++) {
@@ -300,7 +280,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 							double db = b5 / 31.0;
 							renderSettings.transformRGB(dr, dg, db);
 							V9958_COLORS[(r5<<10) + (g5<<5) + b5] =
-								calcColorHelper(dr, dg, db, extra);
+								calcColorHelper(dr, dg, db);
 						}
 					}
 				}
@@ -331,8 +311,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					for (int g3 = 0; g3 < 8; g3++) {
 						for (int b3 = 0; b3 < 8; b3++) {
 							V9938_COLORS[r3][g3][b3] = calcColorHelper(
-								intensity[r3], intensity[g3], intensity[b3],
-								extra);
+								intensity[r3], intensity[g3], intensity[b3]);
 						}
 					}
 				}
@@ -345,7 +324,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 							double db = b3 / 7.0;
 							renderSettings.transformRGB(dr, dg, db);
 							V9938_COLORS[r3][g3][b3] =
-								calcColorHelper(dr, dg, db, extra);
+								calcColorHelper(dr, dg, db);
 						}
 					}
 				}
