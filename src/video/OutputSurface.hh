@@ -33,22 +33,60 @@ public:
 	const SDL_PixelFormat& getSDLFormat() { return format; }
 	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
 	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
-	unsigned mapRGB(double dr, double dg, double db);
-	unsigned mapRGB(int r, int g, int b) {
-		return SDL_MapRGB(&format, r, g, b);
-	}
 
+	/** Returns the pixel value for the given RGB color.
+	  * No effort is made to ensure that the returned pixel value is not the
+	  * color key for this output surface.
+	  */
+	unsigned mapRGB(double dr, double dg, double db);
+
+	/** Returns the color key for this output surface.
+	  */
 	template<typename Pixel> inline Pixel getKeyColor() const
 	{
 		return sizeof(Pixel) == 2
 			? 0x0001      // lowest bit of 'some' color component is set
 			: 0x00000000; // alpha = 0
 	}
+
+	/** Returns a color that is visually very close to the key color.
+	  * The returned color can be used as an alternative for pixels that would
+	  * otherwise have the key color.
+	  */
 	template<typename Pixel> inline Pixel getKeyColorClash() const
 	{
 		assert(sizeof(Pixel) != 4); // shouldn't get clashes in 32bpp
 		return 0; // is visually very close, practically
 		          // indistinguishable, from the actual KeyColor
+	}
+
+	/** Returns the pixel value for the given RGB color.
+	  * It is guaranteed that the returned pixel value is different from the
+	  * color key for this output surface.
+	  */
+	template<typename Pixel> Pixel mapKeyedRGB(int r8, int g8, int b8)
+	{
+		Pixel p = SDL_MapRGB(&format, r8, g8, b8);
+		if (sizeof(Pixel) == 2) {
+			return (p != getKeyColor<Pixel>())
+				? p
+				: getKeyColorClash<Pixel>();
+		} else {
+			assert(p != getKeyColor<Pixel>());
+			return p;
+		}
+	}
+
+	/** Returns the pixel value for the given RGB color.
+	  * It is guaranteed that the returned pixel value is different from the
+	  * color key for this output surface.
+	  */
+	template<typename Pixel> Pixel mapKeyedRGB(double dr, double dg, double db)
+	{
+		int r8 = int(dr * 255.0);
+		int g8 = int(dg * 255.0);
+		int b8 = int(db * 255.0);
+		return mapKeyedRGB<Pixel>(r8, g8, b8);
 	}
 
 	/** Lock this OutputSurface.

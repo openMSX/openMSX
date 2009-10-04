@@ -213,34 +213,6 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
-template<typename Pixel>
-Pixel SDLRasterizer<Pixel>::calcColorHelper(int r8, int g8, int b8)
-{
-	Pixel p = screen.mapRGB(r8, g8, b8);
-	if (sizeof(Pixel) == 2) {
-		return (p != screen.getKeyColor<Pixel>())
-		      ? p
-		      : screen.getKeyColorClash<Pixel>();
-	} else {
-		assert(p != screen.getKeyColor<Pixel>());
-		return p;
-	}
-}
-
-template<typename Pixel>
-Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b)
-{
-	Pixel p = screen.mapRGB(r, g, b);
-	if (sizeof(Pixel) == 2) {
-		return (p != screen.getKeyColor<Pixel>())
-		      ? p
-		      : screen.getKeyColorClash<Pixel>();
-	} else {
-		assert(p != screen.getKeyColor<Pixel>());
-		return p;
-	}
-}
-
 template <class Pixel>
 void SDLRasterizer<Pixel>::precalcPalette()
 {
@@ -252,7 +224,8 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			double dg = rgb[1] / 255.0;
 			double db = rgb[2] / 255.0;
 			renderSettings.transformRGB(dr, dg, db);
-			palFg[i] = palFg[i + 16] = palBg[i] = calcColorHelper(dr, dg, db);
+			palFg[i] = palFg[i + 16] = palBg[i] =
+				screen.mapKeyedRGB<Pixel>(dr, dg, db);
 		}
 	} else {
 		if (vdp.hasYJK()) {
@@ -266,7 +239,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 						int(255 * renderSettings.transformComponent(i / 31.0));
 				}
 				for (int rgb = 0; rgb < (1 << 15); rgb++) {
-					V9958_COLORS[rgb] = calcColorHelper(
+					V9958_COLORS[rgb] = screen.mapKeyedRGB<Pixel>(
 						intensity[(rgb >> 10)     ],
 						intensity[(rgb >>  5) & 31],
 						intensity[ rgb        & 31]);
@@ -280,7 +253,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 							double db = b5 / 31.0;
 							renderSettings.transformRGB(dr, dg, db);
 							V9958_COLORS[(r5<<10) + (g5<<5) + b5] =
-								calcColorHelper(dr, dg, db);
+								screen.mapKeyedRGB<Pixel>(dr, dg, db);
 						}
 					}
 				}
@@ -310,8 +283,10 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				for (int r3 = 0; r3 < 8; r3++) {
 					for (int g3 = 0; g3 < 8; g3++) {
 						for (int b3 = 0; b3 < 8; b3++) {
-							V9938_COLORS[r3][g3][b3] = calcColorHelper(
-								intensity[r3], intensity[g3], intensity[b3]);
+							V9938_COLORS[r3][g3][b3] =
+								screen.mapKeyedRGB<Pixel>(
+									intensity[r3], intensity[g3], intensity[b3]
+									);
 						}
 					}
 				}
@@ -324,7 +299,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 							double db = b3 / 7.0;
 							renderSettings.transformRGB(dr, dg, db);
 							V9938_COLORS[r3][g3][b3] =
-								calcColorHelper(dr, dg, db);
+								screen.mapKeyedRGB<Pixel>(dr, dg, db);
 						}
 					}
 				}
