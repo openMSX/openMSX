@@ -51,6 +51,11 @@ void OutputSurface::setSDLWorkSurface(SDL_Surface* surface)
 	workSurface = surface;
 }
 
+void OutputSurface::setSDLFormat(const SDL_PixelFormat& format_)
+{
+	format = format_;
+}
+
 void OutputSurface::setBufferPtr(char* data_, unsigned pitch_)
 {
 	data = data_;

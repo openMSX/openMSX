@@ -29,7 +29,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 	// openGL context). So we split the constructor in two parts, the
 	// child class is responsible for calling this second part.
 
-	SDL_PixelFormat& format = output.getSDLFormat();
+	SDL_PixelFormat format;
 	format.palette = 0;
 	format.colorkey = 0;
 	format.alpha = 0;
@@ -76,6 +76,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 			format.Amask = 0xFF000000;
 		}
 	}
+	output.setSDLFormat(format);
 
 	if (frameBuffer == FB_NONE) {
 		output.setBufferPtr(0, 0); // direct access not allowed

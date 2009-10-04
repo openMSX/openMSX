@@ -8,7 +8,6 @@
 #include "OSDGUILayer.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <cstring>
 #include <cassert>
 #if PLATFORM_GP2X
 #include "GP2XMMUHack.hh"
@@ -38,12 +37,10 @@ SDLVisibleSurface::SDLVisibleSurface(
 	if (fullscreen) flags |= SDL_FULLSCREEN;
 
 	createSurface(width, height, flags);
-
-	SDL_PixelFormat& format = getSDLFormat();
-	SDL_Surface* displaySurface = getSDLDisplaySurface();
-	memcpy(&format, displaySurface->format, sizeof(SDL_PixelFormat));
+	setSDLFormat(*getSDLDisplaySurface()->format);
 
 #if PLATFORM_GP2X
+	const SDL_PixelFormat& format = getSDLFormat();
 	SDL_Surface* workSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,
 		width, height, format.BitsPerPixel, format.Rmask,
 		format.Gmask, format.Bmask, format.Amask);
@@ -53,7 +50,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 #else
 	// on non-GP2X platforms, work and displaySurfaces are the same,
 	// see remark above
-	SDL_Surface* workSurface = displaySurface;
+	SDL_Surface* workSurface = getSDLDisplaySurface();
 #endif
 	setSDLWorkSurface(workSurface);
 	setBufferPtr(static_cast<char*>(workSurface->pixels), workSurface->pitch);

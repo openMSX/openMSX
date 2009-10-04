@@ -30,7 +30,7 @@ public:
 
 	unsigned getWidth() const  { return displaySurface->w; }
 	unsigned getHeight() const { return displaySurface->h; }
-	SDL_PixelFormat& getSDLFormat() { return format; }
+	const SDL_PixelFormat& getSDLFormat() { return format; }
 	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
 	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
 	unsigned mapRGB(double dr, double dg, double db);
@@ -89,9 +89,8 @@ protected:
 	OutputSurface();
 	void setSDLDisplaySurface(SDL_Surface* surface);
 	void setSDLWorkSurface   (SDL_Surface* surface);
+	void setSDLFormat(const SDL_PixelFormat& format);
 	void setBufferPtr(char* data, unsigned pitch);
-
-	SDL_PixelFormat format;
 
 private:
 	virtual unsigned getOutputWidth()  const { return getWidth(); }
@@ -99,6 +98,7 @@ private:
 
 	SDL_Surface* displaySurface;
 	SDL_Surface* workSurface;
+	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
 	unsigned keyColor;
