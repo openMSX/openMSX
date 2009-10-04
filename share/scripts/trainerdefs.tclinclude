@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/09/29
+# Updated @ 2009/10/04
 #
 
 
@@ -953,7 +953,8 @@ create_trainer "Boggy'84" {time 5} {
 }
 
 create_trainer "Bokosuka Wars" {time 1} {
-	"Power (only Works When Selecting The Commander On Game Start)" {poke 0xd77e 0}
+	"Commander Attack Stength" {poke 0xd77c 99}
+	"Commander Power " {poke 0xd77e 0}
 }
 
 create_trainer "Bomb Jack" {time 1} {
@@ -2648,7 +2649,7 @@ create_trainer "Gofer no Yabou Episode 2 - Nemesis 3 The Eve Of Destruction" {ti
 	"Activate Find" {poke 0xe39c 1}
 	"Activate Good" {poke 0xe39d 2}
 	"Activate Hard" {poke 0xe39b 0;poke 0xe39d 1}
-	"All Weapons And Upgrades (find)" {poke 0xe36f 7}
+	"All Weapons And Upgrades" {poke 0xe36f 7}
 	"Back Shot" {poke 0xe630 2}
 	"Blue Map" {poke 0xe394 1}
 	"Choose Option (1-3)" {poke 0xe37e 3}
@@ -2669,7 +2670,7 @@ create_trainer "Gofer no Yabou Episode 2 - Nemesis 3 The Eve Of Destruction" {ti
 	"Photon Missile" {poke 0xe632 17}
 	"Red Map" {poke 0xe393 1}
 	"Set Speed To 4" {poke 0xe36d 4}
-	"Shield On 1=off 3=on" {poke 0xe600 3}
+	"Shield On" {poke 0xe600 3}
 	"Shoot Or Laser (1-12)" {poke  }
 	"Shot 1 Big Fire Blaster" {poke 0xe630 12}
 	"Shot 1 Extended Blaster" {poke 0xe630 8}
@@ -2686,7 +2687,7 @@ create_trainer "Gofer no Yabou Episode 2 - Nemesis 3 The Eve Of Destruction" {ti
 	"Shot 2 Up Double" {poke 0xe631 3}
 	"Shot 2 Up Laser" {poke 0xe631 13}
 	"Space Fighter Shield" {poke 0xe396 1}
-	"Stage (1-11)" {poke 0xe361 1}
+	"Stage 01" {poke 0xe361 1}
 	"Up Shot" {poke 0xe630 3}
 	"X-pos Enemy" {poke 0xe806 0;poke 0xe846 0;poke 0xe886 0;poke 0xe8c6 0;poke 0xe906 0;poke 0xe946 0;poke 0xe986 0;poke 0xe9c6 0}
 }
@@ -3042,152 +3043,152 @@ create_trainer "Happy Fret" {time 1} {
 }
 
 create_trainer "Hard Boiled" {time 1} {
-	"1st Item:alarm Clock" {poke 0xd04d 16}
-	"1st Item:alpha Key" {poke 0xd04d 19}
-	"1st Item:another Half" {poke 0xd04d 41}
-	"1st Item:bad Guy" {poke 0xd04d 36}
-	"1st Item:beta Key" {poke 0xd04d 20}
-	"1st Item:blue Diamond" {poke 0xd04d 8}
-	"1st Item:bottle Of Wine" {poke 0xd04d 28}
-	"1st Item:bunch Of Grapes" {poke 0xd04d 34}
-	"1st Item:candle" {poke 0xd04d 11}
-	"1st Item:clothe's Peg" {poke 0xd04d 18}
-	"1st Item:coffee" {poke 0xd04d 12}
-	"1st Item:coin" {poke 0xd04d 42}
-	"1st Item:cold Beer" {poke 0xd04d 14}
-	"1st Item:cork Screw" {poke 0xd04d 29}
-	"1st Item:cup" {poke 0xd04d 45}
-	"1st Item:cup And Saucer" {poke 0xd04d 33}
-	"1st Item:delta Key" {poke 0xd04d 22}
-	"1st Item:egg" {poke 0xd04d 2}
-	"1st Item:gamma Key" {poke 0xd04d 21}
-	"1st Item:glass Of Wine" {poke 0xd04d 37}
-	"1st Item:good Guy" {poke 0xd04d 47}
-	"1st Item:green Dice" {poke 0xd04d 26}
-	"1st Item:hammer" {poke 0xd04d 10}
-	"1st Item:joystick" {poke 0xd04d 9}
-	"1st Item:keycard Next Sector" {poke 0xd04d 39}
-	"1st Item:knife And Fork" {poke 0xd04d 15}
-	"1st Item:light Bulb" {poke 0xd04d 23}
-	"1st Item:lot Of Fuel" {poke 0xd04d 0}
-	"1st Item:lowhit Bullets" {poke 0xd04d 5}
-	"1st Item:money" {poke 0xd04d 43}
-	"1st Item:nice Apple" {poke 0xd04d 32}
-	"1st Item:no Saucer" {poke 0xd04d 46}
-	"1st Item:nothing" {poke 0xd04d 27}
-	"1st Item:one Half" {poke 0xd04d 40}
-	"1st Item:pear" {poke 0xd04d 35}
-	"1st Item:pepper" {poke 0xd04d 7}
-	"1st Item:petrol Pump" {poke 0xd04d 44}
-	"1st Item:portable Radio" {poke 0xd04d 3}
-	"1st Item:question Mark" {poke 0xd04d 38}
-	"1st Item:red Telephone" {poke 0xd04d 1}
-	"1st Item:safety Pin" {poke 0xd04d 25}
-	"1st Item:salt" {poke 0xd04d 6}
-	"1st Item:screw" {poke 0xd04d 31}
-	"1st Item:tea" {poke 0xd04d 13}
-	"1st Item:tv With Antenna" {poke 0xd04d 17}
-	"1st Item:vertical Bullets" {poke 0xd04d 4}
-	"1st Item:wooden Shoe" {poke 0xd04d 30}
-	"1st Item:yellow Banana" {poke 0xd04d 24}
-	"2nd Item:alarm Clock" {poke 0xd04f 16}
-	"2nd Item:alpha Key" {poke 0xd04f 19}
-	"2nd Item:another Half" {poke 0xd04f 41}
-	"2nd Item:bad Guy" {poke 0xd04f 36}
-	"2nd Item:beta Key" {poke 0xd04f 20}
-	"2nd Item:blue Diamond" {poke 0xd04f 8}
-	"2nd Item:bottle Of Wine" {poke 0xd04f 28}
-	"2nd Item:bunch Of Grapes" {poke 0xd04f 34}
-	"2nd Item:candle" {poke 0xd04f 11}
-	"2nd Item:clothe's Peg" {poke 0xd04f 18}
-	"2nd Item:coffee" {poke 0xd04f 12}
-	"2nd Item:coin" {poke 0xd04f 42}
-	"2nd Item:cold Beer" {poke 0xd04f 14}
-	"2nd Item:cork Screw" {poke 0xd04f 29}
-	"2nd Item:cup" {poke 0xd04f 45}
-	"2nd Item:cup And Saucer" {poke 0xd04f 33}
-	"2nd Item:delta Key" {poke 0xd04f 22}
-	"2nd Item:egg" {poke 0xd04f 2}
-	"2nd Item:gamma Key" {poke 0xd04f 21}
-	"2nd Item:glass Of Wine" {poke 0xd04f 37}
-	"2nd Item:good Guy" {poke 0xd04f 47}
-	"2nd Item:green Dice" {poke 0xd04f 26}
-	"2nd Item:hammer" {poke 0xd04f 10}
-	"2nd Item:joystick" {poke 0xd04f 9}
-	"2nd Item:keycard Next Sector" {poke 0xd04f 39}
-	"2nd Item:knife And Fork" {poke 0xd04f 15}
-	"2nd Item:light Bulb" {poke 0xd04f 23}
-	"2nd Item:lot Of Fuel" {poke 0xd04f 0}
-	"2nd Item:lowhit Bullets" {poke 0xd04f 5}
-	"2nd Item:money" {poke 0xd04f 43}
-	"2nd Item:nice Apple" {poke 0xd04f 32}
-	"2nd Item:no Saucer" {poke 0xd04f 46}
-	"2nd Item:nothing" {poke 0xd04f 27}
-	"2nd Item:one Half" {poke 0xd04f 40}
-	"2nd Item:pear" {poke 0xd04f 35}
-	"2nd Item:pepper" {poke 0xd04f 7}
-	"2nd Item:petrol Pump" {poke 0xd04f 44}
-	"2nd Item:portable Radio" {poke 0xd04f 3}
-	"2nd Item:question Mark" {poke 0xd04f 38}
-	"2nd Item:red Telephone" {poke 0xd04f 1}
-	"2nd Item:safety Pin" {poke 0xd04f 25}
-	"2nd Item:salt" {poke 0xd04f 6}
-	"2nd Item:screw" {poke 0xd04f 31}
-	"2nd Item:tea" {poke 0xd04f 13}
-	"2nd Item:tv With Antenna" {poke 0xd04f 17}
-	"2nd Item:vertical Bullets" {poke 0xd04f 4}
-	"2nd Item:wooden Shoe" {poke 0xd04f 30}
-	"2nd Item:yellow Banana" {poke 0xd04f 24}
+	"1st Item: Alarm Clock" {poke 0xd04d 16}
+	"1st Item: Alpha Key" {poke 0xd04d 19}
+	"1st Item: Another Half" {poke 0xd04d 41}
+	"1st Item: Bad Guy" {poke 0xd04d 36}
+	"1st Item: Beta Key" {poke 0xd04d 20}
+	"1st Item: Blue Diamond" {poke 0xd04d 8}
+	"1st Item: Bottle Of Wine" {poke 0xd04d 28}
+	"1st Item: Bunch Of Grapes" {poke 0xd04d 34}
+	"1st Item: Candle" {poke 0xd04d 11}
+	"1st Item: Clothes Peg" {poke 0xd04d 18}
+	"1st Item: Coffee" {poke 0xd04d 12}
+	"1st Item: Coin" {poke 0xd04d 42}
+	"1st Item: Cold Beer" {poke 0xd04d 14}
+	"1st Item: Cork Screw" {poke 0xd04d 29}
+	"1st Item: Cup" {poke 0xd04d 45}
+	"1st Item: Cup And Saucer" {poke 0xd04d 33}
+	"1st Item: Delta Key" {poke 0xd04d 22}
+	"1st Item: Egg" {poke 0xd04d 2}
+	"1st Item: Gamma Key" {poke 0xd04d 21}
+	"1st Item: Glass Of Wine" {poke 0xd04d 37}
+	"1st Item: Good Guy" {poke 0xd04d 47}
+	"1st Item: Green Dice" {poke 0xd04d 26}
+	"1st Item: Hammer" {poke 0xd04d 10}
+	"1st Item: Joystick" {poke 0xd04d 9}
+	"1st Item: Key-card Next Sector" {poke 0xd04d 39}
+	"1st Item: Knife And Fork" {poke 0xd04d 15}
+	"1st Item: Light Bulb" {poke 0xd04d 23}
+	"1st Item: Lot Of Fuel" {poke 0xd04d 0}
+	"1st Item: Low Hit Bullets" {poke 0xd04d 5}
+	"1st Item: Money" {poke 0xd04d 43}
+	"1st Item: Nice Apple" {poke 0xd04d 32}
+	"1st Item: No Saucer" {poke 0xd04d 46}
+	"1st Item: Nothing" {poke 0xd04d 27}
+	"1st Item: One Half" {poke 0xd04d 40}
+	"1st Item: Pear" {poke 0xd04d 35}
+	"1st Item: Pepper" {poke 0xd04d 7}
+	"1st Item: Petrol Pump" {poke 0xd04d 44}
+	"1st Item: Portable Radio" {poke 0xd04d 3}
+	"1st Item: Question Mark" {poke 0xd04d 38}
+	"1st Item: Red Telephone" {poke 0xd04d 1}
+	"1st Item: Safety Pin" {poke 0xd04d 25}
+	"1st Item: Salt" {poke 0xd04d 6}
+	"1st Item: Screw" {poke 0xd04d 31}
+	"1st Item: Tea" {poke 0xd04d 13}
+	"1st Item: Tv With Antenna" {poke 0xd04d 17}
+	"1st Item: Vertical Bullets" {poke 0xd04d 4}
+	"1st Item: Wooden Shoe" {poke 0xd04d 30}
+	"1st Item: Yellow Banana" {poke 0xd04d 24}
+	"2nd Item: Alarm Clock" {poke 0xd04f 16}
+	"2nd Item: Alpha Key" {poke 0xd04f 19}
+	"2nd Item: Another Half" {poke 0xd04f 41}
+	"2nd Item: Bad Guy" {poke 0xd04f 36}
+	"2nd Item: Beta Key" {poke 0xd04f 20}
+	"2nd Item: Blue Diamond" {poke 0xd04f 8}
+	"2nd Item: Bottle Of Wine" {poke 0xd04f 28}
+	"2nd Item: Bunch Of Grapes" {poke 0xd04f 34}
+	"2nd Item: Candle" {poke 0xd04f 11}
+	"2nd Item: Clothes Peg" {poke 0xd04f 18}
+	"2nd Item: Coffee" {poke 0xd04f 12}
+	"2nd Item: Coin" {poke 0xd04f 42}
+	"2nd Item: Cold Beer" {poke 0xd04f 14}
+	"2nd Item: Cork Screw" {poke 0xd04f 29}
+	"2nd Item: Cup" {poke 0xd04f 45}
+	"2nd Item: Cup And Saucer" {poke 0xd04f 33}
+	"2nd Item: Delta Key" {poke 0xd04f 22}
+	"2nd Item: Egg" {poke 0xd04f 2}
+	"2nd Item: Gamma Key" {poke 0xd04f 21}
+	"2nd Item: Glass Of Wine" {poke 0xd04f 37}
+	"2nd Item: Good Guy" {poke 0xd04f 47}
+	"2nd Item: Green Dice" {poke 0xd04f 26}
+	"2nd Item: Hammer" {poke 0xd04f 10}
+	"2nd Item: Joystick" {poke 0xd04f 9}
+	"2nd Item: Keycard Next Sector" {poke 0xd04f 39}
+	"2nd Item: Knife And Fork" {poke 0xd04f 15}
+	"2nd Item: Light Bulb" {poke 0xd04f 23}
+	"2nd Item: Lot Of Fuel" {poke 0xd04f 0}
+	"2nd Item: Low Hit Bullets" {poke 0xd04f 5}
+	"2nd Item: Money" {poke 0xd04f 43}
+	"2nd Item: Nice Apple" {poke 0xd04f 32}
+	"2nd Item: No Saucer" {poke 0xd04f 46}
+	"2nd Item: Nothing" {poke 0xd04f 27}
+	"2nd Item: One Half" {poke 0xd04f 40}
+	"2nd Item: Pear" {poke 0xd04f 35}
+	"2nd Item: Pepper" {poke 0xd04f 7}
+	"2nd Item: Petrol Pump" {poke 0xd04f 44}
+	"2nd Item: Portable Radio" {poke 0xd04f 3}
+	"2nd Item: Question-mark" {poke 0xd04f 38}
+	"2nd Item: Red Telephone" {poke 0xd04f 1}
+	"2nd Item: Safety Pin" {poke 0xd04f 25}
+	"2nd Item: Salt" {poke 0xd04f 6}
+	"2nd Item: Screw" {poke 0xd04f 31}
+	"2nd Item: Tea" {poke 0xd04f 13}
+	"2nd Item: Tv With Antenna" {poke 0xd04f 17}
+	"2nd Item: Vertical Bullets" {poke 0xd04f 4}
+	"2nd Item: Wooden Shoe" {poke 0xd04f 30}
+	"2nd Item: Yellow Banana" {poke 0xd04f 24}
+	"A Lot Of Fuel" {poke 0xd04b 0}
+	"Alarm Clock" {poke 0xd04b 16}
+	"Alpha Key" {poke 0xd04b 19}
+	"Another Half" {poke 0xd04b 41}
+	"Bad Guy" {poke 0xd04b 36}
+	"Beta Key" {poke 0xd04b 20}
+	"Blue Diamond" {poke 0xd04b 8}
+	"Bottle Of Wine" {poke 0xd04b 28}
+	"Bunch Of Grapes" {poke 0xd04b 34}
+	"Candle" {poke 0xd04b 11}
+	"Clothes Peg" {poke 0xd04b 18}
+	"Coffee" {poke 0xd04b 12}
+	"Coin" {poke 0xd04b 42}
+	"Cold Beer" {poke 0xd04b 14}
+	"Cork Screw" {poke 0xd04b 29}
+	"Cup" {poke 0xd04b 45}
+	"Cup And Saucer" {poke 0xd04b 33}
+	"Delta Key" {poke 0xd04b 22}
+	"Egg" {poke 0xd04b 2}
 	"Fuel" {poke 0xd047 32}
-	"Item In Labyrint :alarm Clock" {poke 0xd04b 16}
-	"Item In Labyrint :alpha Key" {poke 0xd04b 19}
-	"Item In Labyrint :another Half" {poke 0xd04b 41}
-	"Item In Labyrint :bad Guy" {poke 0xd04b 36}
-	"Item In Labyrint :beta Key" {poke 0xd04b 20}
-	"Item In Labyrint :blue Diamond" {poke 0xd04b 8}
-	"Item In Labyrint :bottle Of Wine" {poke 0xd04b 28}
-	"Item In Labyrint :bunch Of Grapes" {poke 0xd04b 34}
-	"Item In Labyrint :candle" {poke 0xd04b 11}
-	"Item In Labyrint :clothe's Peg" {poke 0xd04b 18}
-	"Item In Labyrint :coffee" {poke 0xd04b 12}
-	"Item In Labyrint :coin" {poke 0xd04b 42}
-	"Item In Labyrint :cold Beer" {poke 0xd04b 14}
-	"Item In Labyrint :cork Screw" {poke 0xd04b 29}
-	"Item In Labyrint :cup" {poke 0xd04b 45}
-	"Item In Labyrint :cup And Saucer" {poke 0xd04b 33}
-	"Item In Labyrint :delta Key" {poke 0xd04b 22}
-	"Item In Labyrint :egg" {poke 0xd04b 2}
-	"Item In Labyrint :gamma Key" {poke 0xd04b 21}
-	"Item In Labyrint :glass Of Wine" {poke 0xd04b 37}
-	"Item In Labyrint :good Guy" {poke 0xd04b 47}
-	"Item In Labyrint :green Dice" {poke 0xd04b 26}
-	"Item In Labyrint :hammer" {poke 0xd04b 10}
-	"Item In Labyrint :joystick" {poke 0xd04b 9}
-	"Item In Labyrint :keycard Next Sector" {poke 0xd04b 39}
-	"Item In Labyrint :knife And Fork" {poke 0xd04b 15}
-	"Item In Labyrint :light Bulb" {poke 0xd04b 23}
-	"Item In Labyrint :lot Of Fuel" {poke 0xd04b 0}
-	"Item In Labyrint :lowhit Bullets" {poke 0xd04b 5}
-	"Item In Labyrint :money" {poke 0xd04b 43}
-	"Item In Labyrint :nice Apple" {poke 0xd04b 32}
-	"Item In Labyrint :no Saucer" {poke 0xd04b 46}
-	"Item In Labyrint :nothing" {poke 0xd04b 27}
-	"Item In Labyrint :one Half" {poke 0xd04b 40}
-	"Item In Labyrint :pear" {poke 0xd04b 35}
-	"Item In Labyrint :pepper" {poke 0xd04b 7}
-	"Item In Labyrint :petrol Pump" {poke 0xd04b 44}
-	"Item In Labyrint :portable Radio" {poke 0xd04b 3}
-	"Item In Labyrint :question Mark" {poke 0xd04b 38}
-	"Item In Labyrint :red Telephone" {poke 0xd04b 1}
-	"Item In Labyrint :safety Pin" {poke 0xd04b 25}
-	"Item In Labyrint :salt" {poke 0xd04b 6}
-	"Item In Labyrint :screw" {poke 0xd04b 31}
-	"Item In Labyrint :tea" {poke 0xd04b 13}
-	"Item In Labyrint :tv With Antenna" {poke 0xd04b 17}
-	"Item In Labyrint :vertical Bullets" {poke 0xd04b 4}
-	"Item In Labyrint :wooden Shoe" {poke 0xd04b 30}
-	"Item In Labyrint :yellow Banana" {poke 0xd04b 24}
+	"Gamma Key" {poke 0xd04b 21}
+	"Glass Of Wine" {poke 0xd04b 37}
+	"Good Guy" {poke 0xd04b 47}
+	"Green Dice" {poke 0xd04b 26}
+	"Hammer" {poke 0xd04b 10}
+	"Joystick" {poke 0xd04b 9}
+	"Key-card Next Sector" {poke 0xd04b 39}
+	"Knife And Fork" {poke 0xd04b 15}
+	"Light Bulb" {poke 0xd04b 23}
 	"Lives" {poke 0xd047 5}
+	"Low Hit Bullets" {poke 0xd04b 5}
+	"Money" {poke 0xd04b 43}
+	"Nice Apple" {poke 0xd04b 32}
+	"No Saucer" {poke 0xd04b 46}
+	"Nothing" {poke 0xd04b 27}
+	"One Half" {poke 0xd04b 40}
+	"Pear" {poke 0xd04b 35}
+	"Pepper" {poke 0xd04b 7}
+	"Petrol Pump" {poke 0xd04b 44}
+	"Portable Radio" {poke 0xd04b 3}
+	"Question-mark" {poke 0xd04b 38}
+	"Red Telephone" {poke 0xd04b 1}
+	"Safety Pin" {poke 0xd04b 25}
+	"Salt" {poke 0xd04b 6}
+	"Screw" {poke 0xd04b 31}
+	"Tea" {poke 0xd04b 13}
+	"Tv With Antenna" {poke 0xd04b 17}
+	"Vertical Bullets" {poke 0xd04b 4}
+	"Wooden Shoe" {poke 0xd04b 30}
+	"Yellow Banana" {poke 0xd04b 24}
 }
 
 create_trainer "Haunted House" {time 1} {
@@ -4199,38 +4200,33 @@ create_trainer "Majyo Densetsu - Knightmare" {time 0.25} {
 	"Double Arrows - Triple Attack" {poke 0xe609 3}
 	"Double Boomerangs" {poke 0xe609 6}
 	"Double Swords" {poke 0xe609 5}
-	"End Boss Dies Easily" {poke 0xe034 0}
-	"Enemy 1 Y-pos" {poke 0xe103 210}
-	"Enemy 2 Y-pos" {poke 0xe113 210}
-	"Enemy 3 Y-pos" {poke 0xe123 210}
-	"Enemy 4 Y-pos" {poke 0xe143 210}
-	"Enemy 5 Y-pos" {poke 0xe163 210}
+	"End Boss Dies After One Hit" {poke 0xe034 0}
 	"Fire Arrows - Double Attack" {poke 0xe609 10}
 	"Fire Arrows - Triple Attack" {poke 0xe609 11}
 	"Fire Balls - Concentrated" {poke 0xe609 9}
 	"Fire Balls - Dispersed" {poke 0xe609 8}
-	"Invisible" {poke 0xe60c 2}
+	"Hide Enemies" {poke 0xe103 210;poke 0xe113 210;poke 0xe123 210;poke 0xe143 210;poke 0xe163 210}
+	"Infinite Timer" {poke 0xe60e 153}
 	"Invulnerable" {poke 0xe600 0}
 	"Lives" {poke 0xe060 153}
 	"Nuclear Arrows - Double Attack" {poke 0xe609 12}
 	"Nuclear Arrows - Triple Attack" {poke 0xe609 13}
-	"Red Hot" {poke 0xe60c 3}
-	"Shield" {poke 0xe60c 1}
+	"Shield Active" {poke 0xe60c 1}
 	"Speed 0" {poke 0xe60a 0}
 	"Speed 1" {poke 0xe60a 1}
 	"Speed 2" {poke 0xe60a 2}
 	"Speed 3" {poke 0xe60a 3}
 	"Speed 4" {poke 0xe60a 4}
-	"Stage 1" {poke 0xe061 1;poke 0xe62 0}
-	"Stage 2" {poke 0xe061 2;poke 0xe62 1}
-	"Stage 3" {poke 0xe061 3;poke 0xe62 2}
-	"Stage 4" {poke 0xe061 4;poke 0xe62 3}
-	"Stage 5" {poke 0xe061 5;poke 0xe62 4}
-	"Stage 6" {poke 0xe061 6;poke 0xe62 5}
-	"Stage 7" {poke 0xe061 7;poke 0xe62 6}
-	"Stage 8" {poke 0xe061 8;poke 0xe62 7}
-	"Swords" {poke 0xe609 4}
-	"Timer" {poke 0xe60e 153}
+	"Stage 01" {poke 0xe061 1}
+	"Stage 02" {poke 0xe061 2}
+	"Stage 03" {poke 0xe061 3}
+	"Stage 04" {poke 0xe061 4}
+	"Stage 05" {poke 0xe061 5}
+	"Stage 06" {poke 0xe061 6}
+	"Stage 07" {poke 0xe061 7}
+	"Stage 08" {poke 0xe061 8}
+	"State: Invisible" {poke 0xe60c 2}
+	"State: Red Hot" {poke 0xe60c 3}
 	"Triple Boomerangs" {poke 0xe609 7}
 }
 
@@ -6116,6 +6112,7 @@ create_trainer "Treasure Of Usas, The" {time 1} {
 
 create_trainer "Tritorn" {time 1} {
 	"Exp" {poke 0xe43b 100}
+	"Have All Items" {poke 0xe431 255;poke 0xe432 255;poke 0xe433 255}
 	"Life" {poke 0xe439 99}
 	"Magic Balls" {poke 0xe43c 99}
 }
@@ -6356,9 +6353,15 @@ create_trainer "Wizard's Lair" {time 1} {
 }
 
 create_trainer "Woody Poco" {time 2} {
-	"Money" {poke 0xe77f 255;poke 0xe780 255}
-	"Power" {poke 0xe777 251;poke 0xe778 255;poke 0xe779 251;poke 0xe77a 255}
+	"Carry up to 16 items" {poke 0xe792 16}
+	"Max Candle Burning Time" {poke 0xe7bf 99}
+	"Max Food" {poke 0xe77b 255;poke 0xe77c 255}
+	"Max Money" {poke 0xe77f 255;poke 0xe780 255}
+	"Max Power" {poke 0xe777 251;poke 0xe778 255;poke 0xe779 251;poke 0xe77a 255}
 	"Shot" {poke 0xe7b9 255;poke 0xe7ba 255}
+	"Time Of Day: Day" {poke 0xe785 9}
+	"Time Of Day: Night" {poke 0xe785 0}
+	"Time Stands Still" {poke 0xe786 0}
 }
 
 create_trainer "Xak 1 - The Art of Visual Stage" {time 2} {
@@ -6580,7 +6583,7 @@ create_trainer "Yumetairiku Adventure - Penguin Adventure" {time 15} {
 	"Invulnerable (not Against Dragons)" {poke 0xe1f1 1}
 	"Kazumi Cheat" {poke 0xf0f7 255}
 	"Kill Dragon With One Shoot" {poke 0xe53c 19}
-	"Level (0-1)" {poke 0xe082 0}
+	"Level 0" {poke 0xe082 0}
 	"Lives" {poke 0xe090 153}
 	"Map" {poke 0xe16c 1}
 	"Map In Secret Bag" {poke 0xe0d7 12}
@@ -6717,4 +6720,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 3.438 seconds. 717 trainers -  having 5459 pokes
+# File Created in : 4.088 seconds. 717 trainers -  having 5461 pokes
