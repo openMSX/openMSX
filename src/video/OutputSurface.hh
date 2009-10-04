@@ -34,6 +34,9 @@ public:
 	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
 	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
 	unsigned mapRGB(double dr, double dg, double db);
+	unsigned mapRGB(int r, int g, int b) {
+		return SDL_MapRGB(&format, r, g, b);
+	}
 
 	template<typename Pixel> inline Pixel getKeyColor() const
 	{

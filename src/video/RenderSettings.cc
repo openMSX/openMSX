@@ -186,23 +186,22 @@ static double conv2(double x, double gamma)
 	return ::pow(std::min(std::max(0.0, x), 1.0), gamma);
 }
 
+double RenderSettings::transformComponent(double c) const
+{
+	double c2 = c * contrast + brightness;
+	double gamma = 1.0 / getGamma().getValue();
+	return conv2(c2, gamma);
+}
+
 void RenderSettings::transformRGB(double& r, double& g, double& b) const
 {
-	double r2, g2, b2;
-	if (cmIdentity) {
-		// Most users use the "normal" monitor type; making this a special case
-		// speeds up palette precalculation a lot.
-		r2 = r * contrast + brightness;
-		g2 = g * contrast + brightness;
-		b2 = b * contrast + brightness;
-	} else {
-		double rbc = r * contrast + brightness;
-		double gbc = g * contrast + brightness;
-		double bbc = b * contrast + brightness;
-		r2 = cm[0][0] * rbc + cm[0][1] * gbc + cm[0][2] * bbc;
-		g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
-		b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
-	}
+	double rbc = r * contrast + brightness;
+	double gbc = g * contrast + brightness;
+	double bbc = b * contrast + brightness;
+
+	double r2 = cm[0][0] * rbc + cm[0][1] * gbc + cm[0][2] * bbc;
+	double g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
+	double b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
 
 	double gamma = 1.0 / getGamma().getValue();
 	r = conv2(r2, gamma);

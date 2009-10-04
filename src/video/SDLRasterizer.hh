@@ -78,6 +78,7 @@ private:
 	  * For higher VDPs, results go into V9938_COLORS and V9958_COLORS.
 	  */
 	void precalcPalette();
+	Pixel calcColorHelper(int r8, int g8, int b8, Pixel extra);
 	Pixel calcColorHelper(double r, double g, double b, Pixel extra);
 
 	/** Precalc foreground color index 0 (palFg[0]).

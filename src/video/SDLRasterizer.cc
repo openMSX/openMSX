@@ -214,9 +214,25 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 }
 
 template<typename Pixel>
+Pixel SDLRasterizer<Pixel>::calcColorHelper(int r8, int g8, int b8, Pixel extra)
+{
+	Pixel p = screen.mapRGB(r8, g8, b8);
+	if (sizeof(Pixel) == 4) {
+		p |= extra;
+	}
+	if (sizeof(Pixel) == 2) {
+		return (p != screen.getKeyColor<Pixel>())
+		      ? p
+		      : screen.getKeyColorClash<Pixel>();
+	} else {
+		assert(p != screen.getKeyColor<Pixel>());
+		return p;
+	}
+}
+
+template<typename Pixel>
 Pixel SDLRasterizer<Pixel>::calcColorHelper(double r, double g, double b, Pixel extra)
 {
-	renderSettings.transformRGB(r, g, b);
 	Pixel p = screen.mapRGB(r, g, b);
 	if (sizeof(Pixel) == 4) {
 		p |= extra;
@@ -253,47 +269,84 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			double dr = rgb[0] / 255.0;
 			double dg = rgb[1] / 255.0;
 			double db = rgb[2] / 255.0;
+			renderSettings.transformRGB(dr, dg, db);
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				calcColorHelper(dr, dg, db, extra);
 		}
 	} else {
 		if (vdp.hasYJK()) {
 			// Precalculate palette for V9958 colors.
-			for (int r = 0; r < 32; r++) {
-				for (int g = 0; g < 32; g++) {
-					for (int b = 0; b < 32; b++) {
-						double dr = r / 31.0;
-						double dg = g / 31.0;
-						double db = b / 31.0;
-						V9958_COLORS[(r<<10) + (g<<5) + b] =
-							calcColorHelper(dr, dg, db, extra);
+			if (renderSettings.isColorMatrixIdentity()) {
+				// Most users use the "normal" monitor type; making this a
+				// special case speeds up palette precalculation a lot.
+				int intensity[32];
+				for (int i = 0; i < 32; i++) {
+					intensity[i] =
+						int(255 * renderSettings.transformComponent(i / 31.0));
+				}
+				for (int rgb = 0; rgb < (1 << 15); rgb++) {
+					V9958_COLORS[rgb] = calcColorHelper(
+						intensity[(rgb >> 10)     ],
+						intensity[(rgb >>  5) & 31],
+						intensity[ rgb        & 31],
+						extra);
+				}
+			} else {
+				for (int r5 = 0; r5 < 32; r5++) {
+					for (int g5 = 0; g5 < 32; g5++) {
+						for (int b5 = 0; b5 < 32; b5++) {
+							double dr = r5 / 31.0;
+							double dg = g5 / 31.0;
+							double db = b5 / 31.0;
+							renderSettings.transformRGB(dr, dg, db);
+							V9958_COLORS[(r5<<10) + (g5<<5) + b5] =
+								calcColorHelper(dr, dg, db, extra);
+						}
 					}
 				}
 			}
 			// Precalculate palette for V9938 colors.
 			// Based on comparing red and green gradients, using palette and
 			// YJK, in SCREEN11 on a real turbo R.
-			for (int r = 0; r < 8; r++) {
-				int r5 = (r << 2) | (r >> 1);
-				for (int g = 0; g < 8; g++) {
-					int g5 = (g << 2) | (g >> 1);
-					for (int b = 0; b < 8; b++) {
-						int b5 = (b << 2) | (b >> 1);
-						V9938_COLORS[r][g][b] =
+			for (int r3 = 0; r3 < 8; r3++) {
+				int r5 = (r3 << 2) | (r3 >> 1);
+				for (int g3 = 0; g3 < 8; g3++) {
+					int g5 = (g3 << 2) | (g3 >> 1);
+					for (int b3 = 0; b3 < 8; b3++) {
+						int b5 = (b3 << 2) | (b3 >> 1);
+						V9938_COLORS[r3][g3][b3] =
 							V9958_COLORS[(r5<<10) + (g5<<5) + b5];
 					}
 				}
 			}
 		} else {
 			// Precalculate palette for V9938 colors.
-			for (int r = 0; r < 8; r++) {
-				for (int g = 0; g < 8; g++) {
-					for (int b = 0; b < 8; b++) {
-						double dr = r / 7.0;
-						double dg = g / 7.0;
-						double db = b / 7.0;
-						V9938_COLORS[r][g][b] =
-							calcColorHelper(dr, dg, db, extra);
+			if (renderSettings.isColorMatrixIdentity()) {
+				int intensity[8];
+				for (int i = 0; i < 8; i++) {
+					intensity[i] =
+						int(255 * renderSettings.transformComponent(i / 7.0));
+				}
+				for (int r3 = 0; r3 < 8; r3++) {
+					for (int g3 = 0; g3 < 8; g3++) {
+						for (int b3 = 0; b3 < 8; b3++) {
+							V9938_COLORS[r3][g3][b3] = calcColorHelper(
+								intensity[r3], intensity[g3], intensity[b3],
+								extra);
+						}
+					}
+				}
+			} else {
+				for (int r3 = 0; r3 < 8; r3++) {
+					for (int g3 = 0; g3 < 8; g3++) {
+						for (int b3 = 0; b3 < 8; b3++) {
+							double dr = r3 / 7.0;
+							double dg = g3 / 7.0;
+							double db = b3 / 7.0;
+							renderSettings.transformRGB(dr, dg, db);
+							V9938_COLORS[r3][g3][b3] =
+								calcColorHelper(dr, dg, db, extra);
+						}
 					}
 				}
 			}

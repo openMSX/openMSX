@@ -69,8 +69,11 @@ public:
 	/** Contrast video setting. */
 	FloatSetting& getContrast() const { return *contrastSetting; }
 
-	/** Contrast video setting. */
+	/** Color matrix setting. */
 	StringSetting& getColorMatrix() const { return *colorMatrixSetting; }
+
+	/** Returns true iff the current color matrix is the identity matrix. */
+	bool isColorMatrixIdentity() const { return cmIdentity; }
 
 	/** The amount of glow [0..100]. */
 	IntegerSetting& getGlow() const { return *glowSetting; }
@@ -133,8 +136,17 @@ public:
 	}
 
 	/** Apply brightness, contrast and gamma transformation on the input
+	  * color component. The component is expected to be in the range
+	  * [0.0 .. 1.0] but it's not an error if it lays outside of this range.
+	  * The return value is guaranteed to lay inside this range.
+	  * This method skips the cross-influence of color components on each
+	  * other that is controlled by the "color_matrix" setting.
+	  */
+	double transformComponent(double c) const;
+
+	/** Apply brightness, contrast and gamma transformation on the input
 	  * color. The R, G and B component are expected to be in the range
-	  * [0.0  1.0] but it's not an error if a component lays outside of
+	  * [0.0 .. 1.0] but it's not an error if a component lays outside of
 	  * this range. After transformation it's guaranteed all components
 	  * lay inside this range.
 	  */
