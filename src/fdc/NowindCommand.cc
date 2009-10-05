@@ -24,61 +24,6 @@ using std::vector;
 
 namespace openmsx {
 
-static unsigned parseNumber(string str)
-{
-	// trimRight only: strtoul can handle leading spaces
-	StringOp::trimRight(str, " \t");
-	if (str.empty()) {
-		throw MSXException("Invalid integer: empty string");
-	}
-	unsigned result;
-	if (!StringOp::stringToUint(str, result)) {
-		throw MSXException("Invalid integer: " + str);
-	}
-	return result;
-}
-static void insert(unsigned x, set<unsigned>& result, unsigned min, unsigned max)
-{
-	if ((x < min) || (x > max)) {
-		throw MSXException("Out of range");
-	}
-	result.insert(x);
-}
-static void parseRange2(string str, set<unsigned>& result,
-                        unsigned min, unsigned max)
-{
-	// trimRight only: here we only care about all spaces
-	StringOp::trimRight(str, " \t");
-	if (str.empty()) return;
-
-	string::size_type pos = str.find('-');
-	if (pos == string::npos) {
-		insert(parseNumber(str), result, min, max);
-	} else {
-		unsigned begin = parseNumber(str.substr(0, pos));
-		unsigned end   = parseNumber(str.substr(pos + 1));
-		if (end < begin) {
-			std::swap(begin, end);
-		}
-		for (unsigned i = begin; i <= end; ++i) {
-			insert(i, result, min, max);
-		}
-	}
-}
-static void parseRange(const string& str, set<unsigned>& result,
-                       unsigned min, unsigned max)
-{
-	string::size_type prev = 0;
-	while (prev != string::npos) {
-		string::size_type next = str.find(',', prev);
-		string sub = (next == string::npos)
-		           ? str.substr(prev)
-		           : str.substr(prev, next++ - prev);
-		parseRange2(sub, result, min, max);
-		prev = next;
-	}
-}
-
 NowindCommand::NowindCommand(const string& basename,
                              CommandController& commandController,
                              NowindInterface& interface_)
@@ -120,7 +65,7 @@ void NowindCommand::processHdimage(
 	set<unsigned> partitions;
 	string::size_type pos = hdimage.find_last_of(':');
 	if ((pos != string::npos) && !FileOperations::exists(hdimage)) {
-		parseRange(hdimage.substr(pos + 1), partitions, 1, 31);
+		StringOp::parseRange(hdimage.substr(pos + 1), partitions, 1, 31);
 	}
 
 	shared_ptr<SectorAccessibleDisk> wholeDisk(

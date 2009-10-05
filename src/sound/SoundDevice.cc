@@ -14,8 +14,10 @@
 #include "unreachable.hh"
 #include <cstring>
 #include <cassert>
+#include <set>
 
 using std::string;
+using std::set;
 
 namespace openmsx {
 
@@ -54,7 +56,8 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
 	// initially no channels are muted
 	for (unsigned i = 0; i < numChannels; ++i) {
 		channelMuted[i] = false;
-		channelBalance[i] = 0;
+		channelLeft[i] = true;
+		channelRight[i] = true;
 	}
 }
 
@@ -98,22 +101,16 @@ void SoundDevice::registerSound(const XMLElement& config)
 		throw MSXException("balance \"" + mode + "\" illegal");
 	}
 
-	XMLElement::Children channels;
-	soundConfig.getChildren("balance", channels);
-	for (XMLElement::Children::const_iterator it = channels.begin();
-	     it != channels.end(); ++it) {
+	XMLElement::Children balances;
+	soundConfig.getChildren("balance", balances);
+	for (XMLElement::Children::const_iterator it = balances.begin();
+	     it != balances.end(); ++it) {
+		int balance = (*it)->getDataAsInt();
+
 		if (!(*it)->hasAttribute("channel")) {
-			devBalance = (*it)->getDataAsInt();
+			devBalance = balance;
 			continue;
 		}
-
-		int num = (*it)->getAttributeAsInt("channel");
-		if (num <= 0 || unsigned(num) > numChannels) {
-			throw MSXException(StringOp::Builder() <<
-					"channel " << num << " out of range");
-		}
-
-		int balance = (*it)->getDataAsInt();
 
 		/* FIXME: Support other balances */
 		if (balance != 0 && balance != -100 && balance != 100) {
@@ -121,12 +118,27 @@ void SoundDevice::registerSound(const XMLElement& config)
 					"balance " << balance << " illegal");
 		}
 
-		if (balance == 0) {
-			channelBalance[num - 1] = 0;
-		} else {
-			channelBalance[num - 1] = balance;
-			balanceCenter = false;
+		const string range = (*it)->getAttribute("channel");
+		set<unsigned> channels;
+		channels.clear();
+		StringOp::parseRange(range, channels, 1, numChannels);
+
+		for (set<unsigned>::const_iterator it = channels.begin();
+		     it != channels.end(); ++it) {
+			if (balance == 0) {
+				channelLeft[(*it) - 1] = true;
+				channelRight[(*it) - 1] = true;
+			} else if (balance == -100) {
+				channelLeft[(*it) - 1] = true;
+				channelRight[(*it) - 1] = false;
+				balanceCenter = false;
+			} else if (balance == 100) {
+				channelLeft[(*it) - 1] = false;
+				channelRight[(*it) - 1] = true;
+				balanceCenter = false;
+			}
 		}
+
 	}
 
 	mixer.registerSound(*this, volume, devBalance, numChannels);
@@ -195,7 +207,8 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	// FIXME: All channels with the same balance according to
-	// channelBalance[n], should use the same buffer
+	// channelLeft[n] and channelRight[n], should use the same buffer
+	// when balanceCenter is false
 	for (unsigned i = 0; i < numChannels; ++i) {
 		if (!channelMuted[i] && !writer[i].get() && balanceCenter) {
 			// no need to keep this channel separate
@@ -267,10 +280,11 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			int right1 = 0;
 			unsigned j = 0;
 			do {
-				if (channelBalance[j] <= 0) {
+				if (channelLeft[j]) {
 					left0 += bufs[j][i+0];
 					left1 += bufs[j][i+1];
-				} else if (channelBalance[j] >= 0) {
+				}
+				if (channelRight[j]) {
 					right0 += bufs[j][i+0];
 					right1 += bufs[j][i+1];
 				}

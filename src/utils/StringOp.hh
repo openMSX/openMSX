@@ -6,6 +6,7 @@
 #include "stringsp.hh"
 #include <string>
 #include <vector>
+#include <set>
 #include <sstream>
 #include <iomanip>
 
@@ -88,6 +89,8 @@ namespace StringOp
 	                  std::string& first, std::string& last);
 	void split(const std::string& str, const std::string& chars,
 	           std::vector<std::string>& result);
+	void parseRange(const std::string& str, std::set<unsigned>& result,
+			unsigned min, unsigned max);
 
 	// case insensitive less then operator
 	struct caseless {

@@ -6,6 +6,7 @@
 #include "EmuTime.hh"
 #include "noncopyable.hh"
 #include <string>
+#include <set>
 #include <memory>
 
 namespace openmsx {
@@ -158,7 +159,8 @@ private:
 	bool balanceCenter;
 	unsigned numRecordChannels;
 	bool channelMuted[MAX_CHANNELS];
-	int channelBalance[MAX_CHANNELS];
+	bool channelLeft[MAX_CHANNELS];
+	bool channelRight[MAX_CHANNELS];
 };
 
 } // namespace openmsx

@@ -18,6 +18,8 @@
           <mem base="0x0000" size="0x10000"/>
           <sound>
             <volume>13000</volume>
+            <balance channel="1-6">-100</balance>
+            <balance channel="7-11">100</balance>
           </sound>
           <rom>
             <sha1>19bf90b8d2e695ffad61fff6f47f7fcda2f24a1d</sha1>

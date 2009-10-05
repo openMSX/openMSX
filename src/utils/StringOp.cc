@@ -3,12 +3,14 @@
 #include "cstdlibp.hh"
 #include <algorithm>
 #include "StringOp.hh"
+#include "MSXException.hh"
 
 using std::advance;
 using std::equal;
 using std::string;
 using std::transform;
 using std::vector;
+using std::set;
 
 namespace StringOp {
 
@@ -121,7 +123,7 @@ unsigned long long stringToUint64(const string& str)
 
 bool stringToBool(const string& str)
 {
-	string low = StringOp::toLower(str);
+	string low = toLower(str);
 	return (low == "true") || (low == "yes") || (low == "1");
 }
 
@@ -204,6 +206,64 @@ void split(const string& str, const string& chars, vector<string>& result)
 		splitOnFirst(tmp, chars, first, last);
 		result.push_back(first);
 		tmp = last;
+	}
+}
+
+static unsigned parseNumber(string str)
+{
+	// trimRight only: strtoul can handle leading spaces
+	trimRight(str, " \t");
+	if (str.empty()) {
+		throw openmsx::MSXException("Invalid integer: empty string");
+	}
+	unsigned result;
+	if (!stringToUint(str, result)) {
+		throw openmsx::MSXException("Invalid integer: " + str);
+	}
+	return result;
+}
+
+static void insert(unsigned x, set<unsigned>& result, unsigned min, unsigned max)
+{
+	if ((x < min) || (x > max)) {
+		throw openmsx::MSXException("Out of range");
+	}
+	result.insert(x);
+}
+
+static void parseRange2(string str, set<unsigned>& result,
+                        unsigned min, unsigned max)
+{
+	// trimRight only: here we only care about all spaces
+	trimRight(str, " \t");
+	if (str.empty()) return;
+
+	string::size_type pos = str.find('-');
+	if (pos == string::npos) {
+		insert(parseNumber(str), result, min, max);
+	} else {
+		unsigned begin = parseNumber(str.substr(0, pos));
+		unsigned end   = parseNumber(str.substr(pos + 1));
+		if (end < begin) {
+			std::swap(begin, end);
+		}
+		for (unsigned i = begin; i <= end; ++i) {
+			insert(i, result, min, max);
+		}
+	}
+}
+
+void parseRange(const string& str, set<unsigned>& result,
+		unsigned min, unsigned max)
+{
+	string::size_type prev = 0;
+	while (prev != string::npos) {
+		string::size_type next = str.find(',', prev);
+		string sub = (next == string::npos)
+		           ? str.substr(prev)
+		           : str.substr(prev, next++ - prev);
+		parseRange2(sub, result, min, max);
+		prev = next;
 	}
 }
 
