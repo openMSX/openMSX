@@ -86,45 +86,50 @@ void SoundDevice::registerSound(const XMLElement& config)
 {
 	const XMLElement& soundConfig = config.getChild("sound");
 	double volume = soundConfig.getChildDataAsInt("volume") / 32767.0;
-	int balance = 0;
+	int devBalance = 0;
 	string mode = soundConfig.getChildData("mode", "mono");
 	if (mode == "mono") {
-		balance = 0;
+		devBalance = 0;
 	} else if (mode == "left") {
-		balance = -100;
+		devBalance = -100;
 	} else if (mode == "right") {
-		balance = 100;
+		devBalance = 100;
 	} else {
 		throw MSXException("balance \"" + mode + "\" illegal");
 	}
-	balance = soundConfig.getChildDataAsInt("balance", balance);
 
 	XMLElement::Children channels;
-	soundConfig.getChildren("channel", channels);
+	soundConfig.getChildren("balance", channels);
 	for (XMLElement::Children::const_iterator it = channels.begin();
 	     it != channels.end(); ++it) {
-		int num = (*it)->getAttributeAsInt("num");
+		if (!(*it)->hasAttribute("channel")) {
+			devBalance = (*it)->getDataAsInt();
+			continue;
+		}
+
+		int num = (*it)->getAttributeAsInt("channel");
 		if (num <= 0 || unsigned(num) > numChannels) {
 			throw MSXException(StringOp::Builder() <<
 					"channel " << num << " out of range");
 		}
 
-		const string str = (*it)->getData();
+		int balance = (*it)->getDataAsInt();
 
-		if (str == "mono") {
+		/* FIXME: Support other balances */
+		if (balance != 0 && balance != -100 && balance != 100) {
+			throw MSXException(StringOp::Builder() <<
+					"balance " << balance << " illegal");
+		}
+
+		if (balance == 0) {
 			channelBalance[num - 1] = 0;
-		} else if (str == "left") {
-			channelBalance[num - 1] = -100;
-			balanceCenter = false;
-		} else if (str == "right") {
-			channelBalance[num - 1] = 100;
-			balanceCenter = false;
 		} else {
-			throw MSXException("balance \"" + str + "\" illegal");
+			channelBalance[num - 1] = balance;
+			balanceCenter = false;
 		}
 	}
 
-	mixer.registerSound(*this, volume, balance, numChannels);
+	mixer.registerSound(*this, volume, devBalance, numChannels);
 }
 
 void SoundDevice::unregisterSound()
