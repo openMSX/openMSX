@@ -158,9 +158,8 @@ private:
 	const unsigned stereo;
 	bool balanceCenter;
 	unsigned numRecordChannels;
+	int channelBalance[MAX_CHANNELS];
 	bool channelMuted[MAX_CHANNELS];
-	bool channelLeft[MAX_CHANNELS];
-	bool channelRight[MAX_CHANNELS];
 };
 
 } // namespace openmsx

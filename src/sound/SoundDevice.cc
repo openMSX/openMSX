@@ -56,8 +56,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
 	// initially no channels are muted
 	for (unsigned i = 0; i < numChannels; ++i) {
 		channelMuted[i] = false;
-		channelLeft[i] = true;
-		channelRight[i] = true;
+		channelBalance[i] = 0;
 	}
 }
 
@@ -112,33 +111,22 @@ void SoundDevice::registerSound(const XMLElement& config)
 			continue;
 		}
 
-		/* FIXME: Support other balances */
+		// TODO Support other balances
 		if (balance != 0 && balance != -100 && balance != 100) {
 			throw MSXException(StringOp::Builder() <<
-					"balance " << balance << " illegal");
+			                   "balance " << balance << " illegal");
+		}
+		if (balance != 0) {
+			balanceCenter = false;
 		}
 
 		const string range = (*it)->getAttribute("channel");
 		set<unsigned> channels;
-		channels.clear();
 		StringOp::parseRange(range, channels, 1, numChannels);
-
 		for (set<unsigned>::const_iterator it = channels.begin();
 		     it != channels.end(); ++it) {
-			if (balance == 0) {
-				channelLeft[(*it) - 1] = true;
-				channelRight[(*it) - 1] = true;
-			} else if (balance == -100) {
-				channelLeft[(*it) - 1] = true;
-				channelRight[(*it) - 1] = false;
-				balanceCenter = false;
-			} else if (balance == 100) {
-				channelLeft[(*it) - 1] = false;
-				channelRight[(*it) - 1] = true;
-				balanceCenter = false;
-			}
+			channelBalance[(*it) - 1] = balance;
 		}
-
 	}
 
 	mixer.registerSound(*this, volume, devBalance, numChannels);
@@ -206,9 +194,9 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	VLA(int*, bufs, numChannels);
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
-	// FIXME: All channels with the same balance according to
-	// channelLeft[n] and channelRight[n], should use the same buffer
-	// when balanceCenter is false
+	// TODO optimization: All channels with the same balance (according to
+	// channelBalance[]) could use the same buffer when balanceCenter is
+	// false
 	for (unsigned i = 0; i < numChannels; ++i) {
 		if (!channelMuted[i] && !writer[i].get() && balanceCenter) {
 			// no need to keep this channel separate
@@ -255,11 +243,13 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	// remove muted channels (explictly by user or by device itself)
 	bool anyUnmuted = false;
 	unsigned numMix = 0;
+	VLA(int, mixBalance, numChannels);
 	for (unsigned i = 0; i < numChannels; ++i) {
 		if ((bufs[i] != 0) && !channelMuted[i]) {
 			anyUnmuted = true;
 			if (bufs[i] != dataOut) {
 				bufs[numMix] = bufs[i];
+				mixBalance[numMix] = channelBalance[i];
 				++numMix;
 			}
 		}
@@ -274,19 +264,19 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	if (!balanceCenter) {
 		unsigned i = 0;
 		do {
-			int left0 = 0;
+			int left0  = 0;
 			int right0 = 0;
-			int left1 = 0;
+			int left1  = 0;
 			int right1 = 0;
 			unsigned j = 0;
 			do {
-				if (channelLeft[j]) {
-					left0 += bufs[j][i+0];
-					left1 += bufs[j][i+1];
+				if (mixBalance[j] <= 0) {
+					left0  += bufs[j][i + 0];
+					left1  += bufs[j][i + 1];
 				}
-				if (channelRight[j]) {
-					right0 += bufs[j][i+0];
-					right1 += bufs[j][i+1];
+				if (mixBalance[j] >= 0) {
+					right0 += bufs[j][i + 0];
+					right1 += bufs[j][i + 1];
 				}
 				j++;
 			} while (j < numMix);
