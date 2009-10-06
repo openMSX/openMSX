@@ -164,7 +164,7 @@ private:
 	virtual void reset();
 	virtual void writeReg(byte reg, byte value);
 	virtual byte peekReg(byte reg) const;
-	virtual void generateChannels(int* bufs[11], unsigned num);
+	virtual void generateChannels(int* bufs[9 + 5], unsigned num);
 	virtual int getAmplificationFactor() const;
 
 	/** Voice Data */

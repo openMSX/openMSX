@@ -640,7 +640,7 @@ void Y8950Channel::keyOff()
 Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
                      const std::string& name, const XMLElement& config,
                      unsigned sampleRam, Y8950Periphery& perihery_)
-	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 12)
+	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 9 + 5 + 1)
 	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
 	, perihery(perihery_)
@@ -936,9 +936,10 @@ bool Y8950Impl::checkMuteHelper()
 
 void Y8950Impl::generateChannels(int** bufs, unsigned num)
 {
+	// TODO implement per-channel mute (instead of all-or-nothing)
 	if (checkMuteHelper()) {
 		// TODO update internal state even when muted
-		for (int i = 0; i < 12; ++i) {
+		for (int i = 0; i < 9 + 5 + 1; ++i) {
 			bufs[i] = 0;
 		}
 		return;
@@ -982,32 +983,39 @@ void Y8950Impl::generateChannels(int** bufs, unsigned num)
 			}
 		}
 		if (rythm_mode) {
+			//bufs[6][sample] += 0;
+			//bufs[7][sample] += 0;
+			//bufs[8][sample] += 0;
+
 			// TODO wasn't in original source either
 			ch[7].slot[MOD].calc_phase(lfo_pm);
 			ch[8].slot[CAR].calc_phase(lfo_pm);
 
-			bufs[ 6][sample] += (ch[6].slot[CAR].isActive())
+			bufs[ 9][sample] += (ch[6].slot[CAR].isActive())
 				? 2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
 						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am))
 				: 0;
-			bufs[ 7][sample] += (ch[7].slot[CAR].isActive())
+			bufs[10][sample] += (ch[7].slot[CAR].isActive())
 				? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whitenoise)
 				: 0;
-			bufs[ 8][sample] += (ch[8].slot[CAR].isActive())
+			bufs[11][sample] += (ch[8].slot[CAR].isActive())
 				? 2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB)
 				: 0;
-			bufs[ 9][sample] += (ch[7].slot[MOD].isActive())
+			bufs[12][sample] += (ch[7].slot[MOD].isActive())
 				? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
 				: 0;
-			bufs[10][sample] += (ch[8].slot[MOD].isActive())
+			bufs[13][sample] += (ch[8].slot[MOD].isActive())
 				? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
 				: 0;
 		} else {
 			//bufs[ 9] += 0;
 			//bufs[10] += 0;
+			//bufs[11] += 0;
+			//bufs[12] += 0;
+			//bufs[13] += 0;
 		}
 
-		bufs[11][sample] += adpcm->calcSample();
+		bufs[14][sample] += adpcm->calcSample();
 	}
 }
 

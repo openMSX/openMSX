@@ -1132,7 +1132,7 @@ int YM2413::getAmplificationFactor() const
 	return 1 << 4;
 }
 
-void YM2413::generateChannels(int* bufs[11], unsigned num)
+void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 {
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
@@ -1141,7 +1141,8 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 	// bits 9-17 -> ch[0-8][MOD] (only ch7 and ch8 used)
 	unsigned channelActiveBits = 0;
 
-	for (int ch = 0; ch < 9; ++ch) {
+	const int numMelodicChannels = getNumMelodicChannels();
+	for (int ch = 0; ch < numMelodicChannels; ++ch) {
 		if (channels[ch].slots[CAR].isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
@@ -1149,20 +1150,34 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 		}
 	}
 	if (rhythm) {
+		bufs[6] = 0;
+		bufs[7] = 0;
+		bufs[8] = 0;
+		for (int ch = 6; ch < 9; ++ch) {
+			if (channels[ch].slots[CAR].isActive()) {
+				channelActiveBits |= 1 << ch;
+			} else {
+				bufs[ch + 3] = 0;
+			}
+		}
 		if (channels[7].slots[MOD].isActive()) {
 			channelActiveBits |= 1 << (7 + 9);
 		} else {
-			bufs[9] = 0;
+			bufs[12] = 0;
 		}
 		if (channels[8].slots[MOD].isActive()) {
 			channelActiveBits |= 1 << (8 + 9);
 		} else {
-			bufs[10] = 0;
+			bufs[13] = 0;
 		}
 	} else {
 		bufs[ 9] = 0;
 		bufs[10] = 0;
+		bufs[11] = 0;
+		bufs[12] = 0;
+		bufs[13] = 0;
 	}
+
 	if (channelActiveBits) {
 		idleSamples = 0;
 	} else {
@@ -1178,7 +1193,6 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 		idleSamples += num;
 	}
 
-	const int numMelodicChannels = getNumMelodicChannels();
 	for (unsigned i = 0; i < num; ++i) {
 		// Amplitude modulation: 27 output levels (triangle waveform)
 		// 1 level takes one of: 192, 256 or 448 samples
@@ -1208,7 +1222,7 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 			Channel& channel6 = channels[6];
 			channel6.slots[MOD].updateModulator(lfo_am);
 			if (channelActiveBits & (1 << 6)) {
-				bufs[6][i] += 2 * channel6.calcOutput(lfo_am);
+				bufs[ 9][i] += 2 * channel6.calcOutput(lfo_am);
 			}
 
 			// TODO: Skip phase generation if output will 0 anyway.
@@ -1218,25 +1232,25 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
 				Slot& SLOT7_2 = channels[7].slots[CAR];
-				bufs[7][i] += 2 * SLOT7_2.calcOutput(lfo_am, genPhaseSnare());
+				bufs[10][i] += 2 * SLOT7_2.calcOutput(lfo_am, genPhaseSnare());
 			}
 
 			// Top Cymbal (verified on real YM2413)
 			if (channelActiveBits & (1 << 8)) {
 				Slot& SLOT8_2 = channels[8].slots[CAR];
-				bufs[8][i] += 2 * SLOT8_2.calcOutput(lfo_am, genPhaseCymbal());
+				bufs[11][i] += 2 * SLOT8_2.calcOutput(lfo_am, genPhaseCymbal());
 			}
 
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				Slot& SLOT7_1 = channels[7].slots[MOD];
-				bufs[9][i] += 2 * SLOT7_1.calcOutput(lfo_am, genPhaseHighHat());
+				bufs[12][i] += 2 * SLOT7_1.calcOutput(lfo_am, genPhaseHighHat());
 			}
 
 			// Tom Tom (verified on real YM3812)
 			if (channelActiveBits & (1 << (8 + 9))) {
 				Slot& SLOT8_1 = channels[8].slots[MOD];
-				bufs[10][i] += 2 * SLOT8_1.calcOutput(lfo_am, SLOT8_1.getPhase());
+				bufs[13][i] += 2 * SLOT8_1.calcOutput(lfo_am, SLOT8_1.getPhase());
 			}
 		}
 		advance();

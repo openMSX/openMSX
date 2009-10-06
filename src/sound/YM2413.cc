@@ -57,7 +57,7 @@ static YM2413Core* createCore(const XMLElement& config)
 
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 9 + 5)
 	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 	, core(createCore(config))
 	, debuggable(new YM2413Debuggable(motherBoard, *this))

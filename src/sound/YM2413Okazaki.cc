@@ -999,7 +999,7 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 	}
 }
 
-void YM2413::generateChannels(int* bufs[11], unsigned num)
+void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 {
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
@@ -1008,28 +1008,44 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 are used)
 	unsigned channelActiveBits = 0;
 
-	for (unsigned ch = 0; ch < 9; ++ch) {
+	unsigned m = isRhythm() ? 6 : 9;
+	for (unsigned ch = 0; ch < m; ++ch) {
 		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
 			bufs[ch] = 0;
 		}
 	}
+
 	if (isRhythm()) {
+		bufs[6] = 0;
+		bufs[7] = 0;
+		bufs[8] = 0;
+		for (unsigned ch = 6; ch < 9; ++ch) {
+			if (channels[ch].car.isActive()) {
+				channelActiveBits |= 1 << ch;
+			} else {
+				bufs[ch + 3] = 0;
+			}
+		}
 		if (channels[7].mod.isActive()) {
 			channelActiveBits |= 1 << (7 + 9);
 		} else {
-			bufs[9] = 0;
+			bufs[12] = 0;
 		}
 		if (channels[8].mod.isActive()) {
 			channelActiveBits |= 1 << (8 + 9);
 		} else {
-			bufs[10] = 0;
+			bufs[13] = 0;
 		}
 	} else {
 		bufs[ 9] = 0;
 		bufs[10] = 0;
+		bufs[11] = 0;
+		bufs[12] = 0;
+		bufs[13] = 0;
 	}
+
 	if (channelActiveBits) {
 		idleSamples = 0;
 	} else {
@@ -1045,7 +1061,6 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 		idleSamples += num;
 	}
 
-	unsigned m = isRhythm() ? 6 : 9;
 	for (unsigned i = 0; i < m; ++i) {
 		if (channelActiveBits & (1 << i)) {
 			// below we choose between 32 specialized versions of
@@ -1097,7 +1112,7 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 		if (channelActiveBits & (1 << 6)) {
 			Channel& ch6 = channels[6];
 			for (unsigned sample = 0; sample < num; ++sample) {
-				bufs[6][sample] += 2 *
+				bufs[ 9][sample] += 2 *
 				    ch6.car.calc_slot_car<false, false>(
 				        PhaseModulation(), 0, ch6.mod.calc_slot_mod<
 				                false, false, false>(PhaseModulation(), 0));
@@ -1111,7 +1126,7 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
-				bufs[7][sample] +=
+				bufs[10][sample] +=
 					-2 * ch7.car.calc_slot_snare(noise_bit);
 			}
 		}
@@ -1121,7 +1136,7 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 			for (unsigned sample = 0; sample < num; ++sample) {
 				unsigned phase7 = ch7.mod.calc_phase<false>(PhaseModulation());
 				unsigned phase8 = ch8.car.calc_phase<false>(PhaseModulation());
-				bufs[8][sample] +=
+				bufs[11][sample] +=
 					-2 * ch8.car.calc_slot_cym(phase7, phase8);
 			}
 		}
@@ -1136,13 +1151,13 @@ void YM2413::generateChannels(int* bufs[11], unsigned num)
 				if (noise_bit) noise_seed ^= 0x8003020;
 				unsigned phase7 = ch7.mod.calc_phase<false>(PhaseModulation());
 				unsigned phase8 = ch8.car.calc_phase<false>(PhaseModulation());
-				bufs[9][sample] +=
+				bufs[12][sample] +=
 					2 * ch7.mod.calc_slot_hat(phase7, phase8, noise_bit);
 			}
 		}
 		if (channelActiveBits & (1 << (8 + 9))) {
 			for (unsigned sample = 0; sample < num; ++sample) {
-				bufs[10][sample] += 2 * ch8.mod.calc_slot_tom();
+				bufs[13][sample] += 2 * ch8.mod.calc_slot_tom();
 			}
 		}
 	}

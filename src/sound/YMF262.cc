@@ -1745,6 +1745,8 @@ int YMF262Impl::getAmplificationFactor() const
 
 void YMF262Impl::generateChannels(int** bufs, unsigned num)
 {
+	// TODO implement per-channel mute (instead of all-or-nothing)
+	// TODO output rhythm on seperate channels?
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
 		for (int i = 0; i < 18; ++i) {
