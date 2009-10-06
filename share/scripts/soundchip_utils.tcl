@@ -38,65 +38,78 @@ proc get_num_channels {soundchip} {
 proc get_volume_expr {soundchip channel} {
 	switch [machine_info sounddevice $soundchip] {
 		"PSG" {
-			return "set keybits \[debug read \"${soundchip} regs\" 7\]; expr ((\[debug read \"${soundchip} regs\" [expr $channel + 8]\] &0xF)) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr $channel + 3]) & 1)"
+			set regs "\"${soundchip} regs\""
+			return "set keybits \[debug read $regs 7\]; expr ((\[debug read $regs [expr $channel + 8]\] &0xF)) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr $channel + 3]) & 1)"
 		}
 		"MoonSound wave-part" {
-			return "expr (\[debug read \"${soundchip} regs\" [expr $channel + 0x68]\]) ? (127 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x50]\] >> 1)) / 127.0 : 0.0";
+			set regs "\"${soundchip} regs\""
+			return "expr (\[debug read $regs [expr $channel + 0x68]\]) ? (127 - (\[debug read $regs [expr $channel + 0x50]\] >> 1)) / 127.0 : 0.0";
 		}
 		"Konami SCC" -
 		"Konami SCC+" {
-			return "expr ((\[debug read \"${soundchip} SCC\" [expr $channel + 0xAA]\] &0xF)) / 15.0 * ((\[debug read \"${soundchip} SCC\" 0xAF\] >> $channel) &1)"
+			set regs "\"${soundchip} SCC\""
+			return "expr ((\[debug read $regs [expr $channel + 0xAA]\] &0xF)) / 15.0 * ((\[debug read $regs 0xAF\] >> $channel) &1)"
 		}
 		"MSX-MUSIC" {
-			set music_mode_expr "(((\[debug read \"${soundchip} regs\" [expr $channel + 0x20]] &16)) ? ((15 - (\[debug read \"${soundchip} regs\" [expr $channel + 0x30]\] &0xF)) / 15.0) : 0.0)";# carrier total level, but only when key bit is on for this channel
+			set regs "\"${soundchip} regs\""
+			set vol_expr "(\[debug read $regs [expr $channel + 0x30]\] & 0x0F)"
+			set keyon_expr "(\[debug read $regs [expr $channel + 0x20]\] & 0x10)"
+			set music_mode_expr "($keyon_expr ? ((15 - $vol_expr) / 15.0) : 0.0)"
+			set rhythm_expr "\[debug read $regs 0x0E\]"
 			if {$channel < 6} {
+				# always melody channel
 				return "expr $music_mode_expr"
-			} else {
-				if { $channel < 9 } {
-					set vol_expr "(\[debug read \"${soundchip} regs\" [expr $channel + 0x30]\] & 15)"
+			} elseif { $channel < 9 } {
+				# melody channel when not in rhythm mode
+				return "expr ($rhythm_expr & 0x20) ? 0.0 : $music_mode_expr"
+			} elseif { $channel < 14 } {
+				# rhythm channel (when rhythm mode enabled)
+				if { $channel < 12 } {
+					set vol_expr "(\[debug read $regs [expr $channel + 0x30 - 3]\] & 0x0F)"
 				} else {
-					set vol_expr "(\[debug read \"${soundchip} regs\" [expr $channel + 0x2E]\] >> 4)"
+					set vol_expr "(\[debug read $regs [expr $channel + 0x2E - 3]\] >> 4)"
 				}
 				switch $channel {
-					6  { set onmask 16 } ;# BD
-					7  { set onmask 8  } ;# SD
-					8  { set onmask 2  } ;# T-CYM
-					9  { set onmask 1  } ;# HH
-					10 { set onmask 4  } ;# TOM
-					default {
-						error "Unknown channel: $channel for $soundchip!"
-					}
+					 9 { set mask 0x30 } ;# BD
+					10 { set mask 0x28 } ;# SD
+					11 { set mask 0x22 } ;# T-CYM
+					12 { set mask 0x21 } ;# HH
+					13 { set mask 0x24 } ;# TOM
 				}
-				return "set rhythm \[debug read \"${soundchip} regs\" 0x0E\]; expr (\$rhythm & 32) ? ((\$rhythm & $onmask) ? (15 - $vol_expr) / 15.0 : 0.0) : $music_mode_expr"
+				return "expr ($rhythm_expr & $mask) ? (15 - $vol_expr) / 15.0 : 0.0"
+			} else {
+				error "Unknown channel: $channel for $soundchip!"
 			}
 		}
 		"MSX-AUDIO" {
-			if {$channel == 11} { ;# ADPCM
-				return "expr \[debug read \"${soundchip} regs\" 0x12\] / 255.0";# can we output 0 when no sample is playing?
+			set regs "\"${soundchip} regs\""
+			set ofst [expr 0x43 + $channel + 5 * ($channel / 3)]
+			set keyon_expr "(\[debug read $regs [expr $channel + 0xB0]\] & 0x20)"
+			set vol_expr {(63 - (\[debug read $regs $ofst\] & 63)) / 63.0}
+			set music_mode_expr "($keyon_expr ? [subst $vol_expr] : 0.0)"
+			set rhythm_expr "\[debug read $regs 0xBD\]"
+			if { $channel < 6 } {
+				# always melody channel
+				return "expr $music_mode_expr"
+			} elseif { $channel < 9 } {
+				# melody channel when not in rhythm mode
+				return "expr ($rhythm_expr & 0x20) ? 0.0 : $music_mode_expr"
+			} elseif { $channel < 14 } {
+				# rhythm channel (when rhythm mode enabled)
+				switch $channel {
+					 9 { set mask 0x30; set ofst 0x53 } ;# BD  (slot 16)
+					10 { set mask 0x28; set ofst 0x54 } ;# SD  (slot 17)
+					11 { set mask 0x22; set ofst 0x55 } ;# CYM (slot 18)
+					12 { set mask 0x21; set ofst 0x51 } ;# HH  (slot 13)
+					13 { set mask 0x24; set ofst 0x52 } ;# TOM (slot 14)
+				}
+				return "expr ($rhythm_expr & $mask) ? [subst $vol_expr] : 0.0"
+			} elseif { $channel < 15 } {
+				# ADPCM
+				# can we output 0 when no sample is playing?
+				return "expr \[debug read $regs 0x12\] / 255.0"
 			} else {
-				set offset $channel
-				if {$channel > 2} {
-					incr offset 5
-				}
-				if {$channel > 5} {
-					incr offset 5
-				}
-				set music_mode_expr "(((\[debug read \"${soundchip} regs\" [expr $channel + 0xB0]] &32)) ? (63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0 : 0.0)"
-				if {$channel < 6} {
-					return "expr $music_mode_expr"
-				} else {
-					switch $channel {
-						6  { set onmask 16; set offset 0x10 } ;# BD (slot 16)
-						7  { set onmask 8;  set offset 0x11 } ;# SD (slot 17)
-						8  { set onmask 2;  set offset 0x12 } ;# T-CYM (slot 18)
-						9  { set onmask 1;  set offset 0x0E } ;# HH (slot 13)
-						10 { set onmask 4;  set offset 0x0F } ;# TOM (slot 14)
-						default {
-							error "Unknown channel: $channel for $soundchip!"
-						}
-					}
-					return "set rhythm \[debug read \"${soundchip} regs\" 0xBD\]; expr (\$rhythm & 32) ? ((\$rhythm & $onmask) ? ((63 - (\[debug read \"${soundchip} regs\" [expr $offset + 0x43]\] & 63)) / 63.0) : 0.0) : $music_mode_expr"
-				}
+				error "Unknown channel: $channel for $soundchip!"
 			}
 		}
 		default {
