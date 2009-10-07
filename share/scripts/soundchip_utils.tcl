@@ -31,6 +31,7 @@ proc get_num_channels {soundchip} {
 # @return expression to calculate the volume of the device for that channel in
 # range [0-1]; returns just 'x' in case the chip is not supported
 # @todo:
+#  - frequency expressions for (some of?) the drum channels are not correct
 #  - implement volume for MoonSound FM (tricky stuff)
 #  - actually, don't use regs to calc volume but actual wave data (needs openMSX
 #    changes)
@@ -136,27 +137,39 @@ proc get_volume_expr {soundchip channel} {
 proc get_frequency_expr {soundchip channel} {
 	switch [machine_info sounddevice $soundchip] {
 		"PSG" {
-			set basefreq [expr 3579545.454545/32.0]
-			return "set val \[expr {\[debug read  \"${soundchip} regs\" \[expr 0 + ($channel * 2)\]\] + 256 * ((\[debug read  \"${soundchip} regs\" \[expr 1 + ($channel * 2)\]\]) & 15)}\]; expr {$basefreq/(\$val < 1 ? 1 : \$val)}"
+			set regs "\"${soundchip} regs\""
+			set basefreq [expr 3579545.454545 / 32.0]
+			return "set val \[expr {\[debug read $regs \[expr 0 + ($channel * 2)\]\] + 256 * ((\[debug read $regs \[expr 1 + ($channel * 2)\]\]) & 15)}\]; expr {$basefreq/(\$val < 1 ? 1 : \$val)}"
 		}
 		"Konami SCC" -
 		"Konami SCC+" {
-			set basefreq [expr 3579545.454545/32.0]
-			return "set val \[expr {\[debug read  \"${soundchip} SCC\" \[expr 0xA0 + 0 + ($channel * 2)\]\] + 256 * ((\[debug read  \"${soundchip} SCC\" \[expr 0xA0 + 1 + ($channel * 2)\]\]) & 15)}\]; expr {$basefreq/(\$val < 1 ? 1 : \$val)}"
+			set regs "\"${soundchip} SCC\""
+			set basefreq [expr 3579545.454545 / 32.0]
+			return "set val \[expr {\[debug read $regs \[expr 0xA0 + 0 + ($channel * 2)\]\] + 256 * ((\[debug read $regs \[expr 0xA0 + 1 + ($channel * 2)\]\]) & 15)}\]; expr {$basefreq/(\$val < 1 ? 1 : \$val)}"
 		}
 		"MSX-MUSIC" {
-			set basefreq [expr 3579545.454545/72.0]
+			set regs "\"${soundchip} regs\""
+			set basefreq [expr 3579545.454545 / 72.0]
 			set factor [expr $basefreq / (1 << 18)]
-			return "expr { (\[ debug read \"${soundchip} regs\" [expr $channel + 0x10]\] + 256 * ((\[ debug read \"${soundchip} regs\" [expr $channel + 0x20]\]) & 1)) * $factor * (1 << (((\[ debug read \"${soundchip} regs\" [expr $channel + 0x20]\]) & 15) >> 1) ) }"
+			if {$channel >= 9} {
+				#drums
+				incr channel -3
+			}
+			return "expr { (\[debug read $regs [expr $channel + 0x10]\] + 256 * ((\[debug read $regs [expr $channel + 0x20]\]) & 1)) * $factor * (1 << (((\[debug read $regs [expr $channel + 0x20]\]) & 15) >> 1)) }"
 		}
 		"MSX-AUDIO" {
-			set basefreq [expr 3579545.454545/72.0]
-			if {$channel == 11} { ;# ADPCM
+			set regs "\"${soundchip} regs\""
+			set basefreq [expr 3579545.454545 / 72.0]
+			if {$channel == 14} { ;# ADPCM
 				set factor [expr $basefreq / (1 << 16)]
-				return "expr { (\[debug read \"${soundchip} regs\" 0x10\] + 256 * \[debug read \"${soundchip} regs\" 0x11\]) * $factor / 10 }";# /10 is just to make it fall a bit into a decent range...
+				return "expr { (\[debug read $regs 0x10\] + 256 * \[debug read $regs 0x11\]) * $factor / 10 }";# /10 is just to make it fall a bit into a decent range...
 			} else {
 				set factor [expr $basefreq / (1 << 19)]
-				return "expr { (\[ debug read \"${soundchip} regs\" [expr $channel + 0xA0]\] + 256 * ((\[ debug read \"${soundchip} regs\" [expr $channel + 0xB0]\]) & 3)) * $factor * (1 << (((\[ debug read \"${soundchip} regs\" [expr $channel + 0xB0]\]) & 31) >> 2) ) }"
+				if {$channel >= 9} {
+					#drums
+					incr channel -3
+				}
+				return "expr { (\[debug read $regs [expr $channel + 0xA0]\] + 256 * ((\[debug read $regs [expr $channel + 0xB0]\]) & 3)) * $factor * (1 << (((\[debug read $regs [expr $channel + 0xB0]\]) & 31) >> 2)) }"
 			}
 		}
 		default {
