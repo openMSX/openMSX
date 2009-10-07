@@ -43,9 +43,6 @@ static const int DP_BASE_BITS = DP_BITS - PG_BITS;
 // Dynamic range of envelope
 static const int EG_BITS = 7;
 
-// Dynamic range of total level
-static const int TL_BITS = 6;
-
 // Bits for liner value
 static const int DB2LIN_AMP_BITS = 8;
 static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
@@ -163,7 +160,7 @@ static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
 static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
 
 // KSL + TL Table
-static unsigned tllTable[16 * 8][1 << TL_BITS][4];
+static unsigned tllTable[16 * 8][4];
 
 // Phase incr table for PG
 static unsigned dphaseTable[512 * 8][16];
@@ -312,14 +309,12 @@ static void makeTllTable()
 		unsigned fnum = freq & 15;
 		unsigned block = freq / 16;
 		int tmp = int(kltable[fnum] - (3.000 * 2) * (7 - block));
-		for (unsigned TL = 0; TL < 64; ++TL) {
-			for (unsigned KL = 0; KL < 4; ++KL) {
-				tllTable[freq][TL][KL] = TL2EG(TL) +
-					( (tmp <= 0 || KL == 0)
-					? 0
-					: unsigned((tmp >> (3 - KL)) / EG_STEP)
-					);
-			}
+		for (unsigned KL = 0; KL < 4; ++KL) {
+			tllTable[freq][KL] =
+				( (tmp <= 0 || KL == 0)
+				? 0
+				: unsigned((tmp >> (3 - KL)) / EG_STEP)
+				);
 		}
 	}
 }
@@ -437,7 +432,7 @@ void Slot::updatePG(unsigned freq)
 
 void Slot::updateTLL(unsigned freq)
 {
-	tll = tllTable[freq >> 5][type ? volume : patch.TL][patch.KL];
+	tll = tllTable[freq >> 5][patch.KL] + TL2EG(type ? volume : patch.TL);
 }
 
 void Slot::updateRKS(unsigned freq)
