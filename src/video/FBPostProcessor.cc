@@ -33,6 +33,10 @@ extern "C"
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(double factor)
 {
+	// We skip noise drawing if the factor is 0, so there is no point in
+	// initializing the random data in that case.
+	if (factor == 0) return;
+
 	// for 32bpp groups of 4 consecutive noiseBuf elements (starting at
 	// 4 element boundaries) must have the same value. Later optimizations
 	// depend on it.
