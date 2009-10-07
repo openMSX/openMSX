@@ -93,10 +93,6 @@ public:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
-	/** Create a new renderer.
-	  */
-	void createRenderer();
-
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
 	  *   False otherwise.
@@ -625,6 +621,10 @@ private:
 	/** Schedule a sync point at the start of the next line.
 	  */
 	void syncAtNextLine(SyncType type, EmuTime::param time);
+
+	/** Create a new renderer.
+	  */
+	void createRenderer();
 
 	/** Name base mask has changed.
 	  * Inform the renderer and the VRAM.
