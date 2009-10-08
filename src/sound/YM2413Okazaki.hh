@@ -67,12 +67,14 @@ public:
 	inline void setVolume(unsigned volume);
 
 	template <bool HAS_PM> inline unsigned calc_phase(PhaseModulation lfo_pm);
-	template <bool HAS_AM> inline unsigned calc_envelope(int lfo_am);
+	template <bool HAS_AM, bool FIXED_ENV>
+	inline unsigned calc_envelope(int lfo_am, unsigned fixed_env);
+	template <bool HAS_AM> unsigned calc_fixed_env() const;
 	void calc_envelope_outline(unsigned& out);
-	template <bool HAS_PM, bool HAS_AM>
-	inline int calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm);
-	template <bool HAS_PM, bool HAS_AM, bool HAS_FB>
-	inline int calc_slot_mod(PhaseModulation lfo_pm, int lfo_am);
+	template <bool HAS_PM, bool HAS_AM, bool FIXED_ENV>
+	inline int calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm, unsigned fixed_env);
+	template <bool HAS_PM, bool HAS_AM, bool HAS_FB, bool FIXED_ENV>
+	inline int calc_slot_mod(PhaseModulation lfo_pm, int lfo_am, unsigned fixed_env);
 
 	inline int calc_slot_tom();
 	inline int calc_slot_snare(bool noise);

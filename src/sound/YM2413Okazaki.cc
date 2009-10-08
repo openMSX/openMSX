@@ -845,44 +845,67 @@ void Slot::calc_envelope_outline(unsigned& out)
 		break;
 	}
 }
-template <bool HAS_AM>
-ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am)
+template <bool HAS_AM, bool FIXED_ENV>
+ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
 	assert(patch.AM == HAS_AM);
-	unsigned out = eg_phase.toInt(); // in range [0, 128)
-	if (state == ATTACK) {
-		out = AR_ADJUST_TABLE[out]; // [0, 128)
-	}
-	eg_phase += eg_dphase;
-	if (eg_phase >= eg_phase_max) {
-		calc_envelope_outline(out);
-	}
-	out = EG2DB(out + tll); // [0, 480)
+	assert(!FIXED_ENV || (state == SUSHOLD) || (state == FINISH));
 
-	if (HAS_AM) {
-		out += lfo_am; // [0, 512)
+	if (FIXED_ENV) {
+		unsigned out = fixed_env;
+		if (HAS_AM) {
+			out += lfo_am; // [0, 512)
+			out |= 3;
+		} else {
+			// out |= 3   is already done in calc_fixed_env()
+		}
+		return out;
+	} else {
+		unsigned out = eg_phase.toInt(); // in range [0, 128)
+		if (state == ATTACK) {
+			out = AR_ADJUST_TABLE[out]; // [0, 128)
+		}
+		eg_phase += eg_dphase;
+		if (eg_phase >= eg_phase_max) {
+			calc_envelope_outline(out);
+		}
+		out = EG2DB(out + tll); // [0, 480)
+		if (HAS_AM) {
+			out += lfo_am; // [0, 512)
+		}
+		return out | 3;
 	}
-	return out | 3;
+}
+template <bool HAS_AM> unsigned Slot::calc_fixed_env() const
+{
+	assert((state == SUSHOLD) || (state == FINISH));
+	assert(eg_dphase == EnvPhaseIndex(0));
+	unsigned out = eg_phase.toInt(); // in range [0, 128)
+	out = EG2DB(out + tll); // [0, 480)
+	if (!HAS_AM) {
+		out |= 3;
+	}
+	return out;
 }
 
 // CARRIER
-template <bool HAS_PM, bool HAS_AM>
-ALWAYS_INLINE int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm)
+template <bool HAS_PM, bool HAS_AM, bool FIXED_ENV>
+ALWAYS_INLINE int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm, unsigned fixed_env)
 {
 	int phase = calc_phase<HAS_PM>(lfo_pm) + wave2_8pi(fm);
-	unsigned egout = calc_envelope<HAS_AM>(lfo_am);
+	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
 	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	output = (output + newOutput) >> 1;
 	return output;
 }
 
 // MODULATOR
-template <bool HAS_PM, bool HAS_AM, bool HAS_FB>
-ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
+template <bool HAS_PM, bool HAS_AM, bool HAS_FB, bool FIXED_ENV>
+ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am, unsigned fixed_env)
 {
 	assert((patch.FB != 0) == HAS_FB);
 	unsigned phase = calc_phase<HAS_PM>(lfo_pm);
-	unsigned egout = calc_envelope<HAS_AM>(lfo_am);
+	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
 	if (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
@@ -896,7 +919,7 @@ ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
 ALWAYS_INLINE int Slot::calc_slot_tom()
 {
 	unsigned phase = calc_phase<false>(PhaseModulation());
-	unsigned egout = calc_envelope<false>(0);
+	unsigned egout = calc_envelope<false, false>(0, 0);
 	return dB2LinTab[sintbl[phase & PG_MASK] + egout];
 }
 
@@ -904,7 +927,7 @@ ALWAYS_INLINE int Slot::calc_slot_tom()
 ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 {
 	unsigned phase = calc_phase<false>(PhaseModulation());
-	unsigned egout = calc_envelope<false>(0);
+	unsigned egout = calc_envelope<false, false>(0, 0);
 	return BIT(phase, 7)
 		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
 		: dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
@@ -913,7 +936,7 @@ ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 // TOP-CYM (ch8 car)
 ALWAYS_INLINE int Slot::calc_slot_cym(unsigned phase7, unsigned phase8)
 {
-	unsigned egout = calc_envelope<false>(0);
+	unsigned egout = calc_envelope<false, false>(0, 0);
 	unsigned dbout = (((BIT(phase7, PG_BITS - 8) ^
 	                    BIT(phase7, PG_BITS - 1)) |
 	                   BIT(phase7, PG_BITS - 7)) ^
@@ -927,7 +950,7 @@ ALWAYS_INLINE int Slot::calc_slot_cym(unsigned phase7, unsigned phase8)
 // HI-HAT (ch7 mod)
 ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noise)
 {
-	unsigned egout = calc_envelope<false>(0);
+	unsigned egout = calc_envelope<false, false>(0, 0);
 	unsigned dbout = (((BIT(phase7, PG_BITS - 8) ^
 	                    BIT(phase7, PG_BITS - 1)) |
 	                   BIT(phase7, PG_BITS - 7)) ^
@@ -962,9 +985,19 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 	const bool HAS_MOD_AM = (FLAGS &  4) != 0;
 	const bool HAS_MOD_PM = (FLAGS &  8) != 0;
 	const bool HAS_MOD_FB = (FLAGS & 16) != 0;
+	const bool HAS_CAR_FIXED_ENV = (FLAGS & 32) != 0;
+	const bool HAS_MOD_FIXED_ENV = (FLAGS & 64) != 0;
 
 	unsigned tmp_pm_phase = pm_phase;
 	unsigned tmp_am_phase = am_phase;
+	unsigned car_fixed_env = 0; // dummy
+	unsigned mod_fixed_env = 0; // dummy
+	if (HAS_CAR_FIXED_ENV) {
+		car_fixed_env = ch.car.calc_fixed_env<HAS_CAR_AM>();
+	}
+	if (HAS_MOD_FIXED_ENV) {
+		mod_fixed_env = ch.mod.calc_fixed_env<HAS_MOD_AM>();
+	}
 	for (unsigned sample = 0; sample < num; ++sample) {
 		PhaseModulation lfo_pm;
 		if (HAS_CAR_PM || HAS_MOD_PM) {
@@ -979,10 +1012,10 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 			}
 			lfo_am = lfo_am_table[tmp_am_phase / 64];
 		}
-		int fm = ch.mod.calc_slot_mod<HAS_MOD_PM, HAS_MOD_AM, HAS_MOD_FB>(
-		                      lfo_pm, lfo_am);
-		buf[sample] += ch.car.calc_slot_car<HAS_CAR_PM, HAS_CAR_AM>(
-		                      lfo_pm, lfo_am, fm);
+		int fm = ch.mod.calc_slot_mod<HAS_MOD_PM, HAS_MOD_AM, HAS_MOD_FB, HAS_MOD_FIXED_ENV>(
+		                      lfo_pm, lfo_am, mod_fixed_env);
+		buf[sample] += ch.car.calc_slot_car<HAS_CAR_PM, HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
+		                      lfo_pm, lfo_am, fm, car_fixed_env);
 	}
 }
 
@@ -1054,39 +1087,142 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			// calcChannel() this allows to move a lot of
 			// conditional code out of the inner-loop
 			Channel& ch = channels[i];
-			switch (ch.patchFlags) {
-			case  0: calcChannel< 0>(ch, bufs[i], num); break;
-			case  1: calcChannel< 1>(ch, bufs[i], num); break;
-			case  2: calcChannel< 2>(ch, bufs[i], num); break;
-			case  3: calcChannel< 3>(ch, bufs[i], num); break;
-			case  4: calcChannel< 4>(ch, bufs[i], num); break;
-			case  5: calcChannel< 5>(ch, bufs[i], num); break;
-			case  6: calcChannel< 6>(ch, bufs[i], num); break;
-			case  7: calcChannel< 7>(ch, bufs[i], num); break;
-			case  8: calcChannel< 8>(ch, bufs[i], num); break;
-			case  9: calcChannel< 9>(ch, bufs[i], num); break;
-			case 10: calcChannel<10>(ch, bufs[i], num); break;
-			case 11: calcChannel<11>(ch, bufs[i], num); break;
-			case 12: calcChannel<12>(ch, bufs[i], num); break;
-			case 13: calcChannel<13>(ch, bufs[i], num); break;
-			case 14: calcChannel<14>(ch, bufs[i], num); break;
-			case 15: calcChannel<15>(ch, bufs[i], num); break;
-			case 16: calcChannel<16>(ch, bufs[i], num); break;
-			case 17: calcChannel<17>(ch, bufs[i], num); break;
-			case 18: calcChannel<18>(ch, bufs[i], num); break;
-			case 19: calcChannel<19>(ch, bufs[i], num); break;
-			case 20: calcChannel<20>(ch, bufs[i], num); break;
-			case 21: calcChannel<21>(ch, bufs[i], num); break;
-			case 22: calcChannel<22>(ch, bufs[i], num); break;
-			case 23: calcChannel<23>(ch, bufs[i], num); break;
-			case 24: calcChannel<24>(ch, bufs[i], num); break;
-			case 25: calcChannel<25>(ch, bufs[i], num); break;
-			case 26: calcChannel<26>(ch, bufs[i], num); break;
-			case 27: calcChannel<27>(ch, bufs[i], num); break;
-			case 28: calcChannel<28>(ch, bufs[i], num); break;
-			case 29: calcChannel<29>(ch, bufs[i], num); break;
-			case 30: calcChannel<30>(ch, bufs[i], num); break;
-			case 31: calcChannel<31>(ch, bufs[i], num); break;
+			bool carFixedEnv = (ch.car.state == SUSHOLD) ||
+			                   (ch.car.state == FINISH);
+			bool modFixedEnv = (ch.mod.state == SUSHOLD) ||
+			                   (ch.mod.state == FINISH);
+			unsigned flags = ch.patchFlags |
+			                 (carFixedEnv ? 32 : 0) |
+			                 (modFixedEnv ? 64 : 0);
+			switch (flags) {
+			case   0: calcChannel<  0>(ch, bufs[i], num); break;
+			case   1: calcChannel<  1>(ch, bufs[i], num); break;
+			case   2: calcChannel<  2>(ch, bufs[i], num); break;
+			case   3: calcChannel<  3>(ch, bufs[i], num); break;
+			case   4: calcChannel<  4>(ch, bufs[i], num); break;
+			case   5: calcChannel<  5>(ch, bufs[i], num); break;
+			case   6: calcChannel<  6>(ch, bufs[i], num); break;
+			case   7: calcChannel<  7>(ch, bufs[i], num); break;
+			case   8: calcChannel<  8>(ch, bufs[i], num); break;
+			case   9: calcChannel<  9>(ch, bufs[i], num); break;
+			case  10: calcChannel< 10>(ch, bufs[i], num); break;
+			case  11: calcChannel< 11>(ch, bufs[i], num); break;
+			case  12: calcChannel< 12>(ch, bufs[i], num); break;
+			case  13: calcChannel< 13>(ch, bufs[i], num); break;
+			case  14: calcChannel< 14>(ch, bufs[i], num); break;
+			case  15: calcChannel< 15>(ch, bufs[i], num); break;
+			case  16: calcChannel< 16>(ch, bufs[i], num); break;
+			case  17: calcChannel< 17>(ch, bufs[i], num); break;
+			case  18: calcChannel< 18>(ch, bufs[i], num); break;
+			case  19: calcChannel< 19>(ch, bufs[i], num); break;
+			case  20: calcChannel< 20>(ch, bufs[i], num); break;
+			case  21: calcChannel< 21>(ch, bufs[i], num); break;
+			case  22: calcChannel< 22>(ch, bufs[i], num); break;
+			case  23: calcChannel< 23>(ch, bufs[i], num); break;
+			case  24: calcChannel< 24>(ch, bufs[i], num); break;
+			case  25: calcChannel< 25>(ch, bufs[i], num); break;
+			case  26: calcChannel< 26>(ch, bufs[i], num); break;
+			case  27: calcChannel< 27>(ch, bufs[i], num); break;
+			case  28: calcChannel< 28>(ch, bufs[i], num); break;
+			case  29: calcChannel< 29>(ch, bufs[i], num); break;
+			case  30: calcChannel< 30>(ch, bufs[i], num); break;
+			case  31: calcChannel< 31>(ch, bufs[i], num); break;
+			case  32: calcChannel< 32>(ch, bufs[i], num); break;
+			case  33: calcChannel< 33>(ch, bufs[i], num); break;
+			case  34: calcChannel< 34>(ch, bufs[i], num); break;
+			case  35: calcChannel< 35>(ch, bufs[i], num); break;
+			case  36: calcChannel< 36>(ch, bufs[i], num); break;
+			case  37: calcChannel< 37>(ch, bufs[i], num); break;
+			case  38: calcChannel< 38>(ch, bufs[i], num); break;
+			case  39: calcChannel< 39>(ch, bufs[i], num); break;
+			case  40: calcChannel< 40>(ch, bufs[i], num); break;
+			case  41: calcChannel< 41>(ch, bufs[i], num); break;
+			case  42: calcChannel< 42>(ch, bufs[i], num); break;
+			case  43: calcChannel< 43>(ch, bufs[i], num); break;
+			case  44: calcChannel< 44>(ch, bufs[i], num); break;
+			case  45: calcChannel< 45>(ch, bufs[i], num); break;
+			case  46: calcChannel< 46>(ch, bufs[i], num); break;
+			case  47: calcChannel< 47>(ch, bufs[i], num); break;
+			case  48: calcChannel< 48>(ch, bufs[i], num); break;
+			case  49: calcChannel< 49>(ch, bufs[i], num); break;
+			case  50: calcChannel< 50>(ch, bufs[i], num); break;
+			case  51: calcChannel< 51>(ch, bufs[i], num); break;
+			case  52: calcChannel< 52>(ch, bufs[i], num); break;
+			case  53: calcChannel< 53>(ch, bufs[i], num); break;
+			case  54: calcChannel< 54>(ch, bufs[i], num); break;
+			case  55: calcChannel< 55>(ch, bufs[i], num); break;
+			case  56: calcChannel< 56>(ch, bufs[i], num); break;
+			case  57: calcChannel< 57>(ch, bufs[i], num); break;
+			case  58: calcChannel< 58>(ch, bufs[i], num); break;
+			case  59: calcChannel< 59>(ch, bufs[i], num); break;
+			case  60: calcChannel< 60>(ch, bufs[i], num); break;
+			case  61: calcChannel< 61>(ch, bufs[i], num); break;
+			case  62: calcChannel< 62>(ch, bufs[i], num); break;
+			case  63: calcChannel< 63>(ch, bufs[i], num); break;
+			case  64: calcChannel< 64>(ch, bufs[i], num); break;
+			case  65: calcChannel< 65>(ch, bufs[i], num); break;
+			case  66: calcChannel< 66>(ch, bufs[i], num); break;
+			case  67: calcChannel< 67>(ch, bufs[i], num); break;
+			case  68: calcChannel< 68>(ch, bufs[i], num); break;
+			case  69: calcChannel< 69>(ch, bufs[i], num); break;
+			case  70: calcChannel< 70>(ch, bufs[i], num); break;
+			case  71: calcChannel< 71>(ch, bufs[i], num); break;
+			case  72: calcChannel< 72>(ch, bufs[i], num); break;
+			case  73: calcChannel< 73>(ch, bufs[i], num); break;
+			case  74: calcChannel< 74>(ch, bufs[i], num); break;
+			case  75: calcChannel< 75>(ch, bufs[i], num); break;
+			case  76: calcChannel< 76>(ch, bufs[i], num); break;
+			case  77: calcChannel< 77>(ch, bufs[i], num); break;
+			case  78: calcChannel< 78>(ch, bufs[i], num); break;
+			case  79: calcChannel< 79>(ch, bufs[i], num); break;
+			case  80: calcChannel< 80>(ch, bufs[i], num); break;
+			case  81: calcChannel< 81>(ch, bufs[i], num); break;
+			case  82: calcChannel< 82>(ch, bufs[i], num); break;
+			case  83: calcChannel< 83>(ch, bufs[i], num); break;
+			case  84: calcChannel< 84>(ch, bufs[i], num); break;
+			case  85: calcChannel< 85>(ch, bufs[i], num); break;
+			case  86: calcChannel< 86>(ch, bufs[i], num); break;
+			case  87: calcChannel< 87>(ch, bufs[i], num); break;
+			case  88: calcChannel< 88>(ch, bufs[i], num); break;
+			case  89: calcChannel< 89>(ch, bufs[i], num); break;
+			case  90: calcChannel< 90>(ch, bufs[i], num); break;
+			case  91: calcChannel< 91>(ch, bufs[i], num); break;
+			case  92: calcChannel< 92>(ch, bufs[i], num); break;
+			case  93: calcChannel< 93>(ch, bufs[i], num); break;
+			case  94: calcChannel< 94>(ch, bufs[i], num); break;
+			case  95: calcChannel< 95>(ch, bufs[i], num); break;
+			case  96: calcChannel< 96>(ch, bufs[i], num); break;
+			case  97: calcChannel< 97>(ch, bufs[i], num); break;
+			case  98: calcChannel< 98>(ch, bufs[i], num); break;
+			case  99: calcChannel< 99>(ch, bufs[i], num); break;
+			case 100: calcChannel<100>(ch, bufs[i], num); break;
+			case 101: calcChannel<101>(ch, bufs[i], num); break;
+			case 102: calcChannel<102>(ch, bufs[i], num); break;
+			case 103: calcChannel<103>(ch, bufs[i], num); break;
+			case 104: calcChannel<104>(ch, bufs[i], num); break;
+			case 105: calcChannel<105>(ch, bufs[i], num); break;
+			case 106: calcChannel<106>(ch, bufs[i], num); break;
+			case 107: calcChannel<107>(ch, bufs[i], num); break;
+			case 108: calcChannel<108>(ch, bufs[i], num); break;
+			case 109: calcChannel<109>(ch, bufs[i], num); break;
+			case 110: calcChannel<110>(ch, bufs[i], num); break;
+			case 111: calcChannel<111>(ch, bufs[i], num); break;
+			case 112: calcChannel<112>(ch, bufs[i], num); break;
+			case 113: calcChannel<113>(ch, bufs[i], num); break;
+			case 114: calcChannel<114>(ch, bufs[i], num); break;
+			case 115: calcChannel<115>(ch, bufs[i], num); break;
+			case 116: calcChannel<116>(ch, bufs[i], num); break;
+			case 117: calcChannel<117>(ch, bufs[i], num); break;
+			case 118: calcChannel<118>(ch, bufs[i], num); break;
+			case 119: calcChannel<119>(ch, bufs[i], num); break;
+			case 120: calcChannel<120>(ch, bufs[i], num); break;
+			case 121: calcChannel<121>(ch, bufs[i], num); break;
+			case 122: calcChannel<122>(ch, bufs[i], num); break;
+			case 123: calcChannel<123>(ch, bufs[i], num); break;
+			case 124: calcChannel<124>(ch, bufs[i], num); break;
+			case 125: calcChannel<125>(ch, bufs[i], num); break;
+			case 126: calcChannel<126>(ch, bufs[i], num); break;
+			case 127: calcChannel<127>(ch, bufs[i], num); break;
 			default: UNREACHABLE;
 			}
 		}
@@ -1100,9 +1236,9 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			Channel& ch6 = channels[6];
 			for (unsigned sample = 0; sample < num; ++sample) {
 				bufs[ 9][sample] += 2 *
-				    ch6.car.calc_slot_car<false, false>(
+				    ch6.car.calc_slot_car<false, false, false>(
 				        PhaseModulation(), 0, ch6.mod.calc_slot_mod<
-				                false, false, false>(PhaseModulation(), 0));
+				                false, false, false, false>(PhaseModulation(), 0, 0), 0);
 			}
 		}
 		Channel& ch7 = channels[7];
