@@ -63,6 +63,8 @@ public:
 	 * @param bufs Pointers to output buffers.
 	 * @param num The number of required output samples.
 	 *
+	 * The requested number of samples must be strictly bigger than zero.
+	 *
 	 * The output of the different channels is put in separate output
 	 * buffers. This makes it possible to e.g. record individual channels
 	 * or to pan, mute or adjust volume per channel. The YM2413 can operate

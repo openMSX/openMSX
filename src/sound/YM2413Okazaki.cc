@@ -998,7 +998,9 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 	if (HAS_MOD_FIXED_ENV) {
 		mod_fixed_env = ch.mod.calc_fixed_env<HAS_MOD_AM>();
 	}
-	for (unsigned sample = 0; sample < num; ++sample) {
+
+	unsigned sample = 0;
+	do {
 		PhaseModulation lfo_pm;
 		if (HAS_CAR_PM || HAS_MOD_PM) {
 			tmp_pm_phase = (tmp_pm_phase + PM_DPHASE) & PM_DP_MASK;
@@ -1016,11 +1018,14 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 		                      lfo_pm, lfo_am, mod_fixed_env);
 		buf[sample] += ch.car.calc_slot_car<HAS_CAR_PM, HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
 		                      lfo_pm, lfo_am, fm, car_fixed_env);
-	}
+		++sample;
+	} while (sample < num);
 }
 
 void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 {
+	assert(num != 0);
+
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
 
