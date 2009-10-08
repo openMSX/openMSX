@@ -361,7 +361,7 @@ static inline FreqIndex fnumToIncrement(int block_fnum)
 	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
 }
 
-inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
+inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bool carrier)
 {
 	switch (state) {
 	case EG_DUMP:
@@ -425,7 +425,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 		// Exclude modulators in melody channels from performing anything in
 		// this mode.
 		if (carrier) {
-			const bool sustain = !eg_sustain || channel->isSustained();
+			const bool sustain = !eg_sustain || channel.isSustained();
 			const byte sel = sustain ? eg_sel_rs : eg_sel_rr;
 			const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
 			if (!(eg_cnt & ((1 << shift) - 1))) {
@@ -443,13 +443,13 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 	}
 }
 
-inline void Slot::advancePhaseGenerator(unsigned lfo_pm)
+inline void Slot::advancePhaseGenerator(Channel& channel, unsigned lfo_pm)
 {
 	if (vib) {
 		const int lfo_fn_table_index_offset = lfo_pm_table
-			[(channel->getBlockFNum() & 0x01FF) >> 6][lfo_pm];
+			[(channel.getBlockFNum() & 0x01FF) >> 6][lfo_pm];
 		phase += fnumToIncrement(
-			channel->getBlockFNum() * 2 + lfo_fn_table_index_offset
+			channel.getBlockFNum() * 2 + lfo_fn_table_index_offset
 			) * mul;
 	} else {
 		// LFO phase modulation disabled for this operator
@@ -457,9 +457,9 @@ inline void Slot::advancePhaseGenerator(unsigned lfo_pm)
 	}
 }
 
-inline void Slot::updateTotalLevel()
+inline void Slot::updateTotalLevel(Channel& channel)
 {
-	TLL = TL + (channel->getKeyScaleLevelBase() >> ksl);
+	TLL = TL + (channel.getKeyScaleLevelBase() >> ksl);
 }
 
 inline void Slot::updateAttackRate()
@@ -493,12 +493,14 @@ inline void YM2413::advance()
 
 	++eg_cnt;
 	for (int ch = 0; ch < 9; ++ch) {
-		bool actAsCarrier = rhythm && (ch >= 6);
-		channels[ch].mod.advanceEnvelopeGenerator(eg_cnt, actAsCarrier);
-		channels[ch].mod.advancePhaseGenerator(lfo_pm);
+		Channel& channel = channels[ch];
 
-		channels[ch].car.advanceEnvelopeGenerator(eg_cnt, true);
-		channels[ch].car.advancePhaseGenerator(lfo_pm);
+		bool actAsCarrier = rhythm && (ch >= 6);
+		channel.mod.advanceEnvelopeGenerator(channel, eg_cnt, actAsCarrier);
+		channel.mod.advancePhaseGenerator(channel, lfo_pm);
+
+		channel.car.advanceEnvelopeGenerator(channel, eg_cnt, true);
+		channel.car.advancePhaseGenerator(channel, lfo_pm);
 	}
 
 	// The Noise Generator of the YM3812 is 23-bit shift register.
@@ -699,11 +701,6 @@ Slot::Slot()
 	wavetable = &sin_tab[0 * SIN_LEN];
 }
 
-void Slot::init(Channel& channel_)
-{
-	channel = &channel_;
-}
-
 void Slot::setKeyOn(KeyPart part)
 {
 	if (!key) {
@@ -779,16 +776,16 @@ void Slot::setAmplitudeModulation(bool value)
 	AMmask = value ? ~0 : 0;
 }
 
-void Slot::setTotalLevel(byte value)
+void Slot::setTotalLevel(Channel& channel, byte value)
 {
 	TL = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-	updateTotalLevel();
+	updateTotalLevel(channel);
 }
 
-void Slot::setKeyScaleLevel(byte value)
+void Slot::setKeyScaleLevel(Channel& channel, byte value)
 {
 	ksl = value ? (3 - value) : 31;
-	updateTotalLevel();
+	updateTotalLevel(channel);
 }
 
 void Slot::setWaveform(byte value)
@@ -824,10 +821,10 @@ void Slot::setSustainLevel(byte value)
 	sl = sl_tab[value];
 }
 
-void Slot::updateFrequency()
+void Slot::updateFrequency(Channel& channel)
 {
-	updateTotalLevel();
-	updateGenerators();
+	updateTotalLevel(channel);
+	updateGenerators(channel);
 }
 
 void Slot::resetOperators()
@@ -837,12 +834,12 @@ void Slot::resetOperators()
 	volume    = MAX_ATT_INDEX;
 }
 
-void Slot::updateGenerators()
+void Slot::updateGenerators(Channel& channel)
 {
 	// (frequency) phase increment counter
-	freq = channel->getFrequencyIncrement() * mul;
+	freq = channel.getFrequencyIncrement() * mul;
 
-	const int kcodeScaledNew = channel->getKeyCode() >> KSR;
+	const int kcodeScaledNew = channel.getKeyCode() >> KSR;
 	if (kcodeScaled != kcodeScaledNew) {
 		kcodeScaled = kcodeScaledNew;
 		// calculate envelope generator rates
@@ -851,7 +848,7 @@ void Slot::updateGenerators()
 		updateReleaseRate();
 	}
 
-	const int rs = channel->isSustained() ? 16 + (5 << 2) : 16 + (7 << 2);
+	const int rs = channel.isSustained() ? 16 + (5 << 2) : 16 + (7 << 2);
 	eg_sh_rs  = eg_rate_shift [rs + kcodeScaled];
 	eg_sel_rs = eg_rate_select[rs + kcodeScaled];
 
@@ -866,17 +863,12 @@ Channel::Channel()
 	instvol_r = 0;
 	block_fnum = ksl_base = kcode = 0;
 	sus = false;
-
-	mod.init(*this);
-	car.init(*this);
 }
 
-void Channel::setFrequency(int block_fnum)
+void Channel::setFrequency(int block_fnum_)
 {
-	if (this->block_fnum == block_fnum) {
-		return;
-	}
-	this->block_fnum = block_fnum;
+	if (block_fnum == block_fnum_) return;
+	block_fnum = block_fnum_;
 
 	// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
 	kcode    = (block_fnum & 0x0F00) >> 8;
@@ -884,8 +876,8 @@ void Channel::setFrequency(int block_fnum)
 	fc       = fnumToIncrement(block_fnum * 2);
 
 	// Refresh Total Level and frequency counter in both SLOTs of this channel.
-	mod.updateFrequency();
-	car.updateFrequency();
+	mod.updateFrequency(*this);
+	car.updateFrequency(*this);
 }
 
 void Channel::setFrequencyLow(byte value)
@@ -943,7 +935,7 @@ void Channel::updateInstrumentPart(YM2413& ym2413, int instrument, int part)
 		mod.setEnvelopeSustained((inst[0] & 0x20) != 0);
 		mod.setVibrato((inst[0] & 0x40) != 0);
 		mod.setAmplitudeModulation((inst[0] & 0x80) != 0);
-		mod.updateGenerators();
+		mod.updateGenerators(*this);
 		break;
 	case 1:
 		car.setFrequencyMultiplier(inst[1] & 0x0F);
@@ -951,16 +943,16 @@ void Channel::updateInstrumentPart(YM2413& ym2413, int instrument, int part)
 		car.setEnvelopeSustained((inst[1] & 0x20) != 0);
 		car.setVibrato((inst[1] & 0x40) != 0);
 		car.setAmplitudeModulation((inst[1] & 0x80) != 0);
-		car.updateGenerators();
+		car.updateGenerators(*this);
 		break;
 	case 2:
-		mod.setKeyScaleLevel(inst[2] >> 6);
-		mod.setTotalLevel(inst[2] & 0x3F);
+		mod.setKeyScaleLevel(*this, inst[2] >> 6);
+		mod.setTotalLevel(*this, inst[2] & 0x3F);
 		break;
 	case 3:
 		mod.setWaveform((inst[3] & 0x08) >> 3);
 		mod.setFeedbackShift(inst[3] & 0x07);
-		car.setKeyScaleLevel(inst[3] >> 6);
+		car.setKeyScaleLevel(*this, inst[3] >> 6);
 		car.setWaveform((inst[3] & 0x10) >> 4);
 		break;
 	case 4:
@@ -1030,11 +1022,11 @@ void YM2413::setRhythmMode(bool rhythm)
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
 		ch7.updateInstrument(*this, 17);
-		ch7.mod.setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
+		ch7.mod.setTotalLevel(ch7, (ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
 		ch8.updateInstrument(*this, 18);
-		ch8.mod.setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
+		ch8.mod.setTotalLevel(ch8, (ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
 		channels[6].updateInstrument(*this);
 		channels[7].updateInstrument(*this);
@@ -1298,7 +1290,7 @@ void YM2413::writeReg(byte r, byte v)
 		byte old_instvol = ch.instvol_r;
 		ch.instvol_r = v;  // store for later use
 
-		ch.car.setTotalLevel((v & 0x0F) << 2);
+		ch.car.setTotalLevel(ch, (v & 0x0F) << 2);
 
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
@@ -1309,7 +1301,7 @@ void YM2413::writeReg(byte r, byte v)
 			if (chan >= 7) {
 				// Only for channel 7 and 8 (channel 6 is handled in usual way)
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.mod.setTotalLevel((ch.instvol_r >> 4) << 2);
+				ch.mod.setTotalLevel(ch, (ch.instvol_r >> 4) << 2);
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {

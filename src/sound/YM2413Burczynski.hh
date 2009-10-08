@@ -22,25 +22,17 @@ class Slot
 public:
 	Slot();
 
-	/** Initializes those parts that cannot be initialized in the constructor,
-	 * because the constructor cannot have arguments since we want to create
-	 * an array of Slots.
-	 * This method should be called once, as soon as possible after
-	 * construction.
-	 */
-	void init(Channel& channel);
-
 	void resetOperators();
 
 	/** Update phase increment counter of operator.
 	 * Also updates the EG rates if necessary.
 	 */
-	void updateGenerators();
+	void updateGenerators(Channel& channel);
 
 	inline int calcOutput(unsigned lfo_am, int phase) const;
 	inline void updateModulator(unsigned lfo_am);
-	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
-	inline void advancePhaseGenerator(unsigned lfo_pm);
+	inline void advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bool carrier);
+	inline void advancePhaseGenerator(Channel& channel, unsigned lfo_pm);
 
 	enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 	void setKeyOn(KeyPart part);
@@ -82,11 +74,11 @@ public:
 
 	/** Sets the total level: [0..63].
 	 */
-	void setTotalLevel(byte value);
+	void setTotalLevel(Channel& channel, byte value);
 
 	/** Sets the key scale level: 0->0 / 1->1.5 / 2->3.0 / 3->6.0 dB/OCT.
 	 */
-	void setKeyScaleLevel(byte value);
+	void setKeyScaleLevel(Channel& channel, byte value);
 
 	/** Sets the waveform: 0 = sinus, 1 = half sinus, half silence.
 	 */
@@ -114,7 +106,7 @@ public:
 
 	/** Called by Channel when block_fnum changes.
 	 */
-	void updateFrequency();
+	void updateFrequency(Channel& channel);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -132,12 +124,11 @@ private:
 	 */
 	void setEnvelopeState(EnvelopeState state);
 
-	inline void updateTotalLevel();
+	inline void updateTotalLevel(Channel& channel);
 	inline void updateAttackRate();
 	inline void updateDecayRate();
 	inline void updateReleaseRate();
 
-	Channel* channel;
 	unsigned* wavetable;	// waveform select
 
 	// Phase Generator
