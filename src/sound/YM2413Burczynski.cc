@@ -370,9 +370,9 @@ inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bo
 		// operators are reset (at the same time?).
 		// TODO: That sounds logical, but it does not match the implementation.
 		if (!(eg_cnt & ((1 << eg_sh_dp) - 1))) {
-			volume += eg_inc[eg_sel_dp][(eg_cnt >> eg_sh_dp) & 7];
-			if (volume >= MAX_ATT_INDEX) {
-				volume = MAX_ATT_INDEX;
+			egout += eg_inc[eg_sel_dp][(eg_cnt >> eg_sh_dp) & 7];
+			if (egout >= MAX_ATT_INDEX) {
+				egout = MAX_ATT_INDEX;
 				setEnvelopeState(EG_ATTACK);
 				phase = FreqIndex(0); // restart Phase Generator
 			}
@@ -381,10 +381,10 @@ inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bo
 
 	case EG_ATTACK:
 		if (!(eg_cnt & ((1 << eg_sh_ar) - 1))) {
-			volume +=
-				(~volume * eg_inc[eg_sel_ar][(eg_cnt >> eg_sh_ar) & 7]) >> 2;
-			if (volume <= MIN_ATT_INDEX) {
-				volume = MIN_ATT_INDEX;
+			egout +=
+				(~egout * eg_inc[eg_sel_ar][(eg_cnt >> eg_sh_ar) & 7]) >> 2;
+			if (egout <= MIN_ATT_INDEX) {
+				egout = MIN_ATT_INDEX;
 				setEnvelopeState(EG_DECAY);
 			}
 		}
@@ -392,8 +392,8 @@ inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bo
 
 	case EG_DECAY:
 		if (!(eg_cnt & ((1 << eg_sh_dr) - 1))) {
-			volume += eg_inc[eg_sel_dr][(eg_cnt >> eg_sh_dr) & 7];
-			if (volume >= sl) {
+			egout += eg_inc[eg_sel_dr][(eg_cnt >> eg_sh_dr) & 7];
+			if (egout >= sl) {
 				setEnvelopeState(EG_SUSTAIN);
 			}
 		}
@@ -412,9 +412,9 @@ inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bo
 			// during sustain phase chip adds Release Rate (in
 			// percussive mode)
 			if (!(eg_cnt & ((1 << eg_sh_rr) - 1))) {
-				volume += eg_inc[eg_sel_rr][(eg_cnt >> eg_sh_rr) & 7];
-				if (volume >= MAX_ATT_INDEX) {
-					volume = MAX_ATT_INDEX;
+				egout += eg_inc[eg_sel_rr][(eg_cnt >> eg_sh_rr) & 7];
+				if (egout >= MAX_ATT_INDEX) {
+					egout = MAX_ATT_INDEX;
 				}
 			}
 			// else do nothing in sustain phase
@@ -429,9 +429,9 @@ inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bo
 			const byte sel = sustain ? eg_sel_rs : eg_sel_rr;
 			const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
 			if (!(eg_cnt & ((1 << shift) - 1))) {
-				volume += eg_inc[sel][(eg_cnt >> shift) & 7];
-				if (volume >= MAX_ATT_INDEX) {
-					volume = MAX_ATT_INDEX;
+				egout += eg_inc[sel][(eg_cnt >> shift) & 7];
+				if (egout >= MAX_ATT_INDEX) {
+					egout = MAX_ATT_INDEX;
 					setEnvelopeState(EG_OFF);
 				}
 			}
@@ -533,7 +533,7 @@ inline void YM2413::advance()
 
 inline int Slot::calcOutput(unsigned lfo_am, int phase) const
 {
-	const int env = (TLL + volume + (lfo_am & AMmask)) << 5;
+	const int env = (TLL + egout + (lfo_am & AMmask)) << 5;
 	const int p = env + wavetable[phase & SIN_MASK];
 	return p < TL_TAB_LEN ? tl_tab[p] : 0;
 }
@@ -695,7 +695,7 @@ Slot::Slot()
 {
 	ar = dr = rr = KSR = ksl = kcodeScaled = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
-	TL = TLL = volume = sl = 0;
+	TL = TLL = egout = sl = 0;
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
 	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
 	eg_sustain = false;
@@ -829,7 +829,7 @@ void Slot::resetOperators()
 {
 	wavetable = &sin_tab[0 * SIN_LEN];
 	setEnvelopeState(EG_OFF);
-	volume    = MAX_ATT_INDEX;
+	egout = MAX_ATT_INDEX;
 }
 
 void Slot::updateGenerators(Channel& channel)
@@ -1345,7 +1345,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("freq", freq);
 	ar.serialize("TL", TL);
 	ar.serialize("TLL", TLL);
-	ar.serialize("volume", volume);
+	ar.serialize("volume", egout);
 	ar.serialize("sl", sl);
 	ar.serialize("state", state);
 	ar.serialize("op1_out", op1_out);

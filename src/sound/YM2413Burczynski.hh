@@ -134,7 +134,7 @@ private:
 	// Envelope Generator
 	int TL;		// total level: TL << 2
 	int TLL;	// adjusted now TL
-	int volume;	// envelope counter
+	int egout;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
 	EnvelopeState state;
 
@@ -221,8 +221,7 @@ public:
 	Slot mod;
 	Slot car;
 
-	/** Instrument/volume (or volume/volume in rhythm mode).
-	 */
+	/** Instrument/volume (or volume/volume in rhythm mode). */
 	byte instvol_r;
 
 private:
