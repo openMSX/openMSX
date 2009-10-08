@@ -60,11 +60,16 @@ static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 static const int AM_DP_MASK = AM_DP_WIDTH - 1;
 
 // dB to linear table (used by Slot)
-static int dB2LinTab[(DB_MUTE + DB_MUTE) * 2];
+static const int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
+// indices in range:
+//   [0,        DB_MUTE )    actual values, from max to min
+//   [DB_MUTE,  DBTABLEN)    filled with min val (to allow some overflow in index)
+//   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
+static int dB2LinTab[DBTABLEN * 2];
 
 // WaveTable for each envelope amp
-//  values are in range[0,   DB_MUTE)           (for positive values)
-//                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
+//  values are in range [0, DB_MUTE)             (for positive values)
+//                  or  [0, DB_MUTE) + DBTABLEN  (for negative values)
 static unsigned fullsintable[PG_WIDTH];
 static unsigned halfsintable[PG_WIDTH];
 static unsigned* waveform[2] = {fullsintable, halfsintable};
@@ -159,7 +164,7 @@ static EnvPhaseIndex dphaseDRTable[16][16];
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
 static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
 
-// KSL + TL Table
+// KSL + TL Table   values are in range [0, 112)
 static unsigned tllTable[16 * 8][4];
 
 // Phase incr table for PG
@@ -181,13 +186,13 @@ static inline int TL2EG(int d)
 static inline unsigned DB_POS(double x)
 {
 	int result = int(x / DB_STEP);
-	assert(0 <= x);
-	assert(x < DB_MUTE);
+	assert(0 <= result);
+	assert(result < DB_MUTE);
 	return result;
 }
 static inline unsigned DB_NEG(double x)
 {
-	return 2 * DB_MUTE + DB_POS(x);
+	return DBTABLEN + DB_POS(x);
 }
 
 static inline bool BIT(unsigned s, unsigned b)
@@ -218,11 +223,11 @@ static void makeDB2LinTable()
 		                   pow(10, -double(i) * DB_STEP / 20));
 	}
 	dB2LinTab[DB_MUTE - 1] = 0;
-	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
+	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
 		dB2LinTab[i] = 0;
 	}
-	for (int i = 0; i < 2 * DB_MUTE; ++i) {
-		dB2LinTab[i + 2 * DB_MUTE] = -dB2LinTab[i];
+	for (int i = 0; i < DBTABLEN; ++i) {
+		dB2LinTab[i + DBTABLEN] = -dB2LinTab[i];
 	}
 }
 
@@ -244,7 +249,7 @@ static void makeSinTable()
 		fullsintable[PG_WIDTH / 2 - 1 - i] = fullsintable[i];
 	}
 	for (int i = 0; i < PG_WIDTH / 2; ++i) {
-		fullsintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + fullsintable[i];
+		fullsintable[PG_WIDTH / 2 + i] = DBTABLEN + fullsintable[i];
 	}
 
 	for (int i = 0; i < PG_WIDTH / 2; ++i) {
@@ -844,20 +849,20 @@ template <bool HAS_AM>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am)
 {
 	assert(patch.AM == HAS_AM);
-	unsigned out = eg_phase.toInt();
+	unsigned out = eg_phase.toInt(); // in range [0, 128)
 	if (state == ATTACK) {
-		out = AR_ADJUST_TABLE[out];
+		out = AR_ADJUST_TABLE[out]; // [0, 128)
 	}
 	eg_phase += eg_dphase;
 	if (eg_phase >= eg_phase_max) {
 		calc_envelope_outline(out);
 	}
-	out = EG2DB(out + tll);
+	out = EG2DB(out + tll); // [0, 480)
 
 	if (HAS_AM) {
-		out += lfo_am;
+		out += lfo_am; // [0, 512)
 	}
-	return std::min<unsigned>(out, DB_MUTE - 1) | 3;
+	return out | 3;
 }
 
 // CARRIER
