@@ -30,7 +30,7 @@ public:
 	void updateGenerators(Channel& channel);
 
 	inline int calcOutput(unsigned lfo_am, int phase) const;
-	inline void updateModulator(unsigned lfo_am);
+	inline int calc_slot_mod(unsigned lfo_am);
 	inline void advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bool carrier);
 	inline void advancePhaseGenerator(Channel& channel, unsigned lfo_pm);
 
@@ -46,10 +46,6 @@ public:
 	/** Returns the integer part of the frequency counter of this slot.
 	 */
 	int getPhase() const;
-
-	/** Output of SLOT 1 can be used to phase modulate SLOT 2.
-	 */
-	int getPhaseModulation() const;
 
 	/** Sets the frequency multiplier [0..15].
 	 */
@@ -179,7 +175,7 @@ public:
 
 	/** Calculate the value of the current sample produced by this channel.
 	 */
-	inline int calcOutput(unsigned lfo_am) const;
+	inline int calcOutput(unsigned lfo_am, int fm) const;
 
 	/** Sets the frequency for this channel.
 	 */

@@ -538,7 +538,7 @@ inline int Slot::calcOutput(unsigned lfo_am, int phase) const
 	return p < TL_TAB_LEN ? tl_tab[p] : 0;
 }
 
-inline void Slot::updateModulator(unsigned lfo_am)
+inline int Slot::calc_slot_mod(unsigned lfo_am)
 {
 	// Compute phase.
 	int phase = getPhase();
@@ -549,11 +549,12 @@ inline void Slot::updateModulator(unsigned lfo_am)
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
 	op1_out[1] = calcOutput(lfo_am, phase);
+	return op1_out[0] << 1;
 }
 
-inline int Channel::calcOutput(unsigned lfo_am) const
+inline int Channel::calcOutput(unsigned lfo_am, int fm) const
 {
-	return car.calcOutput(lfo_am, car.getPhase() + mod.getPhaseModulation());
+	return car.calcOutput(lfo_am, car.getPhase() + fm);
 }
 
 
@@ -746,11 +747,6 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 int Slot::getPhase() const
 {
 	return phase.toInt();
-}
-
-int Slot::getPhaseModulation() const
-{
-	return op1_out[0] << 1;
 }
 
 void Slot::setFrequencyMultiplier(byte value)
@@ -1189,9 +1185,9 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
 			Channel& channel = channels[ch];
-			channel.mod.updateModulator(lfo_am);
+			int fm = channel.mod.calc_slot_mod(lfo_am);
 			if ((channelActiveBits >> ch) & 1) {
-				bufs[ch][i] += channel.calcOutput(lfo_am);
+				bufs[ch][i] += channel.calcOutput(lfo_am, fm);
 			}
 		}
 		if (rhythm) {
@@ -1203,9 +1199,9 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			//                     operator 1 is ignored
 			//  - output sample always is multiplied by 2
 			Channel& channel6 = channels[6];
-			channel6.mod.updateModulator(lfo_am);
+			int fm = channel6.mod.calc_slot_mod(lfo_am);
 			if (channelActiveBits & (1 << 6)) {
-				bufs[ 9][i] += 2 * channel6.calcOutput(lfo_am);
+				bufs[ 9][i] += 2 * channel6.calcOutput(lfo_am, fm);
 			}
 
 			// TODO: Skip phase generation if output will 0 anyway.
