@@ -298,23 +298,16 @@ static void makeDphaseTable()
 
 static void makeTllTable()
 {
-	double kltable[16] = {
-		( 0.000 * 2), ( 9.000 * 2), (12.000 * 2), (13.875 * 2),
-		(15.000 * 2), (16.125 * 2), (16.875 * 2), (17.625 * 2),
-		(18.000 * 2), (18.750 * 2), (19.125 * 2), (19.500 * 2),
-		(19.875 * 2), (20.250 * 2), (20.625 * 2), (21.000 * 2)
+	static const unsigned kltable[16] = {
+		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum = freq & 15;
 		unsigned block = freq / 16;
-		double tmp = kltable[fnum] - (3.000 * 2) * (7 - block);
+		int tmp = 2 * kltable[fnum] - 16 * (7 - block);
 		for (unsigned KL = 0; KL < 4; ++KL) {
-			tllTable[freq][KL] =
-				( (tmp <= 0 || KL == 0)
-				? 0
-				: unsigned((tmp / (1 << (3 - KL))) / EG_STEP)
-				);
+			tllTable[freq][KL] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 		}
 	}
 }
