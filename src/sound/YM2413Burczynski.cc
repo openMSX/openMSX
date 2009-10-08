@@ -361,7 +361,7 @@ static inline FreqIndex fnumToIncrement(int block_fnum)
 	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
 }
 
-inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bool carrier)
+inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 {
 	switch (state) {
 	case EG_DUMP:
@@ -441,9 +441,10 @@ inline void Slot::advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bo
 	case EG_OFF:
 		break;
 	}
+	return egout;
 }
 
-inline void Slot::advancePhaseGenerator(Channel& channel, unsigned lfo_pm)
+inline int Slot::calc_phase(Channel& channel, unsigned lfo_pm)
 {
 	if (vib) {
 		const int lfo_fn_table_index_offset = lfo_pm_table
@@ -455,6 +456,7 @@ inline void Slot::advancePhaseGenerator(Channel& channel, unsigned lfo_pm)
 		// LFO phase modulation disabled for this operator
 		phase += freq;
 	}
+	return phase.toInt();
 }
 
 inline void Slot::updateTotalLevel(Channel& channel)
@@ -485,76 +487,34 @@ inline void Slot::updateReleaseRate()
 	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
 }
 
-inline void YM2413::advance()
+inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
+                            unsigned lfo_am, int phase)
 {
-	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
-	lfo_pm_cnt.addQuantum();
-	unsigned lfo_pm = lfo_pm_cnt.toInt() & 7;
-
-	++eg_cnt;
-	for (int ch = 0; ch < 9; ++ch) {
-		Channel& channel = channels[ch];
-
-		// TODO difference with Okazaki code
-		//   ch >= 6  vs  ch >= 7
-		bool actAsCarrier = rhythm && (ch >= 6);
-		channel.mod.advanceEnvelopeGenerator(channel, eg_cnt, actAsCarrier);
-		channel.mod.advancePhaseGenerator(channel, lfo_pm);
-
-		channel.car.advanceEnvelopeGenerator(channel, eg_cnt, true);
-		channel.car.advancePhaseGenerator(channel, lfo_pm);
-	}
-
-	// The Noise Generator of the YM3812 is 23-bit shift register.
-	// Period is equal to 2^23-2 samples.
-	// Register works at sampling frequency of the chip, so output
-	// can change on every sample.
-	//
-	// Output of the register and input to the bit 22 is:
-	// bit0 XOR bit14 XOR bit15 XOR bit22
-	//
-	// Simply use bit 22 as the noise output.
-
-	//  int j = ((noise_rng >>  0) ^ (noise_rng >> 14) ^
-	//           (noise_rng >> 15) ^ (noise_rng >> 22)) & 1;
-	//  noise_rng = (j << 22) | (noise_rng >> 1);
-	//
-	//    Instead of doing all the logic operations above, we
-	//    use a trick here (and use bit 0 as the noise output).
-	//    The difference is only that the noise bit changes one
-	//    step ahead. This doesn't matter since we don't know
-	//    what is real state of the noise_rng after the reset.
-
-	if (noise_rng & 1) {
-		noise_rng ^= 0x800302;
-	}
-	noise_rng >>= 1;
-}
-
-inline int Slot::calcOutput(unsigned lfo_am, int phase) const
-{
-	const int env = (TLL + egout + (lfo_am & AMmask)) << 5;
-	const int p = env + wavetable[phase & SIN_MASK];
+	int egout = calc_envelope(channel, eg_cnt, carrier);
+	int env = (TLL + egout + (lfo_am & AMmask)) << 5;
+	int p = env + wavetable[phase & SIN_MASK];
 	return p < TL_TAB_LEN ? tl_tab[p] : 0;
 }
 
-inline int Slot::calc_slot_mod(unsigned lfo_am)
+inline int Slot::calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
+                               unsigned lfo_pm, unsigned lfo_am)
 {
 	// Compute phase.
-	int phase = getPhase();
+	int phase = calc_phase(channel, lfo_pm);
 	if (fb_shift) {
 		phase += (op1_out[0] + op1_out[1]) >> fb_shift;
 	}
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
-	op1_out[1] = calcOutput(lfo_am, phase);
+	op1_out[1] = calcOutput(channel, eg_cnt, carrier, lfo_am, phase);
 	return op1_out[0] << 1;
 }
 
-inline int Channel::calcOutput(unsigned lfo_am, int fm) const
+inline int Channel::calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am, int fm)
 {
-	return car.calcOutput(lfo_am, car.getPhase() + fm);
+	int phase = car.calc_phase(*this, lfo_pm) + fm;
+	return car.calcOutput(*this, eg_cnt, true, lfo_am, phase);
 }
 
 
@@ -571,7 +531,7 @@ inline int Channel::calcOutput(unsigned lfo_am, int fm) const
 //  8 / 0   14        52  72   92   f2                    +
 //  8 / 1   17        55  75   95   f5                          +
 //
-//    Phase Generator:
+// Phase Generator:
 //
 // channel  operator  register number   Bass  High  Snare Tom  Top
 // / slot   number    MULTIPLE          Drum  Hat   Drum  Tom  Cymbal
@@ -596,20 +556,19 @@ inline int Channel::calcOutput(unsigned lfo_am, int fm) const
 //   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
 //            (same combination as HIGH HAT but different output phases)
 
-inline int YM2413::genPhaseHighHat()
+inline int YM2413::genPhaseHighHat(int phaseM7, int phaseC8)
 {
 	// hi == phase >= 0x200
 	bool hi;
 	// enable gate based on frequency of operator 2 in channel 8
-	if (channels[8].car.getPhase() & 0x28) {
+	if (phaseC8 & 0x28) {
 		hi = true;
 	} else {
 		// base frequency derived from operator 1 in channel 7
-		const int op71phase = channels[7].mod.getPhase();
 		// VC++ requires explicit conversion to bool. Compiler bug??
-		const bool bit7 = (op71phase & 0x80) != 0;
-		const bool bit3 = (op71phase & 0x08) != 0;
-		const bool bit2 = (op71phase & 0x04) != 0;
+		const bool bit7 = (phaseM7 & 0x80) != 0;
+		const bool bit3 = (phaseM7 & 0x08) != 0;
+		const bool bit2 = (phaseM7 & 0x04) != 0;
 		hi = (bit2 ^ bit7) | bit3;
 	}
 	if (noise_rng & 1) {
@@ -619,26 +578,25 @@ inline int YM2413::genPhaseHighHat()
 	}
 }
 
-inline int YM2413::genPhaseSnare()
+inline int YM2413::genPhaseSnare(int phaseM7)
 {
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
-	return ((channels[7].mod.getPhase() & 0x100) + 0x100)
+	return ((phaseM7 & 0x100) + 0x100)
 	     ^ ((noise_rng & 1) << 8);
 }
 
-inline int YM2413::genPhaseCymbal()
+inline int YM2413::genPhaseCymbal(int phaseM7, int phaseC8)
 {
 	// enable gate based on frequency of operator 2 in channel 8
-	if (channels[8].car.getPhase() & 0x28) {
+	if (phaseC8 & 0x28) {
 		return 0x300;
 	} else {
 		// base frequency derived from operator 1 in channel 7
-		const int op71Phase = channels[7].mod.getPhase();
 		// VC++ requires explicit conversion to bool. Compiler bug??
-		const bool bit7 = (op71Phase & 0x80) != 0;
-		const bool bit3 = (op71Phase & 0x08) != 0;
-		const bool bit2 = (op71Phase & 0x04) != 0;
+		const bool bit7 = (phaseM7 & 0x80) != 0;
+		const bool bit3 = (phaseM7 & 0x08) != 0;
+		const bool bit2 = (phaseM7 & 0x04) != 0;
 		return ((bit2 ^ bit7) | bit3) ? 0x300 : 0x100;
 	}
 }
@@ -742,11 +700,6 @@ bool Slot::isActive() const
 void Slot::setEnvelopeState(EnvelopeState state_)
 {
 	state = state_;
-}
-
-int Slot::getPhase() const
-{
-	return phase.toInt();
 }
 
 void Slot::setFrequencyMultiplier(byte value)
@@ -1182,12 +1135,13 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			lfo_am_cnt = LFOAMIndex(0);
 		}
 		unsigned lfo_am = lfo_am_table[lfo_am_cnt.toInt()] >> 1;
+		unsigned lfo_pm = lfo_pm_cnt.toInt() & 7;
 
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
 			Channel& channel = channels[ch];
-			int fm = channel.mod.calc_slot_mod(lfo_am);
+			int fm = channel.mod.calc_slot_mod(channel, eg_cnt, false, lfo_pm, lfo_am);
 			if ((channelActiveBits >> ch) & 1) {
-				bufs[ch][i] += channel.calcOutput(lfo_am, fm);
+				bufs[ch][i] += channel.calcOutput(eg_cnt, lfo_pm, lfo_am, fm);
 			}
 		}
 		if (rhythm) {
@@ -1199,40 +1153,74 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			//                     operator 1 is ignored
 			//  - output sample always is multiplied by 2
 			Channel& channel6 = channels[6];
-			int fm = channel6.mod.calc_slot_mod(lfo_am);
+			int fm = channel6.mod.calc_slot_mod(channels[6], eg_cnt, true, lfo_pm, lfo_am);
 			if (channelActiveBits & (1 << 6)) {
-				bufs[ 9][i] += 2 * channel6.calcOutput(lfo_am, fm);
+				bufs[ 9][i] += 2 * channel6.calcOutput(eg_cnt, lfo_pm, lfo_am, fm);
 			}
 
 			// TODO: Skip phase generation if output will 0 anyway.
 			//       Possible by passing phase generator as a template parameter to
 			//       calcOutput.
 
+			/*  phaseC7 */channels[7].car.calc_phase(channels[7], lfo_pm);
+			int phaseM7 = channels[7].mod.calc_phase(channels[7], lfo_pm);
+			int phaseC8 = channels[8].car.calc_phase(channels[8], lfo_pm);
+			int phaseM8 = channels[8].mod.calc_phase(channels[8], lfo_pm);
+
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
 				Slot& SLOT7_2 = channels[7].car;
-				bufs[10][i] += 2 * SLOT7_2.calcOutput(lfo_am, genPhaseSnare());
+				bufs[10][i] += 2 * SLOT7_2.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseSnare(phaseM7));
 			}
 
 			// Top Cymbal (verified on real YM2413)
 			if (channelActiveBits & (1 << 8)) {
 				Slot& SLOT8_2 = channels[8].car;
-				bufs[11][i] += 2 * SLOT8_2.calcOutput(lfo_am, genPhaseCymbal());
+				bufs[11][i] += 2 * SLOT8_2.calcOutput(channels[8], eg_cnt, true, lfo_am, genPhaseCymbal(phaseM7, phaseC8));
 			}
 
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				Slot& SLOT7_1 = channels[7].mod;
-				bufs[12][i] += 2 * SLOT7_1.calcOutput(lfo_am, genPhaseHighHat());
+				bufs[12][i] += 2 * SLOT7_1.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseHighHat(phaseM7, phaseC8));
 			}
 
 			// Tom Tom (verified on real YM3812)
 			if (channelActiveBits & (1 << (8 + 9))) {
 				Slot& SLOT8_1 = channels[8].mod;
-				bufs[13][i] += 2 * SLOT8_1.calcOutput(lfo_am, SLOT8_1.getPhase());
+				bufs[13][i] += 2 * SLOT8_1.calcOutput(channels[8], eg_cnt, true, lfo_am, phaseM8);
 			}
 		}
-		advance();
+
+		// Vibrato: 8 output levels (triangle waveform)
+		// 1 level takes 1024 samples
+		lfo_pm_cnt.addQuantum();
+
+		++eg_cnt;
+
+		// The Noise Generator of the YM3812 is 23-bit shift register.
+		// Period is equal to 2^23-2 samples.
+		// Register works at sampling frequency of the chip, so output
+		// can change on every sample.
+		//
+		// Output of the register and input to the bit 22 is:
+		// bit0 XOR bit14 XOR bit15 XOR bit22
+		//
+		// Simply use bit 22 as the noise output.
+
+		//  int j = ((noise_rng >>  0) ^ (noise_rng >> 14) ^
+		//           (noise_rng >> 15) ^ (noise_rng >> 22)) & 1;
+		//  noise_rng = (j << 22) | (noise_rng >> 1);
+		//
+		//    Instead of doing all the logic operations above, we
+		//    use a trick here (and use bit 0 as the noise output).
+		//    The difference is only that the noise bit changes one
+		//    step ahead. This doesn't matter since we don't know
+		//    what is real state of the noise_rng after the reset.
+		if (noise_rng & 1) {
+			noise_rng ^= 0x800302;
+		}
+		noise_rng >>= 1;
 	}
 }
 

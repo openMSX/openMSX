@@ -29,10 +29,12 @@ public:
 	 */
 	void updateGenerators(Channel& channel);
 
-	inline int calcOutput(unsigned lfo_am, int phase) const;
-	inline int calc_slot_mod(unsigned lfo_am);
-	inline void advanceEnvelopeGenerator(Channel& channel, unsigned eg_cnt, bool carrier);
-	inline void advancePhaseGenerator(Channel& channel, unsigned lfo_pm);
+	inline int calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
+	                      unsigned lfo_am, int phase);
+	inline int calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
+	                         unsigned lfo_pm, unsigned lfo_am);
+	inline int calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier);
+	inline int calc_phase(Channel& channel, unsigned lfo_pm);
 
 	enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 	void setKeyOn(KeyPart part);
@@ -42,10 +44,6 @@ public:
 	/** Does this slot currently produce an output signal?
 	 */
 	bool isActive() const;
-
-	/** Returns the integer part of the frequency counter of this slot.
-	 */
-	int getPhase() const;
 
 	/** Sets the frequency multiplier [0..15].
 	 */
@@ -175,7 +173,7 @@ public:
 
 	/** Calculate the value of the current sample produced by this channel.
 	 */
-	inline int calcOutput(unsigned lfo_am, int fm) const;
+	inline int calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am, int fm);
 
 	/** Sets the frequency for this channel.
 	 */
@@ -259,13 +257,9 @@ private:
 
 	Channel& getChannelForReg(byte reg);
 
-	/** Advance envelope and phase generators to next sample.
-	 */
-	inline void advance();
-
-	inline int genPhaseHighHat();
-	inline int genPhaseSnare();
-	inline int genPhaseCymbal();
+	inline int genPhaseHighHat(int phaseM7, int phaseC8);
+	inline int genPhaseSnare  (int phaseM7);
+	inline int genPhaseCymbal (int phaseM7, int phaseC8);
 
 	/** Called when the custom instrument (instrument 0) has changed.
 	 * @param part Part [0..7] of the instrument.
