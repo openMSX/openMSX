@@ -303,6 +303,7 @@ static void makeDphaseTable()
 
 static void makeTllTable()
 {
+	// Processed version of Table III-5 from the Application Manual.
 	static const unsigned kltable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
