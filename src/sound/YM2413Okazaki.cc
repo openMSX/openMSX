@@ -408,9 +408,8 @@ void Patch::setKeyScaleRate(bool value)
 //
 // Slot
 //
-void Slot::reset(bool type_)
+void Slot::reset()
 {
-	type = type_;
 	sintbl = waveform[0];
 	cphase = 0;
 	dphase = 0;
@@ -430,9 +429,9 @@ void Slot::updatePG(unsigned freq)
 	dphase = dphaseTable[freq][patch.ML];
 }
 
-void Slot::updateTLL(unsigned freq)
+void Slot::updateTLL(unsigned freq, bool actAsCarrier)
 {
-	tll = tllTable[freq >> 5][patch.KL] + TL2EG(type ? volume : patch.TL);
+	tll = tllTable[freq >> 5][patch.KL] + TL2EG(actAsCarrier ? volume : patch.TL);
 }
 
 void Slot::updateRKS(unsigned freq)
@@ -477,10 +476,10 @@ void Slot::updateEG()
 	}
 }
 
-void Slot::updateAll(unsigned freq)
+void Slot::updateAll(unsigned freq, bool actAsCarrier)
 {
 	updatePG(freq);
-	updateTLL(freq);
+	updateTLL(freq, actAsCarrier);
 	updateRKS(freq);
 	updateWF();
 	updateEG(); // EG should be updated last
@@ -572,8 +571,8 @@ void Slot::setVolume(unsigned newVolume)
 void Channel::reset(YM2413& ym2413)
 {
 	freq = 0;
-	mod.reset(false);
-	car.reset(true);
+	mod.reset();
+	car.reset();
 	setPatch(0, ym2413);
 }
 
@@ -591,10 +590,10 @@ void Channel::setPatch(unsigned num, YM2413& ym2413)
 }
 
 // Set sustain parameter
-void Channel::setSustain(bool sustain)
+void Channel::setSustain(bool sustain, bool modActAsCarrier)
 {
 	car.sustain = sustain;
-	if (mod.type) {
+	if (modActAsCarrier) {
 		mod.sustain = sustain;
 	}
 }
@@ -751,13 +750,11 @@ void YM2413::update_rhythm_mode()
 	if (ch7.patch_number & 0x10) {
 		if (!((ch7.mod.slot_on_flag && ch7.car.slot_on_flag) ||
 		      isRhythm())) {
-			ch7.mod.type = false;
 			ch7.mod.setEnvelopeState(FINISH);
 			ch7.car.setEnvelopeState(FINISH);
 			ch7.setPatch(reg[0x37] >> 4, *this);
 		}
 	} else if (isRhythm()) {
-		ch7.mod.type = true;
 		ch7.mod.setEnvelopeState(FINISH);
 		ch7.car.setEnvelopeState(FINISH);
 		ch7.setPatch(17, *this);
@@ -767,13 +764,11 @@ void YM2413::update_rhythm_mode()
 	if (ch8.patch_number & 0x10) {
 		if (!((ch8.mod.slot_on_flag && ch8.car.slot_on_flag) ||
 		      isRhythm())) {
-			ch8.mod.type = false;
 			ch8.mod.setEnvelopeState(FINISH);
 			ch8.car.setEnvelopeState(FINISH);
 			ch8.setPatch(reg[0x38] >> 4, *this);
 		}
 	} else if (isRhythm()) {
-		ch8.mod.type = true;
 		ch8.mod.setEnvelopeState(FINISH);
 		ch8.car.setEnvelopeState(FINISH);
 		ch8.setPatch(18, *this);
@@ -1212,7 +1207,8 @@ void YM2413::writeReg(byte regis, byte data)
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
-				ch.mod.updateTLL(ch.freq);
+				bool actAsCarrier = (i >= 7) && isRhythm();
+				ch.mod.updateTLL(ch.freq, actAsCarrier);
 			}
 		}
 		break;
@@ -1299,14 +1295,14 @@ void YM2413::writeReg(byte regis, byte data)
 		update_key_status();
 
 		Channel& ch6 = channels[6];
-		ch6.mod.updateAll(ch6.freq);
-		ch6.car.updateAll(ch6.freq);
+		ch6.mod.updateAll(ch6.freq, false);
+		ch6.car.updateAll(ch6.freq, true);
 		Channel& ch7 = channels[7];
-		ch7.mod.updateAll(ch7.freq);
-		ch7.car.updateAll(ch7.freq);
+		ch7.mod.updateAll(ch7.freq, isRhythm());
+		ch7.car.updateAll(ch7.freq, true);
 		Channel& ch8 = channels[8];
-		ch8.mod.updateAll(ch8.freq);
-		ch8.car.updateAll(ch8.freq);
+		ch8.mod.updateAll(ch8.freq, isRhythm());
+		ch8.car.updateAll(ch8.freq, true);
 		break;
 	}
 	case 0x10:  case 0x11:  case 0x12:  case 0x13:
@@ -1316,8 +1312,9 @@ void YM2413::writeReg(byte regis, byte data)
 		unsigned cha = regis & 0x0F;
 		Channel& ch = channels[cha];
 		ch.setFreq((reg[0x20 + cha] & 0xF) << 8 | data);
-		ch.mod.updateAll(ch.freq);
-		ch.car.updateAll(ch.freq);
+		bool actAsCarrier = (cha >= 7) && isRhythm();
+		ch.mod.updateAll(ch.freq, actAsCarrier);
+		ch.car.updateAll(ch.freq, true);
 		break;
 	}
 	case 0x20:  case 0x21:  case 0x22:  case 0x23:
@@ -1327,14 +1324,15 @@ void YM2413::writeReg(byte regis, byte data)
 		unsigned cha = regis & 0x0F;
 		Channel& ch = channels[cha];
 		ch.setFreq((data & 0xF) << 8 | reg[0x10 + cha]);
-		ch.setSustain((data >> 5) & 1);
+		bool modActAsCarrier = (cha >= 7) && isRhythm();
+		ch.setSustain((data >> 5) & 1, modActAsCarrier);
 		if (data & 0x10) {
 			ch.keyOn();
 		} else {
 			ch.keyOff();
 		}
-		ch.mod.updateAll(ch.freq);
-		ch.car.updateAll(ch.freq);
+		ch.mod.updateAll(ch.freq, modActAsCarrier);
+		ch.car.updateAll(ch.freq, true);
 		update_key_status();
 		update_rhythm_mode();
 		break;
@@ -1355,8 +1353,9 @@ void YM2413::writeReg(byte regis, byte data)
 			ch.setPatch(j, *this);
 		}
 		ch.setVol(v << 2);
-		ch.mod.updateAll(ch.freq);
-		ch.car.updateAll(ch.freq);
+		bool actAsCarrier = (cha >= 7) && isRhythm();
+		ch.mod.updateAll(ch.freq, actAsCarrier);
+		ch.car.updateAll(ch.freq, true);
 		break;
 	}
 	default:
@@ -1402,6 +1401,9 @@ void Patch::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("RR", RR);
 }
 
+// version 1:  initial version
+// version 2:  don't serialize "type / actAsCarrier" anymore, it's now
+//             a calculated value
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1412,7 +1414,6 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("state", state);
 	ar.serialize("eg_phase", eg_phase);
 	ar.serialize("sustain", sustain);
-	ar.serialize("type", type);
 	ar.serialize("slot_on_flag", slot_on_flag);
 
 	// These are restored by call to updateAll() in YM2413::serialize()
@@ -1458,8 +1459,9 @@ void YM2413::serialize(Archive& ar, unsigned version)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			ch.setPatch(ch.patch_number, *this); // before updateAll()
-			ch.mod.updateAll(ch.freq);
-			ch.car.updateAll(ch.freq);
+			bool actAsCarrier = (i >= 7) && isRhythm();
+			ch.mod.updateAll(ch.freq, actAsCarrier);
+			ch.car.updateAll(ch.freq, true);
 			ch.mod.setEnvelopeState(ch.mod.state);
 			ch.car.setEnvelopeState(ch.car.state);
 		}

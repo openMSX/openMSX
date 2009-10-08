@@ -55,7 +55,7 @@ public:
 
 class Slot {
 public:
-	void reset(bool type);
+	void reset();
 
 	inline void setEnvelopeState(EnvelopeState state);
 	inline bool isActive() const;
@@ -79,11 +79,11 @@ public:
 	inline int calc_slot_cym(unsigned phase7, unsigned phase8);
 	inline int calc_slot_hat(unsigned phase7, unsigned phase8, bool noise);
 	inline void updatePG(unsigned freq);
-	inline void updateTLL(unsigned freq);
+	inline void updateTLL(unsigned freq, bool actAsCarrier);
 	inline void updateRKS(unsigned freq);
 	inline void updateWF();
 	inline void updateEG();
-	inline void updateAll(unsigned freq);
+	inline void updateAll(unsigned freq, bool actAsCarrier);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -109,7 +109,6 @@ public:
 	EnvPhaseIndex eg_dphase;// Phase increment amount
 	EnvPhaseIndex eg_phase_max;
 	bool sustain;		// Sustain
-	bool type;		// 0 : modulator 1 : carrier
 	bool slot_on_flag;
 };
 
@@ -117,7 +116,7 @@ class Channel {
 public:
 	void reset(YM2413& global);
 	inline void setPatch(unsigned num, YM2413& global);
-	inline void setSustain(bool sustain);
+	inline void setSustain(bool sustain, bool modActAsCarrier);
 	inline void setVol(unsigned volume);
 	inline void setFreq(unsigned freq);
 	inline void keyOn();
@@ -191,6 +190,7 @@ private:
 
 } // namespace YM2413Okazaki
 
+SERIALIZE_CLASS_VERSION(YM2413Okazaki::Slot, 2);
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 2);
 
 } // namespace openmsx

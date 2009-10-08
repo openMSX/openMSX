@@ -495,6 +495,8 @@ inline void YM2413::advance()
 	for (int ch = 0; ch < 9; ++ch) {
 		Channel& channel = channels[ch];
 
+		// TODO difference with Okazaki code
+		//   ch >= 6  vs  ch >= 7
 		bool actAsCarrier = rhythm && (ch >= 6);
 		channel.mod.advanceEnvelopeGenerator(channel, eg_cnt, actAsCarrier);
 		channel.mod.advancePhaseGenerator(channel, lfo_pm);
@@ -1009,12 +1011,10 @@ void YM2413::updateCustomInstrument(int part, byte value)
 	}
 }
 
-void YM2413::setRhythmMode(bool rhythm)
+void YM2413::setRhythmMode(bool rhythm_)
 {
-	if (this->rhythm == rhythm) {
-		return;
-	}
-	this->rhythm = rhythm;
+	if (rhythm == rhythm_) return;
+	rhythm = rhythm_;
 
 	if (rhythm) { // OFF -> ON
 		// Bass drum.
