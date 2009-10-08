@@ -231,7 +231,8 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	Slot slots[2];
+	Slot mod;
+	Slot car;
 
 	/** Instrument/volume (or volume/volume in rhythm mode).
 	 */

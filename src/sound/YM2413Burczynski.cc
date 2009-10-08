@@ -43,10 +43,6 @@ static const int SIN_MASK = SIN_LEN - 1;
 
 static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
-// Slot offsets
-static const byte MOD = 0;
-static const byte CAR = 1;
-
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
@@ -495,17 +491,14 @@ inline void YM2413::advance()
 	lfo_pm_cnt.addQuantum();
 	unsigned lfo_pm = lfo_pm_cnt.toInt() & 7;
 
-	eg_cnt++;
-	for (int ch = 0; ch < 9; ch++) {
-		Channel& channel = channels[ch];
-		for (int sl = 0; sl < 2; sl++) {
-			Slot& slot = channel.slots[sl];
-			slot.advanceEnvelopeGenerator(
-				eg_cnt,
-				sl == 1 || (rhythm && ch >= 6) // act as carrier?
-				);
-			slot.advancePhaseGenerator(lfo_pm);
-		}
+	++eg_cnt;
+	for (int ch = 0; ch < 9; ++ch) {
+		bool actAsCarrier = rhythm && (ch >= 6);
+		channels[ch].mod.advanceEnvelopeGenerator(eg_cnt, actAsCarrier);
+		channels[ch].mod.advancePhaseGenerator(lfo_pm);
+
+		channels[ch].car.advanceEnvelopeGenerator(eg_cnt, true);
+		channels[ch].car.advancePhaseGenerator(lfo_pm);
 	}
 
 	// The Noise Generator of the YM3812 is 23-bit shift register.
@@ -556,8 +549,7 @@ inline void Slot::updateModulator(unsigned lfo_am)
 
 inline int Channel::calcOutput(unsigned lfo_am) const
 {
-	return slots[CAR].calcOutput(lfo_am,
-		slots[CAR].getPhase() + slots[MOD].getPhaseModulation());
+	return car.calcOutput(lfo_am, car.getPhase() + mod.getPhaseModulation());
 }
 
 
@@ -604,11 +596,11 @@ inline int YM2413::genPhaseHighHat()
 	// hi == phase >= 0x200
 	bool hi;
 	// enable gate based on frequency of operator 2 in channel 8
-	if (channels[8].slots[CAR].getPhase() & 0x28) {
+	if (channels[8].car.getPhase() & 0x28) {
 		hi = true;
 	} else {
 		// base frequency derived from operator 1 in channel 7
-		const int op71phase = channels[7].slots[MOD].getPhase();
+		const int op71phase = channels[7].mod.getPhase();
 		// VC++ requires explicit conversion to bool. Compiler bug??
 		const bool bit7 = (op71phase & 0x80) != 0;
 		const bool bit3 = (op71phase & 0x08) != 0;
@@ -626,18 +618,18 @@ inline int YM2413::genPhaseSnare()
 {
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
-	return ((channels[7].slots[MOD].getPhase() & 0x100) + 0x100)
+	return ((channels[7].mod.getPhase() & 0x100) + 0x100)
 	     ^ ((noise_rng & 1) << 8);
 }
 
 inline int YM2413::genPhaseCymbal()
 {
 	// enable gate based on frequency of operator 2 in channel 8
-	if (channels[8].slots[CAR].getPhase() & 0x28) {
+	if (channels[8].car.getPhase() & 0x28) {
 		return 0x300;
 	} else {
 		// base frequency derived from operator 1 in channel 7
-		const int op71Phase = channels[7].slots[MOD].getPhase();
+		const int op71Phase = channels[7].mod.getPhase();
 		// VC++ requires explicit conversion to bool. Compiler bug??
 		const bool bit7 = (op71Phase & 0x80) != 0;
 		const bool bit3 = (op71Phase & 0x08) != 0;
@@ -654,7 +646,7 @@ static void initTables()
 	}
 	alreadyInit = true;
 
-	for (int x = 0; x < TL_RES_LEN; x++) {
+	for (int x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / pow(2, (x + 1) * (ENV_STEP / 4.0) / 8.0);
 		m = floor(m);
 
@@ -664,13 +656,13 @@ static void initTables()
 		n >>= 4;        // 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
-		for (int i = 0; i < 11; i++) {
+		for (int i = 0; i < 11; ++i) {
 			tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
 			tl_tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
 		}
 	}
 
-	for (int i = 0; i < SIN_LEN; i++) {
+	for (int i = 0; i < SIN_LEN; ++i) {
 		// non-standard sinus
 		// checked against the real chip
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN);
@@ -875,8 +867,8 @@ Channel::Channel()
 	block_fnum = ksl_base = kcode = 0;
 	sus = false;
 
-	slots[MOD].init(*this);
-	slots[CAR].init(*this);
+	mod.init(*this);
+	car.init(*this);
 }
 
 void Channel::setFrequency(int block_fnum)
@@ -892,8 +884,8 @@ void Channel::setFrequency(int block_fnum)
 	fc       = fnumToIncrement(block_fnum * 2);
 
 	// Refresh Total Level and frequency counter in both SLOTs of this channel.
-	slots[MOD].updateFrequency();
-	slots[CAR].updateFrequency();
+	mod.updateFrequency();
+	car.updateFrequency();
 }
 
 void Channel::setFrequencyLow(byte value)
@@ -944,21 +936,23 @@ void Channel::setSustain(bool sustained)
 void Channel::updateInstrumentPart(YM2413& ym2413, int instrument, int part)
 {
 	const byte* inst = ym2413.getInstrument(instrument);
-	Slot& mod = slots[MOD];
-	Slot& car = slots[CAR];
 	switch (part) {
 	case 0:
-	case 1: {
-		Slot& slot = slots[part];
-		byte value = inst[part];
-		slot.setFrequencyMultiplier(value & 0x0F);
-		slot.setKeyScaleRate((value & 0x10) != 0);
-		slot.setEnvelopeSustained((value & 0x20) != 0);
-		slot.setVibrato((value & 0x40) != 0);
-		slot.setAmplitudeModulation((value & 0x80) != 0);
-		slot.updateGenerators();
+		mod.setFrequencyMultiplier(inst[0] & 0x0F);
+		mod.setKeyScaleRate((inst[0] & 0x10) != 0);
+		mod.setEnvelopeSustained((inst[0] & 0x20) != 0);
+		mod.setVibrato((inst[0] & 0x40) != 0);
+		mod.setAmplitudeModulation((inst[0] & 0x80) != 0);
+		mod.updateGenerators();
 		break;
-	}
+	case 1:
+		car.setFrequencyMultiplier(inst[1] & 0x0F);
+		car.setKeyScaleRate((inst[1] & 0x10) != 0);
+		car.setEnvelopeSustained((inst[1] & 0x20) != 0);
+		car.setVibrato((inst[1] & 0x40) != 0);
+		car.setAmplitudeModulation((inst[1] & 0x80) != 0);
+		car.updateGenerators();
+		break;
 	case 2:
 		mod.setKeyScaleLevel(inst[2] >> 6);
 		mod.setTotalLevel(inst[2] & 0x3F);
@@ -1015,8 +1009,8 @@ void YM2413::updateCustomInstrument(int part, byte value)
 
 	// Update every channel that has instrument 0 selected.
 	const int numMelodicChannels = getNumMelodicChannels();
-	for (int chan = 0; chan < numMelodicChannels; chan++) {
-		Channel& channel = channels[chan];
+	for (int ch = 0; ch < numMelodicChannels; ++ch) {
+		Channel& channel = channels[ch];
 		if ((channel.instvol_r & 0xF0) == 0) {
 			channel.updateInstrumentPart(*this, 0, part);
 		}
@@ -1036,26 +1030,26 @@ void YM2413::setRhythmMode(bool rhythm)
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
 		ch7.updateInstrument(*this, 17);
-		ch7.slots[MOD].setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
+		ch7.mod.setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
 		ch8.updateInstrument(*this, 18);
-		ch8.slots[MOD].setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
+		ch8.mod.setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
 		channels[6].updateInstrument(*this);
 		channels[7].updateInstrument(*this);
 		channels[8].updateInstrument(*this);
 		// BD key off
-		channels[6].slots[MOD].setKeyOff(Slot::KEY_RHYTHM);
-		channels[6].slots[CAR].setKeyOff(Slot::KEY_RHYTHM);
+		channels[6].mod.setKeyOff(Slot::KEY_RHYTHM);
+		channels[6].car.setKeyOff(Slot::KEY_RHYTHM);
 		// HH key off
-		channels[7].slots[MOD].setKeyOff(Slot::KEY_RHYTHM);
+		channels[7].mod.setKeyOff(Slot::KEY_RHYTHM);
 		// SD key off
-		channels[7].slots[CAR].setKeyOff(Slot::KEY_RHYTHM);
+		channels[7].car.setKeyOff(Slot::KEY_RHYTHM);
 		// TOM key off
-		channels[8].slots[MOD].setKeyOff(Slot::KEY_RHYTHM);
+		channels[8].mod.setKeyOff(Slot::KEY_RHYTHM);
 		// TOP-CY off
-		channels[8].slots[CAR].setKeyOff(Slot::KEY_RHYTHM);
+		channels[8].car.setKeyOff(Slot::KEY_RHYTHM);
 	}
 }
 
@@ -1065,16 +1059,16 @@ void YM2413::setRhythmFlags(byte flags)
 	setRhythmMode((flags & 0x20) != 0);
 	if (rhythm) {
 		// BD key on/off
-		channels[6].slots[MOD].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
-		channels[6].slots[CAR].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
+		channels[6].mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
+		channels[6].car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
 		// HH key on/off
-		channels[7].slots[MOD].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x01) != 0);
+		channels[7].mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x01) != 0);
 		// SD key on/off
-		channels[7].slots[CAR].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x08) != 0);
+		channels[7].car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x08) != 0);
 		// TOM key on/off
-		channels[8].slots[MOD].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x04) != 0);
+		channels[8].mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x04) != 0);
 		// TOP-CY key on/off
-		channels[8].slots[CAR].setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x02) != 0);
+		channels[8].car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x02) != 0);
 	}
 }
 
@@ -1085,15 +1079,15 @@ void YM2413::reset()
 	idleSamples = 0;
 
 	// setup instruments table
-	for (int instrument = 0; instrument < 19; instrument++) {
-		for (int part = 0; part < 8; part++) {
+	for (int instrument = 0; instrument < 19; ++instrument) {
+		for (int part = 0; part < 8; ++part) {
 			inst_tab[instrument][part] = table[instrument][part];
 		}
 	}
 
 	// reset with register write
 	writeReg(0x0F, 0); // test reg
-	for (int i = 0x3F; i >= 0x10; i--) {
+	for (int i = 0x3F; i >= 0x10; --i) {
 		writeReg(i, 0);
 	}
 
@@ -1102,12 +1096,9 @@ void YM2413::reset()
 
 void YM2413::resetOperators()
 {
-	for (int c = 0; c < 9; c++) {
-		Channel& ch = channels[c];
-		for (int s = 0; s < 2; s++) {
-			// wave table
-			ch.slots[s].resetOperators();
-		}
+	for (int ch = 0; ch < 9; ++ch) {
+		channels[ch].mod.resetOperators();
+		channels[ch].car.resetOperators();
 	}
 }
 
@@ -1137,13 +1128,13 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
 
-	// bits 0-8  -> ch[0-8][CAR]
-	// bits 9-17 -> ch[0-8][MOD] (only ch7 and ch8 used)
+	// bits 0-8  -> ch[0-8].car
+	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 used)
 	unsigned channelActiveBits = 0;
 
 	const int numMelodicChannels = getNumMelodicChannels();
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
-		if (channels[ch].slots[CAR].isActive()) {
+		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
 			bufs[ch] = 0;
@@ -1154,18 +1145,18 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 		bufs[7] = 0;
 		bufs[8] = 0;
 		for (int ch = 6; ch < 9; ++ch) {
-			if (channels[ch].slots[CAR].isActive()) {
+			if (channels[ch].car.isActive()) {
 				channelActiveBits |= 1 << ch;
 			} else {
 				bufs[ch + 3] = 0;
 			}
 		}
-		if (channels[7].slots[MOD].isActive()) {
+		if (channels[7].mod.isActive()) {
 			channelActiveBits |= 1 << (7 + 9);
 		} else {
 			bufs[12] = 0;
 		}
-		if (channels[8].slots[MOD].isActive()) {
+		if (channels[8].mod.isActive()) {
 			channelActiveBits |= 1 << (8 + 9);
 		} else {
 			bufs[13] = 0;
@@ -1206,7 +1197,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
 			Channel& channel = channels[ch];
-			channel.slots[MOD].updateModulator(lfo_am);
+			channel.mod.updateModulator(lfo_am);
 			if ((channelActiveBits >> ch) & 1) {
 				bufs[ch][i] += channel.calcOutput(lfo_am);
 			}
@@ -1220,7 +1211,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			//                     operator 1 is ignored
 			//  - output sample always is multiplied by 2
 			Channel& channel6 = channels[6];
-			channel6.slots[MOD].updateModulator(lfo_am);
+			channel6.mod.updateModulator(lfo_am);
 			if (channelActiveBits & (1 << 6)) {
 				bufs[ 9][i] += 2 * channel6.calcOutput(lfo_am);
 			}
@@ -1231,25 +1222,25 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
-				Slot& SLOT7_2 = channels[7].slots[CAR];
+				Slot& SLOT7_2 = channels[7].car;
 				bufs[10][i] += 2 * SLOT7_2.calcOutput(lfo_am, genPhaseSnare());
 			}
 
 			// Top Cymbal (verified on real YM2413)
 			if (channelActiveBits & (1 << 8)) {
-				Slot& SLOT8_2 = channels[8].slots[CAR];
+				Slot& SLOT8_2 = channels[8].car;
 				bufs[11][i] += 2 * SLOT8_2.calcOutput(lfo_am, genPhaseCymbal());
 			}
 
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
-				Slot& SLOT7_1 = channels[7].slots[MOD];
+				Slot& SLOT7_1 = channels[7].mod;
 				bufs[12][i] += 2 * SLOT7_1.calcOutput(lfo_am, genPhaseHighHat());
 			}
 
 			// Tom Tom (verified on real YM3812)
 			if (channelActiveBits & (1 << (8 + 9))) {
-				Slot& SLOT8_1 = channels[8].slots[MOD];
+				Slot& SLOT8_1 = channels[8].mod;
 				bufs[13][i] += 2 * SLOT8_1.calcOutput(lfo_am, SLOT8_1.getPhase());
 			}
 		}
@@ -1292,8 +1283,8 @@ void YM2413::writeReg(byte r, byte v)
 	case 0x20: {
 		// 20-28: suson, keyon, block, FNUM 8
 		Channel& ch = getChannelForReg(r);
-		ch.slots[MOD].setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
-		ch.slots[CAR].setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
+		ch.mod.setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
+		ch.car.setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
 		ch.setSustain((v & 0x20) != 0);
 		// Note: When changing the frequency, a new value for RS is
 		//       computed using the sustain value, so make sure the new
@@ -1307,7 +1298,7 @@ void YM2413::writeReg(byte r, byte v)
 		byte old_instvol = ch.instvol_r;
 		ch.instvol_r = v;  // store for later use
 
-		ch.slots[CAR].setTotalLevel((v & 0x0F) << 2);
+		ch.car.setTotalLevel((v & 0x0F) << 2);
 
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
@@ -1318,7 +1309,7 @@ void YM2413::writeReg(byte r, byte v)
 			if (chan >= 7) {
 				// Only for channel 7 and 8 (channel 6 is handled in usual way)
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.slots[MOD].setTotalLevel((ch.instvol_r >> 4) << 2);
+				ch.mod.setTotalLevel((ch.instvol_r >> 4) << 2);
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
@@ -1397,7 +1388,14 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
+	// mod/car were originally an array, keep serializing as such for bwc
+	Slot slots[2] = { mod, car };
 	ar.serialize("slots", slots);
+	if (ar.isLoader()) {
+		mod = slots[0];
+		car = slots[1];
+	}
+
 	ar.serialize("instvol_r", instvol_r);
 	ar.serialize("block_fnum", block_fnum);
 	ar.serialize("fc", fc);
