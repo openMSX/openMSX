@@ -308,12 +308,12 @@ static void makeTllTable()
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum = freq & 15;
 		unsigned block = freq / 16;
-		int tmp = int(kltable[fnum] - (3.000 * 2) * (7 - block));
+		double tmp = kltable[fnum] - (3.000 * 2) * (7 - block);
 		for (unsigned KL = 0; KL < 4; ++KL) {
 			tllTable[freq][KL] =
 				( (tmp <= 0 || KL == 0)
 				? 0
-				: unsigned((tmp >> (3 - KL)) / EG_STEP)
+				: unsigned((tmp / (1 << (3 - KL))) / EG_STEP)
 				);
 		}
 	}
