@@ -257,9 +257,6 @@ static const int PG_MASK = PG_WIDTH - 1;
 // Phase increment counter
 static const int DP_BITS = 19;
 static const int DP_BASE_BITS = DP_BITS - PG_BITS;
-// Dynamic range of total level
-static const int TL_BITS = 6;
-static const int TL_MUTE = 1 << TL_BITS;
 
 // WaveTable for each envelope amp.
 //  values are in range[        0,   DB_MUTE)   (for positive values)
@@ -272,7 +269,7 @@ static EnvPhaseIndex dphaseARTable[16][16];
 static EnvPhaseIndex dphaseDRTable[16][16];
 
 // TL Table.
-static int tllTable[16 * 8][1 << TL_BITS][4];
+static int tllTable[16 * 8][4];
 
 // Phase incr table for PG.
 static unsigned dphaseTable[1024 * 8][16];
@@ -432,25 +429,17 @@ static void makeDphaseTable()
 
 static void makeTllTable()
 {
-	#define dB2(x) int((x) * 2)
-	static int kltable[16] = {
-		dB2( 0.000), dB2( 9.000), dB2(12.000), dB2(13.875),
-		dB2(15.000), dB2(16.125), dB2(16.875), dB2(17.625),
-		dB2(18.000), dB2(18.750), dB2(19.125), dB2(19.500),
-		dB2(19.875), dB2(20.250), dB2(20.625), dB2(21.000)
+	// Processed version of Table 3.5 from the Application Manual
+	static const unsigned kltable[16] = {
+		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
-		for (unsigned TL = 0; TL < 64; ++TL) {
-			tllTable[freq][TL][0] = TL * TL_PER_EG;
-			for (unsigned KL = 1; KL < 4; ++KL) {
-				int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
-				tllTable[freq][TL][KL] = (tmp <= 0)
-					? TL * TL_PER_EG
-					: int((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
-			}
+		int tmp = 4 * kltable[fnum] - 32 * (7 - block);
+		for (unsigned KL = 0; KL < 4; ++KL) {
+			tllTable[freq][KL] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 		}
 	}
 }
@@ -533,7 +522,7 @@ void Y8950Slot::updatePG(unsigned freq)
 
 void Y8950Slot::updateTLL(unsigned freq)
 {
-	tll = tllTable[freq >> 6][patch.TL][patch.KL];
+	tll = tllTable[freq >> 6][patch.KL] + patch.TL * TL_PER_EG;
 }
 
 void Y8950Slot::updateRKS(unsigned freq)
