@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1253820286">
+<softwaredb xml:lang="en" timestamp="1255067910">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -7392,9 +7392,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Toybox</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash><remark><text>FM Music (if OPL is detected) / MSX-DEV06</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">016c63161d5112ef637d48920a85001c9eb6a10f</hash><remark><text>FM Music (if OPL is detected) - Version 2 / MSX-DEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash><remark><text>MSX-DEV06 V1</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">016c63161d5112ef637d48920a85001c9eb6a10f</hash><remark><text>MSX-DEV06 V2</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5971dd9906de38ff3668e9e0330008e204f60f23</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6287c1f05ea958e1abe86b87de073bef50977478</hash><remark><text>MSX-DEV06 V3</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Optics</title>
@@ -11295,6 +11296,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2475
-Parse time 4.584 seconds on Thu Sep 24 21:24:51 CEST 2009
+Roms in this database:2476
+Parse time 4.785 seconds on Fri Oct 9 7:58:35 CEST 2009
  -->
