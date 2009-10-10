@@ -81,6 +81,18 @@ class S390(CPU):
 	name = 's390'
 	bigEndian = True
 
+class SH(CPU):
+	'''Little endian Renesas SuperH.
+	'''
+	name = 'sh'
+	bigEndian = False
+
+class SHeb(CPU):
+	'''Big endian Renesas SuperH.
+	'''
+	name = 'sheb'
+	bigEndian = True
+
 class Sparc(CPU):
 	'''Sun Sparc.
 	'''

@@ -38,6 +38,8 @@ def detectCPU():
 		return 's390'
 	elif cpu.startswith('sparc') or cpu.startswith('sun4u'):
 		return 'sparc'
+	elif cpu.startswith('sh'):
+		return 'sheb' if cpu.endswith('eb') else 'sh'
 	elif cpu == '':
 		# Python couldn't figure it out.
 		os = system().lower()
