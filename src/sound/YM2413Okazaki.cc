@@ -167,9 +167,6 @@ static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's
 // KSL + TL Table   values are in range [0, 112)
 static unsigned tllTable[16 * 8][4];
 
-// Phase incr table for PG
-static unsigned dphaseTable[512 * 8][16];
-
 
 //
 // Helper functions
@@ -280,24 +277,6 @@ static void makePmTable()
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		 pmtable[i] = PhaseModulation(pow(
 			2, PM_DEPTH / 1200.0 * saw(i / double(PM_PG_WIDTH))));
-	}
-}
-
-// Phase increment counter table
-static void makeDphaseTable()
-{
-	unsigned mltable[16] = {
-		1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
-		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
-	};
-
-	for (unsigned freq = 0; freq < 8 * 512; ++freq) {
-		unsigned fnum = freq & 511;
-		unsigned block = freq / 512;
-		for (unsigned ML = 0; ML < 16; ++ML) {
-			dphaseTable[freq][ML] =
-				((fnum * mltable[ML]) << block) >> (20 - DP_BITS);
-		}
 	}
 }
 
@@ -425,7 +404,14 @@ void Slot::reset()
 
 void Slot::updatePG(unsigned freq)
 {
-	dphase = dphaseTable[freq][patch.ML];
+	static const unsigned mltable[16] = {
+		1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
+		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
+	};
+
+	unsigned fnum = freq & 511;
+	unsigned block = freq / 512;
+	dphase = ((fnum * mltable[patch.ML]) << block) >> (20 - DP_BITS);
 }
 
 void Slot::updateTLL(unsigned freq, bool actAsCarrier)
@@ -663,7 +649,6 @@ YM2413::YM2413()
 	makeAdjustTable();
 	makeTllTable();
 	makeSinTable();
-	makeDphaseTable();
 	makeDphaseARTable();
 	makeDphaseDRTable();
 
