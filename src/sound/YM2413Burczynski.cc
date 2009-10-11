@@ -556,7 +556,7 @@ inline int Channel::calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am
 //   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
 //            (same combination as HIGH HAT but different output phases)
 
-inline int YM2413::genPhaseHighHat(int phaseM7, int phaseC8)
+static inline int genPhaseHighHat(int phaseM7, int phaseC8, int noise_rng)
 {
 	// hi == phase >= 0x200
 	bool hi;
@@ -578,7 +578,7 @@ inline int YM2413::genPhaseHighHat(int phaseM7, int phaseC8)
 	}
 }
 
-inline int YM2413::genPhaseSnare(int phaseM7)
+static inline int genPhaseSnare(int phaseM7, int noise_rng)
 {
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
@@ -586,7 +586,7 @@ inline int YM2413::genPhaseSnare(int phaseM7)
 	     ^ ((noise_rng & 1) << 8);
 }
 
-inline int YM2413::genPhaseCymbal(int phaseM7, int phaseC8)
+static inline int genPhaseCymbal(int phaseM7, int phaseC8)
 {
 	// enable gate based on frequency of operator 2 in channel 8
 	if (phaseC8 & 0x28) {
@@ -625,25 +625,22 @@ static void initTables()
 		}
 	}
 
-	for (int i = 0; i < SIN_LEN; ++i) {
-		// non-standard sinus
-		// checked against the real chip
+	unsigned* full = &sin_tab[0 * SIN_LEN]; // waveform 0: standard sinus
+	unsigned* half = &sin_tab[1 * SIN_LEN]; // waveform 1: positive part of sinus
+	for (int i = 0; i < SIN_LEN / 4; ++i) {
+		// checked on real hardware, see also
+		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN);
-
-		// we never reach zero here due to ((i*2)+1)
-		double o = -8.0 * log(fabs(m)) / log(2.0); // convert to 'decibels'
-		o = o / (ENV_STEP / 4);
-
-		int n = int(2.0 * o);
-		n = (n >> 1) + (n & 1); // round to nearest
-		// waveform 0: standard sinus
-		sin_tab[i] = n * 2 + (m >= 0.0 ? 0: 1);
-
-		// waveform 1:  __      __
-		//             /  \____/  \____
-		// output only first half of the sinus waveform (positive one)
-		sin_tab[SIN_LEN + i] =
-			(i & (1 << (SIN_BITS - 1))) ? TL_TAB_LEN : sin_tab[i];
+		int n = int(round(log(m) * (-256.0 / log(2.0))));
+		full[i] = half[i] = 2 * n;
+	}
+	for (int i = 0; i < SIN_LEN / 4; ++i) {
+		full[SIN_LEN / 4 + i] =
+		half[SIN_LEN / 4 + i] = full[SIN_LEN / 4 - 1 - i];
+	}
+	for (int i = 0; i < SIN_LEN / 2; ++i) {
+		full[SIN_LEN / 2 + i] = full[i] | 1;
+		half[SIN_LEN / 2 + i] = TL_TAB_LEN;
 	}
 }
 
@@ -1170,7 +1167,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
 				Slot& SLOT7_2 = channels[7].car;
-				bufs[10][i] += 2 * SLOT7_2.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseSnare(phaseM7));
+				bufs[10][i] += 2 * SLOT7_2.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseSnare(phaseM7, noise_rng));
 			}
 
 			// Top Cymbal (verified on real YM2413)
@@ -1182,7 +1179,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				Slot& SLOT7_1 = channels[7].mod;
-				bufs[12][i] += 2 * SLOT7_1.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseHighHat(phaseM7, phaseC8));
+				bufs[12][i] += 2 * SLOT7_1.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseHighHat(phaseM7, phaseC8, noise_rng));
 			}
 
 			// Tom Tom (verified on real YM3812)

@@ -257,10 +257,6 @@ private:
 
 	Channel& getChannelForReg(byte reg);
 
-	inline int genPhaseHighHat(int phaseM7, int phaseC8);
-	inline int genPhaseSnare  (int phaseM7);
-	inline int genPhaseCymbal (int phaseM7, int phaseC8);
-
 	/** Called when the custom instrument (instrument 0) has changed.
 	 * @param part Part [0..7] of the instrument.
 	 * @param value The new value.
