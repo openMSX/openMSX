@@ -1,6 +1,9 @@
 proc tk_menu_test {} {
 
-	return 'this will only work when TK is working properly'
+	set main ".catapult"
+
+	#Do some Tk check while creaing the main window
+	if {[catch {toplevel $main}]} {return "TK not installed"} 
 
 	wm title $main "Tcl/Kt Catapult"
 
