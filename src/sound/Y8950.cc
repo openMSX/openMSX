@@ -242,11 +242,6 @@ static const double PM_SPEED  = 6.4;
 static const double PM_DEPTH  = 13.75 / 2;
 static const double PM_DEPTH2 = 13.75;
 
-// AM speed(Hz) and depth(dB)
-static const double AM_SPEED  = 3.7;
-static const double AM_DEPTH  = 1.0;
-static const double AM_DEPTH2 = 4.8;
-
 // Dynamic range of sustine level
 static const int SL_BITS = 4;
 static const int SL_MUTE = 1 << SL_BITS;
@@ -303,13 +298,83 @@ static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 // LFO Table
 static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
-static const unsigned AM_DPHASE = unsigned(AM_SPEED * AM_DP_WIDTH / (Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 static int pmtable[2][PM_PG_WIDTH];
-static int amtable[2][AM_PG_WIDTH];
 
 // dB to Liner table
 static int dB2LinTab[(2 * DB_MUTE) * 2];
 
+
+// LFO Amplitude Modulation table (verified on real YM3812)
+// 27 output levels (triangle waveform);
+// 1 level takes one of: 192, 256 or 448 samples
+//
+// Length: 210 elements.
+//  Each of the elements has to be repeated
+//  exactly 64 times (on 64 consecutive samples).
+//  The whole table takes: 64 * 210 = 13440 samples.
+//
+// Verified on real YM3812 (OPL2), but I believe it's the same for Y8950
+// because it closely matches the Y8950 AM parameters:
+//    speed = 3.7Hz
+//    depth = 4.875dB
+// Also this approch can be easily implemented in HW, the previous one (see SVN
+// history) could not.
+static const unsigned LFO_AM_TAB_ELEMENTS = 210;
+static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+{
+	0,0,0,0,0,0,0,
+	1,1,1,1,
+	2,2,2,2,
+	3,3,3,3,
+	4,4,4,4,
+	5,5,5,5,
+	6,6,6,6,
+	7,7,7,7,
+	8,8,8,8,
+	9,9,9,9,
+	10,10,10,10,
+	11,11,11,11,
+	12,12,12,12,
+	13,13,13,13,
+	14,14,14,14,
+	15,15,15,15,
+	16,16,16,16,
+	17,17,17,17,
+	18,18,18,18,
+	19,19,19,19,
+	20,20,20,20,
+	21,21,21,21,
+	22,22,22,22,
+	23,23,23,23,
+	24,24,24,24,
+	25,25,25,25,
+	26,26,26,
+	25,25,25,25,
+	24,24,24,24,
+	23,23,23,23,
+	22,22,22,22,
+	21,21,21,21,
+	20,20,20,20,
+	19,19,19,19,
+	18,18,18,18,
+	17,17,17,17,
+	16,16,16,16,
+	15,15,15,15,
+	14,14,14,14,
+	13,13,13,13,
+	12,12,12,12,
+	11,11,11,11,
+	10,10,10,10,
+	9,9,9,9,
+	8,8,8,8,
+	7,7,7,7,
+	6,6,6,6,
+	5,5,5,5,
+	4,4,4,4,
+	3,3,3,3,
+	2,2,2,2,
+	1,1,1,1
+};
 
 //**************************************************//
 //                                                  //
@@ -397,15 +462,6 @@ static void makePmTable()
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		pmtable[0][i] = int(double(PM_AMP) * pow(2, double(PM_DEPTH)  * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
 		pmtable[1][i] = int(double(PM_AMP) * pow(2, double(PM_DEPTH2) * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
-	}
-}
-
-// Table for Amp Modulator
-static void makeAmTable()
-{
-	for (int i = 0; i < AM_PG_WIDTH; ++i) {
-		amtable[0][i] = int(double(AM_DEPTH)  / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
-		amtable[1][i] = int(double(AM_DEPTH2) / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
 	}
 }
 
@@ -652,7 +708,6 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
 void Y8950Impl::init(const XMLElement& config, EmuTime::param time)
 {
 	makePmTable();
-	makeAmTable();
 	makeAdjustTable();
 	makeDB2LinTable();
 	makeTllTable();
@@ -928,6 +983,8 @@ void Y8950Impl::generateChannels(int** bufs, unsigned num)
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	if (checkMuteHelper()) {
 		// TODO update internal state even when muted
+		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
+		// and noise_seed aren't updated, probably ok
 		for (int i = 0; i < 9 + 5 + 1; ++i) {
 			bufs[i] = 0;
 		}
@@ -935,11 +992,16 @@ void Y8950Impl::generateChannels(int** bufs, unsigned num)
 	}
 
 	for (unsigned sample = 0; sample < num; ++sample) {
-		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
-		// and noise_seed aren't updated, probably ok
+		// Amplitude modulation: 27 output levels (triangle waveform);
+		// 1 level takes one of: 192, 256 or 448 samples
+		// One entry from LFO_AM_TABLE lasts for 64 samples
+		// lfo_am_table is 210 elements long
+		++am_phase;
+		if (am_phase == (LFO_AM_TAB_ELEMENTS * 64)) am_phase = 0;
+		unsigned tmp = lfo_am_table[am_phase / 64];
+		int lfo_am = am_mode ? tmp : tmp / 4;
+
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-		am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
-		int lfo_am = amtable[am_mode][am_phase >> (AM_DP_BITS - AM_PG_BITS)];
 		int lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
 		if (noise_seed & 1) {
