@@ -266,9 +266,6 @@ static EnvPhaseIndex dphaseDRTable[16][16];
 // TL Table.
 static int tllTable[16 * 8][4];
 
-// Phase incr table for PG.
-static unsigned dphaseTable[1024 * 8][16];
-
 // Liner to Log curve conversion table (for Attack rate).
 //   values are in the range [0 .. EG_MUTE]
 static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
@@ -465,24 +462,6 @@ static void makePmTable()
 	}
 }
 
-// Phase increment counter table
-static void makeDphaseTable()
-{
-	int mltable[16] = {
-		  1, 1*2,  2*2,  3*2,  4*2,  5*2,  6*2 , 7*2,
-		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
-	};
-
-	for (unsigned freq = 0; freq < 8 * 1024; ++freq) {
-		unsigned fnum  = freq % 1024;
-		unsigned block = freq / 1024;
-		for (int ML = 0; ML < 16; ++ML) {
-			dphaseTable[freq][ML] =
-				((fnum * mltable[ML]) << block) >> (21 - DP_BITS);
-		}
-	}
-}
-
 static void makeTllTable()
 {
 	// Processed version of Table 3.5 from the Application Manual
@@ -573,7 +552,14 @@ void Y8950Slot::reset()
 
 void Y8950Slot::updatePG(unsigned freq)
 {
-	dphase = dphaseTable[freq][patch.ML];
+	static const int mltable[16] = {
+		  1, 1*2,  2*2,  3*2,  4*2,  5*2,  6*2 , 7*2,
+		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
+	};
+
+	unsigned fnum  = freq % 1024;
+	unsigned block = freq / 1024;
+	dphase = ((fnum * mltable[patch.ML]) << block) >> (21 - DP_BITS);
 }
 
 void Y8950Slot::updateTLL(unsigned freq)
@@ -713,7 +699,6 @@ void Y8950Impl::init(const XMLElement& config, EmuTime::param time)
 	makeTllTable();
 	makeSinTable();
 
-	makeDphaseTable();
 	makeDphaseARTable();
 	makeDphaseDRTable();
 
