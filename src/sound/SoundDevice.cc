@@ -24,7 +24,6 @@ namespace openmsx {
 static const unsigned MAX_FACTOR = 16; // 200kHz (PSG) -> 22kHz
 static const unsigned MAX_SAMPLES = 8192 * MAX_FACTOR;
 ALIGNED(static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2], 16); // align for SSE access
-static int silence[MAX_SAMPLES * 2];
 
 static string makeUnique(MSXMixer& mixer, const string& name)
 {
@@ -51,7 +50,6 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == 1 || stereo == 2);
-	memset(silence, 0, sizeof(silence));
 
 	// initially no channels are muted
 	for (unsigned i = 0; i < numChannels; ++i) {
@@ -228,14 +226,16 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	for (unsigned i = 0; i < numChannels; ++i) {
 		if (writer[i].get()) {
 			assert(bufs[i] != dataOut);
-			if (stereo == 1) {
-				writer[i]->write16mono(
-					bufs[i] ? bufs[i] : silence,
-					samples, getAmplificationFactor());
+			if (bufs[i]) {
+				if (stereo == 1) {
+					writer[i]->write16mono(
+						bufs[i], samples, getAmplificationFactor());
+				} else {
+					writer[i]->write16stereo(
+						bufs[i], samples, getAmplificationFactor());
+				}
 			} else {
-				writer[i]->write16stereo(
-					bufs[i] ? bufs[i] : silence,
-					samples, getAmplificationFactor());
+				writer[i]->write16silence(stereo, samples);
 			}
 		}
 	}

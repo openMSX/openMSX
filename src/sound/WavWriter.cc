@@ -7,6 +7,7 @@
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <cassert>
 
 namespace openmsx {
 
@@ -109,6 +110,14 @@ void WavWriter::write16mono(const int* buffer, unsigned samples, int amp)
 void WavWriter::write16stereo(const int* buffer, unsigned samples, int amp)
 {
 	write16mono(buffer, 2 * samples, amp);
+}
+
+void WavWriter::write16silence(unsigned stereo, unsigned samples)
+{
+	assert(stereo == 1 || stereo == 2);
+	unsigned size = stereo * sizeof(short) * samples;
+	file->truncate(file->getSize() + size);
+	bytes += size;
 }
 
 bool WavWriter::isEmpty() const
