@@ -18,7 +18,6 @@ public:
 	          unsigned channels, unsigned bits, unsigned frequency);
 	~WavWriter();
 
-	void write8mono(unsigned char val);
 	void write8mono(const unsigned char* buf, unsigned len);
 	void write16stereo(const short* buffer, unsigned samples);
 	void write16mono  (const int* buffer, unsigned samples, int amp = 1);

@@ -73,11 +73,6 @@ WavWriter::~WavWriter()
 	}
 }
 
-void WavWriter::write8mono(unsigned char val)
-{
-	write8mono(&val, 1);
-}
-
 void WavWriter::write8mono(const unsigned char* val, unsigned len)
 {
 	file->write(val, len);
