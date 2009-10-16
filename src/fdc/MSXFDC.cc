@@ -16,7 +16,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	bool singleSided = config.findChild("singlesided") != NULL;
 	int numDrives = config.getChildDataAsInt("drives", 1);
-	if ((0 >= numDrives) || (numDrives >= 4)) {
+	if ((0 > numDrives) || (numDrives >= 4)) {
 		throw MSXException(StringOp::Builder() <<
 			"Invalid number of drives: " << numDrives);
 	}
