@@ -14,7 +14,7 @@ namespace openmsx {
 class Reactor;
 class VideoSourceSetting;
 class AviWriter;
-class WavWriter;
+class Wav16Writer;
 class Filename;
 class PostProcessor;
 class MSXMixer;
@@ -43,7 +43,7 @@ private:
 	const std::auto_ptr<RecordCommand> recordCommand;
 	std::vector<short> audioBuf;
 	std::auto_ptr<AviWriter> aviWriter;
-	std::auto_ptr<WavWriter> wavWriter;
+	std::auto_ptr<Wav16Writer> wavWriter;
 	PostProcessor* postProcessor1;
 	PostProcessor* postProcessor2;
 	MSXMixer* mixer;

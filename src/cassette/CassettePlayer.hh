@@ -20,7 +20,7 @@ class CassetteImage;
 class MSXMixer;
 class Scheduler;
 class CliComm;
-class WavWriter;
+class Wav8Writer;
 class LoadingIndicator;
 class ThrottleManager;
 class BooleanSetting;
@@ -164,7 +164,7 @@ private:
 	const std::auto_ptr<TapeCommand> tapeCommand;
 	const std::auto_ptr<LoadingIndicator> loadingIndicator;
 	const std::auto_ptr<BooleanSetting> autoRunSetting;
-	std::auto_ptr<WavWriter> recordImage;
+	std::auto_ptr<Wav8Writer> recordImage;
 	std::auto_ptr<CassetteImage> playImage;
 
 	size_t sampcnt;

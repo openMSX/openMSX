@@ -14,7 +14,7 @@ namespace openmsx {
 class MSXMixer;
 class XMLElement;
 class EmuDuration;
-class WavWriter;
+class Wav16Writer;
 class Filename;
 
 class SoundDevice : private noncopyable
@@ -151,7 +151,7 @@ private:
 	const std::string name;
 	const std::string description;
 
-	std::auto_ptr<WavWriter> writer[MAX_CHANNELS];
+	std::auto_ptr<Wav16Writer> writer[MAX_CHANNELS];
 
 	unsigned inputSampleRate;
 	const unsigned numChannels;
