@@ -24,7 +24,7 @@ public:
 	KeyInfo getDeadkey() const;
 
 private:
-	void parseUnicodeKeymapfile(const byte* buf, unsigned size);
+	void parseUnicodeKeymapfile(const char* begin, const char* end);
 
 	typedef std::map<int, KeyInfo> Mapdata;
 	Mapdata mapdata;
