@@ -69,7 +69,7 @@ public:
 		write(buffer, stereo * samples);
 	}
 	void write(const int* buffer, unsigned stereo, unsigned samples,
-	             int amp = 1) {
+	           int amp = 1) {
 		assert(stereo == 1 || stereo == 2);
 		write(buffer, stereo * samples, amp);
 	}
