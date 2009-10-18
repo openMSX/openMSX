@@ -100,11 +100,8 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 					break;
 			}
 		}
-		char charbuf[100];
-		strncpy(charbuf, line.c_str(), sizeof(charbuf));
-		charbuf[sizeof(charbuf)-1]=0;
 
-		const char* begin = charbuf;
+		const char* begin = line.c_str();
 		const char* end = strchr(begin, ',');
 		if (end != NULL) {
 			// Parse first token
