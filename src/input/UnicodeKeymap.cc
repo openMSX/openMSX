@@ -12,6 +12,32 @@ using std::string;
 
 namespace openmsx {
 
+/** Parses the string given by the inclusive begin point and exclusive end
+  * pointer as a hexadecimal integer.
+  * If successful, returns the parsed value and sets "ok" to true.
+  * If unsuccessful, returns 0 and sets "ok" to false.
+  */
+static unsigned parseHex(const char* begin, const char* end, bool& ok)
+{
+	unsigned value = 0;
+	for (; begin != end; begin++) {
+		value *= 16;
+		const char c = *begin;
+		if ('0' <= c && c <= '9') {
+			value += c - '0';
+		} else if ('A' <= c && c <= 'F') {
+			value += c - 'A' + 10;
+		} else if ('a' <= c && c <= 'f') {
+			value += c - 'a' + 10;
+		} else {
+			ok = false;
+			return 0;
+		}
+	}
+	ok = true;
+	return value;
+}
+
 UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 	: emptyInfo(KeyInfo(0, 0, 0))
 	, deadKey(KeyInfo(0, 0, 0))
@@ -81,16 +107,15 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 		const char* begin = charbuf;
 		const char* end = strchr(begin, ',');
 		if (end != NULL) {
-			char token[sizeof(charbuf)];
-			strncpy(token, begin, end - begin);
-			token[end - begin] = '\0';
 			// Parse first token
 			// It is either a unicode value or the keyword DEADKEY
 			int unicode = 0;
-			bool isDeadKey = (strcmp(token, "DEADKEY") == 0);
+			bool isDeadKey =
+				(end - begin) == 7 && strncmp(begin, "DEADKEY", 7) == 0;
 			if (!isDeadKey) {
-				int rdnum = sscanf(token, "%x", &unicode);
-				if (rdnum != 1 || unicode < 0 || unicode > 65535) {
+				bool ok;
+				unicode = parseHex(begin, end, ok);
+				if (!ok || unicode > 0xFFFF) {
 					throw MSXException("Wrong unicode value in keymap file");
 				}
 			}
@@ -101,14 +126,15 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 			if (end == NULL) {
 				throw MSXException("Missing <ROW><COL> in unicode file");
 			}
-			strncpy(token, begin, end - begin);
-			token[end - begin] = '\0';
-			int rowcol;
-			int rdnum = sscanf(token, "%x", &rowcol);
-			if (rdnum != 1 || rowcol < 0 || rowcol >= 11*16 ) {
+			bool ok;
+			int rowcol = parseHex(begin, end, ok);
+			if (!ok || rowcol >= 0x100) {
 				throw MSXException("Wrong rowcol value in keymap file");
 			}
-			if ((rowcol & 0x0f) > 7) {
+			if ((rowcol >> 4) >= 11) {
+				throw MSXException("Too high row value in keymap file");
+			}
+			if ((rowcol & 0x0F) >= 8) {
 				throw MSXException("Too high column value in keymap file");
 			}
 
