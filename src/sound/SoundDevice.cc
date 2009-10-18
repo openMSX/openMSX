@@ -227,13 +227,8 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		if (writer[i].get()) {
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
-				if (stereo == 1) {
-					writer[i]->write16mono(
-						bufs[i], samples, getAmplificationFactor());
-				} else {
-					writer[i]->write16stereo(
-						bufs[i], samples, getAmplificationFactor());
-				}
+				writer[i]->write16(
+					bufs[i], stereo, samples, getAmplificationFactor());
 			} else {
 				writer[i]->write16silence(stereo, samples);
 			}

@@ -137,7 +137,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 			"because of this.");
 	}
 	if (wavWriter.get()) {
-		wavWriter->write16stereo(data, num);
+		wavWriter->write16(data, 2, num);
 	} else {
 		assert(aviWriter.get());
 		audioBuf.insert(audioBuf.end(), data, data + 2 * num);

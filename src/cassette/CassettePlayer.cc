@@ -493,7 +493,7 @@ void CassettePlayer::fillBuf(size_t length, double x)
 void CassettePlayer::flushOutput()
 {
 	try {
-		recordImage->write8mono(buf, unsigned(sampcnt));
+		recordImage->write8(buf, 1, unsigned(sampcnt));
 		sampcnt = 0;
 		recordImage->flush(); // update wav header
 	} catch (MSXException& e) {

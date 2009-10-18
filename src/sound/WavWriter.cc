@@ -74,20 +74,24 @@ WavWriter::~WavWriter()
 	}
 }
 
-void WavWriter::write8mono(const unsigned char* val, unsigned len)
+void WavWriter::write8(const unsigned char* buffer, unsigned stereo,
+                       unsigned samples)
 {
-	file->write(val, len);
-	bytes += len;
+	assert(stereo == 1 || stereo == 2);
+	samples *= stereo;
+	file->write(buffer, samples);
+	bytes += samples;
 }
 
-void WavWriter::write16stereo(const short* buffer, unsigned samples)
+void WavWriter::write16(const short* buffer, unsigned stereo, unsigned samples)
 {
-	unsigned size = 2 * sizeof(short) * samples;
+	assert(stereo == 1 || stereo == 2);
+	samples *= stereo;
+	unsigned size = sizeof(short) * samples;
 	if (OPENMSX_BIGENDIAN) {
-		VLA(short, buf, 2 * samples);
+		VLA(short, buf, samples);
 		for (unsigned i = 0; i < samples; ++i) {
-			buf[2 * i + 0] = litEnd_16(buffer[2 * i + 0]);
-			buf[2 * i + 1] = litEnd_16(buffer[2 * i + 1]);
+			buf[i] = litEnd_16(buffer[i]);
 		}
 		file->write(buf, size);
 	} else {
@@ -96,8 +100,11 @@ void WavWriter::write16stereo(const short* buffer, unsigned samples)
 	bytes += size;
 }
 
-void WavWriter::write16mono(const int* buffer, unsigned samples, int amp)
+void WavWriter::write16(const int* buffer, unsigned stereo, unsigned samples,
+                        int amp)
 {
+	assert(stereo == 1 || stereo == 2);
+	samples *= stereo;
 	VLA(short, buf, samples);
 	for (unsigned i = 0; i < samples; ++i) {
 		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
@@ -105,11 +112,6 @@ void WavWriter::write16mono(const int* buffer, unsigned samples, int amp)
 	unsigned size = sizeof(short) * samples;
 	file->write(buf, size);
 	bytes += size;
-}
-
-void WavWriter::write16stereo(const int* buffer, unsigned samples, int amp)
-{
-	write16mono(buffer, 2 * samples, amp);
 }
 
 void WavWriter::write16silence(unsigned stereo, unsigned samples)
