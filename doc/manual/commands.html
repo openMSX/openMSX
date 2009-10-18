@@ -213,8 +213,6 @@
 
 	<li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
 
-	<li><a class="internal" href="#kbd_keymap_filename">kbd_keymap_filename</a></li>
-
 	<li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
 
 	<li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
@@ -3466,35 +3464,6 @@
       <td><code>set&nbsp;kbd_code_kana_host_key&nbsp;HENKAN_MODE</code></td>
 
       <td>Binds the HENKAN_MODE key on the host keyboard to the MSX CODE/KANA key</td>
-    </tr>
-  </table>
-
-  <h3><a id="kbd_keymap_filename">kbd_keymap_filename</a></h3>
-
-  <p>Sets the filename of the file that contains a mapping from host keys to MSX keys.</p>
-  <p>In CHARACTER <a class="internal" href="#kbd_mapping_mode">mapping mode</a>, it is only used for special keys for
-  which no unicode character exists, like the SHIFT key, the ALT key and so on.</p>
-  <p>In KEY <a class="internal" href="#kbd_mapping_mode">mapping mode</a>, it is used for all keys but the ones for which a special
-  setting exists (like <code><a class="internal"
-  href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></code>).</p>
-  <p>By default, this setting is not set but a built-in mapping is used. The built-in
-  mapping maps from a US-QWERTY host keyboard to an 'international'-QWERTY MSX keyboard</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set kbd_keymap_filename</code></td>
-
-      <td>Shows the current value</td>
-    </tr>
-
-    <tr>
-      <td><code>set kbd_keymap_filename keymap.jp2eng</code></td>
-
-      <td>Use the mapping from the file keymap.jp2eng</td>
     </tr>
   </table>
 
