@@ -1,4 +1,4 @@
-// $Id: KeyboardSettings.hh 7235 2007-11-04 21:24:10Z awulms $
+// $Id$
 
 #ifndef UNICODEKEYMAP_HH
 #define UNICODEKEYMAP_HH

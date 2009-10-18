@@ -1,4 +1,4 @@
-// $Id: Keyboard.cc 7559 2008-01-17 23:37:36Z awulms $
+// $Id$
 
 #include "UnicodeKeymap.hh"
 #include "MSXException.hh"

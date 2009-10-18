@@ -1,4 +1,4 @@
-// $Id: KeyboardSettings.cc 7234 2007-11-04 20:52:41Z awulms $
+// $Id$
 
 #include "KeyboardSettings.hh"
 #include "EnumSetting.hh"
