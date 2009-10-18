@@ -73,45 +73,6 @@ WavWriter::~WavWriter()
 	}
 }
 
-void WavWriter::write8(const unsigned char* buffer, unsigned samples)
-{
-	file->write(buffer, samples);
-	bytes += samples;
-}
-
-void WavWriter::write16(const short* buffer, unsigned samples)
-{
-	unsigned size = sizeof(short) * samples;
-	if (OPENMSX_BIGENDIAN) {
-		VLA(short, buf, samples);
-		for (unsigned i = 0; i < samples; ++i) {
-			buf[i] = litEnd_16(buffer[i]);
-		}
-		file->write(buf, size);
-	} else {
-		file->write(buffer, size);
-	}
-	bytes += size;
-}
-
-void WavWriter::write16(const int* buffer, unsigned samples, int amp)
-{
-	VLA(short, buf, samples);
-	for (unsigned i = 0; i < samples; ++i) {
-		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
-	}
-	unsigned size = sizeof(short) * samples;
-	file->write(buf, size);
-	bytes += size;
-}
-
-void WavWriter::write16silence(unsigned samples)
-{
-	unsigned size = sizeof(short) * samples;
-	file->truncate(file->getSize() + size);
-	bytes += size;
-}
-
 bool WavWriter::isEmpty() const
 {
 	return bytes == 0;
@@ -129,6 +90,45 @@ void WavWriter::flush()
 	file->write(&wavSize, 4);
 	file->seek(file->getSize()); // SEEK_END
 	file->flush();
+}
+
+void Wav8Writer::write(const unsigned char* buffer, unsigned samples)
+{
+	file->write(buffer, samples);
+	bytes += samples;
+}
+
+void Wav16Writer::write(const short* buffer, unsigned samples)
+{
+	unsigned size = sizeof(short) * samples;
+	if (OPENMSX_BIGENDIAN) {
+		VLA(short, buf, samples);
+		for (unsigned i = 0; i < samples; ++i) {
+			buf[i] = litEnd_16(buffer[i]);
+		}
+		file->write(buf, size);
+	} else {
+		file->write(buffer, size);
+	}
+	bytes += size;
+}
+
+void Wav16Writer::write(const int* buffer, unsigned samples, int amp)
+{
+	VLA(short, buf, samples);
+	for (unsigned i = 0; i < samples; ++i) {
+		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
+	}
+	unsigned size = sizeof(short) * samples;
+	file->write(buf, size);
+	bytes += size;
+}
+
+void Wav16Writer::writeSilence(unsigned samples)
+{
+	unsigned size = sizeof(short) * samples;
+	file->truncate(file->getSize() + size);
+	bytes += size;
 }
 
 } // namespace openmsx

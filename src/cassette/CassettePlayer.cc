@@ -364,7 +364,7 @@ void CassettePlayer::rewind(EmuTime::param time)
 void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 {
 	removeTape(time); // flush (possible) previous recording
-	recordImage.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
+	recordImage.reset(new Wav8Writer(filename, 1, RECORD_FREQ));
 	tapePos = EmuTime::zero;
 	setState(RECORD, filename, time);
 }
@@ -493,7 +493,7 @@ void CassettePlayer::fillBuf(size_t length, double x)
 void CassettePlayer::flushOutput()
 {
 	try {
-		recordImage->write8(buf, 1, unsigned(sampcnt));
+		recordImage->write(buf, 1, unsigned(sampcnt));
 		sampcnt = 0;
 		recordImage->flush(); // update wav header
 	} catch (MSXException& e) {

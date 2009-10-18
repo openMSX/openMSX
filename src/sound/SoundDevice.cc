@@ -150,8 +150,8 @@ void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
 	assert(channel < numChannels);
 	bool wasRecording = writer[channel].get() != NULL;
 	if (!filename.empty()) {
-		writer[channel].reset(new WavWriter(
-			filename, stereo, 16, inputSampleRate));
+		writer[channel].reset(new Wav16Writer(
+			filename, stereo, inputSampleRate));
 	} else {
 		writer[channel].reset();
 	}
@@ -227,10 +227,10 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		if (writer[i].get()) {
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
-				writer[i]->write16(
+				writer[i]->write(
 					bufs[i], stereo, samples, getAmplificationFactor());
 			} else {
-				writer[i]->write16silence(stereo, samples);
+				writer[i]->writeSilence(stereo, samples);
 			}
 		}
 	}

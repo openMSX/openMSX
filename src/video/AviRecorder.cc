@@ -94,7 +94,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 		}
 	} else {
 		assert(recordAudio);
-		wavWriter.reset(new WavWriter(filename, 2, 16, sampleRate));
+		wavWriter.reset(new Wav16Writer(filename, 2, sampleRate));
 	}
 	// only set recorders when all errors are checked for
 	if (postProcessor1) {
@@ -137,7 +137,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 			"because of this.");
 	}
 	if (wavWriter.get()) {
-		wavWriter->write16(data, 2, num);
+		wavWriter->write(data, 2, num);
 	} else {
 		assert(aviWriter.get());
 		audioBuf.insert(audioBuf.end(), data, data + 2 * num);
