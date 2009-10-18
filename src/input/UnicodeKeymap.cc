@@ -109,6 +109,11 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey() const
 	return deadKey;
 }
 
+#define segmentEquals(begin, end, string) ( \
+	((end) - (begin)) == sizeof(string) - 1 && \
+	strncmp((begin), (string), sizeof(string) - 1) == 0 \
+	)
+
 void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 {
 	begin = skipSep(begin, end);
@@ -123,7 +128,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		// Parse first token: a unicode value or the keyword DEADKEY.
 		const char* tokenEnd = findSep(begin, end);
 		int unicode = 0;
-		bool isDeadKey = (tokenEnd - begin) == 7 && strncmp(begin, "DEADKEY", 7) == 0;
+		bool isDeadKey = segmentEquals(begin, tokenEnd, "DEADKEY");
 		if (!isDeadKey) {
 			bool ok;
 			unicode = parseHex(begin, tokenEnd, ok);
@@ -155,15 +160,15 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		byte modmask = 0;
 		while (begin != end && *begin != '\n') {
 			tokenEnd = findSep(begin, end);
-			if ((tokenEnd - begin) == 5 && strncmp(begin, "SHIFT", 5) == 0) {
+			if (segmentEquals(begin, tokenEnd, "SHIFT")) {
 				modmask |= 1;
-			} else if ((tokenEnd - begin) == 4 && strncmp(begin, "CTRL", 4) == 0) {
+			} else if (segmentEquals(begin, tokenEnd, "CTRL")) {
 				modmask |= 2;
-			} else if ((tokenEnd - begin) == 5 && strncmp(begin, "GRAPH", 5) == 0) {
+			} else if (segmentEquals(begin, tokenEnd, "GRAPH")) {
 				modmask |= 4;
-			} else if ((tokenEnd - begin) == 8 && strncmp(begin, "CAPSLOCK", 8) == 0) {
+			} else if (segmentEquals(begin, tokenEnd, "CAPSLOCK")) {
 				modmask |= 8;
-			} else if ((tokenEnd - begin) == 4 && strncmp(begin, "CODE", 4) == 0) {
+			} else if (segmentEquals(begin, tokenEnd, "CODE")) {
 				modmask |= 16;
 			} else {
 				char *s = strndup(begin, tokenEnd - begin);
