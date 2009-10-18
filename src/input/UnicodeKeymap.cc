@@ -78,8 +78,12 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 		strncpy(charbuf, line.c_str(), sizeof(charbuf));
 		charbuf[sizeof(charbuf)-1]=0;
 
-		char *token = strtok(charbuf, ",");
-		if (token != NULL) {
+		const char* begin = charbuf;
+		const char* end = strchr(begin, ',');
+		if (end != NULL) {
+			char token[sizeof(charbuf)];
+			strncpy(token, begin, end - begin);
+			token[end - begin] = '\0';
 			// Parse first token
 			// It is either a unicode value or the keyword DEADKEY
 			int unicode = 0;
@@ -92,10 +96,13 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 			}
 
 			// Parse second token. It must be <ROW><COL>
-			token = strtok(NULL, ",");
-			if (token == NULL) {
+			begin = end + 1;
+			end = strchr(begin, ',');
+			if (end == NULL) {
 				throw MSXException("Missing <ROW><COL> in unicode file");
 			}
+			strncpy(token, begin, end - begin);
+			token[end - begin] = '\0';
 			int rowcol;
 			int rdnum = sscanf(token, "%x", &rowcol);
 			if (rdnum != 1 || rowcol < 0 || rowcol >= 11*16 ) {
@@ -106,24 +113,22 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 			}
 
 			// Parse third token. It is an optional list of modifier keywords
-			token = strtok(NULL, ",");
+			begin = end + 1;
 			byte modmask = 0;
-			if (token != NULL) {
-				if (strstr(token, "SHIFT") != NULL) {
-					modmask |= 1;
-				}
-				if (strstr(token, "CTRL") != NULL) {
-					modmask |= 2;
-				}
-				if (strstr(token, "GRAPH") != NULL) {
-					modmask |= 4;
-				}
-				if (strstr(token, "CAPSLOCK") != NULL) {
-					modmask |= 8;
-				}
-				if (strstr(token, "CODE" ) != NULL) {
-					modmask |= 16;
-				}
+			if (strstr(begin, "SHIFT") != NULL) {
+				modmask |= 1;
+			}
+			if (strstr(begin, "CTRL") != NULL) {
+				modmask |= 2;
+			}
+			if (strstr(begin, "GRAPH") != NULL) {
+				modmask |= 4;
+			}
+			if (strstr(begin, "CAPSLOCK") != NULL) {
+				modmask |= 8;
+			}
+			if (strstr(begin, "CODE" ) != NULL) {
+				modmask |= 16;
 			}
 
 			if (isDeadKey) {
