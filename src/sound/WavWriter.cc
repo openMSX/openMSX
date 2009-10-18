@@ -7,7 +7,6 @@
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
-#include <cassert>
 
 namespace openmsx {
 
@@ -74,19 +73,14 @@ WavWriter::~WavWriter()
 	}
 }
 
-void WavWriter::write8(const unsigned char* buffer, unsigned stereo,
-                       unsigned samples)
+void WavWriter::write8(const unsigned char* buffer, unsigned samples)
 {
-	assert(stereo == 1 || stereo == 2);
-	samples *= stereo;
 	file->write(buffer, samples);
 	bytes += samples;
 }
 
-void WavWriter::write16(const short* buffer, unsigned stereo, unsigned samples)
+void WavWriter::write16(const short* buffer, unsigned samples)
 {
-	assert(stereo == 1 || stereo == 2);
-	samples *= stereo;
 	unsigned size = sizeof(short) * samples;
 	if (OPENMSX_BIGENDIAN) {
 		VLA(short, buf, samples);
@@ -100,11 +94,8 @@ void WavWriter::write16(const short* buffer, unsigned stereo, unsigned samples)
 	bytes += size;
 }
 
-void WavWriter::write16(const int* buffer, unsigned stereo, unsigned samples,
-                        int amp)
+void WavWriter::write16(const int* buffer, unsigned samples, int amp)
 {
-	assert(stereo == 1 || stereo == 2);
-	samples *= stereo;
 	VLA(short, buf, samples);
 	for (unsigned i = 0; i < samples; ++i) {
 		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
@@ -114,10 +105,9 @@ void WavWriter::write16(const int* buffer, unsigned stereo, unsigned samples,
 	bytes += size;
 }
 
-void WavWriter::write16silence(unsigned stereo, unsigned samples)
+void WavWriter::write16silence(unsigned samples)
 {
-	assert(stereo == 1 || stereo == 2);
-	unsigned size = stereo * sizeof(short) * samples;
+	unsigned size = sizeof(short) * samples;
 	file->truncate(file->getSize() + size);
 	bytes += size;
 }
