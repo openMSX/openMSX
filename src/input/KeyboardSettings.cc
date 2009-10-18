@@ -2,17 +2,12 @@
 
 #include "KeyboardSettings.hh"
 #include "EnumSetting.hh"
-#include "FilenameSetting.hh"
 #include "BooleanSetting.hh"
 
 namespace openmsx {
 
 KeyboardSettings::KeyboardSettings(CommandController& commandController)
-	: keymapFile(new FilenameSetting(commandController,
-		"kbd_keymap_filename",
-		"File with mapping from Host key codes to MSX key codes",
-		""))
-	, alwaysEnableKeypad(new BooleanSetting(commandController,
+	: alwaysEnableKeypad(new BooleanSetting(commandController,
 		"kbd_numkeypad_always_enabled",
 		"Numeric keypad is always enabled, even on an MSX that does not have one",
 		false))
@@ -75,11 +70,6 @@ EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode()
 EnumSetting<KeyboardSettings::MappingMode>& KeyboardSettings::getMappingMode()
 {
 	return *mappingMode;
-}
-
-FilenameSetting& KeyboardSettings::getKeymapFile()
-{
-	return *keymapFile;
 }
 
 BooleanSetting& KeyboardSettings::getAlwaysEnableKeypad()

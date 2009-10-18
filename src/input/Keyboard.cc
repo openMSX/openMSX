@@ -8,14 +8,10 @@
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXException.hh"
-#include "File.hh"
-#include "FileContext.hh"
-#include "FileException.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "SimpleDebuggable.hh"
 #include "InputEvents.hh"
-#include "FilenameSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "UnicodeKeymap.hh"
@@ -144,58 +140,6 @@ private:
 };
 
 
-void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
-{
-	unsigned i = 0;
-	while  (i < size) {
-		string line;
-		bool done = false;
-		while (!done && (i < size)) {
-			char c = buf[i++];
-			switch (c) {
-				case '#':
-					while ((i < size) &&
-					       (buf[i++] != '\n')) {
-						// skip till end of line
-					}
-					done = true;
-					break;
-				case '\r':
-				case '\t':
-				case ' ':
-					// skip whitespace
-					break;
-				case '\n':
-				case '\0':
-					// end of line
-					done = true;
-					break;
-				default:
-					line += c;
-					break;
-			}
-		}
-		int vkey, row, bit;
-		int rdnum = sscanf(line.c_str(), "%i=%i,%i", &vkey, &row, &bit);
-		if ( rdnum == 3 && 0 <= vkey && vkey < MAX_KEYSYM
-		&& 0 <= row && row < 12 && 0 <= bit && bit < 256 ) {
-			keyTab[vkey][0] = row;
-			keyTab[vkey][1] = bit;
-		}
-	}
-}
-
-void Keyboard::loadKeymapfile(const string& filename)
-{
-	try {
-		File file(filename);
-		byte* buf = file.mmap();
-		parseKeymapfile(buf, file.getSize());
-	} catch (FileException&) {
-		throw MSXException("Couldn't load keymap file: " + filename);
-	}
-}
-
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler,
                    CommandController& commandController_,
@@ -235,14 +179,6 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 
-	SystemFileContext context;
-
-	string keymapFile = keyboardSettings->getKeymapFile().getValueString();
-	if (!keymapFile.empty()) {
-		loadKeymapfile(context.resolve(commandController, keymapFile));
-	}
-
-	keyboardSettings->getKeymapFile().attach(*this);
 	msxEventDistributor.registerEventListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
@@ -251,7 +187,6 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 Keyboard::~Keyboard()
 {
 	msxEventDistributor.unregisterEventListener(*this);
-	keyboardSettings->getKeymapFile().detach(*this);
 }
 
 
@@ -828,18 +763,6 @@ bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
 	        (keyInfo1.keymask & keyInfo2.keymask));
 }
 
-void Keyboard::update(const Setting& setting)
-{
-	assert(&setting == &keyboardSettings->getKeymapFile());
-	(void)setting;
-
-	string keymapFile = keyboardSettings->getKeymapFile().getValueString();
-	if (!keymapFile.empty()) {
-		SystemFileContext context;
-		loadKeymapfile(context.resolve(commandController, keymapFile));
-	}
-}
-
 void Keyboard::debug(const char* format, ...)
 {
 	if (keyboardSettings->getTraceKeyPresses().getValue()) {
@@ -1235,7 +1158,7 @@ INSTANTIATE_SERIALIZE_METHODS(Keyboard);
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
 
 // Mapping from SDL keys to MSX keys
-byte Keyboard::keyTab[MAX_KEYSYM][2] = {
+const byte Keyboard::keyTab[MAX_KEYSYM][2] = {
 /* 0000 */
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
   {7,0x20},{7,0x08},{0,0x00},{0,0x00},{0,0x00},{7,0x80},{0,0x00},{0,0x00},

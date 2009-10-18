@@ -4,7 +4,6 @@
 #define KEYBOARD_HH
 
 #include "MSXEventListener.hh"
-#include "Observer.hh"
 #include "Schedulable.hh"
 #include "openmsx.hh"
 #include <string>
@@ -23,13 +22,12 @@ class KeyMatrixDownCmd;
 class KeyInserter;
 class KeyEvent;
 class CapsLockAligner;
-class Setting;
 class KeyboardSettings;
 class MsxKeyEventQueue;
 class UnicodeKeymap;
 class KeybDebuggable;
 
-class Keyboard : private MSXEventListener, private Schedulable, private Observer<Setting>
+class Keyboard : private MSXEventListener, private Schedulable
 {
 public:
 	static const unsigned NR_KEYROWS = 16;
@@ -65,9 +63,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// Observer<Setting>
-	virtual void update(const Setting& setting);
-
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         EmuTime::param time);
@@ -128,7 +123,7 @@ private:
 	bool msxGraphLockOn;
 
 	static const int MAX_KEYSYM = 0x150;
-	static byte keyTab[MAX_KEYSYM][2];
+	static const byte keyTab[MAX_KEYSYM][2];
 	unsigned dynKeymap[MAX_KEYSYM];
 };
 

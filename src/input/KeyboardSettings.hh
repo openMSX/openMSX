@@ -10,7 +10,6 @@ namespace openmsx {
 
 class CommandController;
 class BooleanSetting;
-class FilenameSetting;
 template <typename T> class EnumSetting;
 
 class KeyboardSettings
@@ -25,7 +24,6 @@ public:
 	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey();
 	EnumSetting<KpEnterMode>& getKpEnterMode();
 	EnumSetting<MappingMode>& getMappingMode();
-	FilenameSetting& getKeymapFile();
 	BooleanSetting& getAlwaysEnableKeypad();
 	BooleanSetting& getTraceKeyPresses();
 	BooleanSetting& getAutoToggleCodeKanaLock();
@@ -34,7 +32,6 @@ private:
 	std::auto_ptr<EnumSetting<Keys::KeyCode> > codeKanaHostKey;
 	std::auto_ptr<EnumSetting<KpEnterMode> > kpEnterMode;
 	std::auto_ptr<EnumSetting<MappingMode> > mappingMode;
-	std::auto_ptr<FilenameSetting> keymapFile;
 	std::auto_ptr<BooleanSetting> alwaysEnableKeypad;
 	std::auto_ptr<BooleanSetting> traceKeyPresses;
 	std::auto_ptr<BooleanSetting> autoToggleCodeKanaLock;
