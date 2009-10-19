@@ -78,6 +78,16 @@ static const char* skipSep(const char* begin, const char* end)
 	return begin;
 }
 
+/** Return true iff the substring [begin, end) equals the given string literal
+ */
+template<int N>
+static bool segmentEquals(const char* begin, const char* end, const char (&string)[N])
+{
+	return ((end - begin) == (N - 1)) &&
+	       (strncmp(begin, string, N - 1) == 0);
+}
+
+
 UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 	: emptyInfo(KeyInfo(0, 0, 0))
 	, deadKey(KeyInfo(0, 0, 0))
@@ -108,11 +118,6 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey() const
 {
 	return deadKey;
 }
-
-#define segmentEquals(begin, end, string) ( \
-	((end) - (begin)) == sizeof(string) - 1 && \
-	strncmp((begin), (string), sizeof(string) - 1) == 0 \
-	)
 
 void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 {
