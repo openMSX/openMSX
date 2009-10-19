@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1255067910">
+<softwaredb xml:lang="en" timestamp="1255981879">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5383,12 +5383,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">240e15fb5d918aa821f226002772dc800d9f20a4</hash><remark><text>[RC-754]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">1ff0afe393f89b6517025dc39a282c11c7da87ca</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">25f5adeca8a2ddb754d25eb18cff0d84e5b003bc</hash><remark><text>[RC-754]</text></remark></megarom></dump>
-		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">3b6f140c99cba5bfa510200df49d1e573d687e4d</hash><remark><text>[RC-754] / tr En</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">3b6f140c99cba5bfa510200df49d1e573d687e4d</hash><remark><text>[RC-754] / English Translation</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">d0dfc1927461d9473d0ed471375dcedddba42279</hash><remark><text>[RC-754] / English translation [B4]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">4323eb37b9a795be32a2b64824fc4acd7afe4e9d</hash><remark><text>[RC-754] / Translation into English</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">f999e0187023413d839a67337d0595e150b2398f</hash><remark><text>[RC-754]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>Konami</type><hash algo="sha1">8c609b8bee4245a1bb81e37d888ac5efb66533cf</hash><remark><text>[RC-754]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">d33508c89656b18063893cadb74573e0b656792d</hash><remark><text>[RC-754]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">828a38535cb6246469a65f429834db8ab469d914</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">87a6681c98a933d54d043bf603ba137f866696a8</hash><remark><text>[RC-754] / English Translation [B4][disk fix]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Knither Special</title>
@@ -11296,6 +11298,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2476
-Parse time 4.785 seconds on Fri Oct 9 7:58:35 CEST 2009
+Roms in this database:2478
+Parse time 3.977 seconds on Mon Oct 19 21:51:23 CEST 2009
  -->
