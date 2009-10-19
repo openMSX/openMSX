@@ -176,10 +176,10 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 			} else if (segmentEquals(begin, tokenEnd, "CODE")) {
 				modmask |= 16;
 			} else {
-				char *s = strndup(begin, tokenEnd - begin);
 				string msg = StringOp::Builder()
-					<< "Invalid modifier \"" << s << "\" in keymap file";
-				free(s);
+					<< "Invalid modifier \""
+					<< string(begin, tokenEnd)
+					<< "\" in keymap file";
 				throw MSXException(msg);
 			}
 			begin = skipSep(tokenEnd, end);
