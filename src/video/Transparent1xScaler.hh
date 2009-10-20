@@ -3,14 +3,14 @@
 #ifndef TRANSPARENT1XSCALER_HH
 #define TRANSPARENT1XSCALER_HH
 
-#include "LowScaler.hh"
+#include "Scaler1.hh"
 
 namespace openmsx {
 
 class CliComm;
 
 template<typename Pixel>
-class Transparent1xScaler : public LowScaler<Pixel>
+class Transparent1xScaler : public Scaler1<Pixel>
 {
 public:
 	Transparent1xScaler(const PixelOperations<Pixel>& pixelOps,

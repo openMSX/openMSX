@@ -1,6 +1,6 @@
 // $Id$
 
-#include "LowScaler.hh"
+#include "Scaler1.hh"
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "RawFrame.hh"
@@ -15,13 +15,13 @@
 namespace openmsx {
 
 template <typename Pixel>
-LowScaler<Pixel>::LowScaler(const PixelOperations<Pixel>& pixelOps_)
+Scaler1<Pixel>::Scaler1(const PixelOperations<Pixel>& pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
 /*template <typename Pixel>
-void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut, unsigned dstWidth)
+void Scaler1<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut, unsigned dstWidth)
 {
 	// TODO MMX/SSE optimizations
 	// pure C++ version
@@ -33,7 +33,7 @@ void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel*
 }*/
 
 template <class Pixel>
-void LowScaler<Pixel>::scaleBlank1to1(
+void Scaler1<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -75,7 +75,7 @@ void LowScaler<Pixel>::scaleBlank1to1(
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scaleBlank2to1(
+void Scaler1<Pixel>::scaleBlank2to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -130,7 +130,7 @@ static void doScaleDV(FrameSource& src,
 
 
 template <class Pixel>
-void LowScaler<Pixel>::scale2x1to3x1(FrameSource& src,
+void Scaler1<Pixel>::scale2x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -139,7 +139,7 @@ void LowScaler<Pixel>::scale2x1to3x1(FrameSource& src,
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale2x2to3x1(FrameSource& src,
+void Scaler1<Pixel>::scale2x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -148,7 +148,7 @@ void LowScaler<Pixel>::scale2x2to3x1(FrameSource& src,
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale1x1to1x1(FrameSource& src,
+void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -171,7 +171,7 @@ void LowScaler<Pixel>::scale1x1to1x1(FrameSource& src,
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale1x2to1x1(FrameSource& src,
+void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -189,7 +189,7 @@ void LowScaler<Pixel>::scale1x2to1x1(FrameSource& src,
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale4x1to3x1(FrameSource& src,
+void Scaler1<Pixel>::scale4x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -198,7 +198,7 @@ void LowScaler<Pixel>::scale4x1to3x1(FrameSource& src,
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale4x2to3x1(FrameSource& src,
+void Scaler1<Pixel>::scale4x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -207,7 +207,7 @@ void LowScaler<Pixel>::scale4x2to3x1(FrameSource& src,
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale2x1to1x1(FrameSource& src,
+void Scaler1<Pixel>::scale2x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -216,7 +216,7 @@ void LowScaler<Pixel>::scale2x1to1x1(FrameSource& src,
 }
 
 template <typename Pixel>
-void LowScaler<Pixel>::scale2x2to1x1(FrameSource& src,
+void Scaler1<Pixel>::scale2x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -226,7 +226,7 @@ void LowScaler<Pixel>::scale2x2to1x1(FrameSource& src,
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale8x1to3x1(FrameSource& src,
+void Scaler1<Pixel>::scale8x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -235,7 +235,7 @@ void LowScaler<Pixel>::scale8x1to3x1(FrameSource& src,
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale8x2to3x1(FrameSource& src,
+void Scaler1<Pixel>::scale8x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -244,7 +244,7 @@ void LowScaler<Pixel>::scale8x2to3x1(FrameSource& src,
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale4x1to1x1(FrameSource& src,
+void Scaler1<Pixel>::scale4x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -253,7 +253,7 @@ void LowScaler<Pixel>::scale4x1to1x1(FrameSource& src,
 }
 
 template <class Pixel>
-void LowScaler<Pixel>::scale4x2to1x1(FrameSource& src,
+void Scaler1<Pixel>::scale4x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -264,7 +264,7 @@ void LowScaler<Pixel>::scale4x2to1x1(FrameSource& src,
 // TODO: This method doesn't have any dependency on the pixel format, so is it
 //       possible to move it to a class without the Pixel template parameter?
 template <class Pixel>
-void LowScaler<Pixel>::scaleImage(FrameSource& src,
+void Scaler1<Pixel>::scaleImage(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -340,10 +340,10 @@ void LowScaler<Pixel>::scaleImage(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class LowScaler<word>;
+template class Scaler1<word>;
 #endif
 #if HAVE_32BPP
-template class LowScaler<unsigned>;
+template class Scaler1<unsigned>;
 #endif
 
 } // namespace openmsx

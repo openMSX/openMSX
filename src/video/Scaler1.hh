@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef LOWSCALER_HH
-#define LOWSCALER_HH
+#ifndef SCALER1_HH
+#define SCALER1_HH
 
 #include "Scaler.hh"
 #include "PixelOperations.hh"
@@ -9,10 +9,10 @@
 namespace openmsx {
 
 template <typename Pixel>
-class LowScaler : public Scaler
+class Scaler1 : public Scaler
 {
 public:
-	explicit LowScaler(const PixelOperations<Pixel>& pixelOps);
+	explicit Scaler1(const PixelOperations<Pixel>& pixelOps);
 
 	virtual void scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,

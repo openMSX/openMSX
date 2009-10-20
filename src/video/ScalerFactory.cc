@@ -15,7 +15,7 @@
 #include "HQ3xLiteScaler.hh"
 #include "RGBTriplet3xScaler.hh"
 #include "Simple3xScaler.hh"
-#include "LowScaler.hh"
+#include "Scaler1.hh"
 #include "Transparent1xScaler.hh"
 #include "Transparent2xScaler.hh"
 #include "Transparent3xScaler.hh"
@@ -38,7 +38,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 			return auto_ptr<Scaler>(
 				new Transparent1xScaler<Pixel>(pixelOps, cliComm));
 		}
-		return auto_ptr<Scaler>(new LowScaler<Pixel>(pixelOps));
+		return auto_ptr<Scaler>(new Scaler1<Pixel>(pixelOps));
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:

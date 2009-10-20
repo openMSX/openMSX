@@ -23,7 +23,7 @@ SRC_HDR:= \
 	Icon \
 	AviRecorder AviWriter ZMBVEncoder \
 	ScalerFactory \
-	LowScaler
+	Scaler1
 
 ifneq ($(MAX_SCALE_FACTOR), 1)
 SRC_HDR += \

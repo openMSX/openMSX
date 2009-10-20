@@ -15,7 +15,7 @@ template<typename Pixel>
 Transparent1xScaler<Pixel>::Transparent1xScaler(
 		const PixelOperations<Pixel>& pixelOps,
 		CliComm& cliComm_)
-	: LowScaler<Pixel>(pixelOps)
+	: Scaler1<Pixel>(pixelOps)
 	, cliComm(cliComm_)
 {
 }
@@ -173,7 +173,7 @@ void Transparent1xScaler<Pixel>::scale2x1to3x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale2x1to3x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale2x1to3x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
@@ -183,7 +183,7 @@ void Transparent1xScaler<Pixel>::scale2x2to3x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale2x2to3x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale2x2to3x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
@@ -193,7 +193,7 @@ void Transparent1xScaler<Pixel>::scale4x1to3x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale4x1to3x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale4x1to3x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
@@ -203,7 +203,7 @@ void Transparent1xScaler<Pixel>::scale4x2to3x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale4x2to3x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale4x2to3x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
@@ -213,7 +213,7 @@ void Transparent1xScaler<Pixel>::scale8x1to3x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale8x1to3x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale8x1to3x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
@@ -223,7 +223,7 @@ void Transparent1xScaler<Pixel>::scale8x2to3x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale8x2to3x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale8x2to3x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
@@ -233,7 +233,7 @@ void Transparent1xScaler<Pixel>::scale4x1to1x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale4x1to1x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale4x1to1x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
@@ -243,7 +243,7 @@ void Transparent1xScaler<Pixel>::scale4x2to1x1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	printWarning();
-	LowScaler<Pixel>::scale4x2to1x1(src, srcStartY, srcEndY, srcWidth,
+	Scaler1<Pixel>::scale4x2to1x1(src, srcStartY, srcEndY, srcWidth,
 	                                dst, dstStartY, dstEndY);
 }
 
