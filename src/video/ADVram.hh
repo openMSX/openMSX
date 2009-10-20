@@ -30,6 +30,7 @@ public:
 	 * that are normally ignored for IO reads.  Returns 255.
 	 */
 	virtual byte readIO(word port, EmuTime::param time);
+	// default peekIO() implementation is ok.
 
 	/** Write a byte to a given IO port, set mapper register.  */
 	virtual void writeIO(word port, byte value, EmuTime::param time);

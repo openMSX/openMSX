@@ -59,6 +59,11 @@ void RomKonamiKeyboardMaster::writeIO(word port, byte value, EmuTime::param time
 
 byte RomKonamiKeyboardMaster::readIO(word port, EmuTime::param time)
 {
+	return RomKonamiKeyboardMaster::peekIO(port, time);
+}
+
+byte RomKonamiKeyboardMaster::peekIO(word port, EmuTime::param time) const
+{
 	switch (port & 0xFF) {
 	case 0x00:
 		return vlm5030->getBSY(time) ? 0x10 : 0x00;

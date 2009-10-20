@@ -43,7 +43,12 @@ void RomArc::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte RomArc::readIO(word /*port*/, EmuTime::param /*time*/)
+byte RomArc::readIO(word port, EmuTime::param time)
+{
+	return RomArc::peekIO(port, time);
+}
+
+byte RomArc::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	return ((offset & 0x03) == 0x03) ? 0xda : 0xff;
 }
