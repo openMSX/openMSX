@@ -23,9 +23,9 @@ SettingImplBase::SettingImplBase(
 void SettingImplBase::init()
 {
 	CommandController& commandController = Setting::getCommandController();
-	XMLElement& settingsConfig =
-		commandController.getSettingsConfig().getXMLElement();
 	if (needLoadSave()) {
+		XMLElement& settingsConfig =
+			commandController.getSettingsConfig().getXMLElement();
 		const XMLElement* config = settingsConfig.findChild("settings");
 		if (config) {
 			const XMLElement* elem = config->findChildWithAttribute(
