@@ -21,7 +21,6 @@ const half2 sep = half2(2.3, 5.7);
 half4 calcCorner(const vec2 texCoord, const half dist2s)
 {
 	vec4 col = texture2D(tex, texCoord);
-	// TODO: Pixel size could be precomputed in the alpha channel.
 	half size = half(max(max(col.r, col.g), col.b));
 	return exp2(-dist2s / size) * half4(col);
 }

@@ -7,20 +7,20 @@ varying vec4 posEL;
 varying vec4 posGJ;
 varying vec3 scaled;
 
-void swap(inout vec3 a, inout vec3 b)
+void swap(inout vec4 a, inout vec4 b)
 {
-	vec3 t = a; a = b; b = t;
+	vec4 t = a; a = b; b = t;
 }
 
 void main()
 {
-	vec3 A = texture2D(tex, posABCD.xy).rgb;
-	vec3 B = texture2D(tex, posABCD.zy).rgb;
-	vec3 C = texture2D(tex, posABCD.xw).rgb;
-	vec3 D = texture2D(tex, posABCD.zw).rgb;
+	vec4 A = texture2D(tex, posABCD.xy);
+	vec4 B = texture2D(tex, posABCD.zy);
+	vec4 C = texture2D(tex, posABCD.xw);
+	vec4 D = texture2D(tex, posABCD.zw);
 	vec3 pp = fract(scaled);
 
-	bvec2 b1 = bvec2(A == D, B == C);
+	bvec2 b1 = bvec2(A.rgb == D.rgb, B.rgb == C.rgb);
 	bvec2 b2 = b1 && not(b1.yx);
 	if (b2.x || b2.y) {
 		vec4 pos1 = posEL.xyzw;
@@ -33,15 +33,16 @@ void main()
 			pos2 = posGJ.zyxw;
 			p = pp.yz;  
 		}
-		vec3 E = texture2D(tex, pos1.xy).rgb;
-		vec3 L = texture2D(tex, pos1.zw).rgb;
-		vec3 G = texture2D(tex, pos2.xy).rgb;
-		vec3 J = texture2D(tex, pos2.zw).rgb;
+		vec4 E = texture2D(tex, pos1.xy);
+		vec4 L = texture2D(tex, pos1.zw);
+		vec4 G = texture2D(tex, pos2.xy);
+		vec4 J = texture2D(tex, pos2.zw);
 
 		vec2 d = p / 2.0 - 0.25;
 		float d2 = p.y - p.x;
 
-		bvec4 b5 = bvec4(A==J, A==E, A==G, A==L);
+		bvec4 b5 = bvec4(A.rgb == J.rgb, A.rgb == E.rgb,
+		                 A.rgb == G.rgb, A.rgb == L.rgb);
 		bvec4 b7 = b5 && not(b5.yxwz);
 		bvec4 l;
 		l.xy = lessThan(vec2(d), vec2(0.0));
@@ -49,19 +50,19 @@ void main()
 		bvec4 b8 = l.ywzx && b7.xzyw;
 
 		if (b8.x) {
-			gl_FragColor.rgb = mix(A, B, -d.y);
+			gl_FragColor = mix(A, B, -d.y);
 		} else if (b8.y) {
-			gl_FragColor.rgb = mix(A, C,  d.y);
+			gl_FragColor = mix(A, C,  d.y);
 		} else if (b8.z) {
-			gl_FragColor.rgb = mix(A, B,  d.x);
+			gl_FragColor = mix(A, B,  d.x);
 		} else if (b8.w) {
-			gl_FragColor.rgb = mix(A, C, -d.x);
+			gl_FragColor = mix(A, C, -d.x);
 		} else if (d2 < 0.0) {
-			gl_FragColor.rgb = mix(A, B, -d2);
+			gl_FragColor = mix(A, B, -d2);
 		} else {
-			gl_FragColor.rgb = mix(A, C,  d2);
+			gl_FragColor = mix(A, C,  d2);
 		}
 	} else {
-		gl_FragColor.rgb = mix(mix(A, B, pp.x), mix(C, D, pp.x), pp.z);
+		gl_FragColor = mix(mix(A, B, pp.x), mix(C, D, pp.x), pp.z);
 	}
 }

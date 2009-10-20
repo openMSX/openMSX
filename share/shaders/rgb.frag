@@ -11,10 +11,6 @@ vec3 saturate(vec3 x)
 {
 	return clamp(x, 0.0, 1.0);
 }
-vec4 saturate(vec4 x)
-{
-	return clamp(x, 0.0, 1.0);
-}
 
 void main()
 {
@@ -28,7 +24,9 @@ void main()
 	const float BIG = 128.0; // big number, actual value is not important
 	vec3 m = saturate((-BIG * fract(scaled.zyx)) + vec3(2.0 * BIG / 3.0));
 
-	vec4 n = texture2D(tex, pos) * scan_c2;
-	vec4 s_n = n * c1_2_2 + saturate((n - 1.0) / 2.0);
-	gl_FragColor = n + m.xyzz * s_n;
+	vec4 p = texture2D(tex, pos);
+	vec3 n = p.rgb * scan_c2;
+	vec3 s_n = n * c1_2_2 + saturate((n - 1.0) / 2.0);
+	gl_FragColor.rgb = n + m * s_n;
+	gl_FragColor.a   = p.a;
 }

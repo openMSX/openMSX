@@ -14,14 +14,14 @@ void main()
 	vec4 posLeftTop  = gl_TexCoord[0].stst - delta;
 	vec4 posRightBot = gl_TexCoord[0].stst + delta;
 
-	vec3 left  = texture2D(tex, posLeftTop.xy).rgb;
-	vec3 top   = texture2D(tex, posLeftTop.zw).rgb;
-	vec3 right = texture2D(tex, posRightBot.xy).rgb;
-	vec3 bot   = texture2D(tex, posRightBot.zw).rgb;
+	vec4 left  = texture2D(tex, posLeftTop.xy);
+	vec4 top   = texture2D(tex, posLeftTop.zw);
+	vec4 right = texture2D(tex, posRightBot.xy);
+	vec4 bot   = texture2D(tex, posRightBot.zw);
 
-	if (dot(left - right, top - bot) == 0.0 || left != top) {
+	if (dot(left.rgb - right.rgb, top.rgb - bot.rgb) == 0.0 || left.rgb != top.rgb) {
 		gl_FragColor = texture2D(tex, gl_TexCoord[0].st);
 	} else {
-		gl_FragColor = vec4(top, 1.0);
+		gl_FragColor = top;
 	}
 }
