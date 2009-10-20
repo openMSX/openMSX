@@ -3222,14 +3222,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\utils\StringPool.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\utils\StringPool.hh"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\utils\stringsp.hh"
 				>
 			</File>
@@ -3826,11 +3818,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\video\LowScaler.cc"
+				RelativePath="..\..\src\video\Scaler1.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\video\LowScaler.hh"
+				RelativePath="..\..\src\video\Scaler1.hh"
 				>
 			</File>
 			<File
