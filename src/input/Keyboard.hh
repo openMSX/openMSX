@@ -81,8 +81,6 @@ private:
 	bool processKeyEvent(bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(bool down, int row, byte mask);
 	void doKeyGhosting();
-	void parseKeymapfile(const byte* buf, unsigned size);
-	void loadKeymapfile(const std::string& filename);
 	std::string processCmd(const std::vector<std::string>& tokens, bool up);
 	bool pressUnicodeByUser(unsigned unicode, int key, bool down);
 	int pressAscii(unsigned unicode, bool down);
