@@ -22,7 +22,6 @@ SettingImplBase::SettingImplBase(
 
 void SettingImplBase::init()
 {
-	CommandController& commandController = Setting::getCommandController();
 	if (needLoadSave()) {
 		XMLElement& settingsConfig = Setting::getGlobalCommandController()
 			.getSettingsConfig().getXMLElement();
@@ -39,7 +38,7 @@ void SettingImplBase::init()
 			}
 		}
 	}
-	commandController.registerSetting(*this);
+	Setting::getCommandController().registerSetting(*this);
 
 	// This is needed to for example inform catapult of the new setting
 	// value when a setting was destroyed/recreated (by a machine switch
@@ -49,9 +48,9 @@ void SettingImplBase::init()
 
 void SettingImplBase::destroy()
 {
-	GlobalCommandController& controller = Setting::getGlobalCommandController();
-	sync(controller.getSettingsConfig().getXMLElement());
-	controller.unregisterSetting(*this);
+	sync(Setting::getGlobalCommandController()
+		.getSettingsConfig().getXMLElement());
+	Setting::getCommandController().unregisterSetting(*this);
 }
 
 void SettingImplBase::syncProxy()
