@@ -74,7 +74,8 @@ Display::Display(Reactor& reactor_)
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
 	, commandConsole(new CommandConsole(
-		reactor.getCommandController(), reactor.getEventDistributor(), *this))
+		reactor.getGlobalCommandController(),
+		reactor.getEventDistributor(), *this))
 	, currentRenderer(RendererFactory::UNINITIALIZED)
 	, switchInProgress(false)
 {
