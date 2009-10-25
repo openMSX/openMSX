@@ -306,7 +306,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, machineConfig(NULL)
 	, msxEventDistributor(new MSXEventDistributor())
 	, msxCommandController(new MSXCommandController(
-		reactor.getGlobalCommandController(),
+		reactor.getGlobalCommandController(), reactor,
 		self, *msxEventDistributor, machineID))
 	, scheduler(new Scheduler())
 	, msxMixer(new MSXMixer(

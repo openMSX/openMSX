@@ -57,24 +57,19 @@ void SettingImplBase::destroy()
 void SettingImplBase::syncProxy()
 {
 	MSXCommandController* controller =
-	    dynamic_cast<MSXCommandController*>(&Setting::getCommandController());
+		dynamic_cast<MSXCommandController*>(&Setting::getCommandController());
 	if (!controller) {
-		// not a machine specific setting
+		// This is not a machine specific setting.
 		return;
 	}
-	GlobalCommandController& globalController =
-		controller->getGlobalCommandController();
-	MSXMotherBoard* mb = globalController.getReactor().getMotherBoard();
-	if (!mb) {
-		// no active MSXMotherBoard
-		return;
-	}
-	if (&mb->getMSXCommandController() != controller) {
-		// this setting does not belong to active MSXMotherBoard
+	if (!controller->isActive()) {
+		// This setting does not belong to the active machine.
 		return;
 	}
 
-	// Tcl already makes sure this doesn't result in an endless loop
+	GlobalCommandController& globalController =
+		controller->getGlobalCommandController();
+	// Tcl already makes sure this doesn't result in an endless loop.
 	globalController.changeSetting(getName(), getValueString());
 }
 

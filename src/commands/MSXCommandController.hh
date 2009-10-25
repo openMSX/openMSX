@@ -12,6 +12,7 @@
 namespace openmsx {
 
 class GlobalCommandController;
+class Reactor;
 class MSXMotherBoard;
 class MSXEventDistributor;
 class InfoCommand;
@@ -21,7 +22,7 @@ class MSXCommandController : public CommandController, private MSXEventListener,
 {
 public:
 	MSXCommandController(GlobalCommandController& globalCommandController,
-	                     MSXMotherBoard& motherboard,
+	                     Reactor& reactor, MSXMotherBoard& motherboard,
 	                     MSXEventDistributor& msxEventDistributor,
 	                     const std::string& machineID);
 	~MSXCommandController();
@@ -30,6 +31,11 @@ public:
 	InfoCommand& getMachineInfoCommand();
 
 	Command* findCommand(const std::string& name) const;
+
+	/** Returns true iff the machine this controller belongs to is currently
+	  * active.
+	  */
+	bool isActive() const;
 
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
@@ -63,6 +69,7 @@ private:
 	                         EmuTime::param time);
 
 	GlobalCommandController& globalCommandController;
+	Reactor& reactor;
 	MSXMotherBoard& motherboard;
 	MSXEventDistributor& msxEventDistributor;
 	const std::string& machineID;

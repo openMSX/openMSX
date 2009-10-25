@@ -2,6 +2,7 @@
 
 #include "MSXCommandController.hh"
 #include "GlobalCommandController.hh"
+#include "Reactor.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "SettingsConfig.hh"
@@ -19,10 +20,12 @@ namespace openmsx {
 
 MSXCommandController::MSXCommandController(
 		GlobalCommandController& globalCommandController_,
+		Reactor& reactor_,
 		MSXMotherBoard& motherboard_,
 		MSXEventDistributor& msxEventDistributor_,
 		const std::string& machineID_)
 	: globalCommandController(globalCommandController_)
+	, reactor(reactor_)
 	, motherboard(motherboard_)
 	, msxEventDistributor(msxEventDistributor_)
 	, machineID(machineID_)
@@ -205,6 +208,11 @@ void MSXCommandController::signalEvent(
 	     it != settingMap.end(); ++it) {
 		changeSetting(*it->second, it->second->getValueString());
 	}
+}
+
+bool MSXCommandController::isActive() const
+{
+	return reactor.getMotherBoard() == &motherboard;
 }
 
 } // namespace openmsx
