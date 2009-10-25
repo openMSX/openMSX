@@ -195,11 +195,6 @@ CliConnection* MSXCommandController::getConnection() const
 	return globalCommandController.getConnection();
 }
 
-Reactor& MSXCommandController::getReactor() const
-{
-	return globalCommandController.getReactor();
-}
-
 void MSXCommandController::signalEvent(
 	shared_ptr<const Event> event, EmuTime::param /*time*/)
 {
