@@ -119,7 +119,7 @@ void CheckedRam::callUMRCallBack(unsigned addr)
 {
 	const std::string callback = umrCallbackSetting.getValue();
 	if (!callback.empty()) {
-		TclObject command(commandController.getInterpreter());
+		TclObject command(umrCallbackSetting.getInterpreter());
 		command.addListElement(callback);
 		command.addListElement(int(addr));
 		command.addListElement(ram.get()->getName());
