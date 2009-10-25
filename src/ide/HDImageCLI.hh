@@ -7,8 +7,8 @@
 
 namespace openmsx {
 
-class CommandController;
 class CommandLineParser;
+class GlobalCommandController;
 
 class HDImageCLI : public CLIOption
 {
@@ -19,7 +19,7 @@ public:
 	virtual const std::string& optionHelp() const;
 
 private:
-	CommandController& commandController;
+	GlobalCommandController& commandController;
 };
 
 } // namespace openmsx

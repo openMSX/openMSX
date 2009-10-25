@@ -278,7 +278,7 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 	string originalName(arg);
 	try {
 		UserFileContext context;
-		File file(context.resolve(getCommandController(), arg));
+		File file(context.resolve(getGlobalCommandController(), arg));
 		originalName = file.getOriginalName();
 	} catch (FileException&) {
 		// ignore
@@ -444,9 +444,9 @@ MSXMotherBoard* CommandLineParser::getMotherBoard() const
 	return reactor.getMotherBoard();
 }
 
-CommandController& CommandLineParser::getCommandController() const
+GlobalCommandController& CommandLineParser::getGlobalCommandController() const
 {
-	return reactor.getCommandController();
+	return reactor.getGlobalCommandController();
 }
 
 
@@ -463,7 +463,7 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 	string type, arguments;
 	StringOp::splitOnFirst(fullType, ":", type, arguments);
 
-	CommandController& controller = parser.getCommandController();
+	CommandController& controller = parser.getGlobalCommandController();
 	EventDistributor& distributor = parser.reactor.getEventDistributor();
 	GlobalCliComm& cliComm        = parser.reactor.getGlobalCliComm();
 	std::auto_ptr<CliConnection> connection;

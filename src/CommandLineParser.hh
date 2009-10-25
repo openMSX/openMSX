@@ -38,7 +38,7 @@ class HDImageCLI;
 class CDImageCLI;
 class Reactor;
 class MSXMotherBoard;
-class CommandController;
+class GlobalCommandController;
 class MSXEventRecorderReplayerCLI;
 
 class CommandLineParser : private noncopyable
@@ -59,7 +59,7 @@ public:
 	const Scripts& getStartupScripts() const;
 
 	MSXMotherBoard* getMotherBoard() const;
-	CommandController& getCommandController() const;
+	GlobalCommandController& getGlobalCommandController() const;
 
 	/** Need to suppress renderer window on startup?
 	  */

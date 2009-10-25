@@ -8,7 +8,7 @@
 namespace openmsx {
 
 class CommandLineParser;
-class CommandController;
+class GlobalCommandController;
 
 class DiskImageCLI : public CLIOption, public CLIFileType
 {
@@ -25,7 +25,7 @@ private:
 	void parse(const std::string& drive, const std::string& image,
 	           std::deque<std::string>& cmdLine);
 
-	CommandController& commandController;
+	GlobalCommandController& commandController;
 	char driveLetter;
 };
 

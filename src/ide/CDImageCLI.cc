@@ -1,8 +1,8 @@
 // $Id$
 
 #include "CDImageCLI.hh"
-#include "CommandController.hh"
 #include "CommandLineParser.hh"
+#include "GlobalCommandController.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
 
@@ -12,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 CDImageCLI::CDImageCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getCommandController())
+	: commandController(commandLineParser.getGlobalCommandController())
 {
 	commandLineParser.registerOption("-cda", *this);
 	// TODO: offer more options in case you want to specify 2 hard disk images?

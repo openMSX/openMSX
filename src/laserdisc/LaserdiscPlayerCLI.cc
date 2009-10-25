@@ -2,7 +2,7 @@
 
 #include "LaserdiscPlayerCLI.hh"
 #include "CommandLineParser.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
 
@@ -12,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getCommandController())
+	: commandController(commandLineParser.getGlobalCommandController())
 {
 	commandLineParser.registerOption("-laserdisc", *this);
 	commandLineParser.registerFileClass("laserdiscimage", *this);

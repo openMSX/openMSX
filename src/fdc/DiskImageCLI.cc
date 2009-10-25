@@ -1,8 +1,8 @@
 // $Id$
 
 #include "DiskImageCLI.hh"
-#include "CommandController.hh"
 #include "CommandLineParser.hh"
+#include "GlobalCommandController.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
 
@@ -12,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getCommandController())
+	: commandController(commandLineParser.getGlobalCommandController())
 {
 	commandLineParser.registerOption("-diska", *this);
 	commandLineParser.registerOption("-diskb", *this);

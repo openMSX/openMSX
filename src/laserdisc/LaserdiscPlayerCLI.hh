@@ -8,7 +8,7 @@
 namespace openmsx {
 
 class CommandLineParser;
-class CommandController;
+class GlobalCommandController;
 
 class LaserdiscPlayerCLI : public CLIOption, public CLIFileType
 {
@@ -22,7 +22,7 @@ public:
 	virtual const std::string& fileTypeHelp() const;
 
 private:
-	CommandController& commandController;
+	GlobalCommandController& commandController;
 };
 
 } // namespace openmsx
