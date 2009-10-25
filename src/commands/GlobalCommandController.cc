@@ -7,7 +7,6 @@
 #include "ProxySetting.hh"
 #include "InfoTopic.hh"
 #include "LocalFileReference.hh"
-#include "openmsx.hh"
 #include "GlobalCliComm.hh"
 #include "CliConnection.hh"
 #include "HotKey.hh"
@@ -20,6 +19,7 @@
 #include "TclObject.hh"
 #include "Version.hh"
 #include "ScopedAssign.hh"
+#include "checked_cast.hh"
 #include "openmsx.hh"
 #include <cassert>
 #include <cstdlib>
@@ -673,10 +673,12 @@ static GlobalCliComm::UpdateType getType(const string& name)
 
 CliConnection& UpdateCmd::getConnection()
 {
-	CliConnection* connection = getCommandController().getConnection();
+	GlobalCommandController* controller =
+		checked_cast<GlobalCommandController*>(&getCommandController());
+	CliConnection* connection = controller->getConnection();
 	if (!connection) {
 		throw CommandException("This command only makes sense when "
-		                    "it's used from an external application.");
+		                       "it's used from an external application.");
 	}
 	return *connection;
 }

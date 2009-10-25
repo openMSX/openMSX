@@ -61,7 +61,6 @@ public:
 	virtual CliComm& getCliComm();
 	virtual Interpreter& getInterpreter();
 	virtual SettingsConfig& getSettingsConfig();
-	virtual CliConnection* getConnection() const;
 
 private:
 	// MSXEventListener

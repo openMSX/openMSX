@@ -193,11 +193,6 @@ SettingsConfig& MSXCommandController::getSettingsConfig()
 	return globalCommandController.getSettingsConfig();
 }
 
-CliConnection* MSXCommandController::getConnection() const
-{
-	return globalCommandController.getConnection();
-}
-
 void MSXCommandController::signalEvent(
 	shared_ptr<const Event> event, EmuTime::param /*time*/)
 {

@@ -72,7 +72,6 @@ public:
 	virtual CliComm& getCliComm() = 0;
 	virtual Interpreter& getInterpreter() = 0;
 	virtual SettingsConfig& getSettingsConfig() = 0;
-	virtual CliConnection* getConnection() const = 0;
 
 protected:
 	CommandController() {}
