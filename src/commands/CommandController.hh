@@ -70,7 +70,6 @@ public:
 	virtual std::string makeUniqueSettingName(const std::string& name) = 0;
 
 	virtual CliComm& getCliComm() = 0;
-	virtual Interpreter& getInterpreter() = 0;
 
 protected:
 	CommandController() {}

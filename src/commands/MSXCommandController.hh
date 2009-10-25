@@ -59,7 +59,6 @@ public:
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();
-	virtual Interpreter& getInterpreter();
 
 private:
 	// MSXEventListener

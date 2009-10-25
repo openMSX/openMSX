@@ -30,7 +30,7 @@ MSXCommandController::MSXCommandController(
 	, msxEventDistributor(msxEventDistributor_)
 	, machineID(machineID_)
 {
-	getInterpreter().createNamespace(machineID);
+	globalCommandController.getInterpreter().createNamespace(machineID);
 
 	machineInfoCommand.reset(new InfoCommand(*this, "machine_info"));
 
@@ -56,7 +56,7 @@ MSXCommandController::~MSXCommandController()
 	assert(settingMap.empty());
 	#endif
 
-	getInterpreter().deleteNamespace(machineID);
+	globalCommandController.getInterpreter().deleteNamespace(machineID);
 }
 
 GlobalCommandController& MSXCommandController::getGlobalCommandController()
@@ -113,7 +113,7 @@ void MSXCommandController::registerSetting(Setting& setting)
 	string fullname = "::" + machineID + "::" + name;
 	globalCommandController.getSettingsConfig().getSettingsManager()
 		.registerSetting(setting, fullname);
-	getInterpreter().registerSetting(setting, fullname);
+	globalCommandController.getInterpreter().registerSetting(setting, fullname);
 }
 
 void MSXCommandController::unregisterSetting(Setting& setting)
@@ -124,7 +124,7 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 
 	globalCommandController.unregisterProxySetting(setting);
 	string fullname = "::" + machineID + "::" + name;
-	getInterpreter().unregisterSetting(setting, fullname);
+	globalCommandController.getInterpreter().unregisterSetting(setting, fullname);
 	globalCommandController.getSettingsConfig().getSettingsManager()
 		.unregisterSetting(setting, fullname);
 }
@@ -183,11 +183,6 @@ void MSXCommandController::splitList(const string& list,
 CliComm& MSXCommandController::getCliComm()
 {
 	return motherboard.getMSXCliComm();
-}
-
-Interpreter& MSXCommandController::getInterpreter()
-{
-	return globalCommandController.getInterpreter();
 }
 
 void MSXCommandController::signalEvent(
