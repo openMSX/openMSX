@@ -190,7 +190,6 @@ private:
 	double brightness;
 	double contrast;
 
-	CommandController& commandController;
 	/** Parsed color matrix, kept in sync with colorMatrix setting. */
 	double cm[3][3];
 	/** True iff color matrix is identity matrix. */

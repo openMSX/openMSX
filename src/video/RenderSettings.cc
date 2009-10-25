@@ -6,7 +6,7 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "CommandException.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -26,8 +26,7 @@ private:
 };
 
 
-RenderSettings::RenderSettings(CommandController& commandController_)
-	: commandController(commandController_)
+RenderSettings::RenderSettings(CommandController& commandController)
 {
 	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;
@@ -211,7 +210,8 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 
 void RenderSettings::parseColorMatrix(const std::string& value)
 {
-	TclObject matrix(commandController.getInterpreter());
+	TclObject matrix(
+		colorMatrixSetting->getGlobalCommandController().getInterpreter());
 	matrix.setString(value);
 	if (matrix.getListLength() != 3) {
 		throw CommandException("must have 3 rows");
