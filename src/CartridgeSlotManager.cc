@@ -309,10 +309,11 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		const HardwareConfig* extConf = getExtensionConfig(cartname);
-		TclObject object(getCommandController().getInterpreter());
+		Interpreter& interpreter = getInterpreter();
+		TclObject object(interpreter);
 		object.addListElement(cartname + ':');
 		object.addListElement(extConf ? extConf->getName() : "");
-		TclObject options(getCommandController().getInterpreter());
+		TclObject options(interpreter);
 		if (!extConf) {
 			options.addListElement("empty");
 		}
@@ -323,7 +324,8 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 	} else if ( (tokens[1] == "eject") || (tokens[1] == "-eject") ) {
 		// remove cartridge (or extension)
 		if (tokens[1] == "-eject") {
-			result += "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
+			result += "Warning: use of '-eject' is deprecated, "
+			          "instead use the 'eject' subcommand";
 		}
 		if (const HardwareConfig* extConf = getExtensionConfig(cartname)) {
 			try {
@@ -334,7 +336,6 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 				                       e.getMessage());
 			}
 		}
-
 	} else {
 		// insert cartridge
 		string slotname = (cartname.size() == 5)
