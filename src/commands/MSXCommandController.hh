@@ -31,8 +31,6 @@ public:
 
 	Command* findCommand(const std::string& name) const;
 
-	void activated();
-
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
 	                                 const std::string& str);
