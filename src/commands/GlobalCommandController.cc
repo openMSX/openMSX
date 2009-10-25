@@ -215,11 +215,6 @@ Interpreter& GlobalCommandController::getInterpreter()
 	return *interpreter;
 }
 
-Reactor& GlobalCommandController::getReactor() const
-{
-	return reactor;
-}
-
 InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()
 {
 	return *openMSXInfoCommand;

@@ -75,7 +75,6 @@ public:
 	virtual Interpreter& getInterpreter();
 	virtual SettingsConfig& getSettingsConfig();
 	virtual CliConnection* getConnection() const;
-	virtual Reactor& getReactor() const;
 
 private:
 	void split(const std::string& str,
