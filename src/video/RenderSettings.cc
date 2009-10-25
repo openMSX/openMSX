@@ -210,8 +210,7 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 
 void RenderSettings::parseColorMatrix(const std::string& value)
 {
-	TclObject matrix(
-		colorMatrixSetting->getGlobalCommandController().getInterpreter());
+	TclObject matrix(colorMatrixSetting->getInterpreter());
 	matrix.setString(value);
 	if (matrix.getListLength() != 3) {
 		throw CommandException("must have 3 rows");
