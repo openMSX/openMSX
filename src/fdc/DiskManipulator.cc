@@ -33,8 +33,10 @@ namespace openmsx {
 const unsigned DiskManipulator::MAX_PARTITIONS;
 #endif
 
-DiskManipulator::DiskManipulator(CommandController& commandController)
+DiskManipulator::DiskManipulator(CommandController& commandController,
+                                 Reactor& reactor_)
 	: SimpleCommand(commandController, "diskmanipulator")
+	, reactor(reactor_)
 {
 }
 
@@ -45,7 +47,7 @@ DiskManipulator::~DiskManipulator()
 
 string DiskManipulator::getMachinePrefix() const
 {
-	string id = getCommandController().getReactor().getMachineID();
+	string id = reactor.getMachineID();
 	return id.empty() ? id : id + "::";
 }
 

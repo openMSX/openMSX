@@ -14,11 +14,13 @@ class DiskContainer;
 class SectorAccessibleDisk;
 class DiskPartition;
 class MSXtar;
+class Reactor;
 
 class DiskManipulator : public SimpleCommand
 {
 public:
-	explicit DiskManipulator(CommandController& commandController);
+	explicit DiskManipulator(CommandController& commandController,
+	                         Reactor& reactor);
 	~DiskManipulator();
 
 	void registerDrive(DiskContainer& drive, const std::string& prefix);
@@ -63,6 +65,8 @@ private:
 	                   const std::vector<std::string>& lists);
 	void exprt(DriveSettings& driveData, const std::string& dirname,
 	           const std::vector<std::string>& lists);
+
+	Reactor& reactor;
 };
 
 } // namespace openmsx

@@ -213,7 +213,7 @@ Reactor::Reactor()
 		*globalCommandController, *eventDistributor))
 	, mixer(new Mixer(*globalCommandController))
 	, diskFactory(new DiskFactory(*globalCommandController))
-	, diskManipulator(new DiskManipulator(*globalCommandController))
+	, diskManipulator(new DiskManipulator(*globalCommandController, *this))
 	, virtualDrive(new DiskChanger("virtual_drive", *globalCommandController,
 	                               *diskFactory, *diskManipulator, true))
 	, filePool(new FilePool(globalCommandController->getSettingsConfig()))
