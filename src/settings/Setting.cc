@@ -3,9 +3,12 @@
 #include "Setting.hh"
 #include "Observer.hh"
 #include "CommandController.hh"
+#include "GlobalCommandController.hh"
+#include "MSXCommandController.hh"
 #include "TclObject.hh"
 #include "CliComm.hh"
 #include "XMLElement.hh"
+#include "checked_cast.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -94,6 +97,18 @@ void Setting::info(TclObject& result) const
 CommandController& Setting::getCommandController() const
 {
 	return commandController;
+}
+
+GlobalCommandController& Setting::getGlobalCommandController() const
+{
+	GlobalCommandController* globalCommandController =
+		dynamic_cast<GlobalCommandController*>(&commandController);
+	if (globalCommandController) {
+		return *globalCommandController;
+	} else {
+		return checked_cast<MSXCommandController*>(&commandController)
+			->getGlobalCommandController();
+	}
 }
 
 } // namespace openmsx
