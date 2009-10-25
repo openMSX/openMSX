@@ -22,7 +22,7 @@ RecordedCommand::RecordedCommand(CommandController& commandController,
 	: Command(commandController, name)
 	, msxEventDistributor(msxEventDistributor_)
 	, scheduler(scheduler_)
-	, dummyResultObject(new TclObject(commandController.getInterpreter()))
+	, dummyResultObject(new TclObject(getInterpreter()))
 	, currentResultObject(dummyResultObject.get())
 {
 	msxEventDistributor.registerEventListener(*this);
