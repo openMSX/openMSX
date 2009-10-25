@@ -8,12 +8,13 @@
 namespace openmsx {
 
 class CommandController;
+class Reactor;
 
 class ProxySetting : public Setting
 {
 public:
 	ProxySetting(CommandController& commandController,
-	             const std::string& name);
+	             Reactor& reactor, const std::string& name);
 
 	virtual std::string getTypeString() const;
 	virtual std::string getDescription() const;
@@ -31,6 +32,8 @@ public:
 private:
 	Setting* getSetting();
 	const Setting* getSetting() const;
+
+	Reactor& reactor;
 };
 
 } // namespace openmsx

@@ -174,7 +174,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 	ProxySettings::iterator it = findProxySetting(name);
 	if (it == proxySettings.end()) {
 		// first occurrence
-		ProxySetting* proxy = new ProxySetting(*this, name);
+		ProxySetting* proxy = new ProxySetting(*this, reactor, name);
 		proxySettings.push_back(std::make_pair(proxy, 1));
 		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
 		getInterpreter().registerSetting(*proxy, name);

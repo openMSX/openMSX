@@ -6,23 +6,23 @@
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "checked_cast.hh"
 
 using std::string;
 using std::vector;
 
 namespace openmsx {
 
-ProxySetting::ProxySetting(CommandController& commandController, const string& name)
+ProxySetting::ProxySetting(CommandController& commandController,
+                           Reactor& reactor_,
+                           const string& name)
 	: Setting(commandController, name, "proxy", DONT_SAVE)
+	, reactor(reactor_)
 {
 }
 
 Setting* ProxySetting::getSetting()
 {
-	GlobalCommandController& controller =
-		*checked_cast<GlobalCommandController*>(&getCommandController());
-	MSXMotherBoard* motherBoard = controller.getReactor().getMotherBoard();
+	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return NULL;
 	return motherBoard->getMSXCommandController().findSetting(getName());
 }
