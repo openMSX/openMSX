@@ -6,12 +6,13 @@
 #include "StringSetting.hh"
 #include "SettingsConfig.hh"
 #include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"
 
 namespace openmsx {
 
-GlobalSettings::GlobalSettings(CommandController& commandController_)
+GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	: commandController(commandController_)
 {
 	speedSetting.reset(new IntegerSetting(commandController, "speed",

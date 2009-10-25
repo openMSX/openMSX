@@ -2,7 +2,7 @@
 
 #include "HotKey.hh"
 #include "InputEventFactory.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "EventDistributor.hh"
@@ -54,7 +54,7 @@ private:
 };
 
 
-HotKey::HotKey(CommandController& commandController_,
+HotKey::HotKey(GlobalCommandController& commandController_,
                EventDistributor& eventDistributor_)
 	: bindCmd         (new BindCmd  (commandController_, *this, false))
 	, unbindCmd       (new UnbindCmd(commandController_, *this, false))

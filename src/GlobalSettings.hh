@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class CommandController;
+class GlobalCommandController;
 class IntegerSetting;
 class BooleanSetting;
 class StringSetting;
@@ -26,7 +26,7 @@ template <class T> class EnumSetting;
 class GlobalSettings : private Observer<Setting>, private noncopyable
 {
 public:
-	explicit GlobalSettings(CommandController& commandController);
+	explicit GlobalSettings(GlobalCommandController& commandController);
 	~GlobalSettings();
 
 	IntegerSetting& getSpeedSetting();
@@ -43,7 +43,7 @@ private:
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
-	CommandController& commandController;
+	GlobalCommandController& commandController;
 
 	std::auto_ptr<IntegerSetting> speedSetting;
 	std::auto_ptr<BooleanSetting> pauseSetting;

@@ -60,7 +60,6 @@ public:
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();
 	virtual Interpreter& getInterpreter();
-	virtual SettingsConfig& getSettingsConfig();
 
 private:
 	// MSXEventListener

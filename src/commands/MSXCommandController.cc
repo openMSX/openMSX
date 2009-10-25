@@ -111,7 +111,8 @@ void MSXCommandController::registerSetting(Setting& setting)
 
 	globalCommandController.registerProxySetting(setting);
 	string fullname = "::" + machineID + "::" + name;
-	getSettingsConfig().getSettingsManager().registerSetting(setting, fullname);
+	globalCommandController.getSettingsConfig().getSettingsManager()
+		.registerSetting(setting, fullname);
 	getInterpreter().registerSetting(setting, fullname);
 }
 
@@ -124,7 +125,8 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	globalCommandController.unregisterProxySetting(setting);
 	string fullname = "::" + machineID + "::" + name;
 	getInterpreter().unregisterSetting(setting, fullname);
-	getSettingsConfig().getSettingsManager().unregisterSetting(setting, fullname);
+	globalCommandController.getSettingsConfig().getSettingsManager()
+		.unregisterSetting(setting, fullname);
 }
 
 void MSXCommandController::changeSetting(Setting& setting, const string& value)
@@ -186,11 +188,6 @@ CliComm& MSXCommandController::getCliComm()
 Interpreter& MSXCommandController::getInterpreter()
 {
 	return globalCommandController.getInterpreter();
-}
-
-SettingsConfig& MSXCommandController::getSettingsConfig()
-{
-	return globalCommandController.getSettingsConfig();
 }
 
 void MSXCommandController::signalEvent(

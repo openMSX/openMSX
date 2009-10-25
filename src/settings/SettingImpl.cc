@@ -24,8 +24,8 @@ void SettingImplBase::init()
 {
 	CommandController& commandController = Setting::getCommandController();
 	if (needLoadSave()) {
-		XMLElement& settingsConfig =
-			commandController.getSettingsConfig().getXMLElement();
+		XMLElement& settingsConfig = Setting::getGlobalCommandController()
+			.getSettingsConfig().getXMLElement();
 		const XMLElement* config = settingsConfig.findChild("settings");
 		if (config) {
 			const XMLElement* elem = config->findChildWithAttribute(
@@ -49,9 +49,9 @@ void SettingImplBase::init()
 
 void SettingImplBase::destroy()
 {
-	CommandController& commandController = Setting::getCommandController();
-	sync(commandController.getSettingsConfig().getXMLElement());
-	commandController.unregisterSetting(*this);
+	GlobalCommandController& controller = Setting::getGlobalCommandController();
+	sync(controller.getSettingsConfig().getXMLElement());
+	controller.unregisterSetting(*this);
 }
 
 void SettingImplBase::syncProxy()

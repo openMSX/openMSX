@@ -2,7 +2,7 @@
 
 #include "CommandLineParser.hh"
 #include "CLIOption.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -153,7 +153,7 @@ private:
 
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)
-	, settingsConfig(reactor.getCommandController().getSettingsConfig())
+	, settingsConfig(reactor.getGlobalCommandController().getSettingsConfig())
 	, output(reactor.getCliComm())
 	, helpOption(new HelpOption(*this))
 	, versionOption(new VersionOption(*this))
@@ -312,16 +312,16 @@ void CommandLineParser::parse(int argc, char** argv)
 		string sargv(argv[i]);
 #ifdef _WIN32
 		// All strings inside openMSX should be represented as UTF8.
-		// Unfortunately, sometimes strings may arrive here encoded with the system 
+		// Unfortunately, sometimes strings may arrive here encoded with the system
 		// default codepage (e.g. when openmsx is run from the cmd.exe console).
-		// Other times, strings arrive here encoded as UTF8 (e.g. when openmsx is 
-		// launched run from a program like Catapult, using CreateProcessA/W with a 
+		// Other times, strings arrive here encoded as UTF8 (e.g. when openmsx is
+		// launched run from a program like Catapult, using CreateProcessA/W with a
 		// well-encoded UTF8/UTF16 string).
-		// 
-		// This means that we have to use our psychic powers to guess the encoding used 
+		//
+		// This means that we have to use our psychic powers to guess the encoding used
 		// when openmsx was launched.
 		//
-		// The right fix would probably be to change SDL_main to use wchar_t instead 
+		// The right fix would probably be to change SDL_main to use wchar_t instead
 		// of char. This would at least let Windows figure it out instead of us.
 		// However, we don't own SDL_main.
 		sargv = utf8::unknowntoutf8(sargv);

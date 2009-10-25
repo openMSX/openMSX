@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-class CommandController;
+class GlobalCommandController;
 class EventDistributor;
 class XMLElement;
 class BindCmd;
@@ -30,7 +30,7 @@ class HotKey : private EventListener, private noncopyable
 {
 public:
 	typedef shared_ptr<const Event> EventPtr;
-	HotKey(CommandController& commandController,
+	HotKey(GlobalCommandController& commandController,
 	       EventDistributor& eventDistributor);
 	virtual ~HotKey();
 
@@ -71,7 +71,7 @@ private:
 	BindMap defaultMap;
 	KeySet boundKeys;
 	KeySet unboundKeys;
-	CommandController& commandController;
+	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
 	EventPtr lastEvent;
 };
