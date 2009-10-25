@@ -111,4 +111,9 @@ GlobalCommandController& Setting::getGlobalCommandController() const
 	}
 }
 
+Interpreter& Setting::getInterpreter() const
+{
+	return getGlobalCommandController().getInterpreter();
+}
+
 } // namespace openmsx

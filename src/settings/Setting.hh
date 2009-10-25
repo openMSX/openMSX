@@ -12,6 +12,7 @@ namespace openmsx {
 
 class CommandController;
 class GlobalCommandController;
+class Interpreter;
 class XMLElement;
 class TclObject;
 
@@ -96,6 +97,7 @@ public:
 
 	CommandController& getCommandController() const;
 	GlobalCommandController& getGlobalCommandController() const;
+	Interpreter& getInterpreter() const;
 
 	// helper method for info()
 	virtual void additionalInfo(TclObject& result) const = 0;
