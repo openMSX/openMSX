@@ -9,8 +9,10 @@
 
 namespace openmsx {
 
-class TclObject;
 class CommandController;
+class GlobalCommandController;
+class Interpreter;
+class TclObject;
 
 class CommandCompleter : public Completer
 {
@@ -20,6 +22,8 @@ protected:
 	virtual ~CommandCompleter();
 
 	CommandController& getCommandController() const;
+	GlobalCommandController& getGlobalCommandController() const;
+	Interpreter& getInterpreter() const;
 
 private:
 	CommandController& commandController;

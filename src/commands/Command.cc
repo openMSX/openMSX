@@ -2,7 +2,10 @@
 
 #include "Command.hh"
 #include "CommandController.hh"
+#include "GlobalCommandController.hh"
+#include "MSXCommandController.hh"
 #include "TclObject.hh"
+#include "checked_cast.hh"
 
 using std::vector;
 using std::string;
@@ -28,9 +31,29 @@ CommandCompleter::~CommandCompleter()
 	}
 }
 
+// TODO: getCommandController(), getGlobalCommandController() and
+//       getInterpreter() occur both here and in Setting.
+
 CommandController& CommandCompleter::getCommandController() const
 {
 	return commandController;
+}
+
+GlobalCommandController& CommandCompleter::getGlobalCommandController() const
+{
+	GlobalCommandController* globalCommandController =
+		dynamic_cast<GlobalCommandController*>(&commandController);
+	if (globalCommandController) {
+		return *globalCommandController;
+	} else {
+		return checked_cast<MSXCommandController*>(&commandController)
+			->getGlobalCommandController();
+	}
+}
+
+Interpreter& CommandCompleter::getInterpreter() const
+{
+	return getGlobalCommandController().getInterpreter();
 }
 
 
