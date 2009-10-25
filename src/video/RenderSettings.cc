@@ -6,7 +6,6 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
-#include "GlobalCommandController.hh"
 #include "CommandException.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
