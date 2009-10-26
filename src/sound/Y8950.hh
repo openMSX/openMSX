@@ -47,7 +47,7 @@ public:
 
 	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 	      const XMLElement& config, unsigned sampleRam, EmuTime::param time,
-	      Y8950Periphery& perihery);
+	      Y8950Periphery& periphery);
 	~Y8950();
 
 	void setEnabled(bool enabled, EmuTime::param time);

@@ -144,7 +144,7 @@ class Y8950Impl : private SoundDevice, private EmuTimerCallback, private Resampl
 public:
 	Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
 	          const std::string& name, const XMLElement& config,
-	          unsigned sampleRam, Y8950Periphery& perihery);
+	          unsigned sampleRam, Y8950Periphery& periphery);
 	void init(const XMLElement& config, EmuTime::param time);
 	virtual ~Y8950Impl();
 
@@ -195,7 +195,7 @@ private:
 
 
 	MSXMotherBoard& motherBoard;
-	Y8950Periphery& perihery;
+	Y8950Periphery& periphery;
 	const std::auto_ptr<Y8950Adpcm> adpcm;
 	const std::auto_ptr<Y8950KeyboardConnector> connector;
 	const std::auto_ptr<DACSound16S> dac13; // 13-bit (exponential) DAC
@@ -670,11 +670,11 @@ void Y8950Channel::keyOff()
 
 Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
                      const std::string& name, const XMLElement& config,
-                     unsigned sampleRam, Y8950Periphery& perihery_)
+                     unsigned sampleRam, Y8950Periphery& periphery_)
 	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 9 + 5 + 1)
 	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
-	, perihery(perihery_)
+	, periphery(periphery_)
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
@@ -1149,7 +1149,7 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 			break;
 
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
-			perihery.setSPOFF((data & 8) != 0, time); // bit 3
+			periphery.setSPOFF((data & 8) != 0, time); // bit 3
 			// fall-through
 
 		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM
@@ -1189,12 +1189,12 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 			// 0 -> input
 			// 1 -> output
 			reg[rg] = data;
-			perihery.write(reg[0x18], reg[0x19], time);
+			periphery.write(reg[0x18], reg[0x19], time);
 			break;
 
 		case 0x19: // I/O-DATA (bit3-0)
 			reg[rg] = data;
-			perihery.write(reg[0x18], reg[0x19], time);
+			periphery.write(reg[0x18], reg[0x19], time);
 			break;
 		}
 		break;
@@ -1346,7 +1346,7 @@ byte Y8950Impl::peekReg(byte rg, EmuTime::param time) const
 			return adpcm->peekReg(rg, time);
 
 		case 0x19: { // I/O DATA
-			byte input = perihery.read(time);
+			byte input = periphery.read(time);
 			byte output = reg[0x19];
 			byte enable = reg[0x18];
 			return (output & enable) | (input & ~enable) | 0xF0;
@@ -1517,9 +1517,9 @@ void Y8950Debuggable::write(unsigned address, byte value, EmuTime::param time)
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, EmuTime::param time,
-             Y8950Periphery& perihery)
+             Y8950Periphery& periphery)
 	: pimple(new Y8950Impl(*this, motherBoard, name, config, sampleRam,
-	                       perihery))
+	                       periphery))
 {
 	pimple->init(config, time);
 }
