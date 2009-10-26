@@ -44,7 +44,9 @@ REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, MusicModulePeriphery, "MusicMod
 class PanasonicAudioPeriphery : public Y8950Periphery
 {
 public:
-	PanasonicAudioPeriphery(MSXAudio& audio, const XMLElement& config);
+	PanasonicAudioPeriphery(
+		MSXAudio& audio, const XMLElement& config,
+		const string& soundDeviceName);
 	~PanasonicAudioPeriphery();
 
 	virtual void reset();
@@ -159,17 +161,12 @@ nibble MusicModulePeriphery::read(EmuTime::param /*time*/)
 
 // PanasonicAudioPeriphery implementation:
 
-static string generateName(CommandController& controller)
-{
-	// TODO better name?
-	return controller.makeUniqueSettingName("PanasonicAudioSwitch");
-}
-
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(
-		MSXAudio& audio_, const XMLElement& config)
+		MSXAudio& audio_, const XMLElement& config,
+		const string& soundDeviceName)
 	: audio(audio_)
 	, swSwitch(audio.getMotherBoard().getCommandController(),
-	           generateName(audio.getMotherBoard().getCommandController()),
+	           soundDeviceName + "_firmware",
 	           "This setting controls the switch on the Panasonic "
 	           "MSX-AUDIO module. The switch controls whether the internal "
 	           "software of this module must be started or not.",
@@ -332,13 +329,14 @@ void ToshibaAudioPeriphery::setSPOFF(bool value, EmuTime::param time)
 // Y8950PeripheryFactory implementation:
 
 Y8950Periphery* Y8950PeripheryFactory::create(
-	MSXAudio& audio, const XMLElement& config)
+	MSXAudio& audio, const XMLElement& config,
+	const std::string& soundDeviceName)
 {
-	string type = StringOp::toLower(config.getChildData("type", "philips"));
+	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
 		return new MusicModulePeriphery(audio);
 	} else if (type == "panasonic") {
-		return new PanasonicAudioPeriphery(audio, config);
+		return new PanasonicAudioPeriphery(audio, config, soundDeviceName);
 	} else if (type == "toshiba") {
 		return new ToshibaAudioPeriphery(audio);
 	} else {

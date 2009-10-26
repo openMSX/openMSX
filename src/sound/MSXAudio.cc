@@ -8,7 +8,6 @@
 #include "StringOp.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
-#include <string>
 
 using std::string;
 
@@ -20,17 +19,17 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, dacValue(0x80), dacEnabled(false)
 {
-	periphery.reset(Y8950PeripheryFactory::create(*this, config));
-	string type = StringOp::toLower(config.getChildData("type", "philips"));
+	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
 		dac.reset(new DACSound8U(motherBoard.getMSXMixer(),
-		                         getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
+		                         getName() + " 8-bit DAC",
+		                         "MSX-AUDIO 8-bit DAC",
 		                         config));
 	}
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
 	EmuTime::param time = getCurrentTime();
 	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024,
-	                      time, *periphery));
+	                      time, *this));
 	powerUp(time);
 }
 
@@ -39,6 +38,14 @@ MSXAudio::~MSXAudio()
 	// delete soon, because PanasonicAudioPeriphery still uses
 	// this object in its destructor
 	periphery.reset();
+}
+
+Y8950Periphery& MSXAudio::createPeriphery(const string& soundDeviceName)
+{
+	periphery.reset(
+		Y8950PeripheryFactory::create(*this, getDeviceConfig(), soundDeviceName)
+		);
+	return *periphery;
 }
 
 void MSXAudio::powerUp(EmuTime::param time)

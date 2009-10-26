@@ -5,6 +5,7 @@
 
 #include "MSXDevice.hh"
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -17,6 +18,11 @@ class MSXAudio : public MSXDevice
 public:
 	MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXAudio();
+
+	/** Creates a periphery object for this MSXAudio cartridge.
+	  * The ownership of the object remains with the MSXAudio instance.
+	  */
+	Y8950Periphery& createPeriphery(const std::string& soundDeviceName);
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

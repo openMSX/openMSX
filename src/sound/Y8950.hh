@@ -10,9 +10,9 @@
 
 namespace openmsx {
 
+class MSXAudio;
 class MSXMotherBoard;
 class XMLElement;
-class Y8950Periphery;
 class Y8950Impl;
 
 class Y8950
@@ -47,7 +47,7 @@ public:
 
 	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 	      const XMLElement& config, unsigned sampleRam, EmuTime::param time,
-	      Y8950Periphery& periphery);
+	      MSXAudio& audio);
 	~Y8950();
 
 	void setEnabled(bool enabled, EmuTime::param time);

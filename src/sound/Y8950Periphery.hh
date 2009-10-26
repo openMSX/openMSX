@@ -52,7 +52,8 @@ class XMLElement;
 class Y8950PeripheryFactory
 {
 public:
-	static Y8950Periphery* create(MSXAudio& audio, const XMLElement& config);
+	static Y8950Periphery* create(MSXAudio& audio, const XMLElement& config,
+	                              const std::string& soundDeviceName);
 };
 
 } // namespace openmsx

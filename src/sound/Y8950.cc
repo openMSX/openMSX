@@ -10,6 +10,7 @@
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
 #include "Y8950Periphery.hh"
+#include "MSXAudio.hh"
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
 #include "Resample.hh"
@@ -144,7 +145,7 @@ class Y8950Impl : private SoundDevice, private EmuTimerCallback, private Resampl
 public:
 	Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
 	          const std::string& name, const XMLElement& config,
-	          unsigned sampleRam, Y8950Periphery& periphery);
+	          unsigned sampleRam, MSXAudio& audio);
 	void init(const XMLElement& config, EmuTime::param time);
 	virtual ~Y8950Impl();
 
@@ -670,11 +671,11 @@ void Y8950Channel::keyOff()
 
 Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
                      const std::string& name, const XMLElement& config,
-                     unsigned sampleRam, Y8950Periphery& periphery_)
+                     unsigned sampleRam, MSXAudio& audio)
 	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 9 + 5 + 1)
 	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
-	, periphery(periphery_)
+	, periphery(audio.createPeriphery(getName()))
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
@@ -1517,9 +1518,8 @@ void Y8950Debuggable::write(unsigned address, byte value, EmuTime::param time)
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, EmuTime::param time,
-             Y8950Periphery& periphery)
-	: pimple(new Y8950Impl(*this, motherBoard, name, config, sampleRam,
-	                       periphery))
+             MSXAudio& audio)
+	: pimple(new Y8950Impl(*this, motherBoard, name, config, sampleRam, audio))
 {
 	pimple->init(config, time);
 }
