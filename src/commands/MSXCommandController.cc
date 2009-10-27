@@ -135,12 +135,6 @@ void MSXCommandController::changeSetting(Setting& setting, const string& value)
 	globalCommandController.changeSetting(fullname, value);
 }
 
-string MSXCommandController::makeUniqueSettingName(const string& name)
-{
-	//return getSettingsConfig().getSettingsManager().makeUnique(name);
-	return globalCommandController.makeUniqueSettingName(name);
-}
-
 Command* MSXCommandController::findCommand(const std::string& name) const
 {
 	CommandMap::const_iterator it = commandMap.find(name);

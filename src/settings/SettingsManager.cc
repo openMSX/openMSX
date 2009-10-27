@@ -8,7 +8,6 @@
 #include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
-#include "StringOp.hh"
 #include <cassert>
 
 using std::set;
@@ -111,16 +110,6 @@ Setting* SettingsManager::getByName(const string& name) const
 {
 	SettingsMap::const_iterator it = settingsMap.find(name);
 	return it != settingsMap.end() ? it->second : NULL;
-}
-
-string SettingsManager::makeUnique(const string& name) const
-{
-	string result = name;
-	unsigned n = 0;
-	while (getByName(result)) {
-		result = StringOp::Builder() << name << " (" << ++n << ')';
-	}
-	return result;
 }
 
 void SettingsManager::loadSettings(const XMLElement& config)

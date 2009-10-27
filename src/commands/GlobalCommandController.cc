@@ -293,11 +293,6 @@ void GlobalCommandController::changeSetting(Setting& setting, const string& valu
 	changeSetting(setting.getName(), value);
 }
 
-string GlobalCommandController::makeUniqueSettingName(const string& name)
-{
-	return getSettingsConfig().getSettingsManager().makeUnique(name);
-}
-
 bool GlobalCommandController::hasCommand(const string& command) const
 {
 	return commands.find(command) != commands.end();
