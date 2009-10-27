@@ -47,11 +47,6 @@ public:
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0) = 0;
 
-	/**
-	 * Complete a given command
-	 */
-	virtual void tabCompletion(std::string& command) = 0;
-
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result) = 0;
 

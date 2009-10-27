@@ -158,11 +158,6 @@ string MSXCommandController::executeCommand(const string& command,
 	return globalCommandController.executeCommand(command, connection);
 }
 
-void MSXCommandController::tabCompletion(std::string& command)
-{
-	globalCommandController.tabCompletion(command);
-}
-
 void MSXCommandController::splitList(const string& list,
 	                             vector<string>& result)
 {

@@ -62,6 +62,9 @@ public:
 	virtual bool hasCommand(const std::string& command) const;
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0);
+	/**
+	 * Complete the given command.
+	 */
 	virtual void tabCompletion(std::string& command);
 	/**
 	 * Returns true iff the command is complete (all braces, quotes etc. are
