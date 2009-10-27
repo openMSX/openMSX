@@ -163,11 +163,6 @@ void MSXCommandController::tabCompletion(std::string& command)
 	globalCommandController.tabCompletion(command);
 }
 
-bool MSXCommandController::isComplete(const std::string& command)
-{
-	return globalCommandController.isComplete(command);
-}
-
 void MSXCommandController::splitList(const string& list,
 	                             vector<string>& result)
 {

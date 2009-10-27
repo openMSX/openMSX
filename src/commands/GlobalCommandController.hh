@@ -63,6 +63,10 @@ public:
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0);
 	virtual void tabCompletion(std::string& command);
+	/**
+	 * Returns true iff the command is complete (all braces, quotes etc. are
+	 * balanced).
+	 */
 	virtual bool isComplete(const std::string& command);
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result);

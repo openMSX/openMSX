@@ -52,12 +52,6 @@ public:
 	 */
 	virtual void tabCompletion(std::string& command) = 0;
 
-	/**
-	 * Returns true iff the command is complete
-	 * (all braces, quotes, .. are balanced)
-	 */
-	virtual bool isComplete(const std::string& command) = 0;
-
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result) = 0;
 
