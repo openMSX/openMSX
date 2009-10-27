@@ -5,6 +5,7 @@
 
 #include "EmuTime.hh"
 #include "openmsx.hh"
+#include <string>
 
 namespace openmsx {
 
