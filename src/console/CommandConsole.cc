@@ -73,11 +73,15 @@ CommandConsole::CommandConsole(
 	commandController.getInterpreter().setOutput(this);
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::CONSOLE);
+	// also listen to KEY_UP events, so that we can consume them
+	eventDistributor.registerEventListener(
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::CONSOLE);
 }
 
 CommandConsole::~CommandConsole()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
 	commandController.getInterpreter().setOutput(NULL);
 	Completer::setOutput(NULL);
 }
@@ -160,11 +164,15 @@ string CommandConsole::getLine(unsigned line) const
 bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
-	if (event->getType() == OPENMSX_KEY_DOWN_EVENT
-			&& consoleSetting->getValue()) {
-		handleEvent(keyEvent);
-		display.repaintDelayed(40000); // 25fps
-		return false; // deny event to other listeners
+	if (consoleSetting->getValue()) {
+		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
+			handleEvent(keyEvent);
+			display.repaintDelayed(40000); // 25fps
+			return false; // deny event to other listeners
+		} else if (event->getType() == OPENMSX_KEY_UP_EVENT) {
+			// consume this event so it won't leak to the MSX
+			return false; // deny event to other listeners
+		}
 	}
 	return true;
 }
