@@ -11,7 +11,6 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include <cassert>
-#include <iostream>
 
 using std::string;
 using std::vector;
