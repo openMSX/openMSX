@@ -175,7 +175,7 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 		ReverseChunk& newChunk = history.chunks[collectCount];
 		newChunk.time = time;
 		newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
-		newChunk.nextEventIndex = history.events.size();
+		newChunk.nextEventIndex = int(history.events.size());
 
 		++collectCount;
 		schedule(time);
