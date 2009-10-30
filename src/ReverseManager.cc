@@ -122,10 +122,49 @@ string ReverseManager::go(const vector<string>& tokens)
 	if (it == history.chunks.end()) {
 		throw CommandException("Out of range");
 	}
+	goToSnapshot(it);
+	return "";
+}
+
+string ReverseManager::goBack(const vector<string>& tokens)
+{
+	if (history.chunks.empty())
+		throw CommandException("No recording...");
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	double t = StringOp::stringToDouble(tokens[2]);
+	Chunks::iterator targetIt = history.chunks.begin();
+	// some sanity filtering
+	if (EmuDuration(t) <= (getCurrentTime() - targetIt->second.time)) {
+		// find iterator to snapshot which is not newer than 
+		// time (now - t)
+		EmuTime targetTime = getCurrentTime() - EmuDuration(t);
+		for (Chunks::iterator it = history.chunks.begin();
+			it != history.chunks.end(); ++it) {
+			if (it->second.time <= targetTime) {
+				targetIt = it;
+			} else {
+				break;
+			}
+		}
+		// check code for sanity
+		assert((targetIt->second.time <= targetTime) ||
+				(targetIt == history.chunks.begin()));
+	}
+	goToSnapshot(targetIt);
+	return "";
+}
+
+/**
+ * Go to snapshot given by iterator
+ */
+void ReverseManager::goToSnapshot(Chunks::iterator it)
+{
 	// erase all snapshots coming after the one we are going to
 	Chunks::iterator it2 = it;
 	history.chunks.erase(++it2, history.chunks.end());
-	collectCount = n;
+	collectCount = it->first;
 
 	Reactor& reactor = motherBoard.getReactor();
 	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
@@ -143,13 +182,11 @@ string ReverseManager::go(const vector<string>& tokens)
 	assert(history.chunks.empty());
 
 	reactor.replaceActiveBoard(newBoard); // TODO this board may not be the active board
-
-	return "";
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
                                      unsigned oldCollectCount,
-				     unsigned nextEventHistoryIndex)
+                                     unsigned nextEventHistoryIndex)
 {
 	motherBoard.getMSXEventDistributor().registerEventListener(*this);
 	assert(!collectCount);
@@ -201,12 +238,13 @@ void ReverseManager::replayNextEvent()
 {
 	// schedule next event at its own time, if we're not done yet
 	if (currentEventReplayIndex != history.events.size()) {
-		setSyncPoint(history.events[currentEventReplayIndex].getTime(), INPUT_EVENT);
+		setSyncPoint(history.events[currentEventReplayIndex].getTime(),
+				INPUT_EVENT);
 	}
 }
 
 void ReverseManager::signalEvent(shared_ptr<const Event> event,
-		EmuTime::param time)
+                                 EmuTime::param time)
 {
 	// in replay mode, we do not record the events
 	// but if the event is not one that we just replayed, we should
@@ -286,6 +324,8 @@ string ReverseCmd::execute(const vector<string>& tokens)
 		return manager.stop();
 	} else if (tokens[1] == "status") {
 		return manager.status();
+	} else if (tokens[1] == "goback") {
+		return manager.goBack(tokens);
 	} else if (tokens[1] == "go") {
 		return manager.go(tokens);
 	} else {
@@ -296,10 +336,11 @@ string ReverseCmd::execute(const vector<string>& tokens)
 string ReverseCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "!! this is NOT the final command, this is only for experiments !!\n"
-	       "start   start collecting reverse data\n"
-	       "stop    stop  collecting\n"
-	       "status  give overview of collected data\n"
-	       "go <n>  go back to a previously collected point\n";
+	       "start      start collecting reverse data\n"
+	       "stop       stop  collecting\n"
+	       "status     give overview of collected data\n"
+	       "go <n>     go to a previously collected point\n"
+	       "goback <n> go back <n> seconds in time (for now: approx!)\n";
 }
 
 void ReverseCmd::tabCompletion(vector<string>& /*tokens*/) const

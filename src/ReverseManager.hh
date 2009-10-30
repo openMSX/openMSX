@@ -40,8 +40,8 @@ private:
 
 	struct EventChunk {
 		EventChunk(EmuTime time_, shared_ptr<const Event> event_)
-			: time(time_)
-			, event(event_) {}
+                        : time(time_)
+                        , event(event_) {}
 		EmuTime getTime() const { return time; }
 		shared_ptr<const Event> getEvent() const { return event; }
 		private:
@@ -63,10 +63,13 @@ private:
 	std::string stop();
 	std::string status();
 	std::string go(const std::vector<std::string>& tokens);
+	std::string goBack(const std::vector<std::string>& tokens);
+	
+	void goToSnapshot(Chunks::iterator chunk_it);
 
 	void transferHistory(ReverseHistory& oldHistory,
                              unsigned oldCollectCount,
-			     unsigned eventHistoryIndex);
+                             unsigned eventHistoryIndex);
 	void schedule(EmuTime::param time);
 	void replayNextEvent();
 	template<unsigned N> void dropOldSnapshots(unsigned count);
@@ -77,7 +80,7 @@ private:
 
 	// EventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
-			EmuTime::param time);
+                                 EmuTime::param time);
 
 	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<ReverseCmd> reverseCmd;
