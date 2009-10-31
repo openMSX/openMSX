@@ -33,25 +33,22 @@ private:
 		//      MemBuffer by value and make it moveable
 		shared_ptr<MemBuffer> savestate;
 
-		// index of last event that was processed before making snapshot
-		unsigned nextEventIndex;
+		// Number of recorded events when this snapshot was created.
+		// So when going back replay should start at this index.
+		unsigned eventCount;
 	};
 	typedef std::map<unsigned, ReverseChunk> Chunks;
 
 	struct EventChunk {
 		EventChunk(EmuTime time_, shared_ptr<const Event> event_)
-                        : time(time_)
-                        , event(event_) {}
-		EmuTime getTime() const { return time; }
-		shared_ptr<const Event> getEvent() const { return event; }
-		private:
+			: time(time_)
+			, event(event_) {}
 		EmuTime time;
 		shared_ptr<const Event> event;
 	};
 	typedef std::vector<EventChunk> Events;
 
 	struct ReverseHistory {
-		ReverseHistory();
 		void swap(ReverseHistory& other);
 		void clear();
 
@@ -59,17 +56,20 @@ private:
 		Events events;
 	};
 
-	std::string start();
-	std::string stop();
+	bool collecting() const;
+	bool replaying() const;
+
+	void start();
+	void stop();
 	std::string status();
-	std::string go(const std::vector<std::string>& tokens);
-	std::string goBack(const std::vector<std::string>& tokens);
+	void go(const std::vector<std::string>& tokens);
+	void goBack(const std::vector<std::string>& tokens);
 	
 	void goToSnapshot(Chunks::iterator chunk_it);
 
 	void transferHistory(ReverseHistory& oldHistory,
                              unsigned oldCollectCount,
-                             unsigned eventHistoryIndex);
+                             unsigned oldEventCount);
 	void schedule(EmuTime::param time);
 	void replayNextEvent();
 	template<unsigned N> void dropOldSnapshots(unsigned count);
@@ -87,7 +87,7 @@ private:
 	ReverseHistory history;
 	unsigned collectCount; // 0     = not collecting
 	                       // other = number of snapshot that's about to be taken
-	unsigned currentEventReplayIndex;
+	unsigned replayIndex;
 
 	friend class ReverseCmd;
 };

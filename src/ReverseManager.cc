@@ -31,10 +31,6 @@ private:
 
 // struct ReverseHistory
 
-ReverseManager::ReverseHistory::ReverseHistory()
-{
-}
-
 void ReverseManager::ReverseHistory::swap(ReverseHistory& other)
 {
 	std::swap(chunks, other.chunks);
@@ -43,25 +39,28 @@ void ReverseManager::ReverseHistory::swap(ReverseHistory& other)
 
 void ReverseManager::ReverseHistory::clear()
 {
-	Chunks().swap(chunks); // clear() and free storage capacity
-	Events().swap(events); // clear() and free storage capacity
+	// clear() and free storage capacity
+	Chunks().swap(chunks);
+	Events().swap(events);
 }
 
+
+// class ReverseManager
 
 enum SyncType {
 	NEW_SNAPSHOT,
 	INPUT_EVENT
 };
 
-// class ReverseManager
-
 ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, reverseCmd(new ReverseCmd(*this, motherBoard.getCommandController()))
 	, collectCount(0)
-	, currentEventReplayIndex(0)
+	, replayIndex(0)
 {
+	assert(!collecting());
+	assert(!replaying());
 }
 
 ReverseManager::~ReverseManager()
@@ -69,33 +68,46 @@ ReverseManager::~ReverseManager()
 	stop();
 }
 
-string ReverseManager::start()
+bool ReverseManager::collecting() const
 {
-	if (!collectCount) {
-		collectCount = 1;
-		executeUntil(getCurrentTime(), NEW_SNAPSHOT);
-		motherBoard.getMSXEventDistributor().registerEventListener(*this);
-	}
-	return "";
+	return collectCount;
 }
 
-string ReverseManager::stop()
+bool ReverseManager::replaying() const
 {
-	if (collectCount) {
-		// don't listen to events anymore
-		motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
+	return replayIndex != history.events.size();
+}
+
+void ReverseManager::start()
+{
+	if (!collecting()) {
+		// create first snapshot
+		collectCount = 1;
+		executeUntil(getCurrentTime(), NEW_SNAPSHOT);
+		// start recording events
+		motherBoard.getMSXEventDistributor().registerEventListener(*this);
 	}
-	// don't schedule new snapshot takings
-	removeSyncPoint(NEW_SNAPSHOT);
-	// stop any pending replay actions
-	removeSyncPoint(INPUT_EVENT);
-	history.clear();
-	collectCount = 0;
-	return "";
+	assert(collecting());
+}
+
+void ReverseManager::stop()
+{
+	if (collecting()) {
+		motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
+		removeSyncPoint(NEW_SNAPSHOT); // don't schedule new snapshot takings
+		removeSyncPoint(INPUT_EVENT); // stop any pending replay actions
+		history.clear();
+		collectCount = 0;
+		replayIndex = 0;
+	}
+	assert(!collecting());
+	assert(!replaying());
 }
 
 string ReverseManager::status()
 {
+	// TODO this is useful during development, but for the end user this
+	// information means nothing. We should remove this later.
 	StringOp::Builder result;
 	unsigned totalSize = 0;
 	for (Chunks::const_iterator it = history.chunks.begin();
@@ -105,15 +117,16 @@ string ReverseManager::status()
 		       << (chunk.time - EmuTime::zero).toDouble() << ' '
 		       << ((chunk.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
 		       << " (" << chunk.savestate->getLength() << ")"
-		       << " (next event index: " << chunk.nextEventIndex << ")\n";
+		       << " (next event index: " << chunk.eventCount << ")\n";
 		totalSize += chunk.savestate->getLength();
 	}
 	result << "total size: " << totalSize << '\n';
 	return result;
 }
 
-string ReverseManager::go(const vector<string>& tokens)
+void ReverseManager::go(const vector<string>& tokens)
 {
+	// TODO useful during development, but should probably be removed later
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
@@ -123,10 +136,9 @@ string ReverseManager::go(const vector<string>& tokens)
 		throw CommandException("Out of range");
 	}
 	goToSnapshot(it);
-	return "";
 }
 
-string ReverseManager::goBack(const vector<string>& tokens)
+void ReverseManager::goBack(const vector<string>& tokens)
 {
 	if (history.chunks.empty())
 		throw CommandException("No recording...");
@@ -134,77 +146,85 @@ string ReverseManager::goBack(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double t = StringOp::stringToDouble(tokens[2]);
-	Chunks::iterator targetIt = history.chunks.begin();
-	// some sanity filtering
-	if (EmuDuration(t) <= (getCurrentTime() - targetIt->second.time)) {
-		// find iterator to snapshot which is not newer than 
-		// time (now - t)
+
+	// find oldest snapshot that is not newer than requested time
+	Chunks::iterator it = history.chunks.begin();
+	if (EmuDuration(t) <= (getCurrentTime() - it->second.time)) {
+		// TODO ATM we do a linear search, could be improved to do a
+		//      binary search.
 		EmuTime targetTime = getCurrentTime() - EmuDuration(t);
-		for (Chunks::iterator it = history.chunks.begin();
-			it != history.chunks.end(); ++it) {
-			if (it->second.time <= targetTime) {
-				targetIt = it;
-			} else {
-				break;
-			}
-		}
-		// check code for sanity
-		assert((targetIt->second.time <= targetTime) ||
-				(targetIt == history.chunks.begin()));
+		assert(it->second.time <= targetTime); // first one is not newer
+		assert(it != history.chunks.end()); // there are snapshots
+		do {
+			++it;
+		} while (it != history.chunks.end() &&
+		         it->second.time <= targetTime);
+		// We found the first one that's newer, previous one is last
+		// one that's not newer (thus older or equal).
+		assert(it != history.chunks.begin());
+		--it;
+		assert(it->second.time <= targetTime);
+	} else {
+		// Requested time is before first snapshot. We can't go back
+		// further than first snapshot, so take that one.
 	}
-	goToSnapshot(targetIt);
-	return "";
+	goToSnapshot(it);
 }
 
-/**
- * Go to snapshot given by iterator
- */
 void ReverseManager::goToSnapshot(Chunks::iterator it)
 {
 	// erase all snapshots coming after the one we are going to
+	assert(it != history.chunks.end());
 	Chunks::iterator it2 = it;
 	history.chunks.erase(++it2, history.chunks.end());
-	collectCount = it->first;
 
+	// restore old snapshot
 	Reactor& reactor = motherBoard.getReactor();
 	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(*it->second.savestate);
 	in.serialize("machine", *newBoard);
 
-	removeSyncPoint(NEW_SNAPSHOT);
-	removeSyncPoint(INPUT_EVENT);
-	// don't listen to events anymore
-	motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
+	// Transfer history from this ReverseManager to the one in the new
+	// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
+	// and start collecting in the new one.
+	assert(collecting());
+	newBoard->getReverseManager().transferHistory(
+		history, it->first, it->second.eventCount);
+	stop();
 
-	assert(collectCount);
-	newBoard->getReverseManager().transferHistory(history, collectCount, it->second.nextEventIndex);
-	collectCount = 0;
-	assert(history.chunks.empty());
-
-	reactor.replaceActiveBoard(newBoard); // TODO this board may not be the active board
+	// switch to the new MSXMotherBoard
+	// TODO this is not correct if this board was not the active board
+	reactor.replaceActiveBoard(newBoard);
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
                                      unsigned oldCollectCount,
-                                     unsigned nextEventHistoryIndex)
+                                     unsigned oldEventCount)
 {
-	motherBoard.getMSXEventDistributor().registerEventListener(*this);
-	assert(!collectCount);
+	assert(!collecting());
 	assert(history.chunks.empty());
+
+	// actual history transfer
 	history.swap(oldHistory);
+
+	// resume collecting (and event recording)
 	collectCount = oldCollectCount;
 	schedule(getCurrentTime());
-	
-	// start replaying from event after eventHistoryIndex
-	currentEventReplayIndex = nextEventHistoryIndex;
+	motherBoard.getMSXEventDistributor().registerEventListener(*this);
+	assert(collecting());
+
+	// start replaying events
+	replayIndex = oldEventCount;
 	replayNextEvent();
+	// It's possible there were no events to replay, so we may not actually
+	// be replaying at this point.
 }
 
 void ReverseManager::executeUntil(EmuTime::param time, int userData)
 {
 	switch (userData) {
 	case NEW_SNAPSHOT: {
-		assert(collectCount);
+		assert(collecting());
 		dropOldSnapshots<25>(collectCount);
 
 		MemOutputArchive out;
@@ -212,23 +232,17 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 		ReverseChunk& newChunk = history.chunks[collectCount];
 		newChunk.time = time;
 		newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
-		newChunk.nextEventIndex = int(history.events.size());
+		newChunk.eventCount = int(history.events.size());
 
 		++collectCount;
 		schedule(time);
 		break;
 	}
 	case INPUT_EVENT:
-		try {
-			// deliver current event at current time
-			motherBoard.getMSXEventDistributor().distributeEvent(history.events[currentEventReplayIndex].getEvent(), time);
-			// set index to next event
-			currentEventReplayIndex++;
-
-
-		} catch (MSXException&) {
-			// ignore
-		}
+		// deliver current event at current time
+		motherBoard.getMSXEventDistributor().distributeEvent(
+			history.events[replayIndex].event, time);
+		++replayIndex;
 		replayNextEvent();
 		break;
 	}
@@ -237,33 +251,35 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 void ReverseManager::replayNextEvent()
 {
 	// schedule next event at its own time, if we're not done yet
-	if (currentEventReplayIndex != history.events.size()) {
-		setSyncPoint(history.events[currentEventReplayIndex].getTime(),
-				INPUT_EVENT);
+	if (replayIndex != history.events.size()) {
+		setSyncPoint(history.events[replayIndex].time,
+		             INPUT_EVENT);
 	}
 }
 
 void ReverseManager::signalEvent(shared_ptr<const Event> event,
                                  EmuTime::param time)
 {
-	// in replay mode, we do not record the events
-	// but if the event is not one that we just replayed, we should
-	// stop replaying and start recording again
-	// and remove the rest if the history
-	if (dynamic_cast<const TimedEvent*> (event.get())) {
-		if ((currentEventReplayIndex != history.events.size()) && (event == history.events[currentEventReplayIndex].getEvent())) {
-			// this is an event we just replayed, ignore
-		} else {
-			// if we're replaying, stop it and erase history
-			if (pendingSyncPoint(INPUT_EVENT)) { // still replaying
-				// stop replaying by canceling the already scheduled event
-				removeSyncPoint(INPUT_EVENT);
-				// erase all events after the current index
-				history.events.erase(history.events.begin() + currentEventReplayIndex + 1, history.events.end());
-			}
-			// record event (TimedEvent only)
-			history.events.push_back(EventChunk(time, event));
+	if (!dynamic_cast<const TimedEvent*>(event.get())) {
+		// TODO this is wrong:
+		//   for example MSXCommandEvents should also be recorded
+		return;
+	}
+
+	Events& events = history.events;
+	if (replaying() && (event == events[replayIndex].event)) {
+		// this is an event we just replayed, ignore it
+	} else {
+		if (replaying()) {
+			// if we're replaying, stop it and erase remainder of event log
+			removeSyncPoint(INPUT_EVENT);
+			events.erase(events.begin() + replayIndex, events.end());
+			assert(!replaying());
 		}
+		// record event
+		events.push_back(EventChunk(time, event));
+		replayIndex = events.size();
+		assert(!replaying());
 	}
 }
 
@@ -319,18 +335,19 @@ string ReverseCmd::execute(const vector<string>& tokens)
 		throw CommandException("Missing subcommand");
 	}
 	if (tokens[1] == "start") {
-		return manager.start();
+		manager.start();
 	} else if (tokens[1] == "stop") {
-		return manager.stop();
+		manager.stop();
 	} else if (tokens[1] == "status") {
 		return manager.status();
 	} else if (tokens[1] == "goback") {
-		return manager.goBack(tokens);
+		manager.goBack(tokens);
 	} else if (tokens[1] == "go") {
-		return manager.go(tokens);
+		manager.go(tokens);
 	} else {
 		throw CommandException("Invalid subcommand");
 	}
+	return "";
 }
 
 string ReverseCmd::help(const vector<string>& /*tokens*/) const
