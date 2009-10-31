@@ -6,6 +6,7 @@
 #include "Clock.hh"
 #include "EventListener.hh"
 #include "EventDistributor.hh"
+#include "InputEventFactory.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXException.hh"
 #include "RecordedCommand.hh"
@@ -18,6 +19,7 @@
 #include "utf8_checked.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstdlib>
@@ -61,11 +63,13 @@ private:
 	Keyboard& keyboard;
 };
 
-class MsxKeyEventQueue : private Schedulable
+class MsxKeyEventQueue : public Schedulable
 {
 public:
 	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard);
 	void process_asap(EmuTime::param time, shared_ptr<const Event> event);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// Schedulable
@@ -1102,8 +1106,20 @@ void KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("oldCapsLockOn", oldCapsLockOn);
 }
 
+// version 1: Initial version: {userKeyMatrix, dynKeymap, msxmodifiers,
+//            msxKeyEventQueue} was intentionally not serialized. The reason
+//            was that after a loadstate, you want the MSX keyboard to reflect
+//            the state of the host keyboard. So any pressed MSX keys from the
+//            time the savestate was created are cleared.
+// version 2: For reverse-replay it is important that snapshots contain the
+//            full state of the MSX keyboard, so now we do serialize it.
+// TODO Is the assumption in version 1 correct (clear keyb state on load)?
+//      If it is still useful for 'regular' loadstate, then we could implement
+//      it by explicitly clearing the keyb state from the actual loadstate
+//      command. (But let's only do this when experience shows it's really
+//      better).
 template<typename Archive>
-void Keyboard::serialize(Archive& ar, unsigned /*version*/)
+void Keyboard::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("keyTypeCmd", *keyTypeCmd);
 	ar.serialize("cmdKeyMatrix", cmdKeyMatrix);
@@ -1111,11 +1127,12 @@ void Keyboard::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("msxCodeKanaLockOn", msxCodeKanaLockOn);
 	ar.serialize("msxGraphLockOn", msxGraphLockOn);
 
-	// don't serialize:
-	//   userKeyMatrix
-	//   dynKeymap
-	//   msxmodifiers
-	//   msxKeyEventQueue
+	if (version >= 2) {
+		ar.serialize("userKeyMatrix", userKeyMatrix);
+		ar.serialize("dynKeymap", dynKeymap);
+		ar.serialize("msxmodifiers", msxmodifiers);
+		ar.serialize("msxKeyEventQueue", *msxKeyEventQueue);
+	}
 
 	if (ar.isLoader()) {
 		// force recalculation of keyMatrix
@@ -1124,6 +1141,36 @@ void Keyboard::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Keyboard);
+
+template<typename Archive>
+void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+
+	// serialization of deque<shared_ptr<const Event> > is not directly
+	// supported by the serialization framework (main problem is the
+	// constness, collections of shared_ptr to polymorhpic objects are
+	// not a problem). Worked around this by serializing the events in
+	// ascii format. (In all practical cases this queue will anyway be
+	// empty or contain very few elements).
+	//ar.serialize("eventQueue", eventQueue);
+	vector<string> eventStrs;
+	if (!ar.isLoader()) {
+		for (std::deque<shared_ptr<const Event> >::const_iterator it =
+		       eventQueue.begin(); it != eventQueue.end(); ++it) {
+			eventStrs.push_back((*it)->toString());
+		}
+	}
+	ar.serialize("eventQueue", eventStrs);
+	if (ar.isLoader()) {
+		assert(eventQueue.empty());
+		for (vector<string>::const_iterator it = eventStrs.begin();
+		     it != eventStrs.end(); ++it) {
+			eventQueue.push_back(InputEventFactory::createInputEvent(*it));
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MsxKeyEventQueue);
 
 
 /** Keyboard bindings ****************************************/

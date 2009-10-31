@@ -5,6 +5,7 @@
 
 #include "MSXEventListener.hh"
 #include "Schedulable.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include <string>
 #include <vector>
@@ -124,6 +125,7 @@ private:
 	static const byte keyTab[MAX_KEYSYM][2];
 	unsigned dynKeymap[MAX_KEYSYM];
 };
+SERIALIZE_CLASS_VERSION(Keyboard, 2);
 
 } // namespace openmsx
 
