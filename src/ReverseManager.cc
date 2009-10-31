@@ -70,7 +70,7 @@ ReverseManager::~ReverseManager()
 
 bool ReverseManager::collecting() const
 {
-	return collectCount;
+	return collectCount !=0;
 }
 
 bool ReverseManager::replaying() const
