@@ -33,8 +33,9 @@ private:
 		//      MemBuffer by value and make it moveable
 		shared_ptr<MemBuffer> savestate;
 
-		// Number of recorded events when this snapshot was created.
-		// So when going back replay should start at this index.
+		// Number of recorded events (or replay index) when this
+		// snapshot was created. So when going back replay should
+		// start at this index.
 		unsigned eventCount;
 	};
 	typedef std::map<unsigned, ReverseChunk> Chunks;

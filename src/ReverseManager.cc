@@ -232,7 +232,7 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 		ReverseChunk& newChunk = history.chunks[collectCount];
 		newChunk.time = time;
 		newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
-		newChunk.eventCount = int(history.events.size());
+		newChunk.eventCount = replayIndex;
 
 		++collectCount;
 		schedule(time);
@@ -278,7 +278,7 @@ void ReverseManager::signalEvent(shared_ptr<const Event> event,
 		}
 		// record event
 		events.push_back(EventChunk(time, event));
-		replayIndex = events.size();
+		++replayIndex;
 		assert(!replaying());
 	}
 }
