@@ -34,20 +34,16 @@ SYSTEM_LIBS:=ZLIB TCL XML
 #       version we are running on instead of the oldest version we support.
 #       But at the moment I don't want to make this more complex than it
 #       already is.
-ifeq ($(OPENMSX_TARGET_CPU),ppc)
-SDK_PATH:=/Developer/SDKs/MacOSX10.3.9.sdk
-OSX_VER:=10.3
-OSX_MIN_REQ:=1030
-else
 SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
 OSX_VER:=10.4
 OSX_MIN_REQ:=1040
-endif
 COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
 LINK_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
 TARGET_FLAGS+=-D__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__=$(OSX_MIN_REQ)
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 LINK_FLAGS+=-Wl,-syslibroot,$(SDK_PATH)
+# The OS X 10.4 SDK does not have the GCC 4.2 headers.
+CXX:=g++-4.0
 
 ifeq ($(filter 3RD_%,$(LINK_MODE)),)
 # Compile against local libs. We assume the binary is intended to be run on
