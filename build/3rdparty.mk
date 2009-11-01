@@ -345,26 +345,35 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS)" \
+		PKG_CONFIG=/nowhere
 
 $(BUILD_DIR)/$(PACKAGE_OGGZ)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_OGGZ)
 	mkdir -p $(@D)
+ifeq ($(OPENMSX_TARGET_OS),darwin)
+	echo "ac_cv_func_realloc_0_nonnull=yes" > $(@D)/config.cache
+endif
 	cd $(@D) && $(PWD)/$</configure \
+		--config-cache \
 		--disable-shared \
+		--disable-oggtest \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS)" \
+		PKG_CONFIG=/nowhere
 
 $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_VORBIS)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-shared \
+		--disable-oggtest \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS)" \
+		PKG_CONFIG=/nowhere
 
 $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_THEORA)
