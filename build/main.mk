@@ -300,7 +300,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
   # Stricter warning and error reporting.
-  COMPILE_FLAGS+=-Wall -Wundef
+  COMPILE_FLAGS+=-Wall -Wundef -Wunused-macros
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
