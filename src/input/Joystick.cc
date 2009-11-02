@@ -51,9 +51,8 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
 
 Joystick::~Joystick()
 {
-	if (getConnector()) {
-		// still plugged in
-		eventDistributor.unregisterEventListener(*this);
+	if (isPluggedIn()) {
+		Joystick::unplugHelper(EmuTime::dummy());
 	}
 	if (joystick) {
 		SDL_JoystickClose(joystick);

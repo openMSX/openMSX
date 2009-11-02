@@ -102,7 +102,7 @@ void RS232Tester::run()
 		if (num != 1) {
 			continue;
 		}
-		assert(getConnector());
+		assert(isPluggedIn());
 		ScopedLock l(lock);
 		queue.push_back(buf);
 		eventDistributor.distributeEvent(
@@ -130,7 +130,7 @@ void RS232Tester::signal(EmuTime::param time)
 // EventListener
 bool RS232Tester::signalEvent(shared_ptr<const Event> /*event*/)
 {
-	if (getConnector()) {
+	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);

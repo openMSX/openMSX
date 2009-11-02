@@ -29,12 +29,13 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_)
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
 	mouseMode = true;
-	eventDistributor.registerEventListener(*this);
 }
 
 Mouse::~Mouse()
 {
-	eventDistributor.unregisterEventListener(*this);
+	if (isPluggedIn()) {
+		Mouse::unplugHelper(EmuTime::dummy());
+	}
 }
 
 
@@ -61,10 +62,12 @@ void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 		// left mouse button pressed, joystick emulation mode
 		mouseMode = false;
 	}
+	eventDistributor.registerEventListener(*this);
 }
 
 void Mouse::unplugHelper(EmuTime::param /*time*/)
 {
+	eventDistributor.unregisterEventListener(*this);
 }
 
 

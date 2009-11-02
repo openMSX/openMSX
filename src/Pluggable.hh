@@ -46,6 +46,12 @@ public:
 	  */
 	Connector* getConnector() const;
 
+	/** Returns true if this pluggable is currently plugged into a connector.
+	 * The method getConnector() can also be used, but this is more
+	 * descriptive.
+	 */
+	bool isPluggedIn() const { return getConnector() != 0; }
+
 protected:
 	virtual void plugHelper(Connector& newConnector, EmuTime::param time) = 0;
 	/* implementations of unplugHelper() may not throw exceptions. */

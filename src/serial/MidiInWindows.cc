@@ -127,7 +127,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 // Runnable
 void MidiInWindows::run()
 {
-	assert(getConnector());
+	assert(isPluggedIn());
 	thrdid = SDL_ThreadID();
 
 	MSG msg;
@@ -180,7 +180,7 @@ void MidiInWindows::signal(EmuTime::param time)
 // EventListener
 bool MidiInWindows::signalEvent(shared_ptr<const Event> /*event*/)
 {
-	if (getConnector()) {
+	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);

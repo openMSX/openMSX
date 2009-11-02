@@ -68,8 +68,7 @@ const std::string& PrinterPortSimpl::getDescription() const
 template<typename Archive>
 void PrinterPortSimpl::serialize(Archive& ar, unsigned /*version*/)
 {
-	if (getConnector()) {
-		// plugged in
+	if (isPluggedIn()) {
 		if (ar.isLoader()) {
 			createDAC();
 		}

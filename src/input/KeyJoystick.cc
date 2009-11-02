@@ -31,15 +31,15 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 	, trigB(new KeyCodeSetting(commandController, name + ".trigb",
 		"key for trigger B",       Keys::K_M))
 {
-	eventDistributor.registerEventListener(*this);
-
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 KeyJoystick::~KeyJoystick()
 {
-	eventDistributor.unregisterEventListener(*this);
+	if (isPluggedIn()) {
+		KeyJoystick::unplugHelper(EmuTime::dummy());
+	}
 }
 
 
@@ -59,10 +59,12 @@ const string& KeyJoystick::getDescription() const
 
 void KeyJoystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
+	eventDistributor.registerEventListener(*this);
 }
 
 void KeyJoystick::unplugHelper(EmuTime::param /*time*/)
 {
+	eventDistributor.unregisterEventListener(*this);
 }
 
 

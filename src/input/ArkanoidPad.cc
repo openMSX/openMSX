@@ -33,12 +33,13 @@ ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_)
 	, buttonStatus(0x3E)
 	, lastValue(0)
 {
-	eventDistributor.registerEventListener(*this);
 }
 
 ArkanoidPad::~ArkanoidPad()
 {
-	eventDistributor.unregisterEventListener(*this);
+	if (isPluggedIn()) {
+		ArkanoidPad::unplugHelper(EmuTime::dummy());
+	}
 }
 
 
@@ -57,10 +58,12 @@ const string& ArkanoidPad::getDescription() const
 
 void ArkanoidPad::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
+	eventDistributor.registerEventListener(*this);
 }
 
 void ArkanoidPad::unplugHelper(EmuTime::param /*time*/)
 {
+	eventDistributor.unregisterEventListener(*this);
 }
 
 // JoystickDevice

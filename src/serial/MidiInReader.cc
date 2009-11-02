@@ -89,7 +89,7 @@ void MidiInReader::run()
 		if (num != 1) {
 			continue;
 		}
-		assert(getConnector());
+		assert(isPluggedIn());
 
 		ScopedLock l(lock);
 		queue.push_back(buf);
@@ -120,7 +120,7 @@ void MidiInReader::signal(EmuTime::param time)
 // EventListener
 bool MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
 {
-	if (getConnector()) {
+	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);

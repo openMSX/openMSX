@@ -68,7 +68,7 @@ void WavAudioInput::update(const Setting& setting)
 {
 	(void)setting;
 	assert(&setting == audioInputFilenameSetting.get());
-	if (getConnector()) {
+	if (isPluggedIn()) {
 		try {
 			loadWave();
 		} catch (MSXException& e) {
