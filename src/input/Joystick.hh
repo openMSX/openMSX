@@ -5,6 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
+#include "serialize_meta.hh"
 #include <SDL.h>
 
 namespace openmsx {
@@ -47,6 +48,7 @@ protected:
 private:
 	Joystick(MSXEventDistributor& eventDistributor, unsigned joyNum);
 
+	void plugHelper2();
 	void calcInitialState();
 
 	// MSXEventListener
@@ -63,6 +65,7 @@ private:
 	byte status;
 #endif // SDL_JOYSTICK_DISABLED
 };
+SERIALIZE_CLASS_VERSION(Joystick, 2);
 
 } // namespace openmsx
 

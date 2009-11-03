@@ -5,6 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -50,6 +51,7 @@ private:
 
 	byte status;
 };
+SERIALIZE_CLASS_VERSION(KeyJoystick, 2);
 
 } // namespace openmsx
 

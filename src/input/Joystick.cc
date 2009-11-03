@@ -75,10 +75,13 @@ void Joystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 	if (!joystick) {
 		throw PlugException("Failed to open joystick device");
 	}
-
-	eventDistributor.registerEventListener(*this);
-
+	plugHelper2();
 	calcInitialState();
+}
+
+void Joystick::plugHelper2()
+{
+	eventDistributor.registerEventListener(*this);
 }
 
 void Joystick::unplugHelper(EmuTime::param /*time*/)
@@ -207,15 +210,18 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*
 	}
 }
 
+// version 1: Initial version, the variable status was not serialized.
+// version 2: Also serialize the above variable, this is required for
+//            record/replay, see comment in Keyboard.cc for more details.
 template<typename Archive>
-void Joystick::serialize(Archive& ar, unsigned /*version*/)
+void Joystick::serialize(Archive& ar, unsigned version)
 {
-	// don't serialize 'status':
-	// it should be based on the 'current' joystick state
+	if (version >= 2) {
+		ar.serialize("status", status);
+	}
 	if (ar.isLoader()) {
-		Connector* conn = getConnector();
-		if (joystick && conn) {
-			plugHelper(*conn, EmuTime::dummy());
+		if (joystick && isPluggedIn()) {
+			plugHelper2();
 		}
 	}
 }

@@ -113,11 +113,15 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 	}
 }
 
+// version 1: Initial version, the variable status was not serialized.
+// version 2: Also serialize the above variable, this is required for
+//            record/replay, see comment in Keyboard.cc for more details.
 template<typename Archive>
-void KeyJoystick::serialize(Archive& ar, unsigned /*version*/)
+void KeyJoystick::serialize(Archive& ar, unsigned version)
 {
-	// don't serialize 'status', is controlled by key events
-
+	if (version >= 2) {
+		ar.serialize("status", status);
+	}
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());
 	}

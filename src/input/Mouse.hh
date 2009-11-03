@@ -6,6 +6,7 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "Clock.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -46,6 +47,7 @@ private:
 	byte status;
 	bool mouseMode;
 };
+SERIALIZE_CLASS_VERSION(Mouse, 2);
 
 } // namespace openmsx
 

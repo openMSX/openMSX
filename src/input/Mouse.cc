@@ -237,19 +237,23 @@ void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
 	}
 }
 
-
+// version 1: Initial version, the variables curxrel, curyrel and status were
+//            not serialized.
+// version 2: Also serialize the above variables, this is required for
+//            record/replay, see comment in Keyboard.cc for more details.
 template<typename Archive>
-void Mouse::serialize(Archive& ar, unsigned /*version*/)
+void Mouse::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("lastTime", lastTime);
 	ar.serialize("faze", faze);
 	ar.serialize("xrel", xrel);
 	ar.serialize("yrel", yrel);
 	ar.serialize("mouseMode", mouseMode);
-
-	// Don't serialzie status, curxrel, curyrel.
-	// These are controlled via (mouse button/motion) events
-
+	if (version >= 2) {
+		ar.serialize("curxrel", curxrel);
+		ar.serialize("curyrel", curyrel);
+		ar.serialize("status",  status);
+	}
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper2();
 	}

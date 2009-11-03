@@ -113,15 +113,19 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param /*ti
 }
 
 
+// version 1: Initial version, the variables dialpos and buttonStatus were not
+//            serialized.
+// version 2: Also serialize the above variables, this is required for
+//            record/replay, see comment in Keyboard.cc for more details.
 template<typename Archive>
-void ArkanoidPad::serialize(Archive& ar, unsigned /*version*/)
+void ArkanoidPad::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("shiftreg", shiftreg);
 	ar.serialize("lastValue", lastValue);
-
-	// Don't serialize buttonStatus, dialpos.
-	// These are controlled via (mouse button/motion) events
-
+	if (version >= 2) {
+		ar.serialize("dialpos", dialpos);
+		ar.serialize("buttonStatus", buttonStatus);
+	}
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());
 	}

@@ -5,6 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -40,6 +41,7 @@ private:
 	byte buttonStatus;
 	byte lastValue;
 };
+SERIALIZE_CLASS_VERSION(ArkanoidPad, 2);
 
 } // namespace openmsx
 
