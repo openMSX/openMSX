@@ -15,7 +15,7 @@ proc do_autoplug {} {
 			plug cassetteport cassetteplayer
 		}
 	}
-	after machine_switch [namespace code do_autoplug]
+	after boot [namespace code do_autoplug]
 }
 
 };# namespace autoplug
