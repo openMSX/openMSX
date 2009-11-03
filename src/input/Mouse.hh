@@ -36,6 +36,7 @@ public:
 
 private:
 	void emulateJoystick();
+	void plugHelper2();
 
 	MSXEventDistributor& eventDistributor;
 	Clock<1000> lastTime; // ms

@@ -62,6 +62,11 @@ void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 		// left mouse button pressed, joystick emulation mode
 		mouseMode = false;
 	}
+	plugHelper2();
+}
+
+void Mouse::plugHelper2()
+{
 	eventDistributor.registerEventListener(*this);
 }
 
@@ -244,6 +249,10 @@ void Mouse::serialize(Archive& ar, unsigned /*version*/)
 
 	// Don't serialzie status, curxrel, curyrel.
 	// These are controlled via (mouse button/motion) events
+
+	if (ar.isLoader() && isPluggedIn()) {
+		plugHelper2();
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Mouse);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Mouse, "Mouse");

@@ -121,6 +121,10 @@ void ArkanoidPad::serialize(Archive& ar, unsigned /*version*/)
 
 	// Don't serialize buttonStatus, dialpos.
 	// These are controlled via (mouse button/motion) events
+
+	if (ar.isLoader() && isPluggedIn()) {
+		plugHelper(*getConnector(), EmuTime::dummy());
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(ArkanoidPad);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ArkanoidPad, "ArkanoidPad");

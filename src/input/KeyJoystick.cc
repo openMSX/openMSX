@@ -114,9 +114,13 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 }
 
 template<typename Archive>
-void KeyJoystick::serialize(Archive& /*ar*/, unsigned /*version*/)
+void KeyJoystick::serialize(Archive& ar, unsigned /*version*/)
 {
 	// don't serialize 'status', is controlled by key events
+
+	if (ar.isLoader() && isPluggedIn()) {
+		plugHelper(*getConnector(), EmuTime::dummy());
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(KeyJoystick);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, KeyJoystick, "KeyJoystick");
