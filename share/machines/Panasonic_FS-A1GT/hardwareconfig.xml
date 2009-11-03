@@ -121,6 +121,7 @@
           <sramsize>32</sramsize>
           <sram-mirrored>false</sram-mirrored>
           <sramname>fs-a1gt.sram</sramname>
+          <device idref="Main RAM"/>
         </ROM>
       </secondary>
 

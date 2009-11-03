@@ -33,11 +33,13 @@ RomPanasonic::RomPanasonic(
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);
 	}
 
-	// Only lazily tell baseclass about about PanasonicMemory (for
-	// serialization). We cannot do this in the constructor yet, because
-	// we're not certain the PanasonicRam device is already constructed.
-	// Actual registration is done in changeBank(), right before we
-	// actually select ram pages.
+	// Inform baseclass about PanasonicMemory (needed for serialization).
+	// This relies on the order of MSXDevice instantiation, the PanasonicRam
+	// device must be create before this one. (In the hardwareconfig.xml
+	// we added a device-reference from this device to the PanasonicRam
+	// device, this should protected against wrong future edits in the
+	// config file).
+	setExtraMemory(panasonicMem.getRamBlock(0), panasonicMem.getRamSize());
 
 	reset(EmuTime::dummy());
 }
@@ -178,12 +180,6 @@ void RomPanasonic::changeBank(byte region, int bank)
 		setBank(region, &sram->operator[](offset), bank);
 	} else if (panasonicMem.getRamSize() && (RAM_BASE <= bank)) {
 		// RAM
-		// Only lazily (=not in constructor) inform base class about
-		// RAM region, to avoid dependency on the order of devices
-		// in the config file (otherwise PanasonicRam must come before
-		// this device). It's ok to call setExtraMemory() multiple times.
-		setExtraMemory(panasonicMem.getRamBlock(0),
-		               panasonicMem.getRamSize());
 		// TODO romblock debuggable is only 8 bits, here bank is 9 bits
 		setBank(region, panasonicMem.getRamBlock(bank - RAM_BASE), bank);
 	} else {

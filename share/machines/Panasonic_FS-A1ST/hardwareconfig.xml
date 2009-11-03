@@ -197,6 +197,7 @@
             <lastblock>255</lastblock>
           </rom>
           <mem base="0x0000" size="0x10000"/>
+          <device idref="Main RAM"/>
         </ROM>
       </secondary>
 
