@@ -39,7 +39,6 @@ class CDImageCLI;
 class Reactor;
 class MSXMotherBoard;
 class GlobalCommandController;
-class MSXEventRecorderReplayerCLI;
 
 class CommandLineParser : private noncopyable
 {
@@ -111,8 +110,6 @@ private:
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;
 	const std::auto_ptr<HDImageCLI> hdImageCLI;
 	const std::auto_ptr<CDImageCLI> cdImageCLI;
-	const std::auto_ptr<MSXEventRecorderReplayerCLI>
-	                                        eventRecorderReplayerCLI;
 	ParseStatus parseStatus;
 	bool haveConfig;
 	bool haveSettings;

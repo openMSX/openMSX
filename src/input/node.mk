@@ -20,9 +20,6 @@ SRC_HDR:= \
 	EventDelay \
 	MSXEventDistributor \
 	StateChangeDistributor \
-	MSXEventRecorder \
-	MSXEventReplayer \
-	MSXEventRecorderReplayerCLI \
 	RecordedCommand
 
 HDR_ONLY:= \
