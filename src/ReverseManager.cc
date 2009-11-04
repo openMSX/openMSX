@@ -45,6 +45,16 @@ void ReverseManager::ReverseHistory::clear()
 }
 
 
+class EndLogEvent : public StateChange
+{
+public:
+	EndLogEvent(EmuTime::param time)
+		: StateChange(time)
+	{
+	}
+};
+
+
 // class ReverseManager
 
 enum SyncType {
@@ -173,6 +183,17 @@ void ReverseManager::goBack(const vector<string>& tokens)
 
 void ReverseManager::goToSnapshot(Chunks::iterator it)
 {
+	if (!replaying()) {
+		// terminate replay log with EndLogEvent
+		history.events.push_back(shared_ptr<const StateChange>(
+			new EndLogEvent(getCurrentTime())));
+		++replayIndex;
+	}
+	// replay-log must end with EndLogEvent, either we just added it, or
+	// it was there already
+	assert(!history.events.empty());
+	assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
+
 	// erase all snapshots coming after the one we are going to
 	assert(it != history.chunks.end());
 	Chunks::iterator it2 = it;
@@ -215,9 +236,9 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 
 	// start replaying events
 	replayIndex = oldEventCount;
+	// replay log contains at least the EndLogEvent
+	assert(replayIndex < history.events.size());
 	replayNextEvent();
-	// It's possible there were no events to replay, so we may not actually
-	// be replaying at this point.
 }
 
 void ReverseManager::executeUntil(EmuTime::param time, int userData)
@@ -239,34 +260,41 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 		break;
 	}
 	case INPUT_EVENT:
-		// deliver current event at current time
+		shared_ptr<const StateChange> event = history.events[replayIndex];
 		try {
-			motherBoard.getStateChangeDistributor().distributeReplay(
-				history.events[replayIndex]);
+			// deliver current event at current time
+			motherBoard.getStateChangeDistributor().distributeReplay(event);
 		} catch (MSXException&) {
 			// can throw in case we replay a command that fails
 			// ignore
 		}
-		++replayIndex;
-		replayNextEvent();
+		if (!dynamic_cast<const EndLogEvent*>(event.get())) {
+			++replayIndex;
+			replayNextEvent();
+		} else {
+			assert(!replaying()); // stopped by replay of EndLogEvent
+		}
 		break;
 	}
 }
 
 void ReverseManager::replayNextEvent()
 {
-	// schedule next event at its own time, if we're not done yet
-	if (replayIndex != history.events.size()) {
-		setSyncPoint(history.events[replayIndex]->getTime(),
-		             INPUT_EVENT);
-	}
+	// schedule next event at its own time
+	assert(replayIndex < history.events.size());
+	setSyncPoint(history.events[replayIndex]->getTime(), INPUT_EVENT);
 }
 
 void ReverseManager::signalStateChange(shared_ptr<const StateChange> event)
 {
 	if (replaying()) {
+		// this is an event we just replayed
 		assert(event == history.events[replayIndex]);
-		// this is an event we just replayed, ignore it
+		if (dynamic_cast<const EndLogEvent*>(event.get())) {
+			motherBoard.getStateChangeDistributor().stopReplay();
+		} else {
+			// ignore all other events
+		}
 	} else {
 		// record event
 		history.events.push_back(event);

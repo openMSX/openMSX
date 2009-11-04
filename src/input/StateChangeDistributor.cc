@@ -38,11 +38,7 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 void StateChangeDistributor::distributeNew(EventPtr event)
 {
 	if (replaying) {
-		replaying = false;
-		for (Listeners::const_iterator it = listeners.begin();
-		     it != listeners.end(); ++it) {
-			(*it)->stopReplay();
-		}
+		stopReplay();
 	}
 	distribute(event);
 }
@@ -68,6 +64,15 @@ void StateChangeDistributor::distribute(EventPtr event)
 			// (but is still present in the copy)
 			(*it)->signalStateChange(event);
 		}
+	}
+}
+
+void StateChangeDistributor::stopReplay()
+{
+	replaying = false;
+	for (Listeners::const_iterator it = listeners.begin();
+	     it != listeners.end(); ++it) {
+		(*it)->stopReplay();
 	}
 }
 

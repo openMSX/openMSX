@@ -44,6 +44,12 @@ public:
 	void distributeNew   (EventPtr event);
 	void distributeReplay(EventPtr event);
 
+	/** Explicitly stop replay.
+	 * Should be called when replay->live transition cannot be signaled via
+	 * a new event, so (only) when we reach the end of the replay log.
+	 */
+	void stopReplay();
+
 private:
 	bool isRegistered(StateChangeListener* listener) const;
 	void distribute(EventPtr event);
