@@ -2,8 +2,8 @@
 
 #include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXEventDistributor.hh"
-#include "InputEvents.hh"
+#include "StateChangeDistributor.hh"
+#include "StateChange.hh"
 #include "Reactor.hh"
 #include "Clock.hh"
 #include "Command.hh"
@@ -85,7 +85,7 @@ void ReverseManager::start()
 		collectCount = 1;
 		executeUntil(getCurrentTime(), NEW_SNAPSHOT);
 		// start recording events
-		motherBoard.getMSXEventDistributor().registerEventListener(*this);
+		motherBoard.getStateChangeDistributor().registerListener(*this);
 	}
 	assert(collecting());
 }
@@ -93,7 +93,7 @@ void ReverseManager::start()
 void ReverseManager::stop()
 {
 	if (collecting()) {
-		motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
+		motherBoard.getStateChangeDistributor().unregisterListener(*this);
 		removeSyncPoint(NEW_SNAPSHOT); // don't schedule new snapshot takings
 		removeSyncPoint(INPUT_EVENT); // stop any pending replay actions
 		history.clear();
@@ -210,7 +210,7 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 	// resume collecting (and event recording)
 	collectCount = oldCollectCount;
 	schedule(getCurrentTime());
-	motherBoard.getMSXEventDistributor().registerEventListener(*this);
+	motherBoard.getStateChangeDistributor().registerListener(*this);
 	assert(collecting());
 
 	// start replaying events
@@ -240,8 +240,13 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 	}
 	case INPUT_EVENT:
 		// deliver current event at current time
-		motherBoard.getMSXEventDistributor().distributeEvent(
-			history.events[replayIndex].event, time);
+		try {
+			motherBoard.getStateChangeDistributor().distribute(
+				history.events[replayIndex]);
+		} catch (MSXException&) {
+			// can throw in case we replay a command that fails
+			// ignore
+		}
 		++replayIndex;
 		replayNextEvent();
 		break;
@@ -252,22 +257,15 @@ void ReverseManager::replayNextEvent()
 {
 	// schedule next event at its own time, if we're not done yet
 	if (replayIndex != history.events.size()) {
-		setSyncPoint(history.events[replayIndex].time,
+		setSyncPoint(history.events[replayIndex]->getTime(),
 		             INPUT_EVENT);
 	}
 }
 
-void ReverseManager::signalEvent(shared_ptr<const Event> event,
-                                 EmuTime::param time)
+void ReverseManager::signalStateChange(shared_ptr<const StateChange> event)
 {
-	if (!dynamic_cast<const TimedEvent*>(event.get())) {
-		// TODO this is wrong:
-		//   for example MSXCommandEvents should also be recorded
-		return;
-	}
-
 	Events& events = history.events;
-	if (replaying() && (event == events[replayIndex].event)) {
+	if (replaying() && (event == events[replayIndex])) {
 		// this is an event we just replayed, ignore it
 	} else {
 		if (replaying()) {
@@ -277,7 +275,7 @@ void ReverseManager::signalEvent(shared_ptr<const Event> event,
 			assert(!replaying());
 		}
 		// record event
-		events.push_back(EventChunk(time, event));
+		events.push_back(event);
 		++replayIndex;
 		assert(!replaying());
 	}

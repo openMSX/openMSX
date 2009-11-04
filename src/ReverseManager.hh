@@ -4,9 +4,8 @@
 #define REVERSEMANGER_HH
 
 #include "Schedulable.hh"
-#include "MSXEventListener.hh"
+#include "StateChangeListener.hh"
 #include "EmuTime.hh"
-#include "Event.hh"
 #include "shared_ptr.hh"
 #include <vector>
 #include <map>
@@ -18,7 +17,7 @@ class MSXMotherBoard;
 class ReverseCmd;
 class MemBuffer;
 
-class ReverseManager : private Schedulable, private MSXEventListener
+class ReverseManager : private Schedulable, private StateChangeListener
 {
 public:
 	ReverseManager(MSXMotherBoard& motherBoard);
@@ -39,15 +38,7 @@ private:
 		unsigned eventCount;
 	};
 	typedef std::map<unsigned, ReverseChunk> Chunks;
-
-	struct EventChunk {
-		EventChunk(EmuTime time_, shared_ptr<const Event> event_)
-			: time(time_)
-			, event(event_) {}
-		EmuTime time;
-		shared_ptr<const Event> event;
-	};
-	typedef std::vector<EventChunk> Events;
+	typedef std::vector<shared_ptr<const StateChange> > Events;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other);
@@ -79,9 +70,8 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
-	// EventListener
-	virtual void signalEvent(shared_ptr<const Event> event,
-                                 EmuTime::param time);
+	// StateChangeListener
+	virtual void signalStateChange(shared_ptr<const StateChange> event);
 
 	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<ReverseCmd> reverseCmd;
