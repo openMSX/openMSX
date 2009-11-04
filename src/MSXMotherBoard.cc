@@ -24,6 +24,7 @@
 #include "RenShaTurbo.hh"
 #include "LedStatus.hh"
 #include "MSXEventDistributor.hh"
+#include "StateChangeDistributor.hh"
 #include "EventDelay.hh"
 #include "RealTime.hh"
 #include "DeviceFactory.hh"
@@ -98,6 +99,7 @@ public:
 
 	CliComm& getMSXCliComm();
 	MSXEventDistributor& getMSXEventDistributor();
+	StateChangeDistributor& getStateChangeDistributor();
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
 	CartridgeSlotManager& getSlotManager();
@@ -171,6 +173,7 @@ private:
 	auto_ptr<AddRemoveUpdate> addRemoveUpdate;
 	auto_ptr<MSXCliComm> msxCliComm;
 	auto_ptr<MSXEventDistributor> msxEventDistributor;
+	auto_ptr<StateChangeDistributor> stateChangeDistributor;
 	auto_ptr<MSXCommandController> msxCommandController;
 	auto_ptr<Scheduler> scheduler;
 	auto_ptr<EventDelay> eventDelay;
@@ -305,6 +308,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
 	, msxEventDistributor(new MSXEventDistributor())
+	, stateChangeDistributor(new StateChangeDistributor())
 	, msxCommandController(new MSXCommandController(
 		reactor.getGlobalCommandController(), reactor,
 		self, *msxEventDistributor, machineID))
@@ -501,6 +505,11 @@ CliComm& MSXMotherBoardImpl::getMSXCliComm()
 MSXEventDistributor& MSXMotherBoardImpl::getMSXEventDistributor()
 {
 	return *msxEventDistributor;
+}
+
+StateChangeDistributor& MSXMotherBoardImpl::getStateChangeDistributor()
+{
+	return *stateChangeDistributor;
 }
 
 MSXCommandController& MSXMotherBoardImpl::getMSXCommandController()
@@ -1272,6 +1281,10 @@ Scheduler& MSXMotherBoard::getScheduler()
 MSXEventDistributor& MSXMotherBoard::getMSXEventDistributor()
 {
 	return pimple->getMSXEventDistributor();
+}
+StateChangeDistributor& MSXMotherBoard::getStateChangeDistributor()
+{
+	return pimple->getStateChangeDistributor();
 }
 CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 {

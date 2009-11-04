@@ -19,13 +19,16 @@ SRC_HDR:= \
 	ArkanoidPad \
 	EventDelay \
 	MSXEventDistributor \
+	StateChangeDistributor \
 	MSXEventRecorder \
 	MSXEventReplayer \
 	MSXEventRecorderReplayerCLI \
 	RecordedCommand
 
 HDR_ONLY:= \
-	MSXEventListener
+	MSXEventListener \
+	StateChangeListener \
+	StateChange
 
 include build/node-end.mk
 
