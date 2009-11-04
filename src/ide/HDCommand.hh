@@ -10,7 +10,7 @@
 namespace openmsx {
 
 class CommandController;
-class MSXEventDistributor;
+class StateChangeDistributor;
 class Scheduler;
 class TclObject;
 class HD;
@@ -20,7 +20,7 @@ class HDCommand : public RecordedCommand
 {
 public:
 	HDCommand(CommandController& commandController,
-	          MSXEventDistributor& msxEventDistributor,
+	          StateChangeDistributor& stateChangeDistributor,
 	          Scheduler& scheduler, HD& hd, BooleanSetting& powerSetting);
 	virtual void execute(const std::vector<TclObject*>& tokens,
 	                     TclObject& result, EmuTime::param time);

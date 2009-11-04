@@ -45,7 +45,7 @@ class KeyMatrixUpCmd : public RecordedCommand
 {
 public:
 	KeyMatrixUpCmd(CommandController& commandController,
-	               MSXEventDistributor& msxEventDistributor,
+	               StateChangeDistributor& stateChangeDistributor,
 	               Scheduler& scheduler, Keyboard& keyboard);
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
@@ -57,7 +57,7 @@ class KeyMatrixDownCmd : public RecordedCommand
 {
 public:
 	KeyMatrixDownCmd(CommandController& commandController,
-	                 MSXEventDistributor& msxEventDistributor,
+	                 StateChangeDistributor& stateChangeDistributor,
 	                 Scheduler& scheduler, Keyboard& keyboard);
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
@@ -85,7 +85,7 @@ class KeyInserter : public RecordedCommand, public Schedulable
 {
 public:
 	KeyInserter(CommandController& commandController,
-	            MSXEventDistributor& msxEventDistributor,
+	            StateChangeDistributor& stateChangeDistributor,
 	            Scheduler& scheduler, Keyboard& keyboard);
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -182,11 +182,11 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
-		commandController, msxEventDistributor, scheduler, *this))
+		commandController, stateChangeDistributor, scheduler, *this))
 	, keyMatrixDownCmd(new KeyMatrixDownCmd(
-		commandController, msxEventDistributor, scheduler, *this))
+		commandController, stateChangeDistributor, scheduler, *this))
 	, keyTypeCmd(new KeyInserter(
-		commandController, msxEventDistributor, scheduler, *this))
+		commandController, stateChangeDistributor, scheduler, *this))
 	, capsLockAligner(new CapsLockAligner(
 		eventDistributor, msxEventDistributor, scheduler, *this))
 	, keyboardSettings(new KeyboardSettings(commandController))
@@ -840,9 +840,9 @@ void Keyboard::debug(const char* format, ...)
 // class KeyMatrixUpCmd
 
 KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
-		MSXEventDistributor& msxEventDistributor,
+		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 		scheduler, "keymatrixup")
 	, keyboard(keyboard_)
 {
@@ -864,9 +864,9 @@ string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 // class KeyMatrixDownCmd
 
 KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
-		MSXEventDistributor& msxEventDistributor,
+		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 		scheduler, "keymatrixdown")
 	, keyboard(keyboard_)
 {
@@ -936,9 +936,9 @@ const string& MsxKeyEventQueue::schedName() const
 // class KeyInserter
 
 KeyInserter::KeyInserter(CommandController& commandController,
-		MSXEventDistributor& msxEventDistributor,
+		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 		scheduler, "type")
 	, Schedulable(scheduler)
 	, keyboard(keyboard_)

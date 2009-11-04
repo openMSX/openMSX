@@ -207,25 +207,6 @@ private:
 	virtual bool lessImpl(const Event& other) const;
 };
 
-
-/** This class is used to for Tcl commands that directly influence the MSX
-  * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
-  * event because the recording needs to see these.
-  */
-class MSXCommandEvent : public Event
-{
-public:
-	explicit MSXCommandEvent(const std::vector<std::string>& tokens);
-	explicit MSXCommandEvent(const std::vector<TclObject*>& tokens);
-	virtual ~MSXCommandEvent();
-	const std::vector<TclObject*>& getTokens() const;
-private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
-	std::vector<TclObject*> tokens;
-	const bool owned;
-};
-
 } // namespace openmsx
 
 #endif

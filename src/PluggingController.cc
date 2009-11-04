@@ -25,7 +25,7 @@ class PlugCmd : public RecordedCommand
 {
 public:
 	PlugCmd(CommandController& commandController,
-	        MSXEventDistributor& msxEventDistributor,
+	        StateChangeDistributor& stateChangeDistributor,
 	        Scheduler& scheduler,
 	        PluggingController& pluggingController);
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
@@ -39,7 +39,7 @@ class UnplugCmd : public RecordedCommand
 {
 public:
 	UnplugCmd(CommandController& commandController,
-	          MSXEventDistributor& msxEventDistributor,
+	          StateChangeDistributor& stateChangeDistributor,
 	          Scheduler& scheduler,
 	          PluggingController& pluggingController);
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
@@ -91,10 +91,10 @@ private:
 
 PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 	: plugCmd  (new PlugCmd  (motherBoard.getCommandController(),
-	                          motherBoard.getMSXEventDistributor(),
+	                          motherBoard.getStateChangeDistributor(),
 	                          motherBoard.getScheduler(), *this))
 	, unplugCmd(new UnplugCmd(motherBoard.getCommandController(),
-	                          motherBoard.getMSXEventDistributor(),
+	                          motherBoard.getStateChangeDistributor(),
 	                          motherBoard.getScheduler(), *this))
 	, pluggableInfo(new PluggableInfo(
 		motherBoard.getMachineInfoCommand(), *this))
@@ -162,10 +162,10 @@ void PluggingController::unregisterPluggable(Pluggable* pluggable)
 //  plug command
 
 PlugCmd::PlugCmd(CommandController& commandController,
-                 MSXEventDistributor& msxEventDistributor,
+                 StateChangeDistributor& stateChangeDistributor,
                  Scheduler& scheduler,
                  PluggingController& pluggingController_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "plug")
 	, pluggingController(pluggingController_)
 {
@@ -255,10 +255,10 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 //  unplug command
 
 UnplugCmd::UnplugCmd(CommandController& commandController,
-                     MSXEventDistributor& msxEventDistributor,
+                     StateChangeDistributor& stateChangeDistributor,
                      Scheduler& scheduler,
                      PluggingController& pluggingController_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "unplug")
 	, pluggingController(pluggingController_)
 {

@@ -73,7 +73,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getCommandController(),
 		motherBoard.getMSXMixer(),
 		motherBoard.getScheduler(),
-		motherBoard.getMSXEventDistributor(),
+		motherBoard.getStateChangeDistributor(),
 		motherBoard.getReactor().getEventDistributor(),
 		motherBoard.getMSXCliComm(),
 		motherBoard.getReactor().getGlobalSettings().getResampleSetting(),

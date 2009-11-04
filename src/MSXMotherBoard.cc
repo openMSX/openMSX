@@ -907,7 +907,7 @@ AddRemoveUpdate::~AddRemoveUpdate()
 // ResetCmd
 ResetCmd::ResetCmd(MSXMotherBoardImpl& motherBoard_)
 	: RecordedCommand(motherBoard_.getCommandController(),
-	                  motherBoard_.getMSXEventDistributor(),
+	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "reset")
 	, motherBoard(motherBoard_)
@@ -985,7 +985,7 @@ string ListExtCmd::help(const vector<string>& /*tokens*/) const
 // ExtCmd
 ExtCmd::ExtCmd(MSXMotherBoardImpl& motherBoard_)
 	: RecordedCommand(motherBoard_.getCommandController(),
-	                  motherBoard_.getMSXEventDistributor(),
+	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "ext")
 	, motherBoard(motherBoard_)
@@ -1020,7 +1020,7 @@ void ExtCmd::tabCompletion(vector<string>& tokens) const
 // RemoveExtCmd
 RemoveExtCmd::RemoveExtCmd(MSXMotherBoardImpl& motherBoard_)
 	: RecordedCommand(motherBoard_.getCommandController(),
-	                  motherBoard_.getMSXEventDistributor(),
+	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "remove_extension")
 	, motherBoard(motherBoard_)

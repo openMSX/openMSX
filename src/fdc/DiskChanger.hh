@@ -4,7 +4,7 @@
 #define DISKCHANGER_HH
 
 #include "DiskContainer.hh"
-#include "MSXEventListener.hh"
+#include "StateChangeListener.hh"
 #include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <vector>
@@ -14,7 +14,7 @@
 namespace openmsx {
 
 class CommandController;
-class MSXEventDistributor;
+class StateChangeDistributor;
 class Scheduler;
 class MSXMotherBoard;
 class DiskFactory;
@@ -24,7 +24,7 @@ class DiskCommand;
 class TclObject;
 class DiskName;
 
-class DiskChanger : public DiskContainer, private MSXEventListener,
+class DiskChanger : public DiskContainer, private StateChangeListener,
                     private noncopyable
 {
 public:
@@ -68,12 +68,11 @@ private:
 	void ejectDisk();
 	void sendChangeDiskEvent(const std::vector<std::string>& args);
 
-	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event,
-	                         EmuTime::param time);
+	// StateChangeListener
+	virtual void signalStateChange(shared_ptr<const StateChange> event);
 
 	CommandController& controller;
-	MSXEventDistributor* msxEventDistributor;
+	StateChangeDistributor* stateChangeDistributor;
 	Scheduler* scheduler;
 	DiskFactory& diskFactory;
 	DiskManipulator& manipulator;

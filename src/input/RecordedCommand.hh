@@ -4,21 +4,39 @@
 #define RECORDEDCOMMAND_HH
 
 #include "Command.hh"
-#include "MSXEventListener.hh"
+#include "StateChangeListener.hh"
+#include "StateChange.hh"
 #include "EmuTime.hh"
 #include <memory>
 
 namespace openmsx {
 
 class CommandController;
-class MSXEventDistributor;
+class StateChangeDistributor;
 class Scheduler;
+class TclObject;
+
+/** This class is used to for Tcl commands that directly influence the MSX
+  * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
+  * event because the recording needs to see these.
+  */
+class MSXCommandEvent : public StateChange
+{
+public:
+	MSXCommandEvent(const std::vector<std::string>& tokens, EmuTime::param time);
+	MSXCommandEvent(const std::vector<TclObject*>& tokens,  EmuTime::param time);
+	virtual ~MSXCommandEvent();
+	const std::vector<TclObject*>& getTokens() const;
+private:
+	std::vector<TclObject*> tokens;
+};
+
 
 /** Commands that directly influence the MSX state should send and events
   * so that they can be recorded by the event recorder. This class helps to
   * implement that.
   */
-class RecordedCommand : public Command, private MSXEventListener
+class RecordedCommand : public Command, private StateChangeListener
 {
 public:
 	/** This is like the execute() method of the Command class, it only
@@ -51,7 +69,7 @@ public:
 
 protected:
 	RecordedCommand(CommandController& commandController,
-	                MSXEventDistributor& msxEventDistributor,
+	                StateChangeDistributor& stateChangeDistributor,
 	                Scheduler& scheduler,
 	                const std::string& name);
 	virtual ~RecordedCommand();
@@ -61,11 +79,10 @@ private:
 	virtual void execute(const std::vector<TclObject*>& tokens,
 	                     TclObject& result);
 
-	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event,
-	                         EmuTime::param time);
+	// StateChangeListener
+	virtual void signalStateChange(shared_ptr<const StateChange> event);
 
-	MSXEventDistributor& msxEventDistributor;
+	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;
 	const std::auto_ptr<TclObject> dummyResultObject;
 	TclObject* currentResultObject;

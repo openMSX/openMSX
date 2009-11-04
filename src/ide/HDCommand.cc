@@ -19,10 +19,10 @@ using std::set;
 // class HDCommand
 
 HDCommand::HDCommand(CommandController& commandController,
-                     MSXEventDistributor& msxEventDistributor,
+                     StateChangeDistributor& stateChangeDistributor,
                      Scheduler& scheduler, HD& hd_,
                      BooleanSetting& powerSetting_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, hd_.getName())
 	, hd(hd_)
 	, powerSetting(powerSetting_)

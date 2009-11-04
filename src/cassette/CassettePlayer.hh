@@ -26,7 +26,7 @@ class ThrottleManager;
 class BooleanSetting;
 class TapeCommand;
 class CommandController;
-class MSXEventDistributor;
+class StateChangeDistributor;
 class EventDistributor;
 
 class CassettePlayer : public CassetteDevice, public SoundDevice
@@ -36,7 +36,7 @@ class CassettePlayer : public CassetteDevice, public SoundDevice
 public:
 	CassettePlayer(CommandController& commandController,
 	               MSXMixer& mixer, Scheduler& Scheduler,
-	               MSXEventDistributor& msxEventDistributor,
+	               StateChangeDistributor& stateChangeDistributor,
 	               EventDistributor& eventDistributor,
 	               CliComm& cliComm,
 	               EnumSetting<ResampleType>& resampleSetting,

@@ -7,8 +7,8 @@
 #include "DirAsDSK.hh"
 #include "DSKDiskImage.hh"
 #include "CommandController.hh"
-#include "Command.hh"
-#include "MSXEventDistributor.hh"
+#include "RecordedCommand.hh"
+#include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
@@ -53,7 +53,7 @@ DiskChanger::DiskChanger(const string& driveName_,
                          MSXMotherBoard& board,
                          bool createCmd)
 	: controller(controller_)
-	, msxEventDistributor(&board.getMSXEventDistributor())
+	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
 	, diskFactory(diskFactory_)
 	, manipulator(manipulator_)
@@ -68,7 +68,7 @@ DiskChanger::DiskChanger(const string& driveName_,
                          DiskManipulator& manipulator_,
                          bool createCmd)
 	: controller(controller_)
-	, msxEventDistributor(NULL)
+	, stateChangeDistributor(NULL)
 	, scheduler(NULL)
 	, diskFactory(diskFactory_)
 	, manipulator(manipulator_)
@@ -81,7 +81,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 DiskChanger::DiskChanger(MSXMotherBoard& board,
                          const std::string& driveName_)
 	: controller(board.getCommandController())
-	, msxEventDistributor(&board.getMSXEventDistributor())
+	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
 	, diskFactory(board.getReactor().getDiskFactory())
 	, manipulator(board.getReactor().getDiskManipulator())
@@ -95,8 +95,8 @@ void DiskChanger::init(const string& prefix, bool createCmd)
 	if (createCmd) createCommand();
 	ejectDisk();
 	manipulator.registerDrive(*this, prefix);
-	if (msxEventDistributor) {
-		msxEventDistributor->registerEventListener(*this);
+	if (stateChangeDistributor) {
+		stateChangeDistributor->registerListener(*this);
 	}
 }
 
@@ -108,8 +108,8 @@ void DiskChanger::createCommand()
 
 DiskChanger::~DiskChanger()
 {
-	if (msxEventDistributor) {
-		msxEventDistributor->unregisterEventListener(*this);
+	if (stateChangeDistributor) {
+		stateChangeDistributor->unregisterListener(*this);
 	}
 	manipulator.unregisterDrive(*this);
 }
@@ -157,22 +157,21 @@ const std::string& DiskChanger::getContainerName() const
 void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 {
 	// note: might throw MSXException
-	MSXEventDistributor::EventPtr event(new MSXCommandEvent(args));
-	if (msxEventDistributor) {
-		msxEventDistributor->distributeEvent(
-			event, scheduler->getCurrentTime());
+	StateChangeDistributor::EventPtr event(
+		new MSXCommandEvent(args, scheduler->getCurrentTime()));
+	if (stateChangeDistributor) {
+		stateChangeDistributor->distribute(event);
 	} else {
-		signalEvent(event, EmuTime::zero);
+		signalStateChange(event);
 	}
 }
 
-void DiskChanger::signalEvent(
-	shared_ptr<const Event> event, EmuTime::param /*time*/)
+void DiskChanger::signalStateChange(shared_ptr<const StateChange> event)
 {
-	if (event->getType() != OPENMSX_MSX_COMMAND_EVENT) return;
-
 	const MSXCommandEvent* commandEvent =
-		checked_cast<const MSXCommandEvent*>(event.get());
+		dynamic_cast<const MSXCommandEvent*>(event.get());
+	if (!commandEvent) return;
+
 	const vector<TclObject*>& tokens = commandEvent->getTokens();
 	if (tokens[0]->getString() == getDriveName()) {
 		if (tokens[1]->getString() == "eject") {

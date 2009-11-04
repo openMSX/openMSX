@@ -2,10 +2,10 @@
 
 #include "RecordedCommand.hh"
 #include "CommandController.hh"
-#include "MSXEventDistributor.hh"
+#include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 #include "Scheduler.hh"
-#include "InputEvents.hh"
+#include "StateChange.hh"
 #include "ScopedAssign.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
@@ -15,22 +15,23 @@ using std::string;
 
 namespace openmsx {
 
+
 RecordedCommand::RecordedCommand(CommandController& commandController,
-                                 MSXEventDistributor& msxEventDistributor_,
+                                 StateChangeDistributor& stateChangeDistributor_,
                                  Scheduler& scheduler_,
                                  const string& name)
 	: Command(commandController, name)
-	, msxEventDistributor(msxEventDistributor_)
+	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)
 	, dummyResultObject(new TclObject(getInterpreter()))
 	, currentResultObject(dummyResultObject.get())
 {
-	msxEventDistributor.registerEventListener(*this);
+	stateChangeDistributor.registerListener(*this);
 }
 
 RecordedCommand::~RecordedCommand()
 {
-	msxEventDistributor.unregisterEventListener(*this);
+	stateChangeDistributor.unregisterListener(*this);
 }
 
 void RecordedCommand::execute(const vector<TclObject*>& tokens,
@@ -39,10 +40,9 @@ void RecordedCommand::execute(const vector<TclObject*>& tokens,
 	EmuTime::param time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
 		ScopedAssign<TclObject*> sa(currentResultObject, &result);
-		msxEventDistributor.distributeEvent(
-			MSXEventDistributor::EventPtr(
-				new MSXCommandEvent(tokens)),
-			time);
+		stateChangeDistributor.distribute(
+			StateChangeDistributor::EventPtr(
+				new MSXCommandEvent(tokens, time)));
 	} else {
 		execute(tokens, result, time);
 	}
@@ -70,16 +70,16 @@ static string getBaseName(const std::string& str)
 	return (pos == string::npos) ? str : str.substr(pos + 2);
 }
 
-void RecordedCommand::signalEvent(
-	shared_ptr<const Event> event, EmuTime::param time)
+void RecordedCommand::signalStateChange(shared_ptr<const StateChange> event)
 {
-	if (event->getType() != OPENMSX_MSX_COMMAND_EVENT) return;
 	const MSXCommandEvent* commandEvent =
-		checked_cast<const MSXCommandEvent*>(event.get());
+		dynamic_cast<const MSXCommandEvent*>(event.get());
+	if (!commandEvent) return;
+
 	const vector<TclObject*>& tokens = commandEvent->getTokens();
 	if (getBaseName(tokens[0]->getString()) != getName()) return;
 
-	execute(tokens, *currentResultObject, time);
+	execute(tokens, *currentResultObject, commandEvent->getTime());
 }
 
 void RecordedCommand::execute(const vector<TclObject*>& tokens,
@@ -100,6 +100,40 @@ string RecordedCommand::execute(const vector<string>& /*tokens*/,
 	// either this method or the method above should be reimplemented
 	// by the subclasses
 	UNREACHABLE; return "";
+}
+
+
+// class MSXCommandEvent
+
+MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_, EmuTime::param time)
+	: StateChange(time)
+{
+	for (vector<string>::const_iterator it = tokens_.begin();
+	     it != tokens_.end(); ++it) {
+		tokens.push_back(new TclObject(0, *it));
+	}
+}
+
+MSXCommandEvent::MSXCommandEvent(const vector<TclObject*>& tokens_, EmuTime::param time)
+	: StateChange(time)
+{
+	for (vector<TclObject*>::const_iterator it = tokens_.begin();
+	     it != tokens_.end(); ++it) {
+		tokens.push_back(new TclObject(**it));
+	}
+}
+
+MSXCommandEvent::~MSXCommandEvent()
+{
+	for (vector<TclObject*>::const_iterator it = tokens.begin();
+	     it != tokens.end(); ++it) {
+		delete *it;
+	}
+}
+
+const vector<TclObject*>& MSXCommandEvent::getTokens() const
+{
+	return tokens;
 }
 
 } // namespace openmsx

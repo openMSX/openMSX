@@ -65,7 +65,7 @@ class TapeCommand : public RecordedCommand
 {
 public:
 	TapeCommand(CommandController& commandController,
-	            MSXEventDistributor& msxEventDistributor,
+	            StateChangeDistributor& stateChangeDistributor,
 	            Scheduler& scheduler,
 	            CassettePlayer& cassettePlayer);
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
@@ -79,7 +79,7 @@ private:
 CassettePlayer::CassettePlayer(
 		CommandController& commandController_,
 		MSXMixer& mixer, Scheduler& scheduler,
-		MSXEventDistributor& msxEventDistributor,
+		StateChangeDistributor& stateChangeDistributor,
 		EventDistributor& eventDistributor_,
 		CliComm& cliComm_,
 		EnumSetting<ResampleType>& resampleSetting,
@@ -93,7 +93,7 @@ CassettePlayer::CassettePlayer(
 	, commandController(commandController_)
 	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
-	, tapeCommand(new TapeCommand(commandController, msxEventDistributor,
+	, tapeCommand(new TapeCommand(commandController, stateChangeDistributor,
 	                              scheduler, *this))
 	, loadingIndicator(new LoadingIndicator(throttleManager))
 	, autoRunSetting(new BooleanSetting(commandController,
@@ -617,10 +617,10 @@ void CassettePlayer::executeUntil(EmuTime::param time, int userData)
 // class TapeCommand
 
 TapeCommand::TapeCommand(CommandController& commandController,
-                         MSXEventDistributor& msxEventDistributor,
+                         StateChangeDistributor& stateChangeDistributor,
                          Scheduler& scheduler,
                          CassettePlayer& cassettePlayer_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "cassetteplayer")
 	, cassettePlayer(cassettePlayer_)
 {

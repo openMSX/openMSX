@@ -276,7 +276,7 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
                  const string& commandName)
 	: RecordedCommand(motherBoard.getCommandController(),
-	                  motherBoard.getMSXEventDistributor(),
+	                  motherBoard.getStateChangeDistributor(),
 	                  motherBoard.getScheduler(),
 	                  commandName)
 	, manager(manager_)

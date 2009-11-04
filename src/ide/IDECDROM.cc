@@ -25,7 +25,7 @@ class CDXCommand : public RecordedCommand
 {
 public:
 	CDXCommand(CommandController& commandController,
-	           MSXEventDistributor& msxEventDistributor,
+	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
 	virtual void execute(const std::vector<TclObject*>& tokens,
 		TclObject& result, EmuTime::param time);
@@ -62,7 +62,7 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/)
 	name = string("cd") + char('a' + id);
 	cdInUse[id] = true;
 	cdxCommand.reset(new CDXCommand(motherBoard.getCommandController(),
-	                                motherBoard.getMSXEventDistributor(),
+	                                motherBoard.getStateChangeDistributor(),
 	                                motherBoard.getScheduler(), *this));
 
 	senseKey = 0;
@@ -349,9 +349,9 @@ void IDECDROM::insert(const string& filename)
 // class CDXCommand
 
 CDXCommand::CDXCommand(CommandController& commandController,
-                       MSXEventDistributor& msxEventDistributor,
+                       StateChangeDistributor& stateChangeDistributor,
                        Scheduler& scheduler, IDECDROM& cd_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, cd_.name)
 	, cd(cd_)
 {

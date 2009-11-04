@@ -29,7 +29,7 @@ class LaserdiscCommand : public RecordedCommand
 {
 public:
 	LaserdiscCommand(CommandController& commandController,
-	                 MSXEventDistributor& msxEventDistributor,
+	                 StateChangeDistributor& stateChangeDistributor,
 	                 Scheduler& scheduler,
 	                 LaserdiscPlayer& laserdiscPlayer);
 	virtual string execute(const vector<string>& tokens,
@@ -42,9 +42,9 @@ private:
 
 LaserdiscCommand::LaserdiscCommand(
 		CommandController& commandController_,
-		MSXEventDistributor& msxEventDistributor,
+		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, LaserdiscPlayer& laserdiscPlayer_)
-	: RecordedCommand(commandController_, msxEventDistributor,
+	: RecordedCommand(commandController_, stateChangeDistributor,
 	                  scheduler, "laserdiscplayer")
 	, laserdiscPlayer(laserdiscPlayer_)
 {
@@ -134,7 +134,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, ldcontrol(ldcontrol_)
 	, laserdiscCommand(new LaserdiscCommand(
 	                   motherBoard_.getCommandController(),
-	                   motherBoard_.getMSXEventDistributor(),
+	                   motherBoard_.getStateChangeDistributor(),
 	                   motherBoard_.getScheduler(),
 	                   *this))
 	, sampleClock(EmuTime::zero)

@@ -92,7 +92,7 @@ class LSXCommand : public RecordedCommand
 {
 public:
 	LSXCommand(CommandController& commandController,
-	           MSXEventDistributor& msxEventDistributor,
+	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, SCSILS120& ls);
 	virtual void execute(const std::vector<TclObject*>& tokens,
 	                     TclObject& result, EmuTime::param time);
@@ -131,7 +131,7 @@ SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfi
 	name = string("ls") + char('a' + id);
 	lsInUse[id] = true;
 	lsxCommand.reset(new LSXCommand(motherBoard.getCommandController(),
-	                                motherBoard.getMSXEventDistributor(),
+	                                motherBoard.getStateChangeDistributor(),
 	                                motherBoard.getScheduler(), *this));
 
 	reset();
@@ -816,9 +816,9 @@ int SCSILS120::insertDisk(const std::string& filename)
 // class LSXCommand
 
 LSXCommand::LSXCommand(CommandController& commandController,
-                       MSXEventDistributor& msxEventDistributor,
+                       StateChangeDistributor& stateChangeDistributor,
                        Scheduler& scheduler, SCSILS120& ls_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, ls_.name)
 	, ls(ls_)
 {

@@ -25,11 +25,6 @@ enum EventType
 	OPENMSX_QUIT_EVENT,
 	OPENMSX_BOOT_EVENT, // sent when the MSX resets or power ups
 
-	/** Send by various commands that have a direct influence on the
-	 *  emulated MSX (plug, diska, reset, ...). Is Implemented as an
-	 *  event to make it recordable. */
-	OPENMSX_MSX_COMMAND_EVENT,
-
 	/** Sent when VDP (V99x8 or V9990) reaches the end of a frame */
 	OPENMSX_FINISH_FRAME_EVENT,
 

@@ -132,16 +132,6 @@ static EventPtr parseQuitEvent(
 	return EventPtr(new QuitEvent());
 }
 
-static EventPtr parseCommandEvent(
-		const string& str, const vector<string>& components)
-{
-	if (components.size() < 2) {
-		throw CommandException("Invalid command event: " + str);
-	}
-	vector<string> tokens(components.begin() + 1, components.end());
-	return EventPtr(new MSXCommandEvent(tokens));
-}
-
 EventPtr createInputEvent(const string& str)
 {
 	vector<string> components;
@@ -162,7 +152,8 @@ EventPtr createInputEvent(const string& str)
 	} else if (components[0] == "quit") {
 		return parseQuitEvent(str, components);
 	} else if (components[0] == "command") {
-		return parseCommandEvent(str, components);
+		return EventPtr();
+		//return parseCommandEvent(str, components);
 	} else {
 		// fall back
 		return parseKeyEvent(components[0], 0);

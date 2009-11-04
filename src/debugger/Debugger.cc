@@ -33,7 +33,7 @@ class DebugCmd : public RecordedCommand
 {
 public:
 	DebugCmd(CommandController& commandController,
-	         MSXEventDistributor& msxEventDistributor,
+	         StateChangeDistributor& stateChangeDistributor,
 	         Scheduler& scheduler, CliComm& cliComm,
 	         Debugger& debugger);
 	virtual bool needRecord(const vector<TclObject*>& tokens) const;
@@ -100,7 +100,7 @@ private:
 Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 	, debugCmd(new DebugCmd(motherBoard.getCommandController(),
-	                        motherBoard.getMSXEventDistributor(),
+	                        motherBoard.getStateChangeDistributor(),
 	                        motherBoard.getScheduler(),
 	                        motherBoard.getMSXCliComm(), *this))
 	, cpu(0)
@@ -257,10 +257,10 @@ static word getAddress(const vector<TclObject*>& tokens)
 }
 
 DebugCmd::DebugCmd(CommandController& commandController,
-                   MSXEventDistributor& msxEventDistributor,
+                   StateChangeDistributor& stateChangeDistributor,
                    Scheduler& scheduler, CliComm& cliComm_,
                    Debugger& debugger_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "debug")
 	, cliComm(cliComm_)
 	, debugger(debugger_)
