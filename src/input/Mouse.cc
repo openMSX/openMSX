@@ -2,27 +2,53 @@
 
 #include "Mouse.hh"
 #include "MSXEventDistributor.hh"
+#include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
+#include "StateChange.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
 
 using std::string;
+using std::min;
+using std::max;
 
 namespace openmsx {
 
-const int TRESHOLD = 2;
-const int SCALE = 2;
-const int FAZE_XHIGH = 0;
-const int FAZE_XLOW  = 1;
-const int FAZE_YHIGH = 2;
-const int FAZE_YLOW  = 3;
-const int STROBE = 0x04;
+static const int TRESHOLD = 2;
+static const int SCALE = 2;
+static const int MAX_POS =  127 * SCALE;
+static const int MIN_POS = -128 * SCALE;
+static const int FAZE_XHIGH = 0;
+static const int FAZE_XLOW  = 1;
+static const int FAZE_YHIGH = 2;
+static const int FAZE_YLOW  = 3;
+static const int STROBE = 0x04;
 
 
-Mouse::Mouse(MSXEventDistributor& eventDistributor_)
+class MouseState: public StateChange
+{
+public:
+	MouseState(EmuTime::param time, int deltaX_, int deltaY_,
+	           byte press_, byte release_)
+		: StateChange(time)
+		, deltaX(deltaX_), deltaY(deltaY_)
+		, press(press_), release(release_) {}
+	int  getDeltaX()  const { return deltaX; }
+	int  getDeltaY()  const { return deltaY; }
+	byte getPress()   const { return press; }
+	byte getRelease() const { return release; }
+private:
+	const int deltaX, deltaY;
+	const byte press, release;
+};
+
+
+Mouse::Mouse(MSXEventDistributor& eventDistributor_,
+             StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
+	, stateChangeDistributor(stateChangeDistributor_)
 	, lastTime(EmuTime::zero)
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
@@ -68,10 +94,12 @@ void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 void Mouse::plugHelper2()
 {
 	eventDistributor.registerEventListener(*this);
+	stateChangeDistributor.registerListener(*this);
 }
 
 void Mouse::unplugHelper(EmuTime::param /*time*/)
 {
+	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
 }
 
@@ -184,19 +212,20 @@ void Mouse::write(byte value, EmuTime::param time)
 }
 
 
-// EventListener
-void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
+// MSXEventListener
+void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const MouseMotionEvent& motionEvent =
+		const MouseMotionEvent& mev =
 			checked_cast<const MouseMotionEvent&>(*event);
-		curxrel -= motionEvent.getX();
-		curyrel -= motionEvent.getY();
-		if (curxrel >  127 * SCALE) curxrel =  127 * SCALE;
-		if (curxrel < -128 * SCALE) curxrel = -128 * SCALE;
-		if (curyrel >  127 * SCALE) curyrel =  127 * SCALE;
-		if (curyrel < -128 * SCALE) curyrel = -128 * SCALE;
+		int newX = max(MIN_POS, min(MAX_POS, curxrel - mev.getX()));
+		int newY = max(MIN_POS, min(MAX_POS, curyrel - mev.getY()));
+		int deltaX = newX - curxrel;
+		int deltaY = newY - curyrel;
+		if (deltaX || deltaY) {
+			createMouseStateChange(time, deltaX, deltaY, 0, 0);
+		}
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
@@ -204,10 +233,10 @@ void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
 			checked_cast<const MouseButtonEvent&>(*event);
 		switch (buttonEvent.getButton()) {
 		case MouseButtonEvent::LEFT:
-			status &= ~JOY_BUTTONA;
+			createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
 			break;
 		case MouseButtonEvent::RIGHT:
-			status &= ~JOY_BUTTONB;
+			createMouseStateChange(time, 0, 0, JOY_BUTTONB, 0);
 			break;
 		default:
 			// ignore other buttons
@@ -220,10 +249,10 @@ void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
 			checked_cast<const MouseButtonEvent&>(*event);
 		switch (buttonEvent.getButton()) {
 		case MouseButtonEvent::LEFT:
-			status |= JOY_BUTTONA;
+			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
 			break;
 		case MouseButtonEvent::RIGHT:
-			status |= JOY_BUTTONB;
+			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONB);
 			break;
 		default:
 			// ignore other buttons
@@ -235,6 +264,23 @@ void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
 		// ignore
 		break;
 	}
+}
+
+void Mouse::createMouseStateChange(
+	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
+{
+	stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+		new MouseState(time, deltaX, deltaY, press, release)));
+}
+
+void Mouse::signalStateChange(shared_ptr<const StateChange> event)
+{
+	const MouseState* ms = dynamic_cast<const MouseState*>(event.get());
+	if (!ms) return;
+
+	curxrel += ms->getDeltaX();
+	curyrel += ms->getDeltaY();
+	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
 // version 1: Initial version, the variables curxrel, curyrel and status were
