@@ -137,7 +137,7 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 	}
 
 	if (((status & ~press) | release) != status) {
-		stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 			new KeyJoyState(time, name, press, release)));
 	}
 }
@@ -151,6 +151,14 @@ void KeyJoystick::signalStateChange(shared_ptr<const StateChange> event)
 
 	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
+
+void KeyJoystick::stopReplay()
+{
+	// TODO read actual host key state
+	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	         JOY_BUTTONA | JOY_BUTTONB;
+}
+
 
 // version 1: Initial version, the variable status was not serialized.
 // version 2: Also serialize the above variable, this is required for

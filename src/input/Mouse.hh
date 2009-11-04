@@ -41,6 +41,7 @@ private:
 	                         EmuTime::param time);
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<const StateChange> event);
+	virtual void stopReplay();
 
 	void createMouseStateChange(EmuTime::param time,
 		int deltaX, int deltaY, byte press, byte release);

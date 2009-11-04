@@ -72,6 +72,7 @@ private:
 
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<const StateChange> event);
+	virtual void stopReplay();
 
 	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<ReverseCmd> reverseCmd;

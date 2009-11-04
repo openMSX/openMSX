@@ -121,7 +121,7 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param time
 		                               dialpos + motionEvent.getX() / SCALE));
 		int delta = newPos - dialpos;
 		if (delta != 0) {
-			stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+			stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 				new ArkanoidState(time, delta, false, false)));
 		}
 		break;
@@ -129,14 +129,14 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param time
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT:
 		// any button will press the Arkanoid Pad button
 		if (buttonStatus & 2) {
-			stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+			stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 				new ArkanoidState(time, 0, true, false)));
 		}
 		break;
 	case OPENMSX_MOUSE_BUTTON_UP_EVENT:
 		// any button will unpress the Arkanoid Pad button
 		if (!(buttonStatus & 2)) {
-			stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+			stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 				new ArkanoidState(time, 0, false, true)));
 		}
 		break;
@@ -155,6 +155,13 @@ void ArkanoidPad::signalStateChange(shared_ptr<const StateChange> event)
 	dialpos += as->getDelta();
 	if (as->getPress())   buttonStatus &= ~2;
 	if (as->getRelease()) buttonStatus |=  2;
+}
+
+void ArkanoidPad::stopReplay()
+{
+	dialpos = POS_CENTER;
+	// TODO Get actual mouse button(s) state. Is it worth the trouble?
+	buttonStatus |= 2; // not pressed
 }
 
 

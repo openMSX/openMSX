@@ -241,7 +241,7 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 	case INPUT_EVENT:
 		// deliver current event at current time
 		try {
-			motherBoard.getStateChangeDistributor().distribute(
+			motherBoard.getStateChangeDistributor().distributeReplay(
 				history.events[replayIndex]);
 		} catch (MSXException&) {
 			// can throw in case we replay a command that fails
@@ -264,21 +264,26 @@ void ReverseManager::replayNextEvent()
 
 void ReverseManager::signalStateChange(shared_ptr<const StateChange> event)
 {
-	Events& events = history.events;
-	if (replaying() && (event == events[replayIndex])) {
+	if (replaying()) {
+		assert(event == history.events[replayIndex]);
 		// this is an event we just replayed, ignore it
 	} else {
-		if (replaying()) {
-			// if we're replaying, stop it and erase remainder of event log
-			removeSyncPoint(INPUT_EVENT);
-			events.erase(events.begin() + replayIndex, events.end());
-			assert(!replaying());
-		}
 		// record event
-		events.push_back(event);
+		history.events.push_back(event);
 		++replayIndex;
 		assert(!replaying());
 	}
+}
+
+void ReverseManager::stopReplay()
+{
+	if (replaying()) {
+		// if we're replaying, stop it and erase remainder of event log
+		removeSyncPoint(INPUT_EVENT);
+		Events& events = history.events;
+		events.erase(events.begin() + replayIndex, events.end());
+	}
+	assert(!replaying());
 }
 
 // Should be called each time a new snapshot is added.

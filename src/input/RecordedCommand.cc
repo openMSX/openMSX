@@ -40,7 +40,7 @@ void RecordedCommand::execute(const vector<TclObject*>& tokens,
 	EmuTime::param time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
 		ScopedAssign<TclObject*> sa(currentResultObject, &result);
-		stateChangeDistributor.distribute(
+		stateChangeDistributor.distributeNew(
 			StateChangeDistributor::EventPtr(
 				new MSXCommandEvent(tokens, time)));
 	} else {
@@ -80,6 +80,11 @@ void RecordedCommand::signalStateChange(shared_ptr<const StateChange> event)
 	if (getBaseName(tokens[0]->getString()) != getName()) return;
 
 	execute(tokens, *currentResultObject, commandEvent->getTime());
+}
+
+void RecordedCommand::stopReplay()
+{
+	// nothing
 }
 
 void RecordedCommand::execute(const vector<TclObject*>& tokens,

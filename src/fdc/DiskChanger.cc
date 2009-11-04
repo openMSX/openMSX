@@ -160,7 +160,7 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 	StateChangeDistributor::EventPtr event(
 		new MSXCommandEvent(args, scheduler->getCurrentTime()));
 	if (stateChangeDistributor) {
-		stateChangeDistributor->distribute(event);
+		stateChangeDistributor->distributeNew(event);
 	} else {
 		signalStateChange(event);
 	}
@@ -180,6 +180,11 @@ void DiskChanger::signalStateChange(shared_ptr<const StateChange> event)
 			insertDisk(tokens);
 		}
 	}
+}
+
+void DiskChanger::stopReplay()
+{
+	// nothing
 }
 
 int DiskChanger::insertDisk(const string& filename)

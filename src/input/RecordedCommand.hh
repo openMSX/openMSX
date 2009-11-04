@@ -81,6 +81,7 @@ private:
 
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<const StateChange> event);
+	virtual void stopReplay();
 
 	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;

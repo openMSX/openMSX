@@ -75,6 +75,7 @@ private:
 	                         EmuTime::param time);
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<const StateChange> event);
+	virtual void stopReplay();
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);

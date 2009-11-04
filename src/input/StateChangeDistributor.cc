@@ -8,6 +8,7 @@
 namespace openmsx {
 
 StateChangeDistributor::StateChangeDistributor()
+	: replaying(true)
 {
 }
 
@@ -32,6 +33,24 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 {
 	assert(isRegistered(&listener));
 	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
+}
+
+void StateChangeDistributor::distributeNew(EventPtr event)
+{
+	if (replaying) {
+		replaying = false;
+		for (Listeners::const_iterator it = listeners.begin();
+		     it != listeners.end(); ++it) {
+			(*it)->stopReplay();
+		}
+	}
+	distribute(event);
+}
+
+void StateChangeDistributor::distributeReplay(EventPtr event)
+{
+	assert(replaying);
+	distribute(event);
 }
 
 void StateChangeDistributor::distribute(EventPtr event)

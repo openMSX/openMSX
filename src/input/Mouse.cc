@@ -269,7 +269,7 @@ void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 void Mouse::createMouseStateChange(
 	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
 {
-	stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 		new MouseState(time, deltaX, deltaY, press, release)));
 }
 
@@ -281,6 +281,13 @@ void Mouse::signalStateChange(shared_ptr<const StateChange> event)
 	curxrel += ms->getDeltaX();
 	curyrel += ms->getDeltaY();
 	status = (status & ~ms->getPress()) | ms->getRelease();
+}
+
+void Mouse::stopReplay()
+{
+	curxrel = curyrel = 0;
+	// TODO read actual host mouse button state
+	status = JOY_BUTTONA | JOY_BUTTONB;
 }
 
 // version 1: Initial version, the variables curxrel, curyrel and status were

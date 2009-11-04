@@ -247,7 +247,7 @@ void Joystick::createEvent(EmuTime::param time, int joyNum, byte press, byte rel
 	// make sure we create an event with minimal changes
 	press   =    status & diff;
 	release = newStatus & diff;
-	stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 		new JoyState(time, joyNum, press, release)));
 }
 
@@ -266,6 +266,11 @@ void Joystick::signalStateChange(shared_ptr<const StateChange> event)
 
 	status &= js->getPress();
 	status |= js->getRelease();
+}
+
+void Joystick::stopReplay()
+{
+	calcInitialState();
 }
 
 // version 1: Initial version, the variable status was not serialized.

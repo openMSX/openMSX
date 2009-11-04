@@ -70,6 +70,7 @@ class MsxKeyEventQueue : public Schedulable
 public:
 	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard);
 	void process_asap(EmuTime::param time, shared_ptr<const Event> event);
+	void clear();
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -265,6 +266,18 @@ void Keyboard::signalStateChange(shared_ptr<const StateChange> event)
 	keysChanged = true; // do ghosting at next getKeys()
 }
 
+void Keyboard::stopReplay()
+{
+	// TODO Read actual state from keyboard, currently we just clear all
+	//      pressed keys. Might be hard to implement correctly, is it worth
+	//      the effort?
+	msxmodifiers = 0xff;
+	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
+	memset(dynKeymap, 0, sizeof(dynKeymap));
+	msxKeyEventQueue->clear();
+	keysChanged = true; // recalc ghosting
+}
+
 void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
 {
 	changeKeyMatrixEvent(time, row, userKeyMatrix[row] & ~press);
@@ -282,7 +295,7 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	}
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 		new KeyMatrixState(time, row, press, release)));
 }
 
@@ -902,6 +915,12 @@ void MsxKeyEventQueue::process_asap(EmuTime::param time, shared_ptr<const Event>
 	}
 }
 
+void MsxKeyEventQueue::clear()
+{
+	eventQueue.clear();
+	removeSyncPoint();
+}
+
 void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	// Get oldest event from the queue and process it
@@ -916,7 +935,12 @@ void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 			keyboard.keyboardSettings->getCodeKanaHostKey().getValue())));
 	} else {
 		// The event has been completely processed. Delete it from the queue
-		eventQueue.pop_front();
+		if (!eventQueue.empty()) {
+			eventQueue.pop_front();
+		} else {
+			// it's possible clear() has been called
+			// (indirectly from keyboard.processQueuedEvent())
+		}
 	}
 
 	if (!eventQueue.empty()) {

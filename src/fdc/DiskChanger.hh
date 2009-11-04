@@ -70,6 +70,7 @@ private:
 
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<const StateChange> event);
+	virtual void stopReplay();
 
 	CommandController& controller;
 	StateChangeDistributor* stateChangeDistributor;

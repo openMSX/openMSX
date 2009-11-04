@@ -25,21 +25,32 @@ public:
 	 */
 	void registerListener(StateChangeListener& listener);
 
-	/** Unregisters a previously registered  listener.
+	/** Unregisters a previously registered listener.
 	 * @param listener Listener to unregister.
 	 */
 	void unregisterListener(StateChangeListener& listener);
 
 	/** Deliver the event to all registered listeners
-	  * @param event The event
-	  */
-	void distribute(EventPtr event);
+	 * MSX input devices should call the distributeNew() version, only the
+	 * replayer should call the distributeReplay() version.
+	 * These two different versions are used to detect the transition from
+	 * replayed events to live events. Note that a transition from live to
+	 * replay is not allowed. This transition should be done by creating a
+	 * new StateChangeDistributor object (object always starts in replay
+	 * state), but this is automatically taken care of because replay
+	 * always starts from a freshly restored snapshot.
+	 * @param event The event
+	 */
+	void distributeNew   (EventPtr event);
+	void distributeReplay(EventPtr event);
 
 private:
 	bool isRegistered(StateChangeListener* listener) const;
+	void distribute(EventPtr event);
 
 	typedef std::vector<StateChangeListener*> Listeners;
 	Listeners listeners;
+	bool replaying;
 };
 
 } // namespace openmsx
