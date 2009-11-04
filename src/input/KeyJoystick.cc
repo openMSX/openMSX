@@ -2,8 +2,10 @@
 
 #include "KeyJoystick.hh"
 #include "MSXEventDistributor.hh"
+#include "StateChangeDistributor.hh"
 #include "KeyCodeSetting.hh"
 #include "InputEvents.hh"
+#include "StateChange.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
@@ -13,10 +15,28 @@ using std::string;
 
 namespace openmsx {
 
+class KeyJoyState : public StateChange
+{
+public:
+	KeyJoyState(EmuTime::param time, const string& name_,
+	            byte press_, byte release_)
+		: StateChange(time)
+		, name(name_), press(press_), release(release_) {}
+	const string& getName() const { return name; }
+	byte getPress()   const { return press; }
+	byte getRelease() const { return release; }
+private:
+	const string name;
+	const byte press, release;
+};
+
+
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
+                         StateChangeDistributor& stateChangeDistributor_,
                          const string& name_)
 	: eventDistributor(eventDistributor_)
+	, stateChangeDistributor(stateChangeDistributor_)
 	, name(name_)
 	, up   (new KeyCodeSetting(commandController, name + ".up",
 		"key for direction up",    Keys::K_UP))
@@ -60,10 +80,12 @@ const string& KeyJoystick::getDescription() const
 void KeyJoystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	eventDistributor.registerEventListener(*this);
+	stateChangeDistributor.registerListener(*this);
 }
 
 void KeyJoystick::unplugHelper(EmuTime::param /*time*/)
 {
+	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
 }
 
@@ -80,10 +102,12 @@ void KeyJoystick::write(byte /*value*/, EmuTime::param /*time*/)
 }
 
 
-// EventListener
+// MSXEventListener
 void KeyJoystick::signalEvent(shared_ptr<const Event> event,
-                              EmuTime::param /*time*/)
+                              EmuTime::param time)
 {
+	byte press = 0;
+	byte release = 0;
 	switch (event->getType()) {
 	case OPENMSX_KEY_DOWN_EVENT:
 	case OPENMSX_KEY_UP_EVENT: {
@@ -91,19 +115,19 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 		Keys::KeyCode key = static_cast<Keys::KeyCode>(
 			int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-			if      (key == up->getValue())    status &= ~JOY_UP;
-			else if (key == down->getValue())  status &= ~JOY_DOWN;
-			else if (key == left->getValue())  status &= ~JOY_LEFT;
-			else if (key == right->getValue()) status &= ~JOY_RIGHT;
-			else if (key == trigA->getValue()) status &= ~JOY_BUTTONA;
-			else if (key == trigB->getValue()) status &= ~JOY_BUTTONB;
+			if      (key == up->getValue())    press   = JOY_UP;
+			else if (key == down->getValue())  press   = JOY_DOWN;
+			else if (key == left->getValue())  press   = JOY_LEFT;
+			else if (key == right->getValue()) press   = JOY_RIGHT;
+			else if (key == trigA->getValue()) press   = JOY_BUTTONA;
+			else if (key == trigB->getValue()) press   = JOY_BUTTONB;
 		} else {
-			if      (key == up->getValue())    status |= JOY_UP;
-			else if (key == down->getValue())  status |= JOY_DOWN;
-			else if (key == left->getValue())  status |= JOY_LEFT;
-			else if (key == right->getValue()) status |= JOY_RIGHT;
-			else if (key == trigA->getValue()) status |= JOY_BUTTONA;
-			else if (key == trigB->getValue()) status |= JOY_BUTTONB;
+			if      (key == up->getValue())    release = JOY_UP;
+			else if (key == down->getValue())  release = JOY_DOWN;
+			else if (key == left->getValue())  release = JOY_LEFT;
+			else if (key == right->getValue()) release = JOY_RIGHT;
+			else if (key == trigA->getValue()) release = JOY_BUTTONA;
+			else if (key == trigB->getValue()) release = JOY_BUTTONB;
 		}
 		break;
 	}
@@ -111,6 +135,21 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 		// ignore
 		break;
 	}
+
+	if (((status & ~press) | release) != status) {
+		stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+			new KeyJoyState(time, name, press, release)));
+	}
+}
+
+// StateChangeListener
+void KeyJoystick::signalStateChange(shared_ptr<const StateChange> event)
+{
+	const KeyJoyState* kjs = dynamic_cast<const KeyJoyState*>(event.get());
+	if (!kjs) return;
+	if (kjs->getName() != name) return;
+
+	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
 
 // version 1: Initial version, the variable status was not serialized.

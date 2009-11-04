@@ -49,9 +49,11 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(new JoyTap(controller, "joytap"));
 	controller.registerPluggable(new NinjaTap(controller, "ninjatap"));
 	controller.registerPluggable(new KeyJoystick(
-		commandController, msxEventDistributor, "keyjoystick1"));
+		commandController, msxEventDistributor,
+		stateChangeDistributor, "keyjoystick1"));
 	controller.registerPluggable(new KeyJoystick(
-		commandController, msxEventDistributor, "keyjoystick2"));
+		commandController, msxEventDistributor,
+		stateChangeDistributor, "keyjoystick2"));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      controller);
 
