@@ -4,7 +4,9 @@
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "MSXEventDistributor.hh"
+#include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
+#include "StateChange.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
@@ -17,10 +19,12 @@ namespace openmsx {
 static const int THRESHOLD = 32768 / 10;
 
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
+                           StateChangeDistributor& stateChangeDistributor,
                            PluggingController& controller)
 {
 #ifdef SDL_JOYSTICK_DISABLED
 	(void)eventDistributor;
+	(void)stateChangeDistributor;
 	(void)controller;
 #else
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
@@ -30,18 +34,42 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 
 	unsigned numJoysticks = SDL_NumJoysticks();
 	for (unsigned i = 0; i < numJoysticks; i++) {
-		controller.registerPluggable(new Joystick(eventDistributor, i));
+		controller.registerPluggable(new Joystick(
+			eventDistributor, stateChangeDistributor, i));
 	}
 #endif
 }
+
+
+class JoyState : public StateChange
+{
+public:
+	JoyState(EmuTime::param time, unsigned joyNum_, byte press_, byte release_)
+		: StateChange(time)
+		, joyNum(joyNum_), press(press_), release(release_)
+	{
+		assert((press != 0) || (release != 0));
+		assert((press & release) == 0);
+	}
+	unsigned getJoystick() const { return joyNum; }
+	byte     getPress()    const { return press; }
+	byte     getRelease()  const { return release; }
+private:
+	const unsigned joyNum;
+	const byte press, release;
+};
+
 
 #ifndef SDL_JOYSTICK_DISABLED
 // Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
 // once per MSX machine). The SDL documentation doesn't state this, but I
 // checked the implementation and a SDL_Joystick uses a 'reference count' on
 // the open/close calls.
-Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
+Joystick::Joystick(MSXEventDistributor& eventDistributor_,
+                   StateChangeDistributor& stateChangeDistributor_,
+                   unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
+	, stateChangeDistributor(stateChangeDistributor_)
 	, name(string("joystick") + char('1' + joyNum_))
 	, desc(string(SDL_JoystickName(joyNum_)))
 	, joystick(SDL_JoystickOpen(joyNum_))
@@ -82,10 +110,12 @@ void Joystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 void Joystick::plugHelper2()
 {
 	eventDistributor.registerEventListener(*this);
+	stateChangeDistributor.registerListener(*this);
 }
 
 void Joystick::unplugHelper(EmuTime::param /*time*/)
 {
+	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
 }
 
@@ -134,20 +164,16 @@ void Joystick::calcInitialState()
 	}
 }
 
-// EventListener
-void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
+// MSXEventListener
+void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 {
 	const JoystickEvent* joyEvent =
 		dynamic_cast<const JoystickEvent*>(event.get());
-	if (!joyEvent) {
-		return;
-	}
+	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
 	//       sending the event to all joysticks.
-	if (joyEvent->getJoystick() != joyNum) {
-		return;
-	}
+	if (joyEvent->getJoystick() != joyNum) return;
 
 	switch (event->getType()) {
 	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
@@ -157,26 +183,26 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*
 		switch (motionEvent.getAxis()) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
 			if (value < -THRESHOLD) {
-				status &= ~JOY_LEFT;	// left      pressed
-				status |=  JOY_RIGHT;	// right not pressed
+				// left, not right
+				createEvent(time, joyNum, JOY_LEFT, JOY_RIGHT);
 			} else if (value > THRESHOLD) {
-				status |=  JOY_LEFT;	// left  not pressed
-				status &= ~JOY_RIGHT;	// right     pressed
+				// not left, right
+				createEvent(time, joyNum, JOY_RIGHT, JOY_LEFT);
 			} else {
-				status |=  JOY_LEFT;;	// left  not pressed
-				status |=  JOY_RIGHT;	// right not pressed
+				// not left, not right
+				createEvent(time, joyNum, 0, JOY_LEFT | JOY_RIGHT);
 			}
 			break;
 		case JoystickAxisMotionEvent::Y_AXIS: // Vertical
 			if (value < -THRESHOLD) {
-				status |=  JOY_DOWN;	// down not pressed
-				status &= ~JOY_UP;	// up       pressed
+				// up, not down
+				createEvent(time, joyNum, JOY_UP, JOY_DOWN);
 			} else if (value > THRESHOLD) {
-				status &= ~JOY_DOWN;	// down     pressed
-				status |=  JOY_UP;	// up   not pressed
+				// not up, down
+				createEvent(time, joyNum, JOY_DOWN, JOY_UP);
 			} else {
-				status |=  JOY_DOWN;	// down not pressed
-				status |=  JOY_UP;	// up   not pressed
+				// not up, not down
+				createEvent(time, joyNum, 0, JOY_UP | JOY_DOWN);
 			}
 			break;
 		default:
@@ -189,9 +215,9 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*
 		const JoystickButtonEvent& buttonEvent =
 			checked_cast<const JoystickButtonEvent&>(*event);
 		if (buttonEvent.getButton() & 1) {
-			status &= ~JOY_BUTTONB;
+			createEvent(time, joyNum, JOY_BUTTONB, 0);
 		} else {
-			status &= ~JOY_BUTTONA;
+			createEvent(time, joyNum, JOY_BUTTONA, 0);
 		}
 		break;
 	}
@@ -199,15 +225,47 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*
 		const JoystickButtonEvent& buttonEvent =
 			checked_cast<const JoystickButtonEvent&>(*event);
 		if (buttonEvent.getButton() & 1) {
-			status |= JOY_BUTTONB;
+			createEvent(time, joyNum, 0, JOY_BUTTONB);
 		} else {
-			status |= JOY_BUTTONA;
+			createEvent(time, joyNum, 0, JOY_BUTTONA);
 		}
 		break;
 	}
 	default:
 		UNREACHABLE;
 	}
+}
+
+void Joystick::createEvent(EmuTime::param time, int joyNum, byte press, byte release)
+{
+	byte newStatus = (status & ~press) | release;
+	byte diff = status ^ newStatus;
+	if (!diff) {
+		// event won't actually change the status, so ignore it
+		return;
+	}
+	// make sure we create an event with minimal changes
+	press   =    status & diff;
+	release = newStatus & diff;
+	stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+		new JoyState(time, joyNum, press, release)));
+}
+
+// StateChangeListener
+void Joystick::signalStateChange(shared_ptr<const StateChange> event)
+{
+	const JoyState* js = dynamic_cast<const JoyState*>(event.get());
+	if (!js) return;
+
+	// TODO: It would be more efficient to make a dispatcher instead of
+	//       sending the event to all joysticks.
+	// TODO an alternative is to log events based on the connector instead
+	//      of the joystick. That would make it possible to replay on a
+	//      different host without an actual SDL joystick connected.
+	if (js->getJoystick() != joyNum) return;
+
+	status &= js->getPress();
+	status |= js->getRelease();
 }
 
 // version 1: Initial version, the variable status was not serialized.

@@ -36,6 +36,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	CommandController& commandController = motherBoard.getCommandController();
 	MSXEventDistributor& msxEventDistributor =
 		motherBoard.getMSXEventDistributor();
+	StateChangeDistributor& stateChangeDistributor =
+		motherBoard.getStateChangeDistributor();
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
@@ -48,7 +50,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 		commandController, msxEventDistributor, "keyjoystick1"));
 	controller.registerPluggable(new KeyJoystick(
 		commandController, msxEventDistributor, "keyjoystick2"));
-	Joystick::registerAll(msxEventDistributor, controller);
+	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
+	                      controller);
 
 	// Dongles
 	controller.registerPluggable(new SETetrisDongle());
