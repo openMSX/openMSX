@@ -8,11 +8,13 @@
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
 #include "MSXEventDistributor.hh"
+#include "StateChangeDistributor.hh"
 #include "MSXException.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "SimpleDebuggable.hh"
 #include "InputEvents.hh"
+#include "StateChange.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "UnicodeKeymap.hh"
@@ -144,17 +146,41 @@ private:
 };
 
 
+class KeyMatrixState : public StateChange
+{
+public:
+	KeyMatrixState(EmuTime::param time, byte row_, byte press_, byte release_)
+		: StateChange(time)
+		, row(row_), press(press_), release(release_)
+	{
+		// disallow useless events
+		assert((press != 0) || (release != 0));
+		// avoid confusion about what happens when some bits are both
+		// set and reset (in other words: don't rely on order of and-
+		// and or-operations)
+		assert((press & release) == 0);
+	}
+	byte getRow()     const { return row; }
+	byte getPress()   const { return press; }
+	byte getRelease() const { return release; }
+private:
+	const byte row, press, release;
+};
+
+
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler,
                    CommandController& commandController_,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
+                   StateChangeDistributor& stateChangeDistributor_,
                    string& keyboardType, bool hasKP, bool keyGhosting_,
                    bool keyGhostSGCprotected, bool codeKanaLocks_,
                    bool graphLocks_)
 	: Schedulable(scheduler)
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
+	, stateChangeDistributor(stateChangeDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
 		commandController, msxEventDistributor, scheduler, *this))
 	, keyMatrixDownCmd(new KeyMatrixDownCmd(
@@ -184,12 +210,14 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 
 	msxEventDistributor.registerEventListener(*this);
+	stateChangeDistributor.registerListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
 }
 
 Keyboard::~Keyboard()
 {
+	stateChangeDistributor.unregisterListener(*this);
 	msxEventDistributor.unregisterEventListener(*this);
 }
 
@@ -227,6 +255,37 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 	}
 }
 
+void Keyboard::signalStateChange(shared_ptr<const StateChange> event)
+{
+	const KeyMatrixState* kms = dynamic_cast<const KeyMatrixState*>(event.get());
+	if (!kms) return;
+
+	userKeyMatrix[kms->getRow()] &= ~kms->getPress();
+	userKeyMatrix[kms->getRow()] |=  kms->getRelease();
+	keysChanged = true; // do ghosting at next getKeys()
+}
+
+void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
+{
+	changeKeyMatrixEvent(time, row, userKeyMatrix[row] & ~press);
+}
+void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release)
+{
+	changeKeyMatrixEvent(time, row, userKeyMatrix[row] | release);
+}
+void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue)
+{
+	byte diff = userKeyMatrix[row] ^ newValue;
+	if (diff == 0) {
+		// event won't actually change the keymatrix, so ignore it
+		return;
+	}
+	byte press   = userKeyMatrix[row] & diff;
+	byte release = newValue           & diff;
+	stateChangeDistributor.distribute(shared_ptr<const StateChange>(
+		new KeyMatrixState(time, row, press, release)));
+}
+
 bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, EmuTime::param time)
 {
 	bool insertCodeKanaRelease = false;
@@ -248,17 +307,17 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, EmuTime::param 
 	if (key == Keys::K_RCTRL &&
 	    keyboardSettings->getMappingMode().getValue() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
-		processRightControlEvent(down);
+		processRightControlEvent(time, down);
 	} else if (key == Keys::K_CAPSLOCK) {
 		processCapslockEvent(time);
 	} else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
-		processCodeKanaChange(down);
+		processCodeKanaChange(time, down);
 	} else if (key == Keys::K_LALT) {
-		processGraphChange(down);
+		processGraphChange(time, down);
 	} else if (key == Keys::K_KP_ENTER) {
-		processKeypadEnterKey(down);
+		processKeypadEnterKey(time, down);
 	} else {
-		insertCodeKanaRelease = processKeyEvent(down, keyEvent);
+		insertCodeKanaRelease = processKeyEvent(time, down, keyEvent);
 	}
 	return insertCodeKanaRelease;
 }
@@ -268,12 +327,12 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, EmuTime::param 
  * It presses or releases the key in the MSX keyboard matrix
  * and changes the kanalock state in case of a press
  */
-void Keyboard::processCodeKanaChange(bool down)
+void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 {
 	if (down) {
 		msxCodeKanaLockOn = !msxCodeKanaLockOn;
 	}
-	updateKeyMatrix(down, 6, CODE_MASK);
+	updateKeyMatrix(time, down, 6, CODE_MASK);
 }
 
 /*
@@ -281,12 +340,12 @@ void Keyboard::processCodeKanaChange(bool down)
  * It presses or releases the key in the MSX keyboard matrix
  * and changes the graphlock state in case of a press
  */
-void Keyboard::processGraphChange(bool down)
+void Keyboard::processGraphChange(EmuTime::param time, bool down)
 {
 	if (down) {
 		msxGraphLockOn = !msxGraphLockOn;
 	}
-	updateKeyMatrix(down, 6, GRAPH_MASK);
+	updateKeyMatrix(time, down, 6, GRAPH_MASK);
 }
 
 /*
@@ -294,10 +353,10 @@ void Keyboard::processGraphChange(bool down)
  * It presses or releases the DEADKEY at the correct location
  * in the keyboard matrix
  */
-void Keyboard::processRightControlEvent(bool down)
+void Keyboard::processRightControlEvent(EmuTime::param time, bool down)
 {
 	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap->getDeadkey();
-	updateKeyMatrix(down, deadkey.row, deadkey.keymask);
+	updateKeyMatrix(time, down, deadkey.row, deadkey.keymask);
 }
 
 /*
@@ -320,14 +379,14 @@ void Keyboard::processRightControlEvent(bool down)
 void Keyboard::processCapslockEvent(EmuTime::param time)
 {
 	msxCapsLockOn = !msxCapsLockOn;
-	updateKeyMatrix(true, 6, CAPS_MASK);
+	updateKeyMatrix(time, true, 6, CAPS_MASK);
 	Clock<1000> now(time);
 	setSyncPoint(now + 100);
 }
 
-void Keyboard::executeUntil(EmuTime::param /*time*/, int /*userData*/)
+void Keyboard::executeUntil(EmuTime::param time, int /*userData*/)
 {
-	updateKeyMatrix(false, 6, CAPS_MASK);
+	updateKeyMatrix(time, false, 6, CAPS_MASK);
 }
 
 const string& Keyboard::schedName() const
@@ -336,7 +395,7 @@ const string& Keyboard::schedName() const
 	return schedName;
 }
 
-void Keyboard::processKeypadEnterKey(bool down)
+void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
 {
 	if (!hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
 		// User entered on host keypad but this MSX model does not have one
@@ -353,7 +412,7 @@ void Keyboard::processKeypadEnterKey(bool down)
 		row = 7;
 		mask = 0x80;
 	}
-	updateKeyMatrix(down, row, mask);
+	updateKeyMatrix(time, down, row, mask);
 }
 
 /*
@@ -362,23 +421,22 @@ void Keyboard::processKeypadEnterKey(bool down)
  * be unambiguously derived from a unicode character;
  *  Map the SDL key to an equivalent MSX key press/release event
  */
-void Keyboard::processSdlKey(bool down, int key)
+void Keyboard::processSdlKey(EmuTime::param time, bool down, int key)
 {
 	if (key < MAX_KEYSYM) {
 		int row   = keyTab[key][0];
 		byte mask = keyTab[key][1];
-		updateKeyMatrix(down, row, mask);
+		updateKeyMatrix(time, down, row, mask);
 	}
 }
 
 /*
  * Update the MSX keyboard matrix
  */
-void Keyboard::updateKeyMatrix(bool down, int row, byte mask)
+void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask)
 {
 	if (down) {
-		// Key pressed: reset bit in user keyMatrix
-		userKeyMatrix[row] &= ~mask;
+		pressKeyMatrixEvent(time, row, mask);
 		if (row == 6) {
 			// Keep track of the MSX modifiers (CTRL, GRAPH, CODE, SHIFT)
 			// The MSX modifiers in row 6 of the matrix sometimes get
@@ -388,13 +446,11 @@ void Keyboard::updateKeyMatrix(bool down, int row, byte mask)
 			msxmodifiers &= ~(mask & 0x17);
 		}
 	} else {
-		// Key released: set bit in keyMatrix
-		userKeyMatrix[row] |= mask;
+		releaseKeyMatrixEvent(time, row, mask);
 		if (row == 6) {
 			msxmodifiers |= (mask & 0x17);
 		}
 	}
-	keysChanged = true; // do ghosting at next getKeys()
 }
 
 /*
@@ -405,7 +461,7 @@ void Keyboard::updateKeyMatrix(bool down, int row, byte mask)
  *  and map the unicode character to the key-combination that must
  *  be pressed to generate the equivalent character on the MSX
  */
-bool Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
+bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent)
 {
 	bool insertCodeKanaRelease = false;
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
@@ -478,11 +534,11 @@ bool Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			// But only when it is not a first keystroke of a
 			// composed key
 			if ((keyCode & Keys::KM_MODE) == 0) {
-				processSdlKey(down, key);
+				processSdlKey(time, down, key);
 			}
 		} else {
 			// It is a unicode character; map it to the right key-combination
-			insertCodeKanaRelease = pressUnicodeByUser(unicode, key, true);
+			insertCodeKanaRelease = pressUnicodeByUser(time, unicode, key, true);
 		}
 	} else {
 		// key was released
@@ -496,11 +552,11 @@ bool Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			// But only when it is not a first keystroke of a
 			// composed key
 			if ((keyCode & Keys::KM_MODE) == 0) {
-				processSdlKey(down, key);
+				processSdlKey(time, down, key);
 			}
 		} else {
 			// It was a unicode character; map it to the right key-combination
-			pressUnicodeByUser(unicode, key, false);
+			pressUnicodeByUser(time, unicode, key, false);
 		}
 	}
 	return insertCodeKanaRelease;
@@ -623,10 +679,9 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
  *              7    6     5     4    3      2     1    0
  * row  6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
  */
-bool Keyboard::pressUnicodeByUser(unsigned unicode, int key, bool down)
+bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key, bool down)
 {
 	bool insertCodeKanaRelease = false;
-	byte shiftkeymask = (key >= Keys::K_A && key <= Keys::K_Z) ? 0x00 : SHIFT_MASK;
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap->get(unicode);
 	if (down) {
 		if (codeKanaLocks &&
@@ -637,7 +692,7 @@ bool Keyboard::pressUnicodeByUser(unsigned unicode, int key, bool down)
 			// Toggle it by pressing the lock key and scheduling a
 			// release event
 			msxCodeKanaLockOn = !msxCodeKanaLockOn;
-			userKeyMatrix[6] &= (~CODE_MASK);
+			pressKeyMatrixEvent(time, 6, CODE_MASK);
 			insertCodeKanaRelease = true;
 		} else {
 			// Press the character key and related modifiers
@@ -647,31 +702,35 @@ bool Keyboard::pressUnicodeByUser(unsigned unicode, int key, bool down)
 			// Always ignore CAPSLOCK mask (assume that user will
 			// use real CAPS lock to switch/ between hiragana and
 			// katanana on japanese model)
-			byte modmask = keyInfo.modmask & (~CAPS_MASK);
-			if (codeKanaLocks) {
-				modmask &= (~CODE_MASK);
+			pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+
+			byte modmask = keyInfo.modmask & ~CAPS_MASK;
+			if (codeKanaLocks) modmask &= ~CODE_MASK;
+			if (graphLocks)    modmask &= ~GRAPH_MASK;
+			if ((Keys::K_A <= key) && (key <= Keys::K_Z)) {
+				// for A-Z, leave shift unchanged, (other
+				// modifiers are only pressed, never released)
+				pressKeyMatrixEvent(time, 6, modmask & ~SHIFT_MASK);
+			} else {
+				// for other keys, set shift according to modmask
+				// so also release shift when required (other
+				// modifiers are only pressed, never released)
+				byte newRow = (userKeyMatrix[6] | SHIFT_MASK) & ~modmask;
+				changeKeyMatrixEvent(time, 6, newRow);
 			}
-			if (graphLocks) {
-				modmask &= (~GRAPH_MASK);
-			}
-			userKeyMatrix[keyInfo.row] &= ~keyInfo.keymask;
-			userKeyMatrix[6] |= shiftkeymask;
-			userKeyMatrix[6] &= ~(modmask & ((~SHIFT_MASK) | shiftkeymask));
 		}
 	} else {
-		userKeyMatrix[keyInfo.row] |= keyInfo.keymask;
-		// Do not simply unpress graph, ctrl, code and shift
-		// but restore them to the values currently pressed
-		// by the user
+		releaseKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+
+		// Do not simply unpress graph, ctrl, code and shift but
+		// restore them to the values currently pressed by the user
 		byte mask = SHIFT_MASK | CTRL_MASK;
-		if (!codeKanaLocks) {
-			mask |= CODE_MASK;
-		}
-		if (!graphLocks) {
-			mask |= GRAPH_MASK;
-		}
-		userKeyMatrix[6] &= (msxmodifiers | ~mask);
-		userKeyMatrix[6] |= (msxmodifiers & mask);
+		if (!codeKanaLocks) mask |= CODE_MASK;
+		if (!graphLocks)    mask |= GRAPH_MASK;
+		byte newRow = userKeyMatrix[6];
+		newRow &= msxmodifiers | ~mask;
+		newRow |= msxmodifiers &  mask;
+		changeKeyMatrixEvent(time, 6, newRow);
 	}
 	keysChanged = true;
 	return insertCodeKanaRelease;

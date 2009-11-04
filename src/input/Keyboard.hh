@@ -4,6 +4,7 @@
 #define KEYBOARD_HH
 
 #include "MSXEventListener.hh"
+#include "StateChangeListener.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
@@ -18,6 +19,7 @@ class Scheduler;
 class CommandController;
 class EventDistributor;
 class MSXEventDistributor;
+class StateChangeDistributor;
 class KeyMatrixUpCmd;
 class KeyMatrixDownCmd;
 class KeyInserter;
@@ -27,8 +29,10 @@ class KeyboardSettings;
 class MsxKeyEventQueue;
 class UnicodeKeymap;
 class KeybDebuggable;
+class StateChange;
 
-class Keyboard : private MSXEventListener, private Schedulable
+class Keyboard : private MSXEventListener, private StateChangeListener,
+                 private Schedulable
 {
 public:
 	static const unsigned NR_KEYROWS = 16;
@@ -39,6 +43,7 @@ public:
 	 * @param commandController ref to the command controller
 	 * @param eventDistributor ref to the emu event distributor
 	 * @param msxEventDistributor ref to the user input event distributor
+	 * @param stateChangeDistributor ref to the state change distributor
 	 * @param keyboardType contains filename extension of unicode keymap file
 	 * @param hasKeypad turn MSX keypad on/off
 	 * @param keyGhosting turn keyGhosting on/off
@@ -50,6 +55,7 @@ public:
 	         CommandController& commandController,
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
+	         StateChangeDistributor& stateChangeDistributor,
 	         std::string& keyboardType, bool hasKeypad,
 	         bool keyGhosting, bool keyGhostingSGCprotected,
 	         bool codeKanaLocks, bool graphLocks);
@@ -67,23 +73,29 @@ private:
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         EmuTime::param time);
+	// StateChangeListener
+	virtual void signalStateChange(shared_ptr<const StateChange> event);
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
-	void processRightControlEvent(bool down);
+	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
+	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);
+	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
+
+	void processRightControlEvent(EmuTime::param time, bool down);
 	void processCapslockEvent(EmuTime::param time);
-	void processCodeKanaChange(bool down);
-	void processGraphChange(bool down);
-	void processKeypadEnterKey(bool down);
-	void processSdlKey(bool down, int key);
+	void processCodeKanaChange(EmuTime::param time, bool down);
+	void processGraphChange(EmuTime::param time, bool down);
+	void processKeypadEnterKey(EmuTime::param time, bool down);
+	void processSdlKey(EmuTime::param time, bool down, int key);
 	bool processQueuedEvent(shared_ptr<const Event> event, EmuTime::param time);
-	bool processKeyEvent(bool down, const KeyEvent& keyEvent);
-	void updateKeyMatrix(bool down, int row, byte mask);
+	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
+	void updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask);
 	void doKeyGhosting();
 	std::string processCmd(const std::vector<std::string>& tokens, bool up);
-	bool pressUnicodeByUser(unsigned unicode, int key, bool down);
+	bool pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key, bool down);
 	int pressAscii(unsigned unicode, bool down);
 	void pressLockKeys(int lockKeysMask, bool down);
 	bool commonKeys(unsigned unicode1, unsigned unicode2);
@@ -91,6 +103,7 @@ private:
 
 	CommandController& commandController;
 	MSXEventDistributor& msxEventDistributor;
+	StateChangeDistributor& stateChangeDistributor;
 
 	friend class KeyMatrixUpCmd;
 	friend class KeyMatrixDownCmd;

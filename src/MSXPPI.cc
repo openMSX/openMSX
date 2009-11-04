@@ -34,6 +34,7 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 	                    motherBoard.getCommandController(),
 	                    motherBoard.getReactor().getEventDistributor(),
 	                    motherBoard.getMSXEventDistributor(),
+	                    motherBoard.getStateChangeDistributor(),
 	                    keyboardType, hasKeypad, keyGhosting,
 	                    keyGhostingSGCprotected, codeKanaLocks,
 	                    graphLocks);
