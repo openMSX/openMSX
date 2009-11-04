@@ -1782,27 +1782,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input\MSXEventRecorder.cc"
+				RelativePath="..\..\src\input\StateChangeDistributor.hh"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input\MSXEventRecorder.hh"
+				RelativePath="..\..\src\input\StateChange.hh"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input\MSXEventRecorderReplayerCLI.cc"
+				RelativePath="..\..\src\input\StateChangeDistributor.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input\MSXEventRecorderReplayerCLI.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\input\MSXEventReplayer.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\input\MSXEventReplayer.hh"
+				RelativePath="..\..\src\input\StateChangeListener.hh"
 				>
 			</File>
 			<File
