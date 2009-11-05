@@ -182,7 +182,7 @@ void DiskChanger::signalStateChange(shared_ptr<const StateChange> event)
 	}
 }
 
-void DiskChanger::stopReplay()
+void DiskChanger::stopReplay(EmuTime::param /*time*/)
 {
 	// nothing
 }

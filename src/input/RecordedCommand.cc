@@ -82,7 +82,7 @@ void RecordedCommand::signalStateChange(shared_ptr<const StateChange> event)
 	execute(tokens, *currentResultObject, commandEvent->getTime());
 }
 
-void RecordedCommand::stopReplay()
+void RecordedCommand::stopReplay(EmuTime::param /*time*/)
 {
 	// nothing
 }

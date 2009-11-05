@@ -266,16 +266,23 @@ void Keyboard::signalStateChange(shared_ptr<const StateChange> event)
 	keysChanged = true; // do ghosting at next getKeys()
 }
 
-void Keyboard::stopReplay()
+void Keyboard::stopReplay(EmuTime::param time)
 {
 	// TODO Read actual state from keyboard, currently we just clear all
 	//      pressed keys. Might be hard to implement correctly, is it worth
 	//      the effort?
+	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
+		// TODO for the moment it's required that we actually set
+		//      userKeyMatrix to the new value before actually sending
+		//      the event. Otherwise we trigger a new stopReplay() that
+		//      would again send the event and so on
+		//      This is a very fragile solution. We should refactor
+		//      this soon.
+		changeKeyMatrixEvent(time, row, 0xff);
+	}
 	msxmodifiers = 0xff;
-	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
-	memset(dynKeymap, 0, sizeof(dynKeymap));
 	msxKeyEventQueue->clear();
-	keysChanged = true; // recalc ghosting
+	memset(dynKeymap, 0, sizeof(dynKeymap));
 }
 
 void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
@@ -295,6 +302,7 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	}
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
+	userKeyMatrix[row] = newValue; // to break infinite loop, see stopReplay()
 	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 		new KeyMatrixState(time, row, press, release)));
 }

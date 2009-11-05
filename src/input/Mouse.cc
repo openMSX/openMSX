@@ -283,11 +283,18 @@ void Mouse::signalStateChange(shared_ptr<const StateChange> event)
 	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
-void Mouse::stopReplay()
+void Mouse::stopReplay(EmuTime::param time)
 {
-	curxrel = curyrel = 0;
 	// TODO read actual host mouse button state
-	status = JOY_BUTTONA | JOY_BUTTONB;
+	int dx = 0 - curxrel;
+	int dy = 0 - curyrel;
+	byte release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
+	if ((dx != 0) || (dy != 0) || (release != 0)) {
+		// TODO see Keyboard::stopReplay()
+		curxrel = curyrel = 0;
+		status = JOY_BUTTONA | JOY_BUTTONB;
+		createMouseStateChange(time, dx, dy, 0, release);
+	}
 }
 
 // version 1: Initial version, the variables curxrel, curyrel and status were

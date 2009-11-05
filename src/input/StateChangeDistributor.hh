@@ -3,6 +3,7 @@
 #ifndef STATECHANGEDISTRIBUTOR_HH
 #define STATECHANGEDISTRIBUTOR_HH
 
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "shared_ptr.hh"
 #include <vector>
@@ -48,7 +49,7 @@ public:
 	 * Should be called when replay->live transition cannot be signaled via
 	 * a new event, so (only) when we reach the end of the replay log.
 	 */
-	void stopReplay();
+	void stopReplay(EmuTime::param time);
 
 private:
 	bool isRegistered(StateChangeListener* listener) const;

@@ -157,11 +157,18 @@ void ArkanoidPad::signalStateChange(shared_ptr<const StateChange> event)
 	if (as->getRelease()) buttonStatus |=  2;
 }
 
-void ArkanoidPad::stopReplay()
+void ArkanoidPad::stopReplay(EmuTime::param time)
 {
-	dialpos = POS_CENTER;
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?
-	buttonStatus |= 2; // not pressed
+	int delta = POS_CENTER - dialpos;
+	bool release = (buttonStatus & 2) == 0;
+	if ((delta != 0) || release) {
+		// TODO see comment in Keyboard::stopReplay()
+		dialpos = POS_CENTER;
+		buttonStatus |= 2;
+		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+			new ArkanoidState(time, delta, false, release)));
+	}
 }
 
 

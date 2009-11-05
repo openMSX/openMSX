@@ -104,7 +104,7 @@ void Joystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 		throw PlugException("Failed to open joystick device");
 	}
 	plugHelper2();
-	calcInitialState();
+	status = calcInitialState();
 }
 
 void Joystick::plugHelper2()
@@ -131,37 +131,37 @@ void Joystick::write(byte /*value*/, EmuTime::param /*time*/)
 	// nothing
 }
 
-void Joystick::calcInitialState()
+byte Joystick::calcInitialState()
 {
-	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB;
-
+	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	              JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
 		int xAxis = SDL_JoystickGetAxis(joystick, 0);
 		if (xAxis < -THRESHOLD) {
-			status &= ~JOY_LEFT;
+			result &= ~JOY_LEFT;
 		} else if (xAxis > THRESHOLD) {
-			status &= ~JOY_RIGHT;
+			result &= ~JOY_RIGHT;
 		}
 
 		int yAxis = SDL_JoystickGetAxis(joystick, 1);
 		if (yAxis < -THRESHOLD) {
-			status &= ~JOY_UP;
+			result &= ~JOY_UP;
 		} else if (yAxis > THRESHOLD) {
-			status &= ~JOY_DOWN;
+			result &= ~JOY_DOWN;
 		}
 
 		int numButtons = SDL_JoystickNumButtons(joystick);
 		for (int button = 0; button < numButtons; ++button) {
 			if (SDL_JoystickGetButton(joystick, button)) {
 				if (button & 1) {
-					status &= ~JOY_BUTTONB;
+					result &= ~JOY_BUTTONB;
 				} else {
-					status &= ~JOY_BUTTONA;
+					result &= ~JOY_BUTTONA;
 				}
 			}
 		}
 	}
+	return result;
 }
 
 // MSXEventListener
@@ -184,25 +184,25 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
 			if (value < -THRESHOLD) {
 				// left, not right
-				createEvent(time, joyNum, JOY_LEFT, JOY_RIGHT);
+				createEvent(time, JOY_LEFT, JOY_RIGHT);
 			} else if (value > THRESHOLD) {
 				// not left, right
-				createEvent(time, joyNum, JOY_RIGHT, JOY_LEFT);
+				createEvent(time, JOY_RIGHT, JOY_LEFT);
 			} else {
 				// not left, not right
-				createEvent(time, joyNum, 0, JOY_LEFT | JOY_RIGHT);
+				createEvent(time, 0, JOY_LEFT | JOY_RIGHT);
 			}
 			break;
 		case JoystickAxisMotionEvent::Y_AXIS: // Vertical
 			if (value < -THRESHOLD) {
 				// up, not down
-				createEvent(time, joyNum, JOY_UP, JOY_DOWN);
+				createEvent(time, JOY_UP, JOY_DOWN);
 			} else if (value > THRESHOLD) {
 				// not up, down
-				createEvent(time, joyNum, JOY_DOWN, JOY_UP);
+				createEvent(time, JOY_DOWN, JOY_UP);
 			} else {
 				// not up, not down
-				createEvent(time, joyNum, 0, JOY_UP | JOY_DOWN);
+				createEvent(time, 0, JOY_UP | JOY_DOWN);
 			}
 			break;
 		default:
@@ -215,9 +215,9 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 		const JoystickButtonEvent& buttonEvent =
 			checked_cast<const JoystickButtonEvent&>(*event);
 		if (buttonEvent.getButton() & 1) {
-			createEvent(time, joyNum, JOY_BUTTONB, 0);
+			createEvent(time, JOY_BUTTONB, 0);
 		} else {
-			createEvent(time, joyNum, JOY_BUTTONA, 0);
+			createEvent(time, JOY_BUTTONA, 0);
 		}
 		break;
 	}
@@ -225,9 +225,9 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 		const JoystickButtonEvent& buttonEvent =
 			checked_cast<const JoystickButtonEvent&>(*event);
 		if (buttonEvent.getButton() & 1) {
-			createEvent(time, joyNum, 0, JOY_BUTTONB);
+			createEvent(time, 0, JOY_BUTTONB);
 		} else {
-			createEvent(time, joyNum, 0, JOY_BUTTONA);
+			createEvent(time, 0, JOY_BUTTONA);
 		}
 		break;
 	}
@@ -236,17 +236,23 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 	}
 }
 
-void Joystick::createEvent(EmuTime::param time, int joyNum, byte press, byte release)
+void Joystick::createEvent(EmuTime::param time, byte press, byte release)
 {
 	byte newStatus = (status & ~press) | release;
+	createEvent(time, newStatus);
+}
+
+void Joystick::createEvent(EmuTime::param time, byte newStatus)
+{
 	byte diff = status ^ newStatus;
 	if (!diff) {
 		// event won't actually change the status, so ignore it
 		return;
 	}
 	// make sure we create an event with minimal changes
-	press   =    status & diff;
-	release = newStatus & diff;
+	byte press   =    status & diff;
+	byte release = newStatus & diff;
+	status = newStatus; // TODO see Keyboard::stopReplay()
 	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 		new JoyState(time, joyNum, press, release)));
 }
@@ -268,9 +274,9 @@ void Joystick::signalStateChange(shared_ptr<const StateChange> event)
 	status |= js->getRelease();
 }
 
-void Joystick::stopReplay()
+void Joystick::stopReplay(EmuTime::param time)
 {
-	calcInitialState();
+	createEvent(time, calcInitialState());
 }
 
 // version 1: Initial version, the variable status was not serialized.

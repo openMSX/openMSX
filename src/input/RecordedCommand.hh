@@ -81,7 +81,7 @@ private:
 
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<const StateChange> event);
-	virtual void stopReplay();
+	virtual void stopReplay(EmuTime::param time);
 
 	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;

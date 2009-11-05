@@ -55,15 +55,16 @@ private:
 	         unsigned joyNum);
 
 	void plugHelper2();
-	void calcInitialState();
-	void createEvent(EmuTime::param time, int joyNum, byte press, byte release);
+	byte calcInitialState();
+	void createEvent(EmuTime::param time, byte press, byte release);
+	void createEvent(EmuTime::param time, byte newStatus);
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         EmuTime::param time);
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<const StateChange> event);
-	virtual void stopReplay();
+	virtual void stopReplay(EmuTime::param time);
 
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;

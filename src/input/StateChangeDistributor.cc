@@ -2,6 +2,7 @@
 
 #include "StateChangeDistributor.hh"
 #include "StateChangeListener.hh"
+#include "StateChange.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -38,7 +39,7 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 void StateChangeDistributor::distributeNew(EventPtr event)
 {
 	if (replaying) {
-		stopReplay();
+		stopReplay(event->getTime());
 	}
 	distribute(event);
 }
@@ -67,13 +68,15 @@ void StateChangeDistributor::distribute(EventPtr event)
 	}
 }
 
-void StateChangeDistributor::stopReplay()
+void StateChangeDistributor::stopReplay(EmuTime::param time)
 {
-	replaying = false;
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
-		(*it)->stopReplay();
+		(*it)->stopReplay(time);
 	}
+	// TODO needs to happen after the loop, see comment in Keyboard::stopReplay()
+	//      This is a fragile hack, needs to be refactored.
+	replaying = false;
 }
 
 } // namespace openmsx

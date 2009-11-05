@@ -3,6 +3,7 @@
 #ifndef STATECHANGELISTENER_HH
 #define STATECHANGELISTENER_HH
 
+#include "EmuTime.hh"
 #include "shared_ptr.hh"
 
 namespace openmsx {
@@ -25,7 +26,7 @@ public:
 	 * the user triggers a replay, we always start from a snapshot, so
 	 * we create 'fresh' objects).
 	 */
-	virtual void stopReplay() = 0;
+	virtual void stopReplay(EmuTime::param time) = 0;
 
 protected:
 	StateChangeListener() {}

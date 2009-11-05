@@ -291,7 +291,8 @@ void ReverseManager::signalStateChange(shared_ptr<const StateChange> event)
 		// this is an event we just replayed
 		assert(event == history.events[replayIndex]);
 		if (dynamic_cast<const EndLogEvent*>(event.get())) {
-			motherBoard.getStateChangeDistributor().stopReplay();
+			motherBoard.getStateChangeDistributor().stopReplay(
+				event->getTime());
 		} else {
 			// ignore all other events
 		}
@@ -303,7 +304,7 @@ void ReverseManager::signalStateChange(shared_ptr<const StateChange> event)
 	}
 }
 
-void ReverseManager::stopReplay()
+void ReverseManager::stopReplay(EmuTime::param /*time*/)
 {
 	if (replaying()) {
 		// if we're replaying, stop it and erase remainder of event log

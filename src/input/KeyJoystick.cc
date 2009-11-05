@@ -152,11 +152,17 @@ void KeyJoystick::signalStateChange(shared_ptr<const StateChange> event)
 	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
 
-void KeyJoystick::stopReplay()
+void KeyJoystick::stopReplay(EmuTime::param time)
 {
 	// TODO read actual host key state
-	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB;
+	byte newStatus = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	                 JOY_BUTTONA | JOY_BUTTONB;
+	if (newStatus != status) {
+		byte release = newStatus & ~status;
+		status = newStatus; // TODO see Keyboard::stopReplay()
+		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+			new KeyJoyState(time, name, 0, release)));
+	}
 }
 
 
