@@ -17,6 +17,7 @@
 #else
 #include <sys/types.h>
 #include <pwd.h>
+#include <climits>
 #endif
 
 #if defined(PATH_MAX)
@@ -407,7 +408,7 @@ string getUserHomeDir(const string& username)
 {
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
-	
+
 	wchar_t bufW[MAXPATHLEN + 1];
 	if (!SHGetSpecialFolderPathW(NULL, bufW, CSIDL_PERSONAL, TRUE)) {
 		throw FatalError(StringOp::Builder() <<
@@ -512,7 +513,7 @@ string expandCurrentDirFromDrive(const string& path)
 		unsigned char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
 			wchar_t bufW[MAXPATHLEN + 1];
-			if (driveExists(drive) && 
+			if (driveExists(drive) &&
 				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != NULL) {
 				result = getConventionalPath(utf16to8(bufW));
 				if (*result.rbegin() != '/') {
