@@ -9,7 +9,8 @@
 namespace openmsx {
 
 StateChangeDistributor::StateChangeDistributor()
-	: replaying(true)
+	: recorder(NULL)
+	, replaying(true)
 {
 }
 
@@ -36,6 +37,19 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
 }
 
+void StateChangeDistributor::registerRecorder(StateChangeListener& recorder_)
+{
+	assert(recorder == NULL);
+	recorder = &recorder_;
+}
+
+void StateChangeDistributor::unregisterRecorder(StateChangeListener& recorder_)
+{
+	(void)recorder_;
+	assert(recorder == &recorder_);
+	recorder = NULL;
+}
+
 void StateChangeDistributor::distributeNew(EventPtr event)
 {
 	if (replaying) {
@@ -57,6 +71,7 @@ void StateChangeDistributor::distribute(EventPtr event)
 	//   e.g. signalStateChange() -> .. -> PlugCmd::execute() -> .. ->
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerListener()
+	if (recorder) recorder->signalStateChange(event);
 	Listeners copy = listeners;
 	for (Listeners::const_iterator it = copy.begin();
 	     it != copy.end(); ++it) {
@@ -70,13 +85,12 @@ void StateChangeDistributor::distribute(EventPtr event)
 
 void StateChangeDistributor::stopReplay(EmuTime::param time)
 {
+	replaying = false;
+	if (recorder) recorder->stopReplay(time);
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->stopReplay(time);
 	}
-	// TODO needs to happen after the loop, see comment in Keyboard::stopReplay()
-	//      This is a fragile hack, needs to be refactored.
-	replaying = false;
 }
 
 } // namespace openmsx

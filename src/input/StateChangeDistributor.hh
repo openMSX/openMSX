@@ -21,15 +21,21 @@ public:
 	StateChangeDistributor();
 	~StateChangeDistributor();
 
-	/** Registers a given object to receive state change events.
+	/** (Un)registers the given object to receive state change events.
 	 * @param listener Listener that will be notified when an event arrives.
 	 */
-	void registerListener(StateChangeListener& listener);
-
-	/** Unregisters a previously registered listener.
-	 * @param listener Listener to unregister.
-	 */
+	void registerListener  (StateChangeListener& listener);
 	void unregisterListener(StateChangeListener& listener);
+
+	/** (Un)registers the given object to receive state change events.
+	 * @param recorder Listener that will be notified when an event arrives.
+	 * These two methods are very similar to the two above. The difference
+	 * is that there can be at most one registered recorder. This recorder
+	 * object is always the first object that gets informed about state
+	 * changing events.
+	 */
+	void registerRecorder  (StateChangeListener& recorder);
+	void unregisterRecorder(StateChangeListener& recorder);
 
 	/** Deliver the event to all registered listeners
 	 * MSX input devices should call the distributeNew() version, only the
@@ -57,6 +63,7 @@ private:
 
 	typedef std::vector<StateChangeListener*> Listeners;
 	Listeners listeners;
+	StateChangeListener* recorder;
 	bool replaying;
 };
 

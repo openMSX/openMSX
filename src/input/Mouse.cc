@@ -290,9 +290,6 @@ void Mouse::stopReplay(EmuTime::param time)
 	int dy = 0 - curyrel;
 	byte release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
 	if ((dx != 0) || (dy != 0) || (release != 0)) {
-		// TODO see Keyboard::stopReplay()
-		curxrel = curyrel = 0;
-		status = JOY_BUTTONA | JOY_BUTTONB;
 		createMouseStateChange(time, dx, dy, 0, release);
 	}
 }

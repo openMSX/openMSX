@@ -252,7 +252,6 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 	// make sure we create an event with minimal changes
 	byte press   =    status & diff;
 	byte release = newStatus & diff;
-	status = newStatus; // TODO see Keyboard::stopReplay()
 	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 		new JoyState(time, joyNum, press, release)));
 }

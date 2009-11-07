@@ -272,12 +272,6 @@ void Keyboard::stopReplay(EmuTime::param time)
 	//      pressed keys. Might be hard to implement correctly, is it worth
 	//      the effort?
 	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
-		// TODO for the moment it's required that we actually set
-		//      userKeyMatrix to the new value before actually sending
-		//      the event. Otherwise we trigger a new stopReplay() that
-		//      would again send the event and so on
-		//      This is a very fragile solution. We should refactor
-		//      this soon.
 		changeKeyMatrixEvent(time, row, 0xff);
 	}
 	msxmodifiers = 0xff;
@@ -302,7 +296,6 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	}
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	userKeyMatrix[row] = newValue; // to break infinite loop, see stopReplay()
 	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 		new KeyMatrixState(time, row, press, release)));
 }

@@ -95,7 +95,7 @@ void ReverseManager::start()
 		collectCount = 1;
 		executeUntil(getCurrentTime(), NEW_SNAPSHOT);
 		// start recording events
-		motherBoard.getStateChangeDistributor().registerListener(*this);
+		motherBoard.getStateChangeDistributor().registerRecorder(*this);
 	}
 	assert(collecting());
 }
@@ -103,7 +103,7 @@ void ReverseManager::start()
 void ReverseManager::stop()
 {
 	if (collecting()) {
-		motherBoard.getStateChangeDistributor().unregisterListener(*this);
+		motherBoard.getStateChangeDistributor().unregisterRecorder(*this);
 		removeSyncPoint(NEW_SNAPSHOT); // don't schedule new snapshot takings
 		removeSyncPoint(INPUT_EVENT); // stop any pending replay actions
 		history.clear();
@@ -231,7 +231,7 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 	// resume collecting (and event recording)
 	collectCount = oldCollectCount;
 	schedule(getCurrentTime());
-	motherBoard.getStateChangeDistributor().registerListener(*this);
+	motherBoard.getStateChangeDistributor().registerRecorder(*this);
 	assert(collecting());
 
 	// start replaying events

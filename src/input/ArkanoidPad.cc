@@ -163,9 +163,6 @@ void ArkanoidPad::stopReplay(EmuTime::param time)
 	int delta = POS_CENTER - dialpos;
 	bool release = (buttonStatus & 2) == 0;
 	if ((delta != 0) || release) {
-		// TODO see comment in Keyboard::stopReplay()
-		dialpos = POS_CENTER;
-		buttonStatus |= 2;
 		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 			new ArkanoidState(time, delta, false, release)));
 	}

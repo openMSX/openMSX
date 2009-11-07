@@ -159,7 +159,6 @@ void KeyJoystick::stopReplay(EmuTime::param time)
 	                 JOY_BUTTONA | JOY_BUTTONB;
 	if (newStatus != status) {
 		byte release = newStatus & ~status;
-		status = newStatus; // TODO see Keyboard::stopReplay()
 		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
 			new KeyJoyState(time, name, 0, release)));
 	}
