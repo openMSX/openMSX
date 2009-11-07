@@ -36,7 +36,7 @@ static inline void memset_128_SSE_streaming(
 	assert((size_t(dest) & 15) == 0); // must be 16-byte aligned
 	unsigned long long* e = dest + num - 3;
 	for (/**/; dest < e; dest += 4) {
-#ifdef _MSC_VER
+#if defined _MSC_VER
 		__asm {
 			mov				eax,dest
 			movntps			xmmword ptr [eax],xmm0
@@ -52,7 +52,7 @@ static inline void memset_128_SSE_streaming(
 #endif
 	}
 	if (unlikely(num & 2)) {
-#ifdef _MSC_VER
+#if defined _MSC_VER
 		__asm {
 			movntps			qword ptr [dest],xmm0
 		}
@@ -72,7 +72,7 @@ static inline void memset_128_SSE(
 	assert((size_t(dest) & 15) == 0); // must be 16-byte aligned
 	unsigned long long* e = dest + num - 3;
 	for (/**/; dest < e; dest += 4) {
-#ifdef _MSC_VER
+#if defined _MSC_VER
 		__asm {
 			mov			eax,dest
 			movaps		xmmword ptr [eax],xmm0
@@ -88,7 +88,7 @@ static inline void memset_128_SSE(
 #endif
 	}
 	if (unlikely(num & 2)) {
-#ifdef _MSC_VER
+#if defined _MSC_VER
 		__asm {
 			mov			eax,dest
 			movaps		xmmword ptr [eax],xmm0
@@ -115,7 +115,7 @@ static inline void memset_64_SSE(
 		dest[0] = val;
 		++dest; --num;
 	}
-#ifdef ASM_X86_64
+#if defined ASM_X86_64
 	asm volatile (
 		// The 'movd' instruction below actually moves a Quad-word (not a
 		// Double word). Though very old binutils don't support the more
@@ -125,14 +125,14 @@ static inline void memset_64_SSE(
 		"unpcklps %%xmm0, %%xmm0;"
 		: // no output
 		: "r" (val)
-		#ifdef __SSE__
+		#if defined __SSE__
 		: "xmm0"
 		#endif
 	);
 #else
 	unsigned _low_  = unsigned(val >>  0);
 	unsigned _high_ = unsigned(val >> 32);
-#ifdef _MSC_VER
+#if defined _MSC_VER
 	__asm {
 		movss		xmm0,dword ptr [_low_]
 		movss		xmm1,dword ptr [_high_]
@@ -150,7 +150,7 @@ static inline void memset_64_SSE(
 		: // no output
 		: "m" (_low_)
 		, "m" (_high_)
-		#ifdef __SSE__
+		#if defined __SSE__
 		: "xmm0", "xmm1"
 		#endif
 	);
@@ -171,7 +171,7 @@ static inline void memset_64_MMX(
 {
     assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
-#ifdef _MSC_VER
+#if defined _MSC_VER
 	unsigned lo = unsigned(val >> 0);
 	unsigned hi = unsigned(val >> 32);
 	unsigned long long* e = dest + num - 3;
@@ -214,7 +214,7 @@ end:
 		: // no output
 		: "r" (unsigned(val >>  0))
 		, "r" (unsigned(val >> 32))
-		#ifdef __MMX__
+		#if defined __MMX__
 		: "mm0", "mm1"
 		#endif
 	);
@@ -312,8 +312,8 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 {
 	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
 
-#ifdef ASM_X86
-#ifdef _MSC_VER
+#if defined ASM_X86
+#if defined _MSC_VER
 	// VC++'s __stosd intrinsic results in emulator benchmarks
 	// running about 7% faster than with memset_32_2, streaming or not,
 	// and about 3% faster than the C code below.
@@ -452,7 +452,7 @@ template struct MemSet2<unsigned, true >;
 template struct MemSet2<unsigned, false>;
 
 #if COMPONENT_GL
-#ifdef _MSC_VER
+#if defined _MSC_VER
 // see comment in V9990BitmapConverter
 STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
 #else
@@ -486,7 +486,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 			*dst++ = *src++;
 			--num;
 		}
-	#ifdef _MSC_VER
+	#if defined _MSC_VER
 		__asm {
 			mov			ebx,dword ptr [src]
 			mov			edi,dword ptr [dst]
@@ -590,7 +590,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 				: "r" (src)
 				, "r" (dst)
 				, "r" (-4 * n2)
-				#ifdef __MMX__
+				#if defined __MMX__
 				: "mm0", "mm1", "mm2", "mm3"
 				, "mm4", "mm5", "mm6", "mm7"
 				#endif
@@ -610,7 +610,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 				: // no output
 				: "r" (src)
 				, "r" (dst)
-				#ifdef __MMX__
+				#if defined __MMX__
 				: "mm0", "mm1", "mm2", "mm3"
 				#endif
 			);
@@ -626,7 +626,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 				: // no output
 				: "r" (src)
 				, "r" (dst)
-				#ifdef __MMX__
+				#if defined __MMX__
 				: "mm0", "mm1"
 				#endif
 			);
@@ -640,7 +640,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 				: // no output
 				: "r" (src)
 				, "r" (dst)
-				#ifdef __MMX__
+				#if defined __MMX__
 				: "mm0"
 				#endif
 			);
@@ -728,12 +728,12 @@ void* mallocAligned(unsigned alignment, unsigned size)
 	assert("must be a power of 2" &&
 	       Math::powerOfTwo(alignment) == alignment);
 	assert(alignment >= sizeof(void*));
-#ifdef HAVE_POSIX_MEMALIGN
+#if HAVE_POSIX_MEMALIGN
 	void* aligned;
 	if (posix_memalign(&aligned, alignment, size)) {
 		throw std::bad_alloc();
 	}
-	#ifdef DEBUG
+	#if defined DEBUG
 	AllocMap::instance().insert(aligned, aligned);
 	#endif
 	return aligned;
@@ -754,8 +754,8 @@ void* mallocAligned(unsigned alignment, unsigned size)
 
 void freeAligned(void* aligned)
 {
-#ifdef HAVE_POSIX_MEMALIGN
-	#ifdef DEBUG
+#if HAVE_POSIX_MEMALIGN
+	#if defined DEBUG
 	AllocMap::instance().remove(aligned);
 	#endif
 	free(aligned);

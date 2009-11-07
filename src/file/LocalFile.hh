@@ -3,7 +3,7 @@
 #ifndef LOCALFILE_HH
 #define LOCALFILE_HH
 
-#ifdef _WIN32
+#if defined _WIN32
 #include <windows.h>
 #endif
 #include "File.hh"
@@ -24,14 +24,14 @@ public:
 	virtual ~LocalFile();
 	virtual void read (void* buffer, unsigned num);
 	virtual void write(const void* buffer, unsigned num);
-#if defined HAVE_MMAP || defined _WIN32
+#if HAVE_MMAP || defined _WIN32
 	virtual byte* mmap();
 	virtual void munmap();
 #endif
 	virtual unsigned getSize();
 	virtual void seek(unsigned pos);
 	virtual unsigned getPos();
-#ifdef HAVE_FTRUNCATE
+#if HAVE_FTRUNCATE
 	virtual void truncate(unsigned size);
 #endif
 	virtual void flush();
@@ -43,7 +43,7 @@ public:
 private:
 	std::string filename;
 	FILE* file;
-#ifdef _WIN32
+#if defined _WIN32
 	HANDLE hMmap;
 #endif
 	std::auto_ptr<PreCacheFile> cache;

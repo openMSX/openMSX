@@ -10,10 +10,7 @@ def iterSystemFuncsHeader(functionResults):
 	for makeName in sorted(
 		func.getMakeName() for func in systemFunctions
 		):
-		if functionResults[makeName]:
-			yield '#define HAVE_%s 1' % makeName
-		else:
-			yield '// #undef HAVE_%s' % makeName
+		yield '#define HAVE_%s %d' % (makeName, functionResults[makeName])
 
 def getSystemFuncsInfo():
 	return dict.fromkeys(

@@ -4,10 +4,10 @@
 #include "unistdp.hh"
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 #include <sys/mman.h>
 #endif
-#ifdef _WIN32
+#if defined _WIN32
 #include <io.h>
 #include <iostream>
 #endif
@@ -25,7 +25,7 @@ namespace openmsx {
 
 LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
-#ifdef _WIN32
+#if defined _WIN32
 	, hMmap(NULL)
 #endif
 	, readOnly(false)
@@ -110,7 +110,7 @@ void LocalFile::write(const void* buffer, unsigned num)
 	}
 }
 
-#ifdef _WIN32
+#if defined _WIN32
 byte* LocalFile::mmap()
 {
 	if (!mmem) {
@@ -163,7 +163,7 @@ void LocalFile::munmap()
 	}
 }
 
-#elif defined HAVE_MMAP
+#elif HAVE_MMAP
 byte* LocalFile::mmap()
 {
 	if (!mmem) {
@@ -211,7 +211,7 @@ unsigned LocalFile::getPos()
 	return unsigned(ftell(file));
 }
 
-#ifdef HAVE_FTRUNCATE
+#if HAVE_FTRUNCATE
 void LocalFile::truncate(unsigned size)
 {
 	int fd = fileno(file);

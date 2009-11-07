@@ -2,14 +2,14 @@
 
 #include "Timer.hh"
 #include "systemfuncs.hh"
-#ifdef HAVE_GETTIMEOFDAY
+#if HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #include <ctime>
 #endif
-#ifdef HAVE_USLEEP
+#if HAVE_USLEEP
 #include <unistdp.hh>
 #endif
-#ifdef WIN32
+#if defined _WIN32
 #include <windows.h>
 #endif
 #include <SDL.h>
@@ -30,7 +30,7 @@ unsigned long long getTime()
  *    get scheduled on the other core
  *  - the resolution of the timer can vary on CPUs that can change its
  *    clock frequency (for power managment)
-#ifdef WIN32
+##if defined _WIN32
 	static LONGLONG hfFrequency = 0;
 
 	LARGE_INTEGER li;
@@ -47,7 +47,7 @@ unsigned long long getTime()
 	// ensure that the multiplication doesn't wrap.
 	return (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
 */
-#ifdef HAVE_GETTIMEOFDAY
+#if HAVE_GETTIMEOFDAY
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return static_cast<unsigned long long>(tv.tv_sec) * 1000000 +
@@ -57,7 +57,7 @@ unsigned long long getTime()
 #endif
 }
 
-/*#ifdef WIN32
+/*#if defined _WIN32
 static void CALLBACK timerCallback(unsigned int,
                                    unsigned int,
                                    unsigned long eventHandle,
@@ -70,7 +70,7 @@ static void CALLBACK timerCallback(unsigned int,
 
 void sleep(unsigned long long us)
 {
-/*#ifdef WIN32
+/*#if defined _WIN32
 	us /= 1000;
 	if (us > 0) {
 		static HANDLE timerEvent = NULL;
@@ -83,7 +83,7 @@ void sleep(unsigned long long us)
 		timeKillEvent(id);
 	}
 */
-#ifdef HAVE_USLEEP
+#if HAVE_USLEEP
 	usleep(us);
 #else
 	SDL_Delay(unsigned(us / 1000));
