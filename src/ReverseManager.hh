@@ -54,14 +54,17 @@ private:
 	void start();
 	void stop();
 	std::string status();
-	void go(const std::vector<std::string>& tokens);
+	std::string go(const std::vector<std::string>& tokens);
 	void goBack(const std::vector<std::string>& tokens);
+	std::string saveReplay(const std::vector<std::string>& tokens);
+	std::string loadReplay(const std::vector<std::string>& tokens);
 	
 	void goToSnapshot(Chunks::iterator chunk_it);
 
 	void transferHistory(ReverseHistory& oldHistory,
                              unsigned oldCollectCount,
                              unsigned oldEventCount);
+	void restoreReplayLog(Events events);
 	void schedule(EmuTime::param time);
 	void replayNextEvent();
 	template<unsigned N> void dropOldSnapshots(unsigned count);
@@ -82,6 +85,7 @@ private:
 	unsigned replayIndex;
 
 	friend class ReverseCmd;
+	friend class Replay;
 };
 
 } // namespace openmsx

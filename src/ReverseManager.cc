@@ -3,6 +3,10 @@
 #include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
 #include "StateChangeDistributor.hh"
+#include "XMLException.hh"
+#include "XMLElement.hh"
+#include "FileOperations.hh"
+#include "FileContext.hh"
 #include "StateChange.hh"
 #include "Reactor.hh"
 #include "Clock.hh"
@@ -10,12 +14,30 @@
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
 #include <cassert>
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
+
+// A replay is a struct that contains a motherboard and an MSX event
+// log. Those combined are a replay, because you can replay the events
+// from an existing motherboard state.
+struct Replay
+{
+	ReverseManager::Events* events;
+	Reactor::Board motherBoard;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("snapshot", *motherBoard);
+		ar.serialize("events", *events);
+	}
+};
 
 class ReverseCmd : public SimpleCommand
 {
@@ -48,12 +70,18 @@ void ReverseManager::ReverseHistory::clear()
 class EndLogEvent : public StateChange
 {
 public:
+	EndLogEvent() {} // for serialize
 	EndLogEvent(EmuTime::param time)
 		: StateChange(time)
 	{
 	}
-};
 
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+	}
+};
+REGISTER_POLYMORPHIC_CLASS(StateChange, EndLogEvent, "EndLog");
 
 // class ReverseManager
 
@@ -80,7 +108,7 @@ ReverseManager::~ReverseManager()
 
 bool ReverseManager::collecting() const
 {
-	return collectCount !=0;
+	return collectCount != 0;
 }
 
 bool ReverseManager::replaying() const
@@ -134,7 +162,7 @@ string ReverseManager::status()
 	return result;
 }
 
-void ReverseManager::go(const vector<string>& tokens)
+std::string ReverseManager::go(const vector<string>& tokens)
 {
 	// TODO useful during development, but should probably be removed later
 	if (tokens.size() != 3) {
@@ -146,6 +174,10 @@ void ReverseManager::go(const vector<string>& tokens)
 		throw CommandException("Out of range");
 	}
 	goToSnapshot(it);
+	return "Went back to " +
+		StringOp::toString((it->second.time - EmuTime::zero).toDouble()) +
+		" (" +  StringOp::toString(((it->second.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100) +
+		"%)" ;
 }
 
 void ReverseManager::goBack(const vector<string>& tokens)
@@ -179,6 +211,91 @@ void ReverseManager::goBack(const vector<string>& tokens)
 		// further than first snapshot, so take that one.
 	}
 	goToSnapshot(it);
+}
+
+string ReverseManager::saveReplay(const vector<string>& tokens)
+{
+	if ((tokens.size() != 2) && (tokens.size() != 3)) {
+		throw SyntaxError();
+	}
+	string fileName;
+	if (tokens.size() == 2) {
+		fileName = FileOperations::getNextNumberedFileName(
+                        "replays", "openmsx", ".gz");
+	} else {
+		fileName = tokens[2];
+	}
+
+	// restore first snapshot to be able to serialize it to a file
+	Reactor& reactor = motherBoard.getReactor();
+	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+	MemInputArchive in(*history.chunks.begin()->second.savestate);
+	in.serialize("machine", *newBoard);
+
+	bool addSentinel = !dynamic_cast<EndLogEvent*>(history.events.back().get());
+	if (addSentinel) {
+		/// make sure the replay log ends with a EndLogEvent
+		history.events.push_back(shared_ptr<StateChange>(
+			new EndLogEvent(getCurrentTime())));
+	}
+
+	XmlOutputArchive out(fileName);
+	Replay replay;
+	replay.events = &history.events;
+	replay.motherBoard = newBoard;
+	out.serialize("replay", replay);
+
+	if (addSentinel) {
+		// Is there a cleaner way to only add the sentinel in the log?
+		// I mean avoid changing/restoring the current log. We could
+		// make a copy and work on that, but that seems much less
+		// efficient.
+		history.events.pop_back();
+	}
+
+	return "Saved replay to " + fileName;
+}
+
+string ReverseManager::loadReplay(const vector<string>& tokens)
+{
+	if (tokens.size() < 3) {
+		throw SyntaxError();
+	}
+
+	UserDataFileContext context("replays");
+	string fileName = context.resolve(motherBoard.getCommandController(), tokens[2]);
+
+	// restore replay
+	Replay replay;
+	Events events;
+	Reactor& reactor = motherBoard.getReactor();
+	replay.motherBoard = reactor.createEmptyMotherBoard();
+	replay.events = &events;
+	try {
+		XmlInputArchive in(fileName);
+		in.serialize("replay", replay);
+	} catch (XMLException& e) {
+		throw CommandException("Cannot load replay, bad file format: " + e.getMessage());
+	} catch (MSXException& e) {
+		throw CommandException("Cannot load replay: " + e.getMessage());
+	}
+
+	// load was successful, only start changing current
+	// ReverseManager/MSXMotherBoard from here on
+
+	// if we are also collecting, better stop that now
+	stop();
+	
+	// put the events in the new MSXMotherBoard, also an initial in-memory
+	// snapshot must be created and maybe more to bring the new
+	// ReverseManager to a valid state (with replay info)
+	replay.motherBoard->getReverseManager().restoreReplayLog(events);
+
+	// switch to the new MSXMotherBoard
+	// TODO this is not correct if this board was not the active board
+	reactor.replaceActiveBoard(replay.motherBoard);
+
+	return "Loaded replay from " + fileName;
 }
 
 void ReverseManager::goToSnapshot(Chunks::iterator it)
@@ -241,6 +358,22 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 	replayNextEvent();
 }
 
+void ReverseManager::restoreReplayLog(Events events)
+{
+	assert(!collecting());
+	start(); // creates initial in-memory snapshot
+
+	// steal event-data from caller
+	// also very efficient because it avoids a copy
+	swap(history.events, events);
+
+	assert(replayIndex == 0);
+	assert(!history.events.empty());
+	assert(dynamic_cast<EndLogEvent*>(history.events.back().get()));
+	replayNextEvent();
+	assert(replaying());
+}
+
 void ReverseManager::executeUntil(EmuTime::param time, int userData)
 {
 	switch (userData) {
@@ -290,7 +423,7 @@ void ReverseManager::signalStateChange(shared_ptr<StateChange> event)
 	if (replaying()) {
 		// this is an event we just replayed
 		assert(event == history.events[replayIndex]);
-		if (dynamic_cast<const EndLogEvent*>(event.get())) {
+		if (dynamic_cast<EndLogEvent*>(event.get())) {
 			motherBoard.getStateChangeDistributor().stopReplay(
 				event->getTime());
 		} else {
@@ -375,7 +508,11 @@ string ReverseCmd::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "goback") {
 		manager.goBack(tokens);
 	} else if (tokens[1] == "go") {
-		manager.go(tokens);
+		return manager.go(tokens);
+	} else if (tokens[1] == "savereplay") {
+		return manager.saveReplay(tokens);
+	} else if (tokens[1] == "loadreplay") {
+		return manager.loadReplay(tokens);
 	} else {
 		throw CommandException("Invalid subcommand");
 	}
@@ -385,16 +522,40 @@ string ReverseCmd::execute(const vector<string>& tokens)
 string ReverseCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "!! this is NOT the final command, this is only for experiments !!\n"
-	       "start      start collecting reverse data\n"
-	       "stop       stop  collecting\n"
-	       "status     give overview of collected data\n"
-	       "go <n>     go to a previously collected point\n"
-	       "goback <n> go back <n> seconds in time (for now: approx!)\n";
+	       "start               start collecting reverse data\n"
+	       "stop                stop collecting\n"
+	       "status              give overview of collected data\n"
+	       "go <n>              go to a previously collected point\n"
+	       "goback <n>          go back <n> seconds in time (for now: approx!)\n"
+	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
+	       "loadreplay <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
 
-void ReverseCmd::tabCompletion(vector<string>& /*tokens*/) const
+void ReverseCmd::tabCompletion(vector<string>& tokens) const
 {
-	// TODO
+	if (tokens.size() == 2) {
+		set<string> subCommands;
+		subCommands.insert("start");
+		subCommands.insert("stop");
+		subCommands.insert("status");
+		subCommands.insert("go");
+		subCommands.insert("goback");
+		subCommands.insert("savereplay");
+		subCommands.insert("loadreplay");
+		completeString(tokens, subCommands);
+	} else if (tokens.size() == 3) {
+		if (tokens[1] == "go") {
+			set<string> options;
+			for (ReverseManager::Chunks::const_iterator it = manager.history.chunks.begin();
+				it != manager.history.chunks.end(); ++it) {
+				options.insert(StringOp::toString(it->first));
+			}
+			completeString(tokens, options);
+		} else if (tokens[1] == "loadreplay") {
+			UserDataFileContext context("replays");
+			completeFileName(getCommandController(), tokens, context);
+		}
+	}
 }
 
 } // namespace openmsx
