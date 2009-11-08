@@ -54,6 +54,12 @@ public:
 	explicit UserFileContext(const std::string& savePath = "");
 };
 
+class UserDataFileContext : public FileContext
+{
+public:
+	explicit UserDataFileContext(const std::string& subdir);
+};
+
 class CurrentDirFileContext : public FileContext
 {
 public:

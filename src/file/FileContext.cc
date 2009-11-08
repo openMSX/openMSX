@@ -185,6 +185,11 @@ UserFileContext::UserFileContext(const string& savePath)
 	}
 }
 
+UserDataFileContext::UserDataFileContext(const string& subDir)
+{
+	paths.push_back(USER_OPENMSX + "/" + subDir);
+}
+
 CurrentDirFileContext::CurrentDirFileContext()
 {
 	paths.push_back("");
