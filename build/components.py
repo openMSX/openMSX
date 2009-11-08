@@ -32,7 +32,7 @@ class CassetteJack(Component):
 class Laserdisc(Component):
 	niceName = 'Laserdisc'
 	makeName = 'LASERDISC'
-	dependsOn = ('LIBOGGZ', 'LIBVORBIS', 'LIBTHEORA')
+	dependsOn = ('OGGZ', 'VORBIS', 'THEORA')
 
 def iterComponents():
 	yield EmulationCore

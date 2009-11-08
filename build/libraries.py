@@ -307,16 +307,16 @@ class LibXML2(Library):
 
 class OGG(Library):
 	libName = 'ogg'
-	makeName = 'LIBOGG'
+	makeName = 'OGG'
 	header = '<ogg/ogg.h>'
 	function = 'ogg_stream_init'
 
 class OGGZ(Library):
 	libName = 'oggz'
-	makeName = 'LIBOGGZ'
+	makeName = 'OGGZ'
 	header = '<oggz/oggz.h>'
 	function = 'oggz_new'
-	dependsOn = ('LIBOGG', )
+	dependsOn = ('OGG', )
 
 class SDL(Library):
 	libName = 'SDL'
@@ -553,17 +553,17 @@ class TCL(Library):
 
 class Theora(Library):
 	libName = 'theora'
-	makeName = 'LIBTHEORA'
+	makeName = 'THEORA'
 	header = '<theora/theora.h>'
 	function = 'theora_decode_YUVout'
-	dependsOn = ('LIBOGG', )
+	dependsOn = ('OGG', )
 
 class Vorbis(Library):
 	libName = 'vorbis'
-	makeName = 'LIBVORBIS'
+	makeName = 'VORBIS'
 	header = '<vorbis/codec.h>'
 	function = 'vorbis_synthesis_pcmout'
-	dependsOn = ('LIBOGG', )
+	dependsOn = ('OGG', )
 
 class ZLib(Library):
 	libName = 'z'
