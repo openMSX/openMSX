@@ -409,7 +409,8 @@ probe: $(PROBE_MAKE)
 endif
 
 # Probe for headers and functions.
-$(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk
+$(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk \
+		build/systemfuncs2code.py build/systemfuncs.py
 	@$(PYTHON) $(PROBE_SCRIPT) \
 		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
