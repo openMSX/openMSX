@@ -1,5 +1,9 @@
 $Id$
 
+2009-11-08 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added saving and loading of replays (in reverse feature). Thanks to
+	  Wouter for doing the difficult work.
+
 2009-09-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Corrected palette colors on V9958:
 	  The V9958 uses 5-bit DACs for R/G/B, shared by the YJK colors and
