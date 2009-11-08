@@ -259,7 +259,7 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 // StateChangeListener
 void Joystick::signalStateChange(shared_ptr<const StateChange> event)
 {
-	JoyState* js = dynamic_cast<JoyState*>(event.get());
+	const JoyState* js = dynamic_cast<const JoyState*>(event.get());
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
