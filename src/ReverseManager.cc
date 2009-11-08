@@ -185,7 +185,7 @@ void ReverseManager::goToSnapshot(Chunks::iterator it)
 {
 	if (!replaying()) {
 		// terminate replay log with EndLogEvent
-		history.events.push_back(shared_ptr<const StateChange>(
+		history.events.push_back(shared_ptr<StateChange>(
 			new EndLogEvent(getCurrentTime())));
 		++replayIndex;
 	}
@@ -260,7 +260,7 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 		break;
 	}
 	case INPUT_EVENT:
-		shared_ptr<const StateChange> event = history.events[replayIndex];
+		shared_ptr<StateChange> event = history.events[replayIndex];
 		try {
 			// deliver current event at current time
 			motherBoard.getStateChangeDistributor().distributeReplay(event);
@@ -285,7 +285,7 @@ void ReverseManager::replayNextEvent()
 	setSyncPoint(history.events[replayIndex]->getTime(), INPUT_EVENT);
 }
 
-void ReverseManager::signalStateChange(shared_ptr<const StateChange> event)
+void ReverseManager::signalStateChange(shared_ptr<StateChange> event)
 {
 	if (replaying()) {
 		// this is an event we just replayed

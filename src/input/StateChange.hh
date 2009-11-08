@@ -4,6 +4,7 @@
 #define STATECHANGE_HH
 
 #include "EmuTime.hh"
+#include "serialize_meta.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
@@ -21,7 +22,14 @@ public:
 		return time;
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("time", time);
+	}
+
 protected:
+	StateChange() : time(EmuTime::zero) {} // for serialize
 	StateChange(EmuTime::param time_)
 		: time(time_)
 	{
@@ -30,6 +38,7 @@ protected:
 private:
 	EmuTime time;
 };
+REGISTER_BASE_CLASS(StateChange, "StateChange");
 
 } // namespace openmsx
 

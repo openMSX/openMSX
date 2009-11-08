@@ -38,7 +38,7 @@ private:
 		unsigned eventCount;
 	};
 	typedef std::map<unsigned, ReverseChunk> Chunks;
-	typedef std::vector<shared_ptr<const StateChange> > Events;
+	typedef std::vector<shared_ptr<StateChange> > Events;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other);
@@ -71,7 +71,7 @@ private:
 	virtual const std::string& schedName() const;
 
 	// StateChangeListener
-	virtual void signalStateChange(shared_ptr<const StateChange> event);
+	virtual void signalStateChange(shared_ptr<StateChange> event);
 	virtual void stopReplay(EmuTime::param time);
 
 	MSXMotherBoard& motherBoard;

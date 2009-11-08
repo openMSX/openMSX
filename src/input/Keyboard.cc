@@ -22,6 +22,7 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "serialize_meta.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstdlib>
@@ -150,6 +151,7 @@ private:
 class KeyMatrixState : public StateChange
 {
 public:
+	KeyMatrixState() {} // for serialize
 	KeyMatrixState(EmuTime::param time, byte row_, byte press_, byte release_)
 		: StateChange(time)
 		, row(row_), press(press_), release(release_)
@@ -164,9 +166,18 @@ public:
 	byte getRow()     const { return row; }
 	byte getPress()   const { return press; }
 	byte getRelease() const { return release; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("row", row);
+		ar.serialize("press", press);
+		ar.serialize("release", release);
+	}
 private:
-	const byte row, press, release;
+	byte row, press, release;
 };
+REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
@@ -256,9 +267,9 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 	}
 }
 
-void Keyboard::signalStateChange(shared_ptr<const StateChange> event)
+void Keyboard::signalStateChange(shared_ptr<StateChange> event)
 {
-	const KeyMatrixState* kms = dynamic_cast<const KeyMatrixState*>(event.get());
+	KeyMatrixState* kms = dynamic_cast<KeyMatrixState*>(event.get());
 	if (!kms) return;
 
 	userKeyMatrix[kms->getRow()] &= ~kms->getPress();
@@ -296,7 +307,7 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	}
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 		new KeyMatrixState(time, row, press, release)));
 }
 

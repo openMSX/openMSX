@@ -18,6 +18,7 @@ namespace openmsx {
 class KeyJoyState : public StateChange
 {
 public:
+	KeyJoyState() {} // for serialize
 	KeyJoyState(EmuTime::param time, const string& name_,
 	            byte press_, byte release_)
 		: StateChange(time)
@@ -25,11 +26,19 @@ public:
 	const string& getName() const { return name; }
 	byte getPress()   const { return press; }
 	byte getRelease() const { return release; }
-private:
-	const string name;
-	const byte press, release;
-};
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("name", name);
+		ar.serialize("press", press);
+		ar.serialize("release", release);
+	}
 
+private:
+	string name;
+	byte press, release;
+};
+REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
 
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
@@ -137,13 +146,13 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 	}
 
 	if (((status & ~press) | release) != status) {
-		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+		stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 			new KeyJoyState(time, name, press, release)));
 	}
 }
 
 // StateChangeListener
-void KeyJoystick::signalStateChange(shared_ptr<const StateChange> event)
+void KeyJoystick::signalStateChange(shared_ptr<StateChange> event)
 {
 	const KeyJoyState* kjs = dynamic_cast<const KeyJoyState*>(event.get());
 	if (!kjs) return;
@@ -159,7 +168,7 @@ void KeyJoystick::stopReplay(EmuTime::param time)
 	                 JOY_BUTTONA | JOY_BUTTONB;
 	if (newStatus != status) {
 		byte release = newStatus & ~status;
-		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+		stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 			new KeyJoyState(time, name, 0, release)));
 	}
 }

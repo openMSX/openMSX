@@ -16,7 +16,7 @@ class StateChange;
 class StateChangeDistributor : private noncopyable
 {
 public:
-	typedef shared_ptr<const StateChange> EventPtr;
+	typedef shared_ptr<StateChange> EventPtr;
 
 	StateChangeDistributor();
 	~StateChangeDistributor();

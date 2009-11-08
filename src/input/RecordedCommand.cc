@@ -7,6 +7,8 @@
 #include "Scheduler.hh"
 #include "StateChange.hh"
 #include "ScopedAssign.hh"
+#include "serialize.hh"
+#include "serialize_stl.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
 
@@ -70,10 +72,10 @@ static string getBaseName(const std::string& str)
 	return (pos == string::npos) ? str : str.substr(pos + 2);
 }
 
-void RecordedCommand::signalStateChange(shared_ptr<const StateChange> event)
+void RecordedCommand::signalStateChange(shared_ptr<StateChange> event)
 {
-	const MSXCommandEvent* commandEvent =
-		dynamic_cast<const MSXCommandEvent*>(event.get());
+	MSXCommandEvent* commandEvent =
+		dynamic_cast<MSXCommandEvent*>(event.get());
 	if (!commandEvent) return;
 
 	const vector<TclObject*>& tokens = commandEvent->getTokens();
@@ -115,7 +117,7 @@ MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_, EmuTime::param t
 {
 	for (vector<string>::const_iterator it = tokens_.begin();
 	     it != tokens_.end(); ++it) {
-		tokens.push_back(new TclObject(0, *it));
+		tokens.push_back(new TclObject(*it));
 	}
 }
 
@@ -140,5 +142,29 @@ const vector<TclObject*>& MSXCommandEvent::getTokens() const
 {
 	return tokens;
 }
+
+template<typename Archive>
+void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<StateChange>(*this);
+
+	// serialize vector<TclObject*> as vector<string>
+	vector<string> str;
+	if (!ar.isLoader()) {
+		for (vector<TclObject*>::const_iterator it = tokens.begin();
+		     it != tokens.end(); ++it) {
+			str.push_back((*it)->getString());
+		}
+	}
+	ar.serialize("tokens", str);
+	if (ar.isLoader()) {
+		assert(tokens.empty());
+		for (vector<string>::const_iterator it = str.begin();
+		     it != str.end(); ++it) {
+			tokens.push_back(new TclObject(*it));
+		}
+	}
+}
+REGISTER_POLYMORPHIC_CLASS(StateChange, MSXCommandEvent, "MSXCommandEvent");
 
 } // namespace openmsx

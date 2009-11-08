@@ -23,10 +23,14 @@ class TclObject;
 class MSXCommandEvent : public StateChange
 {
 public:
+	MSXCommandEvent() {} // for serialize
 	MSXCommandEvent(const std::vector<std::string>& tokens, EmuTime::param time);
 	MSXCommandEvent(const std::vector<TclObject*>& tokens,  EmuTime::param time);
 	virtual ~MSXCommandEvent();
 	const std::vector<TclObject*>& getTokens() const;
+	
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 private:
 	std::vector<TclObject*> tokens;
 };
@@ -80,7 +84,7 @@ private:
 	                     TclObject& result);
 
 	// StateChangeListener
-	virtual void signalStateChange(shared_ptr<const StateChange> event);
+	virtual void signalStateChange(shared_ptr<StateChange> event);
 	virtual void stopReplay(EmuTime::param time);
 
 	StateChangeDistributor& stateChangeDistributor;

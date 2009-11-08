@@ -32,17 +32,26 @@ static const int SCALE = 2;
 class ArkanoidState : public StateChange
 {
 public:
+	ArkanoidState() {} // for serialize
 	ArkanoidState(EmuTime::param time, int delta_, bool press_, bool release_)
 		: StateChange(time)
 		, delta(delta_), press(press_), release(release_) {}
 	int  getDelta()   const { return delta; }
 	bool getPress()   const { return press; }
 	bool getRelease() const { return release; }
-private:
-	const int delta;
-	const bool press, release;
-};
 
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("delta", delta);
+		ar.serialize("press", press);
+		ar.serialize("release", release);
+	}
+private:
+	int delta;
+	bool press, release;
+};
+REGISTER_POLYMORPHIC_CLASS(StateChange, ArkanoidState, "ArkanoidState");
 
 ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_)
@@ -121,7 +130,7 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param time
 		                               dialpos + motionEvent.getX() / SCALE));
 		int delta = newPos - dialpos;
 		if (delta != 0) {
-			stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+			stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 				new ArkanoidState(time, delta, false, false)));
 		}
 		break;
@@ -129,14 +138,14 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param time
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT:
 		// any button will press the Arkanoid Pad button
 		if (buttonStatus & 2) {
-			stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+			stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 				new ArkanoidState(time, 0, true, false)));
 		}
 		break;
 	case OPENMSX_MOUSE_BUTTON_UP_EVENT:
 		// any button will unpress the Arkanoid Pad button
 		if (!(buttonStatus & 2)) {
-			stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+			stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 				new ArkanoidState(time, 0, false, true)));
 		}
 		break;
@@ -147,9 +156,9 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param time
 }
 
 // StateChangeListener
-void ArkanoidPad::signalStateChange(shared_ptr<const StateChange> event)
+void ArkanoidPad::signalStateChange(shared_ptr<StateChange> event)
 {
-	const ArkanoidState* as = dynamic_cast<const ArkanoidState*>(event.get());
+	ArkanoidState* as = dynamic_cast<ArkanoidState*>(event.get());
 	if (!as) return;
 
 	dialpos += as->getDelta();
@@ -163,7 +172,7 @@ void ArkanoidPad::stopReplay(EmuTime::param time)
 	int delta = POS_CENTER - dialpos;
 	bool release = (buttonStatus & 2) == 0;
 	if ((delta != 0) || release) {
-		stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+		stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 			new ArkanoidState(time, delta, false, release)));
 	}
 }

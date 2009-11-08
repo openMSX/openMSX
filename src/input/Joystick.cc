@@ -44,6 +44,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 class JoyState : public StateChange
 {
 public:
+	JoyState() {} // for serialize
 	JoyState(EmuTime::param time, unsigned joyNum_, byte press_, byte release_)
 		: StateChange(time)
 		, joyNum(joyNum_), press(press_), release(release_)
@@ -54,11 +55,19 @@ public:
 	unsigned getJoystick() const { return joyNum; }
 	byte     getPress()    const { return press; }
 	byte     getRelease()  const { return release; }
-private:
-	const unsigned joyNum;
-	const byte press, release;
-};
 
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("joyNum", joyNum);
+		ar.serialize("press", press);
+		ar.serialize("release", release);
+	}
+private:
+	unsigned joyNum;
+	byte press, release;
+};
+REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
 #ifndef SDL_JOYSTICK_DISABLED
 // Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
@@ -252,12 +261,12 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 	// make sure we create an event with minimal changes
 	byte press   =    status & diff;
 	byte release = newStatus & diff;
-	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 		new JoyState(time, joyNum, press, release)));
 }
 
 // StateChangeListener
-void Joystick::signalStateChange(shared_ptr<const StateChange> event)
+void Joystick::signalStateChange(shared_ptr<StateChange> event)
 {
 	const JoyState* js = dynamic_cast<const JoyState*>(event.get());
 	if (!js) return;

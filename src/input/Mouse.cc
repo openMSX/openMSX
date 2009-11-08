@@ -30,6 +30,7 @@ static const int STROBE = 0x04;
 class MouseState: public StateChange
 {
 public:
+	MouseState() {} // for serialize
 	MouseState(EmuTime::param time, int deltaX_, int deltaY_,
 	           byte press_, byte release_)
 		: StateChange(time)
@@ -39,11 +40,20 @@ public:
 	int  getDeltaY()  const { return deltaY; }
 	byte getPress()   const { return press; }
 	byte getRelease() const { return release; }
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("deltaX", deltaX);
+		ar.serialize("deltaY", deltaY);
+		ar.serialize("press", press);
+		ar.serialize("release", release);
+	}
 private:
-	const int deltaX, deltaY;
-	const byte press, release;
+	int deltaX, deltaY;
+	byte press, release;
 };
 
+REGISTER_POLYMORPHIC_CLASS(StateChange, MouseState, "MouseState");
 
 Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_)
@@ -269,13 +279,13 @@ void Mouse::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 void Mouse::createMouseStateChange(
 	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
 {
-	stateChangeDistributor.distributeNew(shared_ptr<const StateChange>(
+	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
 		new MouseState(time, deltaX, deltaY, press, release)));
 }
 
-void Mouse::signalStateChange(shared_ptr<const StateChange> event)
+void Mouse::signalStateChange(shared_ptr<StateChange> event)
 {
-	const MouseState* ms = dynamic_cast<const MouseState*>(event.get());
+	MouseState* ms = dynamic_cast<MouseState*>(event.get());
 	if (!ms) return;
 
 	curxrel += ms->getDeltaX();

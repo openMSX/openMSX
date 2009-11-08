@@ -17,7 +17,7 @@ public:
 	 * This can be either a replayed or a 'live' event, (though that
 	 * shouldn't matter, it should be handled in exactly the same way).
 	 */
-	virtual void signalStateChange(shared_ptr<const StateChange> event) = 0;
+	virtual void signalStateChange(shared_ptr<StateChange> event) = 0;
 
 	/** This method gets called when we switch from replayed events to
 	 * live events. A input device should resync its state with the current
