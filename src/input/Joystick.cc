@@ -259,7 +259,7 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 // StateChangeListener
 void Joystick::signalStateChange(shared_ptr<const StateChange> event)
 {
-	const JoyState* js = dynamic_cast<const JoyState*>(event.get());
+	JoyState* js = dynamic_cast<JoyState*>(event.get());
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
@@ -269,8 +269,7 @@ void Joystick::signalStateChange(shared_ptr<const StateChange> event)
 	//      different host without an actual SDL joystick connected.
 	if (js->getJoystick() != joyNum) return;
 
-	status &= js->getPress();
-	status |= js->getRelease();
+	status = (status & ~js->getPress()) | js->getRelease();
 }
 
 void Joystick::stopReplay(EmuTime::param time)
