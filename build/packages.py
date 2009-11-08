@@ -296,3 +296,8 @@ _packagesByName = dict(_discoverPackages(locals().itervalues()))
 
 def getPackage(makeName):
 	return _packagesByName[makeName]
+
+def iterDownloadablePackages():
+	for package in _packagesByName.itervalues():
+		if issubclass(package, DownloadablePackage):
+			yield package
