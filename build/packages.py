@@ -48,6 +48,17 @@ class DirectX(DownloadablePackage):
 		}
 
 	@classmethod
+	def getMakeName(cls):
+		return 'DIRECTX'
+
+	@classmethod
+	def getSourceDirName(cls):
+		# Note: The tarball does not contain a source dir.
+		#       We only redefine this to keep the name of the install
+		#       timestamp the same.
+		return '%s%s' % (cls.sourceName, cls.version)
+
+	@classmethod
 	def getTarballName(cls):
 		return '%s%s_mgw.tar.gz' % (cls.sourceName, cls.version)
 
@@ -144,6 +155,10 @@ class OGG(DownloadablePackage):
 			'9354c183fd88417c2860778b60b7896c9487d8f6e58b9fec3fdbf971142ce103',
 		}
 
+	@classmethod
+	def getMakeName(cls):
+		return 'OGG'
+
 class OGGZ(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/liboggz'
 	niceName = 'liboggz'
@@ -154,6 +169,10 @@ class OGGZ(DownloadablePackage):
 		'sha256':
 			'8d8a05752f739d0b377040e36c9f6cfa4dac35b9d55deac2de30f377972fcf75',
 		}
+
+	@classmethod
+	def getMakeName(cls):
+		return 'OGGZ'
 
 class OpenGL(Package):
 	niceName = 'OpenGL'
@@ -219,6 +238,10 @@ class TCL(DownloadablePackage):
 		}
 
 	@classmethod
+	def getSourceDirName(cls):
+		return '%s%s' % (cls.sourceName, cls.version)
+
+	@classmethod
 	def getTarballName(cls):
 		return '%s%s-src.tar.gz' % (cls.sourceName, cls.version)
 
@@ -233,6 +256,10 @@ class Theora(DownloadablePackage):
 			'd5ac6867143b295da41aac1fb24357b6c7f388bf87985630168a47ed2ed8b048',
 		}
 
+	@classmethod
+	def getMakeName(cls):
+		return 'THEORA'
+
 class Vorbis(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/vorbis'
 	niceName = 'libvorbis'
@@ -243,6 +270,10 @@ class Vorbis(DownloadablePackage):
 		'sha256':
 			'c679d1e5e45a3ec8aceb5e71de8e3712630b7a6dec6952886c17435a65955947',
 		}
+
+	@classmethod
+	def getMakeName(cls):
+		return 'VORBIS'
 
 class ZLib(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'

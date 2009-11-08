@@ -18,7 +18,9 @@ $(error You should pass OPENMSX_TARGET_CPU)
 endif
 
 # Get information about packages.
-include build/3rdparty_packages.mk
+-include derived/3rdparty/packages.mk
+
+ifneq ($(origin PACKAGE_SDL),undefined)
 
 # Get information about the target OS.
 SYSTEM_LIBS:=
@@ -360,3 +362,11 @@ $(TARBALLS):
 	mkdir -p $(@D)
 	$(PYTHON) build/download.py \
 		$(DOWNLOAD_$(call findpackage,TARBALL,$(@F)))/$(@F) $(@D)
+
+endif
+
+# Rules for creating and updating generated Makefiles:
+
+derived/3rdparty/packages.mk: \
+  build/3rdparty_packages2make.py build/packages.py
+	$(PYTHON) $< > $@
