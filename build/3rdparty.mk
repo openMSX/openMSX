@@ -369,4 +369,5 @@ endif
 
 derived/3rdparty/packages.mk: \
   build/3rdparty_packages2make.py build/packages.py
+	mkdir -p $(@D)
 	$(PYTHON) $< > $@
