@@ -102,7 +102,7 @@ void Scanline<Pixel>::draw(
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	Pixel* __restrict dst, unsigned factor, unsigned long width)
 {
-#ifdef ASM_X86
+#if ASM_X86
 #ifdef _MSC_VER
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
@@ -297,7 +297,7 @@ void Scanline<Pixel>::draw(
 		return;
 	}
 
-	#if !defined(__APPLE__) && !defined(ASM_X86_64)
+	#if !defined(__APPLE__) && !ASM_X86_64
 	// On Mac OS X, we are one register short, because EBX is not available.
 	// We disable this piece of assembly and fall back to the C++ code.
 	// It's unlikely modern Macs will be running in 16bpp anyway.

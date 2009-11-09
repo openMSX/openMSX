@@ -16,7 +16,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <new> // for std::bad_alloc
-#if defined ASM_X86 && defined _MSC_VER
+#if ASM_X86 && defined _MSC_VER
 #include <intrin.h>	// for __stosd intrinsic
 #endif
 
@@ -27,7 +27,7 @@ namespace MemoryOps {
 // This provides no noticeable performance improvement in
 // emulator benchmarks with VC++. Consequently, there's no reason
 // to write a Win64 ASM version of this.
-#if defined ASM_X86 && !defined _WIN64
+#if ASM_X86 && !defined _WIN64
 // note: xmm0 must already be filled in
 //       bit0 of num is ignored
 static inline void memset_128_SSE_streaming(
@@ -115,7 +115,7 @@ static inline void memset_64_SSE(
 		dest[0] = val;
 		++dest; --num;
 	}
-#if defined ASM_X86_64
+#if ASM_X86_64
 	asm volatile (
 		// The 'movd' instruction below actually moves a Quad-word (not a
 		// Double word). Though very old binutils don't support the more
@@ -256,7 +256,7 @@ static inline void memset_64(
 {
 	assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
-#if defined ASM_X86 && !defined _WIN64
+#if ASM_X86 && !defined _WIN64
 	HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		memset_64_SSE<STREAMING>(dest, num, val);
@@ -312,7 +312,7 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 {
 	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
 
-#if defined ASM_X86
+#if ASM_X86
 #if defined _MSC_VER
 	// VC++'s __stosd intrinsic results in emulator benchmarks
 	// running about 7% faster than with memset_32_2, streaming or not,
@@ -477,7 +477,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 	// VC++'s memcpy function results in emulator benchmarks
 	// running about 5% faster than with stream_memcpy.
 	// Consequently, we disable this functionality in VC++.
-	#if defined ASM_X86 && !defined _MSC_VER
+	#if ASM_X86 && !defined _MSC_VER
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(num == 0)) return;
@@ -666,7 +666,7 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	// VC++'s memcpy function results in emulator benchmarks
 	// running about 5% faster than with stream_memcpy.
 	// Consequently, we disable this functionality in VC++.
-	#if defined ASM_X86 && !defined _MSC_VER
+	#if ASM_X86 && !defined _MSC_VER
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(!num)) return;

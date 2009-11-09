@@ -11,7 +11,7 @@ namespace openmsx {
 /** Information about the host CPU's capabilities,
   * which are determined at run time.
   * Query capabilities like this:<pre>
-  *   \#ifdef ASM_X86
+  *   \#if ASM_X86
   *     if (cpu.hasMMX()) { ...inline MMX asm... }
   *   \#endif</pre>
   * This makes sure instructions for a different CPU family are never fed

@@ -166,20 +166,20 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 	unsigned operator()(uint64 dividend) const
 	{
 		typedef DBCReduce<M, S> R;
-	#if defined(ASM_X86_32) || defined(__arm__)
+	#if ASM_X86_32 || defined(__arm__)
 		const unsigned _ah_ = R::M2 >> 32;
 		const unsigned _al_ = unsigned((R::M2 << 32) >> 32); // Suppress VC++ C4310 warning
 		const unsigned _bh_ = dividend >> 32;
 		const unsigned _bl_ = unsigned(dividend);
 	#endif
-	#ifdef ASM_X86_32
+	#if ASM_X86_32
 	#ifdef _MSC_VER
 		unsigned _tl_;
 		register unsigned result;
 		__asm {
 			// It's worth noting that simple benchmarks show this to be
 			// no faster than straight division on an Intel E8400
-			// 
+			//
 			// eax and edx are used with mul
 			// ecx = bl
 			// esi = ah
@@ -313,13 +313,13 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 	unsigned operator()(uint64 dividend) const
 	{
 		typedef DBCReduce<M, S + N> R;
-	#if defined(ASM_X86_32) || defined(__arm__)
+	#if ASM_X86_32 || defined(__arm__)
 		const unsigned ah = R::M2 >> 32;
 		const unsigned al = unsigned(R::M2);
 		const unsigned bh = dividend >> 32;
 		const unsigned bl = dividend;
 	#endif
-	#ifdef ASM_X86_32
+	#if ASM_X86_32
 		unsigned th, tl, ch, cl;
 		asm (
 			"mov	%[AH],%%eax\n\t"

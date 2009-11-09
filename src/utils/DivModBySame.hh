@@ -33,7 +33,7 @@ public:
 	#if defined __x86_64 && !defined _MSC_VER
 		uint64 t = (__uint128_t(dividend) * m + a) >> 64;
 		return t >> s;
-	#elif defined (ASM_X86_32)
+	#elif ASM_X86_32
 		unsigned _ch_ = a >> 32;
 		unsigned _cl_ = unsigned(a);
 		// g++-3.4 gives this warning when the vars below are const.

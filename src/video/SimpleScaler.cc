@@ -115,7 +115,7 @@ void SimpleScaler<Pixel>::blur1on2(
 	unsigned c1 = alpha / 4;
 	unsigned c2 = 256 - c1;
 
-	#ifdef ASM_X86
+	#if ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
@@ -291,7 +291,7 @@ void SimpleScaler<Pixel>::blur1on1(
 	unsigned c1 = alpha / 4;
 	unsigned c2 = 256 - alpha / 2;
 
-	#ifdef ASM_X86
+	#if ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp

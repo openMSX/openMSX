@@ -1,6 +1,6 @@
 # $Id$
 
-from cpu import getCPU
+from cpu import getCPU, X86, X86_64
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
 
@@ -42,8 +42,9 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	# Use a macro i.s.o. a boolean to prevent compilation errors on inline asm.
 	# A compiler will typically only understand the instruction set that it
 	# generates code for.
-	for define in targetCPU.asmDefines:
-		yield '#define %s' % define
+	yield '#define ASM_X86 %d' % (targetCPU is X86 or targetCPU is X86_64)
+	yield '#define ASM_X86_32 %d' % (targetCPU is X86)
+	yield '#define ASM_X86_64 %d' % (targetCPU is X86_64)
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
 	yield '#define PLATFORM_GP2X %d' % platformGP2X

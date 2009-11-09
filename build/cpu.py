@@ -15,9 +15,6 @@ class CPU(object):
 	# Allow unaligned memory accesses?
 	unalignedMemoryAccess = False
 
-	# Preprocessor defines that guard inline assembly for this CPU family.
-	asmDefines = ()
-
 	# GCC flags to pass to the compile and link commands.
 	gccFlags = ()
 
@@ -105,7 +102,6 @@ class X86(CPU):
 	name = 'x86'
 	bigEndian = False
 	unalignedMemoryAccess = True
-	asmDefines = 'ASM_X86', 'ASM_X86_32'
 	gccFlags = '-m32',
 
 class X86_64(CPU):
@@ -114,7 +110,6 @@ class X86_64(CPU):
 	name = 'x86_64'
 	bigEndian = False
 	unalignedMemoryAccess = True
-	asmDefines = 'ASM_X86', 'ASM_X86_64'
 	gccFlags = '-m64',
 
 # Build a dictionary of CPUs using introspection.

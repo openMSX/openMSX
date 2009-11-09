@@ -187,7 +187,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("--version",   *versionOption, 1, 1);
 	registerOption("-control",    *controlOption, 1, 1);
 	registerOption("-script",     *scriptOption, 1, 1);
-	#ifdef ASM_X86
+	#if ASM_X86
 	registerOption("-nommx",      *noMMXOption, 1, 1);
 	registerOption("-nosse",      *noSSEOption, 1, 1);
 	registerOption("-nosse2",     *noSSE2Option, 1, 1);

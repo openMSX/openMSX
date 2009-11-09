@@ -49,7 +49,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	//             c =   .. swap n/s
 	//             d =   .. swap w/e  n/s
 
-	#ifdef ASM_X86
+	#if ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 	#ifdef _MSC_VER
@@ -634,7 +634,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	// x0 12 34 5x
 	//    cd gh
 
-	#ifdef ASM_X86
+	#if ASM_X86
 	#ifdef _MSC_VER
 	// TODO - VC++ ASM implementation
 	#else

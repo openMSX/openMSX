@@ -21,7 +21,7 @@ HostCPU::HostCPU()
 	mmxFlag  = true;
 	sseFlag  = true;
 	sse2Flag = true;
-	#elif defined ASM_X86_32
+	#elif ASM_X86_32
 	#ifdef _MSC_VER
 	unsigned hasCPUID;
 	__asm {

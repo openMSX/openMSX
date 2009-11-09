@@ -10,7 +10,7 @@
 namespace openmsx {
 namespace yuv2rgb {
 
-#ifdef ASM_X86
+#if ASM_X86
 
 /*
  * This implementation of yuv420 to rgb has copied from Mono. See this
@@ -30,7 +30,7 @@ namespace yuv2rgb {
  */
 
 /* R = 1.164 * (Y - 16)		+ 1.596 * (V - 128)
- * G = 1.164 * (Y - 16)		- 0.813 * (V - 128)	- 0.391 * (U - 128)	
+ * G = 1.164 * (Y - 16)		- 0.813 * (V - 128)	- 0.391 * (U - 128)
  * B = 1.164 * (Y - 16)					+ 2.018 * (U - 128)
  *
  * R V coefficient = 1.596*64 = 102 = 0x66
@@ -71,7 +71,7 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 #else
 #define ALIGN_CMP_REG "eax"
 #endif
-	
+
 #define CALC_COLOR_MODIFIERS(mov_instr, reg_type, alignment, align_reg, u, v, coeff_storage) do {					\
 			__asm__ __volatile__ (												\
 				"mov %0, %%"align_reg";"										\
@@ -413,7 +413,7 @@ void convert(const yuv_buffer& input, RawFrame& output)
 
 	const SDL_PixelFormat& format = output.getSDLPixelFormat();
 	if (format.BytesPerPixel == 4) {
-#ifdef ASM_X86
+#if ASM_X86
 		const HostCPU& cpu = HostCPU::getInstance();
 		if (cpu.hasSSE2()) {
 			convertHelperSSE2(input, output);

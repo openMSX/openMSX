@@ -31,7 +31,7 @@ template <typename S, typename T> struct IsTagged {
 
 struct Streaming {};
 struct X86Streaming
-#ifdef ASM_X86
+#if ASM_X86
 : public Streaming
 #endif
 {};
@@ -265,7 +265,7 @@ template <typename Pixel, bool streaming>
 void Scale_1on2<Pixel, streaming>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width)
 {
-	#ifdef ASM_X86
+	#if ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	#ifndef _MSC_VER
 	if ((sizeof(Pixel) == 2) && streaming && cpu.hasSSE()) {
@@ -472,7 +472,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		return;
 	}
 	#endif
-	
+
 	for (unsigned x = 0; x < width / 2; x++) {
 		out[x * 2] = out[x * 2 + 1] = in[x];
 	}
@@ -483,7 +483,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width)
 {
 	unsigned long nBytes = width * sizeof(Pixel);
-	#ifdef ASM_X86
+	#if ASM_X86
 	assert((nBytes % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (streaming && cpu.hasSSE()) {
@@ -611,7 +611,7 @@ template <typename Pixel>
 void Scale_2on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width)
 {
-	#ifdef ASM_X86
+	#if ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX routine, 32bpp
