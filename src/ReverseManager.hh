@@ -85,7 +85,7 @@ private:
 	unsigned replayIndex;
 
 	friend class ReverseCmd;
-	friend class Replay;
+	friend struct Replay;
 };
 
 } // namespace openmsx
