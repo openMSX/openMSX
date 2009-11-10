@@ -17,6 +17,9 @@ ifeq ($(origin OPENMSX_TARGET_CPU),undefined)
 $(error You should pass OPENMSX_TARGET_CPU)
 endif
 
+.PHONY: all
+all: default
+
 # Get information about packages.
 -include derived/3rdparty/packages.mk
 
@@ -36,7 +39,6 @@ export MACOSX_DEPLOYMENT_TARGET
 CC=$(_CC)
 LD=$(_LD)
 
-TARBALLS_DIR:=derived/3rdparty/download
 SOURCE_DIR:=derived/3rdparty/src
 PATCHES_DIR:=build/3rdparty
 TIMESTAMP_DIR:=$(BUILD_PATH)/timestamps
@@ -97,10 +99,10 @@ INSTALL_PARAMS_GLEW:=\
 # returns the name of the package.
 findpackage=$(strip $(foreach PACKAGE,$(PACKAGES),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
 
-.PHONY: all clean download
+.PHONY: default
+default: $(INSTALL_BUILD_TARGETS) $(INSTALL_NOBUILD_TARGETS)
 
-all: $(INSTALL_BUILD_TARGETS) $(INSTALL_NOBUILD_TARGETS)
-
+.PHONY: clean
 clean:
 	rm -rf $(SOURCE_DIR)
 	rm -rf $(BUILD_DIR)
@@ -114,7 +116,7 @@ $(INSTALL_BUILD_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
 
 ifneq ($(INSTALL_DIRECTX),)
 # Install DirectX headers.
-$(INSTALL_DIRECTX): $(TARBALLS_DIR)/$(TARBALL_DIRECTX)
+$(INSTALL_DIRECTX): $(TARBALL_DIRECTX)
 	mkdir -p $(INSTALL_DIR)
 	tar -zxf $< -C $(INSTALL_DIR)
 	mkdir -p $(@D)
@@ -344,9 +346,9 @@ $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
 $(foreach PACKAGE,$(PACKAGES_STD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))): \
   $(SOURCE_DIR)/%: $(TARBALLS_DIR)/%.tar.gz
 # Name mapping for GLEW:
-$(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALLS_DIR)/$(TARBALL_GLEW)
+$(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALL_GLEW)
 # Name mapping for Tcl:
-$(SOURCE_DIR)/$(PACKAGE_TCL): $(TARBALLS_DIR)/$(TARBALL_TCL)
+$(SOURCE_DIR)/$(PACKAGE_TCL): $(TARBALL_TCL)
 # Extraction rule:
 $(foreach PACKAGE,$(PACKAGES_BUILD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	rm -rf $@
@@ -354,14 +356,6 @@ $(foreach PACKAGE,$(PACKAGES_BUILD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	$(PYTHON) build/extract.py $< $(@D) $(@F)
 	test ! -e $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff || $(PYTHON) build/patch.py $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff $(@D)
 	touch $@
-
-# Download source packages.
-TARBALLS:=$(foreach PACKAGE,$(PACKAGES),$(TARBALLS_DIR)/$(TARBALL_$(PACKAGE)))
-download: $(TARBALLS)
-$(TARBALLS):
-	mkdir -p $(@D)
-	$(PYTHON) build/download.py \
-		$(DOWNLOAD_$(call findpackage,TARBALL,$(@F)))/$(@F) $(@D)
 
 endif
 
