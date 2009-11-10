@@ -80,8 +80,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<ReverseCmd> reverseCmd;
 	ReverseHistory history;
-	unsigned collectCount; // 0     = not collecting
-	                       // other = number of snapshot that's about to be taken
+	unsigned collectCount; // nb taken snapshots (0 = not collecting)
 	unsigned replayIndex;
 
 	friend class ReverseCmd;

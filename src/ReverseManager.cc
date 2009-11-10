@@ -120,8 +120,9 @@ void ReverseManager::start()
 {
 	if (!collecting()) {
 		// create first snapshot
-		collectCount = 1;
+		assert(collectCount == 0);
 		executeUntil(getCurrentTime(), NEW_SNAPSHOT);
+		assert(collectCount == 1);
 		// start recording events
 		motherBoard.getStateChangeDistributor().registerRecorder(*this);
 	}
@@ -378,7 +379,7 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 {
 	switch (userData) {
 	case NEW_SNAPSHOT: {
-		assert(collecting());
+		++collectCount;
 		dropOldSnapshots<25>(collectCount);
 
 		MemOutputArchive out;
@@ -388,7 +389,6 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 		newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
 		newChunk.eventCount = replayIndex;
 
-		++collectCount;
 		schedule(time);
 		break;
 	}
@@ -448,15 +448,18 @@ void ReverseManager::stopReplay(EmuTime::param /*time*/)
 	assert(!replaying());
 }
 
-// Should be called each time a new snapshot is added.
-// This function will erase zero or more earlier snapshots so that there are
-// more snapshots of recent history and less of distant history. It has the
-// following properties:
-//  - the very oldest snapshot is never deleted
-//  - it keeps the N or N+1 most recent snapshots (snapshot distance = 1)
-//  - then it keeps N or N+1 with snapshot distance 2
-//  - then N or N+1 with snapshot distance 4
-//  - ... and so on
+/* Should be called each time a new snapshot is added.
+ * This function will erase zero or more earlier snapshots so that there are
+ * more snapshots of recent history and less of distant history. It has the
+ * following properties:
+ *  - the very oldest snapshot is never deleted
+ *  - it keeps the N or N+1 most recent snapshots (snapshot distance = 1)
+ *  - then it keeps N or N+1 with snapshot distance 2
+ *  - then N or N+1 with snapshot distance 4
+ *  - ... and so on
+ * @param count The index of the just added (or about to be added) element.
+ *              First element should have index 1.
+ */
 template<unsigned N>
 void ReverseManager::dropOldSnapshots(unsigned count)
 {
