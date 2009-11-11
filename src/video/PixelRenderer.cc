@@ -120,12 +120,20 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	, spriteChecker(vdp.getSpriteChecker())
 	, rasterizer(display.getVideoSystem().createRasterizer(vdp))
 {
+	// Don't draw before frameStart() is called.
+	// This for example can happen after a loadstate or after switching
+	// renderer in the middle of a frame.
+	renderFrame = false;
+
+	// In case of loadstate we can't yet query any state from the VDP
+	// (because that object is not yet fully deserialized). But
+	// VDP::serialize() will call Renderer::reInit() again when it is
+	// safe to query.
+	reInit();
+
 	finishFrameDuration = 0;
 	frameSkipCounter = 999; // force drawing of frame
-	renderFrame = false; // don't draw before frameStart is called
 	prevRenderFrame = false;
-	displayEnabled = vdp.isDisplayEnabled();
-	rasterizer->reset();
 
 	renderSettings.getMaxFrameSkip().attach(*this);
 	renderSettings.getMinFrameSkip().attach(*this);
@@ -137,11 +145,10 @@ PixelRenderer::~PixelRenderer()
 	renderSettings.getMaxFrameSkip().detach(*this);
 }
 
-void PixelRenderer::reset(EmuTime::param time)
+void PixelRenderer::reInit()
 {
 	rasterizer->reset();
 	displayEnabled = vdp.isDisplayEnabled();
-	frameStart(time);
 }
 
 void PixelRenderer::updateDisplayEnabled(bool enabled, EmuTime::param time)

@@ -33,7 +33,7 @@ public:
 	virtual ~PixelRenderer();
 
 	// Renderer interface:
-	virtual void reset(EmuTime::param time);
+	virtual void reInit();
 	virtual void frameStart(EmuTime::param time);
 	virtual void frameEnd(EmuTime::param time);
 	virtual void updateHorizontalScrollLow(byte scroll, EmuTime::param time);

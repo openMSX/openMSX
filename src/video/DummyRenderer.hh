@@ -14,7 +14,7 @@ class DummyRenderer : public Renderer, public Layer
 {
 public:
 	// Renderer interface:
-	void reset(EmuTime::param time);
+	void reInit();
 	void frameStart(EmuTime::param time);
 	void frameEnd(EmuTime::param time);
 	void updateTransparency(bool enabled, EmuTime::param time);

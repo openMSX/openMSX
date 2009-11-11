@@ -273,7 +273,7 @@ void VDP::reset(EmuTime::param time)
 	resetInit();
 	spriteChecker->reset(time);
 	cmdEngine->reset(time);
-	renderer->reset(time);
+	renderer->reInit();
 
 	// Tell the subsystems of the new mask values.
 	resetMasks(time);
@@ -1334,7 +1334,7 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	// frame. Probably good enough.
 
 	if (ar.isLoader()) {
-		renderer->reset(Schedulable::getCurrentTime());
+		renderer->reInit();
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(VDP);

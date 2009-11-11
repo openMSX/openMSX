@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-void DummyRenderer::reset(EmuTime::param /*time*/) {
+void DummyRenderer::reInit() {
 }
 
 void DummyRenderer::frameStart(EmuTime::param /*time*/) {

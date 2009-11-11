@@ -24,9 +24,8 @@ public:
 	virtual ~Renderer();
 
 	/** Reinitialise Renderer state.
-	  * @param time The moment in time this reset occurs.
 	  */
-	virtual void reset(EmuTime::param time) = 0;
+	virtual void reInit() = 0;
 
 	/** Signals the start of a new frame.
 	  * The Renderer can use this to get fixed-per-frame settings from
