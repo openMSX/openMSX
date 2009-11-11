@@ -39,8 +39,6 @@ export MACOSX_DEPLOYMENT_TARGET
 CC=$(_CC)
 LD=$(_LD)
 
-SOURCE_DIR:=derived/3rdparty/src
-PATCHES_DIR:=build/3rdparty
 TIMESTAMP_DIR:=$(BUILD_PATH)/timestamps
 BUILD_DIR:=$(BUILD_PATH)/build
 INSTALL_DIR:=$(BUILD_PATH)/install
@@ -340,22 +338,6 @@ $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)"
-
-# Extract packages.
-# Name mapping for standardized packages:
-$(foreach PACKAGE,$(PACKAGES_STD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))): \
-  $(SOURCE_DIR)/%: $(TARBALLS_DIR)/%.tar.gz
-# Name mapping for GLEW:
-$(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALL_GLEW)
-# Name mapping for Tcl:
-$(SOURCE_DIR)/$(PACKAGE_TCL): $(TARBALL_TCL)
-# Extraction rule:
-$(foreach PACKAGE,$(PACKAGES_BUILD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
-	rm -rf $@
-	mkdir -p $(@D)
-	$(PYTHON) build/extract.py $< $(@D) $(@F)
-	test ! -e $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff || $(PYTHON) build/patch.py $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff $(@D)
-	touch $@
 
 endif
 
