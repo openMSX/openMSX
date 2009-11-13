@@ -120,11 +120,6 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	, spriteChecker(vdp.getSpriteChecker())
 	, rasterizer(display.getVideoSystem().createRasterizer(vdp))
 {
-	// Don't draw before frameStart() is called.
-	// This for example can happen after a loadstate or after switching
-	// renderer in the middle of a frame.
-	renderFrame = false;
-
 	// In case of loadstate we can't yet query any state from the VDP
 	// (because that object is not yet fully deserialized). But
 	// VDP::serialize() will call Renderer::reInit() again when it is
@@ -147,6 +142,11 @@ PixelRenderer::~PixelRenderer()
 
 void PixelRenderer::reInit()
 {
+	// Don't draw before frameStart() is called.
+	// This for example can happen after a loadstate or after switching
+	// renderer in the middle of a frame.
+	renderFrame = false;
+
 	rasterizer->reset();
 	displayEnabled = vdp.isDisplayEnabled();
 }
