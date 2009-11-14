@@ -216,6 +216,8 @@ void ReverseManager::goBack(const vector<string>& tokens)
 
 string ReverseManager::saveReplay(const vector<string>& tokens)
 {
+	if (history.chunks.empty())
+		throw CommandException("No recording...");
 	if ((tokens.size() != 2) && (tokens.size() != 3)) {
 		throw SyntaxError();
 	}
