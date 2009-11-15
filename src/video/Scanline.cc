@@ -64,8 +64,8 @@ void Multiply<unsigned>::setFactor(unsigned f)
 
 inline unsigned Multiply<unsigned>::multiply(unsigned p, unsigned f) const
 {
-	return ((((p & 0xFF00FF) * f) & 0xFF00FF00) |
-	        (((p & 0x00FF00) * f) & 0x00FF0000)) >> 8;
+	return ((((p       & 0x00FF00FF) * f) & 0xFF00FF00) >> 8)
+	     | ((((p >> 8) & 0x00FF00FF) * f) & 0xFF00FF00);
 }
 
 inline unsigned Multiply<unsigned>::multiply(unsigned p) const
