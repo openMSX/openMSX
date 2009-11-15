@@ -205,16 +205,18 @@ private:
 	GLuint bufferId;
 };
 
+struct PixelBuffers
+{
+	/** Global switch to disable pixel buffers using the "-nopbo" option.
+	  */
+	static bool enabled;
+};
+
 /** Wrapper around a pixel buffer.
   * The pixel buffer will be allocated in VRAM if possible, in main RAM
   * otherwise.
   * The pixel type is templatized T.
   */
-struct PixelBuffers
-{
-	static bool enabled;
-};
-
 template <typename T> class PixelBuffer
 {
 public:
