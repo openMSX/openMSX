@@ -348,19 +348,17 @@ void StoredFrame::drawBlend(
 static GLuint currentId = 0;
 static std::vector<GLuint> stack;
 
-FrameBufferObject::FrameBufferObject(Texture& texture, bool doPush)
+FrameBufferObject::FrameBufferObject(Texture& texture)
 {
 	assert(texture.type == GL_TEXTURE_2D);
 	glGenFramebuffersEXT(1, &bufferId);
-	push();
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferId);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
 	                          GL_COLOR_ATTACHMENT0_EXT,
 	                          GL_TEXTURE_2D, texture.textureId, 0);
 	bool success = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) ==
 	               GL_FRAMEBUFFER_COMPLETE_EXT;
-	if (!doPush) {
-		pop();
-	}
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
 	if (!success) {
 		throw InitException(
 			"Your OpenGL implementation support for "

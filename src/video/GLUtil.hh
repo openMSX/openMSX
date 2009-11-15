@@ -195,7 +195,7 @@ private:
 class FrameBufferObject
 {
 public:
-	explicit FrameBufferObject(Texture& texture, bool doPush = false);
+	explicit FrameBufferObject(Texture& texture);
 	~FrameBufferObject();
 
 	void push();
