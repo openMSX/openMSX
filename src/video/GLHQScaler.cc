@@ -38,12 +38,30 @@ static void transform(const byte* in, byte* out, int n, int s)
 
 GLHQScaler::GLHQScaler()
 {
-	VertexShader   vertexShader  ("hq.vert");
-	FragmentShader fragmentShader("hq.frag");
-	scalerProgram.reset(new ShaderProgram());
-	scalerProgram->attach(vertexShader);
-	scalerProgram->attach(fragmentShader);
-	scalerProgram->link();
+	for (int i = 0; i < 2; ++i) {
+		string header = string("#define SUPERIMPOSE ")
+		              + char('0' + i) + '\n';
+		VertexShader   vertexShader  ("hq.vert");
+		FragmentShader fragmentShader(header, "hq.frag");
+		scalerProgram[i].reset(new ShaderProgram());
+		scalerProgram[i]->attach(vertexShader);
+		scalerProgram[i]->attach(fragmentShader);
+		scalerProgram[i]->link();
+#ifdef GL_VERSION_2_0
+		if (GLEW_VERSION_2_0) {
+			scalerProgram[i]->activate();
+			glUniform1i(scalerProgram[i]->getUniformLocation("colorTex"),  0);
+			if (i == 1) {
+				glUniform1i(scalerProgram[i]->getUniformLocation("videoTex"),   1);
+			}
+			glUniform1i(scalerProgram[i]->getUniformLocation("edgeTex"),   2);
+			glUniform1i(scalerProgram[i]->getUniformLocation("offsetTex"), 3);
+			glUniform1i(scalerProgram[i]->getUniformLocation("weightTex"), 4);
+			glUniform2f(scalerProgram[i]->getUniformLocation("texSize"),
+				    320.0f, 2 * 240.0f);
+		}
+#endif
+	}
 
 	edgeTexture.reset(new Texture());
 	edgeTexture->bind();
@@ -101,47 +119,38 @@ GLHQScaler::GLHQScaler()
 			     buffer);            // data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
-
-#ifdef GL_VERSION_2_0
-	if (GLEW_VERSION_2_0) {
-		scalerProgram->activate();
-		glUniform1i(scalerProgram->getUniformLocation("colorTex"),  0);
-		glUniform1i(scalerProgram->getUniformLocation("edgeTex"),   1);
-		glUniform1i(scalerProgram->getUniformLocation("offsetTex"), 2);
-		glUniform1i(scalerProgram->getUniformLocation("weightTex"), 3);
-		glUniform2f(scalerProgram->getUniformLocation("texSize"),
-		            320.0f, 2 * 240.0f);
-	}
-#endif
 }
 
 void GLHQScaler::scaleImage(
-	ColorTexture& src, ColorTexture* /*TODO superImpose*/,
+	ColorTexture& src, ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	unsigned /*logSrcHeight*/)
+	unsigned logSrcHeight)
 {
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
+	ShaderProgram& prog = *scalerProgram[superImpose ? 1 : 0];
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		assert(src.getHeight() == 2 * 240);
-		glActiveTexture(GL_TEXTURE3);
+		glActiveTexture(GL_TEXTURE4);
 		weightTexture[factorX - 2]->bind();
-		glActiveTexture(GL_TEXTURE2);
+		glActiveTexture(GL_TEXTURE3);
 		offsetTexture[factorX - 2]->bind();
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE2);
 		edgeTexture->bind();
+		if (superImpose) {
+			glActiveTexture(GL_TEXTURE1);
+			superImpose->bind();
+		}
 		glActiveTexture(GL_TEXTURE0);
-		scalerProgram->activate();
+		prog.activate();
 	} else {
-		scalerProgram->deactivate();
+		prog.deactivate();
 	}
 
-	GLfloat height = GLfloat(src.getHeight());
-	src.drawRect(0.0f,  srcStartY            / height,
-	             1.0f, (srcEndY - srcStartY) / height,
-	             0, dstStartY, dstWidth, dstEndY - dstStartY);
+	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
+	             dstStartY, dstEndY, dstWidth);
 }
 
 typedef unsigned Pixel;

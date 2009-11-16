@@ -28,7 +28,7 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 private:
-	std::auto_ptr<ShaderProgram> scalerProgram;
+	std::auto_ptr<ShaderProgram> scalerProgram[2];
 	std::auto_ptr<Texture> edgeTexture;
 	std::auto_ptr<Texture> offsetTexture[3];
 	std::auto_ptr<Texture> weightTexture[3];

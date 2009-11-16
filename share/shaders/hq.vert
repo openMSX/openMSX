@@ -7,6 +7,7 @@ varying vec2 leftTop;
 varying vec2 edgePos;
 varying vec2 weightPos;
 varying vec2 texStep2; // could be uniform
+varying vec2 videoCoord;
 
 void main()
 {
@@ -22,4 +23,6 @@ void main()
 	weightPos = edgePos * texSizeB;
 
 	texStep2 = 2.0 * texStep;
+
+	videoCoord = gl_MultiTexCoord1.st;
 }
