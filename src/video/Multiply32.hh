@@ -27,13 +27,13 @@ public:
 
 	inline unsigned mul32(unsigned p) const
 	{
-		return (((p & 0xFF00FF) * factor) & 0xFF00FF00) |
-		       (((p & 0x00FF00) * factor) & 0x00FF0000);
+		return ((((p       & 0x00FF00FF) * factor) & 0xFF00FF00) >> 8)
+		     | ((((p >> 8) & 0x00FF00FF) * factor) & 0xFF00FF00);
 	}
 
 	inline unsigned conv32(unsigned p) const
 	{
-		return p >> 8;
+		return p;
 	}
 
 private:
