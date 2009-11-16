@@ -131,31 +131,6 @@ public:
 	                 GLbyte* data);
 };
 
-/** Texture used for storing bitmap data from MSX VRAM.
-  */
-class BitmapTexture : public Texture
-{
-public:
-	BitmapTexture();
-	void update(int y, const GLuint* dataBGR, int lineWidth);
-	void draw(int srcL, int srcT, int srcR, int srcB,
-	          int dstL, int dstT, int dstR, int dstB);
-private:
-	static const int WIDTH = 512;
-	static const int HEIGHT = 1024;
-};
-
-// TODO use GL_TEXTURE_1D for this?
-class LineTexture : public Texture
-{
-public:
-	LineTexture();
-	void update(const GLuint* dataBGR, int lineWidth);
-	void draw(int texX, int screenX, int screenY, int width, int height);
-private:
-	int prevLineWidth;
-};
-
 class StoredFrame
 {
 public:
