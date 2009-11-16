@@ -5,6 +5,7 @@ uniform vec2 texSize;
 varying vec2 leftTop;
 varying vec2 edgePos;
 varying vec4 misc;
+varying vec2 videoCoord;
 
 void main()
 {
@@ -18,4 +19,6 @@ void main()
 	vec2 subPixelPos = edgePos * texSize;
 	vec2 texStep2 = 2.0 * texStep;
 	misc = vec4(subPixelPos, texStep2);
+
+	videoCoord = gl_MultiTexCoord1.st;
 }
