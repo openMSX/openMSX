@@ -84,7 +84,7 @@ private:
 	  * @param transparency True iff transparency is enabled.
 	  */
 	void precalcColorIndex0(DisplayMode mode, bool transparency,
-	                         bool superimposing, byte bgcolorIndex);
+	                        const RawFrame* superimposing, byte bgcolorIndex);
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

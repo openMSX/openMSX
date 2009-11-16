@@ -143,7 +143,7 @@ void SDLRasterizer<Pixel>::setSuperimposing(const RawFrame* videoSource)
 {
 	postProcessor->setSuperimposing(videoSource);
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                    videoSource, vdp.getBackgroundColor());
+	                   videoSource, vdp.getBackgroundColor());
 }
 
 template <class Pixel>
@@ -178,7 +178,7 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 		characterConverter->setDisplayMode(mode);
 	}
 	precalcColorIndex0(mode, vdp.getTransparency(),
-	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
+	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
 	spriteConverter->setDisplayMode(mode);
 	spriteConverter->setPalette(mode.getByte() == DisplayMode::GRAPHIC7
 	                            ? palGraphic7Sprites : palBg);
@@ -195,14 +195,14 @@ void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 	bitmapConverter->palette16Changed();
 
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
+	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::setBackgroundColor(int index)
 {
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                    vdp.isSuperimposing(), index);
+	                   vdp.isSuperimposing(), index);
 }
 
 template <class Pixel>
@@ -210,7 +210,7 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 {
 	spriteConverter->setTransparency(enabled);
 	precalcColorIndex0(vdp.getDisplayMode(), enabled,
-	                    vdp.isSuperimposing(), vdp.getBackgroundColor());
+	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
 template <class Pixel>
@@ -323,7 +323,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
-		bool transparency, bool superimposing, byte bgcolorIndex)
+		bool transparency, const RawFrame* superimposing, byte bgcolorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
@@ -332,7 +332,7 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 
 	int tpIndex = transparency ? bgcolorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
-		Pixel c = (superimposing && bgcolorIndex == 0)
+		Pixel c = ((superimposing != 0) && bgcolorIndex == 0)
 		        ? screen.getKeyColor<Pixel>()
 		        : palBg[tpIndex];
 
