@@ -3282,6 +3282,10 @@
 			Name="video"
 			>
 			<File
+				RelativePath="..\..\src\video\GLScaler.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\video\ADVram.cc"
 				>
 			</File>
