@@ -130,7 +130,7 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 	if (address == 0x7fff) {
 		// superimpose
 		superimposing = !(value & 1);
-		vdp->setExternalVideoSource(videoEnabled && superimposing);
+		updateVideoSource();
 
 		// Muting
 		if (!mutel && !(value & 0x80)) {
@@ -159,8 +159,14 @@ void PioneerLDControl::videoIn(bool enabled)
 		irq.set();
 	}
 	videoEnabled = enabled;
-
-	vdp->setExternalVideoSource(videoEnabled && superimposing);
+	updateVideoSource();
+}
+void PioneerLDControl::updateVideoSource()
+{
+	const RawFrame* videoSource = (videoEnabled && superimposing)
+	                            ? laserdisc->getRawFrame()
+	                            : NULL;
+	vdp->setExternalVideoSource(videoSource);
 }
 
 template<typename Archive>
@@ -177,7 +183,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	// TODO serialize laserdisc
 
 	if (ar.isLoader()) {
-		vdp->setExternalVideoSource(videoEnabled && superimposing);
+		updateVideoSource();
 		laserdisc->setMuting(mutel, muter, getCurrentTime());
 	}
 }

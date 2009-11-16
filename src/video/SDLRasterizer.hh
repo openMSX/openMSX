@@ -46,7 +46,7 @@ public:
 	virtual void setPalette(int index, int grb);
 	virtual void setBackgroundColor(int index);
 	virtual void setTransparency(bool enabled);
-	virtual void setSuperimposing(bool enabled);
+	virtual void setSuperimposing(const RawFrame* videoSource);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(
 		int fromX, int fromY,

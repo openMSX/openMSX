@@ -139,11 +139,11 @@ void SDLRasterizer<Pixel>::resetPalette()
 }
 
 template<class Pixel>
-void SDLRasterizer<Pixel>::setSuperimposing(bool enabled)
+void SDLRasterizer<Pixel>::setSuperimposing(const RawFrame* videoSource)
 {
-	postProcessor->setTransparency(enabled);
+	postProcessor->setSuperimposing(videoSource);
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                    enabled, vdp.getBackgroundColor());
+	                    videoSource, vdp.getBackgroundColor());
 }
 
 template <class Pixel>

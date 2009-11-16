@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+class RawFrame;
+
 class Rasterizer
 {
 public:
@@ -54,7 +56,7 @@ public:
 	virtual void setBackgroundColor(int index) = 0;
 
 	virtual void setTransparency(bool enabled) = 0;
-	virtual void setSuperimposing(bool enabled) = 0;
+	virtual void setSuperimposing(const RawFrame* videoSource) = 0;
 
 	/** Render a rectangle of border pixels on the host screen.
 	  * The units are absolute lines (Y) and VDP clockticks (X).

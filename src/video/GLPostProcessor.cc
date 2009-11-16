@@ -227,6 +227,11 @@ RawFrame* GLPostProcessor::rotateFrames(
 	return reuseFrame;
 }
 
+void GLPostProcessor::setSuperimposing(const RawFrame* /*videoSource*/)
+{
+	// TODO
+}
+
 void GLPostProcessor::update(const Setting& setting)
 {
 	VideoLayer::update(setting);

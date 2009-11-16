@@ -19,6 +19,7 @@ class MSXMotherBoard;
 class OggReader;
 class AudioFragment;
 class LDRenderer;
+class RawFrame;
 
 class LaserdiscPlayer : public SoundDevice
 		      , public Schedulable
@@ -36,6 +37,7 @@ public:
 	void setMuting(bool left, bool right, EmuTime::param time);
 	bool extAck(EmuTime::param time) const;
 	void extControl(bool bit, EmuTime::param time);
+	const RawFrame* getRawFrame() const;
 
 	// video interface
 	MSXMotherBoard& getMotherBoard() { return motherBoard; }

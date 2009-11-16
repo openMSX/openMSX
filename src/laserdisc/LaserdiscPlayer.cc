@@ -322,6 +322,11 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	}
 }
 
+const RawFrame* LaserdiscPlayer::getRawFrame() const
+{
+	return renderer->getRawFrame();
+}
+
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
 	PRT_DEBUG("Laserdisc::Lowering ACK for " << std::dec << wait << "ms");

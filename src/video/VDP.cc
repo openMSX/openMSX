@@ -218,7 +218,7 @@ void VDP::resetInit()
 	isDisplayArea = false;
 	displayEnabled = false;
 	superimposing = false;
-	externalVideo = false;
+	externalVideo = NULL;
 
 	// Init status registers.
 	statusReg0 = 0x00;
@@ -523,7 +523,7 @@ void VDP::frameStart(EmuTime::param time)
 	}
 
 	// TODO: Presumably this is done here
-	bool newSuperimposing = (controlRegs[0] & 1) && externalVideo;
+	const RawFrame* newSuperimposing = (controlRegs[0] & 1) ? externalVideo : NULL;
 	if (superimposing != newSuperimposing) {
 		superimposing = newSuperimposing;
 		renderer->updateSuperimposing(superimposing, time);
@@ -1175,9 +1175,9 @@ void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 	//       It's one line of code and overhead is not huge either.
 }
 
-void VDP::setExternalVideoSource(bool enabled)
+void VDP::setExternalVideoSource(const RawFrame* externalSource)
 {
-	externalVideo = enabled;
+	externalVideo = externalSource;
 }
 
 // VDPRegDebug

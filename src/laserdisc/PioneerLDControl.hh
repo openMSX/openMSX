@@ -35,6 +35,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void updateVideoSource();
+
 	const std::auto_ptr<Rom> rom;
 	const std::auto_ptr<LaserdiscPlayer> laserdisc;
 	MSXPPI* ppi;

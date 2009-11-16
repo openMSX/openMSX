@@ -24,6 +24,7 @@ class VDPPaletteDebug;
 class VRAMPointerDebug;
 class CliComm;
 class Display;
+class RawFrame;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -121,9 +122,11 @@ public:
 		return *vram;
 	}
 
-	/** Are we superimposing?
-	  */
-	inline bool isSuperimposing() const {
+	/** Are we currently superimposing?
+	 * In case of superimpose, returns a pointer to the to-be-superimposed
+	 * frame. Returns a NULL pointer if superimpose is not active.
+	 */
+	inline const RawFrame* isSuperimposing() const {
 		// Note that bit 0 of r#0 has no effect on an V9938 or higher,
 		// but this bit is masked out. Also note that on an MSX1, if
 		// bit 0 of r#0 is enabled and there is no external video
@@ -484,7 +487,7 @@ public:
 
 	/** Enable superimposing
 	  */
-	void setExternalVideoSource(bool enabled);
+	void setExternalVideoSource(const RawFrame* externalSource);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -869,11 +872,14 @@ private:
 	/** Is there an external video source which we must superimpose
 	  * upon?
 	  */
-	bool externalVideo;
+	const RawFrame* externalVideo;
 
 	/** Are we currently superimposing?
-	  */
-	bool superimposing;
+	 * This is a combination of the 'externalVideo' member (see above) and
+	 * the superimpose-enable bit in VDP register R#0. This property only
+	 * changes at most once per frame (at the beginning of the frame).
+	 */
+	const RawFrame* superimposing;
 };
 
 } // namespace openmsx

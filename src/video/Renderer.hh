@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class DisplayMode;
+class RawFrame;
 
 /** Abstract base class for Renderers.
   * A Renderer is a class that converts VDP state to visual
@@ -47,11 +48,11 @@ public:
 	virtual void updateTransparency(bool enabled, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP superimposing change.
-	  * @param enabled The new superimposing state.
+	  * @param videoSource Video that should be superimposed, NULL if none.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateSuperimposing(bool enabled, EmuTime::param time) = 0;
-
+	virtual void updateSuperimposing(const RawFrame* videoSource,
+	                                 EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP foreground color change.
 	  * @param color The new foreground color.

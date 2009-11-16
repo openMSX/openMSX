@@ -264,10 +264,10 @@ void PixelRenderer::updateTransparency(
 }
 
 void PixelRenderer::updateSuperimposing (
-	bool enabled, EmuTime::param time)
+	const RawFrame* videoSource, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
-	rasterizer->setSuperimposing(enabled);
+	rasterizer->setSuperimposing(videoSource);
 }
 
 void PixelRenderer::updateForegroundColor(

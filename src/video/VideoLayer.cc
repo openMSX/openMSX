@@ -86,6 +86,9 @@ void VideoLayer::calcCoverage()
 
 void VideoLayer::setTransparency(bool enabled)
 {
+	// This is used to implement superimposing in the SDL renderer.
+	// Should be removed in the future. See also comments in
+	// FBPostProcessor::setSuperimposing().
 	transparency = enabled;
 	calcCoverage();
 }

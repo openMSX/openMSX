@@ -41,7 +41,7 @@ public:
 	virtual void updateBorderMask(bool masked, EmuTime::param time);
 	virtual void updateMultiPage(bool multiPage, EmuTime::param time);
 	virtual void updateTransparency(bool enabled, EmuTime::param time);
-	virtual void updateSuperimposing(bool enabled, EmuTime::param time);
+	virtual void updateSuperimposing(const RawFrame* videoSource, EmuTime::param time);
 	virtual void updateForegroundColor(int color, EmuTime::param time);
 	virtual void updateBackgroundColor(int color, EmuTime::param time);
 	virtual void updateBlinkForegroundColor(int color, EmuTime::param time);

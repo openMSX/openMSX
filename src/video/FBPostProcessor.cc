@@ -371,6 +371,17 @@ RawFrame* FBPostProcessor<Pixel>::rotateFrames(
 	return PostProcessor::rotateFrames(finishedFrame, field, time);
 }
 
+template <class Pixel>
+void FBPostProcessor<Pixel>::setSuperimposing(const RawFrame* videoSource)
+{
+	// TODO In the future we should actually use the passed RawFrame.
+	// Now we use a special "transparent scaler" to implement
+	// superimposing. In the future we should implement superimposing
+	// at the level of each scaler, so that scaler specific effects
+	// can still be applied to the MSX and/or the superimposed frame.
+	setTransparency(videoSource != NULL);
+}
+
 
 // Force template instantiation.
 #if HAVE_16BPP

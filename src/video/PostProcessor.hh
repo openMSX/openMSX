@@ -48,6 +48,8 @@ public:
 		RawFrame* finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
 
+	virtual void setSuperimposing(const RawFrame* videoSource) = 0;
+
 	/** Start/stop recording.
 	  * @param recorder Finished frames should be pushed to this
 	  *                 AviRecorder. Can also be a NULL pointer, meaning
