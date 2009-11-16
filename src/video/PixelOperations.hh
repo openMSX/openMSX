@@ -229,11 +229,13 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 		static const unsigned total = w1 + w2;
 		if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
 			unsigned l2 = IsPow2<total>::log2;
-			unsigned rb = ((p1 & 0xFF00FF) * w1 +
-			               (p2 & 0xFF00FF) * w2) & (0xFF00FF << l2);
-			unsigned g  = ((p1 & 0x00FF00) * w1 +
-			               (p2 & 0x00FF00) * w2) & (0x00FF00 << l2);
-			return (rb | g) >> l2;
+			unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
+			                (p2 & 0x00FF00FF) * w2
+			               ) >> l2) & 0x00FF00FF;
+			unsigned c2 = (((p1 & 0xFF00FF00) >> l2) * w1 +
+			               ((p2 & 0xFF00FF00) >> l2) * w2
+			              ) & 0xFF00FF00;
+			return c1 | c2;
 		} else {
 			unsigned r = (red  (p1) * w1 + red  (p2) * w2) / total;
 			unsigned g = (green(p1) * w1 + green(p2) * w2) / total;
@@ -250,13 +252,13 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 	static const unsigned total = w1 + w2 + w3;
 	if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
 		unsigned l2 = IsPow2<total>::log2;
-		unsigned rb = ((p1 & 0xFF00FF) * w1 +
-		               (p2 & 0xFF00FF) * w2 +
-		               (p3 & 0xFF00FF) * w3) & (0xFF00FF << l2);
-		unsigned g  = ((p1 & 0x00FF00) * w1 +
-		               (p2 & 0x00FF00) * w2 +
-		               (p3 & 0x00FF00) * w3) & (0x00FF00 << l2);
-		return (rb | g) >> l2;
+		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
+		                (p2 & 0x00FF00FF) * w2 +
+		                (p3 & 0x00FF00FF) * w3) >> l2) & 0x00FF00FF;
+		unsigned c2 = (((p1 & 0xFF00FF00) >> l2) * w1 +
+		               ((p2 & 0xFF00FF00) >> l2) * w2 +
+		               ((p3 & 0xFF00FF00) >> l2) * w3) & 0xFF00FF00;
+		return c1 | c2;
 	} else {
 		unsigned r = (red  (p1) * w1 + red  (p2) * w2 + red  (p3) * w3) / total;
 		unsigned g = (green(p1) * w1 + green(p2) * w2 + green(p3) * w3) / total;
@@ -273,15 +275,15 @@ inline Pixel PixelOperations<Pixel>::blend(
 	static const unsigned total = w1 + w2 + w3 + w4;
 	if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
 		unsigned l2 = IsPow2<total>::log2;
-		unsigned rb = ((p1 & 0xFF00FF) * w1 +
-		               (p2 & 0xFF00FF) * w2 +
-		               (p3 & 0xFF00FF) * w3 +
-		               (p4 & 0xFF00FF) * w4) & (0xFF00FF << l2);
-		unsigned g  = ((p1 & 0x00FF00) * w1 +
-		               (p2 & 0x00FF00) * w2 +
-		               (p3 & 0x00FF00) * w3 +
-		               (p4 & 0x00FF00) * w4) & (0x00FF00 << l2);
-		return (rb | g) >> l2;
+		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
+		                (p2 & 0x00FF00FF) * w2 +
+		                (p3 & 0x00FF00FF) * w3 +
+		                (p4 & 0x00FF00FF) * w4) >> l2) & 0x00FF00FF;
+		unsigned c2 = (((p1 & 0xFF00FF00) >> l2) * w1 +
+		               ((p2 & 0xFF00FF00) >> l2) * w2 +
+		               ((p3 & 0xFF00FF00) >> l2) * w3 +
+		               ((p4 & 0xFF00FF00) >> l2) * w4) & 0xFF00FF00;
+		return c1 | c2;
 	} else {
 		unsigned r = (red  (p1) * w1 + red  (p2) * w2 +
 			      red  (p3) * w3 + red  (p4) * w4) / total;
@@ -302,19 +304,19 @@ inline Pixel PixelOperations<Pixel>::blend(
 	static const unsigned total = w1 + w2 + w3 + w4 + w5 + w6;
 	if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
 		unsigned l2 = IsPow2<total>::log2;
-		unsigned rb = ((p1 & 0xFF00FF) * w1 +
-		               (p2 & 0xFF00FF) * w2 +
-		               (p3 & 0xFF00FF) * w3 +
-		               (p4 & 0xFF00FF) * w4 +
-		               (p5 & 0xFF00FF) * w5 +
-		               (p6 & 0xFF00FF) * w6) & (0xFF00FF << l2);
-		unsigned g  = ((p1 & 0x00FF00) * w1 +
-		               (p2 & 0x00FF00) * w2 +
-		               (p3 & 0x00FF00) * w3 +
-		               (p4 & 0x00FF00) * w4 +
-		               (p5 & 0x00FF00) * w5 +
-		               (p6 & 0x00FF00) * w6) & (0x00FF00 << l2);
-		return (rb | g) >> l2;
+		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
+		                (p2 & 0x00FF00FF) * w2 +
+		                (p3 & 0x00FF00FF) * w3 +
+		                (p4 & 0x00FF00FF) * w4 +
+		                (p5 & 0x00FF00FF) * w5 +
+		                (p6 & 0x00FF00FF) * w6) >> l2) & 0x00FF00FF;
+		unsigned c2 = (((p1 & 0xFF00FF00) >> l2) * w1 +
+		               ((p2 & 0xFF00FF00) >> l2) * w2 +
+		               ((p3 & 0xFF00FF00) >> l2) * w3 +
+		               ((p4 & 0xFF00FF00) >> l2) * w4 +
+		               ((p5 & 0xFF00FF00) >> l2) * w5 +
+		               ((p6 & 0xFF00FF00) >> l2) * w6) & 0xFF00FF00;
+		return c1 | c2;
 	} else {
 		unsigned r = (red  (p1) * w1 + red  (p2) * w2 +
 		              red  (p3) * w3 + red  (p4) * w4 +
