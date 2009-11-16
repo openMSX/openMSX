@@ -86,10 +86,10 @@ unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
 	const unsigned areaA = 0x100 - areaB;
 
 	const unsigned result0 =
-		(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB;
+		((a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB) >> 8;
 	const unsigned result1 =
-		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB;
-	return ((result0 & (0xFF00FFu << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
+		((a & 0xFF00FF00) >> 8) * areaA + ((b & 0xFF00FF00) >> 8) * areaB;
+	return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 }
 
 template <typename Pixel>
@@ -133,12 +133,12 @@ unsigned bilinear4<unsigned>(
 	const unsigned areaD = xy;
 
 	const unsigned result0 =
-		(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB +
-		(c & 0x00FF00FF) * areaC + (d & 0x00FF00FF) * areaD;
+		((a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB +
+		 (c & 0x00FF00FF) * areaC + (d & 0x00FF00FF) * areaD) >> 8;
 	const unsigned result1 =
-		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB +
-		(c & 0x0000FF00) * areaC + (d & 0x0000FF00) * areaD;
-	return ((result0 & (0xFF00FFu << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
+		((a & 0xFF00FF00) >> 8) * areaA + ((b & 0xFF00FF00) >> 8) * areaB +
+		((c & 0xFF00FF00) >> 8) * areaC + ((d & 0xFF00FF00) >> 8) * areaD;
+	return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 }
 
 template <typename Pixel>
@@ -176,11 +176,12 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 		return (result & redblueMask) | ((result >> 16) & greenMask);
 	} else {
 		const unsigned result0 =
-			(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB;
+			((a & 0x00FF00FF) * areaA +
+			 (b & 0x00FF00FF) * areaB) >> bits;
 		const unsigned result1 =
-			(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB;
-		return ((result0 & (0xFF00FFu << bits)) |
-		        (result1 & (0x00FF00u << bits))) >> bits;
+			((a & 0xFF00FF00) >> bits) * areaA +
+			((b & 0xFF00FF00) >> bits) * areaB;
+		return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 	}
 }
 
@@ -207,13 +208,16 @@ inline Pixel Blender<Pixel>::blend(
 		return (result & redblueMask) | ((result >> 16) & greenMask);
 	} else {
 		const unsigned result0 =
-			(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB +
-			(c & 0x00FF00FF) * areaC + (d & 0x00FF00FF) * areaD;
+			((a & 0x00FF00FF) * areaA +
+			 (b & 0x00FF00FF) * areaB +
+			 (c & 0x00FF00FF) * areaC +
+			 (d & 0x00FF00FF) * areaD) >> bits;
 		const unsigned result1 =
-			(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB +
-			(c & 0x0000FF00) * areaC + (d & 0x0000FF00) * areaD;
-		return ((result0 & (0xFF00FFu << bits)) |
-		        (result1 & (0x00FF00u << bits))) >> bits;
+			((a & 0xFF00FF00) >> bits) * areaA +
+			((b & 0xFF00FF00) >> bits) * areaB +
+			((c & 0xFF00FF00) >> bits) * areaC +
+			((d & 0xFF00FF00) >> bits) * areaD;
+		return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 	}
 }
 
