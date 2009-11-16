@@ -6,6 +6,7 @@ varying vec4 posABCD;
 varying vec4 posEL;
 varying vec4 posGJ;
 varying vec3 scaled;
+varying vec2 videoCoord;
 
 void main()
 {
@@ -22,4 +23,6 @@ void main()
 	scaled.x =        gl_MultiTexCoord0.s  * texSize.x;
 	scaled.y = (1.0 - gl_MultiTexCoord0.s) * texSize.x;
 	scaled.z =        gl_MultiTexCoord0.t  * texSize.y;
+
+	videoCoord = gl_MultiTexCoord1.st;
 }

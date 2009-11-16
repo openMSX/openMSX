@@ -18,13 +18,14 @@ public:
 	GLSaIScaler();
 
 	virtual void scaleImage(
-		ColorTexture& src,
+		ColorTexture& src, ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
+		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+		unsigned logSrcHeight);
 
 private:
-	std::auto_ptr<ShaderProgram> scalerProgram;
-	GLint texSizeLoc;
+	std::auto_ptr<ShaderProgram> scalerProgram[2];
+	GLint texSizeLoc[2];
 };
 
 } // namespace openmsx

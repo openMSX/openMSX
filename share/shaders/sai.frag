@@ -1,18 +1,20 @@
 // $Id: $
 
 uniform sampler2D tex;
+uniform sampler2D videoTex;
 
 varying vec4 posABCD;
 varying vec4 posEL;
 varying vec4 posGJ;
 varying vec3 scaled;
+varying vec2 videoCoord;
 
 void swap(inout vec4 a, inout vec4 b)
 {
 	vec4 t = a; a = b; b = t;
 }
 
-void main()
+vec4 sai()
 {
 	vec4 A = texture2D(tex, posABCD.xy);
 	vec4 B = texture2D(tex, posABCD.zy);
@@ -50,19 +52,30 @@ void main()
 		bvec4 b8 = l.ywzx && b7.xzyw;
 
 		if (b8.x) {
-			gl_FragColor = mix(A, B, -d.y);
+			return mix(A, B, -d.y);
 		} else if (b8.y) {
-			gl_FragColor = mix(A, C,  d.y);
+			return mix(A, C,  d.y);
 		} else if (b8.z) {
-			gl_FragColor = mix(A, B,  d.x);
+			return mix(A, B,  d.x);
 		} else if (b8.w) {
-			gl_FragColor = mix(A, C, -d.x);
+			return mix(A, C, -d.x);
 		} else if (d2 < 0.0) {
-			gl_FragColor = mix(A, B, -d2);
+			return mix(A, B, -d2);
 		} else {
-			gl_FragColor = mix(A, C,  d2);
+			return mix(A, C,  d2);
 		}
 	} else {
-		gl_FragColor = mix(mix(A, B, pp.x), mix(C, D, pp.x), pp.z);
+		return mix(mix(A, B, pp.x), mix(C, D, pp.x), pp.z);
 	}
+}
+
+void main()
+{
+#if SUPERIMPOSE
+	vec4 col = sai();
+	vec4 vid = texture2D(videoTex, videoCoord);
+	gl_FragColor = mix(vid, col, col.a);
+#else
+	gl_FragColor = sai();
+#endif
 }
