@@ -23,9 +23,10 @@ GLScaleNxScaler::GLScaleNxScaler()
 }
 
 void GLScaleNxScaler::scaleImage(
-	ColorTexture& src,
+	ColorTexture& src, ColorTexture* /*TODO superImpose*/,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	unsigned /*logSrcHeight*/)
 {
 	GLfloat height = GLfloat(src.getHeight());
 	if (srcWidth == 320) {

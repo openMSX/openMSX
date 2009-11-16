@@ -27,9 +27,10 @@ GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
 }
 
 void GLRGBScaler::scaleImage(
-	ColorTexture& src,
+	ColorTexture& src, ColorTexture* /*TODO superImpose*/,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	unsigned /*logSrcHeight*/)
 {
 	GLfloat blur = renderSettings.getBlurFactor() / 256.0f;
 	GLfloat scanline = renderSettings.getScanlineFactor() / 255.0f;

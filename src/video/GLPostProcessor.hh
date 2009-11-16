@@ -73,6 +73,9 @@ private:
 	typedef std::map<unsigned, TextureData> Textures;
 	Textures textures;
 
+	std::auto_ptr<ColorTexture> superImposeTex;
+	const RawFrame* superImposeFrame;
+
 	struct Region {
 		Region(unsigned srcStartY_, unsigned srcEndY_,
 		       unsigned dstStartY_, unsigned dstEndY_,

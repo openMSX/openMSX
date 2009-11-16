@@ -7,6 +7,7 @@
 #include "FloatSetting.hh"
 #include "EnumSetting.hh"
 #include "OutputSurface.hh"
+#include "RawFrame.hh"
 #include "Math.hh"
 #include "MemoryOps.hh"
 #include "InitException.hh"
@@ -46,6 +47,8 @@ GLPostProcessor::GLPostProcessor(
 	noiseX = 0.0;
 	noiseY = 0.0;
 	preCalcNoise(renderSettings.getNoise().getValue());
+
+	superImposeFrame = NULL;
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
@@ -176,10 +179,13 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	it->srcStartY, it->srcEndY, it->lineWidth);
 		assert(textures.find(it->lineWidth) != textures.end());
+		ColorTexture* superImpose = superImposeFrame
+		                          ? superImposeTex.get() : NULL;
 		currScaler->scaleImage(
-			*textures[it->lineWidth].tex,
-			it->srcStartY, it->srcEndY, it->lineWidth,      // src
-			it->dstStartY, it->dstEndY, screen.getWidth()); // dst
+			*textures[it->lineWidth].tex, superImpose,
+			it->srcStartY, it->srcEndY, it->lineWidth,     // src
+			it->dstStartY, it->dstEndY, screen.getWidth(), // dst
+			paintFrame->getHeight()); // dst
 		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
 
@@ -227,9 +233,9 @@ RawFrame* GLPostProcessor::rotateFrames(
 	return reuseFrame;
 }
 
-void GLPostProcessor::setSuperimposing(const RawFrame* /*videoSource*/)
+void GLPostProcessor::setSuperimposing(const RawFrame* videoSource)
 {
-	// TODO
+	superImposeFrame = videoSource;
 }
 
 void GLPostProcessor::update(const Setting& setting)
@@ -258,6 +264,28 @@ void GLPostProcessor::uploadFrame()
 		uploadBlock(std::max<int>(0,         it->srcStartY - before),
 		            std::min<int>(srcHeight, it->srcEndY   + after),
 		            it->lineWidth);
+	}
+
+	if (superImposeFrame) {
+		int width  = superImposeFrame->getWidth();
+		int height = superImposeFrame->getHeight();
+		if (!superImposeTex.get() ||
+		    superImposeTex->getWidth()  != width ||
+		    superImposeTex->getHeight() != height) {
+			superImposeTex.reset(new ColorTexture(width, height));
+			superImposeTex->enableInterpolation();
+		}
+		superImposeTex->bind();
+		glTexSubImage2D(
+			GL_TEXTURE_2D,     // target
+			0,                 // level
+			0,                 // offset x
+			0,                 // offset y
+			width,             // width
+			height,            // height
+			GL_BGRA,           // format
+			GL_UNSIGNED_BYTE,  // type
+			const_cast<RawFrame*>(superImposeFrame)->getLinePtrDirect<unsigned>(0)); // data
 	}
 }
 

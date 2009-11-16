@@ -28,9 +28,10 @@ GLTVScaler::~GLTVScaler()
 }
 
 void GLTVScaler::scaleImage(
-	ColorTexture& src,
+	ColorTexture& src, ColorTexture* /*TODO superImpose*/,
 	unsigned srcStartY, unsigned srcEndY, unsigned /*srcWidth*/,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	unsigned /*logSrcHeight*/)
 {
 	GLfloat height = GLfloat(src.getHeight());
 	scalerProgram->activate();

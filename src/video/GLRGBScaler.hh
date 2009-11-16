@@ -18,9 +18,10 @@ public:
 	explicit GLRGBScaler(RenderSettings& renderSettings);
 
 	virtual void scaleImage(
-		ColorTexture& src,
+		ColorTexture& src, ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
+		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+		unsigned logSrcHeight);
 
 private:
 	RenderSettings& renderSettings;

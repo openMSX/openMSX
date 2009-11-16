@@ -397,8 +397,13 @@ protected:
 	  * @param filename The GLSL source code for the shader.
 	  */
 	Shader(GLenum type, const std::string& filename);
+	Shader(GLenum type, const std::string& header,
+	                    const std::string& filename);
 
 private:
+	void init(GLenum type, const std::string& header,
+	                       const std::string& filename);
+
 	friend class ShaderProgram;
 
 	GLuint handle;
@@ -414,6 +419,7 @@ public:
 	  * @param filename The GLSL source code for the shader.
 	  */
 	explicit VertexShader(const std::string& filename);
+	VertexShader(const std::string& header, const std::string& filename);
 };
 
 /** Wrapper around an OpenGL fragment shader:
@@ -426,6 +432,7 @@ public:
 	  * @param filename The GLSL source code for the shader.
 	  */
 	explicit FragmentShader(const std::string& filename);
+	FragmentShader(const std::string& header, const std::string& filename);
 };
 
 /** Wrapper around an OpenGL program:

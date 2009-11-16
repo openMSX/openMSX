@@ -6,6 +6,7 @@
 #include "noncopyable.hh"
 #include <algorithm>
 #include <vector>
+#include <cassert>
 
 struct SDL_PixelFormat;
 
@@ -61,6 +62,22 @@ public:
 		unsigned width;
 		getLineInfo(line, width); // ignore return value
 		return width;
+	}
+
+	/** Get the width of (all) lines in this frame.
+	 * This only makes sense when all lines have the same width, so this
+	 * methods asserts that all lines actually have the same width. This
+	 * is for example not always the case for MSX frames, but it is for
+	 * video frames (for superimpose).
+	 */
+	unsigned getWidth() const {
+		unsigned height = getHeight();
+		assert(height > 0);
+		unsigned result = getLineWidth(0);
+		for (unsigned line = 1; line < height; ++line) {
+			assert(result == getLineWidth(line));
+		}
+		return result;
 	}
 
 	/** Gets a pointer to the pixels of the given line number.

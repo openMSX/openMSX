@@ -97,9 +97,10 @@ GLHQLiteScaler::GLHQLiteScaler()
 }
 
 void GLHQLiteScaler::scaleImage(
-	ColorTexture& src,
+	ColorTexture& src, ColorTexture* /*TODO superImpose*/,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	unsigned /*logSrcHeight*/)
 {
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);

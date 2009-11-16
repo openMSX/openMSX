@@ -19,9 +19,10 @@ public:
 	GLHQScaler();
 
 	virtual void scaleImage(
-		ColorTexture& src,
+		ColorTexture& src, ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
+		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+		unsigned logSrcHeight);
 	virtual void uploadBlock(
 		unsigned srcStartY, unsigned srcEndY,
 		unsigned lineWidth, FrameSource& paintFrame);

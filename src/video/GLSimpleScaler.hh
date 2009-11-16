@@ -18,16 +18,19 @@ public:
 	explicit GLSimpleScaler(RenderSettings& renderSettings);
 
 	virtual void scaleImage(
-		ColorTexture& src,
+		ColorTexture& src, ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
+		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+		unsigned logSrcHeight);
 
 private:
 	RenderSettings& renderSettings;
-	std::auto_ptr<ShaderProgram> scalerProgram;
-	int texSizeLoc;
-	int texStepXLoc;
-	int cnstLoc;
+	struct Data {
+		std::auto_ptr<ShaderProgram> scalerProgram;
+		int texSizeLoc;
+		int texStepXLoc;
+		int cnstLoc;
+	} data[2];
 };
 
 } // namespace openmsx

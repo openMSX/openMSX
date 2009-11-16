@@ -67,12 +67,9 @@ DIST:= \
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLOutputSurface SDLGLVisibleSurface SDLGLOffScreenSurface \
 	GLSnow GLUtil GLImage \
-	GLPostProcessor GLScalerFactory \
+	GLPostProcessor GLScalerFactory GLScaler \
 	GLSimpleScaler GLScaleNxScaler GLSaIScaler GLTVScaler \
 	GLRGBScaler GLHQScaler GLHQLiteScaler
-
-HDR_ONLY_$(COMPONENT_GL)+= \
-	GLScaler
 
 include build/node-end.mk
 

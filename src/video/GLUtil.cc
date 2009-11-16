@@ -299,6 +299,16 @@ static string readTextFile(const string& filename)
 #ifdef GL_VERSION_2_0
 Shader::Shader(GLenum type, const string& filename)
 {
+	init(type, "", filename);
+}
+
+Shader::Shader(GLenum type, const string& header, const string& filename)
+{
+	init(type, header, filename);
+}
+
+void Shader::init(GLenum type, const string& header, const string& filename)
+{
 	// Check if GL 2.0 is present on this machine.
 	if (!GLEW_VERSION_2_0) {
 		handle = 0;
@@ -306,9 +316,9 @@ Shader::Shader(GLenum type, const string& filename)
 	}
 
 	// Load shader source.
-	string source;
+	string source = header;
 	try {
-		source = readTextFile("shaders/" + filename);
+		source += readTextFile("shaders/" + filename);
 	} catch (FileException& e) {
 		std::cerr << "Cannot find shader: " << e.getMessage() << std::endl;
 		handle = 0;
@@ -383,6 +393,11 @@ VertexShader::VertexShader(const string& filename)
 {
 }
 
+VertexShader::VertexShader(const string& header, const string& filename)
+	: Shader(GL_VERTEX_SHADER, header, filename)
+{
+}
+
 
 // class FragmentShader
 
@@ -393,6 +408,11 @@ VertexShader::VertexShader(const string& filename)
 #endif
 FragmentShader::FragmentShader(const string& filename)
 	: Shader(GL_FRAGMENT_SHADER, filename)
+{
+}
+
+FragmentShader::FragmentShader(const string& header, const string& filename)
+	: Shader(GL_FRAGMENT_SHADER, header, filename)
 {
 }
 
