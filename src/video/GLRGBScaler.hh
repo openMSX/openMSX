@@ -25,9 +25,11 @@ public:
 
 private:
 	RenderSettings& renderSettings;
-	std::auto_ptr<ShaderProgram> scalerProgram;
-	int texSizeLoc;
-	int cnstsLoc;
+	struct Data {
+		std::auto_ptr<ShaderProgram> scalerProgram;
+		int texSizeLoc;
+		int cnstsLoc;
+	} data[2];
 };
 
 } // namespace openmsx
