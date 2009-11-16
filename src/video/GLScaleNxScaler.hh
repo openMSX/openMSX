@@ -24,8 +24,8 @@ public:
 		unsigned logSrcHeight);
 
 private:
-	std::auto_ptr<ShaderProgram> scalerProgram;
-	GLint texSizeLoc;
+	std::auto_ptr<ShaderProgram> scalerProgram[2];
+	GLint texSizeLoc[2];
 };
 
 } // namespace openmsx
