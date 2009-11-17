@@ -307,7 +307,7 @@ void Scanline<Pixel>::draw(
 
 		darkener.setFactor(factor);
 		const Pixel* table = darkener.getTable();
-		Pixel mask = ~pixelOps.getBlendMask();
+		Pixel mask = pixelOps.getBlendMask();
 
 		asm (
 			"movd	%5, %%mm7;"

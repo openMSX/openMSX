@@ -67,16 +67,24 @@ public:
 	          unsigned w4, unsigned w5, unsigned w6>
 	inline Pixel blend6(const Pixel* p) const;
 
+	/** Returns a constant that is useful to calculate the average of
+	  * two pixel values. See the implementation of blend(p1, p2) for
+	  * more details.
+	  * For single pixels it's of course better to use the blend(p1, p2)
+	  * method directly. This method is typically used as a helper in
+	  * older SIMD (MMX/SSE1) routines.
+	  */
 	inline Pixel getBlendMask() const;
 
 private:
-	/** Mask used for blending.
-	  * The least significant bit of R,G,B must be 1,
-	  * all other bits must be 0.
-	  *     0000BBBBGGGGRRRR
-	  * --> 0000000100010001
-	  */
 	const SDL_PixelFormat* format;
+
+	/** Mask used for blending.
+	  * The least significant bit of R,G,B must be 0,
+	  * all other bits must be 1.
+	  *     0000BBBBGGGGRRRR
+	  * --> 1111111011101110
+	  */
 	Pixel blendMask;
 
 	// TODO: These are workarounds for utility classes that should be
@@ -96,7 +104,7 @@ PixelOperations<Pixel>::PixelOperations(const SDL_PixelFormat& format_)
 	int rBit = ~(format->Rmask << 1) & format->Rmask;
 	int gBit = ~(format->Gmask << 1) & format->Gmask;
 	int bBit = ~(format->Bmask << 1) & format->Bmask;
-	blendMask = rBit | gBit | bBit;
+	blendMask = ~(rBit | gBit | bBit);
 }
 
 
@@ -222,9 +230,14 @@ template <unsigned w1, unsigned w2>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 {
 	if (w1 == w2) {
-		return ((p1 & ~blendMask) >> 1) +
-		       ((p2 & ~blendMask) >> 1) +
-		        (p1 &  blendMask);
+		// average can be calculated as:
+		//    (x+y)/2 = (x&y) + (x^y)/2
+		// see "Average of Integers" on http://aggregate.org/MAGIC/
+		if (sizeof(Pixel) == 4) {
+			return (p1 & p2) + (((p1 ^ p2) & 0xFEFEFEFE) >> 1);
+		} else {
+			return (p1 & p2) + (((p1 ^ p2) &  blendMask) >> 1);
+		}
 	} else {
 		static const unsigned total = w1 + w2;
 		if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {

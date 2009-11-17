@@ -705,7 +705,7 @@ void Scale_2on1<Pixel>::operator()(
 	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
 		// extended-MMX routine, 16bpp
 		assert(((2 * width) % 16) == 0);
-		unsigned mask = pixelOps.getBlendMask();
+		unsigned mask = ~pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
 			"movd	%2, %%mm7;"
@@ -767,7 +767,7 @@ void Scale_2on1<Pixel>::operator()(
 	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
 		// MMX routine, 16bpp
 		assert(((2 * width) % 16) == 0);
-		unsigned mask = pixelOps.getBlendMask();
+		unsigned mask = ~pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
 			"movd	%2, %%mm7;"
