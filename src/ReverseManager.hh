@@ -4,6 +4,7 @@
 #define REVERSEMANGER_HH
 
 #include "Schedulable.hh"
+#include "EventListener.hh"
 #include "StateChangeListener.hh"
 #include "EmuTime.hh"
 #include "shared_ptr.hh"
@@ -14,10 +15,12 @@
 namespace openmsx {
 
 class MSXMotherBoard;
+class EventDistributor;
 class ReverseCmd;
 class MemBuffer;
 
-class ReverseManager : private Schedulable, private StateChangeListener
+class ReverseManager : private Schedulable, private EventListener
+                     , private StateChangeListener
 {
 public:
 	ReverseManager(MSXMotherBoard& motherBoard);
@@ -65,6 +68,7 @@ private:
                              unsigned oldCollectCount,
                              unsigned oldEventCount);
 	void restoreReplayLog(Events events);
+	void takeSnapshot(EmuTime::param time);
 	void schedule(EmuTime::param time);
 	void replayNextEvent();
 	template<unsigned N> void dropOldSnapshots(unsigned count);
@@ -73,15 +77,20 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual const std::string& schedName() const;
 
+	// EventListener
+	virtual bool signalEvent(shared_ptr<const Event> event);
+
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<StateChange> event);
 	virtual void stopReplay(EmuTime::param time);
 
 	MSXMotherBoard& motherBoard;
+	EventDistributor& eventDistributor;
 	const std::auto_ptr<ReverseCmd> reverseCmd;
 	ReverseHistory history;
 	unsigned collectCount; // nb taken snapshots (0 = not collecting)
 	unsigned replayIndex;
+	bool pendingTakeSnapshot;
 
 	friend class ReverseCmd;
 	friend struct Replay;

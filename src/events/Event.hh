@@ -49,6 +49,9 @@ enum EventType
 	/** Send when hotkey command should be repeated */
 	OPENMSX_REPEAT_HOTKEY,
 
+	/** Used to schedule 'taking reverse snapshots' between Z80 instructions. */
+	OPENMSX_TAKE_REVERSE_SNAPSHOT,
+
 	/** Command received on CliComm connection */
 	OPENMSX_CLICOMMAND_EVENT,
 

@@ -2,6 +2,7 @@
 
 #include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
+#include "EventDistributor.hh"
 #include "StateChangeDistributor.hh"
 #include "XMLException.hh"
 #include "XMLElement.hh"
@@ -93,10 +94,14 @@ enum SyncType {
 ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
+	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, reverseCmd(new ReverseCmd(*this, motherBoard.getCommandController()))
 	, collectCount(0)
 	, replayIndex(0)
+	, pendingTakeSnapshot(false)
 {
+	eventDistributor.registerEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
+
 	assert(!collecting());
 	assert(!replaying());
 }
@@ -104,6 +109,8 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 ReverseManager::~ReverseManager()
 {
 	stop();
+
+	eventDistributor.unregisterEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
 }
 
 bool ReverseManager::collecting() const
@@ -121,7 +128,7 @@ void ReverseManager::start()
 	if (!collecting()) {
 		// create first snapshot
 		assert(collectCount == 0);
-		executeUntil(getCurrentTime(), NEW_SNAPSHOT);
+		takeSnapshot(getCurrentTime());
 		assert(collectCount == 1);
 		// start recording events
 		motherBoard.getStateChangeDistributor().registerRecorder(*this);
@@ -380,20 +387,37 @@ void ReverseManager::restoreReplayLog(Events events)
 void ReverseManager::executeUntil(EmuTime::param time, int userData)
 {
 	switch (userData) {
-	case NEW_SNAPSHOT: {
-		++collectCount;
-		dropOldSnapshots<25>(collectCount);
-
-		MemOutputArchive out;
-		out.serialize("machine", motherBoard);
-		ReverseChunk& newChunk = history.chunks[collectCount];
-		newChunk.time = time;
-		newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
-		newChunk.eventCount = replayIndex;
-
-		schedule(time);
+	case NEW_SNAPSHOT:
+		// During record we should take regular snapshots, and 'now'
+		// it's been a while since the last snapshot. But 'now' can be
+		// in the middle of a CPU instruction (1). However the CPU
+		// emulation code cannot handle taking snapshots at arbitrary
+		// moments in EmuTime (2)(3)(4). So instead we send out an
+		// event that indicates we want to take a snapshot (5).
+		// (1) Schedulables are executed at the exact requested
+		//     EmuTime, even in the middle of a Z80 instruction.
+		// (2) The CPU code serializes all registers, current time and
+		//     various other status info, but not enough info to be
+		//     able to resume in the middle of an instruction.
+		// (3) Only the CPU has this limitation of not being able to
+		//     take a snapshot at any EmuTime, all other devices can.
+		//     This is because in our emulation model the CPU 'drives
+		//     time forward'. It's the only device code that can be
+		//     interrupted by other emulation code (via Schedulables).
+		// (4) In the past we had a CPU core that could execute/resume
+		//     partial instructions (search SVN history). Though it was
+		//     much more complex and it also ran slower than the
+		//     current code.
+		// (5) Events are delivered from the Reactor code. That code
+		//     only runs when the CPU code has exited (meaning no
+		//     longer active in any stackframe). So it's executed right
+		//     after the CPU has finished the current instruction. And
+		//     that's OK, we only require regular snapshots here, they
+		//     should not be *exactly* equally far apart in time.
+		pendingTakeSnapshot = true;
+		eventDistributor.distributeEvent(
+			new SimpleEvent(OPENMSX_TAKE_REVERSE_SNAPSHOT));
 		break;
-	}
 	case INPUT_EVENT:
 		shared_ptr<StateChange> event = history.events[replayIndex];
 		try {
@@ -411,6 +435,35 @@ void ReverseManager::executeUntil(EmuTime::param time, int userData)
 		}
 		break;
 	}
+}
+
+bool ReverseManager::signalEvent(shared_ptr<const Event> event)
+{
+	(void)event;
+	assert(event->getType() == OPENMSX_TAKE_REVERSE_SNAPSHOT);
+
+	// This event is send to all MSX machines, make sure it's actually this
+	// machine that requested the snapshot.
+	if (pendingTakeSnapshot) {
+		pendingTakeSnapshot = false;
+		takeSnapshot(getCurrentTime());
+	}
+	return true;
+}
+
+void ReverseManager::takeSnapshot(EmuTime::param time)
+{
+	++collectCount;
+	dropOldSnapshots<25>(collectCount);
+
+	MemOutputArchive out;
+	out.serialize("machine", motherBoard);
+	ReverseChunk& newChunk = history.chunks[collectCount];
+	newChunk.time = time;
+	newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
+	newChunk.eventCount = replayIndex;
+
+	schedule(getCurrentTime());
 }
 
 void ReverseManager::replayNextEvent()
