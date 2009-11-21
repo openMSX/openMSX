@@ -83,7 +83,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
 		string offsetName = StringOp::Builder() <<
-			"shaders/HQ" << n << "xLiteOffset.dat";
+			"shaders/HQ" << n << "xLiteOffsets.dat";
 		File offsetFile(context.resolve(*controller, offsetName));
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
