@@ -112,10 +112,7 @@ def genSwitch(pixelExpr, narrow):
 	yield '}\n'
 
 def computeXY(pixelExpr):
-	# TODO: Would None instead of -1 be better?
-	#       As far as I can see, the value is used to fill positions that
-	#       are unused: the value only tested, never computed with.
-	xy = [[[-1] * 2 for _ in range(4)] for _ in range(1 << 12)]
+	xy = [[[None] * 2 for _ in range(4)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(4):
 			j = 0
@@ -128,15 +125,15 @@ def computeXY(pixelExpr):
 
 def transformOffsets(weights_, neighbours):
 	return [
-		( min(255, (1 if neighbour == -1 else neighbour % 3) * 128),
-		  min(255, (1 if neighbour == -1 else neighbour / 3) * 128) )
+		( min(255, (1 if neighbour is None else neighbour % 3) * 128),
+		  min(255, (1 if neighbour is None else neighbour / 3) * 128) )
 		for neighbour in neighbours
 		]
 
 def transformWeights(weights, cells):
 	factor = 256 / sum(weights)
 	return tuple(
-		min(255, 0 if c == -1 else factor * weights[c])
+		min(255, 0 if c is None else factor * weights[c])
 		for c in cells
 		)
 
