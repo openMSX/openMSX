@@ -1,0 +1,4143 @@
+bool edge(unsigned a, unsigned b);
+
+template <unsigned W1, unsigned W2>
+unsigned interpolate(unsigned a, unsigned b);
+
+template <unsigned W1, unsigned W2, unsigned W3>
+unsigned interpolate(unsigned a, unsigned b, unsigned c);
+
+void f()
+{
+	unsigned pixel0, pixel1, pixel2, pixel3;
+	unsigned pixel4, pixel5, pixel6, pixel7;
+	unsigned pixel8, pixel9, pixela, pixelb;
+	unsigned pixelc, pixeld, pixele, pixelf;
+
+	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
+
+	unsigned char pattern;
+
+	switch (pattern) {
+	case 0:
+	case 1:
+	case 4:
+	case 32:
+	case 128:
+	case 5:
+	case 132:
+	case 160:
+	case 33:
+	case 129:
+	case 36:
+	case 133:
+	case 164:
+	case 161:
+	case 37:
+	case 165:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 2:
+	case 34:
+	case 130:
+	case 162:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 16:
+	case 17:
+	case 48:
+	case 49:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 64:
+	case 65:
+	case 68:
+	case 69:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 8:
+	case 12:
+	case 136:
+	case 140:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 3:
+	case 35:
+	case 131:
+	case 163:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 6:
+	case 38:
+	case 134:
+	case 166:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 20:
+	case 21:
+	case 52:
+	case 53:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 144:
+	case 145:
+	case 176:
+	case 177:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 192:
+	case 193:
+	case 196:
+	case 197:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 96:
+	case 97:
+	case 100:
+	case 101:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 40:
+	case 44:
+	case 168:
+	case 172:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 9:
+	case 13:
+	case 137:
+	case 141:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 18:
+	case 50:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 80:
+	case 81:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 72:
+	case 76:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 10:
+	case 138:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+			pixel5 = c5;
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 66:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 24:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 7:
+	case 39:
+	case 135:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 148:
+	case 149:
+	case 180:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 224:
+	case 228:
+	case 225:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 41:
+	case 169:
+	case 45:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 22:
+	case 54:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 208:
+	case 209:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 104:
+	case 108:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 11:
+	case 139:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 19:
+	case 51:
+		if (edge(c2, c6)) {
+			pixel0 = interpolate<5, 3>(c5, c4);
+			pixel1 = interpolate<7, 1>(c5, c4);
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel0 = interpolate<3, 1>(c5, c2);
+			pixel1 = interpolate<1, 3>(c5, c2);
+			pixel2 = interpolate<5, 3>(c2, c6);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+			pixel7 = interpolate<2, 1, 1>(c6, c5, c2);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 146:
+	case 178:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+			pixelb = interpolate<7, 1>(c5, c8);
+			pixelf = interpolate<5, 3>(c5, c8);
+		} else {
+			pixel2 = interpolate<2, 1, 1>(c2, c5, c6);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+			pixel7 = interpolate<5, 3>(c6, c2);
+			pixelb = interpolate<1, 3>(c5, c6);
+			pixelf = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 3>(c5, c8);
+		break;
+	case 84:
+	case 85:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		if (edge(c6, c8)) {
+			pixel3 = interpolate<5, 3>(c5, c2);
+			pixel7 = interpolate<7, 1>(c5, c2);
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixel3 = interpolate<3, 1>(c5, c6);
+			pixel7 = interpolate<1, 3>(c5, c6);
+			pixela = interpolate<6, 1, 1>(c5, c6, c8);
+			pixelb = interpolate<5, 3>(c6, c8);
+			pixele = interpolate<2, 1, 1>(c8, c5, c6);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 112:
+	case 113:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixelc = interpolate<5, 3>(c5, c4);
+			pixeld = interpolate<7, 1>(c5, c4);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = interpolate<6, 1, 1>(c5, c6, c8);
+			pixelb = interpolate<2, 1, 1>(c6, c5, c8);
+			pixelc = interpolate<3, 1>(c5, c8);
+			pixeld = interpolate<1, 3>(c5, c8);
+			pixele = interpolate<5, 3>(c8, c6);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		break;
+	case 200:
+	case 204:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+			pixele = interpolate<7, 1>(c5, c6);
+			pixelf = interpolate<5, 3>(c5, c6);
+		} else {
+			pixel8 = interpolate<2, 1, 1>(c4, c5, c8);
+			pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<5, 3>(c8, c4);
+			pixele = interpolate<1, 3>(c5, c8);
+			pixelf = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		break;
+	case 73:
+	case 77:
+		if (edge(c8, c4)) {
+			pixel0 = interpolate<5, 3>(c5, c2);
+			pixel4 = interpolate<7, 1>(c5, c2);
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel0 = interpolate<3, 1>(c5, c4);
+			pixel4 = interpolate<1, 3>(c5, c4);
+			pixel8 = interpolate<5, 3>(c4, c8);
+			pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<2, 1, 1>(c8, c5, c4);
+		}
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 42:
+	case 170:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+			pixel8 = interpolate<7, 1>(c5, c8);
+			pixelc = interpolate<5, 3>(c5, c8);
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<2, 1, 1>(c2, c5, c4);
+			pixel4 = interpolate<5, 3>(c4, c2);
+			pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+			pixel8 = interpolate<1, 3>(c5, c4);
+			pixelc = interpolate<3, 1>(c5, c4);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 14:
+	case 142:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel2 = interpolate<7, 1>(c5, c6);
+			pixel3 = interpolate<5, 3>(c5, c6);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<5, 3>(c2, c4);
+			pixel2 = interpolate<1, 3>(c5, c2);
+			pixel3 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<2, 1, 1>(c4, c5, c2);
+			pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		}
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 67:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 70:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 28:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 152:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 194:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 98:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 56:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 25:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 26:
+	case 31:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel5 = c5;
+		pixel6 = c5;
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 82:
+	case 214:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 88:
+	case 248:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		break;
+	case 74:
+	case 107:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 27:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 86:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 216:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 106:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 30:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 210:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 120:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 75:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 29:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 198:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 184:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 99:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 57:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 71:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 156:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 226:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 60:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 195:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 102:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 153:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 58:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 83:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 92:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 202:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 78:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 154:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 114:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		break;
+	case 89:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 90:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 55:
+	case 23:
+		if (edge(c2, c6)) {
+			pixel0 = interpolate<5, 3>(c5, c4);
+			pixel1 = interpolate<7, 1>(c5, c4);
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel6 = c5;
+			pixel7 = c5;
+		} else {
+			pixel0 = interpolate<3, 1>(c5, c2);
+			pixel1 = interpolate<1, 3>(c5, c2);
+			pixel2 = interpolate<5, 3>(c2, c6);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+			pixel7 = interpolate<2, 1, 1>(c6, c5, c2);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 182:
+	case 150:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel6 = c5;
+			pixel7 = c5;
+			pixelb = interpolate<7, 1>(c5, c8);
+			pixelf = interpolate<5, 3>(c5, c8);
+		} else {
+			pixel2 = interpolate<2, 1, 1>(c2, c5, c6);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+			pixel7 = interpolate<5, 3>(c6, c2);
+			pixelb = interpolate<1, 3>(c5, c6);
+			pixelf = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 3>(c5, c8);
+		break;
+	case 213:
+	case 212:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		if (edge(c6, c8)) {
+			pixel3 = interpolate<5, 3>(c5, c2);
+			pixel7 = interpolate<7, 1>(c5, c2);
+			pixela = c5;
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixel3 = interpolate<3, 1>(c5, c6);
+			pixel7 = interpolate<1, 3>(c5, c6);
+			pixela = interpolate<6, 1, 1>(c5, c6, c8);
+			pixelb = interpolate<5, 3>(c6, c8);
+			pixele = interpolate<2, 1, 1>(c8, c5, c6);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 241:
+	case 240:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		if (edge(c6, c8)) {
+			pixela = c5;
+			pixelb = c5;
+			pixelc = interpolate<5, 3>(c5, c4);
+			pixeld = interpolate<7, 1>(c5, c4);
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixela = interpolate<6, 1, 1>(c5, c6, c8);
+			pixelb = interpolate<2, 1, 1>(c6, c5, c8);
+			pixelc = interpolate<3, 1>(c5, c8);
+			pixeld = interpolate<1, 3>(c5, c8);
+			pixele = interpolate<5, 3>(c8, c6);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		break;
+	case 236:
+	case 232:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixel9 = c5;
+			pixelc = c5;
+			pixeld = c5;
+			pixele = interpolate<7, 1>(c5, c6);
+			pixelf = interpolate<5, 3>(c5, c6);
+		} else {
+			pixel8 = interpolate<2, 1, 1>(c4, c5, c8);
+			pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<5, 3>(c8, c4);
+			pixele = interpolate<1, 3>(c5, c8);
+			pixelf = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		break;
+	case 109:
+	case 105:
+		if (edge(c8, c4)) {
+			pixel0 = interpolate<5, 3>(c5, c2);
+			pixel4 = interpolate<7, 1>(c5, c2);
+			pixel8 = c5;
+			pixel9 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel0 = interpolate<3, 1>(c5, c4);
+			pixel4 = interpolate<1, 3>(c5, c4);
+			pixel8 = interpolate<5, 3>(c4, c8);
+			pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<2, 1, 1>(c8, c5, c4);
+		}
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 171:
+	case 43:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+			pixel5 = c5;
+			pixel8 = interpolate<7, 1>(c5, c8);
+			pixelc = interpolate<5, 3>(c5, c8);
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<2, 1, 1>(c2, c5, c4);
+			pixel4 = interpolate<5, 3>(c4, c2);
+			pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+			pixel8 = interpolate<1, 3>(c5, c4);
+			pixelc = interpolate<3, 1>(c5, c4);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 143:
+	case 15:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel2 = interpolate<7, 1>(c5, c6);
+			pixel3 = interpolate<5, 3>(c5, c6);
+			pixel4 = c5;
+			pixel5 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<5, 3>(c2, c4);
+			pixel2 = interpolate<1, 3>(c5, c2);
+			pixel3 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<2, 1, 1>(c4, c5, c2);
+			pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		}
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 124:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 203:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 62:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 211:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 118:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 217:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 110:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 155:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 188:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 185:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 61:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 157:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 103:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 227:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 230:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 199:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 220:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		break;
+	case 158:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel6 = c5;
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 234:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 242:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		break;
+	case 59:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel5 = c5;
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 121:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 87:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = c5;
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 79:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 122:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 94:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel6 = c5;
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 218:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		break;
+	case 91:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel5 = c5;
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 229:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 167:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 173:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 181:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 186:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 115:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		break;
+	case 93:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 206:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 205:
+	case 201:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		if (edge(c8, c4)) {
+			pixel8 = interpolate<3, 1>(c5, c7);
+			pixel9 = interpolate<7, 1>(c5, c7);
+			pixelc = interpolate<5, 3>(c5, c7);
+			pixeld = interpolate<3, 1>(c5, c7);
+		} else {
+			pixel8 = interpolate<3, 1>(c5, c4);
+			pixel9 = c5;
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+			pixeld = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 174:
+	case 46:
+		if (edge(c4, c2)) {
+			pixel0 = interpolate<5, 3>(c5, c1);
+			pixel1 = interpolate<3, 1>(c5, c1);
+			pixel4 = interpolate<3, 1>(c5, c1);
+			pixel5 = interpolate<7, 1>(c5, c1);
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+			pixel1 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<3, 1>(c5, c4);
+			pixel5 = c5;
+		}
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 179:
+	case 147:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		if (edge(c2, c6)) {
+			pixel2 = interpolate<3, 1>(c5, c3);
+			pixel3 = interpolate<5, 3>(c5, c3);
+			pixel6 = interpolate<7, 1>(c5, c3);
+			pixel7 = interpolate<3, 1>(c5, c3);
+		} else {
+			pixel2 = interpolate<3, 1>(c5, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel6 = c5;
+			pixel7 = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 117:
+	case 116:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		if (edge(c6, c8)) {
+			pixela = interpolate<7, 1>(c5, c9);
+			pixelb = interpolate<3, 1>(c5, c9);
+			pixele = interpolate<3, 1>(c5, c9);
+			pixelf = interpolate<5, 3>(c5, c9);
+		} else {
+			pixela = c5;
+			pixelb = interpolate<3, 1>(c5, c6);
+			pixele = interpolate<3, 1>(c5, c8);
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		break;
+	case 189:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 231:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 126:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 219:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 125:
+		if (edge(c8, c4)) {
+			pixel0 = interpolate<5, 3>(c5, c2);
+			pixel4 = interpolate<7, 1>(c5, c2);
+			pixel8 = c5;
+			pixel9 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel0 = interpolate<3, 1>(c5, c4);
+			pixel4 = interpolate<1, 3>(c5, c4);
+			pixel8 = interpolate<5, 3>(c4, c8);
+			pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<2, 1, 1>(c8, c5, c4);
+		}
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 221:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		if (edge(c6, c8)) {
+			pixel3 = interpolate<5, 3>(c5, c2);
+			pixel7 = interpolate<7, 1>(c5, c2);
+			pixela = c5;
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixel3 = interpolate<3, 1>(c5, c6);
+			pixel7 = interpolate<1, 3>(c5, c6);
+			pixela = interpolate<6, 1, 1>(c5, c6, c8);
+			pixelb = interpolate<5, 3>(c6, c8);
+			pixele = interpolate<2, 1, 1>(c8, c5, c6);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 207:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel2 = interpolate<7, 1>(c5, c6);
+			pixel3 = interpolate<5, 3>(c5, c6);
+			pixel4 = c5;
+			pixel5 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<5, 3>(c2, c4);
+			pixel2 = interpolate<1, 3>(c5, c2);
+			pixel3 = interpolate<3, 1>(c5, c2);
+			pixel4 = interpolate<2, 1, 1>(c4, c5, c2);
+			pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		}
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 238:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixel9 = c5;
+			pixelc = c5;
+			pixeld = c5;
+			pixele = interpolate<7, 1>(c5, c6);
+			pixelf = interpolate<5, 3>(c5, c6);
+		} else {
+			pixel8 = interpolate<2, 1, 1>(c4, c5, c8);
+			pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<5, 3>(c8, c4);
+			pixele = interpolate<1, 3>(c5, c8);
+			pixelf = interpolate<3, 1>(c5, c8);
+		}
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		break;
+	case 190:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel6 = c5;
+			pixel7 = c5;
+			pixelb = interpolate<7, 1>(c5, c8);
+			pixelf = interpolate<5, 3>(c5, c8);
+		} else {
+			pixel2 = interpolate<2, 1, 1>(c2, c5, c6);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+			pixel7 = interpolate<5, 3>(c6, c2);
+			pixelb = interpolate<1, 3>(c5, c6);
+			pixelf = interpolate<3, 1>(c5, c6);
+		}
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		break;
+	case 187:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+			pixel5 = c5;
+			pixel8 = interpolate<7, 1>(c5, c8);
+			pixelc = interpolate<5, 3>(c5, c8);
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<2, 1, 1>(c2, c5, c4);
+			pixel4 = interpolate<5, 3>(c4, c2);
+			pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+			pixel8 = interpolate<1, 3>(c5, c4);
+			pixelc = interpolate<3, 1>(c5, c4);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 243:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		if (edge(c6, c8)) {
+			pixela = c5;
+			pixelb = c5;
+			pixelc = interpolate<5, 3>(c5, c4);
+			pixeld = interpolate<7, 1>(c5, c4);
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixela = interpolate<6, 1, 1>(c5, c6, c8);
+			pixelb = interpolate<2, 1, 1>(c6, c5, c8);
+			pixelc = interpolate<3, 1>(c5, c8);
+			pixeld = interpolate<1, 3>(c5, c8);
+			pixele = interpolate<5, 3>(c8, c6);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		break;
+	case 119:
+		if (edge(c2, c6)) {
+			pixel0 = interpolate<5, 3>(c5, c4);
+			pixel1 = interpolate<7, 1>(c5, c4);
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel6 = c5;
+			pixel7 = c5;
+		} else {
+			pixel0 = interpolate<3, 1>(c5, c2);
+			pixel1 = interpolate<1, 3>(c5, c2);
+			pixel2 = interpolate<5, 3>(c2, c6);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+			pixel7 = interpolate<2, 1, 1>(c6, c5, c2);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 237:
+	case 233:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
+		pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<6, 1, 1>(c5, c2, c6);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c2);
+		pixel8 = c5;
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixelc = c5;
+		} else {
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		}
+		pixeld = c5;
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 175:
+	case 47:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		}
+		pixel1 = c5;
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = c5;
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<6, 1, 1>(c5, c6, c8);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c6);
+		pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		break;
+	case 183:
+	case 151:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = c5;
+		if (edge(c2, c6)) {
+			pixel3 = c5;
+		} else {
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = c5;
+		pixel7 = c5;
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c8);
+		pixel9 = interpolate<6, 1, 1>(c5, c4, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c4);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 245:
+	case 244:
+		pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c2);
+		pixel5 = interpolate<6, 1, 1>(c5, c2, c4);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = c5;
+		pixelb = c5;
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = c5;
+		if (edge(c6, c8)) {
+			pixelf = c5;
+		} else {
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 250:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		break;
+	case 123:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 95:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel5 = c5;
+		pixel6 = c5;
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 222:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 252:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<5, 2, 1>(c5, c2, c1);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = c5;
+		pixelb = c5;
+		pixele = c5;
+		if (edge(c6, c8)) {
+			pixelf = c5;
+		} else {
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 249:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 2, 1>(c5, c2, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = c5;
+		pixel9 = c5;
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		if (edge(c8, c4)) {
+			pixelc = c5;
+		} else {
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		}
+		pixeld = c5;
+		break;
+	case 235:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<5, 2, 1>(c5, c6, c3);
+		pixel8 = c5;
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixelc = c5;
+		} else {
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		}
+		pixeld = c5;
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 111:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		}
+		pixel1 = c5;
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = c5;
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<5, 2, 1>(c5, c6, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 63:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		}
+		pixel1 = c5;
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = c5;
+		pixel5 = c5;
+		pixel6 = c5;
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 2, 1>(c5, c8, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 159:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = c5;
+		if (edge(c2, c6)) {
+			pixel3 = c5;
+		} else {
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		}
+		pixel5 = c5;
+		pixel6 = c5;
+		pixel7 = c5;
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<5, 2, 1>(c5, c8, c7);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 215:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = c5;
+		if (edge(c2, c6)) {
+			pixel3 = c5;
+		} else {
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = c5;
+		pixel7 = c5;
+		pixel8 = interpolate<5, 2, 1>(c5, c4, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 246:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<5, 2, 1>(c5, c4, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = c5;
+		pixelb = c5;
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = c5;
+		if (edge(c6, c8)) {
+			pixelf = c5;
+		} else {
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 254:
+		pixel0 = interpolate<5, 3>(c5, c1);
+		pixel1 = interpolate<3, 1>(c5, c1);
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = interpolate<3, 1>(c5, c1);
+		pixel5 = interpolate<7, 1>(c5, c1);
+		pixel6 = c5;
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = c5;
+		pixelb = c5;
+		pixele = c5;
+		if (edge(c6, c8)) {
+			pixelf = c5;
+		} else {
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 253:
+		pixel0 = interpolate<5, 3>(c5, c2);
+		pixel1 = interpolate<5, 3>(c5, c2);
+		pixel2 = interpolate<5, 3>(c5, c2);
+		pixel3 = interpolate<5, 3>(c5, c2);
+		pixel4 = interpolate<7, 1>(c5, c2);
+		pixel5 = interpolate<7, 1>(c5, c2);
+		pixel6 = interpolate<7, 1>(c5, c2);
+		pixel7 = interpolate<7, 1>(c5, c2);
+		pixel8 = c5;
+		pixel9 = c5;
+		pixela = c5;
+		pixelb = c5;
+		if (edge(c8, c4)) {
+			pixelc = c5;
+		} else {
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		}
+		pixeld = c5;
+		pixele = c5;
+		if (edge(c6, c8)) {
+			pixelf = c5;
+		} else {
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 251:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = interpolate<3, 1>(c5, c3);
+		pixel3 = interpolate<5, 3>(c5, c3);
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c3);
+		pixel7 = interpolate<3, 1>(c5, c3);
+		pixel8 = c5;
+		pixel9 = c5;
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		if (edge(c8, c4)) {
+			pixelc = c5;
+		} else {
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		}
+		pixeld = c5;
+		break;
+	case 239:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		}
+		pixel1 = c5;
+		pixel2 = interpolate<7, 1>(c5, c6);
+		pixel3 = interpolate<5, 3>(c5, c6);
+		pixel4 = c5;
+		pixel5 = c5;
+		pixel6 = interpolate<7, 1>(c5, c6);
+		pixel7 = interpolate<5, 3>(c5, c6);
+		pixel8 = c5;
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c6);
+		pixelb = interpolate<5, 3>(c5, c6);
+		if (edge(c8, c4)) {
+			pixelc = c5;
+		} else {
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		}
+		pixeld = c5;
+		pixele = interpolate<7, 1>(c5, c6);
+		pixelf = interpolate<5, 3>(c5, c6);
+		break;
+	case 127:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		}
+		pixel1 = c5;
+		if (edge(c2, c6)) {
+			pixel2 = c5;
+			pixel3 = c5;
+			pixel7 = c5;
+		} else {
+			pixel2 = interpolate<1, 1>(c2, c5);
+			pixel3 = interpolate<1, 1>(c2, c6);
+			pixel7 = interpolate<1, 1>(c5, c6);
+		}
+		pixel4 = c5;
+		pixel5 = c5;
+		pixel6 = c5;
+		if (edge(c8, c4)) {
+			pixel8 = c5;
+			pixelc = c5;
+			pixeld = c5;
+		} else {
+			pixel8 = interpolate<1, 1>(c5, c4);
+			pixelc = interpolate<1, 1>(c4, c8);
+			pixeld = interpolate<1, 1>(c5, c8);
+		}
+		pixel9 = c5;
+		pixela = interpolate<7, 1>(c5, c9);
+		pixelb = interpolate<3, 1>(c5, c9);
+		pixele = interpolate<3, 1>(c5, c9);
+		pixelf = interpolate<5, 3>(c5, c9);
+		break;
+	case 191:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		}
+		pixel1 = c5;
+		pixel2 = c5;
+		if (edge(c2, c6)) {
+			pixel3 = c5;
+		} else {
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		}
+		pixel4 = c5;
+		pixel5 = c5;
+		pixel6 = c5;
+		pixel7 = c5;
+		pixel8 = interpolate<7, 1>(c5, c8);
+		pixel9 = interpolate<7, 1>(c5, c8);
+		pixela = interpolate<7, 1>(c5, c8);
+		pixelb = interpolate<7, 1>(c5, c8);
+		pixelc = interpolate<5, 3>(c5, c8);
+		pixeld = interpolate<5, 3>(c5, c8);
+		pixele = interpolate<5, 3>(c5, c8);
+		pixelf = interpolate<5, 3>(c5, c8);
+		break;
+	case 223:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+			pixel1 = c5;
+			pixel4 = c5;
+		} else {
+			pixel0 = interpolate<1, 1>(c2, c4);
+			pixel1 = interpolate<1, 1>(c2, c5);
+			pixel4 = interpolate<1, 1>(c4, c5);
+		}
+		pixel2 = c5;
+		if (edge(c2, c6)) {
+			pixel3 = c5;
+		} else {
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		}
+		pixel5 = c5;
+		pixel6 = c5;
+		pixel7 = c5;
+		pixel8 = interpolate<3, 1>(c5, c7);
+		pixel9 = interpolate<7, 1>(c5, c7);
+		pixela = c5;
+		if (edge(c6, c8)) {
+			pixelb = c5;
+			pixele = c5;
+			pixelf = c5;
+		} else {
+			pixelb = interpolate<1, 1>(c5, c6);
+			pixele = interpolate<1, 1>(c5, c8);
+			pixelf = interpolate<1, 1>(c6, c8);
+		}
+		pixelc = interpolate<5, 3>(c5, c7);
+		pixeld = interpolate<3, 1>(c5, c7);
+		break;
+	case 247:
+		pixel0 = interpolate<5, 3>(c5, c4);
+		pixel1 = interpolate<7, 1>(c5, c4);
+		pixel2 = c5;
+		if (edge(c2, c6)) {
+			pixel3 = c5;
+		} else {
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		}
+		pixel4 = interpolate<5, 3>(c5, c4);
+		pixel5 = interpolate<7, 1>(c5, c4);
+		pixel6 = c5;
+		pixel7 = c5;
+		pixel8 = interpolate<5, 3>(c5, c4);
+		pixel9 = interpolate<7, 1>(c5, c4);
+		pixela = c5;
+		pixelb = c5;
+		pixelc = interpolate<5, 3>(c5, c4);
+		pixeld = interpolate<7, 1>(c5, c4);
+		pixele = c5;
+		if (edge(c6, c8)) {
+			pixelf = c5;
+		} else {
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	case 255:
+		if (edge(c4, c2)) {
+			pixel0 = c5;
+		} else {
+			pixel0 = interpolate<2, 1, 1>(c5, c2, c4);
+		}
+		pixel1 = c5;
+		pixel2 = c5;
+		if (edge(c2, c6)) {
+			pixel3 = c5;
+		} else {
+			pixel3 = interpolate<2, 1, 1>(c5, c2, c6);
+		}
+		pixel4 = c5;
+		pixel5 = c5;
+		pixel6 = c5;
+		pixel7 = c5;
+		pixel8 = c5;
+		pixel9 = c5;
+		pixela = c5;
+		pixelb = c5;
+		if (edge(c8, c4)) {
+			pixelc = c5;
+		} else {
+			pixelc = interpolate<2, 1, 1>(c5, c4, c8);
+		}
+		pixeld = c5;
+		pixele = c5;
+		if (edge(c6, c8)) {
+			pixelf = c5;
+		} else {
+			pixelf = interpolate<2, 1, 1>(c5, c6, c8);
+		}
+		break;
+	}
+}
