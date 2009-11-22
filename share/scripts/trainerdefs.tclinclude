@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/10/04
+# Updated @ 2009/11/22
 #
 
 
@@ -287,7 +287,8 @@ create_trainer "Aleste" {time 1} {
 }
 
 create_trainer "Aleste 2" {time 1} {
-	"Full Power On Weapons" {poke 0xc84e 50;poke 0xc84f 5}
+	"Full Power On Primary Weapons" {poke 0xc841 10;poke 0xc8f8 10}
+	"Full Power On Secondary Weapons" {poke 0xc84e 50;poke 0xc84f 5}
 	"Have Weapon 1" {poke 0xc84a 1}
 	"Have Weapon 2" {poke 0xc84a 2}
 	"Have Weapon 3" {poke 0xc84a 3}
@@ -298,7 +299,7 @@ create_trainer "Aleste 2" {time 1} {
 	"Have Weapon 8" {poke 0xc84a 8}
 	"Invincible" {poke 0xbc18 255}
 	"Lives" {poke 0xc840 99}
-	"Weapon Has No Time Limit" {poke 0xc84d 255}
+	"Secondary Weapon Has No Time Limit" {poke 0xc84d 255}
 }
 
 create_trainer "Aleste Demo" {time 1} {
@@ -1741,6 +1742,9 @@ create_trainer "Cyberbig" {time 1} {
 	"Lives" {poke 0x783b 99}
 }
 
+create_trainer "d-day" {time 1} {
+}
+
 create_trainer "Daidasso" {time 1} {
 	"Always Blue Bombs" {poke 0xd472 19}
 	"Always Green Bombs" {poke 0xd473 2}
@@ -2867,47 +2871,47 @@ create_trainer "Gradius 2 (beta)" {time 2} {
 }
 
 create_trainer "Gradius 2 - Nemesis 2" {time 0.5} {
-	"Activate Cheat Menu (Pre Release only)" {poke 0xf0f6 1}
-	"All Modes" {poke 0xf0f5 255}
-	"Back Beam" {poke 0xe436 2}
-	"Bonus Stage 1" {poke 0xe201 9}
-	"Bonus Stage 2" {poke 0xe201 10}
-	"Bonus Stage 3" {poke 0xe201 11}
-	"Core Stage" {poke 0xe201 8}
-	"Deactivate Normal Shoot" {poke 0xe430 0}
-	"Double" {poke 0xe431 2}
-	"Double Laser" {poke 0xe432 2}
-	"Double Missile" {poke 0xe433 2}
-	"Down Laser" {poke 0xe435 2}
+	"Activate Cheat Menu (pre Release Only)" {poke 0xf0f6 1}
+	"All Konami Cart Combinations Activated" {poke 0xf0f5 255}
+	"Combi: Penguin Adventure Mode" {poke 0xf0f5 4}
+	"Combi: Q-bert Mode" {poke 0xf0f5 1}
+	"Combi: The Maze Of Galious Mode" {poke 0xf0f5 8}
 	"Enemy Slow" {poke 0xe439 5}
-	"Extended Laser" {poke 0xe432 3}
-	"Final Stage" {poke 0xe201 0}
-	"Fire Blaster" {poke 0xe432 6}
 	"Lives" {poke 0xe200 153}
 	"Metalion Mode" {poke 0xe446 1}
-	"Napalm Missile" {poke 0xe433 3}
-	"Nice Colors" {poke 0xe283 14;poke 0xe408 15}
-	"Normal Laser" {poke 0xe432 1}
-	"Normal Missile" {poke 0xe433 1}
-	"Option Ring" {poke 0xe439 3}
-	"Options" {poke 0xe40b 2;poke 0xe410 1;poke 0xe420 1}
-	"Penguin Adventure Mode" {poke 0xf0f5 4}
-	"Q-bert Mode" {poke 0xf0f5 1}
-	"Reflex Ring" {poke 0xe432 5}
-	"Rotary Drill" {poke 0xe439 4}
-	"Shield Off" {poke 0xe400 0}
-	"Shield On" {poke 0xe400 2}
-	"Speed Set To 5" {poke 0xe402 5}
-	"Stage 1" {poke 0xe201 1}
-	"Stage 2" {poke 0xe201 2}
-	"Stage 3" {poke 0xe201 3}
-	"Stage 4" {poke 0xe201 4}
-	"Stage 5" {poke 0xe201 5}
-	"Stage 6" {poke 0xe201 6}
-	"Stage 7" {poke 0xe201 7}
-	"The Maze Of Galious Mode" {poke 0xf0f5 8}
-	"Up Laser" {poke 0xe434 2}
-	"Vector Laser" {poke 0xe439 7}
+	"Nice Vic Viper Colors" {poke 0xe283 14;poke 0xe408 15}
+	"Stage: Bonus Stage 1" {poke 0xe201 9}
+	"Stage: Bonus Stage 2" {poke 0xe201 10}
+	"Stage: Bonus Stage 3" {poke 0xe201 11}
+	"Stage: Core Stage" {poke 0xe201 8}
+	"Stage: Final Stage" {poke 0xe201 0}
+	"Stage: Stage 1" {poke 0xe201 1}
+	"Stage: Stage 2" {poke 0xe201 2}
+	"Stage: Stage 3" {poke 0xe201 3}
+	"Stage: Stage 4" {poke 0xe201 4}
+	"Stage: Stage 5" {poke 0xe201 5}
+	"Stage: Stage 6" {poke 0xe201 6}
+	"Stage: Stage 7" {poke 0xe201 7}
+	"Weapon: Back Beam" {poke 0xe436 2}
+	"Weapon: Deactivate Normal Shoot" {poke 0xe430 0}
+	"Weapon: Double" {poke 0xe431 2}
+	"Weapon: Double Laser" {poke 0xe432 2}
+	"Weapon: Double Missile" {poke 0xe433 2}
+	"Weapon: Down Laser" {poke 0xe435 2}
+	"Weapon: Extended Laser" {poke 0xe432 3}
+	"Weapon: Fire Blaster" {poke 0xe432 6}
+	"Weapon: Napalm Missile" {poke 0xe433 3}
+	"Weapon: Normal Laser" {poke 0xe432 1}
+	"Weapon: Normal Missile" {poke 0xe433 1}
+	"Weapon: Option Ring" {poke 0xe439 3}
+	"Weapon: Options" {poke 0xe40b 2;poke 0xe410 1;poke 0xe420 1}
+	"Weapon: Reflex Ring" {poke 0xe432 5}
+	"Weapon: Rotary Drill" {poke 0xe439 4}
+	"Weapon: Shield Off" {poke 0xe400 0}
+	"Weapon: Shield On" {poke 0xe400 2}
+	"Weapon: Speed Set To 5" {poke 0xe402 5}
+	"Weapon: Up Laser" {poke 0xe434 2}
+	"Weapon: Vector Laser" {poke 0xe439 7}
 }
 
 create_trainer "Green Beret" {time 0.1} {
@@ -3674,6 +3678,11 @@ create_trainer "Jungle Hunt" {time 1} {
 	"Lives" {poke 0x732d 255}
 }
 
+create_trainer "JunoFirst" {time 1} {
+	"Ininite Time" {poke 0xe065 96}
+	"Lives" {poke 0xe062 99}
+}
+
 create_trainer "Kageno Densetsu - The Legend Of Kage" {time 1} {
 	"Lives" {poke 0xc03b 9}
 }
@@ -4424,6 +4433,11 @@ create_trainer "Metal Gear 2 - Solid Snake" {time 2} {
 	"Life Bar" {poke 0xca53 32}
 	"Open Path Trough Jungle" {poke 0xd430 2}
 	"Set Avoiding Time To 0" {poke 0xd42b 0}
+}
+
+create_trainer "Meteorite Kiss" {time 0.5} {
+	"Infinite Lives" {poke 0x33cc 99}
+	"Invincible" {poke 0x8c59 32}
 }
 
 create_trainer "Mike Gunner" {time 1} {
@@ -6709,6 +6723,9 @@ create_trainer "Zombie Hunter" {time 1} {
 	"Max Level" {poke 0xc7ee 31}
 }
 
+create_trainer "Zoo" {time 1} {
+}
+
 create_trainer "Zoom 909" {time 1} {
 	"Fuel" {poke 0xe021 0}
 }
@@ -6720,4 +6737,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 4.088 seconds. 717 trainers -  having 5461 pokes
+# File Created in : 5.021 seconds. 721 trainers -  having 5467 pokes

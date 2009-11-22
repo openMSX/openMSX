@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1255981879">
+<softwaredb xml:lang="en" timestamp="1258914710">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3959,6 +3959,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">76666da5870d1901026e3dded3f22ce7a706689d</hash><remark><text>[RC-751] / Konami Antiques MSX Collection 2</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">87b7c80069a15fdb90b40dfed736fb8492104cd9</hash><remark><text>[RC-751] / Demo</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">d441ccfede2c089fbef54e20b90c0d4b513c5196</hash><remark><text>[RC-751]</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">c6fa7a891b491d2bcf31b81e33d43b9418a0f269</hash><remark><text>[RC-751] / Smooth scroll / vsync patch and cool colors</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Graphics Editor</title>
@@ -7783,6 +7784,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">5b25d93259a358f2064adc44f6382c91c9394861</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">PIHKAL</title>
+	<system>MSX</system>
+	<company>Hackers</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">65fa1c37e541d66398a2786a8baadecb363a1565</hash><remark><text>Wild Demo Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Pillars of Islam</title>
 	<genmsxid>1933</genmsxid>
 	<system>MSX</system>
@@ -11298,6 +11307,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2478
-Parse time 3.977 seconds on Mon Oct 19 21:51:23 CEST 2009
+Roms in this database:2480
+Parse time 4.396 seconds on Sun Nov 22 19:31:54 CET 2009
  -->
