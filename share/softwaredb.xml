@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1258914710">
+<softwaredb xml:lang="en" timestamp="1259256496">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2001,6 +2001,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">613cc52fbd5822ade47daa3ec21479641a009c2c</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">78818059d126e80c33ab654e9ec749cf336f8f96</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">6cf3f098d592d7dcb767a0e24b5caf327b5f22db</hash><remark><text>[a]</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Cow abduction</title>
+	<system>MSX</system>
+	<company>Paxanga Soft</company>
+	<year>2009</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">9d87ba5ac3b9a865f2dd93d239e9cdaf6e48dff5</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Craze</title>
@@ -6149,10 +6157,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Manbow 2</title>
 	<system>MSX</system>
-	<company>Manbow 2 team</company>
+	<company>Bart Velzen</company>
 	<year>2007</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">3bfbf89dfe4f896a581b1d130afb57ce722bdf0d </hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Manes</title>
@@ -11307,6 +11316,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2480
-Parse time 4.396 seconds on Sun Nov 22 19:31:54 CET 2009
+Roms in this database:2482
+Parse time 3.983 seconds on Thu Nov 26 18:28:20 CET 2009
  -->
