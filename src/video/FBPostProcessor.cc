@@ -40,21 +40,85 @@ void FBPostProcessor<Pixel>::preCalcNoise(double factor)
 	// for 32bpp groups of 4 consecutive noiseBuf elements (starting at
 	// 4 element boundaries) must have the same value. Later optimizations
 	// depend on it.
-	double scaleR = pixelOps.getMaxRed() / 255.0;
-	double scaleG = pixelOps.getMaxGreen() / 255.0;
-	double scaleB = pixelOps.getMaxBlue() / 255.0;
+
+	double scale[4];
+	if (sizeof(Pixel) == 4) {
+		// 32bpp
+		// TODO ATM we compensate for big endian here. A better
+		// alternative is to turn noiseBuf into an array of ints (it's
+		// now bytes) and in the 16bpp code extract R,G,B components
+		// from those ints
+		const Pixel p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
+		                                        : 0x03020100);
+		// TODO we can also fill the array with 'factor' and only set
+		// 'alpha' to 0.0. But PixelOperations doesn't offer a simple
+		// way to get the position of the alpha byte (yet).
+		scale[0] = scale[1] = scale[2] = scale[3] = 0.0;
+		scale[pixelOps.red  (p)] = factor;
+		scale[pixelOps.green(p)] = factor;
+		scale[pixelOps.blue (p)] = factor;
+	} else {
+		// 16bpp
+		scale[0] = (pixelOps.getMaxRed()   / 255.0) * factor;
+		scale[1] = (pixelOps.getMaxGreen() / 255.0) * factor;
+		scale[2] = (pixelOps.getMaxBlue()  / 255.0) * factor;
+		scale[3] = 0.0;
+	}
+
 	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 8) {
 		double r1, r2;
 		Math::gaussian2(r1, r2);
-		noiseBuf[i + 0] = Math::clip<-128, 127>(r1, factor * scaleR);
-		noiseBuf[i + 1] = Math::clip<-128, 127>(r1, factor * scaleG);
-		noiseBuf[i + 2] = Math::clip<-128, 127>(r1, factor * scaleB);
-		noiseBuf[i + 3] = Math::clip<-128, 127>(r1, factor);
-		noiseBuf[i + 4] = Math::clip<-128, 127>(r2, factor * scaleR);
-		noiseBuf[i + 5] = Math::clip<-128, 127>(r2, factor * scaleG);
-		noiseBuf[i + 6] = Math::clip<-128, 127>(r2, factor * scaleB);
-		noiseBuf[i + 7] = Math::clip<-128, 127>(r2, factor);
+		noiseBuf[i + 0] = Math::clip<-128, 127>(r1, scale[0]);
+		noiseBuf[i + 1] = Math::clip<-128, 127>(r1, scale[1]);
+		noiseBuf[i + 2] = Math::clip<-128, 127>(r1, scale[2]);
+		noiseBuf[i + 3] = Math::clip<-128, 127>(r1, scale[3]);
+		noiseBuf[i + 4] = Math::clip<-128, 127>(r2, scale[0]);
+		noiseBuf[i + 5] = Math::clip<-128, 127>(r2, scale[1]);
+		noiseBuf[i + 6] = Math::clip<-128, 127>(r2, scale[2]);
+		noiseBuf[i + 7] = Math::clip<-128, 127>(r2, scale[3]);
 	}
+}
+
+/** Add noise to the given pixel.
+ * @param p contains 4 8-bit unsigned components, so components have range [0, 255]
+ * @param n contains 4 8-bit   signed components, so components have range [-128, 127]
+ * @result per component result of clip<0, 255>(p + n)
+ */
+static inline unsigned addNoise4(unsigned p, unsigned n)
+{
+	// unclipped result (lower 8 bits of each component)
+	// alternative:
+	//   unsigned s20 = ((p & 0x00FF00FF) + (n & 0x00FF00FF)) & 0x00FF00FF;
+	//   unsigned s31 = ((p & 0xFF00FF00) + (n & 0xFF00FF00)) & 0xFF00FF00;
+	//   unsigned s = s20 | s31;
+	unsigned s0 = p + n;                     // carry spills to neighbors
+	unsigned ci = (p ^ n ^ s0) & 0x01010100; // carry-in bits of prev sum
+	unsigned s  = s0 - ci;                   // subtract carry bits again
+
+	// Underflow of a component happens ONLY
+	//   WHEN input  component is in range [0, 127]
+	//   AND  noise  component is negative
+	//   AND  result component is in range [128, 255]
+	// Overflow of a component happens ONLY
+	//   WHEN input  component in in range [128, 255]
+	//   AND  noise  component is positive
+	//   AND  result component is in range [0, 127]
+	// Create a mask per component containing 00 for no under/overflow,
+	//                                        FF for    under/overflow
+	// ((~p & n & s) | (p & ~n & ~s)) == ((p ^ n) & (p ^ s))
+	unsigned t = (p ^ n) & (p ^ s) & 0x80808080;
+	unsigned u1 = t & s; // underflow   (alternative: u1 = t & n)
+	// alternative1: unsigned u2 = u1 | (u1 >> 1);
+	//               unsigned u4 = u2 | (u2 >> 2);
+	//               unsigned u8 = u4 | (u4 >> 4);
+	// alternative2: unsigned u8 = (u1 >> 7) * 0xFF;
+	unsigned u8 = (u1 << 1) - (u1 >> 7);
+
+	unsigned o1 = t & p; // overflow
+	unsigned o8 = (o1 << 1) - (o1 >> 7);
+
+	// clip result
+	return (s & (~u8)) | o8;
 }
 
 template <class Pixel>
@@ -206,20 +270,9 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	// c++ version
 	if (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
+		unsigned* noise4 = reinterpret_cast<unsigned*>(noise);
 		for (unsigned i = 0; i < width; ++i) {
-			Pixel p = in[i];
-			int n = noise[4 * i]; // same for all components
-			// Always calculating 4 components is more portable, but doing
-			// only 3 is significantly faster (~20%).
-			// Typical pixel layout for little endian is ABGR and for big
-			// endian is ARGB, so we can use the same computation.
-			unsigned c1 = Math::clip<0, 0x0000FF>(
-				(p & 0x0000FF) + (n <<  0));
-			unsigned c2 = Math::clip<0, 0x00FF00>(
-				(p & 0x00FF00) + (n <<  8));
-			unsigned c3 = Math::clip<0, 0xFF0000>(
-				(p & 0xFF0000) + (n << 16));
-			out[i] = c1 | c2 | c3;
+			out[i] = addNoise4(in[i], noise4[i]);
 		}
 	} else {
 		int mr = pixelOps.getMaxRed();
