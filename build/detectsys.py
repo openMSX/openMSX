@@ -3,7 +3,7 @@
 # Actually we rely on the Python "platform" module and map its output to names
 # that the openMSX build understands.
 
-from platform import libc_ver, machine, system
+from platform import machine, system
 import sys
 
 def detectCPU():
@@ -55,18 +55,13 @@ def detectOS():
 	Raises ValueError if no known OS is detected.
 	'''
 	os = system().lower()
-	if os in ('linux', 'darwin', 'netbsd', 'openbsd', 'gnu'):
+	if os in ('linux', 'darwin', 'freebsd', 'netbsd', 'openbsd', 'gnu'):
 		return os
-	elif os == 'freebsd':
-		lib, version_ = libc_ver()
-		if lib == 'glibc':
-			# Debian kFreeBSD is GNU userland on a FreeBSD kernel; for openMSX
-			# the kernel is not really relevant, so treat it like a generic
-			# GNU system.
-			return 'gnu'
-		else:
-			# Actual FreeBSD.
-			return 'freebsd'
+	elif os.startswith('gnu/'):
+		# GNU userland on non-Hurd kernel, for example Debian GNU/kFreeBSD.
+		# For openMSX the kernel is not really relevant, so treat it like
+		# a generic GNU system.
+		return 'gnu'
 	elif os.startswith('mingw') or os == 'windows':
 		return 'mingw32'
 	elif os == 'sunos':
