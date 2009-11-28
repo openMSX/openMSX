@@ -1096,14 +1096,14 @@ void Scale_8on9<Pixel>::operator()(
 	unsigned i = 0, j = 0;
 	for (/* */; i < width; i += 9, j += 8) {
 		out[i + 0] =                                 in[j + 0];
-		out[i + 0] = pixelOps.template blend2<1, 7>(&in[j + 0]);
-		out[i + 0] = pixelOps.template blend2<1, 3>(&in[j + 1]);
-		out[i + 0] = pixelOps.template blend2<3, 5>(&in[j + 2]);
-		out[i + 0] = pixelOps.template blend2<1, 1>(&in[j + 3]);
-		out[i + 0] = pixelOps.template blend2<5, 3>(&in[j + 4]);
-		out[i + 0] = pixelOps.template blend2<3, 1>(&in[j + 5]);
-		out[i + 0] = pixelOps.template blend2<7, 1>(&in[j + 6]);
-		out[i + 0] =                                 in[j + 7];
+		out[i + 1] = pixelOps.template blend2<1, 7>(&in[j + 0]);
+		out[i + 2] = pixelOps.template blend2<1, 3>(&in[j + 1]);
+		out[i + 3] = pixelOps.template blend2<3, 5>(&in[j + 2]);
+		out[i + 4] = pixelOps.template blend2<1, 1>(&in[j + 3]);
+		out[i + 5] = pixelOps.template blend2<5, 3>(&in[j + 4]);
+		out[i + 6] = pixelOps.template blend2<3, 1>(&in[j + 5]);
+		out[i + 7] = pixelOps.template blend2<7, 1>(&in[j + 6]);
+		out[i + 8] =                                 in[j + 7];
 	}
 	if ((i + 0) < width) out[i + 0] = 0;
 	if ((i + 1) < width) out[i + 1] = 0;
