@@ -198,7 +198,7 @@ void ReverseManager::goBack(const vector<string>& tokens)
 	double t = StringOp::stringToDouble(tokens[2]);
 
 	// find oldest snapshot that is not newer than requested time
-	EmuTime targetTime = EmuTime::dummy();
+	EmuTime targetTime = EmuTime::zero;
 	Chunks::iterator it = history.chunks.begin();
 	if (EmuDuration(t) <= (getCurrentTime() - it->second.time)) {
 		targetTime = getCurrentTime() - EmuDuration(t);
