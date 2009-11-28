@@ -33,6 +33,7 @@ RealTime::RealTime(
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
 	, emuTime(EmuTime::zero)
+	, enabled(true)
 {
 	speedSetting.attach(*this);
 	throttleManager.attach(*this);
@@ -135,7 +136,7 @@ const std::string& RealTime::schedName() const
 
 bool RealTime::signalEvent(shared_ptr<const Event> event)
 {
-	if (!motherBoard.isActive()) {
+	if (!motherBoard.isActive() || !enabled) {
 		// these are global events, only the active machine should
 		// synchronize with real time
 		return true;
@@ -166,11 +167,25 @@ void RealTime::update(const ThrottleManager& /*throttleManager*/)
 
 void RealTime::resync()
 {
+	if (!enabled) return;
+
 	idealRealTime = Timer::getTime();
 	sleepAdjust = 0.0;
 	removeSyncPoint();
 	emuTime = getCurrentTime();
 	setSyncPoint(emuTime + getEmuDuration(SYNC_INTERVAL));
+}
+
+void RealTime::enable()
+{
+	enabled = true;
+	resync();
+}
+
+void RealTime::disable()
+{
+	enabled = false;
+	removeSyncPoint();
 }
 
 } // namespace openmsx

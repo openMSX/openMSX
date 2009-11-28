@@ -181,7 +181,7 @@ std::string ReverseManager::go(const vector<string>& tokens)
 	if (it == history.chunks.end()) {
 		throw CommandException("Out of range");
 	}
-	goToSnapshot(it);
+	goToSnapshot(it, it->second.time);
 	return "Went back to " +
 		StringOp::toString((it->second.time - EmuTime::zero).toDouble()) +
 		" (" +  StringOp::toString(((it->second.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100) +
@@ -196,13 +196,13 @@ void ReverseManager::goBack(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double t = StringOp::stringToDouble(tokens[2]);
+	EmuTime targetTime = getCurrentTime() - EmuDuration(t);
 
 	// find oldest snapshot that is not newer than requested time
 	Chunks::iterator it = history.chunks.begin();
-	if (EmuDuration(t) <= (getCurrentTime() - it->second.time)) {
+	if (it->second.time <= targetTime) {
 		// TODO ATM we do a linear search, could be improved to do a
 		//      binary search.
-		EmuTime targetTime = getCurrentTime() - EmuDuration(t);
 		assert(it->second.time <= targetTime); // first one is not newer
 		assert(it != history.chunks.end()); // there are snapshots
 		do {
@@ -217,8 +217,9 @@ void ReverseManager::goBack(const vector<string>& tokens)
 	} else {
 		// Requested time is before first snapshot. We can't go back
 		// further than first snapshot, so take that one.
+		targetTime = it->second.time;
 	}
-	goToSnapshot(it);
+	goToSnapshot(it, targetTime);
 }
 
 string ReverseManager::saveReplay(const vector<string>& tokens)
@@ -308,7 +309,9 @@ string ReverseManager::loadReplay(const vector<string>& tokens)
 	return "Loaded replay from " + fileName;
 }
 
-void ReverseManager::goToSnapshot(Chunks::iterator it)
+/** Go to snapshot given by iterator and targetTime
+ */
+void ReverseManager::goToSnapshot(Chunks::iterator it, EmuTime::param targetTime)
 {
 	if (!replaying()) {
 		// terminate replay log with EndLogEvent
@@ -339,6 +342,9 @@ void ReverseManager::goToSnapshot(Chunks::iterator it)
 	newBoard->getReverseManager().transferHistory(
 		history, it->first, it->second.eventCount);
 	stop();
+
+	// fast forward to the required time
+	newBoard->fastForward(targetTime);
 
 	// switch to the new MSXMotherBoard
 	// TODO this is not correct if this board was not the active board

@@ -62,7 +62,7 @@ private:
 	std::string saveReplay(const std::vector<std::string>& tokens);
 	std::string loadReplay(const std::vector<std::string>& tokens);
 	
-	void goToSnapshot(Chunks::iterator chunk_it);
+	void goToSnapshot(Chunks::iterator chunk_it, EmuTime::param targetTime);
 
 	void transferHistory(ReverseHistory& oldHistory,
                              unsigned oldCollectCount,

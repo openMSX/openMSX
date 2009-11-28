@@ -45,6 +45,9 @@ public:
 
 	void resync();
 
+	void enable();
+	void disable();
+
 private:
 	/** Synchronize EmuTime with RealTime.
 	  * @param time The current emulation time.
@@ -78,6 +81,7 @@ private:
 	unsigned long long idealRealTime;
 	EmuTime emuTime;
 	double sleepAdjust;
+	bool enabled;
 };
 
 } // namespace openmsx

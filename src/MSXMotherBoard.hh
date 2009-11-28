@@ -50,20 +50,22 @@ public:
 
 	const std::string& getMachineID();
 
-	/**
-	 * Run emulation.
+	/** Run emulation.
 	 * @return True if emulation steps were done,
 	 *   false if emulation is suspended.
 	 */
 	bool execute();
 
+	/** Run emulation until a certain time in fast forward mode.
+	 */
+	void fastForward(EmuTime::param time);
+
 	/** See CPU::exitCPULoopAsync(). */
 	void exitCPULoopAsync();
 
-	/**
-	 * Pause MSX machine. Only CPU is paused, other devices continue
-	 * running. Used by turbor hardware pause.
-	 */
+	/** Pause MSX machine. Only CPU is paused, other devices continue
+	  * running. Used by turbor hardware pause.
+	  */
 	void pause();
 	void unpause();
 

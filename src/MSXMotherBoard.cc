@@ -10,6 +10,7 @@
 #include "GlobalCliComm.hh"
 #include "MSXCommandController.hh"
 #include "Scheduler.hh"
+#include "Schedulable.hh"
 #include "CartridgeSlotManager.hh"
 #include "EventDistributor.hh"
 #include "Debugger.hh"
@@ -63,6 +64,7 @@ class ExtCmd;
 class RemoveExtCmd;
 class MachineNameInfo;
 class DeviceInfo;
+class FastForwardHelper;
 
 class MSXMotherBoardImpl : private Observer<Setting>, private noncopyable
 {
@@ -75,7 +77,9 @@ public:
 	const string& getMachineName() const;
 
 	bool execute();
+	void fastForward(EmuTime::param time);
 	void exitCPULoopAsync();
+	void exitCPULoopSync();
 	void pause();
 	void unpause();
 	void powerUp();
@@ -200,6 +204,8 @@ private:
 	auto_ptr<DeviceInfo>   deviceInfo;
 	friend class DeviceInfo;
 
+	auto_ptr<FastForwardHelper> fastForwardHelper;
+
 	BooleanSetting& powerSetting;
 
 	bool powered;
@@ -296,6 +302,16 @@ private:
 	MSXMotherBoardImpl& motherBoard;
 };
 
+class FastForwardHelper : private Schedulable
+{
+public:
+	FastForwardHelper(MSXMotherBoardImpl& msxMotherBoardImpl);
+	void setTarget(EmuTime::param targetTime);
+private:
+	virtual void executeUntil(EmuTime::param time, int userData);
+	virtual const std::string& schedName() const;
+	MSXMotherBoardImpl& motherBoard;
+};
 
 static unsigned machineIDCounter = 0;
 
@@ -316,6 +332,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, msxMixer(new MSXMixer(
 		reactor.getMixer(), *scheduler, *msxCommandController,
 		reactor.getGlobalSettings()))
+	, fastForwardHelper(new FastForwardHelper(*this))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
 	, active(false)
@@ -666,6 +683,21 @@ bool MSXMotherBoardImpl::execute()
 	return true;
 }
 
+void MSXMotherBoardImpl::fastForward(EmuTime::param time)
+{
+	if (time <= getCurrentTime()) return;
+
+	realTime->disable();
+	msxMixer->mute();
+	fastForwardHelper->setTarget(time);
+	while (time > getCurrentTime()) {
+		// note: this can run (slightly) past the requested time
+		execute();
+	}
+	realTime->enable();
+	msxMixer->unmute();
+}
+
 void MSXMotherBoardImpl::pause()
 {
 	if (getMachineConfig()) {
@@ -795,6 +827,11 @@ void MSXMotherBoardImpl::exitCPULoopAsync()
 	if (getMachineConfig()) {
 		getCPU().exitCPULoopAsync();
 	}
+}
+
+void MSXMotherBoardImpl::exitCPULoopSync()
+{
+	getCPU().exitCPULoopSync();
 }
 
 // Observer<Setting>
@@ -1137,6 +1174,32 @@ void DeviceInfo::tabCompletion(vector<string>& tokens) const
 	}
 }
 
+
+// FastForwardHelper
+
+FastForwardHelper::FastForwardHelper(MSXMotherBoardImpl& motherBoard_)
+	: Schedulable(motherBoard_.getScheduler())
+	, motherBoard(motherBoard_)
+{
+}
+
+void FastForwardHelper::setTarget(EmuTime::param targetTime)
+{
+	setSyncPoint(targetTime);
+}
+
+void FastForwardHelper::executeUntil(EmuTime::param /*time*/, int /*userData*/)
+{
+	motherBoard.exitCPULoopSync();
+}
+
+const string& FastForwardHelper::schedName() const
+{
+	static const string NAME = "FastForwardHelper";
+	return NAME;
+}
+
+
 // serialize
 template<typename Archive>
 void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
@@ -1205,6 +1268,10 @@ const string& MSXMotherBoard::getMachineID()
 bool MSXMotherBoard::execute()
 {
 	return pimple->execute();
+}
+void MSXMotherBoard::fastForward(EmuTime::param time)
+{
+	return pimple->fastForward(time);
 }
 void MSXMotherBoard::exitCPULoopAsync()
 {
