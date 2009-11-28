@@ -391,7 +391,7 @@ void ReverseManager::restoreReplayLog(Events events)
 	assert(replaying());
 }
 
-void ReverseManager::executeUntil(EmuTime::param time, int userData)
+void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
 {
 	switch (userData) {
 	case NEW_SNAPSHOT:
