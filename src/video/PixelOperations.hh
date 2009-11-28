@@ -77,6 +77,9 @@ public:
 	inline Pixel getBlendMask() const;
 
 private:
+	inline Pixel avgDown(Pixel p1, Pixel p2) const;
+	inline Pixel avgUp  (Pixel p1, Pixel p2) const;
+
 	const SDL_PixelFormat* format;
 
 	/** Mask used for blending.
@@ -225,19 +228,48 @@ template<> struct IsPow2<1> {
 	static const unsigned log2 = 0;
 };
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2>
+
+template<typename Pixel>
+inline Pixel PixelOperations<Pixel>::avgDown(Pixel p1, Pixel p2) const
+{
+	// Average can be calculated as:
+	//    floor((x + y) / 2.0) = (x & y) + (x ^ y) / 2
+	// see "Average of Integers" on http://aggregate.org/MAGIC/
+	Pixel mask = (sizeof(Pixel) == 4) ? 0xFEFEFEFE : blendMask;
+	return (p1 & p2) + (((p1 ^ p2) & mask) >> 1);
+}
+template<typename Pixel>
+inline Pixel PixelOperations<Pixel>::avgUp(Pixel p1, Pixel p2) const
+{
+	// Similar to above, but rounds up
+	//    ceil((x + y) / 2.0) = (x | y) - (x ^ y) / 2
+	Pixel mask = (sizeof(Pixel) == 4) ? 0xFEFEFEFE : blendMask;
+	return (p1 | p2) - (((p1 ^ p2) & mask) >> 1);
+}
+
+template<typename Pixel>
+template<unsigned w1, unsigned w2>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 {
-	if (w1 == w2) {
-		// average can be calculated as:
-		//    (x+y)/2 = (x&y) + (x^y)/2
-		// see "Average of Integers" on http://aggregate.org/MAGIC/
-		if (sizeof(Pixel) == 4) {
-			return (p1 & p2) + (((p1 ^ p2) & 0xFEFEFEFE) >> 1);
-		} else {
-			return (p1 & p2) + (((p1 ^ p2) &  blendMask) >> 1);
-		}
+	if (w1 > w2) {
+		return blend<w2, w1>(p2, p1);
+	} else if (w1 == w2) {
+		// <1, 1>
+		return avgDown(p1, p2);
+	} else if ((3 * w1) == w2) {
+		// <1, 3>
+		Pixel p11 = avgDown(p1, p2);
+		return avgUp(p11, p2);
+	} else if ((7 * w1) == w2) {
+		// <1, 7>
+		Pixel p11 = avgDown(p1, p2);
+		Pixel p13 = avgDown(p11, p2);
+		return avgUp(p13, p2);
+	} else if ((5 * w1) == (3 * w2)) {
+		// <3, 5>   mix rounding up/down to get a more accurate result
+		Pixel p11 = avgUp  (p1, p2);
+		Pixel p13 = avgDown(p11, p2);
+		return avgDown(p11, p13);
 	} else {
 		static const unsigned total = w1 + w2;
 		if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
