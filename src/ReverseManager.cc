@@ -196,11 +196,12 @@ void ReverseManager::goBack(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	double t = StringOp::stringToDouble(tokens[2]);
-	EmuTime targetTime = getCurrentTime() - EmuDuration(t);
 
 	// find oldest snapshot that is not newer than requested time
+	EmuTime targetTime = EmuTime::dummy();
 	Chunks::iterator it = history.chunks.begin();
-	if (it->second.time <= targetTime) {
+	if (EmuDuration(t) <= (getCurrentTime() - it->second.time)) {
+		targetTime = getCurrentTime() - EmuDuration(t);
 		// TODO ATM we do a linear search, could be improved to do a
 		//      binary search.
 		assert(it->second.time <= targetTime); // first one is not newer
