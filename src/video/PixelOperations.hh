@@ -270,6 +270,23 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 		Pixel p11 = avgUp  (p1, p2);
 		Pixel p13 = avgDown(p11, p2);
 		return avgDown(p11, p13);
+	} else if ((2 * w1) == w2) {
+		// <1, 2>
+		Pixel a1b1    = avgUp  (p1,     p2);
+		Pixel a1b3    = avgDown(a1b1,   p2);
+		Pixel a5b3    = avgUp  (a1b3,   p2);
+		Pixel a5b11   = avgDown(a5b3,   p2);
+		Pixel a21b11  = avgUp  (a5b11,  p1);
+		Pixel a21b43  = avgDown(a21b11, p2);
+		if (sizeof(Pixel) == 4) {
+			// approx as <85, 171>, enough for 8 bit precision
+			Pixel a85b43  = avgUp  (a21b43, p1);
+			Pixel a85b171 = avgDown(a85b43, p2);
+			return a85b171;
+		} else {
+			// approx as <21, 43>, enough for 6 bit precision
+			return a21b43;
+		}
 	} else {
 		static const unsigned total = w1 + w2;
 		if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
