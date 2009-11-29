@@ -162,22 +162,29 @@ def computeLiteWeights(pixelExpr):
 		)
 
 def genHQLiteOffsetsTable(pixelExpr):
-	# TODO: Can this function be rewritten as a transform function?
+	'''In the hqlite case, the result color depends on at most one neighbour
+	color. Therefore, an offset into an interpolated texture is used instead
+	of explicit weights.
+	'''
 	offset_x = ( 32, -32,  32, -32)
 	offset_y = ( 32,  32, -32, -32)
-	for case in range(1 << 12):
-		for subPixel in range(4):
-			for c in (0, 1, 2, 6, 7, 8):
-				assert pixelExpr[case][subPixel][c] == 0
-			assert (pixelExpr[case][subPixel][3] == 0) \
-				or (pixelExpr[case][subPixel][5] == 0)
-			factor = sum(pixelExpr[case][subPixel])
-			x = offset_x[subPixel] + 128
-			y = offset_y[subPixel] + 128
-			if pixelExpr[case][subPixel][5] == 0:
-				x -= 128 * pixelExpr[case][subPixel][3] / factor
+	for expr in pixelExpr:
+		for subPixel, weights in enumerate(expr):
+			neighbours = computeNeighbours(weights)
+			assert neighbours[1] is None, neighbours
+			neighbour = neighbours[0]
+
+			x = 128 + offset_x[subPixel]
+			y = 128 + offset_y[subPixel]
+			factor = sum(weights)
+			if neighbour == 3:
+				x -= 128 * weights[3] / factor
+			elif neighbour == 5:
+				x += 128 * weights[5] / factor
 			else:
-				x += 128 * pixelExpr[case][subPixel][5] / factor
+				assert neighbour is None, neighbour
+			assert 0 <= x < 256
+			assert 0 <= y < 256
 			yield x, y
 
 def formatOffsetsTable(offsetsTable):
