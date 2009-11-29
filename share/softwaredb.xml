@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1259256496">
+<softwaredb xml:lang="en" timestamp="1259528260">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6157,7 +6157,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Manbow 2</title>
 	<system>MSX</system>
-	<company>Bart Velzen</company>
+	<company>Manbow 2 Team</company>
 	<year>2007</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
@@ -10952,6 +10952,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">ebe20c85c5314957fafc223c26bf393847e3bb03</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">f2361230358bd945690ca1c2a9dcc1cbce83941b</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">a04ccf24f4164282ddc2574378f0d9ad8e180a53</hash><remark><text>English Translation</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">07e2f85da94ae1c086a4f6358e5e77025489347c</hash><remark><text>English Translation (trained)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Word Invaders</title>
@@ -11316,6 +11318,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2482
-Parse time 3.983 seconds on Thu Nov 26 18:28:20 CET 2009
+Roms in this database:2484
+Parse time 4.021 seconds on Sun Nov 29 21:57:44 CET 2009
  -->
