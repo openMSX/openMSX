@@ -110,30 +110,25 @@ def genSwitch(pixelExpr, narrow):
 		)
 	yield '}\n'
 
-def computeXY(pixelExpr):
-	xy = [[[None] * 2 for _ in range(4)] for _ in range(1 << 12)]
-	for case in range(1 << 12):
-		for subPixel in range(4):
-			j = 0
-			for i in (0, 1, 2, 3, 5, 6, 7, 8):
-				if pixelExpr[case][subPixel][i] != 0:
-					assert j < 2
-					xy[case][subPixel][j] = i
-					j += 1
-	return xy
+def computeNeighbours(weights):
+	neighbours = [ i for i in range(9) if i != 4 and weights[i] != 0 ]
+	assert len(neighbours) <= 2
+	neighbours += [ None ] * (2 - len(neighbours))
+	return neighbours
 
-def transformOffsets(weights_, neighbours):
+def transformOffsets(weights):
+	neighbours = computeNeighbours(weights)
 	return [
 		( min(255, (1 if neighbour is None else neighbour % 3) * 128),
 		  min(255, (1 if neighbour is None else neighbour / 3) * 128) )
 		for neighbour in neighbours
 		]
 
-def transformWeights(weights, cells):
+def transformWeights(weights, cellFunc):
 	factor = 256 / sum(weights)
 	return tuple(
 		min(255, 0 if c is None else factor * weights[c])
-		for c in cells
+		for c in cellFunc(weights)
 		)
 
 def computeTable(pixelExpr, transform):
@@ -142,25 +137,28 @@ def computeTable(pixelExpr, transform):
 	#       simpler to let them call the transform function directly and
 	#       skip the generation of the data structure.
 	return [
-		[ transform(weights, neighbours)
-		  for weights, neighbours in izip(pixelCase, xyCase) ]
-		for pixelCase, xyCase in izip(pixelExpr, computeXY(pixelExpr))
+		[ transform(weights) for weights in pixelCase ]
+		for pixelCase in pixelExpr
 		]
 
 def computeOffsets(pixelExpr):
 	return computeTable(pixelExpr, transformOffsets)
 
 def computeWeights(pixelExpr):
+	def computeCells(weights):
+		neighbours = computeNeighbours(weights)
+		return (neighbours[0], neighbours[1], 4)
 	return computeTable(
 		pixelExpr,
-		lambda weights, neighbours:
-			transformWeights(weights, (neighbours[0], neighbours[1], 4))
+		lambda weights: transformWeights(weights, computeCells)
 		)
 
 def computeLiteWeights(pixelExpr):
+	def computeCells(weights_):
+		return (3, 4, 5)
 	return computeTable(
 		pixelExpr,
-		lambda weights, neighbours_: transformWeights(weights, (3, 4, 5))
+		lambda weights: transformWeights(weights, computeCells)
 		)
 
 def genHQLiteOffsetsTable(pixelExpr):
