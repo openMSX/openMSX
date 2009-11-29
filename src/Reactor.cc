@@ -12,6 +12,7 @@
 #include "FilePool.hh"
 #include "UserSettings.hh"
 #include "MSXMotherBoard.hh"
+#include "StateChangeDistributor.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "GlobalCliComm.hh"
@@ -960,6 +961,12 @@ string RestoreMachineCommand::execute(const vector<string>& tokens)
 	} catch (MSXException& e) {
 		throw CommandException("Cannot load state: " + e.getMessage());
 	}
+
+	// Savestate also contains stuff like the keyboard state at the moment
+	// the snapshot was created (this is required for reverse/replay). But
+	// now we want the MSX to see the actual host keyboard state.
+	newBoard->getStateChangeDistributor().stopReplay(newBoard->getCurrentTime());
+
 	reactor.boards.push_back(newBoard);
 	return newBoard->getMachineID();
 }
