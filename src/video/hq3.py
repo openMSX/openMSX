@@ -4,94 +4,101 @@ from hqcommon import isPow2, makeLite, simplifyWeights
 
 import sys
 
-def filterSwitch(stream):
-	log = False
-	inIf = False
-	for line in stream:
-		line = line.strip()
-		if line == 'switch (pattern) {':
-			log = True
-		elif line == '}':
-			if inIf:
-				inIf = False
-			elif log:
-				break
-		elif line.startswith('//pixel'):
-			line = line[2 : ]
-		elif line.startswith('if'):
-			inIf = True
-		if log:
-			yield line
+class Parser(object):
 
-def addCases(cases, subCases, subPixel, expr):
-	global pixelExpr
-	if subPixel > (5 - 1):
-		subPixel -= 1
-	for case in cases:
-		for subCase in subCases:
-			weights = [ 0 ] * 9
-			if expr.startswith('interpolate'):
-				factorsStr = expr[
-					expr.index('<') + 1 : expr.index('>')
-					].split(',')
-				pixelsStr = expr[
-					expr.index('(') + 1 : expr.index(')')
-					].split(',')
-				assert len(factorsStr) == len(pixelsStr)
-				for factorStr, pixelStr in zip(factorsStr, pixelsStr):
-					factor = int(factorStr)
-					pixelStr = pixelStr.strip()
-					assert pixelStr[0] == 'c'
-					pixel = int(pixelStr[1 : ]) - 1
-					weights[pixel] = factor
-			else:
-				assert expr[0] == 'c'
-				weights[int(expr[1 : ]) - 1] = 1
-			pixelExpr[(case << 4) | subCase][subPixel] = weights
+	def __init__(self):
+		self.pixelExpr = [ [ None ] * 8 for _ in range(1 << 12) ]
+		self.__parse()
 
-pixelExpr = [ [ None ] * 8 for _ in range(1 << 12) ]
+	@staticmethod
+	def __filterSwitch(stream):
+		log = False
+		inIf = False
+		for line in stream:
+			line = line.strip()
+			if line == 'switch (pattern) {':
+				log = True
+			elif line == '}':
+				if inIf:
+					inIf = False
+				elif log:
+					break
+			elif line.startswith('//pixel'):
+				line = line[2 : ]
+			elif line.startswith('if'):
+				inIf = True
+			if log:
+				yield line
 
-cases = []
-subCases = range(1 << 4)
-for line in filterSwitch(file('HQ3xScaler.in')):
-	if line.startswith('case'):
-		cases.append(int(line[5 : line.index(':', 5)]))
-	elif line.startswith('pixel'):
-		subPixel = int(line[5]) - 1
-		assert 0 <= subPixel < 9
-		assert subPixel != (5 - 1)
-		expr = line[line.index('=') + 1 : ].strip()
-		addCases(cases, subCases, subPixel, expr[ : -1])
-	elif line.startswith('if'):
-		index = line.find('edge')
-		assert index != -1
-		index1 = line.index('(', index)
-		index2 = line.index(',', index1)
-		index3 = line.index(')', index2)
-		pix1s = line[index1 + 1 : index2].strip()
-		pix2s = line[index2 + 1 : index3].strip()
-		assert pix1s[0] == 'c', pix1s
-		assert pix2s[0] == 'c', pix2s
-		pix1 = int(pix1s[1:])
-		pix2 = int(pix2s[1:])
-		if pix1 == 2 and pix2 == 6:
-			subCase = 0
-		elif pix1 == 6 and pix2 == 8:
-			subCase = 1
-		elif pix1 == 8 and pix2 == 4:
-			subCase = 2
-		elif pix1 == 4 and pix2 == 2:
-			subCase = 3
-		else:
-			assert False, (line, pix1, pix2)
-		subCases = [ x for x in range(1 << 4) if x & (1 << subCase) ]
-	elif line.startswith('} else'):
-		subCases = [ x for x in range(1 << 4) if x not in subCases ]
-	elif line.startswith('}'):
-		subCases = range(1 << 4)
-	elif line.startswith('break'):
+	def __parse(self):
 		cases = []
 		subCases = range(1 << 4)
+		for line in self.__filterSwitch(file('HQ3xScaler.in')):
+			if line.startswith('case'):
+				cases.append(int(line[5 : line.index(':', 5)]))
+			elif line.startswith('pixel'):
+				subPixel = int(line[5]) - 1
+				assert 0 <= subPixel < 9
+				assert subPixel != (5 - 1)
+				expr = line[line.index('=') + 1 : ].strip()
+				self.__addCases(cases, subCases, subPixel, expr[ : -1])
+			elif line.startswith('if'):
+				index = line.find('edge')
+				assert index != -1
+				index1 = line.index('(', index)
+				index2 = line.index(',', index1)
+				index3 = line.index(')', index2)
+				pix1s = line[index1 + 1 : index2].strip()
+				pix2s = line[index2 + 1 : index3].strip()
+				assert pix1s[0] == 'c', pix1s
+				assert pix2s[0] == 'c', pix2s
+				pix1 = int(pix1s[1:])
+				pix2 = int(pix2s[1:])
+				if pix1 == 2 and pix2 == 6:
+					subCase = 0
+				elif pix1 == 6 and pix2 == 8:
+					subCase = 1
+				elif pix1 == 8 and pix2 == 4:
+					subCase = 2
+				elif pix1 == 4 and pix2 == 2:
+					subCase = 3
+				else:
+					assert False, (line, pix1, pix2)
+				subCases = [ x for x in range(1 << 4) if x & (1 << subCase) ]
+			elif line.startswith('} else'):
+				subCases = [ x for x in range(1 << 4) if x not in subCases ]
+			elif line.startswith('}'):
+				subCases = range(1 << 4)
+			elif line.startswith('break'):
+				cases = []
+				subCases = range(1 << 4)
+
+	def __addCases(self, cases, subCases, subPixel, expr):
+		if subPixel > (5 - 1):
+			subPixel -= 1
+		for case in cases:
+			for subCase in subCases:
+				weights = [ 0 ] * 9
+				if expr.startswith('interpolate'):
+					factorsStr = expr[
+						expr.index('<') + 1 : expr.index('>')
+						].split(',')
+					pixelsStr = expr[
+						expr.index('(') + 1 : expr.index(')')
+						].split(',')
+					assert len(factorsStr) == len(pixelsStr)
+					for factorStr, pixelStr in zip(factorsStr, pixelsStr):
+						factor = int(factorStr)
+						pixelStr = pixelStr.strip()
+						assert pixelStr[0] == 'c'
+						pixel = int(pixelStr[1 : ]) - 1
+						weights[pixel] = factor
+				else:
+					assert expr[0] == 'c'
+					weights[int(expr[1 : ]) - 1] = 1
+				self.pixelExpr[(case << 4) | subCase][subPixel] = weights
+
+pixelExpr = Parser().pixelExpr
 
 subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
 
