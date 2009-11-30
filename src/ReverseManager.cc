@@ -145,12 +145,14 @@ void ReverseManager::stop()
 		history.clear();
 		collectCount = 0;
 		replayIndex = 0;
+		pendingTakeSnapshot = false;
 	}
+	assert(!pendingTakeSnapshot);
 	assert(!collecting());
 	assert(!replaying());
 }
 
-string ReverseManager::status()
+string ReverseManager::status() const
 {
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
@@ -350,6 +352,9 @@ void ReverseManager::goToSnapshot(Chunks::iterator it, EmuTime::param targetTime
 	// switch to the new MSXMotherBoard
 	// TODO this is not correct if this board was not the active board
 	reactor.replaceActiveBoard(newBoard);
+
+	assert(!collecting());
+	assert(newBoard->getReverseManager().collecting());
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
