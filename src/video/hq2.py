@@ -94,9 +94,9 @@ def genSwitch(pixelExpr, narrow):
 						') & (0xFF00FF * %d)' % wsum +
 					')) / %d;\n' % wsum
 					)
-		yield ('\tbreak;\n')
-	yield ('default:\n')
-	yield ('\tUNREACHABLE;\n')
+		yield '\tbreak;\n'
+	yield 'default:\n'
+	yield '\tUNREACHABLE;\n'
 	yield '\t%s = 0; // avoid warning\n' % (
 		' = '.join('pixel%d' % (i + 1) for i in range(2 if narrow else 4))
 		)
