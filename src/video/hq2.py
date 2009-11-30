@@ -144,21 +144,17 @@ def computeTable(pixelExpr, transform):
 def computeOffsets(pixelExpr):
 	return computeTable(pixelExpr, transformOffsets)
 
-def computeWeights(pixelExpr):
-	def computeCells(weights):
-		neighbours = computeNeighbours(weights)
-		return (neighbours[0], neighbours[1], 4)
-	return computeTable(
-		pixelExpr,
-		lambda weights: transformWeights(weights, computeCells)
-		)
+def computeWeightCells(weights):
+	neighbours = computeNeighbours(weights)
+	return (neighbours[0], neighbours[1], 4)
 
-def computeLiteWeights(pixelExpr):
-	def computeCells(weights_):
-		return (3, 4, 5)
+def computeLiteWeightCells(weights_):
+	return (3, 4, 5)
+
+def computeWeights(pixelExpr):
 	return computeTable(
 		pixelExpr,
-		lambda weights: transformWeights(weights, computeCells)
+		lambda weights: transformWeights(weights, computeWeightCells)
 		)
 
 def genHQLiteOffsetsTable(pixelExpr):
@@ -187,19 +183,19 @@ def genHQLiteOffsetsTable(pixelExpr):
 			assert 0 <= y < 256
 			yield x, y
 
-def formatOffsetsTable(offsetsTable):
-	for case, subPixelNeighbourOffsets in enumerate(offsetsTable):
+def formatOffsetsTable(pixelExpr):
+	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
-		for neighbourOffset in subPixelNeighbourOffsets:
-			for x, y in neighbourOffset:
+		for weights in expr:
+			for x, y in transformOffsets(weights):
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
-def formatWeightsTable(weightsTable):
-	for case, subPixelWeights in enumerate(weightsTable):
+def formatWeightsTable(pixelExpr, cellFunc):
+	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
-		for weights in subPixelWeights:
-			for weight in weights:
+		for weights in expr:
+			for weight in transformWeights(weights, cellFunc):
 				yield ' %3d,' % weight
 			yield '\n'
 
@@ -370,17 +366,18 @@ class Variant(object):
 if __name__ == '__main__':
 	parser = Parser()
 
-	#pixelExpr = Variant(parser.pixelExpr, lite = False, narrow = False, table = True ).pixelExpr
-	#printText(formatOffsetsTable(computeOffsets(pixelExpr)))
-	#print '//-------------'
-	#printText(formatWeightsTable(computeWeights(pixelExpr)))
-	#parser = Parser()
-	#printText(formatWeightsTable(computeLiteWeights(
-		#Variant(parser.pixelExpr, lite = True,  narrow = False, table = True ).pixelExpr
-		#)))
-
 	fullTableVariant = Variant(parser.pixelExpr, lite = False, narrow = False, table = True )
 	liteTableVariant = Variant(parser.pixelExpr, lite = True,  narrow = False, table = True )
+
+	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
+	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))
+	#printText(formatWeightsTable(
+	#	fullTableVariant.pixelExpr, computeWeightCells
+	#	))
+	#printText(formatWeightsTable(
+	#	liteTableVariant.pixelExpr, computeLiteWeightCells
+	#	))
+
 	writeBinaryFile(
 		'HQ2xOffsets.dat',
 		byteStream(computeOffsets(fullTableVariant.pixelExpr))
@@ -395,10 +392,6 @@ if __name__ == '__main__':
 		)
 	# Note: HQ2xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
-	#writeBinaryFile(
-	#	'HQ2xLiteWeights.dat',
-	#	byteStream(computeLiteWeights(liteTableVariant.pixelExpr))
-	#	)
 
 	Variant(parser.pixelExpr, lite = False, narrow = False, table = False).writeSwitch(
 		'HQ2xScaler-1x1to2x2.nn'
