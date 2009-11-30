@@ -6,14 +6,6 @@ from copy import deepcopy
 from itertools import izip
 import sys
 
-def flatten(sequence):
-	for elem1 in sequence:
-		if hasattr(elem1, '__iter__'):
-			for elem2 in flatten(elem1):
-				yield elem2
-		else:
-			yield elem1
-
 def permuteCase(permutation, case):
 	return sum(
 		((case >> oldBit) & 1) << newBit
@@ -46,7 +38,7 @@ def writeBinaryFile(fileName, contents):
 	writeFile(fileName, 'wb', contents)
 
 def byteStream(bytes):
-	return ( chr(byte) for byte in flatten(bytes) )
+	return ( chr(byte) for byte in bytes )
 
 def genSwitch(pixelExpr, narrow):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
@@ -134,12 +126,15 @@ def transformWeights(weights, cellFunc):
 def computeOffsets(pixelExpr):
 	for expr in pixelExpr:
 		for weights in expr:
-			yield transformOffsets(weights)
+			for x, y in transformOffsets(weights):
+				yield x
+				yield y
 
 def computeWeights(pixelExpr, cellFunc):
 	for expr in pixelExpr:
 		for weights in expr:
-			yield transformWeights(weights, cellFunc)
+			for transformedWeight in transformWeights(weights, cellFunc):
+				yield transformedWeight
 
 def computeWeightCells(weights):
 	neighbours = computeNeighbours(weights)
@@ -172,7 +167,8 @@ def genHQLiteOffsetsTable(pixelExpr):
 				assert neighbour is None, neighbour
 			assert 0 <= x < 256
 			assert 0 <= y < 256
-			yield x, y
+			yield x
+			yield y
 
 def formatOffsetsTable(pixelExpr):
 	for case, expr in enumerate(pixelExpr):
