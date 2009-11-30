@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1259528260">
+<softwaredb xml:lang="en" timestamp="1259539852">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -10953,7 +10953,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">ebe20c85c5314957fafc223c26bf393847e3bb03</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">f2361230358bd945690ca1c2a9dcc1cbce83941b</hash></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">a04ccf24f4164282ddc2574378f0d9ad8e180a53</hash><remark><text>English Translation</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">07e2f85da94ae1c086a4f6358e5e77025489347c</hash><remark><text>English Translation (trained)</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">07e2f85da94ae1c086a4f6358e5e77025489347c</hash><remark><text>Trained</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">4e34de62f72075831fc9a8c8fa1350a2e3dd6712</hash><remark><text>English Translation (Trained)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Word Invaders</title>
@@ -11318,6 +11319,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2484
-Parse time 4.021 seconds on Sun Nov 29 21:57:44 CET 2009
+Roms in this database:2485
+Parse time 4.161 seconds on Mon Nov 30 1:10:56 CET 2009
  -->
