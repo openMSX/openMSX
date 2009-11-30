@@ -1,7 +1,8 @@
 # $Id$
 
+from hqcommon import isPow2, makeLite, simplifyWeights
+
 import sys
-from hqcommon import *
 
 def filterSwitch(stream):
 	log = False
