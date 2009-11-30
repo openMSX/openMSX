@@ -129,9 +129,7 @@ def sanityCheck(pixelExpr):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
 
-permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)    ;#for SDL
-#permutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)   ;#for openGL
-def permuteCase(case):
+def permuteCase(permutation, case):
 	return sum(
 		((case >> oldBit) & 1) << newBit
 		for newBit, oldBit in enumerate(permutation)
@@ -203,13 +201,14 @@ def printSubExpr(subExpr):
 			)
 
 def printSwitch(pixelExpr, filename):
+	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 	file = open(filename, 'w')
 	exprToCases = {}
 	for case, expr in enumerate(pixelExpr):
 		exprToCases.setdefault(
 			tuple(tuple(subExpr) for subExpr in expr),
 			[]
-			).append(permuteCase(case))
+			).append(permuteCase(permutation, case))
 	print >> file, 'switch (pattern) {'
 	for cases, expr in sorted(
 		( sorted(cases), expr )
@@ -231,10 +230,12 @@ def printSwitch(pixelExpr, filename):
 	print >> file, '}'
 	file.close()
 
+tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
+
 def printHQLiteScalerTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pixelExpr2[permuteCase(case)] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
 	for case in range(1 << 12):
 		sys.stdout.write('// %d\n' % case)
@@ -253,8 +254,7 @@ def printHQLiteScalerTable2Binary(pixelExpr, filename):
 	file = open(filename, 'wb')
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		#pixelExpr2[permuteCase(case)] = pixelExpr[case]
-		pixelExpr2[case] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
 	offset_x = ( 43,   0, -43,  43, -43,  43,   0, -43)
 	offset_y = ( 43,  43,  43,   0,   0, -43, -43, -43)
@@ -287,7 +287,7 @@ def printHQLiteScalerTableBinary(pixelExpr, filename):
 	file = open(filename, 'wb')
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pixelExpr2[permuteCase(case)] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
 	for case in range(1 << 12):
 		for subPixel in range(9):
@@ -304,7 +304,7 @@ def printHQLiteScalerTableBinary(pixelExpr, filename):
 def printHQScalerTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pcase = permuteCase(case)
+		pcase = permuteCase(tablePermutation, case)
 		for subPixel in range(9):
 			if subPixel < 4:
 				pixelExpr2[pcase][subPixel] = pixelExpr[case][subPixel]
@@ -348,8 +348,7 @@ def printHQScalerTable(pixelExpr):
 def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		#pcase = permuteCase(case)
-		pcase = case
+		pcase = permuteCase(tablePermutation, case)
 		for subPixel in range(9):
 			if subPixel < 4:
 				pixelExpr2[pcase][subPixel] = pixelExpr[case][subPixel]
@@ -415,25 +414,26 @@ def makeNarrow(pixelExpr):
 	return narrowExpr
 
 if __name__ == '__main__':
-	pixelExpr = Parser().pixelExpr
-
 	#for case in range(1 << 12):
 	#	for pixel in range(8):
 	#		print case, pixel, pixelExpr[case][pixel]
 
 	#pixelExpr = makeNarrow(pixelExpr)
 
+	pixelExpr = Parser().pixelExpr
 	#printHQScalerTable(pixelExpr)
-	#printHQScalerTableBinary(pixelExpr, 'HQ3xOffsets.dat', 'HQ3xWeights.dat')
+	printHQScalerTableBinary(pixelExpr, 'HQ3xOffsets.dat', 'HQ3xWeights.dat')
 
-	#makeLite(pixelExpr)
+	pixelExpr = Parser().pixelExpr
+	makeLite(pixelExpr)
 	#printHQLiteScalerTable(pixelExpr)
 	#printHQLiteScalerTableBinary(pixelExpr, 'HQ3xLiteWeights.dat')
 
-	#makeLite(pixelExpr, (2, 4, 7))
-	#printHQLiteScalerTable2Binary(pixelExpr, 'HQ3xLiteOffset.dat')
+	pixelExpr = Parser().pixelExpr
+	makeLite(pixelExpr, (2, 4, 7))
+	printHQLiteScalerTable2Binary(pixelExpr, 'HQ3xLiteOffset.dat')
 
+	pixelExpr = Parser().pixelExpr
 	printSwitch(pixelExpr, 'HQ3xScaler-1x1to3x3.nn')
-
 	makeLite(pixelExpr)
 	printSwitch(pixelExpr, 'HQ3xLiteScaler-1x1to3x3.nn')
