@@ -202,9 +202,7 @@ def printSubExpr(subExpr):
 			')) / %d' % wsum
 			)
 
-pixelExpr = Parser().pixelExpr
-
-def printSwitch(filename):
+def printSwitch(pixelExpr, filename):
 	file = open(filename, 'w')
 	exprToCases = {}
 	for case, expr in enumerate(pixelExpr):
@@ -233,7 +231,7 @@ def printSwitch(filename):
 	print >> file, '}'
 	file.close()
 
-def printHQLiteScalerTable():
+def printHQLiteScalerTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pixelExpr2[permuteCase(case)] = pixelExpr[case]
@@ -251,7 +249,7 @@ def printHQLiteScalerTable():
 					sys.stdout.write(' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c]))
 			sys.stdout.write('\n')
 
-def printHQLiteScalerTable2Binary(filename):
+def printHQLiteScalerTable2Binary(pixelExpr, filename):
 	file = open(filename, 'wb')
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
@@ -285,7 +283,7 @@ def printHQLiteScalerTable2Binary(filename):
 			file.write(chr(x) + chr(y))
 	file.close()
 
-def printHQLiteScalerTableBinary(filename):
+def printHQLiteScalerTableBinary(pixelExpr, filename):
 	file = open(filename, 'wb')
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
@@ -303,7 +301,7 @@ def printHQLiteScalerTableBinary(filename):
 					file.write(chr(min(255, factor * pixelExpr2[case][subPixel][c])))
 	file.close()
 
-def printHQScalerTable():
+def printHQScalerTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pcase = permuteCase(case)
@@ -347,7 +345,7 @@ def printHQScalerTable():
 				sys.stdout.write(' %3d,' % min(255, factor * t))
 			sys.stdout.write('\n')
 
-def printHQScalerTableBinary(offsetsFilename, weightsFilename):
+def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		#pcase = permuteCase(case)
@@ -399,8 +397,7 @@ def blendWeights2(w1, w2):
 		w[i] = 2 * sum2 * w1[i] + sum1 * w2[i]
 	return simplifyWeights(w)
 
-def makeNarrow():
-	global pixelExpr
+def makeNarrow(pixelExpr):
 	narrowExpr = [ [ None ] * 6 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		narrowExpr[case][0] = blendWeights2(
@@ -415,26 +412,28 @@ def makeNarrow():
 			pixelExpr[case][5], pixelExpr[case][6])
 		narrowExpr[case][5] = blendWeights2(
 			pixelExpr[case][7], pixelExpr[case][6])
-	pixelExpr = narrowExpr
+	return narrowExpr
 
 if __name__ == '__main__':
+	pixelExpr = Parser().pixelExpr
+
 	#for case in range(1 << 12):
 	#	for pixel in range(8):
 	#		print case, pixel, pixelExpr[case][pixel]
 
-	#makeNarrow()
+	#pixelExpr = makeNarrow(pixelExpr)
 
-	#printHQScalerTable()
-	#printHQScalerTableBinary('HQ3xOffsets.dat', 'HQ3xWeights.dat')
+	#printHQScalerTable(pixelExpr)
+	#printHQScalerTableBinary(pixelExpr, 'HQ3xOffsets.dat', 'HQ3xWeights.dat')
 
 	#makeLite(pixelExpr)
-	#printHQLiteScalerTable()
-	#printHQLiteScalerTableBinary('HQ3xLiteWeights.dat')
+	#printHQLiteScalerTable(pixelExpr)
+	#printHQLiteScalerTableBinary(pixelExpr, 'HQ3xLiteWeights.dat')
 
 	#makeLite(pixelExpr, (2, 4, 7))
-	#printHQLiteScalerTable2Binary('HQ3xLiteOffset.dat')
+	#printHQLiteScalerTable2Binary(pixelExpr, 'HQ3xLiteOffset.dat')
 
-	printSwitch('HQ3xScaler-1x1to3x3.nn')
+	printSwitch(pixelExpr, 'HQ3xScaler-1x1to3x3.nn')
 
 	makeLite(pixelExpr)
-	printSwitch('HQ3xLiteScaler-1x1to3x3.nn')
+	printSwitch(pixelExpr, 'HQ3xLiteScaler-1x1to3x3.nn')
