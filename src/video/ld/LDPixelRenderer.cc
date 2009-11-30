@@ -13,7 +13,8 @@
 namespace openmsx {
 
 LDPixelRenderer::LDPixelRenderer(LaserdiscPlayer& ld, Display& display)
-	: eventDistributor(ld.getMotherBoard().getReactor().getEventDistributor())
+	: motherboard(ld.getMotherBoard())
+	, eventDistributor(motherboard.getReactor().getEventDistributor())
 	, rasterizer(display.getVideoSystem().createLDRasterizer(ld))
 {
 }
@@ -27,10 +28,15 @@ void LDPixelRenderer::frameStart(EmuTime::param time)
 	rasterizer->frameStart(time);
 }
 
+bool LDPixelRenderer::isActive() const
+{
+	return motherboard.isActive();
+}
+
 void LDPixelRenderer::frameEnd()
 {
 	eventDistributor.distributeEvent(
-		new FinishFrameEvent(VIDEO_LASERDISC, false));
+		new FinishFrameEvent(VIDEO_LASERDISC, !isActive()));
 }
 
 void LDPixelRenderer::drawBlank(int r, int g, int b )

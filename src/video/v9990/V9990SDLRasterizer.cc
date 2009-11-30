@@ -9,6 +9,7 @@
 #include "V9990P2Converter.hh"
 #include "FloatSetting.hh"
 #include "StringSetting.hh"
+#include "MSXMotherBoard.hh"
 #include "Display.hh"
 #include "VisibleSurface.hh"
 #include "RenderSettings.hh"
@@ -63,7 +64,8 @@ V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 template <class Pixel>
 bool V9990SDLRasterizer<Pixel>::isActive()
 {
-	return postProcessor->getZ() != Layer::Z_MSX_PASSIVE;
+	return (postProcessor->getZ() != Layer::Z_MSX_PASSIVE) &&
+	       vdp.getMotherBoard().isActive();
 }
 
 template <class Pixel>

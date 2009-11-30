@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class EventDistributor;
 class Display;
 class LDRasterizer;
@@ -30,6 +31,9 @@ public:
 	virtual RawFrame* getRawFrame();
 
 private:
+	bool isActive() const;
+
+	MSXMotherBoard& motherboard;
 	EventDistributor& eventDistributor;
 	const std::auto_ptr<LDRasterizer> rasterizer;
 };

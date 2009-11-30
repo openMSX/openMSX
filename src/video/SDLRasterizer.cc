@@ -7,6 +7,7 @@
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
+#include "MSXMotherBoard.hh"
 #include "Display.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
@@ -113,7 +114,8 @@ SDLRasterizer<Pixel>::~SDLRasterizer()
 template <class Pixel>
 bool SDLRasterizer<Pixel>::isActive()
 {
-	return postProcessor->getZ() != Layer::Z_MSX_PASSIVE;
+	return (postProcessor->getZ() != Layer::Z_MSX_PASSIVE) &&
+	       vdp.getMotherBoard().isActive();
 }
 
 template <class Pixel>
