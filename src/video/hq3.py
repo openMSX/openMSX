@@ -9,6 +9,7 @@ class Parser(object):
 	def __init__(self):
 		self.pixelExpr = [ [ None ] * 8 for _ in range(1 << 12) ]
 		self.__parse()
+		sanityCheck(self.pixelExpr)
 
 	@staticmethod
 	def __filterSwitch(stream):
@@ -98,36 +99,35 @@ class Parser(object):
 					weights[int(expr[1 : ]) - 1] = 1
 				self.pixelExpr[(case << 4) | subCase][subPixel] = weights
 
-pixelExpr = Parser().pixelExpr
+def sanityCheck(pixelExpr):
+	'''Check various observed properties.
+	'''
+	subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
 
-subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
+	for case, expr in enumerate(pixelExpr):
+		# Weight factor of center pixel is never zero.
+		# TODO: This is not the case for 3x, is that expected or a problem?
+		#for corner in expr:
+			#assert corner[5 - 1] != 0, corner
 
+		# Sum of weight factors is always a power of two.
+		for corner in expr:
+			total = sum(corner)
+			assert total in (1, 2, 4, 8, 16), total
+			#
+			count = reduce(lambda x, y: x + (y != 0), corner, 0)
+			# at most 3 non-zero coef
+			assert count <= 3, (case, corner)
+			# and if there are 3 one of those must be c5
+			assert (count < 3) or (corner[4] != 0)
 
-# Check various observed properties:
-
-for case, expr in enumerate(pixelExpr):
-	# Weight factor of center pixel is never zero.
-	#for corner in expr:
-	#	assert corner[5 - 1] != 0, corner
-
-	# Sum of weight factors is always a power of two.
-	for corner in expr:
-		total = sum(corner)
-		assert total in (1, 2, 4, 8, 16), total
-		#
-		count = reduce(lambda x, y: x+(y!=0), corner, 0)
-		# at most 3 non-zero coef
-		assert count <= 3, (case, corner)
-		# and if there are 3 one of those must be c5
-		assert (count < 3) or (corner[4] != 0)
-#
-#	# Subpixel depends only on the center and three neighbours in the direction
-#	# of the subpixel itself.
-#	for corner, subset in zip(expr, subsets):
-#		for pixel in range(9):
-#			if (pixel + 1) not in subset:
-#				#assert corner[pixel] == 0, corner
-
+		# Subpixel depends only on the center and three neighbours in the
+		# direction of the subpixel itself.
+		# TODO: This is not the case for 3x, is that expected or a problem?
+		#for corner, subset in zip(expr, subsets):
+			#for pixel in range(9):
+				#if (pixel + 1) not in subset:
+					#assert corner[pixel] == 0, corner
 
 permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)    ;#for SDL
 #permutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)   ;#for openGL
@@ -201,6 +201,8 @@ def printSubExpr(subExpr):
 				') & (0xFF00FF * %d)' % wsum +
 			')) / %d' % wsum
 			)
+
+pixelExpr = Parser().pixelExpr
 
 def printSwitch(filename):
 	file = open(filename, 'w')
