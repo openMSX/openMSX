@@ -131,18 +131,15 @@ def transformWeights(weights, cellFunc):
 		for c in cellFunc(weights)
 		)
 
-def computeTable(pixelExpr, transform):
-	# TODO: This structure will be flattened when generating the data files.
-	#       Only the format routines need the structure, but it might be
-	#       simpler to let them call the transform function directly and
-	#       skip the generation of the data structure.
-	return [
-		[ transform(weights) for weights in pixelCase ]
-		for pixelCase in pixelExpr
-		]
-
 def computeOffsets(pixelExpr):
-	return computeTable(pixelExpr, transformOffsets)
+	for expr in pixelExpr:
+		for weights in expr:
+			yield transformOffsets(weights)
+
+def computeWeights(pixelExpr, cellFunc):
+	for expr in pixelExpr:
+		for weights in expr:
+			yield transformWeights(weights, cellFunc)
 
 def computeWeightCells(weights):
 	neighbours = computeNeighbours(weights)
@@ -150,12 +147,6 @@ def computeWeightCells(weights):
 
 def computeLiteWeightCells(weights_):
 	return (3, 4, 5)
-
-def computeWeights(pixelExpr):
-	return computeTable(
-		pixelExpr,
-		lambda weights: transformWeights(weights, computeWeightCells)
-		)
 
 def genHQLiteOffsetsTable(pixelExpr):
 	'''In the hqlite case, the result color depends on at most one neighbour
@@ -384,7 +375,7 @@ if __name__ == '__main__':
 		)
 	writeBinaryFile(
 		'HQ2xWeights.dat',
-		byteStream(computeWeights(fullTableVariant.pixelExpr))
+		byteStream(computeWeights(fullTableVariant.pixelExpr, computeWeightCells))
 		)
 	writeBinaryFile(
 		'HQ2xLiteOffsets.dat',
