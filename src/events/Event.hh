@@ -71,6 +71,9 @@ enum EventType
 	  * should be repainted. */
 	OPENMSX_EXPOSE_EVENT,
 
+	/** Delete old MSXMotherboards */
+	OPENMSX_DELETE_BOARDS,
+
 	OPENMSX_MIDI_IN_READER_EVENT,
 	OPENMSX_MIDI_IN_WINDOWS_EVENT,
 	OPENMSX_RS232_TESTER_EVENT,

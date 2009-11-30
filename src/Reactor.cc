@@ -246,6 +246,7 @@ Reactor::Reactor()
 
 	eventDistributor->registerEventListener(OPENMSX_QUIT_EVENT, *this);
 	eventDistributor->registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor->registerEventListener(OPENMSX_DELETE_BOARDS, *this);
 }
 
 Reactor::~Reactor()
@@ -254,6 +255,7 @@ Reactor::~Reactor()
 
 	eventDistributor->unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
 	eventDistributor->unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
 	pauseSetting.detach(*this);
 }
@@ -474,6 +476,8 @@ void Reactor::deleteBoard(Board board)
 	// board. Instead remember this board and delete it at a safe moment
 	// in time.
 	garbageBoards.push_back(board);
+	eventDistributor->distributeEvent(
+		new SimpleEvent(OPENMSX_DELETE_BOARDS));
 }
 
 void Reactor::enterMainLoop()
@@ -538,7 +542,6 @@ void Reactor::run(CommandLineParser& parser)
 	PollEventGenerator pollEventGenerator(*eventDistributor);
 
 	while (running) {
-		garbageBoards.clear(); // see deleteBoard()
 		eventDistributor->deliverEvents();
 		MSXMotherBoard* motherboard = activeBoard.get();
 		bool blocked = (blockedCounter > 0) || !motherboard;
@@ -619,6 +622,8 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 			// lost focus
 			pause();
 		}
+	} else if (type == OPENMSX_DELETE_BOARDS) {
+		garbageBoards.clear();
 	} else {
 		UNREACHABLE; // we didn't subscribe to this event...
 	}
