@@ -1322,8 +1322,8 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	displayMode.setByte(mode);
 
 	ar.serialize("cmdEngine", *cmdEngine);
-	ar.serialize("vram", *vram); // must come after controlRegs
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
+	ar.serialize("vram", *vram); // must come after controlRegs and after spriteChecker
 
 	// externalVideo does not need serializing. It is set on load by the
 	// external video source (e.g. PioneerLDControl).

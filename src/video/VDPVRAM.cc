@@ -131,7 +131,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	, logicalVRAMDebug (new LogicalVRAMDebuggable (vdp))
 	, physicalVRAMDebug(new PhysicalVRAMDebuggable(vdp, *this, size))
 	#ifdef DEBUG
-	, vramTime(time)
+	, vramTime(EmuTime::zero)
 	#endif
 	, actualSize(size)
 	, cmdReadWindow(data)
