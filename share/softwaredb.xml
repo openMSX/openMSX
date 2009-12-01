@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1259539852">
+<softwaredb xml:lang="en" timestamp="1259710372">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1298,6 +1298,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">c1219e0735d31f1c41995795e58b04b97bf1b71a</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">British Bob</title>
+	<system>MSX</system>
+	<company>Relevo</company>
+	<year>2009</year>
+	<country>SP</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">e45af2f15327dfdc1b1250ddab97b7f28801d5ca</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Brother Adventure</title>
 	<genmsxid>3027</genmsxid>
 	<system>MSX</system>
@@ -1538,7 +1546,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>AG Software</company>
 	<year>2009</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">902d109e4ff452471b11936039a472cbee81a902</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">902d109e4ff452471b11936039a472cbee81a902</hash><remark><text>MSXDev09 Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Castle, The</title>
@@ -2469,6 +2477,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1988</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">87a7fa43602f74c47151e79f1aaf7f641331ba51</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Dr. Pill</title>
+	<system>MSX</system>
+	<company>Infinite</company>
+	<year>2009</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">fe192b900c12b5dfaf59f022e57e17a4d2738623</hash><remark><text>MSXDev09 Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Dr.Copy</title>
@@ -6332,6 +6348,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">6523381fa5012b45a69af0e351f239c97afd4be7</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Menace</title>
+	<system>MSX</system>
+	<company>The New Image</company>
+	<year>2009</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">dccc1f9217901461c646326a7f871f6b7de88aba</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Metal Gear</title>
 	<genmsxid>1028</genmsxid>
 	<system>MSX</system>
@@ -7917,8 +7941,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Agsoftware</company>
 	<year>2009</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">23a05191102459579aee8af4527d6998912f0f80</hash></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">788ce4ba8d7e881dd2d3cc697c2dd88f44e27798</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">23a05191102459579aee8af4527d6998912f0f80</hash><remark><text>MSXDev09 Entry</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">788ce4ba8d7e881dd2d3cc697c2dd88f44e27798</hash><remark><text>MSXDev09 Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Poetry</title>
@@ -8405,6 +8429,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">afb693fd0a138cfc59a2bf81eabd7ca2abd4e162</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">81bbbd4ea86350ebba03e8d8cb29f050a3d93a83</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Retaliot</title>
+	<system>MSX</system>
+	<company>Video Hazard</company>
+	<year>2009</year>
+	<country>SP</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">e27b938a60081c8aba7ad5741aea79f8e33fa8e2</hash><remark><text>MSXDev09 Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Return of Ishtar, The</title>
@@ -9612,6 +9644,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="false"/><rom><hash algo="sha1">e37e2468faf0e6bf3e38b3cf7e611c846e45c5e9</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">StrayCat</title>
+	<system>MSX</system>
+	<company>Imanok</company>
+	<year>2009</year>
+	<country>SP</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">c939da3791a6772b48be24553689ba4998244fe4</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Street Master</title>
@@ -10983,6 +11023,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">58e335c943d2647c3ff1e689069d9fa5e1c7ff6e</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">X0rz</title>
+	<system>MSX</system>
+	<company>Metal Soft</company>
+	<year>2009</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">607059ef3247771f1bbee5c38d4f43cef8856712</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Xevious - Fardraut Saga</title>
 	<genmsxid>1148</genmsxid>
 	<system>MSX</system>
@@ -11319,6 +11367,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2485
-Parse time 4.161 seconds on Mon Nov 30 1:10:56 CET 2009
+Roms in this database:2491
+Parse time 4.301 seconds on Wed Dec 2 0:32:57 CET 2009
  -->
