@@ -543,6 +543,7 @@ void Reactor::run(CommandLineParser& parser)
 
 	while (running) {
 		eventDistributor->deliverEvents();
+		assert(garbageBoards.empty());
 		MSXMotherBoard* motherboard = activeBoard.get();
 		bool blocked = (blockedCounter > 0) || !motherboard;
 		if (!blocked) blocked = !motherboard->execute();
@@ -623,7 +624,8 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 			pause();
 		}
 	} else if (type == OPENMSX_DELETE_BOARDS) {
-		garbageBoards.clear();
+		assert(!garbageBoards.empty());
+		garbageBoards.erase(garbageBoards.begin());
 	} else {
 		UNREACHABLE; // we didn't subscribe to this event...
 	}
