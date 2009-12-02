@@ -1,6 +1,6 @@
 # $Id$
 
-import hqcommon
+from hqcommon import blendWeights, makeLite as commonMakeLite
 
 from copy import deepcopy
 from itertools import izip
@@ -218,12 +218,12 @@ def sanityCheck(pixelExpr):
 def makeLite(pixelExpr, preferC6subPixels):
 	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.
 	liteExpr = deepcopy(pixelExpr)
-	hqcommon.makeLite(liteExpr, preferC6subPixels)
+	commonMakeLite(liteExpr, preferC6subPixels)
 	return liteExpr
 
 def makeNarrow(pixelExpr):
 	return [
-		[ hqcommon.blendWeights(a, b), hqcommon.blendWeights(c, d) ]
+		[ blendWeights(a, b), blendWeights(c, d) ]
 		for a, b, c, d in pixelExpr
 		]
 
