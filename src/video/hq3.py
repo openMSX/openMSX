@@ -1,6 +1,6 @@
 # $Id$
 
-from hqcommon import isPow2, makeLite, simplifyWeights
+from hqcommon import blendWeights, isPow2, makeLite
 
 import sys
 
@@ -388,29 +388,21 @@ def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 				weightsFile.write(chr(min(255, factor * t)))
 	weightsFile.close()
 
-def blendWeights2(w1, w2):
-	w = [0] * 9
-	sum1 = sum(w1)
-	sum2 = sum(w2)
-	for i in range(9):
-		w[i] = 2 * sum2 * w1[i] + sum1 * w2[i]
-	return simplifyWeights(w)
-
 def makeNarrow(pixelExpr):
 	narrowExpr = [ [ None ] * 6 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		narrowExpr[case][0] = blendWeights2(
-			pixelExpr[case][0], pixelExpr[case][1])
-		narrowExpr[case][1] = blendWeights2(
-			pixelExpr[case][2], pixelExpr[case][1])
-		narrowExpr[case][2] = blendWeights2(
-			pixelExpr[case][3], [0, 0, 0, 0, 1, 0, 0, 0, 0])
-		narrowExpr[case][3] = blendWeights2(
-			pixelExpr[case][4], [0, 0, 0, 0, 1, 0, 0, 0, 0])
-		narrowExpr[case][4] = blendWeights2(
-			pixelExpr[case][5], pixelExpr[case][6])
-		narrowExpr[case][5] = blendWeights2(
-			pixelExpr[case][7], pixelExpr[case][6])
+		narrowExpr[case][0] = blendWeights(
+			pixelExpr[case][0], pixelExpr[case][1], 2, 1)
+		narrowExpr[case][1] = blendWeights(
+			pixelExpr[case][2], pixelExpr[case][1], 2, 1)
+		narrowExpr[case][2] = blendWeights(
+			pixelExpr[case][3], [0, 0, 0, 0, 1, 0, 0, 0, 0], 2, 1)
+		narrowExpr[case][3] = blendWeights(
+			pixelExpr[case][4], [0, 0, 0, 0, 1, 0, 0, 0, 0], 2, 1)
+		narrowExpr[case][4] = blendWeights(
+			pixelExpr[case][5], pixelExpr[case][6], 2, 1)
+		narrowExpr[case][5] = blendWeights(
+			pixelExpr[case][7], pixelExpr[case][6], 2, 1)
 	return narrowExpr
 
 if __name__ == '__main__':

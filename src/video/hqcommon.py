@@ -1,5 +1,7 @@
 # $Id$
 
+from itertools import izip
+
 def isPow2(num):
 	if num == 1:
 		return True
@@ -105,6 +107,14 @@ def simplifyWeights3(weights):
 
 def simplifyWeights(weights):
 	return simplifyWeights3(simplifyWeights2(weights))
+
+def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
+	factor1 *= sum(weights2)
+	factor2 *= sum(weights1)
+	return simplifyWeights([
+		factor1 * w1 + factor2 * w2
+		for w1, w2 in izip(weights1, weights2)
+		])
 
 def makeLite(pixelExpr, preferC6subPixels = ()):
 	resetContradictions(pixelExpr)

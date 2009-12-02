@@ -221,17 +221,9 @@ def makeLite(pixelExpr, preferC6subPixels):
 	hqcommon.makeLite(liteExpr, preferC6subPixels)
 	return liteExpr
 
-def mixWeights(weights1, weights2):
-	sum1 = sum(weights1)
-	sum2 = sum(weights2)
-	return hqcommon.simplifyWeights([
-		sum2 * w1 + sum1 * w2
-		for w1, w2 in izip(weights1, weights2)
-		])
-
 def makeNarrow(pixelExpr):
 	return [
-		[ mixWeights(a, b), mixWeights(c, d) ]
+		[ hqcommon.blendWeights(a, b), hqcommon.blendWeights(c, d) ]
 		for a, b, c, d in pixelExpr
 		]
 
