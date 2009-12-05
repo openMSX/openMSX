@@ -40,6 +40,8 @@ def detectCPU():
 		return 'sparc'
 	elif cpu.startswith('sh'):
 		return 'sheb' if cpu.endswith('eb') else 'sh'
+	elif cpu == 'avr32':
+		return 'avr32'
 	elif cpu == '':
 		# Python couldn't figure it out.
 		os = system().lower()

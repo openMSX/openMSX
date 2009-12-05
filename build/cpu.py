@@ -30,6 +30,12 @@ class ARM(CPU):
 	name = 'arm'
 	bigEndian = False
 
+class AVR32(CPU):
+	'''Atmel AVR32, an embedded RISC CPU.
+	'''
+	name = 'avr32'
+	bigEndian = True
+
 class HPPA(CPU):
 	'''HP PA-RISC.
 	'''
