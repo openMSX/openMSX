@@ -1,10 +1,12 @@
 # $Id$
 
-from hqcommon import blendWeights, makeLite as commonMakeLite, permuteCase
+from hqcommon import (
+	blendWeights, makeLite as commonMakeLite, permuteCase,
+	printText, writeTextFile, writeBinaryFile
+	)
 
 from copy import deepcopy
 from itertools import izip
-import sys
 
 def permuteCases(permutation, pixelExpr):
 	pixelExpr2 = [ None ] * len(pixelExpr)
@@ -12,24 +14,6 @@ def permuteCases(permutation, pixelExpr):
 		pixelExpr2[permuteCase(permutation, case)] = expr
 	assert None not in pixelExpr2
 	return pixelExpr2
-
-def printText(contents):
-	for text in contents:
-		sys.stdout.write(text)
-
-def writeFile(fileName, mode, contents):
-	out = open(fileName, mode)
-	try:
-		for text in contents:
-			out.write(text)
-	finally:
-		out.close()
-
-def writeTextFile(fileName, contents):
-	writeFile(fileName, 'w', contents)
-
-def writeBinaryFile(fileName, bytes):
-	writeFile(fileName, 'wb', ( chr(byte) for byte in bytes ))
 
 def genSwitch(pixelExpr, narrow):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
@@ -49,7 +33,6 @@ def genSwitch(pixelExpr, narrow):
 			yield 'case %d:\n' % case
 		for subPixel, subExpr in enumerate(expr):
 			yield '\tpixel%d = ' % (subPixel + 1)
-			#sys.stderr.write('%s\n' % repr(subExpr))
 			wsum = sum(subExpr)
 			if wsum == 1:
 				assert subExpr[5 - 1] == 1

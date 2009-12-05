@@ -2,6 +2,30 @@
 
 from itertools import izip
 
+import sys
+
+# I/O:
+
+def printText(contents):
+	for text in contents:
+		sys.stdout.write(text)
+
+def writeFile(fileName, mode, contents):
+	out = open(fileName, mode)
+	try:
+		for text in contents:
+			out.write(text)
+	finally:
+		out.close()
+
+def writeTextFile(fileName, contents):
+	writeFile(fileName, 'w', contents)
+
+def writeBinaryFile(fileName, bytes):
+	writeFile(fileName, 'wb', ( chr(byte) for byte in bytes ))
+
+# The rest:
+
 def isPow2(num):
 	if num == 1:
 		return True
