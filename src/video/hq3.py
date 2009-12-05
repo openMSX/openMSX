@@ -225,62 +225,47 @@ def genHQLiteOffsetsTable(pixelExpr):
 def formatOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	xy = computeXY(pixelExpr3)
-	for case in range(1 << 12):
+	for case, expr in enumerate(pixelExpr3):
 		yield '// %d\n' % case
-		for subPixel in range(9):
-			for i in range(2):
-				t = xy[case][subPixel][i]
-				if t is None:
-					t = 4
-				x = min(255, (t % 3) * 128)
-				y = min(255, (t / 3) * 128)
+		for weights in expr:
+			for t in computeNeighbours(weights):
+				x = min(255, (1 if t is None else (t % 3)) * 128)
+				y = min(255, (1 if t is None else (t / 3)) * 128)
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
 def formatWeightsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	xy = computeXY(pixelExpr3)
-	for case in range(1 << 12):
+	for case, expr in enumerate(pixelExpr3):
 		yield '// %d\n' % case
-		for subPixel in range(9):
-			factor = 256 / sum(pixelExpr3[case][subPixel])
-			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				t = 0 if c is None else pixelExpr3[case][subPixel][c]
-				yield ' %3d,' % min(255, factor * t)
+		for weights in expr:
+			neighbours = computeNeighbours(weights)
+			factor = 256 / sum(weights)
+			for c in (neighbours[0], neighbours[1], 4):
+				yield ' %3d,' % min(255, 0 if c is None else factor * weights[c])
 			yield '\n'
 
-def computeXY(pixelExpr):
-	return [
-		[ computeNeighbours(weights) for weights in expr ]
-		for expr in pixelExpr
-		]
+def computeOffsets(pixelExpr):
+	for expr in pixelExpr:
+		for weights in expr:
+			for t in computeNeighbours(weights):
+				yield min(255, (1 if t is None else (t % 3)) * 128)
+				yield min(255, (1 if t is None else (t / 3)) * 128)
 
-def computeOffsets(xy):
-	for case in range(1 << 12):
-		for subPixel in range(9):
-			for i in range(2):
-				t = xy[case][subPixel][i]
-				if t is None:
-					t = 4
-				yield min(255, (t % 3) * 128)
-				yield min(255, (t / 3) * 128)
-
-def computeWeights(pixelExpr, xy):
-	for case in range(1 << 12):
-		for subPixel in range(9):
-			factor = 256 / sum(pixelExpr[case][subPixel])
-			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				t = 0 if c is None else pixelExpr[case][subPixel][c]
-				yield min(255, factor * t)
+def computeWeights(pixelExpr):
+	for expr in pixelExpr:
+		for weights in expr:
+			neighbours = computeNeighbours(weights)
+			factor = 256 / sum(weights)
+			for c in (neighbours[0], neighbours[1], 4):
+				yield min(255, 0 if c is None else factor * weights[c])
 
 def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	xy = computeXY(pixelExpr3)
-	writeBinaryFile(offsetsFilename, computeOffsets(xy))
-	writeBinaryFile(weightsFilename, computeWeights(pixelExpr3, xy))
+	writeBinaryFile(offsetsFilename, computeOffsets(pixelExpr3))
+	writeBinaryFile(weightsFilename, computeWeights(pixelExpr3))
 
 def makeNarrow(pixelExpr):
 	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
