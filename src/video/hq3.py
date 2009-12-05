@@ -230,7 +230,7 @@ def formatOffsetsTable(pixelExpr):
 		for subPixel in range(9):
 			for i in range(2):
 				t = xy[case][subPixel][i]
-				if t == -1:
+				if t is None:
 					t = 4
 				x = min(255, (t % 3) * 128)
 				y = min(255, (t / 3) * 128)
@@ -246,14 +246,12 @@ def formatWeightsTable(pixelExpr):
 		for subPixel in range(9):
 			factor = 256 / sum(pixelExpr3[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				t = 0
-				if c != -1:
-					t = pixelExpr3[case][subPixel][c]
+				t = 0 if c is None else pixelExpr3[case][subPixel][c]
 				yield ' %3d,' % min(255, factor * t)
 			yield '\n'
 
 def computeXY(pixelExpr3):
-	xy = [[[-1] * 2 for _ in range(9)] for _ in range(1 << 12)]
+	xy = [[[None] * 2 for _ in range(9)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(9):
 			j = 0
@@ -269,7 +267,7 @@ def computeOffsets(xy):
 		for subPixel in range(9):
 			for i in range(2):
 				t = xy[case][subPixel][i]
-				if t == -1:
+				if t is None:
 					t = 4
 				yield min(255, (t % 3) * 128)
 				yield min(255, (t / 3) * 128)
@@ -279,9 +277,7 @@ def computeWeights(pixelExpr, xy):
 		for subPixel in range(9):
 			factor = 256 / sum(pixelExpr[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				t = 0
-				if c != -1:
-					t = pixelExpr[case][subPixel][c]
+				t = 0 if c is None else pixelExpr[case][subPixel][c]
 				yield min(255, factor * t)
 
 def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
