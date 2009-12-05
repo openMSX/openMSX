@@ -2,11 +2,12 @@
 
 from hqcommon import (
 	blendWeights, computeNeighbours, computeOffsets, computeWeights,
-	computeWeightCells, makeLite,
+	computeWeightCells, makeLite as commonMakeLite,
 	permuteCase, permuteCases, printSubExpr, printText,
 	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
 
+from copy import deepcopy
 from itertools import izip
 
 class Parser(object):
@@ -253,6 +254,12 @@ def genWeightsTable(pixelExpr):
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
 	return computeWeights(pixelExpr3, computeWeightCells)
 
+def makeLite(pixelExpr, preferC6subPixels):
+	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.
+	liteExpr = deepcopy(pixelExpr)
+	commonMakeLite(liteExpr, preferC6subPixels)
+	return liteExpr
+
 def makeNarrow(pixelExpr):
 	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 	return [
@@ -280,14 +287,14 @@ if __name__ == '__main__':
 	#printText(formatWeightsTable(pixelExpr))
 
 	#pixelExpr = Parser().pixelExpr
-	#makeLite(pixelExpr)
+	#pixelExpr = makeLite(pixelExpr, ())
 	#printText(formatLiteTable(pixelExpr))
 
 	pixelExpr = Parser().pixelExpr
-	makeLite(pixelExpr, (2, 4, 7))
+	pixelExpr = makeLite(pixelExpr, (2, 4, 7))
 	writeBinaryFile('HQ3xLiteOffset.dat', genHQLiteOffsetsTable(pixelExpr))
 
 	pixelExpr = Parser().pixelExpr
 	writeTextFile('HQ3xScaler-1x1to3x3.nn', genSwitch(pixelExpr))
-	makeLite(pixelExpr)
+	pixelExpr = makeLite(pixelExpr, ())
 	writeTextFile('HQ3xLiteScaler-1x1to3x3.nn', genSwitch(pixelExpr))
