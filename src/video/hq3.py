@@ -2,7 +2,7 @@
 
 from hqcommon import (
 	blendWeights, isPow2, makeLite, permuteCase, printSubExpr,
-	writeTextFile
+	writeBinaryFile, writeTextFile
 	)
 
 from itertools import izip
@@ -182,8 +182,7 @@ def printHQLiteScalerTable(pixelExpr):
 					sys.stdout.write(' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c]))
 			sys.stdout.write('\n')
 
-def printHQLiteScalerTable2Binary(pixelExpr, filename):
-	file = open(filename, 'wb')
+def genHQLiteOffsetsTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
@@ -191,7 +190,6 @@ def printHQLiteScalerTable2Binary(pixelExpr, filename):
 	offset_x = ( 43,   0, -43,  43, -43,  43,   0, -43)
 	offset_y = ( 43,  43,  43,   0,   0, -43, -43, -43)
 	for case in range(1 << 12):
-		#sys.stdout.write('// %d\n' % case)
 		for subPixel in range(9):
 			if subPixel == 4:
 				x = 128
@@ -212,8 +210,8 @@ def printHQLiteScalerTable2Binary(pixelExpr, filename):
 			#print x, y
 			assert 0 <= x
 			assert x <= 255
-			file.write(chr(x) + chr(y))
-	file.close()
+			yield x
+			yield y
 
 def printHQLiteScalerTableBinary(pixelExpr, filename):
 	file = open(filename, 'wb')
@@ -351,7 +349,7 @@ if __name__ == '__main__':
 
 	pixelExpr = Parser().pixelExpr
 	makeLite(pixelExpr, (2, 4, 7))
-	printHQLiteScalerTable2Binary(pixelExpr, 'HQ3xLiteOffset.dat')
+	writeBinaryFile('HQ3xLiteOffset.dat', genHQLiteOffsetsTable(pixelExpr))
 
 	pixelExpr = Parser().pixelExpr
 	writeTextFile('HQ3xScaler-1x1to3x3.nn', genSwitch(pixelExpr))
