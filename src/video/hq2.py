@@ -1,8 +1,8 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, computeNeighbours, makeLite as commonMakeLite,
-	permuteCase, permuteCases, printText, transformOffsets,
+	blendWeights, computeNeighbours, computeWeightCells, makeLite as commonMakeLite,
+	permuteCase, permuteCases, printText, transformOffsets, transformWeights,
 	writeTextFile, writeBinaryFile
 	)
 
@@ -70,13 +70,6 @@ def genSwitch(pixelExpr, narrow):
 		)
 	yield '}\n'
 
-def transformWeights(weights, cellFunc):
-	factor = 256 / sum(weights)
-	return tuple(
-		min(255, 0 if c is None else factor * weights[c])
-		for c in cellFunc(weights)
-		)
-
 def computeOffsets(pixelExpr):
 	for expr in pixelExpr:
 		for weights in expr:
@@ -89,10 +82,6 @@ def computeWeights(pixelExpr, cellFunc):
 		for weights in expr:
 			for transformedWeight in transformWeights(weights, cellFunc):
 				yield transformedWeight
-
-def computeWeightCells(weights):
-	neighbours = computeNeighbours(weights)
-	return (neighbours[0], neighbours[1], 4)
 
 def computeLiteWeightCells(weights_):
 	return (3, 4, 5)

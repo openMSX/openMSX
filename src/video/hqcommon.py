@@ -52,6 +52,15 @@ def computeNeighbours(weights):
 	neighbours += [ None ] * (2 - len(neighbours))
 	return neighbours
 
+def computeWeightCells(weights):
+	neighbours = computeNeighbours(weights)
+	return (neighbours[0], neighbours[1], 4)
+
+def transformWeights(weights, cellFunc):
+	factor = 256 / sum(weights)
+	for cell in cellFunc(weights):
+		yield min(255, 0 if cell is None else factor * weights[cell])
+
 def transformOffsets(weights):
 	for neighbour in computeNeighbours(weights):
 		yield (

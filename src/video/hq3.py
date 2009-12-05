@@ -1,9 +1,9 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, computeNeighbours, isPow2, makeLite,
-	permuteCase, permuteCases, printSubExpr, printText, transformOffsets,
-	writeBinaryFile, writeTextFile
+	blendWeights, computeNeighbours, computeWeightCells, makeLite,
+	permuteCase, permuteCases, printSubExpr, printText,
+	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
 
 from itertools import izip
@@ -238,10 +238,8 @@ def formatWeightsTable(pixelExpr):
 	for case, expr in enumerate(pixelExpr3):
 		yield '// %d\n' % case
 		for weights in expr:
-			neighbours = computeNeighbours(weights)
-			factor = 256 / sum(weights)
-			for c in (neighbours[0], neighbours[1], 4):
-				yield ' %3d,' % min(255, 0 if c is None else factor * weights[c])
+			for weight in transformWeights(weights, computeWeightCells):
+				yield ' %3d,' % weight
 			yield '\n'
 
 def computeOffsets(pixelExpr):
@@ -251,13 +249,11 @@ def computeOffsets(pixelExpr):
 				yield x
 				yield y
 
-def computeWeights(pixelExpr):
+def computeWeights(pixelExpr, cellFunc):
 	for expr in pixelExpr:
 		for weights in expr:
-			neighbours = computeNeighbours(weights)
-			factor = 256 / sum(weights)
-			for c in (neighbours[0], neighbours[1], 4):
-				yield min(255, 0 if c is None else factor * weights[c])
+			for transformedWeight in transformWeights(weights, cellFunc):
+				yield transformedWeight
 
 def genOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
@@ -267,7 +263,7 @@ def genOffsetsTable(pixelExpr):
 def genWeightsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	return computeWeights(pixelExpr3)
+	return computeWeights(pixelExpr3, computeWeightCells)
 
 def makeNarrow(pixelExpr):
 	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
