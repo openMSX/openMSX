@@ -275,6 +275,26 @@ def printHQScalerTable(pixelExpr):
 				sys.stdout.write(' %3d,' % min(255, factor * t))
 			sys.stdout.write('\n')
 
+def computeOffsets(xy):
+	for case in range(1 << 12):
+		for subPixel in range(9):
+			for i in range(2):
+				t = xy[case][subPixel][i]
+				if t == -1:
+					t = 4
+				yield min(255, (t % 3) * 128)
+				yield min(255, (t / 3) * 128)
+
+def computeWeights(pixelExpr, xy):
+	for case in range(1 << 12):
+		for subPixel in range(9):
+			factor = 256 / sum(pixelExpr[case][subPixel])
+			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
+				t = 0
+				if c != -1:
+					t = pixelExpr[case][subPixel][c]
+				yield min(255, factor * t)
+
 def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
@@ -287,7 +307,6 @@ def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 			else:
 				pixelExpr2[pcase][subPixel] = pixelExpr[case][subPixel - 1]
 
-	offsetsFile = open(offsetsFilename, 'wb')
 	xy = [[[-1] * 2 for _ in range(9)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(9):
@@ -297,26 +316,8 @@ def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 					assert j < 2
 					xy[case][subPixel][j] = i
 					j = j + 1
-	for case in range(1 << 12):
-		for subPixel in range(9):
-			for i in range(2):
-				t = xy[case][subPixel][i]
-				if t == -1:
-					t = 4
-				x = min(255, (t % 3) * 128)
-				y = min(255, (t / 3) * 128)
-				offsetsFile.write(chr(x) + chr(y))
-	offsetsFile.close()
-	weightsFile = open(weightsFilename, 'wb')
-	for case in range(1 << 12):
-		for subPixel in range(9):
-			factor = 256 / sum(pixelExpr2[case][subPixel])
-			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				t = 0
-				if c != -1:
-					t = pixelExpr2[case][subPixel][c]
-				weightsFile.write(chr(min(255, factor * t)))
-	weightsFile.close()
+	writeBinaryFile(offsetsFilename, computeOffsets(xy))
+	writeBinaryFile(weightsFilename, computeWeights(pixelExpr2, xy))
 
 def makeNarrow(pixelExpr):
 	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
