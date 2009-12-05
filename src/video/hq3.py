@@ -261,11 +261,15 @@ def computeWeights(pixelExpr):
 			for c in (neighbours[0], neighbours[1], 4):
 				yield min(255, 0 if c is None else factor * weights[c])
 
-def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
+def genOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	writeBinaryFile(offsetsFilename, computeOffsets(pixelExpr3))
-	writeBinaryFile(weightsFilename, computeWeights(pixelExpr3))
+	return computeOffsets(pixelExpr3)
+
+def genWeightsTable(pixelExpr):
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
+	pixelExpr3 = pixelExpr8to9(pixelExpr2)
+	return computeWeights(pixelExpr3)
 
 def makeNarrow(pixelExpr):
 	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
@@ -288,7 +292,8 @@ if __name__ == '__main__':
 	#pixelExpr = makeNarrow(pixelExpr)
 
 	pixelExpr = Parser().pixelExpr
-	printHQScalerTableBinary(pixelExpr, 'HQ3xOffsets.dat', 'HQ3xWeights.dat')
+	writeBinaryFile('HQ3xOffsets.dat', genOffsetsTable(pixelExpr))
+	writeBinaryFile('HQ3xWeights.dat', genWeightsTable(pixelExpr))
 	#printText(formatOffsetsTable(pixelExpr))
 	#printText(formatWeightsTable(pixelExpr))
 
