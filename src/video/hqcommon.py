@@ -52,6 +52,13 @@ def computeNeighbours(weights):
 	neighbours += [ None ] * (2 - len(neighbours))
 	return neighbours
 
+def transformOffsets(weights):
+	for neighbour in computeNeighbours(weights):
+		yield (
+			min(255, (1 if neighbour is None else neighbour % 3) * 128),
+			min(255, (1 if neighbour is None else neighbour / 3) * 128)
+			)
+
 def printSubExpr(subExpr):
 	wsum = sum(subExpr)
 	if not isPow2(wsum):

@@ -2,8 +2,8 @@
 
 from hqcommon import (
 	blendWeights, computeNeighbours, makeLite as commonMakeLite,
-	permuteCase, permuteCases,
-	printText, writeTextFile, writeBinaryFile
+	permuteCase, permuteCases, printText, transformOffsets,
+	writeTextFile, writeBinaryFile
 	)
 
 from copy import deepcopy
@@ -69,14 +69,6 @@ def genSwitch(pixelExpr, narrow):
 		' = '.join('pixel%d' % (i + 1) for i in range(2 if narrow else 4))
 		)
 	yield '}\n'
-
-def transformOffsets(weights):
-	neighbours = computeNeighbours(weights)
-	return [
-		( min(255, (1 if neighbour is None else neighbour % 3) * 128),
-		  min(255, (1 if neighbour is None else neighbour / 3) * 128) )
-		for neighbour in neighbours
-		]
 
 def transformWeights(weights, cellFunc):
 	factor = 256 / sum(weights)

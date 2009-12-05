@@ -2,8 +2,8 @@
 
 from hqcommon import (
 	blendWeights, computeNeighbours, isPow2, makeLite,
-	permuteCase, permuteCases, printSubExpr,
-	printText, writeBinaryFile, writeTextFile
+	permuteCase, permuteCases, printSubExpr, printText, transformOffsets,
+	writeBinaryFile, writeTextFile
 	)
 
 from itertools import izip
@@ -228,9 +228,7 @@ def formatOffsetsTable(pixelExpr):
 	for case, expr in enumerate(pixelExpr3):
 		yield '// %d\n' % case
 		for weights in expr:
-			for t in computeNeighbours(weights):
-				x = min(255, (1 if t is None else (t % 3)) * 128)
-				y = min(255, (1 if t is None else (t / 3)) * 128)
+			for x, y in transformOffsets(weights):
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
@@ -249,9 +247,9 @@ def formatWeightsTable(pixelExpr):
 def computeOffsets(pixelExpr):
 	for expr in pixelExpr:
 		for weights in expr:
-			for t in computeNeighbours(weights):
-				yield min(255, (1 if t is None else (t % 3)) * 128)
-				yield min(255, (1 if t is None else (t / 3)) * 128)
+			for x, y in transformOffsets(weights):
+				yield x
+				yield y
 
 def computeWeights(pixelExpr):
 	for expr in pixelExpr:
