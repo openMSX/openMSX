@@ -1,8 +1,8 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, computeNeighbours, computeOffsets, computeWeights,
-	computeWeightCells, makeLite as commonMakeLite,
+	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
+	computeWeights, computeWeightCells, makeLite as commonMakeLite,
 	permuteCase, permuteCases, printSubExpr, printText,
 	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
@@ -179,22 +179,6 @@ def genSwitch(pixelExpr):
 
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
-def formatLiteTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-
-	for case in range(1 << 12):
-		yield '// %d\n' % case
-		for subPixel in range(9):
-			if subPixel == 4:
-				yield '   0, 255,   0,'
-			else:
-				if subPixel > 4:
-					subPixel -= 1
-				factor = 256 / sum(pixelExpr2[case][subPixel])
-				for c in (3, 4, 5):
-					yield ' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c])
-			yield '\n'
-
 def genHQLiteOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 
@@ -234,15 +218,20 @@ def formatOffsetsTable(pixelExpr):
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
-def formatWeightsTable(pixelExpr):
+def formatWeightsTable(pixelExpr, cellFunc):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
 	for case, expr in enumerate(pixelExpr3):
 		yield '// %d\n' % case
 		for weights in expr:
-			for weight in transformWeights(weights, computeWeightCells):
+			for weight in transformWeights(weights, cellFunc):
 				yield ' %3d,' % weight
 			yield '\n'
+
+def transformWeights(weights, cellFunc):
+	factor = 256 / sum(weights)
+	for cell in cellFunc(weights):
+		yield min(255, 0 if cell is None else factor * weights[cell])
 
 def genOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
@@ -284,11 +273,11 @@ if __name__ == '__main__':
 	writeBinaryFile('HQ3xOffsets.dat', genOffsetsTable(pixelExpr))
 	writeBinaryFile('HQ3xWeights.dat', genWeightsTable(pixelExpr))
 	#printText(formatOffsetsTable(pixelExpr))
-	#printText(formatWeightsTable(pixelExpr))
+	#printText(formatWeightsTable(pixelExpr, computeWeightCells))
 
 	#pixelExpr = Parser().pixelExpr
 	#pixelExpr = makeLite(pixelExpr, ())
-	#printText(formatLiteTable(pixelExpr))
+	#printText(formatWeightsTable(pixelExpr, computeLiteWeightCells))
 
 	pixelExpr = Parser().pixelExpr
 	pixelExpr = makeLite(pixelExpr, (2, 4, 7))

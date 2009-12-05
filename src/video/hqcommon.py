@@ -56,6 +56,9 @@ def computeWeightCells(weights):
 	neighbours = computeNeighbours(weights)
 	return (neighbours[0], neighbours[1], 4)
 
+def computeLiteWeightCells(weights_):
+	return (3, 4, 5)
+
 def transformWeights(weights, cellFunc):
 	factor = 256 / sum(weights)
 	for cell in cellFunc(weights):

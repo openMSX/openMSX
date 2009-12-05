@@ -1,8 +1,8 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, computeNeighbours, computeOffsets, computeWeights,
-	computeWeightCells, makeLite as commonMakeLite,
+	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
+	computeWeights, computeWeightCells, makeLite as commonMakeLite,
 	permuteCase, permuteCases, printText, transformOffsets, transformWeights,
 	writeTextFile, writeBinaryFile
 	)
@@ -70,9 +70,6 @@ def genSwitch(pixelExpr, narrow):
 		' = '.join('pixel%d' % (i + 1) for i in range(2 if narrow else 4))
 		)
 	yield '}\n'
-
-def computeLiteWeightCells(weights_):
-	return (3, 4, 5)
 
 def genHQLiteOffsetsTable(pixelExpr):
 	'''In the hqlite case, the result color depends on at most one neighbour
