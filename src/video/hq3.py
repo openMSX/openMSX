@@ -389,21 +389,17 @@ def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 	weightsFile.close()
 
 def makeNarrow(pixelExpr):
-	narrowExpr = [ [ None ] * 6 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		narrowExpr[case][0] = blendWeights(
-			pixelExpr[case][0], pixelExpr[case][1], 2, 1)
-		narrowExpr[case][1] = blendWeights(
-			pixelExpr[case][2], pixelExpr[case][1], 2, 1)
-		narrowExpr[case][2] = blendWeights(
-			pixelExpr[case][3], [0, 0, 0, 0, 1, 0, 0, 0, 0], 2, 1)
-		narrowExpr[case][3] = blendWeights(
-			pixelExpr[case][4], [0, 0, 0, 0, 1, 0, 0, 0, 0], 2, 1)
-		narrowExpr[case][4] = blendWeights(
-			pixelExpr[case][5], pixelExpr[case][6], 2, 1)
-		narrowExpr[case][5] = blendWeights(
-			pixelExpr[case][7], pixelExpr[case][6], 2, 1)
-	return narrowExpr
+	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+	return [
+		[	blendWeights(expr[0], expr[1], 2, 1),
+			blendWeights(expr[2], expr[1], 2, 1),
+			blendWeights(expr[3], centerOnly, 2, 1),
+			blendWeights(expr[4], centerOnly, 2, 1),
+			blendWeights(expr[5], expr[6], 2, 1),
+			blendWeights(expr[7], expr[6], 2, 1),
+			]
+		for expr in pixelExpr
+		]
 
 if __name__ == '__main__':
 	#for case in range(1 << 12):
