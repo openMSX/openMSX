@@ -643,7 +643,7 @@ proc menu_select_rom { item } {
 }
 
 proc menu_create_disk_list { path } {
-	return [prepare_menu_list [concat "--eject--" [ls $path "dsk,zip,gz"]] \
+	return [prepare_menu_list [concat "--eject--" [ls $path "dsk,zip,gz,xsa"]] \
 	                          10 \
 	                          { execute menu_select_disk
 	                            font-size 8
