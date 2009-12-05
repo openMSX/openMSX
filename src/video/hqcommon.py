@@ -68,6 +68,19 @@ def transformOffsets(weights):
 			min(255, (1 if neighbour is None else neighbour / 3) * 128)
 			)
 
+def computeWeights(pixelExpr, cellFunc):
+	for expr in pixelExpr:
+		for weights in expr:
+			for transformedWeight in transformWeights(weights, cellFunc):
+				yield transformedWeight
+
+def computeOffsets(pixelExpr):
+	for expr in pixelExpr:
+		for weights in expr:
+			for x, y in transformOffsets(weights):
+				yield x
+				yield y
+
 def printSubExpr(subExpr):
 	wsum = sum(subExpr)
 	if not isPow2(wsum):

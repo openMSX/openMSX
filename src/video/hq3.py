@@ -1,7 +1,8 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, computeNeighbours, computeWeightCells, makeLite,
+	blendWeights, computeNeighbours, computeOffsets, computeWeights,
+	computeWeightCells, makeLite,
 	permuteCase, permuteCases, printSubExpr, printText,
 	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
@@ -241,19 +242,6 @@ def formatWeightsTable(pixelExpr):
 			for weight in transformWeights(weights, computeWeightCells):
 				yield ' %3d,' % weight
 			yield '\n'
-
-def computeOffsets(pixelExpr):
-	for expr in pixelExpr:
-		for weights in expr:
-			for x, y in transformOffsets(weights):
-				yield x
-				yield y
-
-def computeWeights(pixelExpr, cellFunc):
-	for expr in pixelExpr:
-		for weights in expr:
-			for transformedWeight in transformWeights(weights, cellFunc):
-				yield transformedWeight
 
 def genOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
