@@ -1,16 +1,10 @@
 # $Id$
 
-from hqcommon import blendWeights, makeLite as commonMakeLite
+from hqcommon import blendWeights, makeLite as commonMakeLite, permuteCase
 
 from copy import deepcopy
 from itertools import izip
 import sys
-
-def permuteCase(permutation, case):
-	return sum(
-		((case >> oldBit) & 1) << newBit
-		for newBit, oldBit in enumerate(permutation)
-		)
 
 def permuteCases(permutation, pixelExpr):
 	pixelExpr2 = [ None ] * len(pixelExpr)

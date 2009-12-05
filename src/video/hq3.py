@@ -1,6 +1,6 @@
 # $Id$
 
-from hqcommon import blendWeights, isPow2, makeLite
+from hqcommon import blendWeights, isPow2, makeLite, permuteCase
 
 import sys
 
@@ -128,12 +128,6 @@ def sanityCheck(pixelExpr):
 			#for pixel in range(9):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
-
-def permuteCase(permutation, case):
-	return sum(
-		((case >> oldBit) & 1) << newBit
-		for newBit, oldBit in enumerate(permutation)
-		)
 
 def printSubExpr(subExpr):
 	wsum = sum(subExpr)

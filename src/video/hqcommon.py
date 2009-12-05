@@ -9,6 +9,12 @@ def isPow2(num):
 		return False
 	return isPow2(num / 2)
 
+def permuteCase(permutation, case):
+	return sum(
+		((case >> oldBit) & 1) << newBit
+		for newBit, oldBit in enumerate(permutation)
+		)
+
 def printSubExpr(subExpr):
 	wsum = sum(subExpr)
 	if not isPow2(wsum):
