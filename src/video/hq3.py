@@ -104,6 +104,18 @@ class Parser(object):
 					weights[int(expr[1 : ]) - 1] = 1
 				pixelExpr[(case << 4) | subCase][subPixel] = weights
 
+def pixelExpr8to9(pixelExpr2):
+	pixelExpr3 = [ [ None ] * 9 for _ in range(1 << 12) ]
+	for case in range(1 << 12):
+		for subPixel in range(9):
+			if subPixel < 4:
+				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel]
+			elif subPixel == 4:
+				pixelExpr3[case][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+			else:
+				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel - 1]
+	return pixelExpr3
+
 def sanityCheck(pixelExpr):
 	'''Check various observed properties.
 	'''
@@ -211,16 +223,8 @@ def genHQLiteOffsetsTable(pixelExpr):
 
 def formatFullTables(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	pixelExpr3 = [ [ None ] * 9 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		for subPixel in range(9):
-			if subPixel < 4:
-				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel]
-			elif subPixel == 4:
-				pixelExpr3[case][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
-			else:
-				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel - 1]
-	#
+	pixelExpr3 = pixelExpr8to9(pixelExpr2)
+
 	xy = [[[-1] * 2 for _ in range(9)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(9):
@@ -275,15 +279,7 @@ def computeWeights(pixelExpr, xy):
 
 def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	pixelExpr3 = [ [ None ] * 9 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		for subPixel in range(9):
-			if subPixel < 4:
-				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel]
-			elif subPixel == 4:
-				pixelExpr3[case][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
-			else:
-				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel - 1]
+	pixelExpr3 = pixelExpr8to9(pixelExpr2)
 
 	xy = [[[-1] * 2 for _ in range(9)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
