@@ -17,6 +17,7 @@ class Parser(object):
 		self.pixelExpr = [ [ None ] * 8 for _ in range(1 << 12) ]
 		self.__parse()
 		sanityCheck(self.pixelExpr)
+		self.pixelExpr = pixelExpr8to9(self.pixelExpr)
 
 	@staticmethod
 	def __filterSwitch(stream):
@@ -150,10 +151,9 @@ def sanityCheck(pixelExpr):
 					#assert corner[pixel] == 0, corner
 
 def genSwitch(pixelExpr):
-	pixelExpr2 = pixelExpr8to9(pixelExpr)
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 	exprToCases = {}
-	for case, expr in enumerate(pixelExpr2):
+	for case, expr in enumerate(pixelExpr):
 		exprToCases.setdefault(
 			tuple(tuple(subExpr) for subExpr in expr),
 			[]
@@ -183,8 +183,7 @@ def genSwitch(pixelExpr):
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def genHQLiteOffsetsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	pixelExpr3 = pixelExpr8to9(pixelExpr2)
+	pixelExpr3 = permuteCases(tablePermutation, pixelExpr)
 
 	offset_x = ( 43,   0, -43,  43,   0, -43,  43,   0, -43)
 	offset_y = ( 43,  43,  43,   0,   0,   0, -43, -43, -43)
@@ -210,8 +209,7 @@ def genHQLiteOffsetsTable(pixelExpr):
 
 def formatOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	for case, expr in enumerate(pixelExpr3):
+	for case, expr in enumerate(pixelExpr2):
 		yield '// %d\n' % case
 		for weights in expr:
 			for x, y in transformOffsets(weights):
@@ -220,8 +218,7 @@ def formatOffsetsTable(pixelExpr):
 
 def formatWeightsTable(pixelExpr, cellFunc):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	for case, expr in enumerate(pixelExpr3):
+	for case, expr in enumerate(pixelExpr2):
 		yield '// %d\n' % case
 		for weights in expr:
 			for weight in transformWeights(weights, cellFunc):
@@ -230,13 +227,11 @@ def formatWeightsTable(pixelExpr, cellFunc):
 
 def genOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	return computeOffsets(pixelExpr3)
+	return computeOffsets(pixelExpr2)
 
 def genWeightsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	pixelExpr3 = pixelExpr8to9(pixelExpr2)
-	return computeWeights(pixelExpr3, computeWeightCells)
+	return computeWeights(pixelExpr2, computeWeightCells)
 
 def makeLite(pixelExpr, preferC6subPixels):
 	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.
@@ -245,25 +240,18 @@ def makeLite(pixelExpr, preferC6subPixels):
 	return liteExpr
 
 def makeNarrow(pixelExpr):
-	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 	return [
 		[	blendWeights(expr[0], expr[1], 2, 1),
 			blendWeights(expr[2], expr[1], 2, 1),
-			blendWeights(expr[3], centerOnly, 2, 1),
-			blendWeights(expr[4], centerOnly, 2, 1),
-			blendWeights(expr[5], expr[6], 2, 1),
-			blendWeights(expr[7], expr[6], 2, 1),
+			blendWeights(expr[3], expr[4], 2, 1),
+			blendWeights(expr[5], expr[4], 2, 1),
+			blendWeights(expr[6], expr[7], 2, 1),
+			blendWeights(expr[8], expr[7], 2, 1),
 			]
 		for expr in pixelExpr
 		]
 
 if __name__ == '__main__':
-	#for case in range(1 << 12):
-	#	for pixel in range(8):
-	#		print case, pixel, pixelExpr[case][pixel]
-
-	#pixelExpr = makeNarrow(pixelExpr)
-
 	pixelExpr = Parser().pixelExpr
 	writeBinaryFile('HQ3xOffsets.dat', genOffsetsTable(pixelExpr))
 	writeBinaryFile('HQ3xWeights.dat', genWeightsTable(pixelExpr))
@@ -275,7 +263,7 @@ if __name__ == '__main__':
 	#printText(formatWeightsTable(pixelExpr, computeLiteWeightCells))
 
 	pixelExpr = Parser().pixelExpr
-	pixelExpr = makeLite(pixelExpr, (2, 4, 7))
+	pixelExpr = makeLite(pixelExpr, (2, 5, 8))
 	writeBinaryFile('HQ3xLiteOffset.dat', genHQLiteOffsetsTable(pixelExpr))
 
 	pixelExpr = Parser().pixelExpr
