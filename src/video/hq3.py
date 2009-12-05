@@ -150,9 +150,10 @@ def sanityCheck(pixelExpr):
 					#assert corner[pixel] == 0, corner
 
 def genSwitch(pixelExpr):
+	pixelExpr2 = pixelExpr8to9(pixelExpr)
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 	exprToCases = {}
-	for case, expr in enumerate(pixelExpr):
+	for case, expr in enumerate(pixelExpr2):
 		exprToCases.setdefault(
 			tuple(tuple(subExpr) for subExpr in expr),
 			[]
@@ -165,10 +166,12 @@ def genSwitch(pixelExpr):
 		for case in cases:
 			yield 'case %d:\n' % case
 		for subPixel, subExpr in enumerate(expr):
-			num = subPixel + 1
-			if num > 4:
-				num += 1
-			yield '\tpixel%d = %s;\n' % (num, printSubExpr(subExpr))
+			if subPixel == 4:
+				assert printSubExpr(subExpr) == 'c5'
+			else:
+				yield '\tpixel%d = %s;\n' % (
+					subPixel + 1, printSubExpr(subExpr)
+					)
 		yield '\tbreak;\n'
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
