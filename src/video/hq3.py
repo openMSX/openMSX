@@ -225,11 +225,6 @@ def formatWeightsTable(pixelExpr, cellFunc):
 				yield ' %3d,' % weight
 			yield '\n'
 
-def transformWeights(weights, cellFunc):
-	factor = 256 / sum(weights)
-	for cell in cellFunc(weights):
-		yield min(255, 0 if cell is None else factor * weights[cell])
-
 def genOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
