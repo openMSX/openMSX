@@ -2,11 +2,10 @@
 
 from hqcommon import (
 	blendWeights, isPow2, makeLite, permuteCase, printSubExpr,
-	writeBinaryFile, writeTextFile
+	printText, writeBinaryFile, writeTextFile
 	)
 
 from itertools import izip
-import sys
 
 class Parser(object):
 
@@ -165,23 +164,23 @@ def genSwitch(pixelExpr):
 
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
-def printHQLiteScalerTable(pixelExpr):
+def formatLiteTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-	#
+
 	for case in range(1 << 12):
-		sys.stdout.write('// %d\n' % case)
+		yield '// %d\n' % case
 		for subPixel in range(9):
 			if subPixel == 4:
-				sys.stdout.write('   0, 255,   0,')
+				yield '   0, 255,   0,'
 			else:
 				if subPixel > 4:
 					subPixel -= 1
 				factor = 256 / sum(pixelExpr2[case][subPixel])
 				for c in (3, 4, 5):
-					sys.stdout.write(' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c]))
-			sys.stdout.write('\n')
+					yield ' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c])
+			yield '\n'
 
 def genHQLiteOffsetsTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
@@ -214,7 +213,7 @@ def genHQLiteOffsetsTable(pixelExpr):
 			yield x
 			yield y
 
-def printHQScalerTable(pixelExpr):
+def formatFullTables(pixelExpr):
 	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pcase = permuteCase(tablePermutation, case)
@@ -236,7 +235,7 @@ def printHQScalerTable(pixelExpr):
 					xy[case][subPixel][j] = i
 					j = j + 1
 	for case in range(1 << 12):
-		sys.stdout.write('// %d\n' % case)
+		yield '// %d\n' % case
 		for subPixel in range(9):
 			for i in range(2):
 				t = xy[case][subPixel][i]
@@ -244,19 +243,19 @@ def printHQScalerTable(pixelExpr):
 					t = 4
 				x = min(255, (t % 3) * 128)
 				y = min(255, (t / 3) * 128)
-				sys.stdout.write(' %3d, %3d,' % (x, y))
-			sys.stdout.write('\n')
-	sys.stdout.write('//-------------\n')
+				yield ' %3d, %3d,' % (x, y)
+			yield '\n'
+	yield '//-------------\n'
 	for case in range(1 << 12):
-		sys.stdout.write('// %d\n' % case)
+		yield '// %d\n' % case
 		for subPixel in range(9):
 			factor = 256 / sum(pixelExpr2[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
 				t = 0
 				if c != -1:
 					t = pixelExpr2[case][subPixel][c]
-				sys.stdout.write(' %3d,' % min(255, factor * t))
-			sys.stdout.write('\n')
+				yield ' %3d,' % min(255, factor * t)
+			yield '\n'
 
 def computeOffsets(xy):
 	for case in range(1 << 12):
@@ -323,12 +322,12 @@ if __name__ == '__main__':
 	#pixelExpr = makeNarrow(pixelExpr)
 
 	pixelExpr = Parser().pixelExpr
-	#printHQScalerTable(pixelExpr)
 	printHQScalerTableBinary(pixelExpr, 'HQ3xOffsets.dat', 'HQ3xWeights.dat')
+	#printText(formatFullTables(pixelExpr))
 
 	#pixelExpr = Parser().pixelExpr
 	#makeLite(pixelExpr)
-	#printHQLiteScalerTable(pixelExpr)
+	#printText(formatLiteTable(pixelExpr))
 
 	pixelExpr = Parser().pixelExpr
 	makeLite(pixelExpr, (2, 4, 7))
