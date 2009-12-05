@@ -1,7 +1,7 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, isPow2, makeLite, permuteCase, printSubExpr,
+	blendWeights, isPow2, makeLite, permuteCase, permuteCases, printSubExpr,
 	printText, writeBinaryFile, writeTextFile
 	)
 
@@ -165,9 +165,7 @@ def genSwitch(pixelExpr):
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def formatLiteTable(pixelExpr):
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 
 	for case in range(1 << 12):
 		yield '// %d\n' % case
@@ -183,10 +181,8 @@ def formatLiteTable(pixelExpr):
 			yield '\n'
 
 def genHQLiteOffsetsTable(pixelExpr):
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-	#
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
+
 	offset_x = ( 43,   0, -43,  43, -43,  43,   0, -43)
 	offset_y = ( 43,  43,  43,   0,   0, -43, -43, -43)
 	for case in range(1 << 12):
@@ -214,23 +210,23 @@ def genHQLiteOffsetsTable(pixelExpr):
 			yield y
 
 def formatFullTables(pixelExpr):
-	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
+	pixelExpr3 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pcase = permuteCase(tablePermutation, case)
 		for subPixel in range(9):
 			if subPixel < 4:
-				pixelExpr2[pcase][subPixel] = pixelExpr[case][subPixel]
+				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel]
 			elif subPixel == 4:
-				pixelExpr2[pcase][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+				pixelExpr3[case][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 			else:
-				pixelExpr2[pcase][subPixel] = pixelExpr[case][subPixel - 1]
+				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel - 1]
 	#
 	xy = [[[-1] * 2 for _ in range(9)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(9):
 			j = 0
 			for i in (0, 1, 2, 3, 5, 6, 7, 8):
-				if pixelExpr2[case][subPixel][i] != 0:
+				if pixelExpr3[case][subPixel][i] != 0:
 					assert j < 2
 					xy[case][subPixel][j] = i
 					j = j + 1
@@ -249,11 +245,11 @@ def formatFullTables(pixelExpr):
 	for case in range(1 << 12):
 		yield '// %d\n' % case
 		for subPixel in range(9):
-			factor = 256 / sum(pixelExpr2[case][subPixel])
+			factor = 256 / sum(pixelExpr3[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
 				t = 0
 				if c != -1:
-					t = pixelExpr2[case][subPixel][c]
+					t = pixelExpr3[case][subPixel][c]
 				yield ' %3d,' % min(255, factor * t)
 			yield '\n'
 
@@ -278,28 +274,28 @@ def computeWeights(pixelExpr, xy):
 				yield min(255, factor * t)
 
 def printHQScalerTableBinary(pixelExpr, offsetsFilename, weightsFilename):
-	pixelExpr2 = [ [ None ] * 9 for _ in range(1 << 12) ]
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
+	pixelExpr3 = [ [ None ] * 9 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pcase = permuteCase(tablePermutation, case)
 		for subPixel in range(9):
 			if subPixel < 4:
-				pixelExpr2[pcase][subPixel] = pixelExpr[case][subPixel]
+				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel]
 			elif subPixel == 4:
-				pixelExpr2[pcase][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+				pixelExpr3[case][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 			else:
-				pixelExpr2[pcase][subPixel] = pixelExpr[case][subPixel - 1]
+				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel - 1]
 
 	xy = [[[-1] * 2 for _ in range(9)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(9):
 			j = 0
 			for i in (0, 1, 2, 3, 5, 6, 7, 8):
-				if pixelExpr2[case][subPixel][i] != 0:
+				if pixelExpr3[case][subPixel][i] != 0:
 					assert j < 2
 					xy[case][subPixel][j] = i
 					j = j + 1
 	writeBinaryFile(offsetsFilename, computeOffsets(xy))
-	writeBinaryFile(weightsFilename, computeWeights(pixelExpr2, xy))
+	writeBinaryFile(weightsFilename, computeWeights(pixelExpr3, xy))
 
 def makeNarrow(pixelExpr):
 	centerOnly = [0, 0, 0, 0, 1, 0, 0, 0, 0]
