@@ -181,27 +181,22 @@ tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def genHQLiteOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
+	pixelExpr3 = pixelExpr8to9(pixelExpr2)
 
-	offset_x = ( 43,   0, -43,  43, -43,  43,   0, -43)
-	offset_y = ( 43,  43,  43,   0,   0, -43, -43, -43)
+	offset_x = ( 43,   0, -43,  43,   0, -43,  43,   0, -43)
+	offset_y = ( 43,  43,  43,   0,   0,   0, -43, -43, -43)
 	for case in range(1 << 12):
 		for subPixel in range(9):
-			if subPixel == 4:
-				x = 128
-				y = 128
+			for c in (0, 1, 2, 6, 7, 8):
+				assert pixelExpr3[case][subPixel][c] == 0
+			assert (pixelExpr3[case][subPixel][3] == 0) or (pixelExpr3[case][subPixel][5] == 0)
+			factor = sum(pixelExpr3[case][subPixel])
+			x = offset_x[subPixel] + 128
+			y = offset_y[subPixel] + 128
+			if pixelExpr3[case][subPixel][5] == 0:
+				x -= 128 * pixelExpr3[case][subPixel][3] / factor
 			else:
-				if subPixel > 4:
-					subPixel -= 1
-				for c in (0, 1, 2, 6, 7, 8):
-					assert pixelExpr2[case][subPixel][c] == 0
-				assert (pixelExpr2[case][subPixel][3] == 0) or (pixelExpr2[case][subPixel][5] == 0)
-				factor = sum(pixelExpr2[case][subPixel])
-				x = offset_x[subPixel] + 128
-				y = offset_y[subPixel] + 128
-				if pixelExpr2[case][subPixel][5] == 0:
-					x -= 128 * pixelExpr2[case][subPixel][3] / factor
-				else:
-					x += 128 * pixelExpr2[case][subPixel][5] / factor
+				x += 128 * pixelExpr3[case][subPixel][5] / factor
 			#print x, y
 			assert 0 <= x
 			assert x <= 255
