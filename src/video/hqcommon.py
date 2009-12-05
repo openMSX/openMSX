@@ -46,6 +46,12 @@ def permuteCases(permutation, pixelExpr):
 	assert None not in pixelExpr2
 	return pixelExpr2
 
+def computeNeighbours(weights):
+	neighbours = [ i for i in range(9) if i != 4 and weights[i] != 0 ]
+	assert len(neighbours) <= 2
+	neighbours += [ None ] * (2 - len(neighbours))
+	return neighbours
+
 def printSubExpr(subExpr):
 	wsum = sum(subExpr)
 	if not isPow2(wsum):

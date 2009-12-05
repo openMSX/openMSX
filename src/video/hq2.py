@@ -1,7 +1,8 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, makeLite as commonMakeLite, permuteCase, permuteCases,
+	blendWeights, computeNeighbours, makeLite as commonMakeLite,
+	permuteCase, permuteCases,
 	printText, writeTextFile, writeBinaryFile
 	)
 
@@ -68,12 +69,6 @@ def genSwitch(pixelExpr, narrow):
 		' = '.join('pixel%d' % (i + 1) for i in range(2 if narrow else 4))
 		)
 	yield '}\n'
-
-def computeNeighbours(weights):
-	neighbours = [ i for i in range(9) if i != 4 and weights[i] != 0 ]
-	assert len(neighbours) <= 2
-	neighbours += [ None ] * (2 - len(neighbours))
-	return neighbours
 
 def transformOffsets(weights):
 	neighbours = computeNeighbours(weights)
