@@ -1,6 +1,9 @@
 # $Id$
 
-from hqcommon import blendWeights, isPow2, makeLite, permuteCase, printSubExpr
+from hqcommon import (
+	blendWeights, isPow2, makeLite, permuteCase, printSubExpr,
+	writeTextFile
+	)
 
 from itertools import izip
 import sys
@@ -132,35 +135,32 @@ def sanityCheck(pixelExpr):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
 
-def printSwitch(pixelExpr, filename):
+def genSwitch(pixelExpr):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
-	file = open(filename, 'w')
 	exprToCases = {}
 	for case, expr in enumerate(pixelExpr):
 		exprToCases.setdefault(
 			tuple(tuple(subExpr) for subExpr in expr),
 			[]
 			).append(permuteCase(permutation, case))
-	print >> file, 'switch (pattern) {'
+	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
 		( sorted(cases), expr )
 		for expr, cases in exprToCases.iteritems()
 		):
 		for case in cases:
-			print >> file, 'case %d:' % case
+			yield 'case %d:\n' % case
 		for subPixel, subExpr in enumerate(expr):
 			num = subPixel + 1
 			if num > 4:
 				num += 1
-			print >> file, ('\tpixel%d = %s;' %
-			       (num, printSubExpr(subExpr)))
-		print >> file, '\tbreak;'
-	print >> file, 'default:'
-	print >> file, '\tUNREACHABLE;'
-	print >> file, '\tpixel1 = pixel2 = pixel3 = pixel4 ='
-	print >> file, '\tpixel6 = pixel7 = pixel8 = pixel9 = 0; // avoid warning'
-	print >> file, '}'
-	file.close()
+			yield '\tpixel%d = %s;\n' % (num, printSubExpr(subExpr))
+		yield '\tbreak;\n'
+	yield 'default:\n'
+	yield '\tUNREACHABLE;\n'
+	yield '\tpixel1 = pixel2 = pixel3 = pixel4 =\n'
+	yield '\tpixel6 = pixel7 = pixel8 = pixel9 = 0; // avoid warning\n'
+	yield '}\n'
 
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
@@ -354,6 +354,6 @@ if __name__ == '__main__':
 	printHQLiteScalerTable2Binary(pixelExpr, 'HQ3xLiteOffset.dat')
 
 	pixelExpr = Parser().pixelExpr
-	printSwitch(pixelExpr, 'HQ3xScaler-1x1to3x3.nn')
+	writeTextFile('HQ3xScaler-1x1to3x3.nn', genSwitch(pixelExpr))
 	makeLite(pixelExpr)
-	printSwitch(pixelExpr, 'HQ3xLiteScaler-1x1to3x3.nn')
+	writeTextFile('HQ3xLiteScaler-1x1to3x3.nn', genSwitch(pixelExpr))
