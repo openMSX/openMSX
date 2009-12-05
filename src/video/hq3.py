@@ -221,11 +221,10 @@ def genHQLiteOffsetsTable(pixelExpr):
 			yield x
 			yield y
 
-def formatFullTables(pixelExpr):
+def formatOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	pixelExpr3 = pixelExpr8to9(pixelExpr2)
 	xy = computeXY(pixelExpr3)
-
 	for case in range(1 << 12):
 		yield '// %d\n' % case
 		for subPixel in range(9):
@@ -237,7 +236,11 @@ def formatFullTables(pixelExpr):
 				y = min(255, (t / 3) * 128)
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
-	yield '//-------------\n'
+
+def formatWeightsTable(pixelExpr):
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
+	pixelExpr3 = pixelExpr8to9(pixelExpr2)
+	xy = computeXY(pixelExpr3)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
 		for subPixel in range(9):
@@ -310,7 +313,8 @@ if __name__ == '__main__':
 
 	pixelExpr = Parser().pixelExpr
 	printHQScalerTableBinary(pixelExpr, 'HQ3xOffsets.dat', 'HQ3xWeights.dat')
-	#printText(formatFullTables(pixelExpr))
+	#printText(formatOffsetsTable(pixelExpr))
+	#printText(formatWeightsTable(pixelExpr))
 
 	#pixelExpr = Parser().pixelExpr
 	#makeLite(pixelExpr)
