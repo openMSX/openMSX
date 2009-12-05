@@ -39,6 +39,13 @@ def permuteCase(permutation, case):
 		for newBit, oldBit in enumerate(permutation)
 		)
 
+def permuteCases(permutation, pixelExpr):
+	pixelExpr2 = [ None ] * len(pixelExpr)
+	for case, expr in enumerate(pixelExpr):
+		pixelExpr2[permuteCase(permutation, case)] = expr
+	assert None not in pixelExpr2
+	return pixelExpr2
+
 def printSubExpr(subExpr):
 	wsum = sum(subExpr)
 	if not isPow2(wsum):

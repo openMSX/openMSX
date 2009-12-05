@@ -1,19 +1,12 @@
 # $Id$
 
 from hqcommon import (
-	blendWeights, makeLite as commonMakeLite, permuteCase,
+	blendWeights, makeLite as commonMakeLite, permuteCase, permuteCases,
 	printText, writeTextFile, writeBinaryFile
 	)
 
 from copy import deepcopy
 from itertools import izip
-
-def permuteCases(permutation, pixelExpr):
-	pixelExpr2 = [ None ] * len(pixelExpr)
-	for case, expr in enumerate(pixelExpr):
-		pixelExpr2[permuteCase(permutation, case)] = expr
-	assert None not in pixelExpr2
-	return pixelExpr2
 
 def genSwitch(pixelExpr, narrow):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
