@@ -7988,3 +7988,4 @@ default:
 	pixel1 = pixel2 = pixel3 = pixel4 =
 	pixel6 = pixel7 = pixel8 = pixel9 = 0; // avoid warning
 }
+pixel5 = c5;

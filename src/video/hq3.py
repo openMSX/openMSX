@@ -161,6 +161,7 @@ def genSwitch(pixelExpr):
 	yield '\tpixel1 = pixel2 = pixel3 = pixel4 =\n'
 	yield '\tpixel6 = pixel7 = pixel8 = pixel9 = 0; // avoid warning\n'
 	yield '}\n'
+	yield 'pixel5 = c5;\n'
 
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
