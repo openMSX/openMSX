@@ -28,11 +28,8 @@ def writeFile(fileName, mode, contents):
 def writeTextFile(fileName, contents):
 	writeFile(fileName, 'w', contents)
 
-def writeBinaryFile(fileName, contents):
-	writeFile(fileName, 'wb', contents)
-
-def byteStream(bytes):
-	return ( chr(byte) for byte in bytes )
+def writeBinaryFile(fileName, bytes):
+	writeFile(fileName, 'wb', ( chr(byte) for byte in bytes ))
 
 def genSwitch(pixelExpr, narrow):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
@@ -353,15 +350,15 @@ if __name__ == '__main__':
 
 	writeBinaryFile(
 		'HQ2xOffsets.dat',
-		byteStream(computeOffsets(fullTableVariant.pixelExpr))
+		computeOffsets(fullTableVariant.pixelExpr)
 		)
 	writeBinaryFile(
 		'HQ2xWeights.dat',
-		byteStream(computeWeights(fullTableVariant.pixelExpr, computeWeightCells))
+		computeWeights(fullTableVariant.pixelExpr, computeWeightCells)
 		)
 	writeBinaryFile(
 		'HQ2xLiteOffsets.dat',
-		byteStream(genHQLiteOffsetsTable(liteTableVariant.pixelExpr))
+		genHQLiteOffsetsTable(liteTableVariant.pixelExpr)
 		)
 	# Note: HQ2xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
