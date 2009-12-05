@@ -2,11 +2,13 @@
 
 from hqcommon import blendWeights, isPow2, makeLite, permuteCase, printSubExpr
 
+from itertools import izip
 import sys
 
 class Parser(object):
 
 	def __init__(self):
+		self.fileName = 'HQ3xScaler.in'
 		self.pixelExpr = [ [ None ] * 8 for _ in range(1 << 12) ]
 		self.__parse()
 		sanityCheck(self.pixelExpr)
@@ -34,7 +36,7 @@ class Parser(object):
 	def __parse(self):
 		cases = []
 		subCases = range(1 << 4)
-		for line in self.__filterSwitch(file('HQ3xScaler.in')):
+		for line in self.__filterSwitch(file(self.fileName)):
 			if line.startswith('case'):
 				cases.append(int(line[5 : line.index(':', 5)]))
 			elif line.startswith('pixel'):
@@ -75,6 +77,7 @@ class Parser(object):
 				subCases = range(1 << 4)
 
 	def __addCases(self, cases, subCases, subPixel, expr):
+		pixelExpr = self.pixelExpr
 		if subPixel > (5 - 1):
 			subPixel -= 1
 		for case in cases:
@@ -88,7 +91,7 @@ class Parser(object):
 						expr.index('(') + 1 : expr.index(')')
 						].split(',')
 					assert len(factorsStr) == len(pixelsStr)
-					for factorStr, pixelStr in zip(factorsStr, pixelsStr):
+					for factorStr, pixelStr in izip(factorsStr, pixelsStr):
 						factor = int(factorStr)
 						pixelStr = pixelStr.strip()
 						assert pixelStr[0] == 'c'
@@ -97,7 +100,7 @@ class Parser(object):
 				else:
 					assert expr[0] == 'c'
 					weights[int(expr[1 : ]) - 1] = 1
-				self.pixelExpr[(case << 4) | subCase][subPixel] = weights
+				pixelExpr[(case << 4) | subCase][subPixel] = weights
 
 def sanityCheck(pixelExpr):
 	'''Check various observed properties.
