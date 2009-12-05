@@ -1,6 +1,6 @@
 # $Id$
 
-from hqcommon import blendWeights, isPow2, makeLite, permuteCase
+from hqcommon import blendWeights, isPow2, makeLite, permuteCase, printSubExpr
 
 import sys
 
@@ -128,71 +128,6 @@ def sanityCheck(pixelExpr):
 			#for pixel in range(9):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
-
-def printSubExpr(subExpr):
-	wsum = sum(subExpr)
-	if not isPow2(wsum):
-		return (
-			'((' + ' + '.join(
-				'(c%d & 0x0000FF) * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-				) +
-			') / %d)' % wsum +
-			' | ' +
-			'(((' + ' + '.join(
-				'(c%d & 0x00FF00) * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-				) +
-			') / %d) & 0x00FF00)' % wsum +
-			' | ' +
-			'(((' + ' + '.join(
-				'(c%d & 0xFF0000) * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-				) +
-			') / %d) & 0xFF0000)' % wsum
-			)
-	elif wsum == 1:
-		#assert subExpr[5 - 1] == 1, subExpr
-		index = -1
-		for i in range(9):
-			if subExpr[i] != 0:
-				index = i
-		assert i != -1
-		return 'c%s' % (index + 1)
-	elif wsum <= 8:
-		# Because the lower 3 bits of each colour component (R,G,B)
-		# are zeroed out, we can operate on a single integer as if it
-		# is a vector.
-		return (
-			'(' +
-			' + '.join(
-				'c%d * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-			) +
-			') / %d' % wsum
-			)
-	else:
-		return (
-			'(('
-				'(' + ' + '.join(
-					'(c%d & 0x00FF00) * %d' % (index + 1, weight)
-					for index, weight in enumerate(subExpr)
-					if weight != 0
-					) +
-				') & (0x00FF00 * %d)' % wsum +
-			') | ('
-				'(' + ' + '.join(
-					'(c%d & 0xFF00FF) * %d' % (index + 1, weight)
-					for index, weight in enumerate(subExpr)
-					if weight != 0
-					) +
-				') & (0xFF00FF * %d)' % wsum +
-			')) / %d' % wsum
-			)
 
 def printSwitch(pixelExpr, filename):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
