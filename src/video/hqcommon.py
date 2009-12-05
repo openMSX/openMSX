@@ -36,12 +36,9 @@ def printSubExpr(subExpr):
 			)
 	elif wsum == 1:
 		#assert subExpr[5 - 1] == 1, subExpr
-		index = -1
-		for i in range(9):
-			if subExpr[i] != 0:
-				index = i
-		assert i != -1
-		return 'c%s' % (index + 1)
+		nonZeroIndices = [ i for i in range(9) if subExpr[i] != 0 ]
+		assert len(nonZeroIndices) == 1
+		return 'c%s' % (nonZeroIndices[0] + 1)
 	elif wsum <= 8:
 		# Because the lower 3 bits of each colour component (R,G,B)
 		# are zeroed out, we can operate on a single integer as if it
