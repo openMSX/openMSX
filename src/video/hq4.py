@@ -212,13 +212,7 @@ def printHQScalerTable():
 				sys.stdout.write(' %3d,' % min(255, factor * t))
 			sys.stdout.write('\n')
 
-def printHQScalerTableBinary(offsetsFilename, weightsFilename):
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-		#pixelExpr2[case] = pixelExpr[case]
-	#
-	offsetsFile = open(offsetsFilename, 'wb')
+def computeXY(pixelExpr2):
 	xy = [[[-1] * 2 for _ in range(16)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(16):
@@ -228,6 +222,14 @@ def printHQScalerTableBinary(offsetsFilename, weightsFilename):
 					assert j < 2
 					xy[case][subPixel][j] = i
 					j = j + 1
+	return xy
+
+def genHQOffsetsTable(pixelExpr):
+	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
+	for case in range(1 << 12):
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
+		#pixelExpr2[case] = pixelExpr[case]
+	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
 		for subPixel in range(16):
 			for i in range(2):
@@ -236,9 +238,15 @@ def printHQScalerTableBinary(offsetsFilename, weightsFilename):
 					t = 4
 				x = min(255, (t % 3) * 128)
 				y = min(255, (t / 3) * 128)
-				offsetsFile.write(chr(x) + chr(y))
-	offsetsFile.close()
-	weightsFile = open(weightsFilename, 'wb')
+				yield x
+				yield y
+
+def genHQWeightsTable(pixelExpr):
+	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
+	for case in range(1 << 12):
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
+		#pixelExpr2[case] = pixelExpr[case]
+	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
 		for subPixel in range(16):
 			factor = 256 / sum(pixelExpr2[case][subPixel])
@@ -246,8 +254,7 @@ def printHQScalerTableBinary(offsetsFilename, weightsFilename):
 				t = 0
 				if c != -1:
 					t = pixelExpr2[case][subPixel][c]
-				weightsFile.write(chr(min(255, factor * t)))
-	weightsFile.close()
+				yield min(255, factor * t)
 
 def genHQLiteOffsetsTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
@@ -278,7 +285,8 @@ def genHQLiteOffsetsTable(pixelExpr):
 
 
 #printHQScalerTable()
-printHQScalerTableBinary('HQ4xOffsets.dat', 'HQ4xWeights.dat')
+writeBinaryFile('HQ4xOffsets.dat', genHQOffsetsTable(pixelExpr))
+writeBinaryFile('HQ4xWeights.dat', genHQWeightsTable(pixelExpr))
 
 #makeLite(pixelExpr)
 #printHQLiteScalerTable()
