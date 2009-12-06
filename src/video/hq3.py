@@ -138,9 +138,8 @@ def sanityCheck(pixelExpr):
 					#assert corner[pixel] == 0, corner
 
 def genSwitch(pixelExpr):
-	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 	exprToCases = defaultdict(list)
-	for case, expr in enumerate(permuteCases(permutation, pixelExpr)):
+	for case, expr in enumerate(pixelExpr):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
 	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
@@ -167,11 +166,9 @@ def genSwitch(pixelExpr):
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def genHQLiteOffsetsTable(pixelExpr):
-	pixelExpr3 = permuteCases(tablePermutation, pixelExpr)
-
 	offset_x = ( 43,   0, -43,  43,   0, -43,  43,   0, -43)
 	offset_y = ( 43,  43,  43,   0,   0,   0, -43, -43, -43)
-	for expr in pixelExpr3:
+	for expr in pixelExpr:
 		for subPixel, weights in enumerate(expr):
 			neighbours = computeNeighbours(weights)
 			assert neighbours[1] is None, neighbours
@@ -192,8 +189,7 @@ def genHQLiteOffsetsTable(pixelExpr):
 			yield y
 
 def formatOffsetsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	for case, expr in enumerate(pixelExpr2):
+	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
 		for weights in expr:
 			for x, y in transformOffsets(weights):
@@ -201,21 +197,12 @@ def formatOffsetsTable(pixelExpr):
 			yield '\n'
 
 def formatWeightsTable(pixelExpr, cellFunc):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	for case, expr in enumerate(pixelExpr2):
+	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
 		for weights in expr:
 			for weight in transformWeights(weights, cellFunc):
 				yield ' %3d,' % weight
 			yield '\n'
-
-def genOffsetsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	return computeOffsets(pixelExpr2)
-
-def genWeightsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	return computeWeights(pixelExpr2, computeWeightCells)
 
 def makeLite(pixelExpr, preferC6subPixels):
 	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.
@@ -235,22 +222,60 @@ def makeNarrow(pixelExpr):
 		for expr in pixelExpr
 		]
 
+class Variant(object):
+
+	def __init__(self, pixelExpr, lite, narrow, table):
+		self.lite = lite
+		self.narrow = narrow
+		self.table = table
+		if lite:
+			pixelExpr = makeLite(pixelExpr, (2, 5, 8) if table else ())
+		if narrow:
+			pixelExpr = makeNarrow(pixelExpr)
+		pixelExpr = permuteCases(
+			(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
+			if table else
+			(2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5),
+			pixelExpr
+			)
+		self.pixelExpr = pixelExpr
+
+	def writeSwitch(self, fileName):
+		writeTextFile(fileName, genSwitch(self.pixelExpr))
+
 if __name__ == '__main__':
-	pixelExpr = Parser().pixelExpr
-	writeBinaryFile('HQ3xOffsets.dat', genOffsetsTable(pixelExpr))
-	writeBinaryFile('HQ3xWeights.dat', genWeightsTable(pixelExpr))
-	#printText(formatOffsetsTable(pixelExpr))
-	#printText(formatWeightsTable(pixelExpr, computeWeightCells))
+	parser = Parser()
 
-	#pixelExpr = Parser().pixelExpr
-	#pixelExpr = makeLite(pixelExpr, ())
-	#printText(formatWeightsTable(pixelExpr, computeLiteWeightCells))
+	fullTableVariant = Variant(parser.pixelExpr, lite = False, narrow = False, table = True )
+	liteTableVariant = Variant(parser.pixelExpr, lite = True,  narrow = False, table = True )
 
-	pixelExpr = Parser().pixelExpr
-	pixelExpr = makeLite(pixelExpr, (2, 5, 8))
-	writeBinaryFile('HQ3xLiteOffset.dat', genHQLiteOffsetsTable(pixelExpr))
+	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
+	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))
+	#printText(formatWeightsTable(
+		#fullTableVariant.pixelExpr, computeWeightCells
+		#))
+	#printText(formatWeightsTable(
+		#liteTableVariant.pixelExpr, computeLiteWeightCells
+		#))
 
-	pixelExpr = Parser().pixelExpr
-	writeTextFile('HQ3xScaler-1x1to3x3.nn', genSwitch(pixelExpr))
-	pixelExpr = makeLite(pixelExpr, ())
-	writeTextFile('HQ3xLiteScaler-1x1to3x3.nn', genSwitch(pixelExpr))
+	writeBinaryFile(
+		'HQ3xOffsets.dat',
+		computeOffsets(fullTableVariant.pixelExpr)
+		)
+	writeBinaryFile(
+		'HQ3xWeights.dat',
+		computeWeights(fullTableVariant.pixelExpr, computeWeightCells)
+		)
+	writeBinaryFile(
+		'HQ3xLiteOffset.dat',
+		genHQLiteOffsetsTable(liteTableVariant.pixelExpr)
+		)
+	# Note: HQ3xLiteWeights.dat is not needed, since interpolated texture
+	#       offsets can perform all the blending we need.
+
+	Variant(parser.pixelExpr, lite = False, narrow = False, table = False).writeSwitch(
+		'HQ3xScaler-1x1to3x3.nn'
+		)
+	Variant(parser.pixelExpr, lite = True,  narrow = False, table = False).writeSwitch(
+		'HQ3xLiteScaler-1x1to3x3.nn'
+		)
