@@ -5,7 +5,6 @@ from hqcommon import (
 	)
 
 from collections import defaultdict
-import sys
 
 def filterSwitch(stream):
 	log = False
@@ -152,18 +151,18 @@ def genSwitch():
 	yield '\tpixelc = pixeld = pixele = pixelf = 0; // avoid warning\n'
 	yield '}\n'
 
-def printHQLiteScalerTable():
+def formatLiteWeightsTable():
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
 	for case in range(1 << 12):
-		sys.stdout.write('// %d\n' % case)
+		yield '// %d\n' % case
 		for subPixel in range(16):
 			factor = 256 / sum(pixelExpr2[case][subPixel])
 			for c in (3, 4, 5):
-				sys.stdout.write(' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c]))
-			sys.stdout.write('\n')
+				yield ' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c])
+			yield '\n'
 
 def formatOffsetsTable():
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
@@ -253,7 +252,6 @@ def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
 	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
 	for case in range(1 << 12):
-		#sys.stdout.write('// %d\n' % case)
 		for subPixel in range(16):
 			for c in (0, 1, 2, 6, 7, 8):
 				assert pixelExpr2[case][subPixel][c] == 0
@@ -275,7 +273,7 @@ def genHQLiteOffsetsTable(pixelExpr):
 #printText(formatOffsetsTable())
 #printText(formatWeightsTable())
 #makeLite(pixelExpr)
-#printHQLiteScalerTable()
+#printText(formatLiteWeightsTable())
 
 writeBinaryFile('HQ4xOffsets.dat', genHQOffsetsTable(pixelExpr))
 writeBinaryFile('HQ4xWeights.dat', genHQWeightsTable(pixelExpr))
