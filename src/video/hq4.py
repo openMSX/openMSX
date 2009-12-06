@@ -1,6 +1,6 @@
 # $Id$
 
-from hqcommon import makeLite, permuteCase, printSubExpr
+from hqcommon import makeLite, permuteCase, printSubExpr, writeBinaryFile
 
 from collections import defaultdict
 import sys
@@ -249,8 +249,7 @@ def printHQScalerTableBinary(offsetsFilename, weightsFilename):
 				weightsFile.write(chr(min(255, factor * t)))
 	weightsFile.close()
 
-def printHQLiteScalerTable2Binary(filename):
-	file = open(filename, 'wb')
+def genHQLiteOffsetsTable(pixelExpr):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
@@ -274,8 +273,8 @@ def printHQLiteScalerTable2Binary(filename):
 			#print x, y
 			assert 0 <= x
 			assert x <= 255
-			file.write(chr(x) + chr(y))
-	file.close()
+			yield x
+			yield y
 
 
 #printHQScalerTable()
@@ -286,6 +285,6 @@ printHQScalerTableBinary('HQ4xOffsets.dat', 'HQ4xWeights.dat')
 #printHQLiteScalerTableBinary('HQ4xLiteWeights.dat')
 
 makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15))
-printHQLiteScalerTable2Binary('HQ4xLiteOffsets.dat')
+writeBinaryFile('HQ4xLiteOffsets.dat', genHQLiteOffsetsTable(pixelExpr))
 
 #printSwitch()
