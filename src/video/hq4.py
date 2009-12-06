@@ -165,22 +165,14 @@ def printHQLiteScalerTable():
 				sys.stdout.write(' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c]))
 			sys.stdout.write('\n')
 
-def printHQScalerTable():
+def formatOffsetsTable():
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
 		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
-	xy = [[[-1] * 2 for _ in range(16)] for _ in range(1 << 12)]
+	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
-		for subPixel in range(16):
-			j = 0
-			for i in (0, 1, 2, 3, 5, 6, 7, 8):
-				if pixelExpr2[case][subPixel][i] != 0:
-					assert j < 2
-					xy[case][subPixel][j] = i
-					j = j + 1
-	for case in range(1 << 12):
-		sys.stdout.write('// %d\n' % case)
+		yield '// %d\n' % case
 		for subPixel in range(16):
 			for i in range(2):
 				t = xy[case][subPixel][i]
@@ -188,19 +180,25 @@ def printHQScalerTable():
 					t = 4
 				x = min(255, (t % 3) * 128)
 				y = min(255, (t / 3) * 128)
-				sys.stdout.write(' %3d, %3d,' % (x, y))
-			sys.stdout.write('\n')
-	sys.stdout.write('//-------------\n')
+				yield ' %3d, %3d,' % (x, y)
+			yield '\n'
+
+def formatWeightsTable():
+	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		sys.stdout.write('// %d\n' % case)
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
+	#
+	xy = computeXY(pixelExpr2)
+	for case in range(1 << 12):
+		yield '// %d\n' % case
 		for subPixel in range(16):
 			factor = 256 / sum(pixelExpr2[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
 				t = 0
 				if c != -1:
 					t = pixelExpr2[case][subPixel][c]
-				sys.stdout.write(' %3d,' % min(255, factor * t))
-			sys.stdout.write('\n')
+				yield ' %3d,' % min(255, factor * t)
+			yield '\n'
 
 def computeXY(pixelExpr2):
 	xy = [[[-1] * 2 for _ in range(16)] for _ in range(1 << 12)]
@@ -274,7 +272,8 @@ def genHQLiteOffsetsTable(pixelExpr):
 			yield y
 
 
-#printHQScalerTable()
+#printText(formatOffsetsTable())
+#printText(formatWeightsTable())
 #makeLite(pixelExpr)
 #printHQLiteScalerTable()
 
