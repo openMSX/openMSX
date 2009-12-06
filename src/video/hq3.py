@@ -3,7 +3,7 @@
 from hqcommon import (
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, makeLite as commonMakeLite,
-	permuteCase, permuteCases, printSubExpr, printText,
+	permuteCases, printSubExpr, printText,
 	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
 
@@ -140,10 +140,8 @@ def sanityCheck(pixelExpr):
 def genSwitch(pixelExpr):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 	exprToCases = defaultdict(list)
-	for case, expr in enumerate(pixelExpr):
-		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(
-			permuteCase(permutation, case)
-			)
+	for case, expr in enumerate(permuteCases(permutation, pixelExpr)):
+		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
 	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
 		( sorted(cases), expr )
