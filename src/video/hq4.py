@@ -173,14 +173,14 @@ def formatWeightsTable(pixelExpr, cellFunc):
 			yield '\n'
 
 def genHQOffsetsTable(pixelExpr):
-	for case, expr in enumerate(pixelExpr):
+	for expr in pixelExpr:
 		for weights in expr:
 			for x, y in transformOffsets(weights):
 				yield x
 				yield y
 
 def genHQWeightsTable(pixelExpr):
-	for case, expr in enumerate(pixelExpr):
+	for expr in pixelExpr:
 		for weights in expr:
 			neighbours = computeNeighbours(weights)
 			factor = 256 / sum(weights)
@@ -190,7 +190,7 @@ def genHQWeightsTable(pixelExpr):
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
 	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
-	for case, expr in enumerate(pixelExpr):
+	for expr in pixelExpr:
 		for subPixel, weights in enumerate(expr):
 			for c in (0, 1, 2, 6, 7, 8):
 				assert weights[c] == 0
