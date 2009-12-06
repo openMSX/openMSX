@@ -14,10 +14,9 @@ class Parser(object):
 
 	def __init__(self):
 		self.fileName = 'HQ3xScaler.in'
-		self.pixelExpr = [ [ None ] * 8 for _ in range(1 << 12) ]
+		self.pixelExpr = [ [ None ] * 9 for _ in range(1 << 12) ]
 		self.__parse()
 		sanityCheck(self.pixelExpr)
-		self.pixelExpr = pixelExpr8to9(self.pixelExpr)
 
 	@staticmethod
 	def __filterSwitch(stream):
@@ -82,10 +81,12 @@ class Parser(object):
 				cases = []
 				subCases = range(1 << 4)
 
+		for expr in self.pixelExpr:
+			assert expr[4] is None
+			expr[4] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+
 	def __addCases(self, cases, subCases, subPixel, expr):
 		pixelExpr = self.pixelExpr
-		if subPixel > (5 - 1):
-			subPixel -= 1
 		for case in cases:
 			for subCase in subCases:
 				weights = [ 0 ] * 9
@@ -107,18 +108,6 @@ class Parser(object):
 					assert expr[0] == 'c'
 					weights[int(expr[1 : ]) - 1] = 1
 				pixelExpr[(case << 4) | subCase][subPixel] = weights
-
-def pixelExpr8to9(pixelExpr2):
-	pixelExpr3 = [ [ None ] * 9 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		for subPixel in range(9):
-			if subPixel < 4:
-				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel]
-			elif subPixel == 4:
-				pixelExpr3[case][subPixel] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
-			else:
-				pixelExpr3[case][subPixel] = pixelExpr2[case][subPixel - 1]
-	return pixelExpr3
 
 def sanityCheck(pixelExpr):
 	'''Check various observed properties.
