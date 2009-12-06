@@ -173,16 +173,6 @@ def isContradiction(case):
 		(inv & 0x00F) in [0x00E, 0x00D, 0x00B, 0x007]
 		)
 
-def resetContradictions(pixelExpr):
-	#print 'Eliminated %d contradictions' % sum(
-		#isContradiction(case) for case in range(1 << 12)
-		#)
-	default = [0, 0, 0, 0, 1, 0, 0, 0, 0]
-	return [
-		[ default ] * len(expr) if isContradiction(case) else expr
-		for case, expr in enumerate(pixelExpr)
-		]
-
 def simplifyWeights2(weights):
 	for w in range(9):
 		if weights[w] % 2:
@@ -234,33 +224,36 @@ def makeLite(pixelExpr, preferC6subPixels):
 
 	def lighten(case, subPixel, weights):
 		#print "case:", case, "subPixel:", subPixel, "weights:", weights
-		# simplify using edge info
-		pixelToSet = dict( ( pixel, set([pixel]) ) for pixel in range(9) )
-		for edge, (pixel1, pixel2) in enumerate(edges):
-			pixel1 -= 1
-			pixel2 -= 1
-			if (case & (1 << edge)) == 0:
-				# No edge, so the two pixels are equal.
-				# Merge the sets of equal pixels.
-				set1 = pixelToSet[pixel1]
-				set2 = pixelToSet[pixel2]
-				set1 |= set2
-				for p in set1:
-					pixelToSet[p] = set1
-		done = set()
-		newWeights = [ 0 ] * 9
-		if subPixel in preferC6subPixels:
-			rem = ( 5, 6, 4, 2, 8, 1, 3, 7, 9 )
+		if isContradiction(case):
+			newWeights = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 		else:
-			rem = ( 5, 4, 6, 2, 8, 1, 3, 7, 9 )
-		for remPixel in rem:
-			remPixel -= 1
-			if remPixel not in done:
-				equalPixels = pixelToSet[remPixel]
-				newWeights[remPixel] = sum(
-					weights[orgPixel] for orgPixel in equalPixels
-					)
-				done |= equalPixels
+			# simplify using edge info
+			pixelToSet = dict( ( pixel, set([pixel]) ) for pixel in range(9) )
+			for edge, (pixel1, pixel2) in enumerate(edges):
+				pixel1 -= 1
+				pixel2 -= 1
+				if (case & (1 << edge)) == 0:
+					# No edge, so the two pixels are equal.
+					# Merge the sets of equal pixels.
+					set1 = pixelToSet[pixel1]
+					set2 = pixelToSet[pixel2]
+					set1 |= set2
+					for p in set1:
+						pixelToSet[p] = set1
+			done = set()
+			newWeights = [ 0 ] * 9
+			if subPixel in preferC6subPixels:
+				rem = ( 5, 6, 4, 2, 8, 1, 3, 7, 9 )
+			else:
+				rem = ( 5, 4, 6, 2, 8, 1, 3, 7, 9 )
+			for remPixel in rem:
+				remPixel -= 1
+				if remPixel not in done:
+					equalPixels = pixelToSet[remPixel]
+					newWeights[remPixel] = sum(
+						weights[orgPixel] for orgPixel in equalPixels
+						)
+					done |= equalPixels
 		newWeights = simplifyWeights(newWeights)
 		for c in (0, 1, 2, 6, 7, 8):
 			# only c4, c5, c6 have non-0 weight
@@ -271,5 +264,5 @@ def makeLite(pixelExpr, preferC6subPixels):
 	return [
 		[ lighten(case, subPixel, weights)
 		  for subPixel, weights in enumerate(expr) ]
-		for case, expr in enumerate(resetContradictions(pixelExpr))
+		for case, expr in enumerate(pixelExpr)
 		]
