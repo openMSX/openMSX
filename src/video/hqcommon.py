@@ -211,8 +211,11 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 		for w1, w2 in izip(weights1, weights2)
 		])
 
-def commonMakeLite(pixelExpr, preferC6subPixels = ()):
-	resetContradictions(pixelExpr)
+def makeLite(pixelExpr, preferC6subPixels):
+	# TODO: Rewrite so it doesn't change its input.
+	liteExpr = deepcopy(pixelExpr)
+
+	resetContradictions(liteExpr)
 	'''
 			if pix1 == 2 and pix2 == 6:
 				subCase = 0
@@ -235,8 +238,8 @@ def commonMakeLite(pixelExpr, preferC6subPixels = ()):
 		beenSrc.add(src)
 
 	for case in range(1 << 12):
-		for subPixel in range(len(pixelExpr[case])):
-			weights = pixelExpr[case][subPixel]
+		for subPixel in range(len(liteExpr[case])):
+			weights = liteExpr[case][subPixel]
 			#print "case:", case, "subPixel:", subPixel, "weights:", weights
 			# simplify using edge info
 			pixelToSet = dict( ( pixel, set([pixel]) ) for pixel in range(9) )
@@ -269,11 +272,7 @@ def commonMakeLite(pixelExpr, preferC6subPixels = ()):
 			for c in (0, 1, 2, 6, 7, 8):
 				# only c4, c5, c6 have non-0 weight
 				assert newWeights[c] == 0
-			pixelExpr[case][subPixel] = newWeights
+			liteExpr[case][subPixel] = newWeights
 			#print "case:", case, "subPixel:", subPixel, "weights:", newWeights
 
-def makeLite(pixelExpr, preferC6subPixels):
-	# TODO: Rewrite commonMakeLite() so it doesn't change its input.
-	liteExpr = deepcopy(pixelExpr)
-	commonMakeLite(liteExpr, preferC6subPixels)
 	return liteExpr
