@@ -129,12 +129,9 @@ def sanityCheck(pixelExpr):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
 
-switchPermutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
-tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
-
 def genSwitch(pixelExpr):
 	exprToCases = defaultdict(list)
-	for case, expr in enumerate(permuteCases(switchPermutation, pixelExpr)):
+	for case, expr in enumerate(pixelExpr):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
 	#print exprToCases
 	yield 'switch (pattern) {\n'
@@ -158,18 +155,16 @@ def genSwitch(pixelExpr):
 	yield '}\n'
 
 def formatLiteWeightsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
 		for subPixel in range(16):
-			factor = 256 / sum(pixelExpr2[case][subPixel])
+			factor = 256 / sum(pixelExpr[case][subPixel])
 			for c in (3, 4, 5):
-				yield ' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c])
+				yield ' %3d,' % min(255, factor * pixelExpr[case][subPixel][c])
 			yield '\n'
 
 def formatOffsetsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	xy = computeXY(pixelExpr2)
+	xy = computeXY(pixelExpr)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
 		for subPixel in range(16):
@@ -183,34 +178,32 @@ def formatOffsetsTable(pixelExpr):
 			yield '\n'
 
 def formatWeightsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	xy = computeXY(pixelExpr2)
+	xy = computeXY(pixelExpr)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
 		for subPixel in range(16):
-			factor = 256 / sum(pixelExpr2[case][subPixel])
+			factor = 256 / sum(pixelExpr[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
 				t = 0
 				if c != -1:
-					t = pixelExpr2[case][subPixel][c]
+					t = pixelExpr[case][subPixel][c]
 				yield ' %3d,' % min(255, factor * t)
 			yield '\n'
 
-def computeXY(pixelExpr2):
+def computeXY(pixelExpr):
 	xy = [[[-1] * 2 for _ in range(16)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(16):
 			j = 0
 			for i in (0, 1, 2, 3, 5, 6, 7, 8):
-				if pixelExpr2[case][subPixel][i] != 0:
+				if pixelExpr[case][subPixel][i] != 0:
 					assert j < 2
 					xy[case][subPixel][j] = i
 					j = j + 1
 	return xy
 
 def genHQOffsetsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	xy = computeXY(pixelExpr2)
+	xy = computeXY(pixelExpr)
 	for case in range(1 << 12):
 		for subPixel in range(16):
 			for i in range(2):
@@ -223,33 +216,31 @@ def genHQOffsetsTable(pixelExpr):
 				yield y
 
 def genHQWeightsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
-	xy = computeXY(pixelExpr2)
+	xy = computeXY(pixelExpr)
 	for case in range(1 << 12):
 		for subPixel in range(16):
-			factor = 256 / sum(pixelExpr2[case][subPixel])
+			factor = 256 / sum(pixelExpr[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
 				t = 0
 				if c != -1:
-					t = pixelExpr2[case][subPixel][c]
+					t = pixelExpr[case][subPixel][c]
 				yield min(255, factor * t)
 
 def genHQLiteOffsetsTable(pixelExpr):
-	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
 	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
 	for case in range(1 << 12):
 		for subPixel in range(16):
 			for c in (0, 1, 2, 6, 7, 8):
-				assert pixelExpr2[case][subPixel][c] == 0
-			assert (pixelExpr2[case][subPixel][3] == 0) or (pixelExpr2[case][subPixel][5] == 0)
-			factor = sum(pixelExpr2[case][subPixel])
+				assert pixelExpr[case][subPixel][c] == 0
+			assert (pixelExpr[case][subPixel][3] == 0) or (pixelExpr[case][subPixel][5] == 0)
+			factor = sum(pixelExpr[case][subPixel])
 			x = offset_x[subPixel] + 128
 			y = offset_y[subPixel] + 128
-			if pixelExpr2[case][subPixel][5] == 0:
-				x -= 128 * pixelExpr2[case][subPixel][3] / factor
+			if pixelExpr[case][subPixel][5] == 0:
+				x -= 128 * pixelExpr[case][subPixel][3] / factor
 			else:
-				x += 128 * pixelExpr2[case][subPixel][5] / factor
+				x += 128 * pixelExpr[case][subPixel][5] / factor
 			#print x, y
 			assert 0 <= x
 			assert x <= 255
@@ -272,6 +263,12 @@ class Variant(object):
 			pixelExpr = makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15) if table else ())
 		if narrow:
 			assert False
+		pixelExpr = permuteCases(
+			(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
+			if table else
+			(2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5),
+			pixelExpr
+			)
 		self.pixelExpr = pixelExpr
 
 if __name__ == '__main__':
