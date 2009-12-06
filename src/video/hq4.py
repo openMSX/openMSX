@@ -2,6 +2,7 @@
 
 from hqcommon import makeLite, permuteCase, printSubExpr
 
+from collections import defaultdict
 import sys
 
 def filterSwitch(stream):
@@ -123,12 +124,11 @@ sanityCheck(pixelExpr)
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def printSwitch():
-	exprToCases = {}
+	exprToCases = defaultdict(list)
 	for case, expr in enumerate(pixelExpr):
-		exprToCases.setdefault(
-			tuple(tuple(subExpr) for subExpr in expr),
-			[]
-			).append(permuteCase(tablePermutation, case))
+		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(
+			permuteCase(tablePermutation, case)
+			)
 	#print exprToCases
 	print 'switch (pattern) {'
 	for cases, expr in sorted(
