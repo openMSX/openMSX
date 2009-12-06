@@ -116,21 +116,18 @@ def sanityCheck(pixelExpr):
 	subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
 
 	for case, expr in enumerate(pixelExpr):
-		# Weight factor of center pixel is never zero.
-		# TODO: This is not the case for 3x, is that expected or a problem?
-		#for corner in expr:
-			#assert corner[5 - 1] != 0, corner
-
-		# Sum of weight factors is always a power of two.
 		for corner in expr:
+			# Weight of the center pixel is never zero.
+			# TODO: This is not the case for 3x, is that expected or a problem?
+			#assert corner[4] != 0
+			# Sum of weight factors is always a power of two.
 			total = sum(corner)
 			assert total in (1, 2, 4, 8, 16), total
-			#
-			count = reduce(lambda x, y: x + (y != 0), corner, 0)
-			# at most 3 non-zero coef
-			assert count <= 3, (case, corner)
-			# and if there are 3 one of those must be c5
-			assert (count < 3) or (corner[4] != 0)
+			# There are at most 3 non-zero weights, and if there are 3 one of
+			# those must be for the center pixel.
+			numNonZero = sum(weight != 0 for weight in corner)
+			assert numNonZero <= 3, (case, corner)
+			assert numNonZero < 3 or corner[4] != 0
 
 		# Subpixel depends only on the center and three neighbours in the
 		# direction of the subpixel itself.
