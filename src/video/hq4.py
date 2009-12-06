@@ -164,13 +164,11 @@ def genHQOffsetsTable(pixelExpr):
 				yield x
 				yield y
 
-def genHQWeightsTable(pixelExpr):
+def genHQWeightsTable(pixelExpr, cellFunc):
 	for expr in pixelExpr:
 		for weights in expr:
-			neighbours = computeNeighbours(weights)
-			factor = 256 / sum(weights)
-			for c in (neighbours[0], neighbours[1], 4):
-				yield min(255, 0 if c is None else factor * weights[c])
+			for transformedWeight in transformWeights(weights, cellFunc):
+				yield transformedWeight
 
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
@@ -235,7 +233,7 @@ if __name__ == '__main__':
 		)
 	writeBinaryFile(
 		'HQ4xWeights.dat',
-		genHQWeightsTable(fullTableVariant.pixelExpr)
+		genHQWeightsTable(fullTableVariant.pixelExpr, computeWeightCells)
 		)
 	writeBinaryFile(
 		'HQ4xLiteOffsets.dat',
