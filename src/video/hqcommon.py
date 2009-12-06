@@ -164,20 +164,25 @@ def printSubExpr(subExpr):
 			')) / %d' % wsum
 			)
 
+def isContradiction(case):
+	inv = case ^ 0xFFF
+	return (
+		(inv & 0x121) in [0x120, 0x101, 0x021] or
+		(inv & 0x502) in [0x500, 0x402, 0x102] or
+		(inv & 0x484) in [0x480, 0x404, 0x084] or
+		(inv & 0x0A8) in [0x0A0, 0x088, 0x028] or
+		(inv & 0x00F) in [0x00E, 0x00D, 0x00B, 0x007]
+		)
+
 def resetContradictions(pixelExpr):
-	count = 0
+	#print 'Eliminated %d contradictions' % sum(
+		#isContradiction(case) for case in range(1 << 12)
+		#)
 	default = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 	for case in range(1 << 12):
-		inv = case ^ 0xFFF
-		if (((inv & 0x121) in [0x120, 0x101, 0x021]) or
-		    ((inv & 0x502) in [0x500, 0x402, 0x102]) or
-		    ((inv & 0x484) in [0x480, 0x404, 0x084]) or
-		    ((inv & 0x0A8) in [0x0A0, 0x088, 0x028]) or
-		    ((inv & 0x00F) in [0x00E, 0x00D, 0x00B, 0x007])):
+		if isContradiction(case):
 			for subPixel in range(len(pixelExpr[case])):
 				pixelExpr[case][subPixel] = default
-			count += 1
-	#print "Eliminated", count, "contradictions"
 
 def simplifyWeights2(weights):
 	for w in range(9):
