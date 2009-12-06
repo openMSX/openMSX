@@ -262,20 +262,43 @@ def makeLite(pixelExpr, preferC6subPixels):
 	commonMakeLite(liteExpr, preferC6subPixels)
 	return liteExpr
 
-if __name__ == '__main__':
-	#pixelExpr = Parser().pixelExpr
-	#printText(formatOffsetsTable(pixelExpr))
-	#printText(formatWeightsTable(pixelExpr))
-	#pixelExpr = makeLite(pixelExpr, ())
-	#printText(formatLiteWeightsTable(pixelExpr))
+class Variant(object):
 
-	pixelExpr = Parser().pixelExpr
-	writeBinaryFile('HQ4xOffsets.dat', genHQOffsetsTable(pixelExpr))
-	writeBinaryFile('HQ4xWeights.dat', genHQWeightsTable(pixelExpr))
-	pixelExpr = makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15))
-	writeBinaryFile('HQ4xLiteOffsets.dat', genHQLiteOffsetsTable(pixelExpr))
+	def __init__(self, pixelExpr, lite, narrow, table):
+		self.lite = lite
+		self.narrow = narrow
+		self.table = table
+		if lite:
+			pixelExpr = makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15) if table else ())
+		if narrow:
+			assert False
+		self.pixelExpr = pixelExpr
+
+if __name__ == '__main__':
+	parser = Parser()
+
+	fullTableVariant = Variant(parser.pixelExpr, lite = False, narrow = False, table = True )
+	liteTableVariant = Variant(parser.pixelExpr, lite = True,  narrow = False, table = True )
+
+	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
+	#printText(formatWeightsTable(fullTableVariant.pixelExpr))
+	#printText(formatLiteWeightsTable(liteTableVariant.pixelExpr))
+
+	writeBinaryFile(
+		'HQ4xOffsets.dat',
+		genHQOffsetsTable(fullTableVariant.pixelExpr)
+		)
+	writeBinaryFile(
+		'HQ4xWeights.dat',
+		genHQWeightsTable(fullTableVariant.pixelExpr)
+		)
+	writeBinaryFile(
+		'HQ4xLiteOffsets.dat',
+		genHQLiteOffsetsTable(liteTableVariant.pixelExpr)
+		)
 	# Note: HQ4xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	#pixelExpr = Parser().pixelExpr
-	#printText(genSwitch(pixelExpr))
+	#printText(genSwitch(Variant(
+		#parser.pixelExpr, lite = False, narrow = False, table = False
+		#).pixelExpr))
