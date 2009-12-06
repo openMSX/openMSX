@@ -3,8 +3,8 @@
 from hqcommon import (
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, makeLite as commonMakeLite,
-	permuteCase, permuteCases, printText, transformOffsets, transformWeights,
-	writeTextFile, writeBinaryFile
+	permuteCase, permuteCases, printSubExpr, printText,
+	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
 
 from copy import deepcopy
@@ -27,42 +27,7 @@ def genSwitch(pixelExpr, narrow):
 		for case in cases:
 			yield 'case %d:\n' % case
 		for subPixel, subExpr in enumerate(expr):
-			yield '\tpixel%d = ' % (subPixel + 1)
-			wsum = sum(subExpr)
-			if wsum == 1:
-				assert subExpr[5 - 1] == 1
-				yield 'c5;\n'
-			elif wsum <= 8:
-				# Because the lower 3 bits of each colour component (R,G,B)
-				# are zeroed out, we can operate on a single integer as if it
-				# is a vector.
-				yield (
-					'(' +
-					' + '.join(
-						'c%d * %d' % (index + 1, weight)
-						for index, weight in enumerate(subExpr)
-						if weight != 0
-						) +
-					') / %d;\n' % wsum
-					)
-			else:
-				yield (
-					'(('
-						'(' + ' + '.join(
-							'(c%d & 0x00FF00) * %d' % (index + 1, weight)
-							for index, weight in enumerate(subExpr)
-							if weight != 0
-							) +
-						') & (0x00FF00 * %d)' % wsum +
-					') | ('
-						'(' + ' + '.join(
-							'(c%d & 0xFF00FF) * %d' % (index + 1, weight)
-							for index, weight in enumerate(subExpr)
-							if weight != 0
-							) +
-						') & (0xFF00FF * %d)' % wsum +
-					')) / %d;\n' % wsum
-					)
+			yield '\tpixel%d = %s;\n' % (subPixel + 1, printSubExpr(subExpr))
 		yield '\tbreak;\n'
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
