@@ -1,7 +1,7 @@
 # $Id$
 
 from hqcommon import (
-	makeLite as commonMakeLite,
+	computeNeighbours, makeLite as commonMakeLite,
 	permuteCases, printSubExpr, printText, writeBinaryFile
 	)
 
@@ -186,16 +186,10 @@ def formatWeightsTable(pixelExpr):
 			yield '\n'
 
 def computeXY(pixelExpr):
-	xy = [[[None] * 2 for _ in range(16)] for _ in range(1 << 12)]
-	for case in range(1 << 12):
-		for subPixel in range(16):
-			j = 0
-			for i in (0, 1, 2, 3, 5, 6, 7, 8):
-				if pixelExpr[case][subPixel][i] != 0:
-					assert j < 2
-					xy[case][subPixel][j] = i
-					j = j + 1
-	return xy
+	return [
+		[ computeNeighbours(weights) for weights in expr ]
+		for expr in pixelExpr
+		]
 
 def genHQOffsetsTable(pixelExpr):
 	xy = computeXY(pixelExpr)
