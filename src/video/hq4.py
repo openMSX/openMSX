@@ -155,19 +155,19 @@ def genSwitch(pixelExpr):
 	yield '}\n'
 
 def formatLiteWeightsTable(pixelExpr):
-	for case in range(1 << 12):
+	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
-		for subPixel in range(16):
-			factor = 256 / sum(pixelExpr[case][subPixel])
+		for weights in expr:
+			factor = 256 / sum(weights)
 			for c in (3, 4, 5):
-				yield ' %3d,' % min(255, factor * pixelExpr[case][subPixel][c])
+				yield ' %3d,' % min(255, factor * weights[c])
 			yield '\n'
 
 def formatOffsetsTable(pixelExpr):
 	xy = computeXY(pixelExpr)
-	for case in range(1 << 12):
+	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
-		for subPixel in range(16):
+		for subPixel, weights in enumerate(expr):
 			for i in range(2):
 				t = xy[case][subPixel][i]
 				x = min(255, (1 if t is None else (t % 3)) * 128)
@@ -177,12 +177,12 @@ def formatOffsetsTable(pixelExpr):
 
 def formatWeightsTable(pixelExpr):
 	xy = computeXY(pixelExpr)
-	for case in range(1 << 12):
+	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
-		for subPixel in range(16):
-			factor = 256 / sum(pixelExpr[case][subPixel])
+		for subPixel, weights in enumerate(expr):
+			factor = 256 / sum(weights)
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				yield ' %3d,' % min(255, 0 if c is None else factor * pixelExpr[case][subPixel][c])
+				yield ' %3d,' % min(255, 0 if c is None else factor * weights[c])
 			yield '\n'
 
 def computeXY(pixelExpr):
@@ -193,8 +193,8 @@ def computeXY(pixelExpr):
 
 def genHQOffsetsTable(pixelExpr):
 	xy = computeXY(pixelExpr)
-	for case in range(1 << 12):
-		for subPixel in range(16):
+	for case, expr in enumerate(pixelExpr):
+		for subPixel, weights in enumerate(expr):
 			for i in range(2):
 				t = xy[case][subPixel][i]
 				x = min(255, (1 if t is None else (t % 3)) * 128)
@@ -204,27 +204,27 @@ def genHQOffsetsTable(pixelExpr):
 
 def genHQWeightsTable(pixelExpr):
 	xy = computeXY(pixelExpr)
-	for case in range(1 << 12):
-		for subPixel in range(16):
-			factor = 256 / sum(pixelExpr[case][subPixel])
+	for case, expr in enumerate(pixelExpr):
+		for subPixel, weights in enumerate(expr):
+			factor = 256 / sum(weights)
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				yield min(255, 0 if c is None else factor * pixelExpr[case][subPixel][c])
+				yield min(255, 0 if c is None else factor * weights[c])
 
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
 	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
-	for case in range(1 << 12):
-		for subPixel in range(16):
+	for case, expr in enumerate(pixelExpr):
+		for subPixel, weights in enumerate(expr):
 			for c in (0, 1, 2, 6, 7, 8):
-				assert pixelExpr[case][subPixel][c] == 0
-			assert (pixelExpr[case][subPixel][3] == 0) or (pixelExpr[case][subPixel][5] == 0)
-			factor = sum(pixelExpr[case][subPixel])
+				assert weights[c] == 0
+			assert weights[3] == 0 or weights[5] == 0
+			factor = sum(weights)
 			x = offset_x[subPixel] + 128
 			y = offset_y[subPixel] + 128
-			if pixelExpr[case][subPixel][5] == 0:
-				x -= 128 * pixelExpr[case][subPixel][3] / factor
+			if weights[5] == 0:
+				x -= 128 * weights[3] / factor
 			else:
-				x += 128 * pixelExpr[case][subPixel][5] / factor
+				x += 128 * weights[5] / factor
 			#print x, y
 			assert 0 <= x
 			assert x <= 255
