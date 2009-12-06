@@ -1,6 +1,8 @@
 # $Id$
 
-from hqcommon import makeLite, permuteCase, printSubExpr, writeBinaryFile
+from hqcommon import (
+	makeLite, permuteCase, printSubExpr, printText, writeBinaryFile
+	)
 
 from collections import defaultdict
 import sys
@@ -123,31 +125,32 @@ sanityCheck(pixelExpr)
 #oldpermutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
-def printSwitch():
+def genSwitch():
 	exprToCases = defaultdict(list)
 	for case, expr in enumerate(pixelExpr):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(
 			permuteCase(tablePermutation, case)
 			)
 	#print exprToCases
-	print 'switch (pattern) {'
+	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
 		( sorted(cases), expr )
 		for expr, cases in exprToCases.iteritems()
 		):
 		for case in cases:
-			print 'case %d:' % case
+			yield 'case %d:\n' % case
 		for subPixel, subExpr in enumerate(expr):
-			print ('\tpixel%s = %s;' %
-			       (hex(subPixel)[2:], printSubExpr(subExpr)))
-		print '\tbreak;'
-	print 'default:'
-	print '\tassert(false);'
-	print '\tpixel0 = pixel1 = pixel2 = pixel3 ='
-	print '\tpixel4 = pixel5 = pixel6 = pixel7 ='
-	print '\tpixel8 = pixel9 = pixela = pixelb ='
-	print '\tpixelc = pixeld = pixele = pixelf = 0; // avoid warning'
-	print '}'
+			yield '\tpixel%s = %s;\n' % (
+				hex(subPixel)[2 : ], printSubExpr(subExpr)
+				)
+		yield '\tbreak;\n'
+	yield 'default:\n'
+	yield '\tassert(false);\n'
+	yield '\tpixel0 = pixel1 = pixel2 = pixel3 =\n'
+	yield '\tpixel4 = pixel5 = pixel6 = pixel7 =\n'
+	yield '\tpixel8 = pixel9 = pixela = pixelb =\n'
+	yield '\tpixelc = pixeld = pixele = pixelf = 0; // avoid warning\n'
+	yield '}\n'
 
 def printHQLiteScalerTable():
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
@@ -282,4 +285,4 @@ writeBinaryFile('HQ4xLiteOffsets.dat', genHQLiteOffsetsTable(pixelExpr))
 # Note: HQ4xLiteWeights.dat is not needed, since interpolated texture
 #       offsets can perform all the blending we need.
 
-#printSwitch()
+#printText(genSwitch())
