@@ -1,11 +1,10 @@
 # $Id$
 
 from hqcommon import (
-	computeLiteWeightCells, computeNeighbours,
-	computeWeightCells, makeLite as commonMakeLite,
+	computeLiteWeightCells, computeNeighbours, computeOffsets,
+	computeWeights, computeWeightCells, makeLite as commonMakeLite,
 	formatOffsetsTable, formatWeightsTable,
-	permuteCases, printSubExpr, printText,
-	transformOffsets, transformWeights, writeBinaryFile
+	permuteCases, printSubExpr, printText, writeBinaryFile
 	)
 
 from collections import defaultdict
@@ -157,19 +156,6 @@ def genSwitch(pixelExpr):
 	yield '\tpixelc = pixeld = pixele = pixelf = 0; // avoid warning\n'
 	yield '}\n'
 
-def genHQOffsetsTable(pixelExpr):
-	for expr in pixelExpr:
-		for weights in expr:
-			for x, y in transformOffsets(weights):
-				yield x
-				yield y
-
-def genHQWeightsTable(pixelExpr, cellFunc):
-	for expr in pixelExpr:
-		for weights in expr:
-			for transformedWeight in transformWeights(weights, cellFunc):
-				yield transformedWeight
-
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
 	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
@@ -229,11 +215,11 @@ if __name__ == '__main__':
 
 	writeBinaryFile(
 		'HQ4xOffsets.dat',
-		genHQOffsetsTable(fullTableVariant.pixelExpr)
+		computeOffsets(fullTableVariant.pixelExpr)
 		)
 	writeBinaryFile(
 		'HQ4xWeights.dat',
-		genHQWeightsTable(fullTableVariant.pixelExpr, computeWeightCells)
+		computeWeights(fullTableVariant.pixelExpr, computeWeightCells)
 		)
 	writeBinaryFile(
 		'HQ4xLiteOffsets.dat',
