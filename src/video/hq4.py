@@ -6,91 +6,99 @@ from hqcommon import (
 
 from collections import defaultdict
 
-def filterSwitch(stream):
-	log = False
-	inIf = False
-	for line in stream:
-		line = line.strip()
-		if line == 'switch (pattern) {':
-			log = True
-		elif line == '}':
-			if inIf:
-				inIf = False
-			elif log:
-				break
-		elif line.startswith('//pixel'):
-			line = line[2 : ]
-		elif line.startswith('if'):
-			inIf = True
-		if log:
-			yield line
+class Parser(object):
 
-def addCases(cases, subCases, subPixel, expr):
-	global pixelExpr
-	for case in cases:
-		for subCase in subCases:
-			weights = [ 0 ] * 16
-			if expr.startswith('interpolate'):
-				factorsStr = expr[
-					expr.index('<') + 1 : expr.index('>')
-					].split(',')
-				pixelsStr = expr[
-					expr.index('(') + 1 : expr.index(')')
-					].split(',')
-				assert len(factorsStr) == len(pixelsStr)
-				for factorStr, pixelStr in zip(factorsStr, pixelsStr):
-					factor = int(factorStr)
-					pixelStr = pixelStr.strip()
-					assert pixelStr[0] == 'c'
-					pixel = int(pixelStr[1 : ]) - 1
-					weights[pixel] = factor
-			else:
-				assert expr[0] == 'c'
-				weights[int(expr[1 : ]) - 1] = 1
-			pixelExpr[(case << 4) | subCase][subPixel] = weights
+	def __init__(self):
+		self.fileName = 'HQ4xScaler.in'
+		self.pixelExpr = [ [ None ] * 16 for _ in range(1 << 12) ]
+		self.__parse()
+		sanityCheck(self.pixelExpr)
 
-pixelExpr = [ [ None ] * 16 for _ in range(1 << 12) ]
+	@staticmethod
+	def __filterSwitch(stream):
+		log = False
+		inIf = False
+		for line in stream:
+			line = line.strip()
+			if line == 'switch (pattern) {':
+				log = True
+			elif line == '}':
+				if inIf:
+					inIf = False
+				elif log:
+					break
+			elif line.startswith('//pixel'):
+				line = line[2 : ]
+			elif line.startswith('if'):
+				inIf = True
+			if log:
+				yield line
 
-cases = []
-subCases = range(1 << 4)
-for line in filterSwitch(file('HQ4xScaler.in')):
-	if line.startswith('case'):
-		cases.append(int(line[5 : line.index(':', 5)]))
-	elif line.startswith('pixel'):
-		subPixel = int(line[5], 16)
-		assert 0 <= subPixel < 16
-		expr = line[line.index('=') + 1 : ].strip()
-		addCases(cases, subCases, subPixel, expr[ : -1])
-	elif line.startswith('if'):
-		index = line.find('edge')
-		assert index != -1
-		index1 = line.index('(', index)
-		index2 = line.index(',', index1)
-		index3 = line.index(')', index2)
-		pix1s = line[index1 + 1 : index2].strip()
-		pix2s = line[index2 + 1 : index3].strip()
-		assert pix1s[0] == 'c', pix1s
-		assert pix2s[0] == 'c', pix2s
-		pix1 = int(pix1s[1:])
-		pix2 = int(pix2s[1:])
-		if pix1 == 2 and pix2 == 6:
-			subCase = 0
-		elif pix1 == 6 and pix2 == 8:
-			subCase = 1
-		elif pix1 == 8 and pix2 == 4:
-			subCase = 2
-		elif pix1 == 4 and pix2 == 2:
-			subCase = 3
-		else:
-			assert False, (line, pix1, pix2)
-		subCases = [ x for x in range(1 << 4) if x & (1 << subCase) ]
-	elif line.startswith('} else'):
-		subCases = [ x for x in range(1 << 4) if x not in subCases ]
-	elif line.startswith('}'):
-		subCases = range(1 << 4)
-	elif line.startswith('break'):
+	def __parse(self):
 		cases = []
 		subCases = range(1 << 4)
+		for line in self.__filterSwitch(file(self.fileName)):
+			if line.startswith('case'):
+				cases.append(int(line[5 : line.index(':', 5)]))
+			elif line.startswith('pixel'):
+				subPixel = int(line[5], 16)
+				assert 0 <= subPixel < 16
+				expr = line[line.index('=') + 1 : ].strip()
+				self.__addCases(cases, subCases, subPixel, expr[ : -1])
+			elif line.startswith('if'):
+				index = line.find('edge')
+				assert index != -1
+				index1 = line.index('(', index)
+				index2 = line.index(',', index1)
+				index3 = line.index(')', index2)
+				pix1s = line[index1 + 1 : index2].strip()
+				pix2s = line[index2 + 1 : index3].strip()
+				assert pix1s[0] == 'c', pix1s
+				assert pix2s[0] == 'c', pix2s
+				pix1 = int(pix1s[1:])
+				pix2 = int(pix2s[1:])
+				if pix1 == 2 and pix2 == 6:
+					subCase = 0
+				elif pix1 == 6 and pix2 == 8:
+					subCase = 1
+				elif pix1 == 8 and pix2 == 4:
+					subCase = 2
+				elif pix1 == 4 and pix2 == 2:
+					subCase = 3
+				else:
+					assert False, (line, pix1, pix2)
+				subCases = [ x for x in range(1 << 4) if x & (1 << subCase) ]
+			elif line.startswith('} else'):
+				subCases = [ x for x in range(1 << 4) if x not in subCases ]
+			elif line.startswith('}'):
+				subCases = range(1 << 4)
+			elif line.startswith('break'):
+				cases = []
+				subCases = range(1 << 4)
+
+	def __addCases(self, cases, subCases, subPixel, expr):
+		pixelExpr = self.pixelExpr
+		for case in cases:
+			for subCase in subCases:
+				weights = [ 0 ] * 16
+				if expr.startswith('interpolate'):
+					factorsStr = expr[
+						expr.index('<') + 1 : expr.index('>')
+						].split(',')
+					pixelsStr = expr[
+						expr.index('(') + 1 : expr.index(')')
+						].split(',')
+					assert len(factorsStr) == len(pixelsStr)
+					for factorStr, pixelStr in zip(factorsStr, pixelsStr):
+						factor = int(factorStr)
+						pixelStr = pixelStr.strip()
+						assert pixelStr[0] == 'c'
+						pixel = int(pixelStr[1 : ]) - 1
+						weights[pixel] = factor
+				else:
+					assert expr[0] == 'c'
+					weights[int(expr[1 : ]) - 1] = 1
+				pixelExpr[(case << 4) | subCase][subPixel] = weights
 
 def sanityCheck(pixelExpr):
 	'''Check various observed properties.
@@ -119,12 +127,10 @@ def sanityCheck(pixelExpr):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
 
-sanityCheck(pixelExpr)
-
 switchPermutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
-def genSwitch():
+def genSwitch(pixelExpr):
 	exprToCases = defaultdict(list)
 	for case, expr in enumerate(permuteCases(switchPermutation, pixelExpr)):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
@@ -149,7 +155,7 @@ def genSwitch():
 	yield '\tpixelc = pixeld = pixele = pixelf = 0; // avoid warning\n'
 	yield '}\n'
 
-def formatLiteWeightsTable():
+def formatLiteWeightsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
@@ -159,7 +165,7 @@ def formatLiteWeightsTable():
 				yield ' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c])
 			yield '\n'
 
-def formatOffsetsTable():
+def formatOffsetsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
@@ -174,7 +180,7 @@ def formatOffsetsTable():
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
-def formatWeightsTable():
+def formatWeightsTable(pixelExpr):
 	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
@@ -249,11 +255,13 @@ def genHQLiteOffsetsTable(pixelExpr):
 			yield y
 
 
-#printText(formatOffsetsTable())
-#printText(formatWeightsTable())
+#pixelExpr = Parser().pixelExpr
+#printText(formatOffsetsTable(pixelExpr))
+#printText(formatWeightsTable(pixelExpr))
 #makeLite(pixelExpr)
-#printText(formatLiteWeightsTable())
+#printText(formatLiteWeightsTable(pixelExpr))
 
+pixelExpr = Parser().pixelExpr
 writeBinaryFile('HQ4xOffsets.dat', genHQOffsetsTable(pixelExpr))
 writeBinaryFile('HQ4xWeights.dat', genHQWeightsTable(pixelExpr))
 makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15))
@@ -261,4 +269,5 @@ writeBinaryFile('HQ4xLiteOffsets.dat', genHQLiteOffsetsTable(pixelExpr))
 # Note: HQ4xLiteWeights.dat is not needed, since interpolated texture
 #       offsets can perform all the blending we need.
 
-#printText(genSwitch())
+#pixelExpr = Parser().pixelExpr
+#printText(genSwitch(pixelExpr))
