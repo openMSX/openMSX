@@ -1,7 +1,6 @@
 # $Id$
 
 from itertools import izip
-from copy import deepcopy
 import sys
 
 # I/O:
@@ -212,8 +211,6 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 		])
 
 def makeLite(pixelExpr, preferC6subPixels):
-	liteExpr = deepcopy(resetContradictions(pixelExpr))
-
 	'''
 			if pix1 == 2 and pix2 == 6:
 				subCase = 0
@@ -235,42 +232,44 @@ def makeLite(pixelExpr, preferC6subPixels):
 		assert dst not in beenSrc
 		beenSrc.add(src)
 
-	for case in range(1 << 12):
-		for subPixel in range(len(liteExpr[case])):
-			weights = liteExpr[case][subPixel]
-			#print "case:", case, "subPixel:", subPixel, "weights:", weights
-			# simplify using edge info
-			pixelToSet = dict( ( pixel, set([pixel]) ) for pixel in range(9) )
-			for edge, (pixel1, pixel2) in enumerate(edges):
-				pixel1 -= 1
-				pixel2 -= 1
-				if (case & (1 << edge)) == 0:
-					# No edge, so the two pixels are equal.
-					# Merge the sets of equal pixels.
-					set1 = pixelToSet[pixel1]
-					set2 = pixelToSet[pixel2]
-					set1 |= set2
-					for p in set1:
-						pixelToSet[p] = set1
-			done = set()
-			newWeights = [ 0 ] * 9
-			if subPixel in preferC6subPixels:
-				rem = ( 5, 6, 4, 2, 8, 1, 3, 7, 9 )
-			else:
-				rem = ( 5, 4, 6, 2, 8, 1, 3, 7, 9 )
-			for remPixel in rem:
-				remPixel -= 1
-				if remPixel not in done:
-					equalPixels = pixelToSet[remPixel]
-					newWeights[remPixel] = sum(
-						weights[orgPixel] for orgPixel in equalPixels
-						)
-					done |= equalPixels
-			newWeights = simplifyWeights(newWeights)
-			for c in (0, 1, 2, 6, 7, 8):
-				# only c4, c5, c6 have non-0 weight
-				assert newWeights[c] == 0
-			liteExpr[case][subPixel] = newWeights
-			#print "case:", case, "subPixel:", subPixel, "weights:", newWeights
+	def lighten(case, subPixel, weights):
+		#print "case:", case, "subPixel:", subPixel, "weights:", weights
+		# simplify using edge info
+		pixelToSet = dict( ( pixel, set([pixel]) ) for pixel in range(9) )
+		for edge, (pixel1, pixel2) in enumerate(edges):
+			pixel1 -= 1
+			pixel2 -= 1
+			if (case & (1 << edge)) == 0:
+				# No edge, so the two pixels are equal.
+				# Merge the sets of equal pixels.
+				set1 = pixelToSet[pixel1]
+				set2 = pixelToSet[pixel2]
+				set1 |= set2
+				for p in set1:
+					pixelToSet[p] = set1
+		done = set()
+		newWeights = [ 0 ] * 9
+		if subPixel in preferC6subPixels:
+			rem = ( 5, 6, 4, 2, 8, 1, 3, 7, 9 )
+		else:
+			rem = ( 5, 4, 6, 2, 8, 1, 3, 7, 9 )
+		for remPixel in rem:
+			remPixel -= 1
+			if remPixel not in done:
+				equalPixels = pixelToSet[remPixel]
+				newWeights[remPixel] = sum(
+					weights[orgPixel] for orgPixel in equalPixels
+					)
+				done |= equalPixels
+		newWeights = simplifyWeights(newWeights)
+		for c in (0, 1, 2, 6, 7, 8):
+			# only c4, c5, c6 have non-0 weight
+			assert newWeights[c] == 0
+		#print "case:", case, "subPixel:", subPixel, "weights:", newWeights
+		return newWeights
 
-	return liteExpr
+	return [
+		[ lighten(case, subPixel, weights)
+		  for subPixel, weights in enumerate(expr) ]
+		for case, expr in enumerate(resetContradictions(pixelExpr))
+		]
