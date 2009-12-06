@@ -7,17 +7,17 @@ from hqcommon import (
 	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
 
+from collections import defaultdict
 from copy import deepcopy
 from itertools import izip
 
 def genSwitch(pixelExpr, narrow):
 	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
-	exprToCases = {}
+	exprToCases = defaultdict(list)
 	for case, expr in enumerate(pixelExpr):
-		exprToCases.setdefault(
-			tuple(tuple(subExpr) for subExpr in expr),
-			[]
-			).append(permuteCase(permutation, case))
+		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(
+			permuteCase(permutation, case)
+			)
 	#print exprToCases
 	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
