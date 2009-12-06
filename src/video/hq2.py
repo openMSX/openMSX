@@ -4,8 +4,7 @@ from hqcommon import (
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, makeLite as commonMakeLite,
 	formatOffsetsTable, formatWeightsTable,
-	permuteCases, printSubExpr, printText,
-	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
+	permuteCases, printSubExpr, printText, writeBinaryFile, writeTextFile
 	)
 
 from collections import defaultdict
