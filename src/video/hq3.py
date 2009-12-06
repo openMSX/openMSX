@@ -267,7 +267,7 @@ if __name__ == '__main__':
 		computeWeights(fullTableVariant.pixelExpr, computeWeightCells)
 		)
 	writeBinaryFile(
-		'HQ3xLiteOffset.dat',
+		'HQ3xLiteOffsets.dat',
 		genHQLiteOffsetsTable(liteTableVariant.pixelExpr)
 		)
 	# Note: HQ3xLiteWeights.dat is not needed, since interpolated texture
