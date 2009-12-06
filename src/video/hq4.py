@@ -162,19 +162,6 @@ def printHQLiteScalerTable():
 				sys.stdout.write(' %3d,' % min(255, factor * pixelExpr2[case][subPixel][c]))
 			sys.stdout.write('\n')
 
-def printHQLiteScalerTableBinary(filename):
-	file = open(filename, 'wb')
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-	#
-	for case in range(1 << 12):
-		for subPixel in range(16):
-			factor = 256 / sum(pixelExpr2[case][subPixel])
-			for c in (3, 4, 5):
-				file.write(chr(min(255, factor * pixelExpr2[case][subPixel][c])))
-	file.close()
-
 def printHQScalerTable():
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
@@ -285,14 +272,14 @@ def genHQLiteOffsetsTable(pixelExpr):
 
 
 #printHQScalerTable()
-writeBinaryFile('HQ4xOffsets.dat', genHQOffsetsTable(pixelExpr))
-writeBinaryFile('HQ4xWeights.dat', genHQWeightsTable(pixelExpr))
-
 #makeLite(pixelExpr)
 #printHQLiteScalerTable()
-#printHQLiteScalerTableBinary('HQ4xLiteWeights.dat')
 
+writeBinaryFile('HQ4xOffsets.dat', genHQOffsetsTable(pixelExpr))
+writeBinaryFile('HQ4xWeights.dat', genHQWeightsTable(pixelExpr))
 makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15))
 writeBinaryFile('HQ4xLiteOffsets.dat', genHQLiteOffsetsTable(pixelExpr))
+# Note: HQ4xLiteWeights.dat is not needed, since interpolated texture
+#       offsets can perform all the blending we need.
 
 #printSwitch()
