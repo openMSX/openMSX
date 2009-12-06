@@ -1,9 +1,10 @@
 # $Id$
 
 from hqcommon import (
-	computeNeighbours, makeLite as commonMakeLite,
+	computeLiteWeightCells, computeNeighbours,
+	computeWeightCells, makeLite as commonMakeLite,
 	permuteCases, printSubExpr, printText,
-	transformOffsets, writeBinaryFile
+	transformOffsets, transformWeights, writeBinaryFile
 	)
 
 from collections import defaultdict
@@ -155,15 +156,6 @@ def genSwitch(pixelExpr):
 	yield '\tpixelc = pixeld = pixele = pixelf = 0; // avoid warning\n'
 	yield '}\n'
 
-def formatLiteWeightsTable(pixelExpr):
-	for case, expr in enumerate(pixelExpr):
-		yield '// %d\n' % case
-		for weights in expr:
-			factor = 256 / sum(weights)
-			for c in (3, 4, 5):
-				yield ' %3d,' % min(255, factor * weights[c])
-			yield '\n'
-
 def formatOffsetsTable(pixelExpr):
 	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
@@ -172,14 +164,12 @@ def formatOffsetsTable(pixelExpr):
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
-def formatWeightsTable(pixelExpr):
+def formatWeightsTable(pixelExpr, cellFunc):
 	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
 		for weights in expr:
-			neighbours = computeNeighbours(weights)
-			factor = 256 / sum(weights)
-			for c in (neighbours[0], neighbours[1], 4):
-				yield ' %3d,' % min(255, 0 if c is None else factor * weights[c])
+			for weight in transformWeights(weights, cellFunc):
+				yield ' %3d,' % weight
 			yield '\n'
 
 def genHQOffsetsTable(pixelExpr):
@@ -249,8 +239,8 @@ if __name__ == '__main__':
 	liteTableVariant = Variant(parser.pixelExpr, lite = True,  narrow = False, table = True )
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
-	#printText(formatWeightsTable(fullTableVariant.pixelExpr))
-	#printText(formatLiteWeightsTable(liteTableVariant.pixelExpr))
+	#printText(formatWeightsTable(fullTableVariant.pixelExpr, computeWeightCells))
+	#printText(formatWeightsTable(liteTableVariant.pixelExpr, computeLiteWeightCells))
 
 	writeBinaryFile(
 		'HQ4xOffsets.dat',
