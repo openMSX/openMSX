@@ -121,12 +121,12 @@ def sanityCheck(pixelExpr):
 
 sanityCheck(pixelExpr)
 
-#oldpermutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
+switchPermutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def genSwitch():
 	exprToCases = defaultdict(list)
-	for case, expr in enumerate(permuteCases(tablePermutation, pixelExpr)):
+	for case, expr in enumerate(permuteCases(switchPermutation, pixelExpr)):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
 	#print exprToCases
 	yield 'switch (pattern) {\n'
