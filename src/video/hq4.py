@@ -2,7 +2,8 @@
 
 from hqcommon import (
 	computeNeighbours, makeLite as commonMakeLite,
-	permuteCases, printSubExpr, printText, writeBinaryFile
+	permuteCases, printSubExpr, printText,
+	transformOffsets, writeBinaryFile
 	)
 
 from collections import defaultdict
@@ -167,9 +168,7 @@ def formatOffsetsTable(pixelExpr):
 	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
 		for weights in expr:
-			for neighbour in computeNeighbours(weights):
-				x = min(255, (1 if neighbour is None else (neighbour % 3)) * 128)
-				y = min(255, (1 if neighbour is None else (neighbour / 3)) * 128)
+			for x, y in transformOffsets(weights):
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
@@ -186,9 +185,9 @@ def formatWeightsTable(pixelExpr):
 def genHQOffsetsTable(pixelExpr):
 	for case, expr in enumerate(pixelExpr):
 		for weights in expr:
-			for neighbour in computeNeighbours(weights):
-				yield min(255, (1 if neighbour is None else (neighbour % 3)) * 128)
-				yield min(255, (1 if neighbour is None else (neighbour / 3)) * 128)
+			for x, y in transformOffsets(weights):
+				yield x
+				yield y
 
 def genHQWeightsTable(pixelExpr):
 	for case, expr in enumerate(pixelExpr):
