@@ -1,6 +1,6 @@
 # $Id$
 
-from hqcommon import makeLite, printSubExpr
+from hqcommon import makeLite, permuteCase, printSubExpr
 
 import sys
 
@@ -120,12 +120,7 @@ def sanityCheck(pixelExpr):
 sanityCheck(pixelExpr)
 
 #oldpermutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
-permutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
-def permuteCase(case):
-	return sum(
-		((case >> oldBit) & 1) << newBit
-		for newBit, oldBit in enumerate(permutation)
-		)
+tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def printSwitch():
 	exprToCases = {}
@@ -133,7 +128,7 @@ def printSwitch():
 		exprToCases.setdefault(
 			tuple(tuple(subExpr) for subExpr in expr),
 			[]
-			).append(permuteCase(case))
+			).append(permuteCase(tablePermutation, case))
 	#print exprToCases
 	print 'switch (pattern) {'
 	for cases, expr in sorted(
@@ -157,7 +152,7 @@ def printSwitch():
 def printHQLiteScalerTable():
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pixelExpr2[permuteCase(case)] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
 	for case in range(1 << 12):
 		sys.stdout.write('// %d\n' % case)
@@ -171,7 +166,7 @@ def printHQLiteScalerTableBinary(filename):
 	file = open(filename, 'wb')
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pixelExpr2[permuteCase(case)] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
 	for case in range(1 << 12):
 		for subPixel in range(16):
@@ -183,7 +178,7 @@ def printHQLiteScalerTableBinary(filename):
 def printHQScalerTable():
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pixelExpr2[permuteCase(case)] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 	#
 	xy = [[[-1] * 2 for _ in range(16)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
@@ -220,7 +215,7 @@ def printHQScalerTable():
 def printHQScalerTableBinary(offsetsFilename, weightsFilename):
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pixelExpr2[permuteCase(case)] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 		#pixelExpr2[case] = pixelExpr[case]
 	#
 	offsetsFile = open(offsetsFilename, 'wb')
@@ -258,7 +253,7 @@ def printHQLiteScalerTable2Binary(filename):
 	file = open(filename, 'wb')
 	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
 	for case in range(1 << 12):
-		pixelExpr2[permuteCase(case)] = pixelExpr[case]
+		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
 		#pixelExpr2[case] = pixelExpr[case]
 	#
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
