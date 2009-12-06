@@ -3,6 +3,7 @@
 from hqcommon import (
 	computeLiteWeightCells, computeNeighbours,
 	computeWeightCells, makeLite as commonMakeLite,
+	formatOffsetsTable, formatWeightsTable,
 	permuteCases, printSubExpr, printText,
 	transformOffsets, transformWeights, writeBinaryFile
 	)
@@ -155,22 +156,6 @@ def genSwitch(pixelExpr):
 	yield '\tpixel8 = pixel9 = pixela = pixelb =\n'
 	yield '\tpixelc = pixeld = pixele = pixelf = 0; // avoid warning\n'
 	yield '}\n'
-
-def formatOffsetsTable(pixelExpr):
-	for case, expr in enumerate(pixelExpr):
-		yield '// %d\n' % case
-		for weights in expr:
-			for x, y in transformOffsets(weights):
-				yield ' %3d, %3d,' % (x, y)
-			yield '\n'
-
-def formatWeightsTable(pixelExpr, cellFunc):
-	for case, expr in enumerate(pixelExpr):
-		yield '// %d\n' % case
-		for weights in expr:
-			for weight in transformWeights(weights, cellFunc):
-				yield ' %3d,' % weight
-			yield '\n'
 
 def genHQOffsetsTable(pixelExpr):
 	for expr in pixelExpr:

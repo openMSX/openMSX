@@ -3,6 +3,7 @@
 from hqcommon import (
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, makeLite as commonMakeLite,
+	formatOffsetsTable, formatWeightsTable,
 	permuteCases, printSubExpr, printText,
 	transformOffsets, transformWeights, writeBinaryFile, writeTextFile
 	)
@@ -185,22 +186,6 @@ def genHQLiteOffsetsTable(pixelExpr):
 			assert 0 <= y < 256, y
 			yield x
 			yield y
-
-def formatOffsetsTable(pixelExpr):
-	for case, expr in enumerate(pixelExpr):
-		yield '// %d\n' % case
-		for weights in expr:
-			for x, y in transformOffsets(weights):
-				yield ' %3d, %3d,' % (x, y)
-			yield '\n'
-
-def formatWeightsTable(pixelExpr, cellFunc):
-	for case, expr in enumerate(pixelExpr):
-		yield '// %d\n' % case
-		for weights in expr:
-			for weight in transformWeights(weights, cellFunc):
-				yield ' %3d,' % weight
-			yield '\n'
 
 def makeLite(pixelExpr, preferC6subPixels):
 	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.

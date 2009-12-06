@@ -24,6 +24,24 @@ def writeTextFile(fileName, contents):
 def writeBinaryFile(fileName, bytes):
 	writeFile(fileName, 'wb', ( chr(byte) for byte in bytes ))
 
+# Table output as text:
+
+def formatOffsetsTable(pixelExpr):
+	for case, expr in enumerate(pixelExpr):
+		yield '// %d\n' % case
+		for weights in expr:
+			for x, y in transformOffsets(weights):
+				yield ' %3d, %3d,' % (x, y)
+			yield '\n'
+
+def formatWeightsTable(pixelExpr, cellFunc):
+	for case, expr in enumerate(pixelExpr):
+		yield '// %d\n' % case
+		for weights in expr:
+			for weight in transformWeights(weights, cellFunc):
+				yield ' %3d,' % weight
+			yield '\n'
+
 # The rest:
 
 def isPow2(num):
