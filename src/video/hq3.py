@@ -163,8 +163,6 @@ def genSwitch(pixelExpr):
 	yield '}\n'
 	yield 'pixel5 = c5;\n'
 
-tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
-
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 43,   0, -43,  43,   0, -43,  43,   0, -43)
 	offset_y = ( 43,  43,  43,   0,   0,   0, -43, -43, -43)
