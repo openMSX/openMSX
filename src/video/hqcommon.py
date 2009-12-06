@@ -179,10 +179,10 @@ def resetContradictions(pixelExpr):
 		#isContradiction(case) for case in range(1 << 12)
 		#)
 	default = [0, 0, 0, 0, 1, 0, 0, 0, 0]
-	for case in range(1 << 12):
-		if isContradiction(case):
-			for subPixel in range(len(pixelExpr[case])):
-				pixelExpr[case][subPixel] = default
+	return [
+		[ default ] * len(expr) if isContradiction(case) else expr
+		for case, expr in enumerate(pixelExpr)
+		]
 
 def simplifyWeights2(weights):
 	for w in range(9):
@@ -212,10 +212,8 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 		])
 
 def makeLite(pixelExpr, preferC6subPixels):
-	# TODO: Rewrite so it doesn't change its input.
-	liteExpr = deepcopy(pixelExpr)
+	liteExpr = deepcopy(resetContradictions(pixelExpr))
 
-	resetContradictions(liteExpr)
 	'''
 			if pix1 == 2 and pix2 == 6:
 				subCase = 0
