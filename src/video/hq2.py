@@ -12,9 +12,8 @@ from copy import deepcopy
 from itertools import izip
 
 def genSwitch(pixelExpr, narrow):
-	permutation = (2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5)
 	exprToCases = defaultdict(list)
-	for case, expr in enumerate(permuteCases(permutation, pixelExpr)):
+	for case, expr in enumerate(pixelExpr):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
 	#print exprToCases
 	yield 'switch (pattern) {\n'
@@ -220,11 +219,12 @@ class Variant(object):
 			pixelExpr = makeLite(pixelExpr, (1, 3) if table else ())
 		if narrow:
 			pixelExpr = makeNarrow(pixelExpr)
-		if table:
-			pixelExpr = permuteCases(
-				(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7),
-				pixelExpr
-				)
+		pixelExpr = permuteCases(
+			(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
+			if table else
+			(2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5),
+			pixelExpr
+			)
 		self.pixelExpr = pixelExpr
 
 	def writeSwitch(self, fileName):
