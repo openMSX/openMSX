@@ -164,50 +164,38 @@ def formatLiteWeightsTable(pixelExpr):
 			yield '\n'
 
 def formatOffsetsTable(pixelExpr):
-	xy = computeXY(pixelExpr)
 	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
-		for subPixel, weights in enumerate(expr):
-			for i in range(2):
-				t = xy[case][subPixel][i]
-				x = min(255, (1 if t is None else (t % 3)) * 128)
-				y = min(255, (1 if t is None else (t / 3)) * 128)
+		for weights in expr:
+			for neighbour in computeNeighbours(weights):
+				x = min(255, (1 if neighbour is None else (neighbour % 3)) * 128)
+				y = min(255, (1 if neighbour is None else (neighbour / 3)) * 128)
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
 def formatWeightsTable(pixelExpr):
-	xy = computeXY(pixelExpr)
 	for case, expr in enumerate(pixelExpr):
 		yield '// %d\n' % case
-		for subPixel, weights in enumerate(expr):
+		for weights in expr:
+			neighbours = computeNeighbours(weights)
 			factor = 256 / sum(weights)
-			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
+			for c in (neighbours[0], neighbours[1], 4):
 				yield ' %3d,' % min(255, 0 if c is None else factor * weights[c])
 			yield '\n'
 
-def computeXY(pixelExpr):
-	return [
-		[ computeNeighbours(weights) for weights in expr ]
-		for expr in pixelExpr
-		]
-
 def genHQOffsetsTable(pixelExpr):
-	xy = computeXY(pixelExpr)
 	for case, expr in enumerate(pixelExpr):
-		for subPixel, weights in enumerate(expr):
-			for i in range(2):
-				t = xy[case][subPixel][i]
-				x = min(255, (1 if t is None else (t % 3)) * 128)
-				y = min(255, (1 if t is None else (t / 3)) * 128)
-				yield x
-				yield y
+		for weights in expr:
+			for neighbour in computeNeighbours(weights):
+				yield min(255, (1 if neighbour is None else (neighbour % 3)) * 128)
+				yield min(255, (1 if neighbour is None else (neighbour / 3)) * 128)
 
 def genHQWeightsTable(pixelExpr):
-	xy = computeXY(pixelExpr)
 	for case, expr in enumerate(pixelExpr):
-		for subPixel, weights in enumerate(expr):
+		for weights in expr:
+			neighbours = computeNeighbours(weights)
 			factor = 256 / sum(weights)
-			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
+			for c in (neighbours[0], neighbours[1], 4):
 				yield min(255, 0 if c is None else factor * weights[c])
 
 def genHQLiteOffsetsTable(pixelExpr):
