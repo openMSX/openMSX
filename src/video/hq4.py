@@ -1,7 +1,7 @@
 # $Id$
 
 from hqcommon import (
-	makeLite, permuteCase, printSubExpr, printText, writeBinaryFile
+	makeLite, permuteCases, printSubExpr, printText, writeBinaryFile
 	)
 
 from collections import defaultdict
@@ -126,10 +126,8 @@ tablePermutation = (5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 
 def genSwitch():
 	exprToCases = defaultdict(list)
-	for case, expr in enumerate(pixelExpr):
-		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(
-			permuteCase(tablePermutation, case)
-			)
+	for case, expr in enumerate(permuteCases(tablePermutation, pixelExpr)):
+		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
 	#print exprToCases
 	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
@@ -152,10 +150,7 @@ def genSwitch():
 	yield '}\n'
 
 def formatLiteWeightsTable():
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-	#
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
 		for subPixel in range(16):
@@ -165,10 +160,7 @@ def formatLiteWeightsTable():
 			yield '\n'
 
 def formatOffsetsTable():
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-	#
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
@@ -183,10 +175,7 @@ def formatOffsetsTable():
 			yield '\n'
 
 def formatWeightsTable():
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-	#
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
 		yield '// %d\n' % case
@@ -212,10 +201,7 @@ def computeXY(pixelExpr2):
 	return xy
 
 def genHQOffsetsTable(pixelExpr):
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-		#pixelExpr2[case] = pixelExpr[case]
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
 		for subPixel in range(16):
@@ -229,10 +215,7 @@ def genHQOffsetsTable(pixelExpr):
 				yield y
 
 def genHQWeightsTable(pixelExpr):
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-		#pixelExpr2[case] = pixelExpr[case]
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	xy = computeXY(pixelExpr2)
 	for case in range(1 << 12):
 		for subPixel in range(16):
@@ -244,11 +227,7 @@ def genHQWeightsTable(pixelExpr):
 				yield min(255, factor * t)
 
 def genHQLiteOffsetsTable(pixelExpr):
-	pixelExpr2 = [ [ None ] * 16 for _ in range(1 << 12) ]
-	for case in range(1 << 12):
-		pixelExpr2[permuteCase(tablePermutation, case)] = pixelExpr[case]
-		#pixelExpr2[case] = pixelExpr[case]
-	#
+	pixelExpr2 = permuteCases(tablePermutation, pixelExpr)
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
 	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
 	for case in range(1 << 12):
