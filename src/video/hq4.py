@@ -2,13 +2,12 @@
 
 from hqcommon import (
 	computeLiteWeightCells, computeNeighbours, computeOffsets,
-	computeWeights, computeWeightCells, makeLite as commonMakeLite,
-	formatOffsetsTable, formatWeightsTable,
-	permuteCases, printSubExpr, printText, writeBinaryFile
+	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
+	makeLite, permuteCases, printSubExpr, printText,
+	writeBinaryFile
 	)
 
 from collections import defaultdict
-from copy import deepcopy
 
 class Parser(object):
 
@@ -178,12 +177,6 @@ def genHQLiteOffsetsTable(pixelExpr):
 			assert 0 <= y < 256, y
 			yield x
 			yield y
-
-def makeLite(pixelExpr, preferC6subPixels):
-	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.
-	liteExpr = deepcopy(pixelExpr)
-	commonMakeLite(liteExpr, preferC6subPixels)
-	return liteExpr
 
 class Variant(object):
 

@@ -2,13 +2,12 @@
 
 from hqcommon import (
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
-	computeWeights, computeWeightCells, makeLite as commonMakeLite,
-	formatOffsetsTable, formatWeightsTable,
-	permuteCases, printSubExpr, printText, writeBinaryFile, writeTextFile
+	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
+	makeLite, permuteCases, printSubExpr, printText,
+	writeBinaryFile, writeTextFile
 	)
 
 from collections import defaultdict
-from copy import deepcopy
 from itertools import izip
 
 def genSwitch(pixelExpr, narrow):
@@ -85,12 +84,6 @@ def sanityCheck(pixelExpr):
 			for pixel in range(9):
 				if (pixel + 1) not in subset:
 					assert corner[pixel] == 0, corner
-
-def makeLite(pixelExpr, preferC6subPixels):
-	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.
-	liteExpr = deepcopy(pixelExpr)
-	commonMakeLite(liteExpr, preferC6subPixels)
-	return liteExpr
 
 def makeNarrow(pixelExpr):
 	return [

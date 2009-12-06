@@ -1,7 +1,7 @@
 # $Id$
 
 from itertools import izip
-
+from copy import deepcopy
 import sys
 
 # I/O:
@@ -206,7 +206,7 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 		for w1, w2 in izip(weights1, weights2)
 		])
 
-def makeLite(pixelExpr, preferC6subPixels = ()):
+def commonMakeLite(pixelExpr, preferC6subPixels = ()):
 	resetContradictions(pixelExpr)
 	'''
 			if pix1 == 2 and pix2 == 6:
@@ -266,3 +266,9 @@ def makeLite(pixelExpr, preferC6subPixels = ()):
 				assert newWeights[c] == 0
 			pixelExpr[case][subPixel] = newWeights
 			#print "case:", case, "subPixel:", subPixel, "weights:", newWeights
+
+def makeLite(pixelExpr, preferC6subPixels):
+	# TODO: Rewrite commonMakeLite() so it doesn't change its input.
+	liteExpr = deepcopy(pixelExpr)
+	commonMakeLite(liteExpr, preferC6subPixels)
+	return liteExpr
