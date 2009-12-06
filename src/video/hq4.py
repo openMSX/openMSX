@@ -170,10 +170,8 @@ def formatOffsetsTable(pixelExpr):
 		for subPixel in range(16):
 			for i in range(2):
 				t = xy[case][subPixel][i]
-				if t == -1:
-					t = 4
-				x = min(255, (t % 3) * 128)
-				y = min(255, (t / 3) * 128)
+				x = min(255, (1 if t is None else (t % 3)) * 128)
+				y = min(255, (1 if t is None else (t / 3)) * 128)
 				yield ' %3d, %3d,' % (x, y)
 			yield '\n'
 
@@ -184,14 +182,11 @@ def formatWeightsTable(pixelExpr):
 		for subPixel in range(16):
 			factor = 256 / sum(pixelExpr[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				t = 0
-				if c != -1:
-					t = pixelExpr[case][subPixel][c]
-				yield ' %3d,' % min(255, factor * t)
+				yield ' %3d,' % min(255, 0 if c is None else factor * pixelExpr[case][subPixel][c])
 			yield '\n'
 
 def computeXY(pixelExpr):
-	xy = [[[-1] * 2 for _ in range(16)] for _ in range(1 << 12)]
+	xy = [[[None] * 2 for _ in range(16)] for _ in range(1 << 12)]
 	for case in range(1 << 12):
 		for subPixel in range(16):
 			j = 0
@@ -208,10 +203,8 @@ def genHQOffsetsTable(pixelExpr):
 		for subPixel in range(16):
 			for i in range(2):
 				t = xy[case][subPixel][i]
-				if t == -1:
-					t = 4
-				x = min(255, (t % 3) * 128)
-				y = min(255, (t / 3) * 128)
+				x = min(255, (1 if t is None else (t % 3)) * 128)
+				y = min(255, (1 if t is None else (t / 3)) * 128)
 				yield x
 				yield y
 
@@ -221,10 +214,7 @@ def genHQWeightsTable(pixelExpr):
 		for subPixel in range(16):
 			factor = 256 / sum(pixelExpr[case][subPixel])
 			for c in (xy[case][subPixel][0], xy[case][subPixel][1], 4):
-				t = 0
-				if c != -1:
-					t = pixelExpr[case][subPixel][c]
-				yield min(255, factor * t)
+				yield min(255, 0 if c is None else factor * pixelExpr[case][subPixel][c])
 
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
