@@ -1,7 +1,8 @@
 # $Id$
 
+from hqcommon import makeLite, printSubExpr
+
 import sys
-from hqcommon import *
 
 def filterSwitch(stream):
 	log = False
@@ -145,10 +146,6 @@ def printSwitch():
 		for subPixel, subExpr in enumerate(expr):
 			print ('\tpixel%s = %s;' %
 			       (hex(subPixel)[2:], printSubExpr(subExpr)))
-		#for i in [0, 2]:
-		#	print ('\tpixel%d = %s;' %
-		#	       (i + 1,
-		#		printSubExpr(blendWeights(expr[i], expr[i + 1]))))
 		print '\tbreak;'
 	print 'default:'
 	print '\tassert(false);'
