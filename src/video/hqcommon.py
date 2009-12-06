@@ -70,18 +70,6 @@ def computeNeighbours(weights):
 	neighbours += [ None ] * (2 - len(neighbours))
 	return neighbours
 
-def computeWeightCells(weights):
-	neighbours = computeNeighbours(weights)
-	return (neighbours[0], neighbours[1], 4)
-
-def computeLiteWeightCells(weights_):
-	return (3, 4, 5)
-
-def transformWeights(weights, cellFunc):
-	factor = 256 / sum(weights)
-	for cell in cellFunc(weights):
-		yield min(255, 0 if cell is None else factor * weights[cell])
-
 def transformOffsets(weights):
 	for neighbour in computeNeighbours(weights):
 		yield (
@@ -89,11 +77,10 @@ def transformOffsets(weights):
 			min(255, (1 if neighbour is None else neighbour / 3) * 128)
 			)
 
-def computeWeights(pixelExpr, cellFunc):
-	for expr in pixelExpr:
-		for weights in expr:
-			for transformedWeight in transformWeights(weights, cellFunc):
-				yield transformedWeight
+def transformWeights(weights, cellFunc):
+	factor = 256 / sum(weights)
+	for cell in cellFunc(weights):
+		yield min(255, 0 if cell is None else factor * weights[cell])
 
 def computeOffsets(pixelExpr):
 	for expr in pixelExpr:
@@ -101,6 +88,19 @@ def computeOffsets(pixelExpr):
 			for x, y in transformOffsets(weights):
 				yield x
 				yield y
+
+def computeWeights(pixelExpr, cellFunc):
+	for expr in pixelExpr:
+		for weights in expr:
+			for transformedWeight in transformWeights(weights, cellFunc):
+				yield transformedWeight
+
+def computeWeightCells(weights):
+	neighbours = computeNeighbours(weights)
+	return (neighbours[0], neighbours[1], 4)
+
+def computeLiteWeightCells(weights_):
+	return (3, 4, 5)
 
 def printSubExpr(subExpr):
 	wsum = sum(subExpr)
