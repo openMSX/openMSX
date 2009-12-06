@@ -1,10 +1,12 @@
 # $Id$
 
 from hqcommon import (
-	makeLite, permuteCases, printSubExpr, printText, writeBinaryFile
+	makeLite as commonMakeLite,
+	permuteCases, printSubExpr, printText, writeBinaryFile
 	)
 
 from collections import defaultdict
+from copy import deepcopy
 
 class Parser(object):
 
@@ -254,17 +256,23 @@ def genHQLiteOffsetsTable(pixelExpr):
 			yield x
 			yield y
 
+def makeLite(pixelExpr, preferC6subPixels):
+	# TODO: Rewrite hqcommon.makeLite() so it doesn't change its input.
+	liteExpr = deepcopy(pixelExpr)
+	commonMakeLite(liteExpr, preferC6subPixels)
+	return liteExpr
+
 if __name__ == '__main__':
 	#pixelExpr = Parser().pixelExpr
 	#printText(formatOffsetsTable(pixelExpr))
 	#printText(formatWeightsTable(pixelExpr))
-	#makeLite(pixelExpr)
+	#pixelExpr = makeLite(pixelExpr, ())
 	#printText(formatLiteWeightsTable(pixelExpr))
 
 	pixelExpr = Parser().pixelExpr
 	writeBinaryFile('HQ4xOffsets.dat', genHQOffsetsTable(pixelExpr))
 	writeBinaryFile('HQ4xWeights.dat', genHQWeightsTable(pixelExpr))
-	makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15))
+	pixelExpr = makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15))
 	writeBinaryFile('HQ4xLiteOffsets.dat', genHQLiteOffsetsTable(pixelExpr))
 	# Note: HQ4xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
