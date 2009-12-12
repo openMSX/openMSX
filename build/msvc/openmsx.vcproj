@@ -4406,7 +4406,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\video\SimpleScaler-x64.asm"
+				RelativePath="..\..\src\video\Simple2xScaler-x64.asm"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -4464,7 +4464,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\video\SimpleScaler-x86.asm"
+				RelativePath="..\..\src\video\Simple2xScaler-x86.asm"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -4522,11 +4522,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\video\SimpleScaler.cc"
+				RelativePath="..\..\src\video\Simple2xScaler.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\video\SimpleScaler.hh"
+				RelativePath="..\..\src\video\Simple2xScaler.hh"
 				>
 			</File>
 			<File

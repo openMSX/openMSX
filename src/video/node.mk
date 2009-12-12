@@ -29,11 +29,12 @@ ifneq ($(MAX_SCALE_FACTOR), 1)
 SRC_HDR += \
 	Scanline \
 	Scaler2 Scaler3 \
-	SimpleScaler SaI2xScaler SaI3xScaler Scale2xScaler Scale3xScaler \
+	Simple2xScaler Simple3xScaler \
+	SaI2xScaler SaI3xScaler \
+	Scale2xScaler Scale3xScaler \
 	HQ2xScaler HQ2xLiteScaler \
 	HQ3xScaler HQ3xLiteScaler \
 	RGBTriplet3xScaler \
-	Simple3xScaler \
 	Transparent2xScaler Transparent3xScaler \
 	Multiply32
 endif

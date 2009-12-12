@@ -17,10 +17,10 @@ class RenderSettings;
   * perform a horizontal blur.
   */
 template <class Pixel>
-class SimpleScaler : public Scaler2<Pixel>
+class Simple2xScaler : public Scaler2<Pixel>
 {
 public:
-	SimpleScaler(
+	Simple2xScaler(
 		const PixelOperations<Pixel>& pixelOps,
 		RenderSettings& renderSettings);
 

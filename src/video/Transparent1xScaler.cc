@@ -1,7 +1,6 @@
 // $Id$
 
 #include "Transparent1xScaler.hh"
-#include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"

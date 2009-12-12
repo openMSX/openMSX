@@ -1,6 +1,6 @@
 // $Id$
 
-#include "SimpleScaler.hh"
+#include "Simple2xScaler.hh"
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
@@ -14,10 +14,10 @@
 
 namespace openmsx {
 
-// class SimpleScaler
+// class Simple2xScaler
 
 template <class Pixel>
-SimpleScaler<Pixel>::SimpleScaler(
+Simple2xScaler<Pixel>::Simple2xScaler(
 		const PixelOperations<Pixel>& pixelOps,
 		RenderSettings& renderSettings)
 	: Scaler2<Pixel>(pixelOps)
@@ -30,7 +30,7 @@ SimpleScaler<Pixel>::SimpleScaler(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scaleBlank1to2(
+void Simple2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -62,17 +62,17 @@ void SimpleScaler<Pixel>::scaleBlank1to2(
 #ifdef _MSC_VER
 extern "C"
 {
-	void __cdecl SimpleScaler_blur1on2_4_MMX(
+	void __cdecl Simple2xScaler_blur1on2_4_MMX(
 		const void* pIn, void* pOut, unsigned long srcWidth,
 		unsigned c1, unsigned c2);
-	void __cdecl SimpleScaler_blur1on1_4_MMX(
+	void __cdecl Simple2xScaler_blur1on1_4_MMX(
 		const void* pIn, void* pOut, unsigned long srcWidth,
 		unsigned c1, unsigned c2);
 }
 #endif
 
 template <class Pixel>
-void SimpleScaler<Pixel>::blur1on2(
+void Simple2xScaler<Pixel>::blur1on2(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
 	unsigned alpha, unsigned long srcWidth)
 {
@@ -121,7 +121,7 @@ void SimpleScaler<Pixel>::blur1on2(
 		// MMX routine, 32bpp
 		assert(((srcWidth * 4) % 8) == 0);
 	#ifdef _MSC_VER
-		SimpleScaler_blur1on2_4_MMX(pIn, pOut, srcWidth, c1, c2);
+		Simple2xScaler_blur1on2_4_MMX(pIn, pOut, srcWidth, c1, c2);
 	#else
 		asm (
 			"movd	%2, %%mm5;"
@@ -251,7 +251,7 @@ void SimpleScaler<Pixel>::blur1on2(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::blur1on1(
+void Simple2xScaler<Pixel>::blur1on1(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
 	unsigned alpha, unsigned long srcWidth)
 {
@@ -297,7 +297,7 @@ void SimpleScaler<Pixel>::blur1on1(
 		// MMX routine, 32bpp
 		assert(((srcWidth * 4) % 8) == 0);
 	#ifdef _MSC_VER
-		SimpleScaler_blur1on1_4_MMX(pIn, pOut, srcWidth, c1, c2);
+		Simple2xScaler_blur1on1_4_MMX(pIn, pOut, srcWidth, c1, c2);
 	#else
 		asm (
 			"movd	%2, %%mm5;"
@@ -408,7 +408,7 @@ void SimpleScaler<Pixel>::blur1on1(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::drawScanline(
+void Simple2xScaler<Pixel>::drawScanline(
 		const Pixel* in1, const Pixel* in2, Pixel* out, int factor,
 		unsigned dstWidth)
 {
@@ -421,7 +421,7 @@ void SimpleScaler<Pixel>::drawScanline(
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scale1x1to2x2(FrameSource& src,
+void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -456,7 +456,7 @@ void SimpleScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 }
 
 template <class Pixel>
-void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
+void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -492,10 +492,10 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SimpleScaler<word>;
+template class Simple2xScaler<word>;
 #endif
 #if HAVE_32BPP
-template class SimpleScaler<unsigned>;
+template class Simple2xScaler<unsigned>;
 #endif
 
 } // namespace openmsx

@@ -4,7 +4,8 @@
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "ScalerFactory.hh"
-#include "SimpleScaler.hh"
+#include "Simple2xScaler.hh"
+#include "Simple3xScaler.hh"
 #include "SaI2xScaler.hh"     // note: included even if MAX_SCALE_FACTOR == 1
 #include "SaI3xScaler.hh"
 #include "Scale2xScaler.hh"
@@ -14,7 +15,6 @@
 #include "HQ2xLiteScaler.hh"
 #include "HQ3xLiteScaler.hh"
 #include "RGBTriplet3xScaler.hh"
-#include "Simple3xScaler.hh"
 #include "Scaler1.hh"
 #include "Transparent1xScaler.hh"
 #include "Transparent2xScaler.hh"
@@ -49,8 +49,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return auto_ptr<Scaler>(
-				new SimpleScaler<Pixel>(pixelOps, renderSettings)
-				);
+				new Simple2xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_SAI:
 			return auto_ptr<Scaler>(new SaI2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
@@ -62,8 +61,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
 			return auto_ptr<Scaler>(
-				new SimpleScaler<Pixel>(pixelOps, renderSettings)
-				);
+				new Simple2xScaler<Pixel>(pixelOps, renderSettings));
 		default:
 			UNREACHABLE;
 		}
@@ -78,8 +76,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return auto_ptr<Scaler>(
-				new Simple3xScaler<Pixel>(pixelOps, renderSettings)
-				);
+				new Simple3xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_SAI:
 			return auto_ptr<Scaler>(new SaI3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
@@ -91,8 +88,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
 			return auto_ptr<Scaler>(
-				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings)
-				);
+				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings));
 		default:
 			UNREACHABLE;
 		}
