@@ -91,11 +91,11 @@ void Scaler1<Pixel>::scaleBlank2to1(
 	}
 }
 
-template <typename Pixel, typename ScaleOp>
+template <typename Pixel>
 static void doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-	ScaleOp scale)
+	PolyLineScaler<Pixel>& scale)
 {
 	dst.lock();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
@@ -106,11 +106,11 @@ static void doScale1(FrameSource& src,
 	}
 }
 
-template <typename Pixel, typename ScaleOp>
+template <typename Pixel>
 static void doScaleDV(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-	PixelOperations<Pixel> ops, ScaleOp scale)
+	PixelOperations<Pixel> ops, PolyLineScaler<Pixel>& scale)
 {
 	dst.lock();
 	BlendLines<Pixel> blend(ops);
@@ -134,8 +134,9 @@ void Scaler1<Pixel>::scale2x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                Scale_2on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -143,8 +144,9 @@ void Scaler1<Pixel>::scale2x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                 pixelOps, Scale_2on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
 template <typename Pixel>
@@ -166,8 +168,9 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 			return;
 		}
 	}
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                Scale_1on1<Pixel>());
+	PolyScale<Pixel, Scale_1on1<Pixel> > op;
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                dst, dstStartY, dstEndY, op);
 }
 
 template <typename Pixel>
@@ -193,8 +196,9 @@ void Scaler1<Pixel>::scale4x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                Scale_4on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -202,8 +206,9 @@ void Scaler1<Pixel>::scale4x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                 pixelOps, Scale_4on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
 template <typename Pixel>
@@ -211,8 +216,9 @@ void Scaler1<Pixel>::scale2x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                Scale_2on1<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                dst, dstStartY, dstEndY, op);
 }
 
 template <typename Pixel>
@@ -220,9 +226,9 @@ void Scaler1<Pixel>::scale2x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                 pixelOps, Scale_2on1<Pixel>(pixelOps));
-	// TODO: Profile specific code vs generic implementation.
+	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
 template <class Pixel>
@@ -230,8 +236,9 @@ void Scaler1<Pixel>::scale8x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                Scale_8on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_8on3<Pixel> > op(pixelOps);
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -239,8 +246,9 @@ void Scaler1<Pixel>::scale8x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                 pixelOps, Scale_8on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_8on3<Pixel> > op(pixelOps);
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
 template <class Pixel>
@@ -248,8 +256,9 @@ void Scaler1<Pixel>::scale4x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                Scale_4on1<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on1<Pixel> > op(pixelOps);
+	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -257,8 +266,9 @@ void Scaler1<Pixel>::scale4x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	                 pixelOps, Scale_4on1<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on1<Pixel> > op(pixelOps);
+	doScaleDV<Pixel>(src, srcStartY, srcEndY, srcWidth,
+	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
 // TODO: This method doesn't have any dependency on the pixel format, so is it

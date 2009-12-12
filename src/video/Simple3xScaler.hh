@@ -13,6 +13,7 @@ namespace openmsx {
 
 class RenderSettings;
 template <class Pixel> class Blur_1on3;
+template <class Pixel> class PolyLineScaler;
 
 template <class Pixel>
 class Simple3xScaler : public Scaler3<Pixel>, private noncopyable
@@ -65,14 +66,14 @@ public:
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
-	template <typename ScaleOp> void doScale1(FrameSource& src,
+	void doScale1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-		ScaleOp& scale);
-	template <typename ScaleOp> void doScale2(FrameSource& src,
+		PolyLineScaler<Pixel>& scale);
+	void doScale2(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-		ScaleOp& scale);
+		PolyLineScaler<Pixel>& scale);
 
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;

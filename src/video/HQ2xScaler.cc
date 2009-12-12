@@ -170,7 +170,8 @@ void HQ2xScaler<Pixel>::scale1x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQ_1x1on2x2<Pixel>(), Scale_2on3<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_2on3<Pixel> > postScale(pixelOps);
+	doHQScale2<Pixel>(HQ_1x1on2x2<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
@@ -180,7 +181,8 @@ void HQ2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQ_1x1on2x2<Pixel>(), Scale_1on1<Pixel>(),
+	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
+	doHQScale2<Pixel>(HQ_1x1on2x2<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth * 2);
 }
@@ -190,7 +192,8 @@ void HQ2xScaler<Pixel>::scale2x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQ_1x1on2x2<Pixel>(), Scale_4on3<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
+	doHQScale2<Pixel>(HQ_1x1on2x2<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
@@ -200,7 +203,8 @@ void HQ2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQ_1x1on1x2<Pixel>(), Scale_1on1<Pixel>(),
+	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
+	doHQScale2<Pixel>(HQ_1x1on1x2<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth);
 }
@@ -210,7 +214,8 @@ void HQ2xScaler<Pixel>::scale4x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQ_1x1on1x2<Pixel>(), Scale_4on3<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
+	doHQScale2<Pixel>(HQ_1x1on1x2<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
 }
@@ -220,7 +225,8 @@ void HQ2xScaler<Pixel>::scale2x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQ_1x1on1x2<Pixel>(), Scale_2on1<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_2on1<Pixel> > postScale(pixelOps);
+	doHQScale2<Pixel>(HQ_1x1on1x2<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth / 2);
 }

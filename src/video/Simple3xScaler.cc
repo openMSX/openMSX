@@ -41,11 +41,10 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 }
 
 template <typename Pixel>
-template <typename ScaleOp>
 void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-	ScaleOp& scale)
+	PolyLineScaler<Pixel>& scale)
 {
 	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
@@ -82,11 +81,10 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 }
 
 template <typename Pixel>
-template <typename ScaleOp>
 void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-	ScaleOp& scale)
+	PolyLineScaler<Pixel>& scale)
 {
 	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
@@ -111,7 +109,7 @@ void Simple3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_2on9<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_2on9<Pixel> > op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -120,7 +118,7 @@ void Simple3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_2on9<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_2on9<Pixel> > op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -132,15 +130,16 @@ void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned blur = settings.getBlurFactor() / 3;
 	if (blur) {
 		blur_1on3->setBlur(blur);
-		doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-			*blur_1on3);
+		PolyScaleRef<Pixel, Blur_1on3<Pixel> > op(*blur_1on3);
+		doScale1(src, srcStartY, srcEndY, srcWidth,
+		         dst, dstStartY, dstEndY, op);
 	} else {
 		// No blurring: this is an optimization but it's also needed
 		// for correctness (otherwise there's an overflow in 0.16 fixed
 		// point arithmetic).
-		Scale_1on3<Pixel> op;
-		doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-			op);
+		PolyScale<Pixel, Scale_1on3<Pixel> > op;
+		doScale1(src, srcStartY, srcEndY, srcWidth,
+		         dst, dstStartY, dstEndY, op);
 	}
 }
 
@@ -149,7 +148,7 @@ void Simple3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_1on3<Pixel> op;
+	PolyScale<Pixel, Scale_1on3<Pixel> > op;
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -158,7 +157,7 @@ void Simple3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_4on9<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_4on9<Pixel> > op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -167,7 +166,7 @@ void Simple3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_4on9<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_4on9<Pixel> > op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -176,7 +175,7 @@ void Simple3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_2on3<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -185,7 +184,7 @@ void Simple3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_2on3<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -194,7 +193,7 @@ void Simple3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_8on9<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_8on9<Pixel> > op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -203,7 +202,7 @@ void Simple3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_8on9<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_8on9<Pixel> > op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -212,7 +211,7 @@ void Simple3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_4on3<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
@@ -221,7 +220,7 @@ void Simple3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Scale_4on3<Pixel> op(pixelOps);
+	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 

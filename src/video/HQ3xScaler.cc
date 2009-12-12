@@ -106,7 +106,8 @@ void HQ3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_2on3<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_2on3<Pixel> > postScale(pixelOps);
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 2);
 }
@@ -116,7 +117,8 @@ void HQ3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_1on1<Pixel>(),
+	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
@@ -126,7 +128,8 @@ void HQ3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_4on3<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 4);
 }
@@ -136,7 +139,8 @@ void HQ3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_2on1<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_2on1<Pixel> > postScale(pixelOps);
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
@@ -146,7 +150,8 @@ void HQ3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_8on3<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_8on3<Pixel> > postScale(pixelOps);
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 8);
 }
@@ -156,7 +161,8 @@ void HQ3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_4on1<Pixel>(pixelOps),
+	PolyScale<Pixel, Scale_4on1<Pixel> > postScale(pixelOps);
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
 }

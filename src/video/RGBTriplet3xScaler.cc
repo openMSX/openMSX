@@ -71,12 +71,11 @@ void RGBTriplet3xScaler<Pixel>::rgbify(
 }
 
 template <typename Pixel>
-template <typename ScaleOp>
 void RGBTriplet3xScaler<Pixel>::scaleLine(
-		const Pixel* srcLine, Pixel* dstLine, ScaleOp scale,
+		const Pixel* srcLine, Pixel* dstLine, PolyLineScaler<Pixel>& scale,
 		unsigned tmpWidth)
 {
-	if (IsTagged<ScaleOp, Copy>::result) {
+	if (scale.isCopy()) {
 		rgbify(srcLine, dstLine, tmpWidth);
 	} else {
 		VLA(Pixel, tmp, tmpWidth);
@@ -89,11 +88,10 @@ void RGBTriplet3xScaler<Pixel>::scaleLine(
 // to output-width / 3. So, when calling this, keep this in mind and pass a
 // scale functor that scales the input with correctly.
 template <typename Pixel>
-template <typename ScaleOp>
 void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-	ScaleOp scale)
+	PolyLineScaler<Pixel>& scale)
 {
 	dst.lock();
 	recalcBlur();
@@ -133,11 +131,10 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 }
 
 template <typename Pixel>
-template <typename ScaleOp>
 void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-	ScaleOp scale)
+	PolyLineScaler<Pixel>& scale)
 {
 	dst.lock();
 	recalcBlur();
@@ -165,8 +162,9 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_2on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
+	doScale1(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -174,8 +172,9 @@ void RGBTriplet3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_2on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
+	doScale2(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -183,8 +182,9 @@ void RGBTriplet3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_1on1<Pixel>());
+	PolyScale<Pixel, Scale_1on1<Pixel> > op;
+	doScale1(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -192,8 +192,9 @@ void RGBTriplet3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_1on1<Pixel>());
+	PolyScale<Pixel, Scale_1on1<Pixel> > op;
+	doScale2(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -201,8 +202,9 @@ void RGBTriplet3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_4on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
+	doScale1(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -210,8 +212,9 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_4on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
+	doScale2(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -219,8 +222,9 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_2on1<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
+	doScale1(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -228,8 +232,9 @@ void RGBTriplet3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_2on1<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
+	doScale2(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -237,8 +242,9 @@ void RGBTriplet3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_8on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_8on3<Pixel> > op(pixelOps);
+	doScale1(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -246,8 +252,9 @@ void RGBTriplet3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_8on3<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_8on3<Pixel> > op(pixelOps);
+	doScale2(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -255,8 +262,9 @@ void RGBTriplet3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_4on1<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on1<Pixel> > op(pixelOps);
+	doScale1(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <class Pixel>
@@ -264,8 +272,9 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-	         Scale_4on1<Pixel>(pixelOps));
+	PolyScale<Pixel, Scale_4on1<Pixel> > op(pixelOps);
+	doScale2(src, srcStartY, srcEndY, srcWidth,
+	         dst, dstStartY, dstEndY, op);
 }
 
 template <typename Pixel>

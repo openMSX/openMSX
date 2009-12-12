@@ -213,6 +213,109 @@ private:
 };
 
 
+/** Polymorphic line scaler.
+ * Abstract base class for line scalers. Can be used when one basic algorithm
+ * should work in combination with multiple line scalers (e.g. several
+ * Scale_XonY variants).
+ * A line scaler takes one line of input pixels and outputs a different line
+ * of pixels. The input and output don't necessarily have the same number of
+ * pixels.
+ * An alternative (which we used in the past) is to templatize that algorithm
+ * on the LineScaler type. In theory this results in a faster routine, but in
+ * practice this performance benefit is often not measurable while it does
+ * result in bigger code size.
+ */
+template<typename Pixel>
+class PolyLineScaler
+{
+public:
+	/** Actually scale a line.
+	 * @param in Pointer to buffer containing input line.
+	 * @param out Pointer to buffer that should be filled with output.
+	 * @param outWidth The number of pixels that should be output.
+	 * Note: The number of input pixels is not explicitly specified. This
+	 *       depends on the actual scaler, for example Scale_2on1 requires
+	 *       twice as many pixels in the input than the output.
+	 */
+	virtual void operator()(const Pixel* in, Pixel* out, unsigned long outWidth) = 0;
+
+	/** Is this scale operation actually a copy?
+	 * This info can be used to (in a multi-step scale operation) immediately
+	 * produce the output of the previous step in this step's output buffer,
+	 * so effectively skipping this step.
+	 */
+	virtual bool isCopy() const = 0;
+
+	/** Does this scaler use streaming stores?
+	 * This means that if you need the output of this scaler more than once
+	 * (e.g. in two consecutive output lines) it's most likely cheaper to
+	 * run this scaler multiple times compared to copying the output of one
+	 * run to multiple locations.
+	 */
+	virtual bool isStreaming() const = 0;
+
+protected:
+	~PolyLineScaler() {}
+};
+
+/** Polymorphic wrapper around another line scaler.
+ * This version directly contains (and thus constructs) the wrapped Line Scaler.
+ */
+template<typename Pixel, typename Scaler>
+class PolyScale : public PolyLineScaler<Pixel>
+{
+public:
+	PolyScale()
+		: scaler()
+	{
+	}
+	explicit PolyScale(PixelOperations<Pixel> pixelOps)
+		: scaler(pixelOps)
+	{
+	}
+	virtual void operator()(const Pixel* in, Pixel* out, unsigned long outWidth)
+	{
+		scaler(in, out, outWidth);
+	}
+	virtual bool isCopy() const
+	{
+		return IsTagged<Scaler, Copy>::result;
+	}
+	virtual bool isStreaming() const
+	{
+		return IsTagged<Scaler, Streaming>::result;
+	}
+private:
+	Scaler scaler;
+};
+
+/** Like PolyScale above, but instead keeps a reference to the actual scaler.
+ * Can be used when the actual scaler is expensive to construct (e.g. Blur_1on3).
+ */
+template<typename Pixel, typename Scaler>
+class PolyScaleRef : public PolyLineScaler<Pixel>
+{
+public:
+	explicit PolyScaleRef(Scaler& scaler_)
+		: scaler(scaler_)
+	{
+	}
+	virtual void operator()(const Pixel* in, Pixel* out, unsigned long outWidth)
+	{
+		scaler(in, out, outWidth);
+	}
+	virtual bool isCopy() const
+	{
+		return IsTagged<Scaler, Copy>::result;
+	}
+	virtual bool isStreaming() const
+	{
+		return IsTagged<Scaler, Streaming>::result;
+	}
+private:
+	Scaler& scaler;
+};
+
 
 // implementation
 
