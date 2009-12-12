@@ -23,7 +23,7 @@ SRC_HDR:= \
 	Icon \
 	AviRecorder AviWriter ZMBVEncoder \
 	ScalerFactory \
-	Scaler1
+	Scaler1 Transparent1xScaler
 
 ifneq ($(MAX_SCALE_FACTOR), 1)
 SRC_HDR += \
@@ -34,7 +34,7 @@ SRC_HDR += \
 	HQ3xScaler HQ3xLiteScaler \
 	RGBTriplet3xScaler \
 	Simple3xScaler \
-	Transparent1xScaler Transparent2xScaler Transparent3xScaler \
+	Transparent2xScaler Transparent3xScaler \
 	Multiply32
 endif
 
