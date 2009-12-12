@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1259710372">
+<softwaredb xml:lang="en" timestamp="1259738953">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6354,6 +6354,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2009</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">dccc1f9217901461c646326a7f871f6b7de88aba</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">c6429707d07eaaa68887d31f3813324871b64e10</hash><remark><text>MSXDev09 Entry - bug fix</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Metal Gear</title>
@@ -11029,6 +11030,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2009</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">607059ef3247771f1bbee5c38d4f43cef8856712</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">58d510e572130db643b6115da40edcdd33280017</hash><remark><text>MSXDev09 Entry - bug fix</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Xevious - Fardraut Saga</title>
@@ -11367,6 +11369,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2491
-Parse time 4.301 seconds on Wed Dec 2 0:32:57 CET 2009
+Roms in this database:2493
+Parse time 4.084 seconds on Wed Dec 2 8:29:18 CET 2009
  -->
