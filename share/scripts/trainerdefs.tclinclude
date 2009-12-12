@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/11/22
+# Updated @ 2009/12/12
 #
 
 
@@ -4267,6 +4267,12 @@ create_trainer "Malaya no Hibou" {time 2} {
 	"Money" {poke 0xccd4 255;poke 0xccd5 255}
 }
 
+create_trainer "Manbow 2" {time 0.5} {
+	"Blue Power Bar" {poke 0xc155 78}
+	"Lives" {poke 0xc113 9}
+	"Red Power Bar" {poke 0xc13e 74}
+}
+
 create_trainer "Manes" {time 10} {
 	"Lives" {poke 0xdb93 5}
 }
@@ -5313,6 +5319,13 @@ create_trainer "Rocket Roger" {time 1} {
 	"Lives" {poke 0xf31f 58}
 }
 
+create_trainer "Romancia MSX2" {time 1} {
+	"Gold" {poke 0xd067 63}
+	"Hearts" {poke 0xd063 255}
+	"Shields" {poke 0xd066 64}
+	"Swords" {poke 0xd064 255}
+}
+
 create_trainer "Rotors" {time 1} {
 	"Level (1-99)" {poke 0xc081 1}
 	"Lives Player 1" {poke 0xc086 5}
@@ -5348,67 +5361,75 @@ create_trainer "Saimazoom" {time 1} {
 }
 
 create_trainer "Salamander - Operation X" {time 1} {
-	"1-6 = Normal Stage, 7 = Special Stage (requires Gradius 2 In Slot 2)" {poke 0xe301 1}
 	"All Special Weapons " {poke 0xe310 7}
+	"Invincible - Activate" {poke 0xe202 0}
+	"Invincible - De-activate" {poke 0xe202 1}
 	"Lives " {poke 0xe300 153}
-	"Option 1" {poke 0xe400 1}
-	"Option 1 In Position 1" {poke 0xe402 1}
-	"Option 1 Player 2 (0=player 1)" {poke 0xe401 1}
-	"Option 2 Active" {poke 0xe410 1}
-	"Option 2 In Position 2" {poke 0xe412 2}
-	"Option 2 Player 2 (0=player 1)" {poke 0xe411 1}
-	"Option 3 Active" {poke 0xe420 1}
-	"Option 3 In Position 3" {poke 0xe422 3}
-	"Option 3 Player 2 (0=player 1)" {poke 0xe421 1}
-	"Option 4 Active (not In Dual Mode)" {poke 0xe430 1}
-	"Option 4 In Position 4" {poke 0xe432 4}
-	"Player 1 Arming Ball Missile" {poke 0xe341 4}
-	"Player 1 Double Laser" {poke 0xe340 6}
-	"Player 1 Extra Level After One Energy Pod" {poke 0xe31b 20}
-	"Player 1 Hawkwind Missile" {poke 0xe341 2}
-	"Player 1 Homing Missile" {poke 0xe341 3}
-	"Player 1 Laser" {poke 0xe340 3}
-	"Player 1 Meteor Laser" {poke 0xe340 5}
-	"Player 1 Normal Missile" {poke 0xe341 1}
-	"Player 1 Normal Shoot" {poke 0xe340 1}
-	"Player 1 Option Hold " {poke 0xe334 1}
-	"Player 1 Ripple Laser" {poke 0xe340 2}
-	"Player 1 Screw Laser" {poke 0xe340 4}
-	"Player 1 Ship Speed 1" {poke 0xe337 1}
-	"Player 1 Ship Speed 2" {poke 0xe337 2}
-	"Player 1 Ship Speed 3" {poke 0xe337 3}
-	"Player 1 Ship Speed 4" {poke 0xe337 4}
-	"Player 1 Ship Speed 5" {poke 0xe337 5}
-	"Player 1 Ship Speed 6" {poke 0xe337 6}
-	"Player 1 Ship Speed 7" {poke 0xe337 7}
-	"Player 1 Trampling Missile" {poke 0xe342 1}
-	"Player 1 Triple Laser" {poke 0xe340 7}
-	"Player 2 All Special Weapons " {poke 0xe390 7}
-	"Player 2 Arming Ball Missile" {poke 0xe3c1 4}
-	"Player 2 Double Laser" {poke 0xe3c0 6}
-	"Player 2 Extra Level After One Energy Pod" {poke 0xe39b 20}
-	"Player 2 Hawkwind Missile" {poke 0xe3c1 2}
-	"Player 2 Homing Missile" {poke 0xe3c1 3}
-	"Player 2 Laser" {poke 0xe3c0 3}
-	"Player 2 Lives" {poke 0xe380 153}
-	"Player 2 Meteor Laser" {poke 0xe3c0 5}
-	"Player 2 Normal Missile" {poke 0xe3c1 1}
-	"Player 2 Normal Shoot" {poke 0xe3c0 1}
-	"Player 2 Option" {poke 0xe3b4 1}
-	"Player 2 Ripple Laser" {poke 0xe3c0 2}
-	"Player 2 Screw Laser" {poke 0xe3c0 4}
-	"Player 2 Ship Speed 1 " {poke 0xe3b7 1}
-	"Player 2 Ship Speed 2 " {poke 0xe3b7 2}
-	"Player 2 Ship Speed 3 " {poke 0xe3b7 3}
-	"Player 2 Ship Speed 4 " {poke 0xe3b7 4}
-	"Player 2 Ship Speed 5 " {poke 0xe3b7 5}
-	"Player 2 Ship Speed 6 " {poke 0xe3b7 6}
-	"Player 2 Ship Speed 7 " {poke 0xe3b7 7}
-	"Player 2 Trampling Missile" {poke 0xe3c2 1}
-	"Player 2 Triple Laser" {poke 0xe3c0 7}
+	"Next Stage Stage 1" {poke 0xe301 1}
+	"Next Stage Stage 2" {poke 0xe301 2}
+	"Next Stage Stage 3" {poke 0xe301 3}
+	"Next Stage Stage 4" {poke 0xe310 4}
+	"Next Stage Stage 5" {poke 0xe301 5}
+	"Next Stage Stage 6" {poke 0xe301 6}
+	"Next Stage Stage 7 - Operation X" {poke 0xe301 7}
 	"Scroll Stop (only For Part Of Stage 1)" {poke 0xe309 1}
+	"Simulate Nemesis 2 In Slot 2" {poke 0xf0f5 1}
 	"Spark Light For Planet Lavinia" {poke 0xe630 3}
-	"Who Needs A Shield Anyway" {poke 0xe202 0}
+	"Weapon Option 1" {poke 0xe400 1}
+	"Weapon Option 1 In Position 1" {poke 0xe402 1}
+	"Weapon Option 1 Player 2 (0=player 1)" {poke 0xe401 1}
+	"Weapon Option 2 Active" {poke 0xe410 1}
+	"Weapon Option 2 In Position 2" {poke 0xe412 2}
+	"Weapon Option 2 Player 2 (0=player 1)" {poke 0xe411 1}
+	"Weapon Option 3 Active" {poke 0xe420 1}
+	"Weapon Option 3 In Position 3" {poke 0xe422 3}
+	"Weapon Option 3 Player 2 (0=player 1)" {poke 0xe421 1}
+	"Weapon Option 4 Active (not In Dual Mode)" {poke 0xe430 1}
+	"Weapon Option 4 In Position 4" {poke 0xe432 4}
+	"Weapon Player 1 Arming Ball Missile" {poke 0xe341 4}
+	"Weapon Player 1 Double Laser" {poke 0xe340 6}
+	"Weapon Player 1 Extra Level After One Energy Pod" {poke 0xe31b 20}
+	"Weapon Player 1 Hawkwind Missile" {poke 0xe341 2}
+	"Weapon Player 1 Homing Missile" {poke 0xe341 3}
+	"Weapon Player 1 Laser" {poke 0xe340 3}
+	"Weapon Player 1 Meteor Laser" {poke 0xe340 5}
+	"Weapon Player 1 Normal Missile" {poke 0xe341 1}
+	"Weapon Player 1 Normal Shoot" {poke 0xe340 1}
+	"Weapon Player 1 Option Hold " {poke 0xe334 1}
+	"Weapon Player 1 Ripple Laser" {poke 0xe340 2}
+	"Weapon Player 1 Screw Laser" {poke 0xe340 4}
+	"Weapon Player 1 Ship Speed 1" {poke 0xe337 1}
+	"Weapon Player 1 Ship Speed 2" {poke 0xe337 2}
+	"Weapon Player 1 Ship Speed 3" {poke 0xe337 3}
+	"Weapon Player 1 Ship Speed 4" {poke 0xe337 4}
+	"Weapon Player 1 Ship Speed 5" {poke 0xe337 5}
+	"Weapon Player 1 Ship Speed 6" {poke 0xe337 6}
+	"Weapon Player 1 Ship Speed 7" {poke 0xe337 7}
+	"Weapon Player 1 Trampling Missile" {poke 0xe342 1}
+	"Weapon Player 1 Triple Laser" {poke 0xe340 7}
+	"Weapon Player 2 All Special Weapons " {poke 0xe390 7}
+	"Weapon Player 2 Arming Ball Missile" {poke 0xe3c1 4}
+	"Weapon Player 2 Double Laser" {poke 0xe3c0 6}
+	"Weapon Player 2 Extra Level After One Energy Pod" {poke 0xe39b 20}
+	"Weapon Player 2 Hawkwind Missile" {poke 0xe3c1 2}
+	"Weapon Player 2 Homing Missile" {poke 0xe3c1 3}
+	"Weapon Player 2 Laser" {poke 0xe3c0 3}
+	"Weapon Player 2 Lives" {poke 0xe380 153}
+	"Weapon Player 2 Meteor Laser" {poke 0xe3c0 5}
+	"Weapon Player 2 Normal Missile" {poke 0xe3c1 1}
+	"Weapon Player 2 Normal Shoot" {poke 0xe3c0 1}
+	"Weapon Player 2 Option" {poke 0xe3b4 1}
+	"Weapon Player 2 Ripple Laser" {poke 0xe3c0 2}
+	"Weapon Player 2 Screw Laser" {poke 0xe3c0 4}
+	"Weapon Player 2 Ship Speed 1 " {poke 0xe3b7 1}
+	"Weapon Player 2 Ship Speed 2 " {poke 0xe3b7 2}
+	"Weapon Player 2 Ship Speed 3 " {poke 0xe3b7 3}
+	"Weapon Player 2 Ship Speed 4 " {poke 0xe3b7 4}
+	"Weapon Player 2 Ship Speed 5 " {poke 0xe3b7 5}
+	"Weapon Player 2 Ship Speed 6 " {poke 0xe3b7 6}
+	"Weapon Player 2 Ship Speed 7 " {poke 0xe3b7 7}
+	"Weapon Player 2 Trampling Missile" {poke 0xe3c2 1}
+	"Weapon Player 2 Triple Laser" {poke 0xe3c0 7}
 }
 
 create_trainer "Sammyu Densetsu" {time 15} {
@@ -6737,4 +6758,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 5.021 seconds. 721 trainers -  having 5467 pokes
+# File Created in : 4.443 seconds. 723 trainers -  having 5482 pokes
