@@ -255,7 +255,7 @@ public:
 	virtual bool isStreaming() const = 0;
 
 protected:
-	~PolyLineScaler() {}
+	virtual ~PolyLineScaler() {}
 };
 
 /** Polymorphic wrapper around another line scaler.
