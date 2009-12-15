@@ -73,20 +73,20 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
 		edgeBuf[x] = pattern;
 
-		unsigned pixel1, pixel2, pixel3, pixel4, pixel5,
-		         pixel6, pixel7, pixel8, pixel9;
+		unsigned pixel0, pixel1, pixel2, pixel3, pixel4,
+		         pixel5, pixel6, pixel7, pixel8;
 
 #include "HQ3xLiteScaler-1x1to3x3.nn"
 
-		out0[3 * x + 0] = writePixel<Pixel>(pixel1);
-		out0[3 * x + 1] = writePixel<Pixel>(pixel2);
-		out0[3 * x + 2] = writePixel<Pixel>(pixel3);
-		out1[3 * x + 0] = writePixel<Pixel>(pixel4);
-		out1[3 * x + 1] = writePixel<Pixel>(pixel5);
-		out1[3 * x + 2] = writePixel<Pixel>(pixel6);
-		out2[3 * x + 0] = writePixel<Pixel>(pixel7);
-		out2[3 * x + 1] = writePixel<Pixel>(pixel8);
-		out2[3 * x + 2] = writePixel<Pixel>(pixel9);
+		out0[3 * x + 0] = writePixel<Pixel>(pixel0);
+		out0[3 * x + 1] = writePixel<Pixel>(pixel1);
+		out0[3 * x + 2] = writePixel<Pixel>(pixel2);
+		out1[3 * x + 0] = writePixel<Pixel>(pixel3);
+		out1[3 * x + 1] = writePixel<Pixel>(pixel4);
+		out1[3 * x + 2] = writePixel<Pixel>(pixel5);
+		out2[3 * x + 0] = writePixel<Pixel>(pixel6);
+		out2[3 * x + 1] = writePixel<Pixel>(pixel7);
+		out2[3 * x + 2] = writePixel<Pixel>(pixel8);
 	}
 }
 

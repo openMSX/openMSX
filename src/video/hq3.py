@@ -151,16 +151,14 @@ def genSwitch(pixelExpr):
 			if subPixel == 4:
 				assert printSubExpr(subExpr) == 'c5'
 			else:
-				yield '\tpixel%d = %s;\n' % (
-					subPixel + 1, printSubExpr(subExpr)
-					)
+				yield '\tpixel%d = %s;\n' % (subPixel, printSubExpr(subExpr))
 		yield '\tbreak;\n'
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
-	yield '\tpixel1 = pixel2 = pixel3 = pixel4 =\n'
-	yield '\tpixel6 = pixel7 = pixel8 = pixel9 = 0; // avoid warning\n'
+	yield '\tpixel0 = pixel1 = pixel2 = pixel3 =\n'
+	yield '\tpixel5 = pixel6 = pixel7 = pixel8 = 0; // avoid warning\n'
 	yield '}\n'
-	yield 'pixel5 = c5;\n'
+	yield 'pixel4 = c5;\n'
 
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 43,   0, -43,  43,   0, -43,  43,   0, -43)
