@@ -10,7 +10,7 @@ from hqcommon import (
 from collections import defaultdict
 from itertools import izip
 
-def genSwitch(pixelExpr, narrow):
+def genSwitch(pixelExpr):
 	exprToCases = defaultdict(list)
 	for case, expr in enumerate(pixelExpr):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
@@ -28,7 +28,7 @@ def genSwitch(pixelExpr, narrow):
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
 	yield '\t%s = 0; // avoid warning\n' % (
-		' = '.join('pixel%d' % i for i in range(2 if narrow else 4))
+		' = '.join('pixel%d' % i for i in range(len(pixelExpr[0])))
 		)
 	yield '}\n'
 
@@ -205,7 +205,7 @@ class Variant(object):
 		self.pixelExpr = pixelExpr
 
 	def writeSwitch(self, fileName):
-		writeTextFile(fileName, genSwitch(self.pixelExpr, self.narrow))
+		writeTextFile(fileName, genSwitch(self.pixelExpr))
 
 if __name__ == '__main__':
 	parser = Parser()
