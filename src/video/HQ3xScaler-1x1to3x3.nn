@@ -7985,7 +7985,6 @@ case 4095:
 	break;
 default:
 	UNREACHABLE;
-	pixel0 = pixel1 = pixel2 = pixel3 =
-	pixel5 = pixel6 = pixel7 = pixel8 = 0; // avoid warning
+	pixel0 = pixel1 = pixel2 = pixel3 = pixel4 = pixel5 = pixel6 = pixel7 = pixel8 = 0; // avoid warning
 }
 pixel4 = c5;

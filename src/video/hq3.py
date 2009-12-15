@@ -155,8 +155,9 @@ def genSwitch(pixelExpr):
 		yield '\tbreak;\n'
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
-	yield '\tpixel0 = pixel1 = pixel2 = pixel3 =\n'
-	yield '\tpixel5 = pixel6 = pixel7 = pixel8 = 0; // avoid warning\n'
+	yield '\t%s = 0; // avoid warning\n' % (
+		' = '.join('pixel%d' % i for i in range(len(pixelExpr[0])))
+		)
 	yield '}\n'
 	yield 'pixel4 = c5;\n'
 
