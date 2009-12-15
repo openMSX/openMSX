@@ -3,34 +3,11 @@
 from hqcommon import (
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
-	makeLite, permuteCases, printSubExpr, printText,
+	genSwitch, makeLite, permuteCases, printSubExpr, printText,
 	writeBinaryFile, writeTextFile
 	)
 
-from collections import defaultdict
 from itertools import izip
-
-def genSwitch(pixelExpr):
-	exprToCases = defaultdict(list)
-	for case, expr in enumerate(pixelExpr):
-		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
-	#print exprToCases
-	yield 'switch (pattern) {\n'
-	for cases, expr in sorted(
-		( sorted(cases), expr )
-		for expr, cases in exprToCases.iteritems()
-		):
-		for case in cases:
-			yield 'case %d:\n' % case
-		for subPixel, subExpr in enumerate(expr):
-			yield '\tpixel%d = %s;\n' % (subPixel, printSubExpr(subExpr))
-		yield '\tbreak;\n'
-	yield 'default:\n'
-	yield '\tUNREACHABLE;\n'
-	yield '\t%s = 0; // avoid warning\n' % (
-		' = '.join('pixel%d' % i for i in range(len(pixelExpr[0])))
-		)
-	yield '}\n'
 
 def genHQLiteOffsetsTable(pixelExpr):
 	'''In the hqlite case, the result color depends on at most one neighbour

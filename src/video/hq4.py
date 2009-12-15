@@ -3,11 +3,9 @@
 from hqcommon import (
 	computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
-	makeLite, permuteCases, printSubExpr, printText,
+	genSwitch, makeLite, permuteCases, printSubExpr, printText,
 	writeBinaryFile
 	)
-
-from collections import defaultdict
 
 class Parser(object):
 
@@ -129,29 +127,6 @@ def sanityCheck(pixelExpr):
 			#for pixel in range(9):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
-
-def genSwitch(pixelExpr):
-	exprToCases = defaultdict(list)
-	for case, expr in enumerate(pixelExpr):
-		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
-	yield 'switch (pattern) {\n'
-	for cases, expr in sorted(
-		( sorted(cases), expr )
-		for expr, cases in exprToCases.iteritems()
-		):
-		for case in cases:
-			yield 'case %d:\n' % case
-		for subPixel, subExpr in enumerate(expr):
-			yield '\tpixel%s = %s;\n' % (
-				hex(subPixel)[2 : ], printSubExpr(subExpr)
-				)
-		yield '\tbreak;\n'
-	yield 'default:\n'
-	yield '\tUNREACHABLE;\n'
-	yield '\t%s = 0; // avoid warning\n' % (
-		' = '.join('pixel%d' % i for i in range(len(pixelExpr[0])))
-		)
-	yield '}\n'
 
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
