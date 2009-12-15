@@ -137,6 +137,19 @@ def sanityCheck(pixelExpr):
 					#assert corner[pixel] == 0, corner
 
 def genSwitch(pixelExpr):
+	# Note: In practice, only the center subpixel of HQ3x is independent of
+	#       the edge bits. So maybe this is a bit overengineered, but it does
+	#       express why this optimization is correct.
+	subExprForSubPixel = tuple(
+		# TODO: Make the parser return tuples.
+		set(tuple(expr[subPixel]) for expr in pixelExpr)
+		for subPixel in range(len(pixelExpr[0]))
+		)
+	isIndependentSubPixel = tuple(
+		len(subExprs) == 1
+		for subExprs in subExprForSubPixel
+		)
+
 	exprToCases = defaultdict(list)
 	for case, expr in enumerate(pixelExpr):
 		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
@@ -148,18 +161,21 @@ def genSwitch(pixelExpr):
 		for case in cases:
 			yield 'case %d:\n' % case
 		for subPixel, subExpr in enumerate(expr):
-			if subPixel == 4:
-				assert printSubExpr(subExpr) == 'c5'
-			else:
+			if not isIndependentSubPixel[subPixel]:
 				yield '\tpixel%d = %s;\n' % (subPixel, printSubExpr(subExpr))
 		yield '\tbreak;\n'
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
-	yield '\t%s = 0; // avoid warning\n' % (
-		' = '.join('pixel%d' % i for i in range(len(pixelExpr[0])))
+	yield '\t%s = 0; // avoid warning\n' % ' = '.join(
+		'pixel%d' % subPixel
+		for subPixel, independent_ in enumerate(isIndependentSubPixel)
 		)
 	yield '}\n'
-	yield 'pixel4 = c5;\n'
+
+	for subPixel, independent in enumerate(isIndependentSubPixel):
+		if independent:
+			subExpr, = subExprForSubPixel[subPixel]
+			yield 'pixel%d = %s;\n' % (subPixel, printSubExpr(subExpr))
 
 def genHQLiteOffsetsTable(pixelExpr):
 	offset_x = ( 43,   0, -43,  43,   0, -43,  43,   0, -43)
