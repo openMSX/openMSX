@@ -23,12 +23,12 @@ def genSwitch(pixelExpr, narrow):
 		for case in cases:
 			yield 'case %d:\n' % case
 		for subPixel, subExpr in enumerate(expr):
-			yield '\tpixel%d = %s;\n' % (subPixel + 1, printSubExpr(subExpr))
+			yield '\tpixel%d = %s;\n' % (subPixel, printSubExpr(subExpr))
 		yield '\tbreak;\n'
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
 	yield '\t%s = 0; // avoid warning\n' % (
-		' = '.join('pixel%d' % (i + 1) for i in range(2 if narrow else 4))
+		' = '.join('pixel%d' % i for i in range(2 if narrow else 4))
 		)
 	yield '}\n'
 

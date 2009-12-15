@@ -3709,10 +3709,10 @@ case 4091:
 case 4092:
 case 4093:
 case 4095:
+	pixel0 = c5;
 	pixel1 = c5;
 	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 180:
 case 182:
@@ -3748,10 +3748,10 @@ case 4022:
 case 4030:
 case 4070:
 case 4086:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = c5;
 	break;
 case 188:
 case 190:
@@ -3759,10 +3759,10 @@ case 1212:
 case 1214:
 case 1854:
 case 1982:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
-	pixel2 = c5;
-	pixel3 = (c4 * 3 + c5 * 1) / 4;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = c5;
+	pixel2 = (c4 * 3 + c5 * 1) / 4;
+	pixel3 = c5;
 	break;
 case 244:
 case 246:
@@ -3770,10 +3770,10 @@ case 1268:
 case 1270:
 case 3814:
 case 3830:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 3 + c5 * 1) / 4;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
+	pixel2 = (c4 * 3 + c5 * 1) / 4;
+	pixel3 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 252:
 case 956:
@@ -3789,10 +3789,10 @@ case 3764:
 case 3772:
 case 3828:
 case 4020:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = c5;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel3 = c5;
 	break;
 case 254:
 case 1022:
@@ -3803,10 +3803,10 @@ case 2814:
 case 3070:
 case 3838:
 case 4094:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = c5;
+	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel3 = c5;
 	break;
 case 801:
 case 809:
@@ -3837,10 +3837,10 @@ case 3953:
 case 3957:
 case 3961:
 case 3965:
+	pixel0 = c5;
 	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 1 + c6 * 1) / 2;
+	pixel3 = (c5 * 1 + c6 * 1) / 2;
 	break;
 case 803:
 case 811:
@@ -3848,19 +3848,19 @@ case 867:
 case 875:
 case 2427:
 case 2939:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c5 * 3 + c6 * 1) / 4;
-	pixel4 = (c5 * 1 + c6 * 3) / 4;
+	pixel2 = (c5 * 3 + c6 * 1) / 4;
+	pixel3 = (c5 * 1 + c6 * 3) / 4;
 	break;
 case 820:
 case 886:
 case 2406:
 case 2934:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
 	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 828:
 case 1844:
@@ -3868,10 +3868,10 @@ case 1852:
 case 2868:
 case 2876:
 case 3892:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
 	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 829:
 case 831:
@@ -3887,44 +3887,44 @@ case 2875:
 case 2877:
 case 3893:
 case 3897:
+	pixel0 = c5;
 	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 3 + c6 * 1) / 4;
+	pixel3 = (c5 * 3 + c6 * 1) / 4;
 	break;
 case 830:
 case 2870:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 884:
 case 892:
 case 2940:
 case 3956:
 case 3964:
+	pixel0 = c5;
 	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 894:
 case 2942:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 1825:
 case 1833:
 case 1889:
 case 1897:
 case 1917:
-	pixel1 = c5;
-	pixel2 = (c5 * 3 + c6 * 1) / 4;
-	pixel3 = c5;
-	pixel4 = (c5 * 1 + c6 * 3) / 4;
+	pixel0 = c5;
+	pixel1 = (c5 * 3 + c6 * 1) / 4;
+	pixel2 = c5;
+	pixel3 = (c5 * 1 + c6 * 3) / 4;
 	break;
 case 1891:
 case 1899:
@@ -3935,72 +3935,72 @@ case 3955:
 case 3959:
 case 3963:
 case 3967:
+	pixel0 = c5;
 	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 7 + c6 * 1) / 8;
+	pixel3 = (c5 * 7 + c6 * 1) / 8;
 	break;
 case 1908:
 case 2932:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 1910:
 case 3958:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = (c4 * 1 + c5 * 7) / 8;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = (c4 * 1 + c5 * 7) / 8;
 	break;
 case 1916:
-	pixel1 = c5;
-	pixel2 = (c4 * 1 + c5 * 3) / 4;
-	pixel3 = c5;
-	pixel4 = (c4 * 3 + c5 * 1) / 4;
+	pixel0 = c5;
+	pixel1 = (c4 * 1 + c5 * 3) / 4;
+	pixel2 = c5;
+	pixel3 = (c4 * 3 + c5 * 1) / 4;
 	break;
 case 1918:
 case 3966:
+	pixel0 = c5;
 	pixel1 = c5;
-	pixel2 = c5;
+	pixel2 = (c4 * 1 + c5 * 7) / 8;
 	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = (c4 * 1 + c5 * 7) / 8;
 	break;
 case 2340:
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
 	pixel1 = (c4 * 1 + c5 * 3) / 4;
 	pixel2 = (c4 * 1 + c5 * 3) / 4;
 	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 2342:
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
 	pixel1 = (c4 * 1 + c5 * 3) / 4;
-	pixel2 = (c4 * 1 + c5 * 3) / 4;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 2348:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = (c4 * 1 + c5 * 3) / 4;
 	pixel2 = (c4 * 1 + c5 * 3) / 4;
 	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 2350:
 case 2724:
 case 2734:
 case 2990:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = c5;
 	break;
 case 2353:
 case 3441:
 case 3445:
-	pixel1 = c5;
-	pixel2 = (c5 * 1 + c6 * 1) / 2;
-	pixel3 = c5;
-	pixel4 = (c5 * 1 + c6 * 1) / 2;
+	pixel0 = c5;
+	pixel1 = (c5 * 1 + c6 * 1) / 2;
+	pixel2 = c5;
+	pixel3 = (c5 * 1 + c6 * 1) / 2;
 	break;
 case 2355:
 case 2357:
@@ -4008,44 +4008,44 @@ case 2359:
 case 2361:
 case 2363:
 case 2365:
-	pixel1 = c5;
-	pixel2 = (c5 * 3 + c6 * 1) / 4;
-	pixel3 = c5;
-	pixel4 = (c5 * 3 + c6 * 1) / 4;
+	pixel0 = c5;
+	pixel1 = (c5 * 3 + c6 * 1) / 4;
+	pixel2 = c5;
+	pixel3 = (c5 * 3 + c6 * 1) / 4;
 	break;
 case 2404:
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
 	pixel1 = (c4 * 1 + c5 * 3) / 4;
 	pixel2 = (c4 * 1 + c5 * 3) / 4;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 2412:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 2414:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 2419:
 case 2421:
-	pixel1 = c5;
-	pixel2 = (c5 * 3 + c6 * 1) / 4;
-	pixel3 = c5;
-	pixel4 = (c5 * 1 + c6 * 1) / 2;
+	pixel0 = c5;
+	pixel1 = (c5 * 3 + c6 * 1) / 4;
+	pixel2 = c5;
+	pixel3 = (c5 * 1 + c6 * 1) / 2;
 	break;
 case 2437:
 case 3372:
 case 3469:
 case 3501:
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
 	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2439:
 case 2469:
@@ -4053,10 +4053,10 @@ case 2471:
 case 2501:
 case 2503:
 case 2533:
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
 	pixel1 = (c4 * 1 + c5 * 3) / 4;
-	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2445:
 case 2479:
@@ -4092,17 +4092,17 @@ case 4013:
 case 4045:
 case 4076:
 case 4077:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
 	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2447:
 case 2477:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = (c4 * 1 + c5 * 3) / 4;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2448:
 case 2450:
@@ -4133,10 +4133,10 @@ case 3571:
 case 3572:
 case 3573:
 case 3575:
-	pixel1 = c5;
-	pixel2 = (c5 * 1 + c6 * 1) / 2;
+	pixel0 = c5;
+	pixel1 = (c5 * 1 + c6 * 1) / 2;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2455:
 case 2463:
@@ -4152,10 +4152,10 @@ case 2520:
 case 2522:
 case 2547:
 case 2549:
-	pixel1 = c5;
-	pixel2 = (c5 * 3 + c6 * 1) / 4;
+	pixel0 = c5;
+	pixel1 = (c5 * 3 + c6 * 1) / 4;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2456:
 case 2458:
@@ -4163,24 +4163,24 @@ case 3387:
 case 3480:
 case 3482:
 case 3515:
-	pixel1 = (c5 * 3 + c6 * 1) / 4;
-	pixel2 = (c5 * 1 + c6 * 3) / 4;
+	pixel0 = (c5 * 3 + c6 * 1) / 4;
+	pixel1 = (c5 * 1 + c6 * 3) / 4;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2484:
 case 2492:
 case 2548:
-	pixel1 = c5;
-	pixel2 = (c5 * 3 + c6 * 1) / 4;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = c5;
+	pixel0 = c5;
+	pixel1 = (c5 * 3 + c6 * 1) / 4;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel3 = c5;
 	break;
 case 2486:
-	pixel1 = c5;
-	pixel2 = (c5 * 3 + c6 * 1) / 4;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel0 = c5;
+	pixel1 = (c5 * 3 + c6 * 1) / 4;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = c5;
 	break;
 case 2511:
 case 2567:
@@ -4188,20 +4188,20 @@ case 2575:
 case 2631:
 case 2639:
 case 3023:
-	pixel1 = (c4 * 3 + c5 * 1) / 4;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = c5;
+	pixel0 = (c4 * 3 + c5 * 1) / 4;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel3 = c5;
 	break;
 case 2512:
 case 2514:
 case 3536:
 case 3538:
 case 3543:
-	pixel1 = c5;
-	pixel2 = (c5 * 1 + c6 * 3) / 4;
-	pixel3 = c5;
-	pixel4 = (c5 * 3 + c6 * 1) / 4;
+	pixel0 = c5;
+	pixel1 = (c5 * 1 + c6 * 3) / 4;
+	pixel2 = c5;
+	pixel3 = (c5 * 3 + c6 * 1) / 4;
 	break;
 case 2788:
 case 2980:
@@ -4209,10 +4209,10 @@ case 3044:
 case 3748:
 case 3812:
 case 4004:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel3 = c5;
 	break;
 case 2789:
 case 2791:
@@ -4228,187 +4228,187 @@ case 3749:
 case 3813:
 case 4005:
 case 4037:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = c5;
 	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 2790:
 case 2982:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = c5;
 	break;
 case 2798:
 case 3054:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel3 = c5;
 	break;
 case 2853:
 case 2855:
 case 3877:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 3 + c6 * 1) / 4;
+	pixel3 = (c5 * 3 + c6 * 1) / 4;
 	break;
 case 2861:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 3 + c6 * 1) / 4;
+	pixel3 = (c5 * 3 + c6 * 1) / 4;
 	break;
 case 2917:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 1 + c6 * 1) / 2;
+	pixel3 = (c5 * 1 + c6 * 1) / 2;
 	break;
 case 2925:
 case 2927:
 case 3949:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 1 + c6 * 1) / 2;
+	pixel3 = (c5 * 1 + c6 * 1) / 2;
 	break;
 case 2988:
 case 3756:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel3 = c5;
 	break;
 case 3364:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
-	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
 	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 3366:
-	pixel1 = c5;
+	pixel0 = c5;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
 	pixel2 = (c4 * 1 + c5 * 1) / 2;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel3 = c5;
 	break;
 case 3374:
-	pixel1 = (c4 * 1 + c5 * 7) / 8;
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
 	pixel2 = (c4 * 1 + c5 * 1) / 2;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel3 = c5;
 	break;
 case 3381:
 case 3385:
-	pixel1 = c5;
-	pixel2 = (c5 * 1 + c6 * 1) / 2;
-	pixel3 = c5;
-	pixel4 = (c5 * 3 + c6 * 1) / 4;
+	pixel0 = c5;
+	pixel1 = (c5 * 1 + c6 * 1) / 2;
+	pixel2 = c5;
+	pixel3 = (c5 * 3 + c6 * 1) / 4;
 	break;
 case 3428:
-	pixel1 = c5;
-	pixel2 = (c4 * 1 + c5 * 1) / 2;
-	pixel3 = c5;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = c5;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = c5;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 3430:
-	pixel1 = c5;
+	pixel0 = c5;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
 	pixel2 = (c4 * 1 + c5 * 1) / 2;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = (c4 * 1 + c5 * 7) / 8;
+	pixel3 = (c4 * 1 + c5 * 7) / 8;
 	break;
 case 3436:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = (c4 * 1 + c5 * 7) / 8;
-	pixel3 = c5;
-	pixel4 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = (c4 * 1 + c5 * 7) / 8;
+	pixel2 = c5;
+	pixel3 = (c4 * 1 + c5 * 1) / 2;
 	break;
 case 3438:
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
 	pixel1 = (c4 * 1 + c5 * 7) / 8;
 	pixel2 = (c4 * 1 + c5 * 7) / 8;
 	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = (c4 * 1 + c5 * 7) / 8;
 	break;
 case 3443:
 case 3447:
-	pixel1 = c5;
-	pixel2 = (c5 * 1 + c6 * 1) / 2;
-	pixel3 = c5;
-	pixel4 = (c5 * 7 + c6 * 1) / 8;
+	pixel0 = c5;
+	pixel1 = (c5 * 1 + c6 * 1) / 2;
+	pixel2 = c5;
+	pixel3 = (c5 * 7 + c6 * 1) / 8;
 	break;
 case 3449:
 case 3453:
-	pixel1 = c5;
-	pixel2 = (c5 * 7 + c6 * 1) / 8;
-	pixel3 = c5;
-	pixel4 = (c5 * 1 + c6 * 1) / 2;
+	pixel0 = c5;
+	pixel1 = (c5 * 7 + c6 * 1) / 8;
+	pixel2 = c5;
+	pixel3 = (c5 * 1 + c6 * 1) / 2;
 	break;
 case 3451:
 case 3455:
-	pixel1 = c5;
-	pixel2 = (c5 * 7 + c6 * 1) / 8;
-	pixel3 = c5;
-	pixel4 = (c5 * 7 + c6 * 1) / 8;
+	pixel0 = c5;
+	pixel1 = (c5 * 7 + c6 * 1) / 8;
+	pixel2 = c5;
+	pixel3 = (c5 * 7 + c6 * 1) / 8;
 	break;
 case 3461:
 case 3463:
 case 3495:
 case 3557:
 case 3559:
-	pixel1 = c5;
-	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = c5;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3471:
 case 3503:
-	pixel1 = (c4 * 1 + c5 * 7) / 8;
-	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3493:
 case 3525:
-	pixel1 = (c4 * 1 + c5 * 3) / 4;
-	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel0 = (c4 * 1 + c5 * 3) / 4;
+	pixel1 = (c4 * 1 + c5 * 1) / 2;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3508:
-	pixel1 = c5;
-	pixel2 = (c5 * 1 + c6 * 1) / 2;
-	pixel3 = (c4 * 1 + c5 * 3) / 4;
-	pixel4 = c5;
+	pixel0 = c5;
+	pixel1 = (c5 * 1 + c6 * 1) / 2;
+	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel3 = c5;
 	break;
 case 3510:
 case 3518:
 case 3574:
-	pixel1 = c5;
-	pixel2 = (c5 * 1 + c6 * 1) / 2;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel0 = c5;
+	pixel1 = (c5 * 1 + c6 * 1) / 2;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = c5;
 	break;
 case 3527:
-	pixel1 = c5;
-	pixel2 = (c4 * 3 + c5 * 1) / 4;
-	pixel3 = c5;
-	pixel4 = (c4 * 1 + c5 * 3) / 4;
+	pixel0 = c5;
+	pixel1 = (c4 * 3 + c5 * 1) / 4;
+	pixel2 = c5;
+	pixel3 = (c4 * 1 + c5 * 3) / 4;
 	break;
 case 3533:
 case 3565:
-	pixel1 = (c4 * 1 + c5 * 1) / 2;
-	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel0 = (c4 * 1 + c5 * 1) / 2;
+	pixel1 = (c4 * 1 + c5 * 7) / 8;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3535:
 case 3567:
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
 	pixel1 = (c4 * 1 + c5 * 7) / 8;
-	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3544:
 case 3546:
@@ -4419,16 +4419,16 @@ case 3579:
 case 3580:
 case 3581:
 case 3583:
-	pixel1 = c5;
-	pixel2 = (c5 * 7 + c6 * 1) / 8;
+	pixel0 = c5;
+	pixel1 = (c5 * 7 + c6 * 1) / 8;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3582:
-	pixel1 = c5;
-	pixel2 = (c5 * 7 + c6 * 1) / 8;
-	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = c5;
+	pixel0 = c5;
+	pixel1 = (c5 * 7 + c6 * 1) / 8;
+	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel3 = c5;
 	break;
 case 3589:
 case 3597:
@@ -4436,10 +4436,10 @@ case 3653:
 case 3661:
 case 3820:
 case 3821:
-	pixel1 = (c4 * 3 + c5 * 1) / 4;
-	pixel2 = (c4 * 1 + c5 * 3) / 4;
+	pixel0 = (c4 * 3 + c5 * 1) / 4;
+	pixel1 = (c4 * 1 + c5 * 3) / 4;
+	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3599:
 case 3663:
@@ -4450,32 +4450,32 @@ case 3983:
 case 4015:
 case 4047:
 case 4079:
-	pixel1 = (c4 * 1 + c5 * 7) / 8;
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
+	pixel1 = c5;
 	pixel2 = c5;
 	pixel3 = c5;
-	pixel4 = c5;
 	break;
 case 3758:
 case 4014:
-	pixel1 = (c4 * 1 + c5 * 7) / 8;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 1) / 2;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 1) / 2;
+	pixel3 = c5;
 	break;
 case 3822:
 case 4078:
-	pixel1 = (c4 * 1 + c5 * 7) / 8;
-	pixel2 = c5;
-	pixel3 = (c4 * 1 + c5 * 7) / 8;
-	pixel4 = c5;
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
+	pixel1 = c5;
+	pixel2 = (c4 * 1 + c5 * 7) / 8;
+	pixel3 = c5;
 	break;
 case 3951:
-	pixel1 = (c4 * 1 + c5 * 7) / 8;
+	pixel0 = (c4 * 1 + c5 * 7) / 8;
+	pixel1 = c5;
 	pixel2 = c5;
-	pixel3 = c5;
-	pixel4 = (c5 * 7 + c6 * 1) / 8;
+	pixel3 = (c5 * 7 + c6 * 1) / 8;
 	break;
 default:
 	UNREACHABLE;
-	pixel1 = pixel2 = pixel3 = pixel4 = 0; // avoid warning
+	pixel0 = pixel1 = pixel2 = pixel3 = 0; // avoid warning
 }

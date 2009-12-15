@@ -83,14 +83,14 @@ void HQ_1x1on2x2<Pixel>::operator()(
 		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
 		edgeBuf[x] = pattern;
 
-		unsigned pixel1, pixel2, pixel3, pixel4;
+		unsigned pixel0, pixel1, pixel2, pixel3;
 
 #include "HQ2xScaler-1x1to2x2.nn"
 
-		out0[2 * x + 0] = writePixel<Pixel>(pixel1);
-		out0[2 * x + 1] = writePixel<Pixel>(pixel2);
-		out1[2 * x + 0] = writePixel<Pixel>(pixel3);
-		out1[2 * x + 1] = writePixel<Pixel>(pixel4);
+		out0[2 * x + 0] = writePixel<Pixel>(pixel0);
+		out0[2 * x + 1] = writePixel<Pixel>(pixel1);
+		out1[2 * x + 0] = writePixel<Pixel>(pixel2);
+		out1[2 * x + 1] = writePixel<Pixel>(pixel3);
 	}
 }
 
@@ -147,12 +147,12 @@ void HQ_1x1on1x2<Pixel>::operator()(
 		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
 		edgeBuf[x] = pattern;
 
-		unsigned pixel1, pixel2;
+		unsigned pixel0, pixel1;
 
 #include "HQ2xScaler-1x1to1x2.nn"
 
-		out0[x] = writePixel<Pixel>(pixel1);
-		out1[x] = writePixel<Pixel>(pixel2);
+		out0[x] = writePixel<Pixel>(pixel0);
+		out1[x] = writePixel<Pixel>(pixel1);
 	}
 }
 
