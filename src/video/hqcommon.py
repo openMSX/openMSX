@@ -276,29 +276,31 @@ def makeLite(pixelExpr, preferC6subPixels):
 			newWeights = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 		else:
 			# simplify using edge info
-			pixelToSet = dict( ( pixel, set([pixel]) ) for pixel in range(9) )
-			for edge, (pixel1, pixel2) in enumerate(edges):
+			neighbourToSet = dict(
+				( neighbour, set([neighbour]) ) for neighbour in range(9)
+				)
+			for edge, (neighbour1, neighbour2) in enumerate(edges):
 				if (case & (1 << edge)) == 0:
 					# No edge, so the two pixels are equal.
 					# Merge the sets of equal pixels.
-					set1 = pixelToSet[pixel1]
-					set2 = pixelToSet[pixel2]
+					set1 = neighbourToSet[neighbour1]
+					set2 = neighbourToSet[neighbour2]
 					set1 |= set2
-					for p in set1:
-						pixelToSet[p] = set1
+					for n in set1:
+						neighbourToSet[n] = set1
 			done = set()
 			newWeights = [ 0 ] * 9
 			if subPixel in preferC6subPixels:
 				rem = ( 4, 5, 3, 1, 7, 0, 2, 6, 8 )
 			else:
 				rem = ( 4, 3, 5, 1, 7, 0, 2, 6, 8 )
-			for remPixel in rem:
-				if remPixel not in done:
-					equalPixels = pixelToSet[remPixel]
-					newWeights[remPixel] = sum(
-						weights[orgPixel] for orgPixel in equalPixels
+			for neighbour in rem:
+				if neighbour not in done:
+					equalNeighbours = neighbourToSet[neighbour]
+					newWeights[neighbour] = sum(
+						weights[n] for n in equalNeighbours
 						)
-					done |= equalPixels
+					done |= equalNeighbours
 		newWeights = simplifyWeights(newWeights)
 		for c in (0, 1, 2, 6, 7, 8):
 			# only c4, c5, c6 have non-0 weight
