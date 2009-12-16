@@ -291,11 +291,10 @@ def makeLite(pixelExpr, preferC6subPixels):
 			done = set()
 			newWeights = [ 0 ] * 9
 			if subPixel in preferC6subPixels:
-				rem = ( 5, 6, 4, 2, 8, 1, 3, 7, 9 )
+				rem = ( 4, 5, 3, 1, 7, 0, 2, 6, 8 )
 			else:
-				rem = ( 5, 4, 6, 2, 8, 1, 3, 7, 9 )
+				rem = ( 4, 3, 5, 1, 7, 0, 2, 6, 8 )
 			for remPixel in rem:
-				remPixel -= 1
 				if remPixel not in done:
 					equalPixels = pixelToSet[remPixel]
 					newWeights[remPixel] = sum(
