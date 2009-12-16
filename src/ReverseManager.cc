@@ -246,7 +246,9 @@ string ReverseManager::saveReplay(const vector<string>& tokens)
 	MemInputArchive in(*history.chunks.begin()->second.savestate);
 	in.serialize("machine", *newBoard);
 
-	bool addSentinel = !dynamic_cast<EndLogEvent*>(history.events.back().get());
+	// add sentinel when there isn't one yet
+	bool addSentinel = history.events.empty() ||
+		!dynamic_cast<EndLogEvent*>(history.events.back().get());
 	if (addSentinel) {
 		/// make sure the replay log ends with a EndLogEvent
 		history.events.push_back(shared_ptr<StateChange>(
