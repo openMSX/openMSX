@@ -259,9 +259,9 @@ def makeLite(pixelExpr, preferC6subPixels):
 			elif pix1 == 4 and pix2 == 2:
 				subCase = 3
 	'''
-	edges = [[6, 2], [6, 8], [4, 8], [4, 2],
-	         [5, 1], [5, 2], [5, 3], [5, 4],
-	         [5, 6], [5, 7], [5, 8], [5, 9]]
+	edges = [[5, 1], [5, 7], [3, 7], [3, 1],
+	         [4, 0], [4, 1], [4, 2], [4, 3],
+	         [4, 5], [4, 6], [4, 7], [4, 8]]
 	# Sanity check:
 	# To allow the weight transfers to be done in a single pass, no pixel
 	# should be transferred to when it has already been used to transfer from.
@@ -278,8 +278,6 @@ def makeLite(pixelExpr, preferC6subPixels):
 			# simplify using edge info
 			pixelToSet = dict( ( pixel, set([pixel]) ) for pixel in range(9) )
 			for edge, (pixel1, pixel2) in enumerate(edges):
-				pixel1 -= 1
-				pixel2 -= 1
 				if (case & (1 << edge)) == 0:
 					# No edge, so the two pixels are equal.
 					# Merge the sets of equal pixels.
