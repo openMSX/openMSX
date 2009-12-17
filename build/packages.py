@@ -182,11 +182,11 @@ class SDL(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
 	niceName = 'SDL'
 	sourceName = 'SDL'
-	version = '1.2.13'
-	fileLength = 3373673
+	version = '1.2.14'
+	fileLength = 4014154
 	checksums = {
 		'sha256':
-			'94f99df1d60f296b57f4740650a71b6425da654044ca30f8f0ce34934429e132',
+			'5d927e287034cb6bb0ebccfa382cb1d185cb113c8ab5115a0759798642eed9b6',
 		}
 
 class SDL_image(DownloadablePackage):
