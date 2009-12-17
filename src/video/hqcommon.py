@@ -286,8 +286,9 @@ def makeLite(pixelExpr, preferC6subPixels):
 					set1 = neighbourToSet[neighbour1]
 					set2 = neighbourToSet[neighbour2]
 					set1 |= set2
-					for n in set1:
+					for n in set2:
 						neighbourToSet[n] = set1
+
 			done = set()
 			newWeights = [ 0 ] * 9
 			if subPixel in preferC6subPixels:
