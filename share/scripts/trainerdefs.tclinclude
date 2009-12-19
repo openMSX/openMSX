@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/12/12
+# Updated @ 2009/12/17
 #
 
 
@@ -2725,11 +2725,14 @@ create_trainer "Golvellius 2" {time 10} {
 	"Harp" {poke 0xcb0a 1}
 	"Heart Pendant" {poke 0xcb0b 1}
 	"Herb" {poke 0xcb18 1}
+	"Holes Are Always Open" {poke 0xc06f 2}
 	"Iron Shield" {poke 0xcb07 1}
 	"Iron Sword" {poke 0xcb01 1}
 	"Key" {poke 0xcb17 1}
 	"Life" {poke 0xcba1 0;poke 0xcba2 2}
 	"Max Hearts" {poke 0xcb9d 0;poke 0xcb9e 2}
+	"Maxed Out Find" {poke 0xcba6 153}
+	"Maxed out Find" {poke 0xcba7 153}
 	"Mirror" {poke 0xcb0d 1}
 	"Necklace" {poke 0xcb14 1}
 	"Scepter" {poke 0xcb06 1}
@@ -5045,8 +5048,7 @@ create_trainer "Psycho World" {time 2} {
 create_trainer "Pumpkin Adventure 3" {time 1} {
 	"Bishop Experience" {poke 0xd5fb 153;poke 0xd5fc 153;poke 0xd5fd 153}
 	"Bishop Life" {poke 0xd5f3 153;poke 0xd5f4 153}
-	"Bishop Max Exp" {poke 0xd5f5 153;poke 0xd5f6 153}
-	"Bishop Max Experience" {poke 0xd5fe 0;poke 0xd5ff 0;poke 0xd600 1}
+	"Bishop Max Experience" {poke 0xd5f5 153;poke 0xd5f6 153;poke 0xd5fe 0;poke 0xd5ff 0;poke 0xd600 1}
 	"Bishop Max Mp" {poke 0xd5f9 153;poke 0xd5fa 153}
 	"Bishop Mp" {poke 0xd5f7 153;poke 0xd5f8 153}
 	"Black Key" {poke 0xd493 1}
@@ -6758,4 +6760,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 4.443 seconds. 723 trainers -  having 5482 pokes
+# File Created in : 2.768 seconds. 723 trainers -  having 5485 pokes
