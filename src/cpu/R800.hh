@@ -138,6 +138,16 @@ protected:
 		}
 	}
 
+	void setTime(EmuTime::param time)
+	{
+		// Base class implementation.
+		CPUClock::setTime(time);
+
+		// Otherwise advance_fast() in R800Refresh() above, gets a too
+		// large time interval.
+		lastRefreshTime.reset(time);
+	}
+
 	ALWAYS_INLINE void setMemPtr(unsigned) { /* nothing*/ }
 	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
