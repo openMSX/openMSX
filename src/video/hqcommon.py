@@ -248,47 +248,38 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 		for w1, w2 in izip(weights1, weights2)
 		])
 
+def calcNeighbourToSet():
+	# Edges in the same order as the edge bits in "case".
+	edges = (
+		(5, 1), (5, 7), (3, 7), (3, 1),
+		(4, 0), (4, 1), (4, 2), (4, 3),
+		(4, 5), (4, 6), (4, 7), (4, 8),
+		)
+	# Compute equivalence classes.
+	ret = []
+	for case in xrange(1 << len(edges)):
+		neighbourToSet = [ set([neighbour]) for neighbour in xrange(9) ]
+		for edge, (neighbour1, neighbour2) in enumerate(edges):
+			if (case & (1 << edge)) == 0:
+				# No edge, so the two pixels are equal.
+				# Merge the sets of equal pixels.
+				set1 = neighbourToSet[neighbour1]
+				set2 = neighbourToSet[neighbour2]
+				set1 |= set2
+				for n in set2:
+					neighbourToSet[n] = set1
+		ret.append(neighbourToSet)
+	return ret
+
+neighbourToSet = calcNeighbourToSet()
+
 def makeLite(pixelExpr, preferC6subPixels):
-	'''
-			if pix1 == 2 and pix2 == 6:
-				subCase = 0
-			elif pix1 == 6 and pix2 == 8:
-				subCase = 1
-			elif pix1 == 8 and pix2 == 4:
-				subCase = 2
-			elif pix1 == 4 and pix2 == 2:
-				subCase = 3
-	'''
-	edges = [[5, 1], [5, 7], [3, 7], [3, 1],
-	         [4, 0], [4, 1], [4, 2], [4, 3],
-	         [4, 5], [4, 6], [4, 7], [4, 8]]
-	# Sanity check:
-	# To allow the weight transfers to be done in a single pass, no pixel
-	# should be transferred to when it has already been used to transfer from.
-	beenSrc = set()
-	for dst, src in edges:
-		assert dst not in beenSrc
-		beenSrc.add(src)
 
 	def lighten(case, subPixel, weights):
 		#print "case:", case, "subPixel:", subPixel, "weights:", weights
 		if isContradiction(case):
 			newWeights = [0, 0, 0, 0, 1, 0, 0, 0, 0]
 		else:
-			# simplify using edge info
-			neighbourToSet = dict(
-				( neighbour, set([neighbour]) ) for neighbour in range(9)
-				)
-			for edge, (neighbour1, neighbour2) in enumerate(edges):
-				if (case & (1 << edge)) == 0:
-					# No edge, so the two pixels are equal.
-					# Merge the sets of equal pixels.
-					set1 = neighbourToSet[neighbour1]
-					set2 = neighbourToSet[neighbour2]
-					set1 |= set2
-					for n in set2:
-						neighbourToSet[n] = set1
-
 			done = set()
 			newWeights = [ 0 ] * 9
 			if subPixel in preferC6subPixels:
@@ -297,7 +288,7 @@ def makeLite(pixelExpr, preferC6subPixels):
 				rem = ( 4, 3, 5, 1, 7, 0, 2, 6, 8 )
 			for neighbour in rem:
 				if neighbour not in done:
-					equalNeighbours = neighbourToSet[neighbour]
+					equalNeighbours = neighbourToSet[case][neighbour]
 					newWeights[neighbour] = sum(
 						weights[n] for n in equalNeighbours
 						)
