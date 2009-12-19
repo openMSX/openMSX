@@ -133,13 +133,16 @@ def genHQLiteOffsetsTable(pixelExpr):
 	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
 	for expr in pixelExpr:
 		for subPixel, weights in enumerate(expr):
-			neighbours = computeNeighbours(weights)
-			assert neighbours[1] is None, neighbours
-			neighbour = neighbours[0]
+			if weights is None:
+				neighbour = None
+			else:
+				neighbours = computeNeighbours(weights)
+				assert neighbours[1] is None, neighbours
+				neighbour = neighbours[0]
+				factor = sum(weights)
 
 			x = 128 + offset_x[subPixel]
 			y = 128 + offset_y[subPixel]
-			factor = sum(weights)
 			if neighbour == 3:
 				x -= 128 * weights[3] / factor
 			elif neighbour == 5:

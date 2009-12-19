@@ -31,8 +31,12 @@ def genSwitch(pixelExpr):
 	#       the edge bits. So maybe this is a bit overengineered, but it does
 	#       express why this optimization is correct.
 	subExprForSubPixel = tuple(
-		# TODO: Make the parser return tuples.
-		set(tuple(expr[subPixel]) for expr in pixelExpr)
+		set(
+			# TODO: Make the parser return tuples.
+			tuple(expr[subPixel])
+			for expr in pixelExpr
+			if expr[subPixel] is not None
+			)
 		for subPixel in range(len(pixelExpr[0]))
 		)
 	isIndependentSubPixel = tuple(
@@ -42,20 +46,28 @@ def genSwitch(pixelExpr):
 
 	exprToCases = defaultdict(list)
 	for case, expr in enumerate(pixelExpr):
-		exprToCases[tuple(tuple(subExpr) for subExpr in expr)].append(case)
+		if expr[0] is None:
+			assert all(subExpr is None for subExpr in expr)
+			key = None
+		else:
+			key = tuple(tuple(subExpr) for subExpr in expr)
+		exprToCases[key].append(case)
 	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
 		( sorted(cases), expr )
 		for expr, cases in exprToCases.iteritems()
 		):
-		for case in cases:
-			yield 'case %d:\n' % case
-		for subPixel, subExpr in enumerate(expr):
-			if not isIndependentSubPixel[subPixel]:
-				yield '\tpixel%s = %s;\n' % (
-					hex(subPixel)[2 : ], printSubExpr(subExpr)
-					)
-		yield '\tbreak;\n'
+		if expr is not None:
+			for case in cases:
+				yield 'case %d:\n' % case
+			for subPixel, subExpr in enumerate(expr):
+				if not isIndependentSubPixel[subPixel]:
+					yield '\tpixel%s = %s;\n' % (
+						hex(subPixel)[2 : ], printSubExpr(subExpr)
+						)
+			yield '\tbreak;\n'
+	for case in sorted(exprToCases[None]):
+		yield 'case %d:\n' % case
 	yield 'default:\n'
 	yield '\tUNREACHABLE;\n'
 	yield '\t%s = 0; // avoid warning\n' % ' = '.join(
@@ -279,7 +291,7 @@ neighbourToSet = calcNeighbourToSet()
 def lighten(case, weights, preferRight):
 	equalNeighboursOf = neighbourToSet[case]
 	if equalNeighboursOf is None:
-		newWeights = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+		return None
 	else:
 		done = set()
 		newWeights = [ 0 ] * 9
@@ -294,11 +306,10 @@ def lighten(case, weights, preferRight):
 					weights[n] for n in equalNeighbours
 					)
 				done |= equalNeighbours
-	newWeights = simplifyWeights(newWeights)
-	for c in (0, 1, 2, 6, 7, 8):
-		# Only c4, c5, c6 have non-zero weight.
-		assert newWeights[c] == 0
-	return newWeights
+		for c in (0, 1, 2, 6, 7, 8):
+			# Only c4, c5, c6 have non-zero weight.
+			assert newWeights[c] == 0
+		return simplifyWeights(newWeights)
 
 def makeLite(pixelExpr, preferC6subPixels):
 	return [
