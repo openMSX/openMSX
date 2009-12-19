@@ -258,50 +258,51 @@ def calcNeighbourToSet():
 	# Compute equivalence classes.
 	ret = []
 	for case in xrange(1 << len(edges)):
-		neighbourToSet = [ set([neighbour]) for neighbour in xrange(9) ]
-		for edge, (neighbour1, neighbour2) in enumerate(edges):
-			if (case & (1 << edge)) == 0:
-				# No edge, so the two pixels are equal.
-				# Merge the sets of equal pixels.
-				set1 = neighbourToSet[neighbour1]
-				set2 = neighbourToSet[neighbour2]
-				set1 |= set2
-				for n in set2:
-					neighbourToSet[n] = set1
-		ret.append(neighbourToSet)
+		if isContradiction(case):
+			ret.append(None)
+		else:
+			neighbourToSet = [ set([neighbour]) for neighbour in xrange(9) ]
+			for edge, (neighbour1, neighbour2) in enumerate(edges):
+				if (case & (1 << edge)) == 0:
+					# No edge, so the two pixels are equal.
+					# Merge the sets of equal pixels.
+					set1 = neighbourToSet[neighbour1]
+					set2 = neighbourToSet[neighbour2]
+					set1 |= set2
+					for n in set2:
+						neighbourToSet[n] = set1
+			ret.append(neighbourToSet)
 	return ret
 
 neighbourToSet = calcNeighbourToSet()
 
+def lighten(case, weights, preferRight):
+	equalNeighboursOf = neighbourToSet[case]
+	if equalNeighboursOf is None:
+		newWeights = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+	else:
+		done = set()
+		newWeights = [ 0 ] * 9
+		for neighbour in (
+			(4, 5, 3, 1, 7, 2, 0, 8, 6)
+			if preferRight else
+			(4, 3, 5, 1, 7, 0, 2, 6, 8)
+			):
+			if neighbour not in done:
+				equalNeighbours = equalNeighboursOf[neighbour]
+				newWeights[neighbour] = sum(
+					weights[n] for n in equalNeighbours
+					)
+				done |= equalNeighbours
+	newWeights = simplifyWeights(newWeights)
+	for c in (0, 1, 2, 6, 7, 8):
+		# Only c4, c5, c6 have non-zero weight.
+		assert newWeights[c] == 0
+	return newWeights
+
 def makeLite(pixelExpr, preferC6subPixels):
-
-	def lighten(case, subPixel, weights):
-		#print "case:", case, "subPixel:", subPixel, "weights:", weights
-		if isContradiction(case):
-			newWeights = [0, 0, 0, 0, 1, 0, 0, 0, 0]
-		else:
-			done = set()
-			newWeights = [ 0 ] * 9
-			if subPixel in preferC6subPixels:
-				rem = ( 4, 5, 3, 1, 7, 0, 2, 6, 8 )
-			else:
-				rem = ( 4, 3, 5, 1, 7, 0, 2, 6, 8 )
-			for neighbour in rem:
-				if neighbour not in done:
-					equalNeighbours = neighbourToSet[case][neighbour]
-					newWeights[neighbour] = sum(
-						weights[n] for n in equalNeighbours
-						)
-					done |= equalNeighbours
-		newWeights = simplifyWeights(newWeights)
-		for c in (0, 1, 2, 6, 7, 8):
-			# only c4, c5, c6 have non-0 weight
-			assert newWeights[c] == 0
-		#print "case:", case, "subPixel:", subPixel, "weights:", newWeights
-		return newWeights
-
 	return [
-		[ lighten(case, subPixel, weights)
+		[ lighten(case, weights, subPixel in preferC6subPixels)
 		  for subPixel, weights in enumerate(expr) ]
 		for case, expr in enumerate(pixelExpr)
 		]
