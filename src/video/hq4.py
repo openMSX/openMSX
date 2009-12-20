@@ -1,13 +1,14 @@
 # $Id$
 
 from hqcommon import (
+	BaseParser,
 	computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
 	genHQLiteOffsetsTable, genSwitch, makeLite, permuteCases,
 	printSubExpr, printText, writeBinaryFile
 	)
 
-class Parser(object):
+class Parser(BaseParser):
 
 	def __init__(self):
 		self.fileName = 'HQ4xScaler.in'
@@ -15,28 +16,10 @@ class Parser(object):
 		self.__parse()
 		sanityCheck(self.pixelExpr)
 
-	@staticmethod
-	def __filterSwitch(stream):
-		log = False
-		inIf = False
-		for line in stream:
-			line = line.strip()
-			if line == 'switch (pattern) {':
-				log = True
-			elif line == '}':
-				if inIf:
-					inIf = False
-				elif log:
-					break
-			elif line.startswith('if'):
-				inIf = True
-			if log:
-				yield line
-
 	def __parse(self):
 		cases = []
 		subCases = range(1 << 4)
-		for line in self.__filterSwitch(file(self.fileName)):
+		for line in self._filterSwitch(file(self.fileName)):
 			if line.startswith('case'):
 				cases.append(int(line[5 : line.index(':', 5)]))
 			elif line.startswith('pixel'):

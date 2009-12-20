@@ -1,6 +1,7 @@
 # $Id$
 
 from hqcommon import (
+	BaseParser,
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
 	genHQLiteOffsetsTable, genSwitch, makeLite, permuteCases,
@@ -42,7 +43,7 @@ def makeNarrow(pixelExpr):
 		for a, b, c, d in pixelExpr
 		]
 
-class Parser(object):
+class Parser(BaseParser):
 
 	def __init__(self):
 		self.fileName = 'HQ2xScaler.in'
@@ -50,24 +51,9 @@ class Parser(object):
 		self.__parse()
 		sanityCheck(self.pixelExpr)
 
-	@staticmethod
-	def __filterSwitch(stream):
-		log = False
-		for line in stream:
-			line = line.strip()
-			if line == 'switch (pattern) {':
-				log = True
-			elif line == '}':
-				if log:
-					break
-			if log:
-				if 'edge(' in line:
-					line += ' ' + stream.next().strip()
-				yield line
-
 	def __parse(self):
 		cases = []
-		for line in self.__filterSwitch(file(self.fileName)):
+		for line in self._filterSwitch(file(self.fileName)):
 			if line.startswith('case'):
 				cases.append(int(line[5 : line.index(':', 5)]))
 			elif line.startswith('pixel'):

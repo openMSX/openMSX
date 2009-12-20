@@ -5,6 +5,45 @@ from itertools import izip
 from math import sqrt
 import sys
 
+# Parser:
+
+class BaseParser(object):
+
+	@staticmethod
+	def _filterSwitch(stream):
+		log = False
+		inIf = False
+		for line in stream:
+			line = line.strip()
+			if line == 'switch (pattern) {':
+				log = True
+			elif line == '}':
+				if inIf:
+					inIf = False
+				elif log:
+					break
+			elif line.startswith('if'):
+				inIf = True
+			if log:
+				if '?' in line:
+					line += ' ' + stream.next().strip()
+				yield line
+
+	@staticmethod
+	def oldFilterSwitch(stream):
+		log = False
+		for line in stream:
+			line = line.strip()
+			if line == 'switch (pattern) {':
+				log = True
+			elif line == '}':
+				if log:
+					break
+			if log:
+				if 'edge(' in line:
+					line += ' ' + stream.next().strip()
+				yield line
+
 # I/O:
 
 def printText(contents):
