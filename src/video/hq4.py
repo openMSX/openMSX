@@ -3,8 +3,8 @@
 from hqcommon import (
 	computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
-	genSwitch, makeLite, permuteCases, printSubExpr, printText,
-	writeBinaryFile
+	genHQLiteOffsetsTable, genSwitch, makeLite, permuteCases,
+	printSubExpr, printText, writeBinaryFile
 	)
 
 class Parser(object):
@@ -127,32 +127,6 @@ def sanityCheck(pixelExpr):
 			#for pixel in range(9):
 				#if (pixel + 1) not in subset:
 					#assert corner[pixel] == 0, corner
-
-def genHQLiteOffsetsTable(pixelExpr):
-	offset_x = ( 48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48,  48,  16, -16, -48)
-	offset_y = ( 48,  48,  48,  48,  16,  16,  16,  16, -16, -16, -16, -16, -48, -48, -48, -48)
-	for expr in pixelExpr:
-		for subPixel, weights in enumerate(expr):
-			if weights is None:
-				neighbour = None
-			else:
-				neighbours = computeNeighbours(weights)
-				assert neighbours[1] is None, neighbours
-				neighbour = neighbours[0]
-				factor = sum(weights)
-
-			x = 128 + offset_x[subPixel]
-			y = 128 + offset_y[subPixel]
-			if neighbour == 3:
-				x -= 128 * weights[3] / factor
-			elif neighbour == 5:
-				x += 128 * weights[5] / factor
-			else:
-				assert neighbour is None, neighbour
-			assert 0 <= x < 256, x
-			assert 0 <= y < 256, y
-			yield x
-			yield y
 
 class Variant(object):
 

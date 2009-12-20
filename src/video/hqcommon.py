@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 from itertools import izip
+from math import sqrt
 import sys
 
 # I/O:
@@ -317,3 +318,33 @@ def makeLite(pixelExpr, preferC6subPixels):
 		  for subPixel, weights in enumerate(expr) ]
 		for case, expr in enumerate(pixelExpr)
 		]
+
+def genHQLiteOffsetsTable(pixelExpr):
+	'''In the hqlite case, the result color depends on at most one neighbour
+	color. Therefore, an offset into an interpolated texture is used instead
+	of explicit weights.
+	'''
+	zoom = int(sqrt(len(pixelExpr[0])))
+	assert zoom * zoom == len(pixelExpr[0])
+	for expr in pixelExpr:
+		for subPixel, weights in enumerate(expr):
+			if weights is None:
+				neighbour = None
+			else:
+				neighbours = computeNeighbours(weights)
+				assert neighbours[1] is None, neighbours
+				neighbour = neighbours[0]
+				factor = sum(weights)
+
+			sy, sx = divmod(subPixel, zoom)
+			x, y = (int(192.5 - 128.0 * (0.5 + sc) / zoom) for sc in (sx, sy))
+			if neighbour == 3:
+				x -= 128 * weights[3] / factor
+			elif neighbour == 5:
+				x += 128 * weights[5] / factor
+			else:
+				assert neighbour is None, neighbour
+			assert 0 <= x < 256, x
+			assert 0 <= y < 256, y
+			yield x
+			yield y

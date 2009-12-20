@@ -3,41 +3,11 @@
 from hqcommon import (
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
-	genSwitch, makeLite, permuteCases, printSubExpr, printText,
-	writeBinaryFile, writeTextFile
+	genHQLiteOffsetsTable, genSwitch, makeLite, permuteCases,
+	printSubExpr, printText, writeBinaryFile, writeTextFile
 	)
 
 from itertools import izip
-
-def genHQLiteOffsetsTable(pixelExpr):
-	'''In the hqlite case, the result color depends on at most one neighbour
-	color. Therefore, an offset into an interpolated texture is used instead
-	of explicit weights.
-	'''
-	offset_x = ( 32, -32,  32, -32)
-	offset_y = ( 32,  32, -32, -32)
-	for expr in pixelExpr:
-		for subPixel, weights in enumerate(expr):
-			if weights is None:
-				neighbour = None
-			else:
-				neighbours = computeNeighbours(weights)
-				assert neighbours[1] is None, neighbours
-				neighbour = neighbours[0]
-				factor = sum(weights)
-
-			x = 128 + offset_x[subPixel]
-			y = 128 + offset_y[subPixel]
-			if neighbour == 3:
-				x -= 128 * weights[3] / factor
-			elif neighbour == 5:
-				x += 128 * weights[5] / factor
-			else:
-				assert neighbour is None, neighbour
-			assert 0 <= x < 256
-			assert 0 <= y < 256
-			yield x
-			yield y
 
 def sanityCheck(pixelExpr):
 	'''Check various observed properties.
