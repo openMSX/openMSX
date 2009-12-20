@@ -60,13 +60,10 @@ class Parser(object):
 			elif line == '}':
 				if log:
 					break
-			elif line.startswith('//pixel'):
-				line = line[2 : ]
 			if log:
 				if 'edge(' in line:
 					line += ' ' + stream.next().strip()
-				if '/' not in line:
-					yield line
+				yield line
 
 	def __parse(self):
 		cases = []

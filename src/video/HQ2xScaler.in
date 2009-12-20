@@ -71,19 +71,10 @@ static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 		case 161:
 		case 37:
 		case 165:
-			// manually inline this case:
-			//   default inline heuristics of gcc don't inline this
-			//   code. But because this case is so common and
-			//   inlining really does improve speed, we manually
-			//   inline it.
-			//pixel1 = interpolate<2, 1, 1>(c5, c4, c2);
-			//pixel2 = interpolate<2, 1, 1>(c5, c2, c6);
-			//pixel3 = interpolate<2, 1, 1>(c5, c8, c4);
-			//pixel4 = interpolate<2, 1, 1>(c5, c6, c8);
-			pixel1 = (2 * c5 + c4 + c2) / 4;
-			pixel2 = (2 * c5 + c2 + c6) / 4;
-			pixel3 = (2 * c5 + c8 + c4) / 4;
-			pixel4 = (2 * c5 + c6 + c8) / 4;
+			pixel1 = interpolate<2, 1, 1>(c5, c4, c2);
+			pixel2 = interpolate<2, 1, 1>(c5, c2, c6);
+			pixel3 = interpolate<2, 1, 1>(c5, c8, c4);
+			pixel4 = interpolate<2, 1, 1>(c5, c6, c8);
 			break;
 
 		case 2:
@@ -1488,7 +1479,8 @@ static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 
 		default:
 			assert(false);
-			pixel1 = pixel2 = pixel3 = pixel4 = 0; // avoid warning
+			// avoid warning
+			pixel1 = pixel2 = pixel3 = pixel4 = 0;
 		}
 
 		pset(out1 + 0, pixel3);
@@ -1558,15 +1550,8 @@ static void scale1on1(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 		case 161:
 		case 37:
 		case 165:
-			// manually inline this case:
-			//   default inline heuristics of gcc don't inline this
-			//   code. But because this case is so common and
-			//   inlining really does improve speed, we manually
-			//   inline it.
-			//pixel1 = interpolate<2, 1, 1>(c5, c4, c2);
-			//pixel3 = interpolate<2, 1, 1>(c5, c8, c4);
-			pixel1 = (2 * c5 + c4 + c2) / 4;
-			pixel3 = (2 * c5 + c8 + c4) / 4;
+			pixel1 = interpolate<2, 1, 1>(c5, c4, c2);
+			pixel3 = interpolate<2, 1, 1>(c5, c8, c4);
 			break;
 
 		case 2:
@@ -2551,7 +2536,8 @@ static void scale1on1(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 
 		default:
 			assert(false);
-			pixel1 = pixel3 = 0; // avoid warning
+			// avoid warning
+			pixel1 = pixel3 = 0;
 		}
 		pset(out1++, pixel3);
 		pset(out0++, pixel1);
