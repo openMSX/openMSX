@@ -29,21 +29,6 @@ class BaseParser(object):
 					line += ' ' + stream.next().strip()
 				yield line
 
-	@staticmethod
-	def oldFilterSwitch(stream):
-		log = False
-		for line in stream:
-			line = line.strip()
-			if line == 'switch (pattern) {':
-				log = True
-			elif line == '}':
-				if log:
-					break
-			if log:
-				if 'edge(' in line:
-					line += ' ' + stream.next().strip()
-				yield line
-
 # I/O:
 
 def printText(contents):
