@@ -8,6 +8,8 @@ from hqcommon import (
 	printSubExpr, printText, writeBinaryFile
 	)
 
+from itertools import izip
+
 class Parser(BaseParser):
 
 	def __init__(self):
@@ -62,7 +64,7 @@ class Parser(BaseParser):
 		pixelExpr = self.pixelExpr
 		for case in cases:
 			for subCase in subCases:
-				weights = [ 0 ] * 16
+				weights = [ 0 ] * 9
 				if expr.startswith('interpolate'):
 					factorsStr = expr[
 						expr.index('<') + 1 : expr.index('>')
@@ -71,7 +73,7 @@ class Parser(BaseParser):
 						expr.index('(') + 1 : expr.index(')')
 						].split(',')
 					assert len(factorsStr) == len(pixelsStr)
-					for factorStr, pixelStr in zip(factorsStr, pixelsStr):
+					for factorStr, pixelStr in izip(factorsStr, pixelsStr):
 						factor = int(factorStr)
 						pixelStr = pixelStr.strip()
 						assert pixelStr[0] == 'c'
