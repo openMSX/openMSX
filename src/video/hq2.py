@@ -63,7 +63,7 @@ class Parser(BaseParser):
 				index = expr.find('edge')
 				if index == -1:
 					assert expr[-1] == ';'
-					self.__addCases(cases, range(1 << 4), subPixel, expr[ : -1])
+					self._addCases(cases, range(1 << 4), subPixel, expr[ : -1])
 				else:
 					index1 = expr.index('(', index)
 					index2 = expr.index(',', index1)
@@ -91,34 +91,10 @@ class Parser(BaseParser):
 					restExpr = expr[split2 + 1 : split3].strip()
 					first = [ x for x in range(1 << 4) if x & (1 << subCase) ]
 					rest = [ x for x in range(1 << 4) if x not in first ]
-					self.__addCases(cases, first, subPixel, specialExpr)
-					self.__addCases(cases, rest, subPixel, restExpr)
+					self._addCases(cases, first, subPixel, specialExpr)
+					self._addCases(cases, rest, subPixel, restExpr)
 			elif line.startswith('break'):
 				cases = []
-
-	def __addCases(self, cases, subCases, subPixel, expr):
-		pixelExpr = self.pixelExpr
-		for case in cases:
-			for subCase in subCases:
-				weights = [ 0 ] * 9
-				if expr.startswith('interpolate'):
-					factorsStr = expr[
-						expr.index('<') + 1 : expr.index('>')
-						].split(',')
-					pixelsStr = expr[
-						expr.index('(') + 1 : expr.index(')')
-						].split(',')
-					assert len(factorsStr) == len(pixelsStr)
-					for factorStr, pixelStr in izip(factorsStr, pixelsStr):
-						factor = int(factorStr)
-						pixelStr = pixelStr.strip()
-						assert pixelStr[0] == 'c'
-						pixel = int(pixelStr[1 : ]) - 1
-						weights[pixel] = factor
-				else:
-					assert expr[0] == 'c'
-					weights[int(expr[1 : ]) - 1] = 1
-				pixelExpr[(case << 4) | subCase][subPixel] = weights
 
 class Variant(object):
 

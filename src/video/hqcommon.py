@@ -29,6 +29,30 @@ class BaseParser(object):
 					line += ' ' + stream.next().strip()
 				yield line
 
+	def _addCases(self, cases, subCases, subPixel, expr):
+		pixelExpr = self.pixelExpr
+		for case in cases:
+			for subCase in subCases:
+				weights = [ 0 ] * 9
+				if expr.startswith('interpolate'):
+					factorsStr = expr[
+						expr.index('<') + 1 : expr.index('>')
+						].split(',')
+					pixelsStr = expr[
+						expr.index('(') + 1 : expr.index(')')
+						].split(',')
+					assert len(factorsStr) == len(pixelsStr)
+					for factorStr, pixelStr in izip(factorsStr, pixelsStr):
+						factor = int(factorStr)
+						pixelStr = pixelStr.strip()
+						assert pixelStr[0] == 'c'
+						pixel = int(pixelStr[1 : ]) - 1
+						weights[pixel] = factor
+				else:
+					assert expr[0] == 'c'
+					weights[int(expr[1 : ]) - 1] = 1
+				pixelExpr[(case << 4) | subCase][subPixel] = weights
+
 # I/O:
 
 def printText(contents):
