@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(3rdPartyOutDir)"
-			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTcl)"
+			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTk)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\3rdparty.vsprops"
 			CharacterSet="2"
@@ -87,7 +87,7 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="$(3rdPartyOutDir)"
-			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTcl)"
+			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTk)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\3rdparty.vsprops"
 			CharacterSet="2"
@@ -153,7 +153,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(3rdPartyOutDir)"
-			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTcl)"
+			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTk)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\3rdparty.vsprops"
 			CharacterSet="2"
@@ -224,7 +224,7 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="$(3rdPartyOutDir)"
-			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTcl)"
+			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTk)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\3rdparty.vsprops"
 			CharacterSet="2"
@@ -296,7 +296,7 @@
 		<Configuration
 			Name="Developer|Win32"
 			OutputDirectory="$(3rdPartyOutDir)"
-			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTcl)"
+			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTk)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\3rdparty.vsprops"
 			CharacterSet="2"
@@ -362,7 +362,7 @@
 		<Configuration
 			Name="Developer|x64"
 			OutputDirectory="$(3rdPartyOutDir)"
-			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTcl)"
+			IntermediateDirectory="$(3rdPartyIntDir)\$(LibNameTk)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\3rdparty.vsprops"
 			CharacterSet="2"

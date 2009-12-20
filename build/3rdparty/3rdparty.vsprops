@@ -83,7 +83,7 @@
 	/>
 	<UserMacro
 		Name="LibNameSDL"
-		Value="SDL-1.2.13"
+		Value="SDL-1.2.14"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
@@ -93,7 +93,7 @@
 	/>
 	<UserMacro
 		Name="LibNameSDL_image"
-		Value="SDL_image-1.2.7"
+		Value="SDL_image-1.2.10"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
@@ -103,7 +103,7 @@
 	/>
 	<UserMacro
 		Name="LibNameTcl"
-		Value="tcl-8.5.7"
+		Value="tcl8.5.7"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro

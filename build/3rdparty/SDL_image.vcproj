@@ -494,7 +494,7 @@
 			Name="SDL_image Sources"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -552,7 +552,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_bmp.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_bmp.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -610,7 +610,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_gif.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_gif.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -668,7 +668,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_jpg.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_jpg.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -726,7 +726,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_lbm.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_lbm.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -784,7 +784,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_pcx.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_pcx.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -842,7 +842,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_png.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_png.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -900,7 +900,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_pnm.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_pnm.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -958,7 +958,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_tga.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_tga.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1016,7 +1016,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_tif.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_tif.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1074,7 +1074,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_xcf.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_xcf.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1132,7 +1132,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_xpm.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_xpm.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1190,7 +1190,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_xv.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_xv.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1248,7 +1248,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\IMG_xxx.c"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\IMG_xxx.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1310,7 +1310,7 @@
 			Name="SDL_image Headers"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.7\SDL_image.h"
+				RelativePath="..\..\derived\3rdparty\src\SDL_image-1.2.10\SDL_image.h"
 				>
 			</File>
 		</Filter>

@@ -493,443 +493,443 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\SDL.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\SDL.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_active.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_active.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_audio.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_audio.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_audio_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_audio_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_audiocvt.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_audiocvt.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_audiomem.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_audiomem.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_blit.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_blit.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_blit.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_blit.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_blit_0.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_blit_0.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_blit_1.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_blit_1.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_blit_A.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_blit_A.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_blit_A.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_blit_A.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_blit_N.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_blit_N.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_bmp.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_bmp.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\cdrom\SDL_cdrom.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\cdrom\SDL_cdrom.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\cpuinfo\SDL_cpuinfo.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\cpuinfo\SDL_cpuinfo.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_cursor.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_cursor.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_cursor_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_cursor_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\windib\SDL_dibaudio.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\windib\SDL_dibaudio.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\windib\SDL_dibaudio.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\windib\SDL_dibaudio.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\windib\SDL_dibevents.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\windib\SDL_dibevents.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\windib\SDL_dibevents_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\windib\SDL_dibevents_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\windib\SDL_dibvideo.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\windib\SDL_dibvideo.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\windib\SDL_dibvideo.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\windib\SDL_dibvideo.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\disk\SDL_diskaudio.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\disk\SDL_diskaudio.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\disk\SDL_diskaudio.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\disk\SDL_diskaudio.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\dummy\SDL_dummyaudio.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\dummy\SDL_dummyaudio.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\dummy\SDL_dummyaudio.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\dummy\SDL_dummyaudio.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\windx5\SDL_dx5audio.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\windx5\SDL_dx5audio.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\windx5\SDL_dx5audio.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\windx5\SDL_dx5audio.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\Windx5\SDL_dx5events.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\Windx5\SDL_dx5events.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\Windx5\SDL_dx5events_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\Windx5\SDL_dx5events_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\Windx5\SDL_dx5video.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\Windx5\SDL_dx5video.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\Windx5\SDL_dx5video.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\Windx5\SDL_dx5video.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\windx5\SDL_dx5yuv.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\windx5\SDL_dx5yuv.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\windx5\SDL_dx5yuv_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\windx5\SDL_dx5yuv_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\SDL_error.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\SDL_error.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\SDL_error_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\SDL_error_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_events.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_events.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_events_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_events_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_expose.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_expose.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\SDL_fatal.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\SDL_fatal.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\SDL_fatal.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\SDL_fatal.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_gamma.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_gamma.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\stdlib\SDL_getenv.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\stdlib\SDL_getenv.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\stdlib\SDL_iconv.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\stdlib\SDL_iconv.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\joystick\SDL_joystick.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\joystick\SDL_joystick.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\joystick\SDL_joystick_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\joystick\SDL_joystick_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_keyboard.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_keyboard.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_leaks.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_leaks.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_lowvideo.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_lowvideo.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\stdlib\SDL_malloc.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\stdlib\SDL_malloc.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_mixer.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_mixer.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_mixer_MMX_VC.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_mixer_MMX_VC.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\joystick\win32\SDL_mmjoystick.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\joystick\win32\SDL_mmjoystick.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_mouse.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_mouse.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\dummy\SDL_nullevents.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\dummy\SDL_nullevents.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\dummy\SDL_nullevents_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\dummy\SDL_nullevents_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\dummy\SDL_nullmouse.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\dummy\SDL_nullmouse.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\dummy\SDL_nullmouse_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\dummy\SDL_nullmouse_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\dummy\SDL_nullvideo.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\dummy\SDL_nullvideo.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\dummy\SDL_nullvideo.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\dummy\SDL_nullvideo.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_pixels.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_pixels.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_pixels_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_pixels_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\stdlib\SDL_qsort.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\stdlib\SDL_qsort.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_quit.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_quit.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_resize.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_resize.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_RLEaccel.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_RLEaccel.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_RLEaccel_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_RLEaccel_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\file\SDL_rwops.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\file\SDL_rwops.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\stdlib\SDL_stdlib.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\stdlib\SDL_stdlib.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_stretch.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_stretch.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_stretch_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_stretch_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\stdlib\SDL_string.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\stdlib\SDL_string.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_surface.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_surface.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_sysaudio.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_sysaudio.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\cdrom\win32\SDL_syscdrom.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\cdrom\win32\SDL_syscdrom.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\cdrom\SDL_syscdrom.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\cdrom\SDL_syscdrom.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\generic\SDL_syscond.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\generic\SDL_syscond.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_sysevents.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_sysevents.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\events\SDL_sysevents.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\events\SDL_sysevents.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\joystick\SDL_sysjoystick.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\joystick\SDL_sysjoystick.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\loadso\win32\SDL_sysloadso.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\loadso\win32\SDL_sysloadso.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_sysmouse.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_sysmouse.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_sysmouse_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_sysmouse_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\win32\SDL_sysmutex.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\win32\SDL_sysmutex.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\win32\SDL_syssem.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\win32\SDL_syssem.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\win32\SDL_systhread.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\win32\SDL_systhread.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\SDL_systhread.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\SDL_systhread.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\win32\SDL_systhread_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\win32\SDL_systhread_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\timer\win32\SDL_systimer.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\timer\win32\SDL_systimer.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\timer\SDL_systimer.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\timer\SDL_systimer.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_sysvideo.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_sysvideo.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_syswm.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_syswm.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_syswm_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_syswm_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\SDL_thread.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\SDL_thread.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\thread\SDL_thread_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\thread\SDL_thread_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\timer\SDL_timer.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\timer\SDL_timer.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\timer\SDL_timer_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\timer\SDL_timer_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_video.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_video.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\windib\SDL_vkeys.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\windib\SDL_vkeys.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_wave.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_wave.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\audio\SDL_wave.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\audio\SDL_wave.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_wingl.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_wingl.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\SDL_wingl_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\SDL_wingl_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_yuv.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_yuv.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_yuv_sw.c"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_yuv_sw.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_yuv_sw_c.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_yuv_sw_c.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\SDL_yuvfuncs.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\SDL_yuvfuncs.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.13\src\video\wincommon\Wmmsg.h"
+			RelativePath="..\..\derived\3rdparty\src\SDL-1.2.14\src\video\wincommon\Wmmsg.h"
 			>
 		</File>
 	</Files>
