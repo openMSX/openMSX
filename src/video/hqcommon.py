@@ -27,7 +27,66 @@ class BaseParser(object):
 			if log:
 				if '?' in line:
 					line += ' ' + stream.next().strip()
-				yield line
+					split0 = line.index('=')
+					split1 = line.index('?')
+					split2 = line.index(':')
+					split3 = line.index(';')
+					varName = line[ : split0].strip()
+					exprTest = line[split0 + 1 : split1].strip()
+					exprTrue = line[split1 + 1 : split2].strip()
+					exprFalse = line[split2 + 1 : split3].strip()
+					yield 'if (%s) {' % exprTest
+					yield '%s = %s;' % (varName, exprTrue)
+					yield '} else {'
+					yield '%s = %s;' % (varName, exprFalse)
+					yield '}'
+				else:
+					yield line
+
+	@staticmethod
+	def _parseSubPixel(name):
+		raise NotImplementedError
+
+	def _parse(self):
+		cases = []
+		subCases = range(1 << 4)
+		for line in self._filterSwitch(file(self.fileName)):
+			if line.startswith('case'):
+				cases.append(int(line[5 : line.index(':', 5)]))
+			elif line.startswith('pixel'):
+				subPixel = self._parseSubPixel(line[5])
+				expr = line[line.index('=') + 1 : ].strip()
+				self._addCases(cases, subCases, subPixel, expr[ : -1])
+			elif line.startswith('if'):
+				index = line.find('edge')
+				assert index != -1
+				index1 = line.index('(', index)
+				index2 = line.index(',', index1)
+				index3 = line.index(')', index2)
+				pix1s = line[index1 + 1 : index2].strip()
+				pix2s = line[index2 + 1 : index3].strip()
+				assert pix1s[0] == 'c', pix1s
+				assert pix2s[0] == 'c', pix2s
+				pix1 = int(pix1s[1:])
+				pix2 = int(pix2s[1:])
+				if pix1 == 2 and pix2 == 6:
+					subCase = 0
+				elif pix1 == 6 and pix2 == 8:
+					subCase = 1
+				elif pix1 == 8 and pix2 == 4:
+					subCase = 2
+				elif pix1 == 4 and pix2 == 2:
+					subCase = 3
+				else:
+					assert False, (line, pix1, pix2)
+				subCases = [ x for x in range(1 << 4) if x & (1 << subCase) ]
+			elif line.startswith('} else'):
+				subCases = [ x for x in range(1 << 4) if x not in subCases ]
+			elif line.startswith('}'):
+				subCases = range(1 << 4)
+			elif line.startswith('break'):
+				cases = []
+				subCases = range(1 << 4)
 
 	def _addCases(self, cases, subCases, subPixel, expr):
 		pixelExpr = self.pixelExpr

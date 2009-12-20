@@ -45,56 +45,17 @@ def makeNarrow(pixelExpr):
 
 class Parser(BaseParser):
 
+	@staticmethod
+	def _parseSubPixel(name):
+		subPixel = int(name) - 1
+		assert 0 <= subPixel < 4
+		return subPixel
+
 	def __init__(self):
 		self.fileName = 'HQ2xScaler.in'
 		self.pixelExpr = [ [ None ] * 4 for _ in range(1 << 12) ]
-		self.__parse()
+		self._parse()
 		sanityCheck(self.pixelExpr)
-
-	def __parse(self):
-		cases = []
-		for line in self._filterSwitch(file(self.fileName)):
-			if line.startswith('case'):
-				cases.append(int(line[5 : line.index(':', 5)]))
-			elif line.startswith('pixel'):
-				subPixel = int(line[5]) - 1
-				assert 0 <= subPixel < 4
-				expr = line[line.index('=') + 1 : ].strip()
-				index = expr.find('edge')
-				if index == -1:
-					assert expr[-1] == ';'
-					self._addCases(cases, range(1 << 4), subPixel, expr[ : -1])
-				else:
-					index1 = expr.index('(', index)
-					index2 = expr.index(',', index1)
-					index3 = expr.index(')', index2)
-					pix1s = expr[index1 + 1 : index2].strip()
-					pix2s = expr[index2 + 1 : index3].strip()
-					assert pix1s[0] == 'c', pix1s
-					assert pix2s[0] == 'c', pix2s
-					pix1 = int(pix1s[1:])
-					pix2 = int(pix2s[1:])
-					if pix1 == 2 and pix2 == 6:
-						subCase = 0
-					elif pix1 == 6 and pix2 == 8:
-						subCase = 1
-					elif pix1 == 8 and pix2 == 4:
-						subCase = 2
-					elif pix1 == 4 and pix2 == 2:
-						subCase = 3
-					else:
-						assert False, (pix1, pix2)
-					split1 = expr.index('?')
-					split2 = expr.index(':')
-					split3 = expr.index(';')
-					specialExpr = expr[split1 + 1 : split2].strip()
-					restExpr = expr[split2 + 1 : split3].strip()
-					first = [ x for x in range(1 << 4) if x & (1 << subCase) ]
-					rest = [ x for x in range(1 << 4) if x not in first ]
-					self._addCases(cases, first, subPixel, specialExpr)
-					self._addCases(cases, rest, subPixel, restExpr)
-			elif line.startswith('break'):
-				cases = []
 
 class Variant(object):
 
