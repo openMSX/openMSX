@@ -27,7 +27,7 @@ class Parser(BaseParser):
 		BaseParser._parse(self)
 		for expr in self.pixelExpr:
 			assert expr[4] is None
-			expr[4] = [0, 0, 0, 0, 1, 0, 0, 0, 0]
+			expr[4] = (0, 0, 0, 0, 1, 0, 0, 0, 0)
 
 def sanityCheck(pixelExpr):
 	'''Check various observed properties.

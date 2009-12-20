@@ -110,7 +110,7 @@ class BaseParser(object):
 				else:
 					assert expr[0] == 'c'
 					weights[int(expr[1 : ]) - 1] = 1
-				pixelExpr[(case << 4) | subCase][subPixel] = weights
+				pixelExpr[(case << 4) | subCase][subPixel] = tuple(weights)
 
 # I/O:
 
@@ -139,12 +139,7 @@ def genSwitch(pixelExpr):
 	#       the edge bits. So maybe this is a bit overengineered, but it does
 	#       express why this optimization is correct.
 	subExprForSubPixel = tuple(
-		set(
-			# TODO: Make the parser return tuples.
-			tuple(expr[subPixel])
-			for expr in pixelExpr
-			if expr[subPixel] is not None
-			)
+		set(expr[subPixel] for expr in pixelExpr if expr[subPixel] is not None)
 		for subPixel in range(len(pixelExpr[0]))
 		)
 	isIndependentSubPixel = tuple(
@@ -358,7 +353,7 @@ def simplifyWeights3(weights):
 	return simplifyWeights3(weights)
 
 def simplifyWeights(weights):
-	return simplifyWeights3(simplifyWeights2(weights))
+	return tuple(simplifyWeights3(simplifyWeights2(weights)))
 
 def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 	factor1 *= sum(weights2)
