@@ -1,7 +1,7 @@
 # $Id$
 
 from collections import defaultdict
-from itertools import izip
+from itertools import count, izip
 from math import sqrt
 import sys
 
@@ -336,32 +336,24 @@ def isContradiction(case):
 		(inv & 0x00F) in [0x00E, 0x00D, 0x00B, 0x007]
 		)
 
-def simplifyWeights2(weights):
-	for w in range(9):
-		if weights[w] % 2:
-			return weights
-	for w in range(9):
-		weights[w] /= 2
-	return simplifyWeights2(weights)
-
-def simplifyWeights3(weights):
-	for w in range(9):
-		if weights[w] % 3:
-			return weights
-	for w in range(9):
-		weights[w] /= 3
-	return simplifyWeights3(weights)
-
 def simplifyWeights(weights):
-	return tuple(simplifyWeights3(simplifyWeights2(weights)))
+	# Note: We only have to check against prime numbers, but since in practice
+	#       we are always done after checking 2 and 3, there is no point in
+	#       implementing a prime sieve just for this.
+	weights = tuple(weights)
+	for divider in count(2):
+		if all(weight < divider for weight in weights):
+			return weights
+		while all(weight % divider == 0 for weight in weights):
+			weights = tuple(w / divider for w in weights)
 
 def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 	factor1 *= sum(weights2)
 	factor2 *= sum(weights1)
-	return simplifyWeights([
+	return simplifyWeights(
 		factor1 * w1 + factor2 * w2
 		for w1, w2 in izip(weights1, weights2)
-		])
+		)
 
 def calcNeighbourToSet():
 	# Edges in the same order as the edge bits in "case".
