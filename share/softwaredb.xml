@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1259738953">
+<softwaredb xml:lang="en" timestamp="1261335304">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2011,7 +2011,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">6cf3f098d592d7dcb767a0e24b5caf327b5f22db</hash><remark><text>[a]</text></remark></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Cow abduction</title>
+	<title xml:lang="en">Cow Abductors</title>
 	<system>MSX</system>
 	<company>Paxanga Soft</company>
 	<year>2009</year>
@@ -6353,7 +6353,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>The New Image</company>
 	<year>2009</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">dccc1f9217901461c646326a7f871f6b7de88aba</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">c6429707d07eaaa68887d31f3813324871b64e10</hash><remark><text>MSXDev09 Entry - bug fix</text></remark></rom></dump>
 </software>
 <software>
@@ -7727,6 +7726,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">788c53657d9ea180d04f29ccaf1f1c29a9b75519</hash></megarom></dump>
 		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">ce4c5ce07afd297156899eb6c1056eef3f83b803</hash><remark><text>[b]</text></remark></megarom></dump>
 		<dump><original value="false"/><megarom><type>GenericKonami</type><hash algo="sha1">cbec713b32517a503ae6c02497357a8361eccb76</hash></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">9f476f544d1cd5f87d4ca19665ccdbf6ac0f68a0</hash><remark><text>English translation by Tsunami and Max</text></remark></megarom></dump>
+		<dump><original value="false"/><megarom><type>ASCII16</type><hash algo="sha1">cd2bea197ad97a5a1e90d6b998595c9b5802dd80</hash><remark><text>Bug Fix</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Pepper 2</title>
@@ -11369,6 +11370,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2493
-Parse time 4.084 seconds on Wed Dec 2 8:29:18 CET 2009
+Roms in this database:2494
+Parse time 4.101 seconds on Sun Dec 20 19:55:08 CET 2009
  -->
