@@ -28,8 +28,6 @@ class Parser(object):
 					inIf = False
 				elif log:
 					break
-			elif line.startswith('//pixel'):
-				line = line[2 : ]
 			elif line.startswith('if'):
 				inIf = True
 			if log:
