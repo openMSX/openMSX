@@ -494,16 +494,17 @@ def isContradiction(case):
 		(inv & 0x00F) in [0x00E, 0x00D, 0x00B, 0x007]
 		)
 
+def gcd(a, b):
+	'''Returns the greatest common divisor of a and b.
+	'''
+	while a != 0:
+		a, b = b % a, a
+	return b
+
 def simplifyWeights(weights):
-	# Note: We only have to check against prime numbers, but since in practice
-	#       we are always done after checking 2 and 3, there is no point in
-	#       implementing a prime sieve just for this.
 	weights = tuple(weights)
-	for divider in count(2):
-		if all(weight < divider for weight in weights):
-			return weights
-		while all(weight % divider == 0 for weight in weights):
-			weights = tuple(w / divider for w in weights)
+	divider = reduce(gcd, weights, 0)
+	return tuple(w / divider for w in weights)
 
 def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 	factor1 *= sum(weights2)
