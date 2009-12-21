@@ -360,11 +360,9 @@ def getZoom(pixelExpr):
 	return zoom
 
 def isPow2(num):
-	if num == 1:
-		return True
-	if (num % 2) == 1:
-		return False
-	return isPow2(num / 2)
+	while num & 1 == 0:
+		num >>= 1
+	return num == 1
 
 def permuteCases(permutation, pixelExpr):
 	return [
