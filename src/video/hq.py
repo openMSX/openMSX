@@ -1,4 +1,10 @@
 # $Id$
+#
+# To run:
+#   python hq.py
+#
+# To profile:
+#   python -m cProfile -s cumulative hq.py > hq-profile.txt
 
 from collections import defaultdict
 from itertools import count, izip
