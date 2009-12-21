@@ -4,7 +4,19 @@ This proc uses some heuristics to guess the name of the current game, based on
 the inserted ROM cartridges or disks.
 }
 
-proc guess_rom_title { ps ss } {
+proc guess_rom_title { } {
+	# first try external slots
+	for { set ps 0} { $ps < 4 } { incr ps } {
+		for { set ss 0 } { $ss < 4 } { incr ss } {
+			if [machine_info isexternalslot $ps $ss] {
+				set title [guess_rom_title_in $ps $ss]
+				if { $title != "" } { return $title }
+			}
+		}
+	}
+}
+
+proc guess_rom_title_in { ps ss } {
 	# check device name at address #4000 in given slot
 	set rom [machine_info slot $ps $ss 1]
 	if { $rom != "empty" } { return $rom }
@@ -32,15 +44,9 @@ proc guess_cassette_title { } {
 }
 
 proc guess_title { { fallback "" } } {
-	# first try external slots
-	for { set ps 0} { $ps < 4 } { incr ps } {
-		for { set ss 0 } { $ss < 4 } { incr ss } {
-			if [machine_info isexternalslot $ps $ss] {
-				set title [guess_rom_title $ps $ss]
-				if { $title != "" } { return $title }
-			}
-		}
-	}
+	# first try ROMs
+	set title [guess_rom_title]
+	if { $title != "" } { return $title }
 
 	# then try disks
 	foreach drive [list "diska" "diskb"] {
