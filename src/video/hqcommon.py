@@ -129,28 +129,13 @@ class BaseParser(object):
 		# Subpixel depends only on the center and three neighbours in the
 		# direction of the subpixel itself.
 		zoom = getZoom(self.pixelExpr)
+		center = (zoom - 1) / 2.0
 		def influentialNeighbours(x, y):
-			left = 2 * x < zoom - 1
-			right = 2 * x > zoom - 1
-			top = 2 * y < zoom - 1
-			bottom = 2 * y > zoom - 1
-			yield 4
-			if left:
-				yield 3
-			if right:
-				yield 5
-			if top:
-				yield 1
-			if bottom:
-				yield 7
-			if left and top:
-				yield 0
-			if right and top:
-				yield 2
-			if left and bottom:
-				yield 6
-			if right and bottom:
-				yield 8
+			qx = 0 if x < center else 2 if x > center else 1
+			qy = 0 if y < center else 2 if y > center else 1
+			for ny in set([1, qy]):
+				for nx in set([1, qx]):
+					yield 3 * ny + nx
 		subsets = tuple(
 			tuple(sorted(influentialNeighbours(x, y)))
 			for y in xrange(zoom)
