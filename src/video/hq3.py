@@ -1,6 +1,6 @@
 # $Id$
 
-from hqcommon import (
+from hq import (
 	BaseParser,
 	blendWeights, computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
@@ -8,7 +8,7 @@ from hqcommon import (
 	printSubExpr, printText, writeBinaryFile, writeTextFile
 	)
 
-class Parser(BaseParser):
+class Parser3x(BaseParser):
 	zoom = 3
 
 	@staticmethod
@@ -24,7 +24,7 @@ class Parser(BaseParser):
 			assert expr[4] is None
 			expr[4] = (0, 0, 0, 0, 1, 0, 0, 0, 0)
 
-def makeNarrow(pixelExpr):
+def makeNarrow3to2(pixelExpr):
 	return [
 		[	blendWeights(expr[0], expr[1], 2, 1),
 			blendWeights(expr[2], expr[1], 2, 1),
@@ -36,7 +36,7 @@ def makeNarrow(pixelExpr):
 		for expr in pixelExpr
 		]
 
-class Variant(object):
+class Variant3x(object):
 
 	def __init__(self, pixelExpr, lite, narrow, table):
 		self.lite = lite
@@ -45,7 +45,7 @@ class Variant(object):
 		if lite:
 			pixelExpr = makeLite(pixelExpr, (2, 5, 8) if table else ())
 		if narrow:
-			pixelExpr = makeNarrow(pixelExpr)
+			pixelExpr = makeNarrow3to2(pixelExpr)
 		pixelExpr = permuteCases(
 			(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
 			if table else
@@ -58,10 +58,10 @@ class Variant(object):
 		writeTextFile(fileName, genSwitch(self.pixelExpr))
 
 if __name__ == '__main__':
-	parser = Parser()
+	parser = Parser3x()
 
-	fullTableVariant = Variant(parser.pixelExpr, lite = False, narrow = False, table = True )
-	liteTableVariant = Variant(parser.pixelExpr, lite = True,  narrow = False, table = True )
+	fullTableVariant = Variant3x(parser.pixelExpr, lite = False, narrow = False, table = True )
+	liteTableVariant = Variant3x(parser.pixelExpr, lite = True,  narrow = False, table = True )
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))
@@ -87,9 +87,9 @@ if __name__ == '__main__':
 	# Note: HQ3xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	Variant(parser.pixelExpr, lite = False, narrow = False, table = False).writeSwitch(
+	Variant3x(parser.pixelExpr, lite = False, narrow = False, table = False).writeSwitch(
 		'HQ3xScaler-1x1to3x3.nn'
 		)
-	Variant(parser.pixelExpr, lite = True,  narrow = False, table = False).writeSwitch(
+	Variant3x(parser.pixelExpr, lite = True,  narrow = False, table = False).writeSwitch(
 		'HQ3xLiteScaler-1x1to3x3.nn'
 		)

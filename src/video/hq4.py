@@ -1,6 +1,6 @@
 # $Id$
 
-from hqcommon import (
+from hq import (
 	BaseParser,
 	computeLiteWeightCells, computeNeighbours, computeOffsets,
 	computeWeights, computeWeightCells, formatOffsetsTable, formatWeightsTable,
@@ -8,7 +8,7 @@ from hqcommon import (
 	printSubExpr, printText, writeBinaryFile
 	)
 
-class Parser(BaseParser):
+class Parser4x(BaseParser):
 	zoom = 4
 
 	@staticmethod
@@ -17,7 +17,7 @@ class Parser(BaseParser):
 		assert 0 <= subPixel < 16
 		return subPixel
 
-class Variant(object):
+class Variant4x(object):
 
 	def __init__(self, pixelExpr, lite, narrow, table):
 		self.lite = lite
@@ -36,10 +36,10 @@ class Variant(object):
 		self.pixelExpr = pixelExpr
 
 if __name__ == '__main__':
-	parser = Parser()
+	parser = Parser4x()
 
-	fullTableVariant = Variant(parser.pixelExpr, lite = False, narrow = False, table = True )
-	liteTableVariant = Variant(parser.pixelExpr, lite = True,  narrow = False, table = True )
+	fullTableVariant = Variant4x(parser.pixelExpr, lite = False, narrow = False, table = True )
+	liteTableVariant = Variant4x(parser.pixelExpr, lite = True,  narrow = False, table = True )
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatWeightsTable(fullTableVariant.pixelExpr, computeWeightCells))
@@ -60,6 +60,6 @@ if __name__ == '__main__':
 	# Note: HQ4xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	#printText(genSwitch(Variant(
+	#printText(genSwitch(Variant4x(
 		#parser.pixelExpr, lite = False, narrow = False, table = False
 		#).pixelExpr))
