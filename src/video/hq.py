@@ -319,7 +319,7 @@ def genSwitch(pixelExpr):
 			for subPixel, subExpr in enumerate(expr):
 				if not isIndependentSubPixel[subPixel]:
 					yield '\tpixel%s = %s;\n' % (
-						hex(subPixel)[2 : ], printSubExpr(subExpr)
+						hex(subPixel)[2 : ], getBlendCode(subExpr)
 						)
 			yield '\tbreak;\n'
 	for case in sorted(exprToCases[None]):
@@ -336,8 +336,43 @@ def genSwitch(pixelExpr):
 		if independent:
 			subExpr, = subExprForSubPixel[subPixel]
 			yield 'pixel%s = %s;\n' % (
-				hex(subPixel)[2 : ], printSubExpr(subExpr)
+				hex(subPixel)[2 : ], getBlendCode(subExpr)
 				)
+
+def getBlendCode(weights):
+	wsum = sum(weights)
+	assert isPow2(wsum)
+	if wsum == 1:
+		index, = (index for index, weight in enumerate(weights) if weight != 0)
+		return 'c%d' % (index + 1)
+	elif wsum <= 8:
+		# Because the lower 3 bits of each colour component (R,G,B)
+		# are zeroed out, we can operate on a single integer as if it
+		# is a vector.
+		return '(%s) / %d' % (
+			' + '.join(
+				'c%d * %d' % (index + 1, weight)
+				for index, weight in enumerate(weights)
+				if weight != 0
+				),
+			wsum
+			)
+	else:
+		return '(((%s) & (0x00FF00 * %d)) | ((%s) & (0xFF00FF * %d))) / %d' % (
+			' + '.join(
+				'(c%d & 0x00FF00) * %d' % (index + 1, weight)
+				for index, weight in enumerate(weights)
+				if weight != 0
+				),
+			wsum,
+			' + '.join(
+				'(c%d & 0xFF00FF) * %d' % (index + 1, weight)
+				for index, weight in enumerate(weights)
+				if weight != 0
+				),
+			wsum,
+			wsum
+			)
 
 # Table output as text:
 
@@ -421,68 +456,6 @@ def computeWeightCells(weights):
 
 def computeLiteWeightCells(weights_):
 	return (3, 4, 5)
-
-def printSubExpr(subExpr):
-	wsum = sum(subExpr)
-	if not isPow2(wsum):
-		return (
-			'((' + ' + '.join(
-				'(c%d & 0x0000FF) * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-				) +
-			') / %d)' % wsum +
-			' | ' +
-			'(((' + ' + '.join(
-				'(c%d & 0x00FF00) * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-				) +
-			') / %d) & 0x00FF00)' % wsum +
-			' | ' +
-			'(((' + ' + '.join(
-				'(c%d & 0xFF0000) * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-				) +
-			') / %d) & 0xFF0000)' % wsum
-			)
-	elif wsum == 1:
-		#assert subExpr[5 - 1] == 1, subExpr
-		nonZeroIndices = [ i for i in range(9) if subExpr[i] != 0 ]
-		assert len(nonZeroIndices) == 1
-		return 'c%s' % (nonZeroIndices[0] + 1)
-	elif wsum <= 8:
-		# Because the lower 3 bits of each colour component (R,G,B)
-		# are zeroed out, we can operate on a single integer as if it
-		# is a vector.
-		return (
-			'(' +
-			' + '.join(
-				'c%d * %d' % (index + 1, weight)
-				for index, weight in enumerate(subExpr)
-				if weight != 0
-			) +
-			') / %d' % wsum
-			)
-	else:
-		return (
-			'(('
-				'(' + ' + '.join(
-					'(c%d & 0x00FF00) * %d' % (index + 1, weight)
-					for index, weight in enumerate(subExpr)
-					if weight != 0
-					) +
-				') & (0x00FF00 * %d)' % wsum +
-			') | ('
-				'(' + ' + '.join(
-					'(c%d & 0xFF00FF) * %d' % (index + 1, weight)
-					for index, weight in enumerate(subExpr)
-					if weight != 0
-					) +
-				') & (0xFF00FF * %d)' % wsum +
-			')) / %d' % wsum
-			)
 
 def isContradiction(case):
 	inv = case ^ 0xFFF
