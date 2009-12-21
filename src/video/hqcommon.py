@@ -115,28 +115,16 @@ class BaseParser(object):
 	def _sanityCheck(self):
 		'''Check various observed properties.
 		'''
-		subsets = ((4, 3, 1, 0), (4, 5, 1, 2), (4, 3, 7, 6), (4, 5, 7, 8))
-
 		for case, expr in enumerate(self.pixelExpr):
 			for weights in expr:
-				# Weight of the center pixel is never zero.
-				# TODO: This is only the case for 2x, is that expected or a problem?
-				#assert weights[4] != 0, (case, weights)
 				# Sum of weight factors is always a power of two.
 				assert isPow2(sum(weights)), (case, weights)
+
 				# There are at most 3 non-zero weights, and if there are 3,
 				# one of those must be for the center pixel.
 				numNonZero = sum(weight != 0 for weight in weights)
 				assert numNonZero <= 3, (case, weights)
 				assert numNonZero < 3 or weights[4] != 0, (case, weights)
-
-			# Subpixel depends only on the center and three neighbours in the
-			# direction of the subpixel itself.
-			# TODO: This is only the case for 2x, is that expected or a problem?
-			#for weights, subset in zip(expr, subsets):
-				#for pixel in range(9):
-					#if pixel not in subset:
-						#assert weights[pixel] == 0, (case, weights)
 
 # I/O:
 

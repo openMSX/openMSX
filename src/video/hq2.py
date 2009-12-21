@@ -33,19 +33,24 @@ class Parser(BaseParser):
 	def _sanityCheck(self):
 		BaseParser._sanityCheck(self)
 
-		subsets = ((4, 3, 1, 0), (4, 5, 1, 2), (4, 3, 7, 6), (4, 5, 7, 8))
-
+		# Weight of the center pixel is never zero.
 		for case, expr in enumerate(self.pixelExpr):
-			# Weight of the center pixel is never zero.
 			for weights in expr:
 				assert weights[4] != 0
 
-			# Subpixel depends only on the center and three neighbours in the
-			# direction of the subpixel itself.
+		# Subpixel depends only on the center and three neighbours in the
+		# direction of the subpixel itself.
+		subsets = (
+			(0, 1, 3, 4), (1, 2, 4, 5),
+			(3, 4, 6, 7), (4, 5, 7, 8),
+			)
+		for case, expr in enumerate(self.pixelExpr):
 			for weights, subset in izip(expr, subsets):
 				for neighbour in range(9):
 					if neighbour not in subset:
-						assert weights[neighbour] == 0, weights
+						assert weights[neighbour] == 0, (
+							case, neighbour, weights
+							)
 
 class Variant(object):
 
