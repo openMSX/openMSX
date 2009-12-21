@@ -272,10 +272,10 @@ def printText(contents):
 		sys.stdout.write(text)
 
 def writeFile(fileName, mode, contents):
+	content = ''.join(contents)
 	out = open(fileName, mode)
 	try:
-		for text in contents:
-			out.write(text)
+		out.write(content)
 	finally:
 		out.close()
 
