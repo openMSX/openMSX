@@ -205,13 +205,13 @@ class Parser4x(BaseParser):
 
 # Variant classes:
 
-class Variant2x(object):
+class Variant(object):
 
 	def __init__(self, pixelExpr, lite, table, narrow = None):
 		self.lite = lite
 		self.table = table
 		if lite:
-			pixelExpr = makeLite(pixelExpr, (1, 3) if table else ())
+			pixelExpr = makeLite(pixelExpr, table)
 		if narrow is not None:
 			pixelExpr = narrow(pixelExpr)
 		pixelExpr = permuteCases(
@@ -224,43 +224,6 @@ class Variant2x(object):
 
 	def writeSwitch(self, fileName):
 		writeTextFile(fileName, genSwitch(self.pixelExpr))
-
-class Variant3x(object):
-
-	def __init__(self, pixelExpr, lite, table, narrow = None):
-		self.lite = lite
-		self.table = table
-		if lite:
-			pixelExpr = makeLite(pixelExpr, (2, 5, 8) if table else ())
-		if narrow is not None:
-			pixelExpr = narrow(pixelExpr)
-		pixelExpr = permuteCases(
-			(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
-			if table else
-			(2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5),
-			pixelExpr
-			)
-		self.pixelExpr = pixelExpr
-
-	def writeSwitch(self, fileName):
-		writeTextFile(fileName, genSwitch(self.pixelExpr))
-
-class Variant4x(object):
-
-	def __init__(self, pixelExpr, lite, table, narrow = None):
-		self.lite = lite
-		self.table = table
-		if lite:
-			pixelExpr = makeLite(pixelExpr, (2, 3, 6, 7, 10, 11, 14, 15) if table else ())
-		if narrow is not None:
-			assert False
-		pixelExpr = permuteCases(
-			(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
-			if table else
-			(2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5),
-			pixelExpr
-			)
-		self.pixelExpr = pixelExpr
 
 # I/O:
 
@@ -535,7 +498,19 @@ def lighten(case, weights, preferRight):
 			assert newWeights[c] == 0
 		return simplifyWeights(newWeights)
 
-def makeLite(pixelExpr, preferC6subPixels):
+def makeLite(pixelExpr, biased):
+	if biased:
+		zoom = getZoom(pixelExpr)
+		if zoom == 2:
+			preferC6subPixels = (1, 3)
+		elif zoom == 3:
+			preferC6subPixels = (2, 5, 8)
+		elif zoom == 4:
+			preferC6subPixels = (2, 3, 6, 7, 10, 11, 14, 15)
+		else:
+			assert False, zoom
+	else:
+		preferC6subPixels = ()
 	return [
 		[ lighten(case, weights, subPixel in preferC6subPixels)
 		  for subPixel, weights in enumerate(expr) ]
@@ -594,8 +569,8 @@ def genHQLiteOffsetsTable(pixelExpr):
 def process2x():
 	parser = Parser2x()
 
-	fullTableVariant = Variant2x(parser.pixelExpr, lite = False, table = True)
-	liteTableVariant = Variant2x(parser.pixelExpr, lite = True,  table = True)
+	fullTableVariant = Variant(parser.pixelExpr, lite = False, table = True)
+	liteTableVariant = Variant(parser.pixelExpr, lite = True,  table = True)
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))
@@ -621,24 +596,24 @@ def process2x():
 	# Note: HQ2xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	Variant2x(parser.pixelExpr, lite = False, table = False).writeSwitch(
+	Variant(parser.pixelExpr, lite = False, table = False).writeSwitch(
 		'HQ2xScaler-1x1to2x2.nn'
 		)
-	Variant2x(parser.pixelExpr, lite = False, table = False, narrow = makeNarrow2to1).writeSwitch(
+	Variant(parser.pixelExpr, lite = False, table = False, narrow = makeNarrow2to1).writeSwitch(
 		'HQ2xScaler-1x1to1x2.nn'
 		)
-	Variant2x(parser.pixelExpr, lite = True,  table = False).writeSwitch(
+	Variant(parser.pixelExpr, lite = True,  table = False).writeSwitch(
 		'HQ2xLiteScaler-1x1to2x2.nn'
 		)
-	Variant2x(parser.pixelExpr, lite = True,  table = False, narrow = makeNarrow2to1).writeSwitch(
+	Variant(parser.pixelExpr, lite = True,  table = False, narrow = makeNarrow2to1).writeSwitch(
 		'HQ2xLiteScaler-1x1to1x2.nn'
 		)
 
 def process3x():
 	parser = Parser3x()
 
-	fullTableVariant = Variant3x(parser.pixelExpr, lite = False, table = True )
-	liteTableVariant = Variant3x(parser.pixelExpr, lite = True,  table = True )
+	fullTableVariant = Variant(parser.pixelExpr, lite = False, table = True )
+	liteTableVariant = Variant(parser.pixelExpr, lite = True,  table = True )
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))
@@ -664,18 +639,18 @@ def process3x():
 	# Note: HQ3xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	Variant3x(parser.pixelExpr, lite = False, table = False).writeSwitch(
+	Variant(parser.pixelExpr, lite = False, table = False).writeSwitch(
 		'HQ3xScaler-1x1to3x3.nn'
 		)
-	Variant3x(parser.pixelExpr, lite = True,  table = False).writeSwitch(
+	Variant(parser.pixelExpr, lite = True,  table = False).writeSwitch(
 		'HQ3xLiteScaler-1x1to3x3.nn'
 		)
 
 def process4x():
 	parser = Parser4x()
 
-	fullTableVariant = Variant4x(parser.pixelExpr, lite = False, table = True)
-	liteTableVariant = Variant4x(parser.pixelExpr, lite = True,  table = True)
+	fullTableVariant = Variant(parser.pixelExpr, lite = False, table = True)
+	liteTableVariant = Variant(parser.pixelExpr, lite = True,  table = True)
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatWeightsTable(fullTableVariant.pixelExpr, computeWeightCells))
@@ -696,7 +671,7 @@ def process4x():
 	# Note: HQ4xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	#printText(genSwitch(Variant4x(
+	#printText(genSwitch(Variant(
 		#parser.pixelExpr, lite = False, table = False
 		#).pixelExpr))
 
