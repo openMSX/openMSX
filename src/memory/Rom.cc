@@ -173,7 +173,7 @@ void Rom::init(MSXMotherBoard& motherBoard, CliComm& cliComm,
 			patchedSha1 = SHA1::calc(rom, size);
 		}
 	}
-	info = RomDatabase::instance().fetchRomInfo(cliComm, *this);
+	info = motherBoard.getReactor().getSoftwareDatabase().fetchRomInfo(cliComm, *this);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
 	if (!info->getTitle().empty() && StringOp::startsWith(name, "MSXRom")) {

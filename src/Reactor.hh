@@ -30,6 +30,7 @@ class DiskManipulator;
 class DiskChanger;
 class FilePool;
 class UserSettings;
+class RomDatabase;
 class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
@@ -83,6 +84,7 @@ public:
 	DiskFactory& getDiskFactory();
 	DiskManipulator& getDiskManipulator();
 	EnumSetting<int>& getMachineSetting();
+	RomDatabase& getSoftwareDatabase();
 
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
@@ -143,6 +145,9 @@ private:
 	std::auto_ptr<EnumSetting<int> > machineSetting;
 
 	const std::auto_ptr<UserSettings> userSettings;
+
+	const std::auto_ptr<RomDatabase> softwareDatabase;
+
 	const std::auto_ptr<QuitCommand> quitCommand;
 	const std::auto_ptr<MachineCommand> machineCommand;
 	const std::auto_ptr<TestMachineCommand> testMachineCommand;

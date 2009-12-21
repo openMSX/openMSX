@@ -1,5 +1,11 @@
 $Id$
 
+2009-12-20 Manuel Bilderbeek <manuel@msxnet.org>
+	* Made softwaredb information available from Tcl, using sha1sum as
+	  key. First step in making better use of the softwaredb, but mostly
+	  meant to make it possible to replace the automatic ROM info printing
+	  with a command to query that information on demand.
+
 2009-11-08 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added saving and loading of replays (in reverse feature). Thanks to
 	  Wouter for doing the difficult work.

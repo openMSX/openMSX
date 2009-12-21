@@ -3,10 +3,14 @@
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
 #include "Rom.hh"
+#include "InfoTopic.hh"
+#include "CommandException.hh"
+#include "TclObject.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "LocalFileReference.hh"
+#include "GlobalCommandController.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "XMLLoader.hh"
@@ -31,7 +35,19 @@ static DBMap romDBSHA1;
 typedef map<string, unsigned> UnknownTypes;
 UnknownTypes unknownTypes;
 
-RomDatabase::RomDatabase()
+class SoftwareInfoTopic : public InfoTopic
+{
+public:
+        explicit SoftwareInfoTopic(InfoCommand& openMSXInfoCommand);
+
+        virtual void execute(const std::vector<TclObject*>& tokens,
+                             TclObject& result) const;
+        virtual std::string help(const std::vector<std::string>& tokens) const;
+        virtual void tabCompletion(std::vector<std::string>& tokens) const;
+};
+
+RomDatabase::RomDatabase(GlobalCommandController& commandController)
+	: softwareInfoTopic(new SoftwareInfoTopic(commandController.getOpenMSXInfoCommand()))
 {
 }
 
@@ -42,13 +58,6 @@ RomDatabase::~RomDatabase()
 		delete it->second;
 	}
 }
-
-RomDatabase& RomDatabase::instance()
-{
-	static RomDatabase oneInstance;
-	return oneInstance;
-}
-
 
 static string parseRemarks(const XMLElement& elem)
 {
@@ -270,6 +279,58 @@ auto_ptr<RomInfo> RomDatabase::fetchRomInfo(CliComm& cliComm, const Rom& rom)
 	// no match found
 	return auto_ptr<RomInfo>(new RomInfo("", "", "", "", false, "", "",
 	                                     ROM_UNKNOWN));
+}
+
+// SoftwareInfoTopic
+
+SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand)
+	: InfoTopic(openMSXInfoCommand, "software")
+{
+}
+
+void SoftwareInfoTopic::execute(const vector<TclObject*>& tokens,
+		TclObject& result) const
+{
+	if (tokens.size() != 3) {
+		throw CommandException("Wrong number of parameters");
+	}
+
+	const string& sha1sum = tokens[2]->getString();
+	DBMap::const_iterator it = romDBSHA1.find(sha1sum);
+	if (it == romDBSHA1.end()) {
+		// no match found
+		throw CommandException("Software with sha1sum " + sha1sum + " not found");
+	}
+
+	RomInfo romInfo = *(it->second);
+	result.addListElement("title");
+	result.addListElement(romInfo.getTitle());
+	result.addListElement("year");
+	result.addListElement(romInfo.getYear());
+	result.addListElement("company");
+	result.addListElement(romInfo.getCompany());
+	result.addListElement("country");
+	result.addListElement(romInfo.getCountry());
+	result.addListElement("orig_type");
+	result.addListElement(romInfo.getOrigType());
+	result.addListElement("remark");
+	result.addListElement(romInfo.getRemark());
+	result.addListElement("original");
+	result.addListElement(romInfo.getOriginal());
+	result.addListElement("mapper_type_name");
+	result.addListElement(RomInfo::romTypeToName(romInfo.getRomType()));
+	return;
+}
+
+string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
+{
+	return "Gives information about the software "
+		"given its sha1sum, in a paired list.";
+}
+
+void SoftwareInfoTopic::tabCompletion(vector<string>& tokens) const
+{
+	// no useful completion possible
 }
 
 } // namespace openmsx

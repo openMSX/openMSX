@@ -11,6 +11,7 @@
 #include "DiskChanger.hh"
 #include "FilePool.hh"
 #include "UserSettings.hh"
+#include "RomDatabase.hh"
 #include "MSXMotherBoard.hh"
 #include "StateChangeDistributor.hh"
 #include "Command.hh"
@@ -221,6 +222,7 @@ Reactor::Reactor()
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))
+	, softwareDatabase(new RomDatabase(*globalCommandController))
 	, quitCommand(new QuitCommand(*globalCommandController, *eventDistributor))
 	, machineCommand(new MachineCommand(*globalCommandController, *this))
 	, testMachineCommand(new TestMachineCommand(*globalCommandController, *this))
@@ -289,6 +291,11 @@ Display& Reactor::getDisplay()
 {
 	assert(display.get());
 	return *display;
+}
+
+RomDatabase& Reactor::getSoftwareDatabase()
+{
+	return *softwareDatabase;
 }
 
 Mixer& Reactor::getMixer()

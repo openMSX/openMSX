@@ -11,17 +11,20 @@ namespace openmsx {
 class Rom;
 class CliComm;
 class RomInfo;
+class SoftwareInfoTopic;
+class GlobalCommandController;
 
 class RomDatabase : private noncopyable
 {
 public:
-	static RomDatabase& instance();
+	explicit RomDatabase(GlobalCommandController& commandController);
+	~RomDatabase();
 
 	std::auto_ptr<RomInfo> fetchRomInfo(CliComm& cliComm, const Rom& rom);
 
 private:
-	RomDatabase();
-	~RomDatabase();
+	std::auto_ptr<SoftwareInfoTopic> softwareInfoTopic;
+	friend class SoftwareInfoTopic;
 };
 
 } // namespace openmsx
