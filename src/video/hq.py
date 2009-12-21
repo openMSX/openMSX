@@ -366,18 +366,14 @@ def isPow2(num):
 		return False
 	return isPow2(num / 2)
 
-def permuteCase(permutation, case):
-	return sum(
-		((case >> oldBit) & 1) << newBit
-		for newBit, oldBit in enumerate(permutation)
-		)
-
 def permuteCases(permutation, pixelExpr):
-	pixelExpr2 = [ None ] * len(pixelExpr)
-	for case, expr in enumerate(pixelExpr):
-		pixelExpr2[permuteCase(permutation, case)] = expr
-	assert None not in pixelExpr2
-	return pixelExpr2
+	return [
+		pixelExpr[sum(
+			((case >> newBit) & 1) << oldBit
+			for newBit, oldBit in enumerate(permutation)
+			)]
+		for case in xrange(len(pixelExpr))
+		]
 
 def computeNeighbours(weights):
 	neighbours = [ i for i in range(9) if i != 4 and weights[i] != 0 ]
