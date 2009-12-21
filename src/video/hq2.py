@@ -8,8 +8,6 @@ from hqcommon import (
 	printSubExpr, printText, writeBinaryFile, writeTextFile
 	)
 
-from itertools import izip
-
 def makeNarrow(pixelExpr):
 	return tuple(
 		(None, None) if a is None else (blendWeights(a, b), blendWeights(c, d))
@@ -37,20 +35,6 @@ class Parser(BaseParser):
 		for case, expr in enumerate(self.pixelExpr):
 			for weights in expr:
 				assert weights[4] != 0
-
-		# Subpixel depends only on the center and three neighbours in the
-		# direction of the subpixel itself.
-		subsets = (
-			(0, 1, 3, 4), (1, 2, 4, 5),
-			(3, 4, 6, 7), (4, 5, 7, 8),
-			)
-		for case, expr in enumerate(self.pixelExpr):
-			for weights, subset in izip(expr, subsets):
-				for neighbour in range(9):
-					if neighbour not in subset:
-						assert weights[neighbour] == 0, (
-							case, neighbour, weights
-							)
 
 class Variant(object):
 

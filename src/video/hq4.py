@@ -8,8 +8,6 @@ from hqcommon import (
 	printSubExpr, printText, writeBinaryFile
 	)
 
-from itertools import izip
-
 class Parser(BaseParser):
 
 	@staticmethod
@@ -23,26 +21,6 @@ class Parser(BaseParser):
 		self.pixelExpr = [ [ None ] * 16 for _ in range(1 << 12) ]
 		self._parse()
 		self._sanityCheck()
-
-	def _sanityCheck(self):
-		BaseParser._sanityCheck(self)
-
-		# Subpixel depends only on the center and three neighbours in the
-		# direction of the subpixel itself.
-		subsets = (
-			(0, 1, 3, 4), (0, 1, 3, 4), (1, 2, 4, 5), (1, 2, 4, 5),
-			(0, 1, 3, 4), (0, 1, 3, 4), (1, 2, 4, 5), (1, 2, 4, 5),
-			(3, 4, 6, 7), (3, 4, 6, 7), (4, 5, 7, 8), (4, 5, 7, 8),
-			(3, 4, 6, 7), (3, 4, 6, 7), (4, 5, 7, 8), (4, 5, 7, 8),
-			)
-		for case, expr in enumerate(self.pixelExpr):
-			assert len(expr) == len(subsets)
-			for weights, subset in izip(expr, subsets):
-				for neighbour in range(9):
-					if neighbour not in subset:
-						assert weights[neighbour] == 0, (
-							case, neighbour, weights
-							)
 
 class Variant(object):
 

@@ -126,6 +126,45 @@ class BaseParser(object):
 				assert numNonZero <= 3, (case, weights)
 				assert numNonZero < 3 or weights[4] != 0, (case, weights)
 
+		# Subpixel depends only on the center and three neighbours in the
+		# direction of the subpixel itself.
+		zoom = getZoom(self.pixelExpr)
+		def influentialNeighbours(x, y):
+			left = 2 * x < zoom - 1
+			right = 2 * x > zoom - 1
+			top = 2 * y < zoom - 1
+			bottom = 2 * y > zoom - 1
+			yield 4
+			if left:
+				yield 3
+			if right:
+				yield 5
+			if top:
+				yield 1
+			if bottom:
+				yield 7
+			if left and top:
+				yield 0
+			if right and top:
+				yield 2
+			if left and bottom:
+				yield 6
+			if right and bottom:
+				yield 8
+		subsets = tuple(
+			tuple(sorted(influentialNeighbours(x, y)))
+			for y in xrange(zoom)
+			for x in xrange(zoom)
+			)
+		for case, expr in enumerate(self.pixelExpr):
+			assert len(expr) == len(subsets)
+			for weights, subset in izip(expr, subsets):
+				for neighbour in range(9):
+					if neighbour not in subset:
+						assert weights[neighbour] == 0, (
+							case, neighbour, weights
+							)
+
 # I/O:
 
 def printText(contents):
@@ -219,6 +258,11 @@ def formatWeightsTable(pixelExpr, cellFunc):
 			yield '\n'
 
 # The rest:
+
+def getZoom(pixelExpr):
+	zoom = int(sqrt(len(pixelExpr[0])))
+	assert zoom * zoom == len(pixelExpr[0])
+	return zoom
 
 def isPow2(num):
 	if num == 1:
@@ -432,8 +476,7 @@ def genHQLiteOffsetsTable(pixelExpr):
 	color. Therefore, an offset into an interpolated texture is used instead
 	of explicit weights.
 	'''
-	zoom = int(sqrt(len(pixelExpr[0])))
-	assert zoom * zoom == len(pixelExpr[0])
+	zoom = getZoom(pixelExpr)
 	for expr in pixelExpr:
 		for subPixel, weights in enumerate(expr):
 			if weights is None:
