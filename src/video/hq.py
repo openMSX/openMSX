@@ -501,18 +501,16 @@ def lighten(case, weights, preferRight):
 def makeLite(pixelExpr, biased):
 	if biased:
 		zoom = getZoom(pixelExpr)
-		if zoom == 2:
-			preferC6subPixels = (1, 3)
-		elif zoom == 3:
-			preferC6subPixels = (2, 5, 8)
-		elif zoom == 4:
-			preferC6subPixels = (2, 3, 6, 7, 10, 11, 14, 15)
-		else:
-			assert False, zoom
+		center = (zoom - 1) / 2.0
+		preferRightSubPixels = tuple(
+			subPixel
+			for subPixel in xrange(zoom ** 2)
+			if subPixel % zoom > center
+			)
 	else:
-		preferC6subPixels = ()
+		preferRightSubPixels = ()
 	return [
-		[ lighten(case, weights, subPixel in preferC6subPixels)
+		[ lighten(case, weights, subPixel in preferRightSubPixels)
 		  for subPixel, weights in enumerate(expr) ]
 		for case, expr in enumerate(pixelExpr)
 		]
