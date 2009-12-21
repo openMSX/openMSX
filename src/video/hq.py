@@ -475,18 +475,14 @@ def calcNeighbourToSet():
 
 neighbourToSet = calcNeighbourToSet()
 
-def lighten(case, weights, preferRight):
+def lighten(case, weights, neighbourPreference):
 	equalNeighboursOf = neighbourToSet[case]
 	if equalNeighboursOf is None:
 		return None
 	else:
 		done = set()
 		newWeights = [ 0 ] * 9
-		for neighbour in (
-			(4, 5, 3, 1, 7, 2, 0, 8, 6)
-			if preferRight else
-			(4, 3, 5, 1, 7, 0, 2, 6, 8)
-			):
+		for neighbour in neighbourPreference:
 			if neighbour not in done:
 				equalNeighbours = equalNeighboursOf[neighbour]
 				newWeights[neighbour] = sum(
@@ -499,19 +495,20 @@ def lighten(case, weights, preferRight):
 		return simplifyWeights(newWeights)
 
 def makeLite(pixelExpr, biased):
+	zoom = getZoom(pixelExpr)
+	biasLeft  = (4, 3, 5, 1, 7, 0, 2, 6, 8)
+	biasRight = (4, 5, 3, 1, 7, 2, 0, 8, 6)
 	if biased:
-		zoom = getZoom(pixelExpr)
 		center = (zoom - 1) / 2.0
-		preferRightSubPixels = tuple(
-			subPixel
+		neighbourPreferences = [
+			biasRight if subPixel % zoom > center else biasLeft
 			for subPixel in xrange(zoom ** 2)
-			if subPixel % zoom > center
-			)
+			]
 	else:
-		preferRightSubPixels = ()
+		neighbourPreferences = [ biasLeft ] * (zoom ** 2)
 	return [
-		[ lighten(case, weights, subPixel in preferRightSubPixels)
-		  for subPixel, weights in enumerate(expr) ]
+		[ lighten(case, weights, pref)
+		  for weights, pref in izip(expr, neighbourPreferences) ]
 		for case, expr in enumerate(pixelExpr)
 		]
 
