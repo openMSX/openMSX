@@ -21,7 +21,7 @@ class Parser(BaseParser):
 		self.fileName = 'HQ3xScaler.in'
 		self.pixelExpr = [ [ None ] * 9 for _ in range(1 << 12) ]
 		self._parse()
-		sanityCheck(self.pixelExpr)
+		self._sanityCheck()
 
 	def _parse(self):
 		BaseParser._parse(self)
@@ -29,32 +29,32 @@ class Parser(BaseParser):
 			assert expr[4] is None
 			expr[4] = (0, 0, 0, 0, 1, 0, 0, 0, 0)
 
-def sanityCheck(pixelExpr):
-	'''Check various observed properties.
-	'''
-	subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
+	def _sanityCheck(self):
+		'''Check various observed properties.
+		'''
+		subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
 
-	for case, expr in enumerate(pixelExpr):
-		for corner in expr:
-			# Weight of the center pixel is never zero.
+		for case, expr in enumerate(self.pixelExpr):
+			for corner in expr:
+				# Weight of the center pixel is never zero.
+				# TODO: This is not the case for 3x, is that expected or a problem?
+				#assert corner[4] != 0
+				# Sum of weight factors is always a power of two.
+				total = sum(corner)
+				assert total in (1, 2, 4, 8, 16), total
+				# There are at most 3 non-zero weights, and if there are 3,
+				# one of those must be for the center pixel.
+				numNonZero = sum(weight != 0 for weight in corner)
+				assert numNonZero <= 3, (case, corner)
+				assert numNonZero < 3 or corner[4] != 0
+
+			# Subpixel depends only on the center and three neighbours in the
+			# direction of the subpixel itself.
 			# TODO: This is not the case for 3x, is that expected or a problem?
-			#assert corner[4] != 0
-			# Sum of weight factors is always a power of two.
-			total = sum(corner)
-			assert total in (1, 2, 4, 8, 16), total
-			# There are at most 3 non-zero weights, and if there are 3 one of
-			# those must be for the center pixel.
-			numNonZero = sum(weight != 0 for weight in corner)
-			assert numNonZero <= 3, (case, corner)
-			assert numNonZero < 3 or corner[4] != 0
-
-		# Subpixel depends only on the center and three neighbours in the
-		# direction of the subpixel itself.
-		# TODO: This is not the case for 3x, is that expected or a problem?
-		#for corner, subset in zip(expr, subsets):
-			#for pixel in range(9):
-				#if (pixel + 1) not in subset:
-					#assert corner[pixel] == 0, corner
+			#for corner, subset in zip(expr, subsets):
+				#for pixel in range(9):
+					#if (pixel + 1) not in subset:
+						#assert corner[pixel] == 0, corner
 
 def makeNarrow(pixelExpr):
 	return [
