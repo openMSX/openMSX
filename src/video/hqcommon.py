@@ -112,6 +112,33 @@ class BaseParser(object):
 					weights[int(expr[1 : ]) - 1] = 1
 				pixelExpr[(case << 4) | subCase][subPixel] = tuple(weights)
 
+	def _sanityCheck(self):
+		'''Check various observed properties.
+		'''
+		subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
+
+		for case, expr in enumerate(self.pixelExpr):
+			for corner in expr:
+				# Weight of the center pixel is never zero.
+				# TODO: This is only the case for 2x, is that expected or a problem?
+				#assert corner[4] != 0
+				# Sum of weight factors is always a power of two.
+				total = sum(corner)
+				assert total in (1, 2, 4, 8, 16), total
+				# There are at most 3 non-zero weights, and if there are 3,
+				# one of those must be for the center pixel.
+				numNonZero = sum(weight != 0 for weight in corner)
+				assert numNonZero <= 3, (case, corner)
+				assert numNonZero < 3 or corner[4] != 0
+
+			# Subpixel depends only on the center and three neighbours in the
+			# direction of the subpixel itself.
+			# TODO: This is only the case for 2x, is that expected or a problem?
+			#for corner, subset in zip(expr, subsets):
+				#for pixel in range(9):
+					#if (pixel + 1) not in subset:
+						#assert corner[pixel] == 0, corner
+
 # I/O:
 
 def printText(contents):

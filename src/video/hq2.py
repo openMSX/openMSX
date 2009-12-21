@@ -31,30 +31,21 @@ class Parser(BaseParser):
 		self._sanityCheck()
 
 	def _sanityCheck(self):
-		'''Check various observed properties.
-		'''
-		subsets = [ (5, 4, 2, 1), (5, 6, 2, 3), (5, 4, 8, 7), (5, 6, 8, 9) ]
+		BaseParser._sanityCheck(self)
+
+		subsets = ((4, 3, 1, 0), (4, 5, 1, 2), (4, 3, 7, 6), (4, 5, 7, 8))
 
 		for case, expr in enumerate(self.pixelExpr):
-			for corner in expr:
-				# Weight of the center pixel is never zero.
-				assert corner[4] != 0
-				# Sum of weight factors is always a power of two. But 2 doesn't
-				# occur for some reason, so there is never an equal blend.
-				total = sum(corner)
-				assert total in (1, 4, 8, 16), total
-				# There are at most 3 non-zero weights, and if there are 3,
-				# one of those must be for the center pixel.
-				numNonZero = sum(weight != 0 for weight in corner)
-				assert numNonZero <= 3, (case, corner)
-				assert numNonZero < 3 or corner[4] != 0
+			# Weight of the center pixel is never zero.
+			for weights in expr:
+				assert weights[4] != 0
 
 			# Subpixel depends only on the center and three neighbours in the
 			# direction of the subpixel itself.
-			for corner, subset in izip(expr, subsets):
-				for pixel in range(9):
-					if (pixel + 1) not in subset:
-						assert corner[pixel] == 0, corner
+			for weights, subset in izip(expr, subsets):
+				for neighbour in range(9):
+					if neighbour not in subset:
+						assert weights[neighbour] == 0, weights
 
 class Variant(object):
 
