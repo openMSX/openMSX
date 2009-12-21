@@ -9,6 +9,7 @@ from hqcommon import (
 	)
 
 class Parser(BaseParser):
+	zoom = 3
 
 	@staticmethod
 	def _parseSubPixel(name):
@@ -16,12 +17,6 @@ class Parser(BaseParser):
 		assert 0 <= subPixel < 9
 		assert subPixel != 5 - 1
 		return subPixel
-
-	def __init__(self):
-		self.fileName = 'HQ3xScaler.in'
-		self.pixelExpr = [ [ None ] * 9 for _ in range(1 << 12) ]
-		self._parse()
-		self._sanityCheck()
 
 	def _parse(self):
 		BaseParser._parse(self)

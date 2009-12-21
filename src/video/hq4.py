@@ -9,18 +9,13 @@ from hqcommon import (
 	)
 
 class Parser(BaseParser):
+	zoom = 4
 
 	@staticmethod
 	def _parseSubPixel(name):
 		subPixel = int(name, 16)
 		assert 0 <= subPixel < 16
 		return subPixel
-
-	def __init__(self):
-		self.fileName = 'HQ4xScaler.in'
-		self.pixelExpr = [ [ None ] * 16 for _ in range(1 << 12) ]
-		self._parse()
-		self._sanityCheck()
 
 class Variant(object):
 

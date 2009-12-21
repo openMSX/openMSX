@@ -15,18 +15,13 @@ def makeNarrow(pixelExpr):
 		)
 
 class Parser(BaseParser):
+	zoom = 2
 
 	@staticmethod
 	def _parseSubPixel(name):
 		subPixel = int(name) - 1
 		assert 0 <= subPixel < 4
 		return subPixel
-
-	def __init__(self):
-		self.fileName = 'HQ2xScaler.in'
-		self.pixelExpr = [ [ None ] * 4 for _ in range(1 << 12) ]
-		self._parse()
-		self._sanityCheck()
 
 	def _sanityCheck(self):
 		BaseParser._sanityCheck(self)

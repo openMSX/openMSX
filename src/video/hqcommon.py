@@ -8,6 +8,7 @@ import sys
 # Parser:
 
 class BaseParser(object):
+	zoom = None
 
 	@staticmethod
 	def _filterSwitch(stream):
@@ -47,10 +48,15 @@ class BaseParser(object):
 	def _parseSubPixel(name):
 		raise NotImplementedError
 
+	def __init__(self):
+		self.pixelExpr = [ [ None ] * (self.zoom ** 2) for _ in range(1 << 12) ]
+		self._parse()
+		self._sanityCheck()
+
 	def _parse(self):
 		cases = []
 		subCases = range(1 << 4)
-		for line in self._filterSwitch(file(self.fileName)):
+		for line in self._filterSwitch(file('HQ%dxScaler.in' % self.zoom)):
 			if line.startswith('case'):
 				cases.append(int(line[5 : line.index(':', 5)]))
 			elif line.startswith('pixel'):
@@ -128,8 +134,7 @@ class BaseParser(object):
 
 		# Subpixel depends only on the center and three neighbours in the
 		# direction of the subpixel itself.
-		zoom = getZoom(self.pixelExpr)
-		center = (zoom - 1) / 2.0
+		center = (self.zoom - 1) / 2.0
 		def influentialNeighbours(x, y):
 			qx = 0 if x < center else 2 if x > center else 1
 			qy = 0 if y < center else 2 if y > center else 1
@@ -138,8 +143,8 @@ class BaseParser(object):
 					yield 3 * ny + nx
 		subsets = tuple(
 			tuple(sorted(influentialNeighbours(x, y)))
-			for y in xrange(zoom)
-			for x in xrange(zoom)
+			for y in xrange(self.zoom)
+			for x in xrange(self.zoom)
 			)
 		for case, expr in enumerate(self.pixelExpr):
 			assert len(expr) == len(subsets)
