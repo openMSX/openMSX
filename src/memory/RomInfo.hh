@@ -28,8 +28,6 @@ public:
 	const RomType&     getRomType()   const { return romType; }
 	bool               getOriginal()  const { return original; }
 
-	void print(CliComm& cliComm) const;
-
 	static RomType nameToRomType(std::string name);
 	static std::string romTypeToName(RomType type);
 	static void getAllRomTypes(std::set<std::string>& result);

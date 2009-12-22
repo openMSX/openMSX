@@ -177,43 +177,5 @@ void RomInfo::getAllRomTypes(set<string>& result)
 	}
 }
 
-void RomInfo::print(CliComm& cliComm) const
-{
-	string year(getYear());
-	if (year.empty()) {
-		year = "(info not available)";
-	}
-	string company(getCompany());
-	if (company.empty()) {
-		company = "(info not available)";
-	}
-	string status;
-	if (getOriginal()) {
-		// this is an unmodified original dump
-		status = "Unmodified dump (confirmed by " + getOrigType() + ")";
-	} else {
-		// not original or unknown
-		if (getOrigType() == "broken") {
-			status = "Bad dump (game is broken)";
-		} else if (getOrigType() == "translated") {
-			status = "Translated from original";
-		} else if (getOrigType() == "working") {
-			status = "Modified but confirmed working";
-		} else {
-			status = "Unknown";
-		}
-	}
-	string info = "Found this ROM in the database:\n"
-	              "  Title:    " + getTitle() + "\n"
-	              "  Year:     " + getYear() + "\n"
-	              "  Company:  " + getCompany() + "\n"
-	              "  Country:  " + getCountry() + "\n"
-	              "  Status:   " + status;
-	if (!getRemark().empty()) {
-		info += "\n  Remark:   " + getRemark();
-	}
-	cliComm.printInfo(info);
-}
-
 } // namespace openmsx
 
