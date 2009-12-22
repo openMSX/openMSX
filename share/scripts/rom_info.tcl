@@ -1,6 +1,7 @@
 set_help_text rom_info\
 {Prints information about the given ROM device, coming from the software
-database. If no argument is given, the first found ROM device is shown.}
+database. If no argument is given, the first found (external) ROM device is
+shown.}
 
 namespace eval rom_info {
 
@@ -21,7 +22,7 @@ proc rom_info { {romdevice ""} } {
 	if {$romdevice == ""} {
 		set romdevice [guess_rom_title]
 		if {$romdevice == ""} {
-			error "No ROM device given"
+			error "No (external) ROM device found"
 		}
 	}
 
