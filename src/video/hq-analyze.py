@@ -20,6 +20,13 @@ def permute(seq, permutation):
 	assert len(seq) == len(permutation)
 	return tuple(seq[index] for index in permutation)
 
+def extractTopLeftWeights(weights):
+	assert all(weights[n] == 0 for n in (2, 5, 6, 7, 8)), weights
+	return weights[0 : 2] + weights[3 : 5]
+
+def expandTopLeftWeights(weights):
+	return weights[0 : 2] + (0, ) + weights[2 : 4] + (0, 0, 0, 0)
+
 def extractTopLeftQuadrant(pixelExpr):
 	zoom = getZoom(pixelExpr)
 	quadrantWidth = (zoom + 1) / 2
@@ -28,8 +35,15 @@ def extractTopLeftQuadrant(pixelExpr):
 		for qy in xrange(quadrantWidth)
 		for qx in xrange(quadrantWidth)
 		]
-	return [
+	for expr in [
 		[ expr[subPixel] for subPixel in quadrantMap ]
+		for expr in pixelExpr
+		]:
+		for weights in expr:
+			for neighbour in (2, 5, 6, 7, 8):
+				assert weights[neighbour] == 0, weights
+	return [
+		[ extractTopLeftWeights(expr[subPixel]) for subPixel in quadrantMap ]
 		for expr in pixelExpr
 		]
 
@@ -49,7 +63,9 @@ def expandQuadrant(topLeftQuadrant, zoom):
 				mirrorMap[ty * zoom + tx] = (quadrantIndex, cperm, nperm)
 	return [
 		[	permute(
-				topLeftQuadrant[permuteCase(case, cperm)][quadrantIndex],
+				expandTopLeftWeights(
+					topLeftQuadrant[permuteCase(case, cperm)][quadrantIndex]
+					),
 				nperm
 				)
 			for quadrantIndex, cperm, nperm in mirrorMap
@@ -58,19 +74,19 @@ def expandQuadrant(topLeftQuadrant, zoom):
 		]
 
 def convertExpr4to2(case, expr4):
-	weights2 = [0] * 9
+	weights2 = [0] * 4
 	for weights4 in expr4:
 		wsum = sum(weights4)
 		assert 256 % wsum == 0
 		factor = 256 / wsum
-		for neighbour in range(9):
+		for neighbour in range(4):
 			weights2[neighbour] += weights4[neighbour] * factor
 	weights2 = simplifyWeights(weights2)
 	if ((case >> 4) & 15) in (2, 6, 8, 12):
-		assert sorted(weights2) == [0, 0, 0, 0, 0, 0, 2, 7, 23]
+		assert sorted(weights2) == [0, 2, 7, 23]
 		weightMap = { 0: 0, 2: 1, 7: 1, 23: 2 }
 	elif ((case >> 4) & 15) in (0, 1, 4, 5):
-		assert sorted(weights2) == [0, 0, 0, 0, 0, 0, 3, 3, 10]
+		assert sorted(weights2) == [0, 3, 3, 10]
 		weightMap = { 0: 0, 3: 1, 10: 2 }
 	else:
 		weightMap = None
