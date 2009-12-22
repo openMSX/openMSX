@@ -2,7 +2,7 @@
 
 from hq import (
 	Parser2x, Parser3x, Parser4x,
-	edges, getZoom, simplifyWeights
+	edges, getZoom, permuteCase, simplifyWeights
 	)
 
 from itertools import izip
@@ -11,12 +11,6 @@ def permute(seq, permutation):
 	seq = tuple(seq)
 	assert len(seq) == len(permutation)
 	return tuple(seq[index] for index in permutation)
-
-def permuteCase(case, permutation):
-	return sum(
-		((case >> newBit) & 1) << oldBit
-		for newBit, oldBit in enumerate(permutation)
-		)
 
 def extractTopLeftQuadrant(pixelExpr):
 	zoom = getZoom(pixelExpr)
