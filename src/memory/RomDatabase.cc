@@ -12,11 +12,9 @@
 #include "LocalFileReference.hh"
 #include "GlobalCommandController.hh"
 #include "CliComm.hh"
-#include "StringOp.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"
-#include <map>
 #include <cassert>
 
 using std::auto_ptr;
@@ -30,15 +28,10 @@ using std::vector;
 
 namespace openmsx {
 
-typedef map<string, RomInfo*, StringOp::caseless> DBMap;
-static DBMap romDBSHA1;
-typedef map<string, unsigned> UnknownTypes;
-UnknownTypes unknownTypes;
-
 class SoftwareInfoTopic : public InfoTopic
 {
 public:
-        explicit SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase);
+        SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase);
 
         virtual void execute(const std::vector<TclObject*>& tokens,
                              TclObject& result) const;
@@ -46,7 +39,7 @@ public:
         virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
-	RomDatabase& romDatabase;
+	const RomDatabase& romDatabase;
 };
 
 RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
@@ -63,7 +56,7 @@ RomDatabase::~RomDatabase()
 	}
 }
 
-static string parseRemarks(const XMLElement& elem)
+string RomDatabase::parseRemarks(const XMLElement& elem)
 {
 	string result;
 	XMLElement::Children remarks;
@@ -82,7 +75,7 @@ static string parseRemarks(const XMLElement& elem)
 	return result;
 }
 
-static void addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
+void RomDatabase::addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
                      const string& sha1, DBMap& result)
 {
 	assert(romInfo.get());
@@ -94,7 +87,7 @@ static void addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
 	}
 }
 
-static void parseEntry(CliComm& cliComm,
+void RomDatabase::parseEntry(CliComm& cliComm,
 	const XMLElement& rom, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,
@@ -120,7 +113,7 @@ static void parseEntry(CliComm& cliComm,
 	}
 }
 
-static string parseStart(const XMLElement& rom)
+string RomDatabase::parseStart(const XMLElement& rom)
 {
 	string start = rom.getChildData("start", "");
 	if      (start == "0x0000") return "0000";
@@ -130,7 +123,7 @@ static string parseStart(const XMLElement& rom)
 	else return "";
 }
 
-static void parseDump(CliComm& cliComm,
+void RomDatabase::parseDump(CliComm& cliComm,
 	const XMLElement& dump, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,
@@ -157,7 +150,7 @@ static void parseDump(CliComm& cliComm,
 	}
 }
 
-static void parseSoftware(CliComm& cliComm, const string& filename,
+void RomDatabase::parseSoftware(CliComm& cliComm, const string& filename,
                           const XMLElement& soft, DBMap& result)
 {
 	try {
@@ -188,7 +181,7 @@ static void parseSoftware(CliComm& cliComm, const string& filename,
 	}
 }
 
-static void parseDB(CliComm& cliComm, const string& filename,
+void RomDatabase::parseDB(CliComm& cliComm, const string& filename,
                     const XMLElement& doc, DBMap& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
@@ -199,7 +192,7 @@ static void parseDB(CliComm& cliComm, const string& filename,
 	}
 }
 
-static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
+auto_ptr<XMLElement> RomDatabase::openDB(CliComm& cliComm, const string& filename,
                                    const string& type)
 {
 	auto_ptr<XMLElement> doc;
@@ -218,10 +211,6 @@ static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
 
 void RomDatabase::initDatabase(CliComm& cliComm)
 {
-	static bool init = false;
-	if (init) return;
-	init = true;
-
 	SystemFileContext context;
 	CommandController* controller = NULL; // ok for SystemFileContext
 	vector<string> paths = context.getPaths(*controller);
@@ -263,15 +252,12 @@ void RomDatabase::initDatabase(CliComm& cliComm)
 
 const RomInfo* RomDatabase::fetchRomInfo(const string& sha1sum) const
 {
-	// Note: RomInfo is copied only to make ownership managment easier
 
-	if (romDBSHA1.find(sha1sum) != romDBSHA1.end()) {
-		// Return a copy of the DB entry.
-		return romDBSHA1[sha1sum];
+	DBMap::const_iterator it = romDBSHA1.find(sha1sum);
+	if (it == romDBSHA1.end()) {
+		return NULL;
 	}
-
-	// no match found
-	return NULL;
+	return (it->second);
 }
 
 // SoftwareInfoTopic
