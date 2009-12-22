@@ -17,12 +17,14 @@ class GlobalCommandController;
 class RomDatabase : private noncopyable
 {
 public:
-	explicit RomDatabase(GlobalCommandController& commandController);
+	explicit RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
 	~RomDatabase();
 
 	std::auto_ptr<RomInfo> fetchRomInfo(CliComm& cliComm, const Rom& rom);
 
 private:
+	void initDatabase(CliComm& cliComm);
+
 	std::auto_ptr<SoftwareInfoTopic> softwareInfoTopic;
 	friend class SoftwareInfoTopic;
 };

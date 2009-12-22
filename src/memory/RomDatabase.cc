@@ -46,9 +46,10 @@ public:
         virtual void tabCompletion(std::vector<std::string>& tokens) const;
 };
 
-RomDatabase::RomDatabase(GlobalCommandController& commandController)
+RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
 	: softwareInfoTopic(new SoftwareInfoTopic(commandController.getOpenMSXInfoCommand()))
 {
+	initDatabase(cliComm);
 }
 
 RomDatabase::~RomDatabase()
@@ -212,7 +213,7 @@ static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
 	return doc;
 }
 
-static void initDatabase(CliComm& cliComm)
+void RomDatabase::initDatabase(CliComm& cliComm)
 {
 	static bool init = false;
 	if (init) return;
@@ -260,8 +261,6 @@ static void initDatabase(CliComm& cliComm)
 auto_ptr<RomInfo> RomDatabase::fetchRomInfo(CliComm& cliComm, const Rom& rom)
 {
 	// Note: RomInfo is copied only to make ownership managment easier
-
-	initDatabase(cliComm);
 
 	if (rom.getSize() == 0) {
 		return auto_ptr<RomInfo>(
