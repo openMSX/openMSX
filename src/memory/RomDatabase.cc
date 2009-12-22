@@ -328,7 +328,7 @@ string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
 		"given its sha1sum, in a paired list.";
 }
 
-void SoftwareInfoTopic::tabCompletion(vector<string>& tokens) const
+void SoftwareInfoTopic::tabCompletion(vector<string>& /*tokens*/) const
 {
 	// no useful completion possible
 }
