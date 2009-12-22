@@ -15,7 +15,6 @@ namespace openmsx {
 class MSXMotherBoard;
 class XMLElement;
 class File;
-class RomInfo;
 class CliComm;
 class RomDebuggable;
 
@@ -35,7 +34,6 @@ public:
 	}
 	unsigned getSize() const { return size; }
 
-	const RomInfo& getInfo() const;
 	const std::string& getName() const;
 	const std::string& getDescription() const;
 	const std::string& getOriginalSHA1() const;
@@ -51,7 +49,6 @@ private:
 	std::vector<byte> extendedRom;
 
 	std::auto_ptr<File> file;
-	std::auto_ptr<RomInfo> info;
 
 	mutable std::string originalSha1;
 	std::string patchedSha1;

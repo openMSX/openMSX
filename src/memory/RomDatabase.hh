@@ -4,6 +4,7 @@
 #define ROMDATABASE_HH
 
 #include "noncopyable.hh"
+#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -20,7 +21,11 @@ public:
 	explicit RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
 	~RomDatabase();
 
-	std::auto_ptr<RomInfo> fetchRomInfo(CliComm& cliComm, const Rom& rom);
+	/**
+	 * Gives the info in the database for the given entry or NULL if the
+	 * entry was not found.
+	 */
+	const RomInfo* fetchRomInfo(const std::string& sha1sum) const;
 
 private:
 	void initDatabase(CliComm& cliComm);

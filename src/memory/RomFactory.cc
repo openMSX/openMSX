@@ -40,6 +40,9 @@
 #include "RomMatraInk.hh"
 #include "RomArc.hh"
 #include "Rom.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "RomDatabase.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -151,9 +154,11 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config
 	string typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
-		type = rom->getInfo().getRomType();
-		if (type == ROM_UNKNOWN) {
+		const RomInfo* romInfo = motherBoard.getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());
+		if (romInfo == NULL) {
 			type = guessRomType(*rom);
+		} else {
+			type = romInfo->getRomType();
 		}
 	} else {
 		// Use mapper type from config, even if this overrides DB.

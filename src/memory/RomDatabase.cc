@@ -38,16 +38,19 @@ UnknownTypes unknownTypes;
 class SoftwareInfoTopic : public InfoTopic
 {
 public:
-        explicit SoftwareInfoTopic(InfoCommand& openMSXInfoCommand);
+        explicit SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase);
 
         virtual void execute(const std::vector<TclObject*>& tokens,
                              TclObject& result) const;
         virtual std::string help(const std::vector<std::string>& tokens) const;
         virtual void tabCompletion(std::vector<std::string>& tokens) const;
+
+private:
+	RomDatabase& romDatabase;
 };
 
 RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
-	: softwareInfoTopic(new SoftwareInfoTopic(commandController.getOpenMSXInfoCommand()))
+	: softwareInfoTopic(new SoftwareInfoTopic(commandController.getOpenMSXInfoCommand(), *this))
 {
 	initDatabase(cliComm);
 }
@@ -258,31 +261,24 @@ void RomDatabase::initDatabase(CliComm& cliComm)
 	}
 }
 
-auto_ptr<RomInfo> RomDatabase::fetchRomInfo(CliComm& cliComm, const Rom& rom)
+const RomInfo* RomDatabase::fetchRomInfo(const string& sha1sum) const
 {
 	// Note: RomInfo is copied only to make ownership managment easier
 
-	if (rom.getSize() == 0) {
-		return auto_ptr<RomInfo>(
-			new RomInfo("", "", "", "", false, "", "Empty ROM",
-			            ROM_UNKNOWN));
-	}
-
-	const string& sha1sum = rom.getOriginalSHA1();
 	if (romDBSHA1.find(sha1sum) != romDBSHA1.end()) {
 		// Return a copy of the DB entry.
-		return auto_ptr<RomInfo>(new RomInfo(*romDBSHA1[sha1sum]));
+		return romDBSHA1[sha1sum];
 	}
 
 	// no match found
-	return auto_ptr<RomInfo>(new RomInfo("", "", "", "", false, "", "",
-	                                     ROM_UNKNOWN));
+	return NULL;
 }
 
 // SoftwareInfoTopic
 
-SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand)
+SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase_)
 	: InfoTopic(openMSXInfoCommand, "software")
+	, romDatabase(romDatabase_)
 {
 }
 
@@ -294,29 +290,28 @@ void SoftwareInfoTopic::execute(const vector<TclObject*>& tokens,
 	}
 
 	const string& sha1sum = tokens[2]->getString();
-	DBMap::const_iterator it = romDBSHA1.find(sha1sum);
-	if (it == romDBSHA1.end()) {
+	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
+	if (romInfo == NULL) {
 		// no match found
 		throw CommandException("Software with sha1sum " + sha1sum + " not found");
 	}
 
-	RomInfo romInfo = *(it->second);
 	result.addListElement("title");
-	result.addListElement(romInfo.getTitle());
+	result.addListElement(romInfo->getTitle());
 	result.addListElement("year");
-	result.addListElement(romInfo.getYear());
+	result.addListElement(romInfo->getYear());
 	result.addListElement("company");
-	result.addListElement(romInfo.getCompany());
+	result.addListElement(romInfo->getCompany());
 	result.addListElement("country");
-	result.addListElement(romInfo.getCountry());
+	result.addListElement(romInfo->getCountry());
 	result.addListElement("orig_type");
-	result.addListElement(romInfo.getOrigType());
+	result.addListElement(romInfo->getOrigType());
 	result.addListElement("remark");
-	result.addListElement(romInfo.getRemark());
+	result.addListElement(romInfo->getRemark());
 	result.addListElement("original");
-	result.addListElement(romInfo.getOriginal());
+	result.addListElement(romInfo->getOriginal());
 	result.addListElement("mapper_type_name");
-	result.addListElement(RomInfo::romTypeToName(romInfo.getRomType()));
+	result.addListElement(RomInfo::romTypeToName(romInfo->getRomType()));
 	return;
 }
 

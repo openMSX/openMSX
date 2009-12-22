@@ -173,11 +173,11 @@ void Rom::init(MSXMotherBoard& motherBoard, CliComm& cliComm,
 			patchedSha1 = SHA1::calc(rom, size);
 		}
 	}
-	info = motherBoard.getReactor().getSoftwareDatabase().fetchRomInfo(cliComm, *this);
 
-	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
-	if (!info->getTitle().empty() && StringOp::startsWith(name, "MSXRom")) {
-		name = info->getTitle();
+	// TODO fix this, this is a hack that depends heavily on HardwareConig::createRomConfig
+	const RomInfo* romInfo = motherBoard.getReactor().getSoftwareDatabase().fetchRomInfo(getOriginalSHA1());
+	if ((romInfo != NULL) && !romInfo->getTitle().empty() && StringOp::startsWith(name, "MSXRom")) {
+		name = romInfo->getTitle();
 	}
 
 	if (size) {
@@ -258,11 +258,6 @@ bool Rom::checkSHA1(const XMLElement& config)
 
 Rom::~Rom()
 {
-}
-
-const RomInfo& Rom::getInfo() const
-{
-	return *info;
 }
 
 const string& Rom::getName() const
