@@ -364,12 +364,15 @@ def isPow2(num):
 		num >>= 1
 	return num == 1
 
+def permuteCase(case, permutation):
+	return sum(
+		((case >> newBit) & 1) << oldBit
+		for newBit, oldBit in enumerate(permutation)
+		)
+
 def permuteCases(permutation, pixelExpr):
 	return [
-		pixelExpr[sum(
-			((case >> newBit) & 1) << oldBit
-			for newBit, oldBit in enumerate(permutation)
-			)]
+		pixelExpr[permuteCase(case, permutation)]
 		for case in xrange(len(pixelExpr))
 		]
 
@@ -441,13 +444,14 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 		for w1, w2 in izip(weights1, weights2)
 		)
 
+# Edges in the same order as the edge bits in "case".
+edges = (
+	(5, 1), (5, 7), (3, 7), (3, 1),
+	(4, 0), (4, 1), (4, 2), (4, 3),
+	(4, 5), (4, 6), (4, 7), (4, 8),
+	)
+
 def calcNeighbourToSet():
-	# Edges in the same order as the edge bits in "case".
-	edges = (
-		(5, 1), (5, 7), (3, 7), (3, 1),
-		(4, 0), (4, 1), (4, 2), (4, 3),
-		(4, 5), (4, 6), (4, 7), (4, 8),
-		)
 	# Compute equivalence classes.
 	ret = []
 	for case in xrange(1 << len(edges)):
