@@ -1,6 +1,9 @@
 # $Id$
 
-from hq import Parser2x, Parser3x, Parser4x, edges, getZoom
+from hq import (
+	Parser2x, Parser3x, Parser4x,
+	edges, getZoom, simplifyWeights
+	)
 
 from itertools import izip
 
@@ -55,6 +58,35 @@ def expandQuadrant(topLeftQuadrant, zoom):
 		for case in xrange(len(topLeftQuadrant))
 		]
 
+def convertExpr4to2(case, expr4):
+	weights2 = [0] * 9
+	for weights4 in expr4:
+		wsum = sum(weights4)
+		assert 256 % wsum == 0
+		factor = 256 / wsum
+		for neighbour in range(9):
+			weights2[neighbour] += weights4[neighbour] * factor
+	weights2 = simplifyWeights(weights2)
+	if ((case >> 4) & 15) in (2, 6, 8, 12):
+		assert sorted(weights2) == [0, 0, 0, 0, 0, 0, 2, 7, 23]
+		weightMap = { 0: 0, 2: 1, 7: 1, 23: 2 }
+	elif ((case >> 4) & 15) in (0, 1, 4, 5):
+		assert sorted(weights2) == [0, 0, 0, 0, 0, 0, 3, 3, 10]
+		weightMap = { 0: 0, 3: 1, 10: 2 }
+	else:
+		weightMap = None
+	if weightMap:
+		weights2 = tuple(weightMap[weight] for weight in weights2)
+	return weights2
+
+def convert4to2(topLeftQuadrant4):
+	return [
+		[convertExpr4to2(case, expr4)]
+		for case, expr4 in enumerate(topLeftQuadrant4)
+		]
+
+# Visualization:
+
 def formatWeights(weights):
 	return ' '.join('%3d' % weight for weight in weights)
 
@@ -92,6 +124,8 @@ def comparePixelExpr(pixelExpr1, pixelExpr2):
 			mismatchCount += 1
 	print 'Number of mismatches: %d' % mismatchCount
 
+# Sanity checks:
+
 def checkQuadrants():
 	for parserClass in (Parser2x, Parser3x, Parser4x):
 		parser = parserClass()
@@ -99,5 +133,17 @@ def checkQuadrants():
 		expanded = expandQuadrant(topLeftQuadrant, parser.zoom)
 		comparePixelExpr(expanded, parser.pixelExpr)
 
+def checkConvert4to2():
+	parser4 = Parser4x()
+	topLeftQuadrant4 = extractTopLeftQuadrant(parser4.pixelExpr)
+	topLeftQuadrant2 = convert4to2(topLeftQuadrant4)
+	pixelExpr2 = expandQuadrant(topLeftQuadrant2, 2)
+
+	parser2 = Parser2x()
+	comparePixelExpr(pixelExpr2, parser2.pixelExpr)
+
+# Main:
+
 if __name__ == '__main__':
-	checkQuadrants()
+	#checkQuadrants()
+	checkConvert4to2()
