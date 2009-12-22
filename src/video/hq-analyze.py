@@ -71,11 +71,11 @@ def convertExpr4to2(case, expr4):
 		weightMap = None
 	if weightMap:
 		weights2 = tuple(weightMap[weight] for weight in weights2)
-	return weights2
+	return [weights2]
 
 def convert4to2(topLeftQuadrant4):
 	return [
-		[convertExpr4to2(case, expr4)]
+		convertExpr4to2(case, expr4)
 		for case, expr4 in enumerate(topLeftQuadrant4)
 		]
 
