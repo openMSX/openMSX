@@ -34,8 +34,8 @@ def expandQuadrant(topLeftQuadrant, zoom):
 	permTB = (6, 7, 8, 3, 4, 5, 0, 1, 2)
 	for quadrantIndex in xrange(quadrantWidth ** 2):
 		qy, qx = divmod(quadrantIndex, quadrantWidth)
-		for ty, py in ((qy, permId), (zoom - qy - 1, permTB)):
-			for tx, px in ((qx, permId), (zoom - qx - 1, permLR)):
+		for ty, py in ((zoom - qy - 1, permTB), (qy, permId)):
+			for tx, px in ((zoom - qx - 1, permLR), (qx, permId)):
 				nperm = permute(px, py)
 				cperm = [
 					edges.index((nperm[n1], nperm[n2]))
@@ -139,5 +139,5 @@ def checkConvert4to2():
 # Main:
 
 if __name__ == '__main__':
-	#checkQuadrants()
-	checkConvert4to2()
+	checkQuadrants()
+	#checkConvert4to2()
