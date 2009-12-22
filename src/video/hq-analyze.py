@@ -7,6 +7,14 @@ from hq import (
 
 from itertools import izip
 
+def computeCasePermutation(neighbourPermutation):
+	return tuple(
+		edges.index(tuple(sorted(
+			(neighbourPermutation[n1], neighbourPermutation[n2])
+			)))
+		for n1, n2 in edges
+		)
+
 def permute(seq, permutation):
 	seq = tuple(seq)
 	assert len(seq) == len(permutation)
@@ -37,10 +45,7 @@ def expandQuadrant(topLeftQuadrant, zoom):
 		for ty, py in ((zoom - qy - 1, permTB), (qy, permId)):
 			for tx, px in ((zoom - qx - 1, permLR), (qx, permId)):
 				nperm = permute(px, py)
-				cperm = [
-					edges.index((nperm[n1], nperm[n2]))
-					for n1, n2 in edges
-					]
+				cperm = computeCasePermutation(nperm)
 				mirrorMap[ty * zoom + tx] = (quadrantIndex, cperm, nperm)
 	return [
 		[	permute(
@@ -140,4 +145,4 @@ def checkConvert4to2():
 
 if __name__ == '__main__':
 	checkQuadrants()
-	#checkConvert4to2()
+	checkConvert4to2()

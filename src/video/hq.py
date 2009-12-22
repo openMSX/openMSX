@@ -446,8 +446,8 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 
 # Edges in the same order as the edge bits in "case".
 edges = (
-	(5, 1), (5, 7), (3, 7), (3, 1),
-	(4, 0), (4, 1), (4, 2), (4, 3),
+	(1, 5), (5, 7), (3, 7), (1, 3),
+	(0, 4), (1, 4), (2, 4), (3, 4),
 	(4, 5), (4, 6), (4, 7), (4, 8),
 	)
 
