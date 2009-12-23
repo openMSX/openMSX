@@ -23,9 +23,6 @@ using std::set;
 using std::string;
 using std::vector;
 
-// Note: Using something like boost::shared_ptr would simplify memory management
-//       but it does add another dependency. So atm we don't use it yet.
-
 namespace openmsx {
 
 class SoftwareInfoTopic : public InfoTopic
@@ -42,21 +39,11 @@ private:
 	const RomDatabase& romDatabase;
 };
 
-RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
-	: softwareInfoTopic(new SoftwareInfoTopic(commandController.getOpenMSXInfoCommand(), *this))
-{
-	initDatabase(cliComm);
-}
 
-RomDatabase::~RomDatabase()
-{
-	for (DBMap::const_iterator it = romDBSHA1.begin();
-	     it != romDBSHA1.end(); ++it) {
-		delete it->second;
-	}
-}
 
-string RomDatabase::parseRemarks(const XMLElement& elem)
+typedef std::map<std::string, unsigned> UnknownTypes;
+
+static string parseRemarks(const XMLElement& elem)
 {
 	string result;
 	XMLElement::Children remarks;
@@ -75,8 +62,8 @@ string RomDatabase::parseRemarks(const XMLElement& elem)
 	return result;
 }
 
-void RomDatabase::addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
-                     const string& sha1, DBMap& result)
+static void addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
+                     const string& sha1, RomDatabase::DBMap& result)
 {
 	assert(romInfo.get());
 	if (result.find(sha1) == result.end()) {
@@ -87,8 +74,8 @@ void RomDatabase::addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
 	}
 }
 
-void RomDatabase::parseEntry(CliComm& cliComm,
-	const XMLElement& rom, DBMap& result,
+static void parseEntry(CliComm& cliComm, const XMLElement& rom,
+	RomDatabase::DBMap& result, UnknownTypes& unknownTypes,
 	const string& title,   const string& year,
 	const string& company, const string& country,
 	bool original,         const string& origType,
@@ -113,7 +100,7 @@ void RomDatabase::parseEntry(CliComm& cliComm,
 	}
 }
 
-string RomDatabase::parseStart(const XMLElement& rom)
+static string parseStart(const XMLElement& rom)
 {
 	string start = rom.getChildData("start", "");
 	if      (start == "0x0000") return "0000";
@@ -123,8 +110,8 @@ string RomDatabase::parseStart(const XMLElement& rom)
 	else return "";
 }
 
-void RomDatabase::parseDump(CliComm& cliComm,
-	const XMLElement& dump, DBMap& result,
+static void parseDump(CliComm& cliComm, const XMLElement& dump,
+	RomDatabase::DBMap& result, UnknownTypes& unknownTypes,
 	const string& title,   const string& year,
 	const string& company, const string& country,
 	const string& remark)
@@ -135,9 +122,9 @@ void RomDatabase::parseDump(CliComm& cliComm,
 	string origType = originalTag.getData();
 
 	if (const XMLElement* megarom = dump.findChild("megarom")) {
-		parseEntry(cliComm, *megarom, result, title, year,
-			   company, country, original, origType,
-			   remark, megarom->getChildData("type"));
+		parseEntry(cliComm, *megarom, result, unknownTypes,
+		           title, year, company, country, original, origType,
+		           remark, megarom->getChildData("type"));
 	} else if (const XMLElement* rom = dump.findChild("rom")) {
 		string type = rom->getChildData("type", "Mirrored");
 		if (type == "Normal") {
@@ -145,13 +132,15 @@ void RomDatabase::parseDump(CliComm& cliComm,
 		} else if (type == "Mirrored") {
 			type += parseStart(*rom);
 		}
-		parseEntry(cliComm, *rom, result, title, year, company,
-		           country, original, origType, remark, type);
+		parseEntry(cliComm, *rom, result, unknownTypes,
+		           title, year, company, country, original, origType,
+		           remark, type);
 	}
 }
 
-void RomDatabase::parseSoftware(CliComm& cliComm, const string& filename,
-                          const XMLElement& soft, DBMap& result)
+static void parseSoftware(CliComm& cliComm, const string& filename,
+                          const XMLElement& soft, RomDatabase::DBMap& result,
+                          UnknownTypes& unknownTypes)
 {
 	try {
 		const XMLElement* system = soft.findChild("system");
@@ -171,8 +160,8 @@ void RomDatabase::parseSoftware(CliComm& cliComm, const string& filename,
 		soft.getChildren("dump", dumps);
 		for (XMLElement::Children::const_iterator it = dumps.begin();
 		     it != dumps.end(); ++it) {
-			parseDump(cliComm, **it, result, title, year,
-			          company, country, remark);
+			parseDump(cliComm, **it, result, unknownTypes,
+			          title, year, company, country, remark);
 		}
 	} catch (MSXException& e) {
 		string title = soft.getChildData("title", "<missing-title>");
@@ -181,18 +170,19 @@ void RomDatabase::parseSoftware(CliComm& cliComm, const string& filename,
 	}
 }
 
-void RomDatabase::parseDB(CliComm& cliComm, const string& filename,
-                    const XMLElement& doc, DBMap& result)
+static void parseDB(CliComm& cliComm, const string& filename,
+                    const XMLElement& doc, RomDatabase::DBMap& result,
+                    UnknownTypes& unknownTypes)
 {
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		// Parse all <software> tags
-		parseSoftware(cliComm, filename, **it, result);
+		parseSoftware(cliComm, filename, **it, result, unknownTypes);
 	}
 }
 
-auto_ptr<XMLElement> RomDatabase::openDB(CliComm& cliComm, const string& filename,
+static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
                                    const string& type)
 {
 	auto_ptr<XMLElement> doc;
@@ -209,8 +199,11 @@ auto_ptr<XMLElement> RomDatabase::openDB(CliComm& cliComm, const string& filenam
 	return doc;
 }
 
-void RomDatabase::initDatabase(CliComm& cliComm)
+RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
+	: softwareInfoTopic(new SoftwareInfoTopic(
+		commandController.getOpenMSXInfoCommand(), *this))
 {
+	UnknownTypes unknownTypes;
 	SystemFileContext context;
 	CommandController* controller = NULL; // ok for SystemFileContext
 	vector<string> paths = context.getPaths(*controller);
@@ -221,7 +214,7 @@ void RomDatabase::initDatabase(CliComm& cliComm)
 			openDB(cliComm, filename, "softwaredb1.dtd"));
 		if (doc.get()) {
 			DBMap tmp;
-			parseDB(cliComm, filename, *doc, tmp);
+			parseDB(cliComm, filename, *doc, tmp, unknownTypes);
 			for (DBMap::const_iterator it = tmp.begin();
 			     it != tmp.end(); ++it) {
 				if (romDBSHA1.find(it->first) == romDBSHA1.end()) {
@@ -250,26 +243,35 @@ void RomDatabase::initDatabase(CliComm& cliComm)
 	}
 }
 
+RomDatabase::~RomDatabase()
+{
+	for (DBMap::const_iterator it = romDBSHA1.begin();
+	     it != romDBSHA1.end(); ++it) {
+		delete it->second;
+	}
+}
+
 const RomInfo* RomDatabase::fetchRomInfo(const string& sha1sum) const
 {
-
 	DBMap::const_iterator it = romDBSHA1.find(sha1sum);
 	if (it == romDBSHA1.end()) {
 		return NULL;
 	}
-	return (it->second);
+	return it->second;
 }
+
 
 // SoftwareInfoTopic
 
-SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase_)
+SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand,
+                                     RomDatabase& romDatabase_)
 	: InfoTopic(openMSXInfoCommand, "software")
 	, romDatabase(romDatabase_)
 {
 }
 
 void SoftwareInfoTopic::execute(const vector<TclObject*>& tokens,
-		TclObject& result) const
+                                TclObject& result) const
 {
 	if (tokens.size() != 3) {
 		throw CommandException("Wrong number of parameters");
@@ -298,13 +300,12 @@ void SoftwareInfoTopic::execute(const vector<TclObject*>& tokens,
 	result.addListElement(romInfo->getOriginal());
 	result.addListElement("mapper_type_name");
 	result.addListElement(RomInfo::romTypeToName(romInfo->getRomType()));
-	return;
 }
 
 string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
 {
-	return "Gives information about the software "
-		"given its sha1sum, in a paired list.";
+	return "Returns information about the software "
+	       "given its sha1sum, in a paired list.";
 }
 
 void SoftwareInfoTopic::tabCompletion(vector<string>& /*tokens*/) const
