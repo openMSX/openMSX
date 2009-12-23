@@ -116,10 +116,10 @@ static void parseDump(CliComm& cliComm, const XMLElement& dump,
 	const string& company, const string& country,
 	const string& remark)
 {
-	// TODO make <original> tag not required?
-	const XMLElement& originalTag = dump.getChild("original");
-	bool original = originalTag.getAttributeAsBool("value");
-	string origType = originalTag.getData();
+	const XMLElement* originalTag = dump.findChild("original");
+	bool original = originalTag ? originalTag->getAttributeAsBool("value")
+	                            : false;
+	string origType = originalTag ? originalTag->getData() : "";
 
 	if (const XMLElement* megarom = dump.findChild("megarom")) {
 		parseEntry(cliComm, *megarom, result, unknownTypes,
