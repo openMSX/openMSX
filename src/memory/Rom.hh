@@ -40,8 +40,7 @@ public:
 	const std::string& getPatchedSHA1() const;
 
 private:
-	void init(MSXMotherBoard& motherBoard, CliComm& cliComm,
-	          const XMLElement& config);
+	void init(MSXMotherBoard& motherBoard, const XMLElement& config);
 	void read(const XMLElement& config);
 	bool checkSHA1(const XMLElement& config);
 

@@ -46,8 +46,7 @@ Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
          const string& description_, const XMLElement& config)
 	: name(name_), description(description_)
 {
-	init(motherBoard, motherBoard.getReactor().getCliComm(),
-	     config.getChild("rom"));
+	init(motherBoard, config.getChild("rom"));
 }
 
 Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
@@ -60,15 +59,14 @@ Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getId() == id) {
-			init(motherBoard, motherBoard.getReactor().getCliComm(), **it);
+			init(motherBoard, **it);
 			return;
 		}
 	}
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
 
-void Rom::init(MSXMotherBoard& motherBoard, CliComm& cliComm,
-               const XMLElement& config)
+void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	CommandController& controller = motherBoard.getCommandController();
 
