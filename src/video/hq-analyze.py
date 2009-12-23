@@ -20,6 +20,23 @@ def permute(seq, permutation):
 	assert len(seq) == len(permutation)
 	return tuple(seq[index] for index in permutation)
 
+def scaleWeights(weights, newSum):
+	oldSum = sum(weights)
+	factor, remainder = divmod(newSum, oldSum)
+	assert remainder == 0
+	return tuple(weight * factor for weight in weights)
+
+def normalizeWeights(pixelExpr):
+	maxSum = max(
+		sum(weights)
+		for expr in pixelExpr
+		for weights in expr
+		)
+	return [
+		[ scaleWeights(weights, maxSum) for weights in expr ]
+		for expr in pixelExpr
+		]
+
 def extractTopLeftWeights(weights):
 	assert all(weights[n] == 0 for n in (2, 5, 6, 7, 8)), weights
 	return weights[0 : 2] + weights[3 : 5]
@@ -105,7 +122,7 @@ def convert4to2(topLeftQuadrant4):
 def findRelevantEdges():
 	for parserClass in (Parser2x, Parser3x, Parser4x):
 		parser = parserClass()
-		quadrant = extractTopLeftQuadrant(parser.pixelExpr)
+		quadrant = normalizeWeights(extractTopLeftQuadrant(parser.pixelExpr))
 		quadrantWidth = (parser.zoom + 1) / 2
 		assert quadrantWidth ** 2 == len(quadrant[0])
 		subPixelOutput = [[] for _ in xrange(quadrantWidth * 10)]
