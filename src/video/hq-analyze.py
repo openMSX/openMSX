@@ -106,13 +106,21 @@ def findRelevantEdges():
 	for parserClass in (Parser2x, Parser3x, Parser4x):
 		parser = parserClass()
 		topLeftQuadrant = extractTopLeftQuadrant(parser.pixelExpr)
-		for edgeNum in xrange(12):
-			edgeBit = 1 << edgeNum
-			if all(
-				topLeftQuadrant[case] == topLeftQuadrant[case ^ edgeBit]
-				for case in xrange(len(topLeftQuadrant))
-				):
-				print 'edge %d is irrelevant: %s' % (edgeNum, edges[edgeNum])
+		for subPixel in xrange(len(topLeftQuadrant[0])):
+			irrelevant = [
+				edgeNum
+				for edgeNum in xrange(12)
+				if all(
+					topLeftQuadrant[case][subPixel] ==
+						topLeftQuadrant[case ^ (1 << edgeNum)][subPixel]
+					for case in xrange(len(topLeftQuadrant))
+					)
+				]
+			print 'zoom %d: irrelevant edges for subpixel %d: %s' % (
+				parser.zoom,
+				subPixel,
+				', '.join(str(edges[i]) for i in irrelevant)
+				)
 	# Result: Only edge 5-7 is irrelevant for the top-left quadrant.
 	#         So it is not possible to simplify significantly by removing
 	#         irrelevant edges from the edge bits.
