@@ -100,6 +100,23 @@ def convert4to2(topLeftQuadrant4):
 		for case, expr4 in enumerate(topLeftQuadrant4)
 		]
 
+# Various analysis:
+
+def findRelevantEdges():
+	for parserClass in (Parser2x, Parser3x, Parser4x):
+		parser = parserClass()
+		topLeftQuadrant = extractTopLeftQuadrant(parser.pixelExpr)
+		for edgeNum in xrange(12):
+			edgeBit = 1 << edgeNum
+			if all(
+				topLeftQuadrant[case] == topLeftQuadrant[case ^ edgeBit]
+				for case in xrange(len(topLeftQuadrant))
+				):
+				print 'edge %d is irrelevant: %s' % (edgeNum, edges[edgeNum])
+	# Result: Only edge 5-7 is irrelevant for the top-left quadrant.
+	#         So it is not possible to simplify significantly by removing
+	#         irrelevant edges from the edge bits.
+
 # Visualization:
 
 def formatWeights(weights):
@@ -162,3 +179,4 @@ def checkConvert4to2():
 if __name__ == '__main__':
 	checkQuadrants()
 	checkConvert4to2()
+	findRelevantEdges()
