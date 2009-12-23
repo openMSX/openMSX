@@ -105,27 +105,68 @@ def convert4to2(topLeftQuadrant4):
 def findRelevantEdges():
 	for parserClass in (Parser2x, Parser3x, Parser4x):
 		parser = parserClass()
-		topLeftQuadrant = extractTopLeftQuadrant(parser.pixelExpr)
-		for subPixel in xrange(len(topLeftQuadrant[0])):
-			irrelevant = [
-				edgeNum
-				for edgeNum in xrange(12)
-				if all(
-					topLeftQuadrant[case][subPixel] ==
-						topLeftQuadrant[case ^ (1 << edgeNum)][subPixel]
-					for case in xrange(len(topLeftQuadrant))
-					)
-				]
-			print 'zoom %d: irrelevant edges for subpixel %d: %s' % (
-				parser.zoom,
-				subPixel,
-				', '.join(str(edges[i]) for i in irrelevant)
-				)
-	# Result: Only edge 5-7 is irrelevant for the top-left quadrant.
-	#         So it is not possible to simplify significantly by removing
-	#         irrelevant edges from the edge bits.
+		quadrant = extractTopLeftQuadrant(parser.pixelExpr)
+		quadrantWidth = (parser.zoom + 1) / 2
+		assert quadrantWidth ** 2 == len(quadrant[0])
+		subPixelOutput = [[] for _ in xrange(quadrantWidth * 10)]
+		for subPixel in xrange(quadrantWidth ** 2):
+			neighbourOutput = [[] for _ in xrange(8)]
+			for neighbour in xrange(4):
+				relevant = [
+					edgeNum
+					for edgeNum in xrange(12)
+					if any(
+						quadrant[case][subPixel][neighbour] !=
+							quadrant[case ^ (1 << edgeNum)][subPixel][neighbour]
+						for case in xrange(len(quadrant))
+						)
+					]
+				for rowNum, row in enumerate(formatEdges(relevant)):
+					neighbourOutput[(neighbour / 2) * 4 + rowNum].append(row)
+				neighbourOutput[(neighbour / 2) * 4 + 3].append('   ')
+			for lineNum, line in enumerate(neighbourOutput):
+				lineOutput = '  %s  |' % '  '.join(line)
+				subPixelOutput[
+					(subPixel / quadrantWidth) * 10 + lineNum + 1
+					].append(lineOutput)
+				if lineNum == 7:
+					subPixelOutput[(subPixel / quadrantWidth) * 10].append(
+						lineOutput
+						)
+					subPixelOutput[(subPixel / quadrantWidth) * 10 + 9].append(
+						'%ss%d' % ('-' * (len(lineOutput) - 2), subPixel)
+						)
+		print 'Relevant edges for zoom %d:' % parser.zoom
+		print
+		for line in subPixelOutput:
+			print '  %s' % ''.join(line)
+		print
 
 # Visualization:
+
+def formatEdges(edgeNums):
+	cells = ['.' for _ in xrange(9)]
+	cells[4] = 'o'
+	def combine(index, ch):
+		old = cells[index]
+		if old == '.':
+			cells[index] = ch
+		elif (old == '/' and ch == '\\') or (old == '\\' and ch == '/'):
+			cells[index] = 'X'
+		else:
+			assert False, (index, old, ch)
+	for edgeNum in edgeNums:
+		edge = edges[edgeNum]
+		if 4 in edge:
+			other = sum(edge) - 4
+			combine(other, '\\|/-'[other if other < 4 else 8 - other])
+		else:
+			assert edge in ((1, 5), (5, 7), (3, 7), (1, 3))
+			x = 0 if 3 in edge else 2
+			y = 0 if 1 in edge else 2
+			combine(y * 3 + x, '/' if x == y else '\\')
+	for y in xrange(3):
+		yield ''.join(cells[y * 3 : (y + 1) * 3])
 
 def formatWeights(weights):
 	return ' '.join('%3d' % weight for weight in weights)
