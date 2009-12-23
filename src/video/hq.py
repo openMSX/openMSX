@@ -390,9 +390,9 @@ def transformOffsets(weights):
 			)
 
 def transformWeights(weights, cellFunc):
-	factor = 256 / sum(weights)
-	for cell in cellFunc(weights):
-		yield min(255, 0 if cell is None else factor * weights[cell])
+	scaledWeights = scaleWeights(weights, 256)
+	for cell in cellFunc(scaledWeights):
+		yield min(255, 0 if cell is None else scaledWeights[cell])
 
 def computeOffsets(pixelExpr):
 	for expr in pixelExpr:
@@ -432,9 +432,20 @@ def gcd(a, b):
 	return b
 
 def simplifyWeights(weights):
+	'''Returns the lowest weight values of which the ratios are equal to the
+	given weights.
+	'''
 	weights = tuple(weights)
 	divider = reduce(gcd, weights, 0)
 	return tuple(w / divider for w in weights)
+
+def scaleWeights(weights, newSum):
+	'''Returns the given weights, scaled such that their sum is the given one.
+	'''
+	oldSum = sum(weights)
+	factor, remainder = divmod(newSum, oldSum)
+	assert remainder == 0
+	return tuple(weight * factor for weight in weights)
 
 def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 	factor1 *= sum(weights2)

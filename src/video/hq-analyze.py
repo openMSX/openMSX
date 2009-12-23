@@ -2,7 +2,7 @@
 
 from hq import (
 	Parser2x, Parser3x, Parser4x,
-	edges, getZoom, permuteCase, simplifyWeights
+	edges, getZoom, permuteCase, scaleWeights, simplifyWeights
 	)
 
 from itertools import izip
@@ -19,12 +19,6 @@ def permute(seq, permutation):
 	seq = tuple(seq)
 	assert len(seq) == len(permutation)
 	return tuple(seq[index] for index in permutation)
-
-def scaleWeights(weights, newSum):
-	oldSum = sum(weights)
-	factor, remainder = divmod(newSum, oldSum)
-	assert remainder == 0
-	return tuple(weight * factor for weight in weights)
 
 def normalizeWeights(pixelExpr):
 	maxSum = max(
@@ -93,11 +87,8 @@ def expandQuadrant(topLeftQuadrant, zoom):
 def convertExpr4to2(case, expr4):
 	weights2 = [0] * 4
 	for weights4 in expr4:
-		wsum = sum(weights4)
-		assert 256 % wsum == 0
-		factor = 256 / wsum
-		for neighbour in range(4):
-			weights2[neighbour] += weights4[neighbour] * factor
+		for neighbour, weight in enumerate(scaleWeights(weights4, 256)):
+			weights2[neighbour] += weight
 	weights2 = simplifyWeights(weights2)
 	if ((case >> 4) & 15) in (2, 6, 8, 12):
 		assert sorted(weights2) == [0, 2, 7, 23]
