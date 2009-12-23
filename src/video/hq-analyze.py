@@ -121,7 +121,15 @@ def findRelevantEdges():
 						for case in xrange(len(quadrant))
 						)
 					]
+				zero = len(relevant) == 0 and all(
+					quadrant[case][subPixel][neighbour] == 0
+					for case in xrange(len(quadrant))
+					)
+				center = ('.' if zero else str(neighbour))
 				for rowNum, row in enumerate(formatEdges(relevant)):
+					if rowNum == 1:
+						assert row[1] == 'o'
+						row = row[0] + center + row[2]
 					neighbourOutput[(neighbour / 2) * 4 + rowNum].append(row)
 				neighbourOutput[(neighbour / 2) * 4 + 3].append('   ')
 			for lineNum, line in enumerate(neighbourOutput):
