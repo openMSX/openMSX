@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1261687471">
+<softwaredb xml:lang="en" timestamp="1261693913">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -247,9 +247,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">11b712633bd0e44e8d59ceba5a2d6b1c20a43ef9</hash><remark><text>iPhone version (TR-En)</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">12f6f31f495bfb384c9ca9067bfbf8f98af6adf9</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII16</type><hash algo="sha1">be2d023f5f1ee4cfbdc712c8ef9eda9d07278d88</hash><remark><text>tr En</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">be2d023f5f1ee4cfbdc712c8ef9eda9d07278d88</hash><remark><text>tr En</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">4b506234dfd3b6aa1c315b40cd8ddca024dd15c9</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">f4f7c789dd320192fd544c666ceab720c7f3a747</hash><remark><text>Portugese Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">f4f7c789dd320192fd544c666ceab720c7f3a747</hash><remark><text>Portugese Translation</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">54b05b9c064232d75299fd31b53335f530c20aea</hash><remark><text>[a]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">937f8d412e9810c8aeb9d92182cd3b007ace30d2</hash><remark><text>cheat version</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">fda4422b86daa233fa4e6104e45305e7cb383053</hash></megarom></dump>
@@ -377,7 +377,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">88fa967c420f7090a11e5de1d3674f4527f53d52</hash><remark><text>[a1]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">076abc988d51faef30143750dd41318a8a48c5c4</hash></rom></dump>
 		<dump><rom><hash algo="sha1">fd6cc08d4842a85a3c741cf9c30883ddfc378895</hash><remark><text>[a]</text></remark></rom></dump>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">a6cd42c6cdebcd9b20330e64a38bb7abde5bbe30</hash><remark><text>[tr Sp]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">a6cd42c6cdebcd9b20330e64a38bb7abde5bbe30</hash><remark><text>[tr Sp]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">e1c0aaf53501aff407c49b5332c7b5e3977317c3</hash></rom></dump>
 </software>
 <software>
@@ -1351,7 +1351,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>HAL Laboratory</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">01b506cfecb366f7e00bcabb717e86e8974c02a2</hash><remark><text>[tr En]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">01b506cfecb366f7e00bcabb717e86e8974c02a2</hash><remark><text>[tr En]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">613c741535c92dfb01afec4135ef8ebddb49f999</hash></rom></dump>
 </software>
 <software>
@@ -2183,7 +2183,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">2418c0302abbce8b0f8556b63169c60a849f60ee</hash></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">1833ffc252d43d3d8239e57d5ac2c015b4367988</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">6159cdfc79c68bf7dfe2653fc0b5893ae913c72b</hash><remark><text>English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">6159cdfc79c68bf7dfe2653fc0b5893ae913c72b</hash><remark><text>English Translation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Dam Busters, The</title>
@@ -2824,7 +2824,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Bothtec</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="false">Original Release<original><rom><hash algo="sha1">0dca3736badad8dbab3b8d552a581065d9977b43</hash><remark><text>iPhone version</text></remark></rom></dump>
+		<dump><original value="false">Original Release</original><rom><hash algo="sha1">0dca3736badad8dbab3b8d552a581065d9977b43</hash><remark><text>iPhone version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Ehagahi</title>
@@ -2861,7 +2861,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6cbddd118afe63e79cb8a40f8aa879df1c7590e1</hash></rom></dump>
 		<dump><rom><hash algo="sha1">e9ca3d6a21092ec8d6933279dc6c96f3927f3b15</hash><remark><text>Ulver crack</text></remark></rom></dump>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">acab2c6147df101536efde0d57ca4ccde8ba3379</hash><remark><text>[tr Sp Msx Informatica]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">acab2c6147df101536efde0d57ca4ccde8ba3379</hash><remark><text>[tr Sp Msx Informatica]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Equations</title>
@@ -2957,7 +2957,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">c221c5d90c3c6eabf1a651072cd9841ad1b25d7d</hash></rom></dump>
 		<dump><rom><hash algo="sha1">09b0ea7c5595f4e9c9a15219f30e3423bbc25f66</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">8ecc34ebff9d37c0fe9560cfdc53a052cff3d1ab</hash><remark><text>[a2]</text></remark></rom></dump>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">5be82c297566b3e08fa1fe2534be06ca2f95d565</hash><remark><text>[tr Br Uriano]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">5be82c297566b3e08fa1fe2534be06ca2f95d565</hash><remark><text>[tr Br Uriano]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">975fdf521c08030896eb50af4f39a23500eaf7ac</hash><remark><text>Jaleco</text></remark></rom></dump>
 </software>
 <software>
@@ -3670,8 +3670,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Konami</type><hash algo="sha1">f924980511d2ea191481c1e4ff5ab7adc3f082ab</hash><remark><text>[RC-748] / Ulver full crack</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">02cfc41132d518e2b9fc632ec6ad00656bd9ec92</hash><remark><text>[RC-748] / [a]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">f5009c44ba1e72b64e29fc734741d518b4167aea</hash><remark><text>[RC-748]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">00c555895b47c435d7965f7c488858c35e2944f4</hash><remark><text>[RC-748] [English] [Trained] / Translated by Tsunami &#38; Max Iwamoto</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">b99cb4a334665798042ac4d0c88da0d22cc32bd6</hash><remark><text>[RC-748] [English] / Translated by Tsunami &#38; Max Iwamoto</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">00c555895b47c435d7965f7c488858c35e2944f4</hash><remark><text>[RC-748] [English] [Trained] / Translated by Tsunami &#38; Max Iwamoto</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">b99cb4a334665798042ac4d0c88da0d22cc32bd6</hash><remark><text>[RC-748] [English] / Translated by Tsunami &#38; Max Iwamoto</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gang Master</title>
@@ -3723,8 +3723,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1989</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">93b07e3cd5ae2f00b36824a74f83a3ef0d65d0d5</hash><remark><text>[RC-766]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">dbed87a53c604f7140577d6707ca0fc8490463a6</hash><remark><text>[a2][RC-766] / tr Eng</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">faa5f0bf79fde9ce74b91a7091d203771cae8499</hash><remark><text>[RC-766] / tr Eng</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">dbed87a53c604f7140577d6707ca0fc8490463a6</hash><remark><text>[a2][RC-766] / tr Eng</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">faa5f0bf79fde9ce74b91a7091d203771cae8499</hash><remark><text>[RC-766] / tr Eng</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Genchohisi</title>
@@ -3877,9 +3877,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">d2ccc4a8de5da21745209d0731671e8f3cbea515</hash><remark><text>Ulver crack</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">91505fccdcc43230550d101967010bed27f9b573</hash><remark><text>[o]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">959a2ddefc9dc1a751cf30779b1aaac775f1612f</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII16</type><hash algo="sha1">8b7e4bc408a8c715943bfa00069f2d517b39a748</hash><remark><text>English Translation</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII16</type><hash algo="sha1">678efe599b8085bd27f9d3d42cfbbd7ca74ceb89</hash><remark><text>English Translation</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII16</type><hash algo="sha1">05767fec34beaaee390a86be496d98d2b27de641</hash><remark><text>English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">8b7e4bc408a8c715943bfa00069f2d517b39a748</hash><remark><text>English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">678efe599b8085bd27f9d3d42cfbbd7ca74ceb89</hash><remark><text>English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">05767fec34beaaee390a86be496d98d2b27de641</hash><remark><text>English Translation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gomok Narabe - Omo Go</title>
@@ -4041,7 +4041,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Comptiq</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">3b7a7cdc05b45518d2757ab82ed6415da1309486</hash><remark><text>Ruote E Cavernicoli [tr It]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">3b7a7cdc05b45518d2757ab82ed6415da1309486</hash><remark><text>Ruote E Cavernicoli [tr It]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">32615267e8497db3f5e6f5348ee309e73c80a1a7</hash></rom></dump>
 		<dump><rom><hash algo="sha1">04325bfe5bc20a8f6d086933d138fb92ca200111</hash></rom></dump>
 		<dump><rom><hash algo="sha1">cf4c1a4df0a55c4a0cf33436e649f32e5857b5cc</hash><remark><text>[Topia]</text></remark></rom></dump>
@@ -4240,7 +4240,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Micro Cabin</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">146332dd0a190c3e6eb4abe1c4306a8f6faca9f0</hash><remark><text>[tr Arrowsoft]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">146332dd0a190c3e6eb4abe1c4306a8f6faca9f0</hash><remark><text>[tr Arrowsoft]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Harapeko Pakkun</title>
@@ -4418,7 +4418,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Hudson</company>
 	<year>1983</year>
 	<country>JP</country>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">3beb85d30e3e7319c719e0a290096fb8aa9ff3bc</hash><remark><text>[tr En]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">3beb85d30e3e7319c719e0a290096fb8aa9ff3bc</hash><remark><text>[tr En]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">bbca0b00374ba5366ba53b380285d38857450a7d</hash></rom></dump>
 </software>
 <software>
@@ -4584,8 +4584,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII16SRAM2</type><hash algo="sha1">a3537934a4d9dfbf27aca5aaf42e0f18e4975366</hash><remark><text>[a]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII16SRAM2</type><hash algo="sha1">b18d36cc60d0e3b325138bb98472b685cca89f90</hash><remark><text>[b]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">552a758f77a7c35969523dbaca74587f0b59eb2b</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">0fe07b5f62e179a1294253a505a296ffefca8c95</hash><remark><text>Woomb Retranslation</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII16SRAM2</type><hash algo="sha1">1eae08241c0681d6b6d87c68ebdaaff1baa40069</hash><remark><text>Translated into English</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">0fe07b5f62e179a1294253a505a296ffefca8c95</hash><remark><text>Woomb Retranslation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16SRAM2</type><hash algo="sha1">1eae08241c0681d6b6d87c68ebdaaff1baa40069</hash><remark><text>Translated into English</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Hydlide 3 - The Space Memories MSX1 Version</title>
@@ -4604,7 +4604,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">f182d4785e3eed00292f7ff4795c9dcc6c990a0a</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">e10f5d2e622dd7dfe7df2e15d209edd3025adba7</hash><remark><text>Woomb Retranslation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">e10f5d2e622dd7dfe7df2e15d209edd3025adba7</hash><remark><text>Woomb Retranslation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Hype</title>
@@ -5263,8 +5263,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">ecb538238fc7c5e374d723f4d6120d1b2ef5d80e</hash><remark><text>[tr En][RC-745]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">fe4bd35e87dd50fddd255172129b9bec38691188</hash><remark><text>[RC-745]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">c6d2aa3e7303e0e2244256bfcfc113bafe2d6b59</hash><remark><text>[RC-745]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">2b4c386a56dddd2a3354bdf1a0041d3faa0ccc72</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">e178917d1974ac85fd58cb93b936eb9a6f44ba0d</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">2b4c386a56dddd2a3354bdf1a0041d3faa0ccc72</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">e178917d1974ac85fd58cb93b936eb9a6f44ba0d</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash><remark><text>[tr En][RC-745] / cheat version</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">de2349227d765db73cdc44efc6338f6b530eb133</hash><remark><text>[tr En][RC-745] / Ulver crack</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">a5963fa6c95fbe34482862b0f7221b7766e3a194</hash><remark><text>[RC-745]</text></remark></megarom></dump>
@@ -5406,16 +5406,16 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">240e15fb5d918aa821f226002772dc800d9f20a4</hash><remark><text>[RC-754]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">1ff0afe393f89b6517025dc39a282c11c7da87ca</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">1ff0afe393f89b6517025dc39a282c11c7da87ca</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">25f5adeca8a2ddb754d25eb18cff0d84e5b003bc</hash><remark><text>[RC-754]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">3b6f140c99cba5bfa510200df49d1e573d687e4d</hash><remark><text>[RC-754] / English Translation</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">d0dfc1927461d9473d0ed471375dcedddba42279</hash><remark><text>[RC-754] / English translation [B4]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">4323eb37b9a795be32a2b64824fc4acd7afe4e9d</hash><remark><text>[RC-754] / Translation into English</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">3b6f140c99cba5bfa510200df49d1e573d687e4d</hash><remark><text>[RC-754] / English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">d0dfc1927461d9473d0ed471375dcedddba42279</hash><remark><text>[RC-754] / English translation [B4]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">4323eb37b9a795be32a2b64824fc4acd7afe4e9d</hash><remark><text>[RC-754] / Translation into English</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">f999e0187023413d839a67337d0595e150b2398f</hash><remark><text>[RC-754]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">8c609b8bee4245a1bb81e37d888ac5efb66533cf</hash><remark><text>[RC-754]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">d33508c89656b18063893cadb74573e0b656792d</hash><remark><text>[RC-754]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">828a38535cb6246469a65f429834db8ab469d914</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">87a6681c98a933d54d043bf603ba137f866696a8</hash><remark><text>[RC-754] / English Translation [B4][disk fix]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">828a38535cb6246469a65f429834db8ab469d914</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">87a6681c98a933d54d043bf603ba137f866696a8</hash><remark><text>[RC-754] / English Translation [B4][disk fix]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Knither Special</title>
@@ -6254,7 +6254,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e4d61ee74867066b04b0f6aba35d98d72665e6e0</hash></rom></dump>
 		<dump><rom><hash algo="sha1">8f92ea214a7a11394c512080d3b65a7afa9a92ed</hash></rom></dump>
 		<dump><rom><hash algo="sha1">57a39f6947d1f87107961cd57ee6a52027d5c612</hash></rom></dump>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">a0396786630e4a56206531a2ac9ddc2456ab71d3</hash><remark><text>Translated into English by hap and Zan</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">a0396786630e4a56206531a2ac9ddc2456ab71d3</hash><remark><text>Translated into English by hap and Zan</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Maxixdados</title>
@@ -6363,14 +6363,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">845b9263d75d89ef02c23fd05cccc13db5d512ea</hash><remark><text>[RC-750]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">495eb918ced94ef47885df40ceceef8b56e96691</hash><remark><text>[RC-750] / [tr En]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">495eb918ced94ef47885df40ceceef8b56e96691</hash><remark><text>[RC-750] / [tr En]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">a52021f1b257c7c35d626d5d642134091c45e4f4</hash><remark><text>[RC-750] / Does not work on Non Japanese systems</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">7d685547c2a4b92fa62e00854e4a9689d495f93d</hash><remark><text>[RC-750] / Does not work on Non Japanese systems</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">b656bd19df58fc1ba4628342b87beeec5948e0b3</hash><remark><text>[RC-750] / [tr En]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">aa881a2936f368ab887c296b837a8f7f553a3fb2</hash><remark><text>[RC-750] / [tr Sp]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">b656bd19df58fc1ba4628342b87beeec5948e0b3</hash><remark><text>[RC-750] / [tr En]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">aa881a2936f368ab887c296b837a8f7f553a3fb2</hash><remark><text>[RC-750] / [tr Sp]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">65040fb1e9bc4b2d027d7d81e44be30e7620e368</hash><remark><text>[RC-750] / Ulver crack / Does not work on Non Japanese systems</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">8449cdf161babec85508c35c8ca64a5c1fd7671d</hash><remark><text>[RC-750] / French translation by Django</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark><text>[RC-750] / [tr En][JP/EU patch]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">8449cdf161babec85508c35c8ca64a5c1fd7671d</hash><remark><text>[RC-750] / French translation by Django</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">7b959c609deaf67d29e3f79f55a03f53961f129e</hash><remark><text>[RC-750] / [tr En][JP/EU patch]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">31b8b69de88d84aabdb762af1adeac815723562c</hash><remark><text>[RC-750] / Save to disk</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">5ff1254dccd5dde58d3475a468178738d6260b05</hash><remark><text>[RC-750]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">c461efa942e1a3a1e580f9d04bf8d15c5e834f8b</hash><remark><text>[RC-750]</text></remark></megarom></dump>
@@ -6387,17 +6387,17 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1990</year>
 	<country>JP</country>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">356a936987e62967597ec64a0d35a1e8ad1aa20b</hash><remark><text>[RC-767] / Needs SCC in slot 2</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">4ad4898db3bdcf87b2acd5755e06d45c73d338cd</hash><remark><text>[RC-767] / [tr En] Needs SCC in slot 2</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">8262ac069e395ba020025caf0519e8eb5a63a0b8</hash><remark><text>[RC-767] / [tr Sp] Needs SCC in slot 2</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">4ad4898db3bdcf87b2acd5755e06d45c73d338cd</hash><remark><text>[RC-767] / [tr En] Needs SCC in slot 2</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">8262ac069e395ba020025caf0519e8eb5a63a0b8</hash><remark><text>[RC-767] / [tr Sp] Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">af567ea6e27912d6d5bf1c8e9bc18e9b393fd1ab</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">983eb5deeb61af5ce82ad598692192b8ae8a2a08</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">ad621247f95f80a1a32e67def5e978c845d19208</hash><remark><text>[RC-767] / [b]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">a7b196f7e934faa76602c8c00bd2f6e6d2d70787</hash><remark><text>[RC-767] / [tr En][a]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">7be2f14fd0df5718cdb69b972c5f7c1f284b03e6</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">9de8d411f1ed021014708ada45899beb4fc80c29</hash><remark><text>[RC-767] / [tr En][turbo-R patch]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">187b469e348f71b7376f063a5fd0a4fd971fa0e3</hash><remark><text>[RC-767] / [tr En][turbo-R patch]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">4b78514753008cabda2ff3d3cb537b2429efd7d2</hash><remark><text>[RC-767] / [tr En] Ulver full crack</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">53e1fb8ee77757cd20bf4c7aa4a5c6c786c664d6</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">a7b196f7e934faa76602c8c00bd2f6e6d2d70787</hash><remark><text>[RC-767] / [tr En][a]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">7be2f14fd0df5718cdb69b972c5f7c1f284b03e6</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">9de8d411f1ed021014708ada45899beb4fc80c29</hash><remark><text>[RC-767] / [tr En][turbo-R patch]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">187b469e348f71b7376f063a5fd0a4fd971fa0e3</hash><remark><text>[RC-767] / [tr En][turbo-R patch]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">4b78514753008cabda2ff3d3cb537b2429efd7d2</hash><remark><text>[RC-767] / [tr En] Ulver full crack</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">53e1fb8ee77757cd20bf4c7aa4a5c6c786c664d6</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">e7b8574a42b1029539632ce0f5161b1c38d5e95f</hash><remark><text>[RC-767] / Needs SCC in slot 2</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">ac71117eb20ec8a84035acbbd380df8235a5c665</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">c18adae0ca1243e13a15d381a431cc0dfc68223b</hash><remark><text>[RC-767]</text></remark></megarom></dump>
@@ -6413,7 +6413,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1990</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">21ac0ae7da47abf30986b479489134c79405f95d</hash><remark><text>[RC-767]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Meteoritooo !!</title>
@@ -7037,7 +7037,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>HAL Laboratory</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><original value="false">translated<original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">9f6103568e4c11224932a223bfc86fa0c3eef021</hash><remark><text>[tr Pg]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">9f6103568e4c11224932a223bfc86fa0c3eef021</hash><remark><text>[tr Pg]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">20a2e3d7966916f46eb26cc1aa226ec2d11646f9</hash></rom></dump>
 </software>
 <software>
@@ -7258,7 +7258,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">c9d10b1df3bcadb3d917cf2a6877ae6e71ca3a57</hash></rom></dump>
 		<dump><rom><hash algo="sha1">ddc1824826d78e29261b30a675bff9862f308392</hash><remark><text>[b]</text></remark></rom></dump>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">7d566809ea870ab681680ba3daa8946cfcb060e5</hash><remark><text>[tr Br Pauli Soft]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">7d566809ea870ab681680ba3daa8946cfcb060e5</hash><remark><text>[tr Br Pauli Soft]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Ninja Princess</title>
@@ -7613,10 +7613,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">2220363ae56ef707ab2471fcdb36f4816ad1d32c</hash><remark><text>[RC-759]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">75d3b72d9ceeaa55c76223d935629a30ae4124d6</hash><remark><text>[a][RC-759]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">2111cec4b5ea698d772bb80664f6be690b47391c</hash><remark><text>[RC-759] / cheat version</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">04e4eb1cae7cf379977d238b74d727bb929c8d23</hash><remark><text>[RC-759] / English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">04e4eb1cae7cf379977d238b74d727bb929c8d23</hash><remark><text>[RC-759] / English Translation</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">240a23b63e901b988951dda1ded561c281ccbbc1</hash><remark><text>[RC-759] / Ulver crack</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>KonamiSCC</type><hash algo="sha1">f1de76dfcd8c4e354a8a8058a76191167fd112e3</hash><remark><text>[RC-759] / English Translation</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">7c066cb763f7a4fec0474b5a09e3ef43bbf9248b</hash><remark><text>[RC-759] / English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">f1de76dfcd8c4e354a8a8058a76191167fd112e3</hash><remark><text>[RC-759] / English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">7c066cb763f7a4fec0474b5a09e3ef43bbf9248b</hash><remark><text>[RC-759] / English Translation</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">ee66334fbac1c926ed05c1c3f38df3920f501fe6</hash><remark><text>[RC-759]</text></remark></megarom></dump>
 </software>
 <software>
@@ -7708,7 +7708,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Ascii</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">688564bedfd713432350d7aee3fbd7a7fc8691d1</hash><remark><text>[tr Br]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">688564bedfd713432350d7aee3fbd7a7fc8691d1</hash><remark><text>[tr Br]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">86231b604338a9b4c63be995adb2fd9860bab20b</hash><remark><text>[h Pro Soft]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">5aab681334f9e97fe8d7e0eb008b2afd5e0fc3ac</hash></rom></dump>
 		<dump><rom><hash algo="sha1">6c0d3a55f9e8e9c274413d06f4729bc517f77ff5</hash></rom></dump>
@@ -7726,7 +7726,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">788c53657d9ea180d04f29ccaf1f1c29a9b75519</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">ce4c5ce07afd297156899eb6c1056eef3f83b803</hash><remark><text>[b]</text></remark></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">cbec713b32517a503ae6c02497357a8361eccb76</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII16</type><hash algo="sha1">9f476f544d1cd5f87d4ca19665ccdbf6ac0f68a0</hash><remark><text>English translation by Tsunami and Max</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">9f476f544d1cd5f87d4ca19665ccdbf6ac0f68a0</hash><remark><text>English translation by Tsunami and Max</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">cd2bea197ad97a5a1e90d6b998595c9b5802dd80</hash><remark><text>Bug Fix</text></remark></megarom></dump>
 </software>
 <software>
@@ -8716,7 +8716,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">14ff6fe464362c6b7dbb47b2ecda3a8c5f05ef79</hash></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">3f741ba2ab08c5e9fb658882b36b8e3d01682f58</hash><remark><text>[a1]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">96e2a7163c755fbea77abfd9d09a798687a5a993</hash><remark><text>[Kanji]</text></remark></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">7ad40ae512bbf4ba688467ba23e16354b8421d0a</hash><remark><text>[tr En]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">7ad40ae512bbf4ba688467ba23e16354b8421d0a</hash><remark><text>[tr En]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Sangokushi 1 - Romance Of Three Kingdoms - MSX2 Version</title>
@@ -8927,7 +8927,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">da95bcd1f0c28683cfb4a7a2c10599261dca3622</hash></rom></dump>
 		<dump><rom><hash algo="sha1">b660a4e2f45477a6b62201ca2ac9cd36748c18d9</hash><remark><text>[b]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">fc22cec076c0a0a1ee7e410772af3d7d31de3149</hash></rom></dump>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">d927dce3ca188da733889e4141aa526b9a10e635</hash><remark><text>[tr Sp EngeSoft]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">d927dce3ca188da733889e4141aa526b9a10e635</hash><remark><text>[tr Sp EngeSoft]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Seikima 2 Special</title>
@@ -9609,7 +9609,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">3950f22265139a84cf57f3c0936e7927173f3d7a</hash></rom></dump>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">214cedb8f4689da150878ca6f4fcac31359c9766</hash><remark><text>[tr Kr]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">214cedb8f4689da150878ca6f4fcac31359c9766</hash><remark><text>[tr Kr]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Strange Loop</title>
@@ -9955,7 +9955,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Thinking Rabbit</company>
 	<year>1983</year>
 	<country>JP</country>
-		<dump><original value="false">translated<original><rom><hash algo="sha1">1449f9b1f889137831089ddc73e04b8c6b5a56ee</hash><remark><text>[tr Pt]</text></remark></rom></dump>
+		<dump><original value="false">translated</original><rom><hash algo="sha1">1449f9b1f889137831089ddc73e04b8c6b5a56ee</hash><remark><text>[tr Pt]</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Sweet Acorn</title>
@@ -10130,7 +10130,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">00c70cf37c71cb8f99567ae407ff6dd52c4774c2</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>ASCII8</type><hash algo="sha1">aba839d554733850902f3073f7974e2e87c488ba</hash><remark><text>French translation by Django</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">aba839d554733850902f3073f7974e2e87c488ba</hash><remark><text>French translation by Django</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tensai Rabbian Daifunsen</title>
@@ -11192,7 +11192,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">97e173dac64dbde7d6a60de7606cba0c860813db</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">b6a5552effcee708b665fa74e5ce7b0fa2541c03</hash></megarom></dump>
-		<dump><original value="false">translated<original><megarom><type>Konami</type><hash algo="sha1">d7e85888117188a6d6f7914e9649fc4821c594a2</hash><remark><text>[tr Pg]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">d7e85888117188a6d6f7914e9649fc4821c594a2</hash><remark><text>[tr Pg]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Yumetairiku Adventure - Penguin Adventure</title>
@@ -11371,5 +11371,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2494
-Parse time 4.793 seconds on Thu Dec 24 21:44:36 CET 2009
+Parse time 4.504 seconds on Thu Dec 24 23:31:57 CET 2009
  -->
