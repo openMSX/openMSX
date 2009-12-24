@@ -5,6 +5,7 @@ from hq import (
 	edges, getZoom, permuteCase, scaleWeights, simplifyWeights
 	)
 
+from collections import defaultdict
 from itertools import izip
 
 def computeCasePermutation(neighbourPermutation):
@@ -107,6 +108,132 @@ def convert4to2(topLeftQuadrant4):
 		convertExpr4to2(case, expr4)
 		for case, expr4 in enumerate(topLeftQuadrant4)
 		]
+
+def analyzeCaseFunction(caseToWeights):
+	weightsToCase = defaultdict(set)
+	for case, weights in enumerate(caseToWeights):
+		weightsToCase[weights].add(case)
+	for weights in sorted(weightsToCase.iterkeys()):
+		cases = weightsToCase[weights]
+		partitions = set(
+			tuple((case >> edgeNum) & 1 for edgeNum in xrange(11, -1, -1))
+			for case in cases
+			)
+		# Repeatedly merge partitions until we have a minimal set.
+		for edgeNum in xrange(12):
+			changed = True
+			while changed:
+				changed = False
+				for part in list(partitions):
+					if part not in partitions:
+						continue
+					if part[edgeNum] < 2:
+						pre = part[ : edgeNum]
+						post = part[edgeNum + 1 : ]
+						dual = pre + (part[edgeNum] ^ 1,) + post
+						if dual in partitions:
+							partitions.remove(part)
+							partitions.remove(dual)
+							partitions.add(pre + (2,) + post)
+							changed = True
+		yield weights, [
+			''.join('01x'[bit] for bit in partition)
+			for partition in sorted(partitions)
+			]
+
+def computeZ3S0W1(case):
+	if (case & 0xFF8) in (
+		0x0E0, 0x0F0, 0x2A0, 0x2B0, 0x8E0, 0x8F0, 0xAA0, 0xAB0, 0xBB0, 0xCF0
+		):
+		return 8
+	elif (case & 0xFF8) in (
+		0x0A0, 0x1A0, 0x4A0, 0x8A0,
+		0x1F0, 0x4F0, 0x5F0, 0x9F0, 0xDF0,
+		0x0B0, 0x1B0, 0x3B0, 0x4B0, 0x5B0, 0x6B0, 0x7B0,
+		0x8B0, 0x9B0, 0xCB0, 0xDB0, 0xEB0, 0xFB0
+		):
+		return 7
+	elif (case & 0xFF1) in (0x130, 0x170, 0x330, 0x370, 0x770):
+		return 4
+	elif (case & 0xFF8) in (
+		0x3A0, 0x5A0, 0x7A0, 0x9A0, 0xBA0, 0xCA0, 0xDA0, 0xEA0,
+		0x2E0, 0x4E0, 0x5E0, 0x9E0, 0xAE0, 0xCE0,
+		0x2F0, 0x3F0, 0x6F0, 0x7F0, 0xAF0, 0xBF0, 0xEF0, 0xFF0
+		):
+		return 4
+	elif (case & 0x0F0) in (0x000, 0x010, 0x040, 0x050, 0x090, 0x0D0):
+		return 4
+	else:
+		return 0
+
+def computeZ3S0W0(case):
+	if (case & 0xFF8) in (0x1A8, 0x4A8, 0x5E0, 0x7A0, 0x9E0, 0xEA0):
+		return 0
+	elif (case & 0x7F8) in (
+		0x0A0, 0x0E0, 0x1A0, 0x2A0, 0x2E0, 0x3A0, 0x4A0, 0x4E0, 0x5A0
+		):
+		return 0
+	elif (case & 0x0B0) == 0x000:
+		return 0
+	elif (case & 0x010) == 0x010:
+		return 0
+	else:
+		return 4
+
+def computeZ3S1W1(case):
+	if (case & 0xFF1) in (0x170, 0x130, 0x330, 0x370, 0x770):
+		return 12
+	elif (case & 0xFF8) in (0x0E0, 0x0F0, 0x8E0, 0x8F0, 0xCF0):
+		return 12
+	elif (case & 0xFF1) in (0x920, 0x960, 0xB20, 0xB60, 0xBE0):
+		return 4
+	elif (case & 0xFF8) in (0x2A0, 0x2B0, 0xAA0, 0xAB0, 0xBB0):
+		return 4
+	elif (case & 0x020) == 0:
+		return 4
+	elif (case & 0xFF1) in (
+		0x120, 0x160, 0x1E0, 0x320, 0x360, 0x3E0,
+		0x520, 0x560, 0x570, 0x5E0, 0x760, 0x7E0,
+		0x9E0, 0xD60, 0xDE0, 0xDF0, 0xF60, 0xFE0
+		):
+		return 2
+	elif (case & 0xFF8) in (
+		0x0A0, 0x0B0, 0x1B0, 0x3B0, 0x4A0, 0x4B0,
+		0x4F0, 0x5B0, 0x6B0, 0x7B0, 0x7F0, 0x8A0,
+		0x8B0, 0x9B0, 0xCB0, 0xDB0, 0xEB0, 0xFB0
+		):
+		return 2
+	else:
+		return 0
+
+def genExpr3():
+	quadrant = [
+		[ None ] * 4
+		for case in xrange(1 << 12)
+		]
+	quadrantPerm = (0, 2, 1, 3)
+	casePerm = computeCasePermutation((0, 3, 6, 1, 4, 7, 2, 5, 8))
+
+	for case in xrange(1 << 12):
+		w0 = computeZ3S0W0(case)
+		w1 = computeZ3S0W1(case)
+		w2 = computeZ3S0W1(permuteCase(case, casePerm))
+		weights = (w0, w1, w2, 16 - w0 - w1 - w2)
+		quadrant[case][0] = simplifyWeights(weights)
+
+	for case in xrange(1 << 12):
+		w1 = computeZ3S1W1(case)
+		weights = (0, w1, 0, 16 - w1)
+		quadrant[case][1] = simplifyWeights(weights)
+
+	for case in xrange(1 << 12):
+		mirrorCase = permuteCase(case, casePerm)
+		quadrant[case][2] = permute(quadrant[mirrorCase][1], quadrantPerm)
+
+	for case in xrange(1 << 12):
+		quadrant[case][3] = (0, 0, 0, 1)
+
+	return quadrant
 
 # Various analysis:
 
@@ -239,9 +366,14 @@ def checkConvert4to2():
 	parser2 = Parser2x()
 	comparePixelExpr(pixelExpr2, parser2.pixelExpr)
 
+def checkGen3():
+	pixelExpr3 = expandQuadrant(genExpr3(), 3)
+	comparePixelExpr(pixelExpr3, Parser3x().pixelExpr)
+
 # Main:
 
 if __name__ == '__main__':
+	findRelevantEdges()
 	checkQuadrants()
 	checkConvert4to2()
-	findRelevantEdges()
+	checkGen3()
