@@ -16,7 +16,7 @@ GLSimpleScaler::GLSimpleScaler(RenderSettings& renderSettings_)
 
 		string header = string("#define SUPERIMPOSE ")
 		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  ("simple.vert");
+		VertexShader   vertexShader  (header, "simple.vert");
 		FragmentShader fragmentShader(header, "simple.frag");
 		d.scalerProgram.reset(new ShaderProgram());
 		d.scalerProgram->attach(vertexShader);

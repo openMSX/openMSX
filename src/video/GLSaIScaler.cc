@@ -11,7 +11,7 @@ GLSaIScaler::GLSaIScaler()
 	for (int i = 0; i < 2; ++i) {
 		string header = string("#define SUPERIMPOSE ")
 		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  ("sai.vert");
+		VertexShader   vertexShader  (header, "sai.vert");
 		FragmentShader fragmentShader(header, "sai.frag");
 		scalerProgram[i].reset(new ShaderProgram());
 		scalerProgram[i]->attach(vertexShader);

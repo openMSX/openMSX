@@ -20,5 +20,7 @@ void main()
 	vec2 texStep2 = 2.0 * texStep;
 	misc = vec4(subPixelPos, texStep2);
 
+#if SUPERIMPOSE
 	videoCoord = gl_MultiTexCoord1.st;
+#endif
 }

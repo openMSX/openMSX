@@ -41,7 +41,7 @@ GLHQScaler::GLHQScaler()
 	for (int i = 0; i < 2; ++i) {
 		string header = string("#define SUPERIMPOSE ")
 		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  ("hq.vert");
+		VertexShader   vertexShader  (header, "hq.vert");
 		FragmentShader fragmentShader(header, "hq.frag");
 		scalerProgram[i].reset(new ShaderProgram());
 		scalerProgram[i]->attach(vertexShader);

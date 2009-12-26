@@ -16,7 +16,7 @@ GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
 
 		string header = string("#define SUPERIMPOSE ")
 		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  ("rgb.vert");
+		VertexShader   vertexShader  (header, "rgb.vert");
 		FragmentShader fragmentShader(header, "rgb.frag");
 		d.scalerProgram.reset(new ShaderProgram());
 		d.scalerProgram->attach(vertexShader);

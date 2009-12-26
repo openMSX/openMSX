@@ -16,5 +16,7 @@ void main()
 	coord2pi = gl_MultiTexCoord0.st * texSize * pi2;
 	texStep = 1.0 / texSize;
 
+#if SUPERIMPOSE
 	videoCoord = gl_MultiTexCoord1.st;
+#endif
 }

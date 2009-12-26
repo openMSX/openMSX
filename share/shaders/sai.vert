@@ -24,5 +24,7 @@ void main()
 	scaled.y = (1.0 - gl_MultiTexCoord0.s) * texSize.x;
 	scaled.z =        gl_MultiTexCoord0.t  * texSize.y;
 
+#if SUPERIMPOSE
 	videoCoord = gl_MultiTexCoord1.st;
+#endif
 }

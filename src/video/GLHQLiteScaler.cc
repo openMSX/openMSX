@@ -40,7 +40,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 	for (int i = 0; i < 2; ++i) {
 		string header = string("#define SUPERIMPOSE ")
 		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  ("hqlite.vert");
+		VertexShader   vertexShader  (header, "hqlite.vert");
 		FragmentShader fragmentShader(header, "hqlite.frag");
 		scalerProgram[i].reset(new ShaderProgram());
 		scalerProgram[i]->attach(vertexShader);

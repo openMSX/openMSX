@@ -24,5 +24,7 @@ void main()
 
 	texStep2 = 2.0 * texStep;
 
+#if SUPERIMPOSE
 	videoCoord = gl_MultiTexCoord1.st;
+#endif
 }

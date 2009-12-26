@@ -11,7 +11,7 @@ GLScaleNxScaler::GLScaleNxScaler()
 	for (int i = 0; i < 2; ++i) {
 		string header = string("#define SUPERIMPOSE ")
 		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  ("scale2x.vert");
+		VertexShader   vertexShader  (header, "scale2x.vert");
 		FragmentShader fragmentShader(header, "scale2x.frag");
 		scalerProgram[i].reset(new ShaderProgram());
 		scalerProgram[i]->attach(vertexShader);
