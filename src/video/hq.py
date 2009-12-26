@@ -395,17 +395,31 @@ def transformWeights(weights, cellFunc):
 		yield min(255, 0 if cell is None else scaledWeights[cell])
 
 def computeOffsets(pixelExpr):
-	for expr in pixelExpr:
-		for weights in expr:
-			for x, y in transformOffsets(weights):
-				yield x
-				yield y
+	'''Computes offsets for the fragment shader.
+	Output is a 64N * 64N texture, where N is the zoom factor.
+	'''
+	zoom = getZoom(pixelExpr)
+	for caseMajor in xrange(0, len(pixelExpr), 64):
+		for subY in xrange(0, zoom ** 2, zoom):
+			for caseMinor in xrange(64):
+				for subX in xrange(zoom):
+					weights = pixelExpr[caseMajor + caseMinor][subY + subX]
+					for x, y in transformOffsets(weights):
+						yield x
+						yield y
 
 def computeWeights(pixelExpr, cellFunc):
-	for expr in pixelExpr:
-		for weights in expr:
-			for transformedWeight in transformWeights(weights, cellFunc):
-				yield transformedWeight
+	'''Computes weights for the fragment shader.
+	Output is a 64N * 64N texture, where N is the zoom factor.
+	'''
+	zoom = getZoom(pixelExpr)
+	for caseMajor in xrange(0, len(pixelExpr), 64):
+		for subY in xrange(0, zoom ** 2, zoom):
+			for caseMinor in xrange(64):
+				for subX in xrange(zoom):
+					weights = pixelExpr[caseMajor + caseMinor][subY + subX]
+					for tw in transformWeights(weights, cellFunc):
+						yield tw
 
 def computeWeightCells(weights):
 	neighbours = computeNeighbours(weights)
@@ -543,30 +557,35 @@ def genHQLiteOffsetsTable(pixelExpr):
 	'''In the hqlite case, the result color depends on at most one neighbour
 	color. Therefore, an offset into an interpolated texture is used instead
 	of explicit weights.
+	Output is a 64N * 64N texture, where N is the zoom factor.
 	'''
 	zoom = getZoom(pixelExpr)
-	for expr in pixelExpr:
-		for subPixel, weights in enumerate(expr):
-			if weights is None:
-				neighbour = None
-			else:
-				neighbours = computeNeighbours(weights)
-				assert neighbours[1] is None, neighbours
-				neighbour = neighbours[0]
-				factor = sum(weights)
-
-			sy, sx = divmod(subPixel, zoom)
-			x, y = (int(192.5 - 128.0 * (0.5 + sc) / zoom) for sc in (sx, sy))
-			if neighbour == 3:
-				x -= 128 * weights[3] / factor
-			elif neighbour == 5:
-				x += 128 * weights[5] / factor
-			else:
-				assert neighbour is None, neighbour
-			assert 0 <= x < 256, x
-			assert 0 <= y < 256, y
-			yield x
-			yield y
+	for caseMajor in xrange(0, len(pixelExpr), 64):
+		for subY in xrange(zoom):
+			for caseMinor in xrange(64):
+				for subX in xrange(zoom):
+					subPixel = zoom * subY + subX
+					weights = pixelExpr[caseMajor + caseMinor][subPixel]
+					if weights is None:
+						neighbour = None
+					else:
+						neighbours = computeNeighbours(weights)
+						assert neighbours[1] is None, neighbours
+						neighbour = neighbours[0]
+						factor = sum(weights)
+		
+					x = int(192.5 - 128.0 * (0.5 + subX) / zoom)
+					y = int(192.5 - 128.0 * (0.5 + subY) / zoom)
+					if neighbour == 3:
+						x -= 128 * weights[3] / factor
+					elif neighbour == 5:
+						x += 128 * weights[5] / factor
+					else:
+						assert neighbour is None, neighbour
+					assert 0 <= x < 256, x
+					assert 0 <= y < 256, y
+					yield x
+					yield y
 
 # Main:
 

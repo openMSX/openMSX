@@ -14,27 +14,6 @@ using std::string;
 
 namespace openmsx {
 
-// TODO apply this transformation on the data file, or even better
-// generate the data algorithmically (including this transformation)
-static void transform(const byte* in, byte* out, int n)
-{
-	for (int z = 0; z < 4096; ++z) {
-		int z1Offset = 2 * n * n * z;
-		int z2Offset = 2 * (n * (z % 64) +
-		                    n * n * 64 * (z / 64));
-		for (int y = 0; y < n; ++y) {
-			int y1Offset = 2 * n      * y;
-			int y2Offset = 2 * n * 64 * y;
-			for (int x = 0; x < n; ++x) {
-				int offset1 = z1Offset + y1Offset + 2 * x;
-				int offset2 = z2Offset + y2Offset + 2 * x;
-				out[offset2 + 0] = in[offset1 + 0];
-				out[offset2 + 1] = in[offset1 + 1];
-			}
-		}
-	}
-}
-
 GLHQLiteScaler::GLHQLiteScaler()
 {
 	for (int i = 0; i < 2; ++i) {
@@ -79,7 +58,6 @@ GLHQLiteScaler::GLHQLiteScaler()
 	SystemFileContext context;
 	CommandController* controller = NULL; // ok for SystemFileContext
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	byte buffer[2 * 4 * 4 * 4096];
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
 		string offsetName = StringOp::Builder() <<
@@ -88,16 +66,15 @@ GLHQLiteScaler::GLHQLiteScaler()
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
-		transform(offsetFile.mmap(), buffer, n);
-		glTexImage2D(GL_TEXTURE_2D,      // target
-			     0,                  // level
-			     GL_LUMINANCE8_ALPHA8, // internal format
-			     n * 64,             // width
-			     n * 64,             // height
-			     0,                  // border
-			     GL_LUMINANCE_ALPHA, // format
-			     GL_UNSIGNED_BYTE,   // type
-			     buffer);            // data
+		glTexImage2D(GL_TEXTURE_2D,        // target
+		             0,                    // level
+		             GL_LUMINANCE8_ALPHA8, // internal format
+		             n * 64,               // width
+		             n * 64,               // height
+		             0,                    // border
+		             GL_LUMINANCE_ALPHA,   // format
+		             GL_UNSIGNED_BYTE,     // type
+		             offsetFile.mmap());   // data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }

@@ -14,28 +14,6 @@ using std::string;
 
 namespace openmsx {
 
-// TODO apply this transformation on the data file, or even better
-// generate the data algorithmically (including this transformation)
-static void transform(const byte* in, byte* out, int n, int s)
-{
-	for (int z = 0; z < 4096; ++z) {
-		int z1Offset = s * n * n * z;
-		int z2Offset = s * (n * (z % 64) +
-		                    n * n * 64 * (z / 64));
-		for (int y = 0; y < n; ++y) {
-			int y1Offset = s * n      * y;
-			int y2Offset = s * n * 64 * y;
-			for (int x = 0; x < n; ++x) {
-				int offset1 = z1Offset + y1Offset + s * x;
-				int offset2 = z2Offset + y2Offset + s * x;
-				for (int t = 0; t < s; ++t) {
-					out[offset2 + t] = in[offset1 + t];
-				}
-			}
-		}
-	}
-}
-
 GLHQScaler::GLHQScaler()
 {
 	for (int i = 0; i < 2; ++i) {
@@ -81,7 +59,6 @@ GLHQScaler::GLHQScaler()
 	SystemFileContext context;
 	CommandController* controller = NULL; // ok for SystemFileContext
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	byte buffer[4 * 4 * 4 * 4096];
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
 		string offsetsName = StringOp::Builder() <<
@@ -90,16 +67,15 @@ GLHQScaler::GLHQScaler()
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
-		transform(offsetsFile.mmap(), buffer, n, 4);
-		glTexImage2D(GL_TEXTURE_2D,      // target
-			     0,                  // level
-			     GL_RGBA8,           // internal format
-			     n * 64,             // width
-			     n * 64,             // height
-			     0,                  // border
-			     GL_RGBA,            // format
-			     GL_UNSIGNED_BYTE,   // type
-			     buffer);            // data
+		glTexImage2D(GL_TEXTURE_2D,       // target
+		             0,                   // level
+		             GL_RGBA8,            // internal format
+		             n * 64,              // width
+		             n * 64,              // height
+		             0,                   // border
+		             GL_RGBA,             // format
+		             GL_UNSIGNED_BYTE,    // type
+		             offsetsFile.mmap()); // data
 
 		string weightsName = StringOp::Builder() <<
 			"shaders/HQ" << n << "xWeights.dat";
@@ -107,16 +83,15 @@ GLHQScaler::GLHQScaler()
 		weightTexture[i].reset(new Texture());
 		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();
-		transform(weightsFile.mmap(), buffer, n, 3);
-		glTexImage2D(GL_TEXTURE_2D,      // target
-			     0,                  // level
-			     GL_RGB8,            // internal format
-			     n * 64,             // width
-			     n * 64,             // height
-			     0,                  // border
-			     GL_RGB,             // format
-			     GL_UNSIGNED_BYTE,   // type
-			     buffer);            // data
+		glTexImage2D(GL_TEXTURE_2D,       // target
+		             0,                   // level
+		             GL_RGB8,             // internal format
+		             n * 64,              // width
+		             n * 64,              // height
+		             0,                   // border
+		             GL_RGB,              // format
+		             GL_UNSIGNED_BYTE,    // type
+		             weightsFile.mmap()); // data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }
