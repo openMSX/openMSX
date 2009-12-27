@@ -1,14 +1,12 @@
 # $Id$
 
-from hq import (
-	Parser2x, Parser3x, Parser4x, getZoom, scaleWeights
-	)
+from hq import getZoom, scaleWeights
 from hq_gen import (
 	edges, expandQuadrant, genExpr2, genExpr3, genExpr4, simplifyWeights
 	)
 
 from collections import defaultdict
-from itertools import izip
+from itertools import count, izip
 
 def normalizeWeights(pixelExpr):
 	maxSum = max(
@@ -104,10 +102,9 @@ def analyzeCaseFunction(caseToWeights):
 # Various analysis:
 
 def findRelevantEdges():
-	for parserClass in (Parser2x, Parser3x, Parser4x):
-		parser = parserClass()
-		quadrant = normalizeWeights(extractTopLeftQuadrant(parser.pixelExpr))
-		quadrantWidth = (parser.zoom + 1) / 2
+	for zoom, genExpr in izip(count(2), (genExpr2, genExpr3, genExpr4)):
+		quadrant = genExpr()
+		quadrantWidth = (zoom + 1) / 2
 		assert quadrantWidth ** 2 == len(quadrant[0])
 		subPixelOutput = [[] for _ in xrange(quadrantWidth * 10)]
 		for subPixel in xrange(quadrantWidth ** 2):
@@ -145,7 +142,7 @@ def findRelevantEdges():
 					subPixelOutput[(subPixel / quadrantWidth) * 10 + 9].append(
 						'%ss%d' % ('-' * (len(lineOutput) - 2), subPixel)
 						)
-		print 'Relevant edges for zoom %d:' % parser.zoom
+		print 'Relevant edges for zoom %d:' % zoom
 		print
 		for line in subPixelOutput:
 			print '  %s' % ''.join(line)
@@ -216,40 +213,15 @@ def comparePixelExpr(pixelExpr1, pixelExpr2):
 
 # Sanity checks:
 
-def checkQuadrants():
-	for parserClass in (Parser2x, Parser3x, Parser4x):
-		parser = parserClass()
-		topLeftQuadrant = extractTopLeftQuadrant(parser.pixelExpr)
-		expanded = expandQuadrant(topLeftQuadrant, parser.zoom)
-		comparePixelExpr(expanded, parser.pixelExpr)
-
 def checkConvert4to2():
-	parser4 = Parser4x()
-	topLeftQuadrant4 = extractTopLeftQuadrant(parser4.pixelExpr)
+	topLeftQuadrant4 = genExpr4()
 	topLeftQuadrant2 = convert4to2(topLeftQuadrant4)
 	pixelExpr2 = expandQuadrant(topLeftQuadrant2, 2)
 
-	parser2 = Parser2x()
-	comparePixelExpr(pixelExpr2, parser2.pixelExpr)
-
-def checkGen2():
-	pixelExpr2 = expandQuadrant(genExpr2(), 2)
-	comparePixelExpr(pixelExpr2, Parser2x().pixelExpr)
-
-def checkGen3():
-	pixelExpr3 = expandQuadrant(genExpr3(), 3)
-	comparePixelExpr(pixelExpr3, Parser3x().pixelExpr)
-
-def checkGen4():
-	pixelExpr4 = expandQuadrant(genExpr4(), 4)
-	comparePixelExpr(pixelExpr4, Parser4x().pixelExpr)
+	comparePixelExpr(pixelExpr2, expandQuadrant(genExpr2(), 2))
 
 # Main:
 
 if __name__ == '__main__':
 	findRelevantEdges()
-	checkQuadrants()
 	checkConvert4to2()
-	checkGen2()
-	checkGen3()
-	checkGen4()

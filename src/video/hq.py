@@ -6,204 +6,15 @@
 # To profile:
 #   python -m cProfile -s cumulative hq.py > hq-profile.txt
 
-from hq_gen import edges, permuteCase, simplifyWeights
+from hq_gen import (
+	edges, expandQuadrant, genExpr2, genExpr3, genExpr4,
+	permuteCase, simplifyWeights
+	)
 
 from collections import defaultdict
 from itertools import count, izip
 from math import sqrt
 import sys
-
-# Parser:
-
-class BaseParser(object):
-	zoom = None
-
-	@staticmethod
-	def _filterSwitch(stream):
-		log = False
-		inIf = False
-		for line in stream:
-			line = line.strip()
-			if line == 'switch (pattern) {':
-				log = True
-			elif line == '}':
-				if inIf:
-					inIf = False
-				elif log:
-					break
-			elif line.startswith('if'):
-				inIf = True
-			if log:
-				if '?' in line:
-					line += ' ' + stream.next().strip()
-					split0 = line.index('=')
-					split1 = line.index('?')
-					split2 = line.index(':')
-					split3 = line.index(';')
-					varName = line[ : split0].strip()
-					exprTest = line[split0 + 1 : split1].strip()
-					exprTrue = line[split1 + 1 : split2].strip()
-					exprFalse = line[split2 + 1 : split3].strip()
-					yield 'if (%s) {' % exprTest
-					yield '%s = %s;' % (varName, exprTrue)
-					yield '} else {'
-					yield '%s = %s;' % (varName, exprFalse)
-					yield '}'
-				else:
-					yield line
-
-	@staticmethod
-	def _parseSubPixel(name):
-		raise NotImplementedError
-
-	def __init__(self):
-		self.pixelExpr = [ [ None ] * (self.zoom ** 2) for _ in range(1 << 12) ]
-		self._parse()
-		self._sanityCheck()
-
-	def _parse(self):
-		cases = []
-		subCases = range(1 << 4)
-		for line in self._filterSwitch(file('HQ%dxScaler.in' % self.zoom)):
-			if line.startswith('case'):
-				cases.append(int(line[5 : line.index(':', 5)]))
-			elif line.startswith('pixel'):
-				subPixel = self._parseSubPixel(line[5])
-				expr = line[line.index('=') + 1 : ].strip()
-				self._addCases(cases, subCases, subPixel, expr[ : -1])
-			elif line.startswith('if'):
-				index = line.find('edge')
-				assert index != -1
-				index1 = line.index('(', index)
-				index2 = line.index(',', index1)
-				index3 = line.index(')', index2)
-				pix1s = line[index1 + 1 : index2].strip()
-				pix2s = line[index2 + 1 : index3].strip()
-				assert pix1s[0] == 'c', pix1s
-				assert pix2s[0] == 'c', pix2s
-				pix1 = int(pix1s[1:])
-				pix2 = int(pix2s[1:])
-				if pix1 == 2 and pix2 == 6:
-					subCase = 0
-				elif pix1 == 6 and pix2 == 8:
-					subCase = 1
-				elif pix1 == 8 and pix2 == 4:
-					subCase = 2
-				elif pix1 == 4 and pix2 == 2:
-					subCase = 3
-				else:
-					assert False, (line, pix1, pix2)
-				subCases = [ x for x in range(1 << 4) if x & (1 << subCase) ]
-			elif line.startswith('} else'):
-				subCases = [ x for x in range(1 << 4) if x not in subCases ]
-			elif line.startswith('}'):
-				subCases = range(1 << 4)
-			elif line.startswith('break'):
-				cases = []
-				subCases = range(1 << 4)
-
-	def _addCases(self, cases, subCases, subPixel, expr):
-		pixelExpr = self.pixelExpr
-		for case in cases:
-			for subCase in subCases:
-				weights = [ 0 ] * 9
-				if expr.startswith('interpolate'):
-					factorsStr = expr[
-						expr.index('<') + 1 : expr.index('>')
-						].split(',')
-					pixelsStr = expr[
-						expr.index('(') + 1 : expr.index(')')
-						].split(',')
-					assert len(factorsStr) == len(pixelsStr)
-					for factorStr, pixelStr in izip(factorsStr, pixelsStr):
-						factor = int(factorStr)
-						pixelStr = pixelStr.strip()
-						assert pixelStr[0] == 'c'
-						pixel = int(pixelStr[1 : ]) - 1
-						weights[pixel] = factor
-				else:
-					assert expr[0] == 'c'
-					weights[int(expr[1 : ]) - 1] = 1
-				pixelExpr[(case << 4) | subCase][subPixel] = tuple(weights)
-
-	def _sanityCheck(self):
-		'''Check various observed properties.
-		'''
-		for case, expr in enumerate(self.pixelExpr):
-			for weights in expr:
-				# Sum of weight factors is always a power of two.
-				assert isPow2(sum(weights)), (case, weights)
-
-				# There are at most 3 non-zero weights, and if there are 3,
-				# one of those must be for the center pixel.
-				numNonZero = sum(weight != 0 for weight in weights)
-				assert numNonZero <= 3, (case, weights)
-				assert numNonZero < 3 or weights[4] != 0, (case, weights)
-
-		# Subpixel depends only on the center and three neighbours in the
-		# direction of the subpixel itself.
-		center = (self.zoom - 1) / 2.0
-		def influentialNeighbours(x, y):
-			qx = 0 if x < center else 2 if x > center else 1
-			qy = 0 if y < center else 2 if y > center else 1
-			for ny in set([1, qy]):
-				for nx in set([1, qx]):
-					yield 3 * ny + nx
-		subsets = tuple(
-			tuple(sorted(influentialNeighbours(x, y)))
-			for y in xrange(self.zoom)
-			for x in xrange(self.zoom)
-			)
-		for case, expr in enumerate(self.pixelExpr):
-			assert len(expr) == len(subsets)
-			for weights, subset in izip(expr, subsets):
-				for neighbour in range(9):
-					if neighbour not in subset:
-						assert weights[neighbour] == 0, (
-							case, neighbour, weights
-							)
-
-class Parser2x(BaseParser):
-	zoom = 2
-
-	@staticmethod
-	def _parseSubPixel(name):
-		subPixel = int(name) - 1
-		assert 0 <= subPixel < 4
-		return subPixel
-
-	def _sanityCheck(self):
-		BaseParser._sanityCheck(self)
-
-		# Weight of the center pixel is never zero.
-		for case, expr in enumerate(self.pixelExpr):
-			for weights in expr:
-				assert weights[4] != 0
-
-class Parser3x(BaseParser):
-	zoom = 3
-
-	@staticmethod
-	def _parseSubPixel(name):
-		subPixel = int(name) - 1
-		assert 0 <= subPixel < 9
-		assert subPixel != 5 - 1
-		return subPixel
-
-	def _parse(self):
-		BaseParser._parse(self)
-		for expr in self.pixelExpr:
-			assert expr[4] is None
-			expr[4] = (0, 0, 0, 0, 1, 0, 0, 0, 0)
-
-class Parser4x(BaseParser):
-	zoom = 4
-
-	@staticmethod
-	def _parseSubPixel(name):
-		subPixel = int(name, 16)
-		assert 0 <= subPixel < 16
-		return subPixel
 
 # Variant classes:
 
@@ -564,10 +375,10 @@ def genHQLiteOffsetsTable(pixelExpr):
 # Main:
 
 def process2x():
-	parser = Parser2x()
+	pixelExpr = expandQuadrant(genExpr2(), 2)
 
-	fullTableVariant = Variant(parser.pixelExpr, lite = False, table = True)
-	liteTableVariant = Variant(parser.pixelExpr, lite = True,  table = True)
+	fullTableVariant = Variant(pixelExpr, lite = False, table = True)
+	liteTableVariant = Variant(pixelExpr, lite = True,  table = True)
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))
@@ -593,24 +404,24 @@ def process2x():
 	# Note: HQ2xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	Variant(parser.pixelExpr, lite = False, table = False).writeSwitch(
+	Variant(pixelExpr, lite = False, table = False).writeSwitch(
 		'HQ2xScaler-1x1to2x2.nn'
 		)
-	Variant(parser.pixelExpr, lite = False, table = False, narrow = makeNarrow2to1).writeSwitch(
+	Variant(pixelExpr, lite = False, table = False, narrow = makeNarrow2to1).writeSwitch(
 		'HQ2xScaler-1x1to1x2.nn'
 		)
-	Variant(parser.pixelExpr, lite = True,  table = False).writeSwitch(
+	Variant(pixelExpr, lite = True,  table = False).writeSwitch(
 		'HQ2xLiteScaler-1x1to2x2.nn'
 		)
-	Variant(parser.pixelExpr, lite = True,  table = False, narrow = makeNarrow2to1).writeSwitch(
+	Variant(pixelExpr, lite = True,  table = False, narrow = makeNarrow2to1).writeSwitch(
 		'HQ2xLiteScaler-1x1to1x2.nn'
 		)
 
 def process3x():
-	parser = Parser3x()
+	pixelExpr = expandQuadrant(genExpr3(), 3)
 
-	fullTableVariant = Variant(parser.pixelExpr, lite = False, table = True )
-	liteTableVariant = Variant(parser.pixelExpr, lite = True,  table = True )
+	fullTableVariant = Variant(pixelExpr, lite = False, table = True )
+	liteTableVariant = Variant(pixelExpr, lite = True,  table = True )
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))
@@ -636,18 +447,18 @@ def process3x():
 	# Note: HQ3xLiteWeights.dat is not needed, since interpolated texture
 	#       offsets can perform all the blending we need.
 
-	Variant(parser.pixelExpr, lite = False, table = False).writeSwitch(
+	Variant(pixelExpr, lite = False, table = False).writeSwitch(
 		'HQ3xScaler-1x1to3x3.nn'
 		)
-	Variant(parser.pixelExpr, lite = True,  table = False).writeSwitch(
+	Variant(pixelExpr, lite = True,  table = False).writeSwitch(
 		'HQ3xLiteScaler-1x1to3x3.nn'
 		)
 
 def process4x():
-	parser = Parser4x()
+	pixelExpr = expandQuadrant(genExpr4(), 4)
 
-	fullTableVariant = Variant(parser.pixelExpr, lite = False, table = True)
-	liteTableVariant = Variant(parser.pixelExpr, lite = True,  table = True)
+	fullTableVariant = Variant(pixelExpr, lite = False, table = True)
+	liteTableVariant = Variant(pixelExpr, lite = True,  table = True)
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatWeightsTable(fullTableVariant.pixelExpr, computeWeightCells))
@@ -669,7 +480,7 @@ def process4x():
 	#       offsets can perform all the blending we need.
 
 	#printText(genSwitch(Variant(
-		#parser.pixelExpr, lite = False, table = False
+		#pixelExpr, lite = False, table = False
 		#).pixelExpr))
 
 if __name__ == '__main__':
