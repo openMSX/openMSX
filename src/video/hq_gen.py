@@ -1,6 +1,11 @@
 # $Id$
 
-from hq import edges, permuteCase, simplifyWeights
+# Edges in the same order as the edge bits in "case".
+edges = (
+	(1, 5), (5, 7), (3, 7), (1, 3),
+	(0, 4), (1, 4), (2, 4), (3, 4),
+	(4, 5), (4, 6), (4, 7), (4, 8),
+	)
 
 def computeCasePermutation(neighbourPermutation):
 	return tuple(
@@ -14,6 +19,27 @@ def permute(seq, permutation):
 	seq = tuple(seq)
 	assert len(seq) == len(permutation)
 	return tuple(seq[index] for index in permutation)
+
+def permuteCase(case, permutation):
+	return sum(
+		((case >> newBit) & 1) << oldBit
+		for newBit, oldBit in enumerate(permutation)
+		)
+
+def gcd(a, b):
+	'''Returns the greatest common divisor of a and b.
+	'''
+	while a != 0:
+		a, b = b % a, a
+	return b
+
+def simplifyWeights(weights):
+	'''Returns the lowest weight values of which the ratios are equal to the
+	given weights.
+	'''
+	weights = tuple(weights)
+	divider = reduce(gcd, weights, 0)
+	return tuple(w / divider for w in weights)
 
 def expandTopLeftWeights(weights):
 	return weights[0 : 2] + (0, ) + weights[2 : 4] + (0, 0, 0, 0)

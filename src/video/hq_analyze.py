@@ -1,10 +1,11 @@
 # $Id$
 
 from hq import (
-	Parser2x, Parser3x, Parser4x,
-	edges, getZoom, scaleWeights, simplifyWeights
+	Parser2x, Parser3x, Parser4x, getZoom, scaleWeights
 	)
-from hq_gen import expandQuadrant, genExpr2, genExpr3, genExpr4
+from hq_gen import (
+	edges, expandQuadrant, genExpr2, genExpr3, genExpr4, simplifyWeights
+	)
 
 from collections import defaultdict
 from itertools import izip

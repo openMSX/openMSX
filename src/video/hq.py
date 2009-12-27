@@ -6,6 +6,8 @@
 # To profile:
 #   python -m cProfile -s cumulative hq.py > hq-profile.txt
 
+from hq_gen import edges, permuteCase, simplifyWeights
+
 from collections import defaultdict
 from itertools import count, izip
 from math import sqrt
@@ -364,12 +366,6 @@ def isPow2(num):
 		num >>= 1
 	return num == 1
 
-def permuteCase(case, permutation):
-	return sum(
-		((case >> newBit) & 1) << oldBit
-		for newBit, oldBit in enumerate(permutation)
-		)
-
 def permuteCases(permutation, pixelExpr):
 	return [
 		pixelExpr[permuteCase(case, permutation)]
@@ -438,21 +434,6 @@ def isContradiction(case):
 		(inv & 0x00F) in [0x00E, 0x00D, 0x00B, 0x007]
 		)
 
-def gcd(a, b):
-	'''Returns the greatest common divisor of a and b.
-	'''
-	while a != 0:
-		a, b = b % a, a
-	return b
-
-def simplifyWeights(weights):
-	'''Returns the lowest weight values of which the ratios are equal to the
-	given weights.
-	'''
-	weights = tuple(weights)
-	divider = reduce(gcd, weights, 0)
-	return tuple(w / divider for w in weights)
-
 def scaleWeights(weights, newSum):
 	'''Returns the given weights, scaled such that their sum is the given one.
 	'''
@@ -468,13 +449,6 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 		factor1 * w1 + factor2 * w2
 		for w1, w2 in izip(weights1, weights2)
 		)
-
-# Edges in the same order as the edge bits in "case".
-edges = (
-	(1, 5), (5, 7), (3, 7), (1, 3),
-	(0, 4), (1, 4), (2, 4), (3, 4),
-	(4, 5), (4, 6), (4, 7), (4, 8),
-	)
 
 def calcNeighbourToSet():
 	# Compute equivalence classes.
@@ -573,7 +547,7 @@ def genHQLiteOffsetsTable(pixelExpr):
 						assert neighbours[1] is None, neighbours
 						neighbour = neighbours[0]
 						factor = sum(weights)
-		
+
 					x = int(192.5 - 128.0 * (0.5 + subX) / zoom)
 					y = int(192.5 - 128.0 * (0.5 + subY) / zoom)
 					if neighbour == 3:
