@@ -122,13 +122,10 @@ def getBlendCode(weights):
 		# Because the lower 3 bits of each colour component (R,G,B)
 		# are zeroed out, we can operate on a single integer as if it
 		# is a vector.
-		return '(%s) / %d' % (
-			' + '.join(
-				'c%d * %d' % (index + 1, weight)
-				for index, weight in enumerate(weights)
-				if weight != 0
-				),
-			wsum
+		return ' + '.join(
+			'(c%d / %d) * %d' % (index + 1, wsum, weight)
+			for index, weight in enumerate(weights)
+			if weight != 0
 			)
 	else:
 		return '((%s) & 0xFF00FF00) | (((%s) / %d) & 0x00FF00FF)' % (
