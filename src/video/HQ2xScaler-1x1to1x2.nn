@@ -765,8 +765,8 @@ case 1708:
 case 1710:
 case 1724:
 case 1726:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 9 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 9 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 6 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 6 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 9 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 9 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 6 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 6 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 45:
 case 61:
@@ -973,7 +973,7 @@ case 1766:
 case 1780:
 case 1782:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 4 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 5) / 16) & 0x00FF00FF);
 	break;
 case 101:
 case 117:
@@ -1030,7 +1030,7 @@ case 1660:
 case 1772:
 case 1788:
 	pixel0 = (c2 * 2 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 109:
 case 125:
@@ -1068,7 +1068,7 @@ case 1662:
 case 1774:
 case 1790:
 	pixel0 = (c2 * 2 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 111:
 case 127:
@@ -1300,7 +1300,7 @@ case 883:
 case 890:
 case 891:
 	pixel0 = (c2 * 2 + c3 * 1 + c4 * 1 + c5 * 4) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 3 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 3 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 3 + ((c8 & 0xFF00FF00) / 16) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 3 + (c8 & 0x00FF00FF) * 5) / 16) & 0x00FF00FF);
 	break;
 case 292:
 case 308:
@@ -1351,28 +1351,28 @@ case 316:
 case 812:
 case 828:
 	pixel0 = (c2 * 2 + c3 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 301:
 case 317:
 case 813:
 case 829:
 	pixel0 = (c2 * 2 + c3 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 302:
 case 318:
 case 814:
 case 830:
 	pixel0 = (c2 * 2 + c3 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 303:
 case 319:
 case 815:
 case 831:
 	pixel0 = (c2 * 2 + c3 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 320:
 case 321:
@@ -1544,7 +1544,7 @@ case 382:
 case 878:
 case 894:
 	pixel0 = (c2 * 2 + c3 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 5) / 32) & 0x00FF00FF);
 	break;
 case 367:
 case 383:
@@ -1618,7 +1618,7 @@ case 444:
 case 940:
 case 956:
 	pixel0 = (c2 * 2 + c3 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 429:
 case 445:
@@ -1706,7 +1706,7 @@ case 510:
 case 1006:
 case 1022:
 	pixel0 = (c2 * 2 + c3 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 495:
 case 511:
@@ -1890,8 +1890,8 @@ case 1904:
 case 1905:
 case 1912:
 case 1913:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 9 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 9 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 6 + (c6 & 0x00FF00) * 3 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 6 + (c6 & 0xFF00FF) * 3 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 9 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 9 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 6 + ((c6 & 0xFF00FF00) / 16) * 3 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 6 + (c6 & 0x00FF00FF) * 3 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 1314:
 case 1315:
@@ -1910,21 +1910,21 @@ case 1843:
 case 1850:
 case 1851:
 	pixel0 = (c2 * 2 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 1316:
 case 1332:
 case 1828:
 case 1844:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 1317:
 case 1333:
 case 1829:
 case 1845:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 5) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 1318:
 case 1334:
@@ -1953,14 +1953,14 @@ case 1340:
 case 1836:
 case 1852:
 	pixel0 = (c2 * 1 + c5 * 3) / 4;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 1325:
 case 1341:
 case 1837:
 case 1853:
 	pixel0 = (c2 * 1 + c5 * 3) / 4;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 1326:
 case 1342:
@@ -1970,8 +1970,8 @@ case 1838:
 case 1854:
 case 1966:
 case 1982:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 11) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 11) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 8 + (c8 & 0x00FF00) * 3 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 8 + (c8 & 0xFF00FF) * 3 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 11) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 11) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 8 + ((c8 & 0xFF00FF00) / 16) * 3 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 8 + (c8 & 0x00FF00FF) * 3 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 1327:
 case 1343:
@@ -2144,14 +2144,14 @@ case 1907:
 case 1914:
 case 1915:
 	pixel0 = (c2 * 2 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 1380:
 case 1396:
 case 1892:
 case 1908:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 1381:
 case 1397:
@@ -2165,14 +2165,14 @@ case 1398:
 case 1894:
 case 1910:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 5) / 32) & 0x00FF00FF);
 	break;
 case 1383:
 case 1399:
 case 1895:
 case 1911:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 5) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 1388:
 case 1389:
@@ -2182,22 +2182,22 @@ case 1900:
 case 1901:
 case 1916:
 case 1917:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 11 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 11 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 8 + (c6 & 0x00FF00) * 3 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 8 + (c6 & 0xFF00FF) * 3 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 11 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 11 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 8 + ((c6 & 0xFF00FF00) / 16) * 3 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 8 + (c6 & 0x00FF00FF) * 3 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 1390:
 case 1406:
 case 1902:
 case 1918:
 	pixel0 = (c2 * 1 + c5 * 3) / 4;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 32) & 0x00FF00FF);
 	break;
 case 1391:
 case 1407:
 case 1903:
 case 1919:
 	pixel0 = (c2 * 1 + c5 * 3) / 4;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 1440:
 case 1441:
@@ -2242,7 +2242,7 @@ case 1460:
 case 1956:
 case 1972:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 1445:
 case 1461:
@@ -2256,7 +2256,7 @@ case 1468:
 case 1964:
 case 1980:
 	pixel0 = (c2 * 1 + c5 * 3) / 4;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 1453:
 case 1469:
@@ -2308,7 +2308,7 @@ case 1524:
 case 2020:
 case 2036:
 	pixel0 = (c1 * 1 + c2 * 2 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 1509:
 case 1525:
@@ -2347,7 +2347,7 @@ case 1534:
 case 2030:
 case 2046:
 	pixel0 = (c2 * 1 + c5 * 3) / 4;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 1519:
 case 1535:
@@ -2490,8 +2490,8 @@ case 2758:
 case 2759:
 case 2766:
 case 2767:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 6 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 6 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 9 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 9 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 6 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 6 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 9 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 9 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2056:
 case 2057:
@@ -2842,28 +2842,28 @@ case 2148:
 case 2276:
 case 2660:
 case 2788:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2149:
 case 2277:
 case 2661:
 case 2789:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c6 * 1 + c7 * 1) / 8;
 	break;
 case 2150:
 case 2278:
 case 2662:
 case 2790:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c6 * 1 + c8 * 1) / 8;
 	break;
 case 2151:
 case 2279:
 case 2663:
 case 2791:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c6 * 1) / 8;
 	break;
 case 2152:
@@ -2920,7 +2920,7 @@ case 2286:
 case 2670:
 case 2798:
 	pixel0 = (c2 * 1 + c3 * 1 + c4 * 1 + c5 * 4 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 2159:
 case 2287:
@@ -2934,7 +2934,7 @@ case 2292:
 case 2676:
 case 2804:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2165:
 case 2293:
@@ -2973,7 +2973,7 @@ case 2302:
 case 2686:
 case 2814:
 	pixel0 = (c3 * 1 + c5 * 6 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 2175:
 case 2303:
@@ -3032,7 +3032,7 @@ case 2310:
 case 2311:
 case 2438:
 case 2439:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 2312:
@@ -3067,7 +3067,7 @@ case 3480:
 case 3481:
 case 3482:
 case 3483:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 5 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 4 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 2316:
@@ -3085,7 +3085,7 @@ case 2318:
 case 2319:
 case 2446:
 case 2447:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 2324:
@@ -3103,7 +3103,7 @@ case 2326:
 case 2327:
 case 2454:
 case 2455:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 2332:
@@ -3121,7 +3121,7 @@ case 2334:
 case 2335:
 case 2462:
 case 2463:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 2336:
@@ -3139,46 +3139,46 @@ case 2338:
 case 2339:
 case 2354:
 case 2355:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2340:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2341:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2342:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2343:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2344:
 case 2345:
 case 2360:
 case 2361:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2346:
 case 2347:
 case 2362:
 case 2363:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2348:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2349:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2350:
 case 2478:
@@ -3195,28 +3195,28 @@ case 2991:
 	pixel1 = (c5 * 7 + c9 * 1) / 8;
 	break;
 case 2356:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2357:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2358:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2359:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2364:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2365:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2366:
 case 2494:
@@ -3264,21 +3264,21 @@ case 3536:
 case 3537:
 case 3538:
 case 3539:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 6 + (c6 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 6 + (c6 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 9 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 9 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 6 + ((c6 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 6 + (c6 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 9 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 9 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2372:
 case 2373:
 case 2500:
 case 2501:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 2374:
 case 2375:
 case 2502:
 case 2503:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 3 + c8 * 1) / 4;
 	break;
 case 2376:
@@ -3297,7 +3297,7 @@ case 2520:
 case 2521:
 case 2522:
 case 2523:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c8 * 2) / 8;
 	break;
 case 2380:
@@ -3319,21 +3319,21 @@ case 2894:
 case 2895:
 case 3022:
 case 3023:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 8) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 8) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 11 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 11 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 8) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 8) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 11 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 11 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2388:
 case 2389:
 case 2516:
 case 2517:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 2390:
 case 2391:
 case 2518:
 case 2519:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 3 + c8 * 1) / 4;
 	break;
 case 2396:
@@ -3373,15 +3373,15 @@ case 2402:
 case 2403:
 case 2418:
 case 2419:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c6 * 1 + c8 * 1) / 8;
 	break;
 case 2404:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2405:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c7 * 1 + c8 * 1) / 8;
 	break;
 case 2406:
@@ -3418,7 +3418,7 @@ case 2923:
 case 2938:
 case 2939:
 	pixel0 = (c3 * 1 + c4 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 3 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 3 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 3 + ((c8 & 0xFF00FF00) / 16) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 3 + (c8 & 0x00FF00FF) * 5) / 16) & 0x00FF00FF);
 	break;
 case 2412:
 case 2413:
@@ -3430,7 +3430,7 @@ case 2925:
 case 2414:
 case 2926:
 	pixel0 = (c2 * 1 + c3 * 1 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 5) / 32) & 0x00FF00FF);
 	break;
 case 2415:
 case 2927:
@@ -3438,11 +3438,11 @@ case 2927:
 	pixel1 = (c5 * 6 + c6 * 1 + c8 * 1) / 8;
 	break;
 case 2420:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2421:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c7 * 1 + c8 * 1) / 8;
 	break;
 case 2428:
@@ -3455,7 +3455,7 @@ case 2941:
 case 2430:
 case 2942:
 	pixel0 = (c3 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 5) / 32) & 0x00FF00FF);
 	break;
 case 2431:
 case 2943:
@@ -3477,69 +3477,69 @@ case 2466:
 case 2467:
 case 2482:
 case 2483:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 6 + c9 * 1) / 8;
 	break;
 case 2468:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2469:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 2470:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c8 * 1 + c9 * 1) / 8;
 	break;
 case 2471:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c9 * 1) / 8;
 	break;
 case 2472:
 case 2473:
 case 2488:
 case 2489:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 2474:
 case 2475:
 case 2490:
 case 2491:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 6 + c9 * 1) / 8;
 	break;
 case 2476:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2477:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 2484:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2485:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 2486:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c8 * 1 + c9 * 1) / 8;
 	break;
 case 2487:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c9 * 1) / 8;
 	break;
 case 2492:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2493:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 2528:
@@ -3557,15 +3557,15 @@ case 2530:
 case 2531:
 case 2546:
 case 2547:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 7) / 8;
 	break;
 case 2532:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2533:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c7 * 1) / 8;
 	break;
 case 2534:
@@ -3614,7 +3614,7 @@ case 3053:
 case 2542:
 case 3054:
 	pixel0 = (c2 * 1 + c3 * 1 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 2543:
 case 3055:
@@ -3622,11 +3622,11 @@ case 3055:
 	pixel1 = c5;
 	break;
 case 2548:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2549:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c7 * 1) / 8;
 	break;
 case 2556:
@@ -3639,7 +3639,7 @@ case 3069:
 case 2558:
 case 3070:
 	pixel0 = (c3 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 2559:
 case 3071:
@@ -3680,7 +3680,7 @@ case 2822:
 case 2823:
 case 2950:
 case 2951:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 2824:
@@ -3750,69 +3750,69 @@ case 2851:
 case 2866:
 case 2867:
 	pixel0 = (c1 * 1 + c3 * 1 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2852:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2853:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2854:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2855:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2856:
 case 2857:
 case 2872:
 case 2873:
 	pixel0 = (c3 * 1 + c4 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2858:
 case 2859:
 case 2874:
 case 2875:
 	pixel0 = (c3 * 1 + c4 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2860:
 	pixel0 = (c2 * 1 + c3 * 1 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2861:
 	pixel0 = (c2 * 1 + c3 * 1 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2868:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2869:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2870:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2871:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 14 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 14 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 14 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 14 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2876:
 	pixel0 = (c3 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2877:
 	pixel0 = (c3 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 2880:
 case 2881:
@@ -3837,14 +3837,14 @@ case 2884:
 case 2885:
 case 3012:
 case 3013:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 2886:
 case 2887:
 case 3014:
 case 3015:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 3 + c8 * 1) / 4;
 	break;
 case 2888:
@@ -3888,16 +3888,16 @@ case 2931:
 	pixel1 = (c4 * 1 + c5 * 5 + c6 * 1 + c8 * 1) / 8;
 	break;
 case 2916:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2917:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c7 * 1 + c8 * 1) / 8;
 	break;
 case 2932:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 2933:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
@@ -3922,19 +3922,19 @@ case 2995:
 	pixel1 = (c4 * 1 + c5 * 6 + c9 * 1) / 8;
 	break;
 case 2980:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2981:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 2982:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c8 * 1 + c9 * 1) / 8;
 	break;
 case 2983:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c9 * 1) / 8;
 	break;
 case 2984:
@@ -3953,7 +3953,7 @@ case 3003:
 	break;
 case 2988:
 	pixel0 = (c2 * 1 + c3 * 1 + c4 * 1 + c5 * 5) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2989:
 	pixel0 = (c2 * 1 + c3 * 1 + c4 * 1 + c5 * 5) / 8;
@@ -3961,7 +3961,7 @@ case 2989:
 	break;
 case 2996:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 2997:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
@@ -3977,7 +3977,7 @@ case 2999:
 	break;
 case 3004:
 	pixel0 = (c3 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3005:
 	pixel0 = (c3 * 1 + c5 * 7) / 8;
@@ -3991,16 +3991,16 @@ case 3059:
 	pixel1 = (c4 * 1 + c5 * 7) / 8;
 	break;
 case 3044:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3045:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c3 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c3 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c3 & 0xFF00FF00) / 16) * 2 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c3 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c7 * 1) / 8;
 	break;
 case 3060:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3061:
 	pixel0 = (c1 * 1 + c3 * 1 + c5 * 6) / 8;
@@ -4105,7 +4105,7 @@ case 3780:
 case 3781:
 case 3788:
 case 3789:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 5 + ((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 4 + c6 * 1 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 3078:
@@ -4124,7 +4124,7 @@ case 3718:
 case 3719:
 case 3782:
 case 3783:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c8 * 2) / 8;
 	break;
 case 3080:
@@ -4210,7 +4210,7 @@ case 3726:
 case 3727:
 case 3790:
 case 3791:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c8 * 2) / 8;
 	break;
 case 3092:
@@ -4331,14 +4331,14 @@ case 3108:
 case 3236:
 case 3620:
 case 3748:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3109:
 case 3237:
 case 3621:
 case 3749:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 3110:
@@ -4406,7 +4406,7 @@ case 3244:
 case 3628:
 case 3756:
 	pixel0 = (c2 * 1 + c4 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3117:
 case 3245:
@@ -4419,14 +4419,14 @@ case 3118:
 case 3246:
 case 3630:
 case 3758:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 4 + c6 * 1 + c8 * 1 + c9 * 1) / 8;
 	break;
 case 3119:
 case 3247:
 case 3631:
 case 3759:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c6 * 1 + c9 * 1) / 8;
 	break;
 case 3124:
@@ -4434,7 +4434,7 @@ case 3252:
 case 3636:
 case 3764:
 	pixel0 = (c1 * 1 + c5 * 6 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3125:
 case 3253:
@@ -4448,7 +4448,7 @@ case 3260:
 case 3644:
 case 3772:
 	pixel0 = (c5 * 7 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3133:
 case 3261:
@@ -4513,14 +4513,14 @@ case 3172:
 case 3300:
 case 3684:
 case 3812:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3173:
 case 3301:
 case 3685:
 case 3813:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c6 * 1 + c7 * 1) / 8;
 	break;
 case 3174:
@@ -4532,7 +4532,7 @@ case 3702:
 case 3814:
 case 3830:
 	pixel0 = (c1 * 1 + c5 * 6 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 5) / 16) & 0x00FF00FF);
 	break;
 case 3175:
 case 3191:
@@ -4591,21 +4591,21 @@ case 3692:
 case 3693:
 case 3820:
 case 3821:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 5 + ((c4 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c6 * 1 + c7 * 1) / 8;
 	break;
 case 3182:
 case 3310:
 case 3694:
 case 3822:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3183:
 case 3311:
 case 3695:
 case 3823:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c6 * 1) / 8;
 	break;
 case 3188:
@@ -4613,7 +4613,7 @@ case 3316:
 case 3700:
 case 3828:
 	pixel0 = (c1 * 1 + c5 * 6 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3189:
 case 3317:
@@ -4638,7 +4638,7 @@ case 3326:
 case 3710:
 case 3838:
 	pixel0 = (c5 * 7 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 4 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 4 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 4 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 4 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3199:
 case 3327:
@@ -4673,7 +4673,7 @@ case 3342:
 case 3343:
 case 3470:
 case 3471:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 5 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 3358:
@@ -4706,12 +4706,12 @@ case 3507:
 	pixel1 = (c4 * 1 + c5 * 6 + c9 * 1) / 8;
 	break;
 case 3364:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3365:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3366:
 case 3382:
@@ -4732,7 +4732,7 @@ case 3369:
 case 3384:
 case 3385:
 	pixel0 = (c2 * 1 + c4 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3370:
 case 3371:
@@ -4742,7 +4742,7 @@ case 3498:
 case 3499:
 case 3514:
 case 3515:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 7 + (c6 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 7 + (c6 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 5 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 7 + ((c6 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 7 + (c6 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 6 + c9 * 1) / 8;
 	break;
 case 3372:
@@ -4754,21 +4754,21 @@ case 3501:
 	break;
 case 3374:
 case 3502:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 5 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c8 * 1 + c9 * 1) / 8;
 	break;
 case 3375:
 case 3503:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 4) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 4) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 5 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 4) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 4) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c9 * 1) / 8;
 	break;
 case 3380:
 	pixel0 = (c1 * 1 + c2 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3381:
 	pixel0 = (c1 * 1 + c2 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3388:
 case 3389:
@@ -4791,7 +4791,7 @@ case 3396:
 case 3397:
 case 3524:
 case 3525:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 3398:
@@ -4802,8 +4802,8 @@ case 3526:
 case 3527:
 case 3542:
 case 3543:
-	pixel0 = ((((c1 & 0x00FF00) * 2 + (c2 & 0x00FF00) * 3 + (c5 & 0x00FF00) * 8 + (c6 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c1 & 0xFF00FF) * 2 + (c2 & 0xFF00FF) * 3 + (c5 & 0xFF00FF) * 8 + (c6 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 11 + (c6 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 3) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 11 + (c6 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 3) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c1 & 0xFF00FF00) / 16) * 2 + ((c2 & 0xFF00FF00) / 16) * 3 + ((c5 & 0xFF00FF00) / 16) * 8 + ((c6 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c1 & 0x00FF00FF) * 2 + (c2 & 0x00FF00FF) * 3 + (c5 & 0x00FF00FF) * 8 + (c6 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 11 + ((c6 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 3) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 11 + (c6 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 3) / 16) & 0x00FF00FF);
 	break;
 case 3400:
 case 3401:
@@ -4821,21 +4821,21 @@ case 3544:
 case 3545:
 case 3546:
 case 3547:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c8 * 2) / 8;
 	break;
 case 3404:
 case 3405:
 case 3532:
 case 3533:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 5 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 3406:
 case 3407:
 case 3534:
 case 3535:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 2 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 3 + c8 * 1) / 4;
 	break;
 case 3412:
@@ -4849,14 +4849,14 @@ case 3420:
 case 3421:
 case 3548:
 case 3549:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 3422:
 case 3423:
 case 3550:
 case 3551:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 3 + c8 * 1) / 4;
 	break;
 case 3426:
@@ -4864,7 +4864,7 @@ case 3427:
 case 3442:
 case 3443:
 	pixel0 = (c1 * 1 + c2 * 1 + c4 * 1 + c5 * 4 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3428:
 case 3429:
@@ -4876,59 +4876,59 @@ case 3445:
 case 3430:
 case 3446:
 	pixel0 = (c1 * 1 + c2 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 5) / 32) & 0x00FF00FF);
 	break;
 case 3431:
 case 3447:
 	pixel0 = (c1 * 1 + c2 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3432:
 case 3433:
 case 3448:
 case 3449:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 4 + c6 * 1 + c7 * 1 + c8 * 1) / 8;
 	break;
 case 3434:
 case 3435:
 case 3450:
 case 3451:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3436:
 case 3437:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 5 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c7 * 1 + c8 * 1) / 8;
 	break;
 case 3438:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 2 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 32) & 0x00FF00FF);
 	break;
 case 3439:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 2 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3452:
 case 3453:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c6 * 1 + c7 * 1 + c8 * 1) / 8;
 	break;
 case 3454:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 32) & 0x00FF00FF);
 	break;
 case 3455:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3492:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3493:
-	pixel0 = ((((c2 & 0x00FF00) * 3 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 3 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 3 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 3 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 3496:
@@ -4940,7 +4940,7 @@ case 3513:
 	break;
 case 3508:
 	pixel0 = (c1 * 1 + c2 * 1 + c5 * 5 + c6 * 1) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3509:
 	pixel0 = (c1 * 1 + c2 * 1 + c5 * 5 + c6 * 1) / 8;
@@ -4974,40 +4974,40 @@ case 3560:
 case 3561:
 case 3576:
 case 3577:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 6 + c7 * 1) / 8;
 	break;
 case 3562:
 case 3563:
 case 3578:
 case 3579:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 7) / 8;
 	break;
 case 3564:
 case 3565:
-	pixel0 = ((((c2 & 0x00FF00) * 5 + (c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 5 + (c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 5 + ((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 5 + (c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c7 * 1) / 8;
 	break;
 case 3566:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 2 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3567:
-	pixel0 = ((((c2 & 0x00FF00) * 2 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 2 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 2 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 2 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = c5;
 	break;
 case 3580:
 case 3581:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c7 * 1) / 8;
 	break;
 case 3582:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3583:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	pixel1 = c5;
 	break;
 case 3840:
@@ -5074,7 +5074,7 @@ case 3854:
 case 3855:
 case 3982:
 case 3983:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c8 * 2 + c9 * 1) / 8;
 	break;
 case 3870:
@@ -5107,12 +5107,12 @@ case 4019:
 	pixel1 = (c4 * 1 + c5 * 6 + c9 * 1) / 8;
 	break;
 case 3876:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3877:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14) / 16) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3878:
 case 3894:
@@ -5133,7 +5133,7 @@ case 3881:
 case 3896:
 case 3897:
 	pixel0 = (c4 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 2 + (c5 & 0x00FF00) * 10 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 2 + (c5 & 0xFF00FF) * 10 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 2 + ((c5 & 0xFF00FF00) / 16) * 10 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 2 + (c5 & 0x00FF00FF) * 10 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3882:
 case 3883:
@@ -5155,21 +5155,21 @@ case 4013:
 	break;
 case 3886:
 case 4014:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
 	pixel1 = (c4 * 1 + c5 * 5 + c8 * 1 + c9 * 1) / 8;
 	break;
 case 3887:
 case 4015:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 7 + c9 * 1) / 8;
 	break;
 case 3892:
 	pixel0 = (c1 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c8 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 3893:
 	pixel0 = (c1 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 12 + (c6 & 0x00FF00) * 1 + (c7 & 0x00FF00) * 2 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 16)) | (((c5 & 0xFF00FF) * 12 + (c6 & 0xFF00FF) * 1 + (c7 & 0xFF00FF) * 2 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c5 & 0xFF00FF00) / 16) * 12 + ((c6 & 0xFF00FF00) / 16) * 1 + ((c7 & 0xFF00FF00) / 16) * 2 + ((c8 & 0xFF00FF00) / 16) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 12 + (c6 & 0x00FF00FF) * 1 + (c7 & 0x00FF00FF) * 2 + (c8 & 0x00FF00FF) * 1) / 16) & 0x00FF00FF);
 	break;
 case 3900:
 case 3901:
@@ -5211,7 +5211,7 @@ case 3908:
 case 3909:
 case 4036:
 case 4037:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 5 + c7 * 1 + c8 * 2) / 8;
 	break;
 case 3910:
@@ -5255,7 +5255,7 @@ case 3918:
 case 3919:
 case 4046:
 case 4047:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
 	pixel1 = (c5 * 3 + c8 * 1) / 4;
 	break;
 case 3924:
@@ -5284,7 +5284,7 @@ case 3939:
 case 3954:
 case 3955:
 	pixel0 = (c1 * 1 + c4 * 1 + c5 * 6) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3940:
 case 3941:
@@ -5296,12 +5296,12 @@ case 3957:
 case 3942:
 case 3958:
 	pixel0 = (c1 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 22 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 5) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 22 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 5) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 22 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 5) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 22 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 5) / 32) & 0x00FF00FF);
 	break;
 case 3943:
 case 3959:
 	pixel0 = (c1 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3944:
 case 3945:
@@ -5315,7 +5315,7 @@ case 3947:
 case 3962:
 case 3963:
 	pixel0 = (c4 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 4 + (c5 & 0x00FF00) * 26 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 4 + (c5 & 0xFF00FF) * 26 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 4 + ((c5 & 0xFF00FF00) / 32) * 26 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 4 + (c5 & 0x00FF00FF) * 26 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3948:
 case 3949:
@@ -5323,12 +5323,12 @@ case 3949:
 	pixel1 = (c5 * 5 + c6 * 1 + c7 * 1 + c8 * 1) / 8;
 	break;
 case 3950:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 32) & 0x00FF00FF);
 	break;
 case 3951:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 3964:
 case 3965:
@@ -5337,18 +5337,18 @@ case 3965:
 	break;
 case 3966:
 	pixel0 = c5;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 28 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 2) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 28 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 2) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 28 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 28 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 2) / 32) & 0x00FF00FF);
 	break;
 case 3967:
 	pixel0 = c5;
-	pixel1 = ((((c5 & 0x00FF00) * 30 + (c6 & 0x00FF00) * 1 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c5 & 0xFF00FF) * 30 + (c6 & 0xFF00FF) * 1 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c5 & 0xFF00FF00) / 32) * 30 + ((c6 & 0xFF00FF00) / 32) * 1 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c5 & 0x00FF00FF) * 30 + (c6 & 0x00FF00FF) * 1 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 4004:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14) & (0xFF00FF * 16))) / 16;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14) / 16) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 4005:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 14) & (0x00FF00 * 16)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 14) & (0xFF00FF * 16))) / 16;
+	pixel0 = ((((c2 & 0xFF00FF00) / 16) * 1 + ((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 14) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 14) / 16) & 0x00FF00FF);
 	pixel1 = (c5 * 6 + c7 * 1 + c9 * 1) / 8;
 	break;
 case 4008:
@@ -5360,7 +5360,7 @@ case 4025:
 	break;
 case 4020:
 	pixel0 = (c1 * 1 + c5 * 7) / 8;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 12 + (c8 & 0x00FF00) * 1 + (c9 & 0x00FF00) * 2) & (0x00FF00 * 16)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 12 + (c8 & 0xFF00FF) * 1 + (c9 & 0xFF00FF) * 2) & (0xFF00FF * 16))) / 16;
+	pixel1 = ((((c4 & 0xFF00FF00) / 16) * 1 + ((c5 & 0xFF00FF00) / 16) * 12 + ((c8 & 0xFF00FF00) / 16) * 1 + ((c9 & 0xFF00FF00) / 16) * 2) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 12 + (c8 & 0x00FF00FF) * 1 + (c9 & 0x00FF00FF) * 2) / 16) & 0x00FF00FF);
 	break;
 case 4021:
 	pixel0 = (c1 * 1 + c5 * 7) / 8;
@@ -5410,11 +5410,11 @@ case 4077:
 	pixel1 = (c5 * 7 + c7 * 1) / 8;
 	break;
 case 4078:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 4079:
-	pixel0 = ((((c2 & 0x00FF00) * 1 + (c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30) & (0x00FF00 * 32)) | (((c2 & 0xFF00FF) * 1 + (c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30) & (0xFF00FF * 32))) / 32;
+	pixel0 = ((((c2 & 0xFF00FF00) / 32) * 1 + ((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30) & 0xFF00FF00) | ((((c2 & 0x00FF00FF) * 1 + (c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30) / 32) & 0x00FF00FF);
 	pixel1 = c5;
 	break;
 case 4092:
@@ -5424,7 +5424,7 @@ case 4093:
 	break;
 case 4094:
 	pixel0 = c5;
-	pixel1 = ((((c4 & 0x00FF00) * 1 + (c5 & 0x00FF00) * 30 + (c8 & 0x00FF00) * 1) & (0x00FF00 * 32)) | (((c4 & 0xFF00FF) * 1 + (c5 & 0xFF00FF) * 30 + (c8 & 0xFF00FF) * 1) & (0xFF00FF * 32))) / 32;
+	pixel1 = ((((c4 & 0xFF00FF00) / 32) * 1 + ((c5 & 0xFF00FF00) / 32) * 30 + ((c8 & 0xFF00FF00) / 32) * 1) & 0xFF00FF00) | ((((c4 & 0x00FF00FF) * 1 + (c5 & 0x00FF00FF) * 30 + (c8 & 0x00FF00FF) * 1) / 32) & 0x00FF00FF);
 	break;
 case 4095:
 	pixel0 = c5;

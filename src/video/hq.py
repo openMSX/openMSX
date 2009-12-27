@@ -131,19 +131,17 @@ def getBlendCode(weights):
 			wsum
 			)
 	else:
-		return '(((%s) & (0x00FF00 * %d)) | ((%s) & (0xFF00FF * %d))) / %d' % (
+		return '((%s) & 0xFF00FF00) | (((%s) / %d) & 0x00FF00FF)' % (
 			' + '.join(
-				'(c%d & 0x00FF00) * %d' % (index + 1, weight)
+				'((c%d & 0xFF00FF00) / %d) * %d' % (index + 1, wsum, weight)
 				for index, weight in enumerate(weights)
 				if weight != 0
 				),
-			wsum,
 			' + '.join(
-				'(c%d & 0xFF00FF) * %d' % (index + 1, weight)
+				'(c%d & 0x00FF00FF) * %d' % (index + 1, weight)
 				for index, weight in enumerate(weights)
 				if weight != 0
 				),
-			wsum,
 			wsum
 			)
 
