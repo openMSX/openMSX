@@ -2,7 +2,7 @@
 
 #include "SDLGLOutputSurface.hh"
 #include "OutputSurface.hh"
-#include "ScreenShotSaver.hh"
+#include "PNG.hh"
 #include "build-info.hh"
 #include "Math.hh"
 #include "vla.hh"
@@ -139,7 +139,7 @@ void SDLGLOutputSurface::saveScreenshot(
 		rowPointers[height - 1 - i] = &buffer[width * 3 * i];
 	}
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
-	ScreenShotSaver::save(width, height, rowPointers, filename);
+	PNG::save(width, height, rowPointers, filename);
 }
 
 } // namespace openmsx

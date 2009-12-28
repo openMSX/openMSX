@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef SCREENSHOTSAVER_HH
-#define SCREENSHOTSAVER_HH
+#ifndef PNG_HH
+#define PNG_HH
 
 #include <string>
 
@@ -10,9 +10,9 @@ struct SDL_PixelFormat;
 
 namespace openmsx {
 
-/** Utility functions to hide the complexity of saving to a .png file
+/** Utility functions to hide the complexity of saving to a PNG file.
   */
-namespace ScreenShotSaver {
+namespace PNG {
 
 	void save(SDL_Surface* image, const std::string& filename);
 	void save(unsigned width, unsigned height, const void** rowPointers,
@@ -22,7 +22,7 @@ namespace ScreenShotSaver {
 	void saveGrayscale(unsigned witdh, unsigned height,
 	                   const void** rowPointers, const std::string& filename);
 
-} // namespace ScreenShotSaver
+} // namespace PNG
 } // namespace openmsx
 
-#endif
+#endif // PNG_HH

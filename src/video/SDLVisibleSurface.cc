@@ -2,7 +2,7 @@
 
 #include "SDLVisibleSurface.hh"
 #include "SDLOffScreenSurface.hh"
-#include "ScreenShotSaver.hh"
+#include "PNG.hh"
 #include "SDLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
@@ -107,7 +107,7 @@ std::auto_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 void SDLVisibleSurface::saveScreenshot(const std::string& filename)
 {
 	lock();
-	ScreenShotSaver::save(getSDLWorkSurface(), filename);
+	PNG::save(getSDLWorkSurface(), filename);
 }
 
 } // namespace openmsx

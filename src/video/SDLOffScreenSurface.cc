@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SDLOffScreenSurface.hh"
-#include "ScreenShotSaver.hh"
+#include "PNG.hh"
 
 namespace openmsx {
 
@@ -26,7 +26,7 @@ SDLOffScreenSurface::~SDLOffScreenSurface()
 void SDLOffScreenSurface::saveScreenshot(const std::string& filename)
 {
 	lock();
-	ScreenShotSaver::save(getSDLWorkSurface(), filename);
+	PNG::save(getSDLWorkSurface(), filename);
 }
 
 } // namespace openmsx

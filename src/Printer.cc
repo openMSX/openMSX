@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Printer.hh"
-#include "ScreenShotSaver.hh"
+#include "PNG.hh"
 #include "FileOperations.hh"
 #include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
@@ -1703,7 +1703,7 @@ string Paper::save() const
 	for (unsigned y = 0; y < sizeY; ++y) {
 		rowPointers[y] = &buf[sizeX * y];
 	}
-	ScreenShotSaver::saveGrayscale(sizeX, sizeY, rowPointers, filename);
+	PNG::saveGrayscale(sizeX, sizeY, rowPointers, filename);
 	return filename;
 }
 

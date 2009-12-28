@@ -12,7 +12,7 @@ SRC_HDR:= \
 	SDLVideoSystem SDLRasterizer FBPostProcessor SDLSnow \
 	DummyRenderer \
 	BitmapConverter CharacterConverter \
-	ScreenShotSaver \
+	PNG \
 	VideoSystem Display VideoLayer \
 	Layer \
 	DummyVideoSystem \

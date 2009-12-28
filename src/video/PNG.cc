@@ -3,7 +3,7 @@
 /* PNG save code by Darren Grant sdl@lokigames.com */
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
 
-#include "ScreenShotSaver.hh"
+#include "PNG.hh"
 #include "CommandException.hh"
 #include "FileOperations.hh"
 #include "build-info.hh"
@@ -17,7 +17,7 @@
 #include <SDL.h>
 
 namespace openmsx {
-namespace ScreenShotSaver {
+namespace PNG {
 
 static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
                            const std::string& filename, bool color)
@@ -180,5 +180,5 @@ void saveGrayscale(unsigned width, unsigned height,
 	}
 }
 
-} // namespace ScreenShotSaver
+} // namespace PNG
 } // namespace openmsx

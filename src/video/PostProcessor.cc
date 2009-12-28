@@ -5,7 +5,7 @@
 #include "OutputSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
-#include "ScreenShotSaver.hh"
+#include "PNG.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "RawFrame.hh"
@@ -204,8 +204,7 @@ void PostProcessor::takeScreenShot(unsigned height, const std::string& filename)
 	getScaledFrame(height, lines);
 
 	unsigned width = (height == 240) ? 320 : 640;
-	ScreenShotSaver::save(width, height, lines,
-	                      paintFrame->getSDLPixelFormat(), filename);
+	PNG::save(width, height, lines, paintFrame->getSDLPixelFormat(), filename);
 	paintFrame->freeLineBuffers();
 }
 
