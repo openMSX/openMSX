@@ -226,9 +226,6 @@ openMSX depends on the following libraries:
 <dt><a class="external" href="http://www.libsdl.org/">SDL</a></dt>
 <dd>Simple DirectMedia Layer, a cross-platform library that provides low-level access to video, audio and input devices.</dd>
 
-<dt><a class="external" href="http://www.libsdl.org/projects/SDL_image/">SDL_image</a></dt>
-<dd>Library that integrates image reading with SDL. SDL_image can support many image formats, but openMSX only requires PNG support.</dd>
-
 <dt><a class="external" href="http://www.libsdl.org/projects/SDL_ttf/">SDL_ttf</a></dt>
 <dd>Library that provides support for TrueType Fonts in SDL.</dd>
 
@@ -284,9 +281,9 @@ The easiest thing to do is to use the <a class="internal" href="#standalone">sta
 or
 <a class="external" href="http://www.finkproject.org/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports).
 If you are using MacPorts, you should install the ports
-<code>libpng</code>, <code>libsdl</code> and <code>libsdl_image</code>.
+<code>libpng</code>, <code>libsdl</code> and <code>libsdl_ttf</code>.
 If you are using Fink, you should install the packages
-<code>libpng3</code>, <code>sdl</code> and <code>sdl-image</code>.
+<code>libpng3</code>, <code>sdl</code> and <code>sdl-ttf</code>.
 </p>
 
 <h5>Microsoft Windows</h5>
@@ -903,8 +900,8 @@ This will give a more detailed stacktrace, especially in optimized code.
 <h4>Visual C++</h4><p>For experienced users: if you get a crash or a hang,
 try to provide a user dump. This will work for any openMSX binary, including
 pre-built binaries obtained from <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a>.</p>
-<p>As of Windows Vista SP1, you can find user dump files for crashed processes 
-in the &quot;%LocalAppData%\CrashDumps&quot; directory. The default Windows crash dump 
+<p>As of Windows Vista SP1, you can find user dump files for crashed processes
+in the &quot;%LocalAppData%\CrashDumps&quot; directory. The default Windows crash dump
 behavior can be further customized as per
 <a href="http://msdn.microsoft.com/en-us/library/bb513638(VS.85).aspx">MSDN</a>.</p>
 <p>To generate a user dump on demand on any Windows OS, please read
