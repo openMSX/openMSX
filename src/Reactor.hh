@@ -44,13 +44,10 @@ class ListMachinesCommand;
 class ActivateMachineCommand;
 class StoreMachineCommand;
 class RestoreMachineCommand;
-class StoreMachineMemCommand;
-class RestoreMachineMemCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class GlobalSettings;
-class MemBuffer;
 template <typename T> class EnumSetting;
 
 /**
@@ -157,14 +154,10 @@ private:
 	const std::auto_ptr<ActivateMachineCommand> activateMachineCommand;
 	const std::auto_ptr<StoreMachineCommand> storeMachineCommand;
 	const std::auto_ptr<RestoreMachineCommand> restoreMachineCommand;
-	const std::auto_ptr<StoreMachineMemCommand> storeMachineMemCommand;
-	const std::auto_ptr<RestoreMachineMemCommand> restoreMachineMemCommand;
 	const std::auto_ptr<AviRecorder> aviRecordCommand;
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
 	const std::auto_ptr<RealTimeInfo> realTimeInfo;
-
-	std::auto_ptr<MemBuffer> snapshot; // TODO temp code
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock
@@ -195,8 +188,6 @@ private:
 	friend class ActivateMachineCommand;
 	friend class StoreMachineCommand;
 	friend class RestoreMachineCommand;
-	friend class StoreMachineMemCommand;
-	friend class RestoreMachineMemCommand;
 };
 
 } // namespace openmsx

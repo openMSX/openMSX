@@ -35,7 +35,6 @@
 #include "ReadDir.hh"
 #include "Thread.hh"
 #include "Timer.hh"
-#include "MemBuffer.hh"
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "checked_cast.hh"
@@ -148,28 +147,6 @@ private:
 	Reactor& reactor;
 };
 
-class StoreMachineMemCommand : public SimpleCommand
-{
-public:
-	StoreMachineMemCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-private:
-	Reactor& reactor;
-};
-
-class RestoreMachineMemCommand : public SimpleCommand
-{
-public:
-	RestoreMachineMemCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-private:
-	Reactor& reactor;
-};
-
 class PollEventGenerator : private Alarm
 {
 public:
@@ -232,8 +209,6 @@ Reactor::Reactor()
 	, activateMachineCommand(new ActivateMachineCommand(*globalCommandController, *this))
 	, storeMachineCommand(new StoreMachineCommand(*globalCommandController, *this))
 	, restoreMachineCommand(new RestoreMachineCommand(*globalCommandController, *this))
-	, storeMachineMemCommand(new StoreMachineMemCommand(*globalCommandController, *this))
-	, restoreMachineMemCommand(new RestoreMachineMemCommand(*globalCommandController, *this))
 	, aviRecordCommand(new AviRecorder(*this))
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
@@ -1000,75 +975,6 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 	// TODO: put the default files in defaults (state files in user's savestates dir)
 	UserFileContext context;
 	completeFileName(getCommandController(), tokens, context, defaults);
-}
-
-
-// class StoreMachineMemCommand   TODO temp code
-
-StoreMachineMemCommand::StoreMachineMemCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "store_machine_mem")
-	, reactor(reactor_)
-{
-}
-
-string StoreMachineMemCommand::execute(const vector<string>& tokens)
-{
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
-	Reactor::Board board = reactor.getMachine(tokens[1]);
-
-	MemOutputArchive out;
-	out.serialize("machine", *board);
-	reactor.snapshot.reset(new MemBuffer(out.stealBuffer()));
-	return StringOp::toString(reactor.snapshot->getLength()); // size in bytes
-}
-
-string StoreMachineMemCommand::help(const vector<string>& /*tokens*/) const
-{
-	return "This is an experimental command. "
-	       "It will change in the next release.";
-}
-
-void StoreMachineMemCommand::tabCompletion(vector<string>& tokens) const
-{
-	set<string> ids;
-	reactor.getMachineIDs(ids);
-	completeString(tokens, ids);
-}
-
-
-// class RestoreMachineMemCommand   TODO temp code
-
-RestoreMachineMemCommand::RestoreMachineMemCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "restore_machine_mem")
-	, reactor(reactor_)
-{
-}
-
-string RestoreMachineMemCommand::execute(const vector<string>& /*tokens*/)
-{
-	if (!reactor.snapshot.get()) {
-		throw CommandException("No previous memory snapshot");
-	}
-	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-	MemInputArchive in(*reactor.snapshot);
-	in.serialize("machine", *newBoard);
-	reactor.boards.push_back(newBoard);
-	return newBoard->getMachineID();
-}
-
-string RestoreMachineMemCommand::help(const vector<string>& /*tokens*/) const
-{
-	return "This is an experimental command. "
-	       "It will change in the next release.";
-}
-
-void RestoreMachineMemCommand::tabCompletion(vector<string>& /*tokens*/) const
-{
-	// TODO
 }
 
 
