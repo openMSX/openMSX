@@ -1,8 +1,8 @@
 // $Id$
 
 #include "SDLImage.hh"
+#include "PNG.hh"
 #include "OutputSurface.hh"
-#include "File.hh"
 #include "MSXException.hh"
 #include "vla.hh"
 #include "unreachable.hh"
@@ -12,7 +12,6 @@
 #endif
 #include <cassert>
 #include <cstdlib>
-#include <SDL_image.h>
 #include <SDL.h>
 
 using std::string;
@@ -150,7 +149,7 @@ static SDL_Surface* scaleImage32(
 
 static SDL_Surface* loadImage(const string& filename)
 {
-	SDL_Surface* picture = SDLImage::readImage(filename);
+	SDL_Surface* picture = PNG::load(filename);
 	SDL_Surface* result = convertToDisplayFormat(picture);
 	SDL_FreeSurface(picture);
 	return result;
@@ -161,7 +160,7 @@ static SDL_Surface* loadImage(const string& filename, double scaleFactor)
 	if (scaleFactor == 1.0) {
 		return loadImage(filename);
 	}
-	SDL_Surface* picture = SDLImage::readImage(filename);
+	SDL_Surface* picture = PNG::load(filename);
 	int width  = int(picture->w * scaleFactor);
 	int height = int(picture->h * scaleFactor);
 	BaseImage::checkSize(width, height);
@@ -184,7 +183,7 @@ static SDL_Surface* loadImage(
 	if ((width == 0) || (height == 0)) {
 		return NULL;
 	}
-	SDL_Surface* picture = SDLImage::readImage(filename);
+	SDL_Surface* picture = PNG::load(filename);
 	SDL_Surface* scaled = scaleImage32(picture, width, height);
 	SDL_FreeSurface(picture);
 
@@ -195,24 +194,6 @@ static SDL_Surface* loadImage(
 
 
 // class SDLImage
-
-SDL_Surface* SDLImage::readImage(const string& filename)
-{
-	File file(filename);
-	SDL_RWops *src = SDL_RWFromConstMem(file.mmap(), file.getSize());
-	if (!src) {
-		throw MSXException(
-			"Failed to create SDL_RWops for mmapped file \"" + filename + "\""
-			);
-	}
-	SDL_Surface* result = IMG_LoadPNG_RW(src);
-	SDL_RWclose(src);
-	if (!result) {
-		throw MSXException("File \"" + filename + "\" is not a valid PNG image");
-	}
-	return result;
-}
-
 
 SDLImage::SDLImage(const string& filename)
 	: workImage(NULL), a(-1), flipX(false), flipY(false)

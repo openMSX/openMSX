@@ -5,6 +5,7 @@
 
 #include "PNG.hh"
 #include "CommandException.hh"
+#include "File.hh"
 #include "FileOperations.hh"
 #include "build-info.hh"
 #include "Version.hh"
@@ -15,9 +16,27 @@
 #include <ctime>
 #include <png.h>
 #include <SDL.h>
+#include <SDL_image.h>
 
 namespace openmsx {
 namespace PNG {
+
+SDL_Surface* load(const std::string& filename)
+{
+	File file(filename);
+	SDL_RWops *src = SDL_RWFromConstMem(file.mmap(), file.getSize());
+	if (!src) {
+		throw MSXException(
+			"Failed to create SDL_RWops for mmapped file \"" + filename + "\""
+			);
+	}
+	SDL_Surface* result = IMG_LoadPNG_RW(src);
+	SDL_RWclose(src);
+	if (!result) {
+		throw MSXException("File \"" + filename + "\" is not a valid PNG image");
+	}
+	return result;
+}
 
 static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
                            const std::string& filename, bool color)

@@ -33,9 +33,6 @@ private:
 	SDL_Surface* workImage;
 	int a;
 	bool flipX, flipY;
-
-public:
-	static SDL_Surface* readImage(const std::string& filename);
 };
 
 } // namespace openmsx

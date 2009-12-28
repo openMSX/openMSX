@@ -3,7 +3,7 @@
 #include "GLImage.hh"
 #include "MSXException.hh"
 #include "Math.hh"
-#include "SDLImage.hh"
+#include "PNG.hh"
 #include <SDL.h>
 
 using std::string;
@@ -54,7 +54,7 @@ static GLuint loadTexture(SDL_Surface* surface,
 static GLuint loadTexture(const string& filename,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {
-	SDL_Surface* surface = SDLImage::readImage(filename);
+	SDL_Surface* surface = PNG::load(filename);
 	if (surface == NULL) {
 		throw MSXException("Error loading image " + filename);
 	}
