@@ -189,17 +189,6 @@ class SDL(DownloadablePackage):
 			'5d927e287034cb6bb0ebccfa382cb1d185cb113c8ab5115a0759798642eed9b6',
 		}
 
-class SDL_image(DownloadablePackage):
-	downloadURL = 'http://www.libsdl.org/projects/SDL_image/release'
-	niceName = 'SDL_image'
-	sourceName = 'SDL_image'
-	version = '1.2.10'
-	fileLength = 1332906
-	checksums = {
-		'sha256':
-			'75e05d1e95f6277b44797157d9e25a908ba8d08a393216ffb019b0d74de11876',
-		}
-
 class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'

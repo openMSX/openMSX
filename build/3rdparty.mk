@@ -1,8 +1,7 @@
 # $Id$
 #
 # Compiles 3rd party libraries needed by openMSX.
-# It enables only the features needed by openMSX: for example from SDL_image
-# we only need PNG handling cability.
+# It enables only the features needed by openMSX.
 
 ifeq ($(origin PYTHON),undefined)
 $(error You should pass PYTHON)
@@ -70,7 +69,7 @@ endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
-PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_IMAGE SDL_TTF XML OGG OGGZ VORBIS THEORA
+PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_TTF XML OGG OGGZ VORBIS THEORA
 PACKAGES_NONSTD:=GLEW TCL
 PACKAGES_NOBUILD:=
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
@@ -128,7 +127,6 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 	touch $@
 
 # Configuration of a lib can depend on the lib-config script of another lib.
-# For example SDL_image depends on SDL and libpng.
 PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng12-config
 FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
 SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
@@ -159,32 +157,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
 # modules do and if we disable them, SDL will not link.
-
-# Configure SDL_image.
-$(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL_IMAGE) $(PNG_CONFIG_SCRIPT) $(SDL_CONFIG_SCRIPT)
-	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
-		--disable-sdltest \
-		--disable-bmp \
-		--disable-gif \
-		--disable-jpg \
-		--disable-lbm \
-		--disable-pcx \
-		--enable-png \
-		--disable-png-shared \
-		--disable-pnm \
-		--disable-tga \
-		--disable-tif \
-		--disable-xcf \
-		--disable-xpm \
-		--disable-shared \
-		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LIBS="-lz" \
-		LDFLAGS="$(_LDFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
 
 # Configure SDL_ttf.
 $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \

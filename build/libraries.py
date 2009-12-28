@@ -326,24 +326,6 @@ class SDL(Library):
 	staticLibsOption = '--static-libs'
 	function = 'SDL_Init'
 
-class SDL_image(Library):
-	libName = 'SDL_image'
-	makeName = 'SDL_IMAGE'
-	header = '<SDL_image.h>'
-	function = 'IMG_LoadPNG_RW'
-	dependsOn = ('SDL', 'PNG')
-
-	@classmethod
-	def getVersion(cls, platform, linkStatic, distroRoot):
-		def execute(cmd, log):
-			version = cmd.expand(log, cls.getHeaders(platform),
-				'SDL_IMAGE_MAJOR_VERSION',
-				'SDL_IMAGE_MINOR_VERSION',
-				'SDL_IMAGE_PATCHLEVEL',
-				)
-			return None if None in version else '%s.%s.%s' % version
-		return execute
-
 class SDL_ttf(Library):
 	libName = 'SDL_ttf'
 	makeName = 'SDL_TTF'
