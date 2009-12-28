@@ -20,7 +20,7 @@ static inline unsigned readPixel(Pixel p)
 		       ((p & 0x07C0) << 5) | // drop lowest green bit
 		       ((p & 0x001F) << 3);
 	} else {
-		return p & 0xF8F8F8;
+		return p & 0xF8F8F8F8;
 	}
 }
 
@@ -33,33 +33,7 @@ static inline Pixel writePixel(unsigned p)
 		       ((p & 0x00FC00) >> 5) |
 		       ((p & 0x0000F8) >> 3);
 	} else {
-		return (p & 0xF8F8F8) | ((p & 0xE0E0E0) >> 5);
-	}
-}
-
-template <int w1, int w2>
-static inline unsigned interpolate(unsigned c1, unsigned c2)
-{
-	enum { wsum = w1 + w2 };
-	return (c1 * w1 + c2 * w2) / wsum;
-}
-
-template <int w1, int w2, int w3>
-static inline unsigned interpolate(unsigned c1, unsigned c2, unsigned c3)
-{
-	enum { wsum = w1 + w2 + w3 };
-	if (wsum <= 8) {
-		// Because the lower 3 bits of each color component (R,G,B) are
-		// zeroed out, we can operate on a single integer as if it is
-		// a vector.
-		return (c1 * w1 + c2 * w2 + c3 * w3) / wsum;
-	} else {
-		return ((((c1 & 0x00FF00) * w1 +
-		          (c2 & 0x00FF00) * w2 +
-		          (c3 & 0x00FF00) * w3) & (0x00FF00 * wsum)) |
-		        (((c1 & 0xFF00FF) * w1 +
-		          (c2 & 0xFF00FF) * w2 +
-		          (c3 & 0xFF00FF) * w3) & (0xFF00FF * wsum))) / wsum;
+		return (p & 0xF8F8F8F8) | ((p & 0xE0E0E0E0) >> 5);
 	}
 }
 
