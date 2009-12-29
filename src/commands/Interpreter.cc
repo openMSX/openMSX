@@ -266,7 +266,17 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 	const char* tclVarValue = getVariable(name);
 	if (tclVarValue) {
 		// Tcl var already existed, use this value
-		variable.setValueStringDirect(tclVarValue);
+		try {
+			variable.setValueStringDirect(tclVarValue);
+		} catch (MSXException&) {
+			// Ignore: can happen in case of proxy settings when
+			// the current machine doesn't have this setting.
+			// E.g.
+			//   (start with cbios machine)
+			//   set renshaturbo 0
+			//   create_machine
+			//   machine2::load_machine Panasonic_FS-A1GT
+		}
 	} else {
 		// define Tcl var
 		setVariable(name, getSafeValueString(variable));
