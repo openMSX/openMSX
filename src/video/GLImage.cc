@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "PNG.hh"
+#include "build-info.hh"
 #include <SDL.h>
 
 using std::string;
@@ -22,13 +23,13 @@ static GLuint loadTexture(SDL_Surface* surface,
 	texCoord[2] = GLfloat(width)  / w2; // max X
 	texCoord[3] = GLfloat(height) / h2; // max Y
 
-	SDL_Surface* image2 = SDL_CreateRGBSurface(SDL_SWSURFACE, w2, h2, 32,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-		0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
-#else
-		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
-#endif
-	);
+	SDL_Surface* image2 = SDL_CreateRGBSurface(
+		SDL_SWSURFACE, w2, h2, 32,
+		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
+		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
+		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
+		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000
+		);
 	if (image2 == NULL) {
 		throw MSXException("Couldn't allocate surface");
 	}
