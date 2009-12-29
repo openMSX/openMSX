@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib reetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
 				OutputFile="$(OutDir)\openmsx.exe"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(3rdPartyOutDir)&quot;"
 				IgnoreDefaultLibraryNames=""
