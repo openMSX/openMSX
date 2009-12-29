@@ -129,7 +129,7 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 		if (color_type == PNG_COLOR_TYPE_PALETTE) {
 			// Check if all tRNS entries are opaque except one.
 			int i, t = -1;
-			for (i = 0; i < num_trans; i++) {
+			for (i = 0; i < num_trans; ++i) {
 				if (trans[i] == 0) {
 					if (t >= 0) break;
 					t = i;
@@ -137,13 +137,13 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 					break;
 				}
 			}
-		    if (i == num_trans) { // exactly one transparent index
+			if (i == num_trans) { // exactly one transparent index
 				ckey = t;
-		    } else { // more than one transparent index, or translucency
+			} else { // more than one transparent index, or translucency
 				png_set_expand(png_ptr);
-		    }
+			}
 		} else {
-		    ckey = 0; // actual value will be set later
+			ckey = 0; // actual value will be set later
 		}
 	}
 
@@ -185,22 +185,22 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 		if (color_type != PNG_COLOR_TYPE_PALETTE) {
 			// TODO: Should these be truncated or shifted down?
 			ckey = SDL_MapRGB(surface->format,
-			                  (Uint8)transv->red,
-			                  (Uint8)transv->green,
-			                  (Uint8)transv->blue);
+			                  Uint8(transv->red),
+			                  Uint8(transv->green),
+			                  Uint8(transv->blue));
 			SDL_SetColorKey(surface, SDL_SRCCOLORKEY, ckey);
 		}
 	}
 
 	// Create the array of pointers to image data.
-	row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+	row_pointers = static_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
 	if (row_pointers == NULL) {
 		error = "Out of memory";
 		goto done;
 	}
-	for (int row = 0; row < (int)height; row++) {
-		row_pointers[row] = (png_bytep)
-			(Uint8*)surface->pixels + row*surface->pitch;
+	for (png_uint_32 row = 0; row < height; ++row) {
+		row_pointers[row] = static_cast<png_bytep>(
+			static_cast<Uint8*>(surface->pixels) + row * surface->pitch);
 	}
 
 	// Read the entire image in one go.
@@ -217,12 +217,12 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 		SDL_Palette* palette = surface->format->palette;
 		if (color_type == PNG_COLOR_TYPE_GRAY) {
 			palette->ncolors = 256;
-			for(int i = 0; i < 256; i++) {
+			for (int i = 0; i < 256; ++i) {
 				palette->colors[i].r = i;
 				palette->colors[i].g = i;
 				palette->colors[i].b = i;
 			}
-	    } else if (info_ptr->num_palette > 0 ) {
+	    } else if (info_ptr->num_palette > 0) {
 			palette->ncolors = info_ptr->num_palette;
 			for (int i = 0; i < info_ptr->num_palette; ++i) {
 				palette->colors[i].b = info_ptr->palette[i].blue;
