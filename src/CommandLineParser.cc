@@ -360,7 +360,6 @@ void CommandLineParser::parse(int argc, char** argv)
 				// load default config file in case the user didn't specify one
 				const string& machine =
 					reactor.getMachineSetting().getValueString();
-				output.printInfo("Using default machine: " + machine);
 				try {
 					reactor.switchMachine(machine);
 				} catch (MSXException& e) {
@@ -668,7 +667,6 @@ bool MachineOption::parseOption(const string& option, deque<string>& cmdLine)
 		throw FatalError("Only one machine option allowed");
 	}
 	string machine(getArgument(option, cmdLine));
-	parser.output.printInfo("Using specified machine: " + machine);
 	try {
 		parser.reactor.switchMachine(machine);
 	} catch (MSXException& e) {
