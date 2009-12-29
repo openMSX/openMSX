@@ -69,7 +69,6 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 	const char* error = NULL;
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
-	png_bytep* volatile row_pointers = NULL;
 	SDL_Surface* volatile surface = NULL;
 
 	// Create the PNG loading context structure.
@@ -149,11 +148,7 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 	}
 
 	// Create the array of pointers to image data.
-	row_pointers = static_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
-	if (row_pointers == NULL) {
-		error = "Out of memory";
-		goto done;
-	}
+	VLA(png_bytep,  row_pointers, height);
 	for (png_uint_32 row = 0; row < height; ++row) {
 		row_pointers[row] = static_cast<png_bytep>(
 			static_cast<Uint8*>(surface->pixels) + row * surface->pitch);
@@ -171,9 +166,6 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 done: // Clean up and return.
 	if (png_ptr) {
 		png_destroy_read_struct(&png_ptr, info_ptr ? &info_ptr : NULL, NULL);
-	}
-	if (row_pointers) {
-		free(row_pointers);
 	}
 	if (error) {
 		SDL_RWseek(src, start, RW_SEEK_SET);
