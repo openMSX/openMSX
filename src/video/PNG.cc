@@ -59,7 +59,7 @@ from SDL_image 1.2.10, file "IMG_png.c".
 static void png_read_data(png_structp ctx, png_bytep area, png_size_t size)
 {
 	File* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
-	file->read(area, size);
+	file->read(area, unsigned(size));
 }
 SDL_Surface* load(const std::string& filename)
 {
