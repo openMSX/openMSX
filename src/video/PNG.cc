@@ -140,9 +140,9 @@ SDL_Surface* load(const std::string& filename)
 		Bmask = 0x00FF0000;
 		Amask = (info_ptr->channels == 4) ? 0xFF000000 : 0;
 	}
-	surface = SDL_AllocSurface(SDL_SWSURFACE, width, height,
-	                           bit_depth * info_ptr->channels,
-	                           Rmask, Gmask, Bmask, Amask);
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
+	                               bit_depth * info_ptr->channels,
+	                               Rmask, Gmask, Bmask, Amask);
 	if (surface == NULL) {
 		error = "Out of memory";
 		goto done;
