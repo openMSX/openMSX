@@ -58,12 +58,12 @@ from SDL_image 1.2.10, file "IMG_png.c".
 // Load a PNG type image from an SDL datasource.
 static void png_read_data(png_structp ctx, png_bytep area, png_size_t size)
 {
-	SDL_RWops* src = reinterpret_cast<SDL_RWops*>(png_get_io_ptr(ctx));
-	SDL_RWread(src, area, size, 1);
+	File* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	file->read(area, size);
 }
-static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
+SDL_Surface* load(const std::string& filename)
 {
-	int start = SDL_RWtell(src);
+	File file(filename);
 
 	// Initialize the data we will clean up when we're done.
 	const char* error = NULL;
@@ -94,7 +94,7 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 	}
 
 	// Set up the input control.
-	png_set_read_fn(png_ptr, src, png_read_data);
+	png_set_read_fn(png_ptr, &file, png_read_data);
 
 	// Read PNG header info.
 	png_read_info(png_ptr, info_ptr);
@@ -168,32 +168,14 @@ done: // Clean up and return.
 		png_destroy_read_struct(&png_ptr, info_ptr ? &info_ptr : NULL, NULL);
 	}
 	if (error) {
-		SDL_RWseek(src, start, RW_SEEK_SET);
 		if (surface) {
 			SDL_FreeSurface(surface);
-			surface = NULL;
 		}
-		SDL_SetError(error);
+		throw MSXException("Error while loading \"" + filename + "\": " + error);
 	}
 	return surface;
 }
 
-SDL_Surface* load(const std::string& filename)
-{
-	File file(filename);
-	SDL_RWops* src = SDL_RWFromConstMem(file.mmap(), file.getSize());
-	if (!src) {
-		throw MSXException(
-			"Failed to create SDL_RWops for mmapped file \"" + filename + "\""
-			);
-	}
-	SDL_Surface* result = IMG_LoadPNG_RW(src);
-	SDL_RWclose(src);
-	if (!result) {
-		throw MSXException("File \"" + filename + "\" is not a valid PNG image");
-	}
-	return result;
-}
 
 /* PNG save code by Darren Grant sdl@lokigames.com */
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
