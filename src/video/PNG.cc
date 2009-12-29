@@ -67,14 +67,14 @@ SDL_Surface* load(const std::string& filename)
 
 	// Initialize the data we will clean up when we're done.
 	const char* error = NULL;
-	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
-	SDL_Surface* volatile surface = NULL;
+	SDL_Surface* surface = NULL;
 
 	// Create the PNG loading context structure.
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_structp png_ptr = png_create_read_struct(
+		PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (png_ptr == NULL) {
-		error = "Couldn't allocate memory for PNG file or incompatible PNG dll";
+		error = "Couldn't allocate memory for PNG file or incompatible PNG library";
 		goto done;
 	}
 
@@ -101,7 +101,7 @@ SDL_Surface* load(const std::string& filename)
 	png_uint_32 width, height;
 	int bit_depth, color_type, interlace_type;
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
-		&color_type, &interlace_type, NULL, NULL);
+	             &color_type, &interlace_type, NULL, NULL);
 
 	// Tell libpng to strip 16 bit/color files down to 8 bits/color.
 	png_set_strip_16(png_ptr);
@@ -124,7 +124,7 @@ SDL_Surface* load(const std::string& filename)
 	png_read_update_info(png_ptr, info_ptr);
 
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
-		&color_type, &interlace_type, NULL, NULL);
+	             &color_type, &interlace_type, NULL, NULL);
 
 	// Allocate the SDL surface to hold the image.
 	Uint32 Rmask, Gmask, Bmask, Amask;
@@ -141,7 +141,8 @@ SDL_Surface* load(const std::string& filename)
 		Amask = (info_ptr->channels == 4) ? 0xFF000000 : 0;
 	}
 	surface = SDL_AllocSurface(SDL_SWSURFACE, width, height,
-		bit_depth * info_ptr->channels, Rmask, Gmask, Bmask, Amask);
+	                           bit_depth * info_ptr->channels,
+	                           Rmask, Gmask, Bmask, Amask);
 	if (surface == NULL) {
 		error = "Out of memory";
 		goto done;
