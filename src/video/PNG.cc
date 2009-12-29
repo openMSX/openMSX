@@ -111,45 +111,16 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 	// byte into separate bytes (useful for paletted and grayscale images).
 	png_set_packing(png_ptr);
 
-	// Scale greyscale values to the range 0..255.
-	if (color_type == PNG_COLOR_TYPE_GRAY) {
-		png_set_expand(png_ptr);
-	}
+	// The following enables:
+	// - transformation of grayscale images of less than 8 to 8 bits
+	// - changes paletted images to RGB
+	// - adds a full alpha channel if there is transparency information in a tRNS chunk
+	png_set_expand(png_ptr);
 
-	// For images with a single "transparent colour", set colour key;
-	// if more than one index has transparency, or if partially transparent
-	// entries exist, use full alpha channel.
-	png_color_16* transv;
-	volatile int ckey;
-	ckey = -1;
-	if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-		int num_trans;
-		Uint8* trans;
-		png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, &transv);
-		if (color_type == PNG_COLOR_TYPE_PALETTE) {
-			// Check if all tRNS entries are opaque except one.
-			int i, t = -1;
-			for (i = 0; i < num_trans; ++i) {
-				if (trans[i] == 0) {
-					if (t >= 0) break;
-					t = i;
-				} else if (trans[i] != 255) {
-					break;
-				}
-			}
-			if (i == num_trans) { // exactly one transparent index
-				ckey = t;
-			} else { // more than one transparent index, or translucency
-				png_set_expand(png_ptr);
-			}
-		} else {
-			ckey = 0; // actual value will be set later
-		}
-	}
-
-	if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
-		png_set_gray_to_rgb(png_ptr);
-	}
+	// always convert grayscale to RGB
+	//  together with all the above conversions, the resulting image will
+	//  be either RGB or RGBA with 8 bits per component.
+	png_set_gray_to_rgb(png_ptr);
 
 	png_read_update_info(png_ptr, info_ptr);
 
@@ -157,39 +128,24 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 		&color_type, &interlace_type, NULL, NULL);
 
 	// Allocate the SDL surface to hold the image.
-	{
-		Uint32 Rmask = 0, Gmask = 0, Bmask = 0, Amask = 0;
-		if (color_type != PNG_COLOR_TYPE_PALETTE) {
-			if (OPENMSX_BIGENDIAN) {
-				int s = (info_ptr->channels == 4) ? 0 : 8;
-				Rmask = 0xFF000000 >> s;
-				Gmask = 0x00FF0000 >> s;
-				Bmask = 0x0000FF00 >> s;
-				Amask = 0x000000FF >> s;
-			} else {
-				Rmask = 0x000000FF;
-				Gmask = 0x0000FF00;
-				Bmask = 0x00FF0000;
-				Amask = (info_ptr->channels == 4) ? 0xFF000000 : 0;
-			}
-		}
-		surface = SDL_AllocSurface(SDL_SWSURFACE, width, height,
-			bit_depth * info_ptr->channels, Rmask, Gmask, Bmask, Amask);
-		if (surface == NULL) {
-			error = "Out of memory";
-			goto done;
-		}
+	Uint32 Rmask, Gmask, Bmask, Amask;
+	if (OPENMSX_BIGENDIAN) {
+		int s = (info_ptr->channels == 4) ? 0 : 8;
+		Rmask = 0xFF000000 >> s;
+		Gmask = 0x00FF0000 >> s;
+		Bmask = 0x0000FF00 >> s;
+		Amask = 0x000000FF >> s;
+	} else {
+		Rmask = 0x000000FF;
+		Gmask = 0x0000FF00;
+		Bmask = 0x00FF0000;
+		Amask = (info_ptr->channels == 4) ? 0xFF000000 : 0;
 	}
-
-	if (ckey != -1) {
-		if (color_type != PNG_COLOR_TYPE_PALETTE) {
-			// TODO: Should these be truncated or shifted down?
-			ckey = SDL_MapRGB(surface->format,
-			                  Uint8(transv->red),
-			                  Uint8(transv->green),
-			                  Uint8(transv->blue));
-			SDL_SetColorKey(surface, SDL_SRCCOLORKEY, ckey);
-		}
+	surface = SDL_AllocSurface(SDL_SWSURFACE, width, height,
+		bit_depth * info_ptr->channels, Rmask, Gmask, Bmask, Amask);
+	if (surface == NULL) {
+		error = "Out of memory";
+		goto done;
 	}
 
 	// Create the array of pointers to image data.
@@ -211,26 +167,6 @@ static SDL_Surface* IMG_LoadPNG_RW(SDL_RWops* src)
 	// In some cases it can't read PNG's created by some popular programs (ACDSEE),
 	// we do not want to process comments, so we omit png_read_end
 	//png_read_end(png_ptr, info_ptr);
-
-	// Load the palette, if any.
-	if (surface->format->palette) {
-		SDL_Palette* palette = surface->format->palette;
-		if (color_type == PNG_COLOR_TYPE_GRAY) {
-			palette->ncolors = 256;
-			for (int i = 0; i < 256; ++i) {
-				palette->colors[i].r = i;
-				palette->colors[i].g = i;
-				palette->colors[i].b = i;
-			}
-	    } else if (info_ptr->num_palette > 0) {
-			palette->ncolors = info_ptr->num_palette;
-			for (int i = 0; i < info_ptr->num_palette; ++i) {
-				palette->colors[i].b = info_ptr->palette[i].blue;
-				palette->colors[i].g = info_ptr->palette[i].green;
-				palette->colors[i].r = info_ptr->palette[i].red;
-			}
-		}
-	}
 
 done: // Clean up and return.
 	if (png_ptr) {
