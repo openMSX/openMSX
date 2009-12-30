@@ -407,7 +407,7 @@ void saveGrayscale(unsigned width, unsigned height,
 	           const void** rowPointers, const std::string& filename)
 {
 	if (!IMG_SavePNG_RW(width, height, rowPointers, filename, false)) {
-		throw CommandException("Failed to write " + filename);
+		throw MSXException("Failed to write " + filename);
 	}
 }
 
