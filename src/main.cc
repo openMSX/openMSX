@@ -44,7 +44,9 @@ static void initializeSDL()
 #if SDL_VERSION_ATLEAST(1, 2, 10)
 	// On Mac OS X, send key combos like Cmd+H and Cmd+M to Cocoa, so it can
 	// perform the corresponding actions.
+#if defined(__APPLE__)
 	SDL_putenv(const_cast<char*>("SDL_ENABLEAPPEVENTS=1"));
+#endif
 #endif
 }
 
