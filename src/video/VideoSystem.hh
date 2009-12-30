@@ -63,7 +63,7 @@ public:
 	  * The default implementation throws an exception.
 	  * @param filename Name of the file to save the screenshot to.
 	  * @param withOsd Should OSD elements be included in the screenshot.
-	  * @throw CommandException If taking the screen shot fails.
+	  * @throws MSXException If taking the screen shot fails.
 	  */
 	virtual void takeScreenShot(const std::string& filename, bool withOsd);
 

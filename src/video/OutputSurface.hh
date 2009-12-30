@@ -114,12 +114,13 @@ public:
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
-	/** For SDLGL-FB-nn, copy frame buffer to openGL display.
+	/** For SDLGL-FB-nn, copy frame buffer to OpenGL display.
 	  * The default implementation does nothing.
 	  */
 	virtual void flushFrameBuffer();
 
-	/** Save the content of this OutputSurface to a png file.
+	/** Save the content of this OutputSurface to a PNG file.
+	  * @throws MSXException If creating the PNG file fails.
 	  */
 	virtual void saveScreenshot(const std::string& filename) = 0;
 

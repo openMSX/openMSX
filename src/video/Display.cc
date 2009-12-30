@@ -481,7 +481,12 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 
 	if (!rawShot) {
 		// include all layers (OSD stuff, console)
-		display.getVideoSystem().takeScreenShot(filename, withOsd);
+		try {
+			display.getVideoSystem().takeScreenShot(filename, withOsd);
+		} catch (MSXException& e) {
+			throw CommandException(
+				"Failed to take screenshot: " + e.getMessage());
+		}
 	} else {
 		VideoSourceSetting& videoSource =
 			display.getRenderSettings().getVideoSource();
@@ -494,7 +499,12 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 				"Current renderer doesn't support taking screenshots.");
 		}
 		unsigned height = doubleSize ? 480 : 240;
-		pp->takeScreenShot(height, filename);
+		try {
+			pp->takeScreenShot(height, filename);
+		} catch (MSXException& e) {
+			throw CommandException(
+				"Failed to take screenshot: " + e.getMessage());
+		}
 	}
 
 	display.getCliComm().printInfo("Screen saved to " + filename);

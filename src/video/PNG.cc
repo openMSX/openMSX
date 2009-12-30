@@ -1,7 +1,7 @@
 // $Id$
 
 #include "PNG.hh"
-#include "CommandException.hh"
+#include "MSXException.hh"
 #include "File.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
@@ -371,7 +371,7 @@ void save(SDL_Surface* surface, const std::string& filename)
 	SDL_FreeSurface(surf24);
 
 	if (!result) {
-		throw CommandException("Failed to write " + filename);
+		throw MSXException("Failed to write " + filename);
 	}
 }
 
@@ -399,7 +399,7 @@ void save(unsigned width, unsigned height,
           const void** rowPointers, const std::string& filename)
 {
 	if (!IMG_SavePNG_RW(width, height, rowPointers, filename, true)) {
-		throw CommandException("Failed to write " + filename);
+		throw MSXException("Failed to write " + filename);
 	}
 }
 
