@@ -4,6 +4,7 @@
 #define SDLIMAGE_HH
 
 #include "BaseImage.hh"
+#include "SDLSurfacePtr.hh"
 #include <string>
 
 struct SDL_Surface;
@@ -29,8 +30,8 @@ public:
 private:
 	void allocateWorkImage();
 
-	SDL_Surface* image;
-	SDL_Surface* workImage;
+	SDLSurfacePtr image;
+	SDLSurfacePtr workImage;
 	int a;
 	bool flipX, flipY;
 };

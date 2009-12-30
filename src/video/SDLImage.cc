@@ -57,14 +57,14 @@ static bool hasConstantAlpha(const SDL_Surface* surface, byte& alpha)
 	}
 }
 
-static SDL_Surface* convertToDisplayFormat(SDL_Surface* input)
+static SDLSurfacePtr convertToDisplayFormat(SDL_Surface* input)
 {
 	byte alpha;
 	if (hasConstantAlpha(input, alpha)) {
 		SDL_SetAlpha(input, SDL_SRCALPHA, alpha);
-		return SDL_DisplayFormat(input);
+		return SDLSurfacePtr(SDL_DisplayFormat(input));
 	} else {
-		return SDL_DisplayFormatAlpha(input);
+		return SDLSurfacePtr(SDL_DisplayFormatAlpha(input));
 	}
 }
 
@@ -134,108 +134,95 @@ static void zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool flipX, bool fli
 	static const Uint32 bmask = 0x00ff0000;
 	static const Uint32 amask = 0xff000000;
 #endif
-static SDL_Surface* scaleImage32(
+static SDLSurfacePtr scaleImage32(
 	SDL_Surface* input, int width, int height)
 {
 	// create a 32 bpp surface that will hold the scaled version
-	SDL_Surface* result = SDL_CreateRGBSurface(
-		SDL_SWSURFACE, abs(width), abs(height), 32, rmask, gmask, bmask, amask);
-	SDL_Surface* tmp32 =
-		SDL_ConvertSurface(input, result->format, SDL_SWSURFACE);
-	zoomSurface(tmp32, result, width < 0, height < 0);
-	SDL_FreeSurface(tmp32);
+	SDLSurfacePtr result(SDL_CreateRGBSurface(
+		SDL_SWSURFACE, abs(width), abs(height), 32, rmask, gmask, bmask, amask));
+	SDLSurfacePtr tmp32(
+		SDL_ConvertSurface(input, result->format, SDL_SWSURFACE));
+	zoomSurface(tmp32.get(), result.get(), width < 0, height < 0);
 	return result;
 }
 
-static SDL_Surface* loadImage(const string& filename)
+static SDLSurfacePtr loadImage(const string& filename)
 {
-	SDL_Surface* picture = PNG::load(filename);
-	SDL_Surface* result = convertToDisplayFormat(picture);
-	SDL_FreeSurface(picture);
-	return result;
+	SDLSurfacePtr picture(PNG::load(filename));
+	return convertToDisplayFormat(picture.get());
 }
 
-static SDL_Surface* loadImage(const string& filename, double scaleFactor)
+static SDLSurfacePtr loadImage(const string& filename, double scaleFactor)
 {
 	if (scaleFactor == 1.0) {
 		return loadImage(filename);
 	}
-	SDL_Surface* picture = PNG::load(filename);
+	SDLSurfacePtr picture(PNG::load(filename));
 	int width  = int(picture->w * scaleFactor);
 	int height = int(picture->h * scaleFactor);
 	BaseImage::checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
-		SDL_FreeSurface(picture);
-		return NULL;
+		return SDLSurfacePtr();
 	}
-	SDL_Surface* scaled = scaleImage32(picture, width, height);
-	SDL_FreeSurface(picture);
-
-	SDL_Surface* result = convertToDisplayFormat(scaled);
-	SDL_FreeSurface(scaled);
-	return result;
+	SDLSurfacePtr scaled(scaleImage32(picture.get(), width, height));
+	return convertToDisplayFormat(scaled.get());
 }
 
-static SDL_Surface* loadImage(
+static SDLSurfacePtr loadImage(
 	const string& filename, int width, int height)
 {
 	BaseImage::checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
-		return NULL;
+		return SDLSurfacePtr();
 	}
-	SDL_Surface* picture = PNG::load(filename);
-	SDL_Surface* scaled = scaleImage32(picture, width, height);
-	SDL_FreeSurface(picture);
-
-	SDL_Surface* result = convertToDisplayFormat(scaled);
-	SDL_FreeSurface(scaled);
-	return result;
+	SDLSurfacePtr picture(PNG::load(filename));
+	SDLSurfacePtr scaled(scaleImage32(picture.get(), width, height));
+	return convertToDisplayFormat(scaled.get());
 }
 
 
 // class SDLImage
 
 SDLImage::SDLImage(const string& filename)
-	: workImage(NULL), a(-1), flipX(false), flipY(false)
+	: image(loadImage(filename))
+	, a(-1), flipX(false), flipY(false)
 {
-	image = loadImage(filename);
 }
 
 SDLImage::SDLImage(const std::string& filename, double scaleFactor)
-	: workImage(NULL), a(-1), flipX(scaleFactor < 0), flipY(scaleFactor < 0)
+	: image(loadImage(filename, scaleFactor))
+	, a(-1), flipX(scaleFactor < 0), flipY(scaleFactor < 0)
 {
-	image = loadImage(filename, scaleFactor);
 }
 
 SDLImage::SDLImage(const string& filename, int width, int height)
-	: workImage(NULL), a(-1), flipX(width < 0), flipY(height < 0)
+	: image(loadImage(filename, width, height))
+	, a(-1), flipX(width < 0), flipY(height < 0)
 {
-	image = loadImage(filename, width, height);
 }
 
 SDLImage::SDLImage(int width, int height,
                    byte alpha, byte r, byte g, byte b)
-	: workImage(NULL), flipX(width < 0), flipY(height < 0)
+	: flipX(width < 0), flipY(height < 0)
 {
 	checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
-		image = NULL;
 		return;
 	}
 	SDL_Surface* videoSurface = SDL_GetVideoSurface();
 	assert(videoSurface);
 	const SDL_PixelFormat& format = *videoSurface->format;
 
-	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
+	image.reset(SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
 		abs(width), abs(height), format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, 0);
-	if (!image) {
+		format.Rmask, format.Gmask, format.Bmask, 0));
+	if (!image.get()) {
 		throw MSXException("Couldn't allocate surface.");
 	}
 	if (r || g || b) {
 		// crashes on zero-width surfaces, that's why we
 		// check for it at the beginning of this method
-		SDL_FillRect(image, NULL, SDL_MapRGB(
+		SDL_FillRect(image.get(), NULL, SDL_MapRGB(
 #if SDL_VERSION_ATLEAST(1, 2, 12)
 			&format,
 #else
@@ -249,14 +236,12 @@ SDLImage::SDLImage(int width, int height,
 
 SDLImage::SDLImage(SDL_Surface* image_)
 	: image(image_)
-	, workImage(NULL), a(-1), flipX(false), flipY(false)
+	, a(-1), flipX(false), flipY(false)
 {
 }
 
 SDLImage::~SDLImage()
 {
-	if (image)     SDL_FreeSurface(image);
-	if (workImage) SDL_FreeSurface(workImage);
 }
 
 void SDLImage::allocateWorkImage()
@@ -266,10 +251,10 @@ void SDLImage::allocateWorkImage()
 		flags = SDL_HWSURFACE;
 	}
 	const SDL_PixelFormat* format = image->format;
-	workImage = SDL_CreateRGBSurface(flags,
+	workImage.reset(SDL_CreateRGBSurface(flags,
 		image->w, image->h, format->BitsPerPixel,
-		format->Rmask, format->Gmask, format->Bmask, 0);
-	if (!workImage) {
+		format->Rmask, format->Gmask, format->Bmask, 0));
+	if (!workImage.get()) {
 		throw FatalError("Couldn't allocate SDLImage workimage");
 	}
 #if PLATFORM_GP2X
@@ -279,7 +264,7 @@ void SDLImage::allocateWorkImage()
 
 void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 {
-	if (!image) return;
+	if (!image.get()) return;
 	if (flipX) x -= image->w;
 	if (flipY) y -= image->h;
 
@@ -289,33 +274,33 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 	rect.x = x;
 	rect.y = y;
 	if (alpha == 255) {
-		SDL_BlitSurface(image, NULL, outputSurface, &rect);
+		SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
 	} else {
 		if (a == -1) {
-			if (!workImage) {
+			if (!workImage.get()) {
 				allocateWorkImage();
 			}
 			rect.w = image->w;
 			rect.h = image->h;
-			SDL_BlitSurface(outputSurface, &rect, workImage, NULL);
-			SDL_BlitSurface(image,         NULL,  workImage, NULL);
-			SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
-			SDL_BlitSurface(workImage, NULL, outputSurface, &rect);
+			SDL_BlitSurface(outputSurface, &rect, workImage.get(), NULL);
+			SDL_BlitSurface(image.get(),   NULL,  workImage.get(), NULL);
+			SDL_SetAlpha(workImage.get(), SDL_SRCALPHA, alpha);
+			SDL_BlitSurface(workImage.get(), NULL, outputSurface, &rect);
 		} else {
-			SDL_SetAlpha(image, SDL_SRCALPHA, (a * alpha) / 256);
-			SDL_BlitSurface(image, NULL, outputSurface, &rect);
+			SDL_SetAlpha(image.get(), SDL_SRCALPHA, (a * alpha) / 256);
+			SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
 		}
 	}
 }
 
 int SDLImage::getWidth() const
 {
-	return image ? image->w : 0;
+	return image.get() ? image->w : 0;
 }
 
 int SDLImage::getHeight() const
 {
-	return image ? image->h : 0;
+	return image.get() ? image->h : 0;
 }
 
 } // namespace openmsx

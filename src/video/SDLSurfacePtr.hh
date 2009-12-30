@@ -7,6 +7,15 @@
 #include <algorithm>
 #include <cassert>
 
+// This is a helper class, you shouldn't use it directly.
+struct SDLSurfaceRef
+{
+	explicit SDLSurfaceRef(SDL_Surface* surface_)
+		: surface(surface_) {}
+	SDL_Surface* surface;
+};
+
+
 /** Wrapper around a SDL_Surface.
  * Makes sure SDL_FreeSurface() is called when this object goes out of scope.
  * It's modeled after std::auto_ptr, so it has the usual get(), reset() and
@@ -24,9 +33,8 @@ public:
 	}
 
 	SDLSurfacePtr(SDLSurfacePtr& other)
-		: surface(other.surface)
+		: surface(other.release())
 	{
-		other.surface = 0;
 	}
 
 	~SDLSurfacePtr()
@@ -42,6 +50,10 @@ public:
 	}
 
 	SDL_Surface* get()
+	{
+		return surface;
+	}
+	const SDL_Surface* get() const
 	{
 		return surface;
 	}
@@ -68,8 +80,16 @@ public:
 	{
 		return *surface;
 	}
+	const SDL_Surface& operator*() const
+	{
+		return *surface;
+	}
 
 	SDL_Surface* operator->()
+	{
+		return surface;
+	}
+	const SDL_Surface* operator->() const
 	{
 		return surface;
 	}
@@ -78,6 +98,31 @@ public:
 	{
 		assert(y < unsigned(surface->h));
 		return static_cast<Uint8*>(surface->pixels) + y * surface->pitch;
+	}
+	const void* getLinePtr(unsigned y) const
+	{
+		return const_cast<SDLSurfacePtr*>(this)->getLinePtr(y);
+	}
+
+	// Automatic conversions. This is required to allow constructs like
+	//   SDLSurfacePtr myFunction();
+	//   ..
+	//   SDLSurfacePtr myPtr = myFunction();
+	// Trick copied from gcc's auto_ptr implementation.
+	SDLSurfacePtr(SDLSurfaceRef ref)
+		: surface(ref.surface)
+	{
+	}
+	SDLSurfacePtr& operator=(SDLSurfaceRef ref)
+	{
+		if (ref.surface != surface) {
+			reset(ref.surface);
+		}
+		return *this;
+	}
+	operator SDLSurfaceRef()
+	{
+		return SDLSurfaceRef(release());
 	}
 
 private:
