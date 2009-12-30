@@ -3910,6 +3910,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\video\SDLSurfacePtr.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\video\Scale2xScaler-x64.asm"
 				>
 				<FileConfiguration
