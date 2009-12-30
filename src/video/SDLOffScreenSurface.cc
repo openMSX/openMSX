@@ -10,17 +10,12 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	int flags = SDL_SWSURFACE;
 	setSDLFormat(*proto.format);
 	const SDL_PixelFormat& format = getSDLFormat();
-	surface = SDL_CreateRGBSurface(
+	surface.reset(SDL_CreateRGBSurface(
 		flags, proto.w, proto.h, format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, format.Amask);
-	setSDLDisplaySurface(surface);
-	setSDLWorkSurface(surface);
+		format.Rmask, format.Gmask, format.Bmask, format.Amask));
+	setSDLDisplaySurface(surface.get());
+	setSDLWorkSurface(surface.get());
 	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
-}
-
-SDLOffScreenSurface::~SDLOffScreenSurface()
-{
-	SDL_FreeSurface(surface);
 }
 
 void SDLOffScreenSurface::saveScreenshot(const std::string& filename)

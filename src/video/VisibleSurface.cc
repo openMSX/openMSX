@@ -4,6 +4,7 @@
 #include "InitException.hh"
 #include "Icon.hh"
 #include "RenderSettings.hh"
+#include "SDLSurfacePtr.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
 #include "AlarmEvent.hh"
@@ -38,7 +39,7 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 
 	// set icon
 	if (OPENMSX_SET_WINDOW_ICON) {
-		SDL_Surface* iconSurf = SDL_CreateRGBSurfaceFrom(
+		SDLSurfacePtr iconSurf(SDL_CreateRGBSurfaceFrom(
 			const_cast<char*>(openMSX_icon.pixel_data),
 			openMSX_icon.width, openMSX_icon.height,
 			openMSX_icon.bytes_per_pixel * 8,
@@ -46,11 +47,9 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 			OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
 			OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
 			OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-			OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000
-			);
-		SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
-		SDL_WM_SetIcon(iconSurf, NULL);
-		SDL_FreeSurface(iconSurf);
+			OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
+		SDL_SetColorKey(iconSurf.get(), SDL_SRCCOLORKEY, 0);
+		SDL_WM_SetIcon(iconSurf.get(), NULL);
 	}
 
 	inputEventGenerator_.getGrabInput().attach(*this);

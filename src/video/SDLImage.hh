@@ -20,7 +20,6 @@ public:
 	SDLImage(const std::string& filename, int width, int height);
 	SDLImage(int width, int height, byte alpha,
 	         byte r = 0, byte g = 0, byte b = 0);
-	virtual ~SDLImage();
 
 	virtual void draw(OutputSurface& output, int x, int y,
 	                  byte alpha = 255);

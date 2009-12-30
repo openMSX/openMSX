@@ -240,10 +240,6 @@ SDLImage::SDLImage(SDLSurfacePtr image_)
 {
 }
 
-SDLImage::~SDLImage()
-{
-}
-
 void SDLImage::allocateWorkImage()
 {
 	int flags = SDL_SWSURFACE;

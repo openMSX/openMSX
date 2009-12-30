@@ -4,6 +4,7 @@
 #define RAWFRAME_HH
 
 #include "FrameSource.hh"
+#include "SDLSurfacePtr.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -61,14 +62,14 @@ public:
 	  */
 	bool isLocked() const { return locked; }
 
-	SDL_Surface* getSDLSurface() const { return surface; }
+	SDL_Surface* getSDLSurface() { return surface.get(); }
 
 protected:
 	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
 	virtual bool hasContiguousStorage() const;
 
 private:
-	SDL_Surface* surface; // only for GP2X
+	SDLSurfacePtr surface; // only for GP2X
 	char* data;
 	unsigned* lineWidth;
 	unsigned maxWidth;

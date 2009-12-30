@@ -22,10 +22,10 @@ RawFrame::RawFrame(
 	unsigned bytesPerPixel = format.BytesPerPixel;
 
 	if (PLATFORM_GP2X) {
-		surface = SDL_CreateRGBSurface(
+		surface.reset(SDL_CreateRGBSurface(
 			SDL_HWSURFACE, maxWidth, height, format.BitsPerPixel,
-			format.Rmask, format.Gmask, format.Bmask, format.Amask);
-		if (!surface) {
+			format.Rmask, format.Gmask, format.Bmask, format.Amask));
+		if (!surface.get()) {
 			throw FatalError("Couldn't allocate surface.");
 		}
 		// To keep code more uniform with non-GP2X case, we copy these
@@ -41,7 +41,6 @@ RawFrame::RawFrame(
 		// boundary:
 		//  - SSE instruction need 16 byte aligned data
 		//  - cache line size on athlon and P4 CPUs is 64 bytes
-		surface = NULL;
 		pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
 		data = reinterpret_cast<char*>(
 		           MemoryOps::mallocAligned(64, pitch * height));
@@ -67,7 +66,7 @@ RawFrame::RawFrame(
 RawFrame::~RawFrame()
 {
 	if (PLATFORM_GP2X) {
-		SDL_FreeSurface(surface);
+		// surface is freed automatically
 	} else {
 		MemoryOps::freeAligned(data);
 	}
@@ -103,7 +102,7 @@ void RawFrame::lock()
 {
 	if (isLocked()) return;
 	locked = true;
-	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+	if (SDL_MUSTLOCK(surface.get())) SDL_LockSurface(surface.get());
 	// Note: we ignore the return value from SDL_LockSurface()
 }
 
@@ -111,7 +110,7 @@ void RawFrame::unlock()
 {
 	if (!isLocked()) return;
 	locked = false;
-	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+	if (SDL_MUSTLOCK(surface.get())) SDL_UnlockSurface(surface.get());
 }
 
 } // namespace openmsx
