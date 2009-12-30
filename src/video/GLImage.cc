@@ -12,7 +12,7 @@ using std::string;
 
 namespace openmsx {
 
-static GLuint loadTexture(SDL_Surface* surface,
+static GLuint loadTexture(SDLSurfacePtr surface,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {
 	width  = surface->w;
@@ -39,8 +39,8 @@ static GLuint loadTexture(SDL_Surface* surface,
 	area.y = 0;
 	area.w = width;
 	area.h = height;
-	SDL_SetAlpha(surface, 0, 0);
-	SDL_BlitSurface(surface, &area, image2.get(), &area);
+	SDL_SetAlpha(surface.get(), 0, 0);
+	SDL_BlitSurface(surface.get(), &area, image2.get(), &area);
 
 	GLuint texture;
 	glGenTextures(1, &texture);
@@ -57,7 +57,7 @@ static GLuint loadTexture(const string& filename,
 {
 	SDLSurfacePtr surface(PNG::load(filename));
 	try {
-		return loadTexture(surface.get(), width, height, texCoord);
+		return loadTexture(surface, width, height, texCoord);
 	} catch (MSXException& e) {
 		throw MSXException("Error loading image " + filename +
 		                   ": " + e.getMessage());
@@ -100,7 +100,7 @@ GLImage::GLImage(int width_, int height_, byte alpha, byte r_, byte g_, byte b_)
 
 GLImage::GLImage(SDLSurfacePtr image)
 {
-	texture = loadTexture(image.get(), width, height, texCoord);
+	texture = loadTexture(image, width, height, texCoord);
 }
 
 GLImage::~GLImage()

@@ -8,8 +8,6 @@
 #include "build-info.hh"
 #include <cassert>
 
-struct SDL_Surface;
-
 namespace openmsx {
 
 /** A video frame as output by the VDP scanline conversion unit,

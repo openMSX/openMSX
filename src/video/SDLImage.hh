@@ -7,8 +7,6 @@
 #include "SDLSurfacePtr.hh"
 #include <string>
 
-struct SDL_Surface;
-
 namespace openmsx {
 
 class SDLImage : public BaseImage

@@ -9,8 +9,6 @@
 #include "openmsx.hh"
 #include <string>
 
-struct SDL_Surface;
-
 namespace openmsx {
 
 class GLImage : public BaseImage
