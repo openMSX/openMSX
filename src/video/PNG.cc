@@ -21,8 +21,8 @@ namespace openmsx {
 namespace PNG {
 
 /*
-The copyright notice below applies to IMG_LoadPNG_RW(), which was imported
-from SDL_image 1.2.10, file "IMG_png.c".
+The copyright notice below applies to the original PNG load code, which was
+imported from SDL_image 1.2.10, file "IMG_png.c", function "IMG_LoadPNG_RW".
 ===============================================================================
         File: SDL_png.c
      Purpose: A PNG loader and saver for the SDL library
@@ -62,7 +62,31 @@ from SDL_image 1.2.10, file "IMG_png.c".
 class SDLRGBSurface
 {
 public:
+	static const int MAX_SIZE = 2048;
+
 	SDLRGBSurface(int width, int height, int bpp) {
+		if (width < 0) {
+			throw MSXException(
+				"Attempted to create a surface with negative width"
+				);
+		}
+		if (height < 0) {
+			throw MSXException(
+				"Attempted to create a surface with negative height"
+				);
+		}
+		if (width > MAX_SIZE) {
+			throw MSXException(StringOp::Builder() <<
+				"Attempted to create a surface with excessive width: "
+				<< width << ", max " << MAX_SIZE
+				);
+		}
+		if (height > MAX_SIZE) {
+			throw MSXException(StringOp::Builder() <<
+				"Attempted to create a surface with excessive height: "
+				<< height << ", max " << MAX_SIZE
+				);
+		}
 		assert(bpp == 24 || bpp == 32);
 		Uint32 redMask, grnMask, bluMask, alpMask;
 		if (OPENMSX_BIGENDIAN) {
@@ -112,13 +136,13 @@ private:
 	SDL_Surface* surface;
 };
 
-struct PNGHandle {
-	PNGHandle()
+struct PNGReadHandle {
+	PNGReadHandle()
 		: ptr(0), info(0)
 	{
 	}
 
-	~PNGHandle()
+	~PNGReadHandle()
 	{
 		if (ptr) {
 			png_destroy_read_struct(&ptr, info ? &info : NULL, NULL);
@@ -151,7 +175,7 @@ SDL_Surface* load(const std::string& filename)
 
 	try {
 		// Create the PNG loading context structure.
-		PNGHandle png;
+		PNGReadHandle png;
 		png.ptr = png_create_read_struct(
 			PNG_LIBPNG_VER_STRING, NULL, handleError, handleWarning);
 		if (!png.ptr) {
