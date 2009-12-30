@@ -55,7 +55,8 @@ HDR_ONLY:= \
 	HQCommon \
 	VideoSystemChangeListener \
 	LayerListener \
-	VideoSource
+	VideoSource \
+	SDLSurfacePtr
 
 DIST:= \
 	HQ2xScaler-1x1to2x2.nn \

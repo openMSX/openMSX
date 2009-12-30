@@ -1,6 +1,7 @@
 // $Id$
 
 #include "PNG.hh"
+#include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "File.hh"
 #include "StringOp.hh"
@@ -76,91 +77,6 @@ imported from SDL_image 1.2.10, file "IMG_png.c", function "IMG_LoadPNG_RW".
 
 ===============================================================================
 */
-
-class SDLRGBSurface
-{
-public:
-	static const int MAX_SIZE = 2048;
-
-	SDLRGBSurface(SDL_Surface* surface_)
-		: surface(surface_) {
-	}
-
-	SDLRGBSurface(int width, int height, int bpp) {
-		if (width < 0) {
-			throw MSXException(
-				"Attempted to create a surface with negative width"
-				);
-		}
-		if (height < 0) {
-			throw MSXException(
-				"Attempted to create a surface with negative height"
-				);
-		}
-		if (width > MAX_SIZE) {
-			throw MSXException(StringOp::Builder() <<
-				"Attempted to create a surface with excessive width: "
-				<< width << ", max " << MAX_SIZE
-				);
-		}
-		if (height > MAX_SIZE) {
-			throw MSXException(StringOp::Builder() <<
-				"Attempted to create a surface with excessive height: "
-				<< height << ", max " << MAX_SIZE
-				);
-		}
-		assert(bpp == 24 || bpp == 32);
-		Uint32 redMask, grnMask, bluMask, alpMask;
-		if (OPENMSX_BIGENDIAN) {
-			int s = bpp == 32 ? 0 : 8;
-			redMask = 0xFF000000 >> s;
-			grnMask = 0x00FF0000 >> s;
-			bluMask = 0x0000FF00 >> s;
-			alpMask = 0x000000FF >> s;
-		} else {
-			redMask = 0x000000FF;
-			grnMask = 0x0000FF00;
-			bluMask = 0x00FF0000;
-			alpMask = bpp == 32 ? 0xFF000000 : 0;
-		}
-		surface = SDL_CreateRGBSurface(
-			SDL_SWSURFACE, width, height, bpp,
-			redMask, grnMask, bluMask, alpMask
-			);
-		if (!surface) {
-			throw MSXException(StringOp::Builder() <<
-				"Failed to allocate a "
-				<< width << "x" << height << "x" << bpp << " surface: "
-				<< SDL_GetError()
-				);
-		}
-	}
-
-	~SDLRGBSurface() {
-		if (surface) {
-			SDL_FreeSurface(surface);
-		}
-	}
-
-	SDL_Surface* release() {
-		SDL_Surface* ret = surface;
-		surface = 0;
-		return ret;
-	}
-
-	unsigned* getLinePtr(int y) {
-		return reinterpret_cast<unsigned*>(
-			static_cast<Uint8*>(surface->pixels) + y * surface->pitch
-			);
-	}
-
-	SDL_Surface* get() {
-		return surface;
-	}
-
-private:
-	SDL_Surface* surface;
-};
 
 struct PNGReadHandle {
 	PNGReadHandle()
@@ -240,14 +156,47 @@ SDL_Surface* load(const std::string& filename)
 		             &color_type, &interlace_type, NULL, NULL);
 
 		// Allocate the SDL surface to hold the image.
-		SDLRGBSurface surface(width, height, png.info->channels * 8);
+		static const unsigned MAX_SIZE = 2048;
+		if (width > MAX_SIZE) {
+			throw MSXException(StringOp::Builder() <<
+				"Attempted to create a surface with excessive width: "
+				<< width << ", max " << MAX_SIZE);
+		}
+		if (height > MAX_SIZE) {
+			throw MSXException(StringOp::Builder() <<
+				"Attempted to create a surface with excessive height: "
+				<< height << ", max " << MAX_SIZE);
+		}
+		int bpp = png.info->channels * 8;
+		assert(bpp == 24 || bpp == 32);
+		Uint32 redMask, grnMask, bluMask, alpMask;
+		if (OPENMSX_BIGENDIAN) {
+			int s = bpp == 32 ? 0 : 8;
+			redMask = 0xFF000000 >> s;
+			grnMask = 0x00FF0000 >> s;
+			bluMask = 0x0000FF00 >> s;
+			alpMask = 0x000000FF >> s;
+		} else {
+			redMask = 0x000000FF;
+			grnMask = 0x0000FF00;
+			bluMask = 0x00FF0000;
+			alpMask = bpp == 32 ? 0xFF000000 : 0;
+		}
+		SDLSurfacePtr surface(SDL_CreateRGBSurface(
+			SDL_SWSURFACE, width, height, bpp,
+			redMask, grnMask, bluMask, alpMask));
+		if (!surface.get()) {
+			throw MSXException(StringOp::Builder() <<
+				"Failed to allocate a "
+				<< width << "x" << height << "x" << bpp << " surface: "
+				<< SDL_GetError());
+		}
 
 		// Create the array of pointers to image data.
 		VLA(png_bytep, row_pointers, height);
 		for (png_uint_32 row = 0; row < height; ++row) {
 			row_pointers[row] = reinterpret_cast<png_bytep>(
-				surface.getLinePtr(row)
-				);
+				surface.getLinePtr(row));
 		}
 
 		// Read the entire image in one go.
@@ -382,7 +331,7 @@ void save(SDL_Surface* surface, const std::string& filename)
 	frmt24.Aloss = 8;
 	frmt24.colorkey = 0;
 	frmt24.alpha = 0;
-	SDLRGBSurface surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
+	SDLSurfacePtr surf24(SDL_ConvertSurface(surface, &frmt24, 0));
 
 	// Create the array of pointers to image data
 	VLA(const void*, row_pointers, surface->h);
@@ -397,9 +346,9 @@ void save(unsigned width, unsigned height, const void** rowPointers,
           const SDL_PixelFormat& format, const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
-	SDLRGBSurface surface = SDL_CreateRGBSurface(
+	SDLSurfacePtr surface(SDL_CreateRGBSurface(
 		SDL_SWSURFACE, width, height, format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, format.Amask);
+		format.Rmask, format.Gmask, format.Bmask, format.Amask));
 	for (unsigned y = 0; y < height; ++y) {
 		memcpy(surface.getLinePtr(y),
 		       rowPointers[y], width * format.BytesPerPixel);
