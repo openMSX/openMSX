@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <png.h>
 #include <SDL.h>
 
@@ -53,6 +54,7 @@ from SDL_image 1.2.10, file "IMG_png.c".
   Changes:
     1999-05-17: Modified to use the new SDL data sources - Sam Lantinga
     2009-12-29: Modified for use in openMSX - Maarten ter Huurne
+                                              and Wouter Vermaelen
 
 ===============================================================================
 */
@@ -110,83 +112,96 @@ private:
 	SDL_Surface* surface;
 };
 
-// Load a PNG type image from an SDL datasource.
-static void png_read_data(png_structp ctx, png_bytep area, png_size_t size)
+struct PNGHandle {
+	PNGHandle()
+		: ptr(0), info(0)
+	{
+	}
+
+	~PNGHandle()
+	{
+		if (ptr) {
+			png_destroy_read_struct(&ptr, info ? &info : NULL, NULL);
+		}
+	}
+
+	png_structp ptr;
+	png_infop info;
+};
+
+static void handleError(png_structp png_ptr, png_const_charp error_msg)
+{
+	throw MSXException("Error while decoding PNG: " + std::string(error_msg));
+}
+
+static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
+{
+	std::cerr << "Warning while decoding PNG: " << warning_msg << std::endl;
+}
+
+static void readData(png_structp ctx, png_bytep area, png_size_t size)
 {
 	File* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->read(area, unsigned(size));
 }
+
 SDL_Surface* load(const std::string& filename)
 {
 	File file(filename);
 
-	// Initialize the data we will clean up when we're done.
-	const char* error = NULL;
-	png_infop info_ptr = NULL;
-	SDL_Surface* ret = NULL;
-
-	// Create the PNG loading context structure.
-	png_structp png_ptr = png_create_read_struct(
-		PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (png_ptr == NULL) {
-		error = "Couldn't allocate memory for PNG file or incompatible PNG library";
-		goto done;
-	}
-
-	// Allocate/initialize the memory for image information.  REQUIRED.
-	info_ptr = png_create_info_struct(png_ptr);
-	if (info_ptr == NULL) {
-		error = "Couldn't create image information for PNG file";
-		goto done;
-	}
-
-	// Set error handling if you are using setjmp/longjmp method (this is
-	// the normal method of doing things with libpng).  REQUIRED unless you
-	// set up your own error handlers in png_create_read_struct() earlier.
-	if (setjmp(png_ptr->jmpbuf)) {
-		error = "Error reading the PNG file.";
-		goto done;
-	}
-
-	// Set up the input control.
-	png_set_read_fn(png_ptr, &file, png_read_data);
-
-	// Read PNG header info.
-	png_read_info(png_ptr, info_ptr);
-	png_uint_32 width, height;
-	int bit_depth, color_type, interlace_type;
-	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
-	             &color_type, &interlace_type, NULL, NULL);
-
-	// Tell libpng to strip 16 bit/color files down to 8 bits/color.
-	png_set_strip_16(png_ptr);
-
-	// Extract multiple pixels with bit depths of 1, 2, and 4 from a single
-	// byte into separate bytes (useful for paletted and grayscale images).
-	png_set_packing(png_ptr);
-
-	// The following enables:
-	// - transformation of grayscale images of less than 8 to 8 bits
-	// - changes paletted images to RGB
-	// - adds a full alpha channel if there is transparency information in a tRNS chunk
-	png_set_expand(png_ptr);
-
-	// always convert grayscale to RGB
-	//  together with all the above conversions, the resulting image will
-	//  be either RGB or RGBA with 8 bits per component.
-	png_set_gray_to_rgb(png_ptr);
-
-	png_read_update_info(png_ptr, info_ptr);
-
-	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
-	             &color_type, &interlace_type, NULL, NULL);
-
 	try {
+		// Create the PNG loading context structure.
+		PNGHandle png;
+		png.ptr = png_create_read_struct(
+			PNG_LIBPNG_VER_STRING, NULL, handleError, handleWarning);
+		if (!png.ptr) {
+			throw MSXException("Failed to allocate main struct");
+		}
+
+		// Allocate/initialize the memory for image information.
+		png.info = png_create_info_struct(png.ptr);
+		if (!png.info) {
+			throw MSXException("Failed to allocate image info struct");
+		}
+
+		// Set up the input control.
+		png_set_read_fn(png.ptr, &file, readData);
+
+		// Read PNG header info.
+		png_read_info(png.ptr, png.info);
+		png_uint_32 width, height;
+		int bit_depth, color_type, interlace_type;
+		png_get_IHDR(png.ptr, png.info, &width, &height, &bit_depth,
+		             &color_type, &interlace_type, NULL, NULL);
+
+		// Tell libpng to strip 16 bit/color files down to 8 bits/color.
+		png_set_strip_16(png.ptr);
+
+		// Extract multiple pixels with bit depths of 1, 2, and 4 from a single
+		// byte into separate bytes (useful for paletted and grayscale images).
+		png_set_packing(png.ptr);
+
+		// The following enables:
+		// - transformation of grayscale images of less than 8 to 8 bits
+		// - changes paletted images to RGB
+		// - adds a full alpha channel if there is transparency information in a tRNS chunk
+		png_set_expand(png.ptr);
+
+		// always convert grayscale to RGB
+		//  together with all the above conversions, the resulting image will
+		//  be either RGB or RGBA with 8 bits per component.
+		png_set_gray_to_rgb(png.ptr);
+
+		png_read_update_info(png.ptr, png.info);
+
+		png_get_IHDR(png.ptr, png.info, &width, &height, &bit_depth,
+		             &color_type, &interlace_type, NULL, NULL);
+
 		// Allocate the SDL surface to hold the image.
-		SDLRGBSurface surface(width, height, info_ptr->channels * 8);
+		SDLRGBSurface surface(width, height, png.info->channels * 8);
 
 		// Create the array of pointers to image data.
-		VLA(png_bytep,  row_pointers, height);
+		VLA(png_bytep, row_pointers, height);
 		for (png_uint_32 row = 0; row < height; ++row) {
 			row_pointers[row] = reinterpret_cast<png_bytep>(
 				surface.getLinePtr(row)
@@ -194,28 +209,19 @@ SDL_Surface* load(const std::string& filename)
 		}
 
 		// Read the entire image in one go.
-		png_read_image(png_ptr, row_pointers);
+		png_read_image(png.ptr, row_pointers);
 
-		// and we're done!  (png_read_end() can be omitted if no processing of
-		// post-IDAT text/time/etc. is desired)
 		// In some cases it can't read PNG's created by some popular programs
 		// (ACDSEE), we do not want to process comments, so we omit png_read_end
-		//png_read_end(png_ptr, info_ptr);
+		//png_read_end(png.ptr, png.info);
 
-		ret = surface.release();
-	} catch (MSXException&) {
-		error = "Out of memory";
-		goto done;
+		return surface.release();
+	} catch (MSXException& e) {
+		throw MSXException(
+			"Error while loading PNG file \"" + filename + "\": " +
+			e.getMessage()
+			);
 	}
-
-done: // Clean up and return.
-	if (png_ptr) {
-		png_destroy_read_struct(&png_ptr, info_ptr ? &info_ptr : NULL, NULL);
-	}
-	if (error) {
-		throw MSXException("Error while loading \"" + filename + "\": " + error);
-	}
-	return ret;
 }
 
 
