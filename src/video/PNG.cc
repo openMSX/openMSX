@@ -101,7 +101,7 @@ static void readData(png_structp ctx, png_bytep area, png_size_t size)
 	file->read(area, unsigned(size));
 }
 
-SDL_Surface* load(const std::string& filename)
+SDLSurfacePtr load(const std::string& filename)
 {
 	File file(filename);
 
@@ -206,7 +206,7 @@ SDL_Surface* load(const std::string& filename)
 		// (ACDSEE), we do not want to process comments, so we omit png_read_end
 		//png_read_end(png.ptr, png.info);
 
-		return surface.release();
+		return surface;
 	} catch (MSXException& e) {
 		throw MSXException(
 			"Error while loading PNG file \"" + filename + "\": " +

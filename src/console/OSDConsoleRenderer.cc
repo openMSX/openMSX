@@ -294,7 +294,7 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, const string& text,
                                   int x, int y, byte alpha)
 {
 	if (text.empty()) return;
-	SDL_Surface* surf;
+	SDLSurfacePtr surf;
 	try {
 		surf = font->render(text, 255, 255, 255);
 	} catch (MSXException& e) {

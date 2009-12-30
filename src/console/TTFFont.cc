@@ -147,12 +147,12 @@ TTFFont::~TTFFont()
 	TTFFontPool::instance().release(static_cast<TTF_Font*>(font));
 }
 
-SDL_Surface* TTFFont::render(const string& text, byte r, byte g, byte b)
+SDLSurfacePtr TTFFont::render(const string& text, byte r, byte g, byte b)
 {
 	SDL_Color color = { r, g, b, 0 };
-	SDL_Surface* surface = TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
-	                                              text.c_str(), color);
-	if (!surface) {
+	SDLSurfacePtr surface(TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
+	                                             text.c_str(), color));
+	if (!surface.get()) {
 		throw MSXException(TTF_GetError());
 	}
 	return surface;

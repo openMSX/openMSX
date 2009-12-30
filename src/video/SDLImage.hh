@@ -15,7 +15,7 @@ class SDLImage : public BaseImage
 {
 public:
 	explicit SDLImage(const std::string& filename);
-	explicit SDLImage(SDL_Surface* image);
+	explicit SDLImage(SDLSurfacePtr image);
 	SDLImage(const std::string& filename, double scaleFactor);
 	SDLImage(const std::string& filename, int width, int height);
 	SDLImage(int width, int height, byte alpha,

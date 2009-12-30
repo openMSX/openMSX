@@ -234,7 +234,7 @@ SDLImage::SDLImage(int width, int height,
 	a = (alpha == 255) ? 256 : alpha;
 }
 
-SDLImage::SDLImage(SDL_Surface* image_)
+SDLImage::SDLImage(SDLSurfacePtr image_)
 	: image(image_)
 	, a(-1), flipX(false), flipY(false)
 {

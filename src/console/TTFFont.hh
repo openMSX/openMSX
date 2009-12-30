@@ -3,10 +3,9 @@
 #ifndef TTFFONT_HH
 #define TTFFONT_HH
 
+#include "SDLSurfacePtr.hh"
 #include "openmsx.hh"
 #include <string>
-
-struct SDL_Surface;
 
 namespace openmsx {
 
@@ -22,10 +21,9 @@ public:
 
 	/** Render the given text to a new SDL_Surface.
 	  * The text must be UTF-8 encoded.
-	  * The result is a 32bpp RGBA SDL_Surface, this surface must be freed
-	  * by the caller.
+	  * The result is a 32bpp RGBA SDL_Surface.
 	  */
-	SDL_Surface* render(const std::string& text, byte r, byte g, byte b);
+	SDLSurfacePtr render(const std::string& text, byte r, byte g, byte b);
 
 	/** Return the height of the font.
 	  * This is the recommended number of pixels between two text lines.

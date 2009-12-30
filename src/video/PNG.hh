@@ -3,6 +3,7 @@
 #ifndef PNG_HH
 #define PNG_HH
 
+#include "SDLSurfacePtr.hh"
 #include <string>
 
 struct SDL_Surface;
@@ -13,7 +14,7 @@ namespace openmsx {
 /** Utility functions to hide the complexity of saving to a PNG file.
   */
 namespace PNG {
-	SDL_Surface* load(const std::string& filename);
+	SDLSurfacePtr load(const std::string& filename);
 
 	void save(SDL_Surface* image, const std::string& filename);
 	void save(unsigned width, unsigned height, const void** rowPointers,

@@ -126,8 +126,8 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 		}
 	}
 	try {
-		SDL_Surface* surface = font->render(
-			text, getRed(), getGreen(), getBlue());
+		SDLSurfacePtr surface(font->render(
+			text, getRed(), getGreen(), getBlue()));
 		return new IMAGE(surface);
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: " + e.getMessage());

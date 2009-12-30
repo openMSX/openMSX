@@ -4,6 +4,7 @@
 #define GLTEXTURE_HH
 
 #include "BaseImage.hh"
+#include "SDLSurfacePtr.hh"
 #include "GLUtil.hh"
 #include "openmsx.hh"
 #include <string>
@@ -16,7 +17,7 @@ class GLImage : public BaseImage
 {
 public:
 	explicit GLImage(const std::string& filename);
-	explicit GLImage(SDL_Surface* image);
+	explicit GLImage(SDLSurfacePtr image);
 	GLImage(const std::string& filename, double scaleFactor);
 	GLImage(const std::string& filename, int width, int height);
 	GLImage(int width, int height,

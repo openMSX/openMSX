@@ -1,6 +1,7 @@
 // $Id$
 
 #include "GLImage.hh"
+#include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "PNG.hh"
@@ -23,14 +24,13 @@ static GLuint loadTexture(SDL_Surface* surface,
 	texCoord[2] = GLfloat(width)  / w2; // max X
 	texCoord[3] = GLfloat(height) / h2; // max Y
 
-	SDL_Surface* image2 = SDL_CreateRGBSurface(
+	SDLSurfacePtr image2(SDL_CreateRGBSurface(
 		SDL_SWSURFACE, w2, h2, 32,
 		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
 		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
 		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000
-		);
-	if (image2 == NULL) {
+		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
+	if (!image2.get()) {
 		throw MSXException("Couldn't allocate surface");
 	}
 
@@ -40,35 +40,28 @@ static GLuint loadTexture(SDL_Surface* surface,
 	area.w = width;
 	area.h = height;
 	SDL_SetAlpha(surface, 0, 0);
-	SDL_BlitSurface(surface, &area, image2, &area);
+	SDL_BlitSurface(surface, &area, image2.get(), &area);
 
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w2, h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
-	SDL_FreeSurface(image2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w2, h2, 0, GL_RGBA,
+	             GL_UNSIGNED_BYTE, image2->pixels);
 	return texture;
 }
 
 static GLuint loadTexture(const string& filename,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {
-	SDL_Surface* surface = PNG::load(filename);
-	if (surface == NULL) {
-		throw MSXException("Error loading image " + filename);
-	}
-	GLuint result;
+	SDLSurfacePtr surface(PNG::load(filename));
 	try {
-		result = loadTexture(surface, width, height, texCoord);
+		return loadTexture(surface.get(), width, height, texCoord);
 	} catch (MSXException& e) {
-		SDL_FreeSurface(surface);
 		throw MSXException("Error loading image " + filename +
 		                   ": " + e.getMessage());
 	}
-	SDL_FreeSurface(surface);
-	return result;
 }
 
 
@@ -105,10 +98,9 @@ GLImage::GLImage(int width_, int height_, byte alpha, byte r_, byte g_, byte b_)
 	a = (alpha == 255) ? 256 : alpha;
 }
 
-GLImage::GLImage(SDL_Surface* image)
+GLImage::GLImage(SDLSurfacePtr image)
 {
-	texture = loadTexture(image, width, height, texCoord);
-	SDL_FreeSurface(image);
+	texture = loadTexture(image.get(), width, height, texCoord);
 }
 
 GLImage::~GLImage()
