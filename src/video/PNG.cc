@@ -4,10 +4,12 @@
 #include "CommandException.hh"
 #include "File.hh"
 #include "FileOperations.hh"
+#include "StringOp.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "vla.hh"
 #include "cstdiop.hh"
+#include <cassert>
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
@@ -55,6 +57,59 @@ from SDL_image 1.2.10, file "IMG_png.c".
 ===============================================================================
 */
 
+class SDLRGBSurface
+{
+public:
+	SDLRGBSurface(int width, int height, int bpp) {
+		assert(bpp == 24 || bpp == 32);
+		Uint32 redMask, grnMask, bluMask, alpMask;
+		if (OPENMSX_BIGENDIAN) {
+			int s = bpp == 32 ? 0 : 8;
+			redMask = 0xFF000000 >> s;
+			grnMask = 0x00FF0000 >> s;
+			bluMask = 0x0000FF00 >> s;
+			alpMask = 0x000000FF >> s;
+		} else {
+			redMask = 0x000000FF;
+			grnMask = 0x0000FF00;
+			bluMask = 0x00FF0000;
+			alpMask = bpp == 32 ? 0xFF000000 : 0;
+		}
+		surface = SDL_CreateRGBSurface(
+			SDL_SWSURFACE, width, height, bpp,
+			redMask, grnMask, bluMask, alpMask
+			);
+		if (!surface) {
+			throw MSXException(StringOp::Builder() <<
+				"Failed to allocate a "
+				<< width << "x" << height << "x" << bpp << " surface: "
+				<< SDL_GetError()
+				);
+		}
+	}
+
+	~SDLRGBSurface() {
+		if (surface) {
+			SDL_FreeSurface(surface);
+		}
+	}
+
+	SDL_Surface* release() {
+		SDL_Surface* ret = surface;
+		surface = 0;
+		return ret;
+	}
+
+	unsigned* getLinePtr(int y) {
+		return reinterpret_cast<unsigned*>(
+			static_cast<Uint8*>(surface->pixels) + y * surface->pitch
+			);
+	}
+
+private:
+	SDL_Surface* surface;
+};
+
 // Load a PNG type image from an SDL datasource.
 static void png_read_data(png_structp ctx, png_bytep area, png_size_t size)
 {
@@ -68,7 +123,7 @@ SDL_Surface* load(const std::string& filename)
 	// Initialize the data we will clean up when we're done.
 	const char* error = NULL;
 	png_infop info_ptr = NULL;
-	SDL_Surface* surface = NULL;
+	SDL_Surface* ret = NULL;
 
 	// Create the PNG loading context structure.
 	png_structp png_ptr = png_create_read_struct(
@@ -126,55 +181,41 @@ SDL_Surface* load(const std::string& filename)
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth,
 	             &color_type, &interlace_type, NULL, NULL);
 
-	// Allocate the SDL surface to hold the image.
-	Uint32 Rmask, Gmask, Bmask, Amask;
-	if (OPENMSX_BIGENDIAN) {
-		int s = (info_ptr->channels == 4) ? 0 : 8;
-		Rmask = 0xFF000000 >> s;
-		Gmask = 0x00FF0000 >> s;
-		Bmask = 0x0000FF00 >> s;
-		Amask = 0x000000FF >> s;
-	} else {
-		Rmask = 0x000000FF;
-		Gmask = 0x0000FF00;
-		Bmask = 0x00FF0000;
-		Amask = (info_ptr->channels == 4) ? 0xFF000000 : 0;
-	}
-	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
-	                               bit_depth * info_ptr->channels,
-	                               Rmask, Gmask, Bmask, Amask);
-	if (surface == NULL) {
+	try {
+		// Allocate the SDL surface to hold the image.
+		SDLRGBSurface surface(width, height, info_ptr->channels * 8);
+
+		// Create the array of pointers to image data.
+		VLA(png_bytep,  row_pointers, height);
+		for (png_uint_32 row = 0; row < height; ++row) {
+			row_pointers[row] = reinterpret_cast<png_bytep>(
+				surface.getLinePtr(row)
+				);
+		}
+
+		// Read the entire image in one go.
+		png_read_image(png_ptr, row_pointers);
+
+		// and we're done!  (png_read_end() can be omitted if no processing of
+		// post-IDAT text/time/etc. is desired)
+		// In some cases it can't read PNG's created by some popular programs
+		// (ACDSEE), we do not want to process comments, so we omit png_read_end
+		//png_read_end(png_ptr, info_ptr);
+
+		ret = surface.release();
+	} catch (MSXException&) {
 		error = "Out of memory";
 		goto done;
 	}
-
-	// Create the array of pointers to image data.
-	VLA(png_bytep,  row_pointers, height);
-	for (png_uint_32 row = 0; row < height; ++row) {
-		row_pointers[row] = static_cast<png_bytep>(
-			static_cast<Uint8*>(surface->pixels) + row * surface->pitch);
-	}
-
-	// Read the entire image in one go.
-	png_read_image(png_ptr, row_pointers);
-
-	// and we're done!  (png_read_end() can be omitted if no processing of
-	// post-IDAT text/time/etc. is desired)
-	// In some cases it can't read PNG's created by some popular programs (ACDSEE),
-	// we do not want to process comments, so we omit png_read_end
-	//png_read_end(png_ptr, info_ptr);
 
 done: // Clean up and return.
 	if (png_ptr) {
 		png_destroy_read_struct(&png_ptr, info_ptr ? &info_ptr : NULL, NULL);
 	}
 	if (error) {
-		if (surface) {
-			SDL_FreeSurface(surface);
-		}
 		throw MSXException("Error while loading \"" + filename + "\": " + error);
 	}
-	return surface;
+	return ret;
 }
 
 
