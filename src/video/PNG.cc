@@ -252,6 +252,23 @@ SDL_Surface* load(const std::string& filename)
 /* PNG save code by Darren Grant sdl@lokigames.com */
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
 
+struct PNGWriteHandle {
+	PNGWriteHandle()
+		: ptr(0), info(0)
+	{
+	}
+
+	~PNGWriteHandle()
+	{
+		if (ptr) {
+			png_destroy_write_struct(&ptr, info ? &info : NULL);
+		}
+	}
+
+	png_structp ptr;
+	png_infop info;
+};
+
 static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
                            const std::string& filename, bool color)
 {
@@ -264,25 +281,25 @@ static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 	if (!fp) {
 		return false;
 	}
-	png_infop info_ptr = 0;
 
-	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+	PNGWriteHandle png;
+	png.ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
 	        NULL, NULL, NULL);
-	if (png_ptr == NULL) {
+	if (png.ptr == NULL) {
 		// Couldn't allocate memory for PNG file
 		goto error;
 	}
-	png_ptr->io_ptr = fp;
+	png.ptr->io_ptr = fp;
 
 	// Allocate/initialize the image information data.  REQUIRED
-	info_ptr = png_create_info_struct(png_ptr);
-	if (info_ptr == NULL) {
+	png.info = png_create_info_struct(png.ptr);
+	if (png.info == NULL) {
 		// Couldn't create image information for PNG file
 		goto error;
 	}
 
 	// Set error handling.
-	if (setjmp(png_ptr->jmpbuf)) {
+	if (setjmp(png.ptr->jmpbuf)) {
 		// Error writing the PNG file
 		goto error;
 	}
@@ -311,29 +328,27 @@ static bool IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 	         1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
 	         tm->tm_hour, tm->tm_min, tm->tm_sec);
 	text[1].text = timeStr;
-	png_set_text(png_ptr, info_ptr, text, 2);
+	png_set_text(png.ptr, png.info, text, 2);
 
-	png_set_IHDR(png_ptr, info_ptr, width, height, 8,
+	png_set_IHDR(png.ptr, png.info, width, height, 8,
 	             color ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_GRAY,
 	             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
 	             PNG_FILTER_TYPE_BASE);
 
 	// Write the file header information.  REQUIRED
-	png_write_info(png_ptr, info_ptr);
+	png_write_info(png.ptr, png.info);
 
 	// write out the entire image data in one call
-	png_write_image(png_ptr, ptrs);
-	png_write_end(png_ptr, info_ptr);
+	png_write_image(png.ptr, ptrs);
+	png_write_end(png.ptr, png.info);
 
-	free(info_ptr->palette);
-	png_destroy_write_struct(&png_ptr, &info_ptr);
+	free(png.info->palette);
 
 	fclose(fp);
 	return true;
 
 error:
-	free(info_ptr->palette);
-	png_destroy_write_struct(&png_ptr, &info_ptr);
+	free(png.info->palette);
 
 	fclose(fp);
 	return false;
