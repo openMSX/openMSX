@@ -82,6 +82,10 @@ class SDLRGBSurface
 public:
 	static const int MAX_SIZE = 2048;
 
+	SDLRGBSurface(SDL_Surface* surface_)
+		: surface(surface_) {
+	}
+
 	SDLRGBSurface(int width, int height, int bpp) {
 		if (width < 0) {
 			throw MSXException(
@@ -148,6 +152,10 @@ public:
 		return reinterpret_cast<unsigned*>(
 			static_cast<Uint8*>(surface->pixels) + y * surface->pitch
 			);
+	}
+
+	SDL_Surface* get() {
+		return surface;
 	}
 
 private:
@@ -374,41 +382,29 @@ void save(SDL_Surface* surface, const std::string& filename)
 	frmt24.Aloss = 8;
 	frmt24.colorkey = 0;
 	frmt24.alpha = 0;
-	SDL_Surface* surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
+	SDLRGBSurface surf24 = SDL_ConvertSurface(surface, &frmt24, 0);
 
 	// Create the array of pointers to image data
 	VLA(const void*, row_pointers, surface->h);
 	for (int i = 0; i < surface->h; ++i) {
-		row_pointers[i] = static_cast<char*>(surf24->pixels) + (i * surf24->pitch);
+		row_pointers[i] = surf24.getLinePtr(i);
 	}
 
-	try {
-		IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename, true);
-		SDL_FreeSurface(surf24);
-	} catch (...) {
-		SDL_FreeSurface(surf24);
-		throw;
-	}
+	IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename, true);
 }
 
 void save(unsigned width, unsigned height, const void** rowPointers,
           const SDL_PixelFormat& format, const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
-	SDL_Surface* surface = SDL_CreateRGBSurface(
+	SDLRGBSurface surface = SDL_CreateRGBSurface(
 		SDL_SWSURFACE, width, height, format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, format.Amask);
 	for (unsigned y = 0; y < height; ++y) {
-		memcpy(static_cast<char*>(surface->pixels) + y * surface->pitch,
+		memcpy(surface.getLinePtr(y),
 		       rowPointers[y], width * format.BytesPerPixel);
 	}
-	try {
-		save(surface, filename);
-		SDL_FreeSurface(surface);
-	} catch (...) {
-		SDL_FreeSurface(surface);
-		throw;
-	}
+	save(surface.get(), filename);
 }
 
 void save(unsigned width, unsigned height,
