@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/12/17
+# Updated @ 2009/12/31
 #
 
 
@@ -4055,6 +4055,20 @@ create_trainer "Laydock" {time 2} {
 	"Power Player 2" {poke 0xa179 153;poke 0xa17a 153}
 }
 
+create_trainer "Laydock 2 - The Last Attack" {time 1} {
+	"Player 1 Weapon 01: Bullbup" {poke 0x6a0e 0}
+	"Player 1 Weapon 02: Mine" {poke 0x6a0e 1}
+	"Player 1 Weapon 03: Merry" {poke 0x6a0e 2}
+	"Player 1 Weapon 04: Double" {poke 0x6a0e 3}
+	"Player 1 Weapon 05: Alpha" {poke 0x6a0e 4}
+	"Player 1 Weapon 06: Killer" {poke 0x6a0e 5}
+	"Player 1 Weapon 07: Tora" {poke 0x6a0e 6}
+	"Player 1 Weapon 08: Condor" {poke 0x6a0e 7}
+	"Player 1 Weapon 09: D-aden" {poke 0x6a0e 8}
+	"Player 1 Weapon 10: Fire" {poke 0x6a0e 9}
+	"Power Player 1 " {poke 0x6817 32}
+}
+
 create_trainer "Leather Skirts" {time 1} {
 	"Energy" {poke 0xb406 255}
 }
@@ -4872,7 +4886,7 @@ create_trainer "Penguin-Kun Wars 1" {time 1} {
 }
 
 create_trainer "Penguin-Kun Wars 2" {time 1} {
-	"Enemy K.o. After Being Hit" {poke 0xb126 255;poke 0xb146 255;poke 0xb166 255}
+	"Enemy K.o. After Being Hit" {poke 0xb126 255}
 }
 
 create_trainer "Pepper 2" {time 1} {
@@ -5322,6 +5336,7 @@ create_trainer "Rocket Roger" {time 1} {
 }
 
 create_trainer "Romancia MSX2" {time 1} {
+	"be able to receive Unlimited Potions" {poke 0xd09b 1}
 	"Gold" {poke 0xd067 63}
 	"Hearts" {poke 0xd063 255}
 	"Shields" {poke 0xd066 64}
@@ -6760,4 +6775,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 2.768 seconds. 723 trainers -  having 5485 pokes
+# File Created in : 2.839 seconds. 724 trainers -  having 5495 pokes
