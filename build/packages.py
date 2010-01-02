@@ -77,11 +77,11 @@ class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
 	sourceName = 'freetype'
-	version = '2.3.9'
-	fileLength = 1809558
+	version = '2.3.11'
+	fileLength = 1875040
 	checksums = {
 		'sha256':
-			'3c3fc489c75af93e9f4367951114b0274bddef60d70ffe419b7e22cda210b9c0',
+			'cd3d85210549265dc205f5a081686b0ccfeb848f3202ffdc6532467c353349ef',
 		}
 
 class GLEW(DownloadablePackage):
