@@ -1,5 +1,6 @@
 # $Id$
 
+from checksum import verifyFile
 from components import requiredLibrariesFor
 from configurations import getConfiguration
 from download import downloadURL
@@ -8,8 +9,7 @@ from libraries import librariesByName
 from packages import getPackage
 from patch import Diff, patch
 
-from hashlib import new as newhash
-from os import makedirs, stat
+from os import makedirs
 from os.path import isdir, isfile, join as joinpath
 from shutil import rmtree
 import sys
@@ -27,37 +27,16 @@ def downloadPackage(package, tarballsDir):
 			)
 	else:
 		downloadURL(package.getURL(), tarballsDir)
-	actualLength = stat(filePath).st_size
-	if actualLength != package.fileLength:
-		raise IOError(
-			'%s corrupt: expected length %d, actual length %d' % (
-				package.getTarballName(),
-				package.fileLength,
-				actualLength
-				)
-			)
-	hashers = dict(
-		( algo, newhash(algo) ) for algo in package.checksums.iterkeys()
-		)
-	inp = open(filePath, 'rb')
-	bufSize = 16384
+
+def verifyPackage(package, tarballsDir):
+	filePath = joinpath(tarballsDir, package.getTarballName())
 	try:
-		while True:
-			buf = inp.read(bufSize)
-			if not buf:
-				break
-			for hasher in hashers.itervalues():
-				hasher.update(buf)
-	finally:
-		inp.close()
-	for algo, hasher in sorted(hashers.iteritems()):
-		if package.checksums[algo] != hasher.hexdigest():
-			raise IOError(
-				'%s corrupt: %s checksum mismatch' % (
-					package.getTarballName(),
-					algo
-					)
-				)
+		verifyFile(filePath, package.fileLength, package.checksums)
+	except IOError, ex:
+		print >> sys.stderr, '%s corrupt: %s' % (
+			package.getTarballName(), ex
+			)
+		sys.exit(1)
 
 def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 	if not isdir(sourcesDir):
@@ -97,6 +76,7 @@ def main(platform, tarballsDir, sourcesDir, patchesDir):
 	for makeName in sorted(thirdPartyLibs):
 		package = getPackage(makeName)
 		downloadPackage(package, tarballsDir)
+		verifyPackage(package, tarballsDir)
 		extractPackage(package, tarballsDir, sourcesDir, patchesDir)
 
 if __name__ == '__main__':
