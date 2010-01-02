@@ -31,8 +31,17 @@ def printPackagesMake():
 		packageSourceDirName = package.getSourceDirName()
 		packageSourceDir = sourceDir + '/' + packageSourceDirName
 		patchFile = '%s/%s.diff' % (patchesDir, packageSourceDirName)
+		print '# Verify:'
+		verifyMarker = '%s.verified' % tarball
+		print '%s: %s' % (verifyMarker, tarball)
+		print '\t$(PYTHON) build/checksum.py %s %d %s' % (
+			tarball,
+			package.fileLength,
+			' '.join('%s=%s' % item for item in package.checksums.iteritems())
+			)
+		print '\ttouch %s' % verifyMarker
 		print '# Extract:'
-		print '%s: %s' % (packageSourceDir, tarball)
+		print '%s: %s' % (packageSourceDir, verifyMarker)
 		print '\trm -rf %s' % packageSourceDir
 		print '\tmkdir -p %s' % sourceDir
 		print '\t$(PYTHON) build/extract.py %s %s %s' % (
