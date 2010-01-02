@@ -66,7 +66,8 @@ const Pixel* FrameSource::getLinePtr640_480(unsigned line)
 void* FrameSource::getTempBuffer()
 {
 	if (tempCounter == tempBuffers.size()) {
-		void* buf = MemoryOps::mallocAligned(64, getLineBufferSize());
+		unsigned size = 1280 * pixelFormat.BytesPerPixel;
+		void* buf = MemoryOps::mallocAligned(64, size);
 		tempBuffers.push_back(buf);
 	}
 	return tempBuffers[tempCounter++];

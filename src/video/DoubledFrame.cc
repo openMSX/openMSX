@@ -17,11 +17,6 @@ void DoubledFrame::init(FrameSource* field_, unsigned skip_)
 	setHeight(2 * field->getHeight());
 }
 
-unsigned DoubledFrame::getLineBufferSize() const
-{
-	return field->getLineBufferSize();
-}
-
 const void* DoubledFrame::getLineInfo(unsigned line, unsigned& width) const
 {
 	static const unsigned blackPixel = 0; // both 16bppp and 32bpp

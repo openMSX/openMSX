@@ -18,15 +18,9 @@ void DeinterlacedFrame::init(FrameSource* evenField, FrameSource* oddField)
 	//assert(evenField->getField() == FrameSource::FIELD_EVEN);
 	//assert(oddField->getField() == FrameSource::FIELD_ODD);
 	assert(evenField->getHeight() == oddField->getHeight());
-	assert(evenField->getLineBufferSize() == oddField->getLineBufferSize());
 	setHeight(2 * evenField->getHeight());
 	fields[0] = evenField;
 	fields[1] = oddField;
-}
-
-unsigned DeinterlacedFrame::getLineBufferSize() const
-{
-	return fields[0]->getLineBufferSize();
 }
 
 const void* DeinterlacedFrame::getLineInfo(unsigned line, unsigned& width) const

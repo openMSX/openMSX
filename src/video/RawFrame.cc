@@ -73,11 +73,6 @@ RawFrame::~RawFrame()
 	delete[] lineWidth;
 }
 
-unsigned RawFrame::getLineBufferSize() const
-{
-	return pitch;
-}
-
 const void* RawFrame::getLineInfo(unsigned line, unsigned& width) const
 {
 	if (PLATFORM_GP2X) {

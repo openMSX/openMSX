@@ -27,8 +27,6 @@ public:
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
-	virtual unsigned getLineBufferSize() const;
-
 	inline void setLineWidth(unsigned line, unsigned width) {
 		assert(line < getHeight());
 		assert(width <= maxWidth);

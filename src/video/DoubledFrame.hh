@@ -18,7 +18,6 @@ public:
 	void init(FrameSource* field, unsigned skip);
 
 private:
-	virtual unsigned getLineBufferSize() const;
 	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
 
 	/** The original frame whose data will be doubled.
