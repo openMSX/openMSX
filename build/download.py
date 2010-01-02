@@ -2,10 +2,20 @@
 
 from os import remove, stat
 from os.path import basename, isdir, isfile, join as joinpath
-from urllib import urlretrieve
+from urllib import FancyURLopener
 from urlparse import urlparse
 
 import sys
+
+# FancyURLOpener, which is also used in urlretrieve(), does not raise
+# an exception on status code 404. However, for downloading it is critical
+# to write either what we requested or nothing at all.
+class DownloadURLOpener(FancyURLopener):
+
+	def http_error_404(self, url, fp, errcode, errmsg, headers, data = None):
+		raise IOError('%s: http:%s' % (errmsg, url))
+
+_urlOpener = DownloadURLOpener()
 
 class StatusLine(object):
 
@@ -57,18 +67,11 @@ def downloadURL(url, localDir):
 
 	try:
 		try:
-			urlretrieve(url, localPath, reportProgress)
+			_urlOpener.retrieve(url, localPath, reportProgress)
 		except IOError:
 			statusLine(prefix + 'FAILED.')
 			raise
 		else:
-			# urlretrieve() does not handle 404 status codes properly.
-			# We assume no package is 0 bytes long, so an empty output file
-			# is always an error. This works for SourceForge downloads, but
-			# will fail for servers that return a non-empty 404 body.
-			# TODO: Use something more reliable than urlretrieve().
-			if stat(localPath).st_size == 0:
-				raise IOError('Downloaded an empty file')
 			statusLine(prefix + 'done.')
 		finally:
 			print
