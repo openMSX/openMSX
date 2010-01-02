@@ -1,6 +1,6 @@
-diff -ru tcl8.5.7.org/generic/tcl.h tcl8.5.7/generic/tcl.h
---- tcl8.5.7.org/generic/tcl.h	2009-04-10 18:54:51.000000000 +0200
-+++ tcl8.5.7/generic/tcl.h	2009-08-27 17:38:59.000000000 +0200
+diff -ru tcl8.5.8.org/generic/tcl.h tcl8.5.8/generic/tcl.h
+--- tcl8.5.8.org/generic/tcl.h	2009-11-03 20:21:37.000000000 +0100
++++ tcl8.5.8/generic/tcl.h	2010-01-02 14:16:24.000000000 +0100
 @@ -170,7 +170,7 @@
   *       MSVCRT.  
   */
