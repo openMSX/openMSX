@@ -238,11 +238,11 @@ class Theora(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/theora'
 	niceName = 'libtheora'
 	sourceName = 'libtheora'
-	version = '1.0'
-	fileLength = 1919343
+	version = '1.1.1'
+	fileLength = 2111877
 	checksums = {
 		'sha256':
-			'd5ac6867143b295da41aac1fb24357b6c7f388bf87985630168a47ed2ed8b048',
+			'40952956c47811928d1e7922cda3bc1f427eb75680c3c37249c91e949054916b',
 		}
 
 	@classmethod
