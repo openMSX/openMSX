@@ -1,6 +1,6 @@
 # $Id$
 
-from os import remove
+from os import remove, stat
 from os.path import basename, isdir, isfile, join as joinpath
 from urllib import urlretrieve
 from urlparse import urlparse
@@ -62,6 +62,13 @@ def downloadURL(url, localDir):
 			statusLine(prefix + 'FAILED.')
 			raise
 		else:
+			# urlretrieve() does not handle 404 status codes properly.
+			# We assume no package is 0 bytes long, so an empty output file
+			# is always an error. This works for SourceForge downloads, but
+			# will fail for servers that return a non-empty 404 body.
+			# TODO: Use something more reliable than urlretrieve().
+			if stat(localPath).st_size == 0:
+				raise IOError('Downloaded an empty file')
 			statusLine(prefix + 'done.')
 		finally:
 			print
