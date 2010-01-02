@@ -88,16 +88,16 @@ class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
 	sourceName = 'glew'
-	version = '1.5.1'
-	fileLength = 394566
+	version = '1.5.2'
+	fileLength = 431424
 	checksums = {
 		'sha256':
-			'89e63d085cb563c32a191e3cd4907a192484f10438a6679f1349456db4b9c10a',
+			'482a366c38a758546dfdeaa32d277d0c0b960a4fb562c6e36c54a983dde50536',
 		}
 
 	@classmethod
 	def getTarballName(cls):
-		return '%s-%s-src.tgz' % (cls.sourceName, cls.version)
+		return '%s-%s.tgz' % (cls.sourceName, cls.version)
 
 class JACK(DownloadablePackage):
 	downloadURL = 'http://jackaudio.org/downloads/'
