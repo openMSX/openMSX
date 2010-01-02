@@ -430,12 +430,14 @@ $(VERSION_HEADER): forceversionextraction
 	@$(PYTHON) $(VERSION_SCRIPT) $@
 
 # Generate components header.
-$(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE)
+$(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE) \
+		build/components.py
 	@$(PYTHON) $(COMPONENTS_HEADER_SCRIPT) $@ $(PROBE_MAKE)
 	@touch $@
 
 # Generate components Makefile.
-$(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE)
+$(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) \
+		build/components.py
 	@$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $@ $(PROBE_MAKE)
 	@touch $@
 
