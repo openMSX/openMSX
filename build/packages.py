@@ -133,11 +133,11 @@ class LibXML2(DownloadablePackage):
 	downloadURL = 'http://xmlsoft.org/sources'
 	niceName = 'libxml2'
 	sourceName = 'libxml2'
-	version = '2.7.3'
-	fileLength = 4789450
+	version = '2.7.6'
+	fileLength = 4854591
 	checksums = {
 		'sha256':
-			'432464d8c9bd8060d9c1fdef1cfa75803c1a363ceac20b21f8c7e34e056e5a98',
+			'238c4f0203c012e5776522640c0fb3ac532c4064981c1ce3e74c00b75501d761',
 		}
 
 	@classmethod
