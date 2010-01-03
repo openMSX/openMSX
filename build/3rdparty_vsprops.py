@@ -19,10 +19,12 @@ props = {
 	'LibNameGlew': getPackage('GLEW').getSourceDirName(),
 	'LibNameLibPng': getPackage('PNG').getSourceDirName(),
 	'LibNameLibXml': getPackage('XML').getSourceDirName(),
+	'LibNameOgg': getPackage('OGG').getSourceDirName(),
 	'LibNameSDL': getPackage('SDL').getSourceDirName(),
 	'LibNameSDLmain': 'SDLmain',
 	'LibNameSDL_ttf': getPackage('SDL_TTF').getSourceDirName(),
 	'LibNameTcl': getPackage('TCL').getSourceDirName(),
+	'LibNameTheora': getPackage('THEORA').getSourceDirName(),
 	'LibNameZlib': getPackage('ZLIB').getSourceDirName(),
 	}
 
