@@ -8,11 +8,11 @@ from urlparse import urlparse
 import sys
 
 # FancyURLOpener, which is also used in urlretrieve(), does not raise
-# an exception on status code 404. However, for downloading it is critical
-# to write either what we requested or nothing at all.
+# an exception on status codes like 404 and 500. However, for downloading it is
+# critical to write either what we requested or nothing at all.
 class DownloadURLOpener(FancyURLopener):
 
-	def http_error_404(self, url, fp, errcode, errmsg, headers, data = None):
+	def http_error_default(self, url, fp, errcode, errmsg, headers):
 		raise IOError('%s: http:%s' % (errmsg, url))
 
 _urlOpener = DownloadURLOpener()
