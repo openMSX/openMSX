@@ -1,3 +1,5 @@
+cd ..
+cd ..
 @echo off
 color 9f
 :start
