@@ -426,7 +426,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\png.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\png.c"
 				>
 				<FileConfiguration
 					Name="LIB Release|Win32"
@@ -518,7 +518,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngerror.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngerror.c"
 				>
 				<FileConfiguration
 					Name="LIB Release|Win32"
@@ -610,43 +610,43 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngget.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngget.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngmem.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngmem.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngpread.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngpread.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngread.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngread.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngrio.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngrio.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngrtran.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngrtran.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngrutil.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngrutil.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngset.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngset.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngtrans.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngtrans.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\scripts\pngw32.def"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\scripts\pngw32.def"
 				>
 				<FileConfiguration
 					Name="LIB Release|Win32"
@@ -706,19 +706,19 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngwio.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngwio.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngwrite.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngwrite.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngwtran.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngwtran.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngwutil.c"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngwutil.c"
 				>
 			</File>
 		</Filter>
@@ -727,11 +727,11 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\png.h"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\png.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\pngconf.h"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\pngconf.h"
 				>
 			</File>
 		</Filter>
@@ -740,7 +740,7 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.35\scripts\pngw32.rc"
+				RelativePath="..\..\derived\3rdparty\src\libpng-1.2.41\scripts\pngw32.rc"
 				>
 				<FileConfiguration
 					Name="LIB Release|Win32"

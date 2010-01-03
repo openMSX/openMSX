@@ -1,119 +1,23 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioPropertySheet
-	ProjectType="Visual C++"
-	Version="8.00"
-	Name="3rdparty"
-	>
-	<UserMacro
-		Name="DerivedDir"
-		Value="..\..\derived"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="3rdPartySrcDir"
-		Value="$(DerivedDir)\3rdparty\src"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="OpenMSXSrcDir"
-		Value="..\..\src"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="BuildFlavor"
-		Value="$(PlatformName)-VC-$(ConfigurationName)"
-		InheritsFromParent="true"
-		Delimiter=";"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="BuildDir"
-		Value="$(DerivedDir)\$(BuildFlavor)"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="3rdPartyBuildDir"
-		Value="$(BuildDir)\3rdparty"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="3rdpartyIntDir"
-		Value="$(3rdpartyBuildDir)\build"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="3rdpartyOutDir"
-		Value="$(3rdPartyBuildDir)\install\lib"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="OpenMSXIntDir"
-		Value="$(BuildDir)\build"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="OpenMSXOutDir"
-		Value="$(BuildDir)\install"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="OpenMSXConfigDir"
-		Value="$(BuildDir)\config"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameFreeType"
-		Value="freetype-2.3.9"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameGlew"
-		Value="glew-1.5.1"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameLibPng"
-		Value="libpng-1.2.35"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameLibXml"
-		Value="libxml2-2.7.3"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameSDL"
-		Value="SDL-1.2.14"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameSDLmain"
-		Value="SDLmain"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameSDL_image"
-		Value="SDL_image-1.2.10"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameSDL_ttf"
-		Value="SDL_ttf-2.0.9"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameTcl"
-		Value="tcl8.5.7"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameZlib"
-		Value="zlib-1.2.3"
-		PerformEnvironmentSet="true"
-	/>
-	<UserMacro
-		Name="LibNameTk"
-		Value="tk8.5.7"
-		PerformEnvironmentSet="true"
-	/>
+<?xml version='1.0' encoding='UTF-8'?>
+<VisualStudioPropertySheet Name="3rdparty" ProjectType="Visual C++" Version="8.00">
+<UserMacro Name="3rdPartyBuildDir" PerformEnvironmentSet="true" Value="$(BuildDir)\3rdparty" />
+<UserMacro Name="3rdPartySrcDir" PerformEnvironmentSet="true" Value="$(DerivedDir)\3rdparty\src" />
+<UserMacro Name="3rdpartyIntDir" PerformEnvironmentSet="true" Value="$(3rdpartyBuildDir)\build" />
+<UserMacro Name="3rdpartyOutDir" PerformEnvironmentSet="true" Value="$(3rdPartyBuildDir)\install\lib" />
+<UserMacro Name="BuildDir" PerformEnvironmentSet="true" Value="$(DerivedDir)\$(BuildFlavor)" />
+<UserMacro Name="BuildFlavor" PerformEnvironmentSet="true" Value="$(PlatformName)-VC-$(ConfigurationName)" />
+<UserMacro Name="DerivedDir" PerformEnvironmentSet="true" Value="..\..\derived" />
+<UserMacro Name="LibNameFreeType" PerformEnvironmentSet="true" Value="freetype-2.3.11" />
+<UserMacro Name="LibNameGlew" PerformEnvironmentSet="true" Value="glew-1.5.2" />
+<UserMacro Name="LibNameLibPng" PerformEnvironmentSet="true" Value="libpng-1.2.41" />
+<UserMacro Name="LibNameLibXml" PerformEnvironmentSet="true" Value="libxml2-2.7.6" />
+<UserMacro Name="LibNameSDL" PerformEnvironmentSet="true" Value="SDL-1.2.14" />
+<UserMacro Name="LibNameSDL_ttf" PerformEnvironmentSet="true" Value="SDL_ttf-2.0.9" />
+<UserMacro Name="LibNameSDLmain" PerformEnvironmentSet="true" Value="SDLmain" />
+<UserMacro Name="LibNameTcl" PerformEnvironmentSet="true" Value="tcl8.5.8" />
+<UserMacro Name="LibNameZlib" PerformEnvironmentSet="true" Value="zlib-1.2.3" />
+<UserMacro Name="OpenMSXConfigDir" PerformEnvironmentSet="true" Value="$(BuildDir)\config" />
+<UserMacro Name="OpenMSXIntDir" PerformEnvironmentSet="true" Value="$(BuildDir)\build" />
+<UserMacro Name="OpenMSXOutDir" PerformEnvironmentSet="true" Value="$(BuildDir)\install" />
+<UserMacro Name="OpenMSXSrcDir" PerformEnvironmentSet="true" Value="..\..\src" />
 </VisualStudioPropertySheet>

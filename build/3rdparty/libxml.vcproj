@@ -431,175 +431,175 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\c14n.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\c14n.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\catalog.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\catalog.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\chvalid.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\chvalid.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\debugXML.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\debugXML.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\dict.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\dict.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\DOCBparser.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\DOCBparser.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\encoding.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\encoding.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\entities.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\entities.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\error.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\error.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\globals.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\globals.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\hash.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\hash.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\HTMLparser.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\HTMLparser.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\HTMLtree.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\HTMLtree.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\legacy.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\legacy.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\list.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\list.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\nanoftp.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\nanoftp.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\nanohttp.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\nanohttp.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\parser.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\parser.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\parserInternals.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\parserInternals.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\pattern.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\pattern.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\relaxng.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\relaxng.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\SAX.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\SAX.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\SAX2.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\SAX2.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\schematron.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\schematron.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\threads.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\threads.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\tree.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\tree.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\uri.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\uri.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\valid.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\valid.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xinclude.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xinclude.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xlink.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xlink.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlIO.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlIO.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlmemory.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlmemory.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlmodule.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlmodule.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlreader.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlreader.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlregexp.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlregexp.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlsave.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlsave.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlschemas.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlschemas.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlschemastypes.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlschemastypes.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlstring.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlstring.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlunicode.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlunicode.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xmlwriter.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xmlwriter.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xpath.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xpath.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\xpointer.c"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\xpointer.c"
 				>
 			</File>
 		</Filter>
@@ -609,35 +609,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\acconfig.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\acconfig.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\elfgcchack.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\elfgcchack.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\libxml.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\libxml.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\trio.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\trio.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\triodef.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\triodef.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\trionan.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\trionan.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\triop.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\triop.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.3\triostr.h"
+				RelativePath="..\..\derived\3rdparty\src\libxml2-2.7.6\triostr.h"
 				>
 			</File>
 		</Filter>

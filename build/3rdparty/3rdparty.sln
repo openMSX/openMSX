@@ -19,8 +19,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "libxml.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tcl", "tcl.vcproj", "{CCCEA506-D026-4915-BEE0-374F65D7C764}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tk", "tk.vcproj", "{0527AB32-8BFF-434C-A3EC-023EDF1AE7BE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -139,12 +137,6 @@ Global
 		{CCCEA506-D026-4915-BEE0-374F65D7C764}.Release|Win32.Build.0 = Release|Win32
 		{CCCEA506-D026-4915-BEE0-374F65D7C764}.Release|x64.ActiveCfg = Release|x64
 		{CCCEA506-D026-4915-BEE0-374F65D7C764}.Release|x64.Build.0 = Release|x64
-		{0527AB32-8BFF-434C-A3EC-023EDF1AE7BE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0527AB32-8BFF-434C-A3EC-023EDF1AE7BE}.Debug|x64.ActiveCfg = Debug|x64
-		{0527AB32-8BFF-434C-A3EC-023EDF1AE7BE}.Developer|Win32.ActiveCfg = Developer|Win32
-		{0527AB32-8BFF-434C-A3EC-023EDF1AE7BE}.Developer|x64.ActiveCfg = Developer|x64
-		{0527AB32-8BFF-434C-A3EC-023EDF1AE7BE}.Release|Win32.ActiveCfg = Release|Win32
-		{0527AB32-8BFF-434C-A3EC-023EDF1AE7BE}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
