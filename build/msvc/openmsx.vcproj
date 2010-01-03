@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\xlib&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="4"
@@ -58,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -125,7 +125,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\xlib&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="4"
@@ -137,7 +137,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -207,7 +207,7 @@
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\xlib&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				SmallerTypeCheck="false"
@@ -223,7 +223,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -295,7 +295,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\xlib&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -310,7 +310,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -376,7 +376,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\xlib&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
@@ -389,7 +389,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -458,7 +458,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\xlib&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
@@ -471,7 +471,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\win\rc&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTk)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -3842,6 +3842,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\video\PNG.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\video\PNG.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\video\PostProcessor.cc"
 				>
 			</File>
@@ -3907,10 +3915,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\video\SaI3xScaler.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\video\SDLSurfacePtr.hh"
 				>
 			</File>
 			<File
@@ -4206,14 +4210,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\video\PNG.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\video\PNG.hh"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\video\SDLGLOffScreenSurface.cc"
 				>
 			</File>
@@ -4267,6 +4263,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\video\SDLSnow.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\video\SDLSurfacePtr.hh"
 				>
 			</File>
 			<File

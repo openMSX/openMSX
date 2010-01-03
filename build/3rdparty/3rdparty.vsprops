@@ -90,6 +90,11 @@
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
+		Name="LibNameVorbis"
+		Value="libvorbis-1.2.3"
+		PerformEnvironmentSet="true"
+	/>
+	<UserMacro
 		Name="LibNameZlib"
 		Value="zlib-1.2.3"
 		PerformEnvironmentSet="true"
