@@ -140,7 +140,6 @@ private:
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
-	unsigned keyColor;
 
 	bool locked;
 

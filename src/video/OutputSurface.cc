@@ -8,7 +8,7 @@
 namespace openmsx {
 
 OutputSurface::OutputSurface()
-	: displaySurface(0), workSurface(0), keyColor(0), locked(false)
+	: displaySurface(0), workSurface(0), locked(false)
 {
 }
 
