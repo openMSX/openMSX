@@ -195,6 +195,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
+
 /**  BlendLines functor
  * Generate an output line that is an iterpolation of two input lines.
  * @param in1 First input line
@@ -206,6 +207,25 @@ template <typename Pixel, unsigned w1 = 1, unsigned w2 = 1> class BlendLines
 {
 public:
 	explicit BlendLines(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in1, const Pixel* in2,
+	                Pixel* out, unsigned width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+
+/**  AlphaBlendLines functor
+ * Generate an output line that is a per-pixel-alpha-blend of the two input
+ * lines. The first input line contains the alpha-value per pixel.
+ * @param in1 First input line
+ * @param in2 Second input line
+ * @param out Output line
+ * @param width Width of the lines in pixels
+ */
+template <typename Pixel> class AlphaBlendLines
+{
+public:
+	explicit AlphaBlendLines(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in1, const Pixel* in2,
 	                Pixel* out, unsigned width);
 private:
@@ -1234,6 +1254,23 @@ void BlendLines<Pixel, w1, w2>::operator()(
 	// pure C++ version
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
+	}
+}
+
+
+template <typename Pixel>
+AlphaBlendLines<Pixel>::AlphaBlendLines(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void AlphaBlendLines<Pixel>::operator()(
+	const Pixel* __restrict in1, const Pixel* __restrict in2,
+	Pixel* __restrict out, unsigned width)
+{
+	for (unsigned i = 0; i < width; ++i) {
+		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
 	}
 }
 

@@ -90,7 +90,7 @@ public:
 	  * buffers can be recycled.
 	  */
 	template <typename Pixel>
-	inline const Pixel* getLinePtr(int line, unsigned width)
+	inline const Pixel* getLinePtr(int line, unsigned width) const
 	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
 		unsigned internalWidth;
@@ -112,7 +112,7 @@ public:
 	template <typename Pixel>
 	inline const Pixel* getMultiLinePtr(
 		int line, unsigned numLines, unsigned& actualLines,
-		unsigned width)
+		unsigned width) const
 	{
 		actualLines = 1;
 		int height = getHeight();
@@ -146,14 +146,21 @@ public:
 	  * This is used for video recording.
 	  */
 	template <typename Pixel>
-	const Pixel* getLinePtr320_240(unsigned line);
+	const Pixel* getLinePtr320_240(unsigned line) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
 	template <typename Pixel>
-	const Pixel* getLinePtr640_480(unsigned line);
+	const Pixel* getLinePtr640_480(unsigned line) const;
+
+	/** Get a pointer to a given line in this frame, the frame is scaled
+	  * to 960x720 pixels. Same as getLinePtr320_240, but then for a
+	  * higher resolution output.
+	  */
+	template <typename Pixel>
+	const Pixel* getLinePtr960_720(unsigned line) const;
 
 	/** Returns the distance (in pixels) between two consecutive lines.
 	  * Is meant to be used in combination with getMultiLinePtr(). The
@@ -167,7 +174,7 @@ public:
 
 	/** Recycles the buffers allocated for scaling lines, see getLinePtr.
 	  */
-	void freeLineBuffers();
+	void freeLineBuffers() const;
 
 	const SDL_PixelFormat& getSDLPixelFormat() const {
 		return pixelFormat;
@@ -198,10 +205,12 @@ protected:
 	friend class DoubledFrame;
 
 private:
-	template <typename Pixel>
-	const Pixel* scaleLine(const Pixel* in, unsigned inWidth, unsigned outWidth);
+	template <typename Pixel> const Pixel* scaleLine(
+		const Pixel* in, unsigned inWidth, unsigned outWidth) const;
+	template <typename Pixel> const Pixel* blendLines(
+		const Pixel* line1, const Pixel* line2, unsigned width) const;
 
-	void* getTempBuffer();
+	void* getTempBuffer() const;
 
 	/** Pixel format. Needed for getLinePtr scaling
 	  */
@@ -212,8 +221,8 @@ private:
 	unsigned height;
 
 	FieldType fieldType;
-	std::vector<void*> tempBuffers;
-	unsigned tempCounter;
+	mutable std::vector<void*> tempBuffers;
+	mutable unsigned tempCounter;
 };
 
 } // namespace openmsx

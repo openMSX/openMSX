@@ -4,6 +4,7 @@
 #define PIXELOPERATIONS_HH
 
 #include <SDL.h>
+#include <cassert>
 
 namespace openmsx {
 
@@ -24,6 +25,7 @@ public:
 	inline unsigned red(Pixel p) const;
 	inline unsigned green(Pixel p) const;
 	inline unsigned blue(Pixel p) const;
+	inline unsigned alpha(Pixel p) const;
 
 	/** Same as above, but result is scaled to [0..255]
 	  */
@@ -75,6 +77,12 @@ public:
 	  * older SIMD (MMX/SSE1) routines.
 	  */
 	inline Pixel getBlendMask() const;
+
+	/** Perform alpha blending of two pixels.
+	 * Pixel p1 contains the alpha value. For maximal alpha p1 is
+	 * returned, for minimal alpha p2.
+	 */
+	inline Pixel alphaBlend(Pixel p1, Pixel p2) const;
 
 private:
 	inline Pixel avgDown(Pixel p1, Pixel p2) const;
@@ -136,6 +144,16 @@ inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 		return (p >> format->Bshift) & 0xFF;
 	} else {
 		return (p & format->Bmask) >> format->Bshift;
+	}
+}
+template <typename Pixel>
+inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
+{
+	if (sizeof(Pixel) == 4) {
+		return (p >> format->Ashift) & 0xFF;
+	} else {
+		assert(false);
+		//return (p & format->Amask) >> format->Ashift;
 	}
 }
 
@@ -428,6 +446,39 @@ template <typename Pixel>
 inline Pixel PixelOperations<Pixel>::getBlendMask() const
 {
 	return blendMask;
+}
+
+template <typename Pixel>
+inline Pixel PixelOperations<Pixel>::alphaBlend(Pixel p1, Pixel p2) const
+{
+	if (sizeof(Pixel) == 2) {
+		// TODO keep magic value in sync with OutputSurface::getKeyColor()
+		return (p1 == 0x0001) ? p2 : p1;
+	} else {
+		unsigned a = alpha(p1);
+
+		unsigned a1 = p1 & 0x000000FF;
+		unsigned b1 = p2 & 0x000000FF;
+		int      d1 = a1 - b1;
+		unsigned e1 = (((a * d1) >> 8) + b1) & 0x000000FF;
+
+		unsigned a2 = p1 & 0x0000FF00;
+		unsigned b2 = p2 & 0x0000FF00;
+		int      d2 = a2 - b2;
+		unsigned e2 = (((a * d2) >> 8) + b2) & 0x0000FF00;
+
+		unsigned a3 = p1 & 0x00FF0000;
+		unsigned b3 = p2 & 0x00FF0000;
+		int      d3 = a3 - b3;
+		unsigned e3 = (((a * d3) >> 8) + b3) & 0x00FF0000;
+
+		unsigned a4 = (p1 >> 8) & 0x00FF0000;
+		unsigned b4 = (p2 >> 8) & 0x00FF0000;
+		int      d4 = a4 - b4;
+		unsigned e4 = ((a * d4) + (b4 << 8)) & 0xFF000000;
+
+		return e1 | e2 | e3 | e4;
+	}
 }
 
 } // namespace openmsx

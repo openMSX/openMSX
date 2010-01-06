@@ -36,7 +36,18 @@ void FrameSource::setHeight(unsigned height_)
 }
 
 template <typename Pixel>
-const Pixel* FrameSource::getLinePtr320_240(unsigned line)
+const Pixel* FrameSource::blendLines(
+	const Pixel* line1, const Pixel* line2, unsigned width) const
+{
+	PixelOperations<Pixel> pixelOps(pixelFormat);
+	BlendLines<Pixel> blend(pixelOps);
+	Pixel* out = reinterpret_cast<Pixel*>(getTempBuffer());
+	blend(line1, line2, out, width);
+	return out;
+}
+
+template <typename Pixel>
+const Pixel* FrameSource::getLinePtr320_240(unsigned line) const
 {
 	if (getHeight() == 240) {
 		return getLinePtr<Pixel>(line, 320);
@@ -44,16 +55,12 @@ const Pixel* FrameSource::getLinePtr320_240(unsigned line)
 		assert(getHeight() == 480);
 		const Pixel* line1 = getLinePtr<Pixel>(2 * line + 0, 320);
 		const Pixel* line2 = getLinePtr<Pixel>(2 * line + 1, 320);
-		PixelOperations<Pixel> pixelOps(pixelFormat);
-		BlendLines<Pixel> blend(pixelOps);
-		Pixel* out = reinterpret_cast<Pixel*>(getTempBuffer());
-		blend(line1, line2, out, 320);
-		return out;
+		return blendLines(line1, line2, 320);
 	}
 }
 
 template <typename Pixel>
-const Pixel* FrameSource::getLinePtr640_480(unsigned line)
+const Pixel* FrameSource::getLinePtr640_480(unsigned line) const
 {
 	if (getHeight() == 480) {
 		return getLinePtr<Pixel>(line, 640);
@@ -63,7 +70,25 @@ const Pixel* FrameSource::getLinePtr640_480(unsigned line)
 	}
 }
 
-void* FrameSource::getTempBuffer()
+template <typename Pixel>
+const Pixel* FrameSource::getLinePtr960_720(unsigned line) const
+{
+	if (getHeight() == 480) {
+		unsigned l2 = (2 * line) / 3;
+		const Pixel* line0 = getLinePtr<Pixel>(l2 + 0, 960);
+		if ((line % 3) == 1) {
+			const Pixel* line1 = getLinePtr<Pixel>(l2 + 1, 960);
+			return blendLines(line0, line1, 960);
+		} else {
+			return line0;
+		}
+	} else {
+		assert(getHeight() == 240);
+		return getLinePtr<Pixel>(line / 3, 960);
+	}
+}
+
+void* FrameSource::getTempBuffer() const
 {
 	if (tempCounter == tempBuffers.size()) {
 		unsigned size = 1280 * pixelFormat.BytesPerPixel;
@@ -73,14 +98,14 @@ void* FrameSource::getTempBuffer()
 	return tempBuffers[tempCounter++];
 }
 
-void FrameSource::freeLineBuffers()
+void FrameSource::freeLineBuffers() const
 {
 	tempCounter = 0; // reuse tempBuffers
 }
 
 template <typename Pixel>
 const Pixel* FrameSource::scaleLine(
-		const Pixel* in, unsigned inWidth, unsigned outWidth)
+		const Pixel* in, unsigned inWidth, unsigned outWidth) const
 {
 	PixelOperations<Pixel> pixelOps(pixelFormat);
 	Pixel* out = reinterpret_cast<Pixel*>(getTempBuffer());
@@ -347,14 +372,14 @@ const Pixel* FrameSource::scaleLine(
 
 // Force template method instantiation
 #if HAVE_16BPP
-template const word* FrameSource::scaleLine(const word*, unsigned, unsigned);
-template const word* FrameSource::getLinePtr320_240<word>(unsigned);
-template const word* FrameSource::getLinePtr640_480<word>(unsigned);
+template const word* FrameSource::getLinePtr320_240<word>(unsigned) const;
+template const word* FrameSource::getLinePtr640_480<word>(unsigned) const;
+template const word* FrameSource::getLinePtr960_720<word>(unsigned) const;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template const unsigned* FrameSource::scaleLine(const unsigned*, unsigned, unsigned);
-template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned);
-template const unsigned* FrameSource::getLinePtr640_480<unsigned>(unsigned);
+template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned) const;
+template const unsigned* FrameSource::getLinePtr640_480<unsigned>(unsigned) const;
+template const unsigned* FrameSource::getLinePtr960_720<unsigned>(unsigned) const;
 #endif
 
 } // namespace openmsx
