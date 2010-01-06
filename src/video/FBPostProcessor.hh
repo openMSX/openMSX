@@ -61,8 +61,6 @@ private:
 	 */
 	std::vector<unsigned> noiseShift;
 
-	bool lastTransparency;
-
 	PixelOperations<Pixel> pixelOps;
 };
 

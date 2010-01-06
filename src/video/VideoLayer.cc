@@ -26,7 +26,6 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
               videoSourceSetting, videoSource_))
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
 	, videoSource(videoSource_)
-	, transparency(false)
 {
 	calcCoverage();
 	calcZ();
@@ -75,22 +74,11 @@ void VideoLayer::calcCoverage()
 
 	if (!powerSetting.getValue() || !motherBoard.isActive()) {
 		coverage = COVER_NONE;
-	} else if (transparency) {
-		coverage = COVER_PARTIAL;
 	} else {
 		coverage = COVER_FULL;
 	}
 
 	setCoverage(coverage);
-}
-
-void VideoLayer::setTransparency(bool enabled)
-{
-	// This is used to implement superimposing in the SDL renderer.
-	// Should be removed in the future. See also comments in
-	// FBPostProcessor::setSuperimposing().
-	transparency = enabled;
-	calcCoverage();
 }
 
 void VideoLayer::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)

@@ -16,9 +16,6 @@
 #include "HQ3xLiteScaler.hh"
 #include "RGBTriplet3xScaler.hh"
 #include "Scaler1.hh"
-#include "Transparent1xScaler.hh"
-#include "Transparent2xScaler.hh"
-#include "Transparent3xScaler.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 
@@ -29,23 +26,15 @@ namespace openmsx {
 template <class Pixel>
 auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings,
-	CliComm& cliComm, bool transparent)
+	CliComm& cliComm)
 {
 	switch (renderSettings.getScaleFactor().getValue()) {
 #if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)
 	case 1:
-		if (transparent) {
-			return auto_ptr<Scaler>(
-				new Transparent1xScaler<Pixel>(pixelOps, cliComm));
-		}
 		return auto_ptr<Scaler>(new Scaler1<Pixel>(pixelOps));
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
-		if (transparent) {
-			return auto_ptr<Scaler>(
-				new Transparent2xScaler<Pixel>(pixelOps, cliComm));
-		}
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return auto_ptr<Scaler>(
@@ -69,10 +58,6 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 #if (MIN_SCALE_FACTOR <= 4) && (MAX_SCALE_FACTOR >= 3)
 	case 3:
 	case 4: // fallback
-		if (transparent) {
-			return auto_ptr<Scaler>(
-				new Transparent3xScaler<Pixel>(pixelOps, cliComm));
-		}
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return auto_ptr<Scaler>(

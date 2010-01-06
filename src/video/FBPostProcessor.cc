@@ -357,15 +357,12 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 	RenderSettings::ScaleAlgorithm algo =
 		renderSettings.getScaleAlgorithm().getValue();
 	unsigned factor = renderSettings.getScaleFactor().getValue();
-	bool transparent = getTransparency();
-	if ((scaleAlgorithm != algo) || (scaleFactor != factor) || (lastTransparency != transparent )) {
+	if ((scaleAlgorithm != algo) || (scaleFactor != factor)) {
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
-		lastTransparency = transparent;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			PixelOperations<Pixel>(
-				output.getSDLFormat()), renderSettings,
-				getCliComm(), getTransparency());
+			PixelOperations<Pixel>(output.getSDLFormat()),
+			renderSettings, getCliComm());
 	}
 
 	// Scale image.
@@ -429,13 +426,6 @@ RawFrame* FBPostProcessor<Pixel>::rotateFrames(
 template <class Pixel>
 void FBPostProcessor<Pixel>::setSuperimposing(const RawFrame* videoSource)
 {
-	// TODO In the future we should actually use the passed RawFrame.
-	// Now we use a special "transparent scaler" to implement
-	// superimposing. In the future we should implement superimposing
-	// at the level of each scaler, so that scaler specific effects
-	// can still be applied to the MSX and/or the superimposed frame.
-	//////setTransparency(videoSource != NULL);
-
 	// TODO this method can be moved to base class
 	superImposeFrame = videoSource;
 }
