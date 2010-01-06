@@ -1,8 +1,9 @@
 // $Id$
 
 #include "RGBTriplet3xScaler.hh"
+#include "SuperImposedFrame.hh"
 #include "LineScalers.hh"
-#include "FrameSource.hh"
+#include "RawFrame.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
 #include "vla.hh"
@@ -370,6 +371,24 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		         dst.getWidth());
 		fillLoop(out1Normal,  dst.getLinePtrDirect<Pixel>(dstY + 2),
 		         dst.getWidth());
+	}
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	if (superImpose) {
+		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps.getSDLPixelFormat());
+		srcWidth = sf.getLineWidth(srcStartY);
+		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
+		                    dst, dstStartY, dstEndY);
+		src.freeLineBuffers();
+		superImpose->freeLineBuffers();
+	} else {
+		this->dispatchScale(src, srcStartY, srcEndY, srcWidth,
+		                    dst, dstStartY, dstEndY);
 	}
 }
 

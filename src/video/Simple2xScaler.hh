@@ -24,6 +24,10 @@ public:
 		const PixelOperations<Pixel>& pixelOps,
 		RenderSettings& renderSettings);
 
+protected:
+	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
@@ -43,6 +47,7 @@ private:
 	              unsigned long srcWidth);
 
 	RenderSettings& settings;
+	PixelOperations<Pixel> pixelOps;
 
 	Multiply32<Pixel> mult1;
 	Multiply32<Pixel> mult2;

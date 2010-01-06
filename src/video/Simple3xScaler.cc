@@ -1,8 +1,9 @@
 // $Id$
 
 #include "Simple3xScaler.hh"
+#include "SuperImposedFrame.hh"
 #include "LineScalers.hh"
-#include "FrameSource.hh"
+#include "RawFrame.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
@@ -505,6 +506,25 @@ void Blur_1on3<Pixel>::operator()(
 	out[3 * x + 3] = mult0.conv32(f2 + g1);
 	out[3 * x + 4] = mult0.conv32(g0 + mult3.mul32(p1) + f0);
 	out[3 * x + 5] = p1;
+}
+
+template <class Pixel>
+void Simple3xScaler<Pixel>::scaleImage(
+	FrameSource& src, const RawFrame* superImpose,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	if (superImpose) {
+		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps.getSDLPixelFormat());
+		srcWidth = sf.getLineWidth(srcStartY);
+		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
+		                    dst, dstStartY, dstEndY);
+		src.freeLineBuffers();
+		superImpose->freeLineBuffers();
+	} else {
+		this->dispatchScale(src, srcStartY, srcEndY, srcWidth,
+		                    dst, dstStartY, dstEndY);
+	}
 }
 
 // Force template instantiation.

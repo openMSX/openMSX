@@ -22,6 +22,10 @@ public:
 	Simple3xScaler(const PixelOperations<Pixel>& pixelOps,
 	               const RenderSettings& renderSettings);
 
+protected:
+	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);

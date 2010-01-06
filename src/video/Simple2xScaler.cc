@@ -1,8 +1,9 @@
 // $Id$
 
 #include "Simple2xScaler.hh"
+#include "SuperImposedFrame.hh"
 #include "LineScalers.hh"
-#include "FrameSource.hh"
+#include "RawFrame.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
@@ -18,10 +19,11 @@ namespace openmsx {
 
 template <class Pixel>
 Simple2xScaler<Pixel>::Simple2xScaler(
-		const PixelOperations<Pixel>& pixelOps,
+		const PixelOperations<Pixel>& pixelOps_,
 		RenderSettings& renderSettings)
-	: Scaler2<Pixel>(pixelOps)
+	: Scaler2<Pixel>(pixelOps_)
 	, settings(renderSettings)
+	, pixelOps(pixelOps_)
 	, mult1(pixelOps.format)
 	, mult2(pixelOps.format)
 	, mult3(pixelOps.format)
@@ -488,6 +490,34 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 	Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY);
 	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor, srcWidth);
+}
+
+template <class Pixel>
+void Simple2xScaler<Pixel>::scaleImage(
+	FrameSource& src, const RawFrame* superImpose,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	if (superImpose) {
+		// Note: this implementation is different from the openGL
+		// version. Here we first alpha-blend and then scale, so the
+		// video layer will also get blurred (and possibly down-scaled
+		// to MSX resolution). The openGL version will only blur the
+		// MSX frame, then blend with the video frame and then apply
+		// scanlines. I think the openGL version is visually slightly
+		// better, but much more work to implement in software (in
+		// openGL shaders it's very easy). Maybe we can improve this
+		// later (if required at all).
+		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps.getSDLPixelFormat());
+		srcWidth = sf.getLineWidth(srcStartY);
+		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
+		                    dst, dstStartY, dstEndY);
+		src.freeLineBuffers();
+		superImpose->freeLineBuffers();
+	} else {
+		this->dispatchScale(src, srcStartY, srcEndY, srcWidth,
+		                    dst, dstStartY, dstEndY);
+	}
 }
 
 // Force template instantiation.

@@ -84,6 +84,8 @@ public:
 	 */
 	inline Pixel alphaBlend(Pixel p1, Pixel p2) const;
 
+	const SDL_PixelFormat& getSDLPixelFormat() const { return *format; }
+
 private:
 	inline Pixel avgDown(Pixel p1, Pixel p2) const;
 	inline Pixel avgUp  (Pixel p1, Pixel p2) const;
