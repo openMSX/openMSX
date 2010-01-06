@@ -162,9 +162,7 @@ void AviRecorder::addImage(const void** lines, EmuTime::param time)
 	prevTime = time;
 
 	if (mixer) {
-		MSXMotherBoard* motherBoard = reactor.getMotherBoard();
-		assert(motherBoard);
-		mixer->updateStream(motherBoard->getCurrentTime());
+		mixer->updateStream(time);
 	}
 	aviWriter->addFrame(lines, unsigned(audioBuf.size()) / 2, &audioBuf[0]);
 	audioBuf.clear();
