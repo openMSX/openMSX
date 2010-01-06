@@ -13,6 +13,16 @@ namespace openmsx {
 template <class Pixel> class Scaler3 : public Scaler
 {
 public:
+	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+
+protected:
+	explicit Scaler3(const PixelOperations<Pixel>& pixelOps);
+
+	void dispatchScale(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
@@ -55,16 +65,6 @@ public:
 	virtual void scale4x2to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-
-	virtual void scaleImage(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-
-protected:
-	explicit Scaler3(const PixelOperations<Pixel>& pixelOps);
 
 	const PixelOperations<Pixel> pixelOps;
 };

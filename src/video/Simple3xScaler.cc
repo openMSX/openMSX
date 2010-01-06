@@ -250,8 +250,8 @@ void Simple3xScaler<Pixel>::scaleBlank1to3(
 		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
 		assert(src.getLineWidth(srcY) == 1);
 		assert(nextLineWidth != 1);
-		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
-		                 dst, dstY, dstEndY);
+		this->dispatchScale(src, srcY, srcEndY, nextLineWidth,
+		                    dst, dstY, dstEndY);
 	}
 }
 

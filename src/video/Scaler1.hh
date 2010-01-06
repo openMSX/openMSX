@@ -14,6 +14,14 @@ class Scaler1 : public Scaler
 public:
 	explicit Scaler1(const PixelOperations<Pixel>& pixelOps);
 
+	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+
+protected:
+	void dispatchScale(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
@@ -57,14 +65,6 @@ public:
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
-	virtual void scaleImage(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
-
-protected:
 	const PixelOperations<Pixel> pixelOps;
 };
 

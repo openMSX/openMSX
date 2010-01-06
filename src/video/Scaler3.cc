@@ -230,10 +230,8 @@ void Scaler3<Pixel>::scale4x2to3x3(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-// TODO: This method doesn't have any dependency on the pixel format, so is it
-//       possible to move it to a class without the Pixel template parameter?
 template <class Pixel>
-void Scaler3<Pixel>::scaleImage(FrameSource& src,
+void Scaler3<Pixel>::dispatchScale(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -312,7 +310,7 @@ void Scaler3<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	scaleImage(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
+	dispatchScale(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
 
 	if (superImpose) {
 		AlphaBlendLines<Pixel> alphaBlend(pixelOps);
