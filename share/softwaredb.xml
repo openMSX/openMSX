@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1261693913">
+<softwaredb xml:lang="en" timestamp="1262798352">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2017,6 +2017,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2009</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">9d87ba5ac3b9a865f2dd93d239e9cdaf6e48dff5</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">4528654ce1a4d286b19ab5e3730d70598db63d11</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Craze</title>
@@ -11370,6 +11371,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2494
-Parse time 4.504 seconds on Thu Dec 24 23:31:57 CET 2009
+Roms in this database:2495
+Parse time 3.852 seconds on Wed Jan 6 18:19:16 CET 2010
  -->

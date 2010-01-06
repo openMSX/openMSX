@@ -1,8 +1,8 @@
 # Cheat definitions - Version 3.0
 #
-# Copyright 2005-2009 Benoit Delvaux all rights reserved
-# Copyright 2005-2009 Albert Beevendorp all rights reserved
-# Copyright 2005-2009 Patrick van Arkel all rights reserved
+# Copyright 2005-2010 Benoit Delvaux all rights reserved
+# Copyright 2005-2010 Albert Beevendorp all rights reserved
+# Copyright 2005-2010 Patrick van Arkel all rights reserved
 #
 # The definition of cheating according to google:
 # - Defeat someone in an expectation through trickery or deceit
@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2009/12/31
+# Updated @ 2010/01/06
 #
 
 
@@ -627,11 +627,12 @@ create_trainer "Ashguine 2" {time 2} {
 	"Experience Level" {poke 0xc023 9;poke 0xc024 9;poke 0xc025 9}
 	"Keys" {poke 0xc020 9;poke 0xc021 9;poke 0xc022 8}
 	"Life" {poke 0xc016 255}
-	"Rotating Shield" {poke 0xc003 10}
+	"Red Rotating Shield" {poke 0xc003 13}
 	"Shoes" {poke 0xc019 2}
 	"Stage (1-6)" {poke 0xc000 1}
 	"Time" {poke 0xc039 255}
 	"Weapon (0-2)" {poke 0xc001 2}
+	"Yellow Rotating Shield" {poke 0xc003 10}
 }
 
 create_trainer "Ashguine 3" {time 1} {
@@ -3733,6 +3734,7 @@ create_trainer "King Kong 2" {time 2} {
 	"Fireballs In Inventory" {poke 0xc2b0 9}
 	"Harpoon In Inventory" {poke 0xc2b4 11}
 	"Herbs In Inventory" {poke 0xc2c8 16}
+	"Invulnerable" {poke 0xc325 255}
 	"Iron Keys In Inventory" {poke 0xc2e8 36}
 	"Kill 1 Batt To Get Meat (area 8)" {poke 0xdfd1 1}
 	"Kill 1 Bowler To Get Axe (area 2)" {poke 0xdfc2 1}
@@ -4110,9 +4112,9 @@ create_trainer "Legendly Nine Gems" {time 1} {
 }
 
 create_trainer "Life In The Fast Lane" {time 1} {
-	"Always Fire" {poke 0x92e2 0}
-	"Always Jump" {poke 0x92d3 0}
-	"Lives" {poke 0x92ca 9}
+	"Infinite Jumps" {poke 0x92d3 0}
+	"Infinite Lives" {poke 0x92ca 9}
+	"Infinite Shots" {poke 0x92e2 0}
 }
 
 create_trainer "Lode Run" {time 1} {
@@ -5341,6 +5343,11 @@ create_trainer "Romancia MSX2" {time 1} {
 	"Hearts" {poke 0xd063 255}
 	"Shields" {poke 0xd066 64}
 	"Swords" {poke 0xd064 255}
+	"unlimited time" {poke 0xd075 0x99;poke 0xd076 0x99}
+}
+
+create_trainer "Rona" {time 1} {
+	"Invincible" {poke 0xa3e1 255}
 }
 
 create_trainer "Rotors" {time 1} {
@@ -5701,6 +5708,9 @@ create_trainer "Space Invader" {time 1} {
 
 create_trainer "Space Manbow" {time 1} {
 	"Easy End Bosses" {poke 0xce82 0;poke 0xce96 0;poke 0xced6 0;poke 0xCF16 0;poke 0xcfd6 0}
+	"Finished Space Manbow 1x" {poke 0xca04 1}
+	"Finished Space Manbow 2x" {poke 0xca04 2}
+	"Finished Space Manbow 3x" {poke 0xca04 3}
 	"Have Flash Bomb" {poke 0xcb1d 1}
 	"Invincible" {poke 0xca53 03;poke 0xca54 03}
 	"Lives" {poke 0xcb0f 153}
@@ -6775,4 +6785,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 2.839 seconds. 724 trainers -  having 5495 pokes
+# File Created in : 1.134 seconds. 725 trainers -  having 5503 pokes
