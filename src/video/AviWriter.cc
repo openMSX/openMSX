@@ -243,12 +243,12 @@ static inline unsigned short bswap16(unsigned short val)
 {
 	return ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8);
 }
-void AviWriter::addFrame(const void** lineData, unsigned samples, short* sampleData)
+void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData)
 {
 	bool keyFrame = (frames++ % 300 == 0);
 	void* buffer;
 	unsigned size;
-	codec->compressFrame(keyFrame, lineData, buffer, size);
+	codec->compressFrame(keyFrame, frame, buffer, size);
 	addAviChunk("00dc", size, buffer, keyFrame ? 0x10 : 0x0);
 
 	if (samples) {

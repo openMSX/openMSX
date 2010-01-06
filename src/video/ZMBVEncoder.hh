@@ -10,6 +10,8 @@
 
 namespace openmsx {
 
+class FrameSource;
+
 class ZMBVEncoder
 {
 public:
@@ -18,7 +20,7 @@ public:
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
 	~ZMBVEncoder();
 
-	void compressFrame(bool keyFrame, const void** lineData,
+	void compressFrame(bool keyFrame, FrameSource* frame,
 	                   void*& buffer, unsigned& written);
 
 private:
@@ -35,6 +37,7 @@ private:
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
 	template<class P> void addXorBlock(int vx, int vy, unsigned offset);
 	template<class P> void lineBEtoLE(unsigned char* input, unsigned width);
+	const void* getScaledLine(FrameSource* frame, unsigned y);
 
 	unsigned char* oldframe;
 	unsigned char* newframe;

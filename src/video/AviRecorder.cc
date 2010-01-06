@@ -144,7 +144,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 	}
 }
 
-void AviRecorder::addImage(const void** lines, EmuTime::param time)
+void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 {
 	assert(!wavWriter.get());
 	if (duration != EmuDuration::infinity) {
@@ -164,10 +164,11 @@ void AviRecorder::addImage(const void** lines, EmuTime::param time)
 	if (mixer) {
 		mixer->updateStream(time);
 	}
-	aviWriter->addFrame(lines, unsigned(audioBuf.size()) / 2, &audioBuf[0]);
+	aviWriter->addFrame(frame, unsigned(audioBuf.size()) / 2, &audioBuf[0]);
 	audioBuf.clear();
 }
 
+// TODO: Can this be dropped?
 unsigned AviRecorder::getFrameHeight() const {
 	assert (frameHeight != 0); // someone uses the getter too early?
 	return frameHeight;

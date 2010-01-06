@@ -3,7 +3,9 @@
 // Code based on DOSBox-0.65
 
 #include "ZMBVEncoder.hh"
+#include "FrameSource.hh"
 #include "unreachable.hh"
+#include "openmsx.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -309,8 +311,37 @@ void ZMBVEncoder::lineBEtoLE(unsigned char* input, unsigned width)
 	}
 }
 
-void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
-                               void*& buffer, unsigned& written)
+const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
+{
+#if HAVE_32BPP
+	if (pixelSize == 4) { // 32bpp
+		switch (height) {
+		case 240:
+			return frame->getLinePtr320_240<unsigned>(y);
+		case 480:
+			return frame->getLinePtr640_480<unsigned>(y);
+		default:
+			UNREACHABLE;
+		}
+	}
+#endif
+#if HAVE_16BPP
+	if (pixelSize == 2) { // 15bpp or 16bpp
+		switch (height) {
+		case 240:
+			return frame->getLinePtr320_240<word>(y);
+		case 480:
+			return frame->getLinePtr640_480<word>(y);
+		default:
+			UNREACHABLE;
+		}
+	}
+#endif
+	UNREACHABLE;
+}
+
+void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
+                                void*& buffer, unsigned& written)
 {
 	std::swap(newframe, oldframe); // replace oldframe with newframe
 
@@ -340,7 +371,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 	unsigned char* dest = newframe +
 	                      pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
 	for (unsigned i = 0; i < height; ++i) {
-		memcpy(dest, lineData[i], lineWidth);
+		memcpy(dest, getScaledLine(frame, i), lineWidth);
 		dest += linePitch;
 	}
 

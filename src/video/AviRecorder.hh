@@ -17,6 +17,7 @@ class AviWriter;
 class Wav16Writer;
 class Filename;
 class PostProcessor;
+class FrameSource;
 class MSXMixer;
 class RecordCommand;
 
@@ -27,7 +28,7 @@ public:
 	~AviRecorder();
 
 	void addWave(unsigned num, short* data);
-	void addImage(const void** lines, EmuTime::param time);
+	void addImage(FrameSource* frame, EmuTime::param time);
 	void stop();
 	unsigned getFrameHeight() const;
 
