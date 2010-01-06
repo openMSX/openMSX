@@ -49,7 +49,7 @@ private:
 	const unsigned width;
 	const unsigned height;
 	unsigned pitch;
-	unsigned pixelsize;
+	unsigned pixelSize;
 	Format format;
 };
 

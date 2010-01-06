@@ -161,22 +161,22 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 	switch (bpp) {
 	case 15:
 		format = ZMBV_FORMAT_15BPP;
-		pixelsize = 2;
+		pixelSize = 2;
 		break;
 	case 16:
 		format = ZMBV_FORMAT_16BPP;
-		pixelsize = 2;
+		pixelSize = 2;
 		break;
 	case 32:
 		format = ZMBV_FORMAT_32BPP;
-		pixelsize = 4;
+		pixelSize = 4;
 		break;
 	default:
 		UNREACHABLE;
 	}
 
 	pitch = width + 2 * MAX_VECTOR;
-	unsigned bufsize = (height + 2 * MAX_VECTOR) * pitch * pixelsize + 2048;
+	unsigned bufsize = (height + 2 * MAX_VECTOR) * pitch * pixelSize + 2048;
 
 	oldframe = new unsigned char[bufsize];
 	newframe = new unsigned char[bufsize];
@@ -201,7 +201,7 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 
 unsigned ZMBVEncoder::neededSize()
 {
-	unsigned f = pixelsize;
+	unsigned f = pixelSize;
 	f = f * width * height + 2 * (1 + (width / 8)) * (1 + (height / 8)) + 1024;
 	return f + f / 1000;
 }
@@ -335,10 +335,10 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 	}
 
 	// copy lines (to add black border)
-	unsigned linePitch = pitch * pixelsize;
-	unsigned lineWidth = width * pixelsize;
+	unsigned linePitch = pitch * pixelSize;
+	unsigned lineWidth = width * pixelSize;
 	unsigned char* dest = newframe +
-	                      pixelsize * (MAX_VECTOR + MAX_VECTOR * pitch);
+	                      pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
 	for (unsigned i = 0; i < height; ++i) {
 		memcpy(dest, lineData[i], lineWidth);
 		dest += linePitch;
@@ -348,10 +348,10 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 	if (keyFrame) {
 		// Add the full frame data
 		unsigned char* readFrame =
-			newframe + pixelsize * (MAX_VECTOR + MAX_VECTOR * pitch);
+			newframe + pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
 		for (unsigned i = 0; i < height; ++i) {
 			if (OPENMSX_BIGENDIAN) {
-				switch (pixelsize) {
+				switch (pixelSize) {
 				case 2:
 					lineBEtoLE<short>(readFrame, width);
 					break;
@@ -367,7 +367,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 		}
 	} else {
 		// Add the delta frame data
-		switch (pixelsize) {
+		switch (pixelSize) {
 		case 2:
 			addXorFrame<short>();
 			break;
