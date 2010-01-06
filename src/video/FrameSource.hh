@@ -180,6 +180,10 @@ public:
 		return pixelFormat;
 	}
 
+	// Used by SuperImposedFrame.
+	// TODO refactor
+	void* getTempBuffer() const;
+
 protected:
 	explicit FrameSource(const SDL_PixelFormat& format);
 
@@ -209,8 +213,6 @@ private:
 		const Pixel* in, unsigned inWidth, unsigned outWidth) const;
 	template <typename Pixel> const Pixel* blendLines(
 		const Pixel* line1, const Pixel* line2, unsigned width) const;
-
-	void* getTempBuffer() const;
 
 	/** Pixel format. Needed for getLinePtr scaling
 	  */
