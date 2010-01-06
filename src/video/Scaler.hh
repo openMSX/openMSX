@@ -6,6 +6,7 @@
 namespace openmsx {
 
 class FrameSource;
+class RawFrame;
 class OutputSurface;
 
 /** Abstract base class for scalers.
@@ -20,6 +21,7 @@ public:
 	  * are all equally wide.
 	  * Scaling factor depends on the concrete scaler.
 	  * @param src Source: the frame to be scaled.
+	  * @param superImpose The to-be-superimposed image (can be NULL).
 	  * @param srcStartY Y-coordinate of the top source line (inclusive).
 	  * @param srcEndY Y-coordinate of the bottom source line (exclusive).
 	  * @param srcWidth The number of pixels per line for the given area.
@@ -27,7 +29,7 @@ public:
 	  * @param dstStartY Y-coordinate of the top destination line (inclusive).
 	  * @param dstEndY Y-coordinate of the bottom destination line (exclusive).
 	  */
-	virtual void scaleImage(FrameSource& src,
+	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY) = 0;
 };

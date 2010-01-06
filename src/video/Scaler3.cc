@@ -2,7 +2,7 @@
 
 #include "Scaler3.hh"
 #include "LineScalers.hh"
-#include "FrameSource.hh"
+#include "RawFrame.hh"
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"
 #include "openmsx.hh"
@@ -303,6 +303,24 @@ void Scaler3<Pixel>::scaleImage(FrameSource& src,
 			break;
 		default:
 			UNREACHABLE;
+		}
+	}
+}
+
+template <class Pixel>
+void Scaler3<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	scaleImage(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
+
+	if (superImpose) {
+		AlphaBlendLines<Pixel> alphaBlend(pixelOps);
+		for (unsigned y = dstStartY; y < dstEndY; ++y) {
+			Pixel* dstLine = dst.getLinePtrDirect<Pixel>(y);
+			const Pixel* srcLine = superImpose->getLinePtr960_720<Pixel>(y);
+			alphaBlend(dstLine, srcLine, dstLine, 960);
+			superImpose->freeLineBuffers();
 		}
 	}
 }

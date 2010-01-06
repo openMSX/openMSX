@@ -47,6 +47,8 @@ private:
 	  */
 	std::auto_ptr<Scaler> currScaler;
 
+	const RawFrame* superImposeFrame;
+
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;

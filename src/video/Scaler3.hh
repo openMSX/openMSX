@@ -59,6 +59,9 @@ public:
 	virtual void scaleImage(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 protected:
 	explicit Scaler3(const PixelOperations<Pixel>& pixelOps);

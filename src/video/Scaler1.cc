@@ -348,6 +348,24 @@ void Scaler1<Pixel>::scaleImage(FrameSource& src,
 	}
 }
 
+template <class Pixel>
+void Scaler1<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	scaleImage(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
+
+	if (superImpose) {
+		AlphaBlendLines<Pixel> alphaBlend(pixelOps);
+		for (unsigned y = dstStartY; y < dstEndY; ++y) {
+			Pixel* dstLine = dst.getLinePtrDirect<Pixel>(y);
+			const Pixel* srcLine = superImpose->getLinePtr320_240<Pixel>(y);
+			alphaBlend(dstLine, srcLine, dstLine, 320);
+			superImpose->freeLineBuffers();
+		}
+	}
+}
+
 // Force template instantiation.
 #if HAVE_16BPP
 template class Scaler1<word>;

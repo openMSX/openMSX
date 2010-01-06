@@ -333,6 +333,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
 {
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 	scaleFactor = unsigned(-1);
+	superImposeFrame = NULL;
 
 	FloatSetting& noiseSetting = renderSettings.getNoise();
 	noiseSetting.attach(*this);
@@ -398,7 +399,8 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
 		currScaler->scaleImage(
-			*paintFrame, srcStartY, srcEndY, lineWidth, // source
+			*paintFrame, superImposeFrame,
+			srcStartY, srcEndY, lineWidth, // source
 			output, dstStartY, dstEndY); // dest
 		paintFrame->freeLineBuffers();
 
@@ -432,7 +434,10 @@ void FBPostProcessor<Pixel>::setSuperimposing(const RawFrame* videoSource)
 	// superimposing. In the future we should implement superimposing
 	// at the level of each scaler, so that scaler specific effects
 	// can still be applied to the MSX and/or the superimposed frame.
-	setTransparency(videoSource != NULL);
+	//////setTransparency(videoSource != NULL);
+
+	// TODO this method can be moved to base class
+	superImposeFrame = videoSource;
 }
 
 
