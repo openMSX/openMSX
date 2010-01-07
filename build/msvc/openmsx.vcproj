@@ -4546,27 +4546,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\video\Transparent1xScaler.cc"
+				RelativePath="..\..\src\video\SuperImposedFrame.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\video\Transparent1xScaler.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\video\Transparent2xScaler.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\video\Transparent2xScaler.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\video\Transparent3xScaler.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\video\Transparent3xScaler.hh"
+				RelativePath="..\..\src\video\SuperImposedFrame.hh"
 				>
 			</File>
 			<File
