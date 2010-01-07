@@ -64,12 +64,12 @@ struct KeyframeHeader {
 const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
 
 
-static inline short pixelBEtoLE(short pixel)
+static inline unsigned short pixelBEtoLE(unsigned short pixel)
 {
 	return (pixel >> 8) | (pixel << 8);
 }
 
-static inline unsigned pixelBEtoLE(unsigned pixel)
+static inline unsigned int pixelBEtoLE(unsigned int pixel)
 {
 	return ((pixel << 24)             ) | ((pixel <<  8) & 0x00FF0000)
 	     | ((pixel >>  8) & 0x0000FF00) | ((pixel >> 24)             );
@@ -333,9 +333,9 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
 	if (pixelSize == 4) { // 32bpp
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240<unsigned>(y);
+			return frame->getLinePtr320_240<unsigned int>(y);
 		case 480:
-			return frame->getLinePtr640_480<unsigned>(y);
+			return frame->getLinePtr640_480<unsigned int>(y);
 		default:
 			UNREACHABLE;
 		}
@@ -345,9 +345,9 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
 	if (pixelSize == 2) { // 15bpp or 16bpp
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240<word>(y);
+			return frame->getLinePtr320_240<unsigned short>(y);
 		case 480:
-			return frame->getLinePtr640_480<word>(y);
+			return frame->getLinePtr640_480<unsigned short>(y);
 		default:
 			UNREACHABLE;
 		}
@@ -397,10 +397,10 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		// Key frame: full frame data.
 		switch (pixelSize) {
 		case 2:
-			addFullFrame<short>();
+			addFullFrame<unsigned short>();
 			break;
 		case 4:
-			addFullFrame<unsigned>();
+			addFullFrame<unsigned int>();
 			break;
 		default:
 			UNREACHABLE;
@@ -409,10 +409,10 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		// Non-key frame: delta frame data.
 		switch (pixelSize) {
 		case 2:
-			addXorFrame<short>();
+			addXorFrame<unsigned short>();
 			break;
 		case 4:
-			addXorFrame<unsigned>();
+			addXorFrame<unsigned int>();
 			break;
 		default:
 			UNREACHABLE;
