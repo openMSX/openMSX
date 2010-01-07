@@ -338,6 +338,7 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
 	}
 #endif
 	UNREACHABLE;
+	return 0; // avoid warning
 }
 
 void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
