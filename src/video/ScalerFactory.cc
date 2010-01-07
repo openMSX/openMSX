@@ -1,9 +1,9 @@
 // $Id$
 
+#include "ScalerFactory.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
-#include "ScalerFactory.hh"
 #include "Simple2xScaler.hh"
 #include "Simple3xScaler.hh"
 #include "SaI2xScaler.hh"     // note: included even if MAX_SCALE_FACTOR == 1
@@ -25,8 +25,7 @@ namespace openmsx {
 
 template <class Pixel>
 auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
-	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings,
-	CliComm& cliComm)
+	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleFactor().getValue()) {
 #if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)

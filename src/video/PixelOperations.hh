@@ -154,7 +154,7 @@ inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
 	if (sizeof(Pixel) == 4) {
 		return (p >> format->Ashift) & 0xFF;
 	} else {
-		assert(false);
+		assert(false); return 0;
 		//return (p & format->Amask) >> format->Ashift;
 	}
 }

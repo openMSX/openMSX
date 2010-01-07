@@ -9,7 +9,6 @@ namespace openmsx {
 
 class Scaler;
 class RenderSettings;
-class CliComm;
 template <typename Pixel> class PixelOperations;
 
 /** Abstract base class for scalers.
@@ -24,8 +23,7 @@ public:
 	  */
 	static std::auto_ptr<Scaler> createScaler(
 		const PixelOperations<Pixel>& pixelOps,
-		RenderSettings& renderSettings,
-		CliComm& cliComm);
+		RenderSettings& renderSettings);
 };
 
 } // namespace openmsx
