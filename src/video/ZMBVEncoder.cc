@@ -302,6 +302,22 @@ void ZMBVEncoder::addXorFrame()
 }
 
 template<class P>
+void ZMBVEncoder::addFullFrame()
+{
+	unsigned char* readFrame =
+		newframe + pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
+	for (unsigned i = 0; i < height; ++i) {
+		if (OPENMSX_BIGENDIAN) {
+			lineBEtoLE<P>(readFrame, width);
+		} else {
+			memcpy(&work[workUsed], readFrame, width * sizeof(P));
+		}
+		readFrame += pitch * sizeof(P);
+		workUsed += width * sizeof(P);
+	}
+}
+
+template<class P>
 void ZMBVEncoder::lineBEtoLE(unsigned char* input, unsigned width)
 {
 	P* pixelsIn = reinterpret_cast<P*>(input);
@@ -376,29 +392,21 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		dest += linePitch;
 	}
 
-	// compress
+	// Add the frame data.
 	if (keyFrame) {
-		// Add the full frame data
-		unsigned char* readFrame =
-			newframe + pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
-		for (unsigned i = 0; i < height; ++i) {
-			if (OPENMSX_BIGENDIAN) {
-				switch (pixelSize) {
-				case 2:
-					lineBEtoLE<short>(readFrame, width);
-					break;
-				case 4:
-					lineBEtoLE<unsigned>(readFrame, width);
-					break;
-				}
-			} else {
-				memcpy(&work[workUsed], readFrame, lineWidth);
-			}
-			readFrame += linePitch;
-			workUsed += lineWidth;
+		// Key frame: full frame data.
+		switch (pixelSize) {
+		case 2:
+			addFullFrame<short>();
+			break;
+		case 4:
+			addFullFrame<unsigned>();
+			break;
+		default:
+			UNREACHABLE;
 		}
 	} else {
-		// Add the delta frame data
+		// Non-key frame: delta frame data.
 		switch (pixelSize) {
 		case 2:
 			addXorFrame<short>();
@@ -406,9 +414,11 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		case 4:
 			addXorFrame<unsigned>();
 			break;
+		default:
+			UNREACHABLE;
 		}
 	}
-	// Create the actual frame with compression
+	// Compress the frame data with zlib.
 	zstream.next_in = static_cast<Bytef*>(work);
 	zstream.avail_in = workUsed;
 	zstream.total_in = 0;

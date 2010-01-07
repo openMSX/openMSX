@@ -32,6 +32,7 @@ private:
 
 	void setupBuffers(unsigned bpp);
 	unsigned neededSize();
+	template<class P> void addFullFrame();
 	template<class P> void addXorFrame();
 	template<class P> unsigned possibleBlock(int vx, int vy, unsigned offset);
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
