@@ -176,7 +176,6 @@ ZMBVEncoder::~ZMBVEncoder()
 
 void ZMBVEncoder::setupBuffers(unsigned bpp)
 {
-	fprintf(stderr, "creating video in %d bpp\n", bpp);
 	switch (bpp) {
 	case 15:
 	case 16:
