@@ -4,6 +4,7 @@
 
 #include "ZMBVEncoder.hh"
 #include "FrameSource.hh"
+#include "PixelOperations.hh"
 #include "unreachable.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
@@ -64,15 +65,30 @@ struct KeyframeHeader {
 const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
 
 
-static inline unsigned short pixelBEtoLE(unsigned short pixel)
+static inline void writePixel(
+	const PixelOperations<unsigned short>& pixelOps,
+	unsigned short pixel, unsigned short& dest
+	)
 {
-	return (pixel >> 8) | (pixel << 8);
+	unsigned r = pixelOps.red256(pixel);
+	unsigned g = pixelOps.green256(pixel);
+	unsigned b = pixelOps.blue256(pixel);
+	unsigned short rgb16 =
+		((r & 0xF8) << (11 - 3)) | ((g & 0xFC) << (5 - 2)) | (b >> 3);
+	dest = OPENMSX_BIGENDIAN ? (rgb16 << 8) | (rgb16 >> 8) : rgb16;
 }
 
-static inline unsigned int pixelBEtoLE(unsigned int pixel)
+static inline void writePixel(
+	const PixelOperations<unsigned>& pixelOps,
+	unsigned pixel, unsigned& dest
+	)
 {
-	return ((pixel << 24)             ) | ((pixel <<  8) & 0x00FF0000)
-	     | ((pixel >>  8) & 0x0000FF00) | ((pixel >> 24)             );
+	unsigned r = pixelOps.red256(pixel);
+	unsigned g = pixelOps.green256(pixel);
+	unsigned b = pixelOps.blue256(pixel);
+	dest = OPENMSX_BIGENDIAN
+		? (r <<  8) | (g << 16) | (b << 24)
+		: (r << 16) | (g <<  8) |  b;
 }
 
 static void createVectorTable()
@@ -160,11 +176,9 @@ ZMBVEncoder::~ZMBVEncoder()
 
 void ZMBVEncoder::setupBuffers(unsigned bpp)
 {
+	fprintf(stderr, "creating video in %d bpp\n", bpp);
 	switch (bpp) {
 	case 15:
-		format = ZMBV_FORMAT_15BPP;
-		pixelSize = 2;
-		break;
 	case 16:
 		format = ZMBV_FORMAT_16BPP;
 		pixelSize = 2;
@@ -241,17 +255,15 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 }
 
 template<class P>
-void ZMBVEncoder::addXorBlock(int vx, int vy, unsigned offset)
+void ZMBVEncoder::addXorBlock(
+	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset)
 {
 	P* pold = &(reinterpret_cast<P*>(oldframe))[offset + (vy * pitch) + vx];
 	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			P pxor = pnew[x] ^ pold[x];
-			if (OPENMSX_BIGENDIAN) {
-				pxor = pixelBEtoLE(pxor);
-			}
-			*reinterpret_cast<P*>(&work[workUsed]) = pxor;
+			writePixel(pixelOps, pxor, *reinterpret_cast<P*>(&work[workUsed]));
 			workUsed += sizeof(P);
 		}
 		pold += pitch;
@@ -260,8 +272,9 @@ void ZMBVEncoder::addXorBlock(int vx, int vy, unsigned offset)
 }
 
 template<class P>
-void ZMBVEncoder::addXorFrame()
+void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat)
 {
+	PixelOperations<P> pixelOps(pixelFormat);
 	signed char* vectors = reinterpret_cast<signed char*>(&work[workUsed]);
 
 	// Align the following xor data on 4 byte boundary
@@ -296,34 +309,25 @@ void ZMBVEncoder::addXorFrame()
 		vectors[b * 2 + 1] = (bestvy << 1);
 		if (bestchange) {
 			vectors[b * 2 + 0] |= 1;
-			addXorBlock<P>(bestvx, bestvy, offset);
+			addXorBlock<P>(pixelOps, bestvx, bestvy, offset);
 		}
 	}
 }
 
 template<class P>
-void ZMBVEncoder::addFullFrame()
+void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat)
 {
+	PixelOperations<P> pixelOps(pixelFormat);
 	unsigned char* readFrame =
 		newframe + pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
-	for (unsigned i = 0; i < height; ++i) {
-		if (OPENMSX_BIGENDIAN) {
-			lineBEtoLE<P>(readFrame, width);
-		} else {
-			memcpy(&work[workUsed], readFrame, width * sizeof(P));
+	for (unsigned y = 0; y < height; ++y) {
+		P* pixelsIn = reinterpret_cast<P*>(readFrame);
+		P* pixelsOut = reinterpret_cast<P*>(&work[workUsed]);
+		for (unsigned x = 0; x < width; ++x) {
+			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
 		}
 		readFrame += pitch * sizeof(P);
 		workUsed += width * sizeof(P);
-	}
-}
-
-template<class P>
-void ZMBVEncoder::lineBEtoLE(unsigned char* input, unsigned width)
-{
-	P* pixelsIn = reinterpret_cast<P*>(input);
-	P* pixelsOut = reinterpret_cast<P*>(&work[workUsed]);
-	for (unsigned i = 0; i < width; i++) {
-		pixelsOut[i] = pixelBEtoLE(pixelsIn[i]);
 	}
 }
 
@@ -397,10 +401,10 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		// Key frame: full frame data.
 		switch (pixelSize) {
 		case 2:
-			addFullFrame<unsigned short>();
+			addFullFrame<unsigned short>(frame->getSDLPixelFormat());
 			break;
 		case 4:
-			addFullFrame<unsigned int>();
+			addFullFrame<unsigned int>(frame->getSDLPixelFormat());
 			break;
 		default:
 			UNREACHABLE;
@@ -409,10 +413,10 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		// Non-key frame: delta frame data.
 		switch (pixelSize) {
 		case 2:
-			addXorFrame<unsigned short>();
+			addXorFrame<unsigned short>(frame->getSDLPixelFormat());
 			break;
 		case 4:
-			addXorFrame<unsigned int>();
+			addXorFrame<unsigned int>(frame->getSDLPixelFormat());
 			break;
 		default:
 			UNREACHABLE;

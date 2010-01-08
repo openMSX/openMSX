@@ -8,9 +8,12 @@
 #include <vector>
 #include <zlib.h>
 
+struct SDL_PixelFormat;
+
 namespace openmsx {
 
 class FrameSource;
+template<class P> class PixelOperations;
 
 class ZMBVEncoder
 {
@@ -25,19 +28,18 @@ public:
 
 private:
 	enum Format {
-		ZMBV_FORMAT_15BPP = 5,
 		ZMBV_FORMAT_16BPP = 6,
 		ZMBV_FORMAT_32BPP = 8
 	};
 
 	void setupBuffers(unsigned bpp);
 	unsigned neededSize();
-	template<class P> void addFullFrame();
-	template<class P> void addXorFrame();
+	template<class P> void addFullFrame(const SDL_PixelFormat& pixelFormat);
+	template<class P> void addXorFrame(const SDL_PixelFormat& pixelFormat);
 	template<class P> unsigned possibleBlock(int vx, int vy, unsigned offset);
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
-	template<class P> void addXorBlock(int vx, int vy, unsigned offset);
-	template<class P> void lineBEtoLE(unsigned char* input, unsigned width);
+	template<class P> void addXorBlock(
+		const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset);
 	const void* getScaledLine(FrameSource* frame, unsigned y);
 
 	unsigned char* oldframe;
