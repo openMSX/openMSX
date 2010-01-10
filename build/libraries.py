@@ -311,13 +311,6 @@ class OGG(Library):
 	header = '<ogg/ogg.h>'
 	function = 'ogg_stream_init'
 
-class OGGZ(Library):
-	libName = 'oggz'
-	makeName = 'OGGZ'
-	header = '<oggz/oggz.h>'
-	function = 'oggz_new'
-	dependsOn = ('OGG', )
-
 class SDL(Library):
 	libName = 'SDL'
 	makeName = 'SDL'

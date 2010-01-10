@@ -159,21 +159,6 @@ class OGG(DownloadablePackage):
 	def getMakeName(cls):
 		return 'OGG'
 
-class OGGZ(DownloadablePackage):
-	downloadURL = 'http://downloads.xiph.org/releases/liboggz'
-	niceName = 'liboggz'
-	sourceName = 'liboggz'
-	version = '0.9.9'
-	fileLength = 637538
-	checksums = {
-		'sha256':
-			'8d8a05752f739d0b377040e36c9f6cfa4dac35b9d55deac2de30f377972fcf75',
-		}
-
-	@classmethod
-	def getMakeName(cls):
-		return 'OGGZ'
-
 class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'

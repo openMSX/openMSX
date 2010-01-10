@@ -69,7 +69,7 @@ endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
-PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_TTF XML OGG OGGZ VORBIS THEORA
+PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_TTF XML OGG VORBIS THEORA
 PACKAGES_NONSTD:=GLEW TCL
 PACKAGES_NOBUILD:=
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
@@ -267,21 +267,6 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-shared \
-		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)" \
-		PKG_CONFIG=/nowhere
-
-$(BUILD_DIR)/$(PACKAGE_OGGZ)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_OGGZ)
-	mkdir -p $(@D)
-ifeq ($(OPENMSX_TARGET_OS),darwin)
-	echo "ac_cv_func_realloc_0_nonnull=yes" > $(@D)/config.cache
-endif
-	cd $(@D) && $(PWD)/$</configure \
-		--config-cache \
-		--disable-shared \
-		--disable-oggtest \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
