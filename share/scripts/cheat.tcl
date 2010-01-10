@@ -4,12 +4,8 @@ set_help_text findcheat \
 {Cheat finder version 0.5
 
 Welcome to the openMSX cheat finder. Please visit
-  http://forum.openmsx.org/viewtopic.php?t=32
+  http://forum.vampier.net/viewtopic.php?t=32
 for a quick tutorial
-
-Credits:
-  Copyright 2005 Wouter Vermaelen all rights reserved
-  Copyright 2005 Patrick van Arkel all rights reserved
 
 Usage:
   findcheat [-start] [-max n] [expression]
@@ -28,6 +24,23 @@ Examples:
 }
 
 namespace eval cheat_finder {
+
+
+set_tabcompletion_proc findcheat [namespace code tab_cheat_type]
+proc tab_cheat_type { args } {
+	variable monitors
+	set result [array names monitors]
+	lappend result "-start"
+	lappend result "-bigger"
+	lappend result "-smaller"
+	lappend result "-more"
+	lappend result "-less"
+	lappend result "-notequal"
+	lappend result "-equal"
+	lappend result "-loe"	
+	lappend result "-moe"	
+	lappend result "-max"
+}
 
 #set maximum to display cheats
 variable max_num_results 15
