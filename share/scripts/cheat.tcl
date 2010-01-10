@@ -28,8 +28,8 @@ namespace eval cheat_finder {
 
 set_tabcompletion_proc findcheat [namespace code tab_cheat_type]
 proc tab_cheat_type { args } {
-	variable monitors
-	set result [array names monitors]
+	variable cheatmethods
+	set result [array names cheatmethods]
 	lappend result "-start"
 	lappend result "-bigger"
 	lappend result "-smaller"
