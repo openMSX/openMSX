@@ -17,7 +17,8 @@ public:
 	RomInfo(const std::string& id,      const std::string& year,
 	        const std::string& company, const std::string& country,
 	        bool original,              const std::string& origType,
-	        const std::string& remark,  const RomType& romType);
+	        const std::string& remark,  const RomType& romType,
+	        int genMSXid);
 
 	const std::string& getTitle()     const { return title; }
 	const std::string& getYear()      const { return year; }
@@ -27,6 +28,7 @@ public:
 	const std::string& getRemark()    const { return remark; }
 	const RomType&     getRomType()   const { return romType; }
 	bool               getOriginal()  const { return original; }
+	int                getGenMSXid()  const { return genMSXid; }
 
 	static RomType nameToRomType(std::string name);
 	static std::string romTypeToName(RomType type);
@@ -41,6 +43,7 @@ private:
 	const std::string remark;
 	const RomType romType;
 	const bool original;
+	const int genMSXid;
 };
 
 } // namespace openmsx

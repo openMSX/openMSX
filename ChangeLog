@@ -1,5 +1,9 @@
 $Id$
 
+2010-01-10 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Generation MSX id to software info topic. Use this to link
+	  openMSX games to the Generation MSX web site.
+
 2009-12-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Made softwaredb information available from Tcl, using sha1sum as
 	  key. First step in making better use of the softwaredb, but mostly

@@ -96,7 +96,8 @@ static const RomTypeMap& getRomTypeMap()
 RomInfo::RomInfo(const string& ntitle,   const string& nyear,
                  const string& ncompany, const string& ncountry,
                  bool noriginal,         const string& norigType,
-                 const string& nremark,  const RomType& nromType)
+                 const string& nremark,  const RomType& nromType,
+                 int ngenMSXid)
 	: title(ntitle)
 	, year(nyear)
 	, company(ncompany)
@@ -105,6 +106,7 @@ RomInfo::RomInfo(const string& ntitle,   const string& nyear,
 	, remark(nremark)
 	, romType(nromType)
 	, original(noriginal)
+	, genMSXid(ngenMSXid)
 {
 }
 

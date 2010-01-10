@@ -79,7 +79,8 @@ static void parseEntry(CliComm& cliComm, const XMLElement& rom,
 	const string& title,   const string& year,
 	const string& company, const string& country,
 	bool original,         const string& origType,
-	const string& remark,  const string& type)
+	const string& remark,  const string& type,
+	int genMSXid)
 {
 	XMLElement::Children hashTags;
 	rom.getChildren("hash", hashTags);
@@ -94,7 +95,7 @@ static void parseEntry(CliComm& cliComm, const XMLElement& rom,
 		}
 		auto_ptr<RomInfo> romInfo(new RomInfo(
 			title, year, company, country, original, origType,
-			remark, romType));
+			remark, romType, genMSXid));
 		string sha1 = (*it2)->getData();
 		addEntry(cliComm, romInfo, sha1, result);
 	}
@@ -114,7 +115,7 @@ static void parseDump(CliComm& cliComm, const XMLElement& dump,
 	RomDatabase::DBMap& result, UnknownTypes& unknownTypes,
 	const string& title,   const string& year,
 	const string& company, const string& country,
-	const string& remark)
+	const string& remark,  int genMSXid)
 {
 	const XMLElement* originalTag = dump.findChild("original");
 	bool original = originalTag ? originalTag->getAttributeAsBool("value")
@@ -124,7 +125,7 @@ static void parseDump(CliComm& cliComm, const XMLElement& dump,
 	if (const XMLElement* megarom = dump.findChild("megarom")) {
 		parseEntry(cliComm, *megarom, result, unknownTypes,
 		           title, year, company, country, original, origType,
-		           remark, megarom->getChildData("type"));
+		           remark, megarom->getChildData("type"), genMSXid);
 	} else if (const XMLElement* rom = dump.findChild("rom")) {
 		string type = rom->getChildData("type", "Mirrored");
 		if (type == "Normal") {
@@ -134,7 +135,7 @@ static void parseDump(CliComm& cliComm, const XMLElement& dump,
 		}
 		parseEntry(cliComm, *rom, result, unknownTypes,
 		           title, year, company, country, original, origType,
-		           remark, type);
+		           remark, type, genMSXid);
 	}
 }
 
@@ -155,13 +156,19 @@ static void parseSoftware(CliComm& cliComm, const string& filename,
 		string company = soft.getChildData("company", "");
 		string country = soft.getChildData("country", "");
 		string remark  = parseRemarks(soft);
+		int genMSXid   = soft.getChildDataAsInt("genmsxid", 0);
+		if ((genMSXid == 0) && (soft.findChild("genmsxid") != NULL)) {
+			cliComm.printWarning("Ignoring bad Generation MSX id (genmsxid) "
+			             "in entry with title '" + title +
+		                     "' in " + filename + ": " + soft.getChildData("genmsxid"));
+		}
 
 		XMLElement::Children dumps;
 		soft.getChildren("dump", dumps);
 		for (XMLElement::Children::const_iterator it = dumps.begin();
 		     it != dumps.end(); ++it) {
 			parseDump(cliComm, **it, result, unknownTypes,
-			          title, year, company, country, remark);
+			          title, year, company, country, remark, genMSXid);
 		}
 	} catch (MSXException& e) {
 		string title = soft.getChildData("title", "<missing-title>");
@@ -300,6 +307,8 @@ void SoftwareInfoTopic::execute(const vector<TclObject*>& tokens,
 	result.addListElement(romInfo->getOriginal());
 	result.addListElement("mapper_type_name");
 	result.addListElement(RomInfo::romTypeToName(romInfo->getRomType()));
+	result.addListElement("genmsxid");
+	result.addListElement(romInfo->getGenMSXid());
 }
 
 string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
