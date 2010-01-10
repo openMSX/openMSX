@@ -145,8 +145,8 @@ RawFrame* PostProcessor::rotateFrames(
 void PostProcessor::getScaledFrame(unsigned height, const void** lines)
 {
 	for (unsigned i = 0; i < height; ++i) {
-		if (getBpp() == 32) {
 #if HAVE_32BPP
+		if (getBpp() == 32) {
 			// 32bpp
 			if (height == 240) {
 				lines[i] = paintFrame->getLinePtr320_240<unsigned>(i);
@@ -154,8 +154,9 @@ void PostProcessor::getScaledFrame(unsigned height, const void** lines)
 				assert (height == 480);
 				lines[i] = paintFrame->getLinePtr640_480<unsigned>(i);
 			}
+		} else
 #endif
-		} else {
+		{
 #if HAVE_16BPP
 			// 15bpp or 16bpp
 			if (height == 240) {
