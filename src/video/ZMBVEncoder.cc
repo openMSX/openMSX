@@ -177,15 +177,19 @@ ZMBVEncoder::~ZMBVEncoder()
 void ZMBVEncoder::setupBuffers(unsigned bpp)
 {
 	switch (bpp) {
+#if HAVE_16BPP
 	case 15:
 	case 16:
 		format = ZMBV_FORMAT_16BPP;
 		pixelSize = 2;
 		break;
+#endif
+#if HAVE_32BPP
 	case 32:
 		format = ZMBV_FORMAT_32BPP;
 		pixelSize = 4;
 		break;
+#endif
 	default:
 		UNREACHABLE;
 	}
@@ -399,24 +403,32 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	if (keyFrame) {
 		// Key frame: full frame data.
 		switch (pixelSize) {
+#if HAVE_16BPP
 		case 2:
 			addFullFrame<unsigned short>(frame->getSDLPixelFormat());
 			break;
+#endif
+#if HAVE_32BPP
 		case 4:
 			addFullFrame<unsigned int>(frame->getSDLPixelFormat());
 			break;
+#endif
 		default:
 			UNREACHABLE;
 		}
 	} else {
 		// Non-key frame: delta frame data.
 		switch (pixelSize) {
+#if HAVE_16BPP
 		case 2:
 			addXorFrame<unsigned short>(frame->getSDLPixelFormat());
 			break;
+#endif
+#if HAVE_32BPP
 		case 4:
 			addXorFrame<unsigned int>(frame->getSDLPixelFormat());
 			break;
+#endif
 		default:
 			UNREACHABLE;
 		}
