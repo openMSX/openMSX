@@ -15,21 +15,21 @@ Usage:
 
 Examples:
   findcheat 42                 search for specific value
-  findcheat bigger             search for values that have become bigger
-  findcheat new == (2 * old)   search for values that have doubled
-  findcheat new == (old - 1)   search for values that have decreased by 1
-  findcheat                    repeat the previous found addresses
+  findcheat bigger             search for increased values
+  findcheat new == (2 * old)   search for doubled values
+  findcheat new == (old - 1)   search for values decreased by 1
+  findcheat                    repeat the results from the previous operation
   findcheat -start new < 10    restart and search for values less then 10
   findcheat -max 40 smaller    search for smaller values, show max 40 results
-}
+  findcheat -start addr>0xe000 && addr<0xefff search in defined memory locations
+  }
 
 namespace eval cheat_finder {
 
-
 set_tabcompletion_proc findcheat [namespace code tab_cheat_type]
+
 proc tab_cheat_type { args } {
-	variable cheatmethods
-	set result [array names cheatmethods]
+	set result [list]
 	lappend result "-start"
 	lappend result "-bigger"
 	lappend result "-smaller"
@@ -40,6 +40,7 @@ proc tab_cheat_type { args } {
 	lappend result "-loe"	
 	lappend result "-moe"	
 	lappend result "-max"
+	return $result
 }
 
 #set maximum to display cheats
