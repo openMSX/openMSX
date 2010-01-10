@@ -4,13 +4,14 @@
 #define OGGREADER_HH
 
 #include "openmsx.hh"
-#include "LocalFileReference.hh"
-#include <oggz/oggz.h>
+#include "File.hh"
+
+#include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <theora/theora.h>
+
 #include <list>
 #include <deque>
-#include <string>
 #include <map>
 
 namespace openmsx {
@@ -36,7 +37,7 @@ struct Frame
 class OggReader
 {
 public:
-	OggReader(const std::string& filename, CliComm& cli_);
+	OggReader(const Filename& filename, CliComm& cli_);
 	~OggReader();
 
 	bool seek(int frame, int sample);
@@ -51,22 +52,35 @@ public:
 private:
 	void cleanup();
 	void readTheora(ogg_packet* packet);
+	void theoraHeaderPage(ogg_page* page);
 	void readMetadata();
 	void readVorbis(ogg_packet* packet);
+	void vorbisHeaderPage(ogg_page* page);
+	bool nextPage(ogg_page* page);
+	bool nextPacket();
 	void returnAudio(AudioFragment* audio);
 	void vorbisFoundPosition();
 	int frameNo(ogg_packet* packet);
-	static int readCallback(OGGZ* oggz, ogg_packet* packet, long serial,
-							void* userdata);
-	static int seekCallback(OGGZ* oggz, ogg_packet* packet, long serial,
-							void* userdata);
+
+	unsigned guessSeek(int frame, unsigned sample);
 
 	CliComm& cli;
+	File file;
+
+	enum State { 
+		PLAYING,
+		FIND_LAST,
+		FIND_FIRST
+	} state;
 
 	// ogg state
-	OGGZ* oggz;
+	ogg_sync_state sync;
+	ogg_stream_state vorbisStream, theoraStream;
 	long audioSerial;
 	long videoSerial;
+	long skeletonSerial;
+	unsigned currentOffset;
+	unsigned totalBytes;
 
 	// video
 	int videoHeaders;
@@ -75,6 +89,7 @@ private:
 	theora_comment video_comment;
 	int keyFrame;
 	int currentFrame;
+	int granuleShift;
 
 	typedef std::deque<Frame*> Frames;
 

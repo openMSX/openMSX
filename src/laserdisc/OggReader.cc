@@ -15,25 +15,19 @@
 
 namespace openmsx {
 
-OggReader::OggReader(const std::string& filename, CliComm& cli_)
+OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	: cli(cli_)
+	, file(filename)
 {
-	LocalFileReference file(filename);
-	oggz = oggz_open(file.getFilename().c_str(), OGGZ_READ | OGGZ_AUTO);
-	if (!oggz) {
-		throw MSXException("Failed to open " + filename);
-	}
-
 	audioSerial = -1;
 	videoSerial = -1;
+	skeletonSerial = -1;
 	videoHeaders = 3;
 	audioHeaders = 3;
 	keyFrame = -1;
 	currentSample = 0;
 	currentFrame = 1;
 	vorbisPos = 0;
-
-	oggz_set_read_callback(oggz, -1, readCallback, this);
 
 	theora_info_init(&video_info);
 	theora_comment_init(&video_comment);
@@ -50,10 +44,99 @@ OggReader::OggReader(const std::string& filename, CliComm& cli_)
 	chapters.clear();
 	stopFrames.clear();
 
-	while (audioHeaders || videoHeaders) {
-		if (oggz_read(oggz, 1024) <= 0) {
-			break;
+	ogg_sync_init(&sync);
+
+	state = PLAYING;
+	currentOffset = 0;
+
+	ogg_page page;
+
+	while ((audioHeaders || videoHeaders) && nextPage(&page)) {
+		int serial = ogg_page_serialno(&page);
+
+		if (serial == audioSerial) {
+			vorbisHeaderPage(&page);
+			continue;
+		} else if (serial == videoSerial) {
+			theoraHeaderPage(&page);
+			continue;
+		} else if (serial == skeletonSerial) {
+			continue;
 		}
+
+		if (!ogg_page_bos(&page)) {
+			if (videoSerial == -1) {
+				cleanup();
+				throw MSXException("No video track found");
+			}
+
+			if (audioSerial == -1) {
+				cleanup();
+				throw MSXException("No audio track found");
+			}
+
+			/* This should be unreachable, right? */
+			continue;
+		}
+
+		ogg_stream_state stream;
+		ogg_packet packet;
+
+		ogg_stream_init(&stream, serial);
+		ogg_stream_pagein(&stream, &page);
+		if (ogg_stream_packetout(&stream, &packet) <= 0) {
+			ogg_stream_clear(&stream);
+			cleanup();
+			throw MSXException("Invalid header");
+		}
+
+		if (packet.bytes < 8) {
+			ogg_stream_clear(&stream);
+			cleanup();
+			throw MSXException("Header to small");
+		}
+
+		if (memcmp(packet.packet, "\x01vorbis", 7) == 0) {
+			audioSerial = serial;
+			ogg_stream_init(&vorbisStream, serial);
+
+			vorbisHeaderPage(&page);
+		} 
+		else if (memcmp(packet.packet, "\x80theora", 5) == 0) {
+			if (packet.bytes < 42) {
+				ogg_stream_clear(&stream);
+				cleanup();
+				throw MSXException("Theora header to small");
+			}
+
+			videoSerial = serial;
+			ogg_stream_init(&theoraStream, serial);
+
+			granuleShift = ((packet.packet[40] & 3) << 3) |
+					((packet.packet[41] & 0xe0) >> 5);
+
+			theoraHeaderPage(&page);
+		}
+		else if (memcmp(packet.packet, "fishead", 8) == 0) {
+			skeletonSerial = serial;
+		}
+		else if (memcmp(packet.packet, "BBCD", 4) == 0) {
+			ogg_stream_clear(&stream);
+			cleanup();
+			throw MSXException("DIRAC not supported");
+		}
+		else if (memcmp(packet.packet, "\177FLAC", 5) == 0) {
+			ogg_stream_clear(&stream);
+			cleanup();
+			throw MSXException("FLAC not supported");
+		}
+		else  {
+			ogg_stream_clear(&stream);
+			cleanup();
+			throw MSXException("Unknown stream in ogg file");
+		}
+
+		ogg_stream_clear(&stream);
 	}
 
 	if (videoSerial == -1) {
@@ -124,65 +207,22 @@ void OggReader::cleanup()
 
 	vorbis_info_clear(&vi);
 	vorbis_comment_clear(&vc);
+	if (audioSerial != -1) {
+		ogg_stream_clear(&vorbisStream);
+	}
 
 	theora_info_clear(&video_info);
 	theora_comment_clear(&video_comment);
+	if (videoSerial != -1) {
+		ogg_stream_clear(&theoraStream);
+	}
 
-	oggz_close(oggz);
+	ogg_sync_clear(&sync);
 }
 
 OggReader::~OggReader()
 {
 	cleanup();
-}
-
-int OggReader::readCallback(OGGZ* /*oggz*/, ogg_packet* packet, long serial,
-								void* userdata)
-{
-	OggReader* reader = static_cast<OggReader*>(userdata);
-
-	if (unlikely(packet->b_o_s && packet->bytes >= 8)) {
-		if (memcmp(packet->packet, "\001vorbis", 7) == 0) {
-			reader->audioSerial = serial;
-		} else if (memcmp(packet->packet, "\200theora", 7) == 0) {
-			reader->videoSerial = serial;
-		}
-	}
-
-	if (reader->videoSerial == serial) {
-		reader->readTheora(packet);
-	} else if (reader->audioSerial == serial) {
-		reader->readVorbis(packet);
-	}
-
-	return 0;
-}
-
-int OggReader::seekCallback(OGGZ* /*oggz*/, ogg_packet* packet, long serial,
-								void* userdata)
-{
-	OggReader* reader = static_cast<OggReader*>(userdata);
-	int shift = oggz_get_granuleshift(reader->oggz, serial);
-
-	if (reader->videoSerial == serial && reader->keyFrame == -1 &&
-					!theora_packet_isheader(packet)) {
-
-		int frame = reader->frameNo(packet);
-
-		if (reader->currentFrame == frame) {
-			reader->keyFrame = packet->granulepos >> shift;
-		} else if (frame > reader->currentFrame) {
-			// gone past, seek from beginning
-			reader->cli.printWarning("Keyframe " +
-				StringOp::toString(reader->currentFrame) +
-				" not found in video, replaying from start. "
-				"Seen frame " + StringOp::toString(frame));
-
-			reader->keyFrame = 0;
-		}
-	}
-
-	return 0;
 }
 
 /** Vorbis only records the ogg position (in no. of samples) once per ogg
@@ -210,17 +250,94 @@ void OggReader::vorbisFoundPosition()
 	}
 }
 
+
+void OggReader::vorbisHeaderPage(ogg_page* page)
+{
+	ogg_stream_pagein(&vorbisStream, page);
+
+	while (true) {
+		ogg_packet packet;
+
+		int res	= ogg_stream_packetout(&vorbisStream, &packet);
+
+		if (res < 0) {
+			throw MSXException("error in vorbis stream");
+		}
+
+		if (res == 0) break;
+
+		if (audioHeaders == 0) {
+			readVorbis(&packet);
+		}
+
+		if (packet.packetno <= 2) {
+			if (vorbis_synthesis_headerin(&vi, &vc, &packet) < 0) {
+				throw MSXException("invalid vorbis header");
+			}
+			audioHeaders--;
+		}
+
+		if (packet.packetno == 2) {
+			vorbis_synthesis_init(&vd, &vi) ;
+			vorbis_block_init(&vd, &vb);
+		}
+	}
+}
+
+void OggReader::theoraHeaderPage(ogg_page* page)
+{
+	ogg_stream_pagein(&theoraStream, page);
+
+	while (true) {
+		ogg_packet packet;
+
+		int res	= ogg_stream_packetout(&theoraStream, &packet);
+
+		if (res < 0) {
+			throw MSXException("error in vorbis stream");
+		}
+
+		if (res == 0) break;
+
+		if (videoHeaders == 0) {
+			readTheora(&packet);
+		}
+
+		if (packet.packetno <= 2) {
+			if (theora_decode_header(&video_info, &video_comment, 
+							&packet) < 0) {
+				throw MSXException("invalid theora header");
+			}
+			videoHeaders--;
+		}
+
+		if (packet.packetno == 2) {
+			theora_decode_init(&video_handle, &video_info);
+			readMetadata();
+		}
+	}
+}
+
 void OggReader::readVorbis(ogg_packet* packet)
 {
 	// deal with header packets
-	if (unlikely(audioHeaders)) {
-		if (vorbis_synthesis_headerin(&vi, &vc, packet) < 0) {
-			return;
+	if (unlikely(packet->packetno <= 2)) {
+		return;
+	}
+
+	if (state == FIND_LAST) {
+		if (packet->granulepos != -1) {
+			if (currentSample == AudioFragment::UNKNOWN_POS ||
+					packet->granulepos > currentSample) {
+				currentSample = packet->granulepos;
+			}
 		}
 
-		if (!--audioHeaders) {
-			vorbis_synthesis_init(&vd, &vi);
-			vorbis_block_init(&vd, &vb);
+		return;
+	} else if (state == FIND_FIRST) {
+		if (packet->granulepos != -1 &&
+				currentSample == AudioFragment::UNKNOWN_POS) {
+			currentSample = packet->granulepos;
 		}
 
 		return;
@@ -309,12 +426,10 @@ void OggReader::readVorbis(ogg_packet* packet)
 
 int OggReader::frameNo(ogg_packet* packet)
 {
-	int key, intra, shift;
+	int key, intra;
 
-	shift = oggz_get_granuleshift(oggz, videoSerial);
-
-	intra = packet->granulepos & ((1 << shift) - 1);
-	key = packet->granulepos >> shift;
+	intra = packet->granulepos & ((1 << granuleShift) - 1);
+	key = packet->granulepos >> granuleShift;
 
 	return key + intra;
 }
@@ -376,31 +491,25 @@ void OggReader::readMetadata()
 
 void OggReader::readTheora(ogg_packet* packet)
 {
-	if (unlikely(theora_packet_isheader(packet))) {
-		if (!videoHeaders) {
-			// header already read; when playing from the
-			// beginning after seeking to the beginning, header
-			// packets might be seen again.
-			return;
-		}
-
-		if (theora_decode_header(&video_info, &video_comment,
-							 packet) < 0) {
-			return;
-		}
-
-		if (--videoHeaders == 0) {
-			theora_decode_init(&video_handle, &video_info);
-			readMetadata();
-		}
-
-		return;
-	} else if (videoHeaders) {
-		cli.printWarning("Missing header packets for video stream");
+	if (unlikely(packet->packetno <= 2)) {
 		return;
 	}
 
 	int frameno = frameNo(packet);
+
+	if (state == FIND_LAST) {
+		if (currentFrame == -1 || currentFrame < frameno) {
+			currentFrame = frameno;
+		}
+
+		return;
+	} else if (state == FIND_FIRST) {
+		if (currentFrame == -1 || currentFrame > frameno) {
+			currentFrame = frameno;
+		}
+
+		return;
+	}
 
 	if (keyFrame != -1 && frameno < keyFrame) {
 		// We're reading before the keyframe, discard
@@ -479,7 +588,7 @@ void OggReader::getFrame(RawFrame& rawFrame, int frameno)
 		}
 
 		// ..add read some new ones
-		if (oggz_read(oggz, 4096) <= 0) {
+		if (!nextPacket()) {
 			return;
 		}
 	}
@@ -500,7 +609,7 @@ AudioFragment* OggReader::getAudio(unsigned sample)
 	// Read while position is unknown
 	while (audioList.empty() || audioList.front()->position ==
 						AudioFragment::UNKNOWN_POS) {
-		if (oggz_read(oggz, 4096) <= 0) {
+		if (!nextPacket()) {
 			return NULL;
 		}
 	}
@@ -530,7 +639,7 @@ AudioFragment* OggReader::getAudio(unsigned sample)
 			unsigned size = audioList.size();
 
 			while (size == audioList.size()) {
-				if (oggz_read(oggz, 4096) <= 0) {
+				if (!nextPacket()) {
 					return NULL;
 				}
 			}
@@ -541,6 +650,175 @@ AudioFragment* OggReader::getAudio(unsigned sample)
 	}
 
 	return NULL;
+}
+
+bool OggReader::nextPacket()
+{
+	int ret;
+	ogg_packet packet;
+	ogg_page page;
+
+	while (true) {
+		ret = ogg_stream_packetout(&vorbisStream, &packet);
+		if (ret == 1) {
+			readVorbis(&packet);
+			return true;
+		} else if (ret == -1) {
+			// recoverable error
+			continue;
+		}
+
+		ret = ogg_stream_packetout(&theoraStream, &packet);
+		if (ret == 1) {
+			readTheora(&packet);
+			return true;
+		} else if (ret == -1) {
+			// recoverable error
+			continue;
+		}
+
+		if (!nextPage(&page)) {
+			return false;
+		}
+
+		int serial = ogg_page_serialno(&page);
+
+		if (serial == audioSerial) {
+			if (ogg_stream_pagein(&vorbisStream, &page)) {
+				throw MSXException("Failed to submit vorbis page");
+			}
+		} else if (serial == videoSerial) {
+			if (ogg_stream_pagein(&theoraStream, &page)) {
+				throw MSXException("Failed to submit theora page");
+			}
+		} else if (serial != skeletonSerial) {
+			throw MSXException("Unexpected serial");
+		}
+	}
+}
+
+#define CHUNK 4096
+
+bool OggReader::nextPage(ogg_page* page)
+{
+	int ret;
+
+	while ((ret = ogg_sync_pageseek(&sync, page)) <= 0) {
+		if (ret < 0) {
+			//throw MSXException("Invalid Ogg file");
+		}
+
+		unsigned chunk;
+
+		if (totalBytes - currentOffset >= CHUNK) {
+			chunk = CHUNK;
+		} else if (currentOffset < totalBytes) {
+			chunk = totalBytes - currentOffset;
+		} else {
+			return false;
+		}
+	
+		char *buffer = ogg_sync_buffer(&sync, chunk);
+		file.read(buffer, chunk);
+		currentOffset += chunk;
+
+		if (ogg_sync_wrote(&sync, chunk) == -1) {
+			throw MSXException("ogg_sync_wrote failed");
+		}
+	}
+
+	return true;
+}
+#undef CHUNK
+
+#define STEP 128*1024
+
+unsigned OggReader::guessSeek(int frame, unsigned sample)
+{
+	// first calculate total length in bytes, samples and frames
+	unsigned offset = file.getSize();
+	
+	totalBytes = offset;
+
+	while (offset > 0) {
+		if (offset > STEP) {
+			offset -= STEP;
+		} else {
+			offset= 0;
+		}
+
+		file.seek(offset);
+		currentOffset = offset;
+		ogg_sync_reset(&sync);
+		currentFrame = -1;
+		currentSample = AudioFragment::UNKNOWN_POS;
+		state = FIND_LAST;
+
+		while ((currentFrame == -1 || 
+			currentSample == AudioFragment::UNKNOWN_POS) && 
+		       nextPacket());
+
+		state = PLAYING;
+
+		if (currentFrame != -1 && currentSample != 
+					AudioFragment::UNKNOWN_POS) {
+			break;
+		}
+	}
+
+	if (sample < vi.rate || frame < 30) {
+		return 0;
+	}
+
+	uint64 offsetA = 0, offsetB = offset;
+	uint64 sampleA = 0, sampleB = currentSample;
+	unsigned frameA = 1, frameB = currentFrame;
+
+	for (;;) {
+		uint64 ratio, frameOffset, sampleOffset;
+
+		ratio = (frame - frameA) * 1000 / (frameB - frameA);
+		if (ratio < 5) {
+			return offsetA;
+		}
+
+		frameOffset = ratio * (offsetB - offsetA) / 1000 + offsetA;
+		ratio = (sample - sampleA) * 1000 / (sampleB - sampleA);
+		if (ratio < 5) {
+			return offsetA;
+		}
+		sampleOffset = ratio * (offsetB - offsetA) / 1000 + offsetA;
+		offset = sampleOffset < frameOffset ? 
+					sampleOffset : frameOffset;
+	
+		file.seek(offset);
+		currentOffset = offset;
+		ogg_sync_reset(&sync);
+		currentFrame = -1;
+		currentSample = AudioFragment::UNKNOWN_POS;
+		state = FIND_FIRST;
+
+		while ((currentFrame == -1 || 
+			currentSample == AudioFragment::UNKNOWN_POS) && 
+		       nextPacket());
+
+		state = PLAYING;
+
+		if (currentSample > sample || currentFrame > frame) {
+			offsetB = offset;
+			sampleB = currentSample;
+			frameB = currentFrame;
+		} else if (currentSample + vi.rate < sample ||
+				currentFrame + 64 < frame) {
+			offsetA = offset;
+			sampleA = currentSample;
+			frameA = currentFrame;
+		} else {
+			break;
+		}
+	}
+
+	return offset;
 }
 
 bool OggReader::seek(int frame, int samples)
@@ -564,45 +842,19 @@ bool OggReader::seek(int frame, int samples)
 		audioList.pop_front();
 	}
 
-	currentFrame = frame;
-	currentSample = samples;
-	vorbisPos = AudioFragment::UNKNOWN_POS;
-	ogg_int64_t pos = (frame - 3) * 1001ll / 30ll;
+	currentOffset = guessSeek(frame, samples);		
+	file.seek(currentOffset);
 
-	if (pos < 0) pos = 0;
-
-	// Find key frame for video
-	ogg_int64_t newpos = oggz_seek_units(oggz, pos, SEEK_SET);
-
-	if (newpos == -1) {
-		return false;
-	}
-
-	oggz_set_read_callback(oggz, -1, seekCallback, this);
+	ogg_sync_reset(&sync);
 
 	keyFrame = -1;
-	do {
-		if (oggz_read(oggz, 4096) <= 0) {
-			break;
-		}
-	} while (keyFrame == -1);
-
-	oggz_set_read_callback(oggz, -1, readCallback, this);
-
-	// Found keyframe, now calculate position for audio and video and
-	// seek to the earliest position.
-	ogg_int64_t keyframepos = (keyFrame - 3) * 1001ll / 30ll;
-	ogg_int64_t samplepos = samples * 1000ll / vi.rate;
-
-	pos = std::min(keyframepos, samplepos);
-
-	if (pos < 0) pos = 0;
-
-	newpos = oggz_seek_units(oggz, pos, SEEK_SET);
+	vorbisPos = AudioFragment::UNKNOWN_POS;
+	currentFrame = frame;
+	currentSample = samples;
 
 	vorbis_synthesis_restart(&vd);
 
-	return newpos != -1;
+	return true;
 }
 
 } // namespace openmsx

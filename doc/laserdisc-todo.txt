@@ -38,3 +38,4 @@ TODO:
  - The laserdisc image is slightly stretched compared to the VDP output,
    causing the VDP elements and laserdisc elements not to match up in 
    Starfighters.
+ - EXTINT (and associated interrupt) is not emulated correctly

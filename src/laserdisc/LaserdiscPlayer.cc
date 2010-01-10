@@ -759,8 +759,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param /*time*/)
 {
 	Filename filename(newImage, motherBoard.getCommandController());
-	video.reset(new OggReader(filename.getResolved(),
-				  motherBoard.getMSXCliComm()));
+	video.reset(new OggReader(filename, motherBoard.getMSXCliComm()));
 	sampleClock.setFreq(video->getSampleRate());
 	setOutputRate(outputRate);
 }
