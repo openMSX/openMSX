@@ -48,6 +48,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 	state = PLAYING;
 	currentOffset = 0;
+	totalBytes = file.getSize();
 
 	ogg_page page;
 
@@ -754,9 +755,7 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		currentSample = AudioFragment::UNKNOWN_POS;
 		state = FIND_LAST;
 
-		while ((currentFrame == -1 || 
-			currentSample == AudioFragment::UNKNOWN_POS) && 
-		       nextPacket());
+		while (nextPacket());
 
 		state = PLAYING;
 
