@@ -450,6 +450,10 @@ int OggReader::frameNo(ogg_packet* packet)
 {
 	int key, intra;
 
+	if (packet->granulepos == -1) {
+		return -1;
+	}
+
 	intra = packet->granulepos & ((1 << granuleShift) - 1);
 	key = packet->granulepos >> granuleShift;
 
@@ -519,6 +523,10 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	int frameno = frameNo(packet);
 
+	if (state != PLAYING && frameno == -1) {
+		return;
+	}
+
 	if (state == FIND_LAST) {
 		if (currentFrame == -1 || currentFrame < frameno) {
 			currentFrame = frameno;
@@ -538,7 +546,7 @@ void OggReader::readTheora(ogg_packet* packet)
 		return;
 	}
 
-	if (keyFrame != -1 && frameno < keyFrame) {
+	if (keyFrame != -1 && frameno != -1 && frameno < keyFrame) {
 		// We're reading before the keyframe, discard
 		return;
 	}
@@ -554,6 +562,8 @@ void OggReader::readTheora(ogg_packet* packet)
 	if (theora_decode_YUVout(&video_handle, &yuv_theora) < 0) {
 		return;
 	}
+
+	assert(frameno != -1);
 
 	if (frameno < currentFrame) {
 		return;
