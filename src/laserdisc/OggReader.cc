@@ -104,12 +104,24 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 		}
 
 		if (memcmp(packet.packet, "\x01vorbis", 7) == 0) {
+			if (audioSerial != -1) {
+				ogg_stream_clear(&stream);
+				cleanup();
+				throw MSXException("Duplicate audio stream");
+			}
+
 			audioSerial = serial;
 			ogg_stream_init(&vorbisStream, serial);
 
 			vorbisHeaderPage(&page);
 		} 
-		else if (memcmp(packet.packet, "\x80theora", 5) == 0) {
+		else if (memcmp(packet.packet, "\x80theora", 7) == 0) {
+			if (videoSerial != -1) {
+				ogg_stream_clear(&stream);
+				cleanup();
+				throw MSXException("Duplicate video stream");
+			}
+
 			if (packet.bytes < 42) {
 				ogg_stream_clear(&stream);
 				cleanup();
@@ -746,8 +758,6 @@ bool OggReader::nextPage(ogg_page* page)
 }
 #undef CHUNK
 
-#define STEP 128*1024
-
 unsigned OggReader::binarySearch(int frame, unsigned sample,
 		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames)
 {
@@ -802,6 +812,8 @@ unsigned OggReader::binarySearch(int frame, unsigned sample,
 	return offset;
 }
 
+#define STEP 128*1024
+
 unsigned OggReader::guessSeek(int frame, unsigned sample)
 {
 	// first calculate total length in bytes, samples and frames
@@ -842,6 +854,10 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	unsigned maxSamples = currentSample;
 	unsigned maxFrames = currentFrame;
 
+	if (sample > maxSamples || unsigned(frame) > maxFrames) {
+		// TODO
+	}
+
 	offset = binarySearch(frame, sample, maxOffset, maxSamples, maxFrames);
 
 	// Find key frame
@@ -855,6 +871,10 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	while (keyFrame == -1 && nextPacket());
 
 	state = PLAYING;
+
+	if (keyFrame == -1 || frame == keyFrame) {
+		return offset;
+	}
 
 	return binarySearch(keyFrame, sample, maxOffset, maxSamples, maxFrames);
 }
@@ -885,7 +905,6 @@ bool OggReader::seek(int frame, int samples)
 
 	ogg_sync_reset(&sync);
 
-	keyFrame = -1;
 	vorbisPos = AudioFragment::UNKNOWN_POS;
 	currentFrame = frame;
 	currentSample = samples;

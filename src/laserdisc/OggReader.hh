@@ -79,9 +79,9 @@ private:
 	// ogg state
 	ogg_sync_state sync;
 	ogg_stream_state vorbisStream, theoraStream;
-	long audioSerial;
-	long videoSerial;
-	long skeletonSerial;
+	int audioSerial;
+	int videoSerial;
+	int skeletonSerial;
 	unsigned currentOffset;
 	unsigned totalBytes;
 
