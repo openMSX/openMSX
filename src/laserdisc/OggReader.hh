@@ -63,6 +63,8 @@ private:
 	int frameNo(ogg_packet* packet);
 
 	unsigned guessSeek(int frame, unsigned sample);
+	unsigned binarySearch(int frame, unsigned sample,
+		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames);
 
 	CliComm& cli;
 	File file;
@@ -70,7 +72,8 @@ private:
 	enum State { 
 		PLAYING,
 		FIND_LAST,
-		FIND_FIRST
+		FIND_FIRST,
+		FIND_KEYFRAME
 	} state;
 
 	// ogg state

@@ -13,6 +13,12 @@
 
 #include <cstring>
 
+// TODO
+// - no throw MSXException() except for constructor
+// - What happens when seek beyond the last frame is done?
+// - Use theora 1.0 API
+// - Test what happens if non-OGG file is specified (will it scan
+//   the entire file?)
 namespace openmsx {
 
 OggReader::OggReader(const Filename& filename, CliComm& cli_)
@@ -342,6 +348,9 @@ void OggReader::readVorbis(ogg_packet* packet)
 		}
 
 		return;
+	} else if (state == FIND_KEYFRAME) {
+		// Not relevant for vorbis
+		return;
 	}
 
 	// generate pcm
@@ -509,6 +518,11 @@ void OggReader::readTheora(ogg_packet* packet)
 			currentFrame = frameno;
 		}
 
+		return;
+	} else if (state == FIND_KEYFRAME) {
+		if (currentFrame == frameno) {
+			keyFrame = packet->granulepos >> granuleShift;
+		}
 		return;
 	}
 
@@ -734,44 +748,12 @@ bool OggReader::nextPage(ogg_page* page)
 
 #define STEP 128*1024
 
-unsigned OggReader::guessSeek(int frame, unsigned sample)
+unsigned OggReader::binarySearch(int frame, unsigned sample,
+		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames)
 {
-	// first calculate total length in bytes, samples and frames
-	unsigned offset = file.getSize();
-	
-	totalBytes = offset;
-
-	while (offset > 0) {
-		if (offset > STEP) {
-			offset -= STEP;
-		} else {
-			offset= 0;
-		}
-
-		file.seek(offset);
-		currentOffset = offset;
-		ogg_sync_reset(&sync);
-		currentFrame = -1;
-		currentSample = AudioFragment::UNKNOWN_POS;
-		state = FIND_LAST;
-
-		while (nextPacket());
-
-		state = PLAYING;
-
-		if (currentFrame != -1 && currentSample != 
-					AudioFragment::UNKNOWN_POS) {
-			break;
-		}
-	}
-
-	if (sample < vi.rate || frame < 30) {
-		return 0;
-	}
-
-	uint64 offsetA = 0, offsetB = offset;
-	uint64 sampleA = 0, sampleB = currentSample;
-	unsigned frameA = 1, frameB = currentFrame;
+	uint64 offsetA = 0, offsetB = maxOffset;
+	uint64 sampleA = 0, sampleB = maxSamples;
+	unsigned offset, frameA = 1, frameB = maxFrames;
 
 	for (;;) {
 		uint64 ratio, frameOffset, sampleOffset;
@@ -818,6 +800,63 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	}
 
 	return offset;
+}
+
+unsigned OggReader::guessSeek(int frame, unsigned sample)
+{
+	// first calculate total length in bytes, samples and frames
+	unsigned offset = file.getSize();
+	
+	totalBytes = offset;
+
+	while (offset > 0) {
+		if (offset > STEP) {
+			offset -= STEP;
+		} else {
+			offset= 0;
+		}
+
+		file.seek(offset);
+		currentOffset = offset;
+		ogg_sync_reset(&sync);
+		currentFrame = -1;
+		currentSample = AudioFragment::UNKNOWN_POS;
+		state = FIND_LAST;
+
+		while (nextPacket());
+
+		state = PLAYING;
+
+		if (currentFrame != -1 && currentSample != 
+					AudioFragment::UNKNOWN_POS) {
+			break;
+		}
+	}
+
+	if (sample < vi.rate || frame < 30) {
+		keyFrame = 1;
+		return 0;
+	}
+
+	unsigned maxOffset = offset;
+	unsigned maxSamples = currentSample;
+	unsigned maxFrames = currentFrame;
+
+	offset = binarySearch(frame, sample, maxOffset, maxSamples, maxFrames);
+
+	// Find key frame
+	file.seek(offset);
+	currentOffset = offset;
+	ogg_sync_reset(&sync);
+	currentFrame = frame;
+	keyFrame = -1;
+	state = FIND_KEYFRAME;
+
+	while (keyFrame == -1 && nextPacket());
+
+	state = PLAYING;
+
+	return binarySearch(keyFrame, sample, maxOffset, maxSamples, maxFrames);
 }
 
 bool OggReader::seek(int frame, int samples)

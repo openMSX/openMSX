@@ -1,9 +1,6 @@
 TODO:
  - ack is low for 0.018s. This might be because it finishes the current frame?
- - Need for LDSDLRasterizer?
- - support for SDLGL-PP
  - Emulate r#0, bit 0
- - set svn:keywords
  - serialize state of Laserdisc
  - Throttle when Laserdisc::readSample() is called many times per frame
  - volume of Laserdisc is too low compared to PSG
@@ -33,8 +30,7 @@ TODO:
    3) Make SDL do YUV.
    4) OSD elements and other bits will be broken.
 
- - Seeking sometimes misses a keyframe or some audio. Replace liboggz
-   with calls to libogg.
+ - Seeking sometimes misses a keyframe or some audio
  - The laserdisc image is slightly stretched compared to the VDP output,
    causing the VDP elements and laserdisc elements not to match up in 
    Starfighters.
