@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1262836964">
+<softwaredb xml:lang="en" timestamp="1263187856">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -8360,6 +8360,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>R-Type</type><hash algo="sha1">0b379610cb7085005a56b24a0890b79dd5a7e817</hash><remark><text>Version 2</text></remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">R-Type Enhancement Patch (ROM add-on)</title>
+	<system>MSX</system>
+	<company>BifiMSX</company>
+	<year>2010</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">5d1a8d29debb38ced76d9944c5b939c9edd6dd72</hash><remark><text>Bifi&#39;s R-Type Rom add on</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Raid On Bungeling Bay</title>
 	<genmsxid>599</genmsxid>
 	<system>MSX</system>
@@ -11471,6 +11479,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2511
-Parse time 5.237 seconds on Thu Jan 7 5:02:49 CET 2010
+Roms in this database:2512
+Parse time 6.639 seconds on Mon Jan 11 6:31:03 CET 2010
  -->
