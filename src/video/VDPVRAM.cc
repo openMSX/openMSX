@@ -342,6 +342,11 @@ void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 {
+	if (ar.isLoader()) {
+		vrMode = vdp.getVRMode();
+		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
+	}
+
 	ar.serialize_blob("data", &data[0], actualSize);
 	ar.serialize("cmdReadWindow",       cmdReadWindow);
 	ar.serialize("cmdWriteWindow",      cmdWriteWindow);
@@ -354,11 +359,6 @@ void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("bitmapCacheWindow",   bitmapCacheWindow);
 	ar.serialize("spriteAttribTable",   spriteAttribTable);
 	ar.serialize("spritePatternTable",  spritePatternTable);
-
-	if (ar.isLoader()) {
-		vrMode = vdp.getVRMode();
-		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
-	}
 }
 INSTANTIATE_SERIALIZE_METHODS(VDPVRAM);
 
