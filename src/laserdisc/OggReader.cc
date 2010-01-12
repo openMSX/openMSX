@@ -14,11 +14,9 @@
 #include <cstring>
 
 // TODO
-// - no throw MSXException() except for constructor
-// - What happens when seek beyond the last frame is done?
 // - Use theora 1.0 API
-// - Test what happens if non-OGG file is specified (will it scan
-//   the entire file?)
+// - When an non-ogg file is passed, the entire file is scanned
+// - Clean up this mess!
 namespace openmsx {
 
 OggReader::OggReader(const Filename& filename, CliComm& cli_)
@@ -563,7 +561,7 @@ void OggReader::readTheora(ogg_packet* packet)
 		return;
 	}
 
-	assert(frameno != -1);
+	//FIXME: assert(frameno != -1);
 
 	if (frameno < currentFrame) {
 		return;
@@ -722,14 +720,15 @@ bool OggReader::nextPacket()
 
 		if (serial == audioSerial) {
 			if (ogg_stream_pagein(&vorbisStream, &page)) {
-				throw MSXException("Failed to submit vorbis page");
+				cli.printWarning("Failed to submit vorbis page");
 			}
 		} else if (serial == videoSerial) {
 			if (ogg_stream_pagein(&theoraStream, &page)) {
-				throw MSXException("Failed to submit theora page");
+				cli.printWarning("Failed to submit theora page");
 			}
 		} else if (serial != skeletonSerial) {
-			throw MSXException("Unexpected serial");
+			cli.printWarning("Unexpected stream with serial " +
+				StringOp::toString(serial) + " in ogg file");
 		}
 	}
 }
@@ -760,7 +759,7 @@ bool OggReader::nextPage(ogg_page* page)
 		currentOffset += chunk;
 
 		if (ogg_sync_wrote(&sync, chunk) == -1) {
-			throw MSXException("ogg_sync_wrote failed");
+			cli.printWarning("Internal error: ogg_sync_wrote failed");
 		}
 	}
 
@@ -768,27 +767,32 @@ bool OggReader::nextPage(ogg_page* page)
 }
 #undef CHUNK
 
+// Defined to be a power-of-two such that the arthmetic can be done faster.
+// Note that the sample-number is in the range of: 1..(44100*60*60)
+#define SHIFT 0x20000000ull
+
 unsigned OggReader::binarySearch(int frame, unsigned sample,
 		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames)
 {
 	uint64 offsetA = 0, offsetB = maxOffset;
 	uint64 sampleA = 0, sampleB = maxSamples;
-	unsigned offset, frameA = 1, frameB = maxFrames;
+	uint64 frameA = 1, frameB = maxFrames;
+	unsigned offset;
 
 	for (;;) {
 		uint64 ratio, frameOffset, sampleOffset;
 
-		ratio = (frame - frameA) * 1000 / (frameB - frameA);
+		ratio = (frame - frameA) * SHIFT / (frameB - frameA);
 		if (ratio < 5) {
 			return offsetA;
 		}
 
-		frameOffset = ratio * (offsetB - offsetA) / 1000 + offsetA;
-		ratio = (sample - sampleA) * 1000 / (sampleB - sampleA);
+		frameOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
+		ratio = (sample - sampleA) * SHIFT / (sampleB - sampleA);
 		if (ratio < 5) {
 			return offsetA;
 		}
-		sampleOffset = ratio * (offsetB - offsetA) / 1000 + offsetA;
+		sampleOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
 		offset = sampleOffset < frameOffset ? 
 					sampleOffset : frameOffset;
 	
@@ -809,7 +813,7 @@ unsigned OggReader::binarySearch(int frame, unsigned sample,
 			offsetB = offset;
 			sampleB = currentSample;
 			frameB = currentFrame;
-		} else if (currentSample + vi.rate < sample ||
+		} else if (currentSample + vi.rate < sample &&
 				currentFrame + 64 < frame) {
 			offsetA = offset;
 			sampleA = currentSample;
@@ -821,8 +825,9 @@ unsigned OggReader::binarySearch(int frame, unsigned sample,
 
 	return offset;
 }
+#undef SHIFT
 
-#define STEP 128*1024
+#define STEP 32*1024
 
 unsigned OggReader::guessSeek(int frame, unsigned sample)
 {
@@ -865,7 +870,8 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	unsigned maxFrames = currentFrame;
 
 	if (sample > maxSamples || unsigned(frame) > maxFrames) {
-		// TODO
+		sample = maxSamples;
+		frame = maxFrames;
 	}
 
 	offset = binarySearch(frame, sample, maxOffset, maxSamples, maxFrames);
@@ -903,7 +909,7 @@ bool OggReader::seek(int frame, int samples)
 	}
 
 	while (!audioList.empty()) {
-		AudioFragment *audio = audioList.front();
+		AudioFragment* audio = audioList.front();
 		audio->length = 0;
 		audio->position = 0;
 		recycleAudioList.push_back(audio);
