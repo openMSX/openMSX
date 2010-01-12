@@ -860,7 +860,7 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		}
 	}
 
-	if (sample < vi.rate || frame < 30) {
+	if (sample < getSampleRate() || frame < 30) {
 		keyFrame = 1;
 		return 0;
 	}

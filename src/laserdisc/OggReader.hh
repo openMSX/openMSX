@@ -46,7 +46,7 @@ public:
 	AudioFragment* getAudio(unsigned sample);
 
 	// metadata
-	bool stopFrame(int frame) { return stopFrames[frame]; }
+	bool stopFrame(int frame) { return stopFrames[frame] != 0; }
 	int chapter(int chapterNo) { return chapters[chapterNo]; }
 
 private:

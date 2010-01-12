@@ -17,7 +17,7 @@ class LaserdiscCommand;
 class PioneerLDControl;
 class MSXMotherBoard;
 class OggReader;
-class AudioFragment;
+struct AudioFragment;
 class LDRenderer;
 class RawFrame;
 
