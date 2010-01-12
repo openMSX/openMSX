@@ -59,7 +59,11 @@ public:
 	  * @param time The moment in emulated time to update to.
 	  */
 	inline void sync(EmuTime::param time) {
-		if (mode0) return;
+		if (updateSpritesMethod == NULL) {
+			// Optimization: skip vram sync and sprite checks
+			// in sprite mode 0.
+			return;
+		}
 		// Debug:
 		// This method is not re-entrant, so check explicitly that it is not
 		// re-entered. This can disappear once the VDP-internal scheduling
@@ -90,36 +94,19 @@ public:
 	  */
 	inline void updateDisplayMode(DisplayMode mode, EmuTime::param time) {
 		sync(time);
-		setDisplayMode(mode, time);
-	}
-	inline void setDisplayMode(DisplayMode mode, EmuTime::param time) {
-		switch (mode.getSpriteMode()) {
-		case 0:
-			updateSpritesMethod = &SpriteChecker::updateSprites0;
-			mode0 = true;
-			return;
-		case 1:
-			updateSpritesMethod = &SpriteChecker::updateSprites1;
-			break;
-		case 2:
-			updateSpritesMethod = &SpriteChecker::updateSprites2;
-			break;
-		default:
-			UNREACHABLE;
-		}
-		if (mode0) {
-			// switch from mode0 to some other mode
-			mode0 = false;
-			currentLine = frameStartTime.getTicksTill_fast(time)
-			                 / VDP::TICKS_PER_LINE;
-			// Every line in mode0 has 0 sprites, but none of the lines
-			// are ever requested by the renderer, except for the last
-			// line, because sprites are checked one line before they
-			// are displayed.
-			//   already done in frameStart()
-			//   spriteCount[currentLine - 1] = 0;
-		}
-		planar = mode.isPlanar();
+		setDisplayMode(mode);
+
+		// The following is only required when switching from sprite
+		// mode0 to some other mode (in other case it has no effect).
+		// Because in mode 0, currentLine is not updated.
+		currentLine = frameStartTime.getTicksTill_fast(time)
+		                 / VDP::TICKS_PER_LINE;
+		// Every line in mode0 has 0 sprites, but none of the lines
+		// are ever requested by the renderer, except for the last
+		// line, because sprites are checked one line before they
+		// are displayed. Though frameStart() already makes sure
+		// spriteCount contains zero for all lines.
+		//   spriteCount[currentLine - 1] = 0;
 	}
 
 	/** Informs the sprite checker of a VDP display enabled change.
@@ -264,9 +251,26 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	/** Do not calculate sprite patterns, because this mode is spriteless.
+	/** Calculate 'updateSpritesMethod' and 'planar'.
 	  */
-	void updateSprites0(int limit);
+	inline void setDisplayMode(DisplayMode mode) {
+		switch (mode.getSpriteMode()) {
+		case 0:
+			updateSpritesMethod = NULL;
+			break;
+		case 1:
+			updateSpritesMethod = &SpriteChecker::updateSprites1;
+			break;
+		case 2:
+			updateSpritesMethod = &SpriteChecker::updateSprites2;
+			planar = mode.isPlanar();
+			// An alternative is to have a planar and non-planar
+			// updateSprites2 method.
+			break;
+		default:
+			UNREACHABLE;
+		}
+	}
 
 	/** Calculate sprite patterns for sprite mode 1.
 	  */
@@ -361,10 +365,6 @@ private:
 	  * in spriteBuffer[i].
 	  */
 	int spriteCount[313];
-
-	/** Is the current display mode spriteless?
-	  */
-	bool mode0;
 
 	/** Is current display mode planar or not?
 	  * TODO: Introduce separate update methods for planar/nonplanar modes.

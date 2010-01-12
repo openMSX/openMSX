@@ -38,7 +38,6 @@ void SpriteChecker::reset(EmuTime::param time)
 	frameStart(time);
 
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
-	mode0 = false;
 }
 
 static inline SpriteChecker::SpritePattern doublePattern(SpriteChecker::SpritePattern a)
@@ -418,15 +417,6 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	}
 }
 
-void SpriteChecker::updateSprites0(int /*limit*/)
-{
-	// If this method is called, that means somewhere a check for sprite
-	// mode 0 is missing and performance is being wasted.
-	// The updateSpritesN methods are called by checkUntil, which is
-	// documented as not allowed to be called in sprite mode 0.
-	UNREACHABLE;
-}
-
 template<typename Archive>
 void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -435,9 +425,7 @@ void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
 		//  - frameStartTime
 		frameStartTime.reset(vdp.getFrameStartTime());
 		//  - updateSpritesMethod, planar
-		mode0 = false; // TODO mode0 is not correctly restored (already
-		               // the case before this patch. Will be fixed soon.
-		setDisplayMode(vdp.getDisplayMode(), frameStartTime.getTime());
+		setDisplayMode(vdp.getDisplayMode());
 
 		currentLine = 0; // TODO fix in follow-up patch
 
