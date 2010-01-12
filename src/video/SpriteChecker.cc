@@ -432,13 +432,22 @@ void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
 {
 	if (ar.isLoader()) {
 		// Recalculate from VDP state:
-		//   frameStartTime, updateSpritesMethod,
-		//   currentLine, mode0, planar
-		// Invalidate data in spriteBuffer and spriteCount, will
-		// be recalculated when needed.
+		//  - frameStartTime
 		frameStartTime.reset(vdp.getFrameStartTime());
-		frameStart(vdp.getFrameStartTime());
+		//  - updateSpritesMethod, planar
+		mode0 = false; // TODO mode0 is not correctly restored (already
+		               // the case before this patch. Will be fixed soon.
 		setDisplayMode(vdp.getDisplayMode(), frameStartTime.getTime());
+
+		currentLine = 0; // TODO fix in follow-up patch
+
+		// We don't serialize spriteCount[] and spriteBuffer[].
+		// These are only used to draw the MSX screen, they don't have
+		// any influence on the MSX state. So the effect of not
+		// serializing these two is that no sprites will be shown in the
+		// first (partial) frame after loadstate.
+		for (int i = 0; i < 313; i++) spriteCount[i] = 0;
+		// content of spriteBuffer[] doesn't matter if spriteCount[] is 0
 	}
 	ar.serialize("collisionX", collisionX);
 	ar.serialize("collisionY", collisionY);

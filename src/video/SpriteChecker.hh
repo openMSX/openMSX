@@ -209,7 +209,7 @@ public:
 	  * @param time Moment in emulated time the new frame starts.
 	  */
 	inline void frameStart(EmuTime::param time) {
-		frameStartTime.advance_fast(time);
+		frameStartTime.reset(time);
 		currentLine = 0;
 		for (int i = 0; i < 313; i++) spriteCount[i] = 0;
 		// TODO: Reset anything else? Does the real VDP?
