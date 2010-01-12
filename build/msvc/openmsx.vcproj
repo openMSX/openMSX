@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="4"
@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libogg.lib libpng.lib libtheora.lib libvorbis.lib libxml.lib tcl.lib zlib.lib"
 				OutputFile="$(OutDir)\openmsx.exe"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(3rdPartyOutDir)&quot;"
 				IgnoreDefaultLibraryNames=""
@@ -125,7 +125,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="4"
@@ -144,7 +144,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libogg.lib libpng.lib libtheora.lib libvorbis.lib libxml.lib tcl.lib zlib.lib"
 				OutputFile="$(OutDir)\openmsx.exe"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\$(PlatformName)&quot;;&quot;$(3rdPartyOutDir)&quot;"
 				DelayLoadDLLs="shell32.dll"
@@ -207,7 +207,7 @@
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				SmallerTypeCheck="false"
@@ -230,7 +230,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libogg.lib libpng.lib libtheora.lib libvorbis.lib libxml.lib tcl.lib zlib.lib"
 				OutputFile="$(OutDir)\openmsx.exe"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(3rdPartyOutDir)&quot;"
 				DelayLoadDLLs="shell32.dll"
@@ -295,7 +295,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -317,7 +317,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libogg.lib libpng.lib libtheora.lib libvorbis.lib libxml.lib tcl.lib zlib.lib"
 				OutputFile="$(OutDir)\openmsx.exe"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\$(PlatformName)&quot;;&quot;$(3rdPartyOutDir)&quot;"
 				DelayLoadDLLs="shell32.dll"
@@ -376,7 +376,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
@@ -396,7 +396,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libogg.lib libpng.lib libtheora.lib libvorbis.lib libxml.lib tcl.lib zlib.lib"
 				OutputFile="$(OutDir)\openmsx.exe"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(3rdPartyOutDir)&quot;"
 				IgnoreDefaultLibraryNames=""
@@ -458,7 +458,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
+				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
 				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
@@ -478,7 +478,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libpng.lib libxml.lib zlib.lib tcl.lib"
+				AdditionalDependencies="wsock32.lib winmm.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libogg.lib libpng.lib libtheora.lib libvorbis.lib libxml.lib tcl.lib zlib.lib"
 				OutputFile="$(OutDir)\openmsx.exe"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\$(PlatformName)&quot;;&quot;$(3rdPartyOutDir)&quot;"
 				DelayLoadDLLs="shell32.dll"
@@ -4737,7 +4737,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4745,7 +4744,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4753,7 +4751,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4761,7 +4758,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4769,7 +4765,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4777,7 +4772,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4789,7 +4783,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4797,7 +4790,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4805,7 +4797,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4813,7 +4804,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4821,7 +4811,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4829,7 +4818,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4841,7 +4829,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4849,7 +4836,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4857,7 +4843,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4865,7 +4850,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4873,7 +4857,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4881,7 +4864,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4893,7 +4875,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4901,7 +4882,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4909,7 +4889,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4917,7 +4896,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4925,7 +4903,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4933,7 +4910,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4945,7 +4921,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4953,7 +4928,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4961,7 +4935,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4969,7 +4942,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4977,7 +4949,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4985,7 +4956,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -4997,7 +4967,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5005,7 +4974,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5013,7 +4981,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5021,7 +4988,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5029,7 +4995,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5037,7 +5002,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5049,7 +5013,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5057,7 +5020,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5065,7 +5027,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5073,7 +5034,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5081,7 +5041,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5089,7 +5048,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5101,7 +5059,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5109,7 +5066,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5117,7 +5073,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5125,7 +5080,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5133,7 +5087,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5141,7 +5094,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5153,7 +5105,6 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5161,7 +5112,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5169,7 +5119,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5177,7 +5126,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5185,7 +5133,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5193,7 +5140,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer|x64"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -5422,7 +5368,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5430,7 +5375,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5438,7 +5382,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5446,7 +5389,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5454,7 +5396,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5462,7 +5403,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5474,7 +5414,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5482,7 +5421,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5490,7 +5428,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5498,7 +5435,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5506,7 +5442,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5514,7 +5449,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5526,7 +5460,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5534,7 +5467,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5542,7 +5474,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5550,7 +5481,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5558,7 +5488,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5566,7 +5495,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5578,7 +5506,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5586,7 +5513,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5594,7 +5520,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5602,7 +5527,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5610,7 +5534,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5618,7 +5541,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5630,7 +5552,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5638,7 +5559,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5646,7 +5566,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5654,7 +5573,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5662,7 +5580,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5670,7 +5587,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5682,7 +5598,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5690,7 +5605,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5698,7 +5612,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5706,7 +5619,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5714,7 +5626,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5722,7 +5633,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5734,7 +5644,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5742,7 +5651,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5750,7 +5658,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5758,7 +5665,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5766,7 +5672,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5774,7 +5679,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5786,7 +5690,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5794,7 +5697,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5802,7 +5704,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5810,7 +5711,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5818,7 +5718,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5826,7 +5725,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5838,7 +5736,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5846,7 +5743,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5854,7 +5750,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5862,7 +5757,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5870,7 +5764,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5878,7 +5771,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5890,7 +5782,6 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5898,7 +5789,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5906,7 +5796,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5914,7 +5803,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5922,7 +5810,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -5930,7 +5817,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"

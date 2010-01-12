@@ -10,6 +10,11 @@
 namespace openmsx {
 namespace yuv2rgb {
 
+// TODO - This is temporary, until we have VC++ compatible versions of these routines
+#ifdef _MSC_VER
+#undef ASM_X86
+#endif
+
 #if ASM_X86
 
 /*

@@ -181,7 +181,9 @@
 				AdditionalIncludeDirectories="&quot;$(3rdPartySrcDir)\$(LibNameTcl)\win&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\libtommath&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING=\&quot;cp1252\&quot;;STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL=\&quot;tclpip85sg.dll\&quot;;CFG_INSTALL_LIBDIR=\&quot;C:\\Program Files\\Tcl\\lib\&quot;;CFG_INSTALL_BINDIR=\&quot;C:\\Program Files\\Tcl\\bin\&quot;;CFG_INSTALL_SCRDIR=\&quot;C:\\Program Files\\Tcl\\lib\\tcl8.5\&quot;;CFG_INSTALL_INCDIR=\&quot;C:\\Program Files\\Tcl\\include\&quot;;CFG_INSTALL_DOCDIR=\&quot;C:\\Program Files\\Tcl\\doc\&quot;;CFG_RUNTIME_LIBDIR=\&quot;C:\\Program Files\\Tcl\\lib\&quot;;CFG_RUNTIME_BINDIR=\&quot;C:\\Program Files\\Tcl\\bin\&quot;;CFG_RUNTIME_SCRDIR=\&quot;C:\\Program Files\\Tcl\\lib\\tcl8.5\&quot;;CFG_RUNTIME_INCDIR=\&quot;C:\\Program Files\\Tcl\\include\&quot;;CFG_RUNTIME_DOCDIR=\&quot;C:\\Program Files\\Tcl\\doc\&quot;"
 				StringPooling="true"
+				ExceptionHandling="1"
 				RuntimeLibrary="0"
+				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -251,7 +253,9 @@
 				AdditionalIncludeDirectories="&quot;$(3rdPartySrcDir)\$(LibNameTcl)\win&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\libtommath&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING=\&quot;cp1252\&quot;;STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL=\&quot;tclpip85sg.dll\&quot;;CFG_INSTALL_LIBDIR=\&quot;C:\\Program Files\\Tcl\\lib\&quot;;CFG_INSTALL_BINDIR=\&quot;C:\\Program Files\\Tcl\\bin\&quot;;CFG_INSTALL_SCRDIR=\&quot;C:\\Program Files\\Tcl\\lib\\tcl8.5\&quot;;CFG_INSTALL_INCDIR=\&quot;C:\\Program Files\\Tcl\\include\&quot;;CFG_INSTALL_DOCDIR=\&quot;C:\\Program Files\\Tcl\\doc\&quot;;CFG_RUNTIME_LIBDIR=\&quot;C:\\Program Files\\Tcl\\lib\&quot;;CFG_RUNTIME_BINDIR=\&quot;C:\\Program Files\\Tcl\\bin\&quot;;CFG_RUNTIME_SCRDIR=\&quot;C:\\Program Files\\Tcl\\lib\\tcl8.5\&quot;;CFG_RUNTIME_INCDIR=\&quot;C:\\Program Files\\Tcl\\include\&quot;;CFG_RUNTIME_DOCDIR=\&quot;C:\\Program Files\\Tcl\\doc\&quot;;_stati64=_stat64"
 				StringPooling="true"
+				ExceptionHandling="1"
 				RuntimeLibrary="0"
+				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -1106,11 +1110,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\tcl8.5.8\generic\tommath.h"
+				RelativePath="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\tommath.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\tommath.h"
+				RelativePath="..\..\derived\3rdparty\src\tcl8.5.8\generic\tommath.h"
 				>
 			</File>
 			<File
