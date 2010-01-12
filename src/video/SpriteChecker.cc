@@ -417,8 +417,10 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	}
 }
 
+// version 1: initial version
+// version 2: bug fix: also serialize 'currentLine'
 template<typename Archive>
-void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
+void SpriteChecker::serialize(Archive& ar, unsigned version)
 {
 	if (ar.isLoader()) {
 		// Recalculate from VDP state:
@@ -426,8 +428,6 @@ void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
 		frameStartTime.reset(vdp.getFrameStartTime());
 		//  - updateSpritesMethod, planar
 		setDisplayMode(vdp.getDisplayMode());
-
-		currentLine = 0; // TODO fix in follow-up patch
 
 		// We don't serialize spriteCount[] and spriteBuffer[].
 		// These are only used to draw the MSX screen, they don't have
@@ -439,6 +439,11 @@ void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
 	}
 	ar.serialize("collisionX", collisionX);
 	ar.serialize("collisionY", collisionY);
+	if (!ar.isLoader() || (version >= 2)) {
+		ar.serialize("currentLine", currentLine);
+	} else {
+		currentLine = 0;
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SpriteChecker);
 

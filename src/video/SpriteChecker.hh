@@ -7,6 +7,7 @@
 #include "VDPVRAM.hh"
 #include "VRAMObserver.hh"
 #include "DisplayMode.hh"
+#include "serialize_meta.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
@@ -371,6 +372,7 @@ private:
 	  */
 	bool planar;
 };
+SERIALIZE_CLASS_VERSION(SpriteChecker, 2);
 
 } // namespace openmsx
 
