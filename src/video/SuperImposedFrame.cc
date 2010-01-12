@@ -36,7 +36,8 @@ const void* SuperImposedFrame<Pixel>::getLineInfo(unsigned line, unsigned& width
 
 	// Adjust the two inputs to the same height.
 	const Pixel* supLine;
-	VLA(Pixel, tmpBuf, width);
+	unsigned width2 = width; // workaround gcc-3.4 bug in VLA on next line
+	VLA(Pixel, tmpBuf, width2);
 	assert(super.getHeight() == 480); // TODO possibly extend in the future
 	if (src.getHeight() == 240) {
 		const Pixel* sup0 = super.getLinePtr<Pixel>(2 * line + 0, width);
