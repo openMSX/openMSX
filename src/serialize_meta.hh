@@ -6,6 +6,7 @@
 #include "noncopyable.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
+#include "likely.hh"
 #include <string>
 #include <map>
 #include <cassert>
@@ -188,6 +189,7 @@ public:
 	}
 };
 
+void polyInitError(const char* expected, const char* actual);
 template<typename Archive, typename T>
 class PolymorphicInitializer : public PolymorphicInitializerBase<Archive>
 {
@@ -196,7 +198,9 @@ public:
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
 		BaseType* base = static_cast<BaseType*>(v);
-		assert(dynamic_cast<T*>(base) == static_cast<T*>(base)); // TODO throw
+		if (unlikely(dynamic_cast<T*>(base) != static_cast<T*>(base))) {
+			polyInitError(typeid(T).name(), typeid(*base).name());
+		}
 		T* t = static_cast<T*>(base);
 		ClassLoader<T> loader;
 		loader(ar, *t, make_tuple(), id);

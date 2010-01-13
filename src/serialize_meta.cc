@@ -2,6 +2,8 @@
 
 #include "serialize_meta.hh"
 #include "serialize.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include "unreachable.hh"
 #include <cassert>
 #include <iostream>
@@ -112,6 +114,12 @@ template class PolymorphicLoaderRegistry<MemInputArchive>;
 template class PolymorphicLoaderRegistry<XmlInputArchive>;
 
 ////
+
+void polyInitError(const char* expected, const char* actual)
+{
+	throw MSXException(StringOp::Builder() <<
+		"Expected type: " << expected << " but got: " << actual << ".");
+}
 
 template<typename Archive>
 PolymorphicInitializerRegistry<Archive>::PolymorphicInitializerRegistry()
