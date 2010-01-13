@@ -4,7 +4,6 @@
 #define MSXROM_HH
 
 #include "MSXDevice.hh"
-#include "RomTypes.hh"
 #include <memory>
 
 namespace openmsx {
@@ -19,7 +18,6 @@ public:
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual byte* getWriteCacheLine(word address) const;
 
-	void setRomType(RomType type);
 	virtual void getExtraDeviceInfo(TclObject& result) const;
 
 protected:
@@ -27,9 +25,6 @@ protected:
 	       std::auto_ptr<Rom> rom);
 
 	const std::auto_ptr<Rom> rom;
-
-private:
-	RomType type;
 };
 
 } // namespace openmsx

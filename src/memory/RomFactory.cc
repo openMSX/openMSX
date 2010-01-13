@@ -338,7 +338,6 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config
 	default:
 		throw MSXException("Unknown ROM type");
 	}
-	result->setRomType(type);
 
 	// Store actual detected mapper type in config (override the possible
 	// 'auto' value). This way we're sure that on savestate/loadstate we're

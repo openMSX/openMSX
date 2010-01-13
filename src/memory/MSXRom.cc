@@ -2,7 +2,7 @@
 
 #include "MSXRom.hh"
 #include "Rom.hh"
-#include "RomInfo.hh"
+#include "XMLElement.hh"
 #include "TclObject.hh"
 
 namespace openmsx {
@@ -28,14 +28,14 @@ byte* MSXRom::getWriteCacheLine(word /*address*/) const
 	return unmappedWrite;
 }
 
-void MSXRom::setRomType(RomType type_)
-{
-	type = type_;
-}
-
 void MSXRom::getExtraDeviceInfo(TclObject& result) const
 {
-	result.addListElement(RomInfo::romTypeToName(type));
+	// Add detected rom type. This value is guaranteed to be stored in
+	// the device config (and 'auto' is already changed to actual type).
+	const XMLElement* mapper = getDeviceConfig().findChild("mappertype");
+	assert(mapper);
+	result.addListElement(mapper->getData());
+
 	// add sha1sum, to be able to get a unique key for this ROM device,
 	// so that it can be used to look up things in databases
 	result.addListElement(rom->getOriginalSHA1());
