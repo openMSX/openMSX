@@ -210,6 +210,16 @@ int XMLElement::getChildDataAsInt(const string& name, int defaultValue) const
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
+void XMLElement::setChildData(const string& name, const string& value)
+{
+	XMLElement* child = findChild(name);
+	if (child) {
+		child->setData(value);
+	} else {
+		addChild(auto_ptr<XMLElement>(new XMLElement(name, value)));
+	}
+}
+
 void XMLElement::removeAllChildren()
 {
 	for (Children::const_iterator it = children.begin();

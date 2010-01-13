@@ -102,6 +102,7 @@ public:
 	                        bool defaultValue = false) const;
 	int getChildDataAsInt(const std::string& name,
 	                      int defaultValue = 0) const;
+	void setChildData(const std::string& name, const std::string& value);
 
 	void removeAllChildren();
 
