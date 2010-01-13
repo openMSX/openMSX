@@ -60,7 +60,7 @@ public:
 	  * @param time The moment in emulated time to update to.
 	  */
 	inline void sync(EmuTime::param time) {
-		if (updateSpritesMethod == NULL) {
+		if (!updateSpritesMethod) {
 			// Optimization: skip vram sync and sprite checks
 			// in sprite mode 0.
 			return;
