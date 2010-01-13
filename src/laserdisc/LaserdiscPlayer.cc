@@ -13,7 +13,6 @@
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
 #include "LDRenderer.hh"
-#include "Filename.hh"
 #include "likely.hh"
 
 using std::auto_ptr;
@@ -758,8 +757,8 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 
 void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param /*time*/)
 {
-	Filename filename(newImage, motherBoard.getCommandController());
-	video.reset(new OggReader(filename, motherBoard.getMSXCliComm()));
+	oggImage = Filename(newImage, motherBoard.getCommandController());
+	video.reset(new OggReader(oggImage, motherBoard.getMSXCliComm()));
 	sampleClock.setFreq(video->getSampleRate());
 	setOutputRate(outputRate);
 }
@@ -1059,5 +1058,91 @@ void LaserdiscPlayer::createRenderer()
 	Display& display = getMotherBoard().getReactor().getDisplay();
 	renderer.reset(RendererFactory::createLDRenderer(*this, display));
 }
+
+static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {
+	{ "IDLE",		LaserdiscPlayer::REMOTE_IDLE 		},
+	{ "HEADER_PULSE",	LaserdiscPlayer::REMOTE_HEADER_PULSE	},
+	{ "NEC_HEADER_SPACE",	LaserdiscPlayer::NEC_HEADER_SPACE	},
+	{ "NEC_BITS_PULSE",	LaserdiscPlayer::NEC_BITS_PULSE		},
+	{ "NEC_BITS_SPACE", 	LaserdiscPlayer::NEC_BITS_SPACE		},
+	{ "NEC_REPEAT_PULSE",	LaserdiscPlayer::NEC_REPEAT_PULSE	},
+	{ "LD1100_GAP",		LaserdiscPlayer::LD1100_GAP		},
+	{ "LD1100_SEEN_GAP",	LaserdiscPlayer::LD1100_SEEN_GAP	},
+	{ "LD1100_BITS_SPACE",	LaserdiscPlayer::LD1100_BITS_SPACE	},
+	{ "LD1100_BITS_PULSE",	LaserdiscPlayer::LD1100_BITS_PULSE	}
+};
+SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
+
+static enum_string<LaserdiscPlayer::PlayerState> PlayerStateInfo[] = {
+	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},		{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
+	{ "PLAYING_MULTISPEED",	LaserdiscPlayer::PLAYER_PLAYING_MULTISPEED },
+	{ "PAUSED",		LaserdiscPlayer::PLAYER_PAUSED		},
+	{ "FROZEN",		LaserdiscPlayer::PLAYER_FROZEN		}
+};
+SERIALIZE_ENUM(LaserdiscPlayer::PlayerState, PlayerStateInfo);
+
+static enum_string<LaserdiscPlayer::SeekState> SeekStateInfo[] = {
+	{ "NONE",		LaserdiscPlayer::SEEK_NONE		},
+	{ "CHAPTER",		LaserdiscPlayer::SEEK_CHAPTER		},
+	{ "FRAME",		LaserdiscPlayer::SEEK_FRAME		},
+	{ "WAIT",		LaserdiscPlayer::SEEK_WAIT		}
+};
+SERIALIZE_ENUM(LaserdiscPlayer::SeekState, SeekStateInfo);
+
+template<typename Archive>
+void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+
+	// Serialize remote control
+	ar.serialize("RemoteState", remoteState);
+	ar.serialize("RemoteLastEdge", remoteLastEdge);
+	ar.serialize("RemoteBitNr", remoteBitNr);
+	ar.serialize("RemoteBits", remoteBits);
+	ar.serialize("RemoteLastBit", remoteLastBit);
+	ar.serialize("LastNECButtonTime", lastNECButtonTime);
+	ar.serialize("LastNECButtonCode", lastNECButtonCode);
+
+	// Serialize filename
+	ar.serialize("OggImage", oggImage);
+	if (ar.isLoader()) {
+		setImageName(oggImage.getResolved(), getCurrentTime());
+	}
+	ar.serialize("PlayerState", playerState);
+
+	if (playerState != PLAYER_STOPPED) {
+		// Serialize seek state
+		ar.serialize("SeekState", seekState);
+		ar.serialize("SeekNum", seekNum);
+		ar.serialize("seeking", seeking);
+
+		// Playing state
+		ar.serialize("WaitFrame", waitFrame);
+		ar.serialize("ACK", ack);
+		ar.serialize("FoundFrame", foundFrame);
+		ar.serialize("PlayingSpeed", playingSpeed);
+
+		// Frame position
+		ar.serialize("FirstFrame", getFirstFrame);
+		ar.serialize("CurrentFrame", currentFrame);
+		ar.serialize("FrameStep", frameStep);
+		ar.serialize("FrameClock", frameClock);
+
+		// Audio position
+		ar.serialize("FromSample", playingFromSample);
+		ar.serialize("SampleClock", sampleClock);
+
+		if (ar.isLoader()) {
+			video->seek(currentFrame, 
+					getCurrentSample(getCurrentTime()));
+		}
+	}
+
+	if (ar.isLoader()) {
+		isVideoOutputAvailable(getCurrentTime());
+	}
+}
+
+INSTANTIATE_SERIALIZE_METHODS(LaserdiscPlayer);
 
 } // namespace openmsx

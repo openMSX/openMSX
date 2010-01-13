@@ -465,15 +465,15 @@ void OggReader::readMetadata()
 	for (int i=0; i < video_comment.comments; i++) {
 		if (video_comment.user_comments[i] &&
 			video_comment.comment_lengths[i] >=
-							int(sizeof("location"))
-			&& !strcasecmp(video_comment.user_comments[i],
-								"location")) {
+							int(sizeof("location="))
+			&& !strncasecmp(video_comment.user_comments[i],
+					"location=", sizeof("location=") - 1)) {
 			// ensure null termination
 			size_t len = video_comment.comment_lengths[i] - 
-							sizeof("location");
+						sizeof("location=");
 			metadata = new char[len + 1];
 			memcpy(metadata, video_comment.user_comments[i] +
-						sizeof("location"), len);
+						sizeof("location=") - 1, len);
 			metadata[len] = 0;
 			break;
 		}
@@ -654,7 +654,7 @@ AudioFragment* OggReader::getAudio(unsigned sample)
 	while (true) {
 		AudioFragment* audio = *it;
 
-		if (audio->position + audio->length + vi.rate <= sample) {
+		if (audio->position + audio->length + getSampleRate() <= sample) {
 			// Dispose if this, more than 1 second old
 			returnAudio(*it);
 			it = audioList.erase(it);
@@ -813,7 +813,7 @@ unsigned OggReader::binarySearch(int frame, unsigned sample,
 			offsetB = offset;
 			sampleB = currentSample;
 			frameB = currentFrame;
-		} else if (currentSample + vi.rate < sample &&
+		} else if (currentSample + getSampleRate() < sample &&
 				currentFrame + 64 < frame) {
 			offsetA = offset;
 			sampleA = currentSample;

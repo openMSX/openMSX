@@ -9,6 +9,7 @@
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
 #include "Clock.hh"
+#include "Filename.hh"
 #include "VideoSystemChangeListener.hh"
 
 namespace openmsx {
@@ -39,9 +40,39 @@ public:
 	void extControl(bool bit, EmuTime::param time);
 	const RawFrame* getRawFrame() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 	// video interface
 	MSXMotherBoard& getMotherBoard() { return motherBoard; }
 
+	enum RemoteState {
+		REMOTE_IDLE,
+		REMOTE_HEADER_PULSE,
+		NEC_HEADER_SPACE,
+		NEC_BITS_PULSE,
+		NEC_BITS_SPACE,
+		NEC_REPEAT_PULSE,
+		LD1100_GAP,
+		LD1100_SEEN_GAP,
+		LD1100_BITS_SPACE,
+		LD1100_BITS_PULSE
+	};
+
+	enum PlayerState {
+		PLAYER_STOPPED,
+		PLAYER_PLAYING,
+		PLAYER_PLAYING_MULTISPEED,
+		PLAYER_PAUSED,
+		PLAYER_FROZEN
+	};
+
+	enum SeekState {
+		SEEK_NONE,
+		SEEK_CHAPTER,
+		SEEK_FRAME,
+		SEEK_WAIT,
+	};
 private:
 	void setImageName(const std::string& newImage, EmuTime::param time);
 
@@ -86,6 +117,7 @@ private:
 
 	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
 	std::auto_ptr<OggReader> video;
+	Filename oggImage;
 	std::auto_ptr<LDRenderer> renderer;
 
 	void nextFrame(EmuTime::param time);
@@ -109,18 +141,7 @@ private:
 	};
 
 	// Ext Control
-	enum RemoteState {
-		REMOTE_IDLE,
-		REMOTE_HEADER_PULSE,
-		NEC_HEADER_SPACE,
-		NEC_BITS_PULSE,
-		NEC_BITS_SPACE,
-		NEC_REPEAT_PULSE,
-		LD1100_GAP,
-		LD1100_SEEN_GAP,
-		LD1100_BITS_SPACE,
-		LD1100_BITS_PULSE
-	} remoteState;
+ 	RemoteState remoteState;
 	EmuTime remoteLastEdge;
 	unsigned remoteBitNr;
 	unsigned remoteBits;
@@ -129,12 +150,7 @@ private:
 	unsigned lastNECButtonCode;
 
 	/* We need to maintain some state for seeking */
-	enum PioneerSeekState {
-		SEEK_NONE,
-		SEEK_CHAPTER,
-		SEEK_FRAME,
-		SEEK_WAIT,
-	} seekState;
+	SeekState seekState;
 
 	/* frame the MSX has requested to wait for */
 	unsigned waitFrame;
@@ -149,13 +165,7 @@ private:
 	// State of the video itself
 	bool seeking;
 
-	enum PlayerState {
-		PLAYER_STOPPED,
-		PLAYER_PLAYING,
-		PLAYER_PLAYING_MULTISPEED,
-		PLAYER_PAUSED,
-		PLAYER_FROZEN
-	} playerState;
+ 	PlayerState playerState;
 
 	enum PlayingSpeed {
 		SPEED_STEP3 = -5,	// Each frame is repeated 90 times

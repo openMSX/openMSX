@@ -175,12 +175,10 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("clock", clock);
 	ar.serialize("mutel", mutel);
 	ar.serialize("muter", muter);
-	// FIXME: videoEnabled should probably be restored from
-	// LaserdiscPlayer.
-	ar.serialize("videoEnabled", videoEnabled);
+	// videoEnabled is restored from LaserdiscPlayer.
 	ar.serialize("superimposing", superimposing);
 	ar.serialize("irq", irq);
-	// TODO serialize laserdisc
+	ar.serialize("laserdisc", *laserdisc);
 
 	if (ar.isLoader()) {
 		updateVideoSource();
