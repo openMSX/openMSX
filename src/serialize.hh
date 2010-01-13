@@ -165,6 +165,25 @@ public:
 	//   object, while for value-types, the object (with the correct
 	//   concrete type) is already constructed, it only needs to be
 	//   initialized.
+	//
+	//
+	// bool versionAtLeast(unsigned actual, unsigned required) const
+	// bool versionBelow  (unsigned actual, unsigned required) const
+	//
+	//   Checks whether the actual version is respective 'bigger or equal'
+	//   or 'strictly lower' than the required version. So in fact these are
+	//   equivalent to respectively:
+	//       return actual >= required;
+	//       return actual <  required;
+	//   Note that these two methods are the exact opposite of each other.
+	//   Though for memory-archives and output-archives we know that the
+	//   actual version is always equal to the latest class version and the
+	//   required version can never be bigger than this latest version, so
+	//   in these cases the methods can be optimized to respectively:
+	//       return true;
+	//       return false;
+	//   By using these methods instead of direct comparisons, the compiler
+	//   is able to perform more dead-code-elimination.
 
 /*internal*/
 	// These must be public for technical reasons, but they should only
@@ -297,6 +316,14 @@ class OutputArchiveBase2
 {
 public:
 	inline bool isLoader() const { return false; }
+	inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
+	{
+		return true;
+	}
+	inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
+	{
+		return false;
+	}
 
 	void skipSection(bool /*skip*/)
 	{
@@ -664,6 +691,14 @@ public:
 	}
 
 	bool needVersion() const { return false; }
+	inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
+	{
+		return true;
+	}
+	inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
+	{
+		return false;
+	}
 
 	template<typename T> void load(T& t)
 	{
@@ -750,6 +785,15 @@ class XmlInputArchive : public InputArchiveBase<XmlInputArchive>
 {
 public:
 	XmlInputArchive(const std::string& filename);
+
+	inline bool versionAtLeast(unsigned actual, unsigned required) const
+	{
+		return actual >= required;
+	}
+	inline bool versionBelow(unsigned actual, unsigned required) const
+	{
+		return actual < required;
+	}
 
 	template<typename T> void loadImpl(T& t)
 	{

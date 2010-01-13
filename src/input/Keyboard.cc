@@ -1222,7 +1222,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	ar.serialize("msxCodeKanaLockOn", msxCodeKanaLockOn);
 	ar.serialize("msxGraphLockOn", msxGraphLockOn);
 
-	if (version >= 2) {
+	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("userKeyMatrix", userKeyMatrix);
 		ar.serialize("dynKeymap", dynKeymap);
 		ar.serialize("msxmodifiers", msxmodifiers);

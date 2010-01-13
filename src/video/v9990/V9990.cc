@@ -914,7 +914,7 @@ void V9990::serialize(Archive& ar, unsigned version)
 	ar.serialize("scrollAYHigh", scrollAYHigh);
 	ar.serialize("scrollBYHigh", scrollBYHigh);
 
-	if (ar.isLoader() && version < 2) {
+	if (ar.versionBelow(version, 2)) {
 		systemReset = false;
 	} else {
 		ar.serialize("systemReset", systemReset);

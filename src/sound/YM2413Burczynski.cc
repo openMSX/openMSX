@@ -1382,9 +1382,9 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void YM2413::serialize(Archive& ar, unsigned version)
 {
-	if (version < 2) ar.beginTag("YM2413Core");
+	if (ar.versionBelow(version, 2)) ar.beginTag("YM2413Core");
 	ar.serialize("registers", reg);
-	if (version < 2) ar.endTag("YM2413Core");
+	if (ar.versionBelow(version, 2)) ar.endTag("YM2413Core");
 
 	// only serialize user instrument
 	ar.serialize_blob("user_instrument", inst_tab[0], 8);

@@ -348,7 +348,7 @@ template<typename Archive>
 void DiskChanger::serialize(Archive& ar, unsigned version)
 {
 	DiskName diskname = disk->getName();
-	if (ar.isLoader() && version < 2) {
+	if (ar.versionBelow(version, 2)) {
 		// there was no DiskName yet, just a plain Filename
 		Filename filename;
 		ar.serialize("disk", filename);

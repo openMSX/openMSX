@@ -180,7 +180,7 @@ void KeyJoystick::stopReplay(EmuTime::param time)
 template<typename Archive>
 void KeyJoystick::serialize(Archive& ar, unsigned version)
 {
-	if (version >= 2) {
+	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("status", status);
 	}
 	if (ar.isLoader() && isPluggedIn()) {

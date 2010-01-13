@@ -1567,9 +1567,9 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void YM2413::serialize(Archive& ar, unsigned version)
 {
-	if (version < 2) ar.beginTag("YM2413Core");
+	if (ar.versionBelow(version, 2)) ar.beginTag("YM2413Core");
 	ar.serialize("registers", reg);
-	if (version < 2) ar.endTag("YM2413Core");
+	if (ar.versionBelow(version, 2)) ar.endTag("YM2413Core");
 
 	// no need to serialize patches[1-19]
 	ar.serialize("user_patch_mod", patches[0][0]);

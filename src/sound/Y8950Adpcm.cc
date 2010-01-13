@@ -507,7 +507,7 @@ void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 		aud = emu;
 	}
 
-	if (ar.isLoader() && version < 2) {
+	if (ar.versionBelow(version, 2)) {
 		clock.reset(getCurrentTime());
 
 		// reschedule, because automatically deserialized sync-point

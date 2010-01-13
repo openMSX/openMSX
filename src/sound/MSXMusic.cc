@@ -66,7 +66,7 @@ void MSXMusic::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
-	if (version >= 2) {
+	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("ym2413", *ym2413);
 	} else {
 		// In older versions, the 'ym2413' level was missing, delegate

@@ -188,7 +188,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 
 	// Commented out because versioning doesn't work correct on subclasses
 	// that don't override the serialize() method (e.g. RomPlain)
-	/*if (version >= 2) {
+	/*if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("blockNr", blockNr);
 	} else {
 		assert(ar.isLoader());

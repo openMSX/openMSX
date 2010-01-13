@@ -1915,7 +1915,7 @@ void YMF262Impl::serialize(Archive& ar, unsigned version)
 	ar.serialize("status", status);
 	ar.serialize("status2", status2);
 	ar.serialize("statusMask", statusMask);
-	if (version >= 2) {
+	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
 	}
 

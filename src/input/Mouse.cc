@@ -316,7 +316,7 @@ void Mouse::serialize(Archive& ar, unsigned version)
 	ar.serialize("xrel", xrel);
 	ar.serialize("yrel", yrel);
 	ar.serialize("mouseMode", mouseMode);
-	if (version >= 2) {
+	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("curxrel", curxrel);
 		ar.serialize("curyrel", curyrel);
 		ar.serialize("status",  status);

@@ -439,7 +439,7 @@ void SpriteChecker::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("collisionX", collisionX);
 	ar.serialize("collisionY", collisionY);
-	if (!ar.isLoader() || (version >= 2)) {
+	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("currentLine", currentLine);
 	} else {
 		currentLine = 0;

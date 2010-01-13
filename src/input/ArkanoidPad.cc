@@ -187,7 +187,7 @@ void ArkanoidPad::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("shiftreg", shiftreg);
 	ar.serialize("lastValue", lastValue);
-	if (version >= 2) {
+	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("dialpos", dialpos);
 		ar.serialize("buttonStatus", buttonStatus);
 	}
