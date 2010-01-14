@@ -56,7 +56,7 @@ private:
 
 	void start();
 	void stop();
-	std::string status() const;
+	std::string debugInfo() const;
 	std::string go(const std::vector<std::string>& tokens);
 	void goBack(const std::vector<std::string>& tokens);
 	std::string saveReplay(const std::vector<std::string>& tokens);

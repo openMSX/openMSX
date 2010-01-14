@@ -152,7 +152,7 @@ void ReverseManager::stop()
 	assert(!replaying());
 }
 
-string ReverseManager::status() const
+string ReverseManager::debugInfo() const
 {
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
@@ -575,8 +575,8 @@ string ReverseCmd::execute(const vector<string>& tokens)
 		manager.start();
 	} else if (tokens[1] == "stop") {
 		manager.stop();
-	} else if (tokens[1] == "status") {
-		return manager.status();
+	} else if (tokens[1] == "debug") {
+		return manager.debugInfo();
 	} else if (tokens[1] == "goback") {
 		manager.goBack(tokens);
 	} else if (tokens[1] == "go") {
@@ -596,7 +596,7 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	return "!! this is NOT the final command, this is only for experiments !!\n"
 	       "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
-	       "status              give overview of collected data\n"
+	       //"status              \n"
 	       "go <n>              go to a previously collected point\n"
 	       "goback <n>          go back <n> seconds in time (for now: approx!)\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
@@ -609,7 +609,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		set<string> subCommands;
 		subCommands.insert("start");
 		subCommands.insert("stop");
-		subCommands.insert("status");
+		//subCommands.insert("status");
 		subCommands.insert("go");
 		subCommands.insert("goback");
 		subCommands.insert("savereplay");
