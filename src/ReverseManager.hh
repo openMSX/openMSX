@@ -18,6 +18,7 @@ class MSXMotherBoard;
 class EventDistributor;
 class ReverseCmd;
 class MemBuffer;
+class TclObject;
 
 class ReverseManager : private Schedulable, private EventListener
                      , private StateChangeListener
@@ -56,10 +57,10 @@ private:
 
 	void start();
 	void stop();
-	std::string debugInfo() const;
-	void goBack(const std::vector<std::string>& tokens);
-	std::string saveReplay(const std::vector<std::string>& tokens);
-	std::string loadReplay(const std::vector<std::string>& tokens);
+	void debugInfo(TclObject& result) const;
+	void goBack(const std::vector<TclObject*>& tokens);
+	void saveReplay(const std::vector<TclObject*>& tokens, TclObject& result);
+	void loadReplay(const std::vector<TclObject*>& tokens, TclObject& result);
 	
 	void goToSnapshot(Chunks::iterator chunk_it, EmuTime::param targetTime);
 

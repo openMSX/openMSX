@@ -6,6 +6,7 @@
 #include "StateChangeDistributor.hh"
 #include "XMLException.hh"
 #include "XMLElement.hh"
+#include "TclObject.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "StateChange.hh"
@@ -40,11 +41,11 @@ struct Replay
 	}
 };
 
-class ReverseCmd : public SimpleCommand
+class ReverseCmd : public Command
 {
 public:
 	ReverseCmd(ReverseManager& manager, CommandController& controller);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -152,34 +153,34 @@ void ReverseManager::stop()
 	assert(!replaying());
 }
 
-string ReverseManager::debugInfo() const
+void ReverseManager::debugInfo(TclObject& result) const
 {
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
-	StringOp::Builder result;
+	StringOp::Builder res;
 	unsigned totalSize = 0;
 	for (Chunks::const_iterator it = history.chunks.begin();
 	     it != history.chunks.end(); ++it) {
 		const ReverseChunk& chunk = it->second;
-		result << it->first << ' '
-		       << (chunk.time - EmuTime::zero).toDouble() << ' '
-		       << ((chunk.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
-		       << " (" << chunk.savestate->getLength() << ")"
-		       << " (next event index: " << chunk.eventCount << ")\n";
+		res << it->first << ' '
+		    << (chunk.time - EmuTime::zero).toDouble() << ' '
+		    << ((chunk.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
+		    << " (" << chunk.savestate->getLength() << ")"
+		    << " (next event index: " << chunk.eventCount << ")\n";
 		totalSize += chunk.savestate->getLength();
 	}
-	result << "total size: " << totalSize << '\n';
-	return result;
+	res << "total size: " << totalSize << '\n';
+	result.setString(res);
 }
 
-void ReverseManager::goBack(const vector<string>& tokens)
+void ReverseManager::goBack(const vector<TclObject*>& tokens)
 {
 	if (history.chunks.empty())
 		throw CommandException("No recording...");
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	double t = StringOp::stringToDouble(tokens[2]);
+	double t = tokens[2]->getDouble();
 
 	// find oldest snapshot that is not newer than requested time
 	EmuTime targetTime = EmuTime::zero;
@@ -207,19 +208,20 @@ void ReverseManager::goBack(const vector<string>& tokens)
 	goToSnapshot(it, targetTime);
 }
 
-string ReverseManager::saveReplay(const vector<string>& tokens)
+void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& result)
 {
-	if (history.chunks.empty())
+	if (history.chunks.empty()) {
 		throw CommandException("No recording...");
-	if ((tokens.size() != 2) && (tokens.size() != 3)) {
-		throw SyntaxError();
 	}
+
 	string fileName;
 	if (tokens.size() == 2) {
 		fileName = FileOperations::getNextNumberedFileName(
-                        "replays", "openmsx", ".gz");
+		                "replays", "openmsx", ".gz");
+	} else if (tokens.size() == 3) {
+		fileName = tokens[2]->getString();
 	} else {
-		fileName = tokens[2];
+		throw SyntaxError();
 	}
 
 	// restore first snapshot to be able to serialize it to a file
@@ -251,17 +253,18 @@ string ReverseManager::saveReplay(const vector<string>& tokens)
 		history.events.pop_back();
 	}
 
-	return "Saved replay to " + fileName;
+	result.setString("Saved replay to " + fileName);
 }
 
-string ReverseManager::loadReplay(const vector<string>& tokens)
+void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& result)
 {
-	if (tokens.size() < 3) {
+	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
 
 	UserDataFileContext context("replays");
-	string fileName = context.resolve(motherBoard.getCommandController(), tokens[2]);
+	string fileName = context.resolve(motherBoard.getCommandController(),
+	                                  tokens[2]->getString());
 
 	// restore replay
 	Replay replay;
@@ -293,7 +296,7 @@ string ReverseManager::loadReplay(const vector<string>& tokens)
 	// TODO this is not correct if this board was not the active board
 	reactor.replaceActiveBoard(replay.motherBoard);
 
-	return "Loaded replay from " + fileName;
+	result.setString("Loaded replay from " + fileName);
 }
 
 /** Go to snapshot given by iterator and targetTime
@@ -543,32 +546,32 @@ const string& ReverseManager::schedName() const
 // class ReverseCmd
 
 ReverseCmd::ReverseCmd(ReverseManager& manager_, CommandController& controller)
-	: SimpleCommand(controller, "reverse")
+	: Command(controller, "reverse")
 	, manager(manager_)
 {
 }
 
-string ReverseCmd::execute(const vector<string>& tokens)
+void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");
 	}
-	if (tokens[1] == "start") {
+	string subcommand = tokens[1]->getString();
+	if        (subcommand == "start") {
 		manager.start();
-	} else if (tokens[1] == "stop") {
+	} else if (subcommand == "stop") {
 		manager.stop();
-	} else if (tokens[1] == "debug") {
-		return manager.debugInfo();
-	} else if (tokens[1] == "goback") {
+	} else if (subcommand == "debug") {
+		manager.debugInfo(result);
+	} else if (subcommand == "goback") {
 		manager.goBack(tokens);
-	} else if (tokens[1] == "savereplay") {
-		return manager.saveReplay(tokens);
-	} else if (tokens[1] == "loadreplay") {
-		return manager.loadReplay(tokens);
+	} else if (subcommand == "savereplay") {
+		return manager.saveReplay(tokens, result);
+	} else if (subcommand == "loadreplay") {
+		return manager.loadReplay(tokens, result);
 	} else {
-		throw CommandException("Invalid subcommand");
+		throw CommandException("Invalid subcommand: " + subcommand);
 	}
-	return "";
 }
 
 string ReverseCmd::help(const vector<string>& /*tokens*/) const
