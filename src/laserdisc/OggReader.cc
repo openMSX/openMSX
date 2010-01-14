@@ -10,8 +10,7 @@
 #include "StringOp.hh"
 #include "RawFrame.hh"
 #include "MemoryOps.hh"
-
-#include <cstring>
+#include "stringsp.hh" // for strncasecmp
 
 // TODO
 // - Use theora 1.0 API
