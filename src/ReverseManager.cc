@@ -17,6 +17,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 using std::string;
@@ -151,6 +152,50 @@ void ReverseManager::stop()
 	assert(!pendingTakeSnapshot);
 	assert(!collecting());
 	assert(!replaying());
+}
+
+void ReverseManager::status(TclObject& result) const
+{
+	result.addListElement("status");
+	if (!collecting()) {
+		result.addListElement("disabled");
+	} else if (replaying()) {
+		result.addListElement("replaying");
+	} else {
+		result.addListElement("enabled");
+	}
+
+	EmuTime begin(EmuTime::dummy());
+	EmuTime end(EmuTime::dummy());
+	EmuTime current(EmuTime::dummy());
+	if (collecting()) {
+		begin = history.chunks.begin()->second.time;
+		current = getCurrentTime();
+		if (replaying()) {
+			const EndLogEvent& ev = *checked_cast<EndLogEvent*>(
+				history.events.back().get());
+			end = ev.getTime();
+		} else {
+			end = current;
+		}
+	} else {
+		begin = end = current = EmuTime::zero;
+	}
+	result.addListElement("begin");
+	result.addListElement((begin - EmuTime::zero).toDouble());
+	result.addListElement("end");
+	result.addListElement((end - EmuTime::zero).toDouble());
+	result.addListElement("current");
+	result.addListElement((current - EmuTime::zero).toDouble());
+
+	result.addListElement("snapshots");
+	TclObject snapshots;
+	for (Chunks::const_iterator it = history.chunks.begin();
+	     it != history.chunks.end(); ++it) {
+		EmuTime time = it->second.time;
+		snapshots.addListElement((time - EmuTime::zero).toDouble());
+	}
+	result.addListElement(snapshots);
 }
 
 void ReverseManager::debugInfo(TclObject& result) const
@@ -561,6 +606,8 @@ void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		manager.start();
 	} else if (subcommand == "stop") {
 		manager.stop();
+	} else if (subcommand == "status") {
+		manager.status(result);
 	} else if (subcommand == "debug") {
 		manager.debugInfo(result);
 	} else if (subcommand == "goback") {
@@ -579,7 +626,7 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	return "!! this is NOT the final command, this is only for experiments !!\n"
 	       "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
-	       //"status              \n"
+	       "status              show various status info on reverse\n"
 	       "goback <n>          go back <n> seconds in time (for now: approx!)\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
 	       "loadreplay <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
@@ -591,7 +638,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		set<string> subCommands;
 		subCommands.insert("start");
 		subCommands.insert("stop");
-		//subCommands.insert("status");
+		subCommands.insert("status");
 		subCommands.insert("goback");
 		subCommands.insert("savereplay");
 		subCommands.insert("loadreplay");

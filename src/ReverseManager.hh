@@ -57,6 +57,7 @@ private:
 
 	void start();
 	void stop();
+	void status(TclObject& result) const;
 	void debugInfo(TclObject& result) const;
 	void goBack(const std::vector<TclObject*>& tokens);
 	void saveReplay(const std::vector<TclObject*>& tokens, TclObject& result);
