@@ -172,24 +172,6 @@ string ReverseManager::debugInfo() const
 	return result;
 }
 
-std::string ReverseManager::go(const vector<string>& tokens)
-{
-	// TODO useful during development, but should probably be removed later
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	unsigned n = StringOp::stringToInt(tokens[2]);
-	Chunks::iterator it = history.chunks.find(n);
-	if (it == history.chunks.end()) {
-		throw CommandException("Out of range");
-	}
-	goToSnapshot(it, it->second.time);
-	return "Went back to " +
-		StringOp::toString((it->second.time - EmuTime::zero).toDouble()) +
-		" (" +  StringOp::toString(((it->second.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100) +
-		"%)" ;
-}
-
 void ReverseManager::goBack(const vector<string>& tokens)
 {
 	if (history.chunks.empty())
@@ -579,8 +561,6 @@ string ReverseCmd::execute(const vector<string>& tokens)
 		return manager.debugInfo();
 	} else if (tokens[1] == "goback") {
 		manager.goBack(tokens);
-	} else if (tokens[1] == "go") {
-		return manager.go(tokens);
 	} else if (tokens[1] == "savereplay") {
 		return manager.saveReplay(tokens);
 	} else if (tokens[1] == "loadreplay") {
@@ -597,7 +577,6 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	       "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
 	       //"status              \n"
-	       "go <n>              go to a previously collected point\n"
 	       "goback <n>          go back <n> seconds in time (for now: approx!)\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
 	       "loadreplay <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
@@ -610,20 +589,12 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		subCommands.insert("start");
 		subCommands.insert("stop");
 		//subCommands.insert("status");
-		subCommands.insert("go");
 		subCommands.insert("goback");
 		subCommands.insert("savereplay");
 		subCommands.insert("loadreplay");
 		completeString(tokens, subCommands);
 	} else if (tokens.size() == 3) {
-		if (tokens[1] == "go") {
-			set<string> options;
-			for (ReverseManager::Chunks::const_iterator it = manager.history.chunks.begin();
-				it != manager.history.chunks.end(); ++it) {
-				options.insert(StringOp::toString(it->first));
-			}
-			completeString(tokens, options);
-		} else if (tokens[1] == "loadreplay") {
+		if (tokens[1] == "loadreplay") {
 			UserDataFileContext context("replays");
 			completeFileName(getCommandController(), tokens, context);
 		}
