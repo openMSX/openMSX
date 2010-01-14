@@ -154,6 +154,18 @@ void ReverseManager::stop()
 	assert(!replaying());
 }
 
+EmuTime::param ReverseManager::getEndTime() const
+{
+	assert(collecting());
+	if (replaying()) {
+		const EndLogEvent& ev = *checked_cast<EndLogEvent*>(
+			history.events.back().get());
+		return ev.getTime();
+	} else {
+		return getCurrentTime();
+	}
+}
+
 void ReverseManager::status(TclObject& result) const
 {
 	result.addListElement("status");
@@ -165,27 +177,17 @@ void ReverseManager::status(TclObject& result) const
 		result.addListElement("enabled");
 	}
 
-	EmuTime begin(EmuTime::dummy());
-	EmuTime end(EmuTime::dummy());
-	EmuTime current(EmuTime::dummy());
-	if (collecting()) {
-		begin = history.chunks.begin()->second.time;
-		current = getCurrentTime();
-		if (replaying()) {
-			const EndLogEvent& ev = *checked_cast<EndLogEvent*>(
-				history.events.back().get());
-			end = ev.getTime();
-		} else {
-			end = current;
-		}
-	} else {
-		begin = end = current = EmuTime::zero;
-	}
 	result.addListElement("begin");
+	EmuTime begin(collecting() ? history.chunks.begin()->second.time
+	                           : EmuTime::zero);
 	result.addListElement((begin - EmuTime::zero).toDouble());
+
 	result.addListElement("end");
+	EmuTime end(collecting() ? getEndTime() : EmuTime::zero);
 	result.addListElement((end - EmuTime::zero).toDouble());
+
 	result.addListElement("current");
+	EmuTime current(collecting() ? getCurrentTime() : EmuTime::zero);
 	result.addListElement((current - EmuTime::zero).toDouble());
 
 	result.addListElement("snapshots");
@@ -220,37 +222,101 @@ void ReverseManager::debugInfo(TclObject& result) const
 
 void ReverseManager::goBack(const vector<TclObject*>& tokens)
 {
-	if (history.chunks.empty())
-		throw CommandException("No recording...");
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
 	double t = tokens[2]->getDouble();
+	EmuTime now = getCurrentTime();
+	EmuTime target(EmuTime::dummy());
+	if (t >= 0) {
+		EmuDuration d(t);
+		if (d < (now - EmuTime::zero)) {
+			target = now - d;
+		} else {
+			target = EmuTime::zero;
+		}
+	} else {
+		target = now + EmuDuration(-t);
+	}
+	goTo(target);
+}
+
+void ReverseManager::goTo(const std::vector<TclObject*>& tokens)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	goTo(EmuTime::zero + EmuDuration(tokens[2]->getDouble()));
+}
+
+void ReverseManager::goTo(EmuTime::param target)
+{
+	if (!collecting()) {
+		throw CommandException(
+			"Reverse was not enabled. First execute the 'reverse "
+			"start' command to start collecting data.");
+	}
+
+	// We can't go back further in the past than the first snapshot.
+	assert(!history.chunks.empty());
+	Chunks::iterator it = history.chunks.begin();
+	EmuTime targetTime = std::max(target, it->second.time);
+	// Also don't go further into the future than 'end time'.
+	targetTime = std::min(targetTime, getEndTime());
 
 	// find oldest snapshot that is not newer than requested time
-	EmuTime targetTime = EmuTime::zero;
-	Chunks::iterator it = history.chunks.begin();
-	if (EmuDuration(t) <= (getCurrentTime() - it->second.time)) {
-		targetTime = getCurrentTime() - EmuDuration(t);
-		// TODO ATM we do a linear search, could be improved to do a
-		//      binary search.
-		assert(it->second.time <= targetTime); // first one is not newer
-		assert(it != history.chunks.end()); // there are snapshots
-		do {
-			++it;
-		} while (it != history.chunks.end() &&
-		         it->second.time <= targetTime);
-		// We found the first one that's newer, previous one is last
-		// one that's not newer (thus older or equal).
-		assert(it != history.chunks.begin());
-		--it;
-		assert(it->second.time <= targetTime);
-	} else {
-		// Requested time is before first snapshot. We can't go back
-		// further than first snapshot, so take that one.
-		targetTime = it->second.time;
+	// TODO ATM we do a linear search, could be improved to do a binary search.
+	assert(it->second.time <= targetTime); // first one is not newer
+	assert(it != history.chunks.end()); // there are snapshots
+	do {
+		++it;
+	} while (it != history.chunks.end() &&
+	         it->second.time <= targetTime);
+	// We found the first one that's newer, previous one is last
+	// one that's not newer (thus older or equal).
+	assert(it != history.chunks.begin());
+	--it;
+	assert(it->second.time <= targetTime);
+
+	if (!replaying()) {
+		// terminate replay log with EndLogEvent
+		history.events.push_back(shared_ptr<StateChange>(
+			new EndLogEvent(getCurrentTime())));
+		++replayIndex;
 	}
-	goToSnapshot(it, targetTime);
+	// replay-log must end with EndLogEvent, either we just added it, or
+	// it was there already
+	assert(!history.events.empty());
+	assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
+
+	// erase all snapshots coming after the one we are going to
+	assert(it != history.chunks.end());
+	Chunks::iterator it2 = it;
+	history.chunks.erase(++it2, history.chunks.end());
+
+	// restore old snapshot
+	Reactor& reactor = motherBoard.getReactor();
+	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+	MemInputArchive in(*it->second.savestate);
+	in.serialize("machine", *newBoard);
+
+	// Transfer history from this ReverseManager to the one in the new
+	// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
+	// and start collecting in the new one.
+	assert(collecting());
+	newBoard->getReverseManager().transferHistory(
+		history, it->first, it->second.eventCount);
+	stop();
+
+	// fast forward to the required time
+	newBoard->fastForward(targetTime);
+
+	// switch to the new MSXMotherBoard
+	// TODO this is not correct if this board was not the active board
+	reactor.replaceActiveBoard(newBoard);
+
+	assert(!collecting());
+	assert(newBoard->getReverseManager().collecting());
 }
 
 void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& result)
@@ -342,51 +408,6 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	reactor.replaceActiveBoard(replay.motherBoard);
 
 	result.setString("Loaded replay from " + fileName);
-}
-
-/** Go to snapshot given by iterator and targetTime
- */
-void ReverseManager::goToSnapshot(Chunks::iterator it, EmuTime::param targetTime)
-{
-	if (!replaying()) {
-		// terminate replay log with EndLogEvent
-		history.events.push_back(shared_ptr<StateChange>(
-			new EndLogEvent(getCurrentTime())));
-		++replayIndex;
-	}
-	// replay-log must end with EndLogEvent, either we just added it, or
-	// it was there already
-	assert(!history.events.empty());
-	assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
-
-	// erase all snapshots coming after the one we are going to
-	assert(it != history.chunks.end());
-	Chunks::iterator it2 = it;
-	history.chunks.erase(++it2, history.chunks.end());
-
-	// restore old snapshot
-	Reactor& reactor = motherBoard.getReactor();
-	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-	MemInputArchive in(*it->second.savestate);
-	in.serialize("machine", *newBoard);
-
-	// Transfer history from this ReverseManager to the one in the new
-	// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
-	// and start collecting in the new one.
-	assert(collecting());
-	newBoard->getReverseManager().transferHistory(
-		history, it->first, it->second.eventCount);
-	stop();
-
-	// fast forward to the required time
-	newBoard->fastForward(targetTime);
-
-	// switch to the new MSXMotherBoard
-	// TODO this is not correct if this board was not the active board
-	reactor.replaceActiveBoard(newBoard);
-
-	assert(!collecting());
-	assert(newBoard->getReverseManager().collecting());
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
@@ -612,6 +633,8 @@ void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		manager.debugInfo(result);
 	} else if (subcommand == "goback") {
 		manager.goBack(tokens);
+	} else if (subcommand == "goto") {
+		manager.goTo(tokens);
 	} else if (subcommand == "savereplay") {
 		return manager.saveReplay(tokens, result);
 	} else if (subcommand == "loadreplay") {
@@ -627,7 +650,8 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	       "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
 	       "status              show various status info on reverse\n"
-	       "goback <n>          go back <n> seconds in time (for now: approx!)\n"
+	       "goback <n>          go back <n> seconds in time\n"
+	       "goto <time>         go to an absolute moment in time\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
 	       "loadreplay <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
