@@ -30,11 +30,10 @@ void main()
 {
 	vec4 distComp = fract(intCoord);
 	vec2 distComp2s = distComp.yw * distComp.yw * sep;
-	vec2 weight = smoothstep(0, 1, distComp.zx);
-	gl_FragColor = (
-		calcCorner(cornerCoord0.xy, cornerCoord1.xy, distComp2s.x) * weight.x +
-		calcCorner(cornerCoord0.zy, cornerCoord1.zy, distComp2s.x) * weight.y +
-		calcCorner(cornerCoord0.xw, cornerCoord1.xw, distComp2s.y) * weight.x +
-		calcCorner(cornerCoord0.zw, cornerCoord1.zw, distComp2s.y) * weight.y
-		);
+	gl_FragColor = mix(
+		calcCorner(cornerCoord0.zy, cornerCoord1.zy, distComp2s.x) +
+		calcCorner(cornerCoord0.zw, cornerCoord1.zw, distComp2s.y),
+		calcCorner(cornerCoord0.xy, cornerCoord1.xy, distComp2s.x) +
+		calcCorner(cornerCoord0.xw, cornerCoord1.xw, distComp2s.y),
+		smoothstep(0.0, 1.0, distComp.z));
 }
