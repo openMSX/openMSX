@@ -22,18 +22,18 @@ vec4 calcCorner(const vec2 texCoord0,
 #else
 	vec4 col = col0;
 #endif
-	float size = float(max(max(col.r, col.g), col.b));
-	return exp2(-dist2s / size) * vec4(col);
+	float size = max(max(col.r, col.g), col.b);
+	return exp2(-dist2s / size) * col;
 }
 
 void main()
 {
-	vec4 distComp = vec4(fract(intCoord));
+	vec4 distComp = fract(intCoord);
 	vec4 distComp2s = distComp * distComp * sep.xyxy;
 	vec4 dist2s = distComp2s.xyzw + distComp2s.yzwx;
-	gl_FragColor = vec4(
+	gl_FragColor =
 		calcCorner(cornerCoord0.xy, cornerCoord1.xy, dist2s.x) +
 		calcCorner(cornerCoord0.zy, cornerCoord1.zy, dist2s.y) +
 		calcCorner(cornerCoord0.xw, cornerCoord1.xw, dist2s.w) +
-		calcCorner(cornerCoord0.zw, cornerCoord1.zw, dist2s.z));
+		calcCorner(cornerCoord0.zw, cornerCoord1.zw, dist2s.z);
 }
