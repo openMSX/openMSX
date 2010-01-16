@@ -8,8 +8,8 @@ varying vec4 intCoord;
 varying vec4 cornerCoord0;
 varying vec4 cornerCoord1;
 
-// Pixel separation: lower value means larger pixels.
-const vec2 sep = vec2(2.3, 5.7);
+// Line separation: lower value means larger lines.
+const float sep = 4.0;
 
 vec4 calcCorner(const vec2 texCoord0,
                 const vec2 texCoord1,
@@ -29,11 +29,12 @@ vec4 calcCorner(const vec2 texCoord0,
 void main()
 {
 	vec4 distComp = fract(intCoord);
-	vec4 distComp2s = distComp * distComp * sep.xyxy;
-	vec4 dist2s = distComp2s.xyzw + distComp2s.yzwx;
-	gl_FragColor =
-		calcCorner(cornerCoord0.xy, cornerCoord1.xy, dist2s.x) +
-		calcCorner(cornerCoord0.zy, cornerCoord1.zy, dist2s.y) +
-		calcCorner(cornerCoord0.xw, cornerCoord1.xw, dist2s.w) +
-		calcCorner(cornerCoord0.zw, cornerCoord1.zw, dist2s.z);
+	vec2 distComp2s = distComp.yw * distComp.yw * sep;
+	vec2 weight = smoothstep(0, 1, distComp.zx);
+	gl_FragColor = (
+		calcCorner(cornerCoord0.xy, cornerCoord1.xy, distComp2s.x) * weight.x +
+		calcCorner(cornerCoord0.zy, cornerCoord1.zy, distComp2s.x) * weight.y +
+		calcCorner(cornerCoord0.xw, cornerCoord1.xw, distComp2s.y) * weight.x +
+		calcCorner(cornerCoord0.zw, cornerCoord1.zw, distComp2s.y) * weight.y
+		);
 }
