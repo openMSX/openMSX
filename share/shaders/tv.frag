@@ -19,7 +19,7 @@ vec4 calcCorner(const vec2 texCoord0,
 #else
 	vec4 col = col0;
 #endif
-	return smoothstep(vec4(0.0), vec4(2.0) - col, vec4(dist)) * col;
+	return smoothstep(0.5 * (vec4(1.0) - col), vec4(1.0), dist) * col;
 }
 
 void main()
