@@ -22,7 +22,7 @@ vec4 calcCorner(const vec2 texCoord0,
 #else
 	vec4 col = col0;
 #endif
-	float size = max(max(col.r, col.g), col.b);
+	vec4 size = (0.5 + 0.5 * col);
 	return exp2(-dist2s / size) * col;
 }
 
