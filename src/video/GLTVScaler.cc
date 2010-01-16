@@ -48,9 +48,7 @@ void GLTVScaler::scaleImage(
 	}
 	scalerProgram[i]->activate();
 	if (GLEW_VERSION_2_0) {
-		// always do as-if there are 640 dots on a line to get the
-		// same dot effect in border, 256 and 512 pixel areas
-		glUniform3f(texSizeLoc[i], 640.0f, src.getHeight(), logSrcHeight);
+		glUniform3f(texSizeLoc[i], src.getWidth(), src.getHeight(), logSrcHeight);
 	}
 	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
 	             dstStartY, dstEndY, dstWidth);
