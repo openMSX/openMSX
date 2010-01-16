@@ -33,12 +33,15 @@ namespace eval reverse_widgets {
 			set totLenght [expr $stats(end) - $stats(begin)]
 			set playLength [expr $stats(current) - $stats(begin)]
 			set fraction [expr ($playLength / $totLenght)]
+			
+			set playTime [reverse_widgets::maketime ($playLength)]
+			set totTime [reverse_widgets::maketime ($totLenght)]
 			#puts [expr $playLength/$totLenght]
 			update_power_bar reverse.bar \
 				33\
 				235 \
 				$fraction \
-				[format "%0.2f%%" [expr $fraction * 100]]
+				[format "$playTime / $totTime (%0.2f%%)" [expr $fraction * 100]]
 		}
 		set update_after_id [after realtime 0.10 [namespace code update_reversebar]]
 	}
@@ -54,8 +57,14 @@ namespace eval reverse_widgets {
 			reverse_widgets::set_mouse_trigger
 		}]
 	}
+	
+	proc maketime {seconds} {
+		set seconds [expr int($seconds)]
+		return  [format "%02d:%02d" [expr $seconds/60] [expr $seconds%60]]
+	}
 
 	namespace export toggle_reversebar
+	namespace export maketime
 }
 
 namespace import reverse_widgets::*
