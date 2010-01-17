@@ -289,10 +289,7 @@ void ReverseManager::goTo(EmuTime::param target)
 	assert(!history.events.empty());
 	assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
 
-	// erase all snapshots coming after the one we are going to
-	assert(it != history.chunks.end());
-	Chunks::iterator it2 = it;
-	history.chunks.erase(++it2, history.chunks.end());
+	// Note: we don't (anymore) erase future snapshots
 
 	// restore old snapshot
 	Reactor& reactor = motherBoard.getReactor();
@@ -518,16 +515,30 @@ bool ReverseManager::signalEvent(shared_ptr<const Event> event)
 
 void ReverseManager::takeSnapshot(EmuTime::param time)
 {
+	// (possibly) drop old snapshots
 	++collectCount;
 	dropOldSnapshots<25>(collectCount);
 
-	MemOutputArchive out;
-	out.serialize("machine", motherBoard);
-	ReverseChunk& newChunk = history.chunks[collectCount];
-	newChunk.time = time;
-	newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
-	newChunk.eventCount = replayIndex;
+	// During replay we still have (some) snapshots from the future. So
+	// if we still have a (future) snapshot with the correct sequence
+	// number we can avoid creating a new snapshot. Note that two snapshots
+	// with the same sequence number don't necessarily have the same
+	// EmuTime, but that doesn't matter.
+	// TODO does snapshot pruning still happen correctly (enough) when
+	//      going back/forward in time?
+	if (history.chunks.find(collectCount) == history.chunks.end()) {
+		// actually create new snapshot
+		MemOutputArchive out;
+		out.serialize("machine", motherBoard);
+		ReverseChunk& newChunk = history.chunks[collectCount];
+		newChunk.time = time;
+		newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
+		newChunk.eventCount = replayIndex;
+	} else {
+		assert(replaying());
+	}
 
+	// schedule creation of next snapshot
 	schedule(getCurrentTime());
 }
 
@@ -557,13 +568,19 @@ void ReverseManager::signalStateChange(shared_ptr<StateChange> event)
 	}
 }
 
-void ReverseManager::stopReplay(EmuTime::param /*time*/)
+void ReverseManager::stopReplay(EmuTime::param time)
 {
 	if (replaying()) {
 		// if we're replaying, stop it and erase remainder of event log
 		removeSyncPoint(INPUT_EVENT);
 		Events& events = history.events;
 		events.erase(events.begin() + replayIndex, events.end());
+		// search snapshots that are newer than 'time' and erase them
+		Chunks::iterator it = history.chunks.begin();
+		while ((it != history.chunks.end()) &&
+		       (it->second.time <= time)) {
+			++it;
+		}
 	}
 	assert(!replaying());
 }
