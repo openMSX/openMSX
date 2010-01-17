@@ -19,16 +19,16 @@ vec4 calcCorner(const vec2 texCoord0,
 #else
 	vec4 col = col0;
 #endif
-	return smoothstep(0.5 * (vec4(1.0) - col), vec4(1.0), dist) * col;
+	return smoothstep(0.5 * (vec4(1.0) - col), vec4(1.0), vec4(dist)) * col;
 }
 
 void main()
 {
 	vec4 distComp = fract(intCoord);
 	gl_FragColor = mix(
-		calcCorner(cornerCoord0.zy, cornerCoord1.zy, distComp.w) +
-		calcCorner(cornerCoord0.zw, cornerCoord1.zw, distComp.y),
 		calcCorner(cornerCoord0.xy, cornerCoord1.xy, distComp.w) +
 		calcCorner(cornerCoord0.xw, cornerCoord1.xw, distComp.y),
-		smoothstep(0.0, 1.0, distComp.z));
+		calcCorner(cornerCoord0.zy, cornerCoord1.zy, distComp.w) +
+		calcCorner(cornerCoord0.zw, cornerCoord1.zw, distComp.y),
+		smoothstep(0.0, 1.0, distComp.x));
 }

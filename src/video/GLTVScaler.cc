@@ -51,7 +51,7 @@ void GLTVScaler::scaleImage(
 		glUniform3f(texSizeLoc[i], src.getWidth(), src.getHeight(), logSrcHeight);
 	}
 	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-	             dstStartY, dstEndY, dstWidth);
+	             dstStartY, dstEndY, dstWidth, true);
 }
 
 } // namespace openmsx

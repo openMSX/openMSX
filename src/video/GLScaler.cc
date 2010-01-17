@@ -19,31 +19,40 @@ void GLScaler::drawMultiTex(
 	ColorTexture& src,
 	unsigned srcStartY, unsigned srcEndY,
 	float physSrcHeight, float logSrcHeight,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	bool textureFromZero)
 {
 	src.bind();
+	// Note: hShift is pre-divided by srcWidth, while vShift will be divided
+	//       by srcHeight later on.
+	// Note: The coordinate is put just past zero, to avoid fract() in the
+	//       fragment shader to wrap around on rounding errors.
+	float hShift = textureFromZero ? 0.501f / dstWidth : 0.0f;
+	float vShift = textureFromZero ? 0.501f * (
+		float(srcEndY - srcStartY) / float(dstEndY - dstStartY)
+		) : 0.0f;
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	{
-		GLfloat tex0StartY = srcStartY / physSrcHeight;
-		GLfloat tex0EndY   = srcEndY   / physSrcHeight;
-		GLfloat tex1StartY = srcStartY / logSrcHeight;
-		GLfloat tex1EndY   = srcEndY   / logSrcHeight;
+		GLfloat tex0StartY = (srcStartY + vShift) / physSrcHeight;
+		GLfloat tex0EndY   = (srcEndY   + vShift) / physSrcHeight;
+		GLfloat tex1StartY = (srcStartY + vShift) / logSrcHeight;
+		GLfloat tex1EndY   = (srcEndY   + vShift) / logSrcHeight;
 
-		glMultiTexCoord2f(GL_TEXTURE0, 0.0f, tex0StartY);
-		glMultiTexCoord2f(GL_TEXTURE1, 0.0f, tex1StartY);
+		glMultiTexCoord2f(GL_TEXTURE0, 0.0f + hShift, tex0StartY);
+		glMultiTexCoord2f(GL_TEXTURE1, 0.0f + hShift, tex1StartY);
 		glVertex2i(       0, dstStartY);
 
-		glMultiTexCoord2f(GL_TEXTURE0, 1.0f, tex0StartY);
-		glMultiTexCoord2f(GL_TEXTURE1, 1.0f, tex1StartY);
+		glMultiTexCoord2f(GL_TEXTURE0, 1.0f + hShift, tex0StartY);
+		glMultiTexCoord2f(GL_TEXTURE1, 1.0f + hShift, tex1StartY);
 		glVertex2i(dstWidth, dstStartY);
 
-		glMultiTexCoord2f(GL_TEXTURE0, 1.0f, tex0EndY  );
-		glMultiTexCoord2f(GL_TEXTURE1, 1.0f, tex1EndY  );
+		glMultiTexCoord2f(GL_TEXTURE0, 1.0f + hShift, tex0EndY  );
+		glMultiTexCoord2f(GL_TEXTURE1, 1.0f + hShift, tex1EndY  );
 		glVertex2i(dstWidth, dstEndY  );
 
-		glMultiTexCoord2f(GL_TEXTURE0, 0.0f, tex0EndY  );
-		glMultiTexCoord2f(GL_TEXTURE1, 0.0f, tex1EndY  );
+		glMultiTexCoord2f(GL_TEXTURE0, 0.0f + hShift, tex0EndY  );
+		glMultiTexCoord2f(GL_TEXTURE1, 0.0f + hShift, tex1EndY  );
 		glVertex2i(       0, dstEndY  );
 	}
 	glEnd();
