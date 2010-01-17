@@ -581,6 +581,7 @@ void ReverseManager::stopReplay(EmuTime::param time)
 		       (it->second.time <= time)) {
 			++it;
 		}
+		history.chunks.erase(it, history.chunks.end());
 	}
 	assert(!replaying());
 }
