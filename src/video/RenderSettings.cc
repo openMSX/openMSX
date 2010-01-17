@@ -159,6 +159,11 @@ int RenderSettings::getScanlineFactor() const
 	return 255 - ((scanlineAlphaSetting->getValue() * 255) / 100);
 }
 
+float RenderSettings::getScanlineGap() const
+{
+	return scanlineAlphaSetting->getValue() * 0.01f;
+}
+
 void RenderSettings::update(const Setting& setting)
 {
 	if (&setting == brightnessSetting.get()) {

@@ -3,6 +3,8 @@
 
 uniform sampler2D tex;
 uniform sampler2D videoTex;
+uniform float minScanline;
+uniform float sizeVariance;
 
 varying vec4 intCoord;
 varying vec4 cornerCoord0;
@@ -19,7 +21,10 @@ vec4 calcCorner(const vec2 texCoord0,
 #else
 	vec4 col = col0;
 #endif
-	return smoothstep(0.5 * (vec4(1.0) - col), vec4(1.0), vec4(dist)) * col;
+	return col * smoothstep(
+		minScanline + sizeVariance * (vec4(1.0) - col),
+		vec4(1.0),
+		vec4(dist));
 }
 
 void main()

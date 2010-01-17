@@ -84,8 +84,11 @@ public:
 	/** The amount of horizontal blur [0..256]. */
 	int getBlurFactor() const;
 
-	/** The alpha value [0..255] of the scanlines. */
+	/** The alpha value [0..255] of the gap between scanlines. */
 	int getScanlineFactor() const;
+
+	/** The amount of space [0..1] between scanlines. */
+	float getScanlineGap() const;
 
 	/** The current renderer. */
 	RendererFactory::RendererSetting& getRenderer() const {
