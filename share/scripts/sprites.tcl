@@ -41,7 +41,7 @@ proc sprite_menu_action {action} {
 	show_sprite $title_pos
 
 	#fade/ease
-	osd configure sprite_menu.title.text -text "Sprite $title_pos" -alpha 0
+	osd configure sprite_menu.title.text -text "Sprite $title_pos" -fadeCurrent 0
 	osd configure sprite_menu.index	-text "In mem: $max_sprites"
 	ease_text sprite_menu.title.text 0 $action
 
@@ -62,7 +62,7 @@ proc ease_text {osd_object {frame_render 0} {action 0}} {
 
 	#Intro Fade
 	if {$frame_render==0} {
-	   osd configure $osd_object -x $x -fadeTarget 0xffffffff -fadePeriod 0.25
+	   osd configure $osd_object -x $x -fadeTarget 1 -fadePeriod 0.25
 	}
 
 	if {$frame_render>$x} {

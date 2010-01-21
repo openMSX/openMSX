@@ -597,15 +597,13 @@ proc display_osd_text { message } {
 	if !$display_osd_text_created {
 		osd create rectangle "display_osd_text" \
 		                                -x 3 -y 12 -z 5 -w 314 -h 9 \
-		                                -rgb 0x002090 -scaled true -clip true
+		                                -rgba 0x002090C0 -scaled true -clip true
 		osd create text "display_osd_text.txt" \
 		                                -size 6 -rgb 0xffffff
 		set display_osd_text_created true
 	}
-	osd configure display_osd_text  -alpha 190 \
-	                                      -fadeTarget 0 -fadePeriod 5.0
-	osd configure display_osd_text.txt -alpha 255 -text $message \
-	                                      -fadeTarget 0 -fadePeriod 5.0
+	osd configure display_osd_text.txt -text $message
+	osd configure display_osd_text -fadeCurrent 1 -fadeTarget 0 -fadePeriod 5
 }
 
 proc menu_create_ROM_list { path } {

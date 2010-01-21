@@ -16,7 +16,7 @@ variable mouse1_pressed false
 		osd_widgets::msx_init "nem"
 
 		osd create rectangle nem.shield  \
-			-alpha 0 -fadeTarget 0 -fadePeriod 2 \
+			-fadeCurrent 0 -fadeTarget 0 -fadePeriod 2 \
 			-image [data_file scripts/shield.png]
 
 		#click to capture and click again to release 
@@ -85,7 +85,7 @@ variable mouse1_pressed false
 			poke [expr $addr + 10] [expr $dx & 255]
 
 			# make shield visible
-			osd configure nem.shield -alpha 0x80
+			osd configure nem.shield -fadeCurrent 0.5
 		}
 		after frame [namespace code create_shield]
 	}

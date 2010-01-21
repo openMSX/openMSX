@@ -19,11 +19,14 @@ public:
 	byte getRed()   const { return r; }
 	byte getGreen() const { return g; }
 	byte getBlue()  const { return b; }
-	byte getAlpha() const; // returns faded value
+	byte getAlpha() const { return a; }
+
+	byte getFadedAlpha() const;
 
 	virtual void getProperties(std::set<std::string>& result) const;
 	virtual void setProperty(const std::string& name, const TclObject& value);
 	virtual void getProperty(const std::string& name, TclObject& result) const;
+	virtual double getRecursiveFadeValue() const;
 
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
@@ -40,19 +43,20 @@ protected:
 
 private:
 	bool isFading() const;
-	void setAlpha(byte alpha);
-	void setAlpha(byte alpha, unsigned long long now);
-	byte getAlpha(unsigned long long now) const;
+	double getCurrentFadeValue() const;
+	double getCurrentFadeValue(unsigned long long) const;
+	void updateCurrentFadeValue();
+
 	void paint(OutputSurface& output, bool openGL);
 	void getTransformedXY(const OutputSurface& output,
 	                      double& outx, double& outy) const;
 
 	const OSDGUI& gui;
-	unsigned long long setFadeTime;
+	unsigned long long startFadeTime;
 	double fadePeriod;
-	byte fadeTarget;
-	byte r, g, b;
-	mutable byte a;
+	double fadeTarget;
+	mutable double startFadeValue;
+	byte r, g, b, a;
 	bool error;
 };
 

@@ -58,16 +58,16 @@ proc redraw_osd_icons { icon } {
 		set widget2 osd_icons.${icon}_on
 		set fade_delay $current_fade_delay_non_active($icon)
 	}
-	osd configure $widget2 -alpha 0 -fadeTarget 0
+	osd configure $widget2 -fadeCurrent 0 -fadeTarget 0
 
 	if {$fade_delay == 0} {
 		# no fading yet
-		osd configure $widget -alpha 255 -fadeTarget 255
+		osd configure $widget -fadeCurrent 1 -fadeTarget 1
 	} else {
 		set diff [expr [openmsx_info realtime] - $last_change($icon)]
 		if {$diff < $fade_delay} {
 			# no fading yet
-			osd configure $widget -alpha 255 -fadeTarget 255
+			osd configure $widget -fadeCurrent 1 -fadeTarget 1
 			catch {
 				after cancel $fade_id($icon)
 			}
@@ -292,8 +292,8 @@ set icon_list [list "led_power" "led_caps" "led_kana" "led_pause" "led_turbo" "l
 osd create rectangle osd_icons -scaled true -alpha 0 -z 1
 foreach icon $icon_list {
 	variable last_change
-	osd create rectangle osd_icons.${icon}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
-	osd create rectangle osd_icons.${icon}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
+	osd create rectangle osd_icons.${icon}_on  -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
+	osd create rectangle osd_icons.${icon}_off -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
 	trace add variable ::$icon "write unset" load_icons::trace_icon_status
 	set last_change($icon) [openmsx_info realtime]
 }

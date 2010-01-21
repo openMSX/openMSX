@@ -19,9 +19,10 @@ namespace openmsx {
 OSDImageBasedWidget::OSDImageBasedWidget(const OSDGUI& gui_, const string& name)
 	: OSDWidget(name)
 	, gui(gui_)
-	, setFadeTime(0)
+	, startFadeTime(0)
 	, fadePeriod(0.0)
-	, fadeTarget(255)
+	, fadeTarget(1.0)
+	, startFadeValue(1.0)
 	, r(0), g(0), b(0), a(255)
 	, error(false)
 {
@@ -38,6 +39,7 @@ void OSDImageBasedWidget::getProperties(set<string>& result) const
 	result.insert("-alpha");
 	result.insert("-fadePeriod");
 	result.insert("-fadeTarget");
+	result.insert("-fadeCurrent");
 	OSDWidget::getProperties(result);
 }
 
@@ -52,7 +54,7 @@ void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value
 			r = r2; g = g2; b = b2;
 			invalidateLocal();
 		}
-		setAlpha((color >>  0) & 255);
+		a = (color >>  0) & 255;
 	} else if (name == "-rgb") {
 		unsigned color = value.getInt();
 		byte r2 = (color >> 16) & 255;
@@ -64,15 +66,16 @@ void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value
 		}
 	} else if (name == "-alpha") {
 		// don't invalidate
-		setAlpha(value.getInt());
+		a = value.getInt();
 	} else if (name == "-fadePeriod") {
-		unsigned long long now = Timer::getTime();
-		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
+		updateCurrentFadeValue();
 		fadePeriod = value.getDouble();
 	} else if (name == "-fadeTarget") {
-		unsigned long long now = Timer::getTime();
-		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
-		fadeTarget = value.getInt();
+		updateCurrentFadeValue();
+		fadeTarget = std::max(0.0, std::min(1.0 , value.getDouble()));
+	} else if (name == "-fadeCurrent") {
+		startFadeValue = std::max(0.0, std::min(1.0, value.getDouble()));
+		startFadeTime = Timer::getTime();
 	} else {
 		OSDWidget::setProperty(name, value);
 	}
@@ -87,66 +90,72 @@ void OSDImageBasedWidget::getProperty(const string& name, TclObject& result) con
 		unsigned color = (r << 16) | (g << 8) | (b << 0);
 		result.setInt(color);
 	} else if (name == "-alpha") {
-		result.setInt(getAlpha());
+		result.setInt(a);
 	} else if (name == "-fadePeriod") {
 		result.setDouble(fadePeriod);
 	} else if (name == "-fadeTarget") {
-		result.setInt(fadeTarget);
+		result.setDouble(fadeTarget);
+	} else if (name == "-fadeCurrent") {
+		result.setDouble(getCurrentFadeValue());
 	} else {
 		OSDWidget::getProperty(name, result);
 	}
 }
 
+byte OSDImageBasedWidget::getFadedAlpha() const
+{
+	return byte(a * getRecursiveFadeValue());
+}
+
+double OSDImageBasedWidget::getRecursiveFadeValue() const
+{
+	return getParent()->getRecursiveFadeValue() * getCurrentFadeValue();
+}
+
 bool OSDImageBasedWidget::isFading() const
 {
-	return (a != fadeTarget) && (fadePeriod != 0.0);
+	return (startFadeValue != fadeTarget) && (fadePeriod != 0.0);
 }
 
-byte OSDImageBasedWidget::getAlpha() const
+double OSDImageBasedWidget::getCurrentFadeValue() const
 {
 	if (!isFading()) {
-		// optimization
-		return a;
+		return startFadeValue;
 	}
-	return getAlpha(Timer::getTime());
+	return getCurrentFadeValue(Timer::getTime());
 }
 
-byte OSDImageBasedWidget::getAlpha(unsigned long long now) const
+double OSDImageBasedWidget::getCurrentFadeValue(unsigned long long now) const
 {
-	assert(now >= setFadeTime);
-	if (fadePeriod == 0.0) {
-		return a;
-	}
+	assert(now >= startFadeTime);
 
-	int diff = int(now - setFadeTime); // int should be big enough
-	double ratio = diff / (1000000.0 * fadePeriod);
-	int dAlpha = int(256.0 * ratio);
-	if (a < fadeTarget) {
-		int tmpAlpha = a + dAlpha;
-		if (tmpAlpha >= fadeTarget) {
-			a = fadeTarget;
-			return a;
+	int diff = int(now - startFadeTime); // int should be big enough
+	assert(fadePeriod != 0.0);
+	double delta = diff / (1000000.0 * fadePeriod);
+	if (startFadeValue < fadeTarget) {
+		double tmp = startFadeValue + delta;
+		if (tmp >= fadeTarget) {
+			startFadeValue = fadeTarget;
+			return startFadeValue;
 		}
-		return tmpAlpha;
+		return tmp;
 	} else {
-		int tmpAlpha = a - dAlpha;
-		if (tmpAlpha <= fadeTarget) {
-			a = fadeTarget;
-			return a;
+		double tmp = startFadeValue - delta;
+		if (tmp <= fadeTarget) {
+			startFadeValue = fadeTarget;
+			return startFadeValue;
 		}
-		return tmpAlpha;
+		return tmp;
 	}
 }
 
-void OSDImageBasedWidget::setAlpha(byte alpha)
+void OSDImageBasedWidget::updateCurrentFadeValue()
 {
-	setAlpha(alpha, Timer::getTime());
-}
-
-void OSDImageBasedWidget::setAlpha(byte alpha, unsigned long long now)
-{
-	a = alpha;
-	setFadeTime = now;
+	unsigned long long now = Timer::getTime();
+	if (isFading()) {
+		startFadeValue = getCurrentFadeValue(now);
+	}
+	startFadeTime = now;
 }
 
 void OSDImageBasedWidget::invalidateLocal()
@@ -184,7 +193,7 @@ void OSDImageBasedWidget::paintGL(OutputSurface& output)
 
 void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 {
-	// Note: Even when getAlpha() == 0 we still create the image:
+	// Note: Even when alpha == 0 we still create the image:
 	//    It may be needed to get the dimensions to be able to position
 	//    child widgets.
 	if (!image.get() && !hasError()) {
@@ -198,11 +207,11 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 			setError(e.getMessage());
 		}
 	}
-	if ((getAlpha() != 0) && image.get()) {
+	byte fadedAlpha = getFadedAlpha();
+	if ((fadedAlpha != 0) && image.get()) {
 		double x, y;
 		getTransformedXY(output, x, y);
-		//std::cout << "draw " << getName() << "(" << image->getWidth() << "," << image->getHeight() << ") @ (" << x << "," << y << ")" << std::endl;
-		image->draw(output, int(x + 0.5), int(y + 0.5), getAlpha());
+		image->draw(output, int(x + 0.5), int(y + 0.5), fadedAlpha);
 	}
 	if (isFading()) {
 		gui.refresh();

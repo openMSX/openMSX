@@ -84,7 +84,7 @@ proc toggle_vdp_reg_viewer {} {
 			-w [expr $fontsize * 8] \
 			-h $fontsize \
 			-rgba 0xff0000ff \
-			-fadeTarget 0x00000000 \
+			-fadeTarget 0 \
 			-fadePeriod 1
 		osd create text vdp_reg_viewer.labl$i \
 			-x 0 \
@@ -107,7 +107,7 @@ proc toggle_vdp_reg_viewer {} {
 			-w [expr $fontsize * 8] \
 			-h [expr $fontsize] \
 			-rgba 0xff0000ff \
-			-fadeTarget 0x00000000 \
+			-fadeTarget 0 \
 			-fadePeriod 1
 		osd create text vdp_statreg_viewer.labl$i \
 			-x 0 \
@@ -139,7 +139,7 @@ proc update_vdp_reg_viewer {} {
 		set vdp_stat "[format 0x%02X [debug read VDP\ regs $i]]"
 		if {$vdp_stat != [osd info vdp_reg_viewer.stat$i -text]} {
 			osd configure vdp_reg_viewer.stat$i -text "$vdp_stat"
-			osd configure vdp_reg_viewer.indi$i -rgba 0xff0000ff
+			osd configure vdp_reg_viewer.indi$i -fadeCurrent 1
 		}
 	}
 	
@@ -147,7 +147,7 @@ proc update_vdp_reg_viewer {} {
 		set vdp_stat "[format 0x%02X [debug read VDP\ status\ regs $i]]"
 		if {$vdp_stat != [osd info vdp_statreg_viewer.stat$i -text]} {
 			osd configure vdp_statreg_viewer.stat$i -text "$vdp_stat"
-			osd configure vdp_statreg_viewer.indi$i -rgba 0xff0000ff
+			osd configure vdp_statreg_viewer.indi$i -fadeCurrent 1
 		}
 	}
 

@@ -296,6 +296,11 @@ void OSDWidget::getProperty(const string& name, TclObject& result) const
 	}
 }
 
+double OSDWidget::getRecursiveFadeValue() const
+{
+	return 1.0; // fully opaque
+}
+
 void OSDWidget::invalidateRecursive()
 {
 	invalidateLocal();

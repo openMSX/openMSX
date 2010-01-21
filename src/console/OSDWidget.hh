@@ -37,6 +37,7 @@ public:
 	virtual void getProperties(std::set<std::string>& result) const;
 	virtual void setProperty(const std::string& name, const TclObject& value);
 	virtual void getProperty(const std::string& name, TclObject& result) const;
+	virtual double getRecursiveFadeValue() const;
 	virtual std::string getType() const = 0;
 
 	void invalidateRecursive();
