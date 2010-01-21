@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1263187856">
+<softwaredb xml:lang="en" timestamp="1264108080">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -919,6 +919,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">d69d4a6f2834b20df3a2afbd7a927220e96e31e1</hash></rom></dump>
 		<dump><rom><hash algo="sha1">01ebdd5981c4841abddf6f76eb1f73e237e7688f</hash></rom></dump>
 		<dump><rom><hash algo="sha1">702d8f1762d4efe994f520e21e8867adae13b817</hash><remark><text>[a]</text></remark></rom></dump>
+		<dump><original value="false">Translated</original><rom><hash algo="sha1">4eb5c8e5bc0b0c1bcfc55c53a819d5d592eb0551</hash><remark><text>Translation by Hap and Rieks</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Bee &#38; Flower</title>
@@ -6221,7 +6222,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2007</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">3bfbf89dfe4f896a581b1d130afb57ce722bdf0d</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>konamiSCC</type><hash algo="sha1">3bfbf89dfe4f896a581b1d130afb57ce722bdf0d</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Manes</title>
@@ -11479,6 +11480,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2512
-Parse time 6.639 seconds on Mon Jan 11 6:31:03 CET 2010
+Roms in this database:2513
+Parse time 4.514 seconds on Thu Jan 21 22:08:05 CET 2010
  -->
