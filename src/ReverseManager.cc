@@ -516,27 +516,23 @@ bool ReverseManager::signalEvent(shared_ptr<const Event> event)
 void ReverseManager::takeSnapshot(EmuTime::param time)
 {
 	// (possibly) drop old snapshots
+	// TODO does snapshot pruning still happen correctly (often enough)
+	//      when going back/forward in time?
 	++collectCount;
 	dropOldSnapshots<25>(collectCount);
 
-	// During replay we still have (some) snapshots from the future. So
-	// if we still have a (future) snapshot with the correct sequence
-	// number we can avoid creating a new snapshot. Note that two snapshots
-	// with the same sequence number don't necessarily have the same
-	// EmuTime, but that doesn't matter.
-	// TODO does snapshot pruning still happen correctly (enough) when
-	//      going back/forward in time?
-	if (history.chunks.find(collectCount) == history.chunks.end()) {
-		// actually create new snapshot
-		MemOutputArchive out;
-		out.serialize("machine", motherBoard);
-		ReverseChunk& newChunk = history.chunks[collectCount];
-		newChunk.time = time;
-		newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
-		newChunk.eventCount = replayIndex;
-	} else {
-		assert(replaying());
-	}
+	// During replay we might already have a snapshot with the current
+	// sequence number, though this snapshot does not necessarily have the
+	// exact same EmuTime (because we don't (re)start taking snapshots at
+	// the same moment in time).
+
+	// actually create new snapshot
+	MemOutputArchive out;
+	out.serialize("machine", motherBoard);
+	ReverseChunk& newChunk = history.chunks[collectCount];
+	newChunk.time = time;
+	newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
+	newChunk.eventCount = replayIndex;
 
 	// schedule creation of next snapshot
 	schedule(getCurrentTime());
