@@ -678,6 +678,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		subCommands.insert("stop");
 		subCommands.insert("status");
 		subCommands.insert("goback");
+		subCommands.insert("goto");
 		subCommands.insert("savereplay");
 		subCommands.insert("loadreplay");
 		completeString(tokens, subCommands);
