@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2010/01/06
+# Updated @ 2010/01/21
 #
 
 
@@ -844,6 +844,11 @@ create_trainer "Beamrider CAS" {time 5} {
 	"Level (1-99;0)" {poke 0xe224 1}
 	"Lives" {poke 0xe225 12}
 	"Unlimited Bombs" {poke 0xe22e 99}
+}
+
+create_trainer "Becky" {time 1} {
+	"9 Lives" {poke 0xe1a7 9}
+	"Infinite Time" {poke 0xe1b3 38}
 }
 
 create_trainer "Bestial Warrior" {time 1} {
@@ -4981,6 +4986,10 @@ create_trainer "Pitfall!" {time 1} {
 	"Time" {poke 0xe1d4 184;poke 0xe1d5 60}
 }
 
+create_trainer "Pleasure Hearts" {time 5} {
+	"Invincible" {poke 0xb0d3 255}
+}
+
 create_trainer "Point Crisis" {time 1} {
 	"Fire" {poke 0xa489 5}
 	"Lives" {poke 0xa484 5}
@@ -5527,6 +5536,7 @@ create_trainer "SD-Snatcher" {time 1} {
 	"Chaf" {poke 0xc430 2;poke 0xc431 255}
 	"Comet" {poke 0xc428 2;poke 0xc429 255}
 	"Dball" {poke 0xc408 2;poke 0xc409 255}
+	"Door to the 3rd floor is open (24 candles blown out)" {poke 0xxe9b 24}
 	"F. Ball" {poke 0xc3b0 2;poke 0xc4b1 255}
 	"Flare" {poke 0xc448 2;poke 0xc449 255}
 	"G Mine" {poke 0xc420 2;poke 0xc421 255}
@@ -5866,23 +5876,7 @@ create_trainer "Super Boy 1" {time 1} {
 	"Y-pos (0-160)" {poke 0xe36c 0}
 }
 
-create_trainer "Super Boy 3" {time 1} {
-	"Big Mario" {poke 0xe190 255}
-	"Coins" {poke 0xe18b 152}
-	"Fire (on Graph Key)" {poke 0xe191 255}
-	"Invincible" {poke 0xe177 255}
-	"Invulnerable (but Avoid To Fall !)" {poke 0xe192 255}
-	"Lives" {poke 0xe26b 99}
-	"Round (1-16)" {poke 0xe26c 1}
-	"Stones" {poke 0xe18a 8}
-	"Time" {poke 0xe18c 255}
-}
-
-create_trainer "Super Boy I" {time 2} {
-	"Power" {poke 0x6817 255}
-}
-
-create_trainer "Super Boy II" {time 1} {
+create_trainer "Super Boy 2" {time 1} {
 	"Big Mario" {poke 0xe372 16}
 	"Coins" {poke 0xe233 152}
 	"Fire (on Graph Key)" {poke 0xe373 16}
@@ -5892,6 +5886,32 @@ create_trainer "Super Boy II" {time 1} {
 	"World (0-3)" {poke 0xe044 0}
 	"X-pos (0-255)" {poke 0xe36d 0}
 	"Y-pos (0-160)" {poke 0xe36c 0}
+}
+
+create_trainer "Super Boy 3" {time 1} {
+	"Big Mario" {poke 0xe190 255}
+	"Coins" {poke 0xe18b 152}
+	"Fire (on Graph Key)" {poke 0xe191 255}
+	"Invulnerable (don't Fall)" {poke 0xe177 255;poke 0xe192 255}
+	"Lives" {poke 0xe26b 99}
+	"Round 01" {poke 0xe26c 1}
+	"Round 02" {poke 0xe26c 2}
+	"Round 03" {poke 0xe26c 3}
+	"Round 04" {poke 0xe26c 4}
+	"Round 05" {poke 0xe26c 5}
+	"Round 06" {poke 0xe26c 6}
+	"Round 07" {poke 0xe26c 7}
+	"Round 08" {poke 0xe26c 8}
+	"Round 09" {poke 0xe26c 9}
+	"Round 10" {poke 0xe26c 10}
+	"Round 11" {poke 0xe26c 11}
+	"Round 12" {poke 0xe26c 12}
+	"Round 13" {poke 0xe26c 13}
+	"Round 14" {poke 0xe26c 14}
+	"Round 15" {poke 0xe26c 15}
+	"Round 16" {poke 0xe26c 16}
+	"Stones" {poke 0xe18a 8}
+	"Time" {poke 0xe18c 255}
 }
 
 create_trainer "Super Cobra" {time 2} {
@@ -6785,4 +6805,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 1.134 seconds. 725 trainers -  having 5503 pokes
+# File Created in : 8.899 seconds. 726 trainers -  having 5521 pokes
