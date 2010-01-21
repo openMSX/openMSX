@@ -5,6 +5,7 @@
 #include "WavWriter.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
+#include "FileContext.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "Display.hh"
@@ -308,7 +309,8 @@ void RecordCommand::tabCompletion(vector<string>& tokens) const
 		const char* const str[4] = { "-prefix", "-videoonly", "-audioonly",
 						"-doublesize"};
 		std::set<string> cmds(str, str + 4);
-		completeString(tokens, cmds);
+		UserFileContext context;
+		completeFileName(getCommandController(), tokens, context, cmds);
 	}
 }
 

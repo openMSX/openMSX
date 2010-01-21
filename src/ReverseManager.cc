@@ -683,7 +683,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		subCommands.insert("loadreplay");
 		completeString(tokens, subCommands);
 	} else if (tokens.size() == 3) {
-		if (tokens[1] == "loadreplay") {
+		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {
 			UserDataFileContext context("replays");
 			completeFileName(getCommandController(), tokens, context);
 		}
