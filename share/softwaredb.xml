@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1264108080">
+<softwaredb xml:lang="en" timestamp="1264231960">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3707,6 +3707,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Konami</type><hash algo="sha1">f5009c44ba1e72b64e29fc734741d518b4167aea</hash><remark><text>[RC-748]</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">00c555895b47c435d7965f7c488858c35e2944f4</hash><remark><text>[RC-748] [English] [Trained] / Translated by Tsunami &#38; Max Iwamoto</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">b99cb4a334665798042ac4d0c88da0d22cc32bd6</hash><remark><text>[RC-748] [English] / Translated by Tsunami &#38; Max Iwamoto</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>Konami</type><hash algo="sha1">e6ebf12b86ab0c280aab128d8faf1c513ea6f7e7</hash><remark><text>[RC-748] [English] [Trained]</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>Konami</type><hash algo="sha1">993a662586b2c27c9a8c76b628d8273e7577d1b4</hash><remark><text>[RC-748] [English]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gang Master</title>
@@ -11104,9 +11106,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">ebe20c85c5314957fafc223c26bf393847e3bb03</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">f2361230358bd945690ca1c2a9dcc1cbce83941b</hash></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">a04ccf24f4164282ddc2574378f0d9ad8e180a53</hash><remark><text>English Translation</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">a04ccf24f4164282ddc2574378f0d9ad8e180a53</hash><remark><text>English Translation</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">07e2f85da94ae1c086a4f6358e5e77025489347c</hash><remark><text>Trained</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash algo="sha1">4e34de62f72075831fc9a8c8fa1350a2e3dd6712</hash><remark><text>English Translation (Trained)</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">4e34de62f72075831fc9a8c8fa1350a2e3dd6712</hash><remark><text>English Translation (Trained)</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">c8a0b22bcbf070f73904bf4d584256d7c66772f9</hash><remark><text>English Translation</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">9539eec2adee5bc7c2e9adf7ad84454185895fb6</hash><remark><text>English Translation (Trained)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Word Invaders</title>
@@ -11480,6 +11484,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2513
-Parse time 4.514 seconds on Thu Jan 21 22:08:05 CET 2010
+Roms in this database:2517
+Parse time 16.435 seconds on Sat Jan 23 8:32:56 CET 2010
  -->
