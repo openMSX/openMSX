@@ -803,8 +803,10 @@ unsigned OggReader::binarySearch(int frame, unsigned sample,
 		state = FIND_FIRST;
 
 		while ((currentFrame == -1 || 
-			currentSample == AudioFragment::UNKNOWN_POS) && 
-		       nextPacket());
+			 currentSample == AudioFragment::UNKNOWN_POS) && 
+			nextPacket()) {
+			// continue reading
+		}
 
 		state = PLAYING;
 
@@ -849,7 +851,9 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		currentSample = AudioFragment::UNKNOWN_POS;
 		state = FIND_LAST;
 
-		while (nextPacket());
+		while (nextPacket()) {
+			// continue reading
+		}
 
 		state = PLAYING;
 
@@ -883,7 +887,9 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	keyFrame = -1;
 	state = FIND_KEYFRAME;
 
-	while (keyFrame == -1 && nextPacket());
+	while (keyFrame == -1 && nextPacket()) {
+		// continue reading
+	}
 
 	state = PLAYING;
 
