@@ -141,7 +141,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, lastPlayedSample(0)
 	, muteLeft(false)
 	, muteRight(false)
-	, frameClock(EmuTime::zero)
+	, frameClock(Schedulable::getCurrentTime())
 	, remoteState(REMOTE_IDLE)
 	, remoteLastEdge(EmuTime::zero)
 	, remoteLastBit(false)
@@ -748,7 +748,9 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 
 	// freeze if stop frame
-	if (video->stopFrame(currentFrame) && playerState == PLAYER_PLAYING) {
+	if (video->stopFrame(currentFrame) && 
+			(playerState == PLAYER_PLAYING || 
+			 playerState == PLAYER_PLAYING_MULTISPEED)) {
 		PRT_DEBUG("LaserdiscPlayer: stopFrame " << std::dec <<
 						currentFrame << " reached");
 
