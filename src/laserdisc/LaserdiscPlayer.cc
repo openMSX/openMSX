@@ -572,10 +572,12 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			case SEEK_FRAME:
 				seekState = SEEK_NONE;
 				seekFrame(seekNum % 100000, time);
+				ok = false;
 				break;
 			case SEEK_CHAPTER:
 				seekState = SEEK_NONE;
 				seekChapter(seekNum % 100, time);
+				ok = false;
 				break;
 			case SEEK_WAIT:
 				seekState = SEEK_NONE;
@@ -747,7 +749,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 
 	// freeze if stop frame
 	if (video->stopFrame(currentFrame) && playerState == PLAYER_PLAYING) {
-		PRT_DEBUG("LaserdiscPlayer: stopFrame" << std::dec <<
+		PRT_DEBUG("LaserdiscPlayer: stopFrame " << std::dec <<
 						currentFrame << " reached");
 
 		playingFromSample = getCurrentSample(time);
