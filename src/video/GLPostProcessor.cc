@@ -233,7 +233,7 @@ RawFrame* GLPostProcessor::rotateFrames(
 	return reuseFrame;
 }
 
-void GLPostProcessor::setSuperimposing(const RawFrame* videoSource)
+void GLPostProcessor::setSuperimposeFrame(const RawFrame* videoSource)
 {
 	superImposeFrame = videoSource;
 }

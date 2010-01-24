@@ -35,7 +35,7 @@ public:
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
-	virtual void setSuperimposing(const RawFrame* videoSource);
+	virtual void setSuperimposeFrame(const RawFrame* videoSource);
 
 protected:
 	// Observer<Setting> interface:

@@ -424,7 +424,7 @@ RawFrame* FBPostProcessor<Pixel>::rotateFrames(
 }
 
 template <class Pixel>
-void FBPostProcessor<Pixel>::setSuperimposing(const RawFrame* videoSource)
+void FBPostProcessor<Pixel>::setSuperimposeFrame(const RawFrame* videoSource)
 {
 	// TODO this method can be moved to base class
 	superImposeFrame = videoSource;

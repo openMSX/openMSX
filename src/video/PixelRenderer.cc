@@ -263,11 +263,11 @@ void PixelRenderer::updateTransparency(
 	rasterizer->setTransparency(enabled);
 }
 
-void PixelRenderer::updateSuperimposing (
+void PixelRenderer::updateSuperimposing(
 	const RawFrame* videoSource, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
-	rasterizer->setSuperimposing(videoSource);
+	rasterizer->setSuperimposeFrame(videoSource);
 }
 
 void PixelRenderer::updateForegroundColor(

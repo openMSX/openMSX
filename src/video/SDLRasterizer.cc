@@ -124,7 +124,6 @@ void SDLRasterizer<Pixel>::reset()
 	// Init renderer state.
 	setDisplayMode(vdp.getDisplayMode());
 	spriteConverter->setTransparency(vdp.getTransparency());
-	setSuperimposing(vdp.isSuperimposing());
 
 	resetPalette();
 }
@@ -141,9 +140,9 @@ void SDLRasterizer<Pixel>::resetPalette()
 }
 
 template<class Pixel>
-void SDLRasterizer<Pixel>::setSuperimposing(const RawFrame* videoSource)
+void SDLRasterizer<Pixel>::setSuperimposeFrame(const RawFrame* videoSource)
 {
-	postProcessor->setSuperimposing(videoSource);
+	postProcessor->setSuperimposeFrame(videoSource);
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                   videoSource, vdp.getBackgroundColor());
 }
