@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2010/01/21
+# Updated @ 2010/01/24
 #
 
 
@@ -3399,8 +3399,9 @@ create_trainer "Hydlide 1" {time 1} {
 }
 
 create_trainer "Hydlide 2 - Shine Of Darkness" {time 1} {
-	"Life Max" {poke 0xe01d 153}
+	"Life Max" {poke 0xe01d 153;poke 0xe01f 255}
 	"Magic Max" {poke 0xe025 153}
+	"Money" {poke 0xe054 153;poke 0xe055 153;poke 0xe056 153}
 	"Start Points" {poke 0xf10b 153}
 	"Strength Max" {poke 0xe022 153}
 }
@@ -6506,6 +6507,67 @@ create_trainer "Xak 3 - The Tower of Gazel" {time 1} {
 	"Latoks Strength" {poke 0x69f7 15;poke 0x69f8 39}
 }
 
+create_trainer "Xanada MSX1" {time 1} {
+	"Hit Points" {poke 0xf033 255;poke 0xf034 255;poke 0xf035 99}
+	"Max Food" {poke 0xf041 255;poke 0xf042 99;poke 0xf043 255}
+	"Max Gold" {poke 0xf044 255;poke 0xf045 255;poke 0xf046 99}
+	"Max Hp" {poke 0xf036 255;poke 0xf037 255;poke 0xf038 99}
+	"Max Mgr" {poke 0xf039 255}
+	"Max Str" {poke 0xf040 255}
+	"Slot 1 - +2 Battle Axe" {poke 0xf048 10}
+	"Slot 1 - Battle Axe" {poke 0xf048 5}
+	"Slot 1 - Broad Sword" {poke 0xf048 6}
+	"Slot 1 - Dagger" {poke 0xf048 0}
+	"Slot 1 - Disrupt Mace" {poke 0xf048 14}
+	"Slot 1 - Dragon Slayer" {poke 0xf048 16}
+	"Slot 1 - Giant Slayer" {poke 0xf048 11}
+	"Slot 1 - Halbred" {poke 0xf048 9}
+	"Slot 1 - Hand Axe" {poke 0xf048 3}
+	"Slot 1 - Lance" {poke 0xf048 8}
+	"Slot 1 - Long Sword" {poke 0xf048 4}
+	"Slot 1 - Luck Blade" {poke 0xf048 12}
+	"Slot 1 - Morning Star" {poke 0xf048 7}
+	"Slot 1 - Murasume Blade" {poke 0xf048 13}
+	"Slot 1 - Short Sword" {poke 0xf048 1}
+	"Slot 1 - Spear" {poke 0xf048 2}
+	"Slot 1 - Vorpal Weapon" {poke 0xf048 15}
+	"Slot 2 - +2 Full Plate" {poke 0xf047 14}
+	"Slot 2 - +2 Leather" {poke 0xf047 11}
+	"Slot 2 - +2 Reflex" {poke 0xf047 15}
+	"Slot 2 - +2 Ring Mail" {poke 0xf047 13}
+	"Slot 2 - Banded Armor" {poke 0xf047 8}
+	"Slot 2 - Battle Suits" {poke 0xf047 16}
+	"Slot 2 - Chain Mail" {poke 0xf047 6}
+	"Slot 2 - Cloth" {poke 0xf047 0}
+	"Slot 2 - Full Plate" {poke 0xf047 10}
+	"Slot 2 - Half Plate" {poke 0xf047 9}
+	"Slot 2 - Leather Armor" {poke 0xf047 1}
+	"Slot 2 - Padded Mail" {poke 0xf047 2}
+	"Slot 2 - Reflex" {poke 0xf047 12}
+	"Slot 2 - Ring Mail" {poke 0xf047 4}
+	"Slot 2 - Scale Armor" {poke 0xf047 5}
+	"Slot 2 - Split Mail" {poke 0xf047 7}
+	"Slot 2 - Studded Mail" {poke 0xf047 3}
+	"slot 3 - Corrosion" {poke 0xf049 10}
+	"slot 3 - Death" {poke 0xf049 16}
+	"slot 3 - Deg Corrosion" {poke 0xf049 14}
+	"slot 3 - Deg Deluge" {poke 0xf049 8}
+	"slot 3 - Deg Fire" {poke 0xf049 9}
+	"slot 3 - Deg Meedle" {poke 0xf049 1}
+	"slot 3 - Deg Mittar" {poke 0xf049 5}
+	"slot 3 - Deg Poison" {poke 0xf049 13}
+	"slot 3 - Deg Thunder" {poke 0xf049 11}
+	"slot 3 - Deg Tilte" {poke 0xf049 15 }
+	"slot 3 - Deluge" {poke 0xf049 3}
+	"slot 3 - Fire" {poke 0xf049 4}
+	"slot 3 - Meedle" {poke 0xf049 0}
+	"slot 3 - Mittar" {poke 0xf049 2}
+	"slot 3 - Poison" {poke 0xf049 7}
+	"slot 3 - Thunder" {poke 0xf049 6}
+	"slot 3 - Tilte" {poke 0xf049 12}
+	"W.exp" {poke 0xf030 255;poke 0xf031 255;poke 0xf032 99}
+}
+
 create_trainer "Xevious - Fardraut Saga" {time 2} {
 	"Have All Weapons And Shield" {poke 0xc005 255}
 	"Lives" {poke 0xc502 99}
@@ -6614,15 +6676,23 @@ create_trainer "Ys 1" {time 2} {
 	"Enemy Power Inside Tower (de-select On Final Boss)" {poke 0xcb1a 1}
 	"Enemy Power Outside Tower" {poke 0xcdba 1}
 	"Experience" {poke 0xcfc9 255;poke 0xcfca 255}
-	"Life" {poke 0xcfc3 255;poke ccb1 255}
+	"Life" {poke 0xcfc3 255}
 	"Money" {poke 0xcfc7 255;poke 0xcfc8 255}
 }
 
 create_trainer "Ys 2" {time 2} {
+	"All Armor" {poke 0x0133 255}
+	"All Items" {poke 0x0136 255;poke 0x0137 255;poke 0x0138 255;poke 0x0139 255}
+	"All Magic Rods" {poke 0x0135 255}
+	"All Shields" {poke 0x0134 255}
+	"All Swords" {poke 0x0132 255}
 	"Exp Max" {poke 0x0102 255;poke 0x0103 255}
 	"Gold Max" {poke 0x0196 255;poke 0x0197 255}
-	"Magic Meter" {poke 0x0104 255}
-	"Power Meter" {poke 0x018c 255}
+	"Have Magic Activated" {poke 0x0143 3}
+	"Magic Mp" {poke 0x0104 255;poke 0x0105 255}
+	"Max Def" {poke 0x018f 255}
+	"Max Hp" {poke 0x018c 255}
+	"Max Str" {poke 0x018e 255}
 }
 
 create_trainer "Ys 3" {time 10} {
@@ -6805,4 +6875,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 8.899 seconds. 726 trainers -  having 5521 pokes
+# File Created in : 15.231 seconds. 727 trainers -  having 5604 pokes
