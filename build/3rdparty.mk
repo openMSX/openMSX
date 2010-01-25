@@ -196,7 +196,8 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
 		--without-zlib \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS)" \
+		LDFLAGS="$(_LDFLAGS)"
 
 # Configure zlib.
 # Although it uses "configure", zlib does not support building outside of the
@@ -258,7 +259,8 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS)" \
+		LDFLAGS="$(_LDFLAGS)"
 
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
 $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
@@ -269,6 +271,7 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
+		LDFLAGS="$(_LDFLAGS)" \
 		PKG_CONFIG=/nowhere
 
 $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
@@ -281,6 +284,7 @@ $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
+		LDFLAGS="$(_LDFLAGS)" \
 		PKG_CONFIG=/nowhere
 
 $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
@@ -293,7 +297,8 @@ $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS)" \
+		LDFLAGS="$(_LDFLAGS)"
 
 endif
 
