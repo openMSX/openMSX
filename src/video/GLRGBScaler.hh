@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef GLRGBSCALER_HH
 #define GLRGBSCALER_HH

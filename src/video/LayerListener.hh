@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef LAYERLISTENER_HH
 #define LAYERLISTENER_HH

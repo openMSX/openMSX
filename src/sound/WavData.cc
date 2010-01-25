@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "WavData.hh"
 #include "MSXException.hh"
