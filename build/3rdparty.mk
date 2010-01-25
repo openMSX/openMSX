@@ -146,7 +146,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-nas \
 		--disable-esd \
 		--disable-directx \
-		--disable-debug \
 		--disable-cdrom \
 		--disable-stdio-redirect \
 		--disable-shared \
