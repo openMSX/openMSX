@@ -28,6 +28,9 @@
  */
 
 
+#ifndef MIDI_W32_HH
+#define MIDI_W32_HH
+
 #ifdef _WIN32
 #include <string>
 #include <windows.h>
@@ -56,3 +59,5 @@ extern int w32_midiInClose(unsigned idx);
 } // namespace openmsx
 
 #endif // _WIN32
+
+#endif // MIDI_W32_HH
