@@ -165,7 +165,9 @@ void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 	if (mixer) {
 		mixer->updateStream(time);
 	}
-	aviWriter->addFrame(frame, unsigned(audioBuf.size()) / 2, &audioBuf[0]);
+	// TODO vector::data() is not yet supported in gcc-3.4
+	short* audioData = audioBuf.empty() ? NULL : &audioBuf[0];
+	aviWriter->addFrame(frame, unsigned(audioBuf.size()) / 2, audioData);
 	audioBuf.clear();
 }
 
