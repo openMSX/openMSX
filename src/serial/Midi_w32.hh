@@ -1,5 +1,7 @@
+// $Id$
+
 /*
- *	Win32 MIDI utility routins for openMSX.
+ * Win32 MIDI utility routines for openMSX.
  *
  * Copyright (c) 2003 Reikan.  All rights reserved.
  *
@@ -24,8 +26,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-// maintain in openMSX: $Id:
 
 
 #ifdef _WIN32
