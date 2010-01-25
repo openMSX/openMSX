@@ -180,6 +180,15 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 		cleanup();
 		throw MSXException("Video must be 29.97Hz");
 	}
+
+	// FIXME: Support YUV444 before release
+	// It would be much better to use YUV444, however the existing
+	// captures are in YUV420 format. yuv2rgb will have to be updated
+	// too.
+	if (video_info.pixelformat != OC_PF_420) {
+		cleanup();
+		throw MSXException("Video must be YUV420");
+	}
 }
 
 void OggReader::cleanup()
