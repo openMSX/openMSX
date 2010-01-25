@@ -284,7 +284,7 @@ static void initialize()
 		{ "PRESS",	KD_PRESS },
 		{ "RELEASE",	KD_RELEASE },
 
-		{ NULL }
+		{ NULL,	K_NONE }
 	};
 	const Entry* e = entries;
 	while (e->name) {
