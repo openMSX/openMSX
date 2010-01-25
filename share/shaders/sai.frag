@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 uniform sampler2D tex;
 uniform sampler2D videoTex;

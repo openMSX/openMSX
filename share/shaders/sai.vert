@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 uniform vec2 texSize;
 
