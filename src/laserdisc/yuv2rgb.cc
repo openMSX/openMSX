@@ -246,18 +246,18 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 
 #define YUV2RGB_MMX(y_plane, dest) YUV2RGB_INTEL_SIMD("movq", "mm", "8", "16", "24", y_plane, dest)
 
-static void convertHelperSSE2(const yuv_buffer& buffer, RawFrame& output)
+static void convertHelperSSE2(const th_ycbcr_buffer& buffer, RawFrame& output)
 {
-	const int width      = buffer.y_width;
-	const int y_stride   = buffer.y_stride;
-	const int uv_stride2 = buffer.uv_stride / 2;
+	const int width      = buffer[0].width;
+	const int y_stride   = buffer[0].stride;
+	const int uv_stride2 = buffer[1].stride / 2;
 	byte rgb_uv[96] __attribute__((aligned(16)));
 
-	for (int y = 0; y < buffer.y_height; y += 2) {
-		const byte* pY1  = buffer.y + y * y_stride;
-		const byte* pY2  = buffer.y + (y + 1) * y_stride;
-		const byte* pCb = buffer.u + y * uv_stride2;
-		const byte* pCr = buffer.v + y * uv_stride2;
+	for (int y = 0; y < buffer[0].height; y += 2) {
+		const byte* pY1  = buffer[0].data + y * y_stride;
+		const byte* pY2  = buffer[0].data + (y + 1) * y_stride;
+		const byte* pCb = buffer[1].data + y * uv_stride2;
+		const byte* pCr = buffer[2].data + y * uv_stride2;
 		unsigned* out0 = output.getLinePtrDirect<unsigned>(y + 0);
 		unsigned* out1 = output.getLinePtrDirect<unsigned>(y + 1);
 
@@ -286,18 +286,18 @@ static void convertHelperSSE2(const yuv_buffer& buffer, RawFrame& output)
 	}
 }
 
-static void convertHelperMMX(const yuv_buffer& buffer, RawFrame& output)
+static void convertHelperMMX(const th_ycbcr_buffer& buffer, RawFrame& output)
 {
-	const int width      = buffer.y_width;
-	const int y_stride   = buffer.y_stride;
-	const int uv_stride2 = buffer.uv_stride / 2;
+	const int width      = buffer[0].width;
+	const int y_stride   = buffer[0].stride;
+	const int uv_stride2 = buffer[1].stride / 2;
 	byte rgb_uv[96] __attribute__((aligned(16)));
 
-	for (int y = 0; y < buffer.y_height; y += 2) {
-		const byte* pY1  = buffer.y + y * y_stride;
-		const byte* pY2  = buffer.y + (y + 1) * y_stride;
-		const byte* pCb = buffer.u + y * uv_stride2;
-		const byte* pCr = buffer.v + y * uv_stride2;
+	for (int y = 0; y < buffer[0].height; y += 2) {
+		const byte* pY1  = buffer[0].data + y * y_stride;
+		const byte* pY2  = buffer[0].data + (y + 1) * y_stride;
+		const byte* pCb = buffer[1].data + y * uv_stride2;
+		const byte* pCr = buffer[2].data + y * uv_stride2;
 		unsigned* out0 = output.getLinePtrDirect<unsigned>(y + 0);
 		unsigned* out1 = output.getLinePtrDirect<unsigned>(y + 1);
 
@@ -371,20 +371,20 @@ static inline Pixel calc(const SDL_PixelFormat& format,
 }
 
 template<typename Pixel>
-static void convertHelper(const yuv_buffer& buffer, RawFrame& output,
+static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
                           const SDL_PixelFormat& format)
 {
-	assert(buffer.uv_width  * 2 == buffer.y_width);
-	assert(buffer.uv_height * 2 == buffer.y_height);
+	assert(buffer[1].width  * 2 == buffer[0].width);
+	assert(buffer[1].height * 2 == buffer[0].height);
 
-	const int width      = buffer.y_width;
-	const int y_stride   = buffer.y_stride;
-	const int uv_stride2 = buffer.uv_stride / 2;
+	const int width      = buffer[0].width;
+	const int y_stride   = buffer[0].stride;
+	const int uv_stride2 = buffer[1].stride / 2;
 
-	for (int y = 0; y < buffer.y_height; y += 2) {
-		const byte* pY  = buffer.y + y * y_stride;
-		const byte* pCb = buffer.u + y * uv_stride2;
-		const byte* pCr = buffer.v + y * uv_stride2;
+	for (int y = 0; y < buffer[0].height; y += 2) {
+		const byte* pY  = buffer[0].data + y * y_stride;
+		const byte* pCb = buffer[1].data + y * uv_stride2;
+		const byte* pCr = buffer[2].data + y * uv_stride2;
 		Pixel* out0 = output.getLinePtrDirect<Pixel>(y + 0);
 		Pixel* out1 = output.getLinePtrDirect<Pixel>(y + 1);
 
@@ -412,7 +412,7 @@ static void convertHelper(const yuv_buffer& buffer, RawFrame& output,
 	}
 }
 
-void convert(const yuv_buffer& input, RawFrame& output)
+void convert(const th_ycbcr_buffer& input, RawFrame& output)
 {
 	initTables();
 

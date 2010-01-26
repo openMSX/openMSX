@@ -8,7 +8,7 @@
 
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
-#include <theora/theora.h>
+#include <theora/theoradec.h>
 
 #include <list>
 #include <deque>
@@ -31,7 +31,7 @@ struct AudioFragment
 struct Frame
 {
 	int no;
-	yuv_buffer buffer;
+	th_ycbcr_buffer buffer;
 };
 
 class OggReader
@@ -87,9 +87,10 @@ private:
 
 	// video
 	int videoHeaders;
-	theora_state video_handle;
-	theora_info video_info;
-	theora_comment video_comment;
+	th_info video_info;
+	th_comment video_comment;
+	th_dec_ctx* video_state;
+	th_setup_info *video_setup_info;
 	int keyFrame;
 	int currentFrame;
 	int granuleShift;

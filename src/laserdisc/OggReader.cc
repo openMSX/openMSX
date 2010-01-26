@@ -13,7 +13,7 @@
 #include "stringsp.hh" // for strncasecmp
 
 // TODO
-// - Use theora 1.0 API
+// - Improve error handling
 // - When an non-ogg file is passed, the entire file is scanned
 // - Clean up this mess!
 namespace openmsx {
@@ -32,8 +32,10 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	currentFrame = 1;
 	vorbisPos = 0;
 
-	theora_info_init(&video_info);
-	theora_comment_init(&video_comment);
+	th_info_init(&video_info);
+	th_comment_init(&video_comment);
+	video_state = NULL;
+	video_setup_info = NULL;
 
 	vorbis_info_init(&vi);
 	vorbis_comment_init(&vc);
@@ -170,7 +172,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 		throw MSXException("Audio must be stereo");
 	}
 
-	if (video_info.width != 640 || video_info.height != 480) {
+	if (video_info.frame_width != 640 || video_info.frame_height != 480) {
 		cleanup();
 		throw MSXException("Video must be size 640x480");
 	}
@@ -185,7 +187,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	// It would be much better to use YUV444, however the existing
 	// captures are in YUV420 format. yuv2rgb will have to be updated
 	// too.
-	if (video_info.pixelformat != OC_PF_420) {
+	if (video_info.pixel_fmt != TH_PF_420) {
 		cleanup();
 		throw MSXException("Video must be YUV420");
 	}
@@ -198,24 +200,28 @@ void OggReader::cleanup()
 		vorbis_block_clear(&vb);
 	}
 
-	if (videoHeaders == 0) {
-		theora_clear(&video_handle);
+	if (video_state != NULL) {
+		th_decode_free(video_state);
+	}
+
+	if (video_setup_info != NULL) {
+		th_setup_free(video_setup_info);
 	}
 
 	while (!frameList.empty()) {
 		Frame *frame = frameList.front();
-		MemoryOps::freeAligned(frame->buffer.y);
-		MemoryOps::freeAligned(frame->buffer.u);
-		MemoryOps::freeAligned(frame->buffer.v);
+		MemoryOps::freeAligned(frame->buffer[0].data);
+		MemoryOps::freeAligned(frame->buffer[1].data);
+		MemoryOps::freeAligned(frame->buffer[2].data);
 		delete frame;
 		frameList.pop_front();
 	}
 
 	while (!recycleFrameList.empty()) {
 		Frame *frame = recycleFrameList.front();
-		MemoryOps::freeAligned(frame->buffer.y);
-		MemoryOps::freeAligned(frame->buffer.u);
-		MemoryOps::freeAligned(frame->buffer.v);
+		MemoryOps::freeAligned(frame->buffer[0].data);
+		MemoryOps::freeAligned(frame->buffer[1].data);
+		MemoryOps::freeAligned(frame->buffer[2].data);
 		delete frame;
 		recycleFrameList.pop_front();
 	}
@@ -236,8 +242,8 @@ void OggReader::cleanup()
 		ogg_stream_clear(&vorbisStream);
 	}
 
-	theora_info_clear(&video_info);
-	theora_comment_clear(&video_comment);
+	th_info_clear(&video_info);
+	th_comment_clear(&video_comment);
 	if (videoSerial != -1) {
 		ogg_stream_clear(&theoraStream);
 	}
@@ -329,15 +335,17 @@ void OggReader::theoraHeaderPage(ogg_page* page)
 		}
 
 		if (packet.packetno <= 2) {
-			if (theora_decode_header(&video_info, &video_comment, 
-							&packet) < 0) {
+			res = th_decode_headerin(&video_info, &video_comment,
+						&video_setup_info, &packet);
+			if (res <= 0) {
 				throw MSXException("invalid theora header");
 			}
 			videoHeaders--;
 		}
 
 		if (packet.packetno == 2) {
-			theora_decode_init(&video_handle, &video_info);
+			video_state = th_decode_alloc(&video_info, 
+							video_setup_info);
 			readMetadata();
 		}
 	}
@@ -476,7 +484,7 @@ void OggReader::readMetadata()
 							int(sizeof("location="))
 			&& !strncasecmp(video_comment.user_comments[i],
 					"location=", sizeof("location=") - 1)) {
-			// ensure null termination
+			// FIXME: already null terminated
 			size_t len = video_comment.comment_lengths[i] - 
 						sizeof("location=");
 			metadata = new char[len + 1];
@@ -559,13 +567,13 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	keyFrame = -1;
 
-	if (theora_decode_packetin(&video_handle, packet) < 0) {
+	if (th_decode_packetin(video_state, packet, NULL) != 0) {
 		return;
 	}
 
-	yuv_buffer yuv_theora;
+	th_ycbcr_buffer yuv;
 
-	if (theora_decode_YUVout(&video_handle, &yuv_theora) < 0) {
+	if (th_decode_ycbcr_out(video_state, yuv) != 0) {
 		return;
 	}
 
@@ -578,32 +586,28 @@ void OggReader::readTheora(ogg_packet* packet)
 	currentFrame = frameno + 1;
 
 	Frame* frame;
-	int y_size = yuv_theora.y_height * yuv_theora.y_stride;
-	int uv_size = yuv_theora.uv_height * yuv_theora.uv_stride;
+	int y_size = yuv[0].height * yuv[0].stride;
+	int uv_size = yuv[1].height * yuv[1].stride;
 
 	if (recycleFrameList.empty()) {
 		frame = new Frame;
-		frame->buffer.y = static_cast<unsigned char*>(
+		frame->buffer[0] = yuv[0];
+		frame->buffer[0].data = static_cast<unsigned char*>(
 					MemoryOps::mallocAligned(16, y_size));
-		frame->buffer.u = static_cast<unsigned char*>(
+		frame->buffer[1] = yuv[1];
+		frame->buffer[1].data = static_cast<unsigned char*>(
 					MemoryOps::mallocAligned(16, uv_size));
-		frame->buffer.v = static_cast<unsigned char*>(
+		frame->buffer[2] = yuv[2];
+		frame->buffer[2].data = static_cast<unsigned char*>(
 					MemoryOps::mallocAligned(16, uv_size));
-
-		frame->buffer.y_width = yuv_theora.y_width;
-		frame->buffer.y_height = yuv_theora.y_height;
-		frame->buffer.y_stride = yuv_theora.y_stride;
-		frame->buffer.uv_width = yuv_theora.uv_width;
-		frame->buffer.uv_height = yuv_theora.uv_height;
-		frame->buffer.uv_stride = yuv_theora.uv_stride;
 	} else {
 		frame = recycleFrameList.front();
 		recycleFrameList.pop_front();
 	}
 
-	memcpy(frame->buffer.y, yuv_theora.y, y_size);
-	memcpy(frame->buffer.u, yuv_theora.u, uv_size);
-	memcpy(frame->buffer.v, yuv_theora.v, uv_size);
+	memcpy(frame->buffer[0].data, yuv[0].data, y_size);
+	memcpy(frame->buffer[1].data, yuv[1].data, uv_size);
+	memcpy(frame->buffer[2].data, yuv[2].data, uv_size);
 	frame->no = frameno;
 
 	frameList.push_back(frame);

@@ -527,10 +527,10 @@ class TCL(Library):
 			)
 
 class Theora(Library):
-	libName = 'theora'
+	libName = 'theoradec'
 	makeName = 'THEORA'
-	header = '<theora/theora.h>'
-	function = 'theora_decode_YUVout'
+	header = '<theora/theoradec.h>'
+	function = 'th_decode_ycbcr_out'
 	dependsOn = ('OGG', )
 
 class Vorbis(Library):
