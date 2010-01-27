@@ -1,14 +1,10 @@
 #TODO: 
 # only show snapshots on timebar when 'debug' parameter is given
 #
-# Destory or Add OSD snapshot elements when needed: currently
-# we destroy all snapshots OSD elementes and recreate them
-# 
 
 namespace eval reverse_widgets {
 	variable update_after_id
 	variable mouse_after_id
-	variable drawn_osd_elements 0
 
 	proc toggle_reversebar {} {
 		if {[catch {osd info reverse}]} {
@@ -45,6 +41,23 @@ namespace eval reverse_widgets {
 	proc update_reversebar {} {
 		array set stats [reverse status]
 
+		switch $stats(status) {
+		"disabled" {
+			disable_reversebar
+			return
+		}
+		"replaying" {
+			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
+		}
+		"enabled" {
+			foreach {x y} [osd info "reverse.bar" -mousecoord] {}
+			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
+				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
+			} else {
+				osd configure reverse -fadePeriod 5.0 -fadeTarget 0.0
+			}
+		}}
+
 		set snapshots [split $stats(snapshots)]
 		
 		if {[llength $snapshots]<2} {
@@ -56,44 +69,29 @@ namespace eval reverse_widgets {
 		set playLength [expr $stats(current) - $stats(begin)]
 		set fraction [expr ($totLenght != 0) ? ($playLength / $totLenght) : 0]
 		
-		variable drawn_osd_elements
-		
-		for {set i 1} {$i <= $drawn_osd_elements} {incr i} {
-				osd destroy reverse.bar.snapshot$i
-			}
-			
-		set snapcount 0
-		
+		set count 0
 		foreach snapshot $snapshots {
-			incr snapcount
-			osd create rectangle reverse.bar.snapshot$snapcount \
-				-y 0 \
-				-w 0.5 \
-				-h 3 \
-				-rgba 0x444444ff \
-				-relx [expr (1.0/$totLenght) * ($snapshot - $stats(begin))]
+			set name reverse.bar.snapshot$count
+			catch {
+				# create new if it doesn't exist yet
+				osd create rectangle $name -w 0.5 -h 3 -rgb 0x444444 -z 99
+			}
+			osd configure $name -relx [expr ($snapshot - $stats(begin)) / $totLenght]
+			incr count
 		}
-		
-		set drawn_osd_elements $snapcount
-	
+		while true {
+			# destroy all with higher count number
+			if {[catch {osd destroy reverse.bar.snapshot$count}]} {
+				break
+			}
+			incr count
+		}
+
 		osd_widgets::update_power_bar reverse.bar \
 			33 235 $fraction \
 			"[formatTime $playLength] / [formatTime $totLenght]"
 		variable update_after_id
 		set update_after_id [after realtime 0.10 [namespace code update_reversebar]]
-
-		switch $stats(status) {
-		"replaying" {
-			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
-		}
-		"enabled" {
-			foreach {x y} [osd info "reverse.bar" -mousecoord] {}
-			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
-				osd configure reverse -fadePeriod 1.0 -fadeTarget 1.0
-			} else {
-				osd configure reverse -fadePeriod 5.0 -fadeTarget 0.0
-			}
-		}}
 	}
 
 	proc check_mouse {} {
