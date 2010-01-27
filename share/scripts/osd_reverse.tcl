@@ -81,6 +81,19 @@ namespace eval reverse_widgets {
 			"[formatTime $playLength] / [formatTime $totLenght]"
 		variable update_after_id
 		set update_after_id [after realtime 0.10 [namespace code update_reversebar]]
+
+		switch $stats(status) {
+		"replaying" {
+			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
+		}
+		"enabled" {
+			foreach {x y} [osd info "reverse.bar" -mousecoord] {}
+			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
+				osd configure reverse -fadePeriod 1.0 -fadeTarget 1.0
+			} else {
+				osd configure reverse -fadePeriod 5.0 -fadeTarget 0.0
+			}
+		}}
 	}
 
 	proc check_mouse {} {
