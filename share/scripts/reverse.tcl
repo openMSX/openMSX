@@ -32,7 +32,9 @@ is also slightly faster than going back to an arbitrary point in time\
 			incr i -1
 		}
 
-		reverse goto [lindex $revstat(snapshots) $i]
+		if {[llength $revstat(snapshots)] != 0} {
+			reverse goto [lindex $revstat(snapshots) $i]
+		}
 	}
 
 	set_help_text reverse_next \
