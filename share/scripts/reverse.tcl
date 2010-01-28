@@ -86,9 +86,24 @@ fade out. You can make it reappear by moving the mouse over it.
 
 	proc enable_reversebar {} {
 		reverse::auto_enable
-		osd create rectangle reverse -scaled true -w 1 -h 1
-		osd_widgets::create_power_bar reverse.bar \
-			250 3 0x0077ff80 0x00000080 0xffffff80
+
+		osd create rectangle reverse \
+			-scaled true -x 35 -y 233 -w 250 -h 6 \
+			-rgba 0x00000080
+		osd create rectangle reverse.top \
+			-x -1 -y   -1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
+		osd create rectangle reverse.bottom \
+			-x -1 -rely 1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
+		osd create rectangle reverse.left \
+			-x -1         -w 1 -relh 1      -z 4 -rgba 0xFFFFFFC0
+		osd create rectangle reverse.right \
+			-relx 1       -w 1 -relh 1      -z 4 -rgba 0xFFFFFFC0
+		osd create rectangle reverse.bar \
+			-relw 0 -relh 1                 -z 0 -rgba 0x0077FF80
+		osd create rectangle reverse.end \
+			-relx 0 -x -1 -w 2 -relh 1      -z 2 -rgba 0xFF8080C0
+		osd create text      reverse.text \
+			-x -10 -y 0 -relx 0.5 -size 5   -z 3 -rgba 0xFFFFFFC0
 
 		update_reversebar
 		check_mouse
@@ -114,7 +129,7 @@ fade out. You can make it reappear by moving the mouse over it.
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
 		}
 		"enabled" {
-			foreach {x y} [osd info "reverse.bar" -mousecoord] {}
+			foreach {x y} [osd info "reverse" -mousecoord] {}
 			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 			} else {
@@ -130,31 +145,32 @@ fade out. You can make it reappear by moving the mouse over it.
 
 		set count 0
 		foreach snapshot $snapshots {
-			set name reverse.bar.snapshot$count
+			set name reverse.tick$count
 			catch {
 				# create new if it doesn't exist yet
-				osd create rectangle $name -w 0.5 -h 3 -rgb 0x444444 -z 99
+				osd create rectangle $name -w 0.5 -relh 1 -rgb 0x444444 -z 1
 			}
 			osd configure $name -relx [expr ($snapshot - $stats(begin)) * $reciprocalLength]
 			incr count
 		}
 		while true {
 			# destroy all with higher count number
-			if {[catch {osd destroy reverse.bar.snapshot$count}]} {
+			if {[catch {osd destroy reverse.tick$count}]} {
 				break
 			}
 			incr count
 		}
 
-		osd_widgets::update_power_bar reverse.bar \
-			33 235 $fraction \
-			"[formatTime $playLength] / [formatTime $totLenght]"
+		osd configure reverse.bar -relw $fraction
+		osd configure reverse.end -relx $fraction
+		osd configure reverse.text \
+			-text "[formatTime $playLength] / [formatTime $totLenght]"
 		variable update_after_id
 		set update_after_id [after realtime 0.10 [namespace code update_reversebar]]
 	}
 
 	proc check_mouse {} {
-		foreach {x y} [osd info "reverse.bar" -mousecoord] {}
+		foreach {x y} [osd info "reverse" -mousecoord] {}
 		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 			array set stats [reverse status]
 			reverse goto [expr $stats(begin) + $x * ($stats(end) - $stats(begin))]
@@ -164,7 +180,7 @@ fade out. You can make it reappear by moving the mouse over it.
 	}
 
 	proc formatTime {seconds} {
-		format "%02d:%02.f" [expr int($seconds / 60)] [expr fmod($seconds, 60)]
+		format "%02d:%02d" [expr int($seconds / 60)] [expr int($seconds) % 60]
 	}
 
 	namespace export toggle_reversebar
