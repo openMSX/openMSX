@@ -13,6 +13,7 @@
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
 #include "LDRenderer.hh"
+#include "ThrottleManager.hh"
 #include "likely.hh"
 
 using std::auto_ptr;
@@ -124,7 +125,8 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 // LaserdiscPlayer
 
 LaserdiscPlayer::LaserdiscPlayer(
-		MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_)
+		MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_,
+		ThrottleManager& throttleManager)
 	: SoundDevice(motherBoard_.getMSXMixer(), "laserdiscplayer",
 	              "Laserdisc Player", 1, true)
 	, Schedulable(motherBoard_.getScheduler())
@@ -152,6 +154,8 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, foundFrame(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
+	, loadingIndicator(new LoadingIndicator(throttleManager))
+	, sampleReads(0)
 {
 	static XMLElement laserdiscPlayerConfig("laserdiscplayer");
 	static bool init = false;
@@ -682,6 +686,10 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 			renderer->frameEnd();
 		}
 
+		// Update throttling
+		loadingIndicator->update(sampleReads > 500);
+		sampleReads = 0;
+
 		frameClock.reset(time);
 		setSyncPoint(frameClock + 1, FRAME);
 	}
@@ -1019,6 +1027,7 @@ short LaserdiscPlayer::readSample(EmuTime::param time)
 		AudioFragment* audio = video->getAudio(sample);
 
 		if (audio) {
+			sampleReads++;
 			return int(audio->pcm[1][sample - audio->position]
 								* 32767.f);
 		}

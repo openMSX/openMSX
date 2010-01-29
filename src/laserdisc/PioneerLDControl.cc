@@ -8,6 +8,9 @@
 #include "LaserdiscPlayer.hh"
 #include "MSXPPI.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "GlobalSettings.hh"
+#include "Reactor.hh"
 #include "VDP.hh"
 
 namespace openmsx {
@@ -37,7 +40,8 @@ namespace openmsx {
 PioneerLDControl::PioneerLDControl(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
-	, laserdisc(new LaserdiscPlayer(motherBoard, *this))
+	, laserdisc(new LaserdiscPlayer(motherBoard, *this, 
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
 	, clock(EmuTime::zero)
 	, irq(motherBoard, "PioneerLDControl.IRQdisplayoff")
 	, videoEnabled(false)

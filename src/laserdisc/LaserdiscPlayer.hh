@@ -21,6 +21,8 @@ class OggReader;
 struct AudioFragment;
 class LDRenderer;
 class RawFrame;
+class LoadingIndicator;
+class ThrottleManager;
 
 class LaserdiscPlayer : public SoundDevice
 		      , public Schedulable
@@ -28,7 +30,9 @@ class LaserdiscPlayer : public SoundDevice
 		      , private VideoSystemChangeListener
 {
 public:
-	LaserdiscPlayer(MSXMotherBoard& motherBoard, PioneerLDControl& ldcontrol);
+	LaserdiscPlayer(MSXMotherBoard& motherBoard, 
+			PioneerLDControl& ldcontrol, 
+			ThrottleManager& throttleManager);
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
@@ -181,6 +185,10 @@ private:
 	int playingSpeed;
 
 	bool getFirstFrame;
+
+	// Loading indicator
+	const std::auto_ptr<LoadingIndicator> loadingIndicator;
+	int sampleReads;
 
 	friend class LaserdiscCommand;
 };
