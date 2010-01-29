@@ -346,7 +346,7 @@ void OggReader::theoraHeaderPage(ogg_page* page)
 		if (packet.packetno == 2) {
 			video_state = th_decode_alloc(&video_info, 
 							video_setup_info);
-			readMetadata();
+			readMetadata(video_comment);
 		}
 	}
 }
@@ -474,23 +474,14 @@ int OggReader::frameNo(ogg_packet* packet)
 	return key + intra;
 }
 
-void OggReader::readMetadata()
+void OggReader::readMetadata(th_comment& tc)
 {
 	char *metadata = NULL, *p;
 
-	for (int i=0; i < video_comment.comments; i++) {
-		if (video_comment.user_comments[i] &&
-			video_comment.comment_lengths[i] >=
-							int(sizeof("location="))
-			&& !strncasecmp(video_comment.user_comments[i],
-					"location=", sizeof("location=") - 1)) {
-			// FIXME: already null terminated
-			size_t len = video_comment.comment_lengths[i] - 
-						sizeof("location=");
-			metadata = new char[len + 1];
-			memcpy(metadata, video_comment.user_comments[i] +
-						sizeof("location=") - 1, len);
-			metadata[len] = 0;
+	for (int i=0; i < tc.comments; i++) {
+		if (!strncasecmp(tc.user_comments[i], "location=", 
+						strlen("location="))) {
+			metadata = tc.user_comments[i] + strlen("location=");
 			break;
 		}
 	}
@@ -503,9 +494,8 @@ void OggReader::readMetadata()
 
 	// Maybe there is a better way of doing this parsing in C++
 	while (p) {
-		if (strncmp(p, "chapter: ", 8) == 0) {
-			p += 8;
-			int chapter = atoi(p);
+		if (strncasecmp(p, "chapter: ", 9) == 0) {
+			int chapter = atoi(p + 9);
 			p = strchr(p, ',');
 			if (!p) {
 				break;
@@ -516,7 +506,7 @@ void OggReader::readMetadata()
 				chapters[chapter] = frame;
 			}
 
-		} else if (strncmp(p, "stop: ", 6) == 0) {
+		} else if (strncasecmp(p, "stop: ", 6) == 0) {
 			int stopframe = atoi(p + 6);
 			if (stopframe) {
 				stopFrames[stopframe] =  1;
@@ -525,8 +515,6 @@ void OggReader::readMetadata()
 		p = strchr(p, '\n');
 		if (p) p++;
 	}
-
-	delete[] metadata;
 }
 
 void OggReader::readTheora(ogg_packet* packet)

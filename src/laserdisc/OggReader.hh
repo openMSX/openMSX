@@ -53,7 +53,7 @@ private:
 	void cleanup();
 	void readTheora(ogg_packet* packet);
 	void theoraHeaderPage(ogg_page* page);
-	void readMetadata();
+	void readMetadata(th_comment& tc);
 	void readVorbis(ogg_packet* packet);
 	void vorbisHeaderPage(ogg_page* page);
 	bool nextPage(ogg_page* page);
