@@ -45,15 +45,16 @@
 			</li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#settings">4. User Preferences</a></li>
-	<li><a class="internal" href="#hardwareedit">5. Writing Hardware Descriptions</a></li>
-	<li><a class="internal" href="#tuning">6. Performance Tuning</a>
+	<li><a class="internal" href="#laserdisc">4. Laserdiscs</a></li>
+	<li><a class="internal" href="#settings">5. User Preferences</a></li>
+	<li><a class="internal" href="#hardwareedit">6. Writing Hardware Descriptions</a></li>
+	<li><a class="internal" href="#tuning">7. Performance Tuning</a>
 		<ol class="toc">
-			<li><a class="internal" href="#opengl">6.1 OpenGL</a></li>
-			<li><a class="internal" href="#tuningvarious">6.2 Various Tuning Tips</a></li>
+			<li><a class="internal" href="#opengl">7.1 OpenGL</a></li>
+			<li><a class="internal" href="#tuningvarious">7.2 Various Tuning Tips</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#contact">7. Contact Info</a></li>
+	<li><a class="internal" href="#contact">8. Contact Info</a></li>
 </ol>
 
 <h2><a id="intro">1. Introduction</a></h2>
@@ -351,8 +352,65 @@ Alternatively, you could add the checksum in the XML file that describes
 the machine you made the ROM dump for (multiple checksums can be present, they will be checked in the same order as they are in the file).
 </p>
 
+<h2><a id="laserdisc">4. Laserdisc</a></h2>
 
-<h2><a id="settings">4. User Preferences</a></h2>
+<p>
+The Pioneer PX-7 and Pioneer PX-V60 are both emulated including an emulated Laserdisc Player, making it possible to play Laserdisc games.
+</p>
+
+<p>
+The laserdisc must be captured before it can be used with an emulator. The file must adhere to the following rules:
+</p>
+
+<ul>
+ <li>Use the Ogg container format</li>
+ <li>Use the vorbis codec for audio</li>
+ <li>Use the theora codec for video</li>
+ <li>Captured at 640x480, YUV420</li>
+ <li>A high bitrate for audio, otherwise the computer code encoded on the right audio channel will degrade to much for it to be readable</li>
+ <li>Theora frame numbers must correspond to laserdisc frame numbers</li>
+ <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the <a href="https://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>, and must be converted to plain text. This must be added to the theora meta data</li>
+</ul>
+
+<p> 
+The metadata for chapters and stop frames has the form "chapter: &lt;chapter-no&gt;,&lt;first-frame&gt;-&lt;last-frame&gt;" and stop frames are "stop: &lt;frame-no&gt;". For example:
+</p>
+
+<pre>
+chapter: 0,1-360
+chapter: 1,361-4500
+chapter: 2,4501-9450
+chapter: 3,9451-18660
+chapter: 4,18661-28950
+chapter: 5,28951-38340
+chapter: 6,38341-39432
+stop: 4796
+stop: 9089
+stop: 9178
+stop: 9751
+stop: 14818
+stop: 14908
+stop: 18270
+stop: 18360
+stop: 18968
+stop: 24815
+stop: 24903
+stop: 28553
+stop: 28641
+stop: 29258
+stop: 34561
+stop: 34649
+stop: 38095
+stop: 38181
+stop: 38341
+stop: 39127
+</pre>
+
+<p>
+Note that the Pioneer PX-7 and Pioneer PX-V60 are virtually identical, except that that Pioneer PX-7 has pseudo-stereo for its PSG.
+</p>
+
+<h2><a id="settings">5. User Preferences</a></h2>
 
 <p>
 Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts. You can still manually edit this file, but it is not really necessary anymore: just edit the settings from the console. Note that openMSX doesn't ship a <code>settings.xml</code> file anymore. If you save your settings for the first time, it is generated from the current settings, which may be the built in defaults.
@@ -390,7 +448,7 @@ The other settings are discussed in <a class="external" href="user.html#controll
 Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>: commands which are executed at the start of each openMSX start up. In most cases you don't need this at all, but if you still want this, put those commands in text file, one command per line (i.e. a script) and put it in the <code>share/scripts</code> directory. You can also explicitly specify a Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
 </p>
 
-<h2><a id="hardwareedit">5. Writing Hardware Descriptions</a></h2>
+<h2><a id="hardwareedit">6. Writing Hardware Descriptions</a></h2>
 
 <p>
 There are two ways to use extra devices in your emulated MSX:
@@ -509,14 +567,14 @@ You can use the ready-made configurations in <code>share/machines</code> as
 examples.
 </p>
 
-<h2><a id="tuning">6. Performance Tuning</a></h2>
+<h2><a id="tuning">7. Performance Tuning</a></h2>
 
 <p>
 This chapter contains some tips for tuning the performance of openMSX
 on your system.
 </p>
 
-<h3><a id="opengl">6.1 OpenGL</a></h3>
+<h3><a id="opengl">7.1 OpenGL</a></h3>
 
 <p>
 The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed.
@@ -544,7 +602,7 @@ You can verify this by typing <code>glxinfo</code> on the command line. If you h
 In conclusion: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
 </p>
 
-<h3><a id="tuningvarious">6.2 Various Tuning Tips</a></h3>
+<h3><a id="tuningvarious">7.2 Various Tuning Tips</a></h3>
 
 <p>
 CPU and graphics performance varies a lot, depending on the openMSX
@@ -588,7 +646,7 @@ instead of MoonSound (maximum 18+24 channels).
 </li>
 </ul>
 
-<h2><a id="contact">7. Contact Info</a></h2>
+<h2><a id="contact">8. Contact Info</a></h2>
 
 <p>
 Because openMSX is still in heavy development, feedback and bug reports are very

@@ -55,6 +55,8 @@
 
         <li><a class="internal" href="#keymatrix">keymatrixdown / keymatrixup</a></li>
 
+        <li><a class="internal" href="#laserdiscplayer">laserdiscplayer</a></li>
+
         <li><a class="internal" href="#list_extensions">list_extensions</a></li>
 
         <li><a class="internal" href="#load_icons">load_icons</a></li>
@@ -1143,6 +1145,37 @@
     <code>keymatrixdown 6 0x01</code><br />
     <code>keymatrixup 6 0x01</code>
   </div>
+
+  <h3><a id="laserdiscplayer">laserdiscplayer</a></h3>
+
+  <p>Controls the laserdisc player; an Laserdisc can be inserted or ejected, and the muting can be overridden. The muting controls whether or not the left or right audio channel from the Laserdisc is audible. Badlands erronously mutes the left channel during game play and this command allows you to override this. This is not strictly a feature of the Laserdisc player, however.</p>
+
+  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-v60 is being emulated</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>laserdiscplayer insert &lt;file.ogv&gt;</code></td>
+
+      <td>Inserts the specified file into the virtual laserdisc player.</td>
+    </tr>
+
+    <tr>
+      <td><code>laserdiscplayer eject</code></td>
+
+      <td>Ejects the laserdisc from the virtual laserdisc player; this emulates pressing the eject button on a real Laserdisc Player.</td>
+    </tr>
+
+
+    <tr>
+      <td><code>laserdiscplayer mute &lt;muting&gt;</code></td>
+
+      <td>Controls the Laserdisc player muting. Possible values are: <code>off</code>, <code>left</code>, <code>right</code>, <code>both</code>.
+    </tr>
+  </table>
 
   <h3><a id="list_extensions">list_extensions</a></h3>
 

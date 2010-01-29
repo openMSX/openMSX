@@ -66,6 +66,8 @@
 				</ol>
 
 			</li>
+
+			<li><a class="internal" href="#laserdisc">4.5 Running Laserdisc Software</a>
 		</ol>
 	</li>
 
@@ -704,6 +706,32 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 </p>
 
 <p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://www.hansotten.com/msxscsi.html">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
+</p>
+
+<h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
+
+<p>
+In order to run Laserdisc software, the emulated machine must be the Pioneer PX-7 or the Pioneer PX-V60. 
+</p>
+
+<p>
+In the console, type:
+</p>
+
+<div class="commandline">
+     <a class="external" href="commands.html#laserdiscplayer">laserdiscplayer</a> insert &lt;file&gt;.ogv
+</div>
+
+<p>
+Choose option 1 when asked if you want to run P-BASIC (Palcom-BASIC). In MSX-BASIC, type:
+</p>
+
+<div class="commandline">
+     call ld
+</div>
+
+<p>
+The program is encoded on the right audio channel which will not be audible. With <code>set <a class="external" href="commands.html#fullspeedwhenloading">fullspeedwhenloading</a> on</code>. openMSX runs at maximum speed whenever the Laserdisc is seeking or loading a program.
 </p>
 
 <h2><a id="input">5. Input Devices</a></h2>
