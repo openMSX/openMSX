@@ -695,7 +695,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		}
 
 		// Update throttling
-		loadingIndicator->update(sampleReads > 500);
+		loadingIndicator->update(seeking || sampleReads > 500);
 		sampleReads = 0;
 
 		frameClock.reset(time);
