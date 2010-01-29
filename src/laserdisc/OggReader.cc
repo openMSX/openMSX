@@ -25,20 +25,19 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	audioSerial = -1;
 	videoSerial = -1;
 	skeletonSerial = -1;
-	videoHeaders = 3;
 	audioHeaders = 3;
 	keyFrame = -1;
 	currentSample = 0;
 	currentFrame = 1;
 	vorbisPos = 0;
 
-	th_info video_info;
-	th_comment video_comment;
-	th_setup_info *video_setup_info = NULL;
+	th_info ti;
+	th_comment tc;
+	th_setup_info *tsi = NULL;
 
-	th_info_init(&video_info);
-	th_comment_init(&video_comment);
-	video_state = NULL;
+	th_info_init(&ti);
+	th_comment_init(&tc);
+	theora = NULL;
 
 	vorbis_info_init(&vi);
 	vorbis_comment_init(&vc);
@@ -61,15 +60,14 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	ogg_page page;
 
 	try {
-		while ((audioHeaders || videoHeaders) && nextPage(&page)) {
+		while ((audioHeaders || !theora) && nextPage(&page)) {
 			int serial = ogg_page_serialno(&page);
 
 			if (serial == audioSerial) {
 				vorbisHeaderPage(&page);
 				continue;
 			} else if (serial == videoSerial) {
-				theoraHeaderPage(&page, video_info, 
-					video_comment, video_setup_info);
+				theoraHeaderPage(&page, ti, tc, tsi);
 				continue;
 			} else if (serial == skeletonSerial) {
 				continue;
@@ -128,11 +126,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 				videoSerial = serial;
 				ogg_stream_init(&theoraStream, serial);
 
-				granuleShift = ((packet.packet[40] & 3) << 3) |
-						((packet.packet[41] & 0xe0) >> 5);
-
-				theoraHeaderPage(&page, video_info, 
-					video_comment, video_setup_info);
+				theoraHeaderPage(&page, ti, tc, tsi);
 			}
 			else if (memcmp(packet.packet, "fishead", 8) == 0) {
 				skeletonSerial = serial;
@@ -165,38 +159,33 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 			throw MSXException("Audio must be stereo");
 		}
 
-		if (video_info.frame_width != 640 || video_info.frame_height != 480) {
+		if (ti.frame_width != 640 || ti.frame_height != 480) {
 			throw MSXException("Video must be size 640x480");
 		}
 
-		if (video_info.fps_numerator != 30000 ||
-		    video_info.fps_denominator != 1001) {
+		if (ti.fps_numerator != 30000 || ti.fps_denominator != 1001) {
 			throw MSXException("Video must be 29.97Hz");
 		}
 
 		// FIXME: Support YUV444 before release
 		// It would be much better to use YUV444, however the existing
-		// captures are in YUV420 format. yuv2rgb will have to be updated
-		// too.
-		if (video_info.pixel_fmt != TH_PF_420) {
+		// captures are in YUV420 format. yuv2rgb will have to be 
+		// updated too.
+		if (ti.pixel_fmt != TH_PF_420) {
 			throw MSXException("Video must be YUV420");
 		}
 	}
 	catch (MSXException e) {
-		if (video_setup_info != NULL) {
-			th_setup_free(video_setup_info);
-		}
-		th_info_clear(&video_info);
-		th_comment_clear(&video_comment);
+		th_setup_free(tsi);
+		th_info_clear(&ti);
+		th_comment_clear(&tc);
 		cleanup();
 		throw;
 	}
 
-	if (video_setup_info != NULL) {
-		th_setup_free(video_setup_info);
-	}
-	th_info_clear(&video_info);
-	th_comment_clear(&video_comment);
+	th_setup_free(tsi);
+	th_info_clear(&ti);
+	th_comment_clear(&tc);
 }
 
 void OggReader::cleanup()
@@ -206,9 +195,7 @@ void OggReader::cleanup()
 		vorbis_block_clear(&vb);
 	}
 
-	if (video_state != NULL) {
-		th_decode_free(video_state);
-	}
+	th_decode_free(theora);
 
 	while (!frameList.empty()) {
 		Frame *frame = frameList.front();
@@ -315,8 +302,8 @@ void OggReader::vorbisHeaderPage(ogg_page* page)
 	}
 }
 
-void OggReader::theoraHeaderPage(ogg_page* page, th_info& video_info, 
-		th_comment& video_comment, th_setup_info*& video_setup_info)
+void OggReader::theoraHeaderPage(ogg_page* page, th_info& ti, th_comment& tc, 
+							th_setup_info*& tsi)
 {
 	ogg_stream_pagein(&theoraStream, page);
 
@@ -331,23 +318,21 @@ void OggReader::theoraHeaderPage(ogg_page* page, th_info& video_info,
 
 		if (res == 0) break;
 
-		if (videoHeaders == 0) {
+		if (theora) {
 			readTheora(&packet);
 		}
 
 		if (packet.packetno <= 2) {
-			res = th_decode_headerin(&video_info, &video_comment,
-						&video_setup_info, &packet);
+			res = th_decode_headerin(&ti, &tc, &tsi, &packet);
 			if (res <= 0) {
 				throw MSXException("invalid theora header");
 			}
-			videoHeaders--;
 		}
 
 		if (packet.packetno == 2) {
-			video_state = th_decode_alloc(&video_info, 
-							video_setup_info);
-			readMetadata(video_comment);
+			theora = th_decode_alloc(&ti, tsi);
+			readMetadata(tc);
+			granuleShift = ti.keyframe_granule_shift;
 		}
 	}
 }
@@ -553,17 +538,15 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	keyFrame = -1;
 
-	if (th_decode_packetin(video_state, packet, NULL) != 0) {
+	if (th_decode_packetin(theora, packet, NULL) != 0) {
 		return;
 	}
 
 	th_ycbcr_buffer yuv;
 
-	if (th_decode_ycbcr_out(video_state, yuv) != 0) {
+	if (th_decode_ycbcr_out(theora, yuv) != 0) {
 		return;
 	}
-
-	//FIXME: assert(frameno != -1);
 
 	if (frameno < currentFrame) {
 		return;
