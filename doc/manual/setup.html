@@ -45,7 +45,7 @@
 			</li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#laserdisc">4. Laserdiscs</a></li>
+	<li><a class="internal" href="#laserdisc">4. Palcom Laserdiscs</a></li>
 	<li><a class="internal" href="#settings">5. User Preferences</a></li>
 	<li><a class="internal" href="#hardwareedit">6. Writing Hardware Descriptions</a></li>
 	<li><a class="internal" href="#tuning">7. Performance Tuning</a>
@@ -352,10 +352,10 @@ Alternatively, you could add the checksum in the XML file that describes
 the machine you made the ROM dump for (multiple checksums can be present, they will be checked in the same order as they are in the file).
 </p>
 
-<h2><a id="laserdisc">4. Laserdisc</a></h2>
+<h2><a id="laserdisc">4. Palcom Laserdiscs</a></h2>
 
 <p>
-The Pioneer PX-7 and Pioneer PX-V60 are both emulated including an emulated Laserdisc Player, making it possible to play Laserdisc games.
+The Pioneer PX-7 and Pioneer PX-V60 are both emulated including an emulated Laserdisc Player, making it possible to run Palcom Laserdisc software.
 </p>
 
 <p>
@@ -364,10 +364,11 @@ The laserdisc must be captured before it can be used with an emulator. The file 
 
 <ul>
  <li>Use the Ogg container format</li>
- <li>Use the vorbis codec for audio</li>
- <li>Use the theora codec for video</li>
- <li>Captured at 640x480, YUV420</li>
- <li>A high bitrate for audio, otherwise the computer code encoded on the right audio channel will degrade to much for it to be readable</li>
+ <li>Use the Vorbis codec for audio</li>
+ <li>Use the Theora codec for video</li>
+ <li>Captured at 640&times;480, YUV420</li>
+ <li>A high bitrate for audio, otherwise the computer code encoded on the right audio channel will degrade too much for it to be readable</li>
+ <!-- recommend a specific minimum (find through trail an error) -->
  <li>Theora frame numbers must correspond to laserdisc frame numbers</li>
  <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the <a href="https://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>, and must be converted to plain text. This must be added to the theora meta data</li>
 </ul>
@@ -407,7 +408,7 @@ stop: 39127
 </pre>
 
 <p>
-Note that the Pioneer PX-7 and Pioneer PX-V60 are virtually identical, except that that Pioneer PX-7 has pseudo-stereo for its PSG.
+Note that the emulated Pioneer PX-7 and Pioneer PX-V60 are virtually identical, except that that Pioneer PX-7 has pseudo-stereo for its PSG.
 </p>
 
 <h2><a id="settings">5. User Preferences</a></h2>

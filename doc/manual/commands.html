@@ -1148,9 +1148,11 @@
 
   <h3><a id="laserdiscplayer">laserdiscplayer</a></h3>
 
-  <p>Controls the laserdisc player; an Laserdisc can be inserted or ejected, and the muting can be overridden. The muting controls whether or not the left or right audio channel from the Laserdisc is audible. Badlands erronously mutes the left channel during game play and this command allows you to override this. This is not strictly a feature of the Laserdisc player, however.</p>
+  <p>Controls the Laserdisc player; a Laserdisc can be inserted or ejected. When an Laserdisc Player is connected to an MSX, no other controls are available either.</p>
 
-  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-v60 is being emulated</p>
+ <p>The video and audio from the Laserdisc player passes through the MSX so it can be mixed with MSX video and audio. The audio from the Laserdisc player can be muted by the MSX which is controlled from software on the MSX. This command allows you to override this muting (note this is not strictly a feature of the Laserdisc player). This muting controls whether or not the left or right audio channel from the Laserdisc is audible. Badlands erronously mutes the left channel during game play and this command allows you to override this. This remains in effect until the MSX software resets the muting.</p>
+
+  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-V60 is being emulated</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1158,7 +1160,7 @@
 
   <table>
     <tr>
-      <td><code>laserdiscplayer insert &lt;file.ogv&gt;</code></td>
+      <td><code>laserdiscplayer insert &lt;filename&gt;</code></td>
 
       <td>Inserts the specified file into the virtual laserdisc player.</td>
     </tr>
