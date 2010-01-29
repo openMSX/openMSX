@@ -85,6 +85,7 @@ private:
 	void play(EmuTime::param time);
 	void pause(EmuTime::param time);
 	void stop(EmuTime::param time);
+	void eject(EmuTime::param time);
 	void seekFrame(int frame, EmuTime::param time);
 	void seekChapter(int chapter, EmuTime::param time);
 

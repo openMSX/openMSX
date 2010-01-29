@@ -53,9 +53,12 @@ LaserdiscCommand::LaserdiscCommand(
 string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param time)
 {
 	string result;
-	if (tokens.size() == 3 && tokens[1] == "insert") {
+	if (tokens.size() == 2 && tokens[1] == "eject") {
+		result += "Ejecting laserdisc.";
+		laserdiscPlayer.eject(time);
+	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		try {
-			result += "Changing laserdisc";
+			result += "Changing laserdisc.";
 			laserdiscPlayer.setImageName(tokens[2], time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -93,18 +96,23 @@ string LaserdiscCommand::help(const vector<string>& tokens) const
 			       "right audio channels audible. 'left' mutes "
 			       "the left channels. 'right' mutes the left "
 			       "audio channel. 'both' mutes both channels.";
+		} else if (tokens[1] == "eject") {
+			return "Eject the laserdisc.";
 		}
 	}
 	return "laserdisc insert <filename> "
 	       ": insert a (different) laserdisc image\n"
 	       "laserdisc mute              "
-	       ": set muting of laserdisc audio\n";
+	       ": set muting of laserdisc audio\n"
+	       "laserdisc eject             "
+	       ": eject the laserdisc\n";
 }
 
 void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> extra;
+		extra.insert("eject");
 		extra.insert("insert");
 		extra.insert("mute");
 		completeString(tokens, extra);
@@ -767,8 +775,9 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param /*time*/)
+void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 {
+	stop(time);
 	oggImage = Filename(newImage, motherBoard.getCommandController());
 	video.reset(new OggReader(oggImage, motherBoard.getMSXCliComm()));
 	sampleClock.setFreq(video->getSampleRate());
@@ -951,6 +960,12 @@ void LaserdiscPlayer::stop(EmuTime::param time)
 
 		playerState = PLAYER_STOPPED;
 	}
+}
+
+void LaserdiscPlayer::eject(EmuTime::param time)
+{
+	stop(time);
+	video.reset();
 }
 
 void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
