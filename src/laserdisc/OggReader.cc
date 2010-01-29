@@ -32,10 +32,13 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	currentFrame = 1;
 	vorbisPos = 0;
 
+	th_info video_info;
+	th_comment video_comment;
+	th_setup_info *video_setup_info = NULL;
+
 	th_info_init(&video_info);
 	th_comment_init(&video_comment);
 	video_state = NULL;
-	video_setup_info = NULL;
 
 	vorbis_info_init(&vi);
 	vorbis_comment_init(&vc);
@@ -57,140 +60,143 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 	ogg_page page;
 
-	while ((audioHeaders || videoHeaders) && nextPage(&page)) {
-		int serial = ogg_page_serialno(&page);
+	try {
+		while ((audioHeaders || videoHeaders) && nextPage(&page)) {
+			int serial = ogg_page_serialno(&page);
 
-		if (serial == audioSerial) {
-			vorbisHeaderPage(&page);
-			continue;
-		} else if (serial == videoSerial) {
-			theoraHeaderPage(&page);
-			continue;
-		} else if (serial == skeletonSerial) {
-			continue;
-		}
-
-		if (!ogg_page_bos(&page)) {
-			if (videoSerial == -1) {
-				cleanup();
-				throw MSXException("No video track found");
+			if (serial == audioSerial) {
+				vorbisHeaderPage(&page);
+				continue;
+			} else if (serial == videoSerial) {
+				theoraHeaderPage(&page, video_info, 
+					video_comment, video_setup_info);
+				continue;
+			} else if (serial == skeletonSerial) {
+				continue;
 			}
 
-			if (audioSerial == -1) {
-				cleanup();
-				throw MSXException("No audio track found");
+			if (!ogg_page_bos(&page)) {
+				if (videoSerial == -1) {
+					throw MSXException("No video track found");
+				}
+
+				if (audioSerial == -1) {
+					throw MSXException("No audio track found");
+				}
+
+				/* This should be unreachable, right? */
+				continue;
 			}
 
-			/* This should be unreachable, right? */
-			continue;
-		}
+			ogg_stream_state stream;
+			ogg_packet packet;
 
-		ogg_stream_state stream;
-		ogg_packet packet;
-
-		ogg_stream_init(&stream, serial);
-		ogg_stream_pagein(&stream, &page);
-		if (ogg_stream_packetout(&stream, &packet) <= 0) {
-			ogg_stream_clear(&stream);
-			cleanup();
-			throw MSXException("Invalid header");
-		}
-
-		if (packet.bytes < 8) {
-			ogg_stream_clear(&stream);
-			cleanup();
-			throw MSXException("Header to small");
-		}
-
-		if (memcmp(packet.packet, "\x01vorbis", 7) == 0) {
-			if (audioSerial != -1) {
+			ogg_stream_init(&stream, serial);
+			ogg_stream_pagein(&stream, &page);
+			if (ogg_stream_packetout(&stream, &packet) <= 0) {
 				ogg_stream_clear(&stream);
-				cleanup();
-				throw MSXException("Duplicate audio stream");
+				throw MSXException("Invalid header");
 			}
 
-			audioSerial = serial;
-			ogg_stream_init(&vorbisStream, serial);
-
-			vorbisHeaderPage(&page);
-		} 
-		else if (memcmp(packet.packet, "\x80theora", 7) == 0) {
-			if (videoSerial != -1) {
+			if (packet.bytes < 8) {
 				ogg_stream_clear(&stream);
-				cleanup();
-				throw MSXException("Duplicate video stream");
+				throw MSXException("Header to small");
 			}
 
-			if (packet.bytes < 42) {
+			if (memcmp(packet.packet, "\x01vorbis", 7) == 0) {
+				if (audioSerial != -1) {
+					ogg_stream_clear(&stream);
+					throw MSXException("Duplicate audio stream");
+				}
+
+				audioSerial = serial;
+				ogg_stream_init(&vorbisStream, serial);
+
+				vorbisHeaderPage(&page);
+			} 
+			else if (memcmp(packet.packet, "\x80theora", 7) == 0) {
+				if (videoSerial != -1) {
+					ogg_stream_clear(&stream);
+					throw MSXException("Duplicate video stream");
+				}
+
+				if (packet.bytes < 42) {
+					ogg_stream_clear(&stream);
+					throw MSXException("Theora header to small");
+				}
+
+				videoSerial = serial;
+				ogg_stream_init(&theoraStream, serial);
+
+				granuleShift = ((packet.packet[40] & 3) << 3) |
+						((packet.packet[41] & 0xe0) >> 5);
+
+				theoraHeaderPage(&page, video_info, 
+					video_comment, video_setup_info);
+			}
+			else if (memcmp(packet.packet, "fishead", 8) == 0) {
+				skeletonSerial = serial;
+			}
+			else if (memcmp(packet.packet, "BBCD", 4) == 0) {
 				ogg_stream_clear(&stream);
-				cleanup();
-				throw MSXException("Theora header to small");
+				throw MSXException("DIRAC not supported");
+			}
+			else if (memcmp(packet.packet, "\177FLAC", 5) == 0) {
+				ogg_stream_clear(&stream);
+				throw MSXException("FLAC not supported");
+			}
+			else  {
+				ogg_stream_clear(&stream);
+				throw MSXException("Unknown stream in ogg file");
 			}
 
-			videoSerial = serial;
-			ogg_stream_init(&theoraStream, serial);
-
-			granuleShift = ((packet.packet[40] & 3) << 3) |
-					((packet.packet[41] & 0xe0) >> 5);
-
-			theoraHeaderPage(&page);
-		}
-		else if (memcmp(packet.packet, "fishead", 8) == 0) {
-			skeletonSerial = serial;
-		}
-		else if (memcmp(packet.packet, "BBCD", 4) == 0) {
 			ogg_stream_clear(&stream);
-			cleanup();
-			throw MSXException("DIRAC not supported");
-		}
-		else if (memcmp(packet.packet, "\177FLAC", 5) == 0) {
-			ogg_stream_clear(&stream);
-			cleanup();
-			throw MSXException("FLAC not supported");
-		}
-		else  {
-			ogg_stream_clear(&stream);
-			cleanup();
-			throw MSXException("Unknown stream in ogg file");
 		}
 
-		ogg_stream_clear(&stream);
+		if (videoSerial == -1) {
+			throw MSXException("No video track found");
+		}
+
+		if (audioSerial == -1) {
+			throw MSXException("No audio track found");
+		}
+
+		if (vi.channels != 2) {
+			throw MSXException("Audio must be stereo");
+		}
+
+		if (video_info.frame_width != 640 || video_info.frame_height != 480) {
+			throw MSXException("Video must be size 640x480");
+		}
+
+		if (video_info.fps_numerator != 30000 ||
+		    video_info.fps_denominator != 1001) {
+			throw MSXException("Video must be 29.97Hz");
+		}
+
+		// FIXME: Support YUV444 before release
+		// It would be much better to use YUV444, however the existing
+		// captures are in YUV420 format. yuv2rgb will have to be updated
+		// too.
+		if (video_info.pixel_fmt != TH_PF_420) {
+			throw MSXException("Video must be YUV420");
+		}
+	}
+	catch (MSXException e) {
+		if (video_setup_info != NULL) {
+			th_setup_free(video_setup_info);
+		}
+		th_info_clear(&video_info);
+		th_comment_clear(&video_comment);
+		cleanup();
+		throw;
 	}
 
-	if (videoSerial == -1) {
-		cleanup();
-		throw MSXException("No video track found");
+	if (video_setup_info != NULL) {
+		th_setup_free(video_setup_info);
 	}
-
-	if (audioSerial == -1) {
-		cleanup();
-		throw MSXException("No audio track found");
-	}
-
-	if (vi.channels != 2) {
-		cleanup();
-		throw MSXException("Audio must be stereo");
-	}
-
-	if (video_info.frame_width != 640 || video_info.frame_height != 480) {
-		cleanup();
-		throw MSXException("Video must be size 640x480");
-	}
-
-	if (video_info.fps_numerator != 30000 ||
-	    video_info.fps_denominator != 1001) {
-		cleanup();
-		throw MSXException("Video must be 29.97Hz");
-	}
-
-	// FIXME: Support YUV444 before release
-	// It would be much better to use YUV444, however the existing
-	// captures are in YUV420 format. yuv2rgb will have to be updated
-	// too.
-	if (video_info.pixel_fmt != TH_PF_420) {
-		cleanup();
-		throw MSXException("Video must be YUV420");
-	}
+	th_info_clear(&video_info);
+	th_comment_clear(&video_comment);
 }
 
 void OggReader::cleanup()
@@ -202,10 +208,6 @@ void OggReader::cleanup()
 
 	if (video_state != NULL) {
 		th_decode_free(video_state);
-	}
-
-	if (video_setup_info != NULL) {
-		th_setup_free(video_setup_info);
 	}
 
 	while (!frameList.empty()) {
@@ -242,8 +244,6 @@ void OggReader::cleanup()
 		ogg_stream_clear(&vorbisStream);
 	}
 
-	th_info_clear(&video_info);
-	th_comment_clear(&video_comment);
 	if (videoSerial != -1) {
 		ogg_stream_clear(&theoraStream);
 	}
@@ -315,7 +315,8 @@ void OggReader::vorbisHeaderPage(ogg_page* page)
 	}
 }
 
-void OggReader::theoraHeaderPage(ogg_page* page)
+void OggReader::theoraHeaderPage(ogg_page* page, th_info& video_info, 
+		th_comment& video_comment, th_setup_info*& video_setup_info)
 {
 	ogg_stream_pagein(&theoraStream, page);
 
@@ -497,15 +498,12 @@ void OggReader::readMetadata(th_comment& tc)
 		if (strncasecmp(p, "chapter: ", 9) == 0) {
 			int chapter = atoi(p + 9);
 			p = strchr(p, ',');
-			if (!p) {
-				break;
-			}
+			if (!p) break;
 			p++;
 			int frame = atoi(p);
 			if (frame) {
 				chapters[chapter] = frame;
 			}
-
 		} else if (strncasecmp(p, "stop: ", 6) == 0) {
 			int stopframe = atoi(p + 6);
 			if (stopframe) {

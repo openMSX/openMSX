@@ -52,7 +52,8 @@ public:
 private:
 	void cleanup();
 	void readTheora(ogg_packet* packet);
-	void theoraHeaderPage(ogg_page* page);
+	void theoraHeaderPage(ogg_page* page, th_info& video_info,
+	        th_comment& video_comment, th_setup_info*& video_setup_info);
 	void readMetadata(th_comment& tc);
 	void readVorbis(ogg_packet* packet);
 	void vorbisHeaderPage(ogg_page* page);
@@ -87,10 +88,7 @@ private:
 
 	// video
 	int videoHeaders;
-	th_info video_info;
-	th_comment video_comment;
 	th_dec_ctx* video_state;
-	th_setup_info *video_setup_info;
 	int keyFrame;
 	int currentFrame;
 	int granuleShift;
