@@ -525,8 +525,13 @@ void OggReader::readTheora(ogg_packet* packet)
 
 		return;
 	} else if (state == FIND_KEYFRAME) {
-		if (currentFrame == frameno) {
+		if (frameno < currentFrame) {
 			keyFrame = packet->granulepos >> granuleShift;
+		} else if (currentFrame == frameno) {
+			keyFrame = packet->granulepos >> granuleShift;
+			currentSample = 1;
+		} else if (frameno > currentFrame) {
+			currentSample = 1;
 		}
 		return;
 	}
@@ -866,10 +871,11 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	currentOffset = offset;
 	ogg_sync_reset(&sync);
 	currentFrame = frame;
+	currentSample = 0;
 	keyFrame = -1;
 	state = FIND_KEYFRAME;
 
-	while (keyFrame == -1 && nextPacket()) {
+	while (currentSample == 0 && nextPacket()) {
 		// continue reading
 	}
 
