@@ -63,22 +63,6 @@ string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param ti
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
-	} else if (tokens.size() == 3 && tokens[1] == "mute") {
-		if (tokens[2] == "off") {
-			laserdiscPlayer.setMuting(false, false, time);
-			result += "Laserdisc muting off.";
-		} else if (tokens[2] == "left") {
-			laserdiscPlayer.setMuting(true, false, time);
-			result += "Laserdisc muting left on, right off.";
-		} else if (tokens[2] == "right") {
-			laserdiscPlayer.setMuting(false, true, time);
-			result += "Laserdisc muting left off, and right on.";
-		} else if (tokens[2] == "both") {
-			laserdiscPlayer.setMuting(true, true, time);
-			result += "Laserdisc muting both left and right.";
-		} else {
-			throw SyntaxError();
-		}
 	} else {
 		throw SyntaxError();
 	}
@@ -91,19 +75,12 @@ string LaserdiscCommand::help(const vector<string>& tokens) const
 		if (tokens[1] == "insert") {
 			return "Inserts the specfied laserdisc image into "
 			       "the laserdisc player.";
-		} else if (tokens[1] == "mute") {
-			return "Setting this to 'off' makes both left and "
-			       "right audio channels audible. 'left' mutes "
-			       "the left channels. 'right' mutes the left "
-			       "audio channel. 'both' mutes both channels.";
 		} else if (tokens[1] == "eject") {
 			return "Eject the laserdisc.";
 		}
 	}
 	return "laserdisc insert <filename> "
 	       ": insert a (different) laserdisc image\n"
-	       "laserdisc mute              "
-	       ": set muting of laserdisc audio\n"
 	       "laserdisc eject             "
 	       ": eject the laserdisc\n";
 }
@@ -114,21 +91,12 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 		set<string> extra;
 		extra.insert("eject");
 		extra.insert("insert");
-		extra.insert("mute");
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		UserFileContext context;
 		completeFileName(getCommandController(), tokens, context);
-	} else if (tokens.size() == 3 && tokens[1] == "mute") {
-		set<string> extra;
-		extra.insert("both");
-		extra.insert("left");
-		extra.insert("right");
-		extra.insert("off");
-		completeString(tokens, extra);
 	}
 }
-
 
 // LaserdiscPlayer
 
