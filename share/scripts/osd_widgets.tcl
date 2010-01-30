@@ -157,7 +157,7 @@ proc toggle_fps {} {
 		proc fps_refresh {} {
 			variable fps_after
 			osd configure fps_viewer.text -text [format "%2.1fFPS" [openmsx_info fps]]
-			set fps_after [after time .2 [namespace code fps_refresh]]
+			set fps_after [after realtime .5 [namespace code fps_refresh]]
 		}
 		fps_refresh
 	}
