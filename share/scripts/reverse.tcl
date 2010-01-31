@@ -23,6 +23,7 @@ is also slightly faster than going back to an arbitrary point in time\
 }
 	proc reverse_prev {{minimum 1}} {
 		array set revstat [auto_enable]
+		if {[llength $revstat(snapshots)] == 0} return
 
 		set target [expr $revstat(current) - $minimum]
 
@@ -32,9 +33,7 @@ is also slightly faster than going back to an arbitrary point in time\
 			incr i -1
 		}
 
-		if {[llength $revstat(snapshots)] != 0} {
-			reverse goto [lindex $revstat(snapshots) $i]
-		}
+		reverse goto [lindex $revstat(snapshots) $i]
 	}
 
 	set_help_text reverse_next \
@@ -43,6 +42,8 @@ snapshot in the future (if possible).
 }
 	proc reverse_next {{minimum 0}} {
 		array set revstat [auto_enable]
+		if {[llength $revstat(snapshots)] == 0} return
+
 		lappend $revstat(snapshots) $revstat(end)
 
 		set target [expr $revstat(current) + $minimum]
