@@ -1093,8 +1093,6 @@ SERIALIZE_ENUM(LaserdiscPlayer::SeekState, SeekStateInfo);
 template<typename Archive>
 void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.template serializeBase<Schedulable>(*this);
-
 	// Serialize remote control
 	ar.serialize("RemoteState", remoteState);
 	ar.serialize("RemoteLastEdge", remoteLastEdge);
@@ -1107,6 +1105,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 	// Serialize filename
 	ar.serialize("OggImage", oggImage);
 	if (ar.isLoader()) {
+		sampleReads = 0;
 		setImageName(oggImage.getResolved(), getCurrentTime());
 	}
 	ar.serialize("PlayerState", playerState);
@@ -1138,6 +1137,8 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 					getCurrentSample(getCurrentTime()));
 		}
 	}
+
+	ar.template serializeBase<Schedulable>(*this);
 
 	if (ar.isLoader()) {
 		isVideoOutputAvailable(getCurrentTime());
