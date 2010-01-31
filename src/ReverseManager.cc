@@ -660,8 +660,7 @@ void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 
 string ReverseCmd::help(const vector<string>& /*tokens*/) const
 {
-	return "!! this is NOT the final command, this is only for experiments !!\n"
-	       "start               start collecting reverse data\n"
+	return "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
 	       "status              show various status info on reverse\n"
 	       "goback <n>          go back <n> seconds in time\n"
