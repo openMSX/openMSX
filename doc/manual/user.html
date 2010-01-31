@@ -67,7 +67,7 @@
 
 			</li>
 
-			<li><a class="internal" href="#laserdisc">4.5 Running Laserdisc Software</a>
+			<li><a class="internal" href="#laserdisc">4.5 Running Laserdisc Software</a></li>
 		</ol>
 	</li>
 
@@ -107,13 +107,14 @@
 	<li><a class="internal" href="#usefulextras">8. Useful Extras</a>
 		<ol class="toc">
 			<li><a class="internal" href="#savestate">8.1 Saving/Loading the State of the Machine</a></li>
-			<li><a class="internal" href="#trainer">8.2 Game Trainer</a></li>
-			<li><a class="internal" href="#debugdevice">8.3 Debug Device</a>
+			<li><a class="internal" href="#reverse">8.2 Reverse</a></li>
+			<li><a class="internal" href="#trainer">8.3 Game Trainer</a></li>
+			<li><a class="internal" href="#debugdevice">8.4 Debug Device</a>
 				<ol class="toc">
-					<li><a class="internal" href="#debugdeviceenable">8.3.1 Enabling the Debug Device</a></li>
-					<li><a class="internal" href="#debugdeviceports">8.3.2 Output Ports</a></li>
-					<li><a class="internal" href="#debugdevicemode1">8.3.3 Single Byte Mode</a></li>
-					<li><a class="internal" href="#debugdevicemode2">8.3.4 Multi Byte Mode</a></li>
+					<li><a class="internal" href="#debugdeviceenable">8.4.1 Enabling the Debug Device</a></li>
+					<li><a class="internal" href="#debugdeviceports">8.4.2 Output Ports</a></li>
+					<li><a class="internal" href="#debugdevicemode1">8.4.3 Single Byte Mode</a></li>
+					<li><a class="internal" href="#debugdevicemode2">8.4.4 Multi Byte Mode</a></li>
 				</ol>
 			</li>
 		</ol>
@@ -711,7 +712,7 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
 
 <p>
-In order to run Laserdisc software, the emulated machine must be the Pioneer PX-7 or the Pioneer PX-V60. 
+In order to run Laserdisc software, you need to have this optional feature compiled into your openMSX binary. Laserdisc is only supported by the Pioneer PX-7 or the Pioneer PX-V60 machines, which have special hardware to control the laserdisc player.
 </p>
 
 <p>
@@ -721,14 +722,20 @@ In the console, type:
 <div class="commandline">
      <a class="external" href="commands.html#laserdiscplayer">laserdiscplayer</a> insert &lt;file&gt;.ogv
 </div>
+<p>
+to insert a Laserdisc (image) into the Laserdisc player.
+</p>
 
 <p>
-Choose option 1 when asked if you want to run P-BASIC (Palcom-BASIC). In MSX-BASIC, type:
+After booting the MSX, choose option 1 when asked if you want to run P-BASIC (Palcom-BASIC). In MSX-BASIC, type:
 </p>
 
 <div class="commandline">
      call ld
 </div>
+<p>
+to load and run the Laserdisc program.
+</p>
 
 <p>
 The program is encoded on the right audio channel which will not be audible. With <code>set <a class="external" href="commands.html#fullspeedwhenloading">fullspeedwhenloading</a> on</code>, openMSX runs at maximum speed whenever the Laserdisc is seeking or loading a program.
@@ -769,6 +776,8 @@ Several emulator functions are available under keys as well (which can be change
   <tr> <td>ALT+F4</td>     <td>Cmd+Q (Quit)</td>       <td>Quit openMSX</td> </tr>
   <tr> <td>CTRL+Pause (Break)</td> <td></td>           <td>Quit openMSX (not in Windows)</td> </tr>
   <tr> <td>PrtScr</td>     <td>Cmd+D (Dump)</td>       <td>Save current screen to a file (<a class="external" href="commands.html#screenshot">screen shot</a>)</td> </tr>
+  <tr> <td>PageUp</td>         <td>PageUp</td>   <td>Go back in time, using the <a class="external" href="commands.html#reverse">reverse</a> feature</td> </tr>
+  <tr> <td>PageDown</td>         <td>PageDown</td>   <td>Go forward in time, using the <a class="external" href="commands.html#reverse">reverse</a> feature</td> </tr>
   <tr> <td>F9</td>         <td>Cmd+T (Throttle)</td>   <td>Toggle full <a class="external" href="commands.html#throttle">throttle</a> (maximum speed)</td> </tr>
   <tr> <td>F10</td>        <td>Cmd+L (consoLe)</td>    <td>Toggle <a class="external" href="commands.html#console">console</a> display</td> </tr>
   <tr> <td>F11</td>        <td>Cmd+U (mUte)</td>       <td>Toggle <a class="external" href="commands.html#mute">audio mute</a></td> </tr>
@@ -926,7 +935,7 @@ just like they occur on a real MSX.
 Most MSX screen modes are only 256&times;212 pixels big. This is quite small for PC screen resolutions of today. That's why you have the possibility to scale up the image. Normally, there are three possible scaling factors: 1, 2 and 3. If you select 1, all MSX pixels are mapped to a 320&times;240 pixels PC window, for 2 to a 640&times;480 pixels window and for 3 to a (surprise!) 960&times;720 window. The setting which determines this is called <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code>. In general, the higher the factor, the better the output image is; the downside: it takes a lot more CPU processing power.
 </p>
 
-<p>Use <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> 1 only if you have a slow computer to run openMSX on, because it is very limited in possibilities and in the case of msx screen modes with more pixels than 256&times;212, you even lose pixels! in that case, the pixels are interpolated. However, when using it full screen, the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
+<p>Use <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> 1 only if you have a slow computer to run openMSX on, because it is very limited in possibilities and in the case of MSX screen modes with more pixels than 256&times;212, you even lose pixels! in that case, the pixels are interpolated. However, when using it full screen, the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
 </p>
 
 <p>There is also a number of scaling algorithms (setting <code><a class="external" href="commands.html#scale_algorithm">scale_algorithm</a></code>) that can be set. The scaling algorithm determines how exactly the mapping is done between the MSX input screen and the PC output screen. Especially for scaling factors bigger than 1, this allows for extra possibilities in the algorithms, like deinterlacing and adding scanlines, blur, anti-aliasing (rounding of blocky patters like stair cases) or even a Trinitron-like TV effect. When the factor is set to 1, you always get the <code>simple</code> algorithm, see below.
@@ -1100,7 +1109,7 @@ To get your normal MSX screen back, you should
 type <code>set <a class="external" href="commands.html#videosource">videosource</a> MSX</code>. If you want to toggle with a hot key
 between them, it might be useful to bind a key for it. E.g.: <code><a class="external" href="commands.html#bind">bind</a> F6
 cycle <a class="external" href="commands.html#videosource">videosource</a></code>.<br/>
-<code>cycle</code> is a Tcl command that cycles through the options of the setting in the parameter.
+<code><a class="external" href="commands.html#cycle">cycle</a></code> is a Tcl command that cycles through the options of the setting in the parameter.
 </p>
 
 <h3><a id="recording">6.7 Video Recording</a></h3>
@@ -1115,7 +1124,11 @@ The recorded AVI file will not suffer from any hiccups, even if the emulation ra
 Use the command <code><a class="external" href="commands.html#record">record</a> start</code> to record to a default file name, or you can use an additional parameter to specify a file. The command <code><a class="external" href="commands.html#record">record</a> stop</code> stops recording and <code><a class="external" href="commands.html#record">record</a> toggle</code> toggles it. You can use the <code>-audioonly</code> or <code>-videoonly</code> option to record only sound or video.
 </p>
 <p>
-If you want to put a recorded video on your web site, it is better to transcode the audio to MP3 or Vorbis format, as this makes the file a lot smaller. At the time of writing (April 2007), YouTube does not support the ZMBV codec, so if you want to upload your recording there you should transcode the video as well. Google Video does support the ZMBV codec. Transcoding videos can be done with programs such as <a class="external" href="http://www.virtualdub.org/">Virtual Dub</a> (Windows) or <a class="external" href="http://www.mplayerhq.hu/">MPlayer's MEncoder</a> (Linux/UNIX).
+If you want to put a recorded video on your web site, it is better to transcode the audio to MP3 or Vorbis format, as this makes the file a lot smaller. YouTube supports the ZMBV codec, so if you want to upload your recording you do not need to transcode the video. If you want to share your video with people who do not have (or want to install) the ZMBV codec, you should still transcode it, of course. This can be done with programs such as <a class="external" href="http://www.virtualdub.org/">Virtual Dub</a> (Windows) or <a class="external" href="http://www.mplayerhq.hu/">MPlayer's MEncoder</a> (Linux/UNIX).
+</p>
+
+<p>
+Recording as explained above will happen at real time. This can be annoying if you want to make a demonstration video, because you all mistakes will be recorded as well. To work around this, you can also use the <code><a class="external" href="commands.html#reverse">reverse</a></code> feature during the scene you want to record. After the scene, reverse to the beginning, start the recording as explained above and let the scene replay relaxedly. You can even speed it up using the <a class="external" href="commands.html#throttle">throttle</a> setting. This method of recording is also useful when real time recording has a big impact on the performance of openMSX on your hardware. See also <a class="internal" href="#reverse">the chapter about this feature</a>.
 </p>
 
 <h2><a id="audio">7. Audio</a></h2>
@@ -1205,7 +1218,32 @@ The easiest way to use it is by using the keyboard shortcuts for quickly saving 
 
 <p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the experimental On-Screen-Display and in a prototype version of a new Catapult.)
 </p>
-<h3><a id="trainer">8.2 Game Trainer</a></h3>
+
+<h3><a id="reverse">8.2 Reverse</a></h3>
+
+<p>
+Inspired by the <a class="external" href="http://tsk-tsk.net/">meisei</a> MSX emulator, openMSX now also has a reverse feature. This enables you to go back in MSX time, so you can correct mistakes in your game play or you can watch what you did (and also record a video of it).
+</p>
+
+<p>So, how to use this coolness? To make the mentioned features available, openMSX will have to store data (basically savestates and all input events that affect the state of the MSX). This isn't done automatically, because it can cost quite a lot of memory, if you play for a long time. So, you have to start it manually with the <code><a class="external" href="commands.html#reverse">reverse start</a></code> command.
+</p>
+
+<p>After this command has been given, openMSX will collect data for the reverse feature. You can go back in time a bit (upto the moment in MSX time you started the reverse feature) using the <code><a class="external" href="commands.html#reverse">reverse_prev</a></code> command (easiest way: use the <a class="internal" href="#keymapping">key binding</a> for this: PageUp). Once you went back, openMSX will replay whatever you did when you were at this time for the first time, until it got at the point where you went back. From then on, everything will continue as normal. If you touched any control of your MSX during replay, you have indicated to take over from the replay. If you do that, the rest of the replay is erased (openMSX forgets that that future ever happened). This is the typical way to correct mistakes using this feature.
+</p>
+
+<p>While replaying, you can also jump forward in time ("Back to the Future"). Also, you can go back a specific amount of seconds or to an absolute moment in (MSX) time, all using the <code><a class="external" href="commands.html#reverse">reverse</a></code> command.
+</p>
+
+<p>If all of this sounds a bit confusing, you can use the <code><a class="external" href="commands.html#other">toggle_reversebar</a></code> command, which will show you a visualisation of all of this on screen (note: it will also start the reverse feature itself). The bar represents the time while the feature was enabled and shows the current moment in time (the red indicator). You can click on it to jump back and forward in time. The black lines indicate times when snapshots where made, the  <code><a class="external" href="commands.html#reverse">reverse_prev</a></code> command (PageUp) will jump back in time to the nearest of such a snapshot and the  <code><a class="external" href="commands.html#reverse">reverse_next</a></code> (PageDown) command forward to the next snapshot. The bar will fade out after a while, but hovering your cursor over it makes it reappear. Issuing the <code><a class="external" href="commands.html#other">toggle_reversebar</a></code> command again will remove the bar (but not turn off the reverse feature).
+</p>
+
+<p>If you want to disable this feature, you can use the <code><a class="external" href="commands.html#reverse">reverse stop</a></code> command.
+</p>
+
+<p>If you want to save a very compact recording of what you did, or want to have the possibility to start off in the middle of a recording, you can save your complete replay to a file with the <code><a class="external" href="commands.html#reverse">reverse savereplay</a></code> command. They can also be loaded of course, with <code><a class="external" href="commands.html#reverse">reverse loadreplay</a></code>.
+</p>
+
+<h3><a id="trainer">8.3 Game Trainer</a></h3>
 
 <p>
 As of version 0.6.2, openMSX comes with a completely reworked game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
@@ -1220,7 +1258,7 @@ If this sounds a bit difficult for you, just try it out. It's really much easier
 As always in the console, using TAB to complete your commands and their options proves to be very useful!
 </p>
 
-<h3><a id="debugdevice">8.3 Debug Device</a></h3>
+<h3><a id="debugdevice">8.4 Debug Device</a></h3>
 
 <p>
 This chapter describes how an MSX programmer can use the openMSX built-in debug device. This is an artificial MSX device that is connected to an MSX I/O port. It can be used to send debug messages to the host operating system.
@@ -1230,7 +1268,7 @@ This chapter describes how an MSX programmer can use the openMSX built-in debug 
 Note that openMSX also contains built-in debugging functions, which can be accessed with the <code><a class="external" href="commands.html#debug">debug</a></code> console command. With that debugger you can read and write all registers and memory of almost all devices that are supported in openMSX. It also supports break points, watch points and stepping.
 </p>
 
-<h4><a id="debugdeviceenable">8.3.1 Enabling the Debug Device</a></h4>
+<h4><a id="debugdeviceenable">8.4.1 Enabling the Debug Device</a></h4>
 
 <p>
 To enable the debug device, insert the <code>debugdevice</code> extension. To do this when starting openMSX, simply add <code>-ext debugdevice</code> to the openMSX command line. If openMSX is already running, you can use the <code><a class="external" href="commands.html#ext">ext</a></code> console command.
@@ -1240,7 +1278,7 @@ To enable the debug device, insert the <code>debugdevice</code> extension. To do
 You can use the <code><a class="external" href="commands.html#debugoutput">debugoutput</a></code> setting to specify the file name to write the debug output to.
 </p>
 
-<h4><a id="debugdeviceports">8.3.2 Output Ports</a></h4>
+<h4><a id="debugdeviceports">8.4.2 Output Ports</a></h4>
 
 <p>
 Controlling the device is done from within an MSX program. For this purpose, the
@@ -1277,7 +1315,7 @@ The parameters for mode 2 (multi byte mode) are as follows:
   <tr> <td>1-0</td> <td>mode (0 = hex, 1 = binary, 2 = decimal, 3 = ASCII mode)</td> </tr>
 </table>
 
-<h4><a id="debugdevicemode1">8.3.3 Single Byte Mode</a></h4>
+<h4><a id="debugdevicemode1">8.4.3 Single Byte Mode</a></h4>
 
 <p>
 In mode 1, any write to port 0x2F will result in output. This way, the
@@ -1331,7 +1369,7 @@ the layout of the whole line.
 </p>
 
 
-<h4><a id="debugdevicemode2">8.3.4 Multi Byte Mode</a></h4>
+<h4><a id="debugdevicemode2">8.4.4 Multi Byte Mode</a></h4>
 
 <p>
 Unlike mode 1, the data in this mode is always shown in one mode only. It's

@@ -95,6 +95,8 @@
 
         <li><a class="internal" href="#reset">reset</a></li>
 
+        <li><a class="internal" href="#reverse">reverse</a></li>
+
         <li><a class="internal" href="#save_settings">save_settings</a></li>
 
         <li><a class="internal" href="#savestate">savestate / loadstate / list_savestates / delete_savestate</a></li>
@@ -377,6 +379,12 @@
     </tr>
 
     <tr>
+      <td><code>after &lt;input-event&gt; &lt;command&gt;</code></td>
+
+      <td>Execute a command after the given input event occurs. The events are e.g. mouse, joystick, focus and resize events, the same ones as for the <a class="internal" href="#bind">bind</a> command.</td>
+    </tr>
+
+    <tr>
       <td><code>after info</code></td>
 
       <td>List all postponed commands</td>
@@ -398,6 +406,7 @@
     <code>after idle 100 exit</code><br />
     <code>after info</code><br />
     <code>after cancel after#2</code>
+    <code>after "mouse button1 down" foo</code>
   </div>
 
   <h3><a id="bind">bind / unbind / bind_default / unbind_default</a></h3>
@@ -1757,6 +1766,71 @@
     </tr>
   </table>
 
+  <h3><a id="reverse">reverse</a></h3>
+
+  <p>Controls the reverse feature. When this feature is enabled, openMSX will collect data while emulating, which enables you to go back (and forward) in MSX time. In other words: you cannot use the commands to go back and forward in time, without having the reverse feature enabled first.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>reverse start</code></td>
+
+      <td>Start collecting data (enable the reverse feature).</td>
+    </tr>
+    <tr>
+      <td><code>reverse stop</code></td>
+
+      <td>Stop collecting data (disable reverse feature) and remove all collected data.</td>
+    </tr>
+    <tr>
+      <td><code>reverse status</code></td>
+
+      <td>Gives information about the reverse feature and the data it collected. Mostly useful for scripts.</td>
+    </tr>
+    <tr>
+      <td><code>reverse goback &lt;n&gt;</code></td>
+
+      <td>Go back &lt;n&gt; seconds in time. Of course, you cannot go back to a time before the time the <code>reverse start</code> command was given.</td>
+    </tr>
+    <tr>
+      <td><code>reverse goto &lt;time&gt;</code></td>
+
+      <td>Go to the indicated absolute moment in MSX time (given in seconds). If the time is before the time openMSX started collecting data (with the <code>reverse start</code> command) openMSX will jump to the time when collecting started.</td>
+    </tr>
+    <tr>
+      <td><code>reverse savereplay [&lt;filename&gt;]</code></td>
+
+      <td>Save the collected data (an initial savestate and all collected input events) to a file.</td>
+    </tr>
+    <tr>
+      <td><code>reverse loadreplay &lt;filename&gt;</code></td>
+
+      <td>Load the replay from the given file and start it. Loads the initial snapshot and starts replaying the recorded events. Enables the reverse feature automatically.</td>
+    </tr>
+  </table>
+
+  <p>There are some extra helper commands to make the feature easier to use.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>reverse_prev</code></td>
+
+      <td>Go back in time to the previous (internal) snapshot. The further back in the past the less dense the amount of snapshots is. So, executing this command multiple times, will take successively bigger steps in the past.</td>
+    </tr>
+    <tr>
+      <td><code>reverse_next</code></td>
+
+      <td>As <code>reverse_prev</code> but then it goes to the closes snapshot in the future (if possible).</td>
+    </tr>
+  </table>
+
   <h3><a id="save_settings">save_settings</a></h3>
 
   <p>Write the current openMSX settings to a settings XML file. See also <code><a class="internal" href="#load_settings">load_settings</a></code>.</p>
@@ -2306,6 +2380,22 @@
     <tr>
       <td><code>toggle_mog_overlay</code></td>
       <td>Enable (or disable) graphical extra information and game hints when playing The Maze of Galious</td>
+    </tr>
+    <tr>
+      <td><code>toggle_music_keyboard</code></td>
+      <td>Enable (or disable) keyboard view of all existing music channels. EXPERIMENTAL! Be careful, it's very slow when many channels are present in the system</td>
+    </tr>
+    <tr>
+      <td><code>toggle_nemesis_1_shield</code></td>
+      <td>Enable (or disable) an OSD drawn shield in Nemesis (Gradius) 1, all enemy objects will repel from it</td>
+    </tr>
+    <tr>
+      <td><code>toggle_osd_keyboard</code></td>
+      <td>Show (or hide) an on-screen keyboard (mostly useful for devices without physical keyboard); only supports an international layout for now</td>
+    </tr>
+    <tr>
+      <td><code>toggle_reversebar</code></td>
+      <td>Show (or hide) the reverse bar, which helps to control and view the data of the <a class="internal" href="#reverse">reverse</a> feature, which is automatically enabled when the bar is enabled</td>
     </tr>
     <tr>
       <td><code>toggle_scc_viewer</code></td>
