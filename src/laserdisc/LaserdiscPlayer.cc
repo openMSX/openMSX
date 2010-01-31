@@ -138,7 +138,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	if (!init) {
 		init = true;
 		auto_ptr<XMLElement> sound(new XMLElement("sound"));
-		sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "20000")));
+		sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "30000")));
 		laserdiscPlayerConfig.addChild(sound);
 	}
 
@@ -306,6 +306,11 @@ const RawFrame* LaserdiscPlayer::getRawFrame() const
 	return renderer->getRawFrame();
 }
 
+// Note that a real Laserdisc Player will wait for some time before 
+// is ACK is raised and this period depends on the VBLANK interrupt.
+// It seems likely that remote control buttons are processed at the 
+// same time as a frame or between frames or so. Further investigation
+// is needed.
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
 	PRT_DEBUG("Laserdisc::Lowering ACK for " << std::dec << wait << "ms");

@@ -1,7 +1,4 @@
 TODO:
- - ack is low for 0.018s. This might be because it finishes the current frame?
- - Emulate r#0, bit 0
- - volume of Laserdisc is too low compared to PSG
  - Three keys missing from Pioneer_PX-V60
  - The laserdisc image is slightly stretched compared to the VDP output,
    causing the VDP elements and laserdisc elements not to match up in 

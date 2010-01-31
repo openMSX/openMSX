@@ -523,6 +523,10 @@ void VDP::frameStart(EmuTime::param time)
 	}
 
 	// TODO: Presumably this is done here
+	// Note that if superimposing is enabled but no external video 
+	// signal is provided then the VDP stops producing a signal
+	// (at least on an MSX1, VDP(0)=1 produces "signal lost" on my
+	// monitor)
 	const RawFrame* newSuperimposing = (controlRegs[0] & 1) ? externalVideo : NULL;
 	if (superimposing != newSuperimposing) {
 		superimposing = newSuperimposing;
