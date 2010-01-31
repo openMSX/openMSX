@@ -44,18 +44,18 @@ snapshot in the future (if possible).
 		array set revstat [auto_enable]
 		if {[llength $revstat(snapshots)] == 0} return
 
-		lappend $revstat(snapshots) $revstat(end)
-
 		set target [expr $revstat(current) + $minimum]
 
 		# search first snapshots that is after target
 		set l [llength $revstat(snapshots)]
 		set i 0
-		while {([lindex $revstat(snapshots) $i] < $target) && ($i < $l)} {
+		while {($i < $l) && ([lindex $revstat(snapshots) $i] < $target)} {
 			incr i
 		}
 
-		reverse goto [lindex $revstat(snapshots) $i]
+		if {$i < $l} {
+			reverse goto [lindex $revstat(snapshots) $i]
+		}
 	}
 
 	bind_default F6 "reverse_prev"
