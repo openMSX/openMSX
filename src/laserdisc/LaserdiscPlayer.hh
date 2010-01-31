@@ -185,8 +185,6 @@ private:
 	};
 	int playingSpeed;
 
-	bool getFirstFrame;
-
 	// Loading indicator
 	const std::auto_ptr<LoadingIndicator> loadingIndicator;
 	int sampleReads;

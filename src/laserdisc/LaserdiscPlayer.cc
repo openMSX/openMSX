@@ -876,7 +876,6 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			// should be reduced to.
 			setAck(time, 9600);
 			seeking = true;
-			getFirstFrame = false;
 			waitFrame = 0;
 			playingSpeed = SPEED_1IN4;
 		} else if (playerState == PLAYER_PLAYING) {
@@ -982,7 +981,6 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 			playerState = PLAYER_FROZEN;
 			playingFromSample = samplePos;
 			currentFrame = toframe;
-			getFirstFrame = true;
 
 			// Seeking clears the frame to wait for
 			waitFrame = 0;
@@ -1095,10 +1093,12 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 {
 	// Serialize remote control
 	ar.serialize("RemoteState", remoteState);
-	ar.serialize("RemoteLastEdge", remoteLastEdge);
-	ar.serialize("RemoteBitNr", remoteBitNr);
-	ar.serialize("RemoteBits", remoteBits);
+	if (remoteState != REMOTE_IDLE) { 
+		ar.serialize("RemoteBitNr", remoteBitNr);
+		ar.serialize("RemoteBits", remoteBits);
+	}
 	ar.serialize("RemoteLastBit", remoteLastBit);
+	ar.serialize("RemoteLastEdge", remoteLastEdge);
 	ar.serialize("LastNECButtonTime", lastNECButtonTime);
 	ar.serialize("LastNECButtonCode", lastNECButtonCode);
 
@@ -1113,7 +1113,9 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 	if (playerState != PLAYER_STOPPED) {
 		// Serialize seek state
 		ar.serialize("SeekState", seekState);
-		ar.serialize("SeekNum", seekNum);
+		if (seekState != SEEK_NONE) {
+			ar.serialize("SeekNum", seekNum);
+		}
 		ar.serialize("seeking", seeking);
 
 		// Playing state
@@ -1123,18 +1125,24 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 		ar.serialize("PlayingSpeed", playingSpeed);
 
 		// Frame position
-		ar.serialize("FirstFrame", getFirstFrame);
 		ar.serialize("CurrentFrame", currentFrame);
-		ar.serialize("FrameStep", frameStep);
+		if (playerState == PLAYER_PLAYING_MULTISPEED) {
+			ar.serialize("FrameStep", frameStep);
+		}
 		ar.serialize("FrameClock", frameClock);
 
 		// Audio position
 		ar.serialize("FromSample", playingFromSample);
+
+		// The sampleClock is based on the sample rate of the 
+		// vorbis bit stream. If the sampleRate is different,
+		// We're stuffed.
 		ar.serialize("SampleClock", sampleClock);
 
 		if (ar.isLoader()) {
-			video->seek(currentFrame, 
-					getCurrentSample(getCurrentTime()));
+			unsigned sample = getCurrentSample(getCurrentTime());
+			video->seek(currentFrame, sample);
+			lastPlayedSample = sample;
 		}
 	}
 
