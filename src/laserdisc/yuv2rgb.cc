@@ -42,251 +42,321 @@ namespace yuv2rgb {
  * G = 1.164 * Y - 0.813 * V - 0.391 * U + 135.576
  * B = 1.164 * Y             + 2.018 * U - 276.836
  */
-static const unsigned short RED_V    = 0x0066; // 102/64 =  1.59
-static const unsigned short GREEN_U  = 0x0019; //  25/64 =  0.39
-static const unsigned short GREEN_V  = 0x0034; //  52/64 =  0.81
-static const unsigned short BLUE_U   = 0x0081; // 129/64 =  2.02
-static const unsigned short Y_C      = 0x004A; //  74/64 =  1.16
-static const unsigned short ALPHA    = 0xFFFF;
-static const unsigned short CNST_R   = 0x00DF; //  222.921
-static const unsigned short CNST_G   = 0x0088; //  135.576
-static const unsigned short CNST_B   = 0x0115; //  276.836
-static const unsigned short Y_MASK   = 0x00FF;
 
-static const unsigned short simd_table [10 * 8] __attribute__ ((aligned (16))) = {
-	RED_V,    RED_V,    RED_V,    RED_V,   RED_V,    RED_V,    RED_V,    RED_V,
-	GREEN_V,  GREEN_V,  GREEN_V,  GREEN_V, GREEN_V,  GREEN_V,  GREEN_V,  GREEN_V,
-	GREEN_U,  GREEN_U,  GREEN_U,  GREEN_U, GREEN_U,  GREEN_U,  GREEN_U,  GREEN_U,
-	BLUE_U,   BLUE_U,   BLUE_U,   BLUE_U,  BLUE_U,   BLUE_U,   BLUE_U,   BLUE_U,
-	Y_C,      Y_C,      Y_C,      Y_C,     Y_C,      Y_C,      Y_C,      Y_C,
-	ALPHA,    ALPHA,    ALPHA,    ALPHA,   ALPHA,    ALPHA,    ALPHA,    ALPHA,
-	CNST_R,   CNST_R,   CNST_R,   CNST_R,  CNST_R,   CNST_R,   CNST_R,   CNST_R,
-	CNST_G,   CNST_G,   CNST_G,   CNST_G,  CNST_G,   CNST_G,   CNST_G,   CNST_G,
-	CNST_B,   CNST_B,   CNST_B,   CNST_B,  CNST_B,   CNST_B,   CNST_B,   CNST_B,
-	Y_MASK,   Y_MASK,   Y_MASK,   Y_MASK,  Y_MASK,   Y_MASK,   Y_MASK,   Y_MASK,
+static const unsigned short RED_V   = 0x0066; // 102/64 =  1.59
+static const unsigned short GREEN_U = 0xFFE7; // -25/64 = -0.39
+static const unsigned short GREEN_V = 0xFFCC; // -52/64 = -0.81
+static const unsigned short BLUE_U  = 0x0081; // 129/64 =  2.02
+static const unsigned short Y_C     = 0x004A; //  74/64 =  1.16
+static const unsigned short ALPHA   = 0xFFFF;
+static const unsigned short CNST_R  = 0xFF21; // -222.921
+static const unsigned short CNST_G  = 0x0088; //  135.576
+static const unsigned short CNST_B  = 0xFEEB; // -276.836
+static const unsigned short Y_MASK  = 0x00FF;
+static const unsigned short ZERO    = 0x0000;
+
+static const unsigned short coef[11 * 8] __attribute__ ((aligned (16))) = {
+	CNST_B,   CNST_B,   CNST_B,   CNST_B,  CNST_B,   CNST_B,   CNST_B,   CNST_B,   // -48
+	Y_MASK,   Y_MASK,   Y_MASK,   Y_MASK,  Y_MASK,   Y_MASK,   Y_MASK,   Y_MASK,   // -32
+	ZERO,     ZERO,     ZERO,     ZERO,    ZERO,     ZERO,     ZERO,     ZERO,     // -16
+	Y_C,      Y_C,      Y_C,      Y_C,     Y_C,      Y_C,      Y_C,      Y_C,      //   0
+	GREEN_V,  GREEN_V,  GREEN_V,  GREEN_V, GREEN_V,  GREEN_V,  GREEN_V,  GREEN_V,  //  16
+	GREEN_U,  GREEN_U,  GREEN_U,  GREEN_U, GREEN_U,  GREEN_U,  GREEN_U,  GREEN_U,  //  32
+	BLUE_U,   BLUE_U,   BLUE_U,   BLUE_U,  BLUE_U,   BLUE_U,   BLUE_U,   BLUE_U,   //  48
+	RED_V,    RED_V,    RED_V,    RED_V,   RED_V,    RED_V,    RED_V,    RED_V,    //  64
+	ALPHA,    ALPHA,    ALPHA,    ALPHA,   ALPHA,    ALPHA,    ALPHA,    ALPHA,    //  80
+	CNST_R,   CNST_R,   CNST_R,   CNST_R,  CNST_R,   CNST_R,   CNST_R,   CNST_R,   //  96
+	CNST_G,   CNST_G,   CNST_G,   CNST_G,  CNST_G,   CNST_G,   CNST_G,   CNST_G,   // 112
 };
 
-#define PREFETCH(memory) do {		\
-	__asm__ __volatile__ (		\
-		"prefetchnta (%0);"	\
-		: : "r" (memory));	\
-} while (0);
+static inline void yuv2rgb_sse2(
+	const void* u, const void* v, const void* y0, const void*y1,
+	void* out0, void* out1)
+{
+	// The following asm code is split in 4 blocks. The reason for this
+	// split is to be able to satisfy the register constraints: with one
+	// big block we need 7 free registers. After this split we only need
+	// maximum 5 registers in (some of the) blocks.
+	//
+	// Each block calculates 16 RGB values. Each block uses 16 unique 'Y'
+	// values, but all 4 blocks share the same 'Cr' and 'Cb' values.
 
-#if defined(__x86_64__)
-#define ALIGN_CMP_REG "rax"
-#else
-#define ALIGN_CMP_REG "eax"
-#endif
-
-#define CALC_COLOR_MODIFIERS(mov_instr, reg_type, alignment, align_reg, u, v, coeff_storage) do { \
-	__asm__ __volatile__ ( \
-		"mov %0, %%"align_reg";" \
-		"and $"alignment", %%"align_reg";" \
-		"test %%"align_reg", %%"align_reg";" \
-		"je 1f;" \
-		\
-		mov_instr " 48(%2), %%"reg_type"2;" /* restore Dred */ \
-		mov_instr " 64(%2), %%"reg_type"3;" /* restore Dgreen */ \
-		mov_instr " 80(%2), %%"reg_type"1;" /* restore Dblue */ \
-		mov_instr " %%"reg_type"2, (%2);"   /* backup Dred */ \
-		mov_instr " %%"reg_type"3, 16(%2);" /* backup Dgreen */ \
-		mov_instr " %%"reg_type"1, 32(%2);" /* backup Dblue */ \
-		"jmp 2f;" \
-		\
-		"1:" \
-		"pxor %%"reg_type"7, %%"reg_type"7;" \
-		\
-		mov_instr " (%0), %%"reg_type"1;" \
-		mov_instr " (%1), %%"reg_type"2;" \
-		mov_instr " %%"reg_type"1, %%"reg_type"5;" \
-		mov_instr " %%"reg_type"2, %%"reg_type"6;" \
-		\
-		"punpckhbw %%"reg_type"7, %%"reg_type"5;" \
-		"punpckhbw %%"reg_type"7, %%"reg_type"6;" \
-		"punpcklbw %%"reg_type"7, %%"reg_type"1;" \
-		"punpcklbw %%"reg_type"7, %%"reg_type"2;" \
-		\
-		mov_instr " %%"reg_type"5, %%"reg_type"3;" \
-		mov_instr " %%"reg_type"6, %%"reg_type"4;" \
-		"pmullw 32(%3), %%"reg_type"3;"        /* calculate Ugreen[hi] */ \
-		"pmullw 16(%3), %%"reg_type"4;"        /* calculate Vgreen[hi] */ \
-		"paddsw %%"reg_type"4, %%"reg_type"3;" /* Dgreen[hi] = Ugreen[hi] + Vgreen[hi] */ \
-		"psraw $6, %%"reg_type"3;" \
-		"psubsw 112(%3), %%"reg_type"3;" \
-		mov_instr " %%"reg_type"3, 64(%2);"    /* backup Dgreen[hi] (clobbered) */ \
-		\
-		mov_instr " %%"reg_type"1, %%"reg_type"3;" \
-		mov_instr " %%"reg_type"2, %%"reg_type"4;" \
-		"pmullw 32(%3), %%"reg_type"3;"        /* calculate Ugreen[lo] */ \
-		"pmullw 16(%3), %%"reg_type"4;"        /* calculate Vgreen[lo] */ \
-		"paddsw %%"reg_type"4, %%"reg_type"3;" /* Dgreen[lo] = Ugreen[lo] + Vgreen[lo] */ \
-		"psraw $6, %%"reg_type"3;" \
-		"psubsw 112(%3), %%"reg_type"3;" \
-		mov_instr " %%"reg_type"3, 16(%2);"    /* backup Dgreen[lo] */ \
-		\
-		"pmullw 48(%3), %%"reg_type"5;"        /* calculate Dblue[hi] */ \
-		"pmullw 48(%3), %%"reg_type"1;"        /* calculate Dblue[lo] */ \
-		"psraw $6, %%"reg_type"5;"             /* Dblue[hi] = Dblue[hi] / 64 */ \
-		"psraw $6, %%"reg_type"1;"             /* Dblue[lo] = Dblue[lo] / 64 */ \
-		"psubsw 128(%3), %%"reg_type"5;" \
-		"psubsw 128(%3), %%"reg_type"1;" \
-		mov_instr " %%"reg_type"5, 80(%2);"    /* backup Dblue[hi] */ \
-		mov_instr " %%"reg_type"1, 32(%2);"    /* backup Dblue[lo] */ \
-		\
-		"pmullw   (%3), %%"reg_type"6;"        /* calculate Dred[hi] */ \
-		"pmullw   (%3), %%"reg_type"2;"        /* calculate Dred[lo] */ \
-		"psraw $6, %%"reg_type"6;"             /* Dred[hi] = Dred[hi] / 64 */ \
-		"psraw $6, %%"reg_type"2;"             /* Dred[lo] = Dred[lo] / 64 */ \
-		"psubsw 96(%3), %%"reg_type"6;" \
-		"psubsw 96(%3), %%"reg_type"2;" \
-		mov_instr " %%"reg_type"6, 48(%2);"    /* backup Dred[hi] */ \
-		mov_instr " %%"reg_type"2, 0(%2);"     /* backup Dred[lo] */ \
-		"2:" \
-		: \
-		: "r" (u), "r" (v), "r" (coeff_storage), "r" (&simd_table) \
-		: "%"align_reg); \
-} while (0);
-
-#define RESTORE_COLOR_MODIFIERS(mov_instr, reg_type, coeff_storage) do {\
-	__asm__ __volatile__ (\
-		mov_instr "   (%0), %%"reg_type"2;" /* restore Dred */   \
-		mov_instr " 16(%0), %%"reg_type"3;" /* restore Dgreen */ \
-		mov_instr " 32(%0), %%"reg_type"1;" /* restore Dblue */  \
-		: : "r" (coeff_storage)); \
-} while (0);
-
-#define YUV2RGB_INTEL_SIMD(mov_instr, reg_type, output_offset1, output_offset2, output_offset3, y_plane, dest) do { \
-	__asm__ __volatile__ (\
-		mov_instr " (%0), %%"reg_type"0;"      /* Load Y plane into r0 */ \
-		mov_instr " %%"reg_type"0, %%"reg_type"4;" /* r4 == r0 */ \
-		\
-		"pand 144(%2), %%"reg_type"0;"         /* r0 [Y0 00 Y2 00 ...] */ \
-		"psrlw $8, %%"reg_type"4;"             /* r4 [Y1 00 Y3 00 ...] */ \
-		\
-		"pmullw 64(%2), %%"reg_type"0;"        /* calculate Y*Yc[even] */ \
-		"pmullw 64(%2), %%"reg_type"4;"        /* calculate Y*Yc[odd] */ \
-		"psraw $6, %%"reg_type"0;"             /* Yyc[even] = Yyc[even] / 64 */ \
-		"psraw $6, %%"reg_type"4;"             /* Yyc[odd] = Yyc[odd] / 64 */ \
-		\
-		mov_instr " %%"reg_type"2, %%"reg_type"6;" \
-		mov_instr " %%"reg_type"3, %%"reg_type"7;" \
-		mov_instr " %%"reg_type"1, %%"reg_type"5;" \
-		\
-		"paddsw %%"reg_type"0, %%"reg_type"2;" /* CY[even] + DR */ \
-		"paddsw %%"reg_type"0, %%"reg_type"1;" /* CY[even] + DB */ \
-		"psubsw %%"reg_type"3, %%"reg_type"0;" /* CY[even] + DG */ \
-		"paddsw %%"reg_type"4, %%"reg_type"6;" /* CY[odd] + DR */ \
-		"paddsw %%"reg_type"4, %%"reg_type"5;" /* CY[odd] + DB */ \
-		"psubsw %%"reg_type"7, %%"reg_type"4;" /* CY[odd] + DG */ \
-		\
-		"packuswb %%"reg_type"2, %%"reg_type"2;" /* Clamp RGB to [0-255] */ \
-		"packuswb %%"reg_type"0, %%"reg_type"0;" \
-		"packuswb %%"reg_type"1, %%"reg_type"1;" \
-		"packuswb %%"reg_type"6, %%"reg_type"6;" \
-		"packuswb %%"reg_type"4, %%"reg_type"4;" \
-		"packuswb %%"reg_type"5, %%"reg_type"5;" \
-		\
-		"punpcklbw %%"reg_type"6, %%"reg_type"2;" /* r2 [R0 R1 R2 R3 ...] */ \
-		"punpcklbw %%"reg_type"4, %%"reg_type"0;" /* r3 [G0 G1 G2 G3 ...] */ \
-		"punpcklbw %%"reg_type"5, %%"reg_type"1;" /* r1 [B0 B1 B2 B3 ...] */ \
-		mov_instr " %%"reg_type"2, %%"reg_type"5;" /* copy RGB */ \
-		mov_instr " %%"reg_type"0, %%"reg_type"4;" \
-		mov_instr " %%"reg_type"1, %%"reg_type"6;" \
-		\
-		"punpcklbw %%"reg_type"2, %%"reg_type"1;" /* r1 [B0 R0 B1 R1 ...] */ \
-		"punpcklbw 80(%2),        %%"reg_type"0;" /* r3 [G0 FF G1 FF ...] */ \
-		mov_instr " %%"reg_type"1, %%"reg_type"3;" /* r0 [G0 FF G1 FF ...] */ \
-		"punpcklbw %%"reg_type"0, %%"reg_type"1;" /* r2 [B0 G0 R0 FF B1 G1 R1 FF ...] */ \
-		"punpckhbw %%"reg_type"0, %%"reg_type"3;" /* r3 [B2 G2 R2 FF B3 G3 R3 FF ...] */ \
-		mov_instr " %%"reg_type"1, (%1);" /* output BGRA */ \
-		mov_instr " %%"reg_type"3, "output_offset1"(%1);" \
-		\
-		"punpckhbw %%"reg_type"5, %%"reg_type"6;" \
-		"punpckhbw 80(%2),        %%"reg_type"4;" \
-		mov_instr " %%"reg_type"6, %%"reg_type"3;" \
-		"punpcklbw %%"reg_type"4, %%"reg_type"6;" \
-		"punpckhbw %%"reg_type"4, %%"reg_type"3;" \
-		mov_instr " %%"reg_type"6, "output_offset2"(%1);" \
-		mov_instr " %%"reg_type"3, "output_offset3"(%1);" \
-		: : "r" (y_plane), "r" (dest), "r" (&simd_table)); \
-} while (0);
-
-#define YUV2RGB_SSE(y_plane, dest) YUV2RGB_INTEL_SIMD("movdqa", "xmm", "16", "32", "48", y_plane, dest)
-
-#define YUV2RGB_MMX(y_plane, dest) YUV2RGB_INTEL_SIMD("movq", "mm", "8", "16", "24", y_plane, dest)
+	__asm__ __volatile__ (
+		"movdqa (%[U]),%%xmm2;"            // xmm2 = u0f
+		"movdqa (%[V]),%%xmm3;"            // xmm3 = v0f
+		"punpcklbw -16(%[COEF]),%%xmm2;"   // xmm2 = u07    (ZERO)
+		"punpcklbw -16(%[COEF]),%%xmm3;"   // xmm3 = v07    (ZERO)
+		"movdqa %%xmm3,%%xmm4;"            // xmm4 = v07
+		"pmullw 64(%[COEF]),%%xmm4;"       // xmm4 = v07 * RED_V
+		"pmullw 16(%[COEF]),%%xmm3;"       // xmm3 = v07 * GREEN_V
+		"movdqa %%xmm2,%%xmm5;"            // xmm5 = u07
+		"pmullw 32(%[COEF]),%%xmm5;"       // xmm5 = u07 * GREEN_U
+		"pmullw 48(%[COEF]),%%xmm2;"       // xmm2 = u07 * BLUE_U
+		"psraw  $0x6,%%xmm4;"              // xmm4 = vr07
+		"paddsw 96(%[COEF]),%%xmm4;"       // xmm4 = dr07      (CNST_R)
+		"paddsw %%xmm5,%%xmm3;"            // xmm3 = (vg07 + ug07) * 64
+		"psraw  $0x6,%%xmm3;"              // xmm3 = vg07 + ug07
+		"movdqa %%xmm4,%%xmm5;"            // xmm5 = dr07
+		"paddsw 112(%[COEF]),%%xmm3;"      // xmm3 = dg07      (CNST_G)
+		"movdqa (%[Y0]),%%xmm0;"           // xmm0 = y00_0f
+		"movdqa %%xmm0,%%xmm1;"            // xmm1 = y00_0f
+		"pand   -32(%[COEF]),%%xmm1;"      // xmm1 = y00_even  (Y_MASK)
+		"psraw  $0x6,%%xmm2;"              // xmm2 = ub07
+		"pmullw (%[COEF]),%%xmm1;"         // xmm1 = y00_even * COEF_Y
+		"paddsw -48(%[COEF]),%%xmm2;"      // xmm2 = db07      (CST_B)
+		"psraw  $0x6,%%xmm1;"              // xmm1 = dy00_even
+		"psrlw  $0x8,%%xmm0;"              // xmm0 = y00_odd
+		"paddsw %%xmm1,%%xmm5;"            // xmm5 = r00_even
+		"pmullw (%[COEF]),%%xmm0;"         // xmm0 = y00_odd * COEF_Y
+		"movdqa %%xmm3,%%xmm6;"            // xmm6 = dg07
+		"paddsw %%xmm1,%%xmm6;"            // xmm6 = g00_even
+		"psraw  $0x6,%%xmm0;"              // xmm0 = dy00_odd
+		"paddsw %%xmm2,%%xmm1;"            // xmm1 = b00_even
+		"packuswb %%xmm5,%%xmm5;"          // xmm5 = r00_even2
+		"movdqa %%xmm4,%%xmm7;"            // xmm7 = dr07
+		"paddsw %%xmm0,%%xmm7;"            // xmm7 = r00_odd
+		"packuswb %%xmm7,%%xmm7;"          // xmm7 = r00_odd2
+		"punpcklbw %%xmm7,%%xmm5;"         // xmm5 = r00_0f
+		"movdqa %%xmm3,%%xmm7;"            // xmm7 = dg07
+		"paddsw %%xmm0,%%xmm7;"            // xmm7 = g00_odd
+		"packuswb %%xmm7,%%xmm7;"          // xmm7 = g00_odd2
+		"paddsw %%xmm2,%%xmm0;"            // xmm0 = b00_odd
+		"packuswb %%xmm0,%%xmm0;"          // xmm0 = b00_odd2
+		"packuswb %%xmm6,%%xmm6;"          // xmm6 = g00_even2
+		"packuswb %%xmm1,%%xmm1;"          // xmm1 = b00_even2
+		"punpcklbw %%xmm7,%%xmm6;"         // xmm6 = g00_0f
+		"punpcklbw %%xmm0,%%xmm1;"         // xmm1 = b00_0f
+		"movdqa %%xmm6,%%xmm7;"            // xmm7 = g00_0f
+		"movdqa %%xmm1,%%xmm0;"            // xmm0 = b00_0f
+		"punpckhbw 80(%[COEF]),%%xmm6;"    // xmm6 = ga00_8f   (ALPHA)
+		"punpcklbw 80(%[COEF]),%%xmm7;"    // xmm7 = ga00_07   (ALPHA)
+		"punpcklbw %%xmm5,%%xmm0;"         // xmm0 = br00_07
+		"punpckhbw %%xmm5,%%xmm1;"         // xmm1 = br00_8f
+		"movdqa %%xmm0,%%xmm5;"            // xmm5 = br00_07
+		"punpcklbw %%xmm7,%%xmm5;"         // xmm5 = bgra00_03
+		"punpckhbw %%xmm7,%%xmm0;"         // xmm0 = bgra00_47
+		"movdqa %%xmm5,(%[OUT0]);"         // OUT0[0] <- bgra00_03
+		"movdqa %%xmm0,0x10(%[OUT0]);"     // OUT0[1] <- bgra00_47
+		"movdqa %%xmm1,%%xmm5;"            // xmm5 = br00_8f
+		"punpcklbw %%xmm6,%%xmm5;"         // xmm5 = bgra00_8b
+		"punpckhbw %%xmm6,%%xmm1;"         // xmm1 = bgra00_cf
+		"movdqa %%xmm5,0x20(%[OUT0]);"     // OUT0[2] <- bgra00_8b
+		"movdqa %%xmm1,0x30(%[OUT0]);"     // OUT0[3] <- bgra00_cf
+		: // no output
+		: [U]    "r" (u)
+		, [V]    "r" (v)
+		, [Y0]   "r" (y0)
+		, [OUT0] "r" (out0)
+		, [COEF] "r" (coef + 3 * 8)
+		#ifdef __SSE2__
+		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		#endif
+	);
+	// At this point the following registers are still live:
+	//  xmm2 = db07
+	//  xmm3 = dg07
+	//  xmm4 = dr07
+	__asm__ __volatile__ (
+		"movdqa %%xmm4,%%xmm6;"            // xmm6 = dr07
+		"movdqa (%[Y1]),%%xmm7;"           // xmm7 = y10_0f
+		"movdqa %%xmm3,%%xmm5;"            // xmm5 = dg07
+		"movdqa %%xmm7,%%xmm1;"            // xmm1 = y10_0f
+		"pand   -32(%[COEF]),%%xmm1;"      // xmm1 = y10_even   (Y_MASK)
+		"psrlw  $0x8,%%xmm7;"              // xmm7 = y10_odd
+		"pmullw (%[COEF]),%%xmm1;"         // xmm1 = y10_even * COEF_Y
+		"pmullw (%[COEF]),%%xmm7;"         // xmm7 = y10_odd  * COEF_Y
+		"psraw  $0x6,%%xmm1;"              // xmm1 = dy10_even
+		"psraw  $0x6,%%xmm7;"              // xmm7 = dy10_odd
+		"paddsw %%xmm1,%%xmm6;"            // xmm6 = r10_even
+		"paddsw %%xmm7,%%xmm4;"            // xmm4 = r10_odd
+		"paddsw %%xmm1,%%xmm5;"            // xmm5 = g10_even
+		"packuswb %%xmm4,%%xmm4;"          // xmm4 = r10_odd2
+		"paddsw %%xmm7,%%xmm3;"            // xmm3 = g10_odd
+		"paddsw %%xmm2,%%xmm1;"            // xmm1 = b10_even
+		"packuswb %%xmm3,%%xmm3;"          // xmm3 = g10_odd2
+		"paddsw %%xmm7,%%xmm2;"            // xmm2 = b10_odd
+		"packuswb %%xmm6,%%xmm6;"          // xmm6 = r10_even2
+		"packuswb %%xmm2,%%xmm2;"          // xmm2 = b10_odd2
+		"punpcklbw %%xmm4,%%xmm6;"         // xmm6 = r10_0f
+		"packuswb %%xmm5,%%xmm5;"          // xmm5 = g10_even2
+		"packuswb %%xmm1,%%xmm1;"          // xmm1 = b10_even2
+		"punpcklbw %%xmm3,%%xmm5;"         // xmm5 = g10_0f
+		"punpcklbw %%xmm2,%%xmm1;"         // xmm1 = b10_0f
+		"movdqa %%xmm5,%%xmm3;"            // xmm3 = g10_0f
+		"movdqa %%xmm1,%%xmm2;"            // xmm2 = b10_0f
+		"punpcklbw 80(%[COEF]),%%xmm3;"    // xmm3 = ga10_07   (ALPHA)
+		"punpckhbw 80(%[COEF]),%%xmm5;"    // xmm5 = ga10_8f   (ALPHA)
+		"punpcklbw %%xmm6,%%xmm2;"         // xmm2 = br10_07
+		"punpckhbw %%xmm6,%%xmm1;"         // xmm1 = br10_8f
+		"movdqa %%xmm2,%%xmm4;"            // xmm4 = br10_07
+		"punpckhbw %%xmm3,%%xmm2;"         // xmm2 = bgra10_47
+		"punpcklbw %%xmm3,%%xmm4;"         // xmm4 = bgra10_03
+		"movdqa %%xmm1,%%xmm3;"            // xmm3 = br10_8f
+		"movdqa %%xmm4,(%[OUT1]);"         // OUT1[0] <- bgra10_03
+		"movdqa %%xmm2,0x10(%[OUT1]);"     // OUT1[1] <- bgra10_47
+		"punpcklbw %%xmm5,%%xmm3;"         // xmm3 = bgra10_8b
+		"punpckhbw %%xmm5,%%xmm1;"         // xmm1 = bgra10_cf
+		"movdqa %%xmm3,0x20(%[OUT1]);"     // OUT1[2] <- bgra10_8b
+		"movdqa %%xmm1,0x30(%[OUT1]);"     // OUT1[3] <- bgra10_cf
+		: // no output
+		: [Y1]   "r" (y1)
+		, [OUT1] "r" (out1)
+		, [COEF] "r" (coef + 3 * 8)
+		#ifdef __SSE2__
+		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		#endif
+	);
+	// At this point no (xmm?) registers are live.
+	__asm__ __volatile__ (
+		"movdqa (%[U]),%%xmm2;"            // xmm2 = u0f
+		"movdqa (%[V]),%%xmm3;"            // xmm3 = v0f
+		"punpckhbw -16(%[COEF]),%%xmm2;"   // xmm2 = u8f    (ZERO)
+		"punpckhbw -16(%[COEF]),%%xmm3;"   // xmm3 = v8f    (ZERO)
+		"movdqa %%xmm3,%%xmm4;"            // xmm4 = v8f
+		"pmullw 64(%[COEF]),%%xmm4;"       // xmm4 = v8f * RED_V
+		"pmullw 16(%[COEF]),%%xmm3;"       // xmm3 = v8f * GREEN_V
+		"movdqa %%xmm2,%%xmm5;"            // xmm5 = u8f
+		"pmullw 32(%[COEF]),%%xmm5;"       // xmm5 = u8f * GREEN_U
+		"pmullw 48(%[COEF]),%%xmm2;"       // xmm2 = u8f * BLUE_U
+		"psraw  $0x6,%%xmm4;"              // xmm4 = vr8f
+		"paddsw 96(%[COEF]),%%xmm4;"       // xmm4 = dr8f      (CNST_R)
+		"paddsw %%xmm5,%%xmm3;"            // xmm3 = (vg8f + ug8f) * 64
+		"psraw  $0x6,%%xmm3;"              // xmm3 = vg8f + ug8f
+		"movdqa %%xmm4,%%xmm5;"            // xmm5 = dr8f
+		"paddsw 112(%[COEF]),%%xmm3;"      // xmm3 = dg8f      (CNST_G)
+		"movdqa 0x10(%[Y0]),%%xmm0;"       // xmm0 = y01_0f
+		"movdqa %%xmm0,%%xmm1;"            // xmm1 = y01_0f
+		"pand   -32(%[COEF]),%%xmm1;"      // xmm1 = y01_even  (Y_MASK)
+		"psraw  $0x6,%%xmm2;"              // xmm2 = ub8f
+		"pmullw (%[COEF]),%%xmm1;"         // xmm1 = y01_even * COEF_Y
+		"paddsw -48(%[COEF]),%%xmm2;"      // xmm2 = db8f      (CST_B)
+		"psraw  $0x6,%%xmm1;"              // xmm1 = dy01_even
+		"psrlw  $0x8,%%xmm0;"              // xmm0 = y01_odd
+		"paddsw %%xmm1,%%xmm5;"            // xmm5 = r01_even
+		"pmullw (%[COEF]),%%xmm0;"         // xmm0 = y01_odd * COEF_Y
+		"movdqa %%xmm3,%%xmm6;"            // xmm6 = dg8f
+		"paddsw %%xmm1,%%xmm6;"            // xmm6 = g01_even
+		"psraw  $0x6,%%xmm0;"              // xmm0 = dy01_odd
+		"paddsw %%xmm2,%%xmm1;"            // xmm1 = b01_even
+		"packuswb %%xmm5,%%xmm5;"          // xmm5 = r01_even2
+		"movdqa %%xmm4,%%xmm7;"            // xmm7 = dr8f
+		"paddsw %%xmm0,%%xmm7;"            // xmm7 = r01_odd
+		"packuswb %%xmm7,%%xmm7;"          // xmm7 = r01_odd2
+		"punpcklbw %%xmm7,%%xmm5;"         // xmm5 = r01_0f
+		"movdqa %%xmm3,%%xmm7;"            // xmm7 = dg8f
+		"paddsw %%xmm0,%%xmm7;"            // xmm7 = g01_odd
+		"packuswb %%xmm7,%%xmm7;"          // xmm7 = g01_odd2
+		"paddsw %%xmm2,%%xmm0;"            // xmm0 = b01_odd
+		"packuswb %%xmm0,%%xmm0;"          // xmm0 = b01_odd2
+		"packuswb %%xmm6,%%xmm6;"          // xmm6 = g01_even2
+		"packuswb %%xmm1,%%xmm1;"          // xmm1 = b01_even2
+		"punpcklbw %%xmm7,%%xmm6;"         // xmm6 = g01_0f
+		"punpcklbw %%xmm0,%%xmm1;"         // xmm1 = b01_0f
+		"movdqa %%xmm6,%%xmm7;"            // xmm7 = g01_0f
+		"movdqa %%xmm1,%%xmm0;"            // xmm0 = b01_0f
+		"punpckhbw 80(%[COEF]),%%xmm6;"    // xmm6 = ga01_8f   (ALPHA)
+		"punpcklbw 80(%[COEF]),%%xmm7;"    // xmm7 = ga01_8f   (ALPHA)
+		"punpcklbw %%xmm5,%%xmm0;"         // xmm0 = br01_8f
+		"punpckhbw %%xmm5,%%xmm1;"         // xmm1 = br01_8f
+		"movdqa %%xmm0,%%xmm5;"            // xmm5 = br01_8f
+		"punpcklbw %%xmm7,%%xmm5;"         // xmm5 = bgra01_03
+		"punpckhbw %%xmm7,%%xmm0;"         // xmm0 = bgra01_47
+		"movdqa %%xmm5,0x40(%[OUT0]);"     // OUT0[0] <- bgra01_03
+		"movdqa %%xmm0,0x50(%[OUT0]);"     // OUT0[1] <- bgra01_47
+		"movdqa %%xmm1,%%xmm5;"            // xmm5 = br01_8f
+		"punpcklbw %%xmm6,%%xmm5;"         // xmm5 = bgra01_8b
+		"punpckhbw %%xmm6,%%xmm1;"         // xmm1 = bgra01_cf
+		"movdqa %%xmm5,0x60(%[OUT0]);"     // OUT0[2] <- bgra01_8b
+		"movdqa %%xmm1,0x70(%[OUT0]);"     // OUT0[3] <- bgra01_cf
+		: // no output
+		: [U]    "r" (u)
+		, [V]    "r" (v)
+		, [Y0]   "r" (y0)
+		, [OUT0] "r" (out0)
+		, [COEF] "r" (coef + 3 * 8)
+		#ifdef __SSE2__
+		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		#endif
+	);
+	// At this point the following registers are still live:
+	//  xmm2 = db8f
+	//  xmm3 = dg8f
+	//  xmm4 = dr8f
+	__asm__ __volatile__ (
+		"movdqa %%xmm4,%%xmm6;"            // xmm6 = dr8f
+		"movdqa 0x10(%[Y1]),%%xmm7;"       // xmm7 = y11_0f
+		"movdqa %%xmm3,%%xmm5;"            // xmm5 = dg8f
+		"movdqa %%xmm7,%%xmm1;"            // xmm1 = y11_0f
+		"pand   -32(%[COEF]),%%xmm1;"      // xmm1 = y11_even   (Y_MASK)
+		"psrlw  $0x8,%%xmm7;"              // xmm7 = y11_odd
+		"pmullw (%[COEF]),%%xmm1;"         // xmm1 = y11_even * COEF_Y
+		"pmullw (%[COEF]),%%xmm7;"         // xmm7 = y11_odd  * COEF_Y
+		"psraw  $0x6,%%xmm1;"              // xmm1 = dy11_even
+		"psraw  $0x6,%%xmm7;"              // xmm7 = dy11_odd
+		"paddsw %%xmm1,%%xmm6;"            // xmm6 = r11_even
+		"paddsw %%xmm7,%%xmm4;"            // xmm4 = r11_odd
+		"paddsw %%xmm1,%%xmm5;"            // xmm5 = g11_even
+		"packuswb %%xmm4,%%xmm4;"          // xmm4 = r11_odd2
+		"paddsw %%xmm7,%%xmm3;"            // xmm3 = g11_odd
+		"paddsw %%xmm2,%%xmm1;"            // xmm1 = b11_even
+		"packuswb %%xmm3,%%xmm3;"          // xmm3 = g11_odd2
+		"paddsw %%xmm7,%%xmm2;"            // xmm2 = b11_odd
+		"packuswb %%xmm6,%%xmm6;"          // xmm6 = r11_even2
+		"packuswb %%xmm2,%%xmm2;"          // xmm2 = b11_odd2
+		"punpcklbw %%xmm4,%%xmm6;"         // xmm6 = r11_0f
+		"packuswb %%xmm5,%%xmm5;"          // xmm5 = g11_even2
+		"packuswb %%xmm1,%%xmm1;"          // xmm1 = b11_even2
+		"punpcklbw %%xmm3,%%xmm5;"         // xmm5 = g11_0f
+		"punpcklbw %%xmm2,%%xmm1;"         // xmm1 = b11_0f
+		"movdqa %%xmm5,%%xmm3;"            // xmm3 = g11_0f
+		"movdqa %%xmm1,%%xmm2;"            // xmm2 = b11_0f
+		"punpcklbw 80(%[COEF]),%%xmm3;"    // xmm3 = ga11_8f   (ALPHA)
+		"punpckhbw 80(%[COEF]),%%xmm5;"    // xmm5 = ga11_8f   (ALPHA)
+		"punpcklbw %%xmm6,%%xmm2;"         // xmm2 = br11_8f
+		"punpckhbw %%xmm6,%%xmm1;"         // xmm1 = br11_8f
+		"movdqa %%xmm2,%%xmm4;"            // xmm4 = br11_8f
+		"punpckhbw %%xmm3,%%xmm2;"         // xmm2 = bgra11_47
+		"punpcklbw %%xmm3,%%xmm4;"         // xmm4 = bgra11_03
+		"movdqa %%xmm1,%%xmm3;"            // xmm3 = br11_8f
+		"movdqa %%xmm4,0x40(%[OUT1]);"     // OUT1[0] <- bgra11_03
+		"movdqa %%xmm2,0x50(%[OUT1]);"     // OUT1[1] <- bgra11_47
+		"punpcklbw %%xmm5,%%xmm3;"         // xmm3 = bgra11_8b
+		"punpckhbw %%xmm5,%%xmm1;"         // xmm1 = bgra11_cf
+		"movdqa %%xmm3,0x60(%[OUT1]);"     // OUT1[2] <- bgra11_8b
+		"movdqa %%xmm1,0x70(%[OUT1]);"     // OUT1[3] <- bgra11_cf
+		: // no output
+		: [Y1]   "r" (y1)
+		, [OUT1] "r" (out1)
+		, [COEF] "r" (coef + 3 * 8)
+		#ifdef __SSE2__
+		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		#endif
+	);
+}
 
 static void convertHelperSSE2(const th_ycbcr_buffer& buffer, RawFrame& output)
 {
 	const int width      = buffer[0].width;
 	const int y_stride   = buffer[0].stride;
 	const int uv_stride2 = buffer[1].stride / 2;
-	byte rgb_uv[96] __attribute__((aligned(16)));
 
 	for (int y = 0; y < buffer[0].height; y += 2) {
-		const byte* pY1  = buffer[0].data + y * y_stride;
-		const byte* pY2  = buffer[0].data + (y + 1) * y_stride;
+		const byte* pY1 = buffer[0].data + y * y_stride;
+		const byte* pY2 = buffer[0].data + (y + 1) * y_stride;
 		const byte* pCb = buffer[1].data + y * uv_stride2;
 		const byte* pCr = buffer[2].data + y * uv_stride2;
 		unsigned* out0 = output.getLinePtrDirect<unsigned>(y + 0);
 		unsigned* out1 = output.getLinePtrDirect<unsigned>(y + 1);
 
-		for (int x=0; x < width; x += 16) {
-			PREFETCH(pY1);
-			CALC_COLOR_MODIFIERS("movdqa", "xmm", "15",
-			                     ALIGN_CMP_REG, pCb, pCr, rgb_uv);
-
-			YUV2RGB_SSE(pY1, out0);
-
-			PREFETCH(pY2);
-			RESTORE_COLOR_MODIFIERS("movdqa", "xmm", rgb_uv);
-
-			YUV2RGB_SSE(pY2, out1);
-
-			pCb += 8;
-			pCr += 8;
-			pY1 += 16;
-			pY2 += 16;
-			out0 += 16;
-			out1 += 16;
-		}
-
-		output.setLineWidth(y + 0, width);
-		output.setLineWidth(y + 1, width);
-	}
-}
-
-static void convertHelperMMX(const th_ycbcr_buffer& buffer, RawFrame& output)
-{
-	const int width      = buffer[0].width;
-	const int y_stride   = buffer[0].stride;
-	const int uv_stride2 = buffer[1].stride / 2;
-	byte rgb_uv[96] __attribute__((aligned(16)));
-
-	for (int y = 0; y < buffer[0].height; y += 2) {
-		const byte* pY1  = buffer[0].data + y * y_stride;
-		const byte* pY2  = buffer[0].data + (y + 1) * y_stride;
-		const byte* pCb = buffer[1].data + y * uv_stride2;
-		const byte* pCr = buffer[2].data + y * uv_stride2;
-		unsigned* out0 = output.getLinePtrDirect<unsigned>(y + 0);
-		unsigned* out1 = output.getLinePtrDirect<unsigned>(y + 1);
-
-		for (int x=0; x < width; x += 8) {
-			PREFETCH(pY1);
-			CALC_COLOR_MODIFIERS("movq", "mm", "7",
-					ALIGN_CMP_REG, pCb, pCr, rgb_uv);
-
-			YUV2RGB_MMX(pY1, out0);
-
-			PREFETCH(pY2);
-			RESTORE_COLOR_MODIFIERS("movq", "mm", rgb_uv);
-			YUV2RGB_MMX(pY2, out1);
-
-			pCb += 4;
-			pCr += 4;
-			pY1 += 8;
-			pY2 += 8;
-			out0 += 8;
-			out1 += 8;
+		for (int x = 0; x < width; x += 32) {
+			// convert a block of (32 x 2) pixels
+			yuv2rgb_sse2(pCb, pCr, pY1, pY2, out0, out1);
+			pCb += 16;
+			pCr += 16;
+			pY1 += 32;
+			pY2 += 32;
+			out0 += 32;
+			out1 += 32;
 		}
 
 		output.setLineWidth(y + 0, width);
@@ -391,20 +461,16 @@ void convert(const th_ycbcr_buffer& input, RawFrame& output)
 		const HostCPU& cpu = HostCPU::getInstance();
 		if (cpu.hasSSE2()) {
 			convertHelperSSE2(input, output);
-		} else if (cpu.hasMMX()) {
-			convertHelperMMX(input, output);
 		} else
 #endif
 		{
 			convertHelper<unsigned>(input, output, format);
 		}
-		return;
 	} else {
 		assert(format.BytesPerPixel == 2);
 		convertHelper<short>(input, output, format);
 	}
 }
-
 
 } // namespace yuv2rgb
 } // namespace openmsx
