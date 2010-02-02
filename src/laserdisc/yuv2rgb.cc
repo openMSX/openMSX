@@ -55,12 +55,12 @@ static const uint64 Y_16       = 0x1010101010101010ULL;
 static const uint64 ALPHA_MASK = 0xFFFFFFFFFFFFFFFFULL;
 
 static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
+	UV_128,     UV_128,
 	RED_V_C,    RED_V_C,
 	GREEN_V_C,  GREEN_V_C,
 	GREEN_U_C,  GREEN_U_C,
 	BLUE_U_C,   BLUE_U_C,
 	Y_C,        Y_C,
-	UV_128,     UV_128,
 	Y_16,       Y_16,
 	ALPHA_MASK, ALPHA_MASK,
 };
@@ -90,7 +90,6 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 		mov_instr " %%"reg_type"2, (%2);"   /* backup Dred */ \
 		mov_instr " %%"reg_type"3, 16(%2);" /* backup Dgreen */ \
 		mov_instr " %%"reg_type"1, 32(%2);" /* backup Dblue */ \
-		\
 		"jmp 2f;" \
 		\
 		"1:" \
@@ -98,63 +97,48 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 		\
 		mov_instr " (%0), %%"reg_type"1;" \
 		mov_instr " (%1), %%"reg_type"2;" \
-		\
 		mov_instr " %%"reg_type"1, %%"reg_type"5;" \
 		mov_instr " %%"reg_type"2, %%"reg_type"6;" \
 		\
 		"punpckhbw %%"reg_type"7, %%"reg_type"5;" \
 		"punpckhbw %%"reg_type"7, %%"reg_type"6;" \
-		\
 		"punpcklbw %%"reg_type"7, %%"reg_type"1;" \
 		"punpcklbw %%"reg_type"7, %%"reg_type"2;" \
 		\
-		mov_instr " 80(%3), %%"reg_type"7;" \
-		\
-		"psubsw %%"reg_type"7, %%"reg_type"5;" /* U[hi] = U[hi] - 128 */ \
-		"psubsw %%"reg_type"7, %%"reg_type"6;" /* V[hi] = V[hi] - 128 */ \
-		\
-		"psubsw %%"reg_type"7, %%"reg_type"1;" /* U[lo] = U[lo] - 128 */ \
-		"psubsw %%"reg_type"7, %%"reg_type"2;" /* V[lo] = V[lo] - 128 */ \
+		"psubsw (%3), %%"reg_type"5;"          /* U[hi] = U[hi] - 128 */ \
+		"psubsw (%3), %%"reg_type"6;"          /* V[hi] = V[hi] - 128 */ \
+		"psubsw (%3), %%"reg_type"1;"          /* U[lo] = U[lo] - 128 */ \
+		"psubsw (%3), %%"reg_type"2;"          /* V[lo] = V[lo] - 128 */ \
 		\
 		mov_instr " %%"reg_type"5, %%"reg_type"3;" \
 		mov_instr " %%"reg_type"6, %%"reg_type"4;" \
-		\
-		mov_instr " 32(%3), %%"reg_type"7;" \
-		"pmullw %%"reg_type"7, %%"reg_type"3;" /* calculate Ugreen[hi] */ \
+		"pmullw 48(%3), %%"reg_type"3;"        /* calculate Ugreen[hi] */ \
 		"psraw $6, %%"reg_type"3;"             /* Ugreen[hi] = Ugreen[hi] / 64 */ \
-		mov_instr " 16(%3), %%"reg_type"7;" \
-		"pmullw %%"reg_type"7, %%"reg_type"4;" /* calculate Vgreen[hi] */ \
+		"pmullw 32(%3), %%"reg_type"4;"        /* calculate Vgreen[hi] */ \
 		"psraw $6, %%"reg_type"4;"             /* Vgreen[hi] = Vgreen[hi] / 64 */ \
 		"paddsw %%"reg_type"4, %%"reg_type"3;" /* Dgreen[hi] = Ugreen[hi] + Vgreen[hi] */ \
-		\
 		mov_instr " %%"reg_type"3, 64(%2);"    /* backup Dgreen[hi] (clobbered) */ \
 		\
 		mov_instr " %%"reg_type"1, %%"reg_type"3;" \
 		mov_instr " %%"reg_type"2, %%"reg_type"4;" \
-		\
-		mov_instr " 32(%3), %%"reg_type"7;" \
-		"pmullw %%"reg_type"7, %%"reg_type"3;" /* calculate Ugreen[lo] */ \
+		"pmullw 48(%3), %%"reg_type"3;"        /* calculate Ugreen[lo] */ \
 		"psraw $6, %%"reg_type"3;"             /* Ugreen[lo] = Ugreen[lo] / 64 */ \
-		mov_instr " 16(%3), %%"reg_type"7;" \
-		"pmullw %%"reg_type"7, %%"reg_type"4;" /* calculate Vgreen[lo] */ \
+		"pmullw 32(%3), %%"reg_type"4;"        /* calculate Vgreen[lo] */ \
 		"psraw $6, %%"reg_type"4;"             /* Vgreen[lo] = Vgreen[lo] / 64 */ \
 		"paddsw %%"reg_type"4, %%"reg_type"3;" /* Dgreen[lo] = Ugreen[lo] + Vgreen[lo] */ \
 		\
-		mov_instr " 48(%3), %%"reg_type"7;" \
-		"pmullw %%"reg_type"7, %%"reg_type"5;" /* calculate Dblue[hi] */ \
+		"pmullw 64(%3), %%"reg_type"5;"        /* calculate Dblue[hi] */ \
 		"psraw $6, %%"reg_type"5;"             /* Dblue[hi] = Dblue[hi] / 64 */ \
-		"pmullw %%"reg_type"7, %%"reg_type"1;" /* calculate Dblue[lo] */ \
+		"pmullw 64(%3), %%"reg_type"1;"        /* calculate Dblue[lo] */ \
 		"psraw $6, %%"reg_type"1;"             /* Dblue[lo] = Dblue[lo] / 64 */ \
 		\
-		mov_instr " (%3), %%"reg_type"7;" \
-		"pmullw %%"reg_type"7, %%"reg_type"6;" /* calculate Dred[hi] */ \
+		"pmullw 16(%3), %%"reg_type"6;"        /* calculate Dred[hi] */ \
 		"psraw $6, %%"reg_type"6;"             /* Dred[hi] = Dred[hi] / 64 */ \
-		"pmullw %%"reg_type"7, %%"reg_type"2;" /* calculate Dred[lo] */ \
+		"pmullw 16(%3), %%"reg_type"2;"        /* calculate Dred[lo] */ \
 		"psraw $6, %%"reg_type"2;"             /* Dred[lo] = Dred[lo] / 64 */ \
 		\
 		mov_instr " %%"reg_type"6, 48(%2);"    /* backup Dred[hi] */ \
 		mov_instr " %%"reg_type"5, 80(%2);"    /* backup Dblue[hi] */ \
-		\
 		mov_instr " %%"reg_type"2, 0(%2);"     /* backup Dred[lo] */ \
 		mov_instr " %%"reg_type"3, 16(%2);"    /* backup Dgreen[lo] */ \
 		mov_instr " %%"reg_type"1, 32(%2);"    /* backup Dblue[lo] */ \
@@ -174,19 +158,16 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 
 #define YUV2RGB_INTEL_SIMD(mov_instr, reg_type, output_offset1, output_offset2, output_offset3, y_plane, dest) do { \
 	__asm__ __volatile__ (\
-		mov_instr " (%0), %%"reg_type"0;"       /* Load Y plane into r0 */ \
-		mov_instr " 96(%2), %%"reg_type"7;"     /* Load 16 into r7 */ \
-		"psubusb %%"reg_type"7, %%"reg_type"0;" /* Y = Y - 16 */ \
-		\
+		mov_instr " (%0), %%"reg_type"0;"      /* Load Y plane into r0 */ \
+		"psubusb 96(%2), %%"reg_type"0;"       /* Y = Y - 16 */ \
 		mov_instr " %%"reg_type"0, %%"reg_type"4;" /* r4 == r0 */ \
 		\
-		"psllw $8, %%"reg_type"0;"  /* r0 [00 Y0 00 Y2 ...] */ \
-		"psrlw $8, %%"reg_type"0;"  /* r0 [Y0 00 Y2 00 ...] */ \
-		"psrlw $8, %%"reg_type"4;"  /* r4 [Y1 00 Y3 00 ...] */ \
+		"psllw $8, %%"reg_type"0;"             /* r0 [00 Y0 00 Y2 ...] */ \
+		"psrlw $8, %%"reg_type"0;"             /* r0 [Y0 00 Y2 00 ...] */ \
+		"psrlw $8, %%"reg_type"4;"             /* r4 [Y1 00 Y3 00 ...] */ \
 		\
-		mov_instr " 64(%2), %%"reg_type"7;" \
-		"pmullw %%"reg_type"7, %%"reg_type"0;" /* calculate Y*Yc[even] */ \
-		"pmullw %%"reg_type"7, %%"reg_type"4;" /* calculate Y*Yc[odd] */ \
+		"pmullw 80(%2), %%"reg_type"0;"        /* calculate Y*Yc[even] */ \
+		"pmullw 80(%2), %%"reg_type"4;"        /* calculate Y*Yc[odd] */ \
 		"psraw $6, %%"reg_type"0;"             /* Yyc[even] = Yyc[even] / 64 */ \
 		"psraw $6, %%"reg_type"4;"             /* Yyc[odd] = Yyc[odd] / 64 */ \
 		\
@@ -197,7 +178,6 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 		"paddsw %%"reg_type"0, %%"reg_type"2;" /* CY[even] + DR */ \
 		"paddsw %%"reg_type"0, %%"reg_type"3;" /* CY[even] + DG */ \
 		"paddsw %%"reg_type"0, %%"reg_type"1;" /* CY[even] + DB */ \
-		\
 		"paddsw %%"reg_type"4, %%"reg_type"6;" /* CY[odd] + DR */ \
 		"paddsw %%"reg_type"4, %%"reg_type"7;" /* CY[odd] + DG */ \
 		"paddsw %%"reg_type"4, %%"reg_type"5;" /* CY[odd] + DB */ \
@@ -205,7 +185,6 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 		"packuswb %%"reg_type"2, %%"reg_type"2;" /* Clamp RGB to [0-255] */ \
 		"packuswb %%"reg_type"3, %%"reg_type"3;" \
 		"packuswb %%"reg_type"1, %%"reg_type"1;" \
-		\
 		"packuswb %%"reg_type"6, %%"reg_type"6;" \
 		"packuswb %%"reg_type"7, %%"reg_type"7;" \
 		"packuswb %%"reg_type"5, %%"reg_type"5;" \
@@ -213,31 +192,23 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 		"punpcklbw %%"reg_type"6, %%"reg_type"2;" /* r2 [R0 R1 R2 R3 ...] */ \
 		"punpcklbw %%"reg_type"7, %%"reg_type"3;" /* r3 [G0 G1 G2 G3 ...] */ \
 		"punpcklbw %%"reg_type"5, %%"reg_type"1;" /* r1 [B0 B1 B2 B3 ...] */ \
-		\
 		mov_instr " %%"reg_type"2, %%"reg_type"5;" /* copy RGB */ \
 		mov_instr " %%"reg_type"3, %%"reg_type"7;" \
 		mov_instr " %%"reg_type"1, %%"reg_type"6;" \
 		\
-		mov_instr " 112(%2), %%"reg_type"4;" \
 		"punpcklbw %%"reg_type"2, %%"reg_type"1;" /* r1 [B0 R0 B1 R1 ...] */ \
-		"punpcklbw %%"reg_type"4, %%"reg_type"3;" /* r4 [G0 FF G1 FF ...] */ \
-		\
-		mov_instr " %%"reg_type"1, %%"reg_type"0;" /* r3 [G0 FF G1 FF ...] */ \
-		\
+		"punpcklbw 112(%2),       %%"reg_type"3;" /* r3 [G0 FF G1 FF ...] */ \
+		mov_instr " %%"reg_type"1, %%"reg_type"0;" /* r0 [G0 FF G1 FF ...] */ \
 		"punpcklbw %%"reg_type"3, %%"reg_type"1;" /* r2 [B0 G0 R0 FF B1 G1 R1 FF ...] */ \
 		"punpckhbw %%"reg_type"3, %%"reg_type"0;" /* r3 [B2 G2 R2 FF B3 G3 R3 FF ...] */ \
-		\
 		mov_instr " %%"reg_type"1, (%1);" /* output BGRA */ \
 		mov_instr " %%"reg_type"0, "output_offset1"(%1);" \
 		\
 		"punpckhbw %%"reg_type"5, %%"reg_type"6;" \
-		"punpckhbw %%"reg_type"4, %%"reg_type"7;" \
-		\
+		"punpckhbw 112(%2),       %%"reg_type"7;" \
 		mov_instr " %%"reg_type"6, %%"reg_type"0;" \
-		\
 		"punpcklbw %%"reg_type"7, %%"reg_type"6;" \
 		"punpckhbw %%"reg_type"7, %%"reg_type"0;" \
-		\
 		mov_instr " %%"reg_type"6, "output_offset2"(%1);" \
 		mov_instr " %%"reg_type"0, "output_offset3"(%1);" \
 		: : "r" (y_plane), "r" (dest), "r" (&simd_table)); \
