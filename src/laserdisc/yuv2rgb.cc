@@ -37,32 +37,25 @@ namespace yuv2rgb {
 /* R = 1.164 * (Y - 16) + 1.596 * (V - 128)
  * G = 1.164 * (Y - 16) - 0.813 * (V - 128) - 0.391 * (U - 128)
  * B = 1.164 * (Y - 16)                     + 2.018 * (U - 128)
- *
- * R V coefficient = 1.596*64 = 102 = 0x66
- * G V coefficient = 0.813*64 =  52 = 0x34 (-ve) == 0xFFCC
- * G U coefficient = 0.391*64 =  25 = 0x19 (-ve) == 0xFFE7
- * B U coefficient = 2.018*64 = 129 = 0x81
- * Y coefficient   = 1.164*64 =  74 = 0x4a
  */
+static const unsigned short RED_V    = 0x0066; // 102/64 =  1.59
+static const unsigned short GREEN_V  = 0xFFCC; // -25/64 = -0.39
+static const unsigned short GREEN_U  = 0xFFE7; // -52/64 = -0.81
+static const unsigned short BLUE_U   = 0x0081; // 129/64 =  2.02
+static const unsigned short Y_C      = 0x004A; //  74/64 =  1.16
+static const unsigned short UV_128   = 0x0080;
+static const unsigned short Y_16     = 0x1010;
+static const unsigned short ALPHA    = 0xFFFF;
 
-static const uint64 RED_V_C    = 0x0066006600660066ULL;
-static const uint64 GREEN_V_C  = 0xffccffccffccffccULL;
-static const uint64 GREEN_U_C  = 0xffe7ffe7ffe7ffe7ULL;
-static const uint64 BLUE_U_C   = 0x0081008100810081ULL;
-static const uint64 Y_C        = 0x004a004a004a004aULL;
-static const uint64 UV_128     = 0x0080008000800080ULL;
-static const uint64 Y_16       = 0x1010101010101010ULL;
-static const uint64 ALPHA_MASK = 0xFFFFFFFFFFFFFFFFULL;
-
-static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
-	UV_128,     UV_128,
-	RED_V_C,    RED_V_C,
-	GREEN_V_C,  GREEN_V_C,
-	GREEN_U_C,  GREEN_U_C,
-	BLUE_U_C,   BLUE_U_C,
-	Y_C,        Y_C,
-	Y_16,       Y_16,
-	ALPHA_MASK, ALPHA_MASK,
+static const unsigned short simd_table [8 * 8] __attribute__ ((aligned (16))) = {
+	UV_128,   UV_128,   UV_128,   UV_128,  UV_128,   UV_128,   UV_128,   UV_128,
+	RED_V,    RED_V,    RED_V,    RED_V,   RED_V,    RED_V,    RED_V,    RED_V,
+	GREEN_V,  GREEN_V,  GREEN_V,  GREEN_V, GREEN_V,  GREEN_V,  GREEN_V,  GREEN_V,
+	GREEN_U,  GREEN_U,  GREEN_U,  GREEN_U, GREEN_U,  GREEN_U,  GREEN_U,  GREEN_U,
+	BLUE_U,   BLUE_U,   BLUE_U,   BLUE_U,  BLUE_U,   BLUE_U,   BLUE_U,   BLUE_U,
+	Y_C,      Y_C,      Y_C,      Y_C,     Y_C,      Y_C,      Y_C,      Y_C,
+	Y_16,     Y_16,     Y_16,     Y_16,    Y_16,     Y_16,     Y_16,     Y_16,
+	ALPHA,    ALPHA,    ALPHA,    ALPHA,   ALPHA,    ALPHA,    ALPHA,    ALPHA,
 };
 
 #define PREFETCH(memory) do {		\
@@ -113,19 +106,17 @@ static const uint64 simd_table [16] __attribute__ ((aligned (16))) = {
 		mov_instr " %%"reg_type"5, %%"reg_type"3;" \
 		mov_instr " %%"reg_type"6, %%"reg_type"4;" \
 		"pmullw 48(%3), %%"reg_type"3;"        /* calculate Ugreen[hi] */ \
-		"psraw $6, %%"reg_type"3;"             /* Ugreen[hi] = Ugreen[hi] / 64 */ \
 		"pmullw 32(%3), %%"reg_type"4;"        /* calculate Vgreen[hi] */ \
-		"psraw $6, %%"reg_type"4;"             /* Vgreen[hi] = Vgreen[hi] / 64 */ \
 		"paddsw %%"reg_type"4, %%"reg_type"3;" /* Dgreen[hi] = Ugreen[hi] + Vgreen[hi] */ \
+		"psraw $6, %%"reg_type"3;" \
 		mov_instr " %%"reg_type"3, 64(%2);"    /* backup Dgreen[hi] (clobbered) */ \
 		\
 		mov_instr " %%"reg_type"1, %%"reg_type"3;" \
 		mov_instr " %%"reg_type"2, %%"reg_type"4;" \
 		"pmullw 48(%3), %%"reg_type"3;"        /* calculate Ugreen[lo] */ \
-		"psraw $6, %%"reg_type"3;"             /* Ugreen[lo] = Ugreen[lo] / 64 */ \
 		"pmullw 32(%3), %%"reg_type"4;"        /* calculate Vgreen[lo] */ \
-		"psraw $6, %%"reg_type"4;"             /* Vgreen[lo] = Vgreen[lo] / 64 */ \
 		"paddsw %%"reg_type"4, %%"reg_type"3;" /* Dgreen[lo] = Ugreen[lo] + Vgreen[lo] */ \
+		"psraw $6, %%"reg_type"3;" \
 		\
 		"pmullw 64(%3), %%"reg_type"5;"        /* calculate Dblue[hi] */ \
 		"psraw $6, %%"reg_type"5;"             /* Dblue[hi] = Dblue[hi] / 64 */ \
