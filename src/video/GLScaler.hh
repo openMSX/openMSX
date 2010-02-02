@@ -3,10 +3,13 @@
 #ifndef GLSCALER_HH
 #define GLSCALER_HH
 
+#include <memory>
+
 namespace openmsx {
 
 class ColorTexture;
 class FrameSource;
+class ShaderProgram;
 
 /** Abstract base class for OpenGL scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
@@ -14,6 +17,7 @@ class FrameSource;
 class GLScaler
 {
 public:
+	GLScaler();
 	virtual ~GLScaler();
 
 	/** Scales the image in the given area, which must consist of lines which
@@ -61,6 +65,9 @@ protected:
 	                  float physSrcHeight, float logSrcHeight,
 	                  unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	                  bool textureFromZero = false);
+
+private:
+	std::auto_ptr<ShaderProgram> scalerProgram;
 };
 
 } // namespace openmsx

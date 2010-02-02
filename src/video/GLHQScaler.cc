@@ -120,12 +120,14 @@ void GLHQScaler::scaleImage(
 		}
 		glActiveTexture(GL_TEXTURE0);
 		prog.activate();
+		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
+		             dstStartY, dstEndY, dstWidth);
 	} else {
-		prog.deactivate();
+		GLScaler::scaleImage(src, superImpose,
+		                     srcStartY, srcEndY, srcWidth,
+		                     dstStartY, dstEndY, dstWidth,
+		                     logSrcHeight);
 	}
-
-	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-	             dstStartY, dstEndY, dstWidth);
 }
 
 typedef unsigned Pixel;

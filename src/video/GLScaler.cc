@@ -5,6 +5,23 @@
 
 namespace openmsx {
 
+GLScaler::GLScaler()
+{
+	VertexShader   vertexShader  ("superImpose.vert");
+	FragmentShader fragmentShader("superImpose.frag");
+	scalerProgram.reset(new ShaderProgram());
+	scalerProgram->attach(vertexShader);
+	scalerProgram->attach(fragmentShader);
+	scalerProgram->link();
+#ifdef GL_VERSION_2_0
+	if (GLEW_VERSION_2_0) {
+		scalerProgram->activate();
+		glUniform1i(scalerProgram->getUniformLocation("tex"), 0);
+		glUniform1i(scalerProgram->getUniformLocation("videoTex"), 1);
+	}
+#endif
+}
+
 GLScaler::~GLScaler()
 {
 }
@@ -13,6 +30,25 @@ void GLScaler::uploadBlock(
 	unsigned /*srcStartY*/, unsigned /*srcEndY*/,
 	unsigned /*lineWidth*/, FrameSource& /*paintFrame*/)
 {
+}
+
+void GLScaler::scaleImage(
+	ColorTexture& src, ColorTexture* superImpose,
+	unsigned srcStartY, unsigned srcEndY, unsigned /*srcWidth*/,
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	unsigned logSrcHeight)
+{
+	if (superImpose) {
+		glActiveTexture(GL_TEXTURE1);
+		superImpose->bind();
+		glActiveTexture(GL_TEXTURE0);
+		scalerProgram->activate();
+	} else {
+		scalerProgram->deactivate();
+	}
+
+	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
+	             dstStartY, dstEndY, dstWidth);
 }
 
 void GLScaler::drawMultiTex(

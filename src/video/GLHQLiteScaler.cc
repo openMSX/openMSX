@@ -102,15 +102,15 @@ void GLHQLiteScaler::scaleImage(
 		glActiveTexture(GL_TEXTURE0);
 		prog.activate();
 		//prog.validate();
+		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
+		             dstStartY, dstEndY, dstWidth);
+		src.disableInterpolation();
 	} else {
-		// TODO handle superimpose in this case
-		prog.deactivate();
+		GLScaler::scaleImage(src, superImpose,
+		                     srcStartY, srcEndY, srcWidth,
+		                     dstStartY, dstEndY, dstWidth,
+		                     logSrcHeight);
 	}
-
-	// actually draw texture
-	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-	             dstStartY, dstEndY, dstWidth);
-	src.disableInterpolation();
 }
 
 typedef unsigned Pixel;

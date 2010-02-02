@@ -36,8 +36,8 @@ void GLScaleNxScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
 {
-	int i = superImpose ? 1 : 0;
 	if (srcWidth == 320) {
+		int i = superImpose ? 1 : 0;
 		if (superImpose) {
 			glActiveTexture(GL_TEXTURE1);
 			superImpose->bind();
@@ -47,13 +47,14 @@ void GLScaleNxScaler::scaleImage(
 		if (GLEW_VERSION_2_0) {
 			glUniform2f(texSizeLoc[i], 320.0f, src.getHeight());
 		}
+		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
+		             dstStartY, dstEndY, dstWidth);
 	} else {
-		// TODO handle superimpose
-		scalerProgram[i]->deactivate();
+		GLScaler::scaleImage(src, superImpose,
+		                     srcStartY, srcEndY, srcWidth,
+		                     dstStartY, dstEndY, dstWidth,
+		                     logSrcHeight);
 	}
-
-	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-	             dstStartY, dstEndY, dstWidth);
 }
 
 } // namespace openmsx
