@@ -58,9 +58,10 @@ snapshot in the future (if possible).
 		}
 	}
 
-	bind_default F6 "reverse_prev"
-	# Note: I thought about using SHIFT+F6 for reverse_next, but pressing
-	#       SHIFT already forces a stop replay.
+	# note: you can't use bindings with modifiers like SHIFT, because they
+	# will already stop the replay, as they are MSX keys as well
+	bind_default PAGEUP "reverse_prev"
+	bind_default PAGEDOWN "reverse_next"
 
 	namespace export reverse_prev
 	namespace export reverse_next
