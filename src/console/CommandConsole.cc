@@ -277,6 +277,16 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	default:
 		used = false;
 	}
+	if ((key == Keys::K_LSHIFT) || (key == Keys::K_RSHIFT) ||
+	    (key == Keys::K_LCTRL)  || (key == Keys::K_RCTRL)  ||
+	    (key == Keys::K_LALT)   || (key == Keys::K_RALT)   ||
+	    (key == Keys::K_LMETA)  || (key == Keys::K_RMETA)  ||
+	    (key == Keys::K_LSUPER) || (key == Keys::K_RSUPER)) {
+		// Pure-modifier key event, act as-if the console consumed this
+		// event. Without this check, pressing SHIFT or CTRL is passed
+		// to the MSX, where it possibly cancels a reverse-replay.
+		used = true;
+	}
 	return used;
 }
 
