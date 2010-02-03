@@ -24,8 +24,8 @@ public:
 	  */
 	enum Priority {
 		OTHER,
-		HOTKEY,
 		CONSOLE,
+		HOTKEY,
 		MSX
 	};
 

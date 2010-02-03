@@ -49,7 +49,7 @@ private:
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
-	void handleEvent(const KeyEvent& keyEvent);
+	bool handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);

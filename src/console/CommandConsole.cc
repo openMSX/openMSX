@@ -165,103 +165,119 @@ bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 	if (consoleSetting->getValue()) {
-		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-			handleEvent(keyEvent);
+		if (handleEvent(keyEvent)) {
+			// event was used
 			display.repaintDelayed(40000); // 25fps
-			return false; // deny event to other listeners
-		} else if (event->getType() == OPENMSX_KEY_UP_EVENT) {
-			// consume this event so it won't leak to the MSX
 			return false; // deny event to other listeners
 		}
 	}
 	return true;
 }
 
-void CommandConsole::handleEvent(const KeyEvent& keyEvent)
+bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
+	bool down = keyEvent.getType() == OPENMSX_KEY_DOWN_EVENT;
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	int key = keyCode &  Keys::K_MASK;
 	int mod = keyCode & ~Keys::K_MASK;
+	word chr = keyEvent.getUnicode();
+
+	bool used = true;
 	switch (mod) {
 	case Keys::KM_CTRL:
 		switch (key) {
 		case Keys::K_H:
-			backspace();
+			if (down) backspace();
 			break;
 		case Keys::K_A:
-			cursorPosition = unsigned(prompt.size());
+			if (down) cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_E:
-			cursorPosition = utf8::unchecked::size(lines[0]);
+			if (down) cursorPosition = utf8::unchecked::size(lines[0]);
 			break;
 		case Keys::K_C:
-			clearCommand();
+			if (down) clearCommand();
 			break;
+		default:
+			used = false;
 		}
 		break;
 	case Keys::KM_SHIFT:
 		switch (key) {
 		case Keys::K_PAGEUP:
-			scroll(max<int>(getRows() - 1, 1));
+			if (down) scroll(max<int>(getRows() - 1, 1));
 			break;
 		case Keys::K_PAGEDOWN:
-			scroll(-max<int>(getRows() - 1, 1));
+			if (down) scroll(-max<int>(getRows() - 1, 1));
 			break;
 		default:
-			normalKey(keyEvent.getUnicode());
+			if (chr) {
+				if (down) normalKey(chr);
+			} else {
+				used = false;
+			}
 			break;
 		}
 		break;
 	case 0:
 		switch (key) {
 		case Keys::K_PAGEUP:
-			scroll(1);
+			if (down) scroll(1);
 			break;
 		case Keys::K_PAGEDOWN:
-			scroll(-1);
+			if (down) scroll(-1);
 			break;
 		case Keys::K_UP:
-			prevCommand();
+			if (down) prevCommand();
 			break;
 		case Keys::K_DOWN:
-			nextCommand();
+			if (down) nextCommand();
 			break;
 		case Keys::K_BACKSPACE:
-			backspace();
+			if (down) backspace();
 			break;
 		case Keys::K_DELETE:
-			delete_key();
+			if (down) delete_key();
 			break;
 		case Keys::K_TAB:
-			tabCompletion();
+			if (down) tabCompletion();
 			break;
 		case Keys::K_RETURN:
 		case Keys::K_KP_ENTER:
-			commandExecute();
-			cursorPosition = unsigned(prompt.size());
+			if (down) {
+				commandExecute();
+				cursorPosition = unsigned(prompt.size());
+			}
 			break;
 		case Keys::K_LEFT:
-			if (cursorPosition > prompt.size()) {
+			if (down && (cursorPosition > prompt.size())) {
 				--cursorPosition;
 			}
 			break;
 		case Keys::K_RIGHT:
-			if (cursorPosition < utf8::unchecked::size(lines[0])) {
+			if (down && (cursorPosition < utf8::unchecked::size(lines[0]))) {
 				++cursorPosition;
 			}
 			break;
 		case Keys::K_HOME:
-			cursorPosition = unsigned(prompt.size());
+			if (down) cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_END:
-			cursorPosition = utf8::unchecked::size(lines[0]);
+			if (down) cursorPosition = utf8::unchecked::size(lines[0]);
 			break;
 		default:
-			normalKey(keyEvent.getUnicode());
+			if (chr) {
+				if (down) normalKey(chr);
+			} else {
+				used = false;
+			}
 			break;
 		}
 		break;
+	default:
+		used = false;
 	}
+	return used;
 }
 
 void CommandConsole::setColumns(unsigned columns_)
@@ -463,7 +479,7 @@ void CommandConsole::delete_key()
 
 void CommandConsole::normalKey(word chr)
 {
-	if (!chr) return;
+	assert(chr);
 	resetScrollBack();
 	string::iterator pos = lines[0].begin();
 	utf8::unchecked::advance(pos, cursorPosition);
