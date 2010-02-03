@@ -99,21 +99,6 @@ class GLEW(DownloadablePackage):
 	def getTarballName(cls):
 		return '%s-%s.tgz' % (cls.sourceName, cls.version)
 
-class JACK(DownloadablePackage):
-	downloadURL = 'http://jackaudio.org/downloads/'
-	niceName = 'Jack'
-	sourceName = 'jack-audio-connection-kit'
-	version = '0.116.2'
-	fileLength = 944106
-	checksums = {
-		'sha256':
-			'ce6e1f61a3b003137af56b749e5ed4274584167c0877ea9ef2d83f47b11c8d3d',
-		}
-
-	@classmethod
-	def getMakeName(cls):
-		return 'JACK'
-
 class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'

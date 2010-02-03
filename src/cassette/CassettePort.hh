@@ -15,9 +15,6 @@ class CassettePlayer;
 #if COMPONENT_LASERDISC
 class LaserdiscPlayer;
 #endif
-#if COMPONENT_JACK
-class CassetteJack;
-#endif
 
 class CassettePortInterface
 {
@@ -93,9 +90,6 @@ private:
 	std::auto_ptr<CassettePlayer> cassettePlayer;
 #if COMPONENT_LASERDISC
 	LaserdiscPlayer* laserdiscPlayer;
-#endif
-#if COMPONENT_JACK
-	std::auto_ptr<CassetteJack> cassetteJack;
 #endif
 
 	bool lastOutput;

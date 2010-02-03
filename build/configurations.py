@@ -29,8 +29,6 @@ def getConfiguration(name):
 		optionalComponents = set(iterComponents()) - requiredComponents
 		linkStatic = False
 	elif name == '3RD_STA':
-		# The CassetteJack feature is not useful for most end users and it is
-		# the only component that requires the Jack library.
 		requiredComponents = set((EmulationCore, GLRenderer))
 		optionalComponents = set((Laserdisc, ))
 		linkStatic = True

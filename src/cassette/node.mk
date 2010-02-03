@@ -12,9 +12,5 @@ SRC_HDR:= \
 	CasImage \
 	WavImage
 
-SRC_HDR_$(COMPONENT_JACK)+= \
-	CassetteJack
-
-
 include build/node-end.mk
 

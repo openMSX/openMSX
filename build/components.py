@@ -24,11 +24,6 @@ class GLRenderer(Component):
 	makeName = 'GL'
 	dependsOn = ('GL', 'GLEW')
 
-class CassetteJack(Component):
-	niceName = 'CassetteJack'
-	makeName = 'JACK'
-	dependsOn = ('JACK', )
-
 class Laserdisc(Component):
 	niceName = 'Laserdisc'
 	makeName = 'LASERDISC'
@@ -37,7 +32,6 @@ class Laserdisc(Component):
 def iterComponents():
 	yield EmulationCore
 	yield GLRenderer
-	yield CassetteJack
 	yield Laserdisc
 
 def requiredLibrariesFor(components):

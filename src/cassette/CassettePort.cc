@@ -7,9 +7,6 @@
 #if COMPONENT_LASERDISC
 #include "LaserdiscPlayer.hh"
 #endif
-#if COMPONENT_JACK
-#include "CassetteJack.hh"
-#endif
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "GlobalSettings.hh"
@@ -80,19 +77,12 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()
 		));
 	getPluggingController().registerPluggable(cassettePlayer.get());
-#if COMPONENT_JACK
-	cassetteJack.reset(new CassetteJack(motherBoard.getScheduler()));
-	getPluggingController().registerPluggable(cassetteJack.get());
-#endif
 }
 
 CassettePort::~CassettePort()
 {
 	unplug(motherBoard.getCurrentTime());
 	getPluggingController().unregisterPluggable(cassettePlayer.get());
-#if COMPONENT_JACK
-	getPluggingController().unregisterPluggable(cassetteJack.get());
-#endif
 }
 
 
