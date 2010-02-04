@@ -7,7 +7,6 @@ namespace eval reverse {
 		array set stat $stat_list
 		if {$stat(status) == "disabled"} {
 			reverse start
-			puts stderr "Reverse Auto-Enabled"
 		}
 		return $stat_list
 	}
@@ -63,6 +62,16 @@ snapshot in the future (if possible).
 	bind_default PAGEUP "reverse_prev"
 	bind_default PAGEDOWN "reverse_next"
 
+	proc after_switch {} {
+		if {$::auto_enable_reverse == "on"} {
+			auto_enable
+		} elseif {$::auto_enable_reverse == "gui"} {
+			reverse_widgets::enable_reversebar false
+		}
+		after machine_switch [namespace code after_switch]
+	}
+
+
 	namespace export reverse_prev
 	namespace export reverse_next
 }
@@ -88,12 +97,18 @@ fade out. You can make it reappear by moving the mouse over it.
 		return ""
 	}
 
-	proc enable_reversebar {} {
+	proc enable_reversebar {{visible true}} {
 		reverse::auto_enable
 
+		if {![catch {osd info reverse}]} {
+			# osd already enabled
+			return
+		}
+
+		set fade [expr $visible ? 1.0 : 0.0]
 		osd create rectangle reverse \
 			-scaled true -x 35 -y 233 -w 250 -h 6 \
-			-rgba 0x00000080
+			-rgba 0x00000080 -fadeCurrent $fade -fadeTarget $fade
 		osd create rectangle reverse.top \
 			-x -1 -y   -1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
 		osd create rectangle reverse.bottom \
@@ -116,9 +131,9 @@ fade out. You can make it reappear by moving the mouse over it.
 	proc disable_reversebar {} {
 		variable update_after_id
 		variable mouse_after_id
-		after cancel $update_after_id
-		after cancel $mouse_after_id
-		osd destroy reverse
+		catch { after cancel $update_after_id }
+		catch { after cancel $mouse_after_id  }
+		catch { osd destroy reverse }
 	}
 
 	proc update_reversebar {} {
@@ -133,7 +148,8 @@ fade out. You can make it reappear by moving the mouse over it.
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
 		}
 		"enabled" {
-			foreach {x y} [osd info "reverse" -mousecoord] {}
+			set x 2 ; set y 2
+			catch { foreach {x y} [osd info "reverse" -mousecoord] {} }
 			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 			} else {
@@ -174,7 +190,8 @@ fade out. You can make it reappear by moving the mouse over it.
 	}
 
 	proc check_mouse {} {
-		foreach {x y} [osd info "reverse" -mousecoord] {}
+		set x 2 ; set y 2
+		catch { foreach {x y} [osd info "reverse" -mousecoord] {} }
 		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 			array set stats [reverse status]
 			reverse goto [expr $stats(begin) + $x * ($stats(end) - $stats(begin))]
@@ -192,3 +209,15 @@ fade out. You can make it reappear by moving the mouse over it.
 
 namespace import reverse::*
 namespace import reverse_widgets::*
+
+user_setting create string "auto_enable_reverse" \
+{Controls whether the reverse feature is automatically enabled on startup.
+Internally the reverse feature takes regular snapshots of the MSX state,
+this has a (small) cost in memory and in performance. On small systems you
+don't want this cost, so we don't enable the reverse feature by default.
+Possible values for this setting:
+  off   Reverse not enabled on startup
+  on    Reverse enabled on startup
+  gui   Reverse + reverse_bar enabled (see 'help toggle_reversebar')
+} off
+reverse::after_switch
