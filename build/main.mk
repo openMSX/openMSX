@@ -300,7 +300,12 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
   # Stricter warning and error reporting.
-  COMPILE_FLAGS+=-Wall -Wextra -Wno-missing-field-initializers -Wundef -Wunused-macros
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wunused-macros
+  # Flag that is not accepted by old GCC versions.
+  COMPILE_FLAGS+=$(shell \
+    echo | gcc -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
+    && echo -Wno-missing-field-initializers \
+    )
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
