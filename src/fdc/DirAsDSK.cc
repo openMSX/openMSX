@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <sys/types.h>
 
 using std::string;
@@ -934,6 +935,13 @@ void DirAsDSK::updateFileInDisk(const string& filename)
 			// don't warn for these files, as they occur in any directory except the root one
 			cliComm.printWarning("Not a regular file: " + fullfilename);
 		}
+		return;
+	}
+	if (fst.st_size >= std::numeric_limits<int>::max()) {
+		// File sizes are processed using int, so prevent integer
+		// overflow. Files this large won't be not be supported
+		// by an MSX anyway
+		cliComm.printWarning("File too large: " + fullfilename);
 		return;
 	}
 	if (!checkFileUsedInDSK(filename)) {
