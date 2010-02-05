@@ -93,6 +93,7 @@ private:
 
 	/** Is video output being generated?
 	  */
+	void scheduleDisplayStart(EmuTime::param time);
 	bool isVideoOutputAvailable(EmuTime::param time);
 	bool extInt(EmuTime::param time);
 	void remoteButtonLD1100(unsigned code, EmuTime::param time);
@@ -137,8 +138,6 @@ private:
 	unsigned playingFromSample;
 	unsigned lastPlayedSample;
 	bool muteLeft, muteRight;
-
-	Clock<30000, 1001> frameClock;
 
 	enum SyncType {
 		FRAME,

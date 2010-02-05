@@ -29,11 +29,11 @@ class LaserdiscCommand : public RecordedCommand
 {
 public:
 	LaserdiscCommand(CommandController& commandController,
-	                 StateChangeDistributor& stateChangeDistributor,
-	                 Scheduler& scheduler,
-	                 LaserdiscPlayer& laserdiscPlayer);
+			 StateChangeDistributor& stateChangeDistributor,
+			 Scheduler& scheduler,
+			 LaserdiscPlayer& laserdiscPlayer);
 	virtual string execute(const vector<string>& tokens,
-	                       EmuTime::param time);
+			       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -45,7 +45,7 @@ LaserdiscCommand::LaserdiscCommand(
 		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, LaserdiscPlayer& laserdiscPlayer_)
 	: RecordedCommand(commandController_, stateChangeDistributor,
-	                  scheduler, "laserdiscplayer")
+			  scheduler, "laserdiscplayer")
 	, laserdiscPlayer(laserdiscPlayer_)
 {
 }
@@ -104,22 +104,21 @@ LaserdiscPlayer::LaserdiscPlayer(
 		MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_,
 		ThrottleManager& throttleManager)
 	: SoundDevice(motherBoard_.getMSXMixer(), "laserdiscplayer",
-	              "Laserdisc Player", 1, true)
+		      "Laserdisc Player", 1, true)
 	, Schedulable(motherBoard_.getScheduler())
 	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
 	, ldcontrol(ldcontrol_)
 	, laserdiscCommand(new LaserdiscCommand(
-	                   motherBoard_.getCommandController(),
-	                   motherBoard_.getStateChangeDistributor(),
-	                   motherBoard_.getScheduler(),
-	                   *this))
+			   motherBoard_.getCommandController(),
+			   motherBoard_.getStateChangeDistributor(),
+			   motherBoard_.getScheduler(),
+			   *this))
 	, sampleClock(EmuTime::zero)
 	, start(EmuTime::zero)
 	, lastPlayedSample(0)
 	, muteLeft(false)
 	, muteRight(false)
-	, frameClock(Schedulable::getCurrentTime())
 	, remoteState(REMOTE_IDLE)
 	, remoteLastEdge(EmuTime::zero)
 	, remoteLastBit(false)
@@ -148,8 +147,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	display.attach(*this);
 
 	createRenderer();
-
-	setSyncPoint(frameClock + 1, FRAME);
+	scheduleDisplayStart(Schedulable::getCurrentTime());
 
 	registerSound(laserdiscPlayerConfig);
 }
@@ -158,6 +156,12 @@ LaserdiscPlayer::~LaserdiscPlayer()
 {
 	unregisterSound();
 	motherBoard.getReactor().getDisplay().detach(*this);
+}
+
+void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
+{
+	Clock<30000, 1001> frameClock(time);
+	setSyncPoint(frameClock + 1, FRAME);
 }
 
 // The protocol used to communicate over the cable for commands to the
@@ -257,10 +261,10 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 		// Is there a minimum or maximum length for the trailing pulse?
 		if (400 <= usec && usec < 700) {
 			if (remoteBitNr == 32) {
-				byte custom      = ( remoteBits >> 24) & 0xff;
+				byte custom	 = ( remoteBits >> 24) & 0xff;
 				byte customCompl = (~remoteBits >> 16) & 0xff;
-				byte code        = ( remoteBits >>  8) & 0xff;
-				byte codeCompl   = (~remoteBits >>  0) & 0xff;
+				byte code	 = ( remoteBits >>  8) & 0xff;
+				byte codeCompl	 = (~remoteBits >>  0) & 0xff;
 				if (custom == customCompl && code == codeCompl) {
 					remoteButtonNEC(custom, code, time);
 				}
@@ -501,7 +505,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		std::cout << "PioneerLD7000::remote " << f << std::endl;
 	} else {
 		std::cout << "PioneerLD7000::remote unknown "
-		          << std::hex << code << std::endl;
+			  << std::hex << code << std::endl;
 	}
 #endif
 	if (custom != 0x15) {
@@ -671,8 +675,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		loadingIndicator->update(seeking || sampleReads > 500);
 		sampleReads = 0;
 
-		frameClock.reset(time);
-		setSyncPoint(frameClock + 1, FRAME);
+		scheduleDisplayStart(time);
 	}
 }
 
@@ -850,7 +853,7 @@ void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime::param time)
 {
 	updateStream(time);
 	PRT_DEBUG("Laserdisc::setMuting L:" << (left  ? "on" : "off")
-	                           << " R:" << (right ? "on" : "off"));
+				   << " R:" << (right ? "on" : "off"));
 	muteLeft = left;
 	muteRight = right;
 }
@@ -1059,11 +1062,11 @@ void LaserdiscPlayer::createRenderer()
 }
 
 static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {
-	{ "IDLE",		LaserdiscPlayer::REMOTE_IDLE 		},
+	{ "IDLE",		LaserdiscPlayer::REMOTE_IDLE		},
 	{ "HEADER_PULSE",	LaserdiscPlayer::REMOTE_HEADER_PULSE	},
 	{ "NEC_HEADER_SPACE",	LaserdiscPlayer::NEC_HEADER_SPACE	},
 	{ "NEC_BITS_PULSE",	LaserdiscPlayer::NEC_BITS_PULSE		},
-	{ "NEC_BITS_SPACE", 	LaserdiscPlayer::NEC_BITS_SPACE		},
+	{ "NEC_BITS_SPACE",	LaserdiscPlayer::NEC_BITS_SPACE		},
 	{ "NEC_REPEAT_PULSE",	LaserdiscPlayer::NEC_REPEAT_PULSE	},
 	{ "LD1100_GAP",		LaserdiscPlayer::LD1100_GAP		},
 	{ "LD1100_SEEN_GAP",	LaserdiscPlayer::LD1100_SEEN_GAP	},
@@ -1129,17 +1132,24 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 		if (playerState == PLAYER_PLAYING_MULTISPEED) {
 			ar.serialize("FrameStep", frameStep);
 		}
-		ar.serialize("FrameClock", frameClock);
 
 		// Audio position
 		ar.serialize("FromSample", playingFromSample);
 
-		// The sampleClock is based on the sample rate of the 
-		// vorbis bit stream. If the sampleRate is different,
-		// We're stuffed.
 		ar.serialize("SampleClock", sampleClock);
 
 		if (ar.isLoader()) {
+			// If the samplerate differs, adjust accordingly
+			if (video->getSampleRate() != sampleClock.getFreq()) {
+				uint64 pos = playingFromSample;
+
+				pos *= sampleClock.getFreq();
+				pos /= video->getSampleRate();
+
+				playingFromSample = pos;
+				sampleClock.setFreq(video->getSampleRate());
+			}
+
 			unsigned sample = getCurrentSample(getCurrentTime());
 			video->seek(currentFrame, sample);
 			lastPlayedSample = sample;
