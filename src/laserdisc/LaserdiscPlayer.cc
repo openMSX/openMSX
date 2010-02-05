@@ -1109,7 +1109,9 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("OggImage", oggImage);
 	if (ar.isLoader()) {
 		sampleReads = 0;
-		setImageName(oggImage.getResolved(), getCurrentTime());
+		if (!oggImage.empty()) {
+			setImageName(oggImage.getResolved(), getCurrentTime());
+		}
 	}
 	ar.serialize("PlayerState", playerState);
 
