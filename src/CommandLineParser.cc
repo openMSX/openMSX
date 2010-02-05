@@ -243,6 +243,7 @@ void CommandLineParser::registerFileTypes()
 		fileExtMap["xsa"] = "diskimage";
 		fileExtMap["wav"] = "cassetteimage";
 		fileExtMap["cas"] = "cassetteimage";
+		fileExtMap["ogv"] = "laserdiscimage";
 		for (map<string, string>::const_iterator j = fileExtMap.begin();
 		     j != fileExtMap.end(); ++j) {
 			FileClassMap::const_iterator i = fileClassMap.find(j->second);
