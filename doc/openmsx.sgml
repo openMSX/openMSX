@@ -90,6 +90,9 @@ manpage.1: manpage.sgml
 		<listitem>
         	<para>wav: Raw tape image, as recorded from real tape</para>
 		</listitem>
+		<listitem>
+        	<para>ogv: Video recording, as recorded from real Laserdisc Player</para>
+		</listitem>
 	</itemizedlist>
 	  </para>
 	  <para>
@@ -138,7 +141,7 @@ manpage.1: manpage.sgml
 		<option>-cassetteplayer</option>
         </term>
         <listitem>
-          <para>Put WAV or CAS tape image specified in in argument in virtual cassette player</para>
+          <para>Put WAV or CAS tape image specified in argument in virtual cassette player</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -172,6 +175,14 @@ manpage.1: manpage.sgml
         </term>
         <listitem>
           <para>Use machine specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+		<option>-laserdisc</option>
+        </term>
+        <listitem>
+          <para>Put ogv video file specified in argument in virtual Laserdisc player</para>
         </listitem>
       </varlistentry>
       <varlistentry>
