@@ -20,40 +20,52 @@ will take successively bigger steps in the past. Going back to a snapshot\
 is also slightly faster than going back to an arbitrary point in time\
 (let's say going back a fixed amount of time).
 }
-	proc reverse_prev {{minimum 1}} {
+	proc reverse_prev {{minimum 1} {maximum 15}} {
 		array set revstat [auto_enable]
 		if {[llength $revstat(snapshots)] == 0} return
 
-		set target [expr $revstat(current) - $minimum]
+		set upperTarget [expr $revstat(current) - $minimum]
+		set lowerTarget [expr $revstat(current) - $maximum]
 
-		# search latest snapshots that is still before target
+		# search latest snapshots that is still before upperTarget
 		set i [expr [llength $revstat(snapshots)] - 1]
-		while {([lindex $revstat(snapshots) $i] > $target) && ($i > 0)} {
+		while {([lindex $revstat(snapshots) $i] > $upperTarget) && ($i > 0)} {
 			incr i -1
 		}
+		# but don't go below lowerTarget
+		set t [lindex $revstat(snapshots) $i]
+		if {$t < $lowerTarget} {
+			set t $lowerTarget
+		}
 
-		reverse goto [lindex $revstat(snapshots) $i]
+		reverse goto $t
 	}
 
 	set_help_text reverse_next \
 {This is very much like 'reverse_prev', but instead it goes to the closest\
 snapshot in the future (if possible).
 }
-	proc reverse_next {{minimum 0}} {
+	proc reverse_next {{minimum 0} {maximum 15}} {
 		array set revstat [auto_enable]
 		if {[llength $revstat(snapshots)] == 0} return
 
-		set target [expr $revstat(current) + $minimum]
+		set lowerTarget [expr $revstat(current) + $minimum]
+		set upperTarget [expr $revstat(current) + $maximum]
 
-		# search first snapshots that is after target
+		# search first snapshots that is after lowerTarget
 		set l [llength $revstat(snapshots)]
 		set i 0
-		while {($i < $l) && ([lindex $revstat(snapshots) $i] < $target)} {
+		while {($i < $l) && ([lindex $revstat(snapshots) $i] < $lowerTarget)} {
 			incr i
 		}
 
 		if {$i < $l} {
-			reverse goto [lindex $revstat(snapshots) $i]
+			# but don't go above upperTarget
+			set t [lindex $revstat(snapshots) $i]
+			if {$t > $upperTarget} {
+				set t $upperTarget
+			}
+			reverse goto $t
 		}
 	}
 
