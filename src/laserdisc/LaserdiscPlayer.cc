@@ -878,6 +878,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			// Note that with "fullspeedwhenloading" this
 			// should be reduced to.
 			setAck(time, 9600);
+			seekState = SEEK_NONE;
 			seeking = true;
 			waitFrame = 0;
 			playingSpeed = SPEED_1IN4;
