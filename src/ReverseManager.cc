@@ -26,6 +26,8 @@ using std::set;
 
 namespace openmsx {
 
+static const string REPLAY_DIR = "replays";
+
 // A replay is a struct that contains a motherboard and an MSX event
 // log. Those combined are a replay, because you can replay the events
 // from an existing motherboard state.
@@ -325,12 +327,17 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	string fileName;
 	if (tokens.size() == 2) {
 		fileName = FileOperations::getNextNumberedFileName(
-		                "replays", "openmsx", ".gz");
+		                REPLAY_DIR, "openmsx", ".gz");
 	} else if (tokens.size() == 3) {
 		fileName = tokens[2]->getString();
 		if (!StringOp::endsWith(fileName, ".gz")) {
 			fileName += ".gz";
 		}
+		if (FileOperations::getBaseName(fileName).empty()) {
+			// no dir given, use standard dir
+			fileName = FileOperations::getUserOpenMSXDir() + "/" + REPLAY_DIR + "/" + fileName;
+		}
+
 	} else {
 		throw SyntaxError();
 	}
@@ -373,9 +380,13 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 		throw SyntaxError();
 	}
 
-	UserDataFileContext context("replays");
+	UserDataFileContext context(REPLAY_DIR);
+	string fileNameArg = tokens[2]->getString();
+	if (!StringOp::endsWith(fileNameArg, ".gz")) {
+		fileNameArg += ".gz";
+	}
 	string fileName = context.resolve(motherBoard.getCommandController(),
-	                                  tokens[2]->getString());
+	                                  fileNameArg);
 
 	// restore replay
 	Replay replay;
@@ -686,7 +697,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, subCommands);
 	} else if (tokens.size() == 3) {
 		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {
-			UserDataFileContext context("replays");
+			UserDataFileContext context(REPLAY_DIR);
 			completeFileName(getCommandController(), tokens, context);
 		}
 	}
