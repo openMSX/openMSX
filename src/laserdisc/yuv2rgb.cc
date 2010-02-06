@@ -101,7 +101,7 @@ static inline void yuv2rgb_sse2(
 		"movdqa (%[Y0]),%%xmm0;"           // xmm0 = y00_0f
 		"movdqa %%xmm0,%%xmm1;"            // xmm1 = y00_0f
 		"pand   -32(%[COEF]),%%xmm1;"      // xmm1 = y00_even  (Y_MASK)
-		"psraw  $0x6,%%xmm2;"              // xmm2 = ub07
+		"psrlw  $0x6,%%xmm2;"              // xmm2 = ub07  ** unsigned **
 		"pmullw (%[COEF]),%%xmm1;"         // xmm1 = y00_even * COEF_Y
 		"paddsw -48(%[COEF]),%%xmm2;"      // xmm2 = db07      (CST_B)
 		"psraw  $0x6,%%xmm1;"              // xmm1 = dy00_even
@@ -227,7 +227,7 @@ static inline void yuv2rgb_sse2(
 		"movdqa 0x10(%[Y0]),%%xmm0;"       // xmm0 = y01_0f
 		"movdqa %%xmm0,%%xmm1;"            // xmm1 = y01_0f
 		"pand   -32(%[COEF]),%%xmm1;"      // xmm1 = y01_even  (Y_MASK)
-		"psraw  $0x6,%%xmm2;"              // xmm2 = ub8f
+		"psrlw  $0x6,%%xmm2;"              // xmm2 = ub8f  **unsigned**
 		"pmullw (%[COEF]),%%xmm1;"         // xmm1 = y01_even * COEF_Y
 		"paddsw -48(%[COEF]),%%xmm2;"      // xmm2 = db8f      (CST_B)
 		"psraw  $0x6,%%xmm1;"              // xmm1 = dy01_even
