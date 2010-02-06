@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1264231960">
+<softwaredb xml:lang="en" timestamp="1265439408">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3991,10 +3991,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">f0e4168ea18188fca2581526c2503223b9a28581</hash><remark><text>[RC-742] / [a1]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">98748c364e7bff50cf073c1a421ebe5b5d8b7025</hash><remark><text>[RC-742] / cheat version</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">910b156b562880ace789fb3f9b11848163c2df20</hash><remark><text>[RC-742] / Ulver crack</text></remark></megarom></dump>
-		<dump><rom><hash algo="sha1">6b42315eddefa0a33ea0c4510d6a4bc1086a5163</hash><remark><text>[RC-742]</text></remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">6b42315eddefa0a33ea0c4510d6a4bc1086a5163</hash><remark><text>[RC-742]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">e96888c96c3044ca7ce57dbdf1744df7469f7465</hash><remark><text>[RC-742]</text></remark></megarom></dump>
 		<dump><sccpluscart><boot>scc</boot><hash algo="sha1">f2854b7198f325691a5ad3129bd05b44d6120771</hash><remark><text>[b][SCC][RC-742]</text></remark></sccpluscart></dump>
-		<dump><sccpluscart><boot>scc+</boot><hash algo="sha1">1434386454c776800cba3805c4041b0105c2f71f</hash><remark><text>[SD Snatcher RAM SCC+][RC-742]</text></remark></sccpluscart></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">1434386454c776800cba3805c4041b0105c2f71f</hash><remark><text>[SD Snatcher RAM SCC+][RC-742]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">f4a1e82c533677ed9923b11a0b970264d9ecf8ca</hash><remark><text>[RC-742] / Konami Antiques MSX Collection 1</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">30a7f3ea1612f20c0f62b1a121bc7d79ae515e89</hash><remark><text>[RC-742] / Konami Antiques MSX Collection 1</text></remark></megarom></dump>
 </software>
@@ -6185,7 +6185,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">6448aa090d95ab42e8a63f52cd12e40c39521aa0</hash><remark><text>[RC-739] / Konami Antiques MSX Collection 2</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">7435a9caec4cdefe398299ba9b6adf89c302fda5</hash><remark><text>[RC-739]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">e234060800fdcca41eb3f7019edd21c28c9ce223</hash><remark><text>[RC-739]</text></remark></rom></dump>
-		<dump><rom><hash algo="sha1">df203139ad0cd2357f3125417a4157e701dbacf6</hash><remark><text>[RC-739]</text></remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">df203139ad0cd2357f3125417a4157e701dbacf6</hash><remark><text>[RC-739] / SCC Enhanced</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Makaijima - Higemaru</title>
@@ -7499,6 +7499,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">81c50af8ef09e0b7a8a69fd4715592b5e803cdb5</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Othello Competicao</title>
+	<system>MSX</system>
+	<company>A&#38;L Soft</company>
+	<year>2003</year>
+	<country>BR</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">bb8f2d98925c0d407c78b88f77a9c0e3a759c021</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Our Arab World</title>
 	<genmsxid>1948</genmsxid>
 	<system>MSX</system>
@@ -8340,6 +8348,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">be9d337dd412056f5fe78fd19467a63e80e3864c</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">1f72e0cd58afe22075a129ac854bbdce0704b0c8</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">97c39dad3e065f9083fefae157f278844b208058</hash><remark><text>[a1]</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">d1150f7f446e9c7e0fcd834593c291cfa60193cf</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Quinpl</title>
@@ -8463,6 +8472,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">61e26157f0701cce2ddb860a12f187912398b1b4</hash></rom></dump>
 		<dump><rom><hash algo="sha1">91e17aba249925c7e0e5c280469bef09d5534da8</hash><remark><text>[a]</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">adb5a4c5e80d1eb2ab5035c4e229ab1bf81691aa</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Relics - MSX1 Version</title>
@@ -10759,6 +10769,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><sccpluscart><boot>scc+</boot><hash algo="sha1">b813123219446f16cd10b916cc18ec4a8d7c69de</hash><remark><text>[SD Snatcher RAM SCC+][RC-740]</text></remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash algo="sha1">39a91558bba92b7310455cd7513276d487de0f9d</hash><remark><text>[The Snatcher RAM SCC+][RC-740]</text></remark></sccpluscart></dump>
 		<dump><rom><hash algo="sha1">c551d8cbe7a2e1e34d6662f5861336dffad05397</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">ffb79f90f39c6cda8b2123169571e70fb1cf2c1e</hash><remark><text>[RC-740] / SCC Enhanced</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">7a8f50f5f74276905c9ee8e312f4d4f9271dbe0c</hash><remark><text>[RC-740] / SCC+ Enhanced</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Twinbee Theme</title>
@@ -11237,8 +11249,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">176c82d969a8bef171bdc2b7915201957f43b260</hash><remark><text>[RC-725] / Konami Antiques MSX Collection 1</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">b0406a38453c3bffcc990576bb725bbf7acaf132</hash><remark><text>[RC-725]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">a68733d22706aa04d261147d67f2a0a9c17c386f</hash><remark><text>[RC-725]</text></remark></rom></dump>
-		<dump><rom><hash algo="sha1">d0018f192ca6a1b78fed9acef58db389848add3e</hash><remark><text>[RC-725]</text></remark></rom></dump>
-		<dump><rom><hash algo="sha1">65e427d3282fb47192e4a0f4a09245cfe1b00834</hash><remark><text>[RC-725]</text></remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">d0018f192ca6a1b78fed9acef58db389848add3e</hash><remark><text>[RC-725]</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">65e427d3282fb47192e4a0f4a09245cfe1b00834</hash><remark><text>[RC-725]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Yie Ar Kung-Fu II - The Emperor Yie-Gah</title>
@@ -11257,6 +11269,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">3136bee4c7d4d20c1a5ba49516fc9499f405a5bf</hash><remark><text>[RC-737] / Konami Antiques MSX Collection 2</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">c45a710fccac84de0d3bffed8095344ac1838f1d</hash><remark><text>[RC-737]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">4108d6dfce393ba267993a9e51f8ad9b3ee7d3f9</hash><remark><text>[RC-737]</text></remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">b0e20c6e5eb91aeaa7fc354eb0a054f480e5197e</hash><remark><text>[RC-737] / SCC Enhanced</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">128e94fb7968291496761b6b949c612d2190a569</hash><remark><text>[RC-737] / SCC+ Enhanced</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Yokai Tanken Chima Chima</title>
@@ -11381,6 +11395,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">b030b3c22baadd0d419657dcfa4b974ae1cd7508</hash></rom></dump>
 		<dump><rom><hash algo="sha1">ffa8fc5756f7e1d1ef168618f5606aca10f8b2c7</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">a9d371c0eec519c48af880df540e03da572f263d</hash><remark><text>[h Krull Software]</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">65ef88e469848c38c4595cbca82992fcf8dc7ed2</hash><remark><text>Starts at stage 00</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Zanac-Ex</title>
@@ -11484,6 +11499,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2517
-Parse time 16.435 seconds on Sat Jan 23 8:32:56 CET 2010
+Roms in this database:2525
+Parse time 4.875 seconds on Sat Feb 6 7:56:53 CET 2010
  -->

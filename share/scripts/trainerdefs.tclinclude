@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2010/01/24
+# Updated @ 2010/02/06
 #
 
 
@@ -2322,6 +2322,7 @@ create_trainer "Fantasm Soldier 2" {time 2} {
 create_trainer "Fantasm Soldier Valis, The" {time 2} {
 	"Life" {poke 0xf064 255}
 	"Max Sword" {poke 0xf294 3}
+	"Stage End Demon Power" {poke 0xf1bb 1}
 }
 
 create_trainer "Fantasy Zone 1" {time 2} {
@@ -4266,9 +4267,10 @@ create_trainer "Majyo Densetsu - Knightmare" {time 0.25} {
 
 create_trainer "Makaijima - Higemaru" {time 1} {
 	"999900 Points" {poke 0xe515 153;poke 0xe516 153}
-	"Enemies To Kill Before Entering The Gate To A Boss" {poke 0xe539 0}
+	"End Bosses Die Instantly" {poke 0xe0bc 255}
 	"Get All Items" {poke 0xe519 255;poke 0xe51a 255}
 	"Get All Keys" {poke 0xe517 255}
+	"No Enemies To Kill Before Entering The Gate To A Boss" {poke 0xe539 0}
 	"Untouchable" {poke 0xe026 255}
 }
 
@@ -6507,30 +6509,31 @@ create_trainer "Xak 3 - The Tower of Gazel" {time 1} {
 	"Latoks Strength" {poke 0x69f7 15;poke 0x69f8 39}
 }
 
-create_trainer "Xanada MSX1" {time 1} {
+create_trainer "Xanadu MSX1" {time 1} {
 	"Hit Points" {poke 0xf033 255;poke 0xf034 255;poke 0xf035 99}
+	"Infinite Elixirs" {poke 0xf04e 0x99}
 	"Max Food" {poke 0xf041 255;poke 0xf042 99;poke 0xf043 255}
 	"Max Gold" {poke 0xf044 255;poke 0xf045 255;poke 0xf046 99}
 	"Max Hp" {poke 0xf036 255;poke 0xf037 255;poke 0xf038 99}
 	"Max Mgr" {poke 0xf039 255}
 	"Max Str" {poke 0xf040 255}
-	"Slot 1 - +2 Battle Axe" {poke 0xf048 10}
-	"Slot 1 - Battle Axe" {poke 0xf048 5}
-	"Slot 1 - Broad Sword" {poke 0xf048 6}
-	"Slot 1 - Dagger" {poke 0xf048 0}
-	"Slot 1 - Disrupt Mace" {poke 0xf048 14}
-	"Slot 1 - Dragon Slayer" {poke 0xf048 16}
-	"Slot 1 - Giant Slayer" {poke 0xf048 11}
-	"Slot 1 - Halbred" {poke 0xf048 9}
-	"Slot 1 - Hand Axe" {poke 0xf048 3}
-	"Slot 1 - Lance" {poke 0xf048 8}
-	"Slot 1 - Long Sword" {poke 0xf048 4}
-	"Slot 1 - Luck Blade" {poke 0xf048 12}
-	"Slot 1 - Morning Star" {poke 0xf048 7}
-	"Slot 1 - Murasume Blade" {poke 0xf048 13}
-	"Slot 1 - Short Sword" {poke 0xf048 1}
-	"Slot 1 - Spear" {poke 0xf048 2}
-	"Slot 1 - Vorpal Weapon" {poke 0xf048 15}
+	"Slot 1 - +2 Battle Axe" {poke 0xf052 10}
+	"Slot 1 - Battle Axe" {poke 0xf053 5}
+	"Slot 1 - Broad Sword" {poke 0xf054 6}
+	"Slot 1 - Dagger" {poke 0xf055 0}
+	"Slot 1 - Disrupt Mace" {poke 0xf056 14}
+	"Slot 1 - Dragon Slayer" {poke 0xf057 16}
+	"Slot 1 - Giant Slayer" {poke 0xf058 11}
+	"Slot 1 - Halbred" {poke 0xf059 9}
+	"Slot 1 - Hand Axe" {poke 0xf05a 3}
+	"Slot 1 - Lance" {poke 0xf05b 8}
+	"Slot 1 - Long Sword" {poke 0xf05c 4}
+	"Slot 1 - Luck Blade" {poke 0xf05d 12}
+	"Slot 1 - Morning Star" {poke 0xf05e 7}
+	"Slot 1 - Murasume Blade" {poke 0xf05f 13}
+	"Slot 1 - Short Sword" {poke 0xf060 1}
+	"Slot 1 - Spear" {poke 0xf061 2}
+	"Slot 1 - Vorpal Weapon" {poke 0xf062 15}
 	"Slot 2 - +2 Full Plate" {poke 0xf047 14}
 	"Slot 2 - +2 Leather" {poke 0xf047 11}
 	"Slot 2 - +2 Reflex" {poke 0xf047 15}
@@ -6548,23 +6551,23 @@ create_trainer "Xanada MSX1" {time 1} {
 	"Slot 2 - Scale Armor" {poke 0xf047 5}
 	"Slot 2 - Split Mail" {poke 0xf047 7}
 	"Slot 2 - Studded Mail" {poke 0xf047 3}
-	"slot 3 - Corrosion" {poke 0xf049 10}
-	"slot 3 - Death" {poke 0xf049 16}
-	"slot 3 - Deg Corrosion" {poke 0xf049 14}
-	"slot 3 - Deg Deluge" {poke 0xf049 8}
-	"slot 3 - Deg Fire" {poke 0xf049 9}
-	"slot 3 - Deg Meedle" {poke 0xf049 1}
-	"slot 3 - Deg Mittar" {poke 0xf049 5}
-	"slot 3 - Deg Poison" {poke 0xf049 13}
-	"slot 3 - Deg Thunder" {poke 0xf049 11}
-	"slot 3 - Deg Tilte" {poke 0xf049 15 }
-	"slot 3 - Deluge" {poke 0xf049 3}
-	"slot 3 - Fire" {poke 0xf049 4}
-	"slot 3 - Meedle" {poke 0xf049 0}
-	"slot 3 - Mittar" {poke 0xf049 2}
-	"slot 3 - Poison" {poke 0xf049 7}
-	"slot 3 - Thunder" {poke 0xf049 6}
-	"slot 3 - Tilte" {poke 0xf049 12}
+	"Slot 3 - Corrosion" {poke 0xf049 10}
+	"Slot 3 - Death" {poke 0xf049 16}
+	"Slot 3 - Deg Corrosion" {poke 0xf049 14}
+	"Slot 3 - Deg Deluge" {poke 0xf049 8}
+	"Slot 3 - Deg Fire" {poke 0xf049 9}
+	"Slot 3 - Deg Meedle" {poke 0xf049 1}
+	"Slot 3 - Deg Mittar" {poke 0xf049 5}
+	"Slot 3 - Deg Poison" {poke 0xf049 13}
+	"Slot 3 - Deg Thunder" {poke 0xf049 11}
+	"Slot 3 - Deg Tilte" {poke 0xf049 15 }
+	"Slot 3 - Deluge" {poke 0xf049 3}
+	"Slot 3 - Fire" {poke 0xf049 4}
+	"Slot 3 - Meedle" {poke 0xf049 0}
+	"Slot 3 - Mittar" {poke 0xf049 2}
+	"Slot 3 - Poison" {poke 0xf049 7}
+	"Slot 3 - Thunder" {poke 0xf049 6}
+	"Slot 3 - Tilte" {poke 0xf049 12}
 	"W.exp" {poke 0xf030 255;poke 0xf031 255;poke 0xf032 99}
 }
 
@@ -6652,6 +6655,10 @@ create_trainer "Yie Ar Kung-Fu II - The Emperor Yie-Gah" {time 5} {
 	"Wei-chin As Enemy In Mode 1 Player" {poke 0xe066 4}
 	"Wen-hu As Enemy In Mode 1 Player " {poke 0xe066 3}
 	"Yen-pei As Enemy In Mode 1 Player" {poke 0xe066 0}
+}
+
+create_trainer "Youma Kourin" {time 1} {
+	"Damage" {poke 0xd64d 0}
 }
 
 create_trainer "Ys 1" {time 2} {
@@ -6875,4 +6882,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 15.231 seconds. 727 trainers -  having 5604 pokes
+# File Created in : 3.843 seconds. 728 trainers -  having 5608 pokes
