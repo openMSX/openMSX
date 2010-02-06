@@ -22,6 +22,7 @@ typedef void* gzFile;
 namespace openmsx {
 
 class XMLElement;
+template<typename T> struct SerializeClassVersion;
 
 // In this section, the archive classes are defined.
 //
@@ -400,6 +401,14 @@ template<typename Derived>
 class OutputArchiveBase : public ArchiveBase<Derived>, public OutputArchiveBase2
 {
 public:
+	template<typename Base, typename T>
+	void serializeInlinedBase(T& t, unsigned version)
+	{
+		// same implementation as base class, but with extra check
+		STATIC_ASSERT(SerializeClassVersion<Base>::value ==
+		              SerializeClassVersion<T   >::value);
+		ArchiveBase<Derived>::template serializeInlinedBase<Base>(t, version);
+	}
 	// Main saver method. Heavy lifting is done in the Saver class.
 	template<typename T> void serializeWithID(const char* tag, const T& t)
 	{

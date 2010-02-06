@@ -4,6 +4,7 @@
 #define MSXFMPAC_HH
 
 #include "MSXMusic.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -35,6 +36,7 @@ private:
 	byte r1ffe, r1fff;
 	bool sramEnabled;
 };
+SERIALIZE_CLASS_VERSION(MSXFmPac, 2); // must be in-sync with MSXMusic
 
 } // namespace openmsx
 
