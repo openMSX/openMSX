@@ -27,7 +27,7 @@ is also slightly faster than going back to an arbitrary point in time\
 		set upperTarget [expr $revstat(current) - $minimum]
 		set lowerTarget [expr $revstat(current) - $maximum]
 
-		# search latest snapshots that is still before upperTarget
+		# search latest snapshot that is still before upperTarget
 		set i [expr [llength $revstat(snapshots)] - 1]
 		while {([lindex $revstat(snapshots) $i] > $upperTarget) && ($i > 0)} {
 			incr i -1
@@ -52,7 +52,8 @@ snapshot in the future (if possible).
 		set lowerTarget [expr $revstat(current) + $minimum]
 		set upperTarget [expr $revstat(current) + $maximum]
 
-		# search first snapshots that is after lowerTarget
+		# search first snapshot that is after lowerTarget
+		lappend revstat(snapshots) $revstat(end)
 		set l [llength $revstat(snapshots)]
 		set i 0
 		while {($i < $l) && ([lindex $revstat(snapshots) $i] < $lowerTarget)} {
