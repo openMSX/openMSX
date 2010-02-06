@@ -328,6 +328,9 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		                "replays", "openmsx", ".gz");
 	} else if (tokens.size() == 3) {
 		fileName = tokens[2]->getString();
+		if (!StringOp::endsWith(fileName, ".gz")) {
+			fileName += ".gz";
+		}
 	} else {
 		throw SyntaxError();
 	}
