@@ -1146,8 +1146,8 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 			if (video->getSampleRate() != sampleClock.getFreq()) {
 				uint64 pos = playingFromSample;
 
-				pos *= sampleClock.getFreq();
-				pos /= video->getSampleRate();
+				pos *= video->getSampleRate();
+				pos /= sampleClock.getFreq();
 
 				playingFromSample = pos;
 				sampleClock.setFreq(video->getSampleRate());
