@@ -1682,6 +1682,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input\Trackball.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input\Trackball.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input\DummyJoystick.cc"
 				>
 			</File>
