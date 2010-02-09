@@ -14,6 +14,7 @@ SRC_HDR:= \
 	SETetrisDongle \
 	MagicKey \
 	Mouse \
+	Trackball \
 	JoyTap \
 	NinjaTap \
 	ArkanoidPad \

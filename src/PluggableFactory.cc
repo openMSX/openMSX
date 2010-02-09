@@ -14,6 +14,7 @@
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
 #include "Mouse.hh"
+#include "Trackball.hh"
 #include "PrinterPortLogger.hh"
 #include "PrinterPortSimpl.hh"
 #include "Printer.hh"
@@ -46,6 +47,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	                                             stateChangeDistributor));
 	controller.registerPluggable(new Mouse(msxEventDistributor,
 	                                       stateChangeDistributor));
+	controller.registerPluggable(new Trackball(msxEventDistributor,
+	                                           stateChangeDistributor));
 	controller.registerPluggable(new JoyTap(controller, "joytap"));
 	controller.registerPluggable(new NinjaTap(controller, "ninjatap"));
 	controller.registerPluggable(new KeyJoystick(
