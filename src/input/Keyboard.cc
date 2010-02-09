@@ -9,6 +9,8 @@
 #include "InputEventFactory.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
+#include "MSXMotherBoard.hh"
+#include "ReverseManager.hh"
 #include "MSXException.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
@@ -210,6 +212,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyGhostingSGCprotected(keyGhostSGCprotected)
 	, codeKanaLocks(codeKanaLocks_)
 	, graphLocks(graphLocks_)
+	, replaying(true)
 {
 	keysChanged = false;
 	msxCapsLockOn = false;
@@ -219,12 +222,15 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	memset(keyMatrix,     255, sizeof(keyMatrix));
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
+	memset(hostKeyMatrix, 255, sizeof(hostKeyMatrix));
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 
 	msxEventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
+
+	motherBoard.getReverseManager().registerKeyboard(*this);
 }
 
 Keyboard::~Keyboard()
@@ -248,7 +254,33 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
-/* Received an MSX event (through EventTranslator class)
+void Keyboard::transferHostKeyMatrix(const Keyboard& source)
+{
+	// This mechanism exists to solve the following problem:
+	//   - play a game where the spacebar is constantly pressed (e.g.
+	//     Road Fighter)
+	//   - go back in time (press the reverse hotkey) while keeping the
+	//     spacebar pressed
+	//   - interrupt replay by pressing the cursor keys, still while
+	//     keeping spacebar pressed
+	// At the moment replay is interrupted, we need to resynchronize the
+	// msx keyboard with the host keyboard. In the past we assumed the host
+	// keyboard had no keys pressed. But this is wrong in the above
+	// scenario. Now we remember the state of the host keyboard and
+	// transfer that to the new keyboard(s) that get created for reverese.
+	// When replay is stopped we restore this host keyboard state, see
+	// stopReplay().
+
+	assert(replaying); // we must still be in replay state
+
+	const byte* src = source.replaying ? source.hostKeyMatrix
+	                                   : source.userKeyMatrix;
+	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
+		hostKeyMatrix[row] = src[row];
+	}
+}
+
+/* Received an MSX event
  * Following events get processed:
  *  OPENMSX_KEY_DOWN_EVENT
  *  OPENMSX_KEY_UP_EVENT
@@ -279,11 +311,11 @@ void Keyboard::signalStateChange(shared_ptr<StateChange> event)
 
 void Keyboard::stopReplay(EmuTime::param time)
 {
-	// TODO Read actual state from keyboard, currently we just clear all
-	//      pressed keys. Might be hard to implement correctly, is it worth
-	//      the effort?
+	assert(replaying);
+	replaying = false;
+
 	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
-		changeKeyMatrixEvent(time, row, 0xff);
+		changeKeyMatrixEvent(time, row, hostKeyMatrix[row]);
 	}
 	msxmodifiers = 0xff;
 	msxKeyEventQueue->clear();
@@ -1228,6 +1260,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 		ar.serialize("msxmodifiers", msxmodifiers);
 		ar.serialize("msxKeyEventQueue", *msxKeyEventQueue);
 	}
+	// don't serialize hostKeyMatrix
 
 	if (ar.isLoader()) {
 		// force recalculation of keyMatrix

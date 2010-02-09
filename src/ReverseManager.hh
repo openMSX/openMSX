@@ -15,6 +15,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
+class Keyboard;
 class EventDistributor;
 class ReverseCmd;
 class MemBuffer;
@@ -26,6 +27,11 @@ class ReverseManager : private Schedulable, private EventListener
 public:
 	ReverseManager(MSXMotherBoard& motherBoard);
 	~ReverseManager();
+
+	// Keyboard is special because we need to transfer the host keyboard
+	// state on 'reverse goto' to be able to resynchronize when replay
+	// stops. See Keyboard::transferHostKeyMatrix() for more info.
+	void registerKeyboard(Keyboard& keyboard);
 
 private:
 	struct ReverseChunk {
@@ -89,6 +95,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;
 	const std::auto_ptr<ReverseCmd> reverseCmd;
+	Keyboard* keyboard;
 	ReverseHistory history;
 	unsigned collectCount; // nb taken snapshots (0 = not collecting)
 	unsigned replayIndex;

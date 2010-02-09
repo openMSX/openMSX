@@ -4,6 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"
 #include "StateChangeDistributor.hh"
+#include "Keyboard.hh"
 #include "XMLException.hh"
 #include "XMLElement.hh"
 #include "TclObject.hh"
@@ -100,6 +101,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, reverseCmd(new ReverseCmd(*this, motherBoard.getCommandController()))
+	, keyboard(0)
 	, collectCount(0)
 	, replayIndex(0)
 	, pendingTakeSnapshot(false)
@@ -115,6 +117,11 @@ ReverseManager::~ReverseManager()
 	stop();
 
 	eventDistributor.unregisterEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
+}
+
+void ReverseManager::registerKeyboard(Keyboard& keyboard_)
+{
+	keyboard = &keyboard_;
 }
 
 bool ReverseManager::collecting() const
@@ -303,8 +310,12 @@ void ReverseManager::goTo(EmuTime::param target)
 	// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
 	// and start collecting in the new one.
 	assert(collecting());
-	newBoard->getReverseManager().transferHistory(
-		history, it->first, it->second.eventCount);
+	ReverseManager& newManager = newBoard->getReverseManager();
+	newManager.transferHistory(history, it->first, it->second.eventCount);
+	if (newManager.keyboard && keyboard) {
+		newManager.keyboard->transferHostKeyMatrix(*keyboard);
+	}
+
 	stop();
 
 	// fast forward to the required time
