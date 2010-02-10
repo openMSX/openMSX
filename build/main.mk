@@ -418,7 +418,10 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk \
 	@touch $@
 
 # Generate configuration header.
-$(CONFIG_HEADER): $(BUILDINFO_SCRIPT) build/custom.mk
+# TODO: One platform file may include another, so the real solution would be
+#       for the Python script to write dependency info.
+$(CONFIG_HEADER): $(BUILDINFO_SCRIPT) \
+		build/custom.mk build/platform-$(OPENMSX_TARGET_OS).mk
 	@$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
 		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
 		$(INSTALL_SHARE_DIR)
