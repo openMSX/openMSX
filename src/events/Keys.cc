@@ -255,7 +255,7 @@ static void initialize()
 		{ "LMETA",	K_LMETA },
 		{ "LSUPER",	K_LSUPER },	// Left "Windows" key
 		{ "RSUPER",	K_RSUPER },	// Right "Windows" key
-		{ "MODE",	K_MODE },	// "Alt Gr" key
+		{ "RMODE",	K_MODE },	// "Alt Gr" key
 		{ "COMPOSE",	K_COMPOSE },	// Multi-key compose key
 
 		// Miscellaneous function keys
@@ -279,6 +279,7 @@ static void initialize()
 		{ "CTRL",	KM_CTRL },
 		{ "ALT",	KM_ALT },
 		{ "META",	KM_META },
+		{ "MODE",	KM_MODE },
 
 		// Direction modifiers
 		{ "PRESS",	KD_PRESS },
