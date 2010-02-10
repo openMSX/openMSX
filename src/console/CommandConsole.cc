@@ -219,6 +219,10 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			break;
 		}
 		break;
+	case Keys::KM_MODE: // e.g. to type '1-9' on a N900
+	case Keys::KM_ALT:  // e.g. to type | [ ] on a azerty keyboard layout
+	// Don't add the META modifier here because that will break the Cmd+L
+	// hotkey on MacOSX to toggle the console.
 	case 0:
 		switch (key) {
 		case Keys::K_PAGEUP:
