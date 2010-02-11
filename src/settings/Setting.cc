@@ -5,6 +5,7 @@
 #include "CommandController.hh"
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
+#include "SettingsConfig.hh"
 #include "TclObject.hh"
 #include "CliComm.hh"
 #include "XMLElement.hh"
@@ -47,6 +48,12 @@ void Setting::notify() const
 	Subject<Setting>::notify();
 	commandController.getCliComm().update(
 		CliComm::SETTING, getName(), getValueString());
+
+	// Always keep SettingsConfig in sync.
+	// TODO At the moment (partly because of this change) the whole Settings
+	//  structure is more complicated than it could be. Though we're close
+	//  to a release, so now is not the time to do big refactorings.
+	sync(getGlobalCommandController().getSettingsConfig().getXMLElement());
 }
 
 void Setting::notifyPropertyChange() const
