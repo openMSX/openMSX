@@ -11,7 +11,10 @@ proc show_osd {{widgets ""}} {
 	foreach widget $widgets {
 		append result "$widget\n"
 		foreach property [osd info $widget] {
-			append result "  $property [osd info $widget $property]\n"
+			if {[catch {set value [osd info $widget $property]}]} {
+				set value "--error--"
+			}
+			append result "  $property $value\n"
 		}
 	}
 	return $result
