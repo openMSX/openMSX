@@ -118,9 +118,17 @@ fade out. You can make it reappear by moving the mouse over it.
 			return
 		}
 
+		# Hack: put the reverse bar at the top/bottom when the icons
+		#  are at the bottom/top. It would be better to have a proper
+		#  layout manager for the OSD stuff.
+		if {[catch {set led_y [osd info osd_icons -y]}]} {
+			set led_y 0
+		}
+		set y [expr ($led_y == 0) ? 232 : 2]
+
 		set fade [expr $visible ? 1.0 : 0.0]
 		osd create rectangle reverse \
-			-scaled true -x 35 -y 233 -w 250 -h 6 \
+			-scaled true -x 35 -y $y -w 250 -h 6 \
 			-rgba 0x00000080 -fadeCurrent $fade -fadeTarget $fade
 		osd create rectangle reverse.top \
 			-x -1 -y   -1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
@@ -233,4 +241,10 @@ Possible values for this setting:
   on    Reverse enabled on startup
   gui   Reverse + reverse_bar enabled (see 'help toggle_reversebar')
 } off
-reverse::after_switch
+
+after boot {
+	# Hack: the order in which the startup scripts are executed is not
+	#  defined. But this needs to run after the load_icons script has
+	#  been executed.
+	reverse::after_switch
+}
