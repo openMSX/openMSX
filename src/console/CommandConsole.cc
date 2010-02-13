@@ -165,10 +165,23 @@ bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 	if (consoleSetting->getValue()) {
-		if (handleEvent(keyEvent)) {
-			// event was used
-			display.repaintDelayed(40000); // 25fps
-			return false; // deny event to other listeners
+		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
+			if (handleEvent(keyEvent)) {
+				// event was used
+				display.repaintDelayed(40000); // 25fps
+				return false; // deny event to other listeners
+			}
+		} else {
+			assert(event->getType() == OPENMSX_KEY_UP_EVENT);
+			// In SVN revision 11232 we tried to only consume keyup
+			// events that were meaningful for the console. Though
+			// SDL doesn't fill in the unicode field for keyup
+			// events, so this approach didn't work. So now we
+			// again consume all keyup events. In the future we
+			// could try to work around this limitation (e.g. by
+			// building a map of keydown events that were consumed
+			// and also consume the corresponding keyup event).
+			return false;
 		}
 	}
 	return true;
@@ -176,7 +189,6 @@ bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
-	bool down = keyEvent.getType() == OPENMSX_KEY_DOWN_EVENT;
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	int key = keyCode &  Keys::K_MASK;
 	int mod = keyCode & ~Keys::K_MASK;
@@ -187,16 +199,16 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	case Keys::KM_CTRL:
 		switch (key) {
 		case Keys::K_H:
-			if (down) backspace();
+			backspace();
 			break;
 		case Keys::K_A:
-			if (down) cursorPosition = unsigned(prompt.size());
+			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_E:
-			if (down) cursorPosition = utf8::unchecked::size(lines[0]);
+			cursorPosition = utf8::unchecked::size(lines[0]);
 			break;
 		case Keys::K_C:
-			if (down) clearCommand();
+			clearCommand();
 			break;
 		default:
 			used = false;
@@ -205,14 +217,14 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	case Keys::KM_SHIFT:
 		switch (key) {
 		case Keys::K_PAGEUP:
-			if (down) scroll(max<int>(getRows() - 1, 1));
+			scroll(max<int>(getRows() - 1, 1));
 			break;
 		case Keys::K_PAGEDOWN:
-			if (down) scroll(-max<int>(getRows() - 1, 1));
+			scroll(-max<int>(getRows() - 1, 1));
 			break;
 		default:
 			if (chr) {
-				if (down) normalKey(chr);
+				normalKey(chr);
 			} else {
 				used = false;
 			}
@@ -226,52 +238,50 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	case 0:
 		switch (key) {
 		case Keys::K_PAGEUP:
-			if (down) scroll(1);
+			scroll(1);
 			break;
 		case Keys::K_PAGEDOWN:
-			if (down) scroll(-1);
+			scroll(-1);
 			break;
 		case Keys::K_UP:
-			if (down) prevCommand();
+			prevCommand();
 			break;
 		case Keys::K_DOWN:
-			if (down) nextCommand();
+			nextCommand();
 			break;
 		case Keys::K_BACKSPACE:
-			if (down) backspace();
+			backspace();
 			break;
 		case Keys::K_DELETE:
-			if (down) delete_key();
+			delete_key();
 			break;
 		case Keys::K_TAB:
-			if (down) tabCompletion();
+			tabCompletion();
 			break;
 		case Keys::K_RETURN:
 		case Keys::K_KP_ENTER:
-			if (down) {
-				commandExecute();
-				cursorPosition = unsigned(prompt.size());
-			}
+			commandExecute();
+			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_LEFT:
-			if (down && (cursorPosition > prompt.size())) {
+			if (cursorPosition > prompt.size()) {
 				--cursorPosition;
 			}
 			break;
 		case Keys::K_RIGHT:
-			if (down && (cursorPosition < utf8::unchecked::size(lines[0]))) {
+			if (cursorPosition < utf8::unchecked::size(lines[0])) {
 				++cursorPosition;
 			}
 			break;
 		case Keys::K_HOME:
-			if (down) cursorPosition = unsigned(prompt.size());
+			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_END:
-			if (down) cursorPosition = utf8::unchecked::size(lines[0]);
+			cursorPosition = utf8::unchecked::size(lines[0]);
 			break;
 		default:
 			if (chr) {
-				if (down) normalKey(chr);
+				normalKey(chr);
 			} else {
 				used = false;
 			}
