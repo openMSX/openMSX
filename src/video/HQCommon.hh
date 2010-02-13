@@ -6,6 +6,7 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "LineScalers.hh"
+#include "PixelOperations.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -37,41 +38,57 @@ static inline Pixel writePixel(unsigned p)
 	}
 }
 
-static inline bool edge(unsigned c1, unsigned c2)
+class EdgeHQ
 {
-	if (c1 == c2) return false;
+public:
+	EdgeHQ(unsigned shiftR_, unsigned shiftG_, unsigned shiftB_)
+		: shiftR(shiftR_), shiftG(shiftG_), shiftB(shiftB_)
+	{
+	}
 
-	unsigned r1 = c1 >> 16;
-	unsigned g1 = (c1 >> 8) & 0xFF;
-	unsigned b1 = c1 & 0xFF;
-
-	unsigned r2 = c2 >> 16;
-	unsigned g2 = (c2 >> 8) & 0xFF;
-	unsigned b2 = c2 & 0xFF;
-
-	int dr = r1 - r2;
-	int dg = g1 - g2;
-	int db = b1 - b2;
-
-	int dy = dr + dg + db;
-	if (dy < -0xC0 || dy > 0xC0) return true;
-
-	int du = dr - db;
-	if (du < -0x1C || du > 0x1C) return true;
-
-	int dv = 3 * dg - dy;
-	if (dv < -0x30 || dv > 0x30) return true;
-
-	return false;
-}
-
-struct EdgeHQ
-{
 	inline bool operator()(unsigned c1, unsigned c2) const
 	{
-		return edge(c1, c2);
+		if (c1 == c2) return false;
+
+		unsigned r1 = (c1 >> shiftR) & 0xFF;
+		unsigned g1 = (c1 >> shiftG) & 0xFF;
+		unsigned b1 = (c1 >> shiftB) & 0xFF;
+
+		unsigned r2 = (c2 >> shiftR) & 0xFF;
+		unsigned g2 = (c2 >> shiftG) & 0xFF;
+		unsigned b2 = (c2 >> shiftB) & 0xFF;
+
+		int dr = r1 - r2;
+		int dg = g1 - g2;
+		int db = b1 - b2;
+
+		int dy = dr + dg + db;
+		if (dy < -0xC0 || dy > 0xC0) return true;
+
+		int du = dr - db;
+		if (du < -0x1C || du > 0x1C) return true;
+
+		int dv = 3 * dg - dy;
+		if (dv < -0x30 || dv > 0x30) return true;
+
+		return false;
 	}
+private:
+	const unsigned shiftR;
+	const unsigned shiftG;
+	const unsigned shiftB;
 };
+
+template<typename Pixel>
+EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
+{
+	if (sizeof(Pixel) == 2) {
+		return EdgeHQ(0, 8, 16);
+	} else {
+		const SDL_PixelFormat& format = pixelOps.getSDLPixelFormat();
+		return EdgeHQ(format.Rshift, format.Gshift, format.Bshift);
+	}
+}
 
 struct EdgeHQLite
 {
@@ -193,8 +210,8 @@ static void calcInitialEdges(
 	edgeBuf[x] = pattern;
 }
 
-template <typename Pixel, typename HQScale>
-static void doHQScale2(HQScale hqScale, PolyLineScaler<Pixel>& postScale,
+template <typename Pixel, typename HQScale, typename EdgeOp>
+static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
@@ -204,7 +221,6 @@ static void doHQScale2(HQScale hqScale, PolyLineScaler<Pixel>& postScale,
 
 	assert(srcWidth <= 1024);
 	unsigned edgeBuf[1024];
-	typename HQScale::EdgeOp edgeOp;
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	dst.lock();
@@ -216,10 +232,10 @@ static void doHQScale2(HQScale hqScale, PolyLineScaler<Pixel>& postScale,
 		Pixel* dst1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
-			      srcWidth, edgeBuf);
+			      srcWidth, edgeBuf, edgeOp);
 		} else {
 			hqScale(srcPrev, srcCurr, srcNext, buf0, buf1,
-			        srcWidth, edgeBuf);
+			        srcWidth, edgeBuf, edgeOp);
 			postScale(buf0, dst0, dstWidth);
 			postScale(buf1, dst1, dstWidth);
 		}
@@ -228,8 +244,8 @@ static void doHQScale2(HQScale hqScale, PolyLineScaler<Pixel>& postScale,
 	}
 }
 
-template <typename Pixel, typename HQScale>
-static void doHQScale3(HQScale hqScale, PolyLineScaler<Pixel>& postScale,
+template <typename Pixel, typename HQScale, typename EdgeOp>
+static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
@@ -239,7 +255,6 @@ static void doHQScale3(HQScale hqScale, PolyLineScaler<Pixel>& postScale,
 
 	assert(srcWidth <= 1024);
 	unsigned edgeBuf[1024];
-	typename HQScale::EdgeOp edgeOp;
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	dst.lock();
@@ -252,10 +267,10 @@ static void doHQScale3(HQScale hqScale, PolyLineScaler<Pixel>& postScale,
 		Pixel* dst2 = dst.getLinePtrDirect<Pixel>(dstY + 2);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
-			        srcWidth, edgeBuf);
+			        srcWidth, edgeBuf, edgeOp);
 		} else {
 			hqScale(srcPrev, srcCurr, srcNext, buf0, buf1, buf2,
-			        srcWidth, edgeBuf);
+			        srcWidth, edgeBuf, edgeOp);
 			postScale(buf0, dst0, dstWidth);
 			postScale(buf1, dst1, dstWidth);
 			postScale(buf2, dst2, dstWidth);

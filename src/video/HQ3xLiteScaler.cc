@@ -21,11 +21,9 @@ namespace openmsx {
 
 template <typename Pixel> struct HQLite_1x1on3x3
 {
-	typedef EdgeHQLite EdgeOp;
-
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, Pixel* out2,
-	                unsigned srcWidth, unsigned* edgeBuf);
+	                unsigned srcWidth, unsigned* edgeBuf, EdgeHQLite edgeOp);
 };
 
 template <typename Pixel>
@@ -34,7 +32,8 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 	const Pixel* __restrict in2,
 	Pixel* __restrict out0, Pixel* __restrict out1,
 	Pixel* __restrict out2,
-	unsigned srcWidth, unsigned* __restrict edgeBuf)
+	unsigned srcWidth, unsigned* __restrict edgeBuf,
+	EdgeHQLite /*edgeOp*/)
 {
 	unsigned c2, c4, c5, c6, c8, c9;
 	c2 =      readPixel(in0[0]);
@@ -104,7 +103,8 @@ void HQ3xLiteScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on3<Pixel> > postScale(pixelOps);
-	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 2);
 }
@@ -115,7 +115,8 @@ void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
-	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
@@ -126,7 +127,8 @@ void HQ3xLiteScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
-	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 4);
 }
@@ -137,7 +139,8 @@ void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on1<Pixel> > postScale(pixelOps);
-	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
@@ -148,7 +151,8 @@ void HQ3xLiteScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_8on3<Pixel> > postScale(pixelOps);
-	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 8);
 }
@@ -159,7 +163,8 @@ void HQ3xLiteScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on1<Pixel> > postScale(pixelOps);
-	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
 }

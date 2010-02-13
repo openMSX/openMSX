@@ -143,9 +143,10 @@ void GLHQScaler::uploadBlock(
 	memset(tmpBuf2, 0, (320 / 2) * sizeof(unsigned));
 	#endif
 
+	EdgeHQ edgeOp(0, 8, 16);
 	const Pixel* curr = paintFrame.getLinePtr<Pixel>(srcStartY - 1, lineWidth);
 	const Pixel* next = paintFrame.getLinePtr<Pixel>(srcStartY + 0, lineWidth);
-	calcEdgesGL(curr, next, tmpBuf2, EdgeHQ());
+	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
 	edgeBuffer->bind();
 	unsigned short* mapped = edgeBuffer->mapWrite();
@@ -153,7 +154,7 @@ void GLHQScaler::uploadBlock(
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			curr = next;
 			next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
-			calcEdgesGL(curr, next, tmpBuf2, EdgeHQ());
+			calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 			memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
 		}
 		edgeBuffer->unmap();

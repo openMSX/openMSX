@@ -23,20 +23,16 @@ namespace openmsx {
 
 template <typename Pixel> struct HQLite_1x1on2x2
 {
-	typedef EdgeHQLite EdgeOp;
-
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, unsigned srcWidth,
-	                unsigned* edgeBuf);
+	                unsigned* edgeBuf, EdgeHQLite edgeOp);
 };
 
 template <typename Pixel> struct HQLite_1x1on1x2
 {
-	typedef EdgeHQLite EdgeOp;
-
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, unsigned srcWidth,
-	                unsigned* edgeBuf);
+	                unsigned* edgeBuf, EdgeHQLite edgeOp);
 };
 
 template <typename Pixel>
@@ -44,7 +40,8 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
 	Pixel* __restrict out0, Pixel* __restrict out1,
-	unsigned srcWidth, unsigned* __restrict edgeBuf)
+	unsigned srcWidth, unsigned* __restrict edgeBuf,
+	EdgeHQLite /*edgeOp*/)
 {
 	unsigned c2, c4, c5, c6, c8, c9;
 	c2 =      readPixel(in0[0]);
@@ -99,7 +96,8 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
 	Pixel* __restrict out0, Pixel* __restrict out1,
-	unsigned srcWidth, unsigned* __restrict edgeBuf)
+	unsigned srcWidth, unsigned* __restrict edgeBuf,
+	EdgeHQLite /*edgeOp*/)
 {
 	//  +---+---+---+
 	//  | 1 | 2 | 3 |
@@ -169,7 +167,8 @@ void HQ2xLiteScaler<Pixel>::scale1x1to3x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on3<Pixel> > postScale(pixelOps);
-	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
@@ -180,7 +179,8 @@ void HQ2xLiteScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
-	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth * 2);
 }
@@ -191,7 +191,8 @@ void HQ2xLiteScaler<Pixel>::scale2x1to3x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
-	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
@@ -202,7 +203,8 @@ void HQ2xLiteScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
-	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth);
 }
@@ -213,7 +215,8 @@ void HQ2xLiteScaler<Pixel>::scale4x1to3x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
-	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
 }
@@ -224,7 +227,8 @@ void HQ2xLiteScaler<Pixel>::scale2x1to1x2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on1<Pixel> > postScale(pixelOps);
-	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), postScale,
+	EdgeHQLite edgeOp;
+	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, srcWidth / 2);
 }
