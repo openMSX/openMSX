@@ -5,6 +5,7 @@
 #include "EventDistributor.hh"
 #include "StateChangeDistributor.hh"
 #include "Keyboard.hh"
+#include "MSXMixer.hh"
 #include "XMLException.hh"
 #include "XMLElement.hh"
 #include "TclObject.hh"
@@ -266,67 +267,84 @@ void ReverseManager::goTo(EmuTime::param target)
 			"start' command to start collecting data.");
 	}
 
-	// We can't go back further in the past than the first snapshot.
-	assert(!history.chunks.empty());
-	Chunks::iterator it = history.chunks.begin();
-	EmuTime targetTime = std::max(target, it->second.time);
-	// Also don't go further into the future than 'end time'.
-	targetTime = std::min(targetTime, getEndTime());
+	MSXMixer& mixer = motherBoard.getMSXMixer();
+	try {
+		// The call to MSXMotherBoard::fastForward() below may take
+		// some time to execute. The DirectX sound driver has a problem
+		// (not easily fixable) that it keeps on looping the sound
+		// buffer on buffer underruns (the SDL driver plays silence on
+		// underrun). At the end of this function we will switch to a
+		// different active MSXMotherBoard. So we can as well now
+		// already mute the current MSXMotherBoard.
+		mixer.mute();
 
-	// find oldest snapshot that is not newer than requested time
-	// TODO ATM we do a linear search, could be improved to do a binary search.
-	assert(it->second.time <= targetTime); // first one is not newer
-	assert(it != history.chunks.end()); // there are snapshots
-	do {
-		++it;
-	} while (it != history.chunks.end() &&
-	         it->second.time <= targetTime);
-	// We found the first one that's newer, previous one is last
-	// one that's not newer (thus older or equal).
-	assert(it != history.chunks.begin());
-	--it;
-	assert(it->second.time <= targetTime);
+		// We can't go back further in the past than the first snapshot.
+		assert(!history.chunks.empty());
+		Chunks::iterator it = history.chunks.begin();
+		EmuTime targetTime = std::max(target, it->second.time);
+		// Also don't go further into the future than 'end time'.
+		targetTime = std::min(targetTime, getEndTime());
 
-	if (!replaying()) {
-		// terminate replay log with EndLogEvent
-		history.events.push_back(shared_ptr<StateChange>(
-			new EndLogEvent(getCurrentTime())));
-		++replayIndex;
+		// find oldest snapshot that is not newer than requested time
+		// TODO ATM we do a linear search, could be improved to do a binary search.
+		assert(it->second.time <= targetTime); // first one is not newer
+		assert(it != history.chunks.end()); // there are snapshots
+		do {
+			++it;
+		} while (it != history.chunks.end() &&
+			 it->second.time <= targetTime);
+		// We found the first one that's newer, previous one is last
+		// one that's not newer (thus older or equal).
+		assert(it != history.chunks.begin());
+		--it;
+		assert(it->second.time <= targetTime);
+
+		if (!replaying()) {
+			// terminate replay log with EndLogEvent
+			history.events.push_back(shared_ptr<StateChange>(
+				new EndLogEvent(getCurrentTime())));
+			++replayIndex;
+		}
+		// replay-log must end with EndLogEvent, either we just added it, or
+		// it was there already
+		assert(!history.events.empty());
+		assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
+
+		// Note: we don't (anymore) erase future snapshots
+
+		// restore old snapshot
+		Reactor& reactor = motherBoard.getReactor();
+		Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+		MemInputArchive in(*it->second.savestate);
+		in.serialize("machine", *newBoard);
+
+		// Transfer history from this ReverseManager to the one in the new
+		// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
+		// and start collecting in the new one.
+		assert(collecting());
+		ReverseManager& newManager = newBoard->getReverseManager();
+		newManager.transferHistory(history, it->first, it->second.eventCount);
+		if (newManager.keyboard && keyboard) {
+			newManager.keyboard->transferHostKeyMatrix(*keyboard);
+		}
+
+		stop();
+
+		// fast forward to the required time
+		newBoard->fastForward(targetTime);
+
+		// switch to the new MSXMotherBoard
+		// TODO this is not correct if this board was not the active board
+		reactor.replaceActiveBoard(newBoard);
+
+		assert(!collecting());
+		assert(newBoard->getReverseManager().collecting());
+
+	} catch (MSXException&) {
+		// Make sure mixer doesn't stay muted in case of error.
+		mixer.unmute();
+		throw;
 	}
-	// replay-log must end with EndLogEvent, either we just added it, or
-	// it was there already
-	assert(!history.events.empty());
-	assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
-
-	// Note: we don't (anymore) erase future snapshots
-
-	// restore old snapshot
-	Reactor& reactor = motherBoard.getReactor();
-	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-	MemInputArchive in(*it->second.savestate);
-	in.serialize("machine", *newBoard);
-
-	// Transfer history from this ReverseManager to the one in the new
-	// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
-	// and start collecting in the new one.
-	assert(collecting());
-	ReverseManager& newManager = newBoard->getReverseManager();
-	newManager.transferHistory(history, it->first, it->second.eventCount);
-	if (newManager.keyboard && keyboard) {
-		newManager.keyboard->transferHostKeyMatrix(*keyboard);
-	}
-
-	stop();
-
-	// fast forward to the required time
-	newBoard->fastForward(targetTime);
-
-	// switch to the new MSXMotherBoard
-	// TODO this is not correct if this board was not the active board
-	reactor.replaceActiveBoard(newBoard);
-
-	assert(!collecting());
-	assert(newBoard->getReverseManager().collecting());
 }
 
 void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& result)
