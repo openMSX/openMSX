@@ -16,6 +16,9 @@
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "Thread.hh"
+#ifdef _WIN32
+#include "win32-arggen.hh"
+#endif
 #include <memory>
 #include <iostream>
 #include <exception>
@@ -67,8 +70,10 @@ static int main(int argc, char **argv)
 		AfterCommand afterCommand(reactor,
 		                          reactor.getEventDistributor(),
 		                          reactor.getCommandController());
-
-
+#ifdef _WIN32
+		ArgumentGenerator arggen;
+		argv = arggen.GetArguments(argc);
+#endif
 		CommandLineParser parser(reactor);
 		parser.parse(argc, argv);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
@@ -114,15 +119,3 @@ int main(int argc, char **argv)
 {
 	exit(openmsx::main(argc, argv)); // need exit() iso return on win32/SDL
 }
-
-#if defined _WIN32 && defined UNICODE
-
-// Defined in SDL_main
-extern "C" int unicode_main(int argc, wchar_t *argv[]);
-
-// The true process entry point
-int wmain(int argc, wchar_t *argv[])
-{
-	return unicode_main(argc, argv);
-}
-#endif

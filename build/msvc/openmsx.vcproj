@@ -3276,6 +3276,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\utils\win32-arggen.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\utils\win32-arggen.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\utils\win32-dirent.cc"
 				>
 			</File>
