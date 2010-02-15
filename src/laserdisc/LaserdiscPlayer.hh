@@ -87,6 +87,7 @@ private:
 	void stop(EmuTime::param time);
 	void eject(EmuTime::param time);
 	void seekFrame(int frame, EmuTime::param time);
+	void stepFrame(bool);
 	void seekChapter(int chapter, EmuTime::param time);
 
 	// Control from MSX

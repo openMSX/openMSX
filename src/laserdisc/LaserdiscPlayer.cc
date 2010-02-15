@@ -478,8 +478,8 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 	case 0xe8: f = "P+"; break;	// play
 	case 0x68: f = "P@"; break;	// stop
 	case 0x18: f = "P/"; break;	// pause
-	case 0x2a: f = "S+"; break;
-	case 0x0a: f = "S-"; break;
+	case 0x2a: f = "S+"; break;	// frame step forward
+	case 0x0a: f = "S-"; break;	// frame step backwards
 	case 0xa2: f = "X+"; break;
 	case 0x82: f = "F"; break;	// seek frame
 	case 0x02: f = "C"; break;	// seek chapter
@@ -593,6 +593,12 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		default:
 			ok = false;
 			seekState = SEEK_NONE;
+			break;
+		case 0x2a: // S+ (frame step forward)
+			stepFrame(true);
+			break;
+		case 0x0a: // S- (frame step backwards)
+			stepFrame(false);
 			break;
 		case 0xaa: // M- (multispeed backwards)
 			// Not supported
@@ -942,6 +948,25 @@ void LaserdiscPlayer::eject(EmuTime::param time)
 {
 	stop(time);
 	video.reset();
+}
+
+void LaserdiscPlayer::stepFrame(bool forwards)
+{
+	if (forwards) {
+		currentFrame++;
+	}
+	else if (currentFrame > 1) {
+		currentFrame--;
+	}
+
+	playerState = PLAYER_FROZEN;
+	long long samplePos = (currentFrame - 1ll) * 1001ll *
+			video->getSampleRate() / 30000ll;
+	playingFromSample = samplePos;
+
+	if (!forwards) {
+		video->seek(currentFrame, samplePos);
+	}
 }
 
 void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
