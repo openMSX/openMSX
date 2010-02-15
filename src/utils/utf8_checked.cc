@@ -25,26 +25,6 @@ bool ansitouf16(const std::string& ansi, UINT cp, DWORD dwFlags, std::wstring& u
 	return false;
 }
 
-std::string unknowntoutf8(const std::string& unknown)
-{
-	std::wstring utf16;
-
-	// Try UTF8 to UTF16 conversion first
-	// If that fails, try CP_ACP to UTF16
-	// If that fails, give up
-	if (ansitouf16(unknown, CP_UTF8, MB_ERR_INVALID_CHARS, utf16) ||
-		(GetLastError() == ERROR_NO_UNICODE_TRANSLATION &&
-		ansitouf16(unknown, CP_ACP, MB_ERR_INVALID_CHARS, utf16)))
-	{
-		return utf16to8(utf16);
-	}
-	else
-	{
-		throw openmsx::FatalError(StringOp::Builder() <<
-			"MultiByteToWideChar failed: " << GetLastError());
-	}
-}
-
 std::wstring utf8to16(const std::string& utf8)
 {
 	std::wstring utf16;

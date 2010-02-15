@@ -308,24 +308,7 @@ void CommandLineParser::parse(int argc, char** argv)
 	deque<string> cmdLine;
 	deque<string> backupCmdLine;
 	for (int i = 1; i < argc; i++) {
-		string sargv(argv[i]);
-#ifdef _WIN32
-		// All strings inside openMSX should be represented as UTF8.
-		// Unfortunately, sometimes strings may arrive here encoded with the system
-		// default codepage (e.g. when openmsx is run from the cmd.exe console).
-		// Other times, strings arrive here encoded as UTF8 (e.g. when openmsx is
-		// launched run from a program like Catapult, using CreateProcessA/W with a
-		// well-encoded UTF8/UTF16 string).
-		//
-		// This means that we have to use our psychic powers to guess the encoding used
-		// when openmsx was launched.
-		//
-		// The right fix would probably be to change SDL_main to use wchar_t instead
-		// of char. This would at least let Windows figure it out instead of us.
-		// However, we don't own SDL_main.
-		sargv = utf8::unknowntoutf8(sargv);
-#endif
-		cmdLine.push_back(FileOperations::getConventionalPath(sargv));
+		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
 
 	for (int priority = 1; (priority <= 8) && (parseStatus != EXIT); ++priority) {
@@ -470,9 +453,9 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 			controller, distributor));
 #ifdef _WIN32
 	} else if (type == "pipe") {
-		OSVERSIONINFOA info;
+		OSVERSIONINFO info;
 		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-		GetVersionExA(&info);
+		GetVersionEx(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 			connection.reset(new PipeConnection(
 				controller, distributor, arguments));

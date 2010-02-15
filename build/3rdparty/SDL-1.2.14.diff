@@ -1,3 +1,97 @@
+diff -ru SDL-1.2.14.org/src/main/win32/SDL_win32_main.c SDL-1.2.14/src/main/win32/SDL_win32_main.c
+--- SDL-1.2.14.org/src/main/win32/SDL_win32_main.c	Mon Oct 12 16:07:13 2009
++++ SDL-1.2.14/src/main/win32/SDL_win32_main.c	Mon Feb 15 08:40:05 2010
+@@ -400,3 +400,90 @@
+ 	/* Hush little compiler, don't you cry... */
+ 	return 0;
+ }
++
++char* utf16to8(wchar_t* utf16)
++{
++	char* utf8;
++
++	int len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, NULL, NULL);
++	if (len) {
++		utf8 = malloc(len);
++		if (utf8 == NULL) {
++			return NULL;
++		}
++		len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, utf8, len, NULL, NULL);
++		if (len) {
++			return utf8;
++		}
++		free(utf8);
++	}
++	return NULL;
++}
++
++/* This is where execution begins with unicode defined[console apps] */
++int unicode_main(int argc, wchar_t *argv[])
++{
++	size_t n;
++	wchar_t *bufp, *appname;
++	char** utf8_argv;
++	int i, status;
++
++	/* Get the class name from argv[0] */
++	appname = argv[0];
++	if ( (bufp=wcsrchr(argv[0], L'\\')) != NULL ) {
++		appname = bufp+1;
++	} else
++	if ( (bufp=wcsrchr(argv[0], L'/')) != NULL ) {
++		appname = bufp+1;
++	}
++
++	if ( (bufp=wcsrchr(appname, L'.')) == NULL )
++		n = wcslen(appname);
++	else
++		n = (bufp-appname);
++
++	bufp = SDL_stack_alloc(wchar_t, n+1);
++	if ( bufp == NULL ) {
++		return OutOfMemory();
++	}
++	wcsncpy(bufp, appname, n);
++	bufp[n] = L'\0';
++	appname = bufp;
++
++	/* Load SDL dynamic link library */
++	if ( SDL_Init(SDL_INIT_NOPARACHUTE) < 0 ) {
++		return(FALSE);
++	}
++	atexit(cleanup_output);
++	atexit(cleanup);
++
++	/* Sam:
++	   We still need to pass in the application handle so that
++	   DirectInput will initialize properly when SDL_RegisterApp()
++	   is called later in the video initialization.
++	 */
++	SDL_SetModuleHandle(GetModuleHandle(NULL));
++
++	/* Run the application main() code */
++	utf8_argv = SDL_stack_alloc(char*, argc);
++	if ( utf8_argv == NULL ) {
++		return OutOfMemory();
++	}
++	for (i = 0 ; i < argc; i ++) {
++		utf8_argv[i] = utf16to8(argv[i]);
++		if ( utf8_argv[i] == NULL ) {
++			return OutOfMemory();
++		}
++	}
++	status = SDL_main(argc, utf8_argv);
++	
++	for (i = 0 ; i < argc; i ++) {
++		free(utf8_argv[i]);
++	}
++
++	/* Exit cleanly, calling atexit() functions */
++	exit(status);
++
++	/* Hush little compiler, don't you cry... */
++	return 0;
++}
 diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.14/src/video/quartz/SDL_QuartzEvents.m
 --- SDL-1.2.14.org/src/video/quartz/SDL_QuartzEvents.m	2009-10-13 01:07:14.000000000 +0200
 +++ SDL-1.2.14/src/video/quartz/SDL_QuartzEvents.m	2009-12-17 22:07:33.000000000 +0100

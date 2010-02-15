@@ -25,7 +25,7 @@
 			IntermediateDirectory="$(OpenMSXIntDir)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -47,7 +47,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
@@ -103,7 +103,7 @@
 			IntermediateDirectory="$(OpenMSXIntDir)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -126,7 +126,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				RuntimeLibrary="1"
 				WarningLevel="4"
 				DebugInformationFormat="3"
@@ -180,7 +180,7 @@
 			IntermediateDirectory="$(OpenMSXIntDir)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -204,11 +204,12 @@
 				Optimization="3"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="2"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				SmallerTypeCheck="false"
 				RuntimeLibrary="0"
@@ -268,7 +269,7 @@
 			IntermediateDirectory="$(OpenMSXIntDir)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -293,10 +294,11 @@
 				Optimization="3"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="2"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -355,7 +357,7 @@
 			IntermediateDirectory="$(OpenMSXIntDir)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -377,7 +379,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
 				WarningLevel="4"
@@ -403,8 +405,6 @@
 				DelayLoadDLLs="shell32.dll"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="0"
 				TargetMachine="1"
 			/>
@@ -436,7 +436,7 @@
 			IntermediateDirectory="$(OpenMSXIntDir)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\3rdparty\3rdparty.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -459,7 +459,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(OpenMSXConfigDir)&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameFreeType)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameGlew)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibPng)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameLibXml)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameSDL_ttf)&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTheora)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameVorbis)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameOgg)\include&quot;;&quot;$(3rdPartySrcDir)\$(LibNameTcl)\generic&quot;;&quot;$(3rdPartySrcDir)\$(LibNameZlib)&quot;;&quot;$(OpenMSXSrcDir)&quot;;&quot;$(OpenMSXSrcDir)\cassette&quot;;&quot;$(OpenMSXSrcDir)\commands&quot;;&quot;$(OpenMSXSrcDir)\config&quot;;&quot;$(OpenMSXSrcDir)\console&quot;;&quot;$(OpenMSXSrcDir)\cpu&quot;;&quot;$(OpenMSXSrcDir)\debugger&quot;;&quot;$(OpenMSXSrcDir)\events&quot;;&quot;$(OpenMSXSrcDir)\fdc&quot;;&quot;$(OpenMSXSrcDir)\file&quot;;&quot;$(OpenMSXSrcDir)\ide&quot;;&quot;$(OpenMSXSrcDir)\input&quot;;&quot;$(OpenMSXSrcDir)\laserdisc&quot;;&quot;$(OpenMSXSrcDir)\memory&quot;;&quot;$(OpenMSXSrcDir)\resource&quot;;&quot;$(OpenMSXSrcDir)\security&quot;;&quot;$(OpenMSXSrcDir)\serial&quot;;&quot;$(OpenMSXSrcDir)\settings&quot;;&quot;$(OpenMSXSrcDir)\sound&quot;;&quot;$(OpenMSXSrcDir)\thread&quot;;&quot;$(OpenMSXSrcDir)\utils&quot;;&quot;$(OpenMSXSrcDir)\video&quot;;&quot;$(OpenMSXSrcDir)\video\ld&quot;;&quot;$(OpenMSXSrcDir)\video\v9990&quot;"
-				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
+				PreprocessorDefinitions="WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD"
 				StringPooling="true"
 				RuntimeLibrary="1"
 				WarningLevel="4"
@@ -484,8 +484,6 @@
 				DelayLoadDLLs="shell32.dll"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -1682,14 +1680,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input\Trackball.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\input\Trackball.hh"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\input\DummyJoystick.cc"
 				>
 			</File>
@@ -1827,6 +1817,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input\StateChangeListener.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input\Trackball.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input\Trackball.hh"
 				>
 			</File>
 			<File
@@ -4743,48 +4741,6 @@
 				<File
 					RelativePath="..\..\src\video\ld\LDDummyRenderer.cc"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\src\video\ld\LDDummyRenderer.hh"
@@ -4835,48 +4791,6 @@
 				<File
 					RelativePath="..\..\src\video\ld\LDPixelRenderer.cc"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\src\video\ld\LDPixelRenderer.hh"
@@ -4973,48 +4887,6 @@
 				<File
 					RelativePath="..\..\src\video\ld\LDRenderer.cc"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\src\video\ld\LDRenderer.hh"
@@ -5065,48 +4937,6 @@
 				<File
 					RelativePath="..\..\src\video\ld\LDSDLRasterizer.cc"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\src\video\ld\LDSDLRasterizer.hh"
@@ -5374,48 +5204,6 @@
 			<File
 				RelativePath="..\..\src\laserdisc\LaserdiscPlayer.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\laserdisc\LaserdiscPlayer.hh"
@@ -5466,48 +5254,6 @@
 			<File
 				RelativePath="..\..\src\laserdisc\LaserdiscPlayerCLI.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\laserdisc\LaserdiscPlayerCLI.hh"
@@ -5558,48 +5304,6 @@
 			<File
 				RelativePath="..\..\src\laserdisc\OggReader.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\laserdisc\OggReader.hh"
@@ -5650,48 +5354,6 @@
 			<File
 				RelativePath="..\..\src\laserdisc\PioneerLDControl.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\laserdisc\PioneerLDControl.hh"
@@ -5742,48 +5404,6 @@
 			<File
 				RelativePath="..\..\src\laserdisc\yuv2rgb.cc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\laserdisc\yuv2rgb.hh"
