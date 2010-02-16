@@ -769,7 +769,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 						currentFrame << " reached");
 
 		playingFromSample = getCurrentSample(time);
-		playerState = PLAYER_FROZEN;
+		playerState = PLAYER_STILL;
 	}
 }
 
@@ -916,7 +916,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			sampleClock.advance(time);
 			setAck(time, 46);
 		} else {
-			// FROZEN or PAUSED
+			// STILL or PAUSED
 			sampleClock.advance(time);
 			setAck(time, 46);
 		}
@@ -977,7 +977,7 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 		currentFrame--;
 	}
 
-	playerState = PLAYER_FROZEN;
+	playerState = PLAYER_STILL;
 	long long samplePos = (currentFrame - 1ll) * 1001ll *
 			video->getSampleRate() / 30000ll;
 	playingFromSample = samplePos;
@@ -1025,7 +1025,7 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 
 			video->seek(toframe, samplePos);
 
-			playerState = PLAYER_FROZEN;
+			playerState = PLAYER_STILL;
 			playingFromSample = samplePos;
 			currentFrame = toframe;
 
@@ -1077,7 +1077,7 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 	switch (playerState) {
 	case PLAYER_PLAYING:
 	case PLAYER_PLAYING_MULTISPEED:
-	case PLAYER_FROZEN:
+	case PLAYER_STILL:
 		videoOut = !seeking;
 		break;
 	default:
@@ -1123,7 +1123,7 @@ static enum_string<LaserdiscPlayer::PlayerState> PlayerStateInfo[] = {
 	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},		{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
 	{ "PLAYING_MULTISPEED",	LaserdiscPlayer::PLAYER_PLAYING_MULTISPEED },
 	{ "PAUSED",		LaserdiscPlayer::PLAYER_PAUSED		},
-	{ "FROZEN",		LaserdiscPlayer::PLAYER_FROZEN		}
+	{ "STILL",		LaserdiscPlayer::PLAYER_STILL		}
 };
 SERIALIZE_ENUM(LaserdiscPlayer::PlayerState, PlayerStateInfo);
 
