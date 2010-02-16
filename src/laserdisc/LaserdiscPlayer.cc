@@ -6,6 +6,7 @@
 #include "FileContext.hh"
 #include "XMLElement.hh"
 #include "CassettePort.hh"
+#include "CliComm.hh"
 #include "Display.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
@@ -467,8 +468,8 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 #ifdef DEBUG
 	string f;
 	switch (code) {
-	case 0xe2: f = "C+"; break;
-	case 0x62: f = "C-"; break;
+	case 0xe2: f = "C+"; break;	// Increase playing speed
+	case 0x62: f = "C-"; break;	// Decrease playing speed
 	case 0xc2: f = "D+"; break;	// Show Frame# & Chapter# OSD
 	case 0xd2: f = "L+"; break;
 	case 0x92: f = "L-"; break;
@@ -480,7 +481,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 	case 0x18: f = "P/"; break;	// pause
 	case 0x2a: f = "S+"; break;	// frame step forward
 	case 0x0a: f = "S-"; break;	// frame step backwards
-	case 0xa2: f = "X+"; break;
+	case 0xa2: f = "X+"; break;	// clear
 	case 0x82: f = "F"; break;	// seek frame
 	case 0x02: f = "C"; break;	// seek chapter
 	case 0x42: f = "END"; break;	// done seek frame/chapter
@@ -589,8 +590,19 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			}
 			waitFrame = 0;
 			break;
-		case 0xff:
+			// Handled below
+		case 0x18:
+		case 0xe8:
+		case 0x68:
+			ok = false;
+			break;
 		default:
+			motherBoard.getMSXCliComm().printWarning(
+				"The Laserdisc player received an unknown "
+				"command 0x" + StringOp::toHexString(code, 2));
+			ok = false;
+			break;
+		case 0xff:
 			ok = false;
 			seekState = SEEK_NONE;
 			break;
@@ -602,6 +614,10 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			break;
 		case 0xaa: // M- (multispeed backwards)
 			// Not supported
+			motherBoard.getMSXCliComm().printWarning(
+				"The Laserdisc player received a command to "
+				"play backwards (M-). This is currently not "
+				"supported.");
 			ok = false;
 			break;
 		case 0x1a: // M+ (multispeed forwards)
@@ -950,6 +966,8 @@ void LaserdiscPlayer::eject(EmuTime::param time)
 	video.reset();
 }
 
+// Step one frame forwards or backwards. The frame will be visible and
+// we won't be playing afterwards
 void LaserdiscPlayer::stepFrame(bool forwards)
 {
 	if (forwards) {
