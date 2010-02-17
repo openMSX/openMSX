@@ -4,20 +4,22 @@
 #define OGGREADER_HH
 
 #include "openmsx.hh"
-#include "File.hh"
-
+#include "noncopyable.hh"
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <theora/theoradec.h>
-
+#include <memory>
 #include <list>
 #include <deque>
 #include <map>
+#include <set>
 
 namespace openmsx {
 
 class CliComm;
 class RawFrame;
+class File;
+class Filename;
 
 struct AudioFragment
 {
@@ -34,10 +36,10 @@ struct Frame
 	th_ycbcr_buffer buffer;
 };
 
-class OggReader
+class OggReader : private noncopyable
 {
 public:
-	OggReader(const Filename& filename, CliComm& cli_);
+	OggReader(const Filename& filename, CliComm& cli);
 	~OggReader();
 
 	bool seek(int frame, int sample);
@@ -46,14 +48,14 @@ public:
 	AudioFragment* getAudio(unsigned sample);
 
 	// metadata
-	bool stopFrame(int frame) { return stopFrames[frame] != 0; }
-	int chapter(int chapterNo) { return chapters[chapterNo]; }
+	bool stopFrame(int frame) const;
+	int chapter(int chapterNo) const;
 
 private:
 	void cleanup();
 	void readTheora(ogg_packet* packet);
-	void theoraHeaderPage(ogg_page* page, th_info& ti, th_comment& tc, 
-						th_setup_info*& tsi);
+	void theoraHeaderPage(ogg_page* page, th_info& ti, th_comment& tc,
+	                      th_setup_info*& tsi);
 	void readMetadata(th_comment& tc);
 	void readVorbis(ogg_packet* packet);
 	void vorbisHeaderPage(ogg_page* page);
@@ -68,9 +70,9 @@ private:
 		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames);
 
 	CliComm& cli;
-	File file;
+	const std::auto_ptr<File> file;
 
-	enum State { 
+	enum State {
 		PLAYING,
 		FIND_LAST,
 		FIND_FIRST,
@@ -93,7 +95,6 @@ private:
 	int granuleShift;
 
 	typedef std::deque<Frame*> Frames;
-
 	Frames frameList;
 	Frames recycleFrameList;
 
@@ -107,12 +108,11 @@ private:
 	unsigned vorbisPos;
 
 	typedef std::list<AudioFragment*> AudioFragments;
-
 	AudioFragments audioList;
 	AudioFragments recycleAudioList;
 
 	// Metadata
-	std::map<int, int> stopFrames;
+	std::set<int> stopFrames;
 	std::map<int, int> chapters;
 };
 
