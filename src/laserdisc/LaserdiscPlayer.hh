@@ -77,6 +77,12 @@ public:
 		SEEK_FRAME,
 		SEEK_WAIT,
 	};
+
+	enum StereoMode {
+		LEFT,
+		RIGHT,
+		STEREO
+	};
 private:
 	void setImageName(const std::string& newImage, EmuTime::param time);
 
@@ -139,6 +145,7 @@ private:
 	unsigned playingFromSample;
 	unsigned lastPlayedSample;
 	bool muteLeft, muteRight;
+	StereoMode stereoMode;
 
 	enum SyncType {
 		FRAME,

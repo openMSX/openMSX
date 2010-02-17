@@ -471,9 +471,9 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 	case 0xe2: f = "C+"; break;	// Increase playing speed
 	case 0x62: f = "C-"; break;	// Decrease playing speed
 	case 0xc2: f = "D+"; break;	// Show Frame# & Chapter# OSD
-	case 0xd2: f = "L+"; break;
-	case 0x92: f = "L-"; break;
-	case 0x52: f = "L@"; break;
+	case 0xd2: f = "L+"; break;	// right
+	case 0x92: f = "L-"; break;	// left 
+	case 0x52: f = "L@"; break;	// stereo
 	case 0x1a: f = "M+"; break;	// multi speed forwards
 	case 0xaa: f = "M-"; break;	// multi speed backwards
 	case 0xe8: f = "P+"; break;	// play
@@ -533,6 +533,18 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		bool ok = true;
 
 		switch (code) {
+		case 0xd2: // "L+" right
+			updateStream(time);
+			stereoMode = RIGHT;
+			break;
+		case 0x92: // "L-" left 
+			updateStream(time);
+			stereoMode = LEFT;
+			break;
+		case 0x52: // "L@" stereo
+			updateStream(time);
+			stereoMode = STEREO;
+			break;
 		case 0xfa:
 			seekState = SEEK_WAIT;
 			seekNum = 0;
@@ -844,14 +856,16 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 			playerState = PLAYER_STOPPED;
 		} else {
 			unsigned offset = lastPlayedSample - audio->position;
+			int left = stereoMode == RIGHT ? 1 : 0;
+			int right = stereoMode == LEFT ? 0 : 1;
 			len = std::min(audio->length - offset, num - pos);
 
 			// maybe muting should be moved out of the loop?
 			for (unsigned i = 0; i < len; ++i, ++pos) {
 				buffers[0][pos * 2 + 0] = muteLeft ? 0 :
-					int(audio->pcm[0][offset + i] * 65536.f);
+				   int(audio->pcm[left][offset + i] * 65536.f);
 				buffers[0][pos * 2 + 1] = muteRight ? 0 :
-					int(audio->pcm[1][offset + i] * 65536.f);
+				   int(audio->pcm[right][offset + i] * 65536.f);
 			}
 
 			lastPlayedSample += len;
@@ -903,6 +917,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			seekState = SEEK_NONE;
 			seeking = true;
 			waitFrame = 0;
+			stereoMode = STEREO;
 			playingSpeed = SPEED_1IN4;
 		} else if (playerState == PLAYER_PLAYING) {
 			// If Play command is issued while the player
@@ -970,11 +985,16 @@ void LaserdiscPlayer::eject(EmuTime::param time)
 // we won't be playing afterwards
 void LaserdiscPlayer::stepFrame(bool forwards)
 {
-	if (forwards) {
-		currentFrame++;
-	}
-	else if (currentFrame > 1) {
-		currentFrame--;
+	bool needseek = false;
+
+	if (playerState == PLAYER_STILL) {
+		if (forwards) {
+			currentFrame++;
+		}
+		else if (currentFrame > 1) {
+			currentFrame--;
+			needseek = true;
+		}
 	}
 
 	playerState = PLAYER_STILL;
@@ -982,7 +1002,7 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 			video->getSampleRate() / 30000ll;
 	playingFromSample = samplePos;
 
-	if (!forwards) {
+	if (needseek) {
 		video->seek(currentFrame, samplePos);
 	}
 }
@@ -1061,8 +1081,9 @@ short LaserdiscPlayer::readSample(EmuTime::param time)
 
 		if (audio) {
 			sampleReads++;
-			return int(audio->pcm[1][sample - audio->position]
-								* 32767.f);
+			int channel = stereoMode == LEFT ? 0 : 1;
+			return int(audio->pcm[channel][sample - audio->position]
+							 * 32767.f);
 		}
 	}
 
@@ -1135,6 +1156,14 @@ static enum_string<LaserdiscPlayer::SeekState> SeekStateInfo[] = {
 };
 SERIALIZE_ENUM(LaserdiscPlayer::SeekState, SeekStateInfo);
 
+static enum_string<LaserdiscPlayer::StereoMode> StereoModeInfo[] = {
+	{ "LEFT",		LaserdiscPlayer::LEFT			},
+	{ "RIGHT",		LaserdiscPlayer::RIGHT			},
+	{ "STEREO",		LaserdiscPlayer::STEREO			}
+};
+SERIALIZE_ENUM(LaserdiscPlayer::StereoMode, StereoModeInfo);
+
+
 template<typename Archive>
 void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1180,8 +1209,8 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 		}
 
 		// Audio position
+		ar.serialize("StereoMode", stereoMode);
 		ar.serialize("FromSample", playingFromSample);
-
 		ar.serialize("SampleClock", sampleClock);
 
 		if (ar.isLoader()) {
