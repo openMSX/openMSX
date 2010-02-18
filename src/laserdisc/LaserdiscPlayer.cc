@@ -472,7 +472,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 	case 0x62: f = "C-"; break;	// Decrease playing speed
 	case 0xc2: f = "D+"; break;	// Show Frame# & Chapter# OSD
 	case 0xd2: f = "L+"; break;	// right
-	case 0x92: f = "L-"; break;	// left 
+	case 0x92: f = "L-"; break;	// left
 	case 0x52: f = "L@"; break;	// stereo
 	case 0x1a: f = "M+"; break;	// multi speed forwards
 	case 0xaa: f = "M-"; break;	// multi speed backwards
@@ -528,27 +528,32 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 	lastNECButtonTime = time;
 	lastNECButtonCode = code;
 
-	// deal with seeking.
-	if (playerState != PLAYER_STOPPED) {
-		bool ok = true;
+	// When not playing, only the play button works
+	if (playerState == PLAYER_STOPPED) {
+		if (code == 0xe8) {
+			// P+
+			play(time);
+		}
+	} else {
+		bool nonseekack = true;
 
 		switch (code) {
-		case 0xd2: // "L+" right
+		case 0xd2: // L+ (both channels play the right channel)
 			updateStream(time);
 			stereoMode = RIGHT;
 			break;
-		case 0x92: // "L-" left 
+		case 0x92: // L- (both channels play the left channel)
 			updateStream(time);
 			stereoMode = LEFT;
 			break;
-		case 0x52: // "L@" stereo
+		case 0x52: // L@ (normal stereo)
 			updateStream(time);
 			stereoMode = STEREO;
 			break;
 		case 0xfa:
 			seekState = SEEK_WAIT;
 			seekNum = 0;
-			ok = false;
+			nonseekack = false;
 			break;
 		case 0x82:
 			seekState = SEEK_FRAME;
@@ -557,7 +562,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 		case 0x02:
 			seekState = SEEK_CHAPTER;
 			seekNum = 0;
-			ok = video->chapter(0) != 0;
+			nonseekack = video->chapter(0) != 0;
 			break;
 		case 0x00: seekNum = seekNum * 10 + 0; break;
 		case 0x80: seekNum = seekNum * 10 + 1; break;
@@ -574,12 +579,12 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			case SEEK_FRAME:
 				seekState = SEEK_NONE;
 				seekFrame(seekNum % 100000, time);
-				ok = false;
+				nonseekack = false;
 				break;
 			case SEEK_CHAPTER:
 				seekState = SEEK_NONE;
 				seekChapter(seekNum % 100, time);
-				ok = false;
+				nonseekack = false;
 				break;
 			case SEEK_WAIT:
 				seekState = SEEK_NONE;
@@ -589,7 +594,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 				break;
 			default:
 				seekState = SEEK_NONE;
-				ok = false;
+				nonseekack = false;
 				break;
 			}
 			break;
@@ -602,20 +607,20 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			}
 			waitFrame = 0;
 			break;
-			// Handled below
-		case 0x18:
-		case 0xe8:
-		case 0x68:
-			ok = false;
+		case 0x18: // P/
+			pause(time);
+			nonseekack = false;
 			break;
-		default:
-			motherBoard.getMSXCliComm().printWarning(
-				"The Laserdisc player received an unknown "
-				"command 0x" + StringOp::toHexString(code, 2));
-			ok = false;
+		case 0xe8: // P+
+			play(time);
+			nonseekack = false;
+			break;
+		case 0x68: // P@ (stop/eject)
+			stop(time);
+			nonseekack = false;
 			break;
 		case 0xff:
-			ok = false;
+			nonseekack = false;
 			seekState = SEEK_NONE;
 			break;
 		case 0x2a: // S+ (frame step forward)
@@ -630,7 +635,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 				"The Laserdisc player received a command to "
 				"play backwards (M-). This is currently not "
 				"supported.");
-			ok = false;
+			nonseekack = false;
 			break;
 		case 0x1a: // M+ (multispeed forwards)
 			playerState = PLAYER_PLAYING_MULTISPEED;
@@ -648,24 +653,19 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 				frameStep = 1;	// FIXME: is this correct?
 			}
 			break;
+		default:
+			motherBoard.getMSXCliComm().printWarning(
+				"The Laserdisc player received an unknown "
+				"command 0x" + StringOp::toHexString(code, 2));
+			nonseekack = false;
+			break;
 		}
 
-		if (ok) {
-			// seeking will take much more than this!
+		if (nonseekack) {
+			// All ACKs for operations which do not 
+			// require seeking
 			setAck(time, 46);
 		}
-	}
-
-	switch (code) {
-	case 0x18: // P/
-		pause(time);
-		break;
-	case 0xe8: // P+
-		play(time);
-		break;
-	case 0x68: // P@ (stop/eject)
-		stop(time);
-		break;
 	}
 }
 
