@@ -153,6 +153,8 @@
 
         <li><a class="internal" href="#autoruncassettes">autoruncassettes</a></li>
 
+        <li><a class="internal" href="#auto_enable_reverse">auto_enable_reverse</a></li>
+
         <li><a class="internal" href="#blur">blur</a></li>
 
         <li><a class="internal" href="#bootsector">bootsector</a></li>
@@ -1820,16 +1822,18 @@
 
   <table>
     <tr>
-      <td><code>reverse_prev</code></td>
+      <td><code>reverse_prev [&lt;min&gt; [&lt;max&gt;]]</code></td>
 
-      <td>Go back in time to the previous (internal) snapshot. The further back in the past the less dense the amount of snapshots is. So, executing this command multiple times, will take successively bigger steps in the past.</td>
+      <td>Go back in time to the previous (internal) snapshot. The further back in the past the less dense the amount of snapshots are. So, executing this command multiple times, will take successively bigger steps in the past. You can optionally specify a minimal and maximal step size. You will at least go back the minimal amount of time (even if there's a snapshot closer to the current time) and at most the maximal amount of time (even if there's no snapshot within the maximum specified time from the current time).</td>
     </tr>
     <tr>
-      <td><code>reverse_next</code></td>
+      <td><code>reverse_next [&lt;min&gt; [&lt;max&gt;]]</code></td>
 
       <td>As <code>reverse_prev</code> but then it goes to the closes snapshot in the future (if possible).</td>
     </tr>
   </table>
+
+  <p>If you frequently use the reverse feature, it might be useful to set the <code><a class="internal" href="#auto_enable_reverse">auto_enable_reverse</a></code> setting.</p>
 
   <h3><a id="save_settings">save_settings</a></h3>
 
@@ -2661,6 +2665,33 @@
     Note: This only works with CAS images for now and it is still an experimental feature.
   </div>
 
+
+  <h3><a id="auto_enable_reverse">auto_enable_reverse</a></h3>
+
+  <p>Using the <code><a class="internal" href="#reverse">reverse</a></code> feature has a small memory and performance cost. Therefore it has to be enabled before it can be used. This setting controls whether the reverse feature should automatically be activated when openMSX starts. On desktop computers this generally won't be a problem. But for small handheld devices it can be.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set auto_enable_reverse</code></td>
+      <td>Shows the current setting</td>
+    </tr>
+    <tr>
+      <td><code>set auto_enable_reverse off</code></td>
+      <td>Don't automatically enable the reverse feature</td>
+    </tr>
+    <tr>
+      <td><code>set auto_enable_reverse on</code></td>
+      <td>Enable the reverse feature when openMSX starts</td>
+    </tr>
+    <tr>
+      <td><code>set auto_enable_reverse gui</code></td>
+      <td>Enable the reverse feature and the reverse bar when openMSX starts</a></code></td>
+    </tr>
+  </table>
   <h3><a id="blur">blur</a></h3>
 
   <p>Sets the amount of horizontal blur effect. A value of 0 turns off blur, while 100 selects maximum blur.</p>
