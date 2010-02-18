@@ -594,7 +594,7 @@ void OggReader::returnAudio(AudioFragment* audio)
 	recycleAudioList.push_back(audio);
 }
 
-AudioFragment* OggReader::getAudio(unsigned sample)
+const AudioFragment* OggReader::getAudio(unsigned sample)
 {
 	// Read while position is unknown
 	while (audioList.empty() ||

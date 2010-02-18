@@ -45,7 +45,7 @@ public:
 	bool seek(int frame, int sample);
 	unsigned getSampleRate() const { return vi.rate; }
 	void getFrame(RawFrame& frame, int frameno);
-	AudioFragment* getAudio(unsigned sample);
+	const AudioFragment* getAudio(unsigned sample);
 
 	// metadata
 	bool stopFrame(int frame) const;

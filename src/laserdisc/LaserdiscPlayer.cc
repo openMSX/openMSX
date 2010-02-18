@@ -841,7 +841,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 	}
 
 	while (pos < num) {
-		AudioFragment* audio = video->getAudio(lastPlayedSample);
+		const AudioFragment* audio = video->getAudio(lastPlayedSample);
 
 		if (!audio) {
 			// we've fallen of the end of the file. We
@@ -1077,16 +1077,13 @@ short LaserdiscPlayer::readSample(EmuTime::param time)
 	// right audio channel, ignoring muting.
 	if (video.get() && playerState == PLAYER_PLAYING && !seeking) {
 		unsigned sample = getCurrentSample(time);
-		AudioFragment* audio = video->getAudio(sample);
-
-		if (audio) {
-			sampleReads++;
+		if (const AudioFragment* audio = video->getAudio(sample)) {
+			++sampleReads;
 			int channel = stereoMode == LEFT ? 0 : 1;
 			return int(audio->pcm[channel][sample - audio->position]
 							 * 32767.f);
 		}
 	}
-
 	return 0;
 }
 
