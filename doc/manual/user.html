@@ -80,6 +80,8 @@
 			</li>
 			<li><a class="internal" href="#joystick">5.2 Joystick</a></li>
 			<li><a class="internal" href="#mouse">5.3 Mouse</a></li>
+			<li><a class="internal" href="#arkanoidpad">5.4 Arkanoid Pad</a></li>
+			<li><a class="internal" href="#trackball">5.5 Trackball</a></li>
 		</ol>
 	</li>
 
@@ -808,6 +810,28 @@ will connect a mouse to joystick port A. If you want the joystick emulation feat
 
 <p>
 If you are using openMSX in windowed mode, it might be tricky to use the mouse. For that you may want to use the following setting: <code>set <a class="external" href="commands.html#grabinput">grabinput</a> on</code>. This makes sure all input goes to openMSX. Your cursor cannot leave the openMSX window with this setting. Just turn it back to off, if you want to disable this again. If you only want to escape the window briefly, use this command: <code><a class="external" href="commands.html#escape_grab">escape_grab</a></code>. It permits you to leave the window, but the next time you enter it, the cursor is grabbed again. It might be a good idea to bind this command to a key, using the <code><a class="external" href="commands.html#bind">bind</a></code> command, which is mentioned above.
+</p>
+
+<h3><a id="arkanoidpad">5.4 Arkanoid Pad</a></h3>
+
+<p>
+The Arkanoid games by Taito both have support for a special Arkanoid game pad, with a classical turning knob to control the position of the bat. This device is emulated as well and can be controlled by the mouse. Plug it as follows:</p>
+
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyporta arkanoidpad
+</div>
+
+<h3><a id="trackball">5.5 Trackball</a></h3>
+
+<p>
+Some MSX trackballs like the HAL CAT and the Sony HB-G7B seem to be the same and are also emulated by openMSX, again using the mouse to control it. The trackball is mostly supported in port B only:</p>
+
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyportb trackball
+</div>
+
+<p>
+Quite some HAL programs have support for it, e.g. Hole in One, Eddy II, Music Studio G7, Space Trouble and Super Billiards. The test program provided in the Sony HB-G7B service manual also works fine, of course.
 </p>
 
 <h2><a id="video">6. Video</a></h2>
