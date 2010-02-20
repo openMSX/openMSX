@@ -309,8 +309,6 @@
 
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
 
-        <li><a class="internal" href="#user_directories">user_directories</a></li>
-
         <li><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></li>
 
         <li><a class="internal" href="#videosource">videosource</a></li>
@@ -4905,41 +4903,6 @@
       <td><code>set umr_callback umrcallback</code></td>
 
       <td>Sets callback proc to <code>umrcallback</code></td>
-    </tr>
-  </table>
-
-  <h3><a id="user_directories">user_directories</a></h3>
-
-  <p>Contains the list of "user directories". This makes it a bit more convenient to insert disks, tapes, ROMs etc. The Setup Guide describes <a class="external" href="setup.html#settings">how the user directories mechanism works</a>. This setting is a list in Tcl format (items are space separated or enclosed in braces, see Tcl
-  manual for details). Thus all Tcl functions to manipulate lists can be used on this setting.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set user_directories</code></td>
-
-      <td>Shows the current list</td>
-    </tr>
-
-    <tr>
-      <td><code>set user_directories "~/disks ~/roms"</code></td>
-
-      <td>Replace the list with a new one</td>
-    </tr>
-
-    <tr>
-      <td><code>set user_directories {}</code></td>
-
-      <td>Remove all user directories</td>
-    </tr>
-
-    <tr>
-      <td><code>lappend user_directories ~/tapes</code></td>
-
-      <td>Add a directory to the list</td>
     </tr>
   </table>
 
