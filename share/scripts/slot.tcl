@@ -67,7 +67,7 @@ Typically used to set breakpoints in specific slots.}
 proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
 	set page [expr [reg PC] >> 14]
 	foreach {pc_ps pc_ss} [get_selected_slot $page] {}
-	if {$ps != $pc_ps} { return false }
+	if {($ps != "X") &&                    ($pc_ps != $ps)} { return false }
 	if {($ss != "X") && ($pc_ss != "X") && ($pc_ss != $ss)} { return false }
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]
 	if {($mapper_size == 0) || ($mapper == "X")} { return true }
