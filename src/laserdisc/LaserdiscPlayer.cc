@@ -123,8 +123,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, remoteState(REMOTE_IDLE)
 	, remoteLastEdge(EmuTime::zero)
 	, remoteLastBit(false)
-	, lastNECButtonTime(EmuTime::zero)
-	, lastNECButtonCode(0x100)
+	, remoteProtocol(IR_NONE)
 	, waitFrame(0)
 	, ack(false)
 	, foundFrame(false)
@@ -161,8 +160,9 @@ LaserdiscPlayer::~LaserdiscPlayer()
 
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 {
-	Clock<30000, 1001> frameClock(time);
-	setSyncPoint(frameClock + 1, FRAME);
+	Clock<60000, 1001> frameClock(time);
+	setSyncPoint(frameClock + 1, VBLANK);
+	setSyncPoint(frameClock + 2, FRAME);
 }
 
 // The protocol used to communicate over the cable for commands to the
@@ -228,8 +228,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	case LD1100_BITS_PULSE:
 		if (225 <= usec && usec < 275) {
 			if (remoteBitNr == 30) {
-				remoteButtonLD1100(remoteBits, time);
-
+				submitRemote(IR_LD1100, remoteBits);
 				remoteState = REMOTE_IDLE;
 			} else if ((remoteBitNr == 10 || remoteBitNr == 20) &&
 					remoteState != LD1100_SEEN_GAP) {
@@ -266,8 +265,10 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 				byte customCompl = (~remoteBits >> 16) & 0xff;
 				byte code	 = ( remoteBits >>  8) & 0xff;
 				byte codeCompl	 = (~remoteBits >>  0) & 0xff;
-				if (custom == customCompl && code == codeCompl) {
-					remoteButtonNEC(custom, code, time);
+				if (custom == customCompl && 
+				    custom == 0x15 &&
+				    code == codeCompl) {
+					submitRemote(IR_NEC, code);
 				}
 				remoteState = REMOTE_IDLE;
 			} else {
@@ -306,16 +307,26 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	}
 }
 
+void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
+{
+	if (protocol != remoteProtocol || code != remoteCode) {
+		remoteProtocol = protocol;
+		remoteCode = code;
+		remoteVblanksBack = 0;
+		remoteExecuteDelayed = true;
+	} else {
+		PRT_DEBUG("Laserdisc::remote ignored after " << std::dec 
+			  << remoteVblanksBack << " vblanks");
+		remoteVblanksBack = 0;
+		remoteExecuteDelayed = false;
+	}
+}
+
 const RawFrame* LaserdiscPlayer::getRawFrame() const
 {
 	return renderer->getRawFrame();
 }
 
-// Note that a real Laserdisc Player will wait for some time before 
-// is ACK is raised and this period depends on the VBLANK interrupt.
-// It seems likely that remote control buttons are processed at the 
-// same time as a frame or between frames or so. Further investigation
-// is needed.
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
 	PRT_DEBUG("Laserdisc::Lowering ACK for " << std::dec << wait << "ms");
@@ -463,7 +474,7 @@ void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::param time)
+void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 {
 #ifdef DEBUG
 	string f;
@@ -509,25 +520,6 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			  << std::hex << code << std::endl;
 	}
 #endif
-	if (custom != 0x15) {
-		PRT_DEBUG("NEC remote: unknown device " << std::hex << custom);
-		return;
-	}
-
-	if (code == lastNECButtonCode) {
-		EmuDuration duration = time - lastNECButtonTime;
-		unsigned msec = duration.getTicksAt(1000); // miliseconds
-		PRT_DEBUG("PioneerLD7000::NEC repeat within " << std::dec <<
-								msec << "ms");
-		if (msec < 100) {
-			lastNECButtonTime = time;
-			return;
-		}
-	}
-
-	lastNECButtonTime = time;
-	lastNECButtonCode = code;
-
 	// When not playing, only the play button works
 	if (playerState == PLAYER_STOPPED) {
 		if (code == 0xe8) {
@@ -535,6 +527,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned custom, unsigned code, EmuTime::p
 			play(time);
 		}
 	} else {
+		// FIXME: while seeking, only a small subset of buttons work
 		bool nonseekack = true;
 
 		switch (code) {
@@ -679,7 +672,8 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 {
 	updateStream(time);
 
-	if (userdata == ACK) {
+	switch (userdata) {
+	case ACK: 
 		if (seeking && playerState == PLAYER_PLAYING) {
 			sampleClock.advance(time);
 		}
@@ -691,7 +685,8 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		ack = false;
 		seeking = false;
 		PRT_DEBUG("Laserdisc: ACK cleared");
-	} else if (userdata == FRAME) {
+		break;
+	case FRAME:
 		if (RawFrame* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
 
@@ -710,6 +705,25 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		sampleReads = 0;
 
 		scheduleDisplayStart(time);
+		// fall-through
+	case VBLANK:
+		// Processing of the remote control happens at each frame
+		// (even and odd, so at 59.94Hz)
+		if (remoteProtocol == IR_NEC) {
+			if (remoteExecuteDelayed) {
+				remoteButtonNEC(remoteCode, time);
+			}
+
+			if (++remoteVblanksBack > 6) {
+				remoteProtocol = IR_NONE;
+			}
+		} else if (remoteProtocol == IR_LD1100) {
+			if (remoteExecuteDelayed) {
+				remoteButtonLD1100(remoteCode, time);
+			}
+			remoteProtocol = IR_NONE;
+		}
+		remoteExecuteDelayed = false;
 	}
 }
 
@@ -1160,6 +1174,12 @@ static enum_string<LaserdiscPlayer::StereoMode> StereoModeInfo[] = {
 };
 SERIALIZE_ENUM(LaserdiscPlayer::StereoMode, StereoModeInfo);
 
+static enum_string<LaserdiscPlayer::RemoteProtocol> RemoteProtocolInfo[] = {
+	{ "NONE",		LaserdiscPlayer::IR_NONE		},
+	{ "NEC",		LaserdiscPlayer::IR_NEC			},
+	{ "LD1100",		LaserdiscPlayer::IR_LD1100		}
+};
+SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 
 template<typename Archive>
 void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
@@ -1172,8 +1192,12 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 	}
 	ar.serialize("RemoteLastBit", remoteLastBit);
 	ar.serialize("RemoteLastEdge", remoteLastEdge);
-	ar.serialize("LastNECButtonTime", lastNECButtonTime);
-	ar.serialize("LastNECButtonCode", lastNECButtonCode);
+	ar.serialize("RemoteProtocol", remoteProtocol);
+	if (remoteProtocol != IR_NONE) {
+		ar.serialize("RemoteCode", remoteCode);
+		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed);
+		ar.serialize("RemoteVblanksBack", remoteVblanksBack);
+	}
 
 	// Serialize filename
 	ar.serialize("OggImage", oggImage);

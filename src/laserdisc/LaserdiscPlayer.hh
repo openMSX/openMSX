@@ -83,6 +83,12 @@ public:
 		RIGHT,
 		STEREO
 	};
+
+	enum RemoteProtocol {
+		IR_NONE,
+		IR_NEC,
+		IR_LD1100
+	};
 private:
 	void setImageName(const std::string& newImage, EmuTime::param time);
 
@@ -104,7 +110,8 @@ private:
 	bool isVideoOutputAvailable(EmuTime::param time);
 	bool extInt(EmuTime::param time);
 	void remoteButtonLD1100(unsigned code, EmuTime::param time);
-	void remoteButtonNEC(unsigned custom, unsigned code, EmuTime::param time);
+	void remoteButtonNEC(unsigned code, EmuTime::param time);
+	void submitRemote(RemoteProtocol protocol, unsigned code);
 	void buttonRepeat(EmuTime::param time);
 	void setAck(EmuTime::param time, int wait);
 	unsigned getCurrentSample(EmuTime::param time);
@@ -149,6 +156,7 @@ private:
 
 	enum SyncType {
 		FRAME,
+		VBLANK,
 		ACK
 	};
 
@@ -158,8 +166,11 @@ private:
 	unsigned remoteBitNr;
 	unsigned remoteBits;
 	bool remoteLastBit;
-	EmuTime lastNECButtonTime;
-	unsigned lastNECButtonCode;
+	RemoteProtocol remoteProtocol;
+	unsigned remoteCode;
+	bool remoteExecuteDelayed;
+	// Number of v-blank since code was sent
+	int remoteVblanksBack;
 
 	/* We need to maintain some state for seeking */
 	SeekState seekState;
