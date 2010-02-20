@@ -1,14 +1,97 @@
-openmsx (0.7.0~presvn8434-1) unstable; urgency=low
+openmsx (0.8.0~pre1-0.1) unstable; urgency=low
 
-  * SVN snapshot packaging (preparation for release)
+  * self-made pre-release
+  * use dpatch isof source format 3.0 to simplify building in the svn tree
 
- -- Joost Yervante Damad <andete@debian.org>  Mon, 05 Jan 2009 20:24:41 +0100
+ -- Unknown <unknown@example.com>  Sat, 20 Feb 2010 08:40:34 +0100
 
-openmsx (0.6.3-3) unstable; urgency=low
+openmsx (0.7.2-5) unstable; urgency=low
 
+  * change source format to 3.0
+
+ -- Joost Yervante Damad <andete@debian.org>  Sat, 19 Dec 2009 21:45:16 +0100
+
+openmsx (0.7.2-4) unstable; urgency=low
+
+  * fix FTBFS on debian GNU/kFreeBSD (Closes: #558201)
+    (With thanks to Maarten and Cyril for doing all the work)
+
+ -- Joost Yervante Damad <andete@debian.org>  Fri, 27 Nov 2009 07:46:45 +0100
+
+openmsx (0.7.2-3) unstable; urgency=low
+
+  * backport Renesas SuperH CPU based on upstream rev 10664
+    which in turn is based on a Catapult patch provided by
+    Nobuhiro Iwamatsu.
+
+ -- Joost Yervante Damad <andete@debian.org>  Sat, 10 Oct 2009 13:29:00 +0200
+
+openmsx (0.7.2-2) unstable; urgency=low
+
+  * fix detection of hppa (thanks Manuel, Maarten!)
+
+ -- Joost Yervante Damad <andete@debian.org>  Thu, 02 Jul 2009 07:38:21 +0200
+
+openmsx (0.7.2-1) unstable; urgency=low
+
+  * New upstream release
+    - openMSX wasn't able to load savestates with paths that contain spaces
+
+ -- Joost Yervante Damad <andete@debian.org>  Wed, 01 Jul 2009 07:25:34 +0200
+
+openmsx (0.7.1-1) unstable; urgency=low
+
+  * New upstream release 0.7.1
+  * find out all in /usr/share/doc/openmsx-data/release-notes.txt.gz
+  * in brief:
+    - Removed buggy SDLGL renderer (instead use SDLGL-PP)
+    - Console now uses TrueType fonts, and can display localized text now
+    - enhanced debugging possibilities
+    - improved OSD
+    - added some cool scripts showing off the OSD
+    - speed optimizations in the CPU emulation
+    - several new machines supported
+    - several accuracy improvements
+  * build depend on python (>= 2.5)
+
+ -- Joost Yervante Damad <andete@debian.org>  Mon, 29 Jun 2009 19:48:34 +0200
+
+openmsx (0.7.0-3) unstable; urgency=low
+
+  * add support for building on hurd-i386 (untested)
+
+ -- Joost Yervante Damad <andete@debian.org>  Thu, 19 Feb 2009 17:45:07 +0100
+
+openmsx (0.7.0-2) unstable; urgency=low
+
+  * depend on cbios (>= 0.23)
+    (This is needed because openmsx 0.7.0 is more accurate
+     and exposed some bugs in cbios 0.21)
+  * save/load state support => (Closes: #337635)
+  * updated new features list in changelog entry below
+  * build-depend on libsdl-ttf2.0-dev (Oops!)
+
+ -- Joost Yervante Damad <andete@debian.org>  Sat, 10 Jan 2009 07:40:28 +0100
+
+openmsx (0.7.0-1) unstable; urgency=low
+
+  * New upstream release (0.7.0 Lazarus)
+    - release notes: http://tinyurl.com/9cvgwc
+    - most important new features:
+      - save state support (keyboard short cuts: ALT-F7
+        or Cmd+R to quick-load and ALT-F8 or Cmd-Sto
+        quick-save your state)
+      - Fully automatic host-MSX keyboard mapping
+      - Fully transparent dir as disk
+      - better debugging (e.g. break on irq)
+      - Recording movies in higher resolution:
+        640x480 using the "-doublesize" option
+      - performance optimizations (even runs on
+        a 200Mhz ARM9 for most programs)
+      - screenshots of msx screen only
   * Fix compilation errors with gcc-4.4. (Closes: #504948)
 
- -- Joost Yervante Damad <andete@debian.org>  Sun, 23 Nov 2008 11:59:53 +0100
+ -- Joost Yervante Damad <andete@debian.org>  Thu, 08 Jan 2009 19:29:37 +0100
 
 openmsx (0.6.3-2) unstable; urgency=low
 

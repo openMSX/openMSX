@@ -1,0 +1,69 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+
+@DPATCH@
+diff -urNad trunk.orig/build/cpu.py trunk/build/cpu.py
+--- trunk.orig/build/cpu.py	2010-02-16 19:19:17.000000000 +0100
++++ trunk/build/cpu.py	2010-02-16 19:44:24.000000000 +0100
+@@ -96,6 +96,18 @@
+ 	name = 'sheb'
+ 	bigEndian = True
+ 
++class SH(CPU):
++	'''Little endian Renesas SuperH.
++	'''
++	name = 'sh'
++	bigEndian = False
++	 
++class SHeb(CPU):
++	'''Big endian Renesas SuperH.
++	'''
++	name = 'sheb'
++	bigEndian = True
++
+ class Sparc(CPU):
+ 	'''Sun Sparc.
+ 	'''
+diff -urNad trunk.orig/build/flavour-i686.py trunk/build/flavour-i686.py
+--- trunk.orig/build/flavour-i686.mk	2010-02-16 19:19:17.000000000 +0100
++++ trunk/build/flavour-i686.mk	2010-02-16 19:44:24.000000000 +0100
+@@ -7,4 +7,4 @@
+ include build/flavour-opt.mk
+ 
+ # Add x86 specific flags.
+-CXXFLAGS+=-march=i686 -mtune=pentium3
++CXXFLAGS+=-march=i586 -mtune=pentium3
+Index: openmsx-0.8.0~pre1/build/custom.mk
+===================================================================
+--- openmsx-0.8.0~pre1.orig/build/custom.mk	2010-02-16 19:19:17.000000000 +0100
++++ openmsx-0.8.0~pre1/build/custom.mk	2010-02-16 19:44:24.000000000 +0100
+@@ -1,23 +1,8 @@
+-# $Id: custom.mk 9774 2009-05-07 23:36:11Z mthuurne $
+-#
+-# Customize openMSX to your system/preferences.
+-
+-# Directory to install to.
+-# openMSX is always installed into a single self-contained directory.
+-# But you can change that directory to for example /usr/local/openMSX
+-# or /usr/games/openMSX if you like.
+-INSTALL_BASE:=/opt/openMSX
+-
+-# Add ChangeLog version number to executable file name? This applies only to
+-# development versions, not to release versions (see version.py).
++INSTALL_BASE:=/usr
++INSTALL_SHARE_DIR:=/usr/share/openmsx
+ VERSION_EXEC:=false
+-
+-# Create a symbolic link to the installed binary?
+-# This link is placed in a location that is typically in a user's path:
+-# /usr/local/bin for system-wide installs and ~/bin for personal installs.
+-# This setting is only relevant on systems that support symbolic links.
+-SYMLINK_FOR_BINARY:=true
+-
+-# Install content of Contrib/ directory?
+-# Currently this contains a version of C-BIOS.
+-INSTALL_CONTRIB:=true
++SYMLINK_FOR_BINARY:=false
++INSTALL_CONTRIB:=false
++INSTALL_DOC_DIR:=/usr/share/doc/openmsx-data
++INSTALL_BINARY_DIR:=/usr/bin
++OPENMSX_INSTALL:=/usr

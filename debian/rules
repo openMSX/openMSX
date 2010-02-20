@@ -16,34 +16,47 @@ else
 	CFLAGS += -O2
 endif
 
+patch: patch-stamp
+patch-stamp:
+	dpatch apply-all
+	dpatch cat-all >patch-stamp
+	touch patch-stamp
+
+unpatch:
+	dpatch deapply-all
+	rm -rf patch-stamp debian/patched
+
 config.status: configure
 	dh_testdir
 
-build: build-stamp
+build: patch build-stamp
 
 build-stamp: config.status
 	dh_testdir
-	if test ! -f build/custom.mk.bak ; then cp build/custom.mk build/custom.mk.bak ; fi
-	cp debian/custom.mk build/
+	#if test ! -f build/custom.mk.bak ; then cp build/custom.mk build/custom.mk.bak ; fi
+	#cp debian/custom.mk build/
 	$(MAKE)
 	docbook-to-man doc/openmsx.sgml > debian/openmsx.1
 	touch build-stamp
 
-clean:
+clean: clean1 unpatch
+
+clean1:
 	dh_testdir
-	-cp build/custom.mk.bak build/custom.mk
-	-rm -f build/custom.mk.bak
+	#-cp build/custom.mk.bak build/custom.mk
+	#-rm -f build/custom.mk.bak
 	dh_testroot
 	rm -f build-stamp
-	-$(MAKE) clean
+	$(MAKE) clean
 	- rm -rf derived/
 	- rm -rf debian/openmsx
 	- rm -rf debian/tmp
 	- rm -rf debian/openmsx-data
 	- rm -f debian/openmsx.1
+	- rm -f build/*.pyc
 
 
-	dh_clean
+	dh_clean 
 
 install: install-arch install-indep
 
@@ -56,10 +69,9 @@ install-arch: build
 	$(MAKE) install \
 		DESTDIR=$(CURDIR)/debian/tmp
 	@echo "  Cleaning up the installed package..."
-	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx-data/GPL
-	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
+	#@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
 	@find $(CURDIR)/debian/tmp/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
-	@find $(CURDIR)/debian/tmp -name .cvsignore |xargs rm -f
+	#@find $(CURDIR)/debian/tmp -name .cvsignore |xargs rm -f
 	@rm -f $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig.py
 	@rm -f $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig2.py
 	dh_install -a --sourcedir=debian/tmp
@@ -103,4 +115,4 @@ binary-arch: build install
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install
+.PHONY: build clean binary-indep binary-arch binary install patch unpatch clean1
