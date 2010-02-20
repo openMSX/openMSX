@@ -123,10 +123,10 @@ private:
 	const std::auto_ptr<KeybDebuggable>   keybDebuggable;
 
 	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
-	byte cmdKeyMatrix [NR_KEYROWS];
-	byte userKeyMatrix[NR_KEYROWS];
-	byte hostKeyMatrix[NR_KEYROWS];
-	byte keyMatrix    [NR_KEYROWS];
+	byte cmdKeyMatrix [NR_KEYROWS]; // for keymatrix/type command
+	byte userKeyMatrix[NR_KEYROWS]; // pressed user keys (live or replay)
+	byte hostKeyMatrix[NR_KEYROWS]; // always in sync with host keyb, also during replay
+	byte keyMatrix    [NR_KEYROWS]; // combination of cmdKeyMatrix and userKeyMatrix
 	byte msxmodifiers;
 	const bool hasKeypad;
 	const bool keyGhosting;
@@ -137,7 +137,6 @@ private:
 	bool msxCapsLockOn;
 	bool msxCodeKanaLockOn;
 	bool msxGraphLockOn;
-	bool replaying;
 
 	static const int MAX_KEYSYM = 0x150;
 	static const byte keyTab[MAX_KEYSYM][2];

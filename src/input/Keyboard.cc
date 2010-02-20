@@ -212,7 +212,6 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyGhostingSGCprotected(keyGhostSGCprotected)
 	, codeKanaLocks(codeKanaLocks_)
 	, graphLocks(graphLocks_)
-	, replaying(true)
 {
 	keysChanged = false;
 	msxCapsLockOn = false;
@@ -271,12 +270,8 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 	// When replay is stopped we restore this host keyboard state, see
 	// stopReplay().
 
-	assert(replaying); // we must still be in replay state
-
-	const byte* src = source.replaying ? source.hostKeyMatrix
-	                                   : source.userKeyMatrix;
 	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
-		hostKeyMatrix[row] = src[row];
+		hostKeyMatrix[row] = source.hostKeyMatrix[row];
 	}
 }
 
@@ -311,9 +306,6 @@ void Keyboard::signalStateChange(shared_ptr<StateChange> event)
 
 void Keyboard::stopReplay(EmuTime::param time)
 {
-	assert(replaying);
-	replaying = false;
-
 	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
 		changeKeyMatrixEvent(time, row, hostKeyMatrix[row]);
 	}
@@ -332,6 +324,10 @@ void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release
 }
 void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue)
 {
+	// hostKeyMatrix directly follows the requested change,
+	// userKeyMatrix indirectly follows via the KeyMatrixState events
+	hostKeyMatrix[row] = newValue;
+
 	byte diff = userKeyMatrix[row] ^ newValue;
 	if (diff == 0) {
 		// event won't actually change the keymatrix, so ignore it
