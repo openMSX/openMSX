@@ -21,11 +21,21 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 
 	# TODO: Add support for device-specific configuration.
 	platformGP2X = False
+	platformMaemo5 = targetPlatform == 'maemo5'
+
 	if platformGP2X:
 		have16BPP = True
 		have32BPP = False
 		minScaleFactor = 1
 		maxScaleFactor = 1
+	elif platformMaemo5:
+		# TODO: These are in fact N900 specific settings, but we have no
+		#       support yet for device specific configuration and the N900
+		#       is the most popular Maemo device currently.
+		have16BPP = True
+		have32BPP = False
+		minScaleFactor = 1
+		maxScaleFactor = 2
 	else:
 		have16BPP = True
 		have32BPP = True
@@ -48,6 +58,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
 	yield '#define PLATFORM_GP2X %d' % platformGP2X
+	yield '#define PLATFORM_MAEMO5 %d' % platformMaemo5
 	yield '#define HAVE_16BPP %d' % have16BPP
 	yield '#define HAVE_32BPP %d' % have32BPP
 	yield '#define MIN_SCALE_FACTOR %d' % minScaleFactor
