@@ -414,12 +414,12 @@ Note that the emulated Pioneer PX-7 and Pioneer PX-V60 are virtually identical, 
 <h2><a id="settings">5. User Preferences</a></h2>
 
 <p>
-Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts. You can still manually edit this file, but it is not really necessary anymore: just edit the settings from the console. Note that openMSX doesn't ship a <code>settings.xml</code> file anymore. If you save your settings for the first time, it is generated from the current settings, which may be the built in defaults.
+Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts.
 </p>
 
 <p>
 One of the preferences is the default machine:
-the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code><a class="external" href="commands.html#default_machine">default_machine</a></code>. Switching machines at run time is not done via a setting anymore as of openMSX 0.6.2, but via the <code><a class="external" href="commands.html#machine">machine</a></code> command (more about this in <a class="external" href="user.html#controlling">the User's Manual</a>).
+the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code><a class="external" href="commands.html#default_machine">default_machine</a></code>. Switching machines at run time is done via the <code><a class="external" href="commands.html#machine">machine</a></code> command (more about this in <a class="external" href="user.html#controlling">the User's Manual</a>).
 </p>
 
 <p>
@@ -438,7 +438,7 @@ The other settings are discussed in <a class="external" href="user.html#controll
 </p>
 
 <p>
-Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>: commands which are executed at the start of each openMSX start up. In most cases you don't need this at all, but if you still want this, put those commands in text file, one command per line (i.e. a script) and put it in the <code>share/scripts</code> directory. You can also explicitly specify a Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
+If you're a power user and want to specify commands which are executed at the start of each openMSX start up, put those commands in a text file, one command per line (i.e. a script) and put it in the <code>share/scripts</code> directory. You can also explicitly specify a Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
 </p>
 
 <h2><a id="hardwareedit">6. Writing Hardware Descriptions</a></h2>

@@ -1019,7 +1019,7 @@ it can be on (enabled) or off (disabled); it is enabled by default. This feature
 <dd>
 On TV's and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
 The scanlines feature simulates this by drawing some lines a bit darker.
-This feature is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
+This feature is disabled when a scaling algorithm other than <code>simple</code>, <code>tv</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
 </dd>
 
 <dt><code><a class="external" href="commands.html#blur">blur</a></code></dt>
@@ -1124,7 +1124,7 @@ Each sound device in the MSX you are emulating also has its own volume setting. 
 </p>
 
 <p>
-The mode setting for sound devices which was present in previous versions of openMSX, has been replaced by a balance setting. For each sound device, you can control the distribution of the sound output of this chip over the left and right channel. This is very similar to the balance knob on (older?) hifi equipment.
+For each sound device, you can control the distribution of the sound output of this chip over the left and right channel, with the balance setting. This is very similar to the balance knob on (older?) hifi equipment.
 Example: <code>set <a class="external" href="commands.html#soundchip_balance">PSG_balance</a> -100</code>, which sets the PSG entirely to the left channel. Any sound device can also be individually (un)muted using the <a class="external" href="commands.html#mute_channels">mute_channels</a> command.
 </p>
 
@@ -1177,7 +1177,7 @@ You can start the recording of sound by issuing the command <code><a class="exte
 </p>
 
 <p>
-As of openMSX 0.6.3 there is an advanced feature for recording audio to file: you can record individual channels of sound chips to individual files on disk. The sound is in the native frequency of the sound chip this time, which means that for chips like PSG or SCC (which run at very high frequencies), the files will be huge. (You are warned!) This feature is easiest to control with the <code><a class="external" href="commands.html#record_channels">record_channels</a></code> command. Note that in contrast to the <code><a class="external" href="commands.html#soundlog">soundlog</a></code> command, the output file of this command ends up in the current directory and not in a special directory. We hope you can use this command to study the fantastic compositions of MSX software and make great remakes of them.
+There is also an advanced feature for recording audio to file: you can record individual channels of sound chips to individual files on disk. The sound is in the native frequency of the sound chip this time, which means that for chips like PSG or SCC (which run at very high frequencies), the files will be huge. (You are warned!) This feature is easiest to control with the <code><a class="external" href="commands.html#record_channels">record_channels</a></code> command. Note that in contrast to the <code><a class="external" href="commands.html#soundlog">soundlog</a></code> command, the output file of this command ends up in the current directory and not in a special directory. We hope you can use this command to study the fantastic compositions of MSX software and make great remakes of them.
 </p>
 
 <h2><a id="usefulextras">8. Useful Extras</a></h2>
@@ -1223,7 +1223,7 @@ Inspired by the <a class="external" href="http://tsk-tsk.net/">meisei</a> MSX em
 <h3><a id="trainer">8.3 Game Trainer</a></h3>
 
 <p>
-As of version 0.6.2, openMSX comes with a completely reworked game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
+openMSX includes a game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
 </p>
 
 <p>
