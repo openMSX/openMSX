@@ -56,11 +56,6 @@ static void setMaemo5WMHints(bool fullscreen)
 				XInternAtom(dpy, "_HILDON_NON_COMPOSITED_WINDOW", False);
 			// Unmap window, so we can remap it when properly configured.
 			XUnmapWindow(dpy, win);
-			// Allow the window manager to control mapping and configuration
-			// of our window.
-			XSetWindowAttributes xattr;
-			xattr.override_redirect = False;
-			XChangeWindowAttributes(dpy, win, CWOverrideRedirect, &xattr);
 			// Tell window manager that we are running fullscreen.
 			// TODO: Wouldn't it be better if SDL did this?
 			XChangeProperty(
@@ -75,22 +70,6 @@ static void setMaemo5WMHints(bool fullscreen)
 				);
 			// Remap the window with the new settings.
 			XMapWindow(dpy, win);
-			// Again tell the window manager that we are in fullscreen, in case
-			// the property on the remapped window was not enough.
-			// TODO: Do we really have to do both?
-			XEvent xev;
-			memset(&xev, 0, sizeof(xev));
-			xev.type = ClientMessage;
-			xev.xclient.window = win;
-			xev.xclient.message_type = wmStateAtom;
-			xev.xclient.format = 32;
-			xev.xclient.data.l[0] = _NET_WM_STATE_ADD;
-			xev.xclient.data.l[1] = fullscreenAtom;
-			xev.xclient.data.l[2] = 0; // no second property to change
-			xev.xclient.data.l[3] = 1; // source: application
-			XSendEvent(
-				dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev
-				);
 			// Resume the SDL event thread.
 			info.info.x11.unlock_func();
 		}
