@@ -117,14 +117,12 @@ LaserdiscPlayer::LaserdiscPlayer(
 			   *this))
 	, sampleClock(EmuTime::zero)
 	, start(EmuTime::zero)
-	, lastPlayedSample(0)
 	, muteLeft(false)
 	, muteRight(false)
 	, remoteState(REMOTE_IDLE)
 	, remoteLastEdge(EmuTime::zero)
 	, remoteLastBit(false)
 	, remoteProtocol(IR_NONE)
-	, waitFrame(0)
 	, ack(false)
 	, foundFrame(false)
 	, seeking(false)
@@ -161,8 +159,10 @@ LaserdiscPlayer::~LaserdiscPlayer()
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 {
 	Clock<60000, 1001> frameClock(time);
+	// The video is 29.97Hz, however we need to do vblank processing
+	// at the full 59.94Hz
 	setSyncPoint(frameClock + 1, VBLANK);
-	setSyncPoint(frameClock + 2, FRAME);
+	setSyncPoint(frameClock + 2, FRAME); // FRAME will execute VBLANK
 }
 
 // The protocol used to communicate over the cable for commands to the
@@ -183,10 +183,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	if (remoteLastBit == bit) return;
 	remoteLastBit = bit;
 
-	// The tolerance we use here is not based on actual measurements;
-	// in fact I have no idea if the algorithm is correct, maybe the
-	// lirc source will reveal such information. Either way, this
-	// works with existing software (hopefully).
+	// The tolerance here is not based on actual measurements
 	EmuDuration duration = time - remoteLastEdge;
 	remoteLastEdge = time;
 	unsigned usec = duration.getTicksAt(1000000); // microseconds
@@ -365,7 +362,7 @@ void LaserdiscPlayer::buttonRepeat(EmuTime::param /*time*/)
 // CALL SEARCH(1,C,2) -> SEEK CHAPTER 0 0 0 0 2 SEEK
 // CALL SEARCH(1,F,12345) -> SEEK FRAME 1 2 3 4 5 SEEK
 //
-// Astron Belt only searches for frames and omits the FRAME
+// Astron Belt only searches for frames and omits the FRAME code
 void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
 {
 	if ((code & 0x383) != 0x80 ||
@@ -514,10 +511,9 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	}
 
 	if (!f.empty()) {
-		std::cout << "PioneerLD7000::remote " << f << std::endl;
+		PRT_DEBUG("PioneerLD7000::remote " << f);
 	} else {
-		std::cout << "PioneerLD7000::remote unknown "
-			  << std::hex << code << std::endl;
+		PRT_DEBUG("PioneerLD7000::remote unknown " << std::hex << code);
 	}
 #endif
 	// When not playing, only the play button works
@@ -788,9 +784,9 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 
 	// freeze if stop frame
-	if (video->stopFrame(currentFrame) && 
-			(playerState == PLAYER_PLAYING || 
-			 playerState == PLAYER_PLAYING_MULTISPEED)) {
+	if ((playerState == PLAYER_PLAYING || 
+	     playerState == PLAYER_PLAYING_MULTISPEED) && 
+	     video->stopFrame(currentFrame)) {
 		PRT_DEBUG("LaserdiscPlayer: stopFrame " << std::dec <<
 						currentFrame << " reached");
 
@@ -854,12 +850,13 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 		lastPlayedSample = currentSample;
 	}
 
+	int left = stereoMode == RIGHT ? 1 : 0;
+	int right = stereoMode == LEFT ? 0 : 1;
+
 	while (pos < num) {
 		const AudioFragment* audio = video->getAudio(lastPlayedSample);
 
 		if (!audio) {
-			// we've fallen of the end of the file. We
-			// should raise an IRQ now.
 			if (pos == 0) {
 				buffers[0] = 0;
 				break;
@@ -867,11 +864,8 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 				buffers[0][pos * 2 + 0] = 0;
 				buffers[0][pos * 2 + 1] = 0;
 			}
-			playerState = PLAYER_STOPPED;
 		} else {
 			unsigned offset = lastPlayedSample - audio->position;
-			int left = stereoMode == RIGHT ? 1 : 0;
-			int right = stereoMode == LEFT ? 0 : 1;
 			len = std::min(audio->length - offset, num - pos);
 
 			// maybe muting should be moved out of the loop?
@@ -960,7 +954,7 @@ unsigned LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 
 void LaserdiscPlayer::pause(EmuTime::param time)
 {
-	if (video.get() && playerState != PLAYER_STOPPED) {
+	if (playerState != PLAYER_STOPPED) {
 		PRT_DEBUG("Laserdisc::Pause");
 
 		updateStream(time);
@@ -980,7 +974,7 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 
 void LaserdiscPlayer::stop(EmuTime::param time)
 {
-	if (video.get() && playerState != PLAYER_STOPPED) {
+	if (playerState != PLAYER_STOPPED) {
 		PRT_DEBUG("Laserdisc::Stop");
 
 		updateStream(time);
@@ -1088,8 +1082,10 @@ void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 short LaserdiscPlayer::readSample(EmuTime::param time)
 {
 	// Here we should return the value of the sample on the
-	// right audio channel, ignoring muting.
-	if (video.get() && playerState == PLAYER_PLAYING && !seeking) {
+	// right audio channel, ignoring muting (this is done in the MSX) 
+	// but honouring the stereo mode as this is done in the 
+	// Laserdisc player
+	if (playerState == PLAYER_PLAYING && !seeking) {
 		unsigned sample = getCurrentSample(time);
 		if (const AudioFragment* audio = video->getAudio(sample)) {
 			++sampleReads;
@@ -1205,6 +1201,8 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 		sampleReads = 0;
 		if (!oggImage.empty()) {
 			setImageName(oggImage.getResolved(), getCurrentTime());
+		} else {
+			video.reset();
 		}
 	}
 	ar.serialize("PlayerState", playerState);
