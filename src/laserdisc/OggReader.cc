@@ -781,6 +781,7 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 
 	// first calculate total length in bytes, samples and frames
 	unsigned offset = file->getSize();
+	totalBytes = offset;
 	
 	while (offset > 0) {
 		if (offset > STEP) {
