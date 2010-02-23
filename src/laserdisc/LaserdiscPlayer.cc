@@ -1002,12 +1002,15 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 	// Note that on real hardware, the screen goes dark momentarily
 	// if you try to step before the first frame or after the last one
 	if (playerState == PLAYER_STILL) {
-		if (forwards && currentFrame < video->getFrames()) {
-			currentFrame++;
-		}
-		else if (currentFrame > 1) {
-			currentFrame--;
-			needseek = true;
+		if (forwards) {
+			if (currentFrame < video->getFrames()) {
+				currentFrame++;
+			}
+		} else {
+			if (currentFrame > 1) {
+				currentFrame--;
+				needseek = true;
+			}
 		}
 	}
 
