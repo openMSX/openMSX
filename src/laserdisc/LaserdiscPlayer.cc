@@ -627,7 +627,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 			nonseekack = false;
 			break;
 		case 0x1a: // M+ (multispeed forwards)
-			playerState = PLAYER_PLAYING_MULTISPEED;
+			playerState = PLAYER_MULTISPEED;
 			setFrameStep();
 			break;
 		case 0x62: // C- (play slower)
@@ -683,11 +683,16 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		PRT_DEBUG("Laserdisc: ACK cleared");
 		break;
 	case FRAME:
+		// end of video
+		if (currentFrame > video->getFrames()) {
+			playerState = PLAYER_STOPPED;
+		}
+
 		if (RawFrame* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
 
 			if (isVideoOutputAvailable(time)) {
-				video->getFrame(*rawFrame, currentFrame);
+				video->getFrameNo(*rawFrame, currentFrame);
 
 				nextFrame(time);
 			} else {
@@ -762,7 +767,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 		foundFrame = true;
 	}
 
-	if (playerState == PLAYER_PLAYING_MULTISPEED) {
+	if (playerState == PLAYER_MULTISPEED) {
 		if (--frameStep)  {
 			return;
 		}
@@ -784,9 +789,8 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 
 	// freeze if stop frame
-	if ((playerState == PLAYER_PLAYING || 
-	     playerState == PLAYER_PLAYING_MULTISPEED) && 
-	     video->stopFrame(currentFrame)) {
+	if ((playerState == PLAYER_PLAYING || playerState == PLAYER_MULTISPEED)
+	     && video->stopFrame(currentFrame)) {
 		PRT_DEBUG("LaserdiscPlayer: stopFrame " << std::dec <<
 						currentFrame << " reached");
 
@@ -932,7 +936,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			// is already playing, then if no ACK is sent then
 			// Astron Belt will send LD1100 commands
 			setAck(time, 46);
-		} else if (playerState == PLAYER_PLAYING_MULTISPEED) {
+		} else if (playerState == PLAYER_MULTISPEED) {
 			// Should be hearing stuff again
 			playingFromSample = (currentFrame - 1ll) * 1001ll *
 					video->getSampleRate() / 30000ll;
@@ -961,7 +965,7 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 
 		if (playerState == PLAYER_PLAYING) {
 			playingFromSample = getCurrentSample(time);
-		} else if (playerState == PLAYER_PLAYING_MULTISPEED) {
+		} else if (playerState == PLAYER_MULTISPEED) {
 			playingFromSample = (currentFrame - 1ll) * 1001ll *
 					video->getSampleRate() / 30000ll;
 			sampleClock.advance(time);
@@ -995,8 +999,10 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 {
 	bool needseek = false;
 
+	// Note that on real hardware, the screen goes dark momentarily
+	// if you try to step before the first frame or after the last one
 	if (playerState == PLAYER_STILL) {
-		if (forwards) {
+		if (forwards && currentFrame < video->getFrames()) {
 			currentFrame++;
 		}
 		else if (currentFrame > 1) {
@@ -1030,7 +1036,10 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 			if (toframe <= 0)  {
 				toframe = 1;
 			}
-			// FIXME: check if seeking beyond end
+
+			if (toframe > video->getFrames()) {
+				toframe = video->getFrames();
+			}
 
 			// Seek time needs to be emulated correctly since
 			// e.g. Astron Belt does not wait for the seek
@@ -1104,7 +1113,7 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 	bool videoOut;
 	switch (playerState) {
 	case PLAYER_PLAYING:
-	case PLAYER_PLAYING_MULTISPEED:
+	case PLAYER_MULTISPEED:
 	case PLAYER_STILL:
 		videoOut = !seeking;
 		break;
@@ -1149,7 +1158,7 @@ SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 
 static enum_string<LaserdiscPlayer::PlayerState> PlayerStateInfo[] = {
 	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},		{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
-	{ "PLAYING_MULTISPEED",	LaserdiscPlayer::PLAYER_PLAYING_MULTISPEED },
+	{ "MULTISPEED",		LaserdiscPlayer::PLAYER_MULTISPEED	},
 	{ "PAUSED",		LaserdiscPlayer::PLAYER_PAUSED		},
 	{ "STILL",		LaserdiscPlayer::PLAYER_STILL		}
 };
@@ -1223,7 +1232,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 
 		// Frame position
 		ar.serialize("CurrentFrame", currentFrame);
-		if (playerState == PLAYER_PLAYING_MULTISPEED) {
+		if (playerState == PLAYER_MULTISPEED) {
 			ar.serialize("FrameStep", frameStep);
 		}
 

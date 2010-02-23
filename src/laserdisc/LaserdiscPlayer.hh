@@ -66,7 +66,7 @@ public:
 	enum PlayerState {
 		PLAYER_STOPPED,
 		PLAYER_PLAYING,
-		PLAYER_PLAYING_MULTISPEED,
+		PLAYER_MULTISPEED,
 		PLAYER_PAUSED,
 		PLAYER_STILL
 	};
@@ -142,8 +142,8 @@ private:
 
 	void nextFrame(EmuTime::param time);
 	void setFrameStep();
-	unsigned currentFrame;
-	unsigned frameStep;
+	int currentFrame;
+	int frameStep;
 
 	// Audio state
 	DynamicClock sampleClock;
@@ -176,10 +176,10 @@ private:
 	SeekState seekState;
 
 	/* frame the MSX has requested to wait for */
-	unsigned waitFrame;
+	int waitFrame;
 
 	/* The specific frame or chapter we are seeking to */
-	unsigned seekNum;
+	int seekNum;
 
 	// For ack
 	bool ack;

@@ -44,8 +44,9 @@ public:
 
 	bool seek(int frame, int sample);
 	unsigned getSampleRate() const { return vi.rate; }
-	void getFrame(RawFrame& frame, int frameno);
+	void getFrameNo(RawFrame& frame, int frameno);
 	const AudioFragment* getAudio(unsigned sample);
+	int getFrames() const;
 
 	// metadata
 	bool stopFrame(int frame) const;
@@ -93,6 +94,7 @@ private:
 	int keyFrame;
 	int currentFrame;
 	int granuleShift;
+	int totalFrames;
 
 	typedef std::deque<Frame*> Frames;
 	Frames frameList;

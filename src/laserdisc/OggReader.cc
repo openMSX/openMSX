@@ -559,7 +559,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	frameList.push_back(frame);
 }
 
-void OggReader::getFrame(RawFrame& rawFrame, int frameno)
+void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 {
 	// Note that when frames are unchanged they will simply not be
 	// present in the theora stream. This means that with frames
@@ -770,6 +770,11 @@ unsigned OggReader::binarySearch(
 	}
 }
 
+int OggReader::getFrames() const
+{
+	return totalFrames;
+}
+
 unsigned OggReader::guessSeek(int frame, unsigned sample)
 {
 	static const unsigned STEP = 32 * 1024;
@@ -807,6 +812,8 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		keyFrame = 1;
 		return 0;
 	}
+
+	totalFrames = currentFrame;
 
 	unsigned maxOffset = offset;
 	unsigned maxSamples = currentSample;
