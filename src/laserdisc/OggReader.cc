@@ -780,6 +780,10 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	static const unsigned STEP = 32 * 1024;
 
 	// first calculate total length in bytes, samples and frames
+
+	// The file might have changed since we last requested its size,
+	// we assume that only data will be added to it and the ogg streams
+	// are exactly as before
 	unsigned offset = file->getSize();
 	totalBytes = offset;
 	
@@ -809,7 +813,9 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		}
 	}
 
-	if (sample < getSampleRate() || frame < 30) {
+	// If we're close to beginning, don't bother searching for it,
+	// just start at the beginning (arbitrary boundary of 1 second).
+	if (sample < getSampleRate() || frame <= 30) {
 		keyFrame = 1;
 		return 0;
 	}

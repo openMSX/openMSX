@@ -367,8 +367,7 @@ The laserdisc must be captured before it can be used with an emulator. The file 
  <li>Use the Vorbis codec for audio</li>
  <li>Use the Theora codec for video</li>
  <li>Captured at 640&times;480, YUV420</li>
- <li>A high bitrate for audio, otherwise the computer code encoded on the right audio channel will degrade too much for it to be readable</li>
- <!-- recommend a specific minimum (find through trail an error) -->
+ <li>A bitrate of at least 200kpbs for audio, otherwise the computer code encoded on the right audio channel will degrade too much for it to be readable</li>
  <li>Theora frame numbers must correspond to laserdisc frame numbers</li>
  <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the <a href="https://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>, and must be converted to plain text. This must be added to the theora meta data</li>
 </ul>
