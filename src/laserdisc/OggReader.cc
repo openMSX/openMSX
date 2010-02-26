@@ -46,8 +46,8 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	ogg_sync_init(&sync);
 
 	state = PLAYING;
-	currentOffset = 0;
-	totalBytes = file->getSize();
+	fileOffset = 0;
+	fileSize = file->getSize();
 
 	ogg_page page;
 
@@ -131,7 +131,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 				ogg_stream_clear(&stream);
 				throw MSXException("FLAC not supported");
 
-			} else  {
+			} else	{
 				ogg_stream_clear(&stream);
 				throw MSXException("Unknown stream in ogg file");
 			}
@@ -270,7 +270,8 @@ void OggReader::vorbisHeaderPage(ogg_page* page)
 		if (res == 0) break;
 
 		if (audioHeaders == 0) {
-			readVorbis(&packet);
+			// ignore, we'll seek to the beginning again before playing
+			continue;
 		}
 
 		if (packet.packetno <= 2) {
@@ -288,7 +289,7 @@ void OggReader::vorbisHeaderPage(ogg_page* page)
 }
 
 void OggReader::theoraHeaderPage(ogg_page* page, th_info& ti, th_comment& tc,
-                                 th_setup_info*& tsi)
+				 th_setup_info*& tsi)
 {
 	ogg_stream_pagein(&theoraStream, page);
 
@@ -302,7 +303,8 @@ void OggReader::theoraHeaderPage(ogg_page* page, th_info& ti, th_comment& tc,
 		if (res == 0) break;
 
 		if (theora) {
-			readTheora(&packet);
+			// ignore, we'll seek to the beginning again before playing
+			continue;
 		}
 
 		if (packet.packetno <= 2) {
@@ -375,7 +377,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 
 		// Copy PCM
 		long len = std::min(decoded - pos,
-		                    long(AudioFragment::MAX_SAMPLES - audio->length));
+				    long(AudioFragment::MAX_SAMPLES - audio->length));
 
 		memcpy(audio->pcm[0] + audio->length, pcm[0] + pos,
 		       len * sizeof(float));
@@ -387,8 +389,8 @@ void OggReader::readVorbis(ogg_packet* packet)
 
 		// Last packet or found position after seeking?
 		bool last = (decoded == pos && (packet->e_o_s ||
-		                 (vorbisPos == AudioFragment::UNKNOWN_POS &&
-		                  packet->granulepos != -1)));
+				 (vorbisPos == AudioFragment::UNKNOWN_POS &&
+				  packet->granulepos != -1)));
 
 		if (vorbisPos != AudioFragment::UNKNOWN_POS) {
 			vorbisPos += len;
@@ -440,7 +442,7 @@ void OggReader::readMetadata(th_comment& tc)
 	char* metadata = NULL;
 	for (int i = 0; i < tc.comments; ++i) {
 		if (!strncasecmp(tc.user_comments[i], "location=",
-		                 strlen("location="))) {
+				 strlen("location="))) {
 			metadata = tc.user_comments[i] + strlen("location=");
 			break;
 		}
@@ -574,7 +576,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 		}
 
 		if (frameList.size() >= 2 && (frameList[0]->no == frameno ||
-		                              frameList[1]->no >= frameno)) {
+					      frameList[1]->no >= frameno)) {
 			frame = frameList[0];
 			break;
 		}
@@ -694,17 +696,17 @@ bool OggReader::nextPage(ogg_page* page)
 		}
 
 		unsigned chunk;
-		if (totalBytes - currentOffset >= CHUNK) {
+		if (fileSize - fileOffset >= CHUNK) {
 			chunk = CHUNK;
-		} else if (currentOffset < totalBytes) {
-			chunk = totalBytes - currentOffset;
+		} else if (fileOffset < fileSize) {
+			chunk = fileSize - fileOffset;
 		} else {
 			return false;
 		}
 	
 		char* buffer = ogg_sync_buffer(&sync, chunk);
 		file->read(buffer, chunk);
-		currentOffset += chunk;
+		fileOffset += chunk;
 
 		if (ogg_sync_wrote(&sync, chunk) == -1) {
 			cli.printWarning("Internal error: ogg_sync_wrote failed");
@@ -714,7 +716,7 @@ bool OggReader::nextPage(ogg_page* page)
 	return true;
 }
 
-unsigned OggReader::binarySearch(
+unsigned OggReader::bisection(
 	int frame, unsigned sample,
 	unsigned maxOffset, unsigned maxSamples, unsigned maxFrames)
 {
@@ -741,14 +743,14 @@ unsigned OggReader::binarySearch(
 		unsigned offset = std::min(sampleOffset, frameOffset);
 	
 		file->seek(offset);
-		currentOffset = offset;
+		fileOffset = offset;
 		ogg_sync_reset(&sync);
 		currentFrame = -1;
 		currentSample = AudioFragment::UNKNOWN_POS;
 		state = FIND_FIRST;
 
 		while ((currentFrame == -1 ||
-		        currentSample == AudioFragment::UNKNOWN_POS) &&
+			currentSample == AudioFragment::UNKNOWN_POS) &&
 		       nextPacket()) {
 			// continue reading
 		}
@@ -775,7 +777,7 @@ int OggReader::getFrames() const
 	return totalFrames;
 }
 
-unsigned OggReader::guessSeek(int frame, unsigned sample)
+unsigned OggReader::findOffset(int frame, unsigned sample)
 {
 	static const unsigned STEP = 32 * 1024;
 
@@ -784,9 +786,9 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 	// The file might have changed since we last requested its size,
 	// we assume that only data will be added to it and the ogg streams
 	// are exactly as before
-	unsigned offset = file->getSize();
-	totalBytes = offset;
-	
+	fileSize = file->getSize();
+	unsigned offset = fileSize - 1;
+
 	while (offset > 0) {
 		if (offset > STEP) {
 			offset -= STEP;
@@ -795,7 +797,7 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		}
 
 		file->seek(offset);
-		currentOffset = offset;
+		fileOffset = offset;
 		ogg_sync_reset(&sync);
 		currentFrame = -1;
 		currentSample = AudioFragment::UNKNOWN_POS;
@@ -831,11 +833,11 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		frame = maxFrames;
 	}
 
-	offset = binarySearch(frame, sample, maxOffset, maxSamples, maxFrames);
+	offset = bisection(frame, sample, maxOffset, maxSamples, maxFrames);
 
 	// Find key frame
 	file->seek(offset);
-	currentOffset = offset;
+	fileOffset = offset;
 	ogg_sync_reset(&sync);
 	currentFrame = frame;
 	currentSample = 0;
@@ -852,14 +854,14 @@ unsigned OggReader::guessSeek(int frame, unsigned sample)
 		return offset;
 	}
 
-	return binarySearch(keyFrame, sample, maxOffset, maxSamples, maxFrames);
+	return bisection(keyFrame, sample, maxOffset, maxSamples, maxFrames);
 }
 
 bool OggReader::seek(int frame, int samples)
 {
 	// Remove all queued frames
 	recycleFrameList.insert(recycleFrameList.end(),
-	                        frameList.begin(), frameList.end());
+				frameList.begin(), frameList.end());
 	frameList.clear();
 
 	// Remove all queued audio
@@ -871,11 +873,11 @@ bool OggReader::seek(int frame, int samples)
 		(*it)->length = 0;
 	}
 	recycleAudioList.insert(recycleAudioList.end(),
-	                        audioList.begin(), audioList.end());
+				audioList.begin(), audioList.end());
 	audioList.clear();
 
-	currentOffset = guessSeek(frame, samples);
-	file->seek(currentOffset);
+	fileOffset = findOffset(frame, samples);
+	file->seek(fileOffset);
 
 	ogg_sync_reset(&sync);
 

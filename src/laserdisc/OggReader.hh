@@ -66,8 +66,8 @@ private:
 	void vorbisFoundPosition();
 	int frameNo(ogg_packet* packet);
 
-	unsigned guessSeek(int frame, unsigned sample);
-	unsigned binarySearch(int frame, unsigned sample,
+	unsigned findOffset(int frame, unsigned sample);
+	unsigned bisection(int frame, unsigned sample,
 		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames);
 
 	CliComm& cli;
@@ -86,8 +86,8 @@ private:
 	int audioSerial;
 	int videoSerial;
 	int skeletonSerial;
-	unsigned currentOffset;
-	unsigned totalBytes;
+	unsigned fileOffset;
+	unsigned fileSize;
 
 	// video
 	th_dec_ctx* theora;
