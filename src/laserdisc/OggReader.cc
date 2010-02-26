@@ -627,7 +627,7 @@ const AudioFragment* OggReader::getAudio(unsigned sample)
 
 		// read more if we're at the end of the list
 		if (it == audioList.end()) {
-			unsigned size = audioList.size();
+			size_t size = audioList.size();
 			while (size == audioList.size()) {
 				if (!nextPacket()) {
 					return NULL;
