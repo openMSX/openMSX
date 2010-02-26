@@ -22,7 +22,7 @@ proc get_screen {} {
 
 	# scrape screen and build string
 	set screen ""
-	for {set y 0} {$y < 23} {incr y} {
+	for {set y 0} {$y < 24} {incr y} {
 		set line ""
 		for {set x 0} {$x < $width} {incr x} {
 			append line [format %c [vpeek $addr]]
