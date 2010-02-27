@@ -5,6 +5,7 @@
 #include "EventDistributor.hh"
 #include "StateChangeDistributor.hh"
 #include "Keyboard.hh"
+#include "EventDelay.hh"
 #include "MSXMixer.hh"
 #include "XMLException.hh"
 #include "XMLElement.hh"
@@ -103,6 +104,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, reverseCmd(new ReverseCmd(*this, motherBoard.getCommandController()))
 	, keyboard(0)
+	, eventDelay(0)
 	, collectCount(0)
 	, replayIndex(0)
 	, pendingTakeSnapshot(false)
@@ -123,6 +125,10 @@ ReverseManager::~ReverseManager()
 void ReverseManager::registerKeyboard(Keyboard& keyboard_)
 {
 	keyboard = &keyboard_;
+}
+void ReverseManager::registerEventDelay(EventDelay& eventDelay_)
+{
+	eventDelay = &eventDelay_;
 }
 
 bool ReverseManager::collecting() const
@@ -299,6 +305,21 @@ void ReverseManager::goTo(EmuTime::param target)
 		--it;
 		assert(it->second.time <= targetTime);
 
+		// Note: we don't (anymore) erase future snapshots
+
+		// restore old snapshot
+		Reactor& reactor = motherBoard.getReactor();
+		Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+		MemInputArchive in(*it->second.savestate);
+		in.serialize("machine", *newBoard);
+
+		if (eventDelay) {
+			// Handle all events that are scheduled, but not yet
+			// distributed. This makes sure no events get lost
+			// (important to keep host/msx keyboard in sync).
+			eventDelay->flush();
+		}
+
 		if (!replaying()) {
 			// terminate replay log with EndLogEvent
 			history.events.push_back(shared_ptr<StateChange>(
@@ -309,14 +330,6 @@ void ReverseManager::goTo(EmuTime::param target)
 		// it was there already
 		assert(!history.events.empty());
 		assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
-
-		// Note: we don't (anymore) erase future snapshots
-
-		// restore old snapshot
-		Reactor& reactor = motherBoard.getReactor();
-		Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-		MemInputArchive in(*it->second.savestate);
-		in.serialize("machine", *newBoard);
 
 		// Transfer history from this ReverseManager to the one in the new
 		// MSXMotherBoard. Also we should stop collecting in this ReverseManager,

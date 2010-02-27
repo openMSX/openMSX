@@ -3,6 +3,8 @@
 #include "EventDelay.hh"
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
+#include "ReverseManager.hh"
+#include "MemBuffer.hh"
 #include "InputEvents.hh"
 #include "FloatSetting.hh"
 #include "Timer.hh"
@@ -15,7 +17,8 @@ namespace openmsx {
 EventDelay::EventDelay(Scheduler& scheduler,
                        CommandController& commandController,
                        EventDistributor& eventDistributor_,
-                       MSXEventDistributor& msxEventDistributor_)
+                       MSXEventDistributor& msxEventDistributor_,
+                       ReverseManager& reverseManager)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)
@@ -43,6 +46,8 @@ EventDelay::EventDelay(Scheduler& scheduler,
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT,   *this, EventDistributor::MSX);
+
+	reverseManager.registerEventDelay(*this);
 }
 
 EventDelay::~EventDelay()
@@ -120,6 +125,23 @@ const std::string& EventDelay::schedName() const
 {
 	static const std::string name = "EventDelay";
 	return name;
+}
+
+void EventDelay::flush()
+{
+	EmuTime time = getCurrentTime();
+
+	for (std::deque<EventPtr>::const_iterator it = scheduledEvents.begin();
+	     it != scheduledEvents.end(); ++it) {
+		msxEventDistributor.distributeEvent(*it, time);
+	}
+	scheduledEvents.clear();
+
+	for (std::vector<EventPtr>::const_iterator it = toBeScheduledEvents.begin();
+	     it != toBeScheduledEvents.end(); ++it) {
+		msxEventDistributor.distributeEvent(*it, time);
+	}
+	toBeScheduledEvents.clear();
 }
 
 } // namespace openmsx

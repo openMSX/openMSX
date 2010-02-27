@@ -355,7 +355,8 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	//       on MSXMotherBoard, so "pimple" has to be set up already.
 	eventDelay.reset(new EventDelay(
 		*scheduler, *msxCommandController,
-		reactor.getEventDistributor(), *msxEventDistributor));
+		reactor.getEventDistributor(), *msxEventDistributor,
+		*reverseManager));
 	realTime.reset(new RealTime(
 		self, reactor.getGlobalSettings(), *eventDelay));
 	powerSetting.attach(*this);

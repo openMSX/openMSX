@@ -17,6 +17,7 @@ class CommandController;
 class Event;
 class EventDistributor;
 class MSXEventDistributor;
+class ReverseManager;
 class FloatSetting;
 
 /** This class is responsible for translating host events into MSX events.
@@ -28,10 +29,12 @@ class EventDelay : private EventListener, private Schedulable
 public:
 	EventDelay(Scheduler& scheduler, CommandController& commandController,
 	           EventDistributor& eventDistributor,
-	           MSXEventDistributor& msxEventDistributor);
+	           MSXEventDistributor& msxEventDistributor,
+	           ReverseManager& reverseManager);
 	virtual ~EventDelay();
 
 	void sync(EmuTime::param time);
+	void flush();
 
 private:
 	typedef shared_ptr<const Event> EventPtr;
