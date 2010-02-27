@@ -684,7 +684,8 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		break;
 	case FRAME:
 		// end of video
-		if (currentFrame > video->getFrames()) {
+		if (playerState != PLAYER_STOPPED && 
+		    currentFrame > video->getFrames()) {
 			playerState = PLAYER_STOPPED;
 		}
 

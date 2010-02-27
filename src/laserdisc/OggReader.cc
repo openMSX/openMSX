@@ -110,11 +110,6 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 					throw MSXException("Duplicate video stream");
 				}
 
-				if (packet.bytes < 42) {
-					ogg_stream_clear(&stream);
-					throw MSXException("Theora header to small");
-				}
-
 				videoSerial = serial;
 				ogg_stream_init(&theoraStream, serial);
 
