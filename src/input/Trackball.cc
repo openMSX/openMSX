@@ -10,9 +10,14 @@
 #include "serialize_meta.hh"
 #include <algorithm>
 
-// Implementation based on information we received from 'n_n'.
-//
-// It might not be 100% accurate. But games like 'Hole in one' already work.
+// * Implementation based on information we received from 'n_n'.
+//   It might not be 100% accurate. But games like 'Hole in one' already work.
+// * Initially the 'trackball detection' code didn't work properly in openMSX
+//   while it did work in meisei. Meisei had some special cases implemented for
+//   the first read after reset. After some investigation I figured out some
+//   code without special cases that also works as expected. Most software
+//   seems to work now, though the detailed behaviour is still not tested
+//   against the real hardware.
 
 using std::string;
 
@@ -53,7 +58,7 @@ Trackball::Trackball(MSXEventDistributor& eventDistributor_,
 	, stateChangeDistributor(stateChangeDistributor_)
 	, deltaX(0), deltaY(0)
 	, lastValue(0)
-	, status(JOY_BUTTONA | JOY_BUTTONB | 8)
+	, status(JOY_BUTTONA | JOY_BUTTONB)
 {
 }
 
@@ -82,6 +87,7 @@ void Trackball::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
+	deltaX = deltaY = 0;
 }
 
 void Trackball::unplugHelper(EmuTime::param /*time*/)
@@ -93,20 +99,30 @@ void Trackball::unplugHelper(EmuTime::param /*time*/)
 // JoystickDevice
 byte Trackball::read(EmuTime::param /*time*/)
 {
-	return status;
+	// From the Sony GB-7 Service manual:
+	// * The counter seems to be 8-bit wide, though only 4 bits (bit 7 and
+	//   2-0) are connected to the MSX.
+	// * It also contains a test program to read the trackball position.
+	//   This program first reads the (X or Y) value and only then toggles
+	//   pin 8. This seems to suggest the actual (X or Y) value is always
+	//   present on reads and toggling pin 8 resets this value and switches
+	//   to the other axis.
+	signed char& delta = (lastValue & 4) ? deltaY : deltaX;
+	unsigned t = delta + 128;
+	return (status & ~0x0F) | ((t & 0x80) >> 4) | (t & 0x07);
 }
 
 void Trackball::write(byte value, EmuTime::param /*time*/)
 {
 	byte diff = lastValue ^ value;
 	lastValue = value;
-
 	if (diff & 0x4) {
 		// pin 8 flipped
-		signed char& delta = (value & 4) ? deltaY : deltaX;
-		int d4 = std::min(7, std::max<int>(-8, delta));
-		delta -= d4;
-		status = (status & ~0x0F) | (d4 + 8);
+		if (value & 4) {
+			deltaX = 0;
+		} else {
+			deltaY = 0;
+		}
 	}
 }
 
