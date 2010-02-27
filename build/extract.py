@@ -12,6 +12,10 @@ from stat import S_IRWXU, S_IRWXG, S_IRWXO, S_IXUSR, S_IXGRP, S_IXOTH
 import sys
 import tarfile
 
+from detectsys import detectOS
+
+hostOS = detectOS()
+
 # Note: Larger buffers might make extraction slower.
 bufSize = 16384
 
@@ -83,7 +87,10 @@ def extract(archivePath, destDir, rename = None):
 			# For example autotools track dependencies between archived files
 			# and will attempt to regenerate them if the time stamps indicate
 			# one is older than the other.
-			utime(absMemberPath, (member.mtime, member.mtime))
+			# Note: Apparently Python 2.5's utime() cannot set timestamps on
+			#       directories in Windows.
+			if member.isfile() or hostOS != 'mingw32':
+				utime(absMemberPath, (member.mtime, member.mtime))
 	finally:
 		tar.close()
 
