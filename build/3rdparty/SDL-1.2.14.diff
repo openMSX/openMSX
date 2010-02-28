@@ -1,16 +1,3 @@
-diff -ru SDL-1.2.14.org/src/events/SDL_keyboard.c SDL-1.2.14/src/events/SDL_keyboard.c
---- SDL-1.2.14.org/src/events/SDL_keyboard.c        Mon Oct 12 15:07:14 2009
-+++ SDL-1.2.14/src/events/SDL_keyboard.c       Fri Feb 26 23:52:23 2010
-@@ -533,6 +533,9 @@
- 	}
- 
- 	if ( keysym->sym != SDLK_UNKNOWN ) {
-+		if (SDL_ModState != (SDLMod)modstate) {
-+			SDL_ModState = (SDLMod)modstate;
-+		}
- 		/* Drop events that don't change state */
- 		if ( SDL_KeyState[keysym->sym] == state ) {
- #if 0
 diff -ru SDL-1.2.14.org/src/video/windib/SDL_dibevents.c SDL-1.2.14/src/video/windib/SDL_dibevents.c
 --- SDL-1.2.14.org/src/video/windib/SDL_dibevents.c	Mon Feb 15 11:49:09 2010
 +++ SDL-1.2.14/src/video/windib/SDL_dibevents.c	Mon Feb 15 11:51:15 2010
