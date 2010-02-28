@@ -19,7 +19,7 @@ class AviWriter
 {
 public:
 	AviWriter(const Filename& filename, unsigned width, unsigned height,
-	          unsigned bpp, unsigned freq);
+	          unsigned bpp, unsigned channels, unsigned freq);
 	~AviWriter();
 	void addFrame(FrameSource* frame, unsigned samples, short* sampleData);
 	void setFps(double fps);
@@ -34,6 +34,7 @@ private:
 	double fps;
 	const unsigned width;
 	const unsigned height;
+	const unsigned channels;
 	const unsigned audiorate;
 
 	unsigned frames;

@@ -54,6 +54,7 @@ private:
 	unsigned sampleRate;
 	bool warnedFps;
 	bool warnedSampleRate;
+	bool stereo;
 	unsigned frameWidth;
 	unsigned frameHeight;
 

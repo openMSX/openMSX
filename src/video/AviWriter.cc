@@ -33,12 +33,14 @@ static inline void writeLE4(unsigned char* p, unsigned x)
 }
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
-                     unsigned height_, unsigned bpp, unsigned freq_)
+                     unsigned height_, unsigned bpp, unsigned channels_, 
+		     unsigned freq_)
 	: file(new File(filename, "wb"))
 	, codec(new ZMBVEncoder(width_, height_, bpp))
 	, fps(50.0)
 	, width(width_)
 	, height(height_)
+	, channels(channels_)
 	, audiorate(freq_)
 {
 	char dummy[AVI_HEADER_SIZE];
@@ -140,21 +142,21 @@ AviWriter::~AviWriter()
 		AVIOUTd(0);                 // Reserved, MS says: wPriority, wLanguage
 		AVIOUTd(0);                 // InitialFrames
 		AVIOUTd(4);                 // Scale
-		AVIOUTd(audiorate * 4);     // Rate, actual rate is scale/rate
+		AVIOUTd(audiorate * 2 * channels);	 // Rate, actual rate is scale/rate
 		AVIOUTd(0);                 // Start
 		AVIOUTd(audiowritten);      // Length
 		AVIOUTd(0);                 // SuggestedBufferSize
 		AVIOUTd(unsigned(~0));      // Quality
-		AVIOUTd(4);                 // SampleSize
+		AVIOUTd(channels * 2);	    // SampleSize
 		AVIOUTd(0);                 // Frame
 		AVIOUTd(0);                 // Frame
 		// The audio stream format
 		AVIOUT4("strf");
 		AVIOUTd(16);                // # of bytes to follow
 		AVIOUTw(1);                 // Format, WAVE_ZMBV_FORMAT_PCM
-		AVIOUTw(2);                 // Number of channels
+		AVIOUTw(channels);          // Number of channels
 		AVIOUTd(audiorate);         // SamplesPerSec
-		AVIOUTd(audiorate * 4);     // AvgBytesPerSec
+		AVIOUTd(audiorate * 2 * channels);     // AvgBytesPerSec
 		AVIOUTw(4);                 // BlockAlign
 		AVIOUTw(16);                // BitsPerSample
 	}

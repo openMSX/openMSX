@@ -17,6 +17,7 @@
 #include "CliComm.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
+#include "vla.hh"
 #include <cassert>
 
 using std::string;
@@ -64,6 +65,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 	}
 	if (recordAudio) {
 		mixer = &motherBoard->getMSXMixer();
+		stereo = mixer->anyStereoDevice();
 		sampleRate = mixer->getSampleRate();
 		warnedSampleRate = false;
 	}
@@ -87,15 +89,17 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 		prevTime = EmuTime::infinity;
 
 		try {
-			aviWriter.reset(new AviWriter(filename, frameWidth, frameHeight,
-						      bpp, sampleRate));
+			aviWriter.reset(new AviWriter(filename, frameWidth, 
+				frameHeight, bpp, 
+				(recordAudio && stereo) ? 2 : 1, sampleRate));
 		} catch (MSXException& e) {
 			throw CommandException("Can't start recording: " +
 			                       e.getMessage());
 		}
 	} else {
 		assert(recordAudio);
-		wavWriter.reset(new Wav16Writer(filename, 2, sampleRate));
+		wavWriter.reset(new Wav16Writer(filename, stereo ? 2 : 1, 
+						sampleRate));
 	}
 	// only set recorders when all errors are checked for
 	if (postProcessor1) {
@@ -137,11 +141,25 @@ void AviRecorder::addWave(unsigned num, short* data)
 			"avi recording. Audio/video might get out of sync "
 			"because of this.");
 	}
-	if (wavWriter.get()) {
-		wavWriter->write(data, 2, num);
+	if (stereo) {
+		if (wavWriter.get()) {
+			wavWriter->write(data, 2, num);
+		} else {
+			assert(aviWriter.get());
+			audioBuf.insert(audioBuf.end(), data, data + 2 * num);
+		}
 	} else {
-		assert(aviWriter.get());
-		audioBuf.insert(audioBuf.end(), data, data + 2 * num);
+		VLA(short, buf, num);
+		unsigned i;
+		for (i=0; i<num; i++) {
+			buf[i] = data[i*2];
+		}
+		if (wavWriter.get()) {
+			wavWriter->write(buf, 1, num);
+		} else {
+			assert(aviWriter.get());
+			audioBuf.insert(audioBuf.end(), buf, buf + num);
+		}
 	}
 }
 
