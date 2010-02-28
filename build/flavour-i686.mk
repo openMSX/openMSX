@@ -7,4 +7,4 @@
 include build/flavour-opt.mk
 
 # Add x86 specific flags.
-CXXFLAGS+=-march=i686 -mtune=pentium3
+CXXFLAGS+=-march=i586 -mtune=pentium3

@@ -1,3 +1,11 @@
+openmsx (0.8.0~pre1-0.2) unstable; urgency=low
+
+  * clean up build-depends
+  * cleanup custom.mk leftovers
+  * drop SuperH patch
+
+ -- Unknown <unknown@example.com>  Sun, 28 Feb 2010 07:52:58 +0100
+
 openmsx (0.8.0~pre1-0.1) unstable; urgency=low
 
   * self-made pre-release

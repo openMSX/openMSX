@@ -33,8 +33,6 @@ build: patch build-stamp
 
 build-stamp: config.status
 	dh_testdir
-	#if test ! -f build/custom.mk.bak ; then cp build/custom.mk build/custom.mk.bak ; fi
-	#cp debian/custom.mk build/
 	$(MAKE)
 	docbook-to-man doc/openmsx.sgml > debian/openmsx.1
 	touch build-stamp
@@ -43,8 +41,6 @@ clean: clean1 unpatch
 
 clean1:
 	dh_testdir
-	#-cp build/custom.mk.bak build/custom.mk
-	#-rm -f build/custom.mk.bak
 	dh_testroot
 	rm -f build-stamp
 	$(MAKE) clean

@@ -1,28 +1,6 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 
 @DPATCH@
-diff -urNad trunk.orig/build/cpu.py trunk/build/cpu.py
---- trunk.orig/build/cpu.py	2010-02-16 19:19:17.000000000 +0100
-+++ trunk/build/cpu.py	2010-02-16 19:44:24.000000000 +0100
-@@ -96,6 +96,18 @@
- 	name = 'sheb'
- 	bigEndian = True
- 
-+class SH(CPU):
-+	'''Little endian Renesas SuperH.
-+	'''
-+	name = 'sh'
-+	bigEndian = False
-+	 
-+class SHeb(CPU):
-+	'''Big endian Renesas SuperH.
-+	'''
-+	name = 'sheb'
-+	bigEndian = True
-+
- class Sparc(CPU):
- 	'''Sun Sparc.
- 	'''
 diff -urNad trunk.orig/build/flavour-i686.py trunk/build/flavour-i686.py
 --- trunk.orig/build/flavour-i686.mk	2010-02-16 19:19:17.000000000 +0100
 +++ trunk/build/flavour-i686.mk	2010-02-16 19:44:24.000000000 +0100
