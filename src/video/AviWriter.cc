@@ -129,6 +129,8 @@ AviWriter::~AviWriter()
 	AVIOUTd(0);                         // ClrImportant: Number of colors important
 
 	if (hasAudio) {
+		unsigned bytespersecond = audiorate * 2 * channels;
+
 		// Audio stream list
 		AVIOUT4("LIST");
 		AVIOUTd(4 + 8 + 56 + 8 + 16);// Length of list in bytes
@@ -142,7 +144,7 @@ AviWriter::~AviWriter()
 		AVIOUTd(0);                 // Reserved, MS says: wPriority, wLanguage
 		AVIOUTd(0);                 // InitialFrames
 		AVIOUTd(4);                 // Scale
-		AVIOUTd(audiorate * 2 * channels);	 // Rate, actual rate is scale/rate
+		AVIOUTd(bytespersecond);    // Rate, actual rate is scale/rate
 		AVIOUTd(0);                 // Start
 		AVIOUTd(audiowritten);      // Length
 		AVIOUTd(0);                 // SuggestedBufferSize
@@ -156,8 +158,8 @@ AviWriter::~AviWriter()
 		AVIOUTw(1);                 // Format, WAVE_ZMBV_FORMAT_PCM
 		AVIOUTw(channels);          // Number of channels
 		AVIOUTd(audiorate);         // SamplesPerSec
-		AVIOUTd(audiorate * 2 * channels);     // AvgBytesPerSec
-		AVIOUTw(4);                 // BlockAlign
+		AVIOUTd(bytespersecond);    // AvgBytesPerSec
+		AVIOUTw(channels * 2);      // BlockAlign
 		AVIOUTw(16);                // BitsPerSample
 	}
 
