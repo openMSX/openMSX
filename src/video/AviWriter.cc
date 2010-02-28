@@ -33,7 +33,7 @@ static inline void writeLE4(unsigned char* p, unsigned x)
 }
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
-                     unsigned height_, unsigned bpp, unsigned channels_, 
+                     unsigned height_, unsigned bpp, unsigned channels_,
 		     unsigned freq_)
 	: file(new File(filename, "wb"))
 	, codec(new ZMBVEncoder(width_, height_, bpp))

@@ -89,17 +89,17 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 		prevTime = EmuTime::infinity;
 
 		try {
-			aviWriter.reset(new AviWriter(filename, frameWidth, 
-				frameHeight, bpp, 
-				(recordAudio && stereo) ? 2 : 1, sampleRate));
+			aviWriter.reset(new AviWriter(filename, frameWidth,
+			        frameHeight, bpp,
+			        (recordAudio && stereo) ? 2 : 1, sampleRate));
 		} catch (MSXException& e) {
 			throw CommandException("Can't start recording: " +
 			                       e.getMessage());
 		}
 	} else {
 		assert(recordAudio);
-		wavWriter.reset(new Wav16Writer(filename, stereo ? 2 : 1, 
-						sampleRate));
+		wavWriter.reset(new Wav16Writer(filename, stereo ? 2 : 1,
+		                                sampleRate));
 	}
 	// only set recorders when all errors are checked for
 	if (postProcessor1) {
@@ -150,9 +150,9 @@ void AviRecorder::addWave(unsigned num, short* data)
 		}
 	} else {
 		VLA(short, buf, num);
-		unsigned i;
-		for (i=0; i<num; i++) {
-			buf[i] = data[i*2];
+		for (unsigned i = 0; i < num; ++i) {
+			assert(data[2 * i + 0] == data[2 * i + 1]);
+			buf[i] = data[2 * i];
 		}
 		if (wavWriter.get()) {
 			wavWriter->write(buf, 1, num);

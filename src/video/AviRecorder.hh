@@ -52,11 +52,11 @@ private:
 	EmuDuration duration;
 	EmuTime prevTime;
 	unsigned sampleRate;
+	unsigned frameWidth;
+	unsigned frameHeight;
 	bool warnedFps;
 	bool warnedSampleRate;
 	bool stereo;
-	unsigned frameWidth;
-	unsigned frameHeight;
 
 	friend class RecordCommand;
 };

@@ -77,7 +77,7 @@ public:
 	void setMixerParams(unsigned fragmentSize, unsigned sampleRate);
 
 	// Called by AviRecorder
-	bool anyStereoDevice();
+	bool anyStereoDevice() const;
 	void setRecorder(AviRecorder* recorder);
 	unsigned getSampleRate() const;
 

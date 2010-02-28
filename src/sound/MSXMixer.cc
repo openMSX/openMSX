@@ -478,22 +478,16 @@ void MSXMixer::generate(short* output, unsigned samples,
 	}
 }
 
-bool MSXMixer::anyStereoDevice()
+bool MSXMixer::anyStereoDevice() const
 {
-	bool stereo = false;
-
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
 		SoundDevice& device = *it->first;
-
 		if (device.isStereo()) {
-			stereo = true;
-			break;
+			return true;
 		}
-
 	}
-
-	return stereo;
+	return false;
 }
 
 void MSXMixer::mute()
