@@ -114,11 +114,12 @@ void EventDelay::sync(EmuTime::param emuTime)
 void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	try {
-		msxEventDistributor.distributeEvent(scheduledEvents.front(), time);
+		EventPtr event = scheduledEvents.front();
+		scheduledEvents.pop_front();
+		msxEventDistributor.distributeEvent(event, time);
 	} catch (MSXException&) {
 		// ignore
 	}
-	scheduledEvents.pop_front();
 }
 
 const std::string& EventDelay::schedName() const
@@ -142,6 +143,7 @@ void EventDelay::flush()
 		msxEventDistributor.distributeEvent(*it, time);
 	}
 	toBeScheduledEvents.clear();
+	removeSyncPoints();
 }
 
 } // namespace openmsx
