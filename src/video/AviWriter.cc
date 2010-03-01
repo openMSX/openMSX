@@ -159,7 +159,7 @@ AviWriter::~AviWriter()
 		AVIOUTw(channels);          // Number of channels
 		AVIOUTd(audiorate);         // SamplesPerSec
 		AVIOUTd(bytespersecond);    // AvgBytesPerSec
-		AVIOUTw(channels * 2);      // BlockAlign
+		AVIOUTw(4);		    // BlockAlign
 		AVIOUTw(16);                // BitsPerSample
 	}
 

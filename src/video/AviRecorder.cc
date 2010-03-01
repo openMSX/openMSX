@@ -55,8 +55,8 @@ AviRecorder::~AviRecorder()
 	assert(!wavWriter.get());
 }
 
-void AviRecorder::start(bool recordAudio, bool recordVideo,
-                        const Filename& filename)
+void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono, 
+			bool recordStereo, const Filename& filename)
 {
 	stop();
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
@@ -65,9 +65,16 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 	}
 	if (recordAudio) {
 		mixer = &motherBoard->getMSXMixer();
-		stereo = mixer->anyStereoDevice();
+		if (recordStereo) {
+			stereo = true;
+		} else if (recordMono) {
+			stereo = false;
+		} else {
+			stereo = mixer->anyStereoDevice();
+		}		
 		sampleRate = mixer->getSampleRate();
 		warnedSampleRate = false;
+		warnedStereo = false;
 	}
 	if (recordVideo) {
 		Display& display = reactor.getDisplay();
@@ -150,10 +157,23 @@ void AviRecorder::addWave(unsigned num, short* data)
 		}
 	} else {
 		VLA(short, buf, num);
-		for (unsigned i = 0; i < num; ++i) {
-			assert(data[2 * i + 0] == data[2 * i + 1]);
+		unsigned i = 0;
+		for (; !warnedStereo && i < num; ++i) {
+			if (data[2 * i + 0] != data[2 * i + 1]) {
+				reactor.getCliComm().printWarning(
+					"Detected stereo sound during mono "
+					"recording. Channels will be mixed "
+					"down to mono.");
+
+				warnedStereo = true;
+				break;
+			}
 			buf[i] = data[2 * i];
 		}
+		for (; i < num; ++i) {
+			buf[i] = (int(data[2*i]) + int(data[2*i+1])) / 2;
+		}
+
 		if (wavWriter.get()) {
 			wavWriter->write(buf, 1, num);
 		} else {
@@ -201,6 +221,8 @@ string AviRecorder::processStart(const vector<string>& tokens)
 	string prefix = "openmsx";
 	bool recordAudio = true;
 	bool recordVideo = true;
+	bool recordMono = false;
+	bool recordStereo = false;
 	frameWidth = 320;
 	frameHeight = 240;
 
@@ -219,6 +241,10 @@ string AviRecorder::processStart(const vector<string>& tokens)
 				prefix = tokens[i];
 			} else if (tokens[i] == "-audioonly") {
 				recordVideo = false;
+			} else if (tokens[i] == "-mono") {
+				recordMono = true;
+			} else if (tokens[i] == "-stereo") {
+				recordStereo = true;
 			} else if (tokens[i] == "-videoonly") {
 				recordAudio = false;
 			} else if (tokens[i] == "-doublesize") {
@@ -233,6 +259,12 @@ string AviRecorder::processStart(const vector<string>& tokens)
 	}
 	if (!recordAudio && !recordVideo) {
 		throw CommandException("Can't have both -videoonly and -audioonly.");
+	}
+	if (recordStereo && recordMono) {
+		throw CommandException("Can't have both -mono and -stereo.");
+	}
+	if (!recordAudio && (recordStereo || recordMono)) {
+		throw CommandException("Can't have both -videoonly and -stereo or -mono.");
 	}
 	switch (arguments.size()) {
 	case 0:
@@ -255,7 +287,8 @@ string AviRecorder::processStart(const vector<string>& tokens)
 	if (aviWriter.get() || wavWriter.get()) {
 		return "Already recording.";
 	}
-	start(recordAudio, recordVideo, Filename(filename));
+	start(recordAudio, recordVideo, recordMono, recordStereo, 
+	      Filename(filename));
 	return "Recording to " + filename;
 }
 
@@ -313,8 +346,8 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 	       "record stop               Stop recording\n"
 	       "record toggle             Toggle recording (useful as keybinding)\n"
 	       "\n"
-	       "The start subcommand also accepts an optional -audioonly, -videoonly and "
-	       "a -doublesize flag.\n"
+	       "The start subcommand also accepts an optional -audioonly, -videoonly, "
+	       " -mono, -stereo, -doublesize flag.\n"
 	       "Videos are recorded in a 320x240 size by default and at 640x480 when the "
 	       "-doublesize flag is used.";
 }
@@ -326,9 +359,9 @@ void RecordCommand::tabCompletion(vector<string>& tokens) const
 		std::set<string> cmds(str, str + 3);
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		const char* const str[4] = { "-prefix", "-videoonly", "-audioonly",
-						"-doublesize"};
-		std::set<string> cmds(str, str + 4);
+		const char* const str[6] = { "-prefix", "-videoonly", 
+			"-audioonly", "-doublesize", "-mono", "-stereo" };
+		std::set<string> cmds(str, str + 6);
 		UserFileContext context;
 		completeFileName(getCommandController(), tokens, context, cmds);
 	}

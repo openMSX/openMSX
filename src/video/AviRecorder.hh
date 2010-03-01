@@ -33,8 +33,8 @@ public:
 	unsigned getFrameHeight() const;
 
 private:
-	void start(bool recordAudio, bool recordVideo,
-	           const Filename& filename);
+	void start(bool recordAudio, bool recordVideo, bool recordMono,
+		   bool recordStereo, const Filename& filename);
 
 	std::string processStart(const std::vector<std::string>& tokens);
 	std::string processStop(const std::vector<std::string>& tokens);
@@ -56,6 +56,7 @@ private:
 	unsigned frameHeight;
 	bool warnedFps;
 	bool warnedSampleRate;
+	bool warnedStereo;
 	bool stereo;
 
 	friend class RecordCommand;
