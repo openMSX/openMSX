@@ -55,8 +55,8 @@ AviRecorder::~AviRecorder()
 	assert(!wavWriter.get());
 }
 
-void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono, 
-			bool recordStereo, const Filename& filename)
+void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
+                        bool recordStereo, const Filename& filename)
 {
 	stop();
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
@@ -65,16 +65,17 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 	}
 	if (recordAudio) {
 		mixer = &motherBoard->getMSXMixer();
+		warnedStereo = false;
 		if (recordStereo) {
 			stereo = true;
 		} else if (recordMono) {
 			stereo = false;
+			warnedStereo = true; // no warning if data is actually stereo
 		} else {
 			stereo = mixer->anyStereoDevice();
 		}		
 		sampleRate = mixer->getSampleRate();
 		warnedSampleRate = false;
-		warnedStereo = false;
 	}
 	if (recordVideo) {
 		Display& display = reactor.getDisplay();
@@ -158,20 +159,20 @@ void AviRecorder::addWave(unsigned num, short* data)
 	} else {
 		VLA(short, buf, num);
 		unsigned i = 0;
-		for (; !warnedStereo && i < num; ++i) {
+		for (/**/; !warnedStereo && i < num; ++i) {
 			if (data[2 * i + 0] != data[2 * i + 1]) {
 				reactor.getCliComm().printWarning(
-					"Detected stereo sound during mono "
-					"recording. Channels will be mixed "
-					"down to mono.");
-
+				    "Detected stereo sound during mono recording. "
+				    "Channels will be mixed down to mono. To "
+				    "avoid this warning you can explicity pass the "
+				    "-mono or -stereo flag to the record command.");
 				warnedStereo = true;
 				break;
 			}
 			buf[i] = data[2 * i];
 		}
-		for (; i < num; ++i) {
-			buf[i] = (int(data[2*i]) + int(data[2*i+1])) / 2;
+		for (/**/; i < num; ++i) {
+			buf[i] = (int(data[2 * i + 0]) + int(data[2 * i + 1])) / 2;
 		}
 
 		if (wavWriter.get()) {
