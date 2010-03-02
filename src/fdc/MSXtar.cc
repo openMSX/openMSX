@@ -121,6 +121,12 @@ void MSXtar::parseBootSector(const byte* buf)
 	chrootSector = rootDirStart;
 	rootDirLast = rootDirStart + nbRootDirSectors - 1;
 	maxCluster = sectorToCluster(nbSectors);
+
+	// Some (invalid) diskimages have a too small FAT to be able to address
+	// all clusters of the image. OpenMSX SVN revisions pre-11326 even
+	// created such invalid images for some disk sizes!!
+	unsigned maxFatCluster = (2 * SECTOR_SIZE * sectorsPerFat) / 3;
+	maxCluster = std::min(maxCluster, maxFatCluster);
 }
 
 void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)

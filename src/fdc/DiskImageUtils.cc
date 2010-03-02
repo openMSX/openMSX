@@ -129,50 +129,58 @@ static void setBootSector(byte* buf, unsigned nbSectors,
 	// now set correct info according to size of image (in sectors!)
 	// and using the same layout as used by Jon in IDEFDISK v 3.1
 	if (nbSectors > 32732) {
+		// 32732 < nbSectors
+		// note: this format is only valid for nbSectors <= 65536
 		nbSides = 32;		// copied from a partition from an IDE HD
-		nbFats = 2;		// unknown yet
+		nbFats = 2;
 		nbSectorsPerFat = 12;	// copied from a partition from an IDE HD
 		nbSectorsPerCluster = 16;
 		nbDirEntry = 256;
 		descriptor = 0xF0;
 		nbHiddenSectors = 16;	// override default from above
 	} else if (nbSectors > 16388) {
+		// 16388 < nbSectors <= 32732
 		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
+		nbFats = 2;
+		nbSectorsPerFat = 12;
 		nbSectorsPerCluster = 8;
 		nbDirEntry = 256;
 		descriptor = 0XF0;
 	} else if (nbSectors > 8212) {
+		// 8212 < nbSectors <= 16388
 		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
+		nbFats = 2;
+		nbSectorsPerFat = 12;
 		nbSectorsPerCluster = 4;
 		nbDirEntry = 256;
 		descriptor = 0xF0;
 	} else if (nbSectors > 4126) {
+		// 4126 < nbSectors <= 8212
 		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
+		nbFats = 2;
+		nbSectorsPerFat = 12;
 		nbSectorsPerCluster = 2;
 		nbDirEntry = 256;
 		descriptor = 0xF0;
 	} else if (nbSectors > 2880) {
+		// 2880 < nbSectors <= 4126
 		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
-		nbSectorsPerCluster = 1;
+		nbFats = 2;
+		nbSectorsPerFat = 6;
+		nbSectorsPerCluster = 2;
 		nbDirEntry = 224;
 		descriptor = 0xF0;
 	} else if (nbSectors > 1440) {
+		// 1440 < nbSectors <= 2880
 		nbSides = 2;		// unknown yet
-		nbFats = 2;		// unknown yet
-		nbSectorsPerFat = 3;	// unknown yet
+		nbFats = 2;
+		nbSectorsPerFat = 5;
 		nbSectorsPerCluster = 2;
 		nbDirEntry = 112;
 		descriptor = 0xF0;
 	} else if (nbSectors > 720) {
 		// normal double sided disk
+		// 720 < nbSectors <= 1440
 		nbSides = 2;
 		nbFats = 2;
 		nbSectorsPerFat = 3;
@@ -182,6 +190,7 @@ static void setBootSector(byte* buf, unsigned nbSectors,
 		nbSectors = 1440;	// force nbSectors to 1440, why?
 	} else {
 		// normal single sided disk
+		// nbSectors <= 720
 		nbSides = 1;
 		nbFats = 2;
 		nbSectorsPerFat = 2;
