@@ -1100,6 +1100,16 @@ The recorded AVI file will not suffer from any hiccups, even if the emulation ra
 Use the command <code><a class="external" href="commands.html#record">record</a> start</code> to record to a default file name, or you can use an additional parameter to specify a file. The command <code><a class="external" href="commands.html#record">record</a> stop</code> stops recording and <code><a class="external" href="commands.html#record">record</a> toggle</code> toggles it. You can use the <code>-audioonly</code> or <code>-videoonly</code> option to record only sound or video.
 </p>
 <p>
+If any stereo sound devices are present or any sound device has an off-center
+balance, the recording will be made in stereo, otherwise it will be mono. If
+a recording is made in mono and then a stereo sound device is added, you'll
+receive a warning that stereo sound has been detected and that the two 
+channels will be mixed down to mono. You can prevent this from happening by 
+using the <code>-stereo</code> option to force a stereo recording even if
+no stereo devices are present at the time you enter the command. You can also
+force a mono recording with <code>-mono</code> to save space.
+</p>
+<p>
 If you want to put a recorded video on your web site, it is better to transcode the audio to MP3 or Vorbis format, as this makes the file a lot smaller. YouTube supports the ZMBV codec, so if you want to upload your recording you do not need to transcode the video. If you want to share your video with people who do not have (or want to install) the ZMBV codec, you should still transcode it, of course. This can be done with programs such as <a class="external" href="http://www.virtualdub.org/">Virtual Dub</a> (Windows) or <a class="external" href="http://www.mplayerhq.hu/">MPlayer's MEncoder</a> (Linux/UNIX).
 </p>
 

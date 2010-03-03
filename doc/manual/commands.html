@@ -1687,7 +1687,11 @@
 
   <p>The <code>start</code> subcommand also accepts an optional <code>-audioonly</code>, <code>-videoonly</code> and a <code>-doublesize</code> flag. Videos are recorded in a 320&times;240 size by default and at 640&times;480 when the <code>-doublesize</code> flag is used.
   If only audio is recorded, the created file will be a WAV file instead of an AVI file.
-  The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
+  <p>If any stereo sound devices are present or any sound device has an off-center balance, the recording will be made in stereo, otherwise it will be mono.
+  If a recording is made in mono and then a stereo sound device is added, you'll receive a warning that stereo sound has been detected and that the two channels will be mixed down to mono.
+  You can prevent this from happening by using the <code>-stereo</code> option to force a stereo recording even if no stereo devices are present at the time you enter the command.
+  You can also force a mono recording with <code>-mono</code> to save space.</p>
+  <p>The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
 
   <h3><a id="record_channels">record_channels</a></h3>
 
