@@ -14,7 +14,6 @@
     <primary slot="any">
       <WD2793 id="Philips VY 0010 diskROM/FDC">
         <mem base="0x0000" size="0x10000"/> <!-- Verified: mirroring on all pages! -->
-        <broken_fdc_read>false</broken_fdc_read>
         <singlesided/>
         <rom>
 	  <sha1>adb90803ba6fd25df35d10ac0d90da23f1b9c164</sha1> <!-- marked as JVC..? -->

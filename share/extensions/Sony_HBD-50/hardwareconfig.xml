@@ -18,7 +18,6 @@
           <!-- Verified on a real Sony HBD-50: FDC registers are visible
                in all 4 pages, rom only in page 1. This is handled internally
                in the WD2793 device -->
-          <broken_fdc_read>false</broken_fdc_read>
           <singlesided/>
           <rom>
             <sha1>ab57b4c8e5d47c2a39031c2057b97d2d10546582</sha1>

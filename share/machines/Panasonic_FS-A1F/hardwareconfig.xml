@@ -105,7 +105,6 @@
 
       <secondary slot="2">
         <TC8566AF id="Memory Mapped FDC">
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/fs-a1f_disk.rom</filename>

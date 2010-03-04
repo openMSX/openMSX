@@ -141,7 +141,6 @@
 
      <secondary slot="2">
          <WD2793 id="Memory Mapped FDC">
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/hb-f1xdj_disk.rom</filename>
@@ -151,7 +150,7 @@
           <mem base="0x4000" size="0x4000"/> <!-- verified: no mirroring -->
         </WD2793>
      </secondary>
-      
+
      <secondary slot="3">
         <MSX-MUSIC id="MSX Music">
           <rom>

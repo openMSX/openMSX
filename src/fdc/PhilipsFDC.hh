@@ -23,7 +23,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const bool brokenFDCread;
 	byte sideReg;
 	byte driveReg;
 };

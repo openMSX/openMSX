@@ -87,7 +87,6 @@
       <secondary slot="3">
         <MB8877A id="Memory Mapped FDC">
           <mem base="0x4000" size="0x8000"/>
-          <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>78cd7f847e77fd8cd51a647efb2725ba93f4c471</sha1> <!-- This is most certainly not the correct ROM dump; the ROM dump failed and this one seems to work as well... -->
             <filename>roms/NATIONALDISK.rom</filename>

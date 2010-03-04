@@ -15,7 +15,6 @@
       <secondary slot="any">
         <TC8566AF id="Panasonic FS-FD1A diskROM/FDC">
           <mem base="0x0000" size="0x10000"/> <!-- Confirmed on real thing: it mirrors the FDC registers all over the slot -->
-          <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>a2f70f911ccaa6831008bd473e92a3f0eb1e8b0f</sha1>
             <filename>roms/fs-fd1a.rom</filename>

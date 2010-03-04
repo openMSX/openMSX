@@ -88,7 +88,6 @@
 
         <WD2793 id="Memory Mapped FDC">
           <mem base="0x0000" size="0x10000"/>
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/mpc-25fd_disk.rom</filename>

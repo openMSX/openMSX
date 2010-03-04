@@ -97,7 +97,6 @@
           <mem base="0x4000" size="0x8000"/>
           <!-- Verified on real 8245: rom only visible in page1, FDC registers
                in both page 1 and 2. This is different from a 8250! -->
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/nms8245_disk.rom</filename>

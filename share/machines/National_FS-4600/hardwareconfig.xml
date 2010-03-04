@@ -155,7 +155,6 @@
 
       <secondary slot="3">
         <MB8877A id="Memory Mapped FDC">
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/fs-4600_disk.rom</filename>

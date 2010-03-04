@@ -96,7 +96,6 @@
 
       <secondary slot="3">
         <WD2793 id="Memory Mapped FDC">
-          <broken_fdc_read>false</broken_fdc_read>
           <singlesided/>
           <drives>1</drives>
           <rom>

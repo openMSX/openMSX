@@ -82,7 +82,6 @@
 
       <secondary slot="1">
         <MB8877A id="Memory Mapped FDC">
-          <broken_fdc_read>false</broken_fdc_read>
           <singlesided/>
           <drives>1</drives>
           <rom>

@@ -11,7 +11,6 @@ namespace openmsx {
 
 PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: WD2793BasedFDC(motherBoard, config)
-	, brokenFDCread(config.getChildDataAsBool("broken_fdc_read", false))
 {
 	reset(getCurrentTime());
 }
@@ -31,10 +30,10 @@ byte PhilipsFDC::readMem(word address, EmuTime::param time)
 		value = controller->getStatusReg(time);
 		break;
 	case 0x3FF9:
-		value = brokenFDCread ? 255 : controller->getTrackReg(time);
+		value = controller->getTrackReg(time);
 		break;
 	case 0x3FFA:
-		value = brokenFDCread ? 255 : controller->getSectorReg(time);
+		value = controller->getSectorReg(time);
 		break;
 	case 0x3FFB:
 		value = controller->getDataReg(time);
@@ -64,14 +63,10 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 		value = controller->peekStatusReg(time);
 		break;
 	case 0x3FF9:
-		// TODO: check if such broken interfaces indeed return 255 or
-		// something else. Example of such machines : Sony 700 series
-		value = brokenFDCread ? 255 : controller->peekTrackReg(time);
+		value = controller->peekTrackReg(time);
 		break;
 	case 0x3FFA:
-		// TODO: check if such broken interfaces indeed return 255 or
-		// something else. Example of such machines : Sony 700 series
-		value = brokenFDCread ? 255 : controller->peekSectorReg(time);
+		value = controller->peekSectorReg(time);
 		break;
 	case 0x3FFB:
 		value = controller->peekDataReg(time);

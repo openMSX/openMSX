@@ -56,7 +56,6 @@
           <!-- Verified on a real 8250 and 8280: FDC registers are visible
                in all 4 pages, rom only in page 1. This is handled internally
                in the WD2793 device -->
-          <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
 	    <sha1>8625c6b633d9cca2875e4dc33404fb98653379d7</sha1> <!-- verified by mth's 8250/00, same as previous with different FDC register values -->

@@ -98,7 +98,6 @@
           <!-- Verified on a real 8250 and 8280: FDC registers are visible
                in all 4 pages, rom only in page 1. This is handled internally
                in the WD2793 device -->
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>2</drives>
           <rom>
             <filename>roms/nms8250_disk.rom</filename>

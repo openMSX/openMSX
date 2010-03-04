@@ -52,7 +52,6 @@
         <WD2793 id="Memory Mapped FDC">
           <mem base="0x0000" size="0x10000"/>
           <!-- See 8250 config for info on mirroring stuff -->
-          <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
             <filename>roms/nms8250_disk.rom</filename>
