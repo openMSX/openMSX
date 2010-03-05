@@ -3375,9 +3375,9 @@
 
   <h3><a id="fullspeedwhenloading">fullspeedwhenloading</a></h3>
 
-  <p>When enabled, openMSX will try to detect when the MSX is loading from diskette or cassette. During loading openMSX will run at full speed (<code><a class="internal" href="#throttle">throttle</a></code> off). This can be convenient if you're not interested in the realistic but slow loading times on MSX. Default is off, because it is not according to the behaviour of a real MSX.</p>
+  <p>When enabled, openMSX will try to detect when the MSX is loading from diskette, cassette or laserdisc. During loading openMSX will run at full speed (<code><a class="internal" href="#throttle">throttle</a></code> off). This can be convenient if you're not interested in the realistic but slow loading times on MSX. Default is off, because it is not according to the behaviour of a real MSX.</p>
 
-  <p>Unlike the fast loading features in for example fMSX, <code>fullspeedwhenloading</code> does not intercept BIOS calls. Instead, it speeds up the emulation of the entire MSX, including all hardware devices. This avoids bugs like VRAM corruption in several games (for example the intro of Aleste Gaiden), as well as working correctly with software that uses a custom loader that bypasses the BIOS.</p>
+  <p>Unlike the fast loading features in for example fMSX, <code>fullspeedwhenloading</code> does not intercept BIOS calls. Instead, it speeds up the emulation of the entire MSX, including all hardware devices.</p>
 
   <div class="subsectiontitle">
     usage:
