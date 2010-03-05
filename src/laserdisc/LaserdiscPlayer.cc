@@ -80,9 +80,9 @@ string LaserdiscCommand::help(const vector<string>& tokens) const
 			return "Eject the laserdisc.";
 		}
 	}
-	return "laserdisc insert <filename> "
+	return "laserdiscplayer insert <filename> "
 	       ": insert a (different) laserdisc image\n"
-	       "laserdisc eject             "
+	       "laserdiscplayer eject             "
 	       ": eject the laserdisc\n";
 }
 
