@@ -810,14 +810,14 @@ unsigned OggReader::findOffset(int frame, unsigned sample)
 		}
 	}
 
+	totalFrames = currentFrame;
+
 	// If we're close to beginning, don't bother searching for it,
 	// just start at the beginning (arbitrary boundary of 1 second).
 	if (sample < getSampleRate() || frame <= 30) {
 		keyFrame = 1;
 		return 0;
 	}
-
-	totalFrames = currentFrame;
 
 	unsigned maxOffset = offset;
 	unsigned maxSamples = currentSample;
