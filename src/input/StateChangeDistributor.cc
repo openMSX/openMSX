@@ -85,12 +85,19 @@ void StateChangeDistributor::distribute(EventPtr event)
 
 void StateChangeDistributor::stopReplay(EmuTime::param time)
 {
+	if (!replaying) return;
 	replaying = false;
+
 	if (recorder) recorder->stopReplay(time);
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->stopReplay(time);
 	}
+}
+
+bool StateChangeDistributor::isReplaying() const
+{
+	return replaying;
 }
 
 } // namespace openmsx

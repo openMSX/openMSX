@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include <string>
 #include <map>
+#include <cassert>
 
 namespace openmsx {
 
@@ -14,7 +15,13 @@ class UnicodeKeymap
 public:
 	struct KeyInfo {
 		KeyInfo(byte row_, byte keymask_, byte modmask_)
-			: row(row_), keymask(keymask_), modmask(modmask_) {}
+			: row(row_), keymask(keymask_), modmask(modmask_)
+		{
+			if (keymask == 0) {
+				assert(row     == 0);
+				assert(modmask == 0);
+			}
+		}
 		byte row, keymask, modmask;
 	};
 

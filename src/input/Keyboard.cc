@@ -316,23 +316,29 @@ void Keyboard::stopReplay(EmuTime::param time)
 
 void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
 {
+	assert(press);
+	stateChangeDistributor.stopReplay(time);
+	// call stopReplay() before using userKeyMatrix[]
 	changeKeyMatrixEvent(time, row, userKeyMatrix[row] & ~press);
 }
 void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release)
 {
+	assert(release);
+	stateChangeDistributor.stopReplay(time);
+	// call stopReplay() before using userKeyMatrix[]
 	changeKeyMatrixEvent(time, row, userKeyMatrix[row] | release);
 }
+
 void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue)
 {
-	// hostKeyMatrix directly follows the requested change,
-	// userKeyMatrix indirectly follows via the KeyMatrixState events
+	assert(!stateChangeDistributor.isReplaying());
+
+	// This method already updates hostKeyMatrix[],
+	// userKeyMatrix[] will soon be updated via KeyMatrixState events.
 	hostKeyMatrix[row] = newValue;
 
 	byte diff = userKeyMatrix[row] ^ newValue;
-	if (diff == 0) {
-		// event won't actually change the keymatrix, so ignore it
-		return;
-	}
+	if (diff == 0) return;
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
 	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
@@ -409,7 +415,9 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 void Keyboard::processRightControlEvent(EmuTime::param time, bool down)
 {
 	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap->getDeadkey();
-	updateKeyMatrix(time, down, deadkey.row, deadkey.keymask);
+	if (deadkey.keymask) {
+		updateKeyMatrix(time, down, deadkey.row, deadkey.keymask);
+	}
 }
 
 /*
@@ -479,7 +487,9 @@ void Keyboard::processSdlKey(EmuTime::param time, bool down, int key)
 	if (key < MAX_KEYSYM) {
 		int row   = keyTab[key][0];
 		byte mask = keyTab[key][1];
-		updateKeyMatrix(time, down, row, mask);
+		if (mask) {
+			updateKeyMatrix(time, down, row, mask);
+		}
 	}
 }
 
@@ -488,6 +498,7 @@ void Keyboard::processSdlKey(EmuTime::param time, bool down, int key)
  */
 void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask)
 {
+	assert(mask);
 	if (down) {
 		pressKeyMatrixEvent(time, row, mask);
 		if (row == 6) {
@@ -736,6 +747,10 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key
 {
 	bool insertCodeKanaRelease = false;
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap->get(unicode);
+	if (keyInfo.keymask == 0) {
+		return insertCodeKanaRelease;
+	}
+
 	if (down) {
 		if (codeKanaLocks &&
 		    keyboardSettings->getAutoToggleCodeKanaLock().getValue() &&
@@ -755,7 +770,9 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key
 			// Always ignore CAPSLOCK mask (assume that user will
 			// use real CAPS lock to switch/ between hiragana and
 			// katanana on japanese model)
+			assert(keyInfo.keymask);
 			pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+			assert(!stateChangeDistributor.isReplaying());
 
 			byte modmask = keyInfo.modmask & ~CAPS_MASK;
 			if (codeKanaLocks) modmask &= ~CODE_MASK;
@@ -763,7 +780,10 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key
 			if ((Keys::K_A <= key) && (key <= Keys::K_Z)) {
 				// for A-Z, leave shift unchanged, (other
 				// modifiers are only pressed, never released)
-				pressKeyMatrixEvent(time, 6, modmask & ~SHIFT_MASK);
+				byte press = modmask & ~SHIFT_MASK;
+				if (press) {
+					pressKeyMatrixEvent(time, 6, press);
+				}
 			} else {
 				// for other keys, set shift according to modmask
 				// so also release shift when required (other
@@ -773,7 +793,9 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key
 			}
 		}
 	} else {
+		assert(keyInfo.keymask);
 		releaseKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+		assert(!stateChangeDistributor.isReplaying());
 
 		// Do not simply unpress graph, ctrl, code and shift but
 		// restore them to the values currently pressed by the user

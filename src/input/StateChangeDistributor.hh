@@ -53,9 +53,13 @@ public:
 
 	/** Explicitly stop replay.
 	 * Should be called when replay->live transition cannot be signaled via
-	 * a new event, so (only) when we reach the end of the replay log.
+	 * a new event, so for example when we reach the end of the replay log.
+	 * It's OK to call this method when replay was already stopped, in that
+	 * case this call has no effect.
 	 */
 	void stopReplay(EmuTime::param time);
+
+	bool isReplaying() const;
 
 private:
 	bool isRegistered(StateChangeListener* listener) const;
