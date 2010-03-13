@@ -16,10 +16,10 @@ ArgumentGenerator::ArgumentGenerator()
 
 ArgumentGenerator::~ArgumentGenerator()
 {
-	for (int i = 0; i < cArgs; i ++) {
+	for (int i = 0; i < cArgs; ++i) {
 		free(ppszArgv[i]);
 	}
-	delete [] ppszArgv;
+	delete[] ppszArgv;
 }
 
 char** ArgumentGenerator::GetArguments(int& argc)
@@ -32,7 +32,7 @@ char** ArgumentGenerator::GetArguments(int& argc)
 		}
 
 		ppszArgv = new char*[cArgs];
-		for (int i = 0; i < cArgs; i ++) {
+		for (int i = 0; i < cArgs; ++i) {
 			ppszArgv[i] = strdup(utf8::utf16to8(pszArglist[i]).c_str());
 		}
 
