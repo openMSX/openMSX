@@ -405,7 +405,7 @@
     <code>after time 2.6 "set renderer SDLGL-PP"</code><br />
     <code>after idle 100 exit</code><br />
     <code>after info</code><br />
-    <code>after cancel after#2</code>
+    <code>after cancel after#2</code><br />
     <code>after "mouse button1 down" foo</code>
   </div>
 
@@ -502,12 +502,12 @@
   </div>
 
   <div class="examples">
-    <code>bind PAGEUP "set speed 100"</code><br />
-    <code>bind PAGEDOWN "set speed 50"</code><br />
+    <code>bind PAGEUP   "set speed 100"</code><br />
+    <code>bind PAGEDOWN "set speed  50"</code><br />
     <br />
     Only run with full throttle while F9 is pressed (like BrMSX):<br />
     <code>unbind F9</code><br />
-    <code>bind F9 "set throttle off"</code><br />
+    <code>bind F9         "set throttle off"</code><br />
     <code>bind F9,release "set throttle on"</code><br />
     <br />
     Pause when window loses focus (like fMSX):<br />
@@ -519,7 +519,7 @@
     <br />
     Map button 8 of joystick 1 to F2-key:<br />
     <code>bind "joy1 button8 down" "keymatrixdown 6 0x40"</code><br />
-    <code>bind "joy1 button8 up" "keymatrixup 6 0x40"</code><br />
+    <code>bind "joy1 button8 up"   "keymatrixup   6 0x40"</code><br />
     <br />
     Use PageUp/Down to increase/decrease emulation speed.<br/>
     <code>bind PAGEUP   -repeat "incr speed  1"</code><br />
@@ -539,25 +539,26 @@
   <table>
     <tr>
       <td><code>cart KMARE.ROM</code></td>
-
       <td>Insert ROM cartridge in first free slot</td>
     </tr>
 
     <tr>
       <td><code>cart insert KMARE.ROM</code></td>
-
       <td>Insert ROM cartridge in first free slot</td>
     </tr>
 
     <tr>
       <td><code>carta USAS.ROM -ips USAS.IPS</code></td>
-
       <td>Insert ROM cartridge in slot A, with IPS patch applied to the ROM contents</td>
     </tr>
 
     <tr>
-      <td><code>carta eject</code></td>
+      <td><code>cartb NEMESIS.ROM -romtype Konami</code></td>
+      <td>Insert ROM cartridge in slot B, and explicitly specify the mapper type (is normally auto detected)</td>
+    </tr>
 
+    <tr>
+      <td><code>carta eject</code></td>
       <td>Eject the currently inserted cartridge from slot A</td>
     </tr>
   </table>
@@ -924,25 +925,26 @@
   <table>
     <tr>
       <td><code>diska &lt;disk image&gt;</code></td>
-
       <td>Insert disk image in drive "diska"</td>
     </tr>
 
     <tr>
-      <td><code>diska &lt;disk image&gt; &lt;ips&gt;</code></td>
+      <td><code>diskb insert &lt;disk image&gt;</code></td>
+      <td>Insert disk image in drive "diskb"</td>
+    </tr>
 
+    <tr>
+      <td><code>diska &lt;disk image&gt; &lt;ips&gt;</code></td>
       <td>Insert disk image and apply IPS patch</td>
     </tr>
 
     <tr>
       <td><code>diska eject</code></td>
-
       <td>Remove disk from drive "diska"</td>
     </tr>
 
     <tr>
       <td><code>diska ramdsk</code></td>
-
       <td>Insert scratch disk in drive "diska"</td>
     </tr>
   </table>
@@ -1049,7 +1051,7 @@
   </table>
 
   <div class="note">
-    Note: Because of disk caching, changing the hard disk when the MSX is running can lead to corruption of the hard disk contents. Therefore openMSX blocks the <code>hd&lt;x&gt;</code> commands unless the MSX is powered off.
+    Note: Because of disk caching, changing the hard disk when the MSX is running can lead to corruption of the hard disk contents. Therefore openMSX blocks the <code>hd&lt;x&gt;</code> commands unless the MSX is powered off. See <code><a class="internal" href="#power">power</a></code> setting.
   </div>
 
   <h3><a id="help">help</a></h3>
@@ -1063,22 +1065,23 @@
   <table>
     <tr>
       <td><code>help</code></td>
-
       <td>Shows a list of all possible commands</td>
     </tr>
 
     <tr>
       <td><code>help &lt;command&gt;</code></td>
-
       <td>Shows help info for a specific command</td>
+    </tr>
+
+    <tr>
+      <td><code>help &lt;command&gt; &lt;subcommand&gt;</code></td>
+      <td>Some commands have more detailed help on subcommands</td>
     </tr>
   </table>
 
   <h3><a id="incr">incr</a></h3>
 
   <p>Increment an integer setting.</p>
-
-  <p>This used to be an openMSX custom command, but is now a native Tcl command.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1135,13 +1138,11 @@
   <table>
     <tr>
       <td><code>keymatrixdown &lt;row&gt; &lt;mask&gt;</code></td>
-
       <td>Press the indicated MSX keys</td>
     </tr>
 
     <tr>
-      <td><code>keymatrixup &lt;row&gt; &lt;mask&gt;</code></td>
-
+      <td><code>keymatrixup   &lt;row&gt; &lt;mask&gt;</code></td>
       <td>Release the indicated MSX keys</td>
     </tr>
   </table>
@@ -1152,7 +1153,7 @@
 
   <div class="examples">
     <code>keymatrixdown 6 0x01</code><br />
-    <code>keymatrixup 6 0x01</code>
+    <code>keymatrixup   6 0x01</code>
   </div>
 
   <h3><a id="laserdiscplayer">laserdiscplayer</a></h3>
@@ -2164,8 +2165,8 @@
 
   <div class="examples">
     <code>trainer Frogger all</code><br />
-    <code>trainer Circus\ Charlie 1 2</code><br />
-    <code>trainer Pippols lives \"jump shoes\"\</code>
+    <code>trainer "Circus Charlie" 1 2</code><br />
+    <code>trainer Pippols lives "jump shoes"</code>
   </div>
 
   <h3><a id="type">type</a></h3>
