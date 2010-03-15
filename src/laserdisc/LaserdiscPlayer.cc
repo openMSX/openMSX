@@ -124,7 +124,6 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, remoteLastBit(false)
 	, remoteProtocol(IR_NONE)
 	, ack(false)
-	, foundFrame(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
 	, loadingIndicator(new LoadingIndicator(throttleManager))
@@ -306,6 +305,9 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 
 void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 {
+	PRT_DEBUG("Laserdisc::submitRemote(" << std::hex << protocol << ", " 
+			<< code << ")");
+
 	if (protocol != remoteProtocol || code != remoteCode) {
 		remoteProtocol = protocol;
 		remoteCode = code;
@@ -331,12 +333,11 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 	Clock<1000> now(time);
 	setSyncPoint(now + wait,  ACK);
 	ack = true;
-	foundFrame = false;
 }
 
 bool LaserdiscPlayer::extAck(EmuTime::param /*time*/) const
 {
-	return ack || foundFrame;
+	return ack;
 }
 
 bool LaserdiscPlayer::extInt(EmuTime::param /*time*/)
@@ -511,9 +512,9 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	}
 
 	if (!f.empty()) {
-		PRT_DEBUG("PioneerLD7000::remote " << f);
+		PRT_DEBUG("LaserdiscPlayer::remote " << f);
 	} else {
-		PRT_DEBUG("PioneerLD7000::remote unknown " << std::hex << code);
+		PRT_DEBUG("LaserdiscPlayer::remote unknown " << std::hex << code);
 	}
 #endif
 	// When not playing, only the play button works
@@ -578,6 +579,11 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 			case SEEK_WAIT:
 				seekState = SEEK_NONE;
 				waitFrame = seekNum % 100000;
+				if (waitFrame >= 101 && waitFrame < 200) {
+					int frame = video->chapter(
+						waitFrame - 100);
+					if (frame) waitFrame = frame;
+				}
 				PRT_DEBUG("Wait frame set to " << std::dec <<
 								waitFrame);
 				break;
@@ -765,7 +771,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 						waitFrame << " reached");
 
 		waitFrame = 0;
-		foundFrame = true;
+		setAck(time, 46);
 	}
 
 	if (playerState == PLAYER_MULTISPEED) {
@@ -1231,7 +1237,6 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 		// Playing state
 		ar.serialize("WaitFrame", waitFrame);
 		ar.serialize("ACK", ack);
-		ar.serialize("FoundFrame", foundFrame);
 		ar.serialize("PlayingSpeed", playingSpeed);
 
 		// Frame position

@@ -183,7 +183,6 @@ private:
 
 	// For ack
 	bool ack;
-	bool foundFrame;
 
 	// State of the video itself
 	bool seeking;
