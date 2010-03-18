@@ -318,6 +318,17 @@ string getBaseName(const string& path)
 	}
 }
 
+string getExtension(const string& path)
+{
+	string filename = getFilename(path);
+	string::size_type pos = path.rfind('.');
+	if (pos == string::npos) {
+		return "";
+	} else {
+		return filename.substr(pos + 1);
+	}
+}
+
 string join(const string& part1, const string& part2)
 {
 	if (isAbsolutePath(part2)) {

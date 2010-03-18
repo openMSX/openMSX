@@ -105,6 +105,15 @@ namespace FileOperations {
 	 */
 	std::string getBaseName(const std::string& path);
 
+	/**
+	 * Returns the extension portion of a path.
+	 * @param path The pathname
+	 * @result The extension portion. This excludes the '.'.
+	 *         If path doesn't have an extension portion the result
+	 *         is an empty string.
+	 */
+	std::string getExtension(const std::string& path);
+
 	/** Join two paths.
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
 	 * absolute path, that path is returned ('part1' is ignored). If

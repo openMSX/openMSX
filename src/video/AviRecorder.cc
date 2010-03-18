@@ -278,17 +278,26 @@ string AviRecorder::processStart(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
+	string directory = recordVideo ? "videos" : "soundlogs";
+	string extension = recordVideo ? ".avi"   : ".wav";
 	if (filename.empty()) {
-		string directory = recordVideo ? "videos" : "soundlogs";
-		string extension = recordVideo ? ".avi"   : ".wav";
 		filename = FileOperations::getNextNumberedFileName(
 			directory, prefix, extension);
+	} else {
+		if (FileOperations::getExtension(filename).empty()) {
+			// no extension given, append standard one
+			filename += extension;
+		}
+		if (FileOperations::getBaseName(filename).empty()) {
+			// no dir given, use standard dir
+			filename = FileOperations::getUserOpenMSXDir() + "/" + directory + "/" + filename;
+		}
 	}
 
 	if (aviWriter.get() || wavWriter.get()) {
 		return "Already recording.";
 	}
-	start(recordAudio, recordVideo, recordMono, recordStereo, 
+	start(recordAudio, recordVideo, recordMono, recordStereo,
 	      Filename(filename));
 	return "Recording to " + filename;
 }
