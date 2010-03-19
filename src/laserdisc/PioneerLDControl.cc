@@ -78,6 +78,7 @@ void PioneerLDControl::reset(EmuTime::param time)
 {
 	mutel = muter = true;
 	superimposing = false;
+	extint = false;
 
 	irq.reset();
 	laserdisc->setMuting(mutel, muter, time);
@@ -87,6 +88,7 @@ byte PioneerLDControl::readMem(word address, EmuTime::param time)
 {
 	byte val = PioneerLDControl::peekMem(address, time);
 	if (address == 0x7fff) {
+		extint = false;
 		if (irq.getState()) {
 			irq.reset();
 		}
@@ -102,7 +104,7 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 		if (videoEnabled) {
 			val &= 0x7f;
 		}
-		if (!irq.getState()) {
+		if (!extint) {
 			val &= 0xfe;
 		}
 	} else if (address == 0x7ffe) {
@@ -134,6 +136,14 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 	if (address == 0x7fff) {
 		// superimpose
 		superimposing = !(value & 1);
+		if (superimposing) {
+			if (extint && !irq.getState()) {
+				irq.set();
+			}
+		} else if (irq.getState()) {
+			irq.reset();
+		}
+
 		updateVideoSource();
 
 		// Muting
@@ -159,8 +169,11 @@ byte* PioneerLDControl::getWriteCacheLine(word start) const
 
 void PioneerLDControl::videoIn(bool enabled)
 {
-	if (superimposing && videoEnabled && !enabled) {
-		irq.set();
+	if (videoEnabled && !enabled) {
+		extint = true;
+		if (superimposing) {
+			irq.set();
+		}
 	}
 	videoEnabled = enabled;
 	updateVideoSource();
@@ -185,6 +198,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 		videoEnabled = false;
 	}
 	ar.serialize("superimposing", superimposing);
+	ar.serialize("extint", superimposing);
 	ar.serialize("irq", irq);
 	ar.serialize("laserdisc", *laserdisc);
 

@@ -56,6 +56,7 @@ private:
 	 */
 	IRQHelper irq;
 
+	bool extint;
 	bool mutel, muter;
 	bool videoEnabled;
 	bool superimposing;

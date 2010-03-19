@@ -340,12 +340,6 @@ bool LaserdiscPlayer::extAck(EmuTime::param /*time*/) const
 	return ack;
 }
 
-bool LaserdiscPlayer::extInt(EmuTime::param /*time*/)
-{
-	/* FIXME: How exactly is this implemented? */
-	return false;
-}
-
 void LaserdiscPlayer::buttonRepeat(EmuTime::param /*time*/)
 {
 	PRT_DEBUG("NEC protocol repeat received");
@@ -770,8 +764,8 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 		PRT_DEBUG("LaserdiscPlayer: wait frame " << std::dec <<
 						waitFrame << " reached");
 
-		waitFrame = 0;
-		setAck(time, 46);
+		// Leave ACK raised until the next command 
+		ack = true;
 	}
 
 	if (playerState == PLAYER_MULTISPEED) {

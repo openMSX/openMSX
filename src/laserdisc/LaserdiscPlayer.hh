@@ -108,7 +108,6 @@ private:
 	  */
 	void scheduleDisplayStart(EmuTime::param time);
 	bool isVideoOutputAvailable(EmuTime::param time);
-	bool extInt(EmuTime::param time);
 	void remoteButtonLD1100(unsigned code, EmuTime::param time);
 	void remoteButtonNEC(unsigned code, EmuTime::param time);
 	void submitRemote(RemoteProtocol protocol, unsigned code);
