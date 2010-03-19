@@ -308,7 +308,10 @@ void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 	PRT_DEBUG("Laserdisc::submitRemote(" << std::hex << protocol << ", " 
 			<< code << ")");
 
-	if (protocol != remoteProtocol || code != remoteCode) {
+	// The END command for seeking/waiting acknowledges repeats,
+	// it seems the only one.
+	if (protocol != remoteProtocol || code != remoteCode || 
+	    (protocol == IR_NEC && code == 0x42)) {
 		remoteProtocol = protocol;
 		remoteCode = code;
 		remoteVblanksBack = 0;
@@ -583,7 +586,6 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 				break;
 			default:
 				seekState = SEEK_NONE;
-				nonseekack = false;
 				break;
 			}
 			break;
