@@ -198,7 +198,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 		videoEnabled = false;
 	}
 	ar.serialize("superimposing", superimposing);
-	ar.serialize("extint", superimposing);
+	ar.serialize("extint", extint);
 	ar.serialize("irq", irq);
 	ar.serialize("laserdisc", *laserdisc);
 
