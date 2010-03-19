@@ -170,6 +170,7 @@ byte* PioneerLDControl::getWriteCacheLine(word start) const
 void PioneerLDControl::videoIn(bool enabled)
 {
 	if (videoEnabled && !enabled) {
+		// raise an interrupt when external video goes off
 		extint = true;
 		if (superimposing) {
 			irq.set();
@@ -178,6 +179,7 @@ void PioneerLDControl::videoIn(bool enabled)
 	videoEnabled = enabled;
 	updateVideoSource();
 }
+
 void PioneerLDControl::updateVideoSource()
 {
 	const RawFrame* videoSource = (videoEnabled && superimposing)

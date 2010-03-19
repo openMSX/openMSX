@@ -766,6 +766,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 
 		// Leave ACK raised until the next command 
 		ack = true;
+		waitFrame = 0;
 	}
 
 	if (playerState == PLAYER_MULTISPEED) {
