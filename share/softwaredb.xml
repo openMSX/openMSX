@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1265439408">
+<softwaredb xml:lang="en" timestamp="1269026462">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -7638,6 +7638,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">b5414e11b227c3c828ee1de206bf2d8f14486bd4</hash><remark><text>http://bifi.msxnet.org/paledit/ / Version 1.1</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">58747cf76b7c2785dd70409be5d912eafa328616</hash><remark><text>http://bifi.msxnet.org/paledit/ / Version 1.1</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">98df3e94d3bbef5d18095b62e65274ebfa8d527c</hash><remark><text>http://bifi.msxnet.org/paledit/ / Version 1.2 updated</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">7e64658b7a4fd451b2f2aaef409953e3e4f1b033</hash><remark><text>http://bifi.msxnet.org/paledit/ / Version 1.3</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Panther</title>
@@ -11499,6 +11500,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2525
-Parse time 4.875 seconds on Sat Feb 6 7:56:53 CET 2010
+Roms in this database:2526
+Parse time 4.080 seconds on Fri Mar 19 20:21:06 CET 2010
  -->
