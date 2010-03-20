@@ -643,10 +643,24 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 		result << tmp.getString();
 
 	} else if (tokens[1] == "new") {
+		string directory = "taperecordings";
+		string extension = ".wav";
 		string filename = (tokens.size() == 3)
 		                ? tokens[2]
 		                : FileOperations::getNextNumberedFileName(
-		                         "taperecordings", "openmsx", ".wav");
+		                         directory, "openmsx", extension);
+
+		if (FileOperations::getExtension(filename).empty()) {
+			// no extension given, append standard one
+			filename += extension;
+		}
+
+		if (FileOperations::getBaseName(filename).empty()) {
+			// no dir given, use standard dir
+			filename = FileOperations::getUserOpenMSXDir() + "/" +
+				directory + "/" + filename;
+		}
+
 		cassettePlayer.recordTape(Filename(filename), time);
 		result << "Created new cassette image file: " << filename
 		       << ", inserted it and set recording mode.";
