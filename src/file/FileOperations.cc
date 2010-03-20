@@ -321,7 +321,7 @@ string getBaseName(const string& path)
 string getExtension(const string& path)
 {
 	string filename = getFilename(path);
-	string::size_type pos = path.rfind('.');
+	string::size_type pos = filename.rfind('.');
 	if (pos == string::npos) {
 		return "";
 	} else {
