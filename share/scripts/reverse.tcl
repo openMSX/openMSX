@@ -146,7 +146,9 @@ fade out. You can make it reappear by moving the mouse over it.
 			-x -10 -y 0 -relx 0.5 -size 5   -z 3 -rgba 0xFFFFFFC0
 
 		update_reversebar
-		check_mouse
+
+		variable mouse_after_id
+		set mouse_after_id [after "mouse button1 down" [namespace code check_mouse]]
 	}
 
 	proc disable_reversebar {} {
