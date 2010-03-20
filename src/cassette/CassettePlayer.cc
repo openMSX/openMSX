@@ -868,10 +868,6 @@ void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
 		// buf, sampcnt
 		flushOutput();
 	}
-	if (state == RECORD) {
-		// TODO we don't support savestates in RECORD mode yet
-		setState(STOP, getImageName(), getCurrentTime());
-	}
 
 	ar.serialize("casImage", casImage);
 	if (ar.isLoader()) {
@@ -896,6 +892,10 @@ void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("motorControl", motorControl);
 
 	if (ar.isLoader()) {
+		if (state == RECORD) {
+			// TODO we don't support savestates in RECORD mode yet
+			setState(STOP, getImageName(), getCurrentTime());
+		}
 		updateLoadingState(getCurrentTime());
 	}
 }
