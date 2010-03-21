@@ -77,7 +77,7 @@ void Setting::setDontSaveValue(const std::string& dontSaveValue_)
 void Setting::sync(XMLElement& config) const
 {
 	XMLElement& settings = config.getCreateChild("settings");
-	if (!save || hasDefaultValue()) {
+	if (!needLoadSave() || hasDefaultValue()) {
 		// remove setting
 		const XMLElement* elem = settings.findChildWithAttribute(
 				"setting", "id", getName());
