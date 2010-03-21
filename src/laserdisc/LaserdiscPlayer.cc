@@ -925,6 +925,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			// my Pioneer LD-92000. Also always seek to
 			// beginning (confirmed on real MSX and LD)
 			video->seek(1, 0);
+			lastPlayedSample = 0;
 			playingFromSample = 0;
 			currentFrame = 1;
 			// Note that with "fullspeedwhenloading" this
