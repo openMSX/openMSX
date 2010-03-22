@@ -958,7 +958,13 @@ void LaserdiscPlayer::play(EmuTime::param time)
 
 unsigned LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 {
-	return sampleClock.getTicksTill(time) + playingFromSample;
+	switch(playerState) {
+	case PLAYER_PAUSED:
+	case PLAYER_STILL:
+		return playingFromSample;
+	default:
+		return playingFromSample + sampleClock.getTicksTill(time);
+	}
 }
 
 void LaserdiscPlayer::pause(EmuTime::param time)
