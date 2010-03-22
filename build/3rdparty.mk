@@ -67,22 +67,19 @@ else
 USE_VIDEO_X11:=enable
 endif
 
-# Unfortunately not all packages stick to naming conventions such as putting
-# the sources in a dir that includes the version number.
-PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_TTF XML OGG VORBIS THEORA
-PACKAGES_NONSTD:=GLEW TCL
+PACKAGES_BUILD:=ZLIB PNG FREETYPE SDL SDL_TTF GLEW TCL XML OGG VORBIS THEORA
 PACKAGES_NOBUILD:=
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 PACKAGES_NOBUILD+=DIRECTX
 endif
-PACKAGES:=$(filter-out $(SYSTEM_LIBS),$(PACKAGES_STD) $(PACKAGES_NONSTD) $(PACKAGES_NOBUILD))
-PACKAGES_BUILD:=$(filter-out $(PACKAGES_NOBUILD),$(PACKAGES))
+PACKAGES_3RD:=$(filter-out $(SYSTEM_LIBS),$(PACKAGES_BUILD) $(PACKAGES_NOBUILD))
+PACKAGES_3RD_BUILD:=$(filter-out $(PACKAGES_NOBUILD),$(PACKAGES_3RD))
 
-BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
-INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_3RD_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
+INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_3RD_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 INSTALL_NOBUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_NOBUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 
-ifeq ($(filter $(PACKAGES),DIRECTX),)
+ifeq ($(filter $(PACKAGES_3RD),DIRECTX),)
 INSTALL_DIRECTX:=
 else
 INSTALL_DIRECTX:=$(TIMESTAMP_DIR)/install-$(PACKAGE_DIRECTX)
@@ -94,7 +91,7 @@ INSTALL_PARAMS_GLEW:=\
 
 # Function which, given a variable name prefix and the variable's value,
 # returns the name of the package.
-findpackage=$(strip $(foreach PACKAGE,$(PACKAGES),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
+findpackage=$(strip $(foreach PACKAGE,$(PACKAGES_3RD),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
 
 .PHONY: default
 default: $(INSTALL_BUILD_TARGETS) $(INSTALL_NOBUILD_TARGETS)
