@@ -28,8 +28,8 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	skeletonSerial = -1;
 	audioHeaders = 3;
 	keyFrame = -1;
-	currentSample = 0;
-	currentFrame = 1;
+	currentSample = -1;
+	currentFrame = -1;
 	vorbisPos = 0;
 
 	th_info ti;
@@ -854,6 +854,16 @@ unsigned OggReader::findOffset(int frame, unsigned sample)
 
 bool OggReader::seek(int frame, int samples)
 {
+	// If the seek is with 1 second from current frame, don't bother 
+	// seeking. This prevents seeks while playing Astron Belt
+	if (frame >= currentFrame && 
+	    frame <= currentFrame + 30 &&
+	    samples >= int(currentSample) && 
+	    samples <= int(currentSample + getSampleRate()))
+	{
+		return true;
+	}
+
 	// Remove all queued frames
 	recycleFrameList.insert(recycleFrameList.end(),
 				frameList.begin(), frameList.end());
