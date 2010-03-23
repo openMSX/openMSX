@@ -122,6 +122,10 @@ class Expat(Library):
 	function = 'XML_ParserCreate'
 
 	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
+	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		def execute(cmd, log):
 			versionTuple = cmd.expand(
@@ -138,6 +142,10 @@ class FreeType(Library):
 	header = ('<ft2build.h>', 'FT_FREETYPE_H')
 	configScriptName = 'freetype-config'
 	function = 'FT_Open_Face'
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
@@ -244,6 +252,10 @@ class LibPNG(Library):
 	function = 'png_write_image'
 	dependsOn = ('ZLIB', )
 
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
 class LibXML2(Library):
 	libName = 'xml2'
 	makeName = 'XML'
@@ -254,7 +266,7 @@ class LibXML2(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform == 'darwin'
+		return platform in ('darwin', 'dingux')
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
@@ -285,6 +297,10 @@ class OGG(Library):
 	header = '<ogg/ogg.h>'
 	function = 'ogg_stream_init'
 
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
 class SDL(Library):
 	libName = 'SDL'
 	makeName = 'SDL'
@@ -293,12 +309,20 @@ class SDL(Library):
 	staticLibsOption = '--static-libs'
 	function = 'SDL_Init'
 
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
 class SDL_ttf(Library):
 	libName = 'SDL_ttf'
 	makeName = 'SDL_TTF'
 	header = '<SDL_ttf.h>'
 	function = 'TTF_OpenFont'
 	dependsOn = ('SDL', 'FREETYPE')
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -316,6 +340,10 @@ class SQLite(Library):
 	makeName = 'SQLITE'
 	header = '<sqlite3.h>'
 	function = 'sqlite3_prepare_v2'
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('darwin', 'dingux')
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -507,12 +535,20 @@ class Theora(Library):
 	function = 'th_decode_ycbcr_out'
 	dependsOn = ('OGG', )
 
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
 class Vorbis(Library):
 	libName = 'vorbis'
 	makeName = 'VORBIS'
 	header = '<vorbis/codec.h>'
 	function = 'vorbis_synthesis_pcmout'
 	dependsOn = ('OGG', )
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
 
 class ZLib(Library):
 	libName = 'z'
@@ -522,7 +558,7 @@ class ZLib(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform == 'darwin'
+		return platform in ('darwin', 'dingux')
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
