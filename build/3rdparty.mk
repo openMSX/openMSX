@@ -56,7 +56,11 @@ TRIPLE_MACHINE:=$(OPENMSX_TARGET_CPU)
 endif
 endif
 endif
+ifeq ($(OPENMSX_TARGET_OS),dingux)
+TRIPLE_OS:=linux
+else
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
+endif
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 
 # Although X11 is available on Windows and Mac OS X, most people do not have

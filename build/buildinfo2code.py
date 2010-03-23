@@ -20,10 +20,11 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	targetCPU = getCPU(cpuName)
 
 	# TODO: Add support for device-specific configuration.
+	platformDingux = targetPlatform == 'dingux'
 	platformGP2X = False
 	platformMaemo5 = targetPlatform == 'maemo5'
 
-	if platformGP2X:
+	if platformDingux or platformGP2X:
 		have16BPP = True
 		have32BPP = False
 		minScaleFactor = 1
@@ -57,6 +58,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	yield '#define ASM_X86_64 %d' % (targetCPU is X86_64)
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
+	yield '#define PLATFORM_DINGUX %d' % platformDingux
 	yield '#define PLATFORM_GP2X %d' % platformGP2X
 	yield '#define PLATFORM_MAEMO5 %d' % platformMaemo5
 	yield '#define HAVE_16BPP %d' % have16BPP
