@@ -56,7 +56,6 @@ private:
 	 */
 	IRQHelper irq;
 
-	bool laserdiscPresent;
 	bool extint;
 	bool mutel, muter;
 	bool videoEnabled;
