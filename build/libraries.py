@@ -43,6 +43,10 @@ class Library(object):
 		scriptName = cls.configScriptName
 		if scriptName is None:
 			return None
+		elif platform == 'dingux' and cls.isSystemLibrary(platform):
+			# TODO: A generic mechanism for locating config scripts in SDKs.
+			#       Note that distroRoot is for non-system libs only.
+			return '/opt/mipsel-linux-uclibc/usr/bin/%s' % scriptName
 		elif distroRoot is None:
 			return scriptName
 		else:
