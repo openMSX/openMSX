@@ -24,9 +24,9 @@ all: default
 
 ifneq ($(origin PACKAGE_SDL),undefined)
 
-# Get information about the target OS.
-SYSTEM_LIBS:=
-include build/platform-$(OPENMSX_TARGET_OS).mk
+# These libraries are part of the base system, therefore we do not need to
+# link them statically for building a redistributable binary.
+SYSTEM_LIBS:=$(shell $(PYTHON) build/list_system_libs.py $(OPENMSX_TARGET_OS))
 
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.
