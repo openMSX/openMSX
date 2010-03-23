@@ -71,7 +71,7 @@ else
 USE_VIDEO_X11:=enable
 endif
 
-PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS))
+PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE))
 PACKAGES_NOBUILD:=
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 PACKAGES_NOBUILD+=DIRECTX

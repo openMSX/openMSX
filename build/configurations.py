@@ -32,6 +32,10 @@ def getConfiguration(name):
 		requiredComponents = set((EmulationCore, GLRenderer))
 		optionalComponents = set((Laserdisc, ))
 		linkStatic = True
+	elif name == '3RD_STA_MIN':
+		requiredComponents = set((EmulationCore, ))
+		optionalComponents = set()
+		linkStatic = True
 	else:
 		raise ValueError('No configuration named "%s"' % name)
 	return Configuration(requiredComponents, optionalComponents, linkStatic)

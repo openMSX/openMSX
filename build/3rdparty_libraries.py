@@ -6,8 +6,8 @@ from configurations import getConfiguration
 from libraries import allDependencies, librariesByName
 from packages import iterDownloadablePackages
 
-def main(platform):
-	configuration = getConfiguration('3RD_STA')
+def main(platform, linkMode):
+	configuration = getConfiguration(linkMode)
 	components = configuration.iterDesiredComponents()
 
 	# Compute the set of all directly and indirectly required libraries,
@@ -22,7 +22,7 @@ def main(platform):
 
 if __name__ == '__main__':
 	import sys
-	if len(sys.argv) == 2:
+	if len(sys.argv) == 3:
 		try:
 			main(*sys.argv[1 : ])
 		except ValueError, ex:
@@ -30,6 +30,6 @@ if __name__ == '__main__':
 			sys.exit(2)
 	else:
 		print >> sys.stderr, (
-			'Usage: python 3rdparty_libraries.py TARGET_OS'
+			'Usage: python 3rdparty_libraries.py TARGET_OS LINK_MODE'
 			)
 		sys.exit(2)
