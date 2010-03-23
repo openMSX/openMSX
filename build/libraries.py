@@ -270,7 +270,7 @@ class LibXML2(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('darwin', 'dingux')
+		return platform in ('darwin',)
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
