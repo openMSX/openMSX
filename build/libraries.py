@@ -538,3 +538,21 @@ def _discoverLibraries(localObjects):
 			if not (obj is Library):
 				yield obj.makeName, obj
 librariesByName = dict(_discoverLibraries(locals().itervalues()))
+
+def allDependencies(makeNames):
+	'''Compute the set of all directly and indirectly required libraries to
+	build and use the given set of libraries.
+	Returns the make names of the required libraries.
+	'''
+	# Compute the reflexive-transitive closure.
+	transLibs = set()
+	newLibs = set(makeNames)
+	while newLibs:
+		transLibs.update(newLibs)
+		newLibs = set(
+			depMakeName
+			for makeName in newLibs
+			for depMakeName in librariesByName[makeName].dependsOn
+			if depMakeName not in transLibs
+			)
+	return transLibs

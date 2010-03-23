@@ -5,7 +5,7 @@ from components import requiredLibrariesFor
 from configurations import getConfiguration
 from download import downloadURL
 from extract import TopLevelDirRenamer, extract
-from libraries import librariesByName
+from libraries import allDependencies, librariesByName
 from packages import getPackage
 from patch import Diff, patch
 
@@ -58,18 +58,13 @@ def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 
 def main(platform, tarballsDir, sourcesDir, patchesDir):
 	configuration = getConfiguration('3RD_STA')
+	components = configuration.iterDesiredComponents()
 
-	# Compute the set of all directly and indirectly required libraries.
-	transLibs = set()
-	for makeName in requiredLibrariesFor(configuration.iterDesiredComponents()):
-		library = librariesByName[makeName]
-		transLibs.add(makeName)
-		for depMakeName in library.dependsOn:
-			transLibs.add(depMakeName)
-	# Filter out system libraries.
+	# Compute the set of all directly and indirectly required libraries,
+	# then filter out system libraries.
 	thirdPartyLibs = set(
 		makeName
-		for makeName in transLibs
+		for makeName in allDependencies(requiredLibrariesFor(components))
 		if not librariesByName[makeName].isSystemLibrary(platform)
 		)
 
