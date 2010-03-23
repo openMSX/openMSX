@@ -38,7 +38,7 @@ private:
 	void updateVideoSource();
 
 	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<LaserdiscPlayer> laserdisc;
+	std::auto_ptr<LaserdiscPlayer> laserdisc;
 	MSXPPI* ppi;
 	VDP* vdp;
 
@@ -56,6 +56,7 @@ private:
 	 */
 	IRQHelper irq;
 
+	bool laserdiscPresent;
 	bool extint;
 	bool mutel, muter;
 	bool videoEnabled;
