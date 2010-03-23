@@ -667,13 +667,11 @@ $(addprefix 3rdparty-,$(CPU_LIST)):
 
 # Call third party Makefile with the right arguments.
 # This is an internal target, users should select "3rdparty" instead.
-# TODO: Instead of filtering out pseudo-platform hacks like "darwin-app" and
-#       "linux-icc", design a proper way of handling them.
 run-3rdparty:
 	$(MAKE) -f build/3rdparty.mk \
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
-		OPENMSX_TARGET_OS=$(firstword $(subst -, ,$(OPENMSX_TARGET_OS))) \
+		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		_CC=$(CC) _CFLAGS="$(TARGET_FLAGS) $(CXXFLAGS)" \
 		_LD=$(LD) _LDFLAGS="$(TARGET_FLAGS)" \
 		LINK_MODE=$(LINK_MODE) $(COMPILE_ENV) \
