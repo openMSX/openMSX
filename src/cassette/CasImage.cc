@@ -11,24 +11,36 @@
 namespace openmsx {
 
 // output settings
-const int FACTOR = 46; // 4.6 times normal speed (5520 baud, higher doesn't
-                       // work anymore, possibly because the BIOS code (and Z80)
-                       // is too slow for that)
-const int OUTPUT_FREQUENCY = 2400 * FACTOR / 10;
+
+// 4.6 times normal speed (5520 baud, higher doesn't work anymore, possibly
+// because the BIOS code (and Z80) is too slow for that)
+static const unsigned FACTOR = 46;
+static const unsigned OUTPUT_FREQUENCY = 2400 * FACTOR / 10;
+// We oversample the audio signal for better sound quality (especially in
+// combination with the hq resampler). Without oversampling the audio output
+// could contain portions like this:
+//   -1, +1, -1, +1, -1, +1, ...
+// So it contains a signal at the Nyquist frequency. The hq resampler contains
+// a low-pass filter, and (all practically implementable) filters cut off a
+// portion of the spectrum near the Nyquist freq. So this high freq signal was
+// lost after the hq resampler. After oversampling, the signal looks like this:
+//   -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, ...
+// So every sample repeated 4 times.
+static const unsigned AUDIO_OVERSAMPLE = 4;
 
 // number of ouput bytes for silent parts
-const int SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
-const int LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
+static const unsigned SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
+static const unsigned LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
 
 // number of 1-bits for headers
-const int LONG_HEADER  = 16000 / 2;
-const int SHORT_HEADER =  4000 / 2;
+static const unsigned LONG_HEADER  = 16000 / 2;
+static const unsigned SHORT_HEADER =  4000 / 2;
 
 // headers definitions
-const byte CAS_HEADER   [ 8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
-const byte ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
-const byte BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
-const byte BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
+static const byte CAS_HEADER   [ 8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
+static const byte ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
+static const byte BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
+static const byte BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
 CasImage::CasImage(const Filename& filename, CliComm& cliComm)
@@ -53,15 +65,17 @@ EmuTime CasImage::getEndTime() const
 
 unsigned CasImage::getFrequency() const
 {
-	return OUTPUT_FREQUENCY;
+	return OUTPUT_FREQUENCY * AUDIO_OVERSAMPLE;
 }
 
 void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 {
 	size_t nbSamples = output.size();
-	if (pos < nbSamples) {
+	if ((pos / AUDIO_OVERSAMPLE) < nbSamples) {
 		for (unsigned i = 0; i < num; ++i, ++pos) {
-			bufs[0][i] = (pos < nbSamples) ? output[pos] * 256 : 0;
+			bufs[0][i] = ((pos / AUDIO_OVERSAMPLE) < nbSamples)
+			           ? output[pos / AUDIO_OVERSAMPLE] * 256
+			           : 0;
 		}
 	} else {
 		bufs[0] = 0;
