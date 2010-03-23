@@ -56,9 +56,9 @@ void Resample::createResampler()
 			break;
 		case RESAMPLE_LQ:
 			if (channels == 1) {
-				algo.reset(new ResampleLQ<1>(*this, ratio));
+				algo = ResampleLQ<1>::create(*this, ratio);
 			} else {
-				algo.reset(new ResampleLQ<2>(*this, ratio));
+				algo = ResampleLQ<2>::create(*this, ratio);
 			}
 			break;
 		case RESAMPLE_BLIP:

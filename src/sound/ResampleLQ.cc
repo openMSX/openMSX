@@ -11,18 +11,32 @@ namespace openmsx {
 static const int BUFSIZE = 16384;
 ALIGNED(static int bufferInt[BUFSIZE + 4], 16);
 
+////
+
+template<unsigned CHANNELS>
+std::auto_ptr<ResampleLQ<CHANNELS> > ResampleLQ<CHANNELS>::create(
+	Resample& input, double ratio)
+{
+	std::auto_ptr<ResampleLQ<CHANNELS> > result;
+	if (ratio < 1.0) {
+		result.reset(new ResampleLQUp  <CHANNELS>(input, ratio));
+	} else {
+		result.reset(new ResampleLQDown<CHANNELS>(input, ratio));
+	}
+	return result;
+}
+
 template <unsigned CHANNELS>
 ResampleLQ<CHANNELS>::ResampleLQ(Resample& input_, double ratio)
 	: input(input_), pos(0), step(ratio)
 {
-	assert(step >= Pos(1)); // can only do downsampling
 	for (unsigned j = 0; j < CHANNELS; ++j) {
 		lastInput[j] = 0;
 	}
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQ<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
+bool ResampleLQ<CHANNELS>::fetchData(unsigned num)
 {
 	Pos end = pos + step * num;
 	int numInput = end.toInt();
@@ -44,6 +58,54 @@ bool ResampleLQ<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
 		buffer[j] = lastInput[j];
 		lastInput[j] = buffer[numInput * CHANNELS + j];
 	}
+	return true;
+}
+
+////
+
+template <unsigned CHANNELS>
+ResampleLQUp<CHANNELS>::ResampleLQUp(Resample& input, double ratio)
+	: ResampleLQ<CHANNELS>(input, ratio)
+{
+	assert(ratio < 1.0); // only upsampling
+}
+
+template <unsigned CHANNELS>
+bool ResampleLQUp<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
+{
+	if (!this->fetchData(num)) return false;
+
+	// this is currently only used to upsample cassette player sound,
+	// sound quality is not so important here, so use 0-th order
+	// interpolation (instead of 1st-order).
+	int* buffer = &bufferInt[4 - CHANNELS];
+	for (unsigned i = 0; i < num; ++i) {
+		int p0 = this->pos.toInt();
+		for (unsigned j = 0; j < CHANNELS; ++j) {
+			dataOut[i * CHANNELS + j] = buffer[p0 * CHANNELS + j];
+		}
+		this->pos += this->step;
+	}
+
+	this->pos = this->pos.fract();
+	return true;
+}
+
+////
+
+template <unsigned CHANNELS>
+ResampleLQDown<CHANNELS>::ResampleLQDown(Resample& input, double ratio)
+	: ResampleLQ<CHANNELS>(input, ratio)
+{
+	assert(ratio > 1.0); // can only do downsampling
+}
+
+template <unsigned CHANNELS>
+bool ResampleLQDown<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
+{
+	if (!this->fetchData(num)) return false;
+
+	int* buffer = &bufferInt[4 - CHANNELS];
 #ifdef __arm__
 	if (CHANNELS == 1) {
 		unsigned dummy;
@@ -132,34 +194,35 @@ bool ResampleLQ<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
 
 			"subs	%[n],%[n],#4\n\t"
 			"bgt	0b\n\t"
-			: [p]   "=r"  (pos)
+			: [p]   "=r"  (this->pos)
 			, [t]   "=&r" (dummy)
-			:       "[p]" (pos)
+			:       "[p]" (this->pos)
 			, [buf] "r"   (buffer)
 			, [out] "r"   (dataOut)
-			, [s]   "r"   (step)
+			, [s]   "r"   (this->step)
 			, [n]   "r"   (num)
 			: "r9"
 		);
 	} else {
 #endif
 		for (unsigned i = 0; i < num; ++i) {
-			int p = pos.toInt();
-			Pos fract = pos.fract();
+			int p = this->pos.toInt();
+			typename ResampleLQ<CHANNELS>::Pos fract = this->pos.fract();
 			for (unsigned j = 0; j < CHANNELS; ++j) {
 				int s0 = buffer[(p + 0) * CHANNELS + j];
 				int s1 = buffer[(p + 1) * CHANNELS + j];
 				int out = s0 + (fract * (s1 - s0)).toInt();
 				dataOut[i * CHANNELS + j] = out;
 			}
-			pos += step;
+			this->pos += this->step;
 		}
 #ifdef __arm__
 	}
 #endif
-	pos = pos.fract();
+	this->pos = this->pos.fract();
 	return true;
 }
+
 
 // Force template instantiation.
 template class ResampleLQ<1>;
