@@ -1,6 +1,6 @@
 diff -ru tcl8.5.8.org/generic/tcl.h tcl8.5.8/generic/tcl.h
 --- tcl8.5.8.org/generic/tcl.h	2009-11-03 20:21:37.000000000 +0100
-+++ tcl8.5.8/generic/tcl.h	2010-01-02 14:16:24.000000000 +0100
++++ tcl8.5.8/generic/tcl.h	2010-03-23 22:57:26.000000000 +0100
 @@ -170,7 +170,7 @@
   *       MSVCRT.  
   */
@@ -10,3 +10,52 @@ diff -ru tcl8.5.8.org/generic/tcl.h tcl8.5.8/generic/tcl.h
  #   define HAVE_DECLSPEC 1
  #   ifdef STATIC_BUILD
  #       define DLLIMPORT
+diff -ru tcl8.5.8.org/generic/tclStrToD.c tcl8.5.8/generic/tclStrToD.c
+--- tcl8.5.8.org/generic/tclStrToD.c	2009-07-16 22:50:54.000000000 +0200
++++ tcl8.5.8/generic/tclStrToD.c	2010-03-24 00:20:33.000000000 +0100
+@@ -71,9 +71,10 @@
+ 
+ /*
+  * MIPS floating-point units need special settings in control registers
+- * to use gradual underflow as we expect.
++ * to use gradual underflow as we expect.  This fix is for the MIPSpro
++ * compiler.  
+  */
+-#if defined(__mips)
++#if defined(__sgi) && defined(_COMPILER_VERSION)
+ #include <sys/fpu.h>
+ #endif
+ /*
+@@ -2166,7 +2167,7 @@
+     } bitwhack;
+ #endif
+ 
+-#if defined(__mips)
++#if defined(__sgi) && defined(_COMPILER_VERSION)
+     union fpc_csr mipsCR;
+ 
+     mipsCR.fc_word = get_fpc_csr();
+diff -ru tcl8.5.8.org/unix/configure tcl8.5.8/unix/configure
+--- tcl8.5.8.org/unix/configure	2009-11-13 19:38:45.000000000 +0100
++++ tcl8.5.8/unix/configure	2010-03-23 23:57:51.000000000 +0100
+@@ -14966,7 +14966,7 @@
+ else
+ 
+ 	    if test "$cross_compiling" = yes; then
+-  tcl_cv_strtod_buggy=buggy
++  tcl_cv_strtod_buggy=ok
+ else
+   cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
+diff -ru tcl8.5.8.org/unix/Makefile.in tcl8.5.8/unix/Makefile.in
+--- tcl8.5.8.org/unix/Makefile.in	2009-11-13 19:38:45.000000000 +0100
++++ tcl8.5.8/unix/Makefile.in	2010-03-24 01:36:42.000000000 +0100
+@@ -745,7 +745,7 @@
+ 	fi
+ 	@EXTRA_INSTALL_BINARIES@
+ 
+-install-libraries: libraries $(INSTALL_TZDATA) install-msgs
++install-libraries: libraries $(INSTALL_TZDATA)
+ 	@for i in "$(INCLUDE_INSTALL_DIR)" "$(SCRIPT_INSTALL_DIR)"; \
+ 	    do \
+ 	    if [ ! -d "$$i" ] ; then \
