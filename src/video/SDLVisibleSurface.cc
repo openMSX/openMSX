@@ -31,6 +31,14 @@ SDLVisibleSurface::SDLVisibleSurface(
 	// the work surface to the display surface (the HW blitter on GP2X is
 	// fast enough).
 	int flags = SDL_HWSURFACE; // | SDL_DOUBLEBUF;
+#elif PLATFORM_DINGUX
+	// Double buffering hangs openMSX (tested 2009-07-22).
+	// The Dingoo seems to have a hardware problem that makes it hard or
+	// impossible to know when vsync happens:
+	//   http://www.dingux.com/2009/07/on-screen-tearing.html
+	// Hardware buffer without double buffering works but then there is very
+	// annoying flickering of the OSD elements.
+	int flags = SDL_SWSURFACE;
 #else
 	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
 #endif
