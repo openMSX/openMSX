@@ -12,6 +12,7 @@
 #include "aligned.hh"
 #include "vla.hh"
 #include "unreachable.hh"
+#include "build-info.hh"
 #include <cstring>
 #include <cassert>
 #include <set>
@@ -181,7 +182,9 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 
 bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 {
+#if ASM_X86
 	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned
+#endif
 	assert(samples <= MAX_SAMPLES);
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;

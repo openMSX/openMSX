@@ -19,6 +19,7 @@
 #include "HostCPU.hh"
 #include "noncopyable.hh"
 #include "vla.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <map>
 #include <cmath>
@@ -403,7 +404,11 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned request)
 		bufEnd = available;
 		missing = std::min(missing, BUF_LEN - bufEnd);
 	}
+#if ASM_X86
 	VLA_ALIGNED(int, tmpBuf, missing * CHANNELS + 3, 16);
+#else
+	VLA(int, tmpBuf, missing * CHANNELS + 3);
+#endif
 	if (input.generateInput(tmpBuf, missing)) {
 		for (unsigned i = 0; i < missing * CHANNELS; ++i) {
 			buffer[bufEnd * CHANNELS + i] = float(tmpBuf[i]);

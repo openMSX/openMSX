@@ -19,6 +19,7 @@
 #include "StringOp.hh"
 #include "vla.hh"
 #include "unreachable.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -217,7 +218,11 @@ void MSXMixer::generate(short* output, unsigned samples,
 
 	VLA(int, stereoBuf, 2 * samples + 3);
 	VLA(int, monoBuf, samples + 3);
+#if ASM_X86
 	VLA_ALIGNED(int, tmpBuf, 2 * samples + 3, 16);
+#else
+	VLA(int, tmpBuf, 2 * samples + 3);
+#endif
 
 	static const unsigned HAS_MONO_FLAG = 1;
 	static const unsigned HAS_STEREO_FLAG = 2;
@@ -228,8 +233,7 @@ void MSXMixer::generate(short* output, unsigned samples,
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
 		SoundDevice& device = *it->first;
-		if (device.updateBuffer(samples, tmpBuf,
-					start, sampDur)) {
+		if (device.updateBuffer(samples, tmpBuf, start, sampDur)) {
 			if (!device.isStereo()) {
 				int l1 = it->second.left1;
 				int r1 = it->second.right1;

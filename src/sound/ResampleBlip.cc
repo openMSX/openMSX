@@ -5,6 +5,7 @@
 #include "static_assert.hh"
 #include "likely.hh"
 #include "vla.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -30,7 +31,11 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 	int required = int(ceil(len - lastPos));
 	if (required > 0) {
 		// 3 extra for padding, CHANNELS extra for sentinel
+#if ASM_X86
 		VLA_ALIGNED(int, buf, required * CHANNELS + std::max(3u, CHANNELS), 16);
+#else
+		VLA(int, buf, required * CHANNELS + std::max(3u, CHANNELS));
+#endif
 		if (input.generateInput(buf, required)) {
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 				// In case of PSG (and to a lesser degree SCC) it happens

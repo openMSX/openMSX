@@ -11,8 +11,18 @@
 
 #define VLA(TYPE, NAME, LENGTH) \
 	TYPE NAME[(LENGTH)]
+
+#if defined __i386 || defined __x86_64
 #define VLA_ALIGNED(TYPE, NAME, LENGTH, ALIGNMENT) \
 	TYPE NAME[(LENGTH)] __attribute__((__aligned__((ALIGNMENT))))
+#else
+// Except on x86/x86-64, GCC can align VLAs within a stack frame, but it makes
+// no guarantees if the requested alignment is larger than the alignment of the
+// stack frame itself.
+//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=16660
+#define VLA_ALIGNED(TYPE, NAME, LENGTH, ALIGNMENT) \
+	UNABLE_TO_GUARANTEE_VLA_ALIGNMENT_ON_THIS_ARCHITECTURE
+#endif
 
 #else
 
