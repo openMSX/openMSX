@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1269026462">
+<softwaredb xml:lang="en" timestamp="1269622209">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1317,7 +1317,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">British Bob</title>
 	<system>MSX</system>
-	<company>Relevo</company>
+	<company>RELEVO Videogames</company>
 	<year>2009</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">e45af2f15327dfdc1b1250ddab97b7f28801d5ca</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
@@ -2926,6 +2926,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">caeca37113c56e696d7053d90f5f9f3e02de8ad1</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">98f6769741a1c9df4fd203ed19d70b283c94e41a</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Est&#225; en el Pantano</title>
+	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">f1550e958a0664f5966568e2677c3a041ba940d5</hash><remark><text>RLV905</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Est&#225; en la Caja</title>
@@ -11500,6 +11508,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2526
-Parse time 4.080 seconds on Fri Mar 19 20:21:06 CET 2010
+Roms in this database:2527
+Parse time 4.148 seconds on Fri Mar 26 17:50:13 CET 2010
  -->
