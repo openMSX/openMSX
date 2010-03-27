@@ -2441,7 +2441,7 @@ template <class T> void CPUCore<T>::execute()
 				scheduler.schedule(T::getTimeFast());
 			} else {
 				while (slowInstructions == 0) {
-					T::enableLimit(true);
+					T::enableLimit(true); // does CPUClock::sync()
 					if (likely(!T::limitReached())) {
 						// multiple instructions
 						executeInstructions();
@@ -2466,7 +2466,10 @@ template <class T> void CPUCore<T>::execute()
 				--slowInstructions;
 				executeSlow();
 			}
-			scheduler.schedule(T::getTimeFast());
+			// Don't use getTimeFast() here, we need a call to
+			// CPUClock::sync() 'once in a while'. (During a
+			// reverse fast-forward this wasn't always the case).
+			scheduler.schedule(T::getTime());
 		}
 	}
 }
