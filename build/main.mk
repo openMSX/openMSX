@@ -175,8 +175,10 @@ $(call DEFCHECK,EXEEXT)
 # - platform supports symlinks?
 $(call BOOLCHECK,USE_SYMLINK)
 
+ifneq ($(OPENMSX_TARGET_CPU),univ)
 # Get CPU specific flags.
 TARGET_FLAGS+=$(shell $(PYTHON) build/cpu2flags.py $(OPENMSX_TARGET_CPU))
+endif
 
 
 # Flavours
