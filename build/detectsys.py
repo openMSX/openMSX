@@ -3,7 +3,7 @@
 # Actually we rely on the Python "platform" module and map its output to names
 # that the openMSX build understands.
 
-from platform import machine, system
+from platform import architecture, machine, system
 import sys
 
 def detectCPU():
@@ -82,6 +82,12 @@ if __name__ == '__main__':
 			# It is possible to run MinGW on 64-bit Windows, but producing
 			# 64-bit code is not supported yet.
 			hostCPU = 'x86'
+		elif hostOS == 'darwin' and hostCPU == 'x86':
+			# If Python is 64-bit, both the CPU and OS support it, so we can
+			# compile openMSX for x86-64. Compiling in 32-bit mode might seem
+			# safer, but will fail if using MacPorts on a 64-bit capable system.
+			if architecture()[0] == '64bit':
+				hostCPU = 'x86_64'
 		print '%s-%s' % (hostCPU, hostOS)
 	except ValueError, ex:
 		print >> sys.stderr, ex
