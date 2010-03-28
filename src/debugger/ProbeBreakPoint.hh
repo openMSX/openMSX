@@ -15,7 +15,7 @@ class ProbeBase;
 class ProbeBreakPoint : public BreakPointBase, private Observer<ProbeBase>
 {
 public:
-	ProbeBreakPoint(CliComm& CliComm,
+	ProbeBreakPoint(GlobalCliComm& CliComm,
 	                std::auto_ptr<TclObject> command,
 	                std::auto_ptr<TclObject> condition,
 	                Debugger& debugger,

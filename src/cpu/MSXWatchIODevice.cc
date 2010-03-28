@@ -2,6 +2,7 @@
 
 #include "MSXWatchIODevice.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
@@ -17,8 +18,8 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard,
                  unsigned beginAddr, unsigned endAddr,
                  std::auto_ptr<TclObject> command,
                  std::auto_ptr<TclObject> condition)
-	: WatchPoint(motherboard.getMSXCliComm(), command, condition, type,
-	             beginAddr, endAddr)
+	: WatchPoint(motherboard.getReactor().getGlobalCliComm(), command,
+	             condition, type, beginAddr, endAddr)
 	, cpuInterface(motherboard.getCPUInterface())
 {
 	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {

@@ -8,7 +8,7 @@ namespace openmsx {
 
 unsigned WatchPoint::lastId = 0;
 
-WatchPoint::WatchPoint(CliComm& cliComm,
+WatchPoint::WatchPoint(GlobalCliComm& cliComm,
                        std::auto_ptr<TclObject> command,
                        std::auto_ptr<TclObject> condition,
                        Type type_, unsigned beginAddr_, unsigned endAddr_)

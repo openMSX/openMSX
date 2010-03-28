@@ -5,6 +5,7 @@
 #include "Probe.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "BreakPoint.hh"
@@ -34,7 +35,7 @@ class DebugCmd : public RecordedCommand
 public:
 	DebugCmd(CommandController& commandController,
 	         StateChangeDistributor& stateChangeDistributor,
-	         Scheduler& scheduler, CliComm& cliComm,
+	         Scheduler& scheduler, GlobalCliComm& cliComm,
 	         Debugger& debugger);
 	virtual bool needRecord(const vector<TclObject*>& tokens) const;
 	virtual void execute(const vector<TclObject*>& tokens,
@@ -92,7 +93,7 @@ private:
 	void probeListBreakPoints(const vector<TclObject*>& tokens,
 	                          TclObject& result);
 
-	CliComm& cliComm;
+	GlobalCliComm& cliComm;
 	Debugger& debugger;
 };
 
@@ -102,7 +103,7 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	, debugCmd(new DebugCmd(motherBoard.getCommandController(),
 	                        motherBoard.getStateChangeDistributor(),
 	                        motherBoard.getScheduler(),
-	                        motherBoard.getMSXCliComm(), *this))
+	                        motherBoard.getReactor().getGlobalCliComm(), *this))
 	, cpu(0)
 {
 }
@@ -258,7 +259,7 @@ static word getAddress(const vector<TclObject*>& tokens)
 
 DebugCmd::DebugCmd(CommandController& commandController,
                    StateChangeDistributor& stateChangeDistributor,
-                   Scheduler& scheduler, CliComm& cliComm_,
+                   Scheduler& scheduler, GlobalCliComm& cliComm_,
                    Debugger& debugger_)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "debug")

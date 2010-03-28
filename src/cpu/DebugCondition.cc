@@ -7,7 +7,7 @@ namespace openmsx {
 
 unsigned DebugCondition::lastId = 0;
 
-DebugCondition::DebugCondition(CliComm& cliComm,
+DebugCondition::DebugCondition(GlobalCliComm& cliComm,
                                std::auto_ptr<TclObject> command,
                                std::auto_ptr<TclObject> condition)
 	: BreakPointBase(cliComm, command, condition)

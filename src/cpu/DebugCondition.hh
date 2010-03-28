@@ -13,7 +13,7 @@ namespace openmsx {
 class DebugCondition : public BreakPointBase
 {
 public:
-	DebugCondition(CliComm& CliComm,
+	DebugCondition(GlobalCliComm& CliComm,
 	               std::auto_ptr<TclObject> command,
 	               std::auto_ptr<TclObject> condition);
 	unsigned getId() const;

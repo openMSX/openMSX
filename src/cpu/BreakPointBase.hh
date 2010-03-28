@@ -11,7 +11,7 @@ struct Tcl_Interp;
 
 namespace openmsx {
 
-class CliComm;
+class GlobalCliComm;
 class TclObject;
 
 /** Base class for CPU break and watch points.
@@ -27,7 +27,10 @@ public:
 	Tcl_Interp* getInterpreter() const;
 
 protected:
-	BreakPointBase(CliComm& cliComm,
+	// Note: we require GlobalCliComm here because breakpoint objects can
+	// be transfered to different MSX machines, and so the MSXCliComm
+	// object won't remain valid.
+	BreakPointBase(GlobalCliComm& cliComm,
 	               std::auto_ptr<TclObject> command,
 	               std::auto_ptr<TclObject> condition);
 	~BreakPointBase();
@@ -35,7 +38,7 @@ protected:
 private:
 	bool isTrue() const;
 
-	CliComm& cliComm;
+	GlobalCliComm& cliComm;
 	const std::auto_ptr<TclObject> command;
 	const std::auto_ptr<TclObject> condition;
 	bool executing;

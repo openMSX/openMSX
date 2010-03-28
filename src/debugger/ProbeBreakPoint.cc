@@ -10,7 +10,7 @@ namespace openmsx {
 unsigned ProbeBreakPoint::lastId = 0;
 
 ProbeBreakPoint::ProbeBreakPoint(
-		CliComm& cliComm,
+		GlobalCliComm& cliComm,
 		std::auto_ptr<TclObject> command,
 		std::auto_ptr<TclObject> condition,
 		Debugger& debugger_,
