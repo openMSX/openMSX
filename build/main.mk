@@ -134,7 +134,10 @@ ifneq ($(PLATFORM),)
 
 # List of CPUs to compile for.
 ifeq ($(OPENMSX_TARGET_CPU),univ)
-CPU_LIST:=ppc x86 x86_64
+CPU_LIST:=ppc x86
+ifeq ($(shell $(PYTHON) -c 'from platform import mac_ver ; print tuple(int(n) for n in mac_ver()[0].split(".")) >= (10, 6)'),True)
+CPU_LIST+=x86_64
+endif
 else
 CPU_LIST:=$(OPENMSX_TARGET_CPU)
 endif
