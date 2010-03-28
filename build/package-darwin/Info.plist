@@ -61,8 +61,6 @@
 	<string>oMSX</string>
 	<key>CFBundleVersion</key>
 	<string>%VERSION%</string>
-	<key>LSRequiresCarbon</key>
-	<true/>
 	<key>LSMinimumSystemVersionByArchitecture</key>
 	<dict>
 		<key>x86_64</key>
@@ -72,6 +70,8 @@
 		<key>ppc</key>
 		<string>10.4.0</string>
 	</dict>
+	<key>LSRequiresCarbon</key>
+	<true/>
 	<key>NSPrefPaneIconFile</key>
 	<string>%ICON%</string>
 	<key>NSPrefPaneIconLabel</key>
