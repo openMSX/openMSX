@@ -134,7 +134,7 @@ ifneq ($(PLATFORM),)
 
 # List of CPUs to compile for.
 ifeq ($(OPENMSX_TARGET_CPU),univ)
-CPU_LIST:=ppc x86
+CPU_LIST:=ppc x86 x86_64
 else
 CPU_LIST:=$(OPENMSX_TARGET_CPU)
 endif
