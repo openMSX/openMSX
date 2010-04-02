@@ -7,7 +7,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>AX350II</code>
     <release_year>?</release_year>
-    <description>Arabic MSX2 sold by Sakhr.</description>
+    <description>Arabic MSX2 sold by Al Alamiah.</description>
     <type>MSX2</type>
   </info>
 
@@ -33,7 +33,8 @@
       <ROM id="Arabic ROM">
         <mem base="0x4000" size="0x8000"/>
         <rom>
-          <sha1>2c9600c6e0025fee10d249e97448ecaa37e38c42</sha1> <!-- TODO: CHECK! -->
+          <sha1>f8cd4c05083decfc098cff077e055a4ae1e91a73</sha1> <!-- on dhau's machine -->
+          <!-- <sha1>2c9600c6e0025fee10d249e97448ecaa37e38c42</sha1> - TODO: CHECK! Unreliable source. -->
           <filename>roms/ax350ii_arabic.rom</filename>
         </rom>
       </ROM>
@@ -43,7 +44,8 @@
       <ROM id="Sakhr Word Processor">
         <mem base="0x4000" size="0x8000"/>
         <rom>
-          <sha1>4b4508131dca6d811694ae6379f41364c477de58</sha1>
+          <sha1>3a74e73b94d066b0187feb743c5eceddf0c61c2b</sha1> <!-- on dhau's machine -->
+     <!-- <sha1>4b4508131dca6d811694ae6379f41364c477de58</sha1> this is from an unreliable source-->
           <filename>roms/ax350ii_swp.rom</filename>
         </rom>
       </ROM>
@@ -75,6 +77,14 @@
             <filename>roms/ax350ii_msx2sub.rom</filename>
           </rom>
         </ROM>
+        <MB8877A id="Memory Mapped FDC">
+          <mem base="0x4000" size="0x8000"/>
+          <rom>
+            <sha1>358e69f427390041b5aa28018550a88f996bddb6</sha1> <!-- on dhau's machine -->
+            <filename>roms/ax350ii_disk.rom</filename>
+          </rom>
+          <drives>1</drives>
+        </MB8877A>
       </secondary>
 
       <secondary slot="2"> <!-- Confirmed by dhau -->
@@ -82,17 +92,6 @@
           <mem base="0x0000" size="0x10000"/>
           <size>128</size>
         </MemoryMapper>
-      </secondary>
-
-      <secondary slot="3">
-        <MB8877A id="Memory Mapped FDC">
-          <mem base="0x4000" size="0x8000"/>
-          <rom>
-            <sha1>78cd7f847e77fd8cd51a647efb2725ba93f4c471</sha1> <!-- This is most certainly not the correct ROM dump; the ROM dump failed and this one seems to work as well... -->
-            <filename>roms/NATIONALDISK.rom</filename>
-          </rom>
-          <drives>1</drives>
-        </MB8877A>
       </secondary>
 
     </primary>
@@ -103,7 +102,7 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>true</key_ghosting>
-      <keyboard_type>int</keyboard_type> <!-- Should be Arabic -->
+      <keyboard_type>int</keyboard_type> <!-- Should be Arabic? -->
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
