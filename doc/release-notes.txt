@@ -1,91 +1,59 @@
-Release Notes for openMSX 0.7.2 (2009-06-30)
+Release Notes for openMSX 0.8.0 (2010-04-05?)
 ============================================
 
-This is a quick fix for the 0.7.1 release. Due to a small bug in a Tcl script,
-openMSX wasn't able to load savestates with paths that contain spaces, which is
-the most common case on standard Windows installations. 0.7.2 fixes that.
+This release brings you two major new features: reverse and Laserdisc. Reverse
+is similar to what you can do in meisei: you can 'rewind' time with your finger
+tip, to correct game playing mistakes or inspect what caused a crash. Laserdisc
+is the Palcom system introduced by Pioneer in 1984: now you can play all the
+Palcom MSX Laserdisc games in openMSX!
 
-Release Notes for openMSX 0.7.1 (2009-06-28)
-============================================
-
-This release comes mostly with good news for Windows users: we have a brand new
-installer with binaries which have been created in a brand new way, using
-Microsoft Visual C++ 2008. This means smaller binaries and also support for
-64-bit Windows operating systems. Also, several long standing problems have
-been fixed in the Windows release of openMSX. E.g., it now includes full
-support for unicode!
-
-For the rest we have mostly fixed smaller issues (see below) and added some
-cool demonstrations of what one can do with the combination of (Tcl) scripting,
-the debug command and the OSD.
+For the rest we have mostly fixed smaller issues and added smaller features
+(see below). Here's the list with all highlights:
 
 New or improved emulator features:
-- Removed buggy SDLGL renderer (instead use SDLGL-PP)
+- Added reverse: go back in time to correct mistakes or replay your actions
+  (use PgUp and PgDn to control, enable visualization of this feature with this
+  console command: set auto_enable_reverse gui). For more information on usage,
+  please see the (links in the) FAQ of the manual.
 - Debugging:
-  - implemented step_out
-  - implemented skip_instruction
-  - implemented general debug conditions (not bound to addresses anymore, but
-    note: this is very CPU intensive!)
-- Speed optimizations in the CPU emulation
-- Console now uses TrueType fonts, and can display localized text now (as long
-  as the characters are in the used font), in other words: it supports unicode
-- Optimizations in ZMBV encoding cause openMSX video recordings to become
-  smaller and the encoding to be faster
-- As is default in fMSX, it is now possible to automatically pause openMSX when
-  the mouse pointer leaves the openMSX window (not enabled by default)
-- Added icons in the OSD for 'pause', 'full throttle', 'debug break' and 'mute'
-  status
-- Added several improvements on the OSD, regarding features, bug fixes and speed
-- Fixed some long standing bugs on Windows:
-  - ALT-SPACE no longer pops up a context window
-  - Unicode is now fully supported (e.g, no more problems with localized
-    versions of Windows). Note: this means openMSX requires Windows 2000 or
-    higher as of this release.
-  - socket communication (e.g. with the openMSX debugger) is secure now. This
-    does mean that older builds of the openMSX debugger will not work anymore
-    with this openMSX release, you need an updated build!
-- Added the possibility to include OSD elements in screenshots, which are now
-  no longer included by default (e.g. typing screenshot in the console no longer
-  shows the console in the screenshot)
-- Added some scripts that demonstrate the OSD framework:
-  - vu_meters: shows graphical VU meters for each channel of each sound chip in
-    the currently emulated MSX
-  - scc_viewer: shows current waveform and volume of the SCC channels
-  - mog_overlay: help and extra information when playing The Maze of Galious
-  - info_panel: a general information panel, similar to the DIGIblue v2 theme
-    of blueMSX
+  - added information on last address/value written which triggered watch point
+  - added several new debuggables: keymatrix, joystick ports, romblock
+- Windows unicode fixes
+- Added possibility to link to Generation MSX from within scripts
+- Various internal code cleanups
+- Better SDLGL-PP TV scaler, sensitive to scanline setting
+- Many speed and code size optimizations, developed in the context for the
+  Dingoo port
+- Renamed "update" command to "openmsx_update" to avoid conflicts with the
+  native Tcl command
+- Various tweaks to OSD menu: new colors (thanks Wolf), save states show date,
+  toys menu, ...
+- Added new icon skin especially made for handhelds
+- Added OSD virtual keyboard (only international QWERTY layout for now) for
+  devices without keyboard
+- Added OSD mouse support, you can now easily create drag and drop of MSX
+  objects, for instance
+- New scripts that demonstrate the OSD framework:
+  - experimental OSD script for tabbed MSXing (controllable from OSD menu)
+  - music keyboard (visualize notes of sound chips)
+  - SCC editor (edit SCC wave forms)
 
 MSX device support:
-- Several new machines were added, e.g. Sony HB-F700P, Panasonic CF-2700
-  (German), Talent DPC-200 (Argentinian), Yamaha CX5M, Sanyo PHC-28L, Sanyo
-  PHC-28S, Yamaha YIS-503F, Sanyo MPC-25FD (thanks jltursan)
-- Added Sharp HB-3600 dual disk drive
+- Added emulation of Palcom Laserdisc games on the Pioneer PX-7/PX-V60 (note:
+  not visible in screenshots and video recording yet)
+- Added support for balance per channel, including support for the "stereo"
+  effect of the FM Stereo PAK and the stereo PSG of the Pioneer PX-7
+- Added new mapper: Arc
 - Accuracy improvements:
-  - Added difference between AY8910 and YM2149 PSG's when reading registers
-  - Z80: added 'ld a,i' quirk
-  - V99x8:
-    - implemented sprite collision coordinate status registers
-    - fixed detail of LINE command (fixing one problem in Syntax Infinity)
-    - implemented VR bit (fixing another problem in Syntax Infinity)
-  - Added a memory mirror device to properly emulate the Sony HB-10P
-- Fixed sound quality regression in YM2413 emulation
-- Fixed very long standing bug in vblank interrupt timing, resolving many
-  problems like the Zanac title screen, Adonis music speed, Galaga slowdowns,
-  Penguin Adventure start up, ...
-- Added emulation of Nowind (mostly useful for Nowind firmware developers)
-- Added emulation of the Arkanoid pad, using the mouse
+  - minor fixes in V99x8, V9990, YM2413 and YMF278 emulation
+- Added emulation of the trackball (thanks n_n)
 
 Build system, packaging, documentation:
-- Build support for Microsoft Visual C++ on Windows. As a result, we have
-  smaller binaries for Win32 and we now also have support for 64-bit Windows.
-- New installer based on WiX on Windows
-- Added a super-opt flavour which does the most aggressive optimizations. This
-  includes using "computed gotos" in the CPU code (which speeds it up by
-  roughly 10%), but may need 1GB of RAM at compile time.
-- Added support for Hurd operating systems (tested on Debian GNU/Hurd)
-- Converted (most of) the build system to Python, so that it is a lot better
-  maintainable and the Visual C++ build can also make use of it. Python (> 2.4
-  but < 3.0) is now required to compile openMSX.
+- Added platform/CPU support for: PA-RISC, Dingoo, SuperH, Nokia N900/Maemo,
+  MacOSX 10.6 / 64-bit, GNU/kFreeBSD, Atmel AVR32
+- For Laserdisc support (which is optional), added dependency on libogg,
+  libvorbis and libtheora
+- Removed dependency on SDL_image
 
 And of course the usual various bug fixes.
 
