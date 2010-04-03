@@ -14,7 +14,7 @@
 #
 # Please cheat responsible!
 #
-# Updated @ 2010/02/06
+# Updated @ 2010/04/03
 #
 
 
@@ -682,6 +682,10 @@ create_trainer "Astro Monsters" {time 1} {
 	"Round (1-7)" {poke 0x9961 1}
 	"Three Front Shots" {poke 0xcf90 3}
 	"Two Front Shots" {poke 0xcf90 2}
+}
+
+create_trainer "Astron Belt" {time 1} {
+	"Timer" {poke 0xfd42 99}
 }
 
 create_trainer "Athletic Land" {time 0.1} {
@@ -3597,6 +3601,10 @@ create_trainer "Ink CAS" {time 1} {
 	"Stage (1-24 Normal Or 1-25 Hard)" {poke 0x7000 1}
 }
 
+create_trainer "Inter Stellar" {time 1} {
+	"Infinite Lives" {poke 0xf10b 3}
+}
+
 create_trainer "Iriegas - Illegus" {time 1} {
 	"Can See In Dark (f2)" {poke 0xee9a 255}
 	"Stamina" {poke 0xee99 255}
@@ -5349,6 +5357,10 @@ create_trainer "Rocket Roger" {time 1} {
 	"Lives" {poke 0xf31f 58}
 }
 
+create_trainer "Rolling Blaster" {time 1} {
+	"Infinite Lives" {poke 0xf108 9}
+}
+
 create_trainer "Romancia MSX2" {time 1} {
 	"be able to receive Unlimited Potions" {poke 0xd09b 1}
 	"Gold" {poke 0xd067 63}
@@ -6882,4 +6894,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 3.843 seconds. 728 trainers -  having 5608 pokes
+# File Created in : 2.767 seconds. 731 trainers -  having 5611 pokes
