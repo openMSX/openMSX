@@ -8,7 +8,7 @@
 namespace openmsx {
 
 OutputSurface::OutputSurface()
-	: displaySurface(0), workSurface(0), locked(false)
+	: displaySurface(0), workSurface(0), xOffset(0), yOffset(0), locked(false)
 {
 }
 
@@ -33,6 +33,12 @@ void OutputSurface::unlock()
 	if (workSurface && SDL_MUSTLOCK(workSurface)) {
 		SDL_UnlockSurface(workSurface);
 	}
+}
+
+void OutputSurface::setPosition(int x, int y)
+{
+	xOffset = x;
+	yOffset = y;
 }
 
 unsigned OutputSurface::mapRGB(double dr, double dg, double db)

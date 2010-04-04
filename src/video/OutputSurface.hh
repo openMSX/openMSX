@@ -30,6 +30,9 @@ public:
 
 	unsigned getWidth() const  { return displaySurface->w; }
 	unsigned getHeight() const { return displaySurface->h; }
+	int getX() { return xOffset; }
+	int getY() { return yOffset; }
+
 	const SDL_PixelFormat& getSDLFormat() { return format; }
 	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
 	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
@@ -126,6 +129,7 @@ public:
 
 protected:
 	OutputSurface();
+	void setPosition(int x, int y);
 	void setSDLDisplaySurface(SDL_Surface* surface);
 	void setSDLWorkSurface   (SDL_Surface* surface);
 	void setSDLFormat(const SDL_PixelFormat& format);
@@ -140,6 +144,7 @@ private:
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
+	int xOffset, yOffset;
 
 	bool locked;
 

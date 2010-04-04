@@ -168,6 +168,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	}
 
 	if (renderToTexture) {
+		glViewport(0, 0, screen.getWidth(), screen.getHeight());
 		glBindTexture(GL_TEXTURE_2D, 0);
 		fbo[frameCounter & 1]->push();
 	}
@@ -197,6 +198,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (renderToTexture) {
 		fbo[frameCounter & 1]->pop();
 		colorTex[frameCounter & 1]->bind();
+		glViewport(screen.getX(), screen.getY(),
+		           screen.getWidth(), screen.getHeight());
 
 		glEnable(GL_TEXTURE_2D);
 		if (deform == RenderSettings::DEFORM_3D) {

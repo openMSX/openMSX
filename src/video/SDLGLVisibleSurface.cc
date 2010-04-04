@@ -26,6 +26,15 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
 
+	// The created surface may be larger than requested.
+	// If that happens, center the area that we actually use.
+	SDL_Surface* surface = getSDLDisplaySurface();
+	unsigned actualWidth  = surface->w;
+	unsigned actualHeight = surface->h;
+	surface->w = width;
+	surface->h = height;
+	setPosition((actualWidth - width ) / 2, (actualHeight - height) / 2);
+
 	// From the glew documentation:
 	//   GLEW obtains information on the supported extensions from the
 	//   graphics driver. Experimental or pre-release drivers, however,
@@ -50,7 +59,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 					glewGetErrorString(glew_error))));
 	}
 
-	glViewport(0, 0, width, height);
+	glViewport(getX(), getY(), width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, width, height, 0, -1, 1);
