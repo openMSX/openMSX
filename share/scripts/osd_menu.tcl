@@ -361,7 +361,7 @@ set main_menu [prepare_menu {
 	font-size 10
 	border-size 2
 	width 160
-	items {{ text "Menu"
+	items {{ text "[openmsx_info version]"
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
@@ -397,7 +397,7 @@ set misc_setting_menu [prepare_menu {
 	xpos 100
 	ypos 120
 	items {{ text "Misc Settings"
-	         font-size 12
+	         font-size 10
 	         post-spacing 6
 	         selectable false }
 	       { text "Speed: $speed"
@@ -417,7 +417,7 @@ set sound_setting_menu [prepare_menu {
 	xpos 100
 	ypos 120
 	items {{ text "Sound Settings"
-	         font-size 12
+	         font-size 10
 	         post-spacing 6
 	         selectable false }
 	       { text "Volume: $master_volume"
@@ -495,7 +495,7 @@ proc menu_create_running_machine_list {} {
 	         xpos 100
 	         ypos 120
 	         header { text "Select Running Machine"
-	                  font-size 12
+	                  font-size 10
 	                  post-spacing 6 }}
 
 	set items [utils::get_ordered_machine_list]
@@ -528,7 +528,7 @@ proc menu_create_load_machine_list {} {
 	         xpos 100
 	         ypos 120
 	         header { text "Select Machine to Run"
-	                  font-size 12
+	                  font-size 10
 	                  post-spacing 6 }}
 
 	set items [openmsx_info machines]
@@ -562,7 +562,7 @@ proc menu_create_toys_list {} {
 	         xpos 100
 	         ypos 120
 	         header { text "Toys"
-	                  font-size 12
+	                  font-size 10
 	                  post-spacing 6 }}
 
 	set items [info commands toggle_*]
@@ -697,7 +697,7 @@ proc menu_create_load_state {} {
 	         on-select   menu_loadstate_select
 	         on-deselect menu_loadstate_deselect
 	         header { text "Load State"
-	                  font-size 12
+	                  font-size 10
                           post-spacing 6 }}
 
 	set items [list_savestates -t]
@@ -721,7 +721,7 @@ proc menu_create_save_state {} {
 	         on-select   menu_loadstate_select
 	         on-deselect menu_loadstate_deselect
 	         header { text "Save State"
-	                  font-size 12
+	                  font-size 10
 	                  post-spacing 6 }}
 
 
