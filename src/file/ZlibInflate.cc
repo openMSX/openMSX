@@ -2,6 +2,7 @@
 
 #include "ZlibInflate.hh"
 #include "FileException.hh"
+#include "StringOp.hh"
 
 namespace openmsx {
 
@@ -75,7 +76,11 @@ std::string ZlibInflate::getCString()
 
 void ZlibInflate::inflate(std::vector<byte>& output, unsigned sizeHint)
 {
-	inflateInit2(&s, -MAX_WBITS);
+	int initErr = inflateInit2(&s, -MAX_WBITS);
+	if (initErr != Z_OK) {
+		throw FileException(StringOp::Builder()
+			<< "Error initializing inflate struct: " << zError(initErr));
+	}
 	wasInit = true;
 
 	std::vector<byte> buf;
@@ -88,7 +93,8 @@ void ZlibInflate::inflate(std::vector<byte>& output, unsigned sizeHint)
 			break;
 		}
 		if (err != Z_OK) {
-			throw FileException("Error decompressing gzip");
+			throw FileException(StringOp::Builder()
+				<< "Error decompressing gzip: " << zError(err));
 		}
 		buf.resize(buf.size() * 2); // double buffer size
 	}
