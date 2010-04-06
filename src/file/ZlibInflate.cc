@@ -2,6 +2,7 @@
 
 #include "ZlibInflate.hh"
 #include "FileException.hh"
+#include "Math.hh"
 #include "StringOp.hh"
 
 namespace openmsx {
@@ -84,7 +85,7 @@ void ZlibInflate::inflate(std::vector<byte>& output, unsigned sizeHint)
 	wasInit = true;
 
 	std::vector<byte> buf;
-	buf.resize(sizeHint); // initial buffer size
+	buf.resize(Math::clip<4 * 1024, 1024 * 1024>(sizeHint)); // initial buffer size
 	while (true) {
 		s.next_out = &buf[0] + s.total_out;
 		s.avail_out = uInt(buf.size() - s.total_out);
