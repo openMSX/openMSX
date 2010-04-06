@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1269622209">
+<softwaredb xml:lang="en" timestamp="1270596087">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1827,6 +1827,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">e36e16acfdfa76fa72b218da2bebc668db39d21e</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Cold Bood - DEMO</title>
+	<system>MSX</system>
+	<company>Paxanga</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">50881d29421b9431b31f8b09fe26ee8b298ba76a</hash><remark><text>Demo Version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Color Ball</title>
@@ -11508,6 +11516,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2527
-Parse time 4.148 seconds on Fri Mar 26 17:50:13 CET 2010
+Roms in this database:2528
+Parse time 4.876 seconds on Wed Apr 7 1:21:32 CEST 2010
  -->
