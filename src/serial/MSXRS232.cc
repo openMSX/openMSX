@@ -95,7 +95,9 @@ MSXRS232::~MSXRS232()
 
 void MSXRS232::powerUp(EmuTime::param time)
 {
-	ram->clear();
+	if(ram.get()) {
+		ram->clear();
+	}
 	reset(time);
 }
 
