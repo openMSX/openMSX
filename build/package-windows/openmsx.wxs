@@ -113,7 +113,7 @@
     <CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" 
                   Value="If you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in the following directory: [OPENMSXINSTALLDIR]share\systemroms" />
     <InstallUISequence>
-      <Custom Action="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" After="CostFinalize" />
+      <Custom Action="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" After="ExecuteAction" />
     </InstallUISequence>
 
     <!--
