@@ -37,7 +37,7 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 		     unsigned freq_)
 	: file(new File(filename, "wb"))
 	, codec(new ZMBVEncoder(width_, height_, bpp))
-	, fps(50.0)
+	, fps(0.0) // will be filled in later
 	, width(width_)
 	, height(height_)
 	, channels(channels_)
@@ -56,6 +56,8 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 
 AviWriter::~AviWriter()
 {
+	assert(fps != 0.0); // a decent fps should have been set
+
 	unsigned char avi_header[AVI_HEADER_SIZE];
 	memset(&avi_header, 0, AVI_HEADER_SIZE);
 	unsigned header_pos = 0;
@@ -129,7 +131,8 @@ AviWriter::~AviWriter()
 	AVIOUTd(0);                         // ClrImportant: Number of colors important
 
 	if (hasAudio) {
-		unsigned bytespersecond = audiorate * 2 * channels;
+		unsigned bytesPerSamplePerChannel = 2; // 16 bit audio
+		unsigned bytesPerSecond = audiorate * bytesPerSamplePerChannel * channels;
 
 		// Audio stream list
 		AVIOUT4("LIST");
@@ -143,13 +146,14 @@ AviWriter::~AviWriter()
 		AVIOUTd(0);                 // Flags
 		AVIOUTd(0);                 // Reserved, MS says: wPriority, wLanguage
 		AVIOUTd(0);                 // InitialFrames
-		AVIOUTd(4);                 // Scale
-		AVIOUTd(bytespersecond);    // Rate, actual rate is scale/rate
+		// Rate/Scale should be number of samples per second!
+		AVIOUTd(channels * bytesPerSamplePerChannel); // Scale
+		AVIOUTd(bytesPerSecond);    // Rate, actual rate is scale/rate
 		AVIOUTd(0);                 // Start
 		AVIOUTd(audiowritten);      // Length
 		AVIOUTd(0);                 // SuggestedBufferSize
 		AVIOUTd(unsigned(~0));      // Quality
-		AVIOUTd(channels * 2);	    // SampleSize
+		AVIOUTd(channels * bytesPerSamplePerChannel); // SampleSize (should be the same as BlockAlign)
 		AVIOUTd(0);                 // Frame
 		AVIOUTd(0);                 // Frame
 		// The audio stream format
@@ -158,9 +162,9 @@ AviWriter::~AviWriter()
 		AVIOUTw(1);                 // Format, WAVE_ZMBV_FORMAT_PCM
 		AVIOUTw(channels);          // Number of channels
 		AVIOUTd(audiorate);         // SamplesPerSec
-		AVIOUTd(bytespersecond);    // AvgBytesPerSec
-		AVIOUTw(4);		    // BlockAlign
-		AVIOUTw(16);                // BitsPerSample
+		AVIOUTd(bytesPerSecond);    // AvgBytesPerSec
+		AVIOUTw(channels * bytesPerSamplePerChannel); // BlockAlign: for PCM: nChannels * BitsPerSaple / 8
+		AVIOUTw(bytesPerSamplePerChannel * 8);  // BitsPerSample
 	}
 
 	const char* versionStr = Version::FULL_VERSION.c_str();
