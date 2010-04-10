@@ -131,8 +131,12 @@ AviWriter::~AviWriter()
 	AVIOUTd(0);                         // ClrImportant: Number of colors important
 
 	if (hasAudio) {
-		unsigned bytesPerSamplePerChannel = 2; // 16 bit audio
-		unsigned bytesPerSecond = audiorate * bytesPerSamplePerChannel * channels;
+		// 1 fragment is 1 (for mono) or 2 (for stereo) samples
+		unsigned bitsPerSample = 16;
+		unsigned bytesPerSample = bitsPerSample / 8;
+		unsigned bytesPerFragment = bytesPerSample * channels;
+		unsigned bytesPerSecond = audiorate * bytesPerFragment;
+		unsigned fragments = audiowritten / channels;
 
 		// Audio stream list
 		AVIOUT4("LIST");
@@ -147,13 +151,13 @@ AviWriter::~AviWriter()
 		AVIOUTd(0);                 // Reserved, MS says: wPriority, wLanguage
 		AVIOUTd(0);                 // InitialFrames
 		// Rate/Scale should be number of samples per second!
-		AVIOUTd(channels * bytesPerSamplePerChannel); // Scale
+		AVIOUTd(bytesPerFragment);  // Scale
 		AVIOUTd(bytesPerSecond);    // Rate, actual rate is scale/rate
 		AVIOUTd(0);                 // Start
-		AVIOUTd(audiowritten);      // Length
+		AVIOUTd(fragments);         // Length
 		AVIOUTd(0);                 // SuggestedBufferSize
 		AVIOUTd(unsigned(~0));      // Quality
-		AVIOUTd(channels * bytesPerSamplePerChannel); // SampleSize (should be the same as BlockAlign)
+		AVIOUTd(bytesPerFragment);  // SampleSize (should be the same as BlockAlign)
 		AVIOUTd(0);                 // Frame
 		AVIOUTd(0);                 // Frame
 		// The audio stream format
@@ -163,8 +167,8 @@ AviWriter::~AviWriter()
 		AVIOUTw(channels);          // Number of channels
 		AVIOUTd(audiorate);         // SamplesPerSec
 		AVIOUTd(bytesPerSecond);    // AvgBytesPerSec
-		AVIOUTw(channels * bytesPerSamplePerChannel); // BlockAlign: for PCM: nChannels * BitsPerSaple / 8
-		AVIOUTw(bytesPerSamplePerChannel * 8);  // BitsPerSample
+		AVIOUTw(bytesPerFragment);  // BlockAlign: for PCM: nChannels * BitsPerSaple / 8
+		AVIOUTw(bitsPerSample);     // BitsPerSample
 	}
 
 	const char* versionStr = Version::FULL_VERSION.c_str();
@@ -260,16 +264,16 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData
 	addAviChunk("00dc", size, buffer, keyFrame ? 0x10 : 0x0);
 
 	if (samples) {
+		assert((samples % channels) == 0);
 		assert(audiorate != 0);
 		if (OPENMSX_BIGENDIAN) {
-			VLA(short, buf, 2 * samples);
+			VLA(short, buf, samples);
 			for (unsigned i = 0; i < samples; ++i) {
-				buf[2 * i + 0] = bswap16(sampleData[2 * i + 0]);
-				buf[2 * i + 1] = bswap16(sampleData[2 * i + 1]);
+				buf[i] = bswap16(sampleData[i]);
 			}
-			addAviChunk("01wb", samples * 2 * sizeof(short), buf, 0);
+			addAviChunk("01wb", samples * sizeof(short), buf, 0);
 		} else {
-			addAviChunk("01wb", samples * 2 * sizeof(short), sampleData, 0);
+			addAviChunk("01wb", samples * sizeof(short), sampleData, 0);
 		}
 		audiowritten += samples;
 	}
