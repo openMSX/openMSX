@@ -440,6 +440,11 @@ proc key_matrix {keynum state} {
 	#numeric keyboard?
 }
 
+# for Dingoo assign the left shoulder button to show the keyboard
+if  {[string match *-dingux $tcl_platform(osVersion)]} {
+        bind_default "keyb TAB" toggle_osd_keyboard
+}
+
 namespace export toggle_osd_keyboard
 
 };# namespace osd_keyboard
