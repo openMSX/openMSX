@@ -769,9 +769,11 @@ proc menu_free_savestate_name {} {
 }
 
 # keybindings
-if {$tcl_platform(os) == "Darwin"} {
+if {$tcl_platform(os) == "Darwin"} { ;# Mac
 	bind_default "keyb META+O" main_menu_toggle
-} else {
+} elseif {[string match *-dingux $tcl_platform(osVersion)]} { ;# Dingoo
+        bind_default "keyb BACKSPACE" main_menu_toggle ;# right shoulder button
+} else { ;# any other
 	bind_default "keyb MENU" main_menu_toggle
 }
 
