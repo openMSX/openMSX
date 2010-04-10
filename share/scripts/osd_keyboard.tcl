@@ -16,7 +16,7 @@ variable row_starts
 #init colors
 variable key_color 0xffffffc0
 variable key_pressed_color 0xff8800ff
-variable key_background_color 0x88888880
+variable key_background_color 0x00000080
 variable key_hold_color 0x00ff88ff
 variable key_select_color 0xffff88ff
 variable key_edge_color 0xaaaaaaa0
@@ -123,18 +123,18 @@ proc toggle_osd_keyboard {} {
 					-rgba $key_edge_color
 			}
 
-				if {$key_text == "<--"} {
-					# Merge bottom part of "return" key with top part.
-					osd configure kb.$keycount \
-						-y [expr [osd info kb.$keycount -y] - $key_vspace] \
-						-h [expr [osd info kb.$keycount -h] + $key_vspace]
-				}
+			if {$key_text == "<--"} {
+				# Merge bottom part of "return" key with top part.
+				osd configure kb.$keycount \
+					-y [expr [osd info kb.$keycount -y] - $key_vspace] \
+					-h [expr [osd info kb.$keycount -h] + $key_vspace]
+			}
 
-				osd create text kb.$keycount.text \
-					-x 0.1 \
-					-y 0.1 \
-					-text $key_text \
-					-size 8
+			osd create text kb.$keycount.text \
+				-x 1.1 \
+				-y 0.1 \
+				-text $key_text \
+				-size 8
 
 				incr keycount
 			}
@@ -357,87 +357,87 @@ proc key_matrix {keynum state} {
 	#info from http://map.grauw.nl/articles/keymatrix.php (thanks Grauw)
 
 	switch $key {
-		"0" 	{$km 0 1}
-		"1" 	{$km 0 2}
-		"2" 	{$km 0 4}
-		"3" 	{$km 0 8}
-		"4" 	{$km 0 16}
-		"5" 	{$km 0 32}
-		"6" 	{$km 0 64}
-		"7" 	{$km 0 128}
+		"0"     {$km 0 1}
+		"1"     {$km 0 2}
+		"2"     {$km 0 4}
+		"3"     {$km 0 8}
+		"4"     {$km 0 16}
+		"5"     {$km 0 32}
+		"6"     {$km 0 64}
+		"7"     {$km 0 128}
 
-		"8" 	{$km 1 1}
-		"9" 	{$km 1 2}
-		"-" 	{$km 1 4}
-		"=" 	{$km 1 8}
-		"\\" 	{$km 1 16}
-		"\[" 	{$km 1 32}
-		"\]" 	{$km 1 64}
-		";" 	{$km 1 128}
+		"8"     {$km 1 1}
+		"9"     {$km 1 2}
+		"-"     {$km 1 4}
+		"="     {$km 1 8}
+		"\\"    {$km 1 16}
+		"\["    {$km 1 32}
+		"\]"    {$km 1 64}
+		";"     {$km 1 128}
 
-		"'" 	{$km 2 1}
-		"`" 	{$km 2 2}
-		"," 	{$km 2 4}
-		"." 	{$km 2 8}
-		"/" 	{$km 2 16}
-		"Acc" 	{$km 2 32}
-		"A" 	{$km 2 64}
-		"B" 	{$km 2 128}
+		"'"     {$km 2 1}
+		"`"     {$km 2 2}
+		","     {$km 2 4}
+		"."     {$km 2 8}
+		"/"     {$km 2 16}
+		"Acc"   {$km 2 32}
+		"A"     {$km 2 64}
+		"B"     {$km 2 128}
 
-		"C" 	{$km 3 1}
-		"D" 	{$km 3 2}
-		"E" 	{$km 3 4}
-		"F" 	{$km 3 8}
-		"G" 	{$km 3 16}
-		"H" 	{$km 3 32}
-		"I" 	{$km 3 64}
-		"J" 	{$km 3 128}
+		"C"     {$km 3 1}
+		"D"     {$km 3 2}
+		"E"     {$km 3 4}
+		"F"     {$km 3 8}
+		"G"     {$km 3 16}
+		"H"     {$km 3 32}
+		"I"     {$km 3 64}
+		"J"     {$km 3 128}
 
-		"K" 	{$km 4 1}
-		"L" 	{$km 4 2}
-		"M" 	{$km 4 4}
-		"N" 	{$km 4 8}
-		"O" 	{$km 4 16}
-		"P" 	{$km 4 32}
-		"Q" 	{$km 4 64}
-		"R" 	{$km 4 128}
+		"K"     {$km 4 1}
+		"L"     {$km 4 2}
+		"M"     {$km 4 4}
+		"N"     {$km 4 8}
+		"O"     {$km 4 16}
+		"P"     {$km 4 32}
+		"Q"     {$km 4 64}
+		"R"     {$km 4 128}
 
-		"S" 	{$km 5 1}
-		"T" 	{$km 5 2}
-		"U" 	{$km 5 4}
-		"V" 	{$km 5 8}
-		"W" 	{$km 5 16}
-		"X" 	{$km 5 32}
-		"Y" 	{$km 5 64}
-		"Z" 	{$km 5 128}
+		"S"     {$km 5 1}
+		"T"     {$km 5 2}
+		"U"     {$km 5 4}
+		"V"     {$km 5 8}
+		"W"     {$km 5 16}
+		"X"     {$km 5 32}
+		"Y"     {$km 5 64}
+		"Z"     {$km 5 128}
 
 		"Shift" {$km 6 1}
-		"Ctrl" 	{$km 6 2}
-		"Grp"	{$km 6 4}
-		"Cap" 	{$km 6 8}
-		"Cod" 	{$km 6 16}
-		"F1" 	{$km 6 32}
-		"F2" 	{$km 6 64}
-		"F3" 	{$km 6 128}
+		"Ctrl"  {$km 6 2}
+		"Grp"   {$km 6 4}
+		"Cap"   {$km 6 8}
+		"Cod"   {$km 6 16}
+		"F1"    {$km 6 32}
+		"F2"    {$km 6 64}
+		"F3"    {$km 6 128}
 
-		"F4" 	{$km 7 1}
-		"F5" 	{$km 7 2}
-		"Esc" 	{$km 7 4}
-		"Tab" 	{$km 7 8}
-		"Stop" 	{$km 7 16}
-		"BS" 	{$km 7 32}
-		"Select" {$km 7 64}
-		"Return" {$km 7 128}
-		"<--"	{$km 7 128}
+		"F4"    {$km 7 1}
+		"F5"    {$km 7 2}
+		"Esc"   {$km 7 4}
+		"Tab"   {$km 7 8}
+		"Stop"  {$km 7 16}
+		"BS"    {$km 7 32}
+		"Select"{$km 7 64}
+		"Return"{$km 7 128}
+		"<--"   {$km 7 128}
 
 		"Space" {$km 8 1}
-		"Home" 	{$km 8 2}
-		"Ins" 	{$km 8 4}
-		"Del" 	{$km 8 8}
+		"Home"  {$km 8 2}
+		"Ins"   {$km 8 4}
+		"Del"   {$km 8 8}
 	}
 
-		#cursor keys etc (not implemented... should we?)
-		#numeric keyboard?
+	#cursor keys etc (not implemented... should we?)
+	#numeric keyboard?
 }
 
 namespace export toggle_osd_keyboard
