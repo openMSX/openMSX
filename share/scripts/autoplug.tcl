@@ -1,5 +1,6 @@
 # if this machine has a cassetteport, then automaticaly plug
 # in the cassetteplayer
+# on a Dingoo, automatically plug in the joystick
 
 namespace eval autoplug {
 
@@ -15,9 +16,19 @@ proc do_autoplug {} {
 			plug cassetteport cassetteplayer
 		}
 	}
+	if {[string match *-dingux $::tcl_platform(osVersion)]} { ;# Dingoo
+		if {[lsearch $connectors "joyporta"] != -1} {
+			set ::keyjoystick1.triga LCTRL
+			set ::keyjoystick1.trigb LALT
+			if {[string first "--empty--" [plug joyporta]] != -1} {
+				# only when nothing already plugged
+				plug joyporta keyjoystick1
+			}
+		}
+	}
 	after boot [namespace code do_autoplug]
 }
 
 };# namespace autoplug
 
-autoplug::do_autoplug
+after boot autoplug::do_autoplug
