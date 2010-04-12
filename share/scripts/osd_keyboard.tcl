@@ -6,6 +6,8 @@ namespace eval osd_keyboard {
 #   for all machines
 # * lots more? :P
 
+variable is_dingoo [string match *-dingux $::tcl_platform(osVersion)]
+
 #init vars
 variable mouse1_pressed false
 variable key_pressed -1
@@ -29,6 +31,7 @@ variable board_hborder 4
 variable board_vborder 4
 
 proc toggle_osd_keyboard {} {
+	variable is_dingoo
 
 	#If exists destory/reset and exit
 	if {![catch {osd info kb -rgba} errmsg]} {
@@ -42,8 +45,13 @@ proc toggle_osd_keyboard {} {
 		unbind_default "keyb DOWN"
 		unbind_default "keyb LEFT"
 		unbind_default "keyb RIGHT"
-		unbind_default "keyb SPACE,PRESS"
-		unbind_default "keyb SPACE,RELEASE"
+		if {$is_dingoo} {
+			unbind_default "keyb LCTRL,PRESS"
+			unbind_default "keyb LCTRL,RELEASE"
+		} else {
+			unbind_default "keyb SPACE,PRESS"
+			unbind_default "keyb SPACE,RELEASE"
+		}
 		#reset keyboard matrix
 		for {set i 0} {$i <= 8} {incr i} {
 			keymatrixup $i 255
@@ -68,8 +76,13 @@ proc toggle_osd_keyboard {} {
 	bind_default "keyb DOWN"   -repeat { osd_keyboard::selection_row +1  }
 	bind_default "keyb LEFT"   -repeat { osd_keyboard::selection_col -1  }
 	bind_default "keyb RIGHT"  -repeat { osd_keyboard::selection_col +1  }
-	bind_default "keyb SPACE,PRESS"    { osd_keyboard::selection_press   }
-	bind_default "keyb SPACE,RELEASE"  { osd_keyboard::selection_release }
+	if {$is_dingoo} {
+		bind_default "keyb LCTRL,PRESS"    { osd_keyboard::selection_press   }
+		bind_default "keyb LCTRL,RELEASE"  { osd_keyboard::selection_release }
+	} else {
+		bind_default "keyb SPACE,PRESS"    { osd_keyboard::selection_press   }
+		bind_default "keyb SPACE,RELEASE"  { osd_keyboard::selection_release }
+	}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
 	set key_basewidth 18
@@ -233,6 +246,10 @@ proc key_release {} {
 	variable key_pressed
 	variable keys_held
 
+	if {$key_pressed == -1} {
+		return
+	}
+
 	set key_id $key_pressed
 	set key_pressed -1
 	set index [lsearch $keys_held $key_id]
@@ -357,92 +374,92 @@ proc key_matrix {keynum state} {
 	#info from http://map.grauw.nl/articles/keymatrix.php (thanks Grauw)
 
 	switch $key {
-		"0"     {$km 0 1}
-		"1"     {$km 0 2}
-		"2"     {$km 0 4}
-		"3"     {$km 0 8}
-		"4"     {$km 0 16}
-		"5"     {$km 0 32}
-		"6"     {$km 0 64}
-		"7"     {$km 0 128}
+		"0"      {$km 0 1}
+		"1"      {$km 0 2}
+		"2"      {$km 0 4}
+		"3"      {$km 0 8}
+		"4"      {$km 0 16}
+		"5"      {$km 0 32}
+		"6"      {$km 0 64}
+		"7"      {$km 0 128}
 
-		"8"     {$km 1 1}
-		"9"     {$km 1 2}
-		"-"     {$km 1 4}
-		"="     {$km 1 8}
-		"\\"    {$km 1 16}
-		"\["    {$km 1 32}
-		"\]"    {$km 1 64}
-		";"     {$km 1 128}
+		"8"      {$km 1 1}
+		"9"      {$km 1 2}
+		"-"      {$km 1 4}
+		"="      {$km 1 8}
+		"\\"     {$km 1 16}
+		"\["     {$km 1 32}
+		"\]"     {$km 1 64}
+		";"      {$km 1 128}
 
-		"'"     {$km 2 1}
-		"`"     {$km 2 2}
-		","     {$km 2 4}
-		"."     {$km 2 8}
-		"/"     {$km 2 16}
-		"Acc"   {$km 2 32}
-		"A"     {$km 2 64}
-		"B"     {$km 2 128}
+		"'"      {$km 2 1}
+		"`"      {$km 2 2}
+		","      {$km 2 4}
+		"."      {$km 2 8}
+		"/"      {$km 2 16}
+		"Acc"    {$km 2 32}
+		"A"      {$km 2 64}
+		"B"      {$km 2 128}
 
-		"C"     {$km 3 1}
-		"D"     {$km 3 2}
-		"E"     {$km 3 4}
-		"F"     {$km 3 8}
-		"G"     {$km 3 16}
-		"H"     {$km 3 32}
-		"I"     {$km 3 64}
-		"J"     {$km 3 128}
+		"C"      {$km 3 1}
+		"D"      {$km 3 2}
+		"E"      {$km 3 4}
+		"F"      {$km 3 8}
+		"G"      {$km 3 16}
+		"H"      {$km 3 32}
+		"I"      {$km 3 64}
+		"J"      {$km 3 128}
 
-		"K"     {$km 4 1}
-		"L"     {$km 4 2}
-		"M"     {$km 4 4}
-		"N"     {$km 4 8}
-		"O"     {$km 4 16}
-		"P"     {$km 4 32}
-		"Q"     {$km 4 64}
-		"R"     {$km 4 128}
+		"K"      {$km 4 1}
+		"L"      {$km 4 2}
+		"M"      {$km 4 4}
+		"N"      {$km 4 8}
+		"O"      {$km 4 16}
+		"P"      {$km 4 32}
+		"Q"      {$km 4 64}
+		"R"      {$km 4 128}
 
-		"S"     {$km 5 1}
-		"T"     {$km 5 2}
-		"U"     {$km 5 4}
-		"V"     {$km 5 8}
-		"W"     {$km 5 16}
-		"X"     {$km 5 32}
-		"Y"     {$km 5 64}
-		"Z"     {$km 5 128}
+		"S"      {$km 5 1}
+		"T"      {$km 5 2}
+		"U"      {$km 5 4}
+		"V"      {$km 5 8}
+		"W"      {$km 5 16}
+		"X"      {$km 5 32}
+		"Y"      {$km 5 64}
+		"Z"      {$km 5 128}
 
-		"Shift" {$km 6 1}
-		"Ctrl"  {$km 6 2}
-		"Grp"   {$km 6 4}
-		"Cap"   {$km 6 8}
-		"Cod"   {$km 6 16}
-		"F1"    {$km 6 32}
-		"F2"    {$km 6 64}
-		"F3"    {$km 6 128}
+		"Shift"  {$km 6 1}
+		"Ctrl"   {$km 6 2}
+		"Grp"    {$km 6 4}
+		"Cap"    {$km 6 8}
+		"Cod"    {$km 6 16}
+		"F1"     {$km 6 32}
+		"F2"     {$km 6 64}
+		"F3"     {$km 6 128}
 
-		"F4"    {$km 7 1}
-		"F5"    {$km 7 2}
-		"Esc"   {$km 7 4}
-		"Tab"   {$km 7 8}
-		"Stop"  {$km 7 16}
-		"BS"    {$km 7 32}
-		"Select"{$km 7 64}
-		"Return"{$km 7 128}
-		"<--"   {$km 7 128}
+		"F4"     {$km 7 1}
+		"F5"     {$km 7 2}
+		"Esc"    {$km 7 4}
+		"Tab"    {$km 7 8}
+		"Stop"   {$km 7 16}
+		"BS"     {$km 7 32}
+		"Select" {$km 7 64}
+		"Return" {$km 7 128}
+		"<--"    {$km 7 128}
 
-		"Space" {$km 8 1}
-		"Home"  {$km 8 2}
-		"Ins"   {$km 8 4}
-		"Del"   {$km 8 8}
+		"Space"  {$km 8 1}
+		"Home"   {$km 8 2}
+		"Ins"    {$km 8 4}
+		"Del"    {$km 8 8}
 	}
 
 	#cursor keys etc (not implemented... should we?)
 	#numeric keyboard?
 }
 
-# for Dingoo assign the left shoulder button to show the keyboard
-if  {[string match *-dingux $tcl_platform(osVersion)]} {
-        bind_default "keyb TAB" toggle_osd_keyboard
+# for Dingoo assign the start button to show the keyboard
+if {$is_dingoo} {
+	bind_default "keyb RETURN" toggle_osd_keyboard
 }
 
 namespace export toggle_osd_keyboard

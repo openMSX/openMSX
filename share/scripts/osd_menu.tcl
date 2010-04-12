@@ -10,6 +10,8 @@ variable default_text_color 0x002040ff
 variable default_select_color 0x80a0c0ff
 variable default_header_text_color 0xff2040ff
 
+variable is_dingoo [string match *-dingux $::tcl_platform(osVersion)]
+
 proc get_optional { array_name key default } {
 	upvar $array_name arr
 	if [info exists arr($key)] {
@@ -203,6 +205,7 @@ if ![file exists $::osd_disk_path] {
 
 proc main_menu_open {} {
 	variable main_menu
+	variable is_dingoo
 
 	# close console, because the menu interferes with it
 	set ::console off
@@ -215,9 +218,14 @@ proc main_menu_open {} {
 	bind_default "keyb DOWN"   -repeat { osd_menu::menu_action DOWN  }
 	bind_default "keyb LEFT"   -repeat { osd_menu::menu_action LEFT  }
 	bind_default "keyb RIGHT"  -repeat { osd_menu::menu_action RIGHT }
-	bind_default "keyb SPACE"          { osd_menu::menu_action A     }
-	bind_default "keyb RETURN"         { osd_menu::menu_action A     }
-	bind_default "keyb ESCAPE"         { osd_menu::menu_action B     }
+	if {$is_dingoo} {
+		bind_default "keyb LCTRL"  { osd_menu::menu_action A     }
+		bind_default "keyb LALT"   { osd_menu::menu_action B     }
+	} else {
+		bind_default "keyb SPACE"  { osd_menu::menu_action A     }
+		bind_default "keyb RETURN" { osd_menu::menu_action A     }
+		bind_default "keyb ESCAPE" { osd_menu::menu_action B     }
+	}
 }
 
 proc main_menu_close {} {
@@ -236,15 +244,22 @@ proc main_menu_toggle {} {
 }
 
 proc menu_last_closed {} {
+	variable is_dingoo
+
 	set ::pause false
 	# TODO avoid duplication with 'main_menu_open'
 	unbind_default "keyb UP"
 	unbind_default "keyb DOWN"
 	unbind_default "keyb LEFT"
 	unbind_default "keyb RIGHT"
-	unbind_default "keyb SPACE"
-	unbind_default "keyb RETURN"
-	unbind_default "keyb ESCAPE"
+	if {$is_dingoo} {
+		unbind_default "keyb LCTRL"
+		unbind_default "keyb LALT"
+	} else {
+		unbind_default "keyb SPACE"
+		unbind_default "keyb RETURN"
+		unbind_default "keyb ESCAPE"
+	}
 }
 
 proc prepare_menu { menu_def_list } {
@@ -771,10 +786,11 @@ proc menu_free_savestate_name {} {
 # keybindings
 if {$tcl_platform(os) == "Darwin"} { ;# Mac
 	bind_default "keyb META+O" main_menu_toggle
-} elseif {[string match *-dingux $tcl_platform(osVersion)]} { ;# Dingoo
-        bind_default "keyb BACKSPACE" main_menu_toggle ;# right shoulder button
+} elseif {$is_dingoo} { ;# Dingoo
+	bind_default "keyb ESCAPE" main_menu_toggle ;# select button
+	bind_default "keyb MENU"   main_menu_toggle ;# default: power+select
 } else { ;# any other
-	bind_default "keyb MENU" main_menu_toggle
+	bind_default "keyb MENU"   main_menu_toggle
 }
 
 namespace export main_menu_open
