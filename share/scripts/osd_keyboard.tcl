@@ -31,34 +31,40 @@ variable board_hborder 4
 variable board_vborder 4
 
 proc toggle_osd_keyboard {} {
+	if {[catch {osd info kb}]} {
+		enable_osd_keyboard
+	} else {
+		disable_osd_keyboard
+	}
+}
+
+proc disable_osd_keyboard {} {
 	variable is_dingoo
 
-	#If exists destory/reset and exit
-	if {![catch {osd info kb -rgba} errmsg]} {
-		#destroy virtual keyboard
-		osd destroy kb
-		#unbind mouse buttons and hotkeys
-		unbind_default "mouse button1 down"
-		unbind_default "mouse button1 up"
-		unbind_default "mouse button3 down"
-		unbind_default "keyb UP"
-		unbind_default "keyb DOWN"
-		unbind_default "keyb LEFT"
-		unbind_default "keyb RIGHT"
-		if {$is_dingoo} {
-			unbind_default "keyb LCTRL,PRESS"
-			unbind_default "keyb LCTRL,RELEASE"
-		} else {
-			unbind_default "keyb SPACE,PRESS"
-			unbind_default "keyb SPACE,RELEASE"
-		}
-		#reset keyboard matrix
-		for {set i 0} {$i <= 8} {incr i} {
-			keymatrixup $i 255
-		}
-		return ""
+	osd destroy kb
+	#unbind mouse buttons and hotkeys
+	unbind_default "mouse button1 down"
+	unbind_default "mouse button1 up"
+	unbind_default "mouse button3 down"
+	unbind_default "keyb UP"
+	unbind_default "keyb DOWN"
+	unbind_default "keyb LEFT"
+	unbind_default "keyb RIGHT"
+	if {$is_dingoo} {
+		unbind_default "keyb LCTRL,PRESS"
+		unbind_default "keyb LCTRL,RELEASE"
+	} else {
+		unbind_default "keyb SPACE,PRESS"
+		unbind_default "keyb SPACE,RELEASE"
 	}
+	#reset keyboard matrix
+	for {set i 0} {$i <= 8} {incr i} {
+		keymatrixup $i 255
+	}
+}
 
+proc enable_osd_keyboard {} {
+	variable is_dingoo
 	variable mouse1_pressed false
 	variable keys_held [list]
 	variable row_starts [list]
