@@ -61,6 +61,8 @@ proc disable_osd_keyboard {} {
 	for {set i 0} {$i <= 8} {incr i} {
 		keymatrixup $i 255
 	}
+
+	namespace eval ::osd_control { unset close }
 }
 
 proc enable_osd_keyboard {} {
@@ -71,6 +73,13 @@ proc enable_osd_keyboard {} {
 	variable key_color
 	variable key_background_color
 	variable key_edge_color
+
+	# first remove other OSD controlled widgets (like the osd menu)
+	if {[info exists ::osd_control::close]} {
+		eval $::osd_control::close
+	}
+	# end tell how to close this widget
+	namespace eval ::osd_control { set close ::osd_keyboard::disable_osd_keyboard }
 
 	#bind stuff
 	bind_default "mouse button1 down"  {osd_keyboard::key_handler true}

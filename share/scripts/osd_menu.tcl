@@ -210,6 +210,13 @@ proc main_menu_open {} {
 	# close console, because the menu interferes with it
 	set ::console off
 
+	# also remove other OSD controlled widgets (like the osd keyboard)
+	if {[info exists ::osd_control::close]} {
+		eval $::osd_control::close
+	}
+	# end tell how to close this widget
+	namespace eval ::osd_control { set close ::osd_menu::main_menu_close }
+
 	menu_create $main_menu
 
 	set ::pause true
@@ -260,6 +267,8 @@ proc menu_last_closed {} {
 		unbind_default "keyb RETURN"
 		unbind_default "keyb ESCAPE"
 	}
+
+	namespace eval ::osd_control { unset close }
 }
 
 proc prepare_menu { menu_def_list } {
