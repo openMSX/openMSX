@@ -30,6 +30,7 @@
 #  active_image               filename for LED image, default is <led>-on.png
 #  non_active_image           "                                  <led>-off.png
 
+set scale 1
 set xwidth 16
 set yheight 16
 set xspacing 20
