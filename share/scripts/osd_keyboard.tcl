@@ -1,9 +1,8 @@
 namespace eval osd_keyboard {
 
 # KNOWN ISSUES/TODO:
-# * "-" key doesn't work (needs escaping) shouldn't use the keymatrix command,
-#   but the 'type' command for all keys that are not on the same position in the matrix
-#   for all machines
+# * Shouldn't use the keymatrix command, but the 'type' command for all keys
+#   that are not on the same position in the matrix for all machines
 # * lots more? :P
 
 variable is_dingoo [string match *-dingux $::tcl_platform(osVersion)]
@@ -388,7 +387,7 @@ proc key_matrix {keynum state} {
 
 	#info from http://map.grauw.nl/articles/keymatrix.php (thanks Grauw)
 
-	switch $key {
+	switch -- $key {
 		"0"      {$km 0 1}
 		"1"      {$km 0 2}
 		"2"      {$km 0 4}
