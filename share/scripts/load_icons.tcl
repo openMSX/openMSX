@@ -305,7 +305,12 @@ namespace export load_icons
 namespace import load_icons::*
 
 # Restore settings from previous session
-user_setting create string osd_leds_set "Name of the OSD icon set" "set1"
+# default is set1, but if only scale_factor 1 is supported, use handheld
+if {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] == 1} {
+	user_setting create string osd_leds_set "Name of the OSD icon set" "handheld"
+} else {
+	user_setting create string osd_leds_set "Name of the OSD icon set" "set1"
+}
 user_setting create string osd_leds_pos "Position of the OSD icons" "default"
 set load_icons::current_osd_leds_set $osd_leds_set
 set load_icons::current_osd_leds_pos $osd_leds_pos
