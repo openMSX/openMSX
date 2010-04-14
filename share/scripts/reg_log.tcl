@@ -36,7 +36,7 @@ proc reg_log { subcommand debuggable {filename ""} } {
 		"record" { return [record $debuggable $filename] }
 		"play"   { return [play $debuggable $filename] }
 		"stop"   { return [stop $debuggable] }
-		default  { error "bad option \"$subcommand\": must be start stop" }
+		default  { error "bad option \"$subcommand\": must be record, play or stop" }
 	}
 }
 

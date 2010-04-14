@@ -2,7 +2,7 @@ namespace eval soundlog {
 
 # Backwards compatibility:
 #  The 'soundlog' command used to be a built-in openmsx command.
-#  Reimplemented now via the 'record -novideo' command.
+#  Reimplemented now via the 'record -audioonly' command.
 
 set_help_text soundlog \
 {Controls sound logging: writing the openMSX sound to a wav file.

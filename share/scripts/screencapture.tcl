@@ -6,8 +6,11 @@ namespace eval screencapture {
 set_help_text screencap \
 {Capture the screen.
 
-With the disablesprites boolean setting sprites can be disabled
-during screencap. Very useful when creating maps.
+Sprites can be disabled during screencap with the 'disablesprites' boolean setting.
+This is very useful when creating maps.
+Example:
+  set disablesprites true
+  screencap
 }
 
 variable cur_pp

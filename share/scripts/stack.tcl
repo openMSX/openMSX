@@ -1,6 +1,7 @@
 set_help_text stack \
-{Show the <count> top most entries on the CPU stack
+{Show the <count> top most entries on the CPU stack.
 
+If <count> is not specified, 8 entries are returned.
 Usage:
    stack [<count>]
 }

@@ -41,7 +41,7 @@ proc msx_update {name} {
 
 
 set_help_text osd_widgets::box\
-{The command 'osd_widgets::box' takes in the same parameters as an 'osd create' command.
+{The command 'osd_widgets::box' supports the same parameters as an 'osd create' command.
 There are a few exceptions:
 
 -fill: Defines the color within the box with a certain color and or alpha.
@@ -95,7 +95,7 @@ proc box {name args} {
 
 
 set_help_text create_power_bar\
-{The command 'osd_widgets::create_power_bar' takes in the following parameters:
+{The command 'osd_widgets::create_power_bar' supports the following parameters:
     -name == Name of the power bar
     -w == Width of the power bar (in pixels)
     -h == Height of the power bar
@@ -103,14 +103,14 @@ set_help_text create_power_bar\
     -background == When power declines this color is shown
     -edgecolor == This is the edge color (try white when I doubt which color to use)
 
-Colors must have the following format 0xRRGGBBAA.
+Colors must have the following hexadecimal format 0xRRGGBBAA.
 
-The power bar is initially created outside the viewable area we need to invoke
-the 'updated_power_bar' command to make it visible. Use 'hide_power_bar' to
+The power bar is initially created outside the viewable area, so we need to invoke
+the 'update_power_bar' command to make it visible. Use 'hide_power_bar' to
 remove it again.}
 
 set_help_text update_power_bar\
-{The command 'update_power_bar' takes in the following parameters:
+{The command 'update_power_bar' uses the following parameters:
     -name == Name of the power bar
     -x == vertical position of the power bar
     -y == horizontal position of the power bar
@@ -141,7 +141,7 @@ proc hide_power_bar {name} {
 
 
 set_help_text toggle_fps \
-{Enable/disable a fps-indicator in the top-left corner of the screen.}
+{Enable/disable a frames per second indicator in the top-left corner of the screen.}
 
 variable fps_after
 

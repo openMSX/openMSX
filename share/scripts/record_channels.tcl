@@ -4,7 +4,7 @@ set_help_text record_channels \
 {Convenience function to control recording of individual channels of
 sounddevice(s).
 
-There are three subcommand: start, stop and list to respectively start
+There are three subcommands (start, stop and list) to respectively start
 recording additional channels, to stop recording all or some channels and
 to list which channels are currently being recorded.
   record_channels [start] [<device> [<channels>]]
@@ -15,8 +15,8 @@ Some examples will make it much clearer:
   - To start recording:
       record_channels start PSG      record all PSG channels
       record_channels PSG            the 'start' keyword can be left out
-      record_channels SCC 1,4-5      only record channels 1, 4 and 5
-      record_channels SCC PSG 1      record all SCC channels, PSG channel 1
+      record_channels SCC 1,3-5      only record channels 1 and 3 to 5
+      record_channels SCC PSG 1      record all SCC channels + PSG channel 1
   - To stop recording
       record_channels stop           stop all recording
       record_channels stop PSG       stop recording all PSG channels
@@ -32,7 +32,7 @@ soundevice(s).
 Examples:
   mute_channels PSG               mute all PSG channels
   mute_channels SCC 2,4           mute SCC channels 2 and 4
-  unmute_channels PSG 1 SCC 3-4   unmute PSG channel 1, SCC channels 3 and 4
+  unmute_channels PSG 1 SCC 3-5   unmute PSG channel 1, SCC channels 3 to 5
   mute_channels                   show which channels are currently muted
   unmute_channels                 unmute all channels on all devices
   solo PSG 2                      mute everything except PSG channel 2

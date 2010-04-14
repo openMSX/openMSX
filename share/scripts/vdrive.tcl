@@ -9,19 +9,19 @@ What does it do:
   span over multiple disks.
 
 Preparations:
-1. If you have a software that spans multiple disks, you have to name them
-   according to the scheme: name+digit+extention for example [metal1.dsk,
-   metal2.dsk, metal3.dsk], of course they may all be compressed with gzip
-   so that you end up with [metal1.dsk.gz, metal2.dsk.gz, metal3.dsk.gz].
-   The script recognizes as extentions dsk, di1, di2 and xsa, with an
-   optional '.gz' suffix.
+1. If you have software that spans multiple disks, you have to name them
+   according to the scheme: name+digit+extension for example [metal1.dsk,
+   metal2.dsk, metal3.dsk]
+   Of course they may all be compressed with gzip, so you'll end up with
+   [metal1.dsk.gz, metal2.dsk.gz, metal3.dsk.gz].
+   The script recognizes 'dsk', 'di1', 'di2' and 'xsa' extensions,
+   with an optional '.gz' suffix.
 
-2. bind the vdrive script to a hotkey for instance use in the console:
+2. bind the vdrive script to a hotkey, for instance type in the console:
      bind ALT+F9 "vdrive diska"
      bind ALT+F10 "vdrive diskb"
-   using the vdrive script without a drive parameter will make
-   it use diska.
-   Note: the two bind commands above are already the default key bindings,
+   vdrive will default to 'diska' when no drive parameter is specified.
+   Note: the two bind commands above are already the default key bindings;
          you only need to execute them if you want a different key binding.
 
 Using:

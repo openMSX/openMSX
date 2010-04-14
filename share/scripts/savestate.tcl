@@ -16,7 +16,7 @@ proc savestate { {name ""} } {
 	if {[catch { screenshot -raw -doublesize $png }]} {
 		# some renderers don't support msx-only screenshots
 		if {[catch { screenshot $png }]} {
-			# even this failed, but (try to) remove old screenhot
+			# even this failed, but (try to) remove old screenshot
 			# to avoid confusion
 			catch { file delete $png }
 		}

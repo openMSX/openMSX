@@ -1,10 +1,10 @@
-# several utility procs for usage in other scripts
+# Several utility procs for usage in other scripts
 # don't export anything, just use it from the namespace,
 # because these scripts aren't useful for console users
-# and should therefore not be exprted to the global
+# and should therefore not be exported to the global
 # namespace.
 #
-# these procs are specific for sound chips
+# These procs are specifically for sound chips.
 #
 # Born to prevent duplication between scripts for common stuff.
 
@@ -27,9 +27,9 @@ proc get_num_channels {soundchip} {
 # "machine_info sounddevice"
 # @channel the channel for which you want the expression to get the volume, the
 # first channel is channel 0 and the channels are the ones as they are output
-# by the record_channels command
+# by the record_channels command.
 # @return expression to calculate the volume of the device for that channel in
-# range [0-1]; returns just 'x' in case the chip is not supported
+# range [0-1]; returns just 'x' in case the chip is not supported.
 # @todo:
 #  - frequency expressions for (some of?) the drum channels are not correct
 #  - implement volume for MoonSound FM (tricky stuff)
@@ -128,9 +128,9 @@ proc get_volume_expr {soundchip channel} {
 # "machine_info sounddevice"
 # @channel the channel for which you want the expression to get the frequency, the
 # first channel is channel 0 and the channels are the ones as they are output
-# by the record_channels command
+# by the record_channels command.
 # @return expression to calculate the frequency of the device for that channel in
-# Hz; returns just 'x' in case the chip is not supported
+# Hz; returns just 'x' in case the chip is not supported.
 # @todo:
 #  - implement frequency for MoonSound
 #

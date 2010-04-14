@@ -1,4 +1,4 @@
-# if this machine has a cassetteport, then automaticaly plug
+# if this machine has a cassetteport, then automatically plug
 # in the cassetteplayer
 # on a Dingoo, automatically plug in the joystick
 

@@ -4,7 +4,8 @@ set_help_text findcheat \
 {Cheat finder version 0.5
 
 Welcome to the openMSX cheat finder. Please visit
-  http://forum.vampier.net/viewtopic.php?t=32
+  http://forum.vampier.net/viewtopic.php?t=32 and
+  http://www.youtube.com/watch?v=F11ltfkCtKo
 for a quick tutorial
 
 Usage:
@@ -19,7 +20,7 @@ Examples:
   findcheat new == (2 * old)   search for doubled values
   findcheat new == (old - 1)   search for values decreased by 1
   findcheat                    repeat the results from the previous operation
-  findcheat -start new < 10    restart and search for values less then 10
+  findcheat -start new < 10    restart and search for values less than 10
   findcheat -max 40 smaller    search for smaller values, show max 40 results
   findcheat -start addr>0xe000 && addr<0xefff search in defined memory locations
   }

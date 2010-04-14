@@ -77,7 +77,7 @@ proc enable_osd_keyboard {} {
 	if {[info exists ::osd_control::close]} {
 		eval $::osd_control::close
 	}
-	# end tell how to close this widget
+	# and tell how to close this widget
 	namespace eval ::osd_control { set close ::osd_keyboard::disable_osd_keyboard }
 
 	#bind stuff
