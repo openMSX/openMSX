@@ -1,4 +1,4 @@
-# Cheat definitions - Version 3.0
+# Cheat definitions - Version 3.1
 #
 # Copyright 2005-2010 Benoit Delvaux all rights reserved
 # Copyright 2005-2010 Albert Beevendorp all rights reserved
@@ -9,12 +9,11 @@
 # - Deceiver: someone who leads you to believe something that is not true
 # - A deception for profit to yourself
 #
-# openMSX is made to work together with ips patches. Albert has some ips
-# Patches can be found at http://ips.tni.nl/ for translations and more cheats.
+# Still not satisfied with these trainers? Try the BiFi's IPS archive @ http://ips.tni.nl/.
 #
-# Please cheat responsibly!
+# Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/04/03
+# Updated @ 2010/04/15
 #
 
 
@@ -5506,6 +5505,8 @@ create_trainer "Scentipede" {time 1} {
 
 create_trainer "Science Fiction" {time 1} {
 	"Lives" {poke 0xa465 9}
+	"Tears Shoot Down" {poke 0xa460 1}
+	"Tears Shoot Up" {poke 0xa461 1}
 }
 
 create_trainer "Scion" {time 1} {
@@ -6894,4 +6895,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 2.767 seconds. 731 trainers -  having 5611 pokes
+# File Created in : 1.870 seconds. 731 trainers -  having 5613 pokes
