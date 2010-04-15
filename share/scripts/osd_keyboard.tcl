@@ -52,6 +52,7 @@ proc disable_osd_keyboard {} {
 	if {$is_dingoo} {
 		unbind_default "keyb LCTRL,PRESS"
 		unbind_default "keyb LCTRL,RELEASE"
+		unbind_default "keyb LALT"
 	} else {
 		unbind_default "keyb SPACE,PRESS"
 		unbind_default "keyb SPACE,RELEASE"
@@ -93,6 +94,7 @@ proc enable_osd_keyboard {} {
 	if {$is_dingoo} {
 		bind_default "keyb LCTRL,PRESS"    { osd_keyboard::selection_press   }
 		bind_default "keyb LCTRL,RELEASE"  { osd_keyboard::selection_release }
+		bind_default "keyb LALT"           { osd_keyboard::key_hold_toggle   }
 	} else {
 		bind_default "keyb SPACE,PRESS"    { osd_keyboard::selection_press   }
 		bind_default "keyb SPACE,RELEASE"  { osd_keyboard::selection_release }
@@ -353,8 +355,14 @@ proc key_hold_toggle {} {
 	variable keys_held
 	variable key_color
 	variable key_hold_color
+	variable key_selected
+	variable is_dingoo
 
-	set key_id [key_at_mouse]
+	if {$is_dingoo} {
+		set key_id $key_selected
+	} else {
+		set key_id [key_at_mouse]
+	}
 	if {$key_id >= 0} {
 		set index [lsearch $keys_held $key_id]
 		if {$index == -1} {
