@@ -13,6 +13,7 @@ proc savestate_common { name } {
 
 proc savestate { {name ""} } {
 	savestate_common $name
+	file mkdir $directory
 	if {[catch { screenshot -raw -doublesize $png }]} {
 		# some renderers don't support msx-only screenshots
 		if {[catch { screenshot $png }]} {
@@ -22,7 +23,6 @@ proc savestate { {name ""} } {
 		}
 	}
 	set currentID [machine]
-	file mkdir $directory
 	store_machine $currentID $fullname
 	return $name
 }
