@@ -402,7 +402,7 @@ set main_menu [prepare_menu {
 	       { text "Load State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_state] }}
 	         post-spacing 3 }
-	       { text "openMSX Settings..."
+	       { text "Misc Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::misc_setting_menu }}}
 	       { text "Sound Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::sound_setting_menu }}}
