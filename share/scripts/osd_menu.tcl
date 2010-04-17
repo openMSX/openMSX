@@ -92,7 +92,7 @@ proc menu_create { menu_def_list } {
 		} else {
 			set textcolor [get_optional itemarr "text-color" $default_header_text_color]
 		}
-		set actions   [get_optional itemarr "actions"    ""]
+		set actions     [get_optional itemarr "actions"     ""]
 		set on_select   [get_optional itemarr "on-select"   ""]
 		set on_deselect [get_optional itemarr "on-deselect" ""]
 		set textid "${name}.item${y}"
@@ -137,6 +137,7 @@ proc menu_refresh_top {} {
 		osd configure $osdid -text [uplevel #0 $cmd]
 	}
 
+	if {[llength $menuinfo(selectinfo)] == 0} return
 	set sely [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 0]
 	set selh [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 1]
 	osd configure "$menuinfo(name).selection" -y $sely -h $selh
@@ -168,8 +169,11 @@ proc menu_setting { cmd_result } {
 
 proc menu_updown { delta } {
 	peek_menu_info
+	set num [llength $menuinfo(selectinfo)]
+	if {$num == 0} return
+
 	menu_on_deselect $menuinfo(selectinfo) $menuinfo(selectidx)
-	set_selectidx [expr ($menuinfo(selectidx) + $delta) % [llength $menuinfo(selectinfo)]]
+	set_selectidx [expr ($menuinfo(selectidx) + $delta) % $num]
 	menu_on_select $menuinfo(selectinfo) $menuinfo(selectidx)
 	menu_refresh_top
 }
@@ -187,6 +191,9 @@ proc menu_on_deselect { selectinfo selectidx } {
 proc menu_action { button } {
 	peek_menu_info
 	array set actions [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 2]
+	set_optional actions UP   { osd_menu::menu_updown -1 }
+	set_optional actions DOWN { osd_menu::menu_updown  1 }
+	set_optional actions B    { osd_menu::menu_close_top }
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
 }
@@ -272,13 +279,9 @@ proc menu_last_closed {} {
 }
 
 proc prepare_menu { menu_def_list } {
-	array set menudef $menu_def_list
-	array set actions [get_optional menudef actions ""]
-	set_optional actions UP   { osd_menu::menu_updown -1 }
-	set_optional actions DOWN { osd_menu::menu_updown  1 }
-	set_optional actions B    { osd_menu::menu_close_top }
-	set menudef(actions) [array get actions]
-	return [array get menudef]
+	# In the past we added default stuff here (like default actions
+	# for UP, DOWN, B). Maybe remove this proc completely in the future.
+	return $menu_def_list
 }
 
 proc prepare_menu_list { lst num menu_def_list } {
