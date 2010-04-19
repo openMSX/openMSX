@@ -700,7 +700,7 @@ proc menu_select_disk { item } {
 
 proc get_savestates_list_presentation_sorted {} {
 	set presentation [list]
-	foreach i [lsort -integer -index 1 [savestate::list_savestates_raw]] {
+	foreach i [lsort -integer -index 1 -decreasing [savestate::list_savestates_raw]] {
 		if {[info commands clock] != ""} {
 			set pres_str [format "%s (%s)" [lindex $i 0] [clock format [lindex $i 1] -format "%x - %X" ]]
 		} else {

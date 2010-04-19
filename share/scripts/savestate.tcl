@@ -53,6 +53,7 @@ proc list_savestates { args } {
 	set sort_key 0
 	set long_format false
 	set sort_option "-ascii"
+	set sort_order "-increasing"
 
 	#parse options
 	while (1) {
@@ -62,6 +63,7 @@ proc list_savestates { args } {
 			set sort_key 1
 			set sort_option "-integer"
 			set args [lrange $args 1 end]
+			set sort_order "-decreasing"
 		}
 		"-l" {
 			if {[info commands clock] != ""} {
@@ -77,7 +79,7 @@ proc list_savestates { args } {
 		}
 	}
 
-	set sorted_sublists [lsort ${sort_option} -index $sort_key [list_savestates_raw]]
+	set sorted_sublists [lsort ${sort_option} ${sort_order} -index $sort_key [list_savestates_raw]]
 	
 	if {!$long_format} {
 		set sorted_result [list]
