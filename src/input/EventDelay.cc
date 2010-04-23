@@ -78,16 +78,18 @@ bool EventDelay::signalEvent(EventPtr event)
 	return true;
 }
 
-void EventDelay::sync(EmuTime::param emuTime)
+void EventDelay::sync(EmuTime::param curEmu)
 {
 	unsigned long long curRealTime = Timer::getTime();
 	unsigned long long realDuration = curRealTime - prevReal;
-	EmuDuration emuDuration = emuTime - prevEmu;
+	prevReal = curRealTime;
+	EmuDuration emuDuration = curEmu - prevEmu;
+	prevEmu = curEmu;
 
 	double factor = emuDuration.toDouble() / realDuration;
 	EmuDuration extraDelay(delaySetting->getValue());
 
-	EmuTime time = prevEmu + extraDelay;
+	EmuTime time = curEmu + extraDelay;
 	for (std::vector<EventPtr>::const_iterator it =
 	        toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
@@ -98,17 +100,13 @@ void EventDelay::sync(EmuTime::param emuTime)
 		assert(eventRealTime <= curRealTime);
 		unsigned long long offset = curRealTime - eventRealTime;
 		EmuDuration emuOffset(factor * offset);
-		EmuTime schedTime = time + emuOffset;
-		if (schedTime < emuTime) {
-			//PRT_DEBUG("input delay too short");
-			schedTime = emuTime;
-		}
+		EmuTime schedTime = (emuOffset < extraDelay)
+		                  ? time - emuOffset
+		                  : curEmu;
+		assert(curEmu <= schedTime);
 		setSyncPoint(schedTime);
 	}
 	toBeScheduledEvents.clear();
-
-	prevReal = curRealTime;
-	prevEmu = emuTime;
 }
 
 void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
