@@ -90,5 +90,8 @@ Contact options:
 - Post on our forum: http://forum.openmsx.org/
 - Talk to us on #openmsx on irc.freenode.net.
 
+Thanks to all contributors for their feedback, support, bug reports, testing,
+coding and other help!
+
 Have fun with your emulated MSX!
                                         the openMSX developers
