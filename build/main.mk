@@ -22,7 +22,13 @@
 # you might have to be more specific, for example "python2" or "python2.6".
 # Or if the Python interpreter is not in the search path, you can specify its
 # full path.
-PYTHON?=python
+ifeq ($(PYTHON),)
+PYTHON:=$(shell build/python-search.sh)
+ifeq ($(PYTHON),)
+$(error No suitable Python interpreter found. Please install Python version 2.x where x >= 5. If your Python interpreter is installed in a non-standard location, please set the environment variable PYTHON to the full path of the interpreter binary.)
+endif
+endif
+$(info Using Python: $(PYTHON))
 
 
 # Delete on Error
