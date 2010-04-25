@@ -169,10 +169,7 @@ Version 4.1 or later is recommended; any version lower than 3.4 will not be able
 
 <p>
 Install the Xcode Tools from Apple, which you can find on the Mac OS X installation DVD. Alternatively, you can download it from the <a class="external" href="http://connect.apple.com/">Apple Developer Connection</a> (free registration required).
-The Xcode Tools package contains up-to-date versions of Make, GCC and SVN. If you are running Mac OS X 10.5 (Leopard), make sure you also install support for compiling for Mac OS X 10.3 (Panther), which is an optional component.
-</p>
-<p>
-Note that Mac OS X 10.3 uses GCC 3.3 as the system compiler, which is not able to compile openMSX. The easy solution for this is to use a Mac with OS X 10.4 or 10.5 and compile a stand-alone binary (see next section), which will run on 10.3 as well. An alternative would be to get a more recent GCC running on OS X 10.3, but that <a class="external" href="http://www.figuiere.net/hub/blog/?2006/09/14/452-gcc-40-on-macos-x-103">seems to be problematic</a>.
+The Xcode Tools package contains up-to-date versions of Make, GCC and SVN. If you are running Mac OS X 10.6 (Snow Leopard), make sure you also install support for compiling for Mac OS X 10.4 (Tiger), which is an optional component.
 </p>
 
 <h5>Microsoft Windows</h5>
@@ -585,7 +582,7 @@ Make sure you provide us with the error message you got.
 <h5>Mac OS X</h5>
 
 <p>
-By default, openMSX is compiled for the type of CPU that is present in your Mac. If you want to build for a different CPU, use <code>export OPENMSX_TARGET_CPU=ppc</code> (PowerPC) or <code>export OPENMSX_TARGET_CPU=x86</code> (Intel). If you want to build a universal binary, use <code>export OPENMSX_TARGET_CPU=univ</code>.
+By default, openMSX is compiled for the type of CPU that is present in your Mac. If you want to build for a different CPU, use <code>export OPENMSX_TARGET_CPU=ppc</code> (PowerPC), <code>export OPENMSX_TARGET_CPU=x86</code> (32-bit Intel) or <code>export OPENMSX_TARGET_CPU=x86_64</code> (64-bit Intel). If you want to build a universal binary, use <code>export OPENMSX_TARGET_CPU=univ</code>.
 </p>
 <p>
 If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
