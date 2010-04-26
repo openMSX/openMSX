@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/04/15
+# Updated @ 2010/04/26
 #
 
 
@@ -76,6 +76,14 @@ create_trainer "3D Bomberman" {time 1} {
 
 create_trainer "A Life M36 Planet" {time 1} {
 	"Life" {poke 0xc527 99;poke 0xd3c2 99}
+}
+
+create_trainer "A-Na-Za - Kaleidoscope Special" {time 1} {
+	"Credit" {poke 0xc01d 153;poke 0xc01e 153}
+	"Fire Super Shot" {poke 0xc03b 6}
+	"Monolis" {poke 0xc020 8}
+	"Power" {poke 0xc016 16}
+	"Speed" {poke 0xc03d 4}
 }
 
 create_trainer "A1 Spirit - The Way To Formula 1" {time 1} {
@@ -259,7 +267,7 @@ create_trainer "Alcazar - The Forgotten Fortress" {frame} {
 	"Power" {poke 0xf082 127;poke 0xf209 1}
 }
 
-create_trainer "Ale Hop" {time 10} {
+create_trainer "Ale Hop!" {time 10} {
 	"Mood (stay Happy)" {poke 0xdb68 4}
 	"Time" {poke 0xdb5d 9;poke 0xdb5e 9;poke 0xdb5f 1}
 }
@@ -407,14 +415,6 @@ create_trainer "Altered Beast" {time 1} {
 
 create_trainer "American Truck" {frame} {
 	"Disable Collisions" {poke 0xf29a 255;poke 0xf2a7 0}
-}
-
-create_trainer "Anaza - Kaleidoscope Special" {time 1} {
-	"Credit" {poke 0xc01d 153;poke 0xc01e 153}
-	"Fire Super Shot" {poke 0xc03b 6}
-	"Monolis" {poke 0xc020 8}
-	"Power" {poke 0xc016 16}
-	"Speed" {poke 0xc03d 4}
 }
 
 create_trainer "Andorogynus" {time 0.1} {
@@ -593,15 +593,15 @@ create_trainer "Arsene Lupin 3 (missile)" {time 5} {
 	"Time" {poke 0xcf23 59}
 }
 
-create_trainer "Arsene Lupin 3rd - Babiron no Ougon Densetsu" {time 1} {
-	"Invincible (makes Game Unplayable)" {poke 0xc09b 255}
-	"Power" {poke 0xc07f 200}
-}
-
-create_trainer "Arsene Lupin 3rd - Cariostoro no Siro" {time 2} {
+create_trainer "Arsene Lupin the 3rd and the Castle of Cagliostro" {time 2} {
 	"Bullet" {poke 0xe16f 153}
 	"Life" {poke 0xe18e 40;poke 0xe18f 40}
 	"Missile And Rings" {poke 0xe1ca 1;poke 0xe1cd 3;poke 0xe269 14}
+}
+
+create_trainer "Arsene Lupin the 3rd: The Golden Legend of Babylon" {time 1} {
+	"Invincible (makes Game Unplayable)" {poke 0xc09b 255}
+	"Power" {poke 0xc07f 200}
 }
 
 create_trainer "Ashguine 1" {time 2} {
@@ -732,7 +732,7 @@ create_trainer "Avenger" {time 1} {
 	"Shuriken" {poke 0xacd5 255}
 }
 
-create_trainer "B.C's Quest" {time 1} {
+create_trainer "B.C's Quest for Tires" {time 1} {
 	"Lives" {poke 0xe03e 9}
 	"Speed (0-7)" {poke 0xe045 3}
 }
@@ -1044,7 +1044,7 @@ create_trainer "Bop!" {time 1} {
 	"Balls" {poke 0xa138 4}
 }
 
-create_trainer "Borfesu" {time 0.25} {
+create_trainer "Borfesu and Five Evil Spirits" {time 0.25} {
 	"Ball" {poke 0xe0a6 1}
 	"Boomerang" {poke 0xe0a2 1}
 	"Bottle" {poke 0xe0ac 1}
@@ -1067,7 +1067,7 @@ create_trainer "Borfesu" {time 0.25} {
 	"Whirlwind" {poke 0xe0a1 1}
 }
 
-create_trainer "Bosconian" {time 1} {
+create_trainer "Bosconian (Star Destroyer)" {time 1} {
 	"'attack' Alarm Doesn't Sound (makes It Harder)" {poke 0xe810 0}
 	"Life Bar" {poke 0xe00d 99}
 }
@@ -1204,18 +1204,18 @@ create_trainer "Buggy Ranger" {time 1} {
 	"Lives" {poke 0xa938 9}
 }
 
-create_trainer "Burgerkill" {time 1} {
-	"Level (0-98)" {poke 0x41fd 0}
-	"Lives" {poke 0x420b 9}
-	"Pepper" {poke 0x41fe 99}
-}
-
-create_trainer "Buru To Marty Kikiippatsu - Inspecteur Z" {time 1} {
+create_trainer "Bull and Mighty's Slim Chance aka: Inspecteur Z" {time 1} {
 	"Blink Yellow" {poke 0xe31a 2}
 	"Bombs" {poke 0xe054 153}
 	"Coins" {poke 0xe055 153}
 	"Infinitive Lives" {poke 0xe001 153}
 	"Stay In State" {poke 0xfca2 255}
+}
+
+create_trainer "Burgerkill" {time 1} {
+	"Level (0-98)" {poke 0x41fd 0}
+	"Lives" {poke 0x420b 9}
+	"Pepper" {poke 0x41fe 99}
 }
 
 create_trainer "Bytebusters" {time 1} {
@@ -1363,7 +1363,7 @@ create_trainer "Chack'n Pop" {time 1} {
 	"No Monsters" {poke 0xe00d 255;poke 0xe012 255;poke 0xe017 255;poke 0xe01c 255;poke 0xe021 255;poke 0xe026 255;poke 0xe02b 255;poke 0xe030 255;poke 0xe035 255;poke 0xe03a 255}
 }
 
-create_trainer "Chase HQ" {time 10} {
+create_trainer "Chase H.Q." {time 10} {
 	"Time" {poke 0xa17e 153}
 	"Turbo" {poke 0xa170 5}
 }
@@ -1766,7 +1766,12 @@ create_trainer "Daidasso - Great Escape" {time 1} {
 	"Lives" {poke 0x814b 255}
 }
 
-create_trainer "Daiva 5" {time 1} {
+create_trainer "Daiva Story 4 - Asura's Bloodfeud" {time 10} {
+	"All Kind Of Ships In Stock" {poke 0xc4ee 99;poke 0xc4ef 99;poke 0xc4f0 99;poke 0xc4f1 99}
+	"Life On Planet" {poke 0xd408 255}
+}
+
+create_trainer "Daiva Story 5 - The Cup of Soma" {time 1} {
 	"Battle Ships In Stock" {poke 0xd0b8 99}
 	"Cruisers In Stock" {poke 0xd0c2 99}
 	"Damage On Planets" {poke 0x950a 0;poke 0x950b 0}
@@ -1776,12 +1781,7 @@ create_trainer "Daiva 5" {time 1} {
 	"Stop Timer On Planets" {poke 0x94ee 0}
 }
 
-create_trainer "Daiva Story 4" {time 10} {
-	"All Kind Of Ships In Stock" {poke 0xc4ee 99;poke 0xc4ef 99;poke 0xc4f0 99;poke 0xc4f1 99}
-	"Life On Planet" {poke 0xd408 255}
-}
-
-create_trainer "Danger X4" {time 1} {
+create_trainer "DangerX4" {time 1} {
 	"Lives" {poke 0xd018 9}
 	"Mice Left" {poke 0xd026 1}
 	"Scene (1-99;0)" {poke 0xd028 1}
@@ -1969,12 +1969,12 @@ create_trainer "Dorodon" {time 1} {
 	"Lives" {poke 0xc6f3 5}
 }
 
-create_trainer "Double Dragon 2" {time 1} {
+create_trainer "Double Dragon 2 - The Revenge" {time 1} {
 	"Power Player 1" {poke 0x4079 15}
 	"Time" {poke 0x2918 153}
 }
 
-create_trainer "Dr Archie" {time 1} {
+create_trainer "Dr. Archie" {time 1} {
 	"Exp" {poke 0xd3c9 60}
 	"Gold" {poke 0x404 153;poke 0x405 153;poke 0x406 153}
 	"Life" {poke 0xd3c8 64}
@@ -2195,7 +2195,7 @@ create_trainer "Eggerland Mystery" {time 1} {
 	"Time In Special Stages" {poke 0xc81d 255}
 }
 
-create_trainer "Eidolon" {time 1} {
+create_trainer "Eidolon, The" {time 1} {
 	"Power" {poke 0x012f 16}
 }
 
@@ -2352,7 +2352,7 @@ create_trainer "Fernando Martin Basket Master" {time 1} {
 	"Energy Player 2" {poke 0xf0a1 74}
 }
 
-create_trainer "Fernando Martin Executive" {time 1} {
+create_trainer "Fernando Martin Basket Master Executive" {time 1} {
 	"Energy Player 1" {poke 0x9415 22}
 	"Energy Player 2" {poke 0x942f 22}
 }
@@ -2603,7 +2603,7 @@ create_trainer "Garbage Man Promo" {time 1} {
 	"One Bag Is Enough" {poke 0xa289 0}
 }
 
-create_trainer "Garyuuou - Dragon King" {time 1} {
+create_trainer "Garyuoh - Dragon King" {time 1} {
 	"Extra Invincible" {poke 0xe06d 8}
 	"Invincible" {poke 0xe0b7 255}
 }
@@ -3049,7 +3049,7 @@ create_trainer "Hammer Boy 2" {time 1} {
 	"Lives" {poke 0x4d34 10}
 }
 
-create_trainer "Hang-On" {time 1} {
+create_trainer "Hang On" {time 1} {
 	"Course (0-8)" {poke 0xe029 0}
 	"Level (0-2)" {poke 0xe00e 0}
 	"Time" {poke 0xe04c 100}
@@ -3358,13 +3358,13 @@ create_trainer "Hundra" {time 1} {
 	"Protected From Enemies" {poke 0x8ff9 255}
 }
 
-create_trainer "Hustle Chummy" {time 1} {
+create_trainer "Hustle Chumi" {time 1} {
 	"Infinite Time" {poke 0xe1d7 90;poke 0xe1d9 0}
 	"Level (1-99;0)" {poke 0xe106 1}
 	"Lives" {poke 0xe153 9}
 }
 
-create_trainer "Hustle Chumy DSK" {time 1} {
+create_trainer "Hustle Chumy" {time 1} {
 	"Infinite Time" {poke 0xb1db 90;poke 0xb1dd 0}
 	"Level (1-99;0)" {poke 0xb106 1}
 	"Lives" {poke 0xb157 9}
@@ -3462,7 +3462,7 @@ create_trainer "Ice" {time 1} {
 	"Lives" {poke 0x4018 9}
 }
 
-create_trainer "Ice King" {time 1} {
+create_trainer "Ice King, The" {time 1} {
 	"Energy" {poke 0xda0d 23}
 	"Lives" {poke 0xd009 42}
 }
@@ -3471,13 +3471,13 @@ create_trainer "Ice World" {time 10} {
 	"Lives" {poke 0xe00b 5}
 }
 
+create_trainer "Iga Ninpou Chou Mangetsujou no Tatakai" {time 1} {
+	"Lives" {poke 0xe00b 153}
+}
+
 create_trainer "Iga Ninpouten 1" {time 1} {
 	"Lives" {poke 0xe00b 99}
 	"Time" {poke 0xe080 9}
-}
-
-create_trainer "Iga Ninpouten 2 - The Mooncastle" {time 1} {
-	"Lives" {poke 0xe00b 153}
 }
 
 create_trainer "Ikari" {time 2} {
@@ -3705,7 +3705,13 @@ create_trainer "Kageno Densetsu - The Legend Of Kage" {time 1} {
 	"Lives" {poke 0xc03b 9}
 }
 
-create_trainer "Kick It" {time 1} {
+create_trainer "Kenja no ishi - Stone of Wisdom, The" {time 2} {
+	"Intelligence" {poke 0xe040 55}
+	"Life" {poke 0xe044 55}
+	"Power" {poke 0xe042 55}
+}
+
+create_trainer "Kick It!" {time 1} {
 	"First Guy Is Frozen" {poke 0x50f5 0}
 	"Fourth Guy Is Frozen" {poke 0x5101 0}
 	"Lives" {poke 0x402a 4}
@@ -3714,7 +3720,7 @@ create_trainer "Kick It" {time 1} {
 	"Third Guy Is Frozen" {poke 0x50fd 0}
 }
 
-create_trainer "Kikikaikai - Mystery" {time 2} {
+create_trainer "Kiki kaikai - Mystery" {time 2} {
 	"Lives" {poke 0xc025 255}
 	"Max Shot" {poke 0xc070 9}
 }
@@ -4042,7 +4048,7 @@ create_trainer "Konami's Soccer" {time 1} {
 	"Score Team 2" {poke 0xe0f6 0}
 }
 
-create_trainer "Koneko no Daibouken - Catboy" {time 1} {
+create_trainer "Koneko no Dai bouken - Catboy" {time 1} {
 	"Big Cat" {poke 0xe31d 255}
 	"Lives" {poke 0xe00b 153}
 }
@@ -4187,7 +4193,7 @@ create_trainer "Macross" {time 1} {
 	"Lives" {poke 0xd820 9}
 }
 
-create_trainer "Mad Rider" {time 1} {
+create_trainer "Mad Rider 2" {time 1} {
 	"Full Speed" {poke 0xc577 255}
 	"Timer" {poke 0xc510 59}
 }
@@ -4368,6 +4374,7 @@ create_trainer "Megaphoenix" {time 1} {
 
 create_trainer "Meikyushinwa - Eggerland Mystery 2" {time 1} {
 	"Containers Left" {poke 0xeb88 0}
+	"Invincible" {poke 0xef90 2}
 	"Lives" {poke 0xeb89 97}
 	"Shots Always Active" {poke 0xeb8a 97}
 	"Stay Alive" {poke 0xeb94 0}
@@ -4585,7 +4592,7 @@ create_trainer "Moon Patrol" {time 1} {
 	"Lives" {poke 0xf920 4}
 }
 
-create_trainer "Moon Rider" {time 1} {
+create_trainer "Moonrider" {time 1} {
 	"Invulnerable" {poke 0x4c54 0}
 	"Lives" {poke 0x41c2 4}
 }
@@ -4622,7 +4629,7 @@ create_trainer "MSX Game" {time 1} {
 	"Money" {poke 0xbc9f 255}
 }
 
-create_trainer "Munsters" {time 1} {
+create_trainer "Munsters, The" {time 1} {
 	"Power" {poke 0xaa7a 255}
 }
 
@@ -4890,20 +4897,20 @@ create_trainer "Penguin" {time 1} {
 	"Lives" {poke 0x4018 9}
 }
 
+create_trainer "Penguin Kun Wars 1" {time 1} {
+	"Enemy K.o." {poke 0xd026 255}
+	"Enemy Stuck In One Position" {poke 0xd020 15}
+}
+
+create_trainer "Penguin Kun Wars 2" {time 1} {
+	"Enemy K.o. After Being Hit" {poke 0xb126 255}
+}
+
 create_trainer "Penguin Race" {time 1} {
 	"Fishes Player 1 In 83 Game" {poke 0xc113 123}
 	"Fishes Player 2 In 83 Game" {poke 0xc114 123}
 	"Player 1 Is Winner In Classic Game" {poke 0xc107 3}
 	"Player 2 Is Winner In Classic Game" {poke 0xc108 3}
-}
-
-create_trainer "Penguin-Kun Wars 1" {time 1} {
-	"Enemy K.o." {poke 0xd026 255}
-	"Enemy Stuck In One Position" {poke 0xd020 15}
-}
-
-create_trainer "Penguin-Kun Wars 2" {time 1} {
-	"Enemy K.o. After Being Hit" {poke 0xb126 255}
 }
 
 create_trainer "Pepper 2" {time 1} {
@@ -5022,7 +5029,7 @@ create_trainer "Police Academy 2" {time 1} {
 	"Mistakes" {poke 0xc007 0}
 }
 
-create_trainer "Pooyan" {time 2} {
+create_trainer "Pooyan 2" {time 2} {
 	"Shoot One Wolf (very Lame)" {poke 0xe006 1}
 }
 
@@ -5662,10 +5669,6 @@ create_trainer "Skramble" {time 1} {
 	"Lives" {poke 0x010e 4}
 }
 
-create_trainer "Sky Galdo" {time 1} {
-	"Super Explosives And Full Power" {poke 0xf327 255}
-}
-
 create_trainer "Sky Jaguar" {time 2} {
 	"Double Shoot" {poke 0xe1d5 1}
 	"Invulnerable" {poke 0xe1ce 0;poke 0xe1cf 0;poke 0xe1d0 0;poke 0xe1d1 0;poke 0xe1dd 0}
@@ -5675,6 +5678,10 @@ create_trainer "Sky Jaguar" {time 2} {
 
 create_trainer "Sky Vision" {time 1} {
 	"Lives" {poke 0xf33b 9}
+}
+
+create_trainer "Skygaldo" {time 1} {
+	"Super Explosives And Full Power" {poke 0xf327 255}
 }
 
 create_trainer "Skyhawk" {time 1} {
@@ -5716,7 +5723,7 @@ create_trainer "Soul of a Robot" {time 1} {
 	"Lives" {poke 0x17f1 9;poke 0x17f2 9}
 }
 
-create_trainer "Space Buster" {time 1} {
+create_trainer "Space Busters" {time 1} {
 	"Lives" {poke 0xd233 9}
 }
 
@@ -5728,7 +5735,7 @@ create_trainer "Space Camp" {time 1} {
 	"Left Base Ammo" {poke 0x5bd8 10}
 }
 
-create_trainer "Space Invader" {time 1} {
+create_trainer "Space Invaders" {time 1} {
 	"Lives (for The Space Invader (1984) (taito) Version" {poke 0xe046 4}
 }
 
@@ -5847,12 +5854,6 @@ create_trainer "Stepper" {time 5} {
 	"Lives" {poke 0xe901 99}
 }
 
-create_trainer "Stone of Wisdom, The" {time 2} {
-	"Intelligence" {poke 0xe040 55}
-	"Life" {poke 0xe044 55}
-	"Power" {poke 0xe042 55}
-}
-
 create_trainer "Strange Loop" {time 1} {
 	"Charges" {poke 0xc48d 99;poke 0xc48e 99}
 	"Patches" {poke 0xc48f 99}
@@ -5892,7 +5893,7 @@ create_trainer "Super Boy 1" {time 1} {
 	"Y-pos (0-160)" {poke 0xe36c 0}
 }
 
-create_trainer "Super Boy 2" {time 1} {
+create_trainer "Super Boy II" {time 1} {
 	"Big Mario" {poke 0xe372 16}
 	"Coins" {poke 0xe233 152}
 	"Fire (on Graph Key)" {poke 0xe373 16}
@@ -5904,7 +5905,7 @@ create_trainer "Super Boy 2" {time 1} {
 	"Y-pos (0-160)" {poke 0xe36c 0}
 }
 
-create_trainer "Super Boy 3" {time 1} {
+create_trainer "Super Boy III" {time 1} {
 	"Big Mario" {poke 0xe190 255}
 	"Coins" {poke 0xe18b 152}
 	"Fire (on Graph Key)" {poke 0xe191 255}
@@ -6032,7 +6033,7 @@ create_trainer "Teki Paki" {time 1} {
 	"No Game Acceleration" {poke 0xe104 32}
 }
 
-create_trainer "Telebunnie" {time 1} {
+create_trainer "Tele bunny" {time 1} {
 	"Lives" {poke 0xe064 255}
 	"Snake Y-position" {poke 0xe018 0}
 }
@@ -6174,7 +6175,7 @@ create_trainer "Traffic Jam-MSXdev06" {time 1} {
 	"Time" {poke 0xeb3f 232;poke 0xeb40 3}
 }
 
-create_trainer "Trail Blazer" {time 1} {
+create_trainer "Trailblazer" {time 1} {
 	"Jumps Left In Arcade Mode" {poke 0x8721 9}
 	"Time On Cb:a9 (leave This Value Alone, It Checks For S)" {poke 0x866b 4;poke 0x866c 4}
 }
@@ -6895,4 +6896,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 1.870 seconds. 731 trainers -  having 5613 pokes
+# File Created in : 3.938 seconds. 731 trainers -  having 5614 pokes
