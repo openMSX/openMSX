@@ -27,6 +27,9 @@ proc do_autoplug {} {
 		}
 	}
 	after boot [namespace code do_autoplug]
+
+	# See comment in reverse.tcl (search for 'after boot')
+	reverse::after_switch
 }
 
 };# namespace autoplug

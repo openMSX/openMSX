@@ -244,9 +244,25 @@ Possible values for this setting:
   gui   Reverse + reverse_bar enabled (see 'help toggle_reversebar')
 } off
 
-after boot {
-	# Hack: the order in which the startup scripts are executed is not
-	#  defined. But this needs to run after the load_icons script has
-	#  been executed.
-	reverse::after_switch
-}
+
+# TODO hack:
+# The order in which the startup scripts are executed is not defined. But this
+# needs to run after the load_icons script has been executed.
+#
+# It also needs to run after 'after boot' proc in the autoplug.tcl script. The
+# reason is tricky:
+#  - If this runs before autoplug, then the initial snapshot (initial snapshot
+#    triggered by enabling reverse) does not contain the plugged cassette player
+#    yet.
+#  - Shortly after the autoplug proc runs, this will plug the cassetteplayer.
+#    This plug command will be recorded in the event log. This is fine.
+#  - The problem is that we don't serialize information for unplugged devices
+#    ((only) in the initial snapshot, the cassetteplayer is not yet plugged). So
+#    the information about the inserted tape is lost.
+# As a temporary solution/hack, we call 'reverse::after_switch' from the
+# autoplug script (so we're sure it runs after the auto plugging). An
+# alternative is to also serialize the state of unplugged pluggables.
+#
+#after boot {
+#	reverse::after_switch
+#}
