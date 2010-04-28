@@ -4,6 +4,7 @@
 # that the openMSX build understands.
 
 from platform import architecture, machine, system
+from subprocess import PIPE, STDOUT, Popen
 import sys
 
 def detectCPU():
@@ -74,6 +75,20 @@ def detectOS():
 	else:
 		raise ValueError('Unsupported or unrecognised OS "%s"' % os)
 
+def detectMaemo5():
+	try:
+		proc = Popen(
+			[ "pkg-config", "--modversion", "maemo-version"],
+			stdin = None,
+			stdout = PIPE,
+			stderr = None);
+	except OSError:
+		return False
+
+	stdoutdata, stderrdata = proc.communicate()
+	if proc.returncode == 0 and stdoutdata.startswith("5.0"):
+		return True
+
 if __name__ == '__main__':
 	try:
 		hostCPU = detectCPU()
@@ -88,6 +103,11 @@ if __name__ == '__main__':
 			# safer, but will fail if using MacPorts on a 64-bit capable system.
 			if architecture()[0] == '64bit':
 				hostCPU = 'x86_64'
+		elif hostOS == 'linux' and hostCPU == 'arm':
+			# Detect maemo5. Currently only the Nokia N900 is
+			# supported
+			if detectMaemo5():
+				hostOS = 'maemo5'
 		print '%s-%s' % (hostCPU, hostOS)
 	except ValueError, ex:
 		print >> sys.stderr, ex
