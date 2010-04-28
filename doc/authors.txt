@@ -8,6 +8,7 @@ Manuel Bilderbeek    <manuel@msxnet.org>
 Arnold Metselaar     <arnold_m@operamail.com>
 Patrick van Arkel    <vampiermsx@gmail.com>
 Max Feingold
+Sean Young           <sean@msxnet.org>
 
 Retired Developers:
 Eric Boon            <eric@auroramsx.nl>
@@ -35,7 +36,7 @@ AY8910:
 Y8950 and YM2413 emulator:
     written by Mitsutaka Okazaki
 other YM2413 emulator:
-    written by Jarek Burcynski
+    written by Jarek Burczynski
 TC8566AF disk controller:
     Based on code from NLMSX written by Frits Hilderink
 SDL surface scaling:
