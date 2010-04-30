@@ -41,7 +41,11 @@ proc get_machine_time { { machineid "" } } {
 	if {$err} {
 		return ""
 	}
-	return [format "%02d:%02d:%02d" [expr int($mtime / 3600)] [expr int($mtime / 60) % 60] [expr int($mtime) % 60]]
+	return [format_time $mtime]
+}
+
+proc format_time { time } {
+	return [format "%02d:%02d:%02d" [expr int($time / 3600)] [expr int($time / 60) % 60] [expr int($time) % 60]]
 }
 
 proc get_ordered_machine_list {} {
