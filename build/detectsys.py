@@ -86,8 +86,7 @@ def detectMaemo5():
 		return False
 
 	stdoutdata, stderrdata = proc.communicate()
-	if proc.returncode == 0 and stdoutdata.startswith("5.0"):
-		return True
+	return proc.returncode == 0 and stdoutdata.startswith("5.0")
 
 if __name__ == '__main__':
 	try:
@@ -104,8 +103,7 @@ if __name__ == '__main__':
 			if architecture()[0] == '64bit':
 				hostCPU = 'x86_64'
 		elif hostOS == 'linux' and hostCPU == 'arm':
-			# Detect maemo5. Currently only the Nokia N900 is
-			# supported
+			# Detect maemo5 environment, e.g. Nokia N900
 			if detectMaemo5():
 				hostOS = 'maemo5'
 		print '%s-%s' % (hostCPU, hostOS)
