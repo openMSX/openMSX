@@ -68,7 +68,12 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	}
 }
 
-LocalFile::LocalFile(const std::string& filename, const char* mode)
+LocalFile::LocalFile(const std::string& filename_, const char* mode)
+	: filename(FileOperations::expandTilde(filename_))
+#if defined _WIN32
+	, hMmap(NULL)
+#endif
+	, readOnly(false)
 {
 	assert(strchr(mode, 'b'));
 	const string name = FileOperations::getNativePath(filename);

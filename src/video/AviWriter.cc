@@ -5,6 +5,7 @@
 #include "AviWriter.hh"
 #include "ZMBVEncoder.hh"
 #include "File.hh"
+#include "FileOperations.hh"
 #include "MSXException.hh"
 #include "vla.hh"
 #include "build-info.hh"
@@ -56,6 +57,13 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 
 AviWriter::~AviWriter()
 {
+	if (written == 0) {
+		// no data written yet (a recording less than one video frame)
+		std::string filename = file->getURL();
+		file.reset(); // close file (needed for windows?)
+		FileOperations::unlink(filename);
+		return;
+	}
 	assert(fps != 0.0); // a decent fps should have been set
 
 	unsigned char avi_header[AVI_HEADER_SIZE];
