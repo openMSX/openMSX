@@ -32,14 +32,14 @@ set_tabcompletion_proc findcheat [namespace code tab_cheat_type]
 proc tab_cheat_type { args } {
 	set result [list]
 	lappend result "-start"
-	lappend result "-bigger"
-	lappend result "-smaller"
-	lappend result "-more"
-	lappend result "-less"
-	lappend result "-notequal"
-	lappend result "-equal"
-	lappend result "-loe"	
-	lappend result "-moe"	
+	lappend result "bigger"
+	lappend result "smaller"
+	lappend result "more"
+	lappend result "less"
+	lappend result "notequal"
+	lappend result "equal"
+	lappend result "loe"	
+	lappend result "moe"	
 	lappend result "-max"
 	return $result
 }
