@@ -79,29 +79,32 @@ proc record_chunks { args } {
 		set total_time [expr $num_chunks * $chunk_time]
 	}
 
-	while (1) { ;# to make break work
-		switch -- [lindex $args 0] {
-			"start" {
-				if {[llength $args] != 2} break
-				if {[info exists record_chunks::iteration]} {
-					error "Already recording!"
-				}
-				set filenamebase [lindex $args 1]
-				set iteration 0
-				record_next_part
-				return
+	switch -- [lindex $args 0] {
+		"start" {
+			if {[llength $args] != 2} {
+				error "Expected another argument: the name of your video!"
 			}
-			"stop" {
-				if {[llength $args] != 1} break
-				if {![info exists record_chunks::iteration]} {
-					error "No recording in progress..."
-				}
-				after cancel $next_after_id
-				return [stop_recording]
+			if {[info exists record_chunks::iteration]} {
+				error "Already recording!"
 			}
+			set filenamebase [lindex $args 1]
+			set iteration 0
+			record_next_part
+		}
+		"stop" {
+			if {[llength $args] != 1} {
+				error "Too many arguments. Stop is just stop."
+			}
+			if {![info exists record_chunks::iteration]} {
+				error "No recording in progress..."
+			}
+			after cancel $next_after_id
+			stop_recording
+		}
+		"default" {
+			error "Syntax error in command."
 		}
 	}
-	error "Syntax error in command."
 }
 
 proc stop_recording {} {
