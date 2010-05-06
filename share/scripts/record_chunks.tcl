@@ -79,24 +79,26 @@ proc record_chunks { args } {
 		set total_time [expr $num_chunks * $chunk_time]
 	}
 
-	switch -- [lindex $args 0] {
-		"start" {
-			if {[llength $args] != 2} break
-			if {[info exists record_chunks::iteration]} {
-				error "Already recording!"
+	while (1) { ;# to make break work
+		switch -- [lindex $args 0] {
+			"start" {
+				if {[llength $args] != 2} break
+				if {[info exists record_chunks::iteration]} {
+					error "Already recording!"
+				}
+				set filenamebase [lindex $args 1]
+				set iteration 0
+				record_next_part
+				return
 			}
-			set filenamebase [lindex $args 1]
-			set iteration 0
-			record_next_part
-			return
-		}
-		"stop" {
-			if {[llength $args] != 1} break
-			if {![info exists record_chunks::iteration]} {
-				error "No recording in progress..."
+			"stop" {
+				if {[llength $args] != 1} break
+				if {![info exists record_chunks::iteration]} {
+					error "No recording in progress..."
+				}
+				after cancel $next_after_id
+				return [stop_recording]
 			}
-			after cancel $next_after_id
-			return [stop_recording]
 		}
 	}
 	error "Syntax error in command."
