@@ -34,12 +34,9 @@ static void debug(const char* format, ...)
 #endif
 }
 
-static const unsigned BAD_FAT = 0xFF7;
-static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF
-// first valid regular cluster number
-static const unsigned FIRST_CLUSTER = 2;
-// first cluster number that can NOT be used anymore
-static const unsigned MAX_CLUSTER = (1440 - 14) / 2 + 2;
+static const unsigned FREE_FAT = 0x000;
+static const unsigned BAD_FAT  = 0xFF7;
+static const unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
 
 
 // functions to set/get little endian 16/32 bit values
@@ -73,8 +70,8 @@ static unsigned normalizeFAT(unsigned cluster)
 
 static unsigned readFATHelper(const byte* buf, unsigned cluster)
 {
-	assert(FIRST_CLUSTER <= cluster);
-	assert(cluster < MAX_CLUSTER);
+	assert(DirAsDSK::FIRST_CLUSTER <= cluster);
+	assert(cluster < DirAsDSK::MAX_CLUSTER);
 	const byte* p = buf + (cluster * 3) / 2;
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -84,8 +81,8 @@ static unsigned readFATHelper(const byte* buf, unsigned cluster)
 
 static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
 {
-	assert(FIRST_CLUSTER <= cluster);
-	assert(cluster < MAX_CLUSTER);
+	assert(DirAsDSK::FIRST_CLUSTER <= cluster);
+	assert(cluster < DirAsDSK::MAX_CLUSTER);
 	byte* p = buf + (cluster * 3) / 2;
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -132,12 +129,12 @@ unsigned DirAsDSK::findNextFreeCluster(unsigned curcl)
 	do {
 		++curcl;
 		assert(curcl >= FIRST_CLUSTER);
-	} while ((curcl < MAX_CLUSTER) && (readFAT(curcl) != 0));
+	} while ((curcl < MAX_CLUSTER) && (readFAT(curcl) != FREE_FAT));
 	return curcl;
 }
 unsigned DirAsDSK::findFirstFreeCluster()
 {
-	return findNextFreeCluster(1);
+	return findNextFreeCluster(FIRST_CLUSTER - 1);
 }
 
 // get start cluster from a directory entry,
@@ -152,7 +149,7 @@ bool DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		if (strncmp(mapdir[i].msxinfo.filename,
-			    msxfilename.c_str(), 11) == 0) {
+			    msxfilename.c_str(), 8 + 3) == 0) {
 			return true;
 		}
 	}
@@ -190,9 +187,10 @@ static string makeSimpleMSXFileName(string filename)
 
 static unsigned clusterToSector(unsigned cluster)
 {
-	assert(cluster >= FIRST_CLUSTER);
-	assert(cluster < MAX_CLUSTER);
-	return 14 + 2 * (cluster - 2);
+	assert(cluster >= DirAsDSK::FIRST_CLUSTER);
+	assert(cluster < DirAsDSK::MAX_CLUSTER);
+	return DirAsDSK::FIRST_DATA_SECTOR + DirAsDSK::SECTORS_PER_CLUSTER *
+	            (cluster - DirAsDSK::FIRST_CLUSTER);
 }
 
 
@@ -236,7 +234,7 @@ void DirAsDSK::cleandisk()
 	fat2[2] = 0xFF;
 
 	// clear the sectormap so that they all point to 'clean' sectors
-	for (unsigned i = 0; i < 1440; ++i) {
+	for (unsigned i = 0; i < NUM_SECTORS; ++i) {
 		sectormap[i].usage = CLEAN;
 		sectormap[i].dirEntryNr = 0;
 		sectormap[i].fileOffset = 0;
@@ -258,7 +256,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& filename,
 	}
 
 	// First create structure for the fake disk
-	setNbSectors(1440); // asume a DS disk is used
+	setNbSectors(NUM_SECTORS); // asume a DS disk is used
 	setSectorsPerTrack(9);
 	setNbSides(2);
 
@@ -313,7 +311,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 		// copy our fake bootsector into the buffer
 		memcpy(buf, bootBlock, SECTOR_SIZE);
 
-	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
+	} else if (sector < FIRST_DIR_SECTOR) {
 		// copy correct sector from FAT
 
 		// quick-and-dirty:
@@ -324,27 +322,27 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 			checkAlterFileInDisk(i);
 		}
 
-		unsigned fatSector = (sector - 1) % SECTORS_PER_FAT;
-		memcpy(buf, fat + fatSector * SECTOR_SIZE, SECTOR_SIZE);
+		unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
+		memcpy(buf, &fat[fatSector * SECTOR_SIZE], SECTOR_SIZE);
 
-	} else if (sector < 14) {
+	} else if (sector < FIRST_DATA_SECTOR) {
 		// create correct DIR sector
-		sector -= (1 + 2 * SECTORS_PER_FAT);
-		unsigned dirCount = sector * 16;
+		sector -= FIRST_DIR_SECTOR;
+		unsigned dirCount = sector * DIR_ENTRIES_PER_SECTOR;
 		// check if there are new files on the host when we read the
 		// first directory sector
 		if (dirCount == 0) {
 			scanHostDir(true);
 		}
-		for (unsigned i = 0; i < 16; ++i, ++dirCount) {
+		for (unsigned i = 0; i < DIR_ENTRIES_PER_SECTOR; ++i, ++dirCount) {
 			checkAlterFileInDisk(dirCount);
-			memcpy(&buf[32 * i], &(mapdir[dirCount].msxinfo), 32);
+			memcpy(&buf[sizeof(MSXDirEntry) * i], &(mapdir[dirCount].msxinfo), sizeof(MSXDirEntry));
 		}
 
 	} else {
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
-		assert(sector < 1440);
+		assert(sector < NUM_SECTORS);
 		if (sectormap[sector].usage == CLEAN) {
 			// return an 'empty' sector
 			// 0xE5 is the value used on the Philips VG8250
@@ -456,9 +454,9 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 
 		while (remainingSize && (curcl < MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);
-			for (unsigned i = 0; i < 2; ++i) {
+			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
-				assert(sector < 1440);
+				assert(sector < NUM_SECTORS);
 				sectormap[sector].usage = MIXED;
 				sectormap[sector].dirEntryNr = dirindex;
 				sectormap[sector].fileOffset = fsize - remainingSize;
@@ -518,17 +516,17 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 	} else {
 		// Filesize zero: don't allocate any cluster, write zero
 		// cluster number (checked on a MSXTurboR, DOS2 mode).
-		setLE16(mapdir[dirindex].msxinfo.startcluster, 0);
+		setLE16(mapdir[dirindex].msxinfo.startcluster, FREE_FAT);
 	}
 
 	// clear remains of FAT if needed
 	if (followFATClusters) {
 		while ((FIRST_CLUSTER <= curcl) && (curcl < MAX_CLUSTER)) {
-			writeFAT12(curcl, 0);
+			writeFAT12(curcl, FREE_FAT);
 			unsigned logicalSector = clusterToSector(curcl);
-			for (unsigned i = 0; i < 2; ++i) {
+			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
-				assert(sector < 1440);
+				assert(sector < NUM_SECTORS);
 				sectormap[sector].usage = CLEAN;
 				sectormap[sector].dirEntryNr = 0;
 				sectormap[sector].fileOffset = 0;
@@ -536,11 +534,11 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 			prevcl = curcl;
 			curcl = readFAT(curcl);
 		}
-		writeFAT12(prevcl, 0);
+		writeFAT12(prevcl, FREE_FAT);
 		unsigned logicalSector = clusterToSector(prevcl);
-		for (unsigned i = 0; i < 2; ++i) {
+		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 			unsigned sector = logicalSector + i;
-			assert(sector < 1440);
+			assert(sector < NUM_SECTORS);
 			sectormap[sector].usage = CLEAN;
 			sectormap[sector].dirEntryNr = 0;
 			sectormap[sector].fileOffset = 0;
@@ -605,9 +603,9 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 
 		while ((FIRST_CLUSTER <= curcl) && (curcl < MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);
-			for (unsigned i = 0; i < 2; ++i) {
+			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
-				assert(sector < 1440);
+				assert(sector < NUM_SECTORS);
 				if ((sectormap[sector].usage == CACHED ||
 				     sectormap[sector].usage == MIXED) &&
 				    (cursize > offset)) {
@@ -664,8 +662,8 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 			debug("data sector\n");
 			break;
 	}
-	if (sector >= 14) {
-		assert(sector < 1440);
+	if (sector >= FIRST_DATA_SECTOR) {
+		assert(sector < NUM_SECTORS);
 		debug("  Mode: ");
 		switch (sectormap[sector].usage) {
 		case CLEAN:
@@ -685,9 +683,9 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 
 	if (sector == 0) {
 		memcpy(bootBlock, buf, SECTOR_SIZE);
-	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
+	} else if (sector < FIRST_DIR_SECTOR) {
 		writeFATSector(sector, buf);
-	} else if (sector < 14) {
+	} else if (sector < FIRST_DATA_SECTOR) {
 		writeDIRSector(sector, buf);
 	} else {
 		writeDataSector(sector, buf);
@@ -703,25 +701,31 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	// we use writes to the second FAT (which should be an exact backup
 	// of the first FAT to detect changes (files might have
 	// grown/shrunk/added) so that they can be passed on to the HOST-OS
-	if (sector < (1 + SECTORS_PER_FAT)) {
-		unsigned fatSector = sector - 1;
-		memcpy(fat + fatSector * SECTOR_SIZE, buf, SECTOR_SIZE);
+	static const unsigned FIRST_SECTOR_2ND_FAT =
+	       FIRST_FAT_SECTOR + SECTORS_PER_FAT;
+	if (sector < FIRST_SECTOR_2ND_FAT) {
+		unsigned fatSector = sector - FIRST_FAT_SECTOR;
+		memcpy(&fat[fatSector * SECTOR_SIZE], buf, SECTOR_SIZE);
 		return;
 	}
 
 	// writes to the second FAT so we check for changes
 	// but we fully ignore the sectors afterwards (see remark
 	// about identifier bytes above)
-	unsigned startcluster = std::max(FIRST_CLUSTER, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
-	unsigned endcluster = std::min(startcluster + 342, MAX_CLUSTER);
+	static const unsigned MAX_FAT_ENTRIES_PER_SECTOR =
+		(SECTOR_SIZE * 2 + (3 - 1)) / 3; // rounded up
+	unsigned startcluster = std::max(FIRST_CLUSTER,
+	                                 ((sector - FIRST_SECTOR_2ND_FAT) * 2) / 3);
+	unsigned endcluster = std::min(startcluster + MAX_FAT_ENTRIES_PER_SECTOR,
+	                               MAX_CLUSTER);
 	for (unsigned i = startcluster; i < endcluster; ++i) {
 		if (readFAT(i) != readFAT2(i)) {
 			updateFileFromAlteredFatOnly(i);
 		}
 	}
 
-	unsigned fatSector = (sector - 1) % SECTORS_PER_FAT;
-	memcpy(fat2 + fatSector * SECTOR_SIZE, buf, SECTOR_SIZE);
+	unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
+	memcpy(&fat2[fatSector * SECTOR_SIZE], buf, SECTOR_SIZE);
 }
 
 void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
@@ -732,11 +736,11 @@ void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 	// fileactions. Of course some diskcaching programs and disk
 	// optimizers can abandon this behaviour and in such case the
 	// logic used here goes haywire!!
-	sector -= (1 + 2 * SECTORS_PER_FAT);
-	for (unsigned i = 0; i < 16; ++i) {
-		unsigned dirindex = sector * 16 + i;
-		const MSXDirEntry& entry = *reinterpret_cast<const MSXDirEntry*>(&buf[32 * i]);
-		if (memcmp(mapdir[dirindex].msxinfo.filename, &entry, 32) != 0) {
+	sector -= FIRST_DIR_SECTOR;
+	for (unsigned i = 0; i < DIR_ENTRIES_PER_SECTOR; ++i) {
+		unsigned dirindex = sector * DIR_ENTRIES_PER_SECTOR + i;
+		const MSXDirEntry& entry = *reinterpret_cast<const MSXDirEntry*>(&buf[sizeof(MSXDirEntry) * i]);
+		if (memcmp(mapdir[dirindex].msxinfo.filename, &entry, sizeof(MSXDirEntry)) != 0) {
 			writeDIREntry(dirindex, entry);
 		}
 	}
@@ -750,7 +754,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 	unsigned newSize = getLE32(entry.size);
 
 	// The 3 vital informations needed
-	bool chgName = memcmp(mapdir[dirindex].msxinfo.filename, entry.filename, 11) != 0;
+	bool chgName = memcmp(mapdir[dirindex].msxinfo.filename, entry.filename, 8 + 3) != 0;
 	bool chgClus = oldClus != newClus;
 	bool chgSize = oldSize != newSize;
 
@@ -774,8 +778,8 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 	debug("  dirindex %i filename: %s\n",
 	      dirindex, mapdir[dirindex].shortname.c_str());
 	debug("  chgName: %i chgClus: %i chgSize: %i\n", chgName, chgClus, chgSize);
-	debug("  Old start %i   New start %i\n", oldClus, newClus);
-	debug("  Old size %i  New size %i\n\n", oldSize, newSize);
+	debug("  Old start %i   New start %i\n",   oldClus, newClus);
+	debug("  Old size  %i   New size  %i\n\n", oldSize, newSize);
 
 	if (chgName && !chgClus && !chgSize) {
 		if (entry.filename[0] == char(0xE5) && syncMode == SYNC_FULL) {
@@ -784,7 +788,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			// data pointing to this HOST OS file
 			string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 			FileOperations::unlink(fullfilename);
-			for (unsigned i = 14; i < 1440; ++i) {
+			for (unsigned i = FIRST_DATA_SECTOR; i < NUM_SECTORS; ++i) {
 				if (sectormap[i].dirEntryNr == dirindex) {
 					 sectormap[i].usage = CACHED;
 				}
@@ -827,7 +831,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 		// the single shot Dir update when creating new files)
 		if (oldSize < newSize) {
 			// new size is bigger, file has grown
-			memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
+			memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(MSXDirEntry));
 			extractCacheToFile(dirindex);
 		} else {
 			// new size is smaller, file has been reduced
@@ -837,7 +841,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			// the size is set to zero before it is set to the new value. If we
 			// didn't cache this, then all the 'mapped' sectors would lose their
 			// value
-			memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
+			memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(MSXDirEntry));
 			truncateCorrespondingFile(dirindex);
 			if (newSize != 0) {
 				extractCacheToFile(dirindex); // see copy remark above
@@ -852,13 +856,13 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 	}
 
 	// for now blindly take over info
-	memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
+	memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(MSXDirEntry));
 }
 
 void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 {
-	assert(sector >= 14);
-	assert(sector < 1440);
+	assert(sector >= FIRST_DATA_SECTOR);
+	assert(sector < NUM_SECTORS);
 
 	// first and before all else buffer everything !!!!
 	// check if cachedSectors exists, if not assign memory.
@@ -946,7 +950,7 @@ string DirAsDSK::condenseName(const char* buf)
 	}
 	if (buf[8] != ' ') {
 		result += '.';
-		for (unsigned i = 8; (i < 11) && (buf[i] != ' '); ++i) {
+		for (unsigned i = 8; (i < (8 + 3)) && (buf[i] != ' '); ++i) {
 			result += tolower(buf[i]);
 		}
 	}
@@ -1016,7 +1020,7 @@ void DirAsDSK::addFileToDSK(const string& filename, struct stat& fst)
 	// fill in native file name
 	mapdir[dirindex].shortname = filename;
 	// fill in MSX file name
-	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 11);
+	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 8 + 3);
 
 	updateFileInDisk(dirindex, fst);
 }

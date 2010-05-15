@@ -14,24 +14,7 @@ class CliComm;
 
 class DirAsDSK : public SectorBasedDisk
 {
-public:
-	enum SyncMode { SYNC_READONLY, SYNC_CACHEDWRITE, SYNC_NODELETE, SYNC_FULL };
-	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
-
-	static const unsigned SECTORS_PER_FAT = 3;
-	static const unsigned SECTORS_PER_DIR = 7;
-	static const unsigned NUM_DIR_ENTRIES = SECTORS_PER_DIR * (SECTOR_SIZE / 32);
-
-	DirAsDSK(CliComm& cliComm_, const Filename& filename,
-		SyncMode syncMode_, BootSectorType bootSectorType);
-	virtual ~DirAsDSK();
-
 private:
-	// SectorBasedDisk
-	virtual void readSectorImpl(unsigned sector, byte* buf);
-	virtual void writeSectorImpl(unsigned sector, const byte* buf);
-	virtual bool isWriteProtectedImpl() const;
-
 	struct MSXDirEntry {
 		char filename[8];
 		byte ext[3];
@@ -42,6 +25,43 @@ private:
 		byte startcluster[2];
 		byte size[4];
 	};
+
+public:
+	enum SyncMode { SYNC_READONLY, SYNC_CACHEDWRITE, SYNC_NODELETE, SYNC_FULL };
+	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
+
+	static const unsigned SECTORS_PER_FAT = 3;
+	static const unsigned SECTORS_PER_DIR = 7;
+	static const unsigned SECTORS_PER_CLUSTER = 2;
+	static const unsigned DIR_ENTRIES_PER_SECTOR =
+	       SECTOR_SIZE / sizeof(MSXDirEntry);
+	static const unsigned NUM_DIR_ENTRIES =
+		SECTORS_PER_DIR * DIR_ENTRIES_PER_SECTOR;
+	static const unsigned NUM_FATS = 2;
+
+	static const unsigned NUM_SECTORS = 1440;
+	static const unsigned FIRST_FAT_SECTOR = 1;
+	static const unsigned FIRST_DIR_SECTOR =
+		FIRST_FAT_SECTOR + NUM_FATS * SECTORS_PER_FAT;
+	static const unsigned FIRST_DATA_SECTOR =
+		FIRST_DIR_SECTOR + SECTORS_PER_DIR;
+
+	// first valid regular cluster number
+	static const unsigned FIRST_CLUSTER = 2;
+	// first cluster number that can NOT be used anymore
+	static const unsigned MAX_CLUSTER =
+		(NUM_SECTORS - FIRST_DATA_SECTOR) / SECTORS_PER_CLUSTER + FIRST_CLUSTER;
+
+public:
+	DirAsDSK(CliComm& cliComm, const Filename& filename,
+	         SyncMode syncMode, BootSectorType bootSectorType);
+	virtual ~DirAsDSK();
+
+private:
+	// SectorBasedDisk
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual bool isWriteProtectedImpl() const;
 
 	struct MappedDirEntry {
 		bool inUse() const { return !shortname.empty(); }
@@ -93,9 +113,8 @@ private:
 
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
 
-	MappedDirEntry mapdir[112]; // max nr of entries in root directory:
-	                            // 7 sectors, each 16 entries
-	ReverseSector sectormap[1440]; // was 1440, quick hack to fix formatting
+	MappedDirEntry mapdir[NUM_DIR_ENTRIES];
+	ReverseSector sectormap[NUM_SECTORS];
 	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
 	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
 
