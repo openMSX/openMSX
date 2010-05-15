@@ -229,7 +229,7 @@ void DirAsDSK::cleandisk()
 	fat2[2] = 0xFF;
 
 	// clear the sectormap so that they all point to 'clean' sectors
-	for (int i = 0; i < 1440; ++i) {
+	for (unsigned i = 0; i < 1440; ++i) {
 		sectormap[i].usage = CLEAN;
 		sectormap[i].dirEntryNr = 0;
 		sectormap[i].fileOffset = 0;
@@ -323,13 +323,13 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 	} else if (sector < 14) {
 		// create correct DIR sector
 		sector -= (1 + 2 * SECTORS_PER_FAT);
-		int dirCount = sector * 16;
+		unsigned dirCount = sector * 16;
 		// check if there are new files on the host when we read the
 		// first directory sector
 		if (dirCount == 0) {
 			scanHostDir(true);
 		}
-		for (int i = 0; i < 16; ++i, ++dirCount) {
+		for (unsigned i = 0; i < 16; ++i, ++dirCount) {
 			checkAlterFileInDisk(dirCount);
 			memcpy(&buf[32 * i], &(mapdir[dirCount].msxinfo), 32);
 		}
@@ -348,7 +348,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 			// in case (end of) file only fills partial sector
 			memcpy(buf, cachedSectors[sector].data, SECTOR_SIZE);
 			// read data from host file
-			int offset = sectormap[sector].fileOffset;
+			unsigned offset = sectormap[sector].fileOffset;
 			string shortname = mapdir[sectormap[sector].dirEntryNr].shortname;
 			checkAlterFileInDisk(shortname);
 			// now try to read from file if possible
@@ -357,7 +357,13 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 				File file(fullfilename);
 				unsigned size = file.getSize();
 				file.seek(offset);
-				file.read(buf, std::min<int>(size - offset, SECTOR_SIZE));
+				if (offset < size) {
+					file.read(buf, std::min(size - offset, SECTOR_SIZE));
+				} else {
+					// Normally shouldn't happen because
+					// checkAlterFileInDisk() above synced
+					// host file size with MSX file size.
+				}
 				// and store the newly read data again in the sector cache
 				// since checkAlterFileInDisk => updateFileInDisk only reads
 				// altered data if filesize has been changed and not if only
@@ -422,7 +428,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 	              : 0;
 	setLE16(mapdir[dirindex].msxinfo.date, t2);
 
-	int fsize = fst.st_size;
+	unsigned fsize = fst.st_size;
 	mapdir[dirindex].filesize = fsize;
 	unsigned curcl = getStartCluster(mapdir[dirindex].msxinfo);
 	// if there is no cluster assigned yet to this file, then find a free cluster
@@ -440,15 +446,15 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 
 		while (remainingSize && (curcl < MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);
-			for (int i = 0; i < 2; ++i) {
+			for (unsigned i = 0; i < 2; ++i) {
 				sectormap[logicalSector + i].usage = MIXED;
 				sectormap[logicalSector + i].dirEntryNr = dirindex;
 				sectormap[logicalSector + i].fileOffset = fsize - remainingSize;
 				byte* buf = cachedSectors[logicalSector + i].data;
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 				file.seek(sectormap[logicalSector + i].fileOffset);
-				file.read(buf, std::min<int>(remainingSize, SECTOR_SIZE));
-				remainingSize -= std::min<int>(remainingSize, SECTOR_SIZE);
+				file.read(buf, std::min(remainingSize, SECTOR_SIZE));
+				remainingSize -= std::min(remainingSize, SECTOR_SIZE);
 				if (remainingSize == 0) {
 					// don't fill next sectors in this cluster
 					// if there is no data left
@@ -503,7 +509,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 		       (curcl != EOF_FAT)) {
 			writeFAT12(curcl, 0);
 			unsigned logicalSector = clusterToSector(curcl);
-			for (int i = 0; i < 2; ++i) {
+			for (unsigned i = 0; i < 2; ++i) {
 				sectormap[logicalSector + i].usage = CLEAN;
 				sectormap[logicalSector + i].dirEntryNr = 0;
 				sectormap[logicalSector + i].fileOffset = 0;
@@ -513,7 +519,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 		}
 		writeFAT12(prevcl, 0);
 		unsigned logicalSector = clusterToSector(prevcl);
-		for (int i = 0; i < 2; ++i) {
+		for (unsigned i = 0; i < 2; ++i) {
 			sectormap[logicalSector + i].usage = CLEAN;
 			sectormap[logicalSector + i].dirEntryNr = 0;
 			sectormap[logicalSector + i].fileOffset = 0;
@@ -537,7 +543,7 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 		debug("      truncateCorrespondingFile of new Host OS file\n");
 	}
 	debug("      truncateCorrespondingFile %s\n", mapdir[dirindex].shortname.c_str());
-	int cursize = getLE32(mapdir[dirindex].msxinfo.size);
+	unsigned cursize = getLE32(mapdir[dirindex].msxinfo.size);
 	mapdir[dirindex].filesize = cursize;
 
 	// stuff below can fail, so do it as the last thing in this method
@@ -578,14 +584,14 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 
 		while ((curcl < MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl != 0)) {
 			unsigned logicalSector = clusterToSector(curcl);
-			for (int i = 0; i < 2; ++i) {
+			for (unsigned i = 0; i < 2; ++i) {
 				if ((sectormap[logicalSector].usage == CACHED ||
 				     sectormap[logicalSector].usage == MIXED) &&
-				    (cursize >= offset)) {
+				    (cursize > offset)) {
 					// transfer data
 					byte* buf = cachedSectors[logicalSector].data;
 					file.seek(offset);
-					unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
+					unsigned writesize = std::min(cursize - offset, SECTOR_SIZE);
 					file.write(buf, writesize);
 
 					sectormap[logicalSector].usage = MIXED;
@@ -683,8 +689,8 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	// writes to the second FAT so we check for changes
 	// but we fully ignore the sectors afterwards (see remark
 	// about identifier bytes above)
-	unsigned startcluster = std::max<int>(2, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
-	unsigned endcluster = std::min<int>(startcluster + 342, NUM_FAT_ENTRIES);
+	unsigned startcluster = std::max(2u, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
+	unsigned endcluster = std::min(startcluster + 342, NUM_FAT_ENTRIES);
 	for (unsigned i = startcluster; i < endcluster; ++i) {
 		if (readFAT(i) != readFAT2(i)) {
 			updateFileFromAlteredFatOnly(i);
@@ -704,7 +710,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 	// optimizers can abandon this behaviour and in such case the
 	// logic used here goes haywire!!
 	sector -= (1 + 2 * SECTORS_PER_FAT);
-	for (int i = 0; i < 16; ++i) {
+	for (unsigned i = 0; i < 16; ++i) {
 		unsigned dirindex = sector * 16 + i;
 		const MSXDirEntry& entry = *reinterpret_cast<const MSXDirEntry*>(&buf[32 * i]);
 		if (memcmp(mapdir[dirindex].msxinfo.filename, &entry, 32) != 0) {
@@ -715,10 +721,10 @@ void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 
 void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 {
-	int oldClus = getStartCluster(mapdir[dirindex].msxinfo);
-	int newClus = getStartCluster(entry);
-	int oldSize = getLE32(mapdir[dirindex].msxinfo.size);
-	int newSize = getLE32(entry.size);
+	unsigned oldClus = getStartCluster(mapdir[dirindex].msxinfo);
+	unsigned newClus = getStartCluster(entry);
+	unsigned oldSize = getLE32(mapdir[dirindex].msxinfo.size);
+	unsigned newSize = getLE32(entry.size);
 
 	// The 3 vital informations needed
 	bool chgName = memcmp(mapdir[dirindex].msxinfo.filename, entry.filename, 11) != 0;
@@ -755,7 +761,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			// data pointing to this HOST OS file
 			string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 			FileOperations::unlink(fullfilename);
-			for (int i = 14; i < 1440; ++i) {
+			for (unsigned i = 14; i < 1440; ++i) {
 				if (sectormap[i].dirEntryNr == dirindex) {
 					 sectormap[i].usage = CACHED;
 				}
@@ -846,14 +852,16 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	if (sectormap[sector].usage == MIXED) {
 		// save data to host file
 		try {
-			int offset = sectormap[sector].fileOffset;
-			int dirent = sectormap[sector].dirEntryNr;
+			unsigned offset = sectormap[sector].fileOffset;
+			unsigned dirent = sectormap[sector].dirEntryNr;
 			string fullfilename = hostDir + '/' + mapdir[dirent].shortname;
 			File file(fullfilename);
 			file.seek(offset);
-			int cursize = getLE32(mapdir[dirent].msxinfo.size);
-			unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
-			file.write(buf, writesize);
+			unsigned cursize = getLE32(mapdir[dirent].msxinfo.size);
+			if (cursize > offset) {
+				unsigned writesize = std::min(cursize - offset, SECTOR_SIZE);
+				file.write(buf, writesize);
+			}
 		} catch (FileException&) {
 			cliComm.printWarning("Couldn't write to file.");
 		}
