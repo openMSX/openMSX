@@ -36,7 +36,8 @@ static void debug(const char* format, ...)
 
 static const unsigned BAD_FAT = 0xFF7;
 static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF
-static const unsigned MAX_CLUSTER = 720;
+// first cluster number that can NOT be used anymore
+static const unsigned MAX_CLUSTER = (1440 - 14) / 2 + 2;
 
 
 // functions to set/get little endian 16/32 bit values
@@ -120,11 +121,12 @@ void DirAsDSK::writeFAT2(unsigned cluster, unsigned val)
 	writeFATHelper(fat2, cluster, val);
 }
 
+// returns MAX_CLUSTER in case of no more free clusters
 unsigned DirAsDSK::findNextFreeCluster(unsigned curcl)
 {
 	do {
 		++curcl;
-	} while ((curcl <= MAX_CLUSTER) && readFAT(curcl));
+	} while ((curcl < MAX_CLUSTER) && readFAT(curcl));
 	return curcl;
 }
 unsigned DirAsDSK::findFirstFreeCluster()
@@ -436,7 +438,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 		File file(fullfilename, "rb"); // don't uncompress
 
-		while (remainingSize && (curcl <= MAX_CLUSTER)) {
+		while (remainingSize && (curcl < MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);
 			for (int i = 0; i < 2; ++i) {
 				sectormap[logicalSector + i].usage = MIXED;
@@ -497,7 +499,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 
 	// clear remains of FAT if needed
 	if (followFATClusters) {
-		while ((curcl <= MAX_CLUSTER) && (curcl != 0) &&
+		while ((curcl < MAX_CLUSTER) && (curcl != 0) &&
 		       (curcl != EOF_FAT)) {
 			writeFAT12(curcl, 0);
 			unsigned logicalSector = clusterToSector(curcl);
@@ -574,7 +576,7 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 			return;
 		}
 
-		while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl != 0)) {
+		while ((curcl < MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl != 0)) {
 			unsigned logicalSector = clusterToSector(curcl);
 			for (int i = 0; i < 2; ++i) {
 				if ((sectormap[logicalSector].usage == CACHED ||
@@ -885,7 +887,7 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 	// from startcluster and somecluster on, update fat2 so that the check
 	// in writeFATSector() don't call this routine again for the same file
 	unsigned curcl = startcluster;
-	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
+	while ((curcl < MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
 		unsigned next = readFAT(curcl);
 		writeFAT2(curcl, next);
 		curcl = next;
@@ -896,7 +898,7 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 	// the loop above doesn't take care of this, since it will
 	// stop at the new EOF_FAT||curcl==0 condition
 	curcl = somecluster;
-	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
+	while ((curcl < MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
 		unsigned next = readFAT(curcl);
 		writeFAT2(curcl, next);
 		curcl = next;
