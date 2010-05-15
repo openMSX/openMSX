@@ -428,27 +428,26 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 	if (curcl == 0) {
 		followFATClusters = false;
 		curcl = findFirstFreeCluster();
-		setLE16(mapdir[dirindex].msxinfo.startcluster, curcl);
 	}
 
-	unsigned size = fsize;
+	unsigned remainingSize = fsize;
 	unsigned prevcl = 0;
 	try {
 		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 		File file(fullfilename, "rb"); // don't uncompress
 
-		while (size && (curcl <= MAX_CLUSTER)) {
+		while (remainingSize && (curcl <= MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);
 			for (int i = 0; i < 2; ++i) {
 				sectormap[logicalSector + i].usage = MIXED;
 				sectormap[logicalSector + i].dirEntryNr = dirindex;
-				sectormap[logicalSector + i].fileOffset = fsize - size;
+				sectormap[logicalSector + i].fileOffset = fsize - remainingSize;
 				byte* buf = cachedSectors[logicalSector + i].data;
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 				file.seek(sectormap[logicalSector + i].fileOffset);
-				file.read(buf, std::min<int>(size, SECTOR_SIZE));
-				size -= std::min<int>(size, SECTOR_SIZE);
-				if (size == 0) {
+				file.read(buf, std::min<int>(remainingSize, SECTOR_SIZE));
+				remainingSize -= std::min<int>(remainingSize, SECTOR_SIZE);
+				if (remainingSize == 0) {
 					// don't fill next sectors in this cluster
 					// if there is no data left
 					break;
@@ -457,6 +456,8 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 
 			if (prevcl) {
 				writeFAT12(prevcl, curcl);
+			} else {
+				setLE16(mapdir[dirindex].msxinfo.startcluster, curcl);
 			}
 			prevcl = curcl;
 
@@ -473,51 +474,52 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 			}
 			// Continuing at cluster 'curcl'
 		}
+		if (remainingSize != 0) {
+			cliComm.printWarning("Virtual diskimage full: " +
+			                     mapdir[dirindex].shortname + " truncated.");
+		}
 	} catch (FileException&) {
 		// Error opening or reading host file
 		cliComm.printWarning("Error reading host file: " +
 		                     mapdir[dirindex].shortname +
 		                     ". Truncated file on MSX disk.");
-		size = 0; // truncate MSX file
 	}
-	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
-		// TODO: check what an MSX does with filesize zero and fat allocation
-		if (prevcl == 0) {
-			writeFAT12(curcl, EOF_FAT);
-		} else {
-			writeFAT12(prevcl, EOF_FAT);
-		}
 
-		// clear remains of FAT if needed
-		if (followFATClusters) {
-			while ((curcl <= MAX_CLUSTER) && (curcl != 0) &&
-			       (curcl != EOF_FAT)) {
-				writeFAT12(curcl, 0);
-				unsigned logicalSector = clusterToSector(curcl);
-				for (int i = 0; i < 2; ++i) {
-					sectormap[logicalSector + i].usage = CLEAN;
-					sectormap[logicalSector + i].dirEntryNr = 0;
-					sectormap[logicalSector + i].fileOffset = 0;
-				}
-				prevcl = curcl;
-				curcl = readFAT(curcl);
-			}
-			writeFAT12(prevcl, 0);
-			unsigned logicalSector = clusterToSector(prevcl);
+	// In all cases (no error / image full / host read error) we need to
+	// properly terminate the FAT chain.
+	if (prevcl) {
+		writeFAT12(prevcl, EOF_FAT);
+	} else {
+		// Filesize zero: don't allocate any cluster, write zero
+		// cluster number (checked on a MSXTurboR, DOS2 mode).
+		setLE16(mapdir[dirindex].msxinfo.startcluster, 0);
+	}
+
+	// clear remains of FAT if needed
+	if (followFATClusters) {
+		while ((curcl <= MAX_CLUSTER) && (curcl != 0) &&
+		       (curcl != EOF_FAT)) {
+			writeFAT12(curcl, 0);
+			unsigned logicalSector = clusterToSector(curcl);
 			for (int i = 0; i < 2; ++i) {
 				sectormap[logicalSector + i].usage = CLEAN;
 				sectormap[logicalSector + i].dirEntryNr = 0;
 				sectormap[logicalSector + i].fileOffset = 0;
 			}
+			prevcl = curcl;
+			curcl = readFAT(curcl);
 		}
-	} else {
-		// TODO: don't we need a EOF_FAT in this case as well ?
-		// find out and adjust code here
-		cliComm.printWarning("Fake Diskimage full: " +
-		                     mapdir[dirindex].shortname + " truncated.");
+		writeFAT12(prevcl, 0);
+		unsigned logicalSector = clusterToSector(prevcl);
+		for (int i = 0; i < 2; ++i) {
+			sectormap[logicalSector + i].usage = CLEAN;
+			sectormap[logicalSector + i].dirEntryNr = 0;
+			sectormap[logicalSector + i].fileOffset = 0;
+		}
 	}
+
 	// write (possibly truncated) file size
-	setLE32(mapdir[dirindex].msxinfo.size, fsize - size);
+	setLE32(mapdir[dirindex].msxinfo.size, fsize - remainingSize);
 }
 
 void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
