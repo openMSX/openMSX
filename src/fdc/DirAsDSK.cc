@@ -106,10 +106,11 @@ unsigned DirAsDSK::readFAT2(unsigned cluster)
 	return readFATHelper(fat2, cluster);
 }
 
-// write an entry to FAT in memory
-void DirAsDSK::writeFAT(unsigned cluster, unsigned val)
+// write an entry to both FAT1 and FAT2 in memory
+void DirAsDSK::writeFAT12(unsigned cluster, unsigned val)
 {
-	writeFATHelper(fat, cluster, val);
+	writeFATHelper(fat,  cluster, val);
+	writeFATHelper(fat2, cluster, val);
 }
 
 // write an entry to FAT2 in memory
@@ -455,7 +456,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 			}
 
 			if (prevcl) {
-				writeFAT(prevcl, curcl);
+				writeFAT12(prevcl, curcl);
 			}
 			prevcl = curcl;
 
@@ -482,16 +483,16 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
 		// TODO: check what an MSX does with filesize zero and fat allocation
 		if (prevcl == 0) {
-			writeFAT(curcl, EOF_FAT);
+			writeFAT12(curcl, EOF_FAT);
 		} else {
-			writeFAT(prevcl, EOF_FAT);
+			writeFAT12(prevcl, EOF_FAT);
 		}
 
 		// clear remains of FAT if needed
 		if (followFATClusters) {
 			while ((curcl <= MAX_CLUSTER) && (curcl != 0) &&
 			       (curcl != EOF_FAT)) {
-				writeFAT(curcl, 0);
+				writeFAT12(curcl, 0);
 				unsigned logicalSector = clusterToSector(curcl);
 				for (int i = 0; i < 2; ++i) {
 					sectormap[logicalSector + i].usage = CLEAN;
@@ -501,7 +502,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 				prevcl = curcl;
 				curcl = readFAT(curcl);
 			}
-			writeFAT(prevcl, 0);
+			writeFAT12(prevcl, 0);
 			unsigned logicalSector = clusterToSector(prevcl);
 			for (int i = 0; i < 2; ++i) {
 				sectormap[logicalSector + i].usage = CLEAN;

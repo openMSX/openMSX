@@ -82,8 +82,8 @@ private:
 	unsigned findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);
 	unsigned readFAT2(unsigned clnr);
-	void writeFAT(unsigned clnr, unsigned val);
-	void writeFAT2(unsigned clnr, unsigned val);
+	void writeFAT12(unsigned clnr, unsigned val);
+	void writeFAT2 (unsigned clnr, unsigned val);
 	unsigned getStartCluster(const MSXDirEntry& entry);
 	bool readCache();
 	void saveCache();
