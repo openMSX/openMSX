@@ -341,6 +341,12 @@ void ReverseManager::goTo(EmuTime::param target)
 			newManager.keyboard->transferHostKeyMatrix(*keyboard);
 		}
 
+		// In principle the re-record-count is a property of all
+		// snapshots of the reverse history. But it's ok to only
+		// keep the value of the active and the about-to-be-saved
+		// snapshot up-tp-date (see also saveReplay()).
+		newBoard->setReRecordCount(motherBoard.getReRecordCount() + 1);
+
 		stop();
 
 		// fast forward to the required time
@@ -389,6 +395,9 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(*history.chunks.begin()->second.savestate);
 	in.serialize("machine", *newBoard);
+
+	// update re-record-count, see comment in goTo().
+	newBoard->setReRecordCount(motherBoard.getReRecordCount());
 
 	// add sentinel when there isn't one yet
 	bool addSentinel = history.events.empty() ||

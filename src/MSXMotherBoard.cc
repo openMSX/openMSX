@@ -136,6 +136,9 @@ public:
 	string getUserName(const string& hwName);
 	void freeUserName(const string& hwName, const string& userName);
 
+	unsigned getReRecordCount() const;
+	void setReRecordCount(unsigned count);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -207,6 +210,8 @@ private:
 	auto_ptr<FastForwardHelper> fastForwardHelper;
 
 	BooleanSetting& powerSetting;
+
+	unsigned reRecordCount;
 
 	bool powered;
 	bool active;
@@ -334,6 +339,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 		reactor.getGlobalSettings()))
 	, fastForwardHelper(new FastForwardHelper(*this))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
+	, reRecordCount(0)
 	, powered(false)
 	, active(false)
 {
@@ -925,6 +931,17 @@ void MSXMotherBoardImpl::freeUserName(const string& hwName,
 	s.erase(userName);
 }
 
+unsigned MSXMotherBoardImpl::getReRecordCount() const
+{
+	return reRecordCount;
+}
+
+void MSXMotherBoardImpl::setReRecordCount(unsigned count)
+{
+	assert(count >= reRecordCount); // can only increase
+	reRecordCount = count;
+}
+
 
 // AddRemoveUpdate
 
@@ -1202,8 +1219,10 @@ const string& FastForwardHelper::schedName() const
 
 
 // serialize
+// version 1: initial version
+// version 2: added reRecordCount
 template<typename Archive>
-void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
+void MSXMotherBoardImpl::serialize(Archive& ar, unsigned version)
 {
 	// don't serialize:
 	//    machineID, userNames, availableDevices, addRemoveUpdate,
@@ -1241,6 +1260,9 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 
 	if (CassettePort* port = dynamic_cast<CassettePort*>(&getCassettePort())) {
 		ar.serialize("cassetteport", *port);
+	}
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("reRecordCount", reRecordCount);
 	}
 
 	if (ar.isLoader()) {
@@ -1460,6 +1482,14 @@ void MSXMotherBoard::freeUserName(const string& hwName,
                                   const string& userName)
 {
 	pimple->freeUserName(hwName, userName);
+}
+unsigned MSXMotherBoard::getReRecordCount() const
+{
+	return pimple->getReRecordCount();
+}
+void MSXMotherBoard::setReRecordCount(unsigned count)
+{
+	pimple->setReRecordCount(count);
 }
 
 template<typename Archive>

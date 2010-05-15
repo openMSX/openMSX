@@ -4,6 +4,7 @@
 #define MSXMOTHERBOARD_HH
 
 #include "EmuTime.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -165,6 +166,18 @@ public:
 	void freeUserName(const std::string& hwName,
 	                  const std::string& userName);
 
+	// Re-record-count is the number of times that the 'reverse goto'
+	// feature was used. It's an indication of the effort it took to create
+	// the replay. Keeping track of this number seems to be a requirement
+	// for Tool-Assisted-SpeedRuns, http://tasvideos.org/ (even though
+	// there's no way to verify this number (it is possible to verify the
+	// replay itself)).
+	// Strictly speaking this is more a property of ReverseManager than it
+	// it is of MSXMotherBoard. But we want this number to end up in the
+	// saved replay XML file, so we put it here.
+	unsigned getReRecordCount() const;
+	void setReRecordCount(unsigned count);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -172,6 +185,7 @@ private:
 	std::auto_ptr<MSXMotherBoardImpl> pimple;
 	friend class MSXMotherBoardImpl;
 };
+SERIALIZE_CLASS_VERSION(MSXMotherBoard, 2);
 
 } // namespace openmsx
 
