@@ -19,7 +19,6 @@ public:
 	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
 
 	static const unsigned SECTORS_PER_FAT = 3;
-	static const unsigned NUM_FAT_ENTRIES = (SECTOR_SIZE * SECTORS_PER_FAT * 2) / 3;
 	static const unsigned SECTORS_PER_DIR = 7;
 	static const unsigned NUM_DIR_ENTRIES = SECTORS_PER_DIR * (SECTOR_SIZE / 32);
 

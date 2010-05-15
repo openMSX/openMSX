@@ -36,6 +36,8 @@ static void debug(const char* format, ...)
 
 static const unsigned BAD_FAT = 0xFF7;
 static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF
+// first valid regular cluster number
+static const unsigned FIRST_CLUSTER = 2;
 // first cluster number that can NOT be used anymore
 static const unsigned MAX_CLUSTER = (1440 - 14) / 2 + 2;
 
@@ -71,7 +73,8 @@ static unsigned normalizeFAT(unsigned cluster)
 
 static unsigned readFATHelper(const byte* buf, unsigned cluster)
 {
-	assert(cluster < DirAsDSK::NUM_FAT_ENTRIES);
+	assert(FIRST_CLUSTER <= cluster);
+	assert(cluster < MAX_CLUSTER);
 	const byte* p = buf + (cluster * 3) / 2;
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -81,7 +84,8 @@ static unsigned readFATHelper(const byte* buf, unsigned cluster)
 
 static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
 {
-	assert(cluster < DirAsDSK::NUM_FAT_ENTRIES);
+	assert(FIRST_CLUSTER <= cluster);
+	assert(cluster < MAX_CLUSTER);
 	byte* p = buf + (cluster * 3) / 2;
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -124,9 +128,11 @@ void DirAsDSK::writeFAT2(unsigned cluster, unsigned val)
 // returns MAX_CLUSTER in case of no more free clusters
 unsigned DirAsDSK::findNextFreeCluster(unsigned curcl)
 {
+	assert(curcl < MAX_CLUSTER);
 	do {
 		++curcl;
-	} while ((curcl < MAX_CLUSTER) && readFAT(curcl));
+		assert(curcl >= FIRST_CLUSTER);
+	} while ((curcl < MAX_CLUSTER) && (readFAT(curcl) != 0));
 	return curcl;
 }
 unsigned DirAsDSK::findFirstFreeCluster()
@@ -184,7 +190,8 @@ static string makeSimpleMSXFileName(string filename)
 
 static unsigned clusterToSector(unsigned cluster)
 {
-	assert(cluster >= 2);
+	assert(cluster >= FIRST_CLUSTER);
+	assert(cluster < MAX_CLUSTER);
 	return 14 + 2 * (cluster - 2);
 }
 
@@ -337,6 +344,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 	} else {
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
+		assert(sector < 1440);
 		if (sectormap[sector].usage == CLEAN) {
 			// return an 'empty' sector
 			// 0xE5 is the value used on the Philips VG8250
@@ -433,7 +441,9 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 	unsigned curcl = getStartCluster(mapdir[dirindex].msxinfo);
 	// if there is no cluster assigned yet to this file, then find a free cluster
 	bool followFATClusters = true;
-	if (curcl == 0) {
+	if ((curcl < FIRST_CLUSTER) || (curcl >= MAX_CLUSTER)) {
+		// curcl == 0 happens for zero-sized files, but treat invalid
+		// cases in the same way (curcl == 1 or curcl >= MAX_CLUSTER)
 		followFATClusters = false;
 		curcl = findFirstFreeCluster();
 	}
@@ -447,12 +457,14 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 		while (remainingSize && (curcl < MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);
 			for (unsigned i = 0; i < 2; ++i) {
-				sectormap[logicalSector + i].usage = MIXED;
-				sectormap[logicalSector + i].dirEntryNr = dirindex;
-				sectormap[logicalSector + i].fileOffset = fsize - remainingSize;
-				byte* buf = cachedSectors[logicalSector + i].data;
+				unsigned sector = logicalSector + i;
+				assert(sector < 1440);
+				sectormap[sector].usage = MIXED;
+				sectormap[sector].dirEntryNr = dirindex;
+				sectormap[sector].fileOffset = fsize - remainingSize;
+				byte* buf = cachedSectors[sector].data;
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
-				file.seek(sectormap[logicalSector + i].fileOffset);
+				file.seek(sectormap[sector].fileOffset);
 				file.read(buf, std::min(remainingSize, SECTOR_SIZE));
 				remainingSize -= std::min(remainingSize, SECTOR_SIZE);
 				if (remainingSize == 0) {
@@ -474,6 +486,12 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 			if (followFATClusters) {
 				curcl = readFAT(curcl);
 				if (curcl == EOF_FAT) {
+					followFATClusters = false;
+					curcl = findFirstFreeCluster();
+				} else if ((curcl < FIRST_CLUSTER) || (curcl >= MAX_CLUSTER)) {
+					// Invalid FAT chain!! Normally this
+					// doesn't happen, but we also shouldn't
+					// crash on it. Treat the same as EOF_FAT
 					followFATClusters = false;
 					curcl = findFirstFreeCluster();
 				}
@@ -505,14 +523,15 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 
 	// clear remains of FAT if needed
 	if (followFATClusters) {
-		while ((curcl < MAX_CLUSTER) && (curcl != 0) &&
-		       (curcl != EOF_FAT)) {
+		while ((FIRST_CLUSTER <= curcl) && (curcl < MAX_CLUSTER)) {
 			writeFAT12(curcl, 0);
 			unsigned logicalSector = clusterToSector(curcl);
 			for (unsigned i = 0; i < 2; ++i) {
-				sectormap[logicalSector + i].usage = CLEAN;
-				sectormap[logicalSector + i].dirEntryNr = 0;
-				sectormap[logicalSector + i].fileOffset = 0;
+				unsigned sector = logicalSector + i;
+				assert(sector < 1440);
+				sectormap[sector].usage = CLEAN;
+				sectormap[sector].dirEntryNr = 0;
+				sectormap[sector].fileOffset = 0;
 			}
 			prevcl = curcl;
 			curcl = readFAT(curcl);
@@ -520,9 +539,11 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 		writeFAT12(prevcl, 0);
 		unsigned logicalSector = clusterToSector(prevcl);
 		for (unsigned i = 0; i < 2; ++i) {
-			sectormap[logicalSector + i].usage = CLEAN;
-			sectormap[logicalSector + i].dirEntryNr = 0;
-			sectormap[logicalSector + i].fileOffset = 0;
+			unsigned sector = logicalSector + i;
+			assert(sector < 1440);
+			sectormap[sector].usage = CLEAN;
+			sectormap[sector].dirEntryNr = 0;
+			sectormap[sector].fileOffset = 0;
 		}
 	}
 
@@ -582,23 +603,24 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 			return;
 		}
 
-		while ((curcl < MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl != 0)) {
+		while ((FIRST_CLUSTER <= curcl) && (curcl < MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curcl);
 			for (unsigned i = 0; i < 2; ++i) {
-				if ((sectormap[logicalSector].usage == CACHED ||
-				     sectormap[logicalSector].usage == MIXED) &&
+				unsigned sector = logicalSector + i;
+				assert(sector < 1440);
+				if ((sectormap[sector].usage == CACHED ||
+				     sectormap[sector].usage == MIXED) &&
 				    (cursize > offset)) {
 					// transfer data
-					byte* buf = cachedSectors[logicalSector].data;
+					byte* buf = cachedSectors[sector].data;
 					file.seek(offset);
 					unsigned writesize = std::min(cursize - offset, SECTOR_SIZE);
 					file.write(buf, writesize);
 
-					sectormap[logicalSector].usage = MIXED;
-					sectormap[logicalSector].dirEntryNr = dirindex;
-					sectormap[logicalSector].fileOffset = offset;
+					sectormap[sector].usage = MIXED;
+					sectormap[sector].dirEntryNr = dirindex;
+					sectormap[sector].fileOffset = offset;
 				}
-				++logicalSector;
 				offset += SECTOR_SIZE;
 			}
 			curcl = readFAT(curcl);
@@ -643,6 +665,7 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 			break;
 	}
 	if (sector >= 14) {
+		assert(sector < 1440);
 		debug("  Mode: ");
 		switch (sectormap[sector].usage) {
 		case CLEAN:
@@ -689,8 +712,8 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	// writes to the second FAT so we check for changes
 	// but we fully ignore the sectors afterwards (see remark
 	// about identifier bytes above)
-	unsigned startcluster = std::max(2u, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
-	unsigned endcluster = std::min(startcluster + 342, NUM_FAT_ENTRIES);
+	unsigned startcluster = std::max(FIRST_CLUSTER, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
+	unsigned endcluster = std::min(startcluster + 342, MAX_CLUSTER);
 	for (unsigned i = startcluster; i < endcluster; ++i) {
 		if (readFAT(i) != readFAT2(i)) {
 			updateFileFromAlteredFatOnly(i);
@@ -835,6 +858,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 {
 	assert(sector >= 14);
+	assert(sector < 1440);
 
 	// first and before all else buffer everything !!!!
 	// check if cachedSectors exists, if not assign memory.
@@ -875,7 +899,7 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 {
 	// First look for the first cluster in this chain
 	unsigned startcluster = somecluster;
-	for (unsigned i = 2; i < NUM_FAT_ENTRIES; ++i) {
+	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
 		if (readFAT(i) == startcluster) {
 			// found a predecessor
 			startcluster = i;
@@ -893,9 +917,9 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 	}
 
 	// from startcluster and somecluster on, update fat2 so that the check
-	// in writeFATSector() don't call this routine again for the same file
+	// in writeFATSector() doesn't call this routine again for the same file
 	unsigned curcl = startcluster;
-	while ((curcl < MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
+	while ((FIRST_CLUSTER <= curcl) && (curcl < MAX_CLUSTER)) {
 		unsigned next = readFAT(curcl);
 		writeFAT2(curcl, next);
 		curcl = next;
@@ -906,7 +930,7 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 	// the loop above doesn't take care of this, since it will
 	// stop at the new EOF_FAT||curcl==0 condition
 	curcl = somecluster;
-	while ((curcl < MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
+	while ((FIRST_CLUSTER <= curcl) && (curcl < MAX_CLUSTER)) {
 		unsigned next = readFAT(curcl);
 		writeFAT2(curcl, next);
 		curcl = next;
