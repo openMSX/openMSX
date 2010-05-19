@@ -402,6 +402,9 @@ set main_menu [prepare_menu {
 	       { text "Load State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_state] }}
 	         post-spacing 3 }
+	       { text "Hardware..."
+	         actions { A { osd_menu::menu_create $osd_menu::hardware_menu }}
+	         post-spacing 3 }
 	       { text "Misc Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::misc_setting_menu }}}
 	       { text "Sound Settings..."
@@ -481,6 +484,36 @@ set video_setting_menu [prepare_menu {
 	         actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
 	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}]
 
+set hardware_menu [prepare_menu {
+	font-size 8
+	border-size 2
+	width 175
+	xpos 100
+	ypos 120
+	items {{ text "Hardware"
+	         font-size 10
+	         post-spacing 6
+	         selectable false }
+	       { text "Change Machine..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
+	       { text "Extensions..."
+	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}}}]
+
+set extensions_menu [prepare_menu {
+	font-size 8
+	border-size 2
+	width 175
+	xpos 100
+	ypos 120
+	items {{ text "Extensions"
+	         font-size 10
+	         post-spacing 6
+	         selectable false }
+	       { text "Add..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_extensions_list] }}}
+	       { text "Remove..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_plugged_extensions_list] }}}}}]
+
 set advanced_menu [prepare_menu {
 	font-size 8
 	border-size 2
@@ -509,7 +542,7 @@ set running_machines_menu [prepare_menu {
 	       { text "Select Running Machine Tab: [utils::get_machine_display_name]"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_running_machine_list] }}}
 	       { text "New Running Machine Tab"
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list "add"] }}}
 	       { text "Close Current Machine Tab"
 	         actions { A { set old_active_machine [activate_machine]; cycle_machine; delete_machine $old_active_machine }}}}}]
 
@@ -519,8 +552,8 @@ proc menu_create_running_machine_list {} {
 	         font-size 8
 	         border-size 2
 	         width 200
-	         xpos 100
-	         ypos 120
+	         xpos 110
+	         ypos 130
 	         header { text "Select Running Machine"
 	                  font-size 10
 	                  post-spacing 6 }}
@@ -546,17 +579,25 @@ proc menu_machine_tab_select_exec { item } {
 	activate_machine $item
 }
 
-proc menu_create_load_machine_list {} {
-	set menu_def {
-	         execute osd_menu::menu_load_machine_exec
-	         font-size 8
-	         border-size 2
-	         width 200
-	         xpos 100
-	         ypos 120
+proc menu_create_load_machine_list {{mode "replace"}} {
+	if {$mode == "replace"} {
+		set proc_to_exec osd_menu::menu_load_machine_exec_replace
+	} elseif {$mode == "add"} {
+		set proc_to_exec osd_menu::menu_load_machine_exec_add
+	} else {
+		error "Undefined mode: $mode"
+	}
+
+	set menu_def [list \
+	         execute $proc_to_exec \
+	         font-size 8 \
+	         border-size 2 \
+	         width 200 \
+	         xpos 110 \
+	         ypos 130 \
 	         header { text "Select Machine to Run"
 	                  font-size 10
-	                  post-spacing 6 }}
+	                  post-spacing 6 }]
 
 	set items [openmsx_info machines]
 
@@ -568,16 +609,94 @@ proc menu_create_load_machine_list {} {
 	return [prepare_menu_list $items 10 $menu_def]
 }
 
-proc menu_load_machine_exec { item } {
-	menu_close_top
+proc menu_load_machine_exec_replace { item } {
+	if { [catch "machine $item" errorText] } {
+		display_osd_text $errorText
+	} else {
+		menu_close_all
+	}
+}
+
+proc menu_load_machine_exec_add { item } {
 	set id [create_machine]
 	set err [catch { ${id}::load_machine $item } error_result ]
 	if {$err} {
 		delete_machine $id
-		puts "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result" ;# how/where to log this better?
+		display_osd_text "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result"
 	} else {
+		menu_close_top
 		activate_machine $id
 	}
+}
+
+proc menu_create_extensions_list {} {
+
+	set menu_def {
+	         execute menu_add_extension_exec
+	         font-size 8
+	         border-size 2
+	         width 200
+	         xpos 110
+	         ypos 130
+	         header { text "Select Extension to Add"
+	                  font-size 10
+	                  post-spacing 6 }}
+
+	set items [openmsx_info extensions]
+	set presentation [list]
+
+	foreach i $items {
+		lappend presentation [utils::get_extension_display_name_by_config_name $i]
+	}
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $items 10 $menu_def]
+}
+
+proc menu_add_extension_exec { item } {
+	if { [catch "ext $item" errorText] } {
+		display_osd_text $errorText
+	} else {
+		menu_close_all
+	}
+}
+
+proc menu_create_plugged_extensions_list {} {
+
+	set menu_def {
+	         execute menu_remove_extension_exec
+	         font-size 8
+	         border-size 2
+	         width 200
+	         xpos 110
+	         ypos 130
+	         header { text "Select Extension to Remove"
+	                  font-size 10
+	                  post-spacing 6 }}
+
+	set items [list_extensions]
+	set possible_items [openmsx_info extensions]
+
+	set useful_items [list]
+	foreach item $items {
+		if {[lsearch $possible_items $item] != -1} {
+			lappend useful_items $item
+		}
+	}
+
+	set presentation [list]
+
+	foreach i $useful_items {
+		lappend presentation [utils::get_extension_display_name_by_config_name ${i}]
+	}
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $useful_items 10 $menu_def]
+}
+
+proc menu_remove_extension_exec { item } {
+	menu_close_all
+	remove_extension $item
 }
 
 proc menu_create_toys_list {} {

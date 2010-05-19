@@ -1,10 +1,10 @@
-# several utility procs for usage in other scripts
+# Several utility procs for usage in other scripts
 # don't export anything, just use it from the namespace,
 # because these scripts aren't useful for console users
-# and should therefore not be exprted to the global
+# and should therefore not be exported to the global
 # namespace.
 #
-# these procs are not specific to anything special,
+# These procs are not specific to anything special,
 # they could be useful in any script.
 #
 # Born to prevent duplication between scripts for common stuff.
@@ -23,9 +23,35 @@ proc get_machine_display_name { { machineid "" } } {
 }
 
 proc get_machine_display_name_by_config_name { config_name } {
+	return [get_display_name_by_config_name $config_name "machines"]
+}
+
+proc get_extension_display_name_by_config_name { config_name } {
+	return [get_display_name_by_config_name $config_name "extensions"]
+}
+
+proc get_display_name_by_config_name { config_name type} {
 	if {[catch {
-		array set names [openmsx_info machines $config_name]
-		set result [format "%s %s" $names(manufacturer) $names(code)]
+		array set names [openmsx_info $type $config_name]
+		if {$type == "machines"} {
+			set keylist [list "manufacturer" "code"]
+		} elseif {$type == "extensions"} {
+			set keylist [list "manufacturer" "code" "name"]
+		} else {
+			error "Unsupported type: $type"
+		}
+		set arglist [list]
+		foreach key $keylist {
+			set arg $names($key)
+			if {$arg != ""} {
+				lappend arglist $arg
+			}
+		}
+		set result [join $arglist]
+		# fallback if this didn't give useful results:
+		if {$result == ""} {
+			set result $config_name
+		}
 	}]} {
 		# hmm, XML file probably broken. Fallback:
 		set result "$config_name (CORRUPT)"
