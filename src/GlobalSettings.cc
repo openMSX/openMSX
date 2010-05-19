@@ -9,6 +9,7 @@
 #include "GlobalCommandController.hh"
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -37,7 +38,12 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	resampleMap["blip"] = Resample::RESAMPLE_BLIP;
 	resampleSetting.reset(new EnumSetting<Resample::ResampleType>(
 		commandController, "resampler", "Resample algorithm",
-		Resample::RESAMPLE_BLIP, resampleMap));
+#if PLATFORM_DINGUX
+		Resample::RESAMPLE_LQ,
+#else
+		Resample::RESAMPLE_BLIP,
+#endif
+		resampleMap));
 
 	throttleManager.reset(new ThrottleManager(commandController));
 
