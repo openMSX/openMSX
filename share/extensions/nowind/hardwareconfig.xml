@@ -3,12 +3,11 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <!--TODO-->
-    <name></name>
-    <manufacturer></manufacturer>
+    <name>Nowind USB Interface</name>
+    <manufacturer>Sunrise</manufacturer>
     <code/>
-    <release_year></release_year>
-    <description></description>
+    <release_year>2008</release_year>
+    <description>An interface that emulates a (hard) disk drive on an MSX, backed by (hard) disk images on another computer connected via USB.</description>
     <type></type>
   </info>
   <devices>
