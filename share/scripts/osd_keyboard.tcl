@@ -5,7 +5,7 @@ namespace eval osd_keyboard {
 #   that are not on the same position in the matrix for all machines
 # * lots more? :P
 
-variable is_dingoo [string match *-dingux $::tcl_platform(osVersion)]
+variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
 
 #init vars
 variable mouse1_pressed false

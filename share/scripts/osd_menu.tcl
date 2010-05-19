@@ -10,7 +10,7 @@ variable default_text_color 0x002040ff
 variable default_select_color 0x80a0c0ff
 variable default_header_text_color 0xff2040ff
 
-variable is_dingoo [string match *-dingux $::tcl_platform(osVersion)]
+variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
 
 proc get_optional { array_name key default } {
 	upvar $array_name arr

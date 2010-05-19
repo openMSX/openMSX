@@ -16,7 +16,7 @@ proc do_autoplug {} {
 			plug cassetteport cassetteplayer
 		}
 	}
-	if {[string match *-dingux $::tcl_platform(osVersion)]} { ;# Dingoo
+	if {[string match *-dingux* $::tcl_platform(osVersion)]} { ;# Dingoo
 		if {[lsearch $connectors "joyporta"] != -1} {
 			set ::keyjoystick1.triga LCTRL
 			set ::keyjoystick1.trigb LALT
