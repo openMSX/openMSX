@@ -349,7 +349,6 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	if (tokens.size() == 3) {
-		AfterCmds::iterator it = afterCmds.begin();
 		for (AfterCmds::iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
 			if ((*it)->getId() == tokens[2]) {
@@ -359,7 +358,6 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 		}
 	}
 	string command = Interpreter::mergeList(tokens.begin() + 2, tokens.end());
-	AfterCmds::iterator it = afterCmds.begin();
 	for (AfterCmds::iterator it = afterCmds.begin();
 	     it != afterCmds.end(); ++it) {
 		if ((*it)->getCommand() == command) {
