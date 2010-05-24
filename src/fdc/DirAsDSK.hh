@@ -32,25 +32,11 @@ public:
 
 	static const unsigned SECTORS_PER_FAT = 3;
 	static const unsigned SECTORS_PER_DIR = 7;
-	static const unsigned SECTORS_PER_CLUSTER = 2;
 	static const unsigned DIR_ENTRIES_PER_SECTOR =
 	       SECTOR_SIZE / sizeof(MSXDirEntry);
 	static const unsigned NUM_DIR_ENTRIES =
 		SECTORS_PER_DIR * DIR_ENTRIES_PER_SECTOR;
-	static const unsigned NUM_FATS = 2;
-
 	static const unsigned NUM_SECTORS = 1440;
-	static const unsigned FIRST_FAT_SECTOR = 1;
-	static const unsigned FIRST_DIR_SECTOR =
-		FIRST_FAT_SECTOR + NUM_FATS * SECTORS_PER_FAT;
-	static const unsigned FIRST_DATA_SECTOR =
-		FIRST_DIR_SECTOR + SECTORS_PER_DIR;
-
-	// first valid regular cluster number
-	static const unsigned FIRST_CLUSTER = 2;
-	// first cluster number that can NOT be used anymore
-	static const unsigned MAX_CLUSTER =
-		(NUM_SECTORS - FIRST_DATA_SECTOR) / SECTORS_PER_CLUSTER + FIRST_CLUSTER;
 
 public:
 	DirAsDSK(CliComm& cliComm, const Filename& filename,
@@ -124,6 +110,10 @@ private:
 	CachedSectors cachedSectors;
 
 	SyncMode syncMode;
+
+	// REDEFINE (first definition is in SectorAccessibleDisk.hh)
+	//  to solve link error with i686-apple-darwin9-gcc-4.0.1
+	static const unsigned SECTOR_SIZE;
 };
 
 } // namespace openmsx

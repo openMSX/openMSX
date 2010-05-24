@@ -20,6 +20,24 @@ using std::string;
 
 namespace openmsx {
 
+static const unsigned NUM_FATS = 2;
+static const unsigned SECTORS_PER_CLUSTER = 2;
+static const unsigned FIRST_FAT_SECTOR = 1;
+static const unsigned FIRST_DIR_SECTOR =
+	FIRST_FAT_SECTOR + NUM_FATS * DirAsDSK::SECTORS_PER_FAT;
+static const unsigned FIRST_DATA_SECTOR =
+	FIRST_DIR_SECTOR + DirAsDSK::SECTORS_PER_DIR;
+
+// first valid regular cluster number
+static const unsigned FIRST_CLUSTER = 2;
+// first cluster number that can NOT be used anymore
+static const unsigned MAX_CLUSTER =
+	(DirAsDSK::NUM_SECTORS - FIRST_DATA_SECTOR) / SECTORS_PER_CLUSTER + FIRST_CLUSTER;
+
+// REDEFINE, see comment in DirAsDSK.hh
+const unsigned DirAsDSK::SECTOR_SIZE = 512;
+
+
 // Wrapper function to easily enable/disable debug prints
 // Don't check-in this code with printing enabled:
 //   printing stuff to stdout breaks stdio CliComm connections!
@@ -70,8 +88,8 @@ static unsigned normalizeFAT(unsigned cluster)
 
 static unsigned readFATHelper(const byte* buf, unsigned cluster)
 {
-	assert(DirAsDSK::FIRST_CLUSTER <= cluster);
-	assert(cluster < DirAsDSK::MAX_CLUSTER);
+	assert(FIRST_CLUSTER <= cluster);
+	assert(cluster < MAX_CLUSTER);
 	const byte* p = buf + (cluster * 3) / 2;
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -81,8 +99,8 @@ static unsigned readFATHelper(const byte* buf, unsigned cluster)
 
 static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
 {
-	assert(DirAsDSK::FIRST_CLUSTER <= cluster);
-	assert(cluster < DirAsDSK::MAX_CLUSTER);
+	assert(FIRST_CLUSTER <= cluster);
+	assert(cluster < MAX_CLUSTER);
 	byte* p = buf + (cluster * 3) / 2;
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -187,10 +205,10 @@ static string makeSimpleMSXFileName(string filename)
 
 static unsigned clusterToSector(unsigned cluster)
 {
-	assert(cluster >= DirAsDSK::FIRST_CLUSTER);
-	assert(cluster < DirAsDSK::MAX_CLUSTER);
-	return DirAsDSK::FIRST_DATA_SECTOR + DirAsDSK::SECTORS_PER_CLUSTER *
-	            (cluster - DirAsDSK::FIRST_CLUSTER);
+	assert(cluster >= FIRST_CLUSTER);
+	assert(cluster < MAX_CLUSTER);
+	return FIRST_DATA_SECTOR + SECTORS_PER_CLUSTER *
+	            (cluster - FIRST_CLUSTER);
 }
 
 
@@ -907,7 +925,7 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 		if (readFAT(i) == startcluster) {
 			// found a predecessor
 			startcluster = i;
-			i = 1; // restart search
+			i = FIRST_CLUSTER - 1; // restart search
 		}
 	}
 
