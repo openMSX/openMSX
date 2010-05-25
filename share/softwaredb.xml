@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1272244305">
+<softwaredb xml:lang="en" timestamp="1274769874">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2623,6 +2623,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">b63fc17c1d004ca4d7f3b1ef8962210a779ca665</hash><remark><text>[aka Dragon Slayer Jr]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">23f3e1b597bee95375f380638340995b55232e7c</hash><remark><text>[aka Dragon Slayer Jr]</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">cef3021e3f909f1db4f8342f60716d01a1daa10f</hash><remark><text>English Translation - Trained / MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">00614a2dde5d87eba79e6a787100e3d6c9ff03c7</hash><remark><text>English Translation - Speed Boost / MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">7d00824f71ef375be22a3f271262e2f3937a7a56</hash><remark><text>English Translation - Alternative A / MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">cca3f7cf3c2a0993d80d75d1af065e8f3d95a132</hash><remark><text>English Translation - Alternative B / MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">790c782264dd795d119fcefecea5c922ee293e4a</hash><remark><text>English Translation - Speed boost - Alternative B / MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">592bdccc958d253ef4fa2cf33c965a2d5948f5d2</hash><remark><text>English Translation - Speed boost - Alternative B / MSX Translations</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Dragon Slayer 4 - MSX1</title>
@@ -2652,6 +2658,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">3f87c3413c8cc2a25e1f64cfdcd01155a13711f0</hash></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">6d7a8ea1b283ecc1cc94c359e5f053a6e82ab3f5</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">73ad5a90a963f7963a404816e8d6616bbe386ce2</hash><remark><text>Kralizec&#39;s Dragon Slayer 4 improved password readability patch</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash algo="sha1">9bdd6b4212468e07be25bd43e94b50d2ea1fe9dc</hash><remark><text>Translated by MSX Translations</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Drainer</title>
@@ -7749,6 +7756,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">295578c06ff3f451f5203fc467a191c9ea335952</hash><remark><text>[h Prosoft]</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Pengo</title>
+	<system>MSX</system>
+	<company>Paxanga Soft</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">6e2597e3dd2558043550a4307d01426998136722</hash><remark><text>Demo / Demo Version</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Penguin Cafe</title>
 	<system>MSX</system>
 	<company>The MSX Caf&#233;</company>
@@ -11516,6 +11531,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2528
-Parse time 4.273 seconds on Mon Apr 26 3:11:50 CEST 2010
+Roms in this database:2536
+Parse time 10.023 seconds on Tue May 25 8:44:44 CEST 2010
  -->
