@@ -107,12 +107,13 @@ def normalizeWhitespace(expression):
 class TargetSystem(object):
 
 	def __init__(
-		self,
-		log, compileCommandStr, outDir, platform, distroRoot, configuration
+		self, log, logPath, compileCommandStr, outDir, platform, distroRoot,
+		configuration
 		):
 		'''Create empty log and result files.
 		'''
 		self.log = log
+		self.logPath = logPath
 		self.compileCommandStr = compileCommandStr
 		self.outDir = outDir
 		self.platform = platform
@@ -155,7 +156,9 @@ class TargetSystem(object):
 			)
 
 	def printResults(self):
-		for line in iterProbeResults(self.outVars, self.configuration):
+		for line in iterProbeResults(
+			self.outVars, self.configuration, self.logPath
+			):
 			print line
 
 	def everything(self):
@@ -261,7 +264,7 @@ class TargetSystem(object):
 				version = 'error'
 			self.outVars['VERSION_%s' % makeName] = version
 
-def iterProbeResults(probeVars, configuration):
+def iterProbeResults(probeVars, configuration, logPath):
 	'''Present probe results, so user can decide whether to start the build,
 	or to change system configuration and rerun "configure".
 	'''
@@ -327,20 +330,26 @@ def iterProbeResults(probeVars, configuration):
 
 		if buildableComponents == desiredComponents:
 			yield 'All required and optional components can be built.'
-		elif requiredComponents.issubset(buildableComponents):
-			yield 'If you are satisfied with the probe results, ' \
-				'run "make" to start the build.'
-			yield 'Otherwise, install some libraries and headers ' \
-				'and rerun "configure".'
 		else:
-			yield 'Please install missing libraries and headers ' \
-				'and rerun "configure".'
+			if requiredComponents.issubset(buildableComponents):
+				yield 'If you are satisfied with the probe results, ' \
+					'run "make" to start the build.'
+				yield 'Otherwise, install some libraries and headers ' \
+					'and rerun "configure".'
+			else:
+				yield 'Please install missing libraries and headers ' \
+					'and rerun "configure".'
+			yield ''
+			yield 'If the detected libraries differ from what you think ' \
+				'is installed on this system, please check the log file: %s' \
+				% logPath
 		yield ''
 
 def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	if not isdir(outDir):
 		makedirs(outDir)
-	log = open(outDir + '/probe.log', 'w')
+	logPath = outDir + '/probe.log'
+	log = open(logPath, 'w')
 	print 'Probing target system...'
 	print >> log, 'Probing system:'
 	try:
@@ -365,7 +374,8 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		configuration = getConfiguration(linkMode)
 
 		TargetSystem(
-			log, compileCommandStr, outDir, platform, distroRoot, configuration
+			log, logPath, compileCommandStr, outDir, platform, distroRoot,
+			configuration
 			).everything()
 	finally:
 		log.close()
