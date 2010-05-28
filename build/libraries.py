@@ -24,6 +24,13 @@ class Library(object):
 	dynamicLibsOption = '--libs'
 	staticLibsOption = None
 	function = None
+	# TODO: A library can give an application compile time and run time
+	#       dependencies on other libraries. For example SDL_ttf depends on
+	#       FreeType only at run time, but depends on SDL both compile time
+	#       and run time, since SDL is part of its interface and FreeType is
+	#       only used by the implementation. As a result, it is possible to
+	#       compile against SDL_ttf without having the FreeType headers
+	#       installed. But our getCompileFlags() does not support this.
 	dependsOn = ()
 
 	@classmethod
