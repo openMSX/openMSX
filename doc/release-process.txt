@@ -83,19 +83,18 @@ Make the release public
 -----------------------
 
 Put the release on SourceForge:
-- Upload the release tar.gz to "https://frs.sourceforge.net/webupload".
-- On the project page, choose "Admin", followed by "File Releases".
-- At the bottom, choose "Add Release".
-- As the release name, type the version number ("1.2.3").
-- For the Release Notes, select "doc/release-notes.txt".
-- For the Change Log, select "doc/release-history.txt".
-- Check "Preserve my pre-formatted text" and choose "Submit/Refresh".
-  Now you should see the release notes and change history filled in in the
-  edit boxes.
-- Select the uploaded file from the file list and choose "Add Files and/or
-  Refresh View".
-- File info: "Processor = Any", "File Type = Source .gz".
-  Finally, choose "Update/Refresh".
+- On the project page, choose "Project Admin", followed by "File Manager".
+- Add a new folder for the new release 1.2.3 in the directory where the
+  previous release is: click on the gear icon and choose "New Folder" and give
+  it the name "1.2.3"
+- Click the gear icon of the new folder and choose "Upload here" and select the
+  file to upload. Repeat for all files for this release.
+- Upload also the file "doc/release-notes.txt" to the same folder and edit its
+  properties in the web interface to be 'Release Notes'.
+- Select this file as release notes for the 1.2.3 folder. Verify on the Files
+  tab of the project page if it actually worked :)
+- For each folder, you can choose which file is for each platform. Set that up,
+  or alternatively, execute the next step:
 - Update the platform downloads. For Windows, Mac OS, Linux and *BSD, set the
   proper release files. This menu can be found next to "Manage Packages /
   Releases", under "Create / Edit Download Page". See also this URL:
