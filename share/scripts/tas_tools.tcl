@@ -4,7 +4,10 @@ set_help_text toggle_frame_counter\
 {Toggles display of a frame counter in the lower right corner.
 
 The frame counter will be wrong if at any time there is a change of VDP
-register 9 bit 1 during the run time of the machine! (So switching between 50/60Hz.)
+register 9 bit 1 during the run time of the machine! (So switching between
+50/60Hz.) In practice this means that it only works on machines that stay in
+NTSC mode (because PAL machines with V9938 or up will start in NTSC mode for a
+brief amount of time).
 }
 
 proc toggle_frame_counter {} {
@@ -22,7 +25,7 @@ proc toggle_frame_counter {} {
 }
 
 proc framecount_current {} {
-	set freq [expr {(6 * 3579545) / (1368 * (([vdpreg 9] & 1) ? 313 : 262))}]
+	set freq [expr {(6 * 3579545) / (1368 * (([vdpreg 9] & 2) ? 313 : 262))}]
 	return [expr int([machine_info time] * $freq)]
 }
 
@@ -33,23 +36,22 @@ proc framecount_update {} {
 	return ""
 }
 
-# TODO: this doesn't work properly, why?
-# The best way is to enable some kind of global TAS mode (a boolean setting),
-# which if enabled sets up some useful key bindings for TAS
-#
-#set_help_text frame_advance_mode \
-#{frame_advance_mode let's you go through frames by pushing f7}
-#
-#proc frame_advance_mode {} {
-#	bind_default f7 "set pause off;after frame \"set pause on\""
-#}
+set_help_text advance_frame \
+{Emulates until the next frame is generated and then pauses openMSX. Useful to
+bind to a key and emulate frame by frame.}
+
+proc advance_frame {} {
+	after frame "set ::pause on"
+	set ::pause off
+	return ""
+}
 
 # more TODO:
 # real time OSD memory watch
 # TAS mode indicators
 
 namespace export toggle_frame_counter
-#namespace export frame_advance_mode
+namespace export advance_frame
 }
 
 namespace import tas::*
