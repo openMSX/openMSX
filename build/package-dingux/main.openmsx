@@ -1,5 +1,0 @@
-#!/bin/sh
-# Rename this file to just "main" if you want openMSX to start automatically
-# every time Dingux boots. Leave this file as "main.openmsx" if you are using
-# an application menu.
-exec /usr/local/bin/openmsx-start.sh
