@@ -21,7 +21,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <!--sha1:cbios_main_msx2+.rom-->
+          <sha1>1423ddcf06c2033ded10cae4a8c01dd640d9b8a9</sha1>
           <filename>roms/cbios_main_msx2+.rom</filename>
         </rom>
       </ROM>
@@ -29,7 +29,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <!--sha1:cbios_logo_msx2+.rom-->
+          <sha1>a9b093982064bf8494215c528bb28c6ddf01a47f</sha1>
           <filename>roms/cbios_logo_msx2+.rom</filename>
         </rom>
       </ROM>
@@ -45,7 +45,7 @@
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
-            <!--sha1:cbios_sub.rom-->
+            <sha1>570874efdf6663b49f0933e2e49d445d47fe996f</sha1>
             <filename>roms/cbios_sub.rom</filename>
           </rom>
         </ROM>
@@ -56,7 +56,7 @@
           <mem base="0x4000" size="0x4000"/>
           <io base="0x7C" num="2" type="O"/>
           <rom>
-            <!--sha1:cbios_music.rom-->
+            <sha1>5c5eb001e6a1fe29edb7abd428a3967bb388e5db</sha1>
             <filename>roms/cbios_music.rom</filename>
           </rom>
           <sound>
@@ -79,7 +79,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <key_ghosting>true</key_ghosting>
+      <key_ghosting>false</key_ghosting>
       <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
     </PPI>
