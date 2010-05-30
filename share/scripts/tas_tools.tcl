@@ -46,12 +46,49 @@ proc advance_frame {} {
 	return ""
 }
 
-# more TODO:
-# real time OSD memory watch
-# TAS mode indicators
+proc load_replay { name } {
+	reverse loadreplay $name
+	array set _i [reverse status]
+	reverse goto $_i(end)
+	set pause on
+	return ""
+}
+
+set_help_text enable_tas_mode \
+{Enables the highly experimental TAS mode, giving you 8 savestate slots, to be
+used with F1-F8 (load) and SHIFT-F1 (to F8) to save. It actually saves
+replays. After loading, openMSX will advance to the end of the replay
+and pause. This will go slower and slower if you have longer replays.
+(Will be improved after openMSX 0.8.0 is released.)
+
+It will also enable the frame counter and give you a frame_advance key binding
+under the END key.
+}
+
+proc enable_tas_mode {} {
+	# assume frame counter is disabled here
+	toggle_frame_counter
+	reverse_widgets::enable_reversebar false
+
+	# set up the quicksave/load "slots"
+	set basename "quicksave"
+	for {set i 1} {$i <= 8} {incr i} {
+		bind_default "F$i" tas::load_replay "$basename$i"
+		bind_default "SHIFT+F$i" "reverse savereplay $basename$i"
+	}
+
+	# set up frame advance
+	bind_default END -repeat advance_frame
+
+	# TODO:
+	# enable extra stuff that Vampier wrote :)
+
+	return "WARNING! TAS mode is still very experimental and will almost certainly change next release!"
+}
 
 namespace export toggle_frame_counter
 namespace export advance_frame
+namespace export enable_tas_mode
 }
 
 namespace import tas::*
