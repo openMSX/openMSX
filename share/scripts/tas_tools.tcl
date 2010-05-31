@@ -46,8 +46,20 @@ proc advance_frame {} {
 proc load_replay { name } {
 	reverse loadreplay $name
 	array set stat [reverse status]
-	reverse goto $stat(end)
-	#set ::pause on
+	if {$::pause} {
+		# after loading a replay, it takes two(!) frames before the
+		# rendered image is correct. (TODO investigate why it needs
+		# two, I only expected one). As a workaround we go back two
+		# frames and replay those two frames.
+
+		# duration of two video frames
+		set t [expr {2 * (1368 * (([vdpreg 9] & 2) ? 313 : 262)) / (6.0 * 3579545)}]
+		reverse goto [expr $stat(end) - $t]
+		set ::pause off
+		after time $t { set ::pause on }
+	} else {
+		reverse goto $stat(end)
+	}
 	return ""
 }
 
@@ -79,7 +91,7 @@ proc enable_tas_mode {} {
 	# set up frame advance
 	bind_default END -repeat advance_frame
 
-	return "WARNING 1: TAS mode is still very experimental and will almost certainly change next release!\nWARNING 2: after loading a state (key: F1-F8) in pause mode, you may need to advance two frames (key: end) before the screen is rendered correctly"
+	return "WARNING 1: TAS mode is still very experimental and will almost certainly change next release!"
 }
 
 # -- Show Cursor Keys / 'fire buttons and others'
