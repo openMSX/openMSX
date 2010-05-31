@@ -81,3 +81,15 @@ diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.14/src/video
  @end
  
  @implementation SDL_QuartzWindowDelegate
+diff -ru SDL-1.2.14.org/src/video/wincommon/SDL_sysevents.c SDL-1.2.14/src/video/wincommon/SDL_sysevents.c
+--- SDL-1.2.14.org/src/video/wincommon/SDL_sysevents.c      2009-10-13 01:07:14.000000000 +0200
++++ SDL-1.2.14/src/video/wincommon/SDL_sysevents.c      2010-05-31 22:25:10.000000000 +0200
+@@ -337,7 +337,7 @@
+ 				}
+ #endif
+ 				posted = SDL_PrivateAppActive(1, appstate);
+-				WIN_GetKeyboardState();
++				/*WIN_GetKeyboardState();*/
+ 			} else {
+ 				/* Lose the following states */
+ 				appstate = SDL_APPINPUTFOCUS;
