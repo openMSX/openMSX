@@ -3,38 +3,34 @@ namespace eval tas {
 set_help_text toggle_frame_counter\
 {Toggles display of a frame counter in the lower right corner.
 
-The frame counter will be wrong if at any time there is a change of VDP
-register 9 bit 1 during the run time of the machine! (So switching between
-50/60Hz.) In practice this means that it only works on machines that stay in
-NTSC mode (because PAL machines with V9938 or up will start in NTSC mode for a
-brief amount of time).
-}
+Note that the absolute value of the frame counter will be wrong after a
+PAL/NTSC switch (50Hz/60Hz switch). Relative values are correct, so this
+can be used for example to advance N frames. We will fix the absolute
+value after openMSX 0.8.1 is released. }
 
 proc toggle_frame_counter {} {
-
 	if {![catch {osd info framecount}]} {
 		osd destroy framecount
 		return ""
 	}
 
-	osd create rectangle framecount -x 280 -y 235 -h 6 -w 50 -rgba 0x0077FF80 -scaled true
-	osd create text framecount.text -text "" -size 5 -rgba 0xffffffff
-
+	osd_widgets::box framecount -x 269 -y 224 -h 8 -w 50 -rgba 0x80808080 -fill 0x80808080 -scaled true
+	osd create text framecount.text -x 3 -y 2 -size 4 -rgba 0xffffffff
 	framecount_update
 	return ""
 }
 
 proc framecount_current {} {
-	set freq [expr {(6 * 3579545) / (1368 * (([vdpreg 9] & 2) ? 313 : 262))}]
+	set freq [expr {(6.0 * 3579545) / (1368 * (([vdpreg 9] & 2) ? 313 : 262))}]
 	return [expr int([machine_info time] * $freq)]
 }
 
 proc framecount_update {} {
-	if {[catch {osd info framecount}]} {return ""}
+	if {[catch {osd info framecount}]} return
 	osd configure framecount.text -text "Frame: [framecount_current]"
 	after frame [namespace code framecount_update]
-	return ""
 }
+
 
 set_help_text advance_frame \
 {Emulates until the next frame is generated and then pauses openMSX. Useful to
@@ -46,13 +42,15 @@ proc advance_frame {} {
 	return ""
 }
 
+
 proc load_replay { name } {
 	reverse loadreplay $name
-	array set _i [reverse status]
-	reverse goto $_i(end)
-	set pause on
+	array set stat [reverse status]
+	reverse goto $stat(end)
+	#set ::pause on
 	return ""
 }
+
 
 set_help_text enable_tas_mode \
 {Enables the highly experimental TAS mode, giving you 8 savestate slots, to be
@@ -68,6 +66,7 @@ under the END key.
 proc enable_tas_mode {} {
 	# assume frame counter is disabled here
 	toggle_frame_counter
+	toggle_cursors
 	reverse_widgets::enable_reversebar false
 
 	# set up the quicksave/load "slots"
@@ -80,15 +79,175 @@ proc enable_tas_mode {} {
 	# set up frame advance
 	bind_default END -repeat advance_frame
 
-	# TODO:
-	# enable extra stuff that Vampier wrote :)
-
-	return "WARNING! TAS mode is still very experimental and will almost certainly change next release!"
+	return "WARNING 1: TAS mode is still very experimental and will almost certainly change next release!\nWARNING 2: after loading a state (key: F1-F8) in pause mode, you may need to advance two frames (key: end) before the screen is rendered correctly"
 }
+
+# -- Show Cursor Keys / 'fire buttons and others'
+proc show_keys {} {
+	if {[catch {osd info cursors}]} return
+
+	show_key_press right [is_key_pressed 8 7]
+	show_key_press down  [is_key_pressed 8 6]
+	show_key_press up    [is_key_pressed 8 5]
+	show_key_press left  [is_key_pressed 8 4]
+	show_key_press space [is_key_pressed 8 0]
+
+	show_key_press m     [is_key_pressed 4 2]
+	show_key_press n     [is_key_pressed 4 3]
+	show_key_press z     [is_key_pressed 5 7]
+	show_key_press x     [is_key_pressed 5 5]
+
+	show_key_press graph [is_key_pressed 6 2]
+	show_key_press ctrl  [is_key_pressed 6 1]
+	show_key_press shift [is_key_pressed 6 0]
+
+	after frame  [namespace code show_keys]
+}
+
+#move to other TCL script?
+proc is_key_pressed {row bit} {
+	return [expr !([debug read keymatrix $row] & (1 << $bit))]
+}
+
+proc show_key_press {key state} {
+	set keycol [expr {$state ? 0xff000080 : 0x80808080}]
+	osd configure cursors.$key -rgba $keycol
+}
+
+proc create_key {name x y} {
+	osd_widgets::box cursors.$name -x $x -y $y -w 16 -h 10 -rgba 0x80808080
+	osd create text cursors.$name.text -x 2 -y 2 -text $name -size 4 -rgba 0xffffffff
+}
+
+proc toggle_cursors {} {
+	if {[catch {osd info cursors}]} {
+		osd create rectangle cursors -x 64 -y 215 -h 26 -w 204 -scaled true -rgba 0x00000000
+		#cursor keys
+		create_key up 20 2
+		create_key left 2 8
+		create_key down 20 14
+		create_key right 38 8
+		#fire buttons and others
+		create_key space 60 8
+		create_key m 78 8
+		create_key n 96 8
+		create_key z 114 8
+		create_key x 132 8
+		create_key graph 150 8
+		create_key ctrl 168 8
+		create_key shift 186 8
+
+		show_keys
+	} else {
+		osd destroy cursors
+	}
+}
+
+# -- RAM Watch
+variable addr_watches [list]   ;# sorted list of RAM watch addresses
+
+proc ram_watch_add {addr_str} {
+	variable addr_watches
+
+	# sanitize input
+	set addr [expr int($addr_str)]
+	if {($addr < 0) || ($addr > 0xffff)} {
+		error "Please use a 16 bit address."
+	}
+
+	# check for duplicates
+	puts stderr "| $addr_watches |"
+	puts stderr "| [lsearch $addr_watches $addr] |"
+	if {[lsearch $addr_watches $addr] != -1} {
+		error "Address $addr already being watched."
+	}
+
+	# add address to list
+	set i [llength $addr_watches]
+	lappend addr_watches $addr
+	set addr_watches [lsort -integer $addr_watches]
+
+	# if OSD doesn't exist yet create it
+	if {$i == 0} {
+		osd create rectangle ram_watch -x 0 -y 0 -h 240 -w 320 -scaled true -alpha 0
+		osd_widgets::box ram_watch.addr -x 288 -y 1 -w 31 -h 221 -rgba 0x80808080 -fill 0x80808080
+		osd create text ram_watch.addr.title -text "Ram Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
+	}
+
+	# add one extra entry
+	osd create rectangle ram_watch.addr.mem$i -x 2 -y [expr 8+($i*6)] -h 5 -w 16 -rgba 0x40404080
+	osd create text  ram_watch.addr.mem$i.text -size 4 -rgba 0xffffffff
+	osd create rectangle ram_watch.addr.val$i -x 19 -y [expr 8+($i*6)] -h 5 -w 10 -rgba 0x40404080
+	osd create text  ram_watch.addr.val$i.text -size 4 -rgba 0xffffffff
+
+	ram_watch_update_addresses
+	if {$i == 0} {
+		ram_watch_update_values
+	}
+	return ""
+}
+
+proc ram_watch_remove {addr_str} {
+	variable addr_watches
+
+	# sanitize input
+	set addr [expr int($addr_str)]
+	if {($addr < 0) || ($addr > 0xffff)} {
+		error "Please use a 16 bit address."
+	}
+
+	# check watch exists
+	set index [lsearch $addr_watches $addr]
+	if {$index == -1} {
+		error "Address $addr was not being watched."
+	}
+
+	#remove address from list
+	set addr_watches [lreplace $addr_watches $index $index]
+	set i [llength $addr_watches]
+
+	#remove one OSD entry
+	osd destroy ram_watch.addr.mem$i
+	osd destroy ram_watch.addr.val$i
+
+	#if all elements are gone don't display anything anymore.
+	if {$i == 0} {
+		osd destroy ram_watch
+	} else {
+		ram_watch_update_addresses
+	}
+	return ""
+}
+
+proc ram_watch_update_addresses {} {
+	variable addr_watches
+
+	set i 0
+	foreach addr $addr_watches {
+		osd configure ram_watch.addr.mem$i.text -text [format 0x%04X $addr]
+		incr i
+	}
+}
+
+proc ram_watch_update_values {} {
+	variable addr_watches
+	if {[llength $addr_watches] == 0} return
+
+	set i 0
+	foreach addr $addr_watches {
+		osd configure ram_watch.addr.val$i.text -text [format 0x%02X [peek $addr]]
+		incr i
+	}
+	after frame [namespace code ram_watch_update_values]
+}
+
 
 namespace export toggle_frame_counter
 namespace export advance_frame
 namespace export enable_tas_mode
+namespace export ram_watch_add
+namespace export ram_watch_remove
+namespace export toggle_cursors
 }
 
 namespace import tas::*
