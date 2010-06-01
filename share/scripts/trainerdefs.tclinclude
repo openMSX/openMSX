@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/04/26
+# Updated @ 2010/06/02
 #
 
 
@@ -2376,10 +2376,21 @@ create_trainer "Feud" {time 2} {
 
 create_trainer "Final Fantasy" {time 1} {
 	"Gold" {poke 0xc255 255;poke 0xc256 255}
-	"Life Player 1" {poke 0xc008 255;poke 0xc009 255;poke 0xc00a 99}
-	"Life Player 2" {poke 0xc048 255;poke 0xc049 255;poke 0xc04a 99}
-	"Life Player 3" {poke 0xc088 255;poke 0xc089 255;poke 0xc08a 99}
-	"Life Player 4" {poke 0xc0c8 255;poke 0xc0c9 255;poke 0xc0ca 99}
+	"Player 1 Black Belt" {poke 0xc000 1}
+	"Player 1 Black Mage" {poke 0xc000 5}
+	"Player 1 Fighter" {poke 0xc000 0}
+	"Player 1 Level" {poke 0xc026 99}
+	"Player 1 Life " {poke 0xc008 255}
+	"Player 1 Life" {poke 0xc009 255;poke 0xc00a 99}
+	"Player 1 Red Mage" {poke 0xc000 3}
+	"Player 1 Thief" {poke 0xc000 2}
+	"Player 1 White Mage" {poke 0xc000 4}
+	"Player 2 Level" {poke 0xc066 99}
+	"Player 2 Life" {poke 0xc048 255;poke 0xc049 255;poke 0xc04a 99}
+	"Player 3 Level" {poke 0xc0a6 99}
+	"Player 3 Life" {poke 0xc088 255;poke 0xc089 255;poke 0xc08a 99}
+	"Player 4 Level" {poke 0xc0e6 99}
+	"Player 4 Life" {poke 0xc0c8 255;poke 0xc0c9 255;poke 0xc0ca 99}
 }
 
 create_trainer "Final Justice" {time 1} {
@@ -4709,6 +4720,15 @@ create_trainer "Night Shade" {time 1} {
 }
 
 create_trainer "Ninja Kun" {time 1} {
+	"4 way fire" {poke 0xcb7a 4}
+	"50 Bonus Scrolls" {poke 0xcb2e 99}
+	"99 Lives" {poke 0xcb34 99}
+	"Bombs" {poke 0xcb7a 3}
+	"Boomerang" {poke 0xcb7a 2}
+	"Throwing stars" {poke 0xcb7a 1}
+}
+
+create_trainer "Ninja Kun (Ninja II)" {time 1} {
 	"Lives" {poke 0xcb37 99}
 	"Protection Scrolls" {poke 0xcb2e 255}
 	"Time" {poke 0xcb35 99}
@@ -6848,6 +6868,7 @@ create_trainer "Zanac A.I. - 2nd Version" {time 1} {
 }
 
 create_trainer "Zanac-Ex" {time 1} {
+	"Get High Score" {poke 0xcbf8 0x99}
 	"Invincible" {poke 0xc405 128}
 	"Lives" {poke 0xc012 100}
 	"Primary Weapon Max Level" {poke 0xc013 4;poke 0xc016 4;poke 0xc03f 3;poke 0xc040 3;poke 0xc104 2;poke 0xc161 2}
@@ -6896,4 +6917,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 3.938 seconds. 731 trainers -  having 5614 pokes
+# File Created in : 1.493 seconds. 732 trainers -  having 5631 pokes
