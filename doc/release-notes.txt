@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.8.0 (2010-04-05?)
+Release Notes for openMSX 0.8.0 (2010-06-02)
 ============================================
 
 This release brings you two major new features: reverse and Laserdisc. Reverse
@@ -37,6 +37,7 @@ New or improved emulator features:
   - experimental OSD script for tabbed MSXing (controllable from OSD menu)
   - music keyboard (visualize notes of sound chips)
   - SCC editor (edit SCC wave forms)
+- Experimental (still primitive) support for TAS (http://tasvideos.org/)
 
 MSX device support:
 - Added emulation of Palcom Laserdisc games on the Pioneer PX-7/PX-V60 (note:

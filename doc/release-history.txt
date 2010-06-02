@@ -3,6 +3,65 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.8.0 (2010-06-02)
+--------------------------
+
+This release brings you two major new features: reverse and Laserdisc. Reverse
+is similar to what you can do in meisei: you can 'rewind' time with your finger
+tip, to correct game playing mistakes or inspect what caused a crash. Laserdisc
+is the Palcom system introduced by Pioneer in 1984: now you can play all the
+Palcom MSX Laserdisc games in openMSX!
+
+For the rest we have mostly fixed smaller issues and added smaller features
+(see below). Here's the list with all highlights:
+
+New or improved emulator features:
+- Added reverse: go back in time to correct mistakes or replay your actions
+  (use PgUp and PgDn to control, enable visualization of this feature with this
+  console command: set auto_enable_reverse gui). For more information on usage,
+  please see the (links in the) FAQ of the manual.
+- Debugging:
+  - added information on last address/value written which triggered watch point
+  - added several new debuggables: keymatrix, joystick ports, romblock
+- Windows unicode fixes
+- Added possibility to link to Generation MSX from within scripts
+- Various internal code cleanups
+- Better SDLGL-PP TV scaler, sensitive to scanline setting
+- Many speed and code size optimizations, developed in the context for the
+  Dingoo port
+- Renamed "update" command to "openmsx_update" to avoid conflicts with the
+  native Tcl command
+- Various tweaks to OSD menu: new colors (thanks Wolf), save states show date,
+  toys menu, ...
+- Added new icon skin especially made for handhelds
+- Added OSD virtual keyboard (only international QWERTY layout for now) for
+  devices without keyboard
+- Added OSD mouse support, you can now easily create drag and drop of MSX
+  objects, for instance
+- New scripts that demonstrate the OSD framework:
+  - experimental OSD script for tabbed MSXing (controllable from OSD menu)
+  - music keyboard (visualize notes of sound chips)
+  - SCC editor (edit SCC wave forms)
+- Experimental (still primitive) support for TAS (http://tasvideos.org/)
+
+MSX device support:
+- Added emulation of Palcom Laserdisc games on the Pioneer PX-7/PX-V60 (note:
+  not visible in screenshots and video recording yet)
+- Added support for balance per channel, including support for the "stereo"
+  effect of the FM Stereo PAK and the stereo PSG of the Pioneer PX-7
+- Added new mapper: Arc
+- Accuracy improvements:
+  - minor fixes in V99x8, V9990, YM2413 and YMF278 emulation
+- Added emulation of the trackball (thanks n_n)
+
+Build system, packaging, documentation:
+- Added platform/CPU support for: PA-RISC, Dingoo, SuperH, Nokia N900/Maemo,
+  MacOSX 10.6 / 64-bit, GNU/kFreeBSD, Atmel AVR32
+- For Laserdisc support (which is optional), added dependency on libogg,
+  libvorbis and libtheora
+- Removed dependency on SDL_image
+
+
 openMSX 0.7.2 (2009-06-30)
 --------------------------
 
