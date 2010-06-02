@@ -24,6 +24,9 @@ Dingux blog:
 Dingux downloads:
   http://code.google.com/p/dingoo-linux/downloads/list
 
+New Dingux site hub:
+  http://dingoonity.org/
+
 Installing Dingux
 -----------------
 
@@ -78,7 +81,8 @@ Building openMSX
 If you want to make bigger changes, you have to compile your own openMSX for
 Dingux.
 
-This is described in the Compilation Guide:
+This is described in the Compilation Guide (with specific instructions for
+Dingux):
   http://openmsx.sourceforge.net/manual/compile.html
 
 Feedback
