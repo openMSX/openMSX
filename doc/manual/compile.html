@@ -183,6 +183,17 @@ Double click on the MinGW package after downloading, choose "Download and Instal
 <p>Note: there is a bug in the <a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=2435&amp;package_id=11598">MinGW Runtime (mingwrt)</a> package version 3.15.1, which will cause FreeType not to compile (and probably more). Make sure you have the latest (newer) version installed! (Which will be the case if you do a fresh install using the instructions above.)
 </p>
 
+<h5>Dingux</h5>
+
+<p>For compilation for Dingux (Linux for Dingoo), you need to install the
+Dingux toolchain. This toolchain is for x86
+Linux; if you have an x86 machine but no Linux, you can install Linux in a
+virtual machine. Extract the toolchain to <code>/opt</code>; anywhere else
+won't work. It can be downloaded from the <a class="external"
+href="http://code.google.com/p/dingoo-linux/downloads/list">dingoo-linux
+Google Code project</a>.
+</p>
+
 <h4>Visual C++</h4>
 
 <p>There are three different ways to obtain the Visual C++ compiler:</p>
@@ -205,7 +216,7 @@ purchase, or via an MSDN subscription.</dd>
 
 <dl>
 
-	<dt>
+<dt>
 <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a></dt>
 <dd>SDK containing DirectX headers and libs. Any <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">recent version</a> will work; we use the one from <a class="external" href="http://www.microsoft.com/downloads/details.aspx?FamilyId=5493F76A-6D37-478D-BA17-28B1CCA4865A">November 2008</a>. This (too) is a large download, about 480MB. During installation you can choose to uncheck the Documentation, Samples and Source Code.</dd>
 
@@ -213,7 +224,7 @@ purchase, or via an MSDN subscription.</dd>
 <dd>A tool that generates MSI installers. Version 3.0 (currently in RC) or higher is required (<a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=105970">download here)</a>. If you get a message that Vortive won't install, that's no problem, just continue.</dd>
 
 </dl>
-	<h3><a id="libs">2.2 Libraries</a></h3>
+<h3><a id="libs">2.2 Libraries</a></h3>
 
 <p>
 openMSX depends on the following libraries:
@@ -269,6 +280,12 @@ sudo apt-get build-dep openmsx
 <p>
 Do note that if the Debian/Ubuntu package that is in the version of the distribution you are currently running is older than the openMSX version you are trying to compile (which is typically so), you might miss some dependencies that were added in the newer version. The build system will complain and you will have to install the remaining (missing) packages manually. Read on to get some tips about that.
 </p>
+
+<h5>Dingux</h5>
+
+<p>We only support the <a class="internal" href="#standalone">Stand-alone
+Binary</a> method, which means the openMSX build system will download
+and compile all libraries automatically.</p>
 
 <h5>Other Linux</h5>
 <p>
@@ -686,6 +703,14 @@ If you additionally want to build the openMSX installer, you should refer to the
 Note: on a 64-bit Windows system, MinGW will pretend to have built 64-bit binaries (target directory is <code>derived\x86_64-mingw32-opt-3rd\bindist\install</code>), but they're actually just 32-bit.
 </p>
 
+<h5>Dingux</h5>
+
+<p>After having the toolchain installed, you can simply compile openMSX with
+this command:</p>
+<div class="commandline">
+make staticbindist OPENMSX_TARGET_CPU=mipsel OPENMSX_TARGET_OS=dingux OPENMSX_FLAVOUR=opt
+</div>
+
 <h4>Visual C++</h4>
 
 <p>When building with Visual C++, the result is a static executable with minimal
@@ -748,6 +773,24 @@ The following step creates .zip and .msi installation packages for openMSX on Wi
 	build\package-windows\package.cmd x64 Release ..\wxCatapult</div>
 
 <p>The resulting package files can be found in <code>derived\x64-VC-Release\package-windows.</code></p>
+
+<h4>Dingux</h4>
+
+<p>There is no automated packaging in the build process yet. Here are some
+quick manual instructions... Make sure the results from the build are ordered
+in such a directory structure that they match the ZIP binary release for Dingux
+from the openMSX download site. Once you have that, you can copy the directory
+named "local" (again, see the openMSX for Dingux ZIP file) to the root of the
+Dingux miniSD card. If you have run Dingux from the miniSD card before,
+there will already be a directory named "local". You can safely merge both
+directories.
+</p>
+
+<p>
+To get it in your own menu, you'll have to add the openMSX entry to it
+yourself. Use the start up script for this, which can be found in
+<code>build/package-dingux</code>.
+</p>
 
 <h2><a id="next">6. Next Steps</a></h2>
 

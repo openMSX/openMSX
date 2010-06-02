@@ -1,13 +1,12 @@
-openMSX for Dingux prerelease
-=============================
+openMSX for Dingux
+==================
 
-This is an openMSX development version modified and compiled for running on
-Dingux. It is a very early port, so expect it to have a lot of rough edges.
-For example, startup and save state loading is slow and key bindings are not
-sufficient for some games.
+This text is a quick guide for the Dingoo port of openMSX. It is still a bit of
+an early port, so expect it to have some rough edges. For example, startup is
+slow (expect about 10 seconds).
 
-I'm making this early version public so people can play with it and give
-feedback. Please help me make this a great way to play MSX games on a handheld.
+We are releasing it so people can play with it and give us feedback. Please
+help us make this a great way to play MSX games on a handheld.
 Contact info is at the bottom of this text.
 
 About Dingux
@@ -32,12 +31,15 @@ First, download the dual boot installer and follow the instructions in its
 README file.
 
 Next, download the Dingux system and copy it to your miniSD card as described
-in its README file. New Dingux system releases are made regularly and I will
+in its README file. New Dingux system releases are made regularly and we will
 only test openMSX against the latest Dingux system release, so please keep your
 system updated.
 
 Installing openMSX
 ------------------
+
+This info is also in the openMSX Compilation Guide:
+  http://openmsx.sourceforge.net/manual/compile.html#installstandalone
 
 Copy the directory named "local" from the openMSX for Dingux ZIP file to the
 root of the miniSD card. If you have run Dingux from the minSD card before,
@@ -53,25 +55,9 @@ to install those yourself. Please read this for more info:
 Using openMSX
 -------------
 
-These are the key mappings:
+The keymappings are documented in the openMSX User's Manual:
+  http://openmsx.sourceforge.net/manual/user.html#keymapping
 
-Dingoo key:         MSX key:            OSD action:
-D-pad up            Cursor up           Cursor up
-D-pad down          Cursor down         Cursor down
-D-pad left          Cursor left         Value - / Previous page
-D-pad right         Cursor right        Value + / Next page
-A button            CTRL
-B button            Graph
-X button            Space
-Y button            Shift
-Left shoulder                           Toggle OSD keyboard
-Right shoulder                          Toggle OSD menu
-START button        Enter               Confirm
-SELECT button       Escape              Cancel
-
-This is just the default openMSX key map for PCs that happens to work (mostly)
-for Dingux too. If you have an idea for a better key mapping, please let me
-know. Ideally, the key mapping should work for as many games as possible.
 
 Customizing openMSX
 -------------------
@@ -92,29 +78,12 @@ Building openMSX
 If you want to make bigger changes, you have to compile your own openMSX for
 Dingux.
 
-The first step is to download the Dingux toolchain. This toolchain is for x86
-Linux; if you have an x86 machine but no Linux, you can install Linux in a
-virtual machine. Extract the toolchain to /opt; anywhere else won't work.
-
-Now get the openMSX sources from Subversion:
-  svn co https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk
-
-Download the Dingux-specific patch from the openMSX site and apply it:
-  patch -p0 < openmsx-dingux-r12345.diff
-
-Now you can start the build:
-  chmod a+x dingux-build.sh
-   ./dingux-build.sh
-
-After the build is done, you can find the executable in:
-  derived/mipsel-linux-opt-3rd/bin
-
-More information about building openMSX:
+This is described in the Compilation Guide:
   http://openmsx.sourceforge.net/manual/compile.html
 
 Feedback
 --------
 
 If you found a bug, made a patch, created a cool theme or have anything else
-you'd like to share, please mail me:
-  Maarten ter Huurne <maarten@treewalker.org>
+you'd like to share, please contact us, see
+  http://openmsx.sourceforge.net/manual/user.html#contact
