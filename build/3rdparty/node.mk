@@ -3,6 +3,6 @@
 include build/node-start.mk
 
 DIST:= \
-	*.diff
+	*.diff *.sln *.vsprops *.vcproj *.py
 
 include build/node-end.mk
