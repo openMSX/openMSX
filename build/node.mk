@@ -9,6 +9,6 @@ DIST:= \
 	main.mk node-end.mk node-start.mk entry.mk \
 	custom.mk 3rdparty.mk \
 	flavour-*.mk platform-*.mk \
-	*.py
+	*.py python-search.sh
 
 include build/node-end.mk
