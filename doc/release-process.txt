@@ -17,9 +17,9 @@ Preparing for a release
   Currently most documentation is in "doc/manual".
 - Write release notes in "doc/release-notes.txt".
 - Add the change list to "doc/release-history.txt".
-- Edit the version number in build/version.mk:
-    OPENMSX_VERSION=1.2.3
-  And set RELEASE_FLAG to true.
+- Edit the version number in build/version.py:
+    packageVersionNumber = '1.2.3'
+  And set releaseFlag to True.
 
 Creating a release candidate
 ----------------------------
