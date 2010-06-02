@@ -1,6 +1,6 @@
 $Id$
 
-C-BIOS 0.23
+C-BIOS 0.24
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -18,8 +18,8 @@ License
 
 Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 Copyright (c) 2003 Reikan.  All rights reserved.
-Copyright (c) 2004-2006,2008 Maarten ter Huurne.  All rights reserved.
-Copyright (c) 2004-2006,2008 Albert Beevendorp.  All rights reserved.
+Copyright (c) 2004-2006,2008-2010 Maarten ter Huurne.  All rights reserved.
+Copyright (c) 2004-2006,2008-2010 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004-2005 Patrick van Arkel.  All rights reserved.
 Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 Copyright (c) 2004-2006 Joost Yervante Damad.  All rights reserved.
@@ -185,6 +185,11 @@ ver 0.23  2009-01-04(CET)
           * Fixed version reported by MSX1 logo ROM.
           * Fixed several video routines so they work on MSX1 VDPs (TMS99xx).
           * A couple of other bug fixes.
+ver 0.24  2010-05-24(CET)
+          * VRAM size is now properly checked, fixing R-Type's V9938 detection.
+          * C-BIOS doesn't lie anymore about the interrupt frequency. Don't di;
+            halt when no ROM is found, the warning in openMSX may be confusing
+          * A few minor bug fixes and tweaks.
 
 Special Thanks
 --------------
