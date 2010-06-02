@@ -6,6 +6,6 @@ SRC_HDR_$(COMPONENT_LASERDISC)+= \
 	LDSDLRasterizer \
 	LDPixelRenderer LDRenderer LDDummyRenderer
 
-HDR_ONLY:=
+HDR_ONLY:= LDRasterizer
 
 include build/node-end.mk
