@@ -1,66 +1,84 @@
+# $Id$
+
+from packagewindows import PackageInfo, generateInstallFiles
+
+from os.path import abspath, basename, exists, join as joinpath, relpath
+from zipfile import ZIP_DEFLATED, ZipFile
 import os, sys
-import zipfile
-import packagewindows
 
-def AddFile(zip, path, zipPath):
+def addFile(zipFile, path, zipPath):
 	print 'Adding ' + path
-	zip.write(path, zipPath, zipfile.ZIP_DEFLATED)
+	zipFile.write(path, zipPath, ZIP_DEFLATED)
 
-def AddDirectory(zip, root, zipPath):
+def addDirectory(zipFile, root, zipPath):
 	for path, dirs, files in os.walk(root):
 		if '.svn' in dirs:
-			dirs.remove('.svn')  # don't visit .svn directories
+			dirs.remove('.svn') # don't visit .svn directories
 		for name in files:
 			thisZipPath = zipPath
-			if os.path.abspath(root) != os.path.abspath(path):
-				thisZipPath = os.path.join(thisZipPath, os.path.relpath(path, root))
-			AddFile(zip, os.path.join(path, name), os.path.join(thisZipPath, name))
+			if abspath(root) != abspath(path):
+				thisZipPath = joinpath(thisZipPath, relpath(path, root))
+			addFile(zipFile, joinpath(path, name), joinpath(thisZipPath, name))
 
-def PackageZip(info):
-
+def packageZip(info):
 	print 'Generating install files...'
-	packagewindows.GenerateInstallFiles(info);
-	
-	if not os.path.exists(info.packagePath):
+	generateInstallFiles(info)
+
+	if not exists(info.packagePath):
 		os.mkdir(info.packagePath)
 
 	zipFileName = info.packageFileName + '-bin.zip'
-	zipFilePath = os.path.join(info.packagePath, zipFileName)
-	if os.path.exists(zipFilePath):
+	zipFilePath = joinpath(info.packagePath, zipFileName)
+	if exists(zipFilePath):
 		os.unlink(zipFilePath)
 
 	print 'Generating ' + zipFilePath
-	zip = zipfile.ZipFile(zipFilePath, 'w')
-	
-	AddDirectory(zip, os.path.join(info.makeInstallPath, 'doc'), 'doc')
-	AddDirectory(zip, os.path.join(info.makeInstallPath, 'share'), 'share')
-	AddDirectory(zip, info.codecPath, 'codec')
-	AddFile(zip, info.openmsxExePath, os.path.basename(info.openmsxExePath))
-	AddFile(zip, os.path.join(info.sourcePath, 'resource\\openmsx.ico'), 'share\\icons\\openmsx.ico')
-	
-	AddFile(zip, info.catapultExePath, 'Catapult\\bin\\Catapult.exe')
-	AddDirectory(zip, os.path.join(info.catapultPath, 'doc'), 'Catapult\\doc')
-	AddDirectory(zip, os.path.join(info.catapultPath, 'resources\\bitmaps'), 'Catapult\\resources\\bitmaps')
-	AddDirectory(zip, os.path.join(info.catapultBuildPath, 'install\\dialogs'), 'Catapult\\resources\\dialogs')
-	AddFile(zip, os.path.join(info.catapultSourcePath, 'catapult.xpm'), 'Catapult\\resources\\icons\\catapult.xpm')
-	AddFile(zip, os.path.join(info.catapultPath, 'README'), 'Catapult\\doc\\README')
-	zip.close()
-	
+	zipFile = ZipFile(zipFilePath, 'w')
+
+	addDirectory(zipFile, joinpath(info.makeInstallPath, 'doc'), 'doc')
+	addDirectory(zipFile, joinpath(info.makeInstallPath, 'share'), 'share')
+	addDirectory(zipFile, info.codecPath, 'codec')
+	addFile(zipFile, info.openmsxExePath, basename(info.openmsxExePath))
+	addFile(
+		zipFile, joinpath(info.sourcePath, 'resource\\openmsx.ico'),
+		'share\\icons\\openmsx.ico'
+		)
+
+	addFile(zipFile, info.catapultExePath, 'Catapult\\bin\\Catapult.exe')
+	addDirectory(zipFile, joinpath(info.catapultPath, 'doc'), 'Catapult\\doc')
+	addDirectory(
+		zipFile, joinpath(info.catapultPath, 'resources\\bitmaps'),
+		'Catapult\\resources\\bitmaps'
+		)
+	addDirectory(
+		zipFile, joinpath(info.catapultBuildPath, 'install\\dialogs'),
+		'Catapult\\resources\\dialogs'
+		)
+	addFile(
+		zipFile, joinpath(info.catapultSourcePath, 'catapult.xpm'),
+		'Catapult\\resources\\icons\\catapult.xpm'
+		)
+	addFile(
+		zipFile, joinpath(info.catapultPath, 'README'),
+		'Catapult\\doc\\README'
+		)
+	zipFile.close()
+
 	zipFileName = info.packageFileName + '-pdb.zip'
-	zipFilePath = os.path.join(info.packagePath, zipFileName)
-	if os.path.exists(zipFilePath):
+	zipFilePath = joinpath(info.packagePath, zipFileName)
+	if exists(zipFilePath):
 		os.unlink(zipFilePath)
 
 	print 'Generating ' + zipFilePath
-	zip = zipfile.ZipFile(zipFilePath, 'w')
-	AddFile(zip, info.openmsxPdbPath, os.path.basename(info.openmsxPdbPath))
-	AddFile(zip, info.catapultPdbPath, os.path.basename(info.catapultPdbPath))
-	zip.close()
+	zipFile = ZipFile(zipFilePath, 'w')
+	addFile(zipFile, info.openmsxPdbPath, basename(info.openmsxPdbPath))
+	addFile(zipFile, info.catapultPdbPath, basename(info.catapultPdbPath))
+	zipFile.close()
 
 if __name__ == '__main__':
-	if len(sys.argv) != 4:
-		print >> sys.stderr, 'Usage: python packagezip.py platform configuration catapultPath'
-		sys.exit(2)
+	if len(sys.argv) == 4:
+		packageZip(PackageInfo(*sys.argv[1 : ]))
 	else:
-		info = packagewindows.PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3])
-		PackageZip(info)
+		print >> sys.stderr, 'Usage: python packagezip.py ' \
+			'platform configuration catapultPath'
+		sys.exit(2)

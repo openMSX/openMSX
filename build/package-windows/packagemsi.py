@@ -1,170 +1,232 @@
-import os, sys
-import zipfile
-import packagewindows
-import harvest
+# $Id$
 
-def WriteFragment(wxsFile, sourcePath, componentGroup, directoryRef, virtualDir, excludedFile, win64):
+from harvest import generateWixFragment
+from packagewindows import (
+	PackageInfo, emptyOrCreateDirectory, generateInstallFiles
+	)
+
+from os import environ, mkdir, system, unlink
+from os.path import exists, join as joinpath
+from zipfile import ZIP_DEFLATED, ZipFile
+import sys
+
+def _writeFragment(
+	wxsFile, sourcePath, componentGroup, directoryRef,
+	virtualDir, excludedFile, win64
+	):
 	print 'Generating ' + wxsFile
-	file = open(wxsFile, 'w')
-	for line in harvest.GenerateWixFragment(sourcePath, componentGroup, directoryRef, virtualDir, excludedFile, win64):
-		file.write(line)
-		file.write('\n')
-	file.close()
+	out = open(wxsFile, 'w')
+	try:
+		out.writelines(
+			'%s\n' % line
+			for line in generateWixFragment(
+				sourcePath, componentGroup, directoryRef, virtualDir,
+				excludedFile, win64
+				)
+			)
+	finally:
+		out.close()
 
-def PackageMsi(info):
-
+def packageMSI(info):
 	print 'Generating install files...'
-	packagewindows.GenerateInstallFiles(info);
+	generateInstallFiles(info)
 
-	wixIntermediatePath = os.path.join(info.buildPath, 'build\\WiX')
-	packagewindows.EmptyOrCreateDirectory(wixIntermediatePath)
-	
-	if not os.path.exists(info.packagePath):
-		os.mkdir(info.packagePath)
+	wixIntermediatePath = joinpath(info.buildPath, 'build\\WiX')
+	emptyOrCreateDirectory(wixIntermediatePath)
+
+	if not exists(info.packagePath):
+		mkdir(info.packagePath)
 
 	print 'Generating fragments...'
 
 	# openMSX files
-	openMSXExeFile = os.path.join(wixIntermediatePath, 'openmsxexe.wxs')
-	openMSXExeObjFile = os.path.join(wixIntermediatePath, 'openmsxexe.wixobj')
-	sourcePath = os.path.join(info.makeInstallPath, 'bin\\openmsx.exe')
-	WriteFragment(openMSXExeFile, sourcePath, 'openMSXExe', 'OPENMSXINSTALLDIR', None, None, info.win64)
-	
-	openMSXDocFile = os.path.join(wixIntermediatePath, 'openmsxdoc.wxs')
-	openMSXDocObjFile = os.path.join(wixIntermediatePath, 'openmsxdoc.wixobj')
-	sourcePath = os.path.join(info.makeInstallPath, 'doc')
-	WriteFragment(openMSXDocFile, sourcePath, 'openMSXDoc', 'OPENMSXINSTALLDIR', 'doc', None, info.win64)
-	
-	openMSXShareFile = os.path.join(wixIntermediatePath, 'openmsxshare.wxs')
-	openMSXShareObjFile = os.path.join(wixIntermediatePath, 'openmsxshare.wixobj')
-	sourcePath = os.path.join(info.makeInstallPath, 'share')
-	WriteFragment(openMSXShareFile, sourcePath, 'openMSXShare', 'OPENMSXINSTALLDIR', 'share', None, info.win64)
-	
-	openMSXIconFile = os.path.join(wixIntermediatePath, 'openmsxicon.wxs')
-	openMSXIconObjFile = os.path.join(wixIntermediatePath, 'openmsxicon.wixobj')
-	sourcePath = os.path.join(info.sourcePath, 'resource\\openmsx.ico')
-	WriteFragment(openMSXIconFile, sourcePath, 'openMSXIcon', 'OPENMSXINSTALLDIR', 'share\\icons', None, info.win64)
-	
+	openMSXExeFile = joinpath(wixIntermediatePath, 'openmsxexe.wxs')
+	openMSXExeObjFile = joinpath(wixIntermediatePath, 'openmsxexe.wixobj')
+	sourcePath = joinpath(info.makeInstallPath, 'bin\\openmsx.exe')
+	_writeFragment(
+		openMSXExeFile, sourcePath, 'openMSXExe', 'OPENMSXINSTALLDIR',
+		None, None, info.win64
+		)
+
+	openMSXDocFile = joinpath(wixIntermediatePath, 'openmsxdoc.wxs')
+	openMSXDocObjFile = joinpath(wixIntermediatePath, 'openmsxdoc.wixobj')
+	sourcePath = joinpath(info.makeInstallPath, 'doc')
+	_writeFragment(
+		openMSXDocFile, sourcePath, 'openMSXDoc', 'OPENMSXINSTALLDIR',
+		'doc', None, info.win64
+		)
+
+	openMSXShareFile = joinpath(wixIntermediatePath, 'openmsxshare.wxs')
+	openMSXShareObjFile = joinpath(wixIntermediatePath, 'openmsxshare.wixobj')
+	sourcePath = joinpath(info.makeInstallPath, 'share')
+	_writeFragment(
+		openMSXShareFile, sourcePath, 'openMSXShare', 'OPENMSXINSTALLDIR',
+		'share', None, info.win64
+		)
+
+	openMSXIconFile = joinpath(wixIntermediatePath, 'openmsxicon.wxs')
+	openMSXIconObjFile = joinpath(wixIntermediatePath, 'openmsxicon.wixobj')
+	sourcePath = joinpath(info.sourcePath, 'resource\\openmsx.ico')
+	_writeFragment(
+		openMSXIconFile, sourcePath, 'openMSXIcon', 'OPENMSXINSTALLDIR',
+		'share\\icons', None, info.win64
+		)
+
 	# ZMBV files
-	ZMBVCodecFile = os.path.join(wixIntermediatePath, 'zmbvcodec.wxs')
-	ZMBVCodecObjFile = os.path.join(wixIntermediatePath, 'zmbvcodec.wixobj')
-	sourcePath = os.path.join(info.codecPath, 'zmbv.dll')
-	WriteFragment(ZMBVCodecFile, sourcePath, 'ZMBVCodec', 'SystemFolder', None, None, False)
-	
-	ZMBVFilesFile = os.path.join(wixIntermediatePath, 'zmbvfiles.wxs')
-	ZMBVFilesObjFile = os.path.join(wixIntermediatePath, 'zmbvfiles.wixobj')
+	ZMBVCodecFile = joinpath(wixIntermediatePath, 'zmbvcodec.wxs')
+	ZMBVCodecObjFile = joinpath(wixIntermediatePath, 'zmbvcodec.wixobj')
+	sourcePath = joinpath(info.codecPath, 'zmbv.dll')
+	_writeFragment(
+		ZMBVCodecFile, sourcePath, 'ZMBVCodec', 'SystemFolder',
+		None, None, False
+		)
+
+	ZMBVFilesFile = joinpath(wixIntermediatePath, 'zmbvfiles.wxs')
+	ZMBVFilesObjFile = joinpath(wixIntermediatePath, 'zmbvfiles.wixobj')
 	sourcePath = info.codecPath
-	WriteFragment(ZMBVFilesFile, sourcePath, 'ZMBVFiles', 'OPENMSXINSTALLDIR', 'codec', 'zmbv.dll', info.win64)
+	_writeFragment(
+		ZMBVFilesFile, sourcePath, 'ZMBVFiles', 'OPENMSXINSTALLDIR',
+		'codec', 'zmbv.dll', info.win64
+		)
 
 	# Catapult files
-	CatapultBinFile = os.path.join(wixIntermediatePath, 'catapultbin.wxs')
-	CatapultBinObjFile = os.path.join(wixIntermediatePath, 'catapultbin.wixobj')
-	sourcePath = os.path.join(info.catapultBuildPath, 'install\\catapult.exe')
-	WriteFragment(CatapultBinFile, sourcePath, 'CatapultBin', 'OPENMSXINSTALLDIR', 'Catapult\\bin', None, info.win64)
-	
-	CatapultDocFile = os.path.join(wixIntermediatePath, 'catapultdoc.wxs')
-	CatapultDocObjFile = os.path.join(wixIntermediatePath, 'catapultdoc.wixobj')
-	sourcePath = os.path.join(info.catapultPath, 'doc')
-	WriteFragment(CatapultDocFile, sourcePath, 'CatapultDoc', 'OPENMSXINSTALLDIR', 'Catapult\\doc', 'release-process.txt', info.win64)
-	
-	CatapultBitmapsFile = os.path.join(wixIntermediatePath, 'catapultbitmaps.wxs')
-	CatapultBitmapsObjFile = os.path.join(wixIntermediatePath, 'catapultbitmaps.wixobj')
-	sourcePath = os.path.join(info.catapultPath, 'resources\\bitmaps')
-	WriteFragment(CatapultBitmapsFile, sourcePath, 'CatapultBitmaps', 'OPENMSXINSTALLDIR', 'Catapult\\resources\\bitmaps', 'release-process.txt', info.win64)
+	catapultBinFile = joinpath(wixIntermediatePath, 'catapultbin.wxs')
+	catapultBinObjFile = joinpath(wixIntermediatePath, 'catapultbin.wixobj')
+	sourcePath = joinpath(info.catapultBuildPath, 'install\\catapult.exe')
+	_writeFragment(
+		catapultBinFile, sourcePath, 'CatapultBin', 'OPENMSXINSTALLDIR',
+		'Catapult\\bin', None, info.win64
+		)
 
-	CatapultDialogsFile = os.path.join(wixIntermediatePath, 'catapultdialogs.wxs')
-	CatapultDialogsObjFile = os.path.join(wixIntermediatePath, 'catapultdialogs.wixobj')
-	sourcePath = os.path.join(info.catapultBuildPath, 'install\\dialogs')
-	WriteFragment(CatapultDialogsFile, sourcePath, 'CatapultDialogs', 'OPENMSXINSTALLDIR', 'Catapult\\resources\\dialogs', None, info.win64)
-	
-	CatapultIconsFile = os.path.join(wixIntermediatePath, 'catapulticons.wxs')
-	CatapultIconsObjFile = os.path.join(wixIntermediatePath, 'catapulticons.wixobj')
-	sourcePath = os.path.join(info.catapultBuildPath, 'src\\catapult.xpm')
-	WriteFragment(CatapultIconsFile, sourcePath, 'CatapultIcons', 'OPENMSXINSTALLDIR', 'Catapult\\resources\\icons', None, info.win64)
+	catapultDocFile = joinpath(wixIntermediatePath, 'catapultdoc.wxs')
+	catapultDocObjFile = joinpath(wixIntermediatePath, 'catapultdoc.wixobj')
+	sourcePath = joinpath(info.catapultPath, 'doc')
+	_writeFragment(
+		catapultDocFile, sourcePath, 'CatapultDoc', 'OPENMSXINSTALLDIR',
+		'Catapult\\doc', 'release-process.txt', info.win64
+		)
 
-	CatapultReadmeFile = os.path.join(wixIntermediatePath, 'catapultreadme.wxs')
-	CatapultReadmeObjFile = os.path.join(wixIntermediatePath, 'catapultreadme.wixobj')
-	sourcePath = os.path.join(info.catapultPath, 'README')
-	WriteFragment(CatapultReadmeFile, sourcePath, 'CatapultReadme', 'OPENMSXINSTALLDIR', 'Catapult\\doc', None, info.win64)
-	
+	catapultBitmapsFile = joinpath(wixIntermediatePath, 'catapultbitmaps.wxs')
+	catapultBitmapsObjFile = joinpath(
+		wixIntermediatePath, 'catapultbitmaps.wixobj'
+		)
+	sourcePath = joinpath(info.catapultPath, 'resources\\bitmaps')
+	_writeFragment(
+		catapultBitmapsFile, sourcePath, 'CatapultBitmaps', 'OPENMSXINSTALLDIR',
+		'Catapult\\resources\\bitmaps', 'release-process.txt', info.win64
+		)
+
+	catapultDialogsFile = joinpath(wixIntermediatePath, 'catapultdialogs.wxs')
+	catapultDialogsObjFile = joinpath(
+		wixIntermediatePath, 'catapultdialogs.wixobj'
+		)
+	sourcePath = joinpath(info.catapultBuildPath, 'install\\dialogs')
+	_writeFragment(
+		catapultDialogsFile, sourcePath, 'CatapultDialogs', 'OPENMSXINSTALLDIR',
+		'Catapult\\resources\\dialogs', None, info.win64
+		)
+
+	catapultIconsFile = joinpath(wixIntermediatePath, 'catapulticons.wxs')
+	catapultIconsObjFile = joinpath(wixIntermediatePath, 'catapulticons.wixobj')
+	sourcePath = joinpath(info.catapultBuildPath, 'src\\catapult.xpm')
+	_writeFragment(
+		catapultIconsFile, sourcePath, 'CatapultIcons', 'OPENMSXINSTALLDIR',
+		'Catapult\\resources\\icons', None, info.win64
+		)
+
+	catapultReadmeFile = joinpath(wixIntermediatePath, 'catapultreadme.wxs')
+	catapultReadmeObjFile = joinpath(
+		wixIntermediatePath, 'catapultreadme.wixobj'
+		)
+	sourcePath = joinpath(info.catapultPath, 'README')
+	_writeFragment(
+		catapultReadmeFile, sourcePath, 'CatapultReadme', 'OPENMSXINSTALLDIR',
+		'Catapult\\doc', None, info.win64
+		)
+
 	# Variables needed inside the WiX scripts:
 	# OPENMSX_VERSION to tell it the product version
 	# OPENMSX_ICON_PATH to locate the MSI's control panel icon
 	# OPENMSX_PACKAGE_WINDOWS_PATH to locate the bmps used in the UI
+	environ.update(
+		OPENMSX_VERSION = info.version,
+		OPENMSX_ICON_PATH = info.openmsxExePath,
+		OPENMSX_PACKAGE_WINDOWS_PATH = info.packageWindowsPath,
+		)
 
-	os.environ['OPENMSX_VERSION'] = info.version
-	os.environ['OPENMSX_ICON_PATH'] = info.openmsxExePath
-	os.environ['OPENMSX_PACKAGE_WINDOWS_PATH'] = info.packageWindowsPath
-	
-	openMSXFile = os.path.join(info.packageWindowsPath, 'openmsx.wxs')
-	openMSXObjFile = os.path.join(wixIntermediatePath, 'openmsx.wixobj')
-	
-	candleCmd = 'candle.exe'
-	candleCmd += ' -arch ' + info.cpu
-	candleCmd += ' -o ' + '\"' + wixIntermediatePath + '\\\\\"'
-	candleCmd += ' -ext WixUtilExtension'
-	candleCmd += ' \"' + openMSXFile + '\"'
-	candleCmd += ' \"' + openMSXExeFile + '\"'
-	candleCmd += ' \"' + openMSXDocFile + '\"'
-	candleCmd += ' \"' + openMSXShareFile + '\"'
-	candleCmd += ' \"' + openMSXIconFile + '\"'
-	candleCmd += ' \"' + ZMBVCodecFile + '\"'
-	candleCmd += ' \"' + ZMBVFilesFile + '\"'
-	candleCmd += ' \"' + CatapultBinFile + '\"'
-	candleCmd += ' \"' + CatapultDocFile + '\"'
-	candleCmd += ' \"' + CatapultBitmapsFile + '\"'
-	candleCmd += ' \"' + CatapultDialogsFile + '\"'
-	candleCmd += ' \"' + CatapultIconsFile + '\"'
-	candleCmd += ' \"' + CatapultReadmeFile + '\"'
+	openMSXFile = joinpath(info.packageWindowsPath, 'openmsx.wxs')
+	openMSXObjFile = joinpath(wixIntermediatePath, 'openmsx.wixobj')
+
+	candleCmd = ' '.join((
+		'candle.exe',
+		'-arch %s' % info.cpu,
+		'-o "%s\\\\"' % wixIntermediatePath,
+		'-ext WixUtilExtension',
+		'"%s"' % openMSXFile,
+		'"%s"' % openMSXExeFile,
+		'"%s"' % openMSXDocFile,
+		'"%s"' % openMSXShareFile,
+		'"%s"' % openMSXIconFile,
+		'"%s"' % ZMBVCodecFile,
+		'"%s"' % ZMBVFilesFile,
+		'"%s"' % catapultBinFile,
+		'"%s"' % catapultDocFile,
+		'"%s"' % catapultBitmapsFile,
+		'"%s"' % catapultDialogsFile,
+		'"%s"' % catapultIconsFile,
+		'"%s"' % catapultReadmeFile,
+		))
 
 	# Run Candle
 	print candleCmd
-	os.system(candleCmd)
-	
+	system(candleCmd)
+
 	msiFileName = info.packageFileName + '-bin.msi'
-	msiFilePath = os.path.join(info.packagePath, msiFileName)
-	if os.path.exists(msiFilePath):
-		os.unlink(msiFilePath)
-		
+	msiFilePath = joinpath(info.packagePath, msiFileName)
+	if exists(msiFilePath):
+		unlink(msiFilePath)
+
 	print 'Generating ' + msiFilePath
 
-	lightCmd = 'light.exe'
-	lightCmd += ' -o \"' + msiFilePath + '\"'
-	lightCmd += ' -sw1076'
-	lightCmd += ' -ext WixUtilExtension'
-	lightCmd += ' -ext WixUIExtension'
-	lightCmd += ' -loc \"' + os.path.join(info.packageWindowsPath, 'openmsx1033.wxl') + '\"'
-	lightCmd += ' \"' + openMSXObjFile + '\"'
-	lightCmd += ' \"' + openMSXExeObjFile + '\"'
-	lightCmd += ' \"' + openMSXDocObjFile + '\"'
-	lightCmd += ' \"' + openMSXShareObjFile + '\"'
-	lightCmd += ' \"' + openMSXIconObjFile + '\"'
-	lightCmd += ' \"' + ZMBVCodecObjFile + '\"'
-	lightCmd += ' \"' + ZMBVFilesObjFile + '\"'
-	lightCmd += ' \"' + CatapultBinObjFile + '\"'
-	lightCmd += ' \"' + CatapultDocObjFile + '\"'
-	lightCmd += ' \"' + CatapultBitmapsObjFile + '\"'
-	lightCmd += ' \"' + CatapultDialogsObjFile + '\"'
-	lightCmd += ' \"' + CatapultIconsObjFile + '\"'
-	lightCmd += ' \"' + CatapultReadmeObjFile + '\"'
-	
+	lightCmd = ' '.join((
+		'light.exe',
+		'-o "%s"' % msiFilePath,
+		'-sw1076',
+		'-ext WixUtilExtension',
+		'-ext WixUIExtension',
+		'-loc "%s"' % joinpath(info.packageWindowsPath, 'openmsx1033.wxl'),
+		'"%s"' % openMSXObjFile,
+		'"%s"' % openMSXExeObjFile,
+		'"%s"' % openMSXDocObjFile,
+		'"%s"' % openMSXShareObjFile,
+		'"%s"' % openMSXIconObjFile,
+		'"%s"' % ZMBVCodecObjFile,
+		'"%s"' % ZMBVFilesObjFile,
+		'"%s"' % catapultBinObjFile,
+		'"%s"' % catapultDocObjFile,
+		'"%s"' % catapultBitmapsObjFile,
+		'"%s"' % catapultDialogsObjFile,
+		'"%s"' % catapultIconsObjFile,
+		'"%s"' % catapultReadmeObjFile,
+		))
+
 	# Run Light
 	print lightCmd
-	os.system(lightCmd)
-	
+	system(lightCmd)
+
 	# Zip up the MSI
 	zipFileName = info.packageFileName + '-bin-msi.zip'
-	zipFilePath = os.path.join(info.packagePath, zipFileName)
-	
+	zipFilePath = joinpath(info.packagePath, zipFileName)
+
 	print 'Generating ' + zipFilePath
-	zip = zipfile.ZipFile(zipFilePath, 'w')
-	zip.write(msiFilePath, msiFileName, zipfile.ZIP_DEFLATED)
-	zip.close()
+	zipFile = ZipFile(zipFilePath, 'w')
+	zipFile.write(msiFilePath, msiFileName, ZIP_DEFLATED)
+	zipFile.close()
 
 if __name__ == '__main__':
-	if len(sys.argv) != 4:
-		print >> sys.stderr, 'Usage: python packagemsi.py platform configuration catapultPath'
-		sys.exit(2)
+	if len(sys.argv) == 4:
+		packageMSI(PackageInfo(*sys.argv[1 : ]))
 	else:
-		info = packagewindows.PackageInfo(sys.argv[1], sys.argv[2], sys.argv[3])
-		PackageMsi(info)
+		print >> sys.stderr, 'Usage: python packagemsi.py ' \
+			'platform configuration catapultPath'
+		sys.exit(2)
