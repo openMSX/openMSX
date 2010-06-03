@@ -35,7 +35,9 @@ HDR_ONLY:= \
 	YM2413Core \
 
 DIST:= \
-	ResampleCoeffs.ii
+	ResampleCoeffs.ii \
+	ResampleHQ-x64.asm \
+	ResampleHQ-x86.asm
 
 #TODO
 #TEST:= YM2413Test

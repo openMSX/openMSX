@@ -11,7 +11,11 @@ def iterResourceHeader():
 		versionNumber = packageVersion[ : packageVersion.index('-')]
 	else:
 		versionNumber = packageVersion
-	versionComponents = versionNumber.split('.') + [ extractRevision() ]
+	revision = extractRevision()
+	# we can't extract a revision in a release dist package, fall back to 0
+	if revision == 'unknown':
+		revision = '0'
+	versionComponents = versionNumber.split('.') + [ revision ]
 	assert len(versionComponents) == 4, versionComponents
 
 	yield '#define OPENMSX_VERSION_INT %s' % ', '.join(versionComponents)

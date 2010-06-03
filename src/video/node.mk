@@ -64,7 +64,19 @@ DIST:= \
 	HQ3xScaler-1x1to3x3.nn \
 	HQ2xLiteScaler-1x1to2x2.nn \
 	HQ2xLiteScaler-1x1to1x2.nn \
-	HQ3xLiteScaler-1x1to3x3.nn
+	HQ3xLiteScaler-1x1to3x3.nn \
+	FBPostProcessor-x64.asm \
+	FBPostProcessor-x86.asm \
+	LineScalers-x64.asm \
+	LineScalers-x86.asm \
+	Scale2xScaler-x64.asm \
+	Scale2xScaler-x86.asm \
+	Scanline-x64.asm \
+	Scanline-x86.asm \
+	Simple2xScaler-x64.asm \
+	Simple2xScaler-x86.asm \
+	Simple3xScaler-x64.asm \
+	Simple3xScaler-x86.asm
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLOutputSurface SDLGLVisibleSurface SDLGLOffScreenSurface \
