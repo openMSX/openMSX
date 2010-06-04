@@ -60,16 +60,23 @@ def extractRevision():
 		revision = (
 			extractSVNRevision(log) or
 			extractSVNGitRevision(log) or
-			extractChangeLogRevision(log) or
-			'unknown'
+			extractChangeLogRevision(log)
 			)
 		print >> log, 'Revision number: %s' % revision
 	finally:
 		log.close()
 	return revision
 
+def extractRevisionNumber():
+	return int(extractRevision() or 1)
+
+def extractRevisionString():
+	return extractRevision() or 'unknown'
+
 def getVersionedPackageName():
 	if releaseFlag:
 		return '%s-%s' % (packageName, packageVersion)
 	else:
-		return '%s-%s-%s' % (packageName, packageVersion, extractRevision())
+		return '%s-%s-%s' % (
+			packageName, packageVersion, extractRevisionString()
+			)

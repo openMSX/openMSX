@@ -2,7 +2,7 @@
 # Generates Windows resource header.
 
 from outpututils import rewriteIfChanged
-from version import extractRevision, packageVersion
+from version import extractRevisionNumber, packageVersion
 
 import sys
 
@@ -11,10 +11,7 @@ def iterResourceHeader():
 		versionNumber = packageVersion[ : packageVersion.index('-')]
 	else:
 		versionNumber = packageVersion
-	revision = extractRevision()
-	# we can't extract a revision in a release dist package, fall back to 0
-	if revision == 'unknown':
-		revision = '0'
+	revision = str(extractRevisionNumber())
 	versionComponents = versionNumber.split('.') + [ revision ]
 	assert len(versionComponents) == 4, versionComponents
 

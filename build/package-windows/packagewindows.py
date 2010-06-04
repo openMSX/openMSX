@@ -2,7 +2,8 @@
 
 from install import installAll
 from version import (
-	extractRevision, getVersionedPackageName, packageVersionNumber, releaseFlag
+	extractRevisionNumber, getVersionedPackageName, packageVersionNumber,
+	releaseFlag
 	)
 
 from os import makedirs, remove, rmdir, sep, walk
@@ -91,7 +92,7 @@ class PackageInfo(object):
 		if releaseFlag:
 			self.version += '.0'
 		else:
-			self.version += '.' + extractRevision()
+			self.version += '.%d' % extractRevisionNumber()
 
 		# <product>-<version>-<os>-<compiler>-<cpu>-<filetype>.ext
 		self.os = 'windows'
