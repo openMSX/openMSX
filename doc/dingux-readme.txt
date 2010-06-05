@@ -3,7 +3,8 @@ openMSX for Dingux
 
 This text is a quick guide for the Dingoo port of openMSX. It is still a bit of
 an early port, so expect it to have some rough edges. For example, startup is
-slow (expect about 10 seconds).
+slow (expect about 10 seconds) and loading a savestate may also be slow,
+especially the first time.
 
 We are releasing it so people can play with it and give us feedback. Please
 help us make this a great way to play MSX games on a handheld.
@@ -45,7 +46,7 @@ This info is also in the openMSX Compilation Guide:
   http://openmsx.sourceforge.net/manual/compile.html#installstandalone
 
 Copy the directory named "local" from the openMSX for Dingux ZIP file to the
-root of the miniSD card. If you have run Dingux from the minSD card before,
+root of the miniSD card. If you have run Dingux from the miniSD card before,
 there will already be a directory named "local". You can safely merge both
 directories.
 
