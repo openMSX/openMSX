@@ -14,6 +14,6 @@ INSTALL_DOCS:= \
 DIST:=$(INSTALL_DOCS) \
 	msxinfo-article.html schema1.png schema2.png \
 	screenshot.png openmsx.sgml vram-addressing.txt \
-	r800test.txt exsphl.txt
+	r800test.txt exsphl.txt dingux-readme.txt
 
 include build/node-end.mk

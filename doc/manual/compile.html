@@ -711,6 +711,12 @@ this command:</p>
 make staticbindist OPENMSX_TARGET_CPU=mipsel OPENMSX_TARGET_OS=dingux OPENMSX_FLAVOUR=opt
 </div>
 
+<p>When this is done, you can create the ZIP file for distribution with the following command:</p>
+
+<div class="commandline">
+sh build/package-dingux/package-dingux.sh
+</div>
+
 <h4>Visual C++</h4>
 
 <p>When building with Visual C++, the result is a static executable with minimal
@@ -776,20 +782,17 @@ The following step creates .zip and .msi installation packages for openMSX on Wi
 
 <h4>Dingux</h4>
 
-<p>There is no automated packaging in the build process yet. Here are some
-quick manual instructions... Make sure the results from the build are ordered
-in such a directory structure that they match the ZIP binary release for Dingux
-from the openMSX download site. Once you have that, you can copy the directory
-named "local" (again, see the openMSX for Dingux ZIP file) to the root of the
-Dingux miniSD card. If you have run Dingux from the miniSD card before,
-there will already be a directory named "local". You can safely merge both
+<p>From the ZIP created in the previous step (or downloaded from the openMSX
+download site), copy the directory named <code>local</code> to the root of the
+Dingux miniSD card. If you have run Dingux from the miniSD card before, there
+will already be a directory named <code>local</code>. You can safely merge both
 directories.
 </p>
 
 <p>
 To get it in your own menu, you'll have to add the openMSX entry to it
 yourself. Use the start up script <code>openmsx-start.sh</code> for this, which
-can be found in <code>build/package-dingux</code>. Even without the menu, you
+is installed in <code>local/bin</code>. Even without the menu, you
 will have to use this script to start openMSX, it won't work otherwise.
 </p>
 
