@@ -63,6 +63,13 @@ TRIPLE_OS:=$(OPENMSX_TARGET_OS)
 endif
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 
+# Work around some autoconf versions returning "universal" for endianess when
+# compiling with "-arch" in the CFLAGS, even in a single arch compile.
+BIGENDIAN:=$(shell PYTHONPATH=build/ $(PYTHON) -c 'from cpu import getCPU ; print "yes" if getCPU("$(OPENMSX_TARGET_CPU)").bigEndian else "no"')
+ifeq ($(BIGENDIAN),)
+$(error Could not determine endianess of "$(OPENMSX_TARGET_CPU)")
+endif
+
 # Although X11 is available on Windows and Mac OS X, most people do not have
 # it installed, so do not link against it.
 ifeq ($(filter linux freebsd netbsd openbsd gnu,$(OPENMSX_TARGET_OS)),)
@@ -138,7 +145,9 @@ $(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
 $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_DIRECTX)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && \
+		ac_cv_c_bigendian=$(BIGENDIAN) \
+		$(PWD)/$</configure \
 		--$(USE_VIDEO_X11)-video-x11 \
 		--disable-video-dga \
 		--disable-video-directfb \
