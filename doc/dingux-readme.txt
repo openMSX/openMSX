@@ -3,8 +3,9 @@ openMSX for Dingux
 
 This text is a quick guide for the Dingoo port of openMSX. It is still a bit of
 an early port, so expect it to have some rough edges. For example, startup is
-slow (expect about 10 seconds) and loading a savestate may also be slow,
-especially the first time.
+slow (expect about 10 seconds). Especially important is to not add too many and
+especially too big system roms. This makes start up and loading states (the
+first time) loads slower.
 
 We are releasing it so people can play with it and give us feedback. Please
 help us make this a great way to play MSX games on a handheld.
@@ -55,6 +56,9 @@ If you'd like to use other system ROMs, for example to get disk support or
 because you want to emulate the exact MSX model you had years ago, you have
 to install those yourself. Please read this for more info:
   http://openmsx.sourceforge.net/manual/setup.html#systemroms
+As mentioned before, currently it's wise to include only those system ROMs you
+really need. Better not install large ones either (e.g. the MoonSound ROM),
+unless you don't care about very long start up times.
 
 Using openMSX
 -------------
