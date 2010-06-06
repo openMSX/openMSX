@@ -1,5 +1,10 @@
 $Id$
 
+2010-06-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* Released openMSX 0.8.0.
+	* NOTE: this is probably the last entry in this ChangeLog. From now
+	  on, just use the SVN commit log to keep track of changes.
+
 2010-01-10 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Generation MSX id to software info topic. Use this to link
 	  openMSX games to the Generation MSX web site.

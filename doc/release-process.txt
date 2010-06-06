@@ -93,19 +93,16 @@ Put the release on SourceForge:
   properties in the web interface to be 'Release Notes'.
 - Select this file as release notes for the 1.2.3 folder. Verify on the Files
   tab of the project page if it actually worked :)
-- For each folder, you can choose which file is for each platform. Set that up,
-  or alternatively, execute the next step:
-- Update the platform downloads. For Windows, Mac OS, Linux and *BSD, set the
-  proper release files. This menu can be found next to "Manage Packages /
-  Releases", under "Create / Edit Download Page". See also this URL:
-  https://sourceforge.net/project/admin/platform_edit.php?group_id=38274
+- For each folder, you can choose which file is for each platform. Set that up.
 
 Announce:
 - Post change list to msx.org.
 - Post news item on sourceforge.net.
+- Post news item on web site.
 
 Finally:
 - Put "Released openmsx-1.2.3." entry in the ChangeLog in SVN.
 - Set RELEASE_FLAG to false in build/version.mk
+- Update web site to point to new downloads.
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
