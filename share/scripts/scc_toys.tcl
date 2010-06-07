@@ -134,8 +134,13 @@ proc update_scc_viewer {} {
 		binary scan [debug read_block "$device SCC" 0 224] c* scc_regs
 		for {set chan 0} {$chan < $num_channels} {incr chan} {
 			for {set pos 0} {$pos < $num_samples} {incr pos} {
-				osd configure scc_viewer.$device.$chan.$pos \
-					-h [expr {[get_scc_wave [lindex $scc_regs [expr {($chan * $num_samples) + $pos}]]] / $vertical_downscale_factor}]
+				set scc_wave_new [expr {[get_scc_wave [lindex $scc_regs [expr {($chan * $num_samples) + $pos}]]] / $vertical_downscale_factor}]
+				set scc_wave_old [osd info scc_viewer.$device.$chan.$pos -h]
+				#don't update OSD every frame, only when 'channel' changes waveforms.
+				if {$scc_wave_new!=$scc_wave_old} {
+					osd configure scc_viewer.$device.$chan.$pos \
+											-h $scc_wave_new
+				}
 			}
 			set volume [expr {[lindex $scc_regs [expr {$volume_address + $chan}]] * 4}]
 			osd configure scc_viewer.$device.$chan.volume \
@@ -383,9 +388,12 @@ proc checkclick {} {
 				set base $i*32
 
 				for {set q 0} {$q < 32} {incr q} {
-					set sccwave [debug read "$device SCC" [expr $base+$q]]
-					osd configure scc.slider$q.val 	-y [expr 128+$y] \
-													-h [get_scc_wave [expr $sccwave]]
+					set sccwave_new [get_scc_wave [debug read "$device SCC" [expr $base+$q]]]
+					set sccwave_old [osd info scc.slider$q.val -h]
+					if {$sccwave_new!=$sccwave_old} {
+						osd configure scc.slider$q.val 	-y [expr 128+$y] \
+														-h $sccwave_new
+					}
 				}
 			}
 		}
