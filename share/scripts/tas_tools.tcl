@@ -113,7 +113,7 @@ proc show_keys {} {
 	show_key_press ctrl  [is_key_pressed 6 1]
 	show_key_press shift [is_key_pressed 6 0]
 
-	after frame  [namespace code show_keys]
+	after realtime 0 [namespace code show_keys]
 }
 
 #move to other TCL script?

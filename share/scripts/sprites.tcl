@@ -80,7 +80,7 @@ proc ease_text {osd_object {frame_render 0} {action 0}} {
 	incr frame_render 1
 
 	#call same function
-	after frame [namespace code [list ease_text $osd_object $frame_render $action]]
+	after realtime 0 [namespace code [list ease_text $osd_object $frame_render $action]]
 }
 
 proc show_sprite {sprite} {
