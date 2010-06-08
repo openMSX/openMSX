@@ -135,12 +135,8 @@ proc update_scc_viewer {} {
 		for {set chan 0} {$chan < $num_channels} {incr chan} {
 			for {set pos 0} {$pos < $num_samples} {incr pos} {
 				set scc_wave_new [expr {[get_scc_wave [lindex $scc_regs [expr {($chan * $num_samples) + $pos}]]] / $vertical_downscale_factor}]
-				set scc_wave_old [osd info scc_viewer.$device.$chan.$pos -h]
-				#don't update OSD every frame, only when 'channel' changes waveforms.
-				if {$scc_wave_new!=$scc_wave_old} {
 					osd configure scc_viewer.$device.$chan.$pos \
 											-h $scc_wave_new
-				}
 			}
 			set volume [expr {[lindex $scc_regs [expr {$volume_address + $chan}]] * 4}]
 			osd configure scc_viewer.$device.$chan.volume \
@@ -149,7 +145,7 @@ proc update_scc_viewer {} {
 		}
 	}
 	# set frame_trigger_id [after frame [namespace code {puts [time update_scc_viewer]}]];# for profiling
-	set frame_trigger_id [after frame [namespace code update_scc_viewer]]
+	set frame_trigger_id [after time 0.05 [namespace code update_scc_viewer]]
 }
 
 proc get_scc_wave {sccval} { return [expr $sccval < 128 ? $sccval : $sccval - 256] }
@@ -390,10 +386,8 @@ proc checkclick {} {
 				for {set q 0} {$q < 32} {incr q} {
 					set sccwave_new [get_scc_wave [debug read "$device SCC" [expr $base+$q]]]
 					set sccwave_old [osd info scc.slider$q.val -h]
-					if {$sccwave_new!=$sccwave_old} {
 						osd configure scc.slider$q.val 	-y [expr 128+$y] \
 														-h $sccwave_new
-					}
 				}
 			}
 		}
@@ -402,10 +396,10 @@ proc checkclick {} {
 
 proc get_val_matrix_column {sccval} { return [expr $sccval < 0 ? $sccval + 256 : $sccval] }
 
-proc get_scc_string_from_matrix {} {
+proc get_scc_string_from_matrix {name} {
 
 	set sccstring ""
-	set outputfile "outputfile.txt"
+	set outputfile "$name"
 	set output [open $outputfile "w"]
 
 	for {set i 0} {$i < 32} {incr i} {
@@ -415,7 +409,7 @@ proc get_scc_string_from_matrix {} {
 
 	close $output
 
-	puts "$outputfile writen"
+	puts "$outputfile writen to $name"
 	return $sccstring
 }
 
@@ -423,15 +417,8 @@ namespace export toggle_scc_editor
 namespace export toggle_psg2scc
 namespace export set_scc_wave
 namespace export toggle_scc_viewer
-namespace export get_scc_string_from_matrix
 namespace export toggle_psg_tones
 
 } ;# namespace scc_toys
 
 namespace import scc_toys::*
-
-proc show_freq {} {
-	set ftone [expr $::z80_freq/(32*([expr [debug read "PSG regs" 0] + [debug read "PSG regs" 1]*256]+1))]
-	puts $ftone
-	after frame show_freq
-}
