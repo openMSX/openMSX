@@ -35,7 +35,7 @@ def _extractRevisionFromStdout(log, command, regex):
 
 def extractSVNRevision(log):
 	return _extractRevisionFromStdout(
-		log, 'svn info', r'Revision:\s*(\d+)'
+		log, 'svn info', r'Last Changed Rev:\s*(\d+)'
 		)
 
 def extractSVNGitRevision(log):
