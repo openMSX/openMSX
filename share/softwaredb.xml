@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1274769874">
+<softwaredb xml:lang="en" timestamp="1276280923">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4023,15 +4023,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Gradius 2 - Nemesis 2</title>
-	<genmsxid>111</genmsxid>
-	<system>MSX</system>
-	<company>Konami</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">7561f3c70c221df40f1b28209c59882ca065603d</hash><remark><text>[RC-751] / Demo Version</text></remark></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Gradius 2 - Nemesis 2</title>
 	<genmsxid>932</genmsxid>
 	<system>MSX</system>
 	<company>Konami</company>
@@ -4051,6 +4042,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">76666da5870d1901026e3dded3f22ce7a706689d</hash><remark><text>[RC-751] / Konami Antiques MSX Collection 2</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">87b7c80069a15fdb90b40dfed736fb8492104cd9</hash><remark><text>[RC-751] / Demo</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">d441ccfede2c089fbef54e20b90c0d4b513c5196</hash><remark><text>[RC-751]</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">7561f3c70c221df40f1b28209c59882ca065603d</hash><remark><text>[RC-751] / Demo Version</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">c6fa7a891b491d2bcf31b81e33d43b9418a0f269</hash><remark><text>[RC-751] / Smooth scroll / vsync patch and cool colors</text></remark></megarom></dump>
 </software>
 <software>
@@ -11142,6 +11134,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">34635bf3518c7b33164f3d96da769c7a01102d28</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Wonsiin</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1987</year>
+	<country>KR</country>
+		<dump><megarom><type>Konami</type><hash algo="sha1">f98f9c0fd32b2392b57b14105a9b730c8957d9b9</hash><remark><text>Very Rare Korean ROM</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Woody Poco</title>
 	<genmsxid>896</genmsxid>
 	<system>MSX</system>
@@ -11531,6 +11531,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2536
-Parse time 10.023 seconds on Tue May 25 8:44:44 CEST 2010
+Roms in this database:2537
+Parse time 10.135 seconds on Fri Jun 11 20:28:53 CEST 2010
  -->
