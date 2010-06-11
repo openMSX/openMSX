@@ -112,7 +112,7 @@ void OSDText::getWidthHeight(const OutputRectangle& /*output*/,
 template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
 	if (text.empty()) {
-		return new IMAGE(0, 0, byte(0));
+		return new IMAGE(0, 0, unsigned(0));
 	}
 	if (!font.get()) {
 		try {
@@ -126,8 +126,10 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 		}
 	}
 	try {
-		SDLSurfacePtr surface(font->render(
-			text, getRed(), getGreen(), getBlue()));
+		// TODO gradient???
+		unsigned rgba = getRGBA(0);
+		SDLSurfacePtr surface(font->render(text,
+			(rgba >> 24) & 0xff, (rgba >> 16) & 0xff, (rgba >> 8) & 0xff));
 		return new IMAGE(surface);
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: " + e.getMessage());

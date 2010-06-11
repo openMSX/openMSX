@@ -52,7 +52,7 @@ public:
 	double getDouble() const;
 	const byte* getBinary(unsigned& length) const;
 	unsigned getListLength() const;
-	TclObject getListIndex(unsigned index);
+	TclObject getListIndex(unsigned index) const;
 
 	// expressions
 	bool evalBool() const;

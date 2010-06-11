@@ -7,7 +7,7 @@
 #include "Display.hh"
 #include "CliComm.hh"
 #include "TclObject.hh"
-#include "MSXException.hh"
+#include "CommandException.hh"
 #include "Timer.hh"
 #include <cassert>
 
@@ -23,9 +23,11 @@ OSDImageBasedWidget::OSDImageBasedWidget(const OSDGUI& gui_, const string& name)
 	, fadePeriod(0.0)
 	, fadeTarget(1.0)
 	, startFadeValue(1.0)
-	, r(0), g(0), b(0), a(255)
 	, error(false)
 {
+	for (int i = 0; i < 4; ++i) {
+		rgba[i] = 0x000000ff;
+	}
 }
 
 OSDImageBasedWidget::~OSDImageBasedWidget()
@@ -43,30 +45,67 @@ void OSDImageBasedWidget::getProperties(set<string>& result) const
 	OSDWidget::getProperties(result);
 }
 
+static void get4(const TclObject& value, unsigned* result)
+{
+	unsigned len = value.getListLength();
+	if (len == 4) {
+		for (unsigned i = 0; i < 4; ++i) {
+			result[i] = value.getListIndex(i).getInt();
+		}
+	} else if (len == 1) {
+		unsigned val = value.getInt();
+		for (unsigned i = 0; i < 4; ++i) {
+			result[i] = val;
+		}
+	} else {
+		throw CommandException("Expected either 1 or 4 values.");
+	}
+}
+static bool constantAlpha(const unsigned rgba[4])
+{
+	return ((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
+	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
+	       ((rgba[0] & 0xff) == (rgba[3] & 0xff));
+}
+static bool sameRGB(const unsigned rgba_1[4], const unsigned rgba_2[4])
+{
+	return ((rgba_1[0] & 0xffffff00) == (rgba_2[0] & 0xffffff00)) &&
+	       ((rgba_1[1] & 0xffffff00) == (rgba_2[1] & 0xffffff00)) &&
+	       ((rgba_1[2] & 0xffffff00) == (rgba_2[2] & 0xffffff00)) &&
+	       ((rgba_1[3] & 0xffffff00) == (rgba_2[3] & 0xffffff00));
+}
 void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value)
 {
 	if (name == "-rgba") {
-		unsigned color = value.getInt();
-		byte r2 = (color >> 24) & 255;
-		byte g2 = (color >> 16) & 255;
-		byte b2 = (color >>  8) & 255;
-		if ((r != r2) || (g != g2) || (b != b2)) {
-			r = r2; g = g2; b = b2;
+		unsigned newRGBA[4];
+		get4(value, newRGBA);
+		if (!constantAlpha(newRGBA) || !constantAlpha(rgba) ||
+		    !sameRGB(newRGBA, rgba)) {
 			invalidateLocal();
 		}
-		a = (color >>  0) & 255;
+		for (unsigned i = 0; i < 4; ++i) {
+			rgba[i] = newRGBA[i];
+		}
 	} else if (name == "-rgb") {
-		unsigned color = value.getInt();
-		byte r2 = (color >> 16) & 255;
-		byte g2 = (color >>  8) & 255;
-		byte b2 = (color >>  0) & 255;
-		if ((r != r2) || (g != g2) || (b != b2)) {
-			r = r2; g = g2; b = b2;
+		unsigned newRGB[4];
+		get4(value, newRGB);
+		if (!constantAlpha(rgba) || !sameRGB(newRGB, rgba)) {
 			invalidateLocal();
+		}
+		for (unsigned i = 0; i < 4; ++i) {
+			rgba[i] = (rgba[i]          & 0x000000ff) |
+			          ((newRGB[i] << 8) & 0xffffff00);
 		}
 	} else if (name == "-alpha") {
-		// don't invalidate
-		a = value.getInt();
+		unsigned newAlpha[4];
+		get4(value, newAlpha);
+		if (!constantAlpha(rgba) || !constantAlpha(newAlpha)) {
+			invalidateLocal();
+		}
+		for (unsigned i = 0; i < 4; ++i) {
+			rgba[i] = (rgba[i]     & 0xffffff00) |
+			          (newAlpha[i] & 0x000000ff);
+		}
 	} else if (name == "-fadePeriod") {
 		updateCurrentFadeValue();
 		fadePeriod = value.getDouble();
@@ -81,16 +120,25 @@ void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value
 	}
 }
 
+static void set4(const unsigned rgba[4], unsigned mask, unsigned shift, TclObject& result)
+{
+	if ((rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3])) {
+		result.setInt((rgba[0] & mask) >> shift);
+	} else {
+
+		for (unsigned i = 0; i < 4; ++i) {
+			result.addListElement(int((rgba[i] & mask) >> shift));
+		}
+	}
+}
 void OSDImageBasedWidget::getProperty(const string& name, TclObject& result) const
 {
 	if (name == "-rgba") {
-		unsigned color = (r << 24) | (g << 16) | (b << 8) | (a << 0);
-		result.setInt(color);
+		set4(rgba, 0xffffffff, 0, result);
 	} else if (name == "-rgb") {
-		unsigned color = (r << 16) | (g << 8) | (b << 0);
-		result.setInt(color);
+		set4(rgba, 0xffffff00, 8, result);
 	} else if (name == "-alpha") {
-		result.setInt(a);
+		set4(rgba, 0x000000ff, 0, result);
 	} else if (name == "-fadePeriod") {
 		result.setDouble(fadePeriod);
 	} else if (name == "-fadeTarget") {
@@ -102,9 +150,19 @@ void OSDImageBasedWidget::getProperty(const string& name, TclObject& result) con
 	}
 }
 
+bool OSDImageBasedWidget::hasConstantAlpha() const
+{
+	return constantAlpha(rgba);
+}
+bool OSDImageBasedWidget::hasConstantRGBA() const
+{
+	return (rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3]);
+}
+
 byte OSDImageBasedWidget::getFadedAlpha() const
 {
-	return byte(a * getRecursiveFadeValue());
+	unsigned alpha = constantAlpha(rgba) ? (rgba[0] & 0xff): 255;
+	return byte(alpha * getRecursiveFadeValue());
 }
 
 double OSDImageBasedWidget::getRecursiveFadeValue() const

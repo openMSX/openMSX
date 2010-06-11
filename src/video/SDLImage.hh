@@ -16,8 +16,8 @@ public:
 	explicit SDLImage(SDLSurfacePtr image);
 	SDLImage(const std::string& filename, double scaleFactor);
 	SDLImage(const std::string& filename, int width, int height);
-	SDLImage(int width, int height, byte alpha,
-	         byte r = 0, byte g = 0, byte b = 0);
+	SDLImage(int width, int height, unsigned rgba);
+	SDLImage(int width, int height, const unsigned* rgba);
 
 	virtual void draw(OutputSurface& output, int x, int y,
 	                  byte alpha = 255);
@@ -29,8 +29,8 @@ private:
 
 	SDLSurfacePtr image;
 	SDLSurfacePtr workImage;
-	int a;
-	bool flipX, flipY;
+	int a; // whole surface alpha value, -1 if per-pixel alpha
+	const bool flipX, flipY;
 };
 
 } // namespace openmsx

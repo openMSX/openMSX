@@ -214,7 +214,7 @@ unsigned TclObject::getListLength() const
 	return result;
 }
 
-TclObject TclObject::getListIndex(unsigned index)
+TclObject TclObject::getListIndex(unsigned index) const
 {
 	Tcl_Obj* element;
 	if (Tcl_ListObjIndex(interp, obj, index, &element) != TCL_OK) {

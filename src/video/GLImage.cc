@@ -86,16 +86,34 @@ GLImage::GLImage(const string& filename, int width_, int height_)
 	height = height_;
 }
 
-GLImage::GLImage(int width_, int height_, byte alpha, byte r_, byte g_, byte b_)
+GLImage::GLImage(int width_, int height_, unsigned rgba)
 {
 	checkSize(width_, height_);
 	texture = 0;
 	width  = width_;
 	height = height_;
-	r = r_;
-	g = g_;
-	b = b_;
-	a = (alpha == 255) ? 256 : alpha;
+	for (int i = 0; i < 4; ++i) {
+		r[i] = (rgba >> 24) & 0xff;
+		g[i] = (rgba >> 16) & 0xff;
+		b[i] = (rgba >>  8) & 0xff;
+		unsigned alpha = (rgba >> 0) & 0xff;
+		a[i] = (alpha == 255) ? 256 : alpha;
+	}
+}
+
+GLImage::GLImage(int width_, int height_, const unsigned* rgba)
+{
+	checkSize(width_, height_);
+	texture = 0;
+	width  = width_;
+	height = height_;
+	for (int i = 0; i < 4; ++i) {
+		r[i] = (rgba[i] >> 24) & 0xff;
+		g[i] = (rgba[i] >> 16) & 0xff;
+		b[i] = (rgba[i] >>  8) & 0xff;
+		unsigned alpha = (rgba[i] >> 0) & 0xff;
+		a[i] = (alpha == 255) ? 256 : alpha;
+	}
 }
 
 GLImage::GLImage(SDLSurfacePtr image)
@@ -126,11 +144,14 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 		glTexCoord2f(texCoord[2], texCoord[1]); glVertex2i(x + width, y         );
 		glEnd();
 	} else {
-		glColor4ub(r, g, b, (a * alpha) / 256);
 		glBegin(GL_QUADS);
+		glColor4ub(r[0], g[0], b[0], (a[0] * alpha) / 256);
 		glVertex2i(x,         y         );
+		glColor4ub(r[2], g[2], b[2], (a[2] * alpha) / 256);
 		glVertex2i(x,         y + height);
+		glColor4ub(r[3], g[3], b[3], (a[3] * alpha) / 256);
 		glVertex2i(x + width, y + height);
+		glColor4ub(r[1], g[1], b[1], (a[1] * alpha) / 256);
 		glVertex2i(x + width, y         );
 		glEnd();
 	}

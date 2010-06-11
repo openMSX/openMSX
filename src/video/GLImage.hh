@@ -18,8 +18,8 @@ public:
 	explicit GLImage(SDLSurfacePtr image);
 	GLImage(const std::string& filename, double scaleFactor);
 	GLImage(const std::string& filename, int width, int height);
-	GLImage(int width, int height,
-	        byte alpha, byte r = 0, byte g = 0, byte b = 0);
+	GLImage(int width, int height, unsigned rgba);
+	GLImage(int width, int height, const unsigned* rgba);
 	virtual ~GLImage();
 
 	virtual void draw(OutputSurface& output, int x, int y,
@@ -32,8 +32,8 @@ private:
 	unsigned width;
 	unsigned height;
 	GLfloat texCoord[4];
-	byte r, g, b;
-	int a;
+	int a[4];
+	byte r[4], g[4], b[4];
 };
 
 } // namespace openmsx

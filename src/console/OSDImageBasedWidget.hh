@@ -16,10 +16,8 @@ class OSDImageBasedWidget : public OSDWidget
 public:
 	virtual ~OSDImageBasedWidget();
 
-	byte getRed()   const { return r; }
-	byte getGreen() const { return g; }
-	byte getBlue()  const { return b; }
-	byte getAlpha() const { return a; }
+	unsigned getRGBA(unsigned corner) const { return rgba[corner]; }
+	const unsigned* getRGBA4() const { return rgba; }
 
 	byte getFadedAlpha() const;
 
@@ -30,6 +28,8 @@ public:
 
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
+	bool hasConstantAlpha() const;
+	bool hasConstantRGBA() const;
 	virtual void invalidateLocal();
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
@@ -56,7 +56,7 @@ private:
 	double fadePeriod;
 	double fadeTarget;
 	mutable double startFadeValue;
-	byte r, g, b, a;
+	unsigned rgba[4];
 	bool error;
 };
 

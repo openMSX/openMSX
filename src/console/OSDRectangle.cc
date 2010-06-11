@@ -135,24 +135,37 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 	OutputSurface& output)
 {
 	if (imageName.empty()) {
-		if (getAlpha()) {
-			double width, height;
-			getWidthHeight(output, width, height);
-			int sw = int(round(width));
-			int sh = int(round(height));
-			// note: Image is create with alpha = 255. Actual
-			//  alpha is applied during drawing. This way we
-			//  can also reuse the same image if only alpha
-			//  changes.
-			return new IMAGE(sw, sh, 255,
-			                 getRed(), getGreen(), getBlue());
-		} else {
+		bool constAlpha = hasConstantAlpha();
+		if (constAlpha && ((getRGBA(0) & 0xff) == 0)) {
 			// optimization: Sometimes it's useful to have a
 			//   rectangle that will never be drawn, it only exists
 			//   as a parent for sub-widgets. For those cases
 			//   creating an IMAGE only wastes memory. So postpone
 			//   creating it till alpha changes.
 			return NULL;
+		}
+		double width, height;
+		getWidthHeight(output, width, height);
+		int sw = int(round(width));
+		int sh = int(round(height));
+		if (constAlpha) {
+			// note: Image is create with alpha = 255. Actual
+			//  alpha is applied during drawing. This way we
+			//  can also reuse the same image if only alpha
+			//  changes.
+			if (hasConstantRGBA()) {
+				unsigned rgb = getRGBA(0) | 0xff;
+				return new IMAGE(sw, sh, rgb);
+			} else {
+				unsigned rgb[4];
+				for (unsigned i = 0; i < 4; ++i) {
+					rgb[i] = getRGBA(i) | 0xff;
+				}
+				return new IMAGE(sw, sh, rgb);
+			}
+		} else {
+			// gradient
+			return new IMAGE(sw, sh, getRGBA4());
 		}
 	} else {
 		SystemFileContext context;

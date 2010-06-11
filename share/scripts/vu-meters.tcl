@@ -136,9 +136,11 @@ proc update_meter {meter volume} {
 	variable bar_length
 
 	set byte_val [expr {round(255 * $volume)}]
+	set col1 0x008000C0
+	set col2 [expr {($byte_val << 24) + $col1}]
 	osd configure $meter \
 		-w [expr {$bar_length * $volume}] \
-		-rgba [expr {($byte_val << 24) + ((255 ^ $byte_val) << 8) + 0x008000C0}]
+		-rgba "$col1 $col2 $col1 $col2"
 }
 
 
