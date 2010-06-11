@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1276280923">
+<softwaredb xml:lang="en" timestamp="1276282531">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -11134,10 +11134,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">34635bf3518c7b33164f3d96da769c7a01102d28</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Wonsiin</title>
+	<title xml:lang="en">Won-Si-In</title>
+	<genmsxid>3243</genmsxid>
 	<system>MSX</system>
 	<company>Zemina</company>
-	<year>1987</year>
+	<year>1991</year>
 	<country>KR</country>
 		<dump><megarom><type>Konami</type><hash algo="sha1">f98f9c0fd32b2392b57b14105a9b730c8957d9b9</hash><remark><text>Very Rare Korean ROM</text></remark></megarom></dump>
 </software>
@@ -11532,5 +11533,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2537
-Parse time 10.135 seconds on Fri Jun 11 20:28:53 CEST 2010
+Parse time 10.824 seconds on Fri Jun 11 20:55:42 CEST 2010
  -->

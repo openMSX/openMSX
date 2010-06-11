@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/06/02
+# Updated @ 2010/06/11
 #
 
 
@@ -6471,6 +6471,16 @@ create_trainer "Wizard's Lair" {time 1} {
 	"Walk Fast" {poke 0x7c1f 255}
 }
 
+create_trainer "Won-Si-In" {time 1} {
+	"Invincible" {poke 0xe138 200}
+	"Lives" {poke 0xe130 0x99}
+	"Unlimited Power" {poke 0xe132 5}
+	"Weapon 1 - Small Fire" {poke 0xe136 0}
+	"Weapon 2 - Axe" {poke 0xe136 1}
+	"Weapon 3 - Boomerang" {poke 0xe136 2}
+	"Weapon 4 - Big Fire" {poke 0xe136 3}
+}
+
 create_trainer "Woody Poco" {time 2} {
 	"Carry up to 16 items" {poke 0xe792 16}
 	"Max Candle Burning Time" {poke 0xe7bf 99}
@@ -6917,4 +6927,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 1.493 seconds. 732 trainers -  having 5631 pokes
+# File Created in : 4.046 seconds. 733 trainers -  having 5638 pokes
