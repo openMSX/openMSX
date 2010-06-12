@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1276282531">
+<softwaredb xml:lang="en" timestamp="1276329618">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -346,6 +346,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">627e4d311dfe8a43a629e63f444a6f41eebad835</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">73e3a43cabbe2a4ea504a06b88ccf7f0b066c726</hash><remark><text>cheat version</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">7e5264d38c9d83c62f60a74d2c51476a7ca2856f</hash></rom></dump>
+		<dump><rom><hash algo="sha1">092ad12c308dfc6d940ba8b1369b4931a4fd45e1</hash><remark><text>Korean Dump</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Alpine Ski</title>
@@ -4988,6 +4989,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">2391ae8c961b4a38b3beaee9ed3362fb2c71851f</hash></rom></dump>
 		<dump><rom><hash algo="sha1">6b9f1e8ea91731570ab7e2ca6bdb9fba7937afa5</hash></rom></dump>
 		<dump><rom><hash algo="sha1">4e4989c8f6336663690217f32aca22a319b90091</hash></rom></dump>
+		<dump><rom><hash algo="sha1">9e6a78cda66fcaa9fe13aedbea7f69f2a8a97433</hash><remark><text>Korean Dump</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Jack Exploring</title>
@@ -8965,6 +8967,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">05182561e05fa8e7c8a8184eda885dc4fd12cc5b</hash></rom></dump>
 		<dump><rom><hash algo="sha1">5e9cd697ae2c85aa29eb5eceae7298174c4b3c9d</hash><remark><text>[b][o]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">aa9f3ffcc977fbcc04a0326d5a7371d372d099f5</hash><remark><text>[o]</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">5baac8cd6d119ef5dc7ddacddc3103a4eda2943b</hash><remark><text>Korean Dump</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Scramble Formation</title>
@@ -9392,6 +9395,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Normal</type><hash algo="sha1">f35a3f1f09b018957696e015b20dc1d12d3ccc2e</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Sokoban</title>
+	<genmsxid>203</genmsxid>
+	<system>MSX</system>
+	<company>Ascii</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash algo="sha1">5cacfb40c99a9e66e068a15b5d22cbc7ab90cb65</hash><remark><text>Korean Dump</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Solitario</title>
 	<system>MSX</system>
 	<company>Nitrofurano</company>
@@ -9406,6 +9418,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>19xx</year>
 	<country>JP</country>
 		<dump><rom><hash algo="sha1">dee167d86c9d9d435b1410804055b561ffa2c6e3</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Soukoban</title>
+	<system>MSX</system>
+	<company>Qnix</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash algo="sha1">6ec24f574a8e40d8785b3e721b1605e1984c5834</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Soukoban</title>
@@ -9782,9 +9802,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<genmsxid>3242</genmsxid>
 	<system>MSX</system>
 	<company>Zemina</company>
-	<year>19xx</year>
+	<year>1991</year>
 	<country>KR</country>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">65da0e5c5de057a1ed836ec19b1f07e10f4b738f</hash><remark><text>Zemina</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">49f9d62f121d3b7e35d38436c920a53b7070ecd4</hash><remark><text>Zemina</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Sudoku</title>
@@ -10442,10 +10463,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<title xml:lang="en">The Three Dragon Story</title>
 	<genmsxid>3241</genmsxid>
 	<system>MSX</system>
-	<company>Zemina / Muffie</company>
+	<company>Zemina</company>
 	<year>1989</year>
 	<country>KR</country>
-		<dump><rom><hash algo="sha1">5ea3d992db53de3a198531736d8926de8401b8c8</hash><remark><text>Conversion by Muffie</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">5ea3d992db53de3a198531736d8926de8401b8c8</hash><remark><text>Muffie Version</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">6a7ab69c47cc168dd872d32f395541be4939255e</hash></rom></dump>
+		<dump><rom><hash algo="sha1">cd2557fe39ba4dced3219152c6a6d02c2219b360</hash><remark><text>Muffie Version</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">49e2331f97ea9352329dafbe0627a238063ce6b7</hash><remark><text>Muffie Version</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">972ccf1b2672f4f6fbb015c288056c3997fa62df</hash><remark><text>MSX2 Palette fix</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">The Zoo</title>
@@ -10468,16 +10493,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">6420473ec647e4d750bc2247020b6722435b5211</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a2109da08b1921c4b3b47c6847598d424581b508</hash></rom></dump>
 		<dump><rom><hash algo="sha1">7428159df6bf4ecc84a3ed9fb302b2da059475d7</hash><remark><text>Ulver crack</text></remark></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Three Dragon Story, The - Muffie version</title>
-	<genmsxid>3241</genmsxid>
-	<system>MSX</system>
-	<company>Zemina</company>
-	<year>1989</year>
-	<country>KR</country>
-		<dump><rom><hash algo="sha1">cd2557fe39ba4dced3219152c6a6d02c2219b360</hash></rom></dump>
-		<dump><rom><hash algo="sha1">49e2331f97ea9352329dafbe0627a238063ce6b7</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Thunder Ball</title>
@@ -10983,10 +10998,11 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Vigilante</title>
+	<genmsxid>3153</genmsxid>
 	<system>MSX</system>
-	<company>-</company>
+	<company>Clover</company>
 	<year>19xx</year>
-	<country>BR</country>
+	<country>KR</country>
 		<dump><rom><hash algo="sha1">eafd8cf86facdeb038e87900de4f1233dd69347c</hash></rom></dump>
 </software>
 <software>
@@ -11532,6 +11548,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2537
-Parse time 10.824 seconds on Fri Jun 11 20:55:42 CEST 2010
+Roms in this database:2543
+Parse time 12.210 seconds on Sat Jun 12 10:00:30 CEST 2010
  -->

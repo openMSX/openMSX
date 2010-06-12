@@ -6472,6 +6472,7 @@ create_trainer "Wizard's Lair" {time 1} {
 }
 
 create_trainer "Won-Si-In" {time 1} {
+	"Always have wings" {poke 0xe137 1}
 	"Invincible" {poke 0xe138 200}
 	"Lives" {poke 0xe130 0x99}
 	"Unlimited Power" {poke 0xe132 5}
@@ -6927,4 +6928,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 4.046 seconds. 733 trainers -  having 5638 pokes
+# File Created in : 2.657 seconds. 733 trainers -  having 5639 pokes
