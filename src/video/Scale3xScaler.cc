@@ -30,7 +30,7 @@ template <class Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Half(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned srcWidth)
+	unsigned srcWidth) __restrict
 {
 	/* A B C
 	 * D E F
@@ -93,7 +93,7 @@ template <class Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned srcWidth)
+	unsigned srcWidth) __restrict
 {
 	/*
 	 * A B C

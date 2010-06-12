@@ -33,7 +33,7 @@ void HQ_1x1on3x3<Pixel>::operator()(
 	Pixel* __restrict out0, Pixel* __restrict out1,
 	Pixel* __restrict out2,
 	unsigned srcWidth, unsigned* __restrict edgeBuf,
-	EdgeHQ edgeOp)
+	EdgeHQ edgeOp) __restrict
 {
 	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
 	c2 = c3 = readPixel(in0[0]);

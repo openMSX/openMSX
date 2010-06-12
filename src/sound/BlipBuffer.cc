@@ -121,7 +121,8 @@ static inline int sign(int x)
 	return (x != 0) | (x >> 31);
 }
 
-bool BlipBuffer::readSamples(int* __restrict out, unsigned samples, unsigned pitch)
+bool BlipBuffer::readSamples(
+	int* __restrict out, unsigned samples, unsigned pitch) __restrict
 {
 	static const int SAMPLE_SHIFT = BLIP_SAMPLE_BITS - 16;
 	static const int BASS_SHIFT = 9;

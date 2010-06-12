@@ -40,7 +40,7 @@ template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned long srcWidth)
+	unsigned long srcWidth) __restrict
 {
 	//   n      m is expaned to a b
 	// w m e                    c d
@@ -628,7 +628,7 @@ template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned long srcWidth)
+	unsigned long srcWidth) __restrict
 {
 	//    ab ef
 	// x0 12 34 5x

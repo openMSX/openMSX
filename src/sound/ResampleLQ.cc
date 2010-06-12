@@ -71,7 +71,8 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(Resample& input, double ratio)
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQUp<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
+bool ResampleLQUp<CHANNELS>::generateOutput(
+	int* __restrict dataOut, unsigned num) __restrict
 {
 	if (!this->fetchData(num)) return false;
 
@@ -101,7 +102,8 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(Resample& input, double ratio)
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQDown<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
+bool ResampleLQDown<CHANNELS>::generateOutput(
+	int* __restrict dataOut, unsigned num) __restrict
 {
 	if (!this->fetchData(num)) return false;
 

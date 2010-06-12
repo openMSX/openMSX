@@ -37,7 +37,7 @@ public:
 	/** Insert data at the end of this buffer.
 	  * This will automatically grow this buffer.
 	  */
-	void insert(const void* __restrict data, unsigned len)
+	void insert(const void* __restrict data, unsigned len) __restrict
 	{
 #ifdef __GNUC__
 		if (__builtin_constant_p(len)) {
@@ -63,7 +63,7 @@ public:
 	  * It's not possible to grow the buffer via this method (so the buffer
 	  * must already be big enough to hold the new data).
 	  */
-	void insertAt(unsigned pos, const void* __restrict data, unsigned len)
+	void insertAt(unsigned pos, const void* __restrict data, unsigned len) __restrict
 	{
 		assert(begin + pos + len <= finish);
 		memcpy(begin + pos, data, len);
@@ -157,7 +157,7 @@ public:
 	  * This 'consumes' the read bytes, so a future read() will continue
 	  * where this read stopped.
 	  */
-	void read(void* __restrict result, unsigned len)
+	void read(void* __restrict result, unsigned len) __restrict
 	{
 		memcpy(result, buf, len);
 		buf += len;

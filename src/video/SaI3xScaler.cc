@@ -417,7 +417,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 template <typename Pixel>
 void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY) __restrict
 {
 	dst.lock();
 

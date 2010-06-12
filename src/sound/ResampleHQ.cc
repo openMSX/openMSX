@@ -195,7 +195,8 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 }
 
 template <unsigned CHANNELS>
-void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* __restrict output)
+void ResampleHQ<CHANNELS>::calcOutput(
+	float lastPos, int* __restrict output) __restrict
 {
 	assert((filterLen & 3) == 0);
 	int t = int(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
@@ -426,7 +427,8 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned request)
 }
 
 template <unsigned CHANNELS>
-bool ResampleHQ<CHANNELS>::generateOutput(int* __restrict dataOut, unsigned num)
+bool ResampleHQ<CHANNELS>::generateOutput(
+	int* __restrict dataOut, unsigned num) __restrict
 {
 	bool anyNonZero = false;
 

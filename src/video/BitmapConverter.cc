@@ -40,7 +40,9 @@ void BitmapConverter<Pixel>::calcDPalette()
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
-	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
+	Pixel*      __restrict pixelPtr,
+	const byte* __restrict vramPtr0,
+	const byte* __restrict /*vramPtr1*/) __restrict
 {
 	/*for (unsigned i = 0; i < 128; i += 2) {
 		unsigned data0 = vramPtr0[i + 0];
@@ -114,7 +116,9 @@ void BitmapConverter<Pixel>::renderGraphic4(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
-	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
+	Pixel*      __restrict pixelPtr,
+	const byte* __restrict vramPtr0,
+	const byte* __restrict /*vramPtr1*/) __restrict
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		unsigned data = vramPtr0[i];
@@ -127,7 +131,9 @@ void BitmapConverter<Pixel>::renderGraphic5(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
-	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel*      __restrict pixelPtr,
+	const byte* __restrict vramPtr0,
+	const byte* __restrict vramPtr1) __restrict
 {
 	/*for (unsigned i = 0; i < 128; ++i) {
 		unsigned data0 = vramPtr0[i];
@@ -171,7 +177,9 @@ void BitmapConverter<Pixel>::renderGraphic6(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
-	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel*      __restrict pixelPtr,
+	const byte* __restrict vramPtr0,
+	const byte* __restrict vramPtr1) __restrict
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		pixelPtr[2 * i + 0] = palette256[vramPtr0[i]];
@@ -181,7 +189,9 @@ void BitmapConverter<Pixel>::renderGraphic7(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderYJK(
-	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel*      __restrict pixelPtr,
+	const byte* __restrict vramPtr0,
+	const byte* __restrict vramPtr1) __restrict
 {
 	for (unsigned i = 0; i < 64; ++i) {
 		unsigned p[4];
@@ -206,7 +216,9 @@ void BitmapConverter<Pixel>::renderYJK(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderYAE(
-	Pixel* __restrict pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel*      __restrict pixelPtr,
+	const byte* __restrict vramPtr0,
+	const byte* __restrict vramPtr1) __restrict
 {
 	for (unsigned i = 0; i < 64; ++i) {
 		unsigned p[4];

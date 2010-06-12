@@ -58,7 +58,8 @@ void V9990P2Converter<Pixel>::convertLine(
 
 template <class Pixel>
 void V9990P2Converter<Pixel>::renderPattern(
-	Pixel* __restrict buffer, unsigned width, unsigned x, unsigned y, byte pal)
+	Pixel* __restrict buffer, unsigned width, unsigned x, unsigned y,
+	byte pal) __restrict
 {
 	static const unsigned patternTable = 0x00000;
 	static const unsigned nameTable    = 0x7C000;
@@ -152,7 +153,7 @@ void V9990P2Converter<Pixel>::renderPattern(
 
 template <class Pixel>
 void V9990P2Converter<Pixel>::determineVisibleSprites(
-	int* __restrict visibleSprites, int displayY)
+	int* __restrict visibleSprites, int displayY) __restrict
 {
 	static const unsigned spriteTable = 0x3FE00;
 
@@ -179,7 +180,7 @@ void V9990P2Converter<Pixel>::determineVisibleSprites(
 template <class Pixel>
 void V9990P2Converter<Pixel>::renderSprites(
 	Pixel* __restrict buffer, int displayX, int displayEnd, unsigned displayY,
-	int* __restrict visibleSprites, bool front)
+	int* __restrict visibleSprites, bool front) __restrict
 {
 	static const unsigned spriteTable = 0x3FE00;
 	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);

@@ -18,7 +18,7 @@ OutputBuffer::~OutputBuffer()
 }
 
 #ifdef __GNUC__
-template<unsigned LEN> void OutputBuffer::insertN(const void* __restrict data)
+template<unsigned LEN> void OutputBuffer::insertN(const void* __restrict data) __restrict
 {
 	char* newEnd = end + LEN;
 	if (likely(newEnd <= finish)) {
@@ -29,13 +29,13 @@ template<unsigned LEN> void OutputBuffer::insertN(const void* __restrict data)
 	}
 }
 // Force template instantiation
-template void OutputBuffer::insertN<1>(const void* __restrict data);
-template void OutputBuffer::insertN<2>(const void* __restrict data);
-template void OutputBuffer::insertN<4>(const void* __restrict data);
-template void OutputBuffer::insertN<8>(const void* __restrict data);
+template void OutputBuffer::insertN<1>(const void* __restrict data) __restrict;
+template void OutputBuffer::insertN<2>(const void* __restrict data) __restrict;
+template void OutputBuffer::insertN<4>(const void* __restrict data) __restrict;
+template void OutputBuffer::insertN<8>(const void* __restrict data) __restrict;
 #endif
 
-void OutputBuffer::insertN(const void* __restrict data, unsigned len)
+void OutputBuffer::insertN(const void* __restrict data, unsigned len) __restrict
 {
 	char* newEnd = end + len;
 	if (likely(newEnd <= finish)) {
@@ -65,7 +65,7 @@ void OutputBuffer::deallocate(char* pos)
 	end = pos;
 }
 
-void OutputBuffer::insertGrow(const void* __restrict data, unsigned len)
+void OutputBuffer::insertGrow(const void* __restrict data, unsigned len) __restrict
 {
 	char* pos = allocateGrow(len);
 	memcpy(pos, data, len);

@@ -42,7 +42,8 @@ void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::rgbify(
-		const Pixel* __restrict in, Pixel* __restrict out, unsigned inwidth)
+		const Pixel* __restrict in, Pixel* __restrict out,
+		unsigned inwidth) __restrict
 {
 	unsigned r, g, b, rs, gs, bs;
 	unsigned i = 0;
