@@ -23,9 +23,9 @@ private:
 	Resample& input;
 	const double ratio;
 	const double invRatio;
+	double lastPos;
 	typedef FixedPoint<16> FP;
 	const FP invRatioFP;
-	double lastPos;
 	int lastInput[CHANNELS];
 };
 

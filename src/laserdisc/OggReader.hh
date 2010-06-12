@@ -32,8 +32,8 @@ struct AudioFragment
 
 struct Frame
 {
-	int no;
 	th_ycbcr_buffer buffer;
+	int no;
 };
 
 class OggReader : private noncopyable

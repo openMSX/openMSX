@@ -111,9 +111,9 @@ public:
 	unsigned dphase;	// Phase increment amount
 
 	// for Envelope Generator (EG)
-	int tll;		// Total Level + Key scale level
 	EnvPhaseIndex* dphaseARTableRks;
 	EnvPhaseIndex* dphaseDRTableRks;
+	int tll;		// Total Level + Key scale level
 	int eg_mode;		// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
@@ -208,6 +208,9 @@ private:
 	IRQHelper irq;
 
 	byte reg[0x100];
+
+	Y8950Channel ch[9];
+
 	unsigned pm_phase; // Pitch Modulator
 	unsigned am_phase; // Amp Modulator
 
@@ -217,8 +220,6 @@ private:
 	unsigned noiseB_phase;
 	unsigned noiseA_dphase;
 	unsigned noiseB_dphase;
-
-	Y8950Channel ch[9];
 
 	byte status;     // STATUS Register
 	byte statusMask; // bit=0 -> masked

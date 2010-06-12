@@ -108,9 +108,9 @@ private:
 
 	Keyboard& keyboard;
 	string text_utf8;
-	bool releaseLast;
 	unsigned last;
 	int lockKeysMask;
+	bool releaseLast;
 	bool oldCodeKanaLockOn;
 	bool oldGraphLockOn;
 	bool oldCapsLockOn;
@@ -1028,8 +1028,8 @@ KeyInserter::KeyInserter(CommandController& commandController,
 		scheduler, "type")
 	, Schedulable(scheduler)
 	, keyboard(keyboard_)
-	, releaseLast(false)
 	, lockKeysMask(0)
+	, releaseLast(false)
 {
 	// avoid UMR
 	last = 0;

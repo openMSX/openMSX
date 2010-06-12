@@ -47,8 +47,8 @@ private:
 	byte getSSTS() const;
 
 	std::auto_ptr<SCSIDevice> dev[8];
-	unsigned cdbIdx;                // cdb index
 	std::vector<byte> buffer;       // buffer for transfer
+	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index
 	int msgin;                      // Message In flag
 	int counter;                    // read and written number of bytes

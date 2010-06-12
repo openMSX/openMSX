@@ -69,6 +69,9 @@ private:
 
 	Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> clock;
 
+	PlayData emu; // used for emulator behaviour (read back of sample data)
+	PlayData aud; // used by audio generation thread
+
 	unsigned startAddr;
 	unsigned stopAddr;
 	unsigned addrMask;
@@ -79,9 +82,6 @@ private:
 	byte reg7;
 	byte reg15;
 	bool romBank;
-
-	PlayData emu; // used for emulator behaviour (read back of sample data)
-	PlayData aud; // used by audio generation thread
 };
 SERIALIZE_CLASS_VERSION(Y8950Adpcm, 2);
 

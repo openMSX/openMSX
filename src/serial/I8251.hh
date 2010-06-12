@@ -67,6 +67,7 @@ private:
 	ClockPin clock;
 	unsigned charLength;
 
+	CmdFaze cmdFaze;
 	SerialDataInterface::DataBits  recvDataBits;
 	SerialDataInterface::StopBits  recvStopBits;
 	SerialDataInterface::ParityBit recvParityBit;
@@ -81,8 +82,6 @@ private:
 	byte command;
 	byte mode;
 	byte sync1, sync2;
-
-	CmdFaze cmdFaze;
 };
 
 } // namespace openmsx

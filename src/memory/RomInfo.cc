@@ -105,8 +105,8 @@ RomInfo::RomInfo(const string& ntitle,   const string& nyear,
 	, origType(norigType)
 	, remark(nremark)
 	, romType(nromType)
-	, original(noriginal)
 	, genMSXid(ngenMSXid)
+	, original(noriginal)
 {
 }
 

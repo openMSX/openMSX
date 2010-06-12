@@ -114,6 +114,8 @@ private:
 	friend class CapsLockAligner;
 	friend class MsxKeyEventQueue;
 
+	static const int MAX_KEYSYM = 0x150;
+
 	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
 	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
 	const std::auto_ptr<KeyInserter>      keyTypeCmd;
@@ -123,6 +125,7 @@ private:
 	const std::auto_ptr<KeybDebuggable>   keybDebuggable;
 
 	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
+	unsigned dynKeymap[MAX_KEYSYM];
 	byte cmdKeyMatrix [NR_KEYROWS]; // for keymatrix/type command
 	byte userKeyMatrix[NR_KEYROWS]; // pressed user keys (live or replay)
 	byte hostKeyMatrix[NR_KEYROWS]; // always in sync with host keyb, also during replay
@@ -138,9 +141,7 @@ private:
 	bool msxCodeKanaLockOn;
 	bool msxGraphLockOn;
 
-	static const int MAX_KEYSYM = 0x150;
 	static const byte keyTab[MAX_KEYSYM][2];
-	unsigned dynKeymap[MAX_KEYSYM];
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 2);
 

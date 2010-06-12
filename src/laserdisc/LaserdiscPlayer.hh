@@ -30,8 +30,8 @@ class LaserdiscPlayer : public SoundDevice
 		      , private VideoSystemChangeListener
 {
 public:
-	LaserdiscPlayer(MSXMotherBoard& motherBoard, 
-			PioneerLDControl& ldcontrol, 
+	LaserdiscPlayer(MSXMotherBoard& motherBoard,
+			PioneerLDControl& ldcontrol,
 			ThrottleManager& throttleManager);
 	~LaserdiscPlayer();
 
@@ -160,7 +160,7 @@ private:
 	};
 
 	// Ext Control
- 	RemoteState remoteState;
+	RemoteState remoteState;
 	EmuTime remoteLastEdge;
 	unsigned remoteBitNr;
 	unsigned remoteBits;
@@ -186,7 +186,7 @@ private:
 	// State of the video itself
 	bool seeking;
 
- 	PlayerState playerState;
+	PlayerState playerState;
 
 	enum PlayingSpeed {
 		SPEED_STEP3 = -5,	// Each frame is repeated 90 times

@@ -701,6 +701,18 @@ private:
 	  */
 	std::auto_ptr<VDPVRAM> vram;
 
+	/** Is there an external video source which we must superimpose
+	  * upon?
+	  */
+	const RawFrame* externalVideo;
+
+	/** Are we currently superimposing?
+	 * This is a combination of the 'externalVideo' member (see above) and
+	 * the superimpose-enable bit in VDP register R#0. This property only
+	 * changes at most once per frame (at the beginning of the frame).
+	 */
+	const RawFrame* superimposing;
+
 	/** The emulation time when this frame was started (vsync).
 	  */
 	Clock<TICKS_PER_SECOND> frameStartTime;
@@ -868,18 +880,6 @@ private:
 	  * This is set when a warning about setting the dotclock direction
 	  * is printed.  */
 	bool warningPrinted;
-
-	/** Is there an external video source which we must superimpose
-	  * upon?
-	  */
-	const RawFrame* externalVideo;
-
-	/** Are we currently superimposing?
-	 * This is a combination of the 'externalVideo' member (see above) and
-	 * the superimpose-enable bit in VDP register R#0. This property only
-	 * changes at most once per frame (at the beginning of the frame).
-	 */
-	const RawFrame* superimposing;
 };
 
 } // namespace openmsx

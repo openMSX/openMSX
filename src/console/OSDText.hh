@@ -32,8 +32,8 @@ private:
 
 	std::string text;
 	std::string fontfile;
-	int size;
 	std::auto_ptr<TTFFont> font;
+	int size;
 };
 
 } // namespace openmsx

@@ -46,8 +46,8 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
 	, description(description_)
 	, numChannels(numChannels_)
 	, stereo(stereo_ ? 2 : 1)
-	, balanceCenter(true)
 	, numRecordChannels(0)
+	, balanceCenter(true)
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == 1 || stereo == 2);

@@ -95,6 +95,9 @@ private:
 	EmuTime commandStart;
 	Clock<1000000> DRQTimer; // us
 
+	int dataCurrent;   // which byte in dataBuffer is next to be read/write
+	int dataAvailable; // how many bytes left in buffer
+
 	FSMState fsmState;
 	byte statusReg;
 	byte commandReg;
@@ -110,8 +113,6 @@ private:
 	bool formatting;
 
 	byte dataBuffer[Disk::RAWTRACK_SIZE];
-	int dataCurrent;   // which byte in dataBuffer is next to be read/write
-	int dataAvailable; // how many bytes left in buffer
 };
 
 } // namespace openmsx

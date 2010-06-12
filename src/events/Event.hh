@@ -99,7 +99,7 @@ private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const Event& other) const;
 
-	EventType type;
+	const EventType type;
 };
 
 // implementation for events that don't need additional data

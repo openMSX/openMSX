@@ -70,6 +70,11 @@ private:
 	  */
 	const std::auto_ptr<V9990Rasterizer> rasterizer;
 
+	/** Frameskip
+	  */
+	double finishFrameDuration;
+	int frameSkipCounter;
+
 	/** Accuracy setting for current frame.
 	 */
 	RenderSettings::Accuracy accuracy;
@@ -95,11 +100,6 @@ private:
 	  */
 	int verticalOffsetA;
 	int verticalOffsetB;
-
-	/** Frameskip
-	  */
-	double finishFrameDuration;
-	int frameSkipCounter;
 
 	/** Is display enabled?
 	  * Enabled means the current line is in the display area and

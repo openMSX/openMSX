@@ -42,8 +42,8 @@ private:
 	const std::string origType;
 	const std::string remark;
 	const RomType romType;
-	const bool original;
 	const int genMSXid;
+	const bool original;
 };
 
 } // namespace openmsx

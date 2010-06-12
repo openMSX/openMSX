@@ -62,11 +62,11 @@ private:
 	MSXMotherBoard& motherBoard;
 	const Rom& rom;
 	std::auto_ptr<SRAM> ram;
+	std::vector<int> writeAddress;
+	std::vector<const byte*> readAddress;
 	const unsigned logSectorSize;
 	const unsigned sectorMask;
 	const unsigned size;
-	std::vector<int> writeAddress;
-	std::vector<const byte*> readAddress;
 
 	static const unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];

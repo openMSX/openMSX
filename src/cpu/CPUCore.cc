@@ -242,14 +242,6 @@ template <class T> CPUCore<T>::CPUCore(
 	, scheduler(motherboard.getScheduler())
 	, interface(NULL)
 	, traceSetting(traceSetting_)
-	, freqLocked(createFreqLockedSetting(
-		motherboard.getCommandController(), name))
-	, freqValue(new IntegerSetting(motherboard.getCommandController(),
-	        name + "_freq",
-	        "custom " + name + " frequency (only valid when unlocked)",
-	        T::CLOCK_FREQ, 1000000, 1000000000))
-	, freq(T::CLOCK_FREQ)
-	, NMIStatus(0)
 	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",
 	            "Non-zero if there are pending IRQs (thus CPU would enter "
 	            "interrupt routine in EI mode).",
@@ -258,6 +250,14 @@ template <class T> CPUCore<T>::CPUCore(
 	            "This probe is only useful to set a breakpoint on (the value "
 		    "return by read is meaningless). The breakpoint gets triggered "
 		    "right after the CPU accepted an IRQ.")
+	, freqLocked(createFreqLockedSetting(
+		motherboard.getCommandController(), name))
+	, freqValue(new IntegerSetting(motherboard.getCommandController(),
+	        name + "_freq",
+	        "custom " + name + " frequency (only valid when unlocked)",
+	        T::CLOCK_FREQ, 1000000, 1000000000))
+	, freq(T::CLOCK_FREQ)
+	, NMIStatus(0)
 	, nmiEdge(false)
 	, exitLoop(false)
 	, isTurboR(motherboard.isTurboR())

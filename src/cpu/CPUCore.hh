@@ -103,6 +103,9 @@ private:
 
 	const BooleanSetting& traceSetting;
 
+	Probe<int> IRQStatus;
+	Probe<void> IRQAccept;
+
 	// dynamic freq
 	std::auto_ptr<BooleanSetting> freqLocked;
 	std::auto_ptr<IntegerSetting> freqValue;
@@ -111,8 +114,6 @@ private:
 	// state machine variables
 	int slowInstructions;
 	int NMIStatus;
-	Probe<int> IRQStatus;
-	Probe<void> IRQAccept;
 
 	/**
 	 * Set to true when there was a rising edge on the NMI line

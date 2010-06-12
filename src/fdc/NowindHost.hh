@@ -99,27 +99,27 @@ private:
 	void callImage(const std::string& filename);
 
 
+	static const unsigned MAX_DEVICES = 16;
+
 	const std::vector<DiskContainer*>& drives;
 
-	// queue
 	std::deque<byte> hostToMsxFifo;
 
-	// state-machine
-	unsigned lastTime;       // last time a byte was received from MSX
-	State state;
-	unsigned recvCount;      // how many bytes recv in this state
-	byte cmdData[9];         // reg_[cbedlhfa] + cmd
-	byte extraData[240 + 2]; // extra data for diskread/write
-	std::vector<byte> buffer;// work buffer for diskread/write
-	unsigned transfered;     // progress within diskread/write
-	unsigned retryCount;     // only used for diskread
-	unsigned transferSize;   // size of current chunk
-
-	static const unsigned MAX_DEVICES = 16;
 	struct {
 		std::auto_ptr<std::fstream> fs; // not in use when fs == NULL
 		unsigned fcb;
 	} devices[MAX_DEVICES];
+
+	// state-machine
+	std::vector<byte> buffer;// work buffer for diskread/write
+	unsigned lastTime;       // last time a byte was received from MSX
+	State state;
+	unsigned recvCount;      // how many bytes recv in this state
+	unsigned transfered;     // progress within diskread/write
+	unsigned retryCount;     // only used for diskread
+	unsigned transferSize;   // size of current chunk
+	byte cmdData[9];         // reg_[cbedlhfa] + cmd
+	byte extraData[240 + 2]; // extra data for diskread/write
 
 	byte romdisk;            // index of romdisk (255 = no romdisk)
 	bool allowOtherDiskroms;

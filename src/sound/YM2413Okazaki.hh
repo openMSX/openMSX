@@ -90,7 +90,6 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	Patch patch;
 	unsigned* sintbl;	// Wavetable (for PG)
 
 	// OUTPUT
@@ -112,6 +111,8 @@ public:
 	EnvPhaseIndex eg_phase_max;
 	bool sustain;		// Sustain
 	bool slot_on_flag;
+
+	Patch patch;
 };
 
 class Channel {
@@ -168,9 +169,6 @@ private:
 	virtual void generateChannels(int* bufs[9 + 5], unsigned num);
 	virtual int getAmplificationFactor() const;
 
-	/** Voice Data */
-	Patch patches[19][2];
-
 	/** Channel & Slot */
 	Channel channels[9];
 
@@ -185,6 +183,9 @@ private:
 
 	/** Number of samples the output was completely silent. */
 	unsigned idleSamples;
+
+	/** Voice Data */
+	Patch patches[19][2];
 
 	/** Registers */
 	byte reg[0x40];
