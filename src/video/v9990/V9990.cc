@@ -708,7 +708,7 @@ void V9990::frameStart(EmuTime::param time)
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 
-	frameStartTime.advance_fast(time);
+	frameStartTime.reset(time);
 
 	// schedule next VSYNC
 	setSyncPoint(
