@@ -281,7 +281,7 @@ SDLImage::SDLImage(const string& filename, int width, int height)
 }
 
 SDLImage::SDLImage(int width, int height, unsigned rgba)
-	: a(((rgba >> 24) == 255) ? 256 : (rgba >> 24))
+	: a(((rgba & 0xFF) == 255) ? 256 : (rgba & 0xFF))
 	, flipX(width < 0), flipY(height < 0)
 {
 	checkSize(width, height);
@@ -299,7 +299,7 @@ SDLImage::SDLImage(int width, int height, unsigned rgba)
 	if (!image.get()) {
 		throw MSXException("Couldn't allocate surface.");
 	}
-	if (rgba & 0x00ffffff) {
+	if (rgba & 0xffffff00) {
 		// crashes on zero-width surfaces, that's why we
 		// check for it at the beginning of this method
 		SDL_FillRect(image.get(), NULL, SDL_MapRGB(
@@ -309,9 +309,9 @@ SDLImage::SDLImage(int width, int height, unsigned rgba)
 			// Work around const correctness bug in SDL 1.2.11 (bug #421).
 			const_cast<SDL_PixelFormat*>(&format),
 #endif
-			(rgba >>  0) & 0xff,
-			(rgba >>  8) & 0xff,
-			(rgba >> 16) & 0xff));
+			(rgba >> 24) & 0xff,
+			(rgba >> 16) & 0xff,
+			(rgba >>  8) & 0xff));
 	}
 }
 

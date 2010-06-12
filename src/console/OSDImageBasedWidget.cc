@@ -67,12 +67,13 @@ static bool constantAlpha(const unsigned rgba[4])
 	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
 	       ((rgba[0] & 0xff) == (rgba[3] & 0xff));
 }
-static bool sameRGB(const unsigned rgba_1[4], const unsigned rgba_2[4])
+static bool sameRGB(const unsigned rgba_1[4], unsigned shift,
+                    const unsigned rgba_2[4])
 {
-	return ((rgba_1[0] & 0xffffff00) == (rgba_2[0] & 0xffffff00)) &&
-	       ((rgba_1[1] & 0xffffff00) == (rgba_2[1] & 0xffffff00)) &&
-	       ((rgba_1[2] & 0xffffff00) == (rgba_2[2] & 0xffffff00)) &&
-	       ((rgba_1[3] & 0xffffff00) == (rgba_2[3] & 0xffffff00));
+	return (((rgba_1[0] << shift) & 0xffffff00) == (rgba_2[0] & 0xffffff00)) &&
+	       (((rgba_1[1] << shift) & 0xffffff00) == (rgba_2[1] & 0xffffff00)) &&
+	       (((rgba_1[2] << shift) & 0xffffff00) == (rgba_2[2] & 0xffffff00)) &&
+	       (((rgba_1[3] << shift) & 0xffffff00) == (rgba_2[3] & 0xffffff00));
 }
 void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value)
 {
@@ -80,7 +81,7 @@ void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value
 		unsigned newRGBA[4];
 		get4(value, newRGBA);
 		if (!constantAlpha(newRGBA) || !constantAlpha(rgba) ||
-		    !sameRGB(newRGBA, rgba)) {
+		    !sameRGB(newRGBA, 0, rgba)) {
 			invalidateLocal();
 		}
 		for (unsigned i = 0; i < 4; ++i) {
@@ -89,7 +90,7 @@ void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value
 	} else if (name == "-rgb") {
 		unsigned newRGB[4];
 		get4(value, newRGB);
-		if (!constantAlpha(rgba) || !sameRGB(newRGB, rgba)) {
+		if (!constantAlpha(rgba) || !sameRGB(newRGB, 8, rgba)) {
 			invalidateLocal();
 		}
 		for (unsigned i = 0; i < 4; ++i) {
