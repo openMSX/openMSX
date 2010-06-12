@@ -108,9 +108,6 @@ public:
 
 	// various
 	std::string dump() const;
-	void merge(const XMLElement& source);
-	bool isShallowEqual(const XMLElement& other) const;
-
 	static std::string XMLEscape(const std::string& str);
 
 	template<typename Archive>

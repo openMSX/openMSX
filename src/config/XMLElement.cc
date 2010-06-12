@@ -345,40 +345,6 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 	}
 }
 
-struct ShallowEqualTo {
-	ShallowEqualTo(const XMLElement& rhs_) : rhs(rhs_) {}
-	bool operator()(const XMLElement* lhs) const {
-		return lhs->isShallowEqual(rhs);
-	}
-	const XMLElement& rhs;
-};
-
-void XMLElement::merge(const XMLElement& source)
-{
-	assert(isShallowEqual(source));
-	Children srcChildrenCopy(children.begin(), children.end());
-	const Children& sourceChildren = source.getChildren();
-	for (Children::const_iterator it = sourceChildren.begin();
-	     it != sourceChildren.end(); ++it) {
-		const XMLElement& srcChild = **it;
-		Children::iterator it2 = std::find_if(srcChildrenCopy.begin(),
-			srcChildrenCopy.end(), ShallowEqualTo(srcChild));
-		if (it2 != srcChildrenCopy.end()) {
-			(*it2)->merge(srcChild);
-			srcChildrenCopy.erase(it2); // don't merge to same child twice
-		} else {
-			addChild(auto_ptr<XMLElement>(new XMLElement(srcChild)));
-		}
-	}
-	setData(source.getData());
-}
-
-bool XMLElement::isShallowEqual(const XMLElement& other) const
-{
-	return (getName()       == other.getName()) &&
-	       (getAttributes() == other.getAttributes());
-}
-
 string XMLElement::XMLEscape(const string& str)
 {
 	xmlChar* buffer = xmlEncodeEntitiesReentrant(
