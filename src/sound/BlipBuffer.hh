@@ -25,7 +25,7 @@ public:
 
 	// Update amplitude of waveform at given time. Time is in output sample
 	// units and since the last time readSamples() was called.
-	void update(TimeIndex time, int amplitude);
+	void addDelta(TimeIndex time, int delta);
 
 	// Read the given amount of samples into destination buffer.
 	bool readSamples(int* dest, unsigned samples, unsigned pitch = 1);
@@ -36,7 +36,6 @@ private:
 	int buffer[BUFFER_SIZE];
 	unsigned offset;
 	int accum;
-	int lastAmp;
 	int availSamp;
 };
 

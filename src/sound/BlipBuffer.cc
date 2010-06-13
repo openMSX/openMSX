@@ -93,20 +93,16 @@ BlipBuffer::BlipBuffer()
 {
 	offset = 0;
 	accum = 0;
-	lastAmp = 0;
 	availSamp = 0;
 	memset(buffer, 0, sizeof(buffer));
 	initImpulse();
 }
 
-void BlipBuffer::update(TimeIndex time, int amp)
+void BlipBuffer::addDelta(TimeIndex time, int delta)
 {
 	unsigned tmp = time.toInt() + IMPULSE_WIDTH;
-	availSamp = std::max<int>(availSamp, tmp);
-
 	assert(tmp < BUFFER_SIZE);
-	int delta = amp - lastAmp;
-	lastAmp = amp;
+	availSamp = std::max<int>(availSamp, tmp);
 
 	unsigned phase = time.fractAsInt();
 	unsigned ofst = time.toInt() + offset;

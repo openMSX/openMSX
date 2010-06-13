@@ -33,9 +33,11 @@ void DACSound16S::writeDAC(short value, EmuTime::param time)
 {
 	assert(queue.empty() || (queue.back().time <= time));
 
-	if (value == lastWrittenValue) return;
+	int delta = value - lastWrittenValue;
+	if (delta == 0) return;
 	lastWrittenValue = value;
-	queue.push_back(Sample(time, value));
+
+	queue.push_back(Sample(time, delta));
 }
 
 void DACSound16S::generateChannels(int** bufs, unsigned num)
@@ -51,7 +53,7 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 	EmuTime stop = start + sampDur * num;
 	while (!queue.empty() && (queue.front().time < stop)) {
 		double t = (queue.front().time - start).div(sampDur);
-		blip.update(BlipBuffer::TimeIndex(t), queue.front().value);
+		blip.addDelta(BlipBuffer::TimeIndex(t), queue.front().delta);
 		queue.pop_front();
 	}
 	// Note: readSamples() replaces the values in the buffer. It should add

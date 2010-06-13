@@ -33,10 +33,10 @@ private:
 	        EmuTime::param start, EmuDuration::param sampDur);
 
 	struct Sample {
-		Sample(EmuTime::param time_, int value_)
-			: time(time_), value(value_) {}
+		Sample(EmuTime::param time_, int delta_)
+			: time(time_), delta(delta_) {}
 		EmuTime time;
-		int value;
+		int delta;
 	};
 	typedef std::deque<Sample> Queue;
 	Queue queue;

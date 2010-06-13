@@ -50,13 +50,15 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 				int last = lastInput[ch]; // local var is slightly faster
 				int i = 0;
 				while (true) {
-					if (unlikely(buf[CHANNELS * i + ch] != last)) {
+					int delta = buf[CHANNELS * i + ch] - last;
+					if (unlikely(delta != 0)) {
 						if (i == required) {
 							break;
 						}
 						last = buf[CHANNELS * i + ch];
-						blip[ch].update(BlipBuffer::TimeIndex(pos),
-						                last);
+						blip[ch].addDelta(
+							BlipBuffer::TimeIndex(pos),
+							delta);
 					}
 					pos += invRatioFP;
 					++i;
@@ -67,9 +69,11 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 			// input all zero
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 				if (lastInput[ch] != 0) {
+					int delta = -lastInput[ch];
 					lastInput[ch] = 0;
 					double pos = lastPos * invRatio;
-					blip[ch].update(BlipBuffer::TimeIndex(pos), 0);
+					blip[ch].addDelta(
+						BlipBuffer::TimeIndex(pos), delta);
 				}
 			}
 		}
