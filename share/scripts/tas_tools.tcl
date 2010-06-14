@@ -14,7 +14,7 @@ proc toggle_frame_counter {} {
 		return ""
 	}
 
-	osd_widgets::box framecount -x 269 -y 224 -h 8 -w 50 -rgba 0x80808080 -fill 0x80808080 -scaled true
+	osd_widgets::box framecount -x 269 -y 224 -h 8 -w 50 -rgba 0x80808080 -fill "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" -scaled true
 	osd create text framecount.text -x 3 -y 2 -size 4 -rgba 0xffffffff
 	framecount_update
 	return ""
@@ -122,12 +122,12 @@ proc is_key_pressed {row bit} {
 }
 
 proc show_key_press {key state} {
-	set keycol [expr {$state ? 0xff000080 : 0x80808080}]
+	set keycol [expr {$state ? 0xff000080 : "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"}]
 	osd configure cursors.$key -rgba $keycol
 }
 
 proc create_key {name x y} {
-	osd_widgets::box cursors.$name -x $x -y $y -w 16 -h 10 -rgba 0x80808080
+	osd_widgets::box cursors.$name -x $x -y $y -w 16 -h 10 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
 	osd create text cursors.$name.text -x 2 -y 2 -text $name -size 4 -rgba 0xffffffff
 }
 
@@ -168,10 +168,10 @@ proc ram_watch_add {addr_str} {
 	}
 
 	# check for duplicates
-	puts stderr "| $addr_watches |"
-	puts stderr "| [lsearch $addr_watches $addr] |"
+	#puts stderr "| $addr_watches |"
+	#puts stderr "| [lsearch $addr_watches $addr] |"
 	if {[lsearch $addr_watches $addr] != -1} {
-		error "Address $addr already being watched."
+		error "Address [format 0x%04X $addr] already being watched."
 	}
 
 	# add address to list
@@ -182,7 +182,7 @@ proc ram_watch_add {addr_str} {
 	# if OSD doesn't exist yet create it
 	if {$i == 0} {
 		osd create rectangle ram_watch -x 0 -y 0 -h 240 -w 320 -scaled true -alpha 0
-		osd_widgets::box ram_watch.addr -x 288 -y 1 -w 31 -h 221 -rgba 0x80808080 -fill 0x80808080
+		osd_widgets::box ram_watch.addr -x 288 -y 1 -w 31 -h 221 -rgba 0x80808080 -fill "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
 		osd create text ram_watch.addr.title -text "Ram Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
 	}
 
@@ -211,7 +211,7 @@ proc ram_watch_remove {addr_str} {
 	# check watch exists
 	set index [lsearch $addr_watches $addr]
 	if {$index == -1} {
-		error "Address $addr was not being watched."
+		error "Address [format 0x%04X $addr] was not being watched."
 	}
 
 	#remove address from list

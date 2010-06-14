@@ -139,7 +139,7 @@ fade out. You can make it reappear by moving the mouse over it.
 		osd create rectangle reverse.right \
 			-relx 1       -w 1 -relh 1      -z 4 -rgba 0xFFFFFFC0
 		osd create rectangle reverse.bar \
-			-relw 0 -relh 1                 -z 0 -rgba 0x0077FF80
+			-relw 0 -relh 1                 -z 0 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
 		osd create rectangle reverse.end \
 			-relx 0 -x -1 -w 2 -relh 1      -z 2 -rgba 0xFF8080C0
 		osd create text      reverse.text \

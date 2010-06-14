@@ -85,7 +85,7 @@ proc scc_viewer_init {} {
 				-h $channel_height \
 				-w $num_samples \
 				-rgba 0xffffff80 \
-				-fill 0x0000ff80 \
+				-fill "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 				-clip true
 			osd_widgets::box scc_viewer.$device.$chan.volume \
 				-relw 1 \
@@ -301,7 +301,7 @@ proc toggle_scc_editor {} {
 
 	bind_default "mouse button1 down"  	{scc_toys::checkclick}
 
-	osd_widgets::box scc -x 200 -y 100 -h 256 -w 256 -rgba 0xffffffff -fill 0x0000ff80 \
+	osd_widgets::box scc -x 200 -y 100 -h 256 -w 256 -rgba 0xffffffff -fill "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 
 	for {set i 0} {$i < 32} {incr i} {
 		osd create rectangle scc.slider$i -x [expr ($i*8)] -y 0 -h 255 -w 8 -rgba 0x0000ff80

@@ -15,11 +15,11 @@ variable keys_held
 variable row_starts
 
 #init colors
-variable key_color 0xffffffc0
-variable key_pressed_color 0xff8800ff
+variable key_color "0x999999c0 0xbbbbbbc0 0xddddddc0 0xffffffc0"
+variable key_pressed_color "0x994400c0 0xbb5500c0 0xdd6600c0 0xff8800c0"
 variable key_background_color 0x00000080
 variable key_hold_color 0x00ff88ff
-variable key_select_color 0xffff88ff
+variable key_select_color "0x999933f0 0xbbbb44f0 0xdddd66f0 0xffff88f0"
 variable key_edge_color 0xaaaaaaa0
 
 # Keyboard layout constants.
