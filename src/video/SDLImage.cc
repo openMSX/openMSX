@@ -216,11 +216,12 @@ static void setupInterp(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
 {
 	if (length == 1) {
 		dr = dg = db = da = 0;
+	} else {
+		dr = int(r1 - r0) / int(length - 1);
+		dg = int(g1 - g0) / int(length - 1);
+		db = int(b1 - b0) / int(length - 1);
+		da = int(a1 - a0) / int(length - 1);
 	}
-	dr = int(r1 - r0) / int(length - 1);
-	dg = int(g1 - g0) / int(length - 1);
-	db = int(b1 - b0) / int(length - 1);
-	da = int(a1 - a0) / int(length - 1);
 }
 template<typename Pixel>
 static void gradient(const unsigned* rgba, SDL_Surface& surface)
