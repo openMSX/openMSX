@@ -117,12 +117,6 @@ void BlipBuffer::addDelta(TimeIndex time, int delta)
 	}
 }
 
-// returns -1, 0, 1 for x negative, zero, positive
-static inline int sign(int x)
-{
-	return (x != 0) | (x >> 31);
-}
-
 bool BlipBuffer::readSamples(
 	int* __restrict out, unsigned samples, unsigned pitch) __restrict
 {
@@ -143,8 +137,9 @@ bool BlipBuffer::readSamples(
 		int acc = accum;
 		for (unsigned i = 0; i < samples; ++i) {
 			out[i * pitch] = acc >> SAMPLE_SHIFT;
-			acc -= acc / (1 << BASS_SHIFT);
-			acc -= sign(acc); // make sure acc eventually goes to zero
+			// See note about rounding below.
+			acc -= (acc >> BASS_SHIFT);
+			acc -= (acc > 0) ? 1 : 0; // make sure acc eventually goes to zero
 		}
 		accum = acc;
 	} else {
@@ -152,7 +147,11 @@ bool BlipBuffer::readSamples(
 		int acc = accum;
 		for (unsigned i = 0; i < samples; ++i) {
 			out[i * pitch] = acc >> SAMPLE_SHIFT;
-			acc -= acc / (1 << BASS_SHIFT);
+			// Note: the following has different rounding behaviour
+			//  for positive and negative numbers! The original
+			//  code used 'acc / (1<< BASS_SHIFT)' to avoid this,
+			//  but it generates less efficient code.
+			acc -= (acc >> BASS_SHIFT);
 			acc += buffer[offset];
 			buffer[offset] = 0;
 			offset = (offset + 1) & BUFFER_MASK;
