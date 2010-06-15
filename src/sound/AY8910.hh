@@ -125,7 +125,6 @@ private:
 		inline unsigned getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);
 		inline void setMasterVolume(int volume);
-		inline unsigned getEnvelopeMask() const;
 		inline bool followsEnvelope(unsigned chan) const;
 
 	private:

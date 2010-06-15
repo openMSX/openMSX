@@ -335,11 +335,6 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 	}
 }
 
-inline unsigned AY8910::Amplitude::getEnvelopeMask() const
-{
-	return (envChan[0] ? 1:0) | (envChan[1] ? 2:0) | (envChan[2] ? 4:0);
-}
-
 inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const
 {
 	return envChan[chan];
