@@ -84,7 +84,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 
 	bool results[CHANNELS];
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-		results[ch] = blip[ch].readSamples(dataOut + ch, num, CHANNELS);
+		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, num);
 	}
 	STATIC_ASSERT((CHANNELS == 1) || (CHANNELS == 2));
 	bool result;

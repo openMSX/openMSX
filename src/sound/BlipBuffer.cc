@@ -117,8 +117,8 @@ void BlipBuffer::addDelta(TimeIndex time, int delta)
 	}
 }
 
-bool BlipBuffer::readSamples(
-	int* __restrict out, unsigned samples, unsigned pitch) __restrict
+template<unsigned PITCH>
+bool BlipBuffer::readSamples(int* __restrict out, unsigned samples) __restrict
 {
 	static const int SAMPLE_SHIFT = BLIP_SAMPLE_BITS - 16;
 	static const int BASS_SHIFT = 9;
@@ -136,7 +136,7 @@ bool BlipBuffer::readSamples(
 		}
 		int acc = accum;
 		for (unsigned i = 0; i < samples; ++i) {
-			out[i * pitch] = acc >> SAMPLE_SHIFT;
+			out[i * PITCH] = acc >> SAMPLE_SHIFT;
 			// See note about rounding below.
 			acc -= (acc >> BASS_SHIFT);
 			acc -= (acc > 0) ? 1 : 0; // make sure acc eventually goes to zero
@@ -146,7 +146,7 @@ bool BlipBuffer::readSamples(
 		availSamp -= samples;
 		int acc = accum;
 		for (unsigned i = 0; i < samples; ++i) {
-			out[i * pitch] = acc >> SAMPLE_SHIFT;
+			out[i * PITCH] = acc >> SAMPLE_SHIFT;
 			// Note: the following has different rounding behaviour
 			//  for positive and negative numbers! The original
 			//  code used 'acc / (1<< BASS_SHIFT)' to avoid this,
@@ -160,5 +160,8 @@ bool BlipBuffer::readSamples(
 	}
 	return true;
 }
+
+template bool BlipBuffer::readSamples<1>(int*, unsigned);
+template bool BlipBuffer::readSamples<2>(int*, unsigned);
 
 } // namespace openmsx

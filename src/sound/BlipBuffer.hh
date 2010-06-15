@@ -28,7 +28,8 @@ public:
 	void addDelta(TimeIndex time, int delta);
 
 	// Read the given amount of samples into destination buffer.
-	bool readSamples(int* dest, unsigned samples, unsigned pitch = 1);
+	template <unsigned PITCH>
+	bool readSamples(int* dest, unsigned samples);
 
 private:
 	static const unsigned BUFFER_SIZE = 1 << 14;

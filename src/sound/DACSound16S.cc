@@ -59,7 +59,7 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 	// Note: readSamples() replaces the values in the buffer. It should add
 	//       to the existing values in the buffer. But because there is only
 	//       one channel this doesn't matter (buffer contains all zeros).
-	if (!blip.readSamples(bufs[0], num)) {
+	if (!blip.readSamples<1>(bufs[0], num)) {
 		bufs[0] = 0;
 	}
 }
