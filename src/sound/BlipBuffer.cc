@@ -106,8 +106,14 @@ void BlipBuffer::addDelta(TimeIndex time, int delta)
 
 	unsigned phase = time.fractAsInt();
 	unsigned ofst = time.toInt() + offset;
-	for (int i = 0; i < IMPULSE_WIDTH; ++i) {
-		buffer[(ofst + i) & BUFFER_MASK] += impulses[phase][i] * delta;
+	if (likely((ofst + IMPULSE_WIDTH) <= BUFFER_SIZE)) {
+		for (int i = 0; i < IMPULSE_WIDTH; ++i) {
+			buffer[ofst + i] += impulses[phase][i] * delta;
+		}
+	} else {
+		for (int i = 0; i < IMPULSE_WIDTH; ++i) {
+			buffer[(ofst + i) & BUFFER_MASK] += impulses[phase][i] * delta;
+		}
 	}
 }
 
