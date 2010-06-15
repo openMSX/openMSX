@@ -32,6 +32,9 @@ public:
 	bool readSamples(int* dest, unsigned samples);
 
 private:
+	template <unsigned PITCH>
+	void readSamplesHelper(int* out, unsigned samples);
+
 	static const unsigned BUFFER_SIZE = 1 << 14;
 	static const unsigned BUFFER_MASK = BUFFER_SIZE - 1;
 	int buffer[BUFFER_SIZE];

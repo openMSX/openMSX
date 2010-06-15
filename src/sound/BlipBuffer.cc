@@ -117,12 +117,33 @@ void BlipBuffer::addDelta(TimeIndex time, int delta)
 	}
 }
 
-template<unsigned PITCH>
-bool BlipBuffer::readSamples(int* __restrict out, unsigned samples) __restrict
-{
-	static const int SAMPLE_SHIFT = BLIP_SAMPLE_BITS - 16;
-	static const int BASS_SHIFT = 9;
+static const int SAMPLE_SHIFT = BLIP_SAMPLE_BITS - 16;
+static const int BASS_SHIFT = 9;
 
+template<unsigned PITCH>
+void BlipBuffer::readSamplesHelper(int* __restrict out, unsigned samples) __restrict
+{
+	assert((offset + samples) <= BUFFER_SIZE);
+	int acc = accum;
+	unsigned ofst = offset;
+	for (unsigned i = 0; i < samples; ++i) {
+		out[i * PITCH] = acc >> SAMPLE_SHIFT;
+		// Note: the following has different rounding behaviour
+		//  for positive and negative numbers! The original
+		//  code used 'acc / (1<< BASS_SHIFT)' to avoid this,
+		//  but it generates less efficient code.
+		acc -= (acc >> BASS_SHIFT);
+		acc += buffer[ofst];
+		buffer[ofst] = 0;
+		++ofst;
+	}
+	accum = acc;
+	offset = ofst;
+}
+
+template <unsigned PITCH>
+bool BlipBuffer::readSamples(int* __restrict out, unsigned samples)
+{
 	if (availSamp <= 0) {
 		#ifdef DEBUG
 		// buffer contains all zeros (only check this in debug mode)
@@ -137,26 +158,21 @@ bool BlipBuffer::readSamples(int* __restrict out, unsigned samples) __restrict
 		int acc = accum;
 		for (unsigned i = 0; i < samples; ++i) {
 			out[i * PITCH] = acc >> SAMPLE_SHIFT;
-			// See note about rounding below.
+			// See note about rounding above.
 			acc -= (acc >> BASS_SHIFT);
 			acc -= (acc > 0) ? 1 : 0; // make sure acc eventually goes to zero
 		}
 		accum = acc;
 	} else {
 		availSamp -= samples;
-		int acc = accum;
-		for (unsigned i = 0; i < samples; ++i) {
-			out[i * PITCH] = acc >> SAMPLE_SHIFT;
-			// Note: the following has different rounding behaviour
-			//  for positive and negative numbers! The original
-			//  code used 'acc / (1<< BASS_SHIFT)' to avoid this,
-			//  but it generates less efficient code.
-			acc -= (acc >> BASS_SHIFT);
-			acc += buffer[offset];
-			buffer[offset] = 0;
-			offset = (offset + 1) & BUFFER_MASK;
+		unsigned t1 = std::min(samples, BUFFER_SIZE - offset);
+		readSamplesHelper<PITCH>(out, t1);
+		if (t1 < samples) {
+			offset = 0;
+			unsigned t2 = samples - t1;
+			assert(t2 <= BUFFER_SIZE);
+			readSamplesHelper<PITCH>(&out[t1], t2);
 		}
-		accum = acc;
 	}
 	return true;
 }
