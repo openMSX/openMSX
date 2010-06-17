@@ -459,7 +459,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
@@ -533,7 +533,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
@@ -607,7 +607,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
@@ -685,7 +685,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -766,7 +766,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -847,7 +847,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -928,7 +928,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -1009,7 +1009,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -1090,7 +1090,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -1171,7 +1171,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -1252,7 +1252,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -1333,7 +1333,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.2.3\include;..\..\derived\3rdparty\src\libvorbis-1.2.3\derived\3rdparty\src\libvorbis-1.2.3\libogg\include"
+				AdditionalIncludeDirectories="..\..\derived\3rdparty\src\libvorbis-1.3.1\include;..\..\derived\3rdparty\src\libvorbis-1.3.1\derived\3rdparty\src\libvorbis-1.3.1\libogg\include"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_USRDLL;LIBVORBIS_EXPORTS;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_)"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -1392,79 +1392,79 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\analysis.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\analysis.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\bitrate.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\bitrate.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\block.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\block.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\codebook.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\codebook.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\envelope.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\envelope.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\floor0.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\floor0.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\floor1.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\floor1.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\info.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\info.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\lookup.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lookup.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\lpc.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lpc.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\lsp.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lsp.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\mapping0.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\mapping0.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\mdct.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\mdct.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\psy.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\psy.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\registry.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\registry.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\res0.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\res0.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\sharedbook.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\sharedbook.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\smallft.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\smallft.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\synthesis.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\synthesis.c"
 				>
 			</File>
 			<File
@@ -1472,11 +1472,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\vorbisenc.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\vorbisenc.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\window.c"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\window.c"
 				>
 			</File>
 		</Filter>
@@ -1486,171 +1486,171 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\backends.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\backends.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\bitrate.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\bitrate.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\codebook.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\codebook.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\include\vorbis\codec.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\include\vorbis\codec.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\codec_internal.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\codec_internal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\envelope.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\envelope.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\floor_all.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\floor_all.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\books\floor\floor_books.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\books\floor\floor_books.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\highlevel.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\highlevel.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\lookup.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lookup.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\lookup_data.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lookup_data.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\lpc.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lpc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\lsp.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lsp.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\masking.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\masking.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\mdct.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\mdct.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\misc.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\misc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\os.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\os.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\psy.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\psy.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\psych_11.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_11.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\psych_16.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_16.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\psych_44.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_44.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\psych_8.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_8.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\registry.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\registry.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\books\coupled\res_books_stereo.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\books\coupled\res_books_stereo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\books\uncoupled\res_books_uncoupled.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\books\uncoupled\res_books_uncoupled.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\residue_16.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_16.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\residue_44.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_44.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\residue_44u.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_44u.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\residue_8.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_8.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\scales.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\scales.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_11.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_11.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_16.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_16.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_22.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_22.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_32.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_32.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_44.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_44.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_44u.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_44u.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_8.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_8.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\modes\setup_X.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_X.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\smallft.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\smallft.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\include\vorbis\vorbisenc.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\include\vorbis\vorbisenc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\include\vorbis\vorbisfile.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\include\vorbis\vorbisfile.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.2.3\lib\window.h"
+				RelativePath="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\window.h"
 				>
 			</File>
 		</Filter>
