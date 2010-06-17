@@ -77,22 +77,22 @@ class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
 	sourceName = 'freetype'
-	version = '2.3.11'
-	fileLength = 1875040
+	version = '2.3.12'
+	fileLength = 1885477
 	checksums = {
 		'sha256':
-			'cd3d85210549265dc205f5a081686b0ccfeb848f3202ffdc6532467c353349ef',
+			'74e4ddbd3a48e8b8701cf3581a13e680b26e717c4f86563018433b18301881a9',
 		}
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
 	sourceName = 'glew'
-	version = '1.5.2'
-	fileLength = 431424
+	version = '1.5.4'
+	fileLength = 459341
 	checksums = {
 		'sha256':
-			'482a366c38a758546dfdeaa32d277d0c0b960a4fb562c6e36c54a983dde50536',
+			'ddb8402453d48b63fd5d230a8b26885fbe29bc887cf8f7d12459fc8ab9ea8e32',
 		}
 
 	@classmethod
@@ -103,11 +103,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.2.41'
-	fileLength = 829665
+	version = '1.2.43'
+	fileLength = 835683
 	checksums = {
 		'sha256':
-			'863aceecfea97ca411cfd84b65f3b877fc393af692d4844aaf65d139b0a4f9bc',
+			'4d46ea6ea3f68918b13ef1fd54e99a06f7778c6be3221d25ef038b7c39d0744f',
 		}
 
 	@classmethod
@@ -118,11 +118,11 @@ class LibXML2(DownloadablePackage):
 	downloadURL = 'http://xmlsoft.org/sources'
 	niceName = 'libxml2'
 	sourceName = 'libxml2'
-	version = '2.7.6'
-	fileLength = 4854591
+	version = '2.7.7'
+	fileLength = 4868502
 	checksums = {
 		'sha256':
-			'238c4f0203c012e5776522640c0fb3ac532c4064981c1ce3e74c00b75501d761',
+			'af5b781418ba4fff556fa43c50086658ea8a2f31909c2b625c2ce913a1d9eb68',
 		}
 
 	@classmethod
@@ -133,11 +133,11 @@ class OGG(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/ogg'
 	niceName = 'libogg'
 	sourceName = 'libogg'
-	version = '1.1.4'
-	fileLength = 439365
+	version = '1.2.0'
+	fileLength = 400293
 	checksums = {
 		'sha256':
-			'9354c183fd88417c2860778b60b7896c9487d8f6e58b9fec3fdbf971142ce103',
+			'f30d983e238acd94e80ae551327ea2f83cdc330470b4188564bef28fec59eb69',
 		}
 
 	@classmethod
@@ -223,11 +223,11 @@ class Vorbis(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/vorbis'
 	niceName = 'libvorbis'
 	sourceName = 'libvorbis'
-	version = '1.2.3'
-	fileLength = 1474492
+	version = '1.3.1'
+	fileLength = 1467164
 	checksums = {
 		'sha256':
-			'c679d1e5e45a3ec8aceb5e71de8e3712630b7a6dec6952886c17435a65955947',
+			'951f462ba732a76f51002590d56437ee45362f4353d8bdbeb01231a54a2da0f1',
 		}
 
 	@classmethod
@@ -238,11 +238,11 @@ class ZLib(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.2.3'
-	fileLength = 496597
+	version = '1.2.5'
+	fileLength = 544640
 	checksums = {
 		'sha256':
-			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
+			'6064e52e513facb0fbb7998c6413406cf253cfb986063d68f4771c2bf7a3f958',
 		}
 
 # Build a dictionary of packages using introspection.

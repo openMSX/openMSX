@@ -1,0 +1,28 @@
+diff -ru glew-1.5.4.org//Makefile glew-1.5.4/Makefile
+--- glew-1.5.4.org//Makefile	2010-04-28 00:16:36.000000000 +0200
++++ glew-1.5.4/Makefile	2010-06-16 22:49:13.000000000 +0200
+@@ -64,7 +64,9 @@
+ OPT = $(POPT)
+ endif
+ INCLUDE = -Iinclude
+-CFLAGS = $(OPT) $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
++# openMSX dedicated build: use flavour's optimization flags instead:
++#CFLAGS = $(OPT) $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
++CFLAGS += $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
+ 
+ LIB.SRCS = src/glew.c
+ LIB.OBJS = $(LIB.SRCS:.c=.o)
+@@ -139,11 +141,11 @@
+ 	$(INSTALL) -m 0644 include/GL/glew.h $(INCDIR)/
+ 	$(INSTALL) -m 0644 include/GL/glxew.h $(INCDIR)/
+ 	$(INSTALL) -m 0644 glew.pc $(LIBDIR)/pkgconfig/
++	$(STRIP) -x lib/$(LIB.STATIC)
++	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
+ ifeq ($(patsubst mingw%,mingw,$(SYSTEM)), mingw)
+ 	$(INSTALL) -m 0644 lib/$(LIB.DEVLNK) $(LIBDIR)/
+ else
+-	$(STRIP) -x lib/$(LIB.STATIC)
+-	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
+ endif
+ # utilities
