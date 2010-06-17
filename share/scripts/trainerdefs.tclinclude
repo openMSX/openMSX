@@ -13,11 +13,64 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/06/11
+# Updated @ 2010/06/17
 #
 
 
 create_trainer "1942 - MSX1 Version" {time 1} {
+	"9 Lives Left" {poke 0xed2f 9}
+	"9 Loops Left" {poke 0xee81 9}
+	"Four Middle Shots" {poke 0xee83 1}
+	"Four Middle Shots + Right Shot" {poke 0xee83 3}
+	"Ghost Plane Left" {poke 0xee76 1}
+	"Ghost Plane Right" {poke 0xee66 1}
+	"Invulnerable + Four Middle Shots + Right Shot" {poke 0xee83 251}
+	"Invulnerable + Left Shot + Four Middle Shots" {poke 0xee83 253}
+	"Invulnerable + Left Shot + Four Middle Shots + Right Shot" {poke 0xee83 255}
+	"Invulnerable + Left Shot + Two Middle Shots" {poke 0xee83 252}
+	"Invulnerable + Left Shot + Two Middle Shots + Right Shot" {poke 0xee83 254}
+	"Invulnerable + Two Middle Shots + Right Shot" {poke 0xee83 250}
+	"Left Shot + Four Middle Shots" {poke 0xee83 5}
+	"Left Shot + Four Middle Shots + Right Shot" {poke 0xee83 7}
+	"Left Shot + Two Middle Shots" {poke 0xee83 4}
+	"Left Shot + Two Middle Shots + Right Shot" {poke 0xee83 6}
+	"Stage 01" {poke 0xed20 1}
+	"Stage 02" {poke 0xed20 2}
+	"Stage 03" {poke 0xed20 3}
+	"Stage 04" {poke 0xed20 4}
+	"Stage 05" {poke 0xed20 5}
+	"Stage 06" {poke 0xed20 6}
+	"Stage 07" {poke 0xed20 7}
+	"Stage 08" {poke 0xed20 8}
+	"Stage 09" {poke 0xed20 9}
+	"Stage 10" {poke 0xed20 10}
+	"Stage 11" {poke 0xed20 11}
+	"Stage 12" {poke 0xed20 12}
+	"Stage 13" {poke 0xed20 13}
+	"Stage 14" {poke 0xed20 14}
+	"Stage 15" {poke 0xed20 15}
+	"Stage 16" {poke 0xed20 16}
+	"Stage 17" {poke 0xed20 17}
+	"Stage 18" {poke 0xed20 18}
+	"Stage 19" {poke 0xed20 19}
+	"Stage 20" {poke 0xed20 20}
+	"Stage 21" {poke 0xed20 21}
+	"Stage 22" {poke 0xed20 22}
+	"Stage 23" {poke 0xed20 23}
+	"Stage 24" {poke 0xed20 24}
+	"Stage 25" {poke 0xed20 25}
+	"Stage 26" {poke 0xed20 26}
+	"Stage 27" {poke 0xed20 27}
+	"Stage 28" {poke 0xed20 28}
+	"Stage 29" {poke 0xed20 29}
+	"Stage 30" {poke 0xed20 30}
+	"Stage 31" {poke 0xed20 31}
+	"Stage 32" {poke 0xed20 32}
+	"Two Middle Shots" {poke 0xee83 0}
+	"Two Middle Shots + Right Shot" {poke 0xee83 2}
+}
+
+create_trainer "1942 - MSX2 Version" {time 1} {
 	"9 Lives Left" {poke 0xed2f 9}
 	"9 Loops Left" {poke 0xee81 9}
 	"Four Middle Shots" {poke 0xee83 1}
@@ -84,6 +137,10 @@ create_trainer "A-Na-Za - Kaleidoscope Special" {time 1} {
 	"Monolis" {poke 0xc020 8}
 	"Power" {poke 0xc016 16}
 	"Speed" {poke 0xc03d 4}
+}
+
+create_trainer "A.E" {time 1} {
+	"Lives " {poke 0xe209 6}
 }
 
 create_trainer "A1 Spirit - The Way To Formula 1" {time 1} {
@@ -168,6 +225,10 @@ create_trainer "Addicta Ball" {time 1} {
 	"Fuel" {poke 0x0617 64}
 	"Lives" {poke 0x0616 10}
 	"Shooting Ability" {poke 0x061a 2;poke 0x061e 1}
+}
+
+create_trainer "Adven'chuta" {time 1} {
+	"Time Left" {poke 0xe048 255;poke 0xe049 255}
 }
 
 create_trainer "After The War 1" {time 1} {
@@ -256,6 +317,10 @@ create_trainer "Akumajyo Drakyula - Vampire Killer" {time 1} {
 	"Wings" {poke 0xc431 16}
 	"X-pos Hero (0-255)" {poke 0xc427 0}
 	"Y-pos Hero (0-192)" {poke 0xc425 0}
+}
+
+create_trainer "Albatros" {time 1} {
+	"Every swing is your first" {poke 0xf160 0}
 }
 
 create_trainer "Alcazar - The Forgotten Fortress" {frame} {
@@ -393,6 +458,11 @@ create_trainer "Alpha Blaster" {time 1} {
 	"Lives" {poke 0x0575 9}
 }
 
+create_trainer "Alpha Squadron" {time 1} {
+	"Full Fuel" {poke 0xe016 0x99;poke 0xe017 0x99}
+	"Lives" {poke 0xe000 9}
+}
+
 create_trainer "Alpharoid" {time 1} {
 	"2d Shot (none)" {poke 0xe3b7 1}
 	"5d Shot (none)" {poke 0xe3b7 2}
@@ -451,6 +521,11 @@ create_trainer "Antarctic Adventure" {time 60} {
 
 create_trainer "Anty" {time 1} {
 	"Lives" {poke 0xe17d 246}
+}
+
+create_trainer "Aquapolis SOS" {time 1} {
+	"Fuel" {poke 0xe112 79}
+	"Lives" {poke 0xe13b 3}
 }
 
 create_trainer "Aquattack" {time 1} {
@@ -755,6 +830,10 @@ create_trainer "Back To The Future" {time 0.1} {
 
 create_trainer "Badlands" {frame} {
 	"Lives" {poke 0xe050 99}
+}
+
+create_trainer "Balance" {time 1} {
+	"Lives" {poke 0xe101 4}
 }
 
 create_trainer "Ball Out 1" {time 60} {
@@ -1485,6 +1564,11 @@ create_trainer "Comic Bakery" {time 2} {
 	"Items Done" {poke 0xe060 16}
 	"Lives" {poke 0xe050 99}
 	"Sleepy Beavers" {poke 0xe111 255;poke 0xe113 255;poke 0xe115 255}
+}
+
+create_trainer "Computer Billiards" {time 1} {
+	"Balls Left" {poke 0xe050 3}
+	"Endless Shots Left" {poke 0xe053 2}
 }
 
 create_trainer "Congo Bongo" {time 1} {
@@ -3628,6 +3712,11 @@ create_trainer "Iron Star" {time 1} {
 	"Time For Boss Battle" {poke 0xe341 60}
 }
 
+create_trainer "Issunhoushi No Donnamondai - Little Samurai" {time 1} {
+	"Life Bar" {poke 0xe1b5 64}
+	"Lives" {poke 0xe001 0x99}
+}
+
 create_trainer "J.P. Winkle" {time 2} {
 	"Axe" {poke 0xe0b0 30;poke 0xe0bc 255}
 	"Bible" {poke 0xe098 152}
@@ -3707,7 +3796,7 @@ create_trainer "Jungle Hunt" {time 1} {
 	"Lives" {poke 0x732d 255}
 }
 
-create_trainer "JunoFirst" {time 1} {
+create_trainer "Juno First" {time 1} {
 	"Ininite Time" {poke 0xe065 96}
 	"Lives" {poke 0xe062 99}
 }
@@ -3903,6 +3992,20 @@ create_trainer "King's Valley 1" {time 2} {
 }
 
 create_trainer "King's Valley 2 - The Seal Of El Giza - MSX1 Version" {time 2} {
+	"Door Always Opens" {poke 0xe2f5 0}
+	"Festival Cheat" {poke 0xe255 1}
+	"Little Pyramids Always Visible (see Remark)" {poke 0xef11 1}
+	"Lives" {poke 0xe240 153}
+	"No Monster 1" {poke 0xe500 0}
+	"No Monster 2" {poke 0xe520 0}
+	"No Monster 3" {poke 0xe540 0}
+	"Stage (1-60)" {poke 0xe242 1}
+	"Try Again Cheat" {poke 0xe217 1}
+	"X-pos (0-255)" {poke 0xe284 0}
+	"Y-pos (0-170)" {poke 0xe282 0}
+}
+
+create_trainer "King's Valley 2 - The Seal Of El Giza - MSX2 Version" {time 2} {
 	"Door Always Opens" {poke 0xe2f5 0}
 	"Festival Cheat" {poke 0xe255 1}
 	"Little Pyramids Always Visible (see Remark)" {poke 0xef11 1}
@@ -6058,6 +6161,13 @@ create_trainer "Tele bunny" {time 1} {
 	"Snake Y-position" {poke 0xe018 0}
 }
 
+create_trainer "Tengoku Yoitoko - Heaven" {time 1} {
+	"Attack Power" {poke 0xe03c 0x99;poke 0xe03d 0x99}
+	"Invincible" {poke 0xe31e 255}
+	"Righteousness " {poke 0xe03a 0x99;poke 0xe03b 0x99}
+	"Vitality" {poke 0xe038 0x99;poke 0xe039 0x99}
+}
+
 create_trainer "Tennis - MSX Magazine 2003" {time 1} {
 	"Balls" {poke 0x89c7 80}
 }
@@ -6928,4 +7038,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 2.657 seconds. 733 trainers -  having 5639 pokes
+# File Created in : 2.843 seconds. 744 trainers -  having 5721 pokes
