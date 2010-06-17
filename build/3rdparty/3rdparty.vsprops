@@ -41,27 +41,27 @@
 	/>
 	<UserMacro
 		Name="LibNameFreeType"
-		Value="freetype-2.3.11"
+		Value="freetype-2.3.12"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
 		Name="LibNameGlew"
-		Value="glew-1.5.2"
+		Value="glew-1.5.4"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
 		Name="LibNameLibPng"
-		Value="libpng-1.2.41"
+		Value="libpng-1.2.43"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
 		Name="LibNameLibXml"
-		Value="libxml2-2.7.6"
+		Value="libxml2-2.7.7"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro
 		Name="LibNameOgg"
-		Value="libogg-1.1.4"
+		Value="libogg-1.2.0"
 		PerformEnvironmentSet="true"
 	/>
 	<UserMacro

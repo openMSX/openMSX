@@ -480,79 +480,11 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\autofit\autofit.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\autofit\autofit.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\bdf\bdf.c"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\cff\cff.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\bdf\bdf.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -620,7 +552,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftbase.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\cff\cff.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -688,11 +620,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftbitmap.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\cache\ftcache.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbase.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -760,7 +688,79 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\builds\win32\ftdebug.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbitmap.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\cache\ftcache.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\builds\win32\ftdebug.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -834,79 +834,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftgasp.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftgasp.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftglyph.c"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Developer|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\gzip\ftgzip.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftglyph.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -974,7 +906,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftinit.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\gzip\ftgzip.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1042,7 +974,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\lzw\ftlzw.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftinit.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1110,11 +1042,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftstroke.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftsystem.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\lzw\ftlzw.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1182,7 +1110,79 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\smooth\smooth.c"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftstroke.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftsystem.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\smooth\smooth.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1253,95 +1253,11 @@
 				Name="FT_MODULES"
 				>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftbbox.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbbox.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftmm.c"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="2"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="2"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Developer|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftpfr.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftsynth.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\fttype1.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\base\ftwinfnt.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\pcf\pcf.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftmm.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1409,7 +1325,23 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\pfr\pfr.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftpfr.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftsynth.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\fttype1.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftwinfnt.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\pcf\pcf.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1477,7 +1409,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\psaux\psaux.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\pfr\pfr.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1545,7 +1477,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\pshinter\pshinter.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\psaux\psaux.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1613,7 +1545,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\psnames\psmodule.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\pshinter\pshinter.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1681,7 +1613,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\raster\raster.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\psnames\psmodule.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1749,7 +1681,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\sfnt\sfnt.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\raster\raster.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1817,7 +1749,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\truetype\truetype.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\sfnt\sfnt.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1885,7 +1817,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\type1\type1.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\truetype\truetype.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -1953,7 +1885,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\cid\type1cid.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\type1\type1.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -2021,7 +1953,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\type42\type42.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\cid\type1cid.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -2089,7 +2021,75 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\src\winfonts\winfnt.c"
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\type42\type42.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+							BasicRuntimeChecks="3"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+							BasicRuntimeChecks="3"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Developer|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+							BasicRuntimeChecks="3"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Developer|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+							BasicRuntimeChecks="3"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\src\winfonts\winfnt.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -2163,27 +2163,27 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\include\ft2build.h"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\include\ft2build.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\include\freetype\config\ftconfig.h"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftconfig.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\include\freetype\config\ftheader.h"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftheader.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\include\freetype\config\ftmodule.h"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftmodule.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\include\freetype\config\ftoption.h"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftoption.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.11\include\freetype\config\ftstdlib.h"
+				RelativePath="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftstdlib.h"
 				>
 			</File>
 		</Filter>
