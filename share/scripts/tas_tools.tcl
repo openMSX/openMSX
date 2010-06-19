@@ -20,9 +20,12 @@ proc toggle_frame_counter {} {
 	return ""
 }
 
+proc get_frame_time {} {
+	return [expr (1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)]
+}
+
 proc framecount_current {} {
-	set freq [expr {(6.0 * 3579545) / (1368 * (([vdpreg 9] & 2) ? 313 : 262))}]
-	return [expr int([machine_info time] * $freq)]
+	return [expr int([machine_info time] / [get_frame_time])]
 }
 
 proc framecount_update {} {
@@ -37,32 +40,61 @@ set_help_text advance_frame \
 bind to a key and emulate frame by frame.}
 
 proc advance_frame {} {
-	after frame "set ::pause on"
+	after time [get_frame_time] "set ::pause on"
 	set ::pause off
 	return ""
 }
 
+set_help_text advance_frame \
+{Rewind one frame back in time. Useful to
+bind to a key in combination with advance_frame.}
+
+proc reverse_frame {} {
+	array set stat [reverse status]
+	goto_time [expr $stat(current) - [get_frame_time]]
+}
+
+variable doing_black_screen_reverse false
+
+proc correct_black_screen_for_time { t } {
+	variable doing_black_screen_reverse
+
+	# after loading a savestate, it takes two(!) frames before the
+	# rendered image is correct. (TODO investigate why it needs
+	# two, I only expected one). As a workaround we go back two
+	# frames and replay those two frames.
+
+	# duration of two video frames
+	set t_cor [expr {2 * [get_frame_time] }]
+	reverse goto [expr $t - $t_cor]
+	set ::pause off
+	set doing_black_screen_reverse true
+	after time $t_cor { set ::pause on; set tas::doing_black_screen_reverse false }
+}
+
+proc goto_time { t } {
+	variable doing_black_screen_reverse
+	# ignore goto command if we're still doing the black screen correction
+	if {!$doing_black_screen_reverse} {
+		if {$::pause} {
+			correct_black_screen_for_time $t
+		} else {
+			reverse goto $t
+		}
+	}
+}
 
 proc load_replay { name } {
 	reverse loadreplay $name
 	array set stat [reverse status]
-	if {$::pause} {
-		# after loading a replay, it takes two(!) frames before the
-		# rendered image is correct. (TODO investigate why it needs
-		# two, I only expected one). As a workaround we go back two
-		# frames and replay those two frames.
-
-		# duration of two video frames
-		set t [expr {2 * (1368 * (([vdpreg 9] & 2) ? 313 : 262)) / (6.0 * 3579545)}]
-		reverse goto [expr $stat(end) - $t]
-		set ::pause off
-		after time $t { set ::pause on }
-	} else {
-		reverse goto $stat(end)
-	}
+	goto_time $stat(end)
 	return ""
 }
 
+proc go_back_one_second {} {
+	array set stat [reverse status]
+	goto_time [expr $stat(current) - 1]
+}
 
 set_help_text enable_tas_mode \
 {Enables the highly experimental TAS mode, giving you 8 savestate slots, to be
@@ -88,8 +120,13 @@ proc enable_tas_mode {} {
 		bind_default "SHIFT+F$i" "reverse savereplay $basename$i"
 	}
 
-	# set up frame advance
+	# set up frame advance/reverse
 	bind_default END -repeat advance_frame
+	bind_default HOME -repeat reverse_frame
+
+	# set up special reverse for PgUp, which always goes back 1 second and correct for
+	# the pause artifact
+	bind_default PAGEUP "tas::go_back_one_second"
 
 	return "WARNING 1: TAS mode is still very experimental and will almost certainly change next release!"
 }
@@ -114,7 +151,7 @@ proc show_keys {} {
 	show_key_press shift [is_key_pressed 6 0]
 	
 	after realtime 0.1 [namespace code show_keys]
-	}
+}
 
 #move to other TCL script?
 proc is_key_pressed {row bit} {
@@ -256,6 +293,7 @@ proc ram_watch_update_values {} {
 
 namespace export toggle_frame_counter
 namespace export advance_frame
+namespace export reverse_frame
 namespace export enable_tas_mode
 namespace export ram_watch_add
 namespace export ram_watch_remove
