@@ -238,11 +238,11 @@ class ZLib(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.2.5'
-	fileLength = 544640
+	version = '1.2.3'
+	fileLength = 496597
 	checksums = {
 		'sha256':
-			'6064e52e513facb0fbb7998c6413406cf253cfb986063d68f4771c2bf7a3f958',
+			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
 		}
 
 # Build a dictionary of packages using introspection.
