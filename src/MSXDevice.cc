@@ -16,9 +16,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#ifdef _WIN32
-#include <iterator>
-#endif
+#include <iterator> // for back_inserter
 
 using std::string;
 using std::vector;

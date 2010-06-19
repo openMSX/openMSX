@@ -7,9 +7,7 @@
 #include "serialize.hh"
 #include <cassert>
 #include <algorithm>
-#ifdef _WIN32
-#include <iterator>
-#endif
+#include <iterator> // for back_inserter
 
 namespace openmsx {
 
