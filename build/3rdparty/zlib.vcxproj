@@ -479,10 +479,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\example.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzclose.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzlib.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzread.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzwrite.c" />
     <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\infback.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>

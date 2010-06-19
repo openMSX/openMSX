@@ -34,18 +34,6 @@
     <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\example.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzclose.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzlib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzread.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzwrite.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\infback.c">
       <Filter>Source Files</Filter>
     </ClCompile>
