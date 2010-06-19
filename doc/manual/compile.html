@@ -143,7 +143,7 @@ replace Make completely in our build system, but at the moment both are
 required. Note: on Windows 7 you may have to add the path to Python (e.g. <code>C:\Python26</code>) to your <code>PATH</code> manually.</dd>
 <dt>There are two compilers that are can be used to build openMSX: gcc
 and Visual C++. The gcc compiler builds openMSX on all supported platforms,
-while Visual C++ is an alternative option on Windows.</dt>
+while Visual C++ is the primary compiler for Windows.</dt>
 
 </dl>
 
@@ -200,17 +200,28 @@ Google Code project</a>.
 <dl>
 
 <dt>
-<a class="external" href="http://msdn.microsoft.com/en-us/vstudio/default.aspx">Visual C++ 2008</a></dt>
-<dd>This is the professional IDE that comes with Visual Studio, as a standalone
-purchase, or via an MSDN subscription.</dd>
+<a class="external" href="http://msdn.microsoft.com/en-us/vstudio/default.aspx">Visual C++ 20</a><a href="http://msdn.microsoft.com/en-us/vstudio/default.aspx"><span class="style1">10</span></a></dt>
+<dd>This is the professional IDE and development environment that comes with Visual Studio, as a standalone
+purchase or via an MSDN subscription.</dd>
 
 	<dt>
 	<a class="external" href="http://msdn.microsoft.com/en-us/windows/bb980924.aspx">Windows SDK</a></dt>
-	<dd>This is a free (as in beer) command line environment that provides a full set of compilers, headers and libraries. This is the best option for people who simply wish to build openMSX with minimal hassle. Any <a class="external" href="http://msdn.microsoft.com/en-us/windows/bb980924.aspx">recent version</a> will work; we use the one labeled <a class="external" href="http://go.microsoft.com/fwlink/?LinkID=150217">Microsoft Windows SDK for Windows 7 and .NET Framework 3.5 Service Pack 1</a>. (You can uncheck Documentation, Samples and .NET Development Tools if you wish to save some disk space. This brings the download from about 1.2GB to about 100MB...)</dd>
-	<dt><a class="external" href="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</a></dt>
-	<dd>This is a free (again as in beer) IDE and development environment. It builds 32-bit binaries out of the box, and can be made to build 64-bit binaries with some <a class="external" href="http://social.msdn.microsoft.com/Forums/en-US/Vsexpressvc/thread/38544c63-d12a-4a05-9ea7-5b4124152801/"> coaxing</a>. This is the best option for developers looking to browse the code or use other benefits of an IDE. It's also a smaller download than the Windows SDK.</dd>
-	<dt>For compilation with Visual C++, you need the <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a>.
-	To generate an MSI installer, you need <a class="external" href="http://wix.sourceforge.net/">WiX</a>.</dt>
+	<dd>This is a free (as in beer) command line environment that provides a full set of compilers, headers and libraries. This is the best option for people who wish to build openMSX with minimal hassle. 
+	We recommend using the 
+	<a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=6b6c21d2-2006-4afa-9702-529fa782d63b&amp;displaylang=en">
+	Microsoft Windows SDK for Windows 7 and .NET Framework 4</a> or newer. (When 
+	installing, the Documentation, Samples and .NET Development Tools options 
+	are not required to build openMSX. This reduces the download size 
+	considerably, from about 1.2GB to about 100MB.)</dd>
+	<dt><a class="external" href="http://www.microsoft.com/express/vc/">Visual C++ 2010 Express</a></dt>
+	<dd>This is a free (as in beer) IDE and development environment. It builds 32-bit binaries out of the box, and can be made to build 64-bit binaries with some
+	<a class="external" href="http://msdn.microsoft.com/en-us/library/9yb4317s.aspx">coaxing</a>. 
+	This is the best option for developers looking to browse the source code or 
+	use other benefits of an IDE.</dd>
+	<dt>For compilation with Visual C++ using any of these mechanisms, the <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a> 
+	is required. To generate an MSI installation package, 
+	<a class="external" href="http://wix.sourceforge.net/">WiX</a> package must 
+	be installed.</dt>
 
 </dl>
 
@@ -218,10 +229,16 @@ purchase, or via an MSDN subscription.</dd>
 
 <dt>
 <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a></dt>
-<dd>SDK containing DirectX headers and libs. Any <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">recent version</a> will work; we use the one from <a class="external" href="http://www.microsoft.com/downloads/details.aspx?FamilyId=5493F76A-6D37-478D-BA17-28B1CCA4865A">November 2008</a>. This (too) is a large download, about 480MB. During installation you can choose to uncheck the Documentation, Samples and Source Code.</dd>
+<dd>This is the SDK that contains DirectX headers, libs, samples, documentation, 
+etc. We recommend using the
+<a href="http://services.social.microsoft.com/feeds/FeedItem?feedId=76dc8ff9-e34c-4be6-9414-d47e3dd34317&amp;itemId=04c20751-5ca3-4f5f-96c0-c1af832d860c&amp;title=June+2010+DirectX+SDK&amp;uri=http%3a%2f%2fwww.microsoft.com%2fdownloads%2fdetails.aspx%3fdisplaylang%3den%26FamilyID%3d3021d52b-514e-41d3-ad02-438a3ba730ba&amp;k=fOXm74V6Mlu6pVvMRB1Xq4d5F%2f%2bo8HSqsurfddfLzT8%3d">
+June 2010</a> version or newer. This is a large download, about 580MB. To build 
+openMSX, only the headers and libs are truly required.</dd>
 
 <dt> <a class="external" href="http://wix.sourceforge.net/">WiX</a></dt>
-<dd>A tool that generates MSI installers. Version 3.0 (currently in RC) or higher is required (<a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=105970">download here)</a>. If you get a message that Vortive won't install, that's no problem, just continue.</dd>
+<dd>This is a tool that generates MSI installer packages. We recommend using 
+version 3.0 or later. If you see a message that the &quot;Vortive&quot; component won't install, that's not 
+a problem, just continue.</dd>
 
 </dl>
 <h3><a id="libs">2.2 Libraries</a></h3>
@@ -322,8 +339,8 @@ Binary</a> method, which means the openMSX build system will download and compil
 When building with Visual C++, the optional libraries mentioned above are
 arranged as follows:</p>
 <ul>
-	<li>Headers and libraries for OpenGL are included with Visual C++.</li>
-	<li>The GLEW library is required.</li>
+	<li>Headers and libraries for OpenGL are included with Visual C++ by default.</li>
+	<li>The GLEW, Ogg, Theora and Vorbis libraries are required.</li>
 </ul>
 <p>
 Also, when building with Visual C++, the &quot;3rd party libraries&quot; support in the openMSX
@@ -722,14 +739,15 @@ sh build/package-dingux/package-dingux.sh
 <p>When building with Visual C++, the result is a static executable with minimal
 dynamic library dependencies. Two platforms are supported:</p>
 <ul>
-	<li>Win32 - a 32-bit binary that runs on both 32 and 64-bit versions of Windows</li>
-	<li>x64 - a 64-bit binary that runs only on 64-bit versions of Windows</li>
+	<li><strong>Win32</strong> - a 32-bit binary that runs on both 32 and 64-bit versions of Windows</li>
+	<li><strong>x64</strong> - a native 64-bit binary that runs only on 64-bit versions of Windows</li>
 </ul>
 <p>Three different configurations are supported:</p>
 <ul>
-	<li>Debug: assertions enabled, debug prints enabled, no optimization</li>
-	<li>Developer: assertions enabled, debug prints disabled, no optimization</li>
-	<li>Release: assertions disabled, debug prints disabled, full optimization</li>
+	<li><strong>Debug</strong>: assertions enabled, debug prints enabled, no optimization, 
+	very slow</li>
+	<li><strong>Developer</strong>: assertions enabled, debug prints disabled, no optimization</li>
+	<li><strong>Release</strong>: assertions disabled, debug prints disabled, full optimization</li>
 </ul>
 <p>When building with Visual C++, you can either use the IDE or build from the command line using <code>msbuild</code>. To do the latter, you need to open a Visual Studio command prompt. A shortcut to a Visual Studio command prompt can usually be found in your start menu. For Visual C++ 2008, it will be in &quot;Microsoft Visual Studio 2008\Visual Studio Tools&quot; as the &quot;Visual Studio 2008 Command Prompt&quot;. For the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the &quot;CMD Shell&quot;</p>
 <!-- TODO - Replace this section when we have integration with the broader 3rd party system -->
@@ -952,7 +970,7 @@ This will give a more detailed stacktrace, especially in optimized code.
 <h4>Visual C++</h4><p>For experienced users: if you get a crash or a hang,
 try to provide a user dump. This will work for any openMSX binary, including
 pre-built binaries obtained from <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a>.</p>
-<p>As of Windows Vista SP1, you can find user dump files for crashed processes
+<p>As of Windows Vista SP1 and later operating systems, you can find user dump files for crashed processes
 in the &quot;%LocalAppData%\CrashDumps&quot; directory. The default Windows crash dump
 behavior can be further customized as per
 <a href="http://msdn.microsoft.com/en-us/library/bb513638(VS.85).aspx">MSDN</a>.</p>
