@@ -45,7 +45,7 @@ proc advance_frame {} {
 	return ""
 }
 
-set_help_text advance_frame \
+set_help_text reverse_frame \
 {Rewind one frame back in time. Useful to
 bind to a key in combination with advance_frame.}
 
@@ -96,6 +96,11 @@ proc go_back_one_second {} {
 	goto_time [expr $stat(current) - 1]
 }
 
+proc go_forward_one_second {} {
+	array set stat [reverse status]
+	goto_time [expr $stat(current) + 1]
+}
+
 set_help_text enable_tas_mode \
 {Enables the highly experimental TAS mode, giving you 8 savestate slots, to be
 used with F1-F8 (load) and SHIFT-F1 (to F8) to save. It actually saves
@@ -122,11 +127,12 @@ proc enable_tas_mode {} {
 
 	# set up frame advance/reverse
 	bind_default END -repeat advance_frame
-	bind_default HOME -repeat reverse_frame
+	bind_default SCROLLOCK -repeat reverse_frame
 
 	# set up special reverse for PgUp, which always goes back 1 second and correct for
 	# the pause artifact
 	bind_default PAGEUP "tas::go_back_one_second"
+	bind_default PAGEDOWN "tas::go_forward_one_second"
 
 	return "WARNING 1: TAS mode is still very experimental and will almost certainly change next release!"
 }
