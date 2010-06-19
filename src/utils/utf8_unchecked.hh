@@ -111,7 +111,7 @@ template <typename octet_iterator, typename distance_type>
 void advance(octet_iterator& it, distance_type n)
 {
 	for (distance_type i = 0; i < n; ++i) {
-		next(it);
+		unchecked::next(it);
 	}
 }
 
@@ -121,7 +121,7 @@ distance(octet_iterator first, octet_iterator last)
 {
 	typename std::iterator_traits<octet_iterator>::difference_type dist;
 	for (dist = 0; first < last; ++dist) {
-		next(first);
+		unchecked::next(first);
 	}
 	return dist;
 }
@@ -241,7 +241,7 @@ inline std::string substr(const std::string& utf8, std::string::size_type first 
 	if (len != std::string::npos) {
 		end = begin;
 		while (len && (end != utf8.end())) {
-			next(end); --len;
+			unchecked::next(end); --len;
 		}
 	} else {
 		end = utf8.end();

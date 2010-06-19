@@ -7,6 +7,9 @@
 #include "serialize.hh"
 #include <cassert>
 #include <algorithm>
+#ifdef _WIN32
+#include <iterator>
+#endif
 
 namespace openmsx {
 
@@ -110,8 +113,8 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 
 void Scheduler::getSyncPoints(SyncPoints& result, const Schedulable& device) const
 {
-	copy_if(syncPoints.begin(), syncPoints.end(), back_inserter(result),
-	        FindSchedulable(device));
+	openmsx::copy_if(syncPoints.begin(), syncPoints.end(), back_inserter(result),
+	                 FindSchedulable(device));
 }
 
 void Scheduler::removeSyncPoint(Schedulable& device, int userData)

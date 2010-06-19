@@ -1,0 +1,2968 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="cassette">
+      <UniqueIdentifier>{27eaf1e2-f5da-477a-99a5-7be15006d6a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="commands">
+      <UniqueIdentifier>{878501bc-d7f0-49ec-bc35-d2e22835aaf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{a5140952-ef4a-4d86-b93f-8562cf838f1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="console">
+      <UniqueIdentifier>{2bd3c002-6e7b-444b-a02f-75e6e57aa28e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cpu">
+      <UniqueIdentifier>{99b1a5c3-9248-4127-bb7a-bffc6052fa1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="debugger">
+      <UniqueIdentifier>{2f1531a3-2bff-4bb2-b737-8b5bc263a5d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="events">
+      <UniqueIdentifier>{4b659948-74af-4e70-9469-71cf9e8ff90e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fdc">
+      <UniqueIdentifier>{0d4a99d7-3f0c-4bd7-94c9-73f2ad724887}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{a36193d1-ca1d-4188-aefc-60d10a41573b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ide">
+      <UniqueIdentifier>{db111771-419a-4e9f-a046-87a88f567ce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{39b914e9-534c-42eb-8b1c-7078665cd464}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="memory">
+      <UniqueIdentifier>{e010ea5f-02d9-420a-af08-577f6fac9b71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{4790c7a8-2904-4fda-9248-fc5357d9751f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="settings">
+      <UniqueIdentifier>{6bf182df-f9bf-43c3-9d2a-c0984b19716c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sound">
+      <UniqueIdentifier>{234f2a7b-0398-45c2-9149-a918a0d564bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thread">
+      <UniqueIdentifier>{c12b54ed-4653-4ee0-b86a-e5c90a8b9b8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{5db6c172-d415-41b3-b89d-876e94c600d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video">
+      <UniqueIdentifier>{f34953a9-8bb9-4fe7-9d92-38dd046b936a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\v9990">
+      <UniqueIdentifier>{dc7744b4-c613-43ff-8e2b-d89fb8b90f2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\ld">
+      <UniqueIdentifier>{441fef5c-d4c3-4cb1-8bd9-27253f5a929a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="serial">
+      <UniqueIdentifier>{8fe6dae8-765e-428c-abf4-662e83a99385}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="security">
+      <UniqueIdentifier>{ce8126f9-f849-4f95-85bf-f6919a3a4e9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="laserdisc">
+      <UniqueIdentifier>{3b3e10a3-7923-46c0-b78f-46acd840d7c2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\cassette\CasImage.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cassette\CassetteDevice.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cassette\CassetteImage.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cassette\CassettePlayer.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cassette\CassettePlayerCLI.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cassette\CassettePort.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cassette\DummyCassetteDevice.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cassette\WavImage.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\Command.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\CommandException.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\Completer.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\GlobalCommandController.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\InfoCommand.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\InfoTopic.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\Interpreter.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\MSXCommandController.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\ProxyCommand.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commands\TclObject.cc">
+      <Filter>commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\config\HardwareConfig.cc">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\config\SettingsConfig.cc">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\config\XMLElement.cc">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\config\XMLLoader.cc">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\CommandConsole.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDConsoleRenderer.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDGUI.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDGUILayer.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDImageBasedWidget.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDRectangle.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDText.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDTopWidget.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\OSDWidget.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\console\TTFFont.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\BreakPoint.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\BreakPointBase.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\CPU.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\CPUClock.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\CPUCore.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\Dasm.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\DebugCondition.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\IRQHelper.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\MSXCPU.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\MSXCPUInterface.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\MSXMultiDevice.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\MSXMultiIODevice.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\MSXMultiMemDevice.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\MSXWatchIODevice.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\VDPIODelay.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cpu\WatchPoint.cc">
+      <Filter>cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debugger\DasmTables.cc">
+      <Filter>debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debugger\Debugger.cc">
+      <Filter>debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debugger\Probe.cc">
+      <Filter>debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debugger\ProbeBreakPoint.cc">
+      <Filter>debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debugger\SimpleDebuggable.cc">
+      <Filter>debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\AfterCommand.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\CliComm.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\CliConnection.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\CliServer.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\Event.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\EventDistributor.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\GlobalCliComm.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\HotKey.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\InputEventFactory.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\InputEventGenerator.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\InputEvents.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\Keys.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\MSXCliComm.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\events\Socket.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\BootBlocks.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DirAsDSK.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\Disk.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskChanger.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskContainer.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskDrive.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskFactory.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskImageCLI.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskImageUtils.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskManipulator.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskName.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DiskPartition.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DriveMultiplexer.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DSKDiskImage.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\DummyDisk.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\EmptyDiskPatch.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\MicrosolFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\MSXFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\MSXtar.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\NationalFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\NowindCommand.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\NowindHost.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\NowindInterface.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\NowindRomDisk.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\PhilipsFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\RamDSKDiskImage.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\RealDrive.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\SectorAccessibleDisk.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\SectorBasedDisk.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\TC8566AF.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\TurboRFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\WD2793.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\WD2793BasedFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fdc\XSADiskImage.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\CompressedFileAdapter.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\File.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\FileBase.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\FileContext.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\Filename.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\FileOperations.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\FilePool.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\GZFileAdapter.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\LocalFile.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\LocalFileReference.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\PreCacheFile.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\ReadDir.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\ZipFileAdapter.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\ZlibInflate.cc">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\AbstractIDEDevice.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\CDImageCLI.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\DummyIDEDevice.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\DummySCSIDevice.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\GoudaSCSI.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\HD.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\HDCommand.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\HDImageCLI.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\IDECDROM.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\IDEDeviceFactory.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\IDEHD.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\MB89352.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\MegaSCSI.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\SCSIHD.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\SCSILS120.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\SunriseIDE.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ide\WD33C93.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\ArkanoidPad.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\DummyJoystick.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\EventDelay.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\Joystick.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\JoystickDevice.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\JoystickPort.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\JoyTap.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\Keyboard.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\KeyboardSettings.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\KeyJoystick.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\MagicKey.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\Mouse.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\MSXEventDistributor.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\NinjaTap.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\RecordedCommand.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\SETetrisDongle.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\StateChangeDistributor.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\Trackball.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input\UnicodeKeymap.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\AmdFlash.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\CheckedRam.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\ESE_RAM.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\ESE_SCC.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXHBI55.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXMapperIO.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXMegaRam.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXMemoryMapper.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXMirrorDevice.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXPac.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXRam.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXRom.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\MSXRomCLI.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\PanasonicMemory.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\PanasonicRam.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\Ram.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\Rom.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomArc.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomAscii16_2.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomAscii16kB.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomAscii8_8.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomAscii8kB.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomBlocks.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomCrossBlaim.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomDatabase.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomDRAM.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomFactory.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomFSA1FM.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomGameMaster2.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomGeneric16kB.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomGeneric8kB.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomHalnote.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomHarryFox.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomHolyQuran.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomHolyQuran2.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomInfo.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomInfoTopic.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomKonami.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomKonamiKeyboardMaster.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomKonamiSCC.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomMajutsushi.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomManbow2.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomMatraInk.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomMSXDOS2.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomNational.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomNettouYakyuu.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomPadial16kB.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomPadial8kB.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomPageNN.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomPanasonic.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomPlain.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomPlayBall.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomRType.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomSuperLodeRunner.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomSynthesizer.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomZemina126in1.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomZemina80in1.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\RomZemina90in1.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\memory\SRAM.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\BooleanSetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\EnumSetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\FilenameSetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\FloatSetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\IntegerSetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\KeyCodeSetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\ProxySetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\Setting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\SettingImpl.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\SettingsManager.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\StringSetting.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\settings\UserSettings.cc">
+      <Filter>settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\AudioInputConnector.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\AudioInputDevice.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\AY8910.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\AY8910Periphery.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\BlipBuffer.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\DACSound16S.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\DACSound8U.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\DirectXSoundDriver.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\DummyAudioInputDevice.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\DummyY8950KeyboardDevice.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\EmuTimer.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\KeyClick.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\Mixer.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXAudio.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXFmPac.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXMixer.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXMoonSound.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXMusic.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXOPL3Cartridge.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXPSG.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXSCCPlusCart.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXTurboRPCM.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\MSXYamahaSFG.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\NullSoundDriver.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\Resample.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\ResampleBlip.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\ResampleHQ.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\ResampleLQ.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\ResampleTrivial.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\SamplePlayer.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\SCC.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\SDLSoundDriver.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\SoundDevice.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\VLM5030.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\WavAudioInput.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\WavData.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\WavWriter.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\Y8950.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\Y8950Adpcm.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\Y8950KeyboardConnector.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\Y8950KeyboardDevice.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\Y8950Periphery.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\YM2151.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\YM2413.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\YM2413Burczynski.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\YM2413Okazaki.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\YMF262.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\YMF278.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thread\Alarm.cc">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thread\AlarmEvent.cc">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thread\CondVar.cc">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thread\Semaphore.cc">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thread\Thread.cc">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thread\Timer.cc">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\AltSpaceSuppressor.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\Base64.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\CircularBuffer.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\CRC16.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\Date.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\DivModBySame.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\HexDump.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\HostCPU.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\lzo.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\Math.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\MemBuffer.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\MemoryOps.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\sdlwin32.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\sha1.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\StringOp.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\uint128.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\utf8_checked.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\win32-arggen.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\win32-dirent.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\ADVram.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\AviRecorder.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\AviWriter.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\BaseImage.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\BitmapConverter.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\CharacterConverter.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\DeinterlacedFrame.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Display.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\DoubledFrame.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\DummyRenderer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\DummyVideoSystem.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\FBPostProcessor.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\FrameSource.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLHQLiteScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLHQScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLImage.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLPostProcessor.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLRGBScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLSaIScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLScaleNxScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLScalerFactory.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLSimpleScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLSnow.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLTVScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\GLUtil.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\HQ2xLiteScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\HQ2xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\HQ3xLiteScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\HQ3xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Icon.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Layer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Multiply32.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\OutputSurface.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\PixelRenderer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\PNG.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\PostProcessor.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\RawFrame.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Renderer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\RendererFactory.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\RenderSettings.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\RGBTriplet3xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SaI2xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SaI3xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Scale2xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Scale3xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Scaler1.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Scaler2.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Scaler3.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\ScalerFactory.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Scanline.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLGLOffScreenSurface.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLGLOutputSurface.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLGLVisibleSurface.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLImage.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLOffScreenSurface.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLRasterizer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLSnow.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLVideoSystem.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDLVisibleSurface.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Simple2xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\Simple3xScaler.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SpriteChecker.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SuperImposedFrame.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\VDP.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\VDPCmdEngine.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\VDPVRAM.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\VideoLayer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\VideoSourceSetting.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\VideoSystem.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\VisibleSurface.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\ZMBVEncoder.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990BitmapConverter.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990CmdEngine.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990DisplayTiming.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990DummyRenderer.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990P1Converter.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990P2Converter.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990PixelRenderer.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990Renderer.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990SDLRasterizer.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\v9990\V9990VRAM.cc">
+      <Filter>video\v9990</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\ld\LDDummyRenderer.cc">
+      <Filter>video\ld</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\ld\LDPixelRenderer.cc">
+      <Filter>video\ld</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\ld\LDRenderer.cc">
+      <Filter>video\ld</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\ld\LDSDLRasterizer.cc">
+      <Filter>video\ld</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\ClockPin.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\DummyMidiInDevice.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\DummyMidiOutDevice.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\DummyRS232Device.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\I8251.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\I8254.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MC6850.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\Midi_w32.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiInConnector.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiInDevice.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiInReader.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiInWindows.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiOutConnector.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiOutDevice.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiOutLogger.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MidiOutWindows.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MSXMidi.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\MSXRS232.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\RS232Connector.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\RS232Device.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\RS232Tester.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serial\YM2148.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\security\SocketStreamWrapper.cc">
+      <Filter>security</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\security\SspiNegotiateServer.cc">
+      <Filter>security</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\security\SspiUtils.cc">
+      <Filter>security</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\laserdisc\LaserdiscPlayer.cc">
+      <Filter>laserdisc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\laserdisc\LaserdiscPlayerCLI.cc">
+      <Filter>laserdisc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\laserdisc\OggReader.cc">
+      <Filter>laserdisc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\laserdisc\PioneerLDControl.cc">
+      <Filter>laserdisc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\laserdisc\yuv2rgb.cc">
+      <Filter>laserdisc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Autofire.cc" />
+    <ClCompile Include="..\..\src\CartridgeSlotManager.cc" />
+    <ClCompile Include="..\..\src\CliExtension.cc" />
+    <ClCompile Include="..\..\src\CLIOption.cc" />
+    <ClCompile Include="..\..\src\CommandLineParser.cc" />
+    <ClCompile Include="..\..\src\Connector.cc" />
+    <ClCompile Include="..\..\src\DebugDevice.cc" />
+    <ClCompile Include="..\..\src\DeviceFactory.cc" />
+    <ClCompile Include="..\..\src\DummyDevice.cc" />
+    <ClCompile Include="..\..\src\DummyPrinterPortDevice.cc" />
+    <ClCompile Include="..\..\src\DynamicClock.cc" />
+    <ClCompile Include="..\..\src\EmptyPatch.cc" />
+    <ClCompile Include="..\..\src\EmuDuration.cc" />
+    <ClCompile Include="..\..\src\EmuTime.cc" />
+    <ClCompile Include="..\..\src\FirmwareSwitch.cc" />
+    <ClCompile Include="..\..\src\GlobalSettings.cc" />
+    <ClCompile Include="..\..\src\I8255.cc" />
+    <ClCompile Include="..\..\src\IPSPatch.cc" />
+    <ClCompile Include="..\..\src\LedStatus.cc" />
+    <ClCompile Include="..\..\src\main.cc" />
+    <ClCompile Include="..\..\src\MSXBunsetsu.cc" />
+    <ClCompile Include="..\..\src\MSXDevice.cc" />
+    <ClCompile Include="..\..\src\MSXDeviceSwitch.cc" />
+    <ClCompile Include="..\..\src\MSXE6Timer.cc" />
+    <ClCompile Include="..\..\src\MSXException.cc" />
+    <ClCompile Include="..\..\src\MSXF4Device.cc" />
+    <ClCompile Include="..\..\src\MSXKanji.cc" />
+    <ClCompile Include="..\..\src\MSXKanji12.cc" />
+    <ClCompile Include="..\..\src\MSXMatsushita.cc" />
+    <ClCompile Include="..\..\src\MSXMotherBoard.cc" />
+    <ClCompile Include="..\..\src\MSXPPI.cc" />
+    <ClCompile Include="..\..\src\MSXPrinterPort.cc" />
+    <ClCompile Include="..\..\src\MSXRTC.cc" />
+    <ClCompile Include="..\..\src\MSXS1985.cc" />
+    <ClCompile Include="..\..\src\MSXS1990.cc" />
+    <ClCompile Include="..\..\src\MSXSwitchedDevice.cc" />
+    <ClCompile Include="..\..\src\MSXTurboRPause.cc" />
+    <ClCompile Include="..\..\src\openmsx.cc" />
+    <ClCompile Include="..\..\src\PasswordCart.cc" />
+    <ClCompile Include="..\..\src\Pluggable.cc" />
+    <ClCompile Include="..\..\src\PluggableFactory.cc" />
+    <ClCompile Include="..\..\src\PluggingController.cc" />
+    <ClCompile Include="..\..\src\Printer.cc" />
+    <ClCompile Include="..\..\src\PrinterPortDevice.cc" />
+    <ClCompile Include="..\..\src\PrinterPortLogger.cc" />
+    <ClCompile Include="..\..\src\PrinterPortSimpl.cc" />
+    <ClCompile Include="..\..\src\Reactor.cc" />
+    <ClCompile Include="..\..\src\RealTime.cc" />
+    <ClCompile Include="..\..\src\RenShaTurbo.cc" />
+    <ClCompile Include="..\..\src\ReverseManager.cc" />
+    <ClCompile Include="..\..\src\RP5C01.cc" />
+    <ClCompile Include="..\..\src\Schedulable.cc" />
+    <ClCompile Include="..\..\src\Scheduler.cc" />
+    <ClCompile Include="..\..\src\serialize.cc" />
+    <ClCompile Include="..\..\src\serialize_core.cc" />
+    <ClCompile Include="..\..\src\serialize_meta.cc" />
+    <ClCompile Include="..\..\src\ThrottleManager.cc" />
+    <ClCompile Include="..\..\src\Version.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\cassette\CasImage.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\cassette\CassetteDevice.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\cassette\CassetteImage.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\cassette\CassettePlayer.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\cassette\CassettePlayerCLI.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\cassette\CassettePort.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\cassette\DummyCassetteDevice.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\cassette\WavImage.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="..\..\src\commands\Command.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\CommandController.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\CommandException.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\Completer.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\GlobalCommandController.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\InfoCommand.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\InfoTopic.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\Interpreter.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\InterpreterOutput.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\MSXCommandController.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\ProxyCommand.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\commands\TclObject.hh">
+      <Filter>commands</Filter>
+    </None>
+    <None Include="..\..\src\config\ConfigException.hh">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\src\config\HardwareConfig.hh">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\src\config\SettingsConfig.hh">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\src\config\XMLElement.hh">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\src\config\XMLException.hh">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\src\config\XMLLoader.hh">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\src\console\CommandConsole.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDConsoleRenderer.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDGUI.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDGUILayer.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDImageBasedWidget.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDRectangle.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDText.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDTopWidget.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\OSDWidget.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\console\TTFFont.hh">
+      <Filter>console</Filter>
+    </None>
+    <None Include="..\..\src\cpu\BreakPoint.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\BreakPointBase.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\CacheLine.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\CPU.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\CPUClock.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\CPUCore.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\Dasm.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\IRQHelper.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\MSXCPU.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\MSXCPUInterface.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\MSXMultiDevice.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\MSXMultiIODevice.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\MSXMultiMemDevice.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\MSXWatchIODevice.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\R800.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\VDPIODelay.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\WatchPoint.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\cpu\Z80.hh">
+      <Filter>cpu</Filter>
+    </None>
+    <None Include="..\..\src\debugger\DasmTables.hh">
+      <Filter>debugger</Filter>
+    </None>
+    <None Include="..\..\src\debugger\Debuggable.hh">
+      <Filter>debugger</Filter>
+    </None>
+    <None Include="..\..\src\debugger\Debugger.hh">
+      <Filter>debugger</Filter>
+    </None>
+    <None Include="..\..\src\debugger\Probe.hh">
+      <Filter>debugger</Filter>
+    </None>
+    <None Include="..\..\src\debugger\ProbeBreakPoint.hh">
+      <Filter>debugger</Filter>
+    </None>
+    <None Include="..\..\src\debugger\SimpleDebuggable.hh">
+      <Filter>debugger</Filter>
+    </None>
+    <None Include="..\..\src\events\AfterCommand.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\CliComm.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\CliConnection.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\CliServer.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\Event.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\EventDistributor.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\EventListener.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\FinishFrameEvent.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\GlobalCliComm.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\HotKey.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\InputEventFactory.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\InputEventGenerator.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\InputEvents.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\Keys.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\MSXCliComm.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\events\Socket.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="..\..\src\fdc\BootBlocks.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DirAsDSK.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\Disk.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskChanger.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskContainer.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskDrive.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskExceptions.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskFactory.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskImageCLI.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskImageUtils.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskManipulator.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskName.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DiskPartition.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DriveMultiplexer.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DSKDiskImage.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\DummyDisk.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\EmptyDiskPatch.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\MicrosolFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\MSXFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\MSXtar.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\NationalFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\node.mk">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\NowindCommand.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\NowindHost.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\NowindInterface.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\NowindRomDisk.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\PhilipsFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\RamDSKDiskImage.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\RealDrive.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\SectorAccessibleDisk.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\SectorBasedDisk.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\TC8566AF.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\TurboRFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\WD2793.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\WD2793BasedFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\fdc\XSADiskImage.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="..\..\src\file\CompressedFileAdapter.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\File.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\FileBase.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\FileContext.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\FileException.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\Filename.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\FileOperations.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\FilePool.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\GZFileAdapter.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\LocalFile.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\LocalFileReference.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\PreCacheFile.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\ReadDir.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\ZipFileAdapter.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\file\ZlibInflate.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="..\..\src\ide\AbstractIDEDevice.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\CDImageCLI.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\DummyIDEDevice.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\DummySCSIDevice.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\GoudaSCSI.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\HD.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\HDCommand.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\HDImageCLI.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\IDECDROM.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\IDEDevice.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\IDEDeviceFactory.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\IDEHD.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\MB89352.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\MegaSCSI.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\SCSI.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\SCSIDevice.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\SCSIHD.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\SCSILS120.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\SunriseIDE.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\ide\WD33C93.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="..\..\src\input\ArkanoidPad.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\DummyJoystick.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\EventDelay.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\Joystick.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\JoystickDevice.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\JoystickPort.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\JoyTap.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\Keyboard.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\KeyboardSettings.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\KeyJoystick.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\MagicKey.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\Mouse.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\MSXEventDistributor.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\MSXEventListener.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\NinjaTap.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\RecordedCommand.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\SETetrisDongle.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\StateChange.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\StateChangeDistributor.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\StateChangeListener.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\Trackball.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\input\UnicodeKeymap.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="..\..\src\memory\AmdFlash.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\CheckedRam.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\ESE_RAM.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\ESE_SCC.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXHBI55.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXMapperIO.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXMegaRam.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXMemoryMapper.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXMirrorDevice.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXPac.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXRam.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXRom.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\MSXRomCLI.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\PanasonicMemory.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\PanasonicRam.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\Ram.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\Rom.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomArc.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomAscii16_2.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomAscii16kB.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomAscii8_8.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomAscii8kB.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomBlocks.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomCrossBlaim.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomDatabase.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomDRAM.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomFactory.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomFSA1FM.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomGameMaster2.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomGeneric16kB.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomGeneric8kB.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomHalnote.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomHarryFox.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomHolyQuran.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomHolyQuran2.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomInfo.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomInfoTopic.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomKonami.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomKonamiKeyboardMaster.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomKonamiSCC.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomMajutsushi.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomManbow2.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomMatraInk.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomMSXDOS2.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomNational.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomNettouYakyuu.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomPadial16kB.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomPadial8kB.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomPageNN.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomPanasonic.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomPlain.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomPlayBall.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomRType.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomSuperLodeRunner.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomSynthesizer.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomTypes.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomZemina126in1.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomZemina80in1.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\RomZemina90in1.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\memory\SRAM.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="..\..\src\resource\openmsx.ico">
+      <Filter>resource</Filter>
+    </None>
+    <None Include="..\..\src\settings\BooleanSetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\EnumSetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\FilenameSetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\FloatSetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\IntegerSetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\KeyCodeSetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\ProxySetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\ReadOnlySetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\Setting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\SettingImpl.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\SettingPolicy.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\SettingRangePolicy.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\SettingsManager.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\StringSetting.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\settings\UserSettings.hh">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="..\..\src\sound\AudioInputConnector.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\AudioInputDevice.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\AY8910.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\AY8910Periphery.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\BlipBuffer.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\DACSound16S.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\DACSound8U.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\DirectXSoundDriver.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\DummyAudioInputDevice.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\DummyY8950KeyboardDevice.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\EmuTimer.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\KeyClick.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\Mixer.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXAudio.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXFmPac.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXMixer.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXMoonSound.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXMusic.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXOPL3Cartridge.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXPSG.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXSCCPlusCart.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXTurboRPCM.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\MSXYamahaSFG.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\NullSoundDriver.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\Resample.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\ResampleAlgo.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\ResampleBlip.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\ResampleCoeffs.ii">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\ResampleHQ.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\ResampleLQ.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\ResampleTrivial.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\SamplePlayer.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\SCC.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\SDLSoundDriver.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\SoundDevice.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\SoundDriver.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\VLM5030.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\WavAudioInput.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\WavData.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\WavWriter.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\Y8950.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\Y8950Adpcm.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\Y8950KeyboardConnector.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\Y8950KeyboardDevice.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\Y8950Periphery.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YM2151.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YM2413.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YM2413Burczynski.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YM2413Core.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YM2413Interface.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YM2413Okazaki.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YMF262.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\sound\YMF278.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="..\..\src\thread\Alarm.hh">
+      <Filter>thread</Filter>
+    </None>
+    <None Include="..\..\src\thread\AlarmEvent.hh">
+      <Filter>thread</Filter>
+    </None>
+    <None Include="..\..\src\thread\CondVar.hh">
+      <Filter>thread</Filter>
+    </None>
+    <None Include="..\..\src\thread\Semaphore.hh">
+      <Filter>thread</Filter>
+    </None>
+    <None Include="..\..\src\thread\Thread.hh">
+      <Filter>thread</Filter>
+    </None>
+    <None Include="..\..\src\thread\Timer.hh">
+      <Filter>thread</Filter>
+    </None>
+    <None Include="..\..\src\utils\Aligned.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\AltSpaceSuppressor.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\Base64.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\checked_cast.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\CircularBuffer.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\CRC16.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\cstdiop.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\cstdlibp.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\Date.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\direntp.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\DivModByConst.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\DivModBySame.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\FixedPoint.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\HexDump.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\HostCPU.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\inline.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\likely.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\lzo.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\lzoconf.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\lzodefs.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\Math.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\MemBuffer.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\MemoryOps.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\my_auto_ptr.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\noncopyable.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\Observer.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\ref.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\ScopedAssign.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\sdlwin32.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\sha1.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\shared_ptr.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\static_assert.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\statp.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\StringOp.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\stringsp.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\Subject.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\tuple.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\type_traits.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\TypeInfo.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\uint128.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\unistdp.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\unreachable.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\utf8_checked.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\utf8_core.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\utf8_unchecked.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\vla.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\win32-arggen.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\utils\win32-dirent.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="..\..\src\video\ADVram.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\AviRecorder.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\AviWriter.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\BaseImage.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\BitmapConverter.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\CharacterConverter.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\DeinterlacedFrame.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\DirtyChecker.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Display.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\DisplayMode.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\DoubledFrame.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\DummyRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\DummyVideoSystem.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\FBPostProcessor.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\FrameSource.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLHQLiteScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLHQScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLImage.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLPostProcessor.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLRGBScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLSaIScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLScaleNxScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLScalerFactory.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLSimpleScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLSnow.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLTVScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\GLUtil.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ2xLiteScaler-1x1to1x2.nn">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ2xLiteScaler-1x1to2x2.nn">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ2xLiteScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ2xScaler-1x1to1x2.nn">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ2xScaler-1x1to2x2.nn">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ2xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ3xLiteScaler-1x1to3x3.nn">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ3xLiteScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ3xScaler-1x1to3x3.nn">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQ3xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\HQCommon.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Icon.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Layer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\LayerListener.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\LineScalers.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Multiply32.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\OutputSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\PixelOperations.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\PixelRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\PNG.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\PostProcessor.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Rasterizer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\RawFrame.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Renderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\RendererFactory.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\RenderSettings.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\RGBTriplet3xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SaI2xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SaI3xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Scale2xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Scale3xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Scaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Scaler1.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Scaler2.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Scaler3.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\ScalerFactory.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Scanline.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLGLOffScreenSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLGLOutputSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLGLVisibleSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLImage.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLOffScreenSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLRasterizer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLSnow.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLSurfacePtr.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLVideoSystem.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SDLVisibleSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Simple2xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\Simple3xScaler.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SpriteChecker.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SpriteConverter.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\SuperImposedFrame.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VDP.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VDPCmdEngine.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VDPVRAM.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VideoLayer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VideoSource.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VideoSourceSetting.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VideoSystem.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VideoSystemChangeListener.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VisibleSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\VRAMObserver.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\ZMBVEncoder.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990BitmapConverter.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990CmdEngine.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990DisplayTiming.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990DummyRenderer.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990ModeEnum.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990P1Converter.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990P2Converter.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990PixelRenderer.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990Rasterizer.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990Renderer.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990SDLRasterizer.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\video\v9990\V9990VRAM.hh">
+      <Filter>video\v9990</Filter>
+    </None>
+    <None Include="..\..\src\serial\ClockPin.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\DummyMidiInDevice.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\DummyMidiOutDevice.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\DummyRS232Device.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\I8251.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\I8254.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MC6850.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\Midi_w32.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiInConnector.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiInDevice.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiInReader.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiInWindows.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiOutConnector.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiOutDevice.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiOutLogger.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MidiOutWindows.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MSXMidi.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\MSXRS232.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\RS232Connector.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\RS232Device.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\RS232Tester.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\SerialDataInterface.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\serial\YM2148.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="..\..\src\security\SocketStreamWrapper.hh">
+      <Filter>security</Filter>
+    </None>
+    <None Include="..\..\src\security\SspiNegotiateServer.hh">
+      <Filter>security</Filter>
+    </None>
+    <None Include="..\..\src\security\SspiUtils.hh">
+      <Filter>security</Filter>
+    </None>
+    <None Include="..\..\src\Autofire.hh" />
+    <None Include="..\..\src\CartridgeSlotManager.hh" />
+    <None Include="..\..\src\CliExtension.hh" />
+    <None Include="..\..\src\CLIOption.hh" />
+    <None Include="..\..\src\Clock.hh" />
+    <None Include="..\..\src\CommandLineParser.hh" />
+    <None Include="..\..\src\Connector.hh" />
+    <None Include="..\..\src\DebugDevice.hh" />
+    <None Include="..\..\src\DeviceFactory.hh" />
+    <None Include="..\..\src\DummyDevice.hh" />
+    <None Include="..\..\src\DummyPrinterPortDevice.hh" />
+    <None Include="..\..\src\DynamicClock.hh" />
+    <None Include="..\..\src\EmptyPatch.hh" />
+    <None Include="..\..\src\EmuDuration.hh" />
+    <None Include="..\..\src\EmuTime.hh" />
+    <None Include="..\..\src\FirmwareSwitch.hh" />
+    <None Include="..\..\src\GlobalSettings.hh" />
+    <None Include="..\..\src\I8255.hh" />
+    <None Include="..\..\src\I8255Interface.hh" />
+    <None Include="..\..\src\InitException.hh" />
+    <None Include="..\..\src\IPSPatch.hh" />
+    <None Include="..\..\src\LedStatus.hh" />
+    <None Include="..\..\src\MSXBunsetsu.hh" />
+    <None Include="..\..\src\MSXDevice.hh" />
+    <None Include="..\..\src\MSXDeviceSwitch.hh" />
+    <None Include="..\..\src\MSXE6Timer.hh" />
+    <None Include="..\..\src\MSXException.hh" />
+    <None Include="..\..\src\MSXF4Device.hh" />
+    <None Include="..\..\src\MSXKanji.hh" />
+    <None Include="..\..\src\MSXKanji12.hh" />
+    <None Include="..\..\src\MSXMatsushita.hh" />
+    <None Include="..\..\src\MSXMotherBoard.hh" />
+    <None Include="..\..\src\MSXPPI.hh" />
+    <None Include="..\..\src\MSXPrinterPort.hh" />
+    <None Include="..\..\src\MSXRTC.hh" />
+    <None Include="..\..\src\MSXS1985.hh" />
+    <None Include="..\..\src\MSXS1990.hh" />
+    <None Include="..\..\src\MSXSwitchedDevice.hh" />
+    <None Include="..\..\src\MSXTurboRPause.hh" />
+    <None Include="..\..\src\PasswordCart.hh" />
+    <None Include="..\..\src\PatchInterface.hh" />
+    <None Include="..\..\src\PlugException.hh" />
+    <None Include="..\..\src\Pluggable.hh" />
+    <None Include="..\..\src\PluggableFactory.hh" />
+    <None Include="..\..\src\PluggingController.hh" />
+    <None Include="..\..\src\Printer.hh" />
+    <None Include="..\..\src\PrinterPortDevice.hh" />
+    <None Include="..\..\src\PrinterPortLogger.hh" />
+    <None Include="..\..\src\PrinterPortSimpl.hh" />
+    <None Include="..\..\src\Reactor.hh" />
+    <None Include="..\..\src\RealTime.hh" />
+    <None Include="..\..\src\RenShaTurbo.hh" />
+    <None Include="..\..\src\ReverseManager.hh" />
+    <None Include="..\..\src\RP5C01.hh" />
+    <None Include="..\..\src\Schedulable.hh" />
+    <None Include="..\..\src\Scheduler.hh" />
+    <None Include="..\..\src\serialize.hh" />
+    <None Include="..\..\src\serialize_constr.hh" />
+    <None Include="..\..\src\serialize_core.hh" />
+    <None Include="..\..\src\serialize_meta.hh" />
+    <None Include="..\..\src\serialize_stl.hh" />
+    <None Include="..\..\src\ThrottleManager.hh" />
+    <None Include="..\..\src\Version.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\resource\openmsx.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\sound\fake_windows.h">
+      <Filter>sound</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="..\..\src\video\ld\LDDummyRenderer.hh">
+      <Filter>video\ld</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDPixelRenderer.hh">
+      <Filter>video\ld</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDRasterizer.hh">
+      <Filter>video\ld</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDRenderer.hh">
+      <Filter>video\ld</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDSDLRasterizer.hh">
+      <Filter>video\ld</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\LaserdiscPlayer.hh">
+      <Filter>laserdisc</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\LaserdiscPlayerCLI.hh">
+      <Filter>laserdisc</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\OggReader.hh">
+      <Filter>laserdisc</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\PioneerLDControl.hh">
+      <Filter>laserdisc</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\yuv2rgb.hh">
+      <Filter>laserdisc</Filter>
+    </CustomBuildStep>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\src\sound\ResampleHQ-x64.asm">
+      <Filter>sound</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\sound\ResampleHQ-x86.asm">
+      <Filter>sound</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\FBPostProcessor-x64.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\FBPostProcessor-x86.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\LineScalers-x64.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\LineScalers-x86.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Scale2xScaler-x64.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Scale2xScaler-x86.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Scanline-x64.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Scanline-x86.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Simple2xScaler-x64.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Simple2xScaler-x86.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Simple3xScaler-x64.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Simple3xScaler-x86.asm">
+      <Filter>video</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\openmsx.hh" />
+  </ItemGroup>
+</Project>

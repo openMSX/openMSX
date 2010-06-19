@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{269dfb7b-8e1f-4ee4-9e90-6694ad6d215d}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{087dbb60-2787-47d2-9ae0-07f401f8e7a4}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{63bf4111-ea8c-486d-9d72-a9edb977d301}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="Assembler Files %28Unsupported%29">
+      <UniqueIdentifier>{2e1192dc-b6bb-4833-96e9-7588f23bb7dc}</UniqueIdentifier>
+      <Extensions>asm;obj;c;cpp;cxx;h;hpp;hxx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\adler32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\compress.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\crc32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\deflate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\example.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\gzclose.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\gzlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\gzread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\gzwrite.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\infback.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\inffast.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\inflate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\inftrees.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\trees.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\uncompr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\zutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\gzguts.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\crc32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\deflate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\inffast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\inffixed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\inflate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\inftrees.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\trees.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\zconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\zlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.5\zutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\derived\3rdparty\src\zlib-1.2.5\contrib\masmx86\inffas32.asm">
+      <Filter>Assembler Files %28Unsupported%29</Filter>
+    </None>
+    <None Include="..\..\derived\3rdparty\src\zlib-1.2.5\contrib\masmx86\match686.asm">
+      <Filter>Assembler Files %28Unsupported%29</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\derived\3rdparty\src\zlib-1.2.5\win32\zlib1.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="..\..\derived\3rdparty\src\zlib-1.2.5\win32\zlib.def">
+      <Filter>Source Files</Filter>
+    </CustomBuildStep>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,413 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Developer|Win32">
+      <Configuration>Developer</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Developer|x64">
+      <Configuration>Developer</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CCCEA506-D026-4915-BEE0-374F65D7C764}</ProjectGuid>
+    <RootNamespace>tcl</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="3rdparty.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ThirdPartyOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ThirdPartyIntDir)\$(LibNameTcl)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ThirdPartyOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ThirdPartyIntDir)\$(LibNameTcl)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ThirdPartyOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ThirdPartyIntDir)\$(LibNameTcl)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ThirdPartyOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ThirdPartyIntDir)\$(LibNameTcl)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(ThirdPartyOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(ThirdPartyIntDir)\$(LibNameTcl)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(ThirdPartyOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(ThirdPartyIntDir)\$(LibNameTcl)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPosixStr.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_fast_s_mp_mul_digs.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_fast_s_mp_sqr.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_add.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_add_d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_and.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_clamp.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_clear.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_clear_multi.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_cmp.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_cmp_d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_cmp_mag.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_copy.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_count_bits.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_div.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_div_2.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_div_2d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_div_3.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_div_d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_exch.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_expt_d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_grow.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_init.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_init_copy.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_init_multi.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_init_set.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_init_size.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_karatsuba_mul.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_karatsuba_sqr.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_lshd.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_mod.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_mod_2d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_mul.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_mul_2.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_mul_2d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_mul_d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_neg.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_or.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_radix_size.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_radix_smap.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_read_radix.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_rshd.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_set.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_shrink.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_sqr.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_sqrt.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_sub.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_sub_d.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_to_unsigned_bin.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_to_unsigned_bin_n.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_toom_mul.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_toom_sqr.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_toradix_n.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_unsigned_bin_size.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_xor.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_mp_zero.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_reverse.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_s_mp_add.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_s_mp_mul_digs.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_s_mp_sqr.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bn_s_mp_sub.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\bncore.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\regcomp.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\regerror.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\regexec.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\regfree.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclAlloc.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclAsync.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclBasic.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclBinary.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCkalloc.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclClock.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCmdAH.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCmdIL.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCmdMZ.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCompCmds.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCompExpr.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCompile.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclConfig.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclDate.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclDictObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclEncoding.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclEnv.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclEvent.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclExecute.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclFCmd.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclFileName.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclGet.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclHash.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclHistory.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIndexObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclInterp.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIO.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIOCmd.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIOGT.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIORChan.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIOSock.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIOUtil.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclLink.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclListObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclLiteral.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclLoad.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclMain.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclNamesp.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclNotify.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPanic.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclParse.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPathObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPipe.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPkg.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPkgConfig.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPreserve.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclProc.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclRegexp.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclResolve.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclResult.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclScan.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclStringObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclStrToD.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclStubInit.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclStubLib.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTest.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTestObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTestProcBodyObj.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclThread.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclThreadAlloc.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclThreadJoin.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclThreadStorage.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclThreadTest.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTimer.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTomMathInterface.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTrace.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclUtf.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclUtil.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclVar.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWin32Dll.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinChan.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinConsole.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinDde.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinError.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinFCmd.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinFile.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinInit.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinLoad.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinNotify.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinPipe.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinReg.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinSerial.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinSock.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinTest.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinThrd.c" />
+    <ClCompile Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinTime.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tcl.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclCompile.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclDecls.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclFileSystem.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclInt.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIntDecls.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIntPlatDecls.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclIO.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPlatDecls.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclPort.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclRegexp.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTomMath.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tclTomMathDecls.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinInt.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinPort.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\win\tclWinThrd.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\tommath.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\generic\tommath.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\tommath_class.h" />
+    <ClInclude Include="..\..\derived\3rdparty\src\tcl8.5.8\libtommath\tommath_superclass.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

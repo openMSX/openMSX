@@ -16,6 +16,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#ifdef _WIN32
+#include <iterator>
+#endif
 
 using std::string;
 using std::vector;

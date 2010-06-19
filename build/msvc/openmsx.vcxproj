@@ -1,0 +1,1707 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Developer|Win32">
+      <Configuration>Developer</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Developer|x64">
+      <Configuration>Developer</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9563D96E-BBDC-410C-8BED-189102B0866F}</ProjectGuid>
+    <RootNamespace>openmsx</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\3rdparty\3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\3rdparty\3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\3rdparty\3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\3rdparty\3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\3rdparty\3rdparty.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\3rdparty\3rdparty.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OpenMSXOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OpenMSXIntDir)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OpenMSXOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OpenMSXIntDir)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OpenMSXOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OpenMSXIntDir)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OpenMSXOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OpenMSXIntDir)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(OpenMSXOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(OpenMSXIntDir)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(OpenMSXOutDir)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(OpenMSXIntDir)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameLibXml)\include;$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;winmm.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;libxml.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)openmsx.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameLibXml)\include;$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;winmm.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;libxml.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)openmsx.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameLibXml)\include;$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;winmm.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;libxml.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)openmsx.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameLibXml)\include;$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;winmm.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;libxml.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)openmsx.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameLibXml)\include;$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;winmm.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;libxml.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)openmsx.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameLibXml)\include;$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;LIBXML_STATIC;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;winmm.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;libxml.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)openmsx.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\cassette\CasImage.cc" />
+    <ClCompile Include="..\..\src\cassette\CassetteDevice.cc" />
+    <ClCompile Include="..\..\src\cassette\CassetteImage.cc" />
+    <ClCompile Include="..\..\src\cassette\CassettePlayer.cc" />
+    <ClCompile Include="..\..\src\cassette\CassettePlayerCLI.cc" />
+    <ClCompile Include="..\..\src\cassette\CassettePort.cc" />
+    <ClCompile Include="..\..\src\cassette\DummyCassetteDevice.cc" />
+    <ClCompile Include="..\..\src\cassette\WavImage.cc" />
+    <ClCompile Include="..\..\src\commands\Command.cc" />
+    <ClCompile Include="..\..\src\commands\CommandException.cc" />
+    <ClCompile Include="..\..\src\commands\Completer.cc" />
+    <ClCompile Include="..\..\src\commands\GlobalCommandController.cc" />
+    <ClCompile Include="..\..\src\commands\InfoCommand.cc" />
+    <ClCompile Include="..\..\src\commands\InfoTopic.cc" />
+    <ClCompile Include="..\..\src\commands\Interpreter.cc" />
+    <ClCompile Include="..\..\src\commands\MSXCommandController.cc" />
+    <ClCompile Include="..\..\src\commands\ProxyCommand.cc" />
+    <ClCompile Include="..\..\src\commands\TclObject.cc" />
+    <ClCompile Include="..\..\src\config\HardwareConfig.cc" />
+    <ClCompile Include="..\..\src\config\SettingsConfig.cc" />
+    <ClCompile Include="..\..\src\config\XMLElement.cc" />
+    <ClCompile Include="..\..\src\config\XMLLoader.cc" />
+    <ClCompile Include="..\..\src\console\CommandConsole.cc" />
+    <ClCompile Include="..\..\src\console\OSDConsoleRenderer.cc" />
+    <ClCompile Include="..\..\src\console\OSDGUI.cc" />
+    <ClCompile Include="..\..\src\console\OSDGUILayer.cc" />
+    <ClCompile Include="..\..\src\console\OSDImageBasedWidget.cc" />
+    <ClCompile Include="..\..\src\console\OSDRectangle.cc" />
+    <ClCompile Include="..\..\src\console\OSDText.cc" />
+    <ClCompile Include="..\..\src\console\OSDTopWidget.cc" />
+    <ClCompile Include="..\..\src\console\OSDWidget.cc" />
+    <ClCompile Include="..\..\src\console\TTFFont.cc" />
+    <ClCompile Include="..\..\src\cpu\BreakPoint.cc" />
+    <ClCompile Include="..\..\src\cpu\BreakPointBase.cc" />
+    <ClCompile Include="..\..\src\cpu\CPU.cc" />
+    <ClCompile Include="..\..\src\cpu\CPUClock.cc" />
+    <ClCompile Include="..\..\src\cpu\CPUCore.cc" />
+    <ClCompile Include="..\..\src\cpu\Dasm.cc" />
+    <ClCompile Include="..\..\src\cpu\DebugCondition.cc" />
+    <ClCompile Include="..\..\src\cpu\IRQHelper.cc" />
+    <ClCompile Include="..\..\src\cpu\MSXCPU.cc" />
+    <ClCompile Include="..\..\src\cpu\MSXCPUInterface.cc" />
+    <ClCompile Include="..\..\src\cpu\MSXMultiDevice.cc" />
+    <ClCompile Include="..\..\src\cpu\MSXMultiIODevice.cc" />
+    <ClCompile Include="..\..\src\cpu\MSXMultiMemDevice.cc" />
+    <ClCompile Include="..\..\src\cpu\MSXWatchIODevice.cc" />
+    <ClCompile Include="..\..\src\cpu\VDPIODelay.cc" />
+    <ClCompile Include="..\..\src\cpu\WatchPoint.cc" />
+    <ClCompile Include="..\..\src\debugger\DasmTables.cc" />
+    <ClCompile Include="..\..\src\debugger\Debugger.cc" />
+    <ClCompile Include="..\..\src\debugger\Probe.cc" />
+    <ClCompile Include="..\..\src\debugger\ProbeBreakPoint.cc" />
+    <ClCompile Include="..\..\src\debugger\SimpleDebuggable.cc" />
+    <ClCompile Include="..\..\src\events\AfterCommand.cc" />
+    <ClCompile Include="..\..\src\events\CliComm.cc" />
+    <ClCompile Include="..\..\src\events\CliConnection.cc" />
+    <ClCompile Include="..\..\src\events\CliServer.cc" />
+    <ClCompile Include="..\..\src\events\Event.cc" />
+    <ClCompile Include="..\..\src\events\EventDistributor.cc" />
+    <ClCompile Include="..\..\src\events\GlobalCliComm.cc" />
+    <ClCompile Include="..\..\src\events\HotKey.cc" />
+    <ClCompile Include="..\..\src\events\InputEventFactory.cc" />
+    <ClCompile Include="..\..\src\events\InputEventGenerator.cc" />
+    <ClCompile Include="..\..\src\events\InputEvents.cc" />
+    <ClCompile Include="..\..\src\events\Keys.cc" />
+    <ClCompile Include="..\..\src\events\MSXCliComm.cc" />
+    <ClCompile Include="..\..\src\events\Socket.cc" />
+    <ClCompile Include="..\..\src\fdc\BootBlocks.cc" />
+    <ClCompile Include="..\..\src\fdc\DirAsDSK.cc" />
+    <ClCompile Include="..\..\src\fdc\Disk.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskChanger.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskContainer.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskDrive.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskFactory.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskImageCLI.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskImageUtils.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskManipulator.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskName.cc" />
+    <ClCompile Include="..\..\src\fdc\DiskPartition.cc" />
+    <ClCompile Include="..\..\src\fdc\DriveMultiplexer.cc" />
+    <ClCompile Include="..\..\src\fdc\DSKDiskImage.cc" />
+    <ClCompile Include="..\..\src\fdc\DummyDisk.cc" />
+    <ClCompile Include="..\..\src\fdc\EmptyDiskPatch.cc" />
+    <ClCompile Include="..\..\src\fdc\MicrosolFDC.cc" />
+    <ClCompile Include="..\..\src\fdc\MSXFDC.cc" />
+    <ClCompile Include="..\..\src\fdc\MSXtar.cc" />
+    <ClCompile Include="..\..\src\fdc\NationalFDC.cc" />
+    <ClCompile Include="..\..\src\fdc\NowindCommand.cc" />
+    <ClCompile Include="..\..\src\fdc\NowindHost.cc" />
+    <ClCompile Include="..\..\src\fdc\NowindInterface.cc" />
+    <ClCompile Include="..\..\src\fdc\NowindRomDisk.cc" />
+    <ClCompile Include="..\..\src\fdc\PhilipsFDC.cc" />
+    <ClCompile Include="..\..\src\fdc\RamDSKDiskImage.cc" />
+    <ClCompile Include="..\..\src\fdc\RealDrive.cc" />
+    <ClCompile Include="..\..\src\fdc\SectorAccessibleDisk.cc" />
+    <ClCompile Include="..\..\src\fdc\SectorBasedDisk.cc" />
+    <ClCompile Include="..\..\src\fdc\TC8566AF.cc" />
+    <ClCompile Include="..\..\src\fdc\TurboRFDC.cc" />
+    <ClCompile Include="..\..\src\fdc\WD2793.cc" />
+    <ClCompile Include="..\..\src\fdc\WD2793BasedFDC.cc" />
+    <ClCompile Include="..\..\src\fdc\XSADiskImage.cc" />
+    <ClCompile Include="..\..\src\file\CompressedFileAdapter.cc" />
+    <ClCompile Include="..\..\src\file\File.cc" />
+    <ClCompile Include="..\..\src\file\FileBase.cc" />
+    <ClCompile Include="..\..\src\file\FileContext.cc" />
+    <ClCompile Include="..\..\src\file\Filename.cc" />
+    <ClCompile Include="..\..\src\file\FileOperations.cc" />
+    <ClCompile Include="..\..\src\file\FilePool.cc" />
+    <ClCompile Include="..\..\src\file\GZFileAdapter.cc" />
+    <ClCompile Include="..\..\src\file\LocalFile.cc" />
+    <ClCompile Include="..\..\src\file\LocalFileReference.cc" />
+    <ClCompile Include="..\..\src\file\PreCacheFile.cc" />
+    <ClCompile Include="..\..\src\file\ReadDir.cc" />
+    <ClCompile Include="..\..\src\file\ZipFileAdapter.cc" />
+    <ClCompile Include="..\..\src\file\ZlibInflate.cc" />
+    <ClCompile Include="..\..\src\ide\AbstractIDEDevice.cc" />
+    <ClCompile Include="..\..\src\ide\CDImageCLI.cc" />
+    <ClCompile Include="..\..\src\ide\DummyIDEDevice.cc" />
+    <ClCompile Include="..\..\src\ide\DummySCSIDevice.cc" />
+    <ClCompile Include="..\..\src\ide\GoudaSCSI.cc" />
+    <ClCompile Include="..\..\src\ide\HD.cc" />
+    <ClCompile Include="..\..\src\ide\HDCommand.cc" />
+    <ClCompile Include="..\..\src\ide\HDImageCLI.cc" />
+    <ClCompile Include="..\..\src\ide\IDECDROM.cc" />
+    <ClCompile Include="..\..\src\ide\IDEDeviceFactory.cc" />
+    <ClCompile Include="..\..\src\ide\IDEHD.cc" />
+    <ClCompile Include="..\..\src\ide\MB89352.cc" />
+    <ClCompile Include="..\..\src\ide\MegaSCSI.cc" />
+    <ClCompile Include="..\..\src\ide\SCSIHD.cc" />
+    <ClCompile Include="..\..\src\ide\SCSILS120.cc" />
+    <ClCompile Include="..\..\src\ide\SunriseIDE.cc" />
+    <ClCompile Include="..\..\src\ide\WD33C93.cc" />
+    <ClCompile Include="..\..\src\input\ArkanoidPad.cc" />
+    <ClCompile Include="..\..\src\input\DummyJoystick.cc" />
+    <ClCompile Include="..\..\src\input\EventDelay.cc" />
+    <ClCompile Include="..\..\src\input\Joystick.cc" />
+    <ClCompile Include="..\..\src\input\JoystickDevice.cc" />
+    <ClCompile Include="..\..\src\input\JoystickPort.cc" />
+    <ClCompile Include="..\..\src\input\JoyTap.cc" />
+    <ClCompile Include="..\..\src\input\Keyboard.cc" />
+    <ClCompile Include="..\..\src\input\KeyboardSettings.cc" />
+    <ClCompile Include="..\..\src\input\KeyJoystick.cc" />
+    <ClCompile Include="..\..\src\input\MagicKey.cc" />
+    <ClCompile Include="..\..\src\input\Mouse.cc" />
+    <ClCompile Include="..\..\src\input\MSXEventDistributor.cc" />
+    <ClCompile Include="..\..\src\input\NinjaTap.cc" />
+    <ClCompile Include="..\..\src\input\RecordedCommand.cc" />
+    <ClCompile Include="..\..\src\input\SETetrisDongle.cc" />
+    <ClCompile Include="..\..\src\input\StateChangeDistributor.cc" />
+    <ClCompile Include="..\..\src\input\Trackball.cc" />
+    <ClCompile Include="..\..\src\input\UnicodeKeymap.cc" />
+    <ClCompile Include="..\..\src\memory\AmdFlash.cc" />
+    <ClCompile Include="..\..\src\memory\CheckedRam.cc" />
+    <ClCompile Include="..\..\src\memory\ESE_RAM.cc" />
+    <ClCompile Include="..\..\src\memory\ESE_SCC.cc" />
+    <ClCompile Include="..\..\src\memory\MSXHBI55.cc" />
+    <ClCompile Include="..\..\src\memory\MSXMapperIO.cc" />
+    <ClCompile Include="..\..\src\memory\MSXMegaRam.cc" />
+    <ClCompile Include="..\..\src\memory\MSXMemoryMapper.cc" />
+    <ClCompile Include="..\..\src\memory\MSXMirrorDevice.cc" />
+    <ClCompile Include="..\..\src\memory\MSXPac.cc" />
+    <ClCompile Include="..\..\src\memory\MSXRam.cc" />
+    <ClCompile Include="..\..\src\memory\MSXRom.cc" />
+    <ClCompile Include="..\..\src\memory\MSXRomCLI.cc" />
+    <ClCompile Include="..\..\src\memory\PanasonicMemory.cc" />
+    <ClCompile Include="..\..\src\memory\PanasonicRam.cc" />
+    <ClCompile Include="..\..\src\memory\Ram.cc" />
+    <ClCompile Include="..\..\src\memory\Rom.cc" />
+    <ClCompile Include="..\..\src\memory\RomArc.cc" />
+    <ClCompile Include="..\..\src\memory\RomAscii16_2.cc" />
+    <ClCompile Include="..\..\src\memory\RomAscii16kB.cc" />
+    <ClCompile Include="..\..\src\memory\RomAscii8_8.cc" />
+    <ClCompile Include="..\..\src\memory\RomAscii8kB.cc" />
+    <ClCompile Include="..\..\src\memory\RomBlocks.cc" />
+    <ClCompile Include="..\..\src\memory\RomCrossBlaim.cc" />
+    <ClCompile Include="..\..\src\memory\RomDatabase.cc" />
+    <ClCompile Include="..\..\src\memory\RomDRAM.cc" />
+    <ClCompile Include="..\..\src\memory\RomFactory.cc" />
+    <ClCompile Include="..\..\src\memory\RomFSA1FM.cc" />
+    <ClCompile Include="..\..\src\memory\RomGameMaster2.cc" />
+    <ClCompile Include="..\..\src\memory\RomGeneric16kB.cc" />
+    <ClCompile Include="..\..\src\memory\RomGeneric8kB.cc" />
+    <ClCompile Include="..\..\src\memory\RomHalnote.cc" />
+    <ClCompile Include="..\..\src\memory\RomHarryFox.cc" />
+    <ClCompile Include="..\..\src\memory\RomHolyQuran.cc" />
+    <ClCompile Include="..\..\src\memory\RomHolyQuran2.cc" />
+    <ClCompile Include="..\..\src\memory\RomInfo.cc" />
+    <ClCompile Include="..\..\src\memory\RomInfoTopic.cc" />
+    <ClCompile Include="..\..\src\memory\RomKonami.cc" />
+    <ClCompile Include="..\..\src\memory\RomKonamiKeyboardMaster.cc" />
+    <ClCompile Include="..\..\src\memory\RomKonamiSCC.cc" />
+    <ClCompile Include="..\..\src\memory\RomMajutsushi.cc" />
+    <ClCompile Include="..\..\src\memory\RomManbow2.cc" />
+    <ClCompile Include="..\..\src\memory\RomMatraInk.cc" />
+    <ClCompile Include="..\..\src\memory\RomMSXDOS2.cc" />
+    <ClCompile Include="..\..\src\memory\RomNational.cc" />
+    <ClCompile Include="..\..\src\memory\RomNettouYakyuu.cc" />
+    <ClCompile Include="..\..\src\memory\RomPadial16kB.cc" />
+    <ClCompile Include="..\..\src\memory\RomPadial8kB.cc" />
+    <ClCompile Include="..\..\src\memory\RomPageNN.cc" />
+    <ClCompile Include="..\..\src\memory\RomPanasonic.cc" />
+    <ClCompile Include="..\..\src\memory\RomPlain.cc" />
+    <ClCompile Include="..\..\src\memory\RomPlayBall.cc" />
+    <ClCompile Include="..\..\src\memory\RomRType.cc" />
+    <ClCompile Include="..\..\src\memory\RomSuperLodeRunner.cc" />
+    <ClCompile Include="..\..\src\memory\RomSynthesizer.cc" />
+    <ClCompile Include="..\..\src\memory\RomZemina126in1.cc" />
+    <ClCompile Include="..\..\src\memory\RomZemina80in1.cc" />
+    <ClCompile Include="..\..\src\memory\RomZemina90in1.cc" />
+    <ClCompile Include="..\..\src\memory\SRAM.cc" />
+    <ClCompile Include="..\..\src\settings\BooleanSetting.cc" />
+    <ClCompile Include="..\..\src\settings\EnumSetting.cc" />
+    <ClCompile Include="..\..\src\settings\FilenameSetting.cc" />
+    <ClCompile Include="..\..\src\settings\FloatSetting.cc" />
+    <ClCompile Include="..\..\src\settings\IntegerSetting.cc" />
+    <ClCompile Include="..\..\src\settings\KeyCodeSetting.cc" />
+    <ClCompile Include="..\..\src\settings\ProxySetting.cc" />
+    <ClCompile Include="..\..\src\settings\Setting.cc" />
+    <ClCompile Include="..\..\src\settings\SettingImpl.cc" />
+    <ClCompile Include="..\..\src\settings\SettingsManager.cc" />
+    <ClCompile Include="..\..\src\settings\StringSetting.cc" />
+    <ClCompile Include="..\..\src\settings\UserSettings.cc" />
+    <ClCompile Include="..\..\src\sound\AudioInputConnector.cc" />
+    <ClCompile Include="..\..\src\sound\AudioInputDevice.cc" />
+    <ClCompile Include="..\..\src\sound\AY8910.cc" />
+    <ClCompile Include="..\..\src\sound\AY8910Periphery.cc" />
+    <ClCompile Include="..\..\src\sound\BlipBuffer.cc" />
+    <ClCompile Include="..\..\src\sound\DACSound16S.cc" />
+    <ClCompile Include="..\..\src\sound\DACSound8U.cc" />
+    <ClCompile Include="..\..\src\sound\DirectXSoundDriver.cc" />
+    <ClCompile Include="..\..\src\sound\DummyAudioInputDevice.cc" />
+    <ClCompile Include="..\..\src\sound\DummyY8950KeyboardDevice.cc" />
+    <ClCompile Include="..\..\src\sound\EmuTimer.cc" />
+    <ClCompile Include="..\..\src\sound\KeyClick.cc" />
+    <ClCompile Include="..\..\src\sound\Mixer.cc" />
+    <ClCompile Include="..\..\src\sound\MSXAudio.cc" />
+    <ClCompile Include="..\..\src\sound\MSXFmPac.cc" />
+    <ClCompile Include="..\..\src\sound\MSXMixer.cc" />
+    <ClCompile Include="..\..\src\sound\MSXMoonSound.cc" />
+    <ClCompile Include="..\..\src\sound\MSXMusic.cc" />
+    <ClCompile Include="..\..\src\sound\MSXOPL3Cartridge.cc" />
+    <ClCompile Include="..\..\src\sound\MSXPSG.cc" />
+    <ClCompile Include="..\..\src\sound\MSXSCCPlusCart.cc" />
+    <ClCompile Include="..\..\src\sound\MSXTurboRPCM.cc" />
+    <ClCompile Include="..\..\src\sound\MSXYamahaSFG.cc" />
+    <ClCompile Include="..\..\src\sound\NullSoundDriver.cc" />
+    <ClCompile Include="..\..\src\sound\Resample.cc" />
+    <ClCompile Include="..\..\src\sound\ResampleBlip.cc" />
+    <ClCompile Include="..\..\src\sound\ResampleHQ.cc" />
+    <ClCompile Include="..\..\src\sound\ResampleLQ.cc" />
+    <ClCompile Include="..\..\src\sound\ResampleTrivial.cc" />
+    <ClCompile Include="..\..\src\sound\SamplePlayer.cc" />
+    <ClCompile Include="..\..\src\sound\SCC.cc" />
+    <ClCompile Include="..\..\src\sound\SDLSoundDriver.cc" />
+    <ClCompile Include="..\..\src\sound\SoundDevice.cc" />
+    <ClCompile Include="..\..\src\sound\VLM5030.cc" />
+    <ClCompile Include="..\..\src\sound\WavAudioInput.cc" />
+    <ClCompile Include="..\..\src\sound\WavData.cc" />
+    <ClCompile Include="..\..\src\sound\WavWriter.cc" />
+    <ClCompile Include="..\..\src\sound\Y8950.cc" />
+    <ClCompile Include="..\..\src\sound\Y8950Adpcm.cc" />
+    <ClCompile Include="..\..\src\sound\Y8950KeyboardConnector.cc" />
+    <ClCompile Include="..\..\src\sound\Y8950KeyboardDevice.cc" />
+    <ClCompile Include="..\..\src\sound\Y8950Periphery.cc" />
+    <ClCompile Include="..\..\src\sound\YM2151.cc" />
+    <ClCompile Include="..\..\src\sound\YM2413.cc" />
+    <ClCompile Include="..\..\src\sound\YM2413Burczynski.cc" />
+    <ClCompile Include="..\..\src\sound\YM2413Okazaki.cc" />
+    <ClCompile Include="..\..\src\sound\YMF262.cc" />
+    <ClCompile Include="..\..\src\sound\YMF278.cc" />
+    <ClCompile Include="..\..\src\thread\Alarm.cc" />
+    <ClCompile Include="..\..\src\thread\AlarmEvent.cc" />
+    <ClCompile Include="..\..\src\thread\CondVar.cc" />
+    <ClCompile Include="..\..\src\thread\Semaphore.cc" />
+    <ClCompile Include="..\..\src\thread\Thread.cc" />
+    <ClCompile Include="..\..\src\thread\Timer.cc" />
+    <ClCompile Include="..\..\src\utils\AltSpaceSuppressor.cc" />
+    <ClCompile Include="..\..\src\utils\Base64.cc" />
+    <ClCompile Include="..\..\src\utils\CircularBuffer.cc" />
+    <ClCompile Include="..\..\src\utils\CRC16.cc" />
+    <ClCompile Include="..\..\src\utils\Date.cc" />
+    <ClCompile Include="..\..\src\utils\DivModBySame.cc" />
+    <ClCompile Include="..\..\src\utils\HexDump.cc" />
+    <ClCompile Include="..\..\src\utils\HostCPU.cc" />
+    <ClCompile Include="..\..\src\utils\lzo.cc" />
+    <ClCompile Include="..\..\src\utils\Math.cc" />
+    <ClCompile Include="..\..\src\utils\MemBuffer.cc" />
+    <ClCompile Include="..\..\src\utils\MemoryOps.cc" />
+    <ClCompile Include="..\..\src\utils\sdlwin32.cc" />
+    <ClCompile Include="..\..\src\utils\sha1.cc" />
+    <ClCompile Include="..\..\src\utils\StringOp.cc" />
+    <ClCompile Include="..\..\src\utils\uint128.cc" />
+    <ClCompile Include="..\..\src\utils\utf8_checked.cc" />
+    <ClCompile Include="..\..\src\utils\win32-arggen.cc" />
+    <ClCompile Include="..\..\src\utils\win32-dirent.cc" />
+    <ClCompile Include="..\..\src\video\ADVram.cc" />
+    <ClCompile Include="..\..\src\video\AviRecorder.cc" />
+    <ClCompile Include="..\..\src\video\AviWriter.cc" />
+    <ClCompile Include="..\..\src\video\BaseImage.cc" />
+    <ClCompile Include="..\..\src\video\BitmapConverter.cc" />
+    <ClCompile Include="..\..\src\video\CharacterConverter.cc" />
+    <ClCompile Include="..\..\src\video\DeinterlacedFrame.cc" />
+    <ClCompile Include="..\..\src\video\Display.cc" />
+    <ClCompile Include="..\..\src\video\DoubledFrame.cc" />
+    <ClCompile Include="..\..\src\video\DummyRenderer.cc" />
+    <ClCompile Include="..\..\src\video\DummyVideoSystem.cc" />
+    <ClCompile Include="..\..\src\video\FBPostProcessor.cc" />
+    <ClCompile Include="..\..\src\video\FrameSource.cc" />
+    <ClCompile Include="..\..\src\video\GLHQLiteScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLHQScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLImage.cc" />
+    <ClCompile Include="..\..\src\video\GLPostProcessor.cc" />
+    <ClCompile Include="..\..\src\video\GLRGBScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLSaIScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLScaleNxScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLScalerFactory.cc" />
+    <ClCompile Include="..\..\src\video\GLSimpleScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLSnow.cc" />
+    <ClCompile Include="..\..\src\video\GLTVScaler.cc" />
+    <ClCompile Include="..\..\src\video\GLUtil.cc" />
+    <ClCompile Include="..\..\src\video\HQ2xLiteScaler.cc" />
+    <ClCompile Include="..\..\src\video\HQ2xScaler.cc" />
+    <ClCompile Include="..\..\src\video\HQ3xLiteScaler.cc" />
+    <ClCompile Include="..\..\src\video\HQ3xScaler.cc" />
+    <ClCompile Include="..\..\src\video\Icon.cc" />
+    <ClCompile Include="..\..\src\video\Layer.cc" />
+    <ClCompile Include="..\..\src\video\Multiply32.cc" />
+    <ClCompile Include="..\..\src\video\OutputSurface.cc" />
+    <ClCompile Include="..\..\src\video\PixelRenderer.cc" />
+    <ClCompile Include="..\..\src\video\PNG.cc" />
+    <ClCompile Include="..\..\src\video\PostProcessor.cc" />
+    <ClCompile Include="..\..\src\video\RawFrame.cc" />
+    <ClCompile Include="..\..\src\video\Renderer.cc" />
+    <ClCompile Include="..\..\src\video\RendererFactory.cc" />
+    <ClCompile Include="..\..\src\video\RenderSettings.cc" />
+    <ClCompile Include="..\..\src\video\RGBTriplet3xScaler.cc" />
+    <ClCompile Include="..\..\src\video\SaI2xScaler.cc" />
+    <ClCompile Include="..\..\src\video\SaI3xScaler.cc" />
+    <ClCompile Include="..\..\src\video\Scale2xScaler.cc" />
+    <ClCompile Include="..\..\src\video\Scale3xScaler.cc" />
+    <ClCompile Include="..\..\src\video\Scaler1.cc" />
+    <ClCompile Include="..\..\src\video\Scaler2.cc" />
+    <ClCompile Include="..\..\src\video\Scaler3.cc" />
+    <ClCompile Include="..\..\src\video\ScalerFactory.cc" />
+    <ClCompile Include="..\..\src\video\Scanline.cc" />
+    <ClCompile Include="..\..\src\video\SDLGLOffScreenSurface.cc" />
+    <ClCompile Include="..\..\src\video\SDLGLOutputSurface.cc" />
+    <ClCompile Include="..\..\src\video\SDLGLVisibleSurface.cc" />
+    <ClCompile Include="..\..\src\video\SDLImage.cc" />
+    <ClCompile Include="..\..\src\video\SDLOffScreenSurface.cc" />
+    <ClCompile Include="..\..\src\video\SDLRasterizer.cc" />
+    <ClCompile Include="..\..\src\video\SDLSnow.cc" />
+    <ClCompile Include="..\..\src\video\SDLVideoSystem.cc" />
+    <ClCompile Include="..\..\src\video\SDLVisibleSurface.cc" />
+    <ClCompile Include="..\..\src\video\Simple2xScaler.cc" />
+    <ClCompile Include="..\..\src\video\Simple3xScaler.cc" />
+    <ClCompile Include="..\..\src\video\SpriteChecker.cc" />
+    <ClCompile Include="..\..\src\video\SuperImposedFrame.cc" />
+    <ClCompile Include="..\..\src\video\VDP.cc" />
+    <ClCompile Include="..\..\src\video\VDPCmdEngine.cc" />
+    <ClCompile Include="..\..\src\video\VDPVRAM.cc" />
+    <ClCompile Include="..\..\src\video\VideoLayer.cc" />
+    <ClCompile Include="..\..\src\video\VideoSourceSetting.cc" />
+    <ClCompile Include="..\..\src\video\VideoSystem.cc" />
+    <ClCompile Include="..\..\src\video\VisibleSurface.cc" />
+    <ClCompile Include="..\..\src\video\ZMBVEncoder.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990BitmapConverter.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990CmdEngine.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990DisplayTiming.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990DummyRenderer.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990P1Converter.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990P2Converter.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990PixelRenderer.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990Renderer.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990SDLRasterizer.cc" />
+    <ClCompile Include="..\..\src\video\v9990\V9990VRAM.cc" />
+    <ClCompile Include="..\..\src\video\ld\LDDummyRenderer.cc" />
+    <ClCompile Include="..\..\src\video\ld\LDPixelRenderer.cc" />
+    <ClCompile Include="..\..\src\video\ld\LDRenderer.cc" />
+    <ClCompile Include="..\..\src\video\ld\LDSDLRasterizer.cc" />
+    <ClCompile Include="..\..\src\serial\ClockPin.cc" />
+    <ClCompile Include="..\..\src\serial\DummyMidiInDevice.cc" />
+    <ClCompile Include="..\..\src\serial\DummyMidiOutDevice.cc" />
+    <ClCompile Include="..\..\src\serial\DummyRS232Device.cc" />
+    <ClCompile Include="..\..\src\serial\I8251.cc" />
+    <ClCompile Include="..\..\src\serial\I8254.cc" />
+    <ClCompile Include="..\..\src\serial\MC6850.cc" />
+    <ClCompile Include="..\..\src\serial\Midi_w32.cc" />
+    <ClCompile Include="..\..\src\serial\MidiInConnector.cc" />
+    <ClCompile Include="..\..\src\serial\MidiInDevice.cc" />
+    <ClCompile Include="..\..\src\serial\MidiInReader.cc" />
+    <ClCompile Include="..\..\src\serial\MidiInWindows.cc" />
+    <ClCompile Include="..\..\src\serial\MidiOutConnector.cc" />
+    <ClCompile Include="..\..\src\serial\MidiOutDevice.cc" />
+    <ClCompile Include="..\..\src\serial\MidiOutLogger.cc" />
+    <ClCompile Include="..\..\src\serial\MidiOutWindows.cc" />
+    <ClCompile Include="..\..\src\serial\MSXMidi.cc" />
+    <ClCompile Include="..\..\src\serial\MSXRS232.cc" />
+    <ClCompile Include="..\..\src\serial\RS232Connector.cc" />
+    <ClCompile Include="..\..\src\serial\RS232Device.cc" />
+    <ClCompile Include="..\..\src\serial\RS232Tester.cc" />
+    <ClCompile Include="..\..\src\serial\YM2148.cc" />
+    <ClCompile Include="..\..\src\security\SocketStreamWrapper.cc" />
+    <ClCompile Include="..\..\src\security\SspiNegotiateServer.cc" />
+    <ClCompile Include="..\..\src\security\SspiUtils.cc" />
+    <ClCompile Include="..\..\src\laserdisc\LaserdiscPlayer.cc" />
+    <ClCompile Include="..\..\src\laserdisc\LaserdiscPlayerCLI.cc" />
+    <ClCompile Include="..\..\src\laserdisc\OggReader.cc" />
+    <ClCompile Include="..\..\src\laserdisc\PioneerLDControl.cc" />
+    <ClCompile Include="..\..\src\laserdisc\yuv2rgb.cc" />
+    <ClCompile Include="..\..\src\Autofire.cc" />
+    <ClCompile Include="..\..\src\CartridgeSlotManager.cc" />
+    <ClCompile Include="..\..\src\CliExtension.cc" />
+    <ClCompile Include="..\..\src\CLIOption.cc" />
+    <ClCompile Include="..\..\src\CommandLineParser.cc" />
+    <ClCompile Include="..\..\src\Connector.cc" />
+    <ClCompile Include="..\..\src\DebugDevice.cc" />
+    <ClCompile Include="..\..\src\DeviceFactory.cc" />
+    <ClCompile Include="..\..\src\DummyDevice.cc" />
+    <ClCompile Include="..\..\src\DummyPrinterPortDevice.cc" />
+    <ClCompile Include="..\..\src\DynamicClock.cc" />
+    <ClCompile Include="..\..\src\EmptyPatch.cc" />
+    <ClCompile Include="..\..\src\EmuDuration.cc" />
+    <ClCompile Include="..\..\src\EmuTime.cc" />
+    <ClCompile Include="..\..\src\FirmwareSwitch.cc" />
+    <ClCompile Include="..\..\src\GlobalSettings.cc" />
+    <ClCompile Include="..\..\src\I8255.cc" />
+    <ClCompile Include="..\..\src\IPSPatch.cc" />
+    <ClCompile Include="..\..\src\LedStatus.cc" />
+    <ClCompile Include="..\..\src\main.cc" />
+    <ClCompile Include="..\..\src\MSXBunsetsu.cc" />
+    <ClCompile Include="..\..\src\MSXDevice.cc" />
+    <ClCompile Include="..\..\src\MSXDeviceSwitch.cc" />
+    <ClCompile Include="..\..\src\MSXE6Timer.cc" />
+    <ClCompile Include="..\..\src\MSXException.cc" />
+    <ClCompile Include="..\..\src\MSXF4Device.cc" />
+    <ClCompile Include="..\..\src\MSXKanji.cc" />
+    <ClCompile Include="..\..\src\MSXKanji12.cc" />
+    <ClCompile Include="..\..\src\MSXMatsushita.cc" />
+    <ClCompile Include="..\..\src\MSXMotherBoard.cc" />
+    <ClCompile Include="..\..\src\MSXPPI.cc" />
+    <ClCompile Include="..\..\src\MSXPrinterPort.cc" />
+    <ClCompile Include="..\..\src\MSXRTC.cc" />
+    <ClCompile Include="..\..\src\MSXS1985.cc" />
+    <ClCompile Include="..\..\src\MSXS1990.cc" />
+    <ClCompile Include="..\..\src\MSXSwitchedDevice.cc" />
+    <ClCompile Include="..\..\src\MSXTurboRPause.cc" />
+    <ClCompile Include="..\..\src\openmsx.cc" />
+    <ClCompile Include="..\..\src\PasswordCart.cc" />
+    <ClCompile Include="..\..\src\Pluggable.cc" />
+    <ClCompile Include="..\..\src\PluggableFactory.cc" />
+    <ClCompile Include="..\..\src\PluggingController.cc" />
+    <ClCompile Include="..\..\src\Printer.cc" />
+    <ClCompile Include="..\..\src\PrinterPortDevice.cc" />
+    <ClCompile Include="..\..\src\PrinterPortLogger.cc" />
+    <ClCompile Include="..\..\src\PrinterPortSimpl.cc" />
+    <ClCompile Include="..\..\src\Reactor.cc" />
+    <ClCompile Include="..\..\src\RealTime.cc" />
+    <ClCompile Include="..\..\src\RenShaTurbo.cc" />
+    <ClCompile Include="..\..\src\ReverseManager.cc" />
+    <ClCompile Include="..\..\src\RP5C01.cc" />
+    <ClCompile Include="..\..\src\Schedulable.cc" />
+    <ClCompile Include="..\..\src\Scheduler.cc" />
+    <ClCompile Include="..\..\src\serialize.cc" />
+    <ClCompile Include="..\..\src\serialize_core.cc" />
+    <ClCompile Include="..\..\src\serialize_meta.cc" />
+    <ClCompile Include="..\..\src\ThrottleManager.cc" />
+    <ClCompile Include="..\..\src\Version.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\cassette\CasImage.hh" />
+    <None Include="..\..\src\cassette\CassetteDevice.hh" />
+    <None Include="..\..\src\cassette\CassetteImage.hh" />
+    <None Include="..\..\src\cassette\CassettePlayer.hh" />
+    <None Include="..\..\src\cassette\CassettePlayerCLI.hh" />
+    <None Include="..\..\src\cassette\CassettePort.hh" />
+    <None Include="..\..\src\cassette\DummyCassetteDevice.hh" />
+    <None Include="..\..\src\cassette\WavImage.hh" />
+    <None Include="..\..\src\commands\Command.hh" />
+    <None Include="..\..\src\commands\CommandController.hh" />
+    <None Include="..\..\src\commands\CommandException.hh" />
+    <None Include="..\..\src\commands\Completer.hh" />
+    <None Include="..\..\src\commands\GlobalCommandController.hh" />
+    <None Include="..\..\src\commands\InfoCommand.hh" />
+    <None Include="..\..\src\commands\InfoTopic.hh" />
+    <None Include="..\..\src\commands\Interpreter.hh" />
+    <None Include="..\..\src\commands\InterpreterOutput.hh" />
+    <None Include="..\..\src\commands\MSXCommandController.hh" />
+    <None Include="..\..\src\commands\ProxyCommand.hh" />
+    <None Include="..\..\src\commands\TclObject.hh" />
+    <None Include="..\..\src\config\ConfigException.hh" />
+    <None Include="..\..\src\config\HardwareConfig.hh" />
+    <None Include="..\..\src\config\SettingsConfig.hh" />
+    <None Include="..\..\src\config\XMLElement.hh" />
+    <None Include="..\..\src\config\XMLException.hh" />
+    <None Include="..\..\src\config\XMLLoader.hh" />
+    <None Include="..\..\src\console\CommandConsole.hh" />
+    <None Include="..\..\src\console\OSDConsoleRenderer.hh" />
+    <None Include="..\..\src\console\OSDGUI.hh" />
+    <None Include="..\..\src\console\OSDGUILayer.hh" />
+    <None Include="..\..\src\console\OSDImageBasedWidget.hh" />
+    <None Include="..\..\src\console\OSDRectangle.hh" />
+    <None Include="..\..\src\console\OSDText.hh" />
+    <None Include="..\..\src\console\OSDTopWidget.hh" />
+    <None Include="..\..\src\console\OSDWidget.hh" />
+    <None Include="..\..\src\console\TTFFont.hh" />
+    <None Include="..\..\src\cpu\BreakPoint.hh" />
+    <None Include="..\..\src\cpu\BreakPointBase.hh" />
+    <None Include="..\..\src\cpu\CacheLine.hh" />
+    <None Include="..\..\src\cpu\CPU.hh" />
+    <None Include="..\..\src\cpu\CPUClock.hh" />
+    <None Include="..\..\src\cpu\CPUCore.hh" />
+    <None Include="..\..\src\cpu\Dasm.hh" />
+    <None Include="..\..\src\cpu\IRQHelper.hh" />
+    <None Include="..\..\src\cpu\MSXCPU.hh" />
+    <None Include="..\..\src\cpu\MSXCPUInterface.hh" />
+    <None Include="..\..\src\cpu\MSXMultiDevice.hh" />
+    <None Include="..\..\src\cpu\MSXMultiIODevice.hh" />
+    <None Include="..\..\src\cpu\MSXMultiMemDevice.hh" />
+    <None Include="..\..\src\cpu\MSXWatchIODevice.hh" />
+    <None Include="..\..\src\cpu\R800.hh" />
+    <None Include="..\..\src\cpu\VDPIODelay.hh" />
+    <None Include="..\..\src\cpu\WatchPoint.hh" />
+    <None Include="..\..\src\cpu\Z80.hh" />
+    <None Include="..\..\src\debugger\DasmTables.hh" />
+    <None Include="..\..\src\debugger\Debuggable.hh" />
+    <None Include="..\..\src\debugger\Debugger.hh" />
+    <None Include="..\..\src\debugger\Probe.hh" />
+    <None Include="..\..\src\debugger\ProbeBreakPoint.hh" />
+    <None Include="..\..\src\debugger\SimpleDebuggable.hh" />
+    <None Include="..\..\src\events\AfterCommand.hh" />
+    <None Include="..\..\src\events\CliComm.hh" />
+    <None Include="..\..\src\events\CliConnection.hh" />
+    <None Include="..\..\src\events\CliServer.hh" />
+    <None Include="..\..\src\events\Event.hh" />
+    <None Include="..\..\src\events\EventDistributor.hh" />
+    <None Include="..\..\src\events\EventListener.hh" />
+    <None Include="..\..\src\events\FinishFrameEvent.hh" />
+    <None Include="..\..\src\events\GlobalCliComm.hh" />
+    <None Include="..\..\src\events\HotKey.hh" />
+    <None Include="..\..\src\events\InputEventFactory.hh" />
+    <None Include="..\..\src\events\InputEventGenerator.hh" />
+    <None Include="..\..\src\events\InputEvents.hh" />
+    <None Include="..\..\src\events\Keys.hh" />
+    <None Include="..\..\src\events\MSXCliComm.hh" />
+    <None Include="..\..\src\events\Socket.hh" />
+    <None Include="..\..\src\fdc\BootBlocks.hh" />
+    <None Include="..\..\src\fdc\DirAsDSK.hh" />
+    <None Include="..\..\src\fdc\Disk.hh" />
+    <None Include="..\..\src\fdc\DiskChanger.hh" />
+    <None Include="..\..\src\fdc\DiskContainer.hh" />
+    <None Include="..\..\src\fdc\DiskDrive.hh" />
+    <None Include="..\..\src\fdc\DiskExceptions.hh" />
+    <None Include="..\..\src\fdc\DiskFactory.hh" />
+    <None Include="..\..\src\fdc\DiskImageCLI.hh" />
+    <None Include="..\..\src\fdc\DiskImageUtils.hh" />
+    <None Include="..\..\src\fdc\DiskManipulator.hh" />
+    <None Include="..\..\src\fdc\DiskName.hh" />
+    <None Include="..\..\src\fdc\DiskPartition.hh" />
+    <None Include="..\..\src\fdc\DriveMultiplexer.hh" />
+    <None Include="..\..\src\fdc\DSKDiskImage.hh" />
+    <None Include="..\..\src\fdc\DummyDisk.hh" />
+    <None Include="..\..\src\fdc\EmptyDiskPatch.hh" />
+    <None Include="..\..\src\fdc\MicrosolFDC.hh" />
+    <None Include="..\..\src\fdc\MSXFDC.hh" />
+    <None Include="..\..\src\fdc\MSXtar.hh" />
+    <None Include="..\..\src\fdc\NationalFDC.hh" />
+    <None Include="..\..\src\fdc\node.mk" />
+    <None Include="..\..\src\fdc\NowindCommand.hh" />
+    <None Include="..\..\src\fdc\NowindHost.hh" />
+    <None Include="..\..\src\fdc\NowindInterface.hh" />
+    <None Include="..\..\src\fdc\NowindRomDisk.hh" />
+    <None Include="..\..\src\fdc\PhilipsFDC.hh" />
+    <None Include="..\..\src\fdc\RamDSKDiskImage.hh" />
+    <None Include="..\..\src\fdc\RealDrive.hh" />
+    <None Include="..\..\src\fdc\SectorAccessibleDisk.hh" />
+    <None Include="..\..\src\fdc\SectorBasedDisk.hh" />
+    <None Include="..\..\src\fdc\TC8566AF.hh" />
+    <None Include="..\..\src\fdc\TurboRFDC.hh" />
+    <None Include="..\..\src\fdc\WD2793.hh" />
+    <None Include="..\..\src\fdc\WD2793BasedFDC.hh" />
+    <None Include="..\..\src\fdc\XSADiskImage.hh" />
+    <None Include="..\..\src\file\CompressedFileAdapter.hh" />
+    <None Include="..\..\src\file\File.hh" />
+    <None Include="..\..\src\file\FileBase.hh" />
+    <None Include="..\..\src\file\FileContext.hh" />
+    <None Include="..\..\src\file\FileException.hh" />
+    <None Include="..\..\src\file\Filename.hh" />
+    <None Include="..\..\src\file\FileOperations.hh" />
+    <None Include="..\..\src\file\FilePool.hh" />
+    <None Include="..\..\src\file\GZFileAdapter.hh" />
+    <None Include="..\..\src\file\LocalFile.hh" />
+    <None Include="..\..\src\file\LocalFileReference.hh" />
+    <None Include="..\..\src\file\PreCacheFile.hh" />
+    <None Include="..\..\src\file\ReadDir.hh" />
+    <None Include="..\..\src\file\ZipFileAdapter.hh" />
+    <None Include="..\..\src\file\ZlibInflate.hh" />
+    <None Include="..\..\src\ide\AbstractIDEDevice.hh" />
+    <None Include="..\..\src\ide\CDImageCLI.hh" />
+    <None Include="..\..\src\ide\DummyIDEDevice.hh" />
+    <None Include="..\..\src\ide\DummySCSIDevice.hh" />
+    <None Include="..\..\src\ide\GoudaSCSI.hh" />
+    <None Include="..\..\src\ide\HD.hh" />
+    <None Include="..\..\src\ide\HDCommand.hh" />
+    <None Include="..\..\src\ide\HDImageCLI.hh" />
+    <None Include="..\..\src\ide\IDECDROM.hh" />
+    <None Include="..\..\src\ide\IDEDevice.hh" />
+    <None Include="..\..\src\ide\IDEDeviceFactory.hh" />
+    <None Include="..\..\src\ide\IDEHD.hh" />
+    <None Include="..\..\src\ide\MB89352.hh" />
+    <None Include="..\..\src\ide\MegaSCSI.hh" />
+    <None Include="..\..\src\ide\SCSI.hh" />
+    <None Include="..\..\src\ide\SCSIDevice.hh" />
+    <None Include="..\..\src\ide\SCSIHD.hh" />
+    <None Include="..\..\src\ide\SCSILS120.hh" />
+    <None Include="..\..\src\ide\SunriseIDE.hh" />
+    <None Include="..\..\src\ide\WD33C93.hh" />
+    <None Include="..\..\src\input\ArkanoidPad.hh" />
+    <None Include="..\..\src\input\DummyJoystick.hh" />
+    <None Include="..\..\src\input\EventDelay.hh" />
+    <None Include="..\..\src\input\Joystick.hh" />
+    <None Include="..\..\src\input\JoystickDevice.hh" />
+    <None Include="..\..\src\input\JoystickPort.hh" />
+    <None Include="..\..\src\input\JoyTap.hh" />
+    <None Include="..\..\src\input\Keyboard.hh" />
+    <None Include="..\..\src\input\KeyboardSettings.hh" />
+    <None Include="..\..\src\input\KeyJoystick.hh" />
+    <None Include="..\..\src\input\MagicKey.hh" />
+    <None Include="..\..\src\input\Mouse.hh" />
+    <None Include="..\..\src\input\MSXEventDistributor.hh" />
+    <None Include="..\..\src\input\MSXEventListener.hh" />
+    <None Include="..\..\src\input\NinjaTap.hh" />
+    <None Include="..\..\src\input\RecordedCommand.hh" />
+    <None Include="..\..\src\input\SETetrisDongle.hh" />
+    <None Include="..\..\src\input\StateChange.hh" />
+    <None Include="..\..\src\input\StateChangeDistributor.hh" />
+    <None Include="..\..\src\input\StateChangeListener.hh" />
+    <None Include="..\..\src\input\Trackball.hh" />
+    <None Include="..\..\src\input\UnicodeKeymap.hh" />
+    <None Include="..\..\src\memory\AmdFlash.hh" />
+    <None Include="..\..\src\memory\CheckedRam.hh" />
+    <None Include="..\..\src\memory\ESE_RAM.hh" />
+    <None Include="..\..\src\memory\ESE_SCC.hh" />
+    <None Include="..\..\src\memory\MSXHBI55.hh" />
+    <None Include="..\..\src\memory\MSXMapperIO.hh" />
+    <None Include="..\..\src\memory\MSXMegaRam.hh" />
+    <None Include="..\..\src\memory\MSXMemoryMapper.hh" />
+    <None Include="..\..\src\memory\MSXMirrorDevice.hh" />
+    <None Include="..\..\src\memory\MSXPac.hh" />
+    <None Include="..\..\src\memory\MSXRam.hh" />
+    <None Include="..\..\src\memory\MSXRom.hh" />
+    <None Include="..\..\src\memory\MSXRomCLI.hh" />
+    <None Include="..\..\src\memory\PanasonicMemory.hh" />
+    <None Include="..\..\src\memory\PanasonicRam.hh" />
+    <None Include="..\..\src\memory\Ram.hh" />
+    <None Include="..\..\src\memory\Rom.hh" />
+    <None Include="..\..\src\memory\RomArc.hh" />
+    <None Include="..\..\src\memory\RomAscii16_2.hh" />
+    <None Include="..\..\src\memory\RomAscii16kB.hh" />
+    <None Include="..\..\src\memory\RomAscii8_8.hh" />
+    <None Include="..\..\src\memory\RomAscii8kB.hh" />
+    <None Include="..\..\src\memory\RomBlocks.hh" />
+    <None Include="..\..\src\memory\RomCrossBlaim.hh" />
+    <None Include="..\..\src\memory\RomDatabase.hh" />
+    <None Include="..\..\src\memory\RomDRAM.hh" />
+    <None Include="..\..\src\memory\RomFactory.hh" />
+    <None Include="..\..\src\memory\RomFSA1FM.hh" />
+    <None Include="..\..\src\memory\RomGameMaster2.hh" />
+    <None Include="..\..\src\memory\RomGeneric16kB.hh" />
+    <None Include="..\..\src\memory\RomGeneric8kB.hh" />
+    <None Include="..\..\src\memory\RomHalnote.hh" />
+    <None Include="..\..\src\memory\RomHarryFox.hh" />
+    <None Include="..\..\src\memory\RomHolyQuran.hh" />
+    <None Include="..\..\src\memory\RomHolyQuran2.hh" />
+    <None Include="..\..\src\memory\RomInfo.hh" />
+    <None Include="..\..\src\memory\RomInfoTopic.hh" />
+    <None Include="..\..\src\memory\RomKonami.hh" />
+    <None Include="..\..\src\memory\RomKonamiKeyboardMaster.hh" />
+    <None Include="..\..\src\memory\RomKonamiSCC.hh" />
+    <None Include="..\..\src\memory\RomMajutsushi.hh" />
+    <None Include="..\..\src\memory\RomManbow2.hh" />
+    <None Include="..\..\src\memory\RomMatraInk.hh" />
+    <None Include="..\..\src\memory\RomMSXDOS2.hh" />
+    <None Include="..\..\src\memory\RomNational.hh" />
+    <None Include="..\..\src\memory\RomNettouYakyuu.hh" />
+    <None Include="..\..\src\memory\RomPadial16kB.hh" />
+    <None Include="..\..\src\memory\RomPadial8kB.hh" />
+    <None Include="..\..\src\memory\RomPageNN.hh" />
+    <None Include="..\..\src\memory\RomPanasonic.hh" />
+    <None Include="..\..\src\memory\RomPlain.hh" />
+    <None Include="..\..\src\memory\RomPlayBall.hh" />
+    <None Include="..\..\src\memory\RomRType.hh" />
+    <None Include="..\..\src\memory\RomSuperLodeRunner.hh" />
+    <None Include="..\..\src\memory\RomSynthesizer.hh" />
+    <None Include="..\..\src\memory\RomTypes.hh" />
+    <None Include="..\..\src\memory\RomZemina126in1.hh" />
+    <None Include="..\..\src\memory\RomZemina80in1.hh" />
+    <None Include="..\..\src\memory\RomZemina90in1.hh" />
+    <None Include="..\..\src\memory\SRAM.hh" />
+    <None Include="..\..\src\resource\openmsx.ico" />
+    <None Include="..\..\src\settings\BooleanSetting.hh" />
+    <None Include="..\..\src\settings\EnumSetting.hh" />
+    <None Include="..\..\src\settings\FilenameSetting.hh" />
+    <None Include="..\..\src\settings\FloatSetting.hh" />
+    <None Include="..\..\src\settings\IntegerSetting.hh" />
+    <None Include="..\..\src\settings\KeyCodeSetting.hh" />
+    <None Include="..\..\src\settings\ProxySetting.hh" />
+    <None Include="..\..\src\settings\ReadOnlySetting.hh" />
+    <None Include="..\..\src\settings\Setting.hh" />
+    <None Include="..\..\src\settings\SettingImpl.hh" />
+    <None Include="..\..\src\settings\SettingPolicy.hh" />
+    <None Include="..\..\src\settings\SettingRangePolicy.hh" />
+    <None Include="..\..\src\settings\SettingsManager.hh" />
+    <None Include="..\..\src\settings\StringSetting.hh" />
+    <None Include="..\..\src\settings\UserSettings.hh" />
+    <None Include="..\..\src\sound\AudioInputConnector.hh" />
+    <None Include="..\..\src\sound\AudioInputDevice.hh" />
+    <None Include="..\..\src\sound\AY8910.hh" />
+    <None Include="..\..\src\sound\AY8910Periphery.hh" />
+    <None Include="..\..\src\sound\BlipBuffer.hh" />
+    <None Include="..\..\src\sound\DACSound16S.hh" />
+    <None Include="..\..\src\sound\DACSound8U.hh" />
+    <None Include="..\..\src\sound\DirectXSoundDriver.hh" />
+    <None Include="..\..\src\sound\DummyAudioInputDevice.hh" />
+    <None Include="..\..\src\sound\DummyY8950KeyboardDevice.hh" />
+    <None Include="..\..\src\sound\EmuTimer.hh" />
+    <None Include="..\..\src\sound\KeyClick.hh" />
+    <None Include="..\..\src\sound\Mixer.hh" />
+    <None Include="..\..\src\sound\MSXAudio.hh" />
+    <None Include="..\..\src\sound\MSXFmPac.hh" />
+    <None Include="..\..\src\sound\MSXMixer.hh" />
+    <None Include="..\..\src\sound\MSXMoonSound.hh" />
+    <None Include="..\..\src\sound\MSXMusic.hh" />
+    <None Include="..\..\src\sound\MSXOPL3Cartridge.hh" />
+    <None Include="..\..\src\sound\MSXPSG.hh" />
+    <None Include="..\..\src\sound\MSXSCCPlusCart.hh" />
+    <None Include="..\..\src\sound\MSXTurboRPCM.hh" />
+    <None Include="..\..\src\sound\MSXYamahaSFG.hh" />
+    <None Include="..\..\src\sound\NullSoundDriver.hh" />
+    <None Include="..\..\src\sound\Resample.hh" />
+    <None Include="..\..\src\sound\ResampleAlgo.hh" />
+    <None Include="..\..\src\sound\ResampleBlip.hh" />
+    <None Include="..\..\src\sound\ResampleCoeffs.ii" />
+    <CustomBuild Include="..\..\src\sound\ResampleHQ-x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\sound\ResampleHQ-x86.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\src\sound\ResampleHQ.hh" />
+    <None Include="..\..\src\sound\ResampleLQ.hh" />
+    <None Include="..\..\src\sound\ResampleTrivial.hh" />
+    <None Include="..\..\src\sound\SamplePlayer.hh" />
+    <None Include="..\..\src\sound\SCC.hh" />
+    <None Include="..\..\src\sound\SDLSoundDriver.hh" />
+    <None Include="..\..\src\sound\SoundDevice.hh" />
+    <None Include="..\..\src\sound\SoundDriver.hh" />
+    <None Include="..\..\src\sound\VLM5030.hh" />
+    <None Include="..\..\src\sound\WavAudioInput.hh" />
+    <None Include="..\..\src\sound\WavData.hh" />
+    <None Include="..\..\src\sound\WavWriter.hh" />
+    <None Include="..\..\src\sound\Y8950.hh" />
+    <None Include="..\..\src\sound\Y8950Adpcm.hh" />
+    <None Include="..\..\src\sound\Y8950KeyboardConnector.hh" />
+    <None Include="..\..\src\sound\Y8950KeyboardDevice.hh" />
+    <None Include="..\..\src\sound\Y8950Periphery.hh" />
+    <None Include="..\..\src\sound\YM2151.hh" />
+    <None Include="..\..\src\sound\YM2413.hh" />
+    <None Include="..\..\src\sound\YM2413Burczynski.hh" />
+    <None Include="..\..\src\sound\YM2413Core.hh" />
+    <None Include="..\..\src\sound\YM2413Interface.hh" />
+    <None Include="..\..\src\sound\YM2413Okazaki.hh" />
+    <None Include="..\..\src\sound\YMF262.hh" />
+    <None Include="..\..\src\sound\YMF278.hh" />
+    <None Include="..\..\src\thread\Alarm.hh" />
+    <None Include="..\..\src\thread\AlarmEvent.hh" />
+    <None Include="..\..\src\thread\CondVar.hh" />
+    <None Include="..\..\src\thread\Semaphore.hh" />
+    <None Include="..\..\src\thread\Thread.hh" />
+    <None Include="..\..\src\thread\Timer.hh" />
+    <None Include="..\..\src\utils\Aligned.hh" />
+    <None Include="..\..\src\utils\AltSpaceSuppressor.hh" />
+    <None Include="..\..\src\utils\Base64.hh" />
+    <None Include="..\..\src\utils\checked_cast.hh" />
+    <None Include="..\..\src\utils\CircularBuffer.hh" />
+    <None Include="..\..\src\utils\CRC16.hh" />
+    <None Include="..\..\src\utils\cstdiop.hh" />
+    <None Include="..\..\src\utils\cstdlibp.hh" />
+    <None Include="..\..\src\utils\Date.hh" />
+    <None Include="..\..\src\utils\direntp.hh" />
+    <None Include="..\..\src\utils\DivModByConst.hh" />
+    <None Include="..\..\src\utils\DivModBySame.hh" />
+    <None Include="..\..\src\utils\FixedPoint.hh" />
+    <None Include="..\..\src\utils\HexDump.hh" />
+    <None Include="..\..\src\utils\HostCPU.hh" />
+    <None Include="..\..\src\utils\inline.hh" />
+    <None Include="..\..\src\utils\likely.hh" />
+    <None Include="..\..\src\utils\lzo.hh" />
+    <None Include="..\..\src\utils\lzoconf.hh" />
+    <None Include="..\..\src\utils\lzodefs.hh" />
+    <None Include="..\..\src\utils\Math.hh" />
+    <None Include="..\..\src\utils\MemBuffer.hh" />
+    <None Include="..\..\src\utils\MemoryOps.hh" />
+    <None Include="..\..\src\utils\my_auto_ptr.hh" />
+    <None Include="..\..\src\utils\noncopyable.hh" />
+    <None Include="..\..\src\utils\Observer.hh" />
+    <None Include="..\..\src\utils\ref.hh" />
+    <None Include="..\..\src\utils\ScopedAssign.hh" />
+    <None Include="..\..\src\utils\sdlwin32.hh" />
+    <None Include="..\..\src\utils\sha1.hh" />
+    <None Include="..\..\src\utils\shared_ptr.hh" />
+    <None Include="..\..\src\utils\static_assert.hh" />
+    <None Include="..\..\src\utils\statp.hh" />
+    <None Include="..\..\src\utils\StringOp.hh" />
+    <None Include="..\..\src\utils\stringsp.hh" />
+    <None Include="..\..\src\utils\Subject.hh" />
+    <None Include="..\..\src\utils\tuple.hh" />
+    <None Include="..\..\src\utils\type_traits.hh" />
+    <None Include="..\..\src\utils\TypeInfo.hh" />
+    <None Include="..\..\src\utils\uint128.hh" />
+    <None Include="..\..\src\utils\unistdp.hh" />
+    <None Include="..\..\src\utils\unreachable.hh" />
+    <None Include="..\..\src\utils\utf8_checked.hh" />
+    <None Include="..\..\src\utils\utf8_core.hh" />
+    <None Include="..\..\src\utils\utf8_unchecked.hh" />
+    <None Include="..\..\src\utils\vla.hh" />
+    <None Include="..\..\src\utils\win32-arggen.hh" />
+    <None Include="..\..\src\utils\win32-dirent.hh" />
+    <None Include="..\..\src\video\ADVram.hh" />
+    <None Include="..\..\src\video\AviRecorder.hh" />
+    <None Include="..\..\src\video\AviWriter.hh" />
+    <None Include="..\..\src\video\BaseImage.hh" />
+    <None Include="..\..\src\video\BitmapConverter.hh" />
+    <None Include="..\..\src\video\CharacterConverter.hh" />
+    <None Include="..\..\src\video\DeinterlacedFrame.hh" />
+    <None Include="..\..\src\video\DirtyChecker.hh" />
+    <None Include="..\..\src\video\Display.hh" />
+    <None Include="..\..\src\video\DisplayMode.hh" />
+    <None Include="..\..\src\video\DoubledFrame.hh" />
+    <None Include="..\..\src\video\DummyRenderer.hh" />
+    <None Include="..\..\src\video\DummyVideoSystem.hh" />
+    <CustomBuild Include="..\..\src\video\FBPostProcessor-x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\FBPostProcessor-x86.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\src\video\FBPostProcessor.hh" />
+    <None Include="..\..\src\video\FrameSource.hh" />
+    <None Include="..\..\src\video\GLHQLiteScaler.hh" />
+    <None Include="..\..\src\video\GLHQScaler.hh" />
+    <None Include="..\..\src\video\GLImage.hh" />
+    <None Include="..\..\src\video\GLPostProcessor.hh" />
+    <None Include="..\..\src\video\GLRGBScaler.hh" />
+    <None Include="..\..\src\video\GLSaIScaler.hh" />
+    <None Include="..\..\src\video\GLScaleNxScaler.hh" />
+    <None Include="..\..\src\video\GLScaler.hh" />
+    <None Include="..\..\src\video\GLScalerFactory.hh" />
+    <None Include="..\..\src\video\GLSimpleScaler.hh" />
+    <None Include="..\..\src\video\GLSnow.hh" />
+    <None Include="..\..\src\video\GLTVScaler.hh" />
+    <None Include="..\..\src\video\GLUtil.hh" />
+    <None Include="..\..\src\video\HQ2xLiteScaler-1x1to1x2.nn" />
+    <None Include="..\..\src\video\HQ2xLiteScaler-1x1to2x2.nn" />
+    <None Include="..\..\src\video\HQ2xLiteScaler.hh" />
+    <None Include="..\..\src\video\HQ2xScaler-1x1to1x2.nn" />
+    <None Include="..\..\src\video\HQ2xScaler-1x1to2x2.nn" />
+    <None Include="..\..\src\video\HQ2xScaler.hh" />
+    <None Include="..\..\src\video\HQ3xLiteScaler-1x1to3x3.nn" />
+    <None Include="..\..\src\video\HQ3xLiteScaler.hh" />
+    <None Include="..\..\src\video\HQ3xScaler-1x1to3x3.nn" />
+    <None Include="..\..\src\video\HQ3xScaler.hh" />
+    <None Include="..\..\src\video\HQCommon.hh" />
+    <None Include="..\..\src\video\Icon.hh" />
+    <None Include="..\..\src\video\Layer.hh" />
+    <None Include="..\..\src\video\LayerListener.hh" />
+    <CustomBuild Include="..\..\src\video\LineScalers-x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\LineScalers-x86.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\src\video\LineScalers.hh" />
+    <None Include="..\..\src\video\Multiply32.hh" />
+    <None Include="..\..\src\video\OutputSurface.hh" />
+    <None Include="..\..\src\video\PixelOperations.hh" />
+    <None Include="..\..\src\video\PixelRenderer.hh" />
+    <None Include="..\..\src\video\PNG.hh" />
+    <None Include="..\..\src\video\PostProcessor.hh" />
+    <None Include="..\..\src\video\Rasterizer.hh" />
+    <None Include="..\..\src\video\RawFrame.hh" />
+    <None Include="..\..\src\video\Renderer.hh" />
+    <None Include="..\..\src\video\RendererFactory.hh" />
+    <None Include="..\..\src\video\RenderSettings.hh" />
+    <None Include="..\..\src\video\RGBTriplet3xScaler.hh" />
+    <None Include="..\..\src\video\SaI2xScaler.hh" />
+    <None Include="..\..\src\video\SaI3xScaler.hh" />
+    <CustomBuild Include="..\..\src\video\Scale2xScaler-x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Scale2xScaler-x86.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\src\video\Scale2xScaler.hh" />
+    <None Include="..\..\src\video\Scale3xScaler.hh" />
+    <None Include="..\..\src\video\Scaler.hh" />
+    <None Include="..\..\src\video\Scaler1.hh" />
+    <None Include="..\..\src\video\Scaler2.hh" />
+    <None Include="..\..\src\video\Scaler3.hh" />
+    <None Include="..\..\src\video\ScalerFactory.hh" />
+    <CustomBuild Include="..\..\src\video\Scanline-x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Scanline-x86.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\src\video\Scanline.hh" />
+    <None Include="..\..\src\video\SDLGLOffScreenSurface.hh" />
+    <None Include="..\..\src\video\SDLGLOutputSurface.hh" />
+    <None Include="..\..\src\video\SDLGLVisibleSurface.hh" />
+    <None Include="..\..\src\video\SDLImage.hh" />
+    <None Include="..\..\src\video\SDLOffScreenSurface.hh" />
+    <None Include="..\..\src\video\SDLRasterizer.hh" />
+    <None Include="..\..\src\video\SDLSnow.hh" />
+    <None Include="..\..\src\video\SDLSurfacePtr.hh" />
+    <None Include="..\..\src\video\SDLVideoSystem.hh" />
+    <None Include="..\..\src\video\SDLVisibleSurface.hh" />
+    <CustomBuild Include="..\..\src\video\Simple2xScaler-x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Simple2xScaler-x86.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\src\video\Simple2xScaler.hh" />
+    <CustomBuild Include="..\..\src\video\Simple3xScaler-x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\video\Simple3xScaler-x86.asm">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="..\..\src\video\Simple3xScaler.hh" />
+    <None Include="..\..\src\video\SpriteChecker.hh" />
+    <None Include="..\..\src\video\SpriteConverter.hh" />
+    <None Include="..\..\src\video\SuperImposedFrame.hh" />
+    <None Include="..\..\src\video\VDP.hh" />
+    <None Include="..\..\src\video\VDPCmdEngine.hh" />
+    <None Include="..\..\src\video\VDPVRAM.hh" />
+    <None Include="..\..\src\video\VideoLayer.hh" />
+    <None Include="..\..\src\video\VideoSource.hh" />
+    <None Include="..\..\src\video\VideoSourceSetting.hh" />
+    <None Include="..\..\src\video\VideoSystem.hh" />
+    <None Include="..\..\src\video\VideoSystemChangeListener.hh" />
+    <None Include="..\..\src\video\VisibleSurface.hh" />
+    <None Include="..\..\src\video\VRAMObserver.hh" />
+    <None Include="..\..\src\video\ZMBVEncoder.hh" />
+    <None Include="..\..\src\video\v9990\V9990.hh" />
+    <None Include="..\..\src\video\v9990\V9990BitmapConverter.hh" />
+    <None Include="..\..\src\video\v9990\V9990CmdEngine.hh" />
+    <None Include="..\..\src\video\v9990\V9990DisplayTiming.hh" />
+    <None Include="..\..\src\video\v9990\V9990DummyRenderer.hh" />
+    <None Include="..\..\src\video\v9990\V9990ModeEnum.hh" />
+    <None Include="..\..\src\video\v9990\V9990P1Converter.hh" />
+    <None Include="..\..\src\video\v9990\V9990P2Converter.hh" />
+    <None Include="..\..\src\video\v9990\V9990PixelRenderer.hh" />
+    <None Include="..\..\src\video\v9990\V9990Rasterizer.hh" />
+    <None Include="..\..\src\video\v9990\V9990Renderer.hh" />
+    <None Include="..\..\src\video\v9990\V9990SDLRasterizer.hh" />
+    <None Include="..\..\src\video\v9990\V9990VRAM.hh" />
+    <CustomBuildStep Include="..\..\src\video\ld\LDDummyRenderer.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDPixelRenderer.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDRasterizer.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDRenderer.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\video\ld\LDSDLRasterizer.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <None Include="..\..\src\serial\ClockPin.hh" />
+    <None Include="..\..\src\serial\DummyMidiInDevice.hh" />
+    <None Include="..\..\src\serial\DummyMidiOutDevice.hh" />
+    <None Include="..\..\src\serial\DummyRS232Device.hh" />
+    <None Include="..\..\src\serial\I8251.hh" />
+    <None Include="..\..\src\serial\I8254.hh" />
+    <None Include="..\..\src\serial\MC6850.hh" />
+    <None Include="..\..\src\serial\Midi_w32.hh" />
+    <None Include="..\..\src\serial\MidiInConnector.hh" />
+    <None Include="..\..\src\serial\MidiInDevice.hh" />
+    <None Include="..\..\src\serial\MidiInReader.hh" />
+    <None Include="..\..\src\serial\MidiInWindows.hh" />
+    <None Include="..\..\src\serial\MidiOutConnector.hh" />
+    <None Include="..\..\src\serial\MidiOutDevice.hh" />
+    <None Include="..\..\src\serial\MidiOutLogger.hh" />
+    <None Include="..\..\src\serial\MidiOutWindows.hh" />
+    <None Include="..\..\src\serial\MSXMidi.hh" />
+    <None Include="..\..\src\serial\MSXRS232.hh" />
+    <None Include="..\..\src\serial\RS232Connector.hh" />
+    <None Include="..\..\src\serial\RS232Device.hh" />
+    <None Include="..\..\src\serial\RS232Tester.hh" />
+    <None Include="..\..\src\serial\SerialDataInterface.hh" />
+    <None Include="..\..\src\serial\YM2148.hh" />
+    <None Include="..\..\src\security\SocketStreamWrapper.hh" />
+    <None Include="..\..\src\security\SspiNegotiateServer.hh" />
+    <None Include="..\..\src\security\SspiUtils.hh" />
+    <CustomBuildStep Include="..\..\src\laserdisc\LaserdiscPlayer.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\LaserdiscPlayerCLI.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\OggReader.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\PioneerLDControl.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\laserdisc\yuv2rgb.hh">
+      <FileType>Document</FileType>
+    </CustomBuildStep>
+    <None Include="..\..\src\Autofire.hh" />
+    <None Include="..\..\src\CartridgeSlotManager.hh" />
+    <None Include="..\..\src\CliExtension.hh" />
+    <None Include="..\..\src\CLIOption.hh" />
+    <None Include="..\..\src\Clock.hh" />
+    <None Include="..\..\src\CommandLineParser.hh" />
+    <None Include="..\..\src\Connector.hh" />
+    <None Include="..\..\src\DebugDevice.hh" />
+    <None Include="..\..\src\DeviceFactory.hh" />
+    <None Include="..\..\src\DummyDevice.hh" />
+    <None Include="..\..\src\DummyPrinterPortDevice.hh" />
+    <None Include="..\..\src\DynamicClock.hh" />
+    <None Include="..\..\src\EmptyPatch.hh" />
+    <None Include="..\..\src\EmuDuration.hh" />
+    <None Include="..\..\src\EmuTime.hh" />
+    <None Include="..\..\src\FirmwareSwitch.hh" />
+    <None Include="..\..\src\GlobalSettings.hh" />
+    <None Include="..\..\src\I8255.hh" />
+    <None Include="..\..\src\I8255Interface.hh" />
+    <None Include="..\..\src\InitException.hh" />
+    <None Include="..\..\src\IPSPatch.hh" />
+    <None Include="..\..\src\LedStatus.hh" />
+    <None Include="..\..\src\MSXBunsetsu.hh" />
+    <None Include="..\..\src\MSXDevice.hh" />
+    <None Include="..\..\src\MSXDeviceSwitch.hh" />
+    <None Include="..\..\src\MSXE6Timer.hh" />
+    <None Include="..\..\src\MSXException.hh" />
+    <None Include="..\..\src\MSXF4Device.hh" />
+    <None Include="..\..\src\MSXKanji.hh" />
+    <None Include="..\..\src\MSXKanji12.hh" />
+    <None Include="..\..\src\MSXMatsushita.hh" />
+    <None Include="..\..\src\MSXMotherBoard.hh" />
+    <None Include="..\..\src\MSXPPI.hh" />
+    <None Include="..\..\src\MSXPrinterPort.hh" />
+    <None Include="..\..\src\MSXRTC.hh" />
+    <None Include="..\..\src\MSXS1985.hh" />
+    <None Include="..\..\src\MSXS1990.hh" />
+    <None Include="..\..\src\MSXSwitchedDevice.hh" />
+    <None Include="..\..\src\MSXTurboRPause.hh" />
+    <CustomBuild Include="..\..\src\openmsx.hh">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating config headers...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">for /f "delims=" %%d in ("$(OpenMSXConfigDir)") do set CONFIG_DIR=%%~fd
+rem echo CONFIG_DIR=%CONFIG_DIR%
+
+for /f "delims=" %%d in ("$(OpenMSXRootDir)") do set ROOT_DIR=%%~fd
+rem echo ROOT_DIR=%ROOT_DIR%
+
+set BUILD_DIR=%ROOT_DIR%\build
+rem echo BUILD_DIR=%BUILD_DIR%
+
+set MSVC_DIR=%BUILD_DIR%\msvc
+rem echo MSVC_DIR=%MSVC_DIR%
+
+set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
+rem echo PYTHONPATH=%PYTHONPATH%
+
+pushd %ROOT_DIR%
+python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+popd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating config headers...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">for /f "delims=" %%d in ("$(OpenMSXConfigDir)") do set CONFIG_DIR=%%~fd
+rem echo CONFIG_DIR=%CONFIG_DIR%
+
+for /f "delims=" %%d in ("$(OpenMSXRootDir)") do set ROOT_DIR=%%~fd
+rem echo ROOT_DIR=%ROOT_DIR%
+
+set BUILD_DIR=%ROOT_DIR%\build
+rem echo BUILD_DIR=%BUILD_DIR%
+
+set MSVC_DIR=%BUILD_DIR%\msvc
+rem echo MSVC_DIR=%MSVC_DIR%
+
+set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
+rem echo PYTHONPATH=%PYTHONPATH%
+
+pushd %ROOT_DIR%
+python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+popd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Generating config headers...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">for /f "delims=" %%d in ("$(OpenMSXConfigDir)") do set CONFIG_DIR=%%~fd
+rem echo CONFIG_DIR=%CONFIG_DIR%
+
+for /f "delims=" %%d in ("$(OpenMSXRootDir)") do set ROOT_DIR=%%~fd
+rem echo ROOT_DIR=%ROOT_DIR%
+
+set BUILD_DIR=%ROOT_DIR%\build
+rem echo BUILD_DIR=%BUILD_DIR%
+
+set MSVC_DIR=%BUILD_DIR%\msvc
+rem echo MSVC_DIR=%MSVC_DIR%
+
+set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
+rem echo PYTHONPATH=%PYTHONPATH%
+
+pushd %ROOT_DIR%
+python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+popd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Generating config headers...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">for /f "delims=" %%d in ("$(OpenMSXConfigDir)") do set CONFIG_DIR=%%~fd
+rem echo CONFIG_DIR=%CONFIG_DIR%
+
+for /f "delims=" %%d in ("$(OpenMSXRootDir)") do set ROOT_DIR=%%~fd
+rem echo ROOT_DIR=%ROOT_DIR%
+
+set BUILD_DIR=%ROOT_DIR%\build
+rem echo BUILD_DIR=%BUILD_DIR%
+
+set MSVC_DIR=%BUILD_DIR%\msvc
+rem echo MSVC_DIR=%MSVC_DIR%
+
+set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
+rem echo PYTHONPATH=%PYTHONPATH%
+
+pushd %ROOT_DIR%
+python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+popd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating config headers...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">for /f "delims=" %%d in ("$(OpenMSXConfigDir)") do set CONFIG_DIR=%%~fd
+rem echo CONFIG_DIR=%CONFIG_DIR%
+
+for /f "delims=" %%d in ("$(OpenMSXRootDir)") do set ROOT_DIR=%%~fd
+rem echo ROOT_DIR=%ROOT_DIR%
+
+set BUILD_DIR=%ROOT_DIR%\build
+rem echo BUILD_DIR=%BUILD_DIR%
+
+set MSVC_DIR=%BUILD_DIR%\msvc
+rem echo MSVC_DIR=%MSVC_DIR%
+
+set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
+rem echo PYTHONPATH=%PYTHONPATH%
+
+pushd %ROOT_DIR%
+python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+popd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating config headers...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">for /f "delims=" %%d in ("$(OpenMSXConfigDir)") do set CONFIG_DIR=%%~fd
+rem echo CONFIG_DIR=%CONFIG_DIR%
+
+for /f "delims=" %%d in ("$(OpenMSXRootDir)") do set ROOT_DIR=%%~fd
+rem echo ROOT_DIR=%ROOT_DIR%
+
+set BUILD_DIR=%ROOT_DIR%\build
+rem echo BUILD_DIR=%BUILD_DIR%
+
+set MSVC_DIR=%BUILD_DIR%\msvc
+rem echo MSVC_DIR=%MSVC_DIR%
+
+set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
+rem echo PYTHONPATH=%PYTHONPATH%
+
+pushd %ROOT_DIR%
+python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+popd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
+    </CustomBuild>
+    <None Include="..\..\src\PasswordCart.hh" />
+    <None Include="..\..\src\PatchInterface.hh" />
+    <None Include="..\..\src\PlugException.hh" />
+    <None Include="..\..\src\Pluggable.hh" />
+    <None Include="..\..\src\PluggableFactory.hh" />
+    <None Include="..\..\src\PluggingController.hh" />
+    <None Include="..\..\src\Printer.hh" />
+    <None Include="..\..\src\PrinterPortDevice.hh" />
+    <None Include="..\..\src\PrinterPortLogger.hh" />
+    <None Include="..\..\src\PrinterPortSimpl.hh" />
+    <None Include="..\..\src\Reactor.hh" />
+    <None Include="..\..\src\RealTime.hh" />
+    <None Include="..\..\src\RenShaTurbo.hh" />
+    <None Include="..\..\src\ReverseManager.hh" />
+    <None Include="..\..\src\RP5C01.hh" />
+    <None Include="..\..\src\Schedulable.hh" />
+    <None Include="..\..\src\Scheduler.hh" />
+    <None Include="..\..\src\serialize.hh" />
+    <None Include="..\..\src\serialize_constr.hh" />
+    <None Include="..\..\src\serialize_core.hh" />
+    <None Include="..\..\src\serialize_meta.hh" />
+    <None Include="..\..\src\serialize_stl.hh" />
+    <None Include="..\..\src\ThrottleManager.hh" />
+    <None Include="..\..\src\Version.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\resource\openmsx.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\sound\fake_windows.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
