@@ -298,8 +298,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\autofit\autofit.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\bdf\bdf.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\autofit\autofit.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\bdf\bdf.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -323,7 +323,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\cff\cff.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\cff\cff.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -347,7 +347,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbase.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftbase.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -371,8 +371,8 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbitmap.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\cache\ftcache.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftbitmap.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\cache\ftcache.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -396,7 +396,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\builds\win32\ftdebug.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\builds\win32\ftdebug.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -426,8 +426,8 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DisableLanguageExtensions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftgasp.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftglyph.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftgasp.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftglyph.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -451,7 +451,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\gzip\ftgzip.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\gzip\ftgzip.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -475,7 +475,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftinit.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftinit.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -499,7 +499,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\lzw\ftlzw.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\lzw\ftlzw.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -523,8 +523,8 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftstroke.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftsystem.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftstroke.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftsystem.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -548,7 +548,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\smooth\smooth.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\smooth\smooth.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -572,8 +572,8 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbbox.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftmm.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftbbox.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftmm.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -597,11 +597,11 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftpfr.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftsynth.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\fttype1.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftwinfnt.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\pcf\pcf.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftpfr.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftsynth.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\fttype1.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftwinfnt.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\pcf\pcf.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -625,7 +625,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\pfr\pfr.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\pfr\pfr.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -649,7 +649,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\psaux\psaux.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\psaux\psaux.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -673,7 +673,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\pshinter\pshinter.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\pshinter\pshinter.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -697,7 +697,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\psnames\psmodule.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\psnames\psmodule.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -721,7 +721,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\raster\raster.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\raster\raster.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -745,7 +745,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\sfnt\sfnt.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\sfnt\sfnt.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -769,7 +769,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\truetype\truetype.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\truetype\truetype.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -793,7 +793,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\type1\type1.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\type1\type1.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -817,7 +817,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\cid\type1cid.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\cid\type1cid.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -841,7 +841,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\type42\type42.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\type42\type42.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -865,7 +865,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\winfonts\winfnt.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\winfonts\winfnt.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -891,12 +891,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\ft2build.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftconfig.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftheader.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftmodule.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftoption.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\ft2build.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftconfig.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftheader.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftmodule.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftoption.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftstdlib.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

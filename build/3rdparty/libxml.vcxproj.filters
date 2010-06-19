@@ -11,159 +11,159 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\c14n.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\c14n.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\catalog.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\catalog.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\chvalid.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\chvalid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\debugXML.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\debugXML.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\dict.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\dict.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\DOCBparser.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\DOCBparser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\encoding.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\encoding.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\entities.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\entities.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\error.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\error.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\globals.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\globals.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\hash.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\hash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\HTMLparser.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\HTMLparser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\HTMLtree.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\HTMLtree.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\legacy.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\legacy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\list.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\list.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\nanoftp.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\nanoftp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\nanohttp.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\nanohttp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\parser.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\parserInternals.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\parserInternals.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\pattern.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\pattern.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\relaxng.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\relaxng.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\SAX.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\SAX.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\SAX2.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\SAX2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\schematron.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\schematron.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\threads.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\threads.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\tree.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\tree.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\uri.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\uri.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\valid.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\valid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xinclude.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xinclude.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xlink.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xlink.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlIO.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlIO.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlmemory.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlmemory.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlmodule.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlmodule.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlreader.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlreader.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlregexp.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlregexp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlsave.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlsave.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlschemas.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlschemas.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlschemastypes.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlschemastypes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlstring.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlstring.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlunicode.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlunicode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xmlwriter.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xmlwriter.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xpath.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xpath.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libxml2-2.7.7\xpointer.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\xpointer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\acconfig.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\acconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\elfgcchack.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\elfgcchack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\libxml.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\libxml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\trio.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\trio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\triodef.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\triodef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\trionan.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\trionan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\triop.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\triop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libxml2-2.7.7\triostr.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibXml)\triostr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

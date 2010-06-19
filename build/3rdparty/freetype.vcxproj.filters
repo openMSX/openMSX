@@ -5,132 +5,129 @@
       <UniqueIdentifier>{62c90e15-3afc-4349-8061-9d4644f7b19c}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
     </Filter>
-    <Filter Include="Source Files\FT_MODULES">
-      <UniqueIdentifier>{12543d67-7a92-4a9e-b2e6-6d37c67f9602}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{b30a8e21-f649-4e57-88c5-ea62fc84dd51}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\autofit\autofit.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\autofit\autofit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\bdf\bdf.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\bdf\bdf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\cff\cff.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\cff\cff.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbase.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftbase.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbitmap.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftbitmap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\cache\ftcache.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\cache\ftcache.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\builds\win32\ftdebug.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\builds\win32\ftdebug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftgasp.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftgasp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftglyph.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftglyph.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\gzip\ftgzip.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\gzip\ftgzip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftinit.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftinit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\lzw\ftlzw.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\lzw\ftlzw.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftstroke.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftstroke.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftsystem.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftsystem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\smooth\smooth.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\smooth\smooth.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftbbox.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftbbox.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftmm.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftmm.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftpfr.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftpfr.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftsynth.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftsynth.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\fttype1.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\fttype1.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\base\ftwinfnt.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftwinfnt.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\pcf\pcf.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\pcf\pcf.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\pfr\pfr.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\pfr\pfr.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\psaux\psaux.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\psaux\psaux.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\pshinter\pshinter.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\pshinter\pshinter.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\psnames\psmodule.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\psnames\psmodule.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\raster\raster.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\raster\raster.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\sfnt\sfnt.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\sfnt\sfnt.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\truetype\truetype.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\truetype\truetype.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\type1\type1.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\type1\type1.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\cid\type1cid.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\cid\type1cid.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\type42\type42.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\type42\type42.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\freetype-2.3.12\src\winfonts\winfnt.c">
-      <Filter>Source Files\FT_MODULES</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\winfonts\winfnt.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\ft2build.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\ft2build.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftconfig.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftheader.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftheader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftmodule.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftmodule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftoption.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftoption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\freetype-2.3.12\include\freetype\config\ftstdlib.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\freetype\config\ftstdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\libogg-1.2.0\src\bitwise.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameOgg)\src\bitwise.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libogg-1.2.0\src\framing.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameOgg)\src\framing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\libogg-1.2.0\include\ogg\ogg.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameOgg)\include\ogg\ogg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libogg-1.2.0\include\ogg\os_types.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameOgg)\include\ogg\os_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

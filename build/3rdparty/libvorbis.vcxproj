@@ -94,17 +94,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ThirdPartyOutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ThirdPartyOutDir)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ThirdPartyIntDir)\$(LibNameVorbis)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ThirdPartyOutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ThirdPartyOutDir)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ThirdPartyIntDir)\$(LibNameVorbis)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ThirdPartyOutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ThirdPartyOutDir)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ThirdPartyIntDir)\$(LibNameVorbis)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ThirdPartyOutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ThirdPartyOutDir)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ThirdPartyIntDir)\$(LibNameVorbis)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(ThirdPartyOutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(ThirdPartyOutDir)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(ThirdPartyIntDir)\$(LibNameVorbis)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(ThirdPartyOutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(ThirdPartyOutDir)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(ThirdPartyIntDir)\$(LibNameVorbis)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -224,74 +224,74 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\analysis.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\bitrate.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\block.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\codebook.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\envelope.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\floor0.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\floor1.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\info.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lookup.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lpc.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lsp.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\mapping0.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\mdct.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\psy.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\registry.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\res0.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\sharedbook.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\smallft.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\synthesis.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\vorbisenc.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\window.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\analysis.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\bitrate.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\block.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\codebook.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\envelope.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\floor0.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\floor1.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\info.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\lookup.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\lpc.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\lsp.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\mapping0.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\mdct.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\psy.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\registry.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\res0.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\sharedbook.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\smallft.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\synthesis.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\vorbisenc.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\window.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\vorbis.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\backends.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\bitrate.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\codebook.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\include\vorbis\codec.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\codec_internal.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\envelope.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\floor_all.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\books\floor\floor_books.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\highlevel.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lookup.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lookup_data.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lpc.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\lsp.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\masking.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\mdct.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\misc.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\os.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\psy.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_11.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_16.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_44.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\psych_8.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\registry.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\books\coupled\res_books_stereo.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\books\uncoupled\res_books_uncoupled.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_16.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_44.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_44u.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\residue_8.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\scales.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_11.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_16.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_22.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_32.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_44.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_44u.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_8.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\modes\setup_X.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\smallft.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\include\vorbis\vorbisenc.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\include\vorbis\vorbisfile.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libvorbis-1.3.1\lib\window.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\backends.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\bitrate.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\codebook.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\include\vorbis\codec.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\codec_internal.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\envelope.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\floor_all.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\books\floor\floor_books.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\highlevel.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\lookup.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\lookup_data.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\lpc.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\lsp.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\masking.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\mdct.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\misc.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\os.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\psy.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\psych_11.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\psych_16.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\psych_44.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\psych_8.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\registry.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\books\coupled\res_books_stereo.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\books\uncoupled\res_books_uncoupled.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\residue_16.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\residue_44.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\residue_44u.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\residue_8.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\scales.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_11.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_16.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_22.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_32.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_44.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_44u.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_8.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\modes\setup_X.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\smallft.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\include\vorbis\vorbisenc.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\include\vorbis\vorbisfile.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameVorbis)\lib\window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

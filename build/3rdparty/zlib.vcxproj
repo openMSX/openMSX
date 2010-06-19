@@ -454,74 +454,74 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\adler32.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\adler32.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\compress.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\compress.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\crc32.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\crc32.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\deflate.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\deflate.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\example.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\infback.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\example.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\infback.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\inffast.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\inffast.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\inflate.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\inflate.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\inftrees.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\inftrees.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\trees.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\trees.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\uncompr.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\uncompr.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\zutil.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\zutil.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-	<ClCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzio.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzio.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -529,30 +529,29 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\gzguts.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\crc32.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\deflate.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\inffast.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\inffixed.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\inflate.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\inftrees.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\trees.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\zconf.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\zlib.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\zlib-1.2.3\zutil.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\crc32.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\deflate.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\inffast.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\inffixed.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\inflate.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\inftrees.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\trees.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\zconf.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\zlib.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\zutil.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuildStep Include="..\..\derived\3rdparty\src\zlib-1.2.3\win32\zlib.def">
+    <CustomBuildStep Include="$(ThirdPartySrcDir)\$(LibNameZlib)\win32\zlib.def">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">true</ExcludedFromBuild>
     </CustomBuildStep>
-    <None Include="..\..\derived\3rdparty\src\zlib-1.2.3\contrib\masmx86\inffas32.asm" />
-    <None Include="..\..\derived\3rdparty\src\zlib-1.2.3\contrib\masmx86\match686.asm" />
+    <None Include="$(ThirdPartySrcDir)\$(LibNameZlib)\contrib\masmx86\inffas32.asm" />
+    <None Include="$(ThirdPartySrcDir)\$(LibNameZlib)\contrib\masmx86\match686.asm" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\derived\3rdparty\src\zlib-1.2.3\win32\zlib1.rc">
+    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\win32\zlib1.rc">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">\Scratch\Build\openmsx\external\zlib-1.2.3\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>

@@ -240,35 +240,35 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\include\theora\codec.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\include\theora\theora.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\include\theora\theoradec.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\cpu.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\internal.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\encint.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\enquant.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\huffenc.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\mathops.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\modedec.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\apiwrapper.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\bitpack.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\dct.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\decint.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\dequant.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\huffdec.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\huffman.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\idct.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\ocintrin.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\quant.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\include\theora\codec.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\include\theora\theora.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\include\theora\theoradec.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\cpu.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\internal.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encint.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\enquant.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\huffenc.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\mathops.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\modedec.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\apiwrapper.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\bitpack.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\dct.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\decint.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\dequant.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\huffdec.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\huffman.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\idct.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\ocintrin.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\quant.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\cpu.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\analyze.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\encapiwrapper.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\encfrag.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\encinfo.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\encode.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\encoder_disabled.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\cpu.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\analyze.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encapiwrapper.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encfrag.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encinfo.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encode.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encoder_disabled.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
@@ -276,21 +276,21 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\enquant.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\fdct.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\huffenc.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\mathops.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\mcenc.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\rate.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\tokenize.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\x86_vc\mmxencfrag.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\x86_vc\mmxfdct.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\x86_vc\x86enc.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\apiwrapper.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\bitpack.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\decapiwrapper.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\decinfo.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\decode.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\enquant.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\fdct.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\huffenc.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\mathops.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\mcenc.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\rate.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\tokenize.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\mmxencfrag.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\mmxfdct.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\x86enc.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\apiwrapper.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\bitpack.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\decapiwrapper.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\decinfo.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\decode.c">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
@@ -304,10 +304,10 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\dequant.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\fragment.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\huffdec.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\idct.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\dequant.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\fragment.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\huffdec.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\idct.c">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
@@ -321,9 +321,9 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\info.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\internal.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\quant.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\info.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\internal.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\quant.c">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
@@ -337,11 +337,11 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\state.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\x86_vc\mmxfrag.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\x86_vc\mmxidct.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\x86_vc\mmxstate.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libtheora-1.1.1\lib\x86_vc\x86state.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\state.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\mmxfrag.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\mmxidct.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\mmxstate.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\x86state.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

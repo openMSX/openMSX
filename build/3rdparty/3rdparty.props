@@ -1,11 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
-    <ThirdPartyBuildDir>..\..\derived\$(Platform)-VC-$(Configuration)\3rdParty</ThirdPartyBuildDir>
-    <ThirdPartySrcDir>..\..\derived\3rdParty\src</ThirdPartySrcDir>
+    <OpenMSXRootDir>..\..</OpenMSXRootDir>
+    <DerivedDir>$(OpenMSXRootDir)\derived</DerivedDir>
+    <BuildDir>$(DerivedDir)\$(Platform)-VC-$(Configuration)</BuildDir>
+    <ThirdPartyBuildDir>$(BuildDir)\3rdParty</ThirdPartyBuildDir>
+    <ThirdPartySrcDir>$(DerivedDir)\3rdParty\src</ThirdPartySrcDir>
     <ThirdPartyIntDir>$(ThirdPartyBuildDir)\build</ThirdPartyIntDir>
     <ThirdPartyOutDir>$(ThirdPartyBuildDir)\install\lib</ThirdPartyOutDir>
-    <BuildDir>..\..\derived\$(Platform)-VC-$(Configuration)</BuildDir>
+    <OpenMSXSrcDir>$(OpenMSXRootDir)\src</OpenMSXSrcDir>
+    <OpenMSXIntDir>$(BuildDir)\build</OpenMSXIntDir>
+    <OpenMSXOutDir>$(BuildDir)\install</OpenMSXOutDir>
+    <OpenMSXConfigDir>$(BuildDir)\config</OpenMSXConfigDir>
     <LibNameFreeType>freetype-2.3.12</LibNameFreeType>
     <LibNameGlew>glew-1.5.4</LibNameGlew>
     <LibNameLibPng>libpng-1.2.43</LibNameLibPng>
@@ -18,16 +24,23 @@
     <LibNameTheora>libtheora-1.1.1</LibNameTheora>
     <LibNameVorbis>libvorbis-1.3.1</LibNameVorbis>
     <LibNameZlib>zlib-1.2.3</LibNameZlib>
-    <OpenMSXConfigDir>$(BuildDir)\config</OpenMSXConfigDir>
-    <OpenMSXIntDir>$(BuildDir)\build</OpenMSXIntDir>
-    <OpenMSXOutDir>$(BuildDir)\install</OpenMSXOutDir>
-    <OpenMSXSrcDir>..\..\src</OpenMSXSrcDir>
-    <OpenMSXRootDir>..\..</OpenMSXRootDir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <BuildMacro Include="OpenMSXRootDir">
+      <Value>$(OpenMSXRootDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="DerivedDir">
+      <Value>$(DerivedDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="BuildDir">
+      <Value>$(BuildDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
     <BuildMacro Include="ThirdPartyBuildDir">
       <Value>$(ThirdPartyBuildDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
@@ -44,8 +57,20 @@
       <Value>$(ThirdPartyOutDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
-    <BuildMacro Include="BuildDir">
-      <Value>$(BuildDir)</Value>
+    <BuildMacro Include="OpenMSXSrcDir">
+      <Value>$(OpenMSXSrcDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="OpenMSXIntDir">
+      <Value>$(OpenMSXIntDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="OpenMSXOutDir">
+      <Value>$(OpenMSXOutDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="OpenMSXConfigDir">
+      <Value>$(OpenMSXConfigDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="LibNameFreeType">
@@ -94,26 +119,6 @@
     </BuildMacro>
     <BuildMacro Include="LibNameZlib">
       <Value>$(LibNameZlib)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
-    </BuildMacro>
-    <BuildMacro Include="OpenMSXConfigDir">
-      <Value>$(OpenMSXConfigDir)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
-    </BuildMacro>
-    <BuildMacro Include="OpenMSXIntDir">
-      <Value>$(OpenMSXIntDir)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
-    </BuildMacro>
-    <BuildMacro Include="OpenMSXOutDir">
-      <Value>$(OpenMSXOutDir)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
-    </BuildMacro>
-    <BuildMacro Include="OpenMSXSrcDir">
-      <Value>$(OpenMSXSrcDir)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
-    </BuildMacro>
-    <BuildMacro Include="OpenMSXRootDir">
-      <Value>$(OpenMSXRootDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>

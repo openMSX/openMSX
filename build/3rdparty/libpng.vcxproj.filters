@@ -15,67 +15,67 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\png.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\png.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngerror.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngerror.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngget.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngget.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngmem.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngmem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngpread.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngpread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngread.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngrio.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngrio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngrtran.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngrtran.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngrutil.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngrutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngset.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngset.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngtrans.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngtrans.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngwio.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngwio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngwrite.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngwrite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngwtran.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngwtran.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngwutil.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngwutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\derived\3rdparty\src\libpng-1.2.43\scripts\pngw32.def">
+    <None Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\scripts\pngw32.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\libpng-1.2.43\png.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\png.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\libpng-1.2.43\pngconf.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\pngconf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\derived\3rdparty\src\libpng-1.2.43\scripts\pngw32.rc">
+    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\scripts\pngw32.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

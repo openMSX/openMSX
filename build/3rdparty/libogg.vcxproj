@@ -238,12 +238,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\libogg-1.2.0\src\bitwise.c" />
-    <ClCompile Include="..\..\derived\3rdparty\src\libogg-1.2.0\src\framing.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameOgg)\src\bitwise.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameOgg)\src\framing.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\libogg-1.2.0\include\ogg\ogg.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\libogg-1.2.0\include\ogg\os_types.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameOgg)\include\ogg\ogg.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameOgg)\include\ogg\os_types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

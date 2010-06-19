@@ -345,7 +345,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\SDL_ttf-2.0.9\SDL_ttf.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL_ttf)\SDL_ttf.c">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

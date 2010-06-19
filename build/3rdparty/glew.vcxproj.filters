@@ -14,20 +14,20 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\glew-1.5.4\src\glew.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\src\glew.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\glew-1.5.4\include\GL\glew.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameGlew)\include\GL\glew.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\derived\3rdparty\src\glew-1.5.4\include\GL\wglew.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameGlew)\include\GL\wglew.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\derived\3rdparty\src\glew-1.5.4\build\vc6\glew.rc">
+    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\build\vc6\glew.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

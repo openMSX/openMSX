@@ -288,7 +288,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\derived\3rdparty\src\glew-1.5.4\src\glew.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\src\glew.c">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -304,11 +304,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\derived\3rdparty\src\glew-1.5.4\include\GL\glew.h" />
-    <ClInclude Include="..\..\derived\3rdparty\src\glew-1.5.4\include\GL\wglew.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameGlew)\include\GL\glew.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameGlew)\include\GL\wglew.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\derived\3rdparty\src\glew-1.5.4\build\vc6\glew.rc">
+    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\build\vc6\glew.rc">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
