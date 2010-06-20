@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/06/17
+# Updated @ 2010/06/20
 #
 
 
@@ -6163,6 +6163,7 @@ create_trainer "Tele bunny" {time 1} {
 
 create_trainer "Tengoku Yoitoko - Heaven" {time 1} {
 	"Attack Power" {poke 0xe03c 0x99;poke 0xe03d 0x99}
+	"Gold" {poke 0xe03e 0x99;poke 0xe03f 0x99}
 	"Invincible" {poke 0xe31e 255}
 	"Righteousness " {poke 0xe03a 0x99;poke 0xe03b 0x99}
 	"Vitality" {poke 0xe038 0x99;poke 0xe039 0x99}
@@ -6605,48 +6606,60 @@ create_trainer "Woody Poco" {time 2} {
 }
 
 create_trainer "Xak 1 - The Art of Visual Stage" {time 2} {
-	"Arm Protector" {poke 0x1c28 99}
-	"Blue Ball" {poke 0x1c34 99}
-	"Blue Key (?)" {poke 0x1c3c 99}
-	"Blue Ring" {poke 0x1c29 99}
-	"Blue Scroll" {poke 0x1c30 99}
+	"Benura" {poke 0x1c2e 99}
+	"Blue Xak Deaple" {poke 0x1c34 99}
 	"Bread" {poke 0x1c25 99}
-	"Bunny" {poke 0x1c3e 99}
-	"Enchanted Armor 1" {poke 0x1c19 99;poke 0x1c1f 99}
-	"Enchanted Armor 2" {poke 0x1c1a 99;poke 0x1c20 99}
-	"Enchanted Armor 3" {poke 0x1c1b 99;poke 0x1c21 99}
-	"Enchanted Armor 4" {poke 0x1c1c 99;poke 0x1c22 99}
-	"Enchanted Armor 5" {poke 0x1c1d 99;poke 0x1c23 99}
-	"Enchanted Armor 6" {poke 0x1c1e 99;poke 0x1c24 99}
+	"Cloak Of Fire" {poke 0x1c2d 99}
+	"Cloak Of Life " {poke 0x1c37 99}
+	"Death Spell Scroll" {poke 0x1c30 99}
+	"Disintegrate Scroll" {poke 0x1c31 99}
+	"Dispel Magic Scroll" {poke 0x1c32 99}
+	"Dragon Ring" {poke 0x1c2a 99}
+	"Dried Meat" {poke 0x1c26 99}
+	"Enchanted Armor 1" {poke 0x1c19 99}
+	"Enchanted Armor 2" {poke 0x1c1a 99}
+	"Enchanted Armor 3" {poke 0x1c1b 99}
+	"Enchanted Armor 4" {poke 0x1c1c 99}
+	"Enchanted Armor 5" {poke 0x1c1d 99}
+	"Enchanted Armor 6" {poke 0x1c1e 99}
+	"Enchanted Shield 1" {poke 0x1c1f 99}
+	"Enchanted Shield 2" {poke 0x1c20 99}
+	"Enchanted Shield 3" {poke 0x1c21 99}
+	"Enchanted Shield 4" {poke 0x1c22 99}
+	"Enchanted Shield 5" {poke 0x1c23 99}
+	"Enchanted Shield 6" {poke 0x1c24 99}
 	"Enchanted Sword 1" {poke 0x1c13 99}
 	"Enchanted Sword 2" {poke 0x1c14 99}
 	"Enchanted Sword 3" {poke 0x1c15 99}
 	"Enchanted Sword 4" {poke 0x1c16 99}
 	"Enchanted Sword 5" {poke 0x1c17 99}
 	"Enchanted Sword 6" {poke 0x1c18 99}
+	"Esp Medal" {poke 0x1c2c 99}
 	"Exp" {poke 0x1c60 255;poke 0x1c61 255}
-	"Feather/grass (?)" {poke 0x1c2e 99}
+	"Gas Mask" {poke 0x1c39 99}
+	"Gemil Potion" {poke 0x1c2b 99}
 	"Glasses" {poke 0x1c27 99}
 	"Gold" {poke 0x1c62 255;poke 0x1c63 255}
-	"Green (evil?) Ring" {poke 0x1c2a 99}
-	"Green Ball" {poke 0x1c35 99}
-	"Green Scroll" {poke 0x1c32 99}
-	"Life" {poke 0x2377 255}
-	"Light Green Scroll" {poke 0x1c2f 99}
-	"Meat" {poke 0x1c26 99}
-	"Paint Boat (?)" {poke 0x1c39 99}
-	"Paint Bucket (?)" {poke 0x1c38 99}
-	"Potion" {poke 0x1c2b 99}
-	"Purple Cape" {poke 0x1c2d 99}
-	"Purple Scroll" {poke 0x1c33 99}
-	"Red Ball" {poke 0x1c36 99}
-	"Red Cape" {poke 0x1c37 99}
-	"Red Scroll" {poke 0x1c31 99}
+	"Green Xak Deaple" {poke 0x1c35 99}
+	"Guantlet" {poke 0x1c28 99}
+	"Herb from the Ruins" {poke 0x1c42 1}
+	"Kettle With Soup" {poke 0x1c38 99}
+	"Key - Blue" {poke 0x1c3c 99}
+	"Key - Yellow " {poke 0x1c3b 99}
+	"Life" {poke 0x1c52 255;poke 0x2337 255}
+	"Lightning Scroll" {poke 0x1c2f 99}
+	"Medicine" {poke 0x1c3a 99}
+	"Medicine Room Key" {poke 0x1c43 1}
+	"Nill's Box" {poke 0x1c3d 99}
+	"Pirate Liquor" {poke 0x1c41 1}
+	"Protection Ring" {poke 0x1c29 99}
+	"Rabby" {poke 0x1c3e 99}
+	"Red Stone" {poke 0x1c40 1}
+	"Red Xak Deaple" {poke 0x1c36 99}
+	"Royal Crest" {poke 0x1c3f 1}
 	"Super Latok Mode" {poke 0x1fd4 1;poke 0x2473 68}
-	"Treasure Box" {poke 0x1c3d 99}
-	"Water Bottle (?)" {poke 0x1c3a 99}
-	"Wheel" {poke 0x1c2c 99}
-	"Yellow Key (?)" {poke 0x1c3b 99}
+	"Teleport Scroll" {poke 0x1c33 99}
+	"Treasure Key" {poke 0x1c44 1}
 }
 
 create_trainer "Xak 2 - Rising of the red moon" {time 10} {
@@ -7038,4 +7051,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 2.843 seconds. 744 trainers -  having 5721 pokes
+# File Created in : 2.808 seconds. 744 trainers -  having 5730 pokes
