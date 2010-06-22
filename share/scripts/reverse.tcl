@@ -144,6 +144,10 @@ fade out. You can make it reappear by moving the mouse over it.
 			-relx 0 -x -1 -w 2 -relh 1      -z 2 -rgba 0xFF8080C0
 		osd create text      reverse.text \
 			-x -10 -y 0 -relx 0.5 -size 5   -z 3 -rgba 0xFFFFFFC0
+		osd create rectangle 	reverse.mousetime \
+			-relx 0.5 -rely 1.1 -relh 1 -relw 0.10 -z 4 -rgba 0xffff00c0
+		osd create text 	reverse.mousetime.text \
+			-relx 0.25 -size 5	-z 4 -rgba 0x000000ff
 
 		update_reversebar
 
@@ -162,6 +166,9 @@ fade out. You can make it reappear by moving the mouse over it.
 	proc update_reversebar {} {
 		array set stats [reverse status]
 
+		set x 2 ; set y 2
+		catch { foreach {x y} [osd info "reverse" -mousecoord] {} }
+		
 		switch $stats(status) {
 		"disabled" {
 			disable_reversebar
@@ -171,8 +178,6 @@ fade out. You can make it reappear by moving the mouse over it.
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
 		}
 		"enabled" {
-			set x 2 ; set y 2
-			catch { foreach {x y} [osd info "reverse" -mousecoord] {} }
 			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 			} else {
@@ -185,7 +190,15 @@ fade out. You can make it reappear by moving the mouse over it.
 		set playLength [expr $stats(current) - $stats(begin)]
 		set reciprocalLength [expr ($totLenght != 0) ? (1.0 / $totLenght) : 0]
 		set fraction [expr $playLength * $reciprocalLength]
-
+		
+		#display mouse-over time jump-indicator
+		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
+			osd configure reverse.mousetime -rely 1.2 -relx $x 
+			osd configure reverse.mousetime.text -text [formatTime [expr $x*$totLenght]]
+		} else {
+			osd configure reverse.mousetime -rely -100
+		}
+		
 		set count 0
 		foreach snapshot $snapshots {
 			set name reverse.tick$count
