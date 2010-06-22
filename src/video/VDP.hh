@@ -22,6 +22,13 @@ class VDPRegDebug;
 class VDPStatusRegDebug;
 class VDPPaletteDebug;
 class VRAMPointerDebug;
+class FrameCountInfo;
+class CycleInFrameInfo;
+class LineInFrameInfo;
+class CycleInLineInfo;
+class MsxYPosInfo;
+class MsxX256PosInfo;
+class MsxX512PosInfo;
 class CliComm;
 class Display;
 class RawFrame;
@@ -77,7 +84,7 @@ public:
 
 	/** Number of VDP clock ticks per second.
 	  */
-	static const int TICKS_PER_SECOND = 21477270;
+	static const int TICKS_PER_SECOND = 3579545 * 6; // 21.5MHz;
 
 	/** Number of VDP clock ticks per line.
 	  */
@@ -680,10 +687,18 @@ private:
 	friend class VDPStatusRegDebug;
 	friend class VDPPaletteDebug;
 	friend class VRAMPointerDebug;
+	friend class FrameCountInfo;
 	const std::auto_ptr<VDPRegDebug>       vdpRegDebug;
 	const std::auto_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
 	const std::auto_ptr<VDPPaletteDebug>   vdpPaletteDebug;
 	const std::auto_ptr<VRAMPointerDebug>  vramPointerDebug;
+	const std::auto_ptr<FrameCountInfo>    frameCountInfo;
+	const std::auto_ptr<CycleInFrameInfo>  cycleInFrameInfo;
+	const std::auto_ptr<LineInFrameInfo>   lineInFrameInfo;
+	const std::auto_ptr<CycleInLineInfo>   cycleInLineInfo;
+	const std::auto_ptr<MsxYPosInfo>       msxYPosInfo;
+	const std::auto_ptr<MsxX256PosInfo>    msxX256PosInfo;
+	const std::auto_ptr<MsxX512PosInfo>    msxX512PosInfo;
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
@@ -740,6 +755,13 @@ private:
 	/** VDP version.
 	  */
 	VdpVersion version;
+
+	/** The number of already fully rendered frames.
+	  * Not used for actual emulation, only for 'frame_count' info topic.
+	  * This value cannot be calculated from EmuTime because framerate is
+	  * not constant (PAL/NTSC).
+	  */
+	int frameCount;
 
 	/** VDP ticks between start of frame and start of display.
 	  */
@@ -881,6 +903,7 @@ private:
 	  * is printed.  */
 	bool warningPrinted;
 };
+SERIALIZE_CLASS_VERSION(VDP, 2);
 
 } // namespace openmsx
 

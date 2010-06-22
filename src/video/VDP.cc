@@ -28,6 +28,8 @@ TODO:
 #include "RendererFactory.hh"
 #include "Renderer.hh"
 #include "SimpleDebuggable.hh"
+#include "InfoTopic.hh"
+#include "TclObject.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
@@ -36,6 +38,9 @@ TODO:
 #include <sstream>
 #include <cstring>
 #include <cassert>
+
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -79,6 +84,143 @@ private:
 };
 
 
+class VDPInfo : public InfoTopic
+{
+public:
+	virtual void execute(const vector<TclObject*>& /*tokens*/,
+	                     TclObject& result) const
+	{
+		const Schedulable& schedulable = vdp; // resolve ambiguity
+		result.setInt(calc(schedulable.getCurrentTime()));
+	}
+	virtual string help(const vector<string>& /*tokens*/) const
+	{
+		return helpText;
+	}
+	virtual int calc(const EmuTime& time) const = 0;
+
+protected:
+	VDPInfo(VDP& vdp_, const string& name, const string& helpText_)
+		: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
+			    vdp_.getName() + '_' + name)
+		, vdp(vdp_)
+		, helpText(helpText_) {}
+
+	VDP& vdp;
+	const string helpText;
+};
+
+class FrameCountInfo : public VDPInfo
+{
+public:
+	FrameCountInfo(VDP& vdp)
+		: VDPInfo(vdp, "frame_count",
+			  "The current frame number, starts counting at 0 "
+			  "when MSX is powered up or reset.") {}
+	virtual int calc(const EmuTime& /*time*/) const
+	{
+		return vdp.frameCount;
+	}
+};
+
+class CycleInFrameInfo : public VDPInfo
+{
+public:
+	CycleInFrameInfo(VDP& vdp)
+		: VDPInfo(vdp, "cycle_in_frame",
+			  "The number of VDP cycles since the beginning of "
+			  "the current frame. The VDP runs at 6 times the Z80 "
+			  "clock frequency, so at approximately 21.5MHz.") {}
+	virtual int calc(const EmuTime& time) const
+	{
+		return vdp.getTicksThisFrame(time);
+	}
+};
+
+class LineInFrameInfo : public VDPInfo
+{
+public:
+	LineInFrameInfo(VDP& vdp)
+		: VDPInfo(vdp, "line_in_frame",
+			  "The absolute line number since the beginning of "
+			  "the current frame. Goes from 0 till 262 (NTSC) or "
+			  "313 (PAL). Note that this number includes the "
+			  "border lines, use 'msx_y_pos' to get MSX "
+			  "coordinates.") {}
+	virtual int calc(const EmuTime& time) const
+	{
+		return vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
+	}
+};
+
+class CycleInLineInfo : public VDPInfo
+{
+public:
+	CycleInLineInfo(VDP& vdp)
+		: VDPInfo(vdp, "cycle_in_line",
+			  "The number of VDP cycles since the beginning of "
+			  "the current line. See also 'cycle_in_frame'."
+			  "Note that this includes the cycles in the border, "
+			  "use 'msx_x256_pos' or 'msx_x512_pos' to get MSX "
+			  "coordinates.") {}
+	virtual int calc(const EmuTime& time) const
+	{
+		return vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE;
+	}
+};
+
+class MsxYPosInfo : public VDPInfo
+{
+public:
+	MsxYPosInfo(VDP& vdp)
+		: VDPInfo(vdp, "msx_y_pos",
+			  "Similar to 'line_in_frame', but expressed in MSX "
+			  "coordinates. So lines in the top border have "
+			  "negative coordinates, lines in the bottom border "
+			  "have coordinates bigger or equal to 192 or 212.") {}
+	virtual int calc(const EmuTime& time) const
+	{
+		return (vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE) -
+			vdp.getLineZero();
+	}
+};
+
+class MsxX256PosInfo : public VDPInfo
+{
+public:
+	MsxX256PosInfo(VDP& vdp)
+		: VDPInfo(vdp, "msx_x256_pos",
+			  "Similar to 'cycle_in_frame', but expressed in MSX "
+			  "coordinates. So a position in the left border has "
+			  "a negative coordinate and a position in the right "
+			  "border has a coordinated bigger or equal to 256. "
+			  "See also 'msx_x512_pos'.") {}
+	virtual int calc(const EmuTime& time) const
+	{
+		return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
+			 vdp.getLeftSprites()) / 4;
+	}
+};
+
+class MsxX512PosInfo : public VDPInfo
+{
+public:
+	MsxX512PosInfo(VDP& vdp)
+		: VDPInfo(vdp, "msx_x512_pos",
+			  "Similar to 'cycle_in_frame', but expressed in "
+			  "'narrow' (screen 7) MSX coordinates. So a position "
+			  "in the left border has a negative coordinate and "
+			  "a position in the right border has a coordinated "
+			  "bigger or equal to 512. See also 'msx_x256_pos'.") {}
+	virtual int calc(const EmuTime& time) const
+	{
+		return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
+			 vdp.getLeftSprites()) / 2;
+	}
+};
+
+
+
 VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
@@ -88,6 +230,13 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
 	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
 	, vramPointerDebug (new VRAMPointerDebug (*this))
+	, frameCountInfo   (new FrameCountInfo   (*this))
+	, cycleInFrameInfo (new CycleInFrameInfo (*this))
+	, lineInFrameInfo  (new LineInFrameInfo  (*this))
+	, cycleInLineInfo  (new CycleInLineInfo  (*this))
+	, msxYPosInfo      (new MsxYPosInfo      (*this))
+	, msxX256PosInfo   (new MsxX256PosInfo   (*this))
+	, msxX512PosInfo   (new MsxX512PosInfo   (*this))
 	, frameStartTime(Schedulable::getCurrentTime())
 	, irqVertical  (motherBoard, getName() + ".IRQvertical")
 	, irqHorizontal(motherBoard, getName() + ".IRQhorizontal")
@@ -279,7 +428,9 @@ void VDP::reset(EmuTime::param time)
 	resetMasks(time);
 
 	// Init scheduling.
+	frameCount = -1;
 	frameStart(time);
+	assert(frameCount == 0);
 }
 
 void VDP::executeUntil(EmuTime::param time, int userData)
@@ -493,6 +644,8 @@ void VDP::scheduleHScan(EmuTime::param time)
 //       influences the frequency at which E/O toggles).
 void VDP::frameStart(EmuTime::param time)
 {
+	++frameCount;
+
 	//cerr << "VDP::frameStart @ " << time << "\n";
 
 	// Toggle E/O.
@@ -1280,8 +1433,10 @@ void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time
 }
 
 
+// version 1: initial version
+// version 2: added frameCount
 template<typename Archive>
-void VDP::serialize(Archive& ar, unsigned /*version*/)
+void VDP::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<Schedulable>(*this);
@@ -1328,6 +1483,16 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("cmdEngine", *cmdEngine);
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
 	ar.serialize("vram", *vram); // must come after controlRegs and after spriteChecker
+
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("frameCount", frameCount);
+	} else {
+		assert(ar.isLoader());
+		// We could estimate the frameCount (assume framerate was
+		// constant the whole time). But I think it's better to have
+		// an obviously wrong value than an almost correct value.
+		frameCount = 0;
+	}
 
 	// externalVideo does not need serializing. It is set on load by the
 	// external video source (e.g. PioneerLDControl).

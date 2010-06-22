@@ -25,7 +25,7 @@ proc get_frame_time {} {
 }
 
 proc framecount_current {} {
-	return [expr int([machine_info time] / [get_frame_time])]
+	return [machine_info VDP_frame_count]
 }
 
 proc framecount_update {} {
