@@ -76,7 +76,9 @@ proc menu_create { menu_def_list } {
 	set on_open      [get_optional menudef "on-open" ""]
 	set on_close     [get_optional menudef "on-close" ""]
 
-	osd create rectangle $name -scaled true -rgba $bgcolor -clip true
+	#osd create rectangle $name -scaled true -rgba $bgcolor -clip true
+	osd_widgets::box $name -scaled true -rgba 0x000000ff -border 0.5 -clip true -fill $bgcolor -scaled true
+
 	set y $bordersize
 	set selectinfo [list]
 	set menutexts [list]
@@ -737,19 +739,39 @@ proc ls { directory extensions } {
 	return [concat ".." [lsort $dirs2] [lsort $roms]]
 }
 
-variable display_osd_text_created false
-
 proc display_osd_text { message } {
-	variable display_osd_text_created
-	if !$display_osd_text_created {
-		osd create rectangle "display_osd_text" \
-		                                -x 3 -y 12 -z 5 -w 314 -h 9 \
-		                                -rgba 0x002090C0 -scaled true -clip true
-		osd create text "display_osd_text.txt" \
-		                                -size 6 -rgb 0xffffff
-		set display_osd_text_created true
+
+	variable default_bg_color
+
+	set message_list [split $message "\n"]
+	set lines [expr ([llength $message_list]*1)]
+	if {$lines==0} {set lines 1}
+	if {$lines>10} {return "Text box can hold Max of 10 lines"}
+
+	if {[catch {osd info display_osd_text}]} {
+		osd_widgets::box "display_osd_text" \
+			-x 3 -y 12 -z 5 -w 314 -h [expr 4+(9*$lines)] \
+			-scaled true -rgba 0x000000ff -border 0.5 \
+			-clip true -fill $default_bg_color -scaled true
+
+		#create lines
+		for { set i 0 } { $i <= 10 } { incr i } {
+			osd create text display_osd_text.$i -y 999 -x 2 -size 6 -rgb 0xffffff
+		}
+	} else { osd configure "display_osd_text" -h [expr 4+(9*$lines)] }
+
+	set line 0
+	#use the lines which are needed
+	foreach message $message_list {
+		osd configure display_osd_text.$line -text "$message" -y [expr 2+($line*9)]
+		incr line
 	}
-	osd configure display_osd_text.txt -text $message
+
+	#hide the others
+	for { set i $line } { $i <= 10 } { incr i } {
+		osd configure display_osd_text.$line -y 999
+	}
+
 	osd configure display_osd_text -fadeCurrent 1 -fadeTarget 0 -fadePeriod 5
 }
 
@@ -781,7 +803,7 @@ proc menu_select_rom { item } {
 		} else {
 			menu_close_all
 			carta $fullname
-			display_osd_text "Now running ROM: [guess_title]"
+			display_osd_text "Now running ROM:\n [rom_info]"
 			reset
 		}
 	}
