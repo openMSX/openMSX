@@ -95,6 +95,7 @@ namespace eval reverse_widgets {
 	variable overlay_counter
 	variable prev_x 0
 	variable prev_y 0
+	variable overlayOffset
 
 	set_help_text toggle_reversebar \
 {Enable/disable an on-screen reverse bar.
@@ -128,6 +129,8 @@ fade out. You can make it reappear by moving the mouse over it.
 			set led_y 0
 		}
 		set y [expr ($led_y == 0) ? 232 : 2]
+		# Set time indicator position (depending on reverse bar position)
+		variable overlayOffset [expr ($led_y >16) ? 1.3 : -1.3]
 
 		set fade [expr $visible ? 1.0 : 0.0]
 		osd create rectangle reverse \
@@ -147,9 +150,9 @@ fade out. You can make it reappear by moving the mouse over it.
 			-relx 0 -x -1 -w 2 -relh 1      -z 2 -rgba 0xFF8080C0
 		osd create text      reverse.text \
 			-x -10 -y 0 -relx 0.5 -size 5   -z 3 -rgba 0xFFFFFFC0
-		osd create rectangle 	reverse.mousetime \
+		osd create rectangle reverse.mousetime \
 			-relx 0.5 -rely 1.1 -relh 1 -relw 0.10 -z 4 -rgba 0xffff00c0
-		osd create text 	reverse.mousetime.text \
+		osd create text      reverse.mousetime.text \
 			-relx 0.25 -size 5	-z 4 -rgba 0x000000ff
 
 		update_reversebar
@@ -167,26 +170,12 @@ fade out. You can make it reappear by moving the mouse over it.
 	}
 
 	proc update_reversebar {} {
-	
-		variable overlay_counter
-
-		variable prev_x
-		variable prev_y
-		
 		array set stats [reverse status]
 
-		#dupe code (see 'enable_reversebar hack')
-		if {[catch {set led_y [osd info osd_icons -y]}]} {
-			set led_y 0
-		}
-		
-		#depending if the reverse bar is at the bottom or top display
-		#time indicator @ appropreate position.
-		set overlayOfset [expr ($led_y >16) ? 1.3 : -1.3]
-		
 		set x 2 ; set y 2
 		catch { foreach {x y} [osd info "reverse" -mousecoord] {} }
-		
+		set mouseInside [expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}]
+
 		switch $stats(status) {
 			"disabled" {
 				disable_reversebar
@@ -196,8 +185,8 @@ fade out. You can make it reappear by moving the mouse over it.
 				osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
 			}
 			"enabled" {
-				if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
-					osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0	
+				if {$mouseInside} {
+					osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 				} else {
 					osd configure reverse -fadePeriod 5.0 -fadeTarget 0.0
 				}
@@ -210,26 +199,28 @@ fade out. You can make it reappear by moving the mouse over it.
 		set reciprocalLength [expr ($totLenght != 0) ? (1.0 / $totLenght) : 0]
 		set fraction [expr $playLength * $reciprocalLength]
 
-		#check if cursos moved compared to previous update
-		#if cursor moved reset the counter to 0 (see below)
-		if {$prev_x!=$x || $prev_y!=$y} {set overlay_counter 0}
-		
-		variable prev_x $x
-		variable prev_y $y
-				
-		#display mouse-over time jump-indicator
-		#hides after 7 passes through this procedure
-		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
-			if {$overlay_counter<=7} {
-				osd configure reverse.mousetime -rely $overlayOfset -relx $x 
-				osd configure reverse.mousetime.text -text "[formatTime [expr $x*$totLenght]]"
-				incr overlay_counter
-			} else {osd configure reverse.mousetime -rely -100}
+		# Check if cursor moved compared to previous update,
+		# if so reset counter (see below)
+		variable overlay_counter
+		variable prev_x
+		variable prev_y
+		if {$prev_x != $x || $prev_y != $y} {
+			set overlay_counter 0
+			set prev_x $x
+			set prev_y $y
+		}
+
+		# Display mouse-over time jump-indicator
+		# Hide when mouse hasn't moved for some time
+		if {$mouseInside && $overlay_counter < 8} {
+			variable overlayOffset
+			osd configure reverse.mousetime -rely $overlayOffset -relx [expr $x - 0.05]
+			osd configure reverse.mousetime.text -text "[formatTime [expr $x*$totLenght]]"
+			incr overlay_counter
 		} else {
 			osd configure reverse.mousetime -rely -100
-			set overlay_counter 0
 		}
-		
+
 		set count 0
 		foreach snapshot $snapshots {
 			set name reverse.tick$count
