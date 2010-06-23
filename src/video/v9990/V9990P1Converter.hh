@@ -18,7 +18,8 @@ public:
 
 	void convertLine(
 		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-		unsigned displayY, unsigned displayYA, unsigned displayYB);
+		unsigned displayY, unsigned displayYA, unsigned displayYB,
+		bool drawSprites);
 
 private:
 	V9990& vdp;

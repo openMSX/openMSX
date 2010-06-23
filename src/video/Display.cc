@@ -513,13 +513,15 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 
 string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
+	// Note: -no-sprites option is implemented in Tcl
 	return
 		"screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
 		"screenshot <filename>        Write screenshot to indicated file\n"
 		"screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
 		"screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
 		"screenshot -raw -doublesize  640x480 rw screenshot (of MSX screen only)\n"
-		"screenshot -with-osd         Include OSD elements in the screenshot\n";
+		"screenshot -with-osd         Include OSD elements in the screenshot\n"
+		"screenshot -no-sprites       Don't include sprites in the screenshot\n";
 }
 
 void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
@@ -529,6 +531,7 @@ void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 	extra.insert("-raw");
 	extra.insert("-doublesize");
 	extra.insert("-with-osd");
+	extra.insert("-no-sprites");
 	UserFileContext context;
 	completeFileName(getCommandController(), tokens, context, extra);
 }

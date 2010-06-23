@@ -114,6 +114,9 @@ public:
 	  * such as Aleste. */
 	BooleanSetting& getLimitSprites() const { return *limitSpritesSetting; }
 
+	/** Disable sprite rendering? */
+	BooleanSetting& getDisableSprites() const { return *disableSpritesSetting; }
+
 	/** CmdTiming [real, broken].
 	  * This setting is intended for debugging only, not for users. */
 	EnumSetting<bool>& getCmdTiming() const { return *cmdTimingSetting; }
@@ -179,6 +182,7 @@ private:
 	std::auto_ptr<FloatSetting> noiseSetting;
 	std::auto_ptr<IntegerSetting> horizontalBlurSetting;
 	std::auto_ptr<BooleanSetting> limitSpritesSetting;
+	std::auto_ptr<BooleanSetting> disableSpritesSetting;
 	std::auto_ptr<IntegerSetting> maxFrameSkipSetting;
 	std::auto_ptr<IntegerSetting> minFrameSkipSetting;
 	std::auto_ptr<RendererFactory::RendererSetting> rendererSetting;

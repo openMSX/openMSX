@@ -23,7 +23,8 @@ V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, const Pixel* palette64_)
 template <class Pixel>
 void V9990P1Converter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-	unsigned displayY, unsigned displayYA, unsigned displayYB)
+	unsigned displayY, unsigned displayYA, unsigned displayYB,
+	bool drawSprites)
 {
 	unsigned prioX = vdp.getPriorityControlX();
 	unsigned prioY = vdp.getPriorityControlY();
@@ -59,7 +60,7 @@ void V9990P1Converter<Pixel>::convertLine(
 
 	// back sprite plane
 	int visibleSprites[16 + 1];
-	if (vdp.spritesEnabled()) {
+	if (drawSprites) {
 		determineVisibleSprites(visibleSprites, displayY);
 		renderSprites(linePtr, displayX, displayEnd, displayY,
 		              visibleSprites, false);
@@ -71,7 +72,7 @@ void V9990P1Converter<Pixel>::convertLine(
 	              displayBX, displayBY, 0x7E000, 0x40000, palB);
 
 	// front sprite plane
-	if (vdp.spritesEnabled()) {
+	if (drawSprites) {
 		renderSprites(linePtr, displayX, displayEnd, displayY,
 		              visibleSprites, true);
 	}

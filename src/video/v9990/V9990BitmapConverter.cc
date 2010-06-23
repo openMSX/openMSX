@@ -303,12 +303,13 @@ void V9990BitmapConverter<Pixel>::drawCursors(Pixel* buffer, int displayY)
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::convertLine(
-	Pixel* linePtr, unsigned address, int nrPixels, int displayY)
+	Pixel* linePtr, unsigned address, int nrPixels, int displayY,
+	bool drawSprites)
 {
 	// TODO cursor goes wrong when startX != 0
 	assert(nrPixels <= 1024);
 	(this->*rasterMethod)(linePtr, address, nrPixels);
-	if (vdp.spritesEnabled()) {
+	if (drawSprites) {
 		drawCursors(linePtr, displayY - vdp.getCursorYOffset());
 	}
 }

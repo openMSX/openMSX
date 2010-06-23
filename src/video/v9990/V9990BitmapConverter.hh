@@ -22,7 +22,8 @@ public:
 
 	/** Convert a line of VRAM into host pixels.
 	  */
-	void convertLine(Pixel* linePtr, unsigned address, int nrPixels, int displayY);
+	void convertLine(Pixel* linePtr, unsigned address, int nrPixels,
+		         int displayY, bool drawSprites);
 
 	/** Set the color mode
 	  */

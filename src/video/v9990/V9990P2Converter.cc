@@ -21,7 +21,7 @@ V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, const Pixel* palette64_)
 template <class Pixel>
 void V9990P2Converter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-	unsigned displayY, unsigned displayYA)
+	unsigned displayY, unsigned displayYA, bool drawSprites)
 {
 	unsigned displayAX = (displayX + vdp.getScrollAX()) & 1023;
 
@@ -39,7 +39,7 @@ void V9990P2Converter<Pixel>::convertLine(
 
 	// back sprite plane
 	int visibleSprites[16 + 1];
-	if (vdp.spritesEnabled()) {
+	if (drawSprites) {
 		determineVisibleSprites(visibleSprites, displayY);
 		renderSprites(linePtr, displayX, displayEnd, displayY,
 		              visibleSprites, false);
@@ -50,7 +50,7 @@ void V9990P2Converter<Pixel>::convertLine(
 	renderPattern(linePtr, displayWidth, displayAX, displayAY, pal);
 
 	// front sprite plane
-	if (vdp.spritesEnabled()) {
+	if (drawSprites) {
 		renderSprites(linePtr, displayX, displayEnd, displayY,
 		              visibleSprites, true);
 	}

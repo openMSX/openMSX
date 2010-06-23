@@ -18,7 +18,7 @@ public:
 
 	void convertLine(
 		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-		unsigned displayY, unsigned displayYA);
+		unsigned displayY, unsigned displayYA, bool drawSprites);
 
 private:
 	void renderPattern(Pixel* buffer, unsigned width,

@@ -112,6 +112,10 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"limitsprites", "limit number of sprites per line "
 		"(on for realism, off to reduce sprite flashing)", true));
 
+	disableSpritesSetting.reset(new BooleanSetting(commandController,
+		"disablesprites", "disable sprite rendering",
+		false, Setting::DONT_SAVE));
+
 	EnumSetting<bool>::Map cmdMap;
 	cmdMap["real"]   = false;
 	cmdMap["broken"] = true;

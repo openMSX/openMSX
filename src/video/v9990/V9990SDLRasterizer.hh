@@ -129,23 +129,15 @@ private:
 	void preCalcPalettes();
 	void resetPalette();
 
-	/** Draw P1 mode.
-	  */
 	void drawP1Mode(int fromX, int fromY, int displayX,
 	                int displayY, int displayYA, int displayYB,
-	                int displayWidth, int displayHeight);
-
-	/** Draw P2 mode.
-	  */
+	                int displayWidth, int displayHeight, bool drawSprites);
 	void drawP2Mode(int fromX, int fromY, int displayX,
 	                int displayY, int displayYA,
-	                int displayWidth, int displayHeight);
-
-	/** Draw Bx mode.
-	  */
+	                int displayWidth, int displayHeight, bool drawSprites);
 	void drawBxMode(int fromX, int fromY, int displayX,
 	                int displayY, int displayYA,
-	                int displayWidth, int displayHeight);
+	                int displayWidth, int displayHeight, bool drawSprites);
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
