@@ -5,10 +5,11 @@ set_help_text main_menu_close  "(experimental) Remove the OSD menu."
 set_help_text main_menu_toggle "(experimental) Toggle the OSD menu."
 
 # default colors defined here, for easy global tweaking
-variable default_bg_color 0xc0e0ffe8
-variable default_text_color 0x002040ff
-variable default_select_color 0x80a0c0ff
-variable default_header_text_color 0xff2040ff
+variable default_bg_color "0x7090aae8 0xa0c0dde8 0x90b0cce8 0xc0e0ffe8"
+variable default_text_color 0x000000ff
+variable default_text_color 0x000000ff
+variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
+variable default_header_text_color 0xff9020ff
 
 variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
 
