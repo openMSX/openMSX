@@ -740,41 +740,8 @@ proc ls { directory extensions } {
 }
 
 proc display_osd_text { message } {
-
 	variable default_bg_color
-
-	if {$message==""} {return "nothing to display"}
-	set message_list [split $message "\n"]
-	set lines [llength $message_list]
-	if {$lines>10} {return "Text box can hold Max of 10 lines"}
-
-	#If widget doesn't exist create it
-	if {[catch {osd info display_osd_text}]} {
-		osd_widgets::box "display_osd_text" \
-			-x 3 -y 12 -z 5 -w 314 \
-			-scaled true -rgba 0x000000ff -border 0.5 \
-			-clip true -fill $default_bg_color -scaled true
-
-		#create 10 lines
-		for { set i 0 } { $i <= 10 } { incr i } {
-			osd create text display_osd_text.$i -y 999 -x 2 -size 6 -rgb 0xffffff
-		}
-	}
-	osd configure "display_osd_text" -h [expr 4+(9*$lines)]
-	
-	#use the lines which are needed
-	set line 0
-	foreach message $message_list {
-		osd configure display_osd_text.$line -text "$message" -y [expr 2+($line*9)]
-		incr line
-	}
-
-	#hide the others
-	for { set i $line } { $i <= 10 } { incr i } {
-		osd configure display_osd_text.$line -y 999
-	}
-
-	osd configure display_osd_text -fadeCurrent 1 -fadeTarget 0 -fadePeriod 5
+	osd_widgets::text_box display_osd_text $message $default_bg_color
 }
 
 proc menu_create_ROM_list { path } {
