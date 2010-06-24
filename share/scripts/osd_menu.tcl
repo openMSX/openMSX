@@ -10,6 +10,8 @@ variable default_text_color 0x000000ff
 variable default_text_color 0x000000ff
 variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
 variable default_header_text_color 0xff9020ff
+variable error_color "0xaa0000e8 0xdd0000e8 0xcc0000e8 0xff0000e8"
+variable warning_color "0xaa6600e8 0xdd9900e8 0xcc8800e8 0xffaa00e8"
 
 variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
 
@@ -614,7 +616,7 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 
 proc menu_load_machine_exec_replace { item } {
 	if { [catch "machine $item" errorText] } {
-		display_osd_text $errorText
+		display_osd_text $errorText error
 	} else {
 		menu_close_all
 	}
@@ -625,7 +627,7 @@ proc menu_load_machine_exec_add { item } {
 	set err [catch { ${id}::load_machine $item } error_result ]
 	if {$err} {
 		delete_machine $id
-		display_osd_text "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result"
+		display_osd_text "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result" error
 	} else {
 		menu_close_top
 		activate_machine $id
@@ -658,7 +660,7 @@ proc menu_create_extensions_list {} {
 
 proc menu_add_extension_exec { item } {
 	if { [catch "ext $item" errorText] } {
-		display_osd_text $errorText
+		display_osd_text $errorText error
 	} else {
 		menu_close_all
 	}
@@ -739,9 +741,33 @@ proc ls { directory extensions } {
 	return [concat ".." [lsort $dirs2] [lsort $roms]]
 }
 
-proc display_osd_text { message } {
+proc display_osd_text { message {category info} } {
+
+	set category [string tolower $category]  
+
 	variable default_bg_color
-	osd_widgets::text_box display_osd_text $message $default_bg_color
+	variable error_color
+	variable warning_color
+	
+	set bg_color $default_bg_color
+	
+	if {$category=="error"} {set bg_color $error_color}
+	if {$category=="warning"} {set bg_color $warning_color}
+	
+	osd_widgets::text_box display_osd_text \
+					-text $message \
+					-textcolor 0xffffffff \
+					-textsize 6 \
+					-fill $bg_color \
+					-x 3 -y 12 -z 5 -w 314 \
+					-scaled true \
+					-border 0.5 \
+					-clip true \
+					-scaled true \
+					-rgba 0x000000ff \
+					-fadeCurrent 1 \
+					-fadeTarget 0 \
+					-fadePeriod 5 \
 }
 
 proc menu_create_ROM_list { path } {

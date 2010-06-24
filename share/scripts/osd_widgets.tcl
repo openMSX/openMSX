@@ -164,40 +164,54 @@ proc toggle_fps {} {
 	return ""
 }
 
-proc text_box {name message bg_color} {
+set_help_text osd_widgets::box\
+{The command 'osd_widgets::text_box' supports the same parameters as an 'osd_widgets::box' command.
+With the following exception:
 
+-text: defines the text to be printer, the text can be 10 lines in height and need to be separate by 'new line' characters.
+-textcolor: definses the color of the text
+-textsize: defines the font size of the text}
+
+proc text_box {name args} {
+
+	#default values in case nothing is given
+	set txt_color 0xffffffff
+	set txt_size 6
+
+	# process arguments
+	set child_props  [list]
+	set parent_props [list]
+	foreach {key val} $args {
+		switch -- $key {
+		-text
+			{set message $val}
+		-textcolor
+			{set txt_color $val}
+		-textsize
+			{set txt_size $val}
+		default
+			{lappend parent_props $key $val}
+		}
+	}
+
+	#for handheld devices set minimal text size to 9
+	if {$::scale_factor==1} {set txt_size 9}
+	
 	if {$message==""} {return "nothing to display"}
 	set message_list [split $message "\n"]
 	set lines [llength $message_list]
-	if {$lines>10} {return "Text box can hold Max of 10 lines"}
 
-	#If widget doesn't exist create it
-	if {[catch {osd info $name}]} {
-		osd_widgets::box $name \
-			-x 3 -y 12 -z 5 -w 314 \
-			-scaled true -rgba 0x000000ff -border 0.5 \
-			-clip true -fill $bg_color -scaled true
-
-		#create 10 lines
-		for { set i 0 } { $i <= 10 } { incr i } {
-			osd create text $name.$i -y 999 -x 2 -size 6 -rgb 0xffffff
-		}
-	}
-	osd configure $name -h [expr 4+(9*$lines)]
+	#If widget exist destroy it
+	if {![catch {osd info $name}]} {osd destroy $name}
 	
-	#use the lines which are needed
+	#todo: adjust calculations to textsize given
+	eval "osd_widgets::box \{$name\} $parent_props -h [expr 4+(($txt_size+1)*$lines)]"
+
 	set line 0
 	foreach message $message_list {
-		osd configure $name.$line -text "$message" -y [expr 2+($line*9)]
+		osd create text $name.$line -x 2 -size $txt_size -rgb $txt_color -text "$message" -y [expr 2+($line*($txt_size+1))]
 		incr line
 	}
-
-	#hide the others
-	for { set i $line } { $i <= 10 } { incr i } {
-		osd configure $name.$line -y 999
-	}
-
-	osd configure display_osd_text -fadeCurrent 1 -fadeTarget 0 -fadePeriod 5
 }
 
 # only export stuff that is useful in other scripts or for the console user
@@ -214,3 +228,4 @@ namespace export hide_power_bar
 
 # only import stuff to global that is useful outside of scripts (i.e. for the console user)
 namespace import osd_widgets::toggle_fps
+
