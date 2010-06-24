@@ -14,7 +14,6 @@
 #include "FileContext.hh"
 #include "StateChange.hh"
 #include "Reactor.hh"
-#include "Clock.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
@@ -28,6 +27,9 @@ using std::vector;
 using std::set;
 
 namespace openmsx {
+
+// Time between two snapshots in seconds
+static const double SNAPSHOT_PERIOD = 1.0;
 
 static const string REPLAY_DIR = "replays";
 
@@ -105,14 +107,14 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, reverseCmd(new ReverseCmd(*this, motherBoard.getCommandController()))
 	, keyboard(0)
 	, eventDelay(0)
-	, collectCount(0)
 	, replayIndex(0)
+	, collecting(false)
 	, pendingTakeSnapshot(false)
 {
 	eventDistributor.registerEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
 
-	assert(!collecting());
-	assert(!replaying());
+	assert(!isCollecting());
+	assert(!isReplaying());
 }
 
 ReverseManager::~ReverseManager()
@@ -131,49 +133,48 @@ void ReverseManager::registerEventDelay(EventDelay& eventDelay_)
 	eventDelay = &eventDelay_;
 }
 
-bool ReverseManager::collecting() const
+bool ReverseManager::isCollecting() const
 {
-	return collectCount != 0;
+	return collecting;
 }
 
-bool ReverseManager::replaying() const
+bool ReverseManager::isReplaying() const
 {
 	return replayIndex != history.events.size();
 }
 
 void ReverseManager::start()
 {
-	if (!collecting()) {
+	if (!isCollecting()) {
 		// create first snapshot
-		assert(collectCount == 0);
+		collecting = true;
 		takeSnapshot(getCurrentTime());
-		assert(collectCount == 1);
 		// start recording events
 		motherBoard.getStateChangeDistributor().registerRecorder(*this);
 	}
-	assert(collecting());
+	assert(isCollecting());
 }
 
 void ReverseManager::stop()
 {
-	if (collecting()) {
+	if (isCollecting()) {
 		motherBoard.getStateChangeDistributor().unregisterRecorder(*this);
 		removeSyncPoint(NEW_SNAPSHOT); // don't schedule new snapshot takings
 		removeSyncPoint(INPUT_EVENT); // stop any pending replay actions
 		history.clear();
-		collectCount = 0;
 		replayIndex = 0;
+		collecting = false;
 		pendingTakeSnapshot = false;
 	}
 	assert(!pendingTakeSnapshot);
-	assert(!collecting());
-	assert(!replaying());
+	assert(!isCollecting());
+	assert(!isReplaying());
 }
 
 EmuTime::param ReverseManager::getEndTime() const
 {
-	assert(collecting());
-	if (replaying()) {
+	assert(isCollecting());
+	if (isReplaying()) {
 		const EndLogEvent& ev = *checked_cast<EndLogEvent*>(
 			history.events.back().get());
 		return ev.getTime();
@@ -185,25 +186,25 @@ EmuTime::param ReverseManager::getEndTime() const
 void ReverseManager::status(TclObject& result) const
 {
 	result.addListElement("status");
-	if (!collecting()) {
+	if (!isCollecting()) {
 		result.addListElement("disabled");
-	} else if (replaying()) {
+	} else if (isReplaying()) {
 		result.addListElement("replaying");
 	} else {
 		result.addListElement("enabled");
 	}
 
 	result.addListElement("begin");
-	EmuTime begin(collecting() ? history.chunks.begin()->second.time
+	EmuTime begin(isCollecting() ? history.chunks.begin()->second.time
 	                           : EmuTime::zero);
 	result.addListElement((begin - EmuTime::zero).toDouble());
 
 	result.addListElement("end");
-	EmuTime end(collecting() ? getEndTime() : EmuTime::zero);
+	EmuTime end(isCollecting() ? getEndTime() : EmuTime::zero);
 	result.addListElement((end - EmuTime::zero).toDouble());
 
 	result.addListElement("current");
-	EmuTime current(collecting() ? getCurrentTime() : EmuTime::zero);
+	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero);
 	result.addListElement((current - EmuTime::zero).toDouble());
 
 	result.addListElement("snapshots");
@@ -267,7 +268,7 @@ void ReverseManager::goTo(const std::vector<TclObject*>& tokens)
 
 void ReverseManager::goTo(EmuTime::param target)
 {
-	if (!collecting()) {
+	if (!isCollecting()) {
 		throw CommandException(
 			"Reverse was not enabled. First execute the 'reverse "
 			"start' command to start collecting data.");
@@ -320,7 +321,7 @@ void ReverseManager::goTo(EmuTime::param target)
 			eventDelay->flush();
 		}
 
-		if (!replaying()) {
+		if (!isReplaying()) {
 			// terminate replay log with EndLogEvent
 			history.events.push_back(shared_ptr<StateChange>(
 				new EndLogEvent(getCurrentTime())));
@@ -334,9 +335,9 @@ void ReverseManager::goTo(EmuTime::param target)
 		// Transfer history from this ReverseManager to the one in the new
 		// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
 		// and start collecting in the new one.
-		assert(collecting());
+		assert(isCollecting());
 		ReverseManager& newManager = newBoard->getReverseManager();
-		newManager.transferHistory(history, it->first, it->second.eventCount);
+		newManager.transferHistory(history, it->second.eventCount);
 		if (newManager.keyboard && keyboard) {
 			newManager.keyboard->transferHostKeyMatrix(*keyboard);
 		}
@@ -356,8 +357,8 @@ void ReverseManager::goTo(EmuTime::param target)
 		// TODO this is not correct if this board was not the active board
 		reactor.replaceActiveBoard(newBoard);
 
-		assert(!collecting());
-		assert(newBoard->getReverseManager().collecting());
+		assert(!isCollecting());
+		assert(newBoard->getReverseManager().isCollecting());
 
 	} catch (MSXException&) {
 		// Make sure mixer doesn't stay muted in case of error.
@@ -473,20 +474,18 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
-                                     unsigned oldCollectCount,
                                      unsigned oldEventCount)
 {
-	assert(!collecting());
+	assert(!isCollecting());
 	assert(history.chunks.empty());
 
 	// actual history transfer
 	history.swap(oldHistory);
 
 	// resume collecting (and event recording)
-	collectCount = oldCollectCount;
+	collecting = true;
 	schedule(getCurrentTime());
 	motherBoard.getStateChangeDistributor().registerRecorder(*this);
-	assert(collecting());
 
 	// start replaying events
 	replayIndex = oldEventCount;
@@ -497,7 +496,7 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 
 void ReverseManager::restoreReplayLog(Events events)
 {
-	assert(!collecting());
+	assert(!isCollecting());
 	start(); // creates initial in-memory snapshot
 
 	// steal event-data from caller
@@ -508,7 +507,7 @@ void ReverseManager::restoreReplayLog(Events events)
 	assert(!history.events.empty());
 	assert(dynamic_cast<EndLogEvent*>(history.events.back().get()));
 	replayNextEvent();
-	assert(replaying());
+	assert(isReplaying());
 }
 
 void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
@@ -558,7 +557,7 @@ void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
 			++replayIndex;
 			replayNextEvent();
 		} else {
-			assert(!replaying()); // stopped by replay of EndLogEvent
+			assert(!isReplaying()); // stopped by replay of EndLogEvent
 		}
 		break;
 	}
@@ -578,13 +577,23 @@ bool ReverseManager::signalEvent(shared_ptr<const Event> event)
 	return true;
 }
 
+unsigned ReverseManager::getNextSeqNum(EmuTime::param time)
+{
+	if (history.chunks.empty()) {
+		return 1;
+	}
+	const EmuTime& startTime = history.chunks.begin()->second.time;
+	double duration = (time - startTime).toDouble();
+	return unsigned(duration / SNAPSHOT_PERIOD + 0.5) + 1;
+}
+
 void ReverseManager::takeSnapshot(EmuTime::param time)
 {
 	// (possibly) drop old snapshots
 	// TODO does snapshot pruning still happen correctly (often enough)
 	//      when going back/forward in time?
-	++collectCount;
-	dropOldSnapshots<25>(collectCount);
+	unsigned seqNum = getNextSeqNum(time);
+	dropOldSnapshots<25>(seqNum);
 
 	// During replay we might already have a snapshot with the current
 	// sequence number, though this snapshot does not necessarily have the
@@ -594,7 +603,7 @@ void ReverseManager::takeSnapshot(EmuTime::param time)
 	// actually create new snapshot
 	MemOutputArchive out;
 	out.serialize("machine", motherBoard);
-	ReverseChunk& newChunk = history.chunks[collectCount];
+	ReverseChunk& newChunk = history.chunks[seqNum];
 	newChunk.time = time;
 	newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
 	newChunk.eventCount = replayIndex;
@@ -612,7 +621,7 @@ void ReverseManager::replayNextEvent()
 
 void ReverseManager::signalStateChange(shared_ptr<StateChange> event)
 {
-	if (replaying()) {
+	if (isReplaying()) {
 		// this is an event we just replayed
 		assert(event == history.events[replayIndex]);
 		if (dynamic_cast<EndLogEvent*>(event.get())) {
@@ -625,13 +634,13 @@ void ReverseManager::signalStateChange(shared_ptr<StateChange> event)
 		// record event
 		history.events.push_back(event);
 		++replayIndex;
-		assert(!replaying());
+		assert(!isReplaying());
 	}
 }
 
 void ReverseManager::stopReplay(EmuTime::param time)
 {
-	if (replaying()) {
+	if (isReplaying()) {
 		// if we're replaying, stop it and erase remainder of event log
 		removeSyncPoint(INPUT_EVENT);
 		Events& events = history.events;
@@ -644,7 +653,7 @@ void ReverseManager::stopReplay(EmuTime::param time)
 		}
 		history.chunks.erase(it, history.chunks.end());
 	}
-	assert(!replaying());
+	assert(!isReplaying());
 }
 
 /* Should be called each time a new snapshot is added.
@@ -676,9 +685,7 @@ void ReverseManager::dropOldSnapshots(unsigned count)
 
 void ReverseManager::schedule(EmuTime::param time)
 {
-	Clock<1> clock(time);
-	clock += 1;
-	setSyncPoint(clock.getTime(), NEW_SNAPSHOT);
+	setSyncPoint(time + EmuDuration(SNAPSHOT_PERIOD), NEW_SNAPSHOT);
 }
 
 const string& ReverseManager::schedName() const

@@ -63,8 +63,8 @@ private:
 		Events events;
 	};
 
-	bool collecting() const;
-	bool replaying() const;
+	bool isCollecting() const;
+	bool isReplaying() const;
 
 	void start();
 	void stop();
@@ -78,9 +78,9 @@ private:
 	EmuTime::param getEndTime() const;
 	void goTo(EmuTime::param targetTime);
 	void transferHistory(ReverseHistory& oldHistory,
-                             unsigned oldCollectCount,
                              unsigned oldEventCount);
 	void restoreReplayLog(Events events);
+	unsigned getNextSeqNum(EmuTime::param time);
 	void takeSnapshot(EmuTime::param time);
 	void schedule(EmuTime::param time);
 	void replayNextEvent();
@@ -103,8 +103,8 @@ private:
 	Keyboard* keyboard;
 	EventDelay* eventDelay;
 	ReverseHistory history;
-	unsigned collectCount; // nb taken snapshots (0 = not collecting)
 	unsigned replayIndex;
+	bool collecting;
 	bool pendingTakeSnapshot;
 
 	friend class ReverseCmd;
