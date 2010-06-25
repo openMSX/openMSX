@@ -22,6 +22,7 @@
 #include "checked_cast.hh"
 #include "ref.hh"
 #include <cassert>
+#include <cmath>
 
 using std::string;
 using std::vector;
@@ -31,6 +32,12 @@ namespace openmsx {
 
 // Time between two snapshots in seconds
 static const double SNAPSHOT_PERIOD = 1.0;
+
+// Max number of snapshots in a replay
+static const unsigned MAX_NOF_SNAPSHOTS = 10;
+
+// Min distance between snapshots in replay in seconds
+static const double MIN_SNAPSHOT_DISTANCE = 60.0;
 
 static const string REPLAY_DIR = "replays";
 
@@ -365,7 +372,7 @@ void ReverseManager::goTo(EmuTime::param target)
 		// In principle the re-record-count is a property of all
 		// snapshots of the reverse history. But it's ok to only
 		// keep the value of the active and the about-to-be-saved
-		// snapshot up-tp-date (see also saveReplay()).
+		// snapshot up-to-date (see also saveReplay()).
 		newBoard->setReRecordCount(motherBoard.getReRecordCount() + 1);
 
 		stop();
@@ -423,12 +430,35 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	newBoard->setReRecordCount(motherBoard.getReRecordCount());
 	replay.motherBoards.push_back(newBoard);
 
-	// and also last one, if there's more than one
+	// determine which extra snapshots to put in the replay
 	if (history.chunks.size() > 1) {
-		Reactor::Board lastBoard = reactor.createEmptyMotherBoard();
-		MemInputArchive in(*history.chunks.rbegin()->second.savestate);
-		in.serialize("machine", *lastBoard);
-		replay.motherBoards.push_back(lastBoard);
+		double length = (history.chunks.rbegin()->second.time - newBoard->getCurrentTime()).toDouble();
+		double windowSize = std::max(MIN_SNAPSHOT_DISTANCE, length / MAX_NOF_SNAPSHOTS);
+		// the purpose of the rest of this scope is to take the youngest
+		// snapshot for each time partition of windowSize
+		Chunks::const_iterator it = history.chunks.begin();
+		++it; // don't include the initial one
+		unsigned partitionNr = 0;
+		unsigned lastAddedSnapshotNr = it->first;
+		// look over the whole timeline (maybe a bit more, but certainly not
+		// less) in time partitions of windowSize
+		while (partitionNr < unsigned(ceil(length / windowSize))) {
+			partitionNr++;
+
+			// find first snapshot newer than right of window
+			while ((((it->second).time - EmuTime::zero).toDouble() < (partitionNr * windowSize)) && (it != history.chunks.end())) ++it;
+			// take the previous to get back in the window (or, if none
+			// present in the window, we'll end up with previous snapshot)
+			--it;
+			if (it->first != lastAddedSnapshotNr) {
+				// this is a new one, add it to the list of snapshots
+				Reactor::Board board = reactor.createEmptyMotherBoard();
+				MemInputArchive in(*it->second.savestate);
+				in.serialize("machine", *board);
+				replay.motherBoards.push_back(board);
+				lastAddedSnapshotNr = it->first;
+			}
+		}
 	}
 
 	// add sentinel when there isn't one yet
