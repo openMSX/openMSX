@@ -168,48 +168,44 @@ set_help_text osd_widgets::box\
 {The command 'osd_widgets::text_box' supports the same parameters as an 'osd_widgets::box' command.
 With the following exception:
 
--text: defines the text to be printer, the text can be 10 lines in height and need to be separate by 'new line' characters.
--textcolor: definses the color of the text
+-text: defines the text to be printed, can have multiple lines (separated by 'new line' characters).
+-textcolor: defines the color of the text
 -textsize: defines the font size of the text}
 
 proc text_box {name args} {
-
-	#default values in case nothing is given
+	# Default values in case nothing is given
 	set txt_color 0xffffffff
 	set txt_size 6
 
-	# process arguments
-	set child_props  [list]
-	set parent_props [list]
+	# Process arguments
+	set box_props [list]
 	foreach {key val} $args {
 		switch -- $key {
-		-text
-			{set message $val}
-		-textcolor
-			{set txt_color $val}
-		-textsize
-			{set txt_size $val}
-		default
-			{lappend parent_props $key $val}
+			-text      { set full_message $val }
+			-textcolor { set txt_color    $val }
+			-textsize  { set txt_size     $val }
+			default    { lappend box_props $key $val }
 		}
 	}
 
-	#for handheld devices set minimal text size to 9
-	if {$::scale_factor==1} {set txt_size 9}
-	
-	if {$message==""} {return "nothing to display"}
-	set message_list [split $message "\n"]
+	# For handheld devices set minimal text size to 9
+	#  TODO: does this belong here or at some higher level?
+	if {($::scale_factor == 1) && ($txt_size < 9)} {
+		set txt_size 9
+	}
+
+	# Destroy widget (if it already existed)
+	catch { osd destory $name }
+
+	if {$full_message == ""} return
+	set message_list [split $full_message "\n"]
 	set lines [llength $message_list]
 
-	#If widget exist destroy it
-	if {![catch {osd info $name}]} {osd destroy $name}
-	
-	#todo: adjust calculations to textsize given
-	eval "osd_widgets::box \{$name\} $parent_props -h [expr 4+(($txt_size+1)*$lines)]"
+	eval "osd_widgets::box \{$name\} $box_props -h [expr 4 + (($txt_size + 1) * $lines)]"
 
 	set line 0
 	foreach message $message_list {
-		osd create text $name.$line -x 2 -size $txt_size -rgb $txt_color -text "$message" -y [expr 2+($line*($txt_size+1))]
+		osd create text $name.$line -x 2 -size $txt_size -rgb $txt_color -text $message -y [expr 2 + ($line * ($txt_size + 1))]
 		incr line
 	}
 }

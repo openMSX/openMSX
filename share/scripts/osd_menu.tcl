@@ -742,17 +742,15 @@ proc ls { directory extensions } {
 }
 
 proc display_osd_text { message {category info} } {
-
-	set category [string tolower $category]  
-
 	variable default_bg_color
 	variable error_color
 	variable warning_color
-	
-	set bg_color $default_bg_color
-	
-	if {$category=="error"} {set bg_color $error_color}
-	if {$category=="warning"} {set bg_color $warning_color}
+	switch -- $category {
+		"info"    { set bg_color $default_bg_color }
+		"warning" { set bg_color $warning_color    }
+		"error"   { set bg_color $error_color      }
+		"default" { error "Invalid category: $category" }
+	}
 	
 	osd_widgets::text_box display_osd_text \
 					-text $message \
@@ -767,7 +765,7 @@ proc display_osd_text { message {category info} } {
 					-rgba 0x000000ff \
 					-fadeCurrent 1 \
 					-fadeTarget 0 \
-					-fadePeriod 5 \
+					-fadePeriod 5
 }
 
 proc menu_create_ROM_list { path } {
