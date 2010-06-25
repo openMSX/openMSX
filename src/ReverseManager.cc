@@ -20,6 +20,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "checked_cast.hh"
+#include "ref.hh"
 #include <cassert>
 
 using std::string;
@@ -33,21 +34,40 @@ static const double SNAPSHOT_PERIOD = 1.0;
 
 static const string REPLAY_DIR = "replays";
 
-// A replay is a struct that contains a motherboard and an MSX event
-// log. Those combined are a replay, because you can replay the events
-// from an existing motherboard state.
+// A replay is a struct that contains a vector of motherboards and an MSX event
+// log. Those combined are a replay, because you can replay the events from an
+// existing motherboard state: the vector has to have at least one motherboard
+// (the initial state), but can have optionally more motherboards, which are
+// merely in-between snapshots, so it is quicker to jump to a later time in the
+// event log.
 struct Replay
 {
+
+	Replay(Reactor& reactor_, FilePool& filePool_): reactor(reactor_), filePool(filePool_) {}
+
+	typedef std::vector<Reactor::Board> MotherBoards;
+
+	Reactor& reactor;
+	FilePool& filePool;
+
 	ReverseManager::Events* events;
-	Reactor::Board motherBoard;
+	MotherBoards motherBoards;
 
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
+	void serialize(Archive& ar, unsigned version)
 	{
-		ar.serialize("snapshot", *motherBoard);
+		if (ar.versionBelow(version, 2)) {
+			Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+			ar.serialize("snapshot", *newBoard);
+			motherBoards.push_back(newBoard);
+		} else {
+			ar.serializeWithID("snapshots", motherBoards, ref(reactor), ref(filePool));
+		}
 		ar.serialize("events", *events);
 	}
 };
+
+SERIALIZE_CLASS_VERSION(Replay, 2);
 
 class ReverseCmd : public Command
 {
@@ -410,9 +430,9 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	}
 
 	XmlOutputArchive out(fileName);
-	Replay replay;
+	Replay replay(reactor, newBoard->getFilePool());
 	replay.events = &history.events;
-	replay.motherBoard = newBoard;
+	replay.motherBoards.push_back(newBoard);
 	out.serialize("replay", replay);
 
 	if (addSentinel) {
@@ -441,10 +461,10 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	                                  fileNameArg);
 
 	// restore replay
-	Replay replay;
-	Events events;
 	Reactor& reactor = motherBoard.getReactor();
-	replay.motherBoard = reactor.createEmptyMotherBoard();
+	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+	Replay replay(reactor, newBoard->getFilePool());
+	Events events;
 	replay.events = &events;
 	try {
 		XmlInputArchive in(fileName);
@@ -464,11 +484,11 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// put the events in the new MSXMotherBoard, also an initial in-memory
 	// snapshot must be created and maybe more to bring the new
 	// ReverseManager to a valid state (with replay info)
-	replay.motherBoard->getReverseManager().restoreReplayLog(events);
+	replay.motherBoards[0]->getReverseManager().restoreReplayLog(events);
 
 	// switch to the new MSXMotherBoard
 	// TODO this is not correct if this board was not the active board
-	reactor.replaceActiveBoard(replay.motherBoard);
+	reactor.replaceActiveBoard(replay.motherBoards[0]);
 
 	result.setString("Loaded replay from " + fileName);
 }
