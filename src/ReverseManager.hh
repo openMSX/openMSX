@@ -79,6 +79,7 @@ private:
 	void goTo(EmuTime::param targetTime);
 	void transferHistory(ReverseHistory& oldHistory,
                              unsigned oldEventCount);
+	void restoreSnapshots(const std::vector<ReverseChunk>& chunks);
 	void restoreReplayLog(Events events);
 	unsigned getNextSeqNum(EmuTime::param time);
 	void takeSnapshot(EmuTime::param time);

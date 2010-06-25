@@ -40,12 +40,13 @@ static const string REPLAY_DIR = "replays";
 // (the initial state), but can have optionally more motherboards, which are
 // merely in-between snapshots, so it is quicker to jump to a later time in the
 // event log.
+
+typedef std::vector<Reactor::Board> MotherBoards;
+
 struct Replay
 {
 
 	Replay(Reactor& reactor_): reactor(reactor_) {}
-
-	typedef std::vector<Reactor::Board> MotherBoards;
 
 	Reactor& reactor;
 
@@ -410,14 +411,25 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		throw SyntaxError();
 	}
 
-	// restore first snapshot to be able to serialize it to a file
 	Reactor& reactor = motherBoard.getReactor();
+	Replay replay(reactor);
+
+	// restore first snapshot to be able to serialize it to a file
 	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(*history.chunks.begin()->second.savestate);
 	in.serialize("machine", *newBoard);
 
 	// update re-record-count, see comment in goTo().
 	newBoard->setReRecordCount(motherBoard.getReRecordCount());
+	replay.motherBoards.push_back(newBoard);
+
+	// and also last one, if there's more than one
+	if (history.chunks.size() > 1) {
+		Reactor::Board lastBoard = reactor.createEmptyMotherBoard();
+		MemInputArchive in(*history.chunks.rbegin()->second.savestate);
+		in.serialize("machine", *lastBoard);
+		replay.motherBoards.push_back(lastBoard);
+	}
 
 	// add sentinel when there isn't one yet
 	bool addSentinel = history.events.empty() ||
@@ -429,9 +441,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	}
 
 	XmlOutputArchive out(fileName);
-	Replay replay(reactor);
 	replay.events = &history.events;
-	replay.motherBoards.push_back(newBoard);
 	out.serialize("replay", replay);
 
 	if (addSentinel) {
@@ -461,7 +471,6 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	// restore replay
 	Reactor& reactor = motherBoard.getReactor();
-	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 	Replay replay(reactor);
 	Events events;
 	replay.events = &events;
@@ -484,6 +493,29 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// snapshot must be created and maybe more to bring the new
 	// ReverseManager to a valid state (with replay info)
 	replay.motherBoards[0]->getReverseManager().restoreReplayLog(events);
+
+	// transform all other motherboards into Chunks
+	// actually create new snapshot
+	if (replay.motherBoards.size() > 1) {
+		std::vector<ReverseChunk> chunks;
+		unsigned replayIndex = 0;
+		MotherBoards::const_iterator it = replay.motherBoards.begin() + 1;
+		for ( ; it != replay.motherBoards.end(); ++it) {
+			MemOutputArchive out;
+			out.serialize("machine", *(*it));
+			ReverseChunk newChunk;
+			newChunk.time = (*it)->getCurrentTime();
+			newChunk.savestate.reset(new MemBuffer(out.stealBuffer()));
+			Events& events = replay.motherBoards[0]->getReverseManager().history.events;
+			// update replayIndex
+			// TODO: should we use <= instead??
+			while (replayIndex < events.size() && (events[replayIndex]->getTime() < newChunk.time)) replayIndex++;
+
+			newChunk.eventCount = replayIndex;
+			chunks.push_back(newChunk);
+		}
+		replay.motherBoards[0]->getReverseManager().restoreSnapshots(chunks);
+	}
 
 	// switch to the new MSXMotherBoard
 	// TODO this is not correct if this board was not the active board
@@ -511,6 +543,13 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 	// replay log contains at least the EndLogEvent
 	assert(replayIndex < history.events.size());
 	replayNextEvent();
+}
+
+void ReverseManager::restoreSnapshots(const std::vector<ReverseChunk>& chunks) {
+	// we have a load of chunks, put them in the map
+	for (std::vector<ReverseChunk>::const_iterator it = chunks.begin(); it != chunks.end(); ++it) {
+		history.chunks[getNextSeqNum((*it).time)] = *it;
+	}
 }
 
 void ReverseManager::restoreReplayLog(Events events)
