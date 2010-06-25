@@ -796,7 +796,7 @@ proc menu_select_rom { item } {
 		} else {
 			menu_close_all
 			carta $fullname
-			display_osd_text "Now running ROM:\n [rom_info]"
+			display_osd_text "Now running ROM:\n[rom_info]"
 			reset
 		}
 	}
