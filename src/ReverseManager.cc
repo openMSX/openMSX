@@ -43,12 +43,11 @@ static const string REPLAY_DIR = "replays";
 struct Replay
 {
 
-	Replay(Reactor& reactor_, FilePool& filePool_): reactor(reactor_), filePool(filePool_) {}
+	Replay(Reactor& reactor_): reactor(reactor_) {}
 
 	typedef std::vector<Reactor::Board> MotherBoards;
 
 	Reactor& reactor;
-	FilePool& filePool;
 
 	ReverseManager::Events* events;
 	MotherBoards motherBoards;
@@ -61,7 +60,7 @@ struct Replay
 			ar.serialize("snapshot", *newBoard);
 			motherBoards.push_back(newBoard);
 		} else {
-			ar.serializeWithID("snapshots", motherBoards, ref(reactor), ref(filePool));
+			ar.serializeWithID("snapshots", motherBoards, ref(reactor));
 		}
 		ar.serialize("events", *events);
 	}
@@ -430,7 +429,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	}
 
 	XmlOutputArchive out(fileName);
-	Replay replay(reactor, newBoard->getFilePool());
+	Replay replay(reactor);
 	replay.events = &history.events;
 	replay.motherBoards.push_back(newBoard);
 	out.serialize("replay", replay);
@@ -463,7 +462,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// restore replay
 	Reactor& reactor = motherBoard.getReactor();
 	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-	Replay replay(reactor, newBoard->getFilePool());
+	Replay replay(reactor);
 	Events events;
 	replay.events = &events;
 	try {

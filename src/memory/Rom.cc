@@ -88,7 +88,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			for (XMLElement::Children::const_iterator it = sums.begin();
 			     it != sums.end(); ++it) {
 				const string& sha1 = (*it)->getData();
-				file = motherBoard.getFilePool().getFile(sha1);
+				file = motherBoard.getReactor().getFilePool().getFile(sha1);
 				if (file.get()) {
 					// avoid recalculating same sha1 later
 					originalSha1 = sha1;

@@ -69,8 +69,7 @@ class FastForwardHelper;
 class MSXMotherBoardImpl : private Observer<Setting>, private noncopyable
 {
 public:
-	MSXMotherBoardImpl(MSXMotherBoard& self,
-	                   Reactor& reactor, FilePool& filePool);
+	MSXMotherBoardImpl(MSXMotherBoard& self, Reactor& reactor);
 	virtual ~MSXMotherBoardImpl();
 
 	const string& getMachineID();
@@ -120,7 +119,6 @@ public:
 	LedStatus& getLedStatus();
 	ReverseManager& getReverseManager();
 	Reactor& getReactor();
-	FilePool& getFilePool();
 	CommandController& getCommandController();
 	InfoCommand& getMachineInfoCommand();
 	EmuTime::param getCurrentTime();
@@ -152,7 +150,6 @@ private:
 	MSXMotherBoard& self;
 
 	Reactor& reactor;
-	FilePool& filePool;
 	string machineID;
 	string machineName;
 
@@ -321,10 +318,9 @@ private:
 static unsigned machineIDCounter = 0;
 
 MSXMotherBoardImpl::MSXMotherBoardImpl(
-		MSXMotherBoard& self_, Reactor& reactor_, FilePool& filePool_)
+		MSXMotherBoard& self_, Reactor& reactor_)
 	: self(self_)
 	, reactor(reactor_)
-	, filePool(filePool_)
 	, machineID(StringOp::Builder() << "machine" << ++machineIDCounter)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
@@ -657,11 +653,6 @@ ReverseManager& MSXMotherBoardImpl::getReverseManager()
 Reactor& MSXMotherBoardImpl::getReactor()
 {
 	return reactor;
-}
-
-FilePool& MSXMotherBoardImpl::getFilePool()
-{
-	return filePool;
 }
 
 CommandController& MSXMotherBoardImpl::getCommandController()
@@ -1277,9 +1268,9 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned version)
 
 // MSXMotherBoard
 
-MSXMotherBoard::MSXMotherBoard(Reactor& reactor, FilePool& filePool)
+MSXMotherBoard::MSXMotherBoard(Reactor& reactor)
 {
-	new MSXMotherBoardImpl(*this, reactor, filePool);
+	new MSXMotherBoardImpl(*this, reactor);
 }
 MSXMotherBoard::~MSXMotherBoard()
 {
@@ -1433,10 +1424,6 @@ ReverseManager& MSXMotherBoard::getReverseManager()
 Reactor& MSXMotherBoard::getReactor()
 {
 	return pimple->getReactor();
-}
-FilePool& MSXMotherBoard::getFilePool()
-{
-	return pimple->getFilePool();
 }
 CommandController& MSXMotherBoard::getCommandController()
 {

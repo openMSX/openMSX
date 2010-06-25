@@ -82,6 +82,7 @@ public:
 	DiskManipulator& getDiskManipulator();
 	EnumSetting<int>& getMachineSetting();
 	RomDatabase& getSoftwareDatabase();
+	FilePool& getFilePool();
 
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;

@@ -36,7 +36,6 @@ class LedStatus;
 class ReverseManager;
 class Display;
 class DiskManipulator;
-class FilePool;
 class GlobalSettings;
 class CommandController;
 class InfoCommand;
@@ -46,7 +45,7 @@ class MSXMapperIO;
 class MSXMotherBoard : private noncopyable
 {
 public:
-	explicit MSXMotherBoard(Reactor& reactor, FilePool& filePool);
+	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 
 	const std::string& getMachineID();
@@ -109,8 +108,6 @@ public:
 	LedStatus& getLedStatus();
 	ReverseManager& getReverseManager();
 	Reactor& getReactor();
-
-	FilePool& getFilePool();
 
 	// convenience methods
 	CommandController& getCommandController();

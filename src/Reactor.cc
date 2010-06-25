@@ -283,6 +283,11 @@ DiskFactory& Reactor::getDiskFactory()
 	return *diskFactory;
 }
 
+FilePool& Reactor::getFilePool()
+{
+	return *filePool;
+}
+
 DiskManipulator& Reactor::getDiskManipulator()
 {
 	return *diskManipulator;
@@ -379,7 +384,7 @@ Reactor::Board Reactor::getMachine(const string& machineID) const
 
 Reactor::Board Reactor::createEmptyMotherBoard()
 {
-	return Board(new MSXMotherBoard(*this, *filePool));
+	return Board(new MSXMotherBoard(*this));
 }
 
 void Reactor::replaceActiveBoard(Board newBoard)
@@ -691,7 +696,7 @@ string TestMachineCommand::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	try {
-		MSXMotherBoard mb(reactor, *reactor.filePool);
+		MSXMotherBoard mb(reactor);
 		mb.loadMachine(tokens[1]);
 		return ""; // success
 	} catch (MSXException& e) {
