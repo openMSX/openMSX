@@ -1,6 +1,6 @@
 diff -ru freetype-2.3.12.org/include/freetype/config/ftoption.h freetype-2.3.12/include/freetype/config/ftoption.h
 --- freetype-2.3.12.org/include/freetype/config/ftoption.h	2010-02-09 15:40:56.000000000 +0100
-+++ freetype-2.3.12/include/freetype/config/ftoption.h	2010-06-16 22:13:25.000000000 +0200
++++ freetype-2.3.12/include/freetype/config/ftoption.h	2010-06-27 14:19:54.000000000 +0200
 @@ -149,7 +149,7 @@
    /*                                                                       */
    /*   Define this macro if you want to enable this `feature'.             */
@@ -120,8 +120,8 @@ diff -ru freetype-2.3.12.org/include/freetype/config/ftoption.h freetype-2.3.12/
    /*
 diff -ru freetype-2.3.12.org/modules.cfg freetype-2.3.12/modules.cfg
 --- freetype-2.3.12.org/modules.cfg	2009-03-14 14:45:26.000000000 +0100
-+++ freetype-2.3.12/modules.cfg	2010-06-16 22:18:24.000000000 +0200
-@@ -37,41 +37,41 @@
++++ freetype-2.3.12/modules.cfg	2010-06-27 17:09:36.000000000 +0200
+@@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
  # This driver needs the `psaux', `pshinter', and `psnames' modules.
@@ -165,13 +165,6 @@ diff -ru freetype-2.3.12.org/modules.cfg freetype-2.3.12/modules.cfg
  
  # SFNT files support.  If used without `truetype' or `cff', it supports
  # bitmap-only fonts within an SFNT wrapper.
- #
- # This driver needs the `psnames' module.
--FONT_MODULES += sfnt
-+#FONT_MODULES += sfnt
- 
- 
- ####
 @@ -79,10 +79,10 @@
  ####
  
