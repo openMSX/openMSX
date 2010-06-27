@@ -422,17 +422,20 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	Replay replay(reactor);
 
 	// restore first snapshot to be able to serialize it to a file
-	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+	Reactor::Board initialBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(*history.chunks.begin()->second.savestate);
-	in.serialize("machine", *newBoard);
+	in.serialize("machine", *initialBoard);
 
 	// update re-record-count, see comment in goTo().
-	newBoard->setReRecordCount(motherBoard.getReRecordCount());
-	replay.motherBoards.push_back(newBoard);
+	initialBoard->setReRecordCount(motherBoard.getReRecordCount());
+	replay.motherBoards.push_back(initialBoard);
 
 	// determine which extra snapshots to put in the replay
 	if (history.chunks.size() > 1) {
-		double length = (history.chunks.rbegin()->second.time - newBoard->getCurrentTime()).toDouble();
+		double length = (getEndTime() -
+				initialBoard->getCurrentTime()).toDouble() +
+			SNAPSHOT_PERIOD; // add a little extra time for when
+			// the last snapshot is exactly on the end of the time line
 		double windowSize = std::max(MIN_SNAPSHOT_DISTANCE, length / MAX_NOF_SNAPSHOTS);
 		// the purpose of the rest of this scope is to take the youngest
 		// snapshot for each time partition of windowSize
@@ -444,11 +447,12 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		// less) in time partitions of windowSize
 		while (partitionNr < unsigned(ceil(length / windowSize))) {
 			partitionNr++;
-
-			// find first snapshot newer than right of window
+			PRT_DEBUG("Partition " << partitionNr << ", edge: " << (partitionNr * windowSize) << ", length: " << length);
+			// find first snapshot newer than right side of window
 			while ((((it->second).time - EmuTime::zero).toDouble() < (partitionNr * windowSize)) && (it != history.chunks.end())) ++it;
 			// take the previous to get back in the window (or, if none
 			// present in the window, we'll end up with previous snapshot)
+			// if it was the end() iterator, we'll end up with the last one
 			--it;
 			if (it->first != lastAddedSnapshotNr) {
 				// this is a new one, add it to the list of snapshots
@@ -459,6 +463,9 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 				lastAddedSnapshotNr = it->first;
 			}
 		}
+		// we should have arrived at the last snapshot now
+		PRT_DEBUG("lastadded: " << lastAddedSnapshotNr << ", last snapshot: " << history.chunks.rbegin()->first << ", with time: " << ((history.chunks.rbegin()->second).time - EmuTime::zero).toDouble());
+		assert(lastAddedSnapshotNr == history.chunks.rbegin()->first);
 	}
 
 	// add sentinel when there isn't one yet
