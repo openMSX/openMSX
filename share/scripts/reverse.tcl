@@ -134,16 +134,23 @@ fade out. You can make it reappear by moving the mouse over it.
 
 		# Reversebar
 		set fade [expr $visible ? 1.0 : 0.0]
-		osd_widgets::box reverse \
-			-scaled true -x 35 -y $y -w 250 -h 6 -z 4 \
-			-rgba 0xffffffff -fadeCurrent $fade -fadeTarget $fade \
-			-fill 0x000080d0 -border -0.5
+		osd create rectangle reverse \
+			-scaled true -x 35 -y $y -w 250 -h 6 \
+			-rgba 0x00000080 -fadeCurrent $fade -fadeTarget $fade
+		osd create rectangle reverse.top \
+			-x -1 -y   -1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
+		osd create rectangle reverse.bottom \
+			-x -1 -rely 1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
+		osd create rectangle reverse.left \
+			-x -1         -w 1 -relh 1      -z 4 -rgba 0xFFFFFFC0
+		osd create rectangle reverse.right \
+			-relx 1       -w 1 -relh 1      -z 4 -rgba 0xFFFFFFC0
 		osd create rectangle reverse.bar \
-			-relw 0 -relh 1	-z 0 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x55eeff80"
+			-relw 0 -relh 1	-z 3 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x55eeff80"
 		osd create rectangle reverse.end \
-			-relx 0 -x -1 -w 2 -relh 1      -z 2 -rgba 0xff8080c0
+			-relx 0 -x -1 -w 2 -relh 1      -z 3 -rgba 0xff8080c0 
 		osd create text      reverse.text \
-			-x -10 -y 0 -relx 0.5 -size 5   -z 3 -rgba 0xffffffff	
+			-x -10 -y 0 -relx 0.5 -size 5   -z 6 -rgba 0xffffffff	
 		
 		# on mouse over hover box 
 		osd_widgets::box reverse.mousetime \
@@ -224,7 +231,7 @@ fade out. You can make it reappear by moving the mouse over it.
 			set name reverse.tick$count
 			catch {
 				# create new if it doesn't exist yet
-				osd create rectangle $name -w 0.5 -relh 1 -rgb 0x444444 -z 1
+				osd create rectangle $name -w 0.5 -relh 1 -rgba 0x444444ff -z 2 
 			}
 			osd configure $name -relx [expr ($snapshot - $stats(begin)) * $reciprocalLength]
 			incr count
