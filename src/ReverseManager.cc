@@ -22,7 +22,6 @@
 #include "checked_cast.hh"
 #include "ref.hh"
 #include <cassert>
-#include <cmath>
 
 using std::string;
 using std::vector;
@@ -30,14 +29,14 @@ using std::set;
 
 namespace openmsx {
 
-// Time between two snapshots in seconds
+// Time between two snapshots (in seconds)
 static const double SNAPSHOT_PERIOD = 1.0;
 
 // Max number of snapshots in a replay
 static const unsigned MAX_NOF_SNAPSHOTS = 10;
 
-// Min distance between snapshots in replay in seconds
-static const double MIN_SNAPSHOT_DISTANCE = 60.0;
+// Min distance between snapshots in replay (in seconds)
+static const EmuDuration MIN_PARTITION_LENGTH = EmuDuration(60.0);
 
 static const string REPLAY_DIR = "replays";
 
@@ -396,7 +395,8 @@ void ReverseManager::goTo(EmuTime::param target)
 
 void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& result)
 {
-	if (history.chunks.empty()) {
+	const Chunks& chunks = history.chunks;
+	if (chunks.empty()) {
 		throw CommandException("No recording...");
 	}
 
@@ -423,7 +423,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	// restore first snapshot to be able to serialize it to a file
 	Reactor::Board initialBoard = reactor.createEmptyMotherBoard();
-	MemInputArchive in(*history.chunks.begin()->second.savestate);
+	MemInputArchive in(*chunks.begin()->second.savestate);
 	in.serialize("machine", *initialBoard);
 
 	// update re-record-count, see comment in goTo().
@@ -431,42 +431,34 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	replay.motherBoards.push_back(initialBoard);
 
 	// determine which extra snapshots to put in the replay
-	if (history.chunks.size() > 1) {
-		double length = (getEndTime() -
-				initialBoard->getCurrentTime()).toDouble() +
-			SNAPSHOT_PERIOD; // add a little extra time for when
-			// the last snapshot is exactly on the end of the time line
-		double windowSize = std::max(MIN_SNAPSHOT_DISTANCE, length / MAX_NOF_SNAPSHOTS);
-		// the purpose of the rest of this scope is to take the youngest
-		// snapshot for each time partition of windowSize
-		Chunks::const_iterator it = history.chunks.begin();
-		++it; // don't include the initial one
-		unsigned partitionNr = 0;
-		unsigned lastAddedSnapshotNr = it->first;
-		// look over the whole timeline (maybe a bit more, but certainly not
-		// less) in time partitions of windowSize
-		while (partitionNr < unsigned(ceil(length / windowSize))) {
-			partitionNr++;
-			PRT_DEBUG("Partition " << partitionNr << ", edge: " << (partitionNr * windowSize) << ", length: " << length);
-			// find first snapshot newer than right side of window
-			while ((((it->second).time - EmuTime::zero).toDouble() < (partitionNr * windowSize)) && (it != history.chunks.end())) ++it;
-			// take the previous to get back in the window (or, if none
-			// present in the window, we'll end up with previous snapshot)
-			// if it was the end() iterator, we'll end up with the last one
+	const EmuTime& startTime = chunks.begin()->second.time;
+	const EmuTime& endTime   = chunks.rbegin()->second.time;
+	EmuDuration totalLength = endTime - startTime;
+	EmuDuration partitionLength = totalLength.divRoundUp(MAX_NOF_SNAPSHOTS);
+	partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
+	EmuTime nextPartitionEnd = startTime + partitionLength;
+	Chunks::const_iterator it = chunks.begin();
+	Chunks::const_iterator lastAddedIt = chunks.begin(); // already added
+	while (it != chunks.end()) {
+		++it;
+		if (it == chunks.end() || (it->second.time > nextPartitionEnd)) {
 			--it;
-			if (it->first != lastAddedSnapshotNr) {
+			assert(it->second.time <= nextPartitionEnd);
+			if (it != lastAddedIt) {
 				// this is a new one, add it to the list of snapshots
 				Reactor::Board board = reactor.createEmptyMotherBoard();
 				MemInputArchive in(*it->second.savestate);
 				in.serialize("machine", *board);
 				replay.motherBoards.push_back(board);
-				lastAddedSnapshotNr = it->first;
+				lastAddedIt = it;
+			}
+			++it;
+			while (it != chunks.end() && it->second.time > nextPartitionEnd) {
+				nextPartitionEnd += partitionLength;
 			}
 		}
-		// we should have arrived at the last snapshot now
-		PRT_DEBUG("lastadded: " << lastAddedSnapshotNr << ", last snapshot: " << history.chunks.rbegin()->first << ", with time: " << ((history.chunks.rbegin()->second).time - EmuTime::zero).toDouble());
-		assert(lastAddedSnapshotNr == history.chunks.rbegin()->first);
 	}
+	assert(lastAddedIt == --chunks.end()); // last snapshot must be included
 
 	// add sentinel when there isn't one yet
 	bool addSentinel = history.events.empty() ||

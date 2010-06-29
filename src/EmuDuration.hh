@@ -67,6 +67,8 @@ public:
 		{ return EmuDuration(time * fact); }
 	const EmuDuration operator/(unsigned fact) const
 		{ return EmuDuration(time / fact); }
+	const EmuDuration divRoundUp(unsigned fact) const
+		{ return EmuDuration((time + fact - 1) / fact); }
 	unsigned operator/(EmuDuration::param d) const
 	{
 		uint64 result = time / d.time;
