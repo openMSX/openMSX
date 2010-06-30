@@ -2,8 +2,7 @@
 
 #include "Timer.hh"
 #include "systemfuncs.hh"
-#if HAVE_GETTIMEOFDAY
-#include <sys/time.h>
+#if HAVE_CLOCK_GETTIME
 #include <ctime>
 #endif
 #if HAVE_USLEEP
@@ -13,6 +12,7 @@
 #include <windows.h>
 #endif
 #include <SDL.h>
+#include <cassert>
 
 namespace openmsx {
 
@@ -47,11 +47,14 @@ unsigned long long getTime()
 	// ensure that the multiplication doesn't wrap.
 	return (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
 */
-#if HAVE_GETTIMEOFDAY
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return static_cast<unsigned long long>(tv.tv_sec) * 1000000 +
-	       static_cast<unsigned long long>(tv.tv_usec);
+#if HAVE_CLOCK_GETTIME && defined(_POSIX_MONOTONIC_CLOCK)
+	// Note: in the past we used the more portable gettimeofday() function,
+	//       but the result of that function is not always monotonic.
+	timespec ts;
+	int result = clock_gettime(CLOCK_MONOTONIC, &ts);
+	assert(result == 0);
+	return static_cast<unsigned long long>(ts.tv_sec) * 1000000 +
+	       static_cast<unsigned long long>(ts.tv_nsec) / 1000;
 #else
 	return getSDLTicks();
 #endif
