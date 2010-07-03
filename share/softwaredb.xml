@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1276370809">
+<softwaredb xml:lang="en" timestamp="1278176656">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4953,6 +4953,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Konami</type><hash algo="sha1">842009e0f7d0e977e47be7a56fe60707f477ed93</hash><remark><text>[Kanji]</text></remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Jailbreak</title>
+	<system>MSX</system>
+	<company>Infinite</company>
+	<year>2010</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">3e18ead4dcbeef4985a43bb5d082969e2ea424ac</hash><remark><text>Passion MSX2 Contest Entry</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Janka</title>
 	<genmsxid>501</genmsxid>
 	<system>MSX</system>
@@ -6175,6 +6183,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>konamiSCC</type><hash algo="sha1">3bfbf89dfe4f896a581b1d130afb57ce722bdf0d</hash></megarom></dump>
+		<dump><megarom><type>manbow2</type><hash algo="sha1">00a81872d548a7278b8901608bf12e8f79009bee</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Manes</title>
@@ -6401,7 +6410,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">ea0824ea0692d2cdff816a2b3c3eb9a587a5f536</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">e9e778c3d103cc8c32093cd6880fa8d7238bbd9e</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">89b1f403fac335344a54f23be5b30815449f3173</hash><remark><text>[RC-767] / [Turbo-R Patch]</text></remark></megarom></dump>
-		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">78c16176b9836880a984e0d86bb22714a917aede</hash><remark><text>[RC-767] / Retranslation by BifiMSX</text></remark></megarom></dump>
+		<dump><original value="false">Updated Translation</original><megarom><type>KonamiSCC</type><hash algo="sha1">78c16176b9836880a984e0d86bb22714a917aede</hash><remark><text>[RC-767] / Retranslation by BifiMSX</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Metal Gear 2 - Solid Snake (Demo)</title>
@@ -6412,7 +6421,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash algo="sha1">21ac0ae7da47abf30986b479489134c79405f95d</hash><remark><text>[RC-767]</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark><text>[RC-767] / [tr En]</text></remark></megarom></dump>
-		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash algo="sha1">efc3814c035ab472736e9473590c628eee5dba38</hash><remark><text>[RC-767] / Retranslation by BifiMSX</text></remark></megarom></dump>
+		<dump><original value="false">Updated Translation</original><megarom><type>KonamiSCC</type><hash algo="sha1">efc3814c035ab472736e9473590c628eee5dba38</hash><remark><text>[RC-767] / Retranslation by BifiMSX</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Meteoritooo !!</title>
@@ -6714,6 +6723,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">4dd934902907db50ba76053f59ae7737d55824f4</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Moron van der Slut</title>
+	<system>MSX</system>
+	<company>TNI</company>
+	<year>2010</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">74ace233682d2e4355a02e52bbd078358811a35b</hash><remark><text>Passion MSX2 Contest Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Mouser</title>
@@ -7103,6 +7120,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">1d97922a5ab63e73611d0edbe952f041af3385b3</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">6075cd96bc85864f22c643b023302f006b565049</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">688b70e60dc272654ac6b0a72237fefdce2ef9ff</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Neopong 512</title>
+	<system>MSX</system>
+	<company>Z80ST</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">328bf269bc38a706f1b6dec688d4f47e4a830199</hash><remark><text>MSXDev10 entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Nessen Koushiyen - Casio Baseball</title>
@@ -11467,6 +11492,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2545
-Parse time 10.236 seconds on Sat Jun 12 21:27:00 CEST 2010
+Roms in this database:2549
+Parse time 16.032 seconds on Sat Jul 3 19:04:32 CEST 2010
  -->
