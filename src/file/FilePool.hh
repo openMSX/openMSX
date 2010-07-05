@@ -21,6 +21,10 @@ public:
 	explicit FilePool(SettingsConfig& settingsConfig);
 	~FilePool();
 
+	/** Search file with the given sha1sum.
+	 * If found it returns the (already opened) file,
+	 * if not found it returns a NULL pointer.
+	 */
 	std::auto_ptr<File> getFile(const std::string& sha1sum);
 
 private:

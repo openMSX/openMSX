@@ -68,13 +68,6 @@ static bool parse(const string& line, string& sha1, time_t& time, string& filena
 	       (time != time_t(-1));
 }
 
-static auto_ptr<File> calcSha1sum(const string& filename, string& sum)
-{
-	auto_ptr<File> file(new File(filename));
-	sum = SHA1::calc(file->mmap(), file->getSize());
-	return file;
-}
-
 void FilePool::readSha1sums()
 {
 	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
@@ -127,6 +120,11 @@ auto_ptr<File> FilePool::getFile(const string& sha1sum)
 	return result; // not found
 }
 
+static string calcSha1sum(File& file)
+{
+	return SHA1::calc(file.mmap(), file.getSize());
+}
+
 auto_ptr<File> FilePool::getFromPool(const string& sha1sum)
 {
 	pair<Pool::iterator, Pool::iterator> bound = pool.equal_range(sha1sum);
@@ -135,20 +133,35 @@ auto_ptr<File> FilePool::getFromPool(const string& sha1sum)
 		time_t& time = it->second.first;
 		const string& filename = it->second.second;
 		try {
-			string newSum;
-			auto_ptr<File> file = calcSha1sum(filename, newSum);
+			auto_ptr<File> file(new File(filename));
 			time_t newTime = file->getModificationDate();
+			if (time == newTime) {
+				// When modification time is unchanged, assume
+				// sha1sum is also unchanged. So avoid
+				// expensive sha1sum calculation.
+				return file;
+			}
+			string newSum = calcSha1sum(*file);
 			if (newSum == sha1sum) {
+				// Modification time was changed, but
+				// (recalculated) sha1sum is still the same,
+				// only update timestamp.
 				time = newTime;
 				return file;
 			}
-			// did not match, update db with new sum
-			pool.erase(it++);
+			// Did not match: update db with new sum and continue
+			// searching.
+			Pool::iterator it2 = it;
+			++it;
+			pool.erase(it2);
 			pool.insert(make_pair(newSum,
 			                 make_pair(newTime, filename)));
 		} catch (FileException&) {
-			// error reading file, remove from db
-			pool.erase(it++);
+			// Error reading file: remove from db and continue
+			// searching.
+			Pool::iterator it2 = it;
+			++it;
+			pool.erase(it2);
 		}
 	}
 	return auto_ptr<File>(); // not found
@@ -181,8 +194,8 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 	if (it == pool.end()) {
 		// not in pool
 		try {
-			string sum;
-			auto_ptr<File> file = calcSha1sum(filename, sum);
+			auto_ptr<File> file(new File(filename));
+			string sum = calcSha1sum(*file);
 			time_t time = file->getModificationDate();
 			pool.insert(make_pair(sum, make_pair(time, filename)));
 			if (sum == sha1sum) {
@@ -196,6 +209,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 		assert(filename == it->second.second);
 		try {
 			auto_ptr<File> file(new File(filename));
+			// TODO get time without opening file
 			time_t time = file->getModificationDate();
 			if (time == it->second.first) {
 				// db is still up to date
@@ -204,9 +218,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 				}
 			} else {
 				// db outdated
-				SHA1 sha1;
-				sha1.update(file->mmap(), file->getSize());
-				string sum = sha1.hex_digest();
+				string sum = calcSha1sum(*file);
 				pool.erase(it);
 				pool.insert(make_pair(sum,
 				                      make_pair(time, filename)));
@@ -219,7 +231,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 			pool.erase(it);
 		}
 	}
-	return auto_ptr<File>(); // not valid
+	return auto_ptr<File>(); // not found
 }
 
 FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
