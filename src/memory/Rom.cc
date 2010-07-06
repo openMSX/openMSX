@@ -96,25 +96,49 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 				}
 			}
 		}
-		// .. and then try filename as originally given by user
-		if (!file.get()) {
-			if (filenameElem) {
-				string name = filenameElem->getData();
-				try {
-					Filename filename(name,
-					                  config.getFileContext(),
-					                  controller);
-					file.reset(new File(filename));
-				} catch (FileException&) {
-					throw MSXException("Error reading ROM: " +
-					                   name);
-				}
-			} else {
-				throw MSXException("Couldn't find ROM file for \"" +
-				                   config.getId() + "\".");
+		// .. and then try filename as originally given by user ..
+		if (!file.get() && filenameElem) {
+			string name = filenameElem->getData();
+			try {
+				Filename filename(name,
+						  config.getFileContext(),
+						  controller);
+				file.reset(new File(filename));
+			} catch (FileException&) {
+				throw MSXException("Error reading ROM: " +
+						   name);
 			}
 		}
-		read(config);
+		// .. still no file, then error
+		if (!file.get()) {
+			throw MSXException("Couldn't find ROM file for \"" +
+					   config.getId() + "\".");
+		}
+
+		// actually read file content
+		if (config.findChild("filesize") ||
+		    config.findChild("skip_headerbytes")) {
+			throw MSXException(
+				"The <filesize> and <skip_headerbytes> tags "
+				"inside a <rom> section are no longer "
+				"supported.");
+		}
+		try {
+			rom = file->mmap();
+			size = file->getSize();
+		} catch (FileException&) {
+			throw MSXException("Error reading ROM image: " +
+					   file->getURL());
+		}
+
+		// For file-based roms, calc sha1 via File::getSHA1Sum(). It can
+		// possibly use the FilePool cache to avoid the calculation.
+		if (originalSha1.empty()) {
+			// TODO get sha1sum from filepool
+			//originalSha1 = file->getSHA1Sum();
+			originalSha1 = SHA1::calc(rom, size);
+		}
+
 		// verify SHA1
 		if (!checkSHA1(config)) {
 			motherBoard.getMSXCliComm().printWarning(
@@ -204,47 +228,14 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 }
 
-
-
-void Rom::read(const XMLElement& config)
-{
-	assert(file.get());
-
-	// get filesize
-	int fileSize;
-	string fileSizeStr = config.getChildData("filesize", "auto");
-	if (fileSizeStr == "auto") {
-		fileSize = file->getSize();
-	} else {
-		fileSize = StringOp::stringToInt(fileSizeStr);
-	}
-
-	// get offset
-	int offset = config.getChildDataAsInt("skip_headerbytes", 0);
-	if (fileSize <= offset) {
-		throw MSXException("Offset greater than filesize");
-	}
-	size = fileSize - offset;
-
-	// read file
-	byte* tmp = 0; // avoid warning
-	try {
-		tmp = file->mmap() + offset;
-		rom = tmp;
-	} catch (FileException&) {
-		throw MSXException("Error reading ROM image: " +
-		                   file->getURL());
-	}
-}
-
 bool Rom::checkSHA1(const XMLElement& config)
 {
-	const string& sha1sum = getOriginalSHA1();
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	if (sums.empty()) {
 		return true;
 	}
+	const string& sha1sum = getOriginalSHA1();
 	for (XMLElement::Children::const_iterator it = sums.begin();
 	     it != sums.end(); ++it) {
 		if ((*it)->getData() == sha1sum) {

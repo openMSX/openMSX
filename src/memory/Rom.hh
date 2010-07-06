@@ -41,7 +41,6 @@ public:
 
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config);
-	void read(const XMLElement& config);
 	bool checkSHA1(const XMLElement& config);
 
 	const byte* rom;
