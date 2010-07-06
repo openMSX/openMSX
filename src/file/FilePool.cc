@@ -244,4 +244,35 @@ FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 	return pool.end();
 }
 
+
+string FilePool::getSha1Sum(File& file)
+{
+	time_t time = file.getModificationDate();
+	string filename = file.getURL();
+
+	Pool::iterator it = findInDatabase(filename);
+	if (it != pool.end()) {
+		// in database
+		if (time == it->second.first) {
+			// modification time matches, assume sha1sum also matches
+			return it->first;
+		} else {
+			// mismatch, remove from db and re-calculate
+			pool.erase(it);
+		}
+	}
+	// not in db (or timestamp mismatch)
+	string sum = SHA1::calc(file.mmap(), file.getSize());
+	pool.insert(make_pair(sum, make_pair(time, filename)));
+	return sum;
+}
+
+void FilePool::removeSha1Sum(File& file)
+{
+	Pool::iterator it = findInDatabase(file.getURL());
+	if (it != pool.end()) {
+		pool.erase(it);
+	}
+}
+
 } // namespace openmsx

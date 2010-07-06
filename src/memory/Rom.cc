@@ -75,6 +75,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
 	const XMLElement* filenameElem         = config.findChild("filename");
 	if (resolvedFilenameElem || !sums.empty() || filenameElem) {
+		FilePool& filepool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
 			try {
@@ -88,7 +89,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			for (XMLElement::Children::const_iterator it = sums.begin();
 			     it != sums.end(); ++it) {
 				const string& sha1 = (*it)->getData();
-				file = motherBoard.getReactor().getFilePool().getFile(sha1);
+				file = filepool.getFile(sha1);
 				if (file.get()) {
 					// avoid recalculating same sha1 later
 					originalSha1 = sha1;
@@ -134,9 +135,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		// For file-based roms, calc sha1 via File::getSHA1Sum(). It can
 		// possibly use the FilePool cache to avoid the calculation.
 		if (originalSha1.empty()) {
-			// TODO get sha1sum from filepool
-			//originalSha1 = file->getSHA1Sum();
-			originalSha1 = SHA1::calc(rom, size);
+			file->setFilePool(filepool);
+			originalSha1 = file->getSha1Sum();
 		}
 
 		// verify SHA1

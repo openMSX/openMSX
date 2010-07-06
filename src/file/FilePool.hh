@@ -27,6 +27,18 @@ public:
 	 */
 	std::auto_ptr<File> getFile(const std::string& sha1sum);
 
+	/** Calculate sha1sum for the given File object.
+	 * If possible the result is retrieved from cache, avoiding the
+	 * relatively expensive calculation.
+	 */
+	std::string getSha1Sum(File& file);
+
+	/** Remove sha1sum for this file from the cache.
+	 * When the file was written to, sha1sum changes and it should be
+	 * removed from the cache.
+	 */
+	void removeSha1Sum(File& file);
+
 private:
 	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
 	typedef std::vector<std::string> Directories;

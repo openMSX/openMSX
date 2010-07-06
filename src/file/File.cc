@@ -2,10 +2,12 @@
 
 #include "File.hh"
 #include "Filename.hh"
+#include "FilePool.hh"
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
 #include "StringOp.hh"
+#include <cassert>
 
 using std::string;
 
@@ -27,21 +29,25 @@ static std::auto_ptr<FileBase> init(const string& url, File::OpenMode mode)
 
 File::File(const Filename& filename, OpenMode mode)
 	: file(init(filename.getResolved(), mode))
+	, filepool(NULL)
 {
 }
 
 File::File(const string& url, OpenMode mode)
 	: file(init(url, mode))
+	, filepool(NULL)
 {
 }
 
 File::File(const std::string& filename, const char* mode)
 	: file(new LocalFile(filename, mode))
+	, filepool(NULL)
 {
 }
 
 File::File(const Filename& filename, const char* mode)
 	: file(new LocalFile(filename.getResolved(), mode))
+	, filepool(NULL)
 {
 }
 
@@ -56,6 +62,9 @@ void File::read(void* buffer, unsigned num)
 
 void File::write(const void* buffer, unsigned num)
 {
+	if (filepool) {
+		filepool->removeSha1Sum(*this);
+	}
 	file->write(buffer, num);
 }
 
@@ -117,6 +126,18 @@ bool File::isReadOnly() const
 time_t File::getModificationDate()
 {
 	return file->getModificationDate();
+}
+
+string File::getSha1Sum()
+{
+	assert(filepool); // must be set
+	return filepool->getSha1Sum(*this);
+}
+
+void File::setFilePool(FilePool& filepool_)
+{
+	assert(!filepool); // can only be set once
+	filepool = &filepool_;
 }
 
 } // namespace openmsx
