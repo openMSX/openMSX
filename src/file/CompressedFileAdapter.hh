@@ -4,6 +4,7 @@
 #define COMPRESSEDFILEADAPTER_HH
 
 #include "FileBase.hh"
+#include "shared_ptr.hh"
 #include <vector>
 #include <memory>
 
@@ -12,6 +13,13 @@ namespace openmsx {
 class CompressedFileAdapter : public FileBase
 {
 public:
+	struct Decompressed {
+		std::vector<byte> buf;
+		std::string originalName;
+		std::string cachedURL;
+		time_t cachedModificationDate;
+	};
+
 	virtual void read(void* buffer, unsigned num);
 	virtual void write(const void* buffer, unsigned num);
 	virtual unsigned getSize();
@@ -27,18 +35,13 @@ public:
 protected:
 	explicit CompressedFileAdapter(std::auto_ptr<FileBase> file);
 	virtual ~CompressedFileAdapter();
-	virtual void decompress(FileBase& file) = 0;
-
-	// filled in by subclass
-	std::vector<byte> buf;
-	std::string originalName;
+	virtual void decompress(FileBase& file, Decompressed& decompressed) = 0;
 
 private:
-	void fillBuffer();
+	void decompress();
 
 	std::auto_ptr<FileBase> file;
-	time_t cachedModificationDate;
-	std::string cachedURL;
+	shared_ptr<Decompressed> decompressed;
 	unsigned pos;
 };
 

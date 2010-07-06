@@ -12,8 +12,8 @@ class ZipFileAdapter : public CompressedFileAdapter
 public:
 	explicit ZipFileAdapter(std::auto_ptr<FileBase> file);
 
-protected:
-	virtual void decompress(FileBase& file);
+private:
+	virtual void decompress(FileBase& file, Decompressed& decompressed);
 };
 
 } // namespace openmsx

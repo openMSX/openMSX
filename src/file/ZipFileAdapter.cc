@@ -11,7 +11,7 @@ ZipFileAdapter::ZipFileAdapter(std::auto_ptr<FileBase> file_)
 {
 }
 
-void ZipFileAdapter::decompress(FileBase& file)
+void ZipFileAdapter::decompress(FileBase& file, Decompressed& decompressed)
 {
 	ZlibInflate zlib(file.mmap(), file.getSize());
 
@@ -34,10 +34,10 @@ void ZipFileAdapter::decompress(FileBase& file)
 	unsigned origSize = zlib.get32LE(); // uncompressed size
 	unsigned filenameLen = zlib.get16LE(); // filename length
 	unsigned extraFieldLen = zlib.get16LE(); // extra field length
-	originalName = zlib.getString(filenameLen); // original filename
+	decompressed.originalName = zlib.getString(filenameLen); // original filename
 	zlib.skip(extraFieldLen); // skip "extra field"
 
-	zlib.inflate(buf, origSize);
+	zlib.inflate(decompressed.buf, origSize);
 }
 
 } // namespace openmsx

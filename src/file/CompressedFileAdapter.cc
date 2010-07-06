@@ -5,10 +5,17 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
+#include <map>
 
 using std::string;
+using std::map;
+using std::vector;
 
 namespace openmsx {
+
+typedef map<string, shared_ptr<CompressedFileAdapter::Decompressed> > DecompressCache;
+static DecompressCache decompressCache;
+
 
 CompressedFileAdapter::CompressedFileAdapter(std::auto_ptr<FileBase> file_)
 	: file(file_), pos(0)
@@ -17,22 +24,38 @@ CompressedFileAdapter::CompressedFileAdapter(std::auto_ptr<FileBase> file_)
 
 CompressedFileAdapter::~CompressedFileAdapter()
 {
+	DecompressCache::iterator it = decompressCache.find(getURL());
+	decompressed.reset();
+	if (it != decompressCache.end() && it->second.unique()) {
+		// delete last user of Decompressed, remove from cache
+		decompressCache.erase(it);
+	}
 }
 
-void CompressedFileAdapter::fillBuffer()
+void CompressedFileAdapter::decompress()
 {
-	if (file.get()) {
-		decompress(*file);
-		cachedModificationDate = getModificationDate();
-		cachedURL = getURL();
-		// close original file after succesful decompress
-		file.reset();
+	if (decompressed.get()) return;
+
+	string url = getURL();
+	DecompressCache::iterator it = decompressCache.find(url);
+	if (it != decompressCache.end()) {
+		decompressed = it->second;
+	} else {
+		decompressed.reset(new Decompressed());
+		decompress(*file, *decompressed);
+		decompressed->cachedModificationDate = getModificationDate();
+		decompressed->cachedURL = url;
+		decompressCache[url] = decompressed;
 	}
+
+	// close original file after succesful decompress
+	file.reset();
 }
 
 void CompressedFileAdapter::read(void* buffer, unsigned num)
 {
-	fillBuffer();
+	decompress();
+	vector<byte>& buf = decompressed->buf;
 	if (!buf.empty()) {
 		memcpy(buffer, &buf[pos], num);
 	} else {
@@ -50,8 +73,8 @@ void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
 
 unsigned CompressedFileAdapter::getSize()
 {
-	fillBuffer();
-	return unsigned(buf.size());
+	decompress();
+	return unsigned(decompressed->buf.size());
 }
 
 void CompressedFileAdapter::seek(unsigned newpos)
@@ -76,14 +99,14 @@ void CompressedFileAdapter::flush()
 
 const string CompressedFileAdapter::getURL() const
 {
-	return file.get() ? file->getURL()
-	                  : cachedURL;
+	return decompressed.get() ? decompressed->cachedURL
+	                          : file->getURL();
 }
 
 const string CompressedFileAdapter::getOriginalName()
 {
-	fillBuffer();
-	return originalName;
+	decompress();
+	return decompressed->originalName;
 }
 
 bool CompressedFileAdapter::isReadOnly() const
@@ -93,8 +116,8 @@ bool CompressedFileAdapter::isReadOnly() const
 
 time_t CompressedFileAdapter::getModificationDate()
 {
-	return file.get() ? file->getModificationDate()
-	                  : cachedModificationDate;
+	return decompressed.get() ? decompressed->cachedModificationDate
+	                          : file->getModificationDate();
 }
 
 } // namespace openmsx

@@ -82,6 +82,9 @@ public:
 	T* operator->() const { assert(ptr); return  ptr; }
 	T* get() const { return ptr; }
 
+	bool unique() const { return use_count() == 1; }
+	unsigned use_count() const { return impl->count; }
+
 private:
 	T* ptr;
 	shared_ptr_impl_base* impl;
