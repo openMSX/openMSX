@@ -98,7 +98,7 @@ UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 		*controller, "unicodemaps/unicodemap." + keyboardType);
 	try {
 		File file(filename);
-		byte* buf = file.mmap();
+		const byte* buf = file.mmap();
 		parseUnicodeKeymapfile(
 			reinterpret_cast<const char*>(buf),
 			reinterpret_cast<const char*>(buf + file.getSize())

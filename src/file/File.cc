@@ -68,7 +68,7 @@ void File::write(const void* buffer, unsigned num)
 	file->write(buffer, num);
 }
 
-byte* File::mmap()
+const byte* File::mmap()
 {
 	return file->mmap();
 }

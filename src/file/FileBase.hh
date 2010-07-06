@@ -20,7 +20,7 @@ public:
 
 	// If you override mmap(), make sure to call munmap() in
 	// your destructor.
-	virtual byte* mmap();
+	virtual const byte* mmap();
 	virtual void munmap();
 
 	virtual unsigned getSize() = 0;
@@ -36,7 +36,7 @@ public:
 	virtual time_t getModificationDate() = 0;
 
 protected:
-	byte* mmem;
+	const byte* mmem;
 
 private:
 	unsigned mmapSize;

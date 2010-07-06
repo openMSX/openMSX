@@ -65,7 +65,7 @@ public:
 	 * @result Pointer to memory block.
 	 * @throws FileException
 	 */
-	byte* mmap();
+	const byte* mmap();
 
 	/** Unmap file from memory.
 	 */

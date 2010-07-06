@@ -71,6 +71,22 @@ void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
 	throw FileException("Writing to compressed files not yet supported");
 }
 
+const byte* CompressedFileAdapter::mmap()
+{
+	decompress();
+	vector<byte>& buf = decompressed->buf;
+	if (!buf.empty()) { // see read()
+		return &buf[0];
+	} else {
+		return NULL;
+	}
+}
+
+void CompressedFileAdapter::munmap()
+{
+	// nothing
+}
+
 unsigned CompressedFileAdapter::getSize()
 {
 	decompress();

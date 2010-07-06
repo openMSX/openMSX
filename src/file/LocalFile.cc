@@ -116,7 +116,7 @@ void LocalFile::write(const void* buffer, unsigned num)
 }
 
 #if defined _WIN32
-byte* LocalFile::mmap()
+const byte* LocalFile::mmap()
 {
 	if (!mmem) {
 		int fd = _fileno(file);
@@ -169,7 +169,7 @@ void LocalFile::munmap()
 }
 
 #elif HAVE_MMAP
-byte* LocalFile::mmap()
+const byte* LocalFile::mmap()
 {
 	if (!mmem) {
 		mmem = static_cast<byte*>(
@@ -188,7 +188,7 @@ byte* LocalFile::mmap()
 void LocalFile::munmap()
 {
 	if (mmem) {
-		::munmap(mmem, getSize());
+		::munmap(const_cast<byte*>(mmem), getSize());
 		mmem = NULL;
 	}
 }

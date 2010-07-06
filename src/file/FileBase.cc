@@ -19,12 +19,13 @@ FileBase::~FileBase()
 	munmap();
 }
 
-byte* FileBase::mmap()
+const byte* FileBase::mmap()
 {
 	if (!mmem) {
 		mmapSize = getSize();
-		mmem = new byte[mmapSize];
-		read(mmem, mmapSize);
+		byte* tmp = new byte[mmapSize];
+		read(tmp, mmapSize);
+		mmem = tmp;
 	}
 	return mmem;
 }
