@@ -68,6 +68,12 @@ Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
 
 void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
+	// (Only) if the content of this ROM depends on state that is not part
+	// of a savestate, we want to compare the sha1sum of the ROM from the
+	// time the savestate was created with the one from the loaded
+	// savestate. External state can be a .rom file or a patch file.
+	bool checkResolvedSha1 = false;
+
 	CommandController& controller = motherBoard.getCommandController();
 
 	XMLElement::Children sums;
@@ -147,6 +153,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 				file->getURL() + "'.");
 		}
 
+		// We loaded an extrenal file, so check.
+		checkResolvedSha1 = true;
+
 	} else if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
 		int first = config.getChildDataAsInt("firstblock");
@@ -154,6 +163,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		size = (last - first + 1) * 0x2000;
 		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
 		assert(rom);
+
+		// Part of a bigger (already checked) rom, no need to check.
+		checkResolvedSha1 = false;
 
 	} else {
 		// for an empty SCC the <size> tag is missing, so take 0
@@ -163,13 +175,17 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		size = config.getChildDataAsInt("size", 0) * 1024; // in kb
 		extendedRom.assign(size, 0xff);
 		rom = size ? &extendedRom[0] : NULL;
-	}
 
-	patchedSha1 = getOriginalSHA1(); // initially it's the same ..
+		// Content does not depend on external files. No need to check
+		checkResolvedSha1 = false;
+	}
 
 	if (size != 0) {
 		const XMLElement* patchesElem = config.findChild("patches");
 		if (patchesElem) {
+			// calculate before content is altered
+			getOriginalSHA1();
+
 			auto_ptr<const PatchInterface> patch(
 				new EmptyPatch(rom, size));
 
@@ -191,15 +207,22 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 				rom = &extendedRom[0];
 			}
 
-			// .. but recalculate when there were patches
+			// calculated because it's different from original
 			patchedSha1 = SHA1::calc(rom, size);
+
+			// Content altered by external patch file -> check.
+			checkResolvedSha1 = true;
 		}
 	}
 
-	// TODO fix this, this is a hack that depends heavily on HardwareConig::createRomConfig
-	const RomInfo* romInfo = motherBoard.getReactor().getSoftwareDatabase().fetchRomInfo(getOriginalSHA1());
-	if ((romInfo != NULL) && !romInfo->getTitle().empty() && StringOp::startsWith(name, "MSXRom")) {
-		name = romInfo->getTitle();
+	// TODO fix this, this is a hack that depends heavily on
+	//      HardwareConig::createRomConfig
+	if (StringOp::startsWith(name, "MSXRom")) {
+		const RomInfo* romInfo = motherBoard.getReactor().
+			getSoftwareDatabase().fetchRomInfo(getOriginalSHA1());
+		if ((romInfo != NULL) && !romInfo->getTitle().empty()) {
+			name = romInfo->getTitle();
+		}
 	}
 
 	if (size) {
@@ -215,16 +238,19 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		romDebuggable.reset(new RomDebuggable(debugger, *this));
 	}
 
-	XMLElement& mutableConfig = const_cast<XMLElement&>(config);
-	const XMLElement& actualSha1Elem = mutableConfig.getCreateChild(
-		"resolvedSha1", patchedSha1);
-	if (actualSha1Elem.getData() != patchedSha1) {
-		string tmp = file.get() ? file->getURL() : name;
-		// can only happen in case of loadstate
-		motherBoard.getMSXCliComm().printWarning(
-			"The content of the rom " + tmp +
-			" has changed since the time this savestate was "
-			"created. This might result in emulation problems.");
+	if (checkResolvedSha1) {
+		XMLElement& mutableConfig = const_cast<XMLElement&>(config);
+		const XMLElement& actualSha1Elem = mutableConfig.getCreateChild(
+			"resolvedSha1", getPatchedSHA1());
+		if (actualSha1Elem.getData() != getPatchedSHA1()) {
+			string tmp = file.get() ? file->getURL() : name;
+			// can only happen in case of loadstate
+			motherBoard.getMSXCliComm().printWarning(
+				"The content of the rom " + tmp + " has "
+				"changed since the time this savestate was "
+				"created. This might result in emulation "
+				"problems.");
+		}
 	}
 }
 
@@ -269,9 +295,7 @@ const string& Rom::getOriginalSHA1() const
 }
 const string& Rom::getPatchedSHA1() const
 {
-	assert(!originalSha1.empty());
-	assert(!patchedSha1.empty());
-	return patchedSha1;
+	return patchedSha1.empty() ? getOriginalSHA1() : patchedSha1;
 }
 
 
