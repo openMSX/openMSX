@@ -126,6 +126,25 @@ const XMLElement* XMLElement::findChild(const string& name) const
 	return const_cast<XMLElement*>(this)->findChild(name);
 }
 
+const XMLElement* XMLElement::findNextChild(const std::string& name,
+	                                    unsigned& fromIndex) const
+{
+	unsigned numChildren = children.size();
+	for (unsigned i = fromIndex; i != numChildren; ++i) {
+		if (children[i]->getName() == name) {
+			fromIndex = i + 1;
+			return children[i];
+		}
+	}
+	for (unsigned i = 0; i < fromIndex; ++i) {
+		if (children[i]->getName() == name) {
+			fromIndex = i + 1;
+			return children[i];
+		}
+	}
+	return NULL;
+}
+
 XMLElement* XMLElement::findChildWithAttribute(const string& name,
 	const string& attName, const string& attValue)
 {

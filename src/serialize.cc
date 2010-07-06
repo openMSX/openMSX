@@ -342,22 +342,22 @@ XmlInputArchive::XmlInputArchive(const string& filename)
 
 void XmlInputArchive::init(const XMLElement* e)
 {
-	elems.push_back(e);
+	elems.push_back(std::make_pair(e, 0));
 }
 
 void XmlInputArchive::load(string& t)
 {
-	if (!elems.back()->getChildren().empty()) {
+	if (!elems.back().first->getChildren().empty()) {
 		throw XMLException("No child tags expected for string types");
 	}
-	t = elems.back()->getData();
+	t = elems.back().first->getData();
 }
 void XmlInputArchive::load(bool& b)
 {
-	if (!elems.back()->getChildren().empty()) {
+	if (!elems.back().first->getChildren().empty()) {
 		throw XMLException("No child tags expected for boolean types");
 	}
-	string s = elems.back()->getData();
+	string s = elems.back().first->getData();
 	if (s == "true") {
 		b = true;
 	} else if (s == "false") {
@@ -394,19 +394,21 @@ void XmlInputArchive::load(unsigned long long& ull)
 void XmlInputArchive::beginTag(const char* tag_)
 {
 	string tag(tag_);
-	const XMLElement* child = elems.back()->findChild(tag);
+	const XMLElement* child = elems.back().first->findNextChild(
+		tag, elems.back().second);
 	if (!child) {
 		throw XMLException("No child tag found in begin tag \"" + tag + "\"");
 	}
-	elems.push_back(child);
+	elems.push_back(std::make_pair(child, 0));
 }
 void XmlInputArchive::endTag(const char* tag)
 {
-	if (elems.back()->getName() != tag) {
-		throw XMLException("End tag \"" + elems.back()->getName() + "\" not equal to begin tag \"" + tag + "\"");
+	const XMLElement& elem = *elems.back().first;
+	if (elem.getName() != tag) {
+		throw XMLException("End tag \"" + elem.getName() + "\" not equal to begin tag \"" + tag + "\"");
 	}
-	XMLElement* elem = const_cast<XMLElement*>(elems.back());
-	elem->setName(""); // mark this elem for later beginTag() calls
+	XMLElement& elem2 = const_cast<XMLElement&>(elem);
+	elem2.setName(""); // mark this elem for later beginTag() calls
 	elems.pop_back();
 }
 
@@ -415,7 +417,7 @@ void XmlInputArchive::attribute(const char* name, string& t)
 	if (!hasAttribute(name)) {
 		throw XMLException("Missing attribute \"" + string(name) + "\"");
 	}
-	t = elems.back()->getAttribute(name);
+	t = elems.back().first->getAttribute(name);
 }
 void XmlInputArchive::attribute(const char* name, int& i)
 {
@@ -427,11 +429,11 @@ void XmlInputArchive::attribute(const char* name, unsigned& u)
 }
 bool XmlInputArchive::hasAttribute(const char* name)
 {
-	return elems.back()->hasAttribute(name);
+	return elems.back().first->hasAttribute(name);
 }
 int XmlInputArchive::countChildren() const
 {
-	return int(elems.back()->getChildren().size());
+	return int(elems.back().first->getChildren().size());
 }
 
 } // namespace openmsx

@@ -5,6 +5,7 @@
 #include "MemBuffer.hh"
 #include "TypeInfo.hh"
 #include "StringOp.hh"
+#include "XMLElement.hh"   // possible to move to .cc??
 #include "shared_ptr.hh"
 #include "type_traits.hh"
 #include "inline.hh"
@@ -855,7 +856,7 @@ private:
 	void init(const XMLElement* e);
 
 	std::auto_ptr<XMLElement> elem;
-	std::vector<const XMLElement*> elems;
+	std::vector<std::pair<const XMLElement*, unsigned> > elems;
 };
 
 /*#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
