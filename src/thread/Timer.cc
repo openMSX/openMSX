@@ -52,7 +52,7 @@ unsigned long long getTime()
 	//       but the result of that function is not always monotonic.
 	timespec ts;
 	int result = clock_gettime(CLOCK_MONOTONIC, &ts);
-	assert(result == 0);
+	assert(result == 0); (void)result;
 	return static_cast<unsigned long long>(ts.tv_sec) * 1000000 +
 	       static_cast<unsigned long long>(ts.tv_nsec) / 1000;
 #else
