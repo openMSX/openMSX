@@ -13,16 +13,24 @@ using std::string;
 
 namespace openmsx {
 
+static File::OpenMode dontPreCache(File::OpenMode mode)
+{
+	return (mode == File::PRE_CACHE) ? File::NORMAL : mode;
+}
+
 static std::auto_ptr<FileBase> init(const string& url, File::OpenMode mode)
 {
-	std::auto_ptr<FileBase> result(new LocalFile(url, mode));
-
+	std::auto_ptr<FileBase> result;
 	if ((StringOp::endsWith(url, ".gz")) ||
 	    (StringOp::endsWith(url, ".GZ"))) {
-		result.reset(new GZFileAdapter(result));
+		std::auto_ptr<FileBase> tmp(new LocalFile(url, dontPreCache(mode)));
+		result.reset(new GZFileAdapter(tmp));
 	} else if ((StringOp::endsWith(url, ".zip")) ||
 	           (StringOp::endsWith(url, ".ZIP"))) {
-		result.reset(new ZipFileAdapter(result));
+		std::auto_ptr<FileBase> tmp(new LocalFile(url, dontPreCache(mode)));
+		result.reset(new ZipFileAdapter(tmp));
+	} else {
+		result.reset(new LocalFile(url, mode));
 	}
 	return result;
 }
