@@ -54,6 +54,7 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	try {
 		file.reset(new File(filename));
 		filesize = file->getSize();
+		file->setFilePool(motherBoard.getReactor().getFilePool());
 	} catch (FileException&) {
 		// Image didn't exist yet, but postpone image creation:
 		// we don't want to create images during 'testconfig'
@@ -115,6 +116,7 @@ void HD::openImage()
 	try {
 		file.reset(new File(filename, File::CREATE));
 		file->truncate(filesize);
+		file->setFilePool(motherBoard.getReactor().getFilePool());
 	} catch (FileException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Couldn't create HD image: " + e.getMessage());
@@ -127,6 +129,7 @@ void HD::switchImage(const Filename& name)
 	file.reset(new File(name));
 	filename = name;
 	filesize = file->getSize();
+	file->setFilePool(motherBoard.getReactor().getFilePool());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }
@@ -155,6 +158,14 @@ bool HD::isWriteProtectedImpl() const
 {
 	const_cast<HD&>(*this).openImage();
 	return file->isReadOnly();
+}
+
+std::string HD::getSha1Sum()
+{
+	if (hasPatches()) {
+		return SectorAccessibleDisk::getSha1Sum();
+	}
+	return file->getSha1Sum();
 }
 
 SectorAccessibleDisk* HD::getSectorAccessibleDisk()
@@ -201,11 +212,11 @@ void HD::serialize(Archive& ar, unsigned /*version*/)
 	if (file.get()) {
 		string oldChecksum;
 		if (!ar.isLoader()) {
-			oldChecksum = getSHA1Sum();
+			oldChecksum = getSha1Sum();
 		}
 		ar.serialize("checksum", oldChecksum);
 		if (ar.isLoader()) {
-			string newChecksum = getSHA1Sum();
+			string newChecksum = getSha1Sum();
 			if (oldChecksum != newChecksum) {
 				motherBoard.getMSXCliComm().printWarning(
 				    "The content of the harddisk " +

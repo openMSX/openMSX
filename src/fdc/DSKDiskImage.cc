@@ -5,10 +5,11 @@
 
 namespace openmsx {
 
-DSKDiskImage::DSKDiskImage(const Filename& fileName)
+DSKDiskImage::DSKDiskImage(const Filename& fileName, FilePool& filepool)
 	: SectorBasedDisk(fileName)
 	, file(new File(fileName, File::PRE_CACHE))
 {
+	file->setFilePool(filepool);
 	setNbSectors(file->getSize() / SECTOR_SIZE);
 }
 
@@ -31,6 +32,14 @@ void DSKDiskImage::writeSectorImpl(unsigned sector, const byte* buf)
 bool DSKDiskImage::isWriteProtectedImpl() const
 {
 	return file->isReadOnly();
+}
+
+std::string DSKDiskImage::getSha1Sum()
+{
+	if (hasPatches()) {
+		return SectorAccessibleDisk::getSha1Sum();
+	}
+	return file->getSha1Sum();
 }
 
 } // namespace openmsx

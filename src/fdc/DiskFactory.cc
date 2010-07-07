@@ -2,6 +2,7 @@
 
 #include "DiskFactory.hh"
 #include "CommandController.hh"
+#include "Reactor.hh"
 #include "DSKDiskImage.hh"
 #include "XSADiskImage.hh"
 #include "RamDSKDiskImage.hh"
@@ -17,9 +18,11 @@ using std::string;
 
 namespace openmsx {
 
-DiskFactory::DiskFactory(CommandController& controller_)
-	: controller(controller_)
+DiskFactory::DiskFactory(Reactor& reactor_)
+	: reactor(reactor_)
 {
+	CommandController& controller = reactor.getCommandController();
+
 	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap;
 	syncDirAsDSKMap["read_only"] = DirAsDSK::SYNC_READONLY;
 	syncDirAsDSKMap["cached_write"] = DirAsDSK::SYNC_CACHEDWRITE;
@@ -40,6 +43,9 @@ DiskFactory::DiskFactory(CommandController& controller_)
 
 Disk* DiskFactory::createDisk(const string& diskImage)
 {
+	CommandController& controller = reactor.getCommandController();
+	FilePool& filepool = reactor.getFilePool();
+
 	if (diskImage == "ramdsk") {
 		return new RamDSKDiskImage();
 	} else {
@@ -63,7 +69,7 @@ Disk* DiskFactory::createDisk(const string& diskImage)
 		} catch (MSXException&) {
 		try {
 			// then try normal DSK
-			return new DSKDiskImage(filename);
+			return new DSKDiskImage(filename, filepool);
 		} catch (MSXException& e1) {
 			// Finally try to interpret the filename as
 			//    <filename>:<partition-number>
@@ -79,7 +85,7 @@ Disk* DiskFactory::createDisk(const string& diskImage)
 			shared_ptr<SectorAccessibleDisk> wholeDisk;
 			try {
 				Filename file(diskImage.substr(0, pos));
-				wholeDisk.reset(new DSKDiskImage(file));
+				wholeDisk.reset(new DSKDiskImage(file, filepool));
 			} catch (MSXException&) {
 				// If this fails we still prefer to show the
 				// previous error message, because it's most

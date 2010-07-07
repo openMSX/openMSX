@@ -138,7 +138,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 					   file->getURL());
 		}
 
-		// For file-based roms, calc sha1 via File::getSHA1Sum(). It can
+		// For file-based roms, calc sha1 via File::getSha1Sum(). It can
 		// possibly use the FilePool cache to avoid the calculation.
 		if (originalSha1.empty()) {
 			file->setFilePool(filepool);

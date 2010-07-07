@@ -26,6 +26,7 @@
 #include "FileException.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "XMLElement.hh"
 #include "RecordedCommand.hh"
 #include "CliComm.hh"
@@ -528,6 +529,7 @@ void SCSILS120::insert(const string& filename)
 {
 	std::auto_ptr<File> newFile(new File(filename));
 	file = newFile;
+	file->setFilePool(motherBoard.getReactor().getFilePool());
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
@@ -773,6 +775,14 @@ unsigned SCSILS120::getNbSectorsImpl() const
 bool SCSILS120::isWriteProtectedImpl() const
 {
 	return false;
+}
+
+std::string SCSILS120::getSha1Sum()
+{
+	if (hasPatches()) {
+		return SectorAccessibleDisk::getSha1Sum();
+	}
+	return file->getSha1Sum();
 }
 
 void SCSILS120::readSectorImpl(unsigned sector, byte* buf)

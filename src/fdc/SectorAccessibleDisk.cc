@@ -63,7 +63,12 @@ void SectorAccessibleDisk::getPatches(std::vector<Filename>& result) const
 	patch->getFilenames(result);
 }
 
-const std::string& SectorAccessibleDisk::getSHA1Sum()
+bool SectorAccessibleDisk::hasPatches() const
+{
+	return !patch->isEmptyPatch();
+}
+
+std::string SectorAccessibleDisk::getSha1Sum()
 {
 	if (sha1cache.empty()) {
 		SHA1 sha1;

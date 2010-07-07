@@ -57,6 +57,8 @@ unsigned NowindCommand::searchRomdisk(const NowindInterface::Drives& drives) con
 void NowindCommand::processHdimage(
 	const string& hdimage, NowindInterface::Drives& drives) const
 {
+	MSXMotherBoard& motherboard = interface.getMotherBoard();
+
 	// Possible formats are:
 	//   <filename> or <filename>:<range>
 	// Though <filename> itself can contain ':' characters. To solve this
@@ -69,7 +71,8 @@ void NowindCommand::processHdimage(
 	}
 
 	shared_ptr<SectorAccessibleDisk> wholeDisk(
-		new DSKDiskImage(Filename(hdimage)));
+		new DSKDiskImage(Filename(hdimage),
+		                 motherboard.getReactor().getFilePool()));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions
@@ -86,7 +89,7 @@ void NowindCommand::processHdimage(
 				new DiskPartition(*wholeDisk, *it, wholeDisk));
 			DiskChanger* drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
-				interface.getMotherBoard());
+				motherboard);
 			drive->changeDisk(auto_ptr<Disk>(partition));
 			drives.push_back(drive);
 		} catch (MSXException&) {

@@ -34,11 +34,12 @@ public:
 	// patch stuff
 	void applyPatch(const Filename& patchFile);
 	void getPatches(std::vector<Filename>& result) const;
+	bool hasPatches() const;
 
 	/** Calculate SHA1 of the content of this disk.
 	 * This value is cached (and flushed on writes).
 	 */
-	const std::string& getSHA1Sum();
+	virtual std::string getSha1Sum();
 
 	// For compatibility with nowind
 	//  - read/write multiple sectors instead of one-per-one

@@ -134,7 +134,7 @@ public:
 	 */
 	std::string getSha1Sum();
 
-	/** Set FilePool, see also getSHA1Sum()
+	/** Set FilePool, see also getSha1Sum()
 	 * FilePool is used to lookup/store sha1sum<->filename mappings. But
 	 * also to invalidate these mappings on writes to this file (the file
 	 * modification date is used as well to detect writes).

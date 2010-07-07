@@ -8,18 +8,18 @@
 
 namespace openmsx {
 
-class CommandController;
+class Reactor;
 class Disk;
 template <class T> class EnumSetting;
 
 class DiskFactory
 {
 public:
-	explicit DiskFactory(CommandController& controller);
+	explicit DiskFactory(Reactor& reactor);
 	Disk* createDisk(const std::string& diskImage);
 
 private:
-	CommandController& controller;
+	Reactor& reactor;
 	std::auto_ptr<EnumSetting<DirAsDSK::BootSectorType> > bootSectorSetting;
 	std::auto_ptr<EnumSetting<DirAsDSK::SyncMode> > syncDirAsDSKSetting;
 };

@@ -339,7 +339,7 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 
 static string calcSha1(SectorAccessibleDisk* disk)
 {
-	return disk ? disk->getSHA1Sum() : "";
+	return disk ? disk->getSha1Sum() : "";
 }
 
 // version 1:  initial version
