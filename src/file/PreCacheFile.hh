@@ -4,6 +4,7 @@
 #define PRECACHEFILE_HH
 
 #include "Thread.hh"
+#include "Semaphore.hh"
 #include <string>
 
 namespace openmsx {
@@ -19,6 +20,7 @@ class PreCacheFile : private Runnable
 {
 public:
 	explicit PreCacheFile(const std::string& name);
+	~PreCacheFile();
 
 private:
 	// Runnable
@@ -26,6 +28,9 @@ private:
 
 	const std::string name;
 	Thread thread;
+
+	Semaphore sem;
+	bool exitLoop; // locked by sem
 };
 
 } // namespace openmsx

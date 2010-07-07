@@ -9,9 +9,18 @@
 namespace openmsx {
 
 PreCacheFile::PreCacheFile(const std::string& name_)
-	: name(name_), thread(this)
+	: name(name_), thread(this), sem(1), exitLoop(false)
 {
 	thread.start();
+}
+
+PreCacheFile::~PreCacheFile()
+{
+	{
+		ScopedLock lock(sem);
+		exitLoop = true;
+	}
+	thread.join();
 }
 
 void PreCacheFile::run()
@@ -35,6 +44,13 @@ void PreCacheFile::run()
 		unsigned block = 0;
 		unsigned repeat = 0;
 		while (true) {
+			bool exitLoop2;
+			{
+				ScopedLock lock(sem);
+				exitLoop2 = exitLoop;
+			}
+			if (exitLoop2) break;
+
 			char buf[BLOCK_SIZE];
 			fseek(file, block * BLOCK_SIZE, SEEK_SET);
 			size_t read = fread(buf, 1, BLOCK_SIZE, file);
