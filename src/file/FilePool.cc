@@ -208,16 +208,16 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 		// already in pool
 		assert(filename == it->second.second);
 		try {
-			auto_ptr<File> file(new File(filename));
-			// TODO get time without opening file
-			time_t time = file->getModificationDate();
+			time_t time = FileOperations::getModificationDate(filename);
 			if (time == it->second.first) {
 				// db is still up to date
 				if (it->first == sha1sum) {
+					auto_ptr<File> file(new File(filename));
 					return file;
 				}
 			} else {
 				// db outdated
+				auto_ptr<File> file(new File(filename));
 				string sum = calcSha1sum(*file);
 				pool.erase(it);
 				pool.insert(make_pair(sum,

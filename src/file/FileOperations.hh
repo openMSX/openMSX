@@ -213,6 +213,11 @@ namespace FileOperations {
 	 */
 	bool exists(const std::string& filename);
 
+	/** Get the date/time of last modification
+	 * @throws FileException
+	 */
+	time_t getModificationDate(const std::string& filename);
+
 	/**
 	 * Gets the next numbered file name with the specified prefix in the
 	 * specified directory, with the specified extension. Examples:

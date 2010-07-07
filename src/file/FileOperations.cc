@@ -264,6 +264,22 @@ int statGetMode(const string& filename, mode_t& mode)
 	return result;
 }
 
+time_t getModificationDate(const string& filename)
+{
+#ifdef _WIN32
+	struct _stat st;
+	int result = _wstat(utf8to16(filename).c_str(), &st);
+#else
+	struct stat st;
+	int result = stat(filename.c_str(), &st);
+#endif
+	if (result != 0) {
+		throw FileException(
+			"Couldn't get modification date for file: " + filename);
+	}
+	return st.st_mtime;
+}
+
 FILE* openFile(const std::string& filename, const std::string& mode)
 {
 #ifdef _WIN32
