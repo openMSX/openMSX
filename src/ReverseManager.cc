@@ -404,14 +404,17 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	if (tokens.size() == 2) {
 		fileName = FileOperations::getNextNumberedFileName(
 		                REPLAY_DIR, "openmsx", ".gz");
+		// directory is also created when needed
 	} else if (tokens.size() == 3) {
 		fileName = tokens[2]->getString();
 		if (!StringOp::endsWith(fileName, ".gz")) {
 			fileName += ".gz";
 		}
 		if (FileOperations::getBaseName(fileName).empty()) {
-			// no dir given, use standard dir
-			fileName = FileOperations::getUserOpenMSXDir() + "/" + REPLAY_DIR + "/" + fileName;
+			// no dir given, use standard dir (and create it)
+			string dir = FileOperations::getUserOpenMSXDir() + '/' + REPLAY_DIR;
+			FileOperations::mkdirp(dir);
+			fileName = dir + '/' + fileName;
 		}
 
 	} else {
