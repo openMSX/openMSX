@@ -13,7 +13,7 @@ namespace openmsx {
 class XSAExtractor
 {
 public:
-	explicit XSAExtractor(const Filename& filename);
+	explicit XSAExtractor(File& file);
 	void getData(vector<byte>& data);
 
 private:
@@ -55,10 +55,10 @@ private:
 
 // XSADiskImage
 
-XSADiskImage::XSADiskImage(const Filename& filename)
+XSADiskImage::XSADiskImage(Filename& filename, File& file)
 	: SectorBasedDisk(filename)
 {
-	XSAExtractor extractor(filename);
+	XSAExtractor extractor(file);
 	extractor.getData(data);
 	setNbSectors(unsigned(data.size()) / 512);
 }
@@ -85,9 +85,8 @@ const int XSAExtractor::cpdext[TBLSIZE] = {
 	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 };
 
-XSAExtractor::XSAExtractor(const Filename& filename)
+XSAExtractor::XSAExtractor(File& file)
 {
-	File file(filename);
 	inBufPos = file.mmap();
 	inBufEnd = inBufPos + file.getSize();
 

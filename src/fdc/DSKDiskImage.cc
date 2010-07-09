@@ -5,11 +5,17 @@
 
 namespace openmsx {
 
-DSKDiskImage::DSKDiskImage(const Filename& fileName, FilePool& filepool)
+DSKDiskImage::DSKDiskImage(const Filename& fileName)
 	: SectorBasedDisk(fileName)
 	, file(new File(fileName, File::PRE_CACHE))
 {
-	file->setFilePool(filepool);
+	setNbSectors(file->getSize() / SECTOR_SIZE);
+}
+
+DSKDiskImage::DSKDiskImage(const Filename& fileName, std::auto_ptr<File> file_)
+	: SectorBasedDisk(fileName)
+	, file(file_)
+{
 	setNbSectors(file->getSize() / SECTOR_SIZE);
 }
 

@@ -15,10 +15,12 @@
 
 namespace openmsx {
 
+class File;
+
 class XSADiskImage : public SectorBasedDisk
 {
 public:
-	explicit XSADiskImage(const Filename& filename);
+	XSADiskImage(Filename& filename, File& file);
 
 private:
 	// SectorBasedDisk

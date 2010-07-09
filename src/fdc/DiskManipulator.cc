@@ -416,7 +416,7 @@ void DiskManipulator::create(const vector<string>& tokens)
 	}
 
 	// initialize (create partition tables and format partitions)
-	DSKDiskImage image(filename, reactor.getFilePool());
+	DSKDiskImage image(filename);
 	if (sizes.size() > 1) {
 		DiskImageUtils::partition(image, sizes);
 	} else {

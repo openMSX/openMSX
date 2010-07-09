@@ -71,8 +71,7 @@ void NowindCommand::processHdimage(
 	}
 
 	shared_ptr<SectorAccessibleDisk> wholeDisk(
-		new DSKDiskImage(Filename(hdimage),
-		                 motherboard.getReactor().getFilePool()));
+		new DSKDiskImage(Filename(hdimage)));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions

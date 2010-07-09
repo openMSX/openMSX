@@ -9,12 +9,12 @@
 namespace openmsx {
 
 class File;
-class FilePool;
 
 class DSKDiskImage : public SectorBasedDisk
 {
 public:
-	DSKDiskImage(const Filename& filename, FilePool& filepool);
+	explicit DSKDiskImage(const Filename& filename);
+	DSKDiskImage(const Filename& filename, std::auto_ptr<File> file);
 	virtual ~DSKDiskImage();
 
 private:

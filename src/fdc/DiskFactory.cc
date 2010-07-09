@@ -3,6 +3,7 @@
 #include "DiskFactory.hh"
 #include "CommandController.hh"
 #include "Reactor.hh"
+#include "File.hh"
 #include "DSKDiskImage.hh"
 #include "XSADiskImage.hh"
 #include "RamDSKDiskImage.hh"
@@ -44,58 +45,61 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 Disk* DiskFactory::createDisk(const string& diskImage)
 {
 	CommandController& controller = reactor.getCommandController();
-	FilePool& filepool = reactor.getFilePool();
 
 	if (diskImage == "ramdsk") {
 		return new RamDSKDiskImage();
-	} else {
-		Filename filename(diskImage, controller);
+	}
+
+	Filename filename(diskImage, controller);
+	try {
+		// First try DirAsDSK
+		return new DirAsDSK(
+			controller.getCliComm(),
+			filename,
+			syncDirAsDSKSetting->getValue(),
+			bootSectorSetting->getValue());
+	} catch (MSXException&) {
+		// DirAsDSK didn't work, no problem
+	}
+	try {
+		std::auto_ptr<File> file(new File(filename, File::PRE_CACHE));
+		file->setFilePool(reactor.getFilePool());
+
 		try {
 			// first try XSA
-			return new XSADiskImage(filename);
+			return new XSADiskImage(filename, *file);
 		} catch (MSXException&) {
+			// XSA didn't work, still no problem
+		}
+		// next try normal DSK
+		return new DSKDiskImage(filename, file);
+
+	} catch (MSXException& e) {
+		// File could not be opened or (very rare) something is wrong
+		// with the DSK image. Try to interpret the filename as
+		//    <filename>:<partition-number>
+		// Try this last because the ':' character could be
+		// part of the filename itself. So only try this if
+		// the name could not be interpreted as a valid
+		// filename.
+		string::size_type pos = diskImage.find_last_of(':');
+		if (pos == string::npos) {
+			// does not contain ':', throw previous exception
+			throw;
+		}
+		shared_ptr<SectorAccessibleDisk> wholeDisk;
 		try {
-			// First try the fake disk, because a DSK will always
-			// succeed if diskImage can be resolved
-			// It is simply stat'ed, so even a directory name
-			// can be resolved and will be accepted as dsk name
-			// try to create fake DSK from a dir on host OS
-			return new DirAsDSK(
-				controller.getCliComm(),
-				filename,
-				syncDirAsDSKSetting->getValue(),
-				bootSectorSetting->getValue()
-				);
+			Filename filename2(diskImage.substr(0, pos));
+			wholeDisk.reset(new DSKDiskImage(filename2));
 		} catch (MSXException&) {
-		try {
-			// then try normal DSK
-			return new DSKDiskImage(filename, filepool);
-		} catch (MSXException& e1) {
-			// Finally try to interpret the filename as
-			//    <filename>:<partition-number>
-			// Try this last because the ':' character could be
-			// part of the filename itself. So only try this if
-			// the name could not be interpreted as a valid
-			// filename.
-			string::size_type pos = diskImage.find_last_of(':');
-			if (pos == string::npos) {
-				// does not contain ':', throw previous exception
-				throw;
-			}
-			shared_ptr<SectorAccessibleDisk> wholeDisk;
-			try {
-				Filename file(diskImage.substr(0, pos));
-				wholeDisk.reset(new DSKDiskImage(file, filepool));
-			} catch (MSXException&) {
-				// If this fails we still prefer to show the
-				// previous error message, because it's most
-				// likely more descriptive.
-				throw e1;
-			}
-			unsigned num = StringOp::stringToUint(
-				diskImage.substr(pos + 1));
-			return new DiskPartition(*wholeDisk, num, wholeDisk);
-		}}}
+			// If this fails we still prefer to show the
+			// previous error message, because it's most
+			// likely more descriptive.
+			throw e;
+		}
+		unsigned num = StringOp::stringToUint(
+			diskImage.substr(pos + 1));
+		return new DiskPartition(*wholeDisk, num, wholeDisk);
 	}
 }
 
