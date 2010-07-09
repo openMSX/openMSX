@@ -297,6 +297,18 @@ int XMLElement::getAttributeAsInt(const string& attName,
 	                                : StringOp::stringToInt(it->second);
 }
 
+bool XMLElement::findAttributeInt(const string& attName,
+                                  unsigned& result) const
+{
+	Attributes::const_iterator it = attributes.find(attName);
+	if (it != attributes.end()) {
+		result = StringOp::stringToInt(it->second);
+		return true;
+	} else {
+		return false;
+	}
+}
+
 const string& XMLElement::getId() const
 {
 	const XMLElement* elem = this;

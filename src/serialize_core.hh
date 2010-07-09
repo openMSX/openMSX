@@ -569,8 +569,8 @@ template<typename TP> struct PointerLoader
 		// we don't care about the name
 		unsigned id;
 		if (ar.canHaveOptionalAttributes() &&
-		    ar.hasAttribute("id_ref")) {
-			ar.attribute("id_ref", id);
+		    ar.findAttribute("id_ref", id)) {
+			// nothing, 'id' already filled in
 		} else {
 			ar.attribute("id", id);
 		}

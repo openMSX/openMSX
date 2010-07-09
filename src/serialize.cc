@@ -5,6 +5,7 @@
 #include "HexDump.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
+#include "ConfigException.hh"
 #include "XMLException.hh"
 #include "lzo.hh"
 #include "StringOp.hh"
@@ -414,10 +415,11 @@ void XmlInputArchive::endTag(const char* tag)
 
 void XmlInputArchive::attribute(const char* name, string& t)
 {
-	if (!hasAttribute(name)) {
-		throw XMLException("Missing attribute \"" + string(name) + "\"");
+	try {
+		t = elems.back().first->getAttribute(name);
+	} catch (ConfigException& ex) {
+		throw XMLException(ex.getMessage());
 	}
-	t = elems.back().first->getAttribute(name);
 }
 void XmlInputArchive::attribute(const char* name, int& i)
 {
@@ -430,6 +432,10 @@ void XmlInputArchive::attribute(const char* name, unsigned& u)
 bool XmlInputArchive::hasAttribute(const char* name)
 {
 	return elems.back().first->hasAttribute(name);
+}
+bool XmlInputArchive::findAttribute(const char* name, unsigned& value)
+{
+	return elems.back().first->findAttributeInt(name, value);
 }
 int XmlInputArchive::countChildren() const
 {

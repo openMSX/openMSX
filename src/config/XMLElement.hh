@@ -75,6 +75,8 @@ public:
 	                        bool defaultValue = false) const;
 	int getAttributeAsInt(const std::string& attName,
 	                      int defaultValue = 0) const;
+	bool findAttributeInt(const std::string& attName,
+	                      unsigned& result) const;
 	const std::string& getId() const;
 
 	// child

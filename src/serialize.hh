@@ -226,6 +226,14 @@ public:
 		UNREACHABLE; return false;
 	}
 
+	/** Optimization: combination of hasAttribute() and getAttribute().
+	 * Returns true if hasAttribute() and (if so) also fills in the value.
+	 */
+	bool findAttribute(const char* /*name*/, unsigned& /*value*/)
+	{
+		UNREACHABLE; return false;
+	}
+
 	/** Some archives (like XML archives) can count the number of subtags
 	 * that belong to the current tag. This method indicates whether that's
 	 * the case for this archive or not.
@@ -849,6 +857,7 @@ public:
 	void attribute(const char* name, unsigned& u);
 
 	bool hasAttribute(const char* name);
+	bool findAttribute(const char* name, unsigned& value);
 	int countChildren() const;
 
 private:

@@ -34,11 +34,10 @@ unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
                            unsigned latestVersion)
 {
 	assert(ar.canHaveOptionalAttributes());
-	if (!ar.hasAttribute("version")) {
+	unsigned version;
+	if (!ar.findAttribute("version", version)) {
 		return 1;
 	}
-	unsigned version;
-	ar.attribute("version", version);
 	if (unlikely(version > latestVersion)) {
 		versionError(className, latestVersion, version);
 	}
