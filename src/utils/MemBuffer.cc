@@ -20,7 +20,7 @@ OutputBuffer::~OutputBuffer()
 #ifdef __GNUC__
 template<unsigned LEN> void OutputBuffer::insertN(const void* __restrict data) __restrict
 {
-	char* newEnd = end + LEN;
+	byte* newEnd = end + LEN;
 	if (likely(newEnd <= finish)) {
 		memcpy(end, data, LEN);
 		end = newEnd;
@@ -37,7 +37,7 @@ template void OutputBuffer::insertN<8>(const void* __restrict data) __restrict;
 
 void OutputBuffer::insertN(const void* __restrict data, unsigned len) __restrict
 {
-	char* newEnd = end + len;
+	byte* newEnd = end + len;
 	if (likely(newEnd <= finish)) {
 		memcpy(end, data, len);
 		end = newEnd;
@@ -46,11 +46,11 @@ void OutputBuffer::insertN(const void* __restrict data, unsigned len) __restrict
 	}
 }
 
-char* OutputBuffer::allocate(unsigned len)
+byte* OutputBuffer::allocate(unsigned len)
 {
-	char* newEnd = end + len;
+	byte* newEnd = end + len;
 	if (newEnd <= finish) {
-		char* result = end;
+		byte* result = end;
 		end = newEnd;
 		return result;
 	} else {
@@ -58,7 +58,7 @@ char* OutputBuffer::allocate(unsigned len)
 	}
 }
 
-void OutputBuffer::deallocate(char* pos)
+void OutputBuffer::deallocate(byte* pos)
 {
 	assert(begin <= pos);
 	assert(pos <= end);
@@ -67,18 +67,24 @@ void OutputBuffer::deallocate(char* pos)
 
 void OutputBuffer::insertGrow(const void* __restrict data, unsigned len) __restrict
 {
-	char* pos = allocateGrow(len);
+	byte* pos = allocateGrow(len);
 	memcpy(pos, data, len);
 }
 
-char* OutputBuffer::allocateGrow(unsigned len)
+byte* OutputBuffer::allocateGrow(unsigned len)
 {
 	unsigned oldSize = end - begin;
 	unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
-	begin = reinterpret_cast<char*>(realloc(begin, newSize));
+	begin = static_cast<byte*>(realloc(begin, newSize));
 	end = begin + oldSize + len;
 	finish = begin + newSize;
 	return begin + oldSize;
+}
+
+MemBuffer::MemBuffer()
+	: data(NULL)
+	, len(0)
+{
 }
 
 MemBuffer::MemBuffer(OutputBuffer& buffer)
@@ -93,8 +99,14 @@ MemBuffer::~MemBuffer()
 	free(data);
 }
 
+void MemBuffer::realloc(unsigned newSize)
+{
+	data = static_cast<byte*>(::realloc(data, newSize));
+	len = newSize;
+}
 
-InputBuffer::InputBuffer(const char* data, unsigned size)
+
+InputBuffer::InputBuffer(const byte* data, unsigned size)
 	: buf(data)
 #ifndef NDEBUG
 	, finish(buf + size)

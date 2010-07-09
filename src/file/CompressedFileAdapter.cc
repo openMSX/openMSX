@@ -9,7 +9,6 @@
 
 using std::string;
 using std::map;
-using std::vector;
 
 namespace openmsx {
 
@@ -55,14 +54,9 @@ void CompressedFileAdapter::decompress()
 void CompressedFileAdapter::read(void* buffer, unsigned num)
 {
 	decompress();
-	vector<byte>& buf = decompressed->buf;
-	if (!buf.empty()) {
-		memcpy(buffer, &buf[pos], num);
-	} else {
-		// in DEBUG mode buf[0] triggers an error on an empty vector
-		//  vector::data() will solve this in new C++ standard
-		assert((num == 0) && (pos == 0));
-	}
+	const MemBuffer& buf = decompressed->buf;
+	assert(buf.getLength() >= pos + num);
+	memcpy(buffer, buf.getData() + pos, num);
 	pos += num;
 }
 
@@ -74,12 +68,7 @@ void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
 const byte* CompressedFileAdapter::mmap()
 {
 	decompress();
-	vector<byte>& buf = decompressed->buf;
-	if (!buf.empty()) { // see read()
-		return &buf[0];
-	} else {
-		return NULL;
-	}
+	return reinterpret_cast<const byte*>(decompressed->buf.getData());
 }
 
 void CompressedFileAdapter::munmap()
@@ -90,7 +79,7 @@ void CompressedFileAdapter::munmap()
 unsigned CompressedFileAdapter::getSize()
 {
 	decompress();
-	return unsigned(decompressed->buf.size());
+	return decompressed->buf.getLength();
 }
 
 void CompressedFileAdapter::seek(unsigned newpos)

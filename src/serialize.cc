@@ -212,7 +212,7 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 #else
 	// lzo
 	unsigned dstLen = len + len / 16 + 64 + 3; // upper bound
-	char* buf = buffer.allocate(sizeof(unsigned) + dstLen);
+	byte* buf = buffer.allocate(sizeof(unsigned) + dstLen);
 
 	lzo1x_1_compress(reinterpret_cast<const byte*>(data), len,
 	                 reinterpret_cast<byte*>(&buf[sizeof(unsigned)]),

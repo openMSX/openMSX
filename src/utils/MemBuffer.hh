@@ -3,6 +3,7 @@
 #ifndef MEMBUFFER_HH
 #define MEMBUFFER_HH
 
+#include "openmsx.hh"
 #include <cstring>
 #include <cassert>
 
@@ -10,7 +11,7 @@ namespace openmsx {
 
 /** Memory output buffer
  *
-  * Acts as a replacement for std::vector<char>. You can insert data in the
+  * Acts as a replacement for std::vector<byte>. You can insert data in the
   * buffer and the buffer will automatically grow. Like std::vector it manages
   * an internal memory buffer that will automatically reallocate and grow
   * exponentially.
@@ -77,7 +78,7 @@ public:
 	  * when the buffer will be used for gzip output data), you can request
 	  * the maximum size and deallocate the unused space later.
 	  */
-	char* allocate(unsigned len);
+	byte* allocate(unsigned len);
 
 	/** Free part of a previously allocated buffer.
 	 *
@@ -90,7 +91,7 @@ public:
 	  * allocate() call, there cannot be any other (non-const) call to this
 	  * object in between.
 	  */
-	void deallocate(char* pos);
+	void deallocate(byte* pos);
 
 	/** Get the current size of the buffer.
 	 */
@@ -101,12 +102,12 @@ public:
 
 private:
 	void insertGrow(const void* __restrict data, unsigned len);
-	char* allocateGrow(unsigned len);
+	byte* allocateGrow(unsigned len);
 
-	char* begin;   // begin of allocated memory
-	char* end;     // points right after the last used byte
+	byte* begin;   // begin of allocated memory
+	byte* end;     // points right after the last used byte
 	               // so   end - begin == size
-	char* finish;  // points right after the last allocated byte
+	byte* finish;  // points right after the last allocated byte
 	               // so   finish - begin == capacity
 
 	friend class MemBuffer; // to 'steal' the buffer
@@ -114,12 +115,19 @@ private:
 
 
 /** Memory buffer.
-  * This class steals the data buffer from an OutputBuffer object, takes
-  * ownership of that buffer and gives a read-only view on it.
+  * This class manages the lifetime of a block of memory.
+  * The memory block can read/written, its length can be queried and it can
+  * be grown/shrunk in size.
+  * It's also possible to 'steal' the data buffer from an OutputBuffer object,
+  * and manage that buffer using an object of this class.
   */
 class MemBuffer
 {
 public:
+	/** Construct an empty MemBuffer (getLength() == 0).
+	 */
+	MemBuffer();
+
 	/** Construct MemBuffer. This will steal the buffer from the OutputBuffer
 	 * object (so deleting the OutputBuffer won't free the buffer anymore),
 	 * and take ownership over it.
@@ -130,13 +138,22 @@ public:
 	~MemBuffer();
 
 	/** Returns pointer to the start of the memory buffer. */
-	const char* getData() const { return data; }
+	const byte* getData() const { return data; }
+	      byte* getData()       { return data; }
 
 	/** Returns size of the memory buffer. */
 	unsigned getLength()  const { return len;  }
 
+	/** Grow or shrink the memory block.
+	  * In case of growing, the extra space is left uninitialized.
+	  * It is possible (even likely) that the memory buffer is copied
+	  * to a new location after this call, so getData() returns a different
+	  * value.
+	  */
+	void realloc(unsigned newSize);
+
 private:
-	char* data;
+	byte* data;
 	unsigned len;
 };
 
@@ -151,7 +168,7 @@ public:
 	/** Construct new InputBuffer, typically the data and size parameters
 	  * will come from a MemBuffer object.
 	  */
-	InputBuffer(const char* data, unsigned size);
+	InputBuffer(const byte* data, unsigned size);
 
 	/** Read the given number of bytes.
 	  * This 'consumes' the read bytes, so a future read() will continue
@@ -179,12 +196,12 @@ public:
 	  * as input for an uncompress algorithm. You can later use skip() to
 	  * actually consume the data.
 	  */
-	const char* getCurrentPos() const { return buf; }
+	const byte* getCurrentPos() const { return buf; }
 
 private:
-	const char* buf;
+	const byte* buf;
 #ifndef NDEBUG
-	const char* finish; // only used to check asserts
+	const byte* finish; // only used to check asserts
 #endif
 };
 

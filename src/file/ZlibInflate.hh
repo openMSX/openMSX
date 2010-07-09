@@ -4,11 +4,12 @@
 #define ZLIBINFLATE_HH
 
 #include "openmsx.hh"
-#include <vector>
 #include <string>
 #include <zlib.h>
 
 namespace openmsx {
+
+class MemBuffer;
 
 class ZlibInflate
 {
@@ -23,7 +24,7 @@ public:
 	std::string getString(unsigned len);
 	std::string getCString();
 
-	void inflate(std::vector<byte>& output, unsigned sizeHint = 65536);
+	void inflate(MemBuffer& output, unsigned sizeHint = 65536);
 
 private:
 	z_stream s;

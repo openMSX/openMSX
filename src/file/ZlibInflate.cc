@@ -3,7 +3,9 @@
 #include "ZlibInflate.hh"
 #include "FileException.hh"
 #include "Math.hh"
+#include "MemBuffer.hh"
 #include "StringOp.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -75,7 +77,7 @@ std::string ZlibInflate::getCString()
 	return result;
 }
 
-void ZlibInflate::inflate(std::vector<byte>& output, unsigned sizeHint)
+void ZlibInflate::inflate(MemBuffer& output, unsigned sizeHint)
 {
 	int initErr = inflateInit2(&s, -MAX_WBITS);
 	if (initErr != Z_OK) {
@@ -84,11 +86,10 @@ void ZlibInflate::inflate(std::vector<byte>& output, unsigned sizeHint)
 	}
 	wasInit = true;
 
-	std::vector<byte> buf;
-	buf.resize(Math::clip<4 * 1024, 1024 * 1024>(sizeHint)); // initial buffer size
+	output.realloc(sizeHint);
+	s.avail_out = output.getLength();
 	while (true) {
-		s.next_out = &buf[0] + s.total_out;
-		s.avail_out = uInt(buf.size() - s.total_out);
+		s.next_out = output.getData() + s.total_out;
 		int err = ::inflate(&s, Z_NO_FLUSH);
 		if (err == Z_STREAM_END) {
 			break;
@@ -97,11 +98,13 @@ void ZlibInflate::inflate(std::vector<byte>& output, unsigned sizeHint)
 			throw FileException(StringOp::Builder()
 				<< "Error decompressing gzip: " << zError(err));
 		}
-		buf.resize(buf.size() * 2); // double buffer size
+		unsigned oldSize = output.getLength();
+		output.realloc(oldSize * 2); // double buffer size
+		s.avail_out = output.getLength() - oldSize;
 	}
 
-	// assign actual size (trim excess capacity)
-	output.assign(buf.begin(), buf.begin() + s.total_out);
+	// set actual size
+	output.realloc(s.total_out);
 }
 
 } // namespace openmsx

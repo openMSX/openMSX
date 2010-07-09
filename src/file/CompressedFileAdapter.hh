@@ -4,8 +4,8 @@
 #define COMPRESSEDFILEADAPTER_HH
 
 #include "FileBase.hh"
+#include "MemBuffer.hh"
 #include "shared_ptr.hh"
-#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -14,7 +14,7 @@ class CompressedFileAdapter : public FileBase
 {
 public:
 	struct Decompressed {
-		std::vector<byte> buf;
+		MemBuffer buf;
 		std::string originalName;
 		std::string cachedURL;
 		time_t cachedModificationDate;
