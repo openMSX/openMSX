@@ -15,6 +15,11 @@ using std::string;
 
 namespace openmsx {
 
+XMLElement::XMLElement(const string& name_)
+	: name(name_), parent(NULL)
+{
+}
+
 XMLElement::XMLElement(const string& name_, const string& data_)
 	: name(name_), data(data_), parent(NULL)
 {
@@ -92,6 +97,11 @@ void XMLElement::setName(const string& name_)
 	name = name_;
 }
 
+void XMLElement::clearName()
+{
+	name.clear();
+}
+
 void XMLElement::setData(const string& data_)
 {
 	//assert(children.empty()); // no mixed-content elements
@@ -126,7 +136,7 @@ const XMLElement* XMLElement::findChild(const string& name) const
 	return const_cast<XMLElement*>(this)->findChild(name);
 }
 
-const XMLElement* XMLElement::findNextChild(const std::string& name,
+const XMLElement* XMLElement::findNextChild(const char* name,
 	                                    unsigned& fromIndex) const
 {
 	unsigned numChildren = children.size();

@@ -391,13 +391,13 @@ void XmlInputArchive::load(unsigned long long& ull)
 	loadImpl(ull);
 }
 
-void XmlInputArchive::beginTag(const char* tag_)
+void XmlInputArchive::beginTag(const char* tag)
 {
-	string tag(tag_);
 	const XMLElement* child = elems.back().first->findNextChild(
 		tag, elems.back().second);
 	if (!child) {
-		throw XMLException("No child tag found in begin tag \"" + tag + "\"");
+		throw XMLException("No child tag found in begin tag \"" +
+		                   string(tag) + '\"');
 	}
 	elems.push_back(std::make_pair(child, 0));
 }
@@ -408,7 +408,7 @@ void XmlInputArchive::endTag(const char* tag)
 		throw XMLException("End tag \"" + elem.getName() + "\" not equal to begin tag \"" + tag + "\"");
 	}
 	XMLElement& elem2 = const_cast<XMLElement&>(elem);
-	elem2.setName(""); // mark this elem for later beginTag() calls
+	elem2.clearName(); // mark this elem for later beginTag() calls
 	elems.pop_back();
 }
 

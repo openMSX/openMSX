@@ -5,7 +5,6 @@
 #include "MemBuffer.hh"
 #include "TypeInfo.hh"
 #include "StringOp.hh"
-#include "XMLElement.hh"   // possible to move to .cc??
 #include "shared_ptr.hh"
 #include "type_traits.hh"
 #include "inline.hh"

@@ -21,8 +21,8 @@ public:
 	//
 
 	// construction, destruction, copy, assign
-	explicit XMLElement(const std::string& name,
-	                    const std::string& data = "");
+	explicit XMLElement(const std::string& name);
+	XMLElement(const std::string& name, const std::string& data);
 	XMLElement(const XMLElement& element);
 	const XMLElement& operator=(const XMLElement& element);
 	~XMLElement();
@@ -30,6 +30,7 @@ public:
 	// name
 	const std::string& getName() const { return name; }
 	void setName(const std::string& name);
+	void clearName();
 
 	// data
 	const std::string& getData() const { return data; }
@@ -85,7 +86,7 @@ public:
 	XMLElement* findChildWithAttribute(
 		const std::string& name, const std::string& attName,
 		const std::string& attValue);
-	const XMLElement* findNextChild(const std::string& name,
+	const XMLElement* findNextChild(const char* name,
 	                                unsigned& fromIndex) const;
 
 	XMLElement& getChild(const std::string& name);
