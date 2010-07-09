@@ -48,8 +48,7 @@ const XMLElement* XMLElement::getParent() const
 
 void XMLElement::addChild(auto_ptr<XMLElement> child)
 {
-	data.clear(); // no mixed-content elements
-
+	assert(data.empty()); // no mixed-content elements
 	assert(child.get());
 	assert(!child->getParent());
 	child->parent = this;
@@ -104,10 +103,8 @@ void XMLElement::clearName()
 
 void XMLElement::setData(const string& data_)
 {
-	//assert(children.empty()); // no mixed-content elements
-	if (children.empty()) {
-		data = data_;
-	}
+	assert(children.empty()); // no mixed-content elements
+	data = data_;
 }
 
 void XMLElement::getChildren(const string& name, Children& result) const

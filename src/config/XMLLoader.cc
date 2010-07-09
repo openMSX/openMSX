@@ -71,15 +71,18 @@ static void cbEndElement(
 		== helper->current->getName());
 	(void)localname;
 
-	helper->current->setData(helper->data);
+	if (!helper->current->hasChildren()) {
+		helper->current->setData(helper->data);
+	}
 	helper->current = helper->current->getParent();
-	helper->data.clear();
 }
 
 static void cbCharacters(XMLLoaderHelper* helper, const xmlChar* chars, int len)
 {
 	assert(helper->current);
-	helper->data.append(reinterpret_cast<const char*>(chars), len);
+	if (!helper->current->hasChildren()) {
+		helper->data.append(reinterpret_cast<const char*>(chars), len);
+	}
 }
 
 static void cbInternalSubset(XMLLoaderHelper* helper, const xmlChar* /*name*/,

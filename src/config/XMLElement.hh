@@ -51,6 +51,7 @@ public:
 	void addChild(std::auto_ptr<XMLElement> child);
 	std::auto_ptr<XMLElement> removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
+	bool hasChildren() const { return !children.empty(); }
 
 	// filecontext
 	void setFileContext(std::auto_ptr<FileContext> context);
