@@ -4,7 +4,7 @@
 #define XMLELEMENT_HH
 
 #include "serialize_constr.hh"
-#include <map>
+#include <utility>
 #include <string>
 #include <vector>
 #include <memory>
@@ -37,10 +37,8 @@ public:
 	void setData(const std::string& data);
 
 	// attribute
-	typedef std::map<std::string, std::string> Attributes;
-	void addAttribute(const std::string& name, const std::string& value);
-	void setAttribute(const std::string& name, const std::string& value);
-	const Attributes& getAttributes() const;
+	void addAttribute(const char* name, const std::string& value);
+	void setAttribute(const char* name, const std::string& value);
 
 	// parent
 	XMLElement* getParent();
@@ -67,15 +65,15 @@ public:
 	double getDataAsDouble() const;
 
 	// attribute
-	bool hasAttribute(const std::string& name) const;
-	const std::string& getAttribute(const std::string& attName) const;
-	const std::string getAttribute(const std::string& attName,
+	bool hasAttribute(const char* name) const;
+	const std::string& getAttribute(const char* attName) const;
+	const std::string getAttribute(const char* attName,
 	                          const std::string defaultValue) const;
-	bool getAttributeAsBool(const std::string& attName,
+	bool getAttributeAsBool(const char* attName,
 	                        bool defaultValue = false) const;
-	int getAttributeAsInt(const std::string& attName,
+	int getAttributeAsInt(const char* attName,
 	                      int defaultValue = 0) const;
-	bool findAttributeInt(const std::string& attName,
+	bool findAttributeInt(const char* attName,
 	                      unsigned& result) const;
 	const std::string& getId() const;
 
@@ -84,10 +82,10 @@ public:
 	XMLElement* findChild(const std::string& name);
 	const XMLElement& getChild(const std::string& name) const;
 	const XMLElement* findChildWithAttribute(
-		const std::string& name, const std::string& attName,
+		const std::string& name, const char* attName,
 		const std::string& attValue) const;
 	XMLElement* findChildWithAttribute(
-		const std::string& name, const std::string& attName,
+		const std::string& name, const char* attName,
 		const std::string& attValue);
 	const XMLElement* findNextChild(const char* name,
 	                                unsigned& fromIndex) const;
@@ -98,7 +96,7 @@ public:
 	XMLElement& getCreateChild(const std::string& name,
 	                           const std::string& defaultValue = "");
 	XMLElement& getCreateChildWithAttribute(
-		const std::string& name, const std::string& attName,
+		const std::string& name, const char* attName,
 		const std::string& attValue, const std::string& defaultValue = "");
 
 	const std::string& getChildData(const std::string& name) const;
@@ -120,6 +118,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	typedef std::pair<std::string, std::string> Attribute;
+	typedef std::vector<Attribute> Attributes;
+	Attributes::iterator findAttribute(const char* name);
+	Attributes::const_iterator findAttribute(const char* name) const;
 	void dump(std::string& result, unsigned indentNum) const;
 
 	std::string name;
