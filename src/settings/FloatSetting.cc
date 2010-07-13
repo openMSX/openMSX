@@ -12,9 +12,8 @@ namespace openmsx {
 
 // class FloatSettingPolicy
 
-FloatSettingPolicy::FloatSettingPolicy(CommandController& commandController,
-                                       double minValue, double maxValue)
-	: SettingRangePolicy<double>(commandController, minValue, maxValue)
+FloatSettingPolicy::FloatSettingPolicy(double minValue, double maxValue)
+	: SettingRangePolicy<double>(minValue, maxValue)
 {
 }
 

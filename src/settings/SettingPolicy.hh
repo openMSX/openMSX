@@ -16,7 +16,7 @@ template <typename T> class SettingPolicy
 protected:
 	typedef T Type;
 
-	explicit SettingPolicy(CommandController& commandController);
+	explicit SettingPolicy();
 
 	void checkSetValue(T& value) const;
 	T checkGetValue(T value) const { return value; }
@@ -24,16 +24,10 @@ protected:
 	// T fromString(const std::string& str) const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
 	void additionalInfo(TclObject& result) const;
-
-	CommandController& getCommandController() const { return commandController; }
-
-private:
-	CommandController& commandController;
 };
 
 template <typename T>
-SettingPolicy<T>::SettingPolicy(CommandController& commandController_)
-	: commandController(commandController_)
+SettingPolicy<T>::SettingPolicy()
 {
 }
 

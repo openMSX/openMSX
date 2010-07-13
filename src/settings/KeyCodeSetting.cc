@@ -9,8 +9,7 @@ namespace openmsx {
 
 // class KeyCodeSettingPolicy
 
-KeyCodeSettingPolicy::KeyCodeSettingPolicy(CommandController& commandController)
-	: SettingPolicy<Keys::KeyCode>(commandController)
+KeyCodeSettingPolicy::KeyCodeSettingPolicy()
 {
 }
 

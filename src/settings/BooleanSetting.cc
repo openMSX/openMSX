@@ -14,8 +14,7 @@ namespace openmsx {
 
 // class BooleanSettingPolicy
 
-BooleanSettingPolicy::BooleanSettingPolicy(CommandController& commandController)
-	: SettingPolicy<bool>(commandController)
+BooleanSettingPolicy::BooleanSettingPolicy()
 {
 }
 

@@ -11,8 +11,7 @@ namespace openmsx {
 class IntegerSettingPolicy : public SettingRangePolicy<int>
 {
 protected:
-	IntegerSettingPolicy(CommandController& commandController,
-	                     int minValue, int maxValue);
+	IntegerSettingPolicy(int minValue, int maxValue);
 	std::string toString(int value) const;
 	int fromString(const std::string& str) const;
 	std::string getTypeString() const;

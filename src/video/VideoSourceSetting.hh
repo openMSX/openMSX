@@ -12,8 +12,7 @@ namespace openmsx {
 class VideoSourceSettingPolicy : public EnumSettingPolicy<VideoSource>
 {
 protected:
-	VideoSourceSettingPolicy(CommandController& commandController,
-	                         const Map& map);
+	VideoSourceSettingPolicy(const Map& map);
 	virtual void checkSetValue(VideoSource& value) const;
 	VideoSource checkGetValue(VideoSource value) const;
 

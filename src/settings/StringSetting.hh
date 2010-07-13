@@ -11,7 +11,7 @@ namespace openmsx {
 class StringSettingPolicy : public SettingPolicy<std::string>
 {
 protected:
-	explicit StringSettingPolicy(CommandController& commandController);
+	explicit StringSettingPolicy();
 	const std::string& toString(const std::string& value) const;
 	const std::string& fromString(const std::string& str) const;
 	std::string getTypeString() const;

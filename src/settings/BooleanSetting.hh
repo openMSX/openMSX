@@ -11,7 +11,7 @@ namespace openmsx {
 class BooleanSettingPolicy : public SettingPolicy<bool>
 {
 protected:
-	explicit BooleanSettingPolicy(CommandController& commandController);
+	explicit BooleanSettingPolicy();
 	std::string toString(bool value) const;
 	bool fromString(const std::string& str) const;
 	std::string getTypeString() const;

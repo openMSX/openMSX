@@ -5,9 +5,8 @@
 
 namespace openmsx {
 
-VideoSourceSettingPolicy::VideoSourceSettingPolicy(
-		CommandController& commandController, const Map& map)
-	: EnumSettingPolicy<VideoSource>(commandController, map)
+VideoSourceSettingPolicy::VideoSourceSettingPolicy(const Map& map)
+	: EnumSettingPolicy<VideoSource>(map)
 {
 }
 

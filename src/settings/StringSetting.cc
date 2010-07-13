@@ -8,8 +8,7 @@ namespace openmsx {
 
 // class StringSettingPolicy
 
-StringSettingPolicy::StringSettingPolicy(CommandController& commandController)
-	: SettingPolicy<string>(commandController)
+StringSettingPolicy::StringSettingPolicy()
 {
 }
 

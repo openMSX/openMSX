@@ -11,8 +11,7 @@ namespace openmsx {
 class FloatSettingPolicy : public SettingRangePolicy<double>
 {
 protected:
-	FloatSettingPolicy(CommandController& commandController,
-	                   double minValue, double maxValue);
+	FloatSettingPolicy(double minValue, double maxValue);
 	std::string toString(double value) const;
 	double fromString(const std::string& str) const;
 	std::string getTypeString() const;

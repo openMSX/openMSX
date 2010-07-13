@@ -37,8 +37,7 @@ public:
 	typedef std::map<std::string, T> Map;
 
 protected:
-	EnumSettingPolicy(CommandController& commandController,
-	                  const Map& map_);
+	EnumSettingPolicy(const Map& map_);
 	virtual ~EnumSettingPolicy();
 
 	std::string toString(T value) const;
@@ -70,9 +69,8 @@ public:
 //-------------
 
 template <typename T>
-EnumSettingPolicy<T>::EnumSettingPolicy(
-		CommandController& commandController, const Map& map)
-	: SettingPolicy<T>(commandController)
+EnumSettingPolicy<T>::EnumSettingPolicy(const Map& map)
+	: SettingPolicy<T>()
 {
 	baseMap.insert(map.begin(), map.end());
 }

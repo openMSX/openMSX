@@ -12,10 +12,8 @@ namespace openmsx {
 template <typename T> class SettingRangePolicy : public SettingPolicy<T>
 {
 protected:
-	SettingRangePolicy(CommandController& commandController,
-	                   T minValue_, T maxValue_)
-		: SettingPolicy<T>(commandController)
-		, minValue(minValue_), maxValue(maxValue_)
+	SettingRangePolicy(T minValue_, T maxValue_)
+		: minValue(minValue_), maxValue(maxValue_)
 	{
 	}
 

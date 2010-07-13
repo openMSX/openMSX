@@ -11,9 +11,8 @@ namespace openmsx {
 
 // class IntegerSettingPolicy
 
-IntegerSettingPolicy::IntegerSettingPolicy(CommandController& commandController,
-                                           int minValue, int maxValue)
-	: SettingRangePolicy<int>(commandController, minValue, maxValue)
+IntegerSettingPolicy::IntegerSettingPolicy(int minValue, int maxValue)
+	: SettingRangePolicy<int>(minValue, maxValue)
 {
 }
 

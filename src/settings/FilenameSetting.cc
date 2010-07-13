@@ -6,8 +6,7 @@
 
 namespace openmsx {
 
-FilenameSettingPolicy::FilenameSettingPolicy(CommandController& commandController)
-	: StringSettingPolicy(commandController)
+FilenameSettingPolicy::FilenameSettingPolicy()
 {
 }
 
