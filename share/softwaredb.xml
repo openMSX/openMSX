@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1278176656">
+<softwaredb xml:lang="en" timestamp="1279090476">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2596,6 +2596,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">2f0db48fbcf3444f52b9c7c76ba9c4bd38bc2a15</hash><remark><text>[aka Dragon Slayer Jr]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">a52c37c1f16ba13d3f39bb5403c82c0187cbff51</hash><remark><text>[b][aka Dragon Slayer Jr]</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash algo="sha1">3795737471fa09f4bee252bb19ea16013cd22809</hash><remark><text>MSX Translations - Spanish Translation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Dragon Slayer 3 - Romancia - MSX2 Version</title>
@@ -10218,6 +10219,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">00c70cf37c71cb8f99567ae407ff6dd52c4774c2</hash></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">aba839d554733850902f3073f7974e2e87c488ba</hash><remark><text>French translation by Django</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash algo="sha1">1fc36b8cc50f3a3b4be10421a39a9f5874f135ed</hash><remark><text>Trained / MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash algo="sha1">4c054d02b73bc2931705985312dcc49b72798558</hash><remark><text>MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash algo="sha1">936f9ba82c7cdb703a4b1fffce75b03508008e12</hash><remark><text>Trained / MSX Translations (Trainer Only)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tensai Rabbian Daifunsen</title>
@@ -11492,6 +11496,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2549
-Parse time 16.032 seconds on Sat Jul 3 19:04:32 CEST 2010
+Roms in this database:2553
+Parse time 16.348 seconds on Wed Jul 14 8:54:52 CEST 2010
  -->
