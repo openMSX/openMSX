@@ -812,16 +812,12 @@ public:
 		return actual < required;
 	}
 
-	template<typename T> void loadImpl(T& t)
+	template<typename T> void load(T& t)
 	{
 		std::string str;
 		load(str);
 		std::istringstream is(str);
 		is >> t;
-	}
-	template<typename T> void load(T& t)
-	{
-		loadImpl(t);
 	}
 	void load(std::string& t);
 	void load(bool& b);

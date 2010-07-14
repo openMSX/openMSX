@@ -11,6 +11,7 @@
 #include "StringOp.hh"
 #include <cstring>
 #include <zlib.h>
+#include <limits>
 
 using std::string;
 
@@ -379,17 +380,60 @@ void XmlInputArchive::load(signed char& c)
 	load(i);
 	c = i;
 }
+
+// This function parses a number from a string. It's similar to the generic
+// templatized XmlInputArchive::load() method, but _much_ faster. It does
+// have some limitations though:
+//  - it can't handle leading whitespace
+//  - it can't handle extra characters at the end of the string
+//  - it can only handle one base (only decimal, not octal or hexadecimal)
+//  - it doesn't understand a leading '+' sign
+//  - it doesn't detect overflow or underflow (The generic implementation sets
+//    a 'bad' flag on the stream and clips the result to the min/max allowed
+//    value. Though this 'bad' flag was ignored by the openMSX code).
+// This routine is only used to parse strings we've written ourselves (and the
+// savestate/replay XML files are not meant to be manually edited). So the
+// above limitations don't really matter. And we can use the speed gain.
+template<typename T> static inline void fastAtoi(const string& str, T& t)
+{
+	t = 0;
+	bool neg = false;
+	unsigned i = 0;
+	unsigned l = str.size();
+
+	if (std::numeric_limits<T>::is_signed) {
+		if (l == 0) return;
+		if (str[0] == '-') {
+			neg = true;
+			i = 1;
+		}
+	}
+	for (/**/; i < l; ++i) {
+		unsigned d = str[i] - '0';
+		if (unlikely(d > 9)) {
+			throw XMLException("Invalid integer: " + str);
+		}
+		t = 10 * t + d;
+	}
+	if (neg) t = -t;
+}
 void XmlInputArchive::load(int& i)
 {
-	loadImpl(i);
+	std::string str;
+	load(str);
+	fastAtoi(str, i);
 }
 void XmlInputArchive::load(unsigned& u)
 {
-	loadImpl(u);
+	std::string str;
+	load(str);
+	fastAtoi(str, u);
 }
 void XmlInputArchive::load(unsigned long long& ull)
 {
-	loadImpl(ull);
+	std::string str;
+	load(str);
+	fastAtoi(str, ull);
 }
 
 void XmlInputArchive::beginTag(const char* tag)
