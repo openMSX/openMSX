@@ -441,8 +441,14 @@ void XmlInputArchive::beginTag(const char* tag)
 	const XMLElement* child = elems.back().first->findNextChild(
 		tag, elems.back().second);
 	if (!child) {
-		throw XMLException("No child tag found in begin tag \"" +
-		                   string(tag) + '\"');
+		string path;
+		const XMLElement* elem = elems.back().first;
+		while (elem) {
+			path = elem->getName() + '/' + path;
+			elem = elem->getParent();
+		}
+		throw XMLException("No child tag \"" + string(tag) +
+		                   "\" found at location \"" + path + '\"');
 	}
 	elems.push_back(std::make_pair(child, 0));
 }
