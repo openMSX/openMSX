@@ -151,7 +151,11 @@ protected:
 	ALWAYS_INLINE void setMemPtr(unsigned) { /* nothing*/ }
 	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
-	static const int I  = 8; // cycles for an I/O operation
+	static const int I  = 6; // cycles for an I/O operation
+	static const int O  = 1; // wait for one cycle and wait for next even
+	                         // clock cycle (to sync with slower IO bus)
+	                         // the latter part must be implemented
+	                         // dynamically (not here in static tables)
 	static const int P  = 1; // cycles for a (statically known) page-break
 
 	static const int
@@ -213,14 +217,14 @@ protected:
 		CC_RLA       = 1,
 		CC_RLD       = 2+P+2+P+1, CC_RLD_1  = 2+P, CC_RLD_2    = 2+P+2+P,
 
-		CC_IN_A_N    = 2+I,   CC_IN_A_N_1   = 1, CC_IN_A_N_2   = 2,
-		CC_IN_R_C    = 2+I,   CC_IN_R_C_1   = 2,
-		CC_INI       = 2+I+P+1, CC_INI_1    = 2, CC_INI_2      = 2+I+P,
-		CC_INIR      = 2+I+P+1, // TODO check
-		CC_OUT_N_A   = 2+I,   CC_OUT_N_A_1  = 1, CC_OUT_N_A_2  = 2,
-		CC_OUT_C_R   = 2+I,   CC_OUT_C_R_1  = 2,
-		CC_OUTI      = 2+P+1+I, CC_OUTI_1   = 2+P, CC_OUTI_2   = 2+P+1,
-		CC_OTIR      = 2+P+1+I, // TODO check
+		CC_IN_A_N    = 2+O+I,     CC_IN_A_N_1 = 1,    CC_IN_A_N_2  = 2+O,
+		CC_IN_R_C    = 2+O+I,     CC_IN_R_C_1 = 2+O,
+		CC_INI       = 2+O+I+P+1, CC_INI_1    = 2+O,  CC_INI_2     = 2+O+I+P,
+		CC_INIR      = 2+O+I+P+1, // TODO check
+		CC_OUT_N_A   = 2+O+I,     CC_OUT_N_A_1 = 1,   CC_OUT_N_A_2 = 2+O,
+		CC_OUT_C_R   = 2+O+I,     CC_OUT_C_R_1 = 2+O,
+		CC_OUTI      = 2+P+1+O+I, CC_OUTI_1    = 2+P, CC_OUTI_2    = 2+P+1+O,
+		CC_OTIR      = 2+P+1+O+I, // TODO check
 
 		CC_EX        = 1,
 		CC_NOP       = 1,

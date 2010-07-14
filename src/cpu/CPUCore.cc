@@ -3728,6 +3728,7 @@ template <class T> template<CPU::Reg16 REG, int EE> int CPUCore<T>::ex_xsp_SS() 
 
 // IN r,(c)
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::in_R_c() {
+	if (T::isR800()) T::waitForEvenCycle(T::CC_IN_R_C_1);
 	T::setMemPtr(R.getBC() + 1);
 	byte res = READ_PORT(R.getBC(), T::CC_IN_R_C_1);
 	byte f = 0;
@@ -3747,18 +3748,21 @@ template <class T> template<CPU::Reg8 REG> int CPUCore<T>::in_R_c() {
 template <class T> int CPUCore<T>::in_a_byte() {
 	unsigned y = RDMEM_OPCODE(T::CC_IN_A_N_1) + 256 * R.getA();
 	T::setMemPtr(y + 1);
+	if (T::isR800()) T::waitForEvenCycle(T::CC_IN_A_N_2);
 	R.setA(READ_PORT(y, T::CC_IN_A_N_2));
 	return T::CC_IN_A_N;
 }
 
 // OUT (c),r
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::out_c_R() {
+	if (T::isR800()) T::waitForEvenCycle(T::CC_OUT_C_R_1);
 	T::setMemPtr(R.getBC() + 1);
 	WRITE_PORT(R.getBC(), R.get8<REG>(), T::CC_OUT_C_R_1);
 	return T::CC_OUT_C_R;
 }
 template <class T> int CPUCore<T>::out_c_0() {
 	// TODO not on R800
+	if (T::isR800()) T::waitForEvenCycle(T::CC_OUT_C_R_1);
 	T::setMemPtr(R.getBC() + 1);
 	byte out_c_x = isTurboR ? 255 : 0;
 	WRITE_PORT(R.getBC(), out_c_x, T::CC_OUT_C_R_1);
@@ -3770,6 +3774,7 @@ template <class T> int CPUCore<T>::out_byte_a() {
 	byte port = RDMEM_OPCODE(T::CC_OUT_N_A_1);
 	unsigned y = (R.getA() << 8) |   port;
 	T::setMemPtr((R.getA() << 8) | ((port + 1) & 255));
+	if (T::isR800()) T::waitForEvenCycle(T::CC_OUT_N_A_2);
 	WRITE_PORT(y, R.getA(), T::CC_OUT_N_A_2);
 	return T::CC_OUT_N_A;
 }
@@ -3842,6 +3847,7 @@ template <class T> int CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 // block IN
 template <class T> inline int CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 	// TODO R800 flags
+	if (T::isR800()) T::waitForEvenCycle(T::CC_INI_1);
 	T::setMemPtr(R.getBC() + increase);
 	R.setBC(R.getBC() - 0x100); // decr before use
 	byte val = READ_PORT(R.getBC(), T::CC_INI_1);
@@ -3871,6 +3877,7 @@ template <class T> inline int CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
 	// TODO R800 flags
 	byte val = RDMEM(R.getHL(), T::CC_OUTI_1);
 	R.setHL(R.getHL() + increase);
+	if (T::isR800()) T::waitForEvenCycle(T::CC_OUTI_2);
 	WRITE_PORT(R.getBC(), val, T::CC_OUTI_2);
 	R.setBC(R.getBC() - 0x100); // decr after use
 	T::setMemPtr(R.getBC() + increase);

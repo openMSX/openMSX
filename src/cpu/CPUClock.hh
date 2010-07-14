@@ -56,6 +56,19 @@ protected:
 		return halts;
 	}
 
+	/** R800 runs at 7MHz, but I/O is done over a slower 3.5MHz bus. So
+	  * sometimes right before I/O it's needed to wait for one cycle so
+	  * that we're at the start of a clock cycle of the slower bus.
+	  */
+	void waitForEvenCycle(int cc)
+	{
+		sync();
+		unsigned long long totalTicks = clock.getTotalTicks() + cc;
+		if (totalTicks & 1) {
+			add(1);
+		}
+	}
+
 	// The following 3 methods are used in the innermost CPU loop. It
 	// allows to implement this loop with just one test. This loop must
 	// be exited on the following three conditions:

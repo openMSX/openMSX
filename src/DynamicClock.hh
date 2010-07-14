@@ -55,6 +55,12 @@ public:
 		return divmod.div(e.time - lastTick.time + (getStep() - 1));
 	}
 
+	unsigned long long getTotalTicks() const {
+		// note: don't use divmod.div() because that one only returns a
+		//       32 bit result. Maybe improve in the future.
+		return lastTick.time / getStep();
+	}
+
 	/** Change the frequency at which this clock ticks.
 	  * @param freq New frequency in Hertz.
 	  */
