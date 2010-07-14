@@ -72,7 +72,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 			stereo = false;
 			warnedStereo = true; // no warning if data is actually stereo
 		} else {
-			stereo = mixer->anyStereoDevice();
+			stereo = mixer->needStereoRecording();
 		}		
 		sampleRate = mixer->getSampleRate();
 		warnedSampleRate = false;

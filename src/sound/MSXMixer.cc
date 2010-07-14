@@ -482,12 +482,13 @@ void MSXMixer::generate(short* output, unsigned samples,
 	}
 }
 
-bool MSXMixer::anyStereoDevice() const
+bool MSXMixer::needStereoRecording() const
 {
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
 		SoundDevice& device = *it->first;
-		if (device.isStereo()) {
+		IntegerSetting& balance = *it->second.balanceSetting;
+		if (device.isStereo() || balance.getValue() != 0) {
 			return true;
 		}
 	}
