@@ -20,6 +20,7 @@ class PostProcessor;
 class FrameSource;
 class MSXMixer;
 class RecordCommand;
+class TclObject;
 
 class AviRecorder : private noncopyable
 {
@@ -35,10 +36,11 @@ public:
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
 		   bool recordStereo, const Filename& filename);
+	void status(const std::vector<TclObject*>& tokens, TclObject& result) const;
 
-	std::string processStart(const std::vector<std::string>& tokens);
-	std::string processStop(const std::vector<std::string>& tokens);
-	std::string processToggle(const std::vector<std::string>& tokens);
+	void processStart(const std::vector<TclObject*>& tokens, TclObject& result);
+	void processStop(const std::vector<TclObject*>& tokens);
+	void processToggle(const std::vector<TclObject*>& tokens, TclObject& result);
 
 	Reactor& reactor;
 	const std::auto_ptr<RecordCommand> recordCommand;

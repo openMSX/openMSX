@@ -17,6 +17,7 @@
 #include "CliComm.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
+#include "TclObject.hh"
 #include "vla.hh"
 #include <cassert>
 
@@ -25,11 +26,11 @@ using std::vector;
 
 namespace openmsx {
 
-class RecordCommand : public SimpleCommand
+class RecordCommand : public Command
 {
 public:
 	RecordCommand(CommandController& commandController, AviRecorder& recorder);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -216,7 +217,7 @@ unsigned AviRecorder::getFrameHeight() const {
 	return frameHeight;
 }
 
-string AviRecorder::processStart(const vector<string>& tokens)
+void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& result)
 {
 	string filename;
 	string prefix = "openmsx";
@@ -229,33 +230,36 @@ string AviRecorder::processStart(const vector<string>& tokens)
 
 	vector<string> arguments;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
-		if (StringOp::startsWith(tokens[i], "-")) {
-			if (tokens[i] == "--") {
-				arguments.insert(arguments.end(),
-					tokens.begin() + i + 1, tokens.end());
+		const string token = tokens[i]->getString();
+		if (StringOp::startsWith(token, "-")) {
+			if (token == "--") {
+				// TODO: this in a loop.... :(
+				for (vector<TclObject*>::const_iterator it = tokens.begin() + i + 1; it != tokens.end(); ++it) {
+					arguments.push_back((*it)->getString());
+				}
 				break;
 			}
-			if (tokens[i] == "-prefix") {
+			if (token == "-prefix") {
 				if (++i == tokens.size()) {
 					throw CommandException("Missing argument");
 				}
-				prefix = tokens[i];
-			} else if (tokens[i] == "-audioonly") {
+				prefix = token;
+			} else if (token == "-audioonly") {
 				recordVideo = false;
-			} else if (tokens[i] == "-mono") {
+			} else if (token == "-mono") {
 				recordMono = true;
-			} else if (tokens[i] == "-stereo") {
+			} else if (token == "-stereo") {
 				recordStereo = true;
-			} else if (tokens[i] == "-videoonly") {
+			} else if (token == "-videoonly") {
 				recordAudio = false;
-			} else if (tokens[i] == "-doublesize") {
+			} else if (token == "-doublesize") {
 				frameWidth = 640;
 				frameHeight = 480;
 			} else {
-				throw CommandException("Invalid option: " + tokens[i]);
+				throw CommandException("Invalid option: " + token);
 			}
 		} else {
-			arguments.push_back(tokens[i]);
+			arguments.push_back(token);
 		}
 	}
 	if (!recordAudio && !recordVideo) {
@@ -295,56 +299,73 @@ string AviRecorder::processStart(const vector<string>& tokens)
 	}
 
 	if (aviWriter.get() || wavWriter.get()) {
-		return "Already recording.";
+		result.setString("Already recording.");
+	} else {
+		start(recordAudio, recordVideo, recordMono, recordStereo,
+				Filename(filename));
+		result.setString("Recording to " + filename);
 	}
-	start(recordAudio, recordVideo, recordMono, recordStereo,
-	      Filename(filename));
-	return "Recording to " + filename;
 }
 
-string AviRecorder::processStop(const vector<string>& tokens)
+void AviRecorder::processStop(const vector<TclObject*>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
 	stop();
-	return "";
 }
 
-string AviRecorder::processToggle(const vector<string>& tokens)
+void AviRecorder::processToggle(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (aviWriter.get() || wavWriter.get()) {
 		// drop extra tokens
-		vector<string> tmp(tokens.begin(), tokens.begin() + 2);
-		return processStop(tmp);
+		vector<TclObject*> tmp(tokens.begin(), tokens.begin() + 2);
+		processStop(tmp);
 	} else {
-		return processStart(tokens);
+		processStart(tokens, result);
 	}
 }
 
+void AviRecorder::status(const vector<TclObject*>& tokens, TclObject& result) const
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	result.addListElement("status");
+	if (aviWriter.get() || wavWriter.get()) {
+		result.addListElement("recording");
+	} else {
+		result.addListElement("idle");
+	}
+
+}
 
 // class RecordCommand
 
 RecordCommand::RecordCommand(CommandController& commandController,
                              AviRecorder& recorder_)
-	: SimpleCommand(commandController, "record")
+	: Command(commandController, "record")
 	, recorder(recorder_)
 {
 }
 
-string RecordCommand::execute(const vector<string>& tokens)
+void RecordCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	if (tokens[1] == "start") {
-		return recorder.processStart(tokens);
-	} else if (tokens[1] == "stop") {
-		return recorder.processStop(tokens);
-	} else if (tokens[1] == "toggle") {
-		return recorder.processToggle(tokens);
+	const string subcommand = tokens[1]->getString();
+	if (subcommand == "start") {
+		recorder.processStart(tokens, result);
+	} else if (subcommand == "stop") {
+		recorder.processStop(tokens);
+	} else if (subcommand == "toggle") {
+		recorder.processToggle(tokens, result);
+	} else if (subcommand == "status") {
+		recorder.status(tokens, result);
+	} else {
+		throw SyntaxError();
 	}
-	throw SyntaxError();
 }
 
 string RecordCommand::help(const vector<string>& /*tokens*/) const
@@ -355,6 +376,7 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 	       "record start -prefix foo  Record to file 'fooNNNN.avi'\n"
 	       "record stop               Stop recording\n"
 	       "record toggle             Toggle recording (useful as keybinding)\n"
+	       "record status             Query recording state\n"
 	       "\n"
 	       "The start subcommand also accepts an optional -audioonly, -videoonly, "
 	       " -mono, -stereo, -doublesize flag.\n"
@@ -365,8 +387,9 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 void RecordCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		const char* const str[3] = { "start", "stop", "toggle" };
-		std::set<string> cmds(str, str + 3);
+		const char* const str[4] = { "start", "stop", "toggle",
+			"status" };
+		std::set<string> cmds(str, str + 4);
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
 		const char* const str[6] = { "-prefix", "-videoonly", 
