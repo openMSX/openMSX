@@ -84,7 +84,7 @@ proc record_chunks { args } {
 			if {[llength $args] != 2} {
 				error "Expected another argument: the name of your video!"
 			}
-			if {[info exists record_chunks::iteration]} {
+			if {[lindex [record status] 1] != "idle" } {
 				error "Already recording!"
 			}
 			set filenamebase [lindex $args 1]
