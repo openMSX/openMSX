@@ -233,7 +233,6 @@ void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& resu
 		const string token = tokens[i]->getString();
 		if (StringOp::startsWith(token, "-")) {
 			if (token == "--") {
-				// TODO: this in a loop.... :(
 				for (vector<TclObject*>::const_iterator it = tokens.begin() + i + 1; it != tokens.end(); ++it) {
 					arguments.push_back((*it)->getString());
 				}
