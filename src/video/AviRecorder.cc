@@ -242,7 +242,7 @@ void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& resu
 				if (++i == tokens.size()) {
 					throw CommandException("Missing argument");
 				}
-				prefix = token;
+				prefix = tokens[i]->getString();
 			} else if (token == "-audioonly") {
 				recordVideo = false;
 			} else if (token == "-mono") {
