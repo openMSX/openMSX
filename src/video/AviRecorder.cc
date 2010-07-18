@@ -283,17 +283,22 @@ void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& resu
 
 	string directory = recordVideo ? "videos" : "soundlogs";
 	string extension = recordVideo ? ".avi"   : ".wav";
+	// TODO This is very similar to the code in saveReplay().
+	//      Factor this out.
 	if (filename.empty()) {
 		filename = FileOperations::getNextNumberedFileName(
 			directory, prefix, extension);
+		// directory is also created when needed
 	} else {
 		if (FileOperations::getExtension(filename).empty()) {
 			// no extension given, append standard one
 			filename += extension;
 		}
 		if (FileOperations::getBaseName(filename).empty()) {
-			// no dir given, use standard dir
-			filename = FileOperations::getUserOpenMSXDir() + "/" + directory + "/" + filename;
+			// no dir given, use standard dir (and create it)
+			string dir = FileOperations::getUserOpenMSXDir() + '/' + directory;
+			FileOperations::mkdirp(dir);
+			filename = dir + '/' + filename;
 		}
 	}
 
