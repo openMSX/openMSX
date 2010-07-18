@@ -317,6 +317,11 @@ void Keyboard::stopReplay(EmuTime::param time)
 void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
 {
 	assert(press);
+	if (((hostKeyMatrix[row] & press) == 0) &&
+	    ((userKeyMatrix[row] & press) == 0)) {
+		// Won't have any effect, ignore.
+		return;
+	}
 	stateChangeDistributor.stopReplay(time);
 	// call stopReplay() before using userKeyMatrix[]
 	changeKeyMatrixEvent(time, row, userKeyMatrix[row] & ~press);
@@ -324,6 +329,14 @@ void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
 void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release)
 {
 	assert(release);
+	if (((hostKeyMatrix[row] & release) == release) &&
+	    ((userKeyMatrix[row] & release) == release)) {
+		// Won't have any effect, ignore.
+		// Test scenario: during replay, exit the openmsx console with
+		// the 'toggle console' command. The 'enter,release' event will
+		// end up here. But it shouldn't stop replay.
+		return;
+	}
 	stateChangeDistributor.stopReplay(time);
 	// call stopReplay() before using userKeyMatrix[]
 	changeKeyMatrixEvent(time, row, userKeyMatrix[row] | release);
