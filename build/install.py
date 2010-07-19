@@ -67,7 +67,7 @@ def installAll(
 		for machine, alias in (
 			('Toshiba_HX-10', 'msx1'),
 			('Philips_NMS_8250', 'msx2'),
-			('Panasonic_FS-A1FX', 'msx2plus'),
+			('Panasonic_FS-A1WSX', 'msx2plus'),
 			('Panasonic_FS-A1GT', 'turbor'),
 			):
 			installSymlink(
