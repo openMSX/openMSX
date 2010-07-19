@@ -625,6 +625,31 @@ string getNextNumberedFileName(
 	return os.str();
 }
 
+string parseCommandFileArgument(
+	const string& argument, const string& directory,
+	const string& prefix,   const string& extension)
+{
+	if (argument.empty()) {
+		// directory is also created when needed
+		return getNextNumberedFileName(directory, prefix, extension);
+	}
+
+	string filename = argument;
+	if (!StringOp::endsWith(filename, extension)) {
+		// expected extension not already given, append it
+		filename += extension;
+	}
+	if (getBaseName(filename).empty()) {
+		// no dir given, use standard dir (and create it)
+		string dir = getUserOpenMSXDir() + '/' + directory;
+		mkdirp(dir);
+		filename = dir + '/' + filename;
+	} else {
+		filename = expandTilde(filename);
+	}
+	return filename;
+}
+
 string getTempDir()
 {
 #ifdef _WIN32

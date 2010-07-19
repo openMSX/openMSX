@@ -231,6 +231,18 @@ namespace FileOperations {
 		const std::string& directory, const std::string& prefix,
 		const std::string& extension);
 
+	/** Helper function for parsing filename arguments in Tcl commands.
+	 * - If argument is empty then getNextNumberedFileName() is used
+	 *   with given directory, prefix and extension.
+	 * - If argument doesn't already end with the given extension that
+	 *   extension is appended.
+	 * - If argument doesn't already include a directory, the given
+	 *   directory is used (and created if required).
+	 */
+	std::string parseCommandFileArgument(
+		const std::string& argument, const std::string& directory,
+		const std::string& prefix,   const std::string& extension);
+
 	/**
 	 * Get the name of the temp directory on the system.
 	 * Typically /tmp on *nix and C:/WINDOWS/TEMP on windows

@@ -469,15 +469,16 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 	string filename;
 	switch (arguments.size()) {
 	case 0:
-		filename = FileOperations::getNextNumberedFileName(
-				"screenshots", prefix, ".png");
+		// nothing
 		break;
 	case 1:
-		filename = FileOperations::expandTilde(arguments[0]);
+		filename = arguments[0];
 		break;
 	default:
 		throw SyntaxError();
 	}
+	filename = FileOperations::parseCommandFileArgument(
+		filename, "screenshots", prefix, ".png");
 
 	if (!rawShot) {
 		// include all layers (OSD stuff, console)

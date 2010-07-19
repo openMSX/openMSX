@@ -400,26 +400,19 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		throw CommandException("No recording...");
 	}
 
-	string fileName;
-	if (tokens.size() == 2) {
-		fileName = FileOperations::getNextNumberedFileName(
-		                REPLAY_DIR, "openmsx", ".gz");
-		// directory is also created when needed
-	} else if (tokens.size() == 3) {
-		fileName = tokens[2]->getString();
-		if (!StringOp::endsWith(fileName, ".gz")) {
-			fileName += ".gz";
-		}
-		if (FileOperations::getBaseName(fileName).empty()) {
-			// no dir given, use standard dir (and create it)
-			string dir = FileOperations::getUserOpenMSXDir() + '/' + REPLAY_DIR;
-			FileOperations::mkdirp(dir);
-			fileName = dir + '/' + fileName;
-		}
-
-	} else {
+	string filename;
+	switch (tokens.size()) {
+	case 2:
+		// nothing
+		break;
+	case 3:
+		filename = tokens[2]->getString();
+		break;
+	default:
 		throw SyntaxError();
 	}
+	filename = FileOperations::parseCommandFileArgument(
+		filename, REPLAY_DIR, "openmsx", ".gz");
 
 	Reactor& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
@@ -472,7 +465,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 			new EndLogEvent(getCurrentTime())));
 	}
 
-	XmlOutputArchive out(fileName);
+	XmlOutputArchive out(filename);
 	replay.events = &history.events;
 	out.serialize("replay", replay);
 
@@ -484,7 +477,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		history.events.pop_back();
 	}
 
-	result.setString("Saved replay to " + fileName);
+	result.setString("Saved replay to " + filename);
 }
 
 void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& result)
@@ -498,7 +491,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	if (!StringOp::endsWith(fileNameArg, ".gz")) {
 		fileNameArg += ".gz";
 	}
-	string fileName = context.resolve(motherBoard.getCommandController(),
+	string filename = context.resolve(motherBoard.getCommandController(),
 	                                  fileNameArg);
 
 	// restore replay
@@ -507,7 +500,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	Events events;
 	replay.events = &events;
 	try {
-		XmlInputArchive in(fileName);
+		XmlInputArchive in(filename);
 		in.serialize("replay", replay);
 	} catch (XMLException& e) {
 		throw CommandException("Cannot load replay, bad file format: " + e.getMessage());
@@ -553,7 +546,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// TODO this is not correct if this board was not the active board
 	reactor.replaceActiveBoard(replay.motherBoards[0]);
 
-	result.setString("Loaded replay from " + fileName);
+	result.setString("Loaded replay from " + filename);
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
