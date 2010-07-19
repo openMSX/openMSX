@@ -203,8 +203,8 @@ proc menu_action { button } {
 	uplevel #0 $cmd
 }
 
-user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
-user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
+user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(HOME)
+user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(HOME)
 if ![file exists $::osd_rom_path] {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
