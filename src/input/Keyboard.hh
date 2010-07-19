@@ -46,6 +46,7 @@ public:
 	 * @param stateChangeDistributor ref to the state change distributor
 	 * @param keyboardType contains filename extension of unicode keymap file
 	 * @param hasKeypad turn MSX keypad on/off
+	 * @param hasYesNoKeys this keyboard has (Japanese) Yes/No keys
 	 * @param keyGhosting turn keyGhosting on/off
 	 * @param keyGhostingSGCprotected Shift, Graph and Code are keyGhosting protected
 	 * @param codeKanaLocks CodeKana key behave as a lock key on this machine
@@ -57,8 +58,9 @@ public:
 	         MSXEventDistributor& msxEventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
 	         std::string& keyboardType, bool hasKeypad,
-	         bool keyGhosting, bool keyGhostingSGCprotected,
-	         bool codeKanaLocks, bool graphLocks);
+	         bool hasYesNoKeys, bool keyGhosting,
+	         bool keyGhostingSGCprotected, bool codeKanaLocks,
+	         bool graphLocks);
 
 	virtual ~Keyboard();
 
@@ -132,6 +134,7 @@ private:
 	byte keyMatrix    [NR_KEYROWS]; // combination of cmdKeyMatrix and userKeyMatrix
 	byte msxmodifiers;
 	const bool hasKeypad;
+	const bool hasYesNoKeys;
 	const bool keyGhosting;
 	const bool keyGhostingSGCprotected;
 	const bool codeKanaLocks;

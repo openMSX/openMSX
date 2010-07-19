@@ -43,6 +43,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_jis</keyboard_type>
       <has_keypad>true</has_keypad>
+      <has_yesno_keys>true</has_yesno_keys>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
@@ -102,7 +103,7 @@
           <rom>
             <filename>roms/fs-a1wsx_fmbasic.rom</filename>
             <sha1>aad42ba4289b33d8eed225d42cea930b7fc5c228</sha1>
-            <sha1>6354ccc5c100b1c558c9395fa8c00784d2e9b0a3</sha1> <!-- on Luc's machine the last 16 bytes are 0xFC and not 0xFF -->	    
+            <sha1>6354ccc5c100b1c558c9395fa8c00784d2e9b0a3</sha1> <!-- on Luc's machine the last 16 bytes are 0xFC and not 0xFF -->
           </rom>
           <sound>
             <volume>9000</volume>

@@ -188,9 +188,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   string& keyboardType, bool hasKP, bool keyGhosting_,
-                   bool keyGhostSGCprotected, bool codeKanaLocks_,
-                   bool graphLocks_)
+                   string& keyboardType, bool hasKP, bool hasYNKeys,
+                   bool keyGhosting_, bool keyGhostSGCprotected,
+                   bool codeKanaLocks_, bool graphLocks_)
 	: Schedulable(scheduler)
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
@@ -208,6 +208,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keybDebuggable(new KeybDebuggable(motherBoard, *this))
 	, unicodeKeymap(new UnicodeKeymap(keyboardType))
 	, hasKeypad(hasKP)
+	, hasYesNoKeys(hasYNKeys)
 	, keyGhosting(keyGhosting_)
 	, keyGhostingSGCprotected(keyGhostSGCprotected)
 	, codeKanaLocks(codeKanaLocks_)
@@ -499,6 +500,10 @@ void Keyboard::processSdlKey(EmuTime::param time, bool down, int key)
 {
 	if (key < MAX_KEYSYM) {
 		int row   = keyTab[key][0];
+		if ((row == 11) && !hasYesNoKeys) {
+			// do not process row 11 if we have no Yes/No keys
+			return;
+		}
 		byte mask = keyTab[key][1];
 		if (mask) {
 			updateKeyMatrix(time, down, row, mask);

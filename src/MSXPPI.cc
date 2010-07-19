@@ -27,6 +27,7 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 		config.getChildDataAsBool("key_ghosting_sgc_protected", true);
 	std::string keyboardType = config.getChildData("keyboard_type", "int");
 	bool hasKeypad = config.getChildDataAsBool("has_keypad", true);
+	bool hasYesNoKeys = config.getChildDataAsBool("has_yesno_keys", false);
 	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);
 	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
 	return new Keyboard(motherBoard,
@@ -35,9 +36,9 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 	                    motherBoard.getReactor().getEventDistributor(),
 	                    motherBoard.getMSXEventDistributor(),
 	                    motherBoard.getStateChangeDistributor(),
-	                    keyboardType, hasKeypad, keyGhosting,
-	                    keyGhostingSGCprotected, codeKanaLocks,
-	                    graphLocks);
+	                    keyboardType, hasKeypad, hasYesNoKeys,
+	                    keyGhosting, keyGhostingSGCprotected,
+	                    codeKanaLocks, graphLocks);
 }
 
 MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
