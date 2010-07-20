@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/06/20
+# Updated @ 2010/07/20
 #
 
 
@@ -2053,6 +2053,13 @@ create_trainer "Dorodon" {time 1} {
 	"Lives" {poke 0xc6f3 5}
 }
 
+create_trainer "Double Dragon" {time 1} {
+	"Always Have Full Power" {poke 0xcb72 5}
+	"Invincible" {poke 0xcb6a 255}
+	"Lives" {poke 0xcb75 3}
+	"Low Enemy Power" {poke 0xcb05 1;poke 0xcb25 1;poke 0xcb45 1}
+}
+
 create_trainer "Double Dragon 2 - The Revenge" {time 1} {
 	"Power Player 1" {poke 0x4079 15}
 	"Time" {poke 0x2918 153}
@@ -2672,20 +2679,28 @@ create_trainer "Game Over part 2" {time 1} {
 }
 
 create_trainer "Ganbare Goemon - Samurai" {time 2} {
+	"3 Permission Passes" {poke 0xc279 3}
+	"99 Lives" {poke 0xc260 153}
 	"A Lot Of Money" {poke 0xc265 255;poke 0xc266 255}
+	"Armor" {poke 0xc272 5}
+	"Bamboo Hat" {poke 0xc275 5}
+	"Candle" {poke 0xc278 1}
 	"Cart Combos" {poke 0xef00 255}
-	"Have 'shower Gel'" {poke 0xc274 5}
-	"Have Candle" {poke 0xc278 1}
-	"Have Catapult" {poke 0xc271 1}
-	"Have Food" {poke 0xc277 5}
-	"Have Helmet" {poke 0xc272 5;poke 0xc276 5}
-	"Have Money Cases" {poke 0xc279 3}
-	"Have Shoes X3" {poke 0xc270 3}
-	"Have Tent" {poke 0xc273 5}
-	"Have Umbrella" {poke 0xc275 5}
+	"Catapult" {poke 0xc271 1}
+	"Charm" {poke 0xc273 5}
+	"Food" {poke 0xc277 5}
+	"Full Vitality" {poke 0xc481 255}
+	"Helmet" {poke 0xc276 5}
 	"Invincible" {poke 0xc4a7 255}
-	"Lives" {poke 0xc260 153}
-	"Power" {poke 0xc481 255}
+	"Seal Case" {poke 0xc274 5}
+	"Shoes X3" {poke 0xc270 3}
+}
+
+create_trainer "Gandhara " {time 1} {
+	"Exp" {poke 0x9117 0x99;poke 0x9118 0x99;poke 0x9119 0x99}
+	"foods" {poke 0x9114 0x99}
+	"Foods" {poke 0x9115 0x99;poke 0x9116 0x99}
+	"Hp" {poke 0x911a 0x99;poke 0x911b 0x99;poke 0x911c 0x99}
 }
 
 create_trainer "Garbage Man" {time 1} {
@@ -3697,6 +3712,16 @@ create_trainer "Ink CAS" {time 1} {
 
 create_trainer "Inter Stellar" {time 1} {
 	"Infinite Lives" {poke 0xf10b 3}
+}
+
+create_trainer "Invasion of the Zombie Monsters" {time 1} {
+	"Low End Boss Power" {poke 0xd72a 0}
+	"Time Stays @ 99" {poke 0xc012 99}
+	"Weapon Power Level 0" {poke 0xd887 0}
+	"Weapon Power Level 1" {poke 0xd887 1}
+	"Weapon Power Level 2" {poke 0xfd88 2}
+	"Weapon Power Level 3" {poke 0xd887 3}
+	"Weapon Power Level 4" {poke 0xd887 4}
 }
 
 create_trainer "Iriegas - Illegus" {time 1} {
@@ -6944,8 +6969,10 @@ create_trainer "Yumetairiku Adventure - Penguin Adventure" {time 15} {
 }
 
 create_trainer "Yuureikun - Mr.Ghost" {time 10} {
+	"Attacks" {poke 0xc28e 255}
 	"Invincible" {poke 0xc291 255}
-	"Life And Attacks" {poke 0xc01d 255;poke 0xc01e 255;poke 0xc28e 255;poke 0xc3a6 32}
+	"Life Power" {poke 0xc3a6 32}
+	"Money" {poke 0xc01d 255;poke 0xc01e 255}
 }
 
 create_trainer "Zaider - Battle of Peguss" {time 1} {
@@ -7037,6 +7064,14 @@ create_trainer "Zombie Hunter" {time 1} {
 	"Max Level" {poke 0xc7ee 31}
 }
 
+create_trainer "Zone Terra" {time 1} {
+	"1x Main Shot " {poke 0x57e2 0}
+	"2x Main Shot " {poke 0x57e2 1}
+	"3x Main Shot " {poke 0x57e2 2}
+	"Full Power" {poke 0x57af 255}
+	"Max Main Shot Speed" {poke 0x57e1 8}
+}
+
 create_trainer "Zoo" {time 1} {
 }
 
@@ -7051,4 +7086,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {poke 0xe062 153}
 }
 
-# File Created in : 2.808 seconds. 744 trainers -  having 5730 pokes
+# File Created in : 2.854 seconds. 748 trainers -  having 5757 pokes
