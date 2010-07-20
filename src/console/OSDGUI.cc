@@ -148,17 +148,23 @@ auto_ptr<OSDWidget> OSDCommand::create(
 	}
 }
 
-void OSDCommand::destroy(const vector<TclObject*>& tokens, TclObject& /*result*/)
+void OSDCommand::destroy(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	OSDWidget& widget = getWidget(tokens[2]->getString());
-	OSDWidget* parent = widget.getParent();
+	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2]->getString());
+	if (!widget) {
+		// widget not found, not an error
+		result.setBoolean(false);
+		return;
+	}
+	OSDWidget* parent = widget->getParent();
 	if (!parent) {
 		throw CommandException("Can't destroy the top widget.");
 	}
-	parent->deleteWidget(widget);
+	parent->deleteWidget(*widget);
+	result.setBoolean(true);
 }
 
 void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
@@ -235,7 +241,9 @@ string OSDCommand::help(const vector<string>& tokens) const
 			return
 			  "osd destroy <widget-path>\n"
 			  "\n"
-			  "Remove the specified OSD widget.";
+			  "Remove the specified OSD widget. Returns '1' on "
+			  "success and '0' when widget couldn't be destroyed "
+			  "because there was no widget with that name";
 		} else if (tokens[1] == "info") {
 			return
 			  "osd info [<widget-path> [<property-name>]]\n"

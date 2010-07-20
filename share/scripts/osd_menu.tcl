@@ -898,7 +898,7 @@ proc menu_loadstate_select { item } {
 }
 
 proc menu_loadstate_deselect { item } {
-	catch {osd destroy "preview.image"}
+	osd destroy "preview.image"
 }
 
 proc menu_loadstate_exec { item } {

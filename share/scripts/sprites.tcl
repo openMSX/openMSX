@@ -17,11 +17,11 @@ proc sprite_menu {} {
 
 	osd create rectangle sprite_menu -x 5 -y 100 -w 128 -h 190 -rgba 0x00000080
 	osd create rectangle sprite_menu.title -x 0 -y 15 -w 128 -h 32 -rgba 0x0000ff80 -clip on
- 	osd create text	sprite_menu.title.text -x 24 -text "" -size 18 -rgba 0xffffffff
+	osd create text	sprite_menu.title.text -x 24 -text "" -size 18 -rgba 0xffffffff
 	osd create text sprite_menu.index -x 70 -y 38 -text "" -size 8 -rgba 0xffffffff
 	osd create text sprite_menu.refresh -x 8 -y 170 -size 8 -text "\[Space\] Refresh Sprite" -rgba 0xffffffff
 	osd create text sprite_menu.escape -x 8 -y 180 -size 8 -text "\[Escape\] to Exit Viewer" -rgba 0xffffffff
-	
+
 	sprite_menu_action 0
 }
 
@@ -71,10 +71,10 @@ proc ease_text {osd_object {frame_render 0} {action 0}} {
 	}
 
 	#ease in
-	if {$action==2} {
-	osd configure $osd_object -x [expr (($x*-1)+$frame_render)]
+	if {$action == 2} {
+		osd configure $osd_object -x [expr (($x*-1)+$frame_render)]
 	} else {
-	osd configure $osd_object -x [expr ($x-$frame_render)]	
+		osd configure $osd_object -x [expr ($x-$frame_render)]
 	}
 
 	incr frame_render 4
@@ -85,7 +85,7 @@ proc ease_text {osd_object {frame_render 0} {action 0}} {
 
 proc show_sprite {sprite} {
 	variable max_sprites
-	
+
 	set sprite_size [expr ([vdpreg 1] & 2) ? 16 : 8]
 	set factor [expr ($sprite_size == 8) ? 1 : 4]
 	set max_sprites [expr (256 / $factor) - 1]
@@ -93,7 +93,7 @@ proc show_sprite {sprite} {
 		error "Please choose a value between 0 and $max_sprites"
 	}
 
-	catch { osd destroy sprite_menu.sprite_osd }
+	osd destroy sprite_menu.sprite_osd
 	draw_matrix "sprite_menu.sprite_osd" 7 56 7 $sprite_size 1
 
 	set addr [expr ([vdpreg 6] << 11) + ($sprite * $factor * 8)]

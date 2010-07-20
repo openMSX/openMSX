@@ -36,7 +36,7 @@ proc update {} {
 	variable top_spacing
 	variable text_size
 
-	catch { osd destroy tabbed_machine_view }
+	osd destroy tabbed_machine_view
 
 	if { [llength [list_machines]] > 1 } {
 

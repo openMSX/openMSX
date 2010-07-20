@@ -148,9 +148,9 @@ fade out. You can make it reappear by moving the mouse over it.
 		osd create rectangle reverse.bar \
 			-relw 0 -relh 1	-z 3 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x55eeff80"
 		osd create rectangle reverse.end \
-			-relx 0 -x -1 -w 2 -relh 1      -z 3 -rgba 0xff8080c0 
+			-relx 0 -x -1 -w 2 -relh 1      -z 3 -rgba 0xff8080c0
 		osd create text      reverse.text \
-			-x -10 -y 0 -relx 0.5 -size 5   -z 6 -rgba 0xffffffff	
+			-x -10 -y 0 -relx 0.5 -size 5   -z 6 -rgba 0xffffffff
 		
 		# on mouse over hover box 
 		osd_widgets::box reverse.mousetime \
@@ -171,7 +171,7 @@ fade out. You can make it reappear by moving the mouse over it.
 		variable mouse_after_id
 		after cancel $update_after_id
 		after cancel $mouse_after_id
-		catch { osd destroy reverse }
+		osd destroy reverse
 	}
 
 	proc update_reversebar {} {
@@ -231,16 +231,13 @@ fade out. You can make it reappear by moving the mouse over it.
 			set name reverse.tick$count
 			catch {
 				# create new if it doesn't exist yet
-				osd create rectangle $name -w 0.5 -relh 1 -rgba 0x444444ff -z 2 
+				osd create rectangle $name -w 0.5 -relh 1 -rgba 0x444444ff -z 2
 			}
 			osd configure $name -relx [expr ($snapshot - $stats(begin)) * $reciprocalLength]
 			incr count
 		}
-		while true {
-			# destroy all with higher count number
-			if {[catch {osd destroy reverse.tick$count}]} {
-				break
-			}
+		# destroy all with higher count number
+		while {[osd destroy reverse.tick$count]} {
 			incr count
 		}
 

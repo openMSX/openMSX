@@ -235,7 +235,7 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 	}
 
 	# Also try to load "frame.png"
-	catch { osd destroy osd_frame }
+	osd destroy osd_frame
 	set framefile "$skin_set_dir/frame.png"
 	if [file isfile $framefile] {
 		osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 \

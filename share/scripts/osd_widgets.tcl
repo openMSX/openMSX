@@ -195,7 +195,7 @@ proc text_box {name args} {
 	}
 
 	# Destroy widget (if it already existed)
-	catch "osd destroy $name"
+	osd destroy $name
 
 	if {$full_message == ""} return
 	set message_list [split $full_message "\n"]
