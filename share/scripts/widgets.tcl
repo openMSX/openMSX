@@ -4,7 +4,7 @@ namespace eval debug_widgets {
 
 proc toggle_show_palette {} {
 
-	if {![catch {osd info palette_viewer -rgba} errmsg]} {
+	if [osd exists palette_viewer] {
 		osd destroy palette_viewer
 		return ""
 	}
@@ -31,9 +31,7 @@ proc toggle_show_palette {} {
 }
 
 proc update_palette {} {
-	if {[catch {osd info palette_viewer -rgba} errmsg]} {
-		return ""
-	}
+	if {![osd exists palette_viewer]} return
 
 	for {set i 0} {$i < 16} {incr i} {
 		set color [getcolor $i]
@@ -47,12 +45,11 @@ proc update_palette {} {
 		osd configure palette_viewer.$i.text -text "[format %02d $i]     $color"
 	}
 	after frame [namespace code update_palette]
-	return ""
 }
 
 proc toggle_vdp_reg_viewer {} {
 
-	if {![catch {osd info vdp_reg_viewer -rgba} errmsg]} {
+	if [osd exists vdp_reg_viewer] {
 		osd destroy vdp_reg_viewer
 		osd destroy vdp_statreg_viewer
 		return ""
@@ -123,13 +120,12 @@ proc toggle_vdp_reg_viewer {} {
 			-rgba 0xffffffff
 	}
 	update_vdp_reg_viewer
+	return ""
 }
 
 proc update_vdp_reg_viewer {} {
 
-	if {[catch {osd info vdp_reg_viewer -rgba} errmsg]} {
-		return ""
-	}
+	if {![osd exists vdp_reg_viewer]} return
 
 	# note: this method of VDP detection will fail on e.g. MSX1 machines with V9938
 	set vdpreg [expr ([debug read slotted\ memory 0x2d]) ? 47 : 8]
@@ -152,8 +148,7 @@ proc update_vdp_reg_viewer {} {
 	}
 
 	after frame [namespace code update_vdp_reg_viewer]
-		return ""
-	}
+}
 
 namespace export toggle_show_palette
 namespace export toggle_vdp_reg_viewer

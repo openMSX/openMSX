@@ -9,7 +9,7 @@ can be used for example to advance N frames. We will fix the absolute
 value after openMSX 0.8.1 is released. }
 
 proc toggle_frame_counter {} {
-	if {![catch {osd info framecount}]} {
+	if [osd exists framecount] {
 		osd destroy framecount
 		return ""
 	}
@@ -29,7 +29,7 @@ proc framecount_current {} {
 }
 
 proc framecount_update {} {
-	if {[catch {osd info framecount}]} return
+	if {![osd exists framecount]} return
 	osd configure framecount.text -text "Frame: [framecount_current]"
 	after frame [namespace code framecount_update]
 }
@@ -139,7 +139,7 @@ proc enable_tas_mode {} {
 
 # -- Show Cursor Keys / 'fire buttons and others'
 proc show_keys {} {
-	if {[catch {osd info cursors}]} return
+	if {![osd exists cursors]} return
 
 	show_key_press right [is_key_pressed 8 7]
 	show_key_press down  [is_key_pressed 8 6]
@@ -175,7 +175,9 @@ proc create_key {name x y} {
 }
 
 proc toggle_cursors {} {
-	if {[catch {osd info cursors}]} {
+	if [osd exists cursors] {
+		osd destroy cursors
+	} else {
 		osd create rectangle cursors -x 64 -y 215 -h 26 -w 204 -scaled true -rgba 0x00000000
 		#cursor keys
 		create_key up 20 2
@@ -193,8 +195,6 @@ proc toggle_cursors {} {
 		create_key shift 186 8
 
 		show_keys
-	} else {
-		osd destroy cursors
 	}
 }
 

@@ -33,6 +33,7 @@ private:
 	void create   (const vector<TclObject*>& tokens, TclObject& result);
 	void destroy  (const vector<TclObject*>& tokens, TclObject& result);
 	void info     (const vector<TclObject*>& tokens, TclObject& result);
+	void exists   (const vector<TclObject*>& tokens, TclObject& result);
 	void configure(const vector<TclObject*>& tokens, TclObject& result);
 	auto_ptr<OSDWidget> create(const string& type, const string& name) const;
 	void configure(OSDWidget& widget, const vector<TclObject*>& tokens,
@@ -95,13 +96,15 @@ void OSDCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 		gui.refresh();
 	} else if (subCommand == "info") {
 		info(tokens, result);
+	} else if (subCommand == "exists") {
+		exists(tokens, result);
 	} else if (subCommand == "configure") {
 		configure(tokens, result);
 		gui.refresh();
 	} else {
 		throw CommandException(
 			"Invalid subcommand '" + subCommand + "', expected "
-			"'create', 'destroy', 'info' or 'configure'.");
+			"'create', 'destroy', 'info', 'exists' or 'configure'.");
 	}
 }
 
@@ -196,6 +199,15 @@ void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
 	}
 }
 
+void OSDCommand::exists(const vector<TclObject*>& tokens, TclObject& result)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2]->getString());
+	result.setBoolean(widget != NULL);
+}
+
 void OSDCommand::configure(const vector<TclObject*>& tokens, TclObject& /*result*/)
 {
 	if (tokens.size() < 3) {
@@ -257,6 +269,12 @@ string OSDCommand::help(const vector<string>& tokens) const
 			  "When both path and property name arguments are "
 			  "given, this command returns the current value of "
 			  "that property.";
+		} else if (tokens[1] == "exists") {
+			return
+			  "osd exists <widget-path>\n"
+			  "\n"
+			  "Test whether there exists a widget with given name. "
+			  "This subcommand is meant to be used in scripts.";
 		} else if (tokens[1] == "configure") {
 			return
 			  "osd configure <widget-path> [<property-name> <property-value>]...\n"
@@ -271,6 +289,7 @@ string OSDCommand::help(const vector<string>& tokens) const
 		  "  osd create <type> <widget-path> [<property-name> <property-value>]...\n"
 		  "  osd destroy <widget-path>\n"
 		  "  osd info [<widget-path> [<property-name>]]\n"
+		  "  osd exists <widget-path>\n"
 		  "  osd configure <widget-path> [<property-name> <property-value>]...\n"
 		  "Use 'help osd <subcommand>' to see more info on a specific subcommand";
 	}
@@ -283,6 +302,7 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 		cmds.insert("create");
 		cmds.insert("destroy");
 		cmds.insert("info");
+		cmds.insert("exists");
 		cmds.insert("configure");
 		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {

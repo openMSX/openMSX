@@ -10,10 +10,10 @@ namespace eval osd_nemesis {
 	variable after_mouse_button_id
 
 	proc toggle_nemesis_1_shield {} {
-		if {[catch {osd info "nemesis1"}]} {
-			enable_nemesis_1_shield
-		} else {
+		if [osd exists "nemesis1"] {
 			disable_nemesis_1_shield
+		} else {
+			enable_nemesis_1_shield
 		}
 		return ""
 	}

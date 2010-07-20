@@ -282,17 +282,17 @@ proc set_scc_wave {channel form} {
 #SCC editor/copier
 proc toggle_scc_editor {} {
 
-	if {[catch {osd info scc_viewer -rgba} errmsg]} {toggle_scc_viewer}
+	if {![osd exists scc_viewer]} { toggle_scc_viewer }
 
-	#If exists destory/reset and exit
-	if {![catch {osd info scc -rgba} errmsg]} {
-			osd destroy scc
-			osd destroy selected
-			#Let's assume the user doesn't have the SCC Viewer active
-			toggle_scc_viewer
-			unbind_default "mouse button1 down"
-			return ""
-		}
+	# If exists destory/reset and exit
+	if [osd exists scc] {
+		osd destroy scc
+		osd destroy selected
+		# Let's assume the user doesn't have the SCC Viewer active
+		toggle_scc_viewer
+		unbind_default "mouse button1 down"
+		return ""
+	}
 
 	variable select_device
 	variable scc_devices

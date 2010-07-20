@@ -30,10 +30,10 @@ variable board_hborder 4
 variable board_vborder 4
 
 proc toggle_osd_keyboard {} {
-	if {[catch {osd info kb}]} {
-		enable_osd_keyboard
-	} else {
+	if [osd exists kb] {
 		disable_osd_keyboard
+	} else {
+		enable_osd_keyboard
 	}
 }
 

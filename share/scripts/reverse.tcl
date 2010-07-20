@@ -106,10 +106,10 @@ specific point in time. If the current position is at the end of the history\
 fade out. You can make it reappear by moving the mouse over it.
 }
 	proc toggle_reversebar {} {
-		if {[catch {osd info reverse}]} {
-			enable_reversebar
-		} else {
+		if [osd exists reverse] {
 			disable_reversebar
+		} else {
+			enable_reversebar
 		}
 		return ""
 	}
@@ -117,7 +117,7 @@ fade out. You can make it reappear by moving the mouse over it.
 	proc enable_reversebar {{visible true}} {
 		reverse::auto_enable
 
-		if {![catch {osd info reverse}]} {
+		if [osd exists reverse] {
 			# osd already enabled
 			return
 		}
@@ -229,7 +229,7 @@ fade out. You can make it reappear by moving the mouse over it.
 		set count 0
 		foreach snapshot $snapshots {
 			set name reverse.tick$count
-			catch {
+			if {![osd exists $name]} {
 				# create new if it doesn't exist yet
 				osd create rectangle $name -w 0.5 -relh 1 -rgba 0x444444ff -z 2
 			}
