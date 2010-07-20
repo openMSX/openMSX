@@ -28,8 +28,8 @@ variable volume_expr
 variable nof_channels
 variable bar_length
 variable soundchips
-variable machine_switch_trigger_id
-variable frame_trigger_id
+variable machine_switch_trigger_id 0
+variable frame_trigger_id 0
 
 proc vu_meters_init {} {
 
@@ -164,8 +164,8 @@ proc toggle_vu_meters {} {
 	variable nof_channels
 
 	if {$vu_meters_active} {
-		catch {after cancel $machine_switch_trigger_id}
-		catch {after cancel $frame_trigger_id}
+		after cancel $machine_switch_trigger_id
+		after cancel $frame_trigger_id
 		set vu_meters_active false
 		osd destroy vu_meters
 		unset soundchips bar_length volume_cache volume_expr nof_channels

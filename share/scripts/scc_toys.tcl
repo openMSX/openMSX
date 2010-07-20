@@ -19,8 +19,8 @@ variable num_samples 32
 variable num_channels 5
 variable vertical_downscale_factor 4
 variable channel_height [expr 256 / $vertical_downscale_factor]
-variable machine_switch_trigger_id
-variable frame_trigger_id
+variable machine_switch_trigger_id 0
+variable frame_trigger_id 0
 variable volume_address [expr $num_samples * $num_channels + 2 * $num_channels]
 
 #scc editor / PSG2SCC
@@ -165,8 +165,8 @@ proc toggle_scc_viewer {} {
 	variable frame_trigger_id
 
 	if {$scc_viewer_active} {
-		catch {after cancel $machine_switch_trigger_id}
-		catch {after cancel $frame_trigger_id}
+		after cancel $machine_switch_trigger_id
+		after cancel $frame_trigger_id
 		set scc_viewer_active false
 		osd destroy scc_viewer
 	} else {
@@ -282,8 +282,8 @@ proc set_scc_wave {channel form} {
 #SCC editor/copier
 proc toggle_scc_editor {} {
 
-	if {[catch {osd info scc_viewer -rgba} errmsg]} {toggle_scc_viewer}	
-	
+	if {[catch {osd info scc_viewer -rgba} errmsg]} {toggle_scc_viewer}
+
 	#If exists destory/reset and exit
 	if {![catch {osd info scc -rgba} errmsg]} {
 			osd destroy scc
@@ -299,7 +299,7 @@ proc toggle_scc_editor {} {
 
 	set select_device [lindex scc_devices 0]
 
-	bind_default "mouse button1 down"  	{scc_toys::checkclick}
+	bind_default "mouse button1 down" {scc_toys::checkclick}
 
 	osd_widgets::box scc -x 200 -y 100 -h 256 -w 256 -rgba 0xffffffff -fill "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 

@@ -19,7 +19,7 @@ When switching trainers, the currently active trainer will be deactivated.
 variable trainers
 variable active_trainer ""
 variable items_active
-variable after_id
+variable after_id 0
 
 set_tabcompletion_proc trainer [namespace code tab_trainer] false
 proc tab_trainer {args} {
@@ -143,9 +143,7 @@ proc deactivate {} {
 	variable after_id
 	variable active_trainer
 
-	if ![info exists after_id] return ;# no trainer active
-	catch { after cancel $after_id }
-	unset after_id
+	after cancel $after_id
 	set active_trainer ""
 }
 proc deactivate_after { event } {

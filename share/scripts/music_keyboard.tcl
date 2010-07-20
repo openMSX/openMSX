@@ -31,8 +31,8 @@ variable note_key_color
 variable num_notes
 variable nof_channels
 variable step_white
-variable machine_switch_trigger_id
-variable frame_trigger_id
+variable machine_switch_trigger_id 0
+variable frame_trigger_id 0
 
 proc freq_to_note { freq } {
 	variable loga
@@ -179,8 +179,8 @@ proc toggle_music_keyboard {} {
 	variable frequency_expr
 
 	if {$keyboard_active} {
-		catch {after cancel $machine_switch_trigger_id}
-		catch {after cancel $frame_trigger_id}
+		after cancel $machine_switch_trigger_id
+		after cancel $frame_trigger_id
 		set keyboard_active false
 		osd destroy music_keyboard
 		unset volume_expr frequency_expr

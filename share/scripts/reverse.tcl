@@ -90,8 +90,8 @@ snapshot in the future (if possible).
 }
 
 namespace eval reverse_widgets {
-	variable update_after_id
-	variable mouse_after_id
+	variable update_after_id 0
+	variable mouse_after_id 0
 	variable overlay_counter
 	variable prev_x 0
 	variable prev_y 0
@@ -169,8 +169,8 @@ fade out. You can make it reappear by moving the mouse over it.
 	proc disable_reversebar {} {
 		variable update_after_id
 		variable mouse_after_id
-		catch { after cancel $update_after_id }
-		catch { after cancel $mouse_after_id  }
+		after cancel $update_after_id
+		after cancel $mouse_after_id
 		catch { osd destroy reverse }
 	}
 
