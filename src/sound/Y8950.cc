@@ -1074,7 +1074,6 @@ bool Y8950Impl::updateBuffer(unsigned length, int* buffer,
 
 void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 {
-	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
 		 0,  2,  4,  1,  3,  5, -1, -1,
 		 6,  8, 10,  7,  9, 11, -1, -1,
@@ -1089,7 +1088,6 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 		updateStream(time);
 	//}
 
-	//std::cout << "write: " << (int)rg << " " << (int)data << std::endl;
 	switch (rg & 0xe0) {
 	case 0x00: {
 		switch (rg) {
@@ -1331,7 +1329,6 @@ byte Y8950Impl::readReg(byte rg, EmuTime::param time)
 		default:
 			result = peekReg(rg, time);
 	}
-	//std::cout << "read: " << (int)rg << " " << (int)result << std::endl;
 	return result;
 }
 

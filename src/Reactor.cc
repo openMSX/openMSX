@@ -919,10 +919,10 @@ string RestoreMachineCommand::execute(const vector<string>& tokens)
 	case 1: { // add an extra scope to avoid case label jump problems
 		// load last saved entry
 		struct stat st;
-		string dirName = FileOperations::getUserOpenMSXDir() + "/" + "savestates" + "/";
+		string dirName = FileOperations::getUserOpenMSXDir() + "/savestates/";
 		string lastEntry = "";
 		time_t lastTime = 0;
-		ReadDir dir(dirName.c_str());
+		ReadDir dir(dirName);
 		while (dirent* d = dir.getEntry()) {
 			int res = stat((dirName + string(d->d_name)).c_str(), &st);
 			if ((res == 0) && S_ISREG(st.st_mode)) {

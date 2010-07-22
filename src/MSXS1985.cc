@@ -38,7 +38,6 @@ byte MSXS1985::readSwitchedIO(word port, EmuTime::param time)
 		pattern = (pattern << 1) | (pattern >> 7);
 		break;
 	}
-	//PRT_DEBUG("S1985: read " << (int) port << " " << (int)result);
 	return result;
 }
 
@@ -63,7 +62,6 @@ byte MSXS1985::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 
 void MSXS1985::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 {
-	//PRT_DEBUG("S1985: write " << (int) port << " " << (int)value);
 	switch (port & 0x0F) {
 	case 1:
 		address = value & 0x0F;

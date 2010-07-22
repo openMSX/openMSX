@@ -222,10 +222,6 @@ void V9990PixelRenderer::subdivide(int fromX, int fromY, int toX, int toY,
 void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
                               DrawType type)
 {
-	//PRT_DEBUG("V9990PixelRenderer::draw(" << std::dec <<
-	//          fromX << "," << fromY << "," << toX << "," << toY << "," <<
-	//          ((type == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
-
 	if (type == DRAW_BORDER) {
 		rasterizer->drawBorder(fromX, fromY, toX, toY);
 

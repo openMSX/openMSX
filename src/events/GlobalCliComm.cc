@@ -3,6 +3,7 @@
 #include "GlobalCliComm.hh"
 #include "XMLElement.hh"
 #include "CliConnection.hh"
+#include "StringOp.hh"
 #include <iostream>
 #include <cassert>
 
@@ -57,9 +58,9 @@ void GlobalCliComm::log(LogLevel level, const string& message)
 
 	ScopedLock lock(sem);
 	if (!connections.empty()) {
-		string str = string("<log level=\"") + levelStr[level] + "\">" +
-		             XMLElement::XMLEscape(message) +
-		             "</log>\n";
+		string str = StringOp::Builder() <<
+			"<log level=\"" << levelStr[level] << "\">" <<
+			XMLElement::XMLEscape(message) << "</log>\n";
 		for (Connections::const_iterator it = connections.begin();
 		     it != connections.end(); ++it) {
 			(*it)->output(str);
@@ -91,14 +92,16 @@ void GlobalCliComm::updateHelper(UpdateType type, const string& machine,
 {
 	ScopedLock lock(sem);
 	if (!connections.empty()) {
-		string str = string("<update type=\"") + updateStr[type] + '\"';
+		StringOp::Builder tmp;
+		tmp << "<update type=\"" << updateStr[type] << '\"';
 		if (!machine.empty()) {
-			str += " machine=\"" + machine + '\"';
+			tmp << " machine=\"" << machine << '\"';
 		}
 		if (!name.empty()) {
-			str += " name=\"" + XMLElement::XMLEscape(name) + '\"';
+			tmp << " name=\"" << XMLElement::XMLEscape(name) << '\"';
 		}
-		str += '>' + XMLElement::XMLEscape(value) + "</update>\n";
+		tmp << '>' << XMLElement::XMLEscape(value) << "</update>\n";
+		string str = tmp;
 		for (Connections::const_iterator it = connections.begin();
 		     it != connections.end(); ++it) {
 			CliConnection& connection = **it;

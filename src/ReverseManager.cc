@@ -255,7 +255,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 		res << it->first << ' '
 		    << (chunk.time - EmuTime::zero).toDouble() << ' '
 		    << ((chunk.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
-		    << " (" << chunk.savestate->getLength() << ")"
+		    << " (" << chunk.savestate->getLength() << ')'
 		    << " (next event index: " << chunk.eventCount << ")\n";
 		totalSize += chunk.savestate->getLength();
 	}

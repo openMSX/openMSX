@@ -117,7 +117,6 @@ byte MSXMidi::readIO(word port, EmuTime::param time)
 		default:
 			UNREACHABLE; return 0;
 	}
-	//PRT_DEBUG("MSX-Midi read " << (int)port << " " << (int)result);
 	return result;
 }
 
@@ -148,7 +147,6 @@ byte MSXMidi::peekIO(word port, EmuTime::param time) const
 
 void MSXMidi::writeIO(word port, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("MSX-Midi write " << (int)port << " " << (int)value);
 	port &= 0x07;
 	switch (port & 0x07) {
 		case 0: // UART data register

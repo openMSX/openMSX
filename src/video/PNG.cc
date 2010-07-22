@@ -188,7 +188,7 @@ SDLSurfacePtr load(const std::string& filename)
 		if (!surface.get()) {
 			throw MSXException(StringOp::Builder() <<
 				"Failed to allocate a "
-				<< width << "x" << height << "x" << bpp << " surface: "
+				<< width << 'x' << height << 'x' << bpp << " surface: "
 				<< SDL_GetError());
 		}
 

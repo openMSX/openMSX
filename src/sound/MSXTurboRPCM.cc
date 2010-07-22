@@ -70,13 +70,11 @@ byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 	default: // unreachable, avoid warning
 		UNREACHABLE; result = 0;
 	}
-	//PRT_DEBUG("PCM: read " << hex << (int)port << " " << (int)result << dec);
 	return result;
 }
 
 void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("PCM: write " << hex << (int)port << " " << (int)value << dec);
 	switch (port & 0x01) {
 	case 0:
 		// While playing: sample value

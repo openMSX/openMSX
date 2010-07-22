@@ -1279,8 +1279,6 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 
 void YM2413::writeReg(byte regis, byte data)
 {
-	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
-
 	assert(regis < 0x40);
 	reg[regis] = data;
 

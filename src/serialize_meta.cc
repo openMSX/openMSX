@@ -118,7 +118,7 @@ template class PolymorphicLoaderRegistry<XmlInputArchive>;
 void polyInitError(const char* expected, const char* actual)
 {
 	throw MSXException(StringOp::Builder() <<
-		"Expected type: " << expected << " but got: " << actual << ".");
+		"Expected type: " << expected << " but got: " << actual << '.');
 }
 
 template<typename Archive>

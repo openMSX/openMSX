@@ -162,7 +162,7 @@ OSDWidget* OSDWidget::findSubWidget(const string& name)
 		return this;
 	}
 	string first, last;
-	StringOp::splitOnFirst(name, ".", first, last);
+	StringOp::splitOnFirst(name, '.', first, last);
 	SubWidgetsMap::const_iterator it = subWidgetsMap.find(first);
 	return it == subWidgetsMap.end() ? NULL : it->second->findSubWidget(last);
 }
@@ -434,7 +434,8 @@ void OSDWidget::getBoundingBox(const OutputRectangle& output,
 
 void OSDWidget::listWidgetNames(const string& parentName, set<string>& result) const
 {
-	string pname = parentName + (parentName.empty() ? "" : ".");
+	string pname = parentName;
+	if (!pname.empty()) pname += '.';
 	for (SubWidgets::const_iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
 		string name = pname + (*it)->getName();

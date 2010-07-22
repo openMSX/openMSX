@@ -2,6 +2,7 @@
 
 #include "JoyTap.hh"
 #include "JoystickPort.hh"
+#include "StringOp.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -13,7 +14,7 @@ JoyTap::JoyTap(PluggingController& pluggingController,
 	for (int i = 0; i < 4; ++i) {
 		slaves[i].reset(new JoystickPort(
 			pluggingController,
-			getName() + "_port_" + char('1' + i)));
+			StringOp::Builder() << name << "_port_" << char('1' + i)));
 	}
 }
 
@@ -61,9 +62,10 @@ void JoyTap::write(byte value, EmuTime::param time)
 template<typename Archive>
 void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 {
+	char tag[6] = { 'p', 'o', 'r', 't', 'X', 0 };
 	for (int i = 0; i < 4; ++i) {
-		std::string tag = std::string("port") + char('0' + i);
-		ar.serialize(tag.c_str(), *slaves[i]);
+		tag[4] = char('0' + i);
+		ar.serialize(tag, *slaves[i]);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(JoyTap);

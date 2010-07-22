@@ -11,6 +11,7 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
+#include "StringOp.hh"
 #include "build-info.hh"
 #include "openmsx.hh"
 
@@ -88,8 +89,8 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 {
 	if (!SDL_WasInit(SDL_INIT_VIDEO) &&
 	    SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
-		throw InitException(
-		   std::string("SDL video init failed: ") + SDL_GetError());
+		throw InitException(StringOp::Builder() <<
+			"SDL video init failed: " << SDL_GetError());
 	}
 
 	// set icon

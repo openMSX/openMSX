@@ -540,9 +540,10 @@ void Counter::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void I8254::serialize(Archive& ar, unsigned /*version*/)
 {
+	char tag[9] = { 'c', 'o', 'u', 'n', 't', 'e', 'r', 'X', 0 };
 	for (int i = 0; i < 3; ++i) {
-		std::string tag = std::string("counter") + char('0' + i);
-		ar.serialize(tag.c_str(), *counter[i]);
+		tag[7] = char('0' + i);
+		ar.serialize(tag, *counter[i]);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(I8254);

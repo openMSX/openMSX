@@ -110,6 +110,7 @@ SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfi
 		byte* const buf, unsigned mode_)
 	: motherBoard(motherBoard_)
 	, buffer(buf)
+	, name("lsX")
 	, mode(mode_)
 	, scsiId(targetconfig.getAttributeAsInt("id"))
 {
@@ -129,7 +130,7 @@ SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfi
 			throw MSXException("Too many LSs");
 		}
 	}
-	name = string("ls") + char('a' + id);
+	name[2] = char('a' + id);
 	lsInUse[id] = true;
 	lsxCommand.reset(new LSXCommand(motherBoard.getCommandController(),
 	                                motherBoard.getStateChangeDistributor(),
@@ -427,7 +428,7 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * SECTOR_SIZE;
 
-	PRT_DEBUG("ls120#" << int(scsiId) << " read sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("ls120#" << int(scsiId) << " read sector: " << currentSector << ' ' << numSectors);
 	try {
 		// TODO: somehow map this to SectorAccessibleDisk::readSector?
 		file->seek(SECTOR_SIZE * currentSector);
@@ -463,7 +464,7 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
-	PRT_DEBUG("ls120#" << int(scsiId) << " write sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("ls120#" << int(scsiId) << " write sector: " << currentSector << ' ' << numSectors);
 	// TODO: somehow map this to SectorAccessibleDisk::writeSector?
 	try {
 		file->seek(SECTOR_SIZE * currentSector);
@@ -596,7 +597,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return counter;
 		}
 		case SCSI::OP_READ6:
-			PRT_DEBUG("Read6: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Read6: " << currentSector << ' ' << currentLength);
 			if (currentLength == 0) {
 				currentLength = SECTOR_SIZE >> 1;
 			}
@@ -611,7 +612,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return 0;
 
 		case SCSI::OP_WRITE6:
-			PRT_DEBUG("Write6: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Write6: " << currentSector << ' ' << currentLength);
 			if (currentLength == 0) {
 				currentLength = SECTOR_SIZE >> 1;
 			}
@@ -666,7 +667,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 
 		switch (cdb[0]) {
 		case SCSI::OP_READ10:
-			PRT_DEBUG("Read10: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Read10: " << currentSector << ' ' << currentLength);
 
 			if (checkAddress()) {
 				unsigned counter = readSector(blocks);
@@ -678,7 +679,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return 0;
 
 		case SCSI::OP_WRITE10:
-			PRT_DEBUG("Write10: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Write10: " << currentSector << ' ' << currentLength);
 
 			if (checkAddress() && !checkReadOnly()) {
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);

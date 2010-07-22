@@ -31,7 +31,7 @@ void Pluggable::plug(Connector& newConnector, EmuTime::param time)
 
 	if (connector) {
 		throw PlugException(getName() + " already plugged in " +
-		                    connector->getName() + ".");
+		                    connector->getName() + '.');
 	}
 	plugHelper(newConnector, time);
 	setConnector(&newConnector);

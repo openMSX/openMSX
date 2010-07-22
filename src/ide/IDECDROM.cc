@@ -41,6 +41,7 @@ typedef std::bitset<MAX_CD> CDInUse;
 
 IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/)
 	: AbstractIDEDevice(motherBoard_)
+	, name("cdX")
 	, motherBoard(motherBoard_)
 {
 	MSXMotherBoard::SharedStuff& info =
@@ -59,7 +60,7 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/)
 			throw MSXException("Too many CDs");
 		}
 	}
-	name = string("cd") + char('a' + id);
+	name[2] = char('a' + id);
 	cdInUse[id] = true;
 	cdxCommand.reset(new CDXCommand(motherBoard.getCommandController(),
 	                                motherBoard.getStateChangeDistributor(),

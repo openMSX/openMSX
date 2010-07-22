@@ -25,6 +25,7 @@ typedef std::bitset<MAX_HD> HDInUse;
 
 HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	: motherBoard(motherBoard_)
+	, name("hdX")
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("hdInUse");
@@ -43,7 +44,7 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 		}
 	}
 	// for exception safety, set hdInUse only at the end
-	name = string("hd") + char('a' + id);
+	name[2] = char('a' + id);
 
 	// For the initial hd image, savestate should only try exactly this
 	// (resolved) filename. For user-specified hd images (commandline or

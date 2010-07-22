@@ -78,16 +78,23 @@ namespace StringOp
 	std::string toLower(const std::string& str);
 
 	bool startsWith(const std::string& total, const std::string& part);
+	bool startsWith(const std::string& total, char part);
 	bool endsWith  (const std::string& total, const std::string& part);
+	bool endsWith  (const std::string& total, char part);
 
-	void trimRight(std::string& str, const std::string& chars);
-	void trimLeft (std::string& str, const std::string& chars);
+	void trimRight(std::string& str, const char* chars);
+	void trimRight(std::string& str, char chars);
+	void trimLeft (std::string& str, const char* chars);
 
-	void splitOnFirst(const std::string& str, const std::string& chars,
+	void splitOnFirst(const std::string& str, const char* chars,
 	                  std::string& first, std::string& last);
-	void splitOnLast (const std::string& str, const std::string& chars,
+	void splitOnFirst(const std::string& str, char chars,
 	                  std::string& first, std::string& last);
-	void split(const std::string& str, const std::string& chars,
+	void splitOnLast (const std::string& str, const char* chars,
+	                  std::string& first, std::string& last);
+	void splitOnLast (const std::string& str, char chars,
+	                  std::string& first, std::string& last);
+	void split(const std::string& str, const char* chars,
 	           std::vector<std::string>& result);
 	void parseRange(const std::string& str, std::set<unsigned>& result,
 			unsigned min, unsigned max);

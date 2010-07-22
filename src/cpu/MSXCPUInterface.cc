@@ -457,7 +457,7 @@ void MSXCPUInterface::registerSlot(
 	MSXDevice& device, int ps, int ss, int base, int size)
 {
 	PRT_DEBUG(device.getName() << " registers at " <<
-	          std::dec << ps << " " << ss << " 0x" <<
+	          std::dec << ps << ' ' << ss << " 0x" <<
 	          std::hex << base << "-0x" << (base + size - 1));
 	if (!isExpanded(ps) && (ss != 0)) {
 		throw MSXException(StringOp::Builder() <<

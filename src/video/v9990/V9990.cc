@@ -293,11 +293,6 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 void V9990::writeIO(word port, byte val, EmuTime::param time)
 {
 	port &= 0x0F;
-
-	//PRT_DEBUG("[" << time << "] "
-	//	  "V9990::writeIO - port=0x" << std::hex << int(port) <<
-	//	                   " val=0x" << std::hex << int(val));
-
 	switch (port) {
 		case VRAM_DATA: {
 			// write VRAM
@@ -429,8 +424,6 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 
 void V9990::executeUntil(EmuTime::param time, int userData)
 {
-	//PRT_DEBUG("[" << time << "] "
-	//          "V9990::executeUntil - data=0x" << std::hex << userData);
 	switch (userData)  {
 	case V9990_VSYNC:
 		// Transition from one frame to the next
@@ -570,10 +563,6 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 	} else {
 		result = 0xFF;
 	}
-
-	//PRT_DEBUG("[" << time << "] "
-	//	  "V9990::readRegister - reg=0x" << std::hex << (int)reg <<
-	//	                       " val=0x" << std::hex << (int)result);
 	return result;
 }
 
@@ -595,10 +584,6 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 		0xFF, 0xFF, 0xDF, 0x07, 0xFF, 0xFF, 0xC1, 0x07,
 		0x3F, 0xCF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 	};
-
-	//PRT_DEBUG("[" << time << "] "
-	//	  "V9990::writeRegister - reg=0x" << std::hex << int(reg) <<
-	//	                        " val=0x" << std::hex << int(val));
 
 	assert(reg < 64);
 	if (!(regAccess[reg] & ALLOW_WRITE)) {

@@ -171,10 +171,10 @@ void MSXDevice::registerSlots()
 		}
 		if ((base & CacheLine::LOW) || (size & CacheLine::LOW)) {
 			int tmp = CacheLine::SIZE; // solves link error
-			throw MSXException(
-				"Invalid memory specification for device " +
-				getName() + " should be aligned at " +
-				StringOp::toHexString(tmp, 4) + ".");
+			throw MSXException(StringOp::Builder() <<
+				"Invalid memory specification for device " <<
+				getName() << " should be aligned at " <<
+				StringOp::toHexString(tmp, 4) << '.');
 		}
 		tmpMemRegions.push_back(std::make_pair(base, size));
 	}

@@ -71,7 +71,6 @@ byte MSXAudio::readIO(word port, EmuTime::param time)
 		result = (port & 1) ? y8950->readReg(registerLatch, time)
 		                    : y8950->readStatus();
 	}
-	//std::cout << "read:  " << (int)(port& 0xff) << " " << (int)result << std::endl;
 	return result;
 }
 
@@ -88,7 +87,6 @@ byte MSXAudio::peekIO(word port, EmuTime::param time) const
 
 void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
 {
-	//std::cout << "write: " << (int)(port& 0xff) << " " << (int)value << std::endl;
 	if ((port & 0xFF) == 0x0A) {
 		dacValue = value;
 		if (dacEnabled) {

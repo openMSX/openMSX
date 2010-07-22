@@ -59,30 +59,30 @@ unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
 		switch (s[j]) {
 		case 'B':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += "#" + StringOp::toHexString(
+			dest += '#' + StringOp::toHexString(
 				static_cast<unsigned short>(buf[i]), 2);
 			i += 1;
 			break;
 		case 'R':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += "#" + StringOp::toHexString(
+			dest += '#' + StringOp::toHexString(
 				(pc + 2 + static_cast<signed char>(buf[i])) & 0xFFFF, 4);
 			i += 1;
 			break;
 		case 'W':
 			buf[i + 0] = interf.peekMem(pc + i + 0, time);
 			buf[i + 1] = interf.peekMem(pc + i + 1, time);
-			dest += "#" + StringOp::toHexString(buf[i] + buf[i + 1] * 256, 4);
+			dest += '#' + StringOp::toHexString(buf[i] + buf[i + 1] * 256, 4);
 			i += 2;
 			break;
 		case 'X':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += '(' + std::string(r) + sign(buf[i]) + "#"
+			dest += '(' + std::string(r) + sign(buf[i]) + '#'
 			     + StringOp::toHexString(abs(buf[i]), 2) + ')';
 			i += 1;
 			break;
 		case 'Y':
-			dest += std::string(r) + sign(buf[2]) + "#" + StringOp::toHexString(abs(buf[2]), 2);
+			dest += std::string(r) + sign(buf[2]) + '#' + StringOp::toHexString(abs(buf[2]), 2);
 			break;
 		case 'I':
 			dest += r;
@@ -98,7 +98,7 @@ unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
 		case '#':
 			dest = "db     #" + StringOp::toHexString(buf[0], 2) +
 			         ",#CB,#" + StringOp::toHexString(buf[2], 2) +
-			         " ";
+			         ' ';
 			return 2;
 		case ' ': {
 			dest.resize(7, ' ');

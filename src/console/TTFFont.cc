@@ -3,6 +3,7 @@
 #include "TTFFont.hh"
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
+#include "StringOp.hh"
 #include "shared_ptr.hh"
 #include "unreachable.hh"
 #include <SDL_ttf.h>
@@ -64,8 +65,8 @@ private:
 SDLTTF::SDLTTF()
 {
 	if (TTF_Init() < 0) {
-		throw FatalError(string("Couldn't initialize SDL_ttf: ") +
-		                 TTF_GetError());
+		throw FatalError(StringOp::Builder() <<
+			"Couldn't initialize SDL_ttf: " << TTF_GetError());
 	}
 }
 

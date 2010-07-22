@@ -94,7 +94,6 @@ byte MSXSCCPlusCart::readMem(word addr, EmuTime::param time)
 	} else {
 		result = MSXSCCPlusCart::peekMem(addr, time);
 	}
-	//PRT_DEBUG("SCC+ read "<< hex << (int)addr << " " << (int)result << dec);
 	return result;
 }
 
@@ -134,8 +133,6 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 
 void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("SCC+ write "<< hex << address << " " << (int)value << dec);
-
 	if ((address < 0x4000) || (0xC000 <= address)) {
 		// outside memory range
 		return;

@@ -56,12 +56,12 @@ std::string toString(time_t time)
 	tm = localtime(&time);
 	std::ostringstream sstr;
 	sstr << std::setfill('0')
-	     << days[tm->tm_wday] << " "
-	     << months[tm->tm_mon] << " "
-	     << std::setw(2) << tm->tm_mday << " "
-	     << std::setw(2) << tm->tm_hour << ":"
-	     << std::setw(2) << tm->tm_min << ":"
-	     << std::setw(2) << tm->tm_sec << " "
+	     << days  [tm->tm_wday] << ' '
+	     << months[tm->tm_mon]  << ' '
+	     << std::setw(2) << tm->tm_mday << ' '
+	     << std::setw(2) << tm->tm_hour << ':'
+	     << std::setw(2) << tm->tm_min  << ':'
+	     << std::setw(2) << tm->tm_sec  << ' '
 	     << std::setw(4) << (tm->tm_year + 1900);
 	return sstr.str();
 }

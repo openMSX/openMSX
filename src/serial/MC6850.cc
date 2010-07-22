@@ -33,7 +33,6 @@ byte MC6850::peekIO(word port, EmuTime::param /*time*/) const
 	default: // unreachable, avoid warning
 		UNREACHABLE; result = 0;
 	}
-	//PRT_DEBUG("Audio: read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
 }
 

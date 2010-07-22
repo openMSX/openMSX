@@ -150,6 +150,10 @@ bool startsWith(const string& total, const string& part)
 	if (total.size() < part.size()) return false;
 	return equal(part.begin(), part.end(), total.begin());
 }
+bool startsWith(const string& total, char part)
+{
+	return !total.empty() && (total[0] == part);
+}
 
 bool endsWith(const string& total, const string& part)
 {
@@ -157,8 +161,12 @@ bool endsWith(const string& total, const string& part)
 	if (offset < 0) return false;
 	return equal(part.begin(), part.end(), total.begin() + offset);
 }
+bool endsWith(const string& total, char part)
+{
+	return !total.empty() && (*total.rbegin() == part);
+}
 
-void trimRight(string& str, const string& chars)
+void trimRight(string& str, const char* chars)
 {
 	string::size_type pos = str.find_last_not_of(chars);
 	if (pos != string::npos) {
@@ -167,13 +175,32 @@ void trimRight(string& str, const string& chars)
 		str.clear();
 	}
 }
-
-void trimLeft (string& str, const string& chars)
+void trimRight(string& str, char chars)
+{
+	string::size_type pos = str.find_last_not_of(chars);
+	if (pos != string::npos) {
+		str.erase(pos + 1);
+	} else {
+		str.clear();
+	}
+}
+void trimLeft (string& str, const char* chars)
 {
 	str.erase(0, str.find_first_not_of(chars));
 }
 
-void splitOnFirst(const string& str, const string& chars, string& first, string& last)
+void splitOnFirst(const string& str, const char* chars, string& first, string& last)
+{
+	std::string::size_type pos = str.find_first_of(chars);
+	if (pos == std::string::npos) {
+		first = str;
+		last.clear();
+	} else {
+		first = str.substr(0, pos);
+		last  = str.substr(pos + 1);
+	}
+}
+void splitOnFirst(const string& str, char chars, string& first, string& last)
 {
 	std::string::size_type pos = str.find_first_of(chars);
 	if (pos == std::string::npos) {
@@ -185,7 +212,18 @@ void splitOnFirst(const string& str, const string& chars, string& first, string&
 	}
 }
 
-void splitOnLast(const string& str, const string& chars, string& first, string& last)
+void splitOnLast(const string& str, const char* chars, string& first, string& last)
+{
+	std::string::size_type pos = str.find_last_of(chars);
+	if (pos == std::string::npos) {
+		first.clear();
+		last = str;
+	} else {
+		first = str.substr(0, pos);
+		last  = str.substr(pos + 1);
+	}
+}
+void splitOnLast(const string& str, char chars, string& first, string& last)
 {
 	std::string::size_type pos = str.find_last_of(chars);
 	if (pos == std::string::npos) {
@@ -197,7 +235,7 @@ void splitOnLast(const string& str, const string& chars, string& first, string& 
 	}
 }
 
-void split(const string& str, const string& chars, vector<string>& result)
+void split(const string& str, const char* chars, vector<string>& result)
 {
 	// can be implemented more efficiently if needed
 	string tmp = str;

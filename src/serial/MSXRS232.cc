@@ -178,7 +178,6 @@ byte MSXRS232::readIO(word port, EmuTime::param time)
 		default:
 			UNREACHABLE; return 0;
 	}
-	//PRT_DEBUG("MSXRS232 read " << (int)port << " " << (int)result);
 	return result;
 }
 
@@ -211,7 +210,6 @@ byte MSXRS232::peekIO(word port, EmuTime::param time) const
 
 void MSXRS232::writeIO(word port, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("MSXRS232 write " << (int)port << " " << (int)value);
 	port &= 0x07;
 	switch (port & 0x07) {
 		case 0: // UART data register

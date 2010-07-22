@@ -90,8 +90,6 @@ Scheduler::~Scheduler()
 
 void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userData)
 {
-	//PRT_DEBUG("Sched: registering " << device.schedName() <<
-	//          " " << userData << " for emulation at " << time);
 	assert(Thread::isMainThread());
 	assert(time >= scheduleTime);
 
@@ -178,8 +176,6 @@ void Scheduler::scheduleHelper(EmuTime::param limit)
 		Schedulable* device = sp.getDevice();
 		assert(device);
 		int userData = sp.getUserData();
-		//std::cout << "Sched: Scheduling " << device->schedName()
-		//          << " " << userData << " till " << time << std::endl;
 		device->executeUntil(time, userData);
 	}
 	scheduleInProgress = false;

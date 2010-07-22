@@ -39,7 +39,6 @@ byte MSXKanji12::readSwitchedIO(word port, EmuTime::param time)
 			address++;
 			break;
 	}
-	//PRT_DEBUG("MSXKanji12: read " << (int)port << " " << (int)result);
 	return result;
 }
 
@@ -69,7 +68,6 @@ byte MSXKanji12::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 
 void MSXKanji12::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 {
-	//PRT_DEBUG(MSXKanji12: write " << (int)port << " " << (int)value);
 	switch (port & 0x0F) {
 		case 2:
 			// TODO what is this?

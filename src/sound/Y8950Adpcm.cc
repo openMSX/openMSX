@@ -152,7 +152,6 @@ const std::string& Y8950Adpcm::schedName() const
 
 void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 {
-	//PRT_DEBUG("Y8950Adpcm: write "<<(int)rg<<" "<<(int)data);
 	sync(time); // TODO only when needed
 	switch (rg) {
 	case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
@@ -294,7 +293,6 @@ byte Y8950Adpcm::readReg(byte rg, EmuTime::param time)
 	byte result = (rg == 0x0F)
 	            ? readData()   // ADPCM-DATA
 	            : peekReg(rg); // other
-	//PRT_DEBUG("Y8950Adpcm: read "<<(int)rg<<" "<<(int)result);
 	return result;
 }
 

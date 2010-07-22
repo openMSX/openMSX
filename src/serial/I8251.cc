@@ -93,7 +93,6 @@ byte I8251::readIO(word port, EmuTime::param time)
 	default:
 		UNREACHABLE; return 0;
 	}
-	//PRT_DEBUG("I8251: read " << (int)port << " " << (int)result);
 	return result;
 }
 
@@ -112,7 +111,6 @@ byte I8251::peekIO(word port, EmuTime::param /*time*/) const
 
 void I8251::writeIO(word port, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("I8251: write " << (int)port << " " << (int)value);
 	switch (port & 1) {
 	case 0:
 		writeTrans(value, time);

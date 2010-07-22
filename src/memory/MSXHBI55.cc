@@ -83,7 +83,6 @@ byte MSXHBI55::readIO(word port, EmuTime::param time)
 	default: // unreachable, avoid warning
 		UNREACHABLE; result = 0;
 	}
-	//PRT_DEBUG("HBI-55 read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
 }
 
@@ -111,7 +110,6 @@ byte MSXHBI55::peekIO(word port, EmuTime::param time) const
 
 void MSXHBI55::writeIO(word port, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x03) {
 	case 0:
 		i8255->writePortA(value, time);

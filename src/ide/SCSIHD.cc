@@ -289,7 +289,7 @@ unsigned SCSIHD::readSectors(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * SECTOR_SIZE;
 
-	PRT_DEBUG("hdd#" << int(scsiId) << " read sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("hdd#" << int(scsiId) << " read sector: " << currentSector << ' ' << numSectors);
 	try {
 		for (unsigned i = 0; i < numSectors; ++i) {
 			readSector(currentSector, &buffer[i * SECTOR_SIZE]);
@@ -325,7 +325,7 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
-	PRT_DEBUG("hdd#" << int(scsiId) << " write sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("hdd#" << int(scsiId) << " write sector: " << currentSector << ' ' << numSectors);
 	try {
 		for (unsigned i = 0; i < numSectors; ++i) {
 			writeSector(currentSector, &buffer[i * SECTOR_SIZE]);
@@ -433,7 +433,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 			return counter;
 		}
 		case SCSI::OP_READ6:
-			PRT_DEBUG("Read6: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Read6: " << currentSector << ' ' << currentLength);
 			if (currentLength == 0) {
 				currentLength = SECTOR_SIZE / 2;
 			}
@@ -448,7 +448,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 			return 0;
 
 		case SCSI::OP_WRITE6:
-			PRT_DEBUG("Write6: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Write6: " << currentSector << ' ' << currentLength);
 			if (currentLength == 0) {
 				currentLength = SECTOR_SIZE / 2;
 			}
@@ -502,7 +502,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 
 		switch (cdb[0]) {
 		case SCSI::OP_READ10:
-			PRT_DEBUG("Read10: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Read10: " << currentSector << ' ' << currentLength);
 
 			if (checkAddress()) {
 				unsigned counter = readSectors(blocks);
@@ -514,7 +514,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 			return 0;
 
 		case SCSI::OP_WRITE10:
-			PRT_DEBUG("Write10: " << currentSector << " " << currentLength);
+			PRT_DEBUG("Write10: " << currentSector << ' ' << currentLength);
 
 			if (checkAddress() && !checkReadOnly()) {
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);

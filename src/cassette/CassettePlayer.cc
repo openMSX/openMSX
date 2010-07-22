@@ -318,7 +318,7 @@ void CassettePlayer::insertTape(const Filename& filename)
 					"Failed to insert WAV image: \"" +
 					e.getMessage() +
 					"\" and also failed to insert CAS image: \"" +
-					e2.getMessage() + "\"");
+					e2.getMessage() + '\"');
 			}
 		}
 	} else {

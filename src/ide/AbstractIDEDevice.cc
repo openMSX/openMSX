@@ -434,8 +434,7 @@ void AbstractIDEDevice::createIdentifyBlock(byte* buffer)
 	writeIdentifyString(&buffer[23 * 2], 4,
 		// Use openMSX version as firmware revision, because most of our
 		// IDE emulation code is in fact emulating the firmware.
-		Version::RELEASE ? "v" + Version::VERSION : "d" + Version::REVISION
-		);
+		Version::RELEASE ? 'v' + Version::VERSION : 'd' + Version::REVISION);
 	writeIdentifyString(&buffer[27 * 2], 20, getDeviceName()); // model
 
 	fillIdentifyBlock(buffer);

@@ -195,7 +195,7 @@ static string makeSimpleMSXFileName(string filename)
 	transform(filename.begin(), filename.end(), filename.begin(), toMSXChr);
 
 	string file, ext;
-	StringOp::splitOnLast(filename, ".", file, ext);
+	StringOp::splitOnLast(filename, '.', file, ext);
 	if (file.empty()) swap(file, ext);
 
 	file.resize(8, ' ');
@@ -263,7 +263,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& filename,
 		SyncMode syncMode_, BootSectorType bootSectorType)
 	: SectorBasedDisk(filename)
 	, cliComm(cliComm_)
-	, hostDir(filename.getResolved())
+	, hostDir(filename.getResolved() + '/')
 	, syncMode(syncMode_)
 {
 	// create the diskimage based upon the files that can be
@@ -377,7 +377,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 			checkAlterFileInDisk(shortname);
 			// now try to read from file if possible
 			try {
-				string fullfilename = hostDir + '/' + shortname;
+				string fullfilename = hostDir + shortname;
 				File file(fullfilename);
 				unsigned size = file.getSize();
 				file.seek(offset);
@@ -415,7 +415,7 @@ void DirAsDSK::checkAlterFileInDisk(unsigned dirindex)
 		return;
 	}
 
-	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+	string fullfilename = hostDir + mapdir[dirindex].shortname;
 	struct stat fst;
 	if (stat(fullfilename.c_str(), &fst) == 0) {
 		if (mapdir[dirindex].filesize != fst.st_size) {
@@ -467,7 +467,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 	unsigned remainingSize = fsize;
 	unsigned prevcl = 0;
 	try {
-		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+		string fullfilename = hostDir + mapdir[dirindex].shortname;
 		File file(fullfilename, "rb"); // don't uncompress
 
 		while (remainingSize && (curcl < MAX_CLUSTER)) {
@@ -585,7 +585,7 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 
 	// stuff below can fail, so do it as the last thing in this method
 	try {
-		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+		string fullfilename = hostDir + mapdir[dirindex].shortname;
 		File file(fullfilename, File::CREATE);
 		file.truncate(cursize);
 	} catch (FileException&) {
@@ -606,7 +606,7 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 		mapdir[dirindex].shortname = shname;
 	}
 	try {
-		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+		string fullfilename = hostDir + mapdir[dirindex].shortname;
 		File file(fullfilename, File::CREATE);
 		unsigned curcl = getStartCluster(mapdir[dirindex].msxinfo);
 		// if we start a new file the current cluster can be set to zero
@@ -804,7 +804,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			// dir entry has been deleted
 			// delete file from host OS and 'clear' all sector
 			// data pointing to this HOST OS file
-			string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+			string fullfilename = hostDir + mapdir[dirindex].shortname;
 			FileOperations::unlink(fullfilename);
 			for (unsigned i = FIRST_DATA_SECTOR; i < NUM_SECTORS; ++i) {
 				if (sectormap[i].dirEntryNr == dirindex) {
@@ -816,7 +816,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 		} else if ((entry.filename[0] != char(0xE5)) &&
 			   (syncMode == SYNC_FULL || syncMode == SYNC_NODELETE)) {
 			string shname = condenseName(entry.filename);
-			string newfilename = hostDir + '/' + shname;
+			string newfilename = hostDir + shname;
 			if (newClus == 0 && newSize == 0) {
 				// creating a new file
 				mapdir[dirindex].shortname = shname;
@@ -829,7 +829,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 				}
 			} else {
 				// rename file on host OS
-				string oldfilename = hostDir + '/' + mapdir[dirindex].shortname;
+				string oldfilename = hostDir + mapdir[dirindex].shortname;
 				if (rename(oldfilename.c_str(), newfilename.c_str()) == 0) {
 					// renaming on host OS succeeeded
 					mapdir[dirindex].shortname = shname;
@@ -900,7 +900,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 		try {
 			unsigned offset = sectormap[sector].fileOffset;
 			unsigned dirent = sectormap[sector].dirEntryNr;
-			string fullfilename = hostDir + '/' + mapdir[dirent].shortname;
+			string fullfilename = hostDir + mapdir[dirent].shortname;
 			File file(fullfilename);
 			file.seek(offset);
 			unsigned cursize = getLE32(mapdir[dirent].msxinfo.size);
@@ -982,7 +982,7 @@ bool DirAsDSK::isWriteProtectedImpl() const
 
 void DirAsDSK::updateFileInDisk(const string& filename)
 {
-	string fullfilename = hostDir + '/' + filename;
+	string fullfilename = hostDir + filename;
 	struct stat fst;
 	if (stat(fullfilename.c_str(), &fst)) {
 		cliComm.printWarning("Error accessing " + fullfilename);

@@ -170,7 +170,6 @@ double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 	}
 
 	//unsigned available = getBufferFilled();
-	//PRT_DEBUG("DEBUG upload: " << available << " (" << len << ")");
 	double result = filledStat;
 	filledStat = 1.0; // only report difference once
 	SDL_UnlockAudio();

@@ -87,7 +87,7 @@ HostCPU::HostCPU()
 				: "=a" (highest) // 0
 				: "0" (0) // 1: function
 				: "ecx", "edx"
-				);
+			);
 			if (highest >= 1) {
 				// Get features flags.
 				unsigned features;
@@ -98,7 +98,7 @@ HostCPU::HostCPU()
 					: "=d" (features) // 0
 					: "a" (1) // 1: function
 					: "ecx"
-					);
+				);
 				setFeatures(features);
 			}
 		}

@@ -200,7 +200,7 @@ void mkdir(const string& path, mode_t mode)
 #ifdef _WIN32
 	(void)&mode; // Suppress C4100 VC++ warning
 	if ((path == "/") ||
-		StringOp::endsWith(path, ":") ||
+		StringOp::endsWith(path, ':') ||
 		StringOp::endsWith(path, ":/")) {
 		return;
 	}
@@ -605,20 +605,20 @@ string getNextNumberedFileName(
 
 	int max_num = 0;
 
-	string dirName = getUserOpenMSXDir() + "/" + directory;
+	string dirName = getUserOpenMSXDir() + '/' + directory;
 	try {
 		mkdirp(dirName);
 	} catch (FileException&) {
 		// ignore
 	}
 
-	ReadDir dir(dirName.c_str());
+	ReadDir dir(dirName);
 	while (dirent* d = dir.getEntry()) {
 		max_num = std::max(max_num, getNextNum(d, prefix, extension, nofdigits));
 	}
 
 	std::ostringstream os;
-	os << dirName << "/" << prefix;
+	os << dirName << '/' << prefix;
 	os.width(nofdigits);
 	os.fill('0');
 	os << (max_num + 1) << extension;

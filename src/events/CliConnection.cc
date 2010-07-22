@@ -120,8 +120,9 @@ void CliConnection::execute(const string& command)
 
 static string reply(const string& message, bool status)
 {
-	return string("<reply result=\"") + (status ? "ok" : "nok") + "\">" +
-	       XMLElement::XMLEscape(message) + "</reply>\n";
+	return StringOp::Builder() <<
+		"<reply result=\"" << (status ? "ok" : "nok") << "\">" <<
+		XMLElement::XMLEscape(message) << "</reply>\n";
 }
 
 bool CliConnection::signalEvent(shared_ptr<const Event> event)

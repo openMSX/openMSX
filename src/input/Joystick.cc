@@ -79,11 +79,12 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
                    unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, name(string("joystick") + char('1' + joyNum_))
+	, name("joystickX") // 'X' is filled in below
 	, desc(string(SDL_JoystickName(joyNum_)))
 	, joystick(SDL_JoystickOpen(joyNum_))
 	, joyNum(joyNum_)
 {
+	const_cast<string&>(name)[8] = char('1' + joyNum);
 }
 
 Joystick::~Joystick()

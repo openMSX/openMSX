@@ -65,10 +65,11 @@ void MSXFDC::serialize(Archive& ar, unsigned /*version*/)
 	// polymorphic object construction of the serialization framework.
 	// Destroying and reconstructing the drives is not an option because
 	// DriveMultiplexer already has pointers to the drives.
+	char tag[7] = { 'd', 'r', 'i', 'v', 'e', 'X', 0 };
 	for (int i = 0; i < 4; ++i) {
 		if (RealDrive* drive = dynamic_cast<RealDrive*>(drives[i].get())) {
-			std::string tag = std::string("drive") + char('a' + i);
-			ar.serialize(tag.c_str(), *drive);
+			tag[5] = char('a' + i);
+			ar.serialize(tag, *drive);
 		}
 	}
 }

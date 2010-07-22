@@ -116,7 +116,7 @@ void OSDCommand::create(const vector<TclObject*>& tokens, TclObject& result)
 	string type = tokens[2]->getString();
 	string fullname = tokens[3]->getString();
 	string parentname, name;
-	StringOp::splitOnLast(fullname, ".", parentname, name);
+	StringOp::splitOnLast(fullname, '.', parentname, name);
 	if (name.empty()) std::swap(parentname, name);
 
 	OSDWidget* parent = gui.getTopWidget().findSubWidget(parentname);

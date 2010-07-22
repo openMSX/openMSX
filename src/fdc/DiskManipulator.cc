@@ -60,7 +60,7 @@ void DiskManipulator::registerDrive(
 	driveSettings.driveName = prefix + drive.getContainerName();
 	driveSettings.partition = 0;
 	for (unsigned i = 0; i <= MAX_PARTITIONS; ++i) {
-		driveSettings.workingDir[i] = "/";
+		driveSettings.workingDir[i] = '/';
 	}
 	drives.push_back(driveSettings);
 }
@@ -429,7 +429,7 @@ void DiskManipulator::format(DriveSettings& driveData)
 {
 	auto_ptr<DiskPartition> partition = getPartition(driveData);
 	DiskImageUtils::format(*partition);
-	driveData.workingDir[driveData.partition] = "/";
+	driveData.workingDir[driveData.partition] = '/';
 }
 
 auto_ptr<MSXtar> DiskManipulator::getMSXtar(
@@ -444,7 +444,7 @@ auto_ptr<MSXtar> DiskManipulator::getMSXtar(
 	try {
 		result->chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException&) {
-		driveData.workingDir[driveData.partition] = "/";
+		driveData.workingDir[driveData.partition] = '/';
 		throw CommandException(
 		    "Directory " + driveData.workingDir[driveData.partition] +
 		    " doesn't exist anymore. Went back to root "
@@ -472,10 +472,10 @@ void DiskManipulator::chdir(DriveSettings& driveData,
 	}
 	// TODO clean-up this temp hack, used to enable relative paths
 	string& cwd = driveData.workingDir[driveData.partition];
-	if (filename.find_first_of("/") == 0) {
+	if (StringOp::startsWith(filename, '/')) {
 		cwd = filename;
 	} else {
-		if (*cwd.rbegin() != '/') cwd += '/';
+		if (!StringOp::endsWith(cwd, '/')) cwd += '/';
 		cwd += filename;
 	}
 	result += "New working directory: " + cwd;

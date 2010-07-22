@@ -268,7 +268,6 @@ byte SCC::peekMem(byte address, EmuTime::param time) const
 	default:
 		UNREACHABLE; return 0;
 	}
-	//PRT_DEBUG("SCC: read " << (int)address << " " << (int)result);
 	return result;
 }
 
@@ -637,9 +636,10 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	// multi-dimensional arrays are not directly support by the
 	// serialization framework, maybe in the future. So for now
 	// manually loop over the channels.
+	char tag[6] = { 'w', 'a', 'v', 'e', 'X', 0 };
 	for (int channel = 0; channel < 5; ++channel) {
-		string tag = string("wave") + char('1' + channel);
-		ar.serialize(tag.c_str(), wave[channel]); // signed char
+		tag[4] = char('1' + channel);
+		ar.serialize(tag, wave[channel]); // signed char
 	}
 
 	if (ar.isLoader()) {

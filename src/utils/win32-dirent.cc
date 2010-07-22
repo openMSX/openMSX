@@ -39,7 +39,7 @@ DIR* opendir(const char* name)
 	if (!name || !*name) return NULL;
 
 	std::wstring nameW = utf8::utf8to16(name);
-	if (!StringOp::endsWith(name, "/") &&
+	if (!StringOp::endsWith(name, '/') &&
 	    !StringOp::endsWith(name, "\\")) {
 		nameW += L"\\*";
 	} else {

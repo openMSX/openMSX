@@ -154,7 +154,6 @@ void RomFSA1FM1::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	// TODO 0x7FC0 - 0x7FCF is modem IO area
 
-	//PRT_DEBUG("FSA1FM1: write "<<hex<<(int)address<<" "<<(int)value<<dec);
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {
 			// switch rom bank
@@ -227,7 +226,6 @@ byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
 	} else {
 		result = Rom8kBBlocks::peekMem(address, time);
 	}
-	//PRT_DEBUG("FSA1FM2 read "<<hex<<(int)address<<" "<<(int)result<<dec);
 	return result;
 }
 
@@ -254,8 +252,6 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 void RomFSA1FM2::writeMem(word address, byte value,
                           EmuTime::param /*time*/)
 {
-	//PRT_DEBUG("FSA1FM2: write "<<hex<<(int)address<<" "<<(int)value<<dec);
-
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state
 		switch (address & 0x1C00) {

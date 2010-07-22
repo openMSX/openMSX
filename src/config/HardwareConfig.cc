@@ -66,7 +66,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		const string& option = *it++;
 		if (it == options.end()) {
 			throw MSXException("Missing argument for option \"" +
-			                   option + "\"");
+			                   option + '\"');
 		}
 		if (option == "-ips") {
 			if (!FileOperations::isRegularFile(context->resolve(
@@ -82,7 +82,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 				throw MSXException("Only one -romtype option is allowed");
 			}
 		} else {
-			throw MSXException("Invalid option \"" + option + "\"");
+			throw MSXException("Invalid option \"" + option + '\"');
 		}
 	}
 

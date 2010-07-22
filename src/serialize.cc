@@ -447,8 +447,9 @@ void XmlInputArchive::beginTag(const char* tag)
 			path = elem->getName() + '/' + path;
 			elem = elem->getParent();
 		}
-		throw XMLException("No child tag \"" + string(tag) +
-		                   "\" found at location \"" + path + '\"');
+		throw XMLException(StringOp::Builder() <<
+			"No child tag \"" << tag <<
+			"\" found at location \"" << path << '\"');
 	}
 	elems.push_back(std::make_pair(child, 0));
 }
@@ -456,7 +457,8 @@ void XmlInputArchive::endTag(const char* tag)
 {
 	const XMLElement& elem = *elems.back().first;
 	if (elem.getName() != tag) {
-		throw XMLException("End tag \"" + elem.getName() + "\" not equal to begin tag \"" + tag + "\"");
+		throw XMLException("End tag \"" + elem.getName() +
+			"\" not equal to begin tag \"" + tag + "\"");
 	}
 	XMLElement& elem2 = const_cast<XMLElement&>(elem);
 	elem2.clearName(); // mark this elem for later beginTag() calls

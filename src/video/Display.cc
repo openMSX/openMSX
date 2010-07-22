@@ -245,13 +245,13 @@ void Display::setWindowTitle()
 {
 	string title = Version::FULL_VERSION;
 	if (!Version::RELEASE) {
-		title += " [" + BUILD_FLAVOUR + "]";
+		title += " [" + BUILD_FLAVOUR + ']';
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {
 			const XMLElement& config = machine->getConfig();
 			title += " - " +
-			    config.getChild("info").getChildData("manufacturer") + " " +
+			    config.getChild("info").getChildData("manufacturer") + ' ' +
 			    config.getChild("info").getChildData("code");
 		}
 	}
@@ -427,7 +427,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 	string prefix = "openmsx";
 	vector<string> arguments;
 	for (unsigned i = 1; i < tokens.size(); ++i) {
-		if (StringOp::startsWith(tokens[i], "-")) {
+		if (StringOp::startsWith(tokens[i], '-')) {
 			if (tokens[i] == "--") {
 				arguments.insert(arguments.end(),
 					tokens.begin() + i + 1, tokens.end());

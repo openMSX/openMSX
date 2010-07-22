@@ -200,7 +200,7 @@ void WD33C93::execCmd(byte value)
 		atn = true;
 		// fall-through
 	case 0x07: // Select Without ATN (Lv2)
-		PRT_DEBUG("wd33c93 [CMD] Select (ATN " << atn << ")");
+		PRT_DEBUG("wd33c93 [CMD] Select (ATN " << atn << ')');
 		targetId = regs[REG_DST_ID] & 7;
 		regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
 		tc = 0;
@@ -211,7 +211,7 @@ void WD33C93::execCmd(byte value)
 		atn = true;
 		// fall-through
 	case 0x09: // Select without ATN and Transfer (Lv2)
-		PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << atn << ")");
+		PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << atn << ')');
 		targetId = regs[REG_DST_ID] & 7;
 
 		if (!devBusy && targetId < MAX_DEV && /* targetId != myId  && */
@@ -484,9 +484,10 @@ template<typename Archive>
 void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", &buffer[0], unsigned(buffer.size()));
+	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
-		std::string tag = std::string("device") + char('0' + i);
-		ar.serializePolymorphic(tag.c_str(), *dev[i]);
+		tag[6] = char('0' + i);
+		ar.serializePolymorphic(tag, *dev[i]);
 	}
 	ar.serialize("bufIdx", bufIdx);
 	ar.serialize("counter", counter);

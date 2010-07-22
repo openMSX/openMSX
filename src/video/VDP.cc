@@ -445,7 +445,7 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 		     (userData == VSCAN ? "VSCAN" :
 		     (userData == HSCAN ? "HSCAN" : "DISPLAY_START")))
 		<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
-		<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
+		<< ',' << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
 		<< "), IRQ_H = " << (int)irqHorizontal.getState()
 		<< " IRQ_V = " << (int)irqVertical.getState()
 		//<< ", frame = " << frameStartTime

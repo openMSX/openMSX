@@ -4,6 +4,7 @@
 #include "Timer.hh"
 #include "Semaphore.hh"
 #include "MSXException.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <vector>
 #include <cassert>
@@ -64,8 +65,8 @@ AlarmManager::AlarmManager()
 	: id(NULL), sem(1)
 {
 	if (SDL_Init(SDL_INIT_TIMER) < 0) {
-		throw FatalError(
-			std::string("Couldn't initialize SDL timer subsystem") +
+		throw FatalError(StringOp::Builder() <<
+			"Couldn't initialize SDL timer subsystem" <<
 			SDL_GetError());
 	}
 	enabled = true;

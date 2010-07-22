@@ -31,7 +31,6 @@ void MSXKanji::reset(EmuTime::param /*time*/)
 
 void MSXKanji::writeIO(word port, byte value, EmuTime::param /*time*/)
 {
-	//PRT_DEBUG("MSXKanji: write " << (int)port << " " << (int)value);
 	switch (port & 0x03) {
 	case 0:
 		adr1 = (adr1 & 0x1f800) | ((value & 0x3f) << 5);
@@ -59,7 +58,6 @@ byte MSXKanji::readIO(word port, EmuTime::param time)
 		adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
 		break;
 	}
-	//PRT_DEBUG("MSXKanji: read " << (int)port << " " << (int)result);
 	return result;
 }
 

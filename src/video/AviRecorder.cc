@@ -231,7 +231,7 @@ void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& resu
 	vector<string> arguments;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
 		const string token = tokens[i]->getString();
-		if (StringOp::startsWith(token, "-")) {
+		if (StringOp::startsWith(token, '-')) {
 			if (token == "--") {
 				for (vector<TclObject*>::const_iterator it = tokens.begin() + i + 1; it != tokens.end(); ++it) {
 					arguments.push_back((*it)->getString());
@@ -380,7 +380,7 @@ void RecordCommand::tabCompletion(vector<string>& tokens) const
 		std::set<string> cmds(str, str + 4);
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		const char* const str[6] = { "-prefix", "-videoonly", 
+		const char* const str[6] = { "-prefix", "-videoonly",
 			"-audioonly", "-doublesize", "-mono", "-stereo" };
 		std::set<string> cmds(str, str + 6);
 		UserFileContext context;

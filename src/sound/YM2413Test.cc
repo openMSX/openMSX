@@ -64,7 +64,7 @@ static void loadWav(const string& filename, Samples& data)
 
 static void loadWav(Samples& data)
 {
-	string filename = coreName + "-" + testName + ".wav";
+	string filename = coreName + '-' + testName + ".wav";
 	loadWav(filename, data);
 }
 

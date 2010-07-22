@@ -58,6 +58,8 @@ public:
 	virtual CliComm& getCliComm();
 
 private:
+	std::string getFullName(const std::string& name);
+
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         EmuTime::param time);

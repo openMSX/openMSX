@@ -28,6 +28,7 @@ NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& 
 	, flash(new AmdFlash(
 		motherBoard, *rom, 16, rom->getSize() / (1024 * 64), 0, config))
 	, host(new NowindHost(drives))
+	, basename("nowindX")
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("nowindsInUse");
@@ -45,7 +46,7 @@ NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& 
 		}
 	}
 	nowindsInUse[i] = true;
-	basename = string("nowind") + char('a' + i);
+	basename[6] = char('a' + i);
 
 	command.reset(new NowindCommand(
 		basename, motherBoard.getCommandController(), *this));

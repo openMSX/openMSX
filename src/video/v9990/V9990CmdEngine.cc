@@ -737,8 +737,6 @@ void V9990CmdEngine::reset(EmuTime::param /*time*/)
 
 void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("[" << time << "] V9990CmdEngine::setCmdReg("
-	//          << std::dec << (int) reg << "," << (int) value << ")");
 	sync(time);
 	switch(reg - 32) {
 	case  0: // SX low

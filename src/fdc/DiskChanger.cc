@@ -300,7 +300,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 				if (option == "-ips") {
 					if (++i == tokens.size()) {
 						throw MSXException(
-							"Missing argument for option \"" + option + "\"");
+							"Missing argument for option \"" + option + '\"');
 					}
 					args.push_back(tokens[i]->getString());
 				} else {

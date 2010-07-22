@@ -183,12 +183,12 @@ int CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss,
 {
 	assert(slot < MAX_SLOTS);
 	if (!slots[slot].exists()) {
-		throw MSXException(string("slot-") + char('a' + slot) +
-		                   " not defined.");
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " not defined.");
 	}
 	if (slots[slot].used()) {
-		throw MSXException(string("slot-") + char('a' + slot) +
-		                   " already in use.");
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " already in use.");
 	}
 	ps = slots[slot].ps;
 	ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
@@ -324,8 +324,8 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 	} else if ( (tokens[1] == "eject") || (tokens[1] == "-eject") ) {
 		// remove cartridge (or extension)
 		if (tokens[1] == "-eject") {
-			result += "Warning: use of '-eject' is deprecated, "
-			          "instead use the 'eject' subcommand";
+			result = "Warning: use of '-eject' is deprecated, "
+			         "instead use the 'eject' subcommand";
 		}
 		if (const HardwareConfig* extConf = getExtensionConfig(cartname)) {
 			try {
@@ -407,13 +407,16 @@ void CartridgeSlotInfo::execute(const vector<TclObject*>& tokens,
                                TclObject& result) const
 {
 	switch (tokens.size()) {
-	case 2:
+	case 2: {
 		// return list of slots
+		string slot = "slotX";
 		for (unsigned i = 0; i < CartridgeSlotManager::MAX_SLOTS; ++i) {
 			if (!manager.slots[i].exists()) continue;
-			result.addListElement(string("slot") + char('a' + i));
+			slot[4] = char('a' + i);
+			result.addListElement(slot);
 		}
 		break;
+	}
 	case 3: {
 		// return info on a particular slot
 		string name = tokens[2]->getString();

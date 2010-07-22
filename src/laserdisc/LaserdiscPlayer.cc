@@ -305,19 +305,19 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 
 void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 {
-	PRT_DEBUG("Laserdisc::submitRemote(" << std::hex << protocol << ", " 
-			<< code << ")");
+	PRT_DEBUG("Laserdisc::submitRemote(" << std::hex << protocol << ", "
+			<< code << ')');
 
 	// The END command for seeking/waiting acknowledges repeats,
 	// it seems the only one.
-	if (protocol != remoteProtocol || code != remoteCode || 
+	if (protocol != remoteProtocol || code != remoteCode ||
 	    (protocol == IR_NEC && code == 0x42)) {
 		remoteProtocol = protocol;
 		remoteCode = code;
 		remoteVblanksBack = 0;
 		remoteExecuteDelayed = true;
 	} else {
-		PRT_DEBUG("Laserdisc::remote ignored after " << std::dec 
+		PRT_DEBUG("Laserdisc::remote ignored after " << std::dec
 			  << remoteVblanksBack << " vblanks");
 		remoteVblanksBack = 0;
 		remoteExecuteDelayed = false;
@@ -488,19 +488,19 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	case 0x2a: f = "S+"; break;	// frame step forward
 	case 0x0a: f = "S-"; break;	// frame step backwards
 	case 0xa2: f = "X+"; break;	// clear
-	case 0x82: f = "F"; break;	// seek frame
-	case 0x02: f = "C"; break;	// seek chapter
+	case 0x82: f = 'F'; break;	// seek frame
+	case 0x02: f = 'C'; break;	// seek chapter
 	case 0x42: f = "END"; break;	// done seek frame/chapter
-	case 0x00: f = "0"; break;
-	case 0x80: f = "1"; break;
-	case 0x40: f = "2"; break;
-	case 0xc0: f = "3"; break;
-	case 0x20: f = "4"; break;
-	case 0xa0: f = "5"; break;
-	case 0x60: f = "6"; break;
-	case 0xe0: f = "7"; break;
-	case 0x10: f = "8"; break;
-	case 0x90: f = "9"; break;
+	case 0x00: f = '0'; break;
+	case 0x80: f = '1'; break;
+	case 0x40: f = '2'; break;
+	case 0xc0: f = '3'; break;
+	case 0x20: f = '4'; break;
+	case 0xa0: f = '5'; break;
+	case 0x60: f = '6'; break;
+	case 0xe0: f = '7'; break;
+	case 0x10: f = '8'; break;
+	case 0x90: f = '9'; break;
 	case 0xfa: f = "WAIT FRAME"; break;
 
 	case 0xca: // previous chapter
@@ -854,7 +854,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 	if (currentSample > (lastPlayedSample + drift) ||
 			(currentSample + drift) < lastPlayedSample) {
 		PRT_DEBUG("Laserdisc audio drift: " << std::dec <<
-				lastPlayedSample << " " << currentSample);
+				lastPlayedSample << ' ' << currentSample);
 		lastPlayedSample = currentSample;
 	}
 

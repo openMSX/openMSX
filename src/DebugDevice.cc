@@ -91,7 +91,7 @@ void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
 		displayByte(value, DEC);
 	}
 	if (modeParameter & 0x08) {
-		(*outputstrm) << "'";
+		(*outputstrm) << '\'';
 		byte tmp = ((value >= ' ') && (value != 127)) ? value : '.';
 		displayByte(tmp, ASC);
 		(*outputstrm) << "' ";
@@ -143,7 +143,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 	case DEC:
 		(*outputstrm) << std::dec << std::setw(3)
 		              << std::setfill('0')
-		              << int(value) << " " << std::flush;
+		              << int(value) << ' ' << std::flush;
 		break;
 	case ASC:
 		(*outputstrm).put(value);

@@ -418,7 +418,7 @@ byte MB89352::readDREG()
 	if (isTransfer && (tc > 0)) {
 		setACKREQ(regs[REG_DREG]);
 		resetACKREQ();
-		//PRT_DEBUG("DREG read: " << tc << " " << std::hex << (int)regs[REG_DREG]);
+		//PRT_DEBUG("DREG read: " << tc << ' ' << std::hex << (int)regs[REG_DREG]);
 
 		--tc;
 		if (tc == 0) {
@@ -435,7 +435,7 @@ byte MB89352::readDREG()
 void MB89352::writeDREG(byte value)
 {
 	if (isTransfer && (tc > 0)) {
-		//PRT_DEBUG("DREG write: " << tc << " " << std::hex << (int)value);
+		//PRT_DEBUG("DREG write: " << tc << ' ' << std::hex << (int)value);
 
 		setACKREQ(value);
 		resetACKREQ();
@@ -451,7 +451,7 @@ void MB89352::writeDREG(byte value)
 
 void MB89352::writeRegister(byte reg, byte value)
 {
-	//PRT_DEBUG("SPC write register: " << std::hex << (int)reg << " " << std::hex << (int)value);
+	//PRT_DEBUG("SPC write register: " << std::hex << (int)reg << ' ' << std::hex << (int)value);
 	switch (reg) {
 	case REG_DREG: // write data Register
 		writeDREG(value);
@@ -555,7 +555,7 @@ void MB89352::writeRegister(byte reg, byte value)
 		}
 		// hardware transfer
 		case CMD_Transfer:
-			PRT_DEBUG("CMD_Transfer " << tc << " ( " << (tc/512) << ")");
+			PRT_DEBUG("CMD_Transfer " << tc << " ( " << (tc/512) << ')');
 			if ((regs[FIX_PCTL] == (regs[REG_PSNS] & 7)) &&
 			    (regs[REG_PSNS] & (PSNS_REQ | PSNS_BSY))) {
 				isTransfer = true; // set Xfer in Progress
@@ -777,9 +777,10 @@ template<typename Archive>
 void MB89352::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", &buffer[0], unsigned(buffer.size()));
+	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
-		std::string tag = std::string("device") + char('0' + i);
-		ar.serializePolymorphic(tag.c_str(), *dev[i]);
+		tag[6] = char('0' + i);
+		ar.serializePolymorphic(tag, *dev[i]);
 	}
 	ar.serialize("bufIdx", bufIdx);
 	ar.serialize("msgin", msgin);

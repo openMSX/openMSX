@@ -78,8 +78,6 @@ byte RomPanasonic::peekMem(word address, EmuTime::param time) const
 	} else {
 		result = Rom8kBBlocks::peekMem(address, time);
 	}
-	//PRT_DEBUG("DEBUG read "<<hex<<(int)address<<" "<<
-	//          (int)result<<dec);
 	return result;
 }
 
@@ -100,8 +98,6 @@ const byte* RomPanasonic::getReadCacheLine(word address) const
 
 void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	//PRT_DEBUG("DEBUG write "<<hex<<(int)address<<
-	//          " "<<(int)value<<dec);
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state (lower 8 bits)
 		int region = (address & 0x1C00) >> 10;

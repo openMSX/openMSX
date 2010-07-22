@@ -357,7 +357,7 @@ static char toMSXChr(char a)
 string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 {
 	string dir, fullfile;
-	StringOp::splitOnLast(fullfilename, "/", dir, fullfile);
+	StringOp::splitOnLast(fullfilename, '/', dir, fullfile);
 
 	// handle speciale case '.' and '..' first
 	if ((fullfile == ".") || (fullfile == "..")) {
@@ -366,11 +366,11 @@ string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
 	}
 
 	string file, ext;
-	StringOp::splitOnLast(fullfile, ".", file, ext);
+	StringOp::splitOnLast(fullfile, '.', file, ext);
 	if (file.empty()) swap(file, ext);
 
-	StringOp::trimRight(file, " ");
-	StringOp::trimRight(ext,  " ");
+	StringOp::trimRight(file, ' ');
+	StringOp::trimRight(ext,  ' ');
 
 	// put in major case and create '_' if needed
 	std::transform(file.begin(), file.end(), file.begin(), toMSXChr);

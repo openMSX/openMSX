@@ -442,7 +442,7 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string fullType = getArgument(option, cmdLine);
 	string type, arguments;
-	StringOp::splitOnFirst(fullType, ":", type, arguments);
+	StringOp::splitOnFirst(fullType, ':', type, arguments);
 
 	CommandController& controller = parser.getGlobalCommandController();
 	EventDistributor& distributor = parser.reactor.getEventDistributor();
@@ -465,7 +465,7 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 		}
 #endif
 	} else {
-		throw FatalError("Unknown control type: '"  + type + "'");
+		throw FatalError("Unknown control type: '"  + type + '\'');
 	}
 	cliComm.addConnection(connection);
 	cliComm.setXMLOutput();

@@ -76,7 +76,6 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 			UNREACHABLE; result = 255;
 		}
 	}
-	//PRT_DEBUG("MoonSound: read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
 }
 
@@ -116,7 +115,6 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 
 void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("MoonSound: write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	if ((port&0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		if (ymf262->peekReg(0x105) & 0x02) { // NEW2 bit

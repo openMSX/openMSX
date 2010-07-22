@@ -137,7 +137,7 @@ EventPtr createInputEvent(const string& str)
 	vector<string> components;
 	Interpreter::splitList(str, components, 0);
 	if (components.empty()) {
-		throw CommandException("Invalid event: \"" + str + "\"");
+		throw CommandException("Invalid event: \"" + str + '\"');
 	}
 	if (components[0] == "keyb") {
 		return parseKeyEvent(str, components);
