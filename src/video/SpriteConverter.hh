@@ -53,7 +53,7 @@ public:
 	  * will be used while drawing.
 	  * @param palette 16-entry array containing the sprite palette.
 	  */
-	void setPalette(Pixel* palette)
+	void setPalette(const Pixel* palette)
 	{
 		this->palette = palette;
 	}
@@ -192,7 +192,7 @@ private:
 
 	/** The current sprite palette.
 	  */
-	Pixel* palette;
+	const Pixel* palette;
 
 	/** VDP transparency setting (R#8, bit5).
 	  */

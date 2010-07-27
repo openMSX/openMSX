@@ -15,29 +15,11 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "static_assert.hh"
+#include "unreachable.hh"
 #include "type_traits.hh"
 #include "build-info.hh"
 
 namespace openmsx {
-
-template <class Pixel>
-typename CharacterConverter<Pixel>::RenderMethod
-	CharacterConverter<Pixel>::modeToRenderMethod[] = {
-		// M5 M4 = 0 0  (MSX1 modes)
-		&CharacterConverter::renderGraphic1,
-		&CharacterConverter::renderText1,
-		&CharacterConverter::renderMulti,
-		&CharacterConverter::renderBogus,
-		&CharacterConverter::renderGraphic2,
-		&CharacterConverter::renderText1Q,
-		&CharacterConverter::renderMultiQ,
-		&CharacterConverter::renderBogus,
-		// M5 M4 = 0 1
-		&CharacterConverter::renderGraphic2, // graphic 3, actually
-		&CharacterConverter::renderText2,
-		&CharacterConverter::renderBogus,
-		&CharacterConverter::renderBogus
-	};
 
 template <class Pixel>
 CharacterConverter<Pixel>::CharacterConverter(
@@ -49,8 +31,30 @@ CharacterConverter<Pixel>::CharacterConverter(
 template <class Pixel>
 void CharacterConverter<Pixel>::setDisplayMode(DisplayMode mode)
 {
-	assert(mode.getBase() < 0x0C);
-	renderMethod = modeToRenderMethod[mode.getBase()];
+	modeBase = mode.getBase();
+	assert(modeBase < 0x0C);
+}
+
+template <class Pixel>
+void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
+{
+	switch (modeBase) {
+		// M5 M4 = 0 0  (MSX1 modes)
+		case  0: renderGraphic1(linePtr, line); break;
+		case  1: renderText1   (linePtr, line); break;
+		case  2: renderMulti   (linePtr, line); break;
+		case  3: renderBogus   (linePtr);       break;
+		case  4: renderGraphic2(linePtr, line); break;
+		case  5: renderText1Q  (linePtr, line); break;
+		case  6: renderMultiQ  (linePtr, line); break;
+		case  7: renderBogus   (linePtr);       break;
+		// M5 M4 = 0 1
+		case  8: renderGraphic2(linePtr, line); break; // graphic 3, actually
+		case  9: renderText2   (linePtr, line); break;
+		case 10: renderBogus   (linePtr);       break;
+		case 11: renderBogus   (linePtr);       break;
+		default: UNREACHABLE;
+	}
 }
 
 template <class Pixel>
@@ -377,7 +381,7 @@ void CharacterConverter<Pixel>::renderMultiQ(
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderBogus(
-	Pixel* __restrict pixelPtr, int /*line*/) __restrict
+	Pixel* __restrict pixelPtr) __restrict
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];

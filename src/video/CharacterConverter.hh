@@ -36,10 +36,7 @@ public:
 	  * @param linePtr Pointer to array where host pixels will be written to.
 	  * @param line Display line number [0..255].
 	  */
-	inline void convertLine(Pixel* linePtr, int line)
-	{
-		(this->*renderMethod)(linePtr, line);
-	}
+	void convertLine(Pixel* linePtr, int line);
 
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode The new display mode.
@@ -47,35 +44,26 @@ public:
 	void setDisplayMode(DisplayMode mode);
 
 private:
-	typedef void (CharacterConverter::*RenderMethod)
-		(Pixel* pixelPtr, int line);
-
-	/** RenderMethods for each display mode.
-	  */
-	static RenderMethod modeToRenderMethod[];
-
-	void renderText1   (Pixel* pixelPtr, int line);
-	void renderText1Q  (Pixel* pixelPtr, int line);
-	void renderText2   (Pixel* pixelPtr, int line);
-	void renderGraphic1(Pixel* pixelPtr, int line);
-	void renderGraphic2(Pixel* pixelPtr, int line);
-	void renderMulti   (Pixel* pixelPtr, int line);
-	void renderMultiQ  (Pixel* pixelPtr, int line);
-	void renderBogus   (Pixel* pixelPtr, int line);
-	void renderMultiHelper(Pixel* pixelPtr, int line,
+	inline void renderText1   (Pixel* pixelPtr, int line);
+	inline void renderText1Q  (Pixel* pixelPtr, int line);
+	inline void renderText2   (Pixel* pixelPtr, int line);
+	inline void renderGraphic1(Pixel* pixelPtr, int line);
+	inline void renderGraphic2(Pixel* pixelPtr, int line);
+	inline void renderMulti   (Pixel* pixelPtr, int line);
+	inline void renderMultiQ  (Pixel* pixelPtr, int line);
+	inline void renderBogus   (Pixel* pixelPtr);
+	inline void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
 
 	const byte* getNamePtr(int line, int scroll);
-
-	/** Rendering method for the current display mode.
-	  */
-	RenderMethod renderMethod;
 
 	VDP& vdp;
 	VDPVRAM& vram;
 
 	const Pixel* const palFg;
 	const Pixel* const palBg;
+
+	unsigned modeBase;
 };
 
 } // namespace openmsx

@@ -25,18 +25,18 @@ private:
 
 public:
 	enum {
-		GRAPHIC1    = 0x00, // Graphic 1
-		TEXT1       = 0x01, // Text 1
+		GRAPHIC1   = 0x00, // Graphic 1
+		TEXT1      = 0x01, // Text 1
 		MULTICOLOR = 0x02, // Multicolor
-		GRAPHIC2    = 0x04, // Graphic 2
-		TEXT1Q      = 0x05, // !!
-		MULTIQ      = 0x06, // !!
-		GRAPHIC3    = 0x08, // Graphic 3
-		TEXT2       = 0x09, // Text 2
-		GRAPHIC4    = 0x0C, // Graphic 4
-		GRAPHIC5    = 0x10, // Graphic 5
-		GRAPHIC6    = 0x14, // Graphic 6
-		GRAPHIC7    = 0x1C  // Graphic 7
+		GRAPHIC2   = 0x04, // Graphic 2
+		TEXT1Q     = 0x05, // !!
+		MULTIQ     = 0x06, // !!
+		GRAPHIC3   = 0x08, // Graphic 3
+		TEXT2      = 0x09, // Text 2
+		GRAPHIC4   = 0x0C, // Graphic 4
+		GRAPHIC5   = 0x10, // Graphic 5
+		GRAPHIC6   = 0x14, // Graphic 6
+		GRAPHIC7   = 0x1C  // Graphic 7
 	};
 
 	/** Bits of VDP register 0 that encode part of the display mode. */

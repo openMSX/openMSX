@@ -5,6 +5,7 @@
 #include "Math.hh"
 #include "likely.hh"
 #include "static_assert.hh"
+#include "unreachable.hh"
 #include "type_traits.hh"
 #include "build-info.hh"
 
@@ -39,10 +40,70 @@ void BitmapConverter<Pixel>::calcDPalette()
 }
 
 template <class Pixel>
+void BitmapConverter<Pixel>::convertLine(
+	Pixel* linePtr, const byte* vramPtr)
+{
+	// TODO: Support YJK on modes other than Graphic 6/7.
+	switch (mode.getByte()) {
+		case DisplayMode::GRAPHIC4:
+		case DisplayMode::GRAPHIC4 | DisplayMode::YAE:
+			renderGraphic4(linePtr, vramPtr);
+			break;
+		case DisplayMode::GRAPHIC5:
+		case DisplayMode::GRAPHIC5 | DisplayMode::YAE:
+			renderGraphic5(linePtr, vramPtr);
+			break;
+		case DisplayMode::GRAPHIC6:
+		case DisplayMode::GRAPHIC6 | DisplayMode::YAE:
+		case DisplayMode::GRAPHIC7:
+		case DisplayMode::GRAPHIC7 | DisplayMode::YAE:
+		case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
+		case DisplayMode::GRAPHIC6 | DisplayMode::YJK | DisplayMode::YAE:
+		case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
+		case DisplayMode::GRAPHIC7 | DisplayMode::YJK | DisplayMode::YAE:
+			UNREACHABLE;
+		default:
+			renderBogus(linePtr);
+			break;
+	}
+}
+
+template <class Pixel>
+void BitmapConverter<Pixel>::convertLinePlanar(
+	Pixel* linePtr, const byte* vramPtr0, const byte* vramPtr1)
+{
+	switch (mode.getByte()) {
+		case DisplayMode::GRAPHIC6:
+		case DisplayMode::GRAPHIC6 | DisplayMode::YAE:
+			renderGraphic6(linePtr, vramPtr0, vramPtr1);
+			break;
+		case DisplayMode::GRAPHIC7:
+		case DisplayMode::GRAPHIC7 | DisplayMode::YAE:
+			renderGraphic7(linePtr, vramPtr0, vramPtr1);
+			break;
+		case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
+		case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
+			renderYJK(linePtr, vramPtr0, vramPtr1);
+			break;
+		case DisplayMode::GRAPHIC6 | DisplayMode::YJK | DisplayMode::YAE:
+		case DisplayMode::GRAPHIC7 | DisplayMode::YJK | DisplayMode::YAE:
+			renderYAE(linePtr, vramPtr0, vramPtr1);
+			break;
+		case DisplayMode::GRAPHIC4:
+		case DisplayMode::GRAPHIC4 | DisplayMode::YAE:
+		case DisplayMode::GRAPHIC5:
+		case DisplayMode::GRAPHIC5 | DisplayMode::YAE:
+			UNREACHABLE;
+		default:
+			renderBogus(linePtr);
+			break;
+	}
+}
+
+template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
 	Pixel*      __restrict pixelPtr,
-	const byte* __restrict vramPtr0,
-	const byte* __restrict /*vramPtr1*/) __restrict
+	const byte* __restrict vramPtr0) __restrict
 {
 	/*for (unsigned i = 0; i < 128; i += 2) {
 		unsigned data0 = vramPtr0[i + 0];
@@ -117,8 +178,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
 	Pixel*      __restrict pixelPtr,
-	const byte* __restrict vramPtr0,
-	const byte* __restrict /*vramPtr1*/) __restrict
+	const byte* __restrict vramPtr0) __restrict
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		unsigned data = vramPtr0[i];
@@ -250,43 +310,11 @@ void BitmapConverter<Pixel>::renderYAE(
 
 // TODO: Check what happens on real V9938.
 template <class Pixel>
-void BitmapConverter<Pixel>::renderBogus(
-	Pixel* pixelPtr, const byte* /*vramPtr0*/, const byte* /*vramPtr1*/)
+void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 {
 	Pixel color = palette16[0];
 	for (unsigned i = 0; i < 256; ++i) {
 		pixelPtr[i] = color;
-	}
-}
-
-template <class Pixel>
-void BitmapConverter<Pixel>::setDisplayMode(DisplayMode mode)
-{
-	// TODO: Support YJK on modes other than Graphic 6/7.
-	switch (mode.getByte() & ~DisplayMode::YAE) {
-	case DisplayMode::GRAPHIC4:
-		renderMethod = &BitmapConverter::renderGraphic4;
-		break;
-	case DisplayMode::GRAPHIC5:
-		renderMethod = &BitmapConverter::renderGraphic5;
-		break;
-	case DisplayMode::GRAPHIC6:
-		renderMethod = &BitmapConverter::renderGraphic6;
-		break;
-	case DisplayMode::GRAPHIC7:
-		renderMethod = &BitmapConverter::renderGraphic7;
-		break;
-	case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
-	case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
-		if (mode.getByte() & DisplayMode::YAE) {
-			renderMethod = &BitmapConverter::renderYAE;
-		} else {
-			renderMethod = &BitmapConverter::renderYJK;
-		}
-		break;
-	default:
-		renderMethod = &BitmapConverter::renderBogus;
-		break;
 	}
 }
 

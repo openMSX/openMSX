@@ -48,11 +48,7 @@ public:
 	  * @param linePtr Pointer to array of host pixels.
 	  * @param vramPtr Pointer to VRAM contents.
 	  */
-	inline void convertLine(
-		Pixel* linePtr, const byte* vramPtr)
-	{
-		(this->*renderMethod)(linePtr, vramPtr, 0);
-	}
+	void convertLine(Pixel* linePtr, const byte* vramPtr);
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in planar display modes (Graphic6 and Graphic7).
@@ -60,16 +56,16 @@ public:
 	  * @param vramPtr0 Pointer to VRAM contents, first plane.
 	  * @param vramPtr1 Pointer to VRAM contents, second plane.
 	  */
-	inline void convertLinePlanar(
-		Pixel* linePtr, const byte* vramPtr0, const byte* vramPtr1)
-	{
-		(this->*renderMethod)(linePtr, vramPtr0, vramPtr1);
-	}
+	void convertLinePlanar(Pixel* linePtr,
+	                       const byte* vramPtr0, const byte* vramPtr1);
 
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode The new display mode.
 	  */
-	void setDisplayMode(DisplayMode mode);
+	inline void setDisplayMode(DisplayMode mode_)
+	{
+		mode = mode_;
+	}
 
 	/** Inform this class about changes in the palette16 array.
 	  */
@@ -81,27 +77,17 @@ public:
 private:
 	void calcDPalette();
 
-	typedef void (BitmapConverter::*RenderMethod)
-		(Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-
-	void renderGraphic4(
+	inline void renderGraphic4(Pixel* pixelPtr, const byte* vramPtr0);
+	inline void renderGraphic5(Pixel* pixelPtr, const byte* vramPtr0);
+	inline void renderGraphic6(
 		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-	void renderGraphic5(
+	inline void renderGraphic7(
 		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-	void renderGraphic6(
+	inline void renderYJK(
 		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-	void renderGraphic7(
+	inline void renderYAE(
 		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-	void renderYJK(
-		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-	void renderYAE(
-		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-	void renderBogus(
-		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
-
-	/** Rendering method for the current display mode.
-	  */
-	RenderMethod renderMethod;
+	inline void renderBogus(Pixel* pixelPtr);
 
 	const Pixel* const __restrict palette16;
 	const Pixel* const __restrict palette256;
@@ -109,6 +95,7 @@ private:
 
 	typedef typename DoublePixel<sizeof(Pixel)>::type DPixel;
 	DPixel dPalette[16 * 16];
+	DisplayMode mode;
 	bool dPaletteValid;
 };
 
