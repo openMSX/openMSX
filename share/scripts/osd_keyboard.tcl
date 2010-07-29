@@ -144,8 +144,8 @@ proc enable_osd_keyboard {} {
 					-h $key_height \
 					-rgba $key_color
 
-			#no edge for return key
-			if {$key_text != "Return" && $key_text != "<--"} {
+			#no edge for return key and if displayed on a Dingoo device
+			if {$key_text != "Return" && $key_text != "<--" && !$is_dingoo} {
 				osd_widgets::box kb.$keycount.box \
 					-w $key_width \
 					-h $key_height \
