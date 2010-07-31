@@ -10,7 +10,7 @@ Usage:
     record_chunks stop
 
 The chunktime parameter controls the maximum time for each chunk (default:
-10:59 for YouTube) in seconds and the totaltime parameter controls the total
+14:59 for YouTube) in seconds and the totaltime parameter controls the total
 time to record in seconds (default: infinite). Instead of the totalchunks
 parameter, you can also use the numchunks parameter to control the total time
 as a multiple of the chunk time. The options are mutually exclusive.
@@ -21,9 +21,9 @@ first.
 
 Examples:
     record_chunks -numchunks 1 start simplegame
-        Records a movie of 10:59 (maximum time for YouTube) to simplegame.avi
+        Records a movie of 14:59 (maximum time for YouTube) to simplegame.avi
     record_chunks start longgame
-        Records an infinite number of movies of 10:59 (maximum time for
+        Records an infinite number of movies of 14:59 (maximum time for
         YouTube), until you use record_chunks stop. Names are longname01.avi,
         longname02.avi, etc.
     record_chunks -chunktime 60 -totaltime 230 start partgame
@@ -46,7 +46,7 @@ proc record_chunks { args } {
 	variable next_after_id
 
 	# the defaults
-	set chunk_time 659 ;# max time for a YouTube video
+	set chunk_time 889 ;# max time for a YouTube video
 	set total_time -1  ;# record until someone says stop ..
 	set num_chunks -1  ;# .. or till we recorded this many chunks
 
