@@ -34,6 +34,12 @@ proc poke {addr val} {
 	debug write memory $addr $val
 }
 
+#because of reverse we can now save replays to a file, poke-ing adds an entry into the replay file and therefore
+#the file size can grow significantly. Therefor dpoke (poke if different or diffpoke) is introduced.
+proc dpoke {addr val} {
+	if {[debug read memory $addr]!=$val} {debug write memory $addr $val}
+}
+
 set_help_text poke16 \
 {Write a 16-bit value (in little endian format) to the given memory location.
 
@@ -193,6 +199,7 @@ proc skip_instruction {} {
 namespace export peek
 namespace export peek16
 namespace export poke
+namespace export dpoke
 namespace export poke16
 namespace export disasm
 namespace export run_to
