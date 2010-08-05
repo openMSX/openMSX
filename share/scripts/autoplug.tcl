@@ -18,10 +18,10 @@ proc do_autoplug {} {
 		}
 	}
 	if {[string match *-dingux* $::tcl_platform(osVersion)]} { ;# Dingoo
-	
+
 		bind_default TAB -repeat "volume_control -2"
 		bind_default BACKSPACE -repeat "volume_control +2"
-	
+
 		if {[lsearch $connectors "joyporta"] != -1} {
 			set ::keyjoystick1.triga LCTRL
 			set ::keyjoystick1.trigb LALT

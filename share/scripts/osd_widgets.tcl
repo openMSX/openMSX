@@ -219,11 +219,11 @@ proc volume_control {incr_val} {
 		::osd_widgets::update_power_bar volume.bar 1 -32 1 1
 		osd configure volume.bar.text -size 12 -y -16
 	}
-	
-		incr ::master_volume $incr_val
-		if {$::master_volume==0} {set ::mute on} else {set ::mute off}
-		::osd_widgets::update_power_bar volume.bar 1 1 [expr ($::master_volume*1.00)/100] [format "Volume: %03d" $::master_volume]
-		osd configure volume -fadePeriod 5 -fadeTarget 0 -fadeCurrent 1
+
+	incr ::master_volume $incr_val
+	if {$::master_volume == 0} {set ::mute on} else {set ::mute off}
+	::osd_widgets::update_power_bar volume.bar 1 1 [expr $::master_volume / 100.0] [format "Volume: %03d" $::master_volume]
+	osd configure volume -fadePeriod 5 -fadeTarget 0 -fadeCurrent 1
 }
 
 # only export stuff that is useful in other scripts or for the console user
