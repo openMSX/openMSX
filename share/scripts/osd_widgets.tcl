@@ -210,6 +210,22 @@ proc text_box {name args} {
 	}
 }
 
+proc volume_control {incr_val} {
+		
+	if {![osd exists volume]} {
+		::osd_widgets::msx_init volume
+		osd create rectangle volume.background -x -8 -y -16 -h 32 -w 272 -rgba 0x00000080
+		::osd_widgets::create_power_bar volume.bar 255 3 0x00ff00ff 0x00000080 0xffffffff
+		::osd_widgets::update_power_bar volume.bar 1 -32 1 1
+		osd configure volume.bar.text -size 12 -y -16
+	}
+	
+		incr ::master_volume $incr_val
+		if {$::master_volume==0} {set ::mute on} else {set ::mute off}
+		::osd_widgets::update_power_bar volume.bar 1 1 [expr ($::master_volume*1.00)/100] [format "Volume: %03d" $::master_volume]
+		osd configure volume -fadePeriod 5 -fadeTarget 0 -fadeCurrent 1
+}
+
 # only export stuff that is useful in other scripts or for the console user
 namespace export toggle_fps
 namespace export msx_init
@@ -219,9 +235,10 @@ namespace export text_box
 namespace export create_power_bar
 namespace export update_power_bar
 namespace export hide_power_bar
+namespace export volume_control
 
 };# namespace osd_widgets
 
 # only import stuff to global that is useful outside of scripts (i.e. for the console user)
 namespace import osd_widgets::toggle_fps
-
+namespace import osd_widgets::volume_control
