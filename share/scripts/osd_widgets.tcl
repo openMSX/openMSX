@@ -214,7 +214,7 @@ proc volume_control {incr_val} {
 		
 	if {![osd exists volume]} {
 		::osd_widgets::msx_init volume
-		osd create rectangle volume.background -x -8 -y -16 -h 32 -w 272 -rgba 0x00000080
+		osd create rectangle volume.background -x -8 -y -16 -h 32 -w 272 -rgba 0x000000a0
 		::osd_widgets::create_power_bar volume.bar 255 3 0x00ff00ff 0x00000080 0xffffffff
 		::osd_widgets::update_power_bar volume.bar 1 -32 1 1
 		osd configure volume.bar.text -size 12 -y -16
