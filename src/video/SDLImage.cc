@@ -123,23 +123,26 @@ static void zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool flipX, bool fli
 	}
 }
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+static SDLSurfacePtr create32BppSurface(int width, int height)
+{
 	static const Uint32 rmask = 0xff000000;
 	static const Uint32 gmask = 0x00ff0000;
 	static const Uint32 bmask = 0x0000ff00;
 	static const Uint32 amask = 0x000000ff;
-#else
-	static const Uint32 rmask = 0x000000ff;
-	static const Uint32 gmask = 0x0000ff00;
-	static const Uint32 bmask = 0x00ff0000;
-	static const Uint32 amask = 0xff000000;
-#endif
+
+	SDLSurfacePtr result(SDL_CreateRGBSurface(
+		SDL_SWSURFACE, abs(width), abs(height), 32, rmask, gmask, bmask, amask));
+	if (!result.get()) {
+		throw MSXException("Couldn't allocate surface.");
+	}
+	return result;
+}
+
 static SDLSurfacePtr scaleImage32(
 	SDL_Surface* input, int width, int height)
 {
 	// create a 32 bpp surface that will hold the scaled version
-	SDLSurfacePtr result(SDL_CreateRGBSurface(
-		SDL_SWSURFACE, abs(width), abs(height), 32, rmask, gmask, bmask, amask));
+	SDLSurfacePtr result = create32BppSurface(width, height);
 	SDLSurfacePtr tmp32(
 		SDL_ConvertSurface(input, result->format, SDL_SWSURFACE));
 	zoomSurface(tmp32.get(), result.get(), width < 0, height < 0);
@@ -186,10 +189,10 @@ static SDLSurfacePtr loadImage(
 // 2 -- 3
 static int cornersSameAlpha(const unsigned* rgba)
 {
-	if (((rgba[0] & 0xff000000) == (rgba[1] & 0xff000000)) &&
-	    ((rgba[0] & 0xff000000) == (rgba[1] & 0xff000000)) &&
-	    ((rgba[0] & 0xff000000) == (rgba[1] & 0xff000000))) {
-		return (rgba[0] & 0xff000000) >> 24;
+	if (((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
+	    ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
+	    ((rgba[0] & 0xff) == (rgba[3] & 0xff))) {
+		return rgba[0] & 0xff;
 	} else {
 		return -1;
 	}
@@ -203,11 +206,10 @@ static void unpackRGBA(unsigned rgba,
 	b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
 	a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
 }
-static unsigned packRGBA(const SDL_PixelFormat& format,
-                         unsigned r, unsigned g, unsigned b, unsigned a)
+static unsigned packRGBA(unsigned r, unsigned g, unsigned b, unsigned a)
 {
 	r >>= 16; g >>= 16; b >>= 16; a >>= 16;
-	return SDL_MapRGBA(&format, r, g, b, a);
+	return (r << 24) | (g << 16) | (b << 8) | (a << 0);
 }
 static void setupInterp(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
                         unsigned r1, unsigned g1, unsigned b1, unsigned a1,
@@ -223,7 +225,6 @@ static void setupInterp(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
 		da = int(a1 - a0) / int(length - 1);
 	}
 }
-template<typename Pixel>
 static void gradient(const unsigned* rgba, SDL_Surface& surface)
 {
 	unsigned width  = surface.w;
@@ -233,7 +234,6 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface)
 	unsigned r1, g1, b1, a1;
 	unsigned r2, g2, b2, a2;
 	unsigned r3, g3, b3, a3;
-	const SDL_PixelFormat& format = *surface.format;
 	unpackRGBA(rgba[0], r0, g0, b0, a0);
 	unpackRGBA(rgba[1], r1, g1, b1, a1);
 	unpackRGBA(rgba[2], r2, g2, b2, a2);
@@ -244,20 +244,20 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface)
 	setupInterp(r0, g0, b0, a0, r2, g2, b2, a2, height, dr02, dg02, db02, da02);
 	setupInterp(r1, g1, b1, a1, r3, g3, b3, a3, height, dr13, dg13, db13, da13);
 
-	Pixel* buffer = static_cast<Pixel*>(surface.pixels);
+	unsigned* buffer = static_cast<unsigned*>(surface.pixels);
 	for (unsigned y = 0; y < height; ++y) {
 		int dr, dg, db, da;
 		setupInterp(r0, g0, b0, a0, r1, g1, b1, a1, width, dr, dg, db, da);
 
 		unsigned r = r0, g = g0, b = b0, a = a0;
 		for (unsigned x = 0; x < width; ++x) {
-			buffer[x] = packRGBA(format, r, g, b, a);
+			buffer[x] = packRGBA(r, g, b, a);
 			r += dr; g += dg; b += db; a += da;
 		}
 
 		r0 += dr02; g0 += dg02; b0 += db02; a0 += da02;
 		r1 += dr13; g1 += dg13; b1 += db13; a1 += da13;
-		buffer += (surface.pitch / sizeof(Pixel));
+		buffer += (surface.pitch / sizeof(unsigned));
 	}
 }
 
@@ -339,23 +339,13 @@ SDLImage::SDLImage(int width, int height, const unsigned* rgba_)
 		std::swap(rgba[1], rgba[3]);
 	}
 
-	SDL_Surface* videoSurface = SDL_GetVideoSurface();
-	assert(videoSurface);
-	const SDL_PixelFormat& format = *videoSurface->format;
+	SDLSurfacePtr tmp32 = create32BppSurface(width, height);
+	gradient(rgba, *tmp32);
 
-	image.reset(SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-	            abs(width), abs(height), format.BitsPerPixel,
-	            format.Rmask, format.Gmask, format.Bmask, format.Amask));
-	if (!image.get()) {
-		throw MSXException("Couldn't allocate surface.");
-	}
-
-	if (format.BitsPerPixel == 32) {
-		gradient<unsigned>(rgba, *image);
-	} else if (format.BitsPerPixel == 16) {
-		gradient<word>    (rgba, *image);
+	if (a == -1) {
+		image.reset(SDL_DisplayFormatAlpha(tmp32.get()));
 	} else {
-		UNREACHABLE;
+		image.reset(SDL_DisplayFormat     (tmp32.get()));
 	}
 }
 
