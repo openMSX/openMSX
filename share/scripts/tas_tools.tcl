@@ -14,7 +14,10 @@ proc toggle_frame_counter {} {
 		return ""
 	}
 
-	osd_widgets::box framecount -x 269 -y 224 -h 8 -w 50 -rgba 0x80808080 -fill "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" -scaled true
+	osd create rectangle framecount \
+		-x 269 -y 224 -h 8 -w 50 -scaled true \
+		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
+		-borderrgba 0x80808080 -bordersize 1
 	osd create text framecount.text -x 3 -y 2 -size 4 -rgba 0xffffffff
 	framecount_update
 	return ""
@@ -224,16 +227,24 @@ proc ram_watch_add {addr_str} {
 
 	# if OSD doesn't exist yet create it
 	if {$i == 0} {
-		osd create rectangle ram_watch -x 0 -y 0 -h 240 -w 320 -scaled true -alpha 0
-		osd_widgets::box ram_watch.addr -x 288 -y 1 -w 31 -h 221 -rgba 0x80808080 -fill "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
+		osd create rectangle ram_watch \
+			-x 0 -y 0 -h 240 -w 320 -scaled true -rgba 0x00000000
+		osd create rectangle ram_watch.addr \
+			-x 288 -y 1 -w 31 -h 221 \
+			-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
+			-borderrgba 0x80808080 -bordersize 1
 		osd create text ram_watch.addr.title -text "Ram Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
 	}
 
 	# add one extra entry
-	osd create rectangle ram_watch.addr.mem$i -x 2 -y [expr 8+($i*6)] -h 5 -w 16 -rgba 0x40404080
-	osd create text  ram_watch.addr.mem$i.text -size 4 -rgba 0xffffffff
-	osd create rectangle ram_watch.addr.val$i -x 19 -y [expr 8+($i*6)] -h 5 -w 10 -rgba 0x40404080
-	osd create text  ram_watch.addr.val$i.text -size 4 -rgba 0xffffffff
+	osd create rectangle ram_watch.addr.mem$i \
+		-x 2 -y [expr 8+($i*6)] -h 5 -w 16 -rgba 0x40404080
+	osd create text  ram_watch.addr.mem$i.text \
+		-size 4 -rgba 0xffffffff
+	osd create rectangle ram_watch.addr.val$i \
+		-x 19 -y [expr 8+($i*6)] -h 5 -w 10 -rgba 0x40404080
+	osd create text  ram_watch.addr.val$i.text \
+		-size 4 -rgba 0xffffffff
 
 	ram_watch_update_addresses
 	if {$i == 0} {

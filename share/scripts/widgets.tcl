@@ -9,16 +9,16 @@ proc toggle_show_palette {} {
 		return ""
 	}
 
-	osd_widgets::box palette_viewer -x 4 -y 4 -w 56 -h 194 -rgba 0xffffffff -fill 0x00000080
+	osd create rectangle palette_viewer \
+		-x 4 -y 4 -w 56 -h 194 -rgba 0x00000080 \
+		-borderrgba 0xffffffff -bordersize 1
 
 	for {set i 0} {$i < 16} {incr i} {
-		osd_widgets::box palette_viewer.$i \
-			-x 20 \
-			-y [expr ($i*12)+2] \
-			-w 10 \
-			-h 10 \
-			-rgba 0xffffffff \
-			-fill 0xff0000ff
+		osd create rectangle palette_viewer.$i \
+			-x 20 -y [expr ($i*12)+2] \
+			-w 10 -h 10 \
+			-rgba 0xff0000ff \
+			-borderrgba 0xffffffff -bordersize 1
 		osd create text palette_viewer.$i.text \
 			-x -16 \
 			-rgba 0xffffffff \

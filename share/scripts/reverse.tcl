@@ -153,10 +153,10 @@ fade out. You can make it reappear by moving the mouse over it.
 			-x -10 -y 0 -relx 0.5 -size 5   -z 6 -rgba 0xffffffff
 		
 		# on mouse over hover box 
-		osd_widgets::box reverse.mousetime \
+		osd create rectangle reverse.mousetime \
 			-relx 0.5 -rely 1.1 -relh 1 -relw 0.10 -z 4 \
-			-fill "0xffdd55e8 0xddbb33e8 0xccaa22e8 0xffdd55e8" \
-			-border 0.5 -rgba 0xffff4480
+			-rgba "0xffdd55e8 0xddbb33e8 0xccaa22e8 0xffdd55e8" \
+			-bordersize 0.5 -borderrgba 0xffff4480
 		osd create text reverse.mousetime.text \
 			-relx 0.25 -size 5	-z 4 -rgba 0x000000ff 
 

@@ -78,8 +78,8 @@ proc menu_create { menu_def_list } {
 	set on_open      [get_optional menudef "on-open" ""]
 	set on_close     [get_optional menudef "on-close" ""]
 
-	#osd create rectangle $name -scaled true -rgba $bgcolor -clip true
-	osd_widgets::box $name -scaled true -rgba 0x000000ff -border 0.5 -clip true -fill $bgcolor -scaled true
+	osd create rectangle $name -scaled true -rgba $bgcolor -clip true \
+		-borderrgba 0x000000ff -bordersize 0.5
 
 	set y $bordersize
 	set selectinfo [list]
