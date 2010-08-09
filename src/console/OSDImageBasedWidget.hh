@@ -29,7 +29,6 @@ public:
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
 	bool hasConstantAlpha() const;
-	bool hasConstantRGBA() const;
 	virtual void invalidateLocal();
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);

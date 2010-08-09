@@ -187,17 +187,6 @@ static SDLSurfacePtr loadImage(
 // 0 -- 1
 // |    |
 // 2 -- 3
-static int cornersSameAlpha(const unsigned* rgba)
-{
-	if (((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
-	    ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
-	    ((rgba[0] & 0xff) == (rgba[3] & 0xff))) {
-		return rgba[0] & 0xff;
-	} else {
-		return -1;
-	}
-}
-
 static void unpackRGBA(unsigned rgba,
                        unsigned& r, unsigned&g, unsigned&b, unsigned& a)
 {
@@ -282,9 +271,27 @@ SDLImage::SDLImage(const string& filename, int width, int height)
 }
 
 SDLImage::SDLImage(int width, int height, unsigned rgba)
-	: a(((rgba & 0xFF) == 255) ? 256 : (rgba & 0xFF))
-	, flipX(width < 0), flipY(height < 0)
+	: flipX(width < 0), flipY(height < 0)
 {
+	initSolid(width, height, rgba);
+}
+
+
+SDLImage::SDLImage(int width, int height, const unsigned* rgba)
+	: flipX(width < 0), flipY(height < 0)
+{
+	if ((rgba[0] == rgba[1]) &&
+	    (rgba[0] == rgba[2]) &&
+	    (rgba[0] == rgba[3])) {
+		initSolid   (width, height, rgba[0]);
+	} else {
+		initGradient(width, height, rgba);
+	}
+}
+
+void SDLImage::initSolid(int width, int height, unsigned rgba)
+{
+	a = ((rgba & 0xFF) == 255) ? 256 : (rgba & 0xFF);
 	checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
 		return;
@@ -316,11 +323,19 @@ SDLImage::SDLImage(int width, int height, unsigned rgba)
 	}
 }
 
-
-SDLImage::SDLImage(int width, int height, const unsigned* rgba_)
-	: a(cornersSameAlpha(rgba_))
-	, flipX(width < 0), flipY(height < 0)
+static int cornersSameAlpha(const unsigned* rgba)
 {
+	if (((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
+	    ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
+	    ((rgba[0] & 0xff) == (rgba[3] & 0xff))) {
+		return rgba[0] & 0xff;
+	} else {
+		return -1;
+	}
+}
+void SDLImage::initGradient(int width, int height, const unsigned* rgba_)
+{
+	a = cornersSameAlpha(rgba_);
 	checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
 		return;

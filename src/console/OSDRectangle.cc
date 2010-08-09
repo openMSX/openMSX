@@ -153,13 +153,7 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		getWidthHeight(output, width, height);
 		int sw = int(round(width));
 		int sh = int(round(height));
-		if (hasConstantRGBA()) {
-			// uniform color
-			return new IMAGE(sw, sh, getRGBA(0));
-		} else {
-			// gradient
-			return new IMAGE(sw, sh, getRGBA4());
-		}
+		return new IMAGE(sw, sh, getRGBA4());
 	} else {
 		SystemFileContext context;
 		CommandController* controller = NULL; // ok for SystemFileContext

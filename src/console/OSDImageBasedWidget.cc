@@ -154,10 +154,6 @@ bool OSDImageBasedWidget::hasConstantAlpha() const
 {
 	return constantAlpha(rgba);
 }
-bool OSDImageBasedWidget::hasConstantRGBA() const
-{
-	return (rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3]);
-}
 
 double OSDImageBasedWidget::getRecursiveFadeValue() const
 {

@@ -25,6 +25,8 @@ public:
 	virtual int getHeight() const;
 
 private:
+	void initSolid(int width, int height, unsigned rgba);
+	void initGradient(int width, int height, const unsigned* rgba);
 	void allocateWorkImage();
 
 	SDLSurfacePtr image;
