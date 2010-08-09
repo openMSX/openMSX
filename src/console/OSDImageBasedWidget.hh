@@ -19,7 +19,7 @@ public:
 	unsigned getRGBA(unsigned corner) const { return rgba[corner]; }
 	const unsigned* getRGBA4() const { return rgba; }
 
-	byte getFadedAlpha() const;
+	virtual byte getFadedAlpha() const = 0;
 
 	virtual void getProperties(std::set<std::string>& result) const;
 	virtual void setProperty(const std::string& name, const TclObject& value);

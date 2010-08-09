@@ -26,6 +26,7 @@ private:
 	virtual void invalidateLocal();
 	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const;
+	virtual byte getFadedAlpha() const;
 	virtual BaseImage* createSDL(OutputSurface& output);
 	virtual BaseImage* createGL (OutputSurface& output);
 	template <typename IMAGE> BaseImage* create(OutputSurface& output);

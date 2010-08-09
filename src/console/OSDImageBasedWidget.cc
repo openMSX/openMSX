@@ -159,12 +159,6 @@ bool OSDImageBasedWidget::hasConstantRGBA() const
 	return (rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3]);
 }
 
-byte OSDImageBasedWidget::getFadedAlpha() const
-{
-	unsigned alpha = constantAlpha(rgba) ? (rgba[0] & 0xff): 255;
-	return byte(alpha * getRecursiveFadeValue());
-}
-
 double OSDImageBasedWidget::getRecursiveFadeValue() const
 {
 	return getParent()->getRecursiveFadeValue() * getCurrentFadeValue();

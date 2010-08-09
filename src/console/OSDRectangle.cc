@@ -131,6 +131,11 @@ void OSDRectangle::getWidthHeight(const OutputRectangle& output,
 	//std::cout << "rectangle getWH " << getName() << "  " << width << " x " << height << std::endl;
 }
 
+byte OSDRectangle::getFadedAlpha() const
+{
+	return byte(255 * getRecursiveFadeValue());
+}
+
 template <typename IMAGE> BaseImage* OSDRectangle::create(
 	OutputSurface& output)
 {
@@ -148,21 +153,9 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		getWidthHeight(output, width, height);
 		int sw = int(round(width));
 		int sh = int(round(height));
-		if (constAlpha) {
-			// note: Image is create with alpha = 255. Actual
-			//  alpha is applied during drawing. This way we
-			//  can also reuse the same image if only alpha
-			//  changes.
-			if (hasConstantRGBA()) {
-				unsigned rgb = getRGBA(0) | 0xff;
-				return new IMAGE(sw, sh, rgb);
-			} else {
-				unsigned rgb[4];
-				for (unsigned i = 0; i < 4; ++i) {
-					rgb[i] = getRGBA(i) | 0xff;
-				}
-				return new IMAGE(sw, sh, rgb);
-			}
+		if (hasConstantRGBA()) {
+			// uniform color
+			return new IMAGE(sw, sh, getRGBA(0));
 		} else {
 			// gradient
 			return new IMAGE(sw, sh, getRGBA4());

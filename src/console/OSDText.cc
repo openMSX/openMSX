@@ -109,6 +109,11 @@ void OSDText::getWidthHeight(const OutputRectangle& /*output*/,
 	}
 }
 
+byte OSDText::getFadedAlpha() const
+{
+	return byte((getRGBA(0) & 0xff) * getRecursiveFadeValue());
+}
+
 template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
 	if (text.empty()) {

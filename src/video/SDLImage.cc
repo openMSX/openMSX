@@ -394,10 +394,10 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 	SDL_Rect rect;
 	rect.x = x;
 	rect.y = y;
-	if (alpha == 255) {
-		SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
-	} else {
-		if (a == -1) {
+	if (a == -1) {
+		if (alpha == 255) {
+			SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
+		} else {
 			if (!workImage.get()) {
 				allocateWorkImage();
 			}
@@ -407,10 +407,10 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 			SDL_BlitSurface(image.get(),   NULL,  workImage.get(), NULL);
 			SDL_SetAlpha(workImage.get(), SDL_SRCALPHA, alpha);
 			SDL_BlitSurface(workImage.get(), NULL, outputSurface, &rect);
-		} else {
-			SDL_SetAlpha(image.get(), SDL_SRCALPHA, (a * alpha) / 256);
-			SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
 		}
+	} else {
+		SDL_SetAlpha(image.get(), SDL_SRCALPHA, (a * alpha) / 256);
+		SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
 	}
 }
 
