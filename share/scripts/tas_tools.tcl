@@ -15,9 +15,9 @@ proc toggle_frame_counter {} {
 	}
 
 	osd create rectangle framecount \
-		-x 269 -y 224 -h 8 -w 50 -scaled true \
+		-x 269 -y 223 -h 10 -w 50 -scaled true \
 		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
-		-borderrgba 0x80808080 -bordersize 1
+		-borderrgba 0x00000040 -bordersize 0.5
 	osd create text framecount.text -x 3 -y 2 -size 4 -rgba 0xffffffff
 	framecount_update
 	return ""
@@ -173,7 +173,9 @@ proc show_key_press {key state} {
 }
 
 proc create_key {name x y} {
-	osd_widgets::box cursors.$name -x $x -y $y -w 16 -h 10 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
+	osd create rectangle cursors.$name -x $x -y $y -w 16 -h 10 \
+	-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
+	-bordersize 0.5 -borderrgba 0x00000040
 	osd create text cursors.$name.text -x 2 -y 2 -text $name -size 4 -rgba 0xffffffff
 }
 
@@ -232,7 +234,7 @@ proc ram_watch_add {addr_str} {
 		osd create rectangle ram_watch.addr \
 			-x 288 -y 1 -w 31 -h 221 \
 			-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
-			-borderrgba 0x80808080 -bordersize 1
+			-borderrgba 0x00000040 -bordersize 0.5
 		osd create text ram_watch.addr.title -text "Ram Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
 	}
 
