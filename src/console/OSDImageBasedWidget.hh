@@ -42,6 +42,7 @@ protected:
 	std::auto_ptr<BaseImage> image;
 
 private:
+	void setRGBA(const unsigned newRGBA[4]);
 	bool isFading() const;
 	double getCurrentFadeValue() const;
 	double getCurrentFadeValue(unsigned long long) const;

@@ -61,52 +61,30 @@ static void get4(const TclObject& value, unsigned* result)
 		throw CommandException("Expected either 1 or 4 values.");
 	}
 }
-static bool constantAlpha(const unsigned rgba[4])
-{
-	return ((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
-	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
-	       ((rgba[0] & 0xff) == (rgba[3] & 0xff));
-}
-static bool sameRGB(const unsigned rgba_1[4], unsigned shift,
-                    const unsigned rgba_2[4])
-{
-	return (((rgba_1[0] << shift) & 0xffffff00) == (rgba_2[0] & 0xffffff00)) &&
-	       (((rgba_1[1] << shift) & 0xffffff00) == (rgba_2[1] & 0xffffff00)) &&
-	       (((rgba_1[2] << shift) & 0xffffff00) == (rgba_2[2] & 0xffffff00)) &&
-	       (((rgba_1[3] << shift) & 0xffffff00) == (rgba_2[3] & 0xffffff00));
-}
 void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value)
 {
 	if (name == "-rgba") {
 		unsigned newRGBA[4];
 		get4(value, newRGBA);
-		if (!constantAlpha(newRGBA) || !constantAlpha(rgba) ||
-		    !sameRGB(newRGBA, 0, rgba)) {
-			invalidateLocal();
-		}
-		for (unsigned i = 0; i < 4; ++i) {
-			rgba[i] = newRGBA[i];
-		}
+		setRGBA(newRGBA);
 	} else if (name == "-rgb") {
 		unsigned newRGB[4];
 		get4(value, newRGB);
-		if (!constantAlpha(rgba) || !sameRGB(newRGB, 8, rgba)) {
-			invalidateLocal();
-		}
+		unsigned newRGBA[4];
 		for (unsigned i = 0; i < 4; ++i) {
-			rgba[i] = (rgba[i]          & 0x000000ff) |
-			          ((newRGB[i] << 8) & 0xffffff00);
+			newRGBA[i] = (rgba[i]          & 0x000000ff) |
+			             ((newRGB[i] << 8) & 0xffffff00);
 		}
+		setRGBA(newRGBA);
 	} else if (name == "-alpha") {
 		unsigned newAlpha[4];
 		get4(value, newAlpha);
-		if (!constantAlpha(rgba) || !constantAlpha(newAlpha)) {
-			invalidateLocal();
-		}
+		unsigned newRGBA[4];
 		for (unsigned i = 0; i < 4; ++i) {
-			rgba[i] = (rgba[i]     & 0xffffff00) |
-			          (newAlpha[i] & 0x000000ff);
+			newRGBA[i] = (rgba[i]     & 0xffffff00) |
+			             (newAlpha[i] & 0x000000ff);
 		}
+		setRGBA(newRGBA);
 	} else if (name == "-fadePeriod") {
 		updateCurrentFadeValue();
 		fadePeriod = value.getDouble();
@@ -118,6 +96,21 @@ void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value
 		startFadeTime = Timer::getTime();
 	} else {
 		OSDWidget::setProperty(name, value);
+	}
+}
+
+void OSDImageBasedWidget::setRGBA(const unsigned newRGBA[4])
+{
+	if ((rgba[0] == newRGBA[0]) &&
+	    (rgba[1] == newRGBA[1]) &&
+	    (rgba[2] == newRGBA[2]) &&
+	    (rgba[3] == newRGBA[3])) {
+		// not changed
+		return;
+	}
+	invalidateLocal();
+	for (unsigned i = 0; i < 4; ++i) {
+		rgba[i] = newRGBA[i];
 	}
 }
 
@@ -151,6 +144,12 @@ void OSDImageBasedWidget::getProperty(const string& name, TclObject& result) con
 	}
 }
 
+static bool constantAlpha(const unsigned rgba[4])
+{
+	return ((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
+	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
+	       ((rgba[0] & 0xff) == (rgba[3] & 0xff));
+}
 bool OSDImageBasedWidget::hasConstantAlpha() const
 {
 	return constantAlpha(rgba);
