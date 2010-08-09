@@ -754,15 +754,14 @@ proc display_osd_text { message {category info} } {
 	
 	osd_widgets::text_box display_osd_text \
 					-text $message \
-					-textcolor 0xffffffff \
+					-textrgba 0xffffffff \
 					-textsize 6 \
-					-fill $bg_color \
+					-rgba $bg_color \
 					-x 3 -y 12 -z 5 -w 314 \
-					-scaled true \
-					-border 0.5 \
+					-bordersize 0.5 \
+					-borderrgba 0x000000ff \
 					-clip true \
 					-scaled true \
-					-rgba 0x000000ff \
 					-fadeCurrent 1 \
 					-fadeTarget 0 \
 					-fadePeriod 5

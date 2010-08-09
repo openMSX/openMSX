@@ -164,13 +164,11 @@ proc toggle_fps {} {
 	return ""
 }
 
-set_help_text osd_widgets::box\
-{The command 'osd_widgets::text_box' supports the same parameters as an 'osd_widgets::box' command.
-With the following exception:
-
--text: defines the text to be printed, can have multiple lines (separated by 'new line' characters).
--textcolor: defines the color of the text
--textsize: defines the font size of the text}
+set_help_text osd_widgets::text_box\
+{The 'osd_widgets::text_box' widget supports the same properties as a 'rectangle' widget with the following additions:
+ -text: defines the text to be printed, can have multiple lines (separated by 'new line' characters).
+ -textcolor: defines the color of the text
+ -textsize: defines the font size of the text}
 
 proc text_box {name args} {
 	# Default values in case nothing is given
@@ -178,13 +176,13 @@ proc text_box {name args} {
 	set txt_size 6
 
 	# Process arguments
-	set box_props [list]
+	set rect_props [list]
 	foreach {key val} $args {
 		switch -- $key {
-			-text      { set full_message $val }
-			-textcolor { set txt_color    $val }
-			-textsize  { set txt_size     $val }
-			default    { lappend box_props $key $val }
+			-text     { set full_message $val }
+			-textrgba { set txt_color    $val }
+			-textsize { set txt_size     $val }
+			default   { lappend rect_props $key $val }
 		}
 	}
 
@@ -201,7 +199,8 @@ proc text_box {name args} {
 	set message_list [split $full_message "\n"]
 	set lines [llength $message_list]
 
-	eval "osd_widgets::box \{$name\} $box_props -h [expr 4 + (($txt_size + 1) * $lines)]"
+	eval "osd create rectangle \{$name\} $rect_props \
+		-h [expr 4 + (($txt_size + 1) * $lines)]"
 
 	set line 0
 	foreach message $message_list {
