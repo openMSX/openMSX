@@ -214,10 +214,11 @@ static void setupInterp(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
 		da = int(a1 - a0) / int(length - 1);
 	}
 }
-static void gradient(const unsigned* rgba, SDL_Surface& surface)
+static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
 {
-	unsigned width  = surface.w;
-	unsigned height = surface.h;
+	int width  = surface.w - 2 * borderSize;
+	int height = surface.h - 2 * borderSize;
+	if ((width <= 0) || (height <= 0)) return;
 
 	unsigned r0, g0, b0, a0;
 	unsigned r1, g1, b1, a1;
@@ -234,12 +235,14 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface)
 	setupInterp(r1, g1, b1, a1, r3, g3, b3, a3, height, dr13, dg13, db13, da13);
 
 	unsigned* buffer = static_cast<unsigned*>(surface.pixels);
-	for (unsigned y = 0; y < height; ++y) {
+	buffer += borderSize;
+	buffer += borderSize * (surface.pitch / sizeof(unsigned));
+	for (int y = 0; y < height; ++y) {
 		int dr, dg, db, da;
 		setupInterp(r0, g0, b0, a0, r1, g1, b1, a1, width, dr, dg, db, da);
 
 		unsigned r = r0, g = g0, b = b0, a = a0;
-		for (unsigned x = 0; x < width; ++x) {
+		for (int x = 0; x < width; ++x) {
 			buffer[x] = packRGBA(r, g, b, a);
 			r += dr; g += dg; b += db; a += da;
 		}
@@ -273,69 +276,123 @@ SDLImage::SDLImage(const string& filename, int width, int height)
 SDLImage::SDLImage(int width, int height, unsigned rgba)
 	: flipX(width < 0), flipY(height < 0)
 {
-	initSolid(width, height, rgba);
+	initSolid(width, height, rgba, 0, 0); // no border
 }
 
 
-SDLImage::SDLImage(int width, int height, const unsigned* rgba)
+SDLImage::SDLImage(int width, int height, const unsigned* rgba,
+                   unsigned borderSize, unsigned borderRGBA)
 	: flipX(width < 0), flipY(height < 0)
 {
 	if ((rgba[0] == rgba[1]) &&
 	    (rgba[0] == rgba[2]) &&
 	    (rgba[0] == rgba[3])) {
-		initSolid   (width, height, rgba[0]);
+		initSolid   (width, height, rgba[0], borderSize, borderRGBA);
 	} else {
-		initGradient(width, height, rgba);
+		initGradient(width, height, rgba,    borderSize, borderRGBA);
 	}
 }
 
-void SDLImage::initSolid(int width, int height, unsigned rgba)
+static unsigned convertColor(const SDL_PixelFormat& format, unsigned rgba)
 {
-	a = ((rgba & 0xFF) == 255) ? 256 : (rgba & 0xFF);
+	return SDL_MapRGBA(
+#if SDL_VERSION_ATLEAST(1, 2, 12)
+		&format,
+#else
+		// Work around const correctness bug in SDL 1.2.11 (bug #421).
+		const_cast<SDL_PixelFormat*>(&format),
+#endif
+		(rgba >> 24) & 0xff,
+		(rgba >> 16) & 0xff,
+		(rgba >>  8) & 0xff,
+		(rgba >>  0) & 0xff);
+}
+
+static void drawBorder(SDL_Surface& image, int size, unsigned rgba)
+{
+	if (size <= 0) return;
+
+	unsigned color = convertColor(*image.format, rgba);
+	bool onlyBorder = ((2 * size) >= image.w) ||
+	                  ((2 * size) >= image.h);
+	if (onlyBorder) {
+		SDL_FillRect(&image, NULL, color);
+	} else {
+		// +--------------------+
+		// |          1         |
+		// +---+------------+---+
+		// |   |            |   |
+		// | 3 |            | 4 |
+		// |   |            |   |
+		// +---+------------+---+
+		// |          2         |
+		// +--------------------+
+		SDL_Rect rect;
+		rect.x = 0;
+		rect.y = 0;
+		rect.w = image.w;
+		rect.h = size;
+		SDL_FillRect(&image, &rect, color); // 1
+
+		rect.y = image.h - size;
+		SDL_FillRect(&image, &rect, color); // 2
+
+		rect.y = size;
+		rect.w = size;
+		rect.h = image.h - 2 * size;
+		SDL_FillRect(&image, &rect, color); // 3
+
+		rect.x = image.w - size;
+		SDL_FillRect(&image, &rect, color); // 4
+	}
+}
+
+void SDLImage::initSolid(int width, int height, unsigned rgba,
+                         unsigned borderSize, unsigned borderRGBA)
+{
 	checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
+		// SDL_FillRect crashes on zero-width surfaces, so check for it
 		return;
 	}
 
+	unsigned bgAlpha     = rgba       & 0xff;
+	unsigned borderAlpha = borderRGBA & 0xff;
+	if (bgAlpha == borderAlpha) {
+		a = (bgAlpha == 255) ? 256 : bgAlpha;
+	} else {
+		a = -1;
+	}
+
+	// create surface of correct size without alpha channel
 	SDL_Surface* videoSurface = SDL_GetVideoSurface();
 	assert(videoSurface);
 	const SDL_PixelFormat& format = *videoSurface->format;
-
 	image.reset(SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
 		abs(width), abs(height), format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, 0));
 	if (!image.get()) {
 		throw MSXException("Couldn't allocate surface.");
 	}
-	if (rgba & 0xffffff00) {
-		// crashes on zero-width surfaces, that's why we
-		// check for it at the beginning of this method
-		SDL_FillRect(image.get(), NULL, SDL_MapRGB(
-#if SDL_VERSION_ATLEAST(1, 2, 12)
-			&format,
-#else
-			// Work around const correctness bug in SDL 1.2.11 (bug #421).
-			const_cast<SDL_PixelFormat*>(&format),
-#endif
-			(rgba >> 24) & 0xff,
-			(rgba >> 16) & 0xff,
-			(rgba >>  8) & 0xff));
+
+	if (a == -1) {
+		// we need an alpha channel
+		// TODO is it possible to immediately construct the surface
+		//      with an alpha channel?
+		// TODO What about alpha channel in 16bpp?
+		SDLSurfacePtr tmp(image.release());
+		image.reset(SDL_DisplayFormatAlpha(tmp.get()));
 	}
+
+	// draw interior
+	SDL_FillRect(image.get(), NULL, convertColor(*image->format, rgba));
+
+	drawBorder(*image, borderSize, borderRGBA);
 }
 
-static int cornersSameAlpha(const unsigned* rgba)
+void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
+                            unsigned borderSize, unsigned borderRGBA)
 {
-	if (((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
-	    ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
-	    ((rgba[0] & 0xff) == (rgba[3] & 0xff))) {
-		return rgba[0] & 0xff;
-	} else {
-		return -1;
-	}
-}
-void SDLImage::initGradient(int width, int height, const unsigned* rgba_)
-{
-	a = cornersSameAlpha(rgba_);
 	checkSize(width, height);
 	if ((width == 0) || (height == 0)) {
 		return;
@@ -345,6 +402,16 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_)
 	for (unsigned i = 0; i < 4; ++i) {
 		rgba[i] = rgba_[i];
 	}
+
+	if (((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
+	    ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
+	    ((rgba[0] & 0xff) == (rgba[3] & 0xff)) &&
+	    ((rgba[0] & 0xff) == (borderRGBA & 0xff))) {
+		a = rgba[0] & 0xff;
+	} else {
+		a = -1;
+	}
+
 	if (flipX) {
 		std::swap(rgba[0], rgba[1]);
 		std::swap(rgba[2], rgba[3]);
@@ -355,7 +422,8 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_)
 	}
 
 	SDLSurfacePtr tmp32 = create32BppSurface(width, height);
-	gradient(rgba, *tmp32);
+	gradient(rgba, *tmp32, borderSize);
+	drawBorder(*tmp32, borderSize, borderRGBA);
 
 	if (a == -1) {
 		image.reset(SDL_DisplayFormatAlpha(tmp32.get()));

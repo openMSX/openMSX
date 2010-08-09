@@ -17,7 +17,8 @@ public:
 	SDLImage(const std::string& filename, double scaleFactor);
 	SDLImage(const std::string& filename, int width, int height);
 	SDLImage(int width, int height, unsigned rgba);
-	SDLImage(int width, int height, const unsigned* rgba);
+	SDLImage(int width, int height, const unsigned* rgba,
+	         unsigned borderSize, unsigned borderRGBA);
 
 	virtual void draw(OutputSurface& output, int x, int y,
 	                  byte alpha = 255);
@@ -25,8 +26,10 @@ public:
 	virtual int getHeight() const;
 
 private:
-	void initSolid(int width, int height, unsigned rgba);
-	void initGradient(int width, int height, const unsigned* rgba);
+	void initSolid(int width, int height, unsigned rgba,
+	               unsigned borderSize, unsigned borderRGBA);
+	void initGradient(int width, int height, const unsigned* rgba,
+	               unsigned borderSize, unsigned borderRGBA);
 	void allocateWorkImage();
 
 	SDLSurfacePtr image;

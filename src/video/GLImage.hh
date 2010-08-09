@@ -19,7 +19,8 @@ public:
 	GLImage(const std::string& filename, double scaleFactor);
 	GLImage(const std::string& filename, int width, int height);
 	GLImage(int width, int height, unsigned rgba);
-	GLImage(int width, int height, const unsigned* rgba);
+	GLImage(int width, int height, const unsigned* rgba,
+	        unsigned borderSize, unsigned borderRGBA);
 	virtual ~GLImage();
 
 	virtual void draw(OutputSurface& output, int x, int y,
@@ -32,8 +33,10 @@ private:
 	unsigned width;
 	unsigned height;
 	GLfloat texCoord[4];
-	int a[4];
+	unsigned borderSize;
+	int a[4], borderA;
 	byte r[4], g[4], b[4];
+	byte borderR, borderG, borderB;
 };
 
 } // namespace openmsx

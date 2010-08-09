@@ -22,6 +22,7 @@ namespace openmsx {
 OSDRectangle::OSDRectangle(const OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
 	, w(0.0), h(0.0), relw(0.0), relh(0.0), scale(1.0)
+	, borderSize(0.0), relBorderSize(0.0), borderRGBA(0x000000ff)
 {
 }
 
@@ -33,6 +34,9 @@ void OSDRectangle::getProperties(set<string>& result) const
 	result.insert("-relh");
 	result.insert("-scale");
 	result.insert("-image");
+	result.insert("-bordersize");
+	result.insert("-relbordersize");
+	result.insert("-borderrgba");
 	OSDImageBasedWidget::getProperties(result);
 }
 
@@ -77,6 +81,24 @@ void OSDRectangle::setProperty(const string& name, const TclObject& value)
 			imageName = val;
 			invalidateRecursive();
 		}
+	} else if (name == "-bordersize") {
+		double size = value.getDouble();
+		if (borderSize != size) {
+			borderSize = size;
+			invalidateLocal();
+		}
+	} else if (name == "-relbordersize") {
+		double size = value.getDouble();
+		if (relBorderSize != size) {
+			relBorderSize = size;
+			invalidateLocal();
+		}
+	} else if (name == "-borderrgba") {
+		unsigned newRGBA = value.getInt();
+		if (borderRGBA != newRGBA) {
+			borderRGBA = newRGBA;
+			invalidateLocal();
+		}
 	} else {
 		OSDImageBasedWidget::setProperty(name, value);
 	}
@@ -96,6 +118,12 @@ void OSDRectangle::getProperty(const string& name, TclObject& result) const
 		result.setDouble(scale);
 	} else if (name == "-image") {
 		result.setString(imageName);
+	} else if (name == "-bordersize") {
+		result.setDouble(borderSize);
+	} else if (name == "-relbordersize") {
+		result.setDouble(relBorderSize);
+	} else if (name == "-borderrgba") {
+		result.setInt(borderRGBA);
 	} else {
 		OSDImageBasedWidget::getProperty(name, result);
 	}
@@ -153,7 +181,10 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		getWidthHeight(output, width, height);
 		int sw = int(round(width));
 		int sh = int(round(height));
-		return new IMAGE(sw, sh, getRGBA4());
+		double factor = getScaleFactor(output) * scale;
+		int bs = int(round(factor * borderSize + width * relBorderSize));
+		assert(bs >= 0);
+		return new IMAGE(sw, sh, getRGBA4(), bs, borderRGBA);
 	} else {
 		SystemFileContext context;
 		CommandController* controller = NULL; // ok for SystemFileContext

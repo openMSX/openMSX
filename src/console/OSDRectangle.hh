@@ -23,6 +23,7 @@ public:
 
 private:
 	bool takeImageDimensions() const;
+
 	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const;
 	virtual byte getFadedAlpha() const;
@@ -31,7 +32,8 @@ private:
 	template <typename IMAGE> BaseImage* create(OutputSurface& output);
 
 	std::string imageName;
-	double w, h, relw, relh, scale;
+	double w, h, relw, relh, scale, borderSize, relBorderSize;
+	unsigned borderRGBA;
 };
 
 } // namespace openmsx
