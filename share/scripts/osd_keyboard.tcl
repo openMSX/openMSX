@@ -102,12 +102,14 @@ proc enable_osd_keyboard {} {
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
 	set key_basewidth 18
-	set rows {"F1*26|F2*26|F3*26|F4*26|F5*26|null*8|Select*26|Stop*26|null*8|Home*26|Ins*26|Del*26" \
-			 "Esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|BS" \
-			 "Tab*28|Q|W|E|R|T|Y|U|I|O|P|\[|]|Return*28" \
-			 "Ctrl*32|A|S|D|F|G|H|J|K|L|;|'|`|<--*24" \
-			 "Shift*40|Z|X|C|V|B|N|M|,|.|/|Acc|Shift*36" \
-			 "null*40|Cap|Grp|Space*158|Cod"}
+	set rows {
+		"F1*26|F2*26|F3*26|F4*26|F5*26|null*8|Select*26|Stop*26|null*8|Home*26|Ins*26|Del*26" \
+		 "Esc|1|2|3|4|5|6|7|8|9|0|-|=|\\|BS" \
+		 "Tab*28|Q|W|E|R|T|Y|U|I|O|P|\[|]|Return*28" \
+		 "Ctrl*32|A|S|D|F|G|H|J|K|L|;|'|`|<--*24" \
+		 "Shift*40|Z|X|C|V|B|N|M|,|.|/|Acc|Shift*36" \
+		 "null*40|Cap|Grp|Space*158|Cod"
+	}
 
 	# Keyboard layout constants.
 	variable key_height
@@ -128,46 +130,36 @@ proc enable_osd_keyboard {} {
 		-h $board_height -scaled true -rgba $key_background_color
 	set keycount 0
 	for {set y 0} {$y <= [llength $rows]} {incr y} {
+		set y_base [expr $board_vborder + $y * ($key_height + $key_vspace)]
 		lappend row_starts $keycount
 		set x $board_hborder
 		foreach {keys} [split [lindex $rows $y]  "|"] {
-			set key [split $keys "*"]
-			set key_text [lindex $key 0]
-			set key_width [lindex $key 1]
+			foreach {key_text key_width} [split $keys "*"] {}
 			if {$key_width < 1} {set key_width $key_basewidth}
-
 			if {$key_text != "null"} {
+				set key_y $y_base
+				set key_h $key_height
+				set bordersize 1
+				if {$key_text == "Return"} {
+					set bordersize 0
+				} elseif {$key_text == "<--"} {
+					set bordersize 0
+					incr key_y -$key_vspace
+					incr key_h  $key_vspace
+				}
 				osd create rectangle kb.$keycount \
-					-x $x \
-					-y [expr $board_vborder + $y * ($key_height + $key_vspace)] \
-					-w $key_width \
-					-h $key_height \
-					-rgba $key_color
-
-			#no edge for return key and if displayed on a Dingoo device
-			if {$key_text != "Return" && $key_text != "<--" && !$is_dingoo} {
-				osd_widgets::box kb.$keycount.box \
-					-w $key_width \
-					-h $key_height \
-					-rgba $key_edge_color
-			}
-
-			if {$key_text == "<--"} {
-				# Merge bottom part of "return" key with top part.
-				osd configure kb.$keycount \
-					-y [expr [osd info kb.$keycount -y] - $key_vspace] \
-					-h [expr [osd info kb.$keycount -h] + $key_vspace]
-			}
-
-			osd create text kb.$keycount.text \
-				-x 1.1 \
-				-y 0.1 \
-				-text $key_text \
-				-size 8
-
+					-x $x -y $key_y \
+					-w $key_width -h $key_h \
+					-rgba $key_color \
+					-bordersize $bordersize \
+					-borderrgba $key_edge_color
+				osd create text kb.$keycount.text \
+					-x 1.1 \
+					-y 0.1 \
+					-text $key_text \
+					-size 8
 				incr keycount
 			}
-
 			set x [expr $x + $key_width + $key_hspace]
 		}
 	}
