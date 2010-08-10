@@ -18,9 +18,12 @@ variable row_starts
 variable key_color "0x999999c0 0xbbbbbbc0 0xddddddc0 0xffffffc0"
 variable key_pressed_color "0x994400c0 0xbb5500c0 0xdd6600c0 0xff8800c0"
 variable key_background_color 0x00000080
-variable key_hold_color 0x00ff88ff
+variable key_hold_color "0x009933f0 0x00bb44f0 0x00dd66f0 0x00ff88ff" 
 variable key_select_color "0x999933f0 0xbbbb44f0 0xdddd66f0 0xffff88f0"
 variable key_edge_color 0xaaaaaaa0
+variable key_edge_color_select 0xaaaa00a0
+variable key_edge_color_hold 0x00aa44a0
+variable key_edge_color_pressed 0xaa4444a0
 
 # Keyboard layout constants.
 variable key_height 16
@@ -297,19 +300,28 @@ proc update_key_color {key_id} {
 	variable key_select_color
 	variable key_pressed_color
 	variable key_hold_color
-
+	variable key_edge_color
+	variable key_edge_color_select 
+	variable key_edge_color_hold
+	variable key_edge_color_pressed
+	
+	
 	if {$key_id < 0} {
 		return
 	} elseif {$key_id == $key_pressed} {
 		set color $key_pressed_color
+		set edge_color $key_edge_color_pressed
 	} elseif {$key_id == $key_selected} {
 		set color $key_select_color
+		set edge_color $key_edge_color_select
 	} elseif {[lsearch $keys_held $key_id] != -1} {
 		set color $key_hold_color
+		set edge_color $key_edge_color_hold
 	} else {
 		set color $key_color
+		set edge_color $key_edge_color
 	}
-	osd configure kb.$key_id -rgba $color
+	osd configure kb.$key_id -rgba $color -borderrgba $edge_color
 }
 
 proc key_at_coord {x y} {
@@ -345,8 +357,6 @@ proc key_at_mouse {} {
 
 proc key_hold_toggle {} {
 	variable keys_held
-	variable key_color
-	variable key_hold_color
 	variable key_selected
 	variable is_dingoo
 

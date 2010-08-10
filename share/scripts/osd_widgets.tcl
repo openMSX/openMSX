@@ -157,16 +157,16 @@ proc text_box {name args} {
 proc volume_control {incr_val} {
 		
 	if {![osd exists volume]} {
-		::osd_widgets::msx_init volume
-		osd create rectangle volume.background -x -8 -y -16 -h 32 -w 272 -rgba 0x000000a0
-		::osd_widgets::create_power_bar volume.bar 255 3 0x00ff00ff 0x00000080 0xffffffff
-		::osd_widgets::update_power_bar volume.bar 1 -32 1 1
-		osd configure volume.bar.text -size 12 -y -16
+		osd create rectangle volume -x 0 -y 0 -h 32 -w 320 -rgba 0x000000a0 -scaled true
+		osd create rectangle volume.bar -x 16 -y 16 -h 8 -w 290 -rgba 0x000000c0 -borderrgba 0xffffffff -bordersize 1
+		osd create rectangle volume.bar.meter -x 1 -y 1 -h 6 -w 288 -rgba "0x00aa33e8 0x00dd66e8 0x00cc55e8 0x00ff77e8"
+		osd create text 	 volume.text -x 16 -y 3 -size 10 -rgba 0xffffffff
 	}
 
 	incr ::master_volume $incr_val
 	if {$::master_volume == 0} {set ::mute on} else {set ::mute off}
-	::osd_widgets::update_power_bar volume.bar 1 1 [expr $::master_volume / 100.0] [format "Volume: %03d" $::master_volume]
+	osd configure volume.bar.meter -w [expr ($::master_volume / 100.00)*288]
+	osd configure volume.text -text [format "Volume: %03d" $::master_volume]
 	osd configure volume -fadePeriod 5 -fadeTarget 0 -fadeCurrent 1
 }
 
