@@ -169,7 +169,8 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 {
 	if (imageName.empty()) {
 		bool constAlpha = hasConstantAlpha();
-		if (constAlpha && ((getRGBA(0) & 0xff) == 0)) {
+		if (constAlpha && ((getRGBA(0) & 0xff) == 0) &&
+		    (((borderRGBA & 0xFF) == 0) || (borderSize == 0.0))) {
 			// optimization: Sometimes it's useful to have a
 			//   rectangle that will never be drawn, it only exists
 			//   as a parent for sub-widgets. For those cases
