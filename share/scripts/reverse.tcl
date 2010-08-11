@@ -128,33 +128,28 @@ fade out. You can make it reappear by moving the mouse over it.
 		if {[catch {set led_y [osd info osd_icons -y]}]} {
 			set led_y 0
 		}
-		set y [expr ($led_y == 0) ? 232 : 2]
+		set y [expr ($led_y == 0) ? 231 : 1]
 		# Set time indicator position (depending on reverse bar position)
-		variable overlayOffset [expr ($led_y >16) ? 1.3 : -1.3]
+		variable overlayOffset [expr ($led_y > 16) ? 1.1 : -0.85]
 
 		# Reversebar
 		set fade [expr $visible ? 1.0 : 0.0]
 		osd create rectangle reverse \
-			-scaled true -x 35 -y $y -w 250 -h 6 \
-			-rgba 0x00000080 -fadeCurrent $fade -fadeTarget $fade
-		osd create rectangle reverse.top \
-			-x -1 -y   -1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
-		osd create rectangle reverse.bottom \
-			-x -1 -rely 1 -relw 1 -w 2 -h 1 -z 4 -rgba 0xFFFFFFC0
-		osd create rectangle reverse.left \
-			-x -1         -w 1 -relh 1      -z 4 -rgba 0xFFFFFFC0
-		osd create rectangle reverse.right \
-			-relx 1       -w 1 -relh 1      -z 4 -rgba 0xFFFFFFC0
-		osd create rectangle reverse.bar \
+			-scaled true -x 34 -y $y -w 252 -h 8 \
+			-rgba 0x00000080 -fadeCurrent $fade -fadeTarget $fade \
+			-borderrgba 0xFFFFFFC0 -bordersize 1
+		osd create rectangle reverse.int \
+			-x 1 -y 1 -w 250 -h 6 -rgba 0x00000000 -clip true
+		osd create rectangle reverse.int.bar \
 			-relw 0 -relh 1	-z 3 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x55eeff80"
-		osd create rectangle reverse.end \
+		osd create rectangle reverse.int.end \
 			-relx 0 -x -1 -w 2 -relh 1      -z 3 -rgba 0xff8080c0
-		osd create text      reverse.text \
+		osd create text      reverse.int.text \
 			-x -10 -y 0 -relx 0.5 -size 5   -z 6 -rgba 0xffffffff
 		
 		# on mouse over hover box 
 		osd create rectangle reverse.mousetime \
-			-relx 0.5 -rely 1.1 -relh 1 -relw 0.10 -z 4 \
+			-relx 0.5 -rely 1 -relh 0.75 -relw 0.10 -z 4 \
 			-rgba "0xffdd55e8 0xddbb33e8 0xccaa22e8 0xffdd55e8" \
 			-bordersize 0.5 -borderrgba 0xffff4480
 		osd create text reverse.mousetime.text \
@@ -178,7 +173,7 @@ fade out. You can make it reappear by moving the mouse over it.
 		array set stats [reverse status]
 
 		set x 2 ; set y 2
-		catch { foreach {x y} [osd info "reverse" -mousecoord] {} }
+		catch { foreach {x y} [osd info "reverse.int" -mousecoord] {} }
 		set mouseInside [expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}]
 
 		switch $stats(status) {
@@ -228,7 +223,7 @@ fade out. You can make it reappear by moving the mouse over it.
 
 		set count 0
 		foreach snapshot $snapshots {
-			set name reverse.tick$count
+			set name reverse.int.tick$count
 			if {![osd exists $name]} {
 				# create new if it doesn't exist yet
 				osd create rectangle $name -w 0.5 -relh 1 -rgba 0x444444ff -z 2
@@ -237,13 +232,13 @@ fade out. You can make it reappear by moving the mouse over it.
 			incr count
 		}
 		# destroy all with higher count number
-		while {[osd destroy reverse.tick$count]} {
+		while {[osd destroy reverse.int.tick$count]} {
 			incr count
 		}
 
-		osd configure reverse.bar -relw $fraction
-		osd configure reverse.end -relx $fraction
-		osd configure reverse.text \
+		osd configure reverse.int.bar -relw $fraction
+		osd configure reverse.int.end -relx $fraction
+		osd configure reverse.int.text \
 			-text "[formatTime $playLength] / [formatTime $totLenght]"
 		variable update_after_id
 		set update_after_id [after realtime 0.10 [namespace code update_reversebar]]
@@ -251,7 +246,7 @@ fade out. You can make it reappear by moving the mouse over it.
 
 	proc check_mouse {} {
 		set x 2 ; set y 2
-		catch { foreach {x y} [osd info "reverse" -mousecoord] {} }
+		catch { foreach {x y} [osd info "reverse.int" -mousecoord] {} }
 		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 			array set stats [reverse status]
 			reverse goto [expr $stats(begin) + $x * ($stats(end) - $stats(begin))]
