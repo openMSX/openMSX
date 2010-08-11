@@ -327,17 +327,17 @@ void Blur_1on3<Pixel>::operator()(
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// MMX-EXT routine, 32bpp
-		unsigned long alpha = blur;
+		unsigned long alpha = blur * 256;
 		struct {
-			unsigned long long zero;
-			unsigned long long c0;
-			unsigned long long c1;
-			unsigned long long c2;
-			unsigned long long c3;
-			unsigned c0_;
-			unsigned c1_;
-			unsigned c2_;
-			unsigned c3_;
+			unsigned long long zero; //  0
+			unsigned long long c0;   //  8
+			unsigned long long c1;   // 16
+			unsigned long long c2;   // 24
+			unsigned long long c3;   // 32
+			unsigned c0_;            // 40
+			unsigned c1_;            // 44
+			unsigned c2_;            // 48
+			unsigned c3_;            // 52
 		} c;
 		c.c0_ = alpha / 2;
 		c.c1_ = alpha + c.c0_;
