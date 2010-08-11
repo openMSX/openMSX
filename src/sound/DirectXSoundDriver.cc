@@ -115,13 +115,10 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	state = DX_SOUND_DISABLED;
 
 	frequency = sampleRate;
-	mixBuffer = new short[bufferSize / BYTES_PER_SAMPLE];
 }
 
 DirectXSoundDriver::~DirectXSoundDriver()
 {
-	delete[] mixBuffer;
-
 	IDirectSoundBuffer_Stop(primaryBuffer);
 	IDirectSoundBuffer_Release(primaryBuffer);
 	IDirectSound_Release(directSound);

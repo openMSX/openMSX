@@ -37,9 +37,6 @@ public:
 
 protected:
 	const byte* mmem;
-
-private:
-	unsigned mmapSize;
 };
 
 } // namespace openmsx

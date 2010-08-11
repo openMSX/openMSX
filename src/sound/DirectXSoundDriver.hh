@@ -45,7 +45,6 @@ private:
 	LPDIRECTSOUND directSound;
 
 	unsigned frequency;
-	short* mixBuffer;
 };
 
 } // namespace openmsx

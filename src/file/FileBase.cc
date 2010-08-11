@@ -22,9 +22,9 @@ FileBase::~FileBase()
 const byte* FileBase::mmap()
 {
 	if (!mmem) {
-		mmapSize = getSize();
-		byte* tmp = new byte[mmapSize];
-		read(tmp, mmapSize);
+		unsigned size = getSize();
+		byte* tmp = new byte[size];
+		read(tmp, size);
 		mmem = tmp;
 	}
 	return mmem;
