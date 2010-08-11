@@ -78,6 +78,17 @@ public:
 	  */
 	inline Pixel getBlendMask() const;
 
+	/** Perform linear interpolation between two pixels.
+	 * This calculates component-wise:
+	 *   (c1 * (256 - x) + c2 * x) / 256
+	 * with c1, c2 the R,B,G,A components of the pixel.
+	 * 'x' must be in range [0..256].
+	 * For x=0   the result is p1.
+	 * For x=256 the result is p2.
+	 * Note: currently only implemented for 32bpp.
+	 */
+	static Pixel lerp32(Pixel p1, Pixel p2, unsigned x);
+
 	/** Perform alpha blending of two pixels.
 	 * Pixel p1 contains the alpha value. For maximal alpha p1 is
 	 * returned, for minimal alpha p2.
@@ -451,6 +462,28 @@ inline Pixel PixelOperations<Pixel>::getBlendMask() const
 }
 
 template <typename Pixel>
+Pixel PixelOperations<Pixel>::lerp32(Pixel p1, Pixel p2, unsigned x)
+{
+	assert(sizeof(Pixel) == 4);
+
+        unsigned rb1 = (p1 >> 0) & 0xFF00FF;
+        unsigned ag1 = (p1 >> 8) & 0xFF00FF;
+        unsigned rb2 = (p2 >> 0) & 0xFF00FF;
+        unsigned ag2 = (p2 >> 8) & 0xFF00FF;
+
+	// Note: the subtraction for the lower component can 'borrow' from
+	// the higher component. Though in the full calculation this error
+	// magically cancels out.
+        unsigned trb = ((rb2 - rb1) * x) >> 8;
+        unsigned tag = ((ag2 - ag1) * x) >> 0;
+
+        unsigned rb  = ((trb + rb1) << 0) & 0x00FF00FF;
+        unsigned ag  = (tag + (ag1 << 8)) & 0xFF00FF00;
+
+        return rb | ag;
+}
+
+template <typename Pixel>
 inline Pixel PixelOperations<Pixel>::alphaBlend(Pixel p1, Pixel p2) const
 {
 	if (sizeof(Pixel) == 2) {
@@ -458,28 +491,9 @@ inline Pixel PixelOperations<Pixel>::alphaBlend(Pixel p1, Pixel p2) const
 		return (p1 == 0x0001) ? p2 : p1;
 	} else {
 		unsigned a = alpha(p1);
-
-		unsigned a1 = p1 & 0x000000FF;
-		unsigned b1 = p2 & 0x000000FF;
-		int      d1 = a1 - b1;
-		unsigned e1 = (((a * d1) >> 8) + b1) & 0x000000FF;
-
-		unsigned a2 = p1 & 0x0000FF00;
-		unsigned b2 = p2 & 0x0000FF00;
-		int      d2 = a2 - b2;
-		unsigned e2 = (((a * d2) >> 8) + b2) & 0x0000FF00;
-
-		unsigned a3 = p1 & 0x00FF0000;
-		unsigned b3 = p2 & 0x00FF0000;
-		int      d3 = a3 - b3;
-		unsigned e3 = (((a * d3) >> 8) + b3) & 0x00FF0000;
-
-		unsigned a4 = (p1 >> 8) & 0x00FF0000;
-		unsigned b4 = (p2 >> 8) & 0x00FF0000;
-		int      d4 = a4 - b4;
-		unsigned e4 = ((a * d4) + (b4 << 8)) & 0xFF000000;
-
-		return e1 | e2 | e3 | e4;
+		// Note: 'a' is [0..255], while lerp() expects [0..256].
+		//       We ignore this small error.
+		return lerp32(p2, p1, a);
 	}
 }
 
