@@ -2,7 +2,7 @@
 #define SERIALIZE_HH
 
 #include "serialize_core.hh"
-#include "MemBuffer.hh"
+#include "SerializeBuffer.hh"
 #include "TypeInfo.hh"
 #include "StringOp.hh"
 #include "shared_ptr.hh"
@@ -22,6 +22,7 @@ typedef void* gzFile;
 namespace openmsx {
 
 class XMLElement;
+class MemBuffer;
 template<typename T> struct SerializeClassVersion;
 
 // In this section, the archive classes are defined.
@@ -685,7 +686,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	OutputBuffer& stealBuffer() { return buffer; }
+	shared_ptr<MemBuffer> releaseBuffer();
 
 private:
 	void put(const void* data, unsigned len)
@@ -702,8 +703,8 @@ private:
 class MemInputArchive : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const MemBuffer& mem)
-		: buffer(mem.getData(), mem.getLength())
+	MemInputArchive(const byte* data, unsigned size)
+		: buffer(data, size)
 	{
 	}
 

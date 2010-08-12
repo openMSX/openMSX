@@ -86,10 +86,10 @@ void ZlibInflate::inflate(MemBuffer& output, unsigned sizeHint)
 	}
 	wasInit = true;
 
-	output.realloc(sizeHint);
-	s.avail_out = output.getLength();
+	output.resize(sizeHint);
+	s.avail_out = output.size();
 	while (true) {
-		s.next_out = output.getData() + s.total_out;
+		s.next_out = output.data() + s.total_out;
 		int err = ::inflate(&s, Z_NO_FLUSH);
 		if (err == Z_STREAM_END) {
 			break;
@@ -98,13 +98,13 @@ void ZlibInflate::inflate(MemBuffer& output, unsigned sizeHint)
 			throw FileException(StringOp::Builder()
 				<< "Error decompressing gzip: " << zError(err));
 		}
-		unsigned oldSize = output.getLength();
-		output.realloc(oldSize * 2); // double buffer size
-		s.avail_out = output.getLength() - oldSize;
+		unsigned oldSize = output.size();
+		output.resize(oldSize * 2); // double buffer size
+		s.avail_out = output.size() - oldSize;
 	}
 
 	// set actual size
-	output.realloc(s.total_out);
+	output.resize(s.total_out);
 }
 
 } // namespace openmsx

@@ -8,6 +8,7 @@
 #include "ConfigException.hh"
 #include "XMLException.hh"
 #include "lzo.hh"
+#include "MemBuffer.hh"
 #include "StringOp.hh"
 #include <cstring>
 #include <zlib.h>
@@ -169,6 +170,13 @@ void MemOutputArchive::save(const std::string& s)
 	unsigned size = unsigned(s.size());
 	save(size);
 	put(s.data(), size);
+}
+
+shared_ptr<MemBuffer> MemOutputArchive::releaseBuffer()
+{
+	unsigned size;
+	byte* data = buffer.release(size);
+	return shared_ptr<MemBuffer>(new MemBuffer(data, size));
 }
 
 ////

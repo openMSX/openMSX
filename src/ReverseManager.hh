@@ -40,7 +40,8 @@ public:
 
 private:
 	struct ReverseChunk {
-		ReverseChunk() : time(EmuTime::zero) {}
+		ReverseChunk();
+		~ReverseChunk();
 
 		EmuTime time;
 		// TODO use unique_ptr in the future (c++0x), or hold

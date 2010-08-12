@@ -4,7 +4,6 @@
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
 #include "ReverseManager.hh"
-#include "MemBuffer.hh"
 #include "InputEvents.hh"
 #include "FloatSetting.hh"
 #include "Timer.hh"

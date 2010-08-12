@@ -55,8 +55,8 @@ void CompressedFileAdapter::read(void* buffer, unsigned num)
 {
 	decompress();
 	const MemBuffer& buf = decompressed->buf;
-	assert(buf.getLength() >= pos + num);
-	memcpy(buffer, buf.getData() + pos, num);
+	assert(buf.size() >= pos + num);
+	memcpy(buffer, buf.data() + pos, num);
 	pos += num;
 }
 
@@ -68,7 +68,7 @@ void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
 const byte* CompressedFileAdapter::mmap()
 {
 	decompress();
-	return reinterpret_cast<const byte*>(decompressed->buf.getData());
+	return reinterpret_cast<const byte*>(decompressed->buf.data());
 }
 
 void CompressedFileAdapter::munmap()
@@ -79,7 +79,7 @@ void CompressedFileAdapter::munmap()
 unsigned CompressedFileAdapter::getSize()
 {
 	decompress();
-	return decompressed->buf.getLength();
+	return decompressed->buf.size();
 }
 
 void CompressedFileAdapter::seek(unsigned newpos)
