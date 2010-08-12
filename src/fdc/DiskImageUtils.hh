@@ -52,7 +52,8 @@ namespace DiskImageUtils {
 	 * @param disk The disk to partition.
 	 * @param sizes The number of sectors for each partition.
 	 */
-	void partition(SectorAccessibleDisk& disk, std::vector<unsigned> sizes);
+	void partition(SectorAccessibleDisk& disk,
+	               const std::vector<unsigned>& sizes);
 };
 
 } // namespace openmsx

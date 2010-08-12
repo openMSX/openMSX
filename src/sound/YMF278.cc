@@ -11,11 +11,11 @@
 #include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "Clock.hh"
+#include "MemBuffer.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
-#include <vector>
 
 namespace openmsx {
 
@@ -166,7 +166,7 @@ private:
 	int pcm_l, pcm_r;
 
 	const std::auto_ptr<Rom> rom;
-	std::vector<byte> ram;
+	MemBuffer<byte> ram;
 	const unsigned endRom;
 	const unsigned endRam;
 
@@ -941,7 +941,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, ram(ramSize * 1024) // in kB
 	, endRom(rom->getSize())
-	, endRam(unsigned(endRom + ram.size()))
+	, endRam(endRom + ram.size())
 {
 	memadr = 0; // avoid UMR
 	setOutputRate(44100); // make valgrind happy
@@ -965,7 +965,7 @@ YMF278Impl::~YMF278Impl()
 
 void YMF278Impl::clearRam()
 {
-	memset(&ram[0], 0, ram.size());
+	memset(ram.data(), 0, ram.size());
 }
 
 void YMF278Impl::reset(EmuTime::param time)
@@ -1063,7 +1063,7 @@ void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("busyTime", busyTime);
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
-	ar.serialize_blob("ram", &ram[0], unsigned(ram.size()));
+	ar.serialize_blob("ram", ram.data(), ram.size());
 	ar.serialize_blob("registers", regs, sizeof(regs));
 
 	// TODO restore more state from registers

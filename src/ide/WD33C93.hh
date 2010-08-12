@@ -13,8 +13,8 @@
 #define WD33C93_HH
 
 #include "SCSI.hh"
+#include "MemBuffer.hh"
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
@@ -44,7 +44,7 @@ private:
 	void disconnect();
 	void execCmd(byte value);
 
-	std::vector<byte> buffer;
+	MemBuffer<byte> buffer;
 	std::auto_ptr<SCSIDevice> dev[8];
 	unsigned bufIdx;
 	int counter;

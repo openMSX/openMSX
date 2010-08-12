@@ -3,9 +3,9 @@
 #ifndef AMDFLASH_HH
 #define AMDFLASH_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
-#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -62,8 +62,8 @@ private:
 	MSXMotherBoard& motherBoard;
 	const Rom& rom;
 	std::auto_ptr<SRAM> ram;
-	std::vector<int> writeAddress;
-	std::vector<const byte*> readAddress;
+	MemBuffer<int> writeAddress;
+	MemBuffer<const byte*> readAddress;
 	const unsigned logSectorSize;
 	const unsigned sectorMask;
 	const unsigned size;

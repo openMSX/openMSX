@@ -39,10 +39,10 @@ WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFre
 		throw MSXException("Couldn't build wav converter");
 	}
 
-	buffer.assign(wavBuf, wavBuf + wavLen);
+	buffer.resize(wavLen * audioCVT.len_mult);
+	memcpy(buffer.data(), wavBuf, wavLen);
 	SDL_FreeWAV(wavBuf);
-	buffer.resize(wavLen * audioCVT.len_mult); // possibly we need more space
-	audioCVT.buf = &buffer[0];
+	audioCVT.buf = buffer.data();
 	audioCVT.len = wavLen;
 
 	if (SDL_ConvertAudio(&audioCVT) == -1) {
@@ -73,7 +73,7 @@ unsigned WavData::getChannels() const
 
 const void* WavData::getData() const
 {
-	return &buffer[0];
+	return buffer.data();
 }
 
 } // namespace openmsx

@@ -269,7 +269,7 @@ static void logicalToCHS(unsigned logical, unsigned& cylinder,
 	cylinder = tmp / 16;
 }
 
-void partition(SectorAccessibleDisk& disk, std::vector<unsigned> sizes)
+void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 {
 	assert(sizes.size() <= 31);
 

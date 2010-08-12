@@ -3,10 +3,10 @@
 #ifndef ROM_HH
 #define ROM_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
-#include <vector>
 #include <memory>
 #include <cassert>
 
@@ -44,7 +44,7 @@ private:
 	bool checkSHA1(const XMLElement& config);
 
 	const byte* rom;
-	std::vector<byte> extendedRom;
+	MemBuffer<byte> extendedRom;
 
 	std::auto_ptr<File> file;
 

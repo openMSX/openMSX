@@ -5,8 +5,8 @@
 #include "PNG.hh"
 #include "build-info.hh"
 #include "Math.hh"
+#include "MemBuffer.hh"
 #include "vla.hh"
-#include <vector>
 #include <SDL.h>
 
 namespace openmsx {
@@ -132,11 +132,11 @@ void SDLGLOutputSurface::saveScreenshot(
 	const std::string& filename, unsigned width, unsigned height)
 {
 	VLA(const void*, rowPointers, height);
-	std::vector<byte> buffer(width * height * 3);
+	MemBuffer<byte> buffer(width * height * 3);
 	for (unsigned i = 0; i < height; ++i) {
 		rowPointers[height - 1 - i] = &buffer[width * 3 * i];
 	}
-	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
 	PNG::save(width, height, rowPointers, filename);
 }
 

@@ -89,13 +89,13 @@ void OutputArchiveBase<Derived>::serialize_blob(
 	} else {
 		encoding = "gz-base64";
 		uLongf dstLen = len + len / 1000 + 12 + 1; // worst-case
-		std::vector<char> buf(dstLen);
-		if (compress2(reinterpret_cast<Bytef*>(&buf[0]), &dstLen,
+		MemBuffer<byte> buf(dstLen);
+		if (compress2(buf.data(), &dstLen,
 		              reinterpret_cast<const Bytef*>(data), len, 9)
 		    != Z_OK) {
 			throw MSXException("Error while compressing blob.");
 		}
-		tmp = Base64::encode(&buf[0], dstLen);
+		tmp = Base64::encode(buf.data(), dstLen);
 	}
 	this->self().beginTag(tag);
 	this->self().attribute("encoding", encoding);

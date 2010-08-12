@@ -13,8 +13,8 @@
 #define MB89352_HH
 
 #include "SCSI.hh"
+#include "MemBuffer.hh"
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
@@ -47,7 +47,7 @@ private:
 	byte getSSTS() const;
 
 	std::auto_ptr<SCSIDevice> dev[8];
-	std::vector<byte> buffer;       // buffer for transfer
+	MemBuffer<byte> buffer;         // buffer for transfer
 	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index
 	int msgin;                      // Message In flag

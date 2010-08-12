@@ -173,8 +173,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		// the size of the mapper (and you don't care about initial
 		// content)
 		size = config.getChildDataAsInt("size", 0) * 1024; // in kb
-		extendedRom.assign(size, 0xff);
-		rom = size ? &extendedRom[0] : NULL;
+		extendedRom.resize(size);
+		memset(extendedRom.data(), 0xff, size);
+		rom = extendedRom.data();
 
 		// Content does not depend on external files. No need to check
 		checkResolvedSha1 = false;
@@ -203,8 +204,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			} else {
 				size = patchSize;
 				extendedRom.resize(size);
-				patch->copyBlock(0, &extendedRom[0], size);
-				rom = &extendedRom[0];
+				patch->copyBlock(0, extendedRom.data(), size);
+				rom = extendedRom.data();
 			}
 
 			// calculated because it's different from original

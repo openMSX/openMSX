@@ -9,10 +9,10 @@
 #ifndef MSXTAR_HH
 #define MSXTAR_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
-#include <vector>
 
 namespace openmsx {
 
@@ -102,7 +102,7 @@ private:
 
 
 	SectorAccessibleDisk& disk;
-	std::vector<byte> fatBuffer;
+	MemBuffer<byte> fatBuffer;
 
 	unsigned maxCluster;
 	unsigned sectorsPerCluster;

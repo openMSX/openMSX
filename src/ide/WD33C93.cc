@@ -127,11 +127,11 @@ WD33C93::WD33C93(MSXMotherBoard& motherBoard, const XMLElement& config)
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(motherBoard, target, &buffer[0],
+			dev[id].reset(new SCSIHD(motherBoard, target, buffer.data(),
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 			        SCSIDevice::MODE_NOVAXIS));
 		} else if (type == "SCSILS120") {
-			dev[id].reset(new SCSILS120(motherBoard, target, &buffer[0],
+			dev[id].reset(new SCSILS120(motherBoard, target, buffer.data(),
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 			        SCSIDevice::MODE_NOVAXIS));
 		} else {
@@ -483,7 +483,7 @@ SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 template<typename Archive>
 void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("buffer", &buffer[0], unsigned(buffer.size()));
+	ar.serialize_blob("buffer", buffer.data(), buffer.size());
 	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
 		tag[6] = char('0' + i);

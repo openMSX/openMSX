@@ -3,9 +3,9 @@
 #ifndef WAVDATA_HH
 #define WAVDATA_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include <string>
-#include <vector>
 
 namespace openmsx {
 
@@ -21,7 +21,7 @@ public:
 	const void* getData() const;
 
 private:
-	std::vector<byte> buffer;
+	MemBuffer<byte> buffer;
 	unsigned bits;
 	unsigned freq;
 	unsigned length;
