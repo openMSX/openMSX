@@ -4,6 +4,7 @@
 #define SERIALIZEBUFFER_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <cstring>
 #include <cassert>
 
@@ -22,7 +23,7 @@ namespace openmsx {
   * std::vector is far from inefficient, but for savestates this is used A LOT,
   * so even small improvements matter a lot.
   */
-class OutputBuffer
+class OutputBuffer : private noncopyable
 {
 public:
 	/** Create an empty output buffer.
@@ -119,7 +120,7 @@ private:
   * Instead of filling an initially empty buffer it starts from a filled buffer
   * and allows to retrieve items starting from the start of the buffer.
   */
-class InputBuffer
+class InputBuffer : private noncopyable
 {
 public:
 	/** Construct new InputBuffer, typically the data and size parameters

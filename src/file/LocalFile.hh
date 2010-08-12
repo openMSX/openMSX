@@ -43,7 +43,11 @@ public:
 private:
 	std::string filename;
 	FILE* file;
+#if HAVE_MMAP
+	byte* mmem;
+#endif
 #if defined _WIN32
+	byte* mmem;
 	HANDLE hMmap;
 #endif
 	std::auto_ptr<PreCacheFile> cache;

@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "MemBuffer.hh"
 #include "serialize.hh"
 #include "vla.hh"
 #include <algorithm>
@@ -35,7 +36,7 @@ public:
 private:
 	byte& dot(unsigned x, unsigned y);
 
-	byte* buf;
+	MemBuffer<byte> buf;
 	std::vector<int> table;
 
 	double radiusX;
@@ -1684,15 +1685,14 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterEpson, "ImagePrinterEpso
 // class Paper
 
 Paper::Paper(unsigned x, unsigned y)
-	: sizeX(x), sizeY(y)
+	: buf(x * y)
+	, sizeX(x), sizeY(y)
 {
-	buf = new byte[x * y];
-	memset(buf, 255, x * y);
+	memset(buf.data(), 255, x * y);
 }
 
 Paper::~Paper()
 {
-	delete[] buf;
 }
 
 string Paper::save() const

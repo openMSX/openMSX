@@ -10,7 +10,6 @@ using std::string;
 namespace openmsx {
 
 FileBase::FileBase()
-	: mmem(NULL)
 {
 }
 
@@ -21,19 +20,18 @@ FileBase::~FileBase()
 
 const byte* FileBase::mmap()
 {
-	if (!mmem) {
+	if (mmapBuf.empty()) {
 		unsigned size = getSize();
-		byte* tmp = new byte[size];
-		read(tmp, size);
-		mmem = tmp;
+		MemBuffer<byte> tmpBuf(size);
+		read(tmpBuf.data(), size);
+		std::swap(mmapBuf, tmpBuf);
 	}
-	return mmem;
+	return mmapBuf.data();
 }
 
 void FileBase::munmap()
 {
-	delete[] mmem;
-	mmem = NULL;
+	mmapBuf.clear();
 }
 
 void FileBase::truncate(unsigned newSize)

@@ -54,7 +54,7 @@ void CompressedFileAdapter::decompress()
 void CompressedFileAdapter::read(void* buffer, unsigned num)
 {
 	decompress();
-	const MemBuffer& buf = decompressed->buf;
+	const MemBuffer<byte>& buf = decompressed->buf;
 	assert(buf.size() >= pos + num);
 	memcpy(buffer, buf.data() + pos, num);
 	pos += num;

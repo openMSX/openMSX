@@ -3,6 +3,7 @@
 #ifndef FILEBASE_HH
 #define FILEBASE_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
@@ -35,8 +36,8 @@ public:
 	virtual bool isReadOnly() const = 0;
 	virtual time_t getModificationDate() = 0;
 
-protected:
-	const byte* mmem;
+private:
+	MemBuffer<byte> mmapBuf;
 };
 
 } // namespace openmsx

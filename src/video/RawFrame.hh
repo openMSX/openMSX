@@ -5,6 +5,7 @@
 
 #include "FrameSource.hh"
 #include "SDLSurfacePtr.hh"
+#include "MemBuffer.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -30,7 +31,7 @@ public:
 	inline void setLineWidth(unsigned line, unsigned width) {
 		assert(line < getHeight());
 		assert(width <= maxWidth);
-		lineWidth[line] = width;
+		lineWidths[line] = width;
 	}
 
 	template <class Pixel>
@@ -38,7 +39,7 @@ public:
 		assert(line < getHeight());
 		Pixel* pixels = getLinePtrDirect<Pixel>(line);
 		pixels[0] = color;
-		lineWidth[line] = 1;
+		lineWidths[line] = 1;
 	}
 
 	virtual unsigned getRowLength() const;
@@ -67,7 +68,7 @@ protected:
 private:
 	SDLSurfacePtr surface; // only for GP2X
 	char* data;
-	unsigned* lineWidth;
+	MemBuffer<unsigned> lineWidths;
 	unsigned maxWidth;
 	unsigned pitch;
 	bool locked;

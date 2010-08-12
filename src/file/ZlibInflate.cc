@@ -77,7 +77,7 @@ std::string ZlibInflate::getCString()
 	return result;
 }
 
-void ZlibInflate::inflate(MemBuffer& output, unsigned sizeHint)
+void ZlibInflate::inflate(MemBuffer<byte>& output, unsigned sizeHint)
 {
 	int initErr = inflateInit2(&s, -MAX_WBITS);
 	if (initErr != Z_OK) {

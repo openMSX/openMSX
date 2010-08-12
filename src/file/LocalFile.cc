@@ -25,6 +25,9 @@ namespace openmsx {
 
 LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
+#if HAVE_MMAP || defined _WIN32
+	, mmem(NULL)
+#endif
 #if defined _WIN32
 	, hMmap(NULL)
 #endif

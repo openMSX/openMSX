@@ -3,10 +3,10 @@
 #ifndef RAM_HH
 #define RAM_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
-#include <cassert>
 #include <memory>
 
 namespace openmsx {
@@ -27,14 +27,15 @@ public:
 	~Ram();
 
 	const byte& operator[](unsigned addr) const {
-		assert(addr < size);
 		return ram[addr];
 	}
 	byte& operator[](unsigned addr) {
-		assert(addr < size);
 		return ram[addr];
 	}
-	unsigned getSize() const { return size; }
+	unsigned getSize() const {
+		return ram.size();
+	}
+
 	const std::string& getName() const;
 	void clear();
 
@@ -42,8 +43,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte* ram;
-	unsigned size; // must come before debuggable
+	MemBuffer<byte> ram;
 	const std::auto_ptr<RamDebuggable> debuggable;
 };
 

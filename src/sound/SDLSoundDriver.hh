@@ -4,6 +4,7 @@
 #define SDLSOUNDDRIVER_HH
 
 #include "SoundDriver.hh"
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 
@@ -30,7 +31,7 @@ private:
 	static void audioCallbackHelper(void* userdata, byte* strm, int len);
 	void audioCallback(short* stream, unsigned len);
 
-	short* mixBuffer;
+	MemBuffer<short> mixBuffer;
 	double filledStat; /**< average filled status, 1.0 means filled exactly
 	                        the right amount, less than 1.0 mean under
 	                        filled, more than 1.0 means overfilled. */

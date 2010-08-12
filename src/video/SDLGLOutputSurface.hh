@@ -4,6 +4,7 @@
 #define SDLGLOUTPUTSURFACE_HH
 
 #include "GLUtil.hh"
+#include "MemBuffer.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -38,7 +39,7 @@ protected:
 private:
 	double texCoordX, texCoordY;
 	std::auto_ptr<Texture> fbTex;
-	char* fbBuf;
+	MemBuffer<char> fbBuf;
 	const FrameBuffer frameBuffer;
 };
 

@@ -14,6 +14,7 @@
 #include "TclObject.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
+#include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "shared_ptr.hh"
 #include "unreachable.hh"
@@ -385,12 +386,11 @@ void DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& result)
 		throw CommandException("Invalid size");
 	}
 
-	byte* buf = new byte[num];
+	MemBuffer<byte> buf(num);
 	for (unsigned i = 0; i < num; ++i) {
 		buf[i] = device.read(addr + i);
 	}
-	result.setBinary(buf, num);
-	delete[] buf;
+	result.setBinary(buf.data(), num);
 }
 
 void DebugCmd::write(const vector<TclObject*>& tokens,

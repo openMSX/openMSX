@@ -20,29 +20,26 @@ private:
 
 
 Ram::Ram(MSXMotherBoard& motherBoard, const std::string& name,
-         const std::string& description, unsigned size_)
-	: size(size_)
+         const std::string& description, unsigned size)
+	: ram(size)
 	, debuggable(new RamDebuggable(motherBoard, name, description, *this))
 {
-	ram = new byte[size];
 	clear();
 }
 
-Ram::Ram(unsigned size_)
-	: size(size_)
+Ram::Ram(unsigned size)
+	: ram(size)
 {
-	ram = new byte[size];
 	clear();
 }
 
 Ram::~Ram()
 {
-	delete[] ram;
 }
 
 void Ram::clear()
 {
-	memset(ram, 0xFF, size);
+	memset(ram.data(), 0xFF, ram.size());
 }
 
 const std::string& Ram::getName() const
@@ -60,13 +57,11 @@ RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard,
 
 byte RamDebuggable::read(unsigned address)
 {
-	assert(address < getSize());
 	return ram[address];
 }
 
 void RamDebuggable::write(unsigned address, byte value)
 {
-	assert(address < getSize());
 	ram[address] = value;
 }
 
@@ -74,7 +69,7 @@ void RamDebuggable::write(unsigned address, byte value)
 template<typename Archive>
 void Ram::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("ram", ram, size);
+	ar.serialize_blob("ram", ram.data(), ram.size());
 }
 INSTANTIATE_SERIALIZE_METHODS(Ram);
 

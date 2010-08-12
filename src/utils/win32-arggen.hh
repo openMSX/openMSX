@@ -3,17 +3,18 @@
 
 #ifdef _WIN32
 
+#include "MemBuffer.hh"
+
 namespace openmsx {
 
 class ArgumentGenerator
 {
-private:
-	int cArgs;
-	char** ppszArgv;
 public:
-	ArgumentGenerator();
 	~ArgumentGenerator();
 	char** GetArguments(int& argc);
+
+private:
+	MemBuffer<char*> argv;
 };
 
 #endif

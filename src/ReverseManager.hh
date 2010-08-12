@@ -19,8 +19,8 @@ class Keyboard;
 class EventDelay;
 class EventDistributor;
 class ReverseCmd;
-class MemBuffer;
 class TclObject;
+template<typename T> class MemBuffer;
 
 class ReverseManager : private Schedulable, private EventListener
                      , private StateChangeListener
@@ -46,7 +46,7 @@ private:
 		EmuTime time;
 		// TODO use unique_ptr in the future (c++0x), or hold
 		//      MemBuffer by value and make it moveable
-		shared_ptr<MemBuffer> savestate;
+		shared_ptr<MemBuffer<byte> > savestate;
 
 		// Number of recorded events (or replay index) when this
 		// snapshot was created. So when going back replay should

@@ -22,7 +22,7 @@ typedef void* gzFile;
 namespace openmsx {
 
 class XMLElement;
-class MemBuffer;
+template<typename T> class MemBuffer;
 template<typename T> struct SerializeClassVersion;
 
 // In this section, the archive classes are defined.
@@ -686,7 +686,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	shared_ptr<MemBuffer> releaseBuffer();
+	shared_ptr<MemBuffer<byte> > releaseBuffer();
 
 private:
 	void put(const void* data, unsigned len)

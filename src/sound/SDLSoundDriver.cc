@@ -45,7 +45,7 @@ SDLSoundDriver::SDLSoundDriver(unsigned wantedFreq, unsigned wantedSamples)
 		fragmentSize /= 2;
 	}
 
-	mixBuffer = new short[bufferSize];
+	mixBuffer.resize(bufferSize);
 	reInit();
 }
 
@@ -53,14 +53,12 @@ SDLSoundDriver::~SDLSoundDriver()
 {
 	SDL_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
-
-	delete[] mixBuffer;
 }
 
 void SDLSoundDriver::reInit()
 {
 	SDL_LockAudio();
-	memset(mixBuffer, 0, bufferSize * sizeof(short));
+	memset(mixBuffer.data(), 0, bufferSize * sizeof(short));
 	readIdx  = 0;
 	writeIdx = (5 * bufferSize) / 8;
 	filledStat = 1.0;
@@ -133,7 +131,7 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 		unsigned len1 = bufferSize - readIdx;
 		memcpy(stream, &mixBuffer[readIdx], len1 * sizeof(short));
 		unsigned len2 = num - len1;
-		memcpy(&stream[len1], mixBuffer, len2 * sizeof(short));
+		memcpy(&stream[len1], &mixBuffer[0], len2 * sizeof(short));
 		readIdx = len2;
 	}
 	int missing = len - available;
@@ -165,7 +163,7 @@ double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 		unsigned len1 = bufferSize - writeIdx;
 		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(short));
 		unsigned len2 = num - len1;
-		memcpy(mixBuffer, &buffer[len1], len2 * sizeof(short));
+		memcpy(&mixBuffer[0], &buffer[len1], len2 * sizeof(short));
 		writeIdx = len2;
 	}
 

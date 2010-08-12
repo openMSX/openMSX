@@ -15,10 +15,10 @@ namespace openmsx {
 RawFrame::RawFrame(
 		const SDL_PixelFormat& format, unsigned maxWidth_, unsigned height)
 	: FrameSource(format)
+	, lineWidths(height)
 	, maxWidth(maxWidth_)
 {
 	setHeight(height);
-	lineWidth = new unsigned[height];
 	unsigned bytesPerPixel = format.BytesPerPixel;
 
 	if (PLATFORM_GP2X) {
@@ -70,7 +70,6 @@ RawFrame::~RawFrame()
 	} else {
 		MemoryOps::freeAligned(data);
 	}
-	delete[] lineWidth;
 }
 
 const void* RawFrame::getLineInfo(unsigned line, unsigned& width) const
@@ -79,7 +78,7 @@ const void* RawFrame::getLineInfo(unsigned line, unsigned& width) const
 		if (!isLocked()) const_cast<RawFrame*>(this)->lock();
 	}
 	assert(line < getHeight());
-	width = lineWidth[line];
+	width = lineWidths[line];
 	return data + line * pitch;
 }
 

@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-class MemBuffer;
+template<typename T> class MemBuffer;
 
 class ZlibInflate
 {
@@ -24,7 +24,7 @@ public:
 	std::string getString(unsigned len);
 	std::string getCString();
 
-	void inflate(MemBuffer& output, unsigned sizeHint = 65536);
+	void inflate(MemBuffer<byte>& output, unsigned sizeHint = 65536);
 
 private:
 	z_stream s;

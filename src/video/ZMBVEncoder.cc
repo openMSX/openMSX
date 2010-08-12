@@ -168,10 +168,6 @@ ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 
 ZMBVEncoder::~ZMBVEncoder()
 {
-	delete[] oldframe;
-	delete[] newframe;
-	delete[] work;
-	delete[] output;
 }
 
 void ZMBVEncoder::setupBuffers(unsigned bpp)
@@ -197,23 +193,24 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 	pitch = width + 2 * MAX_VECTOR;
 	unsigned bufsize = (height + 2 * MAX_VECTOR) * pitch * pixelSize + 2048;
 
-	oldframe = new unsigned char[bufsize];
-	newframe = new unsigned char[bufsize];
-	memset(oldframe, 0, bufsize);
-	memset(newframe, 0, bufsize);
-	work = new unsigned char[bufsize];
+	oldframe.resize(bufsize);
+	newframe.resize(bufsize);
+	memset(oldframe.data(), 0, bufsize);
+	memset(newframe.data(), 0, bufsize);
+	work.resize(bufsize);
 	outputSize = neededSize();
-	output = new unsigned char[outputSize];
+	output.resize(outputSize);
 
 	assert((width  % BLOCK_WIDTH ) == 0);
 	assert((height % BLOCK_HEIGHT) == 0);
 	unsigned xblocks = width / BLOCK_WIDTH;
 	unsigned yblocks = height / BLOCK_HEIGHT;
+	blockOffsets.resize(xblocks * yblocks);
 	for (unsigned y = 0; y < yblocks; ++y) {
 		for (unsigned x = 0; x < xblocks; ++x) {
-			blockOffsets.push_back(
+			blockOffsets[y * xblocks + x] =
 				((y * BLOCK_HEIGHT) + MAX_VECTOR) * pitch +
-				(x * BLOCK_WIDTH) + MAX_VECTOR);
+				(x * BLOCK_WIDTH) + MAX_VECTOR;
 		}
 	}
 }
@@ -229,8 +226,8 @@ template<class P>
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	P* pold = &(reinterpret_cast<P*>(oldframe))[offset + (vy * pitch) + vx];
-	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
+	P* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	P* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -245,8 +242,8 @@ template<class P>
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	P* pold = &(reinterpret_cast<P*>(oldframe))[offset + (vy * pitch) + vx];
-	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
+	P* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	P* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -261,8 +258,8 @@ template<class P>
 void ZMBVEncoder::addXorBlock(
 	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset)
 {
-	P* pold = &(reinterpret_cast<P*>(oldframe))[offset + (vy * pitch) + vx];
-	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
+	P* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	P* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			P pxor = pnew[x] ^ pold[x];
@@ -281,7 +278,7 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat)
 	signed char* vectors = reinterpret_cast<signed char*>(&work[workUsed]);
 
 	// Align the following xor data on 4 byte boundary
-	unsigned blockcount = unsigned(blockOffsets.size());
+	unsigned blockcount = blockOffsets.size();
 	workUsed = (workUsed + blockcount * 2 + 3) & ~3;
 
 	int bestvx = 0;
@@ -322,7 +319,7 @@ void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
 	unsigned char* readFrame =
-		newframe + pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
+		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned y = 0; y < height; ++y) {
 		P* pixelsIn = reinterpret_cast<P*>(readFrame);
 		P* pixelsOut = reinterpret_cast<P*>(&work[workUsed]);
@@ -372,7 +369,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	// Reset the work buffer
 	workUsed = 0;
 	unsigned writeDone = 1;
-	unsigned char* writeBuf = output;
+	unsigned char* writeBuf = output.data();
 
 	output[0] = 0; // first byte contains info about this frame
 	if (keyFrame) {
@@ -392,8 +389,8 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	// copy lines (to add black border)
 	unsigned linePitch = pitch * pixelSize;
 	unsigned lineWidth = width * pixelSize;
-	unsigned char* dest = newframe +
-	                      pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch);
+	unsigned char* dest =
+		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned i = 0; i < height; ++i) {
 		memcpy(dest, getScaledLine(frame, i), lineWidth);
 		dest += linePitch;
@@ -434,7 +431,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		}
 	}
 	// Compress the frame data with zlib.
-	zstream.next_in = static_cast<Bytef*>(work);
+	zstream.next_in = work.data();
 	zstream.avail_in = workUsed;
 	zstream.total_in = 0;
 
@@ -443,7 +440,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	zstream.total_out = 0;
 	deflate(&zstream, Z_SYNC_FLUSH);
 
-	buffer = output;
+	buffer = output.data();
 	written = writeDone + zstream.total_out;
 }
 

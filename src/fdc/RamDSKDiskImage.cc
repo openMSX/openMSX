@@ -8,16 +8,15 @@ namespace openmsx {
 
 RamDSKDiskImage::RamDSKDiskImage(unsigned size)
 	: SectorBasedDisk(DiskName(Filename(), "ramdsk"))
+	, diskdata(size)
 {
 	setNbSectors(size / SECTOR_SIZE);
-	diskdata = new byte[size];
 
 	DiskImageUtils::format(*this);
 }
 
 RamDSKDiskImage::~RamDSKDiskImage()
 {
-	delete[] diskdata;
 }
 
 void RamDSKDiskImage::readSectorImpl(unsigned sector, byte* buf)

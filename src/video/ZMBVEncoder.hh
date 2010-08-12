@@ -5,7 +5,7 @@
 #ifndef ZMBVENCODER_HH
 #define ZMBVENCODER_HH
 
-#include <vector>
+#include "MemBuffer.hh"
 #include <zlib.h>
 
 struct SDL_PixelFormat;
@@ -42,14 +42,14 @@ private:
 		const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset);
 	const void* getScaledLine(FrameSource* frame, unsigned y);
 
-	unsigned char* oldframe;
-	unsigned char* newframe;
-	unsigned char* work;
-	unsigned char* output;
+	MemBuffer<unsigned char> oldframe;
+	MemBuffer<unsigned char> newframe;
+	MemBuffer<unsigned char> work;
+	MemBuffer<unsigned char> output;
+	MemBuffer<unsigned> blockOffsets;
 	unsigned outputSize;
 	unsigned workUsed;
 
-	std::vector<unsigned> blockOffsets;
 	z_stream zstream;
 
 	const unsigned width;

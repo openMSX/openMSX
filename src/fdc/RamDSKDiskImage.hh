@@ -4,6 +4,7 @@
 #define RAMDSKDISKIMAGE_HH
 
 #include "SectorBasedDisk.hh"
+#include "MemBuffer.hh"
 
 namespace openmsx {
 
@@ -19,7 +20,7 @@ private:
 	virtual void writeSectorImpl(unsigned sector, const byte* buf);
 	virtual bool isWriteProtectedImpl() const;
 
-	byte* diskdata;
+	MemBuffer<byte> diskdata;
 };
 
 } // namespace openmsx

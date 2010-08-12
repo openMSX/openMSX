@@ -1,46 +1,38 @@
 #ifdef _WIN32
 
-#include <windows.h>
-#include <Shellapi.h>
+#include "win32-arggen.hh"
 #include "MSXException.hh"
 #include "utf8_checked.hh"
-#include "win32-arggen.hh"
+#include <windows.h>
+#include <Shellapi.h>
 
 namespace openmsx {
-
-ArgumentGenerator::ArgumentGenerator()
-{
-	cArgs = 0;
-	ppszArgv = NULL;
-}
 
 ArgumentGenerator::~ArgumentGenerator()
 {
 	for (int i = 0; i < cArgs; ++i) {
-		free(ppszArgv[i]);
+		free(argv[i]);
 	}
-	delete[] ppszArgv;
 }
 
 char** ArgumentGenerator::GetArguments(int& argc)
 {
-	if (ppszArgv == NULL) {
-
+	if (argv.empty()) {
+		int cArgs;
 		LPWSTR* pszArglist = CommandLineToArgvW(GetCommandLineW(), &cArgs);
 		if (pszArglist == NULL) {
 			throw MSXException("Failed to obtain command line arguments");
 		}
 
-		ppszArgv = new char*[cArgs];
+		argv.resize(cArgs);
 		for (int i = 0; i < cArgs; ++i) {
-			ppszArgv[i] = strdup(utf8::utf16to8(pszArglist[i]).c_str());
+			argv[i] = strdup(utf8::utf16to8(pszArglist[i]).c_str());
 		}
-
 		LocalFree(pszArglist);
 	}
 
-	argc = cArgs;
-	return ppszArgv;
+	argc = argv.size();
+	return argv.data();
 }
 
 } // namespace openmsx

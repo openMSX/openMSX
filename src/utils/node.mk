@@ -7,7 +7,6 @@ SRC_HDR:= \
 	CRC16 \
 	CircularBuffer \
 	SerializeBuffer \
-	MemBuffer \
 	Date \
 	HostCPU \
 	Math \
@@ -22,6 +21,7 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	my_auto_ptr \
 	FixedPoint \
+	MemBuffer \
 	Subject Observer \
 	ScopedAssign \
 	checked_cast \

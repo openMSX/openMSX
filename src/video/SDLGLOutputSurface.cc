@@ -12,14 +12,12 @@
 namespace openmsx {
 
 SDLGLOutputSurface::SDLGLOutputSurface(FrameBuffer frameBuffer_)
-	: fbBuf(0)
-	, frameBuffer(frameBuffer_)
+	: frameBuffer(frameBuffer_)
 {
 }
 
 SDLGLOutputSurface::~SDLGLOutputSurface()
 {
-	delete[] fbBuf;
 }
 
 void SDLGLOutputSurface::init(OutputSurface& output)
@@ -86,9 +84,9 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		unsigned height = output.getHeight();
 		unsigned texW = Math::powerOfTwo(width);
 		unsigned texH = Math::powerOfTwo(height);
-		fbBuf = new char[format.BytesPerPixel * texW * texH];
+		fbBuf.resize(format.BytesPerPixel * texW * texH);
 		unsigned pitch = width * format.BytesPerPixel;
-		output.setBufferPtr(fbBuf, pitch);
+		output.setBufferPtr(fbBuf.data(), pitch);
 
 		texCoordX = double(width)  / texW;
 		texCoordY = double(height) / texH;
@@ -98,10 +96,10 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0,
-			             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, fbBuf);
+			             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, fbBuf.data());
 		} else {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texW, texH, 0,
-			             GL_BGRA, GL_UNSIGNED_BYTE, fbBuf);
+			             GL_BGRA, GL_UNSIGNED_BYTE, fbBuf.data());
 		}
 	}
 }
@@ -113,10 +111,10 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 	fbTex->bind();
 	if (frameBuffer == FB_16BPP) {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, fbBuf);
+		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, fbBuf.data());
 	} else {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-		                GL_BGRA, GL_UNSIGNED_BYTE, fbBuf);
+		                GL_BGRA, GL_UNSIGNED_BYTE, fbBuf.data());
 	}
 
 	glEnable(GL_TEXTURE_2D);
