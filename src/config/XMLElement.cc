@@ -161,7 +161,7 @@ const XMLElement* XMLElement::findChild(const string& name) const
 const XMLElement* XMLElement::findNextChild(const char* name,
 	                                    unsigned& fromIndex) const
 {
-	unsigned numChildren = children.size();
+	unsigned numChildren = unsigned(children.size());
 	for (unsigned i = fromIndex; i != numChildren; ++i) {
 		if (children[i]->getName() == name) {
 			fromIndex = i + 1;

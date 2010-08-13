@@ -165,8 +165,8 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 			glVertex2i(x + width, y         );
 		} else {
 			// interior
-			int bx = (width  > 0) ? borderSize : - borderSize;
-			int by = (height > 0) ? borderSize : - borderSize;
+			int bx = (width  > 0) ? borderSize : -int(borderSize);
+			int by = (height > 0) ? borderSize : -int(borderSize);
 			glColor4ub(r[0], g[0], b[0], (a[0] * alpha) / 256);
 			glVertex2i(x + bx,         y + by        );
 			glColor4ub(r[2], g[2], b[2], (a[2] * alpha) / 256);
