@@ -10,7 +10,7 @@ namespace openmsx {
 
 ArgumentGenerator::~ArgumentGenerator()
 {
-	for (int i = 0; i < argv.size(); ++i) {
+	for (unsigned i = 0; i < argv.size(); ++i) {
 		free(argv[i]);
 	}
 }
