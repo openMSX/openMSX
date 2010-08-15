@@ -46,7 +46,7 @@ proc record_chunks { args } {
 	variable next_after_id
 
 	# the defaults
-	set chunk_time 889 ;# max time for a YouTube video
+	set chunk_time 899 ;# max time for a YouTube video
 	set total_time -1  ;# record until someone says stop ..
 	set num_chunks -1  ;# .. or till we recorded this many chunks
 
