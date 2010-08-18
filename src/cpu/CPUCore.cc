@@ -800,8 +800,8 @@ void CPUCore<T>::executeInstructions()
 // fetch and execute next instruction.
 #define NEXT \
 	T::add(c); \
+	T::R800Refresh(); \
 	if (likely(!T::limitReached())) { \
-		T::R800Refresh(); \
 		M1Cycle(); \
 		unsigned address = R.getPC(); \
 		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
@@ -820,6 +820,13 @@ void CPUCore<T>::executeInstructions()
 // After some instructions we must always exit the CPU loop (ei, halt, retn)
 #define NEXT_STOP \
 	T::add(c); \
+	T::R800Refresh(); \
+	assert(T::limitReached()); \
+	return;
+
+#define NEXT_EI \
+	T::add(c); \
+	/* !! NO T::R800Refresh(); !! */ \
 	assert(T::limitReached()); \
 	return;
 
@@ -830,6 +837,7 @@ void CPUCore<T>::executeInstructions()
 
 #define NEXT \
 	T::add(c); \
+	T::R800Refresh(); \
 	if (likely(!T::limitReached())) { \
 		goto start; \
 	} \
@@ -837,6 +845,13 @@ void CPUCore<T>::executeInstructions()
 
 #define NEXT_STOP \
 	T::add(c); \
+	T::R800Refresh(); \
+	assert(T::limitReached()); \
+	return;
+
+#define NEXT_EI \
+	T::add(c); \
+	/* !! NO T::R800Refresh(); !! */ \
 	assert(T::limitReached()); \
 	return;
 
@@ -848,7 +863,6 @@ void CPUCore<T>::executeInstructions()
 start:
 #endif
 	unsigned ixy; // for dd_cb/fd_cb
-	T::R800Refresh();
 	byte opcodeMain = RDMEM_OPCODE(T::CC_MAIN);
 	M1Cycle();
 #ifdef USE_COMPUTED_GOTO
@@ -1069,7 +1083,7 @@ CASE(EB) { int c = ex_de_hl(); NEXT; }
 CASE(E9) { int c = jp_SS<HL,0>(); NEXT; }
 CASE(F9) { int c = ld_sp_SS<HL,0>(); NEXT; }
 CASE(F3) { int c = di(); NEXT; }
-CASE(FB) { int c = ei(); NEXT_STOP; }
+CASE(FB) { int c = ei(); NEXT_EI; }
 CASE(C6) { int c = add_a_byte(); NEXT; }
 CASE(CE) { int c = adc_a_byte(); NEXT; }
 CASE(D6) { int c = sub_byte();   NEXT; }
