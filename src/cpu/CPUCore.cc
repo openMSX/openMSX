@@ -795,7 +795,7 @@ void CPUCore<T>::executeInstructions()
 	T::add(c); \
 	T::R800Refresh(R); \
 	if (likely(!T::limitReached())) { \
-		R.incR(1);
+		R.incR(1); \
 		unsigned address = R.getPC(); \
 		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
 		if (likely(line != NULL)) { \
