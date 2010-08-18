@@ -16,6 +16,7 @@
 #include <GL/gl.h>
 #endif
 
+#include "MemBuffer.hh"
 #include "build-info.hh"
 #include <string>
 #include <cassert>
@@ -227,7 +228,7 @@ public:
 	  * @pre This PixelBuffer must be bound (see bind()) before calling
 	  *      this method.
 	  */
-	T* getOffset(GLuint x, GLuint y) const;
+	T* getOffset(GLuint x, GLuint y);
 
 	/** Maps the contents of this buffer into memory. The returned buffer
 	  * is write-only (reading could be very slow or even result in a
@@ -237,7 +238,7 @@ public:
 	  * @pre This PixelBuffer must be bound (see bind()) before calling
 	  *      this method.
 	  */
-	T* mapWrite() const;
+	T* mapWrite();
 
 	/** Unmaps the contents of this buffer.
 	  * After this call, you must no longer use the pointer returned by
@@ -246,10 +247,9 @@ public:
 	void unmap() const;
 
 private:
-	/** Pointer to main RAM fallback, or 0 if no main RAM buffer was
-	  * allocated.
+	/** Buffer for main RAM fallback (not allocated in the normal case).
 	  */
-	T* allocated;
+	MemBuffer<T> allocated;
 
 	/** Handle of the GL buffer, or 0 if no GL buffer is available.
 	  */
@@ -269,7 +269,6 @@ private:
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
 {
-	allocated = NULL;
 #ifdef GL_VERSION_1_5
 	if (PixelBuffers::enabled &&
 	    GLEW_ARB_pixel_buffer_object) {
@@ -285,7 +284,6 @@ PixelBuffer<T>::PixelBuffer()
 template <typename T>
 PixelBuffer<T>::~PixelBuffer()
 {
-	free(allocated);
 #ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		glDeleteBuffers(1, &bufferId);
@@ -316,8 +314,7 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 	} else
 #endif
 	{
-		allocated = reinterpret_cast<T*>(
-			realloc(allocated, width * height * sizeof(T)));
+		allocated.resize(width * height);
 	}
 }
 
@@ -342,7 +339,7 @@ void PixelBuffer<T>::unbind() const
 }
 
 template <typename T>
-T* PixelBuffer<T>::getOffset(GLuint x, GLuint y) const
+T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 {
 	assert(x < width);
 	assert(y < height);
@@ -352,11 +349,11 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y) const
 		return static_cast<T*>(0) + offset;
 	}
 #endif
-	return allocated + offset;
+	return &allocated[offset];
 }
 
 template <typename T>
-T* PixelBuffer<T>::mapWrite() const
+T* PixelBuffer<T>::mapWrite()
 {
 #ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
@@ -364,7 +361,7 @@ T* PixelBuffer<T>::mapWrite() const
 			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY));
 	}
 #endif
-	return allocated;
+	return allocated.data();
 }
 
 template <typename T>

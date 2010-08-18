@@ -9,6 +9,8 @@
 #include <vector>
 #include <memory>
 
+namespace StringOp { class Builder; }
+
 namespace openmsx {
 
 class FileContext;
@@ -122,7 +124,7 @@ private:
 	typedef std::vector<Attribute> Attributes;
 	Attributes::iterator findAttribute(const char* name);
 	Attributes::const_iterator findAttribute(const char* name) const;
-	void dump(std::string& result, unsigned indentNum) const;
+	void dump(StringOp::Builder& result, unsigned indentNum) const;
 
 	std::string name;
 	std::string data;

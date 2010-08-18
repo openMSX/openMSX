@@ -97,12 +97,14 @@ void MSXDevice::testRemove(const Devices& alreadyRemoved) const
 	set_difference(all.begin(), all.end(), removed.begin(), removed.end(),
 	               back_inserter(rest));
 	if (!rest.empty()) {
+		StringOp::Builder msg;
+		msg << "Still in use by ";
 		string names;
 		for (Devices::const_iterator it = rest.begin();
 		     it != rest.end(); ++it) {
-			names += (*it)->getName() + ' ';
+			msg << (*it)->getName() << ' ';
 		}
-		throw MSXException("Still in use by " + names);
+		throw MSXException(msg);
 	}
 }
 

@@ -373,34 +373,34 @@ const XMLElement& XMLElement::operator=(const XMLElement& element)
 
 string XMLElement::dump() const
 {
-	string result;
+	StringOp::Builder result;
 	dump(result, 0);
 	return result;
 }
 
-void XMLElement::dump(string& result, unsigned indentNum) const
+void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 {
 	string indent(indentNum, ' ');
-	result += indent + '<' + getName();
+	result << indent << '<' << getName();
 	for (Attributes::const_iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
-		result += ' ' + it->first +
-		          "=\"" + XMLEscape(it->second) + '"';
+		result << ' ' << it->first
+		       << "=\"" << XMLEscape(it->second) << '"';
 	}
 	if (children.empty()) {
 		if (data.empty()) {
-			result += "/>\n";
+			result << "/>\n";
 		} else {
-			result += '>' + XMLEscape(data) + "</" +
-			          getName() + ">\n";
+			result << '>' << XMLEscape(data) << "</"
+			       << getName() << ">\n";
 		}
 	} else {
-		result += ">\n";
+		result << ">\n";
 		for (Children::const_iterator it = children.begin();
 		     it != children.end(); ++it) {
 			(*it)->dump(result, indentNum + 2);
 		}
-		result += indent + "</" + getName() + ">\n";
+		result << indent << "</" << getName() << ">\n";
 	}
 }
 

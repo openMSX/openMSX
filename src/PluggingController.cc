@@ -11,6 +11,7 @@
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
+#include "StringOp.hh"
 #include "openmsx.hh"
 #include <cassert>
 #include <iostream>
@@ -173,21 +174,21 @@ PlugCmd::PlugCmd(CommandController& commandController,
 
 string PlugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 {
-	string result;
+	StringOp::Builder result;
 	switch (tokens.size()) {
 	case 1: {
 		for (PluggingController::Connectors::const_iterator it =
 		                       pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
-			result += ((*it)->getName() + ": " +
-			          (*it)->getPlugged().getName()) + '\n';
+			result << (*it)->getName() << ": "
+			       << (*it)->getPlugged().getName() << '\n';
 		}
 		break;
 	}
 	case 2: {
 		Connector& connector = pluggingController.getConnector(tokens[1]);
-		result += (connector.getName() + ": " +
-			   connector.getPlugged().getName());
+		result << connector.getName() << ": "
+		       << connector.getPlugged().getName();
 		break;
 	}
 	case 3: {

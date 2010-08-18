@@ -505,28 +505,28 @@ const string& ScriptOption::optionHelp() const
 
 static string formatSet(const set<string>& inputSet, string::size_type columns)
 {
-	string outString;
+	StringOp::Builder outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
 	for (set<string>::const_iterator it = inputSet.begin();
 	     it != inputSet.end(); ++it) {
 		string temp = *it;
 		if (totalLength == 0) {
 			// first element ?
-			outString += "    " + temp;
+			outString << "    " << temp;
 			totalLength = temp.length();
 		} else {
-			outString += ", ";
+			outString << ", ";
 			if ((totalLength + temp.length()) > columns) {
-				outString += "\n    " + temp;
+				outString << "\n    " << temp;
 				totalLength = temp.length();
 			} else {
-				outString += temp;
+				outString << temp;
 				totalLength += 2 + temp.length();
 			}
 		}
 	}
 	if (totalLength < columns) {
-		outString += string(columns - totalLength, ' ');
+		outString << string(columns - totalLength, ' ');
 	}
 	return outString;
 }

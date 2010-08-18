@@ -7,6 +7,7 @@
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
+#include "StringOp.hh"
 #include "serialize.hh"
 #include <cstdio>
 #include <cerrno>
@@ -39,8 +40,8 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	file = FileOperations::openFile(readFilenameSetting->getValue(), "rb");
 	if (!file) {
-		throw PlugException("Failed to open input: "
-			+ string(strerror(errno)));
+		throw PlugException(StringOp::Builder()
+			<< "Failed to open input: " << strerror(errno));
 	}
 
 	MidiInConnector& midiConnector = static_cast<MidiInConnector&>(connector_);

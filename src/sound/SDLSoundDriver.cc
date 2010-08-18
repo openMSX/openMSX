@@ -3,6 +3,7 @@
 #include "SDLSoundDriver.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "StringOp.hh"
 #include "build-info.hh"
 #include <SDL.h>
 #include <algorithm>
@@ -23,14 +24,15 @@ SDLSoundDriver::SDLSoundDriver(unsigned wantedFreq, unsigned wantedSamples)
 	desired.userdata = this;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
-		throw MSXException("Unable to initialize SDL audio subsystem: " +
-		                   std::string(SDL_GetError()));
+		throw MSXException(StringOp::Builder()
+			<< "Unable to initialize SDL audio subsystem: "
+			<< SDL_GetError());
 	}
 	SDL_AudioSpec audioSpec;
 	if (SDL_OpenAudio(&desired, &audioSpec) != 0) {
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		throw MSXException("Unable to open SDL audio: " +
-		                   std::string(SDL_GetError()));
+		throw MSXException(StringOp::Builder()
+			<< "Unable to open SDL audio: " << SDL_GetError());
 	}
 	//std::cerr << "DEBUG wanted: " << wantedSamples
 	//          <<     "  actual: " << audioSpec.size / 4 << std::endl;

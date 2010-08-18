@@ -604,7 +604,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 	MSXDirEntry& direntry = direntries[dirEntry.index];
 	memset(&direntry, 0, sizeof(MSXDirEntry));
-	memcpy(&direntry, msxName.c_str(), 11);
+	memcpy(&direntry, msxName.data(), 11);
 	direntry.attrib = T_MSX_REG;
 
 	// compute time/date stamps

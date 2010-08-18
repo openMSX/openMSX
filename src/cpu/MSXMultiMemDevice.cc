@@ -4,6 +4,7 @@
 #include "DummyDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -75,11 +76,12 @@ bool MSXMultiMemDevice::empty() const
 std::string MSXMultiMemDevice::getName() const
 {
 	assert(!empty());
-	std::string name = ranges[0].device->getName();
+	StringOp::Builder result;
+	result << ranges[0].device->getName();
 	for (unsigned i = 1; i < (ranges.size() - 1); ++i) {
-		name += "  " + ranges[i].device->getName();
+		result << "  " << ranges[i].device->getName();
 	}
-	return name;
+	return result;
 }
 
 MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address)

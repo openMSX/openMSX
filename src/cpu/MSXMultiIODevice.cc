@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXMultiIODevice.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -36,11 +37,12 @@ MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()
 std::string MSXMultiIODevice::getName() const
 {
 	assert(!devices.empty());
-	std::string name = devices[0]->getName();
+	StringOp::Builder result;
+	result << devices[0]->getName();
 	for (unsigned i = 1; i < devices.size(); ++i) {
-		name += "  " + devices[i]->getName();
+		result << "  " << devices[i]->getName();
 	}
-	return name;
+	return result;
 }
 
 byte MSXMultiIODevice::readIO(word port, EmuTime::param time)

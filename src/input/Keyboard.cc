@@ -705,13 +705,11 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	char* endPtr;
-	unsigned long row = strtoul(tokens[1].c_str(), &endPtr, 0);
-	if ((*endPtr != '\0') || (row >= NR_KEYROWS)) {
+	unsigned row, mask;
+	if (!StringOp::stringToUint(tokens[1], row) || (row >= NR_KEYROWS)) {
 		throw CommandException("Invalid row");
 	}
-	unsigned long mask = strtoul(tokens[2].c_str(), &endPtr, 0);
-	if ((*endPtr != '\0') || (mask >= 256)) {
+	if (!StringOp::stringToUint(tokens[2], mask) || (mask >= 256)) {
 		throw CommandException("Invalid mask");
 	}
 	if (up) {

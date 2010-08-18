@@ -449,8 +449,8 @@ void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)
 {
 	throw MSXException(StringOp::Builder() <<
-		"Overlapping memory devices in slot " << ps + '.' << ss <<
-		": " << dev1.getName() << " and " << dev2.getName() + '.');
+		"Overlapping memory devices in slot " << ps << '.' << ss <<
+		": " << dev1.getName() << " and " << dev2.getName() << '.');
 }
 
 void MSXCPUInterface::registerSlot(
