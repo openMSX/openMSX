@@ -150,7 +150,7 @@ public:
 	enum Reg16 { AF, BC, DE, HL, IX, IY, SP };
 	class CPURegs {
 	public:
-		CPURegs() { HALT_ = 0; }
+		CPURegs(bool r800) : HALT_(0), Rmask(r800 ? 0xff : 0x7f) {}
 		inline byte getA()   const { return AF_.b.h; }
 		inline byte getF()   const { return AF_.b.l; }
 		inline byte getB()   const { return BC_.b.h; }
@@ -219,7 +219,7 @@ public:
 
 		inline byte getIM()  const { return IM_; }
 		inline byte getI()   const { return I_; }
-		inline byte getR()   const { return (R_ & 0x7F) | (R2_ & 0x80); }
+		inline byte getR()   const { return (R_ & Rmask) | (R2_ & ~Rmask); }
 		inline bool getIFF1()     const { return IFF1_; }
 		inline bool getIFF2()     const { return IFF2_; }
 		inline byte getHALT()     const { return HALT_; }
@@ -317,7 +317,8 @@ public:
 		byte after_;
 		byte HALT_;
 		byte IM_, I_;
-		byte R_, R2_; // refresh = R&127 | R2&128
+		byte R_, R2_; // refresh = R & Rmask | R2 & ~Rmask
+		const byte Rmask; // 0x7F for Z80, 0xFF for R800
 	};
 #endif
 
@@ -390,7 +391,7 @@ public:
 	void setPaused(bool paused);
 
 protected:
-	CPU();
+	CPU(bool r800);
 	virtual ~CPU();
 
 	// flag-register tables, initialized at run-time

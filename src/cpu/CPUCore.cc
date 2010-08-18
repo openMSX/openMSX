@@ -238,6 +238,7 @@ template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_, EmuTime::param time)
 	: T(time, motherboard_.getScheduler())
+	, CPU(T::isR800())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
 	, interface(NULL)
@@ -693,15 +694,10 @@ ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
 }
 
 
-template <class T> inline void CPUCore<T>::M1Cycle()
-{
-	R.incR(1);
-}
-
 // NMI interrupt
 template <class T> inline void CPUCore<T>::nmi()
 {
-	M1Cycle();
+	R.incR(1);
 	R.setHALT(false);
 	R.setIFF1(false);
 	PUSH<T::EE_NMI_1>(R.getPC());
@@ -715,10 +711,7 @@ template <class T> inline void CPUCore<T>::irq0()
 	// TODO current implementation only works for 1-byte instructions
 	//      ok for MSX
 	assert(interface->readIRQVector() == 0xFF);
-	// Note: On real MSX HW there is no extra wait cycle (as introduced
-	//       by the M1Cycle() call). To compensate for this IM0_DELAY()
-	//       waits one cycle less.
-	M1Cycle();
+	R.incR(1);
 	R.setHALT(false);
 	R.setIFF1(false);
 	R.setIFF2(false);
@@ -731,7 +724,7 @@ template <class T> inline void CPUCore<T>::irq0()
 // IM1 interrupt
 template <class T> inline void CPUCore<T>::irq1()
 {
-	M1Cycle(); // see note in irq0()
+	R.incR(1);
 	R.setHALT(false);
 	R.setIFF1(false);
 	R.setIFF2(false);
@@ -744,7 +737,7 @@ template <class T> inline void CPUCore<T>::irq1()
 // IM2 interrupt
 template <class T> inline void CPUCore<T>::irq2()
 {
-	M1Cycle(); // see note in irq0()
+	R.incR(1);
 	R.setHALT(false);
 	R.setIFF1(false);
 	R.setIFF2(false);
@@ -800,9 +793,9 @@ void CPUCore<T>::executeInstructions()
 // fetch and execute next instruction.
 #define NEXT \
 	T::add(c); \
-	T::R800Refresh(); \
+	T::R800Refresh(R); \
 	if (likely(!T::limitReached())) { \
-		M1Cycle(); \
+		R.incR(1);
 		unsigned address = R.getPC(); \
 		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
 		if (likely(line != NULL)) { \
@@ -820,13 +813,13 @@ void CPUCore<T>::executeInstructions()
 // After some instructions we must always exit the CPU loop (ei, halt, retn)
 #define NEXT_STOP \
 	T::add(c); \
-	T::R800Refresh(); \
+	T::R800Refresh(R); \
 	assert(T::limitReached()); \
 	return;
 
 #define NEXT_EI \
 	T::add(c); \
-	/* !! NO T::R800Refresh(); !! */ \
+	/* !! NO T::R800Refresh(R); !! */ \
 	assert(T::limitReached()); \
 	return;
 
@@ -837,7 +830,7 @@ void CPUCore<T>::executeInstructions()
 
 #define NEXT \
 	T::add(c); \
-	T::R800Refresh(); \
+	T::R800Refresh(R); \
 	if (likely(!T::limitReached())) { \
 		goto start; \
 	} \
@@ -845,13 +838,13 @@ void CPUCore<T>::executeInstructions()
 
 #define NEXT_STOP \
 	T::add(c); \
-	T::R800Refresh(); \
+	T::R800Refresh(R); \
 	assert(T::limitReached()); \
 	return;
 
 #define NEXT_EI \
 	T::add(c); \
-	/* !! NO T::R800Refresh(); !! */ \
+	/* !! NO T::R800Refresh(R); !! */ \
 	assert(T::limitReached()); \
 	return;
 
@@ -864,7 +857,7 @@ start:
 #endif
 	unsigned ixy; // for dd_cb/fd_cb
 	byte opcodeMain = RDMEM_OPCODE(T::CC_MAIN);
-	M1Cycle();
+	R.incR(1);
 #ifdef USE_COMPUTED_GOTO
 	goto *(opcodeTable[opcodeMain]);
 
@@ -1137,7 +1130,7 @@ CASE(F7) { int c = rst<0x30>(); NEXT; }
 CASE(FF) { int c = rst<0x38>(); NEXT; }
 CASE(CB) {
 	byte cb_opcode = RDMEM_OPCODE(T::CC_PREFIX);
-	M1Cycle();
+	R.incR(1);
 	switch (cb_opcode) {
 		case 0x00: { int c = rlc_R<B>(); NEXT; }
 		case 0x01: { int c = rlc_R<C>(); NEXT; }
@@ -1403,7 +1396,7 @@ CASE(CB) {
 }
 CASE(ED) {
 	byte ed_opcode = RDMEM_OPCODE(T::CC_PREFIX);
-	M1Cycle();
+	R.incR(1);
 	switch (ed_opcode) {
 		case 0x00: case 0x01: case 0x02: case 0x03:
 		case 0x04: case 0x05: case 0x06: case 0x07:
@@ -1543,7 +1536,7 @@ CASE(ED) {
 opDD_2:
 CASE(DD) {
 	byte opcodeDD = RDMEM_OPCODE(T::CC_DD + T::CC_MAIN);
-	M1Cycle();
+	R.incR(1);
 	switch (opcodeDD) {
 		case 0x00: // nop();
 		case 0x01: // ld_bc_word();
@@ -1825,7 +1818,7 @@ CASE(DD) {
 opFD_2:
 CASE(FD) {
 	byte opcodeFD = RDMEM_OPCODE(T::CC_DD + T::CC_MAIN);
-	M1Cycle();
+	R.incR(1);
 	switch (opcodeFD) {
 		case 0x00: // nop();
 		case 0x01: // ld_bc_word();

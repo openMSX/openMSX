@@ -4,6 +4,7 @@
 #define Z80_HH
 
 #include "CPUClock.hh"
+#include "CPU.hh"	// for CPURegs, split header?
 #include "inline.hh"
 #include <cassert>
 
@@ -28,7 +29,7 @@ protected:
 	template <bool, bool> ALWAYS_INLINE void PRE_WORD (unsigned /*address*/) { }
 	template <      bool> ALWAYS_INLINE void POST_WORD(unsigned /*address*/) { }
 
-	ALWAYS_INLINE void R800Refresh() { }
+	ALWAYS_INLINE void R800Refresh(CPU::CPURegs& /*R*/) { }
 	ALWAYS_INLINE void R800ForcePageBreak() { }
 
 	ALWAYS_INLINE void setMemPtr(unsigned x) { memptr = x; }

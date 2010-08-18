@@ -14,7 +14,8 @@ byte CPU::ZSPHTable[256];
 word CPU::DAATable[0x800];
 
 
-CPU::CPU()
+CPU::CPU(bool r800)
+	: R(r800)
 {
 	// Avoid initialising twice.
 	static bool alreadyInit = false;

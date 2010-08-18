@@ -4,6 +4,7 @@
 #define R800_HH
 
 #include "CPUClock.hh"
+#include "CPU.hh"	// for CPURegs, split header?
 #include "Clock.hh"
 #include "likely.hh"
 #include "inline.hh"
@@ -124,7 +125,7 @@ protected:
 		}
 	}
 
-	ALWAYS_INLINE void R800Refresh()
+	ALWAYS_INLINE void R800Refresh(CPU::CPURegs& R)
 	{
 		// atoc documentation says refresh every 222 clocks
 		//  duration:  256/1024KB  13.5 clocks
@@ -133,9 +134,18 @@ protected:
 		//   (loosly based on old measurements by Jon on his analogue scope)
 		EmuTime time = getTimeFast();
 		if (unlikely(lastRefreshTime.getTicksTill_fast(time) >= 210)) {
-			lastRefreshTime.advance_fast(time);
-			add(26);
+			R800RefreshSlow(time, R); // slow-path not inline
 		}
+	}
+	NEVER_INLINE void R800RefreshSlow(EmuTime::param time, CPU::CPURegs& R)
+	{
+		do {
+			lastRefreshTime += 210;
+		} while (unlikely(lastRefreshTime.getTicksTill_fast(time) >= 210));
+		waitForEvenCycle(0);
+		add(25);
+		R800ForcePageBreak(); // TODO check this
+		R.incR(1);
 	}
 
 	void setTime(EmuTime::param time)

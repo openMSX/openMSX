@@ -1,0 +1,218 @@
+I was investigating whether the 'R' register behaves the same on Z80 and R800.
+I initially wrote this program:
+
+	di
+	ld	hl,#0100
+	xor	a
+	ld	b,a
+	ld	r,a
+loop:	ld	a,r        ; (2)
+	ld	(hl),a     ; (4)
+	inc	hl         ; (1)
+	djnz	loop       ; (3)
+	ei
+	ret
+
+
+On Z80, for every iteration of this loop, R is increased by 5 (+2 for 'ld a,r'
+and +1 for the other 3 instructions). On R800 R is also increased by 5 each
+iteration. Though sometimes it's increased by 6!
+
+The increase by 6 instead of 5 happened every 18th or 19th (alternating)
+Iteration. One iteration takes 10 cycles (taking R800-page-breaks into account),
+so that's on average every 185th clock cycle.
+
+This number 185 is very close to the number of useful cycles in a full R800
+refresh cycle. Currently (2010-08-16) R800-refresh in openmsx stalls the R800
+for 26 cycles every 210 cycles (so that leaves 210-26=184 useful cycles).
+
+So all this lead me to the hypotheses that a R800-refresh cycle also increases
+the R register by one.
+
+This would be very useful because it would allow to measure in more detail how
+refresh works exactly on R800 (the current model in openMSX (210/26) is not
+100% correct). So that's what I'll do in the rest of this document.
+
+
+
+
+New test program. This records sequences longer than 256, it's important that
+each iteration takes the same amount of cycles. So I had to replace the djnz
+instruction.
+
+	di
+	ld	hl,#0100
+	xor	a
+	ld	b,a
+	ld	r,a
+loop:	ld	a,r        ; (2)
+	ld	(hl),a     ; (4)
+	inc	hl         ; (1)
+	ld	a,h        ; (1)
+	cp	#c0        ; (2)
+	jr	nz,loop    ; (3)
+
+	[ some code to transform memory block #0100-#C000 into
+	  the differential of this block, so it's easy to see by
+	  how much R increased each iteration ]
+
+Each iteration takes 13 cycles. Per iteration R is increased by either 7 or 8.
+
+The difference table (a small portion) looked like this:
+   07 07 07 07 07 07 07 07  07 07 07 07 07 08 07 07
+   07 07 07 07 07 07 07 07  07 07 07 08 07 07 07 07
+   07 07 07 07 07 07 07 07  07 08 07 07 07 07 07 07
+   07 07 07 07 07 07 07 08  07 07 07 07 07 07 07 07
+   07 07 07 07 07 07 08 07  07 07 07 07 07 07 07 07
+   07 07 07 07 08 07 07 07  07 07 07 07 07 07 07 07
+   07 07 08 07 07 07 07 07  07 07 07 07 07 07 07 07
+   08 07 07 07 07 07 07 07  07 07 07 07 07 07 07 08
+   07 07 07 07 07 07 07 07  07 07 07 07 07 07 08 07
+   07 07 07 07 07 07 07 07  07 07 07 07 08 07 07 07
+   ...
+
+These tables always have only two different numbers, in this case a series of
+7's followed by one 8, then again a series of 7's followed by one 8 and so one.
+The actual number '7' or '8' is not important for timing, only the pattern of
+these numbers in the table is important. So I'll create a more compact notation
+for the table above:
+
+  14 14 14 14 15 14 14 14 14 15 14 ...       (these are decimal numbers)
+or even
+  4*14 15 ...
+
+This means there are 4 repetitions of '13*0x07 + 1* 0x08' (length 14) followed by
+one time '14*0x07 + 1*0x08' (length 15).
+
+So this notation indicates how many iterations there are before there is a
+refresh.
+
+For this test on average there are '(4 * 14 + 1 * 15) / 5 = 14.2' iterations
+between two refresh cycles. Each iteration takes 13 cycles. So that's 184.6
+useful clock cycles between refresh cycles.
+
+
+
+
+Next I realized this test program could be speed up one cycle:
+
+	ld	c,#c0
+loop:	ld	a,r        ; (2)
+	ld	(hl),a     ; (4)
+	inc	hl         ; (1)
+	ld	a,h        ; (1)
+	cp	c          ; (1)
+	jr	nz,loop    ; (3)
+
+An iteration now takes 12 cycles (R is still increased by 7 or 8).
+
+Difference table looks like this
+  16 3*15 16 2*15 16 2*15    (this sequence repeats all the time)
+
+That's (3*16+7*15)/10 = 15.3 iteration
+or 15.3*12 = 183.6 clock cycles between refresh.
+
+
+
+
+Then I started inserting extra instructions in this test program:
+
+	ld	c,#c0
+loop:	ld	a,r        ; (2)
+	ld	(hl),a     ; (4)
+	[***]
+	inc	hl         ; (1)
+	ld	a,h        ; (1)
+	cp	c          ; (1)
+	djnz	loop       ; (3)
+
+
+* NOP
+  13 cycles per iteration  (R increases 8 or 9)
+  pattern: 8*14 15
+  cycles between refresh: 183.44      (8*14+15)/9*13
+
+* 2 x NOP
+  14 cycles/iteration  (R incr 9 or 10)
+  pattern: 5*13 14
+  cycles/refresh = 184.33
+
+  I noticed the start of the difference table was a bit different, it went like
+  this:
+     9*13 14 7*13 14 5*13 14 5*13 14 5*13 14
+  So it took some time before it stabilized on the '5*13 14' pattern. For the
+  rest of the tests I didn't look at the start of the table anymore. I only
+  searched for the 'stable' pattern.
+
+  I ran this same test again, but now the (stable) pattern was
+     9*13 14
+  that gives
+     cycles/refresh = 183.4
+
+  This is very interesting behaviour, depending on some (yet unknown) initial
+  conditions, _the_whole_test_ runs slightly faster or slower. This is
+  interesting because it may give a clue to why there is considerable variation
+  to *some* speed measurements on a real R800 (see doc/r800-test.txt) while for
+  other tests the results are much more stable. (Also in the current R800 openMSX
+  emulation, the speed measurements are always stable).
+
+  I didn't repeat the previous tests. Maybe they also show different patterns
+  on different runs. I did repeat all future tests (there always seems to be
+  either only 1 or 2 different stable patterns)
+
+* NEG   (like 2xNOP also takes 2 cycles)
+  14 cycles/iteration (R incr 9 or 10)
+  pattern: 7*13 14
+  cycles/refresh = 183.75
+
+* 3 x NOP
+  15 cycles/iteration (R incr 10 or 11)
+  pattern: 2*12 13
+           3*12 13
+  cycles/refresh = 185
+                   183.75
+
+* IM 1   (3 cycles, like 3xNOP)
+  15 cycles/iteration (R incr 9 or 10)
+  pattern: same as 3 x NOP
+
+* 4 x NOP
+  16 cycles/iteration (R incr 11 or 12)
+  pattern: 11 12
+  cycles/refresh = 184
+
+* LD (HL),A  (4 cycles (with page-breaks))
+  16 cycles/iteration (R incr 8 or 9)
+  pattern: same as 4 x NOP
+
+* 5 x NOP
+  17 cycles/iteration (R incr 12 or 13)
+  pattern: 4*11 10
+           7*11 10 6*11 10
+  cycles/refresh = 183.6
+                   184.73
+
+* BIT 0,(HL)   (5 cycles)
+  17 cycles/iteration (R incr 9 or 10)
+  pattern: 5*11 10 4*11 10
+           6*11 10
+  cycles/refresh = 183.90
+                   184.57
+
+
+
+
+
+I still need to do more experiments, but some *guesses* so far: useful number
+of cycles always seems to be within (183, 185]. That's a variation of more than
+one clock cycle. Maybe refresh also waits for an even clock cycle (just like IO
+does). This could explain why there are two stable patterns for some tests (in
+one case you have to insert an extra cycle to align to an even number of
+cycles, in the other case you're already aligned). This could explain why there
+can be variation in speed between different runs of the same test. And finally
+it explains why the documentation (e.g. atoc or even the turbor datapack) talks
+about half clock cycles for the duration of the refresh (in 50% of the cases it
+needs to add one cycle). Those docs talk about 21.5 cycles refresh every 222
+cycles, those number seem wrong to me (don't match measurements on real HW),
+but at least I now have an idea about that half clock cycle.
+

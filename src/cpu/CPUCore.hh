@@ -163,7 +163,6 @@ private:
 	template <bool PRE_PB, bool POST_PB>
 	inline void WR_WORD_rev(unsigned address, unsigned value, unsigned cc);
 
-	inline void M1Cycle();
 	void executeInstructions();
 	inline void nmi();
 	inline void irq0();
