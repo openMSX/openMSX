@@ -61,7 +61,9 @@ void VDPIODelay::delay(EmuTime::param time)
 {
 	cpu.waitCycles(1);
 	if (cpu.isR800Active()) {
-		lastTime += 57; // 8us
+		// Number of cycles based on measurements on real HW.
+		// See doc/turbor-vdp-io-timing.ods for details.
+		lastTime += 62; // 8us
 		if (time < lastTime.getTime()) {
 			cpu.wait(lastTime.getTime());
 			return;
