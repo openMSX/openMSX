@@ -211,7 +211,11 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			clearCommand();
 			break;
 		default:
-			used = false;
+			//used = true; // was already true
+			// Without this, pressing e.g. CTRL-Q causes a keypress
+			// event in the MSX. But we do block all keyup events,
+			// so the effect is a hanging key in the MSX.
+			break;
 		}
 		break;
 	case Keys::KM_SHIFT:
