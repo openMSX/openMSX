@@ -43,7 +43,6 @@ instruction.
 	di
 	ld	hl,#0100
 	xor	a
-	ld	b,a
 	ld	r,a
 loop:	ld	a,r        ; (2)
 	ld	(hl),a     ; (4)
@@ -216,3 +215,171 @@ needs to add one cycle). Those docs talk about 21.5 cycles refresh every 222
 cycles, those number seem wrong to me (don't match measurements on real HW),
 but at least I now have an idea about that half clock cycle.
 
+
+---------
+
+
+I implemented the above guess (refresh waits for even clock cycle) in openMSX
+revision 11643. I can now more or less reproduce the results above: The
+number of useful clock cycles per refresh is also in range (183, 185], but the
+number per test is not the same as above (the 'stable patterns' from the tests
+above are different). Also in openMSX there's always only one stable pattern,
+while on a real R800, for some test, there clearly were two different possible
+patterns.
+
+
+
+
+
+
+New test: above we measured the number of useful clock cycles per 'refresh
+cycle'. Now we're going to measure how many cycles the refresh itself takes.
+The idea goes like this: by observing the R register we can detect that there
+was a refresh, so by doing a longer test we can count how many refresh cycles
+there were. We can combine this with measuring the total time of the test
+(using the E6-timer). We can also calculate how many 'useful' cycles there
+were in the whole test. So the difference between actual and useful cycles
+must be cycles spend on refresh. And finally if we divide that by the counted
+number of refreshes, we should know how many cycles a single refresh takes.
+
+Full test program:
+
+        org     #c000
+
+        di
+        ld      hl,#0100
+        ld      c,#bc
+
+        ld      e,3
+l1      ld      a,r        ; This loop waits till there was a refresh.
+        ld      d,a        ; It's an attempt to get more stable measurements.
+        ld      a,r        ; Note that this loop will not terminate in Z80
+        sub     d          ; mode.
+        sub     e
+        jr      z,l1
+
+        out     (#e6),a
+
+loop    ld      a,r        ; (2)   Actual test loop, same as in tests above
+        ld      (hl),a     ; (4)   One iteration takes 12 cycles
+        inc     hl         ; (1)
+        ;[***]             ;       extra instructions here (see below)
+        ld      a,h        ; (1)
+        cp      c          ; (1)
+        jr      nz,loop    ; (3/2) 3 cycles when jump is taken, 2 otherwise
+
+        in      a,(#e6)
+        ld      l,a
+        in      a,(#e7)
+        ld      h,a
+        ld      (#be00),hl ; store total duration of the test
+
+        ld      hl,#0100   ; Next we do some post-processing on the data:
+l2      inc     hl         ; First calculate the difference table, same
+        ld      a,(hl)     ; routine as in tests above (though not shown
+        dec     hl         ; there).
+        sub     (hl)
+        ld      (hl),a
+        inc     hl
+        ld      a,h
+        cp      c
+        jr      nz,l2
+
+        ld      hl,#bc00
+        ld      de,#bc00+1
+        ld      bc,#200-1
+        ld      (hl),0
+        ldir
+
+        ld      de,#100    ; Next we calculate a histogram.
+        ld      hl,#bc00   ; We expect this histogram to be all zero, except for
+l3      ld      a,(de)     ; two entries: the iterations with and without a
+        ld      l,a        ; refresh cycle.
+        inc     (hl)       ; There is a single other point in this histogram,
+        jr      nz,nc      ; that's because we don't calculate the difference of
+        inc     h          ; the very last iteration correctly (we'd have to
+        inc     (hl)       ; sample the R register one more time outside the
+        dec     h          ; loop). But for now we ignore this outlier.
+nc      inc     de
+        ld      a,d
+        cp      h
+        jr      nz, l3
+
+        ei
+        ret
+
+
+Test results:
+
+* no extra instructions:
+   real machine:
+     histogram: 0x07: 0xAECE
+                0x08: 0x0C31
+                0x66: 0x0001 -> belongs to 0x07, can be seen by the pattern
+                                in the difference table, I won't show this
+                                entry anymore in the next results
+     E6-ticks:  0x5B75
+
+     total cycles: E6-timer * 28 cycles/E6-tick = 655564 cycles
+     useful cycles: 0xBB00 iterations * 12 cycles/iteration = 574464 cycles
+     overhead cycles: 655564 - 574464 = 81100 cycles
+     cycles per refresh = 81100 cycles / 0xc31 refreshes
+                        = 25.985 cycles/refresh
+
+   openMSX revision 11648:
+     histogram: 0x07: 0xAECD+1
+                0x08: 0x0C32
+     E6-ticks:  0x5B78
+      --> 26.004 cycles/refresh
+
+* extra instruction: NOP (1 cycles, increases R by 1)
+   real machine:
+     histogram: 0x8: 0xADCA
+                0x9: 0x0D36
+     E6-ticks:  0x6318
+      --> 26.011 cycles/refresh
+
+   openMSX revision 11648:
+     histogram: 0x8: 0xADC8
+                0x9: 0x0D38
+     E6-ticks:  0x632A
+      --> 26.144 cycles/refresh
+
+* extra instruction: IM 1 (3 cycles, incr R 2)
+   real machine:
+     histogram: 0x9: 0xABCA
+                0xA: 0x0F36
+     E6-ticks:  0x721B
+      --> 25.636 cycles/refresh
+
+   openMSX revision 11648:
+     histogram: 0x9: 0xABBC
+                0xA: 0x0F44
+     E6-ticks:  0x727E
+      --> 26.25 cycles/refresh
+
+   !! Big difference between openmsx and real MSX !!
+
+* extra instructions: EXX ; MULUW HL,BC ; EXX (1+36+1 cycles, incr R 1+2+1)
+   real machine:
+     histogram: 0xB: 0x882D
+                0xC: 0x32D3
+     E6-ticks:  0x17D33  (of course I couldn't measure how many times the
+                          timer overflowed, but it must be one time)
+      --> 26.042 cycles/refresh
+
+   openMSX revision 11648:
+     histogram: 0xB: 0x8801
+                0xC: 0x32FF
+     E6-ticks:  0x17E80
+      --> 26.669 cycles/refresh
+
+   !! Big difference between openmsx and real MSX !!
+
+
+
+Preliminary conclusion:
+  Refresh seems to take about 26 cycles, this is also the value we currently
+  use in openMSX. Though especially for the 'IM 1' case there's still a
+  relatively big difference between openMSX and the real hardware. Needs
+  more experiments.
