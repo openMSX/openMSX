@@ -221,6 +221,13 @@ void MSXCPU::waitCycles(unsigned cycles)
 	activeCPU->waitCycles(cycles);
 }
 
+void MSXCPU::waitCyclesR800(unsigned cycles)
+{
+	if (isR800Active()) {
+		r800->waitCycles(cycles);
+	}
+}
+
 void MSXCPU::update(const Setting& setting)
 {
 	(void)setting;

@@ -124,6 +124,10 @@ public:
 
 	void setNextSyncPoint(EmuTime::param time);
 
+	void wait(EmuTime::param time);
+	void waitCycles(unsigned cycles);
+	void waitCyclesR800(unsigned cycles);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -131,10 +135,6 @@ private:
 	// only for MSXMotherBoard
 	void execute();
 	friend class MSXMotherBoardImpl;
-
-	void wait(EmuTime::param time);
-	void waitCycles(unsigned cycles);
-	friend class VDPIODelay;
 
 	/**
 	 * The time returned by this method is not safe to use for Scheduler
