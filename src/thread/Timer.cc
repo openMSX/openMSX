@@ -25,6 +25,10 @@ static inline unsigned long long getSDLTicks()
 
 unsigned long long getTime()
 {
+#ifndef NDEBUG
+	static unsigned long long lastTime = 0;
+#endif
+	unsigned long long now;
 /* QueryPerformanceCounter() has problems on modern CPUs,
  *  - on dual core CPUs time can ge backwards (a bit) when your process
  *    get scheduled on the other core
@@ -45,7 +49,7 @@ unsigned long long getTime()
 
 	// Assumes that the timer never wraps. The mask is just to
 	// ensure that the multiplication doesn't wrap.
-	return (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
+	now = (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
 */
 #if HAVE_CLOCK_GETTIME && defined(_POSIX_MONOTONIC_CLOCK)
 	// Note: in the past we used the more portable gettimeofday() function,
@@ -53,11 +57,16 @@ unsigned long long getTime()
 	timespec ts;
 	int result = clock_gettime(CLOCK_MONOTONIC, &ts);
 	assert(result == 0); (void)result;
-	return static_cast<unsigned long long>(ts.tv_sec) * 1000000 +
-	       static_cast<unsigned long long>(ts.tv_nsec) / 1000;
+	now = static_cast<unsigned long long>(ts.tv_sec) * 1000000 +
+	      static_cast<unsigned long long>(ts.tv_nsec) / 1000;
 #else
-	return getSDLTicks();
+	now = getSDLTicks();
 #endif
+#ifndef NDEBUG
+	assert(now >= lastTime);
+	lastTime = now;
+#endif
+	return now;
 }
 
 /*#if defined _WIN32
