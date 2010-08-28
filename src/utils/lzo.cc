@@ -79,10 +79,33 @@ static const unsigned D_SIZE = 1 << D_BITS;
 static const unsigned D_MASK = D_SIZE - 1;
 
 
-unsigned dict_hash(const byte* p)
+static inline unsigned dict_hash(const byte* p)
 {
 	unsigned t = p[0] ^ (p[1] << 5) ^ (p[2] << 10);
 	return (t + (t >> 5)) & D_MASK;
+}
+
+static inline bool isSame3(const byte* p1, const byte* p2)
+{
+	if (OPENMSX_UNALIGNED_MEMORY_ACCESS) {
+		unsigned mask = OPENMSX_BIGENDIAN ? 0xffffff00 : 0x00ffffff;
+		return (*reinterpret_cast<const unsigned*>(p1) & mask) ==
+		       (*reinterpret_cast<const unsigned*>(p2) & mask);
+	} else {
+		return (p1[0] == p2[0]) &&
+		       (p1[1] == p2[1]) &&
+		       (p1[2] == p2[2]);
+	}
+}
+
+static inline void storeBigNum(byte*& op, unsigned num)
+{
+	while (num > 255) {
+		num -= 255;
+		*op++ = 0;
+	}
+	assert(num > 0);
+	*op++ = byte(num);
 }
 
 static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
@@ -98,26 +121,15 @@ static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
 
 	ip += 4;
 	while (true) {
-		unsigned m_len;
-
 		unsigned dindex = dict_hash(ip);
 		const byte* m_pos = dict[dindex] + in;
 		dict[dindex] = ip - in;
-		unsigned m_off = ip - m_pos;
-		if (m_off > M4_MAX_OFFSET) {
-			goto literal;
-		}
 
-		if (OPENMSX_UNALIGNED_MEMORY_ACCESS
-			? (*(word*)m_pos != *(word*)ip)
-			: (m_pos[0] != ip[0] || m_pos[1] != ip[1])
-		) {
-			// nothing
-		} else if (likely(m_pos[2] == ip[2])) {
+		unsigned m_off = ip - m_pos;
+		if ((m_off <= M4_MAX_OFFSET) && isSame3(m_pos, ip)) {
 			goto match;
 		}
 
-literal:
 		++ip;
 		if (unlikely(ip >= ip_end)) {
 			break;
@@ -127,22 +139,14 @@ literal:
 match:
 		if (ip > ii) {
 			unsigned t = ip - ii;
-
 			if (t <= 3) {
 				assert(op - 2 > out);
 				op[-2] |= byte(t);
 			} else if (t <= 18) {
 				*op++ = byte(t - 3);
 			} else {
-				unsigned tt = t - 18;
-
 				*op++ = 0;
-				while (tt > 255) {
-					tt -= 255;
-					*op++ = 0;
-				}
-				assert(tt > 0);
-				*op++ = byte(tt);
+				storeBigNum(op, t - 18);
 			}
 			do { *op++ = *ii++; } while (--t > 0);
 		}
@@ -153,7 +157,7 @@ match:
 			m_pos[6] != *ip++ || m_pos[7] != *ip++ || m_pos[8] != *ip++
 		) {
 			--ip;
-			m_len = ip - ii;
+			unsigned m_len = ip - ii;
 			assert(m_len >= 3); assert(m_len <= M2_MAX_LEN);
 
 			if (m_off <= M2_MAX_OFFSET) {
@@ -163,22 +167,21 @@ match:
 			} else if (m_off <= M3_MAX_OFFSET) {
 				m_off -= 1;
 				*op++ = byte(M3_MARKER | (m_len - 2));
-				goto m3_m4_offset;
+				*op++ = byte((m_off & 63) << 2);
+				*op++ = byte(m_off >> 6);
 			} else {
 				m_off -= 0x4000;
 				assert(m_off > 0); assert(m_off <= 0x7fff);
 				*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
-				goto m3_m4_offset;
+				*op++ = byte((m_off & 63) << 2);
+				*op++ = byte(m_off >> 6);
 			}
 		} else {
-			{
-				const byte* end = in_end;
-				const byte* m = m_pos + M2_MAX_LEN + 1;
-				while (ip < end && *m == *ip) {
-					m++, ip++;
-				}
-				m_len = ip - ii;
+			const byte* m = m_pos + M2_MAX_LEN + 1;
+			while (ip < in_end && *m == *ip) {
+				++m; ++ip;
 			}
+			unsigned m_len = ip - ii;
 			assert(m_len > M2_MAX_LEN);
 
 			if (m_off <= M3_MAX_OFFSET) {
@@ -186,9 +189,8 @@ match:
 				if (m_len <= 33) {
 					*op++ = byte(M3_MARKER | (m_len - 2));
 				} else {
-					m_len -= 33;
 					*op++ = M3_MARKER | 0;
-					goto m3_m4_len;
+					storeBigNum(op, m_len - 33);
 				}
 			} else {
 				m_off -= 0x4000;
@@ -196,19 +198,10 @@ match:
 				if (m_len <= M4_MAX_LEN) {
 					*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
 				} else {
-					m_len -= M4_MAX_LEN;
 					*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11));
-m3_m4_len:
-					while (m_len > 255) {
-						m_len -= 255;
-						*op++ = 0;
-					}
-					assert(m_len > 0);
-					*op++ = byte(m_len);
+					storeBigNum(op, m_len - M4_MAX_LEN);
 				}
 			}
-
-m3_m4_offset:
 			*op++ = byte((m_off & 63) << 2);
 			*op++ = byte(m_off >> 6);
 		}
@@ -246,15 +239,8 @@ void lzo1x_1_compress(const byte* in,  unsigned  in_len,
 		} else if (t <= 18) {
 			*op++ = byte(t - 3);
 		} else {
-			unsigned tt = t - 18;
-
 			*op++ = 0;
-			while (tt > 255) {
-				tt -= 255;
-				*op++ = 0;
-			}
-			assert(tt > 0);
-			*op++ = byte(tt);
+			storeBigNum(op, t - 18);
 		}
 		do { *op++ = *ii++; } while (--t > 0);
 	}
@@ -286,9 +272,7 @@ unsigned read16LE(const byte* p)
 static ALWAYS_INLINE
 void copyRepeat(byte*& dst, const byte*& src, unsigned count)
 {
-	for (/**/; count; count--) {
-		*dst++ = *src++;
-	}
+	do { *dst++ = *src++; } while (--count);
 }
 
 void lzo1x_decompress(const byte* __restrict src, unsigned  src_len,
