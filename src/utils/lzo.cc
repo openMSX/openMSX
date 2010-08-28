@@ -120,97 +120,89 @@ static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
 	const byte* const ip_end = in + in_len - M2_MAX_LEN - 5;
 
 	ip += 4;
-	while (true) {
+	do {
 		unsigned dindex = dict_hash(ip);
 		const byte* m_pos = dict[dindex] + in;
 		dict[dindex] = ip - in;
 
 		unsigned m_off = ip - m_pos;
 		if ((m_off <= M4_MAX_OFFSET) && isSame3(m_pos, ip)) {
-			goto match;
-		}
-
-		++ip;
-		if (unlikely(ip >= ip_end)) {
-			break;
-		}
-		continue;
-
-match:
-		if (ip > ii) {
-			unsigned t = ip - ii;
-			if (t <= 3) {
-				assert(op - 2 > out);
-				op[-2] |= byte(t);
-			} else if (t <= 18) {
-				*op++ = byte(t - 3);
-			} else {
-				*op++ = 0;
-				storeBigNum(op, t - 18);
+			// found match of length at least 3
+			if (ip > ii) {
+				unsigned t = ip - ii;
+				if (t <= 3) {
+					assert(op - 2 > out);
+					op[-2] |= byte(t);
+				} else if (t <= 18) {
+					*op++ = byte(t - 3);
+				} else {
+					*op++ = 0;
+					storeBigNum(op, t - 18);
+				}
+				do { *op++ = *ii++; } while (--t > 0);
 			}
-			do { *op++ = *ii++; } while (--t > 0);
-		}
 
-		assert(ii == ip);
-		ip += 3;
-		if (m_pos[3] != *ip++ || m_pos[4] != *ip++ || m_pos[5] != *ip++ ||
-			m_pos[6] != *ip++ || m_pos[7] != *ip++ || m_pos[8] != *ip++
-		) {
-			--ip;
-			unsigned m_len = ip - ii;
-			assert(m_len >= 3); assert(m_len <= M2_MAX_LEN);
+			assert(ii == ip);
+			ip += 3;
+			if (m_pos[3] != *ip++ || m_pos[4] != *ip++ ||
+			    m_pos[5] != *ip++ || m_pos[6] != *ip++ ||
+			    m_pos[7] != *ip++ || m_pos[8] != *ip++) {
+				--ip;
+				unsigned m_len = ip - ii;
+				assert(m_len >= 3); assert(m_len <= M2_MAX_LEN);
 
-			if (m_off <= M2_MAX_OFFSET) {
-				m_off -= 1;
-				*op++ = byte(((m_len - 1) << 5) | ((m_off & 7) << 2));
-				*op++ = byte(m_off >> 3);
-			} else if (m_off <= M3_MAX_OFFSET) {
-				m_off -= 1;
-				*op++ = byte(M3_MARKER | (m_len - 2));
-				*op++ = byte((m_off & 63) << 2);
-				*op++ = byte(m_off >> 6);
-			} else {
-				m_off -= 0x4000;
-				assert(m_off > 0); assert(m_off <= 0x7fff);
-				*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
-				*op++ = byte((m_off & 63) << 2);
-				*op++ = byte(m_off >> 6);
-			}
-		} else {
-			const byte* m = m_pos + M2_MAX_LEN + 1;
-			while (ip < in_end && *m == *ip) {
-				++m; ++ip;
-			}
-			unsigned m_len = ip - ii;
-			assert(m_len > M2_MAX_LEN);
-
-			if (m_off <= M3_MAX_OFFSET) {
-				m_off -= 1;
-				if (m_len <= 33) {
+				if (m_off <= M2_MAX_OFFSET) {
+					m_off -= 1;
+					*op++ = byte(((m_len - 1) << 5) | ((m_off & 7) << 2));
+					*op++ = byte(m_off >> 3);
+				} else if (m_off <= M3_MAX_OFFSET) {
+					m_off -= 1;
 					*op++ = byte(M3_MARKER | (m_len - 2));
+					*op++ = byte((m_off & 63) << 2);
+					*op++ = byte(m_off >> 6);
 				} else {
-					*op++ = M3_MARKER | 0;
-					storeBigNum(op, m_len - 33);
+					m_off -= 0x4000;
+					assert(m_off > 0); assert(m_off <= 0x7fff);
+					*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
+					*op++ = byte((m_off & 63) << 2);
+					*op++ = byte(m_off >> 6);
 				}
 			} else {
-				m_off -= 0x4000;
-				assert(m_off > 0); assert(m_off <= 0x7fff);
-				if (m_len <= M4_MAX_LEN) {
-					*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
-				} else {
-					*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11));
-					storeBigNum(op, m_len - M4_MAX_LEN);
+				const byte* m = m_pos + M2_MAX_LEN + 1;
+				while (ip < in_end && *m == *ip) {
+					++m; ++ip;
 				}
-			}
-			*op++ = byte((m_off & 63) << 2);
-			*op++ = byte(m_off >> 6);
-		}
+				unsigned m_len = ip - ii;
+				assert(m_len > M2_MAX_LEN);
 
-		ii = ip;
-		if (unlikely(ip >= ip_end)) {
-			break;
+				if (m_off <= M3_MAX_OFFSET) {
+					m_off -= 1;
+					if (m_len <= 33) {
+						*op++ = byte(M3_MARKER | (m_len - 2));
+					} else {
+						*op++ = M3_MARKER | 0;
+						storeBigNum(op, m_len - 33);
+					}
+				} else {
+					m_off -= 0x4000;
+					assert(m_off > 0); assert(m_off <= 0x7fff);
+					if (m_len <= M4_MAX_LEN) {
+						*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11) | (m_len - 2));
+					} else {
+						*op++ = byte(M4_MARKER | ((m_off & 0x4000) >> 11));
+						storeBigNum(op, m_len - M4_MAX_LEN);
+					}
+				}
+				*op++ = byte((m_off & 63) << 2);
+				*op++ = byte(m_off >> 6);
+			}
+
+			ii = ip;
+		} else {
+			// no match found
+			++ip;
 		}
-	}
+	} while (likely(ip < ip_end));
 
 	out_len = op - out;
 	return in_end - ii;
@@ -231,7 +223,6 @@ void lzo1x_1_compress(const byte* in,  unsigned  in_len,
 
 	if (t > 0) {
 		const byte* ii = in + in_len - t;
-
 		if (op == out && t <= 238) {
 			*op++ = byte(17 + t);
 		} else if (t <= 3) {
