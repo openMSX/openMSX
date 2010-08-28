@@ -86,7 +86,7 @@ unsigned dict_hash(const byte* p)
 static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
                                            byte* out, unsigned& out_len)
 {
-	const byte* dict[D_SIZE] = {}; // init with NULL pointers
+	unsigned dict[D_SIZE] = {}; // zero-initialized
 
 	byte* op = out;
 	const byte* ip = in;
@@ -99,19 +99,18 @@ static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
 		unsigned m_len;
 
 		unsigned dindex = dict_hash(ip);
-		const byte* m_pos = dict[dindex];
-		unsigned m_off;
-		if (m_pos < in
-		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
+		const byte* m_pos = dict[dindex] + in;
+		unsigned m_off = ip - m_pos;
+		if (m_off > M4_MAX_OFFSET) {
 			goto literal;
 		}
 		if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3]) {
 			goto try_match;
 		}
 		dindex = (dindex & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f);
-		m_pos = dict[dindex];
-		if (m_pos < in
-		|| (m_off = (ip - m_pos)) <= 0 || m_off > M4_MAX_OFFSET) {
+		m_pos = dict[dindex] + in;
+		m_off = ip - m_pos;
+		if (m_off > M4_MAX_OFFSET) {
 			goto literal;
 		}
 		if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3]) {
@@ -130,7 +129,7 @@ try_match:
 		}
 
 literal:
-		dict[dindex] = ip;
+		dict[dindex] = ip - in;
 		++ip;
 		if (unlikely(ip >= ip_end)) {
 			break;
@@ -138,7 +137,7 @@ literal:
 		continue;
 
 match:
-		dict[dindex] = ip;
+		dict[dindex] = ip - in;
 		if (ip > ii) {
 			unsigned t = ip - ii;
 
