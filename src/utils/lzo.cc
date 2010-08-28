@@ -37,13 +37,16 @@
    Markus F.X.J. Oberhumer
    <markus@oberhumer.com>
    http://www.oberhumer.com/opensource/lzo/
- */
 
-/*
- * NOTE:
- *   the full LZO package can be found at
- *   http://www.oberhumer.com/opensource/lzo/
- */
+
+   Notes:
+   - This code is _heavily_ changed for openMSX, though most of the changes
+     don't affect functionality (code style changes or general cleanups). The
+     most important functional change is in lzo1x_1_do_compress(): compression
+     efficiency is a bit worse compared to original, but it runs a lot faster.
+   - The original miniLZO and the full LZO package can be found at:
+      http://www.oberhumer.com/opensource/lzo/
+*/
 
 #include "lzo.hh"
 #include "inline.hh"
@@ -72,14 +75,13 @@ static const byte M3_MARKER = 32;
 static const byte M4_MARKER = 16;
 
 static const unsigned D_BITS = 14;
-static const unsigned D_SIZE = (1 << D_BITS);
-static const unsigned D_MASK = (D_SIZE - 1);
-static const unsigned D_HIGH = ((D_MASK >> 1) + 1);
+static const unsigned D_SIZE = 1 << D_BITS;
+static const unsigned D_MASK = D_SIZE - 1;
 
 
 unsigned dict_hash(const byte* p)
 {
-	unsigned t = p[0] ^ (p[1] << 5) ^ (p[2] << 10) ^ (p[3] << 16);
+	unsigned t = p[0] ^ (p[1] << 5) ^ (p[2] << 10);
 	return (t + (t >> 5)) & D_MASK;
 }
 
@@ -100,25 +102,12 @@ static unsigned _lzo1x_1_do_compress(const byte* in,  unsigned  in_len,
 
 		unsigned dindex = dict_hash(ip);
 		const byte* m_pos = dict[dindex] + in;
+		dict[dindex] = ip - in;
 		unsigned m_off = ip - m_pos;
 		if (m_off > M4_MAX_OFFSET) {
 			goto literal;
 		}
-		if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3]) {
-			goto try_match;
-		}
-		dindex = (dindex & (D_MASK & 0x7ff)) ^ (D_HIGH | 0x1f);
-		m_pos = dict[dindex] + in;
-		m_off = ip - m_pos;
-		if (m_off > M4_MAX_OFFSET) {
-			goto literal;
-		}
-		if (m_off <= M2_MAX_OFFSET || m_pos[3] == ip[3]) {
-			goto try_match;
-		}
-		goto literal;
 
-try_match:
 		if (OPENMSX_UNALIGNED_MEMORY_ACCESS
 			? (*(word*)m_pos != *(word*)ip)
 			: (m_pos[0] != ip[0] || m_pos[1] != ip[1])
@@ -129,7 +118,6 @@ try_match:
 		}
 
 literal:
-		dict[dindex] = ip - in;
 		++ip;
 		if (unlikely(ip >= ip_end)) {
 			break;
@@ -137,7 +125,6 @@ literal:
 		continue;
 
 match:
-		dict[dindex] = ip - in;
 		if (ip > ii) {
 			unsigned t = ip - ii;
 
