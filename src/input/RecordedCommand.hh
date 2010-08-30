@@ -28,7 +28,7 @@ public:
 	MSXCommandEvent(const std::vector<TclObject*>& tokens,  EmuTime::param time);
 	virtual ~MSXCommandEvent();
 	const std::vector<TclObject*>& getTokens() const;
-	
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 private:
@@ -39,6 +39,12 @@ private:
 /** Commands that directly influence the MSX state should send and events
   * so that they can be recorded by the event recorder. This class helps to
   * implement that.
+  *
+  * Note: when a recorded command is later replayed, it's important to check
+  * whether it's actually a recorded command and not some arbitrary other
+  * command that someone might have inserted in a replay file. IOW when you
+  * load a replay file from an untrusted source, it should never be able to
+  * cause any harm. Blindly executing any Tcl command would be bad.
   */
 class RecordedCommand : public Command, private StateChangeListener
 {

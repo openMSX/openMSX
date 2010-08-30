@@ -271,6 +271,10 @@ DebugCmd::DebugCmd(CommandController& commandController,
 
 bool DebugCmd::needRecord(const vector<TclObject*>& tokens) const
 {
+	// Note: it's crucial for security that only the write and write_block
+	// subcommands are recorded and replayed. The 'set_bp' command for
+	// example would allow to set a callback that can execute arbitrary Tcl
+	// code. See comments in RecordedCommand for more details.
 	if (tokens.size() < 2) return false;
 	string subCmd = tokens[1]->getString();
 	return (subCmd == "write") || (subCmd == "write_block");

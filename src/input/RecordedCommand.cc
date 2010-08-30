@@ -81,7 +81,21 @@ void RecordedCommand::signalStateChange(shared_ptr<StateChange> event)
 	const vector<TclObject*>& tokens = commandEvent->getTokens();
 	if (getBaseName(tokens[0]->getString()) != getName()) return;
 
-	execute(tokens, *currentResultObject, commandEvent->getTime());
+	if (needRecord(tokens)) {
+		execute(tokens, *currentResultObject, commandEvent->getTime());
+	} else {
+		// Normally this shouldn't happen. But it's possible in case
+		// we're replaying a replay file that has manual edits in the
+		// event log. It's crucial for security that we don't blindly
+		// execute such commands. We already only execute
+		// RecordedCommands, but we also need a strict check that
+		// only commands that would be recorded are also replayed.
+		// For example:
+		//   debug set_bp 0x0038 true {<some-arbitrary-Tcl-command>}
+		// The debug write/write_block commands should be recorded and
+		// replayed, but via the set_bp it would be possible to
+		// execute arbitrary Tcl code.
+	}
 }
 
 void RecordedCommand::stopReplay(EmuTime::param /*time*/)
