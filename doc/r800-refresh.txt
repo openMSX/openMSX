@@ -383,3 +383,22 @@ Preliminary conclusion:
   use in openMSX. Though especially for the 'IM 1' case there's still a
   relatively big difference between openMSX and the real hardware. Needs
   more experiments.
+
+
+
+
+
+One other difference between Z80 and R800
+	di
+	xor	a
+	ld	a,r
+	ld	c,a	; Z80: c=2   R800: c=1
+	ld	a,r
+	ld	b,a     ; Z80: c=5   R800: c=4
+	ld	a,r     ; Z80: c=8   R800: c=7
+And of course once in a while the numbers for R800 are (partially) increased by
+one.
+
+This difference can possibly be explained by a difference in the order of
+storing the result to the 'R' register and increasing the 'R' register on each
+M1 cycle.

@@ -411,7 +411,8 @@ private:
 	template <unsigned N> inline int im_N();
 
 	template <CPU::Reg8 REG> inline int ld_a_IR();
-	template <CPU::Reg8 REG> inline int ld_IR_a();
+	inline int ld_r_a();
+	inline int ld_i_a();
 
 	template <CPU::Reg8 REG> int mulub_a_R();
 	template <CPU::Reg16 REG> int muluw_hl_SS();

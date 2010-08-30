@@ -1486,8 +1486,8 @@ CASE(ED) {
 		case 0x6b: { int c = ld_SS_xword_ED<HL>(); NEXT; }
 		case 0x7b: { int c = ld_SS_xword_ED<SP>(); NEXT; }
 
-		case 0x47: { int c = ld_IR_a<REG_I>(); NEXT; }
-		case 0x4f: { int c = ld_IR_a<REG_R>(); NEXT; }
+		case 0x47: { int c = ld_i_a(); NEXT; }
+		case 0x4f: { int c = ld_r_a(); NEXT; }
 		case 0x57: { int c = ld_a_IR<REG_I>(); NEXT; }
 		case 0x5f: { int c = ld_a_IR<REG_R>(); NEXT; }
 
@@ -4052,8 +4052,21 @@ template <class T> template<CPU::Reg8 REG> int CPUCore<T>::ld_a_IR() {
 }
 
 // LD I/R,A
-template <class T> template<CPU::Reg8 REG> int CPUCore<T>::ld_IR_a() {
-	R.set8<REG>(R.getA());
+template <class T> int CPUCore<T>::ld_r_a() {
+	// This code sequence:
+	//   XOR A  /  LD R,A   / LD A,R
+	// gives A=2 for Z80, but A=1 for R800. The difference can possibly be
+	// explained by a difference in the relative time between writing the
+	// new value to the R register and increasing the R register per M1
+	// cycle. Here we implemented the R800 behaviour by storing 'A-1' into
+	// R, that's good enough for now.
+	byte val = R.getA();
+	if (T::isR800()) val -= 1;
+	R.setR(val);
+	return T::CC_LD_A_I;
+}
+template <class T> int CPUCore<T>::ld_i_a() {
+	R.setI(R.getA());
 	return T::CC_LD_A_I;
 }
 
