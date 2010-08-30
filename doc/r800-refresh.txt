@@ -391,11 +391,12 @@ Preliminary conclusion:
 One other difference between Z80 and R800
 	di
 	xor	a
+	ld      r,a
 	ld	a,r
 	ld	c,a	; Z80: c=2   R800: c=1
 	ld	a,r
-	ld	b,a     ; Z80: c=5   R800: c=4
-	ld	a,r     ; Z80: c=8   R800: c=7
+	ld	b,a     ; Z80: b=5   R800: b=4
+	ld	a,r     ; Z80: a=8   R800: a=7
 And of course once in a while the numbers for R800 are (partially) increased by
 one.
 
