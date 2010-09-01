@@ -6,6 +6,7 @@
 #include "Math.hh"
 #include "PNG.hh"
 #include "build-info.hh"
+#include <cstdlib>
 #include <SDL.h>
 
 using std::string;
@@ -13,7 +14,7 @@ using std::string;
 namespace openmsx {
 
 static GLuint loadTexture(SDLSurfacePtr surface,
-	unsigned& width, unsigned& height, GLfloat* texCoord)
+	int& width, int& height, GLfloat* texCoord)
 {
 	width  = surface->w;
 	height = surface->h;
@@ -53,7 +54,7 @@ static GLuint loadTexture(SDLSurfacePtr surface,
 }
 
 static GLuint loadTexture(const string& filename,
-	unsigned& width, unsigned& height, GLfloat* texCoord)
+	int& width, int& height, GLfloat* texCoord)
 {
 	SDLSurfacePtr surface(PNG::load(filename));
 	try {
@@ -153,20 +154,22 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 		glTexCoord2f(texCoord[2], texCoord[1]); glVertex2i(x + width, y         );
 		glEnd();
 	} else {
-		bool onlyBorder = ((2 * borderSize) >= width ) ||
-		                  ((2 * borderSize) >= height);
-		glBegin(GL_QUADS);
+		bool onlyBorder = ((2 * borderSize) >= abs(width )) ||
+		                  ((2 * borderSize) >= abs(height));
 		if (onlyBorder) {
+			glBegin(GL_QUADS);
 			glColor4ub(borderR, borderG, borderB,
 			           (borderA * alpha) / 256);
 			glVertex2i(x,         y         );
 			glVertex2i(x,         y + height);
 			glVertex2i(x + width, y + height);
 			glVertex2i(x + width, y         );
+			glEnd();
 		} else {
 			// interior
 			int bx = (width  > 0) ? borderSize : -int(borderSize);
 			int by = (height > 0) ? borderSize : -int(borderSize);
+			glBegin(GL_QUADS);
 			glColor4ub(r[0], g[0], b[0], (a[0] * alpha) / 256);
 			glVertex2i(x + bx,         y + by        );
 			glColor4ub(r[2], g[2], b[2], (a[2] * alpha) / 256);
@@ -175,32 +178,32 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 			glVertex2i(x + width - bx, y + height - by);
 			glColor4ub(r[1], g[1], b[1], (a[1] * alpha) / 256);
 			glVertex2i(x + width - bx, y + by        );
+			glEnd();
 			if (borderSize > 0) {
 				glColor4ub(borderR, borderG, borderB,
 					   (borderA * alpha) / 256);
-				// top border
-				glVertex2i(x,         y     );
-				glVertex2i(x,         y + by);
-				glVertex2i(x + width, y + by);
-				glVertex2i(x + width, y     );
-				// bottom border
-				glVertex2i(x,         y + height - by);
-				glVertex2i(x,         y + height     );
-				glVertex2i(x + width, y + height     );
-				glVertex2i(x + width, y + height - by);
-				// left border
-				glVertex2i(x,      y + by         );
-				glVertex2i(x,      y + height - by);
-				glVertex2i(x + bx, y + height - by);
-				glVertex2i(x + bx, y + by         );
-				// right border
-				glVertex2i(x + width - bx, y + by         );
-				glVertex2i(x + width - bx, y + height - by);
-				glVertex2i(x + width,      y + height - by);
-				glVertex2i(x + width,      y + by         );
+				// 0/8---------------6
+				// |                 |
+				// |   1/9-------7   |
+				// |   |         |   |
+				// |   |         |   |
+				// |   3-------- 5   |
+				// |                 |
+				// 2-----------------4
+				glBegin(GL_TRIANGLE_STRIP);
+				glVertex2i(x             , y              ); // 0
+				glVertex2i(x         + bx, y          + by); // 1
+				glVertex2i(x             , y + height     ); // 2
+				glVertex2i(x         + bx, y + height - by); // 3
+				glVertex2i(x + width     , y + height     ); // 4
+				glVertex2i(x + width - bx, y + height - by); // 5
+				glVertex2i(x + width     , y              ); // 6
+				glVertex2i(x + width - bx, y          + by); // 7
+				glVertex2i(x             , y              ); // 8 = 0
+				glVertex2i(x         + bx, y          + by); // 9 = 1
+				glEnd();
 			}
 		}
-		glEnd();
 	}
 	glPopAttrib();
 }

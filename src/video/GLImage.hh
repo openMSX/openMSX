@@ -30,8 +30,8 @@ public:
 
 private:
 	GLuint texture;
-	unsigned width;
-	unsigned height;
+	int width;
+	int height;
 	GLfloat texCoord[4];
 	unsigned borderSize;
 	int a[4], borderA;
