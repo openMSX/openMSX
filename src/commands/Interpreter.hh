@@ -74,7 +74,7 @@ public:
 
 private:
 	// EventListener
-	virtual bool signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(shared_ptr<const Event> event);
 
 	void poll();
 

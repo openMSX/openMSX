@@ -566,7 +566,7 @@ bool CassettePlayer::updateBuffer(unsigned length, int* buffer,
 }
 
 
-bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
+int CassettePlayer::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_BOOT_EVENT) {
 		if (!getImageName().empty()) {
@@ -579,7 +579,7 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 			}
 		}
 	}
-	return true;
+	return 0;
 }
 
 const std::string& CassettePlayer::schedName() const

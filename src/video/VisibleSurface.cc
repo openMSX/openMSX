@@ -236,7 +236,7 @@ void VisibleSurface::update(const Setting& /*setting*/)
 	updateCursor();
 }
 
-bool VisibleSurface::signalEvent(shared_ptr<const Event> event)
+int VisibleSurface::signalEvent(shared_ptr<const Event> event)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_POINTER_TIMER_EVENT) {
@@ -249,7 +249,7 @@ bool VisibleSurface::signalEvent(shared_ptr<const Event> event)
 		       (type == OPENMSX_MOUSE_BUTTON_DOWN_EVENT));
 		updateCursor();
 	}
-	return true;
+	return 0;
 }
 
 void VisibleSurface::updateCursor()

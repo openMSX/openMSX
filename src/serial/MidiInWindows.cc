@@ -178,7 +178,7 @@ void MidiInWindows::signal(EmuTime::param time)
 }
 
 // EventListener
-bool MidiInWindows::signalEvent(shared_ptr<const Event> /*event*/)
+int MidiInWindows::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -186,7 +186,7 @@ bool MidiInWindows::signalEvent(shared_ptr<const Event> /*event*/)
 		ScopedLock l(lock);
 		queue.empty();
 	}
-	return true;
+	return 0;
 }
 
 template<typename Archive>

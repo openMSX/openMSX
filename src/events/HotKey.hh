@@ -57,7 +57,7 @@ private:
 	void stopRepeat();
 
 	// EventListener
-	virtual bool signalEvent(EventPtr event);
+	virtual int signalEvent(EventPtr event);
 
 	friend class BindCmd;
 	friend class UnbindCmd;

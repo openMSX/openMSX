@@ -23,10 +23,10 @@ public:
 	  * events for lower priority listeners.
 	  */
 	enum Priority {
-		OTHER,
-		CONSOLE,
-		HOTKEY,
-		MSX
+		OTHER   = 0x08,
+		CONSOLE = 0x04,
+		HOTKEY  = 0x02,
+		MSX     = 0x01,
 	};
 
 	explicit EventDistributor(Reactor& reactor);
@@ -71,7 +71,8 @@ public:
 private:
 	Reactor& reactor;
 
-	typedef std::multimap<Priority, EventListener*> PriorityMap;
+	typedef std::multimap<Priority, EventListener*, std::greater<Priority> >
+		PriorityMap; // sort from big to small
 	typedef std::map<EventType, PriorityMap> TypeMap;
 	TypeMap listeners;
 	typedef shared_ptr<const Event> EventPtr;

@@ -40,7 +40,7 @@ private:
 	typedef shared_ptr<const Event> EventPtr;
 
 	// EventListener
-	virtual bool signalEvent(EventPtr event);
+	virtual int signalEvent(EventPtr event);
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);

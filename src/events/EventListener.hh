@@ -16,10 +16,14 @@ public:
 
 	/**
 	 * This method gets called when an event you are subscribed to occurs.
-	 * @result Returning 'false' will deny this event to lower priority
-	 *         listeners
+	 * @result Must return a bitmask of EventListener priorities. When a
+	 *         bit is set, this event won't be delivered to listeners with
+	 *         that priority. It's only allowed/possible to block an event
+	 *         for listeners with a strictly lower priority than this
+	 *         listener. Returning 0 means don't block the event for any
+	 *         listeners.
 	 */
-	virtual bool signalEvent(shared_ptr<const Event> event) = 0;
+	virtual int signalEvent(shared_ptr<const Event> event) = 0;
 
 protected:
 	EventListener() {}

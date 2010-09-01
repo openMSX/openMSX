@@ -441,7 +441,7 @@ void AfterCommand::executeRealTime()
 	executeMatches(AfterTimePred());
 }
 
-bool AfterCommand::signalEvent(shared_ptr<const Event> event)
+int AfterCommand::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
@@ -465,7 +465,7 @@ bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 			}
 		}
 	}
-	return true;
+	return 0;
 }
 
 void AfterCommand::machineSwitch()

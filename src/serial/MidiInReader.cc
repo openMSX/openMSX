@@ -119,7 +119,7 @@ void MidiInReader::signal(EmuTime::param time)
 }
 
 // EventListener
-bool MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
+int MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -127,7 +127,7 @@ bool MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
 		ScopedLock l(lock);
 		queue.empty();
 	}
-	return true;
+	return 0;
 }
 
 

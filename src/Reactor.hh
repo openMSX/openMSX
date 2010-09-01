@@ -117,7 +117,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	// EventListener
-	virtual bool signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(shared_ptr<const Event> event);
 
 	void unpause();
 	void pause();

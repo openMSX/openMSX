@@ -61,7 +61,7 @@ private:
 	virtual const std::string& schedName() const;
 
 	// EventListener
-	virtual bool signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(shared_ptr<const Event> event);
 
 	// Observer<Setting>
 	void update(const Setting& setting);

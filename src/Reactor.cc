@@ -592,14 +592,14 @@ void Reactor::update(const Setting& setting)
 }
 
 // EventListener
-bool Reactor::signalEvent(shared_ptr<const Event> event)
+int Reactor::signalEvent(shared_ptr<const Event> event)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_QUIT_EVENT) {
 		enterMainLoop();
 		running = false;
 	} else if (type == OPENMSX_FOCUS_EVENT) {
-		if (!pauseOnLostFocusSetting.getValue()) return true;
+		if (!pauseOnLostFocusSetting.getValue()) return 0;
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
 		if (focusEvent.getGain()) {
 			// gained focus
@@ -616,7 +616,7 @@ bool Reactor::signalEvent(shared_ptr<const Event> event)
 	} else {
 		UNREACHABLE; // we didn't subscribe to this event...
 	}
-	return true;
+	return 0;
 }
 
 

@@ -75,7 +75,7 @@ void LedStatus::handleEvent(Led led)
 		ledValue[led] ? ON : OFF);
 }
 
-bool LedStatus::signalEvent(shared_ptr<const Event> /*event*/)
+int LedStatus::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	// Runs in main thread.
 	for (int i = 0; i < NUM_LEDS; ++i) {
@@ -84,7 +84,7 @@ bool LedStatus::signalEvent(shared_ptr<const Event> /*event*/)
 		}
 	}
 	lastTime = Timer::getTime();
-	return true;
+	return 0;
 }
 
 } // namespace openmsx

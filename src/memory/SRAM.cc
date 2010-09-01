@@ -131,7 +131,7 @@ void SRAM::save()
 	}
 }
 
-bool SRAM::signalEvent(shared_ptr<const Event> event)
+int SRAM::signalEvent(shared_ptr<const Event> event)
 {
 	// Event is received by all SRAM instances, so it will trigger a save
 	// of all SRAMs. Could be optimized if it turns out to be a problem.
@@ -139,7 +139,7 @@ bool SRAM::signalEvent(shared_ptr<const Event> event)
 	(void)event;
 
 	save();
-	return true;
+	return 0;
 }
 
 template<typename Archive>

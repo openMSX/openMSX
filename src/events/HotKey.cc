@@ -263,7 +263,7 @@ void HotKey::unbindDefault(EventPtr event)
 	defaultMap.erase(event);
 }
 
-bool HotKey::signalEvent(EventPtr event)
+int HotKey::signalEvent(EventPtr event)
 {
 	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
 		if (!lastEvent.get()) return true;
@@ -273,7 +273,7 @@ bool HotKey::signalEvent(EventPtr event)
 	}
 	BindMap::iterator it = cmdMap.find(event);
 	if (it == cmdMap.end()) {
-		return true;
+		return 0;
 	}
 	const HotKeyInfo& info = it->second;
 	if (info.repeat) {
@@ -286,7 +286,7 @@ bool HotKey::signalEvent(EventPtr event)
 		commandController.getCliComm().printWarning(
 			"Error executing hot key command: " + e.getMessage());
 	}
-	return false; // deny event to other listeners
+	return EventDistributor::MSX; // deny event to MSX listeners
 }
 
 void HotKey::startRepeat(EventPtr event)

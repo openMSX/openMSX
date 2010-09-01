@@ -134,12 +134,12 @@ const std::string& RealTime::schedName() const
 	return name;
 }
 
-bool RealTime::signalEvent(shared_ptr<const Event> event)
+int RealTime::signalEvent(shared_ptr<const Event> event)
 {
 	if (!motherBoard.isActive() || !enabled) {
 		// these are global events, only the active machine should
 		// synchronize with real time
-		return true;
+		return 0;
 	}
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe =
@@ -152,7 +152,7 @@ bool RealTime::signalEvent(shared_ptr<const Event> event)
 		// sync and possibly sleep
 		sync(getCurrentTime(), true);
 	}
-	return true;
+	return 0;
 }
 
 void RealTime::update(const Setting& /*setting*/)

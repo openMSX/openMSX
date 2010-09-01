@@ -662,7 +662,7 @@ void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
 	}
 }
 
-bool ReverseManager::signalEvent(shared_ptr<const Event> event)
+int ReverseManager::signalEvent(shared_ptr<const Event> event)
 {
 	(void)event;
 	assert(event->getType() == OPENMSX_TAKE_REVERSE_SNAPSHOT);
@@ -673,7 +673,7 @@ bool ReverseManager::signalEvent(shared_ptr<const Event> event)
 		pendingTakeSnapshot = false;
 		takeSnapshot(getCurrentTime());
 	}
-	return true;
+	return 0;
 }
 
 unsigned ReverseManager::getNextSeqNum(EmuTime::param time)

@@ -161,30 +161,29 @@ string CommandConsole::getLine(unsigned line) const
 	return "";
 }
 
-bool CommandConsole::signalEvent(shared_ptr<const Event> event)
+int CommandConsole::signalEvent(shared_ptr<const Event> event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
-	if (consoleSetting->getValue()) {
-		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-			if (handleEvent(keyEvent)) {
-				// event was used
-				display.repaintDelayed(40000); // 25fps
-				return false; // deny event to other listeners
-			}
-		} else {
-			assert(event->getType() == OPENMSX_KEY_UP_EVENT);
-			// In SVN revision 11232 we tried to only consume keyup
-			// events that were meaningful for the console. Though
-			// SDL doesn't fill in the unicode field for keyup
-			// events, so this approach didn't work. So now we
-			// again consume all keyup events. In the future we
-			// could try to work around this limitation (e.g. by
-			// building a map of keydown events that were consumed
-			// and also consume the corresponding keyup event).
-			return false;
-		}
+	if (!consoleSetting->getValue()) {
+		return 0;
 	}
-	return true;
+
+	// If the console is open then don't pass the event to the MSX
+	// (whetever the (keyboard) event is). If the event has a meaning for
+	// the console, then also don't pass the event to the hotkey system.
+	// For example PgUp, PgDown are keys that have both a meaning in the
+	// console and are used by standard key bindings.
+	if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
+		if (handleEvent(keyEvent)) {
+			// event was used
+			display.repaintDelayed(40000); // 25fps
+			return EventDistributor::HOTKEY |
+			       EventDistributor::MSX;
+		}
+	} else {
+		assert(event->getType() == OPENMSX_KEY_UP_EVENT);
+	}
+	return EventDistributor::MSX;
 }
 
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
@@ -211,10 +210,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			clearCommand();
 			break;
 		default:
-			//used = true; // was already true
-			// Without this, pressing e.g. CTRL-Q causes a keypress
-			// event in the MSX. But we do block all keyup events,
-			// so the effect is a hanging key in the MSX.
+			used = false;
 			break;
 		}
 		break;
@@ -294,16 +290,6 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		break;
 	default:
 		used = false;
-	}
-	if ((key == Keys::K_LSHIFT) || (key == Keys::K_RSHIFT) ||
-	    (key == Keys::K_LCTRL)  || (key == Keys::K_RCTRL)  ||
-	    (key == Keys::K_LALT)   || (key == Keys::K_RALT)   ||
-	    (key == Keys::K_LMETA)  || (key == Keys::K_RMETA)  ||
-	    (key == Keys::K_LSUPER) || (key == Keys::K_RSUPER)) {
-		// Pure-modifier key event, act as-if the console consumed this
-		// event. Without this check, pressing SHIFT or CTRL is passed
-		// to the MSX, where it possibly cancels a reverse-replay.
-		used = true;
 	}
 	return used;
 }

@@ -51,7 +51,7 @@ private:
 	void machineSwitch();
 
 	// EventListener
-	virtual bool signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(shared_ptr<const Event> event);
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,

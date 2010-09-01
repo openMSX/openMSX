@@ -128,7 +128,7 @@ void RS232Tester::signal(EmuTime::param time)
 }
 
 // EventListener
-bool RS232Tester::signalEvent(shared_ptr<const Event> /*event*/)
+int RS232Tester::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -136,7 +136,7 @@ bool RS232Tester::signalEvent(shared_ptr<const Event> /*event*/)
 		ScopedLock l(lock);
 		queue.empty();
 	}
-	return true;
+	return 0;
 }
 
 

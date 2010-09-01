@@ -91,22 +91,16 @@ void EventDistributor::deliverEvents()
 			EventPtr event = *it;
 			PriorityMap priorityMapCopy = listeners[event->getType()];
 			sem.up();
-			Priority currentPriority = OTHER;
-			bool stopEventDelivery = false;
+			unsigned allowPriorities = unsigned(-1); // all priorities
 			for (PriorityMap::const_iterator it = priorityMapCopy.begin();
 			     it != priorityMapCopy.end(); ++it) {
-				if (currentPriority != it->first) {
-					currentPriority = it->first;
-					if (stopEventDelivery) {
-						break;
-					}
-				}
-				if (!(it->second->signalEvent(event))) {
-					// only named priorities can prohibit events
-					// for lower priorities
-					assert(it->first != OTHER);
-					stopEventDelivery = true;
-				}
+				unsigned currentPriority = it->first;
+				if (!(currentPriority & allowPriorities)) continue;
+
+				unsigned maskPriorities = it->second->signalEvent(event);
+
+				assert(maskPriorities < currentPriority);
+				allowPriorities &= ~maskPriorities;
 			}
 			sem.down();
 		}

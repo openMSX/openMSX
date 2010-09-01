@@ -125,7 +125,7 @@ static string reply(const string& message, bool status)
 		XMLElement::XMLEscape(message) << "</reply>\n";
 }
 
-bool CliConnection::signalEvent(shared_ptr<const Event> event)
+int CliConnection::signalEvent(shared_ptr<const Event> event)
 {
 	const CliCommandEvent& commandEvent =
 		checked_cast<const CliCommandEvent&>(*event);
@@ -140,7 +140,7 @@ bool CliConnection::signalEvent(shared_ptr<const Event> event)
 			output(reply(result, false));
 		}
 	}
-	return true;
+	return 0;
 }
 
 void CliConnection::cb_start_element(

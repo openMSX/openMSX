@@ -71,10 +71,10 @@ EventDelay::~EventDelay()
 		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
 }
 
-bool EventDelay::signalEvent(EventPtr event)
+int EventDelay::signalEvent(EventPtr event)
 {
 	toBeScheduledEvents.push_back(event);
-	return true;
+	return 0;
 }
 
 void EventDelay::sync(EmuTime::param curEmu)

@@ -93,7 +93,7 @@ private:
 	virtual const std::string& schedName() const;
 
 	// EventListener
-	virtual bool signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(shared_ptr<const Event> event);
 
 	// StateChangeListener
 	virtual void signalStateChange(shared_ptr<StateChange> event);

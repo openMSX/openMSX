@@ -216,7 +216,7 @@ Display::Layers::iterator Display::baseLayer()
 	}
 }
 
-bool Display::signalEvent(shared_ptr<const Event> event)
+int Display::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe =
@@ -238,7 +238,7 @@ bool Display::signalEvent(shared_ptr<const Event> event)
 		// will anyway soon be rendered.
 		repaintDelayed(100 * 1000); // 10fps
 	}
-	return true;
+	return 0;
 }
 
 void Display::setWindowTitle()

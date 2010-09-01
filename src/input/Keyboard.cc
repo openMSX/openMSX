@@ -126,7 +126,7 @@ public:
 
 private:
 	// EventListener
-	virtual bool signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(shared_ptr<const Event> event);
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
@@ -1185,7 +1185,7 @@ CapsLockAligner::~CapsLockAligner()
 	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT,  *this);
 }
 
-bool CapsLockAligner::signalEvent(shared_ptr<const Event> event)
+int CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 {
 	EmuTime::param time = getCurrentTime();
 	EventType type = event->getType();
@@ -1198,7 +1198,7 @@ bool CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 		Clock<100> now(time);
 		setSyncPoint(now + 200);
 	}
-	return true;
+	return 0;
 }
 
 void CapsLockAligner::executeUntil(EmuTime::param time, int /*userData*/)
