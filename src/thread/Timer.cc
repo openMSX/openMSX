@@ -25,9 +25,7 @@ static inline unsigned long long getSDLTicks()
 
 unsigned long long getTime()
 {
-#ifndef NDEBUG
 	static unsigned long long lastTime = 0;
-#endif
 	unsigned long long now;
 /* QueryPerformanceCounter() has problems on modern CPUs,
  *  - on dual core CPUs time can ge backwards (a bit) when your process
@@ -62,10 +60,15 @@ unsigned long long getTime()
 #else
 	now = getSDLTicks();
 #endif
-#ifndef NDEBUG
-	assert(now >= lastTime);
+	if (now < lastTime) {
+		// This shouldn't happen, time should never go backwards.
+		// Though there appears to be a bug in some Linux kernels
+		// so that occasionally clock_gettime(CLOCK_MONOTONIC) _does_
+		// go back in time slightly. When that happens we return the
+		// last time again.
+		return lastTime;
+	}
 	lastTime = now;
-#endif
 	return now;
 }
 
