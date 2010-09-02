@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1281136362">
+<softwaredb xml:lang="en" timestamp="1283470874">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5339,19 +5339,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Jungle Hunt</title>
 	<system>MSX</system>
-	<company>Atari / Taito / Muffie</company>
+	<company>Atari / Taito</company>
 	<year>2008</year>
 	<country>JP</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">cfa30c1d6741e1b56b54622bbc3d89003f739a17</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">4e09d61162c3dd957d59ece0aa5d7222294b5c5a</hash><remark><text>Conversion by muffie (beta)</text></remark></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Jungle Hunt</title>
-	<system>MSX</system>
-	<company>Atari / Taito / Slotman</company>
-	<year>2008</year>
-	<country>JP</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c9a89cceb355e5daf47ed5e8ee3e211ebd2494d8</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">cfa30c1d6741e1b56b54622bbc3d89003f739a17</hash><remark><text>Muffie conversion</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c9a89cceb355e5daf47ed5e8ee3e211ebd2494d8</hash><remark><text>Slotman conversion</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">4e09d61162c3dd957d59ece0aa5d7222294b5c5a</hash><remark><text>muffie conversion (beta)</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">junior high school english grammar</title>
@@ -8688,6 +8681,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">6f1774195b8db0ba34af5e16ef94700d1714e011</hash><remark><text>[RC-746]</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">QBIQS</title>
+	<system>MSX</system>
+	<company>Z80ST Software 2010</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">a7a2a867f7e90458f3e8614e8c227da944a6092c</hash><remark><text>MSXDev2010 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Quarth</title>
 	<genmsxid>1383</genmsxid>
 	<system>MSX</system>
@@ -10982,6 +10983,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">43c6a757ce5ec5a221e6c0e922638f688de8fd8b</hash><remark><text>MSX-DEV07</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Time Out - Demo</title>
+	<system>MSX</system>
+	<company>Pepe Vila</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">71fd800ffbf05191a92ec72525628edbebb0fb08</hash><remark><text>Demo</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">7a8167ef162873b2481d888655411e371f98887e</hash><remark><text>Demo</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Time Pilot</title>
 	<genmsxid>46</genmsxid>
 	<system>MSX</system>
@@ -12026,6 +12036,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2556
-Parse time 10.489 seconds on Sat Aug 7 1:12:52 CEST 2010
+Roms in this database:2559
+Parse time 11.668 seconds on Fri Sep 3 1:41:26 CEST 2010
  -->
