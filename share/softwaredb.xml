@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1283470874">
+<softwaredb xml:lang="en" timestamp="1283591961">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2449,6 +2449,18 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>GB</country>
 		<dump><rom><hash algo="sha1">4b4a58a310a1138b95192d7fe0881bbdc45601d4</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Devil Zone</title>
+	<genmsxid>3421</genmsxid>
+	<system>MSX</system>
+	<company>Uttum</company>
+	<year>1989</year>
+	<country>KR</country>
+		<dump><megarom><type>ASCII8</type><hash algo="sha1">27a2a026f8d3ac3e00b2fc28f6a5702b25748d0c</hash><remark><text>ROM Version by  Manuel Pazos and GDX</text></remark></megarom></dump>
+		<dump><megarom><type>ASCII8</type><hash algo="sha1">fab24aa4ef16cfd7e767726809d208cdd95a195a</hash><remark><text>ROM Version by  Manuel Pazos and GDX (cheat version)</text></remark></megarom></dump>
+		<dump><megarom><type>ASCII16</type><hash algo="sha1">48e9bb58e61b55d9b196db82cf51a9913f1a53bb</hash><remark><text>ROM Version by  Manuel Pazos and GDX</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">b5323c533dfddbd34836a67f915d3e448c6c43b4</hash><remark><text>ROM Version by  Manuel Pazos and GDX</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Devil&#39;s Heaven</title>
@@ -12036,6 +12048,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2559
-Parse time 11.668 seconds on Fri Sep 3 1:41:26 CEST 2010
+Roms in this database:2563
+Parse time 7.109 seconds on Sat Sep 4 11:19:28 CEST 2010
  -->
