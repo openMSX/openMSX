@@ -1,5 +1,90 @@
 namespace eval tas {
 
+### TAS mode setting and handling ###
+
+## TODO: make an enum setting called 'mode', to make this easier to extend in
+# the future without losing bw compat. Unfortunately, this is not
+# supported yet in openMSX right now.
+
+user_setting create boolean tas_mode \
+"TAS mode enables some features which are very useful for creating Tool
+Assisted Speedruns, including several key bindings. It is still highly
+experimental! It gives you 8 savestate slots, to be used with F1-F8 (load) and
+SHIFT-F1 (to F8) to save. It actually saves replays. After loading, openMSX
+will advance to the end of the replay and pause.
+
+It will also enable the frame counter and give you a frame_advance key binding
+under the END key." false
+
+set_help_text enable_tas_mode \
+{This command has been deprecated, please use the tas_mode setting instead.}
+
+proc enable_tas_mode {} {
+	set ::tas_mode on
+}
+
+proc setting_changed { name1 name2 op } {
+	if { $::tas_mode } {;# setting changed from disabled to enabled
+
+		if {![osd exists framecount]} {
+			toggle_frame_counter
+		}
+		if {![osd exists cursors]} {
+			toggle_cursors
+		}
+		reverse_widgets::enable_reversebar false
+
+		# set up the quicksave/load "slots"
+		set basename "quicksave"
+		for {set i 1} {$i <= 8} {incr i} {
+			bind_default "F$i" tas::load_replay "$basename$i"
+			bind_default "SHIFT+F$i" "reverse savereplay $basename$i"
+		}
+
+		# set up frame advance/reverse
+		bind_default END -repeat advance_frame
+		bind_default SCROLLOCK -repeat reverse_frame
+
+		# set up special reverse for PgUp, which always goes back 1
+		# second and correct for the pause artifact
+		bind_default PAGEUP "tas::go_back_one_second"
+		bind_default PAGEDOWN "tas::go_forward_one_second"
+
+		puts "WARNING: TAS mode is still very experimental and will almost certainly change next release!"
+	} else { ;# setting changed from enabled to disabled
+		if [osd exists framecount] {
+			toggle_frame_counter
+		}
+		if [osd exists cursors] {
+			toggle_cursors
+		}
+		# leave reverse enabled, including bar
+
+		# remove the quicksave/load "slots"
+		for {set i 1} {$i <= 8} {incr i} {
+			unbind_default "F$i"
+			unbind_default "SHIFT+F$i"
+		}
+
+		# remove frame advance/reverse
+		unbind_default END
+		unbind_default SCROLLOCK
+
+		# remove special reverse for PgUp, which always goes back 1
+		# second and correct for the pause artifact
+		unbind_default PAGEUP
+		unbind_default PAGEDOWN
+	}
+}
+
+trace add variable ::tas_mode "write" [namespace code setting_changed]
+
+# init
+
+after realtime 0 { if {$::tas_mode} { tas::setting_changed "" "" "" }}
+
+### frame counter ###
+
 set_help_text toggle_frame_counter\
 {Toggles display of a frame counter in the lower right corner.
 
@@ -27,16 +112,14 @@ proc get_frame_time {} {
 	return [expr (1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)]
 }
 
-proc framecount_current {} {
-	return [machine_info VDP_frame_count]
-}
-
 proc framecount_update {} {
 	if {![osd exists framecount]} return
-	osd configure framecount.text -text "Frame: [framecount_current]"
+	osd configure framecount.text -text "Frame: [machine_info VDP_frame_count]"
 	after frame [namespace code framecount_update]
 }
 
+
+### frame advance/reverse and helper procs for TAS mode key bindings ###
 
 set_help_text advance_frame \
 {Emulates until the next frame is generated and then pauses openMSX. Useful to
@@ -104,43 +187,8 @@ proc go_forward_one_second {} {
 	goto_time [expr $stat(current) + 1]
 }
 
-set_help_text enable_tas_mode \
-{Enables the highly experimental TAS mode, giving you 8 savestate slots, to be
-used with F1-F8 (load) and SHIFT-F1 (to F8) to save. It actually saves
-replays. After loading, openMSX will advance to the end of the replay
-and pause. This will go slower and slower if you have longer replays.
-(Will be improved after openMSX 0.8.0 is released.)
+### Show Cursor Keys / 'fire buttons and others' ###
 
-It will also enable the frame counter and give you a frame_advance key binding
-under the END key.
-}
-
-proc enable_tas_mode {} {
-	# assume frame counter is disabled here
-	toggle_frame_counter
-	toggle_cursors
-	reverse_widgets::enable_reversebar false
-
-	# set up the quicksave/load "slots"
-	set basename "quicksave"
-	for {set i 1} {$i <= 8} {incr i} {
-		bind_default "F$i" tas::load_replay "$basename$i"
-		bind_default "SHIFT+F$i" "reverse savereplay $basename$i"
-	}
-
-	# set up frame advance/reverse
-	bind_default END -repeat advance_frame
-	bind_default SCROLLOCK -repeat reverse_frame
-
-	# set up special reverse for PgUp, which always goes back 1 second and correct for
-	# the pause artifact
-	bind_default PAGEUP "tas::go_back_one_second"
-	bind_default PAGEDOWN "tas::go_forward_one_second"
-
-	return "WARNING 1: TAS mode is still very experimental and will almost certainly change next release!"
-}
-
-# -- Show Cursor Keys / 'fire buttons and others'
 proc show_keys {} {
 	if {![osd exists cursors]} return
 
@@ -203,7 +251,8 @@ proc toggle_cursors {} {
 	}
 }
 
-# -- RAM Watch
+### RAM Watch ###
+
 variable addr_watches [list]   ;# sorted list of RAM watch addresses
 
 proc ram_watch_add {addr_str} {
