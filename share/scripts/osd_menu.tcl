@@ -57,6 +57,25 @@ proc set_scrollidx { value } {
 	array set menuinfo [list scrollidx $value]
 }
 
+# FIXME: this proc fails when the item is not in scroll view
+proc select_menu_item { item } {
+	peek_menu_info
+	set num [llength $menuinfo(selectinfo)]
+	if {$num == 0} return
+
+	set index -1
+
+	foreach list_item $menuinfo(lst) {
+		incr index
+		if {$item == $list_item} {
+			break
+		}
+	}
+
+	set_selectidx $index
+	menu_refresh_top
+}
+
 proc menu_create { menu_def_list } {
 	variable menulevels
 	variable default_bg_color
@@ -217,6 +236,10 @@ if ![file exists $::osd_disk_path] {
 
 proc main_menu_open {} {
 	variable main_menu
+	do_menu_open $main_menu
+}
+
+proc do_menu_open { top_menu } {
 	variable is_dingoo
 
 	# close console, because the menu interferes with it
@@ -229,7 +252,7 @@ proc main_menu_open {} {
 	# end tell how to close this widget
 	namespace eval ::osd_control { set close ::osd_menu::main_menu_close }
 
-	menu_create $main_menu
+	menu_create $top_menu
 
 	set ::pause true
 	# TODO make these bindings easier to customize
