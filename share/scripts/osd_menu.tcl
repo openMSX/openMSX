@@ -39,7 +39,7 @@ proc push_menu_info {} {
 	incr menulevels 1
 	set levelname "menuinfo_$menulevels"
 	variable $levelname
-	array set $levelname [uplevel { list name $name lst $lst presentation $presentation menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
+	array set $levelname [uplevel { list name $name lst $lst menu_len $menu_len presentation $presentation menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
 }
 
 proc peek_menu_info {} {
@@ -143,6 +143,7 @@ proc menu_create { menu_def_list } {
 		-x $bordersize -w $selw
 
 	set lst [get_optional menudef "lst" ""]
+	set menu_len [get_optional menudef "menu_len" 0]
 	set presentation [get_optional menudef "presentation" ""]
 	set selectidx 0
 	set scrollidx 0
@@ -332,13 +333,13 @@ proc prepare_menu_list { lst num menu_def_list } {
 	for {set i 0} {$i < $menu_len} {incr i} {
 		set actions [list "A" "osd_menu::list_menu_item_exec $execute $i"]
 		if {$i == 0} {
-			lappend actions "UP" "osd_menu::list_menu_item_updown -1 $lst_len $menu_len"
+			lappend actions "UP" "osd_menu::list_menu_item_updown -1"
 		}
 		if {$i == ($menu_len - 1)} {
-			lappend actions "DOWN" "osd_menu::list_menu_item_updown 1 $lst_len $menu_len"
+			lappend actions "DOWN" "osd_menu::list_menu_item_updown 1"
 		}
-		lappend actions "LEFT"  "osd_menu::list_menu_item_updown -$menu_len $lst_len $menu_len"
-		lappend actions "RIGHT" "osd_menu::list_menu_item_updown  $menu_len $lst_len $menu_len"
+		lappend actions "LEFT"  "osd_menu::list_menu_item_updown -$menu_len"
+		lappend actions "RIGHT" "osd_menu::list_menu_item_updown  $menu_len"
 		set item [list "text" "\[osd_menu::list_menu_item_show $i\]" \
 		               "actions" $actions]
 		if {$on_select != ""} {
@@ -351,6 +352,7 @@ proc prepare_menu_list { lst num menu_def_list } {
 	}
 	set menudef(items) $items
 	set menudef(lst) $lst
+	set menudef(menu_len) $menu_len
 	return [prepare_menu [array get menudef]]
 }
 
@@ -369,9 +371,11 @@ proc list_menu_item_select { pos select_proc } {
 	$select_proc [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
 }
 
-proc list_menu_item_updown { delta listsize menusize } {
+proc list_menu_item_updown { delta } {
 	peek_menu_info
 	set scrollidx $menuinfo(scrollidx)
+	set lst_len [llength $menuinfo(lst)]
+	set menu_len $menuinfo(menu_len)
 	set selectidx $menuinfo(selectidx)
 
 	menu_on_deselect $menuinfo(selectinfo) $selectidx
@@ -382,23 +386,23 @@ proc list_menu_item_updown { delta listsize menusize } {
 	if {$scrollidx < 0} {
 		if {$old_itemidx == 0} {
 			# Wrap around to bottom.
-			set scrollidx [expr $listsize - $menusize]
-			set selectidx [expr $menusize - 1]
+			set scrollidx [expr $lst_len - $menu_len]
+			set selectidx [expr $menu_len - 1]
 		} else {
 			# Clamp to top.
 			set scrollidx 0
 			set selectidx [expr $new_itemidx < 0 ? 0 : $new_itemidx]
 		}
-	} elseif {$scrollidx >= $listsize - $menusize} {
-		if {$old_itemidx == $listsize - 1} {
+	} elseif {$scrollidx >= $lst_len - $menu_len} {
+		if {$old_itemidx == $lst_len - 1} {
 			# Wrap around to top.
 			set scrollidx 0
 			set selectidx 0
 		} else {
 			# Clamp to bottom.
-			set scrollidx [expr $listsize - $menusize]
-			set selectidx [expr $new_itemidx < $listsize \
-			                  ? $new_itemidx - $scrollidx : $menusize - 1]
+			set scrollidx [expr $lst_len - $menu_len]
+			set selectidx [expr $new_itemidx < $lst_len \
+			                  ? $new_itemidx - $scrollidx : $menu_len - 1]
 		}
 	}
 
