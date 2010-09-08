@@ -151,15 +151,20 @@ proc correct_black_screen_for_time { t } {
 	# frames and replay those two frames.
 
 	# duration of two video frames
-	set t_cor [expr {2 * [get_frame_time] }]
-	reverse goto [expr $t - $t_cor]
+	set dur2 [expr {2 * [get_frame_time] }]
+	set t2 [expr $t - $dur2]
+	if {$t2 < 0} { set t2 0 }
+	reverse goto $t2
 	set ::pause off
 	set doing_black_screen_reverse true
-	after time $t_cor { set ::pause on; set tas::doing_black_screen_reverse false }
+	after time [expr $t - $t2] { set ::pause on; set tas::doing_black_screen_reverse false }
 }
 
 proc goto_time { t } {
 	variable doing_black_screen_reverse
+
+	if {$t < 0} { set t 0 }
+
 	# ignore goto command if we're still doing the black screen correction
 	if {!$doing_black_screen_reverse} {
 		if {$::pause} {
