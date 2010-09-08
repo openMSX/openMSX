@@ -57,25 +57,6 @@ proc set_scrollidx { value } {
 	array set menuinfo [list scrollidx $value]
 }
 
-# FIXME: this proc fails when the item is not in scroll view
-proc select_menu_item { item } {
-	peek_menu_info
-	set num [llength $menuinfo(selectinfo)]
-	if {$num == 0} return
-
-	set index -1
-
-	foreach list_item $menuinfo(lst) {
-		incr index
-		if {$item == $list_item} {
-			break
-		}
-	}
-
-	set_selectidx $index
-	menu_refresh_top
-}
-
 proc menu_create { menu_def_list } {
 	variable menulevels
 	variable default_bg_color
@@ -333,13 +314,13 @@ proc prepare_menu_list { lst num menu_def_list } {
 	for {set i 0} {$i < $menu_len} {incr i} {
 		set actions [list "A" "osd_menu::list_menu_item_exec $execute $i"]
 		if {$i == 0} {
-			lappend actions "UP" "osd_menu::list_menu_item_updown -1"
+			lappend actions "UP" "osd_menu::move_selection -1"
 		}
 		if {$i == ($menu_len - 1)} {
-			lappend actions "DOWN" "osd_menu::list_menu_item_updown 1"
+			lappend actions "DOWN" "osd_menu::move_selection 1"
 		}
-		lappend actions "LEFT"  "osd_menu::list_menu_item_updown -$menu_len"
-		lappend actions "RIGHT" "osd_menu::list_menu_item_updown  $menu_len"
+		lappend actions "LEFT"  "osd_menu::move_selection -$menu_len"
+		lappend actions "RIGHT" "osd_menu::move_selection  $menu_len"
 		set item [list "text" "\[osd_menu::list_menu_item_show $i\]" \
 		               "actions" $actions]
 		if {$on_select != ""} {
@@ -371,45 +352,68 @@ proc list_menu_item_select { pos select_proc } {
 	$select_proc [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
 }
 
-proc list_menu_item_updown { delta } {
+proc move_selection { delta } {
 	peek_menu_info
+	set lst_last [expr [llength $menuinfo(lst)] - 1]
 	set scrollidx $menuinfo(scrollidx)
-	set lst_len [llength $menuinfo(lst)]
+	set selectidx $menuinfo(selectidx)
+
+	set old_itemidx [expr $scrollidx + $selectidx]
+	set new_itemidx [expr $old_itemidx + $delta]
+
+	if {$new_itemidx < 0} {
+		# Before first element
+		if {$old_itemidx == 0} {
+			# if first element was already selected, wrap to last
+			set new_itemidx $lst_last
+		} else {
+			# otherwise, clamp to first element
+			set new_itemidx 0
+		}
+	} elseif {$new_itemidx > $lst_last} {
+		# After last element
+		if {$old_itemidx == $lst_last} {
+			# if last element was already selected, wrap to first
+			set new_itemidx 0
+		} else {
+			# otherwise clam to last element
+			set new_itemidx $lst_last
+		}
+	}
+
+	select_menu_idx $new_itemidx
+}
+
+proc select_menu_idx { itemidx } {
+	peek_menu_info
 	set menu_len $menuinfo(menu_len)
+	set scrollidx $menuinfo(scrollidx)
 	set selectidx $menuinfo(selectidx)
 
 	menu_on_deselect $menuinfo(selectinfo) $selectidx
 
-	set old_itemidx [expr $scrollidx + $selectidx]
-	incr scrollidx $delta
-	set new_itemidx [expr $scrollidx + $selectidx]
-	if {$scrollidx < 0} {
-		if {$old_itemidx == 0} {
-			# Wrap around to bottom.
-			set scrollidx [expr $lst_len - $menu_len]
-			set selectidx [expr $menu_len - 1]
-		} else {
-			# Clamp to top.
-			set scrollidx 0
-			set selectidx [expr $new_itemidx < 0 ? 0 : $new_itemidx]
-		}
-	} elseif {$scrollidx >= $lst_len - $menu_len} {
-		if {$old_itemidx == $lst_len - 1} {
-			# Wrap around to top.
-			set scrollidx 0
-			set selectidx 0
-		} else {
-			# Clamp to bottom.
-			set scrollidx [expr $lst_len - $menu_len]
-			set selectidx [expr $new_itemidx < $lst_len \
-			                  ? $new_itemidx - $scrollidx : $menu_len - 1]
-		}
+	set selectidx [expr $itemidx - $scrollidx]
+	if {$selectidx < 0} {
+		incr scrollidx $selectidx
+		set selectidx 0
+	} elseif {$selectidx >= $menu_len} {
+		set selectidx [expr $menu_len - 1]
+		set scrollidx [expr $itemidx - $selectidx]
 	}
 
 	set_selectidx $selectidx
 	set_scrollidx $scrollidx
 	menu_on_select $menuinfo(selectinfo) $selectidx
 	menu_refresh_top
+}
+
+proc select_menu_item { item } {
+	peek_menu_info
+
+	set index [lsearch -exact $menuinfo(lst) $item]
+	if {$index == -1} return
+
+	select_menu_idx $index
 }
 
 #
