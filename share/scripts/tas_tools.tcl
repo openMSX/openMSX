@@ -137,7 +137,7 @@ bind to a key in combination with advance_frame.}
 
 proc reverse_frame {} {
 	array set stat [reverse status]
-	goto_time [expr $stat(current) - [get_frame_time]]
+	goto_time [expr $stat(current) - [get_frame_time]] true
 }
 
 variable doing_black_screen_reverse false
@@ -149,6 +149,8 @@ proc correct_black_screen_for_time { t } {
 	# rendered image is correct. (TODO investigate why it needs
 	# two, I only expected one). As a workaround we go back two
 	# frames and replay those two frames.
+	# TODO This would work better (or more robust) if this were part of the
+	# core openMSX reverse functionality. Maybe something for next release.
 
 	# duration of two video frames
 	set dur2 [expr {2 * [get_frame_time] }]
@@ -160,14 +162,14 @@ proc correct_black_screen_for_time { t } {
 	after time [expr $t - $t2] { set ::pause on; set tas::doing_black_screen_reverse false }
 }
 
-proc goto_time { t } {
+proc goto_time { t {pause false} } {
 	variable doing_black_screen_reverse
 
 	if {$t < 0} { set t 0 }
 
 	# ignore goto command if we're still doing the black screen correction
 	if {!$doing_black_screen_reverse} {
-		if {$::pause} {
+		if {$::pause || $pause} {
 			correct_black_screen_for_time $t
 		} else {
 			reverse goto $t
