@@ -45,11 +45,6 @@ proc setting_changed { name1 name2 op } {
 		bind_default END -repeat advance_frame
 		bind_default SCROLLOCK -repeat reverse_frame
 
-		# set up special reverse for PgUp, which always goes back 1
-		# second and correct for the pause artifact
-		bind_default PAGEUP "tas::go_back_one_second"
-		bind_default PAGEDOWN "tas::go_forward_one_second"
-
 		puts "WARNING: TAS mode is still very experimental and will almost certainly change next release!"
 	} else { ;# setting changed from enabled to disabled
 		if [osd exists framecount] {
@@ -69,11 +64,6 @@ proc setting_changed { name1 name2 op } {
 		# remove frame advance/reverse
 		unbind_default END
 		unbind_default SCROLLOCK
-
-		# remove special reverse for PgUp, which always goes back 1
-		# second and correct for the pause artifact
-		unbind_default PAGEUP
-		unbind_default PAGEDOWN
 	}
 }
 
