@@ -52,63 +52,30 @@ set_help_text reverse_frame \
 {Rewind one frame back in time. Useful to
 bind to a key in combination with advance_frame.}
 
-proc reverse_frame {} {
+proc goto_time_delta { delta } {
 	array set stat [reverse status]
-	goto_time [expr $stat(current) - [get_frame_time]] true
-}
-
-variable doing_black_screen_reverse false
-
-proc correct_black_screen_for_time { t } {
-	variable doing_black_screen_reverse
-
-	# after loading a savestate, it takes two(!) frames before the
-	# rendered image is correct. (TODO investigate why it needs
-	# two, I only expected one). As a workaround we go back two
-	# frames and replay those two frames.
-	# TODO This would work better (or more robust) if this were part of the
-	# core openMSX reverse functionality. Maybe something for next release.
-
-	# duration of two video frames
-	set dur2 [expr {2 * [get_frame_time] }]
-	set t2 [expr $t - $dur2]
-	if {$t2 < 0} { set t2 0 }
-	reverse goto $t2
-	set ::pause off
-	set doing_black_screen_reverse true
-	after time [expr $t - $t2] { set ::pause on; set tas::doing_black_screen_reverse false }
-}
-
-proc goto_time { t {pause false} } {
-	variable doing_black_screen_reverse
-
+	set t [expr $stat(current) + $delta]
 	if {$t < 0} { set t 0 }
+	reverse goto $t
+}
 
-	# ignore goto command if we're still doing the black screen correction
-	if {!$doing_black_screen_reverse} {
-		if {$::pause || $pause} {
-			correct_black_screen_for_time $t
-		} else {
-			reverse goto $t
-		}
-	}
+proc reverse_frame {} {
+	goto_time_delta [expr -[get_frame_time]]
 }
 
 proc load_replay { name } {
 	reverse loadreplay $name
 	array set stat [reverse status]
-	goto_time $stat(end)
+	reverse goto $stat(end)
 	return ""
 }
 
 proc go_back_one_second {} {
-	array set stat [reverse status]
-	goto_time [expr $stat(current) - 1]
+	goto_time_delta -1
 }
 
 proc go_forward_one_second {} {
-	array set stat [reverse status]
-	goto_time [expr $stat(current) + 1]
+	goto_time_delta +1
 }
 
 ### Show Cursor Keys / 'fire buttons and others' ###

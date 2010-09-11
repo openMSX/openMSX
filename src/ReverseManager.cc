@@ -327,23 +327,34 @@ void ReverseManager::goTo(EmuTime::param target)
 		// We can't go back further in the past than the first snapshot.
 		assert(!history.chunks.empty());
 		Chunks::iterator it = history.chunks.begin();
-		EmuTime targetTime = std::max(target, it->second.time);
+		EmuTime firstTime = it->second.time;
+		EmuTime targetTime = std::max(target, firstTime);
 		// Also don't go further into the future than 'end time'.
 		targetTime = std::min(targetTime, getEndTime());
 
+		// Duration of 2 PAL frames. Possible improvement is to use the
+		// actual refresh rate (PAL/NTSC). But it should be the refresh
+		// rate of the active video chip (v99x8/v9990) at the target
+		// time. This is quite complex to get and the difference between
+		// 2 PAL and 2 NTSC frames isn't that big.
+		EmuDuration dur2frames(2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0));
+		EmuTime preTarget = ((targetTime - firstTime) > dur2frames)
+		                  ? targetTime - dur2frames
+		                  : firstTime;
+
 		// find oldest snapshot that is not newer than requested time
 		// TODO ATM we do a linear search, could be improved to do a binary search.
-		assert(it->second.time <= targetTime); // first one is not newer
+		assert(it->second.time <= preTarget); // first one is not newer
 		assert(it != history.chunks.end()); // there are snapshots
 		do {
 			++it;
 		} while (it != history.chunks.end() &&
-			 it->second.time <= targetTime);
+			 it->second.time <= preTarget);
 		// We found the first one that's newer, previous one is last
 		// one that's not newer (thus older or equal).
 		assert(it != history.chunks.begin());
 		--it;
-		assert(it->second.time <= targetTime);
+		assert(it->second.time <= preTarget);
 
 		// Note: we don't (anymore) erase future snapshots
 
@@ -390,12 +401,16 @@ void ReverseManager::goTo(EmuTime::param target)
 
 		stop();
 
-		// fast forward to the required time
-		newBoard->fastForward(targetTime);
+		// fast forward 2 frames before target time
+		newBoard->fastForward(preTarget);
 
 		// switch to the new MSXMotherBoard
 		// TODO this is not correct if this board was not the active board
 		reactor.replaceActiveBoard(newBoard);
+
+		// Fast forward to actual target time with board activated.
+		// This makes sure the video output gets rendered.
+		newBoard->fastForward(targetTime);
 
 		assert(!isCollecting());
 		assert(newBoard->getReverseManager().isCollecting());
