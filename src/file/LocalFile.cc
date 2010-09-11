@@ -73,6 +73,9 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 
 LocalFile::LocalFile(const std::string& filename_, const char* mode)
 	: filename(FileOperations::expandTilde(filename_))
+#if HAVE_MMAP || defined _WIN32
+	, mmem(NULL)
+#endif
 #if defined _WIN32
 	, hMmap(NULL)
 #endif
