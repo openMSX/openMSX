@@ -5,7 +5,6 @@
 
 #include "Command.hh"
 #include "EventListener.hh"
-#include "MSXEventListener.hh"
 #include "Event.hh"
 #include "shared_ptr.hh"
 #include <vector>
@@ -14,13 +13,12 @@ namespace openmsx {
 
 class Reactor;
 class EventDistributor;
-class MSXEventDistributor;
+class EventDistributor;
 class CommandController;
 class AfterCmd;
 class Event;
 
-class AfterCommand : public SimpleCommand, private EventListener,
-                     private MSXEventListener
+class AfterCommand : public SimpleCommand, private EventListener
 {
 public:
 	typedef shared_ptr<const Event> EventPtr;
@@ -39,7 +37,8 @@ private:
 	template<EventType T> void executeEvents();
 	template<EventType T> std::string afterEvent(
 		const std::vector<std::string>& tokens);
-	std::string afterMSXEvent(EventPtr event, const std::vector<std::string>& tokens);
+	std::string afterInputEvent(EventPtr event,
+	                            const std::vector<std::string>& tokens);
 	std::string afterTime(const std::vector<std::string>& tokens);
 	std::string afterRealTime(const std::vector<std::string>& tokens);
 	std::string afterTclTime(int ms, const std::vector<std::string>& tokens);
@@ -48,20 +47,13 @@ private:
 	std::string afterCancel(const std::vector<std::string>& tokens);
 	void executeRealTime();
 
-	void machineSwitch();
-
 	// EventListener
 	virtual int signalEvent(shared_ptr<const Event> event);
-
-	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event,
-	                         EmuTime::param time);
 
 	typedef std::vector<shared_ptr<AfterCmd> > AfterCmds;
 	AfterCmds afterCmds;
 	Reactor& reactor;
 	EventDistributor& eventDistributor;
-	MSXEventDistributor* msxEvents;
 
 	friend class AfterCmd;
 };

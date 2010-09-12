@@ -5,7 +5,7 @@
 #include "CliComm.hh"
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
-#include "MSXEventDistributor.hh"
+#include "EventDistributor.hh"
 #include "InputEventFactory.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
@@ -93,11 +93,11 @@ private:
 	const string type;
 };
 
-class AfterMSXEventCmd : public AfterCmd
+class AfterInputEventCmd : public AfterCmd
 {
 public:
-	AfterMSXEventCmd(AfterCommand& afterCommand,
-	                 AfterCommand::EventPtr event,
+	AfterInputEventCmd(AfterCommand& afterCommand,
+	                   AfterCommand::EventPtr event,
 	                 const string& command);
 	virtual string getType() const;
 	AfterCommand::EventPtr getEvent() const { return event; }
@@ -129,7 +129,6 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 	: SimpleCommand(commandController, "after")
 	, reactor(reactor_)
 	, eventDistributor(eventDistributor_)
-	, msxEvents(NULL)
 {
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
@@ -161,16 +160,10 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 		OPENMSX_MACHINE_LOADED_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_AFTER_REALTIME_EVENT, *this);
-
-	machineSwitch();
 }
 
 AfterCommand::~AfterCommand()
 {
-	if (msxEvents) {
-		msxEvents->unregisterEventListener(*this);
-	}
-
 	eventDistributor.unregisterEventListener(
 		OPENMSX_AFTER_REALTIME_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -233,7 +226,7 @@ string AfterCommand::execute(const vector<string>& tokens)
 		// try to interpret token as an event name
 		try {
 			EventPtr event(InputEventFactory::createInputEvent(tokens[1]));
-			return afterMSXEvent(event, tokens);
+			return afterInputEvent(event, tokens);
 		} catch (MSXException&) {
 			throw SyntaxError();
 		}
@@ -297,12 +290,12 @@ string AfterCommand::afterEvent(const vector<string>& tokens)
 	return cmd->getId();
 }
 
-string AfterCommand::afterMSXEvent(EventPtr event, const vector<string>& tokens)
+string AfterCommand::afterInputEvent(EventPtr event, const vector<string>& tokens)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	shared_ptr<AfterCmd> cmd(new AfterMSXEventCmd(*this, event, tokens[2]));
+	shared_ptr<AfterCmd> cmd(new AfterInputEventCmd(*this, event, tokens[2]));
 	afterCmds.push_back(cmd);
 	return cmd->getId();
 }
@@ -441,6 +434,19 @@ void AfterCommand::executeRealTime()
 	executeMatches(AfterTimePred());
 }
 
+struct AfterInputEventPred {
+	AfterInputEventPred(AfterCommand::EventPtr event_)
+		: event(event_) {}
+	bool operator()(shared_ptr<AfterCmd> x) const {
+		if (AfterInputEventCmd* cmd =
+		                 dynamic_cast<AfterInputEventCmd*>(x.get())) {
+			if (*cmd->getEvent() == *event) return false;
+		}
+		return true;
+	}
+	AfterCommand::EventPtr event;
+};
+
 int AfterCommand::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
@@ -452,11 +458,11 @@ int AfterCommand::signalEvent(shared_ptr<const Event> event)
 	} else if (event->getType() == OPENMSX_QUIT_EVENT) {
 		executeEvents<OPENMSX_QUIT_EVENT>();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		machineSwitch();
 		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
 	} else if (event->getType() == OPENMSX_AFTER_REALTIME_EVENT) {
 		executeRealTime();
 	} else {
+		executeMatches(AfterInputEventPred(event));
 		for (AfterCmds::const_iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
 			if (AfterIdleCmd* idleCmd =
@@ -466,36 +472,6 @@ int AfterCommand::signalEvent(shared_ptr<const Event> event)
 		}
 	}
 	return 0;
-}
-
-void AfterCommand::machineSwitch()
-{
-	if (msxEvents) {
-		msxEvents->unregisterEventListener(*this);
-	}
-	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
-	msxEvents = motherBoard ? &motherBoard->getMSXEventDistributor() : NULL;
-	if (msxEvents) {
-		msxEvents->registerEventListener(*this);
-	}
-}
-
-
-struct AfterMSXEventPred {
-	AfterMSXEventPred(AfterCommand::EventPtr event_)
-		: event(event_) {}
-	bool operator()(shared_ptr<AfterCmd> x) const {
-		if (AfterMSXEventCmd* cmd = dynamic_cast<AfterMSXEventCmd*>(x.get())) {
-			if (*cmd->getEvent() == *event) return false;
-		}
-		return true;
-	}
-	AfterCommand::EventPtr event;
-};
-void AfterCommand::signalEvent(shared_ptr<const Event> event,
-                               EmuTime::param /*time*/)
-{
-	executeMatches(AfterMSXEventPred(event));
 }
 
 
@@ -642,9 +618,9 @@ string AfterEventCmd<T>::getType() const
 }
 
 
-// AfterMSXEventCmd
+// AfterInputEventCmd
 
-AfterMSXEventCmd::AfterMSXEventCmd(
+AfterInputEventCmd::AfterInputEventCmd(
 		AfterCommand& afterCommand, AfterCommand::EventPtr event_,
 		const string& command)
 	: AfterCmd(afterCommand, command)
@@ -652,7 +628,7 @@ AfterMSXEventCmd::AfterMSXEventCmd(
 {
 }
 
-string AfterMSXEventCmd::getType() const
+string AfterInputEventCmd::getType() const
 {
 	return event->toString();
 }
