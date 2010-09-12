@@ -70,10 +70,25 @@ snapshot in the future (if possible).
 		}
 	}
 
+	proc goto_time_delta { delta } {
+		array set stat [reverse status]
+		set t [expr $stat(current) + $delta]
+		if {$t < 0} { set t 0 }
+		reverse goto $t
+	}
+
+	proc go_back_one_second {} {
+		goto_time_delta -1
+	}
+
+	proc go_forward_one_second {} {
+		goto_time_delta +1
+	}
+
 	# note: you can't use bindings with modifiers like SHIFT, because they
 	# will already stop the replay, as they are MSX keys as well
-	bind_default PAGEUP "reverse_prev"
-	bind_default PAGEDOWN "reverse_next"
+	bind_default PAGEUP   -repeat "go_back_one_second"
+	bind_default PAGEDOWN -repeat "go_forward_one_second"
 
 	proc after_switch {} {
 		if {$::auto_enable_reverse == "on"} {
@@ -87,6 +102,8 @@ snapshot in the future (if possible).
 
 	namespace export reverse_prev
 	namespace export reverse_next
+	namespace export go_back_one_second
+	namespace export go_forward_one_second
 }
 
 namespace eval reverse_widgets {

@@ -25,10 +25,6 @@ proc toggle_frame_counter {} {
 	return ""
 }
 
-proc get_frame_time {} {
-	return [expr (1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)]
-}
-
 proc framecount_update {} {
 	if {![osd exists framecount]} return
 	osd configure framecount.text -text "Frame: [machine_info VDP_frame_count]"
@@ -37,6 +33,10 @@ proc framecount_update {} {
 
 
 ### frame advance/reverse and helper procs for TAS mode key bindings ###
+
+proc get_frame_time {} {
+	return [expr (1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)]
+}
 
 set_help_text advance_frame \
 {Emulates until the next frame is generated and then pauses openMSX. Useful to
@@ -52,15 +52,11 @@ set_help_text reverse_frame \
 {Rewind one frame back in time. Useful to
 bind to a key in combination with advance_frame.}
 
-proc goto_time_delta { delta } {
+proc reverse_frame {} {
 	array set stat [reverse status]
-	set t [expr $stat(current) + $delta]
+	set t [expr $stat(current) - [get_frame_time]]
 	if {$t < 0} { set t 0 }
 	reverse goto $t
-}
-
-proc reverse_frame {} {
-	goto_time_delta [expr -[get_frame_time]]
 }
 
 proc load_replay { name } {
@@ -68,14 +64,6 @@ proc load_replay { name } {
 	array set stat [reverse status]
 	reverse goto $stat(end)
 	return ""
-}
-
-proc go_back_one_second {} {
-	goto_time_delta -1
-}
-
-proc go_forward_one_second {} {
-	goto_time_delta +1
 }
 
 ### Show Cursor Keys / 'fire buttons and others' ###
