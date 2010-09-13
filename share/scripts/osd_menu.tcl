@@ -960,6 +960,45 @@ proc menu_free_savestate_name {} {
 	}
 }
 
+# very basic slot selector
+# TODO: actually use this setting instead of hardcoded 'quicksave' name
+user_setting create string current_quicksave_slot "Name of the current quicksave slot (i.e. file)." quicksave1
+
+proc list_slots {} {
+	set slots [list]
+	set basename "quicksave"
+	for {set i 1} {$i <= 10} {incr i} {
+		lappend slots "$basename$i"
+	}
+	return $slots
+}
+
+proc menu_create_slot_menu {} {
+	set items [list_slots]
+	set menu_def \
+	       { execute set_slot
+	         font-size 8
+	         border-size 2
+	         width 100
+	         xpos 100
+	         ypos 100
+	         header { text "Select Save Slot"
+	                  font-size 10
+	                  post-spacing 6 }}
+
+	return [prepare_menu_list $items 10 $menu_def]
+}
+
+proc set_slot { item } {
+	menu_close_all
+	set ::current_quicksave_slot $item
+}
+
+proc toggle_select_slot_menu {} {
+	do_menu_open [menu_create_slot_menu]
+	select_menu_item $::current_quicksave_slot
+}
+
 # keybindings
 if {$tcl_platform(os) == "Darwin"} { ;# Mac
 	bind_default "keyb META+O" main_menu_toggle
