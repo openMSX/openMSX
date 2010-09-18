@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1283591961">
+<softwaredb xml:lang="en" timestamp="1284830913">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2460,7 +2460,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">27a2a026f8d3ac3e00b2fc28f6a5702b25748d0c</hash><remark><text>ROM Version by  Manuel Pazos and GDX</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">fab24aa4ef16cfd7e767726809d208cdd95a195a</hash><remark><text>ROM Version by  Manuel Pazos and GDX (cheat version)</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">48e9bb58e61b55d9b196db82cf51a9913f1a53bb</hash><remark><text>ROM Version by  Manuel Pazos and GDX</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">b5323c533dfddbd34836a67f915d3e448c6c43b4</hash><remark><text>ROM Version by  Manuel Pazos and GDX</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Devil&#39;s Heaven</title>
@@ -4856,6 +4855,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>NL</country>
 		<dump><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">6ad2f111227d6d4659f0089b9397896d16f867a0</hash></rom></dump>
 		<dump><rom><hash algo="sha1">a9bf062f695475e84be4ab78afb9715fc3f6f40e</hash><remark><text>[b]</text></remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">1d881446dd40769bb3d97793e23a4ab093f333f4</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Hyper Olympic 1</title>
@@ -8820,6 +8820,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">b81dd702afaaa5946e4ec065042c891ad2f76c2b</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">RatBox</title>
+	<system>MSX</system>
+	<company>AG Software</company>
+	<year>2010</year>
+	<country>SP</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">c3937d6f0b4f1ab6f4aaa227402d49eb37babfbe</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Real Tennis</title>
 	<genmsxid>86</genmsxid>
 	<system>MSX</system>
@@ -12048,6 +12056,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2563
-Parse time 7.109 seconds on Sat Sep 4 11:19:28 CEST 2010
+Roms in this database:2564
+Parse time 10.308 seconds on Sat Sep 18 19:28:43 CEST 2010
  -->
