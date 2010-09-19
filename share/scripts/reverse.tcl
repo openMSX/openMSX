@@ -1,5 +1,13 @@
 namespace eval reverse {
 
+	variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
+	variable default_auto_enable_reverse
+	if {$is_dingoo} {
+		set default_auto_enable_reverse "off"
+	} else {
+		set default_auto_enable_reverse "gui"
+	}
+
 	# Enable reverse if not yet enabled. As an optimization, also return
 	# reverse-status info (so that caller doesn't have to query it again).
 	proc auto_enable {} {
@@ -291,7 +299,7 @@ Possible values for this setting:
   off   Reverse not enabled on startup
   on    Reverse enabled on startup
   gui   Reverse + reverse_bar enabled (see 'help toggle_reversebar')
-} off
+} $reverse::default_auto_enable_reverse
 
 
 # TODO hack:
