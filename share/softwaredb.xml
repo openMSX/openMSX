@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1284830913">
+<softwaredb xml:lang="en" timestamp="1284932338">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -8681,6 +8681,16 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">e35c48aae9aed93a114a28ee90f8f20fced3587b</hash><remark><text>[o]</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Pyro-Man</title>
+	<genmsxid>160</genmsxid>
+	<system>MSX</system>
+	<company>Seikaromox / HAL Laboratory</company>
+	<year>1987</year>
+	<country>JP</country>
+		<dump><original value="false">Translated</original><rom><hash algo="sha1">34809426195e9e75eab850d0ec126bb8ae5d3a6d</hash><remark><text>English Translation by GDX</text></remark></rom></dump>
+		<dump><original value="false">Translated</original><rom><hash algo="sha1">d67d93d2089835e4dc9393ad609c3c7fdbaa56d9</hash><remark><text>French Translation by GDX</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Q-Bert</title>
 	<genmsxid>739</genmsxid>
 	<system>MSX</system>
@@ -12056,6 +12066,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2564
-Parse time 10.308 seconds on Sat Sep 18 19:28:43 CEST 2010
+Roms in this database:2566
+Parse time 7.153 seconds on Sun Sep 19 23:39:05 CEST 2010
  -->
