@@ -63,12 +63,11 @@ proc enter_tas_mode {} {
 	}
 	reverse_widgets::enable_reversebar false
 
-	# Set up the quicksave/load "slots"
-	set basename "quicksave"
-	for {set i 1} {$i <= 8} {incr i} {
-		bind_default "F$i" tas::load_replay "$basename$i"
-		bind_default "SHIFT+F$i" "reverse savereplay $basename$i"
-	}
+	# load/select/save reverse slot
+	# Note: this hides the MSX keys 'SELECT' and 'STOP'
+	bind_default F6 tas::load_replay_slot
+	bind_default F7 tas::open_select_slot_menu
+	bind_default F8 tas::save_replay_slot
 
 	# Set up frame advance/reverse
 	bind_default END -repeat advance_frame
@@ -86,11 +85,10 @@ proc leave_tas_mode {} {
 	}
 	# Leave reverse enabled, including bar
 
-	# Remove the quicksave/load "slots"
-	for {set i 1} {$i <= 8} {incr i} {
-		unbind_default "F$i"
-		unbind_default "SHIFT+F$i"
-	}
+	# Remove reverse slot stuff
+	unbind_default F6
+	unbind_default F7
+	unbind_default F8
 
 	# Remove frame advance/reverse
 	unbind_default END

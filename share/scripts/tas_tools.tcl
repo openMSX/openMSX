@@ -66,6 +66,54 @@ proc load_replay { name } {
 	return ""
 }
 
+
+### Very basic replay slot selector ###
+
+user_setting create string current_replay_slot "Name of the current replay slot." slot1
+
+proc list_slots {} {
+	set slots [list]
+	for {set i 1} {$i <= 10} {incr i} {
+		lappend slots "slot$i"
+	}
+	return $slots
+}
+
+proc menu_create_slot_menu {} {
+	set items [list_slots]
+	set menu_def \
+	       { execute tas::set_slot
+	         font-size 8
+	         border-size 2
+	         width 100
+	         xpos 100
+	         ypos 100
+	         header { text "Select Replay Slot"
+	                  font-size 10
+	                  post-spacing 6 }}
+
+	return [osd_menu::prepare_menu_list $items 10 $menu_def]
+}
+
+proc set_slot { item } {
+	osd_menu::menu_close_all
+	set ::current_replay_slot $item
+}
+
+proc open_select_slot_menu {} {
+	osd_menu::do_menu_open [menu_create_slot_menu]
+	osd_menu::select_menu_item $::current_replay_slot
+}
+
+proc save_replay_slot {} {
+	reverse savereplay $::current_replay_slot
+}
+
+proc load_replay_slot {} {
+	load_replay $::current_replay_slot
+}
+
+
 ### Show Cursor Keys / 'fire buttons and others' ###
 
 proc show_keys {} {
