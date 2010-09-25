@@ -3,12 +3,7 @@ namespace eval tas {
 ### frame counter ###
 
 set_help_text toggle_frame_counter\
-{Toggles display of a frame counter in the lower right corner.
-
-Note that the absolute value of the frame counter will be wrong after a
-PAL/NTSC switch (50Hz/60Hz switch). Relative values are correct, so this
-can be used for example to advance N frames. We will fix the absolute
-value after openMSX 0.8.1 is released. }
+{Toggles display of a frame counter in the lower right corner.}
 
 proc toggle_frame_counter {} {
 	if [osd exists framecount] {
