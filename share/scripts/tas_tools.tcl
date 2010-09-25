@@ -68,7 +68,7 @@ user_setting create string current_replay_slot "Name of the current replay slot.
 
 proc list_slots {} {
 	set slots [list]
-	for {set i 1} {$i <= 10} {incr i} {
+	for {set i 0} {$i <= 9} {incr i} {
 		lappend slots "slot$i"
 	}
 	return $slots
@@ -98,6 +98,15 @@ proc set_slot { item } {
 proc open_select_slot_menu {} {
 	osd_menu::do_menu_open [menu_create_slot_menu]
 	osd_menu::select_menu_item $::current_replay_slot
+	for {set i 0} {$i <= 9} {incr i} {
+		bind_default "$i" "tas::set_slot [lindex [tas::list_slots] $i]; tas::unbind_number_keys"
+	}
+}
+
+proc unbind_number_keys {} {
+	for {set i 0} {$i <= 9} {incr i} {
+		unbind_default "$i"
+	}
 }
 
 proc save_replay_slot {} {
