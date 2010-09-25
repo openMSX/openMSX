@@ -1,4 +1,5 @@
 # TODO mode descriptions are not yet used in any way
+# TODO tab completion for the mode setting, so we can remove the hardcoded mentioning of the existing modes
 
 namespace eval mode {
 
@@ -8,7 +9,7 @@ variable modes_info
 variable old_mode
 
 user_setting create string mode \
-"TODO this setting switches between different openmsx modes." \
+"This setting switches between different openMSX modes. A mode is a set of settings (mostly keybindings, but also OSD widgets that are activated) that are most suitable for a certain task. Currently only mode 'normal' and 'tas' exist." \
 normal
 
 trace add variable ::mode write [namespace code mode_changed]
@@ -48,7 +49,7 @@ proc leave_normal_mode {} {}
 
 register "normal" [namespace code enter_normal_mode] \
                   [namespace code leave_normal_mode] \
-         "TODO normal mode description"
+         "Mode that is most general purpose."
 
 
 
@@ -97,7 +98,7 @@ proc leave_tas_mode {} {
 
 register "tas" [namespace code enter_tas_mode] \
                [namespace code leave_tas_mode] \
-         "TODO tas mode description"
+         "Mode for doing Tool Assisted Speedruns, with TAS widgets and easy ways to save replays."
 
 
 
