@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1284932338">
+<softwaredb xml:lang="en" timestamp="1285440439">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4332,6 +4332,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">3f52c04e64688e8a5cbfc95b21ef03698e1de518</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Guttblaster</title>
+	<genmsxid>2450</genmsxid>
+	<system>MSX</system>
+	<company>Eurosoft</company>
+	<year>1988</year>
+	<country>NL</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">b26b117ba689775c14bdffb4cf04f8de045f70c0</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Gyro Adventure</title>
 	<genmsxid>500</genmsxid>
 	<system>MSX</system>
@@ -6593,6 +6602,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">db7e4c8dc56a0e8e0e3df08b14a65030738d5ac4</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Mazemax</title>
+	<genmsxid>2892</genmsxid>
+	<system>MSX</system>
+	<company>Loriciels</company>
+	<year>1985</year>
+	<country>FR</country>
+		<dump><rom><hash algo="sha1">4d507f0eff2586fe4893e6cced1d743fb3c626f8</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Maziacs</title>
@@ -12066,6 +12084,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2566
-Parse time 7.153 seconds on Sun Sep 19 23:39:05 CEST 2010
+Roms in this database:2568
+Parse time 11.302 seconds on Sat Sep 25 20:47:30 CEST 2010
  -->
