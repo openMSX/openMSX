@@ -21,8 +21,6 @@ variable note_strings [list "C" "C#" "D" "D#" "E" "F" "F#" "G" "G#" "A" "A#" "B"
 variable loga [expr log(pow(2, 1/12.0))]
 variable r3 [expr log(440.0)/$loga - 57]
 
-variable keyboard_active false
-
 variable soundchips
 variable frequency_expr
 variable volume_expr
@@ -164,8 +162,7 @@ proc update_keyboard {} {
 }
 
 proc music_keyboard_reset {} {
-	variable keyboard_active
-	if {!$keyboard_active} {
+	if {![osd exists music_keyboard]} {
 		error "Please fix a bug in this script!"
 	}
 	toggle_music_keyboard
@@ -173,19 +170,17 @@ proc music_keyboard_reset {} {
 }
 
 proc toggle_music_keyboard {} {
-	variable keyboard_active
+	variable machine_switch_trigger_id
 	variable frame_trigger_id
 	variable volume_expr
 	variable frequency_expr
 
-	if {$keyboard_active} {
+	if {[osd exists music_keyboard]} {
 		after cancel $machine_switch_trigger_id
 		after cancel $frame_trigger_id
-		set keyboard_active false
 		osd destroy music_keyboard
 		unset volume_expr frequency_expr
 	} else {
-		set keyboard_active true
 		keyboard_init
 		update_keyboard
 	}
