@@ -932,19 +932,23 @@ proc menu_loadstate_deselect { item } {
 }
 
 proc menu_loadstate_exec { item } {
-	menu_close_all
-	loadstate $item
+	if { [catch "loadstate $item" errorText] } {
+		display_osd_text $errorText error
+	} else {
+		menu_close_all
+	}
 }
 
 proc menu_savestate_exec { item } {
 	if {$item == "create new"} {
 		set item [menu_free_savestate_name]
-		menu_close_all
-		savestate $item
 	} else {
 		#TODO "Overwrite are you sure?" -dialog
+	}
+	if { [catch "savestate $item" errorText] } {
+		display_osd_text $errorText error
+	} else {
 		menu_close_all
-		savestate $item
 	}
 }
 
