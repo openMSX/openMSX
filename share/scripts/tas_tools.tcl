@@ -64,7 +64,7 @@ proc load_replay { name } {
 
 ### Very basic replay slot selector ###
 
-user_setting create string current_replay_slot "Name of the current replay slot." slot1
+user_setting create string current_replay_slot "Name of the current replay slot." slot0
 
 proc list_slots {} {
 	set slots [list]
@@ -77,15 +77,15 @@ proc list_slots {} {
 proc menu_create_slot_menu {} {
 	set items [list_slots]
 	set menu_def \
-	       { execute tas::set_slot
-	         font-size 8
-	         border-size 2
-	         width 100
-	         xpos 100
-	         ypos 100
-	         header { text "Select Replay Slot"
-	                  font-size 10
-	                  post-spacing 6 }}
+		{ execute tas::set_slot
+			font-size 8
+			border-size 2
+			width 100
+			xpos 100
+			ypos 100
+			header { text "Select Replay Slot"
+					font-size 10
+					post-spacing 6 }}
 
 	return [osd_menu::prepare_menu_list $items 10 $menu_def]
 }
@@ -98,13 +98,13 @@ proc set_slot { item } {
 proc open_select_slot_menu {} {
 	osd_menu::do_menu_open [menu_create_slot_menu]
 	osd_menu::select_menu_item $::current_replay_slot
-	for {set i 0} {$i <= 9} {incr i} {
+	for {set i 0} {$i < [llength [tas::list_slots]]} {incr i} {
 		bind_default "$i" "tas::set_slot [lindex [tas::list_slots] $i]; tas::unbind_number_keys"
 	}
 }
 
 proc unbind_number_keys {} {
-	for {set i 0} {$i <= 9} {incr i} {
+	for {set i 0} {$i < [llength [tas::list_slots]]} {incr i} {
 		unbind_default "$i"
 	}
 }
