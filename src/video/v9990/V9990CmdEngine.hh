@@ -432,6 +432,13 @@ private:
 
 	void setCurrentCommand();
 	unsigned getTiming(const unsigned table[4][3][4]) const;
+
+	inline unsigned getWrappedNX() const {
+		return NX ? NX : 2048;
+	}
+	inline unsigned getWrappedNY() const {
+		return NY ? NY : 4096;
+	}
 };
 
 } // namespace openmsx

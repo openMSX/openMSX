@@ -945,8 +945,8 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(EmuTime::param /*time*/)
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine.bitsLeft = 1;
 	}
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 	engine.status |= TR;
 }
 
@@ -975,7 +975,7 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 				if (!--(engine.ANY)) {
 					engine.cmdReady(time);
 				} else {
-					engine.ANX = engine.NX;
+					engine.ANX = engine.getWrappedNX();
 				}
 			}
 		}
@@ -1024,8 +1024,8 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 }
 
 template <class Mode>
@@ -1051,7 +1051,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(EmuTime::param time)
 				engine.cmdReady(engine.clock.getTime());
 				return;
 			} else {
-				engine.ANX = engine.NX;
+				engine.ANX = engine.getWrappedNX();
 			}
 		}
 	}
@@ -1073,8 +1073,8 @@ void V9990CmdEngine::CmdLMCM<Mode>::start(EmuTime::param /*time*/)
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine.bitsLeft = 0;
 	}
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 	engine.status &= ~TR;
 	engine.endAfterRead = false;
 }
@@ -1104,7 +1104,7 @@ void V9990CmdEngine::CmdLMCM<Mode>::execute(EmuTime::param /*time*/)
 				if (!--(engine.ANY)) {
 					engine.endAfterRead = true;
 				} else {
-					engine.ANX = engine.NX;
+					engine.ANX = engine.getWrappedNX();
 				}
 			}
 		}
@@ -1135,8 +1135,8 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 }
 
 template <class Mode>
@@ -1167,7 +1167,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(EmuTime::param time)
 				engine.cmdReady(engine.clock.getTime());
 				return;
 			} else {
-				engine.ANX = engine.NX;
+				engine.ANX = engine.getWrappedNX();
 			}
 		}
 	}
@@ -1186,8 +1186,8 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::start(EmuTime::param /*time*/)
 {
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 	engine.status |= TR;
 }
 
@@ -1217,7 +1217,7 @@ void V9990CmdEngine::CmdCMMC<Mode>::execute(EmuTime::param time)
 					engine.cmdReady(time);
 					return;
 				} else {
-					engine.ANX = engine.NX;
+					engine.ANX = engine.getWrappedNX();
 				}
 			}
 		}
@@ -1261,8 +1261,8 @@ void V9990CmdEngine::CmdCMMM<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 	engine.bitsLeft = 0;
 }
 
@@ -1298,7 +1298,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(EmuTime::param time)
 				engine.cmdReady(engine.clock.getTime());
 				return;
 			} else {
-				engine.ANX = engine.NX;
+				engine.ANX = engine.getWrappedNX();
 			}
 		}
 	}
@@ -1319,8 +1319,8 @@ void V9990CmdEngine::CmdBMXL<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 }
 
 template <>
@@ -1349,7 +1349,7 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 				engine.cmdReady(engine.clock.getTime());
 				return;
 			} else {
-				engine.ANX = engine.NX;
+				engine.ANX = engine.getWrappedNX();
 			}
 		}
 	}
@@ -1378,7 +1378,7 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(EmuTime::param time)
 					engine.cmdReady(engine.clock.getTime());
 					return;
 				} else {
-					engine.ANX = engine.NX;
+					engine.ANX = engine.getWrappedNX();
 				}
 			}
 		}
@@ -1400,8 +1400,8 @@ void V9990CmdEngine::CmdBMLX<Mode>::start(EmuTime::param time)
 {
 	engine.clock.reset(time);
 	engine.dstAddress = (engine.DX & 0xFF) + ((engine.DY & 0x7FF) << 8);
-	engine.ANX = engine.NX;
-	engine.ANY = engine.NY;
+	engine.ANX = engine.getWrappedNX();
+	engine.ANY = engine.getWrappedNY();
 }
 
 template <class Mode>
@@ -1442,7 +1442,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(EmuTime::param time)
 				// TODO handle last pixels
 				return;
 			} else {
-				engine.ANX = engine.NX;
+				engine.ANX = engine.getWrappedNX();
 			}
 		}
 	}
