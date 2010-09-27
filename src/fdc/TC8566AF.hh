@@ -4,6 +4,7 @@
 #define TC8566AF_HH
 
 #include "Clock.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 
@@ -60,15 +61,23 @@ private:
 	byte executionPhasePeek() const;
 	byte executionPhaseRead();
 	byte resultsPhasePeek() const;
-	byte resultsPhaseRead();
+	byte resultsPhaseRead(EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
-	void idlePhaseWrite(byte value);
+	void idlePhaseWrite(byte value, EmuTime::param time);
 	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, EmuTime::param time);
 	void executionPhaseWrite(byte value);
+	void endCommand(EmuTime::param time);
+
+	bool isHeadLoaded(EmuTime::param time) const;
+	EmuDuration getHeadLoadDelay() const;
+	EmuDuration getHeadUnloadDelay() const;
 
 	DiskDrive* drive[4];
 	Clock<1000000> delayTime;
+	EmuTime headUnloadTime; // Before this time head is loaded, after
+	                        // this time it's unloaded. Set to zero/infinity
+	                        // to force a (un)loaded head.
 
 	Command command;
 	Phase phase;
@@ -95,7 +104,9 @@ private:
 	byte currentTrack;
 	byte sectorsPerCylinder;
 	byte fillerByte;
+	byte specifyData[2]; // filled in by SPECIFY command
 };
+SERIALIZE_CLASS_VERSION(TC8566AF, 2);
 
 } // namespace openmsx
 

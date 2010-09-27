@@ -58,6 +58,7 @@ static const byte ST3_FLT = 0x80;
 
 TC8566AF::TC8566AF(DiskDrive* drv[4], EmuTime::param time)
 	: delayTime(EmuTime::zero)
+	, headUnloadTime(EmuTime::zero) // head not loaded
 {
 	// avoid UMR (on savestate)
 	memset(sectorBuf, 0, sizeof(sectorBuf));
@@ -96,6 +97,9 @@ void TC8566AF::reset(EmuTime::param time)
 	fillerByte = 0;
 	sectorSize = 0;
 	sectorOffset = 0;
+	specifyData[0] = 0; // TODO check
+	specifyData[1] = 0; // TODO check
+	headUnloadTime = EmuTime::zero; // head not loaded
 
 	mainStatus = STM_RQM;
 	//interrupt = false;
@@ -125,7 +129,7 @@ byte TC8566AF::readReg(int reg, EmuTime::param time)
 
 byte TC8566AF::peekStatus() const
 {
-	bool nonDMAMode = true; // TODO
+	bool nonDMAMode = specifyData[1] & 1;
 	bool dma = nonDMAMode && (phase == PHASE_DATATRANSFER);
 	return mainStatus | (dma ? STM_NDM : 0);
 }
@@ -162,7 +166,7 @@ byte TC8566AF::readDataPort(EmuTime::param time)
 		return result;
 	}
 	case PHASE_RESULT:
-		return resultsPhaseRead();
+		return resultsPhaseRead(time);
 	default:
 		return 0xff;
 	}
@@ -246,7 +250,7 @@ byte TC8566AF::resultsPhasePeek() const
 	return 0xff;
 }
 
-byte TC8566AF::resultsPhaseRead()
+byte TC8566AF::resultsPhaseRead(EmuTime::param time)
 {
 	byte result = resultsPhasePeek();
 	switch (command) {
@@ -255,8 +259,7 @@ byte TC8566AF::resultsPhaseRead()
 	case CMD_FORMAT:
 		switch (phaseStep++) {
 		case 6:
-			phase       = PHASE_IDLE;
-			mainStatus &= ~(STM_CB | STM_DIO);
+			endCommand(time);
 			break;
 		}
 		break;
@@ -264,8 +267,7 @@ byte TC8566AF::resultsPhaseRead()
 	case CMD_SENSE_INTERRUPT_STATUS:
 		switch (phaseStep++) {
 		case 1:
-			phase       = PHASE_IDLE;
-			mainStatus &= ~(STM_CB | STM_DIO);
+			endCommand(time);
 			break;
 		}
 		break;
@@ -273,8 +275,7 @@ byte TC8566AF::resultsPhaseRead()
 	case CMD_SENSE_DEVICE_STATUS:
 		switch (phaseStep++) {
 		case 0:
-			phase       = PHASE_IDLE;
-			mainStatus &= ~(STM_CB | STM_DIO);
+			endCommand(time);
 			break;
 		}
 		break;
@@ -312,7 +313,7 @@ void TC8566AF::writeDataPort(byte value, EmuTime::param time)
 {
 	switch (phase) {
 	case PHASE_IDLE:
-		idlePhaseWrite(value);
+		idlePhaseWrite(value, time);
 		break;
 
 	case PHASE_COMMAND:
@@ -331,7 +332,7 @@ void TC8566AF::writeDataPort(byte value, EmuTime::param time)
 	}
 }
 
-void TC8566AF::idlePhaseWrite(byte value)
+void TC8566AF::idlePhaseWrite(byte value, EmuTime::param time)
 {
 	command = CMD_UNKNOWN;
 	commandCode = value;
@@ -382,9 +383,7 @@ void TC8566AF::idlePhaseWrite(byte value)
 		break;
 
 	default:
-		mainStatus &= ~STM_CB;
-		phase       = PHASE_IDLE;
-		//interrupt   = true;
+		endCommand(time);
 	}
 }
 
@@ -404,6 +403,7 @@ void TC8566AF::commandPhase1(byte value)
 
 void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 {
+	DiskDrive& currentDrive = *drive[driveSelect];
 	switch (command) {
 	case CMD_READ_DATA:
 	case CMD_WRITE_DATA:
@@ -441,7 +441,7 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 					byte onDiskSector;
 					byte onDiskSide;
 					int  onDiskSize;
-					drive[driveSelect]->read(
+					currentDrive.read(
 						sectorNumber, sectorBuf,
 						onDiskTrack, onDiskSector,
 						onDiskSide,  onDiskSize);
@@ -456,6 +456,19 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			phase = PHASE_DATATRANSFER;
 			phaseStep = 0;
 			//interrupt = true;
+
+			// load drive head, if not already loaded
+			EmuTime ready = time;
+			if (!isHeadLoaded(time)) {
+				ready += getHeadLoadDelay();
+				// set 'head is loaded'
+				headUnloadTime = EmuTime::infinity;
+			}
+			// first byte is available when it's rotated below the
+			// drive-head
+			ready = currentDrive.getTimeTillSector(sectorNumber, ready);
+			delayTime.reset(ready);
+			mainStatus &= ~STM_RQM;
 			break;
 		}
 		break;
@@ -491,19 +504,18 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			commandPhase1(value);
 			break;
 		case 1:
+			// TODO add seek delay
 			while (value > currentTrack) {
-				drive[driveSelect]->step(true, time);
+				currentDrive.step(true, time);
 				currentTrack++;
 			}
 			while (value < currentTrack) {
-				drive[driveSelect]->step(false, time);
+				currentDrive.step(false, time);
 				currentTrack--;
 			}
 			assert(currentTrack == value);
 			status0     |= ST0_SE;
-			mainStatus  &= ~STM_CB;
-			phase        = PHASE_IDLE;
-			//interrupt    = true;
+			endCommand(time);
 			break;
 		}
 		break;
@@ -511,28 +523,26 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 	case CMD_RECALIBRATE:
 		switch (phaseStep++) {
 		case 0: {
+			// TODO add seek delay
 			commandPhase1(value);
 
 			unsigned maxSteps = 255;
-			while (!drive[driveSelect]->isTrack00() && maxSteps--) {
-				drive[driveSelect]->step(false, time);
+			while (!currentDrive.isTrack00() && maxSteps--) {
+				currentDrive.step(false, time);
 			}
 			currentTrack = 0;
 			status0     |= ST0_SE;
-			mainStatus  &= ~STM_CB;
-			phase        = PHASE_IDLE;
-			//interrupt    = true;
+			endCommand(time);
 			break;
 		}
 		}
 		break;
 
 	case CMD_SPECIFY:
+		specifyData[phaseStep] = value;
 		switch (phaseStep++) {
 		case 1:
-			mainStatus &= ~STM_CB;
-			phase       = PHASE_IDLE;
-			//interrupt   = true;
+			endCommand(time);
 			break;
 		}
 		break;
@@ -545,7 +555,6 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			mainStatus |= STM_DIO;
 			phase       = PHASE_RESULT;
 			phaseStep   = 0;
-			//interrupt   = true;
 			break;
 		}
 		break;
@@ -619,6 +628,15 @@ void TC8566AF::executionPhaseWrite(byte value)
 	}
 }
 
+void TC8566AF::endCommand(EmuTime::param time)
+{
+	phase       = PHASE_IDLE;
+	mainStatus &= ~(STM_CB | STM_DIO);
+	if (headUnloadTime == EmuTime::infinity) {
+		headUnloadTime = time + getHeadUnloadDelay();
+	}
+}
+
 bool TC8566AF::diskChanged(unsigned driveNum)
 {
 	assert(driveNum < 4);
@@ -629,6 +647,22 @@ bool TC8566AF::peekDiskChanged(unsigned driveNum) const
 {
 	assert(driveNum < 4);
 	return drive[driveNum]->peekDiskChanged();
+}
+
+
+bool TC8566AF::isHeadLoaded(EmuTime::param time) const
+{
+	return time < headUnloadTime;
+}
+EmuDuration TC8566AF::getHeadLoadDelay() const
+{
+	static const double UNIT = 0.002; // 2ms
+	return EmuDuration(UNIT * (specifyData[1] >> 1));
+}
+EmuDuration TC8566AF::getHeadUnloadDelay() const
+{
+	static const double UNIT = 0.016; // 16ms
+	return EmuDuration(UNIT * (specifyData[0] & 0x0F));
 }
 
 
@@ -660,8 +694,10 @@ static enum_string<TC8566AF::Phase> phaseInfo[] = {
 };
 SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
 
+// version 1: initial version
+// version 2: added specifyData, headUnloadTime
 template<typename Archive>
-void TC8566AF::serialize(Archive& ar, unsigned /*version*/)
+void TC8566AF::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("delayTime", delayTime);
 	ar.serialize("command", command);
@@ -684,6 +720,15 @@ void TC8566AF::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("currentTrack", currentTrack);
 	ar.serialize("sectorsPerCylinder", sectorsPerCylinder);
 	ar.serialize("fillerByte", fillerByte);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("specifyData", specifyData);
+		ar.serialize("headUnloadTime", headUnloadTime);
+	} else {
+		assert(ar.isLoader());
+		specifyData[0] = 0xDF; // values normally set by TurboR disk rom
+		specifyData[1] = 0x03;
+		headUnloadTime = EmuTime::zero;
+	}
 };
 INSTANTIATE_SERIALIZE_METHODS(TC8566AF);
 
