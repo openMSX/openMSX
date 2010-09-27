@@ -4,18 +4,19 @@
 #define TC8566AF_HH
 
 #include "Clock.hh"
+#include "Schedulable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
+class Scheduler;
 class DiskDrive;
 
-class TC8566AF : private noncopyable
+class TC8566AF : public Schedulable /* private noncopyable */
 {
 public:
-	TC8566AF(DiskDrive* drive[4], EmuTime::param time);
+	TC8566AF(Scheduler& scheduler, DiskDrive* drive[4], EmuTime::param time);
 
 	void reset(EmuTime::param time);
 	byte readReg(int reg, EmuTime::param time);
@@ -54,6 +55,10 @@ public:
 	};
 
 private:
+	// Schedulable
+	virtual void executeUntil(EmuTime::param time, int state);
+	virtual const std::string& schedName() const;
+
 	byte peekDataPort() const;
 	byte readDataPort(EmuTime::param time);
 	byte peekStatus() const;
@@ -66,12 +71,14 @@ private:
 	void idlePhaseWrite(byte value, EmuTime::param time);
 	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, EmuTime::param time);
+	void doSeek(EmuTime::param time);
 	void executionPhaseWrite(byte value);
 	void endCommand(EmuTime::param time);
 
 	bool isHeadLoaded(EmuTime::param time) const;
 	EmuDuration getHeadLoadDelay() const;
 	EmuDuration getHeadUnloadDelay() const;
+	EmuDuration getSeekDelay() const;
 
 	DiskDrive* drive[4];
 	Clock<1000000> delayTime;
@@ -105,6 +112,7 @@ private:
 	byte sectorsPerCylinder;
 	byte fillerByte;
 	byte specifyData[2]; // filled in by SPECIFY command
+	byte seekValue;
 };
 SERIALIZE_CLASS_VERSION(TC8566AF, 2);
 

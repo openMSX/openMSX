@@ -56,8 +56,9 @@ static const byte ST3_WP  = 0x40;
 static const byte ST3_FLT = 0x80;
 
 
-TC8566AF::TC8566AF(DiskDrive* drv[4], EmuTime::param time)
-	: delayTime(EmuTime::zero)
+TC8566AF::TC8566AF(Scheduler& scheduler, DiskDrive* drv[4], EmuTime::param time)
+	: Schedulable(scheduler)
+	, delayTime(EmuTime::zero)
 	, headUnloadTime(EmuTime::zero) // head not loaded
 {
 	// avoid UMR (on savestate)
@@ -99,6 +100,7 @@ void TC8566AF::reset(EmuTime::param time)
 	sectorOffset = 0;
 	specifyData[0] = 0; // TODO check
 	specifyData[1] = 0; // TODO check
+	seekValue = 0;
 	headUnloadTime = EmuTime::zero; // head not loaded
 
 	mainStatus = STM_RQM;
@@ -504,37 +506,19 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			commandPhase1(value);
 			break;
 		case 1:
-			// TODO add seek delay
-			while (value > currentTrack) {
-				currentDrive.step(true, time);
-				currentTrack++;
-			}
-			while (value < currentTrack) {
-				currentDrive.step(false, time);
-				currentTrack--;
-			}
-			assert(currentTrack == value);
-			status0     |= ST0_SE;
-			endCommand(time);
+			seekValue = value; // target track
+			doSeek(time);
 			break;
 		}
 		break;
 
 	case CMD_RECALIBRATE:
 		switch (phaseStep++) {
-		case 0: {
-			// TODO add seek delay
+		case 0:
 			commandPhase1(value);
-
-			unsigned maxSteps = 255;
-			while (!currentDrive.isTrack00() && maxSteps--) {
-				currentDrive.step(false, time);
-			}
-			currentTrack = 0;
-			status0     |= ST0_SE;
-			endCommand(time);
+			seekValue = 255; // max try 255 steps
+			doSeek(time);
 			break;
-		}
 		}
 		break;
 
@@ -562,6 +546,62 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 		// nothing
 		break;
 	}
+}
+
+void TC8566AF::doSeek(EmuTime::param time)
+{
+	DiskDrive& currentDrive = *drive[driveSelect];
+
+	bool direction;
+	switch (command) {
+	case CMD_SEEK:
+		if (seekValue > currentTrack) {
+			++currentTrack;
+			direction = true;
+		} else if (seekValue < currentTrack) {
+			--currentTrack;
+			direction = false;
+		} else {
+			assert(seekValue == currentTrack);
+			status0 |= ST0_SE;
+			endCommand(time);
+			return;
+		}
+		break;
+	case CMD_RECALIBRATE:
+		if (currentDrive.isTrack00() || (seekValue == 0)) {
+			if (seekValue == 0) {
+				status0 |= ST0_EC;
+			}
+			currentTrack = 0;
+			status0 |= ST0_SE;
+			endCommand(time);
+			return;
+		}
+		direction = false;
+		--seekValue;
+		break;
+	default:
+		UNREACHABLE;
+	}
+
+	currentDrive.step(direction, time);
+
+	setSyncPoint(time + getSeekDelay());
+}
+
+void TC8566AF::executeUntil(EmuTime::param time, int /*userData*/)
+{
+	if ((command == CMD_SEEK) ||
+	    (command == CMD_RECALIBRATE)) {
+		doSeek(time);
+	}
+}
+
+const std::string& TC8566AF::schedName() const
+{
+	static const std::string name("TC8566AF");
+	return name;
 }
 
 void TC8566AF::executionPhaseWrite(byte value)
@@ -665,6 +705,12 @@ EmuDuration TC8566AF::getHeadUnloadDelay() const
 	return EmuDuration(UNIT * (specifyData[0] & 0x0F));
 }
 
+EmuDuration TC8566AF::getSeekDelay() const
+{
+	static const double UNIT = 0.001; // 1ms
+	return EmuDuration(UNIT * (16 - (specifyData[0] >> 4)));
+}
+
 
 static enum_string<TC8566AF::Command> commandInfo[] = {
 	{ "UNKNOWN",                TC8566AF::CMD_UNKNOWN                },
@@ -695,7 +741,8 @@ static enum_string<TC8566AF::Phase> phaseInfo[] = {
 SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
 
 // version 1: initial version
-// version 2: added specifyData, headUnloadTime
+// version 2: added specifyData, headUnloadTime, seekValue
+//            inherit from Schedulable
 template<typename Archive>
 void TC8566AF::serialize(Archive& ar, unsigned version)
 {
@@ -721,13 +768,16 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 	ar.serialize("sectorsPerCylinder", sectorsPerCylinder);
 	ar.serialize("fillerByte", fillerByte);
 	if (ar.versionAtLeast(version, 2)) {
+		ar.template serializeBase<Schedulable>(*this);
 		ar.serialize("specifyData", specifyData);
 		ar.serialize("headUnloadTime", headUnloadTime);
+		ar.serialize("seekValue", seekValue);
 	} else {
 		assert(ar.isLoader());
 		specifyData[0] = 0xDF; // values normally set by TurboR disk rom
 		specifyData[1] = 0x03;
 		headUnloadTime = EmuTime::zero;
+		seekValue = 0;
 	}
 };
 INSTANTIATE_SERIALIZE_METHODS(TC8566AF);

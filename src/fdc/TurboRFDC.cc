@@ -17,7 +17,8 @@ namespace openmsx {
 TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXFDC(motherBoard, config)
 	, cpu(motherBoard.getCPU())
-	, controller(new TC8566AF(reinterpret_cast<DiskDrive**>(drives),
+	, controller(new TC8566AF(motherBoard.getScheduler(),
+	                          reinterpret_cast<DiskDrive**>(drives),
 	                          getCurrentTime()))
 	, blockMask((rom->getSize() / 0x4000) - 1)
 {
