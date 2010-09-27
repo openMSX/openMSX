@@ -552,7 +552,7 @@ void TC8566AF::doSeek(EmuTime::param time)
 {
 	DiskDrive& currentDrive = *drive[driveSelect];
 
-	bool direction;
+	bool direction = false; // initialize to avoid warning
 	switch (command) {
 	case CMD_SEEK:
 		if (seekValue > currentTrack) {
