@@ -55,9 +55,7 @@ proc reverse_frame {} {
 }
 
 proc load_replay { name } {
-	reverse loadreplay $name
-	array set stat [reverse status]
-	reverse goto $stat(end)
+	reverse loadreplay -goto savetime $name
 	return ""
 }
 

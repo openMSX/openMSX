@@ -52,29 +52,38 @@ typedef std::vector<Reactor::Board> MotherBoards;
 
 struct Replay
 {
-
-	Replay(Reactor& reactor_): reactor(reactor_) {}
+	Replay(Reactor& reactor_)
+		: reactor(reactor_), currentTime(EmuTime::dummy()) {}
 
 	Reactor& reactor;
 
 	ReverseManager::Events* events;
 	MotherBoards motherBoards;
+	EmuTime currentTime;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version)
 	{
-		if (ar.versionBelow(version, 2)) {
+		if (ar.versionAtLeast(version, 2)) {
+			ar.serializeWithID("snapshots", motherBoards, ref(reactor));
+		} else {
 			Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 			ar.serialize("snapshot", *newBoard);
 			motherBoards.push_back(newBoard);
-		} else {
-			ar.serializeWithID("snapshots", motherBoards, ref(reactor));
 		}
+
 		ar.serialize("events", *events);
+
+		if (ar.versionAtLeast(version, 3)) {
+			ar.serialize("currentTime", currentTime);
+		} else {
+			assert(ar.isLoader());
+			assert(!events->empty());
+			currentTime = events->back()->getTime();
+		}
 	}
 };
-
-SERIALIZE_CLASS_VERSION(Replay, 2);
+SERIALIZE_CLASS_VERSION(Replay, 3);
 
 class ReverseCmd : public Command
 {
@@ -446,6 +455,10 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	Reactor& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
 
+	// store current time (possibly somewhere in the middle of the timeline)
+	// so that on load we can go back there
+	replay.currentTime = motherBoard.getCurrentTime();
+
 	// restore first snapshot to be able to serialize it to a file
 	Reactor::Board initialBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(chunks.begin()->second.savestate->data(),
@@ -513,12 +526,19 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 
 void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
+	unsigned fileArgPos = 2;
+	string where = "begin";
+	if (tokens.size() < 3) throw SyntaxError();
+	if (tokens[2]->getString() == "-goto") {
+		if (tokens.size() != 5) throw SyntaxError();
+		where = tokens[3]->getString();
+		fileArgPos += 2;
+	} else {
+		if (tokens.size() != 3) throw SyntaxError();
 	}
 
 	UserDataFileContext context(REPLAY_DIR);
-	string fileNameArg = tokens[2]->getString();
+	string fileNameArg = tokens[fileArgPos]->getString();
 	if (!StringOp::endsWith(fileNameArg, ".gz")) {
 		fileNameArg += ".gz";
 	}
@@ -539,8 +559,20 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 		throw CommandException("Cannot load replay: " + e.getMessage());
 	}
 
-	// load was successful, only start changing current
-	// ReverseManager/MSXMotherBoard from here on
+	EmuTime destination = EmuTime::zero;
+	if (where == "begin") {
+		destination = EmuTime::zero;
+	} else if (where == "end") {
+		destination = EmuTime::infinity;
+	} else if (where == "savetime") {
+		destination = replay.currentTime;
+	} else {
+		// note: this assumes a fixed position for the 'where' argument
+		destination += EmuDuration(tokens[3]->getDouble());
+	}
+
+	// loading and command line parsing was successful, only start
+	// changing current ReverseManager/MSXMotherBoard from here on
 
 	// if we are also collecting, better stop that now
 	stop();
@@ -548,7 +580,9 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// put the events in the new MSXMotherBoard, also an initial in-memory
 	// snapshot must be created and maybe more to bring the new
 	// ReverseManager to a valid state (with replay info)
-	replay.motherBoards[0]->getReverseManager().restoreReplayLog(events);
+	assert(!replay.motherBoards.empty());
+	ReverseManager& newReverseManager = replay.motherBoards[0]->getReverseManager();
+	newReverseManager.restoreReplayLog(events);
 
 	// transform all other motherboards into Chunks
 	// actually create new snapshot
@@ -562,7 +596,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 			ReverseChunk newChunk;
 			newChunk.time = (*it)->getCurrentTime();
 			newChunk.savestate = out.releaseBuffer();
-			Events& events = replay.motherBoards[0]->getReverseManager().history.events;
+			Events& events = newReverseManager.history.events;
 			// update replayIndex
 			// TODO: should we use <= instead??
 			while (replayIndex < events.size() && (events[replayIndex]->getTime() < newChunk.time)) replayIndex++;
@@ -570,12 +604,13 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 			newChunk.eventCount = replayIndex;
 			chunks.push_back(newChunk);
 		}
-		replay.motherBoards[0]->getReverseManager().restoreSnapshots(chunks);
+		newReverseManager.restoreSnapshots(chunks);
 	}
 
 	// switch to the new MSXMotherBoard
 	// TODO this is not correct if this board was not the active board
 	reactor.replaceActiveBoard(replay.motherBoards[0]);
+	newReverseManager.goTo(destination);
 
 	result.setString("Loaded replay from " + filename);
 }
@@ -852,7 +887,7 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	       "goback <n>          go back <n> seconds in time\n"
 	       "goto <time>         go to an absolute moment in time\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
-	       "loadreplay <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
+	       "loadreplay [-goto <begin|end|savetime|<n>>] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
 
 void ReverseCmd::tabCompletion(vector<string>& tokens) const
