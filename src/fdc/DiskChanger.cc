@@ -15,6 +15,7 @@
 #include "Reactor.hh"
 #include "DiskManipulator.hh"
 #include "FileContext.hh"
+#include "FileOperations.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
 #include "CliComm.hh"
@@ -204,7 +205,7 @@ int DiskChanger::insertDisk(const string& filename)
 
 void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
-	const string& diskImage = args[1]->getString();
+	const string& diskImage = FileOperations::getConventionalPath(args[1]->getString());
 	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage));
 	for (unsigned i = 2; i < args.size(); ++i) {
 		Filename filename(args[i]->getString(), controller);
