@@ -154,8 +154,8 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 		glTexCoord2f(texCoord[2], texCoord[1]); glVertex2i(x + width, y         );
 		glEnd();
 	} else {
-		bool onlyBorder = ((2 * borderSize) >= abs(width )) ||
-		                  ((2 * borderSize) >= abs(height));
+		bool onlyBorder = ((2 * borderSize) >= unsigned(abs(width ))) ||
+		                  ((2 * borderSize) >= unsigned(abs(height)));
 		if (onlyBorder) {
 			glBegin(GL_QUADS);
 			glColor4ub(borderR, borderG, borderB,
