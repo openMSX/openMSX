@@ -3,11 +3,11 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>Mega Flash ROM SCC Plus</name>
+    <name>Mega Flash ROM SCC+</name>
     <manufacturer>Manuel Pazos</manufacturer>
     <code/>
-    <release_year>200X</release_year>
-    <description>MSX Flash cartridge with SCC.</description>
+    <release_year>2010</release_year>
+    <description>MSX Flash cartridge of 1MB with SCC-I and PSG.</description>
     <type>Flash cartridge</type>
   </info>
   <devices>
