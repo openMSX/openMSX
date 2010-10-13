@@ -6,54 +6,61 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
+#include "Math.hh"
 #include "serialize.hh"
+#include <numeric>
 #include <cstring>
 #include <cassert>
+
+using std::vector;
 
 namespace openmsx {
 
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
 AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
-                   unsigned logSectorSize_, unsigned totalSectors,
-                   unsigned writeProtectedFlags, const XMLElement& config)
+                   const vector<unsigned>& sectorSizes_,
+                   unsigned writeProtectedFlags, word ID_,
+                   const XMLElement& config)
 	: motherBoard(motherBoard_)
 	, rom(rom_)
-	, logSectorSize(logSectorSize_)
-	, sectorMask((1 << logSectorSize) -1)
-	, size(totalSectors << logSectorSize)
+	, sectorSizes(sectorSizes_)
+	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
+	, ID(ID_)
 	, state(ST_IDLE)
 {
-	init(totalSectors, writeProtectedFlags, &config);
+	init(writeProtectedFlags, &config);
 }
 
 AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
-                   unsigned logSectorSize_, unsigned totalSectors,
-                   unsigned writeProtectedFlags)
+                   const vector<unsigned>& sectorSizes_,
+                   unsigned writeProtectedFlags, word ID_)
 	: motherBoard(motherBoard_)
 	, rom(rom_)
-	, logSectorSize(logSectorSize_)
-	, sectorMask((1 << logSectorSize) -1)
-	, size(totalSectors << logSectorSize)
+	, sectorSizes(sectorSizes_)
+	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
+	, ID(ID_)
 	, state(ST_IDLE)
 {
-	init(totalSectors, writeProtectedFlags, NULL); // don't load/save
+	init(writeProtectedFlags, NULL); // don't load/save
 }
 
-void AmdFlash::init(unsigned totalSectors, unsigned writeProtectedFlags,
-                    const XMLElement* config)
+void AmdFlash::init(unsigned writeProtectedFlags, const XMLElement* config)
 {
-	unsigned numWritable = 0;
-	writeAddress.resize(totalSectors);
-	for (unsigned i = 0; i < totalSectors; ++i) {
+	assert(Math::isPowerOfTwo(getSize()));
+
+	unsigned numSectors = sectorSizes.size();
+
+	unsigned writableSize = 0;
+	writeAddress.resize(numSectors);
+	for (unsigned i = 0; i < numSectors; ++i) {
 		if (writeProtectedFlags & (1 << i)) {
 			writeAddress[i] = -1;
 		} else {
-			writeAddress[i] = numWritable << logSectorSize;
-			++numWritable;
+			writeAddress[i] = writableSize;
+			writableSize += sectorSizes[i];
 		}
 	}
 
-	unsigned writableSize = numWritable << logSectorSize;
 	bool loaded = false;
 	if (writableSize) {
 		if (config) {
@@ -70,43 +77,64 @@ void AmdFlash::init(unsigned totalSectors, unsigned writeProtectedFlags,
 		}
 	}
 
-	readAddress.resize(totalSectors);
-	unsigned numRomSectors =
-		(rom.getSize() + (1 << logSectorSize) - 1) >> logSectorSize; // round up
-	for (unsigned i = 0; i < totalSectors; ++i) {
+	readAddress.resize(numSectors);
+	unsigned romSize = rom.getSize();
+	unsigned offset = 0;
+	for (unsigned i = 0; i < numSectors; ++i) {
+		unsigned sectorSize = sectorSizes[i];
 		if (writeAddress[i] != -1) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
 				byte* ramPtr =
 					const_cast<byte*>(&(*ram)[writeAddress[i]]);
-				if (i == (numRomSectors - 1)) {
-					// last rom sector, possibly incomplete
-					unsigned last = rom.getSize() - (i << logSectorSize);
-					unsigned missing = (1 << logSectorSize) - last;
-					const byte* romPtr = &rom[i << logSectorSize];
+				if (offset >= romSize) {
+					// completely past end of rom
+					memset(ramPtr, 0xFF, sectorSize);
+				} else if (offset + sectorSize >= romSize) {
+					// partial overlap
+					unsigned last = romSize - offset;
+					unsigned missing = sectorSize - last;
+					const byte* romPtr = &rom[offset];
 					memcpy(ramPtr, romPtr, last);
 					memset(ramPtr + last, 0xFF, missing);
-				} else if (i < numRomSectors) {
-					const byte* romPtr = &rom[i << logSectorSize];
-					memcpy(ramPtr, romPtr, 1 << logSectorSize);
 				} else {
-					memset(ramPtr, 0xFF, 1 << logSectorSize);
+					// completely before end of rom
+					const byte* romPtr = &rom[offset];
+					memcpy(ramPtr, romPtr, sectorSize);
 				}
 			}
 		} else {
-			if (i < numRomSectors) {
-				readAddress[i] = &rom[i << logSectorSize];
+			if ((offset + sectorSize) < romSize) {
+				readAddress[i] = &rom[offset];
 			} else {
 				readAddress[i] = NULL;
 			}
 		}
+		offset += sectorSize;
 	}
+	assert(offset == getSize());
 
 	reset();
 }
 
 AmdFlash::~AmdFlash()
 {
+}
+
+void AmdFlash::getSectorInfo(unsigned address, unsigned& sector,
+                             unsigned& sectorSize, unsigned& offset) const
+{
+	address &= getSize() - 1;
+	std::vector<unsigned>::const_iterator it = sectorSizes.begin();
+	sector = 0;
+	while (address >= *it) {
+		address -= *it;
+		++sector;
+		++it;
+		assert(it != sectorSizes.end());
+	}
+	sectorSize = *it;
+	offset = address;
 }
 
 void AmdFlash::reset()
@@ -129,10 +157,9 @@ unsigned AmdFlash::getSize() const
 
 byte AmdFlash::peek(unsigned address) const
 {
-	address &= getSize() - 1;
-	unsigned sector = address >> logSectorSize;
+	unsigned sector, sectorSize, offset;
+	getSectorInfo(address, sector, sectorSize, offset);
 	if (state == ST_IDLE) {
-		unsigned offset = address & sectorMask;
 		const byte* addr = readAddress[sector];
 		if (addr) {
 			return addr[offset];
@@ -142,9 +169,9 @@ byte AmdFlash::peek(unsigned address) const
 	} else {
 		switch (address & 3) {
 		case 0:
-			return 0x01;
+			return ID >> 8;
 		case 1:
-			return 0xa4;
+			return ID & 0xFF;
 		case 2:
 			// 1 -> write protected
 			return (writeAddress[sector] == -1) ? 1 : 0;
@@ -166,9 +193,8 @@ byte AmdFlash::read(unsigned address)
 const byte* AmdFlash::getReadCacheLine(unsigned address) const
 {
 	if (state == ST_IDLE) {
-		address &= getSize() - 1;
-		unsigned sector = address >> logSectorSize;
-		unsigned offset = address & sectorMask;
+		unsigned sector, sectorSize, offset;
+		getSectorInfo(address, sector, sectorSize, offset);
 		const byte* addr = readAddress[sector];
 		return addr ? &addr[offset] : MSXDevice::unmappedRead;
 	} else {
@@ -179,7 +205,7 @@ const byte* AmdFlash::getReadCacheLine(unsigned address) const
 void AmdFlash::write(unsigned address, byte value)
 {
 	assert(cmdIdx < MAX_CMD_SIZE);
-	cmd[cmdIdx].addr = address & (getSize() - 1);
+	cmd[cmdIdx].addr = address;
 	cmd[cmdIdx].value = value;
 	++cmdIdx;
 	if (checkCommandManifacturer() ||
@@ -206,10 +232,11 @@ bool AmdFlash::checkCommandEraseSector()
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x30) {
 			unsigned addr = cmd[5].addr;
-			unsigned sector = addr >> logSectorSize;
+			unsigned sector, sectorSize, offset;
+			getSectorInfo(addr, sector, sectorSize, offset);
 			if (writeAddress[sector] != -1) {
 				ram->memset(writeAddress[sector],
-				            0xff, 1 << logSectorSize);
+				            0xff, sectorSize);
 			}
 		}
 	}
@@ -236,9 +263,9 @@ bool AmdFlash::checkCommandProgram()
 	if (partialMatch(3, cmdSeq)) {
 		if (cmdIdx < 4) return true;
 		unsigned addr = cmd[3].addr;
-		unsigned sector = addr >> logSectorSize;
+		unsigned sector, sectorSize, offset;
+		getSectorInfo(addr, sector, sectorSize, offset);
 		if (writeAddress[sector] != -1) {
-			unsigned offset = addr & sectorMask;
 			unsigned ramAddr = writeAddress[sector] + offset;
 			ram->write(ramAddr, (*ram)[ramAddr] & cmd[3].value);
 		}

@@ -6,6 +6,7 @@
 #include "AmdFlash.hh"
 #include "serialize.hh"
 #include <cassert>
+#include <vector>
 
 namespace openmsx {
 
@@ -20,8 +21,9 @@ RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom_, RomType type)
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime()))
-	, flash(new AmdFlash(
-		motherBoard, *rom, 16, 512 / 64, getWriteProtected(type), config))
+	, flash(new AmdFlash(motherBoard, *rom,
+	                     std::vector<unsigned>(512 / 64, 0x10000),
+	                     getWriteProtected(type), 0x01A4, config))
 {
 	reset(getCurrentTime());
 }

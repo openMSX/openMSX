@@ -25,8 +25,9 @@ typedef std::bitset<MAX_NOWINDS> NowindsInUse;
 NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
-	, flash(new AmdFlash(
-		motherBoard, *rom, 16, rom->getSize() / (1024 * 64), 0, config))
+	, flash(new AmdFlash(motherBoard, *rom,
+	                     std::vector<unsigned>(rom->getSize() / 0x10000, 0x10000),
+	                     0, 0x01A4, config))
 	, host(new NowindHost(drives))
 	, basename("nowindX")
 {

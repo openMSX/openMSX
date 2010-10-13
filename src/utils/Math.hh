@@ -25,6 +25,14 @@ namespace openmsx {
 namespace Math {
 
 
+/** Is the given number an integer power of 2?
+  * Not correct for zero (according to this test 0 is a power of 2).
+  */
+inline bool isPowerOfTwo(unsigned a)
+{
+	return (a & (a - 1)) == 0;
+}
+
 /** Returns the smallest number that is both >=a and a power of two.
   */
 unsigned powerOfTwo(unsigned a);

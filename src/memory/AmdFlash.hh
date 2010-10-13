@@ -7,6 +7,7 @@
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -18,12 +19,28 @@ class XMLElement;
 class AmdFlash : private noncopyable
 {
 public:
+	/** Create AmdFlash with given configuration.
+	 * @param sectorSizes
+	 *   A vector containing the size of each sector in the flash. This
+	 *   implicitly also communicates the number of sectors (a sector
+	 *   is a region in the flash that can be erased individually). There
+	 *   exist flash roms were the different sectors are not all equally
+	 *   large, that's why it's required to enumerate the size of each
+	 *   sector (instead of simply specifying the size and the number of
+	 *   sectors).
+	 * @param writeProtectedFlags
+	 *   A bitmask indicating for each sector whether is write-protected
+	 *   or not (a 1-bit means write-wrotected).
+	 * @param ID
+	 *   Contains manufacturer and device ID for this flash.
+	 */
 	AmdFlash(MSXMotherBoard& motherBoard, const Rom& rom,
-	         unsigned logSectorSize, unsigned totalSectors,
-	         unsigned writeProtectedFlags, const XMLElement& config);
+	         const std::vector<unsigned>& sectorSizes,
+	         unsigned writeProtectedFlags, word ID,
+	         const XMLElement& config);
 	AmdFlash(MSXMotherBoard& motherBoard, const Rom& rom,
-	         unsigned logSectorSize, unsigned totalSectors,
-	         unsigned writeProtectedFlags);
+	         const std::vector<unsigned>& sectorSizes,
+	         unsigned writeProtectedFlags, word ID);
 	~AmdFlash();
 
 	void reset();
@@ -49,8 +66,10 @@ public:
 	enum State { ST_IDLE, ST_IDENT };
 
 private:
-	void init(unsigned totalSectors, unsigned writeProtectedFlags,
-	          const XMLElement* config);
+	void init(unsigned writeProtectedFlags, const XMLElement* config);
+
+	void getSectorInfo(unsigned address, unsigned& sector,
+                           unsigned& sectorSize, unsigned& offset) const;
 
 	void setState(State newState);
 	bool checkCommandEraseSector();
@@ -64,9 +83,9 @@ private:
 	std::auto_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
-	const unsigned logSectorSize;
-	const unsigned sectorMask;
+	const std::vector<unsigned> sectorSizes;
 	const unsigned size;
+	const word ID;
 
 	static const unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];
