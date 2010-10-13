@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Mega Flash ROM SCC Plus</name>
+    <manufacturer>Manuel Pazos</manufacturer>
+    <code/>
+    <release_year>200X</release_year>
+    <description>MSX Flash cartridge with SCC.</description>
+    <type>Flash cartridge</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <ROM id="MegaFlashRomSCC">
+          <mem base="0x0000" size="0x10000"/>
+          <sound>
+            <volume>9000</volume>
+          </sound>
+          <rom>
+            <!--<filename>initial-content</filename>-->
+            <size>1024</size>
+          </rom>
+          <sramname>megaflashromsccplus.sram</sramname>
+          <mappertype>MegaFlashRomSccPlus</mappertype>
+        </ROM>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
