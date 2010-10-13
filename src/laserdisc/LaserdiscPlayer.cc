@@ -309,9 +309,9 @@ void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 			<< code << ')');
 
 	// The END command for seeking/waiting acknowledges repeats,
-	// it seems the only one.
+	// Esh's Aurunmilla needs play as well.
 	if (protocol != remoteProtocol || code != remoteCode ||
-	    (protocol == IR_NEC && code == 0x42)) {
+	    (protocol == IR_NEC && (code == 0x42 || code == 0xe8))) {
 		remoteProtocol = protocol;
 		remoteCode = code;
 		remoteVblanksBack = 0;
