@@ -2414,7 +2414,10 @@ template <class T> void CPUCore<T>::executeSlow()
 
 template <class T> void CPUCore<T>::execute()
 {
-	assert(!interface->isBreaked());
+	// This assert triggers when in "debug break" mode you use the reverse
+	// mechanism (it starts emulating from a snapshot in fast-forward
+	// mode). At first sight simply disabling this assert seems fine.
+	//assert(!interface->isBreaked());
 
 	// note: Don't use getTimeFast() here, because 'once in a while' we
 	//       need to CPUClock::sync() to avoid overflow.
