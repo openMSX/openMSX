@@ -20,7 +20,7 @@ public:
 	virtual ~RomMatraInk();
 
 	virtual void reset(EmuTime::param time);
-	virtual byte peek(word address, EmuTime::param time) const;
+	virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word address) const;

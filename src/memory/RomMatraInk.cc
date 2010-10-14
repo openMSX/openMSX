@@ -27,7 +27,7 @@ void RomMatraInk::reset(EmuTime::param /*time*/)
 	flash->reset();
 }
 
-byte RomMatraInk::peek(word address, EmuTime::param /*time*/) const
+byte RomMatraInk::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return flash->peek(address);
 }

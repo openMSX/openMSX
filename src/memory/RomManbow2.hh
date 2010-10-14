@@ -19,8 +19,9 @@ public:
 	           std::auto_ptr<Rom> rom, RomType type);
 	virtual ~RomManbow2();
 
+	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
-	virtual byte peek(word address, EmuTime::param time) const;
+	virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word address) const;

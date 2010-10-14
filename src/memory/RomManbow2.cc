@@ -25,11 +25,17 @@ RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                     std::vector<unsigned>(512 / 64, 0x10000),
 	                     getWriteProtected(type), 0x01A4, config))
 {
-	reset(getCurrentTime());
+	powerUp(getCurrentTime());
 }
 
 RomManbow2::~RomManbow2()
 {
+}
+
+void RomManbow2::powerUp(EmuTime::param time)
+{
+	scc->powerUp(time);
+	reset(time);
 }
 
 void RomManbow2::reset(EmuTime::param time)
@@ -52,7 +58,7 @@ void RomManbow2::setRom(unsigned region, unsigned block)
 	invalidateMemCache(0x4000 + region * 0x2000, 0x2000);
 }
 
-byte RomManbow2::peek(word address, EmuTime::param time) const
+byte RomManbow2::peekMem(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->peekMem(address & 0xFF, time);
