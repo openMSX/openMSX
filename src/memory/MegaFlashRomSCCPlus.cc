@@ -255,8 +255,8 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		}
 		SCCEnable enable = getSCCEnable();
 		bool isRamSegment2 = ((sccMode & 0x24) == 0x24) ||
-		                     (sccMode & 0x10);
-		bool isRamSegment3 =  sccMode & 0x10;
+		                     ((sccMode & 0x10) == 0x10);
+		bool isRamSegment3 = ((sccMode & 0x10) == 0x10);
 		if (((enable == EN_SCC)     && !isRamSegment2 &&
 		     (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
