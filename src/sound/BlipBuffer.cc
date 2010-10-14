@@ -138,7 +138,7 @@ void BlipBuffer::readSamplesHelper(int* __restrict out, unsigned samples) __rest
 		++ofst;
 	}
 	accum = acc;
-	offset = ofst;
+	offset = ofst & BUFFER_MASK;
 }
 
 template <unsigned PITCH>
@@ -168,11 +168,12 @@ bool BlipBuffer::readSamples(int* __restrict out, unsigned samples)
 		unsigned t1 = std::min(samples, BUFFER_SIZE - offset);
 		readSamplesHelper<PITCH>(out, t1);
 		if (t1 < samples) {
-			offset = 0;
+			assert(offset == 0);
 			unsigned t2 = samples - t1;
-			assert(t2 <= BUFFER_SIZE);
-			readSamplesHelper<PITCH>(&out[t1], t2);
+			assert(t2 < BUFFER_SIZE);
+			readSamplesHelper<PITCH>(&out[t1 * PITCH], t2);
 		}
+		assert(offset < BUFFER_SIZE);
 	}
 	return true;
 }
