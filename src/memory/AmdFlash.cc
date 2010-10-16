@@ -104,7 +104,7 @@ void AmdFlash::init(unsigned writeProtectedFlags, const XMLElement* config)
 				}
 			}
 		} else {
-			if ((offset + sectorSize) < romSize) {
+			if ((offset + sectorSize) <= romSize) {
 				readAddress[i] = &rom[offset];
 			} else {
 				readAddress[i] = NULL;
