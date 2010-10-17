@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1287349343">
+<softwaredb xml:lang="en" timestamp="1287358723">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -10423,11 +10423,13 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Konami</type><hash algo="sha1">17dcbe8e9ab792483a542b0230897baf0240dcc9</hash><remark><text>Ulver crack</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">aba839d554733850902f3073f7974e2e87c488ba</hash><remark><text>French translation by Django</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">c3ab3edb7f9ba31124092dc0f1dd2f13d3b52f8f</hash></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">72c3010cdcd6994ce7d15e77e366036c2ece2f5b</hash><remark><text>English Translation - Speed Boost / MSX Translations</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">1fc36b8cc50f3a3b4be10421a39a9f5874f135ed</hash><remark><text>English Translation - Speed Boost / MSX Translations</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">4c054d02b73bc2931705985312dcc49b72798558</hash><remark><text>English Translation - Speed Boost / MSX Translations</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">936f9ba82c7cdb703a4b1fffce75b03508008e12</hash><remark><text>English Translation - Speed Boost / MSX Translations (Trainer Only)</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">b1469b65b102a31fad91fc60960f243b626f4fe0</hash><remark><text>English Translation - Speed Boost / MSX Translations - Trained</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">807ccf770ea07edd4f9d0bc2ab68db607650f741</hash><remark><text>English Translation - Speed Boost / MSX Translations</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">f194d9d7c632acfcc37b8438854551bfd88c2490</hash><remark><text>English Translation - Speed Boost / MSX Translations [Trained]</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tensai Rabbian Daifunsen</title>
@@ -11734,6 +11736,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2571
-Parse time 10.045 seconds on Sun Oct 17 23:02:33 CEST 2010
+Roms in this database:2573
+Parse time 11.260 seconds on Mon Oct 18 1:38:55 CEST 2010
  -->
