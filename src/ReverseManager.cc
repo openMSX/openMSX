@@ -417,7 +417,8 @@ void ReverseManager::goTo(EmuTime::param target)
 			newManager.keyboard->transferHostKeyMatrix(*keyboard);
 		}
 
-		newManager.reRecordCount = reRecordCount + 1;
+		// copy rerecord count
+		newManager.reRecordCount = reRecordCount;
 
 		stop();
 
@@ -792,6 +793,9 @@ void ReverseManager::signalStateChange(shared_ptr<StateChange> event)
 		if (dynamic_cast<EndLogEvent*>(event.get())) {
 			motherBoard.getStateChangeDistributor().stopReplay(
 				event->getTime());
+			// this is needed to prevent a reRecordCount increase
+			// due to this sentinel ending the replay
+			reRecordCount--;
 		} else {
 			// ignore all other events
 		}
@@ -817,6 +821,8 @@ void ReverseManager::stopReplay(EmuTime::param time)
 			++it;
 		}
 		history.chunks.erase(it, history.chunks.end());
+		// this also means someone is changing history, record that
+		reRecordCount++;
 	}
 	assert(!isReplaying());
 }
