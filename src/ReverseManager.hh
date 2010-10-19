@@ -38,6 +38,11 @@ public:
 	// switching machine. See comments in goTo() for more info.
 	void registerEventDelay(EventDelay& eventDelay);
 
+	// Should only be used by MSXMotherBoard to be able to transfer
+	// reRecordCount to ReverseManager for version 2 of MSXMotherBoard
+	// serializers.
+	void setReRecordCount(unsigned reRecordCount);
+
 private:
 	struct ReverseChunk {
 		ReverseChunk();
@@ -108,6 +113,8 @@ private:
 	unsigned replayIndex;
 	bool collecting;
 	bool pendingTakeSnapshot;
+
+	unsigned reRecordCount;
 
 	friend class ReverseCmd;
 	friend struct Replay;

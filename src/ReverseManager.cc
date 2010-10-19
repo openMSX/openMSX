@@ -60,6 +60,11 @@ struct Replay
 	ReverseManager::Events* events;
 	MotherBoards motherBoards;
 	EmuTime currentTime;
+	// this is the amount of times the reverse goto command was used, which
+	// is interesting for the TAS community (see tasvideos.org). It's an
+	// indication of the effort it took to create the replay. Note that
+	// there is no way to verify this number.
+	unsigned reRecordCount;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version)
@@ -81,9 +86,13 @@ struct Replay
 			assert(!events->empty());
 			currentTime = events->back()->getTime();
 		}
+
+		if (ar.versionAtLeast(version, 4)) {
+			ar.serialize("reRecordCount", reRecordCount);
+		}
 	}
 };
-SERIALIZE_CLASS_VERSION(Replay, 3);
+SERIALIZE_CLASS_VERSION(Replay, 4);
 
 class ReverseCmd : public Command
 {
@@ -158,6 +167,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, replayIndex(0)
 	, collecting(false)
 	, pendingTakeSnapshot(false)
+	, reRecordCount(0)
 {
 	eventDistributor.registerEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
 
@@ -179,6 +189,11 @@ void ReverseManager::registerKeyboard(Keyboard& keyboard_)
 void ReverseManager::registerEventDelay(EventDelay& eventDelay_)
 {
 	eventDelay = &eventDelay_;
+}
+
+void ReverseManager::setReRecordCount(unsigned reRecordCount_)
+{
+	reRecordCount = reRecordCount_;
 }
 
 bool ReverseManager::isCollecting() const
@@ -402,11 +417,7 @@ void ReverseManager::goTo(EmuTime::param target)
 			newManager.keyboard->transferHostKeyMatrix(*keyboard);
 		}
 
-		// In principle the re-record-count is a property of all
-		// snapshots of the reverse history. But it's ok to only
-		// keep the value of the active and the about-to-be-saved
-		// snapshot up-to-date (see also saveReplay()).
-		newBoard->setReRecordCount(motherBoard.getReRecordCount() + 1);
+		newManager.reRecordCount = reRecordCount + 1;
 
 		stop();
 
@@ -466,7 +477,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	in.serialize("machine", *initialBoard);
 
 	// update re-record-count, see comment in goTo().
-	initialBoard->setReRecordCount(motherBoard.getReRecordCount());
+	replay.reRecordCount = reRecordCount;
 	replay.motherBoards.push_back(initialBoard);
 
 	// determine which extra snapshots to put in the replay
@@ -576,13 +587,18 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	// if we are also collecting, better stop that now
 	stop();
-	
+
 	// put the events in the new MSXMotherBoard, also an initial in-memory
 	// snapshot must be created and maybe more to bring the new
 	// ReverseManager to a valid state (with replay info)
 	assert(!replay.motherBoards.empty());
 	ReverseManager& newReverseManager = replay.motherBoards[0]->getReverseManager();
 	newReverseManager.restoreReplayLog(events);
+
+	if (newReverseManager.reRecordCount == 0) {
+		// serialize Replay version < 4
+		newReverseManager.reRecordCount = replay.reRecordCount;
+	}
 
 	// transform all other motherboards into Chunks
 	// actually create new snapshot
