@@ -1246,7 +1246,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned version)
 
 	if (version == 2) {
 		assert(ar.isLoader());
-		unsigned reRecordCount;
+		unsigned reRecordCount = 0; // silence warning
 		ar.serialize("reRecordCount", reRecordCount);
 		getReverseManager().setReRecordCount(reRecordCount);
 	}
