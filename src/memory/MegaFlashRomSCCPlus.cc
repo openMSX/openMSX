@@ -267,7 +267,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 
 	unsigned subslot = getSubslot(addr);
 	unsigned page8 = (addr >> 13) - 2;
-	if ((configReg & 0x02) == 0x00) {
+	if (((configReg & 0x02) == 0x00) && (page8 < 4)) {
 		// (possibly) write to bank registers
 		switch (configReg & 0xE0) {
 		case 0x00:
