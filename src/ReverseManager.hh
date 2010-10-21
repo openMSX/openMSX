@@ -64,6 +64,7 @@ private:
 	struct ReverseHistory {
 		void swap(ReverseHistory& other);
 		void clear();
+		unsigned getNextSeqNum(EmuTime::param time) const;
 
 		Chunks chunks;
 		Events events;
@@ -81,13 +82,11 @@ private:
 	void saveReplay(const std::vector<TclObject*>& tokens, TclObject& result);
 	void loadReplay(const std::vector<TclObject*>& tokens, TclObject& result);
 	
-	EmuTime::param getEndTime() const;
+	EmuTime::param getEndTime(const ReverseHistory& history) const;
 	void goTo(EmuTime::param targetTime);
+	void goTo(EmuTime::param targetTime, ReverseHistory& history);
 	void transferHistory(ReverseHistory& oldHistory,
                              unsigned oldEventCount);
-	void restoreSnapshots(const std::vector<ReverseChunk>& chunks);
-	void restoreReplayLog(Events events);
-	unsigned getNextSeqNum(EmuTime::param time);
 	void takeSnapshot(EmuTime::param time);
 	void schedule(EmuTime::param time);
 	void replayNextEvent();

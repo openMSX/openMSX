@@ -234,16 +234,19 @@ void ReverseManager::stop()
 	assert(!isReplaying());
 }
 
-EmuTime::param ReverseManager::getEndTime() const
+EmuTime::param ReverseManager::getEndTime(const ReverseHistory& history) const
 {
 	assert(isCollecting());
-	if (isReplaying()) {
-		const EndLogEvent& ev = *checked_cast<EndLogEvent*>(
-			history.events.back().get());
-		return ev.getTime();
-	} else {
-		return getCurrentTime();
+	if (!history.events.empty()) {
+		if (const EndLogEvent* ev = dynamic_cast<const EndLogEvent*>(
+				history.events.back().get())) {
+			// last log element is EndLogEvent, use that
+			return ev->getTime();
+		}
 	}
+	// otherwise use current time
+	assert(!isReplaying());
+	return getCurrentTime();
 }
 
 void ReverseManager::status(TclObject& result) const
@@ -263,7 +266,7 @@ void ReverseManager::status(TclObject& result) const
 	result.addListElement((begin - EmuTime::zero).toDouble());
 
 	result.addListElement("end");
-	EmuTime end(isCollecting() ? getEndTime() : EmuTime::zero);
+	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero);
 	result.addListElement((end - EmuTime::zero).toDouble());
 
 	result.addListElement("current");
@@ -336,7 +339,11 @@ void ReverseManager::goTo(EmuTime::param target)
 			"Reverse was not enabled. First execute the 'reverse "
 			"start' command to start collecting data.");
 	}
+	goTo(target, history); // move in current time-line
+}
 
+void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
+{
 	MSXMixer& mixer = motherBoard.getMSXMixer();
 	try {
 		// The call to MSXMotherBoard::fastForward() below may take
@@ -348,13 +355,14 @@ void ReverseManager::goTo(EmuTime::param target)
 		// already mute the current MSXMotherBoard.
 		mixer.mute();
 
+		// -- Locate destination snapshot --
 		// We can't go back further in the past than the first snapshot.
 		assert(!history.chunks.empty());
 		Chunks::iterator it = history.chunks.begin();
 		EmuTime firstTime = it->second.time;
 		EmuTime targetTime = std::max(target, firstTime);
 		// Also don't go further into the future than 'end time'.
-		targetTime = std::min(targetTime, getEndTime());
+		targetTime = std::min(targetTime, getEndTime(history));
 
 		// Duration of 2 PAL frames. Possible improvement is to use the
 		// actual refresh rate (PAL/NTSC). But it should be the refresh
@@ -382,7 +390,7 @@ void ReverseManager::goTo(EmuTime::param target)
 
 		// Note: we don't (anymore) erase future snapshots
 
-		// restore old snapshot
+		// -- restore old snapshot --
 		Reactor& reactor = motherBoard.getReactor();
 		Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 		MemInputArchive in(it->second.savestate->data(),
@@ -396,23 +404,20 @@ void ReverseManager::goTo(EmuTime::param target)
 			eventDelay->flush();
 		}
 
-		if (!isReplaying()) {
-			// terminate replay log with EndLogEvent
+		// terminate replay log with EndLogEvent (if not there already)
+		if (history.events.empty() ||
+		    !dynamic_cast<const EndLogEvent*>(history.events.back().get())) {
 			history.events.push_back(shared_ptr<StateChange>(
 				new EndLogEvent(getCurrentTime())));
-			++replayIndex;
 		}
-		// replay-log must end with EndLogEvent, either we just added it, or
-		// it was there already
-		assert(!history.events.empty());
-		assert(dynamic_cast<const EndLogEvent*>(history.events.back().get()));
 
-		// Transfer history from this ReverseManager to the one in the new
-		// MSXMotherBoard. Also we should stop collecting in this ReverseManager,
+		// Transfer history to the new ReverseManager.
+		// Also we should stop collecting in this ReverseManager,
 		// and start collecting in the new one.
-		assert(isCollecting());
 		ReverseManager& newManager = newBoard->getReverseManager();
 		newManager.transferHistory(history, it->second.eventCount);
+
+		// transfer keyboard state
 		if (newManager.keyboard && keyboard) {
 			newManager.keyboard->transferHostKeyMatrix(*keyboard);
 		}
@@ -420,8 +425,11 @@ void ReverseManager::goTo(EmuTime::param target)
 		// copy rerecord count
 		newManager.reRecordCount = reRecordCount;
 
+		// In case of load-replay it's possible we are not collecting,
+		// but calling stop() anyway is ok.
 		stop();
 
+		// -- goto correct time within snapshot --
 		// fast forward 2 frames before target time
 		newBoard->fastForward(preTarget);
 
@@ -434,8 +442,7 @@ void ReverseManager::goTo(EmuTime::param target)
 		newBoard->fastForward(targetTime);
 
 		assert(!isCollecting());
-		assert(newBoard->getReverseManager().isCollecting());
-
+		assert(newManager.isCollecting());
 	} catch (MSXException&) {
 		// Make sure mixer doesn't stay muted in case of error.
 		mixer.unmute();
@@ -466,6 +473,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	Reactor& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
+	replay.reRecordCount = reRecordCount;
 
 	// store current time (possibly somewhere in the middle of the timeline)
 	// so that on load we can go back there
@@ -476,9 +484,6 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	MemInputArchive in(chunks.begin()->second.savestate->data(),
 	                   chunks.begin()->second.savestate->size());
 	in.serialize("machine", *initialBoard);
-
-	// update re-record-count, see comment in goTo().
-	replay.reRecordCount = reRecordCount;
 	replay.motherBoards.push_back(initialBoard);
 
 	// determine which extra snapshots to put in the replay
@@ -583,51 +588,44 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 		destination += EmuDuration(tokens[3]->getDouble());
 	}
 
-	// loading and command line parsing was successful, only start
-	// changing current ReverseManager/MSXMotherBoard from here on
-
-	// if we are also collecting, better stop that now
-	stop();
-
-	// put the events in the new MSXMotherBoard, also an initial in-memory
-	// snapshot must be created and maybe more to bring the new
-	// ReverseManager to a valid state (with replay info)
 	assert(!replay.motherBoards.empty());
 	ReverseManager& newReverseManager = replay.motherBoards[0]->getReverseManager();
-	newReverseManager.restoreReplayLog(events);
+	ReverseHistory& newHistory = newReverseManager.history;
 
 	if (newReverseManager.reRecordCount == 0) {
 		// serialize Replay version < 4
 		newReverseManager.reRecordCount = replay.reRecordCount;
 	}
 
-	// transform all other motherboards into Chunks
-	// actually create new snapshot
-	if (replay.motherBoards.size() > 1) {
-		std::vector<ReverseChunk> chunks;
-		unsigned replayIndex = 0;
-		MotherBoards::const_iterator it = replay.motherBoards.begin() + 1;
-		for ( ; it != replay.motherBoards.end(); ++it) {
-			MemOutputArchive out;
-			out.serialize("machine", *(*it));
-			ReverseChunk newChunk;
-			newChunk.time = (*it)->getCurrentTime();
-			newChunk.savestate = out.releaseBuffer();
-			Events& events = newReverseManager.history.events;
-			// update replayIndex
-			// TODO: should we use <= instead??
-			while (replayIndex < events.size() && (events[replayIndex]->getTime() < newChunk.time)) replayIndex++;
+	// Restore event log
+	swap(newHistory.events, events);
+	Events& newEvents = newHistory.events;
 
-			newChunk.eventCount = replayIndex;
-			chunks.push_back(newChunk);
+	// Restore snapshots
+	unsigned replayIndex = 0;
+	for (MotherBoards::const_iterator it = replay.motherBoards.begin();
+	     it != replay.motherBoards.end(); ++it) {
+		ReverseChunk newChunk;
+		newChunk.time = (*it)->getCurrentTime();
+
+		MemOutputArchive out;
+		out.serialize("machine", **it);
+		newChunk.savestate = out.releaseBuffer();
+
+		// update replayIndex
+		// TODO: should we use <= instead??
+		while (replayIndex < newEvents.size() &&
+		       (newEvents[replayIndex]->getTime() < newChunk.time)) {
+			replayIndex++;
 		}
-		newReverseManager.restoreSnapshots(chunks);
+		newChunk.eventCount = replayIndex;
+
+		newHistory.chunks[newHistory.getNextSeqNum(newChunk.time)] = newChunk;
 	}
 
-	// switch to the new MSXMotherBoard
-	// TODO this is not correct if this board was not the active board
-	reactor.replaceActiveBoard(replay.motherBoards[0]);
-	newReverseManager.goTo(destination);
+	// Note: untill this point we didn't make any changes to the current
+	// ReverseManager/MSXMotherBoard yet
+	goTo(destination, newHistory);
 
 	result.setString("Loaded replay from " + filename);
 }
@@ -651,29 +649,6 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 	// replay log contains at least the EndLogEvent
 	assert(replayIndex < history.events.size());
 	replayNextEvent();
-}
-
-void ReverseManager::restoreSnapshots(const std::vector<ReverseChunk>& chunks) {
-	// we have a load of chunks, put them in the map
-	for (std::vector<ReverseChunk>::const_iterator it = chunks.begin(); it != chunks.end(); ++it) {
-		history.chunks[getNextSeqNum((*it).time)] = *it;
-	}
-}
-
-void ReverseManager::restoreReplayLog(Events events)
-{
-	assert(!isCollecting());
-	start(); // creates initial in-memory snapshot
-
-	// steal event-data from caller
-	// also very efficient because it avoids a copy
-	swap(history.events, events);
-
-	assert(replayIndex == 0);
-	assert(!history.events.empty());
-	assert(dynamic_cast<EndLogEvent*>(history.events.back().get()));
-	replayNextEvent();
-	assert(isReplaying());
 }
 
 void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
@@ -743,12 +718,12 @@ int ReverseManager::signalEvent(shared_ptr<const Event> event)
 	return 0;
 }
 
-unsigned ReverseManager::getNextSeqNum(EmuTime::param time)
+unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) const
 {
-	if (history.chunks.empty()) {
+	if (chunks.empty()) {
 		return 1;
 	}
-	const EmuTime& startTime = history.chunks.begin()->second.time;
+	const EmuTime& startTime = chunks.begin()->second.time;
 	double duration = (time - startTime).toDouble();
 	return unsigned(duration / SNAPSHOT_PERIOD + 0.5) + 1;
 }
@@ -758,7 +733,7 @@ void ReverseManager::takeSnapshot(EmuTime::param time)
 	// (possibly) drop old snapshots
 	// TODO does snapshot pruning still happen correctly (often enough)
 	//      when going back/forward in time?
-	unsigned seqNum = getNextSeqNum(time);
+	unsigned seqNum = history.getNextSeqNum(time);
 	dropOldSnapshots<25>(seqNum);
 
 	// During replay we might already have a snapshot with the current
