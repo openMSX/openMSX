@@ -135,7 +135,7 @@ unsigned MegaFlashRomSCCPlus::getFlashAddr(unsigned addr) const
 		unsigned bank = bankRegs[subslot][page] + offsetReg;
 		tmp = (bank * 0x2000) + (addr & 0x1FFF);
 	}
-	return ((0x40000 * subslot) + tmp) & 100000; // wrap at 1MB
+	return ((0x40000 * subslot) + tmp) & 0xFFFFF; // wrap at 1MB
 }
 
 byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
