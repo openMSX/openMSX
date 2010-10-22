@@ -593,8 +593,11 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	ReverseHistory& newHistory = newReverseManager.history;
 
 	if (newReverseManager.reRecordCount == 0) {
-		// serialize Replay version < 4
+		// serialize Replay version >= 4
 		newReverseManager.reRecordCount = replay.reRecordCount;
+	} else {
+		// newReverseManager.reRecordCount is initialized via
+		// call from MSXMotherBoard to setReRecordCount()
 	}
 
 	// Restore event log
@@ -625,6 +628,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	// Note: untill this point we didn't make any changes to the current
 	// ReverseManager/MSXMotherBoard yet
+	reRecordCount = newReverseManager.reRecordCount;
 	goTo(destination, newHistory);
 
 	result.setString("Loaded replay from " + filename);
