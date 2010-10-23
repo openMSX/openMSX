@@ -49,7 +49,6 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	void sync(EmuTime::param time);
 	void schedule();

@@ -135,7 +135,6 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	static const size_t BUF_SIZE = 1024;
 	unsigned char buf[BUF_SIZE];

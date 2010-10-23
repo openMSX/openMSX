@@ -99,7 +99,6 @@ public:
 	virtual byte peekIO(word port, EmuTime::param time) const;
 	virtual void writeIO(word port, byte value, EmuTime::param time);
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),

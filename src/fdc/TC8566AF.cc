@@ -598,12 +598,6 @@ void TC8566AF::executeUntil(EmuTime::param time, int /*userData*/)
 	}
 }
 
-const std::string& TC8566AF::schedName() const
-{
-	static const std::string name("TC8566AF");
-	return name;
-}
-
 void TC8566AF::executionPhaseWrite(byte value)
 {
 	switch (command) {

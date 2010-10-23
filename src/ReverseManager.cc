@@ -838,12 +838,6 @@ void ReverseManager::schedule(EmuTime::param time)
 	setSyncPoint(time + EmuDuration(SNAPSHOT_PERIOD), NEW_SNAPSHOT);
 }
 
-const string& ReverseManager::schedName() const
-{
-	static const string NAME = "ReverseManager";
-	return NAME;
-}
-
 
 // class ReverseCmd
 

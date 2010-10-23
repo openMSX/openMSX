@@ -83,7 +83,6 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);

@@ -16,12 +16,6 @@ void EmuTimerBase::unschedule()
 	removeSyncPoint();
 }
 
-const std::string& EmuTimerBase::schedName() const
-{
-	static const std::string name("EmuTimer");
-	return name;
-}
-
 template<typename Archive>
 void EmuTimerBase::serialize(Archive& ar, unsigned /*version*/)
 {

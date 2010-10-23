@@ -56,7 +56,6 @@ public:
 private:
 	// Timer stuff, needed for the notification of the loading state
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	// This is all for the ThrottleManager
 	void resetTimeOut(EmuTime::param time);

@@ -57,7 +57,6 @@ public:
 
 private:
 	virtual void executeUntil(EmuTime::param time, int state);
-	virtual const std::string& schedName() const;
 
 	void startType1Cmd(EmuTime::param time);
 

@@ -119,12 +119,6 @@ void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
 	}
 }
 
-const std::string& EventDelay::schedName() const
-{
-	static const std::string name = "EventDelay";
-	return name;
-}
-
 void EventDelay::flush()
 {
 	EmuTime time = getCurrentTime();

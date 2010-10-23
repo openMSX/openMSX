@@ -26,9 +26,6 @@ protected:
 	EmuTimerBase(Scheduler& scheduler, EmuTimerCallback& cb, unsigned count);
 	void unschedule();
 
-private:
-	virtual const std::string& schedName() const;
-
 protected:
 	EmuTimerCallback& cb;
 	int count;

@@ -336,7 +336,6 @@ public:
 private:
 	// Schedulable interface:
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	// VideoSystemChangeListener interface:
 	virtual void preVideoSystemChange();

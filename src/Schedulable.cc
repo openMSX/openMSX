@@ -20,7 +20,7 @@ Schedulable::~Schedulable()
 
 void Schedulable::schedulerDeleted()
 {
-	std::cerr << "Internal error: Schedulable \"" << schedName()
+	std::cerr << "Internal error: Schedulable \"" << typeid(*this).name()
 	          << "\" failed to unregister." << std::endl;
 }
 

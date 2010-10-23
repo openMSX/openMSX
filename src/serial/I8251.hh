@@ -45,7 +45,6 @@ public:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

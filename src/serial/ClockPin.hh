@@ -48,7 +48,6 @@ private:
 	void unschedule();
 	void schedule(EmuTime::param time);
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	ClockPinListener* const listener;
 

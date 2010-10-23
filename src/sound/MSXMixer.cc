@@ -702,12 +702,6 @@ void MSXMixer::executeUntil(EmuTime::param time, int /*userData*/)
 	}
 }
 
-const std::string& MSXMixer::schedName() const
-{
-	static const string name = "MSXMixer";
-	return name;
-}
-
 
 // Sound device info
 

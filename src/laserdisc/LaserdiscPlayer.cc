@@ -660,18 +660,12 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	}
 }
 
-const string& LaserdiscPlayer::schedName() const
-{
-	static const string name("laserdiscplayer");
-	return name;
-}
-
 void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 {
 	updateStream(time);
 
 	switch (userdata) {
-	case ACK: 
+	case ACK:
 		if (seeking && playerState == PLAYER_PLAYING) {
 			sampleClock.advance(time);
 		}
@@ -686,7 +680,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		break;
 	case FRAME:
 		// end of video
-		if (playerState != PLAYER_STOPPED && 
+		if (playerState != PLAYER_STOPPED &&
 		    currentFrame > video->getFrames()) {
 			playerState = PLAYER_STOPPED;
 		}

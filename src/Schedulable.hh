@@ -6,7 +6,6 @@
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
 #include "noncopyable.hh"
-#include <string>
 
 namespace openmsx {
 
@@ -38,11 +37,6 @@ public:
 	 * MSX machine).
 	 */
 	virtual void schedulerDeleted();
-
-	/**
-	 * This method is only used to print meaningfull debug messages
-	 */
-	virtual const std::string& schedName() const = 0;
 
 	Scheduler& getScheduler() const;
 

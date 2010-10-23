@@ -141,12 +141,6 @@ void ClockPin::executeUntil(EmuTime::param time, int /*userdata*/)
 	}
 }
 
-const string& ClockPin::schedName() const
-{
-	static const string name("ClockPin");
-	return name;
-}
-
 
 template<typename Archive>
 void ClockPin::serialize(Archive& ar, unsigned /*version*/)

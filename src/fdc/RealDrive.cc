@@ -289,12 +289,6 @@ void RealDrive::updateLoadingState()
 }
 
 
-const std::string& RealDrive::schedName() const
-{
-	static const string schedName = "RealDrive";
-	return schedName;
-}
-
 void RealDrive::resetTimeOut(EmuTime::param time)
 {
 	timeOut = false;

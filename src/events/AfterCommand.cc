@@ -58,7 +58,6 @@ protected:
 private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual void schedulerDeleted();
-	virtual const string& schedName() const;
 
 	double time;
 };
@@ -560,12 +559,6 @@ void AfterTimedCmd::executeUntil(EmuTime::param /*time*/,
 void AfterTimedCmd::schedulerDeleted()
 {
 	removeSelf();
-}
-
-const string& AfterTimedCmd::schedName() const
-{
-	static const string sched_name("AfterCmd");
-	return sched_name;
 }
 
 

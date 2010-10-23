@@ -582,12 +582,6 @@ int CassettePlayer::signalEvent(shared_ptr<const Event> event)
 	return 0;
 }
 
-const std::string& CassettePlayer::schedName() const
-{
-	static const string schedName = "CassettePlayer";
-	return schedName;
-}
-
 void CassettePlayer::executeUntil(EmuTime::param time, int userData)
 {
 	switch (userData) {

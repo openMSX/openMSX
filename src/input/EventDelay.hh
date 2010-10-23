@@ -44,7 +44,6 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	EventDistributor& eventDistributor;
 	MSXEventDistributor& msxEventDistributor;

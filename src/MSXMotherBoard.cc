@@ -306,7 +306,6 @@ public:
 	void setTarget(EmuTime::param targetTime);
 private:
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 	MSXMotherBoardImpl& motherBoard;
 };
 
@@ -1182,12 +1181,6 @@ void FastForwardHelper::setTarget(EmuTime::param targetTime)
 void FastForwardHelper::executeUntil(EmuTime::param /*time*/, int /*userData*/)
 {
 	motherBoard.exitCPULoopSync();
-}
-
-const string& FastForwardHelper::schedName() const
-{
-	static const string NAME = "FastForwardHelper";
-	return NAME;
 }
 
 

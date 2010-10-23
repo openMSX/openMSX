@@ -124,7 +124,6 @@ private:
 	bool generateInput(int* buffer, unsigned num);
 
 	// Schedulable
-	const std::string& schedName() const;
 	void executeUntil(EmuTime::param time, int userData);
 
 	// VideoSystemChangeListener interface:

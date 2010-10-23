@@ -57,7 +57,6 @@ public:
 private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int state);
-	virtual const std::string& schedName() const;
 
 	byte peekDataPort() const;
 	byte readDataPort(EmuTime::param time);

@@ -144,12 +144,6 @@ void Y8950Adpcm::executeUntil(EmuTime::param time, int /*userData*/)
 	}
 }
 
-const std::string& Y8950Adpcm::schedName() const
-{
-	static const std::string name("Y8950Adpcm");
-	return name;
-}
-
 void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 {
 	sync(time); // TODO only when needed

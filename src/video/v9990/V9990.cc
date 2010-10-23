@@ -461,12 +461,6 @@ void V9990::executeUntil(EmuTime::param time, int userData)
 	}
 }
 
-const std::string& V9990::schedName() const
-{
-	static const std::string name("V9990");
-	return name;
-}
-
 // -------------------------------------------------------------------------
 // VideoSystemChangeListener
 // -------------------------------------------------------------------------

@@ -128,12 +128,6 @@ void RealTime::executeUntil(EmuTime::param time, int /*userData*/)
 	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));
 }
 
-const std::string& RealTime::schedName() const
-{
-	static const std::string name("RealTime");
-	return name;
-}
-
 int RealTime::signalEvent(shared_ptr<const Event> event)
 {
 	if (!motherBoard.isActive() || !enabled) {

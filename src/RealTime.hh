@@ -58,7 +58,6 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const std::string& schedName() const;
 
 	// EventListener
 	virtual int signalEvent(shared_ptr<const Event> event);

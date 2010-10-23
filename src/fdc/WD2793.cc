@@ -487,12 +487,6 @@ void WD2793::executeUntil(EmuTime::param time, int userData)
 	}
 }
 
-const std::string& WD2793::schedName() const
-{
-	static const std::string name("WD2793");
-	return name;
-}
-
 void WD2793::startType1Cmd(EmuTime::param time)
 {
 	statusReg &= ~(SEEK_ERROR | CRC_ERROR);

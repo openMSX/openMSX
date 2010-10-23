@@ -378,12 +378,6 @@ void I8251::executeUntil(EmuTime::param time, int userData)
 	}
 }
 
-const string& I8251::schedName() const
-{
-	static const string I8251_NAME("I8251");
-	return I8251_NAME;
-}
-
 
 static enum_string<SerialDataInterface::DataBits> dataBitsInfo[] = {
 		{ "5", SerialDataInterface::DATA_5 },

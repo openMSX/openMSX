@@ -108,7 +108,6 @@ private:
 
 	// Schedulable
 	void executeUntil(EmuTime::param time, int userData);
-	const std::string& schedName() const;
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

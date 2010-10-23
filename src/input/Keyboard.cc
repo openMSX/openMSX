@@ -80,7 +80,6 @@ public:
 private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const string& schedName() const;
 	std::deque<shared_ptr<const Event> > eventQueue;
 	Keyboard& keyboard;
 };
@@ -104,7 +103,6 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const string& schedName() const;
 
 	Keyboard& keyboard;
 	string text_utf8;
@@ -130,7 +128,6 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual const string& schedName() const;
 
 	void alignCapsLock(EmuTime::param time);
 
@@ -462,12 +459,6 @@ void Keyboard::processCapslockEvent(EmuTime::param time)
 void Keyboard::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	updateKeyMatrix(time, false, 6, CAPS_MASK);
-}
-
-const string& Keyboard::schedName() const
-{
-	static const string schedName = "Keyboard";
-	return schedName;
 }
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
@@ -1028,12 +1019,6 @@ void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 	}
 }
 
-const string& MsxKeyEventQueue::schedName() const
-{
-	static const string schedName = "MsxKeyEventQueue";
-	return schedName;
-}
-
 
 // class KeyInserter
 
@@ -1149,12 +1134,6 @@ void KeyInserter::reschedule(EmuTime::param time)
 	setSyncPoint(nextTime + 1);
 }
 
-const string& KeyInserter::schedName() const
-{
-	static const string schedName = "KeyInserter";
-	return schedName;
-}
-
 /*
  * class CapsLockAligner
  *
@@ -1225,12 +1204,6 @@ void CapsLockAligner::alignCapsLock(EmuTime::param time)
 		shared_ptr<const Event> event(new KeyDownEvent(Keys::K_CAPSLOCK));
 		msxEventDistributor.distributeEvent(event, time);
 	}
-}
-
-const string& CapsLockAligner::schedName() const
-{
-	static const string schedName = "CapsLockAligner";
-	return schedName;
 }
 
 
