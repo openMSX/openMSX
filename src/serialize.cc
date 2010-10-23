@@ -10,6 +10,7 @@
 #include "lzo.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
+#include "utf8_checked.hh"
 #include <cstring>
 #include <zlib.h>
 #include <limits>
@@ -260,9 +261,15 @@ void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
 XmlOutputArchive::XmlOutputArchive(const string& filename)
 	: current(new XMLElement("serial"))
 {
-	file = gzopen(filename.c_str(), "wb9");
+#ifdef _WIN32
+	// gzopen wants an ansi-encoded string, not utf8
+	string ansifilename = utf8::utf8toansi(filename);
+	file = gzopen(ansifilename.c_str(),	"wb9");
+#else
+	file = gzopen(filename,	"wb9");
+#endif
 	if (!file) {
-		throw XMLException("Could not open compressed file \"" + filename + "\"");
+		throw XMLException("Could not open compressed file \"" + filename +	"\"");
 	}
 }
 
