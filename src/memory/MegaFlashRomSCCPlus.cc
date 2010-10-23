@@ -277,7 +277,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 				// first, but it's required to calculate
 				// whether the SCC is enabled or not.
 				sccBanks[page8] = value;
-				if (value & 0x80) {
+				if ((value & 0x80) && (page8 == 0)) {
 					offsetReg = value & 0x7F;
 					invalidateMemCache(0x4000, 0x8000);
 				} else {
