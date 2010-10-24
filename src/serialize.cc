@@ -264,12 +264,12 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 #ifdef _WIN32
 	// gzopen wants an ansi-encoded string, not utf8
 	string ansifilename = utf8::utf8toansi(filename);
-	file = gzopen(ansifilename.c_str(),	"wb9");
+	file = gzopen(ansifilename.c_str(), "wb9");
 #else
-	file = gzopen(filename,	"wb9");
+	file = gzopen(filename.c_str(),     "wb9");
 #endif
 	if (!file) {
-		throw XMLException("Could not open compressed file \"" + filename +	"\"");
+		throw XMLException("Could not open compressed file \"" + filename + "\"");
 	}
 }
 
