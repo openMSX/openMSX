@@ -48,7 +48,14 @@ const XMLElement* XMLElement::getParent() const
 
 void XMLElement::addChild(auto_ptr<XMLElement> child)
 {
-	assert(data.empty()); // no mixed-content elements
+	// Mixed-content elements are not supported by this class. In the past
+	// we had a 'assert(data.empty())' here to enforce this, though that
+	// assert triggered when you started openMSX without a user (but with
+	// a system) settings.xml file (the deeper reason is a harmless comment
+	// in the system version of this file).
+	// When you add child nodes to a node with data, that data will be
+	// ignored when this node is later written to disk. In the case of
+	// settings.xml this behaviour is fine.
 	assert(child.get());
 	assert(!child->getParent());
 	child->parent = this;
