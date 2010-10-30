@@ -90,4 +90,9 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 	completeFileName(getCommandController(), tokens, context, extra);
 }
 
+bool HDCommand::needRecord(const vector<string>& tokens) const
+{
+	return tokens.size() > 1;
+}
+
 } // namespace openmsx

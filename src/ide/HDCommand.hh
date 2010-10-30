@@ -26,7 +26,7 @@ public:
 	                     TclObject& result, EmuTime::param time);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-
+	virtual bool needRecord(const std::vector<std::string>& tokens) const;
 private:
 	HD& hd;
 	const BooleanSetting& powerSetting;

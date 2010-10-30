@@ -43,6 +43,7 @@ public:
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
+	virtual bool needRecord(const vector<string>& tokens) const;
 private:
 	DiskChanger& diskChanger;
 };
@@ -336,6 +337,11 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 		UserFileContext context;
 		completeFileName(getCommandController(), tokens, context, extra);
 	}
+}
+
+bool DiskCommand::needRecord(const vector<string>& tokens) const
+{
+	return tokens.size() > 1;
 }
 
 static string calcSha1(SectorAccessibleDisk* disk)

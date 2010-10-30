@@ -32,6 +32,7 @@ public:
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
+	virtual bool needRecord(const vector<string>& tokens) const;
 private:
 	PluggingController& pluggingController;
 };
@@ -250,6 +251,11 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 		}
 		completeString(tokens, pluggables);
 	}
+}
+
+bool PlugCmd::needRecord(const vector<string>& tokens) const
+{
+	return tokens.size() == 3;
 }
 
 

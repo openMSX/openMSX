@@ -30,6 +30,7 @@ public:
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
+	virtual bool needRecord(const vector<string>& tokens) const;
 private:
 	const HardwareConfig* getExtensionConfig(const string& cartname);
 	CartridgeSlotManager& manager;
@@ -391,6 +392,11 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 	}
 	UserFileContext context;
 	completeFileName(getCommandController(), tokens, context, extra);
+}
+
+bool CartCmd::needRecord(const vector<string>& tokens) const
+{
+	return tokens.size() > 1;
 }
 
 

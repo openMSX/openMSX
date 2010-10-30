@@ -71,6 +71,7 @@ public:
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
+	virtual bool needRecord(const vector<string>& tokens) const;
 private:
 	CassettePlayer& cassettePlayer;
 };
@@ -833,6 +834,11 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("off");
 		completeString(tokens, extra);
 	}
+}
+
+bool TapeCommand::needRecord(const vector<string>& tokens) const
+{
+	return tokens.size() > 1;
 }
 
 
