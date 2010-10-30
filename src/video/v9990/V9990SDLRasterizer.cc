@@ -274,16 +274,21 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	unsigned scrollY = vdp.getScrollAY();
 	unsigned rollMask = vdp.getRollMask(0x1FFF);
 	unsigned scrollYBase = scrollY & ~rollMask & 0x1FFF;
+	int cursorY = displayY - vdp.getCursorYOffset();
 	while (displayHeight--) {
+		// Note: convertLine() can draw up to 3 pixels too many. But
+		// that's ok, the buffer is big enough: buffer can hold 1280
+		// pixels, max displayWidth is 1024 pixels. When taking the
+		// position of the borders into account, the display area
+		// plus 3 pixels cannot go beyond the end of the buffer.
 		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
-		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
 		Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(fromY) + fromX;
-		bitmapConverter->convertLine(pixelPtr, address, displayWidth,
-		                             displayY, drawSprites);
+		bitmapConverter->convertLine(pixelPtr, x, y, displayWidth,
+		                             cursorY, drawSprites);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
-		displayY  += lineStep;
 		displayYA += lineStep;
+		cursorY   += lineStep;
 	}
 }
 

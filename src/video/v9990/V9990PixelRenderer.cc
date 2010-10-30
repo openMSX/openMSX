@@ -175,11 +175,15 @@ void V9990PixelRenderer::renderUntil(EmuTime::param time)
 	int rightEdge  = V9990DisplayTiming::UC_TICKS_PER_LINE;
 
 	if (displayEnabled) {
-		// left border
+		// Left border
 		subdivide(lastX, lastY, toX, toY, 0, left, DRAW_BORDER);
-		// display area
+		// Display area
+		//  It's possible this draws a few pixels too many (this
+		//  allowed to simplify the implementation of the Bx modes).
+		//  So it's important to draw from left to right (right border
+		//  must come _after_ display area).
 		subdivide(lastX, lastY, toX, toY, left, right, DRAW_DISPLAY);
-		// right border
+		// Right border
 		subdivide(lastX, lastY, toX, toY, right, rightEdge, DRAW_BORDER);
 	} else {
 		// complete screen

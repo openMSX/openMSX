@@ -24,115 +24,114 @@ V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 	setColorMode(PP, B0);
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBYUV(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+template<bool YJK, bool PAL, bool SKIP, typename Pixel>
+static inline void draw_YJK_YUV_PAL(
+	V9990VRAM& vram,
+	const Pixel* __restrict palette64, const Pixel* __restrict palette32768,
+	Pixel* __restrict pixelPtr, unsigned& address, int firstX = 0)
 {
-	for (int p = 0; p < nrPixels; p += 4) {
-		byte data[4];
-		for (int i = 0; i < 4; ++i) {
-			data[i] = vram.readVRAMBx(address++);
-		}
+	byte data[4];
+	for (int i = 0; i < 4; ++i) {
+		data[i] = vram.readVRAMBx(address++);
+	}
 
-		int u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
-		int v = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
+	int u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
+	int v = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
 
-		for (int i = 0; i < 4; ++i) {
+	for (int i = SKIP ? firstX : 0; i < 4; ++i) {
+		if (PAL && (data[i] & 0x08)) {
+			*pixelPtr++ = palette64[data[i] >> 4];
+		} else {
 			int y = (data[i] & 0xF8) >> 3;
 			int r = Math::clip<0, 31>(y + u);
 			int g = Math::clip<0, 31>((5 * y - 2 * u - v) / 4);
 			int b = Math::clip<0, 31>(y + v);
+			// The only difference between YUV and YJK is that
+			// green and blue are swapped.
+			if (YJK) std::swap(g, b);
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
+}
+
+template <class Pixel>
+void V9990BitmapConverter<Pixel>::rasterBYUV(
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+{
+	unsigned address = (x & ~3) + y * vdp.getImageWidth();
+	if (x & 3) {
+		draw_YJK_YUV_PAL<false, false, true>(
+			vram, palette64, palette32768, pixelPtr, address, x & 3);
+		nrPixels -= 4 - (x & 3);
+	}
+	for (/**/; nrPixels > 0; nrPixels -= 4) {
+		draw_YJK_YUV_PAL<false, false, false>(
+			vram, palette64, palette32768, pixelPtr, address);
+	}
+	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYUVP(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
-	for (int p = 0; p < nrPixels; p += 4) {
-		byte data[4];
-		for (int i = 0; i < 4; ++i) {
-			data[i] = vram.readVRAMBx(address++);
-		}
-
-		int u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
-		int v = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
-
-		for (int i = 0; i < 4; ++i) {
-			if (data[i] & 0x08) {
-				*pixelPtr++ = palette64[data[i] >> 4];
-			} else {
-				int y = (data[i] & 0xF8) >> 3;
-				int r = Math::clip<0, 31>(y + u);
-				int g = Math::clip<0, 31>((5 * y - 2 * u - v) / 4);
-				int b = Math::clip<0, 31>(y + v);
-				*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
-			}
-		}
+	unsigned address = (x & ~3) + y * vdp.getImageWidth();
+	if (x & 3) {
+		draw_YJK_YUV_PAL<false, true, true>(
+			vram, palette64, palette32768, pixelPtr, address, x & 3);
+		nrPixels -= 4 - (x & 3);
 	}
+	for (/**/; nrPixels > 0; nrPixels -= 4) {
+		draw_YJK_YUV_PAL<false, true, false>(
+			vram, palette64, palette32768, pixelPtr, address);
+	}
+	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYJK(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
-	for (int p = 0; p < nrPixels; p += 4) {
-		byte data[4];
-		for (int i = 0; i < 4; ++i) {
-			data[i] = vram.readVRAMBx(address++);
-		}
-
-		int j = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
-		int k = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
-
-		for (int i = 0; i < 4; ++i) {
-			int y = data[i] >> 3;
-			int r = Math::clip<0, 31>(y + j);
-			int g = Math::clip<0, 31>(y + k);
-			int b = Math::clip<0, 31>((5 * y - 2 * j - k) / 4);
-			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
-		}
+	unsigned address = (x & ~3)+ y * vdp.getImageWidth();
+	if (x & 3) {
+		draw_YJK_YUV_PAL<true, false, true>(
+			vram, palette64, palette32768, pixelPtr, address, x & 3);
+		nrPixels -= 4 - (x & 3);
 	}
+	for (/**/; nrPixels > 0; nrPixels -= 4) {
+		draw_YJK_YUV_PAL<true, false, false>(
+			vram, palette64, palette32768, pixelPtr, address);
+	}
+	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYJKP(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
-	for (int p = 0; p < nrPixels; p += 4) {
-		byte data[4];
-		for (int i = 0; i < 4; ++i) {
-			data[i] = vram.readVRAMBx(address++);
-		}
-
-		int j = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);
-		int k = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[3] & 4) << 3);
-
-		for (int i = 0; i < 4; ++i) {
-			if (data[i] & 0x08) {
-				*pixelPtr++ = palette64[data[i] >> 4];
-			} else {
-				int y = data[i] >> 3;
-				int r = Math::clip<0, 31>(y + j);
-				int g = Math::clip<0, 31>(y + k);
-				int b = Math::clip<0, 31>((5 * y - 2 * j - k) / 4);
-				*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
-			}
-		}
+	unsigned address = (x & ~3) + y * vdp.getImageWidth();
+	if (x & 3) {
+		draw_YJK_YUV_PAL<true, true, true>(
+			vram, palette64, palette32768, pixelPtr, address, x & 3);
+		nrPixels -= 4 - (x & 3);
 	}
+	for (/**/; nrPixels > 0; nrPixels -= 4) {
+		draw_YJK_YUV_PAL<true, true, false>(
+			vram, palette64, palette32768, pixelPtr, address);
+	}
+	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBD16(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
-	for (int p = 0; p < nrPixels; ++p) {
+	unsigned address = 2 * (x + y * vdp.getImageWidth());
+	for (/**/; nrPixels > 0; --nrPixels) {
 		byte low  = vram.readVRAMBx(address++);
 		byte high = vram.readVRAMBx(address++);
 		*pixelPtr++ = palette32768[(low + 256 * high) & 0x7FFF];
@@ -141,87 +140,124 @@ void V9990BitmapConverter<Pixel>::rasterBD16(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBD8(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
-	for (int p = 0; p < nrPixels; ++p) {
+	unsigned address = x + y * vdp.getImageWidth();
+	for (/**/; nrPixels > 0; --nrPixels) {
 		*pixelPtr++ = palette256[vram.readVRAMBx(address++)];
 	}
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP6(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
-	for (int p = 0; p < nrPixels; ++p) {
+	unsigned address = x + y * vdp.getImageWidth();
+	for (/**/; nrPixels > 0; --nrPixels) {
 		*pixelPtr++ = palette64[vram.readVRAMBx(address++) & 0x3F];
 	}
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP4(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
+	assert(nrPixels > 0);
+	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	byte offset = (vdp.getPaletteOffset() & 0xC) << 2;
 	const Pixel* pal = &palette64[offset];
-	for (int p = 0; p < nrPixels; p += 2) {
+	if (x & 1) {
+		byte data = vram.readVRAMBx(address++);
+		*pixelPtr++ = pal[data & 0x0F];
+		--nrPixels;
+	}
+	for (/**/; nrPixels > 0; nrPixels -= 2) {
 		byte data = vram.readVRAMBx(address++);
 		*pixelPtr++ = pal[data >> 4];
 		*pixelPtr++ = pal[data & 0x0F];
 	}
+	// Note: this possibly draws 1 pixel too many, but that's ok.
 }
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP4HiRes(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
 	// Verified on real HW:
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
+	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	byte offset = (vdp.getPaletteOffset() & 0x4) << 2;
 	const Pixel* pal1 = &palette64[offset |  0];
 	const Pixel* pal2 = &palette64[offset | 32];
-	for (int p = 0; p < nrPixels; p += 2) {
+	if (x & 1) {
+		byte data = vram.readVRAMBx(address++);
+		*pixelPtr++ = pal2[data & 0x0F];
+		--nrPixels;
+	}
+	for (/**/; nrPixels > 0; nrPixels -= 2) {
 		byte data = vram.readVRAMBx(address++);
 		*pixelPtr++ = pal1[data >> 4  ];
 		*pixelPtr++ = pal2[data & 0x0F];
 	}
+	// Note: this possibly draws 1 pixel too many, but that's ok.
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP2(
-	Pixel* __restrict pixelPtr, unsigned address, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
+	assert(nrPixels > 0);
+	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	byte offset = vdp.getPaletteOffset() << 2;
 	const Pixel* pal = &palette64[offset];
-	for (int p = 0; p < nrPixels; p += 4) {
+	if (x & 3) {
+		byte data = vram.readVRAMBx(address++);
+		if ((x & 3) <= 1) *pixelPtr++ = pal[(data & 0x30) >> 4];
+		if ((x & 3) <= 2) *pixelPtr++ = pal[(data & 0x0C) >> 2];
+		                  *pixelPtr++ = pal[(data & 0x03) >> 0];
+		nrPixels -= 4 - (x & 3);
+	}
+	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		byte data = vram.readVRAMBx(address++);
 		*pixelPtr++ = pal[(data & 0xC0) >> 6];
 		*pixelPtr++ = pal[(data & 0x30) >> 4];
 		*pixelPtr++ = pal[(data & 0x0C) >> 2];
 		*pixelPtr++ = pal[(data & 0x03) >> 0];
 	}
+	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP2HiRes(
-	Pixel* pixelPtr, unsigned address, int nrPixels)
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
 	// Verified on real HW:
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
+	assert(nrPixels > 0);
+	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	byte offset = (vdp.getPaletteOffset() & 0x7) << 2;
 	const Pixel* pal1 = &palette64[offset |  0];
 	const Pixel* pal2 = &palette64[offset | 32];
-	for (int p = 0; p < nrPixels; p += 4) {
+	if (x & 3) {
+		byte data = vram.readVRAMBx(address++);
+		if ((x & 3) <= 1) *pixelPtr++ = pal2[(data & 0x30) >> 4];
+		if ((x & 3) <= 2) *pixelPtr++ = pal1[(data & 0x0C) >> 2];
+		                  *pixelPtr++ = pal2[(data & 0x03) >> 0];
+		nrPixels -= 4 - (x & 3);
+	}
+	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		byte data = vram.readVRAMBx(address++);
 		*pixelPtr++ = pal1[(data & 0xC0) >> 6];
 		*pixelPtr++ = pal2[(data & 0x30) >> 4];
 		*pixelPtr++ = pal1[(data & 0x0C) >> 2];
 		*pixelPtr++ = pal2[(data & 0x03) >> 0];
 	}
+	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterP(
-	Pixel* /*pixelPtr*/, unsigned /*address*/, int /*nrPixels*/)
+	Pixel* /*pixelPtr*/, unsigned /*x*/, unsigned /*y*/, int /*nrPixels*/)
 {
 	UNREACHABLE;
 }
@@ -303,14 +339,14 @@ void V9990BitmapConverter<Pixel>::drawCursors(Pixel* buffer, int displayY)
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::convertLine(
-	Pixel* linePtr, unsigned address, int nrPixels, int displayY,
-	bool drawSprites)
+	Pixel* linePtr, unsigned x, unsigned y, int nrPixels,
+	int cursorY, bool drawSprites)
 {
 	// TODO cursor goes wrong when startX != 0
 	assert(nrPixels <= 1024);
-	(this->*rasterMethod)(linePtr, address, nrPixels);
+	(this->*rasterMethod)(linePtr, x, y, nrPixels);
 	if (drawSprites) {
-		drawCursors(linePtr, displayY - vdp.getCursorYOffset());
+		drawCursors(linePtr, cursorY);
 	}
 }
 

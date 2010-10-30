@@ -162,34 +162,6 @@ public:
 		return x;
 	}
 
-	/** Get VRAM offset for (X,Y) position.  Depending on the colormode,
-	  * one byte in VRAM may span several pixels, or one pixel may span
-	  * 1 or 2 bytes.
-	  * @param x     Pointer to X position - on exit, the X position is the
-	  *              X position of the left most pixel at this VRAM address
-	  * @param y     Y position
-	  * @param mode  Color mode
-	  * @return      VRAM offset
-	  * TODO: Move this to V9990VRAM ??
-	  */
-	inline unsigned XYtoVRAM(unsigned* x, unsigned y, V9990ColorMode mode) {
-		int offset = *x + y * getImageWidth();
-		switch (mode) {
-		case PP:
-		case BYUV:
-		case BYUVP:
-		case BYJK:
-		case BYJKP:
-		case BD8:
-		case BP6:  break;
-		case BD16: offset *= 2; break;
-		case BP4:  offset /= 2; *x &= ~1; break;
-		case BP2:  offset /= 4; *x &= ~3; break;
-		default: UNREACHABLE;
-		}
-		return offset;
-	}
-
 	/** Return the current display mode
 	  */
 	inline V9990DisplayMode getDisplayMode() const {
