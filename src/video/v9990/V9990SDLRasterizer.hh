@@ -44,9 +44,9 @@ public:
 	virtual void setColorMode(V9990ColorMode colorMode);
 	virtual void setPalette(int index, byte r, byte g, byte b);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
-	virtual void drawDisplay(int fromX, int fromY, int displayX,
-	                         int displayY, int displayYA, int displayYB,
-	                         int displayWidth, int displayHeight);
+	virtual void drawDisplay(int fromX, int fromY, int toX, int toY,
+	                         int displayX,
+	                         int displayY, int displayYA, int displayYB);
 	virtual bool isRecording() const;
 
 private:

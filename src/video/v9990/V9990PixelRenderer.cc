@@ -234,12 +234,10 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 		int displayY  = fromY - verTiming.blank - verTiming.border1;
 		int displayYA = fromY - verticalOffsetA;
 		int displayYB = fromY - verticalOffsetB;
-		int displayWidth = toX - fromX;
-		int displayHeight = toY - fromY;
 
-		rasterizer->drawDisplay(fromX, fromY, displayX,
-		                        displayY, displayYA, displayYB,
-		                        displayWidth, displayHeight);
+		rasterizer->drawDisplay(fromX, fromY, toX, toY,
+		                        displayX,
+		                        displayY, displayYA, displayYB);
 	}
 }
 

@@ -70,21 +70,20 @@ public:
 	/** Render a rectangle of display pixels on the host screen.
 	  * @param fromX     X coordinate of render start in V9990 UC ticks.
 	  * @param fromY     Y coordinate of render start in absolute lines.
+	  * @param toX       X coordinate of render stop in V9990 UC ticks (exclusive).
+	  * @param toY       Y coordinate of render stop in absolute lines (exclusive).
 	  * @param displayX  display coordinate of render start: [0..640).
 	  * @param displayY  display coordinate of render start: [0..480).
 	  * @param displayYA similar to displayY but specific for plane A
 	  * @param displayYB similar to displayY but specific for plane B
-	  * @param displayWidth  rectangle width in pixels.
-	  * @param displayHeight rectangle height in lines.
 	  * Note: Usually displayY, displayYA and displayYB will all be the
 	  *       same. Only in case the vertical scroll register is updated
 	  *       in the middle of a frame they can differ, see
 	  *       V9990PixelRenderer::updateScrollAYLow()
 	  */
 	virtual void drawDisplay(
-		int fromX, int fromY, int displayX,
-		int displayY, int displayYA, int displayYB,
-		int displayWidth, int displayHeight) = 0;
+		int fromX, int fromY, int toX, int toY,
+		int displayX, int displayY, int displayYA, int displayYB) = 0;
 
 	/** Is video recording active?
 	  */

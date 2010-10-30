@@ -160,61 +160,61 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawDisplay(
-	int fromX, int fromY, int displayX, int displayY,
-	int displayYA, int displayYB, int displayWidth, int displayHeight)
+	int fromX, int fromY, int toX, int toY,
+	int displayX, int displayY, int displayYA, int displayYB)
 {
 	static int const screenW = SCREEN_WIDTH * 8;
 	static int const screenH = SCREEN_HEIGHT;
 
-	if ((displayWidth > 0) && (displayHeight > 0)) {
-		// from VDP coordinates to screen coordinates
-		fromX -= colZero;
-		fromY -= lineRenderTop;
+	// from VDP coordinates to screen coordinates
+	fromX -= colZero;
+	toX   -= colZero;
+	fromY -= lineRenderTop;
+	toY   -= lineRenderTop;
 
-		// Clip to screen
-		if (fromX < 0) {
-			displayX -= fromX;
-			displayWidth += fromX;
-			fromX = 0;
-		}
-		if ((fromX + displayWidth) > screenW) {
-			displayWidth = screenW - fromX;
-		}
-		if (fromY < 0) {
-			displayY  -= fromY;
-			displayYA -= fromY;
-			displayYB -= fromY;
-			displayHeight += fromY;
-			fromY = 0;
-		}
-		if ((fromY + displayHeight) > screenH) {
-			displayHeight = screenH - fromY;
-		}
+	// Clip to screen
+	if (fromX < 0) {
+		displayX -= fromX;
+		fromX = 0;
+	}
+	if (fromY < 0) {
+		displayY  -= fromY;
+		displayYA -= fromY;
+		displayYB -= fromY;
+		fromY = 0;
+	}
+	if (toX > screenW) {
+		toX = screenW;
+	}
+	if (toY > screenH) {
+		toY = screenH;
+	}
+	fromX = V9990::UCtoX(fromX, displayMode);
+	toX   = V9990::UCtoX(toX,   displayMode);
 
-		if (displayHeight > 0) {
-			bool drawSprites = vdp.spritesEnabled() &&
-				!renderSettings.getDisableSprites().getValue();
+	if ((toX > fromX) && (toY > fromY)) {
+		bool drawSprites = vdp.spritesEnabled() &&
+			!renderSettings.getDisableSprites().getValue();
 
-			fromX = V9990::UCtoX(fromX, displayMode);
-			displayX = V9990::UCtoX(displayX, displayMode);
-			displayWidth = V9990::UCtoX(displayWidth, displayMode);
+		displayX = V9990::UCtoX(displayX, displayMode);
+		int displayWidth  = toX - fromX;
+		int displayHeight = toY - fromY;
 
-			if (displayMode == P1) {
-				drawP1Mode(fromX, fromY, displayX,
-				           displayY, displayYA, displayYB,
-				           displayWidth, displayHeight,
-					   drawSprites);
-			} else if (displayMode == P2) {
-				drawP2Mode(fromX, fromY, displayX,
-				           displayY, displayYA,
-				           displayWidth, displayHeight,
-					   drawSprites);
-			} else {
-				drawBxMode(fromX, fromY, displayX,
-				           displayY, displayYA,
-				           displayWidth, displayHeight,
-					   drawSprites);
-			}
+		if (displayMode == P1) {
+			drawP1Mode(fromX, fromY, displayX,
+			           displayY, displayYA, displayYB,
+			           displayWidth, displayHeight,
+			           drawSprites);
+		} else if (displayMode == P2) {
+			drawP2Mode(fromX, fromY, displayX,
+			           displayY, displayYA,
+			           displayWidth, displayHeight,
+			           drawSprites);
+		} else {
+			drawBxMode(fromX, fromY, displayX,
+			           displayY, displayYA,
+			           displayWidth, displayHeight,
+			           drawSprites);
 		}
 	}
 }
