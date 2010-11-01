@@ -40,6 +40,8 @@ public:
 	virtual bool isReadOnly() const;
 	virtual time_t getModificationDate();
 
+	void preCacheFile();
+
 private:
 	std::string filename;
 	FILE* file;

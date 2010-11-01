@@ -65,10 +65,6 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	if (!file) {
 		throw FileException("Error opening file \"" + filename + "\"");
 	}
-
-	if (mode == File::PRE_CACHE) {
-		cache.reset(new PreCacheFile(name));
-	}
 }
 
 LocalFile::LocalFile(const std::string& filename_, const char* mode)
@@ -93,6 +89,12 @@ LocalFile::~LocalFile()
 {
 	munmap();
 	fclose(file);
+}
+
+void LocalFile::preCacheFile()
+{
+	string name = FileOperations::getNativePath(filename);
+	cache.reset(new PreCacheFile(name));
 }
 
 void LocalFile::read(void* buffer, unsigned num)
