@@ -469,7 +469,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		throw SyntaxError();
 	}
 	filename = FileOperations::parseCommandFileArgument(
-		filename, REPLAY_DIR, "openmsx", ".gz");
+		filename, REPLAY_DIR, "openmsx", ".omr");
 
 	Reactor& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
@@ -556,8 +556,8 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	UserDataFileContext context(REPLAY_DIR);
 	string fileNameArg = tokens[fileArgPos]->getString();
-	if (!StringOp::endsWith(fileNameArg, ".gz")) {
-		fileNameArg += ".gz";
+	if (!(StringOp::endsWith(fileNameArg, ".omr") || (StringOp::endsWith(fileNameArg, ".gz")))) {
+		fileNameArg += ".omr";
 	}
 	string filename = context.resolve(motherBoard.getCommandController(),
 	                                  fileNameArg);
