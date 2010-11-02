@@ -554,13 +554,25 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 		if (tokens.size() != 3) throw SyntaxError();
 	}
 
+	// resolve the filename
 	UserDataFileContext context(REPLAY_DIR);
 	string fileNameArg = tokens[fileArgPos]->getString();
-	if (!(StringOp::endsWith(fileNameArg, ".omr") || (StringOp::endsWith(fileNameArg, ".gz")))) {
-		fileNameArg += ".omr";
-	}
-	string filename = context.resolve(motherBoard.getCommandController(),
-	                                  fileNameArg);
+	CommandController& controller = motherBoard.getCommandController();
+	string filename;
+	try {
+		// Try filename as typed by user.
+		filename = context.resolve(controller, fileNameArg);
+	} catch (MSXException& e1) { try {
+		// Not found, try adding '.omr'.
+		filename = context.resolve(controller, fileNameArg + ".omr");
+	} catch (MSXException& e2) { try {
+		// Again not found, try adding '.gz'.
+		// (this is for backwards compatibility).
+		filename = context.resolve(controller, fileNameArg + ".gz");
+	} catch (MSXException& e3) {
+		// Show error message that includes the default extension.
+		throw e2;
+	}}}
 
 	// restore replay
 	Reactor& reactor = motherBoard.getReactor();
