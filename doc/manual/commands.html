@@ -245,6 +245,8 @@
 
         <li><a class="internal" href="#minframeskip">minframeskip</a></li>
 
+        <li><a class="internal" href="#mode">mode</a></li>
+
         <li><a class="internal" href="#mute">mute</a></li>
 
         <li><a class="internal" href="#noise">noise</a></li>
@@ -3974,6 +3976,54 @@
       <td>Sets the number of frame skips</td>
     </tr>
   </table>
+
+  <h3><a id="mode">mode</a></h3>
+
+  <p>Sets the active mode. A mode is a set of settings (mostly keybindings, but also OSD widgets that are activated) that are most suitable for a certain task. Currently only mode 'normal' and 'tas' exist.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set mode</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set mode tas</code></td>
+
+      <td>Change mode to TAS mode</td>
+    </tr>
+
+    <tr>
+      <td><code>set mode normal</code></td>
+
+      <td>Set mode back to normal, which is the default (all purpose) mode</td>
+    </tr>
+  </table>
+
+  <h4>TAS mode</h4>
+
+  <p>So far, the only special mode is the TAS mode, which is made for doing Tool Assisted Speedruns, with TAS widgets and easier ways to save replays. It is still experimental, but already very useful for doing a TAS. This mode enables the following widgets:</p>
+  <ul>
+    <li>frame counter (can also be toggled with <tt>toggle_frame_counter</tt>), which shows the VDP (not V9990) frame number on screen</li>
+    <li>cursors (can also be toggled with <tt>toggle_cursors</tt>), shows which keys (important for games) are pressed</li>
+  </ul>
+  <p>It also (re)enables the reverse bar widget.</p>
+  <p>The mode configures the following key bindings, overriding any existing key bindings:</p>
+  <table>
+    <tr> <th>keys (PC)</th>  <th>keys (Mac)</th>         <th>function</th> </tr>
+    <tr> <td>F6</td>      <td>F6</td>      <td>Load replay from current slot</td></tr>
+    <tr> <td>F7</td>      <td>F7</td>      <td>Open slot select menu</td></tr>
+    <tr> <td>F8</td>      <td>F8</td>      <td>Save replay to current slot</td></tr>
+    <tr> <td>End</td>     <td>End</td>     <td>Advance one frame</td></tr>
+    <tr> <td>ScrollLock</td><td>ScrollLock</td><td>Reverse one frame</td></tr>
+  </table>
+
+  <p>Note that this mode is still experimental and may change in future releases!</p>
 
   <h3><a id="mute">mute</a></h3>
 
