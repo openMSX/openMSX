@@ -83,11 +83,11 @@ proc save_session { {name "untitled"} } {
 	# save using ID as file names
 	foreach machine [list_machines] {
 		append result "Saving machine $machine ([get_machine_representation $machine])...\n"
-		store_machine $machine [file join $directory ${machine}.xml.gz]
+		store_machine $machine [file join $directory ${machine}.oms]
 	}
 	# save in a separate file the currently active machine
 	set fileId [open [file join $directory active_machine] "w"]
-	puts $fileId [format "%s.xml.gz" [machine]]
+	puts $fileId [format "%s.oms" [machine]]
 	close $fileId
 
 	append result "Session saved as $name\n"
@@ -100,7 +100,7 @@ proc load_session { name } {
 
 	# get all savestate files
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../sessions/${name}]
-	set states_to_restore [glob -tails -directory $directory -nocomplain *.xml.gz]
+	set states_to_restore [glob -tails -directory $directory -nocomplain *.oms *.xml.gz]
 
 	# abort if we have nothing to restore
 	if {[llength $states_to_restore] == 0} {

@@ -2,17 +2,25 @@
 
 namespace eval savestate {
 
-proc savestate_common { name } {
+proc savestate_common {} {
 	uplevel {
 		if {$name == ""} { set name "quicksave" }
 		set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
-		set fullname [file join $directory ${name}.xml.gz]
+		set fullname_oms [file join $directory ${name}.oms]
+		set fullname_gz  [file join $directory ${name}.xml.gz]
+		if {![file exists $fullname_oms] &&
+		     [file exists $fullname_gz]} {
+			# only when old name exists but new doesn't
+			set fullname_bwcompat $fullname_gz
+		} else {
+			set fullname_bwcompat $fullname_oms
+		}
 		set png [file join $directory ${name}.png]
 	}
 }
 
 proc savestate { {name ""} } {
-	savestate_common $name
+	savestate_common
 	file mkdir $directory
 	if {[catch { screenshot -raw -doublesize $png }]} {
 		# some renderers don't support msx-only screenshots
@@ -23,13 +31,17 @@ proc savestate { {name ""} } {
 		}
 	}
 	set currentID [machine]
-	store_machine $currentID $fullname
+	# always save using the new (.oms) name
+	store_machine $currentID $fullname_oms
+	# if successful, delete the old (.gz) filename (deleting a non-exiting
+	# file is not an error)
+	file delete -- $fullname_gz
 	return $name
 }
 
 proc loadstate { {name ""} } {
-	savestate_common $name
-	set newID [restore_machine $fullname]
+	savestate_common
+	set newID [restore_machine $fullname_bwcompat]
 	set currentID [machine]
 	if {$currentID != ""} { delete_machine $currentID }
 	activate_machine $newID
@@ -40,7 +52,7 @@ proc loadstate { {name ""} } {
 proc list_savestates_raw {} {
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
 	set results [list]
-	foreach f [glob -tails -directory $directory -nocomplain *.xml.gz] {
+	foreach f [glob -tails -directory $directory -nocomplain *.xml.gz *.oms] {
 		set name [file rootname [file rootname $f]]
 		set fullname [file join $directory $f]
 		set filetime [file mtime $fullname]
@@ -95,8 +107,8 @@ proc list_savestates { args } {
 }
 
 proc delete_savestate { {name ""} } {
-	savestate_common $name
-	catch { file delete -- $fullname }
+	savestate_common
+	catch { file delete -- $fullname_bwcompat }
 	catch { file delete -- $png }
 	return ""
 }
