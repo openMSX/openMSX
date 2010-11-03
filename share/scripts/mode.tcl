@@ -8,13 +8,6 @@ namespace eval mode {
 variable modes_info
 variable old_mode
 
-user_setting create string mode \
-"This setting switches between different openMSX modes. A mode is a set of settings (mostly keybindings, but also OSD widgets that are activated) that are most suitable for a certain task. Currently only mode 'normal' and 'tas' exist." \
-normal
-
-trace add variable ::mode write [namespace code mode_changed]
-set old_mode $::mode
-
 proc register { name enter_proc leave_proc description } {
 	variable modes_info
 	set modes_info($name) [list $enter_proc $leave_proc $description]
@@ -100,6 +93,18 @@ register "tas" [namespace code enter_tas_mode] \
                [namespace code leave_tas_mode] \
          "Mode for doing Tool Assisted Speedruns, with TAS widgets and easy ways to save replays."
 
+
+
+# Create setting (uses info from registered modes above)
+
+set help_text "This setting switches between different openMSX modes. A mode is a set of settings (mostly keybindings, but also OSD widgets that are activated) that are most suitable for a certain task. Currently these modes exist:"
+foreach name [lsort [array names modes_info]] {
+	append help_text "\n  $name: [lindex $modes_info($name) 2]"
+}
+
+user_setting create string mode $help_text normal
+
+trace add variable ::mode write [namespace code mode_changed]
 
 
 ## Enter initial mode
