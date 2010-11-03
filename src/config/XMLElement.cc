@@ -20,7 +20,17 @@ XMLElement::XMLElement(const string& name_)
 {
 }
 
+XMLElement::XMLElement(const char* name_)
+	: name(name_), parent(NULL)
+{
+}
+
 XMLElement::XMLElement(const string& name_, const string& data_)
+	: name(name_), data(data_), parent(NULL)
+{
+}
+
+XMLElement::XMLElement(const char* name_, const char* data_)
 	: name(name_), data(data_), parent(NULL)
 {
 }
@@ -72,8 +82,9 @@ auto_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 	return auto_ptr<XMLElement>(&child2);
 }
 
-XMLElement::Attributes::iterator XMLElement::findAttribute(const char* name)
+XMLElement::Attributes::iterator XMLElement::findAttribute(const char* name_)
 {
+	string name(name_);
 	for (Attributes::iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
 		if (it->first == name) {
@@ -82,8 +93,9 @@ XMLElement::Attributes::iterator XMLElement::findAttribute(const char* name)
 	}
 	return attributes.end();
 }
-XMLElement::Attributes::const_iterator XMLElement::findAttribute(const char* name) const
+XMLElement::Attributes::const_iterator XMLElement::findAttribute(const char* name_) const
 {
+	string name(name_);
 	for (Attributes::const_iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
 		if (it->first == name) {
@@ -148,9 +160,14 @@ void XMLElement::getChildren(const string& name, Children& result) const
 		}
 	}
 }
-
-XMLElement* XMLElement::findChild(const string& name)
+void XMLElement::getChildren(const char* name, Children& result) const
 {
+	getChildren(string(name), result);
+}
+
+XMLElement* XMLElement::findChild(const char* name_)
+{
+	string name(name_);
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == name) {
@@ -159,8 +176,7 @@ XMLElement* XMLElement::findChild(const string& name)
 	}
 	return NULL;
 }
-
-const XMLElement* XMLElement::findChild(const string& name) const
+const XMLElement* XMLElement::findChild(const char* name) const
 {
 	return const_cast<XMLElement*>(this)->findChild(name);
 }
@@ -184,7 +200,7 @@ const XMLElement* XMLElement::findNextChild(const char* name,
 	return NULL;
 }
 
-XMLElement* XMLElement::findChildWithAttribute(const string& name,
+XMLElement* XMLElement::findChildWithAttribute(const char* name,
 	const char* attName, const string& attValue)
 {
 	Children children;
@@ -198,28 +214,28 @@ XMLElement* XMLElement::findChildWithAttribute(const string& name,
 	return NULL;
 }
 
-const XMLElement* XMLElement::findChildWithAttribute(const string& name,
+const XMLElement* XMLElement::findChildWithAttribute(const char* name,
 	const char* attName, const string& attValue) const
 {
 	return const_cast<XMLElement*>(this)->findChildWithAttribute(
 		name, attName, attValue);
 }
 
-XMLElement& XMLElement::getChild(const string& name)
+XMLElement& XMLElement::getChild(const char* name)
 {
 	XMLElement* elem = findChild(name);
 	if (!elem) {
-		throw ConfigException("Missing tag \"" + name + "\".");
+		throw ConfigException(StringOp::Builder() <<
+			"Missing tag \"" << name << "\".");
 	}
 	return *elem;
 }
-
-const XMLElement& XMLElement::getChild(const string& name) const
+const XMLElement& XMLElement::getChild(const char* name) const
 {
 	return const_cast<XMLElement*>(this)->getChild(name);
 }
 
-XMLElement& XMLElement::getCreateChild(const string& name,
+XMLElement& XMLElement::getCreateChild(const char* name,
                                        const string& defaultValue)
 {
 	XMLElement* result = findChild(name);
@@ -231,44 +247,44 @@ XMLElement& XMLElement::getCreateChild(const string& name,
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
-	const string& name, const char* attName,
-	const string& attValue, const string& defaultValue)
+	const char* name, const char* attName,
+	const string& attValue)
 {
 	XMLElement* result = findChildWithAttribute(name, attName, attValue);
 	if (!result) {
-		result = new XMLElement(name, defaultValue);
+		result = new XMLElement(name);
 		result->addAttribute(attName, attValue);
 		addChild(auto_ptr<XMLElement>(result));
 	}
 	return *result;
 }
 
-const string& XMLElement::getChildData(const string& name) const
+const string& XMLElement::getChildData(const char* name) const
 {
 	const XMLElement& child = getChild(name);
 	return child.getData();
 }
 
-string XMLElement::getChildData(const string& name,
-                                const string& defaultValue) const
+string XMLElement::getChildData(const char* name,
+                                const char* defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? child->getData() : defaultValue;
 }
 
-bool XMLElement::getChildDataAsBool(const string& name, bool defaultValue) const
+bool XMLElement::getChildDataAsBool(const char* name, bool defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
-int XMLElement::getChildDataAsInt(const string& name, int defaultValue) const
+int XMLElement::getChildDataAsInt(const char* name, int defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
-void XMLElement::setChildData(const string& name, const string& value)
+void XMLElement::setChildData(const char* name, const string& value)
 {
 	XMLElement* child = findChild(name);
 	if (child) {
@@ -303,7 +319,7 @@ const string& XMLElement::getAttribute(const char* attName) const
 }
 
 const string XMLElement::getAttribute(const char* attName,
-	                              const string defaultValue) const
+	                              const char* defaultValue) const
 {
 	Attributes::const_iterator it = findAttribute(attName);
 	return (it == attributes.end()) ? defaultValue : it->second;
@@ -428,7 +444,7 @@ void XMLElement::serialize(Archive& ar, unsigned /*version*/)
 	// note2: In the past attributes were stored in a map instead of a
 	//        vector. To keep backwards compatible with the serialized
 	//        format, we still convert attributes to this format.
-	typedef std::map<std::string, std::string> AttributesMap;
+	typedef std::map<string, string> AttributesMap;
 
 	if (!ar.isLoader()) {
 		AttributesMap tmpAtt(attributes.begin(), attributes.end());
@@ -448,7 +464,7 @@ void XMLElement::serialize(Archive& ar, unsigned /*version*/)
 		ar.serialize("children", tmp);
 		for (XMLElement::Children::const_iterator it = tmp.begin();
 		     it != tmp.end(); ++it) {
-			addChild(std::auto_ptr<XMLElement>(*it));
+			addChild(auto_ptr<XMLElement>(*it));
 		}
 	}
 	ar.serialize("context", context);

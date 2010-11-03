@@ -47,10 +47,9 @@ public:
 
 	explicit CommandLineParser(Reactor& reactor);
 	~CommandLineParser();
-	void registerOption(const std::string& str, CLIOption& cliOption,
+	void registerOption(const char* str, CLIOption& cliOption,
 		unsigned prio = 8, unsigned length = 2);
-	void registerFileClass(const std::string& str,
-	                       CLIFileType& cliFileType);
+	void registerFileClass(const char* str, CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 

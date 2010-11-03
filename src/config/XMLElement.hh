@@ -24,7 +24,9 @@ public:
 
 	// construction, destruction, copy, assign
 	explicit XMLElement(const std::string& name);
+	explicit XMLElement(const char* name);
 	XMLElement(const std::string& name, const std::string& data);
+	XMLElement(const char* name, const char* data);
 	XMLElement(const XMLElement& element);
 	const XMLElement& operator=(const XMLElement& element);
 	~XMLElement();
@@ -69,8 +71,8 @@ public:
 	// attribute
 	bool hasAttribute(const char* name) const;
 	const std::string& getAttribute(const char* attName) const;
-	const std::string getAttribute(const char* attName,
-	                          const std::string defaultValue) const;
+	const std::string  getAttribute(const char* attName,
+	                                const char* defaultValue) const;
 	bool getAttributeAsBool(const char* attName,
 	                        bool defaultValue = false) const;
 	int getAttributeAsInt(const char* attName,
@@ -80,35 +82,37 @@ public:
 	const std::string& getId() const;
 
 	// child
-	const XMLElement* findChild(const std::string& name) const;
-	XMLElement* findChild(const std::string& name);
-	const XMLElement& getChild(const std::string& name) const;
+	const XMLElement* findChild(const char* name) const;
+	XMLElement* findChild(const char* name);
+	const XMLElement& getChild(const char* name) const;
+	XMLElement& getChild(const char* name);
+
 	const XMLElement* findChildWithAttribute(
-		const std::string& name, const char* attName,
+		const char* name, const char* attName,
 		const std::string& attValue) const;
 	XMLElement* findChildWithAttribute(
-		const std::string& name, const char* attName,
+		const char* name, const char* attName,
 		const std::string& attValue);
 	const XMLElement* findNextChild(const char* name,
 	                                unsigned& fromIndex) const;
 
-	XMLElement& getChild(const std::string& name);
 	void getChildren(const std::string& name, Children& result) const;
+	void getChildren(const char* name, Children& result) const;
 
-	XMLElement& getCreateChild(const std::string& name,
+	XMLElement& getCreateChild(const char* name,
 	                           const std::string& defaultValue = "");
 	XMLElement& getCreateChildWithAttribute(
-		const std::string& name, const char* attName,
-		const std::string& attValue, const std::string& defaultValue = "");
+		const char* name, const char* attName,
+		const std::string& attValue);
 
-	const std::string& getChildData(const std::string& name) const;
-	std::string getChildData(const std::string& name,
-	                         const std::string& defaultValue) const;
-	bool getChildDataAsBool(const std::string& name,
+	const std::string& getChildData(const char* name) const;
+	std::string getChildData(const char* name,
+	                         const char* defaultValue) const;
+	bool getChildDataAsBool(const char* name,
 	                        bool defaultValue = false) const;
-	int getChildDataAsInt(const std::string& name,
+	int getChildDataAsInt(const char* name,
 	                      int defaultValue = 0) const;
-	void setChildData(const std::string& name, const std::string& value);
+	void setChildData(const char* name, const std::string& value);
 
 	void removeAllChildren();
 

@@ -205,7 +205,7 @@ CommandLineParser::~CommandLineParser()
 }
 
 void CommandLineParser::registerOption(
-	const string& str, CLIOption& cliOption, unsigned prio, unsigned length)
+	const char* str, CLIOption& cliOption, unsigned prio, unsigned length)
 {
 	OptionData temp;
 	temp.option = &cliOption;
@@ -215,7 +215,7 @@ void CommandLineParser::registerOption(
 }
 
 void CommandLineParser::registerFileClass(
-	const string& str, CLIFileType& cliFileType)
+	const char* str, CLIFileType& cliFileType)
 {
 	fileClassMap[str] = &cliFileType;
 }
