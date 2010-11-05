@@ -562,14 +562,14 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	try {
 		// Try filename as typed by user.
 		filename = context.resolve(controller, fileNameArg);
-	} catch (MSXException& e1) { try {
+	} catch (MSXException& /*e1*/) { try {
 		// Not found, try adding '.omr'.
 		filename = context.resolve(controller, fileNameArg + ".omr");
 	} catch (MSXException& e2) { try {
 		// Again not found, try adding '.gz'.
 		// (this is for backwards compatibility).
 		filename = context.resolve(controller, fileNameArg + ".gz");
-	} catch (MSXException& e3) {
+	} catch (MSXException& /*e3*/) {
 		// Show error message that includes the default extension.
 		throw e2;
 	}}}
