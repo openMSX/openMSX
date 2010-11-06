@@ -79,8 +79,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
+	const XMLElement* resolvedSha1Elem     = config.findChild("resolvedSha1");
 	const XMLElement* filenameElem         = config.findChild("filename");
-	if (resolvedFilenameElem || !sums.empty() || filenameElem) {
+	if (resolvedFilenameElem || resolvedSha1Elem ||
+	    !sums.empty() || filenameElem) {
 		FilePool& filepool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
@@ -90,7 +92,29 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 				// ignore
 			}
 		}
-		// .. then try based on SHA1 ..
+		// .. then try the actual sha1sum ..
+		if (!file.get() && resolvedSha1Elem) {
+			string sha1 = resolvedSha1Elem->getData();
+			file = filepool.getFile(sha1);
+			if (file.get()) {
+				// avoid recalculating same sha1 later
+				originalSha1 = sha1;
+			}
+		}
+		// .. and then try filename as originally given by user ..
+		if (!file.get() && filenameElem) {
+			string name = filenameElem->getData();
+			try {
+				Filename filename(name,
+						  config.getFileContext(),
+						  controller);
+				file.reset(new File(filename));
+			} catch (FileException&) {
+				// ignore
+			}
+		}
+		// .. then try all alternative sha1sums ..
+		// (this might retry the actual sha1sum)
 		if (!file.get()) {
 			for (XMLElement::Children::const_iterator it = sums.begin();
 			     it != sums.end(); ++it) {
@@ -103,23 +127,19 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 				}
 			}
 		}
-		// .. and then try filename as originally given by user ..
-		if (!file.get() && filenameElem) {
-			string name = filenameElem->getData();
-			try {
-				Filename filename(name,
-						  config.getFileContext(),
-						  controller);
-				file.reset(new File(filename));
-			} catch (FileException&) {
-				throw MSXException("Error reading ROM: " +
-						   name);
-			}
-		}
 		// .. still no file, then error
 		if (!file.get()) {
-			throw MSXException("Couldn't find ROM file for \"" +
-					   config.getId() + "\".");
+			StringOp::Builder error;
+			error << "Couldn't find ROM file for \""
+			      << config.getId() << '"';
+			if (filenameElem) {
+				error << ' ' << filenameElem->getData();
+			}
+			if (resolvedSha1Elem) {
+				error << " (" << resolvedSha1Elem->getData() << ')';
+			}
+			error << '.';
+			throw MSXException(error);
 		}
 
 		// actually read file content
