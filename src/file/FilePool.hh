@@ -41,8 +41,19 @@ public:
 	void removeSha1Sum(File& file);
 
 private:
+	// Manually implement a collection of <sha1sum, timestamp, filename>
+	// tuples, that is indexed on both sha1sum and filename. Using
+	// something like boost::multi_index would be both faster and more
+	// compact in memory.
+	//   <sha1sum, <timestamp, filename> >
 	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
+	//   <filename, Pool::iterator>
+	typedef std::map<std::string, Pool::iterator> ReversePool;
+
 	typedef std::vector<std::string> Directories;
+
+	void insert(const std::string& sum, time_t time, const std::string& filename);
+	void remove(Pool::iterator it);
 
 	void readSha1sums();
 	void writeSha1sums();
@@ -56,6 +67,7 @@ private:
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	Pool pool;
+	ReversePool reversePool;
 	Directories directories;
 };
 
