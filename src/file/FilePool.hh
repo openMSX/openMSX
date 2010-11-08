@@ -3,6 +3,7 @@
 #ifndef FILEPOOL_HH
 #define FILEPOOL_HH
 
+#include "FileOperations.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <map>
@@ -50,7 +51,8 @@ private:
 	std::auto_ptr<File> scanDirectory(const std::string& sha1sum,
 	                                  const std::string& directory);
 	std::auto_ptr<File> scanFile(const std::string& sha1sum,
-	                             const std::string& filename);
+	                             const std::string& filename,
+	                             const FileOperations::Stat& st);
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	Pool pool;

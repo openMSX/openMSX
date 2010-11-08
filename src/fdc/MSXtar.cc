@@ -634,11 +634,17 @@ string MSXtar::recurseDirFill(const string& dirName, unsigned sector)
 		string name(d->d_name);
 		string fullName = dirName + '/' + name;
 
-		if (FileOperations::isRegularFile(fullName)) {
+		FileOperations::Stat st;
+		if (!FileOperations::getStat(fullName, st)) {
+			// ignore, normally this should not happen
+			continue;
+		}
+
+		if (FileOperations::isRegularFile(st)) {
 			// add new file
 			messages += addFileToDSK(fullName, sector);
 
-		} else if (FileOperations::isDirectory(fullName) &&
+		} else if (FileOperations::isDirectory(st) &&
 			   (name != ".") && (name != "..")) {
 			string msxFileName = makeSimpleMSXFileName(name);
 			byte buf[SECTOR_SIZE];

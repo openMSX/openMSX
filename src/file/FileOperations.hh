@@ -4,6 +4,7 @@
 #define FILEOPERATIONS_HH
 
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
+#include "statp.hh"
 #include <string>
 #include <sys/types.h>
 #include <fstream>
@@ -56,14 +57,6 @@ namespace FileOperations {
 	 * Call rmdir() in a platform-independent manner
 	 */
 	int rmdir(const std::string& path);
-
-	/**
-	 * Call stat() and return the mode field from the stat structure
-	 * @param filename the file path
-	 * @param mode the mode field to be returned
-	 * @result The return value from stat()
-	 */
-	int statGetMode(const std::string& filename, mode_t& mode);
 
 	/**
 	 * Call fopen() in a platform-independent manner
@@ -198,15 +191,30 @@ namespace FileOperations {
 	*/
 	std::string expandCurrentDirFromDrive(const std::string& path);
 
+#ifdef _WIN32
+	typedef struct _stat Stat;
+#else
+	typedef struct stat Stat;
+#endif
+	/**
+	 * Call stat() and return the stat structure
+	 * @param filename the file path (will be tilde expanded)
+	 * @param st The stat structute that will be filled in
+	 * @result true iff success
+	 */
+	bool getStat(const std::string& filename, Stat& st);
+
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
 	bool isRegularFile(const std::string& filename);
+	bool isRegularFile(const Stat& st);
 
 	/**
 	 * Is this a directory?
 	 */
 	bool isDirectory(const std::string& directory);
+	bool isDirectory(const Stat& st);
 
 	/**
 	 * Does this file (directory) exists?
@@ -214,9 +222,8 @@ namespace FileOperations {
 	bool exists(const std::string& filename);
 
 	/** Get the date/time of last modification
-	 * @throws FileException
 	 */
-	time_t getModificationDate(const std::string& filename);
+	time_t getModificationDate(const Stat& st);
 
 	/**
 	 * Gets the next numbered file name with the specified prefix in the

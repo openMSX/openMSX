@@ -507,9 +507,14 @@ string DiskManipulator::import(DriveSettings& driveData,
 		for (vector<string>::const_iterator it = list.begin();
 		     it != list.end(); ++it) {
 			try {
-				if (FileOperations::isDirectory(*it)) {
+				FileOperations::Stat st;
+				if (!FileOperations::getStat(*it, st)) {
+					throw CommandException(
+						"Non-existing file " + *it);
+				}
+				if (FileOperations::isDirectory(st)) {
 					messages += workhorse->addDir(*it);
-				} else if (FileOperations::isRegularFile(*it)) {
+				} else if (FileOperations::isRegularFile(st)) {
 					messages += workhorse->addFile(*it);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)

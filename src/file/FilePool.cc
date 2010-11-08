@@ -173,22 +173,26 @@ auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& dire
 	while (dirent* d = dir.getEntry()) {
 		string file = d->d_name;
 		string path = directory + '/' + file;
-		auto_ptr<File> result;
-		if (FileOperations::isRegularFile(path)) {
-			result = scanFile(sha1sum, path);
-		} else if (FileOperations::isDirectory(path)) {
-			if ((file != ".") && (file != "..")) {
-				result = scanDirectory(sha1sum, path);
+		FileOperations::Stat st;
+		if (FileOperations::getStat(path, st)) {
+			auto_ptr<File> result;
+			if (FileOperations::isRegularFile(st)) {
+				result = scanFile(sha1sum, path, st);
+			} else if (FileOperations::isDirectory(st)) {
+				if ((file != ".") && (file != "..")) {
+					result = scanDirectory(sha1sum, path);
+				}
 			}
-		}
-		if (result.get()) {
-			return result;
+			if (result.get()) {
+				return result;
+			}
 		}
 	}
 	return auto_ptr<File>(); // not found
 }
 
-auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
+auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename,
+                                  const FileOperations::Stat& st)
 {
 	Pool::iterator it = findInDatabase(filename);
 	if (it == pool.end()) {
@@ -196,7 +200,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 		try {
 			auto_ptr<File> file(new File(filename));
 			string sum = calcSha1sum(*file);
-			time_t time = file->getModificationDate();
+			time_t time = FileOperations::getModificationDate(st);
 			pool.insert(make_pair(sum, make_pair(time, filename)));
 			if (sum == sha1sum) {
 				return file;
@@ -208,7 +212,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename)
 		// already in pool
 		assert(filename == it->second.second);
 		try {
-			time_t time = FileOperations::getModificationDate(filename);
+			time_t time = FileOperations::getModificationDate(st);
 			if (time == it->second.first) {
 				// db is still up to date
 				if (it->first == sha1sum) {

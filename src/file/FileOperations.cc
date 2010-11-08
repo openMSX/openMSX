@@ -226,9 +226,7 @@ void mkdirp(const string& path_)
 		mkdir(path.substr(0, pos), 0755);
 	} while (pos != string::npos);
 
-	mode_t mode;
-	int result = statGetMode(path, mode);
-	if (result != 0 || !S_ISDIR(mode)) {
+	if (!isDirectory(path)) {
 		throw FileException("Error creating dir " + path);
 	}
 }
@@ -249,35 +247,6 @@ int rmdir(const std::string& path)
 #else
 	return ::rmdir(path.c_str());
 #endif
-}
-
-int statGetMode(const string& filename, mode_t& mode)
-{
-#ifdef _WIN32
-	struct _stat st;
-	int result = _wstat(utf8to16(filename).c_str(), &st);
-#else
-	struct stat st;
-	int result = stat(filename.c_str(), &st);
-#endif
-	mode = st.st_mode;
-	return result;
-}
-
-time_t getModificationDate(const string& filename)
-{
-#ifdef _WIN32
-	struct _stat st;
-	int result = _wstat(utf8to16(filename).c_str(), &st);
-#else
-	struct stat st;
-	int result = stat(filename.c_str(), &st);
-#endif
-	if (result != 0) {
-		throw FileException(
-			"Couldn't get modification date for file: " + filename);
-	}
-	return st.st_mtime;
 }
 
 FILE* openFile(const std::string& filename, const std::string& mode)
@@ -556,25 +525,45 @@ string expandCurrentDirFromDrive(const string& path)
 	return result;
 }
 
-bool isRegularFile(const string& filename)
+bool getStat(const string& filename_, Stat& st)
 {
-	mode_t mode;
-	int ret = statGetMode(expandTilde(filename), mode);
-	return (ret == 0) && S_ISREG(mode);
+	string filename = expandTilde(filename_);
+#ifdef _WIN32
+	return _wstat(utf8to16(filename).c_str(), &st) == 0;
+#else
+	return stat(filename.c_str(), &st) == 0;
+#endif
 }
 
+bool isRegularFile(const Stat& st)
+{
+	return S_ISREG(st.st_mode);
+}
+bool isRegularFile(const string& filename)
+{
+	Stat st;
+	return getStat(filename, st) && isRegularFile(st);
+}
+
+bool isDirectory(const Stat& st)
+{
+	return S_ISDIR(st.st_mode);
+}
 bool isDirectory(const string& directory)
 {
-	mode_t mode;
-	int ret = statGetMode(expandTilde(directory), mode);
-	return (ret == 0) && S_ISDIR(mode);
+	Stat st;
+	return getStat(directory, st) && isDirectory(st);
 }
 
 bool exists(const string& filename)
 {
-	mode_t mode;
-	int ret = statGetMode(expandTilde(filename), mode);
-	return (ret == 0);
+	Stat st; // dummy
+	return getStat(filename, st);
+}
+
+time_t getModificationDate(const Stat& st)
+{
+	return st.st_mtime;
 }
 
 static int getNextNum(dirent* d, const string& prefix, const string& extension,
