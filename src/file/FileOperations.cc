@@ -624,10 +624,6 @@ string parseCommandFileArgument(
 	}
 
 	string filename = argument;
-	if (!StringOp::endsWith(filename, extension)) {
-		// expected extension not already given, append it
-		filename += extension;
-	}
 	if (getBaseName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
 		string dir = getUserOpenMSXDir() + '/' + directory;
@@ -635,6 +631,15 @@ string parseCommandFileArgument(
 		filename = dir + '/' + filename;
 	} else {
 		filename = expandTilde(filename);
+	}
+
+	if (!StringOp::endsWith(filename, extension) &&
+	    !exists(filename)) {
+		// Expected extension not already given, append it. But only
+		// when the filename without extension doesn't already exist.
+		// Without this exception stuff like 'soundlog start /dev/null'
+		// reports an error " ... error opening file /dev/null.wav."
+		filename += extension;
 	}
 	return filename;
 }
