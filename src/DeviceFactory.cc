@@ -38,6 +38,7 @@
 #include "ESE_RAM.hh"
 #include "ESE_SCC.hh"
 #include "MSXMatsushita.hh"
+#include "MSXCielTurbo.hh"
 #include "MSXKanji12.hh"
 #include "MSXMidi.hh"
 #include "MSXRS232.hh"
@@ -143,6 +144,8 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new ESE_SCC(motherBoard, conf, false));
 	} else if (type == "Matsushita") {
 		result.reset(new MSXMatsushita(motherBoard, conf));
+	} else if (type == "CielTurbo") {
+		result.reset(new MSXCielTurbo(motherBoard, conf));
 	} else if (type == "Kanji12") {
 		result.reset(new MSXKanji12(motherBoard, conf));
 	} else if (type == "MSX-MIDI") {
