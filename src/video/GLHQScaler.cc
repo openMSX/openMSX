@@ -67,6 +67,7 @@ GLHQScaler::GLHQScaler()
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
+		unsigned size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,       // target
 		             0,                   // level
 		             GL_RGBA8,            // internal format
@@ -75,7 +76,7 @@ GLHQScaler::GLHQScaler()
 		             0,                   // border
 		             GL_RGBA,             // format
 		             GL_UNSIGNED_BYTE,    // type
-		             offsetsFile.mmap()); // data
+		             offsetsFile.mmap(size));// data
 
 		string weightsName = StringOp::Builder() <<
 			"shaders/HQ" << n << "xWeights.dat";
@@ -91,7 +92,7 @@ GLHQScaler::GLHQScaler()
 		             0,                   // border
 		             GL_RGB,              // format
 		             GL_UNSIGNED_BYTE,    // type
-		             weightsFile.mmap()); // data
+		             weightsFile.mmap(size));// data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }

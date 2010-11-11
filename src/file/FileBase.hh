@@ -21,7 +21,7 @@ public:
 
 	// If you override mmap(), make sure to call munmap() in
 	// your destructor.
-	virtual const byte* mmap();
+	virtual const byte* mmap(unsigned& size);
 	virtual void munmap();
 
 	virtual unsigned getSize() = 0;

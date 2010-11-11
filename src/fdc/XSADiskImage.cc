@@ -87,8 +87,9 @@ const int XSAExtractor::cpdext[TBLSIZE] = {
 
 XSAExtractor::XSAExtractor(File& file)
 {
-	inBufPos = file.mmap();
-	inBufEnd = inBufPos + file.getSize();
+	unsigned size;
+	inBufPos = file.mmap(size);
+	inBufEnd = inBufPos + size;
 
 	if ((charin() != 'P') || (charin() != 'C') ||
 	    (charin() != 'K') || (charin() != '\010')) {

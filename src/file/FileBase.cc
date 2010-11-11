@@ -18,10 +18,10 @@ FileBase::~FileBase()
 	munmap();
 }
 
-const byte* FileBase::mmap()
+const byte* FileBase::mmap(unsigned& size)
 {
 	if (mmapBuf.empty()) {
-		unsigned size = getSize();
+		size = getSize();
 		MemBuffer<byte> tmpBuf(size);
 		read(tmpBuf.data(), size);
 		std::swap(mmapBuf, tmpBuf);

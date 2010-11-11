@@ -80,9 +80,9 @@ void File::write(const void* buffer, unsigned num)
 	file->write(buffer, num);
 }
 
-const byte* File::mmap()
+const byte* File::mmap(unsigned& size)
 {
-	return file->mmap();
+	return file->mmap(size);
 }
 
 void File::munmap()

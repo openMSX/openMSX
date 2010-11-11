@@ -22,7 +22,7 @@ public:
 
 	virtual void read(void* buffer, unsigned num);
 	virtual void write(const void* buffer, unsigned num);
-	virtual const byte* mmap();
+	virtual const byte* mmap(unsigned& size);
 	virtual void munmap();
 	virtual unsigned getSize();
 	virtual void seek(unsigned pos);

@@ -152,8 +152,8 @@ bool CasImage::writeData(const byte* buf, const unsigned size, unsigned& pos)
 void CasImage::convert(const Filename& filename, CliComm& cliComm)
 {
 	File file(filename);
-	const byte* buf = file.mmap();
-	const unsigned size = file.getSize();
+	unsigned size;
+	const byte* buf = file.mmap(size);
 
 	// search for a header in the .cas file
 	bool issueWarning = false;

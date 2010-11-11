@@ -52,8 +52,8 @@ void LocalFileReference::init(const string& url)
 	}
 
 	// write temp file
-	const byte* buf = file.mmap();
-	unsigned size = file.getSize();
+	unsigned size;
+	const byte* buf = file.mmap(size);
 	if (fwrite(buf, 1, size, fp) != size) {
 		throw FileException("Couldn't write temp file");
 	}

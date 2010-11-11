@@ -66,6 +66,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
+		unsigned size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,        // target
 		             0,                    // level
 		             GL_LUMINANCE8_ALPHA8, // internal format
@@ -74,7 +75,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		             0,                    // border
 		             GL_LUMINANCE_ALPHA,   // format
 		             GL_UNSIGNED_BYTE,     // type
-		             offsetFile.mmap());   // data
+		             offsetFile.mmap(size));// data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }

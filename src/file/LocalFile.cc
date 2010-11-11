@@ -124,8 +124,11 @@ void LocalFile::write(const void* buffer, unsigned num)
 }
 
 #if defined _WIN32
-const byte* LocalFile::mmap()
+const byte* LocalFile::mmap(unsigned& size)
 {
+	size = getSize();
+	if (size == 0) return NULL;
+
 	if (!mmem) {
 		int fd = _fileno(file);
 		if (fd == -1) {
@@ -177,11 +180,14 @@ void LocalFile::munmap()
 }
 
 #elif HAVE_MMAP
-const byte* LocalFile::mmap()
+const byte* LocalFile::mmap(unsigned& size)
 {
+	size = getSize();
+	if (size == 0) return NULL;
+
 	if (!mmem) {
 		mmem = static_cast<byte*>(
-		          ::mmap(0, getSize(), PROT_READ | PROT_WRITE,
+		          ::mmap(0, size, PROT_READ | PROT_WRITE,
 		                 MAP_PRIVATE, fileno(file), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning

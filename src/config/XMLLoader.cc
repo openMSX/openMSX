@@ -98,8 +98,9 @@ auto_ptr<XMLElement> load(const string& filename, const string& systemID)
 	//       when reading (g)zipped XML.
 	// Note: On destruction of "file", munmap() is called automatically.
 	const byte* fileContent;
+	unsigned size;
 	try {
-		fileContent = file.mmap();
+		fileContent = file.mmap(size);
 	} catch (FileException& e) {
 		throw XMLException(filename + ": failed to mmap: " + e.getMessage());
 	}
@@ -121,7 +122,7 @@ auto_ptr<XMLElement> load(const string& filename, const string& systemID)
 		throw XMLException(filename + ": Could not create XML parser context");
 	}
 	const int parseError = xmlParseChunk(
-		ctxt, reinterpret_cast<const char *>(fileContent), file.getSize(), true
+		ctxt, reinterpret_cast<const char *>(fileContent), size, true
 		);
 	xmlFreeParserCtxt(ctxt);
 	if (parseError) {

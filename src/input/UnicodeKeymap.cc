@@ -98,11 +98,11 @@ UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 		*controller, "unicodemaps/unicodemap." + keyboardType);
 	try {
 		File file(filename);
-		const byte* buf = file.mmap();
+		unsigned size;
+		const byte* buf = file.mmap(size);
 		parseUnicodeKeymapfile(
 			reinterpret_cast<const char*>(buf),
-			reinterpret_cast<const char*>(buf + file.getSize())
-			);
+			reinterpret_cast<const char*>(buf + size));
 	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: " + filename);
 	}

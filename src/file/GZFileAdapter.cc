@@ -57,7 +57,9 @@ static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 
 void GZFileAdapter::decompress(FileBase& file, Decompressed& decompressed)
 {
-	ZlibInflate zlib(file.mmap(), file.getSize());
+	unsigned size;
+	const byte* data = file.mmap(size);
+	ZlibInflate zlib(data, size);
 	if (!skipHeader(zlib, decompressed.originalName)) {
 		throw FileException("Not a gzip header");
 	}

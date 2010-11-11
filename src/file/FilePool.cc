@@ -134,7 +134,9 @@ auto_ptr<File> FilePool::getFile(const string& sha1sum)
 
 static string calcSha1sum(File& file)
 {
-	return SHA1::calc(file.mmap(), file.getSize());
+	unsigned size;
+	const byte* data = file.mmap(size);
+	return SHA1::calc(data, size);
 }
 
 auto_ptr<File> FilePool::getFromPool(const string& sha1sum)
@@ -271,7 +273,9 @@ string FilePool::getSha1Sum(File& file)
 		}
 	}
 	// not in db (or timestamp mismatch)
-	string sum = SHA1::calc(file.mmap(), file.getSize());
+	unsigned size;
+	const byte* data = file.mmap(size);
+	string sum = SHA1::calc(data, size);
 	insert(sum, time, filename);
 	return sum;
 }

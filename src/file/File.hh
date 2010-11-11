@@ -62,10 +62,11 @@ public:
 	void write(const void* buffer, unsigned num);
 
 	/** Map file in memory.
+	 * @param size Filled in with filesize.
 	 * @result Pointer to memory block.
 	 * @throws FileException
 	 */
-	const byte* mmap();
+	const byte* mmap(unsigned& size);
 
 	/** Unmap file from memory.
 	 */
