@@ -100,9 +100,7 @@ void LocalFile::preCacheFile()
 void LocalFile::read(void* buffer, unsigned num)
 {
 	long pos = ftell(file);
-	fseek(file, 0, SEEK_END);
-	unsigned size = unsigned(ftell(file));
-	fseek(file, pos, SEEK_SET);
+	unsigned size = getSize();
 	if ((pos + num) > size) {
 		throw FileException("Read beyond end of file");
 	}
@@ -210,11 +208,11 @@ void LocalFile::munmap()
 
 unsigned LocalFile::getSize()
 {
-	long pos = ftell(file);
-	fseek(file, 0, SEEK_END);
-	unsigned size = unsigned(ftell(file));
-	fseek(file, pos, SEEK_SET);
-	return size;
+	struct stat st;
+	if (fstat(fileno(file), &st)) {
+		throw FileException("Cannot get file size");
+	}
+	return st.st_size;
 }
 
 void LocalFile::seek(unsigned pos)
