@@ -99,15 +99,12 @@ void LocalFile::preCacheFile()
 
 void LocalFile::read(void* buffer, unsigned num)
 {
-	long pos = ftell(file);
-	unsigned size = getSize();
-	if ((pos + num) > size) {
-		throw FileException("Read beyond end of file");
-	}
-
 	if (fread(buffer, 1, num, file) != num) {
 		if (ferror(file)) {
 			throw FileException("Error reading file");
+		}
+		if (feof(file)) {
+			throw FileException("Read beyond end of file");
 		}
 	}
 }
