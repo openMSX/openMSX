@@ -320,9 +320,7 @@ void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
 		// Won't have any effect, ignore.
 		return;
 	}
-	stateChangeDistributor.stopReplay(time);
-	// call stopReplay() before using userKeyMatrix[]
-	changeKeyMatrixEvent(time, row, userKeyMatrix[row] & ~press);
+	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~press);
 }
 void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release)
 {
@@ -335,15 +333,11 @@ void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release
 		// end up here. But it shouldn't stop replay.
 		return;
 	}
-	stateChangeDistributor.stopReplay(time);
-	// call stopReplay() before using userKeyMatrix[]
-	changeKeyMatrixEvent(time, row, userKeyMatrix[row] | release);
+	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] | release);
 }
 
 void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue)
 {
-	assert(!stateChangeDistributor.isReplaying());
-
 	// This method already updates hostKeyMatrix[],
 	// userKeyMatrix[] will soon be updated via KeyMatrixState events.
 	hostKeyMatrix[row] = newValue;
@@ -779,7 +773,6 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key
 			// katanana on japanese model)
 			assert(keyInfo.keymask);
 			pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
-			assert(!stateChangeDistributor.isReplaying());
 
 			byte modmask = keyInfo.modmask & ~CAPS_MASK;
 			if (codeKanaLocks) modmask &= ~CODE_MASK;
@@ -802,7 +795,6 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key
 	} else {
 		assert(keyInfo.keymask);
 		releaseKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
-		assert(!stateChangeDistributor.isReplaying());
 
 		// Do not simply unpress graph, ctrl, code and shift but
 		// restore them to the values currently pressed by the user
