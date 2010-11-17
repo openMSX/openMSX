@@ -1805,6 +1805,11 @@
       <td>Go back &lt;n&gt; seconds in time. Of course, you cannot go back to a time before the time the <code>reverse start</code> command was given.</td>
     </tr>
     <tr>
+      <td><code>reverse viewonlymode &lt;on|off&gt;</code></td>
+
+      <td>Control the view only mode of the reverse feature. In view only mode, the replay will never get interrupted by any user actions that normally would interrupt the replay. Use this to safely view a replay without accidentally ruining it by touching a key.</td>
+    </tr>
+    <tr>
       <td><code>reverse goto &lt;time&gt;</code></td>
 
       <td>Go to the indicated absolute moment in MSX time (given in seconds). If the time is before the time openMSX started collecting data (with the <code>reverse start</code> command) openMSX will jump to the time when collecting started.</td>
@@ -1815,9 +1820,9 @@
       <td>Save the collected data (an initial savestate and all collected input events) to a file.</td>
     </tr>
     <tr>
-      <td><code>reverse loadreplay &lt;filename&gt;</code></td>
+      <td><code>reverse loadreplay [-goto &lt;begin|end|savetime|&lt;n&gt;&gt;] [-viewonly] &lt;filename&gt;</code></td>
 
-      <td>Load the replay from the given file and start it. Loads the initial snapshot and starts replaying the recorded events. Enables the reverse feature automatically.</td>
+      <td>Load the replay from the given file and start it. Loads the initial snapshot and starts replaying the recorded events. Enables the reverse feature automatically. With the <tt>-goto</tt> option, you can specify where to jump to in the replay after loading (<tt>begin</tt> is default), where <tt>savetime</tt> is the time at which the replay was saved and <tt>n</tt> is an absolute time in seconds in the replay. The <tt>-viewonly</tt> option is a shortcut to put the reverse feature in viewonly mode directly after loading the replay. Without this option, it will always go to normal mode.
     </tr>
   </table>
 

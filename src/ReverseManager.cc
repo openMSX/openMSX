@@ -417,6 +417,13 @@ void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
 		ReverseManager& newManager = newBoard->getReverseManager();
 		newManager.transferHistory(history, it->second.eventCount);
 
+		// Transfer viewonly mode
+		const StateChangeDistributor& oldDistributor =
+			motherBoard.getStateChangeDistributor();
+		StateChangeDistributor& newDistributor =
+			newBoard->getStateChangeDistributor();
+		newDistributor.setViewOnlyMode(oldDistributor.isViewOnlyMode());
+
 		// transfer keyboard state
 		if (newManager.keyboard && keyboard) {
 			newManager.keyboard->transferHostKeyMatrix(*keyboard);
@@ -543,20 +550,31 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 
 void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& result)
 {
-	unsigned fileArgPos = 2;
-	string where = "begin";
 	if (tokens.size() < 3) throw SyntaxError();
-	if (tokens[2]->getString() == "-goto") {
-		if (tokens.size() != 5) throw SyntaxError();
-		where = tokens[3]->getString();
-		fileArgPos += 2;
-	} else {
-		if (tokens.size() != 3) throw SyntaxError();
+
+	vector<string> arguments;
+	TclObject* whereArg = NULL;
+	bool enableViewOnly = false;
+
+	for (unsigned i = 2; i < tokens.size(); ++i) {
+		const string token = tokens[i]->getString();
+		if (token == "-viewonly") {
+			enableViewOnly = true;
+		} else if (token == "-goto") {
+			if (++i == tokens.size()) {
+				throw CommandException("Missing argument");
+			}
+			whereArg = tokens[i];
+		} else {
+			arguments.push_back(token);
+		}
 	}
+
+	if (arguments.size() != 1) throw SyntaxError();
 
 	// resolve the filename
 	UserDataFileContext context(REPLAY_DIR);
-	string fileNameArg = tokens[fileArgPos]->getString();
+	string fileNameArg = arguments[0];
 	CommandController& controller = motherBoard.getCommandController();
 	string filename;
 	try {
@@ -588,7 +606,9 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 		throw CommandException("Cannot load replay: " + e.getMessage());
 	}
 
+	// get destination time index
 	EmuTime destination = EmuTime::zero;
+	string where = whereArg == NULL ? "begin" : whereArg->getString();
 	if (where == "begin") {
 		destination = EmuTime::zero;
 	} else if (where == "end") {
@@ -596,9 +616,13 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	} else if (where == "savetime") {
 		destination = replay.currentTime;
 	} else {
-		// note: this assumes a fixed position for the 'where' argument
-		destination += EmuDuration(tokens[3]->getDouble());
+		destination += EmuDuration(whereArg->getDouble());
 	}
+
+	// OK, we are going to be actually changing states now
+
+	// now we can change the view only mode
+	motherBoard.getStateChangeDistributor().setViewOnlyMode(enableViewOnly);
 
 	assert(!replay.motherBoards.empty());
 	ReverseManager& newReverseManager = replay.motherBoards[0]->getReverseManager();
@@ -881,6 +905,18 @@ void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		return manager.saveReplay(tokens, result);
 	} else if (subcommand == "loadreplay") {
 		return manager.loadReplay(tokens, result);
+	} else if (subcommand == "viewonlymode") {
+		StateChangeDistributor& distributor = manager.motherBoard.getStateChangeDistributor();
+		switch (tokens.size()) {
+		case 2:
+			result.setString(distributor.isViewOnlyMode() ? "true" : "false");
+			break;
+		case 3:
+			distributor.setViewOnlyMode(tokens[2]->getBoolean());
+			break;
+		default:
+			throw SyntaxError();
+		}
 	} else {
 		throw CommandException("Invalid subcommand: " + subcommand);
 	}
@@ -893,8 +929,9 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	       "status              show various status info on reverse\n"
 	       "goback <n>          go back <n> seconds in time\n"
 	       "goto <time>         go to an absolute moment in time\n"
+	       "viewonlymode <bool> switch viewonly mode on or off\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
-	       "loadreplay [-goto <begin|end|savetime|<n>>] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
+	       "loadreplay [-goto <begin|end|savetime|<n>>] [-viewonly] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
 
 void ReverseCmd::tabCompletion(vector<string>& tokens) const
@@ -908,11 +945,22 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		subCommands.insert("goto");
 		subCommands.insert("savereplay");
 		subCommands.insert("loadreplay");
+		subCommands.insert("viewonlymode");
 		completeString(tokens, subCommands);
-	} else if (tokens.size() == 3) {
+	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {
 		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {
+			std::set<string> cmds;
+			if (tokens[1] == "loadreplay") {
+				const char* const str[2] = { "-goto", "-viewonly" };
+				cmds = std::set<string>(str, str + 2);
+			}
 			UserDataFileContext context(REPLAY_DIR);
-			completeFileName(getCommandController(), tokens, context);
+			completeFileName(getCommandController(), tokens, context, cmds);
+		} else if (tokens[1] == "viewonlymode") {
+			set<string> options;
+			options.insert("true");
+			options.insert("false");
+			completeString(tokens, options);
 		}
 	}
 }

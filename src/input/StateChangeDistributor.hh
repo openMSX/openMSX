@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class StateChangeListener;
+class StateChangeRecorder;
 class StateChange;
 
 class StateChangeDistributor : private noncopyable
@@ -34,8 +35,8 @@ public:
 	 * object is always the first object that gets informed about state
 	 * changing events.
 	 */
-	void registerRecorder  (StateChangeListener& recorder);
-	void unregisterRecorder(StateChangeListener& recorder);
+	void registerRecorder  (StateChangeRecorder& recorder);
+	void unregisterRecorder(StateChangeRecorder& recorder);
 
 	/** Deliver the event to all registered listeners
 	 * MSX input devices should call the distributeNew() version, only the
@@ -59,6 +60,14 @@ public:
 	 */
 	void stopReplay(EmuTime::param time);
 
+	/**
+	 * Set viewOnlyMode. Call this if you don't want distributeNew events
+	 * to stop replaying and go to live events (value=true).
+	 * @param value false if new events stop replay mode
+	 */
+	void setViewOnlyMode(bool value);
+	bool isViewOnlyMode() const;
+
 	bool isReplaying() const;
 
 private:
@@ -67,8 +76,9 @@ private:
 
 	typedef std::vector<StateChangeListener*> Listeners;
 	Listeners listeners;
-	StateChangeListener* recorder;
+	StateChangeRecorder* recorder;
 	bool replaying;
+	bool viewOnlyMode;
 };
 
 } // namespace openmsx

@@ -23,7 +23,7 @@ class TclObject;
 template<typename T> class MemBuffer;
 
 class ReverseManager : private Schedulable, private EventListener
-                     , private StateChangeListener
+                     , private StateChangeRecorder
 {
 public:
 	ReverseManager(MSXMotherBoard& motherBoard);
@@ -71,7 +71,6 @@ private:
 	};
 
 	bool isCollecting() const;
-	bool isReplaying() const;
 
 	void start();
 	void stop();
@@ -98,9 +97,10 @@ private:
 	// EventListener
 	virtual int signalEvent(shared_ptr<const Event> event);
 
-	// StateChangeListener
+	// StateChangeRecorder
 	virtual void signalStateChange(shared_ptr<StateChange> event);
 	virtual void stopReplay(EmuTime::param time);
+	virtual bool isReplaying() const;
 
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;

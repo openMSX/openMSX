@@ -10,7 +10,7 @@ namespace openmsx {
 
 StateChangeDistributor::StateChangeDistributor()
 	: recorder(NULL)
-	, replaying(true)
+	, viewOnlyMode(false)
 {
 }
 
@@ -37,13 +37,13 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
 }
 
-void StateChangeDistributor::registerRecorder(StateChangeListener& recorder_)
+void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)
 {
 	assert(recorder == NULL);
 	recorder = &recorder_;
 }
 
-void StateChangeDistributor::unregisterRecorder(StateChangeListener& recorder_)
+void StateChangeDistributor::unregisterRecorder(StateChangeRecorder& recorder_)
 {
 	(void)recorder_;
 	assert(recorder == &recorder_);
@@ -52,7 +52,9 @@ void StateChangeDistributor::unregisterRecorder(StateChangeListener& recorder_)
 
 void StateChangeDistributor::distributeNew(EventPtr event)
 {
-	if (replaying) {
+	if (viewOnlyMode && isReplaying()) return;
+
+	if (isReplaying()) {
 		stopReplay(event->getTime());
 	}
 	distribute(event);
@@ -60,7 +62,7 @@ void StateChangeDistributor::distributeNew(EventPtr event)
 
 void StateChangeDistributor::distributeReplay(EventPtr event)
 {
-	assert(replaying);
+	assert(isReplaying());
 	distribute(event);
 }
 
@@ -85,8 +87,7 @@ void StateChangeDistributor::distribute(EventPtr event)
 
 void StateChangeDistributor::stopReplay(EmuTime::param time)
 {
-	if (!replaying) return;
-	replaying = false;
+	if (!isReplaying()) return;
 
 	if (recorder) recorder->stopReplay(time);
 	for (Listeners::const_iterator it = listeners.begin();
@@ -95,9 +96,22 @@ void StateChangeDistributor::stopReplay(EmuTime::param time)
 	}
 }
 
+void StateChangeDistributor::setViewOnlyMode(bool value)
+{
+	viewOnlyMode = value;
+}
+
+bool StateChangeDistributor::isViewOnlyMode() const
+{
+	return viewOnlyMode;
+}
+
 bool StateChangeDistributor::isReplaying() const
 {
-	return replaying;
+	if (recorder) {
+		return recorder->isReplaying();
+	}
+	return false;
 }
 
 } // namespace openmsx
