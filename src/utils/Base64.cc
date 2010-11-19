@@ -84,14 +84,14 @@ string encode(const void* input_, int inSize)
 
 string decode(const string& input)
 {
-	const size_t inSize = input.size();
+	unsigned inSize = unsigned(input.size());
 	unsigned outSize = (inSize * 3 + 3) / 4; // overestimation
 	string ret(outSize, 0); // too big
 
 	unsigned i = 0;
 	unsigned out = 0;
 	byte buf4[4];
-	for (size_t in = 0; in < inSize; ++in) {
+	for (unsigned in = 0; in < inSize; ++in) {
 		byte d = decode(input[in]);
 		if (d == (byte)-1) continue;
 		buf4[i++] = d;

@@ -48,7 +48,7 @@ void AmdFlash::init(unsigned writeProtectedFlags, const XMLElement* config)
 {
 	assert(Math::isPowerOfTwo(getSize()));
 
-	unsigned numSectors = sectorSizes.size();
+	unsigned numSectors = unsigned(sectorSizes.size());
 
 	unsigned writableSize = 0;
 	writeAddress.resize(numSectors);
