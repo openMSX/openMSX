@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1287358723">
+<softwaredb xml:lang="en" timestamp="1290277106">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -83,6 +83,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">8f71dddd429173df7ce52c5245af1a76b482a901</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">9918-Veejing</title>
+	<system>MSX</system>
+	<company>aorante/303bcn</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">eafc1ad38a8ac7e0a54917b802377aa5443ac460</hash><remark><text>v0.1b</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">A B C</title>
@@ -5027,6 +5035,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2010</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">3e18ead4dcbeef4985a43bb5d082969e2ea424ac</hash><remark><text>Passion MSX2 Contest Entry</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">35183cc25784436973ab4f2667a64e21ab63b019</hash><remark><text>Passion MSX2 Contest Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Janka</title>
@@ -6616,6 +6625,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">1c17e58f1a602e07f185bce1aa8589fae76e8b44</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Mission to MIR</title>
+	<system>MSX</system>
+	<company>Ray2day</company>
+	<year>2010</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">812c3fcf4f5e0d99cbf44e0bcb33241625cafd00</hash><remark><text>Version 1.0 / MSXDev2010 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">0834b48ccd64668292d1319fe70781bb8cd15ccd</hash><remark><text>Version 1.2 / MSXDev2010 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Missisippi Satsujin Jiken</title>
@@ -11736,6 +11754,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2573
-Parse time 11.260 seconds on Mon Oct 18 1:38:55 CEST 2010
+Roms in this database:2577
+Parse time 4.182 seconds on Sat Nov 20 19:18:30 CET 2010
  -->
