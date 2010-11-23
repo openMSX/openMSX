@@ -116,8 +116,17 @@ void XMLElement::setAttribute(const char* name, const string& value)
 	Attributes::iterator it = findAttribute(name);
 	if (it != attributes.end()) {
 		it->second = value;
+	} else {
+		attributes.push_back(make_pair(name, value));
 	}
-	attributes.push_back(make_pair(name, value));
+}
+
+void XMLElement::removeAttribute(const char* name)
+{
+	Attributes::iterator it = findAttribute(name);
+	if (it != attributes.end()) {
+		attributes.erase(it);
+	}
 }
 
 bool XMLElement::getDataAsBool() const

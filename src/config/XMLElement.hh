@@ -43,6 +43,7 @@ public:
 	// attribute
 	void addAttribute(const char* name, const std::string& value);
 	void setAttribute(const char* name, const std::string& value);
+	void removeAttribute(const char* name);
 
 	// parent
 	XMLElement* getParent();

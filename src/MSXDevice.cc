@@ -186,32 +186,49 @@ void MSXDevice::registerSlots()
 	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
 	ps = 0;
 	ss = 0;
+
+	// find <primary> and <secondary> parent tags
 	const XMLElement& config = getDeviceConfig();
+	XMLElement* primaryConfig   = NULL;
+	XMLElement* secondaryConfig = NULL;
+	const XMLElement* parent = config.getParent();
+	while (true) {
+		const string& name = parent->getName();
+		if (name == "secondary") {
+			const string& secondSlot = parent->getAttribute("slot");
+			ss = slotManager.getSlotNum(secondSlot);
+			secondaryConfig = const_cast<XMLElement*>(parent);
+		} else if (name == "primary") {
+			const string& primSlot = parent->getAttribute("slot");
+			ps = slotManager.getSlotNum(primSlot);
+			primaryConfig = const_cast<XMLElement*>(parent);
+			break;
+		}
+		parent = parent->getParent();
+		if (!parent) {
+			throw MSXException("Invalid memory specification");
+		}
+	}
+
+	// This is only for backwards compatibility: in the past we added extra
+	// attributes "primary_slot" and "secondary_slot" (in each MSXDevice
+	// config) instead of changing the 'any' value of the slot attribute of
+	// the (possibly shared) <primary> and <secondary> tags. When loading
+	// an old savestate these tags can still occur, so keep this code. Also
+	// remove these attributes to convert to the new format.
 	if (config.hasAttribute("primary_slot")) {
+		XMLElement& mutableConfig = const_cast<XMLElement&>(config);
 		const string& primSlot = config.getAttribute("primary_slot");
+		mutableConfig.removeAttribute("primary_slot");
 		ps = slotManager.getSlotNum(primSlot);
 		if (config.hasAttribute("secondary_slot")) {
 			const string& secondSlot = config.getAttribute("secondary_slot");
+			mutableConfig.removeAttribute("secondary_slot");
 			ss = slotManager.getSlotNum(secondSlot);
 		}
-	} else {
-		const XMLElement* parent = config.getParent();
-		while (true) {
-			const string& name = parent->getName();
-			if (name == "secondary") {
-				const string& secondSlot = parent->getAttribute("slot");
-				ss = slotManager.getSlotNum(secondSlot);
-			} else if (name == "primary") {
-				const string& primSlot = parent->getAttribute("slot");
-				ps = slotManager.getSlotNum(primSlot);
-				break;
-			}
-			parent = parent->getParent();
-			if (!parent) {
-				throw MSXException("Invalid memory specification");
-			}
-		}
 	}
+
+	// decode special values for 'ss'
 	if ((-128 <= ss) && (ss < 0)) {
 		if ((0 <= ps) && (ps < 4) &&
 		    motherBoard.getCPUInterface().isExpanded(ps)) {
@@ -221,6 +238,7 @@ void MSXDevice::registerSlots()
 		}
 	}
 
+	// decode special values for 'ps'
 	if (ps == -256) {
 		slotManager.getAnyFreeSlot(ps, ss);
 	} else if (ps < 0) {
@@ -230,10 +248,23 @@ void MSXDevice::registerSlots()
 		// numerical specified slot (0, 1, 2, 3)
 	}
 
-	// store actual slot in config
-	XMLElement& writableConfig = const_cast<XMLElement&>(config);
-	writableConfig.setAttribute("primary_slot",   StringOp::toString(ps));
-	writableConfig.setAttribute("secondary_slot", StringOp::toString(ss));
+	// Store actual slot in config. This has two purposes:
+	//  - Make sure that devices that are grouped under the same
+	//    <primary>/<secondary> tags actually use the same slot. (This
+	//    matters when the value of some of the slot attributes is "any").
+	//  - Fix the slot number so that it remains the same after a
+	//    savestate/loadstate.
+	assert(primaryConfig);
+	primaryConfig->setAttribute("slot", StringOp::toString(ps));
+	if (secondaryConfig) {
+		secondaryConfig->setAttribute("slot", StringOp::toString(ss));
+	} else {
+		if (ss != 0) {
+			throw MSXException(
+				"Missing <secondary> tag for device" +
+				getName());
+		}
+	}
 
 	for (MemRegions::const_iterator it = tmpMemRegions.begin();
 	     it != tmpMemRegions.end(); ++it) {
