@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>MSX Music System</name>
+    <manufacturer>Toshiba</manufacturer>
+    <code>HX-MU900</code>
+    <release_year>1986</release_year>
+    <description>Boosted Toshiba's Yamaha Y8950 MSX-AUDIO cartridge.</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <MSX-AUDIO id="Boosted Toshiba HX-MU900 MSX-Audio">
+      <io base="0xC0" num="2"/>
+      <type>Toshiba</type>
+      <sound>
+        <volume>12000</volume>
+      </sound>
+      <sampleram>256</sampleram>
+    </MSX-AUDIO>
+
+    <primary slot="any">
+      <secondary slot="any">
+        <!-- this is a 64kB ROM, but it has 4 holes of 4kB each -->
+        <ROM id="MSX-Audio BIOS v1.2-pre4">
+          <mem base="0x0000" size="0x3000"/>
+          <mem base="0x4000" size="0x3000"/>
+          <mem base="0x8000" size="0x3000"/>
+          <mem base="0xC000" size="0x3000"/>
+          <!-- specifying the start address disables the check whether
+               to ROM is located inside the <mem> tags (because that's not
+               the case here, there are 4 regions of 4kB where the rom is
+               not visible -->
+          <mappertype>Normal0000</mappertype>
+          <rom>
+            <sha1>c4c50eaaa427b5ad4ac45ceabb29eba894839334</sha1>
+            <filename>roms/MSXAUDIO12_HX-MU900.pre4.ROM</filename>
+          </rom>
+        </ROM>
+        <RAM id="MSX-Audio RAM-1">
+          <mem base="0x3000" size="0x1000"/>
+          <mem base="0x7000" size="0x1000"/>
+          <!-- based in the <mem> tags this should be a at least a 8kB RAM,
+               but we want a 4kB RAM mirrored in two 4kB regions, so override
+               the size -->
+          <size>0x1000</size>
+        </RAM>
+        <RAM id="MSX-Audio RAM-2">
+          <mem base="0xB000" size="0x1000"/>
+          <mem base="0xF000" size="0x1000"/>
+          <!-- same as above, override size -->
+          <size>0x1000</size>
+        </RAM>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
