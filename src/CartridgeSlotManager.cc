@@ -52,12 +52,14 @@ private:
 
 // CartridgeSlotManager::Slot
 CartridgeSlotManager::Slot::Slot()
-	: ps(0), ss(0), config(NULL)
+	: config(NULL), useCount(0), ps(0), ss(0)
 {
 }
 
 CartridgeSlotManager::Slot::~Slot()
 {
+	assert(config == NULL);
+	assert(useCount == 0);
 }
 
 bool CartridgeSlotManager::Slot::exists() const
@@ -67,6 +69,7 @@ bool CartridgeSlotManager::Slot::exists() const
 
 bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 {
+	assert((useCount == 0) == (config == NULL));
 	return config && (config != allowed);
 }
 
@@ -179,8 +182,7 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 	slots[slot].command.reset();
 }
 
-int CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss,
-                                          const HardwareConfig& hwConfig)
+void CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss) const
 {
 	assert(slot < MAX_SLOTS);
 	if (!slots[slot].exists()) {
@@ -193,12 +195,9 @@ int CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss,
 	}
 	ps = slots[slot].ps;
 	ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
-	slots[slot].config = &hwConfig;
-	return slot;
 }
 
-int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
-                                         const HardwareConfig& hwConfig)
+void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 {
 	// search for the lowest free slot
 	int result = -1;
@@ -218,46 +217,76 @@ int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
 	if (result == -1) {
 		throw MSXException("Not enough free cartridge slots");
 	}
-	slots[result].config = &hwConfig;
 	ps = slotNum / 4;
 	ss = slotNum % 4;
-	return result;
 }
 
-int CartridgeSlotManager::getFreePrimarySlot(
+void CartridgeSlotManager::allocatePrimarySlot(
 		int& ps, const HardwareConfig& hwConfig)
 {
 	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		ps = slots[slot].ps;
 		if (slots[slot].exists() && (slots[slot].ss == -1) &&
 		    !slots[slot].used()) {
+			assert(slots[slot].useCount == 0);
 			slots[slot].config = &hwConfig;
-			return slot;
+			slots[slot].useCount = 1;
+			return;
 		}
 	}
 	throw MSXException("No free primary slot");
 }
 
-int CartridgeSlotManager::useExternalSlot(
+void CartridgeSlotManager::freePrimarySlot(
+		int ps, const HardwareConfig& hwConfig)
+{
+	int slot = getSlot(ps, -1);
+	assert(slots[slot].config == &hwConfig); (void)hwConfig;
+	assert(slots[slot].useCount == 1);
+	slots[slot].config = NULL;
+	slots[slot].useCount = 0;
+}
+
+void CartridgeSlotManager::allocateSlot(
 		int ps, int ss, const HardwareConfig& hwConfig)
 {
 	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (!slots[slot].exists()) continue;
 		int tmp = (slots[slot].ss == -1) ? 0 : slots[slot].ss;
 		if ((slots[slot].ps == ps) && (tmp == ss)) {
-			assert(!slots[slot].used()); // is already in use
-			slots[slot].config = &hwConfig;
-			return slot;
+			if (slots[slot].useCount == 0) {
+				slots[slot].config = &hwConfig;
+			} else {
+				if (slots[slot].config != &hwConfig) {
+					throw MSXException(StringOp::Builder()
+						<< "Slot " << ps << '-' << ss
+						<< " already in use by "
+						<< slots[slot].config->getName());
+				}
+			}
+			++slots[slot].useCount;
 		}
 	}
-	UNREACHABLE; // ps-ss is not an external slot
-	return 0; // avoid warning
+	// Slot not found, was not an external slot. No problem.
 }
 
-void CartridgeSlotManager::freeSlot(int slot)
+void CartridgeSlotManager::freeSlot(
+		int ps, int ss, const HardwareConfig& hwConfig)
 {
-	assert(slots[slot].used());
-	slots[slot].config = NULL;
+	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+		if (!slots[slot].exists()) continue;
+		int tmp = (slots[slot].ss == -1) ? 0 : slots[slot].ss;
+		if ((slots[slot].ps == ps) && (tmp == ss)) {
+			assert(slots[slot].config == &hwConfig); (void)hwConfig;
+			assert(slots[slot].useCount > 0);
+			--slots[slot].useCount;
+			if (slots[slot].useCount == 0) {
+				slots[slot].config = NULL;
+			}
+			return;
+		}
+	}
+	// Slot not found, was not an external slot. No problem.
 }
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const

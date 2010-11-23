@@ -271,7 +271,6 @@ private:
 
 	int ps;
 	int ss;
-	int externalSlotID;
 };
 
 /*

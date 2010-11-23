@@ -152,7 +152,7 @@ HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, const string& hwNam
 		}
 		externalPrimSlots[ps] = false;
 		expandedSlots[ps] = false;
-		allocatedPrimarySlots[ps] = -1;
+		allocatedPrimarySlots[ps] = false;
 	}
 	userName = motherBoard.getUserName(hwName);
 }
@@ -186,8 +186,8 @@ HardwareConfig::~HardwareConfig()
 		if (expandedSlots[ps]) {
 			motherBoard.getCPUInterface().unsetExpanded(ps);
 		}
-		if (allocatedPrimarySlots[ps] != -1) {
-			slotManager.freeSlot(allocatedPrimarySlots[ps]);
+		if (allocatedPrimarySlots[ps]) {
+			slotManager.freePrimarySlot(ps, *this);
 		}
 	}
 }
@@ -364,9 +364,9 @@ void HardwareConfig::createExpandedSlot(int ps)
 int HardwareConfig::getFreePrimarySlot()
 {
 	int ps;
-	int slot = motherBoard.getSlotManager().getFreePrimarySlot(ps, *this);
-	assert(allocatedPrimarySlots[ps] == -1);
-	allocatedPrimarySlots[ps] = slot;
+	motherBoard.getSlotManager().allocatePrimarySlot(ps, *this);
+	assert(!allocatedPrimarySlots[ps]);
+	allocatedPrimarySlots[ps] = true;
 	return ps;
 }
 

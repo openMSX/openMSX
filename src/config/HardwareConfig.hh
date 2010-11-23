@@ -68,7 +68,7 @@ private:
 	bool externalSlots[4][4];
 	bool externalPrimSlots[4];
 	bool expandedSlots[4];
-	int allocatedPrimarySlots[4];
+	bool allocatedPrimarySlots[4];
 
 	typedef std::vector<MSXDevice*> Devices;
 	Devices devices;

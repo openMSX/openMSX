@@ -29,12 +29,15 @@ public:
 	void testRemoveExternalSlot(int ps, const HardwareConfig& allowed) const;
 	void testRemoveExternalSlot(int ps, int ss, const HardwareConfig& allowed) const;
 
-	int getSpecificSlot(unsigned slot, int& ps, int& ss,
-	                    const HardwareConfig& hwConfig);
-	int getAnyFreeSlot(int& ps, int& ss, const HardwareConfig& hwConfig);
-	int getFreePrimarySlot(int& ps, const HardwareConfig& hwConfig);
-	int useExternalSlot(int ps, int ss, const HardwareConfig& hwConfig);
-	void freeSlot(int slot);
+	// Query/allocate/free external slots
+	void getSpecificSlot(unsigned slot, int& ps, int& ss) const;
+	void getAnyFreeSlot(int& ps, int& ss) const;
+	void allocateSlot(int ps, int ss, const HardwareConfig& hwConfig);
+	void freeSlot(int ps, int ss, const HardwareConfig& hwConfig);
+
+	// Allocate/free external primary slots
+	void allocatePrimarySlot(int& ps, const HardwareConfig& hwConfig);
+	void freePrimarySlot(int ps, const HardwareConfig& hwConfig);
 
 	bool isExternalSlot(int ps, int ss, bool convert) const;
 
@@ -47,10 +50,11 @@ private:
 		bool exists() const;
 		bool used(const HardwareConfig* allowed = NULL) const;
 
-		int ps;
-		int ss;
 		std::auto_ptr<CartCmd> command;
 		const HardwareConfig* config;
+		unsigned useCount;
+		int ps;
+		int ss;
 	};
 	static const unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];

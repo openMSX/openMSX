@@ -30,14 +30,14 @@ byte MSXDevice::unmappedWrite[0x10000];
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const string& name)
 	: motherBoard(motherBoard_), deviceConfig(config)
-	, hardwareConfig(NULL), externalSlotID(-1)
+	, hardwareConfig(NULL)
 {
 	initName(name);
 }
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	: motherBoard(motherBoard_), deviceConfig(config)
-	, hardwareConfig(NULL), externalSlotID(-1)
+	, hardwareConfig(NULL)
 {
 	initName(getDeviceConfig().getId());
 }
@@ -99,7 +99,6 @@ void MSXDevice::testRemove(const Devices& alreadyRemoved) const
 	if (!rest.empty()) {
 		StringOp::Builder msg;
 		msg << "Still in use by ";
-		string names;
 		for (Devices::const_iterator it = rest.begin();
 		     it != rest.end(); ++it) {
 			msg << (*it)->getName() << ' ';
@@ -195,16 +194,6 @@ void MSXDevice::registerSlots()
 			const string& secondSlot = config.getAttribute("secondary_slot");
 			ss = slotManager.getSlotNum(secondSlot);
 		}
-		if (slotManager.isExternalSlot(ps, ss, true)) {
-			// This can happen with serialized external cartridges.
-			// These have a fixed slot assigned in the config, but
-			// are not yet registered as using an external slot. In
-			// the code below, searching a free external slot (not
-			// done in this case) would also mark that external
-			// slot as in use.
-			externalSlotID = slotManager.useExternalSlot(
-				ps, ss, getHardwareConfig());
-		}
 	} else {
 		const XMLElement* parent = config.getParent();
 		while (true) {
@@ -233,12 +222,10 @@ void MSXDevice::registerSlots()
 	}
 
 	if (ps == -256) {
-		externalSlotID = slotManager.getAnyFreeSlot(
-		                     ps, ss, getHardwareConfig());
+		slotManager.getAnyFreeSlot(ps, ss);
 	} else if (ps < 0) {
 		// specified slot by name (carta, cartb, ...)
-		externalSlotID = slotManager.getSpecificSlot(
-		                     -ps - 1, ps, ss, getHardwareConfig());
+		slotManager.getSpecificSlot(-ps - 1, ps, ss);
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
@@ -254,19 +241,29 @@ void MSXDevice::registerSlots()
 			*this, ps, ss, it->first, it->second);
 		memRegions.push_back(*it);
 	}
+
+	// Mark the slot as 'in-use' so that future searches for free external
+	// slots don't return this slot anymore. If the slot was not an
+	// external slot, this call has no effect. Multiple MSXDevices from the
+	// same extension (the same HardwareConfig) can all allocate the same
+	// slot (later they should also all free this slot).
+	slotManager.allocateSlot(ps, ss, getHardwareConfig());
 }
 
 void MSXDevice::unregisterSlots()
 {
+	if (memRegions.empty()) return;
+
 	for (MemRegions::const_iterator it = memRegions.begin();
 	     it != memRegions.end(); ++it) {
 		getMotherBoard().getCPUInterface().unregisterMemDevice(
 			*this, ps, ss, it->first, it->second);
 	}
 
-	if (externalSlotID != -1) {
-		getMotherBoard().getSlotManager().freeSlot(externalSlotID);
-	}
+	// See comments above about allocateSlot() for more details:
+	//  - has no effect for non-external slots
+	//  - can be called multiple times for the same slot
+	getMotherBoard().getSlotManager().freeSlot(ps, ss, getHardwareConfig());
 }
 
 void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
