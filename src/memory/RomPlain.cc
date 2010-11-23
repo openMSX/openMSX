@@ -43,8 +43,12 @@ RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
 	unsigned romBase = (start == -1)
 	                 ? guessLocation(windowBase, windowSize)
 	                 : start;
-	if (!isInside(romBase,               windowBase, windowSize) ||
-	    !isInside(romBase + romSize - 1, windowBase, windowSize)) {
+	if ((start == -1) &&
+	    (!isInside(romBase,               windowBase, windowSize) ||
+	     !isInside(romBase + romSize - 1, windowBase, windowSize))) {
+		// ROM must fall inside the boundaries given by the <mem>
+		// tag (this code only looks at one <mem> tag), but only
+		// check when the start address was not explicitly specified
 		throw MSXException(StringOp::Builder() << rom->getName() <<
 		    ": invalid rom position: interval " <<
 		    toString(romBase, romSize) << " must fit in " <<

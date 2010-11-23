@@ -2,6 +2,7 @@
 
 #include "MSXRam.hh"
 #include "CheckedRam.hh"
+#include "XMLElement.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -20,7 +21,11 @@ void MSXRam::init(const HardwareConfig& hwConf)
 {
 	MSXDevice::init(hwConf); // parse mem regions
 
+	// by default get base/size from the (union of) the <mem> tag(s)
 	getVisibleMemRegion(base, size);
+	// but allow to override these two parameters
+	base = getDeviceConfig().getChildDataAsInt("base", base);
+	size = getDeviceConfig().getChildDataAsInt("size", size);
 	assert( base         <  0x10000);
 	assert((base + size) <= 0x10000);
 
@@ -35,8 +40,9 @@ void MSXRam::powerUp(EmuTime::param /*time*/)
 
 unsigned MSXRam::translate(unsigned address) const
 {
-	assert((address - base) < size);
-	return address - base;
+	address -= base;
+	if (address >= size) address &= (size - 1);
+	return address;
 }
 
 byte MSXRam::peekMem(word address, EmuTime::param /*time*/) const
