@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1290726020">
+<softwaredb xml:lang="en" timestamp="1290726996">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -11651,7 +11651,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Zippy Race (aka Traverse USA)</title>
 	<system>MSX</system>
-	<company>A&#38;L Soft/HAP</company>
+	<company>IREM/Sega/hap</company>
 	<year>2007</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">55ed66ada5d8203937554538b485fbe027a2e2bb</hash><remark><text>MSX conversion 23-01-07 by hap / http://home.planet.nl/~haps/</text></remark></rom></dump>
@@ -11699,5 +11699,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2577
-Parse time 5.834 seconds on Fri Nov 26 0:00:26 CET 2010
+Parse time 4.782 seconds on Fri Nov 26 0:16:41 CET 2010
  -->
