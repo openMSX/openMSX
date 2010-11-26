@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1290726996">
+<softwaredb xml:lang="en" timestamp="1290794532">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -179,7 +179,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">3ca4a1ab35b3cbe3ddb238ce88ca9df258ae37d6</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">cb48969f27eaebf24c61f651399ec2433d85bcbc</hash></rom></dump>
 		<dump><rom><hash algo="sha1">2707dcf377066b3c1755c56cc4c2f953d82f6524</hash><remark><text>[h by Prosoft]</text></remark></rom></dump>
@@ -237,7 +237,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1985</year>
-	<country>GB</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">f3815211c6183b4f9c26b9e7d0a12c3b3870bdda</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">807676038cbba043b8099eba9c5840a4811a7e59</hash></rom></dump>
 		<dump><rom><hash algo="sha1">83ed71c0e245a35cc4c4f622a6c88c026140748f</hash></rom></dump>
@@ -305,7 +305,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Ultimate Play The Game</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">5fb90be078e432db92dd39e621d12f612dbea4a8</hash></rom></dump>
 		<dump><rom><hash algo="sha1">3de0cea6a4575e631fee0db985e0f0f584761980</hash><remark><text>[a]</text></remark></rom></dump>
 </software>
@@ -323,7 +323,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Square</company>
 	<year>1987</year>
-	<country>GB</country>
+	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">5380e913d8dac23470446844cab21f6921101af8</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">0d9c472cf7687b86f3fe2e5af6545a26a0efd5fc</hash><remark><text>[a2]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">2639792df6f7c7cfaffc2616b0e1849f18897ace</hash></megarom></dump>
@@ -432,7 +432,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">3a4a65dc6d540297a7aae0a9914897aacf740807</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a1abfc53a36d387b9f0687e3f5897c1ebdf21517</hash></rom></dump>
 </software>
@@ -738,7 +738,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Electric Software</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">363b5a8c94cdb63a7ee72b9d25f7b5053cab319a</hash></rom></dump>
 </software>
 <software>
@@ -831,7 +831,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Electric Software</company>
 	<year>1986</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">84c5cce8e8e74ab51c3c043075165679270bc5e7</hash></rom></dump>
 </software>
 <software>
@@ -866,7 +866,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Ocean</company>
 	<year>1987</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">709fb35338f21897e275237cc4c5615d0a5c2753</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">3739d841abfef971db76ba10915b19b9df833476</hash></megarom></dump>
 </software>
@@ -909,7 +909,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Access Software</company>
 	<year>1985</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">1bdb1898796e2b48b62a356035192b163113962c</hash></rom></dump>
 </software>
 <software>
@@ -918,7 +918,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">f51f936887498d21f6ee9fe8a7701633be67e79d</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">1231984ae24bf35f9f38596b864420d8ccd3f30b</hash></rom></dump>
 		<dump><rom><hash algo="sha1">6da1c6693b67b0415be6de178bc5d319c0bef59d</hash></rom></dump>
@@ -996,7 +996,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Hudson Soft / Japanese Softbank</company>
 	<year>1984</year>
-	<country>KR</country>
+	<country>JP</country>
 		<dump><rom><hash algo="sha1">ef476e25fb6b7221ca778a379117885450dd36f0</hash></rom></dump>
 </software>
 <software>
@@ -1035,7 +1035,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Alligata</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">b4dd886d4a44cc42fc9e95d2db0943d422e4bda8</hash><remark><text>[MSX1 only]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">65af16d35b8d8454ec07718e9f8948335ca73bad</hash></rom></dump>
 		<dump><rom><hash algo="sha1">6bc6acb11e684406a5d939337b29f33dc9816ad1</hash><remark><text>[Converted from tape by Alligata]</text></remark></rom></dump>
@@ -1237,7 +1237,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>First Star Software</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">14fae375b81c86f71e872adca792c23aafac66a0</hash></rom></dump>
 		<dump><rom><hash algo="sha1">9b4b4d93bae38876ce095c35993553f962d26fda</hash></rom></dump>
 		<dump><rom><hash algo="sha1">a294f54da2be26f79020674616af95a25428bcd3</hash></rom></dump>
@@ -1250,7 +1250,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>First Star Software</company>
 	<year>1987</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">d28201ca9b7d062d37c62bc4d6212f2a0d3e1cb4</hash></rom></dump>
 </software>
 <software>
@@ -1297,7 +1297,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>The Bytebusters</company>
 	<year>1987</year>
-	<country>JP</country>
+	<country>NL</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">bcfdb43b275c62a76856aab94fb1b53bd92b2db2</hash></rom></dump>
 </software>
 <software>
@@ -1315,7 +1315,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Filosoft</company>
 	<year>1991</year>
-	<country>JP</country>
+	<country>NL</country>
 		<dump><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">0d9a37ff931e5db2cdee2e0f312fd4bbef5cfd29</hash></rom></dump>
 </software>
 <software>
@@ -1430,7 +1430,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1983</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">77f3f6758bd4cf5d2b44c51de958aa967c41a9d7</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">69710f4b9cc3440e58c54bd4c562b3e90ff323e0</hash></rom></dump>
 </software>
@@ -1451,7 +1451,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Policy</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>JP</country>
 		<dump><rom><hash algo="sha1">31d80470c8d23ec8b14256aa32f3d54dbc532d76</hash></rom></dump>
 </software>
 <software>
@@ -1750,7 +1750,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Dan Gorlin</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">b3ca70c8c8120f8261bb865baf5f57b6506ca02e</hash></rom></dump>
 		<dump><rom><hash algo="sha1">30673d173f96fe1830e579f18daf8ac9fc3366cb</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a2a7c93c9c8b55a5cce4c9005f3c194e3b762e9c</hash></rom></dump>
@@ -1773,7 +1773,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>A&#38;F Software</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">53ed25cf66a6ed4b432fa7e4f10a6730ce6923be</hash></rom></dump>
 		<dump><rom><hash algo="sha1">7eeeaaed7c69a5245f45b937183a203ade3c11a4</hash></rom></dump>
 </software>
@@ -2089,7 +2089,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Titus</company>
 	<year>1988</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">76c191bf7dcc0888d65e543c47f615ae45b75b92</hash></rom></dump>
 		<dump><rom><hash algo="sha1">70a8afee598dd2e2095353e5086b9f737cf89be3</hash><remark><text>[h by VIP Soft]</text></remark></rom></dump>
 </software>
@@ -2287,7 +2287,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>The Bytebusters</company>
 	<year>1987</year>
-	<country>JP</country>
+	<country>NL</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6856a13b67750d36c4c466d30472dc5465879bbf</hash></rom></dump>
 </software>
 <software>
@@ -2296,7 +2296,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">5d43cb6ca89f31d5f543e4dcd3fa9987b9769602</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a1656f612360a126e09ef2baaa8002d92054125d</hash></rom></dump>
 </software>
@@ -2352,7 +2352,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Microids</company>
 	<year>1986</year>
-	<country>FR</country>
+	<country>UK</country>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">d5b164797bc969b55c1a6f4006a4535c3fb03cf0</hash></megarom></dump>
 </software>
 <software>
@@ -2360,7 +2360,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">4b4a58a310a1138b95192d7fe0881bbdc45601d4</hash></rom></dump>
 </software>
 <software>
@@ -3340,7 +3340,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Stark Texel</company>
 	<year>19xx</year>
-	<country>KR</country>
+	<country>NL</country>
 		<dump><megarom><type>Konami</type><hash algo="sha1">a3fc0a55a91ed0041221f8da788d824d9d795913</hash><remark><text>[a]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">de95b99dffeab5c2b453778dbdc8723dc15cbfd7</hash></megarom></dump>
 </software>
@@ -3378,7 +3378,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>PSS</company>
 	<year>1985</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">7bf28813fb11e9db3bf78cc73ee5fb2d76b547de</hash><remark><text>Personal Soft Services</text></remark></rom></dump>
 </software>
 <software>
@@ -3387,7 +3387,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Aackosoft</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>NL</country>
 		<dump><rom><hash algo="sha1">488f01314da5644fbf2ca938c6f9720ef2b0d0f9</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">3eee7c72362522c27866d4367a8cf1e22932db32</hash></rom></dump>
 </software>
@@ -3407,7 +3407,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Spectravideo / ASCII</company>
 	<year>1983</year>
-	<country>GB</country>
+	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">3377d2017cc8433fa20b432c9d2328c53bbc10e6</hash></rom></dump>
 		<dump><rom><hash algo="sha1">49bfa9871bb0ad3b47a7c63b14a10e0e8ae48a52</hash></rom></dump>
 		<dump><rom><hash algo="sha1">097cae3bf23e1f387b2c9708fbfc324ddd88837c</hash></rom></dump>
@@ -3819,7 +3819,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">ea62733ce2a8cd17ff6652251d6879c13fe6377a</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">ba30ad98a8488bec6d0c661f7b859beb2fe219d1</hash></rom></dump>
 </software>
@@ -4052,7 +4052,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Electric Software</company>
 	<year>1985</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">711e03c6620ba574f98f8954f1750cdcafd60d14</hash></rom></dump>
 </software>
 <software>
@@ -4140,7 +4140,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Ultimate Play The Game</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">c4bd9f0d34061b4025f8d5c5866d51c763612e92</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">445963fddfbd0487addaf4b0ad620520e426a1d2</hash></rom></dump>
 		<dump><rom><hash algo="sha1">f76e7e4ccca2a77a13d9a2d5198667ba810491f9</hash></rom></dump>
@@ -4199,7 +4199,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">6fbb385147a939a7e6b47f5945d8e3b671a8c065</hash><remark><text>[b][u]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">ebb70722f75279911cce79e6bd78b8f514561b0f</hash></rom></dump>
 		<dump><rom><hash algo="sha1">39b67dd1ae799f2e151c229ac2e32954abb1bd72</hash></rom></dump>
@@ -4370,7 +4370,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Ocean</company>
 	<year>1987</year>
-	<country>ES</country>
+	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">26a7b0118d158e9bd3ea947fbe68f57b54e0b847</hash></megarom></dump>
 </software>
 <software>
@@ -4390,7 +4390,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Livesay Computer Games</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">20191b437958e990d14660f476c340e140236c70</hash></rom></dump>
 		<dump><rom><hash algo="sha1">70eaf556b2f9f077895d2b72ebe880e2f9213b81</hash></rom></dump>
 </software>
@@ -4600,7 +4600,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Ocean</company>
 	<year>1984</year>
-	<country>ES</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">e6ba49603707c929291c39fbdf866474bf096316</hash></rom></dump>
 </software>
 <software>
@@ -4627,7 +4627,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Bubble Bus</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">9ae54a8a5badd3edbcb6b693df1821d15efbd9c9</hash></rom></dump>
 </software>
 <software>
@@ -4936,7 +4936,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Livewire</company>
 	<year>2008</year>
-	<country>ES</country>
+	<country>UK</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">46f995308d736da235ba7f17841d8afeff403c99</hash></megarom></dump>
 </software>
 <software>
@@ -5117,7 +5117,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Players</company>
 	<year>1989</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">d358e08c3df089fb97acf94b27519b2d2d2ab44a</hash></rom></dump>
 </software>
 <software>
@@ -5135,7 +5135,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">39ef139d8d66fb18b04dff8b9a5386011f497479</hash></rom></dump>
 		<dump><rom><hash algo="sha1">633700d11fc36ccdab118dafd4f7e71e3eca2f46</hash></rom></dump>
 </software>
@@ -5303,7 +5303,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">3d5160331beb1c5cc54ba6ecef6b3ce2ff4660b6</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">fb4724b8159beae132f89f394f71ce3934a61ae2</hash></rom></dump>
 </software>
@@ -5452,7 +5452,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Ultimate Play The Game</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e98e4351119d78b6402c4499ed16faeb3364f6c3</hash></rom></dump>
 		<dump><rom><hash algo="sha1">2d8a35b7c5142d33bb54c066e35fee4983330dd9</hash></rom></dump>
 </software>
@@ -5462,7 +5462,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mastertronic</company>
 	<year>1986</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">64321138e03337d0e6178ac30bb98e6623c640ba</hash></megarom></dump>
 </software>
 <software>
@@ -5792,7 +5792,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1983</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">05da84093d973d3bfbd3143ffd155a16a9ec5f82</hash></rom></dump>
 		<dump><rom><hash algo="sha1">1ff13030d171fb5f653664e5d11d0777884b2463</hash></rom></dump>
 		<dump><rom><hash algo="sha1">602c4d0d12fd59725c0c4e40f51d6bdeb679ea36</hash><remark><text>[a]</text></remark></rom></dump>
@@ -5897,7 +5897,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Electric Software</company>
 	<year>1985</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">f69541b86c2b396cdce765c2dec498e11232b3c9</hash></rom></dump>
 </software>
 <software>
@@ -6141,7 +6141,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Dioniso</company>
 	<year>2005</year>
-	<country>JP</country>
+	<country>ES</country>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">cb0d355627b8c036931a67666e425d8f9225a180</hash><remark><text>16Kb version / MSX-DEV05</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash><remark><text>8Kb Version / MSX-DEV05</text></remark></rom></dump>
 </software>
@@ -6211,7 +6211,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Lemonize</company>
 	<year>2006</year>
-	<country>NL</country>
+	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">06cc2eca2930d67f23568ccf77a894f475f27efe</hash></rom></dump>
 </software>
 <software>
@@ -6370,7 +6370,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mr. Micro</company>
 	<year>19xx</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">fafd58ec55b2e1e84255036a3cdf2de87d348942</hash><remark><text>[cr Magic]</text></remark></rom></dump>
 </software>
 <software>
@@ -6396,7 +6396,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>DK&#180;Tronics</company>
 	<year>1985</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">7f26383fc61af7beb0176a64eb936bccee0d7a3b</hash></rom></dump>
 </software>
 <software>
@@ -7070,7 +7070,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Promotic International</company>
 	<year>1985</year>
-	<country>NL</country>
+	<country>JP</country>
 		<dump><rom><hash algo="sha1">47663f883f98ab9ddaa0bf0c2831c567919f56f1</hash><remark><text>Logo Computer Systems Inc.</text></remark></rom></dump>
 </software>
 <software>
@@ -7087,7 +7087,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Microsoft</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><rom><hash algo="sha1">61d99816055858b3bcde3416eed30fd86390393d</hash></rom></dump>
 </software>
 <software>
@@ -7345,7 +7345,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Ultimate Play The Game</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">c3f849c342839fef2ef718b5115a90a31e7db1f6</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">50e27c5b83c8afe00b077406081d063263e98b62</hash></rom></dump>
 		<dump><rom><hash algo="sha1">83fa6a7847faf14b6ebfae4637ac8868c869c7f5</hash></rom></dump>
@@ -7471,7 +7471,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Electric Software</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">be7cfd5ca5d78b99c05dbda1e26f4afbddb50c48</hash><remark><text>[b]</text></remark></rom></dump>
 </software>
 <software>
@@ -7516,7 +7516,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">6511a7a1bf620f0b2d5e38e954a014828dfcda03</hash><remark><text>[b]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">5dcecc7c790e398a1c652db568c1e66c6f25e5e4</hash></rom></dump>
 </software>
@@ -7555,7 +7555,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Sierra On Line</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">244eae705df950f60b7d4b523d57b9cfded96b8e</hash><remark><text>[a2]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">fa4f31ba6d0d9ac821592a8bb224dad390fae0c4</hash><remark><text>[b]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">c4c49d01eca572ce2e35d91453270f4d3e27152e</hash><remark><text>[b][u]</text></remark></rom></dump>
@@ -7784,7 +7784,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">8117ec66c0645a54422841a632cfd6602f35c4f9</hash></rom></dump>
 </software>
 <software>
@@ -7999,7 +7999,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Eurosoft</company>
 	<year>1988</year>
-	<country>GB</country>
+	<country>NL</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">c95f8edb24edca9f5d38c26d0e8a34c6b61efb0c</hash></megarom></dump>
 </software>
 <software>
@@ -8065,7 +8065,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">78079266711e60420480e4d95a39f0d7d974ad32</hash></rom></dump>
 		<dump><rom><hash algo="sha1">f9a8731b7b978b6eb5310aa9bf644fae5a9015b3</hash></rom></dump>
 		<dump><rom><hash algo="sha1">ae8c7355c829248305384243f78a870453367e77</hash></rom></dump>
@@ -8077,7 +8077,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">b88e9c548873dcfd190e0e38f7b279344eea41ec</hash></rom></dump>
 		<dump><rom><hash algo="sha1">2fa9c0f016efc2d1752a272c632393f5063ea06c</hash></rom></dump>
 		<dump><rom><hash algo="sha1">5fb4b6c3735e4d9415565a856bb69f9fb4857161</hash><remark><text>[a]</text></remark></rom></dump>
@@ -8178,7 +8178,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Gerardin H.</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>FR</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">692a55393e8eef0800a612c01456e9cecd9c1418</hash></rom></dump>
 		<dump><rom><hash algo="sha1">5c572daa07f588e35bfa8be1a8d64caa73bfab5a</hash></rom></dump>
 </software>
@@ -8188,7 +8188,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">c713ecd0e2ef89b2443e516d5ffa53d3a3422e22</hash></rom></dump>
 		<dump><rom><hash algo="sha1">b8f9248a6f2bc02ed2dcae3f21d6fe0e572e23fe</hash><remark><text>[h Boram Soft]</text></remark></rom></dump>
 </software>
@@ -8216,7 +8216,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Level 9 Computing</company>
 	<year>1986</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">ac109dac24df4dae813ca5d9f0938cc48a162bb1</hash></megarom></dump>
 </software>
 <software>
@@ -8312,7 +8312,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Michel Shuqair</company>
 	<year>2004</year>
-	<country>ES</country>
+	<country>NL</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">9c26a5a89f543050db2d614f8405c659f5baae08</hash><remark><text>1st version</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">c80228bd14f149dbccf57bf9c00f34a4df953d85</hash><remark><text>2nd version</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">f6eb344408fbf69332fdf865a8c213455f0a024c</hash><remark><text>[NEW]</text></remark></rom></dump>
@@ -8331,7 +8331,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Llamasoft</company>
 	<year>19xx</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">fae437072234c65bca174db9aefd2107a53c358a</hash></rom></dump>
 </software>
 <software>
@@ -8357,7 +8357,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mr. Micro</company>
 	<year>19xx</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">dcfd673926a1c10cf4bada731d072d3f6ce29c44</hash><remark><text>[b]</text></remark></rom></dump>
 </software>
 <software>
@@ -8512,7 +8512,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Br&#248;derbund Software</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">636eb837c5d80fb6b0692a72954ca91291ba831b</hash></rom></dump>
 </software>
 <software>
@@ -8569,7 +8569,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>AG Software</company>
 	<year>2010</year>
-	<country>SP</country>
+	<country>IT</country>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">c3937d6f0b4f1ab6f4aaa227402d49eb37babfbe</hash></rom></dump>
 </software>
 <software>
@@ -8671,7 +8671,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Softmen</company>
 	<year>1987</year>
-	<country>JP</country>
+	<country>KR</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">59f679c5ebf75de98b5e909da9182dbd80413364</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">a80b5426fd0f4ab19eba1c06620f5efb8fbade3a</hash></megarom></dump>
 </software>
@@ -8744,7 +8744,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a1e14912d45944b9a6baef1d4d3a04c1ae8df923</hash></rom></dump>
 		<dump><rom><hash algo="sha1">6d3d2cad90f3e0389b11780e1b43a728216d3c7b</hash></rom></dump>
 		<dump><rom><hash algo="sha1">33be9017faf173eae04d0c91ca8d42d1c20596c0</hash></rom></dump>
@@ -8769,7 +8769,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">acce81bf851fa5869cd75181df4fcf7d4489a9db</hash></rom></dump>
 		<dump><rom><hash algo="sha1">a2f9e1250c67d2e98be70900d4370545321cdbfe</hash><remark><text>[a]</text></remark></rom></dump>
 </software>
@@ -8797,7 +8797,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Activision</company>
 	<year>1985</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">1edabc3226648b54ae98d524b31f37ca47c8c88b</hash></rom></dump>
 </software>
 <software>
@@ -8806,7 +8806,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Spectravideo</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">8607b92458584d5aa770369d94d50361b1d64bd3</hash></rom></dump>
 		<dump><rom><hash algo="sha1">1500a07693a7c06189f4cd6764d5ee62f0edd85d</hash><remark><text>[a]</text></remark></rom></dump>
 </software>
@@ -8973,7 +8973,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1983</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">395c5f40692c45b891abe07c89d1e87829665fc7</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e767c0239b79821463fa42f2c1989d3fd1b4b868</hash></rom></dump>
 </software>
@@ -9129,7 +9129,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Spectravideo</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">c1d272645a249757b8be5bd913ba2d3447892387</hash></rom></dump>
 </software>
 <software>
@@ -9537,7 +9537,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Qnix</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>KR</country>
 		<dump><rom><hash algo="sha1">6ec24f574a8e40d8785b3e721b1605e1984c5834</hash></rom></dump>
 </software>
 <software>
@@ -9665,7 +9665,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mastertronic</company>
 	<year>1987</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">fff31b8c7549493d8ec220f85e3e8536f150d82a</hash></rom></dump>
 </software>
 <software>
@@ -9738,7 +9738,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Kuma Computers</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">33c62e6f7478be369580a2d985ff57667f13cf84</hash></rom></dump>
 </software>
 <software>
@@ -9747,7 +9747,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>First Star Software</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><megarom><type>Konami</type><hash algo="sha1">1d129bde09c9db2433b334d36762704de94983ba</hash></megarom></dump>
 </software>
 <software>
@@ -9950,7 +9950,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">ccf6e244d27ec61195280d0915a3b43d291e3fad</hash></rom></dump>
 </software>
 <software>
@@ -10052,7 +10052,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Spectravideo</company>
 	<year>1983</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">54f288590f0c882f6e3a9b7c3f7d15b407190975</hash></rom></dump>
 </software>
 <software>
@@ -10320,7 +10320,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">7fef9411858b1ff3ff019646e9e7aa0c61c7e87d</hash></rom></dump>
 		<dump><rom><hash algo="sha1">175488d7ef82b5ee94eebce3b96ef67530f7bad9</hash></rom></dump>
 </software>
@@ -10350,7 +10350,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Image Works</company>
 	<year>1990</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">ebceb3de22e4c0444a969d83ee487f8ee34204e4</hash><remark><text>h JAM</text></remark></megarom></dump>
 </software>
 <software>
@@ -10376,7 +10376,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1983</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">50439f12ddff3ed449da3cc1442385aaba609e7d</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">4e17efbe87adc232c055d0dc26eb4476c661aafe</hash></rom></dump>
 </software>
@@ -10488,7 +10488,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1984</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><rom><hash algo="sha1">4ff12fc3adf389a1f76a7a9bab6b2fd20044f5b4</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">53814fdfeacce237bb68fb9056d005eb614b708a</hash></rom></dump>
 </software>
@@ -10582,7 +10582,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>New Frontier</company>
 	<year>1990</year>
-	<country>GB</country>
+	<country>ES</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">0442dd29ea0f7b78c9cd5849ec7ef5bb21ec0bf5</hash></megarom></dump>
 </software>
 <software>
@@ -10711,7 +10711,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Domark</company>
 	<year>1989</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">d147f2cac0600527ce49bfffc865c54eb783e5e5</hash></megarom></dump>
 </software>
 <software>
@@ -10897,7 +10897,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Mass Tael</company>
 	<year>1983</year>
-	<country>JP</country>
+	<country>HK</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">08be92145a99dd6e0539ff79dca62b2f4cc59b0b</hash></rom></dump>
 		<dump><rom><hash algo="sha1">8309d3241e03b4a83b3d9fe54224178ea4e60e31</hash></rom></dump>
 </software>
@@ -11012,7 +11012,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Origin Systems</company>
 	<year>1987</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">18be429f8b5c7bc4775c99292110aa09341cd644</hash></megarom></dump>
 </software>
 <software>
@@ -11255,7 +11255,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Alligata</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">25a51cd9367c4614291013b8a816fa5e8a2a564c</hash></rom></dump>
 </software>
 <software>
@@ -11292,7 +11292,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Sir-Tech Software</company>
 	<year>1988</year>
-	<country>JP</country>
+	<country>US</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">34635bf3518c7b33164f3d96da769c7a01102d28</hash></megarom></dump>
 </software>
 <software>
@@ -11333,7 +11333,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Indescomp</company>
 	<year>1986</year>
-	<country>JP</country>
+	<country>ES</country>
 		<dump><rom><hash algo="sha1">76209c36bec7ca971c6db2e3bbce267147e4a361</hash></rom></dump>
 </software>
 <software>
@@ -11342,7 +11342,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Electric Software</company>
 	<year>1984</year>
-	<country>GB</country>
+	<country>UK</country>
 		<dump><rom><hash algo="sha1">58e335c943d2647c3ff1e689069d9fa5e1c7ff6e</hash></rom></dump>
 </software>
 <software>
@@ -11699,5 +11699,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2577
-Parse time 4.782 seconds on Fri Nov 26 0:16:41 CET 2010
+Parse time 4.375 seconds on Fri Nov 26 19:02:17 CET 2010
  -->
