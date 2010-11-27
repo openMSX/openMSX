@@ -331,18 +331,35 @@ void MSXCPUInterface::testUnsetExpanded(
 	std::set<MSXDevice*> allowed(alreadyRemoved.begin(), alreadyRemoved.end());
 	allowed.insert(dummyDevice.get());
 	assert(isExpanded(ps));
-	if (expanded[ps] == 1) {
-		for (int ss = 0; ss < 4; ++ss) {
-			for (int page = 0; page < 4; ++page) {
-				if (allowed.find(slotLayout[ps][ss][page]) ==
-				    allowed.end()) {
-					throw MSXException(
-						"Can't remove slotexpander "
-						"because slot is still in use.");
-				}
+	if (expanded[ps] != 1) return; // ok, still expanded after this
+
+	std::set<MSXDevice*> inUse;
+	for (int ss = 0; ss < 4; ++ss) {
+		for (int page = 0; page < 4; ++page) {
+			MSXDevice* device = slotLayout[ps][ss][page];
+			std::set<MSXDevice*> devices;
+			if (MSXMultiMemDevice* memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
+				memDev->getDevices(devices);
+			} else {
+				devices.insert(device);
 			}
+			std::set_difference(devices.begin(), devices.end(),
+			                    allowed.begin(), allowed.end(),
+			                    std::inserter(inUse, inUse.end()));
+
 		}
 	}
+	if (inUse.empty()) return; // ok, no more devices in use
+
+	StringOp::Builder msg;
+	msg << "Can't remove slot expander from slot " << ps
+	    << " because the following devices are still inserted:";
+	for (std::set<MSXDevice*>::const_iterator it = inUse.begin();
+	     it != inUse.end(); ++it) {
+		msg << " " << (*it)->getName();
+	}
+	msg << '.';
+	throw MSXException(msg);
 }
 
 void MSXCPUInterface::unsetExpanded(int ps)
