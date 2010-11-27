@@ -248,6 +248,10 @@ void MSXDevice::registerSlots()
 		// numerical specified slot (0, 1, 2, 3)
 	}
 
+	if (!motherBoard.getCPUInterface().isExpanded(ps)) {
+		ss = -1;
+	}
+
 	// Store actual slot in config. This has two purposes:
 	//  - Make sure that devices that are grouped under the same
 	//    <primary>/<secondary> tags actually use the same slot. (This
@@ -257,19 +261,21 @@ void MSXDevice::registerSlots()
 	assert(primaryConfig);
 	primaryConfig->setAttribute("slot", StringOp::toString(ps));
 	if (secondaryConfig) {
-		secondaryConfig->setAttribute("slot", StringOp::toString(ss));
+		string slot = (ss == -1) ? "X" : StringOp::toString(ss);
+		secondaryConfig->setAttribute("slot", slot);
 	} else {
-		if (ss != 0) {
+		if (ss != -1) {
 			throw MSXException(
 				"Missing <secondary> tag for device" +
 				getName());
 		}
 	}
 
+	int logicalSS = (ss == -1) ? 0 : ss;
 	for (MemRegions::const_iterator it = tmpMemRegions.begin();
 	     it != tmpMemRegions.end(); ++it) {
 		getMotherBoard().getCPUInterface().registerMemDevice(
-			*this, ps, ss, it->first, it->second);
+			*this, ps, logicalSS, it->first, it->second);
 		memRegions.push_back(*it);
 	}
 
@@ -285,10 +291,11 @@ void MSXDevice::unregisterSlots()
 {
 	if (memRegions.empty()) return;
 
+	int logicalSS = (ss == -1) ? 0 : ss;
 	for (MemRegions::const_iterator it = memRegions.begin();
 	     it != memRegions.end(); ++it) {
 		getMotherBoard().getCPUInterface().unregisterMemDevice(
-			*this, ps, ss, it->first, it->second);
+			*this, ps, logicalSS, it->first, it->second);
 	}
 
 	// See comments above about allocateSlot() for more details:

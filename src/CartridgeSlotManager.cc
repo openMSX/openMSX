@@ -96,6 +96,8 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 		return -(1 + slot[0] - 'a');
 	} else if (slot == "any") {
 		return -256;
+	} else if (slot == "X") {
+		return -256;
 	} else if ((slot.size() == 2) && (slot[0] == '?')) {
 		int result = slot[1] - '0';
 		if ((result < 0) || (4 <= result)) {
@@ -194,31 +196,26 @@ void CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss) cons
 			"slot-" << char('a' + slot) << " already in use.");
 	}
 	ps = slots[slot].ps;
-	ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
+	ss = slots[slot].ss;
 }
 
 void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 {
 	// search for the lowest free slot
-	int result = -1;
-	unsigned slotNum = unsigned(-1);
+	ps = 4; // mark no free slot
 	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (slots[slot].exists() && !slots[slot].used()) {
-			unsigned p = slots[slot].ps;
-			unsigned s = (slots[slot].ss != -1) ? slots[slot].ss : 0;
-			assert((p < 4) && (s < 4));
-			unsigned t = p * 4 + s;
-			if (t < slotNum) {
-				slotNum = t;
-				result = slot;
+			int p = slots[slot].ps;
+			int s = slots[slot].ss;
+			if ((p < ps) || ((p == ps) && (s < ss))) {
+				ps = p;
+				ss = s;
 			}
 		}
 	}
-	if (result == -1) {
+	if (ps == 4) {
 		throw MSXException("Not enough free cartridge slots");
 	}
-	ps = slotNum / 4;
-	ss = slotNum % 4;
 }
 
 void CartridgeSlotManager::allocatePrimarySlot(
@@ -252,8 +249,7 @@ void CartridgeSlotManager::allocateSlot(
 {
 	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (!slots[slot].exists()) continue;
-		int tmp = (slots[slot].ss == -1) ? 0 : slots[slot].ss;
-		if ((slots[slot].ps == ps) && (tmp == ss)) {
+		if ((slots[slot].ps == ps) && (slots[slot].ss == ss)) {
 			if (slots[slot].useCount == 0) {
 				slots[slot].config = &hwConfig;
 			} else {
@@ -275,8 +271,7 @@ void CartridgeSlotManager::freeSlot(
 {
 	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (!slots[slot].exists()) continue;
-		int tmp = (slots[slot].ss == -1) ? 0 : slots[slot].ss;
-		if ((slots[slot].ps == ps) && (tmp == ss)) {
+		if ((slots[slot].ps == ps) && (slots[slot].ss == ss)) {
 			assert(slots[slot].config == &hwConfig); (void)hwConfig;
 			assert(slots[slot].useCount > 0);
 			--slots[slot].useCount;
