@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cstring>
+#include <iterator>
 
 using std::auto_ptr;
 using std::ostringstream;
