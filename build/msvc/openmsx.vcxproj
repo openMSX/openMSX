@@ -725,7 +725,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXE6Timer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXException.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\MSXF4Device.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji12.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXMatsushita.cc" />
@@ -1496,7 +1496,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXE6Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXException.hh" />
-    <None Include="$(OpenMSXSrcDir)\MSXF4Device.hh" />
+    <None Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXKanji.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXKanji12.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXMatsushita.hh" />

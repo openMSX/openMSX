@@ -17,7 +17,7 @@ SRC_HDR:= \
 	DeviceFactory \
 	Reactor Scheduler Schedulable \
 	MSXE6Timer \
-	MSXF4Device \
+	MSXResetStatusRegister \
 	MSXTurboRPause \
 	MSXS1985 \
 	MSXS1990 \

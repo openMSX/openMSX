@@ -13,10 +13,10 @@
 
 namespace openmsx {
 
-class MSXF4Device : public MSXDevice
+class MSXResetStatusRegister : public MSXDevice
 {
 public:
-	MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXResetStatusRegister(MSXMotherBoard& motherBoard, const XMLElement& config);
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

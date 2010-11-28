@@ -6,7 +6,7 @@
 #include "MSXPPI.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
-#include "MSXF4Device.hh"
+#include "MSXResetStatusRegister.hh"
 #include "MSXTurboRPause.hh"
 #include "MSXTurboRPCM.hh"
 #include "MSXS1985.hh"
@@ -79,7 +79,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "E6Timer") {
 		result.reset(new MSXE6Timer(motherBoard, conf));
 	} else if (type == "ResetStatusRegister" || type == "F4Device") {
-		result.reset(new MSXF4Device(motherBoard, conf));
+		result.reset(new MSXResetStatusRegister(motherBoard, conf));
 	} else if (type == "TurboRPause") {
 		result.reset(new MSXTurboRPause(motherBoard, conf));
 	} else if (type == "TurboRPCM") {
