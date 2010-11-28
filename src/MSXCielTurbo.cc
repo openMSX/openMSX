@@ -8,8 +8,6 @@
 
 namespace openmsx {
 
-static const byte ID = 0x08;
-
 MSXCielTurbo::MSXCielTurbo(MSXMotherBoard& motherBoard,
                            const XMLElement& config)
 	: MSXDevice(motherBoard, config)
