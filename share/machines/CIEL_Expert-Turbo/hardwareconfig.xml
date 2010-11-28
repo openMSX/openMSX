@@ -56,10 +56,10 @@
       <io base="0x90" num="2"/>
     </PrinterPort>
 
-    <F4Device id="F4Device">
+    <ResetStatusRegister id="Reset Status register">
       <inverted>true</inverted>
       <io base="0xB7" num="1"/>
-    </F4Device>
+    </ResetStatusRegister>
 
     <CielTurbo id="CielTurbo">
       <io base="0xB6" num="1"/>

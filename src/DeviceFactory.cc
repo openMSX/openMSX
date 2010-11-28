@@ -78,7 +78,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new VDP(motherBoard, conf));
 	} else if (type == "E6Timer") {
 		result.reset(new MSXE6Timer(motherBoard, conf));
-	} else if (type == "F4Device") {
+	} else if (type == "ResetStatusRegister" || type == "F4Device") {
 		result.reset(new MSXF4Device(motherBoard, conf));
 	} else if (type == "TurboRPause") {
 		result.reset(new MSXTurboRPause(motherBoard, conf));

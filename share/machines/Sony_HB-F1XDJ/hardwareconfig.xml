@@ -75,10 +75,10 @@
       <io base="0x90" num="2"/>
     </PrinterPort>
 
-    <F4Device id="F4Device">
+    <ResetStatusRegister id="Reset Status register">
       <inverted>false</inverted>
       <io base="0xF4" num="1"/>
-    </F4Device>
+    </ResetStatusRegister>
 
     <primary slot="0">
       <secondary slot="0">

@@ -183,10 +183,10 @@
       <io base="0xE6" num="2"/>
     </E6Timer>
 
-    <F4Device id="F4Device">
+    <ResetStatusRegister id="Reset Status register">
       <io base="0xF4" num="1"/>
       <inverted>false</inverted>
-    </F4Device>
+    </ResetStatusRegister>
 
     <TurboRPause id="TurboRPause">
       <io base="0xA7" num="1"/>

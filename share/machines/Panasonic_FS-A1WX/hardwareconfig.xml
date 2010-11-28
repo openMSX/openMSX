@@ -156,10 +156,10 @@
       <io base="0x90" num="2"/>
     </PrinterPort>
 
-    <F4Device id="F4Device">
+    <ResetStatusRegister id="Reset Status register">
       <io base="0xF4" num="1"/>
       <inverted>true</inverted>
-    </F4Device>
+    </ResetStatusRegister>
 
     <Matsushita id="Matsushita">
       <sramname>fs-a1wx_matsushita.sram</sramname>
