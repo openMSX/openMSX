@@ -33,6 +33,7 @@
 
     <primary slot="3">
 
+      <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
@@ -41,7 +42,6 @@
           </rom>
         </ROM>
 
-      <secondary slot="0">
         <ROM id="CP/M ROM">
           <mem base="0x4000" size="0x4000"/>
           <rom>
