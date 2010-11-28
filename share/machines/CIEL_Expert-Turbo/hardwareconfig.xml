@@ -57,8 +57,8 @@
     </PrinterPort>
 
     <F4Device id="F4Device">
-      <inverted>false</inverted>
-      <io base="0xF4" num="1"/>
+      <inverted>true</inverted>
+      <io base="0xB7" num="1"/>
     </F4Device>
 
     <CielTurbo id="CielTurbo">
