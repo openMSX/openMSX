@@ -3,6 +3,7 @@
 #include "MSXCielTurbo.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
+#include "LedStatus.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -39,9 +40,11 @@ byte MSXCielTurbo::peekIO(word /*port*/, EmuTime::param /*time*/) const
 void MSXCielTurbo::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	lastValue = value;
+	bool enabled = value & 0x80;
 	unsigned freq = 3579545;
-	if (value & 0x80) freq *= 2;
+	if (enabled) freq *= 2;
 	getMotherBoard().getCPU().setZ80Freq(freq);
+	getMotherBoard().getLedStatus().setLed(LedStatus::TURBO, enabled);
 }
 
 template<typename Archive>
