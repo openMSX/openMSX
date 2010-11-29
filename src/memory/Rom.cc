@@ -81,7 +81,26 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
 	const XMLElement* resolvedSha1Elem     = config.findChild("resolvedSha1");
 	const XMLElement* filenameElem         = config.findChild("filename");
-	if (resolvedFilenameElem || resolvedSha1Elem ||
+	if (config.findChild("firstblock")) {
+		// part of the TurboR main ROM
+		//  If there is a firstblock/lastblock tag, (only) use these to
+		//  locate the rom. In the past we would also write add a
+		//  resolvedSha1 tag for this type of ROM (before we used
+		//  'checkResolvedSha1'). So there are old savestates that have
+		//  both type of tags. For such a savestate it's important to
+		//  first check firstblock, otherwise it will only load when
+		//  there is a file that matches the sha1sums of the
+		//  firstblock-lastblock portion of the containing file.
+		int first = config.getChildDataAsInt("firstblock");
+		int last  = config.getChildDataAsInt("lastblock");
+		size = (last - first + 1) * 0x2000;
+		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
+		assert(rom);
+
+		// Part of a bigger (already checked) rom, no need to check.
+		checkResolvedSha1 = false;
+
+	} else if (resolvedFilenameElem || resolvedSha1Elem ||
 	    !sums.empty() || filenameElem) {
 		FilePool& filepool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
@@ -174,17 +193,6 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 		// We loaded an extrenal file, so check.
 		checkResolvedSha1 = true;
-
-	} else if (config.findChild("firstblock")) {
-		// part of the TurboR main ROM
-		int first = config.getChildDataAsInt("firstblock");
-		int last  = config.getChildDataAsInt("lastblock");
-		size = (last - first + 1) * 0x2000;
-		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
-		assert(rom);
-
-		// Part of a bigger (already checked) rom, no need to check.
-		checkResolvedSha1 = false;
 
 	} else {
 		// for an empty SCC the <size> tag is missing, so take 0
