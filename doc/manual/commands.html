@@ -1697,6 +1697,7 @@
   You can prevent this from happening by using the <code>-stereo</code> option to force a stereo recording even if no stereo devices are present at the time you enter the command.
   You can also force a mono recording with <code>-mono</code> to save space.</p>
   <p>The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
+  <p>Use <code>record_chunks</code> if you want some extra options. You can control the maximum length (in seconds) to record and also set up multiple recordings of a certain length. This is very useful if you want to record for e.g. YouTube. The default length is 14:59 (to make sure YouTube will accept it). Using this command implies <code>-doublesize</code>.</p>
 
   <h3><a id="record_channels">record_channels</a></h3>
 
@@ -1822,7 +1823,7 @@
     <tr>
       <td><code>reverse loadreplay [-goto &lt;begin|end|savetime|&lt;n&gt;&gt;] [-viewonly] &lt;filename&gt;</code></td>
 
-      <td>Load the replay from the given file and start it. Loads the initial snapshot and starts replaying the recorded events. Enables the reverse feature automatically. With the <tt>-goto</tt> option, you can specify where to jump to in the replay after loading (<tt>begin</tt> is default), where <tt>savetime</tt> is the time at which the replay was saved and <tt>n</tt> is an absolute time in seconds in the replay. The <tt>-viewonly</tt> option is a shortcut to put the reverse feature in viewonly mode directly after loading the replay. Without this option, it will always go to normal mode.
+      <td>Load the replay from the given file and start it. Loads the initial snapshot and starts replaying the recorded events. Enables the reverse feature automatically. With the <code>-goto</code> option, you can specify where to jump to in the replay after loading (<code>begin</code> is default), where <code>savetime</code> is the time at which the replay was saved and <code>n</code> is an absolute time in seconds in the replay. The <code>-viewonly</code> option is a shortcut to put the reverse feature in viewonly mode directly after loading the replay. Without this option, it will always go to normal mode.</td>
     </tr>
   </table>
 
@@ -2282,12 +2283,16 @@
       <td>Capture the content of a MSX text screen in a Tcl string</td>
     </tr>
     <tr>
+      <td><code>get_screen_mode</code></td>
+      <td>Decodes the current screen mode from the VDP registers and returns it as a Tcl string. <code>get_screen_mode_number</code> returns it as a number which would also be used for the basic command <code>SCREEN</code>.</td>
+    </tr>
+    <tr>
       <td><code>get_selected_slot</code></td>
       <td>Returns the selected slot for the given memory page</td>
     </tr>
     <tr>
       <td><code>guess_title</code></td>
-      <td>Use heuristics to guess the title of the current game (cartridge, disk or tape)</td>
+      <td>Use heuristics to guess the title of the current game (cartridge, disk or tape). For specific media use <code>guess_cassette_title</code>, <code>guess_disk_title</code> or <code>guess_rom_title</code>.</td>
     </tr>
     <tr>
       <td><code>listing</code></td>
@@ -2296,6 +2301,10 @@
     <tr>
       <td><code>load_debuggable</code></td>
       <td>Write the content of a file to a openMSX debuggable</td>
+    </tr>
+    <tr>
+      <td><code>main_menu_open</code> / <code>main_menu_close</code> / <code>main_menu_toggle</code></td>
+      <td>Control the visibility of the default OSD menu</td>
     </tr>
     <tr>
       <td><code>multi_screenshot</code></td>
@@ -2315,7 +2324,7 @@
     </tr>
     <tr>
       <td><code>poke</code></td>
-      <td>Write a byte to given memory location</td>
+      <td>Write a byte to given memory location. Use <code>dpoke</code> to only write if the to be written value is different than the current value.</td>
     </tr>
     <tr>
       <td><code>poke16</code></td>
@@ -2326,12 +2335,20 @@
       <td>Log or replay PSG register values in binary format</td>
     </tr>
     <tr>
+      <td><code>ram_watch_add</code> / <code>ram_watch_remove</code></td>
+      <td>Add or remove RAM watch addresses to/from the list on the right side of the screen, useful for debugging or TASing</td>
+    </tr>
+    <tr>
       <td><code>reg</code></td>
       <td>Read or write CPU registers</td>
     </tr>
     <tr>
       <td><code>reg_log</code></td>
       <td>Log or replay register values for the specified debuggable in ASCII format</td>
+    </tr>
+    <tr>
+      <td><code>rom_info</code></td>
+      <td>Gives information about the given ROM device, coming from the software database. If no argument is given, the first found (external) ROM device is assumed. This command replaces the info that was previously (before openMSX 0.8.1) automatically printed on stdout.</td>
     </tr>
     <tr>
       <td><code>run_to</code></td>
@@ -2366,6 +2383,14 @@
       <td>Print an overview of the defined OSD elements</td>
     </tr>
     <tr>
+      <td><code>skip_instruction</code></td>
+      <td>Skip the current CPU instruction</td>
+    </tr>
+    <tr>
+      <td><code>sprite_viewer</code></td>
+      <td>Show a widget with which you can view the sprite patterns</td>
+    </tr>
+    <tr>
       <td><code>stack</code></td>
       <td>Print the top of the CPU stack</td>
     </tr>
@@ -2386,8 +2411,16 @@
       <td>Echo all printed MSX text on stderr</td>
     </tr>
     <tr>
+      <td><code>toggle_cursors</code></td>
+      <td>Show (or hide) a widget which shows which keys are pressed</td>
+    </tr>
+    <tr>
       <td><code>toggle_fps</code></td>
       <td>Show (or hide) an fps indicator</td>
+    </tr>
+    <tr>
+      <td><code>toggle_frame_counter</code></td>
+      <td>Show (or hide) a widget which shows the current frame number since start-up</td>
     </tr>
     <tr>
       <td><code>toggle_freq</code></td>
@@ -2414,12 +2447,32 @@
       <td>Show (or hide) an on-screen keyboard (mostly useful for devices without physical keyboard); only supports an international layout for now</td>
     </tr>
     <tr>
+      <td><code>toggle_psg2scc</code></td>
+      <td>Enable (or disable) playing PSG sound on SCC</td>
+    </tr>
+    <tr>
       <td><code>toggle_reversebar</code></td>
       <td>Show (or hide) the reverse bar, which helps to control and view the data of the <a class="internal" href="#reverse">reverse</a> feature, which is automatically enabled when the bar is enabled</td>
     </tr>
     <tr>
+      <td><code>toggle_scc_editor</code></td>
+      <td>Show a graphical view of the SCC chip(s) of the system, showing waveforms and volume per channel and also enables you to edit the waveforms per channel</td>
+    </tr>
+    <tr>
       <td><code>toggle_scc_viewer</code></td>
-      <td>Show a graphical view of the SCC chip(s) of the system, showing waveforms and volume per channel.</td>
+      <td>Show a graphical view of the SCC chip(s) of the system, showing waveforms and volume per channel</td>
+    </tr>
+    <tr>
+      <td><code>toggle_show_palette</code></td>
+      <td>Show (or hide) a graphical view on the palette registers</td>
+    </tr>
+    <tr>
+      <td><code>toggle_vdp_access_test</code></td>
+      <td>Enable (or disable) reporting in the console when VDP I/O is done which could possibly cause data corruption on the slowest VDP (TMS9xxx), which is not emulated</td>
+    </tr>
+    <tr>
+      <td><code>toggle_vdp_reg_viewer</code></td>
+      <td>Enable (or disable) a widget that shows an overview of all VDP registers and highlights changes in the values</td>
     </tr>
     <tr>
       <td><code>toggle_vu_meters</code></td>
@@ -4014,8 +4067,8 @@
 
   <p>So far, the only special mode is the TAS mode, which is made for doing Tool Assisted Speedruns, with TAS widgets and easier ways to save replays. It is still experimental, but already very useful for doing a TAS. This mode enables the following widgets:</p>
   <ul>
-    <li>frame counter (can also be toggled with <tt>toggle_frame_counter</tt>), which shows the VDP (not V9990) frame number on screen</li>
-    <li>cursors (can also be toggled with <tt>toggle_cursors</tt>), shows which keys (important for games) are pressed</li>
+    <li>frame counter (can also be toggled with <code>toggle_frame_counter</code>), which shows the VDP (not V9990) frame number on screen</li>
+    <li>cursors (can also be toggled with <code>toggle_cursors</code>), shows which keys (important for games) are pressed</li>
   </ul>
   <p>It also (re)enables the reverse bar widget.</p>
   <p>The mode configures the following key bindings, overriding any existing key bindings:</p>
@@ -4024,8 +4077,8 @@
     <tr> <td>F6</td>      <td>F6</td>      <td>Load replay from current slot</td></tr>
     <tr> <td>F7</td>      <td>F7</td>      <td>Open slot select menu</td></tr>
     <tr> <td>F8</td>      <td>F8</td>      <td>Save replay to current slot</td></tr>
-    <tr> <td>End</td>     <td>End</td>     <td>Advance one frame</td></tr>
-    <tr> <td>ScrollLock</td><td>ScrollLock</td><td>Reverse one frame</td></tr>
+    <tr> <td>End</td>     <td>End</td>     <td>Advance one frame (<code>advance_frame</code>)</td></tr>
+    <tr> <td>ScrollLock</td><td>ScrollLock</td><td>Reverse one frame (<code>reverse_frame</code>)</td></tr>
   </table>
 
   <p>Note that this mode is still experimental and may change in future releases!</p>
