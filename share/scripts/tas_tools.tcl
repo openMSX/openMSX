@@ -184,6 +184,9 @@ proc toggle_cursors {} {
 
 variable addr_watches [list]   ;# sorted list of RAM watch addresses
 
+set_help_text ram_watch_add\
+{Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.}
+
 proc ram_watch_add {addr_str} {
 	variable addr_watches
 
@@ -232,6 +235,9 @@ proc ram_watch_add {addr_str} {
 	}
 	return ""
 }
+
+set_help_text ram_watch_remove\
+{Remove an address (in hex) in RAM from the list of watch addresses on the right side of the screen. When the last address is removed, the list will disappear automatically.}
 
 proc ram_watch_remove {addr_str} {
 	variable addr_watches
