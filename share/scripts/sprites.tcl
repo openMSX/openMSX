@@ -1,31 +1,31 @@
 #attributes
 #expr ([vdpreg 11] << 15) + (([vdpreg 5] & 0xf8) << 7)
 
-namespace eval test_osd_menu {
+namespace eval osd_sprite_info {
 
 #todo: more sprite info / better layout (sprite mode/ hex values/ any other info)
 
 variable title_pos 0
 variable max_sprites 0
 
-proc sprite_menu {} {
+proc sprite_viewer {} {
 
-	bind_default "keyb LEFT"    -repeat { test_osd_menu::sprite_menu_action 1 }
-	bind_default "keyb RIGHT"   -repeat { test_osd_menu::sprite_menu_action 2 }
-	bind_default "keyb ESCAPE"  -repeat	{ test_osd_menu::sprite_menu_hide	}
-	bind_default "keyb SPACE"   -repeat	{ test_osd_menu::sprite_menu_action 0}
+	bind_default "keyb LEFT"    -repeat { osd_sprite_info::sprite_viewer_action 1 }
+	bind_default "keyb RIGHT"   -repeat { osd_sprite_info::sprite_viewer_action 2 }
+	bind_default "keyb ESCAPE"  -repeat	{ osd_sprite_info::sprite_viewer_hide	}
+	bind_default "keyb SPACE"   -repeat	{ osd_sprite_info::sprite_viewer_action 0}
 
-	osd create rectangle sprite_menu -x 5 -y 100 -w 128 -h 190 -rgba 0x00000080
-	osd create rectangle sprite_menu.title -x 0 -y 15 -w 128 -h 32 -rgba 0x0000ff80 -clip on
-	osd create text	sprite_menu.title.text -x 24 -text "" -size 18 -rgba 0xffffffff
-	osd create text sprite_menu.index -x 70 -y 38 -text "" -size 8 -rgba 0xffffffff
-	osd create text sprite_menu.refresh -x 8 -y 170 -size 8 -text "\[Space\] Refresh Sprite" -rgba 0xffffffff
-	osd create text sprite_menu.escape -x 8 -y 180 -size 8 -text "\[Escape\] to Exit Viewer" -rgba 0xffffffff
+	osd create rectangle sprite_viewer -x 5 -y 100 -w 128 -h 190 -rgba 0x00000080
+	osd create rectangle sprite_viewer.title -x 0 -y 15 -w 128 -h 32 -rgba 0x0000ff80 -clip on
+	osd create text	sprite_viewer.title.text -x 24 -text "" -size 18 -rgba 0xffffffff
+	osd create text sprite_viewer.index -x 70 -y 38 -text "" -size 8 -rgba 0xffffffff
+	osd create text sprite_viewer.refresh -x 8 -y 170 -size 8 -text "\[Space\] Refresh Sprite" -rgba 0xffffffff
+	osd create text sprite_viewer.escape -x 8 -y 180 -size 8 -text "\[Escape\] to Exit Viewer" -rgba 0xffffffff
 
-	sprite_menu_action 0
+	sprite_viewer_action 0
 }
 
-proc sprite_menu_action {action} {
+proc sprite_viewer_action {action} {
 
 	variable title
 	variable title_pos
@@ -41,14 +41,14 @@ proc sprite_menu_action {action} {
 	show_sprite $title_pos
 
 	#fade/ease
-	osd configure sprite_menu.title.text -text "Sprite $title_pos" -fadeCurrent 0
-	osd configure sprite_menu.index	-text "In mem: $max_sprites"
-	ease_text sprite_menu.title.text 0 $action
+	osd configure sprite_viewer.title.text -text "Sprite $title_pos" -fadeCurrent 0
+	osd configure sprite_viewer.index	-text "In mem: $max_sprites"
+	ease_text sprite_viewer.title.text 0 $action
 
 }
 
-proc sprite_menu_hide {} {
-	osd destroy sprite_menu
+proc sprite_viewer_hide {} {
+	osd destroy sprite_viewer
 	unbind_default "keyb LEFT"
 	unbind_default "keyb RIGHT"
 	unbind_default "keyb ESCAPE"
@@ -93,8 +93,8 @@ proc show_sprite {sprite} {
 		error "Please choose a value between 0 and $max_sprites"
 	}
 
-	osd destroy sprite_menu.sprite_osd
-	draw_matrix "sprite_menu.sprite_osd" 7 56 7 $sprite_size 1
+	osd destroy sprite_viewer.sprite_osd
+	draw_matrix "sprite_viewer.sprite_osd" 7 56 7 $sprite_size 1
 
 	set addr [expr ([vdpreg 6] << 11) + ($sprite * $factor * 8)]
 	for {set y 0} {$y < $sprite_size} {incr y; incr addr} {
@@ -105,7 +105,7 @@ proc show_sprite {sprite} {
 		}
 		for {set x 0} {$x < $sprite_size} {incr x} {
 			if {$pattern & $mask} {
-				osd configure sprite_menu.sprite_osd.${x}_${y} -rgba 0xffffffff
+				osd configure sprite_viewer.sprite_osd.${x}_${y} -rgba 0xffffffff
 			}
 			set mask [expr $mask >> 1]
 		}
@@ -135,8 +135,8 @@ proc draw_matrix {matrixname x y blocksize matrixsize matrixgap} {
 	return ""
 }
 
-namespace export sprite_menu
+namespace export sprite_viewer
 
 } ;# namespace osd_menu
 
-namespace import test_osd_menu::*
+namespace import osd_sprite_info::*
