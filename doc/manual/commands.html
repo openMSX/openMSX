@@ -69,9 +69,9 @@
 
         <li><a class="internal" href="#machine_info">machine_info</a></li>
 
-	<li><a class="internal" href="#monitor_type">monitor_type</a></li>
+        <li><a class="internal" href="#monitor_type">monitor_type</a></li>
 
-	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
+        <li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
 
         <li><a class="internal" href="#nowind">nowind&lt;x&gt;</a></li>
 
@@ -85,11 +85,11 @@
 
         <li><a class="internal" href="#plugunplug">plug / unplug</a></li>
 
-	<li><a class="internal" href="#psg_profile">psg_profile</a></li>
+        <li><a class="internal" href="#psg_profile">psg_profile</a></li>
 
         <li><a class="internal" href="#record">record</a></li>
 
-	<li><a class="internal" href="#record_channels">record_channels</a></li>
+        <li><a class="internal" href="#record_channels">record_channels</a></li>
 
         <li><a class="internal" href="#remove_extension">remove_extension</a></li>
 
@@ -195,9 +195,11 @@
 
         <li><a class="internal" href="#DirAsDSKmode">DirAsDSKmode</a></li>
 
-	<li><a class="internal" href="#disablesprites">disablesprites</a></li>
+        <li><a class="internal" href="#disablesprites">disablesprites</a></li>
 
-	<li><a class="internal" href="#display_deform">display_deform</a></li>
+        <li><a class="internal" href="#display_deform">display_deform</a></li>
+
+        <li><a class="internal" href="#enable_session_management">enable_session_management</a></li>
 
         <li><a class="internal" href="#frequency">frequency</a></li>
 
@@ -219,13 +221,13 @@
 
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
 
-	<li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
+        <li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
 
-	<li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
+        <li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
 
-	<li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
+        <li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
 
-	<li><a class="internal" href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></li>
+        <li><a class="internal" href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></li>
 
         <li><a class="internal" href="#kbd_trace_key_presses">kbd_trace_key_presses</a></li>
 
@@ -291,11 +293,11 @@
 
         <li><a class="internal" href="#speed">speed</a></li>
 
-	<li><a class="internal" href="#soundchip_balance">&lt;soundchip&gt;_balance</a></li>
+        <li><a class="internal" href="#soundchip_balance">&lt;soundchip&gt;_balance</a></li>
 
         <li><a class="internal" href="#soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></li>
 
-	<li><a class="internal" href="#soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></li>
+        <li><a class="internal" href="#soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></li>
 
         <li><a class="internal" href="#soundchip_detune_frequency">&lt;soundchip&gt;_detune_frequency</a></li>
 
@@ -3384,6 +3386,14 @@
   <div class="note">
     Note: In the past there was also a 'horizontal_stretch' mode. This is now replaced by the <code><a class="internal" href="#horizontal_stretch">horizontal_stretch</a></code> setting.
   </div>
+
+  <h3><a id="enable_session_management">enable_session_management</a></h3>
+
+  <p>Controls session management. When enabled, openMSX will store the state of all machines when you exit openMSX and restore that state again when starting it up next time. Note that the reverse history is not saved.
+  </p>
+
+  <p>Sessions can also be saved manually with the command <code>save_session</code>, and explicitly loaded with <code>load_session</code>. A list of saved sessions can be retrieved with <code>list_sessions</code>.
+  </p>
 
   <h3><a id="frequency">frequency</a></h3>
 
