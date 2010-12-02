@@ -11,6 +11,8 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
+#include "FilePool.hh"
+#include "File.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "DiskManipulator.hh"
@@ -54,6 +56,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
 	: controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
+	, filePool(&board.getReactor().getFilePool())
 	, diskFactory(board.getReactor().getDiskFactory())
 	, manipulator(board.getReactor().getDiskManipulator())
 	, driveName(driveName_)
@@ -69,6 +72,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 	: controller(controller_)
 	, stateChangeDistributor(NULL)
 	, scheduler(NULL)
+	, filePool(NULL)
 	, diskFactory(diskFactory_)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
@@ -370,6 +374,19 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 		diskname.updateAfterLoadState(controller);
 		string name = diskname.getResolved(); // TODO use Filename
 		if (!name.empty()) {
+			// Only when the original file doesn't exist on this
+			// system, try to search by sha1sum. This means we
+			// prefer the original file over a file with a matching
+			// sha1sum (the original file may have changed). An
+			// alternative is to prefer the exact sha1sum match.
+			// I'm not sure which alternative is better.
+			if (!FileOperations::exists(name)) {
+				assert(filePool);
+				std::auto_ptr<File> file = filePool->getFile(oldChecksum);
+				if (file.get()) {
+					name = file->getURL();
+				}
+			}
 			vector<TclObject> objs;
 			objs.push_back(TclObject("dummy"));
 			objs.push_back(TclObject(name));

@@ -16,6 +16,7 @@ namespace openmsx {
 class CommandController;
 class StateChangeDistributor;
 class Scheduler;
+class FilePool;
 class MSXMotherBoard;
 class DiskFactory;
 class DiskManipulator;
@@ -70,6 +71,7 @@ private:
 	CommandController& controller;
 	StateChangeDistributor* stateChangeDistributor;
 	Scheduler* scheduler;
+	FilePool* filePool;
 	DiskFactory& diskFactory;
 	DiskManipulator& manipulator;
 
