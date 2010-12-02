@@ -6,8 +6,6 @@
 #include "DiskChanger.hh"
 #include "DSKDiskImage.hh"
 #include "DiskPartition.hh"
-#include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 #include "FileContext.hh"
 #include "StringOp.hh"
 #include "FileOperations.hh"
@@ -36,11 +34,7 @@ DiskChanger* NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
 	string name = StringOp::Builder() << basename << n + 1;
-	DiskChanger* drive = new DiskChanger(
-		name, motherBoard.getCommandController(),
-		motherBoard.getReactor().getDiskFactory(),
-		motherBoard.getReactor().getDiskManipulator(),
-		motherBoard, false);
+	DiskChanger* drive = new DiskChanger(motherBoard, name, false);
 	return drive;
 }
 

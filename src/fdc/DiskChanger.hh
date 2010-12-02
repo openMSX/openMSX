@@ -28,19 +28,14 @@ class DiskChanger : public DiskContainer, private StateChangeListener,
                     private noncopyable
 {
 public:
-	DiskChanger(const std::string& driveName,
-	            CommandController& commandController,
-	            DiskFactory& diskFactory,
-	            DiskManipulator& manipulator,
-	            MSXMotherBoard& board,
-	            bool createCommand);
-	DiskChanger(const std::string& driveName,
-	            CommandController& commandController,
-	            DiskFactory& diskFactory,
-	            DiskManipulator& manipulator,
-	            bool createCommand);
 	DiskChanger(MSXMotherBoard& board,
-	            const std::string& driveName);
+	            const std::string& driveName,
+	            bool createCommand = true);
+	DiskChanger(const std::string& driveName,
+	            CommandController& commandController,
+	            DiskFactory& diskFactory,
+	            DiskManipulator& manipulator,
+	            bool createCommand);
 	~DiskChanger();
 
 	void createCommand();

@@ -48,17 +48,14 @@ private:
 	DiskChanger& diskChanger;
 };
 
-DiskChanger::DiskChanger(const string& driveName_,
-                         CommandController& controller_,
-                         DiskFactory& diskFactory_,
-                         DiskManipulator& manipulator_,
-                         MSXMotherBoard& board,
+DiskChanger::DiskChanger(MSXMotherBoard& board,
+                         const string& driveName_,
                          bool createCmd)
-	: controller(controller_)
+	: controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
-	, diskFactory(diskFactory_)
-	, manipulator(manipulator_)
+	, diskFactory(board.getReactor().getDiskFactory())
+	, manipulator(board.getReactor().getDiskManipulator())
 	, driveName(driveName_)
 {
 	init(board.getMachineID() + "::", createCmd);
@@ -77,19 +74,6 @@ DiskChanger::DiskChanger(const string& driveName_,
 	, driveName(driveName_)
 {
 	init("", createCmd);
-}
-
-// only used for polymorphic de-serialization (for Nowind)
-DiskChanger::DiskChanger(MSXMotherBoard& board,
-                         const std::string& driveName_)
-	: controller(board.getCommandController())
-	, stateChangeDistributor(&board.getStateChangeDistributor())
-	, scheduler(&board.getScheduler())
-	, diskFactory(board.getReactor().getDiskFactory())
-	, manipulator(board.getReactor().getDiskManipulator())
-	, driveName(driveName_)
-{
-	init(board.getMachineID() + "::", true);
 }
 
 void DiskChanger::init(const string& prefix, bool createCmd)
@@ -374,6 +358,14 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("patches", patches);
 
+	ar.serialize("diskChanged", diskChangedFlag);
+
+	string oldChecksum;
+	if (!ar.isLoader()) {
+		oldChecksum = calcSha1(getSectorAccessibleDisk());
+	}
+	ar.serialize("checksum", oldChecksum);
+
 	if (ar.isLoader()) {
 		diskname.updateAfterLoadState(controller);
 		string name = diskname.getResolved(); // TODO use Filename
@@ -403,16 +395,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 				//   without diskimage. Is this better?
 			}
 		}
-	}
 
-	ar.serialize("diskChanged", diskChangedFlag);
-
-	string oldChecksum;
-	if (!ar.isLoader()) {
-		oldChecksum = calcSha1(getSectorAccessibleDisk());
-	}
-	ar.serialize("checksum", oldChecksum);
-	if (ar.isLoader()) {
 		string newChecksum = calcSha1(getSectorAccessibleDisk());
 		if (oldChecksum != newChecksum) {
 			controller.getCliComm().printWarning(

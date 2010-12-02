@@ -55,11 +55,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
 		throw MSXException("Duplicated drive name: " + driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
-	changer.reset(new DiskChanger(
-		driveName, motherBoard.getCommandController(),
-		motherBoard.getReactor().getDiskFactory(),
-		motherBoard.getReactor().getDiskManipulator(),
-		motherBoard, true));
+	changer.reset(new DiskChanger(motherBoard, driveName, true));
 }
 
 RealDrive::~RealDrive()
