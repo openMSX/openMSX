@@ -11,12 +11,13 @@
 namespace openmsx {
 
 class Filename;
+class FilePool;
 class WavData;
 
 class WavImage : public CassetteImage, private noncopyable
 {
 public:
-	explicit WavImage(const Filename& filename);
+	explicit WavImage(const Filename& filename, FilePool& filePool);
 	virtual ~WavImage();
 
 	virtual short getSampleAt(EmuTime::param time);

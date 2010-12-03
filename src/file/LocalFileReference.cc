@@ -23,9 +23,19 @@ LocalFileReference::LocalFileReference(const string& url)
 	init(url);
 }
 
+LocalFileReference::LocalFileReference(File& file)
+{
+	init(file);
+}
+
 void LocalFileReference::init(const string& url)
 {
 	File file(url);
+	init(file);
+}
+
+void LocalFileReference::init(File& file)
+{
 	tmpFile = file.getLocalReference();
 	if (!tmpFile.empty()) {
 		// file is backed on the (local) filesystem,

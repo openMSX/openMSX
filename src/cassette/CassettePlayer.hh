@@ -20,6 +20,7 @@ class CassetteImage;
 class MSXMixer;
 class Scheduler;
 class CliComm;
+class FilePool;
 class Wav8Writer;
 class LoadingIndicator;
 class ThrottleManager;
@@ -39,6 +40,7 @@ public:
 	               StateChangeDistributor& stateChangeDistributor,
 	               EventDistributor& eventDistributor,
 	               CliComm& cliComm,
+	               FilePool& filePool,
 	               EnumSetting<ResampleType>& resampleSetting,
 	               ThrottleManager& throttleManager);
 	virtual ~CassettePlayer();
@@ -158,6 +160,7 @@ private:
 
 	CommandController& commandController;
 	CliComm& cliComm;
+	FilePool& filePool;
 	EventDistributor& eventDistributor;
 
 	const std::auto_ptr<TapeCommand> tapeCommand;
@@ -174,6 +177,7 @@ private:
 
 	friend class TapeCommand;
 };
+SERIALIZE_CLASS_VERSION(CassettePlayer, 2);
 
 } // namespace openmsx
 

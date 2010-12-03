@@ -43,10 +43,10 @@ static const byte BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,
 static const byte BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
-CasImage::CasImage(const Filename& filename, CliComm& cliComm)
+CasImage::CasImage(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
 	setFirstFileType(CassetteImage::UNKNOWN);
-	convert(filename, cliComm);
+	convert(filename, filePool, cliComm);
 }
 
 short CasImage::getSampleAt(EmuTime::param time)
@@ -149,7 +149,7 @@ bool CasImage::writeData(const byte* buf, const unsigned size, unsigned& pos)
 	return false;
 }
 
-void CasImage::convert(const Filename& filename, CliComm& cliComm)
+void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
 	File file(filename);
 	unsigned size;
@@ -224,6 +224,10 @@ void CasImage::convert(const Filename& filename, CliComm& cliComm)
 		 cliComm.printWarning("Skipped unhandled data in " +
 		                      filename.getOriginal());
 	}
+
+	// conversion successful, now calc sha1sum
+	file.setFilePool(filePool);
+	setSha1Sum(file.getSha1Sum());
 }
 
 } // namespace openmsx

@@ -73,9 +73,9 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getReactor().getEventDistributor(),
 		motherBoard.getMSXCliComm(),
+		motherBoard.getReactor().getFilePool(),
 		motherBoard.getReactor().getGlobalSettings().getResampleSetting(),
-		motherBoard.getReactor().getGlobalSettings().getThrottleManager()
-		));
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager()));
 	getPluggingController().registerPluggable(cassettePlayer.get());
 }
 

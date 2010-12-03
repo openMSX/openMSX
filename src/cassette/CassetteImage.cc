@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CassetteImage.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -34,6 +35,18 @@ std::string CassetteImage::getFirstFileTypeAsString() const
 	} else {
 		return "unknown";
 	}
+}
+
+void CassetteImage::setSha1Sum(const std::string& sha1sum_)
+{
+	assert(sha1sum.empty());
+	sha1sum = sha1sum_;
+}
+
+const std::string& CassetteImage::getSha1Sum() const
+{
+	assert(!sha1sum.empty());
+	return sha1sum;
 }
 
 } // namespace openmsx

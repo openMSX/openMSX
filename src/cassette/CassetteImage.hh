@@ -22,12 +22,23 @@ public:
 	FileType getFirstFileType() const;
 	std::string getFirstFileTypeAsString() const;
 
+	/** Get sha1sum for this image.
+	 * This is based on the content of the file, not the logical meaning of
+	 * the file. IOW: it's possible for different files (with different
+	 * sha1sum) to represent the same logical cassette data (e.g. wav with
+	 * different bits per sample). This method will give a different
+	 * sha1sum to such files.
+	 */
+	const std::string& getSha1Sum() const;
+
 protected:
 	CassetteImage();
 	void setFirstFileType(FileType type);
+	void setSha1Sum(const std::string& sha1sum);
 
 private:
 	FileType firstFileType;
+	std::string sha1sum;
 };
 
 } // namespace openmsx

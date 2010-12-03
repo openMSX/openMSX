@@ -83,6 +83,7 @@ CassettePlayer::CassettePlayer(
 		StateChangeDistributor& stateChangeDistributor,
 		EventDistributor& eventDistributor_,
 		CliComm& cliComm_,
+		FilePool& filePool_,
 		EnumSetting<ResampleType>& resampleSetting,
 		ThrottleManager& throttleManager)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
@@ -93,6 +94,7 @@ CassettePlayer::CassettePlayer(
 	, audioPos(0)
 	, commandController(commandController_)
 	, cliComm(cliComm_)
+	, filePool(filePool_)
 	, eventDistributor(eventDistributor_)
 	, tapeCommand(new TapeCommand(commandController, stateChangeDistributor,
 	                              scheduler, *this))
@@ -309,11 +311,12 @@ void CassettePlayer::insertTape(const Filename& filename)
 	if (!filename.empty()) {
 		try {
 			// first try WAV
-			playImage.reset(new WavImage(filename));
+			playImage.reset(new WavImage(filename, filePool));
 		} catch (MSXException& e) {
 			try {
 				// if that fails use CAS
-				playImage.reset(new CasImage(filename, cliComm));
+				playImage.reset(new CasImage(
+					filename, filePool, cliComm));
 			} catch (MSXException& e2) {
 				throw MSXException(
 					"Failed to insert WAV image: \"" +
@@ -849,8 +852,10 @@ static enum_string<CassettePlayer::State> stateInfo[] = {
 };
 SERIALIZE_ENUM(CassettePlayer::State, stateInfo);
 
+// version 1: initial version
+// version 2: added checksum
 template<typename Archive>
-void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
+void CassettePlayer::serialize(Archive& ar, unsigned version)
 {
 	if (recordImage.get()) {
 		// buf, sampcnt
@@ -858,10 +863,31 @@ void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	ar.serialize("casImage", casImage);
+
+	string oldChecksum;
+	if (!ar.isLoader() && playImage.get()) {
+		oldChecksum = playImage->getSha1Sum();
+	}
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("checksum", oldChecksum);
+	}
+
 	if (ar.isLoader()) {
 		removeTape(getCurrentTime());
 		casImage.updateAfterLoadState(commandController);
 		insertTape(casImage);
+
+		if (playImage.get() && !oldChecksum.empty()) {
+			string newChecksum = playImage->getSha1Sum();
+			if (oldChecksum != newChecksum) {
+				cliComm.printWarning(
+					"The content of the tape " +
+					casImage.getResolved() +
+					" has changed since the time this "
+					"savestate was created. This might "
+					"result in emulation problems.");
+			}
+		}
 	}
 
 	// only for RECORD

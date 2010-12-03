@@ -11,6 +11,7 @@ namespace openmsx {
 
 class CliComm;
 class Filename;
+class FilePool;
 
 /**
  * Code based on "cas2wav" tool by Vincent van Dam
@@ -18,7 +19,7 @@ class Filename;
 class CasImage : public CassetteImage
 {
 public:
-	CasImage(const Filename& fileName, CliComm& cliComm);
+	CasImage(const Filename& fileName, FilePool& filePool, CliComm& cliComm);
 
 	// CassetteImage
 	virtual short getSampleAt(EmuTime::param time);
@@ -33,7 +34,7 @@ private:
 	void writeSilence(int s);
 	void writeByte(byte b);
 	bool writeData(const byte* buf, unsigned size, unsigned& pos);
-	void convert(const Filename& filename, CliComm& cliComm);
+	void convert(const Filename& filename, FilePool& filePool, CliComm& cliComm);
 
 	std::vector<signed char> output;
 };

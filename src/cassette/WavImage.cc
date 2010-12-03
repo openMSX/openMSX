@@ -3,16 +3,26 @@
 #include "WavImage.hh"
 #include "WavData.hh"
 #include "LocalFileReference.hh"
+#include "File.hh"
 #include "Math.hh"
 
 namespace openmsx {
 
 // Note: type detection not implemented yet for WAV images
-WavImage::WavImage(const Filename& filename)
+WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	: clock(EmuTime::zero)
 {
-	LocalFileReference file(filename);
-	wav.reset(new WavData(file.getFilename(), 16, 0));
+	std::auto_ptr<LocalFileReference> localFile;
+	{
+		// File object must be destroyed before localFile is actually
+		// used by an external API (see comments in LocalFileReference
+		// for details).
+		File file(filename);
+		file.setFilePool(filePool);
+		setSha1Sum(file.getSha1Sum());
+		localFile.reset(new LocalFileReference(file));
+	}
+	wav.reset(new WavData(localFile->getFilename(), 16, 0));
 	clock.setFreq(wav->getFreq());
 
 	// calculate the average to subtract it later (simple DC filter)
