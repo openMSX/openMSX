@@ -30,6 +30,8 @@
 #include "RecordedCommand.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
+#include "FilePool.hh"
+#include "File.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "CliComm.hh"
@@ -875,6 +877,13 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	if (ar.isLoader()) {
 		removeTape(getCurrentTime());
 		casImage.updateAfterLoadState(commandController);
+		if (!oldChecksum.empty() &&
+		    !FileOperations::exists(casImage.getResolved())) {
+			std::auto_ptr<File> file = filePool.getFile(oldChecksum);
+			if (file.get()) {
+				casImage.setResolved(file->getURL());
+			}
+		}
 		insertTape(casImage);
 
 		if (playImage.get() && !oldChecksum.empty()) {

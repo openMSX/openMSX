@@ -43,6 +43,12 @@ public:
 	 */
 	bool empty() const;
 
+	/** Change the resolved part of this filename
+	 * E.g. on loadstate when we didn't find the original file, but another
+	 * file with a matching checksum.
+	 */
+	void setResolved(const std::string& resolved);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
