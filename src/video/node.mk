@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SUBDIRS:= \
-	v9990 ld
+	v9990 ld scalers
 
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker ADVram \
@@ -22,22 +22,7 @@ SRC_HDR:= \
 	OutputSurface VisibleSurface SDLVisibleSurface \
 	SDLOffScreenSurface \
 	Icon \
-	AviRecorder AviWriter ZMBVEncoder \
-	ScalerFactory \
-	Scaler1
-
-ifneq ($(MAX_SCALE_FACTOR), 1)
-SRC_HDR += \
-	Scanline \
-	Scaler2 Scaler3 \
-	Simple2xScaler Simple3xScaler \
-	SaI2xScaler SaI3xScaler \
-	Scale2xScaler Scale3xScaler \
-	HQ2xScaler HQ2xLiteScaler \
-	HQ3xScaler HQ3xLiteScaler \
-	RGBTriplet3xScaler \
-	Multiply32
-endif
+	AviRecorder AviWriter ZMBVEncoder
 
 ifeq ($(PLATFORM_GP2X), 1)
 SRC_HDR += \
@@ -49,41 +34,18 @@ HDR_ONLY:= \
 	VRAMObserver \
 	SpriteConverter \
 	PixelOperations \
-	LineScalers \
-	Scaler \
 	Rasterizer \
-	HQCommon \
 	VideoSystemChangeListener \
 	LayerListener \
 	VideoSource \
 	SDLSurfacePtr
 
 DIST:= \
-	HQ2xScaler-1x1to2x2.nn \
-	HQ2xScaler-1x1to1x2.nn \
-	HQ3xScaler-1x1to3x3.nn \
-	HQ2xLiteScaler-1x1to2x2.nn \
-	HQ2xLiteScaler-1x1to1x2.nn \
-	HQ3xLiteScaler-1x1to3x3.nn \
 	FBPostProcessor-x64.asm \
-	FBPostProcessor-x86.asm \
-	LineScalers-x64.asm \
-	LineScalers-x86.asm \
-	Scale2xScaler-x64.asm \
-	Scale2xScaler-x86.asm \
-	Scanline-x64.asm \
-	Scanline-x86.asm \
-	Simple2xScaler-x64.asm \
-	Simple2xScaler-x86.asm \
-	Simple3xScaler-x64.asm \
-	Simple3xScaler-x86.asm
+	FBPostProcessor-x86.asm
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLOutputSurface SDLGLVisibleSurface SDLGLOffScreenSurface \
-	GLSnow GLUtil GLImage \
-	GLPostProcessor GLScalerFactory GLScaler \
-	GLSimpleScaler GLScaleNxScaler GLSaIScaler GLTVScaler \
-	GLRGBScaler GLHQScaler GLHQLiteScaler
+	GLSnow GLUtil GLImage GLPostProcessor
 
 include build/node-end.mk
-
