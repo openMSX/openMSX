@@ -38,7 +38,7 @@ byte MSXCielTurbo::peekIO(word /*port*/, EmuTime::param /*time*/) const
 void MSXCielTurbo::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	lastValue = value;
-	bool enabled = value & 0x80;
+	bool enabled = (value & 0x80) != 0;
 	unsigned freq = 3579545;
 	if (enabled) freq *= 2;
 	getMotherBoard().getCPU().setZ80Freq(freq);
