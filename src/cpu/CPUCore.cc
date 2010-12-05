@@ -318,7 +318,8 @@ template <class T> void CPUCore<T>::doReset(EmuTime::param time)
 	R.setBC2(0xFFFF);
 	R.setDE2(0xFFFF);
 	R.setHL2(0xFFFF);
-	R.clearAfter();
+	R.clearNextAfter();
+	R.copyNextAfter();
 	R.setIFF1(false);
 	R.setIFF2(false);
 	R.setHALT(false);
@@ -751,6 +752,8 @@ template <class T> inline void CPUCore<T>::irq2()
 template <class T>
 void CPUCore<T>::executeInstructions()
 {
+	assert(R.isNextAfterClear());
+
 #ifdef USE_COMPUTED_GOTO
 	// Addresses of all main-opcode routines,
 	// Note that 40/49/53/5B/64/6D/7F is replaced by 00 (ld r,r == nop)
@@ -1488,8 +1491,8 @@ CASE(ED) {
 
 		case 0x47: { int c = ld_i_a(); NEXT; }
 		case 0x4f: { int c = ld_r_a(); NEXT; }
-		case 0x57: { int c = ld_a_IR<REG_I>(); NEXT; }
-		case 0x5f: { int c = ld_a_IR<REG_R>(); NEXT; }
+		case 0x57: { int c = ld_a_IR<REG_I>(); if (T::isR800()) { NEXT; } else { NEXT_STOP; }}
+		case 0x5f: { int c = ld_a_IR<REG_R>(); if (T::isR800()) { NEXT; } else { NEXT_STOP; }}
 
 		case 0x67: { int c = rrd(); NEXT; }
 		case 0x6f: { int c = rld(); NEXT; }
@@ -2404,11 +2407,13 @@ template <class T> void CPUCore<T>::executeSlow()
 		R.incR(T::advanceHalt(T::haltStates(), scheduler.getNext()));
 		setSlowInstructions();
 	} else {
-		R.clearAfter();
+		assert(R.isSameAfter());
+		R.clearNextAfter();
 		cpuTracePre();
 		assert(T::limitReached()); // we want only one instruction
 		executeInstructions();
 		cpuTracePost();
+		R.copyNextAfter();
 	}
 }
 
@@ -2454,7 +2459,9 @@ template <class T> void CPUCore<T>::execute()
 					T::enableLimit(true); // does CPUClock::sync()
 					if (likely(!T::limitReached())) {
 						// multiple instructions
+						assert(R.isSameAfter());
 						executeInstructions();
+						assert(R.isSameAfter());
 					}
 					scheduler.schedule(T::getTimeFast());
 					if (needExitCPULoop()) return;
@@ -2470,7 +2477,9 @@ template <class T> void CPUCore<T>::execute()
 			if (slowInstructions == 0) {
 				cpuTracePre();
 				assert(T::limitReached()); // only one instruction
+				assert(R.isSameAfter());
 				executeInstructions();
+				assert(R.isSameAfter());
 				cpuTracePost();
 			} else {
 				--slowInstructions;

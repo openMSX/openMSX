@@ -11,6 +11,7 @@
 #include "build-info.hh"
 #include <vector>
 #include <memory>
+#include <cassert>
 
 namespace openmsx {
 
@@ -290,21 +291,78 @@ public:
 			else { UNREACHABLE; }
 		}
 
-		inline void setIM(byte x)  { IM_ = x; }
-		inline void setI(byte x)   { I_ = x; }
-		inline void setR(byte x)   { R_ = x; R2_ = x; }
-		inline void setIFF1(bool x)     { IFF1_ = x; }
-		inline void setIFF2(bool x)     { IFF2_ = x; }
-		inline void setHALT(bool x)     { HALT_ = (HALT_ & ~1) | (x ? 1 : 0); }
-		inline void setExtHALT(bool x)  { HALT_ = (HALT_ & ~2) | (x ? 2 : 0); }
+		inline void setIM(byte x) { IM_ = x; }
+		inline void setI(byte x)  { I_ = x; }
+		inline void setR(byte x)  { R_ = x; R2_ = x; }
+		inline void setIFF1(bool x)    { IFF1_ = x; }
+		inline void setIFF2(bool x)    { IFF2_ = x; }
+		inline void setHALT(bool x)    { HALT_ = (HALT_ & ~1) | (x ? 1 : 0); }
+		inline void setExtHALT(bool x) { HALT_ = (HALT_ & ~2) | (x ? 2 : 0); }
 
 		inline void incR(byte x) { R_ += x; }
 
-		inline bool getAfterEI()   const { return (after_ & 0x01) != 0; }
-		inline bool getAfterLDAI() const { return (after_ & 0x02) != 0; }
-		inline void setAfterEI()   { after_ |= 0x01; }
-		inline void setAfterLDAI() { after_ |= 0x02; }
-		inline void clearAfter() { after_ = 0x00; }
+		// These methods are used to set/query whether the previously
+		// executed instruction was a 'EI' or 'LD A,{I,R}' instruction.
+		// Initially this could only be queried between two
+		// instructions, so e.g. after the EI instruction was executed
+		// but before the next one has started, for emulation this is
+		// good enough. But for debugging we still want to be able to
+		// query this info during the execution of the next
+		// instruction: e.g. a IO-watchpoint is triggered during the
+		// execution of some OUT instruction, at the time we evaluate
+		// the condition for that watchpoint, we still want to be able
+		// to query whether the previous instruction was a EI
+		// instruction.
+		inline bool isSameAfter() const {
+			// Between two instructions these two should be the same
+			return after_ == afterNext_;
+		}
+		inline bool getAfterEI()   const {
+			assert(isSameAfter());
+			return (after_ & 0x01) != 0;
+		}
+		inline bool getAfterLDAI() const {
+			assert(isSameAfter());
+			return (after_ & 0x02) != 0;
+		}
+		inline bool debugGetAfterEI() const {
+			// Can be called during execution of an instruction
+			return (after_ & 0x01) != 0;
+		}
+		inline void clearNextAfter() {
+			// Right before executing an instruction this should be
+			// cleared
+			afterNext_ = 0x00;
+		}
+		inline bool isNextAfterClear() {
+			// In the fast code path we avoid calling clearNextAfter()
+			// before every instruction. But in debug mode we want
+			// to verify that this optimzation is valid.
+			return afterNext_ == 0;
+		}
+		inline void setAfterEI() {
+			// Set both after_ and afterNext_. Can only be called
+			// at the end of an instruction (status of prev
+			// instruction can't be queried anymore)
+			assert(isNextAfterClear());
+			afterNext_ = after_ = 0x01;
+		}
+		inline void setAfterLDAI() {
+			// Set both, see above.
+			assert(isNextAfterClear());
+			afterNext_ = after_ = 0x02;
+		}
+		inline void copyNextAfter() {
+			// At the end of an instruction, the next flags become
+			// the current flags. setAfterEI/LDAI() already sets
+			// both after_ and afterNext_, thus calling this method
+			// is only required to clear the flags. Instructions
+			// right after a EI or LD A,I/R instruction are always
+			// executed in the slow code path. So this means that
+			// in the fast code path we don't need to call
+			// copyNextAfter().
+			after_ = afterNext_;
+		}
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -314,7 +372,7 @@ public:
 		z80regpair AF2_, BC2_, DE2_, HL2_;
 		z80regpair IX_, IY_, PC_, SP_;
 		bool IFF1_, IFF2_;
-		byte after_;
+		byte after_, afterNext_;
 		byte HALT_;
 		byte IM_, I_;
 		byte R_, R2_; // refresh = R & Rmask | R2 & ~Rmask

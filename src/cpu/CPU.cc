@@ -2,7 +2,6 @@
 
 #include "CPU.hh"
 #include "serialize.hh"
-#include <cassert>
 
 namespace openmsx {
 
@@ -113,14 +112,18 @@ void CPU::CPURegs::serialize(Archive& ar, unsigned version)
 	ar.serialize("im",  IM_);
 	ar.serialize("iff1", IFF1_);
 	ar.serialize("iff2", IFF2_);
+
+	assert(isSameAfter());
 	if (ar.versionBelow(version, 2)) {
 		bool afterEI = false; // initialize to avoid warning
 		ar.serialize("afterEI", afterEI);
-		clearAfter();
+		clearNextAfter();
 		if (afterEI) setAfterEI();
 	} else {
-		ar.serialize("after", after_);
+		ar.serialize("after", afterNext_);
 	}
+	copyNextAfter();
+
 	ar.serialize("halt", HALT_);
 }
 INSTANTIATE_SERIALIZE_METHODS(CPU::CPURegs);

@@ -273,17 +273,23 @@ string TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 
 // class MSXCPUDebuggable
 
-//  0 ->  A      1 ->  F      2 -> B       3 -> C
-//  4 ->  D      5 ->  E      6 -> H       7 -> L
-//  8 ->  A'     9 ->  F'    10 -> B'     11 -> C'
-// 12 ->  D'    13 ->  E'    14 -> H'     15 -> L'
-// 16 -> IXH    17 -> IXL    18 -> IYH    19 -> IYL
-// 20 -> PCH    21 -> PCL    22 -> SPH    23 -> SPL
-// 24 ->  I     25 ->  R     26 -> IM     27 -> IFF1/2
+static const char* const CPU_REGS_DESC =
+	"Registers of the active CPU (Z80 or R800).\n"
+	"Each byte in this debuggable represents one 8 bit register:\n"
+	"  0 ->  A      1 ->  F      2 -> B       3 -> C\n"
+	"  4 ->  D      5 ->  E      6 -> H       7 -> L\n"
+	"  8 ->  A'     9 ->  F'    10 -> B'     11 -> C'\n"
+	" 12 ->  D'    13 ->  E'    14 -> H'     15 -> L'\n"
+	" 16 -> IXH    17 -> IXL    18 -> IYH    19 -> IYL\n"
+	" 20 -> PCH    21 -> PCL    22 -> SPH    23 -> SPL\n"
+	" 24 ->  I     25 ->  R     26 -> IM     27 -> IFF1/2\n"
+	"The last position (27) contains the IFF1 and IFF2 flags in respectively\n"
+	"bit 0 and 1. Bit 2 contains 'IFF1 AND last-instruction-was-not-EI', so\n"
+	"this effectively indicates that the CPU could accept an interrupt at\n"
+	"the start of the current instruction.\n";
 
 MSXCPUDebuggable::MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
-	: SimpleDebuggable(motherboard, "CPU regs",
-	                   "Registers of the active CPU (Z80 or R800)", 28)
+	: SimpleDebuggable(motherboard, "CPU regs", CPU_REGS_DESC, 28)
 	, cpu(cpu_)
 {
 }
@@ -319,7 +325,9 @@ byte MSXCPUDebuggable::read(unsigned address)
 	case 24: return regs.getI();
 	case 25: return regs.getR();
 	case 26: return regs.getIM();
-	case 27: return regs.getIFF1() + 2 * regs.getIFF2();
+	case 27: return 1 *  regs.getIFF1() +
+	                2 *  regs.getIFF2() +
+	                4 * (regs.getIFF1() && !regs.debugGetAfterEI());
 	default: UNREACHABLE; return 0;
 	}
 }
@@ -360,6 +368,7 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 	case 27:
 		regs.setIFF1((value & 0x01) != 0);
 		regs.setIFF2((value & 0x02) != 0);
+		// can't change afterEI
 		break;
 	default:
 		UNREACHABLE;
