@@ -280,6 +280,22 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 				"problems.");
 		}
 	}
+
+	// This must come after we store the 'resolvedSha1', because on
+	// loadstate we use that tag to search the complete rom in a filepool.
+	if (const XMLElement* windowElem = config.findChild("window")) {
+		unsigned windowBase = windowElem->getAttributeAsInt("base", 0);
+		unsigned windowSize = windowElem->getAttributeAsInt("size", size);
+		if ((windowBase + windowSize) > size) {
+			throw MSXException(StringOp::Builder() <<
+				"The specified window [" << windowBase << ',' <<
+				windowBase + windowSize << ") falls outside "
+				"the rom (with size " << size << ").");
+		}
+		rom = &rom[windowBase];
+		size = windowSize;
+		patchedSha1 = SHA1::calc(rom, size);
+	}
 }
 
 bool Rom::checkSHA1(const XMLElement& config)
