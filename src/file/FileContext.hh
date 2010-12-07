@@ -18,6 +18,7 @@ public:
 	const std::string resolveCreate(const std::string& filename) const;
 
 	std::vector<std::string> getPaths(CommandController& controller) const;
+	bool isUserContext() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

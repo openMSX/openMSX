@@ -382,7 +382,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			// I'm not sure which alternative is better.
 			if (!FileOperations::exists(name)) {
 				assert(filePool);
-				std::auto_ptr<File> file = filePool->getFile(oldChecksum);
+				std::auto_ptr<File> file = filePool->getFile(
+					FilePool::DISK, oldChecksum);
 				if (file.get()) {
 					name = file->getURL();
 				}

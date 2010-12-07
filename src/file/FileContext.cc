@@ -132,6 +132,17 @@ vector<string> FileContext::getPaths(CommandController& controller) const
 	return getPathsHelper(controller, paths);
 }
 
+bool FileContext::isUserContext() const
+{
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end(); ++it) {
+		if (*it == USER_DIRS) {
+			return true;
+		}
+	}
+	return false;
+}
+
 ///
 
 static string backSubstSymbols(const string& path)

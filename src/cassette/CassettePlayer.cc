@@ -879,7 +879,8 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		casImage.updateAfterLoadState(commandController);
 		if (!oldChecksum.empty() &&
 		    !FileOperations::exists(casImage.getResolved())) {
-			std::auto_ptr<File> file = filePool.getFile(oldChecksum);
+			std::auto_ptr<File> file = filePool.getFile(
+				FilePool::TAPE, oldChecksum);
 			if (file.get()) {
 				casImage.setResolved(file->getURL());
 			}

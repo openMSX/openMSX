@@ -13,20 +13,26 @@
 
 namespace openmsx {
 
-class SettingsConfig;
+class CommandController;
 class File;
+class StringSetting;
+class CliComm;
 
 class FilePool : private noncopyable
 {
 public:
-	explicit FilePool(SettingsConfig& settingsConfig);
+	explicit FilePool(CommandController& controler);
 	~FilePool();
+
+	enum FileType {
+		SYSTEM_ROM = 1, ROM = 2, DISK = 4, TAPE = 8
+	};
 
 	/** Search file with the given sha1sum.
 	 * If found it returns the (already opened) file,
 	 * if not found it returns a NULL pointer.
 	 */
-	std::auto_ptr<File> getFile(const std::string& sha1sum);
+	std::auto_ptr<File> getFile(FileType fileType, const std::string& sha1sum);
 
 	/** Calculate sha1sum for the given File object.
 	 * If possible the result is retrieved from cache, avoiding the
@@ -41,6 +47,12 @@ public:
 	void removeSha1Sum(File& file);
 
 private:
+	struct Entry {
+		std::string path;
+		int types;
+	};
+	typedef std::multimap<int, Entry> Directories;
+
 	// Manually implement a collection of <sha1sum, timestamp, filename>
 	// tuples, that is indexed on both sha1sum and filename. Using
 	// something like boost::multi_index would be both faster and more
@@ -49,8 +61,6 @@ private:
 	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
 	//   <filename, Pool::iterator>
 	typedef std::map<std::string, Pool::iterator> ReversePool;
-
-	typedef std::vector<std::string> Directories;
 
 	void insert(const std::string& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);
@@ -66,9 +76,14 @@ private:
 	                             const FileOperations::Stat& st);
 	Pool::iterator findInDatabase(const std::string& filename);
 
+	void getDirectories(Directories& result) const;
+
+
+	const std::auto_ptr<StringSetting> filePoolSetting;
+	CliComm& cliComm;
+
 	Pool pool;
 	ReversePool reversePool;
-	Directories directories;
 };
 
 } // namespace openmsx

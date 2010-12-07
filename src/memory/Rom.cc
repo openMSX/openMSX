@@ -5,6 +5,7 @@
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "Filename.hh"
 #include "FileException.hh"
 #include "PanasonicMemory.hh"
@@ -112,9 +113,11 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			}
 		}
 		// .. then try the actual sha1sum ..
+		FilePool::FileType fileType = config.getFileContext().isUserContext()
+			? FilePool::ROM : FilePool::SYSTEM_ROM;
 		if (!file.get() && resolvedSha1Elem) {
 			string sha1 = resolvedSha1Elem->getData();
-			file = filepool.getFile(sha1);
+			file = filepool.getFile(fileType, sha1);
 			if (file.get()) {
 				// avoid recalculating same sha1 later
 				originalSha1 = sha1;
@@ -138,7 +141,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			for (XMLElement::Children::const_iterator it = sums.begin();
 			     it != sums.end(); ++it) {
 				const string& sha1 = (*it)->getData();
-				file = filepool.getFile(sha1);
+				file = filepool.getFile(fileType, sha1);
 				if (file.get()) {
 					// avoid recalculating same sha1 later
 					originalSha1 = sha1;

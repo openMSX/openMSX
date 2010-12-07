@@ -5,10 +5,13 @@
 #include "FileException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "TclObject.hh"
+#include "StringSetting.hh"
 #include "ReadDir.hh"
 #include "Date.hh"
-#include "SettingsConfig.hh"
-#include "XMLElement.hh"
+#include "CommandController.hh"
+#include "CommandException.hh"
+#include "CliComm.hh"
 #include "sha1.hh"
 #include <fstream>
 #include <cassert>
@@ -26,27 +29,36 @@ namespace openmsx {
 
 const char* const FILE_CACHE = "/.filecache";
 
-FilePool::FilePool(SettingsConfig& settingsConfig)
+static string initialFilePoolSettingValue(CommandController& controller)
 {
-	if (const XMLElement* config =
-			settingsConfig.getXMLElement().findChild("RomPool")) {
-		XMLElement::Children dirs;
-		config->getChildren("directory", dirs);
-		for (XMLElement::Children::const_iterator it = dirs.begin();
-		     it != dirs.end(); ++it) {
-			string dir = FileOperations::expandTilde((*it)->getData());
-			directories.push_back(dir);
-		}
-	}
+	TclObject result;
+
+	int priority = 0;
 	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
-	vector<string> paths = context.getPaths(*controller);
+	vector<string> paths = context.getPaths(controller);
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
-		string dir = FileOperations::join(*it, "systemroms");
-		directories.push_back(dir);
+		priority += 10;
+		TclObject entry;
+		entry.addListElement("-priority");
+		entry.addListElement(priority);
+		entry.addListElement("-path");
+		entry.addListElement(FileOperations::join(*it, "systemroms"));
+		entry.addListElement("-types");
+		entry.addListElement("system_rom");
+		result.addListElement(entry);
 	}
+	return result.getString();
+}
 
+FilePool::FilePool(CommandController& controller)
+	: filePoolSetting(new StringSetting(controller,
+		"__filepool",
+		"This is an internal setting. Don't change this directly, "
+		"instead use the 'filepool' command.",
+		initialFilePoolSettingValue(controller)))
+	, cliComm(controller.getCliComm())
+{
 	readSha1sums();
 }
 
@@ -113,7 +125,83 @@ void FilePool::writeSha1sums()
 	}
 }
 
-auto_ptr<File> FilePool::getFile(const string& sha1sum)
+static int parseTypes(const TclObject& list)
+{
+	int result = 0;
+	unsigned num = list.getListLength();
+	for (unsigned i = 0; i < num; ++i) {
+		string elem = list.getListIndex(i).getString();
+		if (elem == "system_rom") {
+			result |= FilePool::SYSTEM_ROM;
+		} else if (elem == "rom") {
+			result |= FilePool::ROM;
+		} else if (elem == "disk") {
+			result |= FilePool::DISK;
+		} else if (elem == "tape") {
+			result |= FilePool::TAPE;
+		} else {
+			throw CommandException("Unknown type: " + elem);
+		}
+	}
+	return result;
+}
+
+void FilePool::getDirectories(Directories& result) const
+{
+	try {
+		TclObject all(filePoolSetting->getValue());
+		unsigned numLines = all.getListLength();
+		for (unsigned i = 0; i < numLines; ++i) {
+			int priority = -1; // dummy, avoid warning
+			Entry entry;
+			entry.types = 0;
+			bool hasPriority = false;
+			bool hasPath = false;
+			TclObject line = all.getListIndex(i);
+			unsigned numItems = line.getListLength();
+			if (numItems & 1) {
+				throw CommandException(
+					"Expected a list with an even number "
+					"of elements, but got " + line.getString());
+			}
+			for (unsigned j = 0; j < numItems; j += 2) {
+				string name  = line.getListIndex(j + 0).getString();
+				TclObject value = line.getListIndex(j + 1);
+				if (name == "-priority") {
+					priority = value.getInt();
+					hasPriority = true;
+				} else if (name == "-path") {
+					entry.path = value.getString();
+					hasPath = true;
+				} else if (name == "-types") {
+					entry.types = parseTypes(value);
+				} else {
+					throw CommandException(
+						"Unknown item: " + name);
+				}
+			}
+			if (!hasPriority) {
+				throw CommandException(
+					"Missing -priority item: " + line.getString());
+			}
+			if (!hasPath) {
+				throw CommandException(
+					"Missing -path item: " + line.getString());
+			}
+			if (entry.types == 0) {
+				throw CommandException(
+					"Missing -types item: " + line.getString());
+			}
+			result.insert(make_pair(priority, entry));
+
+		}
+	} catch (CommandException& e) {
+		cliComm.printWarning("Error while parsing '__filepool' setting" +
+			e.getMessage());
+	}
+}
+
+auto_ptr<File> FilePool::getFile(FileType fileType, const string& sha1sum)
 {
 	auto_ptr<File> result;
 	result = getFromPool(sha1sum);
@@ -121,11 +209,16 @@ auto_ptr<File> FilePool::getFile(const string& sha1sum)
 		return result;
 	}
 
+	Directories directories;
+	getDirectories(directories);
 	for (Directories::const_iterator it = directories.begin();
 	     it != directories.end(); ++it) {
-		result = scanDirectory(sha1sum, *it);
-		if (result.get()) {
-			return result;
+		const Entry& entry = it->second;
+		if (entry.types & fileType) {
+			result = scanDirectory(sha1sum, entry.path);
+			if (result.get()) {
+				return result;
+			}
 		}
 	}
 
