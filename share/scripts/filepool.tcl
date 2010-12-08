@@ -18,33 +18,15 @@ proc filepool { args } {
 	}
 }
 
-proc filepool_decode {} {
-	set result [list]
+proc filepool_list {}  {
+	set result ""
+	set i 1
 	foreach pool $::__filepool {
 		array set a $pool
-		lappend result [list $a(-priority) $a(-path) $a(-types)]
-	}
-	return $result
-}
-
-proc filepool_encode { pools } {
-	set result [list]
-	foreach pool $pools {
-		foreach {priority path types} $pool {}
-		lappend result [list -priority $priority -path $path -types $types]
-	}
-	set ::__filepool $result
-}
-
-proc filepool_search { pools id } {
-	set i 0
-	foreach pool $pools {
-		if {[lindex $pool 0] == $id} {
-			return $i
-		}
+		append result "$i: $a(-path)  \[$a(-types)\]\n"
 		incr i
 	}
-	return -1
+	return $result
 }
 
 proc filepool_checktypes { types } {
@@ -57,22 +39,13 @@ proc filepool_checktypes { types } {
 	}
 }
 
-proc filepool_list {}  {
-	set result ""
-	foreach pool [lsort -index 0 [filepool_decode]] {
-		foreach {priority path types} $pool {}
-		append result "Priority: $priority  path: $path  types: $types\n"
-	}
-	return $result
-}
-
 proc filepool_add { args } {
-	set priority ""
+	set pos [llength $::__filepool]
 	set path ""
 	set types ""
 	foreach {name value} $args {
-		if {$name == "-priority"} {
-			set priority $value
+		if {$name == "-position"} {
+			set pos [expr $value - 1]
 		} elseif {$name == "-path"} {
 			set path $value
 		} elseif {$name == "-types"} {
@@ -82,8 +55,8 @@ proc filepool_add { args } {
 			error "Unknown option: $name"
 		}
 	}
-	if {$priority == ""} {
-		error "Missing -priority"
+	if {($pos < 0) || ($pos > [llength $::__filepool])} {
+		error "Value out of range: $id"
 	}
 	if {$path == ""} {
 		error "Missing -path"
@@ -92,23 +65,20 @@ proc filepool_add { args } {
 		error "Missing -types"
 	}
 
-	set pools [filepool_decode]
-	set idx [filepool_search $pools $priority]
-	if {$idx != -1} {
-		error "Already got a pool with priority $priority"
+	set newpool [list -path $path -types $types]
+	if {$pos == [llength $::__filepool]} {
+		lappend ::__filepool $newpool
+	} else {
+		set ::__filepool [lreplace $::__filepool $pos -1 $newpool]
 	}
-	lappend pools [list $priority $path $types]
-	filepool_encode $pools
 	return ""
 }
 
-proc filepool_remove { priority } {
-	set pools [filepool_decode]
-	set idx [filepool_search $pools $priority]
-	if {$idx == -1} {
-		error "No pool with priority $priority"
+proc filepool_remove { id } {
+	if {($id < 1) || ($id > [llength $::__filepool])} {
+		error "Value out of range: $id"
 	}
-	set pools [lreplace $pools $idx $idx]
-	filepool_encode $pools
+	set idx [expr $id - 1]
+	set ::__filepool [lreplace $::__filepool $idx $idx]
 	return ""
 }

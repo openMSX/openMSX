@@ -33,15 +33,11 @@ static string initialFilePoolSettingValue(CommandController& controller)
 {
 	TclObject result;
 
-	int priority = 0;
 	SystemFileContext context;
 	vector<string> paths = context.getPaths(controller);
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
-		priority += 10;
 		TclObject entry;
-		entry.addListElement("-priority");
-		entry.addListElement(priority);
 		entry.addListElement("-path");
 		entry.addListElement(FileOperations::join(*it, "systemroms"));
 		entry.addListElement("-types");
@@ -152,11 +148,9 @@ void FilePool::getDirectories(Directories& result) const
 		TclObject all(filePoolSetting->getValue());
 		unsigned numLines = all.getListLength();
 		for (unsigned i = 0; i < numLines; ++i) {
-			int priority = -1; // dummy, avoid warning
 			Entry entry;
-			entry.types = 0;
-			bool hasPriority = false;
 			bool hasPath = false;
+			entry.types = 0;
 			TclObject line = all.getListIndex(i);
 			unsigned numItems = line.getListLength();
 			if (numItems & 1) {
@@ -167,10 +161,7 @@ void FilePool::getDirectories(Directories& result) const
 			for (unsigned j = 0; j < numItems; j += 2) {
 				string name  = line.getListIndex(j + 0).getString();
 				TclObject value = line.getListIndex(j + 1);
-				if (name == "-priority") {
-					priority = value.getInt();
-					hasPriority = true;
-				} else if (name == "-path") {
+				if (name == "-path") {
 					entry.path = value.getString();
 					hasPath = true;
 				} else if (name == "-types") {
@@ -180,10 +171,6 @@ void FilePool::getDirectories(Directories& result) const
 						"Unknown item: " + name);
 				}
 			}
-			if (!hasPriority) {
-				throw CommandException(
-					"Missing -priority item: " + line.getString());
-			}
 			if (!hasPath) {
 				throw CommandException(
 					"Missing -path item: " + line.getString());
@@ -192,7 +179,7 @@ void FilePool::getDirectories(Directories& result) const
 				throw CommandException(
 					"Missing -types item: " + line.getString());
 			}
-			result.insert(make_pair(priority, entry));
+			result.push_back(entry);
 
 		}
 	} catch (CommandException& e) {
@@ -213,9 +200,8 @@ auto_ptr<File> FilePool::getFile(FileType fileType, const string& sha1sum)
 	getDirectories(directories);
 	for (Directories::const_iterator it = directories.begin();
 	     it != directories.end(); ++it) {
-		const Entry& entry = it->second;
-		if (entry.types & fileType) {
-			result = scanDirectory(sha1sum, entry.path);
+		if (it->types & fileType) {
+			result = scanDirectory(sha1sum, it->path);
 			if (result.get()) {
 				return result;
 			}

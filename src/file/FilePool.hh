@@ -51,7 +51,7 @@ private:
 		std::string path;
 		int types;
 	};
-	typedef std::multimap<int, Entry> Directories;
+	typedef std::vector<Entry> Directories;
 
 	// Manually implement a collection of <sha1sum, timestamp, filename>
 	// tuples, that is indexed on both sha1sum and filename. Using
