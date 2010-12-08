@@ -1,9 +1,32 @@
-# TODO: this is still very much work-in-progress. Still needs:
-#   help text
-#   tab completion
-#   better error handling
-#   put stuff in a namespace
-# Is the syntax for the command fine?
+namespace eval filepool {
+
+set_help_text filepool \
+{Manage filepool settings
+
+  filepool list
+    Shows the currently defined filepool entries.
+
+  filepool add -path <path> -types <typelist> [-position <pos>]
+    Add a new entry. Each entry must have a directory and a list of filetypes.
+    Possible filetypes are 'system_rom', 'rom', 'disk' and 'tape'. Optionally
+    you can specify the position of this new entry in the list of exsiting
+    entries (by default new entries are added at the end).
+
+  filepool remove <position>
+    Remove the filepool entry at the given position.
+
+  filepool reset
+    Reset the filepool settings to the default values.
+}
+
+proc filepool_completion { args } {
+	if {[llength $args] == 2} {
+		return [list list add remove reset]
+	}
+	return [list -path -types -position system_rom rom disk tape]
+}
+set_tabcompletion_proc filepool [namespace code filepool_completion]
+
 
 proc filepool { args } {
 	set cmd [lindex $args 0]
@@ -14,7 +37,7 @@ proc filepool { args } {
 		"remove" { filepool_remove $args }
 		"reset"  { filepool_reset }
 		"default" {
-			error "Invalid subcommand, expected 'list', 'add' or 'remove', but got '$cmd'"
+			error "Invalid subcommand, expected one of 'list add remove reset', but got '$cmd'"
 		}
 	}
 }
@@ -35,7 +58,7 @@ proc filepool_checktypes { types } {
 	foreach type $types {
 		set idx [lsearch $valid $type]
 		if {$idx == -1} {
-			error "Invalid type, expected one of $valid, but got $type"
+			error "Invalid type, expected one of '$valid', but got '$type'"
 		}
 	}
 }
@@ -57,7 +80,7 @@ proc filepool_add { args } {
 		}
 	}
 	if {($pos < 0) || ($pos > [llength $::__filepool])} {
-		error "Value out of range: $id"
+		error "Value out of range: [expr $pos + 1]"
 	}
 	if {$path == ""} {
 		error "Missing -path"
@@ -87,3 +110,9 @@ proc filepool_remove { id } {
 proc filepool_reset {}  {
 	unset ::__filepool
 }
+
+namespace export filepool
+
+} ;# namespace filepool
+
+namespace import filepool::*
