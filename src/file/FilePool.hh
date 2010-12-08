@@ -4,6 +4,7 @@
 #define FILEPOOL_HH
 
 #include "FileOperations.hh"
+#include "Observer.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <map>
@@ -15,10 +16,11 @@ namespace openmsx {
 
 class CommandController;
 class File;
+class Setting;
 class StringSetting;
 class CliComm;
 
-class FilePool : private noncopyable
+class FilePool : private Observer<Setting>, private noncopyable
 {
 public:
 	explicit FilePool(CommandController& controler);
@@ -77,6 +79,9 @@ private:
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	void getDirectories(Directories& result) const;
+
+	// Observer<Setting>
+	void update(const Setting& setting);
 
 
 	const std::auto_ptr<StringSetting> filePoolSetting;

@@ -37,12 +37,19 @@ static string initialFilePoolSettingValue(CommandController& controller)
 	vector<string> paths = context.getPaths(controller);
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
-		TclObject entry;
-		entry.addListElement("-path");
-		entry.addListElement(FileOperations::join(*it, "systemroms"));
-		entry.addListElement("-types");
-		entry.addListElement("system_rom");
-		result.addListElement(entry);
+		TclObject entry1;
+		entry1.addListElement("-path");
+		entry1.addListElement(FileOperations::join(*it, "systemroms"));
+		entry1.addListElement("-types");
+		entry1.addListElement("system_rom");
+		result.addListElement(entry1);
+
+		TclObject entry2;
+		entry2.addListElement("-path");
+		entry2.addListElement(FileOperations::join(*it, "software"));
+		entry2.addListElement("-types");
+		entry2.addListElement("rom disk tape");
+		result.addListElement(entry2);
 	}
 	return result.getString();
 }
@@ -55,12 +62,14 @@ FilePool::FilePool(CommandController& controller)
 		initialFilePoolSettingValue(controller)))
 	, cliComm(controller.getCliComm())
 {
+	filePoolSetting->attach(*this);
 	readSha1sums();
 }
 
 FilePool::~FilePool()
 {
 	writeSha1sums();
+	filePoolSetting->detach(*this);
 }
 
 void FilePool::insert(const string& sum, time_t time, const string& filename)
@@ -142,49 +151,50 @@ static int parseTypes(const TclObject& list)
 	return result;
 }
 
+void FilePool::update(const Setting& setting)
+{
+	assert(&setting == filePoolSetting.get()); (void)setting;
+	Directories dummy;
+	getDirectories(dummy); // check for syntax errors
+}
+
 void FilePool::getDirectories(Directories& result) const
 {
-	try {
-		TclObject all(filePoolSetting->getValue());
-		unsigned numLines = all.getListLength();
-		for (unsigned i = 0; i < numLines; ++i) {
-			Entry entry;
-			bool hasPath = false;
-			entry.types = 0;
-			TclObject line = all.getListIndex(i);
-			unsigned numItems = line.getListLength();
-			if (numItems & 1) {
-				throw CommandException(
-					"Expected a list with an even number "
-					"of elements, but got " + line.getString());
-			}
-			for (unsigned j = 0; j < numItems; j += 2) {
-				string name  = line.getListIndex(j + 0).getString();
-				TclObject value = line.getListIndex(j + 1);
-				if (name == "-path") {
-					entry.path = value.getString();
-					hasPath = true;
-				} else if (name == "-types") {
-					entry.types = parseTypes(value);
-				} else {
-					throw CommandException(
-						"Unknown item: " + name);
-				}
-			}
-			if (!hasPath) {
-				throw CommandException(
-					"Missing -path item: " + line.getString());
-			}
-			if (entry.types == 0) {
-				throw CommandException(
-					"Missing -types item: " + line.getString());
-			}
-			result.push_back(entry);
-
+	TclObject all(filePoolSetting->getValue());
+	unsigned numLines = all.getListLength();
+	for (unsigned i = 0; i < numLines; ++i) {
+		Entry entry;
+		bool hasPath = false;
+		entry.types = 0;
+		TclObject line = all.getListIndex(i);
+		unsigned numItems = line.getListLength();
+		if (numItems & 1) {
+			throw CommandException(
+				"Expected a list with an even number "
+				"of elements, but got " + line.getString());
 		}
-	} catch (CommandException& e) {
-		cliComm.printWarning("Error while parsing '__filepool' setting" +
-			e.getMessage());
+		for (unsigned j = 0; j < numItems; j += 2) {
+			string name  = line.getListIndex(j + 0).getString();
+			TclObject value = line.getListIndex(j + 1);
+			if (name == "-path") {
+				entry.path = value.getString();
+				hasPath = true;
+			} else if (name == "-types") {
+				entry.types = parseTypes(value);
+			} else {
+				throw CommandException(
+					"Unknown item: " + name);
+			}
+		}
+		if (!hasPath) {
+			throw CommandException(
+				"Missing -path item: " + line.getString());
+		}
+		if (entry.types == 0) {
+			throw CommandException(
+				"Missing -types item: " + line.getString());
+		}
+		result.push_back(entry);
 	}
 }
 
@@ -197,11 +207,17 @@ auto_ptr<File> FilePool::getFile(FileType fileType, const string& sha1sum)
 	}
 
 	Directories directories;
-	getDirectories(directories);
+	try {
+		getDirectories(directories);
+	} catch (CommandException& e) {
+		cliComm.printWarning("Error while parsing '__filepool' setting" +
+			e.getMessage());
+	}
 	for (Directories::const_iterator it = directories.begin();
 	     it != directories.end(); ++it) {
 		if (it->types & fileType) {
-			result = scanDirectory(sha1sum, it->path);
+			string path = FileOperations::expandTilde(it->path);
+			result = scanDirectory(sha1sum, path);
 			if (result.get()) {
 				return result;
 			}

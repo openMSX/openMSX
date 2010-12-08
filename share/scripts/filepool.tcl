@@ -12,6 +12,7 @@ proc filepool { args } {
 		"list"   { filepool_list }
 		"add"    { eval filepool_add    $args }
 		"remove" { filepool_remove $args }
+		"reset"  { filepool_reset }
 		"default" {
 			error "Invalid subcommand, expected 'list', 'add' or 'remove', but got '$cmd'"
 		}
@@ -81,4 +82,8 @@ proc filepool_remove { id } {
 	set idx [expr $id - 1]
 	set ::__filepool [lreplace $::__filepool $idx $idx]
 	return ""
+}
+
+proc filepool_reset {}  {
+	unset ::__filepool
 }

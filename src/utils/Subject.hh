@@ -4,6 +4,7 @@
 #define SUBJECT_HH
 
 #include "Observer.hh"
+#include "ScopedAssign.hh"
 #include <algorithm>
 #include <vector>
 #include <cassert>
@@ -70,17 +71,13 @@ template <typename T> void Subject<T>::notify() const
 {
 #ifndef NDEBUG
 	assert(!notifyInProgress);
-	notifyInProgress = true;
+	ScopedAssign<bool> sa(notifyInProgress, true);
 #endif
 
 	for (typename Observers::const_iterator it = observers.begin();
 			it != observers.end(); ++it) {
 		(*it)->update(*static_cast<const T*>(this));
 	}
-
-#ifndef NDEBUG
-	notifyInProgress = false;
-#endif
 }
 
 } // namespace openmsx
