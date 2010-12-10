@@ -7,12 +7,13 @@ SRC_HDR:= \
 	HotKey \
 	AfterCommand \
 	Keys \
-	CliComm GlobalCliComm MSXCliComm \
+	CliComm GlobalCliComm MSXCliComm StdioMessages \
 	CliServer CliConnection Socket \
 	Event InputEvents \
 	InputEventGenerator InputEventFactory
 
 HDR_ONLY:= \
+	CliMessages \
 	EventListener \
 	FinishFrameEvent
 

@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-class CliConnection;
+class CliListener;
 
 class GlobalCliComm : public CliComm, private noncopyable
 {
@@ -21,10 +21,7 @@ public:
 	GlobalCliComm();
 	virtual ~GlobalCliComm();
 
-	static const char* const* getUpdateStrs();
-
-	void addConnection(std::auto_ptr<CliConnection> connection);
-	void setXMLOutput();
+	void addListener(std::auto_ptr<CliListener> connection);
 
 	// CliComm
 	virtual void log(LogLevel level, const std::string& message);
@@ -37,10 +34,9 @@ private:
 
 	std::map<std::string, std::string> prevValues[NUM_UPDATES];
 
-	typedef std::vector<CliConnection*> Connections;
-	Connections connections;
-	Semaphore sem; // lock access to connections member
-	bool xmlOutput;
+	typedef std::vector<CliListener*> Listeners;
+	Listeners listeners;
+	Semaphore sem; // lock access to listeners member
 
 	friend class MSXCliComm;
 };

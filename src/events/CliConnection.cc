@@ -96,6 +96,33 @@ bool CliConnection::getUpdateEnable(CliComm::UpdateType type) const
 	return updateEnabled[type];
 }
 
+void CliConnection::log(CliComm::LogLevel level, const string& message)
+{
+	const char* const* levelStr = CliComm::getLevelStrings();
+	output(StringOp::Builder() <<
+		"<log level=\"" << levelStr[level] << "\">" <<
+		XMLElement::XMLEscape(message) << "</log>\n");
+}
+
+void CliConnection::update(CliComm::UpdateType type, const string& machine,
+                              const string& name, const string& value)
+{
+	if (!getUpdateEnable(type)) return;
+
+	const char* const* updateStr = CliComm::getUpdateStrings();
+	StringOp::Builder tmp;
+	tmp << "<update type=\"" << updateStr[type] << '\"';
+	if (!machine.empty()) {
+		tmp << " machine=\"" << machine << '\"';
+	}
+	if (!name.empty()) {
+		tmp << " name=\"" << XMLElement::XMLEscape(name) << '\"';
+	}
+	tmp << '>' << XMLElement::XMLEscape(value) << "</update>\n";
+
+	output(tmp);
+}
+
 void CliConnection::startOutput()
 {
 	output("<openmsx-output>\n");

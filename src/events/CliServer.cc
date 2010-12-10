@@ -268,9 +268,9 @@ void CliServer::mainLoop()
 			// sock_close(listenSock);  // hangs on win32
 			return;
 		}
-		std::auto_ptr<CliConnection> connection(new SocketConnection(
+		std::auto_ptr<CliListener> connection(new SocketConnection(
 				commandController, eventDistributor, sd));
-		cliComm.addConnection(connection);
+		cliComm.addListener(connection);
 	}
 }
 

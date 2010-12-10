@@ -3,6 +3,7 @@
 #ifndef CLICONNECTION_HH
 #define CLICONNECTION_HH
 
+#include "CliListener.hh"
 #include "Thread.hh"
 #include "Semaphore.hh"
 #include "EventListener.hh"
@@ -16,12 +17,11 @@ namespace openmsx {
 class CommandController;
 class EventDistributor;
 
-class CliConnection : private EventListener, protected Runnable
+class CliConnection : public CliListener, private EventListener,
+                      protected Runnable
 {
 public:
 	virtual ~CliConnection();
-
-	virtual void output(const std::string& message) = 0;
 
 	void setUpdateEnable(CliComm::UpdateType type, bool value);
 	bool getUpdateEnable(CliComm::UpdateType type) const;
@@ -29,6 +29,8 @@ public:
 protected:
 	CliConnection(CommandController& commandController,
 	              EventDistributor& eventDistributor);
+
+	virtual void output(const std::string& message) = 0;
 
 	/** Starts the helper thread.
 	  * Subclasses should call this method at the end of their constructor.
@@ -59,6 +61,11 @@ protected:
 
 private:
 	void execute(const std::string& command);
+
+	// CliListener
+	virtual void log(CliComm::LogLevel level, const std::string& message);
+	virtual void update(CliComm::UpdateType type, const std::string& machine,
+	                    const std::string& name, const std::string& value);
 
 	// EventListener
 	virtual int signalEvent(shared_ptr<const Event> event);

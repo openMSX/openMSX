@@ -8,6 +8,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "GlobalCliComm.hh"
+#include "StdioMessages.hh"
 #include "Version.hh"
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
@@ -313,6 +314,15 @@ void CommandLineParser::parse(int argc, char** argv)
 
 	for (int priority = 1; (priority <= 8) && (parseStatus != EXIT); ++priority) {
 		switch (priority) {
+		case 2: // after ControlOption has been parsed
+			if (parseStatus != CONTROL) {
+				// if there already is a XML-StdioConnection, we
+				// can't also show plain messages on stdout
+				GlobalCliComm& cliComm = reactor.getGlobalCliComm();
+				std::auto_ptr<CliListener> listener(
+					new StdioMessages());
+				cliComm.addListener(listener);
+			}
 		case 3:
 			if (!haveSettings) {
 				// Load default settings file in case the user
@@ -447,7 +457,7 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 	CommandController& controller = parser.getGlobalCommandController();
 	EventDistributor& distributor = parser.reactor.getEventDistributor();
 	GlobalCliComm& cliComm        = parser.reactor.getGlobalCliComm();
-	std::auto_ptr<CliConnection> connection;
+	std::auto_ptr<CliListener> connection;
 	if (type == "stdio") {
 		connection.reset(new StdioConnection(
 			controller, distributor));
@@ -467,8 +477,7 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 	} else {
 		throw FatalError("Unknown control type: '"  + type + '\'');
 	}
-	cliComm.addConnection(connection);
-	cliComm.setXMLOutput();
+	cliComm.addListener(connection);
 
 	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;

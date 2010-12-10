@@ -657,7 +657,7 @@ UpdateCmd::UpdateCmd(CommandController& commandController,
 
 static GlobalCliComm::UpdateType getType(const string& name)
 {
-	const char* const* updateStr = GlobalCliComm::getUpdateStrs();
+	const char* const* updateStr = CliComm::getUpdateStrings();
 	for (unsigned i = 0; i < CliComm::NUM_UPDATES; ++i) {
 		if (updateStr[i] == name) {
 			return static_cast<CliComm::UpdateType>(i);
@@ -710,7 +710,7 @@ void UpdateCmd::tabCompletion(vector<string>& tokens) const
 		break;
 	}
 	case 3: {
-		const char* const* updateStr = GlobalCliComm::getUpdateStrs();
+		const char* const* updateStr = CliComm::getUpdateStrings();
 		set<string> types(updateStr, updateStr + CliComm::NUM_UPDATES);
 		completeString(tokens, types);
 	}
