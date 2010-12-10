@@ -319,9 +319,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				// if there already is a XML-StdioConnection, we
 				// can't also show plain messages on stdout
 				GlobalCliComm& cliComm = reactor.getGlobalCliComm();
-				std::auto_ptr<CliListener> listener(
-					new StdioMessages());
-				cliComm.addListener(listener);
+				cliComm.addListener(new StdioMessages());
 			}
 		case 3:
 			if (!haveSettings) {
@@ -477,7 +475,7 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 	} else {
 		throw FatalError("Unknown control type: '"  + type + '\'');
 	}
-	cliComm.addListener(connection);
+	cliComm.addListener(connection.release());
 
 	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;

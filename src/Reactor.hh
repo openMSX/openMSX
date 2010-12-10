@@ -31,6 +31,7 @@ class DiskChanger;
 class FilePool;
 class UserSettings;
 class RomDatabase;
+class TclCallbackMessages;
 class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
@@ -143,8 +144,8 @@ private:
 	std::auto_ptr<EnumSetting<int> > machineSetting;
 
 	const std::auto_ptr<UserSettings> userSettings;
-
 	const std::auto_ptr<RomDatabase> softwareDatabase;
+	const std::auto_ptr<TclCallbackMessages> tclCallbackMessages;
 
 	const std::auto_ptr<QuitCommand> quitCommand;
 	const std::auto_ptr<MachineCommand> machineCommand;

@@ -7,7 +7,8 @@ SRC_HDR:= \
 	HotKey \
 	AfterCommand \
 	Keys \
-	CliComm GlobalCliComm MSXCliComm StdioMessages \
+	CliComm GlobalCliComm MSXCliComm \
+	StdioMessages TclCallbackMessages \
 	CliServer CliConnection Socket \
 	Event InputEvents \
 	InputEventGenerator InputEventFactory

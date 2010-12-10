@@ -2,6 +2,7 @@
 
 #include "GlobalCliComm.hh"
 #include "CliListener.hh"
+#include <algorithm>
 #include <cassert>
 
 using std::map;
@@ -23,10 +24,18 @@ GlobalCliComm::~GlobalCliComm()
 	}
 }
 
-void GlobalCliComm::addListener(std::auto_ptr<CliListener> listener)
+void GlobalCliComm::addListener(CliListener* listener)
 {
 	ScopedLock lock(sem);
-	listeners.push_back(listener.release());
+	listeners.push_back(listener);
+}
+
+void GlobalCliComm::removeListener(CliListener* listener)
+{
+	ScopedLock lock(sem);
+	Listeners::iterator it = find(listeners.begin(), listeners.end(), listener);
+	assert(it != listeners.end());
+	listeners.erase(it);
 }
 
 void GlobalCliComm::log(LogLevel level, const string& message)

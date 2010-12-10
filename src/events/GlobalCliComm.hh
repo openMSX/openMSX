@@ -21,7 +21,8 @@ public:
 	GlobalCliComm();
 	virtual ~GlobalCliComm();
 
-	void addListener(std::auto_ptr<CliListener> connection);
+	void addListener(CliListener* listener);
+	void removeListener(CliListener* listener);
 
 	// CliComm
 	virtual void log(LogLevel level, const std::string& message);
