@@ -354,6 +354,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\MSXCliComm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\Socket.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\StdioMessages.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\BootBlocks.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DirAsDSK.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\Disk.cc" />
@@ -837,6 +839,9 @@
     <None Include="$(OpenMSXSrcDir)\events\Keys.hh" />
     <None Include="$(OpenMSXSrcDir)\events\MSXCliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\Socket.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\CliListener.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\StdioMessages.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\BootBlocks.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\DirAsDSK.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\Disk.hh" />
