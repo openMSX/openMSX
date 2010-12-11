@@ -2,6 +2,16 @@
 #
 # Configuration for Dingux: Linux for Dingoo A320.
 
+# Set CXX before including platform-linux.mk (see comments in platform-linux.mk)
+ifeq ($(OPENMSX_TARGET_CPU),mipsel)
+# Automatically select the cross compiler from its default location.
+ifeq ($(origin CXX),default)
+CXX:=/opt/mipsel-linux-uclibc/usr/bin/mipsel-linux-uclibc-g++
+endif
+# Use MIPS32 instruction set.
+COMPILE_FLAGS+=-march=mips32
+endif
+
 # Dingux is a Linux/uClibc system.
 include build/platform-linux.mk
 
@@ -12,11 +22,3 @@ EXEEXT:=.dge
 # Build a minimal set of components.
 LINK_MODE:=3RD_STA_MIN
 
-ifeq ($(OPENMSX_TARGET_CPU),mipsel)
-# Automatically select the cross compiler from its default location.
-ifeq ($(origin CXX),default)
-CXX:=/opt/mipsel-linux-uclibc/usr/bin/mipsel-linux-uclibc-g++
-endif
-# Use MIPS32 instruction set.
-COMPILE_FLAGS+=-march=mips32
-endif
