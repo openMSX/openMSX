@@ -34,7 +34,7 @@ void CliComm::printWarning(const std::string& message)
 
 void CliComm::printError(const std::string& message)
 {
-	log(ERROR, message);
+	log(LOGLEVEL_ERROR, message);
 }
 
 void CliComm::printProgress(const std::string& message)

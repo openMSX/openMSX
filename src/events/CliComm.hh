@@ -13,7 +13,7 @@ public:
 	enum LogLevel {
 		INFO,
 		WARNING,
-		ERROR,
+		LOGLEVEL_ERROR, // ERROR may give preprocessor name clashes
 		PROGRESS,
 		NUM_LEVELS // must be last
 	};
