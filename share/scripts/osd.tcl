@@ -56,6 +56,7 @@ proc display_message { message {category info} } {
 					-fadePeriod 5
 }
 
+set message_callback osd::display_message
 
 # only export stuff that is useful in other scripts or for the console user
 namespace export show_osd
