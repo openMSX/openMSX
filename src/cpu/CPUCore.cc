@@ -4037,7 +4037,7 @@ template <class T> int CPUCore<T>::halt() {
 	if (!(R.getIFF1() || R.getIFF2())) {
 		motherboard.getMSXCliComm().printWarning(
 			"DI; HALT detected, which means a hang. "
-			"You can just as well reset the MSX now...\n");
+			"You can just as well reset the MSX now...");
 	}
 	return T::CC_HALT;
 }
