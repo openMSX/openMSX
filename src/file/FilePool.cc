@@ -65,14 +65,17 @@ FilePool::FilePool(CommandController& controller, EventDistributor& distributor_
 		initialFilePoolSettingValue(controller)))
 	, distributor(distributor_)
 	, cliComm(controller.getCliComm())
+	, quit(false)
 {
 	filePoolSetting->attach(*this);
+	distributor.registerEventListener(OPENMSX_QUIT_EVENT, *this);
 	readSha1sums();
 }
 
 FilePool::~FilePool()
 {
 	writeSha1sums();
+	distributor.unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
 	filePoolSetting->detach(*this);
 }
 
@@ -282,6 +285,12 @@ auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& dire
 {
 	ReadDir dir(directory);
 	while (dirent* d = dir.getEntry()) {
+		if (quit) {
+			// Scanning can take a long time. Allow to exit
+			// openmsx when it takes too long. Stop scanning
+			// by pretending we didn't find the file.
+			return auto_ptr<File>();
+		}
 		string file = d->d_name;
 		string path = directory + '/' + file;
 		FileOperations::Stat st;
@@ -403,6 +412,13 @@ void FilePool::removeSha1Sum(File& file)
 	if (it != pool.end()) {
 		remove(it);
 	}
+}
+
+int FilePool::signalEvent(shared_ptr<const Event> event)
+{
+	assert(event->getType() == OPENMSX_QUIT_EVENT);
+	quit = true;
+	return 0;
 }
 
 } // namespace openmsx

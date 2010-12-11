@@ -5,6 +5,7 @@
 
 #include "FileOperations.hh"
 #include "Observer.hh"
+#include "EventListener.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <map>
@@ -21,7 +22,8 @@ class Setting;
 class StringSetting;
 class CliComm;
 
-class FilePool : private Observer<Setting>, private noncopyable
+class FilePool : private Observer<Setting>, private EventListener,
+                 private noncopyable
 {
 public:
 	FilePool(CommandController& controler, EventDistributor& distributor);
@@ -86,6 +88,9 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting);
 
+	// EventListener
+	virtual int signalEvent(shared_ptr<const Event> event);
+
 
 	const std::auto_ptr<StringSetting> filePoolSetting;
 	EventDistributor& distributor;
@@ -95,6 +100,7 @@ private:
 	ReversePool reversePool;
 	unsigned long long lastTime; // to indicate progress
 	unsigned amountScanned; // to indicate progress
+	bool quit;
 };
 
 } // namespace openmsx
