@@ -13,6 +13,7 @@ public:
 	enum LogLevel {
 		INFO,
 		WARNING,
+		ERROR,
 		PROGRESS,
 		NUM_LEVELS // must be last
 	};
@@ -38,6 +39,8 @@ public:
 	// convenience methods (shortcuts for log())
 	void printInfo(const std::string& message);
 	void printWarning(const std::string& message);
+	void printError(const std::string& message);
+	void printProgress(const std::string& message);
 
 	// string representations of the LogLevel and UpdateType enums
 	static const char* const* getLevelStrings()  { return levelStr;  }

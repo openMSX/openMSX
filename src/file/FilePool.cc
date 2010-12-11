@@ -307,8 +307,7 @@ auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename,
 	unsigned long long now = Timer::getTime();
 	if (now > (lastTime + 250000)) { // 4Hz
 		lastTime = now;
-		cliComm.log(CliComm::PROGRESS,
-		            "Creating filepool index: " + filename);
+		cliComm.printProgress("Creating filepool index: " + filename);
 	}
 
 	// deliverEvents() is relatively cheap when there are no events to

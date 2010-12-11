@@ -5,7 +5,7 @@
 namespace openmsx {
 
 const char* const CliComm::levelStr[CliComm::NUM_LEVELS] = {
-	"info", "warning", "progress"
+	"info", "warning", "error", "progress"
 };
 
 const char* const CliComm::updateStr[CliComm::NUM_UPDATES] = {
@@ -30,6 +30,16 @@ void CliComm::printInfo(const std::string& message)
 void CliComm::printWarning(const std::string& message)
 {
 	log(WARNING, message);
+}
+
+void CliComm::printError(const std::string& message)
+{
+	log(ERROR, message);
+}
+
+void CliComm::printProgress(const std::string& message)
+{
+	log(PROGRESS, message);
 }
 
 } // namespace openmsx
