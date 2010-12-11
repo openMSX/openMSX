@@ -224,7 +224,7 @@ auto_ptr<File> FilePool::getFile(FileType fileType, const string& sha1sum)
 	     it != directories.end(); ++it) {
 		if (it->types & fileType) {
 			string path = FileOperations::expandTilde(it->path);
-			result = scanDirectory(sha1sum, path);
+			result = scanDirectory(sha1sum, path, it->path);
 			if (result.get()) {
 				return result;
 			}
@@ -278,7 +278,7 @@ auto_ptr<File> FilePool::getFromPool(const string& sha1sum)
 	return auto_ptr<File>(); // not found
 }
 
-auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& directory)
+auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& directory, const string& poolPath)
 {
 	ReadDir dir(directory);
 	while (dirent* d = dir.getEntry()) {
@@ -288,10 +288,10 @@ auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& dire
 		if (FileOperations::getStat(path, st)) {
 			auto_ptr<File> result;
 			if (FileOperations::isRegularFile(st)) {
-				result = scanFile(sha1sum, path, st);
+				result = scanFile(sha1sum, path, st, poolPath);
 			} else if (FileOperations::isDirectory(st)) {
 				if ((file != ".") && (file != "..")) {
-					result = scanDirectory(sha1sum, path);
+					result = scanDirectory(sha1sum, path, poolPath);
 				}
 			}
 			if (result.get()) {
@@ -303,14 +303,15 @@ auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& dire
 }
 
 auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename,
-                                  const FileOperations::Stat& st)
+                                  const FileOperations::Stat& st, const string& poolPath)
 {
 	amountScanned++;
 	// Periodically send a progress message with the current filename
 	unsigned long long now = Timer::getTime();
 	if (now > (lastTime + 250000)) { // 4Hz
 		lastTime = now;
-		cliComm.printProgress("Creating filepool index... scanned " +
+		cliComm.printProgress("Creating filepool index for " +
+			poolPath + "...\nScanned " +
 			StringOp::toString(amountScanned) +
 			" files, current: " + filename);
 	}

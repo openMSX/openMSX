@@ -73,10 +73,12 @@ private:
 
 	std::auto_ptr<File> getFromPool(const std::string& sha1sum);
 	std::auto_ptr<File> scanDirectory(const std::string& sha1sum,
-	                                  const std::string& directory);
+	                                  const std::string& directory,
+	                                  const std::string& poolPath);
 	std::auto_ptr<File> scanFile(const std::string& sha1sum,
 	                             const std::string& filename,
-	                             const FileOperations::Stat& st);
+	                             const FileOperations::Stat& st,
+	                                  const std::string& poolPath);
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	void getDirectories(Directories& result) const;
@@ -92,6 +94,7 @@ private:
 	Pool pool;
 	ReversePool reversePool;
 	unsigned long long lastTime; // to indicate progress
+	unsigned amountScanned; // to indicate progress
 };
 
 } // namespace openmsx
