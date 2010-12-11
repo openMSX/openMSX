@@ -14,6 +14,7 @@
 #include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Timer.hh"
+#include "StringOp.hh"
 #include "sha1.hh"
 #include <fstream>
 #include <cassert>
@@ -211,6 +212,7 @@ auto_ptr<File> FilePool::getFile(FileType fileType, const string& sha1sum)
 
 	// not found in cache, need to scan directories
 	lastTime = Timer::getTime(); // for progress messages
+	amountScanned = 0; // also for progress messages
 	Directories directories;
 	try {
 		getDirectories(directories);
@@ -303,11 +305,14 @@ auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& dire
 auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename,
                                   const FileOperations::Stat& st)
 {
+	amountScanned++;
 	// Periodically send a progress message with the current filename
 	unsigned long long now = Timer::getTime();
 	if (now > (lastTime + 250000)) { // 4Hz
 		lastTime = now;
-		cliComm.printProgress("Creating filepool index: " + filename);
+		cliComm.printProgress("Creating filepool index... scanned " +
+			StringOp::toString(amountScanned) +
+			" files, current: " + filename);
 	}
 
 	// deliverEvents() is relatively cheap when there are no events to
