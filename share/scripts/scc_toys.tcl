@@ -325,7 +325,7 @@ proc toggle_scc_editor {} {
 	osd create text 	 "scc.hmid3.text" -x -5 -y -12 -text "23" -size 8 -rgba 0xffffffff
 
 	osd create text 	 "scc.hline0.text" -x 0 -y -12 -text "0" -size 8 -rgba 0xffffffff
-	osd create text 	 "scc.hline31.text" -x 0 -y -12 -text "63" -size 8 -rgba 0xffffffff
+	osd create text 	 "scc.hline31.text" -x 0 -y -12 -text "31" -size 8 -rgba 0xffffffff
 
 	osd create rectangle "scc.vmid1" -x 0 -y 63 -h 1 -w 255 -rgba 0xff000080
 	osd create text 	 "scc.vmid1.text" -x -20 -y -4 -text "+64" -size 8 -rgba 0xffffffff
