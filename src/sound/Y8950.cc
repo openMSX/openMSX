@@ -55,7 +55,7 @@ public:
 	void reset();
 
 	void setKeyScaleRate(bool value) {
-		KR = value ? 11 : 9;
+		KR = value ? 9 : 11;
 	}
 	void setFeedbackShift(byte value) {
 		FB = value ? 8 - value : 0;
