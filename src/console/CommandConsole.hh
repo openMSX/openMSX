@@ -92,6 +92,7 @@ private:
 	int consoleScrollBack;
 	/** Position within the current command. */
 	unsigned cursorPosition;
+	bool executingCommand;
 };
 
 } // namespace openmsx

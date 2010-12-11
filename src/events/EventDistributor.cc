@@ -3,6 +3,7 @@
 #include "EventDistributor.hh"
 #include "EventListener.hh"
 #include "Reactor.hh"
+#include "Thread.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -74,6 +75,8 @@ void EventDistributor::distributeEvent(Event* event)
 
 void EventDistributor::deliverEvents()
 {
+	assert(Thread::isMainThread());
+
 	ScopedLock lock(sem);
 	// It's possible that executing an event triggers scheduling of another
 	// event. We also want to execute those secondary events. That's why

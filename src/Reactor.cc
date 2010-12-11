@@ -196,7 +196,7 @@ Reactor::Reactor()
 	, diskManipulator(new DiskManipulator(*globalCommandController, *this))
 	, virtualDrive(new DiskChanger("virtual_drive", *globalCommandController,
 	                               *diskFactory, *diskManipulator, true))
-	, filePool(new FilePool(*globalCommandController))
+	, filePool(new FilePool(*globalCommandController, *eventDistributor))
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))

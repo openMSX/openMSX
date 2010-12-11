@@ -13,6 +13,7 @@ public:
 	enum LogLevel {
 		INFO,
 		WARNING,
+		PROGRESS,
 		NUM_LEVELS // must be last
 	};
 	enum UpdateType {

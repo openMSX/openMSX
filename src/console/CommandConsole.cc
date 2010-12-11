@@ -22,6 +22,7 @@
 #include "checked_cast.hh"
 #include "utf8_unchecked.hh"
 #include "StringOp.hh"
+#include "ScopedAssign.hh"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
@@ -34,8 +35,9 @@ namespace openmsx {
 
 // class CommandConsole
 
-const char* const PROMPT1 = "> ";
-const char* const PROMPT2 = "| ";
+static const char* const PROMPT_NEW  = "> ";
+static const char* const PROMPT_CONT = "| ";
+static const char* const PROMPT_BUSY = "*busy*";
 
 CommandConsole::CommandConsole(
 		GlobalCommandController& commandController_,
@@ -51,9 +53,10 @@ CommandConsole::CommandConsole(
 	, removeDoublesSetting(new BooleanSetting(commandController,
 		"console_remove_doubles", "don't add the command to history if "
 		"it's the same as the previous one", true))
+	, executingCommand(false)
 {
 	resetScrollBack();
-	prompt = PROMPT1;
+	prompt = PROMPT_NEW;
 	newLineConsole(prompt);
 	putPrompt();
 	loadHistory();
@@ -174,11 +177,19 @@ int CommandConsole::signalEvent(shared_ptr<const Event> event)
 	// For example PgUp, PgDown are keys that have both a meaning in the
 	// console and are used by standard key bindings.
 	if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-		if (handleEvent(keyEvent)) {
-			// event was used
-			display.repaintDelayed(40000); // 25fps
-			return EventDistributor::HOTKEY |
-			       EventDistributor::MSX;
+		if (!executingCommand) {
+			if (handleEvent(keyEvent)) {
+				// event was used
+				display.repaintDelayed(40000); // 25fps
+				return EventDistributor::HOTKEY |
+				       EventDistributor::MSX;
+			}
+		} else {
+			// For commands that take a long time to execute (e.g.
+			// a loadstate that needs to create a filepool index),
+			// we also send events during the execution (so that
+			// we can show progress on the OSD). In that case
+			// ignore extra input events.
 		}
 	} else {
 		assert(event->getType() == OPENMSX_KEY_UP_EVENT);
@@ -372,9 +383,15 @@ void CommandConsole::commandExecute()
 	commandBuffer += lines[0].substr(prompt.size()) + '\n';
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
-		prompt = PROMPT1;
+		// Normally the busy promt is NOT shown (not even very briefly
+		// because the screen is not redrawn), though for some commands
+		// that potentially take a long time to execute, we explictly
+		// send events, see also comment in handleEvent().
+		prompt = PROMPT_BUSY;
 		putPrompt();
+
 		try {
+			ScopedAssign<bool> sa(executingCommand, true);
 			string result = commandController.executeCommand(
 				commandBuffer);
 			if (!result.empty()) {
@@ -384,10 +401,11 @@ void CommandConsole::commandExecute()
 			print(e.getMessage());
 		}
 		commandBuffer.clear();
+		prompt = PROMPT_NEW;
 	} else {
-		prompt = PROMPT2;
-		putPrompt();
+		prompt = PROMPT_CONT;
 	}
+	putPrompt();
 }
 
 void CommandConsole::putPrompt()
@@ -459,7 +477,7 @@ void CommandConsole::clearCommand()
 {
 	resetScrollBack();
 	commandBuffer.clear();
-	prompt = PROMPT1;
+	prompt = PROMPT_NEW;
 	currentLine = lines[0] = prompt;
 	cursorPosition = unsigned(prompt.size());
 }

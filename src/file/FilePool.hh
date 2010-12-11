@@ -15,6 +15,7 @@
 namespace openmsx {
 
 class CommandController;
+class EventDistributor;
 class File;
 class Setting;
 class StringSetting;
@@ -23,7 +24,7 @@ class CliComm;
 class FilePool : private Observer<Setting>, private noncopyable
 {
 public:
-	explicit FilePool(CommandController& controler);
+	FilePool(CommandController& controler, EventDistributor& distributor);
 	~FilePool();
 
 	enum FileType {
@@ -85,10 +86,12 @@ private:
 
 
 	const std::auto_ptr<StringSetting> filePoolSetting;
+	EventDistributor& distributor;
 	CliComm& cliComm;
 
 	Pool pool;
 	ReversePool reversePool;
+	unsigned long long lastTime; // to indicate progress
 };
 
 } // namespace openmsx

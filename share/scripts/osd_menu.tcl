@@ -777,10 +777,11 @@ proc display_osd_text { message {category info} } {
 	variable error_color
 	variable warning_color
 	switch -- $category {
-		"info"    { set bg_color $default_bg_color }
-		"warning" { set bg_color $warning_color    }
-		"error"   { set bg_color $error_color      }
-		"default" { error "Invalid category: $category" }
+		"info"     { set bg_color $default_bg_color }
+		"progress" { set bg_color $default_bg_color }
+		"warning"  { set bg_color $warning_color    }
+		"error"    { set bg_color $error_color      }
+		"default"  { error "Invalid category: $category" }
 	}
 	
 	osd_widgets::text_box display_osd_text \

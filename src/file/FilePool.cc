@@ -11,7 +11,9 @@
 #include "Date.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "EventDistributor.hh"
 #include "CliComm.hh"
+#include "Timer.hh"
 #include "sha1.hh"
 #include <fstream>
 #include <cassert>
@@ -54,12 +56,13 @@ static string initialFilePoolSettingValue(CommandController& controller)
 	return result.getString();
 }
 
-FilePool::FilePool(CommandController& controller)
+FilePool::FilePool(CommandController& controller, EventDistributor& distributor_)
 	: filePoolSetting(new StringSetting(controller,
 		"__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
 		initialFilePoolSettingValue(controller)))
+	, distributor(distributor_)
 	, cliComm(controller.getCliComm())
 {
 	filePoolSetting->attach(*this);
@@ -206,6 +209,8 @@ auto_ptr<File> FilePool::getFile(FileType fileType, const string& sha1sum)
 		return result;
 	}
 
+	// not found in cache, need to scan directories
+	lastTime = Timer::getTime(); // for progress messages
 	Directories directories;
 	try {
 		getDirectories(directories);
@@ -298,6 +303,18 @@ auto_ptr<File> FilePool::scanDirectory(const string& sha1sum, const string& dire
 auto_ptr<File> FilePool::scanFile(const string& sha1sum, const string& filename,
                                   const FileOperations::Stat& st)
 {
+	// Periodically send a progress message with the current filename
+	unsigned long long now = Timer::getTime();
+	if (now > (lastTime + 250000)) { // 4Hz
+		lastTime = now;
+		cliComm.log(CliComm::PROGRESS,
+		            "Creating filepool index: " + filename);
+	}
+
+	// deliverEvents() is relatively cheap when there are no events to
+	// deliver, so it's ok to call on each file.
+	distributor.deliverEvents();
+
 	Pool::iterator it = findInDatabase(filename);
 	if (it == pool.end()) {
 		// not in pool

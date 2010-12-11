@@ -5,7 +5,7 @@
 namespace openmsx {
 
 const char* const CliComm::levelStr[CliComm::NUM_LEVELS] = {
-	"info", "warning"
+	"info", "warning", "progress"
 };
 
 const char* const CliComm::updateStr[CliComm::NUM_UPDATES] = {
