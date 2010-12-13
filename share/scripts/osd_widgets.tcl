@@ -124,7 +124,7 @@ proc text_box {name args} {
 	set rect_props [list]
 	foreach {key val} $args {
 		switch -- $key {
-			-text     { set full_message $val }
+			-text     { set message $val }
 			-textrgba { set txt_color    $val }
 			-textsize { set txt_size     $val }
 			default   { lappend rect_props $key $val }
@@ -140,18 +140,22 @@ proc text_box {name args} {
 	# Destroy widget (if it already existed)
 	osd destroy $name
 
-	if {$full_message == ""} return
-	set message_list [split $full_message "\n"]
-	set lines [llength $message_list]
+	if {$message == ""} return
 
+	# Guess height of rectangle
 	eval "osd create rectangle \{$name\} $rect_props \
-		-h [expr 4 + (($txt_size + 1) * $lines)]"
+		-h [expr 4 + $txt_size]"
 
-	set line 0
-	foreach message $message_list {
-		osd create text $name.$line -x 2 -size $txt_size -rgb $txt_color -text $message -y [expr 2 + ($line * ($txt_size + 1))]
-		incr line
+	osd create text $name.text -x 2 -y 2 -size $txt_size -rgb $txt_color \
+		-text $message -wrap word -wraprelw 1.0 -wrapw -4
+
+	# Adjust height of rectangle to actual text height (depends on newlines
+	# and text wrapping).
+	catch {
+		foreach {x y} [osd info $name.text -query-size] {}
+		osd configure $name -h [expr 4 + $y]
 	}
+	return ""
 }
 
 proc volume_control {incr_val} {
