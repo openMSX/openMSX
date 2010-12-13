@@ -245,6 +245,20 @@ inline bool is_bom(octet_iterator it)
 	        (*it   == bom[2]));
 }
 
+template<typename octet_iterator>
+inline octet_iterator sync_forward(octet_iterator it)
+{
+	while (internal::is_trail(*it)) ++it;
+	return it;
+}
+
+template<typename octet_iterator>
+inline octet_iterator sync_backward(octet_iterator it)
+{
+	while (internal::is_trail(*it)) --it;
+	return it;
+}
+
 } // namespace utf8
 
 #endif

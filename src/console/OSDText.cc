@@ -9,6 +9,7 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
+#include "utf8_core.hh"
 #include "unreachable.hh"
 #include "components.hh"
 #include <cassert>
@@ -216,59 +217,27 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 	}
 }
 
-unsigned OSDText::splitAtChar(const string& line, unsigned maxWidth) const
+
+// Search for a position strictly between min and max which also points to the
+// start of a (possibly multi-byte) utf8-character. If no such position exits,
+// this function returns 'min'.
+static unsigned findCharSplitPoint(const string& line, unsigned min, unsigned max)
 {
-	// TODO handle multi-byte utf8-characters correctly
+	unsigned pos = (min + max) / 2;
+	const char* beginIt = line.data();
+	const char* posIt = beginIt + pos;
 
-	if (line.empty()) {
-		// empty line always fits (explicitly handle this because
-		// SDL_TTF can't handle empty strings)
-		return 0;
-	}
-
-	unsigned width, height;
-	font->getSize(line, width, height);
-	if (width <= maxWidth) {
-		// whole line fits
-		return line.size();
+	const char* fwdIt = utf8::sync_forward(posIt);
+	const char* maxIt = beginIt + max;
+	assert(fwdIt <= maxIt);
+	if (fwdIt != maxIt) {
+		return fwdIt - beginIt;
 	}
 
-	// binary search till we found the largest initial substring that is
-	// not wider than maxWidth
-	unsigned min = 0;
-	unsigned max = line.size();
-	// invariant: line.substr(0, min) DOES     fit
-	//            line.substr(0, max) DOES NOT fit
-	unsigned cur = (min + max) / 2;
-	if (cur == 0) {
-		// We should at least return 1 character (even if that doesn't
-		// fit), otherwise we'll get in an endless loop.
-		return 1;
-	}
-	while (true) {
-		assert(min < cur);
-		assert(cur < max);
-		string curStr = line.substr(0, cur);
-		font->getSize(curStr, width, height);
-		if (width <= maxWidth) {
-			// still fits, try to enlarge
-			unsigned next = (cur + max) / 2;
-			if (next == cur) {
-				return cur;
-			}
-			min = cur;
-			cur = next;
-		} else {
-			// doesn't fit anymore, try to shrink
-			unsigned next = (min + cur) / 2;
-			if (next == min) {
-				// return at least one char, see above
-				return std::max(1u, min);
-			}
-			max = cur;
-			cur = next;
-		}
-	}
+	const char* bwdIt = utf8::sync_backward(posIt);
+	const char* minIt = beginIt + min;
+	assert(minIt <= bwdIt); (void)minIt;
+	return bwdIt - beginIt;
 }
 
 // Search for a position that's strictly between min and max and which points
@@ -276,7 +245,7 @@ unsigned OSDText::splitAtChar(const string& line, unsigned maxWidth) const
 // exits, this function returns 'min'.
 // This function works correctly with multi-byte utf8-encoding as long as
 // all delimiter characters are single byte chars.
-static unsigned findSplitPoint(const string& line, unsigned min, unsigned max)
+static unsigned findWordSplitPoint(const string& line, unsigned min, unsigned max)
 {
 	static const char* const delimiters = " -/";
 
@@ -312,10 +281,17 @@ static unsigned findSplitPoint(const string& line, unsigned min, unsigned max)
 	return min;
 }
 
-unsigned OSDText::splitAtWord(const string& line, unsigned maxWidth) const
+static unsigned takeSingleChar(const string& /*line*/, unsigned /*maxWidth*/)
 {
-	// TODO this is very similar to splitAtChar, try to merge common code
+	return 1;
+}
 
+template<typename FindSplitPointFunc, typename CantSplitFunc>
+unsigned OSDText::split(const string& line, unsigned maxWidth,
+                        FindSplitPointFunc findSplitPoint,
+                        CantSplitFunc cantSplit,
+                        bool removeTrailingSpaces) const
+{
 	if (line.empty()) {
 		// empty line always fits (explicitly handle this because
 		// SDL_TTF can't handle empty strings)
@@ -339,13 +315,15 @@ unsigned OSDText::splitAtWord(const string& line, unsigned maxWidth) const
 	if (cur == 0) {
 		// Could not find a valid split point, then split on char
 		// (this also handles the case of a single too wide char)
-		return splitAtChar(line, maxWidth);
+		return cantSplit(line, maxWidth);
 	}
 	while (true) {
 		assert(min < cur);
 		assert(cur < max);
 		string curStr = line.substr(0, cur);
-		StringOp::trimRight(curStr, " "); // remove trailing spaces
+		if (removeTrailingSpaces) {
+			StringOp::trimRight(curStr, " ");
+		}
 		font->getSize(curStr, width, height);
 		if (width <= maxWidth) {
 			// still fits, try to enlarge
@@ -362,7 +340,7 @@ unsigned OSDText::splitAtWord(const string& line, unsigned maxWidth) const
 				if (min == 0) {
 					// even the first word does not fit,
 					// split on char (see above)
-					return splitAtChar(line, maxWidth);
+					return cantSplit(line, maxWidth);
 				}
 				return min;
 			}
@@ -372,6 +350,22 @@ unsigned OSDText::splitAtWord(const string& line, unsigned maxWidth) const
 	}
 }
 
+unsigned OSDText::splitAtChar(const std::string& line, unsigned maxWidth) const
+{
+	return split(line, maxWidth, findCharSplitPoint, takeSingleChar, false);
+}
+
+struct SplitAtChar {
+	SplitAtChar(const OSDText& osdText_) : osdText(osdText_) {}
+	unsigned operator()(const string& line, unsigned maxWidth) {
+		return osdText.splitAtChar(line, maxWidth);
+	}
+	const OSDText& osdText;
+};
+unsigned OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
+{
+	return split(line, maxWidth, findWordSplitPoint, SplitAtChar(*this), true);
+}
 
 string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 {

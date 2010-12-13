@@ -31,6 +31,10 @@ private:
 	virtual BaseImage* createGL (OutputSurface& output);
 	template <typename IMAGE> BaseImage* create(OutputSurface& output);
 
+	template<typename FindSplitPointFunc, typename CantSplitFunc>
+	unsigned split(const std::string& line, unsigned maxWidth,
+		FindSplitPointFunc findSplitPoint, CantSplitFunc cantSplit,
+		bool removeTrailingSpaces) const;
 	unsigned splitAtChar(const std::string& line, unsigned maxWidth) const;
 	unsigned splitAtWord(const std::string& line, unsigned maxWidth) const;
 	std::string getCharWrappedText(const std::string& text, unsigned maxWidth) const;
@@ -44,6 +48,8 @@ private:
 	int size;
 	WrapMode wrapMode;
 	double wrapw, wraprelw;
+
+	friend struct SplitAtChar;
 };
 
 } // namespace openmsx
