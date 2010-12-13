@@ -31,10 +31,19 @@ private:
 	virtual BaseImage* createGL (OutputSurface& output);
 	template <typename IMAGE> BaseImage* create(OutputSurface& output);
 
+	unsigned splitAtChar(const std::string& line, unsigned maxWidth) const;
+	unsigned splitAtWord(const std::string& line, unsigned maxWidth) const;
+	std::string getCharWrappedText(const std::string& text, unsigned maxWidth) const;
+	std::string getWordWrappedText(const std::string& text, unsigned maxWidth) const;
+
+	enum WrapMode { NONE, WORD, CHAR };
+
 	std::string text;
 	std::string fontfile;
 	std::auto_ptr<TTFFont> font;
 	int size;
+	WrapMode wrapMode;
+	double wrapw, wraprelw;
 };
 
 } // namespace openmsx

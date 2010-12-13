@@ -96,6 +96,8 @@ namespace StringOp
 	                  std::string& first, std::string& last);
 	void split(const std::string& str, const char* chars,
 	           std::vector<std::string>& result);
+	std::string join(const std::vector<std::string>& elems,
+	                 const std::string& separator);
 	void parseRange(const std::string& str, std::set<unsigned>& result,
 			unsigned min, unsigned max);
 

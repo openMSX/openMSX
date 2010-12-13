@@ -247,6 +247,19 @@ void split(const string& str, const char* chars, vector<string>& result)
 	}
 }
 
+string join(const vector<string>& elems, const string& separator)
+{
+	if (elems.empty()) return string();
+
+	vector<string>::const_iterator it = elems.begin();
+	string result = *it;
+	for (++it; it != elems.end(); ++it) {
+		result += separator;
+		result += *it;
+	}
+	return result;
+}
+
 static unsigned parseNumber(string str)
 {
 	// trimRight only: strtoul can handle leading spaces
