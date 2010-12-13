@@ -23,10 +23,14 @@ public:
 	OSDWidget& getTopWidget() const;
 	void refresh() const;
 
+	void setOpenGL(bool openGL_) { openGL = openGL_; }
+	bool isOpenGL() const { return openGL; };
+
 private:
 	Display& display;
 	const std::auto_ptr<OSDCommand> osdCommand;
 	const std::auto_ptr<OSDWidget> topWidget;
+	bool openGL;
 };
 
 } // namespace openmsx

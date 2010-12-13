@@ -27,9 +27,9 @@ private:
 	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const;
 	virtual byte getFadedAlpha() const;
-	virtual BaseImage* createSDL(OutputSurface& output);
-	virtual BaseImage* createGL (OutputSurface& output);
-	template <typename IMAGE> BaseImage* create(OutputSurface& output);
+	virtual BaseImage* createSDL(OutputRectangle& output);
+	virtual BaseImage* createGL (OutputRectangle& output);
+	template <typename IMAGE> BaseImage* create(OutputRectangle& output);
 
 	std::string imageName;
 	double w, h, relw, relh, scale, borderSize, relBorderSize;

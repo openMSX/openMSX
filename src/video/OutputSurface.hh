@@ -3,21 +3,13 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
+#include "OutputRectangle.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <cassert>
 #include <SDL.h>
 
 namespace openmsx {
-
-class OutputRectangle
-{
-public:
-	virtual unsigned getOutputWidth()  const = 0;
-	virtual unsigned getOutputHeight() const = 0;
-protected:
-	virtual ~OutputRectangle() {}
-};
 
 /** A frame buffer where pixels can be written to.
   * It could be an in-memory buffer or a video buffer visible to the user

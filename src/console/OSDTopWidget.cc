@@ -1,7 +1,7 @@
 // $Id$
 
 #include "OSDTopWidget.hh"
-#include "OutputSurface.hh"
+#include "OutputRectangle.hh"
 
 namespace openmsx {
 

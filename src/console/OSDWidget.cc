@@ -223,8 +223,10 @@ void OSDWidget::getProperties(set<string>& result) const
 
 void OSDWidget::setProperty(const string& name, const TclObject& value)
 {
-	if ((name == "-type") || (name == "-mousecoord")) {
+	if (name == "-type") {
 		throw CommandException("-type property is readonly");
+	} else if (name == "-mousecoord") {
+		throw CommandException("-mousecoord property is readonly");
 	} else if (name == "-x") {
 		x = value.getDouble();
 	} else if (name == "-y") {
@@ -253,20 +255,6 @@ void OSDWidget::setProperty(const string& name, const TclObject& value)
 		throw CommandException("No such property: " + name);
 	}
 }
-
-class DummyOutputRectangle : public OutputRectangle
-{
-public:
-	DummyOutputRectangle(unsigned width_, unsigned height_)
-		: width(width_), height(height_)
-	{
-	}
-	virtual unsigned getOutputWidth()  const { return width;  }
-	virtual unsigned getOutputHeight() const { return height; }
-private:
-	const unsigned width;
-	const unsigned height;
-};
 
 void OSDWidget::getProperty(const string& name, TclObject& result) const
 {
@@ -400,7 +388,7 @@ void OSDWidget::getMouseCoord(double& outx, double& outy) const
 	SDL_Surface* surface = SDL_GetVideoSurface();
 	if (!surface) {
 		throw CommandException(
-			"-can't get mouse coordinates: no window visible");
+			"Can't get mouse coordinates: no window visible");
 	}
 	DummyOutputRectangle output(surface->w, surface->h);
 

@@ -3,7 +3,7 @@
 #include "OSDText.hh"
 #include "TTFFont.hh"
 #include "SDLImage.hh"
-#include "OutputSurface.hh"
+#include "OutputRectangle.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -42,6 +42,7 @@ void OSDText::getProperties(std::set<string>& result) const
 	result.insert("-wrap");
 	result.insert("-wrapw");
 	result.insert("-wraprelw");
+	result.insert("-query-size");
 	OSDImageBasedWidget::getProperties(result);
 }
 
@@ -103,6 +104,8 @@ void OSDText::setProperty(const string& name, const TclObject& value)
 			wraprelw = wraprelw2;
 			invalidateRecursive();
 		}
+	} else if (name == "-query-size") {
+		throw CommandException("-query-size property is readonly");
 	} else {
 		OSDImageBasedWidget::setProperty(name, value);
 	}
@@ -129,6 +132,11 @@ void OSDText::getProperty(const string& name, TclObject& result) const
 		result.setDouble(wrapw);
 	} else if (name == "-wraprelw") {
 		result.setDouble(wraprelw);
+	} else if (name == "-query-size") {
+		double outX, outY;
+		getRenderedSize(outX, outY);
+		result.addListElement(outX);
+		result.addListElement(outY);
 	} else {
 		OSDImageBasedWidget::getProperty(name, result);
 	}
@@ -165,7 +173,7 @@ byte OSDText::getFadedAlpha() const
 	return byte((getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
+template <typename IMAGE> BaseImage* OSDText::create(OutputRectangle& output)
 {
 	if (text.empty()) {
 		return new IMAGE(0, 0, unsigned(0));
@@ -408,12 +416,35 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 	return StringOp::join(wrappedLines, "\n");
 }
 
-BaseImage* OSDText::createSDL(OutputSurface& output)
+void OSDText::getRenderedSize(double& outX, double& outY) const
+{
+	SDL_Surface* surface = SDL_GetVideoSurface();
+	if (!surface) {
+		throw CommandException(
+			"Can't query size: no window visible");
+	}
+	DummyOutputRectangle output(surface->w, surface->h);
+	// force creating image (does not yet draw it on screen)
+	const_cast<OSDText*>(this)->createImage(output);
+
+	unsigned width = 0;
+	unsigned height = 0;
+	if (image.get()) {
+		width  = image->getWidth();
+		height = image->getHeight();
+	}
+
+	double scale = getScaleFactor(output);
+	outX = width  / scale;
+	outY = height / scale;
+}
+
+BaseImage* OSDText::createSDL(OutputRectangle& output)
 {
 	return create<SDLImage>(output);
 }
 
-BaseImage* OSDText::createGL(OutputSurface& output)
+BaseImage* OSDText::createGL(OutputRectangle& output)
 {
 #if COMPONENT_GL
 	return create<GLImage>(output);

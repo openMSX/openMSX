@@ -2,7 +2,6 @@
 
 #include "OSDRectangle.hh"
 #include "SDLImage.hh"
-#include "OutputSurface.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -165,7 +164,7 @@ byte OSDRectangle::getFadedAlpha() const
 }
 
 template <typename IMAGE> BaseImage* OSDRectangle::create(
-	OutputSurface& output)
+	OutputRectangle& output)
 {
 	if (imageName.empty()) {
 		bool constAlpha = hasConstantAlpha();
@@ -203,12 +202,12 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 	}
 }
 
-BaseImage* OSDRectangle::createSDL(OutputSurface& output)
+BaseImage* OSDRectangle::createSDL(OutputRectangle& output)
 {
 	return create<SDLImage>(output);
 }
 
-BaseImage* OSDRectangle::createGL(OutputSurface& output)
+BaseImage* OSDRectangle::createGL(OutputRectangle& output)
 {
 #if COMPONENT_GL
 	return create<GLImage>(output);

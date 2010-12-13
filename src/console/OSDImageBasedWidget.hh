@@ -29,11 +29,12 @@ public:
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
 	bool hasConstantAlpha() const;
+	void createImage(OutputRectangle& output);
 	virtual void invalidateLocal();
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
-	virtual BaseImage* createSDL(OutputSurface& output) = 0;
-	virtual BaseImage* createGL (OutputSurface& output) = 0;
+	virtual BaseImage* createSDL(OutputRectangle& output) = 0;
+	virtual BaseImage* createGL (OutputRectangle& output) = 0;
 
 	void setError(const std::string& message);
 	bool hasError() const { return error; }
@@ -48,7 +49,7 @@ private:
 	void updateCurrentFadeValue();
 
 	void paint(OutputSurface& output, bool openGL);
-	void getTransformedXY(const OutputSurface& output,
+	void getTransformedXY(const OutputRectangle& output,
 	                      double& outx, double& outy) const;
 
 	const OSDGUI& gui;

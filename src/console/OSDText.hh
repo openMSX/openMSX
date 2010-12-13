@@ -27,9 +27,9 @@ private:
 	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const;
 	virtual byte getFadedAlpha() const;
-	virtual BaseImage* createSDL(OutputSurface& output);
-	virtual BaseImage* createGL (OutputSurface& output);
-	template <typename IMAGE> BaseImage* create(OutputSurface& output);
+	virtual BaseImage* createSDL(OutputRectangle& output);
+	virtual BaseImage* createGL (OutputRectangle& output);
+	template <typename IMAGE> BaseImage* create(OutputRectangle& output);
 
 	template<typename FindSplitPointFunc, typename CantSplitFunc>
 	unsigned split(const std::string& line, unsigned maxWidth,
@@ -39,6 +39,8 @@ private:
 	unsigned splitAtWord(const std::string& line, unsigned maxWidth) const;
 	std::string getCharWrappedText(const std::string& text, unsigned maxWidth) const;
 	std::string getWordWrappedText(const std::string& text, unsigned maxWidth) const;
+
+	void getRenderedSize(double& outX, double& outY) const;
 
 	enum WrapMode { NONE, WORD, CHAR };
 

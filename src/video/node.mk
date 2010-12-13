@@ -38,7 +38,8 @@ HDR_ONLY:= \
 	VideoSystemChangeListener \
 	LayerListener \
 	VideoSource \
-	SDLSurfacePtr
+	SDLSurfacePtr \
+	OutputRectangle
 
 DIST:= \
 	FBPostProcessor-x64.asm \

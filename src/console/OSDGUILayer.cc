@@ -36,6 +36,7 @@ const std::string& OSDGUILayer::getName()
 SDLOSDGUILayer::SDLOSDGUILayer(OSDGUI& gui)
 	: OSDGUILayer(gui)
 {
+	getGUI().setOpenGL(false);
 }
 
 void SDLOSDGUILayer::paint(OutputSurface& output)
@@ -49,6 +50,7 @@ void SDLOSDGUILayer::paint(OutputSurface& output)
 GLOSDGUILayer::GLOSDGUILayer(OSDGUI& gui)
 	: OSDGUILayer(gui)
 {
+	getGUI().setOpenGL(true);
 }
 
 void GLOSDGUILayer::paint(OutputSurface& output)

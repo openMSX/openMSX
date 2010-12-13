@@ -212,7 +212,7 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-void OSDImageBasedWidget::getTransformedXY(const OutputSurface& output,
+void OSDImageBasedWidget::getTransformedXY(const OutputRectangle& output,
                                            double& outx, double& outy) const
 {
 	const OSDWidget* parent = getParent();
@@ -239,14 +239,11 @@ void OSDImageBasedWidget::paintGL(OutputSurface& output)
 	paint(output, true);
 }
 
-void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
+void OSDImageBasedWidget::createImage(OutputRectangle& output)
 {
-	// Note: Even when alpha == 0 we still create the image:
-	//    It may be needed to get the dimensions to be able to position
-	//    child widgets.
 	if (!image.get() && !hasError()) {
 		try {
-			if (openGL) {
+			if (gui.isOpenGL()) {
 				image.reset(createGL(output));
 			} else {
 				image.reset(createSDL(output));
@@ -255,6 +252,16 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 			setError(e.getMessage());
 		}
 	}
+}
+
+void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
+{
+	// Note: Even when alpha == 0 we still create the image:
+	//    It may be needed to get the dimensions to be able to position
+	//    child widgets.
+	assert(openGL == gui.isOpenGL()); (void)openGL;
+	createImage(output);
+
 	byte fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image.get()) {
 		double x, y;
