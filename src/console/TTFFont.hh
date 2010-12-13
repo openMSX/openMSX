@@ -23,18 +23,22 @@ public:
 	  * The text must be UTF-8 encoded.
 	  * The result is a 32bpp RGBA SDL_Surface.
 	  */
-	SDLSurfacePtr render(const std::string& text, byte r, byte g, byte b);
+	SDLSurfacePtr render(std::string text, byte r, byte g, byte b) const;
 
 	/** Return the height of the font.
 	  * This is the recommended number of pixels between two text lines.
 	  */
-	unsigned getHeight();
+	unsigned getHeight() const;
 
 	/** Return the width of the font.
 	  * This is the recommended number of pixels between two characters.
 	  * This number only makes sense for fixed-width fonts.
 	  */
-	unsigned getWidth();
+	unsigned getWidth() const;
+
+	/** Return the size in pixels of the text if it would be rendered.
+	 */
+	void getSize(const std::string& text, unsigned& width, unsigned& height) const;
 
 private:
 	void* font;  // TTF_Font*

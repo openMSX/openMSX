@@ -9,9 +9,12 @@
 #include <SDL_ttf.h>
 #include <map>
 #include <algorithm>
+#include <vector>
+#include <iostream>
 #include <cassert>
 
 using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -148,25 +151,89 @@ TTFFont::~TTFFont()
 	TTFFontPool::instance().release(static_cast<TTF_Font*>(font));
 }
 
-SDLSurfacePtr TTFFont::render(const string& text, byte r, byte g, byte b)
+SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 {
 	SDL_Color color = { r, g, b, 0 };
-	SDLSurfacePtr surface(TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
-	                                             text.c_str(), color));
-	if (!surface.get()) {
-		throw MSXException(TTF_GetError());
+
+	// Optimization: remove trailing empty lines
+	StringOp::trimRight(text, " \n");
+	if (text.empty()) return SDLSurfacePtr(NULL);
+
+	// Split on newlines
+	std::vector<string> lines;
+	StringOp::split(text, "\n", lines);
+	assert(!lines.empty());
+
+	if (lines.size() == 1) {
+		// Special case for a single line: we can avoid the
+		// copy to an extra SDL_Surface
+		assert(!text.empty());
+		SDLSurfacePtr surface(
+			TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
+			                       text.c_str(), color));
+		if (!surface.get()) {
+			throw MSXException(TTF_GetError());
+		}
+		return surface;
 	}
-	return surface;
+
+	// Determine maximum width and lineHeight
+	unsigned width = 0;
+	unsigned lineHeight;
+	for (vector<string>::const_iterator it = lines.begin(); it != lines.end(); ++it) {
+		unsigned w;
+		getSize(it->c_str(), w, lineHeight);
+		width = std::max(width, w);
+	}
+	// There might be extra space between two successive lines
+	// (so lineSkip might be bigger than lineHeight).
+	unsigned lineSkip = getHeight();
+	// We assume that height is the same for all lines.
+	// For the last line we don't include spacing between two lines.
+	unsigned height = (lines.size() - 1) * lineSkip + lineHeight;
+
+	// Create destination surface
+	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
+			32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
+	if (!destination.get()) {
+		throw MSXException("Couldn't allocate surface for multiline text.");
+	}
+
+	// Now, fill it with some fully transparent color:
+	SDL_FillRect(destination.get(), NULL, 0);
+
+	// Actually render the text:
+	for (unsigned i = 0; i < lines.size(); ++i) {
+		// Render single line
+		if (lines[i].empty()) {
+			// SDL_TTF gives an error on empty lines, but we can
+			// simply skip such lines
+			continue;
+		}
+		SDLSurfacePtr line(TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
+		                                          lines[i].c_str(), color));
+		if (!line.get()) {
+			throw MSXException(TTF_GetError());
+		}
+
+		// Copy line to destination surface
+		SDL_Rect rect;
+		rect.x = 0;
+		rect.y = i * lineSkip;
+		SDL_SetAlpha(line.get(), 0, 0); // no blending during copy
+		SDL_BlitSurface(line.get(), NULL, destination.get(), &rect);
+	}
+	return destination;
 
 	// TODO for GP2X copy to a HW_Surface?
 }
 
-unsigned TTFFont::getHeight()
+unsigned TTFFont::getHeight() const
 {
 	return TTF_FontLineSkip(static_cast<TTF_Font*>(font));
 }
 
-unsigned TTFFont::getWidth()
+unsigned TTFFont::getWidth() const
 {
 	int advance;
 	if (TTF_GlyphMetrics(static_cast<TTF_Font*>(font), Uint16('M'),
@@ -177,6 +244,16 @@ unsigned TTFFont::getWidth()
 		return 10; //fallback-width
 	}
 	return advance;
+}
+
+void TTFFont::getSize(const std::string& text,
+                      unsigned& width, unsigned& height) const
+{
+	if (TTF_SizeUTF8(static_cast<TTF_Font*>(font), text.c_str(),
+	                 reinterpret_cast<int*>(&width),
+	                 reinterpret_cast<int*>(&height))) {
+		throw MSXException(TTF_GetError());
+	}
 }
 
 } // namespace openmsx
