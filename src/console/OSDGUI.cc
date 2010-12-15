@@ -321,7 +321,8 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 			if (tokens[1] == "create") {
 				auto_ptr<OSDWidget> widget = create(tokens[2], "");
 				widget->getProperties(properties);
-			} else if (tokens[1] == "configure") {
+			} else if ((tokens[1] == "configure") ||
+			           (tokens[1] == "info")) {
 				const OSDWidget& widget = getWidget(tokens[2]);
 				widget.getProperties(properties);
 			}
