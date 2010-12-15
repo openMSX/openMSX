@@ -128,7 +128,7 @@ def main(
 			'Notice: if you want to emulate real MSX systems and not only the '
 			'free C-BIOS machines, put the system ROMs in one of the following '
 			'directories: %s/systemroms or '
-			'~/.openMSX/share/systemroms'
+			'~/.openMSX/share/systemroms\n'
 			'If you want openMSX to find MSX software referred to from replays '
 			'or savestates you get from your friends, copy that MSX software to '
 			'%s/software or '
