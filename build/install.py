@@ -129,7 +129,11 @@ def main(
 			'free C-BIOS machines, put the system ROMs in one of the following '
 			'directories: %s/systemroms or '
 			'~/.openMSX/share/systemroms'
-			) % shareDestDir
+			'If you want openMSX to find MSX software referred to from replays '
+			'or savestates you get from your friends, copy that MSX software to '
+			'%s/software or '
+			'~/.openMSX/share/software'
+			) % (shareDestDir, shareDestDir)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 9:

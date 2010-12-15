@@ -3,7 +3,7 @@ Playball Sample Data
 
 The Sony game cartridge Playball has a built in ROM with samples that are
 replayed during the game. Also the game Hardball (by Sony) can use these
-samples, when it detects the Playball ROM in the second cartrdige slot.
+samples, when it detects the Playball ROM in the second cartridge slot.
 
 Due to copyright reasons, we cannot distribute these samples with openMSX.
 
