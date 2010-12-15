@@ -3714,6 +3714,36 @@ template <class T> template<typename COND> int CPUCore<T>::jp(COND cond) {
 template <class T> template<typename COND> int CPUCore<T>::jr(COND cond) {
 	offset ofst = RDMEM_OPCODE(T::CC_JR_1);
 	if (cond(R.getF())) {
+		if ((R.getPC() & 0xFF) == 0) {
+			// On R800, when this instruction is located in the
+			// last two byte of a page (a page is a 256-byte
+			// (aligned) memory block) and even if we jump back,
+			// thus fetching the next opcode byte does not cause a
+			// page-break, there still is one cycle overhead. It's
+			// as-if there is a page-break.
+			//
+			// This could be explained by some (very limited)
+			// pipeline behaviour in R800: it seems that the
+			// decision to cause a page-break on the next
+			// instruction is already made before the jump
+			// destination address for the current instruction is
+			// calculated (though a destination address in another
+			// page is also a reason for a page-break).
+			//
+			// It's likely all instructions behave like this, but I
+			// think we can get away with only explicitly emulating
+			// this behaviour in the djnz and the jr (conditional
+			// or not) instructions: all other instructions that
+			// cause the PC to change in a non-incremental way do
+			// already force a pagebreak for another reason, so
+			// this effect is masked. Examples of such instructions
+			// are: JP, RET, CALL, RST, all repeated block
+			// instructions, accepting an IRQ, (are there more
+			// instructions are events that change PC?)
+			//
+			// See doc/r800-djnz.txt for more details.
+			T::R800ForcePageBreak();
+		}
 		R.setPC((R.getPC() + ofst) & 0xFFFF);
 		T::setMemPtr(R.getPC());
 		return T::CC_JR_A;
@@ -3728,6 +3758,10 @@ template <class T> int CPUCore<T>::djnz() {
 	R.setB(b);
 	offset ofst = RDMEM_OPCODE(T::CC_JR_1 + T::EE_DJNZ);
 	if (b) {
+		if ((R.getPC() & 0xFF) == 0) {
+			// See comment in jr()
+			T::R800ForcePageBreak();
+		}
 		R.setPC((R.getPC() + ofst) & 0xFFFF);
 		T::setMemPtr(R.getPC());
 		return T::CC_JR_A + T::EE_DJNZ;
@@ -4120,6 +4154,7 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::muluw_hl_SS() {
 // versions:
 //  1 -> initial version
 //  2 -> moved memptr from here to Z80TYPE (and not to R800TYPE)
+//  3 -> timing of the emulation changed (no changes in serialization)
 template<class T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
@@ -4140,6 +4175,13 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 	//    NMIStatus, nmiEdge
 	//    slowInstructions
 	//    exitLoop
+
+	if (T::isR800() && ar.versionBelow(version, 3)) {
+		motherboard.getMSXCliComm().printWarning(
+			"Loading an old savestate: the timing of the R800 "
+			"emulation has changed. This may cause synchronization "
+			"problems in replay.");
+	}
 }
 
 // Force template instantiation

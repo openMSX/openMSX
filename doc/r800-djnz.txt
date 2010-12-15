@@ -1,0 +1,167 @@
+It seems in some cases on R800 a djnz or jr instruction take one cycle longer
+than expected. I discovered this purely by accident: I was doing another timing
+test in which I varied the number of instructions inside a loop. For a specific
+amount of instructions I got an expected result. This happened when a djnz
+instruction was the very last instruction in a 256-byte memory page. In the
+following test I'll investigate this in some more detail.
+
+
+
+Test-program:
+
+	org	#c000
+
+	di
+	ld	b,0
+
+	ds      248         ; vary between 248-251
+
+	out     (#e6),a
+loop	djnz    loop
+	in      a,(#e6)
+	ld      l,a
+	in      a,(#e7)
+	ld      h,a
+	ret
+
+By varying the value of the 'ds' directive between 248 and 251, the start
+address of the djnz instruction varies from 0xc0fd to 0xc100. For each position
+we measure how long the test takes using the E6-timer (this timer ticks once
+every 28 R800 clock cycles, there's also approx 18% overhead for refresh)
+
+djnz-start-address  | real turborGT | openmsx-rev11821 | openmsx-fixed
+--------------------+---------------+------------------+--------------
+             0xC0FD | 31 - 33       | 31 - 32          | 31 - 32
+             0xC0FE | 41 - 42       | 31 - 32 (!!!)    | 41 - 42
+             0xC0FF | 52 - 53       | 52 - 53          | 52 - 53
+             0xC100 | 31 - 32       | 31 - 32          | 31 - 32
+ (there's some variation in the measured E6-ticks, we list the range of all
+  measured values in this table)
+
+Translated to clock ticks per iteration:
+
+address | real | rev11821 | fixed
+--------+------+----------+------
+ 0xC0FD |  3   |    3     |   3
+ 0xC0FE |  4   |    3     |   4
+ 0xC0FF |  5   |    5     |   5
+ 0xC100 |  3   |    3     |   3
+
+There are 3 different cases in this test:
+ 0xC0FD and 0xC100:
+   djnz instruction takes 3 cycles, this is the normal case for a djnz
+   instruction which does execute a jump. There are no page-breaks: all
+   opcode bytes are fetched from the same 256-byte memory page.
+ 0xC0FE:
+   This is the unexpected case, for some yet unknown reason the instruction
+   takes 1 cycle extra. Note that all opcode bytes are fetched from the
+   same 256-byte memory page. See below for a possible explanation.
+ 0xC0FF:
+   Here both opcode bytes of the djnz instruction are located in a different
+   memory page, so per iteration there are two extra cycles for two page break,
+   thus 5 cycles in total.
+
+
+
+I did a similar test for the jr instruction:
+
+	org	#c000
+
+	di
+	ld	b,0
+
+	ds	242	; vary between 239-242
+
+	out	(#e6),a
+test2a	djnz	test2b
+	in	a,(#e6)
+	ld	l,a
+	in	a,(#e7)
+	ld	h,a
+	ret
+test2b	jr	test2a
+
+jr-start-address  | real turborGT | openmsx-rev11821 | openmsx-fixed
+------------------+---------------+------------------+--------------
+           0xC0FD | 63 - 64       | 62 - 63          | 62 - 63
+           0xC0FE | 73 - 74       | 62 - 64 (!!!)    | 73 - 74
+           0xC0FF | 83 - 84       | 83 - 84          | 83 - 84
+           0xC100 | 83 - 84       | 83 - 85          | 83 - 84
+
+address | real | rev11821 | fixed
+--------+------+----------+------
+ 0xC0FD |  6   |    6     |   6
+ 0xC0FE |  7   |    6     |   7
+ 0xC0FF |  8   |    8     |   8
+ 0xC100 |  8   |    8     |   8
+
+Again 3 different cases in this test:
+ 0xC0FD:
+   Both jr and djnz instruction take 3 cycles (when they do jump) there are no
+   page break or no extra penalty cycles.
+ 0xC0FE:
+   Now the jr instruction is the last in a memory page, this shows the same
+   penalty cycle as a djnz instruction. Again there is no 'real' page break in
+   this test.
+ 0xC0FF and 0xC100:
+   In both these cases there are two page breaks per iteration (but at different
+   locations for the two cases). So 8 cycles per iteration in total.
+
+
+
+
+
+Possible explanation (this is just a guess but it does explain the
+measurements):
+
+This behaviour could be explained by some (very limited) pipeline behaviour in
+the R800: it seems that the decision to cause a page-break on the next
+instruction is already made during the execution of the current instruction,
+after the last opcode byte is fetched, but before the destination address of
+the jump is calculated. (Though when the jump does actually go to another page,
+this is also a reason for a page-break).
+
+It's possible all R800 instructions have this pipeline behaviour, but it's only
+visible in the djnz and the jr instructions. All other instructions either don't
+jump (the PC simply increments) and then it's not possible to externally detect
+when exactly the 'must-fetch-opcode-using-page-break-decision' is made. Or the
+instruction does jump but it already causes a page-break for another reason, so
+the possible extra page-break is always masked. The list of instructions that
+cause a 'jump' is:
+
+   djnz, jr, jr-conditional
+     These show the extra page-break behaviour
+
+   jp, jp-conditional, jp (hl/ix/iy)
+     There's _always_ a forced page-break after this instruction. (The exact
+     reason why is not clear to me.)
+
+   call, call-conditional, ret, ret-conditional, rst, accept-an-IRQ
+     All these instructions (or events) push/pop on/from the stack. When
+     switching between data read/write and opcode fetch there's always a
+     page-break;
+
+   otir, otdr, inir, indr, ldir, lddr, cpir, cpdr
+     (When these are repeated PC is decremented by 2.) All these instructions
+     do a data read or write and thus there already is a page-break when
+     switching back to opcode fetching (even if opcode and data are in the
+     same memory page).
+
+   halt
+     I'm not sure about this instruction: it's possible this instruction
+     constantly decrements PC by one (after it's been increased). At least
+     this is how Z80 does it. So it might be the case that a halt instruction
+     as the last instruction in a memory page 'loops' a bit slower. Though
+     this effect will be hard to notice. At the moment I don't know how to
+     write a test to detect this. Suggestions are welcome.
+
+
+
+
+As you've already seen in the measurements above: I implemented a forced
+page-break in the djnz and jr instructions when they are located at address
+0x..FE. After this fix the measurements in openMSX match the real hardware.
+
+
+
+Wouter
