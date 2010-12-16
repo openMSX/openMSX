@@ -272,7 +272,7 @@ static unsigned findWordSplitPoint(const string& line, unsigned min, unsigned ma
 		pos2 += min + 1;
 		assert(min < pos2);
 		assert(pos2 <= pos);
-		return pos2;
+		return unsigned(pos2);
 	}
 
 	// try searching forward
@@ -282,7 +282,7 @@ static unsigned findWordSplitPoint(const string& line, unsigned min, unsigned ma
 		assert(pos3 < max);
 		pos3 += 1; // char directly after a delimiter;
 		if (pos3 < max) {
-			return pos3;
+			return unsigned(pos3);
 		}
 	}
 
@@ -310,13 +310,13 @@ unsigned OSDText::split(const string& line, unsigned maxWidth,
 	font->getSize(line, width, height);
 	if (width <= maxWidth) {
 		// whole line fits
-		return line.size();
+		return unsigned(line.size());
 	}
 
 	// binary search till we found the largest initial substring that is
 	// not wider than maxWidth
 	unsigned min = 0;
-	unsigned max = line.size();
+	unsigned max = unsigned(line.size());
 	// invariant: line.substr(0, min) DOES     fit
 	//            line.substr(0, max) DOES NOT fit
 	unsigned cur = findSplitPoint(line, min, max);
