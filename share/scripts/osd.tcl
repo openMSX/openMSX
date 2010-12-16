@@ -28,7 +28,6 @@ proc show_osd {{widgets ""}} {
 
 # this can display only one message at a time, the previous message
 # will get overwritten by a new one
-# TODO: chop up the line in multiple lines if it's too long
 proc display_message { message {category info} } {
 	variable default_color
 	variable error_color
@@ -50,17 +49,21 @@ proc display_message { message {category info} } {
 					-bordersize 0.5 \
 					-borderrgba 0x000000ff \
 					-clip true \
-					-scaled true \
-					-fadeCurrent 1 \
-					-fadeTarget 0 \
-					-fadePeriod 5
+					-scaled true
 }
 
 set message_callback osd::display_message
 
+proc is_cursor_in { widget } {
+	set x 2; set y 2
+	catch { foreach {x y} [osd info $widget -mousecoord] {} }
+	return [expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}]
+}
+
 # only export stuff that is useful in other scripts or for the console user
 namespace export show_osd
 namespace export display_message
+namespace export is_cursor_in
 
 };# namespace osd
 

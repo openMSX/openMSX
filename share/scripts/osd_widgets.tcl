@@ -115,7 +115,11 @@ set_help_text osd_widgets::text_box\
  -textcolor: defines the color of the text
  -textsize: defines the font size of the text}
 
+variable widget_click_handlers
+
 proc text_box {name args} {
+	variable widget_click_handlers
+
 	# Default values in case nothing is given
 	set txt_color 0xffffffff
 	set txt_size 6
@@ -131,6 +135,8 @@ proc text_box {name args} {
 		}
 	}
 
+	if {$message == ""} return
+
 	# For handheld devices set minimal text size to 9
 	#  TODO: does this belong here or at some higher level?
 	if {($::scale_factor == 1) && ($txt_size < 9)} {
@@ -140,11 +146,10 @@ proc text_box {name args} {
 	# Destroy widget (if it already existed)
 	osd destroy $name
 
-	if {$message == ""} return
-
 	# Guess height of rectangle
 	eval "osd create rectangle \{$name\} $rect_props \
-		-h [expr 4 + $txt_size]"
+		-h [expr 4 + $txt_size] -fadeCurrent 1 \
+		-fadeTarget 0 -fadePeriod 5"
 
 	osd create text $name.text -x 2 -y 2 -size $txt_size -rgb $txt_color \
 		-text $message -wrap word -wraprelw 1.0 -wrapw -4
@@ -155,6 +160,56 @@ proc text_box {name args} {
 		foreach {x y} [osd info $name.text -query-size] {}
 		osd configure $name -h [expr 4 + $y]
 	}
+
+	# if the widget was still active, kill old click handler
+	if {[info exists widget_click_handlers($name)]} {
+		after cancel $widget_click_handlers($name)
+	}
+
+	set widget_click_handlers($name) [after "mouse button1 down" \
+		"osd_widgets::click_handler $name"]
+	check_cursor_pos $name
+
+	return ""
+}
+
+proc click_handler { name } {
+
+	if {[osd::is_cursor_in $name]} {
+		kill_widget $name
+	}
+	return ""
+}
+
+proc kill_widget { name } {
+	variable widget_click_handlers
+
+	after cancel $widget_click_handlers($name)
+	unset widget_click_handlers($name)
+	osd destroy $name
+}
+
+proc check_cursor_pos { name } {
+
+	# clicking it might have killed it already
+	if {![osd exists $name]} {
+		return ""
+	}
+
+	# if already faded out... don't poll again and clean up
+	if {[osd info $name -fadeCurrent] == 0.0} {
+		kill_widget $name
+		return ""
+	}
+
+	# see if we should fade in again, otherwise fade out (again)
+	if {[osd::is_cursor_in $name]} {
+		osd configure $name -fadePeriod 0.5 -fadeTarget 1.0
+	} else {
+		osd configure $name -fadePeriod 5.0 -fadeTarget 0.0
+	}
+
+	after realtime 0.3 "osd_widgets::check_cursor_pos $name"
 	return ""
 }
 
