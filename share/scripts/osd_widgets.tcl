@@ -116,9 +116,13 @@ set_help_text osd_widgets::text_box\
  -textsize: defines the font size of the text}
 
 variable widget_click_handlers
+variable opaque_duration   2.5
+variable fade_out_duration 2.5
+variable fade_in_duration  0.4
 
 proc text_box {name args} {
 	variable widget_click_handlers
+	variable opaque_duration
 
 	# Default values in case nothing is given
 	set txt_color 0xffffffff
@@ -147,9 +151,7 @@ proc text_box {name args} {
 	osd destroy $name
 
 	# Guess height of rectangle
-	eval "osd create rectangle \{$name\} $rect_props \
-		-h [expr 4 + $txt_size] -fadeCurrent 1 \
-		-fadeTarget 0 -fadePeriod 5"
+	eval "osd create rectangle \{$name\} $rect_props -h [expr 4 + $txt_size]"
 
 	osd create text $name.text -x 2 -y 2 -size $txt_size -rgb $txt_color \
 		-text $message -wrap word -wraprelw 1.0 -wrapw -4
@@ -168,7 +170,7 @@ proc text_box {name args} {
 
 	set widget_click_handlers($name) [after "mouse button1 down" \
 		"osd_widgets::click_handler $name"]
-	check_cursor_pos $name
+	after realtime $opaque_duration "osd_widgets::timer_handler $name"
 
 	return ""
 }
@@ -189,28 +191,32 @@ proc kill_widget { name } {
 	osd destroy $name
 }
 
-proc check_cursor_pos { name } {
+proc timer_handler { name } {
+	variable opaque_duration
+	variable fade_out_duration
+	variable fade_in_duration
 
 	# clicking it might have killed it already
 	if {![osd exists $name]} {
-		return ""
+		return
 	}
 
 	# if already faded out... don't poll again and clean up
 	if {[osd info $name -fadeCurrent] == 0.0} {
 		kill_widget $name
-		return ""
+		return
 	}
 
-	# see if we should fade in again, otherwise fade out (again)
+	# If the cursor is over the widget, we fade-in fast and leave the widget
+	# opaque for some time (= don't poll for some longer time). Otherwise
+	# we fade-out slow and more quickly poll the cursor position.
 	if {[osd::is_cursor_in $name]} {
-		osd configure $name -fadePeriod 0.5 -fadeTarget 1.0
+		osd configure $name -fadePeriod $fade_in_duration -fadeTarget 1.0
+		after realtime $opaque_duration "osd_widgets::timer_handler $name"
 	} else {
-		osd configure $name -fadePeriod 5.0 -fadeTarget 0.0
+		osd configure $name -fadePeriod $fade_out_duration -fadeTarget 0.0
+		after realtime 0.25 "osd_widgets::timer_handler $name"
 	}
-
-	after realtime 0.3 "osd_widgets::check_cursor_pos $name"
-	return ""
 }
 
 proc volume_control {incr_val} {
