@@ -38,6 +38,7 @@ private:
 	typedef std::vector<CliListener*> Listeners;
 	Listeners listeners;
 	Semaphore sem; // lock access to listeners member
+	bool delivering;
 
 	friend class MSXCliComm;
 };

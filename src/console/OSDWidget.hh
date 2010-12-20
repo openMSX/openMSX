@@ -3,6 +3,7 @@
 #ifndef OSDWIDGET_HH
 #define OSDWIDGET_HH
 
+#include "shared_ptr.hh"
 #include <string>
 #include <vector>
 #include <map>
@@ -31,7 +32,7 @@ public:
 	const OSDWidget* getParent() const;
 	OSDWidget* findSubWidget(const std::string& name);
 	const OSDWidget* findSubWidget(const std::string& name) const;
-	void addWidget(std::auto_ptr<OSDWidget> widget);
+	void addWidget(shared_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
 	virtual void getProperties(std::set<std::string>& result) const;
@@ -56,6 +57,7 @@ public:
 protected:
 	explicit OSDWidget(const std::string& name);
 	void invalidateChildren();
+	bool needSuppressErrors() const;
 
 	virtual void invalidateLocal() = 0;
 	virtual void paintSDL(OutputSurface& output) = 0;
@@ -73,7 +75,7 @@ private:
 	                     std::set<std::string>& result) const;
 	friend class OSDCommand;
 
-	typedef std::vector<OSDWidget*> SubWidgets;
+	typedef std::vector<shared_ptr<OSDWidget> > SubWidgets;
 	typedef std::map<std::string, OSDWidget*> SubWidgetsMap;
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.
@@ -92,6 +94,7 @@ private:
 	double relx, rely;
 	bool scaled;
 	bool clip;
+	bool suppressErrors;
 };
 
 } // namespace openmsx

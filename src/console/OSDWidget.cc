@@ -125,15 +125,12 @@ OSDWidget::OSDWidget(const string& name_)
 	, relx(0.0), rely(0.0)
 	, scaled(false)
 	, clip(false)
+	, suppressErrors(false)
 {
 }
 
 OSDWidget::~OSDWidget()
 {
-	for (SubWidgets::const_iterator it = subWidgets.begin();
-	     it != subWidgets.end(); ++it) {
-		delete *it;
-	}
 }
 
 const string& OSDWidget::getName() const
@@ -172,12 +169,11 @@ const OSDWidget* OSDWidget::findSubWidget(const std::string& name) const
 	return const_cast<OSDWidget*>(this)->findSubWidget(name);
 }
 
-void OSDWidget::addWidget(std::auto_ptr<OSDWidget> widget)
+void OSDWidget::addWidget(shared_ptr<OSDWidget> widget)
 {
 	widget->setParent(this);
-	OSDWidget* widgetPtr = widget.release();
-	subWidgets.push_back(widgetPtr);
-	subWidgetsMap[widgetPtr->getName()] = widgetPtr;
+	subWidgets.push_back(widget);
+	subWidgetsMap[widget->getName()] = widget.get();
 	resort();
 }
 
@@ -186,8 +182,7 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 	string widgetName = widget.getName();
 	for (SubWidgets::iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
-		if (*it == &widget) {
-			delete *it;
+		if (it->get() == &widget) {
 			subWidgets.erase(it);
 			SubWidgetsMap::size_type existed =
 				subWidgetsMap.erase(widgetName);
@@ -199,7 +194,8 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 }
 
 struct AscendingZ {
-	bool operator()(const OSDWidget* lhs, const OSDWidget* rhs) const {
+	bool operator()(const shared_ptr<OSDWidget> lhs,
+	                const shared_ptr<OSDWidget> rhs) const {
 		return lhs->getZ() < rhs->getZ();
 	}
 };
@@ -219,6 +215,7 @@ void OSDWidget::getProperties(set<string>& result) const
 	result.insert("-scaled");
 	result.insert("-clip");
 	result.insert("-mousecoord");
+	result.insert("-suppressErrors");
 }
 
 void OSDWidget::setProperty(const string& name, const TclObject& value)
@@ -251,6 +248,8 @@ void OSDWidget::setProperty(const string& name, const TclObject& value)
 		}
 	} else if (name == "-clip") {
 		clip = value.getBoolean();
+	} else if (name == "-suppressErrors") {
+		suppressErrors = value.getBoolean();
 	} else {
 		throw CommandException("No such property: " + name);
 	}
@@ -279,6 +278,8 @@ void OSDWidget::getProperty(const string& name, TclObject& result) const
 		getMouseCoord(x, y);
 		result.addListElement(x);
 		result.addListElement(y);
+	} else if (name == "-suppressErrors") {
+		result.setBoolean(suppressErrors);
 	} else {
 		throw CommandException("No such property: " + name);
 	}
@@ -303,6 +304,15 @@ void OSDWidget::invalidateChildren()
 	}
 }
 
+bool OSDWidget::needSuppressErrors() const
+{
+	if (suppressErrors) return true;
+	if (const OSDWidget* parent = getParent()) {
+		return parent->needSuppressErrors();
+	}
+	return false;
+}
+
 void OSDWidget::paintSDLRecursive(OutputSurface& output)
 {
 	paintSDL(output);
@@ -314,8 +324,13 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 		scopedClip.reset(new SDLScopedClip(output, x, y, w, h));
 	}
 
-	for (SubWidgets::const_iterator it = subWidgets.begin();
-	     it != subWidgets.end(); ++it) {
+	// Iterate over a copy because drawing could cause errors (e.g. can't
+	// load font or image), those error are (indirectly via CliComm) passed
+	// to a Tcl callback and that callback can destroy or create extra
+	// widgets.
+	SubWidgets copy(subWidgets);
+	for (SubWidgets::const_iterator it = copy.begin();
+	     it != copy.end(); ++it) {
 		(*it)->paintSDLRecursive(output);
 	}
 }
@@ -333,8 +348,9 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 		scopedClip.reset(new GLScopedClip(output, x, y, w, h));
 	}
 
-	for (SubWidgets::const_iterator it = subWidgets.begin();
-	     it != subWidgets.end(); ++it) {
+	SubWidgets copy(subWidgets);
+	for (SubWidgets::const_iterator it = copy.begin();
+	     it != copy.end(); ++it) {
 		(*it)->paintGLRecursive(output);
 	}
 #endif

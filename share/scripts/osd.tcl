@@ -49,7 +49,8 @@ proc display_message { message {category info} } {
 					-bordersize 0.5 \
 					-borderrgba 0x000000ff \
 					-clip true \
-					-scaled true
+					-scaled true \
+					-suppressErrors true
 }
 
 set message_callback osd::display_message

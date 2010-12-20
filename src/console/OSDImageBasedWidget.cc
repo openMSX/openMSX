@@ -226,7 +226,17 @@ void OSDImageBasedWidget::getTransformedXY(const OutputRectangle& output,
 void OSDImageBasedWidget::setError(const string& message)
 {
 	error = true;
-	gui.getDisplay().getCliComm().printWarning(message);
+
+	// The suppressErrors property only exists to break an infinite loop
+	// when an error occurs (e.g. couldn't load font) while displaying the
+	// error message on the OSD system.
+	// The difficulty in detecting this loop is that it's not a recursive
+	// loop, but each iteration takes one frame: on the CliComm Tcl callback,
+	// the OSD widgets get created, but only the next frame, when this new
+	// widget is actually drawn the next error occurs.
+	if (!needSuppressErrors()) {
+		gui.getDisplay().getCliComm().printWarning(message);
+	}
 }
 
 void OSDImageBasedWidget::paintSDL(OutputSurface& output)

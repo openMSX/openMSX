@@ -10,6 +10,7 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
+#include "shared_ptr.hh"
 #include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
@@ -17,7 +18,6 @@
 using std::string;
 using std::set;
 using std::vector;
-using std::auto_ptr;
 
 namespace openmsx {
 
@@ -35,7 +35,7 @@ private:
 	void info     (const vector<TclObject*>& tokens, TclObject& result);
 	void exists   (const vector<TclObject*>& tokens, TclObject& result);
 	void configure(const vector<TclObject*>& tokens, TclObject& result);
-	auto_ptr<OSDWidget> create(const string& type, const string& name) const;
+	shared_ptr<OSDWidget> create(const string& type, const string& name) const;
 	void configure(OSDWidget& widget, const vector<TclObject*>& tokens,
 	               unsigned skip);
 
@@ -130,20 +130,20 @@ void OSDCommand::create(const vector<TclObject*>& tokens, TclObject& result)
 			fullname);
 	}
 
-	auto_ptr<OSDWidget> widget = create(type, name);
+	shared_ptr<OSDWidget> widget = create(type, name);
 	configure(*widget, tokens, 4);
 	parent->addWidget(widget);
 
 	result.setString(fullname);
 }
 
-auto_ptr<OSDWidget> OSDCommand::create(
+shared_ptr<OSDWidget> OSDCommand::create(
 		const string& type, const string& name) const
 {
 	if (type == "rectangle") {
-		return auto_ptr<OSDWidget>(new OSDRectangle(gui, name));
+		return shared_ptr<OSDWidget>(new OSDRectangle(gui, name));
 	} else if (type == "text") {
-		return auto_ptr<OSDWidget>(new OSDText(gui, name));
+		return shared_ptr<OSDWidget>(new OSDText(gui, name));
 	} else {
 		throw CommandException(
 			"Invalid widget type '" + type + "', expected "
@@ -319,7 +319,7 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 		try {
 			set<string> properties;
 			if (tokens[1] == "create") {
-				auto_ptr<OSDWidget> widget = create(tokens[2], "");
+				shared_ptr<OSDWidget> widget = create(tokens[2], "");
 				widget->getProperties(properties);
 			} else if ((tokens[1] == "configure") ||
 			           (tokens[1] == "info")) {
