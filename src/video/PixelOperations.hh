@@ -466,21 +466,21 @@ Pixel PixelOperations<Pixel>::lerp32(Pixel p1, Pixel p2, unsigned x)
 {
 	assert(sizeof(Pixel) == 4);
 
-        unsigned rb1 = (p1 >> 0) & 0xFF00FF;
-        unsigned ag1 = (p1 >> 8) & 0xFF00FF;
-        unsigned rb2 = (p2 >> 0) & 0xFF00FF;
-        unsigned ag2 = (p2 >> 8) & 0xFF00FF;
+	unsigned rb1 = (p1 >> 0) & 0xFF00FF;
+	unsigned ag1 = (p1 >> 8) & 0xFF00FF;
+	unsigned rb2 = (p2 >> 0) & 0xFF00FF;
+	unsigned ag2 = (p2 >> 8) & 0xFF00FF;
 
 	// Note: the subtraction for the lower component can 'borrow' from
 	// the higher component. Though in the full calculation this error
 	// magically cancels out.
-        unsigned trb = ((rb2 - rb1) * x) >> 8;
-        unsigned tag = ((ag2 - ag1) * x) >> 0;
+	unsigned trb = ((rb2 - rb1) * x) >> 8;
+	unsigned tag = ((ag2 - ag1) * x) >> 0;
 
-        unsigned rb  = ((trb + rb1) << 0) & 0x00FF00FF;
-        unsigned ag  = (tag + (ag1 << 8)) & 0xFF00FF00;
+	unsigned rb  = ((trb + rb1) << 0) & 0x00FF00FF;
+	unsigned ag  = (tag + (ag1 << 8)) & 0xFF00FF00;
 
-        return rb | ag;
+	return rb | ag;
 }
 
 template <typename Pixel>
