@@ -50,7 +50,7 @@ void MLAAScaler<Pixel>::scaleImage(
 
 	enum { UP = 1 << 0, RIGHT = 1 << 1, DOWN = 1 << 2, LEFT = 1 << 3 };
 	VLA(byte, edges, srcNumLines * srcWidth);
-	byte* edgePtr = edges;
+	byte* edgeGenPtr = edges;
 	for (int y = 0; y < srcNumLines; y++) {
 		const Pixel* srcLinePtr = srcLinePtrs[y];
 		for (unsigned x = 0; x < srcWidth; x++) {
@@ -68,7 +68,7 @@ void MLAAScaler<Pixel>::scaleImage(
 			if (srcLinePtrs[y + 1][x] != colMid) {
 				pixEdges |= DOWN;
 			}
-			*edgePtr++ = pixEdges;
+			*edgeGenPtr++ = pixEdges;
 		}
 	}
 
@@ -90,7 +90,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 	// Find horizontal L-shapes and anti-alias them.
 	dstY = dstStartY;
-	edgePtr = edges;
+	const byte* edgePtr = edges;
 	for (int y = 0; y < srcNumLines; y++) {
 		unsigned x = 0;
 		while (x < srcWidth) {
@@ -252,23 +252,23 @@ void MLAAScaler<Pixel>::scaleImage(
 				if (false) {
 					if (iy == 0) {
 						if (slopeTopLeft) {
-							for (unsigned fx = x0; fx < x1; fx += 2) {
+							for (unsigned fx = x0 | 1; fx < x1; fx += 2) {
 								dstLinePtr[fx / 2] = (Pixel)0x00FF0000;
 							}
 						}
 						if (slopeTopRight) {
-							for (unsigned fx = x2; fx < x3; fx += 2) {
+							for (unsigned fx = x2 | 1; fx < x3; fx += 2) {
 								dstLinePtr[fx / 2] = (Pixel)0x000000FF;
 							}
 						}
 					} else if (iy == zoomFactorY - 1) {
 						if (slopeBotLeft) {
-							for (unsigned fx = x0; fx < x1; fx += 2) {
+							for (unsigned fx = x0 | 1; fx < x1; fx += 2) {
 								dstLinePtr[fx / 2] = (Pixel)0x00FFFF00;
 							}
 						}
 						if (slopeBotRight && iy == zoomFactorY - 1) {
-							for (unsigned fx = x2; fx < x3; fx += 2) {
+							for (unsigned fx = x2 | 1; fx < x3; fx += 2) {
 								dstLinePtr[fx / 2] = (Pixel)0x0000FF00;
 							}
 						}
@@ -276,9 +276,12 @@ void MLAAScaler<Pixel>::scaleImage(
 				}
 			}
 		}
+		assert(x == srcWidth);
 		edgePtr += srcWidth;
 		dstY += zoomFactorY;
 	}
+	assert(edgePtr - edges == srcNumLines * srcWidth);
+
 	// TODO: This is compensation for the fact that we do not support
 	//       non-integer zoom factors yet.
 	if (srcWidth * zoomFactorX != dstWidth) {
