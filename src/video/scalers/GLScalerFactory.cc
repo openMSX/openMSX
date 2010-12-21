@@ -37,6 +37,7 @@ auto_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 		return auto_ptr<GLScaler>(new GLTVScaler(renderSettings));
 	case RenderSettings::SCALER_HQ:
 		return auto_ptr<GLScaler>(new GLHQScaler());
+	case RenderSettings::SCALER_MLAA: // fallback
 	case RenderSettings::SCALER_HQLITE:
 		return auto_ptr<GLScaler>(new GLHQLiteScaler());
 	default:

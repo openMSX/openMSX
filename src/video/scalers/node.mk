@@ -15,7 +15,7 @@ SRC_HDR += \
 	Scale2xScaler Scale3xScaler \
 	HQ2xScaler HQ2xLiteScaler \
 	HQ3xScaler HQ3xLiteScaler \
-	RGBTriplet3xScaler \
+	RGBTriplet3xScaler MLAAScaler \
 	Multiply32
 endif
 

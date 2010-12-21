@@ -95,6 +95,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		scalerMap["hqlite"] = SCALER_HQLITE;
 		scalerMap["RGBtriplet"] = SCALER_RGBTRIPLET;
 		scalerMap["TV"] = SCALER_TV;
+		scalerMap["MLAA"] = SCALER_MLAA;
 	}
 	scaleAlgorithmSetting.reset(new EnumSetting<ScaleAlgorithm>(commandController,
 		"scale_algorithm", "scale algorithm",

@@ -15,6 +15,7 @@
 #include "HQ2xLiteScaler.hh"
 #include "HQ3xLiteScaler.hh"
 #include "RGBTriplet3xScaler.hh"
+#include "MLAAScaler.hh"
 #include "Scaler1.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -50,6 +51,8 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		case RenderSettings::SCALER_TV: // fallback
 			return auto_ptr<Scaler>(
 				new Simple2xScaler<Pixel>(pixelOps, renderSettings));
+		case RenderSettings::SCALER_MLAA:
+			return auto_ptr<Scaler>(new MLAAScaler<Pixel>(640, pixelOps));
 		default:
 			UNREACHABLE;
 		}
@@ -73,6 +76,8 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		case RenderSettings::SCALER_TV: // fallback
 			return auto_ptr<Scaler>(
 				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings));
+		case RenderSettings::SCALER_MLAA:
+			return auto_ptr<Scaler>(new MLAAScaler<Pixel>(960, pixelOps));
 		default:
 			UNREACHABLE;
 		}
