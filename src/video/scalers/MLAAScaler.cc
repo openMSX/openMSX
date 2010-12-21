@@ -136,7 +136,9 @@ void MLAAScaler<Pixel>::scaleImage(
 			// Determine edge start and end points.
 			const unsigned startX = x;
 			assert(!slopeTopRight || !slopeBotRight || topEndX == botEndX);
-			const unsigned endX = slopeTopRight ? topEndX : botEndX;
+			const unsigned endX = slopeTopRight ? topEndX : (
+				slopeBotRight ? botEndX : std::max(topEndX, botEndX)
+				);
 			// Determine what the next pixel is to check for edges.
 			if (!(slopeTopLeft || slopeTopRight ||
 				  slopeBotLeft || slopeBotRight)) {
@@ -150,6 +152,9 @@ void MLAAScaler<Pixel>::scaleImage(
 			// Antialias either the top or the bottom, but not both.
 			// TODO: Figure out what the best way is to handle these situations.
 			if (slopeTopLeft && slopeBotLeft) {
+				// TODO: This masks the fact that if we have two slopes on a
+				//       single line we don't necessarily have a common end
+				//       point: endX might be different from topEndX or botEndX.
 				slopeTopLeft = slopeBotLeft = false;
 			}
 			if (slopeTopRight && slopeBotRight) {
