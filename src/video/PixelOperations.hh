@@ -85,9 +85,8 @@ public:
 	 * 'x' must be in range [0..256].
 	 * For x=0   the result is p1.
 	 * For x=256 the result is p2.
-	 * Note: currently only implemented for 32bpp.
 	 */
-	static Pixel lerp32(Pixel p1, Pixel p2, unsigned x);
+	inline Pixel lerp(Pixel p1, Pixel p2, unsigned x) const;
 
 	/** Perform alpha blending of two pixels.
 	 * Pixel p1 contains the alpha value. For maximal alpha p1 is
@@ -462,25 +461,36 @@ inline Pixel PixelOperations<Pixel>::getBlendMask() const
 }
 
 template <typename Pixel>
-Pixel PixelOperations<Pixel>::lerp32(Pixel p1, Pixel p2, unsigned x)
+inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 {
-	assert(sizeof(Pixel) == 4);
+	if (sizeof(Pixel) == 4) { // 32 bpp
+		unsigned rb1 = (p1 >> 0) & 0x00FF00FF;
+		unsigned ag1 = (p1 >> 8) & 0x00FF00FF;
+		unsigned rb2 = (p2 >> 0) & 0x00FF00FF;
+		unsigned ag2 = (p2 >> 8) & 0x00FF00FF;
 
-	unsigned rb1 = (p1 >> 0) & 0xFF00FF;
-	unsigned ag1 = (p1 >> 8) & 0xFF00FF;
-	unsigned rb2 = (p2 >> 0) & 0xFF00FF;
-	unsigned ag2 = (p2 >> 8) & 0xFF00FF;
+		// Note: the subtraction for the lower component can 'borrow' from
+		// the higher component. Though in the full calculation this error
+		// magically cancels out.
+		unsigned trb = ((rb2 - rb1) * x) >> 8;
+		unsigned tag = ((ag2 - ag1) * x) >> 0;
 
-	// Note: the subtraction for the lower component can 'borrow' from
-	// the higher component. Though in the full calculation this error
-	// magically cancels out.
-	unsigned trb = ((rb2 - rb1) * x) >> 8;
-	unsigned tag = ((ag2 - ag1) * x) >> 0;
+		unsigned rb  = ((trb + rb1) << 0) & 0x00FF00FF;
+		unsigned ag  = (tag + (ag1 << 8)) & 0xFF00FF00;
 
-	unsigned rb  = ((trb + rb1) << 0) & 0x00FF00FF;
-	unsigned ag  = (tag + (ag1 << 8)) & 0xFF00FF00;
+		return rb | ag;
+	} else {
+		int r1 = red(p1),   r2 = red(p2);
+		int g1 = green(p1), g2 = green(p2);
+		int b1 = blue(p1),  b2 = blue(p2);
 
-	return rb | ag;
+		// note: '/ 256' is not the same as '>> 8' for signed numbers
+		int r = ((r2 - r1) * x) / 256 + r1;
+		int g = ((g2 - g1) * x) / 256 + g1;
+		int b = ((b2 - b1) * x) / 256 + b1;
+
+		return combine(r, g, b);
+	}
 }
 
 template <typename Pixel>
@@ -493,7 +503,7 @@ inline Pixel PixelOperations<Pixel>::alphaBlend(Pixel p1, Pixel p2) const
 		unsigned a = alpha(p1);
 		// Note: 'a' is [0..255], while lerp() expects [0..256].
 		//       We ignore this small error.
-		return lerp32(p2, p1, a);
+		return lerp(p2, p1, a);
 	}
 }
 
