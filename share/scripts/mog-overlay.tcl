@@ -190,7 +190,7 @@ proc update_overlay {} {
 		set ladder_cache $new_ladder
 		if {$ladder_cache != 0} {
 			osd configure mog.ladder -relx [peek 0xec02] -rely [peek 0xec01] \
-			                         -relh [expr 8 * [peek 0xec03]]
+			                         -relh [expr 8 * ([peek 0xec03] & 31)]
 		} else {
 			osd configure mog.ladder -rely 999
 		}
