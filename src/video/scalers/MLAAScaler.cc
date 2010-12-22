@@ -174,6 +174,96 @@ void MLAAScaler<Pixel>::scaleImage(
 		edgePtr += srcWidth;
 	}
 	assert(edgePtr - edges == srcNumLines * srcWidth);
+	assert(horizontalGenPtr - horizontals == srcNumLines * srcWidth);
+
+	// Find vertical edges.
+	VLA(word, verticals, srcNumLines * srcWidth);
+	edgePtr = edges;
+	for (unsigned x = 0; x < srcWidth; x++) {
+		word* verticalGenPtr = &verticals[x];
+		int y = 0;
+		while (y < srcNumLines) {
+			// Check which corners are part of a slope.
+			bool slopeTopLeft = false;
+			bool slopeTopRight = false;
+			bool slopeBotLeft = false;
+			bool slopeBotRight = false;
+
+			// Search for slopes on the left edge.
+			int leftEndY = y + 1;
+			if (edgePtr[y * srcWidth] & LEFT) {
+				while (leftEndY < srcNumLines
+					&& (edgePtr[leftEndY * srcWidth] & (LEFT | UP)) == LEFT) leftEndY++;
+				assert(x > 0); // implied by having a left edge
+				const unsigned nextX = std::min(x + 1, srcWidth - 1);
+				slopeTopLeft = (edgePtr[y * srcWidth] & UP)
+					&& srcLinePtrs[y - 1][nextX] == srcLinePtrs[y][x]
+					&& srcLinePtrs[y - 1][x] == srcLinePtrs[y][x - 1];
+				slopeBotLeft = (edgePtr[(leftEndY - 1) * srcWidth] & DOWN)
+					&& srcLinePtrs[leftEndY][nextX] == srcLinePtrs[leftEndY - 1][x]
+					&& srcLinePtrs[leftEndY][x] == srcLinePtrs[leftEndY - 1][x - 1];
+			}
+
+			// Search for slopes on the right edge.
+			int rightEndY = y + 1;
+			if (edgePtr[y * srcWidth] & RIGHT) {
+				while (rightEndY < srcNumLines
+					&& (edgePtr[rightEndY * srcWidth] & (RIGHT | UP)) == RIGHT) rightEndY++;
+				assert(x < srcWidth); // implied by having a right edge
+				const unsigned prevX = x == 0 ? 0 : x - 1;
+				slopeTopRight = (edgePtr[y * srcWidth] & UP)
+					&& srcLinePtrs[y - 1][prevX] == srcLinePtrs[y][x]
+					&& srcLinePtrs[y - 1][x] == srcLinePtrs[y][x + 1];
+				slopeBotRight = (edgePtr[(rightEndY - 1) * srcWidth] & DOWN)
+					&& srcLinePtrs[rightEndY][prevX] == srcLinePtrs[rightEndY - 1][x]
+					&& srcLinePtrs[rightEndY][x] == srcLinePtrs[rightEndY - 1][x + 1];
+			}
+
+			// Determine edge start and end points.
+			const unsigned startY = y;
+			if (!(!slopeBotLeft || !slopeBotRight || leftEndY == rightEndY)) {
+				fprintf(stderr, "%d vs %d from (%d, %d) of %d x %d\n",
+						leftEndY, rightEndY, x, y, srcWidth, srcNumLines);
+			}
+			assert(!slopeBotLeft || !slopeBotRight || leftEndY == rightEndY);
+			const unsigned endY = slopeBotLeft ? leftEndY : (
+				slopeBotRight ? rightEndY : std::max(leftEndY, rightEndY)
+				);
+
+			// Store info about edge and determine next pixel to check.
+			if (!(slopeTopLeft || slopeTopRight ||
+				  slopeBotLeft || slopeBotRight)) {
+				*verticalGenPtr = EDGE_NONE;
+				verticalGenPtr += srcWidth;
+				y++;
+			} else {
+				word slopes =
+					  (slopeTopLeft  ? SLOPE_TOP_LEFT  : 0)
+					| (slopeTopRight ? SLOPE_TOP_RIGHT : 0)
+					| (slopeBotLeft  ? SLOPE_BOT_LEFT  : 0)
+					| (slopeBotRight ? SLOPE_BOT_RIGHT : 0);
+				word length = endY - startY;
+				if (length == 1) {
+					*verticalGenPtr = EDGE_START | EDGE_END | slopes | 1;
+					verticalGenPtr += srcWidth;
+				} else {
+					*verticalGenPtr = EDGE_START | slopes | length;
+					verticalGenPtr += srcWidth;
+					for (word i = 1; i < length - 1; i++) {
+						*verticalGenPtr = EDGE_INNER | slopes | i;
+						verticalGenPtr += srcWidth;
+					}
+					*verticalGenPtr = EDGE_END | slopes | length;
+					verticalGenPtr += srcWidth;
+				}
+				y = endY;
+			}
+		}
+		assert(y == srcNumLines);
+		assert(verticalGenPtr - verticals == x + srcNumLines * srcWidth);
+		edgePtr++;
+	}
+	assert(edgePtr - edges == srcWidth);
 
 	dst.lock();
 	// Do a mosaic scale so every destination pixel has a color.
@@ -192,7 +282,7 @@ void MLAAScaler<Pixel>::scaleImage(
 		dstY += zoomFactorY;
 	}
 
-	// Render the edges.
+	// Render the horizontal edges.
 	const word* horizontalPtr = horizontals;
 	dstY = dstStartY;
 	for (int y = 0; y < srcNumLines; y++) {
@@ -321,7 +411,7 @@ void MLAAScaler<Pixel>::scaleImage(
 					}
 				}
 
-				// Draw edge indicators.
+				// Draw horizontal edge indicators.
 				if (false) {
 					if (iy == 0) {
 						if (slopeTopLeft) {
@@ -340,7 +430,7 @@ void MLAAScaler<Pixel>::scaleImage(
 								dstLinePtr[fx / 2] = (Pixel)0x00FFFF00;
 							}
 						}
-						if (slopeBotRight && iy == zoomFactorY - 1) {
+						if (slopeBotRight) {
 							for (unsigned fx = x2 | 1; fx < x3; fx += 2) {
 								dstLinePtr[fx / 2] = (Pixel)0x0000FF00;
 							}
@@ -353,6 +443,167 @@ void MLAAScaler<Pixel>::scaleImage(
 		dstY += zoomFactorY;
 	}
 	assert(horizontalPtr - horizontals == srcNumLines * srcWidth);
+
+	// Render the vertical edges.
+	for (unsigned x = 0; x < srcWidth; x++) {
+		const word* verticalPtr = &verticals[x];
+		int y = 0;
+		while (y < srcNumLines) {
+			// Fetch information about the edge, if any, at the current pixel.
+			word vertInfo = *verticalPtr;
+			if ((vertInfo & EDGE_MASK) == EDGE_NONE) {
+				y++;
+				verticalPtr += srcWidth;
+				continue;
+			}
+			assert((vertInfo & EDGE_MASK) == EDGE_START);
+
+			// Check which corners are part of a slope.
+			bool slopeTopLeft  = (vertInfo & SLOPE_TOP_LEFT ) != 0;
+			bool slopeTopRight = (vertInfo & SLOPE_TOP_RIGHT) != 0;
+			bool slopeBotLeft  = (vertInfo & SLOPE_BOT_LEFT ) != 0;
+			bool slopeBotRight = (vertInfo & SLOPE_BOT_RIGHT) != 0;
+			const unsigned startY = y;
+			const unsigned endY = y + (vertInfo & SPAN_MASK);
+			y = endY;
+			verticalPtr += srcWidth * (endY - startY);
+
+			// Antialias either the left or the right, but not both.
+			if (slopeTopLeft && slopeTopRight) {
+				slopeTopLeft = slopeTopRight = false;
+			}
+			if (slopeBotLeft && slopeBotRight) {
+				slopeBotLeft = slopeBotRight = false;
+			}
+
+			// Render slopes.
+			const unsigned leftX = x == 0 ? 0 : x - 1;
+			const unsigned curX = x;
+			const unsigned rightX = std::min(x + 1, srcWidth - 1);
+			const unsigned y0 = startY * 2 * zoomFactorY;
+			const unsigned y1 =
+				  endY == unsigned(srcNumLines)
+				? unsigned(srcNumLines) * 2 * zoomFactorY
+				: ( slopeTopLeft || slopeTopRight
+				  ? (startY + endY) * zoomFactorY
+				  : y0
+				  );
+			const unsigned y3 = endY * 2 * zoomFactorY;
+			const unsigned y2 =
+				  startY == 0
+				? 0
+				: ( slopeBotLeft || slopeBotRight
+				  ? (startY + endY) * zoomFactorY
+				  : y3
+				  );
+			for (unsigned ix = 0; ix < zoomFactorX; ix++) {
+				const unsigned fx = x * zoomFactorX + ix;
+
+				// Figure out which parts of the line should be blended.
+				bool blendTopLeft = false;
+				bool blendTopRight = false;
+				bool blendBotLeft = false;
+				bool blendBotRight = false;
+				if (ix * 2 < zoomFactorX) {
+					blendTopLeft = slopeTopLeft;
+					blendBotLeft = slopeBotLeft;
+				}
+				if (ix * 2 + 1 >= zoomFactorX) {
+					blendTopRight = slopeTopRight;
+					blendBotRight = slopeBotRight;
+				}
+
+				// Render top side.
+				if (blendTopLeft || blendTopRight) {
+					assert(!(blendTopLeft && blendTopRight));
+					unsigned mixX;
+					float lineX;
+					if (blendTopLeft) {
+						mixX = leftX;
+						lineX = (zoomFactorX - 1 - ix) / float(zoomFactorX);
+					} else {
+						mixX = rightX;
+						lineX = ix / float(zoomFactorX);
+					}
+					for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
+						Pixel* dstLinePtr =
+							dst.getLinePtrDirect<Pixel>(dstStartY + fy / 2);
+						float ry = (fy - y0) / float(y1 - y0);
+						float rx = 0.5f + ry * 0.5f;
+						float weight = (rx - lineX) * zoomFactorX;
+						dstLinePtr[fx] = pixelOps.lerp(
+							srcLinePtrs[fy / (zoomFactorY * 2)][mixX],
+							srcLinePtrs[fy / (zoomFactorY * 2)][curX],
+							Math::clip<0, 256>(int(256 * weight))
+							);
+					}
+				}
+
+				// Render bottom side.
+				if (blendBotLeft || blendBotRight) {
+					assert(!(blendBotLeft && blendBotRight));
+					unsigned mixX;
+					float lineX;
+					if (blendBotLeft) {
+						mixX = leftX;
+						lineX = (zoomFactorX - 1 - ix) / float(zoomFactorX);
+					} else {
+						mixX = rightX;
+						lineX = ix / float(zoomFactorX);
+					}
+					for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
+						Pixel* dstLinePtr =
+							dst.getLinePtrDirect<Pixel>(dstStartY + fy / 2);
+						float ry = (fy - y2) / float(y3 - y2);
+						float rx = 1.0f - ry * 0.5f;
+						float weight = (rx - lineX) * zoomFactorX;
+						dstLinePtr[fx] = pixelOps.lerp(
+							srcLinePtrs[fy / (zoomFactorY * 2)][mixX],
+							srcLinePtrs[fy / (zoomFactorY * 2)][curX],
+							Math::clip<0, 256>(int(256 * weight))
+							);
+					}
+				}
+
+				// Draw vertical edge indicators.
+				if (false) {
+					if (ix == 0) {
+						if (slopeTopLeft) {
+							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
+								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
+									dstStartY + fy / 2);
+								dstLinePtr[fx] = (Pixel)0x00FF0000;
+							}
+						}
+						if (slopeBotLeft) {
+							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
+								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
+									dstStartY + fy / 2);
+								dstLinePtr[fx] = (Pixel)0x00FFFF00;
+							}
+						}
+					} else if (ix == zoomFactorX - 1) {
+						if (slopeTopRight) {
+							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
+								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
+									dstStartY + fy / 2);
+								dstLinePtr[fx] = (Pixel)0x000000FF;
+							}
+						}
+						if (slopeBotRight) {
+							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
+								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
+									dstStartY + fy / 2);
+								dstLinePtr[fx] = (Pixel)0x0000FF00;
+							}
+						}
+					}
+				}
+			}
+			dstY += zoomFactorY;
+		}
+		assert(y == srcNumLines);
+	}
 
 	// TODO: This is compensation for the fact that we do not support
 	//       non-integer zoom factors yet.
