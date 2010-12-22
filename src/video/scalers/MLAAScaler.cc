@@ -72,24 +72,30 @@ void MLAAScaler<Pixel>::scaleImage(
 		}
 	}
 
-	dst.lock();
-	// Do a mosaic scale so every destination pixel has a color.
-	unsigned dstY = dstStartY;
-	for (int y = 0; y < srcNumLines; y++) {
-		const Pixel* srcLinePtr = srcLinePtrs[y];
-		for (unsigned x = 0; x < srcWidth; x++) {
-			Pixel col = srcLinePtr[x];
-			for (unsigned iy = 0; iy < zoomFactorY; iy++) {
-				Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dstY + iy);
-				for (unsigned ix = 0; ix < zoomFactorX; ix++) {
-					dstLinePtr[x * zoomFactorX + ix] = col;
-				}
-			}
-		}
-		dstY += zoomFactorY;
-	}
-	// Find horizontal L-shapes and anti-alias them.
-	dstY = dstStartY;
+	enum {
+		// Is this pixel part of an edge?
+		// And if so, where on the edge is it?
+		EDGE_START      = 3 << 14,
+		EDGE_END        = 2 << 14,
+		EDGE_INNER      = 1 << 14,
+		EDGE_NONE       = 0 << 14,
+		EDGE_MASK       = 3 << 14,
+		// Is the edge is part of one or more slopes?
+		// And if so, what is the direction of the slope(s)?
+		SLOPE_TOP_LEFT  = 1 << 13,
+		SLOPE_TOP_RIGHT = 1 << 12,
+		SLOPE_BOT_LEFT  = 1 << 11,
+		SLOPE_BOT_RIGHT = 1 << 10,
+		// How long is this edge?
+		// For the start and end, these bits contain the length.
+		// For inner pixels, these bits contain the distance to the start pixel.
+		SPAN_MASK       = (1 << 10) - 1
+	};
+	assert(srcWidth <= SPAN_MASK);
+
+	// Find horizontal edges.
+	VLA(word, horizontals, srcNumLines * srcWidth);
+	word* horizontalGenPtr = horizontals;
 	const byte* edgePtr = edges;
 	for (int y = 0; y < srcNumLines; y++) {
 		unsigned x = 0;
@@ -139,15 +145,77 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned endX = slopeTopRight ? topEndX : (
 				slopeBotRight ? botEndX : std::max(topEndX, botEndX)
 				);
-			// Determine what the next pixel is to check for edges.
+
+			// Store info about edge and determine next pixel to check.
 			if (!(slopeTopLeft || slopeTopRight ||
 				  slopeBotLeft || slopeBotRight)) {
+				*horizontalGenPtr++ = EDGE_NONE;
 				x++;
-				// Nothing to render.
-				continue;
 			} else {
+				word slopes =
+					  (slopeTopLeft  ? SLOPE_TOP_LEFT  : 0)
+					| (slopeTopRight ? SLOPE_TOP_RIGHT : 0)
+					| (slopeBotLeft  ? SLOPE_BOT_LEFT  : 0)
+					| (slopeBotRight ? SLOPE_BOT_RIGHT : 0);
+				word length = endX - startX;
+				if (length == 1) {
+					*horizontalGenPtr++ = EDGE_START | EDGE_END | slopes | 1;
+				} else {
+					*horizontalGenPtr++ = EDGE_START | slopes | length;
+					for (word i = 1; i < length - 1; i++) {
+						*horizontalGenPtr++ = EDGE_INNER | slopes | i;
+					}
+					*horizontalGenPtr++ = EDGE_END | slopes | length;
+				}
 				x = endX;
 			}
+		}
+		assert(x == srcWidth);
+		edgePtr += srcWidth;
+	}
+	assert(edgePtr - edges == srcNumLines * srcWidth);
+
+	dst.lock();
+	// Do a mosaic scale so every destination pixel has a color.
+	unsigned dstY = dstStartY;
+	for (int y = 0; y < srcNumLines; y++) {
+		const Pixel* srcLinePtr = srcLinePtrs[y];
+		for (unsigned x = 0; x < srcWidth; x++) {
+			Pixel col = srcLinePtr[x];
+			for (unsigned iy = 0; iy < zoomFactorY; iy++) {
+				Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dstY + iy);
+				for (unsigned ix = 0; ix < zoomFactorX; ix++) {
+					dstLinePtr[x * zoomFactorX + ix] = col;
+				}
+			}
+		}
+		dstY += zoomFactorY;
+	}
+
+	// Render the edges.
+	const word* horizontalPtr = horizontals;
+	dstY = dstStartY;
+	for (int y = 0; y < srcNumLines; y++) {
+		unsigned x = 0;
+		while (x < srcWidth) {
+			// Fetch information about the edge, if any, at the current pixel.
+			word horzInfo = *horizontalPtr;
+			if ((horzInfo & EDGE_MASK) == EDGE_NONE) {
+				x++;
+				horizontalPtr++;
+				continue;
+			}
+			assert((horzInfo & EDGE_MASK) == EDGE_START);
+
+			// Check which corners are part of a slope.
+			bool slopeTopLeft  = (horzInfo & SLOPE_TOP_LEFT ) != 0;
+			bool slopeTopRight = (horzInfo & SLOPE_TOP_RIGHT) != 0;
+			bool slopeBotLeft  = (horzInfo & SLOPE_BOT_LEFT ) != 0;
+			bool slopeBotRight = (horzInfo & SLOPE_BOT_RIGHT) != 0;
+			const unsigned startX = x;
+			const unsigned endX = x + (horzInfo & SPAN_MASK);
+			x = endX;
+			horizontalPtr += endX - startX;
 
 			// Antialias either the top or the bottom, but not both.
 			// TODO: Figure out what the best way is to handle these situations.
@@ -282,10 +350,9 @@ void MLAAScaler<Pixel>::scaleImage(
 			}
 		}
 		assert(x == srcWidth);
-		edgePtr += srcWidth;
 		dstY += zoomFactorY;
 	}
-	assert(edgePtr - edges == srcNumLines * srcWidth);
+	assert(horizontalPtr - horizontals == srcNumLines * srcWidth);
 
 	// TODO: This is compensation for the fact that we do not support
 	//       non-integer zoom factors yet.
