@@ -600,7 +600,6 @@ void MLAAScaler<Pixel>::scaleImage(
 					}
 				}
 			}
-			dstY += zoomFactorY;
 		}
 		assert(y == srcNumLines);
 	}
