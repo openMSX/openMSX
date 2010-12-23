@@ -75,27 +75,30 @@ void MLAAScaler<Pixel>::scaleImage(
 	enum {
 		// Is this pixel part of an edge?
 		// And if so, where on the edge is it?
-		EDGE_START      = 3 << 14,
-		EDGE_END        = 2 << 14,
-		EDGE_INNER      = 1 << 14,
-		EDGE_NONE       = 0 << 14,
-		EDGE_MASK       = 3 << 14,
+		EDGE_START      = 3 << 28,
+		EDGE_END        = 2 << 28,
+		EDGE_INNER      = 1 << 28,
+		EDGE_NONE       = 0 << 28,
+		EDGE_MASK       = 3 << 28,
 		// Is the edge is part of one or more slopes?
 		// And if so, what is the direction of the slope(s)?
-		SLOPE_TOP_LEFT  = 1 << 13,
-		SLOPE_TOP_RIGHT = 1 << 12,
-		SLOPE_BOT_LEFT  = 1 << 11,
-		SLOPE_BOT_RIGHT = 1 << 10,
+		SLOPE_TOP_LEFT  = 1 << 27,
+		SLOPE_TOP_RIGHT = 1 << 26,
+		SLOPE_BOT_LEFT  = 1 << 25,
+		SLOPE_BOT_RIGHT = 1 << 24,
 		// How long is this edge?
 		// For the start and end, these bits contain the length.
 		// For inner pixels, these bits contain the distance to the start pixel.
-		SPAN_MASK       = (1 << 10) - 1
+		SPAN_BITS       = 12,
+		SPAN_SHIFT_1    = 0,
+		SPAN_SHIFT_2    = SPAN_SHIFT_1 + SPAN_BITS,
+		SPAN_MASK       = (1 << SPAN_BITS) - 1,
 	};
 	assert(srcWidth <= SPAN_MASK);
 
 	// Find horizontal edges.
-	VLA(word, horizontals, srcNumLines * srcWidth);
-	word* horizontalGenPtr = horizontals;
+	VLA(unsigned, horizontals, srcNumLines * srcWidth);
+	unsigned* horizontalGenPtr = horizontals;
 	const byte* edgePtr = edges;
 	for (int y = 0; y < srcNumLines; y++) {
 		unsigned x = 0;
@@ -139,33 +142,34 @@ void MLAAScaler<Pixel>::scaleImage(
 					&& srcLinePtrs[y][botEndX] == srcLinePtrs[y + 1][botEndX - 1];
 			}
 
-			// Determine edge start and end points.
-			const unsigned startX = x;
-			assert(!slopeTopRight || !slopeBotRight || topEndX == botEndX);
-			const unsigned endX = slopeTopRight ? topEndX : (
-				slopeBotRight ? botEndX : std::max(topEndX, botEndX)
-				);
-
 			// Store info about edge and determine next pixel to check.
 			if (!(slopeTopLeft || slopeTopRight ||
 				  slopeBotLeft || slopeBotRight)) {
 				*horizontalGenPtr++ = EDGE_NONE;
 				x++;
 			} else {
-				word slopes =
+				unsigned slopes =
 					  (slopeTopLeft  ? SLOPE_TOP_LEFT  : 0)
 					| (slopeTopRight ? SLOPE_TOP_RIGHT : 0)
 					| (slopeBotLeft  ? SLOPE_BOT_LEFT  : 0)
 					| (slopeBotRight ? SLOPE_BOT_RIGHT : 0);
-				word length = endX - startX;
+				const unsigned lengths =
+					((topEndX - x) << SPAN_SHIFT_1) |
+					((botEndX - x) << SPAN_SHIFT_2);
+				// Determine edge start and end points.
+				assert(!slopeTopRight || !slopeBotRight || topEndX == botEndX);
+				const unsigned endX = slopeTopRight ? topEndX : (
+					slopeBotRight ? botEndX : std::max(topEndX, botEndX)
+					);
+				const unsigned length = endX - x;
 				if (length == 1) {
-					*horizontalGenPtr++ = EDGE_START | EDGE_END | slopes | 1;
+					*horizontalGenPtr++ = EDGE_START | EDGE_END | slopes | lengths;
 				} else {
-					*horizontalGenPtr++ = EDGE_START | slopes | length;
-					for (word i = 1; i < length - 1; i++) {
+					*horizontalGenPtr++ = EDGE_START | slopes | lengths;
+					for (unsigned i = 1; i < length - 1; i++) {
 						*horizontalGenPtr++ = EDGE_INNER | slopes | i;
 					}
-					*horizontalGenPtr++ = EDGE_END | slopes | length;
+					*horizontalGenPtr++ = EDGE_END | slopes | lengths;
 				}
 				x = endX;
 			}
@@ -177,10 +181,10 @@ void MLAAScaler<Pixel>::scaleImage(
 	assert(horizontalGenPtr - horizontals == srcNumLines * srcWidth);
 
 	// Find vertical edges.
-	VLA(word, verticals, srcNumLines * srcWidth);
+	VLA(unsigned, verticals, srcNumLines * srcWidth);
 	edgePtr = edges;
 	for (unsigned x = 0; x < srcWidth; x++) {
-		word* verticalGenPtr = &verticals[x];
+		unsigned* verticalGenPtr = &verticals[x];
 		int y = 0;
 		while (y < srcNumLines) {
 			// Check which corners are part of a slope.
@@ -219,17 +223,6 @@ void MLAAScaler<Pixel>::scaleImage(
 					&& srcLinePtrs[rightEndY][x] == srcLinePtrs[rightEndY - 1][x + 1];
 			}
 
-			// Determine edge start and end points.
-			const unsigned startY = y;
-			if (!(!slopeBotLeft || !slopeBotRight || leftEndY == rightEndY)) {
-				fprintf(stderr, "%d vs %d from (%d, %d) of %d x %d\n",
-						leftEndY, rightEndY, x, y, srcWidth, srcNumLines);
-			}
-			assert(!slopeBotLeft || !slopeBotRight || leftEndY == rightEndY);
-			const unsigned endY = slopeBotLeft ? leftEndY : (
-				slopeBotRight ? rightEndY : std::max(leftEndY, rightEndY)
-				);
-
 			// Store info about edge and determine next pixel to check.
 			if (!(slopeTopLeft || slopeTopRight ||
 				  slopeBotLeft || slopeBotRight)) {
@@ -237,23 +230,35 @@ void MLAAScaler<Pixel>::scaleImage(
 				verticalGenPtr += srcWidth;
 				y++;
 			} else {
-				word slopes =
+				unsigned slopes =
 					  (slopeTopLeft  ? SLOPE_TOP_LEFT  : 0)
 					| (slopeTopRight ? SLOPE_TOP_RIGHT : 0)
 					| (slopeBotLeft  ? SLOPE_BOT_LEFT  : 0)
 					| (slopeBotRight ? SLOPE_BOT_RIGHT : 0);
-				word length = endY - startY;
+				const unsigned lengths =
+					((leftEndY  - y) << SPAN_SHIFT_1) |
+					((rightEndY - y) << SPAN_SHIFT_2);
+				// Determine edge start and end points.
+				assert(!slopeBotLeft || !slopeBotRight || leftEndY == rightEndY);
+				const unsigned endY = slopeBotLeft ? leftEndY : (
+					slopeBotRight ? rightEndY : std::max(leftEndY, rightEndY)
+					);
+				const unsigned length = endY - y;
 				if (length == 1) {
-					*verticalGenPtr = EDGE_START | EDGE_END | slopes | 1;
+					*verticalGenPtr = EDGE_START | EDGE_END | slopes | lengths;
 					verticalGenPtr += srcWidth;
 				} else {
-					*verticalGenPtr = EDGE_START | slopes | length;
+					*verticalGenPtr = EDGE_START | slopes | lengths;
 					verticalGenPtr += srcWidth;
-					for (word i = 1; i < length - 1; i++) {
+					for (unsigned i = 1; i < length - 1; i++) {
+						// TODO: To be fully accurate we need to have separate
+						//       start/stop points for the two possible edges
+						//       of this pixel. No code uses the inner info yet
+						//       though, so this can be fixed later.
 						*verticalGenPtr = EDGE_INNER | slopes | i;
 						verticalGenPtr += srcWidth;
 					}
-					*verticalGenPtr = EDGE_END | slopes | length;
+					*verticalGenPtr = EDGE_END | slopes | lengths;
 					verticalGenPtr += srcWidth;
 				}
 				y = endY;
@@ -283,13 +288,13 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 
 	// Render the horizontal edges.
-	const word* horizontalPtr = horizontals;
+	const unsigned* horizontalPtr = horizontals;
 	dstY = dstStartY;
 	for (int y = 0; y < srcNumLines; y++) {
 		unsigned x = 0;
 		while (x < srcWidth) {
 			// Fetch information about the edge, if any, at the current pixel.
-			word horzInfo = *horizontalPtr;
+			unsigned horzInfo = *horizontalPtr;
 			if ((horzInfo & EDGE_MASK) == EDGE_NONE) {
 				x++;
 				horizontalPtr++;
@@ -303,16 +308,21 @@ void MLAAScaler<Pixel>::scaleImage(
 			bool slopeBotLeft  = (horzInfo & SLOPE_BOT_LEFT ) != 0;
 			bool slopeBotRight = (horzInfo & SLOPE_BOT_RIGHT) != 0;
 			const unsigned startX = x;
-			const unsigned endX = x + (horzInfo & SPAN_MASK);
+			const unsigned topEndX =
+				startX + ((horzInfo >> SPAN_SHIFT_1) & SPAN_MASK);
+			const unsigned botEndX =
+				startX + ((horzInfo >> SPAN_SHIFT_2) & SPAN_MASK);
+			// Determine edge start and end points.
+			assert(!slopeTopRight || !slopeBotRight || topEndX == botEndX);
+			const unsigned endX = slopeTopRight ? topEndX : (
+				slopeBotRight ? botEndX : std::max(topEndX, botEndX)
+				);
 			x = endX;
 			horizontalPtr += endX - startX;
 
 			// Antialias either the top or the bottom, but not both.
 			// TODO: Figure out what the best way is to handle these situations.
 			if (slopeTopLeft && slopeBotLeft) {
-				// TODO: This masks the fact that if we have two slopes on a
-				//       single line we don't necessarily have a common end
-				//       point: endX might be different from topEndX or botEndX.
 				slopeTopLeft = slopeBotLeft = false;
 			}
 			if (slopeTopRight && slopeBotRight) {
@@ -327,17 +337,23 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned x1 =
 				  endX == srcWidth
 				? srcWidth * 2 * zoomFactorX
-				: ( slopeTopLeft || slopeBotLeft
-				  ? (startX + endX) * zoomFactorX
-				  : x0
+				: ( slopeTopLeft
+				  ? (startX + topEndX) * zoomFactorX
+				  : ( slopeBotLeft
+				    ? (startX + botEndX) * zoomFactorX
+				    : x0
+				    )
 				  );
 			const unsigned x3 = endX * 2 * zoomFactorX;
 			const unsigned x2 =
 				  startX == 0
 				? 0
-				: ( slopeTopRight || slopeBotRight
-				  ? (startX + endX) * zoomFactorX
-				  : x3
+				: ( slopeTopRight
+				  ? (startX + topEndX) * zoomFactorX
+				  : ( slopeBotRight
+				    ? (startX + botEndX) * zoomFactorX
+				    : x3
+				    )
 				  );
 			for (unsigned iy = 0; iy < zoomFactorY; iy++) {
 				Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dstY + iy);
@@ -446,11 +462,11 @@ void MLAAScaler<Pixel>::scaleImage(
 
 	// Render the vertical edges.
 	for (unsigned x = 0; x < srcWidth; x++) {
-		const word* verticalPtr = &verticals[x];
+		const unsigned* verticalPtr = &verticals[x];
 		int y = 0;
 		while (y < srcNumLines) {
 			// Fetch information about the edge, if any, at the current pixel.
-			word vertInfo = *verticalPtr;
+			unsigned vertInfo = *verticalPtr;
 			if ((vertInfo & EDGE_MASK) == EDGE_NONE) {
 				y++;
 				verticalPtr += srcWidth;
@@ -464,7 +480,15 @@ void MLAAScaler<Pixel>::scaleImage(
 			bool slopeBotLeft  = (vertInfo & SLOPE_BOT_LEFT ) != 0;
 			bool slopeBotRight = (vertInfo & SLOPE_BOT_RIGHT) != 0;
 			const unsigned startY = y;
-			const unsigned endY = y + (vertInfo & SPAN_MASK);
+			const unsigned leftEndY =
+				startY + ((vertInfo >> SPAN_SHIFT_1) & SPAN_MASK);
+			const unsigned rightEndY =
+				startY + ((vertInfo >> SPAN_SHIFT_2) & SPAN_MASK);
+			// Determine edge start and end points.
+			assert(!slopeBotLeft || !slopeBotRight || leftEndY == rightEndY);
+			const unsigned endY = slopeBotLeft ? leftEndY : (
+				slopeBotRight ? rightEndY : std::max(leftEndY, rightEndY)
+				);
 			y = endY;
 			verticalPtr += srcWidth * (endY - startY);
 
@@ -484,17 +508,23 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned y1 =
 				  endY == unsigned(srcNumLines)
 				? unsigned(srcNumLines) * 2 * zoomFactorY
-				: ( slopeTopLeft || slopeTopRight
-				  ? (startY + endY) * zoomFactorY
-				  : y0
+				: ( slopeTopLeft
+				  ? (startY + leftEndY) * zoomFactorY
+				  : ( slopeTopRight
+				    ? (startY + rightEndY) * zoomFactorY
+				    : y0
+				    )
 				  );
 			const unsigned y3 = endY * 2 * zoomFactorY;
 			const unsigned y2 =
 				  startY == 0
 				? 0
-				: ( slopeBotLeft || slopeBotRight
-				  ? (startY + endY) * zoomFactorY
-				  : y3
+				: ( slopeBotLeft
+				  ? (startY + leftEndY) * zoomFactorY
+				  : ( slopeBotRight
+				    ? (startY + rightEndY) * zoomFactorY
+				    : y3
+				    )
 				  );
 			for (unsigned ix = 0; ix < zoomFactorX; ix++) {
 				const unsigned fx = x * zoomFactorX + ix;
