@@ -431,13 +431,13 @@ class TCL(Library):
 							print >> log, 'Found: version %d.%d' % version
 							tclConfigs[path] = version
 			try:
-				# Minimum required version is 8.4.
+				# Minimum required version is 8.5.
 				# Pick the oldest possible version to minimize the risk of
 				# running into incompatible changes.
 				tclConfig = min(
 					( version, path )
 					for path, version in tclConfigs.iteritems()
-					if version >= (8, 4)
+					if version >= (8, 5)
 					)[1]
 			except ValueError:
 				tclConfig = None
