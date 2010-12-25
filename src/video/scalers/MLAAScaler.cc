@@ -432,23 +432,27 @@ void MLAAScaler<Pixel>::scaleImage(
 					if (iy == 0) {
 						if (slopeTopLeft) {
 							for (unsigned fx = x0 | 1; fx < x1; fx += 2) {
-								dstLinePtr[fx / 2] = (Pixel)0x00FF0000;
+								dstLinePtr[fx / 2] =
+									pixelOps.combine256(255, 0, 0);
 							}
 						}
 						if (slopeTopRight) {
 							for (unsigned fx = x2 | 1; fx < x3; fx += 2) {
-								dstLinePtr[fx / 2] = (Pixel)0x000000FF;
+								dstLinePtr[fx / 2] =
+									pixelOps.combine256(0, 0, 255);
 							}
 						}
 					} else if (iy == zoomFactorY - 1) {
 						if (slopeBotLeft) {
 							for (unsigned fx = x0 | 1; fx < x1; fx += 2) {
-								dstLinePtr[fx / 2] = (Pixel)0x00FFFF00;
+								dstLinePtr[fx / 2] =
+									pixelOps.combine256(255, 255, 0);
 							}
 						}
 						if (slopeBotRight) {
 							for (unsigned fx = x2 | 1; fx < x3; fx += 2) {
-								dstLinePtr[fx / 2] = (Pixel)0x0000FF00;
+								dstLinePtr[fx / 2] =
+									pixelOps.combine256(0, 255, 0);
 							}
 						}
 					}
@@ -602,14 +606,16 @@ void MLAAScaler<Pixel>::scaleImage(
 							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
 								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
 									dstStartY + fy / 2);
-								dstLinePtr[fx] = (Pixel)0x00FF0000;
+								dstLinePtr[fx] =
+									pixelOps.combine256(255, 0, 0);
 							}
 						}
 						if (slopeBotLeft) {
 							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
 								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
 									dstStartY + fy / 2);
-								dstLinePtr[fx] = (Pixel)0x00FFFF00;
+								dstLinePtr[fx] =
+									pixelOps.combine256(255, 255, 0);
 							}
 						}
 					} else if (ix == zoomFactorX - 1) {
@@ -617,14 +623,16 @@ void MLAAScaler<Pixel>::scaleImage(
 							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
 								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
 									dstStartY + fy / 2);
-								dstLinePtr[fx] = (Pixel)0x000000FF;
+								dstLinePtr[fx] =
+									pixelOps.combine256(0, 0, 255);
 							}
 						}
 						if (slopeBotRight) {
 							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
 								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
 									dstStartY + fy / 2);
-								dstLinePtr[fx] = (Pixel)0x0000FF00;
+								dstLinePtr[fx] =
+									pixelOps.combine256(0, 255, 0);
 							}
 						}
 					}
