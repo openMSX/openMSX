@@ -31,7 +31,7 @@ public:
 
 private:
 	unsigned dstWidth;
-	const PixelOperations<Pixel>& pixelOps;
+	const PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx
