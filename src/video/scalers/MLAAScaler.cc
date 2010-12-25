@@ -335,25 +335,19 @@ void MLAAScaler<Pixel>::scaleImage(
 			const Pixel* srcBotLinePtr = srcLinePtrs[y + 1];
 			const unsigned x0 = startX * 2 * zoomFactorX;
 			const unsigned x1 =
-				  endX == srcWidth
-				? srcWidth * 2 * zoomFactorX
-				: ( slopeTopLeft
-				  ? (startX + topEndX) * zoomFactorX
-				  : ( slopeBotLeft
-				    ? (startX + botEndX) * zoomFactorX
-				    : x0
-				    )
+				  slopeTopLeft
+				? (startX + topEndX) * zoomFactorX
+				: ( slopeBotLeft
+				  ? (startX + botEndX) * zoomFactorX
+				  : x0
 				  );
 			const unsigned x3 = endX * 2 * zoomFactorX;
 			const unsigned x2 =
-				  startX == 0
-				? 0
-				: ( slopeTopRight
-				  ? (startX + topEndX) * zoomFactorX
-				  : ( slopeBotRight
-				    ? (startX + botEndX) * zoomFactorX
-				    : x3
-				    )
+				  slopeTopRight
+				? (startX + topEndX) * zoomFactorX
+				: ( slopeBotRight
+				  ? (startX + botEndX) * zoomFactorX
+				  : x3
 				  );
 			for (unsigned iy = 0; iy < zoomFactorY; iy++) {
 				Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dstY + iy);
@@ -510,25 +504,19 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned rightX = std::min(x + 1, srcWidth - 1);
 			const unsigned y0 = startY * 2 * zoomFactorY;
 			const unsigned y1 =
-				  endY == unsigned(srcNumLines)
-				? unsigned(srcNumLines) * 2 * zoomFactorY
-				: ( slopeTopLeft
-				  ? (startY + leftEndY) * zoomFactorY
-				  : ( slopeTopRight
-				    ? (startY + rightEndY) * zoomFactorY
-				    : y0
-				    )
+				  slopeTopLeft
+				? (startY + leftEndY) * zoomFactorY
+				: ( slopeTopRight
+				  ? (startY + rightEndY) * zoomFactorY
+				  : y0
 				  );
 			const unsigned y3 = endY * 2 * zoomFactorY;
 			const unsigned y2 =
-				  startY == 0
-				? 0
-				: ( slopeBotLeft
-				  ? (startY + leftEndY) * zoomFactorY
-				  : ( slopeBotRight
-				    ? (startY + rightEndY) * zoomFactorY
-				    : y3
-				    )
+				  slopeBotLeft
+				? (startY + leftEndY) * zoomFactorY
+				: ( slopeBotRight
+				  ? (startY + rightEndY) * zoomFactorY
+				  : y3
 				  );
 			for (unsigned ix = 0; ix < zoomFactorX; ix++) {
 				const unsigned fx = x * zoomFactorX + ix;
