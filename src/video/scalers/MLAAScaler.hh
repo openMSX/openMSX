@@ -4,10 +4,9 @@
 #define MLAASCALER_HH
 
 #include "Scaler.hh"
+#include "PixelOperations.hh"
 
 namespace openmsx {
-
-template <typename Pixel> class PixelOperations;
 
 /** Scaler that uses a variation of the morphological anti-aliasing algorithm.
   * The paper that describes the original MLAA algorithm can be found here:
@@ -22,16 +21,15 @@ template <class Pixel>
 class MLAAScaler : public Scaler
 {
 public:
-	explicit MLAAScaler(
-			unsigned dstWidth, const PixelOperations<Pixel>& pixelOps);
+	MLAAScaler(unsigned dstWidth, const PixelOperations<Pixel>& pixelOps);
 
 	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
-	unsigned dstWidth;
 	const PixelOperations<Pixel> pixelOps;
+	const unsigned dstWidth;
 };
 
 } // namespace openmsx

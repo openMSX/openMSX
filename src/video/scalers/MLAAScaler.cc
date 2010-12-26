@@ -3,7 +3,6 @@
 #include "MLAAScaler.hh"
 #include "OutputSurface.hh"
 #include "FrameSource.hh"
-#include "PixelOperations.hh"
 #include "Math.hh"
 #include "openmsx.hh"
 #include "vla.hh"
@@ -16,8 +15,8 @@ namespace openmsx {
 template <class Pixel>
 MLAAScaler<Pixel>::MLAAScaler(
 		unsigned dstWidth_, const PixelOperations<Pixel>& pixelOps_)
-	: dstWidth(dstWidth_)
-	, pixelOps(pixelOps_)
+	: pixelOps(pixelOps_)
+	, dstWidth(dstWidth_)
 {
 }
 
@@ -656,7 +655,6 @@ void MLAAScaler<Pixel>::scaleImage(
 			}
 		}
 	}
-	dst.unlock();
 
 	src.freeLineBuffers();
 }
