@@ -9,7 +9,7 @@ set_help_text filepool \
   filepool add -path <path> -types <typelist> [-position <pos>]
     Add a new entry. Each entry must have a directory and a list of filetypes.
     Possible filetypes are 'system_rom', 'rom', 'disk' and 'tape'. Optionally
-    you can specify the position of this new entry in the list of exsiting
+    you can specify the position of this new entry in the list of existing
     entries (by default new entries are added at the end).
 
   filepool remove <position>
