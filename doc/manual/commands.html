@@ -43,6 +43,8 @@
 
         <li><a class="internal" href="#ext">ext</a></li>
 
+        <li><a class="internal" href="#filepool">filepool</a></li>
+
         <li><a class="internal" href="#findcheat">findcheat</a></li>
 
         <li><a class="internal" href="#hd">hd&lt;x&gt;</a></li>
@@ -1011,6 +1013,62 @@
     </tr>
   </table>
 
+  <h3><a id="filepool">filepool</a></h3>
+
+  <p>With this command you can manage your file pool settings. File pools are directories on your host system (PC/Mac/Dingoo/etc.). They are used by openMSX to search files in, which are referred to from save states or replays which you are trying to load. First, the file will be searched at the path that was also used when the save state or replay was created. But if it isn't found there (which is usually the case if you load such a state or replay you got from someone else), it will use the file pools to search instead. In other words, if you are trying to load such replays, it's probably a good idea to put the media files referred to (ROMs, disks, tapes) in the (proper) filepool.</p>
+
+  <p>File pools have the following properties:</p>
+  <dl>
+    <dt>path</dt>
+    <dd>The path to the directory which is the actual file pool</dd>
+
+    <dt>position</dt>
+    <dd>There exists a list of file pools, which are searched in order of their position.</dd>
+
+    <dt>type(s)</dt>
+    <dd>A file pool can serve specific types. Currently, the valid types are <code>system_rom</code> (for system ROMs, you are probably using this one already if you installed your system ROMs in the recommended place, <code>share/systemroms</code>), <code>rom</code> (for other ROM files), <code>disk</code> (for disk images) and <code>tape</code> for cassette/tape images.</dd>
+  </dl>
+
+  <p>Apart from the default sytem ROM file pool as mentioned above, the other default file pool is <code>share/software</code>, where openMSX will search for other (than system ROM) software.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>filepool list</code></td>
+
+      <td>Shows the currently defined file pool entries (see below for example output)</td>
+    </tr>
+
+    <tr>
+      <td><code>filepool add -path &lt;path&gt; -types &lt;typelist&gt; [-position &lt;pos&gt;]</code></td>
+
+      <td>Add a new entry with the given properties as explained above. For the types, use a format like <code>"rom tape disk"</code>. Optionally, you can also specify where in the list of existing file pools the new file pool should be added. By default, this is at the end.</td>
+    </tr>
+
+    <tr>
+      <td><code>filepool remove &lt;position&gt;</code></td>
+
+      <td>Remove the file pool at the given position</td>
+    </tr>
+
+    <tr>
+      <td><code>filepool reset</code></td>
+
+      <td>Reset the file pool settings to the default values</td>
+    </tr>
+  </table>
+
+  <p>An example of the default file pools for a Windows 7 system with user Quibus:</p>
+<pre>
+1: C:/Users/Quibus/Documents/openMSX/share/systemroms  [system_rom]
+2: C:/Users/Quibus/Documents/openMSX/share/software  [rom disk tape]
+3: C:/Program Files/openMSX/share/systemroms  [system_rom]
+4: C:/Program Files/openMSX/share/software  [rom disk tape]
+</pre>
+  <p>The first one is the system ROMs dir in the user's home directory. The second is the (new) software file pool for other software in the user's home directory. The last two are similar, but then on system level. On a UNIX like system, you get something very similar.</p>
 
   <h3><a id="findcheat">findcheat</a></h3>
 
@@ -4047,7 +4105,7 @@
 
   <h3><a id="mode">mode</a></h3>
 
-  <p>Sets the active mode. A mode is a set of settings (mostly keybindings, but also OSD widgets that are activated) that are most suitable for a certain task. Currently only mode 'normal' and 'tas' exist.</p>
+  <p>Sets the active mode. A mode is a set of settings (mostly key bindings, but also OSD widgets that are activated) that are most suitable for a certain task. Currently only mode 'normal' and 'tas' exist.</p>
 
   <div class="subsectiontitle">
     usage:

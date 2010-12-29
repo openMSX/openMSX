@@ -129,7 +129,7 @@ The MSX system ROMs are copyrighted. In other words: it's illegal to include the
 
 <h3><a id="whereroms">Where do I install the ROMs?</a></h3>
 
-<p>You can put all the ROMs in a ROM pool, which is a central ROM directory. The default location is <code>share/systemroms</code>.
+<p>You can put all the ROMs in a file pool, which is a central directory in which openMSX looks for files. The default location is <code>share/systemroms</code>. If you want to tweak this, add locations or get a list of all file pools, take a look at the <code><a class="external" href="commands.html#filepool">filepool</a></code> command.
 </p>
 <p>You can also do it in the more classical way of older openMSX versions: put the ROMs for the machine called WHATEVER in <code>share/machines/WHATEVER/roms</code> and for the extension called WHATEVER in <code>share/extensions/WHATEVER/roms</code>.
 See also the <a class="external" href="setup.html#romlocation">Setup Guide</a>.
@@ -350,9 +350,9 @@ If you need also a live RAM watch, check out the <code>ram_watch_add</code> and 
 
 <p>For MSX TASing, we recommend to not use the (default) C-BIOS based machines, but real machines, because C-BIOS is still in development and this means your replay (in most other TASing emulators called "movie") won't be easy to get working again once a new version of C-BIOS has been released. Also, MSXturboR machines are not recommended, because it has a relatively large amount of timing inaccuracies. So which machines do we recommend? Here's a table with some very rough directions:</p>
  <table>
-    <tr> <th>game type</th>  <th>machine</th> </tr>
+    <tr> <th>game type</th>                         <th>machine</th> </tr>
     <tr> <td>Japanese/Korean (MSX/MSX2/MSX2+)</td>  <td>Panasonic FS-A1WSX</td></tr>
-    <tr> <td>European (MSX/MSX2)</td>  <td>Philips NMS 8250 + FMPAC</td></tr>
+    <tr> <td>European (MSX/MSX2)</td>               <td>Philips NMS 8250 + FMPAC</td></tr>
   </table>
 
   <p>This is mostly motivated by the fact that Japanese machines run at 60Hz interrupt frequency and the Japanese games are made for that. Besides, you will get proper Japanese characters with a Japanese machine, which are often used in such games. The mentioned machine can run practically all Japanese MSX/MSX2/MSX2+ games and has FM on board. For European games, the 50Hz (PAL) Philips NMS 8250 is recommended, just because it's very common and runs most European MSX and MSX2 software. The FMPAC extension is for better sound. There are no native European MSX2+ machines.</p>
@@ -360,6 +360,8 @@ If you need also a live RAM watch, check out the <code>ram_watch_add</code> and 
   <p>When doing MSX TASing, be aware that (unlike consoles), MSX machines have full keyboard attached, and touching them means input for the MSX. And that means you will interrupt the replay if it's playing. You can avoid this (when merely viewing a replay) by using the <code>-viewonly</code> option when using the <a class="external" href="user.html#reverse">reverse loadreplay</a> command. The keyboard problem also means that it's a bit tricky to assign keyboard shortcuts (with the <code><a class="external" href="commands.html#bind">bind</a></code> command) to (e.g. TAS) functions, without also blocking MSX keys. So, be careful which keyboard shortcuts you configure and which keys you press.</p>
 
   <p>Now it's time to make a TAS and submit your entry on <a class="external" href="http://tasvideos.org">tasvideos.org</a>!</p>
+
+  <p>A final note: if you have problems replaying other people's TAS (or other openMSX replay), because openMSX can't find the required media (ROMs, disks, tapes, etc.), make sure you put the required media in the proper <code><a class="external" href="commands.html#filepool">filepool</a></code>; by default <code>share/software</code>.</p>
 
 <h2><a id="other">Other</a></h2>
 

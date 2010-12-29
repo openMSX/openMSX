@@ -283,20 +283,20 @@ Whatever you decide, is your own responsibility.
 
 <h4><a id="romlocation">3.4.1 ROM Locations</a></h4>
 
-<p>The easiest way is to use a so-called ROM pool; a special directories where openMSX will look
-for ROM files. The default ROM pool is the <code>share/systemroms</code>
+<p>The easiest way is to use a so-called file pool; a special directory where openMSX will look
+for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool for system ROMs is the <code>share/systemroms</code>
 directory. So, you can just
-put all your system ROMs in that directory. If you have problems with this, please read one of the next sections about Checksums.
+put all your system ROMs in that directory. More info about file pools is in the documentation of the <code><a class="external" href="commands.html#filepool">filepool</a></code> command. If you can't get this working, please read one of the next sections about Checksums.
 </p>
 
 <p>
-If you want to be sure that openMSX loads a specific set of ROM images for a machine, independent of any ROM pool or the checksums of the ROM images, you can also copy those
+If you want to be sure that openMSX loads a specific set of ROM images for a machine, independent of any file pool or the checksums of the ROM images, you can also copy those
 to the appropriate subdirectory called <code>roms</code> in the directory of that
 machine, after having dumped or downloaded the ROM images.
 For example, if you dumped the ROMs of a Philips NMS 8250 machine,
 copy them to <code>share/machines/Philips_NMS_8250/roms</code>.
 Look in the file hardwareconfig.xml for the file names openMSX expects
-the ROM images to have. However, usually, you can just use the ROM pool as explained in the previous paragraph.
+the ROM images to have. However, usually, you can just use the file pool as explained in the previous paragraph.
 </p>
 
 <h4><a id="romsplit">3.4.2 How to handle split ROMs</a></h4>
@@ -338,16 +338,16 @@ which contains different system ROMs.
 <p>
 The sha1sums are also included in the
 machine configuration files. This enables openMSX to find the right ROM
-file from one of the ROM pools. If the ROM is explicitly specified in
+file from one of the file pools. If the ROM is explicitly specified in
 the configuration file and the sha1sum doesn't match a warning will be
 printed.
 </p>
 
 <p>
-A typical case in which you can have problems with checksums (or ROMs not getting found in a ROM pool) is disk ROMs.
+A typical case in which you can have problems with checksums (or ROMs not getting found in a file pool) is disk ROMs.
 The ROM dump can be correct, and still have a different checksum. This is because part of
 the ROM is not actually ROM, but mapped on the registers of the floppy
-controller. When you are sure it is correct, don't put it in a ROM pool, but put it in the proper directory, which is explained above.
+controller. When you are sure it is correct, don't put it in a file pool, but put it in the proper directory, which is explained above.
 Alternatively, you could add the checksum in the XML file that describes
 the machine you made the ROM dump for (multiple checksums can be present, they will be checked in the same order as they are in the file).
 </p>
