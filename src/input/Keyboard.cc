@@ -789,48 +789,48 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 	if (keyInfo.keymask == 0) {
 		return insertCodeKanaRelease;
 	}
-		if (down) {
-			if (codeKanaLocks &&
-			    keyboardSettings->getAutoToggleCodeKanaLock().getValue() &&
-			    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
-			    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
-				// Code Kana locks, is in wrong state and must be auto-toggled:
-				// Toggle it by pressing the lock key and scheduling a
-				// release event
-				msxCodeKanaLockOn = !msxCodeKanaLockOn;
-				pressKeyMatrixEvent(time, 6, CODE_MASK);
-				insertCodeKanaRelease = true;
-			} else {
-				// Press the character key and related modifiers
-				// Ignore the CODE key in case that Code Kana locks
-				// (e.g. do not press it).
-				// Ignore the GRAPH key in case that Graph locks
-				// Always ignore CAPSLOCK mask (assume that user will
-				// use real CAPS lock to switch/ between hiragana and
-				// katanana on japanese model)
-				assert(keyInfo.keymask);
-				pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+	if (down) {
+		if (codeKanaLocks &&
+		    keyboardSettings->getAutoToggleCodeKanaLock().getValue() &&
+		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
+		    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
+			// Code Kana locks, is in wrong state and must be auto-toggled:
+			// Toggle it by pressing the lock key and scheduling a
+			// release event
+			msxCodeKanaLockOn = !msxCodeKanaLockOn;
+			pressKeyMatrixEvent(time, 6, CODE_MASK);
+			insertCodeKanaRelease = true;
+		} else {
+			// Press the character key and related modifiers
+			// Ignore the CODE key in case that Code Kana locks
+			// (e.g. do not press it).
+			// Ignore the GRAPH key in case that Graph locks
+			// Always ignore CAPSLOCK mask (assume that user will
+			// use real CAPS lock to switch/ between hiragana and
+			// katanana on japanese model)
+			assert(keyInfo.keymask);
+			pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
 
-				byte modmask = keyInfo.modmask & ~CAPS_MASK;
-				if (codeKanaLocks) modmask &= ~CODE_MASK;
-				if (graphLocks)    modmask &= ~GRAPH_MASK;
-				if (('A' <= unicode && unicode <= 'Z') || ('a' <= unicode && unicode <= 'z')) {
-					// for a-z and A-Z, leave shift unchanged, this to cater
-					// for difference in behaviour between host and emulated
-					// machine with respect to how the combination of CAPSLOCK
-					// and shift-key is interpreted for these characters.
-					// Note that other modifiers are only pressed, never released
-					byte press = modmask & ~SHIFT_MASK;
-					if (press) {
-						pressKeyMatrixEvent(time, 6, press);
-					}
-				} else {
-					// for other keys, set shift according to modmask
-					// so also release shift when required (other
-					// modifiers are only pressed, never released)
-					byte newRow = (userKeyMatrix[6] | SHIFT_MASK) & ~modmask;
-					changeKeyMatrixEvent(time, 6, newRow);
+			byte modmask = keyInfo.modmask & ~CAPS_MASK;
+			if (codeKanaLocks) modmask &= ~CODE_MASK;
+			if (graphLocks)    modmask &= ~GRAPH_MASK;
+			if (('A' <= unicode && unicode <= 'Z') || ('a' <= unicode && unicode <= 'z')) {
+				// for a-z and A-Z, leave shift unchanged, this to cater
+				// for difference in behaviour between host and emulated
+				// machine with respect to how the combination of CAPSLOCK
+				// and shift-key is interpreted for these characters.
+				// Note that other modifiers are only pressed, never released
+				byte press = modmask & ~SHIFT_MASK;
+				if (press) {
+					pressKeyMatrixEvent(time, 6, press);
 				}
+			} else {
+				// for other keys, set shift according to modmask
+				// so also release shift when required (other
+				// modifiers are only pressed, never released)
+				byte newRow = (userKeyMatrix[6] | SHIFT_MASK) & ~modmask;
+				changeKeyMatrixEvent(time, 6, newRow);
+			}
 		}
 	} else {
 		assert(keyInfo.keymask);
