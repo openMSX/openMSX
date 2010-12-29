@@ -1,4 +1,4 @@
-#region: International
+#region: Brazil, sharp hotbit MSX basic 1.2
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number or DEADKEY
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
@@ -35,14 +35,13 @@
 002d, 12,             # -
 003d, 13,             # =
 005c, 14,             # \
-005b, 15,             # [
-005d, 16,             # ]
-003b, 17,             # ;
-0027, 20,             # '
+DEADKEY, 15,
+00e7, 17,             # ç
+005b, 21,             # [
 002c, 22,             # ,
 002e, 23,             # .
 002f, 24,             # /
-DEADKEY, 25,
+003c, 25,             # <
 0061, 26,             # a
 0062, 27,             # b
 0063, 30,             # c
@@ -75,21 +74,20 @@ DEADKEY, 25,
 0023, 03, SHIFT       # #
 0024, 04, SHIFT       # $
 0025, 05, SHIFT       # %
-005e, 06, SHIFT       # ^
+0022, 06, SHIFT       # "
 0026, 07, SHIFT       # &
 002a, 10, SHIFT       # *
 0028, 11, SHIFT       # (
 005f, 12, SHIFT       # _
 002b, 13, SHIFT       # +
-007c, 14, SHIFT       # |
-007b, 15, SHIFT       # {
-007d, 16, SHIFT       # }
-003a, 17, SHIFT       # :
-0022, 20, SHIFT       # "
-007e, 21, GRAPH       # ~
-003c, 22, SHIFT       # <
-003e, 23, SHIFT       # >
+005e, 14, SHIFT       # ^
+0027, 16, SHIFT       # '
+00c7, 17, SHIFT       # Ç
+005d, 21, SHIFT       # ]
+003b, 22, SHIFT       # ;
+003a, 23, SHIFT       # :
 003f, 24, SHIFT       # ?
+003e, 25, SHIFT       # >
 0041, 26, SHIFT       # A
 0042, 27, SHIFT       # B
 0043, 30, SHIFT       # C
@@ -133,10 +131,11 @@ DEADKEY, 25,
 266a, 16, GRAPH       # ♪
 2660, 17, GRAPH       # ♠
 2663, 20, GRAPH       # ♣
-223d, 21, GRAPH       # ∽
+007e, 21, GRAPH       # ~
 2264, 22, GRAPH       # ≤
 2265, 23, GRAPH       # ≥
 2571, 24, GRAPH       # ╱
+007c, 25, GRAPH       # |
 25fe, 26, GRAPH       # ◾
 2534, 27, GRAPH       # ┴
 25c7, 30, GRAPH       # ◇
@@ -207,69 +206,49 @@ DEADKEY, 25,
 03b1, 06, CODE        # α
 00df, 07, CODE        # ß
 03c4, 10, CODE        # τ
-0060, 11, CODE        # `
-00e7, 21,             # ç
 03b5, 12, CODE        # ε
 03b8, 13, CODE        # θ
 03c6, 15, CODE        # φ
 03c9, 16, CODE        # ω
-0169, 17, CODE        # ũ
-0133, 20, CODE        # ĳ
+00aa, 20, CODE        # ª
 03c3, 21, CODE        # σ
-00e5, 22, CODE        # å
-00aa, 23, CODE        # ª
-00ba, 24, CODE        # º
-00e4, 26, CODE        # ä
-00f9, 27, CODE        # ù
-00ec, 30, CODE        # ì
-00ef, 31, CODE        # ï
-00ee, 32, CODE        # î
-00f6, 33, CODE        # ö
-00fc, 34, CODE        # ü
-00e3, 35, CODE        # ã
-00ed, 36, CODE        # í
-00e6, 37, CODE        # æ
-0129, 40, CODE        # ĩ
-00f5, 41, CODE        # õ
-00b5, 42, CODE        # µ
-00f1, 43, CODE        # ñ
-00f3, 44, CODE        # ó
-00fa, 45, CODE        # ú
-00e2, 46, CODE        # â
-00f4, 47, CODE        # ô
-00eb, 50, CODE        # ë
-00fb, 51, CODE        # û
-00e9, 52, CODE        # é
-00f2, 53, CODE        # ò
-00ea, 54, CODE        # ê
-00e8, 55, CODE        # è
-00e1, 56, CODE        # á
-00e0, 57, CODE        # à
-0394, 00, SHIFT CODE  # Δ
-00a1, 01, SHIFT CODE  # ¡
-20a7, 02, SHIFT CODE  # ₧
-00b6, 03, SHIFT CODE  # ¶
-00a3, 04, SHIFT CODE  # £
-00a5, 05, SHIFT CODE  # ¥
-0393, 10, SHIFT CODE  # Γ
-00c7, 11, SHIFT CODE  # Ç
-03a6, 15, SHIFT CODE  # Φ
-03a9, 16, SHIFT CODE  # Ω
-0168, 17, SHIFT CODE  # Ũ
-0132, 20, SHIFT CODE  # Ĳ
-03a3, 21, SHIFT CODE  # Σ
-00c5, 22, SHIFT CODE  # Å
-00bf, 24, SHIFT CODE  # ¿
-00c4, 26, SHIFT CODE  # Ä
-00d6, 33, SHIFT CODE  # Ö
-00dc, 34, SHIFT CODE  # Ü
-00c3, 35, SHIFT CODE  # Ã
-00c6, 37, SHIFT CODE  # Æ
-0128, 40, SHIFT CODE  # Ĩ
-00d5, 41, SHIFT CODE  # Õ
-00d1, 43, SHIFT CODE  # Ñ
-03c0, 45, SHIFT CODE  # π
-00c9, 52, SHIFT CODE  # É
+03a3, 22, CODE        # Σ
+00ba, 25, CODE        # º
+00e6, 26, CODE        # æ
+0133, 27, CODE        # ĳ
+007d, 30, CODE        # }
+00f1, 31, CODE        # ñ
+00b6, 32, CODE        # ¶
+00d1, 33, CODE        # Ñ
+00bf, 34, CODE        # ¿
+03c0, 37, CODE        # π
+03a6, 40, CODE        # Φ
+03a9, 41, CODE        # Ω
+0394, 44, CODE        # Δ
+00b5, 45, CODE        # µ
+00a1, 46, CODE        # ¡
+00a3, 47, CODE        # £
+00c6, 50, CODE        # Æ
+00a5, 51, CODE        # ¥
+0393, 52, CODE        # Γ
+0132, 53, CODE        # Ĳ
+20a7, 54, CODE        # ₧
+007b, 55, CODE        # {
+00bb, 00, SHIFT CODE  # »
+0032, 01, SHIFT CODE  # 2
+00bc, 02, SHIFT CODE  # ¼
+207f, 03, SHIFT CODE  # ⁿ
+25bc, 04, SHIFT CODE  # ▼
+2310, 05, SHIFT CODE  # ⌐
+003a, 07, SHIFT CODE  # :
+00b7, 10, SHIFT CODE  # ·
+2264, 11, SHIFT CODE  # ≤
+2030, 12, SHIFT CODE  # ‰
+258a, 13, SHIFT CODE  # ▊
+0022, 14, SHIFT CODE  # "
+00b0, 15, SHIFT CODE  # °
+2264, 16, SHIFT CODE  # ≤
+2595, 17, SHIFT CODE  # ▕
 0001, 26, CTRL        # ^A
 0002, 27, CTRL        # ^B
 0003, 30, CTRL        # ^C

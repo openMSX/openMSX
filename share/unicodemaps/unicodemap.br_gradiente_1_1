@@ -1,4 +1,4 @@
-#region: International
+#region: Brazil, gradient MSX basic 1.1
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number or DEADKEY
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
@@ -132,7 +132,6 @@ DEADKEY, 15,
 266a, 16, GRAPH       # ♪
 2660, 17, GRAPH       # ♠
 2663, 20, GRAPH       # ♣
-223d, 21, GRAPH       # ∽
 2264, 22, GRAPH       # ≤
 2265, 23, GRAPH       # ≥
 2571, 24, GRAPH       # ╱
