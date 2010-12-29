@@ -130,6 +130,8 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 
 	void alignCapsLock(EmuTime::param time);
+	enum CapsLockAlignerStateType { MUST_ALIGN_CAPSLOCK, MUST_DISTRIBUTE_KEY_RELEASE, IDLE };
+	CapsLockAlignerStateType state;
 
 	Keyboard& keyboard;
 	EventDistributor& eventDistributor;
@@ -211,6 +213,21 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, codeKanaLocks(codeKanaLocks_)
 	, graphLocks(graphLocks_)
 {
+	// SDL > version 1.2.13 releases caps-lock key when SDL_DISABLED_LOCK_KEYS
+	// environment variable is set
+	const SDL_version* v = SDL_Linked_Version();
+	sdlReleasesCapslock = (
+		v->major > 1 || (
+			v->major == 1 && (
+				v->minor > 2 || (
+					v->minor == 2 && v->patch > 13
+				)
+			)
+		) 
+	);
+	if (sdlReleasesCapslock)
+		setenv("SDL_DISABLE_LOCK_KEYS", "1", 1);
+
 	keysChanged = false;
 	msxCapsLockOn = false;
 	msxCodeKanaLockOn = false;
@@ -373,7 +390,7 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, EmuTime::param 
 	            KeyboardSettings::CHARACTER_MAPPING) {
 		processRightControlEvent(time, down);
 	} else if (key == Keys::K_CAPSLOCK) {
-		processCapslockEvent(time);
+		processCapslockEvent(time, down);
 	} else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
 		processCodeKanaChange(time, down);
 	} else if (key == Keys::K_LALT) {
@@ -427,31 +444,46 @@ void Keyboard::processRightControlEvent(EmuTime::param time, bool down)
 
 /*
  * Process a change event of the CAPSLOCK *STATUS*;
- *  SDL sends a CAPSLOCK press event at the moment that the host CAPSLOCK
- *  status goes 'on' and it sends the release event only when the host
- *  CAPSLOCK status goes 'off'. However, the emulated MSX must see a press
- *  and release event when CAPSLOCK status goes on and another press and
- *  release event when it goes off again. This is achieved by pressing
- *  CAPSLOCK key at the moment that the host CAPSLOCK status changes and
- *  releasing the CAPSLOCK key shortly after (via a timed event)
+ *  SDL up to version 1.2.13 sends a CAPSLOCK press event at the moment that
+ *  the host CAPSLOCK status goes 'on' and it sends the release event only
+ *  when the host CAPSLOCK status goes 'off'. However, the emulated MSX must
+ *  see a press and release event when CAPSLOCK status goes on and another 
+ *  press and release event when it goes off again. This is achieved by
+ *  pressing CAPSLOCK key at the moment that the host CAPSLOCK status changes 
+ *  and releasing the CAPSLOCK key shortly after (via a timed event)
  *
- * Please be aware that there is a 'bug-fix' for SDL that changes the
- * behaviour of SDL with respect to the handling of the CAPSLOCK status.
- * When this bug-fix is effective, SDL sends a press event at the moment that
- * the user presses the CAPSLOCK key and a release event at the moment that the
- * user releases the CAPSLOCK key. Once this bug-fix becomes the standard
- * behaviour, this routine should be adapted accordingly.
+ * SDL as of version 1.2.14 can send a press and release event at the moment
+ * that the user presses and releases the CAPS lock. Though, this changed
+ * behaviour is only enabled when a special environment variable is set.
+ * 
+ * This version of openMSX supports both behaviours; when SDL version is
+ * above 1.2.13, it will set the environment variable to trigger the new
+ * behaviour and simply process the press and release events as they come
+ * in.
+ * For older SDL versions, it will still treat each change as a press that
+ * must be followed by a scheduled release event
  */
-void Keyboard::processCapslockEvent(EmuTime::param time)
+void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 {
-	msxCapsLockOn = !msxCapsLockOn;
-	updateKeyMatrix(time, true, 6, CAPS_MASK);
-	Clock<1000> now(time);
-	setSyncPoint(now + 100);
+	if (sdlReleasesCapslock) {
+		debug("Changing CAPSlock state according to SDL request\n");
+		if (down) {
+			msxCapsLockOn = !msxCapsLockOn;
+		}
+		updateKeyMatrix(time, down, 6, CAPS_MASK);
+	}
+	else {
+		debug("Pressing CAPS-lock and scheduling a release\n");
+		msxCapsLockOn = !msxCapsLockOn;
+		updateKeyMatrix(time, true, 6, CAPS_MASK);
+		Clock<1000> now(time);
+		setSyncPoint(now + 100);
+	}
 }
 
 void Keyboard::executeUntil(EmuTime::param time, int /*userData*/)
 {
+	debug("Releasing CAPS-lock\n");
 	updateKeyMatrix(time, false, 6, CAPS_MASK);
 }
 
@@ -552,17 +584,17 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	}
 
 	if (down) {
-		if ((userKeyMatrix[6] & 2) == 0 ||
+		if (/*___(userKeyMatrix[6] & 2) == 0 || */
 		    isOnKeypad ||
 		    keyboardSettings->getMappingMode().getValue() == KeyboardSettings::KEY_MAPPING) {
-			// CTRL-key is active, user entered a key on numeric
+			// /*CTRL-key is active,*/ user entered a key on numeric
 			// keypad or the driver is in KEY mapping mode.
-			// First two options (CTRL key active, keypad keypress) maps
+			// First /*two*/ option/*s*/ (/*CTRL key active,*/ keypad keypress) maps
 			// to same unicode as some other key combinations (e.g. digit
 			// on main keyboard or TAB/DEL)
 			// Use unicode to handle the more common combination
 			// and use direct matrix to matrix mapping for the exceptional
-			// cases (CTRL+character or numeric keypad usage)
+			// cases (/*CTRL+character or*/ numeric keypad usage)
 			unicode = 0;
 		} else {
 			unicode = keyEvent.getUnicode();
@@ -605,7 +637,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			}
 		} else {
 			// It is a unicode character; map it to the right key-combination
-			insertCodeKanaRelease = pressUnicodeByUser(time, unicode, key, true);
+			insertCodeKanaRelease = pressUnicodeByUser(time, unicode, true);
 		}
 	} else {
 		// key was released
@@ -623,7 +655,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			}
 		} else {
 			// It was a unicode character; map it to the right key-combination
-			pressUnicodeByUser(time, unicode, key, false);
+			pressUnicodeByUser(time, unicode, false);
 		}
 	}
 	return insertCodeKanaRelease;
@@ -744,53 +776,55 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
  *              7    6     5     4    3      2     1    0
  * row  6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
  */
-bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key, bool down)
+bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down)
 {
 	bool insertCodeKanaRelease = false;
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap->get(unicode);
 	if (keyInfo.keymask == 0) {
 		return insertCodeKanaRelease;
 	}
-
-	if (down) {
-		if (codeKanaLocks &&
-		    keyboardSettings->getAutoToggleCodeKanaLock().getValue() &&
-		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
-		    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
-			// Code Kana locks, is in wrong state and must be auto-toggled:
-			// Toggle it by pressing the lock key and scheduling a
-			// release event
-			msxCodeKanaLockOn = !msxCodeKanaLockOn;
-			pressKeyMatrixEvent(time, 6, CODE_MASK);
-			insertCodeKanaRelease = true;
-		} else {
-			// Press the character key and related modifiers
-			// Ignore the CODE key in case that Code Kana locks
-			// (e.g. do not press it).
-			// Ignore the GRAPH key in case that Graph locks
-			// Always ignore CAPSLOCK mask (assume that user will
-			// use real CAPS lock to switch/ between hiragana and
-			// katanana on japanese model)
-			assert(keyInfo.keymask);
-			pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
-
-			byte modmask = keyInfo.modmask & ~CAPS_MASK;
-			if (codeKanaLocks) modmask &= ~CODE_MASK;
-			if (graphLocks)    modmask &= ~GRAPH_MASK;
-			if ((Keys::K_A <= key) && (key <= Keys::K_Z)) {
-				// for A-Z, leave shift unchanged, (other
-				// modifiers are only pressed, never released)
-				byte press = modmask & ~SHIFT_MASK;
-				if (press) {
-					pressKeyMatrixEvent(time, 6, press);
-				}
+		if (down) {
+			if (codeKanaLocks &&
+			    keyboardSettings->getAutoToggleCodeKanaLock().getValue() &&
+			    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
+			    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
+				// Code Kana locks, is in wrong state and must be auto-toggled:
+				// Toggle it by pressing the lock key and scheduling a
+				// release event
+				msxCodeKanaLockOn = !msxCodeKanaLockOn;
+				pressKeyMatrixEvent(time, 6, CODE_MASK);
+				insertCodeKanaRelease = true;
 			} else {
-				// for other keys, set shift according to modmask
-				// so also release shift when required (other
-				// modifiers are only pressed, never released)
-				byte newRow = (userKeyMatrix[6] | SHIFT_MASK) & ~modmask;
-				changeKeyMatrixEvent(time, 6, newRow);
-			}
+				// Press the character key and related modifiers
+				// Ignore the CODE key in case that Code Kana locks
+				// (e.g. do not press it).
+				// Ignore the GRAPH key in case that Graph locks
+				// Always ignore CAPSLOCK mask (assume that user will
+				// use real CAPS lock to switch/ between hiragana and
+				// katanana on japanese model)
+				assert(keyInfo.keymask);
+				pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+
+				byte modmask = keyInfo.modmask & ~CAPS_MASK;
+				if (codeKanaLocks) modmask &= ~CODE_MASK;
+				if (graphLocks)    modmask &= ~GRAPH_MASK;
+				if (('A' <= unicode && unicode <= 'Z') || ('a' <= unicode && unicode <= 'z')) {
+					// for a-z and A-Z, leave shift unchanged, this to cater
+					// for difference in behaviour between host and emulated
+					// machine with respect to how the combination of CAPSLOCK
+					// and shift-key is interpreted for these characters.
+					// Note that other modifiers are only pressed, never released
+					byte press = modmask & ~SHIFT_MASK;
+					if (press) {
+						pressKeyMatrixEvent(time, 6, press);
+					}
+				} else {
+					// for other keys, set shift according to modmask
+					// so also release shift when required (other
+					// modifiers are only pressed, never released)
+					byte newRow = (userKeyMatrix[6] | SHIFT_MASK) & ~modmask;
+					changeKeyMatrixEvent(time, 6, newRow);
+				}
 		}
 	} else {
 		assert(keyInfo.keymask);
@@ -1146,6 +1180,7 @@ CapsLockAligner::CapsLockAligner(EventDistributor& eventDistributor_,
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)
 {
+	state = IDLE;
 	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT,  *this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 }
@@ -1158,23 +1193,36 @@ CapsLockAligner::~CapsLockAligner()
 
 int CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 {
-	EmuTime::param time = getCurrentTime();
-	EventType type = event->getType();
-	if (type == OPENMSX_FOCUS_EVENT) {
-		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
-		if (focusEvent.getGain() == true) {
+	if (state == IDLE) {
+		EmuTime::param time = getCurrentTime();
+		EventType type = event->getType();
+		if (type == OPENMSX_FOCUS_EVENT) {
 			alignCapsLock(time);
+		} else if (type == OPENMSX_BOOT_EVENT) {
+			state = MUST_ALIGN_CAPSLOCK;
+			Clock<100> now(time);
+			setSyncPoint(now + 200);
 		}
-	} else if (type == OPENMSX_BOOT_EVENT) {
-		Clock<100> now(time);
-		setSyncPoint(now + 200);
 	}
 	return 0;
 }
 
 void CapsLockAligner::executeUntil(EmuTime::param time, int /*userData*/)
 {
-	alignCapsLock(time);
+	switch(state) {
+		case MUST_ALIGN_CAPSLOCK:
+			alignCapsLock(time);
+			break;
+		case MUST_DISTRIBUTE_KEY_RELEASE: {
+			shared_ptr<const Event> event(new KeyUpEvent(Keys::K_CAPSLOCK));
+			msxEventDistributor.distributeEvent(event, time);
+			state = IDLE;
+		}
+			break;
+		default:
+			assert("Unexpected state in CapsLockAligner::executeUntil");
+			break;
+	}
 }
 
 /*
@@ -1195,6 +1243,17 @@ void CapsLockAligner::alignCapsLock(EmuTime::param time)
 		// processCapslockEvent() because we want this to be recorded
 		shared_ptr<const Event> event(new KeyDownEvent(Keys::K_CAPSLOCK));
 		msxEventDistributor.distributeEvent(event, time);
+		if (keyboard.sdlReleasesCapslock) {
+			state = MUST_DISTRIBUTE_KEY_RELEASE;
+			Clock<1000> now(time);
+			setSyncPoint(now + 100);
+		}
+		else {
+			state = IDLE;
+		}
+	}
+	else {
+		state = IDLE;
 	}
 }
 

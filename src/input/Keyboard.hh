@@ -84,12 +84,13 @@ private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
 
+	bool sdlReleasesCapslock;
 	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
 
 	void processRightControlEvent(EmuTime::param time, bool down);
-	void processCapslockEvent(EmuTime::param time);
+	void processCapslockEvent(EmuTime::param time, bool down);
 	void processCodeKanaChange(EmuTime::param time, bool down);
 	void processGraphChange(EmuTime::param time, bool down);
 	void processKeypadEnterKey(EmuTime::param time, bool down);
@@ -99,7 +100,7 @@ private:
 	void updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask);
 	void doKeyGhosting();
 	std::string processCmd(const std::vector<std::string>& tokens, bool up);
-	bool pressUnicodeByUser(EmuTime::param time, unsigned unicode, int key, bool down);
+	bool pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down);
 	int pressAscii(unsigned unicode, bool down);
 	void pressLockKeys(int lockKeysMask, bool down);
 	bool commonKeys(unsigned unicode1, unsigned unicode2);
