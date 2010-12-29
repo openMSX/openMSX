@@ -180,6 +180,20 @@ private:
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
+bool Keyboard::sdlVersionAbove_1_2_13()
+{
+	const SDL_version* v = SDL_Linked_Version();
+	return (
+		v->major > 1 || (
+			v->major == 1 && (
+				v->minor > 2 || (
+					v->minor == 2 && v->patch > 13
+				)
+			)
+		) 
+	);
+}
+
 
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler,
@@ -212,19 +226,10 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyGhostingSGCprotected(keyGhostSGCprotected)
 	, codeKanaLocks(codeKanaLocks_)
 	, graphLocks(graphLocks_)
+	, sdlReleasesCapslock(sdlVersionAbove_1_2_13())
 {
 	// SDL > version 1.2.13 releases caps-lock key when SDL_DISABLED_LOCK_KEYS
 	// environment variable is set
-	const SDL_version* v = SDL_Linked_Version();
-	sdlReleasesCapslock = (
-		v->major > 1 || (
-			v->major == 1 && (
-				v->minor > 2 || (
-					v->minor == 2 && v->patch > 13
-				)
-			)
-		) 
-	);
 	if (sdlReleasesCapslock) {
 		SDL_putenv((char *)"SDL_DISABLE_LOCK_KEYS=1");
 	}

@@ -84,7 +84,7 @@ private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
 
-	bool sdlReleasesCapslock;
+	bool sdlVersionAbove_1_2_13();
 	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
@@ -139,6 +139,7 @@ private:
 	const bool keyGhostingSGCprotected;
 	const bool codeKanaLocks;
 	const bool graphLocks;
+	const bool sdlReleasesCapslock;
 	bool keysChanged;
 	bool msxCapsLockOn;
 	bool msxCodeKanaLockOn;
