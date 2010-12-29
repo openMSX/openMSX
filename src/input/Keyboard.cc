@@ -1220,13 +1220,18 @@ void CapsLockAligner::executeUntil(EmuTime::param time, int /*userData*/)
 			alignCapsLock(time);
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
-			shared_ptr<const Event> event(new KeyUpEvent(Keys::K_CAPSLOCK));
-			msxEventDistributor.distributeEvent(event, time);
-			state = IDLE;
+			if (keyboard.sdlReleasesCapslock) {
+				shared_ptr<const Event> event(new KeyUpEvent(Keys::K_CAPSLOCK));
+				msxEventDistributor.distributeEvent(event, time);
+				state = IDLE;
+			}
+			else {
+				assert(false && "Unexpected state MUST_DISTRIBUTE_KEY_RELEASE in CapsLockAligner::executeUntil");
+			}
 		}
 			break;
 		default:
-			assert("Unexpected state in CapsLockAligner::executeUntil");
+			assert(false && "Unexpected state in CapsLockAligner::executeUntil");
 			break;
 	}
 }
