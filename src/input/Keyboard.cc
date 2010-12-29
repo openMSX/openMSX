@@ -226,7 +226,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		) 
 	);
 	if (sdlReleasesCapslock) {
-		putenv((char *)"SDL_DISABLE_LOCK_KEYS=1");
+		SDL_putenv((char *)"SDL_DISABLE_LOCK_KEYS=1");
 	}
 
 	keysChanged = false;
