@@ -225,8 +225,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 			)
 		) 
 	);
-	if (sdlReleasesCapslock)
-		setenv("SDL_DISABLE_LOCK_KEYS", "1", 1);
+	if (sdlReleasesCapslock) {
+		putenv((char *)"SDL_DISABLE_LOCK_KEYS=1");
+	}
 
 	keysChanged = false;
 	msxCapsLockOn = false;
