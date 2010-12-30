@@ -22,21 +22,26 @@ public:
 				assert(modmask == 0);
 			}
 		}
+		KeyInfo()
+		{
+			KeyInfo(0, 0, 0);
+		}
 		byte row, keymask, modmask;
 	};
 
 	explicit UnicodeKeymap(const std::string& keyboardType);
 
 	KeyInfo get(int unicode) const;
-	KeyInfo getDeadkey() const;
+	KeyInfo getDeadkey(int n) const;
 
 private:
 	void parseUnicodeKeymapfile(const char* begin, const char* end);
 
 	typedef std::map<int, KeyInfo> Mapdata;
 	Mapdata mapdata;
+	KeyInfo *deadKeys;
 	const KeyInfo emptyInfo;
-	KeyInfo deadKey;
+	const int nDeadKeys;
 };
 
 } // namespace openmsx

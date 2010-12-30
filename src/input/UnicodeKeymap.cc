@@ -78,7 +78,7 @@ static const char* skipSep(const char* begin, const char* end)
 	return begin;
 }
 
-/** Return true iff the substring [begin, end) equals the given string literal
+/** Return true iff the substring [begin, end] equals the given string literal
  */
 template<int N>
 static bool segmentEquals(const char* begin, const char* end, const char (&string)[N])
@@ -87,13 +87,23 @@ static bool segmentEquals(const char* begin, const char* end, const char (&strin
 	       (strncmp(begin, string, N - 1) == 0);
 }
 
+/** Return true iff the substring [begin, end] starts with the given string literal
+ */
+template<int N>
+static bool segmentStartsWith(const char* begin, const char* end, const char (&string)[N])
+{
+	return ((end - begin) >= (N - 1)) &&
+	       (strncmp(begin, string, N - 1) == 0);
+}
+
 
 UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
-	: emptyInfo(KeyInfo(0, 0, 0))
-	, deadKey(KeyInfo(0, 0, 0))
+	: emptyInfo(KeyInfo())
+	, nDeadKeys(3)
 {
 	SystemFileContext context;
 	CommandController* controller = NULL; // ok for SystemFileContext
+	deadKeys = new KeyInfo[nDeadKeys];
 	string filename = context.resolve(
 		*controller, "unicodemaps/unicodemap." + keyboardType);
 	try {
@@ -114,9 +124,12 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
 	return (it == mapdata.end()) ? emptyInfo : it->second;
 }
 
-UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey() const
+UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(int n) const
 {
-	return deadKey;
+	if (n >= nDeadKeys) {
+		return emptyInfo;
+	}
+	return deadKeys[n];
 }
 
 void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
@@ -133,8 +146,17 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		// Parse first token: a unicode value or the keyword DEADKEY.
 		const char* tokenEnd = findSep(begin, end);
 		int unicode = 0;
-		bool isDeadKey = segmentEquals(begin, tokenEnd, "DEADKEY");
-		if (!isDeadKey) {
+		int deadKeyIndex = 0;
+		bool isDeadKey = segmentStartsWith(begin, tokenEnd, "DEADKEY");
+		if (isDeadKey) {
+			bool ok;
+			deadKeyIndex = parseHex(begin + strlen("DEADKEY"), tokenEnd, ok);
+			if (!ok || deadKeyIndex == 0 || deadKeyIndex > nDeadKeys) {
+				throw MSXException("Wrong deadkey number in keymap file. It must be 1.." + nDeadKeys);
+			}
+			deadKeyIndex--; // Make index 0 based in stead of 1 based
+		}
+		else {
 			bool ok;
 			unicode = parseHex(begin, tokenEnd, ok);
 			if (!ok || unicode > 0xFFFF) {
@@ -186,9 +208,9 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		}
 
 		if (isDeadKey) {
-			deadKey.row = (rowcol >> 4) & 0x0f;
-			deadKey.keymask = 1 << (rowcol & 7);
-			deadKey.modmask = 0;
+			deadKeys[deadKeyIndex].row = (rowcol >> 4) & 0x0f;
+			deadKeys[deadKeyIndex].keymask = 1 << (rowcol & 7);
+			deadKeys[deadKeyIndex].modmask = 0;
 		} else {
 			KeyInfo info((rowcol >> 4) & 0x0f, // row
 							1 << (rowcol & 7),    // keymask

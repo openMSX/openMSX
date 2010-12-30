@@ -89,7 +89,7 @@ private:
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
 
-	void processRightControlEvent(EmuTime::param time, bool down);
+	void processDeadKeyEvent(int n, EmuTime::param time, bool down);
 	void processCapslockEvent(EmuTime::param time, bool down);
 	void processCodeKanaChange(EmuTime::param time, bool down);
 	void processGraphChange(EmuTime::param time, bool down);

@@ -23,6 +23,7 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 	EnumSetting<Keys::KeyCode>::Map allowedKeys;
 	allowedKeys["RALT"]        = Keys::K_RALT;
 	allowedKeys["MENU"]        = Keys::K_MENU;
+	allowedKeys["RCTRL"]       = Keys::K_RCTRL;
 	allowedKeys["HENKAN_MODE"] = Keys::K_HENKAN_MODE;
 	allowedKeys["RSHIFT"]      = Keys::K_RSHIFT;
 	allowedKeys["RMETA"]       = Keys::K_RMETA;
@@ -31,10 +32,28 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 	allowedKeys["RSUPER"]      = Keys::K_RSUPER;
 	allowedKeys["HELP"]        = Keys::K_HELP;
 	allowedKeys["UNDO"]        = Keys::K_UNDO;
+	allowedKeys["END"]         = Keys::K_END;
+	allowedKeys["PAGEUP"]      = Keys::K_PAGEUP;
+	allowedKeys["PAGEDOWN"]    = Keys::K_PAGEDOWN;
 	codeKanaHostKey.reset(new EnumSetting<Keys::KeyCode>(
 		commandController, "kbd_code_kana_host_key",
 		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
 		Keys::K_RALT, allowedKeys));
+
+	deadkey1HostKey.reset(new EnumSetting<Keys::KeyCode>(
+		commandController, "kbd_deadkey1_host_key",
+		"Host key that maps to deadkey 1. Not applicable to Japanese and Korean MSX models",
+		Keys::K_RCTRL, allowedKeys));
+
+	deadkey2HostKey.reset(new EnumSetting<Keys::KeyCode>(
+		commandController, "kbd_deadkey2_host_key",
+		"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",
+		Keys::K_PAGEUP, allowedKeys));
+
+	deadkey3HostKey.reset(new EnumSetting<Keys::KeyCode>(
+		commandController, "kbd_deadkey3_host_key",
+		"Host key that maps to deadkey 3. Only applicable to Brazilian Sharp Hotbit MSX models",
+		Keys::K_PAGEDOWN, allowedKeys));
 
 	EnumSetting<KpEnterMode>::Map kpEnterModeMap;
 	kpEnterModeMap["KEYPAD_COMMA"] = MSX_KP_COMMA;
@@ -60,6 +79,20 @@ KeyboardSettings::~KeyboardSettings()
 EnumSetting<Keys::KeyCode>& KeyboardSettings::getCodeKanaHostKey()
 {
 	return *codeKanaHostKey;
+}
+
+Keys::KeyCode KeyboardSettings::getDeadkeyHostKey(int n)
+{
+	switch(n) {
+		case 0:
+			return deadkey1HostKey->getValue();
+		case 1:
+			return deadkey2HostKey->getValue();
+		case 2:
+			return deadkey3HostKey->getValue();
+		default:
+			return Keys::K_NONE;
+	}
 }
 
 EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode()

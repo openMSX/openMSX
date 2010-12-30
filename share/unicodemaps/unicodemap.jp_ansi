@@ -1,6 +1,6 @@
 #region: Japanese ANSI
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
-# <UNICODE>: hexadecimal unicode number or DEADKEY
+# <UNICODE>: hexadecimal unicode number or DEADKEY<N>
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:

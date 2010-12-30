@@ -2,7 +2,7 @@
 # Seems to be some kind of prototype of the French
 # key matrix
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
-# <UNICODE>: hexadecimal unicode number or DEADKEY
+# <UNICODE>: hexadecimal unicode number or DEADKEY<N>
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
@@ -10,7 +10,7 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-DEADKEY, 54,
+DEADKEY1, 54,
 0000, 33, CTRL CODE   # ^@
 0001, 13, CTRL        # ^A
 0002, 07, CTRL        # ^B

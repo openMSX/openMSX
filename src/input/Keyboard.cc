@@ -391,10 +391,18 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, EmuTime::param 
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
-	if (key == Keys::K_RCTRL &&
+	if (key == keyboardSettings->getDeadkeyHostKey(0) &&
 	    keyboardSettings->getMappingMode().getValue() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
-		processRightControlEvent(time, down);
+		processDeadKeyEvent(0, time, down);
+	} else if (key == keyboardSettings->getDeadkeyHostKey(1) &&
+	    keyboardSettings->getMappingMode().getValue() ==
+	            KeyboardSettings::CHARACTER_MAPPING) {
+		processDeadKeyEvent(1, time, down);
+	} else if (key == keyboardSettings->getDeadkeyHostKey(2) &&
+	    keyboardSettings->getMappingMode().getValue() ==
+	            KeyboardSettings::CHARACTER_MAPPING) {
+		processDeadKeyEvent(2, time, down);
 	} else if (key == Keys::K_CAPSLOCK) {
 		processCapslockEvent(time, down);
 	} else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
@@ -436,13 +444,12 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 }
 
 /*
- * Process a change (up or down event) of the RIGHT CTRL key
- * It presses or releases the DEADKEY at the correct location
- * in the keyboard matrix
+ * Process deadkey N by pressing or releasing the deadkey
+ * at the correct location in the keyboard matrix
  */
-void Keyboard::processRightControlEvent(EmuTime::param time, bool down)
+void Keyboard::processDeadKeyEvent(int n, EmuTime::param time, bool down)
 {
-	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap->getDeadkey();
+	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap->getDeadkey(n);
 	if (deadkey.keymask) {
 		updateKeyMatrix(time, down, deadkey.row, deadkey.keymask);
 	}

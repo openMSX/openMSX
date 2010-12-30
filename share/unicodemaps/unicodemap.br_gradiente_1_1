@@ -1,6 +1,6 @@
 #region: Brazil, gradient MSX basic 1.1
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
-# <UNICODE>: hexadecimal unicode number or DEADKEY
+# <UNICODE>: hexadecimal unicode number or DEADKEY<N>
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
@@ -35,7 +35,8 @@
 002d, 12,             # -
 003d, 13,             # =
 007b, 14,             # {
-DEADKEY, 15,
+DEADKEY1, 15,         # ´ -> ´a, ´e, ´u, ´i, ´o
+DEADKEY2, 17,         # ~ -> ~a,     ~u, ~i, ~o
 005b, 16,             # [
 002a, 20,             # *
 00e7, 21,             # ç
