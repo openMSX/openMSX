@@ -63,6 +63,14 @@ proc vramdump { { filename "vramdump"} } {
 	save_debuggable "VRAM" $filename
 }
 
+set_help_text vram2bmp \
+{Dump a selected region of the video memory into a bitmap file.
+
+vram filename filename [start address] [width] [length]
+
+usage example: vram2bmp RawDataDump.bmp 0 256 1024
+}
+
 proc vram2bmp {filename start dx dy} {
 
 	set file [open $filename "WRONLY CREAT TRUNC"]
@@ -126,6 +134,7 @@ namespace export load_debuggable
 namespace export save_all
 namespace export load_all
 namespace export vramdump
+namespace export vram2bmp
 
 } ;# namespace save_debuggable
 
