@@ -1,8 +1,10 @@
 // $Id$
 
 #include "LaserdiscPlayer.hh"
+#include "BooleanSetting.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
+#include "CommandController.hh"
 #include "FileContext.hh"
 #include "XMLElement.hh"
 #include "CassettePort.hh"
@@ -110,6 +112,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
 	, ldcontrol(ldcontrol_)
+	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, laserdiscCommand(new LaserdiscCommand(
 			   motherBoard_.getCommandController(),
 			   motherBoard_.getStateChangeDistributor(),
@@ -126,6 +129,8 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, ack(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
+	, autoRunSetting(new BooleanSetting(motherBoard_.getCommandController(),
+		"autorunlaserdisc", "automatically try to run Laserdisc", true))
 	, loadingIndicator(new LoadingIndicator(throttleManager))
 	, sampleReads(0)
 {
@@ -144,6 +149,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	display.attach(*this);
 
 	createRenderer();
+	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT, *this);
 	scheduleDisplayStart(Schedulable::getCurrentTime());
 
 	registerSound(laserdiscPlayerConfig);
@@ -153,6 +159,7 @@ LaserdiscPlayer::~LaserdiscPlayer()
 {
 	unregisterSound();
 	motherBoard.getReactor().getDisplay().detach(*this);
+	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
 }
 
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
@@ -804,6 +811,36 @@ void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 	video.reset(new OggReader(oggImage, motherBoard.getMSXCliComm()));
 	sampleClock.setFreq(video->getSampleRate());
 	setOutputRate(outputRate);
+}
+
+int LaserdiscPlayer::signalEvent(shared_ptr<const Event> event)
+{
+	if (event->getType() == OPENMSX_BOOT_EVENT && video.get()) {
+		autoRun();
+	}
+	return 0;
+}
+
+void LaserdiscPlayer::autoRun()
+{
+	if (!autoRunSetting->getValue()) {
+		return;
+	}
+
+	string var = "::auto_run_ld_counter";
+	string command =
+		"if ![info exists " + var + "] { set " + var + " 0 }\n"
+		"incr " + var + "\n"
+		"after time 2 \"if $" + var + "==\\$" + var + " { "
+		"type 1CALLLD\\\\r }\"";
+
+	try {
+		motherBoard.getCommandController().executeCommand(command);
+	} catch (CommandException& e) {
+		motherBoard.getMSXCliComm().printWarning(
+			"Error executing loading instruction for AutoRun: " +
+			e.getMessage() + "\n Please report a bug.");
+	}
 }
 
 void LaserdiscPlayer::setOutputRate(unsigned newOutputRate)

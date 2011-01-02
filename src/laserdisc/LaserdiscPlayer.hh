@@ -3,14 +3,17 @@
 #ifndef LASERDISCPLAYER_HH
 #define LASERDISCPLAYER_HH
 
+#include "BooleanSetting.hh"
 #include "SoundDevice.hh"
 #include "Resample.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
+#include "EventDistributor.hh"
 #include "Clock.hh"
 #include "Filename.hh"
 #include "VideoSystemChangeListener.hh"
+#include "EventListener.hh"
 
 namespace openmsx {
 
@@ -18,15 +21,18 @@ class LaserdiscCommand;
 class PioneerLDControl;
 class MSXMotherBoard;
 class OggReader;
+class BooleanSetting;
 struct AudioFragment;
 class LDRenderer;
 class RawFrame;
 class LoadingIndicator;
 class ThrottleManager;
+class EventDistributor;
 
 class LaserdiscPlayer : public SoundDevice
 		      , public Schedulable
 		      , private Resample
+		      , private EventListener
 		      , private VideoSystemChangeListener
 {
 public:
@@ -91,6 +97,8 @@ public:
 	};
 private:
 	void setImageName(const std::string& newImage, EmuTime::param time);
+	virtual int signalEvent(shared_ptr<const Event> event);
+	void autoRun();
 
 	/** Laserdisc player commands
 	  */
@@ -132,6 +140,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldcontrol;
+	EventDistributor& eventDistributor;
 
 	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
 	std::auto_ptr<OggReader> video;
@@ -201,6 +210,7 @@ private:
 	int playingSpeed;
 
 	// Loading indicator
+	const std::auto_ptr<BooleanSetting> autoRunSetting;
 	const std::auto_ptr<LoadingIndicator> loadingIndicator;
 	int sampleReads;
 
