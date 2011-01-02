@@ -63,6 +63,64 @@ proc vramdump { { filename "vramdump"} } {
 	save_debuggable "VRAM" $filename
 }
 
+proc vram2bmp {filename start dx dy} {
+
+	set file [open $filename "WRONLY CREAT TRUNC"]
+	set data_len [expr $dx * $dy / 2]
+	set file_len [expr $data_len + 0x76]
+	set file_len_HI [expr $file_len / 0x100]
+	set dx_HI [expr $dx / 0x100]
+	set dy_HI [expr $dy / 0x100]
+	set data_len_HI [expr $data_len / 0x100]
+	fconfigure $file -translation binary -buffersize $file_len
+
+	puts -nonewline $file "\x42\x4d"                    ;# BMP FILE identificator
+	puts -nonewline $file [format %c $file_len]			;# <-File length
+	puts -nonewline $file [format %c $file_len_HI]		;# <-File length
+	puts -nonewline $file "\x00\x00"                   	;# last always always zero because maximim file length is 128KB + header length
+	puts -nonewline $file "\x00\x00\x00\x00"            ;# unused
+	puts -nonewline $file "\x76\x00\x00\x00"            ;# offset to bitmap data - always same for 16 colors bmp
+	puts -nonewline $file "\x28\x00\x00\x00"            ;# number of bytes in the header
+	puts -nonewline $file [format %c $dx]				;# bitmap width
+	puts -nonewline $file [format %c $dx_HI]			;# bitmap width
+	puts -nonewline $file "\x00\x00"                    ;# bitmap width - unused because maximum width is 256
+	puts -nonewline $file [format %c $dy]	            ;# bitmap height
+	puts -nonewline $file [format %c $dy_HI]			;# bitmap height
+	puts -nonewline $file "\x00\x00"	            	;# bitmap height, if negative image will look normal in mspaint
+	puts -nonewline $file "\x01\x00"                    ;# 1 plane used
+	puts -nonewline $file "\x04\x00"                    ;# 4 bits per pixel
+	puts -nonewline $file "\x00\x00\x00\x00"            ;# no compression used
+	puts -nonewline $file [format %c $data_len]         ;# RAW image data length
+	puts -nonewline $file [format %c $data_len_HI]      ;# RAW image data length
+	puts -nonewline $file "\x00\x00"                    ;# RAW image data length - always zero, because maximum length is 128KB
+	puts -nonewline $file "\x00\x00\x00\x00"
+	puts -nonewline $file "\x00\x00\x00\x00"
+	puts -nonewline $file "\x00\x00\x00\x00"          	;#how many colors used
+	puts -nonewline $file "\x00\x00\x00\x00"            ;#important colors
+
+
+	#set colors (16 colors [0..15])
+	for {set col 0} {$col < 16} { incr col} {
+					set color [getcolor $col]
+
+					puts -nonewline $file [format %c [expr [string index  $color 2]*255/7]]
+					puts -nonewline $file [format %c [expr [string index  $color 1]*255/7]]
+					puts -nonewline $file [format %c [expr [string index  $color 0]*255/7]]
+					puts -nonewline $file  "\x00"
+	}
+
+	set cur_addr $start
+
+	for {set i 0} {$i < $dy} {incr i} {
+		for {set addr $cur_addr} { $addr < [expr $cur_addr + $dx / 2] } { incr addr } {
+			puts -nonewline $file [format %c [vpeek $addr]]
+		}
+
+		set cur_addr [expr $cur_addr + 0x80 ]
+	}
+	close $file
+}
+
 namespace export save_debuggable
 namespace export load_debuggable
 namespace export save_all
