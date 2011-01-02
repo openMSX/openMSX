@@ -99,11 +99,9 @@ static bool segmentStartsWith(const char* begin, const char* end, const char (&s
 
 UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 	: emptyInfo(KeyInfo())
-	, nDeadKeys(3)
 {
 	SystemFileContext context;
 	CommandController* controller = NULL; // ok for SystemFileContext
-	deadKeys = new KeyInfo[nDeadKeys];
 	string filename = context.resolve(
 		*controller, "unicodemaps/unicodemap." + keyboardType);
 	try {
@@ -124,9 +122,9 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
 	return (it == mapdata.end()) ? emptyInfo : it->second;
 }
 
-UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(int n) const
+UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 {
-	if (n >= nDeadKeys) {
+	if (n >= NUM_DEAD_KEYS) {
 		return emptyInfo;
 	}
 	return deadKeys[n];
@@ -146,17 +144,26 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		// Parse first token: a unicode value or the keyword DEADKEY.
 		const char* tokenEnd = findSep(begin, end);
 		int unicode = 0;
-		int deadKeyIndex = 0;
+		unsigned deadKeyIndex = 0;
 		bool isDeadKey = segmentStartsWith(begin, tokenEnd, "DEADKEY");
 		if (isDeadKey) {
 			bool ok;
-			deadKeyIndex = parseHex(begin + strlen("DEADKEY"), tokenEnd, ok);
-			if (!ok || deadKeyIndex == 0 || deadKeyIndex > nDeadKeys) {
-				throw MSXException("Wrong deadkey number in keymap file. It must be 1.." + nDeadKeys);
+			const char* begin2 = begin + strlen("DEADKEY");
+			if (begin2 == tokenEnd) {
+				// The normal keywords are
+				//    DEADKEY1  DEADKEY2  DEADKEY3
+				// but for backwards compatibility also still recognize
+				//    DEADKEY
+			} else {
+				deadKeyIndex = parseHex(begin2, tokenEnd, ok);
+				deadKeyIndex--; // Make index 0 based in stead of 1 based
+				if (!ok || deadKeyIndex >= NUM_DEAD_KEYS) {
+					throw MSXException(StringOp::Builder() <<
+						"Wrong deadkey number in keymap file. "
+						"It must be 1.." << NUM_DEAD_KEYS);
+				}
 			}
-			deadKeyIndex--; // Make index 0 based in stead of 1 based
-		}
-		else {
+		} else {
 			bool ok;
 			unicode = parseHex(begin, tokenEnd, ok);
 			if (!ok || unicode > 0xFFFF) {

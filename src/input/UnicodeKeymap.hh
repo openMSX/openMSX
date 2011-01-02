@@ -32,16 +32,17 @@ public:
 	explicit UnicodeKeymap(const std::string& keyboardType);
 
 	KeyInfo get(int unicode) const;
-	KeyInfo getDeadkey(int n) const;
+	KeyInfo getDeadkey(unsigned n) const;
 
 private:
+	static const unsigned NUM_DEAD_KEYS = 3;
+
 	void parseUnicodeKeymapfile(const char* begin, const char* end);
 
 	typedef std::map<int, KeyInfo> Mapdata;
 	Mapdata mapdata;
-	KeyInfo *deadKeys;
+	KeyInfo deadKeys[NUM_DEAD_KEYS];
 	const KeyInfo emptyInfo;
-	const int nDeadKeys;
 };
 
 } // namespace openmsx
