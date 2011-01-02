@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1293415175">
+<softwaredb xml:lang="en" timestamp="1293940214">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4304,7 +4304,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>The Pets Mode</company>
 	<year>2010</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">9c6c43af0516e7232a7aaafee5a47235232cf7f9</hash><remark><text>MSXDev10 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">9c6c43af0516e7232a7aaafee5a47235232cf7f9</hash><remark><text>Version 1.0 / MSXDev10 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6835f0aba6c95a106309129f90f58adf04994f14</hash><remark><text>Version 1.1 / MSXDev10 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Happy Fret</title>
@@ -4314,6 +4315,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="false">translated</original><rom><hash algo="sha1">146332dd0a190c3e6eb4abe1c4306a8f6faca9f0</hash><remark><text>[tr Arrowsoft]</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Happy Square Christmas</title>
+	<system>MSX</system>
+	<company>aorante/303bcn/The Pets Mode</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">63ddb6adb4a3b95a596f9aa876cb658929392d13</hash><remark><text>2010 Christmas Demo</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Harapeko Pakkun</title>
@@ -11251,9 +11260,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2005</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">f50d0c66b08c47b59925952276243e2008668185</hash><remark><text>Version 1.3 Demo</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">47de7524c32e72e849daee4d7f3e6cf393e3b7dc</hash><remark><text>Demo 1.0</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">b188980c998d1dfb5dfbc21837ffbbb5affdbb3c</hash><remark><text>Demo 1.1</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">badcb43e490e3713bf291e83cff204e1c57ecdfe</hash><remark><text>Demo 1.2</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">47de7524c32e72e849daee4d7f3e6cf393e3b7dc</hash><remark><text>Version 1.0 Demo</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">b188980c998d1dfb5dfbc21837ffbbb5affdbb3c</hash><remark><text>Version 1.1 Demo</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">badcb43e490e3713bf291e83cff204e1c57ecdfe</hash><remark><text>Version 1.2 Demo</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Wedding Bells</title>
@@ -11714,6 +11723,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2579
-Parse time 7.047 seconds on Mon Dec 27 2:59:42 CET 2010
+Roms in this database:2581
+Parse time 12.748 seconds on Sun Jan 2 4:50:26 CET 2011
  -->
