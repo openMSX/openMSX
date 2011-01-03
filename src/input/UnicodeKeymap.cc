@@ -78,7 +78,7 @@ static const char* skipSep(const char* begin, const char* end)
 	return begin;
 }
 
-/** Return true iff the substring [begin, end] equals the given string literal
+/** Return true iff the substring [begin, end) equals the given string literal
  */
 template<int N>
 static bool segmentEquals(const char* begin, const char* end, const char (&string)[N])
@@ -87,7 +87,7 @@ static bool segmentEquals(const char* begin, const char* end, const char (&strin
 	       (strncmp(begin, string, N - 1) == 0);
 }
 
-/** Return true iff the substring [begin, end] starts with the given string literal
+/** Return true iff the substring [begin, end) starts with the given string literal
  */
 template<int N>
 static bool segmentStartsWith(const char* begin, const char* end, const char (&string)[N])
@@ -124,9 +124,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 {
-	if (n >= NUM_DEAD_KEYS) {
-		return emptyInfo;
-	}
+	assert(n < NUM_DEAD_KEYS);
 	return deadKeys[n];
 }
 
@@ -156,7 +154,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 				//    DEADKEY
 			} else {
 				deadKeyIndex = parseHex(begin2, tokenEnd, ok);
-				deadKeyIndex--; // Make index 0 based in stead of 1 based
+				deadKeyIndex--; // Make index 0 based instead of 1 based
 				if (!ok || deadKeyIndex >= NUM_DEAD_KEYS) {
 					throw MSXException(StringOp::Builder() <<
 						"Wrong deadkey number in keymap file. "

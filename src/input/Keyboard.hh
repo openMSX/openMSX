@@ -84,12 +84,11 @@ private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
 
-	bool sdlVersionAbove_1_2_13();
 	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
 
-	void processDeadKeyEvent(int n, EmuTime::param time, bool down);
+	void processDeadKeyEvent(unsigned n, EmuTime::param time, bool down);
 	void processCapslockEvent(EmuTime::param time, bool down);
 	void processCodeKanaChange(EmuTime::param time, bool down);
 	void processGraphChange(EmuTime::param time, bool down);

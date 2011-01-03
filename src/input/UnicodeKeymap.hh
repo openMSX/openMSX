@@ -23,8 +23,8 @@ public:
 			}
 		}
 		KeyInfo()
+			: row(0), keymask(0), modmask(0)
 		{
-			KeyInfo(0, 0, 0);
 		}
 		byte row, keymask, modmask;
 	};

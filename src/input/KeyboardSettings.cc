@@ -3,6 +3,7 @@
 #include "KeyboardSettings.hh"
 #include "EnumSetting.hh"
 #include "BooleanSetting.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -40,17 +41,17 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
 		Keys::K_RALT, allowedKeys));
 
-	deadkey1HostKey.reset(new EnumSetting<Keys::KeyCode>(
+	deadkeyHostKey[0].reset(new EnumSetting<Keys::KeyCode>(
 		commandController, "kbd_deadkey1_host_key",
 		"Host key that maps to deadkey 1. Not applicable to Japanese and Korean MSX models",
 		Keys::K_RCTRL, allowedKeys));
 
-	deadkey2HostKey.reset(new EnumSetting<Keys::KeyCode>(
+	deadkeyHostKey[1].reset(new EnumSetting<Keys::KeyCode>(
 		commandController, "kbd_deadkey2_host_key",
 		"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",
 		Keys::K_PAGEUP, allowedKeys));
 
-	deadkey3HostKey.reset(new EnumSetting<Keys::KeyCode>(
+	deadkeyHostKey[2].reset(new EnumSetting<Keys::KeyCode>(
 		commandController, "kbd_deadkey3_host_key",
 		"Host key that maps to deadkey 3. Only applicable to Brazilian Sharp Hotbit MSX models",
 		Keys::K_PAGEDOWN, allowedKeys));
@@ -76,46 +77,38 @@ KeyboardSettings::~KeyboardSettings()
 {
 }
 
-EnumSetting<Keys::KeyCode>& KeyboardSettings::getCodeKanaHostKey()
+EnumSetting<Keys::KeyCode>& KeyboardSettings::getCodeKanaHostKey() const
 {
 	return *codeKanaHostKey;
 }
 
-Keys::KeyCode KeyboardSettings::getDeadkeyHostKey(int n)
+Keys::KeyCode KeyboardSettings::getDeadkeyHostKey(unsigned n) const
 {
-	switch(n) {
-		case 0:
-			return deadkey1HostKey->getValue();
-		case 1:
-			return deadkey2HostKey->getValue();
-		case 2:
-			return deadkey3HostKey->getValue();
-		default:
-			return Keys::K_NONE;
-	}
+	assert(n < 3);
+	return deadkeyHostKey[n]->getValue();
 }
 
-EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode()
+EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode() const
 {
 	return *kpEnterMode;
 }
 
-EnumSetting<KeyboardSettings::MappingMode>& KeyboardSettings::getMappingMode()
+EnumSetting<KeyboardSettings::MappingMode>& KeyboardSettings::getMappingMode() const
 {
 	return *mappingMode;
 }
 
-BooleanSetting& KeyboardSettings::getAlwaysEnableKeypad()
+BooleanSetting& KeyboardSettings::getAlwaysEnableKeypad() const
 {
 	return *alwaysEnableKeypad;
 }
 
-BooleanSetting& KeyboardSettings::getTraceKeyPresses()
+BooleanSetting& KeyboardSettings::getTraceKeyPresses() const
 {
 	return *traceKeyPresses;
 }
 
-BooleanSetting& KeyboardSettings::getAutoToggleCodeKanaLock()
+BooleanSetting& KeyboardSettings::getAutoToggleCodeKanaLock() const
 {
 	return *autoToggleCodeKanaLock;
 }

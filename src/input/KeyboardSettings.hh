@@ -21,18 +21,16 @@ public:
 	explicit KeyboardSettings(CommandController& commandController);
 	~KeyboardSettings();
 
-	Keys::KeyCode getDeadkeyHostKey(int n);
-	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey();
-	EnumSetting<KpEnterMode>& getKpEnterMode();
-	EnumSetting<MappingMode>& getMappingMode();
-	BooleanSetting& getAlwaysEnableKeypad();
-	BooleanSetting& getTraceKeyPresses();
-	BooleanSetting& getAutoToggleCodeKanaLock();
+	Keys::KeyCode getDeadkeyHostKey(unsigned n) const;
+	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey() const;
+	EnumSetting<KpEnterMode>& getKpEnterMode() const;
+	EnumSetting<MappingMode>& getMappingMode() const;
+	BooleanSetting& getAlwaysEnableKeypad() const;
+	BooleanSetting& getTraceKeyPresses() const;
+	BooleanSetting& getAutoToggleCodeKanaLock() const;
 
 private:
-	std::auto_ptr<EnumSetting<Keys::KeyCode> > deadkey1HostKey;
-	std::auto_ptr<EnumSetting<Keys::KeyCode> > deadkey2HostKey;
-	std::auto_ptr<EnumSetting<Keys::KeyCode> > deadkey3HostKey;
+	std::auto_ptr<EnumSetting<Keys::KeyCode> > deadkeyHostKey[3];
 	std::auto_ptr<EnumSetting<Keys::KeyCode> > codeKanaHostKey;
 	std::auto_ptr<EnumSetting<KpEnterMode> > kpEnterMode;
 	std::auto_ptr<EnumSetting<MappingMode> > mappingMode;
