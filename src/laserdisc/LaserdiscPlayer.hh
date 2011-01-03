@@ -3,13 +3,11 @@
 #ifndef LASERDISCPLAYER_HH
 #define LASERDISCPLAYER_HH
 
-#include "BooleanSetting.hh"
 #include "SoundDevice.hh"
 #include "Resample.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
-#include "EventDistributor.hh"
 #include "Clock.hh"
 #include "Filename.hh"
 #include "VideoSystemChangeListener.hh"
@@ -97,7 +95,6 @@ public:
 	};
 private:
 	void setImageName(const std::string& newImage, EmuTime::param time);
-	virtual int signalEvent(shared_ptr<const Event> event);
 	void autoRun();
 
 	/** Laserdisc player commands
@@ -133,6 +130,9 @@ private:
 
 	// Schedulable
 	void executeUntil(EmuTime::param time, int userData);
+
+	// EventListener
+	virtual int signalEvent(shared_ptr<const Event> event);
 
 	// VideoSystemChangeListener interface:
 	void preVideoSystemChange();

@@ -5,6 +5,7 @@
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
+#include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "XMLElement.hh"
 #include "CassettePort.hh"
