@@ -161,10 +161,14 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
-	Reset when status reg is read.
-	Set when sprite patterns overlap.
-	Color doesn't matter: sprites of color 0 can collide.
-	Sprites with off-screen position can collide.
+	- Reset when status reg is read.
+	- Set when sprite patterns overlap.
+	- Color doesn't matter: sprites of color 0 can collide.
+	- Sprites that are partially off-screen position can collide, but only
+	  on the in-screen pixels. In other words: sprites cannot collide in
+	  the left or right border, only in the visible screen area. Though
+	  they can collide in the V9958 extra border mask. This behaviour is
+	  the same in sprite mode 1 and 2.
 
 	Implemented by checking every pair for collisions.
 	For large numbers of sprites that would be slow,
@@ -188,14 +192,19 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 						pattern_j >>= dist;
 					}
 					SpritePattern colPat = pattern_i & pattern_j;
+					if (x_i < 0) {
+						assert(x_i >= -32);
+						colPat &= (1 << (32 + x_i)) - 1;
+					}
 					if (colPat) {
-						minXCollision = std::min<int>(minXCollision,
-						    x_i + Math::countLeadingZeros(colPat));
+						int xCollision = x_i + Math::countLeadingZeros(colPat);
+						assert(xCollision >= 0);
+						minXCollision = std::min(minXCollision, xCollision);
 					}
 				}
 			}
 		}
-		if (minXCollision != 999) {
+		if (minXCollision < 256) {
 			vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
 			// verified: collision coords are also filled
 			//           in for sprite mode 1
@@ -363,11 +372,15 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
-	Reset when status reg is read.
-	Set when sprite patterns overlap.
-	Color doesn't matter: sprites of color 0 can collide.
-	  TODO: V9938 data book denies this (page 98).
-	Sprites with off-screen position can collide.
+	- Reset when status reg is read.
+	- Set when sprite patterns overlap.
+	- Color doesn't matter: sprites of color 0 can collide.
+	    TODO: V9938 data book denies this (page 98).
+	- Sprites that are partially off-screen position can collide, but only
+	  on the in-screen pixels. In other words: sprites cannot collide in
+	  the left or right border, only in the visible screen area. Though
+	  they can collide in the V9958 extra border mask. This behaviour is
+	  the same in sprite mode 1 and 2.
 
 	Implemented by checking every pair for collisions.
 	For large numbers of sprites that would be slow.
@@ -399,14 +412,19 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 						pattern_j >>= dist;
 					}
 					SpritePattern colPat = pattern_i & pattern_j;
+					if (x_i < 0) {
+						assert(x_i >= -32);
+						colPat &= (1 << (32 + x_i)) - 1;
+					}
 					if (colPat) {
-						minXCollision = std::min<int>(minXCollision,
-						    x_i + Math::countLeadingZeros(colPat));
+						int xCollision = x_i + Math::countLeadingZeros(colPat);
+						assert(xCollision >= 0);
+						minXCollision = std::min(minXCollision, xCollision);
 					}
 				}
 			}
 		}
-		if (minXCollision != 999) {
+		if (minXCollision < 256) {
 			vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
 			// x-coord should be increased by 12
 			// y-coord                         8
