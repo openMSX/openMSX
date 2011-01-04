@@ -2,7 +2,7 @@
 # Contains the openMSX version number and versioning related functions.
 
 from executils import captureStdout
-from makeutils import filterFile, filterLines
+from makeutils import filterLines
 
 from os import makedirs
 from os.path import isdir
@@ -43,14 +43,6 @@ def extractSVNGitRevision(log):
 		log, 'git log -n 100', r'\s*git-svn-id:.*@(\d+)'
 		)
 
-def extractChangeLogRevision(log):
-	for revision, in filterFile('ChangeLog', r'\$Id: ChangeLog (\d+).*\$'):
-		print >> log, 'Revision number found in ChangeLog: %s' % revision
-		return revision
-	else:
-		print >> log, 'Revision number not found in ChangeLog'
-		return None
-
 def extractRevision():
 	if not isdir('derived'):
 		makedirs('derived')
@@ -59,8 +51,7 @@ def extractRevision():
 	try:
 		revision = (
 			extractSVNRevision(log) or
-			extractSVNGitRevision(log) or
-			extractChangeLogRevision(log)
+			extractSVNGitRevision(log)
 			)
 		print >> log, 'Revision number: %s' % revision
 	finally:
