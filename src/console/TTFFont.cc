@@ -179,7 +179,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 
 	// Determine maximum width and lineHeight
 	unsigned width = 0;
-	unsigned lineHeight;
+	unsigned lineHeight = 0; // initialize to avoid warning
 	for (vector<string>::const_iterator it = lines.begin(); it != lines.end(); ++it) {
 		unsigned w;
 		getSize(it->c_str(), w, lineHeight);
