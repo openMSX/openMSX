@@ -48,8 +48,8 @@ PostProcessor::~PostProcessor()
 {
 	if (recorder) {
 		getCliComm().printWarning(
-			"Videorecording stopped, because you quit openMSX, "
-			"changed machine, or changed a video setting "
+			"Videorecording stopped, because you "
+			"changed machine or changed a video setting "
 			"during recording.");
 		recorder->stop();
 	}
