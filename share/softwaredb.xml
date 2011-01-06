@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1293940214">
+<softwaredb xml:lang="en" timestamp="1294288869">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2258,6 +2258,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">7c618058809302bc3553d6189bcf310f2e5b0e08</hash></rom></dump>
 		<dump><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">50eafa5d735af5b34d14f9f6b8c2d9cd2f0441db</hash><remark><text>[a2]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">6a4e8325d2174747d56cbe4c6803cbf40eb40a62</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">DAQ Lord of Idar</title>
+	<system>MSX</system>
+	<company>Darkstone</company>
+	<year>2010</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">9be7612db1f968455dcd0b115239efcb91474e91</hash><remark><text>MSXDev10 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Darwin 4078</title>
@@ -11723,6 +11731,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2581
-Parse time 12.748 seconds on Sun Jan 2 4:50:26 CET 2011
+Roms in this database:2582
+Parse time 7.090 seconds on Thu Jan 6 5:41:16 CET 2011
  -->
